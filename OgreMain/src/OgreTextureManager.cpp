@@ -123,6 +123,7 @@ namespace Ogre {
             ((Texture*)it->second)->unload();
             ((Texture*)it->second)->enable32Bit(setting);
             ((Texture*)it->second)->load();
+            mIs32Bit = setting;
         }
     }
     //-----------------------------------------------------------------------

@@ -287,9 +287,11 @@ namespace Ogre {
            use hardware TnL if it is available.
         */
 
+        /*
         // Min and max bounds for AABB
         Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
         Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
+        */
 
         ActiveBillboardList::iterator it;
         // Parametric offsets of origin

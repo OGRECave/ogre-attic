@@ -47,7 +47,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent, Node* targetNode) 
-        : mTargetNode(targetNode)
+        : mParent(parent), mTargetNode(targetNode)
     {
         mMaxKeyFrameTime = -1;
         mSplineBuildNeeded = false;

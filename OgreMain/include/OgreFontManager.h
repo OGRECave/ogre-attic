@@ -61,7 +61,7 @@ namespace Ogre
                 This method just delegates to the template version anyway, but the implementation stays in this
                 single compilation unit, preventing link errors.
         */
-        static FontManager& FontManager::getSingleton(void);
+        static FontManager& getSingleton(void);
 
     protected:
 

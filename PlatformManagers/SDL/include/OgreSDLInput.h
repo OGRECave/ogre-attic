@@ -73,6 +73,7 @@ namespace Ogre {
         bool _visible;
         typedef std::map<SDLKey, KeyCode> InputKeyMap;
         InputKeyMap _key_map;
+        bool warpMouse;
 
         void processBufferedKeyboard();
         void processBufferedMouse();

@@ -201,6 +201,16 @@ namespace Ogre
             String doGet( void* target );
             void doSet( void* target, const String& val );
         };
+        //-----------------------------------------------------------------------------------------
+        /** Command object for setting the alignment.
+                @see ParamCommand
+        */
+        class CmdAlignment : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
 
     protected:
         /// The text alignment
@@ -224,6 +234,7 @@ namespace Ogre
         static CmdColour msCmdColour;
         static CmdColourTop msCmdColourTop;
         static CmdColourBottom msCmdColourBottom;
+        static CmdAlignment msCmdAlignment;
 
 
         Font *mpFont;

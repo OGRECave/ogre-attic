@@ -47,8 +47,7 @@ namespace Ogre {
 	 
 	 char KeyEvent::getKeyChar()
 	 {
-		 return InputReader::getKeyChar(mKey);
-
+		 return InputReader::getKeyChar(mKey, mModifiers);
 	 }
 
 	/**

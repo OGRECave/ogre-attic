@@ -51,7 +51,7 @@ namespace Ogre {
         /// 3D texture, used in combination with 3D texture coordinates
         TEX_TYPE_3D = 3,
         /// 3D cube map, used in combination with 3D texture coordinates
-        TEX_TYPE_CUBE_MAP = 4,
+        TEX_TYPE_CUBE_MAP = 4
     };
 
     /** Abstract class representing a Texture resource.

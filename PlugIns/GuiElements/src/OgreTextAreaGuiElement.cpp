@@ -41,6 +41,7 @@ namespace Ogre {
     TextAreaGuiElement::CmdColour TextAreaGuiElement::msCmdColour;
     TextAreaGuiElement::CmdColourBottom TextAreaGuiElement::msCmdColourBottom;
     TextAreaGuiElement::CmdColourTop TextAreaGuiElement::msCmdColourTop;
+    TextAreaGuiElement::CmdAlignment TextAreaGuiElement::msCmdAlignment;
     //---------------------------------------------------------------------
     #define POS_TEX_BINDING 0
     #define COLOUR_BINDING 1
@@ -416,6 +417,11 @@ namespace Ogre {
             "Sets the colour of the font at the top (a gradient colour)."
             , PT_STRING),
             &msCmdColourTop);
+
+        dict->addParameter(ParameterDef("alignment", 
+            "Sets the alignment of the text: 'left', 'center' or 'right'."
+            , PT_STRING),
+            &msCmdAlignment);
     }
     //---------------------------------------------------------------------
     void TextAreaGuiElement::setColour(const ColourValue& col)
@@ -599,6 +605,42 @@ namespace Ogre {
     {
         static_cast< TextAreaGuiElement* >( target )->setColourBottom( 
             StringConverter::parseColourValue(val) );
+    }
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    // Alignment command object
+    //
+    String TextAreaGuiElement::CmdAlignment::doGet( void* target )
+    {
+        Alignment align = static_cast< TextAreaGuiElement* >( target )->getAlignment();
+        switch (align)
+        {
+            case Left:
+                return "left";
+            case Center:
+                return "center";
+            case Right:
+                return "right";
+                
+        }
+        // To keep compiler happy
+        return "left";
+    }
+    void TextAreaGuiElement::CmdAlignment::doSet( void* target, const String& val )
+    {
+        if (val == "center")
+        {
+            static_cast< TextAreaGuiElement* >( target )->setAlignment(Center);
+        }
+        else if (val == "right")
+        {
+            static_cast< TextAreaGuiElement* >( target )->setAlignment(Right);
+        }
+        else
+        {
+            static_cast< TextAreaGuiElement* >( target )->setAlignment(Left);
+        }
     }
     //---------------------------------------------------------------------------------------------
 }

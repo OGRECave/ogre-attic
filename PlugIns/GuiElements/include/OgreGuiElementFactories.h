@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiElementFactory.h"
+#include "OgreCursorGuiElement.h"
 #include "OgrePanelGuiElement.h"
 #include "OgreBorderPanelGuiElement.h"
 #include "OgreButtonGuiElement.h"
@@ -43,6 +44,23 @@ http://www.gnu.org/copyleft/lesser.txt.
 // These classes are exported incase anyone wants to extend them
 
 namespace Ogre {
+
+    /** Factory for creating PanelGuiElement instances. */
+    class _OgreGuiElementExport CursorGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new CursorGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "Cursor";
+            return name;
+        }
+    };
 
     /** Factory for creating PanelGuiElement instances. */
     class _OgreGuiElementExport PanelGuiElementFactory: public GuiElementFactory
@@ -197,8 +215,7 @@ namespace Ogre {
             return name;
         }
     };
-
-    /** Factory for creating TextAreaGuiElement instances. */
+    /** Factory for creating TTYGuiElement instances. */
     class _OgreGuiElementExport TTYGuiElementFactory: public GuiElementFactory
     {
     public:

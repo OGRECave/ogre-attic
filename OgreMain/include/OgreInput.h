@@ -30,7 +30,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 //    typedef HashMap<int, char> KeyChars;
-    typedef std::map<unsigned short, char> KeyChars;
+    typedef std::map<long, char> KeyChars;
+
+    inline long KEYCODE(long keyCode, long modifiers = 0)
+      { return ((modifiers << 16) & 0xffff0000) | (keyCode & 0xffff); }
 
     /** Keyboard scan codes - copied from DirectInput for now for speed.
     */
@@ -308,7 +311,7 @@ namespace Ogre {
 		/** Remove a mouse motion listener to the cursor object.
 		    This keeps the Cursor object hidden. */
 		void removeCursorMoveListener( MouseMotionListener* c );
-		static char getKeyChar(int keyCode);
+		static char getKeyChar(int keyCode, long modifiers = 0);
 
 
 	protected:
