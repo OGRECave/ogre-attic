@@ -85,6 +85,17 @@ namespace Ogre {
 			ilEnable(IL_ORIGIN_SET);
 			ilSetInteger(IL_ORIGIN_MODE, IL_ORIGIN_UPPER_LEFT);
 		}
+        if( Imagformat==IL_BGR || Imagformat==IL_BGRA)
+        {
+            //if so (probably) reverse the b and the r, this is slower but at least it works
+            ILint newIF = Imagformat==IL_BGR ? IL_RGB : IL_RGBA;
+            ilCopyPixels(0, 0, 0, ret_data->width , ret_data->height, 1, newIF, IL_UNSIGNED_BYTE, output->getPtr());
+            Imagformat = newIF;
+        }
+        else
+        {
+            memcpy( output->getPtr(), ilGetData(), ImageSize );
+        }
 
 		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
 		memcpy( output->getPtr(), ilGetData(), ImageSize );
