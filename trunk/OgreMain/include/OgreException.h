@@ -30,23 +30,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 
-#define Except( num, desc, src ) throw( Exception( num, desc, src, __FILE__, __LINE__ ) )
+#define Except( num, desc, src ) throw( Ogre::Exception( num, desc, src, __FILE__, __LINE__ ) )
 
 // Stack unwinding options
+// OgreUnguard and OgreUnguardRet are deprecated
 #if OGRE_STACK_UNWINDING == 1
 #   if OGRE_COMPILER != COMPILER_BORL
-#       define OgreGuard( a ) Exception::_pushFunction( (a) )
+#       define OgreGuard( a ) Ogre::AutomaticGuardUnguard _auto_guard_object( (a) )
 #   else
-#       define OgreGuard( a ) Exception::_pushFunction( __FUNC__ )
+#       define OgreGuard( a ) Ogre::AutomaticGuardUnguard _auto_guard_object( __FUNC__ )
 #   endif
 
-#   define OgreUnguard() Exception::_popFunction()
-#   define OgreUnguardRet( a ) { Exception::_popFunction(); return a; }
+#   define OgreUnguard() 
+#   define OgreUnguardRet( a ) return a
 
 #else
 #   define OgreGuard( a )
 #   define OgreUnguard()
-#   define OgreUnguardRet( a ) return a;
+#   define OgreUnguardRet( a ) return a
 
 #endif
 
@@ -57,9 +58,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #   else
 #       if OGRE_COMP != COMP_BORL
-#           define OgreAssert( a, b ) if( !(a) ) Except( Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info" )
+#           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), "no function info" )
 #       else
-#           define OgreAssert( a, b ) if( !(a) ) Except( Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
+#           define OgreAssert( a, b ) if( !(a) ) Except( Ogre::Exception::ERR_RT_ASSERTION_FAILED, (b), __FUNC__ )
 #       endif
 
 #   endif
@@ -93,6 +94,7 @@ namespace Ogre {
         String description;
         String source;
         String file;
+        ushort stackDepth;
         static Exception* last;
 
         static OgreChar msFunctionStack[ OGRE_CALL_STACK_DEPTH ][ 256 ];
@@ -161,5 +163,19 @@ namespace Ogre {
         static void _popFunction() throw();
 
     };
+
+    /** Internal class. Objects will automatically push/pop the function name for unwinding. */
+    class _OgreExport AutomaticGuardUnguard {
+    public:
+        AutomaticGuardUnguard(const String& funcName) throw()
+        {
+            Exception::_pushFunction(funcName);
+        }
+        ~AutomaticGuardUnguard() throw()
+        {
+            Exception::_popFunction();
+        }
+    };
+
 } // Namespace Ogre
 #endif

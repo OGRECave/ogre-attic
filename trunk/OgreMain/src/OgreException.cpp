@@ -43,7 +43,7 @@ namespace Ogre {
         number( num ),
         description( desc ),
         source( src ),
-        file( "" )
+        stackDepth( msStackDepth )
     {
         // Log this error
         LogManager::getSingleton().logMessage(this->getFullDescription());
@@ -57,7 +57,8 @@ namespace Ogre {
         number( num ),
         description( desc ),
         source( src ),
-        file( fil )
+        file( fil ),
+        stackDepth( msStackDepth )
     {
         // Log this error
         LogManager::getSingleton().logMessage(this->getFullDescription());
@@ -117,8 +118,8 @@ namespace Ogre {
            Also note that the call stack index may be greater than the actual call
            stack size - that's why we begin unrolling with the smallest of the two. */
         for( 
-            ushort stackUnroll = msStackDepth <= OGRE_CALL_STACK_DEPTH ? ( msStackDepth - 1 ) : ( OGRE_CALL_STACK_DEPTH - 1 ); 
-            stackUnroll < msStackDepth; stackUnroll-- )
+            ushort stackUnroll = stackDepth <= OGRE_CALL_STACK_DEPTH ? ( stackDepth - 1 ) : ( OGRE_CALL_STACK_DEPTH - 1 ); 
+            stackUnroll < stackDepth; stackUnroll-- )
         {
             funcStack += msFunctionStack[ stackUnroll ];
             funcStack += "(..) <- ";
