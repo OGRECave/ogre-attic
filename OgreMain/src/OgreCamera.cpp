@@ -163,7 +163,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Camera::setDirection(const Vector3& vec)
     {
-        assert(vec != Vector3::ZERO);
+        // Do nothing if given a zero vector
+        // (Replaced assert since this could happen with auto tracking camera and
+        //  camera passes through the lookAt point)
+        if (vec == Vector3::ZERO) return;
 
         // Remember, camera points down -Z of local axes!
         // Therefore reverse direction of direction vector before determining local Z
@@ -184,34 +187,18 @@ namespace Ogre {
         }
         else
         {
+            // Derive shortest arc to new direction
             rotQuat = axes[2].getRotationTo(zAdjustVec);
+
         }
 
         mOrientation = rotQuat * mOrientation;
+
+        // TODO If we have a fixed yaw axis, we mustn't break it by using the
+        // shortest arc because this will sometimes cause a relative yaw
+        // which will tip the camera
+
         mRecalcView = true;
-
-        /*
-        // Use Dot Product of direction axis with new direction to get angle diff
-        // Use Cross Product of direction axis with new direction to get axis of rotation
-        // This can then be used to create a quaternion to offset the existing orientation
-        //  - this assures us that the relative roll is maintained
-        Real rotAngle = Math::getSingleton().ACos(axes[2].dotProduct(zAdjustVec));
-        Vector3 rotAxis = axes[2].crossProduct(zAdjustVec); // NB order important; same as above
-        if (rotAxis == Vector3::ZERO)
-        {
-            // Oops, a 180 degree turn (infinite possible rotation axes)
-            // Default to yaw i.e. use current UP
-            rotAxis = axes[1];
-        }
-
-        Quaternion rotQuat;
-        rotAxis.normalise();
-        rotQuat.FromAngleAxis(rotAngle, rotAxis);
-
-        mOrientation = rotQuat * mOrientation;
-        mRecalcView = true;
-        */
-
 
     }
 
