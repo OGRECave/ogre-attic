@@ -370,6 +370,14 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				(
 					vertexWeightCount = skinOps.getVertexWeightCount sk vertexIndex ; 
 
+					if (vertexWeightCount > 4) then
+					(
+						if (not g_MAX) then
+						(
+							format "*** vertex % has more than 4 bones assigned...\n" vertexIndex;	
+						)
+					)
+					
 					for k=1 to vertexWeightCount do
 					(
 						bid = skinOps.getVertexWeightBoneID sk vertexIndex k ;
@@ -396,6 +404,14 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				if (phy != undefined) then 
 				(
 					vertexWeightCount = physiqueOps.getVertexBoneCount $ vertexIndex ;
+					
+					if (vertexWeightCount > 4) then
+					(
+						if (not g_MAX) then
+						(
+							format "*** vertex % has more than 4 bones assigned...\n" vertexIndex;	
+						)
+					)
 					
 					for k=1 to vertexWeightCount do
 					(

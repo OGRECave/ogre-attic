@@ -20,7 +20,7 @@ macroScript showOgreExportTools
 	Icon:#("Maintoolbar",49)
 (
 	-- create a floater
-	OgreExportFloater = newRolloutFloater "Ogre Exporter - 1.18" 280 800 ;
+	OgreExportFloater = newRolloutFloater "Ogre Exporter - 1.19" 280 800 ;
 	
 	rollout OgreExportOptions "Options" width:270 height:140 rolledUp:true
 	(
@@ -153,6 +153,8 @@ macroScript showOgreExportTools
 			OgreExportMesh.CBexportUV.checked = true ;
 			CBFlipYZ.checked = true ;
 			SPscale.value = lastScale as Float;
+			if (SPscale.value == 0.0) then
+				SPscale.value = 1.0;
 
 			select = getCurrentSelection() ;
 			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
@@ -214,6 +216,9 @@ macroScript showOgreExportTools
 			else
 			(
 				clearlistener() ;
+				
+				if (SPscale.value == 0.0) then
+					SPscale.value = 1.0;
 				
 				Options = exportOptions scale:SPscale.value flipYZ:false flipNormal:false exportColours:false exportUV:false ;
 				exportingMeshDone = false ;
@@ -546,11 +551,11 @@ macroScript showOgreExportTools
 					append array n;
 				append array ListAnimations.text;
 				ListAnimations.items = array;
-				append Anims.names ListAnimations.text
+				append Anims.names ListAnimations.items[ListAnimations.items.count];
 				append Anims.startframes SPframestart.value;
 				append Anims.endframes SPframeend.value;
 				append Anims.lengths SPanimlength.value;
-				ListAnimations.selection = ListAnimations.items.count;
+				ListAnimations.selection = 0;
 			)		
 		)
 		on deleteAnimation pressed  do
@@ -582,21 +587,24 @@ macroScript showOgreExportTools
 		(
 			if ((ListAnimations.items.count > 0) and (ListAnimations.selection > 0)) then
 			(
-				Anims.startframes[ListAnimations.selection] = SPframestart.value;
+				if (ListAnimations.text == Anims.names[ListAnimations.selection]) then
+					Anims.startframes[ListAnimations.selection] = SPframestart.value;
 			)		
 		)
 		on SPframeend changed val do
 		(
 			if ((ListAnimations.items.count > 0) and (ListAnimations.selection > 0)) then
 			(
-				Anims.endframes[ListAnimations.selection] = SPframeend.value;
+				if (ListAnimations.text == Anims.names[ListAnimations.selection]) then
+					Anims.endframes[ListAnimations.selection] = SPframeend.value;
 			)		
 		)
 		on SPanimlength changed val do
 		(
 			if ((ListAnimations.items.count > 0) and (ListAnimations.selection > 0)) then
 			(
-				Anims.lengths[ListAnimations.selection] = SPanimlength.value;
+				if (ListAnimations.text == Anims.names[ListAnimations.selection]) then
+					Anims.lengths[ListAnimations.selection] = SPanimlength.value;
 			)		
 		)
 	)
