@@ -30,6 +30,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreLogManager.h"
 #include "OgreSkeletonManager.h"
 #include "OgreSkeletonSerializer.h"
+// Just for logging
+#include "OgreAnimationTrack.h"
+#include "OgreKeyFrame.h"
 
 
 namespace Ogre {
@@ -88,6 +91,10 @@ namespace Ogre {
         }
 
         chunk.clear();
+
+#if OGRE_DEBUG_MODE
+        _dumpContents(mName + ".log");
+#endif
 
     }
     //---------------------------------------------------------------------
@@ -393,8 +400,73 @@ namespace Ogre {
         // No more parents, this must be the root
         mRootBone = currentBone;
     }
+    //---------------------------------------------------------------------
+    void Skeleton::_dumpContents(const String& filename)
+    {
+        std::ofstream of;
+
+        Quaternion q;
+        Real angle;
+        Vector3 axis;
+        of.open(filename);
+
+        of << "-= Debug output of skeleton " << mName << " =-" << std::endl << std::endl;
+        of << "== Bones ==" << std::endl;
+        of << "Number of bones: " << mBoneList.size() << std::endl;
+        
+        BoneList::iterator bi;
+        for (bi = mBoneList.begin(); bi != mBoneList.end(); ++bi)
+        {
+            Bone* bone = bi->second;
+
+            of << "-- Bone " << bone->getHandle() << " --" << std::endl;
+            of << "Position: " << bone->getPosition();
+            q = bone->getOrientation();
+            of << "Rotation: " << q;
+            q.ToAngleAxis(angle, axis);
+            of << " = " << angle << " radians around axis " << axis << std::endl << std::endl;
+        }
+
+        of << "== Animations ==" << std::endl;
+        of << "Number of animations: " << mAnimationsList.size() << std::endl;
+
+        AnimationList::iterator ai;
+        for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++ai)
+        {
+            Animation* anim = ai->second;
+
+            of << "-- Animation '" << anim->getName() << "' --" << std::endl;
+            of << "Number of tracks: " << anim->getNumTracks() << std::endl;
+
+            int ti;
+            for (ti = 0; ti < anim->getNumTracks(); ++ti)
+            {
+                AnimationTrack* track = anim->getTrack(ti);
+                of << "  -- AnimationTrack " << ti << " --" << std::endl;
+                of << "  Affects bone: " << ((Bone*)track->getAssociatedNode())->getHandle() << std::endl;
+                of << "  Number of keyframes: " << track->getNumKeyFrames() << std::endl;
+
+                int ki;
+                
+                for (ki = 0; ki < track->getNumKeyFrames(); ++ki)
+                {
+                    KeyFrame* key = track->getKeyFrame(ki);
+                    of << "    -- KeyFrame " << ki << " --" << std::endl;
+                    of << "    Time index: " << key->getTime(); 
+                    of << "    Translation: " << key->getTranslate() << std::endl;
+                    q = key->getRotation();
+                    of << "    Rotation: " << q;
+                    q.ToAngleAxis(angle, axis);
+                    of << " = " << angle << " radians around axis " << axis << std::endl;
+                }
+
+            }
 
 
+
+        }
+
+    }
 
 }
 

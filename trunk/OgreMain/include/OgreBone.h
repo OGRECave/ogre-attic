@@ -131,11 +131,6 @@ namespace Ogre
         /// Pointer back to creator, for child creation (central memory allocation)
         Skeleton* mCreator;
 
-        /// Original orientation in binding pose
-        Quaternion mBindOrientation;
-        /// Original position in binding pose
-        Vector3 mBindPosition;
-
         /// The inversed derived transform of the bone in the binding pose
         Matrix4 mBindDerivedInverseTransform;
 

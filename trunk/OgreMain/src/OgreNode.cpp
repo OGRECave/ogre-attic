@@ -44,9 +44,9 @@ namespace Ogre {
     Node::Node()
     {
         mParent = 0;
-        mOrientation = mDerivedOrientation = Quaternion::IDENTITY;
-        mPosition = mDerivedPosition = Vector3::ZERO;
-        mScale = Vector3::UNIT_SCALE;
+        mOrientation = mInitialOrientation = mDerivedOrientation = Quaternion::IDENTITY;
+        mPosition = mInitialPosition = mDerivedPosition = Vector3::ZERO;
+        mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mDerivedOutOfDate = true;
 
@@ -62,9 +62,9 @@ namespace Ogre {
     {
         mName = name;
         mParent = 0;
-        mOrientation = mDerivedOrientation = Quaternion::IDENTITY;
-        mPosition = mDerivedPosition = Vector3::ZERO;
-        mScale = Vector3::UNIT_SCALE;
+        mOrientation = mInitialOrientation = mDerivedOrientation = Quaternion::IDENTITY;
+        mPosition = mInitialPosition = mDerivedPosition = Vector3::ZERO;
+        mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mDerivedOutOfDate = true;
     }
@@ -331,7 +331,7 @@ namespace Ogre {
     void Node::rotate(const Quaternion& q)
     {
         // Note the order of the mult, i.e. q comes after
-        mOrientation = q * mOrientation;
+        mOrientation = mOrientation * q;
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
@@ -503,6 +503,37 @@ namespace Ogre {
     {
         // Assumes up to date
         *xform = this->_getFullTransform();
+    }
+    //-----------------------------------------------------------------------
+    void Node::setInitialState(void)
+    {
+        mInitialPosition = mPosition;
+        mInitialOrientation = mOrientation;
+        mInitialScale = mScale;
+    }
+    //-----------------------------------------------------------------------
+    void Node::resetToInitialState(void)
+    {
+        mPosition = mInitialPosition;
+        mOrientation = mInitialOrientation;
+        mScale = mInitialScale;
+        mDerivedOutOfDate = true;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Node::getInitialPosition(void) const
+    {
+        return mInitialPosition;
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Node::getInitialOrientation(void) const
+    {
+        return mInitialOrientation;
+
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Node::getInitialScale(void) const
+    {
+        return mInitialScale;
     }
 }
 
