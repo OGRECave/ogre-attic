@@ -295,6 +295,14 @@ namespace Ogre {
         */
         void setFixedYawAxis( bool useFixed, const Vector3& fixedAxis = Vector3::UNIT_Y );
 
+		/** Rotate the node around the Y-axis.
+		*/
+		virtual void yaw(const Radian& angle, TransformSpace relativeTo = TS_LOCAL);
+#ifndef OGRE_FORCE_ANGLE_TYPES
+		inline void yaw(Real degrees, TransformSpace relativeTo = TS_LOCAL) {
+			yaw ( Angle(degrees), relativeTo );
+		}
+#endif//OGRE_FORCE_ANGLE_TYPES
         /** Sets the node's direction vector ie it's local -z.
         @remarks
         Note that the 'up' vector for the orientation will automatically be 
