@@ -674,12 +674,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     unsigned short SDLRenderSystem::_getNumTextureUnits(void)
     {
-        #ifdef OGRE_SDL_USE_MULTITEXTURING
+        #ifdef OGRE_SDL_DISABLE_MULTITEXTURING
+            return 1;
+        #else
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS_ARB, &units );
             return (unsigned short)units;
-        #else
-            return 1;
         #endif
 
     }
@@ -913,18 +913,10 @@ namespace Ogre {
         GLfloat mat[16];
         makeGLMatrix(mat, xform);
 
-        if (mat[8] != 0 || mat[9] != 0)
-        {
-            mat[12] = mat[8];
-            mat[13] = mat[9];
-            //mat[14] = mat[10];
-            //mat[15] = mat[11];
-
-//            mat[8] = 0;
-//            mat[9] = 0;
-//            mat[10] = 1;
-//            mat[11] = 0;
-        }
+        mat[12] = mat[8];
+        mat[13] = mat[9];
+//        mat[14] = mat[10];
+//        mat[15] = mat[11];
 
 //        for (int j=0; j< 4; j++)
 //        {
@@ -935,7 +927,6 @@ namespace Ogre {
 //            }
 //            printf("\n");
 //        }
-//        printf("\n");
 
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glMatrixMode(GL_TEXTURE);
@@ -1087,6 +1078,7 @@ namespace Ogre {
         }        
 
         setLights();
+
         OgreUnguard();
     }
 
@@ -1139,41 +1131,33 @@ namespace Ogre {
         }
         
         // Textures if available
-        if (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS)
+        GLint index = GL_TEXTURE0_ARB;
+        for (int i = 0; i < _getNumTextureUnits(); i++)
         {
-            GLint index = GL_TEXTURE0_ARB;
-
-            for (int i = 0; i < _getNumTextureUnits(); i++)
-            {
-                if( i < op.numTextureCoordSets )
-                {                
-                    glClientActiveTextureARB(index + i);
-                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-                    stride = static_cast< ushort >( op.texCoordStride[mTextureCoordIndex[i]] ?  
-                        op.texCoordStride[mTextureCoordIndex[i]] +
-                        (sizeof(GL_FLOAT) * 
-                         op.numTextureDimensions[mTextureCoordIndex[i]])
-                        : 0 );
-                    glTexCoordPointer(
-                        op.numTextureDimensions[mTextureCoordIndex[i]],
-                        GL_FLOAT, stride, 
-                        op.pTexCoords[mTextureCoordIndex[i]] );
-                }
-                else
-                {
-                   glClientActiveTextureARB( index + i );
-                   glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-                }
+            if( (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS) &&
+                (i < op.numTextureCoordSets) )
+            {                
+                glClientActiveTextureARB(index + i);
+                glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                stride = op.texCoordStride[mTextureCoordIndex[i]] ?  
+                    op.texCoordStride[mTextureCoordIndex[i]] +
+                    (sizeof(GL_FLOAT) * 
+                     op.numTextureDimensions[mTextureCoordIndex[i]])
+                    : 0;
+                glTexCoordPointer(
+                    op.numTextureDimensions[mTextureCoordIndex[i]],
+                    GL_FLOAT, stride, 
+                    op.pTexCoords[mTextureCoordIndex[i]] );
             }
+            else
+            {
+               glClientActiveTextureARB( index + i );
+               glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+            }
+        }
 
-            // Reset the texture to 0
-            glClientActiveTextureARB(index);
-        }
-        else
-        {
-            glClientActiveTextureARB( GL_TEXTURE0_ARB );
-            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-        }
+        // Reset the texture to 0
+        glClientActiveTextureARB(index);
 
         // Find the correct type to render
         GLint primType;
