@@ -48,8 +48,6 @@ namespace Ogre
 		mTexture = TextureManager::getSingleton().createManual( mName, 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
 			mWidth, mHeight, 0, mInternalFormat, TU_RENDERTARGET );
-        mTexture->createInternalResources();
-		mTexture->load();
     }
 
     RenderTexture::~RenderTexture()
