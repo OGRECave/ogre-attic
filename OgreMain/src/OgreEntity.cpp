@@ -434,7 +434,7 @@ namespace Ogre {
                 {
                     // Blend dedicated geometry
                     SubEntity* se = *i;
-                    if (se->mBlendedVertexData)
+                    if (se->isVisible() && se->mBlendedVertexData)
                     {
                         se->mTempBlendedBuffer.checkoutTempCopies();
                         se->mTempBlendedBuffer.bindTempCopies(se->mBlendedVertexData, 
