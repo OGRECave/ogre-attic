@@ -83,7 +83,7 @@ namespace Ogre {
             .createVertexBuffer(
                 decl->getVertexSize(TEXCOORD_BINDING), 
                 mRenderOp2.vertexData->vertexCount,
-                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY, true);
         // bind texcoord
         binding->setBinding(TEXCOORD_BINDING, vbuf);
 
