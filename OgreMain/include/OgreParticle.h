@@ -55,7 +55,7 @@ namespace Ogre {
 		const Radian& getRotationSpeed(void) const { return mRotationSpeed; }
 		void setRotationSpeed(const Radian& rotation) { mRotationSpeed = rotation; } 
 #ifndef OGRE_FORCE_ANGLE_TYPES
-		inline void setRotationSpeed(Real rotation) { mRotationSpeed = Angle(rotation); }
+		inline void setRotationSpeed(Real rotation) { mRotationSpeed = static_cast<Radian>(Angle(rotation)); }
 #endif//OGRE_FORCE_ANGLE_TYPES
 
 
