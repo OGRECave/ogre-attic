@@ -1146,13 +1146,21 @@ namespace Ogre {
     //---------------------------------------------------------------------
     bool GLRenderSystem::hasHardwareStencil(void)
     {
-        // TODO
-        return true;
+        if(!getStencilBufferBitDepth())
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
     //---------------------------------------------------------------------
     ushort GLRenderSystem::getStencilBufferBitDepth(void)
     {
-        return 8;
+        GLint stencil;
+        glGetIntegerv(GL_STENCIL_BITS,&stencil);
+        return stencil;
     }
     //---------------------------------------------------------------------
     void GLRenderSystem::setStencilBufferFunction(CompareFunction func)
