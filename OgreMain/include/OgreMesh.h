@@ -252,7 +252,7 @@ namespace Ogre {
         void _notifySkeleton(Skeleton* pSkel);
 
         /// Multimap of vertex bone assignments (orders by vertex index)
-        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
         typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
 
         /** Gets an iterator for access all bone assignments. 
@@ -416,6 +416,9 @@ namespace Ogre {
         bool mBoneAssignmentsOutOfDate;
         /** Must be called once to compile bone assignments into geometry buffer. */
         void compileBoneAssignments(void);
+
+		HardwareVertexBufferSharedPtr mBlendingVB;
+		unsigned short mNumBlendWeightsPerVertex;
 
 		bool mIsLodManual;
 		ushort mNumLods;

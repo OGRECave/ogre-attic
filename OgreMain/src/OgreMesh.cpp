@@ -32,10 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonManager.h"
 #include "OgreSkeleton.h"
 #include <algorithm>
+#include "OgreHardwareBufferManager.h"
 
 
 namespace Ogre {
 
+#define OGRE_MAX_BLEND_WEIGHTS 4
     //-----------------------------------------------------------------------
     Mesh::Mesh(String name)
     {
@@ -365,13 +367,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::compileBoneAssignments(void)
     {
-		/** TODO
-        // Deallocate
-        if (sharedGeometry.pBlendingWeights)
-        {
-            delete [] sharedGeometry.pBlendingWeights;
-            sharedGeometry.pBlendingWeights = 0;
-        }
+
+		// No deallocation required, shared ptr will deal with that
+		
 
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
@@ -395,45 +393,84 @@ namespace Ogre {
 
         }
 
-        if (maxBones == 0)
+		if (maxBones > OGRE_MAX_BLEND_WEIGHTS)
+		{
+			Except(Exception::ERR_INVALIDPARAMS, "Too many bone assignments per vertex on "
+				"mesh " + mName, "Mesh::compileBoneAssignments");
+		}
+
+		mNumBlendWeightsPerVertex = maxBones;
+
+        if (mNumBlendWeightsPerVertex == 0)
         {
             // No bone assignments
-            sharedGeometry.numBlendWeightsPerVertex = 0;
             return;
         }
-        // Allocate a buffer for bone weights
-        sharedGeometry.numBlendWeightsPerVertex = maxBones;
-        sharedGeometry.pBlendingWeights = 
-            new LegacyRenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
+        // Update vertex declaration - remove existing if present
+		unsigned short bindIndex = -1;
+		VertexDeclaration* decl = sharedVertexData->vertexDeclaration;
+		if (const VertexElement* elem = decl->findElementBySemantic(VES_BLEND_INDICES))
+		{
+			bindIndex = elem->getIndex(); // reuse
+			decl->removeElement(VES_BLEND_INDICES);
+		}
+		if (decl->findElementBySemantic(VES_BLEND_WEIGHTS))
+		{
+			decl->removeElement(VES_BLEND_WEIGHTS);
+		}
+		// If binding not found already, get next
+		if (bindIndex == -1) bindIndex = sharedVertexData->vertexBufferBinding->getNextIndex();
+		// Add declarations for weights and indices
+		decl->addElement(
+			bindIndex, 
+			0, 
+			VertexElement::multiplyTypeCount(VET_FLOAT1, mNumBlendWeightsPerVertex),
+			VES_BLEND_WEIGHTS);
+		decl->addElement(
+			bindIndex, 
+			sizeof(float) * mNumBlendWeightsPerVertex, 
+			VertexElement::multiplyTypeCount(VET_SHORT1, mNumBlendWeightsPerVertex),
+			VES_BLEND_INDICES);
+		// Create buffer (will destroy old one because of reference counting)
+		mBlendingVB = HardwareBufferManager::getSingleton().createVertexBuffer(
+			decl->getVertexSize(bindIndex), sharedVertexData->vertexCount, 
+			HardwareBuffer::HBU_STATIC);
+		// Set binding
+		sharedVertexData->vertexBufferBinding->setBinding(bindIndex, mBlendingVB); 
 
         // Assign data
-        unsigned short v;
+        size_t v;
         i = mBoneAssignments.begin();
-        LegacyRenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
+		Real *pWeight = static_cast<Real*>(
+			mBlendingVB->lock(0, mBlendingVB->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)); 
         // Iterate by vertex
-        for (v = 0; v < sharedGeometry.numVertices; ++v)
+        for (v = 0; v < sharedVertexData->vertexCount; ++v)
         {
+			/// Convert to index pointer, via void*
+			unsigned short *pIndex = static_cast<unsigned short*>(
+				static_cast<void*>(
+					pWeight + mNumBlendWeightsPerVertex)
+					);
             for (unsigned short bone = 0; bone < maxBones; ++bone)
-            {
+			{
                 // Do we still have data for this vertex?
                 if (i->second.vertexIndex == v)
                 {
-                    // If so, assign
-                    pBlend->matrixIndex = i->second.boneIndex;
-                    pBlend->blendWeight = i->second.weight;
+                    // If so, write weight
+					*pWeight++ = i->second.weight;
+                    *pIndex++ = i->second.boneIndex;
                     ++i;
                 }
                 else
                 {
                     // Ran out of assignments for this vertex, use weight 0 to indicate empty
-                    pBlend->blendWeight = 0;
-                    pBlend->matrixIndex = 0;
+					*pWeight++ = 0.0f;
+                    *pIndex++ = 0;
                 }
-                ++pBlend;
             }
         }
 
-		*/
+		mBlendingVB->unlock();
 
         mBoneAssignmentsOutOfDate = false;
 

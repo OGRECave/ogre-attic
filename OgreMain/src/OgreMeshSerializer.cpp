@@ -43,7 +43,7 @@ namespace Ogre {
         mpMesh = 0;
 
         // Version number
-        mVersion = "[MeshSerializer_v1.00]";
+        mVersion = "[MeshSerializer_v1.10]";
     }
     //---------------------------------------------------------------------
     MeshSerializer::~MeshSerializer()

@@ -91,7 +91,11 @@ namespace Ogre {
         VET_FLOAT2,
         VET_FLOAT3,
         VET_FLOAT4,
-        VET_COLOUR
+        VET_COLOUR,
+		VET_SHORT1,
+		VET_SHORT2,
+		VET_SHORT3,
+		VET_SHORT4
     };
 
     /** This class declares the usage of a single vertex buffer as a component
@@ -134,6 +138,12 @@ namespace Ogre {
 		size_t getSize(void) const;
 		/// Utility method for helping to calculate offsets
 		static size_t getTypeSize(VertexElementType etype);
+		/// Utility method which returns the count of values in a given type
+		static unsigned short getTypeCount(VertexElementType etype);
+		/** Simple converter function which will turn a single-value type into a
+			multi-value type based on a parameter. 
+		*/
+		static VertexElementType multiplyTypeCount(VertexElementType baseType, unsigned short count);
 
 
     };
@@ -225,6 +235,7 @@ namespace Ogre {
 		typedef std::map<unsigned short, HardwareVertexBufferSharedPtr> VertexBufferBindingMap;
 	protected:
 		VertexBufferBindingMap mBindingMap;
+		unsigned short mHighIndex;
 	public:
 		/// Constructor, should not be called direct, use HardwareBufferManager::createVertexBufferBinding
 		VertexBufferBinding();
@@ -234,6 +245,8 @@ namespace Ogre {
 			If the index is already associated with a vertex buffer, 
             the association will be replaced. This may cause the old buffer
             to be destroyed if nothing else is referring to it.
+			You should assign bindings from 0 and not leave gaps, although you can
+			bind them in any order.
 		*/
 		virtual void setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer);
 		/** Removes an existing binding. */
@@ -247,6 +260,13 @@ namespace Ogre {
 
 		/// Gets the buffer bound to the given source index
 		virtual HardwareVertexBufferSharedPtr getBuffer(unsigned short index);
+
+		/** Gets the highest index which has already been set, plus 1.
+		@remarks
+			This is to assist in binding the vertex buffers such that there are
+			not gaps in the list.
+		*/
+		virtual unsigned short getNextIndex(void) { return mHighIndex; }
 
 
 

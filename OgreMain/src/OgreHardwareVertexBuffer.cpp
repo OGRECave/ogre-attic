@@ -66,8 +66,78 @@ namespace Ogre {
 			return sizeof(float)*3;
 		case VET_FLOAT4:
 			return sizeof(float)*4;
+		case VET_SHORT1:
+			return sizeof(short);
+		case VET_SHORT2:
+			return sizeof(short)*2;
+		case VET_SHORT3:
+			return sizeof(short)*3;
+		case VET_SHORT4:
+			return sizeof(short)*4;
 		}
 		return 0;
+	}
+	//-----------------------------------------------------------------------------
+	unsigned short VertexElement::getTypeCount(VertexElementType etype)
+	{
+		switch (etype)
+		{
+		case VET_COLOUR:
+			return 1;
+		case VET_FLOAT1:
+			return sizeof(float);
+		case VET_FLOAT2:
+			return 2;
+		case VET_FLOAT3:
+			return 3;
+		case VET_FLOAT4:
+			return 4;
+		case VET_SHORT1:
+			return 1;
+		case VET_SHORT2:
+			return 2;
+		case VET_SHORT3:
+			return 3;
+		case VET_SHORT4:
+			return 4;
+		}
+	}
+	//-----------------------------------------------------------------------------
+	VertexElementType VertexElement::multiplyTypeCount(VertexElementType baseType, 
+		unsigned short count)
+	{
+		switch (baseType)
+		{
+		case VET_FLOAT1:
+			switch(count)
+			{
+			case 1:
+				return VET_FLOAT1;
+			case 2:
+				return VET_FLOAT2;
+			case 3:
+				return VET_FLOAT3;
+			case 4:
+				return VET_FLOAT4;
+			}
+			break;
+		case VET_SHORT1:
+			switch(count)
+			{
+			case 1:
+				return VET_SHORT1;
+			case 2:
+				return VET_SHORT2;
+			case 3:
+				return VET_SHORT3;
+			case 4:
+				return VET_SHORT4;
+			}
+			break;
+
+		}
+		Except(Exception::ERR_INVALIDPARAMS, "Invalid base type", 
+			"VertexElement::multiplyTypeCount");
 	}
 	//-----------------------------------------------------------------------------
     VertexDeclaration::VertexDeclaration()
@@ -160,7 +230,7 @@ namespace Ogre {
 		return sz;
 	}
     //-----------------------------------------------------------------------------
-	VertexBufferBinding::VertexBufferBinding()
+	VertexBufferBinding::VertexBufferBinding() : mHighIndex(0)
 	{
 	}
     //-----------------------------------------------------------------------------
@@ -174,6 +244,7 @@ namespace Ogre {
         // NB will replace any existing buffer ptr at this index, and will thus cause
         // reference count to decrement on that buffer (possibly destroying it)
 		mBindingMap[index] = buffer;
+		mHighIndex = std::max(mHighIndex, index);
 	}
     //-----------------------------------------------------------------------------
 	void VertexBufferBinding::unsetBinding(unsigned short index)

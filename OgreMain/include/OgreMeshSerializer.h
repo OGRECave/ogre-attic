@@ -84,7 +84,7 @@ namespace Ogre {
         void importMesh(DataChunk& chunk, Mesh* pDest);
 
 
-    private:
+    protected:
         typedef std::map<String, Material*> MaterialMap;
         MaterialMap mMaterialList;
         Mesh* mpMesh;
