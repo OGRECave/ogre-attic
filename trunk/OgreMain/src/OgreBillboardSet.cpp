@@ -402,8 +402,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::_updateBounds(void)
     {
-        Vector3 min, max;
-        min = max = Vector3::ZERO;
+        Vector3 min(Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY);
+        Vector3 max(Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY);
         ActiveBillboardList::iterator i, iend;
 
         iend = mActiveBillboards.end();
