@@ -78,6 +78,8 @@ namespace Ogre {
         Quake3Shader* create(const String& name);
         /** Clear all the current shaders */
         void clear(void);
+        /** Retrieve a Quake3Shader by name */
+        Quake3Shader* getByName(const String& name);
 
         /** Override standard Singleton retrieval.
         @remarks

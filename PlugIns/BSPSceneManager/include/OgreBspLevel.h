@@ -55,13 +55,9 @@ namespace Ogre {
         friend class BspSceneManager;
     public:
         /** Default constructor - used by BspResourceManager (do not call directly) */
-        BspLevel(const String& name);
+        BspLevel(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         ~BspLevel();
-
-        /** Generic load - called by BspResourceManager. */
-        virtual void load(void);
-        /** Generic unload - called by BspResourceManager. */
-        virtual void unload(void);
 
         /** Determines if one leaf node is visible from another. */
         bool isLeafVisible(const BspNode* from, const BspNode* to) const;
@@ -88,6 +84,10 @@ namespace Ogre {
 
         /** Utility class just to enable queueing of patches */
     protected:
+        /** @copydoc Resource::loadImpl. */
+        virtual void loadImpl(void);
+        /** @copydoc Resource::unloadImpl. */
+        virtual void unloadImpl(void);
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of
             memory, the BspLevel actually allocates all nodes required through this pointer. So this
@@ -200,9 +200,43 @@ namespace Ogre {
         void quakeVertexToBspVertex(const bsp_vertex_t* src, BspVertex* dest);
 
 
+    };
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to BspLevelPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport BspLevelPtr : public SharedPtr<BspLevel> 
+    {
+    public:
+        BspLevelPtr() : SharedPtr<BspLevel>() {}
+        BspLevelPtr(BspLevel* rep) : SharedPtr<BspLevel>(rep) {}
+        BspLevelPtr(const BspLevelPtr& r) : SharedPtr<BspLevel>(r) {} 
+        BspLevelPtr(const ResourcePtr& r) : SharedPtr<BspLevel>()
+        {
+            pRep = static_cast<BspLevel*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
 
-
-
+        /// Operator used to convert a ResourcePtr to a BspLevelPtr
+        BspLevelPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<BspLevel*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<BspLevel*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
     };
 
 }

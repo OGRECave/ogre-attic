@@ -48,6 +48,7 @@ namespace Ogre {
     {
     protected:
         String getAlternateName(const String& texName);
+        String mName;
 
     public:
 
@@ -56,10 +57,10 @@ namespace Ogre {
         ~Quake3Shader();
 
         /** Creates this shader as an OGRE material.
-            Creates a new material based on this shaders settings. Registers it with the
-            SceneManager passed in. Material name shader#lightmap.
+            Creates a new material based on this shaders settings. 
+            Material name shader#lightmap.
         */
-        MaterialPtr createAsMaterial(SceneManager* sm, int lightmapNumber);
+        MaterialPtr createAsMaterial(int lightmapNumber);
 
         struct Pass {
             unsigned int flags;

@@ -44,7 +44,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Quake3ShaderManager::Quake3ShaderManager()
     {
-        mScriptPatterns.push_back("*.script");
+        mScriptPatterns.push_back("*.shader");
         ResourceGroupManager::getSingleton()._registerScriptLoader(this);
     }
     //-----------------------------------------------------------------------
@@ -73,6 +73,18 @@ namespace Ogre {
             delete i->second;
         }
         mShaderMap.clear();
+    }
+    //-----------------------------------------------------------------------
+    Quake3Shader* Quake3ShaderManager::getByName(const String& name)
+    {
+        Quake3ShaderMap::iterator i = mShaderMap.find(name);
+        if (i == mShaderMap.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "No Quake3Shader found named " + name, 
+                "Quake3ShaderManager::getByName");
+        }
+        return i->second;
     }
     //-----------------------------------------------------------------------
     void Quake3ShaderManager::parseScript(DataStreamPtr& stream, const String& group)

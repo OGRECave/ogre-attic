@@ -40,54 +40,49 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 #include "OgreTextureUnitState.h"
-
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    BspLevel::BspLevel(const String& name)
+    BspLevel::BspLevel(ResourceManager* creator, const String& name, ResourceHandle handle,
+        const String& group, bool isManual, ManualResourceLoader* loader)
+        : Resource(creator, name, handle, group, isManual, loader), 
+        mRootNode(0), mBrushes(0), mVertexData(0), mFaceGroups(0), 
+        mLeafFaceGroups(0)
     {
-        mName = name;
-        mRootNode = 0;
-        mBrushes = 0;
-        mVertexData = 0;
-        mFaceGroups = 0;
-        mLeafFaceGroups = 0;
         mVisData.tableData = 0;
+
+        if (createParamDictionary("BspLevel"))
+        {
+            // nothing
+        }
     }
 
     //-----------------------------------------------------------------------
     BspLevel::~BspLevel()
     {
-        if (mIsLoaded)
-        {
-            unload();
-            mIsLoaded = false;
-        }
 
     }
 
     //-----------------------------------------------------------------------
-    void BspLevel::load()
+    void BspLevel::loadImpl()
     {
         // Use Quake3 file loader
         Quake3Level q3;
-        DataChunk chunk;
         DataStreamPtr stream = 
 			ResourceGroupManager::getSingleton()._findResource(mName, 
-				ResourceGroupManager::WORlD_RESOURCE_GROUP_NAME);
+            ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 
         q3.loadFromStream(stream);
 
         loadQuake3Level(q3);
 
-        mIsLoaded = true;
-
     }
 
     //-----------------------------------------------------------------------
-    void BspLevel::unload()
+    void BspLevel::unloadImpl()
     {
         if (mVertexData)
             delete mVertexData;
@@ -113,12 +108,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspLevel::loadQuake3Level(const Quake3Level& q3lvl)
     {
-        SceneManager* sm = SceneManagerEnumerator::getSingleton().getSceneManager(ST_INTERIOR);
+        MaterialManager& mm = MaterialManager::getSingleton();
 
         loadEntities(q3lvl);
 
-        // Parse shaders
-        Quake3ShaderManager::getSingleton().parseAllSources(".shader");
         // Extract lightmaps into textures
         q3lvl.extractLightmaps();
 
@@ -234,15 +227,15 @@ namespace Ogre {
                 // NB no extension in Q3A(doh), have to try shader, .jpg, .tga
                 String tryName = q3lvl.mShaders[shadIdx].name;
                 // Try shader first
-                Quake3Shader* pShad = (Quake3Shader*)Quake3ShaderManager::getSingleton().getByName(tryName);
+                Quake3Shader* pShad = Quake3ShaderManager::getSingleton().getByName(tryName);
                 if (pShad)
                 {
-                    shadMat = pShad->createAsMaterial(sm, q3lvl.mFaces[face].lm_texture);
+                    shadMat = pShad->createAsMaterial(q3lvl.mFaces[face].lm_texture);
                 }
                 else
                 {
                     // No shader script, try default type texture
-                    shadMat = sm->createMaterial(shaderName);
+                    shadMat = mm.create(shaderName, ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
                     Pass *shadPass = shadMat->getTechnique(0)->getPass(0);
                     // Try jpg
                     TextureUnitState* tex = shadPass->createTextureUnitState(tryName + ".jpg");
