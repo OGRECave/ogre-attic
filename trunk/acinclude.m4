@@ -401,11 +401,11 @@ if [ test x$build_il = xtrue ]; then
 * useful only if you provide your own image loading codecs.    *
 ****************************************************************]))
 	AC_CHECK_LIB(ILU, iluFlipImage)
-	DEVIL_CFLAGS=""
+	AC_DEFINE([OGRE_NO_DEVIL], [0], [Build devil])
 else
-	DEVIL_CFLAGS="-DOGRE_NO_DEVIL"
+	AC_DEFINE([OGRE_NO_DEVIL], [1], [Build devil])
 fi
-AC_SUBST(DEVIL_CFLAGS)
+
 
 ])
 
@@ -437,4 +437,44 @@ AC_DEFUN([OGRE_CHECK_CEGUI], [
         AC_MSG_RESULT([CEGUI not available, Gui sample will not be built])
     fi
     AM_CONDITIONAL([BUILD_CEGUI_SAMPLE], [test x$build_cegui_sample = xtrue])
+])
+
+AC_DEFUN([OGRE_CHECK_DOUBLE],
+[
+AC_ARG_ENABLE(double,
+              AC_HELP_STRING([--enable-double],
+                             [Build OGRE in double floating point precision mode. This is not recommended for normal use as it is slower.]),
+              [build_double=$enableval],
+              [build_double=no])
+AC_MSG_CHECKING([whether to use double floating point precision])
+	case $build_double in
+        yes)
+			AC_DEFINE([OGRE_DOUBLE_PRECISION], [1], [Build with double precision])
+            echo "yes"
+        ;;
+        *)
+			AC_DEFINE([OGRE_DOUBLE_PRECISION], [0], [Build with double precision])
+            echo "no"
+        ;;
+    esac
+])
+
+AC_DEFUN([OGRE_CHECK_THREADING],
+[
+AC_ARG_ENABLE(threading,
+              AC_HELP_STRING([--enable-threading],
+                             [Indicate general support for multithreading. This will enable threading support in certain parts of the engine, mainly resource loading and SharedPtr handling. WARNING: highly experimental, use with caution.]),
+              [build_threads=$enableval],
+              [build_threads=no])
+AC_MSG_CHECKING([whether to use threaded resource loading])
+	case $build_threads in
+        yes)
+			AC_DEFINE([OGRE_THREAD_SUPPORT], [1], [Build with thread support])
+            echo "yes"
+        ;;
+        *)
+			AC_DEFINE([OGRE_THREAD_SUPPORT], [0], [Build with thread support])
+            echo "no"
+        ;;
+    esac
 ])

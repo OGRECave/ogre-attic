@@ -25,6 +25,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __Config_H_
 #define __Config_H_
 
+// configure options
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 /** If set to 1, profiling code will be included in the application. When you
 	are deploying your application you will probably want to set this to 0 */
 #define OGRE_PROFILING 0
@@ -51,7 +56,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 	CPU (Quaternion, Vector3 etc) with more precision, but bear in mind that the
 	GPU still operates in single-precision mode. 
 */
+#ifndef OGRE_DOUBLE_PRECISION
 #define OGRE_DOUBLE_PRECISION 0
+#endif
 
 /** If set to 1, the strings are transforned to Unicode, and char is replaced
     with wchar_t when having to do with strings of any kind.
@@ -92,11 +99,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 	stated in relation to this flag.
     WARNING: highly experimental, use with caution
 */
+#ifndef OGRE_THREAD_SUPPORT
 #define OGRE_THREAD_SUPPORT 0
-
-// configure options
-#ifdef HAVE_CONFIG_H
-#include "config.h"
 #endif
+
+/** Disables use of the DevIL image library for loading images.
+    WARNING: Use only when you want to provide your own image loading code via codecs.
+*/
+#ifndef OGRE_NO_DEVIL
+#define OGRE_NO_DEVIL 0
+#endif
+
 
 #endif
