@@ -57,13 +57,13 @@ namespace Ogre {
         pCursorFactory = new CursorGuiElementFactory();
         GuiManager::getSingleton().addOverlayElementFactory(pCursorFactory);
 
-        pPanelFactory = new PanelGuiElementFactory();
+        pPanelFactory = new PanelOverlayElementFactory();
         GuiManager::getSingleton().addOverlayElementFactory(pPanelFactory);
 
-        pBorderPanelFactory = new BorderPanelGuiElementFactory();
+        pBorderPanelFactory = new BorderPanelOverlayElementFactory();
         GuiManager::getSingleton().addOverlayElementFactory(pBorderPanelFactory);
         
-        pTextAreaFactory = new TextAreaGuiElementFactory();
+        pTextAreaFactory = new TextAreaOverlayElementFactory();
         GuiManager::getSingleton().addOverlayElementFactory(pTextAreaFactory);
 
         pTextBoxFactory = new TextBoxGuiElementFactory();
