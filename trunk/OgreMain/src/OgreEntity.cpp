@@ -412,7 +412,10 @@ namespace Ogre {
                 if (mSharedBlendedVertexData)
                 {
                     // Blend shared geometry
-                    mTempBlendedBuffer.checkoutTempCopies();
+                    // NB we suppress hardware upload while doing blend if we're
+                    // hardware skinned, because the only reason for doing this
+                    // is for shadow, which need only be uploaded then
+                    mTempBlendedBuffer.checkoutTempCopies(true, blendNormals);
                     mTempBlendedBuffer.bindTempCopies(mSharedBlendedVertexData, 
                         mHardwareSkinning);
                     Mesh::softwareVertexBlend(mMesh->sharedVertexData, 
@@ -426,7 +429,7 @@ namespace Ogre {
                     SubEntity* se = *i;
                     if (se->isVisible() && se->mBlendedVertexData)
                     {
-                        se->mTempBlendedBuffer.checkoutTempCopies();
+                        se->mTempBlendedBuffer.checkoutTempCopies(true, blendNormals);
                         se->mTempBlendedBuffer.bindTempCopies(se->mBlendedVertexData, 
                             mHardwareSkinning);
                         Mesh::softwareVertexBlend(se->mSubMesh->vertexData, 
@@ -762,6 +765,7 @@ namespace Ogre {
             "Only 16-bit indexes supported for now");
 
 
+
         // Prep mesh if required
         // NB This seems to result in memory corruptions, having problems
         // tracking them down. For now, ensure that shadows are enabled
@@ -857,6 +861,8 @@ namespace Ogre {
                     lightPos, light->getAttenuationRange());
 
             }
+            // Stop suppressing hardware update now, if we were
+            esr->getPositionBuffer()->suppressHardwareUpdate(false);
 
         }
         // Calc triangle light facing
@@ -865,6 +871,7 @@ namespace Ogre {
         // Generate indexes and update renderables
         generateShadowVolume(edgeList, *indexBuffer, light,
             mShadowRenderables, flags);
+
 
         return ShadowRenderableListIterator(mShadowRenderables.begin(), 
             mShadowRenderables.end());
