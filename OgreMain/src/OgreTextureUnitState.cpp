@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -23,17 +23,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-#include "OgreMaterial.h"
 
-#include "OgreLogManager.h"
-#include "OgreMath.h"
-#include "OgreControllerManager.h"
+#include "OgreTextureUnitState.h"
+#include "OgrePass.h"
 #include "OgreMaterialManager.h"
+#include "OgreControllerManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    Material::TextureLayer::TextureLayer(bool deferLoad)
+    TextureUnitState::TextureUnitState(Pass* parent)
+        : mParent(parent)
     {
         mIsBlank = true;
         colourBlendMode.blendType = LBT_COLOUR;
@@ -46,10 +47,8 @@ namespace Ogre {
         alphaBlendMode.source2 = LBS_CURRENT;
 		
 		//default filtering
-		mTextureLayerFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
+		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-		mIsDefAniso = true;
-		mIsDefFiltering = true;
 
 		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
@@ -64,17 +63,18 @@ namespace Ogre {
         mAnimController = 0;
         mCubic = false;
 
-        mDeferLoad = deferLoad;
     }
 
     //-----------------------------------------------------------------------
-    Material::TextureLayer::TextureLayer( const TextureLayer& oth )
+    TextureUnitState::TextureUnitState(Pass* parent, const TextureUnitState& oth )
     {
         *this = oth;
+        mParent = parent;
     }
 
     //-----------------------------------------------------------------------
-    Material::TextureLayer::TextureLayer( const String& texName, int texCoordSet, bool deferLoad)
+    TextureUnitState::TextureUnitState( Pass* parent, const String& texName, int texCoordSet)
+        :mParent(parent)
     {
         mIsBlank = true;
         colourBlendMode.blendType = LBT_COLOUR;
@@ -87,10 +87,8 @@ namespace Ogre {
         alphaBlendMode.source2 = LBS_CURRENT;
 
 		//default filtering && anisotropy
-		mTextureLayerFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
+		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
 		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-		mIsDefAniso = true;
-		mIsDefFiltering = true;
 
 		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
@@ -101,13 +99,12 @@ namespace Ogre {
         mRecalcTexMatrix = false;
         mAlphaRejectFunc = CMPF_ALWAYS_PASS;
         mAlphaRejectVal = 0;
-        mDeferLoad = deferLoad;
 
         setTextureName(texName);
         setTextureCoordSet(texCoordSet);
     }
-
-    Material::TextureLayer::~TextureLayer()
+    //-----------------------------------------------------------------------
+    TextureUnitState::~TextureUnitState()
     {
         // Destroy controllers
         if (mAnimController)
@@ -127,8 +124,8 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Material::TextureLayer & Material::TextureLayer::operator = ( 
-        const Material::TextureLayer &oth )
+    TextureUnitState & TextureUnitState::operator = ( 
+        const TextureUnitState &oth )
     {
         // copy basic members (int's, real's)
         memcpy( this, &oth, (uchar *)(&oth.mFrames[0]) - (uchar *)(&oth) );
@@ -142,13 +139,13 @@ namespace Ogre {
         return *this;
     }
     //-----------------------------------------------------------------------
-    const String& Material::TextureLayer::getTextureName(void) const
+    const String& TextureUnitState::getTextureName(void) const
     {
         // Return name of current frame
         return mFrames[mCurrentFrame];
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureName( const String& name)
+    void TextureUnitState::setTextureName( const String& name)
     {
         mFrames[0] = name;
         mNumFrames = 1;
@@ -158,31 +155,18 @@ namespace Ogre {
         if (name == "")
         {
             mIsBlank = true;
+            return;
         }
-        else if (!mDeferLoad)
+        
+        // Load immediately ?
+        if (isLoaded())
         {
-            // Ensure texture is loaded, default MipMaps and priority
-            if( TextureManager::getSingleton().getByName( name ) != NULL )
-			{
-				mIsBlank = false;
-                return;
-			}
-
-            try {                
-                TextureManager::getSingleton().load(name);
-                mIsBlank = false;
-            }
-            catch (...) {
-                String msg;
-                msg = msg + "Error loading texture " + name  + ". Texture layer will be blank.";
-                LogManager::getSingleton().logMessage(msg);
-                mIsBlank = true;
-            }
+            _load(); // reload
         }
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setCubicTextureName( const String& name, bool forUVW)
+    void TextureUnitState::setCubicTextureName( const String& name, bool forUVW)
     {
         if (forUVW)
         {
@@ -209,53 +193,36 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setCubicTextureName(const String* const names, bool forUVW)
+    void TextureUnitState::setCubicTextureName(const String* const names, bool forUVW)
     {
         mNumFrames = forUVW ? 1 : 6;
         mCurrentFrame = 0;
         mCubic = true;
+        mIs3D = forUVW;
 
         for (int i = 0; i < mNumFrames; ++i)
         {
             mFrames[i] = names[i];
-            if (!mDeferLoad)
-            {
-                // Ensure texture is loaded, default MipMaps and priority
-                try {
-
-                    if(forUVW)
-                    {
-                        TextureManager::getSingleton().load(mFrames[i], 
-                            TEX_TYPE_CUBE_MAP);
-                    }
-                    else
-                    {
-                        TextureManager::getSingleton().load(mFrames[i]);
-                    }
-                    mIsBlank = false;
-                }
-                catch (...) {
-                    String msg;
-                    msg = msg + "Error loading texture " + mFrames[i]  + ". Texture layer will be blank.";
-                    LogManager::getSingleton().logMessage(msg);
-                    mIsBlank = true;
-                }
-            }
+        }
+        if (isLoaded())
+        {
+            // Load immediately if parent is loaded
+            _load();
         }
     }
     //-----------------------------------------------------------------------
-    bool Material::TextureLayer::isCubic(void) const
+    bool TextureUnitState::isCubic(void) const
     {
         return mCubic;
     }
     //-----------------------------------------------------------------------
-    bool Material::TextureLayer::is3D(void) const
+    bool TextureUnitState::is3D(void) const
     {
-        return mCubic && (mNumFrames == 1);
+        return mIs3D;
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setAnimatedTextureName( const String& name, int numFrames, Real duration)
+    void TextureUnitState::setAnimatedTextureName( const String& name, int numFrames, Real duration)
     {
         String ext;
         String baseName;
@@ -268,7 +235,7 @@ namespace Ogre {
         {
             char cmsg[128];
             sprintf(cmsg, "Maximum number of frames is %d.", MAX_FRAMES);
-            Except(Exception::ERR_INVALIDPARAMS, cmsg, "TextureLayer::setAnimatedTextureName");
+            Except(Exception::ERR_INVALIDPARAMS, cmsg, "TextureUnitState::setAnimatedTextureName");
         }
         mNumFrames = numFrames;
         mAnimDuration = duration;
@@ -281,37 +248,23 @@ namespace Ogre {
             sprintf(suffix, "_%d", i);
 
             mFrames[i] = baseName + suffix + ext;
-            if (!mDeferLoad)
-            {
-                // Ensure texture is loaded, default MipMaps and priority
-                try {
-
-                    TextureManager::getSingleton().load(mFrames[i]);
-                    mIsBlank = false;
-                }
-                catch (...) {
-                    String msg;
-                    msg = msg + "Error loading texture " + mFrames[i]  + ". Texture layer will be blank.";
-                    LogManager::getSingleton().logMessage(msg);
-                    mIsBlank = true;
-                }
-            }
         }
 
-        // Set up automatic transition
-        if (mAnimDuration != 0 && !mDeferLoad)
+        // Load immediately if Material loaded
+        if (isLoaded())
         {
-            createAnimController();
+            _load();
         }
+
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setAnimatedTextureName(const String* const names, int numFrames, Real duration)
+    void TextureUnitState::setAnimatedTextureName(const String* const names, int numFrames, Real duration)
     {
         if (numFrames > MAX_FRAMES)
         {
             char cmsg[128];
             sprintf(cmsg, "Maximum number of frames is %d.", MAX_FRAMES);
-            Except(Exception::ERR_INVALIDPARAMS, cmsg, "TextureLayer::setAnimatedTextureName");
+            Except(Exception::ERR_INVALIDPARAMS, cmsg, "TextureUnitState::setAnimatedTextureName");
         }
         mNumFrames = numFrames;
         mAnimDuration = duration;
@@ -321,73 +274,58 @@ namespace Ogre {
         for (int i = 0; i < mNumFrames; ++i)
         {
             mFrames[i] = names[i];
-
-            if (!mDeferLoad)
-            {
-                // Ensure texture is loaded, default MipMaps and priority
-                try {
-
-                    TextureManager::getSingleton().load(mFrames[i]);
-                    mIsBlank = false;
-                }
-                catch (...) {
-                    String msg;
-                    msg = msg + "Error loading texture " + mFrames[i]  + ". Texture layer will be blank.";
-                    LogManager::getSingleton().logMessage(msg);
-                    mIsBlank = true;
-                }
-            }
         }
-        // Set up automatic transition
-        if (mAnimDuration != 0 && !mDeferLoad)
+
+        // Load immediately if Material loaded
+        if (isLoaded())
         {
-            createAnimController();
+            _load();
         }
     }
     //-----------------------------------------------------------------------
-    std::pair< uint, uint > Material::TextureLayer::getTextureDimensions( int frame ) const
+    std::pair< uint, uint > TextureUnitState::getTextureDimensions( int frame ) const
     {
         Texture *tex = (Texture *)TextureManager::getSingleton().getByName( mFrames[ frame ] );
 		if (!tex)
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mFrames[ frame ],
-				"Material::TextureLayer::getTextureDimensions" );
+				"TextureUnitState::getTextureDimensions" );
         return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setCurrentFrame(int frameNumber)
+    void TextureUnitState::setCurrentFrame(int frameNumber)
     {
         assert(frameNumber < mNumFrames);
         mCurrentFrame = frameNumber;
 
     }
     //-----------------------------------------------------------------------
-    int Material::TextureLayer::getCurrentFrame(void) const
+    int TextureUnitState::getCurrentFrame(void) const
     {
         return mCurrentFrame;
     }
     //-----------------------------------------------------------------------
-    int Material::TextureLayer::getNumFrames(void) const
+    int TextureUnitState::getNumFrames(void) const
     {
         return mNumFrames;
     }
     //-----------------------------------------------------------------------
-    const String& Material::TextureLayer::getFrameTextureName(int frameNumber) const
+    const String& TextureUnitState::getFrameTextureName(int frameNumber) const
     {
         assert(frameNumber < mNumFrames);
         return mFrames[frameNumber];
     }
     //-----------------------------------------------------------------------
-    int Material::TextureLayer::getTextureCoordSet(void) const
+    int TextureUnitState::getTextureCoordSet(void) const
     {
         return mTextureCoordSetIndex;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureCoordSet(int set)
+    void TextureUnitState::setTextureCoordSet(int set)
     {
         mTextureCoordSetIndex = set;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setColourOperationEx(LayerBlendOperationEx op,
+    void TextureUnitState::setColourOperationEx(LayerBlendOperationEx op,
         LayerBlendSource source1,
         LayerBlendSource source2,
         const ColourValue& arg1,
@@ -402,7 +340,7 @@ namespace Ogre {
         colourBlendMode.factor = manualBlend;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setColourOperation(LayerBlendOperation op)
+    void TextureUnitState::setColourOperation(LayerBlendOperation op)
     {
         // Set up the multitexture and multipass blending operations
         switch (op)
@@ -428,13 +366,13 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setColourOpMultipassFallback(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
+    void TextureUnitState::setColourOpMultipassFallback(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
     {
         colourBlendFallbackSrc = sourceFactor;
         colourBlendFallbackDest = destFactor;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setAlphaOperation(LayerBlendOperationEx op,
+    void TextureUnitState::setAlphaOperation(LayerBlendOperationEx op,
         LayerBlendSource source1,
         LayerBlendSource source2,
         Real arg1,
@@ -449,7 +387,7 @@ namespace Ogre {
         alphaBlendMode.factor = manualBlend;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::addEffect(TextureEffect& effect)
+    void TextureUnitState::addEffect(TextureEffect& effect)
     {
         // Ensure controller pointer is null
         effect.controller = 0;
@@ -465,7 +403,7 @@ namespace Ogre {
             }
         }
 
-        if (!mDeferLoad)
+        if (isLoaded())
         {
             // Create controller
             createEffectController(effect);
@@ -476,49 +414,49 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::removeAllEffects(void)
+    void TextureUnitState::removeAllEffects(void)
     {
         mEffects.clear();
     }
 
     //-----------------------------------------------------------------------
-    bool Material::TextureLayer::isBlank(void) const
+    bool TextureUnitState::isBlank(void) const
     {
         return mIsBlank;
     }
 
     //-----------------------------------------------------------------------
-    SceneBlendFactor Material::TextureLayer::getColourBlendFallbackSrc(void) const
+    SceneBlendFactor TextureUnitState::getColourBlendFallbackSrc(void) const
     {
         return colourBlendFallbackSrc;
     }
     //-----------------------------------------------------------------------
-    SceneBlendFactor Material::TextureLayer::getColourBlendFallbackDest(void) const
+    SceneBlendFactor TextureUnitState::getColourBlendFallbackDest(void) const
     {
         return colourBlendFallbackDest;
     }
     //-----------------------------------------------------------------------
-    LayerBlendModeEx Material::TextureLayer::getColourBlendMode(void) const
+    LayerBlendModeEx TextureUnitState::getColourBlendMode(void) const
     {
         return colourBlendMode;
     }
     //-----------------------------------------------------------------------
-    LayerBlendModeEx Material::TextureLayer::getAlphaBlendMode(void) const
+    LayerBlendModeEx TextureUnitState::getAlphaBlendMode(void) const
     {
         return alphaBlendMode;
     }
     //-----------------------------------------------------------------------
-    Material::TextureLayer::TextureAddressingMode Material::TextureLayer::getTextureAddressingMode(void) const
+    TextureUnitState::TextureAddressingMode TextureUnitState::getTextureAddressingMode(void) const
     {
         return mAddressMode;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureAddressingMode(Material::TextureLayer::TextureAddressingMode tam)
+    void TextureUnitState::setTextureAddressingMode(TextureUnitState::TextureAddressingMode tam)
     {
         mAddressMode = tam;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setEnvironmentMap(bool enable, EnvMapType envMapType)
+    void TextureUnitState::setEnvironmentMap(bool enable, EnvMapType envMapType)
     {
         if (enable)
         {
@@ -534,7 +472,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::removeEffect(TextureEffectType type)
+    void TextureUnitState::removeEffect(TextureEffectType type)
     {
       // EffectMap::iterator i = mEffects.find(type);
         std::pair< EffectMap::iterator, EffectMap::iterator > remPair = mEffects.equal_range( type );
@@ -558,38 +496,38 @@ namespace Ogre {
 */
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setBlank(void)
+    void TextureUnitState::setBlank(void)
     {
         mIsBlank = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureTransform(const Matrix4& xform)
+    void TextureUnitState::setTextureTransform(const Matrix4& xform)
     {
         mTexModMatrix = xform;
         mRecalcTexMatrix = false;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureScroll(Real u, Real v)
+    void TextureUnitState::setTextureScroll(Real u, Real v)
     {
         mUMod = u;
         mVMod = v;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureScale(Real uScale, Real vScale)
+    void TextureUnitState::setTextureScale(Real uScale, Real vScale)
     {
         mUScale = uScale;
         mVScale = vScale;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureRotate(Real degrees)
+    void TextureUnitState::setTextureRotate(Real degrees)
     {
         mRotate = degrees;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    const Matrix4& Material::TextureLayer::getTextureTransform()
+    const Matrix4& TextureUnitState::getTextureTransform()
     {
         if (mRecalcTexMatrix)
             recalcTextureMatrix();
@@ -597,7 +535,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::recalcTextureMatrix()
+    void TextureUnitState::recalcTextureMatrix()
     {
         // Assumption: 2D texture coords
         Matrix3 xform, rot;
@@ -649,47 +587,47 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureUScroll(Real value)
+    void TextureUnitState::setTextureUScroll(Real value)
     {
         mUMod = value;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureVScroll(Real value)
+    void TextureUnitState::setTextureVScroll(Real value)
     {
         mVMod = value;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureUScale(Real value)
+    void TextureUnitState::setTextureUScale(Real value)
     {
         mUScale = value;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTextureVScale(Real value)
+    void TextureUnitState::setTextureVScale(Real value)
     {
         mVScale = value;
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setAlphaRejectSettings(CompareFunction func, unsigned char value)
+    void TextureUnitState::setAlphaRejectSettings(CompareFunction func, unsigned char value)
     {
         mAlphaRejectFunc = func;
         mAlphaRejectVal = value;
     }
     //-----------------------------------------------------------------------
-    CompareFunction Material::TextureLayer::getAlphaRejectFunction(void) const
+    CompareFunction TextureUnitState::getAlphaRejectFunction(void) const
     {
         return mAlphaRejectFunc;
     }
     //-----------------------------------------------------------------------
-    unsigned char Material::TextureLayer::getAlphaRejectValue(void) const
+    unsigned char TextureUnitState::getAlphaRejectValue(void) const
     {
         return mAlphaRejectVal;
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setScrollAnimation(Real uSpeed, Real vSpeed)
+    void TextureUnitState::setScrollAnimation(Real uSpeed, Real vSpeed)
     {
         TextureEffect eff;
         eff.type = ET_SCROLL;
@@ -698,7 +636,7 @@ namespace Ogre {
         addEffect(eff);
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setRotateAnimation(Real speed)
+    void TextureUnitState::setRotateAnimation(Real speed)
     {
         TextureEffect eff;
         eff.type = ET_ROTATE;
@@ -706,7 +644,7 @@ namespace Ogre {
         addEffect(eff);
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setTransformAnimation(TextureTransformType ttype,
+    void TextureUnitState::setTransformAnimation(TextureTransformType ttype,
         WaveformType waveType, Real base, Real frequency, Real phase, Real amplitude)
     {
         TextureEffect eff;
@@ -720,7 +658,7 @@ namespace Ogre {
         addEffect(eff);
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::_load(void)
+    void TextureUnitState::_load(void)
     {
         // Load textures
         for (int i = 0; i < mNumFrames; ++i)
@@ -756,17 +694,15 @@ namespace Ogre {
             createEffectController(it->second);
         }
 
-        mDeferLoad = false;
-
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::createAnimController(void)
+    void TextureUnitState::createAnimController(void)
     {
         mAnimController = ControllerManager::getSingleton().createTextureAnimator(this, mAnimDuration);
 
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::createEffectController(TextureEffect& effect)
+    void TextureUnitState::createEffectController(TextureEffect& effect)
     {
         ControllerManager& cMgr = ControllerManager::getSingleton();
         switch (effect.type)
@@ -778,7 +714,7 @@ namespace Ogre {
             effect.controller = cMgr.createTextureRotater(this, effect.arg1);
             break;
         case ET_TRANSFORM:
-            effect.controller = cMgr.createTextureWaveTransformer(this, (Material::TextureLayer::TextureTransformType)effect.subtype, effect.waveType, effect.base,
+            effect.controller = cMgr.createTextureWaveTransformer(this, (TextureUnitState::TextureTransformType)effect.subtype, effect.waveType, effect.base,
                 effect.frequency, effect.phase, effect.amplitude);
             break;
 	case ET_ENVIRONMENT_MAP:
@@ -787,90 +723,79 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void Material::TextureLayer::setDeferredLoad(bool defer)
-    {
-        mDeferLoad = defer;
-    }
-
-    //-----------------------------------------------------------------------
-	Real Material::TextureLayer::getTextureUScroll(void) const
+	Real TextureUnitState::getTextureUScroll(void) const
     {
 		return mUMod;
     }
 
 	//-----------------------------------------------------------------------
-	Real Material::TextureLayer::getTextureVScroll(void) const
+	Real TextureUnitState::getTextureVScroll(void) const
     {
 		return mVMod;
     }
 
 	//-----------------------------------------------------------------------
-	Real Material::TextureLayer::getTextureUScale(void) const
+	Real TextureUnitState::getTextureUScale(void) const
     {
 		return mUScale;
     }
 
 	//-----------------------------------------------------------------------
-	Real Material::TextureLayer::getTextureVScale(void) const
+	Real TextureUnitState::getTextureVScale(void) const
     {
 		return mVScale;
     }
 
 	//-----------------------------------------------------------------------
-	Real Material::TextureLayer::getTextureRotate(void) const
+	Real TextureUnitState::getTextureRotate(void) const
     {
 		return mRotate;
     }
 	
 	//-----------------------------------------------------------------------
-	Real Material::TextureLayer::getAnimationDuration(void) const
+	Real TextureUnitState::getAnimationDuration(void) const
 	{
 		return mAnimDuration;
 	}
 
 	//-----------------------------------------------------------------------
-	std::multimap<Material::TextureLayer::TextureEffectType, Material::TextureLayer::TextureEffect> Material::TextureLayer::getEffects(void) const
+	std::multimap<TextureUnitState::TextureEffectType, TextureUnitState::TextureEffect> TextureUnitState::getEffects(void) const
 	{
 		return mEffects;
 	}
 
 	//-----------------------------------------------------------------------
-	void Material::TextureLayer::setTextureLayerFiltering(TextureFilterOptions filterType)
+	void TextureUnitState::setTextureFiltering(TextureFilterOptions filterType)
 	{
-		mTextureLayerFiltering = filterType;
-		mIsDefFiltering = false;
+		mTextureFiltering = filterType;
 	}
 
 	//-----------------------------------------------------------------------
-	TextureFilterOptions Material::TextureLayer::getTextureLayerFiltering() const
+	TextureFilterOptions TextureUnitState::getTextureFiltering() const
 	{
-		return mTextureLayerFiltering;
+		return mTextureFiltering;
 	}
 
 	//-----------------------------------------------------------------------
-	void Material::TextureLayer::setTextureAnisotropy(int maxAniso)
+	void TextureUnitState::setTextureAnisotropy(int maxAniso)
 	{
 		mMaxAniso = maxAniso;
-		mIsDefAniso = false;
 	}
-
 	//-----------------------------------------------------------------------
-	void Material::TextureLayer::_setDefTextureAnisotropy(int maxAniso)
-	{
-		if (mIsDefAniso)
-			mMaxAniso = maxAniso;
-	}
-
-	//-----------------------------------------------------------------------
-	void Material::TextureLayer::_setDefTextureLayerFiltering(TextureFilterOptions filterType)
-	{
-		if (mIsDefFiltering)
-			mTextureLayerFiltering = filterType;
-	}
-
-	//-----------------------------------------------------------------------
-	int Material::TextureLayer::getTextureAnisotropy() const
+	int TextureUnitState::getTextureAnisotropy() const
 	{
 		return mMaxAniso;
 	}
+
+	//-----------------------------------------------------------------------
+    void TextureUnitState::_unload(void)
+    {
+        // TODO
+    }
+    //-----------------------------------------------------------------------------
+    bool TextureUnitState::isLoaded(void)
+    {
+        return mParent->isLoaded();
+    }
+
 }
