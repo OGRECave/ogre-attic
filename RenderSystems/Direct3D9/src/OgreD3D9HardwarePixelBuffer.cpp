@@ -40,6 +40,7 @@ namespace Ogre {
 
 D3D9HardwarePixelBuffer::D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage):
 	HardwarePixelBuffer(0, 0, 0, PF_UNKNOWN, usage, false, false),
+	mpDev(0),
 	mSurface(0), mVolume(0), mTempSurface(0), mTempVolume(0),
 	mDoMipmapGen(0), mHWMipmaps(0), mMipTex(0)
 {
@@ -48,9 +49,11 @@ D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
 {
 }
 //-----------------------------------------------------------------------------  
-void D3D9HardwarePixelBuffer::bind(IDirect3DSurface9 *surface)
+void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *surface)
 {
+	mpDev = dev;
 	mSurface = surface;
+	
 	D3DSURFACE_DESC desc;
 	if(mSurface->GetDesc(&desc) != D3D_OK)
 		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get surface information",
@@ -65,9 +68,11 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DSurface9 *surface)
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 }
 //-----------------------------------------------------------------------------
-void D3D9HardwarePixelBuffer::bind(IDirect3DVolume9 *volume)
+void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volume)
 {
+	mpDev = dev;
 	mVolume = volume;
+	
 	D3DVOLUME_DESC desc;
 	if(mVolume->GetDesc(&desc) != D3D_OK)
 		Except(Exception::ERR_RENDERINGAPI_ERROR, "Could not get volume information",
@@ -80,6 +85,69 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DVolume9 *volume)
 	mRowPitch = mWidth;
 	mSlicePitch = mHeight*mWidth;
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
+}
+//-----------------------------------------------------------------------------  
+// Util functions to convert a D3D locked box to a pixel box
+void fromD3DLock(PixelBox &rval, const D3DLOCKED_RECT &lrect)
+{
+	rval.rowPitch = lrect.Pitch / PixelUtil::getNumElemBytes(rval.format);
+	rval.slicePitch = rval.rowPitch * rval.getHeight();
+	assert((lrect.Pitch % PixelUtil::getNumElemBytes(rval.format))==0);
+	rval.data = lrect.pBits;
+}
+void fromD3DLock(PixelBox &rval, const D3DLOCKED_BOX &lbox)
+{
+	rval.rowPitch = lbox.RowPitch / PixelUtil::getNumElemBytes(rval.format);
+	rval.slicePitch = lbox.SlicePitch / PixelUtil::getNumElemBytes(rval.format);
+	assert((lbox.RowPitch % PixelUtil::getNumElemBytes(rval.format))==0);
+	assert((lbox.SlicePitch % PixelUtil::getNumElemBytes(rval.format))==0);
+	rval.data = lbox.pBits;
+}
+// Convert Ogre integer Box to D3D rectangle
+RECT toD3DRECT(const Box &lockBox)
+{
+	RECT prect;
+	assert(lockBox.getDepth() == 1);
+	prect.left = lockBox.left;
+	prect.right = lockBox.right;
+	prect.top = lockBox.top;
+	prect.bottom = lockBox.bottom;
+	return prect;
+}
+// Convert Ogre integer Box to D3D box
+D3DBOX toD3DBOX(const Box &lockBox)
+{
+	D3DBOX pbox;
+	pbox.Left = lockBox.left;
+	pbox.Right = lockBox.right;
+	pbox.Top = lockBox.top;
+	pbox.Bottom = lockBox.bottom;
+	pbox.Front = lockBox.front;
+	pbox.Back = lockBox.back;
+	return pbox;
+}
+// Convert Ogre pixelbox extent to D3D rectangle
+RECT toD3DRECTExtent(const PixelBox &lockBox)
+{
+	RECT prect;
+	assert(lockBox.getDepth() == 1);
+	prect.left = 0;
+	prect.right = lockBox.getWidth();
+	prect.top = 0;
+	prect.bottom = lockBox.getHeight();
+	return prect;
+}
+// Convert Ogre pixelbox extent to D3D box
+D3DBOX toD3DBOXExtent(const PixelBox &lockBox)
+{
+	D3DBOX pbox;
+	pbox.Left = 0;
+	pbox.Right = lockBox.getWidth();
+	pbox.Top = 0;
+	pbox.Bottom = lockBox.getHeight();
+	pbox.Front = 0;
+	pbox.Back = lockBox.getDepth();
+	return pbox;
 }
 //-----------------------------------------------------------------------------  
 PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
@@ -117,40 +185,24 @@ PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOption
 		}
 		else
 		{
-			RECT prect; // specify range to lock
-			prect.left = lockBox.left;
-			prect.right = lockBox.right;
-			prect.top = lockBox.top;
-			prect.bottom = lockBox.bottom;
+			RECT prect = toD3DRECT(lockBox); // specify range to lock
 			hr = mSurface->LockRect(&lrect, &prect, flags);
 		}
 		if (FAILED(hr))		
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "Surface locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
-		
-		rval.rowPitch = lrect.Pitch / PixelUtil::getNumElemBytes(mFormat);
-		rval.slicePitch = rval.rowPitch * mHeight;
-		rval.data = lrect.pBits;
+		fromD3DLock(rval, lrect);
 	} 
 	else 
 	{
 		// Volume
-		D3DBOX pbox; // specify range to lock
+		D3DBOX pbox = toD3DBOX(lockBox); // specify range to lock
 		D3DLOCKED_BOX lbox; // Filled in by D3D
-		pbox.Left = lockBox.left;
-		pbox.Right = lockBox.right;
-		pbox.Top = lockBox.top;
-		pbox.Bottom = lockBox.bottom;
-		pbox.Front = lockBox.front;
-		pbox.Back = lockBox.back;
 		
 		if(mVolume->LockBox(&lbox, &pbox, flags) != D3D_OK)
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "Volume locking failed",
 		 		"D3D9HardwarePixelBuffer::lockImpl");
-		
-		rval.rowPitch = lbox.RowPitch / PixelUtil::getNumElemBytes(mFormat);
-		rval.slicePitch = lbox.SlicePitch / PixelUtil::getNumElemBytes(mFormat);
-		rval.data = lbox.pBits;
+		fromD3DLock(rval, lbox);
 	}
 
 	return rval;
@@ -170,13 +222,44 @@ void D3D9HardwarePixelBuffer::unlockImpl(void)
 		_genMipmaps();
 }
 //-----------------------------------------------------------------------------  
-void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
+void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *rsrc, const Image::Box &srcBox, const Image::Box &dstBox)
 {
-	// TODO
-	// D3DXLoadSurfaceFromSurface
-	// D3DXLoadVolumeFromVolume
-	HardwarePixelBuffer::blit(src, srcBox, dstBox);
-
+	D3D9HardwarePixelBuffer *src = static_cast<D3D9HardwarePixelBuffer*>(rsrc);
+	if(mSurface && src->mSurface)
+	{
+		// Surface-to-surface
+		RECT dsrcRect = toD3DRECT(srcBox);
+		RECT ddestRect = toD3DRECT(dstBox);
+		// D3DXLoadSurfaceFromSurface
+		if(D3DXLoadSurfaceFromSurface(
+			mSurface, NULL, &ddestRect, 
+			src->mSurface, NULL, &dsrcRect,
+			 D3DX_DEFAULT, 0) != D3D_OK)
+		{
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
+		 		"D3D9HardwarePixelBuffer::blit");
+		}
+	}
+	else if(mVolume && src->mVolume)
+	{
+		// Volume-to-volume
+		D3DBOX dsrcBox = toD3DBOX(srcBox);
+		D3DBOX ddestBox = toD3DBOX(dstBox);
+		
+		// D3DXLoadVolumeFromVolume
+		if(D3DXLoadVolumeFromVolume(
+			mVolume, NULL, &ddestBox, 
+			src->mVolume, NULL, &dsrcBox,
+			 D3DX_DEFAULT, 0) != D3D_OK)
+		{
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
+		 		"D3D9HardwarePixelBuffer::blit");
+		}
+	}
+	else
+	{
+		HardwarePixelBuffer::blit(src, srcBox, dstBox);
+	}
 }
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
@@ -198,15 +281,8 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 	if(mSurface)
 	{
 		RECT destRect, srcRect;
-		srcRect.left = 0;
-		srcRect.top = 0;
-		srcRect.right = converted.getWidth();
-		srcRect.bottom = converted.getHeight();
-		
-		destRect.left = dstBox.left;
-		destRect.top = dstBox.top;
-		destRect.right = dstBox.right;
-		destRect.bottom = dstBox.bottom;
+		srcRect = toD3DRECTExtent(converted);
+		destRect = toD3DRECT(dstBox);
 		
 		if(D3DXLoadSurfaceFromMemory(mSurface, NULL, &destRect, 
 			converted.data, D3D9Texture::_getPF(converted.format),
@@ -220,19 +296,8 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 	else
 	{
 		D3DBOX destBox, srcBox;
-		srcBox.Left = 0;
-		srcBox.Top = 0;
-		srcBox.Front = 0;
-		srcBox.Right = converted.getWidth();
-		srcBox.Bottom = converted.getHeight();
-		srcBox.Back = converted.getDepth();
-		
-		destBox.Left = dstBox.left;
-		destBox.Top = dstBox.top;
-		destBox.Right = dstBox.right;
-		destBox.Bottom = dstBox.bottom;
-		destBox.Front = dstBox.front;
-		destBox.Back = dstBox.back;
+		srcBox = toD3DBOXExtent(converted);
+		destBox = toD3DBOX(dstBox);
 		
 		if(D3DXLoadVolumeFromMemory(mVolume, NULL, &destBox, 
 			converted.data, D3D9Texture::_getPF(converted.format),
@@ -250,7 +315,123 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
 {
-	// TODO
+	// Decide on pixel format of temp surface
+	PixelFormat tmpFormat = mFormat; 
+	if(D3D9Texture::_getPF(dst.format) != D3DFMT_UNKNOWN)
+	{
+		tmpFormat = dst.format;
+	}
+	if(mSurface)
+	{
+		assert(srcBox.getDepth() == 1 && dst.getDepth() == 1);
+		// Create temp texture
+		IDirect3DTexture9 *tmp;
+		IDirect3DSurface9 *surface;
+	
+		if(D3DXCreateTexture(
+			mpDev,
+			dst.getWidth(), dst.getHeight(), 0,
+			0, D3D9Texture::_getPF(tmpFormat), D3DPOOL_SCRATCH,
+			&tmp
+			) != D3D_OK)
+		{
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "Create temporary texture failed",
+		 		"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		if(tmp->GetSurfaceLevel(0, &surface) != D3D_OK)
+		{
+			tmp->Release();
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
+				"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		// Copy texture to this temp surface
+		RECT destRect, srcRect;
+		srcRect = toD3DRECT(srcBox);
+		destRect = toD3DRECTExtent(dst);
+		
+		if(D3DXLoadSurfaceFromSurface(
+			surface, NULL, &destRect, 
+			mSurface, NULL, &srcRect,
+			 D3DX_DEFAULT, 0) != D3D_OK)
+		{
+			surface->Release();
+			tmp->Release();
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromSurface failed",
+		 		"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		// Lock temp surface and copy it to memory
+		D3DLOCKED_RECT lrect; // Filled in by D3D
+		if(surface->LockRect(&lrect, NULL,  D3DLOCK_READONLY) != D3D_OK)
+		{
+			surface->Release();
+			tmp->Release();
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "surface->LockRect",
+		 		"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		// Copy it
+		PixelBox locked(dst.getWidth(), dst.getHeight(), dst.getDepth(), tmpFormat);
+		fromD3DLock(locked, lrect);
+		PixelUtil::bulkPixelConversion(locked, dst);
+		surface->UnlockRect();
+		// Release temporary surface and texture
+		surface->Release();
+		tmp->Release();
+	}
+	else
+	{
+		// Create temp texture
+		IDirect3DVolumeTexture9 *tmp;
+		IDirect3DVolume9 *surface;
+	
+		if(D3DXCreateVolumeTexture(
+			mpDev,
+			dst.getWidth(), dst.getHeight(), dst.getDepth(), 0,
+			0, D3D9Texture::_getPF(tmpFormat), D3DPOOL_SCRATCH,
+			&tmp
+			) != D3D_OK)
+		{
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "Create temporary texture failed",
+		 		"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		if(tmp->GetVolumeLevel(0, &surface) != D3D_OK)
+		{
+			tmp->Release();
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
+				"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		// Volume
+		D3DBOX ddestBox, dsrcBox;
+		ddestBox = toD3DBOXExtent(dst);
+		dsrcBox = toD3DBOX(srcBox);
+		
+		if(D3DXLoadVolumeFromVolume(
+			surface, NULL, &ddestBox, 
+			mVolume, NULL, &dsrcBox,
+			 D3DX_DEFAULT, 0) != D3D_OK)
+		{
+			surface->Release();
+			tmp->Release();
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadVolumeFromVolume failed",
+		 		"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		// Lock temp surface and copy it to memory
+		D3DLOCKED_BOX lbox; // Filled in by D3D
+		if(surface->LockBox(&lbox, NULL,  D3DLOCK_READONLY) != D3D_OK)
+		{
+			surface->Release();
+			tmp->Release();
+			Except(Exception::ERR_RENDERINGAPI_ERROR, "surface->LockBox",
+		 		"D3D9HardwarePixelBuffer::blitToMemory");
+		}
+		// Copy it
+		PixelBox locked(dst.getWidth(), dst.getHeight(), dst.getDepth(), tmpFormat);
+		fromD3DLock(locked, lbox);
+		PixelUtil::bulkPixelConversion(locked, dst);
+		surface->UnlockBox();
+		// Release temporary surface and texture
+		surface->Release();
+		tmp->Release();
+	}
 }
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::_genMipmaps()
@@ -268,7 +449,7 @@ void D3D9HardwarePixelBuffer::_genMipmaps()
 		if( D3DXFilterTexture( mMipTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) != D3D_OK )
 		{
 			Except( Exception::ERR_RENDERINGAPI_ERROR, 
-			"Failed to filter texture (generate mip maps)",
+			"Failed to filter texture (generate mipmaps)",
 			 "D3D9HardwarePixelBuffer::_genMipmaps" );
 		}
 	}

@@ -959,7 +959,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				surface->Release();
 
-				GETLEVEL(0, mip)->bind(surface);
+				GETLEVEL(0, mip)->bind(mpDev, surface);
 			}
 			break;
 		case TEX_TYPE_CUBE_MAP:
@@ -976,7 +976,7 @@ namespace Ogre
 					// this is safe because the texture keeps a reference as well
 					surface->Release();
 					
-					GETLEVEL(face, mip)->bind(surface);
+					GETLEVEL(face, mip)->bind(mpDev, surface);
 				}
 			}
 			break;
@@ -992,7 +992,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				volume->Release();
 						
-				GETLEVEL(0, mip)->bind(volume);
+				GETLEVEL(0, mip)->bind(mpDev, volume);
 			}
 			break;
 		};
