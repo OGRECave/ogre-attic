@@ -1,3 +1,6 @@
 bash copysamples.sh
-doxygen ../../Docs/src/chm.cfg
+pushd ..\..\Docs\src
+doxygen chm.cfg
+popd
 makensis ogresdk_vc7.nsi
+pause
