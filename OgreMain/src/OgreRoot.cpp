@@ -45,6 +45,14 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreJPEGCodec.h"
 #include "OgreTGACodec.h"
 
+#if OGRE_PLATFORM == PLATFORM_WIN32
+
+#   define WIN32_LEAN_AND_MEAN
+#   include <direct.h>
+
+#endif
+
+
 namespace Ogre {    
 
     typedef void (*DLL_START_PLUGIN)(void);
@@ -168,7 +176,7 @@ namespace Ogre {
         delete mMeshManager;
         delete mMaterialManager;        
         delete mMath;
-        delete mParticleManager;
+        //delete mParticleManager;
         if( mControllerManager )
             delete mControllerManager;
         delete mPlatformManager;

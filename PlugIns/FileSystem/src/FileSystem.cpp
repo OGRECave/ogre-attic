@@ -9,11 +9,6 @@
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
 
-#if OGRE_PLATFORM == PLATFORM_WINDOWS
-#   include <windows.h>
-#   include <direct.h>
-#   include <io.h>
-#endif
 
 
 #include <sys/types.h>
@@ -23,6 +18,12 @@
 #   include "SearchOps.h"
 #   include <sys/param.h>
 #   define MAX_PATH MAXPATHLEN
+#endif
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <direct.h>
+#   include <io.h>
 #endif
 
 /*#ifdef _INC_STDIO

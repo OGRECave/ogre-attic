@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreTexture.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <wingdi.h>
 #   include "gl.h"
 #   define GL_GLEXT_PROTOTYPES
 #   include "glprocs.h"

@@ -1,6 +1,7 @@
 #ifndef __FileSystem__
 #define __FileSystem__
 
+#include "OgrePrerequisites.h"
 #include "OgreArchiveEx.h"
 
 namespace Ogre {

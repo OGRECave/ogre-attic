@@ -79,10 +79,10 @@ namespace Ogre {
 
 // define the Char type as either char or wchar_t
 #if OGRE_WCHAR_T_STRINGS == 1
-#   define Char wchar_t
+#   define OgreChar wchar_t
 #	define _T( x ) L##x
 #else
-#   define Char char
+#   define OgreChar char
 #	define _T( x ) x
 #endif
 
