@@ -246,6 +246,7 @@ namespace Ogre {
         mUsage = usage;
         mFormat = format;
         mSrcBpp = mFinalBpp = Image::getNumElemBits( mFormat );
+        mHasAlpha = Image::formatHasAlpha(mFormat);
 
         createSurface();
         mIsLoaded = true;
