@@ -28,6 +28,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
+#include "OgreTextureUnitState.h"
 
 namespace Ogre 
 {
@@ -59,6 +62,7 @@ namespace Ogre
 		fputs(mBuffer.c_str(), fp);
         fclose(fp);
 		LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
+        clearQueue();
 	}
 
 	void MaterialSerializer::queueForExport(const Material *pMat, bool clearQueued, bool exportDefaults)
@@ -82,119 +86,147 @@ namespace Ogre
 
 	void MaterialSerializer::writeMaterial(const Material *pMat)
     {
-        /* TODO
-		LogManager::getSingleton().logMessage("MaterialSerializer : parsing material " + pMat->getName() + " to queue.", LML_CRITICAL);
-        // Name
-        mBuffer += pMat->getName();
-		beginSection();
+		LogManager::getSingleton().logMessage("MaterialSerializer : writing material " + pMat->getName() + " to queue.", LML_CRITICAL);
+        // Material name
+		mBuffer += "\n";
+        mBuffer += "material " + pMat->getName();
+		beginSection(0);
 		{
+            // Iterate over techniques
+            Material::TechniqueIterator it = 
+                const_cast<Material*>(pMat)->getTechniqueIterator();
+            while (it.hasMoreElements())
+            {
+                writeTechnique(it.getNext());
+            }
+        }
+        endSection(0);
+    }
+
+    void MaterialSerializer::writeTechnique(const Technique* pTech)
+    {
+        // Technique header
+		mBuffer += "\n";
+        mBuffer += "technique";
+        beginSection(1);
+        {
+            // Iterate over passes
+            Technique::PassIterator it = const_cast<Technique*>(pTech)->getPassIterator();
+            while (it.hasMoreElements())
+            {
+                writePass(it.getNext());
+            }
+        }
+        endSection(1);
+
+    }
+
+    void MaterialSerializer::writePass(const Pass* pPass)
+    {
+		mBuffer += "\n";
+        mBuffer += "pass";
+        beginSection(2);
+        {
 			//lighting
 			if (mDefaults || 
-				pMat->getLightingEnabled() != true)
+				pPass->getLightingEnabled() != true)
 			{
-				writeAttribute("lighting");
-				writeValue(pMat->getLightingEnabled() ? "on" : "off");
+				writeAttribute(2, "lighting");
+				writeValue(pPass->getLightingEnabled() ? "on" : "off");
 			}
 
-			if (pMat->getLightingEnabled())
+			if (pPass->getLightingEnabled())
 			{
 				// Ambient
 				if (mDefaults ||
-					pMat->getAmbient().r != 1 ||
-					pMat->getAmbient().g != 1 ||
-					pMat->getAmbient().b != 1)
+					pPass->getAmbient().r != 1 ||
+					pPass->getAmbient().g != 1 ||
+					pPass->getAmbient().b != 1)
 				{
-					writeAttribute("ambient");
-					writeColourValue(pMat->getAmbient());
+					writeAttribute(2, "ambient");
+					writeColourValue(pPass->getAmbient());
 				}
 
 				// Diffuse
 				if (mDefaults ||
-					pMat->getDiffuse().r != 1 ||
-					pMat->getDiffuse().g != 1 ||
-					pMat->getDiffuse().b != 1)
+					pPass->getDiffuse().r != 1 ||
+					pPass->getDiffuse().g != 1 ||
+					pPass->getDiffuse().b != 1)
 				{
-					writeAttribute("diffuse");
-					writeColourValue(pMat->getDiffuse());
+					writeAttribute(2, "diffuse");
+					writeColourValue(pPass->getDiffuse());
 				}
 
 				// Specular
 				if (mDefaults ||
-					pMat->getSpecular().r != 0 ||
-					pMat->getSpecular().g != 0 ||
-					pMat->getSpecular().b != 0 ||
-					pMat->getSpecular().a != 1)
+					pPass->getSpecular().r != 0 ||
+					pPass->getSpecular().g != 0 ||
+					pPass->getSpecular().b != 0 ||
+					pPass->getSpecular().a != 1)
 				{
-					writeAttribute("specular");
-					writeColourValue(pMat->getSpecular(), true);
+					writeAttribute(2, "specular");
+					writeColourValue(pPass->getSpecular(), true);
 				}
 
 				// Emissive
 				if (mDefaults ||
-					pMat->getSelfIllumination().r != 0 ||
-					pMat->getSelfIllumination().g != 0 ||
-					pMat->getSelfIllumination().b != 0)
+					pPass->getSelfIllumination().r != 0 ||
+					pPass->getSelfIllumination().g != 0 ||
+					pPass->getSelfIllumination().b != 0)
 				{
-					writeAttribute("emissive");
-					writeColourValue(pMat->getSelfIllumination());
+					writeAttribute(2, "emissive");
+					writeColourValue(pPass->getSelfIllumination());
 				}
 			}
 
 			// scene blend factor
 			if (mDefaults || 
-				pMat->getSourceBlendFactor() != SBF_ONE || 
-				pMat->getDestBlendFactor() != SBF_ZERO)
+				pPass->getSourceBlendFactor() != SBF_ONE || 
+				pPass->getDestBlendFactor() != SBF_ZERO)
 			{
-				writeAttribute("scene_blend");
-				writeSceneBlendFactor(pMat->getSourceBlendFactor(), pMat->getDestBlendFactor());
+				writeAttribute(2, "scene_blend");
+				writeSceneBlendFactor(pPass->getSourceBlendFactor(), pPass->getDestBlendFactor());
 			}
 
-			//anisotropy level
-			if (mDefaults || 
-				pMat->getAnisotropy() != 1)
-			{
-				writeAttribute("anisotropy");
-				writeValue(StringConverter::toString(pMat->getAnisotropy()));
-			}
 
 			//depth check
 			if (mDefaults || 
-				pMat->getDepthCheckEnabled() != true)
+				pPass->getDepthCheckEnabled() != true)
 			{
-				writeAttribute("depth_check");
-				writeValue(pMat->getDepthCheckEnabled() ? "on" : "off");
+				writeAttribute(2, "depth_check");
+				writeValue(pPass->getDepthCheckEnabled() ? "on" : "off");
 			}
 
 			//depth write
 			if (mDefaults || 
-				pMat->getDepthWriteEnabled() != true)
+				pPass->getDepthWriteEnabled() != true)
 			{
-				writeAttribute("depth_write");
-				writeValue(pMat->getDepthWriteEnabled() ? "on" : "off");
+				writeAttribute(2, "depth_write");
+				writeValue(pPass->getDepthWriteEnabled() ? "on" : "off");
 			}
 
 			//depth function
 			if (mDefaults || 
-				pMat->getDepthFunction() != CMPF_LESS_EQUAL)
+				pPass->getDepthFunction() != CMPF_LESS_EQUAL)
 			{
-				writeAttribute("depth_func");
-				writeCompareFunction(pMat->getDepthFunction());
+				writeAttribute(2, "depth_func");
+				writeCompareFunction(pPass->getDepthFunction());
 			}
 
 			//depth bias
 			if (mDefaults || 
-				pMat->getDepthBias() != 0)
+				pPass->getDepthBias() != 0)
 			{
-				writeAttribute("depth_bias");
-				writeValue(StringConverter::toString(pMat->getDepthBias()));
+				writeAttribute(2, "depth_bias");
+				writeValue(StringConverter::toString(pPass->getDepthBias()));
 			}
 
 			// hardware culling mode
 			if (mDefaults || 
-				pMat->getCullingMode() != CULL_CLOCKWISE)
+				pPass->getCullingMode() != CULL_CLOCKWISE)
 			{
-				CullingMode hcm = pMat->getCullingMode();
-				writeAttribute("cull_hardware");
+				CullingMode hcm = pPass->getCullingMode();
+				writeAttribute(2, "cull_hardware");
 				switch (hcm)
 				{
 				case CULL_NONE :
@@ -211,10 +243,10 @@ namespace Ogre
 
 			// software culling mode
 			if (mDefaults || 
-				pMat->getManualCullingMode() != MANUAL_CULL_BACK)
+				pPass->getManualCullingMode() != MANUAL_CULL_BACK)
 			{
-				ManualCullingMode scm = pMat->getManualCullingMode();
-				writeAttribute("cull_software");
+				ManualCullingMode scm = pPass->getManualCullingMode();
+				writeAttribute(2, "cull_software");
 				switch (scm)
 				{
 				case MANUAL_CULL_NONE :
@@ -231,10 +263,10 @@ namespace Ogre
 
 			//shading
 			if (mDefaults || 
-				pMat->getShadingMode() != SO_GOURAUD)
+				pPass->getShadingMode() != SO_GOURAUD)
 			{
-				writeAttribute("shading");
-				switch (pMat->getShadingMode())
+				writeAttribute(2, "shading");
+				switch (pPass->getShadingMode())
 				{
 				case SO_FLAT:
 					writeValue("flat");
@@ -248,37 +280,16 @@ namespace Ogre
 				}
 			}
 
-			//filtering
-			if (mDefaults || 
-				pMat->getTextureFiltering() != TFO_BILINEAR)
-			{
-				writeAttribute("filtering");
-				switch (pMat->getTextureFiltering())
-				{
-				case TFO_BILINEAR:
-					writeValue("bilinear");
-					break;
-				case TFO_NONE:
-					writeValue("none");
-					break;
-				case TFO_TRILINEAR:
-					writeValue("trilinear");
-					break;
-				case TFO_ANISOTROPIC:
-					writeValue("anisotropic");
-					break;
-				}
-			}
 
 			//fog override
 			if (mDefaults || 
-				pMat->getFogOverride() != false)
+				pPass->getFogOverride() != false)
 			{
-				writeAttribute("fog_override");
-				writeValue(pMat->getFogOverride() ? "true" : "false");
-				if (pMat->getFogOverride())
+				writeAttribute(2, "fog_override");
+				writeValue(pPass->getFogOverride() ? "true" : "false");
+				if (pPass->getFogOverride())
 				{
-					switch (pMat->getFogMode())
+					switch (pPass->getFogMode())
 					{
 					case FOG_NONE:
 						writeValue("none");
@@ -294,52 +305,43 @@ namespace Ogre
 						break;
 					}
 
-					if (pMat->getFogMode() != FOG_NONE)
+					if (pPass->getFogMode() != FOG_NONE)
 					{
-						writeColourValue(pMat->getFogColour());
-						writeValue(StringConverter::toString(pMat->getFogDensity()));
-						writeValue(StringConverter::toString(pMat->getFogStart()));
-						writeValue(StringConverter::toString(pMat->getFogEnd()));
+						writeColourValue(pPass->getFogColour());
+						writeValue(StringConverter::toString(pPass->getFogDensity()));
+						writeValue(StringConverter::toString(pPass->getFogStart()));
+						writeValue(StringConverter::toString(pPass->getFogEnd()));
 					}
 				}
 			}
 						
 			// Nested texture layers
-			if (pMat->getNumTextureLayers())
-			{
-				for (int i = 0; i < pMat->getNumTextureLayers(); ++i)
-				{
-					mBuffer += "\n";
-					String tmp = "Texture layer #";
-					tmp += StringConverter::toString(i);
-					writeComment(tmp);
-					beginSubSection();
-					writeTextureLayer(pMat->getTextureLayer(i));
-					endSubSection();
-				}
+            Pass::TextureUnitStateIterator it = const_cast<Pass*>(pPass)->getTextureUnitStateIterator();
+            while(it.hasMoreElements())
+            {
+				writeTextureUnit(it.getNext());
 			}
 		}
-		endSection();
+		endSection(2);
 		LogManager::getSingleton().logMessage("MaterialSerializer : done.", LML_CRITICAL);
-        */
     }
 
-	void MaterialSerializer::writeTextureLayer(const TextureUnitState *pTex)
+	void MaterialSerializer::writeTextureUnit(const TextureUnitState *pTex)
     {
-        /* TODO
 		LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
 
+		mBuffer += "\n";
 		//texture name
 		if (pTex->getNumFrames() == 1 && pTex->getTextureName() != "" && !pTex->isCubic())
 		{
-			writeSubAttribute("texture");
+			writeAttribute(3, "texture");
 			writeValue(pTex->getTextureName());
 		}
 
 		//anim. texture
 		if (pTex->getNumFrames() > 1 && !pTex->isCubic())
 		{
-			writeSubAttribute("anim_texture");
+			writeAttribute(3, "anim_texture");
 			for (int n = 0; n < pTex->getNumFrames(); n++)
 				writeValue(pTex->getFrameTextureName(n));
 			writeValue(StringConverter::toString(pTex->getAnimationDuration()));
@@ -348,7 +350,7 @@ namespace Ogre
 		//cubic texture
 		if (pTex->isCubic())
 		{
-			writeSubAttribute("cubic_texture");
+			writeAttribute(3, "cubic_texture");
 			for (int n = 0; n < pTex->getNumFrames(); n++)
 				writeValue(pTex->getFrameTextureName(n));
 
@@ -363,7 +365,7 @@ namespace Ogre
 		if (mDefaults || 
 			pTex->getTextureAnisotropy() != 1)
 		{
-			writeAttribute("tex_anisotropy");
+			writeAttribute(3, "tex_anisotropy");
 			writeValue(StringConverter::toString(pTex->getTextureAnisotropy()));
 		}
 
@@ -371,7 +373,7 @@ namespace Ogre
 		if (mDefaults || 
 			pTex->getTextureCoordSet() != 0)
 		{
-			writeSubAttribute("tex_coord_set");
+			writeAttribute(3, "tex_coord_set");
 			writeValue(StringConverter::toString(pTex->getTextureCoordSet()));
 		}
 
@@ -379,7 +381,7 @@ namespace Ogre
 		if (mDefaults || 
 			pTex->getTextureAddressingMode() != Ogre::TextureUnitState::TAM_WRAP)
 		{
-			writeSubAttribute("tex_address_mode");
+			writeAttribute(3, "tex_address_mode");
 			switch (pTex->getTextureAddressingMode())
 			{
 			case Ogre::TextureUnitState::TAM_CLAMP:
@@ -396,10 +398,10 @@ namespace Ogre
 		
 		//filtering
 		if (mDefaults || 
-			pTex->getTextureLayerFiltering() != TFO_BILINEAR)
+			pTex->getTextureFiltering() != TFO_BILINEAR)
 		{
-			writeSubAttribute("tex_filtering");
-			switch (pTex->getTextureLayerFiltering())
+			writeAttribute(3, "tex_filtering");
+			switch (pTex->getTextureFiltering())
 			{
 			case TFO_BILINEAR:
 				writeValue("bilinear");
@@ -421,7 +423,7 @@ namespace Ogre
 			pTex->getAlphaRejectFunction() != CMPF_ALWAYS_PASS ||
 			pTex->getAlphaRejectValue() != 0)
 		{
-			writeSubAttribute("alpha_rejection");
+			writeAttribute(3, "alpha_rejection");
 			writeCompareFunction(pTex->getAlphaRejectFunction());
 			writeValue(StringConverter::toString(pTex->getAlphaRejectValue()));
 		}
@@ -432,7 +434,7 @@ namespace Ogre
 			pTex->getColourBlendMode().source1 != LBS_TEXTURE ||
 			pTex->getColourBlendMode().source2 != LBS_CURRENT)
 		{
-			writeSubAttribute("colour_op_ex");
+			writeAttribute(3, "colour_op_ex");
 			writeLayerBlendOperationEx(pTex->getColourBlendMode().operation);
 			writeLayerBlendSource(pTex->getColourBlendMode().source1);
 			writeLayerBlendSource(pTex->getColourBlendMode().source2);
@@ -444,7 +446,7 @@ namespace Ogre
 				writeColourValue(pTex->getColourBlendMode().colourArg2, false);
 
 			//colour_op_multipass_fallback
-			writeSubAttribute("colour_op_multipass_fallback");
+			writeAttribute(3, "colour_op_multipass_fallback");
 			writeSceneBlendFactor(pTex->getColourBlendFallbackSrc());
 			writeSceneBlendFactor(pTex->getColourBlendFallbackDest());
 		}
@@ -455,7 +457,7 @@ namespace Ogre
 			pTex->getAlphaBlendMode().source1 != LBS_TEXTURE ||
 			pTex->getAlphaBlendMode().source2 != LBS_CURRENT)
 		{
-			writeSubAttribute("alpha_op_ex");
+			writeAttribute(3, "alpha_op_ex");
 			writeLayerBlendOperationEx(pTex->getAlphaBlendMode().operation);
 			writeLayerBlendSource(pTex->getAlphaBlendMode().source1);
 			writeLayerBlendSource(pTex->getAlphaBlendMode().source2);
@@ -471,7 +473,7 @@ namespace Ogre
 		if (mDefaults ||
 			pTex->getTextureRotate() != 0)
 		{
-			writeSubAttribute("rotate");
+			writeAttribute(3, "rotate");
 			writeValue(StringConverter::toString(pTex->getTextureRotate()));
 		}
 
@@ -480,7 +482,7 @@ namespace Ogre
 			pTex->getTextureUScroll() != 0 || 
 			pTex->getTextureVScroll() != 0 )
 		{
-			writeSubAttribute("scroll");
+			writeAttribute(3, "scroll");
 			writeValue(StringConverter::toString(pTex->getTextureUScroll()));
 			writeValue(StringConverter::toString(pTex->getTextureVScroll()));
 		}
@@ -516,7 +518,7 @@ namespace Ogre
 
 	void MaterialSerializer::writeEnvironmentMapEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
-		writeSubAttribute("env_map");
+		writeAttribute(3, "env_map");
 		switch (effect.subtype)
 		{
 		case TextureUnitState::ENV_PLANAR:
@@ -532,21 +534,20 @@ namespace Ogre
 			writeValue("cubic_reflection");
 			break;
 		}
-        */
 	}
 
 	void MaterialSerializer::writeRotationEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
 		if (effect.arg1)
 		{
-			writeSubAttribute("rotate_anim");
+			writeAttribute(3, "rotate_anim");
 			writeValue(StringConverter::toString(effect.arg1));
 		}
 	}
 
 	void MaterialSerializer::writeTransformEffect(const TextureUnitState::TextureEffect effect, const TextureUnitState *pTex)
 	{
-		writeSubAttribute("wave_xform");
+		writeAttribute(3, "wave_xform");
 		
 		switch (effect.type)
 		{
@@ -596,7 +597,7 @@ namespace Ogre
 	{
 		if (effect.arg1 || effect.arg2)
 		{
-			writeSubAttribute("scroll_anim");
+			writeAttribute(3, "scroll_anim");
 			writeValue(StringConverter::toString(effect.arg1));
 			writeValue(StringConverter::toString(effect.arg2));
 		}
