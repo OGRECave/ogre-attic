@@ -199,6 +199,9 @@ AC_CONFIG_FILES([Makefile \
 	Samples/DynTex/Makefile \
 	Samples/DynTex/src/Makefile \
 	Samples/DynTex/include/Makefile \
+	Samples/VolumeTex/Makefile \
+	Samples/VolumeTex/src/Makefile \
+	Samples/VolumeTex/include/Makefile \
     Tests/Makefile \
     Tests/src/Makefile \
     Tools/Makefile \
