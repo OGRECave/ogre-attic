@@ -82,13 +82,13 @@ namespace Ogre {
         return page;
     }
     //-------------------------------------------------------------------------
-    void TerrainPageSource::firePageConstructed(Real* heightData)
+    void TerrainPageSource::firePageConstructed(size_t pagex, size_t pagez, Real* heightData)
     {
         PageSourceListenerList::iterator i, iend;
         iend = mPageSourceListeners.end();
         for(i = mPageSourceListeners.begin(); i != iend; ++i)
         {
-            (*i)->pageConstructed(heightData);
+            (*i)->pageConstructed(pagex, pagez, heightData);
         }
     }
     //-------------------------------------------------------------------------

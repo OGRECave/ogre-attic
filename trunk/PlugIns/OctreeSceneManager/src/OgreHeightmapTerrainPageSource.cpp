@@ -248,7 +248,7 @@ namespace Ogre {
             }
 
             // Call listeners
-            firePageConstructed(heightData);
+            firePageConstructed(0, 0, heightData);
             // Now turn into TerrainPage
             // Note that we're using a single material for now
             mPage = buildPage(heightData, 
