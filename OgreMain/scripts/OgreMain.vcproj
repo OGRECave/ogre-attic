@@ -421,6 +421,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgrePatchSurface.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePixelFormat.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgrePlane.cpp">
 			</File>
 			<File
@@ -962,6 +965,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgrePatchSurface.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePixelFormat.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePlane.h">
