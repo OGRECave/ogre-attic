@@ -33,6 +33,26 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    /** Information about a file/directory within the archive will be
+    returned using a FileInfo struct.
+    @see
+    Archive
+    */
+    struct FileInfo {
+        /// The file's fully qualified name
+        String filename;
+        /// Path name; separated by '/' and ending with '/'
+        String path;
+        /// Base filename
+        String basename;
+        /// Compressed size
+        size_t compressedSize;
+        /// Uncompressed size
+        size_t uncompressedSize;
+    };
+
+    typedef std::vector<FileInfo> FileInfoList;
+    typedef SharedPtr<FileInfoList> FileInfoListPtr;
 
     /** Archive-handling class.
     @remarks
@@ -58,26 +78,7 @@ namespace Ogre {
         /// Archive type code
         String mType;
     public:
-        /** Information about a file/directory within the archive will be
-        returned using a FileInfo struct.
-        @see
-        Archive
-        */
-        struct FileInfo {
-            /// The file's fully qualified name
-            String filename;
-            /// Path name; separated by '/' and ending with '/'
-            String path;
-            /// Base filename
-            String basename;
-            /// Compressed size
-            size_t compressedSize;
-            /// Uncompressed size
-            size_t uncompressedSize;
-        };
 
-        typedef std::vector<FileInfo> FileInfoList;
-        typedef SharedPtr<FileInfoList> FileInfoListPtr;
 
         /** Constructor - don't call direct, used by ArchiveFactory.
         */

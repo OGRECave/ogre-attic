@@ -124,7 +124,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Archive::FileInfoListPtr ZipArchive::listFileInfo(bool recursive)
+    FileInfoListPtr ZipArchive::listFileInfo(bool recursive)
     {
         FileInfoList* fil = new FileInfoList();
         FileInfoList::const_iterator i, iend;
@@ -168,7 +168,7 @@ namespace Ogre {
         return ret;
     }
     //-----------------------------------------------------------------------
-	Archive::FileInfoListPtr ZipArchive::findFileInfo(const String& pattern, 
+	FileInfoListPtr ZipArchive::findFileInfo(const String& pattern, 
         bool recursive)
     {
         FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());

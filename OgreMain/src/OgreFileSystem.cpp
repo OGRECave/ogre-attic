@@ -63,7 +63,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void FileSystemArchive::findFiles(const String& pattern, bool recursive, 
-        StringVector* simpleList, Archive::FileInfoList* detailList, 
+        StringVector* simpleList, FileInfoList* detailList, 
         const String& currentDir)
     {
         long lHandle, res;
@@ -212,10 +212,10 @@ namespace Ogre {
         return ret;
     }
     //-----------------------------------------------------------------------
-    Archive::FileInfoListPtr FileSystemArchive::listFileInfo(bool recursive)
+    FileInfoListPtr FileSystemArchive::listFileInfo(bool recursive)
     {
         pushDirectory(mBasePath);
-        Archive::FileInfoListPtr ret(new Archive::FileInfoList());
+        FileInfoListPtr ret(new FileInfoList());
 
         findFiles("*", recursive, 0, ret.getPointer());
 
@@ -237,11 +237,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Archive::FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern, 
+    FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern, 
         bool recursive)
     {
         pushDirectory(mBasePath);
-        Archive::FileInfoListPtr ret(new Archive::FileInfoList());
+        FileInfoListPtr ret(new FileInfoList());
 
         findFiles(pattern, recursive, 0, ret.getPointer());
 

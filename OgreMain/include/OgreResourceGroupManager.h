@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCommon.h"
 #include "OgreDataStream.h"
 #include "OgreResource.h"
+#include "OgreArchive.h"
 
 namespace Ogre {
 
@@ -459,7 +460,54 @@ namespace Ogre {
 		DataStreamListPtr _findResources(const String& pattern, 
 			const String& groupName = DEFAULT_RESOURCE_GROUP_NAME);
 		
-		/** Adds a ResourceGroupListener which will be called back during 
+        /** List all file names in a resource group.
+        @note
+        This method only returns filenames, you can also retrieve other
+        information using listFileInfo.
+        @param groupName The name of the group
+        @returns A list of filenames matching the criteria, all are fully qualified
+        */
+        StringVectorPtr listResourceNames(const String& groupName);
+
+        /** List all files in a resource group with accompanying information.
+        @param groupName The name of the group
+        @returns A list of structures detailing quite a lot of information about
+        all the files in the archive.
+        */
+        FileInfoListPtr listResourceFileInfo(const String& groupName);
+
+        /** Find all file names matching a given pattern in a resource group.
+        @note
+        This method only returns filenames, you can also retrieve other
+        information using findFileInfo.
+        @param groupName The name of the group
+        @param pattern The pattern to search for; wildcards (*) are allowed
+        @returns A list of filenames matching the criteria, all are fully qualified
+        */
+        StringVectorPtr findResourceNames(const String& groupName, const String& pattern);
+
+        /** Find out if the named file exists in a group (note: fully qualified 
+            filename required) 
+        @param group The name of the resource group
+        @param filename Name of the file to test for
+        */
+        bool resourceExists(const String& group, const String& filename) 
+        {
+            StringVectorPtr vec = findResourceNames(group, filename);
+            return !(vec->empty());
+        }
+
+        /** Find all files matching a given pattern in a group and get 
+        some detailed information about them.
+        @param group The name of the resource group
+        @param pattern The pattern to search for; wildcards (*) are allowed
+        @returns A list of file information structures for all files matching 
+        the criteria.
+        */
+        FileInfoListPtr findResourceFileInfo(const String& group, const String& pattern);
+
+        
+        /** Adds a ResourceGroupListener which will be called back during 
             resource loading events. 
         */
         void addResourceGroupListener(ResourceGroupListener* l);
