@@ -42,7 +42,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    uchar* DataChunk::allocate( size_t size, uchar * ptr )
+    uchar* DataChunk::allocate( size_t size, const uchar * ptr )
     {
         assert (size > 0);
 
