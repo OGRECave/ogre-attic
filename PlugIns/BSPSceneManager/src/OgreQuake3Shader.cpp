@@ -257,7 +257,7 @@ namespace Ogre {
     String Quake3Shader::getAlternateName(String texName)
     {
         // Get alternative JPG to TGA and vice versa
-        int pos;
+        size_t pos;
         String ext, base;
 
         pos = texName.find_last_of(".");
