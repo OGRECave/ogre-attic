@@ -109,7 +109,7 @@ namespace Ogre {
     }
     void PopupMenuGuiElement::CmdItemTemplate::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<PopupMenuGuiElement*>(target)->setItemTemplateName(val);
     }
@@ -120,7 +120,7 @@ namespace Ogre {
     }
     void PopupMenuGuiElement::CmdVSpacing::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<PopupMenuGuiElement*>(target)->setVSpacing(val);
     }
@@ -131,7 +131,7 @@ namespace Ogre {
     }
     void PopupMenuGuiElement::CmdHSpacing::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<PopupMenuGuiElement*>(target)->setHSpacing(val);
     }

@@ -66,7 +66,7 @@ namespace Ogre {
                 " bounds completely defined. Define them first before exporting.", 
                 "MeshSerializerImpl::exportMesh");
         }
-        mpfFile = fopen(filename, "wb");
+        mpfFile = fopen(filename.c_str(), "wb");
 
         writeFileHeader();
         LogManager::getSingleton().logMessage("File header written.");

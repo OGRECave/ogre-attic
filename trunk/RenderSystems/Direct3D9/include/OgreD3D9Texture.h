@@ -228,7 +228,6 @@ namespace Ogre {
 
 		bool requiresTextureFlipping() const { return false; }
         virtual void writeContentsToFile( const String & filename ) {}
-        virtual void outputText(int x, int y, const String& text) {}
 
     protected:
         /// The texture to which rendering takes place.

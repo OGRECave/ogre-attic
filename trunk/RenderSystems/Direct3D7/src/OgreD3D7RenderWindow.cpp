@@ -568,24 +568,6 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void D3D7RenderWindow::outputText( int x, int y, const String& text )
-    {
-        HDC hDC;
-
-        if( mIsUsingDirectDraw && mlpDDSBack )
-        {
-            // Get a DC for the surface. Then, write out the buffer
-            if( SUCCEEDED( mlpDDSBack->GetDC(&hDC) ) )
-            {
-                SetTextColor( hDC, RGB(255,255,0) );
-                SetBkMode( hDC, TRANSPARENT );
-                ExtTextOut( hDC, x, y, 0, NULL, text, lstrlen(text), NULL );
-                mlpDDSBack->ReleaseDC(hDC);
-            }
-        }
-    }
-
-    //-----------------------------------------------------------------------
     void D3D7RenderWindow::getCustomAttribute( const String& name, void* pData )
     {
         // Valid attributes and their equivalent native functions:

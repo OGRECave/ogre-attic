@@ -209,10 +209,6 @@ namespace Ogre {
         */
         virtual void resetStatistics(void);
 
-        /** DEPRECATED Outputs text to the target at the specified co-ordinates.
-        */
-        virtual void outputText(int x, int y, const String& text) = 0;
-
         /** Gets a custom (maybe platform-specific) attribute.
             @remarks
                 This is a nasty way of satisfying any API's need to see platform-specific details.

@@ -131,10 +131,6 @@ namespace Ogre {
         */
         LPDIRECT3DDEVICE7 getD3DDevice(void);
 
-        /** Overridden - see RenderTarget.
-        */
-        void outputText(int x, int y, const String& text);
-
         bool requiresTextureFlipping() const { return false; }
 
         /** Overridden - see RenderTarget.

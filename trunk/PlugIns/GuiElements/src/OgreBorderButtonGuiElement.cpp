@@ -90,7 +90,7 @@ namespace Ogre {
 			else
 				borderMaterialName = mBorderHiliteUpMaterialName;
 
-			if (strlen(borderMaterialName) == 0)
+			if (borderMaterialName.empty())
 			{
 				if (mButtonDown)
 					borderMaterialName = mBorderDownMaterialName;
@@ -276,7 +276,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderDownMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<BorderButtonGuiElement*>(target)->setBorderDownMaterialName(val);
     }
@@ -289,7 +289,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderUpMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<BorderButtonGuiElement*>(target)->setBorderUpMaterialName(val);
     }
@@ -302,7 +302,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderHiliteDownMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<BorderButtonGuiElement*>(target)->setBorderHiliteDownMaterialName(val);
     }
@@ -315,7 +315,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderHiliteUpMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<BorderButtonGuiElement*>(target)->setBorderHiliteUpMaterialName(val);
     }
@@ -328,7 +328,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderDisabledMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<BorderButtonGuiElement*>(target)->setBorderDisabledMaterialName(val);
     }
@@ -341,7 +341,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderButtonCaption::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split("\t\n ", 1);
+        std::vector<String> vec = StringUtil::split(val, "\t\n ", 1);
 
 
 		if (vec.size() < 2)

@@ -227,7 +227,7 @@ namespace Ogre {
 
         for(size_t i = 0; i < images.size(); i++)
         {
-            Image img = images[i];
+            const Image& img = images[i];
 
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL,
@@ -304,7 +304,7 @@ namespace Ogre {
                 Image img;
                 img.load( mName );
 
-                if (getName().endsWith(".dds") && img.hasFlag(IF_CUBEMAP))
+                if (StringUtil::endsWith(getName(), "dds") && img.hasFlag(IF_CUBEMAP))
                 {
                     Image newImage;
                     std::vector<Image> images;
@@ -328,7 +328,7 @@ namespace Ogre {
                 else
                 {
                     // If this is a dds volumetric texture set the texture type flag accordingly.
-                    if(getName().endsWith(".dds") && img.getDepth() > 1)
+                    if(StringUtil::endsWith(getName(), ".dds") && img.getDepth() > 1)
                         mTextureType = TEX_TYPE_3D;
 
                     loadImage( img );

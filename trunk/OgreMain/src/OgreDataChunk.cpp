@@ -188,7 +188,7 @@ namespace Ogre {
         buf[count] = '\0';
         String ret = buf;
         if (trimAfter)
-            ret.trim();
+            StringUtil::trim(ret);
         return ret;
 
     }

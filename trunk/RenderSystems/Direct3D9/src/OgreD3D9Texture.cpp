@@ -397,7 +397,7 @@ namespace Ogre
 		assert(this->getTextureType() == TEX_TYPE_CUBE_MAP);
 
         // DDS load?
-        if (getName().endsWith(".dds"))
+		if (StringUtil::endsWith(getName(), ".dds"))
         {
             // find & load resource data
             SDDataChunk chunk;

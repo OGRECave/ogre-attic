@@ -98,9 +98,9 @@ bool HeightmapLoader::initialise(const String& filename)
     mHeightMap = new Image();
     mHeightMap->load(heightmap);
 
-    mScale.x = atof(config.getSetting("Scale.x"));
-    mScale.y = atof(config.getSetting("Scale.y"));
-    mScale.z = atof(config.getSetting("Scale.z"));
+    mScale.x = atof(config.getSetting("Scale.x").c_str());
+    mScale.y = atof(config.getSetting("Scale.y").c_str());
+    mScale.z = atof(config.getSetting("Scale.z").c_str());
     if (mScale.x == 0) mScale.x = 1.0;
     if (mScale.y == 0) mScale.y = 0.25;
     if (mScale.z == 0) mScale.z = 1.0;

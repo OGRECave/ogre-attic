@@ -88,7 +88,7 @@ namespace Ogre {
     }
     void ScrollBarGuiElement::CmdUpButton::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ScrollBarGuiElement*>(target)->setUpButtonName(val);
     }
@@ -99,7 +99,7 @@ namespace Ogre {
     }
     void ScrollBarGuiElement::CmdDownButton::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ScrollBarGuiElement*>(target)->setDownButtonName(val);
     }
@@ -110,7 +110,7 @@ namespace Ogre {
     }
     void ScrollBarGuiElement::CmdScrollBit::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ScrollBarGuiElement*>(target)->setScrollBitName(val);
     }

@@ -475,11 +475,6 @@ namespace Ogre
 		}
 	}
 
-	void D3D9RenderWindow::outputText( int x, int y, const String& text )
-	{
-		// Deprecated
-	}
-
 	void D3D9RenderWindow::WindowMovedOrResized()
 	{
 		// TODO

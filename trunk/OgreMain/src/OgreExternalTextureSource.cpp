@@ -161,7 +161,7 @@ namespace Ogre
 	{
 		int t = 0, p = 0, s = 0;
 
-		StringVector vecparams = val.split(" \t");
+		StringVector vecparams = StringUtil::split(val, " \t");
 
 		if( vecparams.size() == 3 )
 		{

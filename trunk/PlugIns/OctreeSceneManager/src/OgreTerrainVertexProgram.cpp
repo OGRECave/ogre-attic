@@ -273,7 +273,7 @@ namespace Ogre {
             break;
         };
         // default
-        return String::BLANK;
+        return StringUtil::BLANK;
 
     }
 }

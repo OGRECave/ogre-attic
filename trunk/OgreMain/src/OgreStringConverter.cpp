@@ -35,49 +35,49 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(Real val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(int val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(unsigned int val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(long val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(unsigned long val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Vector3& val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix3& val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val[0][0] << " " 
             << val[0][1] << " "             
             << val[0][2] << " "             
@@ -116,7 +116,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix4& val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val[0][0] << " " 
             << val[0][1] << " "             
             << val[0][2] << " "             
@@ -138,21 +138,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Quaternion& val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream  << val.w << " " << val.x << " " << val.y << " " << val.z;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const ColourValue& val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         stream << val.r << " " << val.g << " " << val.b << " " << val.a;
         return stream.str();
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const StringVector& val)
     {
-        String::StrStreamType stream;
+        StringUtil::StrStreamType stream;
         StringVector::const_iterator i, iend, ibegin;
         ibegin = val.begin();
         iend = val.end();
@@ -202,7 +202,7 @@ namespace Ogre {
     Vector3 StringConverter::parseVector3(const String& val)
     {
         // Split on space
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         if (vec.size() != 3)
         {
@@ -218,7 +218,7 @@ namespace Ogre {
     Matrix3 StringConverter::parseMatrix3(const String& val)
     {
         // Split on space
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         if (vec.size() != 9)
         {
@@ -235,7 +235,7 @@ namespace Ogre {
     Matrix4 StringConverter::parseMatrix4(const String& val)
     {
         // Split on space
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         if (vec.size() != 16)
         {
@@ -253,7 +253,7 @@ namespace Ogre {
     Quaternion StringConverter::parseQuaternion(const String& val)
     {
         // Split on space
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         if (vec.size() != 4)
         {
@@ -268,7 +268,7 @@ namespace Ogre {
     ColourValue StringConverter::parseColourValue(const String& val)
     {
         // Split on space
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         if (vec.size() == 4)
         {
@@ -286,7 +286,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     StringVector StringConverter::parseStringVector(const String& val)
     {
-        return val.split();
+        return StringUtil::split(val);
     }
 }
 

@@ -87,7 +87,7 @@ namespace Ogre {
     }
     void TextBoxGuiElement::CmdBackPanel::doSet( void* target, const String& val )
     {
-        std::vector<String> vec = val.split("\t\n ", 1);
+        std::vector<String> vec = StringUtil::split(val, "\t\n ", 1);
 
 		if (vec.size() < 2)
 		{
@@ -108,7 +108,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextBoxGuiElement::CmdTextArea::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split("\t\n ", 1);
+        std::vector<String> vec = StringUtil::split(val, "\t\n ", 1);
 
 
 		if (vec.size() < 2)

@@ -176,7 +176,7 @@ namespace Ogre {
 			opt = mOptions.find("Colour Depth");
 			if (opt == mOptions.end())
 				Except(999, "Can't find Colour Depth options!", "Win32GLSupport::createWindow");
-			unsigned int colourDepth = atoi(opt->second.currentValue);
+			unsigned int colourDepth = StringConverter::parseUnsignedInt(opt->second.currentValue);
 
 			opt = mOptions.find("VSync");
 			if (opt == mOptions.end())
@@ -200,7 +200,7 @@ namespace Ogre {
 		ConfigOptionMap::iterator opt = mOptions.find("Display Frequency");
 		if (opt == mOptions.end())
 			Except(999, "Can't find Colour Depth options!", "Win32GLSupport::newWindow");
-		unsigned int displayFrequency = atoi(opt->second.currentValue);
+		unsigned int displayFrequency = StringConverter::parseUnsignedInt(opt->second.currentValue);
 
 		Win32Window* window = new Win32Window();
 		if (!fullScreen && mExternalWindowHandle) // ADD CONTROL IF WE HAVE A WINDOW)

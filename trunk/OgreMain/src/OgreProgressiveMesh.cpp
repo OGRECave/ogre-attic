@@ -931,7 +931,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void ProgressiveMesh::dumpContents(const String& log)
 	{
-		std::ofstream ofdump(log);
+		std::ofstream ofdump(log.c_str());
 
 		// Just dump 1st working data for now
 		WorkingDataList::iterator worki = mWorkingData.begin();

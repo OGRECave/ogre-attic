@@ -134,7 +134,7 @@ protected:
         plane.normal = -Vector3::UNIT_Y;
 
         // Set a nice viewpoint
-        mCamera->setPosition(707,52,528);
+        mCamera->setPosition(707,2500,528);
         mCamera->setOrientation(Quaternion(-0.3486, 0.0122, 0.9365, 0.0329));
         //mRoot -> showDebugOverlay( true );
 

@@ -96,7 +96,7 @@ namespace Ogre {
 					mInsideObject->setColour(mCaptionColour);
 			}
 
-			if (strlen(mDisabledMaterialName))
+			if (mDisabledMaterialName.empty())
 				materialName = mDisabledMaterialName;
 			else
 				materialName = mUpMaterialName;
@@ -113,7 +113,7 @@ namespace Ogre {
 				else
 					materialName = mHiliteUpMaterialName;
 
-				if (strlen(materialName) == 0)
+				if (materialName.empty())
 				{
 					if (mButtonDown)
 						materialName = mDownMaterialName;
@@ -335,7 +335,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonDownMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ButtonGuiElement*>(target)->setDownMaterialName(val);
     }
@@ -348,7 +348,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonUpMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ButtonGuiElement*>(target)->setUpMaterialName(val);
     }
@@ -361,7 +361,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonHiliteDownMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ButtonGuiElement*>(target)->setHiliteDownMaterialName(val);
     }
@@ -374,7 +374,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonHiliteUpMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ButtonGuiElement*>(target)->setHiliteUpMaterialName(val);
     }
@@ -387,7 +387,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonDisabledMaterial::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = StringUtil::split(val);
 
         static_cast<ButtonGuiElement*>(target)->setDisabledMaterialName(val);
     }
@@ -420,7 +420,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonCaption::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split("\t\n ", 1);
+        std::vector<String> vec = StringUtil::split(val, "\t\n ", 1);
 
 
 		if (vec.size() < 2)

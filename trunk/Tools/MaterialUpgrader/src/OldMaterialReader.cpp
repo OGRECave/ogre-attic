@@ -31,10 +31,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 ColourValue _parseColourValue(StringVector::iterator& params, int numParams)
 {
 	ColourValue colour(
-		atof(params[1].c_str()) ,
-		atof(params[2].c_str()) ,
-		atof(params[3].c_str()) ,
-		(numParams==5) ? atof(params[4].c_str()) : 1.0f ) ;
+		StringConverter::parseReal(params[1].c_str()) ,
+		StringConverter::parseReal(params[2].c_str()) ,
+		StringConverter::parseReal(params[3].c_str()) ,
+		(numParams==5) ? StringConverter::parseReal(params[4].c_str()) : 1.0f ) ;
 	return colour ;
 }
 void parseAmbient(StringVector::iterator& params, int numParams, Material* pMat)
@@ -76,7 +76,7 @@ void parseSpecular(StringVector::iterator& params, int numParams, Material* pMat
 	else
 	{
 		pMat->setSpecular( _parseColourValue(params, numParams-1) );
-		pMat->setShininess(atof(params[numParams-1].c_str()));
+		pMat->setShininess(StringConverter::parseReal(params[numParams-1].c_str()));
 	}
 }
 //-----------------------------------------------------------------------
@@ -322,7 +322,7 @@ void parseFogging(StringVector::iterator& params, int numParams, Material* pMat)
 				LogManager::getSingleton().logMessage("Bad fogging attribute line in "
 					+ pMat->getName() + ", valid parameters are 'none', 'linear', 'exp', or 'exp2'.");
 				
-			pMat->setFog(true,mFogtype,ColourValue(atof(params[3].c_str()),atof(params[4].c_str()),atof(params[5].c_str())),atof(params[6].c_str()),atof(params[7].c_str()),atof(params[8].c_str()));
+			pMat->setFog(true,mFogtype,ColourValue(StringConverter::parseReal(params[3].c_str()),StringConverter::parseReal(params[4].c_str()),StringConverter::parseReal(params[5].c_str())),StringConverter::parseReal(params[6].c_str()),StringConverter::parseReal(params[7].c_str()),StringConverter::parseReal(params[8].c_str()));
 		}
 		else
 		{
@@ -402,13 +402,13 @@ void parseAnimTexture(StringVector::iterator& params, int numParams, Material* p
 	if (numParams == 4 && atoi(params[2].c_str()) != 0 )
 	{
 		// First form using base name & number of frames
-		pTex->setAnimatedTextureName(params[1], atoi(params[2].c_str()), atof(params[3].c_str()));
+		pTex->setAnimatedTextureName(params[1], atoi(params[2].c_str()), StringConverter::parseReal(params[3].c_str()));
 	}
 	else
 	{
 		// Second form using individual names
 		// Can use params[1] as array start point
-		pTex->setAnimatedTextureName((String*)&params[1], numParams-2, atof(params[numParams-1].c_str()));
+		pTex->setAnimatedTextureName((String*)&params[1], numParams-2, StringConverter::parseReal(params[numParams-1].c_str()));
 	}
 
 }
@@ -418,7 +418,8 @@ void parseCubicTexture(StringVector::iterator& params, int numParams, Material* 
 
 	// Get final param
 	bool useUVW;
-    String uvOpt = params[numParams-1].toLowerCase();
+	String uvOpt = params[numParams-1];
+	StringUtil::toLowerCase(uvOpt);
 	if (uvOpt == "combineduvw")
 		useUVW = true;
 	else if (uvOpt == "separateuv")
@@ -625,7 +626,7 @@ void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pM
 					+ pMat->getName() + ", wrong number of parameters (expected 4 for manual blend)");
 				return;
 			}
-			manual = atof(params[4]);
+			manual = StringConverter::parseReal(*(params+4));
 		}
 
 		if (src1 == LBS_MANUAL)
@@ -641,9 +642,9 @@ void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pM
 				return;
 			}
 
-			colSrc1.r = atof(params[parIndex++]);
-			colSrc1.g = atof(params[parIndex++]);
-			colSrc1.b = atof(params[parIndex]);
+			colSrc1.r = StringConverter::parseReal(*(params+(parIndex++)));
+			colSrc1.g = StringConverter::parseReal(*(params+(parIndex++)));
+			colSrc1.b = StringConverter::parseReal(*(params+(parIndex)));
 		}
 
 		if (src2 == LBS_MANUAL)
@@ -661,9 +662,9 @@ void parseColourOpEx(StringVector::iterator& params, int numParams, Material* pM
 				return;
 			}
 
-			colSrc2.r = atof(params[parIndex++]);
-			colSrc2.g = atof(params[parIndex++]);
-			colSrc2.b = atof(params[parIndex]);
+			colSrc2.r = StringConverter::parseReal(*(params + (parIndex++)));
+			colSrc2.g = StringConverter::parseReal(*(params + (parIndex++)));
+			colSrc2.b = StringConverter::parseReal(*(params + (parIndex)));
 		}
 	}
 	catch (Exception& e)
@@ -725,7 +726,7 @@ void parseAlphaOpEx(StringVector::iterator& params, int numParams, Material* pMa
 					+ pMat->getName() + ", wrong number of parameters (expected 4 for manual blend)");
 				return;
 			}
-			manual = atof(params[4]);
+			manual = StringConverter::parseReal(*(params + 4));
 		}
 		if (src1 == LBS_MANUAL)
 		{
@@ -740,7 +741,7 @@ void parseAlphaOpEx(StringVector::iterator& params, int numParams, Material* pMa
 				return;
 			}
 
-			arg1 = atof(params[parIndex]);
+			arg1 = StringConverter::parseReal(*(params + parIndex));
 		}
 
 		if (src2 == LBS_MANUAL)
@@ -758,7 +759,7 @@ void parseAlphaOpEx(StringVector::iterator& params, int numParams, Material* pMa
 				return;
 			}
 
-			arg2 = atof(params[parIndex]);
+			arg2 = StringConverter::parseReal(*(params + parIndex));
 		}
 	}
 	catch (Exception& e)
@@ -805,11 +806,11 @@ void parseScroll(StringVector::iterator& params, int numParams, Material* pMat, 
 	}
 	if (params[0]=="scroll")
 	{
-		pTex->setTextureScroll(atof(params[1].c_str()), atof(params[2].c_str()));
+		pTex->setTextureScroll(StringConverter::parseReal(params[1].c_str()), StringConverter::parseReal(params[2].c_str()));
 	}
 	else // scroll_anim
 	{
-		pTex->setScrollAnimation(atof(params[1].c_str()), atof(params[2].c_str()));
+		pTex->setScrollAnimation(StringConverter::parseReal(params[1].c_str()), StringConverter::parseReal(params[2].c_str()));
 	}
 }
 //-----------------------------------------------------------------------
@@ -823,11 +824,11 @@ void parseRotate(StringVector::iterator& params, int numParams, Material* pMat, 
 	}
 	if (params[0]=="rotate")
 	{
-		pTex->setTextureRotate(atof(params[1].c_str()));
+		pTex->setTextureRotate(StringConverter::parseReal(params[1].c_str()));
 	}
 	else // rotate_anim
 	{
-		pTex->setRotateAnimation(atof(params[1].c_str()));
+		pTex->setRotateAnimation(StringConverter::parseReal(params[1].c_str()));
 	}
 }
 //-----------------------------------------------------------------------
@@ -839,7 +840,7 @@ void parseScale(StringVector::iterator& params, int numParams, Material* pMat, T
 			+ pMat->getName() + ", wrong number of parameters (expected 3)");
 		return;
 	}
-	pTex->setTextureScale(atof(params[1].c_str()), atof(params[2].c_str()) );
+	pTex->setTextureScale(StringConverter::parseReal(params[1].c_str()), StringConverter::parseReal(params[2].c_str()) );
 }
 //-----------------------------------------------------------------------
 void parseWaveXform(StringVector::iterator& params, int numParams, Material* pMat, TextureUnitState* pTex)
@@ -887,8 +888,8 @@ void parseWaveXform(StringVector::iterator& params, int numParams, Material* pMa
 		return;
 	}
 
-	pTex->setTransformAnimation(ttype, waveType, atof(params[3].c_str()), atof(params[4].c_str()),
-		atof(params[5].c_str()), atof(params[6].c_str()) );
+	pTex->setTransformAnimation(ttype, waveType, StringConverter::parseReal(params[3].c_str()), StringConverter::parseReal(params[4].c_str()),
+		StringConverter::parseReal(params[5].c_str()), StringConverter::parseReal(params[6].c_str()) );
 
 }
 //-----------------------------------------------------------------------
@@ -1011,7 +1012,8 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
 				else
 				{
 					// Attribute
-					parseAttrib(line.toLowerCase(), pMat);
+					StringUtil::toLowerCase(line);
+					parseAttrib(line, pMat);
 				}
 
 			}
@@ -1057,7 +1059,7 @@ void OldMaterialReader::parseAttrib( const String& line, Material* pMat)
 	StringVector vecparams;
 
 	// Split params on space
-	vecparams = line.split(" \t");
+	vecparams = StringUtil::split(line, " \t");
 	StringVector::iterator params = vecparams.begin();
 
 	// Look up first param (command setting)
@@ -1085,11 +1087,11 @@ void OldMaterialReader::parseLayerAttrib( const String& line, Material* pMat, Te
 	StringVector vecparams;
 
 	// Split params on space
-	vecparams = line.split(" \t");
+	vecparams = StringUtil::split(line, " \t");
 	StringVector::iterator params = vecparams.begin();
 
 	// Look up first param (command setting)
-    params[0] = params[0].toLowerCase();
+	StringUtil::toLowerCase(params[0]);
 	LayerAttribParserList::iterator iparsers = mLayerAttribParsers.find(params[0]);
 	if (iparsers == mLayerAttribParsers.end())
 	{
@@ -1104,7 +1106,7 @@ void OldMaterialReader::parseLayerAttrib( const String& line, Material* pMat, Te
         {
             // Lower case all params if not texture
             for( size_t p = 1; p < vecparams.size(); ++p )
-                params[p] = params[p].toLowerCase();
+                StringUtil::toLowerCase(params[p]);
 
         }
 		iparsers->second(params, (unsigned int)vecparams.size(), pMat, pLayer);

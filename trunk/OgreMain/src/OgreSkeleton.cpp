@@ -73,10 +73,10 @@ namespace Ogre {
         SkeletonManager::getSingleton()._findResourceData(mName, chunk);
 
         // Determine file type
-        std::vector<String> extVec = mName.split(".");
+        std::vector<String> extVec = StringUtil::split(mName, ".");
 
         String& ext = extVec[extVec.size() - 1];
-        ext.toLowerCase();
+        StringUtil::toLowerCase(ext);
 
         if (ext == "skeleton")
         {
@@ -423,7 +423,7 @@ namespace Ogre {
         Quaternion q;
         Real angle;
         Vector3 axis;
-        of.open(filename);
+        of.open(filename.c_str());
 
         of << "-= Debug output of skeleton " << mName << " =-" << std::endl << std::endl;
         of << "== Bones ==" << std::endl;

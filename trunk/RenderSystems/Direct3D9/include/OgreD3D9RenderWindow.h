@@ -52,7 +52,6 @@ namespace Ogre
 		D3D9Driver* getDirectD3DDriver() { return mpD3DDriver; }
 		LPDIRECT3DDEVICE9 getD3DDevice() { return mpD3DDevice; }
 
-		void outputText( int x, int ty, const String& text );
 		void getCustomAttribute( const String& name, void* pData );
 		/** Overridden - see RenderTarget.
 		*/
