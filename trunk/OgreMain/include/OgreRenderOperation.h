@@ -225,7 +225,7 @@ namespace Ogre {
     */
 
 
-	typedef std::list<HardwareVertexBuffer*> VertexBufferList;
+	typedef std::list<HardwareVertexBuffer*> HardwareVertexBufferList;
 	class RenderOperation {
 		/// The rendering operation type to perform
 		enum OperationType {
@@ -247,7 +247,7 @@ namespace Ogre {
 		OperationType operationType;
 		/** List of vertex buffers which are used as vertex sources to this render operation; note 
 		  the data at each index in all vertex buffers are deemed to refer to the same vertex. */
-		VertexBufferList vertexBuffers;
+		HardwareVertexBufferList vertexBuffers;
 		/// The base vertex index to start from, either as a vertex list, or as a base for indexes
 		size_t vertexStart;
 
