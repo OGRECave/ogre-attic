@@ -193,7 +193,7 @@ namespace Ogre {
         delete mMeshManager;
         delete mMaterialManager;        
         delete mMath;
-        //delete mParticleManager;
+        delete mParticleManager;
         if( mControllerManager )
             delete mControllerManager;
         delete mPlatformManager;
