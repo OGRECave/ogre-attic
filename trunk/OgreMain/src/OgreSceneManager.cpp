@@ -764,9 +764,9 @@ namespace Ogre {
             Material* m = getMaterial(materialName);
             if (!m)
             {
-                char errMsg[128];
-                sprintf(errMsg, "Sky plane material '%s' not found.", materialName.c_str());
-                Except(Exception::ERR_INVALIDPARAMS, errMsg, "SceneManager::setSkyPlane");
+                Except(Exception::ERR_INVALIDPARAMS, 
+					"Sky plane material '" + materialName + "' not found.",
+					"SceneManager::setSkyPlane");
             }
             // Make sure the material doesn't update the depth buffer
             m->setDepthWriteEnabled(false);
@@ -837,9 +837,9 @@ namespace Ogre {
             Material* m = getMaterial(materialName);
             if (!m)
             {
-                char errMsg[128];
-                sprintf(errMsg, "Sky box material '%s' not found.", materialName.c_str());
-                Except(Exception::ERR_INVALIDPARAMS, errMsg, "SceneManager::setSkyBox");
+                Except(Exception::ERR_INVALIDPARAMS, 
+					"Sky box material '" + materialName + " not found.",
+					"SceneManager::setSkyBox");
             }
             // Make sure the material doesn't update the depth buffer
             m->setDepthWriteEnabled(false);
@@ -930,9 +930,9 @@ namespace Ogre {
             Material* m = getMaterial(materialName);
             if (!m)
             {
-                char errMsg[128];
-                sprintf(errMsg, "Sky box material '%s' not found.", materialName.c_str());
-                Except(Exception::ERR_INVALIDPARAMS, errMsg, "SceneManager::setSkyDome");
+                Except(Exception::ERR_INVALIDPARAMS, 
+					"Sky dome material '" + materialName + " not found.",
+					"SceneManager::setSkyDome");
             }
             // Make sure the material doesn't update the depth buffer
             m->setDepthWriteEnabled(false);
@@ -1534,7 +1534,8 @@ namespace Ogre {
         AnimationList::const_iterator i = mAnimationsList.find(name);
         if (i == mAnimationsList.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find animation with name " + name, 
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find animation with name " + name, 
                 "SceneManager::getAnimation");
         }
         return i->second;
@@ -1545,7 +1546,8 @@ namespace Ogre {
         AnimationList::iterator i = mAnimationsList.find(name);
         if (i == mAnimationsList.end())
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find animation with name " + name, 
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find animation with name " + name, 
                 "SceneManager::getAnimation");
         }
 
@@ -1572,7 +1574,7 @@ namespace Ogre {
         if (mAnimationStates.find(animName) != mAnimationStates.end())
         {
             Except(Exception::ERR_DUPLICATE_ITEM, 
-                "Cannot create, AnimationState already exists.", 
+                "Cannot create, AnimationState already exists: "+animName, 
                 "SceneManager::createAnimationState");
         }
 
