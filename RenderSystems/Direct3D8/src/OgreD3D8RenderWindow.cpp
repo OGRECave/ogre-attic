@@ -348,6 +348,8 @@ namespace Ogre
 	void D3D8RenderWindow::destroy()
 	{
 		SAFE_RELEASE( mpD3DDevice );
+		SAFE_RELEASE(mpRenderSurface);
+		SAFE_RELEASE(mpRenderZBuffer);
 
 		DestroyWindow( mHWnd );
 	}
