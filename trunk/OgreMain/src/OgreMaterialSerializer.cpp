@@ -145,7 +145,10 @@ namespace Ogre
         }
         else
         {
-            context.pass->setSpecular( _parseColourValue(vecparams) );
+            context.pass->setSpecular(
+                StringConverter::parseReal(vecparams[0]), 
+                StringConverter::parseReal(vecparams[1]), 
+                StringConverter::parseReal(vecparams[2]));
             context.pass->setShininess(
                 StringConverter::parseReal(vecparams[vecparams.size() - 1]) );
         }
