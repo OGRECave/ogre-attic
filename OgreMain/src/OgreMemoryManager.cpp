@@ -23,7 +23,7 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-#include "OgrePrerequisites.h"
+#include "OgreMemoryManager.h"
 
 #undef new
 #undef delete
