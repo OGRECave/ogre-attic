@@ -236,6 +236,16 @@ namespace Ogre {
         bool mHasAlpha;
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const;
+		
+		/** Generic method to load the texture from a set of images. This can be
+		 	used by the specific implementation for convience. Implementations
+			might decide not to use this function if they can use their own image loading
+			functions.
+			@param images	Vector of pointers to Images. If there is only one image
+			in this vector, the faces of that image will be used. If there are multiple
+			images in the vector each image will be loaded as a face.
+		*/
+        void _loadImages( const std::vector<const Image*>& images );
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 

@@ -23,7 +23,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-
+#include "OgreLogManager.h"
+#include "OgreHardwarePixelBuffer.h"
+#include "OgreImage.h"
 #include "OgreTexture.h"
 
 namespace Ogre {
@@ -88,5 +90,123 @@ namespace Ogre {
 	{
 		return getTextureType() == TEX_TYPE_CUBE_MAP ? 6 : 1;
 	}
-  
+	//--------------------------------------------------------------------------
+    void Texture::_loadImages( const std::vector<const Image*>& images )
+    {
+		if(images.size() < 1)
+			Except(Exception::ERR_INVALIDPARAMS, "Cannot load empty vector of images",
+			 "Texture::loadImages");
+        
+        if( mIsLoaded )
+        {
+			LogManager::getSingleton().logMessage( 
+				LML_NORMAL, "Texture: "+mName+": Unloading Image");
+            unload();
+        }
+
+		// Set desired texture size and properties from images[0]
+		mSrcWidth = mWidth = images[0]->getWidth();
+		mSrcWidth = mHeight = images[0]->getHeight();
+		mDepth = images[0]->getDepth();
+		mFormat = images[0]->getFormat();
+		mSrcBpp = PixelUtil::getNumElemBits(mFormat);
+		mHasAlpha = PixelUtil::hasAlpha(mFormat);
+		
+		// The custom mipmaps in the image have priority over everything
+		bool doCustomMipmaps = images[0]->getNumMipmaps()>0;
+		
+		if(doCustomMipmaps) {
+			mNumMipmaps = images[0]->getNumMipmaps();
+			// Disable flag for auto mip generation
+			mUsage &= ~TU_AUTOMIPMAP;
+		}
+		
+        // Create the texture
+        createInternalResources();
+		// Check if we're loading one image with multiple faces
+		// or a vector of images representing the faces
+		size_t faces;
+		bool multiImage; // Load from multiple images?
+		if(images.size() > 1)
+		{
+			faces = images.size();
+			multiImage = true;
+		}
+		else
+		{
+			faces = images[0]->getNumFaces();
+			multiImage = false;
+		}
+		
+		// Check wether number of faces in images exceeds number of faces
+		// in this texture. If so, clamp it.
+		if(faces > getNumFaces())
+			faces = getNumFaces();
+		
+		// Say what we're doing
+		StringUtil::StrStreamType str;
+		str << "Texture: " << mName << ": Loading " << faces << " faces"
+			<< "(" << PixelUtil::getFormatName(images[0]->getFormat()) << "," <<
+			images[0]->getWidth() << "x" << images[0]->getHeight() << "x" << images[0]->getDepth() <<
+			") with "
+			<< mNumMipmaps;
+		if(mUsage & TU_AUTOMIPMAP)
+			str << " generated mipmaps";
+		else
+			str << " custom mipmaps";
+ 		if(multiImage)
+			str << " from multiple Images.";
+		else
+			str << " from Image.";
+		LogManager::getSingleton().logMessage( 
+				LML_NORMAL, str.str());
+
+		// Main loading loop
+        for(size_t i = 0; i < faces; i++)
+        {
+			PixelBox src;
+			// TODO manual mips
+			if(multiImage)
+			{
+				// Load from multiple images
+				src = images[i]->getPixelBox();
+			}
+			else
+			{
+				// Load from faces of images[0]
+				src = images[0]->getPixelBox(i, 0);
+			}
+
+			if(mGamma != 1.0f) {
+				// Apply gamma correction
+				// Do not overwrite original image but do gamma correction in temporary buffer
+				MemoryDataStreamPtr buf; // for scoped deletion of conversion buffer
+				buf.bind(new MemoryDataStream(
+					PixelUtil::getMemorySize(
+						src.getWidth(), src.getHeight(), src.getDepth(), src.format)));
+				
+				PixelBox corrected = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), src.format, buf->getPtr());
+				PixelUtil::bulkPixelConversion(src, corrected);
+				
+				Image::applyGamma(static_cast<uint8*>(corrected.data), mGamma, corrected.getConsecutiveSize(), 
+					PixelUtil::getNumElemBits(src.format));
+
+				// Destination: entire texture. blitFromMemory does the scaling to
+				// a power of two for us when needed
+				getBuffer(i, 0)->blitFromMemory(corrected);
+			}
+			else 
+			{
+				// Destination: entire texture. blitFromMemory does the scaling to
+				// a power of two for us when needed
+            	getBuffer(i, 0)->blitFromMemory(src);
+			}
+			
+        }
+        // Update size (the final size, not including temp space)
+        mSize = getNumFaces() * PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
+
+        mIsLoaded = true;
+    }
+
 }
