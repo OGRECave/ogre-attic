@@ -1969,17 +1969,17 @@ namespace Ogre {
         delete query;
     }
 	//---------------------------------------------------------------------
-    SceneManager::DefaultIntersectionSceneQuery::DefaultIntersectionSceneQuery(SceneManager* creator)
+    DefaultIntersectionSceneQuery::DefaultIntersectionSceneQuery(SceneManager* creator)
         : IntersectionSceneQuery(creator)
     {
     }
 	//---------------------------------------------------------------------
-    SceneManager::DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
+    DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
     {
     }
 	//---------------------------------------------------------------------
     IntersectionSceneQueryResult& 
-    SceneManager::DefaultIntersectionSceneQuery::execute(void)
+    DefaultIntersectionSceneQuery::execute(void)
     {
         clearResults();
         mLastResult = new IntersectionSceneQueryResult();
@@ -1988,11 +1988,11 @@ namespace Ogre {
         return *mLastResult;
     }
 	//---------------------------------------------------------------------
-    void SceneManager::DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
+    void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
     {
         // TODO: BillboardSets? Will need per-billboard collision most likely
         // Entities only for now
-        EntityList::const_iterator a, b, theEnd;
+		SceneManager::EntityList::const_iterator a, b, theEnd;
         theEnd = mParentSceneMgr->mEntities.end();
         uint numEntities;
         // Loop a from first to last-1
@@ -2021,7 +2021,7 @@ namespace Ogre {
         }
     }
 	//---------------------------------------------------------------------
-    bool SceneManager::DefaultIntersectionSceneQuery::
+    bool DefaultIntersectionSceneQuery::
         queryResult(MovableObject* first, MovableObject* second)
     {
         // Add to internal list
