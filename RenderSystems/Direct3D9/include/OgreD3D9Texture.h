@@ -247,6 +247,8 @@ namespace Ogre {
         ~D3D9RenderTexture()
         {
 			mPrivateTex->unload();
+			TextureManager::getSingleton().remove(mPrivateTex->getName());
+			
         }
 
 		virtual void getCustomAttribute( const String& name, void *pData )
