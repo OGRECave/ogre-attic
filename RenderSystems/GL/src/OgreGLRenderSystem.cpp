@@ -405,22 +405,35 @@ namespace Ogre {
         mStopRendering = false;
         while( mRenderTargets.size() && !mStopRendering )
         {
-            if(!fireFrameStarted())
-                return;
-         
-            // Render a frame during idle time (no messages are waiting)
-            RenderTargetPriorityMap::iterator itarg, itargend;
-            itargend = mPrioritisedRenderTargets.end();
-			for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
-            {
-				if( itarg->second->isActive() )
+#if OGRE_PLATFORM == PLATFORM_WIN32
+			MSG msg;
+			if( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
+			{
+				TranslateMessage( &msg );
+				DispatchMessage( &msg );
+			}
+			else
+			{
+#endif
+				if(!fireFrameStarted())
+					return;
+			 
+				// Render a frame during idle time (no messages are waiting)
+				RenderTargetPriorityMap::iterator itarg, itargend;
+				itargend = mPrioritisedRenderTargets.end();
+				for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
 				{
-					itarg->second->update();
+					if( itarg->second->isActive() )
+					{
+						itarg->second->update();
+					}
 				}
-            }
 
-            if(!fireFrameEnded())
-                return;
+				if(!fireFrameEnded())
+					return;
+#if OGRE_PLATFORM == PLATFORM_WIN32
+			}
+#endif
         }
 
         OgreUnguard();
