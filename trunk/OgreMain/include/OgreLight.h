@@ -302,7 +302,7 @@ namespace Ogre {
             the reference returned is to a shared volume which will be 
             reused across calls to this method.
         */
-        const PlaneBoundedVolume& _getNearClipVolume(const Camera* cam);
+        const PlaneBoundedVolume& _getNearClipVolume(const Camera* cam) const;
 
 
     private:
@@ -334,7 +334,7 @@ namespace Ogre {
         /// Shared class-level name for Movable type
         static String msMovableType;
 
-        PlaneBoundedVolume mNearClipVolume;
+        mutable PlaneBoundedVolume mNearClipVolume;
 
 
 

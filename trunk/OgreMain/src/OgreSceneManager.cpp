@@ -1983,7 +1983,7 @@ namespace Ogre {
             {
                 // NB treating spotlight as point for simplicity
                 // Just see if the lights attenuation range is within the frustum
-                sphere.setCenter(l->getPosition());
+                sphere.setCenter(l->getDerivedPosition());
                 sphere.setRadius(l->getAttenuationRange());
                 if (camera->isVisible(sphere))
                 {
@@ -2038,6 +2038,64 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void SceneManager::renderModulativeStencilShadows(const Camera* camera)
     {
+
+        // Prep Pass for use in debug shadows
+        initShadowVolumeDebugMaterials();
+
+
+        // Iterate over lights
+        LightList::const_iterator li, liend;
+        liend = mLightsAffectingFrustum.end();
+
+
+        for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
+        {
+            Light* l = *li;
+            renderShadowVolumesToStencil(l, camera);
+
+        }
+
+
+        // render full-screen shadow modulator
+        // TODO
+
+        // revert colour write state
+        mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
+        // revert depth write state
+        mDestRenderSystem->_setDepthBufferWriteEnabled(true);
+
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::initShadowVolumeDebugMaterials(void)
+    {
+        Material* matDebug = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes"));
+        if (!matDebug)
+        {
+            // Create
+            matDebug = static_cast<Material*>(
+                MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
+            Pass* p = matDebug->getTechnique(0)->getPass(0);
+            p->setSceneBlending(SBT_ADD); 
+            p->setAmbient(1,0,0.5);
+            p->setCullingMode(CULL_NONE);
+            if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+            {
+                // TODO, add hardware extrusion program
+            }
+            matDebug->compile();
+        }
+
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
+    {
+        // Get debug material
+        Material* matDebug = static_cast<Material*>(
+            MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes"));
+        Pass* debugPass = matDebug->getTechnique(0)->getPass(0);
+
+
         // Can we do a 2-sided stencil?
         bool stencil2sided = false;
         if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL))
@@ -2053,65 +2111,76 @@ namespace Ogre {
             //extrudeInSoftware = false;
         }
 
-
-        // Iterate over lights
-        LightList::const_iterator li, liend;
-        liend = mLightsAffectingFrustum.end();
-        SphereSceneQuery* ssc = 0;
-
+        // Turn off colour writing and depth writing
         mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
         mDestRenderSystem->_setDepthBufferWriteEnabled(false);
 
-        for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
+
+        // Figure out the near clip volume
+        const PlaneBoundedVolume& nearClipVol = 
+            light->_getNearClipVolume(camera);
+
+        const ShadowCasterList& casters = findShadowCastersForLight(light, camera);
+        ShadowCasterList::const_iterator si, siend;
+        siend = casters.end();
+        for (si = casters.begin(); si != siend; ++si)
         {
-            Light* l = *li;
-            // Figure out the near clip volume
-            const PlaneBoundedVolume& nearClipVol = 
-                l->_getNearClipVolume(camera);
+            ShadowCaster* caster = *si;
 
-            const ShadowCasterList& casters = findShadowCastersForLight(l, camera);
-            ShadowCasterList::const_iterator si, siend;
-            siend = casters.end();
-            for (si = casters.begin(); si != siend; ++si)
+            if (caster->getCastShadows())
             {
-                ShadowCaster* caster = *si;
+                bool zfailAlgo = false;
+                unsigned long flags = 0;
 
-                if (caster->getCastShadows())
+                // Determine if zfail is required
+                zfailAlgo = nearClipVol.intersects(caster->getWorldBoundingBox());
+
+                if (zfailAlgo)
                 {
-                    bool zfailAlgo = false;
-                    unsigned long flags = 0;
+                    flags |= SRF_INCLUDE_LIGHT_CAP | SRF_INCLUDE_DARK_CAP;
+                }
 
-                    // Determine if zfail is required
-                    zfailAlgo = nearClipVol.intersects(caster->getWorldBoundingBox());
-
-                    if (zfailAlgo)
-                    {
-                        flags += SRF_INCLUDE_LIGHT_CAP +SRF_INCLUDE_DARK_CAP;
-                    }
-
-                    // Get shadow renderables
+                // Get shadow renderables
+                ShadowCaster::ShadowRenderableListIterator iShadowRenderables =
                     caster->getShadowVolumeRenderableIterator(mShadowTechnique,
-                        l, &mShadowIndexBuffer, extrudeInSoftware, flags);
+                    light, &mShadowIndexBuffer, extrudeInSoftware, flags);
+
+                while (iShadowRenderables.hasMoreElements())
+                {
+                    ShadowRenderable* sr = iShadowRenderables.getNext();
 
                     // Render a shadow volume here
-                    // TODO
-                    //  - find out if we need to use zfail algo or is zpass ok (util method)
                     //  - if we have 2-sided stencil, one render with no culling
                     //  - otherwise, 2 renders, one with each culling method and invert the ops
+                    if (stencil2sided)
+                    {
+                        // Single pass
+                        mDestRenderSystem->_setCullingMode(CULL_NONE);
 
+
+                    }
+                    else
+                    {
+                        // First pass, do front faces (facing outside)
+                        mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
+
+                        // Second pass, do back faces (facing inside)
+                        mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
+                    }
+
+                    // Do we need to render a debug shadow marker?
+                    if (mDebugShadows)
+                    {
+                        // reset stencil & colour ops
+                        mDestRenderSystem->setStencilBufferParams();
+                        setPass(debugPass);
+                        renderSingleObject(sr, debugPass);
+                        mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
+                    }
                 }
+
             }
-
         }
-
-
-        // render full-screen shadow modulator, use .material for this so user can change effect
-        // TODO
-
-        // revert colour write state
-        mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
-        // revert depth write state
-        mDestRenderSystem->_setDepthBufferWriteEnabled(true);
 
     }
 	//---------------------------------------------------------------------
@@ -2119,6 +2188,7 @@ namespace Ogre {
     SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
     {
         DefaultAxisAlignedBoxSceneQuery* q = new DefaultAxisAlignedBoxSceneQuery(this);
+        q->setBox(box);
         q->setQueryMask(mask);
         return q;
     }
@@ -2127,6 +2197,7 @@ namespace Ogre {
     SceneManager::createSphereQuery(const Sphere& sphere, unsigned long mask)
     {
         DefaultSphereSceneQuery* q = new DefaultSphereSceneQuery(this);
+        q->setSphere(sphere);
         q->setQueryMask(mask);
         return q;
     }
@@ -2135,6 +2206,7 @@ namespace Ogre {
     SceneManager::createRayQuery(const Ray& ray, unsigned long mask)
     {
         DefaultRaySceneQuery* q = new DefaultRaySceneQuery(this);
+        q->setRay(ray);
         q->setQueryMask(mask);
         return q;
     }

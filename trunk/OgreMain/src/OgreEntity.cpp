@@ -757,14 +757,19 @@ namespace Ogre {
         EdgeData* edgeList = getEdgeList();
 
         // Init shadow renderable list if required
-        if (mShadowRenderables.empty())
-        {
-            EdgeData::EdgeGroupList::iterator egi;
-            ShadowRenderableList::iterator si, siend;
+        bool init = mShadowRenderables.empty();
+
+        EdgeData::EdgeGroupList::iterator egi;
+        ShadowRenderableList::iterator si, siend;
+        EntityShadowRenderable* esr = 0;
+        if (init)
             mShadowRenderables.resize(edgeList->edgeGroups.size());
-            siend = mShadowRenderables.end();
-            egi = edgeList->edgeGroups.begin();
-            for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
+        
+        siend = mShadowRenderables.end();
+        egi = edgeList->edgeGroups.begin();
+        for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
+        {
+            if (init)
             {
                 const VertexData *pVertData = 0;
                 if (hasSkeleton())
@@ -776,20 +781,19 @@ namespace Ogre {
                 {
                     pVertData = egi->vertexData;
                 }
-                EntityShadowRenderable* esr = 
-                    new EntityShadowRenderable(this, indexBuffer, pVertData);
-                *si = esr;
-                // Extrude vertices in software if required
-                if (extrude)
-                {
-                    extrudeVertices(esr->getPositionBuffer(), 
-                        pVertData->vertexCount, lightPos);
-
-                }
+                *si = new EntityShadowRenderable(this, indexBuffer, pVertData);
+            }
+            // Get shadow renderable
+            esr = static_cast<EntityShadowRenderable*>(*si);
+            // Extrude vertices in software if required
+            if (extrude)
+            {
+                extrudeVertices(esr->getPositionBuffer(), 
+                    egi->vertexData->vertexCount, lightPos);
 
             }
-        }
 
+        }
         // Calc triangle light facing
         updateEdgeListLightFacing(edgeList, lightPos);
 
