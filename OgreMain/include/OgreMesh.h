@@ -41,6 +41,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 
+    // Forward declaration
+    class MeshPtr;
 
     /** Resource holding data about 3D mesh.
         @remarks
@@ -128,9 +130,6 @@ namespace Ogre {
 		/// Local bounding sphere radius (centered on object)
 		Real mBoundRadius;
 
-        bool mManuallyDefined;
-
-
         /// Optional linked skeleton
         String mSkeletonName;
         SkeletonPtr mSkeleton;
@@ -165,21 +164,19 @@ namespace Ogre {
         bool mEdgeListsBuilt;
         bool mAutoBuildEdgeLists;
 
+        /// @copydoc Resource::loadImpl
+        void loadImpl(void);
+        /// @copydoc Resource::unloadImpl
+        void unloadImpl(void);
+
     public:
         /** Default constructor - used by MeshManager
             @warning
                 Do not call this method directly.
         */
-        Mesh(const String& name);
+        Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         ~Mesh();
-
-        /** Generic load - called by MeshManager.
-        */
-        virtual void load(void);
-
-        /** Generic unload - called by MeshManager.
-        */
-        virtual void unload(void);
 
         // NB All methods below are non-virtual since they will be
         // called in the rendering loop - speed is of the essence.
@@ -234,21 +231,16 @@ namespace Ogre {
         */
         VertexData *sharedVertexData;
 
-        /** Call this to indicate that this Mesh will be manually defined rather than loaded from a file.
-            @remarks
-                Normally, when load() is called on a Resource such as a Mesh, a file of data is loaded. However,
-                by calling this method with a parameter of 'true' you are indicating that the contents of this
-                Mesh will be defined programmatically rather than by loading from a file. Note that the load() method
-                must still be called in order to confirm the Mesh's use for the renderer, set up materials etc.
-        */
-        void setManuallyDefined(bool manuallyDefined);
-
         /** Makes a copy of this mesh object and gives it a new name.
             @remarks
                 This is useful if you want to tweak an existing mesh without affecting the original one. The
                 newly cloned mesh is registered with the MeshManager under the new name.
+            @param newName The name to give the clone
+            @param newGroup Optional name of the new group to assign the clone to;
+                if you leave this blank, the clone will be assigned to the same
+                group as this Mesh.
         */
-        Mesh* clone(const String& newName);
+        MeshPtr clone(const String& newName, const String& newGroup = StringUtil::BLANK);
 
         /** Get the axis-aligned bounding box for this mesh.
         */
@@ -629,6 +621,44 @@ namespace Ogre {
         bool getAutoBuildEdgeLists(void) const { return mAutoBuildEdgeLists; }
 
 
+    };
+
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to MeshPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport MeshPtr : public SharedPtr<Mesh> 
+    {
+    public:
+        MeshPtr() : SharedPtr<Mesh>() {}
+        MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
+        MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
+        MeshPtr(const ResourcePtr& r) : SharedPtr<Mesh>()
+        {
+            pRep = static_cast<Mesh*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
+
+        /// Operator used to convert a ResourcePtr to a MeshPtr
+        MeshPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<Mesh*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<Mesh*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
     };
 
 

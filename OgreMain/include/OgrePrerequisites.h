@@ -222,6 +222,7 @@ namespace Ogre {
     class Matrix4;
     class MemoryManager;
     class Mesh;
+    class MeshPtr;
     class MeshSerializer;
     class MeshSerializerImpl;
     class MeshManager;

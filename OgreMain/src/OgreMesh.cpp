@@ -40,46 +40,36 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    Mesh::Mesh(const String& name)
+    Mesh::Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
+        const String& group, bool isManual = false, ManualResourceLoader* loader)
+        : Resource(creator, name, handle, group, isManual, loader),
+        mBoundRadius(0.0f), 
+        mBoneAssignmentsOutOfDate(false),
+        mIsLodManual(false), 
+        mNumLods(1), 
+        mVertexBufferUsage(HardwareBuffer::HBU_STATIC_WRITE_ONLY),
+        mIndexBufferUsage(HardwareBuffer::HBU_STATIC_WRITE_ONLY),
+        mVertexBufferShadowBuffer(true),
+        mIndexBufferShadowBuffer(true),
+        mPreparedForShadowVolumes(false),
+        mEdgeListsBuilt(false),
+        mAutoBuildEdgeLists(true), // will be set to false by serializers of 1.30 and above
+        sharedVertexData(0)
     {
-        mName = name;
-		sharedVertexData = NULL;
 
-        // Default to load from file
-        mManuallyDefined = false;
         setSkeletonName("");
-        mBoneAssignmentsOutOfDate = false;
-		mNumLods = 1;
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
         lod.edgeData = NULL;
         lod.manualMesh = NULL;
 		mMeshLodUsageList.push_back(lod);
-		mIsLodManual = false;
-
-		mVertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
-		mIndexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
-		mVertexBufferShadowBuffer = true;
-		mIndexBufferShadowBuffer = true;
-
-        mBoundRadius = 0.0f;
-
-        mPreparedForShadowVolumes = false;
-        mEdgeListsBuilt = false;
-        mAutoBuildEdgeLists = true; // will be set to false by serializers of 1.30 and above
 
     }
-
     //-----------------------------------------------------------------------
     Mesh::~Mesh()
     {
-        if (mIsLoaded)
-        {
-            unload();
-        }
     }
-
     //-----------------------------------------------------------------------
     SubMesh* Mesh::createSubMesh()
     {
@@ -122,41 +112,19 @@ namespace Ogre {
         return const_cast<SubMesh*>(i[index]);
     }
     //-----------------------------------------------------------------------
-    void Mesh::load()
+    void Mesh::loadImpl()
     {
         // Load from specified 'name'
-        if (mIsLoaded)
-        {
-            unload();
-        }
 
-        if (!mManuallyDefined)
+        if (!mIsManual)
         {
             MeshSerializer serializer;
             LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
-            DataChunk chunk;
-            MeshManager::getSingleton()._findResourceData(mName, chunk);
+            DataStream stream = 
+                ResourceGroupManager::getSingleton()._findResource(mName, mGroup);
+            serializer.importMesh(stream, this);
 
-            // Determine file type
-            std::vector<String> extVec = StringUtil::split(mName, ".");
-
-            String& ext = extVec[extVec.size() - 1];
-            StringUtil::toLowerCase(ext);
-
-            if (ext == "mesh")
-            {
-                serializer.importMesh(chunk, this);
-            }
-            else
-            {
-                // Unsupported format
-                chunk.clear();
-                Except(999, "Unsupported object file format.",
-                    "Mesh::load");
-            }
-
-            chunk.clear();
         }
 
         // Prepare for shadow volumes?
@@ -173,14 +141,10 @@ namespace Ogre {
             }
         }
 
-		mIsLoaded = true;
-
-        //_updateBounds();
-
     }
 
     //-----------------------------------------------------------------------
-    void Mesh::unload()
+    void Mesh::unloadImpl()
     {
         // Teardown submeshes
         for (SubMeshList::iterator i = mSubMeshList.begin();
@@ -199,23 +163,25 @@ namespace Ogre {
         // Removes all LOD data
         removeLodLevels();
         mPreparedForShadowVolumes = false;
-        mIsLoaded = false;
     }
 
     //-----------------------------------------------------------------------
-    void Mesh::setManuallyDefined(bool manual)
-    {
-        mManuallyDefined = manual;
-    }
-
-    //-----------------------------------------------------------------------
-    Mesh* Mesh::clone(const String& newName)
+    MeshPtr Mesh::clone(const String& newName, const String& newGroup)
     {
         // This is a bit like a copy constructor, but with the additional aspect of registering the clone with
         //  the MeshManager
 
         // New Mesh is assumed to be manually defined rather than loaded since you're cloning it for a reason
-        Mesh* newMesh = MeshManager::getSingleton().createManual(newName);
+        String theGroup;
+        if (newGroup == StringUtil::BLANK)
+        {
+            theGroup = this->getGroup();
+        }
+        else
+        {
+            theGroup = newGroup;
+        }
+        MeshPtr newMesh = MeshManager::getSingleton().createManual(newName, theGroup);
 
         // Copy submeshes first
         std::vector<SubMesh*>::iterator subi;

@@ -67,50 +67,42 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
-    ResourcePtr MeshManager::create( const String& name)
-    {
-        return new Mesh(name);
-    }
-    //-----------------------------------------------------------------------
-    Mesh* MeshManager::load( const String& filename, 
+    MeshPtr MeshManager::load( const String& filename, const String& groupName, 
 		HardwareBuffer::Usage vertexBufferUsage, 
 		HardwareBuffer::Usage indexBufferUsage, 
-		bool vertexBufferShadowed, bool indexBufferShadowed,
-		int priority)
+		bool vertexBufferShadowed, bool indexBufferShadowed)
     {
-        Mesh* pMesh = (Mesh*)(getByName(filename));
-        if (!pMesh)
+        MeshPtr pMesh = getByName(filename);
+        if (pMesh.isNull())
         {
-            pMesh = (Mesh*)create(filename);
+            pMesh = this->create(filename, groupName);
 			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferShadowed);
 			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferShadowed);
-            ResourceManager::load(pMesh, priority);
-            //pMesh->_registerMaterials();
+            pMesh->load();
         }
         return pMesh;
 
     }
     //-----------------------------------------------------------------------
-    Mesh* MeshManager::createManual( const String& name)
+    MeshPtr MeshManager::createManual( const String& name, const String& groupName)
     {
-        Mesh* pMesh = (Mesh*)(getByName(name));
-        if (!pMesh)
+        MeshPtr pMesh = getByName(name);
+        if (pMesh.isNull())
         {
-            pMesh = (Mesh*)create(name);
-            pMesh->setManuallyDefined(true);
-            this->add(pMesh);
+            pMesh = create(name, groupName);
         }
 
         return pMesh;
     }
     //-----------------------------------------------------------------------
-    Mesh* MeshManager::createPlane( const String& name, const Plane& plane, Real width, Real height, int xsegments, int ysegments,
+    MeshPtr MeshManager::createPlane( const String& name, const String& groupName,
+        const Plane& plane, Real width, Real height, int xsegments, int ysegments,
         bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
 		HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage,
 		bool vertexShadowBuffer, bool indexShadowBuffer)
     {
         int i;
-        Mesh* pMesh = createManual(name);
+        MeshPtr pMesh = createManual(name, groupName);
 		SubMesh *pSub = pMesh->createSubMesh();
 
 		// Set up vertex data
@@ -260,13 +252,14 @@ namespace Ogre
     }
 	
 	//-----------------------------------------------------------------------
-	Mesh* MeshManager::createCurvedPlane( const String& name, const Plane& plane, Real width, Real height, Real bow, int xsegments, int ysegments,
+	MeshPtr MeshManager::createCurvedPlane( const String& name, const String& groupName, 
+        const Plane& plane, Real width, Real height, Real bow, int xsegments, int ysegments,
         bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
 			HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage,
 			bool vertexShadowBuffer, bool indexShadowBuffer)
     {
         int i;
-        Mesh* pMesh = createManual(name);
+        MeshPtr pMesh = createManual(name, groupName);
         SubMesh *pSub = pMesh->createSubMesh();
 
         // Set options
@@ -420,8 +413,8 @@ namespace Ogre
         return pMesh;
     }
     //-----------------------------------------------------------------------
-	Mesh* MeshManager::createCurvedIllusionPlane(
-        const String& name, const Plane& plane,
+	MeshPtr MeshManager::createCurvedIllusionPlane(
+        const String& name, const String& groupName, const Plane& plane,
         Real width, Real height, Real curvature,
         int xsegments, int ysegments,
         bool normals, int numTexCoordSets,
@@ -433,7 +426,7 @@ namespace Ogre
         int ySegmentsToKeep)
 	{
         int i;
-        Mesh* pMesh = createManual(name);
+        MeshPtr pMesh = createManual(name, groupName);
 		SubMesh *pSub = pMesh->createSubMesh();
 
         if (ySegmentsToKeep == -1) ySegmentsToKeep = ysegments;
@@ -704,7 +697,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void MeshManager::createPrefabPlane(void)
     {
-        Mesh* msh = (Mesh*)create("Prefab_Plane");
+        MeshPtr msh = create("Prefab_Plane", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         SubMesh* sub = msh->createSubMesh();
         Real vertices[32] = {
 			-100, -100, 0,	// pos
@@ -757,10 +750,9 @@ namespace Ogre
         msh->_setBounds(AxisAlignedBox(-100,-100,0,100,100,0), true);
         msh->_setBoundingSphereRadius(Math::Sqrt(100*100+100*100));
 
-        mResources[msh->getName()] = msh;
     }
     //-----------------------------------------------------------------------
-    PatchMesh* MeshManager::createBezierPatch(const String& name, 
+    PatchMeshPtr MeshManager::createBezierPatch(const String& name, const String& groupName, 
             void* controlPointBuffer, VertexDeclaration *declaration, 
             size_t width, size_t height,
             size_t uMaxSubdivisionLevel, size_t vMaxSubdivisionLevel,
@@ -769,19 +761,19 @@ namespace Ogre
             bool vbUseShadow, bool ibUseShadow)
     {
 
-        PatchMesh* pMesh = (PatchMesh*)(getByName(name));
-        if (pMesh)
+        MeshPtr pMesh = getByName(name);
+        if (!pMesh.isNull())
         {
             Except(Exception::ERR_DUPLICATE_ITEM, "A mesh called " + name + 
                 " already exists!", "MeshManager::createBezierPatch");
         }
-        pMesh = new PatchMesh(name, controlPointBuffer, declaration, width, height,
+        ResourcePtr res = ResourcePtr(
+            new PatchMesh(name, groupName, controlPointBuffer, declaration, width, height,
             uMaxSubdivisionLevel, vMaxSubdivisionLevel, visibleSide, vbUsage, ibUsage,
-            vbUseShadow, ibUseShadow);
-        pMesh->setManuallyDefined(true);
-        ResourceManager::load(pMesh,0);
+            vbUseShadow, ibUseShadow));
+        addImpl(res);
 
-        return pMesh;
+        return res;
     }
     //-----------------------------------------------------------------------
     void MeshManager::setPrepareAllMeshesForShadowVolumes(bool enable)
@@ -804,6 +796,13 @@ namespace Ogre
         mBoundsPaddingFactor = paddingFactor;
     }
     //-----------------------------------------------------------------------
-
+    Resource* MeshManager::createImpl(const String& name, ResourceHandle handle, 
+        const String& group, bool isManual, ManualResourceLoader* loader, 
+        const NameValuePairList* createParams)
+    {
+        // no use for createParams here
+        return new Mesh(this, name, handle, group, isManual, loader);
+    }
+    //-----------------------------------------------------------------------
 
 }
