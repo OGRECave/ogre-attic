@@ -94,6 +94,8 @@ namespace Ogre {
         // functions of a quaternion
         Real Dot (const Quaternion& rkQ) const;  // dot product
         Real Norm () const;  // squared-length
+        /// Normalises this quaternion, and returns the previous length
+        Real normalise(void); 
         Quaternion Inverse () const;  // apply to non-zero quaternion
         Quaternion UnitInverse () const;  // apply to unit-length quaternion
         Quaternion Exp () const;
