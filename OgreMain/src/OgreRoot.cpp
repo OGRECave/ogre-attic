@@ -110,8 +110,8 @@ namespace Ogre {
 
         // Init
         mActiveRenderer = 0;
-        mVersion = "0.12.0";
-				mConfigFileName = configFileName;
+        mVersion = "0.13.0";
+		mConfigFileName = configFileName;
 
         // Create log manager and default log file
         mLogManager = new LogManager();
