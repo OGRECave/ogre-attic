@@ -64,6 +64,26 @@ namespace Ogre {
 			y = rkQ.y;
 			z = rkQ.z;
 		}
+        /// Construct a quaternion from a rotation matrix
+        inline Quaternion(const Matrix3& rot)
+        {
+            this->FromRotationMatrix(rot);
+        }
+        /// Construct a quaternion from an angle/axis
+        inline Quaternion(const Real& rfAngle, const Vector3& rkAxis)
+        {
+            this->FromAngleAxis(rfAngle, rkAxis);
+        }
+        /// Construct a quaternion from 3 orthonormal local axes
+        inline Quaternion(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis)
+        {
+            this->FromAxes(xAxis, yAxis, zAxis);
+        }
+        /// Construct a quaternion from 3 orthonormal local axes
+        inline Quaternion(Vector3* akAxis)
+        {
+            this->FromAxes(akAxis);
+        }
 
         void FromRotationMatrix (const Matrix3& kRot);
         void ToRotationMatrix (Matrix3& kRot) const;
