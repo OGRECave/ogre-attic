@@ -30,7 +30,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     GLHardwareVertexBuffer::GLHardwareVertexBuffer(size_t vertexSize, 
         size_t numVertices, HardwareBuffer::Usage usage, bool useShadowBuffer)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage, false, useShadowBuffer)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, false, useShadowBuffer), mInitialised(false)
     {
         glGenBuffersARB( 1, &mBufferId );
 
@@ -54,6 +54,8 @@ namespace Ogre {
     {
         GLenum access = 0;
 
+        assert(length >= offset);
+
         if(mIsLocked)
         {
             Except(Exception::ERR_INTERNAL_ERROR,
@@ -62,6 +64,14 @@ namespace Ogre {
         }
 
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, mBufferId);
+
+        // Initialise mapped buffer and set usage
+        if(!mInitialised)
+        {
+            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, 
+                mUsage & HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
+            mInitialised = true;
+        }
         
         if(options == HBL_DISCARD)
         {
@@ -93,8 +103,6 @@ namespace Ogre {
         else if(options == HBL_NORMAL)
         {
             access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
-            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, 
-                mUsage & HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
         }
         else
         {
@@ -107,8 +115,7 @@ namespace Ogre {
         if(pBuffer == 0)
         {
             Except(Exception::ERR_INTERNAL_ERROR, 
-                "Vertex Buffer: Out of memory", 
-                "GLHardwareVertexBuffer::lock");
+                "Vertex Buffer: Out of memory", "GLHardwareVertexBuffer::lock");
         }
 
         mIsLocked = true;

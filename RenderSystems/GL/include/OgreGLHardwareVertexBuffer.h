@@ -35,6 +35,8 @@ namespace Ogre {
     {
     private:
         GLuint mBufferId;
+        bool mInitialised;
+
     protected:
         /** See HardwareBuffer. */
         void* lockImpl(size_t offset, size_t length, LockOptions options);
