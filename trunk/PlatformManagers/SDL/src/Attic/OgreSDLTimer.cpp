@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://ogre.sourceforge.net/
+For the latest info, see http://www.ogre3d.org/
 
 Copyright Š 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
