@@ -242,11 +242,7 @@ namespace Ogre {
 		*mFullBoundingBox = mMesh->getBounds();
 		mFullBoundingBox->merge(getChildObjectsBoundingBox());
 
-        // Scale
-        if (mParentNode)
-        {
-            mFullBoundingBox->scale(mParentNode->_getDerivedScale());
-        }
+        // Don't scale here, this is taken into account when world BBox calculation is done
 
         return *mFullBoundingBox;
     }
