@@ -776,12 +776,12 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    String BillboardSet::getName(void)
+    const String& BillboardSet::getName(void) const
     {
         return mName;
     }
     //-----------------------------------------------------------------------
-    String BillboardSet::getMovableType(void)
+    const String BillboardSet::getMovableType(void) const
     {
         return msMovableType;
     }

@@ -85,7 +85,7 @@ namespace Ogre {
 
         /** Returns the name of this light (cannot be modified).
         */
-        String getName(void);
+        const String& getName(void) const;
 
         /** Sets the type of light - see LightTypes for more info.
         */
@@ -268,7 +268,7 @@ namespace Ogre {
         void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from MovableObject */
-        String getMovableType(void);
+        const String getMovableType(void) const;
 
         /** Retrieves the position of the light including any transform from nodes it is attached to. */
         const Vector3& getDerivedPosition(void);

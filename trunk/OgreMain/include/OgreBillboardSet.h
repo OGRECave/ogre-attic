@@ -496,12 +496,10 @@ namespace Ogre {
         virtual Vector3 getCommonDirection(void);
 
         /** Overridden from MovableObject */
-        String getName(void);
+        virtual const String& getName(void) const;
 
         /** Overridden from MovableObject */
-        String getMovableType(void);
-
-
+        virtual const String getMovableType(void) const;
     };
 
 }
