@@ -335,7 +335,8 @@ namespace Ogre {
 			ChildObjectList::iterator child_itr_end = mChildObjectList.end();
 			for( ; child_itr != child_itr_end; child_itr++)
 			{
-				(*child_itr).second->_updateRenderQueue(queue);
+                if ((*child_itr).second->isVisible())
+				    (*child_itr).second->_updateRenderQueue(queue);
 			}
         }
 
