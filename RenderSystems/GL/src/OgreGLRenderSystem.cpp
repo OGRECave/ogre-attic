@@ -1638,12 +1638,13 @@ namespace Ogre {
                     static_cast<GLHardwareIndexBuffer*>(
                         op.indexData->indexBuffer.get())->getGLBufferId());
 
-                pBufferData = VBO_BUFFER_OFFSET(0);
+                pBufferData = VBO_BUFFER_OFFSET(op.indexData->indexStart);
             }
             else
             {
                 pBufferData = static_cast<GLDefaultHardwareIndexBuffer*>(
-                    op.indexData->indexBuffer.get())->getDataPtr(0);
+                    op.indexData->indexBuffer.get())->getDataPtr(
+                        op.indexData->indexStart);
             }
 
             glDrawElements( primType, op.indexData->indexCount, 
