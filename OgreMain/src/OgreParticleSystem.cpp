@@ -392,10 +392,10 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::getWorldTransform(Matrix4& xform)
+    void ParticleSystem::getWorldTransforms(Matrix4* xform)
     {
         // Particles are already in world space
-        xform = Matrix4::IDENTITY;
+        *xform = Matrix4::IDENTITY;
 
     }
     //-----------------------------------------------------------------------
