@@ -299,6 +299,10 @@ SOURCE=..\src\OgreHighLevelGpuProgramManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreILImageCodec.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreImage.cpp
 # End Source File
 # Begin Source File
@@ -924,6 +928,10 @@ SOURCE=..\include\OgreHighLevelGpuProgram.h
 # Begin Source File
 
 SOURCE=..\include\OgreHighLevelGpuProgramManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreILImageCodec.h
 # End Source File
 # Begin Source File
 
