@@ -300,6 +300,50 @@ namespace Ogre {
             }
         }
 
+		/** 
+		 * Returns number of bits (RGBA) for a format. For non-RGBA formats (dxt, depth, luminance)
+		 * this returns [0,0,0,0] in rgba.
+		 */
+		inline static void formatGetDepths(PixelFormat format, int rgba[4]) {
+			// Default values
+			rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0;
+			switch( format )
+			{
+			case PF_R5G6B5:
+			case PF_B5G6R5:
+				rgba[0] = rgba[1] = rgba[2] = 5;
+				break;
+			case PF_A4R4G4B4:
+			case PF_B4G4R4A4:
+				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 4;
+				break;
+            case PF_R8G8B8:
+			case PF_B8G8R8:
+				rgba[0] = rgba[1] = rgba[2] = 8;
+				break;
+			case PF_A8R8G8B8:
+			case PF_B8G8R8A8:
+				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 8;
+				break;
+			case PF_A2R10G10B10:
+			case PF_B10G10R10A2:
+				rgba[0] = rgba[1] = rgba[2] = 10;
+				rgba[3] = 2;
+				break;
+            case PF_FP_R16G16B16:
+				rgba[0] = rgba[1] = rgba[2] = 16;
+				break;
+            case PF_FP_R16G16B16A16:
+				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 16;
+				break;
+            case PF_FP_R32G32B32:
+                rgba[0] = rgba[1] = rgba[2] = 32;
+				break;
+            case PF_FP_R32G32B32A32:
+				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 32;
+				break;
+			}
+		}
 
 		/** Decides wether converting from a pixel format to another requires 
 			endian-flipping.
