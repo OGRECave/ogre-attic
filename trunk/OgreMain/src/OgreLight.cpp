@@ -355,15 +355,19 @@ namespace Ogre {
             {
                 // In front of near plane
                 // remember the -d negation in plane constructor
+                normal = eyeToWorld * -Vector3::UNIT_Z;
+                normal.normalise();
                 mNearClipVolume.planes.push_back(
-                    Plane(eyeToWorld * -Vector3::UNIT_Z, n));
+                    Plane(normal, -normal.dotProduct(cam->getDerivedPosition())));
             }
             else
             {
                 // Behind near plane
                 // remember the -d negation in plane constructor
+                normal = eyeToWorld * Vector3::UNIT_Z;
+                normal.normalise();
                 mNearClipVolume.planes.push_back(
-                    Plane(eyeToWorld * Vector3::UNIT_Z, -n));
+                    Plane(normal, -normal.dotProduct(cam->getDerivedPosition())));
             }
 
             // Finally, for a point/spot light we can add a sixth plane
