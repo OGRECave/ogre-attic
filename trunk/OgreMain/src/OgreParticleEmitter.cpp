@@ -94,15 +94,15 @@ namespace Ogre {
         return mDirection; 
     }
     //-----------------------------------------------------------------------
-    void ParticleEmitter::setAngle(Real degrees)
+    void ParticleEmitter::setAngle(Real angleunits)
     {
         // Store as radians for efficiency
-        mAngle = Math::DegreesToRadians(degrees);
+        mAngle = Math::AngleUnitsToRadians(angleunits);
     }
     //-----------------------------------------------------------------------
     Real ParticleEmitter::getAngle(void)
     {
-        return Math::RadiansToDegrees(mAngle);
+        return Math::RadiansToAngleUnits(mAngle);
     }
     //-----------------------------------------------------------------------
     void ParticleEmitter::setParticleVelocity(Real speed)

@@ -42,7 +42,21 @@ namespace Ogre
     */
     class _OgreExport Math : public Singleton<Math>
     {
+   public:
+       /** The angular units used by the API.
+       @remarks
+            By default, OGRE uses degrees in all it's external APIs.
+       */       
+       enum AngleUnit
+       {
+           AU_DEGREE,
+           AU_RADIAN
+       };
+
     protected:
+       // angle units used by the api
+       static AngleUnit msAngleUnit;
+
         /// Size of the trig tables as determined by constructor.
         static int mTrigTableSize;
 
@@ -133,7 +147,31 @@ namespace Ogre
         static Real DegreesToRadians(Real degrees);
         static Real RadiansToDegrees(Real radians);
 
-        /** Checks wether a given point is inside a triangle, in a
+       /** Sets the native angle units (radians or degrees) expected by and returned by the Ogre API
+       @remarks
+            By default, OGRE's main API uses degrees (this Math class uses radians because that is the underlying
+            unit used by the library routines. This may be changed by the user of the engine so that every instance
+            of degrees actually accepts radians instead.
+       @par
+            You can set this directly after creating a new Root, and also before/after resource creation,
+            depending on whether you want the change to affect resource files.
+       @par
+            Warning: don't set this during the middle of an app run - some classes store degrees internally
+            as degrees, and perform the conversion for internal usage. Changing the AngleUnits between set
+            and get will result in screwed up values. This affects some file loading too - notably particle
+            system angle attributes. These values must also be changed in the particle files to use radians.
+            
+       */
+       static void setAngleUnit(AngleUnit unit);
+       /** Get the unit being used for angles. */
+       static AngleUnit getAngleUnit(void);
+
+       /** Convert from the units the engine is currently using to radians. */
+       static Real AngleUnitsToRadians(Real units);
+       /** Convert from radians to the units the engine is currently using . */
+       static Real RadiansToAngleUnits(Real radians);
+
+       /** Checks wether a given point is inside a triangle, in a
             2-dimensional (Cartesian) space.
             @remarks
                 The vertices of the triangle must be given in either

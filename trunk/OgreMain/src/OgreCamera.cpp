@@ -50,7 +50,7 @@ namespace Ogre {
 
 
         // Reasonable defaults to camera params
-        mFOVy = 45.0f;
+       mFOVy = Math::RadiansToAngleUnits(Math::PI/4.0);
         mNearDist = 100.0f;
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
@@ -358,7 +358,7 @@ namespace Ogre {
     void Camera::rotate(const Vector3& axis, Real degrees)
     {
         Quaternion q;
-        q.FromAngleAxis(Math::getSingleton().DegreesToRadians(degrees),axis);
+        q.FromAngleAxis(Math::getSingleton().AngleUnitsToRadians(degrees),axis);
         rotate(q);
 
     }
@@ -481,7 +481,7 @@ namespace Ogre {
                 // Special-cased for L = -R and B = -T i.e. viewport centered 
                 // on direction vector.
                 // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-                Real thetaY = Math::DegreesToRadians(mFOVy / 2.0f);
+                Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
                 Real tanThetaY = Math::Tan(thetaY);
                 //Real thetaX = thetaY * mAspect;
                 Real tanThetaX = tanThetaY * mAspect;
@@ -522,7 +522,7 @@ namespace Ogre {
                 // Calculate Projection Matrix
                 // ---------------------------
                 // Get tangent of vertical FOV
-                Real thetaY = Math::DegreesToRadians(mFOVy / 2.0f);
+               Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
                 Real sinThetaY = Math::Sin(thetaY);
                 Real thetaX = thetaY * mAspect;
                 Real sinThetaX = Math::Sin(thetaX);
