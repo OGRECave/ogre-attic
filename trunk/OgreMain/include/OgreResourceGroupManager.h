@@ -88,7 +88,6 @@ namespace Ogre {
         */
         virtual void worldGeometryStageCompleted(void) = 0;
 
-        /** This event is fired
 		/** This event is fired when a resource group finished loading. */
 		virtual void resourceGroupLoadEnded(const String& groupName) = 0;
 
