@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreProgressiveMesh.h"
 #include "OgreGeometryData.h"
+#include <algorithm>
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -63,24 +64,202 @@ namespace Ogre {
     void ProgressiveMesh::addWorkingData(Real* pPositions, GeometryData* data, 
         ushort* indexBuffer, ushort numIndexes)
     {
+        // Insert blank working data, then fill 
+        mWorkingData.push_back(PMWorkingData());
+
+        PMWorkingData& work = mWorkingData.back();
+
+        uint i;
+        // Build vertex list
+        work.mVertList.resize(data->numVertices);
+        Real* pReal = data->pVertices;
+        Vector3 pos;
+        for (i = 0; i < data->numVertices; ++i)
+        {
+            pos.x = *pReal++;
+            pos.y = *pReal++;
+            pos.z = *pReal++;
+            work.mVertList[i].setDetails(pos, i);
+            work.mVertList[i].removed = false;
+        }
+
+        // Build tri list
+        ushort numTris = numIndexes / 3;
+        ushort* pIdx = indexBuffer;
+        work.mTriList.resize(numTris); // assumed tri list
+        for (i = 0; i < numTris; ++i)
+        {
+            work.mTriList[i].setDetails(
+                &(work.mVertList[*pIdx++]),
+                &(work.mVertList[*pIdx++]),
+                &(work.mVertList[*pIdx++]) );
+
+            work.mTriList[i].removed = false;
+
+        }
+
     }
     //---------------------------------------------------------------------
     Real ProgressiveMesh::computeEdgeCollapseCost(PMVertex *src, PMVertex *dest)
     {
-        // TODO
-        return 0.0f;
+	    // if we collapse edge uv by moving src to dest then how 
+	    // much different will the model change, i.e. how much "error".
+	    // The method of determining cost was designed in order 
+	    // to exploit small and coplanar regions for
+	    // effective polygon reduction.
+	    int i;
+
+		Vector3 edgeVector = src->position - dest->position;
+
+        Real curvature = 0.001f;
+
+	    // find the "sides" triangles that are on the edge uv
+	    PMVertex::FaceList sides;
+        PMVertex::FaceList::iterator srcface, srcfaceEnd;
+        srcfaceEnd = src->face.end();
+        // Iterate over src's faces
+        for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface)
+        {
+            // Check if this tri also has dest in it (shared edge)
+		    if( (*srcface)->hasVertex(dest) )
+            {
+			    sides.insert(*srcface);
+		    }
+	    }
+
+        // Calculate curvature
+        // use the triangle facing most away from the sides 
+		// to determine our curvature term
+        // Iterate over src's faces again
+		for(srcface = src->face.begin(); srcface != srcfaceEnd; ++srcface) 
+        {
+			Real mincurv = 1.0f; // curve for face i and closer side to it
+            // Iterate over the sides
+            PMVertex::FaceList::iterator sidesFace, sidesFaceEnd;
+            sidesFaceEnd = sides.end();
+			for(sidesFace = sides.begin(); sidesFace != sidesFaceEnd; ++sidesFace) 
+            {
+                // Dot product of face normal gives a good delta angle
+				Real dotprod = (*srcface)->normal.dotProduct( (*sidesFace)->normal);
+                mincurv =  std::min(mincurv,(1.002f - dotprod)/2.0f);
+			}
+            curvature = std::max(curvature, mincurv);
+		}
+
+        // check for border to interior collapses
+	    if(src->isBorder() && sides.size() > 1) 
+        {
+            // src is on a border, but the src-dest edge has more than one tri on it
+            // So it must be collapsing inwards
+            // Mark as high-value cost
+		    curvature = 1.0f;
+	    } 
+
+		// check for texture seam ripping
+        /* Not reimplemented (This is Stan's code below so won't compile here!)
+           Because we have to duplicate vertices where texcoords do not agree, then
+           a texture seam actually becomes a geometry border now, which will
+           be dealt with in the section above. 
+		int nomatch=0;
+		for(i=0;i<u->face.num;i++) {
+			for(int j=0;j<sides.num;j++) {
+				// perhaps we should actually compare the positions in uv space
+				if(u->face[i]->texat(u) == sides[j]->texat(u)) break;
+			}
+			if(j==sides.num) 
+			{
+				// we didn't find a triangle with edge uv that shares texture coordinates
+				// with face i at vertex u
+				nomatch++;
+			}
+		}
+		if(nomatch) {
+			curvature=1;
+	    }
+        */
+
+
+        // Enable this next part if we want to keep ALL border vertices
+        // Will guarantee shape remains in flat objects but limits reduction
+        /*
+	    if(u->isBorder()) 
+        {
+		    curvature = 9999.9f;
+	    }
+        */
+
+
+	    // Cost is the product of the edge length and the curvature
+        return edgeVector.length() * curvature;
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::computeEdgeCostAtVertex(ushort vertIndex)
+    void ProgressiveMesh::initialiseEdgeCollapseCosts(void)
     {
+        WorkingDataList::iterator i, iend;
+        iend = mWorkingData.end();
+        for (i = mWorkingData.begin(); i != iend; ++i)
+        {
+            VertexList::iterator v, vend;
+            vend = i->mVertList.end();
+            for (v = i->mVertList.begin(); v != vend; ++v)
+            {
+                v->collapseTo = NULL;
+                v->collapseCost = -0.01f;
+            }
+        }
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::computeAllEdgeCollapseCostsForBuffer(VertexList* buf)
+    void ProgressiveMesh::computeEdgeCostAtVertex(WorkingDataList::iterator idata, ushort vertIndex)
+    {
+	    // compute the edge collapse cost for all edges that start
+	    // from vertex v.  Since we are only interested in reducing
+	    // the object by selecting the min cost edge at each step, we
+	    // only cache the cost of the least cost edge at this vertex
+	    // (in member variable collapse) as well as the value of the 
+	    // cost (in member variable objdist).
+
+        VertexList::iterator v = idata->mVertList.begin();
+        v += vertIndex;
+
+	    if(v->neighbor.empty()) {
+		    // v doesn't have neighbors so it costs nothing to collapse
+		    v->collapseTo = NULL;
+		    v->collapseCost = -0.01f;
+		    return;
+	    }
+
+	    // Init metrics
+        v->collapseCost = 1000000;
+	    v->collapseTo = NULL;
+
+	    // search all neighboring edges for "least cost" edge
+        PMVertex::NeighborList::iterator n, nend;
+        nend = v->neighbor.end();
+		Real cost;
+	    for(n = v->neighbor.begin(); n != nend; ++n) 
+        {
+		    cost = computeEdgeCollapseCost(v, *n);
+		    if( (!v->collapseTo) || cost < v->collapseCost) 
+            {
+			    v->collapseTo = *n;  // candidate for edge collapse
+			    v->collapseCost = cost;             // cost of the collapse
+		    }
+	    }
+    }
+    //---------------------------------------------------------------------
+    void ProgressiveMesh::computeAllEdgeCollapseCostsForBuffer(WorkingDataList::iterator idata)
     {
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::computeEdgeCollapseCostsForAllBuffers(void)
     {
+        initialiseEdgeCollapseCosts();
+        WorkingDataList::iterator i, iend;
+        iend = mWorkingData.end();
+        for (i = mWorkingData.begin(); i != iend; ++i)
+        {
+            computeAllEdgeCollapseCostsForBuffer(i);
+        }
     }
     //---------------------------------------------------------------------
     void ProgressiveMesh::collapse(ushort srcIdx, ushort destIdx)
@@ -184,7 +363,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::PMVertex::setDetails(Vector3 v, int newindex)
+    void ProgressiveMesh::PMVertex::setDetails(const Vector3& v, int newindex)
     {
 	    position = v;
 	    index = newindex;

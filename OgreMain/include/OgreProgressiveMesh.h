@@ -81,6 +81,7 @@ namespace Ogre {
         GeometryData* mpGeomData;
         ushort* mpIndexBuffer;
         ushort mNumIndexes;
+        ushort mCurrentWorkData;
 
         // Internal classes
         class PMTriangle;
@@ -104,7 +105,7 @@ namespace Ogre {
         class PMVertex {
         public:
             PMVertex();
-	        void setDetails(Vector3 v, int index);
+	        void setDetails(const Vector3& v, int index);
 	        void removeIfNonNeighbor(PMVertex *n);
 	        bool isBorder(void);
             void notifyRemoved(void);
@@ -144,12 +145,14 @@ namespace Ogre {
         /// Internal method for building PMWorkingData from geometry data
         void addWorkingData(Real* pPositions, GeometryData* data, ushort* indexBuffer, ushort numIndexes);
 
+        /// Internal method for initialising the edge collapse costs
+        void initialiseEdgeCollapseCosts(void);
         /// Internal calculation method for deriving a collapse cost  from u to v
         Real computeEdgeCollapseCost(PMVertex *src, PMVertex *dest);
         /// Internal method evaluates all collapse costs from this vertex and picks the lowest
-        void computeEdgeCostAtVertex(ushort vertIndex);
+        void computeEdgeCostAtVertex(WorkingDataList::iterator idata, ushort vertIndex);
         /// Internal method for calculating all edge collapse costs for a buffer
-        void computeAllEdgeCollapseCostsForBuffer(VertexList* buf);
+        void computeAllEdgeCollapseCostsForBuffer(WorkingDataList::iterator idata);
         /** Internal method to compute edge collapse costs for all buffers and build the
             initial 'least max cost' map. */
         void computeEdgeCollapseCostsForAllBuffers(void);
