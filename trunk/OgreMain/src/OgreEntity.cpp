@@ -842,12 +842,17 @@ namespace Ogre {
                 {
                     pVertData = egi->vertexData;
                 }
+
+                // Try to find corresponding SubEntity; this allows the 
+                // linkage of visibility between ShadowRenderable and SubEntity
+                SubEntity* subent = findSubEntityForVertexData(egi->vertexData);
                 // Create a new renderable, create a separate light cap if
                 // we're using a vertex program (either for this model, or
 				// for extruding the shadow volume) since otherwise we can 
 				// get depth-fighting on the light cap
+
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
-                    mVertexProgramInUse || !extrude);
+                    mVertexProgramInUse || !extrude, subent);
             }
             else if (hasSkeleton)
             {
@@ -933,6 +938,28 @@ namespace Ogre {
             "Entity::findBlendedVertexData");
     }
     //-----------------------------------------------------------------------
+    SubEntity* Entity::findSubEntityForVertexData(const VertexData* orig)
+    {
+        if (orig == mMesh->sharedVertexData)
+        {
+            return 0;
+        }
+
+        SubEntityList::iterator i, iend;
+        iend = mSubEntityList.end();
+        for (i = mSubEntityList.begin(); i != iend; ++i)
+        {
+            SubEntity* se = *i;
+            if (orig == se->getSubMesh()->vertexData)
+            {
+                return se;
+            }
+        }
+
+        // None found
+        return 0;
+    }
+    //-----------------------------------------------------------------------
     void Entity::_notifyAttached(Node* parent, bool isTagPoint)
     {
         MovableObject::_notifyAttached(parent, isTagPoint);
@@ -949,8 +976,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
         HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData,
-        bool createSeparateLightCap, bool isLightCap)
-        : mParent(parent)
+        bool createSeparateLightCap, SubEntity* subent, bool isLightCap)
+        : mParent(parent), mSubEntity(subent)
     {
         // Save link to vertex data
         mOriginalVertexData = vertexData;
@@ -998,7 +1025,7 @@ namespace Ogre {
             {
                 // Create child light cap
                 mLightCap = new EntityShadowRenderable(parent, 
-                    indexBuffer, vertexData, false, true);
+                    indexBuffer, vertexData, false, subent, true);
             }
         }
 
@@ -1045,6 +1072,18 @@ namespace Ogre {
             static_cast<EntityShadowRenderable*>(mLightCap)->rebindPositionBuffer();
         }
 
+    }
+    //-----------------------------------------------------------------------
+    bool Entity::EntityShadowRenderable::isVisible(void) const
+    {
+        if (mSubEntity)
+        {
+            return mSubEntity->isVisible();
+        }
+        else
+        {
+            return ShadowRenderable::isVisible();
+        }
     }
 
 
