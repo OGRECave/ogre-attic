@@ -73,6 +73,7 @@ namespace Ogre {
         bool mIsSkeletallyAnimated;
 
         // Internal methods
+	virtual void writeSubMeshNameTable(const Mesh* pMesh);
         virtual void writeMesh(const Mesh* pMesh);
         virtual void writeSubMesh(const SubMesh* s);
         virtual void writeSubMeshOperation(const SubMesh* s);
@@ -94,9 +95,11 @@ namespace Ogre {
         virtual unsigned long calcSkeletonLinkSize(const String& skelName);
         virtual unsigned long calcBoneAssignmentSize(void);
         virtual unsigned long calcSubMeshOperationSize(const SubMesh* pSub);
+	virtual unsigned long calcSubMeshNameTableSize(const Mesh *pMesh);
 
         virtual void readMaterial(DataChunk& chunk);
         virtual void readTextureLayer(DataChunk& chunk, Material* pMat);
+	virtual void readSubMeshNameTable(DataChunk& chunk);
         virtual void readMesh(DataChunk& chunk);
         virtual void readSubMesh(DataChunk& chunk);
         virtual void readSubMeshOperation(DataChunk& chunk, SubMesh* sub);

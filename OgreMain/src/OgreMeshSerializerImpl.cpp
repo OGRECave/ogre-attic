@@ -76,6 +76,13 @@ namespace Ogre {
         writeMesh(pMesh);
         LogManager::getSingleton().logMessage("Mesh data exported.");
 
+		// Added by DrEvil
+		LogManager::getSingleton().logMessage("Writing submesh name table...");
+
+		writeSubMeshNameTable(pMesh);
+		LogManager::getSingleton().logMessage("Done writing submesh name table");
+
+
         fclose(mpfFile);
         LogManager::getSingleton().logMessage("MeshSerializer export successful.");
     }
@@ -99,6 +106,10 @@ namespace Ogre {
             case M_MATERIAL:	 // removed in 1.1 but still present in 1.0
                  readMaterial(chunk);	 
                  break;                
+
+			// Added by DrEvil optional chunk which lists submesh indexes & their names.
+			case M_SUBMESH_NAME_TABLE:
+                readSubMeshNameTable(chunk);
             }
         }
     }
@@ -163,6 +174,30 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+	// Added by DrEvil
+	void MeshSerializerImpl::writeSubMeshNameTable(const Mesh* pMesh)
+	{
+		// Header
+		writeChunkHeader(M_SUBMESH_NAME_TABLE, calcSubMeshNameTableSize(pMesh));
+
+		// Loop through and save out the index and names.
+		Mesh::SubMeshNameMap::const_iterator it = pMesh->mSubMeshNameMap.begin();
+
+		while(it != pMesh->mSubMeshNameMap.end())
+		{
+			// Header
+			writeChunkHeader(M_SUBMESH_NAME_TABLE_ELEMENT, CHUNK_OVERHEAD_SIZE + 
+				sizeof(unsigned short) + (unsigned long)it->first.length() + 1);
+
+			// write the index
+			writeShorts(&it->second, 1);
+			// name
+	        writeString(it->first);
+
+			++it;
+		}
+	}
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSubMesh(const SubMesh* s)
     {
@@ -327,6 +362,27 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+	// Added by DrEvil
+	unsigned long MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh *pMesh)
+	{
+		size_t size = CHUNK_OVERHEAD_SIZE;
+		// Figure out the size of the Name table.
+		// Iterate through the subMeshList & add up the size of the indexes and names.
+		Mesh::SubMeshNameMap::const_iterator it = pMesh->mSubMeshNameMap.begin();		
+		while(it != pMesh->mSubMeshNameMap.end())
+		{
+			// size of the index
+			size += sizeof(unsigned short);
+			// name
+			size += (unsigned long)it->first.length() + 1;
+
+			++it;
+		}        		
+
+		// size of the sub-mesh name table.
+		return (unsigned long)size;
+	}
+    //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
@@ -406,6 +462,58 @@ namespace Ogre {
         }
         return static_cast<unsigned long>(size);
     }
+    //---------------------------------------------------------------------
+	// Added by DrEvil
+	void MeshSerializerImpl::readSubMeshNameTable(DataChunk& chunk)
+	{
+		// The map for
+		std::map<unsigned short, String> subMeshNames;
+		unsigned short chunkID, subMeshIndex;
+
+		// Need something to store the index, and the objects name
+		// This table is a method that imported meshes can retain their naming
+		// so that the names established in the modelling software can be used
+		// to get the sub-meshes by name. The exporter must support exporting
+		// the optional chunk M_SUBMESH_NAME_TABLE.
+
+        // Read in all the sub-chunks. Each sub-chunk should contain an index and Ogre::String for the name.
+		if (!chunk.isEOF())
+		{
+			chunkID = readChunk(chunk);
+			while(!chunk.isEOF() && (chunkID == M_SUBMESH_NAME_TABLE_ELEMENT ))
+			{
+				// Read in the index of the submesh.
+				readShorts(chunk, &subMeshIndex, 1);
+				// Read in the String and map it to its index.
+				subMeshNames[subMeshIndex] = readString(chunk);					
+
+				// If we're not end of file get the next chunk ID
+				if (!chunk.isEOF())
+					chunkID = readChunk(chunk);
+			}
+			if (!chunk.isEOF())
+			{
+				// Backpedal back to start of chunk
+				chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+			}
+		}
+
+		// Set all the submeshes names
+		// ?
+
+		// Loop through and save out the index and names.
+		std::map<unsigned short, String>::const_iterator it = subMeshNames.begin();
+
+		while(it != subMeshNames.end())
+		{			
+			// Name this submesh to the stored name.
+			mpMesh->nameSubMesh(it->second, it->first);
+			++it;
+		}
+
+
+
+	}
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readMesh(DataChunk& chunk)
     {

@@ -85,6 +85,11 @@ namespace Ogre {
 		if (elem)
 			readLodInfo(elem);
 
+		// submesh names
+		elem = rootElem->FirstChildElement("submeshnames");
+		if (elem)
+			readSubMeshNames(elem, mpMesh);
+
         delete mXMLDoc;
 
         LogManager::getSingleton().logMessage("XMLMeshSerializer import successful.");
@@ -170,6 +175,8 @@ namespace Ogre {
 			writeLodInfo(rootNode, pMesh);
             LogManager::getSingleton().logMessage("LOD information exported.");
 		}
+        // Write submesh names
+        writeSubMeshNames(rootNode, pMesh);
 
 
 
@@ -881,6 +888,23 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Bone assignments done.");
     }
     //---------------------------------------------------------------------
+	void XMLMeshSerializer::readSubMeshNames(TiXmlElement* mMeshNamesNode, Mesh *sm)
+	{
+		LogManager::getSingleton().logMessage("Reading mesh names...");
+
+		// Iterate over all children (vertexboneassignment entries)
+		for (TiXmlElement* elem = mMeshNamesNode->FirstChildElement();
+			elem != 0; elem = elem->NextSiblingElement())
+		{
+			String meshName = elem->Attribute("name");
+			int index = StringConverter::parseInt(elem->Attribute("index"));
+
+			sm->nameSubMesh(meshName, index);
+		}
+
+		LogManager::getSingleton().logMessage("Mesh names done.");
+	}
+    //---------------------------------------------------------------------
     void XMLMeshSerializer::readBoneAssignments(TiXmlElement* mBoneAssignmentsNode, SubMesh* sm)
     {
         LogManager::getSingleton().logMessage("Reading bone assignments...");
@@ -926,6 +950,28 @@ namespace Ogre {
 		}
 
 	}
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::writeSubMeshNames(TiXmlElement* mMeshNode, const Mesh* m)
+    {
+        const Mesh::SubMeshNameMap& nameMap = m->getSubMeshNameMap();
+        if (nameMap.empty())
+            return; // do nothing
+
+        TiXmlElement* namesNode = 
+            mMeshNode->InsertEndChild(TiXmlElement("submeshnames"))->ToElement();
+        Mesh::SubMeshNameMap::const_iterator i, iend;
+        iend = nameMap.end();
+        for (i = nameMap.begin(); i != iend; ++i)
+        {
+            TiXmlElement* subNameNode = 
+                namesNode->InsertEndChild(TiXmlElement("submeshname"))->ToElement();
+
+            subNameNode->SetAttribute("name", i->first);
+            subNameNode->SetAttribute("index", 
+                StringConverter::toString(i->second));
+        }
+
+    }
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::writeLodUsageManual(TiXmlElement* usageNode, 
 		unsigned short levelNum, const Mesh::MeshLodUsage& usage)
