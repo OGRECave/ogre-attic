@@ -482,7 +482,7 @@ namespace Ogre {
         }
 
         // Re-point the render operation vertex buffer
-        op.pVertices = mTempVertexBlendBuffer.begin();
+        op.pVertices = &( mTempVertexBlendBuffer.front() );
 
         
 
