@@ -133,6 +133,9 @@
 				RelativePath="..\src\OgreRefAppApplicationObject.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRefAppBall.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRefAppOgreHead.cpp">
 			</File>
 			<File
@@ -149,6 +152,9 @@
 				RelativePath="..\include\OgreRefAppApplicationObject.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreRefAppBall.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreRefAppOgreHead.h">
 			</File>
 			<File
@@ -163,15 +169,55 @@
 			<File
 				RelativePath="..\include\OgreReferenceAppLayer.h">
 			</File>
-			<File
-				RelativePath="..\..\..\Dependencies\include\ode\ode.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Dependencies\include\ode\odecpp.h">
-			</File>
-			<File
-				RelativePath="..\..\..\Dependencies\include\ode\odecpp_collision.h">
-			</File>
+			<Filter
+				Name="ODE"
+				Filter="">
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\collision.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\common.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\contact.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\error.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\geom.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\mass.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\matrix.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\memory.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\misc.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\objects.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\ode.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\odecpp.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\odecpp_collision.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\odemath.h">
+				</File>
+				<File
+					RelativePath="..\..\..\Dependencies\include\ode\rotation.h">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
