@@ -61,7 +61,7 @@ namespace OgreRefApp
 
         // WARNING: an ODE dPlane seems to barf badly when you setPosition on it! Use a box.
         // The other benefit here is that it reflects the width / height of the plane, not infinite
-        dBox* odeBox = new dBox(0, mWidth*2, 1, mHeight*2); // ode == Y facing?
+        dBox* odeBox = new dBox(0, mWidth*2, mHeight*2, 1); 
         mCollisionProxies.push_back(odeBox);
         updateCollisionProxies();
 
