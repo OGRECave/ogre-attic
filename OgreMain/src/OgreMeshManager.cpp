@@ -94,10 +94,11 @@ namespace Ogre
     {
         int i;
         Mesh* pMesh = createManual(name);
-        SubMesh *pSub = pMesh->createSubMesh();
+		SubMesh *pSub = pMesh->createSubMesh();
 
 		// Set up vertex data
 		// Use a single shared buffer
+		pMesh->sharedVertexData = new VertexData();
 		VertexData* vertexData = pMesh->sharedVertexData;
 		// Set up Vertex Declaration
 		VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
@@ -131,7 +132,7 @@ namespace Ogre
 		VertexBufferBinding* binding = vertexData->vertexBufferBinding;
 		binding->setBinding(0, vbuf);
 
-        // Work out the transform required
+		// Work out the transform required
         // Default orientation of plane is normal along +z, distance 0
         Matrix4 xlate, xform, rot;
         Matrix3 rot3;
@@ -177,7 +178,7 @@ namespace Ogre
             for (int x = 0; x < xsegments + 1; ++x)
             {
 				// Get vertex start
-                pReal = pBufStart + (((y * (xsegments+1)) + x) * vbuf->getVertexSize());
+                pReal = pBufStart + (((y * (xsegments+1)) + x) * (vbuf->getVertexSize() / sizeof(Real)) );
                 // Work out centered on origin
                 vec.x = (x * xSpace) - halfWidth;
                 vec.y = (y * ySpace) - halfHeight;
@@ -212,13 +213,11 @@ namespace Ogre
 
 		// Unlock
 		vbuf->unlock();
-
         // Generate face list
         pSub->useSharedVertices = true;
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage);
 
         pMesh->_updateBounds();
-		
         return pMesh;
     }
 
