@@ -1,8 +1,11 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
 <!-- saved from url=(0079)http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/CreatingTheProject.html -->
-<HTML><HEAD><TITLE>Creating OGRE Project Files</TITLE>
-<META http-equiv=Content-Type content="text/html; charset=windows-1252">
-<STYLE type=text/css>.MainHeader {
+  <title>Creating OGRE Project Files</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=windows-1252">
+  <style type="text/css">.MainHeader {
 	FONT-WEIGHT: bold; FONT-SIZE: 10pt; COLOR: #ffffff; BACKGROUND-COLOR: #003300
 }
 BODY {
@@ -50,110 +53,193 @@ TH {
 PRE {
 	FONT-SIZE: 12px; COLOR: #000066
 }
-</STYLE>
+  </style>
+  <meta content="MSHTML 6.00.2800.1400" name="GENERATOR">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+  <meta content="Nicholas" name="author">
+  <meta http-equiv="reply-to" content="vastrim@hotmail.com">
+  <meta content="Sat, 13 Jul, 2002 12:32:59 p GMT" name="creation_date">
+</head>
+<body style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+<p class="header" align="center">OGRE (Object-Oriented Graphics
+Rendering Engine)</p>
+<p class="header" align="center">Creating project files for OGRE </p>
+<p class="MainHeader" align="left">&nbsp;</p>
+<p class="SectionHeader" align="left">Files</p>
+<p align="left">In these tutorials I will assume that the projects
+being created are located in their own folder in OgreNew\Samples. I
+will use APPNAME as a place holder for where you type in the name of
+the application. So in the example of where the project files should be
+stored it would be OgreNew\Samples\APPNAME. </p>
+<p align="left">NB: In a moments time we will embark on creating a
+small application called "Space", based on some of the examples
+supplied with Ogre. I suggest that if you plan on doing that tutorial
+that you use Space as the APPNAME. </p>
+<p class="SectionHeader" align="left">Visual C++ 7</p>
+<p align="left">The first thing you need to do is create a blank Win32
+Project. Make sure that you create a C++ project and that you have
+ticked the "Empty Project" tick box.
+<br>
+Now right click on the project in the solution explorer and change the
+following properties:<br>
+</p>
+<pre><table cellspacing="2" cellpadding="1" border="0"><tbody><tr><td>Debug - Working Directory</td><td>=</td><td>..\Common\Bin\Debug</td></tr><tr><td>C/C++ - Preprocessor Defines</td><td>=</td><td>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32</td></tr><tr><td>C/C++ - Additional Include Directories</td><td>=</td><td>..\Common\Include ..\..\OgreMain\include<br></td></tr><tr><td>Linker - Output File</td><td>=</td><td>..\Common\Bin\Debug\APPNAME.EXE</td></tr><tr><td>Linker - Additional Library Directories</td><td>=</td><td>..\..\OgreMain\Lib\Debug</td></tr><tr><td>Linker - Additional Dependencies</td><td>=</td><td>OGREMain.LIB</td></tr></tbody></table><br></pre>
+<br>
+<b>NB:</b> Check that your application is set to use the '<i>Multithreaded
+[Debug] Dll</i>' runtime library (under the code generation options in
+the C++ section).
+<p align="left">Copy Samples\Skyplane\Src\SkyPlane.CPP and
+Samples\Skyplane\Include\SkyPlane.H into the directory with your
+project. Right click on the project in the solution explorer and select
+"Add Existing Item". Highlight the two files you just copied and then
+rebuild your solution. Now run it in debug mode. Everything should
+work. </p>
+<p align="left">Now remove those two files from your project and delete
+them from your projects directory. </p>
+<p align="left">The last step that we need to take in setting up the
+project is to create the main program loop. This is simpler than it
+sounds because if we are following the Ogre Example Framework then all
+it means we do is create an instance of our Application object and call
+it's go() method. In Visual C++ it will look like this: </p>
+<pre>/* APPNAME.CPP */<br><br>#include "Ogre.h"<br>#include "APPNAMEApplication.h"<br><br>#define WIN32_LEAN_AND_MEAN<br>#include "windows.h"<br><br>INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )<br>{<br>    // Create application object<br>    APPNAMEApplication app;<br><br>    try {<br>        app.go();<br>    } catch( Ogre::Exception&amp; e ) {<br>        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );<br>    }<br><br>    return 0;<br>}<br><br></pre>
+<p align="left">This doesn't compile does it? No, because we have not
+written APPNAMEApplication.h yet. That will be discussed in the next
+section. </p>
+<p class="SectionHeader" align="left">Visual C++ 6</p>
+<p align="left">This is almost identical to the instructions for Visual
+C++ 7.</p>
+<p align="left">The first thing you need to do is create a blank Win32
+Project. Make
+sure that you create a C++ project and that you have ticked the "Empty
+Project" tick box.<br>
+Now select "Project" from the menu and then select "Settings". We'll
+change some properties from
+here (legend is T=Tab, C="Category"):<br>
+</p>
+<pre><table border="0" cellspacing="2" cellpadding="1">
+	<tbody><tr>
+		<td>(T) Debug - (C) General - Working Directory</td>
+		<td>=</td>
+		<td>..\Common\Bin\Debug</td>
+	</tr>
+	<tr>
+		<td>(T) C/C++ - (C) Preprocessor - Preprocessor Definitions</td>
+		<td>=</td>
+		<td>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32</td>
+	</tr>
+<tr>
+		<td>(T) C/C++ - (C) Preprocessor - Additional Include Directories</td>
+		<td>=</td>
+		<td>..\Common\Include,..\..\OgreMain\include<br></td>
+	</tr>
 
-<META content="MSHTML 6.00.2800.1400" name=GENERATOR>
-<META content="" name=keywords>
-<META content="" name=description>
-<META content=Nicholas name=author>
-<META http-equiv=reply-to content=vastrim@hotmail.com>
-<META content="Sat, 13 Jul, 2002 12:32:59 p GMT" name=creation_date></HEAD>
-<BODY text=#000000 bgColor=#ffffff>
-<P class=header align=center>OGRE (Object-Oriented Graphics Rendering 
-Engine)</P>
-<P class=header align=center>Creating project files for OGRE </P>
-<P class=MainHeader align=left>&nbsp;</P>
-<P class=SectionHeader align=left>Files</P>
-<P align=left>In these tutorials I will assume that the projects being created 
-are located in their own folder in OgreNew\Samples. I will use APPNAME as a 
-place holder for where you type in the name of the application. So in the 
-example of where the project files should be stored it would be 
-OgreNew\Samples\APPNAME. </P>
-<P align=left>NB: In a moments time we will embark on creating a small 
-application called "Space", based on some of the examples supplied with Ogre. I 
-suggest that if you plan on doing that tutorial that you use Space as the 
-APPNAME. </P>
-<P class=SectionHeader align=left>Visual C++ 7</P>
-<P align=left>The first thing you need to do is create a blank Win32 Project. 
-Make sure that you create a C++ project and that you have ticked the "Empty 
-Project" tick box.
-<BR>Now right click on the project in the solution explorer 
-and change the following properties:<BR></P><PRE><TABLE cellSpacing=2 cellPadding=1 border=0><TBODY><TR><TD>Debug - Working Directory</TD><TD>=</TD><TD>..\Common\Bin\Debug</TD></TR><TR><TD>C/C++ - Preprocessor Defines</TD><TD>=</TD><TD>_WINDOWS,_STLP_USE_DYNAMIC_LIB,OGRE_LIBRARY_IMPORTS,_DEBUG,WIN32</TD></TR><TR><TD>C/C++ - Additional Include Directories</TD><TD>=</TD><TD>..\Common\Include ..\..\OgreMain\include<BR></TD></TR><TR><TD>Linker - Output File</TD><TD>=</TD><TD>..\Common\Bin\Debug\APPNAME.EXE</TD></TR><TR><TD>Linker - Additional Library Directories</TD><TD>=</TD><TD>..\..\OgreMain\Lib\Debug</TD></TR><TR><TD>Linker - Additional Dependencies</TD><TD>=</TD><TD>OGREMain.LIB</TD></TR></TBODY></TABLE>
-</PRE>
-
-<br />
-
-<b>NB:</b> Check that your application is set to use the '<i>Multithreaded [Debug] Dll</i>' 
-runtime library (under the code generation options in the C++ section).
-
-<P align=left>Copy Samples\Skyplane\Src\SkyPlane.CPP and 
-Samples\Skyplane\Include\SkyPlane.H into the directory with your project. Right 
-click on the project in the solution explorer and select "Add Existing Item". 
-Highlight the two files you just copied and then rebuild your solution. Now run 
-it in debug mode. Everything should work. </P>
-<P align=left>Now remove those two files from your project and delete them from 
-your projects directory. </P>
-<P align=left>The last step that we need to take in setting up the project is to 
-create the main program loop. This is simpler than it sounds because if we are 
-following the Ogre Example Framework then all it means we do is create an 
-instance of our Application object and call it's go() method. In Visual C++ it 
-will look like this: </P><PRE>/* APPNAME.CPP */<BR><BR>#include "Ogre.h"<BR>#include "APPNAMEApplication.h"<BR><BR>#define WIN32_LEAN_AND_MEAN<BR>#include "windows.h"<BR><BR>INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )<BR>{<BR>    // Create application object<BR>    APPNAMEApplication app;<BR><BR>    try {<BR>        app.go();<BR>    } catch( Ogre::Exception&amp; e ) {<BR>        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );<BR>    }<BR><BR>    return 0;<BR>}<BR><BR></PRE>
-<P align=left>This doesn't compile does it? No, because we have not written 
-APPNAMEApplication.h yet. That will be discussed in the next section. </P>
-<P class=SectionHeader align=left>Visual C++ 6</P>
-<P align=left>Under construction. </P>
-<P class=SectionHeader align=left>Linux</P>
-<P align=left>Under construction. </P>
-<P class=SectionHeader align=left>Borland</P>
-<P align=left>Under construction. </P>
-<P class=SectionHeader align=left>Mac OSX</P>
-<P align=left>The first thing you need to do is to download a sample <A 
-href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/MacOSX/Makefile">Makefile</A> 
-to build your app. Put this in the Ogrenew/Samples/Space directory. Copy 
-Samples/Skyplane/Src/SkyPlane.CPP and Samples/Skyplane/Include/SkyPlane.H into 
-this same directory (ie. there should now be 3 files in this directory). </P>
-<P align=left>Let's take a look at portions of the Makefile that you would need 
-to amend:</P><PRE align="left"># TOPDIR points to the main directory where you installed Ogre    <BR>   TOPDIR = /source/ogrenew</PRE>
-<P align=left>Amend this path to reflect the path of your Ogre installation</P>
-<P></P><PRE align="left"># DEVIL_LIBS points to src path for DevIL <BR>   DEVIL_LIBS =  -L/source/DevIL/src-Il/src</PRE>
-<P align=left>Amend this path to reflect the path to the DevIL 'src' 
-directory.</P>
-<P align=left>&nbsp;</P>
-<P align=left>In the Terminal, 'cd' into Ogrenew/Samples/Space and do a 'make'. 
-To run this built application, 'cd' into Ogrenew/Samples/Common/bin and do a 
-'./mySkyPlane'. Everything should work.</P>
-<P align=left>Now remove those two files (.cpp &amp; .h) from your 
-directory.</P>
-<P align=left>You will now need to edit the Makefile to reflect your new source 
-files as follows</P><PRE align="left"># SRCFILES points to all files to be compiled<BR>   SRCFILES = APPNAMEApplication.cpp<BR></PRE>
-<P align=left>Amend the source file name to the name of your new .cpp file</P><PRE align="left"># APPNAME is the filename of the generated executable <BR>   APPNAME = $(TOPDIR)/Samples/Common/bin/APPNAMEApplication</PRE>
-<P align=left>Edit this to reflect the location and name of your executable. For 
-this project, place it in the Ogrenew/Samples/Common/bin directory for 
-simipliity.</P><PRE align="left"># INCLUDES points to additional include directories <BR>   INCLUDES = -I. -I$(TOPDIR)/Samples/APPNAME/include  ...</PRE>
-<P align=left>If you are storing you .h file in a 'include' subdirectory, add 
-its path here so that it could be located</P>
-<P align=left>The last step that we need to take in setting up the project is to 
-create the main program loop. This is simpler than it sounds because if we are 
-following the Ogre Example Framework then all it means we do is create an 
-instance of our Application object and call it's go() method. In Visual C++ it 
-will look like this: </P><PRE align="left">/* APPNAME.CPP */<BR>#include "Ogre.h" #include "APPNAMEApplication.h"<BR><BR>#if OGRE_PLATFORM == PLATFORM_WIN32<BR>#define WIN32_LEAN_AND_MEAN<BR>#include "windows.h"<BR>INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )<BR>#else<BR>int main(int argc, char *argv[])<BR>#endif<BR>{<BR>   // Create application object<BR>   APPNAMEApplication  app;<BR>   try {<BR>      app.go();<BR>   } catch( Ogre::Exception&amp; e ) {<BR><BR>#if OGRE_PLATFORM == PLATFORM_WIN32<BR>   MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!",    MB_OK | MB_ICONERROR | MB_TASKMODAL );<BR>#else<BR>   std::cerr &lt;&lt; "An exception has occured: " &lt;&lt;<BR>   	e.getFullDescription().c_str() &lt;&lt; std::endl;<BR>#endif<BR>   }<BR><BR>   return 0;<BR>}</PRE>
-<P>Note that this source differs from the one provided. It includes codes for 
-platforms other than Windows. The source for the .cpp file remains unchanged. 
-Now run 'make' agin in the Terminal. This doesn't compile does it? No, because 
-we have not written APPNAMEApplication.h yet. That will be discussed in the next 
-section.</P>
-<TABLE cellSpacing=2 cellPadding=0 width="100%" border=0>
-  <TBODY>
-  <TR>
-    <TD width="14%"><A 
-      href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/Index.html">Back 
-      to Index</A></TD>
-    <TD width="39%">&nbsp;</TD>
-    <TD width="22%">&lt;&lt; Previous section</TD>
-    <TD width="25%"><A 
-      href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/SettingUpTheScene.html">Next 
-      section &gt;&gt;</A></TD></TR></TBODY></TABLE>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P>&nbsp;</P>
-<P class=SectionHeader>&nbsp;</P></BODY></HTML>
+	<tr>
+		<td>(T) Link - (C) General - Output Filename</td>
+		<td>=</td>
+		<td>..\Common\Bin\Debug\APPNAME.EXE</td>
+	</tr>
+	<tr>
+		<td>(T) Link - (C) Input - Additional Library Path</td>
+		<td>=</td>
+		<td>..\..\OgreMain\Lib\Debug</td>
+	</tr>
+	<tr>
+		<td>(T) Link - (C) General - Object/Library Modules</td>
+		<td>=</td>
+		<td>OGREMain.LIB (add to whatever is there)</td>
+	</tr>
+</tbody></table><br></pre>
+<p align="left">
+Copy Samples\Skyplane\Src\SkyPlane.CPP and
+Samples\Skyplane\Include\SkyPlane.H into the directory with your
+project.
+Select "Project" from the menu then select "Add To Project" and
+finally "Files...". Highlight the two files you just copied, click
+OK and rebuild your solution. Now run it in debug mode. Everything
+should
+work. </p>
+<p align="left">
+Now remove those two files from your project and delete them from your
+projects directory. </p>
+<p align="left">
+The last step that we need to take in setting up the project is to
+create the main program loop. This is simpler than
+it sounds because if we are following the Ogre Example Framework then
+all it means we do is create an instance of our Application object and
+call it's go() method. In Visual C++ it will look like this:
+</p>
+<pre>/* APPNAME.CPP */<br><br>#include "Ogre.h"<br>#include "APPNAMEApplication.h"<br><br>#define WIN32_LEAN_AND_MEAN<br>#include "windows.h"<br><br>INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )<br>{<br>    // Create application object<br>    APPNAMEApplication app;<br><br>    try {<br>        app.go();<br>    } catch( Ogre::Exception&amp; e ) {<br>        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );<br>    }<br><br>    return 0;<br>}<br><br></pre>
+<p align="left">
+This doesn't compile does it? No, because we have not written
+APPNAMEApplication.h yet. That will be discussed in the next section.
+</p>
+<p class="SectionHeader" align="left">Linux</p>
+<p align="left">Under construction. </p>
+<p class="SectionHeader" align="left">Borland</p>
+<p align="left">Under construction. </p>
+<p class="SectionHeader" align="left">Mac OSX</p>
+<p align="left">The first thing you need to do is to download a sample <a
+ href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/MacOSX/Makefile">Makefile</a>
+to build your app. Put this in the Ogrenew/Samples/Space directory.
+Copy Samples/Skyplane/Src/SkyPlane.CPP and
+Samples/Skyplane/Include/SkyPlane.H into this same directory (ie. there
+should now be 3 files in this directory). </p>
+<p align="left">Let's take a look at portions of the Makefile that you
+would need to amend:</p>
+<pre align="left"># TOPDIR points to the main directory where you installed Ogre    <br>   TOPDIR = /source/ogrenew</pre>
+<p align="left">Amend this path to reflect the path of your Ogre
+installation</p>
+<pre align="left"># DEVIL_LIBS points to src path for DevIL <br>   DEVIL_LIBS =  -L/source/DevIL/src-Il/src</pre>
+<p align="left">Amend this path to reflect the path to the DevIL 'src'
+directory.</p>
+<p align="left">&nbsp;</p>
+<p align="left">In the Terminal, 'cd' into Ogrenew/Samples/Space and do
+a 'make'. To run this built application, 'cd' into
+Ogrenew/Samples/Common/bin and do a './mySkyPlane'. Everything should
+work.</p>
+<p align="left">Now remove those two files (.cpp &amp; .h) from your
+directory.</p>
+<p align="left">You will now need to edit the Makefile to reflect your
+new source files as follows</p>
+<pre align="left"># SRCFILES points to all files to be compiled<br>   SRCFILES = APPNAMEApplication.cpp<br></pre>
+<p align="left">Amend the source file name to the name of your new .cpp
+file</p>
+<pre align="left"># APPNAME is the filename of the generated executable <br>   APPNAME = $(TOPDIR)/Samples/Common/bin/APPNAMEApplication</pre>
+<p align="left">Edit this to reflect the location and name of your
+executable. For this project, place it in the
+Ogrenew/Samples/Common/bin directory for simipliity.</p>
+<pre align="left"># INCLUDES points to additional include directories <br>   INCLUDES = -I. -I$(TOPDIR)/Samples/APPNAME/include  ...</pre>
+<p align="left">If you are storing you .h file in a 'include'
+subdirectory, add its path here so that it could be located</p>
+<p align="left">The last step that we need to take in setting up the
+project is to create the main program loop. This is simpler than it
+sounds because if we are following the Ogre Example Framework then all
+it means we do is create an instance of our Application object and call
+it's go() method. In Visual C++ it will look like this: </p>
+<pre align="left">/* APPNAME.CPP */<br>#include "Ogre.h" #include "APPNAMEApplication.h"<br><br>#if OGRE_PLATFORM == PLATFORM_WIN32<br>#define WIN32_LEAN_AND_MEAN<br>#include "windows.h"<br>INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )<br>#else<br>int main(int argc, char *argv[])<br>#endif<br>{<br>   // Create application object<br>   APPNAMEApplication  app;<br>   try {<br>      app.go();<br>   } catch( Ogre::Exception&amp; e ) {<br><br>#if OGRE_PLATFORM == PLATFORM_WIN32<br>   MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!",    MB_OK | MB_ICONERROR | MB_TASKMODAL );<br>#else<br>   std::cerr &lt;&lt; "An exception has occured: " &lt;&lt;<br>   	e.getFullDescription().c_str() &lt;&lt; std::endl;<br>#endif<br>   }<br><br>   return 0;<br>}</pre>
+<p>Note that this source differs from the one provided. It includes
+codes for platforms other than Windows. The source for the .cpp file
+remains unchanged. Now run 'make' agin in the Terminal. This doesn't
+compile does it? No, because we have not written APPNAMEApplication.h
+yet. That will be discussed in the next section.</p>
+<table cellspacing="2" cellpadding="0" width="100%" border="0">
+  <tbody>
+    <tr>
+      <td width="14%"><a
+ href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/Index.html">Back
+to Index</a></td>
+      <td width="39%">&nbsp;</td>
+      <td width="22%">&lt;&lt; Previous section</td>
+      <td width="25%"><a
+ href="http://www.ogre3d.org/docs/Tutorials/2_HumbleBeginnings/SettingUpTheScene.html">Next
+section &gt;&gt;</a></td>
+    </tr>
+  </tbody>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p class="SectionHeader">&nbsp;</p>
+</body>
+</html>
