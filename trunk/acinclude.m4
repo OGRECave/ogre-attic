@@ -471,3 +471,17 @@ AC_DEFUN([OGRE_CHECK_DX9],
 AM_CONDITIONAL(BUILD_DX9RENDERSYSTEM, test x$build_dx9 = xtrue)
 
 ])
+
+AC_DEFUN([OGRE_CHECK_PIC],
+[
+AC_MSG_CHECKING([whether -fPIC is needed])
+    case $build in
+        x86_64-*)
+            CXXFLAGS="$CXXFLAGS -fPIC"
+            echo "yes"
+        ;;
+        *)
+            echo "no"
+        ;;
+    esac
+])
