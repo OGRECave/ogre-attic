@@ -60,7 +60,7 @@ pBuffer->lock(lockType);
 // Lock only part of the buffer
 pBuffer->lock(start, length, lockType);
 @end example
-The first call locks the entire buffer, the second locks only the section from 'start' (as a byte offset), for 'length' bytes. This could be faster than locking hte entire buffer since less is transferred, but not if you later update the rest of the buffer too, because doing it in small chunks like this means you cannot use HBL_DISCARD (see below).
+The first call locks the entire buffer, the second locks only the section from 'start' (as a byte offset), for 'length' bytes. This could be faster than locking the entire buffer since less is transferred, but not if you later update the rest of the buffer too, because doing it in small chunks like this means you cannot use HBL_DISCARD (see below).
 @*@*
 The lockType parameter can have a large effect on the performance of your application, especially if you are not using a shadow buffer. 
 @table @code

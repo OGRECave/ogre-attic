@@ -16,25 +16,25 @@ The ExternalTextureSource class is the base class that Texture Source PlugIns mu
 
 Default Command Parameters defined in ExternalTextureSource base class are:
 @itemize @bullet
-@item Parameter Name: "filename" Argument Type: Ogre:String
+@item Parameter Name: "filename" Argument Type: Ogre::String
 Sets a filename plugin will read from
-@item Parameter Name: "play_mode" Argument Type: Ogre:String
+@item Parameter Name: "play_mode" Argument Type: Ogre::String
 Sets initial play mode to be used by the plugin - "play", "loop", "pause"
-@item Parameter Name: "set_T_P_S" Argument Type: Ogre:String
+@item Parameter Name: "set_T_P_S" Argument Type: Ogre::String
 Used to set the technique, pass, and texture unit level to apply this texture to. As an example: To set a technique level of 1, a pass level of 2, and a texture unit level of 3, send this string "1 2 3".
-@item Parameter Name: "frames_per_second" Argument Type: Ogre:String
+@item Parameter Name: "frames_per_second" Argument Type: Ogre::String
 Set a Frames per second update speed. (Integer Values only)
 @end itemize
 
 @heading ExternalTextureSourceManager Class
-ExternalTextureSourceManager is responsible for keeping track of loaded Texture Source PlugIns. It also aides in the creation of texture source textures from scripts. It also is the interface you should use when dealing with texture source plugins.@*@*
+ExternalTextureSourceManager is responsible for keeping track of loaded Texture Source PlugIns. It also aids in the creation of texture source textures from scripts. It also is the interface you should use when dealing with texture source plugins.@*@*
 
 Note: The function prototypes shown below are mockups - param names are simplified to better illustrate purpose here...
 Steps needed to create a new texture via ExternalTextureSourceManager:
 
 @itemize @bullet
 @item  Obviously, the first step is to have the desired plugin included in plugin.cfg for it to be loaded.
-@itemSet the desired PlugIn as Active via AdvancedTextureManager::getSingleton().SetCurrentPlugIn( String Type ); -- type is whatever the plugin registers as handling (eg. "video", "flash", "whatever", etc).
+@item Set the desired PlugIn as Active via AdvancedTextureManager::getSingleton().SetCurrentPlugIn( String Type ); -- type is whatever the plugin registers as handling (eg. "video", "flash", "whatever", etc).
 @item Note: Consult Desired PlugIn to see what params it needs/expects.
 Set params/value pairs via AdvancedTextureManager::getSingleton().getCurrentPlugIn()->setParameter( String Param, String Value );
 @item After required params are set, a simple call to AdvancedTextureManager::getSingleton().getCurrentPlugIn()->createDefinedTexture( sMaterialName ); will create a texture to the material name given.
