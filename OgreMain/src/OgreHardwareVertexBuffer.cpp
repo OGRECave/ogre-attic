@@ -191,7 +191,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void VertexDeclaration::removeElement(unsigned short elem_index)
     {
-        assert(elem_index >= 0 && elem_index < mElementList.size() && "Index out of bounds");
+        assert(elem_index < mElementList.size() && "Index out of bounds");
         VertexElementList::iterator i = mElementList.begin();
         i += elem_index;
         mElementList.erase(i);
@@ -215,7 +215,7 @@ namespace Ogre {
         unsigned short source, size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
     {
-        assert(elem_index >= 0 && elem_index < mElementList.size() && "Index out of bounds");
+        assert(elem_index < mElementList.size() && "Index out of bounds");
         VertexElementList::iterator i = mElementList.begin();
         i += elem_index;
         (*i) = VertexElement(source, offset, theType, semantic, index);

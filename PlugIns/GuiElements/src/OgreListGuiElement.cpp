@@ -373,7 +373,7 @@ namespace Ogre {
 	{
 
 		Real currentTop = mVSpacing;
-		int currentItemNo = 0;
+		unsigned int currentItemNo = 0;
 		mVisibleRange = 0;
         ChildIterator it = getChildIterator();
         while (it.hasMoreElements())
@@ -447,7 +447,7 @@ namespace Ogre {
 		}
 
         ChildIterator it = getChildIterator();
-		int indexCount = 0;
+		unsigned int indexCount = 0;
         while (it.hasMoreElements())
         {
             GuiElement* currentElement = it.getNext();

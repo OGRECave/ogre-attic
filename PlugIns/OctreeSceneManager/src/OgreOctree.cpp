@@ -65,8 +65,8 @@ void Octree::_getChildIndexes( AxisAlignedBox &box, int *x, int *y, int *z )
 }
 
 Octree::Octree( Octree * parent ) 
-    : mHalfSize( 0, 0, 0 ),
-      mWireBoundingBox(0)
+    : mWireBoundingBox(0),
+      mHalfSize( 0, 0, 0 )
 {
     //initialize all children to null.
     for ( int i = 0; i < 2; i++ )

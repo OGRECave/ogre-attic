@@ -487,6 +487,8 @@ namespace Ogre {
         default:
             break;
         };
+
+        return 0;
     }
 
     long SDLInput::getMouseRelX() const
