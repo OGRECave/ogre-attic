@@ -217,26 +217,52 @@ namespace Ogre {
 
 		for (TiXmlElement* keyfElem = mKeyfNode->FirstChildElement("keyframe"); keyfElem != 0; keyfElem = keyfElem->NextSiblingElement())
         {
-			TiXmlElement* transElem = keyfElem->FirstChildElement("translate");
-			TiXmlElement* rotElem = keyfElem->FirstChildElement("rotate");
-			TiXmlElement* axisElem = rotElem->FirstChildElement("axis");
-			
 			Vector3 trans;
 			Vector3 axis;
-			Real angle ;
-			Real time ;
-			
+			Real angle;
+			Real time;
+
+            // Get time and create keyframe
 			time = StringConverter::parseReal(keyfElem->Attribute("time"));
+			kf = track->createKeyFrame(time);
+            // Optional translate
+			TiXmlElement* transElem = keyfElem->FirstChildElement("translate");
+            if (transElem)
+            {
+			    trans.x = StringConverter::parseReal(transElem->Attribute("x"));
+			    trans.y = StringConverter::parseReal(transElem->Attribute("y"));
+			    trans.z = StringConverter::parseReal(transElem->Attribute("z"));
+			    kf->setTranslate(trans) ;
+            }
+            // Optional rotate
+			TiXmlElement* rotElem = keyfElem->FirstChildElement("rotate");
+            if (rotElem)
+            {
+                TiXmlElement* axisElem = rotElem->FirstChildElement("axis");
+                if (!axisElem)
+                {
+                    Except(Exception::ERR_INTERNAL_ERROR, "Missing 'axis' element "
+                    "expected under parent 'rotate'", "MXLSkeletonSerializer::readKeyFrames");
+                }
+			    angle = StringConverter::parseReal(rotElem->Attribute("angle"));
 
-			trans.x = StringConverter::parseReal(transElem->Attribute("x"));
-			trans.y = StringConverter::parseReal(transElem->Attribute("y"));
-			trans.z = StringConverter::parseReal(transElem->Attribute("z"));
-			
-			angle = StringConverter::parseReal(rotElem->Attribute("angle"));
+			    axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
+			    axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
+			    axis.z = StringConverter::parseReal(axisElem->Attribute("z"));
 
-			axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
-			axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
-			axis.z = StringConverter::parseReal(axisElem->Attribute("z"));
+			    q.FromAngleAxis(angle,axis);
+			    kf->setRotation(q) ;
+
+            }
+            // Optional scale
+			TiXmlElement* scaleElem = keyfElem->FirstChildElement("scale");
+            if (scaleElem)
+            {
+                // Uniform scale only
+                Real factor = StringConverter::parseReal(scaleElem->Attribute("factor"));
+                kf->setScale(Vector3(factor, factor, factor));
+            }
+
 			
 			/*
 			LogManager::getSingleton().logMessage("Keyframe: translation("
@@ -245,10 +271,6 @@ namespace Ogre {
 				+ StringConverter::toString(axis.x) + "," + StringConverter::toString(axis.y) + "," + StringConverter::toString(axis.z) );
 			*/
 			
-			kf = track->createKeyFrame(time) ;
-			kf->setTranslate(trans) ;
-			q.FromAngleAxis(angle,axis);
-			kf->setRotation(q) ;
 
 		}
 	}
@@ -474,6 +496,10 @@ namespace Ogre {
         axisNode->SetAttribute("z", StringConverter::toString(axis.z));
 
         
+        TiXmlElement* scaleNode = 
+            keyNode->InsertEndChild(TiXmlElement("scale"))->ToElement();
+        // only uniform scaling on skeletons
+        scaleNode->SetAttribute("factor", StringConverter::toString(key->getScale().x));
 
     }
     //---------------------------------------------------------------------

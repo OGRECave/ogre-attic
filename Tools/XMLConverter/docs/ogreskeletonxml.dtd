@@ -33,7 +33,7 @@
 <!ATTLIST track
 	bone	CDATA 	#REQUIRED>
 <!ELEMENT keyframes (keyframe+)>
-<!ELEMENT keyframe (translate, rotate)>
+<!ELEMENT keyframe (translate?, rotate?, scale?)>
 <!ATTLIST keyframe 
 	time	CDATA	#REQUIRED>
 <!ELEMENT translate EMPTY>
@@ -44,4 +44,7 @@
 <!ELEMENT rotate (axis)>
 <!ATTLIST rotate
 	angle	CDATA	#REQUIRED>
-
+<!ELEMENT scale EMPTY>
+<!-- Only UNIFORM scaling is supported -->
+<!ATTLIST scale 
+	factor	CDATA	#REQUIRED>
