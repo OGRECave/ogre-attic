@@ -81,6 +81,7 @@ namespace Ogre
         mHardwareBufferManager = NULL;
 		mGpuProgramManager = NULL;
 		mPrimaryWindow = NULL;
+		mDeviceLost = false;
         //mHLSLProgramFactory = NULL;
 
 		// init lights
@@ -456,7 +457,7 @@ namespace Ogre
 			fullScreen = opt->second.currentValue == "Yes";
 
 			D3D9VideoMode* videoMode = NULL;
-			unsigned int width, height, colourDepth;
+			unsigned int width, height;
 			String temp;
 
 			opt = mOptions.find( "Video Mode" );
@@ -2580,7 +2581,12 @@ namespace Ogre
 		HRESULT hr = mpD3DDevice->Reset(
 			mPrimaryWindow->getPresentationParameters());
 
-		if (FAILED(hr))
+		if (hr == D3DERR_DEVICELOST)
+		{
+			// Don't continue
+			return;
+		}
+		else if (FAILED(hr))
 		{
 			Except(Exception::ERR_RENDERINGAPI_ERROR, 
 				"Cannot reset device! " + getErrorDescription(hr), 
@@ -2598,5 +2604,18 @@ namespace Ogre
 			->recreateDefaultPoolResources();
 		static_cast<D3D9HardwareBufferManager*>(mHardwareBufferManager)
 			->recreateDefaultPoolResources();
+
+		mDeviceLost = false;
 	}
+	//---------------------------------------------------------------------
+	bool D3D9RenderSystem::isDeviceLost(void)
+	{
+		return mDeviceLost;
+	}
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::_notifyDeviceLost(void)
+	{
+		mDeviceLost = true;
+	}
+
 }

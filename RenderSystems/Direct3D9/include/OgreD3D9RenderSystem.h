@@ -142,6 +142,7 @@ namespace Ogre
 		// List of additional windows after the first (swap chains)
 		SecondaryWindowList mSecondaryWindows;
 
+		bool mDeviceLost;
 
 	public:
 		// constructor
@@ -250,6 +251,11 @@ namespace Ogre
 
 		/** D3D specific method to restore a lost device. */
 		void restoreLostDevice(void);
+		/** D3D specific method to return whether the device has been lost. */
+		bool isDeviceLost(void);
+		/** Notify that a device has been lost */
+		void _notifyDeviceLost(void);
+
 
 
 	};
