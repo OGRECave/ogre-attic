@@ -1265,9 +1265,7 @@ namespace Ogre {
 
         // Set up rendering operation
         rend->getRenderOperation(ro);
-		#if OGRE_DEBUG_MODE
-			ro.srcRenderable = rend;
-		#endif
+		ro.srcRenderable = rend;
 
 		// Here's where we issue the rendering operation to the render system
 		// Note that we may do this once per light, therefore it's in a loop
