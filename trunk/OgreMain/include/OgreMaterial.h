@@ -505,6 +505,16 @@ namespace Ogre {
         /** Gets the LOD index to use at the given squared distance. */
         unsigned short getLodIndexSquaredDepth(Real squaredDepth);
 
+        /** @copydoc Resource::touch
+        */
+        void touch(void) 
+        { 
+            if (mCompilationRequired) 
+                compile();
+            // call superclass
+            Resource::touch();
+        }
+
 
     };
 

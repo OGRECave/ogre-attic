@@ -113,7 +113,8 @@ namespace Ogre {
 	    if (!mIsLoaded)
 	    {
 			// compile if required
-            compile();
+            if (mCompilationRequired)
+                compile();
 
             // Load all supported techniques
             Techniques::iterator i, iend;
@@ -267,9 +268,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Material::compile(bool autoManageTextureUnits)
     {
-        if (!mCompilationRequired) return;
-        Techniques temp;
-
         // Compile each technique, then add it to the list of supported techniques
         mSupportedTechniques.clear();
 		mBestTechniqueList.clear();
