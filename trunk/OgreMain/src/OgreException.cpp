@@ -105,7 +105,7 @@ namespace Ogre {
             char szLine[20];
 
             desc += "\nLine: ";
-            _snprintf(szLine, 20, "%ld", line);
+            snprintf(szLine, 20, "%ld", line);
 
             desc += szLine;
         }
