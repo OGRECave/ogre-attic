@@ -25,7 +25,7 @@ ifeq ($(OS), "Linux")
 endif
 
 ifeq ($(OS), "MacOSX")
-  CFLAGS += -DMACOS
+  CFLAGS += -DMACOS -F../../../../Mac/Frameworks -I../../../../Mac/XCode/OgreFramework $(OTHER_CFLAGS)
 endif
 
 OBJS = $(SRCS:.cpp=.o)
