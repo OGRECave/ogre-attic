@@ -106,6 +106,8 @@ AC_CONFIG_FILES([Makefile \
     Samples/CubeMapping/Makefile \
     Samples/CubeMapping/src/Makefile \
     Samples/CubeMapping/include/Makefile \
+    Samples/Dot3Bump/Makefile \
+    Samples/Dot3Bump/src/Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
