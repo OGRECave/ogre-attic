@@ -308,7 +308,11 @@ namespace Ogre {
                     break;
                 }
             }
-            vbNode->SetAttribute("texture_coords", StringConverter::toString(numTextureCoords));
+            if (numTextureCoords > 0)
+            {
+                vbNode->SetAttribute("texture_coords", 
+                    StringConverter::toString(numTextureCoords));
+            }
 
 			// For each vertex
 			for (size_t v = 0; v < vertexData->vertexCount; ++v)
