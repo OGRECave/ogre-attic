@@ -57,7 +57,8 @@ namespace Ogre {
 
         
         /* Open the configuration file */
-        std::ifstream fp(filename.c_str());
+        std::ifstream fp;
+        fp.open(filename.c_str());
         if(!fp)
             Except(
                 Exception::ERR_FILE_NOT_FOUND, "'" + filename + "' file not found!", "ConfigFile::load" );
@@ -99,6 +100,8 @@ namespace Ogre {
                 }
             }
         }
+        fp.close();
+
 
     }
     //-----------------------------------------------------------------------

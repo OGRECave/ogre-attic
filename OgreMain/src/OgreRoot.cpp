@@ -267,7 +267,7 @@ namespace Ogre {
 
         if (mActiveRenderer)
         {
-            of << "Render System\t " << mActiveRenderer->getName() << std::endl;;
+            of << "Render System\t" << mActiveRenderer->getName() << std::endl;;
 
             ConfigOptionMap& opts = mActiveRenderer->getConfigOptions();
             for(  ConfigOptionMap::iterator pOpt = opts.begin(); pOpt != opts.end(); ++pOpt )
