@@ -361,7 +361,7 @@ material Examples/BumpMapping/MultiLight
 			// be an issue
 			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
 			{
-				param_indexd_auto 0 worldviewproj_matrix
+				param_indexed_auto 0 worldviewproj_matrix
 				param_indexed 4 float4 1 1 1 1
 			}
 			scene_blend dest_colour zero
@@ -615,4 +615,74 @@ material Examples/BumpMapping/MultiLightSpecular
 		}
 
 	}
+}
+
+//----------------------------
+// Distortion effects
+//----------------------------
+
+vertex_program Examples/FresnelRefractReflectVP asm
+{
+	source Example_FresnelVP.asm
+    syntax arbvp1
+}
+
+fragment_program Examples/FresnelRefractReflectFP asm
+{
+	source Example_FresnelFP.asm
+    syntax arbfp1
+}
+
+material Examples/FresnelReflectionRefraction
+{
+	technique
+	{
+		pass 
+		{
+			
+			vertex_program_ref Examples/FresnelRefractReflectVP
+			{
+				param_indexed_auto 0 worldviewproj_matrix
+				param_indexed_auto 4 camera_position_object_space
+				param_indexed 5 float4 -0.3 0 0 0
+				param_indexed 6 float4 1.4 0 0 0
+				param_indexed 7 float4 8 0 0 0
+				param_indexed_auto 8 time 0.05
+				param_indexed 10 float4 1 0 0 0
+				param_indexed 9 float4 4 0 0 0
+				param_indexed 11 float4 1 0 0 0
+				// scroll and noisePos will need updating per frame
+			}
+			fragment_program_ref Examples/FresnelRefractReflectFP
+			{
+				param_indexed 0 float4 0.025 0 0 0
+				param_indexed 1 float4 0 0 0.1 1
+			}
+			// Noise
+			texture_unit
+			{
+				// Perlin noise volume
+				texture perlinvolume.dds 3d
+				// min / mag filtering, no mip
+				filtering linear linear none
+			}
+			// Reflection
+			texture_unit
+			{
+				// Will be filled in at runtime
+				texture Reflection
+				tex_address_mode clamp
+			}
+			// Refraction
+			texture_unit
+			{
+				// Will be filled in at runtime
+				texture Refraction
+				tex_address_mode clamp
+			}
+		}
+		
+			
+	}
+    
 }

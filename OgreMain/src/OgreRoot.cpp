@@ -166,12 +166,10 @@ namespace Ogre {
         Codec::registerCodec( mPNGCodec );
         mJPEGCodec = new JPEGCodec;
         Codec::registerCodec( mJPEGCodec );
-#if OGRE_PLATFORM != PLATFORM_APPLE
         mTGACodec = new TGACodec;
         Codec::registerCodec( mTGACodec );
         mDDSCodec = new DDSCodec;
         Codec::registerCodec( mDDSCodec );
-#endif
         mJPGCodec = new JPGCodec;
         Codec::registerCodec( mJPGCodec );
         mBMPCodec = new BMPCodec;
@@ -228,11 +226,9 @@ namespace Ogre {
         delete mSceneManagerEnum;
 
 
-#if OGRE_PLATFORM != PLATFORM_APPLE
         delete mBMPCodec;
         delete mDDSCodec;
         delete mTGACodec;
-#endif
         delete mJPGCodec;
         delete mJPEGCodec;
         delete mPNGCodec;
