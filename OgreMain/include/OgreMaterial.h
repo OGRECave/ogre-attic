@@ -328,6 +328,10 @@ namespace Ogre {
             */
             void setAnimatedTextureName( const String* const names, int numFrames, Real duration = 0 );
 
+            /** Returns the width and height of the texture in the given frame.
+            */
+            std::pair< uint, uint > getTextureDimensions( int frame = 0 ) const;
+
             /** Changes the active frame in an animated or multi-image texture.
                 @remarks
                     An animated texture (or a cubic texture where the images are not combined for 3D use) is made up of
