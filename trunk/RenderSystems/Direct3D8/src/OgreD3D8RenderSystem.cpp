@@ -839,8 +839,8 @@ namespace Ogre {
 			Except( hr, "Cannot set D3D8 view matrix", "D3D8RenderSystem::_setWorldMatrix" );
 	}
 
-	void D3D8RenderSystem::_setSurfaceParams( ColourValue &ambient, ColourValue &diffuse,
-		ColourValue &specular, ColourValue &emissive, Real shininess )
+	void D3D8RenderSystem::_setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse,
+		const ColourValue &specular, const ColourValue &emissive, Real shininess )
 	{
 		// Remember last call
 		static ColourValue lastAmbient = ColourValue::Black;

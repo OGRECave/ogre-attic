@@ -922,9 +922,9 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setSurfaceParams(ColourValue &ambient,
-        ColourValue &diffuse, ColourValue &specular,
-        ColourValue &emissive, Real shininess)
+    void D3DRenderSystem::_setSurfaceParams(const ColourValue &ambient,
+        const ColourValue &diffuse, const ColourValue &specular,
+        const ColourValue &emissive, const Real shininess)
     {
         // Remember last call
         static ColourValue lastAmbient = ColourValue::Black;

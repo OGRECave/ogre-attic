@@ -649,9 +649,9 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------------
-    void SDLRenderSystem::_setSurfaceParams(ColourValue &ambient,
-        ColourValue &diffuse, ColourValue &specular,
-        ColourValue &emissive, Real shininess)
+    void SDLRenderSystem::_setSurfaceParams(const ColourValue &ambient,
+        const ColourValue &diffuse, const ColourValue &specular,
+        const ColourValue &emissive, Real shininess)
     {
         // XXX Cache previous values?
         // XXX Front or Front and Back?
