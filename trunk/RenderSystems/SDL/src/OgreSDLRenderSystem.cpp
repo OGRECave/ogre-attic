@@ -1420,4 +1420,47 @@ namespace Ogre {
         glPolygonMode(GL_FRONT_AND_BACK, glmode);
 
     }
+    //---------------------------------------------------------------------
+    bool SDLRenderSystem::hasHardwareStencil(void)
+    {
+        // TODO
+        return true;
+    }
+    //---------------------------------------------------------------------
+    ushort SDLRenderSystem::getStencilBufferBitDepth(void)
+    {
+        // TODO
+        return 8;
+    }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferFunction(CompareFunction func)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferReferenceValue(ulong refValue)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferMask(ulong mask)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferFailOperation(StencilOperation op)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
+    {
+        // TODO
+    }
+    //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilBufferPassOperation(StencilOperation op)
+    {
+        // TODO
+    }
+
 }

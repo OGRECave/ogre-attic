@@ -95,6 +95,8 @@ namespace Ogre {
 #ifdef _DEBUG
 		void DumpBuffer( BYTE* pBuffer, DWORD vertexFormat, unsigned int numVertices, unsigned int stride );
 #endif
+        D3DCMPFUNC convertCompareFunction(CompareFunction func);
+        D3DSTENCILOP convertStencilOp(StencilOperation op);
 
 	public:
 		D3D8RenderSystem( HINSTANCE hInstance );
@@ -157,6 +159,35 @@ namespace Ogre {
 		void _setFog( FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
         void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
         void _setRasterisationMode(SceneDetailLevel level);
+        bool hasHardwareStencil(void);
+        /** See
+          RenderSystem
+         */
+        ushort getStencilBufferBitDepth(void);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferFunction(CompareFunction func);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferReferenceValue(ulong refValue);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferMask(ulong mask);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferFailOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferDepthFailOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferPassOperation(StencilOperation op);
 	};
 
 }

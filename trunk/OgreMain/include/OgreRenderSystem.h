@@ -42,6 +42,7 @@ namespace Ogre
 {
 
     class TextureManager;
+    /// Enum describing the ways to generate texture coordinates
     enum TexCoordCalcMethod
     {
         /// No calculated texture coordinates
@@ -50,6 +51,22 @@ namespace Ogre
         TEXCALC_ENVIRONMENT_MAP,
         /// Environment map based on vertex positions
         TEXCALC_ENVIRONMENT_MAP_PLANAR
+    };
+    /// Enum describing the various actions which can be taken onthe stencil buffer
+    enum StencilOperation
+    {
+        /// Leave the stencil buffer unchanged
+        SOP_KEEP,
+        /// Set the stencil value to zero
+        SOP_ZERO,
+        /// Set the stencil value to the reference value
+        SOP_REPLACE,
+        /// Increase the stencil value by 1, clamping at the maximum value
+        SOP_INCREMENT,
+        /// Decrease the stencil value by 1, clamping at 0
+        SOP_DECREMENT,
+        /// Invert the bits of the stencil buffer
+        SOP_INVERT
     };
 
     /** Defines the functionality of a 3D API
@@ -621,6 +638,101 @@ namespace Ogre
 
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
+
+        /** Determines if this system supports hardware accelerated stencil buffer. 
+        @remarks
+            Note that the lack of this function doesn't mean you can't do stencilling, but
+            the stencilling operations will be provided in software, which will NOT be
+            fast.
+        @par
+            Generally hardware stencils are only supported in 32-bit colour modes, because
+            the stencil buffer shares the memory of the z-buffer, and in most cards the 
+            z-buffer has to be the same depth as the colour buffer. This means that in 32-bit
+            mode, 24 bits of the z-buffer are depth and 8 bits are stencil. In 16-bit mode there
+            is no room for a stencil (although some cards support a 15:1 depth:stencil option,
+            this isn't useful for very much) so 8 bits of stencil are provided in software.
+            This can mean that if you use stencilling, your applications may be faster in 
+            32-but colour than in 16-bit, which may seem odd to some people.
+        */
+        virtual bool hasHardwareStencil(void) = 0;
+
+        /** Determines the bit depth of the hardware accelerated stencil buffer, if supported.
+        @remarks
+            If hardware stencilling is not supported, the software will provide an 8-bit 
+            software stencil.
+        */
+        virtual ushort getStencilBufferBitDepth(void) = 0;
+
+        /** This method allows you to set all the stencil buffer parameters in one call.
+        @remarks
+            The stencil buffer is used to mask out pixels in the render target, allowing
+            you to do effects like mirrors, cut-outs, stencil shadows and more. Each of
+            your batches of rendering is likely to ignore the stencil buffer, 
+            update it with new values, or apply it to mask the output of the render.
+            The stencil test is:<PRE>
+            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
+            The result of this will cause one of 3 actions depending on whether the test fails,
+            succeeds but with the depth buffer check still failing, or succeeds with the
+            depth buffer check passing too.
+        @par
+            Unlike other render states, stencilling is left for the application to turn
+            on and off when it requires. This is because you are likely to want to change
+            parameters between batches of arbitrary objects and control the ordering yourself.
+            In order to batch things this way, you'll want to use OGRE's separate render queue
+            groups (see RenderQueue) and register a RenderQueueListener to get notifications
+            between batches.
+        @par
+            There are individual state change methods for each of the parameters set using 
+            this method. 
+            Note that the default values in this method represent the defaults at system 
+            start up too.
+        @param func The comparison function applied.
+        @param refValue The reference value used in the comparison
+        @param mask The bitmask applied to both the stencil value and the reference value 
+            before comparison
+        @param stencilFailOp The action to perform when the stencil check fails
+        @param depthFailOp The action to perform when the stencil check passes, but the
+            depth buffer check still fails
+        @param passOp The action to take when both the stencil and depth check pass.
+        */
+        virtual void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
+            ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
+            StencilOperation stencilFailOp = SOP_KEEP, 
+            StencilOperation depthFailOp = SOP_KEEP,
+            StencilOperation passOp = SOP_KEEP);
+
+        /** Sets the stencil test function.
+        @remarks
+            The stencil test is:<PRE>
+            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
+        */
+        virtual void setStencilBufferFunction(CompareFunction func) = 0;
+        /** Sets the stencil buffer reference value.
+        @remarks
+            This value is used in the stencil test:<PRE>
+            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
+            It can also be used as the destination value for the stencil buffer if the
+            operation which is performed is SOP_REPLACE.
+        */
+        virtual void setStencilBufferReferenceValue(ulong refValue) = 0;
+        /** Sets the stencil buffer mask value.
+        @remarks
+            This is applied thus:<PRE>
+            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
+        */
+        virtual void setStencilBufferMask(ulong mask) = 0;
+        /** Sets the action to perform if the stencil test fails. */
+        virtual void setStencilBufferFailOperation(StencilOperation op) = 0;
+        /** Sets the action to perform if the stencil test passes, but the depth
+            buffer test fails. */
+        virtual void setStencilBufferDepthFailOperation(StencilOperation op) = 0;
+        /** Sets the action to perform if both the stencil test and the depth buffer 
+            test passes. */
+        virtual void setStencilBufferPassOperation(StencilOperation op) = 0;
+
+
+
+
 
 
     protected:

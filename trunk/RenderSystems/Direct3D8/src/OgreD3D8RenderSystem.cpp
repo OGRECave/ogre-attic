@@ -1199,44 +1199,10 @@ namespace Ogre {
 	void D3D8RenderSystem::_setAlphaRejectSettings( CompareFunction func, unsigned char value )
 	{
 		HRESULT hr;
-		D3DCMPFUNC d3dFunc;
 
-		switch( func )
-		{
-        case CMPF_ALWAYS_FAIL:
-            d3dFunc = D3DCMP_NEVER;
-            break;
 
-        case CMPF_ALWAYS_PASS:
-            d3dFunc = D3DCMP_ALWAYS;
-            break;
-
-        case CMPF_LESS:
-            d3dFunc = D3DCMP_LESS;
-            break;
-
-        case CMPF_LESS_EQUAL:
-            d3dFunc = D3DCMP_LESSEQUAL;
-            break;
-
-        case CMPF_EQUAL:
-            d3dFunc = D3DCMP_EQUAL;
-            break;
-
-        case CMPF_NOT_EQUAL:
-            d3dFunc = D3DCMP_NOTEQUAL;
-            break;
-
-        case CMPF_GREATER_EQUAL:
-            d3dFunc = D3DCMP_GREATEREQUAL;
-            break;
-
-        case CMPF_GREATER:
-            d3dFunc = D3DCMP_GREATER;
-            break;
-		}
-
-		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_ALPHAFUNC, d3dFunc ) ) )
+		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_ALPHAFUNC, 
+            convertCompareFunction(func)) ) )
 			Except( hr, "Failed to set render state D3DRS_ALPHAFUNC", "D3D8RenderSystem::_setAlphaRejectSettings" );
 		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_ALPHAREF, value ) ) )
 			Except( hr, "Failed to set render state D3DRS_ALPHAREF", "D3D8RenderSystem::_setAlphaRejectSettings" );
@@ -1832,43 +1798,9 @@ namespace Ogre {
 	void D3D8RenderSystem::_setDepthBufferFunction( CompareFunction func )
 	{
 		HRESULT hr;
-		D3DCMPFUNC d3dFunc;
-        switch(func)
-        {
-        case CMPF_ALWAYS_FAIL:
-            d3dFunc = D3DCMP_NEVER;
-            break;
 
-        case CMPF_ALWAYS_PASS:
-            d3dFunc = D3DCMP_ALWAYS;
-            break;
 
-        case CMPF_LESS:
-            d3dFunc = D3DCMP_LESS;
-            break;
-
-        case CMPF_LESS_EQUAL:
-            d3dFunc = D3DCMP_LESSEQUAL;
-            break;
-
-        case CMPF_EQUAL:
-            d3dFunc = D3DCMP_EQUAL;
-            break;
-
-        case CMPF_NOT_EQUAL:
-            d3dFunc = D3DCMP_NOTEQUAL;
-            break;
-
-        case CMPF_GREATER_EQUAL:
-            d3dFunc = D3DCMP_GREATEREQUAL;
-            break;
-
-        case CMPF_GREATER:
-            d3dFunc = D3DCMP_GREATER;
-            break;
-        };
-
-		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_ZFUNC, d3dFunc ) ) )
+		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_ZFUNC, convertCompareFunction(func) ) ) )
 			Except( hr, "Error setting depth buffer test function", "D3D8RenderSystem::_setDepthBufferFunction" );
 	}
 
@@ -1964,4 +1896,129 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    bool D3D8RenderSystem::hasHardwareStencil(void)
+    {
+
+        LPDIRECT3DSURFACE8 pSurf;
+        D3DSURFACE_DESC surfDesc;
+        mpD3DDevice->GetDepthStencilSurface(&pSurf);
+        pSurf->GetDesc(&surfDesc);
+        if (surfDesc.Format == D3DFMT_D24X8)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+    //---------------------------------------------------------------------
+    ushort D3D8RenderSystem::getStencilBufferBitDepth(void)
+    {
+        // Actually, it's always 8-bit
+        return 8;
+    }
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilBufferFunction(CompareFunction func)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILFUNC, 
+            convertCompareFunction(func));
+        if (FAILED(hr))
+            Except(hr, "Error setting stencil buffer test function.",
+                "D3D8RenderSystem::_setStencilBufferFunction");
+
+    }
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilBufferReferenceValue(ulong refValue)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILREF, refValue);
+        if (FAILED(hr))
+            Except(hr, "Error setting stencil buffer reference value.",
+                "D3D8RenderSystem::setStencilBufferReferenceValue");
+    }
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilBufferMask(ulong mask)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILMASK, mask);
+        if (FAILED(hr))
+            Except(hr, "Error setting stencil buffer mask.",
+                "D3D8RenderSystem::setStencilBufferMask");
+    }
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilBufferFailOperation(StencilOperation op)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILFAIL, 
+            convertStencilOp(op));
+        if (FAILED(hr))
+            Except(hr, "Error setting stencil fail operation.",
+                "D3D8RenderSystem::setStencilBufferFailOperation");
+    }
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILZFAIL, 
+            convertStencilOp(op));
+        if (FAILED(hr))
+            Except(hr, "Error setting stencil depth fail operation.",
+                "D3D8RenderSystem::setStencilBufferDepthFailOperation");
+    }
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::setStencilBufferPassOperation(StencilOperation op)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_STENCILPASS, 
+            convertStencilOp(op));
+        if (FAILED(hr))
+            Except(hr, "Error setting stencil pass operation.",
+                "D3D8RenderSystem::setStencilBufferPassOperation");
+    }
+    //---------------------------------------------------------------------
+    D3DCMPFUNC D3D8RenderSystem::convertCompareFunction(CompareFunction func)
+    {
+        switch(func)
+        {
+        case CMPF_ALWAYS_FAIL:
+            return D3DCMP_NEVER;
+        case CMPF_ALWAYS_PASS:
+            return D3DCMP_ALWAYS;
+        case CMPF_LESS:
+            return D3DCMP_LESS;
+        case CMPF_LESS_EQUAL:
+            return D3DCMP_LESSEQUAL;
+        case CMPF_EQUAL:
+            return D3DCMP_EQUAL;
+        case CMPF_NOT_EQUAL:
+            return D3DCMP_NOTEQUAL;
+        case CMPF_GREATER_EQUAL:
+            return D3DCMP_GREATEREQUAL;
+        case CMPF_GREATER:
+            return D3DCMP_GREATER;
+        };
+        // to shut the compiler up
+        return D3DCMP_ALWAYS;
+    }
+    //---------------------------------------------------------------------
+    D3DSTENCILOP D3D8RenderSystem::convertStencilOp(StencilOperation op)
+    {
+        switch(op)
+        {
+        case SOP_KEEP:
+            return D3DSTENCILOP_KEEP;
+        case SOP_ZERO:
+            return D3DSTENCILOP_ZERO;
+        case SOP_REPLACE:
+            return D3DSTENCILOP_REPLACE;
+        case SOP_INCREMENT:
+            return D3DSTENCILOP_INCRSAT;
+        case SOP_DECREMENT:
+            return D3DSTENCILOP_DECRSAT;
+        case SOP_INVERT:
+            return D3DSTENCILOP_INVERT;
+        };
+        // To shut the compiler up
+        return D3DSTENCILOP_KEEP;
+
+    }
+
 }

@@ -87,9 +87,10 @@ namespace Ogre {
         void processInputDevices(void);
         void setD3DLight(int index, Light* light);
 
+        D3DCMPFUNC convertCompareFunction(CompareFunction func);
+        D3DSTENCILOP convertStencilOp(StencilOperation op);
 
-
-
+        
 
     public:
         // Default constructor / destructor
@@ -300,6 +301,39 @@ namespace Ogre {
           RenderSystem
          */
         void _setRasterisationMode(SceneDetailLevel level);
+        /** See
+          RenderSystem
+         */
+        bool hasHardwareStencil(void);
+        /** See
+          RenderSystem
+         */
+        ushort getStencilBufferBitDepth(void);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferFunction(CompareFunction func);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferReferenceValue(ulong refValue);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferMask(ulong mask);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferFailOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferDepthFailOperation(StencilOperation op);
+        /** See
+          RenderSystem
+         */
+        void setStencilBufferPassOperation(StencilOperation op);
+
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

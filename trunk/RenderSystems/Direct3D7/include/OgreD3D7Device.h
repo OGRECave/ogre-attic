@@ -47,6 +47,7 @@ namespace Ogre
         bool mIsHardwareAccelerated;
         bool mNeedsZBuffer;
         std::vector<DDPIXELFORMAT> mDepthBufferFormats;
+        ushort mStencilBufferDepth;
 
 
 
@@ -111,6 +112,7 @@ namespace Ogre
         int ZBufferBitDepth(void);
         bool CanHWTransformAndLight(void);
         int MaxSinglePassTextureLayers(void);
+        ushort StencilBufferBitDepth(void);
 
 
 

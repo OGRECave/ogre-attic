@@ -225,7 +225,6 @@ namespace Ogre
 			md3dpp.MultiSampleType			= D3DMULTISAMPLE_NONE ;
 			md3dpp.SwapEffect				= D3DSWAPEFFECT_DISCARD;
 			md3dpp.EnableAutoDepthStencil	= depthBuffer;
-			md3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
 			md3dpp.hDeviceWindow			= mHWnd;
 			md3dpp.BackBufferWidth			= mWidth;
 			md3dpp.BackBufferHeight			= mHeight;
@@ -235,14 +234,50 @@ namespace Ogre
 			{
 				md3dpp.BackBufferFormat		= D3DFMT_R5G6B5;
 				if( mColourDepth > 16 )
-					md3dpp.BackBufferFormat = D3DFMT_A8R8G8B8;
+					md3dpp.BackBufferFormat = D3DFMT_R8G8B8;
 			}
+            // Depth-stencil format
+            if (mColourDepth > 16 )
+            {
+                // Try to create a 32-bit depth, 8-bit stencil
+                if( FAILED( pD3D->CheckDeviceFormat(mpD3DDriver->getAdapterNumber(),
+                     D3DDEVTYPE_HAL,  md3dpp.BackBufferFormat,  D3DUSAGE_DEPTHSTENCIL, 
+                     D3DRTYPE_SURFACE, D3DFMT_D24S8 )))
+                {
+                    // Bugger, no 8-bit hardware stencil, just try 32-bit zbuffer 
+                    if( FAILED( pD3D->CheckDeviceFormat(mpD3DDriver->getAdapterNumber(),
+                        D3DDEVTYPE_HAL,  md3dpp.BackBufferFormat,  D3DUSAGE_DEPTHSTENCIL, 
+                        D3DRTYPE_SURFACE, D3DFMT_D32 )))
+                    {
+                        // Jeez, what a naff card. Fall back on 16-bit depth buffering
+                        md3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+                    }
+                    else
+                    {
+                        md3dpp.AutoDepthStencilFormat = D3DFMT_D32;
+                    }
+
+                }
+                else
+                {
+                    // Woohoo!
+                    md3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+                }
+
+
+            }
+            else
+            {
+                // 16-bit depth, software stencil
+                md3dpp.AutoDepthStencilFormat	= D3DFMT_D16;
+            }
 
 			hr = pD3D->CreateDevice( mpD3DDriver->getAdapterNumber(), D3DDEVTYPE_HAL, mHWnd,
 				D3DCREATE_HARDWARE_VERTEXPROCESSING, &md3dpp, &mpD3DDevice );
 			if( SUCCEEDED( hr ) )
 			{
 				OutputDebugStr( "Created Direct3D device using hardware vertex processing" );
+
 			}
 			else
 			{
