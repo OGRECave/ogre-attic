@@ -61,6 +61,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreParticleEmitter.h"
 #include "OgreParticleAffector.h"
 #include "OgreMeshSerializer.h"
+#include "OgreTextureFont.h"
 // .... more to come
 
 #endif
