@@ -190,7 +190,8 @@ namespace Ogre {
 		CommonVertexMap commonVertexMap;
 		CommonVertexMap::iterator iCommonVertex;
 		size_t numCommon = 0;
-        for (size_t i = 0; i < vertexData->vertexCount; ++i, pVertex += vbuf->getVertexSize())
+        size_t i = 0;
+        for (i = 0; i < vertexData->vertexCount; ++i, pVertex += vbuf->getVertexSize())
         {
 			posElem->baseVertexPointerToElement(pVertex, &pReal);
 
