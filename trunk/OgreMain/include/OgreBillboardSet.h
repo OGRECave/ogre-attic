@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
-#include "OgreColourValue.h"
 #include "OgreStringInterface.h"
 
 namespace Ogre {

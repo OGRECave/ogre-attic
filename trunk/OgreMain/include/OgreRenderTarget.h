@@ -70,7 +70,7 @@ namespace Ogre {
         virtual ~RenderTarget();
 
         /// Retrieve target's name.
-        virtual String getName(void);
+        virtual const String& getName(void) const;
 
         /// Retrieve information about the render target.
         virtual void getMetrics(int &width, int &height, int &colourDepth);

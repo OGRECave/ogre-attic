@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreString.h"
 #include "OgreCommon.h"
 #include "OgreDataChunk.h"
 

@@ -44,7 +44,6 @@ email                : kenny@sparksuit.com
 #define __Cursor_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreEventListeners.h"
 #include "OgreMouseMotionTarget.h"
 #include "OgreMouseTarget.h"
 
@@ -128,7 +127,7 @@ namespace Ogre {
 		{ return false; }
 
 		/** Gets the current cursor movement scaling factor. */
-		Real getScale(void) { return mScale; }
+		Real getScale(void) const { return mScale; }
 		/** Sets the current cursor movement scaling factor. */
 		void setScale(Real scale) { mScale = scale; }
 		

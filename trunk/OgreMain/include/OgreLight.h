@@ -119,7 +119,7 @@ namespace Ogre {
 
         /** Returns the colour of the diffuse light given off by this light source (see setDiffuseColour for more info).
         */
-        ColourValue getDiffuseColour(void);
+        const ColourValue& getDiffuseColour(void);
 
         /** Sets the colour of the specular light given off by this source.
             @remarks
@@ -145,7 +145,7 @@ namespace Ogre {
 
         /** Returns the colour of specular light given off by this light source.
         */
-        ColourValue getSpecularColour(void);
+        const ColourValue& getSpecularColour(void);
 
         /** Sets the attenuation parameters of the light source ie how it diminishes with distance.
             @remarks
