@@ -90,7 +90,7 @@ namespace Ogre
         OverlayManager* mOverlayManager;
         FontManager* mFontManager;
         ArchiveFactory *mZipArchiveFactory;
-        Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec, *mDDSCodec, *mBMPCodec;
+
         Timer* mTimer;
         RenderWindow* mAutoWindow;
         Profiler* mProfiler;

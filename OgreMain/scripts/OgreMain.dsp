@@ -148,10 +148,6 @@ SOURCE=..\src\OgreBitwise.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreBMPCodec.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreBone.cpp
 # End Source File
 # Begin Source File
@@ -193,10 +189,6 @@ SOURCE=..\src\OgreCursor.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreDataChunk.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreDDSCodec.cpp
 # End Source File
 # Begin Source File
 
@@ -316,6 +308,10 @@ SOURCE=..\src\OgreHighLevelGpuProgramManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreILCodecs.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreILImageCodec.cpp
 # End Source File
 # Begin Source File
@@ -329,10 +325,6 @@ SOURCE=..\src\OgreInput.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreInputEvent.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreJPEGCodec.cpp
 # End Source File
 # Begin Source File
 
@@ -473,10 +465,6 @@ SOURCE=..\src\OgrePlane.cpp
 # Begin Source File
 
 SOURCE=..\src\OgrePlatformManager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgrePNGCodec.cpp
 # End Source File
 # Begin Source File
 
@@ -657,10 +645,6 @@ SOURCE=..\src\OgreTextureUnitState.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreTGACodec.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreTimer.cpp
 # End Source File
 # Begin Source File
@@ -766,10 +750,6 @@ SOURCE=..\include\OgreBlendMode.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreBMPCodec.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\OgreBone.h
 # End Source File
 # Begin Source File
@@ -827,10 +807,6 @@ SOURCE=..\include\OgreCustomizable.h
 # Begin Source File
 
 SOURCE=..\include\OgreDataChunk.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreDDSCodec.h
 # End Source File
 # Begin Source File
 
@@ -978,6 +954,10 @@ SOURCE=..\include\OgreHighLevelGpuProgramManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreILCodecs.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreILImageCodec.h
 # End Source File
 # Begin Source File
@@ -999,10 +979,6 @@ SOURCE=..\include\OgreInputEvent.h
 # Begin Source File
 
 SOURCE=..\include\OgreIteratorWrappers.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreJPEGCodec.h
 # End Source File
 # Begin Source File
 
@@ -1187,10 +1163,6 @@ SOURCE=..\include\OgrePlatform.h
 # Begin Source File
 
 SOURCE=..\include\OgrePlatformManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgrePNGCodec.h
 # End Source File
 # Begin Source File
 
@@ -1431,10 +1403,6 @@ SOURCE=..\include\OgreTextureManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreTextureUnitState.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreTGACodec.h
 # End Source File
 # Begin Source File
 

@@ -19,27 +19,56 @@ FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more det
 You should have received a copy of the GNU Lesser General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __JPEGCodec_H__
-#define __JPEGCodec_H__
 
-#include "OgrePrerequisites.h"
+#ifndef _DDSCodec_H__
+#define _DDSCodec_H__
 
 #include "OgreILImageCodec.h"
 
-namespace Ogre {
+namespace Ogre 
+{
+
+    class ILCodecs {
+    protected:
+    	static Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, 
+            *mTGACodec, *mDDSCodec, *mBMPCodec;
+    public:
+    	// Register all codecs provided by this module
+	static void registerCodecs(void);
+	// Delete all codecs provided by this module
+	static void deleteCodecs(void);
+    };
+
+    /** ImageCodec specialized in BMP images.
+     */
+    class _OgreExport BMPCodec : public ILImageCodec
+    {
+    public:
+        String getType() const { return "bmp"; }
+
+        unsigned int getILType(void) const;
+
+    };
+
+    /** ImageCodec specialized in Traga images.
+    */
+    class _OgreExport TGACodec : public ILImageCodec
+    {
+    public:
+        String getType() const { return "tga"; }
+
+        unsigned int getILType(void) const;
+    };
 
     /** ImageCodec specialized in JPEG images.
     */
     class _OgreExport JPEGCodec : public ILImageCodec
     {
     public:
-        void code( const DataChunk& input, DataChunk* output, ... ) const;
-        virtual Codec::CodecData* decode(const DataChunk& input, 
-                                         DataChunk* output, ... ) const;
-
         String getType() const { return "jpeg"; }
 
         unsigned int getILType(void) const;
@@ -51,7 +80,28 @@ namespace Ogre {
         String getType() const { return "jpg"; }
     };
 
-} //namespace
+    /** ImageCodec specialized in DDS images.
+     */
+    class _OgreExport DDSCodec : public ILImageCodec
+    {
+    public:
+        String getType() const { return "dds"; }
 
-#endif
+        unsigned int getILType(void) const;
+    };
+
+    /** ImageCodec specialized in Portable Network Graphics images.
+    */
+    class _OgreExport PNGCodec : public ILImageCodec
+    {
+    public:
+        String getType() const { return "png"; }
+
+        unsigned int getILType(void) const;
+    };
+
+} // namespace Ogre
+
+
+#endif // #ifndef _DDSCodec_H__
 
