@@ -81,6 +81,7 @@ namespace Ogre {
                 {
                     mEmitters.erase(i);
                     delete e;
+                    break;
                 }
             }
         }
