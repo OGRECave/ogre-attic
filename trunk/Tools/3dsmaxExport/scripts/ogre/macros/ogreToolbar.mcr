@@ -19,8 +19,6 @@ macroScript showOgreExportTools
 	tooltip:"Ogre Exporter"
 	Icon:#("Maintoolbar",49)
 (
-	local OgreExportOptions, OgreExportObject, OgreExportMesh, OgreExportAnimation, OgreExportMaterial, OgreExportAbout;
-	
 	-- create a floater
 	OgreExportFloater = newRolloutFloater "Ogre Exporter" 280 790 ;
 	
@@ -108,6 +106,8 @@ macroScript showOgreExportTools
 		editText editFilename "" pos:[11,140] width:242 height:22
 		button chooseFilename "Browse" pos:[170,164] width:82 height:20 toolTip:"chooose the name of your output files"
 		button export "Export !" pos:[29,191] width:214 height:40 toolTip:"export your mesh, skeleton ......"
+		progressBar exportProgress pos:[9,235] width:250 height:10
+		
 		on OgreExportObject open  do
 		(
 			if (gridPrefs == undefined) then	--gmax special interface : I test this to know if it is gmax or 3dsmax
@@ -204,6 +204,7 @@ macroScript showOgreExportTools
 					Options.exportUV = true ;	
 					Options.UVchannels = OgreExportMesh.SPchannels.value;	
 				)
+				Options.exportHelpers = (OgreExportAnimation.CBexporthelpers.enabled and OgreExportAnimation.CBexporthelpers.checked);
 				
 				if (not g_MAX) then
 					setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastScale" (SPscale.value as string)
@@ -225,7 +226,7 @@ macroScript showOgreExportTools
 				(
 					Options.sampleRate = OgreExportAnimation.SPsamplerate.value ;
 					Options.ikSampleRate = OgreExportAnimation.SPiksamplerate.value ;
-
+				
 					exportingSkelDone =	writeSkeleton m Options Anims editFilename.text ;
 				)
 				
@@ -385,22 +386,23 @@ macroScript showOgreExportTools
 	rollout OgreExportAnimation "Animation" width:270 height:347
 	(
 		checkbox CBexportSkeleton "Export Skeleton" pos:[5,4] width:150 height:19 enabled:false
-		groupBox grp3 "Export settings" pos:[4,26] width:262 height:56
+		groupBox grp3 "Export settings" pos:[4,26] width:262 height:76
 		--checkbox CBbiped "Biped Export" pos:[13,44] width:246 height:19 enabled:false
-		spinner SPsamplerate "Sample Rate" pos:[21,45] width:186 height:16 enabled:false range:[0.0,10000,0.0] type:#float scale:0.5 
-		spinner SPiksamplerate "IK Sample Rate" pos:[27,63] width:180 height:16 enabled:false range:[0.0,10000,5.0] type:#float scale:0.5 
-		groupBox grp4 "Animation settings" pos:[4,86] width:261 height:252
-		button getFromModifier "<-" pos:[14,104] width:61 height:21 enabled:false toolTip:"retrieve information from OctopusExport Modifier"
-		label lbl4 "Get settings from Octopus modifier" pos:[86,108] width:167 height:14 enabled:true
-		groupBox grp5 "Animations" pos:[8,129] width:253 height:203
-		button addAnimation "Add" pos:[16,144] width:80 height:22 enabled:false toolTip:"add an animation to the list"
-		button deleteAnimation "Delete" pos:[172,145] width:80 height:22 enabled:false toolTip:"remove an animation from the list"
-		comboBox ListAnimations "" pos:[17,171] width:235 height:6 enabled:false
-		label lbl5 "Frames" pos:[17,270] width:236 height:16
-		spinner SPframestart "from" pos:[25,287] width:106 height:16 enabled:false range:[0,10000,0] type:#integer scale:1
-		spinner SPframeend "to" pos:[154,287] width:96 height:16 enabled:false range:[0,10000,100] type:#integer scale:1
-		label lbl6 "Length (in seconds)" pos:[18,310] width:115 height:16
-		spinner SPanimlength "" pos:[120,309] width:130 height:16 range:[0,10000,10] type:#float scale:0.1
+		spinner SPsamplerate "Sample Rate" pos:[11,45] width:186 height:16 enabled:false range:[0.0,10000,0.0] type:#float scale:0.5 
+		spinner SPiksamplerate "IK Sample Rate" pos:[17,63] width:180 height:16 enabled:false range:[0.0,10000,5.0] type:#float scale:0.5 
+		checkbox CBexporthelpers "Export non-bones objects (must be in the modifier)" pos:[11,81] width:254 height:16 enabled:false checked:false
+		groupBox grp4 "Animation settings" pos:[4,106] width:261 height:252
+		button getFromModifier "<-" pos:[14,124] width:61 height:21 enabled:false toolTip:"retrieve information from OctopusExport Modifier"
+		label lbl4 "Get settings from Octopus modifier" pos:[86,128] width:167 height:14 enabled:true
+		groupBox grp5 "Animations" pos:[8,149] width:253 height:203
+		button addAnimation "Add" pos:[16,164] width:80 height:22 enabled:false toolTip:"add an animation to the list"
+		button deleteAnimation "Delete" pos:[172,165] width:80 height:22 enabled:false toolTip:"remove an animation from the list"
+		comboBox ListAnimations "" pos:[17,191] width:235 height:6 enabled:false
+		label lbl5 "Frames" pos:[17,290] width:236 height:16
+		spinner SPframestart "from" pos:[25,307] width:106 height:16 enabled:false range:[0,10000,0] type:#integer scale:1
+		spinner SPframeend "to" pos:[154,307] width:96 height:16 enabled:false range:[0,10000,100] type:#integer scale:1
+		label lbl6 "Length (in seconds)" pos:[18,330] width:115 height:16
+		spinner SPanimlength "" pos:[120,329] width:130 height:16 range:[0,10000,10] type:#float scale:0.1
 		on OgreExportAnimation open  do
 		(
 			OgreExportAnimation.CBexportSkeleton.enabled = false;
@@ -409,6 +411,7 @@ macroScript showOgreExportTools
 			OgreExportAnimation.getFromModifier.enabled = false;
 			OgreExportAnimation.SPsamplerate.enabled = false;
 			OgreExportAnimation.SPiksamplerate.enabled = false;
+			OgreExportAnimation.CBexporthelpers.enabled = false;
 			OgreExportAnimation.addAnimation.enabled = false;
 			OgreExportAnimation.deleteAnimation.enabled = false;
 			OgreExportAnimation.ListAnimations.enabled = false;
@@ -427,6 +430,7 @@ macroScript showOgreExportTools
 					OgreExportAnimation.getFromModifier.enabled = true;
 					OgreExportAnimation.SPsamplerate.enabled = true;
 					OgreExportAnimation.SPiksamplerate.enabled = true;
+					OgreExportAnimation.CBexporthelpers.enabled = true;
 					OgreExportAnimation.addAnimation.enabled = true;
 					OgreExportAnimation.deleteAnimation.enabled = true;
 					OgreExportAnimation.ListAnimations.enabled = true;
@@ -451,6 +455,7 @@ macroScript showOgreExportTools
 				OgreExportAnimation.getFromModifier.enabled = state;
 				OgreExportAnimation.SPsamplerate.enabled = state;
 				OgreExportAnimation.SPiksamplerate.enabled = state;
+				OgreExportAnimation.CBexporthelpers.enabled = state;
 				OgreExportAnimation.addAnimation.enabled = state;
 				OgreExportAnimation.deleteAnimation.enabled = state;
 				OgreExportAnimation.ListAnimations.enabled = state;

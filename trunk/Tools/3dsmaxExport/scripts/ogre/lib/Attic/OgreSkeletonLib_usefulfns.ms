@@ -7,11 +7,14 @@ global g_MAX = false;
 global g_MAX_use_listener = false;
 
 -- global structures
-struct exportOptions (sampleRate, ikSampleRate, scale, flipyz, flipNormal, exportColours, exportUV, UVchannels);
+struct exportOptions (sampleRate, ikSampleRate, scale, flipyz, flipNormal, exportColours, exportUV, UVchannels, exportHelpers);
 struct exportAnims (names, startframes, endframes, lengths) ;
 
 global Anims;
 global Options;
+
+global OgreExportFloater;
+global OgreExportOptions, OgreExportObject, OgreExportMesh, OgreExportAnimation, OgreExportMaterial, OgreExportAbout;
 
 --------------------------------------------------------------------
 -- compute the transform, if you want to flip Y and Z axis,
@@ -32,6 +35,27 @@ function flipYZTransform Tform = (
 	Tform = Tform*inverse(m) ;
 
 	return Tform ;
+)
+
+-----------------------------------------------------------------------------
+-- check if the bone is the root object of the biped
+-----------------------------------------------------------------------------
+function isPelvis bipObj =
+(
+	if (bipObj == undefined) then return false ;
+	if (classof bipObj != Biped_Object) then return false;
+	return ((biped.getNode bipObj 13) == bipObj) ;
+)
+
+
+-----------------------------------------------------------------------------
+-- check if the bone is the footstep object of the biped
+-----------------------------------------------------------------------------
+function isFootStep bipObj =
+(
+	if (bipObj == undefined) then return false ;
+	if (classof bipObj != Biped_Object) then return false;
+	return ((biped.getNode bipObj 16) == bipObj) ;
 )
 
 
@@ -58,6 +82,47 @@ function isRootUniversal b = (
 		return true;
 	else
 		return false;
+)
+
+--------------------------------------------------------------------
+-- returns if the object is a root or not,
+-- handles any kind oj object
+--------------------------------------------------------------------
+function isRootUniversal2 b = (
+	bname = replaceSpaces b.name;
+	ind = (findItem RootsList bname);
+	if (ind == 0) then
+		return false;
+	else
+		return true;
+)
+
+--------------------------------------------------------------------
+-- returns if the object is part of the skin (or physique modifier)
+--------------------------------------------------------------------
+function isPartOfModifier b sk phy = (
+	name = replaceSpaces b.name ;
+	if (sk!=undefined) then
+	(
+		for i=1 to (skinOps.GetNumberBones sk) do
+		(
+			bname = skinOps.GetBoneName sk i 1 ;
+			replaceSpaces bname ;
+			if (name == bname) then
+				return true;
+		)
+	)
+	else if (phy!=undefined) then
+	(
+		for i=1 to (physiqueOps.GetBoneCount $) do
+		(
+			bname = (physiqueOps.GetBones $)[i].name;
+			replaceSpaces bname ;
+			if (name == bname) then
+				return true;
+		)
+	)
+	return false;
 )
 
 --------------------------------------------------------------------
