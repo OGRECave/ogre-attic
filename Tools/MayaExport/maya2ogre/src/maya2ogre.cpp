@@ -126,6 +126,8 @@ int main(int argc, char *argv[]) {
 
 void showHelp()
 {
+    cout << "Version : "<<__DATE__<<" "<<__TIME__<<"\n";
+    cout << "Maya API: "<<MAYA_API_VERSION<<"\n\n";
 	cout << "Usage: maya2ogre -in FILE [-mesh [FILE]] [-vba] [-skel [FILE]]\n";
     cout << "                 [-anim NAME START END STEP]\n";
     cout << "                 [-mat [FILE]] [-mprefix PREFIX]\n";
