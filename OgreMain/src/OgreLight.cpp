@@ -58,7 +58,7 @@ namespace Ogre {
         mLightType = LT_POINT;
         mDiffuse = ColourValue::White;
         mSpecular = ColourValue::Black;
-        mRange = 1000;
+        mRange = 100000;
         mAttenuationConst = 1.0f;
         mAttenuationLinear = 0.0f;
         mAttenuationQuad = 0.0f;
