@@ -34,7 +34,7 @@ namespace Ogre {
     class Win32RenderTexture : public GLRenderTexture
     {
     public:
-        Win32RenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format );
+        Win32RenderTexture(Win32GLSupport &glsupport, const String & name, uint width, uint height, TextureType texType,  PixelFormat format);
         ~Win32RenderTexture();
     protected:
         virtual void _copyToTexture();
@@ -46,6 +46,7 @@ namespace Ogre {
         void createPBuffer();
 		void destroyPBuffer();
 
+		Win32GLSupport &mGLSupport;
 		HDC		mHDC;
 		HGLRC	mGlrc;
 		HPBUFFERARB mPBuffer;

@@ -29,12 +29,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreWin32Prerequisites.h"
 #include "OgreRenderWindow.h"
 
-
 namespace Ogre {
     class Win32Window : public RenderWindow
     {
     public:
-        Win32Window();
+        Win32Window(Win32GLSupport &glsupport);
         ~Win32Window();
 
         void create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
@@ -65,7 +64,9 @@ namespace Ogre {
 
         /// internal method for firing events
         virtual void firePreUpdate(void);
+		virtual void firePostUpdate(void);
 	protected:
+		Win32GLSupport &mGLSupport;
 		HWND	mExternalHandle;		// External Win32 window handle
 		HWND	mHWnd;					// Win32 Window handle
 		HDC		mHDC;

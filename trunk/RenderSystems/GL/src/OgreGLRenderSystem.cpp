@@ -1129,14 +1129,6 @@ namespace Ogre {
         // Check if viewport is different
         if (vp != mActiveViewport || vp->_isUpdated())
         {
-		if(vp->getTarget() != mActiveRenderTarget) {
-			// Set new context
-			if(mActiveRenderTarget)
-				// Disable current context
-				mGLSupport->end_context();
-			mGLSupport->begin_context(vp->getTarget());
-		}
-
               mActiveViewport = vp;
               mActiveRenderTarget = vp->getTarget();
               // XXX Rendering target stuff?
