@@ -33,6 +33,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
+    /** Specifies perspective (realistic) or orthographic (architectural) projection.
+    */
+    enum ProjectionType
+    {
+        PT_ORTHOGRAPHIC,
+        PT_PERSPECTIVE
+    };
+
     /** Worldspace clipping planes.
     */
     enum FrustumPlane
@@ -52,6 +60,9 @@ namespace Ogre
     class _OgreExport Frustum : public MovableObject, public Renderable
     {
     protected:
+        /// Orthographic or perspective?
+        ProjectionType mProjType;
+
         /// y-direction field-of-view (default 45)
         Real mFOVy;
         /// Far clip distance - default 10000
@@ -104,6 +115,16 @@ namespace Ogre
 
         Material* mMaterial;
         mutable Vector3 mWorldSpaceCorners[8];
+
+        /// Is this frustum to act as a reflection of itself?
+        bool mReflect;
+        Matrix4 mReflectMatrix;
+        Plane mReflectPlane;
+
+        /** Get the derived position of this frustum. */
+        virtual const Vector3& getPositionForViewUpdate(void) const;
+        /** Get the derived orientation of this frustum. */
+        virtual const Quaternion& getOrientationForViewUpdate(void) const;
 
 
     public:
@@ -297,7 +318,33 @@ namespace Ogre
             top-left near, bottom-left near, bottom-right near, 
             top-right far, top-left far, bottom-left far, bottom-right far.
         */
-        const Vector3* getWorldSpaceCorners(void) const;
+        virtual const Vector3* getWorldSpaceCorners(void) const;
+
+        /** Sets the type of projection to use (orthographic or perspective). Default is perspective.
+        */
+        virtual void setProjectionType(ProjectionType pt);
+
+        /** Retrieves info on the type of projection used (orthographic or perspective).
+        */
+        virtual ProjectionType getProjectionType(void) const;
+
+        /** Modifies this frustum so it always renders from the reflection of itself through the
+        plane specified.
+        @remarks
+        This is obviously useful for performing planar reflections. 
+        */
+        virtual void enableReflection(const Plane& p);
+
+        /** Disables reflection modification previously turned on with enableReflection */
+        virtual void disableReflection(void);
+
+        /// Returns whether this frustum is being reflected
+        virtual bool isReflected(void) { return mReflect; }
+        /// Returns the reflection matrix of the frustum if appropriate
+        virtual const Matrix4& getReflectionMatrix(void) { return mReflectMatrix; }
+        /// Returns the reflection plane of the frustum if appropriate
+        virtual const Plane& getReflectionPlane(void) { return mReflectPlane; }
+
 
 
     };

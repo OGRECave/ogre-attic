@@ -43,13 +43,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /** Specifies perspective (realistic) or orthographic (architectural) projection.
-    */
-    enum ProjectionType
-    {
-        PT_ORTHOGRAPHIC,
-        PT_PERSPECTIVE
-    };
 
 
     /** A viewpoint from which the scene will be rendered.
@@ -103,8 +96,6 @@ namespace Ogre {
         /// Fixed axis to yaw around
         Vector3 mYawFixedAxis;
 
-        /// Orthographic or perspective?
-        ProjectionType mProjType;
         /// Rendering type
         SceneDetailLevel mSceneDetail;
 
@@ -124,10 +115,6 @@ namespace Ogre {
 		/// Inverted scene LOD factor, can be used by Renderables to adjust their LOD
 		Real mSceneLodFactorInv;
 
-        /// Is this camera to act as a reflection of itself?
-        bool mReflect;
-        Matrix4 mReflectMatrix;
-        Plane mReflectPlane;
 
         /** Viewing window. 
         @remarks
@@ -156,6 +143,11 @@ namespace Ogre {
         The method is called after projection matrix each change
         */
         virtual void setWindowImpl(void) const;
+        /** Get the derived position of this frustum. */
+        const Vector3& getPositionForViewUpdate(void) const;
+        /** Get the derived orientation of this frustum. */
+        const Quaternion& getOrientationForViewUpdate(void) const;
+
 
     public:
         /** Standard constructor.
@@ -175,13 +167,6 @@ namespace Ogre {
         */
         virtual const String& getName(void) const;
 
-        /** Sets the type of projection to use (orthographic or perspective). Default is perspective.
-        */
-        void setProjectionType(ProjectionType pt);
-
-        /** Retrieves info on the type of projection used (orthographic or perspective).
-        */
-        ProjectionType getProjectionType(void) const;
 
         /** Sets the level of rendering detail required from this camera.
             @remarks
@@ -384,22 +369,6 @@ namespace Ogre {
 		*/
 		Real getLodBias(void) const;
 
-        /** Modifies this camera so it always renders from the reflection of itself through the
-            plane specified.
-        @remarks
-            This is obviously useful for rendering planar reflections. 
-        */
-        void enableReflection(const Plane& p);
-
-        /** Disables reflection modification previously turned on with enableReflection */
-        void disableReflection(void);
-
-        /// Returns whether this camera is being reflected
-        bool isReflected(void) { return mReflect; }
-        /// Returns the reflection matrix of the camera if appropriate
-        const Matrix4& getReflectionMatrix(void) { return mReflectMatrix; }
-        /// Returns the reflection plane of the camera if appropriate
-        const Plane& getReflectionPlane(void) { return mReflectPlane; }
 
 
         /** Gets a world space ray as cast from the camera through a viewport position.

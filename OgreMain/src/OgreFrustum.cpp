@@ -50,6 +50,7 @@ namespace Ogre {
         mNearDist = 100.0f;
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
+        mProjType = PT_PERSPECTIVE;
 
         mRecalcFrustum = true;
         mRecalcView = true;
@@ -60,11 +61,11 @@ namespace Ogre {
 
         // Initialise vertex & index data
         mVertexData.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
-        mVertexData.vertexCount = 24;
+        mVertexData.vertexCount = 32;
         mVertexData.vertexStart = 0;
         mVertexData.vertexBufferBinding->setBinding( 0,
             HardwareBufferManager::getSingleton().createVertexBuffer(
-                sizeof(Real)*3, 24, HardwareBuffer::HBU_DYNAMIC) );
+                sizeof(Real)*3, 32, HardwareBuffer::HBU_DYNAMIC) );
 
         // Initialise material
         mMaterial = static_cast<Material*>(
@@ -251,72 +252,93 @@ namespace Ogre {
     {
         if (mRecalcFrustum)
         {
-            // standard perspective transform, not API specific
+            // Common calcs
             Real thetaY = Math::AngleUnitsToRadians(mFOVy * 0.5f);
             Real tanThetaY = Math::Tan(thetaY);
-
-            // Calc matrix elements
-            Real w = (1.0f / tanThetaY) / mAspect;
-            Real h = 1.0f / tanThetaY;
-            Real q = -(mFarDist + mNearDist) / (mFarDist - mNearDist);
-            //Real qn= q * mNearDist;
-            Real qn = -2 * (mFarDist * mNearDist) / (mFarDist - mNearDist);
-
-            // PERSPECTIVE transform, API specific
-            Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
-                mAspect, mNearDist, mFarDist, mProjMatrix);
-
-            // PERSPECTIVE transform, API specific for Gpu Programs
-            Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
-                mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
-
-
-            // Calculate co-efficients for the frustum planes
-            // Special-cased for L = -R and B = -T i.e. viewport centered 
-            // on direction vector.
-            // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-            //Real thetaX = thetaY * mAspect;
             Real tanThetaX = tanThetaY * mAspect;
-
             Real vpTop = tanThetaY * mNearDist;
             Real vpRight = tanThetaX * mNearDist;
             Real vpBottom = -vpTop;
             Real vpLeft = -vpRight;
-
             Real fNSqr = mNearDist * mNearDist;
             Real fLSqr = vpRight * vpRight;
             Real fRSqr = fLSqr;
             Real fTSqr = vpTop * vpTop;
             Real fBSqr = fTSqr;
-
             Real fInvLength = 1.0 / Math::Sqrt( fNSqr + fLSqr );
-            mCoeffL[0] = mNearDist * fInvLength;
-            mCoeffL[1] = -vpLeft * fInvLength;
 
-            fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
-            mCoeffR[0] = -mNearDist * fInvLength;
-            mCoeffR[1] = vpRight * fInvLength;
+            // Recalc if frustum params changed
+            if (mProjType == PT_PERSPECTIVE)
+            {
 
-            fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
-            mCoeffB[0] = mNearDist * fInvLength;
-            mCoeffB[1] = -vpBottom * fInvLength;
+                // PERSPECTIVE transform, API specific
+                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                    mAspect, mNearDist, mFarDist, mProjMatrix);
 
-            fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
-            mCoeffT[0] = -mNearDist * fInvLength;
-            mCoeffT[1] = vpTop * fInvLength;
+                // PERSPECTIVE transform, API specific for Gpu Programs
+                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
+                    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
+
+                // Calculate co-efficients for the frustum planes
+                // Special-cased for L = -R and B = -T i.e. viewport centered 
+                // on direction vector.
+                // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
+                mCoeffL[0] = mNearDist * fInvLength;
+                mCoeffL[1] = -vpLeft * fInvLength;
+
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
+                mCoeffR[0] = -mNearDist * fInvLength;
+                mCoeffR[1] = vpRight * fInvLength;
+
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
+                mCoeffB[0] = mNearDist * fInvLength;
+                mCoeffB[1] = -vpBottom * fInvLength;
+
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
+                mCoeffT[0] = -mNearDist * fInvLength;
+                mCoeffT[1] = vpTop * fInvLength;
+            }
+            else if (mProjType == PT_ORTHOGRAPHIC)
+            {
+                // ORTHOGRAPHIC projection, API specific 
+                Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
+                    mAspect, mNearDist, mFarDist, mProjMatrix);
+
+                // Calculate co-efficients for the frustum planes
+                // Special-cased for L = -R and B = -T i.e. viewport centered 
+                // on direction vector.
+                // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
+
+                // TODO: shouldn't this be changed for ortho?
+                mCoeffL[0] = mNearDist * fInvLength;
+                mCoeffL[1] = -vpLeft * fInvLength;
+
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
+                mCoeffR[0] = -mNearDist * fInvLength;
+                mCoeffR[1] = vpRight * fInvLength;
+
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
+                mCoeffB[0] = mNearDist * fInvLength;
+                mCoeffB[1] = -vpBottom * fInvLength;
+
+                fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
+                mCoeffT[0] = -mNearDist * fInvLength;
+                mCoeffT[1] = vpTop * fInvLength;
+
+            }
 
             
-            // Calculate bounding box
+            // Calculate bounding box (local)
             // Box is from 0, down -Z, max dimensions as determined from far plane
-            Real farTop = tanThetaY * mFarDist;
-            Real farRight = tanThetaX * mFarDist;
+            Real farTop = tanThetaY * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
+            Real farRight = tanThetaX * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
             Real farBottom = -farTop;
             Real farLeft = -farRight;
             Vector3 min(-farRight, -farTop, 0);
-            Vector3 max(farRight, farTop, mFarDist);
+            Vector3 max(farRight, farTop, -mFarDist);
             mBoundingBox.setExtents(min, max);
 
-            // Calculate vertex positions
+            // Calculate vertex positions (local)
             // 0 is the origin
             // 1, 2, 3, 4 are the points on the near plane, top left first, clockwise
             // 5, 6, 7, 8 are the points on the far plane, top left first, clockwise
@@ -351,17 +373,30 @@ namespace Ogre {
 
             // Sides of the pyramid
             *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
-            *pReal++ = farLeft; *pReal++ = farTop; *pReal++ = -mFarDist;
+            *pReal++ = vpLeft;  *pReal++ = vpTop;  *pReal++ = -mNearDist;
 
             *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
+
+            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
+
+            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
+
+            // Sides of the box
+
+            *pReal++ = vpLeft;  *pReal++ = vpTop;  *pReal++ = -mNearDist;
+            *pReal++ = farLeft;  *pReal++ = farTop;  *pReal++ = -mFarDist;
+
+            *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
             *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
 
-            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
             *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
 
-            *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
+            *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
             *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
-
 
 
             vbuf->unlock();
@@ -421,7 +456,9 @@ namespace Ogre {
             // Get orientation from quaternion
 
 			Matrix3 rot;
-			mLastParentOrientation.ToRotationMatrix(rot);
+            const Quaternion& orientation = getOrientationForViewUpdate();
+            const Vector3& position = getPositionForViewUpdate();
+			orientation.ToRotationMatrix(rot);
             Vector3 left = rot.GetColumn(0);
             Vector3 up = rot.GetColumn(1);
             Vector3 direction = rot.GetColumn(2);
@@ -429,48 +466,53 @@ namespace Ogre {
 
             // Make the translation relative to new axes
             Matrix3 rotT = rot.Transpose();
-            Vector3 trans = -rotT * mLastParentPosition;
+            Vector3 trans = -rotT * position;
 
             // Make final matrix
-            // Matrix is pre-zeroised in constructor
+            mViewMatrix = Matrix4::IDENTITY;
             mViewMatrix = rotT; // fills upper 3x3
             mViewMatrix[0][3] = trans.x;
             mViewMatrix[1][3] = trans.y;
             mViewMatrix[2][3] = trans.z;
-            mViewMatrix[3][3] = 1.0f;
+
+            // Deal with reflections
+            if (mReflect)
+            {
+                mViewMatrix = mViewMatrix * mReflectMatrix;
+            }
 
             // -------------------------
             // Update the frustum planes
             // -------------------------
             updateFrustum();
             // Use Frustum view direction for frustum, which is -Z not Z as for matrix calc
-            Vector3 camDirection = mLastParentOrientation* -Vector3::UNIT_Z;
+            Vector3 camDirection = orientation* -Vector3::UNIT_Z;
             // Calc distance along direction to position
-            Real fDdE = camDirection.dotProduct(mLastParentPosition);
+            Real fDdE = camDirection.dotProduct(position);
 
             // left plane
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
                     mCoeffL[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-                    -mLastParentPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
+                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
 
             // right plane
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
                     mCoeffR[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-                    -mLastParentPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
+                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
 
             // bottom plane
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
                     mCoeffB[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-                    -mLastParentPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
+                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
 
             // top plane
             mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
                     mCoeffT[1]*camDirection;
             mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-                    -mLastParentPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
+                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
 
             // far plane
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
@@ -487,9 +529,9 @@ namespace Ogre {
             Real y = Math::Tan(mFOVy * 0.5);
             Real x = mAspect * y;
             Real neary = y * mNearDist;
-            Real fary = y * mFarDist;
+            Real fary = y * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
             Real nearx = x * mNearDist;
-            Real farx = x * mFarDist;
+            Real farx = x * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
             // near
             mWorldSpaceCorners[0] = eyeToWorld * Vector3( nearx,  neary, -mNearDist);
             mWorldSpaceCorners[1] = eyeToWorld * Vector3(-nearx,  neary, -mNearDist);
@@ -501,6 +543,35 @@ namespace Ogre {
             mWorldSpaceCorners[6] = eyeToWorld * Vector3(-farx, -fary, -mFarDist);
             mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -mFarDist);
 
+            // Deal with reflection on frustum planes
+            if (mReflect)
+            {
+                Vector3 pos = mReflectMatrix * position;
+                Vector3 dir = camDirection.reflect(mReflectPlane.normal);
+                fDdE = dir.dotProduct(pos);
+                unsigned int i;
+                for (i = 0; i < 6; ++i)
+                {
+                    mFrustumPlanes[i].normal = mFrustumPlanes[i].normal.reflect(mReflectPlane.normal);
+                    // Near / far plane dealt with differently since they don't pass through camera
+                    switch (i)
+                    {
+                    case FRUSTUM_PLANE_NEAR:
+                        mFrustumPlanes[i].d = -(fDdE + mNearDist);
+                        break;
+                    case FRUSTUM_PLANE_FAR:
+                        mFrustumPlanes[i].d = fDdE + mFarDist;
+                        break;
+                    default:
+                        mFrustumPlanes[i].d = -pos.dotProduct(mFrustumPlanes[i].normal);
+                    }
+                }
+                // Also reflect corners
+                for (i = 0; i < 8; ++i)
+                {
+                    mWorldSpaceCorners[i] = mReflectMatrix * mWorldSpaceCorners[i];
+                }
+            }
 
             mRecalcView = false;
 
@@ -623,6 +694,43 @@ namespace Ogre {
         updateView();
 
         return mWorldSpaceCorners;
+    }
+    //-----------------------------------------------------------------------
+    void Frustum::setProjectionType(ProjectionType pt)
+    {
+        mProjType = pt;
+        invalidateFrustum();
+    }
+
+    //-----------------------------------------------------------------------
+    ProjectionType Frustum::getProjectionType(void) const
+    {
+        return mProjType;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Frustum::getPositionForViewUpdate(void) const
+    {
+        return mLastParentPosition;
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Frustum::getOrientationForViewUpdate(void) const
+    {
+        return mLastParentOrientation;
+    }
+    //-----------------------------------------------------------------------
+    void Frustum::enableReflection(const Plane& p)
+    {
+        mReflect = true;
+        mReflectPlane = p;
+        mReflectMatrix = Math::buildReflectionMatrix(p);
+        invalidateView();
+
+    }
+    //-----------------------------------------------------------------------
+    void Frustum::disableReflection(void)
+    {
+        mReflect = false;
+        invalidateView();
     }
 
 

@@ -104,18 +104,6 @@ namespace Ogre {
         return mName;
     }
 
-    //-----------------------------------------------------------------------
-    void Camera::setProjectionType(ProjectionType pt)
-    {
-        mProjType = pt;
-        invalidateFrustum();
-    }
-
-    //-----------------------------------------------------------------------
-    ProjectionType Camera::getProjectionType(void) const
-    {
-        return mProjType;
-    }
 
     //-----------------------------------------------------------------------
     void Camera::setDetailLevel(SceneDetailLevel sd)
@@ -329,108 +317,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Camera::updateFrustum(void) const
     {
-        // Overridden from Frustum to include API-specific projection
-        if (mRecalcFrustum)
-        {
-            // Recalc if frustum params changed
-            if (mProjType == PT_PERSPECTIVE)
-            {
-                // PERSPECTIVE transform, API specific
-                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mProjMatrix);
-
-                // PERSPECTIVE transform, API specific for Gpu Programs
-                Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
-
-                // standard perspective transform, not API specific
-                Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
-                Real tanThetaY = Math::Tan(thetaY);
-
-                // Calculate co-efficients for the frustum planes
-                // Special-cased for L = -R and B = -T i.e. viewport centered 
-                // on direction vector.
-                // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-                //Real thetaX = thetaY * mAspect;
-                Real tanThetaX = tanThetaY * mAspect;
-
-                Real vpTop = tanThetaY * mNearDist;
-                Real vpRight = tanThetaX * mNearDist;
-                Real vpBottom = -vpTop;
-                Real vpLeft = -vpRight;
-
-                Real fNSqr = mNearDist * mNearDist;
-                Real fLSqr = vpRight * vpRight;
-                Real fRSqr = fLSqr;
-                Real fTSqr = vpTop * vpTop;
-                Real fBSqr = fTSqr;
-
-                Real fInvLength = 1.0 / Math::Sqrt( fNSqr + fLSqr );
-                mCoeffL[0] = mNearDist * fInvLength;
-                mCoeffL[1] = -vpLeft * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
-                mCoeffR[0] = -mNearDist * fInvLength;
-                mCoeffR[1] = vpRight * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
-                mCoeffB[0] = mNearDist * fInvLength;
-                mCoeffB[1] = -vpBottom * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
-                mCoeffT[0] = -mNearDist * fInvLength;
-                mCoeffT[1] = vpTop * fInvLength;
-
-            }
-            else if (mProjType == PT_ORTHOGRAPHIC)
-            {
-                // ORTHOGRAPHIC projection, API specific 
-                Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mProjMatrix);
-
-                // PERSPECTIVE transform, API specific for Gpu Programs
-                // Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
-                //    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
-
-
-				Real thetaY = Math::AngleUnitsToRadians(mFOVy / 2.0f);
-                Real sinThetaY = Math::Sin(thetaY);
-                Real thetaX = thetaY * mAspect;
-                Real sinThetaX = Math::Sin(thetaX);
-                // Calculate co-efficients for the frustum planes
-                // Special-cased for L = -R and B = -T i.e. viewport centered 
-                // on direction vector.
-                // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-                Real vpTop = sinThetaY * mNearDist;
-                Real vpRight = sinThetaX * mNearDist;
-                Real vpBottom = -vpTop;
-                Real vpLeft = -vpRight;
-
-                Real fNSqr = mNearDist * mNearDist;
-                Real fLSqr = vpRight * vpRight;
-                Real fRSqr = fLSqr;
-                Real fTSqr = vpTop * vpTop;
-                Real fBSqr = fTSqr;
-
-                Real fInvLength = 1.0 / Math::Sqrt( fNSqr + fLSqr );
-                mCoeffL[0] = mNearDist * fInvLength;
-                mCoeffL[1] = -vpLeft * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
-                mCoeffR[0] = -mNearDist * fInvLength;
-                mCoeffR[1] = vpRight * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
-                mCoeffB[0] = mNearDist * fInvLength;
-                mCoeffB[1] = -vpBottom * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
-                mCoeffT[0] = -mNearDist * fInvLength;
-                mCoeffT[1] = vpTop * fInvLength;
-
-            }
-            mRecalcFrustum = false;
-        }
+        Frustum::updateFrustum();
         // Set the clipping planes
         setWindowImpl();
     }
@@ -470,149 +357,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Camera::updateView(void) const
     {
-        if (!isViewOutOfDate())
-            return;
-        // ----------------------
-        // Update the view matrix
-        // ----------------------
-
-        // View matrix is:
-        //
-        //  [ Lx  Uy  Dz  Tx  ]
-        //  [ Lx  Uy  Dz  Ty  ]
-        //  [ Lx  Uy  Dz  Tz  ]
-        //  [ 0   0   0   1   ]
-        //
-        // Where T = -(Transposed(Rot) * Pos)
-
-        // This is most efficiently done using 3x3 Matrices
-
-        // Get orientation from quaternion
-
-        Matrix3 rot;
-        mDerivedOrientation.ToRotationMatrix(rot);
-        Vector3 left = rot.GetColumn(0);
-        Vector3 up = rot.GetColumn(1);
-        Vector3 direction = rot.GetColumn(2);
-
-
-        // Make the translation relative to new axes
-        Matrix3 rotT = rot.Transpose();
-        Vector3 trans = -rotT * mDerivedPosition;
-
-        // Make final matrix
-        // Must init entire matrix incase reflection was used
-        mViewMatrix = Matrix4::IDENTITY;
-        mViewMatrix = rotT; // fills upper 3x3
-        mViewMatrix[0][3] = trans.x;
-        mViewMatrix[1][3] = trans.y;
-        mViewMatrix[2][3] = trans.z;
-
-        // Deal with reflections
-        if (mReflect)
-        {
-            mViewMatrix = mViewMatrix * mReflectMatrix;
-        }
-
-
-        // -------------------------
-        // Update the frustum planes
-        // -------------------------
-        updateFrustum();
-        // Use camera view direction for frustum, which is -Z not Z as for matrix calc
-        Vector3 camDirection = mDerivedOrientation* -Vector3::UNIT_Z;
-        // Calc distance along direction to position
-        Real fDdE = camDirection.dotProduct(mDerivedPosition);
-
-        // left plane
-        mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
-            mCoeffL[1]*camDirection;
-        mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
-
-        // right plane
-        mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
-            mCoeffR[1]*camDirection;
-        mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
-
-        // bottom plane
-        mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
-            mCoeffB[1]*camDirection;
-        mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
-
-        // top plane
-        mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
-            mCoeffT[1]*camDirection;
-        mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-            -mDerivedPosition.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
-
-        // far plane
-        mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
-        // d is distance along normal to origin
-        mFrustumPlanes[FRUSTUM_PLANE_FAR].d = fDdE + mFarDist;
-
-        // near plane
-        mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
-        mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
-
-        // Update worldspace corners
-        Matrix4 eyeToWorld = mViewMatrix.inverse();
-        // Get worldspace frustum corners
-        Real y = Math::Tan(mFOVy * 0.5);
-        Real x = mAspect * y;
-        Real neary = y * mNearDist;
-        Real fary = y * mFarDist;
-        Real nearx = x * mNearDist;
-        Real farx = x * mFarDist;
-        // near
-        mWorldSpaceCorners[0] = eyeToWorld * Vector3( nearx,  neary, -mNearDist);
-        mWorldSpaceCorners[1] = eyeToWorld * Vector3(-nearx,  neary, -mNearDist);
-        mWorldSpaceCorners[2] = eyeToWorld * Vector3(-nearx, -neary, -mNearDist);
-        mWorldSpaceCorners[3] = eyeToWorld * Vector3( nearx, -neary, -mNearDist);
-        // far
-        mWorldSpaceCorners[4] = eyeToWorld * Vector3( farx,  fary, -mFarDist);
-        mWorldSpaceCorners[5] = eyeToWorld * Vector3(-farx,  fary, -mFarDist);
-        mWorldSpaceCorners[6] = eyeToWorld * Vector3(-farx, -fary, -mFarDist);
-        mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -mFarDist);
-
-
-        // Deal with reflection on frustum planes
-        if (mReflect)
-        {
-            Vector3 pos = mReflectMatrix * mDerivedPosition;
-            Vector3 dir = camDirection.reflect(mReflectPlane.normal);
-            fDdE = dir.dotProduct(pos);
-            unsigned int i;
-            for (i = 0; i < 6; ++i)
-            {
-                mFrustumPlanes[i].normal = mFrustumPlanes[i].normal.reflect(mReflectPlane.normal);
-                // Near / far plane dealt with differently since they don't pass through camera
-                switch (i)
-                {
-                case FRUSTUM_PLANE_NEAR:
-                    mFrustumPlanes[i].d = -(fDdE + mNearDist);
-                    break;
-                case FRUSTUM_PLANE_FAR:
-                    mFrustumPlanes[i].d = fDdE + mFarDist;
-                    break;
-                default:
-                    mFrustumPlanes[i].d = -pos.dotProduct(mFrustumPlanes[i].normal);
-                }
-            }
-            // Also reflect corners
-            for (i = 0; i < 8; ++i)
-            {
-                mWorldSpaceCorners[i] = mReflectMatrix * mWorldSpaceCorners[i];
-            }
-        }
-
-
-        mRecalcView = false;
-
+        Frustum::updateView();
         setWindowImpl();
-
 
     }
     // -------------------------------------------------------------------
@@ -751,21 +497,6 @@ namespace Ogre {
 		return mSceneLodFactorInv;
 	}
     //-----------------------------------------------------------------------
-    void Camera::enableReflection(const Plane& p)
-    {
-        mReflect = true;
-        mReflectPlane = p;
-        mReflectMatrix = Math::buildReflectionMatrix(p);
-        invalidateView();
-        
-    }
-    //-----------------------------------------------------------------------
-    void Camera::disableReflection(void)
-    {
-        mReflect = false;
-        invalidateView();
-    }
-    //-----------------------------------------------------------------------
     Ray Camera::getCameraToViewportRay(Real screenX, Real screenY)
     {
         Real centeredScreenX = (screenX - 0.5f);
@@ -860,6 +591,17 @@ namespace Ogre {
         // just to keep things just outside
         return mNearDist * 1.5;
 
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Camera::getPositionForViewUpdate(void) const
+    {
+        // Note no update, because we're calling this from the update!
+        return mDerivedPosition;
+    }
+    //-----------------------------------------------------------------------
+    const Quaternion& Camera::getOrientationForViewUpdate(void) const
+    {
+        return mDerivedOrientation;
     }
 
 
