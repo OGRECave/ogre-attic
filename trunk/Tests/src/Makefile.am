@@ -7,7 +7,9 @@ TestSuite_SOURCES = main.cpp \
                     ../OgreMain/src/EdgeBuilderTests.cpp \
                     ../OgreMain/src/FileSystemArchiveTests.cpp \
                     ../OgreMain/src/StringTests.cpp \
-                    ../OgreMain/src/ZipArchiveTests.cpp
+                    ../OgreMain/src/ZipArchiveTests.cpp \
+                    ../OgreMain/src/BitwiseTests.cpp \
+                    ../OgreMain/src/PixelFormatTests.cpp
 
 TestSuite_LDFLAGS = -L$(top_srcdir)/OgreMain/src $(CPPUNIT_LIBS)
 TestSuite_LDADD = -lOgreMain
