@@ -119,8 +119,8 @@ public:
 
 	void waveGrass(Real timeElapsed)
 	{
-		static Real xinc = Math::PI;
-		static Real zinc = Math::PI * 1.3;
+		static Real xinc = Math::PI * 0.4;
+		static Real zinc = Math::PI * 0.55;
 		static Real xpos = Math::RangeRandom(-Math::PI, Math::PI);
 		static Real zpos = Math::RangeRandom(-Math::PI, Math::PI);
 
@@ -428,6 +428,16 @@ protected:
 
 		s->build();
 		mStaticGeom = s;
+
+		// Put a stone Ogre head in the middle
+		e = mSceneMgr->createEntity("head", "ogrehead.mesh");
+		// nice offset mapping (will fall back on boring stone texture)
+		e->setMaterialName("Examples/OffsetMapping/Specular");
+		SceneNode* headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+		headNode->attachObject(e);
+		headNode->setScale(7,7,7);
+		headNode->setPosition(0,200,0);
+		e->setNormaliseNormals(true);
 		mCamera->move(Vector3(0,350,0));
 	}
 
