@@ -106,12 +106,12 @@ EXRCodec::~EXRCodec()
     LogManager::getSingleton().logMessage("EXRCodec deinitialised");
 }
 
-DataStreamPtr EXRCodec::code(MemoryDataStreamPtr& input, Codec::CodecData* pData) const
+DataStreamPtr EXRCodec::code(MemoryDataStreamPtr& input, CodecDataPtr& pData) const
 {
 
 }
 
-Codec::DecodeResult decode(DataStreamPtr& input) const
+Codec::DecodeResult EXRCodec::decode(DataStreamPtr& input) const
 {
     ImageData * imgData = new ImageData;
     MemoryDataStreamPtr output;
@@ -186,7 +186,7 @@ Codec::DecodeResult decode(DataStreamPtr& input) const
     return ret;
 }
 
-void EXRCodec::codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecData* pData) const;
+void EXRCodec::codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecDataPtr& pData) const
 {
 
 }

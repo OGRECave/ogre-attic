@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _O_IStream_H__
 #define _O_IStream_H__
 
-#include "OgreDataChunk.h"
+#include "OgreDataStream.h"
 #include <ImfInt64.h>
 #include <ImfIO.h>
 
