@@ -749,15 +749,11 @@ namespace Ogre
 
         /** Performs a software vertex blend on the passed in operation. 
         @remarks
-            This function is supplied to calculate a vertex blend when no hardware
-            support is available, or when the results are required by another
-            software component. The vertices contained in the passed in operation
-            will be modified by the matrices supplied according to the blending weights
-            also in the operation. To avoid accidentally modifying core vertex data, a
-            temporary vertex buffer is used for the result, which is then used in the
-            RenderOperation instead of the original passed in vertex data.
+            This function is supplied to update vertex data with blends 
+            done in software, either because no hardware support is available, 
+            or that you need the results of the blend for some other CPU operations.
         */
-        void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
+        virtual void softwareVertexBlend(VertexData* vertexData, Matrix4* pMatrices);
 
 		/** Sets the current vertex declaration, ie the source of vertex data. */
 		virtual void setVertexDeclaration(VertexDeclaration* decl) = 0;
@@ -837,10 +833,6 @@ namespace Ogre
 
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
-
-        /// Temporary buffer for vertex blending in software
-        std::vector<Real> mTempVertexBlendBuffer;
-        std::vector<Real> mTempNormalBlendBuffer;
 
         /// Contains the times of recently fired events
         std::deque<unsigned long> mEventTimes[3];

@@ -54,11 +54,6 @@ namespace Ogre {
         // This makes it the same as OpenGL and other right-handed systems
         mCullingMode = CULL_CLOCKWISE;
 
-        // Create an initially sized software vertex blend buffer
-        // Enough for 5000 vertices
-        mTempVertexBlendBuffer.resize(5000 * 3);
-        mTempNormalBlendBuffer.resize(5000 * 3);
-
 		// get a Timer
         mTimer = Root::getSingleton().getTimer();
     }
@@ -438,97 +433,133 @@ namespace Ogre {
     }
     */
     //-----------------------------------------------------------------------
-    void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
+    void RenderSystem::softwareVertexBlend(VertexData* vertexData, Matrix4* pMatrices)
     {
-        /* TODO
         // Source vector
         Vector3 sourceVec;
         // Accumulation vectors
         Vector3 accumVecPos, accumVecNorm;
-        
         Matrix3 rot3x3;
 
-        Real *pVertElem, *pNormElem;
-        LegacyRenderOperation::VertexBlendData* pBlend;
+        Real *pSrcPos, *pSrcNorm, *pDestPos, *pDestNorm, *pBlendWeight;
+        unsigned char* pBlendIdx;
+        bool posNormShareBuffer = false;
 
-        // Check buffer size
-        unsigned long numVertReals = op.numVertices * 3;
-        if (mTempVertexBlendBuffer.size() < numVertReals)
+        const VertexElement* elemPos = 
+            vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+        const VertexElement* elemNorm = 
+            vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+        
+        HardwareVertexBufferSharedPtr posBuf, normBuf;
+        posBuf = vertexData->vertexBufferBinding->getBuffer(elemPos->getSource());
+        if (elemNorm)
         {
-            mTempVertexBlendBuffer.resize(numVertReals);
+            normBuf = vertexData->vertexBufferBinding->getBuffer(elemNorm->getSource());
+            posNormShareBuffer = (posBuf.get() == normBuf.get());
         }
-        if ((op.vertexOptions & LegacyRenderOperation::VO_NORMALS) &&
-            mTempNormalBlendBuffer.size() < numVertReals)
+        // Lock buffers for writing
+        assert (elemPos->getOffset() == 0 && 
+            "Positions must be first element in dedicated buffer!");
+        pDestPos = static_cast<Real*>(
+            posBuf->lock(0, posBuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+        if (elemNorm)
         {
-            mTempNormalBlendBuffer.resize(numVertReals);
+            if (posNormShareBuffer)
+            {
+                // Same buffer, must be packed directly after position
+                assert (elemNorm->getOffset() == sizeof(Real) * 3 && 
+                    "Normals must be packed directly after positions in buffer!");
+                // pDestNorm will not be used
+            }
+            else
+            {
+                // Different buffer
+                assert (elemNorm->getOffset() == 0 && 
+                    "Normals must be first element in dedicated buffer!");
+                pDestNorm = static_cast<Real*>(
+                    normBuf->lock(0, normBuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            }
         }
-
 
         // Loop per vertex
-        pVertElem = op.pVertices;
-        pNormElem = op.pNormals;
-        pBlend = op.pBlendingWeights;
-        for (unsigned long vertIdx = 0; 
-            vertIdx < numVertReals; vertIdx += 3)
+        pSrcPos = vertexData->softwareBlendInfo->pSrcPositions;
+        pSrcNorm = vertexData->softwareBlendInfo->pSrcNormals;
+        pBlendIdx = vertexData->softwareBlendInfo->pBlendIndexes;
+        pBlendWeight = vertexData->softwareBlendInfo->pBlendWeights;
+        // Make sure we have the source pointers we need
+        assert(pSrcPos && pBlendIdx && pBlendWeight && (pSrcNorm || !elemNorm)); 
+        for (size_t vertIdx = 0; vertIdx < vertexData->vertexCount; ++vertIdx)
         {
             // Load source vertex elements
-            sourceVec.x = *pVertElem++;
-            sourceVec.y = *pVertElem++;
-            sourceVec.z = *pVertElem++;
+            sourceVec.x = *pSrcPos++;
+            sourceVec.y = *pSrcPos++;
+            sourceVec.z = *pSrcPos++;
 
-            if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS) 
+            if (elemNorm) 
             {
-                accumVecNorm.x = *pNormElem++;
-                accumVecNorm.y = *pNormElem++;
-                accumVecNorm.z = *pNormElem++;
+                accumVecNorm.x = *pSrcNorm++;
+                accumVecNorm.y = *pSrcNorm++;
+                accumVecNorm.z = *pSrcNorm++;
             }
             // Load accumulator
             accumVecPos = Vector3::ZERO;
 
             // Loop per blend weight 
-            for (unsigned short blendIdx = 0; blendIdx < op.numBlendWeightsPerVertex; ++blendIdx)
+            for (unsigned short blendIdx = 0; 
+                blendIdx < vertexData->softwareBlendInfo->numWeightsPerVertex; ++blendIdx)
             {
                 // Blend by multiplying source by blend matrix and scaling by weight
                 // Add to accumulator
                 // NB weights must be normalised!!
-                if (pBlend->blendWeight != 0.0) 
+                if (*pBlendWeight != 0.0) 
                 {
                     // Blend position
-                    accumVecPos += (pMatrices[pBlend->matrixIndex] * sourceVec) 
-                        * pBlend->blendWeight;
-                    if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
+                    accumVecPos += (pMatrices[*pBlendIdx] * sourceVec) 
+                        * (*pBlendWeight);
+                    if (elemNorm)
                     {
                         // Blend normal
-                        // We should blend by inverse transform here, but because we're assuming the 3x3
+                        // We should blend by inverse transpose here, but because we're assuming the 3x3
                         // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
                         // is equal to the main 3x3 matrix
                         // Note because it's a normal we just extract the rotational part, saves us renormalising
-                        pMatrices[pBlend->matrixIndex].extract3x3Matrix(rot3x3);
-                        accumVecNorm = (rot3x3 * pBlend->blendWeight) * accumVecNorm;
+                        pMatrices[*pBlendIdx].extract3x3Matrix(rot3x3);
+                        accumVecNorm = (rot3x3 * (*pBlendWeight)) * accumVecNorm;
                     }
 
                 }
-                pBlend++;
+                ++pBlendWeight;
+                ++pBlendIdx;
             }
 
-            // Stored blended vertex in temp buffer
-            mTempVertexBlendBuffer[vertIdx] = accumVecPos.x;
-            mTempVertexBlendBuffer[vertIdx+1] = accumVecPos.y;
-            mTempVertexBlendBuffer[vertIdx+2] = accumVecPos.z;
+            // Stored blended vertex in hardware buffer
+            *pDestPos++ = accumVecPos.x;
+            *pDestPos++ = accumVecPos.y;
+            *pDestPos++ = accumVecPos.z;
 
             // Stored blended vertex in temp buffer
-            mTempNormalBlendBuffer[vertIdx] = accumVecNorm.x;
-            mTempNormalBlendBuffer[vertIdx+1] = accumVecNorm.y;
-            mTempNormalBlendBuffer[vertIdx+2] = accumVecNorm.z;
+            if (elemNorm)
+            {
+                if (posNormShareBuffer)
+                {
+                    // Pack into same buffer
+                    *pDestPos++ = accumVecNorm.x;
+                    *pDestPos++ = accumVecNorm.y;
+                    *pDestPos++ = accumVecNorm.z;
+                }
+                else
+                {
+                    *pDestNorm++ = accumVecNorm.x;
+                    *pDestNorm++ = accumVecNorm.y;
+                    *pDestNorm++ = accumVecNorm.z;
+                }
+            }
         }
-
-        // Re-point the render operation vertex buffer
-        op.pVertices = &( mTempVertexBlendBuffer.front() );
-        if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
-            op.pNormals = &( mTempNormalBlendBuffer.front() );
-
-        
-        */
+        posBuf->unlock();
+        if (elemNorm && !posNormShareBuffer)
+        {
+            normBuf->unlock();
+        }
 
     }
     //-----------------------------------------------------------------------
@@ -587,25 +618,10 @@ namespace Ogre {
 
         mVertexCount += op.vertexData->vertexCount;
 
-        // Vertex blending: do software if required
-		bool vertexBlend = false;
-		const VertexDeclaration::VertexElementList& elemList = 
-			op.vertexData->vertexDeclaration->getElements();
-		VertexDeclaration::VertexElementList::const_iterator i, iend;
-		iend = elemList.end();
-		for (i = elemList.begin(); i != iend; ++i)
-		{
-			if (i->getSemantic() == VES_BLEND_WEIGHTS)
-			{
-				vertexBlend = true;
-				break;
-			}
-		}
-
-        if (vertexBlend && !mCapabilities->hasCapability(RSC_VERTEXBLENDING))
+        if (op.vertexData->softwareBlendInfo && op.vertexData->softwareBlendInfo->automaticBlend)
         {
-            // Software blending required, hack the constness since we need to fudge
-            softwareVertexBlend(const_cast<RenderOperation&>(op), mWorldMatrices);
+            // Software Blend
+            softwareVertexBlend(const_cast<VertexData*>(op.vertexData), mWorldMatrices);
         }
     }
 

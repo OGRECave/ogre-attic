@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+
 	/** 'New' rendering operation using vertex buffers. */
 	class RenderOperation {
 	public:
@@ -63,6 +64,11 @@ namespace Ogre {
 
 		/// Index data - only valid if useIndexes is true
 		IndexData *indexData;
+
+
+        RenderOperation() :
+            vertexData(0), operationType(OT_TRIANGLE_LIST), useIndexes(true),
+                indexData(0) {}
 
 	};
 }

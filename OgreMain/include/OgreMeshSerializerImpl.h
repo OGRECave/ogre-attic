@@ -70,6 +70,7 @@ namespace Ogre {
         typedef std::map<String, Material*> MaterialMap;
         MaterialMap mMaterialList;
         Mesh* mpMesh;
+        bool mIsSkeletallyAnimated;
 
         // Internal methods
         virtual void writeMaterial(const Material* m);

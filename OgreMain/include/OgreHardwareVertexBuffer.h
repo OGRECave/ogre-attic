@@ -83,7 +83,12 @@ namespace Ogre {
 		/// Specular colours
 		VES_SPECULAR,
 		/// Texture coordinates
-		VES_TEXTURE_COORDINATES
+		VES_TEXTURE_COORDINATES,
+        /// Binormal (Y axis if normal is Z)
+        VES_BINORMAL,
+        /// Tangent (X axis if normal is Z)
+        VES_TANGENT
+
 	};
 
     /// Vertex element type, used to identify the base types of the vertex contents

@@ -40,6 +40,7 @@ namespace Ogre {
 			createVertexDeclaration();
 		vertexCount = 0;
 		vertexStart = 0;
+        softwareBlendInfo = NULL;
 
 	}
     //-----------------------------------------------------------------------
@@ -48,6 +49,11 @@ namespace Ogre {
 		HardwareBufferManager::getSingleton().
 			destroyVertexBufferBinding(vertexBufferBinding);
 		HardwareBufferManager::getSingleton().destroyVertexDeclaration(vertexDeclaration);
+        if(softwareBlendInfo)
+        {
+            delete softwareBlendInfo;
+            softwareBlendInfo = NULL;
+        }
 
 	}
     //-----------------------------------------------------------------------
@@ -95,6 +101,18 @@ namespace Ogre {
         }
 		return dest;
 	}
+    //-----------------------------------------------------------------------
+    VertexData::SoftwareBlendInfo::~SoftwareBlendInfo()
+    {
+        if (pSrcPositions)
+            delete [] pSrcPositions;
+        if (pSrcNormals)
+            delete [] pSrcNormals;
+        if (pBlendIndexes)
+            delete [] pBlendIndexes;
+        if (pBlendWeights)
+            delete [] pBlendWeights;
+    }
     //-----------------------------------------------------------------------
     /*
 	void VertexData::getBounds(AxisAlignedBox *box, Real *maxSquaredRadius)

@@ -57,14 +57,55 @@ namespace Ogre {
 		VertexData* clone(void);
 
 		
-        /** Gets the positional bounds of this vertex data.
-        REMOVED BECAUSE NOT COMPATIBLE WITH WRITE-ONLY BUFFERS
-		@remarks The results of this vertex data will be combined with any
-		existing values in the input parameters, so ensure they are initialised.
-		@param box Pointer to an AxisAlignedBox to update
-		@param maxSquaredRadius Pointer to a Real to update with the squared radius
-		void getBounds(AxisAlignedBox *box, Real *maxSquaredRadius);
-		*/
+        /** Software vertex blend information.
+        @remarks
+            This data is here in order to allow the creator of the VertexData 
+            to request a software vertex blend, ie a blend using information which you
+            do not want to be passed to the GPU.
+        @par
+            The assumption here is that you have a VES_POSITION and VES_NORMAL elements in 
+            your declaration which you wish to update with a blended version of 
+            positions / normals from a system-memory location. We advise that 
+            if you're blending a lot, you set the hardware vertex buffer 
+            to HBU_DYNAMIC_WRITE_ONLY, with no shadow buffer. 
+        @par    
+            Note that future versions of the engine are likely to support vertex shader
+            based animation so there will be a hardware alternative; however, note that sometimes
+            you may still want to perform blending in software, for example when you need to read
+            back the blended positions in applications such as shadow volume construction.
+        @par
+            In order to apply this blending, the world matrices must be set and 
+            RenderSystem::softwareVertexBlend called. This is done automatically for skeletally
+            animated entities, but this can be done manually if required. After calling this
+            method, the vertex buffers are updated with the blended positions and the blend does
+            not need to be called again unless it's basis changes.
+        */
+        class SoftwareBlendInfo
+        {
+        public:
+            /** If true, the RenderSystem will automatically apply the blend when rendering 
+            with this vertexData, otherwise the user of the vertex data must call 
+            RenderSystem::sofwareVertexBlend manually as required. */
+            bool automaticBlend;
+            /// System-memory pointer to source positions, note this will be deleted when this class is destroyed
+            Real* pSrcPositions;
+            /** System-memory pointer to source normals, can be null if vertexData does not include normals
+                , note this will be deleted when this class is destroyed
+            */
+            Real* pSrcNormals;
+            /// The number of blending weights per vertex, will be deleted on destruction
+            unsigned short numWeightsPerVertex;
+            /// Pointer to blending weights, will be deleted on destruction
+            Real* pBlendWeights;
+            /// Pointer to blending indexes (index into world matrices)
+            unsigned char* pBlendIndexes;
+            
+            SoftwareBlendInfo() : automaticBlend(true), pSrcPositions(0), pSrcNormals(0),
+                numWeightsPerVertex(1), pBlendWeights(0), pBlendIndexes(0) {}
+            ~SoftwareBlendInfo();
+        };
+        /// Software vertex blend information
+        SoftwareBlendInfo* softwareBlendInfo;
 
 	};
 

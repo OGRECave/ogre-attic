@@ -446,6 +446,12 @@ namespace Ogre
 		case VES_TEXTURE_COORDINATES:
 			return D3DDECLUSAGE_TEXCOORD;
 			break;
+		case VES_BINORMAL:
+			return D3DDECLUSAGE_BINORMAL;
+			break;
+		case VES_TANGENT:
+			return D3DDECLUSAGE_TANGENT;
+			break;
 		}
 		// to keep compiler happy
 		return D3DDECLUSAGE_POSITION;

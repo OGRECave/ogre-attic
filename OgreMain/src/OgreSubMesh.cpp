@@ -109,17 +109,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubMesh::compileBoneAssignments(void)
     {
-		/* TODO
-        // Deallocate
-        if (geometry.pBlendingWeights)
-        {
-            delete [] geometry.pBlendingWeights;
-            geometry.pBlendingWeights = 0;
-        }
-
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
-        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort>::max();
+        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort >::max();
         VertexBoneAssignmentList::iterator i, iend;
         i = mBoneAssignments.begin();
         iend = mBoneAssignments.end();
@@ -140,48 +132,28 @@ namespace Ogre {
 
         }
 
+		if (maxBones > OGRE_MAX_BLEND_WEIGHTS)
+		{
+			Except(Exception::ERR_INVALIDPARAMS, "Too many bone assignments per vertex.",
+				"SubMesh::compileBoneAssignments");
+		}
+
         if (maxBones == 0)
         {
             // No bone assignments
-            geometry.numBlendWeightsPerVertex = 0;
             return;
         }
-        // Allocate a buffer for bone weights
-        geometry.numBlendWeightsPerVertex = maxBones;
-        geometry.pBlendingWeights = 
-            new RenderOperation::VertexBlendData[geometry.numVertices * maxBones];
 
-        // Assign data
-        unsigned short v;
-        i = mBoneAssignments.begin();
-        RenderOperation::VertexBlendData *pBlend = geometry.pBlendingWeights;
-        // Iterate by vertex
-        for (v = 0; v < geometry.numVertices; ++v)
+        if (parent->mUseSoftwareBlending)
         {
-            for (unsigned short bone = 0; bone < maxBones; ++bone)
-            {
-                // Do we still have data for this vertex?
-                if (i->second.vertexIndex == v)
-                {
-                    // If so, assign
-                    pBlend->matrixIndex = i->second.boneIndex;
-                    pBlend->blendWeight = i->second.weight;
-                    ++i;
-                }
-                else
-                {
-                    // Ran out of assignments for this vertex, use weight 0 to indicate empty
-                    pBlend->blendWeight = 0;
-                    pBlend->matrixIndex = 0;
-                }
-                ++pBlend;
-            }
+            parent->compileBoneAssignmentsSoftware(mBoneAssignments, maxBones, vertexData);
         }
-		*/
+        else
+        {
+            parent->compileBoneAssignmentsHardware(mBoneAssignments, maxBones, vertexData);
+        }
 
         mBoneAssignmentsOutOfDate = false;
-
-
     }
     //---------------------------------------------------------------------
     SubMesh::BoneAssignmentIterator SubMesh::getBoneAssignmentIterator(void)

@@ -80,6 +80,7 @@ namespace Ogre {
     {
         friend class MeshSerializerImpl;
         friend class MeshSerializerImpl_v1;
+        friend class SubMesh;
     public:
         /** Default constructor - used by MeshManager
             @warning
@@ -456,8 +457,17 @@ namespace Ogre {
         /** Must be called once to compile bone assignments into geometry buffer. */
         void compileBoneAssignments(void);
 
-		HardwareVertexBufferSharedPtr mBlendingVB;
+        /** Software blending oriented bone assignment compilation */
+        void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
+        /** Hardware blending oriented bone assignment compilation */
+        void compileBoneAssignmentsHardware(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
+
+        HardwareVertexBufferSharedPtr mBlendingVB;
 		unsigned short mNumBlendWeightsPerVertex;
+        /// Option whether to use software or hardware blending, there are tradeoffs to both
+        bool mUseSoftwareBlending;
 
 		bool mIsLodManual;
 		ushort mNumLods;
