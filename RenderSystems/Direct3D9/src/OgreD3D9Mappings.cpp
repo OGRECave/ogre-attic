@@ -384,6 +384,10 @@ namespace Ogre
         {
             ret |= D3DLOCK_READONLY;
         }
+        if (options & HardwareBuffer::HBL_NO_OVERWRITE)
+        {
+            ret |= D3DLOCK_NOOVERWRITE;
+        }
 
         return ret;
     }
