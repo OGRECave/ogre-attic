@@ -184,7 +184,8 @@ namespace Ogre {
             ShadowTechnique shadowTechnique, const Light* light, 
             unsigned long flags, HardwareIndexBufferSharedPtr* useThisIndexBuffer)
         {
-            return ShadowRenderableListIterator(NULL, NULL);
+            static ShadowRenderableList dummyList;
+            return ShadowRenderableListIterator(dummyList.begin(), dummyList.end());
         }
 
 
