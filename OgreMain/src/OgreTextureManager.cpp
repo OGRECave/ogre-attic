@@ -60,6 +60,20 @@ namespace Ogre {
 
         mResources[tex->getName()] = tex;
     }
+	//-----------------------------------------------------------------------
+	void TextureManager::loadRawRGBA(String name, void* buffer, int width, int height, int numMipMaps, Real gamma)
+	{
+		Texture* tex = (Texture*)create(name);
+		if (numMipMaps == -1)
+			tex->setNumMipMaps(mDefaultNumMipMaps);
+		else
+			tex->setNumMipMaps(numMipMaps);
+		tex->setGamma(gamma);
+		tex->enable32Bit(mIs32Bit);
+		tex->loadRawRGBA(buffer, width, height);
+
+		mResources[tex->getName()] = tex;
+	}
     //-----------------------------------------------------------------------
     void TextureManager::unload(String filename)
     {
