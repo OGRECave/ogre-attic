@@ -78,8 +78,8 @@ namespace Ogre {
 		in that region is used. This means all the LOD levels change at the 
 		same time, but at the furthest distance of any of them (so quality is 
 		not degraded). Be aware that using Mesh LOD in this class will 
-		further increase the memory required. Both manual LOD and generated LOD
-		are supported for meshes.
+		further increase the memory required. Only generated LOD
+		is supported for meshes.
 	@par
 		There are 2 ways you can add geometry to this class; you can add
 		Entity objects directly with predetermined positions, scales and 
@@ -106,14 +106,44 @@ namespace Ogre {
 	class _OgreExport StaticGeometry
 	{
 	public:
+		/** Struct holding geometry optimised per SubMesh / lod level, ready
+			for copying to instances. 
+		@remarks
+			Since we're going to be duplicating geometry lots of times, it's
+			far more important that we don't have redundant vertex data. If a 
+			SubMesh uses shared geometry, or we're looking at a lower LOD, not
+			all the vertices are being referenced by faces on that submesh.
+			Therefore to duplicate them, potentially hundreds or even thousands
+			of times, would be extremely wasteful. Therefore, if a SubMesh at
+			a given LOD has wastage, we create an optimised version of it's
+			geometry which is ready for copying with no wastage.
+		*/
+		struct OptimisedSubMeshGeometry
+		{
+			VertexData vertexData;
+			IndexData indexData;
+		};
+		typedef std::list<OptimisedSubMeshGeometry*> OptimisedSubMeshGeometryList;
+		/// Saved link between SubMesh at a LOD and vertex/index data
+		/// May point to original or optimised geometry
+		struct SubMeshLodGeometryLink
+		{
+			VertexData* vertexData;
+			IndexData* indexData;
+		};
+		typedef std::vector<SubMeshLodGeometryLink> SubMeshLodGeometryLinkList;
+		typedef std::map<SubMesh*, SubMeshLodGeometryLinkList*> SubMeshGeometryLookup;
 		/// Structure recording a queued submesh for the build
 		struct QueuedSubMesh
 		{
 			SubMesh* submesh;
+			/// Link to LOD list of geometry, potentially optimised
+			SubMeshLodGeometryLinkList* geometryLodList;
 			String materialName;
 			Vector3 position;
 			Quaternion orientation;
 			Vector3 scale;
+			/// Pre-transformed world AABB 
 			AxisAlignedBox worldBounds;
 		};
 		typedef std::vector<QueuedSubMesh*> QueuedSubMeshList;
@@ -196,8 +226,8 @@ namespace Ogre {
 			Region* mParent;
 			/// LOD level (0 == full LOD)
 			unsigned short mLod;
-			/// distance at which this LOD starts to apply
-			Real mLodDist;
+			/// distance at which this LOD starts to apply (squared)
+			Real mSquaredDistance;
 			/// Lookup of Material Buckets in this region
 			typedef std::map<String, MaterialBucket*> MaterialBucketMap;
 			MaterialBucketMap mMaterialBucketMap;
@@ -229,12 +259,17 @@ namespace Ogre {
 			QueuedSubMeshList mQueuedSubMeshes;
 			/// Unique identifier for the region
 			uint32 mRegionID;
+			/// Center of the region
+			Vector3 mCentre;
+			/// LOD distances (squared) as built up - use the max at each level
+			std::vector<Real> mLodSquaredDistances;
+			
 			/// list of LOD Buckets in this region
 			typedef std::vector<LODBucket*> LODBucketList;
 			LODBucketList mLodBucketList;
 
 		public:
-			Region(const String& name, uint32 regionID);
+			Region(const String& name, uint32 regionID, const Vector3& centre);
 			virtual ~Region();
 			// more fields can be added in subclasses
 			
@@ -260,11 +295,22 @@ namespace Ogre {
 		Real mSquaredUpperDistance;
 		bool mCastShadows;
 		Vector3 mRegionDimensions;
+		Vector3 mHalfRegionDimensions;
 		Vector3 mOrigin;
 		bool mVisible;
 
 		QueuedSubMeshList mQueuedSubMeshes;
 
+		/// List of geometry which has been optimised for SubMesh use
+		/// This is the primary storage used for cleaning up later
+		OptimisedSubMeshGeometryList mOptimisedSubMeshGeometryList;
+
+		/** Cached links from SubMeshes to (potentially optimised) geometry
+			This is not used for deletion since the lookup may reference
+			original vertex data
+		*/
+		SubMeshGeometryLookup mSubMeshGeometryLookup;
+			
 		/** Indexed region map based on packed x/y/z region index, 10 bits for
 			each axis.
 		@remarks
@@ -283,8 +329,8 @@ namespace Ogre {
 		virtual Region* getRegion(const Vector3& point, bool autoCreate);
 		/** Get the region using indexes */
 		virtual Region* getRegion(ushort x, ushort y, ushort z, bool autoCreate);
-		/** Get the region using a packed index. */
-		virtual Region* getRegion(uint32 index, bool autoCreate);
+		/** Get the region using a packed index, returns null if it doesn't exist. */
+		virtual Region* getRegion(uint32 index);
 		/** Get the region indexes for a point.
 		*/
 		virtual void getRegionIndexes(const Vector3& point, 
@@ -299,13 +345,50 @@ namespace Ogre {
 		/** Get the bounds of an indexed region.
 		*/
 		virtual AxisAlignedBox getRegionBounds(ushort x, ushort y, ushort z);
+		/** Get the centre of an indexed region.
+		*/
+		virtual Vector3 getRegionCentre(ushort x, ushort y, ushort z);
 		/** Calculate world bounds from a set of vertex data. */
 		virtual AxisAlignedBox calculateBounds(VertexData* vertexData, 
 			const Vector3& position, const Quaternion& orientation, 
 			const Vector3& scale);
+		/** Look up or calculate the geometry data to use for this SubMesh */
+		SubMeshLodGeometryLinkList* determineGeometry(SubMesh* sm);
+		/** Split some shared geometry into dedicated geometry. */
+		void splitGeometry(VertexData* vd, IndexData* id, 
+			SubMeshLodGeometryLink* targetGeomLink);
 
-
-
+		typedef std::map<size_t, size_t> IndexRemap;
+		/** Method for figuring out which vertices are used by an index buffer
+			and calculating a remap lookup for a vertex buffer just containing
+			those vertices. 
+		*/
+		template <typename T>
+		void buildIndexRemap(T* pBuffer, size_t numIndexes, IndexRemap& remap)
+		{
+			remap.clear();
+			for (size_t i = 0; i < numIndexes; ++i)
+			{
+				// use insert since duplicates are silently discarded
+				remap.insert(IndexRemap::value_type(*pBuffer++, remap.size()));
+				// this will have mapped oldindex -> new index IF oldindex
+				// wasn't already there
+			}
+		}
+		/** Method for altering indexes based on a remap. */
+		template <typename T>
+		void remapIndexes(T* src, T* dst, const IndexRemap& remap, 
+				size_t numIndexes)
+		{
+			for (size_t i = 0; i < numIndexes; ++i)
+			{
+				// look up original and map to target
+				IndexRemap::const_iterator ix = remap.find(*src++);
+				assert(ix != remap.end());
+				*dst++ = static_cast<T>(ix->second);
+			}
+		}
+		
 	public:
 		/// Constructor; do not use directly (@see SceneManager::createStaticGeometry)
 		StaticGeometry(SceneManager* owner, const String& name);
@@ -429,7 +512,10 @@ namespace Ogre {
 		@note Must be called before 'build'.
 		@param size Vector3 expressing the 3D size of each region.
 		*/
-		virtual void setRegionDimensions(const Vector3& size) { mRegionDimensions = size; }
+		virtual void setRegionDimensions(const Vector3& size) { 
+			mRegionDimensions = size; 
+			mHalfRegionDimensions = size * 0.5;
+		}
 		/** Gets the size of a single batch of geometry. */
 		virtual const Vector3& getRegionDimensions(void) const { return mRegionDimensions; }
 		/** Sets the origin of the geometry.

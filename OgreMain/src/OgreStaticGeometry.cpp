@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -47,6 +48,7 @@ namespace Ogre {
 		mSquaredUpperDistance(0.0f),
 		mCastShadows(false),
 		mRegionDimensions(Vector3(1000,1000,1000)),
+		mHalfRegionDimensions(Vector3(500,500,500)),
 		mOrigin(Vector3(0,0,0)),
 		mVisible(true)
 	{
@@ -73,7 +75,7 @@ namespace Ogre {
 		getRegionIndexes(min, minx, miny, minz);
 		getRegionIndexes(max, maxx, maxy, maxz);
 		Real maxVolume = 0.0f;
-		uint32 maxVolumeIndex = 0;
+		ushort finalx, finaly, finalz;
 		for (ushort x = minx; x < maxx; ++x)
 		{
 			for (ushort y = miny; y < maxy; ++y)
@@ -84,17 +86,20 @@ namespace Ogre {
 					if (vol > maxVolume)
 					{
 						maxVolume = vol;
-						maxVolumeIndex = packIndex(x, y, z);
+						finalx = x;
+						finaly = y;
+						finalz = z;
 					}
 
 				}
 			}
 		}
 
-		assert(maxVolumeIndex && 
+		assert(maxVolume > 0.0f && 
 			"Static geometry: Problem determining closest volume match!");
 
-		return getRegion(maxVolumeIndex, autoCreate);
+		return getRegion(finalx, finaly, finalz, autoCreate);
+
 	}
 	//--------------------------------------------------------------------------
 	Real StaticGeometry::getVolumeIntersection(const AxisAlignedBox& box,  
@@ -117,29 +122,48 @@ namespace Ogre {
 		return AxisAlignedBox(min, max);
 	}
 	//--------------------------------------------------------------------------
-	StaticGeometry::Region* StaticGeometry::getRegion(ushort x, ushort y, ushort z, bool autoCreate)
+ 	Vector3 StaticGeometry::getRegionCentre(ushort x, ushort y, ushort z)
 	{
-		return getRegion(packIndex(x, y, z), autoCreate);
+		return Vector3(
+			((Real)x - REGION_HALF_RANGE) * mRegionDimensions.x + mOrigin.x
+				+ mHalfRegionDimensions.x, 
+			((Real)y - REGION_HALF_RANGE) * mRegionDimensions.y + mOrigin.y
+				+ mHalfRegionDimensions.y, 
+			((Real)z - REGION_HALF_RANGE) * mRegionDimensions.z + mOrigin.z
+				+ mHalfRegionDimensions.z
+			);
 	}
 	//--------------------------------------------------------------------------
-	StaticGeometry::Region* StaticGeometry::getRegion(uint32 index, bool autoCreate)
+	StaticGeometry::Region* StaticGeometry::getRegion(
+			ushort x, ushort y, ushort z, bool autoCreate)
 	{
-		Region* ret = 0;
-		RegionMap::iterator i = mRegionMap.find(index);
-		if (i != mRegionMap.end())
-		{
-			ret = i->second;
-		}
-		else if (autoCreate)
+		uint32 index = packIndex(x, y, z);
+		Region* ret = getRegion(index);
+		if (!ret && autoCreate)
 		{
 			// Make a name
 			StringUtil::StrStreamType str;
 			str << mName << ":" << index;
-			ret = new Region(str.str(), index);
+			// Calculate the region centre
+			Vector3 centre = getRegionCentre(x, y, z);
+			ret = new Region(str.str(), index, centre);
 			mRegionMap[index] = ret;
 		}
 		return ret;
-
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::Region* StaticGeometry::getRegion(uint32 index)
+	{
+		RegionMap::iterator i = mRegionMap.find(index);
+		if (i != mRegionMap.end())
+		{
+			return i->second;
+		}
+		else 
+		{
+			return 0;
+		}
+		
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::getRegionIndexes(const Vector3& point, 
@@ -232,30 +256,201 @@ namespace Ogre {
 		const Quaternion& orientation, const Vector3& scale)
 	{
 		MeshPtr& msh = ent->getMesh();
-		AxisAlignedBox sharedWorldBounds;
-		if (msh->sharedVertexData)
+		// Validate
+		if (msh->isLodManual())
 		{
-			sharedWorldBounds = calculateBounds(msh->sharedVertexData, 
-				position, orientation, scale);
+			LogManager::getSingleton().logMessage(
+				"WARNING (StaticGeometry): Manual LOD is not supported. "
+				"Using only highest LOD level for mesh " + msh->getName());
 		}
+				
+		AxisAlignedBox sharedWorldBounds;
 		// queue this entities submeshes and choice of material
+		// also build the lists of geometry to be used for the source of lods
 		for (uint i = 0; i < ent->getNumSubEntities(); ++i)
 		{
 			SubEntity* se = ent->getSubEntity(i);
 			QueuedSubMesh* q = new QueuedSubMesh();
+
+			// Get the geometry for this SubMesh
+			q->geometryLodList = determineGeometry(q->submesh);
 			q->submesh = se->getSubMesh();
 			q->materialName = se->getMaterialName();
 			q->orientation = orientation;
 			q->position = position;
 			q->scale = scale;
-			if (q->submesh->useSharedVertices)
-				q->worldBounds = sharedWorldBounds;
-			else
-				q->worldBounds = calculateBounds(q->submesh->vertexData, 
+			// Determine the bounds based on the highest LOD
+			q->worldBounds = calculateBounds(
+				(*q->geometryLodList)[0].vertexData, 
 					position, orientation, scale);
 			
 			mQueuedSubMeshes.push_back(q);
 		}
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::SubMeshLodGeometryLinkList* 
+	StaticGeometry::determineGeometry(SubMesh* sm)
+	{
+		// First, determine if we've already seen this submesh before
+		SubMeshGeometryLookup::iterator i = 
+			mSubMeshGeometryLookup.find(sm);
+		if (i != mSubMeshGeometryLookup.end())
+		{
+			return i->second;
+		}
+		// Otherwise, we have to create a new one
+		SubMeshLodGeometryLinkList* lodList = new SubMeshLodGeometryLinkList();
+		ushort numLods = sm->parent->isLodManual() ? 1 : 
+			sm->parent->getNumLodLevels();
+		lodList->resize(numLods);
+		for (ushort lod = 0; lod < numLods; ++lod)
+		{
+			SubMeshLodGeometryLink& geomLink = (*lodList)[lod];
+			const Mesh::MeshLodUsage& lodUsage = sm->parent->getLodLevel(lod);
+			// Can use the original mesh geometry?
+			if (sm->useSharedVertices)
+			{
+				if (sm->parent->getNumSubMeshes() == 1)
+				{
+					// Ok, this is actually our own anyway
+					geomLink.vertexData = sm->parent->sharedVertexData;
+					geomLink.indexData = sm->indexData;
+				}
+				else
+				{
+					// We have to split it
+					splitGeometry(sm->parent->sharedVertexData, 
+						sm->indexData, &geomLink);
+				}
+			}
+			else
+			{
+				if (lod == 0)
+				{
+					// Ok, we can use the existing geometry; should be in full 
+					// use by just this SubMesh
+					geomLink.vertexData = sm->vertexData;
+					geomLink.indexData = sm->indexData;
+				}
+				else
+				{
+					// We have to split it
+					splitGeometry(sm->vertexData, 
+						sm->indexData, &geomLink);
+				}
+			}
+		}
+
+		return lodList;
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::splitGeometry(VertexData* vd, IndexData* id, 
+			StaticGeometry::SubMeshLodGeometryLink* targetGeomLink)
+	{
+		// Firstly we need to scan to see how many vertices are being used 
+		// and while we're at it, build the remap we can use later
+		bool use32bitIndexes = 
+			id->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT;
+		uint16 *p16;
+		uint32 *p32;
+		IndexRemap indexRemap;
+		if (use32bitIndexes)
+		{
+			p32 = static_cast<uint32*>(id->indexBuffer->lock(
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+			buildIndexRemap(p32, id->indexCount, indexRemap);
+			id->indexBuffer->unlock();
+		}
+		else
+		{
+			p16 = static_cast<uint16*>(id->indexBuffer->lock(
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+			buildIndexRemap(p16, id->indexCount, indexRemap);
+			id->indexBuffer->unlock();
+		}
+		if (indexRemap.size() == vd->vertexCount)
+		{
+			// ha, complete usage after all
+			targetGeomLink->vertexData = vd;
+			targetGeomLink->indexData = id;
+			return;
+		}
+		
+		
+		// Create the new vertex data records
+		targetGeomLink->vertexData = vd->clone(false);
+		// Convenience
+		VertexData* newvd = targetGeomLink->vertexData;
+		IndexData* newid = targetGeomLink->indexData;
+			
+		unsigned short numvbufs = vd->vertexBufferBinding->getBufferCount();
+		// Copy buffers from old to new
+		for (unsigned short b = 0; b < numvbufs; ++b)
+		{
+			// Lock old buffer
+			HardwareVertexBufferSharedPtr oldBuf = 
+				vd->vertexBufferBinding->getBuffer(b);
+			// Create new buffer
+			HardwareVertexBufferSharedPtr newBuf = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+					oldBuf->getVertexSize(),
+					indexRemap.size(), 
+					HardwareBuffer::HBU_STATIC);
+			// rebind
+			newvd->vertexBufferBinding->setBinding(b, newBuf);
+
+			// Copy all the elements of the buffer across, by iterating over
+			// the IndexRemap which describes how to move the old vertices 
+			// to the new ones. By nature of the map the remap is in order of
+			// indexes in the old buffer, but note that we're not guaranteed to
+			// address every vertex (which is kinda why we're here)
+			uchar* pSrcBase = static_cast<uchar*>(
+				oldBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+			uchar* pDstBase = static_cast<uchar*>(
+				newBuf->lock(HardwareBuffer::HBL_DISCARD));
+			size_t vertexSize = oldBuf->getVertexSize();
+			for (IndexRemap::iterator r = indexRemap.begin(); 
+				r != indexRemap.end(); ++r)
+			{
+				uchar* pSrc = pSrcBase + r->first * vertexSize; 
+				uchar* pDst = pDstBase + r->second * vertexSize; 
+				memcpy(pDst, pSrc, vertexSize);
+			}
+			// unlock
+			oldBuf->unlock();
+			newBuf->unlock();
+
+		}
+
+		// Now create a new index buffer
+		HardwareIndexBufferSharedPtr ibuf = 
+			HardwareBufferManager::getSingleton().createIndexBuffer(
+				id->indexBuffer->getType(), id->indexCount, 
+				HardwareBuffer::HBU_STATIC);
+		
+		if (use32bitIndexes)
+		{
+			uint32 *pSrc32, *pDst32;
+			pSrc32 = static_cast<uint32*>(id->indexBuffer->lock(
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+			pSrc32 = static_cast<uint32*>(ibuf->lock(
+				HardwareBuffer::HBL_DISCARD));
+			remapIndexes(pSrc32, pDst32, indexRemap, id->indexCount);
+		}
+		else
+		{
+			uint16 *pSrc16, *pDst16;
+			pSrc16 = static_cast<uint16*>(id->indexBuffer->lock(
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+			pSrc16 = static_cast<uint16*>(ibuf->lock(
+				HardwareBuffer::HBL_DISCARD));
+			remapIndexes(pSrc16, pDst16, indexRemap, id->indexCount);
+		}
+		
+		targetGeomLink->indexData = new IndexData();
+		targetGeomLink->indexData->indexStart = 0;
+		targetGeomLink->indexData->indexCount = id->indexCount;
+		targetGeomLink->indexData->indexBuffer = ibuf;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::addSceneNode(const SceneNode* node)
@@ -332,9 +527,11 @@ namespace Ogre {
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	StaticGeometry::Region::Region(const String& name, uint32 regionID) 
-		: mName(name), mRegionID(regionID)
+	StaticGeometry::Region::Region(const String& name, uint32 regionID, const Vector3& centre) 
+		: mName(name), mRegionID(regionID), mCentre(centre)
 	{
+		// First LOD mandatory, and always from 0
+		mLodSquaredDistances.push_back(0.0f);
 	}
 	//--------------------------------------------------------------------------
 	StaticGeometry::Region::~Region()
@@ -354,18 +551,41 @@ namespace Ogre {
 	void StaticGeometry::Region::assign(QueuedSubMesh* qmesh)
 	{
 		mQueuedSubMeshes.push_back(qmesh);
+		// update lod distances
+		ushort lodLevels = qmesh->submesh->parent->getNumLodLevels();
+		assert(qmesh->geometryLodList->size() == lodLevels);
+		
+		while(mLodSquaredDistances.size() < lodLevels)
+		{
+			mLodSquaredDistances.push_back(0.0f);
+		}
+		// Make sure LOD levels are max of all at the requested level
+		for (ushort lod = 1; lod < lodLevels; ++lod)
+		{
+			const Mesh::MeshLodUsage& meshLod = 
+				qmesh->submesh->parent->getLodLevel(lod);
+			mLodSquaredDistances[lod] = std::max(mLodSquaredDistances[lod], 
+				meshLod.fromDepthSquared);
+		}
+
+		// update bounds
+		mWorldAABB.merge(qmesh->worldBounds);
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::build(void)
 	{
-		// scan & determine how many mesh LODs we have (== max LOD of any SubMesh)
-		ushort maxLods = 1;
-		for (QueuedSubMeshList::iterator qi = mQueuedSubMeshes.begin();
-			qi != mQueuedSubMeshes.end(); ++qi)
+		// We need to create enough LOD buckets to deal with the highest LOD
+		// we encountered in all the meshes queued
+		// We also need to copy meshes with less lods than the max to the lower
+		// lods
+		for (ushort lod = 0; lod < mLodSquaredDistances.size(); ++lod)
 		{
-			QueuedSubMesh* qsm = *qi;
-			maxLods = std::max(maxLods, qsm->submesh->parent->getNumLodLevels());
+			LODBucket* lodBucket = 
+				new LODBucket(this, lod, mLodSquaredDistances[lod]);
+			mLodBucketList.push_back(lodBucket);
+		
 		}
+		
 	}
 	//--------------------------------------------------------------------------
 	const String& StaticGeometry::Region::getName(void) const
@@ -395,7 +615,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	StaticGeometry::LODBucket::LODBucket(Region* parent, unsigned short lod,
 		Real lodDist)
-		: mParent(parent), mLod(lod), mLodDist(lodDist)
+		: mParent(parent), mLod(lod), mSquaredDistance(lodDist)
 	{
 	}
 	//--------------------------------------------------------------------------
