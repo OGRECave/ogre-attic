@@ -50,7 +50,7 @@ namespace Ogre {
             // Write time into log
            struct tm *pTime;
            time_t ctTime; time(&ctTime);
-           pTime = gmtime( &ctTime );
+           pTime = localtime( &ctTime );
             mfpLog << pTime->tm_hour << ":" << pTime->tm_min << ":" << pTime->tm_sec << ": " << message << std::endl;
 
             // Flush stcmdream to ensure it is written (incase of a crash, we need log to be up to date)
