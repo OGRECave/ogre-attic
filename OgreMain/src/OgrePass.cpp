@@ -46,8 +46,13 @@ namespace Ogre {
 	    mShininess = 0;
         mHash = 0;
 
-	    // No fog
-	    mFogOverride = false;
+        // By default, don't override the scene's fog settings
+        mFogOverride = false;
+        mFogMode = FOG_NONE;
+        mFogColour = ColourValue::White;
+        mFogStart = 0.0;
+        mFogEnd = 1.0;
+        mFogDensity = 0.001;
 
 	    // Default blending (overwrite)
 	    mSourceBlendFactor = SBF_ONE;
@@ -101,8 +106,13 @@ namespace Ogre {
         mEmissive = oth.mEmissive;
 	    mShininess = oth.mShininess;
 
-	    // No fog
-	    mFogOverride = oth.mFogOverride;
+        // Copy fog parameters
+        mFogOverride = oth.mFogOverride;
+        mFogMode = oth.mFogMode;
+        mFogColour = oth.mFogColour;
+        mFogStart = oth.mFogStart;
+        mFogEnd = oth.mFogEnd;
+        mFogDensity = oth.mFogDensity;
 
 	    // Default blending (overwrite)
 	    mSourceBlendFactor = oth.mSourceBlendFactor;
