@@ -52,7 +52,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
-		DeformerList& deformers)
+		DeformerList& deformers, float framesPerSecond, const AnimationList& animList)
 	{
 		mXsiApp.LogMessage(L"** Begin OGRE Skeleton Export **");
 
@@ -60,6 +60,9 @@ namespace Ogre
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		// construct the hierarchy
 		buildBoneHierarchy(skeleton.get(), deformers);
+
+		// build animations based on splits
+		//buildAnimations(skeleton.get(), deformers, framesPerSecond);
 
 
 		SkeletonSerializer ser;

@@ -47,8 +47,12 @@ namespace Ogre {
 		/** Export a skeleton to the provided filename.
 		@param skeletonFileName The file name to export to
 		@param deformers The list of deformers (bones) found during mesh traversal
+		@param framesPerSecond The number of frames per second
+		@param animList List of animation splits
 		*/
-		void exportSkeleton(const String& skeletonFileName, DeformerList& deformers);
+		void exportSkeleton(const String& skeletonFileName, 
+			DeformerList& deformers, float framesPerSecond, 
+			const AnimationList& animList);
 	protected:
 		// XSI Objects
 		XSI::Application mXsiApp;
