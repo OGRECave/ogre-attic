@@ -73,7 +73,7 @@ namespace Ogre {
 			    dstBuf = 
 				    HardwareBufferManager::getSingleton().createVertexBuffer(
 					    srcbuf->getVertexSize(), srcbuf->getNumVertices(), srcbuf->getUsage(),
-					    srcbuf->isSystemMemory());
+					    srcbuf->hasShadowBuffer());
 
 			    // copy data
 			    dstBuf->copyData(*srcbuf, 0, 0, srcbuf->getSizeInBytes(), true);
@@ -156,7 +156,7 @@ namespace Ogre {
                     vbuf->getVertexSize() - posElem->getSize(), vbuf->getNumVertices(), vbuf->getUsage(),
                     vbuf->hasShadowBuffer());
             }
-            // Allocate new position buffer, will be FLOAT4 and 2x the size
+            // Allocate new position buffer, will be FLOAT3 and 2x the size
             size_t oldVertexCount = vbuf->getNumVertices();
             size_t newVertexCount = oldVertexCount * 2;
             newPosBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
@@ -323,7 +323,7 @@ namespace Ogre {
             {
 			    dest->indexBuffer = HardwareBufferManager::getSingleton().
 				    createIndexBuffer(indexBuffer->getType(), indexBuffer->getNumIndexes(),
-				    indexBuffer->getUsage(), indexBuffer->isSystemMemory());
+				    indexBuffer->getUsage(), indexBuffer->hasShadowBuffer());
 			    dest->indexBuffer->copyData(*indexBuffer, 0, 0, indexBuffer->getSizeInBytes(), true);
             }
             else
