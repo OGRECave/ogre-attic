@@ -1,10 +1,15 @@
 AC_PREREQ(2.50)
 
-AC_INIT(OgreMain/include/Ogre.h)
-AM_INIT_AUTOMAKE(OGRE,0.99c)
+AC_INIT(OGRE, 0.99f)
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(OgreMain/include/config.h)
 
 AC_CANONICAL_TARGET
+
+dnl set our flag defaults
+CFLAGS=""
+CXXFLAGS=""
+LDFLAGS=""
 
 dnl Check for programs
 AC_PROG_CC
@@ -13,9 +18,20 @@ AC_PROG_INSTALL
 
 AM_PROG_LIBTOOL
 
+dnl GCC ersion check
+if test x$GCC = xyes; then
+    AC_MSG_CHECKING([version 3.x of gcc])
+    if test -n "`$CC --version 2>&1|grep '3.'`"; then
+        AC_DEFINE(EXT_HASH,, Use old STL hash options)
+        AC_DEFINE(GCC_3_1,, 3.x GCC version)
+        AC_MSG_RESULT(yes);
+    else
+        AC_MSG_RESULT(no)
+    fi
+fi
+
 dnl Other stuff we need
-AC_USE_STLPORT
-AC_GET_CONFIG_TOOLKIT
+OGRE_USE_STLPORT
 AM_PATH_SDL(1.2.0)
 AC_CHECK_FT2(9.1.0)
 
@@ -28,21 +44,15 @@ AC_CHECK_LIB(png, png_create_read_struct)
 AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 
-dnl Version checks
-if test x$GCC = xyes; then
-    AC_MSG_CHECKING([version 3.x of gcc])
-    if test -n "`$CC --version 2>&1|grep '3.'`"; then
-        AC_DEFINE(EXT_HASH,, Use old STL hash options)
-        AC_DEFINE(GCC_3_1,, 3.x GCC version)
-        AC_MSG_RESULT(yes);
-    else
-        AC_MSG_RESULT(no)
-    fi
-fi
+OGRE_GET_CONFIG_TOOLKIT
 
 AC_ARG_ENABLE(gl-multitexture, AC_HELP_STRING([--enable-gl-multitexture],
               [Turn on true multitexture support]),
               AC_DEFINE([OGRE_SDL_USE_MULTITEXTURING],,[Enable Multitexture Support]))
+
+
+dnl Find the optional components we should build
+OGRE_BUILD_PYTHON_LINK
 
 dnl This needs to be figured out later (MingW)
 AC_DEFINE(OGRE_LINUX,,Linux Build of OGRE)
@@ -52,7 +62,7 @@ CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 dnl Create the makefiles
-AC_OUTPUT(Makefile \
+AC_CONFIG_FILES([Makefile \
     OgreMain/Makefile \
     OgreMain/src/Makefile \
     OgreMain/include/Makefile \
@@ -121,4 +131,6 @@ AC_OUTPUT(Makefile \
     Samples/Terrain/Makefile \
     Samples/Terrain/src/Makefile \
     Samples/Terrain/include/Makefile
-    )
+    ])
+
+AC_OUTPUT

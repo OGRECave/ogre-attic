@@ -11,7 +11,7 @@ EXTRA_DIST = OgreSDLConfig_gtk.cpp OgreSDLConfig_cli.cpp
 
 
 OgrePlatform_so_LDFLAGS = -shared
-OgrePlatform_so_LDADD = $(SDL_LIBS) $(CFGTK_DEPS_LIBS) -lGL -lGLU 
+OgrePlatform_so_LDADD = $(SDL_LIBS) $(CFGTK_DEPS_LIBS) -lGL -lGLU $(top_srcdir)/OgreMain/src/libOgreMain.la
 
 pkgdata_DATA = ogre-config.glade
 
