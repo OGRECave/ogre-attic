@@ -105,7 +105,7 @@ namespace Ogre {
         typedef void (APIENTRY *GL_BindBufferARB_Func)(GLenum, GLuint);
         GL_BindBufferARB_Func glBindBufferARB_ptr;
 
-        GLHardwareBufferManager* mHardwareBufferManager;
+        HardwareBufferManager* mHardwareBufferManager;
 
     public:
         // Default constructor / destructor

@@ -56,6 +56,9 @@ namespace Ogre {
 
 		// get a Timer
         mTimer = Root::getSingleton().getTimer();
+
+        // instanciate RenderSystemCapabilities
+        mCapabilities = new RenderSystemCapabilities;
     }
 
     //-----------------------------------------------------------------------
@@ -182,9 +185,6 @@ namespace Ogre {
 
         // Init mesh manager
         MeshManager::getSingleton()._initialise();
-
-        // instanciate RenderSystemCapabilities
-        mCapabilities = new RenderSystemCapabilities;
 
         // Subclasses should take it from here
         // They should ALL call this superclass method from

@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLTextureManager.h"
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
+#include "OgreGLDefaultHardwareBufferManager.h"
 #include "OgreGLUtil.h"
 
 #ifdef HAVE_CONFIG_H
@@ -38,7 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #endif
 
 // Convenience macro from ARB_vertex_buffer_object spec
-#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+#define VBO_BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 namespace Ogre {
 
@@ -138,9 +139,6 @@ namespace Ogre {
             "*** GL Renderer Started ***\n"
             "***************************");
 
-        //The main startup
-        RenderSystem::initialise(autoCreateWindow);
-
 		LogManager::getSingleton().logMessage(
             "The following extensions are available:");
 
@@ -205,8 +203,6 @@ namespace Ogre {
         {
             LogManager::getSingleton().logMessage("- Cube Mapping");
             mCapabilities->setCapability(RSC_CUBEMAPPING);
-            glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
-
         }
         
         // Check for hardware stencil support and set bit depth
@@ -225,7 +221,17 @@ namespace Ogre {
         {
             LogManager::getSingleton().logMessage("- Vertex Buffer Object\n");
             mCapabilities->setCapability(RSC_VBO);
+
+            mHardwareBufferManager = new GLHardwareBufferManager;
+            glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
         }
+        else
+        {
+            mHardwareBufferManager = new GLDefaultHardwareBufferManager;
+        }
+
+        //The main startup
+        RenderSystem::initialise(autoCreateWindow);
 
         _setCullingMode( mCullingMode );
 
@@ -320,7 +326,6 @@ namespace Ogre {
         if (parentWindowHandle == NULL)
         {
             mTextureManager = new GLTextureManager(*mGLSupport);
-            mHardwareBufferManager = new GLHardwareBufferManager;
         }
 
         // XXX Do more?
@@ -1522,6 +1527,8 @@ namespace Ogre {
         OgreGuard ("GLRenderSystem::_render");
         // Call super class
         RenderSystem::_render(op);
+
+        void* pBufferData = 0;
         
         const VertexDeclaration::VertexElementList& decl = 
             op.vertexData->vertexDeclaration->getElements();
@@ -1530,37 +1537,43 @@ namespace Ogre {
 
         for (elem = decl.begin(); elem != elemEnd; ++elem)
         {
-            const GLHardwareVertexBuffer* vertexBuffer = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(elem->getSource()).get());
-            glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, vertexBuffer->getGLBufferId());
+            HardwareVertexBufferSharedPtr vertexBuffer = 
+                op.vertexData->vertexBufferBinding->getBuffer(elem->getSource());
+            if(mCapabilities->hasCapability(RSC_VBO))
+            {
+                glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, 
+                    static_cast<const GLHardwareVertexBuffer*>(vertexBuffer.get())->getGLBufferId());
+                pBufferData = VBO_BUFFER_OFFSET(elem->getOffset());
+            }
+            else
+            {
+                pBufferData = static_cast<const GLDefaultHardwareVertexBuffer*>(vertexBuffer.get())->getDataPtr(elem->getOffset());
+            }
 
             switch(elem->getSemantic())
             {
             case VES_POSITION:
                 glVertexPointer(VertexElement::getTypeCount(elem->getType()), 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(),
-                    BUFFER_OFFSET(elem->getOffset()));
+                    vertexBuffer->getVertexSize(), pBufferData);
                 glEnableClientState( GL_VERTEX_ARRAY );
                 break;
             case VES_NORMAL:
                 glNormalPointer(
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), 
-                    BUFFER_OFFSET(elem->getOffset()));
+                    vertexBuffer->getVertexSize(), pBufferData);
                 glEnableClientState( GL_NORMAL_ARRAY );
                 break;
             case VES_DIFFUSE:
                 glColorPointer(4, 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), 
-                    BUFFER_OFFSET(elem->getOffset()));
+                    vertexBuffer->getVertexSize(), pBufferData);
                 glEnableClientState( GL_COLOR_ARRAY );
                 break;
             case VES_SPECULAR:
                 glSecondaryColorPointer(4, 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), 
-                    BUFFER_OFFSET(elem->getOffset()));
+                    vertexBuffer->getVertexSize(), pBufferData);
                 glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
@@ -1575,8 +1588,7 @@ namespace Ogre {
                         glTexCoordPointer(
                             VertexElement::getTypeCount(elem->getType()), 
                             GLHardwareBufferManager::getGLType(elem->getType()),
-                            vertexBuffer->getVertexSize(),
-                            BUFFER_OFFSET(elem->getOffset()));
+                            vertexBuffer->getVertexSize(), pBufferData);
                     }
                     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                 }
@@ -1584,6 +1596,7 @@ namespace Ogre {
             default:
                 break;
             };
+
         }
 
         glClientActiveTextureARB_ptr(GL_TEXTURE0);
@@ -1614,12 +1627,22 @@ namespace Ogre {
 
         if (op.useIndexes)
         {
-            GLuint idxBufferId = static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get())->getGLBufferId();
+            if(mCapabilities->hasCapability(RSC_VBO))
+            {
+                glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, 
+                    static_cast<GLHardwareIndexBuffer*>(
+                        op.indexData->indexBuffer.get())->getGLBufferId());
 
-            glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, idxBufferId); 
+                pBufferData = VBO_BUFFER_OFFSET(0);
+            }
+            else
+            {
+                pBufferData = static_cast<GLDefaultHardwareIndexBuffer*>(
+                    op.indexData->indexBuffer.get())->getDataPtr(0);
+            }
 
             glDrawElements( primType, op.indexData->indexCount, 
-                GL_UNSIGNED_SHORT, BUFFER_OFFSET(0));
+                GL_UNSIGNED_SHORT, pBufferData);
         }
         else
         {
