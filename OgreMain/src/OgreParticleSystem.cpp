@@ -220,10 +220,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
     {
+		// Update existing particles
         _expire(timeElapsed);
-        _triggerEmitters(timeElapsed);
         _triggerAffectors(timeElapsed);
         _applyMotion(timeElapsed);
+		// Emit new particles
+        _triggerEmitters(timeElapsed);
+		// Update bounds
         _updateBounds();
 
     }
@@ -288,9 +291,14 @@ namespace Ogre {
         }
 
         // Emit
+		// For each emission, apply a subset of the motion for the frame
+		// this ensures an even distribution of particles when many are
+		// emitted in a single frame
         for (it = mEmitters.begin(), i = 0; it != iEmitEnd; ++it, ++i)
         {
-            for (unsigned int j = 0; j < requested[i]; ++j)
+			Real timePoint = 0.0f;
+			Real timeInc = timeElapsed / requested[i];
+	        for (unsigned int j = 0; j < requested[i]; ++j)
             {
                 // Create a new particle & init using emitter
                 Particle* p = addParticle();
@@ -299,6 +307,12 @@ namespace Ogre {
                 // Maybe make emitter do this?
                 p->mPosition =  (mParentNode->_getDerivedOrientation() * p->mPosition) + mParentNode->_getDerivedPosition();
                 p->mDirection = mParentNode->_getDerivedOrientation() * p->mDirection;
+
+				// apply partial frame motion to this particle
+            	p->mPosition += (p->mDirection * timePoint);
+
+				// Increment time fragment
+				timePoint += timeInc;
 
             }
         }
