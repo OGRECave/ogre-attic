@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreLog.h"
+#include "OgreString.h"
 
 namespace Ogre {
 
