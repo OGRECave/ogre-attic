@@ -83,7 +83,7 @@ material just like any other so it needs to be defined in our material
 script file. </p>
 <p>Open ogrenew\Samples\Media\example.material and add the following to
 the script: </p>
-<pre>// Light effects<br>Examples/FlyingLightMaterial<br>{<br>	lighting off<br>	scene_blend add<br>	depth_write off<br>	{<br>		texture flare.png<br>	}<br>	<br>}<br></pre>
+<pre>// Light effects<br>material Examples/FlyingLightMaterial<br>{<br>	technique<br>	{<br>		pass<br>		{<br>			lighting off<br>			scene_blend add<br>			depth_write off<br>			texture_unit<br>			{<br>				texture flare.png<br>			}<br>		}<br>	}<br>}<br></pre>
 It may look familiar to some of you. It is in fact the material used
 for the flare effects earlier in the script, but its name has been
 changed to suit our purposes.
@@ -161,15 +161,12 @@ them all back to black and save.
 <table cellspacing="2" cellpadding="0" width="100%" border="0">
   <tbody>
     <tr>
-      <td width="14%"><a
- href="Index.html">Back
+      <td width="14%"><a href="Index.html">Back
 to Index</a></td>
       <td width="39%">&nbsp;</td>
-      <td width="22%"><a
- href="ChangeShipMovement.html">&lt;&lt;
+      <td width="22%"><a href="ChangeShipMovement.html">&lt;&lt;
 Previous section</a></td>
-      <td width="25%"><a
- href="WaveformController.html">Next
+      <td width="25%"><a href="WaveformController.html">Next
 section &gt;&gt;</a></td>
     </tr>
   </tbody>
