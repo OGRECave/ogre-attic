@@ -34,6 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_triangle.h>
 #include <xsi_trianglevertex.h>
 #include <xsi_cluster.h>
+#include <xsi_kinematics.h>
+#include <xsi_kinematicstate.h>
 
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -303,6 +305,9 @@ namespace Ogre {
 
         startPolygonMesh(pointArray.GetCount(), triArray.GetCount()*3);
 
+		// Save transform
+		MATH::CTransformation xsiTransform = x3dObj.GetKinematics().GetGlobal().GetTransform();
+
         // Iterate through all the triangles
         // There will often be less poisitions than normals and UVs
         // But TrianglePoint
@@ -315,8 +320,18 @@ namespace Ogre {
                 TriangleVertex point(points[p]);
                 long posIndex = point.GetIndex(); // unique position index
                 UniqueVertex vertex;
-                vertex.position = XSItoOgre(point.GetPosition());
-                vertex.normal = XSItoOgre(point.GetNormal());
+				// Get position
+				MATH::CVector3 xsipos = point.GetPosition();
+				// Apply global SRT
+				xsipos.MulByTransformationInPlace(xsiTransform);
+                vertex.position = XSItoOgre(xsipos);
+				// Get normal
+				MATH::CVector3 xsinorm = point.GetNormal();
+				// Apply global rotation
+				MATH::CTransformation rotTrans;
+				rotTrans.SetRotation(xsiTransform.GetRotation());
+				xsinorm *= rotTrans;
+                vertex.normal = XSItoOgre(xsinorm);
                 // TODO: should index multiple UVs from cluster properties
                 // but how? no UV element index and TriangleVertex only has 1 UV
                 vertex.uv[0].x = point.GetUV().u;
