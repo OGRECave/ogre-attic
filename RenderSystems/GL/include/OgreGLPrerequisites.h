@@ -217,6 +217,25 @@ extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB_ptr;
 
 };
 
+// Pointer to glGenQueriesARB function
+typedef void (APIENTRY *GL_GenQueriesARB_Func) (GLuint n, GLuint *ids);
+extern GL_GenQueriesARB_Func glGenQueriesARB_ptr;
+
+// Pointer to glDeleteQueriesARB function
+typedef void (APIENTRY *GL_DeleteQueriesARB_Func) (GLuint n, const GLuint *ids);
+extern GL_DeleteQueriesARB_Func glDeleteQueriesARB_ptr;
+
+// Pointer to glBeginQueryARB function
+typedef void (APIENTRY *GL_BeginQueryARB_Func) (GLenum target, GLuint id);
+extern GL_BeginQueryARB_Func glBeginQueryARB_ptr;
+
+// Pointer to glEndQueryARB function
+typedef void (APIENTRY *GL_EndQueryARB_Func) (GLenum target);
+extern GL_EndQueryARB_Func glEndQueryARB_ptr;
+
+// Pointer to glGetQueryObjectuivARB function
+typedef void (APIENTRY *GL_GetQueryObjectuivARB_Func) (GLuint id, GLenum pname, GLuint *params);
+extern GL_GetQueryObjectuivARB_Func glGetQueryObjectuivARB_ptr;
 
 
 namespace Ogre {

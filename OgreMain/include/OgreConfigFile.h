@@ -61,6 +61,10 @@ namespace Ogre {
         void load(const String& filename, const String& resourceGroup, const String& separators = "\t:=", bool trimWhitespace = true);
         /// load from a data stream
         void load(const DataStreamPtr& stream, const String& separators = "\t:=", bool trimWhitespace = true);
+		/// load from a filename (not using resource group locations)
+		void loadDirect(const String& filename, const String& separators = "\t:=", bool trimWhitespace = true);
+		/// load from a filename (using resource group locations)
+		void loadFromResourceSystem(const String& filename, const String& resourceGroup, const String& separators = "\t:=", bool trimWhitespace = true);
 
         /** Gets the first setting from the file with the named key. 
         @param key The name of the setting

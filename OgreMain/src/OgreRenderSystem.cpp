@@ -324,10 +324,16 @@ namespace Ogre {
     void RenderSystem::shutdown(void)
     {
         // Remove all the render targets.
-        for( RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it )
-        {
-            delete it->second;
-        }
+		// (destroy primary target last since others may depend on it)
+		RenderTarget* primary = 0;
+		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)
+		{
+			if (!primary && it->second->isPrimary())
+				primary = it->second;
+			else
+				delete it->second;
+		}
+		delete primary;
 		mRenderTargets.clear();
 
 		mPrioritisedRenderTargets.clear();

@@ -172,6 +172,8 @@ namespace Ogre
          */
         virtual void setConfigOption(const String &name, const String &value) = 0;
 
+		virtual HardwareOcclusionQuery* createHardwareOcclusionQuery() = 0;
+
         /** Validates the options set for the rendering system, returning a message if there are problems.
             @note
                 If the returned string is empty, there are no problems.

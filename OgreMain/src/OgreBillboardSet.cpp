@@ -810,7 +810,7 @@ namespace Ogre {
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
-                *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
+                *pX = (invTransform * cam->getDerivedDirection()).crossProduct(*pY);
             }
             else
             {
@@ -827,7 +827,7 @@ namespace Ogre {
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
-                *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
+                *pX = (invTransform * cam->getDerivedDirection()).crossProduct(*pY);
 				pX->normalise();
             }
             else

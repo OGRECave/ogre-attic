@@ -279,6 +279,14 @@ namespace Ogre {
         */
         virtual void _notifyCameraRemoved(const Camera* cam);
 
+        /** Indicates whether this target is the primary window. The
+            primary window is special in that it is destroyed when 
+            ogre is shut down, and cannot be destroyed directly.
+            This is the case because it holds the context for vertex,
+            index buffers and textures.
+        */
+        virtual bool isPrimary(void) const;
+
     protected:
         /// The name of this target.
         String mName;

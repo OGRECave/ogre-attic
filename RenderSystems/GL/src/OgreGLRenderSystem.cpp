@@ -96,6 +96,11 @@ GL_DeleteOcclusionQueriesNV_Func glDeleteOcclusionQueriesNV_ptr;
 GL_BeginOcclusionQueryNV_Func glBeginOcclusionQueryNV_ptr;
 GL_EndOcclusionQueryNV_Func glEndOcclusionQueryNV_ptr;
 GL_GetOcclusionQueryuivNV_Func glGetOcclusionQueryuivNV_ptr;
+GL_GenQueriesARB_Func glGenQueriesARB_ptr;
+GL_DeleteQueriesARB_Func glDeleteQueriesARB_ptr;
+GL_BeginQueryARB_Func glBeginQueryARB_ptr;
+GL_EndQueryARB_Func glEndQueryARB_ptr;
+GL_GetQueryObjectuivARB_Func glGetQueryObjectuivARB_ptr;
 
 namespace Ogre {
 
@@ -208,6 +213,11 @@ namespace Ogre {
         glBeginOcclusionQueryNV_ptr = 0;
         glEndOcclusionQueryNV_ptr = 0;
         glGetOcclusionQueryuivNV_ptr = 0;
+		glGenQueriesARB_ptr = 0;
+		glDeleteQueriesARB_ptr = 0;
+		glBeginQueryARB_ptr = 0;
+		glEndQueryARB_ptr = 0;
+		glGetQueryObjectuivARB_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -599,6 +609,17 @@ namespace Ogre {
             (GL_EndOcclusionQueryNV_Func)mGLSupport->getProcAddress("glEndOcclusionQueryNV");
         glGetOcclusionQueryuivNV_ptr =
             (GL_GetOcclusionQueryuivNV_Func)mGLSupport->getProcAddress("glGetOcclusionQueryuivNV");
+
+		glGenQueriesARB_ptr =
+			(GL_GenQueriesARB_Func)mGLSupport->getProcAddress("glGenQueriesARB");
+		glDeleteQueriesARB_ptr =
+			(GL_DeleteQueriesARB_Func)mGLSupport->getProcAddress("glDeleteQueriesARB");
+		glBeginQueryARB_ptr =
+			(GL_BeginQueryARB_Func)mGLSupport->getProcAddress("glBeginQueryARB");
+		glEndQueryARB_ptr =
+			(GL_EndQueryARB_Func)mGLSupport->getProcAddress("glEndQueryARB");
+		glGetQueryObjectuivARB_ptr =
+			(GL_GetQueryObjectuivARB_Func)mGLSupport->getProcAddress("glGetQueryObjectuivARB");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
         mGLInitialized = true;

@@ -94,16 +94,16 @@ RenderWindow* GTKGLSupport::createWindow(bool autoCreateWindow,
     {
         ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
         if (opt == mOptions.end())
-            OGRE_EXCEPT(999, "Can't find full screen options!", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Can't find full screen options!", "GTKGLSupport::createWindow");
         bool fullscreen = (opt->second.currentValue == "Yes");
  
         opt = mOptions.find("Video Mode");
         if (opt == mOptions.end())
-            OGRE_EXCEPT(999, "Can't find video mode options!", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Can't find video mode options!", "GTKGLSupport::createWindow");
         String val = opt->second.currentValue;
         String::size_type pos = val.find('x');
         if (pos == String::npos)
-            OGRE_EXCEPT(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Invalid Video Mode provided", "GTKGLSupport::createWindow");
  
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));

@@ -46,6 +46,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
+#include "OgreProgressiveMesh.h"
 
 using namespace XSI;
 
@@ -97,7 +98,7 @@ CStatus XSILoadPlugin( XSI::PluginRegistrar& registrar )
 {
 	registrar.PutAuthor( L"Steve Streeting" );
 	registrar.PutName( L"OGRE Exporter Plugin" );	
-    registrar.PutVersion( 0, 15 );
+    registrar.PutVersion( 1, 0 );
     registrar.PutURL(L"http://www.ogre3d.org");
     
 
@@ -233,12 +234,44 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
         CString objectName = param.GetValue();
         param = prop.GetParameters().GetItem( L"targetMeshFileName" );
         CString meshFileName = param.GetValue();
+		param = prop.GetParameters().GetItem( L"mergeSubmeshes" );
+		bool mergeSubmeshes = param.GetValue();
+		param = prop.GetParameters().GetItem( L"exportChildren" );
+		bool exportChildren = param.GetValue();
         param = prop.GetParameters().GetItem( L"calculateEdgeLists" );
         bool edgeLists = param.GetValue();
         param = prop.GetParameters().GetItem( L"calculateTangents" );
         bool tangents = param.GetValue();
+		param = prop.GetParameters().GetItem( L"numLodLevels" );
+		long numlods = param.GetValue();
+		Ogre::XsiMeshExporter::LodData* lodData = 0;
+		if (numlods > 0)
+		{
+			param = prop.GetParameters().GetItem( L"lodDistanceIncrement" );
+			float distanceInc = param.GetValue();
+
+			param = prop.GetParameters().GetItem(L"lodQuota");
+			CString quota = param.GetValue();
+
+			param = prop.GetParameters().GetItem(L"lodReduction");
+			float reduction = param.GetValue();
+
+			lodData = new Ogre::XsiMeshExporter::LodData;
+			float currentInc = distanceInc;
+			for (int l = 0; l < numlods; ++l)
+			{
+				lodData->distances.push_back(currentInc);
+				currentInc += distanceInc;
+			}
+			lodData->quota = (quota == L"p") ?
+				Ogre::ProgressiveMesh::VRQ_PROPORTIONAL : Ogre::ProgressiveMesh::VRQ_CONSTANT;
+			if (lodData->quota == Ogre::ProgressiveMesh::VRQ_PROPORTIONAL)
+				lodData->reductionValue = reduction * 0.01;
+			else
+				lodData->reductionValue = reduction;
+
+		}
         /* TODO
-        "lodGeneration"
         "targetSkeletonFileName"
         "fps"
         "animationSplit"
@@ -246,7 +279,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
         try 
         {
-            exporter.exportMesh(meshFileName, objectName, edgeLists, tangents);
+            exporter.exportMesh(meshFileName, mergeSubmeshes, 
+				exportChildren, edgeLists, tangents, lodData);
         }
         catch (Ogre::Exception& e)
         {
@@ -254,6 +288,9 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
             // Tell XSI
             app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siErrorMsg);
         }
+		
+		delete lodData;
+
 
 	}
 	DeleteObj( L"OgreMeshExportOptions" );
@@ -285,6 +322,10 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"Export Mesh", L"", 
         nullValue, param) ;	
 	prop.AddParameter(	
+		L"objects",CValue::siRefArray, caps, 
+		L"Collection of selected objects", L"", 
+		nullValue, param) ;	
+	prop.AddParameter(	
         L"exportMesh",CValue::siBool, caps, 
 		L"Export Mesh", L"", 
 		CValue(true), param) ;	
@@ -292,6 +333,19 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"targetMeshFileName",CValue::siString, caps, 
 		L"Mesh Filename", L"", 
 		nullValue, param) ;	
+	prop.AddParameter(
+		L"mergeSubmeshes",CValue::siBool, caps, 
+		L"Merge objects with same material?", 
+		L"If false, a separate named SubMesh will be created for every PolygonMesh "
+		L"preserving your model divisions. If true, the exporter will merge all "
+		L"PolygonMesh objects with the same material, which is more efficient, but "
+		L"does not preserve your modelling divisions.",
+		CValue(true), param) ;	
+	prop.AddParameter(
+		L"exportChildren",CValue::siBool, caps, 
+		L"Export Children", 
+		L"If true, children of all selected objects will be exported.",
+		CValue(true), param) ;	
     prop.AddParameter(	
         L"calculateEdgeLists",CValue::siBool, caps, 
         L"Calculate Edge Lists (stencil shadows)", L"", 
@@ -300,6 +354,22 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"calculateTangents",CValue::siBool, caps, 
         L"Calculate Tangents (normal mapping)", L"", 
         CValue(false), param) ;	
+	prop.AddParameter(	
+		L"numLodLevels",CValue::siInt2, caps, 
+		L"Levels of Detail", L"", 
+		CValue(0L), param) ;	
+	prop.AddParameter(	
+		L"lodDistanceIncrement",CValue::siFloat, caps, 
+		L"Distance Increment", L"", 
+		CValue(2000L), param) ;	
+	prop.AddParameter(	
+		L"lodQuota",CValue::siString, caps, 
+		L"Reduction Style", L"", 
+		L"p", param) ;	
+	prop.AddParameter(	
+		L"lodReduction",CValue::siFloat, caps, 
+		L"Reduction Value", L"", 
+		CValue(20.0f), param) ;	
     prop.AddParameter(	// TODO, review this
         L"lodGeneration",CValue::siString, caps, 
         L"LOD Generation", L"", 
@@ -341,47 +411,104 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 
 	oLayout.Clear() ;
 
-    // Object picker
-    oLayout.AddGroup(L"Object to Export");
-    oLayout.AddRow();
+    // Object 
+	oLayout.AddTab(L"Basic");
+    oLayout.AddGroup(L"Object(s) to Export");
 
     item = oLayout.AddItem(L"objectName");
     item.PutAttribute( siUINoLabel, true );
+	/*
     item.PutWidthPercentage(80);
-    item = oLayout.AddButton(L"Pick", L"Pick");
+    item = oLayout.AddButton(L"Refresh", L"Refresh");
     item.PutWidthPercentage(1) ;
+	*/
 
-    oLayout.EndRow();
     oLayout.EndGroup();
 
 	// Mesh group
     item = oLayout.AddGroup(L"Mesh");
     item = oLayout.AddItem(L"exportMesh") ;
     item = oLayout.AddItem(L"targetMeshFileName", L"Target", siControlFilePath);
-    item.PutAttribute( siUINoLabel, true );
-    item.PutAttribute( siUIFileFilter, L"OGRE Mesh format (*.mesh)|*.mesh|All Files (*.*)|*.*||" );
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute( siUIFileFilter, L"OGRE Mesh format (*.mesh)|*.mesh|All Files (*.*)|*.*||" );
+	item = oLayout.AddItem(L"mergeSubmeshes") ;
+	item = oLayout.AddItem(L"exportChildren") ;
 
+	oLayout.EndGroup();
+	// Skeleton Group
+	item = oLayout.AddGroup(L"Skeleton");
+
+	item = oLayout.AddItem(L"exportSkeleton");
+	item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
+	item = oLayout.AddItem(L"fps");
+	item = oLayout.AddItem(L"animationSplit");
+
+	oLayout.EndGroup();
+
+
+	oLayout.AddTab(L"Advanced");
+
+	oLayout.AddGroup(L"Mesh options");
     item = oLayout.AddItem(L"calculateEdgeLists");
     item = oLayout.AddItem(L"calculateTangents");
-    item = oLayout.AddItem(L"lodGeneration");
-
-    oLayout.EndGroup();
-
-    // Skeleton Group
-    item = oLayout.AddGroup(L"Skeleton");
-
-    item = oLayout.AddItem(L"exportSkeleton");
-    item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
-    item.PutAttribute( siUINoLabel, true );
-    item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
-    item = oLayout.AddItem(L"fps");
-    item = oLayout.AddItem(L"animationSplit");
+	oLayout.AddGroup(L"Level of Detail Reduction");
+    item = oLayout.AddItem(L"numLodLevels");
+	item = oLayout.AddItem(L"lodDistanceIncrement");
+	CValueArray vals;
+	vals.Add(L"Percentage");
+	vals.Add(L"p");
+	vals.Add(L"Constant");
+	vals.Add(L"c");
+	item = oLayout.AddEnumControl(L"lodQuota", vals, L"Quota", XSI::siControlCombo);
+	item = oLayout.AddItem(L"lodReduction");
+	oLayout.EndGroup();
 
 
-    oLayout.EndGroup();
 
 
 	return CStatus::OK;	
+}
+
+
+bool hasSkeleton(X3DObject& si, bool recurse)
+{
+	if (si.GetEnvelopes().GetCount() > 0)
+	{
+		return true;
+	}
+
+	if (recurse)
+	{
+
+		CRefArray children = si.GetChildren();
+
+		for(long i = 0; i < children.GetCount(); i++)
+		{
+			X3DObject child(children[i]);
+			bool ret = hasSkeleton(child, recurse);
+			if (ret)
+				return ret;
+		}
+	}
+
+	return false;
+	
+}
+
+bool hasSkeleton(Selection& sel, bool recurse)
+{
+	// iterate over selection
+	for (int i = 0; i < sel.GetCount(); ++i)
+	{
+		X3DObject obj(sel[i]);
+		bool ret = hasSkeleton(obj, recurse);
+		if (ret)
+			return ret;
+	}
+
+	return false;
 }
 
 #ifdef unix
@@ -404,25 +531,77 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
     // On open dialog
     if ( eventID == PPGEventContext::siOnInit )
 	{
-        // Pre-populate object with currently selected item
+        // Pre-populate object with currently selected item(s)
 		Selection sel(app.GetSelection());
-		if ( sel.GetCount() > 0 )
-			prop.PutParameterValue( L"objectName", SIObject(sel[0]).GetName()); 
+		if (sel.GetCount() > 0)
+		{
+			CString val;
+			for (int i = 0; i < sel.GetCount(); ++i)
+			{
+				val += SIObject(sel[i]).GetName();
+				if (i < sel.GetCount() - 1)
+					val += L", ";
+			}
+			prop.PutParameterValue(L"objectName", val);
+		}
+		else
+		{
+			// no selection, assume entire scene
+			prop.PutParameterValue(L"objectName", CString(L"[Entire Scene]"));
+		}
         // Make the selection read-only
 		objectNameParam.PutCapabilityFlag( siReadOnly, true );
 
-        // TODO - disable the export skeleton if no animation found
+        // enable / disable the skeleton export based on envelopes
+		if (!hasSkeleton(sel, true))
+		{
+			prop.PutParameterValue(L"exportSkeleton", false);
+			Parameter param = prop.GetParameters().GetItem(L"exportSkeleton");
+			param.PutCapabilityFlag(siReadOnly, true);
+			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
+			param.PutCapabilityFlag(siReadOnly, true);
+			param = prop.GetParameters().GetItem(L"fps");
+			param.PutCapabilityFlag(siReadOnly, true);
+			param = prop.GetParameters().GetItem(L"animationSplit");
+			param.PutCapabilityFlag(siReadOnly, true);
+		}
+		else
+		{
+			prop.PutParameterValue(L"exportSkeleton", true);
+			Parameter param = prop.GetParameters().GetItem(L"exportSkeleton");
+			param.PutCapabilityFlag(siReadOnly, false);
+			param = prop.GetParameters().GetItem(L"targetSkeletonFileName");
+			param.PutCapabilityFlag(siReadOnly, false);
+			param = prop.GetParameters().GetItem(L"fps");
+			param.PutCapabilityFlag(siReadOnly, false);
+			param = prop.GetParameters().GetItem(L"animationSplit");
+			param.PutCapabilityFlag(siReadOnly, false);
+		}
 	}
     // On clicking a button
 	else if ( eventID == PPGEventContext::siButtonClicked )
 	{
 		CValue buttonPressed = ctx.GetAttribute( L"Button" );	
-        // Clicked the pick button
-		if ( buttonPressed.GetAsText() == L"Pick" )
+        // Clicked the refresh button
+		/*
+		if ( buttonPressed.GetAsText() == L"Refresh" )
 		{
 			objectNameParam.PutCapabilityFlag( siReadOnly, false );
-			prop.PutParameterValue( L"objectName", GetUserSelectedObject() ) ; 
+			// Pre-populate object with currently selected item
+			Selection sel(app.GetSelection());
+			CString val;
+			for (int i = 0; i < sel.GetCount(); ++i)
+			{
+				val += SIObject(sel[0]).GetName();
+				if (i < sel.GetCount() - 1)
+					val += L", ";
+			}
+			prop.PutParameterValue(L"objectName", val);
+			prop.PutParameterValue(L"objects", CValue(CRefArray(sel.GetArray())));
+			// Make the selection read-only
+			objectNameParam.PutCapabilityFlag( siReadOnly, true );
 		}
+		*/
 	}
     // Changed a parameter
 	else if ( eventID == PPGEventContext::siParameterChange )

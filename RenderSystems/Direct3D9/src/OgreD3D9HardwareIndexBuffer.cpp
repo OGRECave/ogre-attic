@@ -71,21 +71,11 @@ namespace Ogre {
         size_t length, LockOptions options)
     {
         void* pBuf;
-		DWORD lockOpts;
-		if (!(mUsage & HBU_DYNAMIC) && options == HBL_DISCARD)
-		{
-			// D3D doesn't like discard on non-dynamic buffers
-			lockOpts = 0;
-		}
-		else
-		{
-			lockOpts= D3D9Mappings::get(options);
-		} 
         HRESULT hr = mlpD3DBuffer->Lock(
             static_cast<UINT>(offset), 
             static_cast<UINT>(length), 
             &pBuf,
-            lockOpts);
+            D3D9Mappings::get(options, mUsage));
 
         if (FAILED(hr))
         {

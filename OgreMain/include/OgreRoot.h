@@ -119,6 +119,8 @@ namespace Ogre
         /** Set of registered frame listeners */
         std::set<FrameListener*> mFrameListeners;
 
+        /** Set of frame listeners marked for removal*/
+        std::set<FrameListener*> mRemovedFrameListeners;
 
         /** Indicates the type of event to be considered by calculateEventTime(). */
         enum FrameEventTimeType {

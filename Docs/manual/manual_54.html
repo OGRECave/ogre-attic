@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 31 2005 by texi2html 1.64 -->
+<!-- Created on , 26 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -25,8 +25,8 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <A NAME="SEC208"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC200"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC197"> Up </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC201"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC198"> Up </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC219"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
@@ -37,7 +37,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H2> 7.2 Texture-based Shadows </H2>
 <!--docid::SEC208::-->
 
-Texture shadows involve rendering shadow casters from the point of view of the light into a texture, which is then projected onto shadow casters while rendering the standard view. The main advantage of texture shadows as opposed to <A HREF="manual_53.html#SEC200">7.1 Stencil Shadows</A> is that the overhead of increasing the geometric detail is far lower, since there is no need to perform per-triangle calculations. Most of the work in rendering texture shadows is done by the graphics card, meaning the technique scales well when taking advantage of the latest cards, which are at present outpacing CPUs in terms of their speed of development.<BR><BR>
+Texture shadows involve rendering shadow casters from the point of view of the light into a texture, which is then projected onto shadow casters while rendering the standard view. The main advantage of texture shadows as opposed to <A HREF="manual_53.html#SEC201">7.1 Stencil Shadows</A> is that the overhead of increasing the geometric detail is far lower, since there is no need to perform per-triangle calculations. Most of the work in rendering texture shadows is done by the graphics card, meaning the technique scales well when taking advantage of the latest cards, which are at present outpacing CPUs in terms of their speed of development.<BR><BR>
 
 The main disadvantage to texture shadows is that, because they are simply a texture, they have a fixed resolution which means if stretched, the pixellation of the texture becomes obvious. Filtering can reduce this, but the problem still remains. In addition, because these shadows require a render to texture in the direction of the light, omnidirectional lights (point lights) would require 8 renders to totally cover all the directions shadows might be cast. For this reason, Ogre only supports directional lights and spotlights for generating texture shadows; you can still use point lights but they will not cast shadows.<BR><BR>
 
@@ -55,7 +55,7 @@ Spotlights are much easier to represent as renderable shadow textures than direc
 <H3> Shadow Casters and Shadow Receivers </H3>
 <!--docid::SEC211::-->
 To enable texture shadows, use the shadow technique SHADOWTYPE_TEXTURE_MODULATIVE; as the name suggests this produces <A HREF="manual_55.html#SEC219">7.3 Modulative Shadows</A>. Because the texture is merely projected onto shadow casters, a shadow caster cannot also be a shadow receiver, so self-shadowing is not possible using this method (there is an alternative method called depth shadowmapping which can do this using similar techniques as modulative shadow textures, but these are not supported by Ogre yet).<BR><BR>
-Ogre divides shadow casters and receivers into 2 disjoint groups. Simply by turning off shadow casting on an object, you automatically make it a shadow receiver (although this can be disabled by setting the 'receive_shadows' option to 'false' in a material script. Similarly, if an object is set as a shadow caster, it cannt receive shadows. If you need more complex shadowing you would be advised to look at <A HREF="manual_53.html#SEC200">7.1 Stencil Shadows</A>, but this simplified approach can work well in a lot of situations for a pretty low cost.
+Ogre divides shadow casters and receivers into 2 disjoint groups. Simply by turning off shadow casting on an object, you automatically make it a shadow receiver (although this can be disabled by setting the 'receive_shadows' option to 'false' in a material script. Similarly, if an object is set as a shadow caster, it cannt receive shadows. If you need more complex shadowing you would be advised to look at <A HREF="manual_53.html#SEC201">7.1 Stencil Shadows</A>, but this simplified approach can work well in a lot of situations for a pretty low cost.
 
 <A NAME="Configuring Texture Shadows"></A>
 <A NAME="SEC212"></A>
@@ -118,8 +118,8 @@ When rendering shadow casters into a modulative shadow texture, Ogre turns off a
 <A NAME="Modulative Shadows"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC200"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC197"> Up </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_53.html#SEC201"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC198"> Up </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_55.html#SEC219"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
@@ -129,7 +129,7 @@ When rendering shadow casters into a modulative shadow texture, Ogre turns off a
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 31 2005</I>
+by <I>Steve Streeting</I> on <I>, 26 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

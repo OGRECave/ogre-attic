@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
-#include "OgreStringInterface.h"
 
 namespace Ogre {
 
@@ -77,7 +76,7 @@ namespace Ogre {
             A BillboardSet can be created using the SceneManager::createBillboardSet method. They can also be used internally
             by other classes to create effects.
     */
-    class _OgreExport BillboardSet : public StringInterface, public MovableObject, public Renderable
+    class _OgreExport BillboardSet : public MovableObject, public Renderable
     {
     protected:
         /** Private constructor (instances cannot be created directly).

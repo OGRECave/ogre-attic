@@ -358,6 +358,7 @@ namespace Ogre {
 #		else
 			writeData(pBuf, vbuf->getVertexSize(), vertexData->vertexCount);
 #		endif
+            vbuf->unlock();
 		}
 
 

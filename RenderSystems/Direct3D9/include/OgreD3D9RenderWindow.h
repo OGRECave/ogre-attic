@@ -53,7 +53,8 @@ namespace Ogre
 		HWND getWindowHandle() const { return mHWnd; }
 
 		D3D9Driver* getDirectD3DDriver() { return mDriver; }
-		LPDIRECT3DDEVICE9 getD3DDevice() { return mpD3DDevice; }
+		// changed to access driver member
+		LPDIRECT3DDEVICE9 getD3DDevice() { return mDriver->getD3DDevice(); }
 
 		void getCustomAttribute( const String& name, void* pData );
 		/** Overridden - see RenderTarget.
@@ -96,8 +97,6 @@ namespace Ogre
 		// DirectX-specific
 		// -------------------------------------------------------
 
-		// Pointer to the 3D device - window 'owns' this if !mIsSwapChain
-		LPDIRECT3DDEVICE9	mpD3DDevice;
 		// Pointer to swap chain, only valid if mIsSwapChain
 		LPDIRECT3DSWAPCHAIN9 mpSwapChain;
 		D3DPRESENT_PARAMETERS md3dpp;

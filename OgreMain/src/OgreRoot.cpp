@@ -504,16 +504,24 @@ namespace Ogre {
     void Root::removeFrameListener(FrameListener* oldListener)
     {
         // Remove, 1 only (set)
-        mFrameListeners.erase(oldListener);
+        mRemovedFrameListeners.insert(oldListener);
     }
     //-----------------------------------------------------------------------
     bool Root::_fireFrameStarted(FrameEvent& evt)
     {
         // Increment frame number
         ++mCurrentFrame;
+        
+        // Remove all marked listeners
+        std::set<FrameListener*>::iterator i;
+        for (i = mRemovedFrameListeners.begin();
+            i != mRemovedFrameListeners.end(); i++)
+        {
+            mFrameListeners.erase(*i);
+        }
+        mRemovedFrameListeners.clear();
 
         // Tell all listeners
-        std::set<FrameListener*>::iterator i;
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
         {
             if (!(*i)->frameStarted(evt))
@@ -526,8 +534,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Root::_fireFrameEnded(FrameEvent& evt)
     {
-        // Tell all listeners
+        // Remove all marked listeners
         std::set<FrameListener*>::iterator i;
+        for (i = mRemovedFrameListeners.begin();
+            i != mRemovedFrameListeners.end(); i++)
+        {
+            mFrameListeners.erase(*i);
+        }
+        mRemovedFrameListeners.clear();
+        
+        // Tell all listeners
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
         {
             if (!(*i)->frameEnded(evt))
