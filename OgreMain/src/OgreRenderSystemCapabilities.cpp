@@ -129,6 +129,9 @@ namespace Ogre {
         pLog->logMessage(
             " * Floating point textures: " 
             + StringConverter::toString(hasCapability(RSC_TEXTURE_FLOAT), true));
+        pLog->logMessage(
+            " * Non-power-of-two textures: " 
+            + StringConverter::toString(hasCapability(RSC_NON_POWER_OF_2_TEXTURES), true));
 
 
     }

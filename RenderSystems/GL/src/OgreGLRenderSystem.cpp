@@ -474,6 +474,13 @@ namespace Ogre {
         // Inifinite far plane always supported
         mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
 
+
+        // Check for non-power-of-2 texture support
+		if(mGLSupport->checkExtension("GL_ARB_texture_non_power_of_two"))
+        {
+            mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+        }
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
