@@ -79,7 +79,6 @@ namespace Ogre {
     */
     class _OgreExport BillboardSet : public StringInterface, public MovableObject, public Renderable
     {
-
     protected:
         /** Private constructor (instances cannot be created directly).
         */
@@ -191,7 +190,7 @@ namespace Ogre {
 
         /** Internal method, generates parametric offsets based on origin.
         */
-        inline void getParametricOffsets(Real& left, Real& right, Real& top, Real& bottom);
+        void getParametricOffsets(Real& left, Real& right, Real& top, Real& bottom);
 
         /** Internal method for generating vertex data. 
         @param pPos Pointer to pointer to vertex positions, will be updated
@@ -200,7 +199,7 @@ namespace Ogre {
         @param pBillboard Pointer to billboard
         @returns new vertex index
         */
-        inline void genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* offsets, const Billboard* pBillboard);
+        void genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* offsets, const Billboard* pBillboard);
 
         /** Internal method generates vertex offsets.
         @remarks
@@ -209,12 +208,22 @@ namespace Ogre {
             Fills output array of 4 vectors with vector offsets
             from origin for left-top, right-top, left-bottom, right-bottom corners.
         */
-        inline void genVertOffsets(Real inleft, Real inright, Real intop, Real inbottom,
+        void genVertOffsets(Real inleft, Real inright, Real intop, Real inbottom,
             Real width, Real height,
             const Vector3& x, const Vector3& y, Vector3* pDestVec);
 
         /// Shared class-level name for Movable type
         static String msMovableType;
+
+    private:
+        /// Flag indicating whether the HW buffers have been created.
+        bool mBuffersCreated;
+        /// The number of billboard in the pool.
+        unsigned int mPoolSize;
+
+        /** Internal method creates vertex and index buffers.
+        */
+        void _createBuffers(void);
 
     public:
 
