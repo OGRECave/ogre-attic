@@ -62,6 +62,7 @@ public:
     bool exportMesh;
     bool exportSkeleton;
     bool splitAnimations;
+    float fps; 
 
 protected:
     void showOptions(void);
