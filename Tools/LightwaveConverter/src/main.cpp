@@ -649,12 +649,12 @@ int main( int argc, char *argv[] )
 	
 	t1 = ( float ) clock() / CLOCKS_PER_SEC;
 
-	cout << "Singletons ..";
 	if (!flags[InfoOnly])
 	{
 		logMgr = new LogManager();
-		mth = new Math();
+		logMgr->createLog("lwo2mesh.log", true);
 		resourceGroupMgr = new ResourceGroupManager();
+		mth = new Math();
 		matMgr = new MaterialManager();
 		matMgr->initialise();
 		meshMgr  = new MeshManager();
@@ -664,7 +664,6 @@ int main( int argc, char *argv[] )
 		skeletonSerializer = new SkeletonSerializer();
 		bufferMgr = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
 	}
-	cout << "done." << endl;
 
 	if ( strchr(source, '*') ) 
 		// On Linux this will only be called if you pass the source argument in
@@ -721,8 +720,8 @@ int main( int argc, char *argv[] )
 		delete meshMgr;
 		delete skelMgr;
 		delete matMgr;
-		delete resourceGroupMgr;
 		delete mth;
+		delete resourceGroupMgr;
 		delete logMgr;
 	}
 

@@ -139,7 +139,7 @@ void Lwo2MeshWriter::doExportMaterials()
 		// Create deferred material so no load
 		MaterialPtr ogreMat = MaterialManager::getSingleton().getByName(surface->name);
 		
-		if (!ogreMat.isNull())
+		if (ogreMat.isNull())
 		{
 			ogreMat = MaterialManager::getSingleton().create(surface->name, 
                 ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -208,7 +208,6 @@ void Lwo2MeshWriter::doExportMaterials()
 					ogreMat->getTechnique(0)->getPass(0)->createTextureUnitState(texname);
 				}
 			}
-
 			materialSerializer->queueForExport(ogreMat);
 		}
 	}
@@ -612,8 +611,6 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest)
 	
 	if (!object) return false;
 	if (!object->layers.size()) return false;
-	
-	LogManager::getSingleton().createLog("Lwo2MeshWriter.log");
 	
 	prepLwObject();
 	
