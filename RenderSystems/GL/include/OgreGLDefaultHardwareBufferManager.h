@@ -34,7 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /// Specialisation of HardwareVertexBuffer for emulation
-    class _OgreExport GLDefaultHardwareVertexBuffer : public HardwareVertexBuffer 
+    class GLDefaultHardwareVertexBuffer : public HardwareVertexBuffer 
     {
 	protected:
 		unsigned char* mpData;
@@ -61,7 +61,7 @@ namespace Ogre {
     };
 
 	/// Specialisation of HardwareIndexBuffer for emulation
-    class _OgreExport GLDefaultHardwareIndexBuffer : public HardwareIndexBuffer
+    class GLDefaultHardwareIndexBuffer : public HardwareIndexBuffer
     {
 	protected:
 		unsigned char* mpData;
@@ -92,7 +92,7 @@ namespace Ogre {
 		rendering system (which is required to create a 'real' hardware
 		buffer manager.
 	*/
-	class _OgreExport GLDefaultHardwareBufferManager : public HardwareBufferManager
+	class GLDefaultHardwareBufferManager : public HardwareBufferManager
 	{
     protected:
 		/// Destroy a hardware vertex buffer
