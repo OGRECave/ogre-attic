@@ -195,7 +195,7 @@ namespace Ogre
             mTexCoords_v1[ idx ] = v1;
             mTexCoords_u2[ idx ] = u2;
             mTexCoords_v2[ idx ] = v2;
-            mAspectRatio[ idx ] = ( u2 - u1 ) / ( v1 - v2 );
+            mAspectRatio[ idx ] = ( u2 - u1 ) / ( v2 - v1 );
         }
         /** Gets the aspect ratio (width / height) of this character. */
         inline Real getGlyphAspectRatio( OgreChar id ) const

@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    String MeshSerializer::msCurrentVersion = "[MeshSerializer_v1.10]";
+    String MeshSerializer::msCurrentVersion = "[MeshSerializer_v1.20]";
     const unsigned short HEADER_CHUNK_ID = 0x1000;
     //---------------------------------------------------------------------
     MeshSerializer::MeshSerializer()
@@ -48,6 +48,12 @@ namespace Ogre {
 
         mImplementations.insert(
             MeshSerializerImplMap::value_type("[MeshSerializer_v1.10]", 
+            new MeshSerializerImpl_v1_1() ) );
+
+        // Format has not changed, but we need to tag because 'v' texture coordinate
+        // has been inverted
+        mImplementations.insert(
+            MeshSerializerImplMap::value_type("[MeshSerializer_v1.20]", 
             new MeshSerializerImpl() ) );
     }
     //---------------------------------------------------------------------

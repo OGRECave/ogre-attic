@@ -152,6 +152,20 @@ namespace Ogre {
         */
         Real toReal(void) const;
 
+        /** Returns whether the string begins with the pattern passed in.
+        @param pattern The pattern to compare with.
+        @param lowerCase If true, the end of the string will be lower cased before 
+            comparison, pattern should also be in lower case.
+        */
+        bool startsWith(const String& pattern, bool lowerCase = true) const;
+
+        /** Returns whether the string ends with the pattern passed in.
+        @param pattern The pattern to compare with.
+        @param lowerCase If true, the end of the string will be lower cased before 
+            comparison, pattern should also be in lower case.
+        */
+        bool endsWith(const String& pattern, bool lowerCase = true) const;
+
 	/*        
 	operator _StringBase()
         {

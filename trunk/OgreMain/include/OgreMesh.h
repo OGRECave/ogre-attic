@@ -82,6 +82,84 @@ namespace Ogre {
         friend class MeshSerializerImpl_v1;
         friend class SubMesh;
     public:
+		/** A way of recording the way each LODs is recorded this Mesh. */
+		struct MeshLodUsage
+		{
+			/// squared Z value from which this LOD will apply
+			Real fromDepthSquared;
+			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
+			String manualName;
+			/// Hard link to mesh to avoid looking up each time
+			mutable Mesh* manualMesh;
+		};
+
+		typedef std::vector<Real> LodDistanceList;
+        /// Multimap of vertex bone assignments (orders by vertex index)
+        typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
+
+    protected:
+        typedef std::vector<SubMesh*> SubMeshList;
+        /** A list of submeshes which make up this mesh.
+            Each mesh is made up of 1 or more submeshes, which
+            are each based on a single material and can have their
+            own vertex data (they may not - they can share vertex data
+            from the Mesh, depending on preference).
+        */
+        SubMeshList mSubMeshList;
+	
+        /** Internal method for getting or creating a 3D texture coord buffer to hold tangents. */
+        HardwareVertexBufferSharedPtr getTangentsBuffer(VertexData *vertexData, unsigned short texCoordSet);
+
+		/** A hashmap used to store optional SubMesh names.
+			Translates a name into SubMesh index
+		*/
+		typedef HashMap<String, ushort, _StringHash> SubMeshNameMap ;
+		SubMeshNameMap mSubMeshNameMap ;
+
+        /// Local bounding box volume
+        AxisAlignedBox mAABB;
+		/// Local bounding sphere radius (centered on object)
+		Real mBoundRadius;
+
+        bool mManuallyDefined;
+
+
+        /// Flag to indicate that bounds need updating
+        //bool mUpdateBounds;
+
+        /// Optional linked skeleton
+        String mSkeletonName;
+        Skeleton* mSkeleton;
+
+       
+        VertexBoneAssignmentList mBoneAssignments;
+
+        /// Flag indicating that bone assignments need to be recompiled
+        bool mBoneAssignmentsOutOfDate;
+
+        /** Software blending oriented bone assignment compilation */
+        void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
+        /** Hardware blending oriented bone assignment compilation */
+        void compileBoneAssignmentsHardware(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
+
+        HardwareVertexBufferSharedPtr mBlendingVB;
+        /// Option whether to use software or hardware blending, there are tradeoffs to both
+        bool mUseSoftwareBlending;
+
+		bool mIsLodManual;
+		ushort mNumLods;
+		typedef std::vector<MeshLodUsage> MeshLodUsageList;
+		MeshLodUsageList mMeshLodUsageList;
+
+		HardwareBuffer::Usage mVertexBufferUsage;
+		HardwareBuffer::Usage mIndexBufferUsage;
+		bool mVertexBufferShadowBuffer;
+		bool mIndexBufferShadowBuffer;
+
+    public:
         /** Default constructor - used by MeshManager
             @warning
                 Do not call this method directly.
@@ -263,27 +341,12 @@ namespace Ogre {
         */
         void _notifySkeleton(Skeleton* pSkel);
 
-        /// Multimap of vertex bone assignments (orders by vertex index)
-        typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
-        typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
 
         /** Gets an iterator for access all bone assignments. 
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
 
 
-		/** A way of recording the way each LODs is recorded this Mesh. */
-		struct MeshLodUsage
-		{
-			/// squared Z value from which this LOD will apply
-			Real fromDepthSquared;
-			/// Only relevant if mIsLodManual is true, the name of the alternative mesh to use
-			String manualName;
-			/// Hard link to mesh to avoid looking up each time
-			mutable Mesh* manualMesh;
-		};
-
-		typedef std::vector<Real> LodDistanceList;
 		/** Automatically generates lower level of detail versions of this mesh for use
 			when a simpler version of the model is acceptable for rendering.
 		@remarks
@@ -417,6 +480,15 @@ namespace Ogre {
 			read from the buffer, because reading from a hardware buffer is a no-no.
 		*/
 		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
+        /** Gets the usage setting for this meshes vertex buffers. */
+        HardwareBuffer::Usage getVertexBufferUsage(void) { return mVertexBufferUsage; }
+        /** Gets the usage setting for this meshes index buffers. */
+        HardwareBuffer::Usage getIndexBufferUsage(void) { return mIndexBufferUsage; }
+        /** Gets whether or not this meshes vertex buffers are shadowed. */
+        bool isVertexBufferShadowed(void) { return mVertexBufferShadowBuffer; }
+        /** Gets whether or not this meshes index buffers are shadowed. */
+        bool isIndexBufferShadowed(void) { return mIndexBufferShadowBuffer; }
+       
 
         /** Rationalises the passed in bone assignment list.
         @remarks
@@ -460,69 +532,6 @@ namespace Ogre {
             will be overwritten.
         */
         void buildTangentVectors(unsigned short sourceTexCoordSet = 0, unsigned short destTexCoordSet = 1);
-    protected:
-        typedef std::vector<SubMesh*> SubMeshList;
-        /** A list of submeshes which make up this mesh.
-            Each mesh is made up of 1 or more submeshes, which
-            are each based on a single material and can have their
-            own vertex data (they may not - they can share vertex data
-            from the Mesh, depending on preference).
-        */
-        SubMeshList mSubMeshList;
-	
-        /** Internal method for getting or creating a 3D texture coord buffer to hold tangents. */
-        HardwareVertexBufferSharedPtr getTangentsBuffer(VertexData *vertexData, unsigned short texCoordSet);
-
-		/** A hashmap used to store optional SubMesh names.
-			Translates a name into SubMesh index
-		*/
-		typedef HashMap<String, ushort, _StringHash> SubMeshNameMap ;
-		SubMeshNameMap mSubMeshNameMap ;
-
-        /// Local bounding box volume
-        AxisAlignedBox mAABB;
-		/// Local bounding sphere radius (centered on object)
-		Real mBoundRadius;
-
-        bool mManuallyDefined;
-
-
-        /// Flag to indicate that bounds need updating
-        //bool mUpdateBounds;
-
-        /// Optional linked skeleton
-        String mSkeletonName;
-        Skeleton* mSkeleton;
-
-       
-        VertexBoneAssignmentList mBoneAssignments;
-
-        /// Flag indicating that bone assignments need to be recompiled
-        bool mBoneAssignmentsOutOfDate;
-
-        /** Software blending oriented bone assignment compilation */
-        void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
-            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
-        /** Hardware blending oriented bone assignment compilation */
-        void compileBoneAssignmentsHardware(const VertexBoneAssignmentList& boneAssignments,
-            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
-
-        HardwareVertexBufferSharedPtr mBlendingVB;
-        /// Option whether to use software or hardware blending, there are tradeoffs to both
-        bool mUseSoftwareBlending;
-
-		bool mIsLodManual;
-		ushort mNumLods;
-		typedef std::vector<MeshLodUsage> MeshLodUsageList;
-		MeshLodUsageList mMeshLodUsageList;
-
-		HardwareBuffer::Usage mVertexBufferUsage;
-		HardwareBuffer::Usage mIndexBufferUsage;
-		bool mVertexBufferShadowBuffer;
-		bool mIndexBufferShadowBuffer;
-
-
-
     };
 
 

@@ -125,5 +125,35 @@ namespace Ogre {
     {
         return (Real)atof(this->c_str());
     }
+    //-----------------------------------------------------------------------
+    bool String::startsWith(const String& pattern, bool lowerCase) const
+    {
+        size_t thisLen = this->length();
+        size_t patternLen = pattern.length();
+        if (thisLen < patternLen || patternLen == 0)
+            return false;
+
+        String startOfThis = substr(0, patternLen);
+        if (lowerCase)
+            startOfThis.toLowerCase();
+
+        return (startOfThis == pattern);
+    }
+    //-----------------------------------------------------------------------
+    bool String::endsWith(const String& pattern, bool lowerCase) const
+    {
+        size_t thisLen = this->length();
+        size_t patternLen = pattern.length();
+        if (thisLen < patternLen || patternLen == 0)
+            return false;
+
+        String endOfThis = substr(thisLen - patternLen, patternLen);
+        if (lowerCase)
+            endOfThis.toLowerCase();
+
+        return (endOfThis == pattern);
+    }
+    //-----------------------------------------------------------------------
+
 }
 

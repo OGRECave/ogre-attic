@@ -225,7 +225,7 @@ namespace Ogre
                 for (i = 0; i < numTexCoordSets; ++i)
                 {
                     *pReal++ = x * xTex;
-                    *pReal++ = y * yTex;
+                    *pReal++ = 1 - (y * yTex);
                 }
 
 
@@ -386,7 +386,7 @@ namespace Ogre
                 for (i = 0; i < numTexCoordSets; ++i)
                 {
                     *pReal++ = x * xTex;
-                    *pReal++ = y * yTex;
+                    *pReal++ = 1 - (y * yTex);
                 }
 
             } // x
@@ -568,7 +568,7 @@ namespace Ogre
 
 				// Use x and y on sphere as texture coordinates, tiled
 				Real s = vec.x * (0.01 * uTile);
-				Real t = vec.z * (0.01 * vTile);
+				Real t = 1 - (vec.z * (0.01 * vTile));
                 for (i = 0; i < numTexCoordSets; ++i)
                 {
                     *pReal++ = s;
@@ -685,16 +685,16 @@ namespace Ogre
         Real vertices[32] = {
 			-100, -100, 0,	// pos
 			0,0,1,			// normal
-			0,0,			// texcoord
+			0,1,			// texcoord
             100, -100, 0,
             0,0,1,
-            1,0,
+            1,1,
             100,  100, 0,
             0,0,1,
-            1,1,
+            1,0,
             -100,  100, 0 ,
 			0,0,1,
-            0,1 
+            0,0 
 		};
         msh->sharedVertexData = new VertexData();
         msh->sharedVertexData->vertexCount = 4;

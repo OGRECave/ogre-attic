@@ -48,7 +48,7 @@ namespace Ogre {
         mpMesh = 0;
 
         // Version number
-        mVersion = "[MeshSerializer_v1.10]";
+        mVersion = "[MeshSerializer_v1.20]";
     }
     //---------------------------------------------------------------------
     MeshSerializerImpl::~MeshSerializerImpl()
@@ -602,10 +602,8 @@ namespace Ogre {
     void MeshSerializerImpl::readGeometry(DataChunk& chunk, VertexData* dest)
     {
         unsigned short texCoordSet = 0;
-        HardwareVertexBufferSharedPtr vbuf;
+        
         unsigned short bindIdx = 0;
-        Real *pReal = 0;
-        RGBA* pRGBA = 0;
 
         if (mIsSkeletallyAnimated)
         {
@@ -622,6 +620,49 @@ namespace Ogre {
         // Vertex buffers
         // TODO: consider redesigning this so vertex buffers can be combined
 
+        readGeometryPositions(bindIdx, chunk, dest);
+        ++bindIdx;
+
+        // Find optional geometry chunks
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(!chunk.isEOF() && 
+                (chunkID == M_GEOMETRY_NORMALS || 
+                 chunkID == M_GEOMETRY_COLOURS ||
+                 chunkID == M_GEOMETRY_TEXCOORDS ))
+            {
+                switch (chunkID)
+                {
+                case M_GEOMETRY_NORMALS:
+                    readGeometryNormals(bindIdx++, chunk, dest);
+                    break;
+                case M_GEOMETRY_COLOURS:
+                    readGeometryColours(bindIdx++, chunk, dest);
+                    break;
+                case M_GEOMETRY_TEXCOORDS:
+                    readGeometryTexCoords(bindIdx++, chunk, dest, texCoordSet++);
+                    break;
+                }
+                // Get next chunk
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-submesh chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryPositions(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
         // Real* pVertices (x, y, z order x numVertices)
         dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_POSITION);
         vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
@@ -647,100 +688,85 @@ namespace Ogre {
         }
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-        ++bindIdx;
-
-        // Find optional geometry chunks
-        if (!chunk.isEOF())
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryNormals(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // Real* pNormals (x, y, z order x numVertices)
+        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage,
+			mpMesh->mVertexBufferShadowBuffer);
+        pReal = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        if (mIsSkeletallyAnimated)
         {
-            unsigned short chunkID = readChunk(chunk);
-            while(!chunk.isEOF() && 
-                (chunkID == M_GEOMETRY_NORMALS || 
-                 chunkID == M_GEOMETRY_COLOURS ||
-                 chunkID == M_GEOMETRY_TEXCOORDS ))
-            {
-                switch (chunkID)
-                {
-                case M_GEOMETRY_NORMALS:
-                    // Real* pNormals (x, y, z order x numVertices)
-                    dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
-                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-                        dest->vertexDeclaration->getVertexSize(bindIdx),
-                        dest->vertexCount,
-                        mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferShadowBuffer);
-                    pReal = static_cast<Real*>(
-                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    if (mIsSkeletallyAnimated)
-                    {
-                        // Copy data into software buffers for source of blending
-                        dest->softwareBlendInfo->pSrcNormals = new Real[dest->vertexCount * 3];
-                        readReals(chunk, 
-                            dest->softwareBlendInfo->pSrcNormals, dest->vertexCount * 3);
-                        // Copy into hardware buffer
-                        memcpy(pReal, dest->softwareBlendInfo->pSrcNormals, 
-                            sizeof(Real) * dest->vertexCount * 3);
-                    }
-                    else
-                    {
-                        // Read direct into hardware buffer
-                        readReals(chunk, pReal, dest->vertexCount * 3);
-                    }
-                    vbuf->unlock();
-                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-                    ++bindIdx;
-                    break;
-                case M_GEOMETRY_COLOURS:
-                    // unsigned long* pColours (RGBA 8888 format x numVertices)
-                    dest->vertexDeclaration->addElement(bindIdx, 0, VET_COLOUR, VES_DIFFUSE);
-                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-                        dest->vertexDeclaration->getVertexSize(bindIdx),
-                        dest->vertexCount,
-                        mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferShadowBuffer);
-                    pRGBA = static_cast<RGBA*>(
-                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    readLongs(chunk, pRGBA, dest->vertexCount);
-                    vbuf->unlock();
-                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-                    ++bindIdx;
-                    break;
-                case M_GEOMETRY_TEXCOORDS:
-                    // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-                    unsigned short dim;
-                    readShorts(chunk, &dim, 1);
-                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-                    dest->vertexDeclaration->addElement(
-                        bindIdx, 
-                        0, 
-                        VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
-                        VES_TEXTURE_COORDINATES,
-                        texCoordSet);
-                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-                        dest->vertexDeclaration->getVertexSize(bindIdx),
-                        dest->vertexCount,
-                        mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferShadowBuffer);
-                    pReal = static_cast<Real*>(
-                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    readReals(chunk, pReal, dest->vertexCount * dim);
-                    vbuf->unlock();
-                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-                    ++texCoordSet;
-                    ++bindIdx;
-                    break;
-                }
-                // Get next chunk
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-            }
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of non-submesh chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
+            // Copy data into software buffers for source of blending
+            dest->softwareBlendInfo->pSrcNormals = new Real[dest->vertexCount * 3];
+            readReals(chunk, 
+                dest->softwareBlendInfo->pSrcNormals, dest->vertexCount * 3);
+            // Copy into hardware buffer
+            memcpy(pReal, dest->softwareBlendInfo->pSrcNormals, 
+                sizeof(Real) * dest->vertexCount * 3);
         }
+        else
+        {
+            // Read direct into hardware buffer
+            readReals(chunk, pReal, dest->vertexCount * 3);
+        }
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryColours(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest)
+    {
+        RGBA* pRGBA = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // unsigned long* pColours (RGBA 8888 format x numVertices)
+        dest->vertexDeclaration->addElement(bindIdx, 0, VET_COLOUR, VES_DIFFUSE);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage,
+			mpMesh->mVertexBufferShadowBuffer);
+        pRGBA = static_cast<RGBA*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readLongs(chunk, pRGBA, dest->vertexCount);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryTexCoords(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest, unsigned short texCoordSet)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+        unsigned short dim;
+        readShorts(chunk, &dim, 1);
+        // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+        dest->vertexDeclaration->addElement(
+            bindIdx, 
+            0, 
+            VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
+            VES_TEXTURE_COORDINATES,
+            texCoordSet);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage,
+			mpMesh->mVertexBufferShadowBuffer);
+        pReal = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readReals(chunk, pReal, dest->vertexCount * dim);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSkeletonLink(const String& skelName)
@@ -1180,6 +1206,59 @@ namespace Ogre {
 
 		}
 	}
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    MeshSerializerImpl_v1_1::MeshSerializerImpl_v1_1()
+    {
+        // Version number
+        mVersion = "[MeshSerializer_v1.10]";
+    }
+    //---------------------------------------------------------------------
+    MeshSerializerImpl_v1_1::~MeshSerializerImpl_v1_1()
+    {
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_1::readGeometryTexCoords(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest, unsigned short texCoordSet)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+        unsigned short dim;
+        readShorts(chunk, &dim, 1);
+        // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+        dest->vertexDeclaration->addElement(
+            bindIdx, 
+            0, 
+            VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
+            VES_TEXTURE_COORDINATES,
+            texCoordSet);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->getVertexBufferUsage(),
+			mpMesh->isVertexBufferShadowed());
+        pReal = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readReals(chunk, pReal, dest->vertexCount * dim);
+
+        // Adjust individual v values to (1 - v)
+        if (dim == 2)
+        {
+            for (size_t i = 0; i < dest->vertexCount; ++i)
+            {
+                ++pReal; // skip u
+                *pReal = 1.0 - *pReal; // v = 1 - v
+                ++pReal;
+            }
+            
+        }
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     MeshSerializerImpl_v1::MeshSerializerImpl_v1()
     {
