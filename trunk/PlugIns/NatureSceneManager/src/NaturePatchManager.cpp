@@ -579,11 +579,9 @@ void NaturePatchManager::unloadPatch(int x, int y)
 
 void NaturePatchManager::updatePatches(Camera *cam)
 {
-    Vector3 pos = cam->getPosition();
+    int cx, cy;
+    mMapLoader->getPatchAtPosition(cam->getPosition(), &cx, &cy);
 
-    // get patch x/y for position, TODO: get this from loader
-    int cx = pos.x / EDGE_LENGTH;
-    int cy = pos.z / EDGE_LENGTH;
 
     int diffx = cx - mCenterPatchX;
     int diffy = cy - mCenterPatchY;

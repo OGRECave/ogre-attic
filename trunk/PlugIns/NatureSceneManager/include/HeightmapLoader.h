@@ -43,6 +43,8 @@ public:
     /// returns the size of the map (in unscaled units)
     int getMapSize();
 
+    /// Gets the index of the patch at a set of world coords
+    void getPatchAtPosition(const Vector3& pos, int *px, int *py);
 private:
     /// loads data from a raw heightmap file
     unsigned char* loadRAWHeightmap(const char *filename,
@@ -56,7 +58,7 @@ private:
     /// holds number of patches in y direction
     int mMapSizeY;
 
-    Real mHeightScale;
+    Vector3 mScale;
 
     /// holds filename of the heightmap
     Image *mHeightMap;
