@@ -52,6 +52,7 @@ namespace Ogre {
         mTextureManager = 0;
         mCapabilities = 0;
         mVSync = true;
+		mWBuffer = false;
 
 
         // This means CULL clockwise vertices, i.e. front of poly is counter-clockwise
@@ -304,6 +305,15 @@ namespace Ogre {
     void RenderSystem::setWaitForVerticalBlank(bool enabled)
     {
         mVSync = enabled;
+    }
+    bool RenderSystem::getWBufferEnabled(void) const
+    {
+        return mWBuffer;
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystem::setWBufferEnabled(bool enabled)
+    {
+        mWBuffer = enabled;
     }
     //-----------------------------------------------------------------------
     void RenderSystem::shutdown(void)
