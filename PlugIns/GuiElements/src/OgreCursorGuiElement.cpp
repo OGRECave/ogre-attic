@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -25,41 +24,109 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreCursorGuiElement.h"	
+#include "OgreEventProcessor.h"	
 #include "OgreInput.h"
+#include "OgreOverlayManager.h"
+#include "OgreStringConverter.h"
 
 
 namespace Ogre {
 
+    //---------------------------------------------------------------------
+    String CursorGuiElement::msTypeName = "Cursor";
+
+    CursorGuiElement::CmdOffsetX CursorGuiElement::msCmdOffsetX;
+    CursorGuiElement::CmdOffsetY CursorGuiElement::msCmdOffsetY;
 
 	CursorGuiElement::CursorGuiElement(const String& name) :
-		PanelGuiElement(name)
+		PanelGuiElement(name), mOffsetX(0.0), mOffsetY(0.0)
 	{
+        mVisible = false; // cursors are initially hidden
+
+        if (createParamDictionary("CursorGuiElement"))
+        {
+            addBaseParameters();
+        }
+
 		setWidth(0.01);
 		setHeight(0.01);
-
-
 	}
+    //---------------------------------------------------------------------
+    const String& CursorGuiElement::getTypeName(void)
+    {
+        return msTypeName;
+    }
+    //---------------------------------------------------------------------
+    void CursorGuiElement::show(void)
+    {
+        if (!mVisible) {
+            OverlayManager &om = OverlayManager::getSingleton();
+       		setLeft(om.getMouseX() - mOffsetX);
+	    	setTop(om.getMouseY() - mOffsetY);
+        }
+        PanelGuiElement::show();
+    }
+    //---------------------------------------------------------------------
+	void CursorGuiElement::setOffsetX(Real x)
+	{
+		setLeft(mLeft + mOffsetX - x);
+        mOffsetX = x;
+	}
+    //---------------------------------------------------------------------
+	void CursorGuiElement::setOffsetY(Real y)
+	{
+		setTop(mTop + mOffsetY - y);
+        mOffsetY = y;
+	}
+    //---------------------------------------------------------------------
 	GuiElement* CursorGuiElement::findElementAt(Real x, Real y) 		// relative to parent
 	{
 		return NULL;	// override this so it won't find itself!
-
 	}
-
-
+    //---------------------------------------------------------------------
 	void CursorGuiElement::mouseMoved(MouseEvent* e)
 	{
-		setLeft(e->getX());
-		setTop(e->getY());
-
-
+		setLeft(e->getX() - mOffsetX);
+		setTop(e->getY() - mOffsetY);
 	}
-
-
-
+    //---------------------------------------------------------------------
 	void CursorGuiElement::mouseDragged(MouseEvent* e)
 	{
 		mouseMoved(e);
-
 	}
+    //---------------------------------------------------------------------
+    void CursorGuiElement::addBaseParameters(void)
+    {
+        PanelGuiElement::addBaseParameters();
+        ParamDictionary* dict = getParamDictionary();
+
+        dict->addParameter(ParameterDef("x_offset", 
+            "Specifies the x offset that will be added to the mouse coordinates.", PT_STRING),
+            &msCmdOffsetX);
+        dict->addParameter(ParameterDef("y_offset", 
+            "Specifies the y offset that will be added to the mouse coordinates.", PT_STRING),
+            &msCmdOffsetY);
+    }
+    //-----------------------------------------------------------------------
+    String CursorGuiElement::CmdOffsetX::doGet(void* target)
+    {
+        return StringConverter::toString(
+                static_cast<CursorGuiElement*>(target)->getOffsetX() );
+    }
+    void CursorGuiElement::CmdOffsetX::doSet(void* target, const String& val)
+    {
+        static_cast<CursorGuiElement*>(target)->setOffsetX(StringConverter::parseReal(val));
+    }
+    //-----------------------------------------------------------------------
+    String CursorGuiElement::CmdOffsetY::doGet(void* target)
+    {
+        return StringConverter::toString(
+                static_cast<CursorGuiElement*>(target)->getOffsetY() );
+    }
+    void CursorGuiElement::CmdOffsetY::doSet(void* target, const String& val)
+    {
+        static_cast<CursorGuiElement*>(target)->setOffsetY(StringConverter::parseReal(val));
+    }
+
 }
 

@@ -32,39 +32,95 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     
-	/**
-	 * The listener interface for receiving "interesting" mouse events 
-	 * (press, release, click, enter, and exit) on a component.
-	 * (To track mouse moves and mouse drags, use the MouseMotionListener.)
-	 * <P>
-	 * The class that is interested in processing a mouse event
-	 * either implements this interface (and all the methods it
-	 * contains) or extends the abstract <code>MouseAdapter</code> class
-	 * (overriding only the methods of interest).
-	 * <P>
-	 * The listener object created from that class is then registered with a
-	 * component using the component's <code>addMouseListener</code> 
-	 * method. A mouse event is generated when the mouse is pressed, released
-	 * clicked (pressed and released). A mouse event is also generated when
-	 * the mouse cursor enters or leaves a component. When a mouse event
-	 * occurs the relevant method in the listener object is invoked, and 
-	 * the <code>MouseEvent</code> is passed to it.
-	 *
+	/** GuiElement representing a visual cursor.
+     * @remarks
+	 * The CursorGuiElement may be used to create visible cursors for use with
+     * the OverlayManager's cursor facility.
+     * @par
+     * The CursorGuiElements class is sub-classed from the the PanelGuiElement
+     * class.  The element size, material and other attributes may be specified to
+     * define the appearance of the cursor.
+     * @par
+     * In addition, the CursorGuiElement class provide a mechanism for specifing
+     * the cursor's <I>hot spot</I> in relation to the PanelGuiClass's visual area.  This
+     * is specified by setting the x_offset and y_offset attributes of the cursor.
+     * @par
+     * To use a cursor, it must first be created (typically from an overlay script)
+     * and then be passed as both parameters to the overlayManager's <I>setCursorGui</I>
+     * method.  The OverlayManager will activate the cursor by calling it's <I>show</I>
+     * method.  In response, the cursor will position itself with the <I>hot spot</I>
+     * over the current mouse coordinates.  All further mouse cursor events from the
+     * OverlayManager will then be sent to the new cursor, causing it to track with the
+     * mouse.
+     * @par
+     * Any previous cursor maintained by the OverlayManager is deactivated (by calling
+     * it's <I>hide</I> method) and subsequently discarded.  If the previous cursor is to
+     * be retained for further use, then the OverlayManager's <I>getCursorGui</I> method
+     * should be called to retrieve it prior to calling <I>setCursorGui</I>.
+     * @par
+     * Unlike most other Gui elements, cursor's are created with the mVisible attribute
+     * initially set to false.
+     *
+     * @see OverlayManager::getCursorGui.
+     * @see OverlayManager::setCursorGui.
 	 */
 
 	class CursorGuiElement : public PanelGuiElement, public MouseMotionListener
     {
-    protected:
-
 	public :
 		CursorGuiElement(const String& name);
+
+		const String& getTypeName(void);
+
+        /** Inherited from PanelGuiElement, should only be called from the OverlayManager */
+        void show(void);
+
+        /** Used to set the cursor's hot spot X coordinate */
+        void setOffsetX(Real x);
+        /** Used to set the cursor's hot spot Y coordinate */
+        void setOffsetY(Real y);
+        /** Used to get the cursor's hot spot X coordinate */
+        Real getOffsetX(void) const { return mOffsetX; }
+        /** Used to get the cursor's hot spot Y coordinate */
+        Real getOffsetY(void) const { return mOffsetY; }
 		
-		void mouseMoved(MouseEvent* e);
+        /** Used to update the location of the cursor on screen, should only be called from the OverlayManager */
+        void mouseMoved(MouseEvent* e);
+        /** Used to update the location of the cursor on screen, should only be called from the OverlayManager */
 		void mouseDragged(MouseEvent* e);
 
 		float getViewDepth( Camera * ) const { return 0.0; }
 
 		GuiElement* findElementAt(Real x, Real y);
+
+        /** Command object for specifying the cursor's X offset (see ParamCommand).*/
+        class CmdOffsetX : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+        /** Command object for specifying the cursor's Y offset (see ParamCommand).*/
+        class CmdOffsetY : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+
+    protected:
+        static String msTypeName;
+
+        /** The current X coordinate of the cursor's <I>hot spot</I> */
+        Real mOffsetX;
+        /** The current Y coordinate of the cursor's <I>hot spot</I> */
+        Real mOffsetY;
+        
+            // Command objects
+        static CmdOffsetX  msCmdOffsetX;
+        static CmdOffsetY  msCmdOffsetY;
+
+        void addBaseParameters();
     };
 
 }

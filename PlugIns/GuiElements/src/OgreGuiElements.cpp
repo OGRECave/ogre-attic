@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
+    GuiElementFactory* pCursorFactory = NULL;
     GuiElementFactory* pPanelFactory = NULL;
     GuiElementFactory* pBorderPanelFactory = NULL;
     GuiElementFactory* pTextAreaFactory = NULL;
@@ -45,13 +46,16 @@ namespace Ogre {
     GuiElementFactory* pScrollBarFactory = NULL;
     GuiElementFactory* pPopupMenuFactory = NULL;
     GuiElementFactory* pTTYFactory = NULL;
-  	CursorGuiElement* pCursorGui = NULL;
+  	CursorGuiElement*  pCursorGui = NULL;
     //-----------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
     extern "C" void dllStartPlugin(void)
     {
         SET_TERM_HANDLER;
+        
+        pCursorFactory = new CursorGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pCursorFactory);
 
         pPanelFactory = new PanelGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pPanelFactory);
@@ -79,12 +83,13 @@ namespace Ogre {
 
 		pPopupMenuFactory = new PopupMenuGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pPopupMenuFactory);
-
-		pCursorGui = new CursorGuiElement("Cursor default");
-		OverlayManager::getSingleton().setCursorGui(pCursorGui, pCursorGui);
         
         pTTYFactory = new TTYGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pTTYFactory);
+
+            // create default cursor
+		pCursorGui = new CursorGuiElement("Cursor default");
+		OverlayManager::getSingleton().setDefaultCursorGui(pCursorGui, pCursorGui);
     } 
 
     //-----------------------------------------------------------------------
