@@ -184,8 +184,8 @@ namespace Ogre {
 			IndexData* mIndexData;
 			/// Size of indexes
 			HardwareIndexBuffer::IndexType mIndexType;
-			/// Maximum number of vertices indexable
-			size_t mMaxVertices;
+			/// Maximum vertex indexable
+			size_t mMaxVertexIndex;
 
 			template<typename T>
 			void copyIndexes(const T* src, T* dst, size_t count, size_t indexOffset)
