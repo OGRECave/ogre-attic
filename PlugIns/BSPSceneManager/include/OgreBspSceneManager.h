@@ -55,7 +55,7 @@ namespace Ogre {
         provides support for loading Quake3 level files to populate your world through this class,
         by calling the BspSceneManager::setWorldGeometry. Note that this interface is made
         available at the top level of the SceneManager class so you don't have to write your code
-        specifically for this class - just call Root::getSceneManager passing a SceneType of ST_INDOOR
+        specifically for this class - just call Root::getSceneManager passing a SceneType of ST_INTERIOR
         and in the current implementation you will get a BspSceneManager silently disguised as a
         standard SceneManager.
     */
