@@ -13,6 +13,8 @@ using namespace Ogre;
 
 TagPoint::TagPoint(unsigned short handle, Skeleton* creator): Bone(handle, creator)
 {
+    mParentEntity = 0; 
+    mChildObject = 0; 
 }
 
 
