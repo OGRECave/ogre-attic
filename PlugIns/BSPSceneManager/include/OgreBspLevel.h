@@ -30,6 +30,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStaticFaceGroup.h"
 #include "OgreSceneManager.h"
 #include "OgreBspNode.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreDefaultHardwareBufferManager.h"
+#include "OgreQuake3Level.h"
 
 
 namespace Ogre {
@@ -82,6 +85,8 @@ namespace Ogre {
         BspNode* getLeafStart(void) {return &mRootNode[mLeafStart]; }
         /** Gets the number of leaf nodes */
         int getNumLeaves(void) { return mNumLeaves; }
+
+        /** Utility class just to enable queueing of patches */
     protected:
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of
@@ -96,22 +101,26 @@ namespace Ogre {
 
         /** Vertex format for fixed geometry.
             Note that in this case vertex components (position, normal, texture coords etc)
-            are held interleaved in the same buffer. This is because selected vertices will be
-            copied from this main buffer to a rendering pipeline buffer ('vertex cache' in Quake3 speak)
-            and it's easier & quicker to just copy a contiguous block from one buffer for all components
-            than to copy from several separate buffers.
+            are held interleaved in the same buffer. However, the format here is different from 
+            the format used by Quake because older Direct3d drivers like the vertex elements
+            to be in a particular order within the buffer. See VertexDeclaration for full
+            details of this marvellous(not) feature.
         */
         struct BspVertex
         {
             Real position[3];
-            Real texcoords[2];
-            Real lightmap[2];
             Real normal[3];
             int colour;
+            Real texcoords[2];
+            Real lightmap[2];
         };
-        /** Array of vertices for whole level. */
+        /*
+        /// Array of vertices for whole level.
         BspVertex* mVertices;
         int mNumVertices;
+        */
+        /// Vertex data holding all the data for the level, but able to render parts of it
+        VertexData* mVertexData;
 
         /** Array of indexes into the mFaceGroups array. This buffer is organised
             by leaf node so leaves can just use contiguous chunks of it and
@@ -123,13 +132,20 @@ namespace Ogre {
         StaticFaceGroup* mFaceGroups;
         int mNumFaceGroups;
 
-        /** Array of elements i.e. vertex indexes as used by face groups.*/
+
+        /*
+        /// Array of elements i.e. vertex indexes as used by face groups.
         int* mElements;
         int mNumElements;
+        */
+
+        /// indexes for the whole level, will be copied to the real indexdata per frame
+        size_t mNumIndexes;
+        // system-memory buffer
+        DefaultHardwareIndexBuffer* mIndexes;
 
         /// Brushes as used for collision, main memory is here
         BspNode::Brush *mBrushes;
-
 
         /** Vector of player start points */
         std::vector<ViewPoint> mPlayerStarts;
@@ -169,6 +185,21 @@ namespace Ogre {
         MovableToNodeMap mMovableToNodeMap;
 
         void tagNodesWithMovable(BspNode* node, const MovableObject* mov, const Vector3& pos);
+
+        // Storage of patches 
+        typedef std::map<int, PatchSurface*> PatchMap;
+        PatchMap mPatches;
+        // Total number of vertices required for all patches
+        size_t mPatchVertexCount;
+        // Total number of indexes required for all patches
+        size_t mPatchIndexCount;
+
+        void initQuake3Patches(const Quake3Level & q3lvl, VertexDeclaration* decl);
+        void buildQuake3Patches(size_t vertOffset, size_t indexOffset);
+
+        void quakeVertexToBspVertex(const bsp_vertex_t* src, BspVertex* dest);
+
+
 
 
 

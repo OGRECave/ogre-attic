@@ -53,10 +53,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ode.lib /nologo /dll /machine:I386 /libpath:"..\..\..\OgreMain\lib\Release" /libpath:"..\..\..\Dependencies\lib\Release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ode.lib /nologo /dll /pdb:"..\lib\Release/ReferenceAppLayer.pdb" /machine:I386 /out:"..\lib\Release/ReferenceAppLayer.dll" /implib:"..\lib\Release/ReferenceAppLayer.lib" /libpath:"..\..\..\OgreMain\lib\Release" /libpath:"..\..\..\Dependencies\lib\Release"
+# SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
+PostBuild_Cmds=copy ..\lib\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ReferenceAppLayer - Win32 Debug"
@@ -83,10 +84,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ode.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\Debug" /libpath:"..\..\..\Dependencies\lib\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ode.lib /nologo /dll /pdb:"..\lib\Debug/ReferenceAppLayer.pdb" /debug /machine:I386 /out:"..\lib\Debug/ReferenceAppLayer.dll" /implib:"..\lib\Debug/ReferenceAppLayer.lib" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\Debug" /libpath:"..\..\..\Dependencies\lib\Debug"
+# SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy ..\bin\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
+PostBuild_Cmds=copy ..\lib\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
 # End Special Build Tool
 
 !ENDIF 

@@ -65,31 +65,45 @@ struct s4TangentSpace
 	// tex.coords for vertex (u, v or s, t)
 	sTexCoord texCoords;
 };
-// this function creates a new empty 3D tex.coord.buffer at index 1 in the given GeometryData structure
-void createNew3DTexCoordBuffer(GeometryData &geoData)
-{
-	if (geoData.numTexCoords == 0)
-		Except(Exception::ERR_INVALIDPARAMS, "Geometry data must have at least 1 tex.coord.buffer !!!", "createNew3DTexCoordBuffer");
 
-	if (geoData.numTexCoords > 1)
-	{
-		if (geoData.numTexCoordDimensions[1] != 3)
-		{
-			delete [] geoData.pTexCoords[1];
-			geoData.numTexCoords = 2;
-			geoData.numTexCoordDimensions[1] = 3;
-			geoData.pTexCoords[1] = new Real[geoData.numVertices * 3];
-		}
+// This function returns a 3D tex.coord.buffer from given VertexData.
+// If such buffer didn't exist, it creates it.
+HardwareVertexBufferSharedPtr get3DTexCoordBuffer(VertexData *vertexData)
+{
+	VertexDeclaration *vDecl = vertexData->vertexDeclaration ;
+	VertexBufferBinding *vBind = vertexData->vertexBufferBinding ;
+
+	const VertexElement *tex2D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
+	if (!tex2D) {
+		Except(Exception::ERR_INVALIDPARAMS, "Geometry data must have at least 1 2Dtex.coord.buffer !!!", "createNew3DTexCoordBuffer");
 	}
-	else
-	{
-		geoData.numTexCoords = 2;
-		geoData.numTexCoordDimensions[1] = 3;
-		geoData.pTexCoords[1] = new Real[geoData.numVertices * 3];
+	const VertexElement *tex3D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
+	bool needsToBeCreated = false;
+	
+	if (!tex3D) { // no tex coords with index 1
+			needsToBeCreated = true ;
+	} else if (tex3D->getType() != VET_FLOAT3) { // no 3d-coords tex buffer
+		vDecl->removeElement(VES_TEXTURE_COORDINATES, 1);
+		vBind->unsetBinding(tex3D->getSource());
+		needsToBeCreated = true ;
 	}
-	// fill the buffer with 0
-	memset(geoData.pTexCoords[1], 0, geoData.numVertices * 3 * sizeof(Real));
+	
+	HardwareVertexBufferSharedPtr tex3DBuf ;
+	if (needsToBeCreated) {
+		tex3DBuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+			3*sizeof(float), vertexData->vertexCount,
+			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+			true );
+		int source = vBind->getNextIndex()+1; // find next available source 
+		vBind->setBinding(source, tex3DBuf);
+		vDecl->addElement(source, 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, 1);
+	} else {
+		tex3DBuf = vBind->getBuffer(tex3D->getSource());
+	}
+	
+	return tex3DBuf ;
 }
+
 //This function will calculate the tangent space for a general polygon.
 //You need to pass it three vertices of your polygon and three Vector3's in which to store 
 //the resulting normal, s tangent and t tangent.
@@ -174,33 +188,46 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 	for (int sm = 0; sm < nSubMesh; sm++)
 	{
 		// retrieve buffer pointers
-		unsigned short	*pVIndices;	// the face indices buffer
-		Real			*p2DTC;		// pointer to 2D tex.coords
-		Real			*p3DTC;		// pointer to 3D tex.coords
-		Real			*pVPos;		// vertex position buffer
+		unsigned short	*pVIndices;	// the face indices buffer, read only
+		Real			*p2DTC;		// pointer to 2D tex.coords, read only
+		Real			*p3DTC;		// pointer to 3D tex.coords, write/read (discard)
+		Real			*pVPos;		// vertex position buffer, read only
 
 		SubMesh *pSubMesh = pMesh->getSubMesh(sm);
+
 		// retrieve buffer pointers
-		pVIndices = pSubMesh->faceVertexIndices;
-		if (pSubMesh->useSharedVertices)
-		{
-			// create a new 3D tex.coord.buffer
-			createNew3DTexCoordBuffer(pMesh->sharedGeometry);		
-			p2DTC = pMesh->sharedGeometry.pTexCoords[0];	// pointer to 2D tex.coords
-			p3DTC = pMesh->sharedGeometry.pTexCoords[1];	// pointer to 3D tex.coords
-			pVPos = pMesh->sharedGeometry.pVertices;		// vertex position buffer
+		// first, indices
+		IndexData *indexData = pSubMesh->indexData;
+		HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer ;
+		pVIndices = (unsigned short*) buffIndex->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		// then, vertices
+		VertexData *usedVertexData ;
+		if (pSubMesh->useSharedVertices) {
+			usedVertexData = pMesh->sharedVertexData;
+		} else {
+			usedVertexData = pSubMesh->vertexData;
 		}
-		else
-		{
-			// create a new 3D tex.coord.buffer
-			createNew3DTexCoordBuffer(pSubMesh->geometry);		
-			p2DTC = pSubMesh->geometry.pTexCoords[0];	// pointer to 2D tex.coords
-			p3DTC = pSubMesh->geometry.pTexCoords[1];	// pointer to 3D tex.coords
-			pVPos = pSubMesh->geometry.pVertices;		// vertex position buffer
-		}
+		VertexDeclaration *vDecl = usedVertexData->vertexDeclaration;
+		VertexBufferBinding *vBind = usedVertexData->vertexBufferBinding;
+		// get a new 3D tex.coord.buffer or an existing one
+		HardwareVertexBufferSharedPtr buff3DTC = get3DTexCoordBuffer(usedVertexData);
+		// clear it
+		p3DTC = (Real*) buff3DTC->lock(HardwareBuffer::HBL_DISCARD); // ***LOCK***
+		memset(p3DTC,0,buff3DTC->getSizeInBytes());
+		// find a 2D tex coord buffer
+		const VertexElement *elem2DTC = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
+		HardwareVertexBufferSharedPtr buff2DTC = vBind->getBuffer(elem2DTC->getSource());
+		p2DTC = (Real*) buff2DTC->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		// find a vertex coord buffer
+		const VertexElement *elemVPos = vDecl->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr buffVPos = vBind->getBuffer(elemVPos->getSource());
+		pVPos = (Real*) buffVPos->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		
+		int numFaces = indexData->indexCount / 3 ;
+		
 		// loop through all faces to calculate the tangents and normals
 		int n;
-		for (n = 0; n < pSubMesh->numFaces; ++n)
+		for (n = 0; n < numFaces; ++n)
 		{
 			int i;
 			for (i = 0; i < 3; ++i)
@@ -235,11 +262,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			}
 		}
 		// now loop through all vertices and normalize them
-		int numVerts = 0;
-		if (pSubMesh->useSharedVertices)
-			numVerts = pMesh->sharedGeometry.numVertices;
-		else
-			numVerts = pSubMesh->geometry.numVertices;
+		int numVerts = usedVertexData->vertexCount ;
 		for (n = 0; n < numVerts * 3; n += 3)
 		{
 			// read the vertex
@@ -253,10 +276,16 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 			p3DTC[n + 1] = tVec.y;
 			p3DTC[n + 2] = tVec.z;
 		}
+		// unlock buffers
+		buffIndex->unlock();
+		buff3DTC->unlock();
+		buff2DTC->unlock();
+		buffVPos->unlock();
 	}
 }
 // this method creates a new 3D tex coord buffer in the shared/submesh geometry for a given entity
 // and creates a new 3D one at index 1 and fills it with normals if they are present...
+/*
 void create3DTexCoordsFromNormals(Entity *pEnt)
 {
 	assert(pEnt);
@@ -295,7 +324,8 @@ void create3DTexCoordsFromNormals(Entity *pEnt)
 				pSubMesh->geometry.pNormals, 
 				pSubMesh->geometry.numVertices * 3 * sizeof(Real));
 	}
-}
+} // create3DTexCoordsFromNormals
+*/
 
 // Event handler to add ability to change material
 class Dp3_Listener : public ExampleFrameListener
@@ -390,6 +420,14 @@ protected:
         Entity *floorEnt = mSceneMgr->createEntity("floor", "FloorPlane");
         floorEnt->setMaterialName("Examples/DP3Terrain");
         mSceneMgr->getRootSceneNode()->attachObject(floorEnt);
+		// Load the meshes with non-default HBU options
+		const char *meshNames[4]={ "knot.mesh", "cube.mesh", "ogrehead.mesh", "ball.mesh" } ;
+		for(int mn=0;mn<4;mn++) {
+			MeshManager::getSingleton().load(meshNames[mn],
+				HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+				true, true); //so we can still read it
+		}
         // Create the mesh(es) wich will be bump mapped
 		mEnt1 = mSceneMgr->createEntity("knot", "knot.mesh");
 		mEnt2 = mSceneMgr->createEntity("cube", "cube.mesh");

@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonManager.h"
 #include "OgreSkeleton.h"
 #include <algorithm>
+#include "OgreHardwareBufferManager.h"
 
 
 namespace Ogre {
@@ -40,28 +41,10 @@ namespace Ogre {
     Mesh::Mesh(String name)
     {
         mName = name;
-        sharedGeometry.hasColours = false;
-        sharedGeometry.hasNormals = false;
-        sharedGeometry.vertexStride = 0;
-        sharedGeometry.colourStride = 0;
-        sharedGeometry.normalStride = 0;
-        sharedGeometry.numTexCoords = 1;
-        sharedGeometry.numTexCoordDimensions[0] = 2;
-        sharedGeometry.numVertices = 0;
-        sharedGeometry.pColours = 0;
-        sharedGeometry.pNormals = 0;
-        sharedGeometry.pBlendingWeights = 0;
-        sharedGeometry.numBlendWeightsPerVertex = 0;
-
-        for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
-        {
-            sharedGeometry.pTexCoords[i] = 0;
-            sharedGeometry.texCoordStride[i] = 0;
-        }
-        sharedGeometry.pVertices = 0;
+		sharedVertexData = NULL;
         // Default to load from file
         mManuallyDefined = false;
-        mUpdateBounds = true;
+        //mUpdateBounds = true;
         setSkeletonName("");
         mBoneAssignmentsOutOfDate = false;
 		mNumLods = 1;
@@ -71,9 +54,15 @@ namespace Ogre {
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
-		mVertexBuffersDynamic = false;
-		mIndexBuffersDynamic = false;
+		mVertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
+		mIndexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
+		mVertexBufferShadowBuffer = false;
+		mIndexBufferShadowBuffer = false;
 
+        mBoundRadius = 0.0f;
+
+        // Always use software blending for now
+        mUseSoftwareBlending = true;
 
     }
 
@@ -153,11 +142,7 @@ namespace Ogre {
             String& ext = extVec[extVec.size() - 1];
             ext.toLowerCase();
 
-            if (ext == "oof")
-            {
-                serializer.importLegacyOof(chunk, this);
-            }
-            else if (ext == "mesh")
+            if (ext == "mesh")
             {
                 serializer.importMesh(chunk, this);
             }
@@ -172,7 +157,7 @@ namespace Ogre {
             chunk.clear();
         }
 
-        _updateBounds();
+        //_updateBounds();
 
     }
 
@@ -185,145 +170,12 @@ namespace Ogre {
         {
             delete *i;
         }
-        if (sharedGeometry.pVertices)
+        if (sharedVertexData)
         {
-            delete[] sharedGeometry.pVertices;
-            sharedGeometry.pVertices = 0;
-        }
-        // Deallocate individual components if they have their own buffers
-        // NB Assuming that if some components use the same buffer, all do and vice versa
-        if (sharedGeometry.vertexStride == 0)
-        {
-
-            // Destroy shared buffers
-            if (sharedGeometry.pColours)
-            {
-                delete[] sharedGeometry.pColours;
-                sharedGeometry.pColours = 0;
-            }
-            if (sharedGeometry.pNormals)
-            {
-                delete[] sharedGeometry.pNormals;
-                sharedGeometry.pNormals = 0;
-            }
-            for (int j = 0; j < OGRE_MAX_TEXTURE_COORD_SETS; ++j)
-            {
-                if (sharedGeometry.pTexCoords[j])
-                {
-                    delete[] sharedGeometry.pTexCoords[j];
-                    sharedGeometry.pTexCoords[j] = 0;
-                }
-            }
+            delete sharedVertexData;
         }
 		// Clear SubMesh names
 		mSubMeshNameMap.clear();
-    }
-
-    //-----------------------------------------------------------------------
-    void Mesh::_dumpContents(String filename)
-    {
-        std::ofstream of;
-
-        of.open(filename);
-
-        of << "-= Debug output of model " << mName << " =-" << std::endl << std::endl;
-        if (sharedGeometry.numVertices > 0)
-        {
-            of << "-= Shared geometry =- " << std::endl;
-            _dumpGeometry(sharedGeometry, of);
-        }
-
-        for (SubMeshList::iterator i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
-        {
-            of << "-= SubMesh Entry =-" << std::endl;
-            of << "Material Name = " << (*i)->getMaterialName() << std::endl;
-            of << "numFaces = " << (*i)->numFaces << std::endl;
-            of << "useSharedVertices = " << (*i)->useSharedVertices << std::endl;
-            if (!(*i)->useSharedVertices)
-            {
-                of << "-= Dedicated Geometry =-" << std::endl;
-                _dumpGeometry((*i)->geometry, of);
-            }
-
-            of << "-= Face List =-" << std::endl;
-            for (int idx = 0; idx < (*i)->numFaces; ++idx)
-            {
-                of << (*i)->faceVertexIndices[idx*3] << ", " <<
-                    (*i)->faceVertexIndices[(idx*3) + 1] << ", " <<
-                    (*i)->faceVertexIndices[(idx*3) + 2] << std::endl;
-            }
-        }
-
-        of.close();
-
-
-    }
-
-    void Mesh::_dumpGeometry(GeometryData &g, std::ofstream& of)
-    {
-        int i;
-
-        of << "hasColours = " << g.hasColours << std::endl;
-        of << "hasNormals = " << g.hasNormals << std::endl;
-        of << "numTexCoords = " << g.numTexCoords << std::endl;
-        for (i = 0; i < g.numTexCoords; ++i)
-            of << "numTexCoordDimensions[" << i << "] = " << g.numTexCoordDimensions[i] << std::endl;
-        of << "numVertices = " << g.numVertices << std::endl;
-        // Write out vertices
-        of << "Vertex Position Data:" << std::endl;
-        Real* pReal = g.pVertices;
-        unsigned long* pULong;
-        for (i = 0; i < g.numVertices; ++i)
-        {
-            of << *pReal++ << ", " <<
-                *pReal++ << ", " <<
-                *pReal++ << std::endl;
-            pReal = (Real*)((char*)pReal + g.vertexStride);
-        }
-        if (g.hasColours)
-        {
-            // Write out colours
-            of << "Vertex Colour Data:" << std::endl;
-            pULong = g.pColours;
-            for (int i = 0; i < g.numVertices; ++i)
-            {
-                of << *pULong++ << std::endl;
-                pULong = (unsigned long*)((char*)pULong + g.colourStride);
-            }
-        }
-        if (g.hasNormals)
-        {
-            // Write out Normals
-            of << "Vertex Normal Data:" << std::endl;
-            pReal = g.pNormals;
-            for (int i = 0; i < g.numVertices; ++i)
-            {
-                of << *pReal++ << ", " <<
-                    *pReal++ << ", " <<
-                    *pReal++ << std::endl;
-                pReal = (Real*)((char*)pReal + g.normalStride);
-            }
-        }
-        // Write out textures
-        of << "Vertex Texture Coordinate Data:" << std::endl;
-        int index;
-        index = 0;
-        for (int set = 0; set < g.numTexCoords; ++set)
-        {
-            of << "Set " << set << ":" << std::endl;
-            pReal = g.pTexCoords[set];
-            for ( i = 0; i < g.numVertices; ++i)
-            {
-                for (int d = 0; d < g.numTexCoordDimensions[set]; ++ d)
-                {
-                    of << *pReal++ << " ";
-                }
-                of << std::endl;
-                pReal = (Real*)((char*)pReal + g.texCoordStride[set]);
-            }
-        }
-
-
     }
 
     //-----------------------------------------------------------------------
@@ -341,9 +193,6 @@ namespace Ogre {
         // New Mesh is assumed to be manually defined rather than loaded since you're cloning it for a reason
         Mesh* newMesh = MeshManager::getSingleton().createManual(newName);
 
-        bool isSharedGeometry;
-        isSharedGeometry = false;
-
         // Copy submeshes first
         std::vector<SubMesh*>::iterator subi;
         SubMesh* newSub;
@@ -352,96 +201,46 @@ namespace Ogre {
             newSub = newMesh->createSubMesh();
             newSub->mMaterialName = (*subi)->mMaterialName;
             newSub->mMatInitialised = (*subi)->mMatInitialised;
-            newSub->numFaces = (*subi)->numFaces;
             newSub->parent = newMesh;
             newSub->useSharedVertices = (*subi)->useSharedVertices;
-            newSub->useTriStrips = (*subi)->useTriStrips;
 
-            if ((*subi)->useSharedVertices)
+            if (!(*subi)->useSharedVertices)
             {
-                // Make a note to copy shared geometry later
-                isSharedGeometry = true;
-            }
-            else
-            {
-                // Copy unique geometry
-                cloneGeometry((*subi)->geometry, newSub->geometry);
+                // Copy unique vertex data
+				newSub->vertexData = (*subi)->vertexData->clone();
             }
 
-            // Copy indexes
-            int numIndexes;
-
-            if ((*subi)->useTriStrips)
-            {
-                numIndexes = (*subi)->numFaces + 2;
-            }
-            else
-            {
-                numIndexes = (*subi)->numFaces * 3;
-            }
-            newSub->faceVertexIndices = new unsigned short[numIndexes];
-            memcpy(newSub->faceVertexIndices, (*subi)->faceVertexIndices, sizeof(unsigned short) * numIndexes);
+            // Copy index data
+			newSub->indexData = (*subi)->indexData->clone();
+            // Copy any bone assignments
+            newSub->mBoneAssignments = (*subi)->mBoneAssignments;
 
         }
 
         // Copy shared geometry, if any
-        if (isSharedGeometry)
+        if (sharedVertexData)
         {
-            cloneGeometry(sharedGeometry, newMesh->sharedGeometry);
+            newMesh->sharedVertexData = sharedVertexData->clone();
         }
 
 		// Copy submesh names
 		newMesh->mSubMeshNameMap = mSubMeshNameMap ;
+        // Copy any bone assignments
+        newMesh->mBoneAssignments = mBoneAssignments;
+        // Copy bounds
+        newMesh->mAABB = mAABB;
+        newMesh->mBoundRadius = mBoundRadius;
 
         return newMesh;
 
     }
     //-----------------------------------------------------------------------
-    void Mesh::cloneGeometry(GeometryData& source, GeometryData& dest)
-    {
-        int tex;
-
-        dest.colourStride = source.colourStride;
-        dest.hasColours = source.hasColours;
-        dest.hasNormals = source.hasNormals;
-        dest.normalStride = source.normalStride;
-        dest.numTexCoords = source.numTexCoords;
-        for (tex = 0; tex < source.numTexCoords; ++tex)
-        {
-            dest.numTexCoordDimensions[tex] = source.numTexCoordDimensions[tex];
-            dest.texCoordStride[tex] = source.texCoordStride[tex];
-        }
-        dest.numVertices = source.numVertices;
-        dest.vertexStride = source.vertexStride;
-
-        // Create geometry
-        dest.pVertices = new Real[source.numVertices * 3];
-        memcpy(dest.pVertices, source.pVertices, sizeof(Real) * source.numVertices * 3);
-
-        if (source.hasColours)
-        {
-            dest.pColours = new unsigned long[source.numVertices];
-            memcpy(dest.pColours, source.pColours, sizeof(int) * source.numVertices);
-        }
-        if (source.hasNormals)
-        {
-            dest.pNormals = new Real[source.numVertices * 3];
-            memcpy(dest.pNormals, source.pNormals, sizeof(Real) * source.numVertices * 3);
-        }
-        for (tex = 0; tex < source.numTexCoords; ++tex)
-        {
-            dest.pTexCoords[tex] = new Real[source.numVertices * source.numTexCoordDimensions[tex]];
-            memcpy(dest.pTexCoords[tex], source.pTexCoords[tex], sizeof(Real) * source.numVertices *
-                                                                        source.numTexCoordDimensions[tex]);
-        }
-    }
-    //-----------------------------------------------------------------------
+    /*
     void Mesh::_updateBounds(void)
     {
         Vector3 min, max;
         bool first = true;
         bool useShared = false;
-        int vert;
 
 		Real maxSquaredLength = -1.0f;
 
@@ -449,113 +248,58 @@ namespace Ogre {
         SubMeshList::iterator i;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
         {
-            if ((*i)->useSharedVertices)
+            if (!(*i)->useSharedVertices)
             {
-                useShared = true;
-            }
-            else
-            {
-                for (vert = 0; vert < (*i)->geometry.numVertices * 3; vert+=(3+ (*i)->geometry.vertexStride))
-                {
-                    if (first || (*i)->geometry.pVertices[vert] < min.x)
-                    {
-                        min.x = (*i)->geometry.pVertices[vert];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+1] < min.y)
-                    {
-                        min.y = (*i)->geometry.pVertices[vert+1];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+2] < min.z)
-                    {
-                        min.z = (*i)->geometry.pVertices[vert+2];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert] > max.x)
-                    {
-                        max.x = (*i)->geometry.pVertices[vert];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+1] > max.y)
-                    {
-                        max.y = (*i)->geometry.pVertices[vert+1];
-                    }
-                    if (first || (*i)->geometry.pVertices[vert+2] > max.z)
-                    {
-                        max.z = (*i)->geometry.pVertices[vert+2];
-                    }
-                    first = false;
-
-					Real newSqlLen = 
-                        (*i)->geometry.pVertices[vert]  * (*i)->geometry.pVertices[vert] + 
-						(*i)->geometry.pVertices[vert+1] * (*i)->geometry.pVertices[vert+1] +
-						(*i)->geometry.pVertices[vert+2] * (*i)->geometry.pVertices[vert+2];
-					maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
-                }
+				(*i)->vertexData->getBounds(&mAABB, &maxSquaredLength);
             }
         }
 
         // Check shared
-        if (useShared)
+        if (sharedVertexData)
         {
-            for (vert = 0; vert < sharedGeometry.numVertices * 3; vert+=(3 + sharedGeometry.vertexStride))
-            {
-                if (first || sharedGeometry.pVertices[vert] < min.x)
-                {
-                    min.x = sharedGeometry.pVertices[vert];
-                }
-                if (first || sharedGeometry.pVertices[vert+1] < min.y)
-                {
-                    min.y = sharedGeometry.pVertices[vert+1];
-                }
-                if (first || sharedGeometry.pVertices[vert+2] < min.z)
-                {
-                    min.z = sharedGeometry.pVertices[vert+2];
-                }
-                if (first || sharedGeometry.pVertices[vert] > max.x)
-                {
-                    max.x = sharedGeometry.pVertices[vert];
-                }
-                if (first || sharedGeometry.pVertices[vert+1] > max.y)
-                {
-                    max.y = sharedGeometry.pVertices[vert+1];
-                }
-                if (first || sharedGeometry.pVertices[vert+2] > max.z)
-                {
-                    max.z = sharedGeometry.pVertices[vert+2];
-                }
-                first = false;
-				Real newSqlLen = sharedGeometry.pVertices[vert]* sharedGeometry.pVertices[vert] +
-					sharedGeometry.pVertices[vert+1] * sharedGeometry.pVertices[vert+1] +
-					sharedGeometry.pVertices[vert+2] * sharedGeometry.pVertices[vert+2];
-				maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
-            }
+			sharedVertexData->getBounds(&mAABB, &maxSquaredLength);
         }
 
         // Pad out the AABB a little, helps with most bounds tests
-        min -= Vector3::UNIT_SCALE;
-        max += Vector3::UNIT_SCALE;
-        mAABB.setExtents(min, max);
+		mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE, 
+			mAABB.getMaximum() + Vector3::UNIT_SCALE);
         // Pad out the sphere a little too
 		mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
         mUpdateBounds = false;
 
     }
+    */
     //-----------------------------------------------------------------------
     const AxisAlignedBox& Mesh::getBounds(void)
     {
+        /*
         if (mUpdateBounds)
             _updateBounds();
+        */
         return mAABB;
     }
     //-----------------------------------------------------------------------
     void Mesh::_setBounds(const AxisAlignedBox& bounds)
     {
         mAABB = bounds;
+        // Pad out the AABB a little, helps with most bounds tests
+        mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE,
+        mAABB.getMaximum() + Vector3::UNIT_SCALE);
+
 		// Set sphere bouds; not the tightest by since we're using
 		// manual AABB it is the only way
 		Real sqLen1 = mAABB.getMinimum().squaredLength();
 		Real sqLen2 = mAABB.getMaximum().squaredLength();
 		mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
+        // Pad out the sphere a little too
+        mBoundRadius = mBoundRadius * 1.25;
 		
-        mUpdateBounds = false;
+        //mUpdateBounds = false;
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::_setBoundingSphereRadius(Real radius)
+    {
+        mBoundRadius = radius;
     }
     //-----------------------------------------------------------------------
     void Mesh::setSkeletonName(const String& skelName)
@@ -651,12 +395,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::compileBoneAssignments(void)
     {
-        // Deallocate
-        if (sharedGeometry.pBlendingWeights)
-        {
-            delete [] sharedGeometry.pBlendingWeights;
-            sharedGeometry.pBlendingWeights = 0;
-        }
 
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
@@ -664,6 +402,7 @@ namespace Ogre {
         VertexBoneAssignmentList::iterator i, iend;
         i = mBoneAssignments.begin();
         iend = mBoneAssignments.end();
+        currBones = 0;
         for (; i != iend; ++i)
         {
             if (lastVertIdx != i->second.vertexIndex)
@@ -680,46 +419,153 @@ namespace Ogre {
 
         }
 
-        if (maxBones == 0)
+		if (maxBones > OGRE_MAX_BLEND_WEIGHTS)
+		{
+			Except(Exception::ERR_INVALIDPARAMS, "Too many bone assignments per vertex on "
+				"mesh " + mName, "Mesh::compileBoneAssignments");
+		}
+
+		mNumBlendWeightsPerVertex = maxBones;
+
+        if (mNumBlendWeightsPerVertex == 0)
         {
             // No bone assignments
-            sharedGeometry.numBlendWeightsPerVertex = 0;
             return;
         }
-        // Allocate a buffer for bone weights
-        sharedGeometry.numBlendWeightsPerVertex = maxBones;
-        sharedGeometry.pBlendingWeights = 
-            new LegacyRenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
 
-        // Assign data
-        unsigned short v;
-        i = mBoneAssignments.begin();
-        LegacyRenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
-        // Iterate by vertex
-        for (v = 0; v < sharedGeometry.numVertices; ++v)
+        if (mUseSoftwareBlending)
         {
-            for (unsigned short bone = 0; bone < maxBones; ++bone)
-            {
+            compileBoneAssignmentsSoftware(mBoneAssignments, mNumBlendWeightsPerVertex, sharedVertexData);
+        }
+        else
+        {
+            compileBoneAssignmentsHardware(mBoneAssignments, mNumBlendWeightsPerVertex, sharedVertexData);
+        }
+
+        mBoneAssignmentsOutOfDate = false;
+
+    }
+    //---------------------------------------------------------------------
+    void Mesh::compileBoneAssignmentsSoftware(
+        const VertexBoneAssignmentList& boneAssignments,
+        unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData)
+    {
+        // Delete old data if it's there
+        if (targetVertexData->softwareBlendInfo->pBlendIndexes)
+            delete[] targetVertexData->softwareBlendInfo->pBlendIndexes;
+        if (targetVertexData->softwareBlendInfo->pBlendWeights)
+            delete[] targetVertexData->softwareBlendInfo->pBlendWeights;
+        // Allocate new data
+        targetVertexData->softwareBlendInfo->pBlendIndexes = 
+            new unsigned char[targetVertexData->vertexCount * numBlendWeightsPerVertex];
+        targetVertexData->softwareBlendInfo->pBlendWeights = 
+            new Real[targetVertexData->vertexCount * numBlendWeightsPerVertex];
+        // Assign data
+        size_t v;
+        VertexBoneAssignmentList::const_iterator i;
+        i = boneAssignments.begin();
+		Real *pWeight = targetVertexData->softwareBlendInfo->pBlendWeights;
+        unsigned char* pIndex = targetVertexData->softwareBlendInfo->pBlendIndexes;
+        // Iterate by vertex
+        for (v = 0; v < targetVertexData->vertexCount; ++v)
+        {
+            for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
+			{
                 // Do we still have data for this vertex?
                 if (i->second.vertexIndex == v)
                 {
-                    // If so, assign
-                    pBlend->matrixIndex = i->second.boneIndex;
-                    pBlend->blendWeight = i->second.weight;
+                    // If so, write weight
+					*pWeight++ = i->second.weight;
+                    *pIndex++ = i->second.boneIndex;
                     ++i;
                 }
                 else
                 {
                     // Ran out of assignments for this vertex, use weight 0 to indicate empty
-                    pBlend->blendWeight = 0;
-                    pBlend->matrixIndex = 0;
+					*pWeight++ = 0.0f;
+                    *pIndex++ = 0;
                 }
-                ++pBlend;
             }
         }
 
-        mBoneAssignmentsOutOfDate = false;
+    }
+    //---------------------------------------------------------------------
+    void Mesh::compileBoneAssignmentsHardware(
+        const VertexBoneAssignmentList& boneAssignments,
+        unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData)
 
+    {
+		// No deallocation required, shared ptr will deal with that
+        // Update vertex declaration - remove existing if present
+		bool shareBindIndex = false;
+        unsigned short bindIndex;
+		VertexDeclaration* decl = targetVertexData->vertexDeclaration;
+		if (const VertexElement* elem = decl->findElementBySemantic(VES_BLEND_INDICES))
+		{
+			bindIndex = elem->getIndex(); // reuse
+            shareBindIndex = true;
+			decl->removeElement(VES_BLEND_INDICES);
+		}
+		if (decl->findElementBySemantic(VES_BLEND_WEIGHTS))
+		{
+			decl->removeElement(VES_BLEND_WEIGHTS);
+		}
+		// If binding not found already, get next
+		if (!shareBindIndex) 
+            bindIndex = targetVertexData->vertexBufferBinding->getNextIndex();
+		// Add declarations for weights and indices
+		decl->addElement(
+			bindIndex, 
+			0, 
+			VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
+			VES_BLEND_WEIGHTS);
+		decl->addElement(
+			bindIndex, 
+			sizeof(float) * numBlendWeightsPerVertex, 
+			VertexElement::multiplyTypeCount(VET_SHORT1, numBlendWeightsPerVertex),
+			VES_BLEND_INDICES);
+		// Create buffer (will destroy old one because of reference counting)
+		// NB we create in system memory because we need to read this back later
+		mBlendingVB = HardwareBufferManager::getSingleton().createVertexBuffer(
+			decl->getVertexSize(bindIndex), targetVertexData->vertexCount, 
+			HardwareBuffer::HBU_DYNAMIC, true);
+		// Set binding
+		targetVertexData->vertexBufferBinding->setBinding(bindIndex, mBlendingVB); 
+
+        // Assign data
+        size_t v;
+        VertexBoneAssignmentList::const_iterator i;
+        i = boneAssignments.begin();
+		Real *pWeight = static_cast<Real*>(
+			mBlendingVB->lock(HardwareBuffer::HBL_DISCARD)); 
+        // Iterate by vertex
+        for (v = 0; v < targetVertexData->vertexCount; ++v)
+        {
+			/// Convert to index pointer, via void*
+			unsigned short *pIndex = static_cast<unsigned short*>(
+				static_cast<void*>(
+					pWeight + numBlendWeightsPerVertex)
+					);
+            for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
+			{
+                // Do we still have data for this vertex?
+                if (i->second.vertexIndex == v)
+                {
+                    // If so, write weight
+					*pWeight++ = i->second.weight;
+                    *pIndex++ = i->second.boneIndex;
+                    ++i;
+                }
+                else
+                {
+                    // Ran out of assignments for this vertex, use weight 0 to indicate empty
+					*pWeight++ = 0.0f;
+                    *pIndex++ = 0;
+                }
+            }
+        }
+
+		mBlendingVB->unlock();
     }
     //---------------------------------------------------------------------
     void Mesh::_notifySkeleton(Skeleton* pSkel)
@@ -755,9 +601,9 @@ namespace Ogre {
         for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
         {
             // Set up data for reduction
-            GeometryData* pGeom = (*isub)->useSharedVertices ? &sharedGeometry : &((*isub)->geometry);
+            VertexData* pVertexData = (*isub)->useSharedVertices ? sharedVertexData : (*isub)->vertexData;
 
-            ProgressiveMesh pm(pGeom, (*isub)->faceVertexIndices, (*isub)->numFaces * 3);
+            ProgressiveMesh pm(pVertexData, (*isub)->indexData);
             pm.build(
             static_cast<ushort>(lodDistances.size()), 
                 &((*isub)->mLodFaceList), 
@@ -877,7 +723,7 @@ namespace Ogre {
 	}
     //---------------------------------------------------------------------
 	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, 
-		ProgressiveMesh::LODFaceData& facedata)
+		IndexData* facedata)
 	{
 		SubMesh* sm = mSubMeshList[subIdx];
 		sm->mLodFaceList[level - 1] = facedata;
@@ -925,10 +771,16 @@ namespace Ogre {
         return mBoundRadius;
     }
     //---------------------------------------------------------------------
-	void Mesh::setBufferPolicy(bool vertexBuffersDynamic, bool indexBuffersDynamic)
+	void Mesh::setVertexBufferPolicy(HardwareBuffer::Usage vbUsage, bool shadowBuffer)
 	{
-		mVertexBuffersDynamic = vertexBuffersDynamic;
-		mIndexBuffersDynamic = indexBuffersDynamic;
+		mVertexBufferUsage = vbUsage;
+		mVertexBufferShadowBuffer = shadowBuffer;
+	}
+    //---------------------------------------------------------------------
+	void Mesh::setIndexBufferPolicy(HardwareBuffer::Usage vbUsage, bool shadowBuffer)
+	{
+		mIndexBufferUsage = vbUsage;
+		mIndexBufferShadowBuffer = shadowBuffer;
 	}
 
 }

@@ -20,7 +20,9 @@ namespace Ogre
 //----------------------------------------------------------------------------
 
 NatureTerrainPatch::NatureTerrainPatch()
-    : NaturePatch()
+    : NaturePatch(),
+      mVertexData(0),
+      mIndexData(0)
 {
     memset(mQuadTree, 0, sizeof(QuadTreeNode) * QUADTREE_NODES);
     
@@ -28,8 +30,6 @@ NatureTerrainPatch::NatureTerrainPatch()
 
     mDistance = 500.0f;
 
-    mVertexCache = mNormalCache = mCoordCache[0] = mCoordCache[1] = 0;
-    mIndexCache  = 0;
     mColourCache = 0;
 
     mVertexCount = 0;
@@ -47,16 +47,16 @@ NatureTerrainPatch::~NatureTerrainPatch()
 
 void NatureTerrainPatch::freeCaches()
 {
-    if (mVertexCache != 0)
+    if (mVertexData)
     {
-	delete[] mVertexCache;
-	mVertexCache = 0;
+        delete mVertexData;
+        mVertexData = 0;
     }
 
-    if (mIndexCache != 0)
+    if (mIndexData)
     {
-	delete[] mIndexCache;
-	mIndexCache = 0;
+        delete mIndexData;
+        mIndexData = 0;
     }
 
     if (mColourCache != 0)
@@ -65,23 +65,6 @@ void NatureTerrainPatch::freeCaches()
 	mColourCache = 0;
     }
 
-    if (mNormalCache != 0)
-    {
-	delete[] mNormalCache;
-	mNormalCache = 0;
-    }
-
-    if (mCoordCache[0] != 0)
-    {
-	delete[] mCoordCache[0];
-	mCoordCache[0] = 0;
-    }
-
-    if (mCoordCache[1] != 0)
-    {
-	delete[] mCoordCache[1];
-	mCoordCache[1] = 0;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -197,42 +180,55 @@ void NatureTerrainPatch::generateMesh()
 	mVertexCount = 0;
 	mIndexCount  = 0;
 
-	render(EDGE_LENGTH / 2, EDGE_LENGTH / 2, 0, 0);
-
 	// free any previous caches
 	freeCaches();
 
-	// update vertex and index buffers
-	mVertexCache   = new Real[mVertexCount * 3];
-	mIndexCache    = new ushort[mIndexCount];
+	render(EDGE_LENGTH / 2, EDGE_LENGTH / 2, 0, 0);
 
-	memcpy(mVertexCache, mManager->mVertexBuffer,
-	       mVertexCount * 3 * sizeof(Real));
+    mVertexData = new VertexData;
+    mVertexData->vertexStart = 0;
+    mVertexData->vertexCount = mVertexCount * 3;
 
-	memcpy(mIndexCache, mManager->mIndexBuffer,
-	       mIndexCount * sizeof(ushort));
+    VertexDeclaration* decl = mVertexData->vertexDeclaration;
+    VertexBufferBinding* bind = mVertexData->vertexBufferBinding;
 
-#if USE_TEXTURES
-	// update texture coords
-	mCoordCache[0] = new Real[mVertexCount * 2];
-	mCoordCache[1] = new Real[mVertexCount * 2];
+    size_t offset = 0;
 
-	memcpy(mCoordCache[0], mManager->mCoordBuffer[0],
-	       mVertexCount * 2 * sizeof(Real));
-
-	memcpy(mCoordCache[1], mManager->mCoordBuffer[1],
-	       mVertexCount * 2 * sizeof(Real));
-#endif
+    // positions
+    decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+    offset += VertexElement::getTypeSize(VET_FLOAT3);
 
 #if USE_NORMALS
-	// update normals
-	mNormalCache   = new Real[mVertexCount * 3];
+    // normals
+    decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+    offset += VertexElement::getTypeSize(VET_FLOAT3);
+#endif
 
-	memcpy(mNormalCache, mManager->mNormalBuffer,
-	       mVertexCount * 3 * sizeof(Real));
+#if USE_TEXTURES
+    // texture coord sets
+    decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+    offset += VertexElement::getTypeSize(VET_FLOAT2);
+    decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
+    offset += VertexElement::getTypeSize(VET_FLOAT2);
 #endif
 
 #if USE_COLOURS
+	// update colours
+    decl->addElement(1, 0, VET_COLOUR, VES_DIFFUSE);
+#endif
+
+    HardwareVertexBufferSharedPtr vbuf =
+        HardwareBufferManager::getSingleton().createVertexBuffer(
+            offset, 
+            mVertexData->vertexCount,
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+    bind->setBinding(0, vbuf);
+
+	// update buffer
+    vbuf->writeData(0, vbuf->getSizeInBytes(), mManager->mDataBuffer);
+
+#if USE_COLOURS
+    /* TODO
 	// update colours
 	mColourCache = new unsigned long[mVertexCount];
 
@@ -248,7 +244,23 @@ void NatureTerrainPatch::generateMesh()
 	    else
 		mColourCache[i] = 0x00000000;
 	}
+    */
 #endif
+
+    mIndexData = new IndexData;
+    mIndexData->indexStart = 0;
+    mIndexData->indexCount = mIndexCount;
+
+    mIndexData->indexBuffer =
+        HardwareBufferManager::getSingleton().createIndexBuffer(
+            HardwareIndexBuffer::IT_16BIT,
+            mIndexData->indexCount,
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+    // update index buffer
+    mIndexData->indexBuffer->writeData(0, 
+        mIndexData->indexBuffer->getSizeInBytes(), mManager->mIndexBuffer);
+
 	mNeedRendering = false;
     }
 //    saveASC(mVertexCount * 3, mIndexCount);
@@ -774,55 +786,62 @@ void NatureTerrainPatch::triangulate(int cx, int cz, int node, int level)
 }
 
 //----------------------------------------------------------------------------
+void NatureTerrainPatch::getNormal(int x, int z, Vector3 *normal)
+{   
+    Vector3 here, left, down;
+                
+    here.x = x;
+    here.y = mHeight[z * mData->terrain.heightMapWidth + x]
+        * mScale.y + mWorld.y;
+    here.z = z;
+    
+    left.x = x - 1;
+    if (x > 0)
+        left.y = mHeight[z * mData->terrain.heightMapWidth + (x - 1)]
+            * mScale.y + mWorld.y;
+    else if (mWestNeighbor != 0)
+        left.y = mWestNeighbor->getHeightAt(EDGE_LENGTH - 1, z);
+    else
+        left.y = here.y;
 
-void NatureTerrainPatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
+    left.z = z;
+
+    down.x = x;
+    if (z < EDGE_LENGTH)
+        down.y = mHeight[(z + 1) * mData->terrain.heightMapWidth + x]
+            * mScale.y + mWorld.y;
+    else if (mSouthNeighbor != 0)
+        down.y = mSouthNeighbor->getHeightAt(x, 1);
+    else
+        down.y = here.y;
+
+    down.z = z + 1;
+
+    left = left - here;
+    down = down - here;
+
+    left.normalise();
+    down.normalise();
+
+    *normal = left.crossProduct(down);
+    normal->normalise();
+}
+//----------------------------------------------------------------------------
+
+void NatureTerrainPatch::getRenderOperation(RenderOperation& op)
 {
-    rend.useIndexes = true;
-    rend.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
-    rend.vertexOptions = 0;
+    op.useIndexes = true;
+    op.operationType = RenderOperation::OT_TRIANGLE_LIST;
 
-#if USE_TEXTURES
-    rend.vertexOptions |= LegacyRenderOperation::VO_TEXTURE_COORDS;
+    op.vertexData = mVertexData;
+    op.vertexData->vertexStart = 0;
+    op.vertexData->vertexCount = mVertexCount;
 
-    // texture coordinates
-    rend.numTextureCoordSets = 2;
+    op.indexData = mIndexData;
+    op.indexData->indexStart = 0;
+    op.indexData->indexCount = mIndexCount;
 
-    rend.numTextureDimensions[0] = 2;
-    rend.numTextureDimensions[1] = 2;
-
-    rend.texCoordStride[0] = 0;
-    rend.texCoordStride[1] = 0;
-
-    rend.pTexCoords[0] = mCoordCache[0];
-    rend.pTexCoords[1] = mCoordCache[1];
-#else
-    rend.vertexOptions = 0;
-    rend.numTextureCoordSets = 0;
-#endif
-
-#if USE_COLOURS
-    // diffuse colors
-    rend.vertexOptions |= LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-
-    rend.pDiffuseColour = mColourCache;
-    rend.diffuseStride  = 0;
-#endif
-
-#if USE_NORMALS
-    // lighting
-    rend.vertexOptions |= LegacyRenderOperation::VO_NORMALS;
-
-    rend.normalStride = 0;
-    rend.pNormals     = mNormalCache;
-#endif
-
-    // vertices & indexes
-    rend.vertexStride = 0;
-    rend.pVertices    = mVertexCache;
-    rend.pIndexes     = mIndexCache;
-
-    rend.numVertices  = mVertexCount;
-    rend.numIndexes   = mIndexCount;
+    //std::cerr << "index count = " << mIndexCount << std::endl;
 }
 
 void NatureTerrainPatch::_notifyCurrentCamera(Camera *cam)

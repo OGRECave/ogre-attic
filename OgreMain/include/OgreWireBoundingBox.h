@@ -38,24 +38,11 @@ namespace Ogre {
     */
 	class _OgreExport WireBoundingBox : public SimpleRenderable
 	{
-
     protected:
-        /** Pointer to the wireframe vertex data.
-        */
-		float mVertexData[12*6]; 
-
-        /** Pointer to the wireframe color data.
-        */
-		long mDiffuses[24]; 
-
         /** Override this method to prevent parent transforms (rotation,translation,scale)
         */
 		void getWorldTransforms( Matrix4* xform );
 		
-        /** Pointer to a LegacyRenderOperation that contains the OT_LINE_LIST description of the wireframe.
-        */
-//		LegacyRenderOperation mRenderOp; 
-
         /** Builds the wireframe line list.
         */
 		void setupBoundingBoxVertices(AxisAlignedBox &aab);

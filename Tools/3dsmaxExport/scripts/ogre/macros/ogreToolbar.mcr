@@ -3,7 +3,6 @@
 -- 
 -- Copyright © 2002 John Martin
 --
--- $Id$
 --
 -- Macroscript for the Ogre Toolbar.
 --

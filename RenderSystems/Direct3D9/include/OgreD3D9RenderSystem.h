@@ -29,7 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "OgreRenderSystem.h"
-#include "OgreD3D9HWBuffers.h"
 #include "OgreD3D9Mappings.h"
 
 #include "OgreNoMemoryMacros.h"
@@ -41,7 +40,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre 
 {
 #define MAX_LIGHTS 8
-#define D3D_MAX_DECLSIZE 26
 
 	class D3D9DriverList;
 	class D3D9Driver;
@@ -57,14 +55,8 @@ namespace Ogre
 		/// Direct3D rendering device
 		LPDIRECT3DDEVICE9	mpD3DDevice;
 		
-		/// dynamic vertex buffers manager
-		D3D9DynVBManager *mDVBMgr;
-		/// dynamic index buffers manager
-		D3D9DynIBManager *mDIBMgr;
-
 		// Stored options
 		ConfigOptionMap mOptions;
-
         /// wait for vsync
 		bool mVSync;
 		/// full-screen multisampling antialiasing type
@@ -97,10 +89,6 @@ namespace Ogre
 			IDirect3DBaseTexture9 *pTex;
 		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
 
-		// With a quick bit of adding up, I cannot see our vertex shader declaration being larger then 26 items
-		D3DVERTEXELEMENT9 mCurrentDecl[D3D_MAX_DECLSIZE];
-		LPDIRECT3DVERTEXDECLARATION9 mpCurrentVertexDecl;
-
 		// Array of up to 8 lights, indexed as per API
 		// Note that a null value indeicates a free slot
 		Light* mLights[MAX_LIGHTS];
@@ -130,43 +118,8 @@ namespace Ogre
 		/// set FSAA
 		void _setFSAA(D3DMULTISAMPLE_TYPE type, DWORD qualityLevel);
 		
-		/// findout if a tex. stage use the coord.index specified
-		bool _isCoordIndexInUse(int index)
-		{
-			for (int n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
-			{
-				if (mTexStageDesc[n].pTex > 0 &&
-					mTexStageDesc[n].autoTexCoordType == TEXCALC_NONE &&
-					mTexStageDesc[n].coordIndex == index)
-					return true;
-			}
-			return false;
-		}
-
-		/// return the D3D tex.coord.dim FVF ID for a tex.coord.dim.
-		D3DDECLTYPE _texCoordDimToDeclType(int coordDim)
-		{
-			D3DDECLTYPE ret;
-			switch (coordDim)
-			{
-			case 1:
-				ret = D3DDECLTYPE_FLOAT1;
-				break;
-			case 2:
-				ret = D3DDECLTYPE_FLOAT2;
-				break;
-			case 3:
-				ret = D3DDECLTYPE_FLOAT3;
-				break;
-			case 4:
-				ret = D3DDECLTYPE_FLOAT4;
-				break;
-			default:
-				Except( Exception::ERR_INVALIDPARAMS, "Invalid tex.coord.dimensions", "D3D9RenderSystem::_texCoordDimToDeclType" );
-				break;
-			}
-			return ret;
-		}
+		D3D9HardwareBufferManager* mHardwareBufferManager;
+		unsigned short mLastVertexSourceCount;
 
 	public:
 		// constructor
@@ -227,7 +180,6 @@ namespace Ogre
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );
 		void _setViewport( Viewport *vp );
 		void _beginFrame(void);
-		void _render(const LegacyRenderOperation &op );
 		void _endFrame(void);
 		void _setCullingMode( CullingMode mode );
 		void _setDepthBufferParams( bool depthTest = true, bool depthWrite = true, CompareFunction depthFunction = CMPF_LESS_EQUAL );

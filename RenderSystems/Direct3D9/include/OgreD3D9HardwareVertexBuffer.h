@@ -39,18 +39,18 @@ namespace Ogre {
     {
     protected:
         LPDIRECT3DVERTEXBUFFER9 mlpD3DBuffer;
+        /** See HardwareBuffer. */
+        void* lockImpl(size_t offset, size_t length, LockOptions options);
+        /** See HardwareBuffer. */
+		void unlockImpl(void);
     public:
 		D3D9HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-            HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev);
+            HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMem, bool useShadowBuffer);
         ~D3D9HardwareVertexBuffer();
         /** See HardwareBuffer. */
-        unsigned char* lock(size_t offset, size_t length, LockOptions options);
+        void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
-		void unlock(void);
-        /** See HardwareBuffer. */
-        void readData(size_t offset, size_t length, unsigned char* pDest);
-        /** See HardwareBuffer. */
-        void writeData(size_t offset, size_t length, const unsigned char* pSource,
+        void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
 
         /// Get D3D9-specific vertex buffer

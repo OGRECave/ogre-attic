@@ -30,22 +30,24 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer(HardwareIndexBuffer::IndexType idxType, 
-        size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev)
-        : HardwareIndexBuffer(idxType, numIndexes, usage)
+        size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, 
+        bool useSystemMemory, bool useShadowBuffer)
+        : HardwareIndexBuffer(idxType, numIndexes, usage, useSystemMemory, useShadowBuffer)
     {
         // Create the Index buffer
         HRESULT hr = pDev->CreateIndexBuffer(
             mSizeInBytes,
             D3D9Mappings::get(usage),
             D3D9Mappings::get(idxType),
-            D3DPOOL_DEFAULT,
+			mSystemMemory ? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT,
             &mlpD3DBuffer,
             NULL
             );
             
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 Index buffer", 
+			String msg = DXGetErrorDescription9(hr);
+            Except(hr, "Cannot create D3D9 Index buffer: " + msg, 
                 "D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer");
         }
 
@@ -56,15 +58,25 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DBuffer);
     }
 	//---------------------------------------------------------------------
-    unsigned char* D3D9HardwareIndexBuffer::lock(size_t offset, 
+    void* D3D9HardwareIndexBuffer::lockImpl(size_t offset, 
         size_t length, LockOptions options)
     {
-        unsigned char* pBuf;
+        void* pBuf;
+		DWORD lockOpts;
+		if (!(mUsage & HBU_DYNAMIC) && options == HBL_DISCARD)
+		{
+			// D3D doesn't like discard on non-dynamic buffers
+			lockOpts = 0;
+		}
+		else
+		{
+			lockOpts= D3D9Mappings::get(options);
+		} 
         HRESULT hr = mlpD3DBuffer->Lock(
             offset, 
             length, 
-            (void**)&pBuf,
-            D3D9Mappings::get(options));
+            &pBuf,
+            lockOpts);
 
         if (FAILED(hr))
         {
@@ -73,38 +85,34 @@ namespace Ogre {
         }
 
 
-        mIsLocked = true;
-
         return pBuf;
 
 
     }
 	//---------------------------------------------------------------------
-	void D3D9HardwareIndexBuffer::unlock(void)
+	void D3D9HardwareIndexBuffer::unlockImpl(void)
     {
         HRESULT hr = mlpD3DBuffer->Unlock();
-
-        mIsLocked = false;
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareIndexBuffer::readData(size_t offset, size_t length, 
-        unsigned char* pDest)
+        void* pDest)
     {
        // There is no functional interface in D3D, just do via manual 
         // lock, copy & unlock
-        unsigned char* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
+        void* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
         memcpy(pDest, pSrc, length);
         this->unlock();
 
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareIndexBuffer::writeData(size_t offset, size_t length, 
-            const unsigned char* pSource,
+            const void* pSource,
 			bool discardWholeBuffer)
     {
        // There is no functional interface in D3D, just do via manual 
         // lock, copy & unlock
-        unsigned char* pDst = this->lock(offset, length, 
+        void* pDst = this->lock(offset, length, 
             discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
         memcpy(pDst, pSource, length);
         this->unlock();    }

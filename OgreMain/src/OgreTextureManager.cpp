@@ -81,6 +81,33 @@ namespace Ogre {
         return tex;
     }
     //-----------------------------------------------------------------------
+	Texture * TextureManager::loadRawData( 
+		const String &name, const DataChunk &pData, 
+		ushort uWidth, ushort uHeight, PixelFormat eFormat,
+		TextureType texType,
+		int iNumMipMaps, Real gamma, int priority )
+	{
+		Texture *tex = (Texture*)create( name, texType );
+        if( iNumMipMaps == -1 )
+            tex->setNumMipMaps( mDefaultNumMipMaps );
+        else
+            tex->setNumMipMaps( iNumMipMaps );
+
+        tex->setGamma( gamma );        
+		tex->loadRawData( pData, uWidth, uHeight, eFormat);
+		
+		std::pair<ResourceMap::iterator, bool> res = mResources.insert(
+			ResourceMap::value_type( tex->getName(), tex));
+		if (!res.second)
+		{
+			// Key was already used
+			Except(Exception::ERR_DUPLICATE_ITEM, "A texture with the name " + tex->getName() + 
+				" was already loaded.", "TextureManager::loadRawData");
+		}
+
+        return tex;
+	}
+    //-----------------------------------------------------------------------
     void TextureManager::unload( String filename )
     {
         Resource* res = getByName( filename );

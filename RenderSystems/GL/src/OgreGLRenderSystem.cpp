@@ -29,11 +29,17 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreLight.h"
 #include "OgreCamera.h"
 #include "OgreGLTextureManager.h"
+#include "OgreGLHardwareVertexBuffer.h"
+#include "OgreGLHardwareIndexBuffer.h"
+#include "OgreGLDefaultHardwareBufferManager.h"
 #include "OgreGLUtil.h"
 
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
 #endif
+
+// Convenience macro from ARB_vertex_buffer_object spec
+#define VBO_BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 namespace Ogre {
 
@@ -85,6 +91,9 @@ namespace Ogre {
         if (mTextureManager)
             delete mTextureManager;
 
+        if (mHardwareBufferManager)
+            delete mHardwareBufferManager;
+
         delete mCapabilities;
         delete mGLSupport;
     }
@@ -120,8 +129,6 @@ namespace Ogre {
 
     RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow)
     {
-        //The main startup
-        RenderSystem::initialise(autoCreateWindow);
 
         mGLSupport->start();
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this);
@@ -140,7 +147,7 @@ namespace Ogre {
             "*** GL Renderer Started ***\n"
             "***************************");
 
-        LogManager::getSingleton().logMessage(
+		LogManager::getSingleton().logMessage(
             "The following extensions are available:");
 
         // Check for hardware mipmapping support.
@@ -222,6 +229,13 @@ namespace Ogre {
         {
             LogManager::getSingleton().logMessage("- Vertex Buffer Object\n");
             mCapabilities->setCapability(RSC_VBO);
+
+            mHardwareBufferManager = new GLHardwareBufferManager;
+            glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
+        }
+        else
+        {
+            mHardwareBufferManager = new GLDefaultHardwareBufferManager;
         }
 
     }
@@ -881,158 +895,7 @@ namespace Ogre {
         setLights();
         OgreUnguard();
     }
-    //-----------------------------------------------------------------------------
-    void GLRenderSystem::_render(const LegacyRenderOperation& op)
-    {
-        OgreGuard("GLRenderSystem::_render");
-        
-        RenderSystem::_render(op);
-
-        if (op.vertexOptions == 0)
-        {
-            // Must include at least vertex normal, colour or tex coords
-            Except(999, 
-                "You must specify at least vertex normals, "
-                "vertex colours or texture co-ordinates to render.", 
-                "GLRenderSystem::_render" );
-        }
-
-        // Setup the vertex array
-        glEnableClientState( GL_VERTEX_ARRAY );
-        unsigned short stride = op.vertexStride ? 
-            op.vertexStride + (sizeof(GL_FLOAT) * 3) : 0;
-        glVertexPointer( 3, GL_FLOAT, stride, op.pVertices );
-
-        // Normals if available
-        if (op.vertexOptions & LegacyRenderOperation::VO_NORMALS)
-        {
-            glEnableClientState( GL_NORMAL_ARRAY );
-            stride = op.normalStride ?  op.normalStride + (sizeof(GL_FLOAT) * 3) : 0;
-            glNormalPointer( GL_FLOAT, stride, op.pNormals );
-        }
-        else
-        {
-            glDisableClientState( GL_NORMAL_ARRAY );
-        }
-
-        // Color
-        if (op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS)
-        {
-            glEnableClientState(GL_COLOR_ARRAY);
-            stride = op.diffuseStride ?  
-                            op.diffuseStride + (sizeof(unsigned char) * 4) : 0;
-            glColorPointer( 4, GL_UNSIGNED_BYTE, stride, op.pDiffuseColour );
-        }
-        else
-        {
-            glDisableClientState(GL_COLOR_ARRAY);
-            glColor4f(1,1,1,1);
-        }
-        
-        // Textures if available
-        /*
-		GLint index = GL_TEXTURE0_ARB;
-        for (int i = 0; i < _getNumTextureUnits(); i++)
-        {
-            if( (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS) &&
-                (i < op.numTextureCoordSets) )
-            {                
-                glClientActiveTextureARB(index + i);
-                glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-                stride = 
-					op.texCoordStride[mTextureCoordIndex[i]] ?  
-                    op.texCoordStride[mTextureCoordIndex[i]] + 
-					((unsigned short)sizeof(GL_FLOAT) * 
-					op.numTextureDimensions[mTextureCoordIndex[i]])
-                    : 0;
-                glTexCoordPointer(
-                    op.numTextureDimensions[mTextureCoordIndex[i]],
-                    GL_FLOAT, stride, 
-                    op.pTexCoords[mTextureCoordIndex[i]] );
-            }
-            else
-            {
-				glClientActiveTextureARB( index + i );
-				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-            }
-        }
-		*/
-
-		GLint index = GL_TEXTURE0;
-        for (int i = 0; i < mCapabilities->numTextureUnits(); i++)
-        {
-            if( (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS) )
-            {                
-                glClientActiveTextureARB_ptr(index + i);
-				if (glIsEnabled(GL_TEXTURE_2D))
-				{
-					int texCoordIndex = 
-                        (mTextureCoordIndex[i] < op.numTextureCoordSets) ? 
-                        mTextureCoordIndex[i] : 0;
-
-					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-					stride = 
-						op.texCoordStride[texCoordIndex] ?  
-						op.texCoordStride[texCoordIndex] + 
-						((unsigned short)sizeof(GL_FLOAT) * 
-						op.numTextureDimensions[texCoordIndex])
-						: 0;
-					glTexCoordPointer(
-						op.numTextureDimensions[texCoordIndex],
-						GL_FLOAT, stride, 
-						op.pTexCoords[texCoordIndex] );
-				}
-            }
-            else
-            {
-				glClientActiveTextureARB_ptr( index + i );
-				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
-            }
-        }
-
-		// Reset the texture to 0
-        glClientActiveTextureARB_ptr(index);
-
-        // Find the correct type to render
-        GLint primType;
-        switch (op.operationType)
-        {
-        case LegacyRenderOperation::OT_POINT_LIST:
-            primType = GL_POINTS;
-            break;
-        case LegacyRenderOperation::OT_LINE_LIST:
-            primType = GL_LINES;
-            break;
-        case LegacyRenderOperation::OT_LINE_STRIP:
-            primType = GL_LINE_STRIP;
-            break;
-        case LegacyRenderOperation::OT_TRIANGLE_LIST:
-            primType = GL_TRIANGLES;
-            break;
-        case LegacyRenderOperation::OT_TRIANGLE_STRIP:
-            primType = GL_TRIANGLE_STRIP;
-            break;
-        case LegacyRenderOperation::OT_TRIANGLE_FAN:
-            primType = GL_TRIANGLE_FAN;
-            break;
-        }
-
-        if (op.useIndexes)
-        {
-            glDrawElements(
-                primType, 
-                op.numIndexes, 
-                GL_UNSIGNED_SHORT,
-                op.pIndexes);
-        }
-        else
-        {
-            glDrawArrays( primType, 0, op.numVertices );
-        }
-
-		OgreUnguard();
-    }
-    
+   
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_endFrame(void)
     {
@@ -1657,18 +1520,160 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void GLRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
 	{
-		// TODO
 	}
     //---------------------------------------------------------------------
 	void GLRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
 	{
-		// TODO
 	}
     //---------------------------------------------------------------------
     void GLRenderSystem::_render(const RenderOperation& op)
 	{
-		// TODO
+        // Guard
+        OgreGuard ("GLRenderSystem::_render");
+        // Call super class
+        RenderSystem::_render(op);
+
+        void* pBufferData = 0;
+        
+        const VertexDeclaration::VertexElementList& decl = 
+            op.vertexData->vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator elem, elemEnd;
+        elemEnd = decl.end();
+
+        for (elem = decl.begin(); elem != elemEnd; ++elem)
+        {
+            HardwareVertexBufferSharedPtr vertexBuffer = 
+                op.vertexData->vertexBufferBinding->getBuffer(elem->getSource());
+            if(mCapabilities->hasCapability(RSC_VBO))
+            {
+                glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, 
+                    static_cast<const GLHardwareVertexBuffer*>(vertexBuffer.get())->getGLBufferId());
+                pBufferData = VBO_BUFFER_OFFSET(elem->getOffset());
+            }
+            else
+            {
+                pBufferData = static_cast<const GLDefaultHardwareVertexBuffer*>(vertexBuffer.get())->getDataPtr(elem->getOffset());
+            }
+
+            int i = 0;
+
+            switch(elem->getSemantic())
+            {
+            case VES_POSITION:
+                glVertexPointer(VertexElement::getTypeCount(elem->getType()), 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), pBufferData);
+                glEnableClientState( GL_VERTEX_ARRAY );
+                break;
+            case VES_NORMAL:
+                glNormalPointer(
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), pBufferData);
+                glEnableClientState( GL_NORMAL_ARRAY );
+                break;
+            case VES_DIFFUSE:
+                glColorPointer(4, 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), pBufferData);
+                glEnableClientState( GL_COLOR_ARRAY );
+                break;
+            case VES_SPECULAR:
+                glSecondaryColorPointer(4, 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), pBufferData);
+                glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
+                break;
+            case VES_TEXTURE_COORDINATES:
+
+                for (i = 0; i < mCapabilities->numTextureUnits(); i++)
+                {
+					// Only set this texture unit's texcoord pointer if it
+					// is supposed to be using this element's index
+					if (mTextureCoordIndex[i] == elem->getIndex())
+					{
+						glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
+						if (glIsEnabled(GL_TEXTURE_2D))
+						{
+							//int texCoordIndex =
+							//    (mTextureCoordIndex[i] < op.numTextureCoordSets) ?
+							//    mTextureCoordIndex[i] : 0;
+							glTexCoordPointer(
+								VertexElement::getTypeCount(elem->getType()), 
+								GLHardwareBufferManager::getGLType(elem->getType()),
+								vertexBuffer->getVertexSize(), pBufferData);
+						}
+						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+					}
+                }
+                break;
+            default:
+                break;
+            };
+
+        }
+
+        glClientActiveTextureARB_ptr(GL_TEXTURE0);
+
+        // Find the correct type to render
+        GLint primType;
+        switch (op.operationType)
+        {
+        case RenderOperation::OT_POINT_LIST:
+            primType = GL_POINTS;
+            break;
+        case RenderOperation::OT_LINE_LIST:
+            primType = GL_LINES;
+            break;
+        case RenderOperation::OT_LINE_STRIP:
+            primType = GL_LINE_STRIP;
+            break;
+        case RenderOperation::OT_TRIANGLE_LIST:
+            primType = GL_TRIANGLES;
+            break;
+        case RenderOperation::OT_TRIANGLE_STRIP:
+            primType = GL_TRIANGLE_STRIP;
+            break;
+        case RenderOperation::OT_TRIANGLE_FAN:
+            primType = GL_TRIANGLE_FAN;
+            break;
+        }
+
+        if (op.useIndexes)
+        {
+            if(mCapabilities->hasCapability(RSC_VBO))
+            {
+                glBindBufferARB_ptr(GL_ELEMENT_ARRAY_BUFFER_ARB, 
+                    static_cast<GLHardwareIndexBuffer*>(
+                        op.indexData->indexBuffer.get())->getGLBufferId());
+
+                pBufferData = VBO_BUFFER_OFFSET(0);
+            }
+            else
+            {
+                pBufferData = static_cast<GLDefaultHardwareIndexBuffer*>(
+                    op.indexData->indexBuffer.get())->getDataPtr(0);
+            }
+
+            GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
+            glDrawRangeElements(primType, op.indexData->indexStart, 
+                op.indexData->indexStart + op.indexData->indexCount - 1,
+                op.indexData->indexCount, indexType, pBufferData);
+
+        }
+        else
+        {
+            glDrawArrays(primType, op.vertexData->vertexStart,
+                op.vertexData->vertexCount);
+        }
+
+        glDisableClientState( GL_VERTEX_ARRAY );
+        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+        glDisableClientState( GL_NORMAL_ARRAY );
+        glDisableClientState( GL_COLOR_ARRAY );
+        glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
+        glColor4f(1,1,1,1);
+
+        // UnGuard
+        OgreUnguard();
 	}
-
-
 }

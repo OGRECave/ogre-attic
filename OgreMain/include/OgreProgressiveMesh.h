@@ -33,6 +33,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreVector3.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
+#include "OgreRenderOperation.h"
 
 namespace Ogre {
 
@@ -61,17 +64,17 @@ namespace Ogre {
 			/// A proportion of the remaining number of vertices are removed at each reduction
 			VRQ_PROPORTIONAL
 		};
-		/// Struct for holding the returned LOD geometry information
-        struct LODFaceData
-        {
-            ushort numIndexes;
-            ushort* pIndexes;
-        };
 
-        typedef std::vector<LODFaceData> LODFaceList;
+        typedef std::vector<IndexData*> LODFaceList;
 
-        /** Constructor, takes the geometry data and index buffer. */
-        ProgressiveMesh(GeometryData* data, ushort* indexBuffer, ushort numIndexes);
+        /** Constructor, takes the geometry data and index buffer. 
+		@remarks
+			DO NOT pass write-only, unshadowed buffers to this method! They will not
+			work. Pass only shadowed buffers, or better yet perform mesh reduction as
+			an offline process using DefaultHardwareBufferManager to manage vertex
+			buffers in system memory.
+		*/
+        ProgressiveMesh(const VertexData* vertexData, const IndexData* indexData);
         virtual ~ProgressiveMesh();
 
         /** Adds an extra vertex position buffer. 
@@ -81,10 +84,15 @@ namespace Ogre {
             simplifying the mesh is taken into account. This is because the cost of
             simplifying an animated mesh cannot be calculated from just the reference position,
             multiple positions needs to be assessed in order to find the best simplification option.
+		@par
+			DO NOT pass write-only, unshadowed buffers to this method! They will not
+			work. Pass only shadowed buffers, or better yet perform mesh reduction as
+			an offline process using DefaultHardwareBufferManager to manage vertex
+			buffers in system memory.
         @param buffer Pointer to x/y/z buffer with vertex positions. The number of vertices
             must be the same as in the original GeometryData passed to the constructor.
         */
-        virtual void addExtraVertexPositionBuffer(Real* buffer);
+        virtual void addExtraVertexPositionBuffer(const VertexData* vertexData);
 
         /** Builds the progressive mesh with the specified number of levels.
         @param numLevels The number of levels to include in the output excluding the full detail version.
@@ -98,11 +106,11 @@ namespace Ogre {
 			VertexReductionQuota quota = VRQ_PROPORTIONAL, Real reductionValue = 0.5f );
 
     protected:
-        GeometryData* mpGeomData;
-        ushort* mpIndexBuffer;
-        ushort mNumIndexes;
-        ushort mCurrNumIndexes;
-		ushort mNumCommonVertices;
+        const VertexData *mpVertexData;
+        const IndexData *mpIndexData;
+
+        size_t mCurrNumIndexes;
+		size_t mNumCommonVertices;
 
         // Internal classes
         class PMTriangle;
@@ -114,7 +122,7 @@ namespace Ogre {
 		by the face, and a pointer to the common vertex used for surface evaluation. */
 		class PMFaceVertex {
 		public:
-			ushort realIndex;
+			size_t realIndex;
 			PMVertex* commonVertex;
 		};
 
@@ -124,7 +132,7 @@ namespace Ogre {
         class PMTriangle {
         public:
             PMTriangle();
-            void setDetails(ushort index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
+            void setDetails(size_t index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
 	        void computeNormal(void);
 	        void replaceVertex(PMFaceVertex *vold, PMFaceVertex *vnew);
 	        bool  hasCommonVertex(PMVertex *v);
@@ -135,7 +143,7 @@ namespace Ogre {
 	        PMFaceVertex* vertex[3]; // the 3 points that make this tri
 	        Vector3   normal;    // unit vector othogonal to this face
             bool      removed;   // true if this tri is now removed
-			ushort index;
+			size_t index;
         };
 
         /** A vertex in the progressive mesh, holds info like collapse cost etc. 
@@ -154,7 +162,7 @@ namespace Ogre {
 			void notifyRemoved(void);
 
             Vector3  position;  // location of point in euclidean space
-	        ushort index;       // place of vertex in original list
+	        size_t index;       // place of vertex in original list
             typedef std::set<PMVertex *> NeighborList;
             typedef std::set<PMVertex *> DuplicateList;
             NeighborList neighbor; // adjacent vertices
@@ -191,22 +199,22 @@ namespace Ogre {
         WorstCostList mWorstCosts;
 
         /// Internal method for building PMWorkingData from geometry data
-        void addWorkingData(Real* pPositions, GeometryData* data, ushort* indexBuffer, ushort numIndexes);
+        void addWorkingData(const VertexData* vertexData, const IndexData* indexData);
 
         /// Internal method for initialising the edge collapse costs
         void initialiseEdgeCollapseCosts(void);
         /// Internal calculation method for deriving a collapse cost  from u to v
         Real computeEdgeCollapseCost(PMVertex *src, PMVertex *dest);
         /// Internal method evaluates all collapse costs from this vertex and picks the lowest for a single buffer
-        Real computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, ushort vertIndex);
+        Real computeEdgeCostAtVertexForBuffer(WorkingDataList::iterator idata, size_t vertIndex);
         /// Internal method evaluates all collapse costs from this vertex for every buffer and returns the worst
-        void computeEdgeCostAtVertex(ushort vertIndex);
+        void computeEdgeCostAtVertex(size_t vertIndex);
         /// Internal method to compute edge collapse costs for all buffers /
         void computeAllCosts(void);
         /// Internal method for getting the index of next best vertex to collapse
-        ushort getNextCollapser(void);
+        size_t getNextCollapser(void);
         /// Internal method builds an new LOD based on the current state
-        void bakeNewLOD(LODFaceData* pData);
+        void bakeNewLOD(IndexData* pData);
 
         /** Internal method, collapses vertex onto it's saved collapse target. 
         @remarks

@@ -141,9 +141,6 @@
 				RelativePath="..\src\OgreD3D9EngineDll.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreD3D9HWBuffers.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreD3D9HardwareBufferManager.cpp">
 			</File>
 			<File
@@ -185,9 +182,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9DriverList.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreD3D9HWBuffers.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9HardwareBufferManager.h">

@@ -58,6 +58,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_MAX_TEXTURE_LAYERS 8
 
+/** Define max number of blending weights allowed per vertex.
+*/
+#define OGRE_MAX_BLEND_WEIGHTS 4
+
 /** Set this to zero if you want to link OGRE as a static lib. 
 */
 #define OGRE_DYNAMIC_LINKAGE 1

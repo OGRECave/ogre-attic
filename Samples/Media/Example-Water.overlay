@@ -51,6 +51,20 @@ Example/WaterOverlay
 			colour_bottom 0.3 0.5 0.3
 		}
 
+		element TextArea(Example/Water/SkyBox)
+		{
+			metrics_mode pixels
+			left 5
+			top 35
+			width 90
+			height 30
+			font_name TrebuchetMSBold
+			char_height 16
+			caption [B]SkyBox: 
+			colour_top 0.5 0.7 0.5
+			colour_bottom 0.3 0.5 0.3
+		}
+
 		element TextArea(Example/Water/Depth)
 		{
 			metrics_mode pixels

@@ -112,6 +112,8 @@ namespace Ogre {
         */
         void setDimensions(Real width, Real height);
 
+        /** Resets this Billboard to use the parent BillboardSet's dimensions instead of it's own. */
+        void resetDimensions(void) { mOwnDimensions = false; }
         /** Sets the colour of this billboard.
             @remarks
                 Billboards can be tinted based on a base colour. This allows variations in colour irresective of the

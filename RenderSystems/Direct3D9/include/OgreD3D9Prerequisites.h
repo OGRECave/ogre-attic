@@ -53,6 +53,9 @@ namespace Ogre
 	class D3D9DriverList;
 	class D3D9VideoMode;
 	class D3D9VideoModeList;
+    class D3D9HardwareBufferManager;
+    class D3D9HardwareIndexBuffer;
+    class D3D9VertexDeclaration;
 
 	//-------------------------------------------
 	// Windows setttings

@@ -68,7 +68,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="0"
 				InlineFunctionExpansion="1"
 				OmitFramePointers="TRUE"
 				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
@@ -144,10 +144,10 @@
 				RelativePath="..\include\msPlugIn.h">
 			</File>
 			<File
-				RelativePath="..\include\resource.h">
+				RelativePath="..\misc\resource.h">
 			</File>
 			<File
-				RelativePath="..\misc\resource.h">
+				RelativePath="..\include\resource.h">
 			</File>
 		</Filter>
 		<Filter

@@ -52,7 +52,9 @@ namespace Ogre {
     public:
         /** Constructor */
         BorderPanelGuiElement(const String& name);
-        ~BorderPanelGuiElement();
+        virtual ~BorderPanelGuiElement();
+
+        virtual void initialise(void);
 
 		const String& getTypeName(void);
         /** Sets the size of the border.
@@ -257,7 +259,7 @@ namespace Ogre {
         Material* mpBorderMaterial;
 
         // Render operation for the border area
-        LegacyRenderOperation mRenderOp2;
+        RenderOperation mRenderOp2;
 
         static String msTypeName;
 
@@ -311,7 +313,7 @@ namespace Ogre {
         /** Constructed with pointers to parent. */
         BorderRenderable(BorderPanelGuiElement* parent) : mParent(parent) {}
         Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
-        void getLegacyRenderOperation(LegacyRenderOperation& rend) { rend = mParent->mRenderOp2; }
+        void getRenderOperation(RenderOperation& op) { op = mParent->mRenderOp2; }
         void getWorldTransforms(Matrix4* xform) { mParent->getWorldTransforms(xform); }
         unsigned short getNumWorldTransforms(void) { return 1; }
         bool useIdentityProjection(void) { return true; }

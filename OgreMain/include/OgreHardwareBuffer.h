@@ -45,6 +45,21 @@ namespace Ogre {
  	    This abstract class defines the core interface which is common to all
 	    buffers, whether it be vertex buffers, index buffers, texture memory
 	    or framebuffer memory etc.
+	@par
+		Buffers have the ability to be 'shadowed' in system memory, this is because
+		the kinds of access allowed on hardware buffers is not always as flexible as
+		that allowed for areas of system memory - for example it is often either 
+		impossible, or extremely undesirable from a performance standpoint to read from
+		a hardware buffer; when writing to hardware buffers, you should also write every
+		byte and do it sequentially. In situations where this is too restrictive, 
+		it is possible to create a hardware, write-only buffer (the most efficient kind) 
+		and to back it with a system memory 'shadow' copy which can be read and updated arbitrarily.
+		Ogre handles synchronising this buffer with the real hardware buffer (which should still be
+		created with the HBU_DYNAMIC flag if you intend to update it very frequently). Whilst this
+		approach does have it's own costs, such as increased memory overhead, these costs can 
+		often be outweighed by the performance benefits of using a more hardware efficient buffer.
+		You should look for the 'useShadowBuffer' parameter on the creation methods used to create
+		the buffer of the type you require (see HardwareBufferManager) to enable this feature.
     */
     class _OgreExport HardwareBuffer 
     {
@@ -53,21 +68,29 @@ namespace Ogre {
 		    /// Enums describing buffer usage; not mutually exclusive
 		    enum Usage 
 		    {
-                /** Static buffer which the application can never modify once created. */
-                HBU_STATIC,
+                /** Static buffer which the application rarely modifies once created. Modifying 
+                the contents of this buffer will involve a performance hit.
+                */
+                HBU_STATIC = 1,
 			    /** Indicates the application would like to modify this buffer with the CPU
-			    sometimes. 
+			    fairly often. 
 			    Buffers created with this flag will typically end up in AGP memory rather 
 			    than video memory.
 			    */
-			    HBU_DYNAMIC,
+			    HBU_DYNAMIC = 2,
 			    /** Indicates the application will never read the contents of the buffer back, 
 			    it will only ever write data. Locking a buffer with this flag will ALWAYS 
 			    return a pointer to new, blank memory rather than the memory associated 
 			    with the contents of the buffer; this avoids DMA stalls because you can 
 			    write to a new memory area while the previous one is being used
 			    */
-			    HBU_WRITE_ONLY
+			    HBU_WRITE_ONLY = 4,
+				/// Combination of HBU_STATIC and HBU_WRITE_ONLY
+				HBU_STATIC_WRITE_ONLY = 5, 
+				/// Combination of HBU_DYNAMIC and HBU_WRITE_ONLY
+				HBU_DYNAMIC_WRITE_ONLY = 6
+
+
 		    };
 		    /// Locking options
 		    enum LockOptions
@@ -83,16 +106,33 @@ namespace Ogre {
 				Mandatory on statuc buffers, ie those created without the HBU_DYNAMIC flag. 
 				*/ 
 			    HBL_READ_ONLY,
+                /** As HBL_NORMAL, except the application guarantees not to overwrite any 
+                region of the buffer which has already been used in this frame, can allow
+                some optimisation on some APIs. */
+                HBL_NO_OVERWRITE
     			
 		    };
 	    protected:
-		    bool mIsLocked;
 		    size_t mSizeInBytes;
 		    Usage mUsage;
+		    bool mIsLocked;
+			size_t mLockStart;
+			size_t mLockSize;
+			bool mSystemMemory;
+            bool mUseShadowBuffer;
+            HardwareBuffer* mpShadowBuffer;
+            bool mShadowUpdated;
     		
-	    public:
+            /// Internal implementation of lock()
+		    virtual void* lockImpl(size_t offset, size_t length, LockOptions options) = 0;
+            /// Internal implementation of unlock()
+		    virtual void unlockImpl(void) = 0;
+
+    public:
 		    /// Constructor, to be called by HardwareBufferManager only
-            HardwareBuffer(Usage usage) : mUsage(usage) {}
+            HardwareBuffer(Usage usage, bool systemMemory, bool useShadowBuffer) 
+				: mUsage(usage), mIsLocked(false), mSystemMemory(systemMemory), 
+                mUseShadowBuffer(useShadowBuffer), mpShadowBuffer(NULL), mShadowUpdated(false) {}
             virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
@@ -100,7 +140,40 @@ namespace Ogre {
 		    @param options Locking options
 		    @returns Pointer to the locked memory
 		    */
-		    virtual unsigned char* lock(size_t offset, size_t length, LockOptions options) = 0;
+		    virtual void* lock(size_t offset, size_t length, LockOptions options)
+            {
+                assert(!isLocked() && "Cannot lock this buffer, it is already locked!");
+                void* ret;
+				if (mUseShadowBuffer)
+                {
+					if (options != HBL_READ_ONLY)
+					{
+						// we have to assume a read / write lock so we use the shadow buffer
+						// and tag for sync on unlock()
+                        mShadowUpdated = true;
+                    }
+
+                    ret = mpShadowBuffer->lock(offset, length, options);
+                }
+                else
+                {
+					// Lock the real buffer if there is no shadow buffer 
+                    ret = lockImpl(offset, length, options);
+                    mIsLocked = true;
+                }
+				mLockStart = offset;
+				mLockSize = length;
+                return ret;
+            }
+
+            /** Lock the entire buffer for (potentially) reading / writing.
+		    @param options Locking options
+		    @returns Pointer to the locked memory
+            */
+            void* lock(LockOptions options)
+            {
+                return this->lock(0, mSizeInBytes, options);
+            }
 		    /** Releases the lock on this buffer. 
             @remarks 
                 Locking and unlocking a buffer can, in some rare circumstances such as 
@@ -113,7 +186,25 @@ namespace Ogre {
                 suffer from this problem, so if you want to be 100% sure your
                 data will not be lost, use the 'read' and 'write' forms instead.
             */
-		    virtual void unlock(void) = 0;
+		    virtual void unlock(void)
+            {
+                assert(isLocked() && "Cannot unlock this buffer, it is not locked!");
+
+				// If we used the shadow buffer this time...
+                if (mUseShadowBuffer && mpShadowBuffer->isLocked())
+                {
+                    mpShadowBuffer->unlock();
+                    // Potentially update the 'real' buffer from the shadow buffer
+                    _updateFromShadow();
+                }
+                else
+                {
+					// Otherwise, unlock the real one
+                    unlockImpl();
+                    mIsLocked = false;
+                }
+
+            }
 
             /** Reads data from the buffer and places it in the memory pointed to by pDest.
 		    @param offset The byte offset from the start of the buffer to read
@@ -121,7 +212,7 @@ namespace Ogre {
             @param pDest The area of memory in which to place the data, must be large enough to 
                 accommodate the data!
             */
-            virtual void readData(size_t offset, size_t length, unsigned char* pDest) = 0;
+            virtual void readData(size_t offset, size_t length, void* pDest) = 0;
             /** Writes data to the buffer from an area of system memory; note that you must
                 ensure that your buffer is big enough.
 		    @param offset The byte offset from the start of the buffer to start writing
@@ -130,15 +221,64 @@ namespace Ogre {
 			@param discardWholeBuffer If true, this allows the driver to discard the entire buffer when writing,
 				such that DMA stalls can be avoided; use if you can.
             */
-            virtual void writeData(size_t offset, size_t length, const unsigned char* pSource,
+            virtual void writeData(size_t offset, size_t length, const void* pSource,
 					bool discardWholeBuffer = false) = 0;
+
+			/** Copy data from another buffer into this one.
+			@remarks
+				Note that the source buffer must not be created with the
+                usage HBU_WRITE_ONLY otherwise this will fail. 
+			@param srcBuffer The buffer from which to read the copied data
+			@param srcOffset Offset in the source buffer at which to start reading
+			@param dstOffset Offset in the destination buffer to start writing
+			@param length Length of the data to copy, in bytes.
+			@param discardWholeBuffer If true, will discard the entire contents of this buffer before copying
+			*/
+			virtual void copyData(HardwareBuffer& srcBuffer, size_t srcOffset, 
+				size_t dstOffset, size_t length, bool discardWholeBuffer = false)
+			{
+				const void *srcData = srcBuffer.lock(
+					srcOffset, length, HBL_READ_ONLY);
+				this->writeData(dstOffset, length, srcData, discardWholeBuffer);
+				srcBuffer.unlock();
+			}
+
+            /// Updates the real buffer from the shadow buffer, if required
+            virtual void _updateFromShadow(void)
+            {
+                if (mUseShadowBuffer && mShadowUpdated)
+                {
+                    // Do this manually to avoid locking problems
+                    const void *srcData = mpShadowBuffer->lockImpl(
+    					mLockStart, mLockSize, HBL_READ_ONLY);
+					// Lock with discard if the whole buffer was locked, otherwise normal
+					LockOptions lockOpt;
+					if (mLockStart == 0 && mLockSize == mSizeInBytes)
+						lockOpt = HBL_DISCARD;
+					else
+						lockOpt = HBL_NORMAL;
+					
+                    void *destData = this->lockImpl(
+    					mLockStart, mLockSize, lockOpt);
+					// Copy shadow to real
+                    memcpy(destData, srcData, mLockSize);
+                    this->unlockImpl();
+                    mpShadowBuffer->unlockImpl();
+                    mShadowUpdated = false;
+                }
+            }
 
             /// Returns the size of this buffer in bytes
             size_t getSizeInBytes(void) { return mSizeInBytes; }
             /// Returns the Usage flags with which this buffer was created
             Usage getUsage(void) { return mUsage; }
+			/// Returns whether this buffer is held in system memory
+			bool isSystemMemory(void) { return mSystemMemory; }
             /// Returns whether or not this buffer is currently locked.
-            bool isLocked(void) { return mIsLocked; };
+            bool isLocked(void) { 
+                return mIsLocked || (mUseShadowBuffer && mpShadowBuffer->isLocked()); 
+            }
+
 
 
 

@@ -59,7 +59,6 @@ namespace Ogre {
 	class _OgreGuiElementExport ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public ScrollListener, public MouseListener, public MouseMotionListener
     {
 	public :
-//	    void addBaseParameters(void);
 
 		ListGuiElement(const String& name);
 		~ListGuiElement();

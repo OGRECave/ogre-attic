@@ -520,7 +520,7 @@ namespace Ogre {
         // Texture layers
         int texLayer = mat->getNumTextureLayers() - numLayersLeft;
         int thisUnitsRequested = numLayersLeft;
-        int texUnits = RenderSystemCapabilities::getSingleton().numTextureUnits();
+        int texUnits = mDestRenderSystem->getCapabilities()->numTextureUnits();
 
 #if OGRE_TEST_MULTIPASS == 1
         texUnits = 1;
@@ -1037,6 +1037,7 @@ namespace Ogre {
         Real distance,
         const Quaternion& orientation )
     {
+
         Plane plane;
         String meshName;
         Vector3 up;
@@ -1091,67 +1092,13 @@ namespace Ogre {
         // Create new
         Real planeSize = distance * 2;
         const int BOX_SEGMENTS = 16;
-        planeMesh = mm.createPlane(meshName, plane, planeSize, planeSize, BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up);
+        planeMesh = mm.createCurvedIllusionPlane(meshName, plane, planeSize, planeSize, curvature, 
+			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, tiling, tiling, up, orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			false, false);
 
         //planeMesh->_dumpContents(meshName);
 
-        // Now we've created a basic plane, modify the texture coordinates to appear curved
-        // Imagine a large sphere with the camera located near the top
-        // The lower the curvature, the larger the sphere
-        // Use the angle from viewer to the points on the plane
-        // Credit to Aftershock for the general approach
-        Real* pTex;
-        Vector3 vertPos;  // position relative to camera
-        Real sphDist;      // Distance from camera to sphere along box vertex vector
-        // Vector3 camToSph; // camera position to sphere
-        Real sphereRadius;// Sphere radius
-        Real camPos;      // Camera position relative to sphere center
-
-        // Derive sphere radius
-        // Actual values irrelevant, it's the relation between sphere radius and camera position that's important
-        const Real SPHERE_RAD = 100.0;
-        const Real CAM_DIST = 5.0;
-
-        sphereRadius = SPHERE_RAD - curvature;
-        camPos = sphereRadius - CAM_DIST;
-
-        for (int y = 0; y < BOX_SEGMENTS + 1; ++y)
-        {
-            for (int x = 0; x < BOX_SEGMENTS + 1; ++x)
-            {
-                pTex = planeMesh->sharedGeometry.pTexCoords[0] + (((y * (BOX_SEGMENTS+1)) + x) * 2);
-
-                // Get position of box vertex in view space
-                vertPos = Vector3(planeMesh->sharedGeometry.pVertices + (((y * (BOX_SEGMENTS+1)) + x) * 3));
-                // Adjust by -orientation to return to +y up
-                vertPos = orientation.Inverse() * vertPos;
-                // Normalise
-                vertPos.normalise();
-                // Find distance to sphere
-                sphDist = Math::Sqrt(camPos*camPos * (vertPos.y*vertPos.y-1.0) + sphereRadius*sphereRadius) - camPos*vertPos.y;
-
-                vertPos.x *= sphDist;
-                vertPos.z *= sphDist;
-
-                // Use x and y on sphere as texture coordinates, tiled
-                pTex[0] = vertPos.x * (0.01 * tiling);
-                pTex[1] = vertPos.z * (0.01 * tiling);
-
-            }
-        }
-
         return planeMesh;
-
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::_renderSubMesh(SubMesh* sm)
-    {
-
-        static LegacyRenderOperation ro; // to avoid creating / destroying every time but must be careful to set all fields
-
-        sm->_getLegacyRenderOperation(ro);
-        mDestRenderSystem->_render(ro);
-
 
     }
 
@@ -1180,6 +1127,8 @@ namespace Ogre {
         int render_count = 0;
         // Render each separate queue
         RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
+        RenderOperation ro;
+
         // NB only queues which have been created are rendered, no time is wasted
         //   parsing through non-existent queues (even though there are 10 available)
         SceneDetailLevel lastDetailLevel, camDetailLevel;
@@ -1215,7 +1164,6 @@ namespace Ogre {
                     RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
                     imatend = pPriorityGrp->mMaterialGroups.end();
                     static Matrix4 xform[256];
-                    LegacyRenderOperation ro;
                     int matLayersLeft;
                     Material* thisMaterial;
                     unsigned short numMatrices;
@@ -1223,6 +1171,8 @@ namespace Ogre {
                     // ----- NON-TRANSPARENT ENTITY LOOP -----
                     for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
                     {
+                        bool isMaterialSet = false;
+
                         // Set Material
                         thisMaterial = imat->first;
                         matLayersLeft = thisMaterial->getNumTextureLayers();
@@ -1230,10 +1180,6 @@ namespace Ogre {
                         // NB do at least one rendering pass even if no layers! (Untextured materials)
                         do
                         {
-                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
-
-
                             // Iterate through renderables and render
                             // Note this may happen multiple times for multipass render
                             std::vector<Renderable*>::iterator irend, irendend;
@@ -1256,6 +1202,13 @@ namespace Ogre {
                                 // Issue view / projection changes if any
                                 useRenderableViewProjMode(*irend);
 
+                                // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                                if(!isMaterialSet)
+                                {
+                                    matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+                                    isMaterialSet = true;
+                                }
+
                                 // Set up the solid / wireframe override
                                 SceneDetailLevel reqDetail = (*irend)->getRenderDetail();
                                 if (reqDetail != lastDetailLevel)
@@ -1271,10 +1224,11 @@ namespace Ogre {
                                 }
 
                                 // Set up rendering operation
-                                (*irend)->getLegacyRenderOperation(ro);
-
-                                if( ro.numVertices )
-                                    mDestRenderSystem->_render(ro);
+                                (*irend)->getRenderOperation(ro);
+								#if OGRE_DEBUG_MODE
+									ro.srcRenderable = *irend;
+								#endif
+                                mDestRenderSystem->_render(ro);
 
                             }
                         } while (matLayersLeft > 0);
@@ -1297,9 +1251,6 @@ namespace Ogre {
                         // NB do at least one rendering pass even if no layers! (Untextured materials)
                         do
                         {
-                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
-
                             // Set world transformation
                             (*iTrans)->getWorldTransforms(xform);
                             numMatrices = (*iTrans)->getNumWorldTransforms();
@@ -1314,6 +1265,9 @@ namespace Ogre {
 
                             // Issue view / projection changes if any
                             useRenderableViewProjMode(*iTrans);
+
+                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
 
                             // Set up the solid / wireframe override
                             SceneDetailLevel reqDetail = (*iTrans)->getRenderDetail();
@@ -1330,10 +1284,11 @@ namespace Ogre {
                             }
 
                             // Set up rendering operation
-                            (*iTrans)->getLegacyRenderOperation(ro);
-
-                            if( ro.numVertices )
-                                mDestRenderSystem->_render(ro);
+                            (*iTrans)->getRenderOperation(ro);
+							#if OGRE_DEBUG_MODE
+								ro.srcRenderable = *iTrans;
+							#endif
+                            mDestRenderSystem->_render(ro);
 
                         } while (matLayersLeft > 0);
 
@@ -1392,33 +1347,6 @@ namespace Ogre {
         vp.position = Vector3::ZERO;
         vp.orientation = Quaternion::IDENTITY;
         return vp;
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::displaySplashScreen( Viewport* vp, const String& name )
-    {
-        mDestRenderSystem->_setViewport(vp);
-        // Reset all matrices
-        mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
-        mDestRenderSystem->_setProjectionMatrix(Matrix4::IDENTITY);
-
-        // Make sure texture is loaded
-        Material mat;
-        mat.addTextureLayer(name);
-        mat.setLightingEnabled(false);
-        mat.setCullingMode(CULL_NONE);
-
-        Mesh* msh = (Mesh*)MeshManager::getSingleton().getByName("Prefab_Splash_Screen");
-
-
-        // Begin the frame
-        mDestRenderSystem->_beginFrame();
-
-        setMaterial(&mat,1);
-        _renderSubMesh(msh->getSubMesh(0));
-
-
-        mDestRenderSystem->_endFrame();
     }
     //-----------------------------------------------------------------------
     void SceneManager::setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end)
@@ -1662,7 +1590,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SceneManager::manualRender(LegacyRenderOperation* rend, 
+    void SceneManager::manualRender(RenderOperation* rend, 
         Material* mat, Viewport* vp, const Matrix4& worldMatrix, 
         const Matrix4& viewMatrix, const Matrix4& projMatrix) 
     {

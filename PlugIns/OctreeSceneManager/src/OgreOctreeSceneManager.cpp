@@ -490,8 +490,7 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
 
         if ( mShowBoxes )
         {
-            octant->mWireBox.setupBoundingBox(octant->mBox);
-            mBoxes.push_back( &( octant -> mWireBox ) );
+            mBoxes.push_back( octant->getWireBoundingBox() );
         }
 
         bool vis = true;

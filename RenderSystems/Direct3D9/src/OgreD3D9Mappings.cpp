@@ -68,7 +68,16 @@ namespace Ogre
 		case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
 			return D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR;
 		case TEXCALC_ENVIRONMENT_MAP_PLANAR:
-			return D3DTSS_TCI_CAMERASPACEPOSITION;
+			if (caps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP)
+			{
+				// Use sphere map if available
+				return D3DTSS_TCI_SPHEREMAP;
+			}
+			else
+			{
+				// If not, fall back on camera space reflection vector which isn't as good
+                return D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR;
+			}
 		case TEXCALC_ENVIRONMENT_MAP_NORMAL:
 			return D3DTSS_TCI_CAMERASPACENORMAL;
 		case TEXCALC_ENVIRONMENT_MAP:
@@ -376,13 +385,17 @@ namespace Ogre
     DWORD D3D9Mappings::get(HardwareBuffer::LockOptions options)
     {
         DWORD ret = 0;
-        if (options & HardwareBuffer::HBL_DISCARD)
+        if (options == HardwareBuffer::HBL_DISCARD)
         {
             ret |= D3DLOCK_DISCARD;
         }
-        if (options & HardwareBuffer::HBL_READ_ONLY)
+        if (options == HardwareBuffer::HBL_READ_ONLY)
         {
             ret |= D3DLOCK_READONLY;
+        }
+        if (options == HardwareBuffer::HBL_NO_OVERWRITE)
+        {
+            ret |= D3DLOCK_NOOVERWRITE;
         }
 
         return ret;
@@ -445,6 +458,12 @@ namespace Ogre
 			break;
 		case VES_TEXTURE_COORDINATES:
 			return D3DDECLUSAGE_TEXCOORD;
+			break;
+		case VES_BINORMAL:
+			return D3DDECLUSAGE_BINORMAL;
+			break;
+		case VES_TANGENT:
+			return D3DDECLUSAGE_TANGENT;
 			break;
 		}
 		// to keep compiler happy

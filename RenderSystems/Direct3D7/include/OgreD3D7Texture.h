@@ -56,8 +56,11 @@ namespace Ogre {
 
         virtual void load(void);
         virtual void loadImage( const Image &img );
+		virtual void loadImage3D( const Image imgs[]);
         virtual void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );        
         virtual void blitImage( const Image& src, 
+            const Image::Rect imgRect, const Image::Rect texRect );
+		virtual void blitImage3D(const Image src[],
             const Image::Rect imgRect, const Image::Rect texRect );
         virtual void unload(void);
 		virtual void copyToTexture( Texture * target );
@@ -68,9 +71,26 @@ namespace Ogre {
     protected:
         IDirect3DDevice7 * mD3DDevice;       ///< A pointer to the Direct3D device.
         IDirectDrawSurface7 * mSurface;      ///< Surface of the (first) device-specific texture.
+		/// cube texture individual face names
+		String mCubeFaceNames[6];
 
-    protected:
-        void createSurface();
+		
+		void createSurface(void);
+		void createSurface2D(void);
+		void createSurface3D(void);
+
+		/// internal method, return a D3D pixel format for texture creation
+		void _chooseD3DFormat(DDPIXELFORMAT &ddpf);
+
+		/// internal method, construct full cube texture face names from a given string
+		void _constructCubeFaceNames(const String name);
+
+		/// internal method, the cube map face name for the spec. face index
+		String _getCubeFaceName(unsigned char face)
+		{ assert(face < 6); return mCubeFaceNames[face]; }
+		/// internal method, return the BPP for the specified format
+		static unsigned short _getPFBpp(PixelFormat ogrePF)
+		{ return Image::getNumElemBits(ogrePF); }
     };
 
     class D3D7RenderTexture : public RenderTexture

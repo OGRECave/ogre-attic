@@ -28,8 +28,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreVector3.h"
-#include "OgreGeometryData.h"
 #include "OgreString.h"
+#include "OgreRenderOperation.h"
+#include "OgreAxisAlignedBox.h"
 
 namespace Ogre {
 
@@ -67,102 +68,156 @@ namespace Ogre {
         };
         /** Sets up the surface by defining it's control points, type and initial subdivision level.
             @remarks
-                This method initialises the surface by passing it a set of control points (in the form of
-                a GeometryData object, since there are many optional components). The type of curves to be used
+                This method initialises the surface by passing it a set of control points. The type of curves to be used
                 are also defined here, although the only supported option currently is a bezier patch. You can also
                 specify a global subdivision level here if you like, although it is recommended that the parameter
                 is left as AUTO_LEVEL, which means the system decides how much subdivision is required (based on the
                 curvature of the surface)
             @param
-                meshName The name to give to the mesh which is created, for MeshManager registration purposes (this allows you
-                to create entities from this at a later time if you wish)
+                controlPointBuffer A pointer to a buffer containing the vertex data which defines control points 
+                of the curves rather than actual vertices. Note that you are expected to provide not
+                just position information, but potentially normals and texture coordinates too. The
+                format of the buffer is defined in the VertexDeclaration parameter
             @param
-                controlPoints A set of vertex data which defines control points of the curves rather than actual vertices.
+                decaration VertexDeclaration describing the contents of the buffer. 
+                Note this declaration must _only_ draw on buffer source 0!
             @param
-                width Specifies the width of the patch in control points. It is assumed that controlPoints.numVertices / width is the height.
+                width Specifies the width of the patch in control points.
+            @param
+                height Specifies the height of the patch in control points. 
             @param
                 pType The type of surface - currently only PST_BEZIER is supported
             @param
-                subdivisionLevel If you want to manually set the level of subdivision, do it here, otherwise let the system decide.
+                uMaxSubdivisionLevel,vMaxSubdivisionLevel If you want to manually set the top level of subdivision, 
+                do it here, otherwise let the system decide.
             @param
                 visibleSide Determines which side of the patch (or both) triangles are generated for.
         */
-        void defineSurface(String meshName, const GeometryData& controlPoints, int width,
-            PatchSurfaceType pType = PST_BEZIER, int subdivisionLevel = AUTO_LEVEL,
+        void defineSurface(void* controlPointBuffer, 
+            VertexDeclaration *declaration, size_t width, size_t height,
+            PatchSurfaceType pType = PST_BEZIER, 
+            size_t uMaxSubdivisionLevel = AUTO_LEVEL, size_t vMaxSubdivisionLevel = AUTO_LEVEL,
             VisibleSide visibleSide = VS_FRONT);
 
-        /** Tells the system to build the mesh relating to the surface.
-            @remarks
-                Calling getMesh will automatically do this if the mesh is out of date, however if you wish to force this
-                to happen during a non-critical period then call this.
+        /** Based on a previous call to defineSurface, establishes the number of vertices required
+            to hold this patch at the maximum detail level. 
+            @remarks This is useful when you wish to build the patch into external vertex / index buffers.
+
         */
-        void build(void);
+        size_t getRequiredVertexCount(void);
+        /** Based on a previous call to defineSurface, establishes the number of indexes required
+            to hold this patch at the maximum detail level. 
+            @remarks This is useful when you wish to build the patch into external vertex / index buffers.
+
+        */
+        size_t getRequiredIndexCount(void);
+
+        /** Gets the current index count based on the current subdivision level. */
+        size_t getCurrentIndexCount(void);
+        /// Returns the index offset used by this buffer to write data into the buffer
+        size_t getIndexOffset(void) { return mIndexOffset; }
+        /// Returns the vertex offset used by this buffer to write data into the buffer
+        size_t getVertexOffset(void) { return mVertexOffset; }
+
+
+        /** Gets the bounds of this patch, only valid after calling defineSurface. */
+        const AxisAlignedBox& getBounds(void);
+        /** Gets the radius of the bounding sphere for this patch, only valid after defineSurface 
+        has been called. */
+        Real getBoundingSphereRadius(void);
+        /** Tells the system to build the mesh relating to the surface into externally created
+            buffers.
+            @remarks
+                The VertexDeclaration of the vertex buffer must be identical to the one passed into
+                defineSurface.  In addition, there must be enough space in the buffer to 
+                accommodate the patch at full detail level; you should call getRequiredVertexCount
+                and getRequiredIndexCount to determine this. This method does not create an internal
+                mesh for this patch and so getMesh will return null if you call it after building the
+                patch this way.
+            @param destVertexBuffer The destination vertex buffer in which to build the patch.
+            @param vertexStart The offset at which to start writing vertices for this patch
+            @param destIndexBuffer The destination index buffer in which to build the patch.
+            @param vertexStart The offset at which to start writing indexes for this patch
+
+        */
+        void build(HardwareVertexBufferSharedPtr destVertexBuffer, size_t vertexStart,
+            HardwareIndexBufferSharedPtr destIndexBuffer, size_t indexStart);
 
         /** Alters the level of subdivision for this surface.
             @remarks
-                This method is provided to alter the subdivision level of the surface at some point after defineSurface
-                has been called. Overrides any automatic determination of the subdivision level. Takes effect next time
-                PatchSurface::build or PatchSurface::getMesh is called.
-            @see
-                PatchSurface::build, PatchSurface::getMesh
+                This method changes the proportionate detail level of the patch; since
+                the U and V directions can have different subdivision levels, this method
+                takes a single Real value where 0 is the minimum detail (the control points)
+                and 1 is the maximum detail level as supplied to the original call to 
+                defineSurface.
         */
-        void setSubdivisionLevel(int level = AUTO_LEVEL);
+        void setSubdivisionFactor(Real factor);
 
-        /** Retrieves a pointer to the mesh which has been built for this surface.
-            @remarks
-                If PatchSurface::build has not already been called, this method calls it for you to ensure the
-                mesh is up to date.
-            @note
-                The mesh geometry data will be produced in the same format (vertex components, data strides etc)
-                as the control point data passed in using PatchSurface::defineSurface.
-            @see
-                PatchSurface::defineSurface
-        */
-        Mesh* getMesh(void);
+        /** Gets the current level of subdivision. */
+        Real getSubdivisionFactor(void);
+
+        void* getControlPointBuffer(void)
+        {
+            return mControlPointBuffer;
+        }
+        /** Convenience method for telling the patch that the control points have been 
+            deleted, since once the patch has been built they are not required. */
+        void notifyControlPointBufferDeallocated(void) { 
+            mControlPointBuffer = 0;
+        }
     protected:
-        /// MeshManager registered name
-        String mMeshName;
-        /// Control points
-        GeometryData mCtlPointData;
-        /// The mesh
-        Mesh* mMesh;
-        /// Flag indicating build required
-        bool mNeedsBuild;
+        /// Vertex declaration describing the control point buffer
+        VertexDeclaration* mDeclaration;
+        /// Buffer containing the system-memory control points
+        void* mControlPointBuffer;
         /// Type of surface
         PatchSurfaceType mType;
         /// Width in control points
-        int mCtlWidth;
+        size_t mCtlWidth;
         /// Height in control points
-        int mCtlHeight;
+        size_t mCtlHeight;
+        /// TotalNumber of control points
+        size_t mCtlCount;
         /// U-direction subdivision level
-        int mULevel;
+        size_t mULevel;
         /// V-direction subdivision level
-        int mVLevel;
-        /// Width of the subdivided mesh
-        int mMeshWidth;
-        /// Height of the subdivided mesh
-        int mMeshHeight;
+        size_t mVLevel;
+        /// Max subdivision level
+        size_t mMaxULevel;
+        size_t mMaxVLevel;
+        /// Width of the subdivided mesh (big enough for max level)
+        size_t mMeshWidth;
+        /// Height of the subdivided mesh (big enough for max level)
+        size_t mMeshHeight;
         /// Which side is visible
         VisibleSide mVSide;
 
-        bool mSharedVertexData;
-        bool mMemoryAllocated;
+        Real mSubdivisionFactor;
 
         std::vector<Vector3> mVecCtlPoints;
 
-        // Steps for use in buffers
-        int mBufPosStep, mBufNormStep, mBufColourStep, mBufTexCoordStep[OGRE_MAX_TEXTURE_COORD_SETS] ;
-
         /** Internal method for finding the subdivision level given 3 control points.
         */
-        int findLevel( Vector3& a, Vector3& b, Vector3& c);
+        size_t findLevel( Vector3& a, Vector3& b, Vector3& c);
 
-        void allocateMemory(void);
-        void deallocateMemory(void);
-        void distributeControlPoints(void);
-        void subdivideCurve(int startIdx, int stepSize, int numSteps, int iterations);
-        void interpolateVertexData(int leftIndex, int rightIndex, int destIndex);
+        void distributeControlPoints(void* lockedBuffer);
+        void subdivideCurve(void* lockedBuffer, size_t startIdx, size_t stepSize, size_t numSteps, size_t iterations);
+        void interpolateVertexData(void* lockedBuffer, size_t leftIndex, size_t rightIndex, size_t destIndex);
         void makeTriangles(void);
+
+        size_t getAutoULevel(bool forMax = false);
+        size_t getAutoVLevel(bool forMax = false);
+
+        HardwareVertexBufferSharedPtr mVertexBuffer;
+        HardwareIndexBufferSharedPtr mIndexBuffer;
+        size_t mVertexOffset;
+        size_t mIndexOffset;
+        size_t mRequiredVertexCount;
+        size_t mRequiredIndexCount;
+        size_t mCurrIndexCount;
+
+        AxisAlignedBox mAABB;
+        Real mBoundingSphere;
 
 
 

@@ -537,20 +537,6 @@ namespace Ogre
          */
         virtual void _beginFrame(void) = 0;
 
-        /**
-          Render something to the active viewport.
-
-          Low-level rendering interface to perform rendering
-          operations. Unlikely to be used directly by client
-          applications, since the SceneManager and various support
-          classes will be responsible for calling this method.
-          Can only be called between _beginScene and _endScene
-
-          @param op A rendering operation instance, which contains
-            details of the operation to be performed.
-         */
-        virtual void _render(const LegacyRenderOperation& op);
-
 
         /**
          * Ends rendering of a frame to the current viewport.
@@ -763,15 +749,11 @@ namespace Ogre
 
         /** Performs a software vertex blend on the passed in operation. 
         @remarks
-            This function is supplied to calculate a vertex blend when no hardware
-            support is available, or when the results are required by another
-            software component. The vertices contained in the passed in operation
-            will be modified by the matrices supplied according to the blending weights
-            also in the operation. To avoid accidentally modifying core vertex data, a
-            temporary vertex buffer is used for the result, which is then used in the
-            LegacyRenderOperation instead of the original passed in vertex data.
+            This function is supplied to update vertex data with blends 
+            done in software, either because no hardware support is available, 
+            or that you need the results of the blend for some other CPU operations.
         */
-        void softwareVertexBlend(LegacyRenderOperation& op, Matrix4* pMatrices);
+        virtual void softwareVertexBlend(VertexData* vertexData, Matrix4* pMatrices);
 
 		/** Sets the current vertex declaration, ie the source of vertex data. */
 		virtual void setVertexDeclaration(VertexDeclaration* decl) = 0;
@@ -792,18 +774,8 @@ namespace Ogre
          */
         virtual void _render(const RenderOperation& op);
 
-        /** Performs a software vertex blend on the passed in operation. 
-        @remarks
-            This function is supplied to calculate a vertex blend when no hardware
-            support is available, or when the results are required by another
-            software component. The vertices contained in the passed in operation
-            will be modified by the matrices supplied according to the blending weights
-            also in the operation. To avoid accidentally modifying core vertex data, a
-            temporary vertex buffer is used for the result, which is then used in the
-            LegacyRenderOperation instead of the original passed in vertex data.
-        */
-        void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
-
+		/** Gets the capabilities of the render system. */
+		const RenderSystemCapabilities* getCapabilities(void) { return mCapabilities; }
 
     protected:
 
@@ -864,10 +836,6 @@ namespace Ogre
 
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
-
-        /// Temporary buffer for vertex blending in software
-        std::vector<Real> mTempVertexBlendBuffer;
-        std::vector<Real> mTempNormalBlendBuffer;
 
         /// Contains the times of recently fired events
         std::deque<unsigned long> mEventTimes[3];

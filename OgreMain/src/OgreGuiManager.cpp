@@ -80,7 +80,7 @@ namespace Ogre {
 
 			((GuiContainer*)newObj)->copyFromTemplate(templateGui);
 		}
-
+        
 		return newObj;
 	}
 
@@ -101,6 +101,7 @@ namespace Ogre {
                 " already exists.", "GuiManager::createGuiElement" );
         }
 		GuiElement* newElem = createGuiElementFromFactory(typeName, instanceName);
+        newElem->initialise();
 
         // Register
         elementMap.insert(ElementMap::value_type(instanceName, newElem));

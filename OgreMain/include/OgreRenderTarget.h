@@ -184,6 +184,14 @@ namespace Ogre {
         */
         virtual float getWorstFPS();
 
+        /** Individual stats access - gets the best frame time.
+        */
+        virtual float getBestFrameTime();
+
+        /** Individual stats access - gets the worst frame time.
+        */
+        virtual float getWorstFrameTime();
+
         /** Resets saved frame-rate statistices.
         */
         virtual void resetStatistics(void);

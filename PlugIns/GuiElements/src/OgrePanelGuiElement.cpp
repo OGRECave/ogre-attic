@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePanelGuiElement.h"
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
-
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -34,47 +34,63 @@ namespace Ogre {
     PanelGuiElement::CmdTiling PanelGuiElement::msCmdTiling;
     PanelGuiElement::CmdTransparent PanelGuiElement::msCmdTransparent;
     //---------------------------------------------------------------------
+    // vertex buffer bindings, set at compile time (we could look these up but no point)
+    #define POSITION_BINDING 0
+    #define TEXCOORD_BINDING 1
+
+    //---------------------------------------------------------------------
     PanelGuiElement::PanelGuiElement(const String& name)
         : GuiContainer(name)
     {
         mTransparent = false;
-        // Setup render op in advance
-        // TODO make this more VB friendly
-        mRenderOp.numTextureCoordSets = 1;
-        mRenderOp.numTextureDimensions[0] = 2;
-        mRenderOp.numVertices = 4;
-        mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_STRIP;
+        // Init tiling
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             mTileX[i] = 1.0f;
             mTileY[i] = 1.0f;
-            mRenderOp.pTexCoords[i] = 0;
-            mRenderOp.texCoordStride[i] = 0;
-            mRenderOp.numTextureDimensions[i] = 2;
         }
-        mRenderOp.pVertices = new Real[4*3];
-        mRenderOp.useIndexes = false;
-        // No normals or colours
-        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
-        mRenderOp.vertexStride = 0;
 
+        // Defer creation of texcoord buffer until we know how big it needs to be
+        mNumTexCoordsInBuffer = 0;
+
+        // No normals or colours
         if (createParamDictionary("PanelGuiElement"))
         {
             addBaseParameters();
         }
+
     }
     //---------------------------------------------------------------------
     PanelGuiElement::~PanelGuiElement()
     {
-        delete [] mRenderOp.pVertices;
-        for (ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; ++i)
-        {
-            if (mRenderOp.pTexCoords[i])
-            {
-                delete [] mRenderOp.pTexCoords[i];
-            }
-        }
+        delete mRenderOp.vertexData;
+    }
+    //---------------------------------------------------------------------
+    void PanelGuiElement::initialise(void)
+    {
+        // Setup render op in advance
+        mRenderOp.vertexData = new VertexData();
+        // Vertex declaration: 1 position, add texcoords later depending on #layers
+        // Create as separate buffers so we can lock & discard separately
+        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+        decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
 
+        // Basic vertex data
+        mRenderOp.vertexData->vertexStart = 0;
+        mRenderOp.vertexData->vertexCount = 4;
+
+        // Vertex buffer #1
+        HardwareVertexBufferSharedPtr vbuf = 
+            HardwareBufferManager::getSingleton().createVertexBuffer(
+            decl->getVertexSize(POSITION_BINDING), mRenderOp.vertexData->vertexCount, 
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY// mostly static except during resizing
+            );
+        // Bind buffer
+        mRenderOp.vertexData->vertexBufferBinding->setBinding(POSITION_BINDING, vbuf);
+
+        // No indexes & issue as a strip
+        mRenderOp.useIndexes = false;
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
@@ -114,11 +130,9 @@ namespace Ogre {
         return msTypeName;
     }
     //---------------------------------------------------------------------
-    void PanelGuiElement::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void PanelGuiElement::getRenderOperation(RenderOperation& op)
     {
-
-        rend = mRenderOp;
-
+        op = mRenderOp;
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setMaterialName(const String& matName)
@@ -170,7 +184,10 @@ namespace Ogre {
         top = -((_getDerivedTop() * 2) - 1);
         bottom =  top -  (mHeight * 2);
 
-        Real* pPos = mRenderOp.pVertices;
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+        Real* pPos = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         
         // Use -1 for Z position, furthest forward in homogenous clip space
         *pPos++ = left;
@@ -188,6 +205,8 @@ namespace Ogre {
         *pPos++ = right;
         *pPos++ = bottom;
         *pPos++ = -1;
+        
+        vbuf->unlock();
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::updateTextureGeometry(void)
@@ -196,17 +215,59 @@ namespace Ogre {
         if (mpMaterial)
         {
             ushort numLayers = mpMaterial->getNumTextureLayers();
-            mRenderOp.numTextureCoordSets = numLayers;
+
+            VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+            // Check the number of texcoords we have in our buffer now
+            if (mNumTexCoordsInBuffer > numLayers)
+            {
+                // remove extras
+                for (size_t i = mNumTexCoordsInBuffer; i > numLayers; --i)
+                {
+                    decl->removeElement(VES_TEXTURE_COORDINATES, i);
+                }
+            }
+            else if (mNumTexCoordsInBuffer < numLayers)
+            {
+                // Add extra texcoord elements
+                size_t offset = VertexElement::getTypeSize(VET_FLOAT2) * mNumTexCoordsInBuffer;
+                for (size_t i = mNumTexCoordsInBuffer; i < numLayers; ++i)
+                {
+                    decl->addElement(TEXCOORD_BINDING,
+                        offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
+                    offset += VertexElement::getTypeSize(VET_FLOAT2);
+                   
+                }
+            }
+
+            // if number of layers changed at all, we'll need to reallocate buffer
+            if (mNumTexCoordsInBuffer != numLayers)
+            {
+                // NB reference counting will take care of the old one if it exists
+                HardwareVertexBufferSharedPtr newbuf = 
+                    HardwareBufferManager::getSingleton().createVertexBuffer(
+                    decl->getVertexSize(TEXCOORD_BINDING), mRenderOp.vertexData->vertexCount, 
+                    HardwareBuffer::HBU_STATIC_WRITE_ONLY // mostly static except during resizing
+                    );
+                // Bind buffer, note this will unbind the old one and destroy the buffer it had
+                mRenderOp.vertexData->vertexBufferBinding->setBinding(TEXCOORD_BINDING, newbuf);
+                // Set num tex coords in use now
+                mNumTexCoordsInBuffer = numLayers;
+            }
+
+            // Get the tcoord buffer & lock
+            HardwareVertexBufferSharedPtr vbuf = 
+                mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+            Real* pVBStart = static_cast<Real*>(
+                vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+
+            size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(Real);
+            size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(Real);
             for (ushort i = 0; i < numLayers; ++i)
             {
-                // Allocate if necessary
-                if (mRenderOp.pTexCoords[i] == 0)
-                {
-                    mRenderOp.pTexCoords[i] = new Real[4*2];
-                }
                 // Calc upper tex coords
                 Real upperX = 1.0f * mTileX[i];
                 Real upperY = 1.0f * mTileY[i];
+                
                 /*
                     0-----2
                     |    /|
@@ -214,22 +275,25 @@ namespace Ogre {
                     |/    |
                     1-----3
                 */
-                Real* pTex = mRenderOp.pTexCoords[i];
+                // Find start offset for this set
+                Real* pTex = pVBStart + (i * uvSize);
 
-                *pTex++ = 0.0f;
-                *pTex++ = upperY;
+                pTex[0] = 0.0f;
+                pTex[1] = upperY;
 
-                *pTex++ = 0.0f;
-                *pTex++ = 0.0f;
+                pTex += vertexSize; // jump by 1 vertex stride
+                pTex[0] = 0.0f;
+                pTex[1] = 0.0f;
 
-                *pTex++ = upperX;
-                *pTex++ = upperY;
+                pTex += vertexSize;
+                pTex[0] = upperX;
+                pTex[1] = upperY;
 
-                *pTex++ = upperX;
-                *pTex++ = 0.0f;
-
-
+                pTex += vertexSize;
+                pTex[0] = upperX;
+                pTex[1] = 0.0f;
             }
+			vbuf->unlock();
         }
     }
     //-----------------------------------------------------------------------

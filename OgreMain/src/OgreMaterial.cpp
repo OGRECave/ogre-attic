@@ -283,6 +283,9 @@ namespace Ogre {
 	    mSourceBlendFactor = sourceFactor;
 	    mDestBlendFactor = destFactor;
 
+        /* DON'T DO THIS ANYMORE
+           Where a material uses alpha blending to purely mask (rather than blend)
+           this setting causes problems.
 	    if ((sourceFactor == SBF_ONE && destFactor == SBF_ZERO) ||
 		    (sourceFactor == SBF_ZERO && destFactor == SBF_ONE))
 	    {
@@ -294,6 +297,7 @@ namespace Ogre {
 		    // Transparent
 		    setDepthWriteEnabled(false);
 	    }
+        */
 
     }
     //-----------------------------------------------------------------------

@@ -124,7 +124,15 @@ SOURCE=..\src\OgreD3D9HardwareBufferManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreD3D9HardwareBufferManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreD3D9HardwareIndexBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9HardwareIndexBuffer.h
 # End Source File
 # Begin Source File
 
@@ -132,11 +140,7 @@ SOURCE=..\src\OgreD3D9HardwareVertexBuffer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreD3D9HWBuffers.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreD3D9HWBuffers.h
+SOURCE=..\include\OgreD3D9HardwareVertexBuffer.h
 # End Source File
 # Begin Source File
 
@@ -209,18 +213,6 @@ SOURCE=..\include\OgreD3D9VideoModeList.h
 # Begin Source File
 
 SOURCE=..\src\OgreD3D9EngineDll.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreD3D9HardwareBufferManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreD3D9HardwareIndexBuffer.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreD3D9HardwareVertexBuffer.h
 # End Source File
 # Begin Source File
 

@@ -197,7 +197,7 @@ namespace Ogre {
         return sys;
     }
     //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystem(const String& name, const String& templateName, unsigned int quota)
+    ParticleSystem* ParticleSystemManager::createSystem(const String& name, const String& templateName)
     {
         // Look up template
         ParticleSystem* pTemplate = getTemplate(templateName);
@@ -206,7 +206,7 @@ namespace Ogre {
             Except(Exception::ERR_INVALIDPARAMS, "Cannot find required template'" + templateName + "'", "ParticleSystemManager::createSystem");
         }
 
-        ParticleSystem* sys = createSystem(name, quota);
+        ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota());
         // Copy template settings
         *sys = *pTemplate;
         return sys;

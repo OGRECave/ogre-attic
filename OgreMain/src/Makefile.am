@@ -24,6 +24,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreControllerManager.cpp \
                          OgreCursor.cpp \
                          OgreDataChunk.cpp \
+			 OgreDefaultHardwareBufferManager.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
                          OgreEntity.cpp \
@@ -65,12 +66,12 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreMesh.cpp \
                          OgreMeshManager.cpp \
                          OgreMeshSerializer.cpp \
+						 OgreMeshSerializerImpl.cpp \
                          OgreMouseEvent.cpp \
                          OgreMouseMotionTarget.cpp \
                          OgreMouseTarget.cpp \
                          OgreMovableObject.cpp \
                          OgreNode.cpp \
-                         OgreOofModelFile.cpp \
                          OgreOverlay.cpp \
                          OgreOverlayManager.cpp \
                          OgrePNGCodec.cpp \
@@ -79,6 +80,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreParticleIterator.cpp \
                          OgreParticleSystem.cpp \
                          OgreParticleSystemManager.cpp \
+						 OgrePatchMesh.cpp \
                          OgrePatchSurface.cpp \
                          OgrePlane.cpp \
                          OgrePlatformManager.cpp \
@@ -123,6 +125,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreTimer.cpp \
                          OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \
+			 OgreVertexIndexData.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
                          OgreZip.cpp \

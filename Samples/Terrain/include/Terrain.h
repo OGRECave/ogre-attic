@@ -184,7 +184,8 @@ class TerrainListener : public ExampleFrameListener
         if (mInputDevice->isKeyDown(KC_F) && timeUntilNextToggle <= 0)
         {
             mStatsOn = !mStatsOn;
-            Root::getSingleton().showDebugOverlay(mStatsOn);
+            //Root::getSingleton().showDebugOverlay(mStatsOn);
+            showDebugOverlay(mStatsOn);
 
             timeUntilNextToggle = 1;
         }
@@ -206,6 +207,7 @@ protected:
     virtual void createFrameListener(void)
     {
         mFrameListener= new TerrainListener(mWindow, mCamera);
+        mFrameListener->showDebugOverlay(true);
         mRoot->addFrameListener(mFrameListener);
     }
 
@@ -277,7 +279,7 @@ protected:
         mSceneMgr -> setWorldGeometry( "terrain.cfg" );
 
         mSceneMgr->setFog( FOG_EXP2, ColourValue::White, .008, 0,  250 );
-        mRoot -> showDebugOverlay( true );
+        //mRoot -> showDebugOverlay( true );
 
     }
 

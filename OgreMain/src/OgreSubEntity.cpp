@@ -77,10 +77,10 @@ namespace Ogre {
         return mpMaterial;
     }
     //-----------------------------------------------------------------------
-    void SubEntity::getLegacyRenderOperation(LegacyRenderOperation& rend)
+    void SubEntity::getRenderOperation(RenderOperation& op)
     {
 		// Use LOD
-        mSubMesh->_getLegacyRenderOperation(rend, mParentEntity->mMeshLodIndex);
+        mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
     }
     //-----------------------------------------------------------------------
     void SubEntity::getWorldTransforms(Matrix4* xform)

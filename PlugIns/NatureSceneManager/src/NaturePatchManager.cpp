@@ -22,6 +22,7 @@ template<> NaturePatchManager* Singleton<NaturePatchManager>::ms_Singleton = 0;
 //----------------------------------------------------------------------------
 
 NaturePatchManager::NaturePatchManager()
+    : mDataBuffer(0)
 {
     mInited = false;
 
@@ -30,15 +31,13 @@ NaturePatchManager::NaturePatchManager()
     mNorthNeighbor = mSouthNeighbor = mWestNeighbor = mEastNeighbor = 0;
     mNorthEdgeQuad = mSouthEdgeQuad = mWestEdgeQuad = mEastEdgeQuad = 0;
 
-    mVertexBuffer = mCoordBuffer[0] = mCoordBuffer[1] = 0;
     mIndexBuffer  = mVertexLookup   = 0;
-    mNormalBuffer = 0;
 
     mMinimumQuality = 10.0f;
     mTargetQuality  = 5.0f;
 
     for (int i = 0; i < 324; i++)
-	mPatches[i] = 0;
+        mPatches[i] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -227,26 +226,17 @@ bool NaturePatchManager::initLookupTables()
 void NaturePatchManager::freeSharedBuffers()
 {
     // delete shared buffers
-    if (mVertexBuffer != 0)
-	delete[] mVertexBuffer;
+    if (mDataBuffer != 0)
+        delete[] mDataBuffer;
     
     if (mIndexBuffer != 0)
-	delete[] mIndexBuffer;
+        delete[] mIndexBuffer;
     
     if (mVertexLookup != 0)
-	delete[] mVertexLookup;
-
-    if (mCoordBuffer[0] != 0)
-	delete[] mCoordBuffer[0];
-
-    if (mCoordBuffer[1] != 0)
-	delete[] mCoordBuffer[1];
-
-    if (mNormalBuffer != 0)
-	delete[] mNormalBuffer;
+        delete[] mVertexLookup;
 
     // clear the pointers
-    mVertexBuffer = mCoordBuffer[0] = mCoordBuffer[1] = 0;
+    mDataBuffer = 0;
     mIndexBuffer  = mVertexLookup   = 0;
 }
 
@@ -255,20 +245,15 @@ void NaturePatchManager::freeSharedBuffers()
 bool NaturePatchManager::initSharedBuffers()
 {
     // allocate new memory for shared buffers
-    mVertexBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 3];
-    mNormalBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 3];
-    mCoordBuffer[0] = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 2];
-    mCoordBuffer[1] = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 2];
-
-    mIndexBuffer    = new ushort[EDGE_LENGTH * EDGE_LENGTH * 2 * 3];
-    mVertexLookup   = new ushort[QUADTREE_SIZE * QUADTREE_SIZE];
+    mDataBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * (3 + 3 + 4)];
+    mIndexBuffer  = new ushort[EDGE_LENGTH * EDGE_LENGTH * 2 * 3];
+    mVertexLookup = new ushort[QUADTREE_SIZE * QUADTREE_SIZE];
 
     // return false if allocation failed
-    if (mVertexBuffer   == 0 || mIndexBuffer  == 0 || mCoordBuffer[0] == 0 ||
-	mCoordBuffer[1] == 0 || mVertexLookup == 0)
+    if (mDataBuffer == 0 || mIndexBuffer == 0 || mVertexLookup == 0)
     {
-	freeSharedBuffers();
-	return false;
+        freeSharedBuffers();
+        return false;
     }
 
     return true;
@@ -468,25 +453,25 @@ bool NaturePatchManager::loadPatch(int x, int y, int edge)
 
     if (mPatches[idx] == 0)
     {
-	NaturePatch::NaturePatchData *data;
-	Vector3 world, zone, scale;
+        NaturePatch::NaturePatchData *data;
+        Vector3 world, zone, scale;
 
-	// request data for this patch from the loader
-	data = mMapLoader->requestData(x, y, &world, &zone, &scale);
+        // request data for this patch from the loader
+        data = mMapLoader->requestData(x, y, &world, &zone, &scale);
 
-	if (data != 0)
-	{
-	    switch (data->type)
-	    {
-	    case NaturePatch::TYPE_TERRAIN:
-		mPatches[idx] = new NatureTerrainPatch();
-		break;
+        if (data != 0)
+        {
+            switch (data->type)
+            {
+            case NaturePatch::TYPE_TERRAIN:
+                mPatches[idx] = new NatureTerrainPatch();
+                break;
 	    
-	    // INFO: ADD MORE PATCH TYPES HERE
+            // INFO: ADD MORE PATCH TYPES HERE
 
-	    default:
-		std::cout << "ERROR: Unsupported patch type!!!\n";
-	    }
+            default:
+                std::cout << "ERROR: Unsupported patch type!!!\n";
+            }
 
 	    if (mPatches[idx] != 0)
 	    {
@@ -501,7 +486,7 @@ bool NaturePatchManager::loadPatch(int x, int y, int edge)
 //		std::cout << "ADDING: " << name << std::endl;
 
 		// setup neighbor pointers
-	        NaturePatch *n = 0, *s = 0, *w = 0, *e = 0;
+	    NaturePatch *n = 0, *s = 0, *w = 0, *e = 0;
 		int maxIdx = mPageSize * mPageSize;
 
 	        if ((edge & 0x01) == 0)
@@ -662,7 +647,7 @@ NaturePatch* NaturePatchManager::getPatchAtPosition(const Vector3& pos)
 
 }
 
-void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<LegacyRenderOperation>& opList)
+void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<RenderOperation>& opList)
 {
     // Get the patches at the 4 corners at the bottom of the box, ie 0, 3, 6, 7
     std::set<NaturePatch*> uniqueSet;
@@ -676,11 +661,11 @@ void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::
 
     // Iterate over uniques
     std::set<NaturePatch*>::iterator i, iend;
-    LegacyRenderOperation rend;
+	RenderOperation op;
     for (i = uniqueSet.begin(); i != iend; ++i)
     {
-        (*i)->getLegacyRenderOperation(rend);
-        opList.push_back(rend);
+		(*i)->getRenderOperation(op);
+        opList.push_back(op);
     }
 
 

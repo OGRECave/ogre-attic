@@ -37,15 +37,6 @@ namespace Ogre {
         m_strMatName = "BaseWhite"; 
         m_pMaterial = reinterpret_cast< Material* >( MaterialManager::getSingleton().getByName( "BaseWhite" ) );
 
-        m_pVertexCache = NULL;
-        m_pIndexCache = NULL;
-        m_pNormalCache = NULL;
-        m_pDiffuseCache = NULL;
-        m_pSpecularCache = NULL;
-
-        for( int i=0; i<OGRE_MAX_TEXTURE_COORD_SETS; i++ )
-            m_pTexCache[i] = NULL;
-
         m_pParentSceneManager = NULL;
 
         mParentNode = NULL;
@@ -53,38 +44,6 @@ namespace Ogre {
 
         // Generate name
         m_strName << _TO_CHAR("SimpleRenderable") << ms_uGenNameCount ++;
-    }
-
-    Real **SimpleRenderable::getVertexCache()
-    {
-        return &m_pVertexCache;
-    }
-
-    unsigned short **SimpleRenderable::getIndexCache()
-    {
-        return &m_pIndexCache;
-    }
-
-    Real **SimpleRenderable::getNormalCache()
-    {
-        return &m_pNormalCache;
-    }
-
-    RGBA **SimpleRenderable::getDiffuseCache()
-    {
-        return &m_pDiffuseCache;
-    }
-
-    RGBA **SimpleRenderable::getSpecularCache()
-    {
-        return &m_pSpecularCache;
-    }
-
-    Real **SimpleRenderable::getTexCoordCache( unsigned short cn )
-    {
-        assert( cn < OGRE_MAX_TEXTURE_COORD_SETS );
-
-        return &m_pTexCache[cn];
     }
 
     void SimpleRenderable::setMaterial( const String& matName )
@@ -105,34 +64,14 @@ namespace Ogre {
         return m_pMaterial;
     }
 
-    void SimpleRenderable::setLegacyRenderOperation( const LegacyRenderOperation& rend )
+    void SimpleRenderable::getRenderOperation(RenderOperation& op)
     {
-        mLegacyRendOp = rend;
-    }
-
-    LegacyRenderOperation& SimpleRenderable::getLegacyRenderOperation()
-    {
-        return mLegacyRendOp;
-    }
-
-    void SimpleRenderable::getLegacyRenderOperation( LegacyRenderOperation& rend )
-    {
-        rend = mLegacyRendOp;
+        op = mRenderOp;
     }
 
     void SimpleRenderable::setRenderOperation( const RenderOperation& rend )
     {
-        mRendOp = rend;
-    }
-
-    RenderOperation& SimpleRenderable::getRenderOperation()
-    {
-        return mRendOp;
-    }
-
-    void SimpleRenderable::getRenderOperation( RenderOperation& rend )
-    {
-        rend = mRendOp;
+        mRenderOp = rend;
     }
 
     void SimpleRenderable::setWorldTransform( const Matrix4& xform )
@@ -167,24 +106,6 @@ namespace Ogre {
 
     SimpleRenderable::~SimpleRenderable()
     {
-        if( m_pVertexCache )
-            delete[] m_pVertexCache;
-
-        if( m_pIndexCache )
-            delete[] m_pIndexCache;
-
-        if( m_pNormalCache )
-            delete[] m_pNormalCache;
-
-        for( int i=0; i<OGRE_MAX_TEXTURE_COORD_SETS; i++ )
-            if( m_pTexCache[i] )
-                delete[] m_pTexCache[i];
-
-        if( m_pDiffuseCache )
-            delete[] m_pDiffuseCache;
-
-        if( m_pSpecularCache )
-            delete[] m_pSpecularCache;
     }
     //-----------------------------------------------------------------------
     const String& SimpleRenderable::getName(void) const

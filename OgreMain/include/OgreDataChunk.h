@@ -102,7 +102,7 @@ namespace Ogre {
 		    @returns
 			    The number of bytes actually read
 	    */
-	    ulong read(void* buffer, unsigned long size);
+	    size_t read(void* buffer, size_t size);
 
 	    /** Repositions the internal read pointer to a specified byte.
 	    */
@@ -128,7 +128,7 @@ namespace Ogre {
 		    @returns
 			    The actual number of characters copied into the buffer.
 	    */
-	    unsigned long readUpTo(
+	    size_t readUpTo(
 		    void* buffer, 
 		    size_t size, 
 		    const char* delim = "\n" );
@@ -144,7 +144,7 @@ namespace Ogre {
             @returns
                 The number of characters that were skipped.
         */
-        unsigned long skipUpTo( const char* delim );
+        size_t skipUpTo( const char* delim );
 
 	    /** Returns true if the buffer pointer has reached the end of the
 		    buffer.

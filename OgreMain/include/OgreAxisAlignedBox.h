@@ -348,8 +348,15 @@ namespace Ogre {
         /** Tests whether the vector point is within this box. */
         bool intersects(const Vector3& v)
         {
-            return !(mMinimum > v || mMaximum < v);
+			return(v.x >= mMinimum.x  &&  v.x <= mMaximum.x  && 
+			    v.y >= mMinimum.y  &&  v.y <= mMaximum.y  && 
+    			v.z >= mMinimum.z  &&  v.z <= mMaximum.z);
         }
+		/// Gets the centre of the box
+		Vector3 getCenter(void)
+		{
+			return Vector3((mMaximum + mMinimum) * 0.5);
+		}
 
 
     };

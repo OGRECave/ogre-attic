@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreGeometryData.h"
+#include "OgreVertexIndexData.h"
 #include "OgreMaterial.h"
 #include "OgreRenderOperation.h"
 #include "OgreVertexBoneAssignment.h"
@@ -51,7 +51,8 @@ namespace Ogre {
     class _OgreExport SubMesh
     {
         friend class Mesh;
-        friend class MeshSerializer;
+        friend class MeshSerializerImpl;
+        friend class MeshSerializerImpl_v1;
     public:
         SubMesh();
         ~SubMesh();
@@ -60,31 +61,20 @@ namespace Ogre {
         /// Indicates if this submesh shares vertex data with other meshes or whether it has it's own vertices.
         bool useSharedVertices;
 
-        /// Boolean indicating if the face indexes included are for a continuous triangle strip.
-        bool useTriStrips;
+        /// The render operation type used to render this submesh
+        RenderOperation::OperationType operationType;
 
-
-        /** Dedicated geometry data (only valid if useSharedVertices = false).
+        /** Dedicated vertex data (only valid if useSharedVertices = false).
             @remarks
                 This data is completely owned by this submesh.
-                When a submesh uses a very small subset of the shared geometry
-                it is (processor) inefficient since the whole buffer is sent during the
-                submesh rendering operation. Therefore in this case the SubMesh
-                would use it's own vertex data. For other cases it is more
-                memory efficient to use a shared buffer since vertices are not duplicated,
-                or if hardware vertex buffers are available it can be better to
-                use one set of data.
             @par
                 The use of shared or non-shared buffers is determined when
                 model data is converted to the OGRE .mesh format.
         */
-        GeometryData geometry;
+        VertexData *vertexData;
 
-        /// Number of faces contained in this submesh.
-        unsigned short numFaces;
-
-        /// List of indices into geometry to describe faces.
-        unsigned short* faceVertexIndices;
+        /// Face index data
+        IndexData *indexData;
 
         ProgressiveMesh::LODFaceList mLodFaceList;
 
@@ -99,13 +89,13 @@ namespace Ogre {
         */
         bool isMatInitialised(void) const;
 
-        /** Returns a LegacyRenderOperation structure required to render this mesh.
+        /** Returns a RenderOperation structure required to render this mesh.
             @param 
-                rend Reference to a LegacyRenderOperation structure to populate.
+                rend Reference to a RenderOperation structure to populate.
             @param
                 lodIndex The index of the LOD to use. 
         */
-        void _getLegacyRenderOperation(LegacyRenderOperation& rend, ushort lodIndex = 0);
+        void _getRenderOperation(RenderOperation& rend, ushort lodIndex = 0);
 
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    
@@ -129,7 +119,7 @@ namespace Ogre {
         void clearBoneAssignments(void);
 
         /// Multimap of verex bone assignments (orders by vertex index)
-        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
         typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
 
         /** Gets an iterator for access all bone assignments. 

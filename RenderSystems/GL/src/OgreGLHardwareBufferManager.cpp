@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLHardwareBufferManager.h"
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
-#include "OgreGLVertexDeclaration.h"
+#include "OgreHardwareBuffer.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -35,57 +35,39 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     GLHardwareBufferManager::~GLHardwareBufferManager()
     {
-        for (VertexBufferList::iterator vi = mVertexBuffers.begin();
-            vi != mVertexBuffers.end(); ++vi)
-        {
-            delete *vi;
-        }
-        mVertexBuffers.clear();
-
-        for (IndexBufferList::iterator ii = mIndexBuffers.begin();
-            ii != mIndexBuffers.end(); ++ii)
-        {
-            delete *ii;
-        }
-        mIndexBuffers.clear();
-
+        destroyAllDeclarations();
+        destroyAllBindings();
     }
     //-----------------------------------------------------------------------
-    HardwareVertexBuffer* GLHardwareBufferManager::createVertexBuffer(
-        size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage)
+    HardwareVertexBufferSharedPtr GLHardwareBufferManager::createVertexBuffer(
+        size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-        HardwareVertexBuffer* ret = new GLHardwareVertexBuffer(vertexSize, 
-            numVerts, usage);
-        mVertexBuffers.push_back(ret);
-        return ret;
+		return HardwareVertexBufferSharedPtr(
+			new GLHardwareVertexBuffer(vertexSize, numVerts, usage, useShadowBuffer) );
     }
     //-----------------------------------------------------------------------
     void GLHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
     {
-        mVertexBuffers.remove(buf);
         delete buf;
     }
     //-----------------------------------------------------------------------
-    HardwareIndexBuffer* 
+    HardwareIndexBufferSharedPtr 
     GLHardwareBufferManager:: createIndexBuffer(
         HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
-        HardwareBuffer::Usage usage)
+        HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-        HardwareIndexBuffer* ret = new GLHardwareIndexBuffer(itype, numIndexes, 
-            usage);
-        mIndexBuffers.push_back(ret);
-        return ret;
+		return HardwareIndexBufferSharedPtr(
+			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer) );
     }
     //-----------------------------------------------------------------------
     void GLHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
     {
-        mIndexBuffers.remove(buf);
         delete buf;
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* GLHardwareBufferManager::createVertexDeclaration(void)
     {
-        VertexDeclaration* decl = new GLVertexDeclaration();
+        VertexDeclaration* decl = new VertexDeclaration();
         mVertexDeclarations.push_back(decl);
         return decl;
     }
@@ -95,5 +77,38 @@ namespace Ogre {
         mVertexDeclarations.remove(decl);
         delete decl;
     }
-
+    //---------------------------------------------------------------------
+    GLenum GLHardwareBufferManager::getGLUsage(unsigned int usage)
+    {
+        switch(usage)
+        {
+        case HardwareBuffer::HBU_STATIC:
+            return GL_STATIC_DRAW_ARB;
+        case HardwareBuffer::HBU_DYNAMIC:
+        case HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY:
+        default:
+            return GL_DYNAMIC_DRAW_ARB;
+        };
+    }
+    //---------------------------------------------------------------------
+    GLenum GLHardwareBufferManager::getGLType(unsigned int type)
+    {
+        switch(type)
+        {
+            case VET_FLOAT1:
+            case VET_FLOAT2:
+            case VET_FLOAT3:
+            case VET_FLOAT4:
+                return GL_FLOAT;
+            case VET_SHORT1:
+            case VET_SHORT2:
+            case VET_SHORT3:
+            case VET_SHORT4:
+                return GL_SHORT;
+            case VET_COLOUR:
+                return GL_UNSIGNED_BYTE;
+            default:
+                return 0;
+        };
+    }
 }

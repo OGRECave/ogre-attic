@@ -40,7 +40,7 @@ namespace Ogre {
         worthwhile (e.g. ControllerValue)
     */
     template<class T> class SharedPtr {
-	private:
+	protected:
 		T* pRep;
 		unsigned int* pUseCount;
 	public:
@@ -50,27 +50,44 @@ namespace Ogre {
 		*/
 		SharedPtr() : pRep(0), pUseCount(0) {}
 		SharedPtr(T* rep) : pRep(rep), pUseCount(new unsigned int(1)) {}
-		SharedPtr(const SharedPtr& r) : pRep(r.pRep), pUseCount(r.pUseCount) { assert(pUseCount); ++(*pUseCount); }
+		SharedPtr(const SharedPtr& r) : pRep(r.pRep), pUseCount(r.pUseCount) { 
+			// Handle zero pointer gracefully to manage STL containers
+			if(pUseCount)
+			{
+				++(*pUseCount); 
+			}
+		}
 		SharedPtr& operator=(const SharedPtr& r) {
-			assert(pRep && pUseCount);
 			if (pRep == r.pRep)
 				return *this;
-			if (--(*pUseCount) == 0) {
-				delete pRep;
-				delete pUseCount;
+			if (pUseCount)
+			{
+				if (--(*pUseCount) == 0) {
+					destroy();
+				}
 			}
 			pRep = r.pRep;
 			pUseCount = r.pUseCount;
-			++(*pUseCount);
+			if (pUseCount)
+			{
+				++(*pUseCount);
+			}
 			return *this;
 		}
-		~SharedPtr() {
-			assert(pRep && pUseCount);
-			if (--(*pUseCount) == 0) {
-				delete pRep;
-				delete pUseCount;
+		virtual ~SharedPtr() {
+			if(pUseCount)
+			{
+				if (--(*pUseCount) == 0) {
+					destroy();
+				}
 			}
 		}
+
+        virtual void destroy(void)
+        {
+			delete pRep;
+			delete pUseCount;
+        }
 
 
 		inline T& operator*() const { assert(pRep); return *pRep; }

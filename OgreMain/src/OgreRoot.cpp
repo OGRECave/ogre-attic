@@ -421,12 +421,7 @@ namespace Ogre {
 
         if (autoCreateWindow)
         {
-            // Init particle systems manager
-            mParticleManager->_initialise();
-            // parse all font scripts
-            mFontManager->parseAllSources();
-            // parse all overlay scripts
-            mOverlayManager->parseAllSources();
+            oneTimePostWindowInit();
         }
 
         // Initialise timer
@@ -540,10 +535,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::unloadPlugins(void)
     {
-        std::vector<DynLib*>::iterator i;
+        std::vector<DynLib*>::reverse_iterator i;
 
-
-        for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+        // NB Unload plugins in reverse order to enforce dependencies
+        for (i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
         {
             // Call plugin shutdown
             DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
@@ -600,17 +595,7 @@ namespace Ogre {
             depthBuffer, parentWindowHandle);
 
         // Initialisation for classes dependent on first window created
-        static bool firstOne = true;
-        if (firstOne)
-        {
-            // Init particle systems manager
-            mParticleManager->_initialise();
-            // parse all font scripts
-            mFontManager->parseAllSources();
-            // init overlays
-            mOverlayManager->parseAllSources();
-            firstOne = false;
-        }
+        oneTimePostWindowInit();
 
         return ret;
 
@@ -652,6 +637,7 @@ namespace Ogre {
         return mActiveRenderer->getRenderTarget(name);
     }
     //-----------------------------------------------------------------------
+    /*
     void Root::showDebugOverlay(bool show)
     {
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
@@ -666,9 +652,9 @@ namespace Ogre {
         {
             o->hide();
         }
-
         
     }
+    */
     //-----------------------------------------------------------------------
 	void Root::loadPlugin(String pluginName)
 	{
@@ -710,5 +696,23 @@ namespace Ogre {
     Timer* Root::getTimer(void)
     {
         return mTimer;
+    }
+    //-----------------------------------------------------------------------
+    void Root::oneTimePostWindowInit(void)
+    {
+        static bool firsttime = true;
+        if (firsttime)
+        {
+            // Init particle systems manager
+            mParticleManager->_initialise();
+            // parse all font scripts
+            mFontManager->parseAllSources();
+            // init overlays
+            mOverlayManager->parseAllSources();
+			// Init mesh manager
+			MeshManager::getSingleton()._initialise();
+        }
+
+        firsttime = false;
     }
 }

@@ -26,17 +26,37 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreColourValue.h"
 #include "OgreException.h"
 #include "OgreStringConverter.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreDefaultHardwareBufferManager.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
     HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,  
-        size_t numVertices, HardwareBuffer::Usage usage) 
-        : HardwareBuffer(usage), mVertexSize(vertexSize), mNumVertices(numVertices)
+        size_t numVertices, HardwareBuffer::Usage usage, 
+        bool useSystemMemory, bool useShadowBuffer) 
+        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer), 
+          mNumVertices(numVertices),
+          mVertexSize(vertexSize)
     {
         // Calculate the size of the vertices
         mSizeInBytes = mVertexSize * numVertices;
 
+        // Create a shadow buffer if required
+        if (mUseShadowBuffer)
+        {
+            mpShadowBuffer = new DefaultHardwareVertexBuffer(mVertexSize, 
+                    mNumVertices, HardwareBuffer::HBU_DYNAMIC);
+        }
+
+    }
+    //-----------------------------------------------------------------------------
+    HardwareVertexBuffer::~HardwareVertexBuffer()
+    {
+        if (mpShadowBuffer)
+        {
+            delete mpShadowBuffer;
+        }
     }
     //-----------------------------------------------------------------------------
     VertexElement::VertexElement(unsigned short source, size_t offset, 
@@ -46,6 +66,106 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------------
+	size_t VertexElement::getSize(void) const
+	{
+		return getTypeSize(mType);
+	}
+	//-----------------------------------------------------------------------------
+	size_t VertexElement::getTypeSize(VertexElementType etype)
+	{
+		switch(etype)
+		{
+		case VET_COLOUR:
+			return sizeof(RGBA);
+		case VET_FLOAT1:
+			return sizeof(float);
+		case VET_FLOAT2:
+			return sizeof(float)*2;
+		case VET_FLOAT3:
+			return sizeof(float)*3;
+		case VET_FLOAT4:
+			return sizeof(float)*4;
+		case VET_SHORT1:
+			return sizeof(short);
+		case VET_SHORT2:
+			return sizeof(short)*2;
+		case VET_SHORT3:
+			return sizeof(short)*3;
+		case VET_SHORT4:
+			return sizeof(short)*4;
+		}
+		return 0;
+	}
+	//-----------------------------------------------------------------------------
+	unsigned short VertexElement::getTypeCount(VertexElementType etype)
+	{
+		switch (etype)
+		{
+		case VET_COLOUR:
+			return 1;
+		case VET_FLOAT1:
+			return 1;
+		case VET_FLOAT2:
+			return 2;
+		case VET_FLOAT3:
+			return 3;
+		case VET_FLOAT4:
+			return 4;
+		case VET_SHORT1:
+			return 1;
+		case VET_SHORT2:
+			return 2;
+		case VET_SHORT3:
+			return 3;
+		case VET_SHORT4:
+			return 4;
+		}
+		Except(Exception::ERR_INVALIDPARAMS, "Invalid type", 
+			"VertexElement::getTypeCount");
+	}
+	//-----------------------------------------------------------------------------
+	VertexElementType VertexElement::multiplyTypeCount(VertexElementType baseType, 
+		unsigned short count)
+	{
+		switch (baseType)
+		{
+		case VET_FLOAT1:
+			switch(count)
+			{
+			case 1:
+				return VET_FLOAT1;
+			case 2:
+				return VET_FLOAT2;
+			case 3:
+				return VET_FLOAT3;
+			case 4:
+				return VET_FLOAT4;
+            default:
+                break;
+			}
+			break;
+		case VET_SHORT1:
+			switch(count)
+			{
+			case 1:
+				return VET_SHORT1;
+			case 2:
+				return VET_SHORT2;
+			case 3:
+				return VET_SHORT3;
+			case 4:
+				return VET_SHORT4;
+            default:
+                break;
+			}
+			break;
+        default:
+            break;
+		}
+		Except(Exception::ERR_INVALIDPARAMS, "Invalid base type", 
+			"VertexElement::multiplyTypeCount");
+	}
+	//-----------------------------------------------------------------------------
     VertexDeclaration::VertexDeclaration()
     {
     }
@@ -59,13 +179,14 @@ namespace Ogre {
         return mElementList;
     }
     //-----------------------------------------------------------------------------
-    void VertexDeclaration::addElement(unsigned short source, 
+    const VertexElement& VertexDeclaration::addElement(unsigned short source, 
         size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
     {
         mElementList.push_back(
             VertexElement(source, offset, theType, semantic, index)
             );
+		return mElementList.back();
     }
     //-----------------------------------------------------------------------------
     void VertexDeclaration::removeElement(unsigned short elem_index)
@@ -74,6 +195,20 @@ namespace Ogre {
         VertexElementList::iterator i = mElementList.begin();
         i += elem_index;
         mElementList.erase(i);
+    }
+    //-----------------------------------------------------------------------------
+    void VertexDeclaration::removeElement(VertexElementSemantic semantic, unsigned short index)
+    {
+		VertexElementList::iterator ei, eiend;
+		eiend = mElementList.end();
+		for (ei = mElementList.begin(); ei != eiend; ++ei)
+		{
+			if (ei->getSemantic() == semantic && ei->getIndex() == index)
+			{
+				mElementList.erase(ei);
+                break;
+			}
+		}
     }
     //-----------------------------------------------------------------------------
     void VertexDeclaration::modifyElement(unsigned short elem_index, 
@@ -86,17 +221,87 @@ namespace Ogre {
         (*i) = VertexElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------------
-	VertexBufferBinding::VertexBufferBinding()
+	const VertexElement* VertexDeclaration::findElementBySemantic(
+		VertexElementSemantic sem, unsigned short index)
+	{
+		VertexElementList::const_iterator ei, eiend;
+		eiend = mElementList.end();
+		for (ei = mElementList.begin(); ei != eiend; ++ei)
+		{
+			if (ei->getSemantic() == sem && ei->getIndex() == index)
+			{
+				return &(*ei);
+			}
+		}
+
+		return NULL;
+
+
+	}
+	//-----------------------------------------------------------------------------
+	VertexDeclaration::VertexElementList VertexDeclaration::findElementsBySource(
+		unsigned short source)
+	{
+		VertexElementList retList;
+		VertexElementList::const_iterator ei, eiend;
+		eiend = mElementList.end();
+		for (ei = mElementList.begin(); ei != eiend; ++ei)
+		{
+			if (ei->getSource() == source)
+			{
+				retList.push_back(*ei);
+			}
+		}
+		return retList;
+
+	}
+
+	//-----------------------------------------------------------------------------
+	size_t VertexDeclaration::getVertexSize(unsigned short source)
+	{
+		VertexElementList::const_iterator i, iend;
+		iend = mElementList.end();
+		size_t sz = 0;
+
+		for (i = mElementList.begin(); i != iend; ++i)
+		{
+			if (i->getSource() == source)
+			{
+				sz += i->getSize();
+
+			}
+		}
+		return sz;
+	}
+    //-----------------------------------------------------------------------------
+    VertexDeclaration* VertexDeclaration::clone(void)
+    {
+        VertexDeclaration* ret = HardwareBufferManager::getSingleton().createVertexDeclaration();
+
+		VertexElementList::const_iterator i, iend;
+		iend = mElementList.end();
+		for (i = mElementList.begin(); i != iend; ++i)
+		{
+            ret->addElement(i->getSource(), i->getOffset(), i->getType(), i->getSemantic(), i->getIndex());
+        }
+        return ret;
+    }
+    //-----------------------------------------------------------------------------
+	VertexBufferBinding::VertexBufferBinding() : mHighIndex(0)
 	{
 	}
     //-----------------------------------------------------------------------------
 	VertexBufferBinding::~VertexBufferBinding()
 	{
+        unsetAllBindings();
 	}
     //-----------------------------------------------------------------------------
-	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBuffer* buffer)
+	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer)
 	{
+        // NB will replace any existing buffer ptr at this index, and will thus cause
+        // reference count to decrement on that buffer (possibly destroying it)
 		mBindingMap[index] = buffer;
+		mHighIndex = std::max(mHighIndex, index);
 	}
     //-----------------------------------------------------------------------------
 	void VertexBufferBinding::unsetBinding(unsigned short index)
@@ -111,46 +316,35 @@ namespace Ogre {
 		mBindingMap.erase(i);
 	}
     //-----------------------------------------------------------------------------
+    void VertexBufferBinding::unsetAllBindings(void)
+    {
+        mBindingMap.clear();
+    }
+    //-----------------------------------------------------------------------------
 	const VertexBufferBinding::VertexBufferBindingMap& 
 	VertexBufferBinding::getBindings(void) const
 	{
 		return mBindingMap;
 	}
-
-	/*
-    size_t HardwareVertexBuffer::calcVertexSize(const VertexFormat& format)
+    //-----------------------------------------------------------------------------
+	HardwareVertexBufferSharedPtr VertexBufferBinding::getBuffer(unsigned short index)
+	{
+		VertexBufferBindingMap::iterator i = mBindingMap.find(index);
+		if (i == mBindingMap.end())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "No buffer is bound to that index.",
+				"VertexBufferBinding::getBuffer");
+		}
+		return i->second;
+	}
+    //-----------------------------------------------------------------------------
+    HardwareVertexBufferSharedPtr::HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf)
+        : SharedPtr<HardwareVertexBuffer>(buf)
     {
-        size_t sz = 0;
-        if (format.flags & VF_POSITION)
-        {
-            sz += sizeof(Real) * 3;
-        }
-        if (format.flags & VF_NORMAL)
-        {
-            sz += sizeof(Real) * 3;
-        }
-        if (format.flags & VF_DIFFUSE)
-        {
-            sz += sizeof(RGBA);
-        }
-        if (format.flags & VF_SPECULAR)
-        {
-            sz += sizeof(RGBA);
-        }
-        if (format.flags & VF_BLEND_WEIGHTS)
-        {
-            sz += sizeof(Real) * format.numBlendWeights;
-        }
-        if (format.flags & VF_TEXTURE_COORDINATES)
-        {
-            for (int t = 0; t < format.numTextureCoords; ++t)
-            {
-                sz += sizeof(Real) * format.numTextureCoordDimensions[t];
-            }
-        }
-        return sz;
 
     }
-    */
+
+
+
 
 }

@@ -54,7 +54,10 @@ namespace Ogre
         TTYGuiElement(const String& name);
         ~TTYGuiElement();
 
-         /** Appends specified text to end of screen buffer. 
+        /** Initialise */
+        void initialise(void);
+
+        /** Appends specified text to end of screen buffer. 
         @remarks
             Depreciated, this setCaption method equivalent to calling
             clearText and appendText.
@@ -107,7 +110,7 @@ namespace Ogre
         /** See GuiElement. */
         virtual const String& getTypeName(void);
         /** See Renderable. */
-        void getLegacyRenderOperation(LegacyRenderOperation& rend);
+        void getRenderOperation(RenderOperation& op);
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
 
@@ -257,7 +260,7 @@ namespace Ogre
         typedef std::deque<TextBlock> TextBlockQueue;
 
         /// Render operation
-        LegacyRenderOperation mRenderOp;
+        RenderOperation mRenderOp;
 
         /// Method for setting up base parameters for this class
         void addBaseParameters(void);

@@ -77,12 +77,12 @@ namespace Ogre {
         // Material -> face group hashmap
         typedef std::map<Material*, std::vector<StaticFaceGroup*>, materialLess > MaterialFaceGroupMap;
         MaterialFaceGroupMap mMatFaceGroupMap;
-        /** Cache of data about to go to the renderer. */
-        LegacyRenderOperation mPendingGeometry;
+
+        RenderOperation mRenderOp;
 
         // Debugging features
         bool mShowNodeAABs;
-        LegacyRenderOperation mAABGeometry;
+        RenderOperation mAABGeometry;
 
         /** Walks the BSP tree looking for the node which the camera
             is in, and tags any geometry which is in a visible leaf for
@@ -94,10 +94,8 @@ namespace Ogre {
         /** Tags geometry in the leaf specified for later rendering. */
         void processVisibleLeaf(BspNode* leaf, Camera* cam);
 
-        /** Clears the caches of vertex anf face index data. Does not deallocate. */
-        void clearGeometryCaches(void);
         /** Caches a face group for imminent rendering. */
-        void cacheGeometry(const StaticFaceGroup* faceGroup);
+        unsigned int cacheGeometry(unsigned int* pIndexes, const StaticFaceGroup* faceGroup);
 
         /** Frees up allocated memory for geometry caches. */
         void freeMemory(void);

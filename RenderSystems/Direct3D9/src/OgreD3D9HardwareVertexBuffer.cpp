@@ -30,20 +30,22 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     D3D9HardwareVertexBuffer::D3D9HardwareVertexBuffer(size_t vertexSize, 
-        size_t numVertices, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage)
+        size_t numVertices, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, 
+        bool useSystemMemory, bool useShadowBuffer)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory, useShadowBuffer)
     {
         // Create the vertex buffer
         HRESULT hr = pDev->CreateVertexBuffer(
             mSizeInBytes, 
             D3D9Mappings::get(usage), 
             0, // No FVF here, thankyou
-            D3DPOOL_DEFAULT, 
+			useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT, 
             &mlpD3DBuffer,
             NULL);
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 vertex buffer", 
+			String msg = DXGetErrorDescription9(hr);
+            Except(hr, "Cannot create D3D9 vertex buffer: " + msg, 
                 "D3D9HardwareVertexBuffer::D3D9HardwareVertexBuffer");
         }
 
@@ -54,15 +56,25 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DBuffer);
     }
 	//---------------------------------------------------------------------
-    unsigned char* D3D9HardwareVertexBuffer::lock(size_t offset, 
+    void* D3D9HardwareVertexBuffer::lockImpl(size_t offset, 
         size_t length, LockOptions options)
     {
-        unsigned char* pBuf;
+        void* pBuf;
+		DWORD lockOpts;
+		if (!(mUsage & HBU_DYNAMIC) && options == HBL_DISCARD)
+		{
+			// D3D doesn't like discard on non-dynamic buffers
+			lockOpts = 0;
+		}
+		else
+		{
+			lockOpts= D3D9Mappings::get(options);
+		} 
         HRESULT hr = mlpD3DBuffer->Lock(
             offset, 
             length, 
-            (void**)&pBuf,
-            D3D9Mappings::get(options));
+            &pBuf,
+            lockOpts);
 
         if (FAILED(hr))
         {
@@ -70,39 +82,32 @@ namespace Ogre {
                 "D3D9HardwareVertexBuffer::lock");
         }
 
-        mIsLocked = true;
-
         return pBuf;
-
-
-
     }
 	//---------------------------------------------------------------------
-	void D3D9HardwareVertexBuffer::unlock(void)
+	void D3D9HardwareVertexBuffer::unlockImpl(void)
     {
         HRESULT hr = mlpD3DBuffer->Unlock();
-
-        mIsLocked = false;
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareVertexBuffer::readData(size_t offset, size_t length, 
-        unsigned char* pDest)
+        void* pDest)
     {
         // There is no functional interface in D3D, just do via manual 
         // lock, copy & unlock
-        unsigned char* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
+        void* pSrc = this->lock(offset, length, HardwareBuffer::HBL_READ_ONLY);
         memcpy(pDest, pSrc, length);
         this->unlock();
 
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareVertexBuffer::writeData(size_t offset, size_t length, 
-            const unsigned char* pSource,
+            const void* pSource,
 			bool discardWholeBuffer)
     {
         // There is no functional interface in D3D, just do via manual 
         // lock, copy & unlock
-        unsigned char* pDst = this->lock(offset, length, 
+        void* pDst = this->lock(offset, length, 
             discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
         memcpy(pDst, pSource, length);
         this->unlock();

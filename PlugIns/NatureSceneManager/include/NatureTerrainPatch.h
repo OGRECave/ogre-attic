@@ -14,6 +14,7 @@
 #include <OgrePrerequisites.h>
 #include <OgreSimpleRenderable.h>
 #include <OgreMaterialManager.h>
+#include <OgreHardwareBufferManager.h>
 
 #include "NatureConfig.h"
 #include "NaturePatch.h"
@@ -85,7 +86,7 @@ public:
     void generateMesh();
     
    
-    void getLegacyRenderOperation(LegacyRenderOperation& rend);
+    void getRenderOperation(RenderOperation& op);
     
     void _notifyCurrentCamera(Camera *cam);
 
@@ -142,89 +143,55 @@ private:
     void freeCaches();
 
     /// Calculates normal for vertex
-    void getNormal(int x, int z, Vector3 *normal)
-    {
-	Vector3 here, left, down;
-
-	here.x = x;
-	here.y = mHeight[z * mData->terrain.heightMapWidth + x] 
-	       * mScale.y + mWorld.y;
-	here.z = z;
-
-	left.x = x - 1;
-	if (x > 0)
-	    left.y = mHeight[z * mData->terrain.heightMapWidth + (x - 1)]
-		   * mScale.y + mWorld.y;
-	else if (mWestNeighbor != 0)
-	    left.y = mWestNeighbor->getHeightAt(EDGE_LENGTH - 1, z);
-	else
-	    left.y = here.y;
-
-	left.z = z;
-
-	down.x = x;
-	if (z < EDGE_LENGTH)
-	    down.y = mHeight[(z + 1) * mData->terrain.heightMapWidth + x]
-		   * mScale.y + mWorld.y;
-	else if (mSouthNeighbor != 0)
-	    down.y = mSouthNeighbor->getHeightAt(x, 1);
-	else
-	    down.y = here.y;
-
-	down.z = z + 1;
-
-	left = left - here;
-	down = down - here;
-
-	left.normalise();
-	down.normalise();
-
-	*normal = left.crossProduct(down);
-	normal->normalise();
-    }
+    void getNormal(int x, int z, Vector3 *normal);
 
     /// Adds a vertex to the vertex buffer or returns its index if it
     inline int NatureTerrainPatch::addVertex(int x, int y, int z)
     {
-	unsigned int idx = z * QUADTREE_SIZE + x;
-	unsigned int v = mManager->mVertexLookup[idx];
+        unsigned int idx = z * QUADTREE_SIZE + x;
+        unsigned int v = mManager->mVertexLookup[idx];
 
-	// if this vertex has already been added, return its index
-	if (v != 0xffff) return v;
+        // if this vertex has already been added, return its index
+        if (v != 0xffff) return v;
 
-	v = mVertexCount++;
-	Real *vertexBuffer = &mManager->mVertexBuffer[v * 3];
-
-	// add the vertex to the vertexbuffer
-	*vertexBuffer++ = x * mScale.x + mWorld.x * mScale.x;
-	*vertexBuffer++ = y * mScale.y + mWorld.y * mScale.y;
-	*vertexBuffer   = z * mScale.z + mWorld.z * mScale.z;
+        int numReals = 3;
 
 #if USE_NORMALS
-	// calculate normal
-	Vector3 normal;
-	getNormal(x, z, &normal);
-	Real *normalBuffer = &mManager->mNormalBuffer[v * 3];
+        numReals += 3;
+#endif
+#if USE_TEXTURES
+        numReals += 4;
+#endif
 
-	// add the normal to the normalbuffer
-	*normalBuffer++ = normal.x;
-	*normalBuffer++ = normal.y;
-	*normalBuffer   = normal.z;
+        v = mVertexCount++;
+        Real *pBuffer = &mManager->mDataBuffer[v * numReals];
+
+        // add the vertex to the vertexbuffer
+        *pBuffer++ = x * mScale.x + mWorld.x * mScale.x;
+        *pBuffer++ = y * mScale.y + mWorld.y * mScale.y;
+        *pBuffer++ = z * mScale.z + mWorld.z * mScale.z;
+
+#if USE_NORMALS
+        // calculate normal
+        Vector3 normal;
+        getNormal(x, z, &normal);
+
+        // add the normal to the normalbuffer
+        *pBuffer++ = normal.x;
+        *pBuffer++ = normal.y;
+        *pBuffer++ = normal.z;
 #endif
 
 #if USE_TEXTURES
-	// calculate texture coordinates
-	Real *coordBuffer = &mManager->mCoordBuffer[0][v * 2];
-	*coordBuffer++ = 1.0 - (static_cast<Real>(x) / EDGE_LENGTH);
-	*coordBuffer   = (static_cast<Real>(z) / EDGE_LENGTH);
-
-	coordBuffer = &mManager->mCoordBuffer[1][v * 2];
-	*coordBuffer++ = (x + mZone.x) / mManager->mZoneSize;
-	*coordBuffer   = 1.0 - ((z + mZone.z) / mManager->mZoneSize);
+        // calculate texture coordinates
+        *pBuffer++ = 1.0 - (static_cast<Real>(x) / EDGE_LENGTH);
+        *pBuffer++ = (static_cast<Real>(z) / EDGE_LENGTH);
+        *pBuffer++ = (x + mZone.x) / mManager->mZoneSize;
+        *pBuffer   = 1.0 - ((z + mZone.z) / mManager->mZoneSize);
 #endif
-	// add vertex to lookup table
-	mManager->mVertexLookup[idx] = v;
-	return v;
+        // add vertex to lookup table
+        mManager->mVertexLookup[idx] = v;
+        return v;
     }
 
     /// Array of quadtreenodes
@@ -239,11 +206,10 @@ private:
     /// Distance to camera when last rendered
     float mDistance;
 
+    VertexData* mVertexData;
+    IndexData* mIndexData;
+
     /// Local caches
-    ushort *mIndexCache;
-    Real   *mVertexCache;
-    Real   *mNormalCache;
-    Real   *mCoordCache[2];
     ulong  *mColourCache;
 
     // Number of indexes / vertices in the cache

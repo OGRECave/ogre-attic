@@ -28,6 +28,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreStringConverter.h"
 #include "OgreOverlayManager.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
 
 namespace Ogre {
     //---------------------------------------------------------------------
@@ -43,31 +46,70 @@ namespace Ogre {
     BorderPanelGuiElement::CmdBorderTopRightUV BorderPanelGuiElement::msCmdBorderTopRightUV;
     BorderPanelGuiElement::CmdBorderBottomRightUV BorderPanelGuiElement::msCmdBorderBottomRightUV;
 
-    #define BCELL_UV(x) mRenderOp2.pTexCoords[0] + (x * 4 * 2)
+    #define BCELL_UV(x) (x * 4 * 2)
+    #define POSITION_BINDING 0
+    #define TEXCOORD_BINDING 1
     //---------------------------------------------------------------------
     BorderPanelGuiElement::BorderPanelGuiElement(const String& name)
-        : PanelGuiElement(name)
+        : PanelGuiElement(name), mBorderRenderable(0)
     {
+        if (createParamDictionary("BorderPanelGuiElement"))
+        {
+            addBaseParameters();
+        }
+    }
+    //---------------------------------------------------------------------
+    BorderPanelGuiElement::~BorderPanelGuiElement()
+    {
+        delete mRenderOp2.vertexData;
+        delete mRenderOp2.indexData;
+        delete mBorderRenderable;
+    }
+    //---------------------------------------------------------------------
+    void BorderPanelGuiElement::initialise(void)
+    {
+        PanelGuiElement::initialise();
+
         // superclass will handle the interior panel area 
 
         // Setup render op in advance
-        // TODO make this more VB friendly
-        mRenderOp2.numTextureCoordSets = 1;
-        mRenderOp2.numTextureDimensions[0] = 2;
-        mRenderOp2.numVertices = 4 * 8; // 8 cells, can't necessarily share vertices cos
-                                        // texcoords may differ
-        mRenderOp2.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
-        // Only 1 set of texcoords allowed
-        mRenderOp2.pTexCoords[0] = new Real[4 * 8 * 2];
-        mRenderOp2.texCoordStride[0] = 0;
-        mRenderOp2.numTextureDimensions[0] = 2;
+        mRenderOp2.vertexData = new VertexData();
+        mRenderOp2.vertexData->vertexCount = 4 * 8; // 8 cells, can't necessarily share vertices cos
+                                                    // texcoords may differ
+        mRenderOp2.vertexData->vertexStart = 0;
 
-        mRenderOp2.pVertices = new Real[4 * 8 * 3];
+        // Vertex declaration
+        VertexDeclaration* decl = mRenderOp2.vertexData->vertexDeclaration;
+        // Position and texture coords each have their own buffers to allow
+        // each to be edited separately with the discard flag
+        decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+        decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+
+        // Vertex buffer #1, position
+        HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton()
+            .createVertexBuffer(
+                decl->getVertexSize(POSITION_BINDING), 
+                mRenderOp2.vertexData->vertexCount,
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        // bind position
+        VertexBufferBinding* binding = mRenderOp2.vertexData->vertexBufferBinding;
+        binding->setBinding(POSITION_BINDING, vbuf);
+
+        // Vertex buffer #2, texcoords
+        vbuf = HardwareBufferManager::getSingleton()
+            .createVertexBuffer(
+                decl->getVertexSize(TEXCOORD_BINDING), 
+                mRenderOp2.vertexData->vertexCount,
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY, true);
+        // bind texcoord
+        binding->setBinding(TEXCOORD_BINDING, vbuf);
+
+        mRenderOp2.operationType = RenderOperation::OT_TRIANGLE_LIST;
         mRenderOp2.useIndexes = true;
-        mRenderOp2.numIndexes = 8 * 6;
-        // No normals or colours
-        mRenderOp2.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
-        mRenderOp2.vertexStride = 0;
+        // Index data
+        mRenderOp2.indexData = new IndexData();
+        mRenderOp2.indexData->indexCount = 8 * 6;
+        mRenderOp2.indexData->indexStart = 0;
 
         /* Each cell is
             0-----2
@@ -76,8 +118,18 @@ namespace Ogre {
             |/    |
             1-----3
         */
-        mRenderOp2.pIndexes = new ushort[6 * 8];
-        ushort* pIdx = mRenderOp2.pIndexes;
+        mRenderOp2.indexData->indexBuffer = HardwareBufferManager::getSingleton().
+            createIndexBuffer(
+                HardwareIndexBuffer::IT_16BIT, 
+                mRenderOp2.indexData->indexCount, 
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+        ushort* pIdx = static_cast<ushort*>(
+            mRenderOp2.indexData->indexBuffer->lock(
+                0, 
+                mRenderOp2.indexData->indexBuffer->getSizeInBytes(), 
+                HardwareBuffer::HBL_DISCARD) );
+
         for (int cell = 0; cell < 8; ++cell)
         {
             ushort base = cell * 4;
@@ -90,21 +142,10 @@ namespace Ogre {
             *pIdx++ = base + 3;
         }
 
-        if (createParamDictionary("BorderPanelGuiElement"))
-        {
-            addBaseParameters();
-        }
+        mRenderOp2.indexData->indexBuffer->unlock();
 
         // Create sub-object for rendering border
         mBorderRenderable = new BorderRenderable(this);
-    }
-    //---------------------------------------------------------------------
-    BorderPanelGuiElement::~BorderPanelGuiElement()
-    {
-        delete [] mRenderOp2.pTexCoords[0];
-        delete [] mRenderOp2.pVertices;
-        delete [] mRenderOp2.pIndexes;
-        delete mBorderRenderable;
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::addBaseParameters(void)
@@ -245,12 +286,24 @@ namespace Ogre {
             |/    |
             1-----3
         */
-        Real* pUV = BCELL_UV(idx);
+        // No choice but to lock / unlock each time here, but lock only small sections
+        
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp2.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+        // Can't use discard since this discards whole buffer
+        Real* pUV = static_cast<Real*>(
+            vbuf->lock(
+                BCELL_UV(idx) * sizeof(Real), 
+                sizeof(Real)*8, 
+                HardwareBuffer::HBL_NORMAL) );
 
         *pUV++ = u1; *pUV++ = v1;
         *pUV++ = u1; *pUV++ = v2;
         *pUV++ = u2; *pUV++ = v1;
         *pUV++ = u2; *pUV++ = v2;
+
+        vbuf->unlock();
+       
     }
     //---------------------------------------------------------------------
     String BorderPanelGuiElement::getCellUVString(BorderCellIndex idx)
@@ -262,13 +315,24 @@ namespace Ogre {
             |/    |
             1-----3
         */
-        Real* pUV = BCELL_UV(idx);
+        // No choice but to lock / unlock each time here, but lock only small sections
+        
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp2.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+        // Lock just the portion we need in read-only mode
+        // Can't use discard since this discards whole buffer
+        Real* pUV = static_cast<Real*>(
+            vbuf->lock(
+                BCELL_UV(idx) * sizeof(Real), 
+                sizeof(Real)*8, 
+                HardwareBuffer::HBL_READ_ONLY) );
 
-	    return String(
-		StringConverter::toString(pUV[0]) + " " +
-		StringConverter::toString(pUV[1]) + " " +
-		StringConverter::toString(pUV[6]) + " " +
-		StringConverter::toString(pUV[7]));
+        String ret = StringConverter::toString(pUV[0]) + " " +
+		            StringConverter::toString(pUV[1]) + " " +
+		            StringConverter::toString(pUV[6]) + " " +
+		            StringConverter::toString(pUV[7]);
+        vbuf->unlock();
+        return ret;
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setLeftBorderUV(Real u1, Real v1, Real u2, Real v2)
@@ -405,7 +469,11 @@ namespace Ogre {
         bottom[5] = bottom[6] = bottom[7] = top[0] -  (mHeight * 2);
         top[5] = top[6] = top[7] = bottom[3] = bottom[4] = bottom[5] + (mBottomBorderSize * 2);
 
-        Real* pPos = mRenderOp2.pVertices;
+        // Lock the whole position buffer in discard mode
+        HardwareVertexBufferSharedPtr vbuf = 
+            mRenderOp2.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+        Real* pPos = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         for (ushort cell = 0; cell < 8; ++cell)
         {
             /*
@@ -432,10 +500,13 @@ namespace Ogre {
             *pPos++ = -1;
 
         }
+        vbuf->unlock();
 
         // Also update center geometry
         // NB don't use superclass because we need to make it smaller because of border
-        pPos = mRenderOp.pVertices;
+        vbuf = mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+        pPos = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         // Use cell 1 and 3 to determine positions
         *pPos++ = left[1];
         *pPos++ = top[3];
@@ -453,6 +524,7 @@ namespace Ogre {
         *pPos++ = bottom[3];
         *pPos++ = -1;
 
+        vbuf->unlock();
         
     }
     //---------------------------------------------------------------------

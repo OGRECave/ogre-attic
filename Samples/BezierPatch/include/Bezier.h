@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 
 // Hack struct for test
-PatchSurface ps;
+PatchMesh* patch;
 Entity* patchEntity;
 
 // Event handler to add ability to alter subdivision
@@ -51,26 +51,30 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-        static Real timeLapse = 99.0f;
-        static int level = 0;
+        static Real timeLapse = 0.0f;
+        static Real factor = 0.0;
         static bool wireframe = 0;
 
 
         timeLapse += evt.timeSinceLastFrame;
 
-        if (timeLapse > 3.0f)
+        // Prgressively grow the patch
+        if (timeLapse > 1.0f)
         {
-            level = (level + 1) % 5;
-            ps.setSubdivisionLevel(level);
-            ps.build();
-            mWindow->setDebugText("Bezier subdivisions: " + StringConverter::toString(level));
-            timeLapse = 0.0f;
-            if (level == 0)
+            factor += 0.2;
+
+            if (factor > 1.0f) 
             {
                 wireframe = !wireframe;
                 //mCamera->setDetailLevel(wireframe ? SDL_WIREFRAME : SDL_SOLID);
                 patchEntity->setRenderDetail(wireframe ? SDL_WIREFRAME : SDL_SOLID);
+                factor = 0.0f;
+
             }
+
+            patch->setSubdivision(factor);
+            mWindow->setDebugText("Bezier subdivision factor: " + StringConverter::toString(factor));
+            timeLapse = 0.0f;
 
         }
 
@@ -83,14 +87,17 @@ public:
 class BezierApplication : public ExampleApplication
 {
 protected:
+    VertexDeclaration* patchDecl;
+    Real* patchCtlPoints;
 
-    GeometryData patchCtlPoints;
 public:
-    BezierApplication() { patchCtlPoints.pVertices = 0; }
+    BezierApplication() : patchCtlPoints(NULL), patchDecl(NULL) { }
     ~BezierApplication()
     {
-        if (patchCtlPoints.pVertices)
-            delete [] patchCtlPoints.pVertices;
+        if (patchCtlPoints)
+            delete [] patchCtlPoints;
+
+        // patch vertex declaration will be deleted automatically
     }
 
 protected:
@@ -123,22 +130,16 @@ protected:
         l->setDirection(-0.5, -0.5, 0);
 
         // Create patch
-        patchCtlPoints.hasColours = false;
-        patchCtlPoints.hasNormals = true;
-        patchCtlPoints.numTexCoords = 1;
-        patchCtlPoints.numTexCoordDimensions[0] = 2;
-        // Packed data
-        patchCtlPoints.vertexStride = sizeof(Real) * 5;
-        patchCtlPoints.normalStride = sizeof(Real) * 5;
-        patchCtlPoints.texCoordStride[0] = sizeof(Real) * 6;
+        patchDecl = HardwareBufferManager::getSingleton().createVertexDeclaration();
+        patchDecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
+        patchDecl->addElement(0, sizeof(Real)*3, VET_FLOAT3, VES_NORMAL);
+        patchDecl->addElement(0, sizeof(Real)*6, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+
         // Make a 3x3 patch for test
-        patchCtlPoints.pVertices = (Real*)( new PatchVertex[9] );
-        patchCtlPoints.numVertices = 9;
-        patchCtlPoints.pNormals = patchCtlPoints.pVertices + 3;
-        patchCtlPoints.pTexCoords[0] = patchCtlPoints.pVertices + 6;
+        patchCtlPoints = (Real*)( new PatchVertex[9] );
 
         // Patch data
-        PatchVertex *pVert = (PatchVertex*)patchCtlPoints.pVertices;
+        PatchVertex *pVert = (PatchVertex*)patchCtlPoints;
 
         pVert->x = -500.0; pVert->y = 200.0; pVert->z = -500.0;
         pVert->nx = -0.5; pVert->ny = 0.5; pVert->nz = 0.0;
@@ -180,9 +181,12 @@ protected:
         pVert++;
 
 
-        ps.defineSurface("Bezier1", patchCtlPoints, 3, PatchSurface::PST_BEZIER, 0, PatchSurface::VS_BOTH);
-        ps.build();
+        patch = MeshManager::getSingleton().createBezierPatch(
+            "Bezier1", patchCtlPoints, patchDecl, 
+            3, 3, 5, 5, PatchSurface::VS_BOTH);
 
+        // Start patch at 0 detail
+        patch->setSubdivision(0.0f);
         // Create entity based on patch
         patchEntity = mSceneMgr->createEntity("Entity1", "Bezier1");
 

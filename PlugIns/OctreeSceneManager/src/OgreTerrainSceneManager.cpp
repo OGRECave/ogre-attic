@@ -205,14 +205,16 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
         }
     }
 
-    for ( j = 0; j < size; j++ )
+    if(options.lit)
     {
-        for ( i = 0; i < size; i++ )
+        for ( j = 0; j < size; j++ )
         {
-            mTiles[ i ][ j ] -> _calculateNormals( );
-            //  mTiles[ i ][ j ] -> _generateVertexLighting( Vector3( 255, 100, 255 ), ColourValue(.25,.25,.25) );
+            for ( i = 0; i < size; i++ )
+            {
+                mTiles[ i ][ j ] -> _calculateNormals( );
+                //  mTiles[ i ][ j ] -> _generateVertexLighting( Vector3( 255, 100, 255 ), ColourValue(.25,.25,.25) );
+            }
         }
-
     }
 
     /*

@@ -65,4 +65,5 @@ namespace Ogre {
         // Empty the list
         mResources.clear();
     }
+
 }

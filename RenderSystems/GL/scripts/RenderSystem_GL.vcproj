@@ -130,6 +130,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\OgreGLDefaultHardwareBufferManager.cpp">
+			</File>
+			<File
 				RelativePath="..\misc\OgreGLEngine.def">
 			</File>
 			<File
@@ -157,9 +160,6 @@
 				RelativePath="..\src\OgreGLTextureManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreGLVertexDeclaration.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreWin32GLSupport.cpp">
 			</File>
 			<File
@@ -172,6 +172,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\include\OgreGLDefaultHardwareBufferManager.h">
+			</File>
 			<File
 				RelativePath="..\include\OgreGLHardwareBufferManager.h">
 			</File>
@@ -197,9 +200,6 @@
 				RelativePath="..\include\OgreGLTextureManager.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreGLVertexDeclaration.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreSDLGLSupport.h">
 			</File>
 			<File
@@ -216,6 +216,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreWin32Window.h">
+			</File>
+			<File
+				RelativePath="..\include\gl.h">
 			</File>
 			<File
 				RelativePath="..\include\glext.h">

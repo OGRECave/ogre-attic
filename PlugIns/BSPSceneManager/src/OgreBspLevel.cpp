@@ -23,7 +23,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreBspLevel.h"
-#include "OgreQuake3Level.h"
 #include "OgreBspResourceManager.h"
 #include "OgreException.h"
 #include "OgreMaterial.h"
@@ -46,7 +45,6 @@ namespace Ogre {
     {
         mName = name;
         mRootNode = 0;
-        mVertices = 0;
         mBrushes = 0;
     }
 
@@ -80,19 +78,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspLevel::unload()
     {
-        delete [] mVertices;
-        delete [] mElements;
+        delete mVertexData;
         delete [] mFaceGroups;
         delete [] mLeafFaceGroups;
         delete [] mRootNode;
         delete [] mVisData.tableData;
         delete [] mBrushes;
 
-        mVertices = 0;
         mRootNode = 0;
         mFaceGroups = 0;
         mLeafFaceGroups = 0;
-        mElements = 0;
         mBrushes = 0;
     }
 
@@ -112,18 +107,49 @@ namespace Ogre {
         // Vertices
         //-----------------------------------------------------------------------
         // Allocate memory for vertices & copy
-        mNumVertices = q3lvl.mNumVertices;
-        mVertices = new BspVertex[mNumVertices];
-        memcpy(mVertices, q3lvl.mVertices, sizeof(BspVertex)*q3lvl.mNumVertices);
+        mVertexData = new VertexData();
 
-        // Correct texture coords
-        // Coords are flipped in Y axis!
-        // ---WHY???---
-        for (int verti = 0; verti < mNumVertices; ++verti)
+        /// Create vertex declaration
+        VertexDeclaration* decl = mVertexData->vertexDeclaration;
+        size_t offset = 0;
+        decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        decl->addElement(0, offset, VET_COLOUR, VES_DIFFUSE);
+        offset += VertexElement::getTypeSize(VET_COLOUR);
+        decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        offset += VertexElement::getTypeSize(VET_FLOAT2);
+        decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
+
+        // Build initial patches - we need to know how big the vertex buffer needs to be
+        // to accommodate the subdivision
+        initQuake3Patches(q3lvl, decl);
+
+        /// Create the vertex buffer, allow space for patches
+        HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton()
+            .createVertexBuffer(
+                sizeof(BspVertex), 
+                q3lvl.mNumVertices + mPatchVertexCount, 
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        //COPY static vertex data - Note that we can't just block-copy the vertex data because we have to reorder
+        //    our vertex elements; this is to ensure compatibility with older cards when using
+        //    hardware vertex buffers - Direct3D requires that the buffer format maps onto a
+        //    FVF in those older drivers. 
+        // Lock just the non-patch area for now
+        BspVertex* pVert = static_cast<BspVertex*>(
+            vbuf->lock(0, q3lvl.mNumVertices * sizeof(BspVertex), HardwareBuffer::HBL_DISCARD) );
+        // Keep another base pointer for use later in patch building
+        for (int v = 0; v < q3lvl.mNumVertices; ++v)
         {
-            mVertices[verti].texcoords[1]  = 1 - mVertices[verti].texcoords[1];
-            mVertices[verti].lightmap[1]  = 1 - mVertices[verti].lightmap[1];
+            quakeVertexToBspVertex(&q3lvl.mVertices[v], pVert++);
         }
+        vbuf->unlock();
+        // Setup binding
+        mVertexData->vertexBufferBinding->setBinding(0, vbuf);
+        // Set other data
+        mVertexData->vertexStart = 0;
+        mVertexData->vertexCount = q3lvl.mNumVertices + mPatchVertexCount;
 
         //-----------------------------------------------------------------------
         // Faces
@@ -133,10 +159,21 @@ namespace Ogre {
         memcpy(mLeafFaceGroups, q3lvl.mLeafFaces, sizeof(int)*mNumLeafFaceGroups);
         mNumFaceGroups = q3lvl.mNumFaces;
         mFaceGroups = new StaticFaceGroup[mNumFaceGroups];
-        // Contents of faces are dealt with below along with materials
-        mNumElements = q3lvl.mNumElements;
-        mElements = new int[mNumElements];
-        memcpy(mElements, q3lvl.mElements, sizeof(int)*mNumElements);
+        // Set up index buffer
+        // NB Quake3 indexes are 32-bit
+        // Copy the indexes into a software area for staging
+        mNumIndexes = q3lvl.mNumElements + mPatchIndexCount;
+        // Create an index buffer manually in system memory, allow space for patches
+        mIndexes = new DefaultHardwareIndexBuffer(
+            HardwareIndexBuffer::IT_32BIT, 
+            mNumIndexes, 
+            HardwareBuffer::HBU_DYNAMIC);
+        // Write main indexes
+        mIndexes->writeData(0, sizeof(unsigned int) * q3lvl.mNumElements, q3lvl.mElements, true);
+
+        // now build patch information
+        buildQuake3Patches(q3lvl.mNumVertices, q3lvl.mNumElements);
+
         //-----------------------------------------------------------------------
         // Create materials for shaders
         //-----------------------------------------------------------------------
@@ -157,8 +194,7 @@ namespace Ogre {
         int face;
         face = q3lvl.mNumFaces;
         int matHandle;
-        char meshName[32];
-        GeometryData ctl;
+        String meshName;
 
         while(face--)
         {
@@ -254,6 +290,11 @@ namespace Ogre {
                 // Assign plane
                 dest->plane.normal = Vector3(src->normal);
                 dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));
+
+                // Don't rebase indexes here - Quake3 re-uses some indexes for multiple vertex
+                // groups eg repeating small details have the same relative vertex data but
+                // use the same index data.
+
             }
             else if (src->type == BSP_FACETYPE_PATCH)
             {
@@ -267,28 +308,17 @@ namespace Ogre {
 
                     // Set up patch surface
                     dest->fType = FGT_PATCH;
-                    dest->patchSurf = new PatchSurface();
-                    // Set up control points & format
-                    // Same format as in BspSceneManager::mPendingGeometry - see that for details
-                    ctl.hasColours = false; // In vertex format, but not used
-                    ctl.hasNormals = true;
-                    ctl.numTexCoords = 2;
-                    ctl.numTexCoordDimensions[0] = 2;
-                    ctl.numTexCoordDimensions[1] = 2;
-                    ctl.numVertices = dest->numVertices;
-                    ctl.vertexStride = sizeof(float) * 7 + sizeof(int);
-                    ctl.texCoordStride[0] = sizeof(Real) * 8 + sizeof(int);
-                    ctl.texCoordStride[1] = sizeof(Real) * 8 + sizeof(int);
-                    ctl.normalStride = sizeof(Real) * 7 + sizeof(int);
-                    ctl.pVertices = (Real*)(mVertices + dest->vertexStart);
-                    ctl.pTexCoords[0] = ctl.pVertices + 3;
-                    ctl.pTexCoords[1] = ctl.pVertices + 5;
-                    ctl.pNormals = ctl.pVertices + 7;
+                    
+                    // Locate the patch we already built
+                    PatchMap::iterator p = mPatches.find(face);
+                    if (p == mPatches.end())
+                    {
+                        Except(Exception::ERR_INTERNAL_ERROR, "Patch not found from previous built state",
+                        "BspLevel::loadQuake3Level");
+                    }
 
-                    sprintf(meshName, "BezierPatch%d", face);
-                    dest->patchSurf->defineSurface(meshName, ctl, src->mesh_cp[0], PatchSurface::PST_BEZIER);
-
-                    dest->patchSurf->build();
+                    dest->patchSurf = p->second;
+                    
                 }
 
 
@@ -441,11 +471,88 @@ namespace Ogre {
 
 
 
-
-
-
     }
 
+    //-----------------------------------------------------------------------
+    void BspLevel::initQuake3Patches(const Quake3Level & q3lvl, VertexDeclaration* decl)
+    {
+        int face;
+
+        mPatchVertexCount = 0;
+        mPatchIndexCount = 0;
+
+        // We're just building the patch here to get a hold on the size of the mesh
+        // although we'll reuse this information later
+        face = q3lvl.mNumFaces;
+        while (face--)
+        {
+
+            bsp_face_t* src = &q3lvl.mFaces[face];
+
+            if (src->type == BSP_FACETYPE_PATCH)
+            {
+                // Seems to be some crap in the Q3 level where vertex count = 0 or num control points = 0?
+                if (src->vert_count == 0 || src->mesh_cp[0] == 0)
+                {
+                    continue;
+                }
+                PatchSurface* ps = new PatchSurface();
+                // Set up control points & format
+                // Reuse the vertex declaration 
+                // Copy control points into a buffer so we can convert their format
+                BspVertex* pControlPoints = new BspVertex[src->vert_count];
+                bsp_vertex_t* pSrc = q3lvl.mVertices + src->vert_start;
+                for (int v = 0; v < src->vert_count; ++v)
+                {
+                    quakeVertexToBspVertex(pSrc++, &pControlPoints[v]);
+                }
+                // Define the surface, but don't build it yet (no vertex / index buffer)
+                ps->defineSurface(
+                    pControlPoints,
+                    decl, 
+                    src->mesh_cp[0],
+                    src->mesh_cp[1],
+                    PatchSurface::PST_BEZIER);
+                // Get stats
+                mPatchVertexCount += ps->getRequiredVertexCount();
+                mPatchIndexCount += ps->getRequiredIndexCount();
+
+                // Save the surface for later
+                mPatches[face] = ps;
+            }
+
+
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void BspLevel::buildQuake3Patches(size_t vertOffset, size_t indexOffset)
+    {
+        // Loop through the patches
+        PatchMap::iterator i, iend;
+        iend = mPatches.end();
+
+        size_t currVertOffset = vertOffset;
+        size_t currIndexOffset = indexOffset;
+
+        HardwareVertexBufferSharedPtr vbuf = mVertexData->vertexBufferBinding->getBuffer(0);
+
+        for (i = mPatches.begin(); i != iend; ++i)
+        {
+            PatchSurface* ps = i->second;
+            
+            ps->build(vbuf, currVertOffset, mIndexes, currIndexOffset);
+
+            // No need for control points anymore
+            BspVertex* pCP = static_cast<BspVertex*>(ps->getControlPointBuffer());
+            delete [] pCP;
+            ps->notifyControlPointBufferDeallocated();
+
+            currVertOffset += ps->getRequiredVertexCount();
+            currIndexOffset += ps->getRequiredIndexCount();
+        
+        }
+    }
     //-----------------------------------------------------------------------
     bool BspLevel::isLeafVisible(const BspNode* from, const BspNode* to) const
     {
@@ -651,4 +758,18 @@ namespace Ogre {
             mMovableToNodeMap.erase(i);
         }
 	}
+    //-----------------------------------------------------------------------
+    void BspLevel::quakeVertexToBspVertex(const bsp_vertex_t* src, BspVertex* dest)
+    {
+        memcpy(dest->position, src->point, sizeof(Real) * 3);
+        memcpy(dest->normal, src->normal,  sizeof(Real) * 3);
+        dest->colour = src->color;
+        // Correct texture coords
+        // Coords are flipped in Y axis!
+        // ---WHY???---
+        dest->texcoords[0]  = src->texture[0];
+        dest->texcoords[1]  = 1 - src->texture[1];
+        dest->lightmap[0]  = src->lightmap[0];
+        dest->lightmap[1]  = 1 - src->lightmap[1];
+    }
 }

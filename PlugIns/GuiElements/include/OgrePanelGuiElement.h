@@ -52,7 +52,10 @@ namespace Ogre {
     public:
         /** Constructor. */
         PanelGuiElement(const String& name);
-        ~PanelGuiElement();
+        virtual ~PanelGuiElement();
+
+        /** Initialise */
+        virtual void initialise(void);
 
         /** Sets the number of times textures should repeat. 
         @param x The number of times the texture should repeat horizontally
@@ -80,7 +83,7 @@ namespace Ogre {
         /** See GuiElement. */
         virtual const String& getTypeName(void);
         /** See Renderable. */
-        void getLegacyRenderOperation(LegacyRenderOperation& rend);
+        void getRenderOperation(RenderOperation& op);
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
         /** Overridden from GuiContainer */
@@ -107,8 +110,9 @@ namespace Ogre {
         // Texture tiling
         Real mTileX[OGRE_MAX_TEXTURE_LAYERS];
         Real mTileY[OGRE_MAX_TEXTURE_LAYERS];
+        unsigned short mNumTexCoordsInBuffer;
 
-        LegacyRenderOperation mRenderOp;
+        RenderOperation mRenderOp;
 
         /// internal method for setting up geometry, called by GuiElement::update
         virtual void updatePositionGeometry(void);

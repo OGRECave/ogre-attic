@@ -372,6 +372,8 @@ namespace Ogre {
         */
         static void applyGamma( uchar *byffer, Real gamma, uint size, uchar bpp );
 
+        static bool formatHasAlpha(PixelFormat format);
+
     private:
         // The width of the image in pixels
         ushort m_uWidth;

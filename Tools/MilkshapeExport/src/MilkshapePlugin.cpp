@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "Ogre.h"
 #include "msLib.h"
 #include "resource.h"
+#include "OgreStringConverter.h"
+#include "OgreDefaultHardwareBufferManager.h"
 
 
 //---------------------------------------------------------------------
@@ -190,9 +192,7 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
                 plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
-                hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MATERIALS);
-                plugin->exportMaterials = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
-                
+               
                 hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
                 plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
                 if (plugin->splitAnimations)
@@ -226,7 +226,6 @@ bool MilkshapePlugin::showOptions(void)
     plugin = this;
     exportMesh = true;
     exportSkeleton = false;
-    exportMaterials = false;
     
 	return DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc);
 
@@ -242,9 +241,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
 
     // Create singletons
-    Ogre::MaterialManager matMgr;
     Ogre::SkeletonManager skelMgr;
     Ogre::LogManager logMgr;
+    Ogre::DefaultHardwareBufferManager defHWBufMgr;
 
     
     logMgr.createLog("msOgreExporter.log");
@@ -284,6 +283,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     // No shared geometry
     int i, j;
+    Ogre::Vector3 min, max, currpos;
+    Ogre::Real maxSquaredRadius;
+    bool first = true;
     for (i = 0; i < msModel_GetMeshCount (pModel); i++)
     {
         msMesh *pMesh = msModel_GetMeshAt (pModel, i);
@@ -313,23 +315,43 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         
         logMgr.logMessage("Setting up geometry...");
         // Set up mesh geometry
+        ogreSubMesh->vertexData = new Ogre::VertexData();
+        ogreSubMesh->vertexData->vertexCount = msMesh_GetVertexCount (pMesh);
+        ogreSubMesh->vertexData->vertexStart = 0;
+        Ogre::VertexBufferBinding* bind = ogreSubMesh->vertexData->vertexBufferBinding;
+        Ogre::VertexDeclaration* decl = ogreSubMesh->vertexData->vertexDeclaration;
         // Always 1 texture layer, 2D coords
-        ogreSubMesh->geometry.numTexCoords = 1;
-        ogreSubMesh->geometry.numTexCoordDimensions[0] = 2;
-        ogreSubMesh->geometry.hasNormals = true;
-        ogreSubMesh->geometry.hasColours = false;
-        ogreSubMesh->geometry.vertexStride = 0;
-        ogreSubMesh->geometry.texCoordStride[0] = 0;
-        ogreSubMesh->geometry.normalStride = 0;
-        ogreSubMesh->useSharedVertices = false;
-        ogreSubMesh->useTriStrips = false;
+        #define POSITION_BINDING 0
+        #define NORMAL_BINDING 1
+        #define TEXCOORD_BINDING 2
+        decl->addElement(POSITION_BINDING, 0, Ogre::VET_FLOAT3, Ogre::VES_POSITION);
+        decl->addElement(NORMAL_BINDING, 0, Ogre::VET_FLOAT3, Ogre::VES_NORMAL);
+        decl->addElement(TEXCOORD_BINDING, 0, Ogre::VET_FLOAT2, Ogre::VES_TEXTURE_COORDINATES);
+        // Create buffers
+        Ogre::HardwareVertexBufferSharedPtr pbuf = Ogre::HardwareBufferManager::getSingleton().
+            createVertexBuffer(decl->getVertexSize(POSITION_BINDING), ogreSubMesh->vertexData->vertexCount, 
+                Ogre::HardwareBuffer::HBU_DYNAMIC, false);
+        Ogre::HardwareVertexBufferSharedPtr nbuf = Ogre::HardwareBufferManager::getSingleton().
+            createVertexBuffer(decl->getVertexSize(NORMAL_BINDING), ogreSubMesh->vertexData->vertexCount, 
+                Ogre::HardwareBuffer::HBU_DYNAMIC, false);
+        Ogre::HardwareVertexBufferSharedPtr tbuf = Ogre::HardwareBufferManager::getSingleton().
+            createVertexBuffer(decl->getVertexSize(TEXCOORD_BINDING), ogreSubMesh->vertexData->vertexCount, 
+                Ogre::HardwareBuffer::HBU_DYNAMIC, false);
+        bind->setBinding(POSITION_BINDING, pbuf);
+        bind->setBinding(NORMAL_BINDING, nbuf);
+        bind->setBinding(TEXCOORD_BINDING, tbuf);
 
-        ogreSubMesh->geometry.numVertices = msMesh_GetVertexCount (pMesh);
-        ogreSubMesh->geometry.pVertices = new Ogre::Real[ogreSubMesh->geometry.numVertices * 3];
-        ogreSubMesh->geometry.pNormals = new Ogre::Real[ogreSubMesh->geometry.numVertices * 3];
-        ogreSubMesh->geometry.pTexCoords[0] = new Ogre::Real[ogreSubMesh->geometry.numVertices * 2];
-        for (j = 0; j < ogreSubMesh->geometry.numVertices; ++j)
+        ogreSubMesh->useSharedVertices = false;
+
+        Ogre::Real* pPos = static_cast<Ogre::Real*>(
+            pbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+        Ogre::Real* pTex = static_cast<Ogre::Real*>(
+            tbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+
+        logMgr.logMessage("Doing positions and texture coords...");
+        for (j = 0; j < ogreSubMesh->vertexData->vertexCount; ++j)
         {
+            logMgr.logMessage("Doing vertex " + Ogre::StringConverter::toString(j));
             msVertex *pVertex = msMesh_GetVertexAt (pMesh, j);
             msVec3 Vertex;
             msVec2 uv;
@@ -337,14 +359,28 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             msVertex_GetVertex (pVertex, Vertex);
             msVertex_GetTexCoords (pVertex, uv);
 
-            ogreSubMesh->geometry.pVertices[j*3] = Vertex[0];
-            ogreSubMesh->geometry.pVertices[(j*3)+1] = Vertex[1];
-            ogreSubMesh->geometry.pVertices[(j*3)+2] = Vertex[2];
+            *pPos++ = Vertex[0];
+            *pPos++ = Vertex[1];
+            *pPos++ = Vertex[2];
+            // Deal with bounds
+            currpos = Ogre::Vector3(Vertex[0], Vertex[1], Vertex[2]);
+            if (first)
+            {
+                min = max = currpos;
+                maxSquaredRadius = currpos.squaredLength();
+                first = false;
+            }
+            else
+            {
+                min.makeFloor(currpos);
+                max.makeCeil(currpos);
+                maxSquaredRadius = std::max(maxSquaredRadius, currpos.squaredLength());
+            }
 
-            ogreSubMesh->geometry.pTexCoords[0][j*2] = uv[0];
+            *pTex++ = uv[0];
             // Invert the 'v' texture coordinate, Milkshape appears to treat 0 as the TOP of the texture
             //   like D3D, OGRE uses the reverse
-            ogreSubMesh->geometry.pTexCoords[0][(j*2)+1] = 1 - uv[1];
+            *pTex++ = 1 - uv[1];
 
             int boneIdx = msVertex_GetBoneIndex(pVertex);
             if (boneIdx != -1)
@@ -359,15 +395,27 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
 
         }
+        pbuf->unlock();
+        tbuf->unlock();
+
+        logMgr.logMessage("Doing normals and indexes...");
         // Aargh, Milkshape uses stupid separate normal indexes for the same vertex like 3DS
         // Normals aren't described per vertex but per triangle vertex index
         // Pain in the arse, we have to do vertex duplication again if normals differ at a vertex (non smooth)
         // WHY don't people realise this format is a pain for passing to 3D APIs in vertex buffers?
-        ogreSubMesh->numFaces = msMesh_GetTriangleCount (pMesh);
-        ogreSubMesh->faceVertexIndices = new unsigned short[ogreSubMesh->numFaces * 3];
-        for (j = 0; j < ogreSubMesh->numFaces; j++)
+        Ogre::Real* pNorm = static_cast<Ogre::Real*>(
+            nbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+        ogreSubMesh->indexData->indexCount = msMesh_GetTriangleCount (pMesh) * 3;
+        // Always use 16-bit buffers, Milkshape can't handle more anyway
+        Ogre::HardwareIndexBufferSharedPtr ibuf = Ogre::HardwareBufferManager::getSingleton().
+            createIndexBuffer(Ogre::HardwareIndexBuffer::IT_16BIT, 
+            ogreSubMesh->indexData->indexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        ogreSubMesh->indexData->indexBuffer = ibuf;
+        unsigned short *pIdx = static_cast<unsigned short*>(
+            ibuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
+        for (j = 0; j < ogreSubMesh->indexData->indexCount; j+=3)
         {
-            msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, j);
+            msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, j/3);
             
             word nIndices[3];
             msTriangle_GetVertexIndices (pTriangle, nIndices);
@@ -378,30 +426,31 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             {
                 vertIdx = nIndices[k];
                 // Face index
-                ogreSubMesh->faceVertexIndices[(j*3)+k] = vertIdx;
+                pIdx[j+k] = vertIdx;
 
                 // Vertex normals
                 // For the moment, ignore any discrepancies per vertex
                 normIdx = pTriangle->nNormalIndices[k];
                 msMesh_GetVertexNormalAt (pMesh, normIdx, Normal);
 
-                ogreSubMesh->geometry.pNormals[(vertIdx*3)] = Normal[0];
-                ogreSubMesh->geometry.pNormals[(vertIdx*3)+1] = Normal[1];
-                ogreSubMesh->geometry.pNormals[(vertIdx*3)+2] = Normal[2];
+                pNorm[(vertIdx*3)] = Normal[0];
+                pNorm[(vertIdx*3)+1] = Normal[1];
+                pNorm[(vertIdx*3)+2] = Normal[2];
 
             }
 
 
         } // Faces
+        nbuf->unlock();
+        ibuf->unlock();
 
         logMgr.logMessage("Geometry done.");
     } // SubMesh
 
+    // Set bounds
+    ogreMesh->_setBoundingSphereRadius(Ogre::Math::Sqrt(maxSquaredRadius));
+    ogreMesh->_setBounds(Ogre::AxisAlignedBox(min, max));
 
-    if (exportMaterials)
-    {
-        doExportMaterials(pModel);
-    }
 
     // Keep hold of a Skeleton pointer for deletion later
     // Mesh uses Skeleton pointer for skeleton name
@@ -446,7 +495,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     Ogre::String msg;
     msg << "Exporting mesh data to file '" << szFile << "'";
     logMgr.logMessage(msg);
-    serializer.exportMesh(ogreMesh, szFile, exportMaterials);
+    serializer.exportMesh(ogreMesh, szFile);
     logMgr.logMessage("Export successful");
 
     delete ogreMesh;
@@ -454,36 +503,6 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         delete pSkel;
 }
 
-void MilkshapePlugin::doExportMaterials(msModel* pModel)
-{
-    Ogre::MaterialManager& matMgr = Ogre::MaterialManager::getSingleton();
-
-    int matCount = msModel_GetMaterialCount(pModel);
-    for (int i = 0; i < matCount; ++i)
-    {
-        msMaterial *pMat = msModel_GetMaterialAt(pModel, i);
-        // Create deferred material so no load
-        Ogre::Material* ogreMat = (Ogre::Material*)matMgr.createDeferred(pMat->szName);
-
-        msVec4 vec4;
-        msMaterial_GetAmbient (pMat, vec4);
-        ogreMat->setAmbient(vec4[0], vec4[1], vec4[2]);
-        msMaterial_GetDiffuse (pMat, vec4);
-        ogreMat->setDiffuse(vec4[0], vec4[1], vec4[2]);
-        msMaterial_GetSpecular (pMat, vec4);
-        ogreMat->setSpecular(vec4[0], vec4[1], vec4[2]);
-        ogreMat->setShininess(msMaterial_GetShininess(pMat));
-
-        char szTexture[MS_MAX_PATH];
-        msMaterial_GetDiffuseTexture (pMat, szTexture, MS_MAX_PATH);
-        if (strlen(szTexture) > 0)
-        {
-            // Diffuse texture only
-            ogreMat->addTextureLayer(szTexture);
-        }
-
-    }
-}
 
 Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
 {
