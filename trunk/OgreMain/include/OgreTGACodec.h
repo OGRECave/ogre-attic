@@ -28,46 +28,46 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreImageCodec.h"
 #include "OgreSDDataChunk.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-/** ImageCodec specialized in Traga images.
-*/
-class _OgreExport TGACodec : public ImageCodec
-{
-protected:
+    /** ImageCodec specialized in Traga images.
+    */
+    class _OgreExport TGACodec : public ImageCodec
+    {
+    protected:
 
-// We're mapping onto raw file data, so ensure members are packed with no gaps
-#if OGRE_COMPILER == COMPILER_MSVC
-#pragma pack(push)
-#pragma pack(1)
-#endif
+    // We're mapping onto raw file data, so ensure members are packed with no gaps
+    #if OGRE_COMPILER == COMPILER_MSVC
+    #pragma pack(push)
+    #pragma pack(1)
+    #endif
 
-    struct TgaHeader {
-        unsigned char  id_len;
-        unsigned char  cm_type;
-        unsigned char  type;
-        unsigned short cm_start;
-        unsigned short cm_len;
-        unsigned char  cm_bits;
-        unsigned short xorg;
-        unsigned short yorg;
-        unsigned short width;
-        unsigned short height;
-        unsigned char  bpp;
-        unsigned char  flags;
+        struct TgaHeader {
+            unsigned char  id_len;
+            unsigned char  cm_type;
+            unsigned char  type;
+            unsigned short cm_start;
+            unsigned short cm_len;
+            unsigned char  cm_bits;
+            unsigned short xorg;
+            unsigned short yorg;
+            unsigned short width;
+            unsigned short height;
+            unsigned char  bpp;
+            unsigned char  flags;
+        };
+    #if OGRE_COMPILER == COMPILER_MSVC
+    #pragma pack(pop)
+    #endif
+
+
+    public:
+        void code( const DataChunk& input, DataChunk* output, ... ) const;
+        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
+
+        String getType() const { return "tga"; }
     };
-#ifdef OGRE_COMPILER == COMPILER_MSVC
-#pragma pack(pop)
-#endif
 
-
-public:
-    void code( const DataChunk& input, DataChunk* output, ... ) const;
-    CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
-
-    String getType() const { return "tga"; }
-};
-
-END_OGRE_NAMESPACE
+}
 
 #endif

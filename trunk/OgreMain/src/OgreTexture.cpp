@@ -25,49 +25,49 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreTexture.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-void Texture::applyGamma( uchar *p, int size, int bpp )
-{
-    if( mGamma == 1.0f )
-        return;
-
-    float factor = mGamma;
-
-    //NB only 24/32-bit supported
-    if( bpp != 24 && bpp != 32 ) return;
-
-    int stride = bpp >> 3;
-
-    for(int i = 0; i < size/stride; i++, p+=stride) 
+    void Texture::applyGamma( uchar *p, int size, int bpp )
     {
-        float r, g, b;
+        if( mGamma == 1.0f )
+            return;
 
-        r = (float)p[0];
-        g = (float)p[1];
-        b = (float)p[2];
+        float factor = mGamma;
 
-        r = r * factor / 255.0f;
-        g = g * factor / 255.0f;
-        b = b * factor / 255.0f;
+        //NB only 24/32-bit supported
+        if( bpp != 24 && bpp != 32 ) return;
 
-        float scale = 1.0f, tmp;
+        int stride = bpp >> 3;
 
-        if( r > 1.0f && (tmp=(1.0f/r)) < scale )
-            scale = tmp;
-        if( g > 1.0f && (tmp=(1.0f/g)) < scale )
-            scale = tmp;
-        if( b > 1.0f && (tmp=(1.0f/b)) < scale )
-            scale = tmp;
+        for(int i = 0; i < size/stride; i++, p+=stride) 
+        {
+            float r, g, b;
 
-        scale *= 255.0f;
+            r = (float)p[0];
+            g = (float)p[1];
+            b = (float)p[2];
 
-        r *= scale; g *= scale; b *= scale;
+            r = r * factor / 255.0f;
+            g = g * factor / 255.0f;
+            b = b * factor / 255.0f;
 
-        p[0] = (uchar)r;
-        p[1] = (uchar)g;
-        p[2] = (uchar)b;
+            float scale = 1.0f, tmp;
+
+            if( r > 1.0f && (tmp=(1.0f/r)) < scale )
+                scale = tmp;
+            if( g > 1.0f && (tmp=(1.0f/g)) < scale )
+                scale = tmp;
+            if( b > 1.0f && (tmp=(1.0f/b)) < scale )
+                scale = tmp;
+
+            scale *= 255.0f;
+
+            r *= scale; g *= scale; b *= scale;
+
+            p[0] = (uchar)r;
+            p[1] = (uchar)g;
+            p[2] = (uchar)b;
+        }
     }
-}
 
-END_OGRE_NAMESPACE
+}

@@ -29,96 +29,96 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreString.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-/** Abstract class reprensenting a loadable resource (e.g. textures, sounds etc)
-    @remarks
-        Resources are generally passive constructs, handled through the
-        ResourceManager abstract class for the appropriate subclass.
-        The main thing is that Resources can be loaded or unloaded by the
-        ResourceManager to stay within a defined memory budget. Therefore,
-        all Resources must be able to load, unload (whilst retainin enough
-        info about themselves to be reloaded later), and state how big
-        they are.
-    @par
-        Subclasses must implement:
-            1. A constructor, with at least a mandatory name param.
-            This constructor must set mName and optionally mSize.
-            2. The load() and unload() methods - mSize must be set after load()
-            Each must check & update the mIsLoaded flag.
-*/
-class _OgreExport Resource {
-protected:
-    String mName;
-    bool   mIsLoaded;
-    time_t mLastAccess;
-    size_t mSize;
-
-public:
-    /** Basic constructor. 
-        @warn
-            Subclasses must init mName and mSize!
+    /** Abstract class reprensenting a loadable resource (e.g. textures, sounds etc)
+        @remarks
+            Resources are generally passive constructs, handled through the
+            ResourceManager abstract class for the appropriate subclass.
+            The main thing is that Resources can be loaded or unloaded by the
+            ResourceManager to stay within a defined memory budget. Therefore,
+            all Resources must be able to load, unload (whilst retainin enough
+            info about themselves to be reloaded later), and state how big
+            they are.
+        @par
+            Subclasses must implement:
+                1. A constructor, with at least a mandatory name param.
+                This constructor must set mName and optionally mSize.
+                2. The load() and unload() methods - mSize must be set after load()
+                Each must check & update the mIsLoaded flag.
     */
-    Resource() 
-        : mIsLoaded( false ), mSize( 0 )
-    { 
-    }
+    class _OgreExport Resource {
+    protected:
+        String mName;
+        bool   mIsLoaded;
+        time_t mLastAccess;
+        size_t mSize;
 
-    /** Virtual destructor. Shouldn't need to be overloaded, as the resource
-        deallocation code should reside in unload()
-        @see
-            Resource::unload()
-    */
-    virtual ~Resource() 
-    { 
-        if (mIsLoaded) 
-            unload(); 
-    }
+    public:
+        /** Basic constructor. 
+            @warn
+                Subclasses must init mName and mSize!
+        */
+        Resource() 
+            : mIsLoaded( false ), mSize( 0 )
+        { 
+        }
 
-    /** Loads the resource, if it is not already.
-    */
-    virtual void load() = 0;
+        /** Virtual destructor. Shouldn't need to be overloaded, as the resource
+            deallocation code should reside in unload()
+            @see
+                Resource::unload()
+        */
+        virtual ~Resource() 
+        { 
+            if (mIsLoaded) 
+                unload(); 
+        }
 
-    /** Unloads the resource, but retains data to recreate.
-    */
-    virtual void unload() {};
+        /** Loads the resource, if it is not already.
+        */
+        virtual void load() = 0;
 
-    /** Retrieves info about the size of the resource.
-    */
-    virtual size_t getSize(void) 
-    { 
-        return mSize; 
-    }
+        /** Unloads the resource, but retains data to recreate.
+        */
+        virtual void unload() {};
 
-    /** 'Touches' the resource to indicate it has been used.
-    */
-    void touch(void) 
-    { 
-        mLastAccess = time(NULL); 
-    }
+        /** Retrieves info about the size of the resource.
+        */
+        virtual size_t getSize(void) 
+        { 
+            return mSize; 
+        }
 
-    /** Gets the last time the resource was 'touched'.
-    */
-    time_t getLastAccess(void) const 
-    { 
-        return mLastAccess; 
-    }
+        /** 'Touches' the resource to indicate it has been used.
+        */
+        void touch(void) 
+        { 
+            mLastAccess = time(NULL); 
+        }
 
-    /** Gets resource name.
-    */
-    const String& getName(void) const 
-    { 
-        return mName; 
-    }
+        /** Gets the last time the resource was 'touched'.
+        */
+        time_t getLastAccess(void) const 
+        { 
+            return mLastAccess; 
+        }
 
-    /** Returns true if the Resource has been loaded, false otherwise.
-    */
-    bool isLoaded(void) const 
-    { 
-        return mIsLoaded; 
-    }
-};
+        /** Gets resource name.
+        */
+        const String& getName(void) const 
+        { 
+            return mName; 
+        }
 
-END_OGRE_NAMESPACE
+        /** Returns true if the Resource has been loaded, false otherwise.
+        */
+        bool isLoaded(void) const 
+        { 
+            return mIsLoaded; 
+        }
+    };
+
+} // namespace
 
 #endif

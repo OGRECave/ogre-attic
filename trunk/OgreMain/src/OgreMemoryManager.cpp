@@ -30,54 +30,54 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreNoMemoryMacros.h"
 //-----------------------------------------------------------------------------
 
-BEGIN_OGRE_NAMESPACE 
+namespace Ogre {
 
-//-----------------------------------------------------------------------------
-MemoryManager MemoryManager::sMemManager;
-//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    MemoryManager MemoryManager::sMemManager;
+    //-----------------------------------------------------------------------------
 
-//-----------------------------------------------------------------------------
-MemoryManager::MemoryManager()
-{        
-}
-
-//-----------------------------------------------------------------------------
-MemoryManager::~MemoryManager()
-{                
-}
-
-//-----------------------------------------------------------------------------
-void * MemoryManager::allocMem( const char *szFile, size_t uLine, size_t count )
-{
-    void *ptr = malloc( count );
-    return ptr;
-}        
-
-//-----------------------------------------------------------------------------
-void * MemoryManager::rllocMem( 
-    const char *szFile, size_t uLine, void *ptr , size_t count )
-{
-    void *nptr = realloc( ptr, count );
-    return nptr;
-}
-
-//-----------------------------------------------------------------------------
-void * MemoryManager::cllocMem( 
-    const char *szFile, size_t uLine, size_t num, size_t size )
-{
-    void *ptr = malloc( num * size );
-
-    if( ptr )
-    {
-        memset( ptr , 0, num * size );
+    //-----------------------------------------------------------------------------
+    MemoryManager::MemoryManager()
+    {        
     }
-    return ptr;
-}
 
-//-----------------------------------------------------------------------------
-void MemoryManager::dllocMem( const char *szFile, size_t uLine, void *ptr )
-{
-    free( ptr );
-}
+    //-----------------------------------------------------------------------------
+    MemoryManager::~MemoryManager()
+    {                
+    }
 
-END_OGRE_NAMESPACE
+    //-----------------------------------------------------------------------------
+    void * MemoryManager::allocMem( const char *szFile, size_t uLine, size_t count )
+    {
+        void *ptr = malloc( count );
+        return ptr;
+    }        
+
+    //-----------------------------------------------------------------------------
+    void * MemoryManager::rllocMem( 
+        const char *szFile, size_t uLine, void *ptr , size_t count )
+    {
+        void *nptr = realloc( ptr, count );
+        return nptr;
+    }
+
+    //-----------------------------------------------------------------------------
+    void * MemoryManager::cllocMem( 
+        const char *szFile, size_t uLine, size_t num, size_t size )
+    {
+        void *ptr = malloc( num * size );
+
+        if( ptr )
+        {
+            memset( ptr , 0, num * size );
+        }
+        return ptr;
+    }
+
+    //-----------------------------------------------------------------------------
+    void MemoryManager::dllocMem( const char *szFile, size_t uLine, void *ptr )
+    {
+        free( ptr );
+    }
+
+}

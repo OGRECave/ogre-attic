@@ -27,8 +27,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "Ogre.h"
 #include "msLib.h"
 #include "resource.h"
-#include "OgreMaterialManager.h"
-#include "OgreSkeletonSerializer.h"
 
 
 //---------------------------------------------------------------------
@@ -354,9 +352,126 @@ void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
     Ogre::Skeleton *ogreskel = new Ogre::Skeleton("export");
 
     // Complete the details
-    // TODO
+    
+    // Create the Animation
+    // Milkshape only supports 1 animation (hmm)
+    // Get animation length
+    // Map frames -> seconds, this can be changed in speed of animation anyway
+    int numFrames = msModel_GetTotalFrames(pModel);
+
+    Ogre::Animation *ogreanim = ogreskel->createAnimation("Default", numFrames);
+
+    // Do the bones, include the animation tracks too
+    int numBones = msModel_GetBoneCount(pModel);
+
+    int i;
+    // Create all the bones in turn
+    for (i = 0; i < numBones; ++i)
+    {
+        msBone* bone = msModel_GetBoneAt(pModel, i);
+        Ogre::Bone* ogrebone = ogreskel->createBone(bone->szName);
+        ogrebone->setPosition(bone->Position[0], bone->Position[1], bone->Position[2]);
+        // Hmm, Milkshape has chosen a Euler angle representation of orientation which is not smart
+        // Rotation Matrix or Quaternion would have been the smarter choice
+        // Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
+        // Grr, we'll try our best anyway...
+        Ogre::Quaternion qx, qy, qz;
+        qx.FromAngleAxis(bone->Rotation[0], Ogre::Vector3::UNIT_X);
+        qy.FromAngleAxis(bone->Rotation[1], Ogre::Vector3::UNIT_Y);
+        qz.FromAngleAxis(bone->Rotation[2], Ogre::Vector3::UNIT_Z);
+
+        // Assume rotate by x then y then z
+        ogrebone->setOrientation(qz * qy * qx);
+
+        // Create animation tracks
+        Ogre::AnimationTrack *ogretrack = ogreanim->createTrack(i, ogrebone);
+
+        // OGRE uses keyframes which are both position and rotation
+        // Milkshape separates them, so create merged OGRE keyframes
+        int numPosKeys = msBone_GetPositionKeyCount(bone);
+        int numRotKeys = msBone_GetRotationKeyCount(bone);
+        int currPosIdx, currRotIdx;
+        msPositionKey* currPosKey;
+        msRotationKey* currRotKey;
+        currPosKey = msBone_GetPositionKeyAt(bone, 0);
+        currRotKey = msBone_GetRotationKeyAt(bone, 0);
+        for (currPosIdx = 0, currRotIdx = 0; ; )
+        {
+            Ogre::Real time;
+            if (currPosKey->fTime > currRotKey->fTime)
+            {
+                time = currPosKey->fTime;
+            }
+            else
+            {
+                time = currRotKey->fTime;
+            }
+
+            Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(time);
+
+            ogrekey->setTranslate(Ogre::Vector3(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]));
+            qx.FromAngleAxis(currRotKey->Rotation[0], Ogre::Vector3::UNIT_X);
+            qy.FromAngleAxis(currRotKey->Rotation[1], Ogre::Vector3::UNIT_Y);
+            qz.FromAngleAxis(currRotKey->Rotation[2], Ogre::Vector3::UNIT_Z);
+            ogrekey->setRotation(qz * qy * qx);
+
+            // Check to see which one is next
+            if (currPosIdx+1 == numPosKeys && currRotIdx+1 == numRotKeys)
+                break; // were done
+
+            if (currPosIdx+1 == numPosKeys)
+            {
+                // Use next rotation index since position indexes have run out
+                currRotIdx++;
+            }
+            else if (currRotIdx+1 == numRotKeys)
+            {
+                // Use next position index since rotation indexes have run out
+                currPosIdx++;
+            }
+            else
+            {
+                // Neither have run out, time to compare the times of the next of each
+                // We want the lowest time of the next of each
+                msPositionKey* possPosKey = msBone_GetPositionKeyAt(bone, currPosIdx+1);
+                msRotationKey* possRotKey = msBone_GetRotationKeyAt(bone, currRotIdx+1);
+
+                if (possPosKey->fTime == possRotKey->fTime)
+                {
+                    // Increment both if equal
+                    currPosIdx++;
+                    currRotIdx++;
+                }
+                else if (possPosKey->fTime < possRotKey->fTime)
+                {
+                    currPosIdx++;
+                }
+                else
+                {
+                    currRotIdx++;
+                }
+            }
+            
+            // Get the keys
+            currPosKey = msBone_GetPositionKeyAt(bone, currPosIdx);
+            currRotKey = msBone_GetRotationKeyAt(bone, currRotIdx);
 
 
+
+        }
+
+        
+    }
+    // Now we've created all the bones, link them up
+    // Link up all the bones
+    for (i = 0; i < numBones; ++i)
+    {
+        msBone* bone = msModel_GetBoneAt(pModel, i);
+        Ogre::Bone* ogrechild = ogreskel->getBone(bone->szName);
+        Ogre::Bone* ogreparent = ogreskel->getBone(bone->szParentName);
+
+        ogreparent->addChild(ogrechild);
+    }
 
 
     // Create skeleton serializer & export

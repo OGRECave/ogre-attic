@@ -28,131 +28,130 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
+    /** Wraps a chunk of memory, storing both size and a pointer to the data.
+	    @remarks
+		    This class simply wraps a chunk of memory. It provides extra info
+		    about the size of the data contained within it, simple allocation
+		    and free methods, and simple stream-like 'read' methods for
+		    parsing through the memory chunk rather like a file.
+	    @note
+		    <br>By default the DataChunk object will <b>NOT</b> free any
+		    memory it has allocated <b>EVEN WHEN DESTROYED</b>.
+	    @par
+		    This is for efficiency since you may just want to reuse the
+		    memory as-is rather than copying it elsewhere, and it also allows
+		    the DataChunk to be copied safely, i.e. when returned from
+		    methods. At some point you should call DataChunk::free to release
+		    the memory if you wish.
+	    @par
+		    If you need a DataChunk that frees the allocated memory on
+		    destruction, use SDDataChunk instead.
+	    @see
+		    SDDataChunk
+    */
+    class _OgreExport DataChunk
+    {
+    protected:
+	    uchar* mData;
+	    uchar* mPos;
+	    uchar* mEnd;
+	    size_t mSize;
 
-/** Wraps a chunk of memory, storing both size and a pointer to the data.
-	@remarks
-		This class simply wraps a chunk of memory. It provides extra info
-		about the size of the data contained within it, simple allocation
-		and free methods, and simple stream-like 'read' methods for
-		parsing through the memory chunk rather like a file.
-	@note
-		<br>By default the DataChunk object will <b>NOT</b> free any
-		memory it has allocated <b>EVEN WHEN DESTROYED</b>.
-	@par
-		This is for efficiency since you may just want to reuse the
-		memory as-is rather than copying it elsewhere, and it also allows
-		the DataChunk to be copied safely, i.e. when returned from
-		methods. At some point you should call DataChunk::free to release
-		the memory if you wish.
-	@par
-		If you need a DataChunk that frees the allocated memory on
-		destruction, use SDDataChunk instead.
-	@see
-		SDDataChunk
-*/
-class _OgreExport DataChunk
-{
-protected:
-	uchar* mData;
-	uchar* mPos;
-	uchar* mEnd;
-	size_t mSize;
+    public:
+	    /** Default constructor.
+	    */
+	    DataChunk();
 
-public:
-	/** Default constructor.
-	*/
-	DataChunk();
+	    /** Wraps an existing, already-allocated, memory block.
+	    */
+	    DataChunk( void *pData, size_t size );
 
-	/** Wraps an existing, already-allocated, memory block.
-	*/
-	DataChunk( void *pData, size_t size );
+	    /** Default destructor.
+		    @note
+			    The destructor <b>DOES NOT FREE</b> memory.
+	    */
+	    virtual ~DataChunk() {}
 
-	/** Default destructor.
-		@note
-			The destructor <b>DOES NOT FREE</b> memory.
-	*/
-	virtual ~DataChunk() {}
+	    /** Allocates the passed number of bytes.
+	    */
+	    uchar * allocate( size_t size, uchar * ptr = NULL );
 
-	/** Allocates the passed number of bytes.
-	*/
-	uchar * allocate( size_t size, uchar * ptr = NULL );
+	    /** Frees all internally allocated memory.
+	    */
+	    DataChunk & clear();
 
-	/** Frees all internally allocated memory.
-	*/
-	DataChunk & clear();
+	    /** Returns the size of the allocated chunk in bytes.
+	    */
+	    size_t getSize() const;	
 
-	/** Returns the size of the allocated chunk in bytes.
-	*/
-	size_t getSize() const;	
+	    /** Returns a const pointer to the start of the memory.
+	    */
+	    uchar * getPtr();
 
-	/** Returns a const pointer to the start of the memory.
-	*/
-	uchar * getPtr();
+	    /** Returns a const pointer to the start of the memory.
+	    */
+	    const uchar* getPtr() const;
 
-	/** Returns a const pointer to the start of the memory.
-	*/
-	const uchar* getPtr() const;
+	    /** Reads memory from the main buffer into another, incrementing an
+		    internal 'current' pointer to allow progressive reads.
+		    @param
+			    buffer Pointer to buffer to read into
+		    @param
+			    size Number of bytes to read
+		    @returns
+			    The number of bytes actually read
+	    */
+	    ulong read(void* buffer, unsigned long size);
 
-	/** Reads memory from the main buffer into another, incrementing an
-		internal 'current' pointer to allow progressive reads.
-		@param
-			buffer Pointer to buffer to read into
-		@param
-			size Number of bytes to read
-		@returns
-			The number of bytes actually read
-	*/
-	ulong read(void* buffer, unsigned long size);
+	    /** Repositions the internal read pointer to a specified byte.
+	    */
+	    DataChunk & seek( size_t pos );
 
-	/** Repositions the internal read pointer to a specified byte.
-	*/
-	DataChunk & seek( size_t pos );
+	    /** Moves the internal read pointer backwards or forwards by the number of bytes specified. 
+	    @remarks The sign of the parameter determines the direction of the skip.
+	    */
+	    DataChunk & skip( long offset );
 
-	/** Moves the internal read pointer backwards or forwards by the number of bytes specified. 
-	@remarks The sign of the parameter determines the direction of the skip.
-	*/
-	DataChunk & skip( long offset );
+	    /** Reads data into the provided buffer until hitting the specified
+		    character or reaching the upper limit provided.
+		    @remarks
+			    The terminating character is not included in the data
+			    returned, and it is skipped over so the next read will occur
+			    after it.
+		    @param
+			    buffer Pointer to buffer to read into
+		    @param
+			    size Size of the buffer i.e. max bytes to read
+		    @param
+			    delim List of delimiters to read up to (default newline)
+		    @returns
+			    The actual number of characters copied into the buffer.
+	    */
+	    unsigned long readUpTo(
+		    void* buffer, 
+		    size_t size, 
+		    const char* delim = "\n" );
 
-	/** Reads data into the provided buffer until hitting the specified
-		character or reaching the upper limit provided.
-		@remarks
-			The terminating character is not included in the data
-			returned, and it is skipped over so the next read will occur
-			after it.
-		@param
-			buffer Pointer to buffer to read into
-		@param
-			size Size of the buffer i.e. max bytes to read
-		@param
-			delim List of delimiters to read up to (default newline)
-		@returns
-			The actual number of characters copied into the buffer.
-	*/
-	unsigned long readUpTo(
-		void* buffer, 
-		size_t size, 
-		const char* delim = "\n" );
+	    /** Returns true if the buffer pointer has reached the end of the
+		    buffer.
+	    */
+	    bool isEOF();
 
-	/** Returns true if the buffer pointer has reached the end of the
-		buffer.
-	*/
-	bool isEOF();
+	    /** Returns a String containing the next line of data, optionally 
+		    trimmed for whitespace. 
+	    @remarks
+		    This is a convenience method for text chunks only, allowing you to 
+		    retrieve a String object containing the next line of data. The data
+		    is read up to the next newline character and the result trimmed if
+		    required.
+	    @param 
+		    trimAfter If true, the line is trimmed for whitespace (as in 
+		    String.trim(true,true))
+	    */
+	    String getLine( bool trimAfter = true );
+    };
 
-	/** Returns a String containing the next line of data, optionally 
-		trimmed for whitespace. 
-	@remarks
-		This is a convenience method for text chunks only, allowing you to 
-		retrieve a String object containing the next line of data. The data
-		is read up to the next newline character and the result trimmed if
-		required.
-	@param 
-		trimAfter If true, the line is trimmed for whitespace (as in 
-		String.trim(true,true))
-	*/
-	String getLine( bool trimAfter = true );
-};
-
-END_OGRE_NAMESPACE
+} // namespace
 
 #endif

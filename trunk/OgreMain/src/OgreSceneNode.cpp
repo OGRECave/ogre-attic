@@ -35,7 +35,12 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : mCreator(creator)
+    : Node(), mCreator(creator)
+    {
+    }
+    //-----------------------------------------------------------------------
+    SceneNode::SceneNode(SceneManager* creator, const String& name) 
+    : Node(name), mCreator(creator)
     {
     }
     //-----------------------------------------------------------------------
@@ -223,11 +228,24 @@ namespace Ogre {
         return mCreator->createSceneNode();
     }
     //-----------------------------------------------------------------------
+    Node* SceneNode::createChildImpl(const String& name)
+    {
+        return mCreator->createSceneNode(name);
+    }
+    //-----------------------------------------------------------------------
     SceneNode* SceneNode::createChild(const Vector3& translate, const Quaternion& rotate)
     {
         // Provided as a passthrough to superclass just for compatibility with 
         // the previous version of the SceneNode interface (before I abstracted to Node)
         return static_cast<SceneNode*>(Node::createChild(translate, rotate));
+    }
+    //-----------------------------------------------------------------------
+    SceneNode* SceneNode::createChild(const String& name, 
+        const Vector3& translate,const Quaternion& rotate)
+    {
+        // Provided as a passthrough to superclass just for compatibility with 
+        // the previous version of the SceneNode interface (before I abstracted to Node)
+        return static_cast<SceneNode*>(Node::createChild(name, translate, rotate));
     }
     //-----------------------------------------------------------------------
     SceneNode* SceneNode::getChild(unsigned short index)

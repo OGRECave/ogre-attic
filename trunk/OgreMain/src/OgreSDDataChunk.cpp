@@ -24,22 +24,22 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreSDDataChunk.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-SDDataChunk::SDDataChunk() 
-	: DataChunk()
-{
+    SDDataChunk::SDDataChunk() 
+	    : DataChunk()
+    {
+    }
+
+    SDDataChunk::SDDataChunk( void *pData, size_t size ) 
+	    : DataChunk( pData, size )
+    {
+    }
+
+    SDDataChunk::~SDDataChunk()
+    {
+	    if( mData )
+		    delete[] mData;
+    }
+
 }
-
-SDDataChunk::SDDataChunk( void *pData, size_t size ) 
-	: DataChunk( pData, size )
-{
-}
-
-SDDataChunk::~SDDataChunk()
-{
-	if( mData )
-		delete[] mData;
-}
-
-END_OGRE_NAMESPACE

@@ -32,49 +32,49 @@ http://www.gnu.org/copyleft/gpl.html.
 struct FT_LibraryRec_;
 struct FT_FaceRec_;
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-class _OgreExport TextureFont
-{
-public:
-    typedef std::map< String, std::map< String, TextureFont * > > TextureFontMap;
-
-protected:
-	static FT_LibraryRec_ **ms_pLibrary;    
-	static TextureFontMap ms_mapFonts;
-
-	FT_FaceRec_ **m_pFace;
-	static unsigned ms_uNumFonts;
-
-public:
-	TextureFont();
-	TextureFont( const String& strFontFile );
-	
-	void loadFromFile( const String& strFontFile );
-	
-	virtual ~TextureFont();	
-
-	void createTexture( 
-		const String& strTexName, const String& strString, 
-		unsigned uTexX, unsigned uTexY, 
-		unsigned uFontX = 600, unsigned uFontY = 0,
-		unsigned uFontResX = 72, unsigned uFontResY = 0, 
-		unsigned uStartX = 1, unsigned uStartY = 1 );	
-
-    void createAlphaMask(
-        const String& strTexName, const String& strString,
-        unsigned uTexX, unsigned uTexY,
-        byte cRed, byte cGreen, byte cBlue,
-        unsigned uFontX = 600, unsigned uFontY = 0,
-        unsigned uFontResX = 72, unsigned uFontResY = 0,
-        unsigned uStartX = 1, unsigned uStartY = 1 );
-
-    static const TextureFontMap& getColl()
+    class _OgreExport TextureFont
     {
-        return ms_mapFonts;
-    }
-};
+    public:
+        typedef std::map< String, std::map< String, TextureFont * > > TextureFontMap;
 
-END_OGRE_NAMESPACE
+    protected:
+	    static FT_LibraryRec_ **ms_pLibrary;    
+	    static TextureFontMap ms_mapFonts;
+
+	    FT_FaceRec_ **m_pFace;
+	    static unsigned ms_uNumFonts;
+
+    public:
+	    TextureFont();
+	    TextureFont( const String& strFontFile );
+    	
+	    void loadFromFile( const String& strFontFile );
+    	
+	    virtual ~TextureFont();	
+
+	    void createTexture( 
+		    const String& strTexName, const String& strString, 
+		    unsigned uTexX, unsigned uTexY, 
+		    unsigned uFontX = 600, unsigned uFontY = 0,
+		    unsigned uFontResX = 72, unsigned uFontResY = 0, 
+		    unsigned uStartX = 1, unsigned uStartY = 1 );	
+
+        void createAlphaMask(
+            const String& strTexName, const String& strString,
+            unsigned uTexX, unsigned uTexY,
+            byte cRed, byte cGreen, byte cBlue,
+            unsigned uFontX = 600, unsigned uFontY = 0,
+            unsigned uFontResX = 72, unsigned uFontResY = 0,
+            unsigned uStartX = 1, unsigned uStartY = 1 );
+
+        static const TextureFontMap& getColl()
+        {
+            return ms_mapFonts;
+        }
+    };
+
+} //namespace
 
 #endif

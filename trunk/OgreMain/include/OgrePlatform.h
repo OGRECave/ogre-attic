@@ -84,9 +84,6 @@ http://www.gnu.org/copyleft/gpl.html.
 #   define OGRE_PLATFORM PLATFORM_LINUX
 #endif
 
-#define BEGIN_OGRE_NAMESPACE namespace Ogre {
-#define END_OGRE_NAMESPACE }
-
 // For generating compiler warnings - should work on any compiler
 // As a side note, if you start your message with 'Warning: ', the MSVC
 // IDE actually does catch a warning :)

@@ -117,6 +117,19 @@ namespace Ogre {
         return createBone(mNextAutoHandle++);
     }
     //---------------------------------------------------------------------
+    Bone* Skeleton::createBone(const String& name)
+    {
+        if (mBoneList.size() == OGRE_MAX_NUM_BONES)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
+                "Skeleton::createBone");
+        }
+        Bone* ret = new Bone(name, mNextAutoHandle++, this);
+        mBoneList[ret->getHandle()] = ret;
+        mBoneListByName[name] = ret;
+        return ret;
+    }
+    //---------------------------------------------------------------------
     Bone* Skeleton::createBone(unsigned short handle)
     {
         if (mBoneList.size() == OGRE_MAX_NUM_BONES)
@@ -126,6 +139,7 @@ namespace Ogre {
         }
         Bone* ret = new Bone(handle, this);
         mBoneList[handle] = ret;
+        mBoneListByName[ret->getName()] = ret;
         return ret;
 
     }
@@ -335,6 +349,20 @@ namespace Ogre {
         if (i == mBoneList.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Bone with specified handle not found.", 
+                "Skeleton::getBone");
+        }
+
+        return i->second;
+
+    }
+    //---------------------------------------------------------------------
+    Bone* Skeleton::getBone(const String& name) const
+    {
+        BoneListByName::const_iterator i = mBoneListByName.find(name);
+
+        if (i == mBoneList.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Bone named '" + name + "' not found.", 
                 "Skeleton::getBone");
         }
 
