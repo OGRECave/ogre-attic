@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreVector4.h"
 #include "OgreHardwareVertexBuffer.h"
+#include "OgreRenderOperation.h"
 
 namespace Ogre {
 
