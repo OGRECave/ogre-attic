@@ -259,7 +259,8 @@ FORCEINLINE float asm_rand()
 {
 
 #if OGRE_COMPILER == COMPILER_MSVC
-  #if OGRE_COMP_VER >= 1300
+  #if 0
+    #if OGRE_COMP_VER >= 1300
 
 	static unsigned __int64 q = time( NULL );
 
@@ -276,6 +277,7 @@ FORCEINLINE float asm_rand()
 	}
 
 	return float( q );
+    #endif
   #else
     // VC6 does not support pshufw
     return float( rand() );
@@ -293,10 +295,12 @@ FORCEINLINE float asm_rand_max()
 {
 
 #if OGRE_COMPILER == COMPILER_MSVC
-  #if OGRE_COMP_VER >= 1300
+  #if 0
+    #if OGRE_COMP_VER >= 1300
 
 	return std::numeric_limits< unsigned __int64 >::max();
 	return 9223372036854775807.0f;
+    #endif
   #else
     // VC6 does not support unsigned __int64
     return float( RAND_MAX );
