@@ -829,8 +829,9 @@ namespace Ogre
                 worldFrag.singleIntersection.x = origin.x;
                 worldFrag.singleIntersection.z = origin.z;
                 worldFrag.singleIntersection.y = height;
-                listener->queryResult(&worldFrag, 
-                    (worldFrag.singleIntersection - origin).length());
+                if (!listener->queryResult(&worldFrag, 
+                    (worldFrag.singleIntersection - origin).length()))
+					return;
             }
         }
         else
@@ -839,8 +840,9 @@ namespace Ogre
             if (static_cast<TerrainSceneManager*>(mParentSceneMgr)->intersectSegment(
                 origin, origin + (dir * 100000), &worldFrag.singleIntersection))
             {
-                listener->queryResult(&worldFrag, 
-                    (worldFrag.singleIntersection - origin).length());
+                if (!listener->queryResult(&worldFrag, 
+                    (worldFrag.singleIntersection - origin).length()))
+					return;
             }
 
 
