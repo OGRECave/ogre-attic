@@ -404,7 +404,22 @@ Note that if the number of texture_unit entries exceeds the number of texture un
 @*
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.@*@*
 
-Techniques do not have any attributes of their own, they are simply a container for a number of passes, @xref{Passes}.
+Techniques have only one attribute of their own, which indicates which LOD index they belong to.
+
+@subheading lod_index
+
+Sets the level-of-detail (LOD) index this Technique belongs to. @*@*
+
+Format: lod_index <number>@*
+NB Valid values are 0 (highest level of detail) to 65535, although this is unlikely. You should not leave gaps in the LOD indexes between Techniques.@*@*
+
+Example: lod_index 1@*@*
+
+All techniques must belong to a LOD index, by default they all belong to index 0, ie the highest LOD. Increasing indexes denote lower levels of detail. You can (and often will) assign more than one technique to the same LOD index, what this means is that OGRE will pick the best technique of the ones listed at the same LOD index. Fo readability, it is advised that you list your techniques in order of LOD, then in order of preference, although the latter is the only prerequisite (OGRE determines which one is 'best' by which one is listed first).@*@*
+
+Default: lod_index 0@*@*
+
+Techniques also contain one or more passes (and there must be at least one), @xref{Passes}.
 
 @node Passes
 @subsection Passes
@@ -1124,7 +1139,7 @@ As well as naming the program in question, you can also provide parameters to it
 vertex_program_ref myVertexProgram
 {
 	param_indexed_auto 0 WORLDVIEWPROJ_MATRIX
-	param_indexed      16 float4  10.0 0 0 0
+	param_indexed      4 float4  10.0 0 0 0
 }
 @end example
 In this example, we bind a vertex program called 'myVertexProgram' (which will be defined elsewhere) to the pass, and give it 2 parameters, one is an 'auto' parameter, meaning we do not have to supply a value as such, just a recognised code (in this case it's the world/view/projection matrix which is kept up to date automatically by Ogre). The second parameter is a manually specified parameter, a 4-element float. The indexes are described later.@*@*
@@ -1147,9 +1162,9 @@ This command sets the value of an indexed parameter. @*@*
 format: param_indexed <index> <type> <value>@*@*
 example: param_indexed 0 float4 10.0 0 0 0@*@*
 
-The 'index' is simply a number representing the position in the parameter list which the value should be written, and you should derive this from your program definition. The index is relative to the primitive type (for example, float) and not to groupings of types (e.g. float4), so for example if you defined a float4 parameter at index 0, the next index would be 4.@*@*
+The 'index' is simply a number representing the position in the parameter list which the value should be written, and you should derive this from your program definition. The index is relative to the way constants are stored on the card, which is in 4-element blocks. For example if you defined a float4 parameter at index 0, the next index would be 1. If you defined a matrix4x4 at index 0, the next usable index would be 4, since a 4x4 matrix takes up 4 indexes.@*@*
 
-The value of 'type' can be float, float1, float2, .. float<n>, matrix4x4 (== float16), int, int1, int2 .. int<n>. Note that 'int' parameters are only available on some more advanced program syntaxes, check the D3D or GL vertex / fragment program documentation for full details. Also note that most programs deal with parameters in multiples of 4, so the most useful ones will be float4 and matrix4x4. @*@*
+The value of 'type' can be float4, matrix4x4, float<n> (where <n> is a multiple of 4), int4, int<n> (where <n> is a mutiple of 4 again). Note that 'int' parameters are only available on some more advanced program syntaxes, check the D3D or GL vertex / fragment program documentation for full details. Typically the most useful ones will be float4 and matrix4x4. @*@*
 
 'value' is simply a space or tab-delimited list of values which can be converted into the type you have specified.
 
