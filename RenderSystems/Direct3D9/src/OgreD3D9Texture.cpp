@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D9Texture.h"
+#include "OgreD3D9HardwarePixelBuffer.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
@@ -551,9 +552,12 @@ namespace Ogre
 	/****************************************************************************************/
     void D3D9Texture::createInternalResources(void)
 	{
-		// if we are there then the source image dim. and format must already be set !!!
-		assert(mSrcWidth > 0 || mSrcHeight > 0);
-
+		// If mSrcWidth and mSrcHeight are zero, the requested extents have probably been set
+		// through setWidth and setHeight, which set mWidth and mHeight. Take those values.
+		if(mSrcWidth == 0 || mSrcHeight == 0) {
+			mSrcWidth = mWidth;
+			mSrcHeight = mHeight;
+		}
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -804,6 +808,9 @@ namespace Ogre
 			LogManager::getSingleton().logMessage("D3D9 : ***** Source image dimensions : " + StringConverter::toString(mSrcWidth) + "x" + StringConverter::toString(mSrcHeight));
 			LogManager::getSingleton().logMessage("D3D9 : ***** Texture dimensions : " + StringConverter::toString(mWidth) + "x" + StringConverter::toString(mHeight));
 		}
+		
+		// Create list of subsurfaces for getBuffer()
+		_createSurfaceList();
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_setSrcAttributes(unsigned long width, unsigned long height, 
@@ -1262,6 +1269,74 @@ namespace Ogre
 			this->_freeResources();
 		}
 	}
+	
+	/****************************************************************************************/
+	void D3D9Texture::_createSurfaceList()
+	{
+		IDirect3DSurface9 *surface;
+		IDirect3DVolume9 *volume;
+		
+		mSurfaceList.clear();
+		switch(getTextureType()) {
+		case TEX_TYPE_2D:
+			assert(mpNormTex);
+			// Make sure number of mips is right
+			mNumMipMaps = mpNormTex->GetLevelCount();
+			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
+			for(int mip=0; mip<mNumMipMaps; mip++)
+			{
+				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
+					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
+		 				"D3D9Texture::_createSurfaceList");	
+				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(new D3D9HardwarePixelBuffer(surface)));
+			}
+			break;
+		case TEX_TYPE_CUBE_MAP:
+			assert(mpCubeTex);
+			mNumMipMaps = mpCubeTex->GetLevelCount();
+			// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
+			for(int face=0; face<6; face++)
+			{
+				for(int mip=0; mip<mNumMipMaps; mip++)
+				{
+					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
+						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
+		 				"D3D9Texture::getBuffer");
+					mSurfaceList.push_back(HardwarePixelBufferSharedPtr(new D3D9HardwarePixelBuffer(surface)));
+				}
+			}
+			break;
+		case TEX_TYPE_3D:
+			assert(mpVolumeTex);
+			mNumMipMaps = mpVolumeTex->GetLevelCount();
+			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
+			for(int mip=0; mip<mNumMipMaps; mip++)
+			{
+				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
+					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
+		 				"D3D9Texture::getBuffer");	
+				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(new D3D9HardwarePixelBuffer(volume)));
+			}
+			break;
+		};
+
+	}
+	/****************************************************************************************/
+	HardwarePixelBufferSharedPtr D3D9Texture::getBuffer(int face, int mipmap) 
+	{
+		if(getTextureType() != TEX_TYPE_CUBE_MAP && face != 0)
+			Except(Exception::ERR_INVALIDPARAMS, "Normal textures have only face 0",
+					"D3D9Texture::getBuffer");
+		if(face < 0 || face >= 6)
+			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
+					"D3D9Texture::getBuffer");
+		if(mipmap < 0 || mipmap >= mNumMipMaps)
+			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
+					"D3D9Texture::getBuffer");
+		int idx = face*mNumMipMaps + mipmap;
+		assert(idx < mSurfaceList.size());
+		return mSurfaceList[idx];
+	}		
 	/****************************************************************************************/
 	PixelFormat D3D9Texture::_getPF(D3DFORMAT d3dPF)
 	{
@@ -1285,6 +1360,7 @@ namespace Ogre
 		case D3DFMT_R5G6B5:
 			return PF_R5G6B5;
 		case D3DFMT_X8R8G8B8:
+			return PF_A8R8G8B8;
 		case D3DFMT_R8G8B8:
 			return PF_R8G8B8;
 		case D3DFMT_A16B16G16R16F:

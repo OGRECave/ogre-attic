@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
-
+#include "OgreHardwarePixelBuffer.h"
 #include "OgreRoot.h"
 
 namespace Ogre {
@@ -1117,7 +1117,14 @@ HRESULT WINAPI testEnumAtt(
 		for (size_t i = 0; i < 6; ++i)
 			mCubeFaceNames[i] = baseName + suffixes[i] + ext;
 	}
-
+	//---------------------------------------------------------------------------------------------
+	HardwarePixelBufferSharedPtr D3DTexture::getBuffer(int face, int mipmap)
+	{
+		// TODO
+		Except(Exception::UNIMPLEMENTED_FEATURE,
+				"Function not yet implemented",
+				"D3DTexture::getBuffer");
+	}
 
 }
 

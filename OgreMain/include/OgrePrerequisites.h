@@ -224,7 +224,8 @@ namespace Ogre {
     class HardwareIndexBuffer;
     class HardwareOcclusionQuery;
     class HardwareVertexBuffer;
-    class HardwarePixelBuffer;
+	class HardwarePixelBuffer;
+    class HardwarePixelBufferSharedPtr;
 	class HighLevelGpuProgram;
     class HighLevelGpuProgramPtr;
 	class HighLevelGpuProgramManager;

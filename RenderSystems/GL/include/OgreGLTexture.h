@@ -55,6 +55,9 @@ namespace Ogre {
 
         void blitToTexture( const Image& src, 
             unsigned uStartX, unsigned uStartY );
+			
+		/// @copydoc Texture::getBuffer
+		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
 
         // Takes the OGRE texture type (2d/3d/cube) and returns the appropriate GL one
         GLenum getGLTextureTarget(void) const;

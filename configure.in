@@ -203,6 +203,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/Water/Makefile \
     Samples/Water/src/Makefile \
     Samples/Water/include/Makefile \
+	Samples/DynTex/Makefile \
+	Samples/DynTex/src/Makefile \
+	Samples/DynTex/include/Makefile \
     Tests/Makefile \
     Tests/src/Makefile \
     Tools/Makefile \

@@ -43,13 +43,11 @@ namespace Ogre {
         int mRowPitch, mSlicePitch;
         // Internal format
         PixelFormat mFormat;
-        // Size in bytes
-        size_t mSize; 
         // Currently locked region
         PixelBox mCurrentLock;
         
         /// Internal implementation of lock(), must be overridden in subclasses
-        virtual const PixelBox &lockImpl(const Image::Box lockBox,  LockOptions options) = 0;
+        virtual PixelBox lockImpl(const Image::Box lockBox,  LockOptions options) = 0;
 
         /// Internal implementation of lock(), do not OVERRIDE or CALL this
         /// for HardwarePixelBuffer implementations, but override the previous method
@@ -66,17 +64,42 @@ namespace Ogre {
 
         virtual const PixelBox &lock(const Image::Box lockBox, LockOptions options);        
         virtual void* lock(size_t offset, size_t length, LockOptions options);
+		void* lock(LockOptions options) {
+			lock(0, mSizeInBytes, options);
+		}
         
         const PixelBox &getCurrentLock();
+		
+		/// @copydoc HardwareBuffer::readData
+		virtual void readData(size_t offset, size_t length, void* pDest);
+		/// @copydoc HardwareBuffer::writeData
+		virtual void writeData(size_t offset, size_t length, const void* pSource,
+				bool discardWholeBuffer = false);
         
         /**
          * Blits a box from the source PixelBuffer to a region of the destination 
          * PixelBuffer. Only call this function when both buffers are unlocked. 
          * Source and target boxes must be equally sized.
-         * Implementations can override this, otherwise software implementation
-         * will be used
          */        
         virtual void blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox);
+		
+		/**
+		 * Blits a ragion from normal memory to a region of this pixelbuffer. The source and
+		 * destination box dimensions do not neccesarily have to match.
+		 */
+		virtual void blitFromMemory(const PixelBox &src, const Image::Box &dstBox) = 0;
+		
+		/**
+		 * Blits a ragion from normal memory to a region of this pixelbuffer. The source and
+		 * destination box dimensions do not neccesarily have to match.
+		 */
+		virtual void blitToMemory(const Image::Box &srcBox, const PixelBox &dst) = 0;
+        
+        /** Trivial accessors */
+        size_t getWidth() const { return mWidth; }
+        size_t getHeight() const { return mHeight; }
+        size_t getDepth() const { return mDepth; }
+        PixelFormat getFormat() const { return mFormat; }
     };
 
     /** Shared pointer implementation used to share pixel buffers. */
