@@ -7,6 +7,15 @@ Group: 'Export'
 Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 """
 
+__author__ = ['Michael Reimpell', 'Jens Hoffmann', 'et al.']
+__version__ = '0.15.0'
+__url__ = ['OGRE website, http://www.ogre3d.org',
+	'Script manual, http://www.ogre3d.org/docs/Tutorials/blender/index.html',
+	'OGRE forum, http://www.ogre3d.org/phpBB2/']
+__bpydoc__ = """\
+Exports selected meshs with armature animations to Ogre3D.
+"""
+
 # Blender to Ogre Mesh and Skeleton Exporter v0.15.0
 # url: http://www.ogre3d.org
 
@@ -124,6 +133,12 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - fixed calculation of initial bone rotation
 #          - preliminary bump map support
 #          - option to export in objects local coordinates
+#          - changed material file default name to the current scene name
+#          - files are now named after their datablock name
+#          - path selection starts with current export path
+#          - material ambient colour is scaled white
+#          - option to use scaled diffuse colour as ambient
+#          - BPy documentation added
 #   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
 #          - option to run OgreXMLConverter automatically on the exported files
 #
@@ -931,7 +946,7 @@ class ExportOptions:
 	"""Encapsulates export options common to all objects.
 	"""
 	# TODO: Model for GUI
-	def __init__(self, rotXAngle, rotYAngle, rotZAngle, scale, useWorldCoordinates, exportPath, materialFilename):
+	def __init__(self, rotXAngle, rotYAngle, rotZAngle, scale, useWorldCoordinates, colouredAmbient, exportPath, materialFilename):
 		"""Constructor.
 		"""
 		# floating point accuracy
@@ -942,6 +957,7 @@ class ExportOptions:
 		self.rotZAngle = rotZAngle
 		self.scale = scale
 		self.useWorldCoordinates = useWorldCoordinates
+		self.colouredAmbient = colouredAmbient
 		# file settings
 		self.exportPath = exportPath
 		self.materialFilename = materialFilename
@@ -978,6 +994,12 @@ class ObjectExporter:
 		"""
 		return self.object.getMatrix('worldspace') 
 	
+class MeshExporter(ObjectExporter):
+	"""
+	"""
+	def getName(self):
+		return self.object.getData().name
+		
 class ArmatureExporter:
 	"""Exports an armature of a mesh.
 	"""
@@ -1003,9 +1025,9 @@ class ArmatureExporter:
 		# convert Armature into Skeleton
 		name = None
 		if exportOptions.useWorldCoordinates:
-			name = self.armatureObject.name
+			name = self.armatureObject.getData().getName()
 		else:
-			name = self.meshObject.getName() + "-" + self.armatureObject.name
+			name = self.meshObject.getName() + "-" + self.armatureObject.getData().getName()
 		skeleton = Skeleton(name)
 		skeleton = self._convertRestpose(skeleton, exportOptions, logger)
 		
@@ -1388,6 +1410,8 @@ class ArmatureMeshExporter(ObjectExporter):
 		self.skeleton = armatureExporter.skeleton
 		self._convertToMesh(materialsDict, exportOptions, logger)
 		return materialsDict
+	def getName(self):
+		return self.object.getData().getName()
 	
 	def _convertToMesh(self, materialsDict, exportOptions, logger):
 		"""Creates meshes in form of the armature bones.
@@ -1492,7 +1516,6 @@ class ArmatureMeshExporter(ObjectExporter):
 
 		submesh = SubMesh(material)
 		for name, p1, p2 in boneMeshList:
-			print name
 			axis = blender_bone2matrix(p1, p2, 0)
 			axis = matrix_translate(axis, p1)
 			dx, dy, dz = p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]
@@ -1519,8 +1542,9 @@ class ArmatureMeshExporter(ObjectExporter):
 uvToggle = Draw.Create(1)
 armatureToggle = Draw.Create(1)
 worldCoordinatesToggle = Draw.Create(0)
+ambientToggle = Draw.Create(0)
 pathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
-materialString = Draw.Create("export.material")
+materialString = Draw.Create(Blender.Scene.GetCurrent().getName()+".material")
 scaleNumber = Draw.Create(1.0)
 fpsNumber = Draw.Create(25)
 # first rotation, around X-axis
@@ -1548,20 +1572,21 @@ BUTTON_EVENT_EXPORT = 103
 BUTTON_EVENT_UVTOGGLE = 104
 BUTTON_EVENT_ARMATURETOGGLE = 105
 BUTTON_EVENT_WORLDCOORDINATESTOGGLE = 106
-BUTTON_EVENT_PATHSTRING = 107
-BUTTON_EVENT_PATHBUTTON = 108
-BUTTON_EVENT_MATERIALSTRING = 109
-BUTTON_EVENT_SCALENUMBER = 1010
-BUTTON_EVENT_ROTXNUMBER = 1011
-BUTTON_EVENT_ROTYNUMBER = 1012
-BUTTON_EVENT_ROTZNUMBER = 1013
-BUTTON_EVENT_FPSNUMBER = 1014
-BUTTON_EVENT_SCROLLBAR = 1015
-BUTTON_EVENT_SCROLLBARUP = 1016
-BUTTON_EVENT_SRCROLLBARDOWN = 1017
-BUTTON_EVENT_UPDATEBUTTON = 1018
-BUTTON_EVENT_SELECTEDOBJECTSMENU = 1019
-BUTTON_EVENT_ACTUATOR_RANGESTART = 1020
+BUTTON_EVENT_AMBIENTTOGGLE = 107
+BUTTON_EVENT_PATHSTRING = 108
+BUTTON_EVENT_PATHBUTTON = 109
+BUTTON_EVENT_MATERIALSTRING = 1010
+BUTTON_EVENT_SCALENUMBER = 1011
+BUTTON_EVENT_ROTXNUMBER = 1012
+BUTTON_EVENT_ROTYNUMBER = 1013
+BUTTON_EVENT_ROTZNUMBER = 1014
+BUTTON_EVENT_FPSNUMBER = 1015
+BUTTON_EVENT_SCROLLBAR = 1016
+BUTTON_EVENT_SCROLLBARUP = 1017
+BUTTON_EVENT_SRCROLLBARDOWN = 1018
+BUTTON_EVENT_UPDATEBUTTON = 1019
+BUTTON_EVENT_SELECTEDOBJECTSMENU = 1020
+BUTTON_EVENT_ACTUATOR_RANGESTART = 1021
 
 exportLogger = Logger()
 
@@ -2133,7 +2158,7 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 					uv[1] = 1 - face.uv[i][1]
 				xmlVertex.appendTextureCoordinates(uv)
 			# vertex colour
-			if submesh.material.mat:
+			if submesh.material:
 				if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
 					colour = face.col[i]
 					xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
@@ -2222,7 +2247,7 @@ def export_mesh(object, exportOptions):
 			if (parent and (parent.getType() == "Armature")):
 				if armatureActionActuatorListViewDict.has_key(parent.getName()):
 					actionActuatorList = armatureActionActuatorListViewDict[parent.getName()].armatureActionActuatorList
-					armatureExporter = ArmatureExporter(ObjectExporter(object), parent)
+					armatureExporter = ArmatureExporter(MeshExporter(object), parent)
 					armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
 					skeleton = armatureExporter.skeleton
 					#export_skeleton(parent, object)
@@ -2325,7 +2350,7 @@ def export_mesh(object, exportOptions):
 			exportLogger.logWarning("Mesh %s has no visible faces!" % data.name)
 		else:
 			# write mesh
-			write_mesh(object.getName(), submeshes, skeleton)
+			write_mesh(data.name, submeshes, skeleton)
 	return
 
 #######################################################################################
@@ -2562,7 +2587,7 @@ def writeBumpMapMaterial(file, colorImage, bumpImage):
 	return
 
 def write_materials():
-	global pathString, materialString, exportLogger
+	global ambientToggle, pathString, materialString, exportLogger
 	global materialsDict
 	file = materialString.val
 	exportLogger.logInfo("Materials \"%s\"" % file)
@@ -2604,25 +2629,15 @@ def write_materials():
 				# pass attributes
 				mat = material.mat
 				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])):
-					# world = Blender.World.GetActive()
-					world = None
-					worldList = Blender.World.Get()
-					if (worldList):
-						if (Blender.Get("version") < 234):
-							# Blender.World.GetActive() not available
-							world = worldList[0]
-							exportLogger.logWarning("Can't get active world. Used ambient colour of world \"%s\"" % world.name)
-						elif (Blender.Get("version") == 234):
-							world = Blender.World.GetActive()
-						else:
-							world = Blender.World.GetCurrent() 
-					if (world):
-						ambientRGBList = world.getAmb()
-						# ambient <- amb * world ambient RGB
-						ambR = clamp(mat.amb * ambientRGBList[0])
-						ambG = clamp(mat.amb * ambientRGBList[1])
-						ambB = clamp(mat.amb * ambientRGBList[2])
-						f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
+					if ambientToggle.val:
+						ambientRGBList = mat.rgbCol
+					else:
+						ambientRGBList = [1.0, 1.0, 1.0]
+					# ambient <- amb * ambient RGB
+					ambR = clamp(mat.amb * ambientRGBList[0])
+					ambG = clamp(mat.amb * ambientRGBList[1])
+					ambB = clamp(mat.amb * ambientRGBList[2])
+					f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
 					if (not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
 						# diffuse <- rgbCol
 						diffR = clamp(mat.rgbCol[0])
@@ -2697,7 +2712,7 @@ def export(selectedObjectsList):
     BASE_MATRIX = rotationMatrix*scaleMatrix
 
     exportOptions = ExportOptions(rotXNumber.val, rotYNumber.val, rotZNumber.val, scaleNumber.val,
-    								worldCoordinatesToggle.val, pathString.val, materialString.val)
+        worldCoordinatesToggle.val, ambientToggle.val, pathString.val, materialString.val)
 
     if not os.path.exists(pathString.val):
       exportLogger.logError("Invalid path: "+pathString.val)
@@ -2745,6 +2760,7 @@ def saveSettings():
 	global uvToggle
 	global armatureToggle
 	global worldCoordinatesToggle
+	global ambientToggle
 	global pathString
 	global materialString
 	global scaleNumber
@@ -2760,6 +2776,7 @@ def saveSettings():
 	settingsDict['uvToggle'] = uvToggle.val
 	settingsDict['armatureToggle'] = armatureToggle.val
 	settingsDict['worldCoordinatesToggle'] = worldCoordinatesToggle.val
+	settingsDict['ambientToggle'] = ambientToggle.val
 	settingsDict['pathString'] = pathString.val
 	settingsDict['materialString'] = materialString.val
 	settingsDict['scaleNumber'] = scaleNumber.val
@@ -2821,6 +2838,7 @@ def loadSettings(filename):
 	global uvToggle
 	global armatureToggle
 	global worldCoordinatesToggle
+	global ambientToggle
 	global pathString
 	global materialString
 	global scaleNumber
@@ -2868,6 +2886,8 @@ def loadSettings(filename):
 		armatureToggle = Blender.Draw.Create(settingsDict['armatureToggle'])
 	if settingsDict.has_key('worldCoordinatesToggle'):
 		worldCoordinatesToggle = Blender.Draw.Create(settingsDict['worldCoordinatesToggle'])
+	if settingsDict.has_key('ambientToggle'):
+		ambientToggle = Blender.Draw.Create(settingsDict['ambientToggle'])
 	elif settingsDict.has_key('armatureMeshToggle'):
 		# old default was export in world coordinates
 		worldCoordinatesToggle = Blender.Draw.Create(1)
@@ -2992,7 +3012,7 @@ def eventCallback(event,value):
 			armatureName = armatureDict[selectedObjectName]
 			armatureActionActuatorListViewDict[armatureName].eventFilter(event, value)
 	scrollbar.eventFilter(event, value)
-	if not(value == 0):
+	if (value != 0):
 		# pressed
 		if (event == Draw.ESCKEY):
 			exitGUI()
@@ -3030,12 +3050,12 @@ def buttonCallback(event):
 	elif (event == BUTTON_EVENT_ARMATURETOGGLE): # armatureToggle
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_PATHBUTTON): # pathButton
-		Blender.Window.FileSelector(pathSelectCallback, "Export Directory")
+		Blender.Window.FileSelector(pathSelectCallback, "Export Directory", pathString.val)
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_MATERIALSTRING): # materialString
 		materialString = Blender.Draw.Create(os.path.basename(materialString.val))
 		if (len(materialString.val) == 0):
-			materialString = Blender.Draw.Create("export.material")
+			materialString = Blender.Draw.Create(Blender.Scene.GetCurrent().getName() + ".material")
 		Draw.Redraw(1)
 	elif (event == BUTTON_EVENT_SCROLLBAR): # scrollbar
 		Draw.Redraw(1)
@@ -3079,7 +3099,7 @@ def frameDecorator(x, y, width):
 def gui():
 	"""draws the screen
 	"""
-	global uvToggle, armatureToggle, worldCoordinatesToggle, pathString, materialString, \
+	global uvToggle, armatureToggle, worldCoordinatesToggle, ambientToggle, pathString, materialString, \
 		scaleNumber, fpsNumber, scrollbar, rotXNumber, rotYNumber, rotZNumber
 	global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
 	# get size of the window
@@ -3103,37 +3123,42 @@ def gui():
 	remainRect[3] -= 5
 	# first row
 	materialString = Draw.String("Material File: ", BUTTON_EVENT_MATERIALSTRING, \
-			remainRect[0],remainRect[3]-25, 220, 20, \
+			remainRect[0],remainRect[3]-25, 450, 20, \
 			materialString.val, 255,"all material definitions go in this file (relative to the save path)")
-	# scale settings
-	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
-			remainRect[0]+230, remainRect[3]-25, 220, 20, \
-			scaleNumber.val, 0.0, 1000.0, "scale factor")
 	remainRect[3] -= 25
 	# second row
 	uvToggle = Draw.Toggle("Export Textures", BUTTON_EVENT_UVTOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				uvToggle.val, "export uv coordinates and texture names, if available")
-	rotXNumber = Draw.Number("RotX: ", BUTTON_EVENT_ROTXNUMBER, \
+	# scale settings
+	scaleNumber = Draw.Number("Mesh Scale Factor: ", BUTTON_EVENT_SCALENUMBER, \
 			remainRect[0]+230, remainRect[3]-25, 220, 20, \
-			rotXNumber.val, -360.0, 360.0, "angle of the first rotation, around the x-axis")
+			scaleNumber.val, 0.0, 1000.0, "scale factor")
 	remainRect[3] -= 25
 	# third row	
 	armatureToggle = Draw.Toggle("Export Armature", BUTTON_EVENT_ARMATURETOGGLE, \
 				remainRect[0], remainRect[3]-25, 220, 20, \
 				armatureToggle.val, "export skeletons and bone weights in meshes")
-	rotYNumber = Draw.Number("RotY: ", BUTTON_EVENT_ROTYNUMBER, \
+	rotXNumber = Draw.Number("RotX: ", BUTTON_EVENT_ROTXNUMBER, \
 			remainRect[0]+230, remainRect[3]-25, 220, 20, \
-			rotYNumber.val, -360.0, 360.0, "angle of the second rotation, around the y-axis")
+			rotXNumber.val, -360.0, 360.0, "angle of the first rotation, around the x-axis")
 	remainRect[3] -= 25
 	# fourth row
 	worldCoordinatesToggle = Draw.Toggle("World Coordinates", BUTTON_EVENT_WORLDCOORDINATESTOGGLE, \
 			remainRect[0], remainRect[3]-25, 220, 20, \
 			worldCoordinatesToggle.val, "use world coordinates instead of object coordinates")
+	rotYNumber = Draw.Number("RotY: ", BUTTON_EVENT_ROTYNUMBER, \
+			remainRect[0]+230, remainRect[3]-25, 220, 20, \
+			rotYNumber.val, -360.0, 360.0, "angle of the second rotation, around the y-axis")
+	remainRect[3] -= 25
+	# fifth row
+	ambientToggle = Draw.Toggle("Coloured Ambient", BUTTON_EVENT_AMBIENTTOGGLE, \
+			remainRect[0], remainRect[3]-25, 220, 20, \
+			ambientToggle.val, "use Amb factor times diffuse colour as ambient instead of Amb factor times white")
 	rotZNumber = Draw.Number("RotZ: ", BUTTON_EVENT_ROTZNUMBER, \
 			remainRect[0]+230, remainRect[3]-25, 220, 20, \
 			rotZNumber.val, -360.0, 360.0, "angle of the third rotation, around the z-axis")
-	# fifth row
+	# sixth row
 	if ((armatureToggle.val == 1) and (Blender.Get("version") < 233)):
 		remainRect[3] -= 25
 		fpsNumber = Draw.Number("Frs/Sec: ", BUTTON_EVENT_FPSNUMBER, \
