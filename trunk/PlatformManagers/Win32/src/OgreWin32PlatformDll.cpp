@@ -42,7 +42,7 @@ namespace Ogre {
     /// Retrieves an instance of a config dialog for this platform
     extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
     {
-        // Must get HISTANCE
+        // Must get HINSTANCE
         HINSTANCE hInst = GetModuleHandle("OgrePlatform.dll");
         *ppDlg = new Win32ConfigDialog(hInst);
 
