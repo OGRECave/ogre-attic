@@ -253,6 +253,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreFontManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreFrustum.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGpuProgram.cpp">
 			</File>
 			<File
@@ -742,6 +745,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreFrameListener.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreFrustum.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGpuProgram.h">

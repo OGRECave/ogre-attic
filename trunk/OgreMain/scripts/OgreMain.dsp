@@ -244,6 +244,10 @@ SOURCE=..\src\OgreFontManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreFrustum.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGpuProgram.cpp
 # End Source File
 # Begin Source File
@@ -851,6 +855,10 @@ SOURCE=..\include\OgreFontManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreFrameListener.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreFrustum.h
 # End Source File
 # Begin Source File
 

@@ -44,6 +44,7 @@ OgreFactoryObj.h \
 OgreFont.h \
 OgreFontManager.h \
 OgreFrameListener.h \
+OgreFrustum.h \
 OgreGuiContainer.h \
 OgreGuiControl.h \
 OgreGuiElement.h \
