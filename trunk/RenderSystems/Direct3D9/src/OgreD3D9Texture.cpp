@@ -47,7 +47,7 @@ namespace Ogre
         mpCubeTex(NULL),
         mpZBuff(NULL),
         mpTex(NULL),
-        mAutoGenMipMaps(false)
+        mAutoGenMipmaps(false)
 	{
         _initDevice();
 	}
@@ -173,7 +173,7 @@ namespace Ogre
         mpNormTex->AddDirtyRect(NULL);
 
         // Mipmapping
-        if (mAutoGenMipMaps)
+        if (mAutoGenMipmaps)
         {
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if (FAILED(hr))
@@ -441,7 +441,7 @@ namespace Ogre
 		    }
 
             // Mipmaps
-            if (mAutoGenMipMaps)
+            if (mAutoGenMipmaps)
             {
                 // use best filtering method supported by hardware
                 hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
@@ -585,13 +585,13 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage == TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = (mNumMipMaps ? mNumMipMaps : 1);
+		UINT numMips = (mNumMipmaps ? mNumMipmaps : 1);
 		// check if mip maps are supported on hardware
-		if ((mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP) && mNumMipMaps > 0)
+		if ((mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP) && mNumMipmaps > 0)
 		{
 			// use auto.gen. if available
-            mAutoGenMipMaps = this->_canAutoGenMipMaps(usage, D3DRTYPE_TEXTURE, d3dPF);
-			if (mAutoGenMipMaps)
+            mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
+			if (mAutoGenMipmaps)
 			{
 				usage |= D3DUSAGE_AUTOGENMIPMAP;
 				numMips = 0;
@@ -600,7 +600,7 @@ namespace Ogre
 		else
 		{
 			// device don't support mip maps, or zero mipmaps requested
-			mNumMipMaps = 0;
+			mNumMipmaps = 0;
 			numMips = 1;
 		}
 
@@ -658,13 +658,13 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage == TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = (mNumMipMaps ? mNumMipMaps : 1);
+		UINT numMips = (mNumMipmaps ? mNumMipmaps : 1);
 		// check if mip map cube textures are supported
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
 		{
 			// use auto.gen. if available
-            mAutoGenMipMaps = this->_canAutoGenMipMaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
-			if (mAutoGenMipMaps)
+            mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
+			if (mAutoGenMipmaps)
 			{
 				usage |= D3DUSAGE_AUTOGENMIPMAP;
 				numMips = 0;
@@ -673,7 +673,7 @@ namespace Ogre
 		else
 		{
 			// no mip map support for this kind of textures :(
-			mNumMipMaps = 0;
+			mNumMipmaps = 0;
 			numMips = 1;
 		}
 
@@ -826,27 +826,27 @@ namespace Ogre
 		{
 		case TEX_TYPE_1D:
 			if (mUsage == TU_RENDERTARGET)
-				LogManager::getSingleton().logMessage("D3D9 : Creating 1D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Creating 1D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
-				LogManager::getSingleton().logMessage("D3D9 : Loading 1D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Loading 1D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		case TEX_TYPE_2D:
 			if (mUsage == TU_RENDERTARGET)
-				LogManager::getSingleton().logMessage("D3D9 : Creating 2D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Creating 2D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
-				LogManager::getSingleton().logMessage("D3D9 : Loading 2D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Loading 2D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		case TEX_TYPE_3D:
 			if (mUsage == TU_RENDERTARGET)
-				LogManager::getSingleton().logMessage("D3D9 : Creating 3D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Creating 3D RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
-				LogManager::getSingleton().logMessage("D3D9 : Loading 3D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Loading 3D Texture, image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		case TEX_TYPE_CUBE_MAP:
 			if (mUsage == TU_RENDERTARGET)
-				LogManager::getSingleton().logMessage("D3D9 : Creating Cube map RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Creating Cube map RenderTarget, name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			else
-				LogManager::getSingleton().logMessage("D3D9 : Loading Cube Texture, base image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipMaps) + " mip map levels");
+				LogManager::getSingleton().logMessage("D3D9 : Loading Cube Texture, base image name : '" + this->getName() + "' with " + StringConverter::toString(mNumMipmaps) + " mip map levels");
 			break;
 		default:
 			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
@@ -865,7 +865,7 @@ namespace Ogre
 		return D3DTEXF_POINT;
 	}
 	/****************************************************************************************/
-	bool D3D9Texture::_canAutoGenMipMaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)
+	bool D3D9Texture::_canAutoGenMipmaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat)
 	{
 		// those MUST be initialized !!!
 		assert(mpDev);
@@ -1078,7 +1078,7 @@ namespace Ogre
 		}
 
         // Generate mipmaps
-        if (mAutoGenMipMaps)
+        if (mAutoGenMipmaps)
         {
             // Hardware mipmapping
 			// use best filtering method supported by hardware
@@ -1184,7 +1184,7 @@ namespace Ogre
 		}
 
         // Mipmaps
-        if (mAutoGenMipMaps)
+        if (mAutoGenMipmaps)
         {
 			// use best filtering method supported by hardware
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
@@ -1281,9 +1281,9 @@ namespace Ogre
 		case TEX_TYPE_2D:
 			assert(mpNormTex);
 			// Make sure number of mips is right
-			mNumMipMaps = mpNormTex->GetLevelCount();
+			mNumMipmaps = mpNormTex->GetLevelCount();
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int mip=0; mip<mNumMipMaps; mip++)
+			for(int mip=0; mip<mNumMipmaps; mip++)
 			{
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
@@ -1293,11 +1293,11 @@ namespace Ogre
 			break;
 		case TEX_TYPE_CUBE_MAP:
 			assert(mpCubeTex);
-			mNumMipMaps = mpCubeTex->GetLevelCount();
+			mNumMipmaps = mpCubeTex->GetLevelCount();
 			// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 			for(int face=0; face<6; face++)
 			{
-				for(int mip=0; mip<mNumMipMaps; mip++)
+				for(int mip=0; mip<mNumMipmaps; mip++)
 				{
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
 						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
@@ -1308,9 +1308,9 @@ namespace Ogre
 			break;
 		case TEX_TYPE_3D:
 			assert(mpVolumeTex);
-			mNumMipMaps = mpVolumeTex->GetLevelCount();
+			mNumMipmaps = mpVolumeTex->GetLevelCount();
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
-			for(int mip=0; mip<mNumMipMaps; mip++)
+			for(int mip=0; mip<mNumMipmaps; mip++)
 			{
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
@@ -1330,10 +1330,10 @@ namespace Ogre
 		if(face < 0 || face >= 6)
 			Except(Exception::ERR_INVALIDPARAMS, "A three dimensional cube has six faces",
 					"D3D9Texture::getBuffer");
-		if(mipmap < 0 || mipmap >= mNumMipMaps)
+		if(mipmap < 0 || mipmap >= mNumMipmaps)
 			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"D3D9Texture::getBuffer");
-		int idx = face*mNumMipMaps + mipmap;
+		int idx = face*mNumMipmaps + mipmap;
 		assert(idx < mSurfaceList.size());
 		return mSurfaceList[idx];
 	}		

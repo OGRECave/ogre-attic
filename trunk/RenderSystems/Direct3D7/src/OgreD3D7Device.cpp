@@ -161,7 +161,7 @@ namespace Ogre {
         sprintf(msg, "  Hardware Accelerated: %i", HardwareAccelerated());
         LogManager::getSingleton().logMessage(msg);
 
-        sprintf(msg, "  Mipmapping: %i", CanMipMap());
+        sprintf(msg, "  Mipmapping: %i", CanMipmap());
         LogManager::getSingleton().logMessage(msg);
 
         sprintf(msg, "  Bilinear Filtering: %i", CanBilinearFilter());
@@ -309,7 +309,7 @@ namespace Ogre {
         }
     }
 
-    bool D3DDevice::CanMipMap(void) const
+    bool D3DDevice::CanMipmap(void) const
     {
         return (mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MIPNEAREST) > 0;
     }

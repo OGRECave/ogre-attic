@@ -305,7 +305,7 @@ namespace Ogre {
 
         glBindTexture( getGLTextureTarget(), mTextureID );
 
-        if(mNumMipMaps && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
+        if(mNumMipmaps && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
             useSoftwareMipmaps = false;
@@ -318,7 +318,7 @@ namespace Ogre {
             StringUtil::StrStreamType str;
             str << "GLTexture: Loading " << mName 
                 << "(" << PixelUtil::getFormatName(img.getFormat()) << ") with "
-                << mNumMipMaps << " mipmaps from Image.";
+                << mNumMipmaps << " mipmaps from Image.";
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL, str.str());
 
@@ -337,17 +337,17 @@ namespace Ogre {
 			// Never *generate* mipmaps for floating point textures. This is buggy in current
 			// GLU implementations
 			if(PixelUtil::getFlags(mFormat) & PFF_FLOAT)
-				mNumMipMaps = 0;
+				mNumMipmaps = 0;
 
 			// The custom mipmaps in the image have priority over everything
             unsigned short imageMipmaps = img.getNumMipmaps();
             if(imageMipmaps)
-                mNumMipMaps = imageMipmaps;
-			glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
+                mNumMipmaps = imageMipmaps;
+			glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps);
 
             uchar *pTempData = rescaleNPower2(img);
 
-            generateMipMaps( pTempData, useSoftwareMipmaps, img.hasFlag(IF_COMPRESSED), i );
+            generateMipmaps( pTempData, useSoftwareMipmaps, img.hasFlag(IF_COMPRESSED), i );
             delete [] pTempData;
         }
 
@@ -371,7 +371,7 @@ namespace Ogre {
             mWidth, mHeight, 0, getGLTextureOriginFormat(), getGLTextureOriginDataType(), 0 );
 
         // This needs to be set otherwise the texture doesn't get rendered
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
+        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipmaps );
     }
 
     void GLTexture::loadImpl()
@@ -452,10 +452,10 @@ namespace Ogre {
         glDeleteTextures( 1, &mTextureID );
     }
 
-    void GLTexture::generateMipMaps( const uchar *data, bool useSoftware, 
+    void GLTexture::generateMipmaps( const uchar *data, bool useSoftware, 
         bool isCompressed, size_t faceNumber )
     {
-        if(useSoftware && mNumMipMaps)
+        if(useSoftware && mNumMipmaps)
         {
             if(mTextureType == TEX_TYPE_1D)
             {
@@ -544,7 +544,7 @@ namespace Ogre {
     {		
         glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
 			
-        glCopyTexSubImage2D(GL_TEXTURE_2D, mGLTexture->getNumMipMaps(), 0, 0,
+        glCopyTexSubImage2D(GL_TEXTURE_2D, mGLTexture->getNumMipmaps(), 0, 0,
             0, 0, mWidth, mHeight);
 
     }

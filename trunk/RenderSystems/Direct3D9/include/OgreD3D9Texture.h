@@ -66,7 +66,7 @@ namespace Ogre {
 		/// device capabilities pointer
 		D3DCAPS9						mDevCaps;
         // Auto-generated mipmaps?
-        bool                            mAutoGenMipMaps;
+        bool                            mAutoGenMipmaps;
 		/// Vector of pointers to subsurfaces
 		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
 		SurfaceList						mSurfaceList;
@@ -107,7 +107,7 @@ namespace Ogre {
 		/// internal method, return the best by hardware supported filter method
 		D3DTEXTUREFILTERTYPE _getBestFilterMethod();
 		/// internal method, return true if the device/texture combination can auto gen. mip maps
-		bool _canAutoGenMipMaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
+		bool _canAutoGenMipmaps(DWORD srcUsage, D3DRESOURCETYPE srcType, D3DFORMAT srcFormat);
 		/// internal method, create a depth stencil for the render target texture
 		void _createDepthStencil();
 

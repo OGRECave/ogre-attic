@@ -82,13 +82,13 @@ namespace Ogre {
 
         /** Gets the number of mipmaps to be used for this texture.
         */
-        unsigned short getNumMipMaps(void) const {return mNumMipMaps;}
+        unsigned short getNumMipmaps(void) const {return mNumMipmaps;}
 
         /** Sets the number of mipmaps to be used for this texture.
             @note
                 Must be set before calling any 'load' method.
         */
-        void setNumMipMaps(unsigned short num) {mNumMipMaps = num;}
+        void setNumMipmaps(unsigned short num) {mNumMipmaps = num;}
 
         /** Returns the gamma adjustment factor applied to this texture.
         */
@@ -203,6 +203,11 @@ namespace Ogre {
         {
             return mHasAlpha;
         }
+        
+        /** Return the number of faces this texture has. This will be 6 for a cubemap
+        	texture and 1 for a 1D, 2D or 3D one.
+        */
+        virtual int getNumFaces() const;
 
 		/** Return hardware pixel buffer for a surface. This buffer can then
 			be used to copy data from and to a particular level of the texture.
@@ -221,7 +226,7 @@ namespace Ogre {
         unsigned long mWidth;
         unsigned long mDepth;
 
-        unsigned short mNumMipMaps;
+        unsigned short mNumMipmaps;
         float mGamma;
 
         TextureType mTextureType;

@@ -38,7 +38,7 @@ namespace Ogre {
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
     TextureManager::TextureManager(bool enable32Bit)
-         : mIs32Bit(enable32Bit), mDefaultNumMipMaps(0)
+         : mIs32Bit(enable32Bit), mDefaultNumMipmaps(0)
     {
         mResourceType = "Texture";
         mLoadOrder = 75.0f;
@@ -53,7 +53,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::load(const String &name, const String& group,
-        TextureType texType, int numMipMaps, Real gamma)
+        TextureType texType, int numMipmaps, Real gamma)
     {
         TexturePtr tex = getByName(name);
 
@@ -61,7 +61,7 @@ namespace Ogre {
         {
             tex = create(name, group);
             tex->setTextureType(texType);
-            tex->setNumMipMaps((numMipMaps == -1)? mDefaultNumMipMaps : numMipMaps);
+            tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps : numMipmaps);
             tex->setGamma(gamma);
             tex->enable32Bit(mIs32Bit);
             tex->load();
@@ -72,12 +72,12 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::loadImage( const String &name, const String& group,
-        const Image &img, TextureType texType, int numMipMaps, Real gamma)
+        const Image &img, TextureType texType, int numMipmaps, Real gamma)
     {
         TexturePtr tex = create(name, group);
 
         tex->setTextureType(texType);
-        tex->setNumMipMaps((numMipMaps == -1)? mDefaultNumMipMaps : numMipMaps);
+        tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps : numMipmaps);
         tex->setGamma(gamma);
         tex->enable32Bit(mIs32Bit);
         tex->loadImage(img);
@@ -88,12 +88,12 @@ namespace Ogre {
     TexturePtr TextureManager::loadRawData(const String &name, const String& group,
         DataStreamPtr& stream, ushort uWidth, ushort uHeight, 
         PixelFormat format, TextureType texType, 
-        int numMipMaps, Real gamma)
+        int numMipmaps, Real gamma)
 	{
         TexturePtr tex = create(name, group);
 
         tex->setTextureType(texType);
-        tex->setNumMipMaps((numMipMaps == -1)? mDefaultNumMipMaps : numMipMaps);
+        tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps : numMipmaps);
         tex->setGamma(gamma);
         tex->enable32Bit(mIs32Bit);
 		tex->loadRawData(stream, uWidth, uHeight, format);
@@ -102,14 +102,14 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------
     TexturePtr TextureManager::createManual(const String & name, const String& group,
-        TextureType texType, uint width, uint height, uint numMipMaps,
+        TextureType texType, uint width, uint height, uint numMipmaps,
         PixelFormat format, TextureUsage usage, ManualResourceLoader* loader)
     {
         TexturePtr ret = create(name, group, true, loader);
         ret->setTextureType(texType);
         ret->setWidth(width);
         ret->setHeight(height);
-        ret->setNumMipMaps((numMipMaps == -1)? mDefaultNumMipMaps : numMipMaps);
+        ret->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps : numMipmaps);
         ret->setFormat(format);
         ret->setUsage(usage);
         ret->enable32Bit(mIs32Bit);
@@ -129,8 +129,8 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void TextureManager::setDefaultNumMipMaps( int num )
+    void TextureManager::setDefaultNumMipmaps( int num )
     {
-        mDefaultNumMipMaps = num;
+        mDefaultNumMipmaps = num;
     }
 }
