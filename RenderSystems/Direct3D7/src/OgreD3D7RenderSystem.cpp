@@ -1135,7 +1135,7 @@ namespace Ogre {
 		}
     }
 	//---------------------------------------------------------------------
-	void D3DRenderSystem::_setTextureCoordSet( size_t stage, int index )
+	void D3DRenderSystem::_setTextureCoordSet( size_t stage, size_t index )
 	{
 		HRESULT hr;
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );

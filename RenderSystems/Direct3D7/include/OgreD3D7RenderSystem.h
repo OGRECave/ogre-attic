@@ -293,7 +293,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureCoordSet( size_t unit, int index );
+        void _setTextureCoordSet( size_t unit, size_t index );
         /** See
           RenderSystem
          */

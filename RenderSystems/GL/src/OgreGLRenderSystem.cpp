@@ -662,7 +662,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureCoordSet(size_t stage, int index)
+    void GLRenderSystem::_setTextureCoordSet(size_t stage, size_t index)
     {
         mTextureCoordIndex[stage] = index;
     }

@@ -31,7 +31,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
 	D3D9GpuProgram::D3D9GpuProgram(const String& name, GpuProgramType gptype, 
         const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : GpuProgram(name, syntaxCode, gptype), mpDevice(pDev)
+        : GpuProgram(name, gptype, syntaxCode), mpDevice(pDev)
     {
     }
 	//-----------------------------------------------------------------------------

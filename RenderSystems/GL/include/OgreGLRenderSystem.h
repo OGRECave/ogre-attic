@@ -232,7 +232,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureCoordSet(size_t stage, int index);
+        void _setTextureCoordSet(size_t stage, size_t index);
         /** See
           RenderSystem
          */

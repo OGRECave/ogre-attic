@@ -72,7 +72,7 @@ namespace Ogre {
     protected:
         LPDIRECT3DPIXELSHADER9 mpPixelShader;
     public:
-        D3D9GpuFragmentProgram(const String& name, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
         /// Gets the pixel shader
