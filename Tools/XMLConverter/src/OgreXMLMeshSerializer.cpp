@@ -177,6 +177,12 @@ namespace Ogre {
                 LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
             }
         }
+		if (pMesh->getNumLodLevels() > 1)
+		{
+            LogManager::getSingleton().logMessage("Exporting LOD information...");
+			writeLodInfo(rootNode, pMesh);
+            LogManager::getSingleton().logMessage("LOD information exported.");
+		}
 
 
 
@@ -728,6 +734,84 @@ namespace Ogre {
         }
         LogManager::getSingleton().logMessage("Bone assignments done.");
     }
+    //---------------------------------------------------------------------
+	void XMLMeshSerializer::writeLodInfo(TiXmlElement* mMeshNode, const Mesh* pMesh)
+	{
+        TiXmlElement* lodNode = 
+            mMeshNode->InsertEndChild(TiXmlElement("levelofdetail"))->ToElement();
+
+		unsigned short numLvls = pMesh->getNumLodLevels();
+		bool manual = pMesh->isLodManual();
+		lodNode->SetAttribute("numLevels", StringConverter::toString(numLvls));
+		lodNode->SetAttribute("manual", StringConverter::toString(manual));
+
+		// Iterate from level 1, not 0 (full detail)
+		for (unsigned short i = 1; i < numLvls; ++i)
+		{
+			const Mesh::MeshLodUsage& usage = pMesh->getLodLevel(i);
+			if (manual)
+			{
+				writeLodUsageManual(lodNode, i, usage);
+			}
+			else
+			{
+				writeLodUsageGenerated(lodNode, i, usage, pMesh);
+			}
+		}
+
+	}
+    //---------------------------------------------------------------------
+	void XMLMeshSerializer::writeLodUsageManual(TiXmlElement* usageNode, 
+		unsigned short levelNum, const Mesh::MeshLodUsage& usage)
+	{
+		TiXmlElement* manualNode = 
+			usageNode->InsertEndChild(TiXmlElement("lodmanual"))->ToElement();
+
+		manualNode->SetAttribute("fromDepthSquared", 
+			StringConverter::toString(usage.fromDepthSquared));
+		manualNode->SetAttribute("meshName", usage.manualName);
+
+	}
+    //---------------------------------------------------------------------
+	void XMLMeshSerializer::writeLodUsageGenerated(TiXmlElement* usageNode, 
+		unsigned short levelNum,  const Mesh::MeshLodUsage& usage, 
+		const Mesh* pMesh)
+	{
+		TiXmlElement* generatedNode = 
+			usageNode->InsertEndChild(TiXmlElement("lodgenerated"))->ToElement();
+		generatedNode->SetAttribute("fromDepthSquared", 
+			StringConverter::toString(usage.fromDepthSquared));
+
+		// Iterate over submeshes at this level
+		unsigned short numsubs = pMesh->getNumSubMeshes();
+
+		for (unsigned short subi = 0; subi < numsubs; ++subi)
+		{
+			TiXmlElement* subNode = 
+				generatedNode->InsertEndChild(TiXmlElement("lodfacelist"))->ToElement();
+			SubMesh* sub = pMesh->getSubMesh(subi);
+			subNode->SetAttribute("submeshindex", StringConverter::toString(subi));
+			// NB level - 1 because SubMeshes don't store the first index in geometry
+			ProgressiveMesh::LODFaceData& facedata = sub->mLodFaceList[levelNum - 1];
+			subNode->SetAttribute("numFaces", StringConverter::toString(facedata.numIndexes / 3));
+
+			// Write each face in turn
+			unsigned short f;
+			unsigned short* pFace = facedata.pIndexes;
+			for (f = 0; f < facedata.numIndexes; f += 3)
+			{
+				TiXmlElement* faceNode = 
+					subNode->InsertEndChild(TiXmlElement("face"))->ToElement();
+				faceNode->SetAttribute("v1", StringConverter::toString(*pFace++));
+				faceNode->SetAttribute("v2", StringConverter::toString(*pFace++));
+				faceNode->SetAttribute("v3", StringConverter::toString(*pFace++));
+			}
+
+
+
+		}
+
+	}
 
 }
 
