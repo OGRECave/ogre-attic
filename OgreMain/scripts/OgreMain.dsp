@@ -220,10 +220,6 @@ SOURCE=..\src\OgreEventDispatcher.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreEventMulticaster.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreEventProcessor.cpp
 # End Source File
 # Begin Source File
@@ -847,10 +843,6 @@ SOURCE=..\include\OgreEventDispatcher.h
 # Begin Source File
 
 SOURCE=..\include\OgreEventListeners.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreEventMulticaster.h
 # End Source File
 # Begin Source File
 
