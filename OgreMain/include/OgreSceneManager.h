@@ -1167,7 +1167,7 @@ namespace Ogre {
         ~DefaultRaySceneQuery();
 
         /** See RayScenQuery. */
-        void execute(SceneQueryListener* listener);
+        void execute(RaySceneQueryListener* listener);
     };
     /** Default implementation of SphereSceneQuery. */
 	class _OgreExport DefaultSphereSceneQuery : public SphereSceneQuery
@@ -1176,7 +1176,7 @@ namespace Ogre {
         DefaultSphereSceneQuery(SceneManager* creator);
         ~DefaultSphereSceneQuery();
 
-        /** See RayScenQuery. */
+        /** See SceneQuery. */
         void execute(SceneQueryListener* listener);
     };
     /** Default implementation of AxisAlignedBoxSceneQuery. */

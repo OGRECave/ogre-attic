@@ -2063,9 +2063,30 @@ namespace Ogre {
     {
     }
 	//---------------------------------------------------------------------
-    void DefaultRaySceneQuery::execute(SceneQueryListener* listener)
+    void DefaultRaySceneQuery::execute(RaySceneQueryListener* listener)
     {
-        // TODO
+        // Note that becuase we have no scene partitioning, we actually
+        // perform a complete scene search even if restricted results are
+        // requested; smarter scene manager queries can utilise the paritioning 
+        // of the scene in order to reduce the number of intersection tests 
+        // required to fulfil the query
+
+        // TODO: BillboardSets? Will need per-billboard collision most likely
+        // Entities only for now
+		SceneManager::EntityList::const_iterator i, iEnd;
+        iEnd = mParentSceneMgr->mEntities.end();
+        for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
+        {
+            // Do ray / box test
+            std::pair<bool, Real> result = 
+                mRay.intersects(i->second->getWorldBoundingBox());
+
+            if (result.first)
+            {
+                listener->queryResult(i->second, result.second);
+            }
+        }
+
     }
 	//---------------------------------------------------------------------
     DefaultSphereSceneQuery::
