@@ -36,6 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
+#include "OgreParticleSystemRenderer.h"
+#include "OgreMaterialManager.h"
 
 
 
@@ -50,33 +52,26 @@ namespace Ogre {
     ParticleSystem::CmdCommonDirection ParticleSystem::msCommonDirectionCmd;
 
     //-----------------------------------------------------------------------
-    ParticleSystem::ParticleSystem()
+    ParticleSystem::ParticleSystem() :
+        mAllDefaultSize( true ),
+        mPoolSize(0),
+        mRenderer(0),
+        mCullIndividual(false)
     {
         initParameters();
     }
     //-----------------------------------------------------------------------
-    ParticleSystem::ParticleSystem(const String& name)
+    ParticleSystem::ParticleSystem(const String& name):
+        mAllDefaultSize( true ),
+        mPoolSize(0),
+        mRenderer(0),
+        mCullIndividual(false)
     {
-        // DO NOT use superclass constructor
-        // This will call setPoolSize in the BillboardSet context and create Billboard objects
-        //  instead of Particle objects
-        // Unavoidable due to C++ funky virtualisation rules & constructors
-        //mpPositions = 0;
-        //mpColours = 0;
-        //mpIndexes = 0;
-        mVertexData = 0;
-        mIndexData = 0;
-        //mpTexCoords = 0;
-        mAutoExtendPool = true;
-        mAllDefaultSize = true;
-        mOriginType = BBO_CENTER;
         mName = name;
-        mCullIndividual = true;
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
         // Default to 10 particles, expect app to specify (will only be increased, not decreased)
-        setPoolSize( 10 );
-
+        setParticleQuota( 10 );
         initParameters();
 
     }
@@ -183,35 +178,49 @@ namespace Ogre {
             ParticleAffector* newAf = addAffector(rhsAf->getType());
             rhsAf->copyParametersTo(newAf);
         }
-        setPoolSize(rhs.getPoolSize());
+        setParticleQuota(rhs.getParticleQuota());
         setMaterialName(rhs.mMaterialName);
-        mOriginType = rhs.mOriginType;
         mDefaultHeight = rhs.mDefaultHeight;
         mDefaultWidth = rhs.mDefaultWidth;
         mCullIndividual = rhs.mCullIndividual;
-        mBillboardType = rhs.mBillboardType;
-        mCommonDirection = rhs.mCommonDirection;
-
 
         return *this;
 
     }
     //-----------------------------------------------------------------------
-    unsigned int ParticleSystem::getNumParticles(void) const
+    size_t ParticleSystem::getNumParticles(void) const
     {
-        return (unsigned int)mActiveBillboards.size();
+        return mActiveParticles.size();
     }
     //-----------------------------------------------------------------------
-    unsigned int ParticleSystem::getParticleQuota(void) const
+    size_t ParticleSystem::getParticleQuota(void) const
     {
-        // This is basically a renamed property
-        return getPoolSize();
+        return mParticlePool.size();
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::setParticleQuota(unsigned int quota)
+    void ParticleSystem::setParticleQuota(size_t size)
     {
-        // This is basically a renamed property
-        setPoolSize(quota);
+        // Never shrink below size()
+        size_t currSize = mParticlePool.size();
+
+        if( currSize < size )
+        {
+            this->increasePool(size);
+
+            for( size_t i = currSize; i < size; ++i )
+            {
+                // Add new items to the queue
+                mFreeParticles.push_back( mParticlePool[i] );
+            }
+
+            mPoolSize = size;
+            // Tell the renderer
+            if (mRenderer)
+            {
+                mRenderer->_notifyParticleQuota(size);
+            }
+            
+        }
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
@@ -226,7 +235,8 @@ namespace Ogre {
 			// Emit new particles
         	_triggerEmitters(timeElapsed);
 			// Update bounds
-        	_updateBounds();
+            if (mRenderer)
+        	    mRenderer->_updateBounds(mActiveParticles);
 		}
 		
 
@@ -234,24 +244,24 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_expire(Real timeElapsed)
     {
-        ActiveBillboardList::iterator i, itEnd;
+        ActiveParticleList::iterator i, itEnd;
         Particle* pParticle;
 
-        itEnd = mActiveBillboards.end();
+        itEnd = mActiveParticles.end();
 
-        for (i = mActiveBillboards.begin(); i != itEnd; )
+        for (i = mActiveParticles.begin(); i != itEnd; )
         {
             pParticle = static_cast<Particle*>(*i);
-            if (pParticle->mTimeToLive < timeElapsed)
+            if (pParticle->timeToLive < timeElapsed)
             {
                 // Destroy this one
-                mFreeBillboards.push_back( *i );
-                i = mActiveBillboards.erase( i );
+                mFreeParticles.push_back( *i );
+                i = mActiveParticles.erase( i );
             }
             else
             {
                 // Decrement TTL
-                pParticle->mTimeToLive -= timeElapsed;
+                pParticle->timeToLive -= timeElapsed;
 				++i;
             }
 
@@ -271,7 +281,7 @@ namespace Ogre {
 			    
         iEmitEnd = mEmitters.end();
         emitterCount = mEmitters.size();
-        emissionAllowed = getParticleQuota() - mActiveBillboards.size();
+        emissionAllowed = getParticleQuota() - mActiveParticles.size();
         totalRequested = 0;
 
         // Count up total requested emissions
@@ -330,11 +340,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_applyMotion(Real timeElapsed)
     {
-        ActiveBillboardList::iterator i, itEnd;
+        ActiveParticleList::iterator i, itEnd;
         Particle* pParticle;
 
-        itEnd = mActiveBillboards.end();
-        for (i = mActiveBillboards.begin(); i != itEnd; ++i)
+        itEnd = mActiveParticles.end();
+        for (i = mActiveParticles.begin(); i != itEnd; ++i)
         {
             pParticle = static_cast<Particle*>(*i);
             pParticle->mPosition += (pParticle->mDirection * timeElapsed);
@@ -356,29 +366,29 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::increasePool(unsigned int size)
     {
-        size_t oldSize = mBillboardPool.size();
+        size_t oldSize = mParticlePool.size();
 
         // Increase size
-        mBillboardPool.reserve(size);
-        mBillboardPool.resize(size);
+        mParticlePool.reserve(size);
+        mParticlePool.resize(size);
 
         // Create new particles
         for( size_t i = oldSize; i < size; i++ )
-            mBillboardPool[i] = new Particle();
+            mParticlePool[i] = new Particle();
 
     }
     //-----------------------------------------------------------------------
     ParticleIterator ParticleSystem::_getIterator(void)
     {
-        return ParticleIterator(mActiveBillboards.begin(), mActiveBillboards.end());
+        return ParticleIterator(mActiveParticles.begin(), mActiveParticles.end());
     }
     //-----------------------------------------------------------------------
     Particle* ParticleSystem::addParticle(void)
     {
         // Fast creation (don't use superclass since emitter will init)
-        Billboard* newBill = mFreeBillboards.front();
-        mFreeBillboards.pop_front();
-        mActiveBillboards.push_back(newBill);
+        Particle* newBill = mFreeParticles.front();
+        mFreeParticles.pop_front();
+        mActiveParticles.push_back(newBill);
 
         newBill->_notifyOwner(this);
 
@@ -386,6 +396,15 @@ namespace Ogre {
         return static_cast<Particle*>(newBill);
 
     }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::_updateRenderQueue(RenderQueue* queue)
+    {
+        if (mRenderer)
+        {
+            mRenderer->_updateRenderQueue(queue, mActiveParticles, mCullIndividual);
+        }
+    }
+    /*
     //-----------------------------------------------------------------------
     void ParticleSystem::genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)    
     {
@@ -440,6 +459,7 @@ namespace Ogre {
         return mParentNode->_getDerivedPosition();
     }
     //-----------------------------------------------------------------------
+    */
     void ParticleSystem::initParameters(void)
     {
         if (createParamDictionary("ParticleSystem"))
@@ -486,16 +506,14 @@ namespace Ogre {
 
         }
     }
+    /*
     //-----------------------------------------------------------------------
     void ParticleSystem::_updateBounds()
     {
-        // Call superclass
-        BillboardSet::_updateBounds();
 
-        if (mParentNode && !mAABB.isNull())
+        if (mParentNode)
         {
-            // Have to override because bounds are supposed to be in local node space
-            // but we've already put particles in world space to decouple them from the
+            // We've already put particles in world space to decouple them from the
             // node transform, so reverse transform back
 
             Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
@@ -515,6 +533,7 @@ namespace Ogre {
             mAABB.setExtents(min, max);
         }
     }
+    */
     //-----------------------------------------------------------------------
 
     void ParticleSystem::fastForward(Real time, Real interval)
@@ -532,7 +551,179 @@ namespace Ogre {
         static String mType = "ParticleSystem";
         return mType;
     }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::_notifyParticleResized(void)
+    {
+        mAllDefaultSize = false;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::_notifyParticleRotated(void)
+    {
+        if (mRenderer)
+        {
+            mRenderer->_notifyParticleRotated();
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setDefaultDimensions( Real width, Real height )
+    {
+        mDefaultWidth = width;
+        mDefaultHeight = height;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setDefaultWidth(Real width)
+    {
+        mDefaultWidth = width;
+    }
+    //-----------------------------------------------------------------------
+    Real ParticleSystem::getDefaultWidth(void) const
+    {
+        return mDefaultWidth;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setDefaultHeight(Real height)
+    {
+        mDefaultHeight = height;
+    }
+    //-----------------------------------------------------------------------
+    Real ParticleSystem::getDefaultHeight(void) const
+    {
+        return mDefaultHeight;
+    }
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& ParticleSystem::getBoundingBox(void) const
+    {
+        if (mRenderer)
+        {
+            return mRenderer->getBoundingBox();
+        }
+        else
+        {
+            static AxisAlignedBox aabb;
+            return aabb;
+        }
+    }
+    //-----------------------------------------------------------------------
+    Real ParticleSystem::getBoundingRadius(void) const
+    {
+        if (mRenderer)
+        {
+            return mRenderer->getBoundingRadius();
+        }
+        else
+        {
+            return 0.0f;
+        }
 
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::_notifyCurrentCamera(Camera* cam)
+    {
+        if (mRenderer)
+        {
+            mRenderer->_notifyCurrentCamera(cam);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setMaterialName(const String& name)
+    {
+        mMaterialName = name;
+        if (mRenderer)
+        {
+            MaterialPtr mat = MaterialManager::getSingleton().getByName(name);
+            mRenderer->_setMaterial(mat);
+        }
+    }
+    //-----------------------------------------------------------------------
+    const String& ParticleSystem::getMaterialName(void) const
+    {
+        return mMaterialName;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::clear()
+    {
+        // Insert actives into free list
+        mFreeParticles.insert(mFreeParticles.end(), mActiveParticles.begin(), mActiveParticles.end());
+
+        // Remove all active instances
+        mActiveParticles.clear(); 
+
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setRenderer(ParticleSystemRenderer* renderer)
+    {
+        mRenderer = renderer;
+        if (!mMaterialName.empty() && mRenderer)
+        {
+            MaterialPtr mat = MaterialManager::getSingleton().getByName(mMaterialName);
+            mRenderer->_setMaterial(mat);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setRenderer(const String& rendererName)
+    {
+        if (rendererName.empty())
+        {
+            mRenderer = 0;
+        }
+        else
+        {
+            setRenderer(
+                ParticleSystemManager::getSingleton().getRenderer(rendererName));
+
+        }
+    }
+    //-----------------------------------------------------------------------
+    ParticleSystemRenderer* ParticleSystem::getRenderer(void) const
+    {
+        return mRenderer;
+    }
+    //-----------------------------------------------------------------------
+    bool ParticleSystem::getCullIndividually(void) const
+    {
+        return mCullIndividual;
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::setCullIndividually(bool cullIndividual)
+    {
+        mCullIndividual = cullIndividual;
+    }
+    //-----------------------------------------------------------------------
+    /*
+    bool ParticleSystem::particleVisible(Camera* cam, ActiveParticleList::iterator p)
+    {
+        if (mCullIndividual) 
+        {
+            return mRenderer->particleVisible(p);
+        }
+        else
+        {
+            // Return always visible if not culling individually
+            return true;
+        }
+
+
+        // Cull based on sphere (have to transform less)
+        Sphere sph;
+        Matrix4 xworld;
+
+        getWorldTransforms(&xworld);
+
+        sph.setCenter(xworld * (*bill)->mPosition);
+
+        if ((*bill)->mOwnDimensions)
+        {
+            sph.setRadius(std::max((*bill)->mWidth, (*bill)->mHeight));
+        }
+        else
+        {
+            sph.setRadius(std::max(mDefaultWidth, mDefaultHeight));
+        }
+
+        return cam->isVisible(sph);
+
+    }
+    */
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdCull::doGet(const void* target) const
     {
@@ -586,6 +777,7 @@ namespace Ogre {
         static_cast<ParticleSystem*>(target)->setParticleQuota(
             StringConverter::parseUnsignedInt(val));
     }
+    /*
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdBillboardType::doGet(const void* target) const
     {
@@ -640,5 +832,6 @@ namespace Ogre {
         static_cast<ParticleSystem*>(target)->setCommonDirection(
             StringConverter::parseVector3(val));
     }
+    */
 
 }

@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreBillboardSet.h"
 #include "OgreVector3.h"
 #include "OgreString.h"
 #include "OgreParticleIterator.h"
@@ -37,19 +36,19 @@ namespace Ogre {
 
     /** Class defining particle system based special effects.
     @remarks
-        Particle systems are special effects generators which are based on a number of moving points
-        which are rendered perhaps using billboards (quads which always face the camera) to create
-        the impression of things like like sparkles, smoke, blood spurts, dust etc.
+        Particle systems are special effects generators which are based on a 
+        number of moving points to create the impression of things like like 
+        sparkles, smoke, blood spurts, dust etc.
     @par
-        This class simply manages a single collection of particles with a shared local center point
-        and a bounding box. The visual aspect of the particles is handled by the base BillboardSet class
-        which the ParticleSystem manages automatically.
+        This class simply manages a single collection of particles in world space
+        with a shared local origin for emission. The visual aspect of the 
+        particles is handled by a ParticleSystemRenderer instance.
     @par
-        Particle systems are created using the ParticleSystemManager::createParticleSystem method, never directly.
+        Particle systems are created using the ParticleSystemManager methods, never directly.
         In addition, like all subclasses of MovableObject, the ParticleSystem will only be considered for
         rendering once it has been attached to a SceneNode. 
     */
-    class _OgreExport ParticleSystem : public BillboardSet
+    class _OgreExport ParticleSystem : public StringInterface, public MovableObject
     {
     public:
 
@@ -113,6 +112,32 @@ namespace Ogre {
         ParticleSystem(const String& name);
 
         virtual ~ParticleSystem();
+
+        /** Sets the ParticleRenderer to be used to render this particle system.
+        @remarks
+            The main ParticleSystem just manages the creation and movement of 
+            particles; they are rendered using functions in ParticleRenderer
+            and the ParticleVisual instances they create.
+        @par
+            This version of the method takes a pointer to a renderer, which 
+            should be unique to this system. 
+        */
+        void setRenderer(ParticleSystemRenderer* renderer);
+
+        /** Sets the ParticleRenderer to be used to render this particle system.
+        @remarks
+            The main ParticleSystem just manages the creation and movement of 
+            particles; they are rendered using functions in ParticleRenderer
+            and the ParticleVisual instances they create.
+        @par
+            This version of the method takes a renderer name rather than a
+            pointer; a new instance of this named type of renderer will be 
+            created using ParticleSystemManager.
+        */
+        void setRenderer(const String& name);
+
+        /** Gets the ParticleRenderer to be used to render this particle system. */
+        ParticleSystemRenderer* getRenderer(void) const;
 
         /** Adds an emitter to this particle system.
         @remarks
@@ -191,6 +216,10 @@ namespace Ogre {
         /** Removes all the affectors from this system. */
         void removeAllAffectors(void);
 
+        /** Empties this set of all particles.
+        */
+        void clear();
+
         /** Gets the number of individual particles in the system right now.
         @remarks
             The number of particles active in a system at a point in time depends on 
@@ -198,13 +227,13 @@ namespace Ogre {
             given on emission (and whether any affectors modify that TTL) and the maximum
             number of particles allowed in this system at once (particle quota).
         */
-        unsigned int getNumParticles(void) const;
+        size_t getNumParticles(void) const;
 
         /** Returns the maximum number of particles this system is allowed to have active at once.
         @remarks
             See ParticleSystem::setParticleQuota for more info.
         */
-        unsigned int getParticleQuota(void) const;
+        size_t getParticleQuota(void) const;
 
         /** Sets the maximum number of particles this system is allowed to have active at once.
         @remarks
@@ -216,7 +245,7 @@ namespace Ogre {
             equally across all emitters to be as consistent to the origina particle system style as possible.
         @param quota The maximum number of particles this system is allowed to have.
         */
-        void setParticleQuota(unsigned int quota);
+        void setParticleQuota(size_t quota);
 
 
         /** Assignment operator for copying.
@@ -242,19 +271,43 @@ namespace Ogre {
         */
         ParticleIterator _getIterator(void);
 
+        /** Sets the name of the material to be used for this billboard set.
+            @param
+                name The new name of the material to use for this set.
+        */
+        virtual void setMaterialName(const String& name);
+
+        /** Sets the name of the material to be used for this billboard set.
+            @returns The name of the material that is used for this set.
+        */
+        virtual const String& getMaterialName(void) const;
+
         /** Overridden from MovableObject
             @see
                 MovableObject
         */
-        void getWorldTransforms(Matrix4* xform) const;
-        /** @copydoc Renderable::getWorldOrientation */
-        const Quaternion& getWorldOrientation(void) const;
-        /** @copydoc Renderable::getWorldPosition */
-        const Vector3& getWorldPosition(void) const;
+        virtual void _notifyCurrentCamera(Camera* cam);
 
-        /** Overridden from BillboardSet
+        /** Overridden from MovableObject
+            @see
+                MovableObject
         */
-        void _updateBounds(void);
+        virtual const AxisAlignedBox& getBoundingBox(void) const;
+
+        /** Overridden from MovableObject
+            @see
+                MovableObject
+        */
+        virtual Real getBoundingRadius(void) const;
+
+        /** Overridden from MovableObject
+            @see
+                MovableObject
+        */
+        virtual void _updateRenderQueue(RenderQueue* queue);
+
+        /** Overridden from MovableObject */
+        const String& getName(void) const { return mName; }
 
         /** Fast-forwards this system by the required number of seconds.
         @remarks
@@ -271,7 +324,59 @@ namespace Ogre {
         void fastForward(Real time, Real interval = 0.1);
 
         /** Overridden from MovableObject */
-        virtual const String& getMovableType(void) const;
+        const String& getMovableType(void) const;
+
+        /** Internal callback used by Particles to notify their parent that they have been resized.
+        */
+        virtual void _notifyParticleResized(void);
+
+        /** Internal callback used by Particles to notify their parent that they have been rotated.
+        */
+        virtual void _notifyParticleRotated(void);
+
+        /** Sets the default dimensions of the particles in this set.
+            @remarks
+                All particles in a set are created with these default dimensions. The set will render most efficiently if
+                all the particles in the set are the default size. It is possible to alter the size of individual
+                particles at the expense of extra calculation. See the Particle class for more info.
+            @param width
+                The new default width for the particles in this set.
+            @param height
+                The new default height for the particles in this set.
+        */
+        virtual void setDefaultDimensions(Real width, Real height);
+
+        /** See setDefaultDimensions - this sets 1 component individually. */
+        virtual void setDefaultWidth(Real width);
+        /** See setDefaultDimensions - this gets 1 component individually. */
+        virtual Real getDefaultWidth(void) const;
+        /** See setDefaultDimensions - this sets 1 component individually. */
+        virtual void setDefaultHeight(Real height);
+        /** See setDefaultDimensions - this gets 1 component individually. */
+        virtual Real getDefaultHeight(void) const;
+        /** Returns whether or not particles in this are tested individually for culling. */
+        virtual bool getCullIndividually(void) const;
+        /** Sets whether culling tests particles in this individually as well as in a group.
+        @remarks
+            Particle sets are always culled as a whole group, based on a bounding box which 
+            encloses all particles in the set. For fairly localised sets, this is enough. However, you
+            can optionally tell the set to also cull individual particles in the set, i.e. to test
+            each individual particle before rendering. The default is not to do this.
+        @par
+            This is useful when you have a large, fairly distributed set of particles, like maybe 
+            trees on a landscape. You probably still want to group them into more than one
+            set (maybe one set per section of landscape), which will be culled coarsely, but you also
+            want to cull the particles individually because they are spread out. Whilst you could have
+            lots of single-tree sets which are culled separately, this would be inefficient to render
+            because each tree would be issued as it's own rendering operation.
+        @par
+            By calling this method with a parameter of true, you can have large particle sets which 
+            are spaced out and so get the benefit of batch rendering and coarse culling, but also have
+            fine-grained culling so unnecessary rendering is avoided.
+        @param cullIndividual If true, each particle is tested before being sent to the pipeline as well 
+            as the whole set having to pass the coarse group bounding test.
+        */
+        virtual void setCullIndividually(bool cullIndividual);
 
     protected:
 
@@ -285,6 +390,50 @@ namespace Ogre {
         static CmdCommonDirection msCommonDirectionCmd;
 
 
+        /// Name of the system; used for location in the scene.
+        String mName;
+        /// Name of the material to use
+        String mMaterialName;
+        /// Pointer to the material to use
+        MaterialPtr mpMaterial;
+        /// Default width of each particle
+        Real mDefaultWidth;
+        /// Default height of each particle
+        Real mDefaultHeight;
+        /// Are all the particles default size?
+        bool mAllDefaultSize;
+
+        typedef std::list<Particle*> ActiveParticleList;
+        typedef std::deque<Particle*> FreeParticleQueue;
+        typedef std::vector<Particle*> ParticlePool;
+
+        /** Active particle list.
+            @remarks
+                This is a linked list of pointers to particles in the particle pool.
+            @par
+                This allows very fast instertions and deletions from anywhere in 
+                the list to activate / deactivate particles as well as resuse of 
+                Particle instances in the pool without construction & destruction 
+                which avoids memory thrashing.
+        */
+        ActiveParticleList mActiveParticles;
+
+        /** Free particle queue.
+            @remarks
+                This contains a list of the particles free for use as new instances
+                as required by the set. Particle instances are preconstructed up 
+                to the estimated size in the mParticlePool vector and are 
+                referenced on this deque at startup. As they get used this deque
+                reduces, as they get released back to to the set they get added back to the deque.
+        */
+        FreeParticleQueue mFreeParticles;
+
+        /** Pool of particle instances for use and reuse in the active particle list.
+            @remarks
+                This vector will be preallocated with the estimated size of the set,and will extend as required.
+        */
+        ParticlePool mParticlePool;
+
         typedef std::vector<ParticleEmitter*> ParticleEmitterList;
         typedef std::vector<ParticleAffector*> ParticleAffectorList;
         
@@ -292,6 +441,19 @@ namespace Ogre {
         ParticleEmitterList mEmitters;
         /// List of particle affectors, ie modifiers of particles
         ParticleAffectorList mAffectors;
+
+        /// The renderer used to render this particle system
+        ParticleSystemRenderer* mRenderer;
+
+        /// Do we cull each particle individually?
+        bool mCullIndividual;
+
+        /// The name of the type of renderer used to render this system
+        String mRendererType;
+        
+        /// The number of particles in the pool.
+        size_t mPoolSize;
+
 
         /** Internal method used to expire dead particles. */
         void _expire(Real timeElapsed);
@@ -305,22 +467,17 @@ namespace Ogre {
         /** Applies the effects of affectors. */
         void _triggerAffectors(Real timeElapsed);
 
-        /** Overridden from BillboardSet to create Particle instead of Billboard */
+        /** Resize the internal pool of particles. */
         void increasePool(unsigned int size);
 
         /** Internal method for adding a new active particle.*/
         Particle* addParticle(void);
 
-        /** Overidden from BillboardSet
-            @see
-                BillboardSet
-        */
-        void genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
-
         /** Internal method for initialising string interface. */
         void initParameters(void);
 
     };
+
 }
 
 #endif

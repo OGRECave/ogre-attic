@@ -97,7 +97,7 @@ namespace Ogre {
         {
             p = pi.getNext();
 
-			NewRotation = p->getRotation() + (ds * p->getRotationSpeed());
+			NewRotation = p->rotation + (ds * p->rotationSpeed);
 			p->setRotation( NewRotation );
         }
 

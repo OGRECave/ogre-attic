@@ -48,6 +48,7 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mFixedTextureCoords(true),
+        mAxesIgnoreLocal(false),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
@@ -69,6 +70,7 @@ namespace Ogre {
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
         mFixedTextureCoords(true),
+        mAxesIgnoreLocal(false),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
@@ -364,7 +366,7 @@ namespace Ogre {
 			++it )
 		{
 			// Skip if not visible (NB always true if not bounds checking individual billboards)
-			if (!billboardVisible(cam, it)) continue;
+			if (!.isible(cam, it)) continue;
 
 			if (mBillboardType == BBT_ORIENTED_SELF)
 			{
@@ -831,8 +833,11 @@ namespace Ogre {
         case BBT_POINT:
             // Get camera world axes for X and Y (depth is irrelevant)
             camQ = cam.getDerivedOrientation();
-            // Convert into billboard local space
-            camQ = invTransform * camQ;
+            if (!mAxesIgnoreLocal)
+            {
+                // Convert into billboard local space
+                camQ = invTransform * camQ;
+            }
             *pX = camQ * Vector3::UNIT_X;
             *pY = camQ * Vector3::UNIT_Y;
             break;
@@ -840,17 +845,32 @@ namespace Ogre {
             // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
-            // Convert into billboard local space
-            *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            if (!mAxesIgnoreLocal)
+            {
+                // Convert into billboard local space
+                *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            }
+            else
+            {
+                *pX = cam.getDerivedDirection().crossProduct(*pY);
+            }
             pX->normalise();
             
             break;
         case BBT_ORIENTED_SELF:
             // Y-axis is direction
             // X-axis is cross with camera direction 
-            *pY = pBill->mDirection;
-            // Convert into billboard local space
-            *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            // Scale direction first
+            *pY = (pBill->mDirection * 0.01);
+            if (!mAxesIgnoreLocal)
+            {
+                // Convert into billboard local space
+                *pX = invTransform * cam.getDerivedDirection().crossProduct(*pY);
+            }
+            else
+            {
+                *pX = cam.getDerivedDirection().crossProduct(*pY);
+            }
             pX->normalise();
 
             break;

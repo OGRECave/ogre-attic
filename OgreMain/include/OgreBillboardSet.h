@@ -112,6 +112,7 @@ namespace Ogre {
         bool mAutoExtendPool;
 
         bool mFixedTextureCoords;
+        bool mAxesIgnoreLocal;
 
         typedef std::list<Billboard*> ActiveBillboardList;
         typedef std::deque<Billboard*> FreeBillboardQueue;
@@ -533,6 +534,9 @@ namespace Ogre {
         virtual void _updateBounds(void);
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
+
+        /** Sets whether billboard axes should ignore local node transforms. */
+        virtual void setAxesIgnoreLocalTransform(bool ign) { mAxesIgnoreLocal = ign; }
 
     };
 

@@ -211,9 +211,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreCursor.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreDataChunk.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp">
 			</File>
 			<File
@@ -400,6 +397,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgrePanelOverlayElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreParticle.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreParticleEmitter.cpp">
 			</File>
 			<File
@@ -496,9 +496,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\src\OgreRotationSpline.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreSDDataChunk.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneManager.cpp">
@@ -715,9 +712,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreCursor.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreDataChunk.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreDataStream.h">
@@ -981,6 +975,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreParticleSystemManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreParticleSystemRenderer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgrePass.h">
 			</File>
 			<File
@@ -1072,9 +1069,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreRotationalSpline.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreSDDataChunk.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSceneManager.h">

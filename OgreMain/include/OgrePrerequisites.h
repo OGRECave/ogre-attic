@@ -243,6 +243,8 @@ namespace Ogre {
     class ParticleEmitterFactory;
     class ParticleSystem;
     class ParticleSystemManager;
+    class ParticleSystemRenderer;
+    class ParticleSystemRendererFactory;
     class Pass;
     class PatchMesh;
     class PlatformManager;
