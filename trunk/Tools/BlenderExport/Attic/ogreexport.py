@@ -117,17 +117,15 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - changed vertex buffer layout to allow software skinning
 #          - settings are now stored inside the .blend file
 #          - importing pickle module now optional
+#          - support for non-uniform keyframe scaling
 #
 # TODO:
-#          - support for nonuniform armature scaling
 #          - vertex colours
 #          - code cleanup
-#          - use Blender.Text to store settings
 #          - noninteractive mode when called from command line
 #          - TWOSIDE face mode, TWOSIDED mesh mode
 #          - SUBSURF mesh mode
 #          - assign unskinned vertices to a static bone
-#          - help button
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1471,7 +1469,16 @@ def convert_armature(skeleton, obj, debugskel):
 
   while len(stack):
     bbone, parent, accu_mat, parent_pos, parent_ds, invertedOgreTransformation = stack.pop()
-
+    # preconditions: (R : rotation, T : translation, S : scale, M: general transformation matrix)
+    #   accu_mat
+    #     points to the tail of the parents bone, i.e. for root bones
+    #     accu_mat = M_{object}*R_{additional on export}
+    #     and for child bones
+    #     accu_mat = T_{length of parent}*R_{parent}*T_{to head of parent}*M_{parent's parent}
+    #  invertedOgreTransformation
+    #    inverse of transformation done in Ogre so far, i.e. identity for root bones,
+    #    M^{-1}_{Ogre, parent's parent}*T^(-1)_{Ogre, parent}*R^(-1)_{Ogre, parent} for child bones.
+    
     head = bbone.getHead()
     tail = bbone.getTail()
     roll = bbone.getRoll()
@@ -1498,6 +1505,7 @@ def convert_armature(skeleton, obj, debugskel):
     pos = point_by_matrix([ 0, 0, 0 ], accu_mat)
 
     accu_mat = tmp_mat = matrix_multiply(accu_mat, R_bmat)
+    # tmp_mat = R_{bone}*T_{to head}*M_{parent}
     accu_mat = matrix_multiply(accu_mat, T_len)
     pos2 = point_by_matrix([ 0, 0, 0 ], accu_mat)
     
@@ -1516,13 +1524,20 @@ def convert_armature(skeleton, obj, debugskel):
       rot = matrix2quaternion(axis_rot)
      
     x, y, z = pos
+    # pos = loc * M_{Ogre}
     loc = point_by_matrix([x, y, z], invertedOgreTransformation)
     x, y, z = loc
     ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
     x, y, z, w = rot
+    # R_{Ogre} is either
+    # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
+    # the rotation part of R_{bone}*T_{to_head} of child bones
     ogreRotationMatrix = quaternion2matrix(quaternion_normalize([x, y, z, w]))
     invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
     parent = Bone(skeleton, parent, bbone.getName(), loc, rot, matrix_multiply(invertedOgreTransformation, tmp_mat))
+    # matrix_multiply(invertedOgreTransformation, tmp_mat) is R*T*M_{parent} M^{-1}_{Ogre}T^{-1}_{Ogre}.
+    # Necessary, since Ogre's delta location is in the Bone's parent coordinate system, i.e.
+    # delatT_{Blender}*R*T*M = deltaT_{Ogre}*T_{Ogre}*M_{Ogre}
     invertedOgreTransformation = matrix_multiply(matrix_invert(ogreRotationMatrix), invertedOgreTransformation)
     for child in bbone.getChildren():
       stack.append([child, parent, accu_mat, pos, ds, invertedOgreTransformation])
@@ -1659,12 +1674,14 @@ def export_skeleton(object):
 								timeList = frameNumberDict.keys()
 								timeList.sort()
 								for time in timeList:
-									# Blender's transformation ordering: translate, rotate, scale
-									# Ogre's transformation ordering: rotate, scale, translate
+									# Blender's ordering of transformation is deltaR*deltaS*deltaT
+									# in the bones coordinate system.
 									frame = frameNumberDict[time]
 									loc = ( 0.0, 0.0, 0.0 )
 									rot = [ 0.0, 0.0, 0.0, 1.0 ]
-									size = 1.0
+									sizeX = 1.0
+									sizeY = 1.0
+									sizeZ = 1.0
 									blenderLoc = [0, 0, 0]
 									hasLocKey = 0 #false
 									if curveId.has_key("LocX"):
@@ -1677,6 +1694,7 @@ def export_skeleton(object):
 										blenderLoc[2] = ipo.EvaluateCurveOn(curveId["LocZ"], frame)
 										hasLocKey = 1 #true
 									if hasLocKey:
+										# Ogre's deltaT is in the bone's parent coordinate system
 										loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
 									if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
 										if not (Blender.Get("version") == 234):
@@ -1691,14 +1709,12 @@ def export_skeleton(object):
 											        ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
 											        ipo.EvaluateCurveOn(curveId["QuatX"], frame) ]
 									if curveId.has_key("SizeX"):
-										sx = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
-										sy = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
-										sz = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
-										if ((math.fabs(sx-sy) > threshold) or (math.fabs(sx-sz) > threshold)):
-											exportLogger.logError("Ogre does not support nonuniform keyframe scaling.")
-										size = sx
-										size = max(size, sy)
-										size = max(size, sz)
+										sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
+									if curveId.has_key("SizeY"):
+										sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
+									if curveId.has_key("SizeZ"):
+										sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+									size = (sizeX, sizeY, sizeZ)
 									KeyFrame(track, time, loc, rot, size)
 								# append track
 								animation.tracksDict[boneName] = track
@@ -2118,7 +2134,7 @@ def write_skeleton(skeleton):
         f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
         f.write(tab(7)+"</rotate>\n")
 
-        f.write(tab(7)+"<scale factor=\"%f\"/>\n" % keyframe.scale)
+        f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
 
         f.write(tab(6)+"</keyframe>\n")
 
