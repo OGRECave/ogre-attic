@@ -56,20 +56,12 @@ namespace Ogre {
 		ILint Imagformat, BytesPerPixel;
 		ImageData * ret_data = new ImageData;
 
-		// Ensure DevIL is started
-		if( !_is_initialized )
-		{
-			ilInit();
-			ilEnable( IL_FILE_OVERWRITE );
-			_is_initialized = true;
-		}
-
 		// Load the image
 		ilGenImages( 1, &ImageName );
 		ilBindImage( ImageName );
 
 		ilLoadL( 
-			IL_JPG, 
+			getILType(), 
 			( void * )const_cast< uchar * >( input.getPtr() ), 
 			static_cast< ILuint >( input.getSize() ) );
 
@@ -102,5 +94,10 @@ namespace Ogre {
 		ilDeleteImages( 1, &ImageName );
 
 		OgreUnguardRet( ret_data );
+    }
+    //---------------------------------------------------------------------
+    unsigned int JPEGCodec::getILType(void) const
+    { 
+        return IL_JPG;
     }
 }

@@ -37,8 +37,8 @@ namespace Ogre {
     */
     class _OgreExport ImageCodec : public Codec
     {
-	protected:
-		static bool _is_initialized;
+	private:
+		static bool _is_initialised;
 
     public:
         /** Codec return class for images. Has imformation about the size and the
@@ -59,6 +59,12 @@ namespace Ogre {
         };
 
     public:
+        ImageCodec()
+        {
+            initialiseIL();
+        }
+        virtual ~ImageCodec() {}
+
         virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
         virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const = 0;
         /** Encodes data to a file.
@@ -69,6 +75,10 @@ namespace Ogre {
         void codeToFile( const DataChunk& input, const String& outFileName, CodecData* pData) const;
 
         virtual String getType() const = 0;
+
+        virtual unsigned int getILType(void) const = 0;
+
+        void initialiseIL(void);
     };
 
 } // namespace

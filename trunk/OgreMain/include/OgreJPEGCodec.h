@@ -40,6 +40,8 @@ namespace Ogre {
         CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
         String getType() const { return "jpeg"; }
+
+        unsigned int getILType(void) const;
     };
 
     class _OgreExport JPGCodec : public JPEGCodec
