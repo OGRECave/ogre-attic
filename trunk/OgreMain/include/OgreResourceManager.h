@@ -211,6 +211,17 @@ namespace Ogre {
         /** Retrieves a pointer to a resource by handle, or null if the resource does not exist.
         */
         virtual ResourcePtr getByHandle(ResourceHandle handle);
+		
+		/// Returns whether the named resource exists in this manager
+		virtual bool resourceExists(const String& name)
+		{
+			return getByName(name).isNull();
+		}
+		/// Returns whether a resource with the given handle exists in this manager
+		virtual bool resourceExists(ResourceHandle handle)
+		{
+			return getByHandle(handle).isNull();
+		}
 
 		/** Notify this manager that a resource which it manages has been 
 			'touched', ie used. 
