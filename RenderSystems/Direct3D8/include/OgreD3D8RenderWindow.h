@@ -71,9 +71,6 @@ namespace Ogre {
         LPDIRECT3DSURFACE8 mpRenderSurface;
         LPDIRECT3DSURFACE8 mpRenderZBuffer;
 
-		// Our debugging font...use the D3DFont class for simplicity
-		CD3DFont* mpDbgFont;
-
 		// Method for dealing with resize / move & 3d library
 		void WindowMovedOrResized(void);
 	};

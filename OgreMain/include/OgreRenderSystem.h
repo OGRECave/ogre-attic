@@ -42,7 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
     typedef std::map< String, RenderTarget * > RenderTargetMap;
-	typedef std::list< RenderTarget * > RenderTargetList;
+	typedef std::multimap<uchar, RenderTarget * > RenderTargetPriorityMap;
 
     class TextureManager;
     /// Enum describing the ways to generate texture coordinates
@@ -263,6 +263,8 @@ namespace Ogre
                 as a child of another is therefore given.
                 This method will create an appropriate subclass of
                 RenderWindow depending on the API and platform implementation.
+            @par
+                After creation, this window can be retrieved using getRenderTarget().
             @param
                 name The name of the window. Used in other methods
                 later like setRenderTarget and getRenderWindow.
@@ -800,8 +802,8 @@ namespace Ogre
 
 		/** The render targets. */
         RenderTargetMap mRenderTargets;
-		/** The render targets, grouped by priority. */
-		RenderTargetList mPrioritisedRenderTargets[ OGRE_NUM_RENDERTARGET_GROUPS ];
+		/** The render targets, ordered by priority. */
+		RenderTargetPriorityMap mPrioritisedRenderTargets;
 		/** The Active render target. */
 		RenderTarget * mActiveRenderTarget;
 

@@ -222,8 +222,16 @@ namespace Ogre {
         /** Removes all listeners from this instance. */
         virtual void removeAllListeners(void);
 
-		void setPriority( uchar priority ) { };
-		uchar getPriority() const { return mPriority; };
+		/** Sets the priority of this render target in relation to the others. 
+        @remarks
+            This can be used in order to schedule render target updates. Lower
+            priorities will be rendered first. Note that the priority must be set
+            at the time the render target is attached to the render system, changes
+            afterwards will not affect the ordering.
+        */
+        virtual void setPriority( uchar priority ) { mPriority = priority; }
+        /** Gets the priority of a render target. */
+		virtual uchar getPriority() const { return mPriority; }
 
         /** Used to retrieve or set the active state of the render target.
         */

@@ -140,7 +140,8 @@ namespace Ogre {
 		assert( target.getPriority() < OGRE_NUM_RENDERTARGET_GROUPS );
 
         mRenderTargets.insert( RenderTargetMap::value_type( target.getName(), &target ) );
-		mPrioritisedRenderTargets[ target.getPriority() ].push_back( &target );
+        mPrioritisedRenderTargets.insert(
+            RenderTargetPriorityMap::value_type(target.getPriority(), &target ));
     }
 
     //---------------------------------------------------------------------------------------------
@@ -168,11 +169,15 @@ namespace Ogre {
             ret = it->second;
 			
 			/* Remove the render target from the priority groups. */
-			for( RenderTargetList::iterator lit = mPrioritisedRenderTargets[ ret->getPriority() ].begin(); lit != mPrioritisedRenderTargets[ ret->getPriority() ].end(); lit++ )
-				if( *lit == ret ) {
-					mPrioritisedRenderTargets[ ret->getPriority() ].erase( lit );
+            RenderTargetPriorityMap::iterator itarg, itargend;
+            itargend = mPrioritisedRenderTargets.end();
+			for( itarg = mPrioritisedRenderTargets.begin(); itarg != itargend; ++itarg )
+            {
+				if( itarg->second == ret ) {
+					mPrioritisedRenderTargets.erase( itarg );
 					break;
 				}
+            }
 
             mRenderTargets.erase( it );
         }
@@ -383,8 +388,7 @@ namespace Ogre {
         }
 		mRenderTargets.clear();
 
-		for( uchar i = 0; i < 10; i++ )
-			mPrioritisedRenderTargets[ i ].clear();
+		mPrioritisedRenderTargets.clear();
     }
     //-----------------------------------------------------------------------
     void RenderSystem::_beginGeometryCount(void)
