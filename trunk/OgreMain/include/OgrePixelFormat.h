@@ -42,8 +42,6 @@ namespace Ogre {
         PF_A8 = 3,
         /// 8-bit pixel format, 4 bits alpha, 4 bits luminace.
         PF_A4L4 = 4,
-        /// 8-bit pixel format, 4 bits luminace, 4 bits alpha.
-        PF_L4A4 = 5,
         /// 16-bit pixel format, 5 bits red, 6 bits green, 5 bits blue.
         PF_R5G6B5 = 6,
         /// 16-bit pixel format, 5 bits blue, 6 bits green, 5 bits red.

@@ -1035,10 +1035,12 @@ namespace Ogre
 			return PF_A2R10G10B10;
         case D3DFMT_A2B10G10R10:
            return PF_A2B10G10R10;
-		case D3DFMT_A16B16G16R16F: // verify?
+		case D3DFMT_A16B16G16R16F:
 			return PF_FLOAT16_RGBA;
-		case D3DFMT_A32B32G32R32F: // verify?
+		case D3DFMT_A32B32G32R32F:
 			return PF_FLOAT32_RGBA;
+		case D3DFMT_A16B16G16R16:
+			return PF_SHORT_RGBA;
 		case D3DFMT_DXT1:
 			return PF_DXT1;
 		case D3DFMT_DXT2:
@@ -1088,6 +1090,8 @@ namespace Ogre
 			return D3DFMT_A16B16G16R16F;
 		case PF_FLOAT32_RGBA:
 			return D3DFMT_A32B32G32R32F;
+		case PF_SHORT_RGBA:
+			return D3DFMT_A16B16G16R16;
 		case PF_DXT1:
 			return D3DFMT_DXT1;
 		case PF_DXT2:
@@ -1112,8 +1116,6 @@ namespace Ogre
 		}
 		switch(ogrePF)
 		{
-		case PF_L4A4:
-			return PF_A4L4;
 		case PF_B5G6R5:
 			return PF_R5G6B5;
 		case PF_B4G4R4A4:
