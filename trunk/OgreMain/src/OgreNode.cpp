@@ -429,7 +429,7 @@ namespace Ogre {
         {
         case TS_PARENT:
             // Rotations are normally relative to local axes, transform up
-            mOrientation = mOrientation * mOrientation.Inverse() * q * mOrientation;
+            mOrientation = q * mOrientation;
             break;
         case TS_WORLD:
             // Rotations are normally relative to local axes, transform up
