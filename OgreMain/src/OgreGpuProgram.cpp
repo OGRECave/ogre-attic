@@ -29,8 +29,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
 	//-----------------------------------------------------------------------------
-	GpuProgram::GpuProgram(GpuProgramType gptype) : mType(gptype), mLoadFromFile(true)
+	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype) 
+		: mType(gptype), mLoadFromFile(true)
 	{
+		mName = name;
 	}
 	//-----------------------------------------------------------------------------
     void GpuProgram::setSource(const String& source)

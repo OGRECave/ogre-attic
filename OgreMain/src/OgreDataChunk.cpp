@@ -180,7 +180,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String DataChunk::getAsString(void)
     {
-        return String((const char*)mData);
+        String s;
+		// Insert n characters since we can't expect mData to be null-terminated
+		s.insert(0, (const char*)mData, mSize);
+		return s;
     }
 
 }

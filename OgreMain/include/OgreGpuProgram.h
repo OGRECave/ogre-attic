@@ -62,6 +62,8 @@ namespace Ogre {
         /// Packed list of integer constants
         IntConstantList mIntConstants;
     public:
+		GpuProgramParameters() {}
+		virtual ~GpuProgramParameters() {}
 
 		/** Sets a single value constant floating-point parameter to the program.
         @remarks
@@ -197,8 +199,8 @@ namespace Ogre {
         /// The parameters being used by this program
         GpuProgramParametersSharedPtr mParams;
 	public:
-		GpuProgram(GpuProgramType gptype);
-
+		GpuProgram(const String& name, GpuProgramType gptype);
+		virtual ~GpuProgram() {}
 
         /** Sets the source assembly for this program.
         @remarks
