@@ -20,8 +20,9 @@ namespace Ogre {
 		D3D8TextureManager( LPDIRECT3DDEVICE8 pD3DDevice );
 		~D3D8TextureManager();
 
-		// Creates a D3D8Texture resource
-		Resource* create( const String& name );
+		/// Creates a D3D8Texture resource
+		virtual Resource * create( const String& name );
+        virtual Texture * createAsRenderTarget( const String& name );
 
 		void unloadAndDestroyAll();
 	};

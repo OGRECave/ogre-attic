@@ -89,6 +89,8 @@ namespace Ogre {
             const String &name, const Image &img, 
             int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
+        virtual Texture * createAsRenderTarget( const String& name ) = 0;
+
         /** Manually unloads a texture from the loaded set.
         */
         virtual void unload(String filename);

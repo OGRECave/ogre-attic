@@ -29,6 +29,13 @@ namespace Ogre {
 		return t;
 	}
 
+    Texture * D3D8TextureManager::createAsRenderTarget( const String& name )
+    {
+        D3D8RenderTargetTexture * newTex = new D3D8RenderTargetTexture( name, mpD3DDevice );
+        newTex->enable32Bit( mIs32Bit );
+        return newTex;
+    }
+
 	void D3D8TextureManager::unloadAndDestroyAll()
 	{
 		// Unload & delete resources in turn

@@ -35,9 +35,16 @@ namespace Ogre {
     {
     public:
         SDLTextureManager();
-        ~SDLTextureManager();
-        /* Creates a Texture resource. */
-        Resource* create( const String& name);
+        virtual ~SDLTextureManager();
+
+        /** Creates a SDLTexture resource. 
+        */
+        virtual Resource* create( const String& name);
+        /** Note that this function is not yet implemented.
+            @todo
+                Implement correct surface creation in the texture source file.
+        */
+        virtual Texture * createAsRenderTarget( const String& name ) { return NULL; }
 
         /** Unloads & destroys textures. */
         void unloadAndDestroyAll();

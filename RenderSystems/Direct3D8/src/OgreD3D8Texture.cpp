@@ -26,6 +26,7 @@ namespace Ogre {
 		enable32Bit( false );
 		mpTexture = NULL;
 		mpTempTexture = NULL;
+        m_bIsRenderTarget = false;
 	}
 
 	D3D8Texture::~D3D8Texture()
@@ -74,7 +75,7 @@ namespace Ogre {
 		memcpy( pTempData, img.getData(), img.getSize() );
 
 		createTexture();
-		applyGamma( pTempData, img.getSize(), mSrcBpp );
+        Image::applyGamma( pTempData, mGamma, uint( img.getSize() ), mSrcBpp );
 		copyMemoryToTexture( pTempData );
 
 		SAFE_DELETE_ARRAY( pTempData );
@@ -106,14 +107,14 @@ namespace Ogre {
 
 		HRESULT hr;
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
-		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 0, format, 
-			D3DPOOL_SYSTEMMEM, &mpTempTexture ) ) )
+		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 
+            ( m_bIsRenderTarget ? D3DUSAGE_RENDERTARGET : 0 ), format, D3DPOOL_SYSTEMMEM, &mpTempTexture ) ) )
 		{
 			Except( hr, "Error creating temp Direct3D texture", "D3DXTexture::createTexture" );
 		}
 
-		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 0, format, 
-			D3DPOOL_DEFAULT, &mpTexture ) ) )
+		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 
+            ( m_bIsRenderTarget ? D3DUSAGE_RENDERTARGET : 0 ), format, D3DPOOL_DEFAULT, &mpTexture ) ) )
 		{
 			Except( hr, "Error creating Direct3D texture", "D3D8Texture::createTexture" );
 		}
@@ -373,5 +374,10 @@ namespace Ogre {
 		SAFE_RELEASE( mpTempTexture );
 	}
 
+    D3D8RenderTargetTexture::D3D8RenderTargetTexture( String name, LPDIRECT3DDEVICE8 pD3DDevice )
+        : D3D8Texture( name, pD3DDevice )
+    {
+        m_bIsRenderTarget = true;
+    }
 
 }

@@ -29,18 +29,29 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //TextureManager* D3DTextureManager::ms_Singleton=0;
 
-    // IMPORTANT: auto-inlining must be disabled for this class
-    // otherwise problems with the dll boundary occur on the constructor in release mode
+/* IMPORTANT: auto-inlining must be disabled for this class otherwise problems with the 
+   dll boundary occur on the constructor in release mode */
+#if OGRE_COMPILER == COMPILER_MSVC
+    #pragma auto_inline( off )
+#endif
 
     D3DTextureManager::D3DTextureManager(LPDIRECT3DDEVICE7 lpD3D)
         : TextureManager()
     {
         mlpD3DDevice = lpD3D;
+        lpD3D->AddRef();
     }
+
+#if OGRE_COMPILER == COMPILER_MSVC
+    #pragma auto_inline( on )
+#endif
+
     //-----------------------------------------------------------------------
     D3DTextureManager::~D3DTextureManager()
     {
         this->unloadAndDestroyAll();
+
+        __safeRelease( &mlpD3DDevice );
     }
     //-----------------------------------------------------------------------
     Resource* D3DTextureManager::create( const String& name)
@@ -50,18 +61,11 @@ namespace Ogre {
         return t;
     }
     //-----------------------------------------------------------------------
-    void D3DTextureManager::unloadAndDestroyAll()
+    Texture * D3DTextureManager::createAsRenderTarget( const String& name )
     {
-        // Reimplement this to ensure deletion happens in same dll as creation
+        Texture *t = new D3D7RenderTargetTexture( name, mlpD3DDevice );
+        t->enable32Bit( mIs32Bit );
 
-        // Unload & delete resources in turn
-        for (ResourceMap::iterator i = mResources.begin(); i != mResources.end(); ++i)
-        {
-            i->second->unload();
-            delete i->second;
-        }
-
-        // Empty the list
-        mResources.clear();
+        return t;
     }
 }
