@@ -106,7 +106,8 @@ namespace Ogre {
 		ofdebug.open("progressivemesh.log");
 #endif
 		numCollapses = 0;
-		while (numLevels--)
+		bool abandon = false;
+		while (numLevels-- && !abandon)
         {
 			if (quota == VRQ_PROPORTIONAL)
 			{
@@ -122,7 +123,7 @@ namespace Ogre {
 			// Store new number of verts
 			numVerts = numVerts - numCollapses;
 
-			while(numCollapses--)
+			while(numCollapses-- && !abandon)
             {
                 ushort nextIndex = getNextCollapser();
                 // Collapse on every buffer
@@ -132,6 +133,12 @@ namespace Ogre {
                 {
                     PMVertex* collapser = &( idata->mVertList.at( nextIndex ) );
                     // This will reduce mCurrNumIndexes and recalc costs as required
+					if (collapser->collapseTo == NULL)
+					{
+						// Must have run out of valid collapsables
+						abandon = true;
+						break;
+					}
 #if OGRE_DEBUG_MODE 
 					ofdebug << "Collapsing index " << collapser->index << "(border: "<< collapser->isBorder() <<
 						") to " << collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
@@ -141,6 +148,7 @@ namespace Ogre {
 
                     collapse(collapser);
                 }
+
             }
 #if OGRE_DEBUG_MODE
 			char logname[20];
@@ -152,7 +160,6 @@ namespace Ogre {
             bakeNewLOD(&newLod);
             outList->push_back(newLod);
 			
-
         }
 
 
