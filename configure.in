@@ -43,6 +43,7 @@ AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
 * You may find it at http://openil.sourceforge.net/.           *
 ****************************************************************]))
 AC_CHECK_LIB(ILU, iluFlipImage)
+AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(Cg, cgCreateProgram,,AC_MSG_ERROR([
 ****************************************************************
 * You do not have the nVidia Cg libraries installed.           *
