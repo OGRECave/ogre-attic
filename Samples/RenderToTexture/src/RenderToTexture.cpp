@@ -130,6 +130,10 @@ protected:
             mReflectCam = mSceneMgr->createCamera("ReflectCam");
             mReflectCam->setNearClipDistance(mCamera->getNearClipDistance());
             mReflectCam->setFarClipDistance(mCamera->getFarClipDistance());
+            mReflectCam->setAspectRatio(
+                (Real)mWindow->getViewport(0)->getActualWidth() / 
+                (Real)mWindow->getViewport(0)->getActualHeight());
+
             Viewport *v = rttTex->addViewport( mReflectCam );
             v->setClearEveryFrame( true );
             v->setBackgroundColour( ColourValue::Black );
