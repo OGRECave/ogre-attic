@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreRenderSystem.h"
 #include "OgreImageCodec.h"
+#include "OgreStringConverter.h"
 #include "OgreException.h"
 #include "OgreWin32GLSupport.h"
 #include "OgreWin32Context.h"
@@ -43,7 +44,6 @@ namespace Ogre {
 		mActive = false;
 		mReady = false;
 		mClosed = false;
-		mExternalHandle = NULL;
     }
 
     Win32Window::~Win32Window()
@@ -51,35 +51,63 @@ namespace Ogre {
 		destroy();
     }
 
-    void Win32Window::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-                           bool fullScreen, int left, int top, bool depthBuffer, void *miscParam, ...)
+	void Win32Window::create(const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams)
     {
-        HWND parentHWnd;
+        HWND parentHWnd = 0;
+		HWND externalHandle = 0;
 		HINSTANCE hInst = GetModuleHandle("RenderSystem_GL.dll");
 		long tempPtr;
+		bool vsync = false;
+		unsigned int displayFrequency = 0;
+		String title = name;
+		unsigned int colourDepth = 32;
+		unsigned int left = 0; // Defaults to screen center
+		unsigned int top = 0; // Defaults to screen center
+		bool depthBuffer = true;
 
-		// Get variable-length params
-		// miscParam[0] = parent HWND
-		// miscParam[1] = bool vsync
-		// miscParam[2] = int displayFrequency
-
-		Win32Window* parentRW = reinterpret_cast<Win32Window*>(miscParam);
-		if( parentRW == NULL )
-			parentHWnd = 0;
-		else
-			parentHWnd = parentRW->getWindowHandle();
-
-		va_list marker;
-		va_start( marker, miscParam );
-
-		tempPtr = va_arg( marker, long );
-		bool vsync = (tempPtr != 0);
-
-		tempPtr = va_arg( marker, long );
-		unsigned int displayFrequency = static_cast<unsigned int>(tempPtr);
-
-		va_end( marker );
-
+		if(miscParams)
+		{
+			// Get variable-length params
+			NameValuePairList::const_iterator opt;
+			// left (x)
+			opt = miscParams->find("left");
+			if(opt != miscParams->end())
+				left = StringConverter::parseUnsignedInt(opt->second);
+			// top (y)
+			opt = miscParams->find("top");
+			if(opt != miscParams->end())
+				top = StringConverter::parseUnsignedInt(opt->second);
+			// Window title
+			opt = miscParams->find("title");
+			if(opt != miscParams->end())
+				title = opt->second;
+			// externalWindowHandle		-> externalHandle
+			opt = miscParams->find("externalWindowHandle");
+			if(opt != miscParams->end())
+				externalHandle = (HWND)StringConverter::parseUnsignedInt(opt->second);
+			// parentWindowHandle -> parentHWnd
+			opt = miscParams->find("parentWindowHandle");
+			if(opt != miscParams->end()) 
+				parentHWnd = (HWND)StringConverter::parseUnsignedInt(opt->second);
+			// vsync	[parseBool]
+			opt = miscParams->find("vsync");
+			if(opt != miscParams->end())
+				vsync = StringConverter::parseBool(opt->second);
+			// displayFrequency
+			opt = miscParams->find("displayFrequency");
+			if(opt != miscParams->end())
+				displayFrequency = StringConverter::parseUnsignedInt(opt->second);
+			// colourDepth
+			opt = miscParams->find("colourDepth");
+			if(opt != miscParams->end())
+				colourDepth = StringConverter::parseUnsignedInt(opt->second);
+			// depthBuffer [parseBool]
+			opt = miscParams->find("depthBuffer");
+			if(opt != miscParams->end())
+				depthBuffer = StringConverter::parseBool(opt->second);
+		}
+		
 		// Destroy current window if any
 		if( mHWnd )
 			destroy();
@@ -94,7 +122,7 @@ namespace Ogre {
 			mColourDepth = GetDeviceCaps(GetDC(0), BITSPIXEL);
 		}
 
-		if (!mExternalHandle) {
+		if (!externalHandle) {
 			DWORD dwStyle = (fullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 			RECT rc;
 
@@ -143,12 +171,12 @@ namespace Ogre {
 				LoadIcon( NULL, IDI_APPLICATION ),
 				LoadCursor( NULL, IDC_ARROW ),
 				(HBRUSH)GetStockObject( BLACK_BRUSH ), NULL,
-				TEXT(name.c_str()) };
+				TEXT(title.c_str()) };
 			RegisterClass( &wndClass );
 
 			// Create our main window
 			// Pass pointer to self
-			HWND hWnd = CreateWindowEx(fullScreen?WS_EX_TOPMOST:0, TEXT(name.c_str()), TEXT(name.c_str()),
+			HWND hWnd = CreateWindowEx(fullScreen?WS_EX_TOPMOST:0, TEXT(title.c_str()), TEXT(title.c_str()),
 				dwStyle, mLeft, mTop, mWidth, mHeight, 0L, 0L, hInst, this);
 			mHWnd = hWnd;
 
@@ -172,7 +200,7 @@ namespace Ogre {
 
 		}
 		else {
-			mHWnd = mExternalHandle;
+			mHWnd = externalHandle;
 			RECT rc;
 			GetClientRect(mHWnd, &rc);
 			mWidth = rc.right;

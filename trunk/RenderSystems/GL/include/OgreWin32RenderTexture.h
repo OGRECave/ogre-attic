@@ -34,7 +34,10 @@ namespace Ogre {
     class Win32RenderTexture : public GLRenderTexture
     {
     public:
-        Win32RenderTexture(Win32GLSupport &glsupport, const String & name, uint width, uint height, TextureType texType,  PixelFormat format);
+		Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
+			unsigned int width, unsigned int height,
+			TextureType texType, PixelFormat internalFormat, 
+			const NameValuePairList *miscParams );
         ~Win32RenderTexture();
     protected:
         virtual void _copyToTexture();

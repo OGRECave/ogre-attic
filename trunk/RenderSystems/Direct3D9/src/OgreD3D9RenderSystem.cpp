@@ -310,7 +310,7 @@ namespace Ogre
 				D3DMULTISAMPLE_TYPE fsaa = D3DMULTISAMPLE_NONE;
 				DWORD level = 0;
 
-				if (value.find_first_of("NonMaskable") != -1)
+				if (StringUtil::startsWith(value, "NonMaskable", false))
 				{
 					fsaa = D3DMULTISAMPLE_NONMASKABLE;
 					size_t pos = value.find_last_of(" ");
@@ -318,7 +318,7 @@ namespace Ogre
 					level = StringConverter::parseInt(sNum);
 					level -= 1;
 				}
-				else if (value.find_first_of("Level") != -1)
+				else if (StringUtil::startsWith(value, "Level", false))
 				{
 					size_t pos = value.find_last_of(" ");
 					String sNum = value.substr(pos + 1);
@@ -483,9 +483,14 @@ namespace Ogre
 
 			width = videoMode->getWidth();
 			height = videoMode->getHeight();
-			colourDepth = videoMode->getColourDepth();
+			
+			NameValuePairList miscParams;
+			miscParams["colourDepth"] = StringConverter::toString(videoMode->getColourDepth());
+			miscParams["FSAA"] = StringConverter::toString(mFSAAType);
+			miscParams["FSAAQuality"] = StringConverter::toString(mFSAAQuality);
 
-			autoWindow = this->createRenderWindow( windowTitle, width, height, colourDepth, fullScreen );
+			autoWindow = this->createRenderWindow( windowTitle, width, height, 
+				fullScreen, &miscParams );
 
             // If we have 16bit depth buffer enable w-buffering.
             assert( autoWindow );
@@ -535,13 +540,33 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D9RenderSystem::createRenderWindow( const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
-		bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
+	RenderWindow* D3D9RenderSystem::createRenderWindow(const String &name, 
+		unsigned int width, unsigned int height, bool fullScreen,
+		const NameValuePairList *miscParams)
 	{
 		static bool firstWindow = true;
 		
 		OgreGuard( "D3D9RenderSystem::createRenderWindow" );
 
+		// Log a message
+		std::stringstream ss;
+		ss << "D3D9RenderSystem::createRenderWindow \"" << name << "\", " <<
+			width << "x" << height << " ";
+		if(fullScreen)
+			ss << "fullscreen ";
+		else
+			ss << "windowed ";
+		if(miscParams)
+		{
+			ss << " miscParams: ";
+			NameValuePairList::const_iterator it;
+			for(it=miscParams->begin(); it!=miscParams->end(); ++it)
+			{
+				ss << it->first << "=" << it->second << " ";
+			}
+			LogManager::getSingleton().logMessage(ss.str());
+		}
+		
 		String msg;
 
 		// Make sure we don't already have a render target of the 
@@ -553,16 +578,9 @@ namespace Ogre
 			Except( Exception::ERR_INTERNAL_ERROR, msg, "D3D9RenderSystem::createRenderWindow" );
 		}
 
-		RenderWindow* win = new D3D9RenderWindow();
-		if (!fullScreen && mExternalHandle)
-		{
-			D3D9RenderWindow *pWin32Window = (D3D9RenderWindow *)win;
-	 		pWin32Window->SetExternalWindowHandle(mExternalHandle);
-		}
+		RenderWindow* win = new D3D9RenderWindow(mhInstance, mActiveD3DDriver);
 
-		win->create( name, width, height, colourDepth, fullScreen, 
-				left, top, depthBuffer, &mhInstance, mActiveD3DDriver, 
-				parentWindowHandle, mFSAAType, mFSAAQuality, mVSync );
+		win->create( name, width, height, fullScreen, miscParams);
 
 		attachRenderTarget( *win );
 
@@ -865,8 +883,26 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------
-	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format )
+	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, 
+		unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
 	{
+		// Log a message
+		std::stringstream ss;
+		ss << "D3D9RenderSystem::createRenderTexture \"" << name << "\", " <<
+			width << "x" << height << " texType=" << texType <<
+			" internalFormat=" << PixelUtil::getFormatName(internalFormat) << " ";
+		if(miscParams)
+		{
+			ss << "miscParams: ";
+			NameValuePairList::const_iterator it;
+			for(it=miscParams->begin(); it!=miscParams->end(); ++it)
+			{
+				ss << it->first << "=" << it->second << " ";
+			}
+			LogManager::getSingleton().logMessage(ss.str());
+		}
+		// Create render texture
 		RenderTexture *rt = new D3D9RenderTexture( name, width, height );
 		attachRenderTarget( *rt );
 		return rt;

@@ -152,8 +152,15 @@ namespace Ogre
 		ConfigOptionMap& getConfigOptions(void);
 		String validateConfigOptions(void);
 		RenderWindow* initialise( bool autoCreateWindow, const String& windowTitle = "OGRE Render Window"  );
-		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth, bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true, RenderWindow* parentWindowHandle = 0);
-		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format );
+		/// @copydoc RenderSystem::createRenderWindow
+		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+			bool fullScreen, const NameValuePairList *miscParams = 0);
+
+		/// @copydoc RenderSystem::createRenderTexture
+		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
+			const NameValuePairList *miscParams = 0 ); 
+
 		String getErrorDescription( long errorNumber ) const;
 		const String& getName(void) const;
 		// Low-level overridden members

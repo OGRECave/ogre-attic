@@ -90,39 +90,36 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
         if (pos == String::npos)
             Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
 
+		// Parse FSAA config
+		NameValuePairList winOptions;
+		winOptions["title"] = windowTitle;
         int fsaa_x_samples = 0;
         opt = mOptions.find("FSAA");
-        if(opt != mOptions.end()) //check for FSAA parameter, if not ignore it...
+        if(opt != mOptions.end())
         {
-            fsaa_x_samples = StringConverter::parseInt(opt->second.currentValue);
-            if(fsaa_x_samples>1) {
-                // If FSAA is enabled in the parameters, enable the MULTISAMPLEBUFFERS
-                // and set the number of samples before the render window is created.
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
-                SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,fsaa_x_samples);
-            }
+			winOptions["FSAA"] = opt->second.currentValue;
         }
 
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
         const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
-        return renderSystem->createRenderWindow(windowTitle, w, h, videoInfo->vfmt->BitsPerPixel, fullscreen);
+        return renderSystem->createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
     }
     else
     {
         // XXX What is the else?
 		return NULL;
     }
+
 }
 
-RenderWindow* SDLGLSupport::newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-        bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
-		bool vsync)
+
+RenderWindow* SDLGLSupport::newWindow(const String &name, unsigned int width, unsigned int height, 
+	bool fullScreen, const NameValuePairList *miscParams)
 {
 	SDLWindow* window = new SDLWindow();
-	window->create(name, width, height, colourDepth, fullScreen, left, top, depthBuffer,
-		parentWindowHandle);
+	window->create(name, width, height, fullScreen, miscParams);
 	return window;
 }
 

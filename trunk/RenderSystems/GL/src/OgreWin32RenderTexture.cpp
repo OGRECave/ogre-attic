@@ -55,8 +55,11 @@ namespace Ogre {
 	static PFNWGLRELEASETEXIMAGEARBPROC _wglReleaseTexImageARB = 0;
 	static PFNWGLGETPIXELFORMATATTRIBIVARBPROC _wglGetPixelFormatAttribivARB = 0;
 
-	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, uint width, uint height, TextureType texType,  PixelFormat format ):
-		GLRenderTexture(name, width, height, texType, format),
+	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
+			unsigned int width, unsigned int height,
+			TextureType texType, PixelFormat internalFormat, 
+			const NameValuePairList *miscParams ):
+		GLRenderTexture(name, width, height, texType, internalFormat, miscParams),
 		mGLSupport(glsupport),
         mContext(0)
 	{

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImageCodec.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -61,17 +62,44 @@ namespace Ogre {
 
     }
 
-    void SDLWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-                           bool fullScreen, int left, int top, bool depthBuffer,
-                           void* miscParam, ...)
+	void SDLWindow::create(const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams)
     {
+		int colourDepth = 32;
+		String title = name;
+		if(miscParams)
+		{
+			// Parse miscellenous parameters
+			NameValuePairList::const_iterator opt;
+			// Bit depth
+			opt = miscParams->find("colourDepth");
+			if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
+				colourDepth = StringConverter::parseUnsignedInt(opt->second);
+			// Full screen antialiasing
+			opt = miscParams->find("FSAA");
+			if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
+			{
+				size_t fsaa_x_samples = StringConverter::parseUnsignedInt(opt->second);
+				if(fsaa_x_samples>1) {
+					// If FSAA is enabled in the parameters, enable the MULTISAMPLEBUFFERS
+					// and set the number of samples before the render window is created.
+					SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
+					SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,fsaa_x_samples);
+				}
+			}
+			// Window title
+			opt = miscParams->find("title");
+			if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
+				title = opt->second;
+		}   
+	
         LogManager::getSingleton().logMessage("SDLWindow::create", LML_TRIVIAL);
         SDL_Surface* screen;
         int flags = SDL_OPENGL | SDL_HWPALETTE;
 		
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
         // request good stencil size if 32-bit colour
-        if (colourDepth == 32 && depthBuffer)
+        if (colourDepth == 32)
         {
             SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
         }
@@ -98,7 +126,7 @@ namespace Ogre {
         mActive = true;
 
         if (!fullScreen)
-            SDL_WM_SetCaption(name.c_str(), 0);
+            SDL_WM_SetCaption(title.c_str(), 0);
 
     }
 

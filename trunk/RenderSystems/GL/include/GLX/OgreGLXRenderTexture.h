@@ -38,7 +38,9 @@ namespace Ogre
     class _OgreExport GLXRenderTexture : public GLRenderTexture
     {
     public:
-        GLXRenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format );
+        GLXRenderTexture( const String & name, unsigned int width, unsigned int height,
+			TextureType texType, PixelFormat internalFormat, 
+			const NameValuePairList *miscParams );
         ~GLXRenderTexture();
     protected:
         //virtual void _copyToTexture();

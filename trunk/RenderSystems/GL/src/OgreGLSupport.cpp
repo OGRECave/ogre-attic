@@ -135,9 +135,11 @@ namespace Ogre {
         return true;
     }
 
-    RenderTexture * GLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
+	RenderTexture * GLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, 
+		const NameValuePairList *miscParams )
     {
-        return new GLRenderTexture(name, width, height, texType, format);
+        return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);
     }  
 
 }

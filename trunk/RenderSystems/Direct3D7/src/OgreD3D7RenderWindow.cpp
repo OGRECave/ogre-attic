@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreD3D7TextureManager.h"
 #include "OgreBitwise.h"
 #include "OgreImageCodec.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
@@ -152,7 +153,9 @@ namespace Ogre {
     // -------------------------------------------
     // D3D7RenderWindow Implementation
     // -------------------------------------------
-    D3D7RenderWindow::D3D7RenderWindow()
+	D3D7RenderWindow::D3D7RenderWindow(HINSTANCE instance, DDDriver *driver):
+		mInstance(instance),
+		mDriver(driver)
     {
         mIsUsingDirectDraw = false;
         mIsFullScreen = false;
@@ -169,42 +172,60 @@ namespace Ogre {
 
 
 
-
-    void D3D7RenderWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...)
+	void D3D7RenderWindow::create(const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams)
     {
 
-        HWND parentHWnd;
-        HINSTANCE hInst;
-        DDDriver* drv;
+        HWND parentHWnd = 0;
+        HINSTANCE hInst = mInstance;
+        DDDriver* drv = mDriver;
         long tempPtr;
+		bool vsync = false;
+		unsigned int displayFrequency = 0;
+		String title = name;
+		unsigned int colourDepth = 32;
+		unsigned int left = 0; // Defaults to screen center
+		unsigned int top = 0; // Defaults to screen center
+		bool depthBuffer = true;
+		
+		if(miscParams)
+		{
+			// Get variable-length params
+			NameValuePairList::const_iterator opt;
+			// left (x)
+			opt = miscParams->find("left");
+			if(opt != miscParams->end())
+				left = StringConverter::parseUnsignedInt(opt->second);
+			// top (y)
+			opt = miscParams->find("top");
+			if(opt != miscParams->end())
+				top = StringConverter::parseUnsignedInt(opt->second);
+			// Window title
+			opt = miscParams->find("title");
+			if(opt != miscParams->end())
+				title = opt->second;
+			// parentWindowHandle -> parentHWnd
+			opt = miscParams->find("parentWindowHandle");
+			if(opt != miscParams->end()) 
+				parentHWnd = (HWND)StringConverter::parseUnsignedInt(opt->second);
+			// vsync	[parseBool]
+			opt = miscParams->find("vsync");
+			if(opt != miscParams->end())
+				vsync = StringConverter::parseBool(opt->second);
+			// displayFrequency
+			opt = miscParams->find("displayFrequency");
+			if(opt != miscParams->end())
+				displayFrequency = StringConverter::parseUnsignedInt(opt->second);
+			// colourDepth
+			opt = miscParams->find("colourDepth");
+			if(opt != miscParams->end())
+				colourDepth = StringConverter::parseUnsignedInt(opt->second);
+			// depthBuffer [parseBool]
+			opt = miscParams->find("depthBuffer");
+			if(opt != miscParams->end())
+				depthBuffer = StringConverter::parseBool(opt->second);
+		}
 
-
-        // Get variable-length params
-        // miscParam[0] = HINSTANCE
-        // miscParam[1] = DDDriver
-        // miscParam[2] = parent HWND
-        va_list marker;
-        va_start(marker, depthBuffer);
-
-        tempPtr = va_arg(marker, long);
-        hInst = *(HINSTANCE*)tempPtr;
-
-        tempPtr = va_arg(marker, long);
-        drv = (DDDriver*)tempPtr;
-
-        tempPtr = va_arg(marker, long);
-        D3D7RenderWindow* parentRW = (D3D7RenderWindow*)tempPtr;
-        if (parentRW == 0)
-        {
-            parentHWnd = 0;
-        }
-        else
-        {
-            parentHWnd = parentRW->getWindowHandle();
-        }
-
-        va_end(marker);
 
         // Destroy current window if any
         if (mHWnd)
@@ -253,13 +274,13 @@ namespace Ogre {
                               LoadIcon( NULL, IDI_APPLICATION ),
                               LoadCursor(NULL, IDC_ARROW),
                               (HBRUSH)GetStockObject(BLACK_BRUSH), NULL,
-                              TEXT(name.c_str()) };
+                              TEXT(title.c_str()) };
         RegisterClass( &wndClass );
 
         // Create our main window
         // Pass pointer to self
-        HWND hWnd = CreateWindow( TEXT(name.c_str()),
-                                  TEXT(name.c_str()),
+        HWND hWnd = CreateWindow( TEXT(title.c_str()),
+                                  TEXT(title.c_str()),
                                   dwStyle, mLeft, mTop,
                                   mWidth, mHeight, 0L, 0L, hInst, this );
 

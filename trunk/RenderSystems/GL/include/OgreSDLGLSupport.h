@@ -26,12 +26,9 @@ public:
 
     virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle);
 
-	/**
-	* Create a new specific render window
-	*/
-	virtual RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-        bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
-		bool vsync);
+	/// @copydoc RenderSystem::createRenderWindow
+	virtual RenderWindow* newWindow(const String &name, unsigned int width, unsigned int height, 
+		bool fullScreen, const NameValuePairList *miscParams = 0);
 
     /**
     * Start anything special

@@ -34,12 +34,10 @@ namespace Ogre
 	class D3D9RenderWindow : public RenderWindow
 	{
 	public:
-		D3D9RenderWindow();
+		D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver);
 		~D3D9RenderWindow();
-
-		void create( const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-			bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ... );
-
+		void create(const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams);
 		void destroy(void);
 		bool isActive() const { return mActive; }
 		bool isClosed() const { return mClosed; }
@@ -60,8 +58,6 @@ namespace Ogre
 
 		// Method for dealing with resize / move & 3d library
 		virtual void WindowMovedOrResized(void);
-		// Method for passing a external window handle before creation ;)
-		void SetExternalWindowHandle(HWND externalHandle) {mExternalHandle = externalHandle;};
 
 		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
@@ -71,7 +67,8 @@ namespace Ogre
 		{ return &md3dpp; }
 
 	protected:
-		HWND	mExternalHandle;		// External Win32 window handle
+		HINSTANCE mInstance;			// Process instance
+		D3D9Driver *mDriver;			// D3D9 driver
 		HWND	mHWnd;					// Win32 Window handle
 		HWND	mParentHWnd;			// Parent Win32 window handle
 		bool	mActive;				// Is active i.e. visible

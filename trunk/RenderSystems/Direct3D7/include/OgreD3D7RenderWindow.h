@@ -42,34 +42,12 @@ namespace Ogre {
     class D3D7RenderWindow : public RenderWindow
     {
     public:
-        D3D7RenderWindow();
+        D3D7RenderWindow(HINSTANCE instance, DDDriver *driver);
         ~D3D7RenderWindow();
 
+		void create(const String& name, unsigned int width, unsigned int height,
+			bool fullScreen, const NameValuePairList *miscParams);
 
-        /** Overridden - see RenderWindow.
-          
-            @remarks
-                In this case there should be 3 parameters in the miscParam
-                group.
-            @par
-                miscParam[0] A pointer to a HINSTANCE representing the Win32
-                instance the window is owned by.
-            @par
-                miscParam[1] A pointer to a DDDriver instance representing 
-                the DirectDraw driver to be used to manage the window 
-                contents. Alternatively, supply 0 to use conventional GDI.
-            @par
-                miscParam[2] A pointer to a RenderWindow representing the 
-                window that is to be parent to this window (a MDI or child 
-                window). Supply 0 to make the window a top-level window.
-        */
-        void create(
-            const String& name, 
-            unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, 
-            int left, int top, 
-            bool depthBuffer, void* miscParam, ... );
-        
         /** Overridden - see RenderWindow 
         */
         void destroy(void);
@@ -142,6 +120,8 @@ namespace Ogre {
         void writeContentsToFile(const String& filename);
 
     protected:
+		HINSTANCE mInstance;			// Process instance
+		DDDriver *mDriver;			// D3D9 driver
         // Win32-specific data members
         bool mIsUsingDirectDraw;
         HWND mHWnd;                    // Win32 Window handle

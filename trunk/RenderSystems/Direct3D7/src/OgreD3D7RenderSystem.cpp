@@ -43,7 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D7RenderWindow.h"
 #include "OgreFrustum.h"
 #include "OgreD3D7GpuProgramManager.h"
-
+#include "OgreStringConverter.h"
 
 namespace Ogre {
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
@@ -415,7 +415,9 @@ namespace Ogre {
             }
 
             // Create myself a window
-            autoWindow = this->createRenderWindow(windowTitle, width, height, colourDepth, fullScreen);
+			NameValuePairList params;
+			params["colourDepth"] = StringConverter::toString(colourDepth);
+            autoWindow = this->createRenderWindow(windowTitle, width, height, fullScreen, &params);
 
             // If we have 16bit depth buffer enable w-buffering.
             assert( autoWindow );
@@ -532,8 +534,9 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    RenderWindow* D3DRenderSystem::createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
-        bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
+	RenderWindow* D3DRenderSystem::createRenderWindow(const String &name, 
+		unsigned int width, unsigned int height, bool fullScreen,
+		const NameValuePairList *miscParams)
     {
         static bool firstWindow = true;
         OgreGuard( "D3DRenderSystem::createRenderWindow" );
@@ -549,11 +552,10 @@ namespace Ogre {
             Except(999,msg,"D3DRenderSystem::createRenderWindow");
         }
 
-        RenderWindow* win = new D3D7RenderWindow();
+        RenderWindow* win = new D3D7RenderWindow(mhInstance, mActiveDDDriver);
         // Create window, supplying DD interface & hInstance
-        win->create(name, width, height, colourDepth, fullScreen,
-            left, top, depthBuffer, &mhInstance, mActiveDDDriver, parentWindowHandle);
-
+        win->create(name, width, height, fullScreen, miscParams);
+		
         attachRenderTarget( *win );
 
         // If this is the first window, get the D3D device
@@ -613,7 +615,8 @@ namespace Ogre {
         OgreUnguardRet( win );
     }
 
-    RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format )
+	RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams ) 
     {
         RenderTexture * rt = new D3D7RenderTexture( name, width, height );
         attachRenderTarget( *rt );

@@ -47,8 +47,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
   
-    GLXRenderTexture::GLXRenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format):
-        GLRenderTexture(name, width, height, texType, format),
+    GLXRenderTexture::GLXRenderTexture( const String & name, unsigned int width, unsigned int height,
+			TextureType texType, PixelFormat internalFormat, 
+			const NameValuePairList *miscParams):
+        GLRenderTexture(name, width, height, texType, internalFormat, miscParams),
         _hPBuffer(0),
         mContext(0)
     {
