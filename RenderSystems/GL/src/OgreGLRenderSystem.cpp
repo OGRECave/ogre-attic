@@ -987,9 +987,9 @@ namespace Ogre {
             projectionBias[2][2] = 1.0; projectionBias[0][3] = 0.5; 
             projectionBias[1][3] = 0.5; projectionBias[3][3] = 1.0;
 
-            projectionBias = projectionBias * mWorldMatrix;
             projectionBias = projectionBias * frustum->getProjectionMatrix();
             projectionBias = projectionBias * frustum->getViewMatrix();
+            projectionBias = projectionBias * mWorldMatrix;
 
             makeGLMatrix(mAutoTextureMatrix, projectionBias);
             break;
