@@ -294,7 +294,7 @@ namespace Ogre {
 		Real sqLen2 = mAABB.getMaximum().squaredLength();
 		mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
         // Pad out the sphere a little too
-        mBoundRadius = mBoundRadius * 1.25;
+        mBoundRadius = mBoundRadius + 1;
 		
         //mUpdateBounds = false;
     }
