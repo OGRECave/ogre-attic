@@ -68,6 +68,8 @@ namespace Ogre {
 	    mShadeOptions = SO_GOURAUD;
 
 		mVertexProgramUsage = NULL;
+        mShadowCasterVertexProgramUsage = NULL;
+        mShadowReceiverVertexProgramUsage = NULL;
 		mFragmentProgramUsage = NULL;
 
         mQueuedForDeletion = false;
@@ -128,6 +130,22 @@ namespace Ogre {
 		{
 		    mVertexProgramUsage = NULL;
 		}
+        if (oth.mShadowCasterVertexProgramUsage)
+        {
+            mShadowCasterVertexProgramUsage = new GpuProgramUsage(*(oth.mShadowCasterVertexProgramUsage));
+        }
+        else
+        {
+            mShadowCasterVertexProgramUsage = NULL;
+        }
+        if (oth.mShadowReceiverVertexProgramUsage)
+        {
+            mShadowReceiverVertexProgramUsage = new GpuProgramUsage(*(oth.mShadowReceiverVertexProgramUsage));
+        }
+        else
+        {
+            mShadowReceiverVertexProgramUsage = NULL;
+        }
 		if (oth.mFragmentProgramUsage)
 		{
 		    mFragmentProgramUsage = new GpuProgramUsage(*(oth.mFragmentProgramUsage));
@@ -556,6 +574,17 @@ namespace Ogre {
 			// Load vertex program
             mVertexProgramUsage->_load();
         }
+        if (mShadowCasterVertexProgramUsage)
+        {
+            // Load vertex program
+            mShadowCasterVertexProgramUsage->_load();
+        }
+        if (mShadowReceiverVertexProgramUsage)
+        {
+            // Load vertex program
+            mShadowReceiverVertexProgramUsage->_load();
+        }
+
         if (mFragmentProgramUsage)
         {
 			// Load fragment program
@@ -814,6 +843,16 @@ namespace Ogre {
             delete mVertexProgramUsage;
             mVertexProgramUsage = 0;
         }
+        if (mShadowCasterVertexProgramUsage)
+        {
+            delete mShadowCasterVertexProgramUsage;
+            mShadowCasterVertexProgramUsage = 0;
+        }
+        if (mShadowReceiverVertexProgramUsage)
+        {
+            delete mShadowReceiverVertexProgramUsage;
+            mShadowReceiverVertexProgramUsage = 0;
+        }
         if (mFragmentProgramUsage)
         {
             delete mFragmentProgramUsage;
@@ -836,6 +875,116 @@ namespace Ogre {
         return (!mLightingEnabled || !mColourWrite ||
             (mDiffuse == ColourValue::Black && 
              mSpecular == ColourValue::Black));
+    }
+    //-----------------------------------------------------------------------
+    void Pass::setShadowCasterVertexProgram(const String& name)
+    {
+        // Turn off vertex program if name blank
+        if (name.empty())
+        {
+            if (mShadowCasterVertexProgramUsage) delete mShadowCasterVertexProgramUsage;
+            mShadowCasterVertexProgramUsage = NULL;
+        }
+        else
+        {
+            if (!mShadowCasterVertexProgramUsage)
+            {
+                mShadowCasterVertexProgramUsage = new GpuProgramUsage(GPT_VERTEX_PROGRAM);
+            }
+            mShadowCasterVertexProgramUsage->setProgramName(name);
+        }
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
+    }
+    //-----------------------------------------------------------------------
+    void Pass::setShadowCasterVertexProgramParameters(GpuProgramParametersSharedPtr params)
+    {
+        if (!mShadowCasterVertexProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a shadow caster vertex program assigned!", 
+                "Pass::setShadowCasterVertexProgramParameters");
+        }
+        mShadowCasterVertexProgramUsage->setParameters(params);
+    }
+    //-----------------------------------------------------------------------
+    const String& Pass::getShadowCasterVertexProgramName(void)
+    {
+        if (!mShadowCasterVertexProgramUsage)
+            return String::BLANK;
+        else
+            return mShadowCasterVertexProgramUsage->getProgramName();
+    }
+    //-----------------------------------------------------------------------
+    GpuProgramParametersSharedPtr Pass::getShadowCasterVertexProgramParameters(void)
+    {
+        if (!mShadowCasterVertexProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a shadow caster vertex program assigned!", 
+                "Pass::getShadowCasterVertexProgramParameters");
+        }
+        return mShadowCasterVertexProgramUsage->getParameters();
+    }
+    //-----------------------------------------------------------------------
+    GpuProgram* Pass::getShadowCasterVertexProgram(void)
+    {
+        return mShadowCasterVertexProgramUsage->getProgram();
+    }
+    //-----------------------------------------------------------------------
+    void Pass::setShadowReceiverVertexProgram(const String& name)
+    {
+        // Turn off vertex program if name blank
+        if (name.empty())
+        {
+            if (mShadowReceiverVertexProgramUsage) delete mShadowReceiverVertexProgramUsage;
+            mShadowReceiverVertexProgramUsage = NULL;
+        }
+        else
+        {
+            if (!mShadowReceiverVertexProgramUsage)
+            {
+                mShadowReceiverVertexProgramUsage = new GpuProgramUsage(GPT_VERTEX_PROGRAM);
+            }
+            mShadowReceiverVertexProgramUsage->setProgramName(name);
+        }
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
+    }
+    //-----------------------------------------------------------------------
+    void Pass::setShadowReceiverVertexProgramParameters(GpuProgramParametersSharedPtr params)
+    {
+        if (!mShadowReceiverVertexProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a shadow receiver vertex program assigned!", 
+                "Pass::setShadowReceiverVertexProgramParameters");
+        }
+        mShadowReceiverVertexProgramUsage->setParameters(params);
+    }
+    //-----------------------------------------------------------------------
+    const String& Pass::getShadowReceiverVertexProgramName(void)
+    {
+        if (!mShadowReceiverVertexProgramUsage)
+            return String::BLANK;
+        else
+            return mShadowReceiverVertexProgramUsage->getProgramName();
+    }
+    //-----------------------------------------------------------------------
+    GpuProgramParametersSharedPtr Pass::getShadowReceiverVertexProgramParameters(void)
+    {
+        if (!mShadowReceiverVertexProgramUsage)
+        {
+            Except (Exception::ERR_INVALIDPARAMS, 
+                "This pass does not have a shadow receiver vertex program assigned!", 
+                "Pass::getShadowReceiverVertexProgramParameters");
+        }
+        return mShadowReceiverVertexProgramUsage->getParameters();
+    }
+    //-----------------------------------------------------------------------
+    GpuProgram* Pass::getShadowReceiverVertexProgram(void)
+    {
+        return mShadowReceiverVertexProgramUsage->getProgram();
     }
 
 }

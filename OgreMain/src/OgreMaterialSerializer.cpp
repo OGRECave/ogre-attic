@@ -1532,6 +1532,9 @@ namespace Ogre
                 + params + " has not been defined.", context);
             return true;
         }
+
+        context.isProgramShadowCaster = false;
+        context.isProgramShadowReceiver = false;
         
         // Set the vertex program for this pass
         context.pass->setVertexProgram(params);
@@ -1540,6 +1543,68 @@ namespace Ogre
         if (context.program->isSupported())
         {
             context.programParams = context.pass->getVertexProgramParameters();
+        }
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parseShadowCasterVertexProgramRef(String& params, MaterialScriptContext& context)
+    {
+        // update section
+        context.section = MSS_PROGRAM_REF;
+
+        context.program = static_cast<GpuProgram*>(
+            GpuProgramManager::getSingleton().getByName(params));
+        if (context.program == 0)
+        {
+            // Unknown program
+            logParseError("Invalid vertex_program_ref entry - vertex program " 
+                + params + " has not been defined.", context);
+            return true;
+        }
+
+        context.isProgramShadowCaster = true;
+        context.isProgramShadowReceiver = false;
+
+        // Set the vertex program for this pass
+        context.pass->setShadowCasterVertexProgram(params);
+
+        // Create params? Skip this if program is not supported
+        if (context.program->isSupported())
+        {
+            context.programParams = context.pass->getShadowCasterVertexProgramParameters();
+        }
+
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    bool parseShadowReceiverVertexProgramRef(String& params, MaterialScriptContext& context)
+    {
+        // update section
+        context.section = MSS_PROGRAM_REF;
+
+        context.program = static_cast<GpuProgram*>(
+            GpuProgramManager::getSingleton().getByName(params));
+        if (context.program == 0)
+        {
+            // Unknown program
+            logParseError("Invalid vertex_program_ref entry - vertex program " 
+                + params + " has not been defined.", context);
+            return true;
+        }
+
+        context.isProgramShadowCaster = false;
+        context.isProgramShadowReceiver = true;
+
+        // Set the vertex program for this pass
+        context.pass->setShadowReceiverVertexProgram(params);
+
+        // Create params? Skip this if program is not supported
+        if (context.program->isSupported())
+        {
+            context.programParams = context.pass->getShadowReceiverVertexProgramParameters();
         }
 
         // Return TRUE because this must be followed by a {
@@ -1642,20 +1707,6 @@ namespace Ogre
         // Source filename, preserve case
         context.programDef->supportsSkeletalAnimation 
             = StringConverter::parseBool(params);
-
-        return false;
-    }
-    //-----------------------------------------------------------------------
-    bool parseProgramShadowReceiverProgram(String& params, MaterialScriptContext& context)
-    {
-        context.programDef->shadowReceiverProgramName = params; 
-
-        return false;
-    }
-    //-----------------------------------------------------------------------
-    bool parseProgramShadowCasterProgram(String& params, MaterialScriptContext& context)
-    {
-        context.programDef->shadowCasterProgramName = params; 
 
         return false;
     }
@@ -1783,6 +1834,8 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("depth_bias", (ATTRIBUTE_PARSER)parseDepthBias));
         mPassAttribParsers.insert(AttribParserList::value_type("texture_unit", (ATTRIBUTE_PARSER)parseTextureUnit));
         mPassAttribParsers.insert(AttribParserList::value_type("vertex_program_ref", (ATTRIBUTE_PARSER)parseVertexProgramRef));
+        mPassAttribParsers.insert(AttribParserList::value_type("shadow_caster_vertex_program_ref", (ATTRIBUTE_PARSER)parseShadowCasterVertexProgramRef));
+        mPassAttribParsers.insert(AttribParserList::value_type("shadow_receiver_vertex_program_ref", (ATTRIBUTE_PARSER)parseShadowReceiverVertexProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
@@ -1820,8 +1873,6 @@ namespace Ogre
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
         mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
         mProgramAttribParsers.insert(AttribParserList::value_type("includes_skeletal_animation", (ATTRIBUTE_PARSER)parseProgramSkeletalAnimation));
-        mProgramAttribParsers.insert(AttribParserList::value_type("shadow_caster_program_name", (ATTRIBUTE_PARSER)parseProgramShadowCasterProgram));
-        mProgramAttribParsers.insert(AttribParserList::value_type("shadow_receiver_program_name", (ATTRIBUTE_PARSER)parseProgramShadowReceiverProgram));
 		
 
         mScriptContext.section = MSS_NONE;
@@ -2059,8 +2110,6 @@ namespace Ogre
 			GpuProgram* gp = GpuProgramManager::getSingleton().
 				createProgram(def->name, def->source, def->progType, def->syntax);
 			gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
-            gp->setShadowCasterProgramName(def->shadowCasterProgramName);
-            gp->setShadowReceiverProgramName(def->shadowReceiverProgramName);
 		}
 		else
 		{
@@ -2080,8 +2129,6 @@ namespace Ogre
                 gp->setSourceFile(def->source);
                 // Skel animation supported
                 gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
-                gp->setShadowCasterProgramName(def->shadowCasterProgramName);
-                gp->setShadowReceiverProgramName(def->shadowReceiverProgramName);
 
 			    // Set custom parameters
 			    std::map<String, String>::const_iterator i, iend;

@@ -632,6 +632,14 @@ material Examples/Robot
 				param_named_auto ambient ambient_light_colour
 			
 			}
+			// alternate shadow caster program
+			shadow_caster_vertex_program_ref Ogre/HardwareSkinningOneWeightShadowCaster
+			{
+				param_named_auto worldMatrix3x4Array[0] world_matrix_array_3x4
+				param_named_auto viewProjectionMatrix viewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			
+			}
 
 			texture_unit
 			{

@@ -120,6 +120,10 @@ namespace Ogre {
 
 		// Vertex program details
 		GpuProgramUsage *mVertexProgramUsage;
+        // Vertex program details
+        GpuProgramUsage *mShadowCasterVertexProgramUsage;
+        // Vertex program details
+        GpuProgramUsage *mShadowReceiverVertexProgramUsage;
 		// Fragment program details
 		GpuProgramUsage *mFragmentProgramUsage;
         // Is this pass queued for deletion?
@@ -669,10 +673,99 @@ namespace Ogre {
 		void setVertexProgramParameters(GpuProgramParametersSharedPtr params);
 		/** Gets the name of the vertex program used by this pass. */
 		const String& getVertexProgramName(void);
-		/** Gets the vertex program parameters used by this pass. */
-		GpuProgramParametersSharedPtr getVertexProgramParameters(void);
+        /** Gets the vertex program parameters used by this pass. */
+        GpuProgramParametersSharedPtr getVertexProgramParameters(void);
 		/** Gets the vertex program used by this pass, only available after _load(). */
 		GpuProgram* getVertexProgram(void);
+
+
+        /** Sets the details of the vertex program to use when rendering as a 
+        shadow caster.
+        @remarks
+        Texture-based shadows require that the caster is rendered to a texture 
+        in a solid colour (the shadow colour in the case of modulative texture
+        shadows). Whilst Ogre can arrange this for the fixed function 
+        pipeline, passes which use vertex programs might need the vertex
+        programs still to run in order to preserve any deformation etc
+        that it does. However, lighting calculations must be a lot simpler, 
+        with only the ambient colour being used (which the engine will ensure
+        is bound to the shadow colour). 
+        @par
+        Therefore, it is up to implemetors of vertex programs to provide an
+        alternative vertex program which can be used to render the object
+        to a shadow texture. Do all the same vertex transforms, but set the
+        colour of the vertex to the ambient colour, as bound using the 
+        standard auto parameter binding mechanism. 
+        @note
+        Some vertex programs will work without doing this, because Ogre ensures
+        that all lights except for ambient are set black. However, the chances
+        are that your vertex program is doing a lot of unnecessary work in this
+        case, since the other lights are having no effect, and it is good practice
+        to supply an alternative.
+        @note
+        This is only applicable to programmable passes.
+        @par
+        The default behaviour is for Ogre to switch to fixed-function 
+        rendering if an explict vertex program alternative is not set.
+        */
+        void setShadowCasterVertexProgram(const String& name);
+        /** Sets the vertex program parameters for rendering as a shadow caster.
+        @remarks
+        Only applicable to programmable passes, and this particular call is
+        designed for low-level programs; use the named parameter methods
+        for setting high-level program parameters.
+        */
+        void setShadowCasterVertexProgramParameters(GpuProgramParametersSharedPtr params);
+        /** Gets the name of the vertex program used by this pass when rendering shadow casters. */
+        const String& getShadowCasterVertexProgramName(void);
+        /** Gets the vertex program parameters used by this pass when rendering shadow casters. */
+        GpuProgramParametersSharedPtr getShadowCasterVertexProgramParameters(void);
+        /** Gets the vertex program used by this pass when rendering shadow casters, 
+            only available after _load(). */
+        GpuProgram* getShadowCasterVertexProgram(void);
+
+        /** Sets the details of the vertex program to use when rendering as a 
+            shadow receiver.
+        @remarks
+            Texture-based shadows require that the shadow receiver is rendered using
+            a projective texture. Whilst Ogre can arrange this for the fixed function 
+            pipeline, passes which use vertex programs might need the vertex
+            programs still to run in order to preserve any deformation etc
+            that it does. So in this case, we need a vertex program which does the 
+            appropriate vertex transformation, but generates projective texture
+            coordinates. 
+        @par
+            Therefore, it is up to implemetors of vertex programs to provide an
+            alternative vertex program which can be used to render the object
+            as a shadow receiver. Do all the same vertex transforms, but generate
+            <strong>2 sets</strong> of texture coordinates using the auto parameter
+            ACT_TEXTURE_VIEWPROJ_MATRIX, which Ogre will bind to the parameter name / 
+            index you supply as the second parameter to this method. 2 texture 
+            sets are needed because Ogre needs to use 2 texture units for some 
+            shadow effects.
+        @note
+            This is only applicable to programmable passes.
+        @par
+            The default behaviour is for Ogre to switch to fixed-function 
+            rendering if an explict vertex program alternative is not set.         
+        */
+        void setShadowReceiverVertexProgram(const String& name);
+        /** Sets the vertex program parameters for rendering as a shadow receiver.
+        @remarks
+        Only applicable to programmable passes, and this particular call is
+        designed for low-level programs; use the named parameter methods
+        for setting high-level program parameters.
+        */
+        void setShadowReceiverVertexProgramParameters(GpuProgramParametersSharedPtr params);
+        /** Gets the name of the vertex program used by this pass when rendering shadow receivers. */
+        const String& getShadowReceiverVertexProgramName(void);
+        /** Gets the vertex program parameters used by this pass when rendering shadow receivers. */
+        GpuProgramParametersSharedPtr getShadowReceiverVertexProgramParameters(void);
+        /** Gets the vertex program used by this pass when rendering shadow receivers, 
+        only available after _load(). */
+        GpuProgram* getShadowReceiverVertexProgram(void);
+
+
 		/** Sets the details of the fragment program to use.
 		@remarks
 			Only applicable to programmable passes, this sets the details of

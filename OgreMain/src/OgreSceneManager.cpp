@@ -557,7 +557,7 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
-    void SceneManager::setPass(Pass* pass)
+    Pass* SceneManager::setPass(Pass* pass)
     {
 		static bool lastUsedVertexProgram = false;
 		static bool lastUsedFragmentProgram = false;
@@ -691,6 +691,7 @@ namespace Ogre {
         // Shading
         mDestRenderSystem->setShadingType(pass->getShadingMode());
 
+        return pass;
     }
     //-----------------------------------------------------------------------
     void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
@@ -1536,6 +1537,8 @@ namespace Ogre {
                 // Hook up projection frustum
                 mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(
                     true, mCurrentShadowTexture->getViewport(0)->getCamera());
+                mAutoParamDataSource.setTextureProjector(
+                    mCurrentShadowTexture->getViewport(0)->getCamera());
                 // if this light is a spotlight, we need to add the spot fader layer
                 if (l->getType() == Light::LT_SPOTLIGHT)
                 {
@@ -1656,7 +1659,7 @@ namespace Ogre {
                 continue;
 
             // For solids, we try to do each pass in turn
-			setPass(ipass->first);
+			Pass* usedPass = setPass(ipass->first);
 			RenderPriorityGroup::RenderableList* rendList = ipass->second;
 			RenderPriorityGroup::RenderableList::const_iterator irend, irendend;
 			irendend = rendList->end();
@@ -1666,7 +1669,7 @@ namespace Ogre {
                 if (!validateRenderableForRendering(ipass->first, *irend))
                     continue;
 				// Render a single object, this will set up auto params if required
-				renderSingleObject(*irend, ipass->first, doLightIteration, manualLightList);
+				renderSingleObject(*irend, usedPass, doLightIteration, manualLightList);
 			}
 		} 
 	}
@@ -2818,14 +2821,24 @@ namespace Ogre {
                 // This may in fact be blank, in which case it falls back on 
                 // fixed function
                 mShadowCasterPlainBlackPass->setVertexProgram(
-                    pass->getVertexProgram()->getShadowCasterProgramName());
+                    pass->getShadowCasterVertexProgramName());
+                // Did this result in a new vertex program?
+                if (mShadowCasterPlainBlackPass->hasVertexProgram())
+                {
+                    GpuProgram* prg = mShadowCasterPlainBlackPass->getVertexProgram();
+                    // Load this program if not done already
+                    if (!prg->isLoaded())
+                        prg->load();
+                    // Copy params
+                    mShadowCasterPlainBlackPass->setVertexProgramParameters(
+                        pass->getShadowCasterVertexProgramParameters());
+                }
                 // Also have to hack the light autoparams, that is done later
             }
             else if (mShadowCasterPlainBlackPass->hasVertexProgram())
             {
                 // reset
                 mShadowCasterPlainBlackPass->setVertexProgram("");
-
             }
             return mShadowCasterPlainBlackPass;
         case SHADOWTYPE_TEXTURE_SHADOWMAP:
@@ -2848,7 +2861,18 @@ namespace Ogre {
                 // Have to merge the receiver vertex program in
                 // This may return "" which means fixed function will be used
                 mShadowReceiverPass->setVertexProgram(
-                    pass->getVertexProgram()->getShadowReceiverProgramName());
+                    pass->getShadowReceiverVertexProgramName());
+                // Did this result in a new vertex program?
+                if (mShadowReceiverPass->hasVertexProgram())
+                {
+                    GpuProgram* prg = mShadowReceiverPass->getVertexProgram();
+                    // Load this program if required
+                    if (!prg->isLoaded())
+                        prg->load();
+                    // Copy params
+                    mShadowReceiverPass->setVertexProgramParameters(
+                        pass->getShadowReceiverVertexProgramParameters());
+                }
                 // Also have to hack the light autoparams, that is done later
             }
             else if (mShadowReceiverPass->hasVertexProgram())

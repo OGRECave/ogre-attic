@@ -50,12 +50,10 @@ namespace Ogre {
 	{
 		String name;
 		GpuProgramType progType;
-		String language;
+        String language;
 		String source;
 		String syntax;
         bool supportsSkeletalAnimation;
-        String shadowCasterProgramName;
-        String shadowReceiverProgramName;
 		std::map<String, String> customParameters;
 	};
     /** Struct for holding the script context while parsing. */
@@ -67,6 +65,8 @@ namespace Ogre {
         Pass* pass;
         TextureUnitState* textureUnit;
         GpuProgram* program; // used when referencing a program, not when defining it
+        bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
+        bool isProgramShadowReceiver; // when referencing, are we in context of shadow caster
         GpuProgramParametersSharedPtr programParams;
 		MaterialScriptProgramDefinition* programDef; // this is used while defining a program
 
