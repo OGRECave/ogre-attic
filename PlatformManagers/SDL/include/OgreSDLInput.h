@@ -67,6 +67,7 @@ namespace Ogre {
         Uint8* mKeyboardBuffer;
         int mMaxKey;
         int mMouseX, mMouseY;
+        int mMouseRelativeX, mMouseRelativeY, mMouseRelativeZ;
         Real mScale;
         Uint8 mMouseKeys;
         bool _visible;
@@ -74,6 +75,7 @@ namespace Ogre {
         InputKeyMap _key_map;
         bool warpMouse;
 
+        static const unsigned int mWheelStep = 60;
         void processBufferedKeyboard();
         void processBufferedMouse();
     };
