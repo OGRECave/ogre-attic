@@ -365,7 +365,7 @@ namespace Ogre {
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad element attribute line: '"
                 + line + "' for element " + pElement->getName() + " in overlay " + 
-                (pOverlay?pOverlay->getName():""));
+                (pOverlay ? pOverlay->getName().c_str() : ""));
         }
     }
     //-----------------------------------------------------------------------
