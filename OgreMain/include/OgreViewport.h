@@ -103,7 +103,9 @@ namespace Ogre {
         /** Sets the camera to use for rendering to this viewport. */
         void setCamera(Camera* cam);
 
-        /** Gets one of the relative dimensions of the viewport,
+        /** Gets the Z-Order of this viewport. */
+		int getZOrder(void) const;
+		/** Gets one of the relative dimensions of the viewport,
             a value between 0.0 and 1.0.
         */
         float getLeft(void) const;

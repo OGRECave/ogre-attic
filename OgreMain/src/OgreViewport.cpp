@@ -106,7 +106,12 @@ namespace Ogre {
 
         mUpdated = true;
     }
-    //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	int Viewport::getZOrder(void) const
+	{
+		return mZOrder;
+	}
+	//---------------------------------------------------------------------
     RenderTarget* Viewport::getTarget(void) const
     {
         return mTarget;
