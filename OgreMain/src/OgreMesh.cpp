@@ -438,8 +438,6 @@ namespace Ogre {
                     assignments.erase(remIt->second);
                     ++remIt;
                 }
-                // Now, rebalance the remaining assignments
-                range = assignments.equal_range(v);
             } // if (currBones > OGRE_MAX_BLEND_WEIGHTS)
 
             // Make sure the weights are normalised
