@@ -829,6 +829,18 @@ bool TerrainRenderable::intersectSegment( const Vector3 & start, const Vector3 &
     Vector3 dir = end - start;
     Vector3 ray = start;
 
+    //special case...
+    if ( dir.x == 0 && dir.z == 0 )
+    {
+        if ( ray.y <= getHeightAt( ray.x, ray.z ) )
+        {
+            if ( result != 0 )
+                * result = start;
+
+            return true;
+        }
+    }
+
     dir.normalise();
 
     //dir.x *= mScale.x;
@@ -840,43 +852,15 @@ bool TerrainRenderable::intersectSegment( const Vector3 & start, const Vector3 &
     //start with the next one...
     ray += dir;
 
+
     while ( ! ( ( ray.x < corners[ 0 ].x ) ||
                 ( ray.x > corners[ 4 ].x ) ||
                 ( ray.z < corners[ 0 ].z ) ||
                 ( ray.z > corners[ 4 ].z ) ) )
     {
-        //do quick checks...
-        /*
-        if( ray.y < corners[0].y && end.y < corners[0].y )
-          {
-            if( result != 0 )
-              *result = Vector3(-1, -1, -1);
-            return false;
-          }
-        if( ray.y > corners[4].y && end.y > corners[4].y )
-          {
-            if( result != 0 )
-              *result = Vector3(-1, -1, -1);
-            return false;
-          }
-            
-              if( ray.y < corners[0].y && end.y < corners[0].y )
-              {
-              if( result != 0 )
-              *result = Vector3(-1, -1, -1);
-              return false;
-              }
-              
-              if( ray.y > corners[4].y && end.y > corners[4].y )
-              {
-              if( result != 0 )
-              *result = Vector3(-1, -1, -1);
-              return false;
-              }
-        */
+
 
         float h = getHeightAt( ray.x, ray.z );
-        // printf( "Ray = %f,%f,%f  height = %f\n", ray.x, ray.y, ray.z, h);
 
         if ( ray.y <= h )
         {
@@ -928,6 +912,7 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
     {
         for ( int j = 0; j < mSize; j++ )
         {
+            //  printf( "Checking %f,%f,%f ", pt.x, pt.y, pt.z );
             pt.x = _vertex( i, j, 0 );
             pt.y = _vertex( i, j, 1 );
             pt.z = _vertex( i, j, 2 );
@@ -939,7 +924,7 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
             if ( ! intersectSegment( pt, sun, 0 ) )
             {
                 //
-                _getNormalAt( i, j, &normal );
+                _getNormalAt( _vertex( i, j, 0 ), _vertex( i, j, 2 ), &normal );
 
                 float l = light.dotProduct( normal );
 
@@ -961,7 +946,6 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
                 if ( v.b < 0 ) v.b = 0;
 
                 Root::getSingleton().convertColourValue( v, & ( mTerrain.pColours[ _index( i, j ) ] ) );
-
             }
 
             else
