@@ -70,6 +70,10 @@ int OctreeSceneManager::intersect_call = 0;
 
 Intersection intersect( const Ray &one, const AxisAlignedBox &two )
 {
+    OctreeSceneManager::intersect_call++;
+    // Null box?
+    if (two.isNull()) return OUTSIDE;
+
     bool inside = true;
     const Vector3* pCorners = two.getAllCorners();
     Vector3 origin = one.getOrigin();
@@ -135,6 +139,9 @@ Intersection intersect( const Ray &one, const AxisAlignedBox &two )
 Intersection intersect( const PlaneBoundedVolume &one, const AxisAlignedBox &two )
 {
     OctreeSceneManager::intersect_call++;
+    // Null box?
+    if (two.isNull()) return OUTSIDE;
+
     // Get corners of the box
     const Vector3* pCorners = two.getAllCorners();
 
@@ -180,6 +187,9 @@ Intersection intersect( const PlaneBoundedVolume &one, const AxisAlignedBox &two
 Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
 {
     OctreeSceneManager::intersect_call++;
+    // Null box?
+    if (one.isNull() || two.isNull()) return OUTSIDE;
+
     const Vector3 * outside = one.getAllCorners();
     const Vector3 *inside = two.getAllCorners();
 
@@ -212,6 +222,9 @@ Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
 Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
 {
     OctreeSceneManager::intersect_call++;
+    // Null box?
+    if (two.isNull()) return OUTSIDE;
+
     float sradius = one.getRadius();
 
     sradius *= sradius;
