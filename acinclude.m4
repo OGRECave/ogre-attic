@@ -396,3 +396,29 @@ fi
 AM_CONDITIONAL(BUILD_EXRPLUGIN, test x$build_exr = xtrue)
 
 ])
+
+AC_DEFUN([OGRE_CHECK_CG],
+[AC_ARG_ENABLE(cg,
+              AC_HELP_STRING([--disable-cg],
+                             [Do not build the Cg plugin (recommended you do so!)]),
+              [build_cg=$enableval],
+              [build_cg=yes])
+
+if test "x$build_cg" = "xyes" ; then
+	AC_CHECK_LIB(Cg, cgCreateProgram,,AC_MSG_ERROR([
+	****************************************************************
+	* You do not have the nVidia Cg libraries installed.           *
+	* Go to http://developer.nvidia.com/object/cg_toolkit.html     *
+	* (Click on Cg_Linux.tar.gz).                                  *
+	* You can disable the building of Cg support by providing      *	
+	* --disable-cg to this configure script but this is highly     *
+	* discouraged as this breaks many of the examples.             *
+	****************************************************************])
+	)
+fi
+
+AM_CONDITIONAL(BUILD_CGPLUGIN, test x$build_cg = xyes)
+
+])
+
+
