@@ -1266,6 +1266,26 @@ namespace Ogre {
 		if( FAILED( hr = mpD3DDevice->BeginScene() ) )
 			Except( hr, "Error beginning frame.", "D3D8RenderSystem::_beginFrame" );
 
+
+		static bool firstTime = true;
+		if( firstTime )
+		{
+			// First-time 
+			// setup some defaults
+
+            // Allow alpha blending
+            hr = mpD3DDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+            if (FAILED(hr))
+                Except(hr, "Error enabling alpha blending option.",
+                    "D3D8RenderSystem::_beginFrame");
+            // Allow stencilling
+            hr = mpD3DDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+            if (FAILED(hr))
+                Except(hr, "Error enabling stencilling.",
+                    "D3D8RenderSystem::_beginFrame");
+            firstTime = false;
+		}
+
 		OgreUnguard();
 	}
 
@@ -1302,7 +1322,6 @@ namespace Ogre {
 		// delcaration is just an array of DWORDs, so hopefully it can just be built up along the way (HOPE).
 		// One thing to speed this up a bit is to keep a hold of the old declartion is see if it is the same.
 
-		static bool firstTime = true;
 		HRESULT hr;
 		int i;
 		DWORD shaderDecl[D3D_MAX_DECLSIZE];	
@@ -1319,15 +1338,6 @@ namespace Ogre {
 		// Call super class
 		RenderSystem::_render( op );
 
-		if( firstTime )
-		{
-			// First-time render
-			// setup some defaults
-
-			// Allow alpha blending
-			hr = mpD3DDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
-			firstTime = false;
-		}
 
 		
 		if( op.vertexOptions == 0 )
