@@ -51,6 +51,7 @@ namespace Ogre {
     Technique::~Technique()
     {
         removeAllPasses();
+        clearIlluminationPasses();
     }
     //-----------------------------------------------------------------------------
     bool Technique::isSupported(void) const
@@ -136,6 +137,9 @@ namespace Ogre {
 		}
         // If we got this far, we're ok
         mIsSupported = true;
+
+        // Now compile for categorised illumination, incase we need it
+        _compileIlluminationPasses();
 
     }
     //-----------------------------------------------------------------------------
@@ -461,7 +465,184 @@ namespace Ogre {
         mLodIndex = index;
         _notifyNeedsRecompile();
     }
+    //-----------------------------------------------------------------------
+    void Technique::_compileIlluminationPasses(void)
+    {
+        clearIlluminationPasses();
 
+        if (isTransparent())
+        {
+            // Don't need to split transparents since they are rendered separately
+            return;
+        }
+
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        i = mPasses.begin();
+        
+        IlluminationStage iStage = IS_AMBIENT;
+
+        while (i != iend)
+        {
+            IlluminationPass* iPass;
+            Pass* p = *i;
+            switch(iStage)
+            {
+            case IS_AMBIENT:
+                // Keep looking for ambient only
+                if (p->isAmbientOnly())
+                {
+                    // Add this pass wholesale
+                    iPass = new IlluminationPass();
+                    iPass->destroyOnShutdown = false;
+                    iPass->originalPass = iPass->pass = p;
+                    iPass->stage = iStage;
+                    mIlluminationPasses.push_back(iPass);
+                    // progress to next pass
+                    ++i;
+                }
+                else
+                {
+                    // Split off any ambient part
+                    if (p->getAmbient() != ColourValue::Black ||
+                        p->getSelfIllumination() != ColourValue::Black)
+                    {
+                        // Copy existing pass
+                        Pass* newPass = new Pass(this, p->getIndex());
+                        *newPass = *p;
+                        // Remove any texture units
+                        newPass->removeAllTextureUnitStates();
+                        // Remove any fragment program
+                        if (newPass->hasFragmentProgram())
+                            newPass->setFragmentProgram("");
+                        // We have to leave vertex program alone (if any) and
+                        // just trust that the author is using light bindings, which 
+                        // we will ensure there are none in the ambient pass
+                        newPass->setDiffuse(ColourValue::Black);
+                        newPass->setSpecular(ColourValue::Black);
+
+                        iPass = new IlluminationPass();
+                        iPass->destroyOnShutdown = true;
+                        iPass->originalPass = p;
+                        iPass->pass = newPass;
+                        iPass->stage = iStage;
+
+                        mIlluminationPasses.push_back(iPass);
+                        
+                    }
+                    // This means we're done with ambients, progress to per-light
+                    iStage = IS_PER_LIGHT;
+                }
+                break;
+            case IS_PER_LIGHT:
+                if (p->getRunOncePerLight())
+                {
+                    // If this is per-light already, use it directly
+                    iPass = new IlluminationPass();
+                    iPass->destroyOnShutdown = false;
+                    iPass->originalPass = iPass->pass = p;
+                    iPass->stage = iStage;
+                    // progress to next pass
+                    ++i;
+                }
+                else
+                {
+                    // Split off per-light details (can only be done for one)
+                    if (p->getLightingEnabled() && 
+                        (p->getDiffuse() != ColourValue::Black ||
+                        p->getSpecular() != ColourValue::Black))
+                    {
+                        // Copy existing pass
+                        Pass* newPass = new Pass(this, p->getIndex());
+                        *newPass = *p;
+                        // remove texture units
+                        newPass->removeAllTextureUnitStates();
+                        // remove fragment programs
+                        if (newPass->hasFragmentProgram())
+                            newPass->setFragmentProgram("");
+                        // Cannot remove vertex program, have to assume that
+                        // it will process diffuse lights, ambient will be turned off
+                        newPass->setAmbient(ColourValue::Black);
+                        newPass->setSelfIllumination(ColourValue::Black);
+
+                        iPass = new IlluminationPass();
+                        iPass->destroyOnShutdown = true;
+                        iPass->originalPass = p;
+                        iPass->pass = newPass;
+                        iPass->stage = iStage;
+
+                        mIlluminationPasses.push_back(iPass);
+
+                    }
+                    // This means the end of per-light passes
+                    iStage = IS_DECAL;
+                }
+                break;
+            case IS_DECAL:
+                // We just want a 'lighting off' pass to finish off
+                // and only if there are texture units
+                if (p->getNumTextureUnitStates() > 0)
+                {
+                    if (!p->getLightingEnabled())
+                    {
+                        iPass = new IlluminationPass();
+                        iPass->destroyOnShutdown = false;
+                        iPass->originalPass = iPass->pass = p;
+                        iPass->stage = iStage;
+                        mIlluminationPasses.push_back(iPass);
+                    }
+                    else
+                    {
+                        // Copy the pass and tweak away the lighting parts
+                        Pass* newPass = new Pass(this, p->getIndex());
+                        *newPass = *p;
+                        newPass->setAmbient(ColourValue::Black);
+                        newPass->setDiffuse(ColourValue::Black);
+                        newPass->setSpecular(ColourValue::Black);
+                        newPass->setSelfIllumination(ColourValue::Black);
+                        newPass->setLightingEnabled(false);
+
+                        // NB there is nothing we can do about vertex & fragment
+                        // programs here, so people will just have to make their
+                        // programs friendly-like if they want to use this technique
+                        iPass = new IlluminationPass();
+                        iPass->destroyOnShutdown = true;
+                        iPass->originalPass = p;
+                        iPass->pass = newPass;
+                        iPass->stage = iStage;
+                        mIlluminationPasses.push_back(iPass);
+
+                    }
+                }
+                ++i; // always increment on decal, since nothing more to do with this pass
+
+                break;
+            }
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void Technique::clearIlluminationPasses(void)
+    {
+        IlluminationPassList::iterator i, iend;
+        iend = mIlluminationPasses.end();
+        for (i = mIlluminationPasses.begin(); i != iend; ++i)
+        {
+            if ((*i)->destroyOnShutdown)
+            {
+                (*i)->pass->queueForDeletion();
+            }
+            delete *i;
+        }
+        mIlluminationPasses.clear();
+    }
+    //-----------------------------------------------------------------------
+    const Technique::IlluminationPassIterator 
+    Technique::getIlluminationPassIterator(void)
+    {
+        return IlluminationPassIterator(mIlluminationPasses.begin(), 
+            mIlluminationPasses.end());
+    }
 
 
 }

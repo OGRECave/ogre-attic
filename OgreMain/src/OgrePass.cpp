@@ -824,5 +824,18 @@ namespace Ogre {
 
         msPassGraveyard.insert(this);
     }
+    //-----------------------------------------------------------------------
+    bool Pass::isAmbientOnly(void)
+    {
+        // treat as ambient if lighting is off, or colour write is off, 
+        // or all non-ambient (& emissive) colours are black
+        // NB a vertex program could override this, but passes using vertex
+        // programs are expected to indicate they are ambient only by 
+        // setting the state so it matches one of the conditions above, even 
+        // though this state is not used in rendering.
+        return (!mLightingEnabled || !mColourWrite ||
+            (mDiffuse == ColourValue::Black && 
+             mSpecular == ColourValue::Black));
+    }
 
 }

@@ -78,6 +78,7 @@ namespace Ogre {
         RenderQueueGroupMap mGroups;
         /// The current default queue group
         RenderQueueGroupID mDefaultQueueGroup;
+        bool mSplitPassesByLightingType;
     public:
         RenderQueue();
         virtual ~RenderQueue();
@@ -148,6 +149,10 @@ namespace Ogre {
 
         /** Internal method, returns an iterator for the queue groups. */
         QueueGroupIterator _getQueueGroupIterator(void);
+        /** Sets whether or not the queue will split passes by their lighting type,
+            ie ambient, per-light and decal. 
+        */
+        void setSplitPassesByLightingType(bool split);
     };
 
 

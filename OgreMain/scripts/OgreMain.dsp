@@ -509,6 +509,10 @@ SOURCE=..\src\OgreRenderQueue.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreRenderQueueSortingGrouping.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreRenderSystem.cpp
 # End Source File
 # Begin Source File

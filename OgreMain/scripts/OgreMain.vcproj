@@ -468,6 +468,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreRenderQueue.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRenderQueueSortingGrouping.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRenderSystem.cpp">
 			</File>
 			<File

@@ -1269,7 +1269,7 @@ namespace Ogre {
 			pPriorityGrp->sort(mCameraInProgress);
 
 			// Do solids
-			renderObjects(pPriorityGrp->mSolidPasses, true);
+			renderObjects(pPriorityGrp->_getSolidPasses(), true);
 		}
 
 
@@ -1308,7 +1308,7 @@ namespace Ogre {
 			RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
 			// Do transparents
-			renderObjects(pPriorityGrp->mTransparentPasses, true);
+			renderObjects(pPriorityGrp->_getTransparentPasses(), true);
 
 		}// for each priority
 
@@ -1384,9 +1384,9 @@ namespace Ogre {
 				pPriorityGrp->sort(mCameraInProgress);
 
 				// Do solids
-				renderObjects(pPriorityGrp->mSolidPasses, true);
+				renderObjects(pPriorityGrp->_getSolidPasses(), true);
 				// Do transparents
-				renderObjects(pPriorityGrp->mTransparentPasses, true);
+				renderObjects(pPriorityGrp->_getTransparentPasses(), true);
 
 
 			}// for each priority

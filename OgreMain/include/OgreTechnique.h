@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreIteratorWrappers.h"
 #include "OgreBlendMode.h"
 #include "OgreCommon.h"
+#include "OgrePass.h"
 
 namespace Ogre {
     /** Class representing an approach to rendering this particular Material. 
@@ -41,10 +42,16 @@ namespace Ogre {
     {
     protected:
         typedef std::vector<Pass*> Passes;
+        /// List of primary passes
         Passes mPasses;
+        /// List of derived passes, categorised into IlluminationStage (ordered)
+        IlluminationPassList mIlluminationPasses;
         Material* mParent;
         bool mIsSupported;
         unsigned short mLodIndex;
+
+        /// Internal method for clearing illumination pass list
+        void clearIlluminationPasses(void);
     public:
         /// Constructor
         Technique(Material* parent);
@@ -59,6 +66,9 @@ namespace Ogre {
         bool isSupported(void) const;
         /** Internal compilation method; see Material::compile. */
         void _compile(bool autoManageTextureUnits);
+        /** Internal method for splitting the passes into illumination passes. */        
+        void _compileIlluminationPasses(void);
+
 
         /** Creates a new Pass for this Technique.
         @remarks
@@ -82,6 +92,9 @@ namespace Ogre {
         typedef VectorIterator<Passes> PassIterator;
         /** Gets an iterator over the passes in this Technique. */
         const PassIterator getPassIterator(void);
+        typedef VectorIterator<IlluminationPassList> IlluminationPassIterator;
+        /** Gets an iterator over the illumination-stage categorised passes. */
+        const IlluminationPassIterator getIlluminationPassIterator(void);
         /// Gets the parent Material
         Material* getParent(void) const { return mParent; }
 
