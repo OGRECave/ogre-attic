@@ -36,7 +36,7 @@ namespace Ogre {
     @remarks
         Creates instances of CylinderEmitter to be used in particle systems. 
     */
-    class CylinderEmitterFactory : public ParticleEmitterFactory
+    class _OgreParticleFXExport CylinderEmitterFactory : public ParticleEmitterFactory
     {
     protected:
 

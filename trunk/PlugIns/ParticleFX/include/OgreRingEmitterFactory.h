@@ -36,7 +36,7 @@ namespace Ogre {
     @remarks
         Creates instances of RingEmitter to be used in particle systems. 
     */
-    class RingEmitterFactory : public ParticleEmitterFactory
+    class _OgreParticleFXExport RingEmitterFactory : public ParticleEmitterFactory
     {
     protected:
 

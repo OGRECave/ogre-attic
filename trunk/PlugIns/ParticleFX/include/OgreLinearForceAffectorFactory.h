@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /** Factory class for LinearForceAffector. */
-    class LinearForceAffectorFactory : public ParticleAffectorFactory
+    class _OgreParticleFXExport LinearForceAffectorFactory : public ParticleAffectorFactory
     {
         /** See ParticleAffectorFactory */
         String getName() { return "LinearForce"; }

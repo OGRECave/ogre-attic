@@ -37,7 +37,7 @@ namespace Ogre {
         This class supplies the ParticleAffector implementation required to modify the colour of
         particle in mid-flight.
     */
-    class ColourFaderAffector : public ParticleAffector
+    class _OgreParticleFXExport ColourFaderAffector : public ParticleAffector
     {
     public:
 

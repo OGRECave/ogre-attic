@@ -36,7 +36,7 @@ namespace Ogre {
     @remarks
         Creates instances of PointEmitter to be used in particle systems. 
     */
-    class PointEmitterFactory : public ParticleEmitterFactory
+    class _OgreParticleFXExport PointEmitterFactory : public ParticleEmitterFactory
     {
     protected:
 

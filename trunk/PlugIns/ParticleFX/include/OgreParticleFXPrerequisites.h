@@ -27,6 +27,25 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
+//-----------------------------------------------------------------------
+// Windows Settings
+//-----------------------------------------------------------------------
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   if OGRE_DYNAMIC_LINKAGE == 0
+#       pragma warn( "No dynamic linkage" )
+#       define _OgreParticleFXExport
+#   else
+#       ifdef PLUGIN_ParticleFX_EXPORTS
+#           define _OgreParticleFXExport __declspec(dllexport)
+#       else
+#           define _OgreParticleFXExport __declspec(dllimport)
+#       endif
+#   endif
+#else
+#   define _OgreParticleFXExport
+#endif
+
+
 namespace Ogre {
 
     // Predeclare classes
