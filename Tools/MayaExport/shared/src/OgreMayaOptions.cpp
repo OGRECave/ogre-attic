@@ -36,6 +36,7 @@ namespace OgreMaya {
         builderMap["-skel"   ] = &Options::parseSkelOut;
         builderMap["-mat"    ] = &Options::parseMatOut;
         builderMap["-mprefix"] = &Options::parseMatPrefix;
+        builderMap["-anim"   ] = &Options::parseAnimation;
         builderMap["-m"      ] = &Options::parseM;
         builderMap["-s"      ] = &Options::parseS;
         builderMap["-n"      ] = &Options::parseN;
@@ -58,6 +59,8 @@ namespace OgreMaya {
         outMatFile     = "";
 
         matPrefix      = "";
+
+        animations.clear();        
 
         argv           = 0;
         argc           = 0;
@@ -139,6 +142,21 @@ namespace OgreMaya {
         if(++currentArg < argc) {
             exportMaterial = true;
             matPrefix = argv[currentArg];
+        }
+    }
+
+    void Options::parseAnimation() {
+        if(currentArg+4 < argc) {
+            string name = argv[currentArg+1];
+            int from    = atoi(argv[currentArg+2]);
+            int to      = atoi(argv[currentArg+3]);
+            int step    = atoi(argv[currentArg+4]);
+
+            animations[name].from = from;
+            animations[name].to   = to;
+            animations[name].step = step;
+
+            currentArg += 5;
         }
     }
     

@@ -124,15 +124,21 @@ int main(int argc, char *argv[]) {
 
 void showHelp()
 {
-	cout << "Usage: maya2ogre -in FILE [-mesh FILE] [-skel FILE] [-mat FILE]\n";
-    cout << "                 [-mprefix PREFIX] [-m] [-s] [-n] [-c] [-t]\n\n";
+	cout << "Usage: maya2ogre -in FILE [-mesh FILE] [-skel FILE] [-s]\n";
+    cout << "                 [-anim NAME START END STEP]\n";
+    cout << "                 [-mat FILE] [-mprefix PREFIX] [-m]\n";
+    cout << "                 [-n] [-c] [-t]\n\n";
 	cout << " -in      FILE   input mb File\n";
-    cout << " -mesh    FILE   mesh file name\n";
-    cout << " -skel    FILE   skeleton file name\n";
-    cout << " -mat     FILE   material file name\n";
+    cout << " -mesh    FILE   userdefined mesh file name\n";
+    cout << " -skel    FILE   export skeleton using user defined file name\n";
+    cout << " -s              export skeleton using default file name\n";
+    cout << " -anim    NAME   export Animation beginning at START and ending\n";
+    cout << "          START  at END with fixed STEP\n";
+    cout << "          END\n";
+    cout << "          STEP\n";
+    cout << " -mat     FILE   export material using user defined file name\n";
     cout << " -mprefix PREFIX material prefix\n";
-    cout << " -m              export material\n";
-    cout << " -s              export skeleton\n";
+    cout << " -m              export material using default file name\n";    
     cout << " -n              export normals\n";
     cout << " -c              export diffuse colours\n";
     cout << " -t              export texture coords\n";    

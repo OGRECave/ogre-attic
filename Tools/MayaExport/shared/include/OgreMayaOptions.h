@@ -47,6 +47,17 @@ namespace OgreMaya {
         void debugOutput();
 
     public:
+        struct KeyframeRange {
+            KeyframeRange(int from=0, int to=0, int step=1): from(from), to(to), step(1) {}
+            bool isValid() {return from>0 && to>0;}
+            int from;
+            int to;
+            int step;
+        };
+
+        typedef map<string, void (Options::*)(void)> BuilderMap;
+        typedef map<string, KeyframeRange>           KeyframeRangeMap;
+
         string
             inFile,
             
@@ -63,6 +74,9 @@ namespace OgreMaya {
             exportUVs,
             exportMaterial;
 
+        KeyframeRangeMap
+            animations;
+
     private:
         bool valid;
         
@@ -70,7 +84,7 @@ namespace OgreMaya {
         int argc;
         int currentArg;
 
-        map<string, void (Options::*)(void)> builderMap;
+        BuilderMap builderMap;
 
     private:
         void parseIn();
@@ -78,6 +92,7 @@ namespace OgreMaya {
         void parseSkelOut();
         void parseMatOut();
         void parseMatPrefix();
+        void parseAnimation();
         void parseM();
         void parseS();
         void parseN();
