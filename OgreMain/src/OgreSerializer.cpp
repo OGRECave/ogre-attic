@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreSerializer.h"
 #include "OgreLogManager.h"
-#include "OgreDatastream.h"
+#include "OgreDataStream.h"
 #include "OgreException.h"
 #include "OgreVector3.h"
 #include "OgreQuaternion.h"

@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __ScriptLoader_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreDataStream.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
 

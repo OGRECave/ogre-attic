@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreKeyFrame.h"
 #include "OgreBone.h"
 #include "OgreString.h"
-#include "OgreDatastream.h"
+#include "OgreDataStream.h"
 #include "OgreLogManager.h"
 
 

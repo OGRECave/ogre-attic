@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreRenderSystemCapabilities.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre
 {

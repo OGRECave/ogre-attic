@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreParticleIterator.h"
 #include "OgreStringInterface.h"
+#include "OgreMovableObject.h"
 
 namespace Ogre {
 
