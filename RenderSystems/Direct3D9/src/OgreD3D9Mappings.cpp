@@ -378,7 +378,7 @@ namespace Ogre
         DWORD ret = 0;
         if (options & HardwareBuffer::HBL_DISCARD)
         {
-            ret |= D3DLOCK_DISCARD | D3DLOCK_NOOVERWRITE;
+            ret |= D3DLOCK_DISCARD;
         }
         if (options & HardwareBuffer::HBL_READ_ONLY)
         {
