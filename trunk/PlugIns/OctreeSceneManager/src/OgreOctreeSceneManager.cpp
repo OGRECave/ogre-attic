@@ -700,79 +700,377 @@ void OctreeSceneManager::findNodesIn( const Ray &r, std::list < SceneNode * > &l
     _findNodes( r, list, exclude, false, mOctree );
 }
 
-template< class T>
-void _findNodes( const T &t, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
-{
+// Workaround for VC6, which cannot handle partial template specialisation
+#if OGRE_COMPILER == COMPILER_MSVC && OGRE_COMP_VER < 1300
+	// --- non template versions
+	void _findNodes( const AxisAlignedBox &t, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+	{
 
-    if ( !full )
-    {
-        AxisAlignedBox obox;
-        octant -> _getCullBounds( &obox );
+		if ( !full )
+		{
+			AxisAlignedBox obox;
+			octant -> _getCullBounds( &obox );
 
-        Intersection isect = intersect( t, obox );
+			Intersection isect = intersect( t, obox );
 
-        if ( isect == OUTSIDE )
-            return ;
+			if ( isect == OUTSIDE )
+				return ;
 
-        full = ( isect == INSIDE );
-    }
-
-
-    NodeList::iterator it = octant -> mNodes.begin();
-
-    while ( it != octant -> mNodes.end() )
-    {
-        OctreeNode * on = ( *it );
-
-        if ( on != exclude )
-        {
-            if ( full )
-            {
-                list.push_back( on );
-            }
-
-            else
-            {
-                Intersection nsect = intersect( t, on -> _getWorldAABB() );
-
-                if ( nsect != OUTSIDE )
-                {
-                    list.push_back( on );
-                }
-            }
-
-        }
-
-        ++it;
-    }
+			full = ( isect == INSIDE );
+		}
 
 
+		NodeList::iterator it = octant -> mNodes.begin();
 
-    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+		while ( it != octant -> mNodes.end() )
+		{
+			OctreeNode * on = ( *it );
 
-    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+			if ( on != exclude )
+			{
+				if ( full )
+				{
+					list.push_back( on );
+				}
 
-    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+				else
+				{
+					Intersection nsect = intersect( t, on -> _getWorldAABB() );
 
-    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+					if ( nsect != OUTSIDE )
+					{
+						list.push_back( on );
+					}
+				}
 
-    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+			}
 
-    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+			++it;
+		}
 
-    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
 
-    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
-        _findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
 
-}
+		if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+	}
+
+	void _findNodes( const Sphere &t, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+	{
+
+		if ( !full )
+		{
+			AxisAlignedBox obox;
+			octant -> _getCullBounds( &obox );
+
+			Intersection isect = intersect( t, obox );
+
+			if ( isect == OUTSIDE )
+				return ;
+
+			full = ( isect == INSIDE );
+		}
+
+
+		NodeList::iterator it = octant -> mNodes.begin();
+
+		while ( it != octant -> mNodes.end() )
+		{
+			OctreeNode * on = ( *it );
+
+			if ( on != exclude )
+			{
+				if ( full )
+				{
+					list.push_back( on );
+				}
+
+				else
+				{
+					Intersection nsect = intersect( t, on -> _getWorldAABB() );
+
+					if ( nsect != OUTSIDE )
+					{
+						list.push_back( on );
+					}
+				}
+
+			}
+
+			++it;
+		}
+
+
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+	}
+
+
+	void _findNodes( const PlaneBoundedVolume &t, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+	{
+
+		if ( !full )
+		{
+			AxisAlignedBox obox;
+			octant -> _getCullBounds( &obox );
+
+			Intersection isect = intersect( t, obox );
+
+			if ( isect == OUTSIDE )
+				return ;
+
+			full = ( isect == INSIDE );
+		}
+
+
+		NodeList::iterator it = octant -> mNodes.begin();
+
+		while ( it != octant -> mNodes.end() )
+		{
+			OctreeNode * on = ( *it );
+
+			if ( on != exclude )
+			{
+				if ( full )
+				{
+					list.push_back( on );
+				}
+
+				else
+				{
+					Intersection nsect = intersect( t, on -> _getWorldAABB() );
+
+					if ( nsect != OUTSIDE )
+					{
+						list.push_back( on );
+					}
+				}
+
+			}
+
+			++it;
+		}
+
+
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+	}
+
+	void _findNodes( const Ray &t, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+	{
+
+		if ( !full )
+		{
+			AxisAlignedBox obox;
+			octant -> _getCullBounds( &obox );
+
+			Intersection isect = intersect( t, obox );
+
+			if ( isect == OUTSIDE )
+				return ;
+
+			full = ( isect == INSIDE );
+		}
+
+
+		NodeList::iterator it = octant -> mNodes.begin();
+
+		while ( it != octant -> mNodes.end() )
+		{
+			OctreeNode * on = ( *it );
+
+			if ( on != exclude )
+			{
+				if ( full )
+				{
+					list.push_back( on );
+				}
+
+				else
+				{
+					Intersection nsect = intersect( t, on -> _getWorldAABB() );
+
+					if ( nsect != OUTSIDE )
+					{
+						list.push_back( on );
+					}
+				}
+
+			}
+
+			++it;
+		}
+
+
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+	}
+#else
+	// --- template versions
+	template< class T>
+	void _findNodes( const T &t, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+	{
+
+		if ( !full )
+		{
+			AxisAlignedBox obox;
+			octant -> _getCullBounds( &obox );
+
+			Intersection isect = intersect( t, obox );
+
+			if ( isect == OUTSIDE )
+				return ;
+
+			full = ( isect == INSIDE );
+		}
+
+
+		NodeList::iterator it = octant -> mNodes.begin();
+
+		while ( it != octant -> mNodes.end() )
+		{
+			OctreeNode * on = ( *it );
+
+			if ( on != exclude )
+			{
+				if ( full )
+				{
+					list.push_back( on );
+				}
+
+				else
+				{
+					Intersection nsect = intersect( t, on -> _getWorldAABB() );
+
+					if ( nsect != OUTSIDE )
+					{
+						list.push_back( on );
+					}
+				}
+
+			}
+
+			++it;
+		}
+
+
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+		if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+		if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+		if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 )
+			_findNodes( t, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+	}
+#endif
 
 void OctreeSceneManager::resize( const AxisAlignedBox &box )
 {
