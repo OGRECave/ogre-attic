@@ -326,7 +326,8 @@ namespace Ogre {
         // Copy all vertex parameters
         mMesh->sharedVertexData->vertexStart = 0;
         // Vertex count will be set on build() because it depends on current level
-        mMesh->sharedVertexData->vertexDeclaration = mDeclaration;
+        // NB clone the declaration because Mesh's VertexData will destroy it
+        mMesh->sharedVertexData->vertexDeclaration = mDeclaration->clone();
         // Create buffer (only a single buffer)
         // Allocate enough buffer memory for maximum subdivision, not current subdivision
         HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().

@@ -267,6 +267,19 @@ namespace Ogre {
 		return sz;
 	}
     //-----------------------------------------------------------------------------
+    VertexDeclaration* VertexDeclaration::clone(void)
+    {
+        VertexDeclaration* ret = HardwareBufferManager::getSingleton().createVertexDeclaration();
+
+		VertexElementList::const_iterator i, iend;
+		iend = mElementList.end();
+		for (i = mElementList.begin(); i != iend; ++i)
+		{
+            ret->addElement(i->getSource(), i->getOffset(), i->getType(), i->getSemantic(), i->getIndex());
+        }
+        return ret;
+    }
+    //-----------------------------------------------------------------------------
 	VertexBufferBinding::VertexBufferBinding() : mHighIndex(0)
 	{
 	}

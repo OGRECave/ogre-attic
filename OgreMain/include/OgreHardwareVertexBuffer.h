@@ -298,7 +298,11 @@ namespace Ogre {
 		*/
 		virtual VertexElementList findElementsBySource(unsigned short source);
 		
-		virtual size_t getVertexSize(unsigned short source);
+		/** Gets the vertex size defined by this declaration for a given source. */
+        virtual size_t getVertexSize(unsigned short source);
+
+        /** Clones this declaration. */
+        virtual VertexDeclaration* clone(void);
 
         inline bool operator== (const VertexDeclaration& rhs) const
         {
@@ -372,6 +376,7 @@ namespace Ogre {
 			not gaps in the list.
 		*/
 		virtual unsigned short getNextIndex(void) { return mHighIndex; }
+
 
 
 
