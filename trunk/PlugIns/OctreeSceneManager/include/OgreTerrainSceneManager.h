@@ -52,9 +52,6 @@ public:
     /** Aligns TerrainRenderable neighbors, and renders them. */
     virtual void _renderVisibleObjects( void );
 
-    /** Just the default. */
-    virtual void _findVisibleObjects ( Camera * cam );
-
     /** Returns the height at the given terrain coordinates. */
     float getHeightAt( float x, float y );
 

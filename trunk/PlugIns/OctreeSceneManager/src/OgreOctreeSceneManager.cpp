@@ -404,10 +404,10 @@ void OctreeSceneManager::_alertVisibleObjects( void )
     }
 }
 
-void OctreeSceneManager::_findVisibleObjects( Camera * cam )
+void OctreeSceneManager::_findVisibleObjects( Camera * cam, bool onlyShadowCasters )
 {
 
-    mRenderQueue.clear();
+    getRenderQueue()->clear();
     mBoxes.clear();
     mVisible.clear();
 
@@ -422,7 +422,7 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam )
     mNumObjects = 0;
 
     //walk the octree, adding all visible Octreenodes nodes to the render queue.
-    walkOctree( static_cast < OctreeCamera * > ( cam ), &mRenderQueue, mOctree, false );
+    walkOctree( static_cast < OctreeCamera * > ( cam ), getRenderQueue(), mOctree, false, onlyShadowCasters );
 
 
     // Show the octree boxes & cull camera if required
@@ -435,7 +435,7 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam )
         {
             for ( BoxList::iterator it = mBoxes.begin(); it != mBoxes.end(); ++it )
             {
-		        mRenderQueue.addRenderable(*it);
+		        getRenderQueue()->addRenderable(*it);
             }
         }
 
@@ -445,7 +445,7 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam )
 
             if ( c != 0 )
             {
-                mRenderQueue.addRenderable(c);
+                getRenderQueue()->addRenderable(c);
             }
         }
 
@@ -455,7 +455,8 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam )
 
 }
 
-void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, Octree *octant, bool foundvisible )
+void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, 
+    Octree *octant, bool foundvisible, bool onlyShadowCasters )
 {
 
     //return immediately if nothing is in the node.
@@ -510,7 +511,7 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
             {
 
                 mNumObjects++;
-                sn -> _addToRenderQueue(camera, queue );
+                sn -> _addToRenderQueue(camera, queue, onlyShadowCasters );
 
                 mVisible.push_back( sn );
 
@@ -525,21 +526,21 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
             ++it;
         }
 
-        if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
-        if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ) );
+        if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ), onlyShadowCasters );
 
     }
 

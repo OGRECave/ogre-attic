@@ -114,13 +114,13 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BspSceneManager::_findVisibleObjects(Camera* cam)
+    void BspSceneManager::_findVisibleObjects(Camera* cam, bool onlyShadowCasters)
     {
         // Clear unique list of movables for this frame
         mMovablesForRendering.clear();
         // Walk the tree, tag static geometry, return camera's node (for info only)
         // Movables are now added to the render queue in processVisibleLeaf
-        BspNode* cameraNode = walkTree(cam);
+        BspNode* cameraNode = walkTree(cam, onlyShadowCasters);
 
 
     }
@@ -206,7 +206,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    BspNode* BspSceneManager::walkTree(Camera* camera)
+    BspNode* BspSceneManager::walkTree(Camera* camera, bool onlyShadowCasters)
     {
         // Locate the leaf node where the camera is located
         BspNode* cameraNode = mLevel->findLeaf(camera->getDerivedPosition());
@@ -256,7 +256,7 @@ namespace Ogre {
                     //{
                     //    of << "Visible Node: " << *nd << std::endl;
                     //}
-                    processVisibleLeaf(nd, camera);
+                    processVisibleLeaf(nd, camera, onlyShadowCasters);
                     if (mShowNodeAABs)
                         addBoundingBox(nd->getBoundingBox(), true);
                 }
@@ -275,45 +275,50 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BspSceneManager::processVisibleLeaf(BspNode* leaf, Camera* cam)
+    void BspSceneManager::processVisibleLeaf(BspNode* leaf, Camera* cam, bool onlyShadowCasters)
     {
         Material* pMat;
-        // Parse the leaf node's faces, add face groups to material map
-        int numGroups = leaf->getNumFaceGroups();
-        int idx = leaf->getFaceGroupStart();
-
-        while (numGroups--)
+        // Skip world geometry if we're only supposed to process shadow casters
+        // World is pre-lit
+        if (!onlyShadowCasters)
         {
-            int realIndex = mLevel->mLeafFaceGroups[idx++];
-            // Check not already included
-            if (mFaceGroupSet.find(realIndex) != mFaceGroupSet.end())
-                continue;
-            StaticFaceGroup* faceGroup = mLevel->mFaceGroups + realIndex;
-            // Get Material pointer by handle
-            pMat = getMaterial(faceGroup->materialHandle);
-            // Check normal (manual culling)
-            ManualCullingMode cullMode = pMat->getTechnique(0)->getPass(0)->getManualCullingMode();
-            if (cullMode != MANUAL_CULL_NONE)
-            {
-                Real dist = faceGroup->plane.getDistance(cam->getDerivedPosition());
-                if ( (dist < 0 && cullMode == MANUAL_CULL_BACK) ||
-                     (dist > 0 && cullMode == MANUAL_CULL_FRONT) )
-                    continue; // skip
-            }
-            mFaceGroupSet.insert(realIndex);
-            // Try to insert, will find existing if already there
-            std::pair<MaterialFaceGroupMap::iterator, bool> matgrpi;
-            matgrpi = mMatFaceGroupMap.insert(
-                MaterialFaceGroupMap::value_type(pMat, std::vector<StaticFaceGroup*>())
-                );
-            // Whatever happened, matgrpi.first is map iterator
-            // Need to get second part of that to get vector
-            matgrpi.first->second.push_back(faceGroup);
+            // Parse the leaf node's faces, add face groups to material map
+            int numGroups = leaf->getNumFaceGroups();
+            int idx = leaf->getFaceGroupStart();
 
-            //if (firstTime)
-            //{
-            //    of << "  Emitting faceGroup: index=" << realIndex << ", " << *faceGroup << std::endl;
-            //}
+            while (numGroups--)
+            {
+                int realIndex = mLevel->mLeafFaceGroups[idx++];
+                // Check not already included
+                if (mFaceGroupSet.find(realIndex) != mFaceGroupSet.end())
+                    continue;
+                StaticFaceGroup* faceGroup = mLevel->mFaceGroups + realIndex;
+                // Get Material pointer by handle
+                pMat = getMaterial(faceGroup->materialHandle);
+                // Check normal (manual culling)
+                ManualCullingMode cullMode = pMat->getTechnique(0)->getPass(0)->getManualCullingMode();
+                if (cullMode != MANUAL_CULL_NONE)
+                {
+                    Real dist = faceGroup->plane.getDistance(cam->getDerivedPosition());
+                    if ( (dist < 0 && cullMode == MANUAL_CULL_BACK) ||
+                        (dist > 0 && cullMode == MANUAL_CULL_FRONT) )
+                        continue; // skip
+                }
+                mFaceGroupSet.insert(realIndex);
+                // Try to insert, will find existing if already there
+                std::pair<MaterialFaceGroupMap::iterator, bool> matgrpi;
+                matgrpi = mMatFaceGroupMap.insert(
+                    MaterialFaceGroupMap::value_type(pMat, std::vector<StaticFaceGroup*>())
+                    );
+                // Whatever happened, matgrpi.first is map iterator
+                // Need to get second part of that to get vector
+                matgrpi.first->second.push_back(faceGroup);
+
+                //if (firstTime)
+                //{
+                //    of << "  Emitting faceGroup: index=" << realIndex << ", " << *faceGroup << std::endl;
+                //}
+            }
         }
 
         // Add movables to render queue, provided it hasn't been seen already
@@ -327,15 +332,16 @@ namespace Ogre {
                 // It hasn't been seen yet
                 MovableObject *mov = const_cast<MovableObject*>(*oi); // hacky
                 if (mov->isVisible() && 
+                    (!onlyShadowCasters || mov->getCastShadows()) && 
 					cam->isVisible(mov->getWorldBoundingBox()))
                 {
                     mov->_notifyCurrentCamera(cam);
-                    mov->_updateRenderQueue(&mRenderQueue);
+                    mov->_updateRenderQueue(getRenderQueue());
                     // Check if the bounding box should be shown.
                     SceneNode* sn = static_cast<SceneNode*>(mov->getParentNode());
                     if (sn->getShowBoundingBox() || mShowBoundingBoxes)
                     {
-                        sn->_addBoundingBoxToQueue(&mRenderQueue);
+                        sn->_addBoundingBoxToQueue(getRenderQueue());
                     }
                     mMovablesForRendering.insert(*oi);
                 }
@@ -529,6 +535,7 @@ namespace Ogre {
 		mLevel->_notifyObjectDetached(mov);
 	}
     //-----------------------------------------------------------------------
+    /*
     AxisAlignedBoxSceneQuery* BspSceneManager::
     createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
     {
@@ -549,6 +556,7 @@ namespace Ogre {
         // TODO
         return NULL;
     }
+    */
     //-----------------------------------------------------------------------
     IntersectionSceneQuery* BspSceneManager::
     createIntersectionQuery(unsigned long mask)

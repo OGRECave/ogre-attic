@@ -90,9 +90,9 @@ namespace Ogre {
             @param camera Pointer to the viewpoint.
             @returns The BSP node the camera was found in, for info.
         */
-        BspNode* walkTree(Camera* camera);
+        BspNode* walkTree(Camera* camera, bool onlyShadowCasters);
         /** Tags geometry in the leaf specified for later rendering. */
-        void processVisibleLeaf(BspNode* leaf, Camera* cam);
+        void processVisibleLeaf(BspNode* leaf, Camera* cam, bool onlyShadowCasters);
 
         /** Caches a face group for imminent rendering. */
         unsigned int cacheGeometry(unsigned int* pIndexes, const StaticFaceGroup* faceGroup);
@@ -128,7 +128,7 @@ namespace Ogre {
         BspLevel* getLevel(void) {return mLevel; }
 
         /** Overriden from SceneManager. */
-        void _findVisibleObjects(Camera* cam);
+        void _findVisibleObjects(Camera* cam, bool onlyShadowCasters);
 
         /** Overriden from SceneManager. */
         void _renderVisibleObjects(void);
@@ -155,8 +155,10 @@ namespace Ogre {
         @param mask The query mask to apply to this query; can be used to filter out
             certain objects; see SceneQuery for details.
         */
+        /*
         virtual AxisAlignedBoxSceneQuery* 
             createAABBQuery(const AxisAlignedBox& box, unsigned long mask = 0xFFFFFFFF);
+        */
         /** Creates a SphereSceneQuery for this scene manager. 
         @remarks
             This method creates a new instance of a query object for this scene manager, 
@@ -169,8 +171,10 @@ namespace Ogre {
         @param mask The query mask to apply to this query; can be used to filter out
             certain objects; see SceneQuery for details.
         */
+        /*
         virtual SphereSceneQuery* 
             createSphereQuery(const Sphere& sphere, unsigned long mask = 0xFFFFFFFF);
+        */
         /** Creates a RaySceneQuery for this scene manager. 
         @remarks
             This method creates a new instance of a query object for this scene manager, 
@@ -183,9 +187,10 @@ namespace Ogre {
         @param mask The query mask to apply to this query; can be used to filter out
             certain objects; see SceneQuery for details.
         */
+        /*
         virtual RaySceneQuery* 
             createRayQuery(const Ray& ray, unsigned long mask = 0xFFFFFFFF);
-        //PyramidSceneQuery* createPyramidQuery(const Pyramid& p, unsigned long mask = 0xFFFFFFFF);
+        */
         /** Creates an IntersectionSceneQuery for this scene manager. 
         @remarks
             This method creates a new instance of a query object for locating

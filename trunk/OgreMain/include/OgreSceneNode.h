@@ -178,7 +178,7 @@ namespace Ogre {
                     as the objects being rendered. For debugging purposes.
         */
         virtual void _findVisibleObjects(Camera* cam, RenderQueue* queue, 
-            bool includeChildren = true, bool displayNodes = false);
+            bool includeChildren = true, bool displayNodes = false, bool onlyShadowCasters = false);
 
         /** Gets the axis-aligned bounding box of this node (and hence all subnodes).
         @remarks
