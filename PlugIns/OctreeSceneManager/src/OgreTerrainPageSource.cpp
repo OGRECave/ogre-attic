@@ -104,6 +104,8 @@ namespace Ogre {
 
                 SceneNode *c = page->pageSceneNode->createChildSceneNode( name );
                 TerrainRenderable *tile = new TerrainRenderable(name);
+				// set queue
+				tile->setRenderQueueGroup(mSceneManager->getWorldGeometryRenderQueue());
                 // Initialise the tile
                 tile->setMaterial(pMaterial);
                 tile->initialise(i, j, heightData);

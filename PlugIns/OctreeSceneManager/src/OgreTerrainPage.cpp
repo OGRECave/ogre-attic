@@ -115,6 +115,20 @@ namespace Ogre {
 
         return 0;
     }
+	//-------------------------------------------------------------------------
+	void TerrainPage::setRenderQueue(RenderQueueGroupID qid)
+	{
+		for ( size_t j = 0; j < tilesPerPage; j++ )
+		{
+			for ( size_t i = 0; i < tilesPerPage; i++ )
+			{
+				if ( j != tilesPerPage - 1 )
+				{
+					tiles[ i ][ j ]->setRenderQueueGroup(qid);
+				}
+			}
+		}
+	}
 
 }
 
