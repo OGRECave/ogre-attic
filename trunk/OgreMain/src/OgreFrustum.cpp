@@ -75,6 +75,9 @@ namespace Ogre {
         // Default to not visible
         mVisible = false;
 
+        // no reflection
+        mReflect = false;
+
         mParentNode = 0;
 
         updateView();
