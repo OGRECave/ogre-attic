@@ -34,8 +34,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     Image::Image()
-        : m_uSize(0),
-          m_uDepth(0),
+        : m_uDepth(0),
+          m_uSize(0),
           m_uNumMipmaps(0),
           m_uFlags(0),
           m_pBuffer( NULL ),

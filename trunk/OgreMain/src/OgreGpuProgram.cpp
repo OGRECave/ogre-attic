@@ -278,7 +278,8 @@ namespace Ogre
             case ACT_TEXTURE_VIEWPROJ_MATRIX:
                 setConstant(i->index, source.getTextureViewProjMatrix());
                 break;
-
+            default:
+                break;
             }
         }
     }

@@ -400,6 +400,8 @@ namespace Ogre {
                 mHeight = mPixelHeight * mPixelScaleY;
             }
             break;
+        default:
+            break;
         }
 
         _updateFromParent();
