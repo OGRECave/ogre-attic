@@ -1,18 +1,36 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+(Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright © 2000-2004 The OGRE Team
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+-----------------------------------------------------------------------------
+*/
 /***************************************************************************
 terrainrenderable.cpp  -  description
 -------------------
 begin                : Sat Oct 5 2002
 copyright            : (C) 2002 by Jon Anderson
 email                : janders@users.sf.net
-***************************************************************************/
 
-/***************************************************************************
-*                                                                         *
-*   This program is free software; you can redistribute it and/or modify  *
-*   it under the terms of the GNU Lesser General Public License as published by  *
-*   the Free Software Foundation; either version 2 of the License, or     *
-*   (at your option) any later version.                                   *
-*                                                                         *
+Enhancements 2003 - 2004 (C) The OGRE Team
+
 ***************************************************************************/
 
 #include "OgreTerrainRenderable.h"
@@ -26,6 +44,7 @@ email                : janders@users.sf.net
 namespace Ogre
 {
 #define MAIN_BINDING 0
+#define DELTA_BINDING 1
     /*
 #define POSITION_BINDING 0
 #define NORMAL_BINDING 1
@@ -37,12 +56,13 @@ TerrainBufferCache gIndexCache;
 
 String TerrainRenderable::mType = "TerrainMipMap";
 bool TerrainRenderable::msUseTriStrips = false;
+bool TerrainRenderable::msUseLODMorph = true;
 
 LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
 
 TerrainRenderable::TerrainRenderable(const String& name)
-    : mName(name), mTerrain(0), mPositionBuffer(0)
+    : mName(name), mTerrain(0), mPositionBuffer(0), mDeltaBuffers(0)
 {
     mForcedRenderLevel = -1;
 
@@ -76,6 +96,9 @@ void TerrainRenderable::deleteGeometry()
 
     if (mPositionBuffer)
         delete [] mPositionBuffer;
+
+    if (mDeltaBuffers)
+        delete [] mDeltaBuffers;
 
     if ( mMinLevelDistSqr != 0 )
         delete [] mMinLevelDistSqr;
@@ -163,6 +186,13 @@ void TerrainRenderable::init( TerrainOptions &options )
 
     bind->setBinding(MAIN_BINDING, mMainBuffer);
 
+    if (msUseLODMorph)
+    {
+        // Create additional element for delta
+        decl->addElement(DELTA_BINDING, 0, VET_FLOAT1, VES_BLEND_WEIGHTS);
+        // NB binding is not set here, it is set when deriving the LOD
+    }
+
 
     mInit = true;
 
@@ -199,7 +229,7 @@ void TerrainRenderable::init( TerrainOptions &options )
             texelem0->baseVertexPointerToElement(pBase, &pTex0);
             texelem1->baseVertexPointerToElement(pBase, &pTex1);
 
-            Real height = options._worldheight( i, j ) * options.scaley;
+            Real height = options._worldheight( i, j );
 
             *pSysPos++ = *pPos++ = ( Real ) i * options.scalex; //x
             *pSysPos++ = *pPos++ = height; //y
@@ -231,7 +261,12 @@ void TerrainRenderable::init( TerrainOptions &options )
                        ( min + max ) / 2,
                        ( options.startz * options.scalez + (endz - 1) * options.scalez ) / 2 );
 
-
+    // Create delta buffer list if required to morph
+    if (msUseLODMorph)
+    {
+        // Create delta buffer for all except the lowest mip
+        mDeltaBuffers = new HardwareVertexBufferSharedPtr[mNumMipMaps - 1];
+    }
 
     Real C = _calculateCFactor();
 
@@ -322,9 +357,6 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
 
     Real L = diff.squaredLength();
 
-    current_L = L;
-
-
     mRenderLevel = -1;
 
     for ( int i = 0; i < mNumMipMaps; i++ )
@@ -339,6 +371,22 @@ void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
     if ( mRenderLevel < 0 )
         mRenderLevel = mNumMipMaps - 1;
 
+    // Get the next LOD level down
+    int nextLevel = mNextLevelDown[mRenderLevel];
+    if (nextLevel == 0)
+    {
+        // No next level, so never morph
+        mLODMorphFactor = 0;
+    }
+    else
+    {
+        // Set the morph such that the morph happens in the last 0.25 of
+        // the distance range
+        Real range = mMinLevelDistSqr[nextLevel] - mMinLevelDistSqr[mRenderLevel];
+        Real percent = (L - mMinLevelDistSqr[mRenderLevel]) / range;
+        // scale result so that 0.75 == 0, 1 == 1, clamp to 0 below that
+        mLODMorphFactor = std::max((percent - 0.75f) * 4.0f, 0.0f);
+    }
 
     // mRenderLevel = 4;
 
@@ -396,6 +444,8 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
     //level 0 has no delta.
     mMinLevelDistSqr[ 0 ] = 0;
 
+    int i, j;
+
     for ( int level = 1; level < mNumMipMaps; level++ )
     {
         mMinLevelDistSqr[ level ] = 0;
@@ -404,9 +454,19 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
         // The step of the next higher LOD
         int higherstep = step >> 1;
 
-        for ( int j = 0; j < mSize - step; j += step )
+        Real* pDeltas = 0;
+        if (msUseLODMorph)
         {
-            for ( int i = 0; i < mSize - step; i += step )
+            // Create a set of delta values for the LOD level above
+            mDeltaBuffers[level - 1]  = createDeltaBuffer();
+            // Lock, but don't discard (we want the pre-initialised zeros)
+            pDeltas = static_cast<Real*>(
+                mDeltaBuffers[level - 1]->lock(HardwareBuffer::HBL_NORMAL));
+        }
+
+        for ( j = 0; j < mSize - step; j += step )
+        {
+            for ( i = 0; i < mSize - step; i += step )
             {
                 //check each height inbetween the steps.
                 Real h1 = _vertex( i, j, 1 );
@@ -422,8 +482,10 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
                     int xubound = (i == (mSize - step)? step : step - 1);
                     for ( int x = 0; x <= xubound; x++ )
                     {
-                        if ( (i+x) % step == 0 && 
-                             (j+z) % step == 0 )
+                        int fulldetailx = i + x;
+                        int fulldetailz = j + z;
+                        if ( fulldetailx % step == 0 && 
+                             fulldetailz % step == 0 )
                         {
                             // Skip, this one is a vertex at this level
                             continue;
@@ -446,8 +508,9 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
                         if ( mMinLevelDistSqr[ level ] < D2 )
                             mMinLevelDistSqr[ level ] = D2;
 
-                        // Save height difference, if this is a vertex from the 
-                        // higher LOD which will be eliminated at this LOD
+                        // Save height difference 
+                        pDeltas[fulldetailx + fulldetailz * mSize] = 
+                            interp_h - actual_h;
 
                     }
 
@@ -455,10 +518,17 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
             }
         }
 
+        // Unlock morph deltas if required
+        if (msUseLODMorph)
+        {
+            mDeltaBuffers[level - 1]->unlock();
+        }
     }
 
+
+
     // Post validate the whole set
-    for ( int i = 1; i < mNumMipMaps; i++ )
+    for ( i = 1; i < mNumMipMaps; i++ )
     {
     
         // Make sure no LOD transition within the tile
@@ -470,8 +540,25 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
 
         //make sure the levels are increasing...
         if ( mMinLevelDistSqr[ i ] < mMinLevelDistSqr[ i - 1 ] )
-            mMinLevelDistSqr[ i ] = mMinLevelDistSqr[ i - 1 ] + 1;
+        {
+            mMinLevelDistSqr[ i ] = mMinLevelDistSqr[ i - 1 ];
+        }
     }
+
+    // Now reverse traverse the list setting the 'next level down'
+    Real lastDist = 0;
+    int lastIndex = 0;
+    for (i = mNumMipMaps - 1; i >= 0; --i)
+    {
+        if (mMinLevelDistSqr[i] != lastDist)
+        {
+            mNextLevelDown[i] = lastIndex;
+            lastIndex = i;
+            lastDist = mMinLevelDistSqr[i];
+        }
+
+    }
+
 
 }
 
@@ -1186,6 +1273,35 @@ IndexData* TerrainRenderable::generateTriListIndexes(int stitchFlags)
     indexData->indexStart = 0;
 
     return indexData;
+}
+//-----------------------------------------------------------------------
+HardwareVertexBufferSharedPtr TerrainRenderable::createDeltaBuffer(void)
+{
+    // Delta buffer is a 1D float buffer of height offsets
+    HardwareVertexBufferSharedPtr buf = 
+        HardwareBufferManager::getSingleton().createVertexBuffer(
+        VertexElement::getTypeSize(VET_FLOAT1), 
+        mSize * mSize,
+        HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+    // Fill the buffer with zeros, we will only fill in delta
+    void* pVoid = buf->lock(HardwareBuffer::HBL_DISCARD);
+    memset(pVoid, 0, mSize * mSize * sizeof(Real));
+    buf->unlock();
+
+    return buf;
+
+}
+//-----------------------------------------------------------------------
+void TerrainRenderable::updateCustomGpuParameter(
+    const GpuProgramParameters::AutoConstantEntry& constantEntry, 
+    GpuProgramParameters* params) const
+{
+    if (constantEntry.data == 0)
+    {
+        // Update morph LOD factor
+        params->setConstant(constantEntry.index, mLODMorphFactor);
+    }
+
 }
 
 } //namespace
