@@ -204,7 +204,7 @@ public:
     }
 
     /** Returns the maximum number of mipmaps used for LOD. */
-    inline int getNumMipMaps()
+    inline int getNumMipMaps() const
     {
         return mNumMipMaps;
     };

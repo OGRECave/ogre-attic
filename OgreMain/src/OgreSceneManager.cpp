@@ -1189,13 +1189,13 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void SceneManager::setAmbientLight(ColourValue colour)
+    void SceneManager::setAmbientLight(const ColourValue& colour)
     {
         mAmbientLight = colour;
         mDestRenderSystem->setAmbientLight(colour.r, colour.g, colour.b);
     }
     //-----------------------------------------------------------------------
-    ColourValue SceneManager::getAmbientLight(void)
+    const ColourValue& SceneManager::getAmbientLight(void) const
     {
         return mAmbientLight;
     }
@@ -1710,7 +1710,7 @@ namespace Ogre {
 		mShowBoundingBoxes = bShow;
 	}
 	//---------------------------------------------------------------------
-	bool SceneManager::getShowBoundingBoxes() 
+	bool SceneManager::getShowBoundingBoxes() const
 	{
 		return mShowBoundingBoxes;
 	}

@@ -205,7 +205,7 @@ namespace Ogre {
         virtual void setAngle(Real degrees);
 
         /** Returns the maximum angle which the initial particle direction can deviate from the emitters base direction. */
-        virtual Real getAngle(void);
+        virtual Real getAngle(void) const;
 
         /** Sets the initial velocity of particles emitted.
         @remarks
@@ -233,13 +233,13 @@ namespace Ogre {
         virtual void setMaxParticleVelocity(Real max);
 
         /** Returns the initial velocity of particles emitted. */
-        virtual Real getParticleVelocity(void);
+        virtual Real getParticleVelocity(void) const;
 
         /** Returns the minimum particle velocity. */
-        virtual Real getMinParticleVelocity(void);
+        virtual Real getMinParticleVelocity(void) const;
 
         /** Returns the maximum particle velocity. */
-        virtual Real getMaxParticleVelocity(void);
+        virtual Real getMaxParticleVelocity(void) const;
 
         /** Sets the emission rate for this emitter.
         @remarks
@@ -256,7 +256,7 @@ namespace Ogre {
         virtual void setEmissionRate(Real particlesPerSecond);
 
         /** Returns the emission rate set for this emitter. */
-        virtual Real getEmissionRate(void);
+        virtual Real getEmissionRate(void) const;
 
         /** Sets the lifetime of all particles emitted.
         @remarks
@@ -290,12 +290,12 @@ namespace Ogre {
         virtual void setMaxTimeToLive(Real max);
         
         /** Gets the time each particle will live for. */
-        virtual Real getTimeToLive(void);
+        virtual Real getTimeToLive(void) const;
 
         /** Gets the minimum time each particle will live for. */
-        virtual Real getMinTimeToLive(void);
+        virtual Real getMinTimeToLive(void) const;
         /** Gets the maximum time each particle will live for. */
-        virtual Real getMaxTimeToLive(void);
+        virtual Real getMaxTimeToLive(void) const;
 
         /** Sets the initial colour of particles emitted.
         @remarks
@@ -320,11 +320,11 @@ namespace Ogre {
         /** Sets the maximum colour of particles to be emitted. */
         virtual void setColourRangeEnd(const ColourValue& colour);
         /** Gets the colour of particles to be emitted. */
-        virtual ColourValue getColour(void);
+        virtual const ColourValue& getColour(void) const;
         /** Gets the minimum colour of particles to be emitted. */
-        virtual ColourValue getColourRangeStart(void);
+        virtual const ColourValue& getColourRangeStart(void) const;
         /** Gets the maximum colour of particles to be emitted. */
-        virtual ColourValue getColourRangeEnd(void);
+        virtual const ColourValue& getColourRangeEnd(void) const;
 
         /** Gets the number of particles which this emitter would like to emit based on the time elapsed.
         @remarks
@@ -369,7 +369,7 @@ namespace Ogre {
         virtual void setEnabled(bool enabled);
 
         /** Gets the flag indicating if this emitter is enabled or not. */
-        virtual bool getEnabled(void);
+        virtual bool getEnabled(void) const;
 
         /** Sets the 'start time' of this emitter.
         @remarks
@@ -380,7 +380,7 @@ namespace Ogre {
         */
         virtual void setStartTime(Real startTime);
         /** Gets the start time of the emitter. */
-        virtual Real getStartTime(void);
+        virtual Real getStartTime(void) const;
 
         /** Sets the duration of the emitter.
         @remarks
@@ -396,7 +396,7 @@ namespace Ogre {
         virtual void setDuration(Real duration);
 
         /** Gets the duration of the emitter from when it is created or re-enabled. */
-        virtual Real getDuration(void);
+        virtual Real getDuration(void) const;
 
         /** Sets the range of random duration for this emitter. 
         @remarks
@@ -415,9 +415,9 @@ namespace Ogre {
         /** Sets the maximum duration of this emitter in seconds (see setDuration for more details) */
         virtual void setMaxDuration(Real max);
         /** Gets the minimum duration of this emitter in seconds (see setDuration for more details) */
-        virtual Real getMinDuration(void);
+        virtual Real getMinDuration(void) const;
         /** Gets the maximum duration of this emitter in seconds (see setDuration for more details) */
-        virtual Real getMaxDuration(void);
+        virtual Real getMaxDuration(void) const;
 
         /** Sets the time between repeats of the emitter.
         @remarks
@@ -431,7 +431,7 @@ namespace Ogre {
         virtual void setRepeatDelay(Real duration);
 
         /** Gets the duration of the emitter from when it is created or re-enabled. */
-        virtual Real getRepeatDelay(void);
+        virtual Real getRepeatDelay(void) const;
 
         /** Sets the range of random duration for this emitter. 
         @remarks
@@ -450,9 +450,9 @@ namespace Ogre {
         /** Sets the maximum duration of this emitter in seconds (see setRepeatDelay for more details) */
         virtual void setMaxRepeatDelay(Real max);
         /** Gets the minimum duration of this emitter in seconds (see setRepeatDelay for more details) */
-        virtual Real getMinRepeatDelay(void);
+        virtual Real getMinRepeatDelay(void) const;
         /** Gets the maximum duration of this emitter in seconds (see setRepeatDelay for more details) */
-        virtual Real getMaxRepeatDelay(void);
+        virtual Real getMaxRepeatDelay(void) const;
 
 
 

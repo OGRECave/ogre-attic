@@ -311,7 +311,7 @@
         virtual void setColour(const ColourValue& col);
 
         /** Gets the colour for this element. */
-        virtual ColourValue getColour(void) const;
+        virtual const ColourValue& getColour(void) const;
 
         /** Tells this element how to interpret the position and dimension values it is given.
         @remarks

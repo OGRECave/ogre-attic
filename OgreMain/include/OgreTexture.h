@@ -73,7 +73,7 @@ namespace Ogre {
 
         /** Gets the number of mipmaps to be used for this texture.
         */
-        unsigned short getNumMipMaps(void) {return mNumMipMaps;}
+        unsigned short getNumMipMaps(void) const {return mNumMipMaps;}
 
         /** Sets the number of mipmaps to be used for this texture.
             @note
@@ -83,7 +83,7 @@ namespace Ogre {
 
         /** Returns the gamma adjustment factor applied to this texture.
         */
-        float getGamma(void) { return mGamma; }
+        float getGamma(void) const { return mGamma; }
 
         /** Sets the gamma adjustment factor applied to this texture.
             @note
@@ -93,11 +93,11 @@ namespace Ogre {
 
         /** Returns the height of the texture.
         */
-        unsigned int getHeight(void) { return mHeight; }
+        unsigned int getHeight(void) const { return mHeight; }
 
         /** Returns the width of the texture.
         */
-        unsigned int getWidth(void) { return mWidth; }
+        unsigned int getWidth(void) const { return mWidth; }
 
         /** Returns both the width and height of the texture.
         */
@@ -157,7 +157,7 @@ namespace Ogre {
 		}
 
         /** Returns true if the texture has an alpha layer. */
-        virtual bool hasAlpha(void)
+        virtual bool hasAlpha(void) const
         {
             return mHasAlpha;
         }

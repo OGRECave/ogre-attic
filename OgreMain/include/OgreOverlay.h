@@ -183,10 +183,10 @@ namespace Ogre {
         void setScroll(Real x, Real y);
 
         /** Gets the current X scroll value */
-        Real getScrollX(void);
+        Real getScrollX(void) const;
 
         /** Gets the current Y scroll value */
-        Real getScrollY(void);
+        Real getScrollY(void) const;
 
         /** Scrolls the overlay by the offsets provided.
         @remarks
@@ -200,7 +200,7 @@ namespace Ogre {
         void setRotate(Real degrees);
 
         /** Gets the rotation applied to this overlay, in degrees.*/
-        Real getRotate(void);
+        Real getRotate(void) const;
 
         /** Adds the passed in angle to the rotation applied to this overlay. */
         void rotate(Real degrees);
@@ -216,10 +216,10 @@ namespace Ogre {
         void setScale(Real x, Real y);
 
         /** Gets the current X scale value */
-        Real getScaleX(void);
+        Real getScaleX(void) const;
 
         /** Gets the current Y scale value */
-        Real getScaleY(void);
+        Real getScaleY(void) const;
 
         /** Used to transform the overlay when scrolling, scaling etc. */
         void _getWorldTransforms(Matrix4* xform) const;

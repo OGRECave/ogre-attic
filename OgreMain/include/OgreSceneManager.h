@@ -491,11 +491,11 @@ namespace Ogre {
                 means that any objects rendered with a Material which has lighting enabled (see Material::setLightingEnabled)
                 will not be visible unless you have some dynamic lights in your scene.
         */
-        void setAmbientLight(ColourValue colour);
+        void setAmbientLight(const ColourValue& colour);
 
         /** Returns the ambient light level to be used for the scene.
         */
-        ColourValue getAmbientLight(void);
+        const ColourValue& getAmbientLight(void) const;
 
         /** Sets the source of the 'world' geometry, i.e. the large, mainly static geometry
             making up the world e.g. rooms, landscape etc.
@@ -1044,7 +1044,7 @@ namespace Ogre {
 		void showBoundingBoxes(bool bShow);
 
 		/** Returns if all bounding boxes of scene nodes are to be displayed */
-		bool getShowBoundingBoxes();
+		bool getShowBoundingBoxes() const;
 
         
         /** Creates an AxisAlignedBoxSceneQuery for this scene manager. 

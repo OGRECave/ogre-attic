@@ -75,9 +75,9 @@ namespace Ogre {
         /// Retrieve information about the render target.
         virtual void getMetrics(int &width, int &height, int &colourDepth);
 
-        virtual int getWidth(void);
-        virtual int getHeight(void);
-        virtual int getColourDepth(void);
+        virtual int getWidth(void) const;
+        virtual int getHeight(void) const;
+        virtual int getColourDepth(void) const;
 
         /** Tells the target to update it's contents.
             @remarks
@@ -121,7 +121,7 @@ namespace Ogre {
             float width = 1.0f, float height = 1.0f);
 
         /** Returns the number of viewports attached to this target.*/
-        virtual unsigned short getNumViewports(void);
+        virtual unsigned short getNumViewports(void) const;
 
         /** Retrieves a pointer to the viewport with the given index. */
         virtual Viewport* getViewport(unsigned short index);
@@ -170,27 +170,27 @@ namespace Ogre {
 
         /** Individual stats access - gets the number of frames per second (FPS) based on the last frame rendered.
         */
-        virtual float getLastFPS();
+        virtual float getLastFPS() const;
 
         /** Individual stats access - gets the average frames per second (FPS) since call to RenderSystem::startRendering.
         */
-        virtual float getAverageFPS();
+        virtual float getAverageFPS() const;
 
         /** Individual stats access - gets the best frames per second (FPS) since call to RenderSystem::startRendering.
         */
-        virtual float getBestFPS();
+        virtual float getBestFPS() const;
 
         /** Individual stats access - gets the worst frames per second (FPS) since call to RenderSystem::startRendering.
         */
-        virtual float getWorstFPS();
+        virtual float getWorstFPS() const;
 
         /** Individual stats access - gets the best frame time.
         */
-        virtual float getBestFrameTime();
+        virtual float getBestFrameTime() const;
 
         /** Individual stats access - gets the worst frame time.
         */
-        virtual float getWorstFrameTime();
+        virtual float getWorstFrameTime() const;
 
         /** Resets saved frame-rate statistices.
         */
@@ -259,7 +259,7 @@ namespace Ogre {
 		virtual bool requiresTextureFlipping() const = 0;
 
 		/** Gets the number of triangles rendered in the last update() call. */
-		virtual unsigned int getTriangleCount(void) { return mTris; }
+		virtual unsigned int getTriangleCount(void) const { return mTris; }
 
     protected:
         /// The name of this target.

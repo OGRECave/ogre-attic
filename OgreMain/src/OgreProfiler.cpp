@@ -215,7 +215,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    bool Profiler::getEnabled() {
+    bool Profiler::getEnabled() const {
 
         return mEnabled;
 
@@ -735,7 +735,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    uint Profiler::getUpdateDisplayFrequency() {
+    uint Profiler::getUpdateDisplayFrequency() const {
 
         return mUpdateDisplayFrequency;
 
