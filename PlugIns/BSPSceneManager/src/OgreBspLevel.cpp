@@ -130,11 +130,11 @@ namespace Ogre {
                 sizeof(BspVertex), 
                 q3lvl.mNumVertices, 
                 HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-        /* COPY - Note that we can't just block-copy the vertex data because we have to reorder
-            our vertex elements; this is to ensure compatibility with older cards when using
-            hardware vertex buffers - Direct3D requires that the buffer format maps onto a
-            FVF in those older drivers. 
-        */
+        //COPY - Note that we can't just block-copy the vertex data because we have to reorder
+        //    our vertex elements; this is to ensure compatibility with older cards when using
+        //    hardware vertex buffers - Direct3D requires that the buffer format maps onto a
+        //    FVF in those older drivers. 
+        
         BspVertex* pVert = static_cast<BspVertex*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         // Keep another base pointer for use later in patch building
@@ -293,21 +293,20 @@ namespace Ogre {
                 dest->plane.normal = Vector3(src->normal);
                 dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));
 
-                /*
-                 Don't do this here - Quake3 re-uses some indexes for multiple vertex
-                 groups eg repeating small details have the same relative vertex data but
-                 use the same index data.
+                
+                // Don't do this here - Quake3 re-uses some indexes for multiple vertex
+                // groups eg repeating small details have the same relative vertex data but
+                // use the same index data.
 
-                // Loop through all the indexes used by this face and rebase them so they
-                // are relative to the start of a shared vertex buffer, this is because we're
-                // going to use one buffer instead of copying vertex data per frame
-                unsigned int* pIdx = mIndexes + dest->elementStart;
-                for (int elem = 0; elem < dest->numElements; ++elem)
-                {
-                    *pIdx = *pIdx + dest->vertexStart;
-                    pIdx++;
-                }
-                */
+                //// Loop through all the indexes used by this face and rebase them so they
+                //// are relative to the start of a shared vertex buffer, this is because we're
+                //// going to use one buffer instead of copying vertex data per frame
+                //unsigned int* pIdx = mIndexes + dest->elementStart;
+                //for (int elem = 0; elem < dest->numElements; ++elem)
+                //{
+                //    *pIdx = *pIdx + dest->vertexStart;
+                //    pIdx++;
+                //}
             }
             else if (src->type == BSP_FACETYPE_PATCH)
             {
@@ -321,24 +320,22 @@ namespace Ogre {
 
                     // Set up patch surface
                     dest->fType = FGT_PATCH;
-                    /*
-                    dest->patchSurf = new PatchSurface();
-                    // Set up control points & format
-                    // Same format as in BspSceneManager::mPendingGeometry - see that for details
-                    // Reuse the declaration from mVertexData
-                    BspVertex* pPatchVertex = pBaseVert + dest->vertexStart;
-                    meshName = "BspBezierPatch" + StringConverter::toString(face);
-                    // For the moment, just define 1 level of subdivision ie AUTO_LEVEL
-                    dest->patchSurf->defineSurface(
-                        meshName, 
-                        pPatchVertex, 
-                        mVertexData->vertexDeclaration, 
-                        src->mesh_cp[0],
-                        src->mesh_cp[1],
-                        PatchSurface::PST_BEZIER);
-                    // Build the patch
-                    dest->patchSurf->build();
-                    */
+                    //dest->patchSurf = new PatchSurface();
+                    //// Set up control points & format
+                    //// Same format as in BspSceneManager::mPendingGeometry - see that for details
+                    //// Reuse the declaration from mVertexData
+                    //BspVertex* pPatchVertex = pBaseVert + dest->vertexStart;
+                    //meshName = "BspBezierPatch" + StringConverter::toString(face);
+                    //// For the moment, just define 1 level of subdivision ie AUTO_LEVEL
+                    //dest->patchSurf->defineSurface(
+                    //    meshName, 
+                    //    pPatchVertex, 
+                    //    mVertexData->vertexDeclaration, 
+                    //    src->mesh_cp[0],
+                    //    src->mesh_cp[1],
+                    //    PatchSurface::PST_BEZIER);
+                    //// Build the patch
+                    //dest->patchSurf->build();
                 }
 
 
@@ -491,9 +488,6 @@ namespace Ogre {
         mVisData.rowLength = q3lvl.mVis->row_size;
         mVisData.tableData = new unsigned char[q3lvl.mVis->row_size * q3lvl.mVis->cluster_count];
         memcpy(mVisData.tableData, q3lvl.mVis->data, q3lvl.mVis->row_size * q3lvl.mVis->cluster_count);
-
-
-
 
 
 

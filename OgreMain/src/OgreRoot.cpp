@@ -535,10 +535,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::unloadPlugins(void)
     {
-        std::vector<DynLib*>::iterator i;
+        std::vector<DynLib*>::reverse_iterator i;
 
-
-        for (i = mPluginLibs.begin(); i != mPluginLibs.end(); ++i)
+        // NB Unload plugins in reverse order to enforce dependencies
+        for (i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
         {
             // Call plugin shutdown
             DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
