@@ -31,11 +31,11 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> BspResourceManager* Singleton<BspResourceManager>::ms_Singleton = 0;
-    template<> BspResourceManager* Singleton<BspResourceManager>::getSingletonPtr(void)
+    BspResourceManager* BspResourceManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> BspResourceManager& Singleton<BspResourceManager>::getSingleton(void)
+    BspResourceManager& BspResourceManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

@@ -31,11 +31,11 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> HardwareBufferManager* Singleton<HardwareBufferManager>::ms_Singleton = 0;
-    template<> HardwareBufferManager* Singleton<HardwareBufferManager>::getSingletonPtr(void)
+    HardwareBufferManager* HardwareBufferManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> HardwareBufferManager& Singleton<HardwareBufferManager>::getSingleton(void)
+    HardwareBufferManager& HardwareBufferManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

@@ -35,11 +35,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 using namespace Ogre;
 
 template<> GTKGLSupport* Singleton<GTKGLSupport>::ms_Singleton = 0;
-template<> GTKGLSupport* Singleton<GTKGLSupport>::getSingletonPtr(void)
+GTKGLSupport* GTKGLSupport::getSingletonPtr(void)
 {
     return ms_Singleton;
 }
-template<> GTKGLSupport& Singleton<GTKGLSupport>::getSingleton(void)
+GTKGLSupport& GTKGLSupport::getSingleton(void)
 {  
     assert( ms_Singleton );  return ( *ms_Singleton );  
 }

@@ -45,11 +45,11 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     template<> OverlayManager *Singleton<OverlayManager>::ms_Singleton = 0;
-    template<> OverlayManager* Singleton<OverlayManager>::getSingletonPtr(void)
+    OverlayManager* OverlayManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> OverlayManager& Singleton<OverlayManager>::getSingleton(void)
+    OverlayManager& OverlayManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

@@ -41,11 +41,11 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> MaterialManager* Singleton<MaterialManager>::ms_Singleton = 0;
-    template<> MaterialManager* Singleton<MaterialManager>::getSingletonPtr(void)
+    MaterialManager* MaterialManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> MaterialManager& Singleton<MaterialManager>::getSingleton(void)
+    MaterialManager& MaterialManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

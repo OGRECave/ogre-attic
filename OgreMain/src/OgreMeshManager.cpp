@@ -42,11 +42,11 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     template<> MeshManager* Singleton<MeshManager>::ms_Singleton = 0;
-    template<> MeshManager* Singleton<MeshManager>::getSingletonPtr(void)
+    MeshManager* MeshManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> MeshManager& Singleton<MeshManager>::getSingleton(void)
+    MeshManager& MeshManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

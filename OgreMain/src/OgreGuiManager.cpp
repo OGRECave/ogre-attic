@@ -37,11 +37,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> GuiManager* Singleton<GuiManager>::ms_Singleton = 0;
-    template<> GuiManager* Singleton<GuiManager>::getSingletonPtr(void)
+    GuiManager* GuiManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> GuiManager& Singleton<GuiManager>::getSingleton(void)
+    GuiManager& GuiManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

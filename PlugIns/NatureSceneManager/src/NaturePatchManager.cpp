@@ -18,11 +18,11 @@ namespace Ogre
 //----------------------------------------------------------------------------
 
 template<> NaturePatchManager* Singleton<NaturePatchManager>::ms_Singleton = 0;
-template<> NaturePatchManager* Singleton<NaturePatchManager>::getSingletonPtr(void)
+NaturePatchManager* NaturePatchManager::getSingletonPtr(void)
 {
     return ms_Singleton;
 }
-template<> NaturePatchManager& Singleton<NaturePatchManager>::getSingleton(void)
+NaturePatchManager& NaturePatchManager::getSingleton(void)
 {  
     assert( ms_Singleton );  return ( *ms_Singleton );  
 }
