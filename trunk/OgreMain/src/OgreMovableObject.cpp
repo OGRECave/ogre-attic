@@ -39,11 +39,22 @@ namespace Ogre {
         mRenderQueueID = RENDER_QUEUE_MAIN;
         mQueryFlags = 0xFFFFFFFF;
         mWorldAABB.setNull();
+        mParentIsTagPoint = false;
     }
     //-----------------------------------------------------------------------
-    void MovableObject::_notifyAttached(Node* parent)
+    MovableObject::~MovableObject()
+    {
+        if (mParentNode && !mParentIsTagPoint)
+        {
+            // detach from parent
+            static_cast<SceneNode*>(mParentNode)->detachObject(this);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void MovableObject::_notifyAttached(Node* parent, bool isTagPoint)
     {
         mParentNode = parent;
+        mParentIsTagPoint = isTagPoint;
     }
     //-----------------------------------------------------------------------
     Node* MovableObject::getParentNode(void) const

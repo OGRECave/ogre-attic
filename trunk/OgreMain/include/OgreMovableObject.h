@@ -45,6 +45,7 @@ namespace Ogre {
     protected:
         /// node to which this object is attached
         Node* mParentNode;
+        bool mParentIsTagPoint;
         /// Is this object visible?
         bool mVisible;
         /// User defined object which is linked to this object
@@ -64,7 +65,7 @@ namespace Ogre {
 
         /** Virtual destructor - read Scott Meyers if you don't know why this is needed.
         */
-        virtual ~MovableObject() {}
+        virtual ~MovableObject();
 
         /** Returns the name of this object. */
         virtual const String& getName(void) const = 0;
@@ -82,7 +83,7 @@ namespace Ogre {
 
         /** Internal method called to notify the object that it has been attached to a node.
         */
-        virtual void _notifyAttached(Node* parent);
+        virtual void _notifyAttached(Node* parent, bool isTagPoint = false);
 
         /** Returns true if this object is attached to a SceneNode or TagPoint. */
         virtual bool isAttached(void) const;
