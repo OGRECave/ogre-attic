@@ -991,8 +991,7 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
                 Root::getSingleton().convertColourValue( v, &colour );
                 HardwareVertexBufferSharedPtr vbuf = 
                     mTerrain->vertexBufferBinding->getBuffer(COLOUR_BINDING);
-                vbuf->writeData(_index( i, j ), sizeof(RGBA), &colour);
-                //Root::getSingleton().convertColourValue( v, & ( mTerrain.pColours[ _index( i, j ) ] ) );
+                vbuf->writeData(_index( i, j ) * sizeof(RGBA), sizeof(RGBA), &colour);
             }
 
             else
@@ -1002,11 +1001,7 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
 
                 HardwareVertexBufferSharedPtr vbuf = 
                     mTerrain->vertexBufferBinding->getBuffer(COLOUR_BINDING);
-                vbuf->writeData(_index( i, j ), sizeof(RGBA), &colour);
-
-              /* 
-                Root::getSingleton().convertColourValue( ambient, & ( mTerrain.pColours[ _index( i, j ) ] ) );
-                */
+                vbuf->writeData(_index( i, j ) * sizeof(RGBA), sizeof(RGBA), &colour);
             }
 
         }
