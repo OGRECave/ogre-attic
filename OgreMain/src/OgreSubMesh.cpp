@@ -101,6 +101,13 @@ namespace Ogre {
             delete [] geometry.pBlendingWeights;
             geometry.pBlendingWeights = 0;
         }
+
+		ProgressiveMesh::LODFaceList::iterator lodi, lodend;
+		lodend = mLodFaceList.end();
+		for (lodi = mLodFaceList.begin(); lodi != lodend; ++lodi)
+		{
+			delete [] lodi->pIndexes;
+		}
     }
 
     //-----------------------------------------------------------------------
