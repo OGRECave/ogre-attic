@@ -104,13 +104,13 @@ namespace Ogre {
         /// DDS (DirectDraw Surface) DXT5 format
         PF_DXT5 = 21,
         // 48-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue
-        PF_FP_R16G16B16 = 22,
+        PF_FLOAT16_RGB = 22,
         // 64-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue, 16 bits (float) for alpha
-        PF_FP_R16G16B16A16 = 23,
+        PF_FLOAT16_RGBA = 23,
        // 96-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue
-        PF_FP_R32G32B32 = 24,
+        PF_FLOAT32_RGB = 24,
         // 128-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue, 32 bits (float) for alpha
-        PF_FP_R32G32B32A32 = 25,
+        PF_FLOAT32_RGBA = 25,
 		// Depth texture format
 		PF_DEPTH = 29,
 		// Number of pixel formats currently defined

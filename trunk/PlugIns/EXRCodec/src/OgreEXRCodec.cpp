@@ -166,7 +166,7 @@ Codec::DecodeResult EXRCodec::decode(DataStreamPtr& input) const
         file.setFrameBuffer (frameBuffer);
         file.readPixels (dw.min.y, dw.max.y);
     
-        imgData->format = components==3 ? PF_FP_R32G32B32 : PF_FP_R32G32B32A32;
+        imgData->format = components==3 ? PF_FLOAT32_RGB : PF_FLOAT32_RGBA;
         imgData->width = width;
         imgData->height = height;
         imgData->depth = 1;

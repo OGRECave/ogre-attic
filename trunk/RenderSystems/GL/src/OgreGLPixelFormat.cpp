@@ -62,13 +62,13 @@ namespace Ogre  {
                 return GL_BGRA;
             case PF_A2B10G10R10:
                 return GL_RGBA;
-            case PF_FP_R16G16B16:
+            case PF_FLOAT16_RGB:
                 return GL_RGB;
-            case PF_FP_R16G16B16A16:
+            case PF_FLOAT16_RGBA:
                 return GL_RGBA;
-            case PF_FP_R32G32B32:
+            case PF_FLOAT32_RGB:
                 return GL_RGB;
-            case PF_FP_R32G32B32A32:
+            case PF_FLOAT32_RGBA:
                 return GL_RGBA;
             case PF_DXT1:
                 return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -119,11 +119,11 @@ namespace Ogre  {
                 return GL_UNSIGNED_INT_2_10_10_10_REV;
             case PF_A2B10G10R10:
                 return GL_UNSIGNED_INT_2_10_10_10_REV;
-            case PF_FP_R16G16B16:
-            case PF_FP_R16G16B16A16:
+            case PF_FLOAT16_RGB:
+            case PF_FLOAT16_RGBA:
                 return 0; // GL_HALF_FLOAT_ARB -- nyi
-            case PF_FP_R32G32B32:
-            case PF_FP_R32G32B32A32:
+            case PF_FLOAT32_RGB:
+            case PF_FLOAT32_RGBA:
                 return GL_FLOAT;
             default:
                 return 0;
@@ -159,16 +159,16 @@ namespace Ogre  {
             case PF_A2R10G10B10:
             case PF_A2B10G10R10:
                 return GL_RGB10_A2;
-            case PF_FP_R16G16B16:
+            case PF_FLOAT16_RGB:
                 return GL_RGB_FLOAT16_ATI;
                 //    return GL_RGB16F_ARB;
-            case PF_FP_R16G16B16A16:
+            case PF_FLOAT16_RGBA:
                 return GL_RGBA_FLOAT16_ATI;
                 //    return GL_RGBA16F_ARB;
-            case PF_FP_R32G32B32:
+            case PF_FLOAT32_RGB:
                 return GL_RGB_FLOAT32_ATI;
                 //    return GL_RGB32F_ARB;
-            case PF_FP_R32G32B32A32:
+            case PF_FLOAT32_RGBA:
                 return GL_RGBA_FLOAT32_ATI;
                 //    return GL_RGBA32F_ARB;
             case PF_DXT1:
@@ -209,7 +209,7 @@ namespace Ogre  {
 		case GL_RGBA_FLOAT16_ATI:
 		case GL_RGB_FLOAT32_ATI:
 		case GL_RGBA_FLOAT32_ATI:
-			return PF_FP_R32G32B32A32;
+			return PF_FLOAT32_RGBA;
 		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
 			return PF_DXT1;
 		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:

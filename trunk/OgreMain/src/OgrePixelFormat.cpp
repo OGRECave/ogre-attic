@@ -317,7 +317,7 @@ namespace Ogre {
         0, 0, 0, 0, 0, 0, 0, 0 
         },
 	//-----------------------------------------------------------------------
-        {"PF_FP_R16G16B16", 
+        {"PF_FLOAT16_RGB", 
         /* Bytes per element */ 
         6,  
         /* Flags */
@@ -328,7 +328,7 @@ namespace Ogre {
         0, 0, 0, 0, 0, 0, 0, 0 
         },
 	//-----------------------------------------------------------------------
-        {"PF_FP_R16G16B16A16", 
+        {"PF_FLOAT16_RGBA", 
         /* Bytes per element */ 
         8,  
         /* Flags */
@@ -339,7 +339,7 @@ namespace Ogre {
         0, 0, 0, 0, 0, 0, 0, 0 
         },
 	//-----------------------------------------------------------------------
-        {"PF_FP_R32G32B32", 
+        {"PF_FLOAT32_RGB", 
         /* Bytes per element */ 
         12,  
         /* Flags */
@@ -350,7 +350,7 @@ namespace Ogre {
         0, 0, 0, 0, 0, 0, 0, 0 
         },
 	//-----------------------------------------------------------------------
-        {"PF_FP_R32G32B32A32", 
+        {"PF_FLOAT32_RGBA", 
         /* Bytes per element */ 
         16,  
         /* Flags */
@@ -610,23 +610,23 @@ namespace Ogre {
         } else {
             switch(pf)
             {
-            case PF_FP_R32G32B32:
+            case PF_FLOAT32_RGB:
                 ((float*)dest)[0] = r;
                 ((float*)dest)[1] = g;
                 ((float*)dest)[2] = b;
                 break;
-            case PF_FP_R32G32B32A32:
+            case PF_FLOAT32_RGBA:
                 ((float*)dest)[0] = r;
                 ((float*)dest)[1] = g;
                 ((float*)dest)[2] = b;
                 ((float*)dest)[3] = a;
                 break;
-            case PF_FP_R16G16B16:
+            case PF_FLOAT16_RGB:
                 ((uint16*)dest)[0] = Bitwise::floatToHalf(r);
                 ((uint16*)dest)[1] = Bitwise::floatToHalf(g);
                 ((uint16*)dest)[2] = Bitwise::floatToHalf(b);
                 break;
-            case PF_FP_R16G16B16A16:
+            case PF_FLOAT16_RGBA:
                 ((uint16*)dest)[0] = Bitwise::floatToHalf(r);
                 ((uint16*)dest)[1] = Bitwise::floatToHalf(g);
                 ((uint16*)dest)[2] = Bitwise::floatToHalf(b);
@@ -715,25 +715,25 @@ namespace Ogre {
         } else {
             switch(pf)
             {
-            case PF_FP_R32G32B32:
+            case PF_FLOAT32_RGB:
                 *r = ((float*)src)[0];
                 *g = ((float*)src)[1];
                 *b = ((float*)src)[2];
                 *a = 1.0f;
                 break;
-            case PF_FP_R32G32B32A32:
+            case PF_FLOAT32_RGBA:
                 *r = ((float*)src)[0];
                 *g = ((float*)src)[1];
                 *b = ((float*)src)[2];
                 *a = ((float*)src)[3];
                 break;
-            case PF_FP_R16G16B16:
+            case PF_FLOAT16_RGB:
                 *r = Bitwise::halfToFloat(((uint16*)src)[0]);
                 *g = Bitwise::halfToFloat(((uint16*)src)[1]);
                 *b = Bitwise::halfToFloat(((uint16*)src)[2]);
                 *a = 1.0f;
                 break;
-            case PF_FP_R16G16B16A16:
+            case PF_FLOAT16_RGBA:
                 *r = Bitwise::halfToFloat(((uint16*)src)[0]);
                 *g = Bitwise::halfToFloat(((uint16*)src)[1]);
                 *b = Bitwise::halfToFloat(((uint16*)src)[2]);
@@ -913,8 +913,8 @@ namespace Ogre {
 			case PF_BYTE_RGBA: return ILFormat(4, IL_RGBA, IL_UNSIGNED_BYTE);
             case PF_BYTE_BGR: return ILFormat(3, IL_BGR, IL_UNSIGNED_BYTE);
             case PF_BYTE_BGRA: return ILFormat(4, IL_BGRA, IL_UNSIGNED_BYTE);
-			case PF_FP_R32G32B32: return ILFormat(3, IL_RGB, IL_FLOAT);
-			case PF_FP_R32G32B32A32: return ILFormat(4, IL_RGBA, IL_FLOAT);
+			case PF_FLOAT32_RGB: return ILFormat(3, IL_RGB, IL_FLOAT);
+			case PF_FLOAT32_RGBA: return ILFormat(4, IL_RGBA, IL_FLOAT);
 			case PF_DXT1: return ILFormat(0, IL_DXT1);
 			case PF_DXT2: return ILFormat(0, IL_DXT2);
 			case PF_DXT3: return ILFormat(0, IL_DXT3);
@@ -1069,7 +1069,7 @@ namespace Ogre {
 			// format to convert to.
 			
 			// most general format supported by OGRE and DevIL
-			PixelFormat fmt = PixelUtil::hasAlpha(src.format)?PF_FP_R32G32B32A32:PF_FP_R32G32B32; 
+			PixelFormat fmt = PixelUtil::hasAlpha(src.format)?PF_FLOAT32_RGBA:PF_FLOAT32_RGB; 
 
 			// Make up a pixel format
 			// We don't have to consider luminance formats as they have
