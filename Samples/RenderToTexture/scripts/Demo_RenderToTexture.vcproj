@@ -132,9 +132,6 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
-			<File
-				RelativePath="..\include\RenderToTexture.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
