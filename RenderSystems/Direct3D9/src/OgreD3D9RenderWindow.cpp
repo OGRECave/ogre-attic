@@ -551,7 +551,7 @@ namespace Ogre
 
 		D3DLOCKED_RECT lockedRect;
 		if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
-			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_NO_DIRTY_UPDATE)))
+			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
 		{
 			Except(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
 		} 
