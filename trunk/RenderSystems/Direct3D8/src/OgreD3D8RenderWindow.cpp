@@ -149,6 +149,7 @@ namespace Ogre
 		// miscParam[0] = HINSTANCE
 		// miscParam[1] = D3D8Driver
 		// miscParam[2] = parent HWND
+		// miscParam[3] = wait for vsync
 		va_list marker;
 		va_start( marker, depthBuffer );
 
@@ -164,6 +165,9 @@ namespace Ogre
 			parentHWnd = 0;
 		else
 			parentHWnd = parentRW->getWindowHandle();
+
+		tempPtr = va_arg( marker, long );
+		bool vsync = tempPtr ? true : false;
 
 		va_end( marker );
 
@@ -233,10 +237,12 @@ namespace Ogre
 			md3dpp.BackBufferWidth			= mWidth;
 			md3dpp.BackBufferHeight			= mHeight;
 
-			// Don't wait for vsync in fullscreen mode
 			if (fullScreen)
 			{
-				md3dpp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+				if (vsync)
+					md3dpp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+				else
+					md3dpp.FullScreen_PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 			}
 
 			if( !fullScreen )

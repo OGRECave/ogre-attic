@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __BLENDMODE_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreVector3.h"
 
 namespace Ogre {
 
@@ -88,7 +89,9 @@ namespace Ogre {
         /// as LBX_BLEND_DIFFUSE_ALPHA, but use current alpha from previous stages
         LBX_BLEND_CURRENT_ALPHA,
         /// as LBX_BLEND_DIFFUSE_ALPHA but use a constant manual blend value (0.0-1.0)
-        LBX_BLEND_MANUAL
+        LBX_BLEND_MANUAL,
+        /// dotproduct of color1 and color2 
+        LBX_DOTPRODUCT
     };
 
     /** List of valid sources of values for blending operations used

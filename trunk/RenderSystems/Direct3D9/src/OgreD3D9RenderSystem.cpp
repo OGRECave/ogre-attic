@@ -26,6 +26,102 @@
 
 namespace Ogre 
 {
+	DWORD D3D9RenderSystem::_getMagFilter(const TextureFilterOptions fo)
+	{
+		DWORD ret;
+		switch( fo )
+		{
+		// NOTE: Fall through if device doesn't support requested type
+		case TFO_ANISOTROPIC:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFANISOTROPIC )
+			{
+				ret = D3DTEXF_ANISOTROPIC;
+				break;
+			}
+		case TFO_TRILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_BILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MAGFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_NONE:
+			ret = D3DTEXF_POINT;
+			break;
+		}
+		
+		return ret;
+	}
+
+	DWORD D3D9RenderSystem::_getMinFilter(const TextureFilterOptions fo)
+	{
+		DWORD ret;
+		switch( fo )
+		{
+		// NOTE: Fall through if device doesn't support requested type
+		case TFO_ANISOTROPIC:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFANISOTROPIC )
+			{
+				ret = D3DTEXF_ANISOTROPIC;
+				break;
+			}
+		case TFO_TRILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_BILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_NONE:
+			ret = D3DTEXF_POINT;
+			break;
+		}
+		
+		return ret;
+	}
+
+	DWORD D3D9RenderSystem::_getMipFilter(const TextureFilterOptions fo)
+	{
+		DWORD ret;
+		switch( fo )
+		{
+		// NOTE: Fall through if device doesn't support requested type
+		case TFO_ANISOTROPIC:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_TRILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
+			{
+				ret = D3DTEXF_LINEAR;
+				break;
+			}
+		case TFO_BILINEAR:
+			if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
+			{
+				ret = D3DTEXF_POINT;
+				break;
+			}
+		case TFO_NONE:
+			ret = D3DTEXF_NONE;
+			break;
+		}
+		
+		return ret;
+	}
+
 	HRESULT D3D9RenderSystem::__SetRenderState(D3DRENDERSTATETYPE state, DWORD value)
 	{
 		HRESULT hr;
@@ -201,7 +297,7 @@ namespace Ogre
 		optVSync.immutable = false;
 		optVSync.possibleValues.push_back( "Yes" );
 		optVSync.possibleValues.push_back( "No" );
-		optVSync.currentValue = "Yes";
+		optVSync.currentValue = "No";
 
 		optAA.name = "Anti aliasing";
 		optAA.immutable = false;
@@ -337,6 +433,14 @@ namespace Ogre
 				setFullScreenMultiSamplingPasses(StringConverter::parseInt(value));
 		}
 
+		if( name == "VSync" )
+		{
+			if (value == "Yes")
+				mVSync = true;
+			else
+				mVSync = false;
+		}
+
 		OgreUnguard();
 	}
 
@@ -373,6 +477,12 @@ namespace Ogre
 			return "Your DirectX driver name has changed since the last time you ran OGRE; "
 				"the 'Rendering Device' has been changed.";
 		}
+
+        it = mOptions.find( "VSync" );
+		if( it->second.currentValue == "Yes" )
+			mVSync = true;
+		else
+			mVSync = false;
 
 		return "";
 	}
@@ -541,38 +651,7 @@ namespace Ogre
 	{
 		int units = _getNumTextureUnits();
 		for( int i=0; i < units; i++ )
-		{
-			switch( fo )
-			{
-				// NOTE: Fall through if device doesn't support requested type
-			case TFO_TRILINEAR:
-				if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MIPFLINEAR )
-				{
-					__SetSamplerState( i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
-					__SetSamplerState( i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
-					__SetSamplerState( i, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR );
-					LogManager::getSingleton().logMessage( "Texture filtering set to: TRILINEAR" );
-					break;
-				}
-
-			case TFO_BILINEAR:
-				if( mCaps.TextureFilterCaps & D3DPTFILTERCAPS_MINFLINEAR )
-				{
-					__SetSamplerState( i, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
-					__SetSamplerState( i, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
-					__SetSamplerState( i, D3DSAMP_MIPFILTER, D3DTEXF_POINT );
-					LogManager::getSingleton().logMessage( "Texture filtering set to: BILINEAR" );
-					break;
-				}
-
-			case TFO_NONE:
-				__SetSamplerState( i, D3DSAMP_MAGFILTER, D3DTEXF_POINT );
-				__SetSamplerState( i, D3DSAMP_MINFILTER, D3DTEXF_POINT );
-				__SetSamplerState( i, D3DSAMP_MIPFILTER, D3DTEXF_NONE );
-				LogManager::getSingleton().logMessage( "Texture filtering disabled" );
-				break;
-			}
-		}
+			_setTextureLayerFiltering(i, fo);
 	}
 
 	void D3D9RenderSystem::setLightingEnabled( bool enabled )
@@ -606,7 +685,7 @@ namespace Ogre
 		}
 
 		win->create( name, width, height, colourDepth, fullScreen, 
-			left, top, depthBuffer, &mhInstance, mActiveD3DDriver, parentWindowHandle, mMultiSampleQuality );
+			left, top, depthBuffer, &mhInstance, mActiveD3DDriver, parentWindowHandle, mMultiSampleQuality, mVSync );
 
 		attachRenderTarget( *win );
 
@@ -624,22 +703,30 @@ namespace Ogre
 		
 		bool req = mMultiSampleQuality ? true : false;
 		String reqStr = StringConverter::toString(mMultiSampleQuality);
-		if (req)
-			LogManager::getSingleton().logMessage( "FullScreen multisampling (AntiAliasing) requested : " + reqStr + "x");
+		DWORD reqVal = mMultiSampleQuality;
+		if (mMultiSampleQuality)
+		{
+			if (reqVal == 100)
+				LogManager::getSingleton().logMessage( "FullScreen multisampling (AntiAliasing) requested : maximum");
+			else
+				LogManager::getSingleton().logMessage( "FullScreen multisampling (AntiAliasing) requested : " + reqStr);
+		}
 
 		D3D9RenderWindow *rwin = (D3D9RenderWindow *)win;
 		mMultiSampleQuality = rwin->getMultiSampleQuality();
-		_setMultiSampleAntiAlias(mMultiSampleQuality ? TRUE : FALSE);
 		
-		String val = StringConverter::toString(mMultiSampleQuality);
+		String val = StringConverter::toString(mMultiSampleQuality - 1);
 		if (mMultiSampleQuality && req)
-			LogManager::getSingleton().logMessage( "    Supported and enabled, set to " + val + "x");
+		{
+			if (mMultiSampleQuality == reqVal)
+				LogManager::getSingleton().logMessage( "    Supported and enabled, quality set to " + val);
+			else
+				LogManager::getSingleton().logMessage( "    Requested quality not supported, quality set to " + val);
+			
+			__SetRenderState(D3DRS_MULTISAMPLEANTIALIAS, TRUE);
+		}
 		else if (!mMultiSampleQuality && req)
-			LogManager::getSingleton().logMessage( "    Not supported, only antialiasing lines enabled.");
-		else if (!mMultiSampleQuality && !req)
-			LogManager::getSingleton().logMessage( "FullScreen multisampling (AntiAliasing) not requested, disabled.");
-		else if (mMultiSampleQuality && !req)
-			LogManager::getSingleton().logMessage( "FullScreen multisampling (AntiAliasing) not requested, but set to " + val + "x");
+			LogManager::getSingleton().logMessage( "    Not supported.");
 
 		OgreUnguardRet( win );
 	}
@@ -942,12 +1029,20 @@ namespace Ogre
 
 		D3D9Texture* dt = (D3D9Texture*)TextureManager::getSingleton().getByName( texname );
 		if( enabled && dt )
+		{
 			hr = mpD3DDevice->SetTexture( stage, dt->getD3DTexture() );
+			if( FAILED( hr ) )
+				Except( hr, "Unable to set texture in D3D9", "D3D9RenderSystem::_setTexture" );
+		}
 		else
+		{
 			hr = mpD3DDevice->SetTexture( stage, NULL );
-
-		if( FAILED( hr ) )
-			Except( hr, "Unable to set texture in D3D9", "D3D9RenderSystem::_setTexture" );
+			if( FAILED( hr ) )
+				Except( hr, "Unable to disable texture in D3D9", "D3D9RenderSystem::_setTexture" );
+			hr = __SetTextureStageState( stage, D3DTSS_COLOROP, D3DTOP_DISABLE );
+			if( FAILED( hr ) )
+				Except( hr, "Unable to disable texture in D3D9", "D3D9RenderSystem::_setTexture" );
+		}
 	}
 
 	void D3D9RenderSystem::_setTextureCoordSet( int stage, int index )
@@ -1038,7 +1133,6 @@ namespace Ogre
 
 		case LBX_ADD:
 			value = D3DTOP_ADD;
-			//			value = D3DTOP_ADDSMOOTH;
 			break;
 
 		case LBX_ADD_SIGNED:
@@ -1070,6 +1164,13 @@ namespace Ogre
 			// set facto in render state
 			hr = __SetRenderState( D3DRS_TEXTUREFACTOR, D3DXCOLOR(0.0, 0.0, 0.0,  bm.factor) );
 			break;
+
+		case LBX_DOTPRODUCT:
+			if (mCaps.TextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
+				value = D3DTOP_DOTPRODUCT3;
+			else
+				value = D3DTOP_MODULATE;
+            break;
 		}
 
 		// Make call to set operation
@@ -1258,16 +1359,6 @@ namespace Ogre
 			Except( hr, "Failed to set render state D3DRS_ALPHAFUNC", "D3D9RenderSystem::_setAlphaRejectSettings" );
 		if( FAILED( hr = __SetRenderState( D3DRS_ALPHAREF, value ) ) )
 			Except( hr, "Failed to set render state D3DRS_ALPHAREF", "D3D9RenderSystem::_setAlphaRejectSettings" );
-	}
-
-	void D3D9RenderSystem::_setMultiSampleAntiAlias( BOOL set )
-	{
-		HRESULT hr;
-
-		if( FAILED( hr = __SetRenderState( D3DRS_ANTIALIASEDLINEENABLE, set) ) )
-			Except( hr, "Failed to set render state D3DRS_ANTIALIASEDLINEENABLE", "D3D9RenderSystem::_setMultiSampleAntiAlias" );
-		if( FAILED( hr = __SetRenderState( D3DRS_MULTISAMPLEANTIALIAS, set) ) )
-			Except( hr, "Failed to set render state D3DRS_MULTISAMPLEANTIALIAS", "D3D9RenderSystem::_setMultiSampleAntiAlias" );
 	}
 
 	void D3D9RenderSystem::_setViewport( Viewport *vp )
@@ -2244,5 +2335,34 @@ namespace Ogre
 				}
 			}
 		}
+	}
+
+	DWORD D3D9RenderSystem::_getCurrentAnisotropy(int unit)
+	{
+		DWORD oldVal;
+		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
+			return oldVal;
+	}
+
+	void D3D9RenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+	{
+		__SetSamplerState( unit, D3DSAMP_MAGFILTER, _getMagFilter(texLayerFilterOps) );
+		__SetSamplerState( unit, D3DSAMP_MINFILTER, _getMinFilter(texLayerFilterOps) );
+		__SetSamplerState( unit, D3DSAMP_MIPFILTER, _getMipFilter(texLayerFilterOps) );
+	}
+
+	void D3D9RenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+	{
+		if ((DWORD)maxAnisotropy > mCaps.MaxAnisotropy)
+			maxAnisotropy = mCaps.MaxAnisotropy;
+
+		if (_getCurrentAnisotropy(unit) != maxAnisotropy)
+			__SetSamplerState( unit, D3DSAMP_MAXANISOTROPY, maxAnisotropy );
+	}
+
+	void D3D9RenderSystem::_setAnisotropy(int maxAnisotropy)
+	{
+		for (int n = 0; n < _getNumTextureUnits(); n++)
+			_setTextureLayerAnisotropy(n, maxAnisotropy);
 	}
 }

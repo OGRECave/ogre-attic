@@ -272,7 +272,21 @@ namespace Ogre {
             _setTextureCoordSet(texUnit, coordSet);
         }
 
-        // Set blend modes
+        // Set texture layer filtering
+        TextureFilterOptions texLayerFilterOps = tl.getTextureLayerFiltering();
+        if (currIsBlank || curr.getTextureLayerFiltering() != texLayerFilterOps)
+        {
+            _setTextureLayerFiltering(texUnit, texLayerFilterOps);
+        }
+
+        // Set texture layer filtering
+		int tMaxAniso = tl.getTextureAnisotropy();
+        if (currIsBlank || curr.getTextureAnisotropy() != tMaxAniso)
+        {
+            _setTextureLayerAnisotropy(texUnit, tMaxAniso);
+        }
+
+		// Set blend modes
         LayerBlendModeEx newBlend = tl.getColourBlendMode();
         if (currIsBlank || curr.getColourBlendMode() != newBlend)
         {
@@ -284,7 +298,6 @@ namespace Ogre {
             _setTextureBlendMode(texUnit, newBlend);
         }
 
-        // Set addressing
         Material::TextureLayer::TextureAddressingMode addr = tl.getTextureAddressingMode();
         // Fix: GL requires addressing mode to be set in ALL cases
         // If the extra state changes in D3D become problematic, refactor this
@@ -292,7 +305,6 @@ namespace Ogre {
         //{
             _setTextureAddressingMode(texUnit, addr );
         //}
-
 
         // Set texture effects
         Material::TextureLayer::EffectMap::iterator effi;

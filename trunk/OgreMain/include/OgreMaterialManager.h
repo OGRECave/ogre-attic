@@ -75,6 +75,11 @@ namespace Ogre {
         /// Materials by handle.
         MaterialHandleList mHandles;
 
+		//default texture filtering
+		TextureFilterOptions mDefTextureFiltering;
+
+		//default maxAnisotropy
+		int mDefAniso;
 
     public:
         /** Default constructor.
@@ -122,7 +127,27 @@ namespace Ogre {
         */
         Material* createDeferred( const String& name );
 
-        /** Override standard Singleton retrieval.
+        /** Sets the default texture filtering to be used for loaded textures, for when textures are
+            loaded automatically (e.g. by Material class) or when 'load' is called with the default
+            parameters by the application.
+            @note
+                The default value is TFO_BILINEAR.
+        */
+        virtual void setDefaultTextureFiltering(TextureFilterOptions fo);
+		// get the default texture filtering
+        virtual TextureFilterOptions getDefaultTextureFiltering();
+
+        /** Sets the default anisotropy level to be used for loaded textures, for when textures are
+            loaded automatically (e.g. by Material class) or when 'load' is called with the default
+            parameters by the application.
+            @note
+                The default value is 1 (no anisotropy).
+        */
+		void setDefaultAnisotropy(int maxAniso);
+		// get the default maxAnisotropy
+		int getDefaultAnisotropy();
+
+		/** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,
                 which means it gets compiled into anybody who includes it. This is needed for the Singleton

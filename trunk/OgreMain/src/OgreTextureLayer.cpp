@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreMath.h"
 #include "OgreControllerManager.h"
+#include "OgreMaterialManager.h"
 
 namespace Ogre {
 
@@ -42,8 +43,12 @@ namespace Ogre {
         alphaBlendMode.blendType = LBT_ALPHA;
         alphaBlendMode.source1 = LBS_TEXTURE;
         alphaBlendMode.source2 = LBS_CURRENT;
+		
+		//default filtering
+		mTextureLayerFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
+		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
 
-        mUMod = mVMod = 0;
+		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
         mRotate = 0;
         mTexModMatrix = Matrix4::IDENTITY;
@@ -78,7 +83,11 @@ namespace Ogre {
         alphaBlendMode.source1 = LBS_TEXTURE;
         alphaBlendMode.source2 = LBS_CURRENT;
 
-        mUMod = mVMod = 0;
+		//default filtering && anisotropy
+		mTextureLayerFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
+		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
+
+		mUMod = mVMod = 0;
         mUScale = mVScale = 1;
         mRotate = 0;
         mAnimDuration = 0;
@@ -380,7 +389,6 @@ namespace Ogre {
         colourBlendMode.colourArg1 = arg1;
         colourBlendMode.colourArg2 = arg2;
         colourBlendMode.factor = manualBlend;
-
     }
     //-----------------------------------------------------------------------
     void Material::TextureLayer::setColourOperation(LayerBlendOperation op)
@@ -817,5 +825,29 @@ namespace Ogre {
 	std::multimap<Material::TextureLayer::TextureEffectType, Material::TextureLayer::TextureEffect> Material::TextureLayer::getEffects(void) const
 	{
 		return mEffects;
+	}
+
+	//-----------------------------------------------------------------------
+	void Material::TextureLayer::setTextureLayerFiltering(TextureFilterOptions filterType)
+	{
+		mTextureLayerFiltering = filterType;
+	}
+
+	//-----------------------------------------------------------------------
+	TextureFilterOptions Material::TextureLayer::getTextureLayerFiltering() const
+	{
+		return mTextureLayerFiltering;
+	}
+
+	//-----------------------------------------------------------------------
+	void Material::TextureLayer::setTextureAnisotropy(int maxAniso)
+	{
+		mMaxAniso = maxAniso;
+	}
+
+	//-----------------------------------------------------------------------
+	int Material::TextureLayer::getTextureAnisotropy() const
+	{
+		return mMaxAniso;
 	}
 }
