@@ -81,6 +81,11 @@ namespace OgreRefApp {
         OgreRefApp::Ball* createBall(const String& name, Real radius, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
+        /** Create a box object. */
+        OgreRefApp::Box* createBox(const String& name, Real width, Real height, Real depth,
+            const Vector3& pos = Vector3::ZERO, 
+            const Quaternion& orientation = Quaternion::IDENTITY);
+
         /** Clears the scene. */
         void clear(void);
 

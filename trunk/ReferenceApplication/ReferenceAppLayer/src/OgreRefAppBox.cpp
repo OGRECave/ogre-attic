@@ -4,7 +4,7 @@ This source file is part of the OGRE Reference Application, a layer built
 on top of OGRE(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -22,33 +22,35 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgreRefAppBall.h"
+#include "OgreRefAppBox.h"
 #include "OgreRefAppWorld.h"
 
 namespace OgreRefApp
 {
 
     //-------------------------------------------------------------------------
-    Ball::Ball(const String& name, Real radius) : ApplicationObject(name)
+    Box::Box(const String& name, Real width, Real height, Real depth) : ApplicationObject(name)
     {
-        mRadius = radius;
+        mDimensions.x = width;
+        mDimensions.y = height;
+        mDimensions.z = depth;
         setUp(name);
     }
     //-------------------------------------------------------------------------
-    Ball::~Ball()
+    Box::~Box()
     {
 
     }
     //-------------------------------------------------------------------------
-    void Ball::setUp(const String& name)
+    void Box::setUp(const String& name)
     {
         // Create visual presence
         SceneManager* sm = World::getSingleton().getSceneManager();
-        mEntity = sm->createEntity(name, "sphere.mesh");
+        mEntity = sm->createEntity(name, "cube.mesh");
         mSceneNode = static_cast<SceneNode*>(sm->getRootSceneNode()->createChild(name));
-        // Scale down, default size is 100
-        Real scale = mRadius / 100.0f;
-        mSceneNode->scale(scale, scale, scale);
+        // Scale down, default size is 100x100x100
+        mSceneNode->scale(mDimensions.x / 100.f, 
+            mDimensions.y / 100.f, mDimensions.z / 100.f);
 
         mSceneNode->attachObject(mEntity);
         // Add reverse reference
@@ -59,15 +61,15 @@ namespace OgreRefApp
         // Set reverse reference
         mOdeBody->setData(this);
         // Set mass 
-        setMassSphere(0.05, mRadius); // TODO change to more realistic values
+        setMassBox(0.5, mDimensions);
 
-        this->setBounceParameters(0.7, 0.1);
+        this->setBounceParameters(0.0, 0.0);
         this->setSoftness(0.0f);
         this->setFriction(Math::POS_INFINITY);
 
         // Create collision proxy
-        dSphere* odeSphere = new dSphere(0, mRadius);
-        mCollisionProxies.push_back(odeSphere);
+        dBox* odeBox = new dBox(0, mDimensions.x, mDimensions.y, mDimensions.z);
+        mCollisionProxies.push_back(odeBox);
         updateCollisionProxies();
 
 
