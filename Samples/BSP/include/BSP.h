@@ -43,13 +43,6 @@ class BspApplication : public ExampleApplication
 public:
     BspApplication()
     {
-        // Load Quake3 locations from a file
-        ConfigFile cf;
-
-        cf.load("quake3settings.cfg");
-
-        mQuakePk3 = cf.getSetting("Pak0Location");
-        mQuakeLevel = cf.getSetting("Map");
 
 
     }
@@ -62,7 +55,16 @@ protected:
     // Override resource sources (include Quake3 archives)
     void setupResources(void)
     {
-        ExampleApplication::setupResources();
+
+        // Load Quake3 locations from a file
+        ConfigFile cf;
+
+        cf.load("quake3settings.cfg");
+
+        mQuakePk3 = cf.getSetting("Pak0Location");
+        mQuakeLevel = cf.getSetting("Map");
+
+		ExampleApplication::setupResources();
         ResourceManager::addCommonArchiveEx(mQuakePk3, "Zip");
 
     }
