@@ -88,6 +88,7 @@ Examples/SceneSkyBox
         // clamp to avoid fuzziness at edges due to filtering
         tex_address_mode clamp
     }
+}
 
 // Scrolling cloudy sky
 Examples/CloudySky
