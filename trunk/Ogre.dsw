@@ -41,6 +41,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -82,6 +85,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
 
@@ -125,6 +131,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -166,6 +175,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
 
@@ -209,6 +221,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -250,6 +265,54 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_Nature"=.\Samples\Nature\scripts\Nature.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_FileSystem
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_GuiElements
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D8
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
 }}}
 
@@ -293,6 +356,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -334,6 +400,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
 
@@ -377,6 +446,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -418,6 +490,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
 
@@ -461,6 +536,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -502,6 +580,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_SDL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
 
@@ -545,6 +626,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -587,6 +671,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_NatureSceneManager
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -602,18 +689,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name OgreMain
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "NatureConsoleTest"=.\Samples\Nature\scripts\Nature.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################
@@ -745,18 +820,6 @@ Package=<4>
 ###############################################################################
 
 Project: "RenderSystem_Direct3D8"=.\RenderSystems\Direct3D8\scripts\RenderSystem_Direct3D8.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "RenderSystem_Direct3D9"=.\RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
