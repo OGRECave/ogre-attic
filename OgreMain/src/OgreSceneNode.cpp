@@ -305,6 +305,41 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    SceneManager* SceneNode::getCreator(void)
+    {
+        return mCreator;
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::removeAndDestroyChild(const String& name)
+    {
+        SceneNode* pChild = getChild(name);
+        pChild->removeAndDestroyAllChildren();
+
+        removeChild(name);
+        pChild->getCreator()->destroySceneNode(name);
+
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::removeAndDestroyChild(unsigned short index)
+    {
+        SceneNode* pChild = getChild(index);
+        pChild->removeAndDestroyAllChildren();
+
+        removeChild(index);
+        pChild->getCreator()->destroySceneNode(pChild->getName());
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::removeAndDestroyAllChildren(void)
+    {
+        ChildNodeMap::iterator i, iend;
+        iend = mChildren.end();
+        for (i = mChildren.begin(); i != iend; ++i)
+        {
+            SceneNode* sn = static_cast<SceneNode*>(i->second);
+            sn->removeAndDestroyAllChildren();
+            sn->getCreator()->destroySceneNode(sn->getName());
+        }
+    }
 
 
 }

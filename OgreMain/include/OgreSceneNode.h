@@ -219,6 +219,47 @@ namespace Ogre {
             the object returned through the iterator is OK though.
         */
         ObjectIterator getAttachedObjectIterator(void);
+
+
+        /** Gets the creator of this scene node. 
+        @remarks
+            This method returns the SceneManager which created this node.
+            This can be useful for destroying this node.
+        */
+        SceneManager* getCreator(void);
+
+        /** This method removes and destroys the named child and all of its children.
+        @remarks
+            Unlike removeChild, which removes a single named child from this
+            node but does not destroy it, this method destroys the child
+            and all of it's children. 
+        @par
+            Use this if you wish to recursively destroy a node as well as 
+            detaching it from it's parent. Note that any objects attached to
+            the nodes will be detached but will not themselves be destroyed.
+        */
+        void removeAndDestroyChild(const String& name);
+
+        /** This method removes and destroys the child and all of its children.
+        @remarks
+            Unlike removeChild, which removes a single named child from this
+            node but does not destroy it, this method destroys the child
+            and all of it's children. 
+        @par
+            Use this if you wish to recursively destroy a node as well as 
+            detaching it from it's parent. Note that any objects attached to
+            the nodes will be detached but will not themselves be destroyed.
+        */
+        void removeAndDestroyChild(unsigned short index);
+
+        /** Removes and destroys all children of this node.
+        @remarks
+            Use this to destroy all child nodes of this node and remove
+            them from the scene graph. Note that all objects attached to this
+            node will be detached but will not be destroyed.
+        */
+        void removeAndDestroyAllChildren(void);
+
     };
 
 
