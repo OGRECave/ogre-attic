@@ -27,6 +27,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreException.h"
 
 namespace Ogre {
+    /* get the value of a 16-bit integer stored in little-endian order */
+    #define GET_LE16(p) ((p)[0] + ((p)[1] << 8))
+
+    /* set a 16-bit little-endian integer */
+    #define SET_LE16(p, val) ((p)[0] = (val), (p)[1] = (val) >> 8)
 
     void TGACodec::code( const DataChunk& input, DataChunk* output, ... ) const
     {
@@ -42,10 +47,10 @@ namespace Ogre {
 
         // validate hdr
         const TgaHeader* hdr = (const TgaHeader*) input.getPtr();
-        if(!(hdr->type == 2 || hdr->type == 10))
+        if(!(hdr->image_type == 2 || hdr->image_type == 10))
         {
             Except(Exception::ERR_INTERNAL_ERROR,
-                "Unsupported TGA file type " + hdr->type,
+                "Unsupported TGA file type " + hdr->image_type,
                 "Image::loadFromTGAinput");
         }
 
@@ -53,20 +58,21 @@ namespace Ogre {
         bool mHasAlpha, mIsGreyscale;
         uchar *mpBuffer;
 
-        mWidth = hdr->width;
-        mHeight = hdr->height;
-        if (hdr->bpp == 32) // RGBA
+        mWidth = GET_LE16(hdr->image_width);
+        mHeight = GET_LE16(hdr->image_height);
+        if (hdr->pixel_depth == 32) // RGBA
             mHasAlpha = true;
         else
             mHasAlpha = false;
         mIsGreyscale = false;
 
         int offset = sizeof(TgaHeader);
-        if(hdr->id_len) {
-            offset += hdr->id_len;
+        if(hdr->id_length) {
+            offset += hdr->id_length;
         }
-        if(hdr->cm_len) {
-            offset += hdr->cm_len*(hdr->cm_bits>>3);
+        if(GET_LE16(hdr->color_map_length)) {
+            offset += GET_LE16(hdr->color_map_length) * 
+                ( hdr->color_map_entry_size >> 3 );
         }
 
         const unsigned char* data = input.getPtr()+offset;
@@ -74,10 +80,11 @@ namespace Ogre {
         bool rgb_swap = true;
 
         // the big ugly switch
-        switch(hdr->type) {
+        switch(hdr->image_type) {
+
         case 2: // rgb(a)
-            switch(hdr->bpp) {
-        case 16:
+            switch(hdr->pixel_depth) {
+            case 16:
             {
                 // upgrade to RGB
                 size = mWidth*mHeight*3;
@@ -103,7 +110,7 @@ namespace Ogre {
         case 24:
         case 32:
             {
-                size = mWidth*mHeight*(hdr->bpp>>3);
+                size = mWidth*mHeight*(hdr->pixel_depth>>3);
                 output->allocate( size );
                 mpBuffer = const_cast< uchar * >( output->getPtr() );
                 memcpy(mpBuffer,data,size);
@@ -113,11 +120,11 @@ namespace Ogre {
             break;
 
         case 10: // RLE
-            switch(hdr->bpp) {
+            switch(hdr->pixel_depth) {
         case 24:
         case 32:
             {
-                output->allocate( mWidth*mHeight*(hdr->bpp>>3) );
+                output->allocate( mWidth*mHeight*(hdr->pixel_depth>>3) );
                 mpBuffer = const_cast< uchar * >( output->getPtr() );                    
                 size = mWidth*mHeight;
                 unsigned int i = 0;
@@ -133,14 +140,14 @@ namespace Ogre {
                             b = (int)*s++&0xff;
                             g = (int)*s++&0xff;
                             r = (int)*s++&0xff;
-                            if(hdr->bpp == 32) {
+                            if(hdr->pixel_depth == 32) {
                                 a = (int)*s++&0xff;
                             }
 
                             *p++ = r;
                             *p++ = g;
                             *p++ = b;
-                            if(hdr->bpp == 32) {
+                            if(hdr->pixel_depth == 32) {
                                 *p++ = a;
                             }
 
@@ -160,7 +167,7 @@ namespace Ogre {
                         b = (int)*s++&0xff;
                         g = (int)*s++&0xff;
                         r = (int)*s++&0xff;
-                        if(hdr->bpp == 32) {
+                        if(hdr->pixel_depth == 32) {
                             a = (int)*s++&0xff;
                         }
 
@@ -168,7 +175,7 @@ namespace Ogre {
                             *p++ = r;
                             *p++ = g;
                             *p++ = b;
-                            if(hdr->bpp == 32) {
+                            if(hdr->pixel_depth == 32) {
                                 *p++ = a;
                             }
 
@@ -195,7 +202,7 @@ namespace Ogre {
         };
 
         // swap bgr to rgb for bpp={24,32}
-        int bytes = hdr->bpp>>3;
+        int bytes = hdr->pixel_depth >> 3;
 
         if(bytes > 1) {
             for(unsigned int c = 0; c < size; c += bytes) {
@@ -211,7 +218,7 @@ namespace Ogre {
             memcpy(mpBuffer + i*mWidth*bytes, mpBuffer + (mHeight-i-1)*mWidth*bytes, mWidth*bytes);
             memcpy(mpBuffer + (mHeight-i-1)*mWidth*bytes, tmp, mWidth*bytes);
         }
-        delete tmp;
+        delete[] tmp;
 
         ImageData * ret_data = new ImageData;
 

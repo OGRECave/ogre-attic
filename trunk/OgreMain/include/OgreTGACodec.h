@@ -36,30 +36,22 @@ namespace Ogre {
     {
     protected:
 
-    // We're mapping onto raw file data, so ensure members are packed with no gaps
-    #if OGRE_COMPILER == COMPILER_MSVC
-    #pragma pack(push)
-    #pragma pack(1)
-    #endif
-
-        struct TgaHeader {
-            unsigned char  id_len;
-            unsigned char  cm_type;
-            unsigned char  type;
-            unsigned short cm_start;
-            unsigned short cm_len;
-            unsigned char  cm_bits;
-            unsigned short xorg;
-            unsigned short yorg;
-            unsigned short width;
-            unsigned short height;
-            unsigned char  bpp;
-            unsigned char  flags;
-        };
-    #if OGRE_COMPILER == COMPILER_MSVC
-    #pragma pack(pop)
-    #endif
-
+    // We're mapping onto raw file data, so ensure members are packed with no gaps 
+    //    by using uchars all the way (more portable than #pragma pack
+    typedef struct {
+	    uchar id_length;
+	    uchar color_map_type;
+	    uchar image_type;
+	    uchar first_entry_index[2];
+	    uchar color_map_length[2];
+	    uchar color_map_entry_size;
+	    uchar x_origin[2];
+	    uchar y_origin[2];
+	    uchar image_width[2];
+	    uchar image_height[2];
+	    uchar pixel_depth;
+	    uchar image_descriptor;
+    } TgaHeader;
 
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
