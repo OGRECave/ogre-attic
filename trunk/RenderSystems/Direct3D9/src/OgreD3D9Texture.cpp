@@ -1336,7 +1336,8 @@ namespace Ogre
 		int idx = face*mNumMipmaps + mipmap;
 		assert(idx < mSurfaceList.size());
 		return mSurfaceList[idx];
-	}		
+	}
+	
 	/****************************************************************************************/
 	PixelFormat D3D9Texture::_getPF(D3DFORMAT d3dPF)
 	{
@@ -1344,29 +1345,44 @@ namespace Ogre
 		{
 		case D3DFMT_A8:
 			return PF_A8;
+		case D3DFMT_L8:
+			return PF_L8;
+		case D3DFMT_L16:
+			return PF_L16;
 		case D3DFMT_A4L4:
 			return PF_A4L4;
 		case D3DFMT_A4R4G4B4:
 			return PF_A4R4G4B4;
+		case D3DFMT_R5G6B5:
+			return PF_R5G6B5;
+		case D3DFMT_R8G8B8:
+			return PF_R8G8B8;
+		case D3DFMT_X8R8G8B8:
+			return PF_X8R8G8B8;
 		case D3DFMT_A8R8G8B8:
 			return PF_A8R8G8B8;
+		case D3DFMT_X8B8G8R8:
+			return PF_X8B8G8R8;
+		case D3DFMT_A8B8G8R8:
+			return PF_A8B8G8R8;
 		case D3DFMT_A2R10G10B10:
 			return PF_A2R10G10B10;
         case D3DFMT_A2B10G10R10:
            return PF_A2B10G10R10;
-		case D3DFMT_L8:
-			return PF_L8;
-		case D3DFMT_X1R5G5B5:
-		case D3DFMT_R5G6B5:
-			return PF_R5G6B5;
-		case D3DFMT_X8R8G8B8:
-			return PF_A8R8G8B8;
-		case D3DFMT_R8G8B8:
-			return PF_R8G8B8;
-		case D3DFMT_A16B16G16R16F:
+		case D3DFMT_A16B16G16R16F: // verify?
 			return PF_FP_R16G16B16A16;
-		case D3DFMT_A32B32G32R32F:
+		case D3DFMT_A32B32G32R32F: // verify?
 			return PF_FP_R32G32B32A32;
+		case D3DFMT_DXT1:
+			return PF_DXT1;
+		case D3DFMT_DXT2:
+			return PF_DXT2;
+		case D3DFMT_DXT3:
+			return PF_DXT3;
+		case D3DFMT_DXT4:
+			return PF_DXT4;
+		case D3DFMT_DXT5:
+			return PF_DXT5;
 		default:
 			return PF_UNKNOWN;
 		}
@@ -1378,35 +1394,77 @@ namespace Ogre
 		{
 		case PF_L8:
 			return D3DFMT_L8;
+		case PF_L16:
+			return D3DFMT_L16;
 		case PF_A8:
 			return D3DFMT_A8;
-		case PF_B5G6R5:
-		case PF_R5G6B5:
-			return D3DFMT_R5G6B5;
-		case PF_B4G4R4A4:
-		case PF_A4R4G4B4:
-			return D3DFMT_A4R4G4B4;
-		case PF_B8G8R8:
-		case PF_R8G8B8:
-			return D3DFMT_R8G8B8;
-		case PF_B8G8R8A8:
-		case PF_A8R8G8B8:
-			return D3DFMT_A8R8G8B8;
-		case PF_L4A4:
 		case PF_A4L4:
 			return D3DFMT_A4L4;
+		case PF_R5G6B5:
+			return D3DFMT_R5G6B5;
+		case PF_A4R4G4B4:
+			return D3DFMT_A4R4G4B4;
+		case PF_R8G8B8:
+			return D3DFMT_R8G8B8;
+		case PF_A8R8G8B8:
+			return D3DFMT_A8R8G8B8;
+		case PF_A8B8G8R8:
+			return D3DFMT_A8B8G8R8;
+		case PF_X8R8G8B8:
+			return D3DFMT_X8R8G8B8;
+		case PF_X8B8G8R8:
+			return D3DFMT_X8B8G8R8;
 		case PF_A2B10G10R10:
             return D3DFMT_A2B10G10R10;
 		case PF_A2R10G10B10:
 			return D3DFMT_A2R10G10B10;
-		case PF_FP_R16G16B16A16:
+		case PF_FP_R16G16B16A16: // verify?
 			return D3DFMT_A16B16G16R16F;
-		case PF_FP_R32G32B32A32:
+		case PF_FP_R32G32B32A32: // verify?
 			return D3DFMT_A32B32G32R32F;
+		case PF_DXT1:
+			return D3DFMT_DXT1;
+		case PF_DXT2:
+			return D3DFMT_DXT2;
+		case PF_DXT3:
+			return D3DFMT_DXT3;
+		case PF_DXT4:
+			return D3DFMT_DXT4;
+		case PF_DXT5:
+			return D3DFMT_DXT5;
 		case PF_UNKNOWN:
 		default:
 			return D3DFMT_UNKNOWN;
 		}
 	}
+	/****************************************************************************************/
+	PixelFormat D3D9Texture::_getClosestSupportedPF(PixelFormat ogrePF)
+	{
+		if (_getPF(ogrePF) != D3DFMT_UNKNOWN)
+		{
+			return ogrePF;
+		}
+		switch(ogrePF)
+		{
+		case PF_L4A4:
+			return PF_A4L4;
+		case PF_B5G6R5:
+			return PF_R5G6B5;
+		case PF_B4G4R4A4:
+			return PF_A4R4G4B4;
+		case PF_B8G8R8:
+			return PF_R8G8B8;
+		case PF_B8G8R8A8:
+			return PF_A8R8G8B8;
+		case PF_FP_R16G16B16:
+			return PF_FP_R16G16B16A16;
+		case PF_FP_R32G32B32:
+			return PF_FP_R32G32B32A32;
+		case PF_UNKNOWN:
+		default:
+			return PF_A8R8G8B8;
+		}
+	}
+
 	/****************************************************************************************/
 }
