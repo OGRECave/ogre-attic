@@ -60,7 +60,8 @@ void writeEXRHalf(OStream *ost, const float *pixels,
 		header.channels().insert ("A", Channel (HALF));
 
 	// Convert data to half
-	half data[width*height*components];
+	half *data = new half [width*height*components];
+	
 	std::copy(pixels, pixels+(width*height*components), data);
 	
 	// And save it
@@ -92,6 +93,7 @@ void writeEXRHalf(OStream *ost, const float *pixels,
 
 	file.setFrameBuffer(frameBuffer);
 	file.writePixels(height);
+	delete data;
 }
 
 
@@ -168,7 +170,7 @@ EXRCodec::CodecData * EXRCodec::decode( const DataChunk& input, DataChunk* outpu
         ret_data->height = height;
         ret_data->depth = 1;
         ret_data->size = width*height*components*4;
-        ret_data->num_mipmaps = 1;
+        ret_data->num_mipmaps = 0;
         ret_data->flags = 0;
     } catch (const std::exception &exc) {
         delete ret_data;

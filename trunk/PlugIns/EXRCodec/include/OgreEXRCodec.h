@@ -32,7 +32,7 @@ namespace Ogre {
     /** 
      * Codec specialized in loading OpenEXR high dynamic range images.
      */
-    class _OgreExport EXRCodec : public ImageCodec
+    class EXRCodec : public ImageCodec
     {
     public:
         EXRCodec();
