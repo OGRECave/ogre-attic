@@ -221,14 +221,19 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
     {
-		// Update existing particles
-        _expire(timeElapsed);
-        _triggerAffectors(timeElapsed);
-        _applyMotion(timeElapsed);
-		// Emit new particles
-        _triggerEmitters(timeElapsed);
-		// Update bounds
-        _updateBounds();
+		// Only update if attached to a node
+		if (mParentNode)
+		{
+			// Update existing particles
+        	_expire(timeElapsed);
+        	_triggerAffectors(timeElapsed);
+        	_applyMotion(timeElapsed);
+			// Emit new particles
+        	_triggerEmitters(timeElapsed);
+			// Update bounds
+        	_updateBounds();
+		}
+		
 
     }
     //-----------------------------------------------------------------------
