@@ -316,7 +316,7 @@ namespace Ogre {
             */
 
             // Allocate whole at once
-            mMesh->sharedGeometry.pVertices = new Real[mMeshWidth * mMeshHeight];
+            mMesh->sharedGeometry.pVertices = (Real*)malloc(vertSize *  mMeshWidth * mMeshHeight);
 
             // Set other pointers relative to this
             if (mCtlPointData.hasNormals)
