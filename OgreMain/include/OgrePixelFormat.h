@@ -153,7 +153,7 @@ namespace Ogre {
         /** Return wether this buffer is laid uit consecutive in memory (ie the pitches
          	are equal to the dimensions)
         */        
-        bool isConsecutive() const { return rowPitch == width && slicePitch == (width*height); }
+        bool isConsecutive() const { return rowPitch == static_cast<int>(width) && slicePitch == static_cast<int>(width*height); }
     };
 
     /**
