@@ -315,7 +315,7 @@ namespace Ogre
 	{
 	public:
 		FontPtr() : SharedPtr<Font>() {}
-		FontPtr(Font* rep) : SharedPtr<Font>(rep) {}
+		explicit FontPtr(Font* rep) : SharedPtr<Font>(rep) {}
 		FontPtr(const FontPtr& r) : SharedPtr<Font>(r) {} 
 		FontPtr(const ResourcePtr& r) : SharedPtr<Font>()
 		{

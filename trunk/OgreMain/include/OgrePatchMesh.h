@@ -76,7 +76,7 @@ namespace Ogre {
     {
     public:
         PatchMeshPtr() : SharedPtr<PatchMesh>() {}
-        PatchMeshPtr(PatchMesh* rep) : SharedPtr<PatchMesh>(rep) {}
+        explicit PatchMeshPtr(PatchMesh* rep) : SharedPtr<PatchMesh>(rep) {}
         PatchMeshPtr(const PatchMeshPtr& r) : SharedPtr<PatchMesh>(r) {} 
         PatchMeshPtr(const ResourcePtr& r) : SharedPtr<PatchMesh>()
         {

@@ -672,7 +672,7 @@ namespace Ogre {
 	{
 	public:
 		GpuProgramPtr() : SharedPtr<GpuProgram>() {}
-		GpuProgramPtr(GpuProgram* rep) : SharedPtr<GpuProgram>(rep) {}
+		explicit GpuProgramPtr(GpuProgram* rep) : SharedPtr<GpuProgram>(rep) {}
 		GpuProgramPtr(const GpuProgramPtr& r) : SharedPtr<GpuProgram>(r) {} 
 		GpuProgramPtr(const ResourcePtr& r) : SharedPtr<GpuProgram>()
 		{

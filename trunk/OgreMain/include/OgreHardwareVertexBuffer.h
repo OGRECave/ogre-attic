@@ -61,7 +61,7 @@ namespace Ogre {
     {
     public:
         HardwareVertexBufferSharedPtr() : SharedPtr<HardwareVertexBuffer>() {}
-        HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf);
+        explicit HardwareVertexBufferSharedPtr(HardwareVertexBuffer* buf);
 
 
     };

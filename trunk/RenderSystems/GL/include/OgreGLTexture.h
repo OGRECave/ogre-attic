@@ -97,7 +97,7 @@ namespace Ogre {
     {
     public:
         GLTexturePtr() : SharedPtr<GLTexture>() {}
-        GLTexturePtr(GLTexture* rep) : SharedPtr<GLTexture>(rep) {}
+        explicit GLTexturePtr(GLTexture* rep) : SharedPtr<GLTexture>(rep) {}
         GLTexturePtr(const GLTexturePtr& r) : SharedPtr<GLTexture>(r) {} 
         GLTexturePtr(const ResourcePtr& r) : SharedPtr<GLTexture>()
         {

@@ -569,7 +569,7 @@ Ogre::SkeletonPtr MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::MeshP
     ofn.lpstrTitle = "Export to OGRE Skeleton";
 
     if (!::GetSaveFileName (&ofn))
-        return 0;
+        return Ogre::SkeletonPtr();
 
     // Strip off the path
     Ogre::String skelName = szFile;

@@ -116,7 +116,7 @@ MaterialPtr NaturePatchManager::createTerrainMaterial()
 
     return mMaterial;
 #endif
-    return 0;
+    return MaterialPtr();
 }
 
 //----------------------------------------------------------------------------

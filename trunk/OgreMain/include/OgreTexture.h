@@ -234,7 +234,7 @@ namespace Ogre {
     {
     public:
         TexturePtr() : SharedPtr<Texture>() {}
-        TexturePtr(Texture* rep) : SharedPtr<Texture>(rep) {}
+        explicit TexturePtr(Texture* rep) : SharedPtr<Texture>(rep) {}
         TexturePtr(const TexturePtr& r) : SharedPtr<Texture>(r) {} 
         TexturePtr(const ResourcePtr& r) : SharedPtr<Texture>()
         {
