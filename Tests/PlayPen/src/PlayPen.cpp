@@ -65,6 +65,7 @@ IntersectionSceneQuery* intersectionQuery = 0;
 RaySceneQuery* rayQuery = 0;
 Entity* ball = 0;
 Vector3 ballVector;
+bool testreload = false;
 
 
 // Hacky globals
@@ -170,6 +171,27 @@ public:
 
 
         }
+
+
+		static float reloadtime = 10.0f;
+		if (testreload)
+		{
+			reloadtime -= evt.timeSinceLastFrame;
+			if (reloadtime <= 0)
+			{
+				Entity* e = mSceneMgr->getEntity("1");
+				e->getParentSceneNode()->detachObject("1");
+				e = mSceneMgr->getEntity("2");
+				e->getParentSceneNode()->detachObject("2");
+				mSceneMgr->removeAllEntities();
+				ResourceGroupManager::getSingleton().unloadResourceGroup("Sinbad");
+				ResourceGroupManager::getSingleton().loadResourceGroup("Sinbad");
+
+				testreload = false;
+
+			}
+		}
+
 
 
 
@@ -2164,6 +2186,26 @@ protected:
 
 	}
 
+	void testReloadResources()
+	{
+		mSceneMgr->setAmbientLight(ColourValue::White);
+		ResourceGroupManager::getSingleton().createResourceGroup("Sinbad");
+		Root::getSingleton().addResourceLocation("../../../Media/models", "FileSystem", "Sinbad");
+		MeshManager& mmgr = MeshManager::getSingleton();
+		mmgr.load("robot.mesh", "Sinbad");
+		mmgr.load("knot.mesh", "Sinbad");
+
+		Entity* e = mSceneMgr->createEntity("1", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+		e = mSceneMgr->createEntity("2", "robot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,0,0))->attachObject(e);
+		e = mSceneMgr->createEntity("3", "knot.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100,300,0))->attachObject(e);
+
+		testreload = true;
+
+	}
+
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2203,8 +2245,9 @@ protected:
 		//testLotsAndLotsOfEntities();
 		//testSimpleMesh();
 		//test2Windows();
-		testStaticGeometry();
+		//testStaticGeometry();
 		//testBug();
+		testReloadResources();
     }
     // Create new frame listener
     void createFrameListener(void)
