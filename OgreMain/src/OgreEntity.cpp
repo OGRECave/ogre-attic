@@ -826,7 +826,11 @@ namespace Ogre {
                 {
                     pVertData = egi->vertexData;
                 }
-                *si = new EntityShadowRenderable(this, indexBuffer, pVertData);
+                // Create a new renderable, create a separate light cap if
+                // we're using hardware skinning since otherwise we get
+                // depth-fighting on the light cap
+                *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
+                    mHardwareSkinning);
             }
             else if (hasSkeleton())
             {
@@ -901,7 +905,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::EntityShadowRenderable(Entity* parent, 
-        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData)
+        HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData,
+        bool createSeparateLightCap, bool isLightCap)
         : mParent(parent)
     {
         // Save link to vertex data
@@ -934,10 +939,26 @@ namespace Ogre {
         }
         // Use same vertex start as input
         mRenderOp.vertexData->vertexStart = vertexData->vertexStart;
-        // Vertex count must take into account the doubling of the buffer,
-        // because second half of the buffer is the extruded copy
-        mRenderOp.vertexData->vertexCount = 
-            vertexData->vertexCount * 2;
+
+        if (isLightCap)
+        {
+            // Use original vertex count, no extrusion
+            mRenderOp.vertexData->vertexCount = vertexData->vertexCount;
+        }
+        else
+        {
+            // Vertex count must take into account the doubling of the buffer,
+            // because second half of the buffer is the extruded copy
+            mRenderOp.vertexData->vertexCount = 
+                vertexData->vertexCount * 2;
+            if (createSeparateLightCap)
+            {
+                // Create child light cap
+                mLightCap = new EntityShadowRenderable(parent, 
+                    indexBuffer, vertexData, false, true);
+            }
+        }
+
     }
     //-----------------------------------------------------------------------
     Entity::EntityShadowRenderable::~EntityShadowRenderable()
@@ -976,6 +997,10 @@ namespace Ogre {
         mPositionBuffer = mOriginalVertexData->vertexBufferBinding->getBuffer(
             mOriginalPosBufferBinding);
         mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
+        if (mLightCap)
+        {
+            static_cast<EntityShadowRenderable*>(mLightCap)->rebindPositionBuffer();
+        }
 
     }
 
