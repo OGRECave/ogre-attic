@@ -356,7 +356,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)    
+    void ParticleSystem::genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)    
     {
         // Orientation different from BillboardSet
         // Billboards are in world space (to decouple them from emitters in node space)
@@ -367,7 +367,7 @@ namespace Ogre {
         case BBT_POINT:
             // Get camera world axes for X and Y (depth is irrelevant)
             // No inverse transform
-            camQ = cam.getOrientation();
+            camQ = cam.getDerivedOrientation();
             *pX = camQ * Vector3::UNIT_X;
             *pY = camQ * Vector3::UNIT_Y;
            
@@ -376,7 +376,7 @@ namespace Ogre {
              // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
-            *pX = camQ * cam.getDirection().crossProduct(*pY);
+            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
            
             break;
         case BBT_ORIENTED_SELF:
@@ -385,7 +385,7 @@ namespace Ogre {
 
             // Scale direction first
             *pY = (pBill->mDirection * 0.01);
-            *pX = camQ * cam.getDirection().crossProduct(*pY);
+            *pX = camQ * cam.getDerivedDirection().crossProduct(*pY);
 
             break;
         }
