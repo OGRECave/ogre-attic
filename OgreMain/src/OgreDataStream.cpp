@@ -47,13 +47,13 @@ namespace Ogre {
             str << mTmpArea;
         }
 
+        String retString(str.str());
         if (trimAfter)
         {
-            String trimString(str.str());
-            StringUtil::trim(trimString);
+            StringUtil::trim(retString);
         }
 
-        return str.str();
+        return retString;
     }
     //-----------------------------------------------------------------------
     String DataStream::getAsString(void)
