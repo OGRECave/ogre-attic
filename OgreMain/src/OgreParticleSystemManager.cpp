@@ -171,7 +171,14 @@ namespace Ogre {
         mAffectorFactories[name] = factory;
         LogManager::getSingleton().logMessage("Particle Affector Type '" + name + "' registered");
     }
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	void ParticleSystemManager::addRendererFactory(ParticleSystemRendererFactory* factory)
+	{
+        String name = factory->getType();
+        mRendererFactories[name] = factory;
+        LogManager::getSingleton().logMessage("Particle Renderer Type '" + name + "' registered");
+	}
+	//-----------------------------------------------------------------------
     void ParticleSystemManager::addTemplate(const String& name, const ParticleSystem& sysTemplate)
     {
         mSystemTemplates[name] = sysTemplate;
@@ -317,6 +324,34 @@ namespace Ogre {
 
         pFact->second->destroyAffector(affector);
     }
+    //-----------------------------------------------------------------------
+    ParticleSystemRenderer* ParticleSystemManager::_createRenderer(const String& rendererType)
+	{
+        // Locate affector type
+        ParticleSystemRendererFactoryMap::iterator pFact = mRendererFactories.find(rendererType);
+
+        if (pFact == mRendererFactories.end())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot find requested renderer type.", 
+                "ParticleSystemManager::_createRenderer");
+        }
+
+        return pFact->second->createInstance();
+	}
+	//-----------------------------------------------------------------------
+    void ParticleSystemManager::_destroyRenderer(ParticleSystemRenderer* renderer)
+	{
+        // Destroy using the factory which created it
+        ParticleSystemRendererFactoryMap::iterator pFact = mRendererFactories.find(renderer->getType());
+
+        if (pFact == mRendererFactories.end())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot find renderer factory to destroy renderer.", 
+                "ParticleSystemManager::_destroyRenderer");
+        }
+
+        pFact->second->destroyInstance(renderer);
+	}
     //-----------------------------------------------------------------------
     bool ParticleSystemManager::frameStarted(const FrameEvent &evt)
     {

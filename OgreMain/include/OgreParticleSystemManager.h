@@ -54,8 +54,10 @@ namespace Ogre {
     */
     class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, public FrameListener
     {
-    protected:
+	public:
         typedef std::map<String, ParticleSystem> ParticleTemplateMap;
+		typedef std::map<String, ParticleSystemRendererFactory*> ParticleSystemRendererFactoryMap;
+    protected:
         /// Templates based on scripts
         ParticleTemplateMap mSystemTemplates;
         
@@ -70,6 +72,9 @@ namespace Ogre {
         typedef std::map<String, ParticleAffectorFactory*> ParticleAffectorFactoryMap;
         /// Factories for named affector types (can be extended using plugins)
         ParticleAffectorFactoryMap mAffectorFactories;
+
+		/// Map of renderer types to factories
+		ParticleSystemRendererFactoryMap mRendererFactories;
 
 		/// Controls time
 		Real mTimeFactor;
@@ -130,6 +135,16 @@ namespace Ogre {
             factory Pointer to a ParticleAffectorFactory subclass created by the plugin or application code.
         */
         void addAffectorFactory(ParticleAffectorFactory* factory);
+
+		/** Registers a factory class for creating ParticleSystemRenderer instances. 
+        @par
+            Note that the object passed to this function will not be destroyed by the ParticleSystemManager,
+            since it may have been allocted on a different heap in the case of plugins. The caller must
+            destroy the object later on, probably on plugin shutdown.
+        @param
+            factory Pointer to a ParticleSystemRendererFactory subclass created by the plugin or application code.
+		*/
+		void addRendererFactory(ParticleSystemRendererFactory* factory);
 
         /** Adds a new particle system template to the list of available templates. 
         @remarks
@@ -269,6 +284,26 @@ namespace Ogre {
             affector Pointer to affector to be destroyed. On return this pointer will point to invalid (freed) memory.
         */
         void _destroyAffector(ParticleAffector* affector);
+
+        /** Internal method for creating a new renderer from a factory.
+        @remarks
+            Used internally by the engine to create new ParticleSystemRenderer instances from named
+            factories. Applications should use the ParticleSystem::setRenderer method instead, 
+            which calls this method to create an instance.
+        @param
+            rendererType String name of the renderer type to be created. A factory of this type must have been registered.
+        */
+        ParticleSystemRenderer* _createRenderer(const String& rendererType);
+
+        /** Internal method for destroying a renderer.
+        @remarks
+            Because renderer are created by factories which may allocate memory from separate heaps,
+            the memory allocated must be freed from the same place. This method is used to ask the factory
+            to destroy the instance passed in as a pointer.
+        @param
+            renderer Pointer to renderer to be destroyed. On return this pointer will point to invalid (freed) memory.
+        */
+        void _destroyRenderer(ParticleSystemRenderer* renderer);
 
         /** Frame event */
         bool frameStarted(const FrameEvent &evt);

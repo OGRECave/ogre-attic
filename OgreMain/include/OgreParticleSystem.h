@@ -118,23 +118,11 @@ namespace Ogre {
             The main ParticleSystem just manages the creation and movement of 
             particles; they are rendered using functions in ParticleRenderer
             and the ParticleVisual instances they create.
-        @par
-            This version of the method takes a pointer to a renderer, which 
-            should be unique to this system. 
+		@param typeName String identifying the type of renderer to use; a new 
+			instance of this type will be created; a factory must have been registered
+			with ParticleSystemManager.
         */
-        void setRenderer(ParticleSystemRenderer* renderer);
-
-        /** Sets the ParticleRenderer to be used to render this particle system.
-        @remarks
-            The main ParticleSystem just manages the creation and movement of 
-            particles; they are rendered using functions in ParticleRenderer
-            and the ParticleVisual instances they create.
-        @par
-            This version of the method takes a renderer name rather than a
-            pointer; a new instance of this named type of renderer will be 
-            created using ParticleSystemManager.
-        */
-        void setRenderer(const String& name);
+        void setRenderer(const String& typeName);
 
         /** Gets the ParticleRenderer to be used to render this particle system. */
         ParticleSystemRenderer* getRenderer(void) const;
@@ -228,6 +216,27 @@ namespace Ogre {
             number of particles allowed in this system at once (particle quota).
         */
         size_t getNumParticles(void) const;
+
+		/** Manually add a particle to the system. 
+		@remarks
+			Instead of using an emitter, you can manually add a particle to the system.
+			You must initialise the returned particle instance immediately with the
+			'emission' state.
+		@note
+			There is no corresponding 'destroyParticle' method - if you want to dispose of a
+			particle manually (say, if you've used setSpeedFactor(0) to make particles live forever)
+			you should use getParticle() and modify it's timeToLive to zero, meaning that it will
+			get cleaned up in the next update.
+		*/
+		Particle* createParticle(void);
+
+		/** Retrieve a particle from the system for manual tweaking.
+		@remarks
+			Normally you use an affector to alter particles in flight, but
+			for small manually controlled particle systems you might want to use
+			this method.
+		*/
+		Particle* getParticle(size_t index);
 
         /** Returns the maximum number of particles this system is allowed to have active at once.
         @remarks
@@ -323,6 +332,21 @@ namespace Ogre {
         */
         void fastForward(Real time, Real interval = 0.1);
 
+		/** Sets a 'speed factor' on this particle system, which means it scales the elapsed
+			real time which has passed by this factor before passing it to the emitters, affectors,
+			and the particle life calculation.
+		@remarks
+			An interesting side effect - if you want to create a completely manual particle system
+			where you control the emission and life of particles yourself, you can set the speed
+			factor to 0.0f, thus disabling normal particle emission, alteration, and death.
+		*/
+		void setSpeedFactor(Real speedFactor) { mSpeedFactor = speedFactor; }
+
+		/** Gets the 'speed factor' on this particle system.
+		*/
+		Real getSpeedFactor(void) const { return mSpeedFactor; }
+
+
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;
 
@@ -402,6 +426,8 @@ namespace Ogre {
         Real mDefaultHeight;
         /// Are all the particles default size?
         bool mAllDefaultSize;
+		/// Speed factor
+		Real mSpeedFactor;
 
         typedef std::list<Particle*> ActiveParticleList;
         typedef std::deque<Particle*> FreeParticleQueue;
@@ -469,9 +495,6 @@ namespace Ogre {
 
         /** Resize the internal pool of particles. */
         void increasePool(unsigned int size);
-
-        /** Internal method for adding a new active particle.*/
-        Particle* addParticle(void);
 
         /** Internal method for initialising string interface. */
         void initParameters(void);

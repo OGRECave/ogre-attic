@@ -53,7 +53,10 @@ namespace Ogre {
         /// Destructor
         virtual ~ParticleSystemRenderer() {}
 
-        /** Delegated to by ParticleSystem::_updateRenderQueue
+        /** Gets the type of this renderer - must be implemented by subclasses */
+		virtual const String& getType(void) const = 0;
+
+		/** Delegated to by ParticleSystem::_updateRenderQueue
         @remarks
             The subclass must update the render queue using whichever Renderable
             instance(s) it wishes.

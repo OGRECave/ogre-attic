@@ -54,6 +54,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() :
         mAllDefaultSize( true ),
+		mSpeedFactor(1.0f),
         mPoolSize(0),
         mRenderer(0),
         mCullIndividual(false)
@@ -63,6 +64,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem(const String& name):
         mAllDefaultSize( true ),
+		mSpeedFactor(1.0f),
         mPoolSize(0),
         mRenderer(0),
         mCullIndividual(false)
@@ -225,6 +227,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_update(Real timeElapsed)
     {
+		// Scale incoming speed
+		timeElapsed *= mSpeedFactor;
+
 		// Only update if attached to a node
 		if (mParentNode)
 		{
@@ -314,7 +319,7 @@ namespace Ogre {
 	        for (unsigned int j = 0; j < requested[i]; ++j)
             {
                 // Create a new particle & init using emitter
-                Particle* p = addParticle();
+                Particle* p = createParticle();
                 (*itEmit)->_initParticle(p);
 
 				// Translate position & direction into world space
@@ -383,17 +388,24 @@ namespace Ogre {
         return ParticleIterator(mActiveParticles.begin(), mActiveParticles.end());
     }
     //-----------------------------------------------------------------------
-    Particle* ParticleSystem::addParticle(void)
+	Particle* ParticleSystem::getParticle(size_t index) 
+	{
+		assert (index < mActiveParticles.size() && "Index out of bounds!");
+		ActiveParticleList::iterator i = mActiveParticles.begin();
+		std::advance(i, index);
+		return *i;
+	}
+    //-----------------------------------------------------------------------
+    Particle* ParticleSystem::createParticle(void)
     {
         // Fast creation (don't use superclass since emitter will init)
-        Particle* newBill = mFreeParticles.front();
+        Particle* p = mFreeParticles.front();
         mFreeParticles.pop_front();
-        mActiveParticles.push_back(newBill);
+        mActiveParticles.push_back(p);
 
-        newBill->_notifyOwner(this);
+        p->_notifyOwner(this);
 
-        // Because we're creating objects here we know this is a Particle
-        return static_cast<Particle*>(newBill);
+        return p;
 
     }
     //-----------------------------------------------------------------------
@@ -650,26 +662,23 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::setRenderer(ParticleSystemRenderer* renderer)
-    {
-        mRenderer = renderer;
-        if (!mMaterialName.empty() && mRenderer)
-        {
-            MaterialPtr mat = MaterialManager::getSingleton().getByName(mMaterialName);
-            mRenderer->_setMaterial(mat);
-        }
-    }
-    //-----------------------------------------------------------------------
     void ParticleSystem::setRenderer(const String& rendererName)
     {
-        if (rendererName.empty())
+		if (mRenderer)
+		{
+			// Destroy existing
+			ParticleSystemManager::getSingleton()._destroyRenderer(mRenderer);
+			mRenderer = 0;
+		}
+
+        if (!rendererName.empty())
         {
-            mRenderer = 0;
-        }
-        else
-        {
-            setRenderer(
-                ParticleSystemManager::getSingleton().getRenderer(rendererName));
+			mRenderer = ParticleSystemManager::getSingleton()._createRenderer(rendererName);
+			if (!mMaterialName.empty() && mRenderer)
+			{
+				MaterialPtr mat = MaterialManager::getSingleton().getByName(mMaterialName);
+				mRenderer->_setMaterial(mat);
+			}
 
         }
     }
