@@ -376,10 +376,12 @@ function writeMesh pmesh exportOptions out_name =
 		)
 		
 		-- retieving material
-		if (pmesh.material != undefined) then 
+		if (pmesh.material != undefined) then (
 			materialName = pmesh.material.name ;
-		else materialName = pmesh.name + "material" ;
-
+			replaceSpaces materialName ;
+		)
+		else materialName = pmesh.name + "Material" ;
+		format "Material name exported : \n- %_sub* \n" materialName ;
 		
 		-- retrieving all datas
 		format "Retrieving vertices and faces data : \n" ;
