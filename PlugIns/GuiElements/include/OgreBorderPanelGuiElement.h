@@ -52,7 +52,9 @@ namespace Ogre {
     public:
         /** Constructor */
         BorderPanelGuiElement(const String& name);
-        ~BorderPanelGuiElement();
+        virtual ~BorderPanelGuiElement();
+
+        virtual void initialise(void);
 
 		const String& getTypeName(void);
         /** Sets the size of the border.

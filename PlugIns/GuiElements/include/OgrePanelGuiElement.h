@@ -52,7 +52,10 @@ namespace Ogre {
     public:
         /** Constructor. */
         PanelGuiElement(const String& name);
-        ~PanelGuiElement();
+        virtual ~PanelGuiElement();
+
+        /** Initialise */
+        virtual void initialise(void);
 
         /** Sets the number of times textures should repeat. 
         @param x The number of times the texture should repeat horizontally

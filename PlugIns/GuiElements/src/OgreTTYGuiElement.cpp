@@ -47,22 +47,7 @@ namespace Ogre {
     TTYGuiElement::TTYGuiElement(const String& name)
         : GuiElement(name)
     {
-		    mpFont = 0;
-
-        memset( &mRenderOp, 0, sizeof( mRenderOp ) );
-
-        mRenderOp.vertexData = new VertexData;
-        mRenderOp.vertexData->vertexStart = 0;
-        mRenderOp.vertexData->vertexCount = 0;
-
-        mRenderOp.operationType =RenderOperation::OT_TRIANGLE_LIST;
-
-        /* TODO
-        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
-            LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-        mRenderOp.numTextureCoordSets = 1;
-        mRenderOp.numTextureDimensions[0] = 2;
-        */
+	    mpFont = 0;
 
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;
@@ -81,7 +66,6 @@ namespace Ogre {
         mScrollBar = NULL;
 
         mAllocSize = 0;
-        checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
 
         mCharHeight = 0.02;
         mPixelCharHeight = 12;
@@ -94,6 +78,27 @@ namespace Ogre {
         {
             addBaseParameters();
         }
+    }
+
+    void TTYGuiElement::initialise(void)
+    {
+        memset( &mRenderOp, 0, sizeof( mRenderOp ) );
+
+        mRenderOp.vertexData = new VertexData;
+        mRenderOp.vertexData->vertexStart = 0;
+        mRenderOp.vertexData->vertexCount = 0;
+
+        mRenderOp.operationType =RenderOperation::OT_TRIANGLE_LIST;
+
+        /* TODO
+        mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS | 
+            LegacyRenderOperation::VO_DIFFUSE_COLOURS;
+        mRenderOp.numTextureCoordSets = 1;
+        mRenderOp.numTextureDimensions[0] = 2;
+        */
+
+        checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
+
     }
 
     void TTYGuiElement::appendText( const ColourValue &colour, const String& text )

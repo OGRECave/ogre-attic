@@ -54,7 +54,10 @@ namespace Ogre
         TTYGuiElement(const String& name);
         ~TTYGuiElement();
 
-         /** Appends specified text to end of screen buffer. 
+        /** Initialise */
+        void initialise(void);
+
+        /** Appends specified text to end of screen buffer. 
         @remarks
             Depreciated, this setCaption method equivalent to calling
             clearText and appendText.

@@ -43,6 +43,31 @@ namespace Ogre {
         : GuiContainer(name)
     {
         mTransparent = false;
+        // Init tiling
+        for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
+        {
+            mTileX[i] = 1.0f;
+            mTileY[i] = 1.0f;
+        }
+
+        // Defer creation of texcoord buffer until we know how big it needs to be
+        mNumTexCoordsInBuffer = 0;
+
+        // No normals or colours
+        if (createParamDictionary("PanelGuiElement"))
+        {
+            addBaseParameters();
+        }
+
+    }
+    //---------------------------------------------------------------------
+    PanelGuiElement::~PanelGuiElement()
+    {
+        delete mRenderOp.vertexData;
+    }
+    //---------------------------------------------------------------------
+    void PanelGuiElement::initialise(void)
+    {
         // Setup render op in advance
         mRenderOp.vertexData = new VertexData();
         // Vertex declaration: 1 position, add texcoords later depending on #layers
@@ -66,28 +91,7 @@ namespace Ogre {
         // No indexes & issue as a strip
         mRenderOp.useIndexes = false;
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
-        // Init tiling
-        for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
-        {
-            mTileX[i] = 1.0f;
-            mTileY[i] = 1.0f;
-        }
-
-        // Defer creation of texcoord buffer until we know how big it needs to be
-        mNumTexCoordsInBuffer = 0;
-
-        // No normals or colours
-
-        if (createParamDictionary("PanelGuiElement"))
-        {
-            addBaseParameters();
-        }
     }
-    //---------------------------------------------------------------------
-    PanelGuiElement::~PanelGuiElement()
-    {
-        delete mRenderOp.vertexData;
-   }
     //---------------------------------------------------------------------
     void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
     {

@@ -51,8 +51,25 @@ namespace Ogre {
     #define TEXCOORD_BINDING 1
     //---------------------------------------------------------------------
     BorderPanelGuiElement::BorderPanelGuiElement(const String& name)
-        : PanelGuiElement(name)
+        : PanelGuiElement(name), mBorderRenderable(0)
     {
+        if (createParamDictionary("BorderPanelGuiElement"))
+        {
+            addBaseParameters();
+        }
+    }
+    //---------------------------------------------------------------------
+    BorderPanelGuiElement::~BorderPanelGuiElement()
+    {
+        delete mRenderOp2.vertexData;
+        delete mRenderOp2.indexData;
+        delete mBorderRenderable;
+    }
+    //---------------------------------------------------------------------
+    void BorderPanelGuiElement::initialise(void)
+    {
+        PanelGuiElement::initialise();
+
         // superclass will handle the interior panel area 
 
         // Setup render op in advance
@@ -127,20 +144,8 @@ namespace Ogre {
 
         mRenderOp2.indexData->indexBuffer->unlock();
 
-        if (createParamDictionary("BorderPanelGuiElement"))
-        {
-            addBaseParameters();
-        }
-
         // Create sub-object for rendering border
         mBorderRenderable = new BorderRenderable(this);
-    }
-    //---------------------------------------------------------------------
-    BorderPanelGuiElement::~BorderPanelGuiElement()
-    {
-        delete mRenderOp2.vertexData;
-        delete mRenderOp2.indexData;
-        delete mBorderRenderable;
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::addBaseParameters(void)

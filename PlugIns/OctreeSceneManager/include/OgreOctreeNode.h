@@ -72,7 +72,7 @@ public:
     @remarks
     This will render the scenenode as a bounding box.
     */
-    virtual void getRenderOperation( RenderOperation& rend );
+    virtual void getRenderOperation( RenderOperation& op );
 
     /** Returns the local bounding box of this OctreeNode.
     @remarks

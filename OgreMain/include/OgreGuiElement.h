@@ -172,6 +172,9 @@
         GuiElement(const String& name);
         virtual ~GuiElement();
 
+        /** Initialise gui element */
+        virtual void initialise(void) = 0;
+
         /** Gets the name of this overlay. */
         const String& getName(void) const;
 

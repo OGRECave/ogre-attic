@@ -64,8 +64,9 @@ namespace Ogre
     public:
         /** Constructor. */
         TextAreaGuiElement(const String& name);
-        ~TextAreaGuiElement();
+        virtual ~TextAreaGuiElement();
 
+        virtual void initialise(void);
         void setCaption( const String& caption );
         const String& getCaption() const;
 
