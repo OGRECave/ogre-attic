@@ -199,6 +199,12 @@ namespace Ogre {
 		/// internal implementation of attaching a 'child' object to this entity and assign the parent node to the child entity
 		void attachObjectImpl(MovableObject *pMovable, TagPoint *pAttachingPoint);
 
+        /// internal implementation of detaching a 'child' object of this entity and clear the parent node of the child entity
+        void detachObjectImpl(MovableObject* pObject);
+
+        /// internal implementation of detaching all 'child' objects of this entity
+        void detachAllObjectsImpl(void);
+
         /// Trigger reevaluation of the kind of vertex processing in use
         void reevaluateVertexProcessing(void);
 
@@ -412,6 +418,17 @@ namespace Ogre {
 
 		/// detach a MovableObject previously attached using attachObjectToBone
 		MovableObject* detachObjectFromBone(const String &movableName);
+
+        /** Detaches an object by pointer.
+        @remarks
+            This method is need when destroy a MovableObject which attached to a bone of this entity.
+            But sometimes the object may be not in the child object list because it is a lod entity,
+            this method can safely detect and ignore in this case.
+        */
+        void detachObjectFromBone(MovableObject* obj);
+
+        /// Detach all MovableObjects previously attached using attachObjectToBone
+        void detachAllObjectsFromBone(void);
 
         typedef MapIterator<ChildObjectList> ChildObjectListIterator;
         /** Gets an iterator to the list of objects attached to bones on this entity. */

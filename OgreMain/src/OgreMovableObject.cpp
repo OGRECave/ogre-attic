@@ -47,10 +47,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MovableObject::~MovableObject()
     {
-        if (mParentNode && !mParentIsTagPoint)
+        if (mParentNode)
         {
             // detach from parent
-            static_cast<SceneNode*>(mParentNode)->detachObject(this);
+            if (mParentIsTagPoint)
+            {
+                // May be we are a lod entity which not in the parent entity child object list,
+                // call this method could safely ignore this case.
+                static_cast<TagPoint*>(mParentNode)->getParentEntity()->detachObjectFromBone(this);
+            }
+            else
+            {
+                // May be we are a lod entity which not in the parent node child object list,
+                // call this method could safely ignore this case.
+                static_cast<SceneNode*>(mParentNode)->detachObject(this);
+            }
         }
     }
     //-----------------------------------------------------------------------
