@@ -41,9 +41,20 @@ Ogre/DebugOverlay
 		}
 				
 	}
+	
 }
 
+// A silly example of how you would do a 3D cockpit
+Examples/KnotCockpit
+{
+	zorder 100
+	entity knot.mesh(hudKnot)
+	{
+		position 0 0 -50
+		rotation 0 0 0 0
+	}
 
+}
 
 
 

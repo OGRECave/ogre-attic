@@ -30,6 +30,10 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreGuiContainer.h"
 #include "OgreStringConverter.h"
 #include "OgreLogManager.h"
+#include "OgreSceneManagerEnumerator.h"
+#include "OgreSceneManager.h"
+#include "OgreSceneNode.h"
+#include "OgreEntity.h"
 
 namespace Ogre {
 
@@ -89,6 +93,25 @@ namespace Ogre {
                         {
                             skipToNextOpenBrace(chunk);
 					        parseNewElement(chunk, params[1], params[2], true, pOverlay);
+                        }
+
+				    }
+				    else if (line.substr(0,6) == "entity")
+				    {
+					    // new 3D element
+                        std::vector<String> params = line.split("\t\n ()");
+                        if (params.size() != 3)
+                        {
+		                    LogManager::getSingleton().logMessage( 
+			                    "Bad entity line: '"
+			                    + line + "' in " + pOverlay->getName() + 
+			                    ", expecting 'entity meshName(entityName)'");
+                                skipToNextCloseBrace(chunk);
+                        }
+                        else
+                        {
+                            skipToNextOpenBrace(chunk);
+					        parseNewMesh(chunk, params[1], params[2], pOverlay);
                         }
 
 				    }
@@ -311,6 +334,84 @@ namespace Ogre {
         }
 
     }
+    //-----------------------------------------------------------------------
+    void OverlayManager::parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, 
+        Overlay* pOverlay)
+    {
+        String line;
+        StringVector params;
+
+        // NB at this stage any scene manager will do, it's just for allocation not rendering
+        SceneManager* sm = SceneManagerEnumerator::getSingleton().getSceneManager(ST_GENERIC);
+
+        // Create entity
+        Entity* ent = sm->createEntity(entityName, meshName);
+        // Add a new entity via a node
+        SceneNode* node = sm->createSceneNode(entityName + "_autoNode");
+
+        node->attachObject(ent);
+
+
+        // parse extra info
+        while(!chunk.isEOF())
+        {
+            line = chunk.getLine();
+            // Ignore comments & blanks
+            if (!(line.length() == 0 || line.substr(0,2) == "//"))
+            {
+                if (line == "}")
+                {
+                    // Finished 
+                    break;
+                }
+                else
+                {
+                    if (line.substr(0, 8) == "position")
+                    {
+                        params = line.split(" ");
+                        if (params.size() != 4)
+                        {
+                            LogManager::getSingleton().logMessage("Bad position attribute line: '"
+                                + line + "' for entity " + entityName + " in overlay " + 
+                                pOverlay->getName());
+                            break;
+                        }
+                        node->translate(StringConverter::parseReal(params[1]),
+                                        StringConverter::parseReal(params[2]), 
+                                        StringConverter::parseReal(params[3]));
+                    }
+                    else if (line.substr(0, 8) == "rotation")
+                    {
+                        params = line.split(" ");
+                        if (params.size() != 5)
+                        {
+                            LogManager::getSingleton().logMessage("Bad rotation attribute line: '"
+                                + line + "' for entity " + entityName + " in overlay " + 
+                                pOverlay->getName());
+                            break;
+                        }
+                        // in file it is angle axis_x axis_y axis_z
+                        Vector3 axis(StringConverter::parseReal(params[2]),
+                                    StringConverter::parseReal(params[3]),
+                                    StringConverter::parseReal(params[4]));
+                        node->rotate(axis, StringConverter::parseReal(params[1]));
+                    }
+                }
+            }
+        }
+
+
+
+        // Attach node to overlay
+        pOverlay->add3D(node);
+        
+
+
+
+
+    }
+
+
 
 
 
