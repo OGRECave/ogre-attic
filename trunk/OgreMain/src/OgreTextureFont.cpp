@@ -39,7 +39,7 @@ namespace Ogre {
     void renderTexString( 
         std::vector< FT_Glyph >& glyphs, 
         std::vector< FT_Vector >& vectors,    
-        byte *pTex, 
+        uchar *pTex, 
         unsigned uTexX, unsigned uTexY, 
         unsigned uBitR, unsigned uBitW, 
         unsigned uStartX, unsigned uStartY )
@@ -47,9 +47,9 @@ namespace Ogre {
         // UNDONE implement renderTexString
     }
 
-    void renderTexChar( byte *pBuffer, byte *pTex, unsigned uTexX, unsigned uTexY, unsigned uBitR, unsigned uBitW, unsigned uStartX, unsigned uStartY )
+    void renderTexChar( uchar *pBuffer, uchar *pTex, unsigned uTexX, unsigned uTexY, unsigned uBitR, unsigned uBitW, unsigned uStartX, unsigned uStartY )
     {
-        typedef byte pixel[3];
+        typedef uchar pixel[3];
         pixel *pLocalTex = (pixel *)pTex;
         unsigned char *pLocalBuff = pBuffer;
 
@@ -68,9 +68,9 @@ namespace Ogre {
         }
     }
 
-    void renderAlphaChar( byte *pBuffer, byte *pTex, unsigned uTexX, unsigned uTexY, unsigned uBitR, unsigned uBitW, unsigned uStartX, unsigned uStartY, unsigned cRed, unsigned cGreen, unsigned cBlue )
+    void renderAlphaChar( uchar *pBuffer, uchar *pTex, unsigned uTexX, unsigned uTexY, unsigned uBitR, unsigned uBitW, unsigned uStartX, unsigned uStartY, unsigned cRed, unsigned cGreen, unsigned cBlue )
     {
-        typedef byte pixel[4];
+        typedef uchar pixel[4];
         pixel *pLocalTex = (pixel *)pTex;
         unsigned char *pLocalBuff = pBuffer;
 
@@ -93,7 +93,7 @@ namespace Ogre {
     void renderAlphaString( 
         std::list< FT_Glyph >& glyphs, 
         std::list< FT_Vector >& vectors,
-        byte *pTex, 
+        uchar *pTex, 
         unsigned uTexX, unsigned uTexY, 
         unsigned uStartX, unsigned uStartY, 
         unsigned cRed, unsigned cGreen, unsigned cBlue  )
@@ -316,7 +316,7 @@ namespace Ogre {
 
             renderTexChar( 
                 slot->bitmap.buffer, 
-                (byte *)&pTexture[0][0], 
+                (uchar *)&pTexture[0][0], 
                 uTexX, uTexY, 
                 slot->bitmap.rows, slot->bitmap.width, 
                 pen_dx, pen_dy );        
@@ -333,7 +333,7 @@ namespace Ogre {
 	    delete [] pTexture;
     }
 
-    void TextureFont::createAlphaMask( const String& strTexName, const String& strString, unsigned uTexX, unsigned uTexY, byte cRed, byte cGreen, byte cBlue, unsigned uFontX /* = 600 */, unsigned uFontY /* = 0 */, unsigned uFontResX /* = 72 */, unsigned uFontResY /* = 0 */, unsigned uStartX /* = 1 */, unsigned uStartY /* = 1  */ )
+    void TextureFont::createAlphaMask( const String& strTexName, const String& strString, unsigned uTexX, unsigned uTexY, uchar cRed, uchar cGreen, uchar cBlue, unsigned uFontX /* = 600 */, unsigned uFontY /* = 0 */, unsigned uFontResX /* = 72 */, unsigned uFontResY /* = 0 */, unsigned uStartX /* = 1 */, unsigned uStartY /* = 1  */ )
     {
         typedef unsigned char pixel[4];
         pixel *pTexture = new pixel[ uTexY * uTexX ];
@@ -407,7 +407,7 @@ namespace Ogre {
         renderAlphaString(
             glyphs,
             vectors,
-            (byte*)pTexture,
+            (uchar*)pTexture,
             uTexX, uTexY,
             start_x, start_y,
             cRed, cGreen, cBlue );
@@ -422,3 +422,11 @@ namespace Ogre {
     }
 
 }
+
+//-----------------------------------------------------------------------------
+// This is the CVS log of the file. Do NOT modify beyond this point as this
+// may cause inconsistencies between the actual log and what's written here.
+// (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
+//
+// $Log: not supported by cvs2svn $
+//-----------------------------------------------------------------------------
