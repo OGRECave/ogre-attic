@@ -463,6 +463,31 @@ namespace Ogre {
         }    
     }
 
+    /* Convert pixels from one format to another */
+    void PixelUtil::bulkPixelConversion(void *src, PixelFormat srcFormat, void *dest, PixelFormat dstFormat, unsigned int count)
+    {
+        // TODO optimize common conversions
+        uint8 *srcptr = static_cast<uint8*>(src);
+        uint8 *dstptr = static_cast<uint8*>(dest);
+        unsigned int srcPixelSize = PixelUtil::getNumElemBytes(srcFormat);
+        unsigned int dstPixelSize = PixelUtil::getNumElemBytes(dstFormat);
+        
+        // The easy case
+        if(srcFormat == dstFormat) {
+            std::copy(srcptr, srcptr+count, dstptr);
+            return;
+        }
+        
+        // The brute force case
+        float r,g,b,a;
+        for(unsigned int idx=0; idx<count; idx++)
+        {
+            unpackColour(&r, &g, &b, &a, srcFormat, srcptr);
+            packColour(r, g, b, a, dstFormat, dstptr);
+            srcptr += srcPixelSize;
+            dstptr += dstPixelSize;
+        }
+    }
 
     /*************************************************************************
      * IL specific functions
@@ -626,5 +651,6 @@ namespace Ogre {
     {
         // TODO
     }
-   
+
+    
 }

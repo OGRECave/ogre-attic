@@ -168,6 +168,9 @@ namespace Ogre {
         static void unpackColour(ColourValue *colour, PixelFormat pf,  const void* src);
         static void unpackColour(uint8 *r, uint8 *g, uint8 *b, uint8 *a, PixelFormat pf,  const void* src);
         static void unpackColour(float *r, float *g, float *b, float *a, PixelFormat pf,  const void* src); 
+        
+        /* Convert pixels from one format to another */
+        static void bulkPixelConversion(void *src, PixelFormat srcFormat, void *dest, PixelFormat dstFormat, unsigned int count);
     };
 
     /* 
