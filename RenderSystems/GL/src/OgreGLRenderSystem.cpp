@@ -824,8 +824,15 @@ namespace Ogre {
         const Frustum* frustum)
     {
         GLfloat M[16];
+        Matrix4 projectionBias;
+
         // Default to no extra auto texture matrix
         mUseAutoTextureMatrix = false;
+
+        GLfloat eyePlaneS[] = {1.0, 0.0, 0.0, 0.0};
+        GLfloat eyePlaneT[] = {0.0, 1.0, 0.0, 0.0};
+        GLfloat eyePlaneR[] = {0.0, 0.0, 1.0, 0.0};
+        GLfloat eyePlaneQ[] = {0.0, 0.0, 0.0, 1.0};
 
         glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
 
@@ -912,6 +919,33 @@ namespace Ogre {
             glEnable( GL_TEXTURE_GEN_T );
             glEnable( GL_TEXTURE_GEN_R );
             glDisable( GL_TEXTURE_GEN_Q );
+            break;
+        case TEXCALC_PROJECTIVE_TEXTURE:
+            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+            glTexGenfv(GL_S, GL_EYE_PLANE, eyePlaneS);
+            glTexGenfv(GL_T, GL_EYE_PLANE, eyePlaneT);
+            glTexGenfv(GL_R, GL_EYE_PLANE, eyePlaneR);
+            glTexGenfv(GL_Q, GL_EYE_PLANE, eyePlaneQ);
+            glEnable(GL_TEXTURE_GEN_S);
+            glEnable(GL_TEXTURE_GEN_T);
+            glEnable(GL_TEXTURE_GEN_R);
+            glEnable(GL_TEXTURE_GEN_Q);
+
+            mUseAutoTextureMatrix = true;
+
+            // Set scale and translation matrix for projective textures
+            projectionBias = Matrix4::ZERO;
+            projectionBias[0][0] = 0.5; projectionBias[1][1] = 0.5; 
+            projectionBias[2][2] = 1.0; projectionBias[0][3] = 0.5; 
+            projectionBias[1][3] = 0.5; projectionBias[3][3] = 1.0;
+
+            projectionBias = projectionBias * frustum->getProjectionMatrix();
+            projectionBias = projectionBias * frustum->getViewMatrix();
+
+            makeGLMatrix(mAutoTextureMatrix, projectionBias);
             break;
         default:
             break;
