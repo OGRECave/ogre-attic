@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSubEntity.h"
 #include "OgreException.h"
 #include "OgreSceneManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";

@@ -451,16 +451,21 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
     {
         msBone* bone = msModel_GetBoneAt(pModel, i);
         Ogre::Bone* ogrebone = ogreskel->createBone(bone->szName);
-        Ogre::Vector3 bonePos(bone->Position[0], bone->Position[1], bone->Position[2]);
+
+        msVec3 bonePos, boneRot;
+        msBone_GetPosition(pModel, bonePos);
+        msBone_GetRotation(pModel, boneRot);
+
+        Ogre::Vector3 bonePos(bonePos[0], bonePos[1], bonePos[2]);
         ogrebone->setPosition(bonePos);
         // Hmm, Milkshape has chosen a Euler angle representation of orientation which is not smart
         // Rotation Matrix or Quaternion would have been the smarter choice
         // Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
         // Grr, we'll try our best anyway...
         Ogre::Quaternion qx, qy, qz, qfinal;
-        qx.FromAngleAxis(Ogre::Math::DegreesToRadians(bone->Rotation[0]), Ogre::Vector3::UNIT_X);
-        qy.FromAngleAxis(Ogre::Math::DegreesToRadians(bone->Rotation[1]), Ogre::Vector3::UNIT_Y);
-        qz.FromAngleAxis(Ogre::Math::DegreesToRadians(bone->Rotation[2]), Ogre::Vector3::UNIT_Z);
+        qx.FromAngleAxis(boneRot[0], Ogre::Vector3::UNIT_X);
+        qy.FromAngleAxis(boneRot[1], Ogre::Vector3::UNIT_Y);
+        qz.FromAngleAxis(boneRot[2], Ogre::Vector3::UNIT_Z);
 
         // Assume rotate by x then y then z
         qfinal = qz * qy * qx;
@@ -470,7 +475,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
         msg << "Bone #" << i << ": " <<
             "Name='" << bone->szName << "' " <<
             "Position: " << bonePos << " " <<
-            "Ms3d Rotation: {" << bone->Rotation[0] << ", " << bone->Rotation[1] << ", " << bone->Rotation[2] << "} " <<
+            "Ms3d Rotation: {" << boneRot[0] << ", " << boneRot[1] << ", " << boneRot[2] << "} " <<
             "Orientation: " << qfinal;
         logMgr.logMessage(msg);
 
@@ -523,15 +528,15 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
             Ogre::Quaternion kfQ;
 
             ogrekey->setTranslate(kfPos);
-            qx.FromAngleAxis(Ogre::Math::DegreesToRadians(currRotKey->Rotation[0]), Ogre::Vector3::UNIT_X);
-            qy.FromAngleAxis(Ogre::Math::DegreesToRadians(currRotKey->Rotation[1]), Ogre::Vector3::UNIT_Y);
-            qz.FromAngleAxis(Ogre::Math::DegreesToRadians(currRotKey->Rotation[2]), Ogre::Vector3::UNIT_Z);
+            qx.FromAngleAxis(currRotKey->Rotation[0], Ogre::Vector3::UNIT_X);
+            qy.FromAngleAxis(currRotKey->Rotation[1], Ogre::Vector3::UNIT_Y);
+            qz.FromAngleAxis(currRotKey->Rotation[2], Ogre::Vector3::UNIT_Z);
             kfQ = qz * qy * qx;
             ogrekey->setRotation(kfQ);
 
             msg = "";
             msg << "KeyFrame details: Position=" << kfPos << " " <<
-                "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[3] << "} " <<
+                "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] << "} " <<
                 "Orientation=" << kfQ;
             logMgr.logMessage(msg);
 

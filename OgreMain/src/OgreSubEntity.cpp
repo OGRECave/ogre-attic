@@ -88,5 +88,13 @@ namespace Ogre {
             }
         }
     }
+    //-----------------------------------------------------------------------
+    unsigned short SubEntity::getNumWorldTransforms(void)
+    {
+        if (!mParentEntity->mNumBoneMatrices)
+            return 1;
+        else
+            return mParentEntity->mNumBoneMatrices;
+    }
 
 }
