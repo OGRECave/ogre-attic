@@ -141,6 +141,7 @@ Exports selected meshs with armature animations to Ogre3D.
 #          - BPy documentation added
 #          - coloured log
 #          - crossplatform path handling
+#          - allow empty material list entries
 #   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
 #          - option to run OgreXMLConverter automatically on the exported files
 #
@@ -2322,7 +2323,9 @@ def export_mesh(object, exportOptions):
 
 		# note: these are blender materials. Evene if nMaterials = 0
 		#       the face can still have a texture (see above)
-		nMaterials = len(data.materials)
+		meshMaterialList = data.getMaterials(1)
+		# note: material slots may be empty, resp. meshMaterialList entries may be None
+		nMaterials = len(meshMaterialList)
 
 		# create ogre materials
 		for face in data.faces:
@@ -2338,14 +2341,16 @@ def export_mesh(object, exportOptions):
 					else:
 						# check if image texture is assigend as material texture
 						if (nMaterials > 0):
-							for materialTexture in data.materials[face.materialIndex].getTextures():
-								if ((materialTexture is not None) \
-									and (materialTexture.mapto & Blender.Texture.MapTo['COL']) \
-									and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
-									and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
-										# use image as material.texture
-										textureFile = materialTexture.tex.image.filename
-										hasTexture = 1
+							# check if non-empty material slot
+							if meshMaterialList[face.materialIndex]:
+								for materialTexture in meshMaterialList[face.materialIndex].getTextures():
+									if ((materialTexture is not None) \
+										and (materialTexture.mapto & Blender.Texture.MapTo['COL']) \
+										and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
+										and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
+											# use image as material.texture
+											textureFile = materialTexture.tex.image.filename
+											hasTexture = 1
 						if not hasTexture:
 							exportLogger.logError("Face is textured but has no image assigned!")
 				if ((nMaterials > 0 ) or (hasTexture == 1)):
@@ -2356,8 +2361,9 @@ def export_mesh(object, exportOptions):
 					# blenders material name
 					faceMaterial = None
 					if (nMaterials > 0):
-						faceMaterial = data.materials[face.materialIndex]
-						materialName += faceMaterial.getName() +"/"
+						faceMaterial = meshMaterialList[face.materialIndex]
+						if faceMaterial:
+							materialName += faceMaterial.getName() +"/"
 					# FaceTranspMode
 					# default: solid
 					blendMode = Blender.NMesh.FaceTranspModes["SOLID"]
@@ -2793,9 +2799,11 @@ def export(selectedObjectsList):
       for obj in selectedObjectsList:
           if obj:
               if obj.getType() == "Mesh":
+                  exportLogger.logInfo("Exporting object \"%s\":" % obj.getName())
                   export_mesh(obj, exportOptions)
                   n = 1
               elif obj.getType() == "Armature":
+                  exportLogger.logInfo("Exporting object \"%s\":" % obj.getName())
                   actionActuatorList = armatureActionActuatorListViewDict[obj.getName()].armatureActionActuatorList
                   armatureMeshExporter = ArmatureMeshExporter(obj)
                   armatureMeshExporter.export(materialsDict, actionActuatorList, exportOptions, exportLogger)
