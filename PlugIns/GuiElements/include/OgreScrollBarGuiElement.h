@@ -84,18 +84,17 @@ namespace Ogre {
             void doSet(void* target, const String& val);
         };
 
-		void setUpButtonName(const String& val);
-		void setDownButtonName(const String& val);
-		void setScrollBitName(const String& val);
-		String getUpButtonName();
-		String getDownButtonName();
-		String getScrollBitName();
+		virtual void setUpButtonName(const String& val);
+		virtual void setDownButtonName(const String& val);
+		virtual void setScrollBitName(const String& val);
+		virtual String getUpButtonName();
+		virtual String getDownButtonName();
+		virtual String getScrollBitName();
 
-		void createElements();
-		void setLimits(size_t first, size_t visibleRange, size_t total);
-		void layoutItems();
-		void updateScrollBit();
-		void scrollToIndex(size_t index);
+		virtual void setLimits(size_t first, size_t visibleRange, size_t total);
+		virtual void layoutItems();
+		virtual void updateScrollBit();
+		virtual void scrollToIndex(size_t index);
 
         /** See GuiElement. */
         virtual const String& getTypeName(void) const;
