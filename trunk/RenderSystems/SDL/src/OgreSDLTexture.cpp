@@ -55,9 +55,7 @@ namespace Ogre {
         img.flipAroundX();
 
         glBindTexture( GL_TEXTURE_2D, mTextureID );
-        applyGamma( 
-            img.getData(), img.getSize(), 
-            img.getFormat() & Image::FMT_ALPHA ? 32 : 24 );
+        Image::applyGamma( img.getData(), mGamma, img.getSize(), img.getBPP() );
         glTexSubImage2D( 
             GL_TEXTURE_2D, 0, 
             uStartX, uStartY,
@@ -107,11 +105,14 @@ namespace Ogre {
         // Create the GL texture
         glGenTextures( 1, &mTextureID );
         glBindTexture( GL_TEXTURE_2D, mTextureID );
-        applyGamma( pTempData, img.getSize(), mSrcBpp );
+
+        Image::applyGamma( pTempData, mGamma, img.getSize(), mSrcBpp );
+
         glTexImage2D(
             GL_TEXTURE_2D, 0, mHasAlpha ? GL_RGBA : GL_RGB, 
             img.getWidth(), img.getHeight(), 0, 
             mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, pTempData );
+
         generateMipMaps( pTempData );
 
         delete [] pTempData;
