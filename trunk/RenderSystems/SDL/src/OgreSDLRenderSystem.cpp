@@ -724,33 +724,114 @@ namespace Ogre {
     {       
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+//
+//        if (bm.blendType == LBT_COLOUR)
+//        {
+//            std::cout << "Colour blend ops" << std::endl;
+//            glTexEnvi(GL_TEXTURE_ENV, (GLenum)GL_COMBINE_RGB_EXT, op2gl(gs,color_op.op));
+//            
+//        }
+//        else
+//        {
+//            // XXX Do alpha stuff here
+//            std::cout << "Alpha blend op!" << std::endl;
+//        }
 
+//        std::cout << "Need to do blend op: " << bm.operation << std::endl;
+//        std::cout << "Src1: " << bm.source1 << std::endl;
+//        std::cout << "Src2: " << bm.source2 << std::endl;
 
-#if 0
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_ALPHA);
+
+        GLenum type, src1, src2, src1op, src2op;
+        if (bm.blendType == LBT_COLOUR)
+        {
+            type = GL_COMBINE_RGB_EXT;
+            src1 = GL_SOURCE0_RGB_EXT;
+            src2 = GL_SOURCE1_RGB_EXT;
+        }
+        else
+        {
+            type = GL_COMBINE_ALPHA_EXT;
+            src1 = GL_SOURCE0_ALPHA_EXT;
+            src2 = GL_SOURCE1_ALPHA_EXT;
+        }
+
+        switch (bm.source1)
+        {
+        case LBS_CURRENT:
+            src1op = GL_PREVIOUS_EXT;
+            break;
+        case LBS_TEXTURE:
+            src1op = GL_TEXTURE;
+            break;
+        // XXX ?
+        case LBS_DIFFUSE:
+            src1op = 0;
+            break;
+        case LBS_SPECULAR:
+            src1op = 0;
+            break;
+        case LBS_MANUAL:
+            src1op = 0;
+        };
+
+        switch (bm.source2)
+        {
+        case LBS_CURRENT:
+            src2op = GL_PREVIOUS_EXT;
+            break;
+        case LBS_TEXTURE:
+            src2op = GL_TEXTURE;
+            break;
+        // XXX ?
+        case LBS_DIFFUSE:
+            src2op = 0;
+            break;
+        case LBS_SPECULAR:
+            src2op = 0;
+            break;
+        case LBS_MANUAL:
+            src2op = 0;
+        };
+
         switch (bm.operation)
         {
         case LBX_SOURCE1:
-            param = GL_REPLACE;
-            value = D3DTOP_SELECTARG1;
+            glTexEnvi(GL_TEXTURE_ENV, type, GL_REPLACE);
+            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
             break;
         case LBX_SOURCE2:
-            value = D3DTOP_SELECTARG2;
+            glTexEnvi(GL_TEXTURE_ENV, type, GL_REPLACE);
+            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
             break;
         case LBX_MODULATE:
-            value = D3DTOP_MODULATE;
+            glTexEnvi(GL_TEXTURE_ENV, type, GL_MODULATE);
+            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
             break;
+#if 0
         case LBX_MODULATE_X2:
             value = D3DTOP_MODULATE2X;
             break;
         case LBX_MODULATE_X4:
             value = D3DTOP_MODULATE4X;
             break;
+#endif
         case LBX_ADD:
-            value = D3DTOP_ADD;
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
+            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
             break;
         case LBX_ADD_SIGNED:
-            value = D3DTOP_ADDSIGNED;
+            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD_SIGNED_EXT);
+            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
             break;
+#if 0
         case LBX_ADD_SMOOTH:
             value = D3DTOP_ADDSMOOTH;
             break;
@@ -772,8 +853,10 @@ namespace Ogre {
             hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
                 D3DRGBA(0,0,0,bm.factor));
             break;
+#endif
         }
 
+#if 0
         if (bm.blendType == LBT_COLOUR)
         {
             glTexEnvf
@@ -883,6 +966,7 @@ namespace Ogre {
         
         SceneBlendFactor ogreBlend = sourceFactor;
         
+        //std::cout << "Set scene blending to " << ogreBlend << std::endl;
         for (int i = 0 ; i < 2; ++i)
         {
             switch(ogreBlend)
@@ -1034,13 +1118,16 @@ namespace Ogre {
 
         // Setup the vertex array
         glEnableClientState( GL_VERTEX_ARRAY );
-        glVertexPointer( 3, GL_FLOAT, op.vertexStride, op.pVertices );
+        unsigned short stride = op.vertexStride ? 
+            op.vertexStride + (sizeof(GL_FLOAT) * 3) : 0;
+        glVertexPointer( 3, GL_FLOAT, stride, op.pVertices );
 
         // Normals if available
         if (op.vertexOptions & RenderOperation::VO_NORMALS)
         {
             glEnableClientState( GL_NORMAL_ARRAY );
-            glNormalPointer( GL_FLOAT, op.normalStride, op.pNormals );
+            stride = op.normalStride ?  op.normalStride + (sizeof(GL_FLOAT) * 3) : 0;
+            glNormalPointer( GL_FLOAT, stride, op.pNormals );
         }
         else
         {
@@ -1051,7 +1138,9 @@ namespace Ogre {
         if (op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS)
         {
             glEnableClientState(GL_COLOR_ARRAY);
-            glColorPointer( 4, GL_UNSIGNED_BYTE, op.diffuseStride, op.pDiffuseColour );
+            stride = op.diffuseStride ?  
+                op.diffuseStride + (sizeof(GL_UNSIGNED_BYTE) * 4) : 0;
+            glColorPointer( 4, GL_UNSIGNED_BYTE, stride, op.pDiffuseColour );
         }
         else
         {
@@ -1069,10 +1158,14 @@ namespace Ogre {
                 {                
                     glClientActiveTextureARB(index + i);
                     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                    stride = op.texCoordStride[mTextureCoordIndex[i]] ?  
+                        op.texCoordStride[mTextureCoordIndex[i]] +
+                        (sizeof(GL_FLOAT) * 
+                         op.numTextureDimensions[mTextureCoordIndex[i]])
+                        : 0;
                     glTexCoordPointer(
                         op.numTextureDimensions[mTextureCoordIndex[i]],
-                        GL_FLOAT,
-                        op.texCoordStride[mTextureCoordIndex[i]], 
+                        GL_FLOAT, stride, 
                         op.pTexCoords[mTextureCoordIndex[i]] );
                 }
                 else
