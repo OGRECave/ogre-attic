@@ -27,6 +27,7 @@ material Examples/Water1
 			texture_unit
 			{
 				texture BeachStones.jpg
+				scale 0.25 0.25
 			}
 
 			texture_unit
@@ -102,6 +103,7 @@ material Examples/Water5
 			texture_unit
 			{
 				texture BeachStones.jpg
+				scale 0.25 0.25
 			}
 
 			texture_unit
@@ -142,6 +144,7 @@ material Examples/Water7
 			texture_unit
 			{
 				texture BeachStones.jpg
+				scale 0.25 0.25
 			}
 
 			texture_unit

@@ -2119,6 +2119,15 @@ namespace Ogre
                 writeValue(StringConverter::toString(pTex->getTextureUScroll()));
                 writeValue(StringConverter::toString(pTex->getTextureVScroll()));
             }
+            // scale
+            if (mDefaults ||
+                pTex->getTextureUScale() != 1.0 || 
+                pTex->getTextureVScale() != 1.0 )
+            {
+                writeAttribute(4, "scale");
+                writeValue(StringConverter::toString(pTex->getTextureUScale()));
+                writeValue(StringConverter::toString(pTex->getTextureVScale()));
+            }
 
             EffectMap m_ef = pTex->getEffects();
             if (!m_ef.empty())
