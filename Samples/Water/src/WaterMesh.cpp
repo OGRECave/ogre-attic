@@ -62,7 +62,7 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
          HardwareBufferManager::getSingleton().createVertexBuffer( 
             3*sizeof(Real), 
 			numVertices, 
-			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 	vbind->setBinding(0, posVertexBuffer);
 
 	// Prepare buffer for normals - write only
@@ -70,7 +70,7 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
          HardwareBufferManager::getSingleton().createVertexBuffer( 
             3*sizeof(Real), 
 			numVertices, 
-			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+			HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
 	vbind->setBinding(1, normVertexBuffer);
 	
 	// Prepare texture coords buffer - static one

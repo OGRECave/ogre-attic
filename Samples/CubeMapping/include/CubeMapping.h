@@ -336,7 +336,7 @@ private:
 				HardwareVertexBufferSharedPtr newBuf = 
 					HardwareBufferManager::getSingleton().createVertexBuffer(
 						orgBuf->getVertexSize(), orgBuf->getNumVertices(),
-						HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+						HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, 
 						//~ HardwareBuffer::HBU_DYNAMIC, 
 						true
 						//~ false

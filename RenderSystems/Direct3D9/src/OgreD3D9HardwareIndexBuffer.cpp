@@ -40,7 +40,10 @@ namespace Ogre {
             D3D9Mappings::get(usage),
             D3D9Mappings::get(idxType),
 #if OGRE_D3D_MANAGE_BUFFERS
-            useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_MANAGED, 
+            useSystemMemory? D3DPOOL_SYSTEMMEM : 
+            // If not system mem, use managed pool UNLESS buffer is discardable
+            // if discardable, keeping the software backing is expensive
+                (usage & HardwareBuffer::HBU_DISCARDABLE)? D3DPOOL_DEFAULT : D3DPOOL_MANAGED, 
 #else
             useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT, 
 #endif
