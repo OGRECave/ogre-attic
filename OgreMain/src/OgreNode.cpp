@@ -106,17 +106,22 @@ namespace Ogre {
     void Node::_update(bool updateChildren, bool parentHasChanged)
     {
         // Short circuit the off case
-        if (!updateChildren && !mNeedUpdate && !parentHasChanged )
+        if (!updateChildren && !mNeedParentUpdate && !mNeedChildUpdate && !parentHasChanged )
         {
             return;
         }
 
 
         // See if we should process everyone
-        if (mNeedUpdate || parentHasChanged)
+        if (mNeedParentUpdate || parentHasChanged)
         {
             // Update transforms from parent
             _updateFromParent();
+			mNeedParentUpdate = false;
+		}
+
+		if (mNeedChildUpdate || parentHasChanged)
+		{
 
             ChildNodeMap::iterator it, itend;
 			itend = mChildren.end();
@@ -142,7 +147,7 @@ namespace Ogre {
             mChildrenToUpdate.clear();
         }
 
-        mNeedUpdate = false;
+        mNeedChildUpdate = false;
 
     }
 
@@ -382,19 +387,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const Quaternion & Node::_getDerivedOrientation(void) const
     {
-        if (mNeedUpdate)
-        {
-            _updateFromParent();
-        }
+		if (mNeedParentUpdate)
+		{
+        	_updateFromParent();
+			mNeedParentUpdate = false;
+		}
         return mDerivedOrientation;
     }
     //-----------------------------------------------------------------------
     const Vector3 & Node::_getDerivedPosition(void) const
     {
-        if (mNeedUpdate)
-        {
-            _updateFromParent();
-        }
+		if (mNeedParentUpdate)
+		{
+        	_updateFromParent();
+			mNeedParentUpdate = false;
+		}
         return mDerivedPosition;
     }
     //-----------------------------------------------------------------------
@@ -681,7 +688,8 @@ namespace Ogre {
         }
         */
 
-        mNeedUpdate = true;
+        mNeedParentUpdate = true;
+		mNeedChildUpdate = true;
         mCachedTransformOutOfDate = true;
 
         // Make sure we're not root
@@ -697,7 +705,7 @@ namespace Ogre {
     void Node::requestUpdate(Node* child)
     {
         // If we're already going to update everything this doesn't matter
-        if (mNeedUpdate)
+        if (mNeedChildUpdate)
         {
             return;
         }
