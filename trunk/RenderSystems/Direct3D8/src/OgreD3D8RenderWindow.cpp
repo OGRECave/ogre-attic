@@ -440,43 +440,79 @@ namespace Ogre
      void D3D8RenderWindow::writeContentsToFile(const String& filename)
      {
          HRESULT hr;
-         LPDIRECT3DSURFACE8 pSurf, pTempSurf;
+         LPDIRECT3DSURFACE8 pSurf=NULL, pTempSurf=NULL;
          D3DSURFACE_DESC desc;
+                D3DDISPLAYMODE dm;
+
+                // get display dimensions
+                // this will be the dimensions of the front buffer
+                mpD3DDevice->GetDisplayMode(&dm);
+
+                desc.Width = dm.Width;
+                desc.Height = dm.Height;
+                desc.Format = D3DFMT_A8R8G8B8;
+                if (FAILED(hr = mpD3DDevice->CreateImageSurface(desc.Width, desc.Height, desc.Format, &pTempSurf)))
+                {
+                        Except(hr, "Cannot create offscreen buffer!",
+                                "D3D8RenderWindow::writeContentsToFile");
+                }
+
+                if (FAILED(hr = mpD3DDevice->GetFrontBuffer(pTempSurf)))
+                {
+                        SAFE_RELEASE(pTempSurf);
+                        Except(hr, "Cannot copy front buffer!",
+                                "D3D8RenderWindow::writeContentsToFile");
+                }
+
+                if (!mIsFullScreen)
+                {
+                        D3DVIEWPORT8 vp;
+
+                        mpD3DDevice->GetViewport(&vp);
+
+                        desc.Width = vp.Width;
+                        desc.Height = vp.Height;
+                        desc.Format = D3DFMT_A8R8G8B8;         // this is what we get from the screen, so stick with it
  
-         // Get the back buffer
-         if (FAILED(hr = mpD3DDevice->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO,
-             &pSurf)))
-         {
-             Except(hr, "Cannot access back buffer!",
-                 "D3D8RenderWindow::writeContentsToFile");
-         }
+                        // NB we can't lock the back buffer direct because it's no created that way
+                        // and to do so hits performance, so copy to another surface
+                        // Must be the same format as the source surface
+                        if (FAILED(hr = mpD3DDevice->CreateImageSurface(desc.Width, desc.Height, desc.Format, &pSurf)))
+                        {
+                                SAFE_RELEASE(pSurf);
+                                Except(hr, "Cannot create offscreen buffer!",
+                                        "D3D8RenderWindow::writeContentsToFile");
+                        }
+
+                        POINT pt={0, 0};
+                        RECT srcRect;
+
+                        srcRect.left = vp.X;
+                        srcRect.top = vp.Y;
+                        srcRect.right = srcRect.left + vp.Width;
+                        srcRect.bottom = srcRect.top + vp.Height;
  
-         if (FAILED(hr = pSurf->GetDesc(&desc)))
-         {
-             Except(hr, "Cannot get surface description.",
-                 "D3D8RenderWindow::writeContentsToFile");
-         }
- 
-         // NB we can't lock the back buffer direct because it's no created that way
-         // and to do so hits performance, so copy to another surface
-         // Must be the same format as the source surface
-         hr = mpD3DDevice->CreateImageSurface(desc.Width, desc.Height, desc.Format, &pTempSurf);
- 
-         // Copy
-         hr = mpD3DDevice->CopyRects(pSurf, 0, 0, pTempSurf, 0);
- 
- 
+                        // Copy
+                        if (FAILED(hr = mpD3DDevice->CopyRects(pTempSurf, &srcRect, 1, pSurf, &pt)))
+                        {
+                                SAFE_RELEASE(pTempSurf);
+                                SAFE_RELEASE(pSurf);
+                                Except(hr, "Cannot copy back buffer!",
+                                        "D3D8RenderWindow::writeContentsToFile");
+                        }
+                        SAFE_RELEASE(pTempSurf);
+                        pTempSurf = pSurf;
+                        pSurf = NULL;
+                }
+  
          D3DLOCKED_RECT lockedRect;
- 
-         
-         
+
          if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
              D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_NO_DIRTY_UPDATE)))
          {
              Except(hr, String("Cannot lock surface: ") + DXGetErrorDescription8( hr ),
                  "D3D8RenderWindow::writeContentsToFile");
-         }
- 
+         } 
  
          ImageCodec::ImageData imgData;
          imgData.width = desc.Width;
