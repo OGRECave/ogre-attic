@@ -183,12 +183,8 @@ namespace Ogre {
         AxisAlignedBox bx;
         for (i = mObjectsByName.begin(); i != mObjectsByName.end(); ++i)
         {
-            // Get local bounds of object
-            bx = i->second->getBoundingBox();
-            // Transform by aggregated transform
-            bx.transform(_getFullTransform());
-
-            mWorldAABB.merge(bx);
+            // Merge world bounds of each object
+            mWorldAABB.merge(i->second->getWorldBoundingBox(true));
         }
 
         // Merge with children

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 // Precompiler options
 #include "OgrePrerequisites.h"
 #include "OgreRenderQueue.h"
+#include "OgreAxisAlignedBox.h"
 
 namespace Ogre {
 
@@ -53,6 +54,9 @@ namespace Ogre {
         RenderQueueGroupID mRenderQueueID;
         /// Flags determining whether this object is included / excluded from scene queries
         unsigned long mQueryFlags;
+        // Cached world transform of this object
+        mutable AxisAlignedBox mWorldAABB;
+
     public:
         /// Constructor
         MovableObject();
@@ -91,10 +95,12 @@ namespace Ogre {
 
         /** Retrieves the local axis-aligned bounding box for this object.
             @remarks
-                This bounding box is in local coordinates so will need to be transformed and
-                converted into a world bounding box by the SceneNode.
+                This bounding box is in local coordinates.
         */
         virtual const AxisAlignedBox& getBoundingBox(void) const = 0;
+
+        /** Retrieves the axis-aligned bounding box for this object in world coordinates. */
+        virtual const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const;
 
         /** Internal method by which the movable object must add Renderable subclass instances to the rendering queue.
             @remarks
@@ -138,7 +144,7 @@ namespace Ogre {
         virtual RenderQueueGroupID getRenderQueueGroup(void);
 
 		/// return the full transformation of the parent sceneNode or the attachingPoint node
-		virtual Matrix4 _getParentNodeFullTransform(void);
+		virtual Matrix4 _getParentNodeFullTransform(void) const;
 
         /** Sets the query flags for this object.
         @remarks
@@ -159,6 +165,8 @@ namespace Ogre {
         
         /// Returns the query flags relevant for this object
         virtual unsigned long getQueryFlags(void) { return mQueryFlags; }
+
+
 
 
 

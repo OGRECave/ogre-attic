@@ -68,9 +68,13 @@ namespace OgreRefApp {
         ApplicationObject(const String& name);
         virtual ~ApplicationObject();
 
+        /** Sets the position of this object. */
         virtual void setPosition(const Vector3& vec);
+        /** Sets the orientation of this object. */
         virtual void setOrientation(const Quaternion& orientation);
+        /** Gets the current position of this object. */
         virtual const Vector3& getPosition(void);
+        /** Gets the current orientation of this object. */
         virtual const Quaternion& getOrientation(void);
 
         /// Updates the position of this game object from the simulation
@@ -86,7 +90,28 @@ namespace OgreRefApp {
         virtual void addTorque(const Vector3& direction);
         virtual void addTorqueWorldSpace(const Vector3& direction);
 
-        virtual void testCollide(ApplicationObject* otherObj);
+        /** Tests to see if there is a detailed collision between this object and the object passed in.
+        @remarks
+            If there is a collision, both objects will bo notified and if dynamics are enabled
+            on these objects, physics will be applied automatically.
+        @returns true if collision occurred
+
+        */
+        virtual bool testCollide(ApplicationObject* otherObj);
+
+        /** Contains information about a collision; used in the _notifyCollided call. */
+        struct CollisionInfo
+        {
+            /// The position in world coordinates at which the collision occurred
+            Vector3 position;
+            /// The normal in world coordinates of the collision surface
+            Vector3 normal;
+            /// Penetration depth 
+            Real penetrationDepth;
+        };
+        /** This method is called automatically if testCollide indicates a real collision. 
+        */
+        virtual void _notifyCollided(ApplicationObject* otherObj, const CollisionInfo& info);
 
         SceneNode* getSceneNode(void);
         Entity* getEntity(void);

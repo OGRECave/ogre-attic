@@ -36,6 +36,8 @@ namespace Ogre {
         mVisible = true;
         mUserObject = 0;
         mRenderQueueID = RENDER_QUEUE_MAIN;
+        mQueryFlags = 0xFFFFFFFF;
+        mWorldAABB.setNull();
     }
     //-----------------------------------------------------------------------
     void MovableObject::_notifyAttached(Node* parent)
@@ -75,7 +77,7 @@ namespace Ogre {
         return mRenderQueueID;
     }
     //-----------------------------------------------------------------------
-	Matrix4 MovableObject::_getParentNodeFullTransform(void)
+	Matrix4 MovableObject::_getParentNodeFullTransform(void) const
 	{
 		
 		if(mParentNode)
@@ -86,6 +88,18 @@ namespace Ogre {
         // fallback
         return Matrix4::IDENTITY;
 	}
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& MovableObject::getWorldBoundingBox(bool derive) const
+    {
+        if (derive)
+        {
+            mWorldAABB = this->getBoundingBox();
+            mWorldAABB.transform(_getParentNodeFullTransform());
+        }
+
+        return mWorldAABB;
+
+    }
 
 }
 
