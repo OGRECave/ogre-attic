@@ -565,6 +565,10 @@ namespace Ogre
             {
                 tt = TEX_TYPE_2D;
             }
+            else if (vecparams[1] == "3d")
+            {
+                tt = TEX_TYPE_3D;
+            }
             else if (vecparams[1] == "cubic")
             {
                 tt = TEX_TYPE_CUBE_MAP;
@@ -2286,6 +2290,9 @@ namespace Ogre
                     break;
                 case TEX_TYPE_2D:
                     // nothing, this is the default
+                    break;
+                case TEX_TYPE_3D:
+                    writeValue("3d");
                     break;
                 case TEX_TYPE_CUBE_MAP:
                     // nothing, deal with this as cubic_texture since it copes with all variants
