@@ -72,8 +72,7 @@ PostBuild_Cmds=copy ..\bin\Release\OgreMeshUpgrade.exe ..\..\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /D "TIXML_USE_STL" /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /D "TIXML_USE_STL" /FD /GZ /Zm500 /c
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
 # ADD RSC /l 0x809 /d "_DEBUG"
 BSC32=bscmake.exe

@@ -73,7 +73,7 @@ PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /I "..\src\atifs\include" /I "..\src\glsl\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /I "..\src\atifs\include" /I "..\src\glsl\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /GZ /Zm500 /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "_DEBUG"
@@ -168,6 +168,10 @@ SOURCE=..\src\OgreWin32GLSupport.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreWin32RenderTexture.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreWin32Window.cpp
 # End Source File
 # End Group
@@ -237,6 +241,10 @@ SOURCE=..\include\OgreWin32GLSupport.h
 # Begin Source File
 
 SOURCE=..\include\OgreWin32Prerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreWin32RenderTexture.h
 # End Source File
 # Begin Source File
 
