@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAnimationTrack.h"
 #include "OgreRenderQueueSortingGrouping.h"
 #include "OgreOverlay.h"
+#include "OgreOverlayManager.h"
 
 // This class implements the most basic scene manager
 
@@ -628,8 +629,11 @@ namespace Ogre {
 
         // Parse the scene and tag visibles
         _findVisibleObjects(camera);
-        // Add overlays
-        _queueOverlays(camera);
+        // Add overlays, if viewport deems it
+        if (vp->getOverlaysEnabled())
+        {
+            OverlayManager::getSingleton()._queueOverlaysForRendering(camera, &mRenderQueue);
+        }
 
 
         // Set viewport
@@ -1659,6 +1663,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Overlay* SceneManager::createOverlay(const String& name, ushort zorder)
     {
+        /*
         // check not existing
         OverlayList::iterator i = mOverlays.find(name);
         if (i != mOverlays.end())
@@ -1670,14 +1675,20 @@ namespace Ogre {
         Overlay *newOverlay = new Overlay(name, zorder);
 
         mOverlays.insert(OverlayList::value_type(name, newOverlay));
-
         return newOverlay;
+        */
+
+        Overlay* newOverlay = (Overlay*)OverlayManager::getSingleton().create(name);
+        newOverlay->setZOrder(zorder);
+        return newOverlay;
+
 
 
     }
     //---------------------------------------------------------------------
     Overlay* SceneManager::getOverlay(const String& name)
     {
+        /*
         OverlayList::iterator i = mOverlays.find(name);
         if (i == mOverlays.end())
         {
@@ -1687,11 +1698,22 @@ namespace Ogre {
         }
 
         return i->second;
+        */
+        Overlay* ret = (Overlay*)OverlayManager::getSingleton().getByName(name);
+        if (!ret)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "An overlay named " + name + " cannot be found.",
+                "SceneManager::getOverlay");
+        }
+
+        return ret;
 
     }
     //---------------------------------------------------------------------
     void SceneManager::destroyOverlay(const String& name)
     {
+        /*
         OverlayList::iterator i = mOverlays.find(name);
         if (i == mOverlays.end())
         {
@@ -1702,10 +1724,22 @@ namespace Ogre {
 
         delete i->second;
         mOverlays.erase(i);
+        */
+        Overlay* pOver = (Overlay*)OverlayManager::getSingleton().getByName(name);
+        if (!pOver)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "An overlay named " + name + " cannot be found.",
+                "SceneManager::destroyOverlay");
+        }
+        OverlayManager::getSingleton().unload(pOver);
+        delete pOver;
+
     }
     //---------------------------------------------------------------------
     void SceneManager::destroyAllOverlays(void)
     {
+        /*
         OverlayList::iterator i, iend;
         iend = mOverlays.end();
         for (i = mOverlays.begin(); i != iend; ++i)
@@ -1713,18 +1747,10 @@ namespace Ogre {
             delete i->second;
         }
         mOverlays.clear();
+        */
+        OverlayManager::getSingleton().unloadAndDestroyAll();
 
-    }
-    //---------------------------------------------------------------------
-    void SceneManager::_queueOverlays(Camera* cam)
-    {
-        OverlayList::iterator i, iend;
-        iend = mOverlays.end();
-        for (i = mOverlays.begin(); i != iend; ++i)
-        {
-            i->second->_findVisibleObjects(cam, &mRenderQueue);
-        }
-        
+
     }
     //---------------------------------------------------------------------
     void SceneManager::useRenderableViewProjMode(Renderable* pRend)

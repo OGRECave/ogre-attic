@@ -144,6 +144,7 @@ namespace Ogre {
     class MovableObject;
     class Node;
     class Overlay;
+    class OverlayManager;
     class Particle;
     class ParticleAffector;
     class ParticleAffectorFactory;

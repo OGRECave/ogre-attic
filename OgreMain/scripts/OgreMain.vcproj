@@ -279,6 +279,9 @@
 				RelativePath="..\src\OgreOverlay.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreOverlayManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgrePNGCodec.cpp">
 			</File>
 			<File
@@ -617,6 +620,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreOverlay.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreOverlayManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgrePNGCodec.h">

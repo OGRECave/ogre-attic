@@ -284,6 +284,10 @@ SOURCE=..\src\OgreOverlay.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreOverlayManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreParticleEmitter.cpp
 # End Source File
 # Begin Source File
@@ -737,6 +741,10 @@ SOURCE=..\include\OgreOofModelFile.h
 # Begin Source File
 
 SOURCE=..\include\OgreOverlay.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreOverlayManager.h
 # End Source File
 # Begin Source File
 

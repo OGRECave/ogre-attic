@@ -206,12 +206,6 @@ namespace Ogre {
         AnimationList mAnimationsList;
         AnimationStateSet mAnimationStates;
 
-        // List of overlays
-        typedef std::map<String, Overlay*> OverlayList;
-        OverlayList mOverlays;
-
-
-
         /** Internal method used by _renderVisibleObjects to deal with renderables
             which override the camera's own view / projection materices. */
         void useRenderableViewProjMode(Renderable* pRend);
@@ -1045,8 +1039,6 @@ namespace Ogre {
         /** Destroys all the overlays. */
         void destroyAllOverlays(void);
 
-        /** Internal method, queues any overlay objects for rendering. */
-        void _queueOverlays(Camera* cam);
 
 
     };

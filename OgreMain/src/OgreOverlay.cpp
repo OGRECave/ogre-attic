@@ -32,8 +32,8 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Overlay::Overlay(const String& name, ushort zorder)
-        : mName(name), mZOrder(zorder)
+    Overlay::Overlay(const String& name)
+        : mName(name)
     {
         mRotate = 0.0f;
         mScaleX = 1.0f;
@@ -42,6 +42,7 @@ namespace Ogre {
         mScrollY = 0.0f;
         mVisible = false;
         mTransformOutOfDate = true;
+        mZOrder = 100; // Default
         mRootNode = Root::getSingleton().getSceneManager(ST_GENERIC)->createSceneNode();
 
     }
@@ -231,6 +232,15 @@ namespace Ogre {
         mTransformOutOfDate = false;
     }
     //---------------------------------------------------------------------
+    void Overlay::load(void)
+    {
+        // Do nothing
+    }
+    //---------------------------------------------------------------------
+    void Overlay::unload(void)
+    {
+        // Do nothing
+    }
 
 
 }
