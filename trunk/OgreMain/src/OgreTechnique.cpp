@@ -27,6 +27,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgreMaterial.h"
 #include "OgrePass.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include "OgreRenderSystemCapabilities.h"
+#include "OgreGpuProgramManager.h"
 
 
 namespace Ogre {
@@ -56,12 +60,63 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void Technique::_compile(bool autoManageTextureUnits)
     {
-		// TODO
+        // Go through each pass, checking requirements
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            Pass* currPass = *i;
+            // Check texture unit requirements
+            size_t numTexUnitsRequested = currPass->getNumTextureUnitStates();
+            const RenderSystemCapabilities* caps = 
+                Root::getSingleton().getRenderSystem()->getCapabilities();
+            unsigned short numTexUnits = caps->getNumTextureUnits();
+
+            if (currPass->isProgrammable())
+            {
+                // Check texture units
+                if (numTexUnitsRequested > numTexUnits)
+                {
+                    // Can't do this one, and can't split a programmable pass
+                    mIsSupported = false;
+                    return;
+                }
+                // Check vertex program version
+                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
+                    currPass->getVertexProgram()->getSyntaxCode() ))
+                {
+                    // Can't do this one
+                    mIsSupported = false;
+                    return;
+                }
+                // Check fragment program version
+                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
+                    currPass->getFragmentProgram()->getSyntaxCode() ))
+                {
+                    // Can't do this one, and can't split a programmable pass
+                    mIsSupported = false;
+                    return;
+                }
+            }
+            else
+            {
+                // Keep splitting this pass so long as units requested > gpu units
+                while (numTexUnitsRequested > numTexUnits)
+                {
+                    // chop this pass into many passes
+                    currPass = currPass->_split(numTexUnits);
+                    numTexUnitsRequested = currPass->getNumTextureUnitStates();
+                }
+            }
+        }
+        // If we got this far, we're ok
+        mIsSupported = true;
+
     }
     //-----------------------------------------------------------------------------
     Pass* Technique::createPass(bool programmable)
     {
-		Pass* newPass = new Pass(this, programmable);
+		Pass* newPass = new Pass(this, static_cast<unsigned short>(mPasses.size()), programmable);
 		mPasses.push_back(newPass);
 		return newPass;
     }
@@ -110,10 +165,23 @@ namespace Ogre {
 		iend = rhs.mPasses.end();
 		for (i = rhs.mPasses.begin(); i != iend; ++i)
 		{
-			Pass* p = new Pass(this, *(*i));
+			Pass* p = new Pass(this, (*i)->getIndex(), *(*i));
 			mPasses.push_back(p);
 		}
 		return *this;
+    }
+    //-----------------------------------------------------------------------------
+    bool Technique::isTransparent(void)
+    {
+        if (mPasses.empty())
+        {
+            return false;
+        }
+        else
+        {
+            // Base decision on the transparency of the first pass
+            return mPasses[0]->isTransparent();
+        }
     }
     //-----------------------------------------------------------------------------
     void Technique::_load(void)
@@ -143,6 +211,184 @@ namespace Ogre {
     {
         return mParent->isLoaded();
     }
+    //-----------------------------------------------------------------------
+    void Technique::setAmbient(Real red, Real green, Real blue)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setAmbient(red, green, blue);
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setAmbient(const ColourValue& ambient)
+    {
+        setAmbient(ambient.r, ambient.g, ambient.b);
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setDiffuse(Real red, Real green, Real blue)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setDiffuse(red, green, blue);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setDiffuse(const ColourValue& diffuse)
+    {
+        setDiffuse(diffuse.r, diffuse.g, diffuse.b);
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setSpecular(Real red, Real green, Real blue)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setSpecular(red, green, blue);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setSpecular(const ColourValue& specular)
+    {
+        setSpecular(specular.r, specular.g, specular.b);
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setShininess(Real val)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setShininess(val);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setSelfIllumination(Real red, Real green, Real blue)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setSelfIllumination(red, green, blue);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setSelfIllumination(const ColourValue& selfIllum)
+    {
+        setSelfIllumination(selfIllum.r, selfIllum.g, selfIllum.b);
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setDepthCheckEnabled(bool enabled)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthCheckEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setDepthWriteEnabled(bool enabled)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthWriteEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setDepthFunction( CompareFunction func )
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthFunction(func);
+        }
+    }
+    //-----------------------------------------------------------------------
+	void Technique::setColourWriteEnabled(bool enabled)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setColourWriteEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setCullingMode( CullingMode mode )
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setCullingMode(mode);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setManualCullingMode( ManualCullingMode mode )
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setManualCullingMode(mode);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setLightingEnabled(bool enabled)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setLightingEnabled(enabled);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setShadingMode( ShadeOptions mode )
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setShadingMode(mode);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setFog(bool overrideScene, FogMode mode, const ColourValue& colour,
+        Real expDensity, Real linearStart, Real linearEnd)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setFog(overrideScene, mode, colour, expDensity, linearStart, linearEnd);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::setDepthBias(ushort bias)
+    {
+        Passes::iterator i, iend;
+        iend = mPasses.end();
+        for (i = mPasses.begin(); i != iend; ++i)
+        {
+            (*i)->setDepthBias(bias);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Technique::_notifyNeedsRecompile(void)
+    {
+        mParent->_notifyNeedsRecompile();
+    }
+
 
 
 }

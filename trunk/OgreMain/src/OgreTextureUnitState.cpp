@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreControllerManager.h"
 #include "OgreLogManager.h"
+#include "OgreException.h"
+#include "OgreTextureManager.h"
 
 namespace Ogre {
 
@@ -796,6 +798,11 @@ namespace Ogre {
     bool TextureUnitState::isLoaded(void)
     {
         return mParent->isLoaded();
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::_notifyNeedsRecompile(void)
+    {
+        mParent->_notifyNeedsRecompile();
     }
 
 }

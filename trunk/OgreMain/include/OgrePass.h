@@ -26,6 +26,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Pass_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreGpuProgram.h"
+#include "OgreColourValue.h"
+#include "OgreBlendMode.h"
+#include "OgreCommon.h"
 
 namespace Ogre {
     /** Class defining a single pass of a Technique (of a Material), ie
@@ -54,6 +58,8 @@ namespace Ogre {
     {
     protected:
         Technique* mParent;
+        unsigned short mIndex; // pass index
+        unsigned long mHash; // pass hash
         /// Is this a programmable pass?
         bool mIsProgrammable;
         //-------------------------------------------------------------------------
@@ -124,15 +130,19 @@ namespace Ogre {
 		GpuProgramUsage *mFragmentProgramUsage;
     public:
         /// Default constructor
-		Pass(Technique* parent, bool programmable);
+		Pass(Technique* parent, unsigned short index, bool programmable = false);
         /// Copy constructor
-        Pass(Technique* parent, const Pass& oth );
+        Pass(Technique* parent, unsigned short index, const Pass& oth );
         /// Operator = overload
         Pass& operator=(const Pass& oth);
         ~Pass();
 
         /// Returns true if this pass is programmable ie supports vertex & fragment programs.
         bool isProgrammable(void) { return mIsProgrammable; }
+        /// Sets whether this Pass is programmable or not
+        void setProgrammable(bool programmable) {mIsProgrammable = programmable;}
+        /// Gets the index of this Pass in the parent Technique
+        unsigned short getIndex(void) const { return mIndex; }
         /** Sets the ambient colour reflectance properties of this pass.
         @remarks
         The base colour of a pass is determined by how much red, green and blue light is reflects
@@ -633,6 +643,19 @@ namespace Ogre {
 		void _unload(void);
         // Is this loaded?
         bool isLoaded(void);
+
+        /** Gets the 'hash' of this pass, ie a precomputed number to use for sorting
+        @remarks
+            This hash is used to sort passes, and for this reason the pass is hashed
+            using firstly its index (so that all passes are rendered in order), then
+            by the textures which it's TextureUnitState instances are using.
+        */
+        unsigned long getHash(void);
+
+        /// Internal method for recalculating the hash
+        void _recalculateHash(void);
+        /** Tells the pass that it needs recompilation. */
+        void _notifyNeedsRecompile(void);
 
         // --------------------------------------------------------------------
     };
