@@ -103,9 +103,6 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/CgProgramManager/Makefile \
     PlugIns/CgProgramManager/src/Makefile \
     PlugIns/CgProgramManager/include/Makefile \
-    PlugIns/FileSystem/Makefile \
-    PlugIns/FileSystem/src/Makefile \
-    PlugIns/FileSystem/include/Makefile \
     PlugIns/GuiElements/Makefile \
     PlugIns/GuiElements/src/Makefile \
     PlugIns/GuiElements/include/Makefile \
