@@ -32,23 +32,24 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreHardwareIndexBuffer.h"
 
+namespace Ogre {
 
-/** Abstract singleton class for managing hardware buffers, a concrete instance
-  of this will be created by the RenderSystem. */
-class _OgreExport HardwareBufferManager : public Singleton<HardwareBufferManager>
-{
-	public:	
-		/// Create a hardware vertex buffer
-		VertexBuffer* createVertexBuffer(const HardwareVertexBuffer::VertexFormat& vf, size_t numVerts, HardwareBuffer::Usage usage);
-		/// Destroy a hardware index buffer
-		void destroyVertexBuffer(VertexBuffer* buf);
-		/// Create a hardware vertex buffer
-		IndexBuffer* createIndexBuffer(IndexFormat if, size_t numIndexes, HardwareBuffer::HardwareBufferUsage usage);
-		/// Destroy a hardware vertex buffer
-		void destroyIndexBuffer(VertexBuffer* buf);
-};
+    /** Abstract singleton class for managing hardware buffers, a concrete instance
+    of this will be created by the RenderSystem. */
+    class _OgreExport HardwareBufferManager : public Singleton<HardwareBufferManager>
+    {
+	    public:	
+		    /// Create a hardware vertex buffer
+		    VertexBuffer* createVertexBuffer(const HardwareVertexBuffer::VertexFormat& vf, size_t numVerts, HardwareBuffer::Usage usage);
+		    /// Destroy a hardware index buffer
+		    void destroyVertexBuffer(VertexBuffer* buf);
+		    /// Create a hardware vertex buffer
+		    IndexBuffer* createIndexBuffer(IndexFormat if, size_t numIndexes, HardwareBuffer::HardwareBufferUsage usage);
+		    /// Destroy a hardware vertex buffer
+		    void destroyIndexBuffer(VertexBuffer* buf);
+    };
 
-
+}
 
 #endif
 
