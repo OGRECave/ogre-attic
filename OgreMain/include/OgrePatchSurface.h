@@ -156,14 +156,14 @@ namespace Ogre {
         /** Gets the current level of subdivision. */
         Real getSubdivisionFactor(void);
 
-        /** Convenience method for freeing the control point buffer; is not done by default
-            since the memory may be controlled outside. */
-        void freeControlPointBuffer(void) { 
-            if (mControlPointBuffer) 
-            {
-                delete [] mControlPointBuffer;
-                mControlPointBuffer = 0;
-            }
+        void* getControlPointBuffer(void)
+        {
+            return mControlPointBuffer;
+        }
+        /** Convenience method for telling the patch that the control points have been 
+            deleted, since once the patch has been built they are not required. */
+        void notifyControlPointBufferDeallocated(void) { 
+            mControlPointBuffer = 0;
         }
     protected:
         /// Vertex declaration describing the control point buffer

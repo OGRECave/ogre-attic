@@ -544,7 +544,9 @@ namespace Ogre {
             ps->build(vbuf, currVertOffset, mIndexes, currIndexOffset);
 
             // No need for control points anymore
-            ps->freeControlPointBuffer();
+            BspVertex* pCP = static_cast<BspVertex*>(ps->getControlPointBuffer());
+            delete [] pCP;
+            ps->notifyControlPointBufferDeallocated();
 
             currVertOffset += ps->getRequiredVertexCount();
             currIndexOffset += ps->getRequiredIndexCount();
