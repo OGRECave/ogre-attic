@@ -166,8 +166,8 @@ namespace Ogre {
             Quaternion mParentQ = mParent->_getDerivedOrientation();
             mDerivedOrientation = mParentQ * mOrientation;
 
-            // Change position vector based on parent's orientation
-            mDerivedPosition = mParentQ * mPosition;
+            // Change position vector based on parent's orientation & scale
+            mDerivedPosition = mParentQ * (mPosition * mParent->_getDerivedScale());
 
             // Update scale
             if (mInheritScale)
