@@ -77,11 +77,11 @@ namespace Ogre {
                 //  by main loop
 
                 // ESCAPE closes window
-                if (wParam == VK_ESCAPE)
-                {
-                    win->mClosed = true;
-                    return 0L;
-                }
+                //if (wParam == VK_ESCAPE)
+                //{
+                //    win->mClosed = true;
+                //    return 0L;
+                //}
                 break;
 
             case WM_PAINT:
