@@ -831,7 +831,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setSurfaceParams(const ColourValue &ambient,
         const ColourValue &diffuse, const ColourValue &specular,
-        const ColourValue &emissive, const Real shininess)
+        const ColourValue &emissive, const Real shininess,
+        TrackVertexColourType tracking)
     {
         // Remember last call
         static ColourValue lastAmbient = ColourValue::Black;
@@ -839,13 +840,13 @@ namespace Ogre {
         static ColourValue lastSpecular = ColourValue::Black;
         static ColourValue lastEmissive = ColourValue::Black;
         static Real lastShininess = 0.0;
+        static TrackVertexColourType lastTracking = -1;
 
         // Only update if changed
         if (ambient != lastAmbient || diffuse != lastDiffuse ||
             specular != lastSpecular || emissive != lastEmissive ||
             shininess != lastShininess)
         {
-
             // Convert to D3D
             D3DMATERIAL7 d3dMat;
 
@@ -875,6 +876,28 @@ namespace Ogre {
             if (FAILED(hr))
                 Except(hr, "Error setting D3D material.", "D3DRenderSystem::_setSurfaceParams");
 
+            // Remember the details
+            lastAmbient = ambient;
+            lastDiffuse = diffuse;
+            lastSpecular = specular;
+            lastEmissive = emissive;
+            lastShininess = shininess;                
+        }
+        if(tracking != lastTracking) 
+        {
+            if(tracking != TVC_NONE) 
+            {
+                mpD3DDevice->SetRenderState(D3DRENDERSTATE_COLORVERTEX, TRUE);
+                mpD3DDevice->SetRenderState(D3DRENDERSTATE_AMBIENTMATERIALSOURCE, (tracking&TVC_AMBIENT)?D3DMCS_COLOR1:D3DMCS_MATERIAL);
+                mpD3DDevice->SetRenderState(D3DRENDERSTATE_DIFFUSEMATERIALSOURCE, (tracking&TVC_DIFFUSE)?D3DMCS_COLOR1:D3DMCS_MATERIAL);
+                mpD3DDevice->SetRenderState(D3DRENDERSTATE_SPECULARMATERIALSOURCE, (tracking&TVC_SPECULAR)?D3DMCS_COLOR1:D3DMCS_MATERIAL);
+                mpD3DDevice->SetRenderState(D3DRENDERSTATE_EMISSIVEMATERIALSOURCE, (tracking&TVC_EMISSIVE)?D3DMCS_COLOR1:D3DMCS_MATERIAL);
+            } 
+            else 
+            {
+                mpD3DDevice->SetRenderState(D3DRENDERSTATE_COLORVERTEX, FALSE);               
+            }
+            lastTracking = tracking;
         }
     }
     //-----------------------------------------------------------------------

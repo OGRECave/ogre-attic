@@ -245,7 +245,7 @@ namespace Ogre {
          */
         void _setSurfaceParams(const ColourValue &ambient,
             const ColourValue &diffuse, const ColourValue &specular,
-            const ColourValue &emissive, Real shininess);
+            const ColourValue &emissive, Real shininess, TrackVertexColourType tracking);
         /** See
           RenderSystem
          */

@@ -677,10 +677,6 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
-		// Set nicer lighting model
-		glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-		glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-
         // Save previous modelview
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
@@ -820,7 +816,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setSurfaceParams(const ColourValue &ambient,
         const ColourValue &diffuse, const ColourValue &specular,
-        const ColourValue &emissive, Real shininess)
+        const ColourValue &emissive, Real shininess,
+        TrackVertexColourType tracking)
     {
         // XXX Cache previous values?
         // XXX Front or Front and Back?
@@ -843,6 +840,46 @@ namespace Ogre {
         f4val[3] = emissive.a;
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, f4val);
         glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+        
+        // Track vertex colour
+        if(tracking != TVC_NONE) 
+        {
+            GLenum gt = GL_DIFFUSE;
+            // There are actually 15 different combinations for tracking, of which
+            // GL only supports the most used 5. This means that we have to do some
+            // magic to find the best match. NOTE: 
+            //  GL_AMBIENT_AND_DIFFUSE != GL_AMBIENT | GL__DIFFUSE
+            if(tracking & TVC_AMBIENT) 
+            {
+                if(tracking & TVC_DIFFUSE)
+                {
+                    gt = GL_AMBIENT_AND_DIFFUSE;
+                } 
+                else 
+                {
+                    gt = GL_AMBIENT;
+                }
+            }
+            else if(tracking & TVC_DIFFUSE) 
+            {
+                gt = GL_DIFFUSE;
+            }
+            else if(tracking & TVC_SPECULAR) 
+            {
+                gt = GL_SPECULAR;              
+            }
+            else if(tracking & TVC_EMISSIVE) 
+            {
+                gt = GL_EMISSION;
+            }
+            glColorMaterial(GL_FRONT_AND_BACK, gt);
+            
+            glEnable(GL_COLOR_MATERIAL);
+        } 
+        else 
+        {
+            glDisable(GL_COLOR_MATERIAL);          
+        }
     }
 
     //-----------------------------------------------------------------------------
@@ -1305,10 +1342,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::setLightingEnabled(bool enabled)
     {
-        if (enabled)
+        if (enabled) 
+        {      
             glEnable(GL_LIGHTING);
-        else
+            
+            // Set nicer lighting model -- d3d9 has this by default
+            glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+            glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
+        } 
+        else 
+        {
             glDisable(GL_LIGHTING);
+        }
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)

@@ -637,7 +637,8 @@ Pass* SceneManager::setPass(Pass* pass)
                 pass->getDiffuse(), 
                 pass->getSpecular(), 
                 pass->getSelfIllumination(), 
-                pass->getShininess() );
+                pass->getShininess(),
+		pass->getVertexColourTracking() );
         }
 
         // Dynamic lighting enabled?
