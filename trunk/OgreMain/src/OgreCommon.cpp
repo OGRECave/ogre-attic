@@ -1,7 +1,7 @@
 #include "OgrePrerequisites.h"
 #include "OgreCommon.h"
 
-#include <il/il.h>
+#include <IL/il.h>
 
 namespace Ogre 
 {

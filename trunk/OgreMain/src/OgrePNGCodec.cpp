@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 #include "OgreException.h"
 
-#include <il/il.h>
+#include <IL/il.h>
 
 namespace Ogre {
 
