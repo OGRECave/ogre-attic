@@ -368,6 +368,9 @@ namespace Ogre {
 
         /** Removes all LOD data from this Mesh. */
         void removeLodLevels(void);
+        /** Utility method for cloning geometry.
+        */
+        static void cloneGeometry(GeometryData& source, GeometryData& dest);
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;
@@ -392,9 +395,6 @@ namespace Ogre {
 
         bool mManuallyDefined;
 
-        /** Internal method used by clone().
-        */
-        void cloneGeometry(GeometryData& source, GeometryData& dest);
 
         /// Flag to indicate that bounds need updating
         bool mUpdateBounds;
