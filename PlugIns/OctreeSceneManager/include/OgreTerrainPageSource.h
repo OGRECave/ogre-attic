@@ -33,6 +33,21 @@ namespace Ogre {
     typedef std::pair<String, String> TerrainPageSourceOption;
     typedef std::vector<TerrainPageSourceOption> TerrainPageSourceOptionList;
 
+    /** Abstract class which classes can override to receive notifications
+        when a page is ready to be added to the terrain manager.
+    */
+    class _OgreTerrainExport TerrainPageSourceListener
+    {
+    public:
+        /** Listener method called when a new page is about to be constructed. 
+        @param heightData Array of normalised height data (0..1). The size of
+            this buffer will conform to the scene manager page size. The listener
+            may modify the data if it wishes.
+        */
+        virtual void pageConstructed(Real* heightData) = 0;
+    };
+
+
     /** Abstract class which describes the interface which a source of terrain 
         pages must implement.
     @remarks
@@ -86,6 +101,11 @@ namespace Ogre {
         /// The expected size of a tile in number of vertices
         unsigned short mTileSize;
 
+        typedef std::vector<TerrainPageSourceListener*> PageSourceListenerList;
+        static PageSourceListenerList mPageSourceListeners;
+        /// Internal method for firing pageContructed events
+        static void firePageConstructed(Real* heightData);
+
         /** Utility method for building a page of tiles based on some source
         data, wherever that may have come from.
         @remarks
@@ -94,6 +114,7 @@ namespace Ogre {
             creates.
         */
         virtual TerrainPage* buildPage(Real* heightData, Material* pMaterial);
+
 
     public:
         TerrainPageSource() : mSceneManager(0), mAsyncLoading(false) {}
@@ -173,6 +194,18 @@ namespace Ogre {
         @param z The z index of the page expired
         */
         virtual void expirePage(ushort x, ushort z) = 0;
+        
+        /** Register a class which will be called back whenever a new page is
+            available.
+        @remarks
+            Since this method is static, it applies to any page source which 
+            is in active use; there is no need to register one per source.
+        */
+        static void addListener(TerrainPageSourceListener* pl);
+        /** Unregister a class which will be called back whenever a new page is
+        available.
+        */
+        static void removeListener(TerrainPageSourceListener* pl);
 
     };
 
