@@ -1696,7 +1696,7 @@ namespace Ogre {
 		}
 
 		SubMeshList::const_iterator si;
-		for (si = mSubMeshList.begin(); sm != mSubMeshList.end(); ++si)
+		for (si = mSubMeshList.begin(); si != mSubMeshList.end(); ++si)
 		{
 			// Dedicated vertices
 			if (!(*si)->useSharedVertices)
