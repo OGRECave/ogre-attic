@@ -280,12 +280,17 @@ namespace Ogre {
             usage, useShadowBuffer);
     }
     //-----------------------------------------------------------------------------
-    void TempBlendedBufferInfo::checkoutTempCopies(void)
+    void TempBlendedBufferInfo::checkoutTempCopies(bool positions, bool normals)
     {
+        bindPositions = positions;
+        bindNormals = normals;
         HardwareBufferManager &mgr = HardwareBufferManager::getSingleton();
-        destPositionBuffer = mgr.allocateVertexBufferCopy(srcPositionBuffer, 
-            HardwareBufferManager::BLT_AUTOMATIC_RELEASE, this);
-        if (!srcNormalBuffer.isNull() && !posNormalShareBuffer)
+        if (bindPositions)
+        {
+            destPositionBuffer = mgr.allocateVertexBufferCopy(srcPositionBuffer, 
+                HardwareBufferManager::BLT_AUTOMATIC_RELEASE, this);
+        }
+        if (bindNormals && !srcNormalBuffer.isNull() && !posNormalShareBuffer)
         {
             destNormalBuffer = mgr.allocateVertexBufferCopy(srcNormalBuffer, 
                 HardwareBufferManager::BLT_AUTOMATIC_RELEASE, this);
@@ -297,7 +302,7 @@ namespace Ogre {
         this->destPositionBuffer->suppressHardwareUpdate(suppressHardwareUpload);
         targetData->vertexBufferBinding->setBinding(
             this->posBindIndex, this->destPositionBuffer);
-        if (!srcNormalBuffer.isNull() && !posNormalShareBuffer)
+        if (bindNormals && !posNormalShareBuffer)
         {
             this->destNormalBuffer->suppressHardwareUpdate(suppressHardwareUpload);
             targetData->vertexBufferBinding->setBinding(

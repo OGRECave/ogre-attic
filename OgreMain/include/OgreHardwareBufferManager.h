@@ -68,9 +68,11 @@ namespace Ogre {
         bool posNormalShareBuffer;
         unsigned short posBindIndex;
         unsigned short normBindIndex;
+        bool bindPositions;
+        bool bindNormals;
 
         /// Utility method, checks out temporary copies of src into dest
-        void checkoutTempCopies(void);
+        void checkoutTempCopies(bool positions = true, bool normals = true);
         /// Utility method, binds dest copies into a given VertexData struct
         void bindTempCopies(VertexData* targetData, bool suppressHardwareUpload);
         /** Overridden member from HardwareBufferLicensee. */

@@ -285,6 +285,8 @@ namespace Ogre {
             /// Pass true to suppress hardware upload of shadow buffer changes
             void suppressHardwareUpdate(bool suppress) {
                 mSuppressHardwareUpdate = suppress;
+                if (!suppress)
+                    _updateFromShadow();
             }
 
 
