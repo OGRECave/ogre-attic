@@ -248,7 +248,7 @@ namespace Ogre {
 		 * @return x  an integer indicating horizontal position relative to
 		 *            the MouseTarget
 		 */
-		 Real getX();
+		 Real getX() const;
 
 		/**
 		 * Returns the vertical y position of the event relative to the
@@ -257,7 +257,7 @@ namespace Ogre {
 		 * @return y  an integer indicating vertical position relative to
 		 *            the MouseTarget
 		 */
-		 Real getY();
+		 Real getY() const;
 
 		/**
 		 * Returns the scrollwheel z position of the event relative to the
@@ -266,7 +266,7 @@ namespace Ogre {
 		 * @return y  an integer indicating scrollwheel position relative to
 		 *            the MouseTarget
 		 */
-		 Real getZ();
+		 Real getZ() const;
 
          /** get relative X cursor movement */
          Real getRelX() const {return mRelX;}
@@ -295,7 +295,7 @@ namespace Ogre {
 		 void translatePoint(Real x, Real y);
 
 		 /** return the ID of the button */
-		 int getButtonID();
+		 int getButtonID() const;
     };
 
 

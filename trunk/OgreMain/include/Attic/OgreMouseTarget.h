@@ -68,7 +68,7 @@ namespace Ogre {
 		void processMouseEvent(MouseEvent* e) ;
 		void addMouseListener(MouseListener* l) ;
 		void removeMouseListener(MouseListener* l) ;
-		bool isMouseWithin();
+		bool isMouseWithin() const;
     };
 
 

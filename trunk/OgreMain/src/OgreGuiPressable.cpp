@@ -58,7 +58,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	bool GuiPressable::isPressed()
+	bool GuiPressable::isPressed() const
 	{ 
 		return mPressed;
 	}

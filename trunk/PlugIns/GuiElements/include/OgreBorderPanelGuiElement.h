@@ -315,9 +315,9 @@ namespace Ogre {
         void getWorldTransforms(Matrix4* xform) const { mParent->getWorldTransforms(xform); }
         const Quaternion& getWorldOrientation(void) const { return Quaternion::IDENTITY; }
         const Vector3& getWorldPosition(void) const { return Vector3::ZERO; }
-        unsigned short getNumWorldTransforms(void) { return 1; }
-        bool useIdentityProjection(void) { return true; }
-        bool useIdentityView(void) { return true; }
+        unsigned short getNumWorldTransforms(void) const { return 1; }
+        bool useIdentityProjection(void) const { return true; }
+        bool useIdentityView(void) const { return true; }
         Real getSquaredViewDepth(const Camera* cam) const { return mParent->getSquaredViewDepth(cam); }
     };
 

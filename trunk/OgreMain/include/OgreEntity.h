@@ -176,7 +176,7 @@ namespace Ogre {
 
         /** Retrieves the number of SubEntity objects making up this entity.
         */
-        unsigned int getNumSubEntities(void);
+        unsigned int getNumSubEntities(void) const;
 
         /** Clones this entity and returns a pointer to the clone.
             @remarks
@@ -302,7 +302,7 @@ namespace Ogre {
         void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
 
         /** Returns true if this entity has auto-normalisation of normals set. */
-        bool getNormaliseNormals(void) {return mNormaliseNormals; }
+        bool getNormaliseNormals(void) const {return mNormaliseNormals; }
 
 
     };

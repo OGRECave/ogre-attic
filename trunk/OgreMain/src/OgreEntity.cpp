@@ -153,7 +153,7 @@ namespace Ogre {
 		return getSubEntity(index);
     }
     //-----------------------------------------------------------------------
-    unsigned int Entity::getNumSubEntities(void)
+    unsigned int Entity::getNumSubEntities(void) const
     {
         return static_cast< unsigned int >( mSubEntityList.size() );
     }

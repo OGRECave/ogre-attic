@@ -91,7 +91,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	bool MouseTarget::isMouseWithin()
+	bool MouseTarget::isMouseWithin() const
 	{ 
 		return mMouseWithin;
 	}

@@ -70,7 +70,7 @@ namespace Ogre {
 	 * @return x  an integer indicating horizontal position relative to
 	 *            the GuiElement
 	 */
-	 Real MouseEvent::getX() {
+	 Real MouseEvent::getX() const {
 		return mX;
 	}
 	/**
@@ -80,7 +80,7 @@ namespace Ogre {
 	 * @return y  an integer indicating vertical position relative to
 	 *            the GuiElement
 	 */
-	 Real MouseEvent::getY() {
+	 Real MouseEvent::getY() const {
 		return mY;
 	}
 
@@ -91,10 +91,10 @@ namespace Ogre {
 	 * @return y  an integer indicating vertical position relative to
 	 *            the GuiElement
 	 */
-	 Real MouseEvent::getZ() {
+	 Real MouseEvent::getZ() const {
 		return mZ;
 	}
-	 int MouseEvent::getButtonID()
+	 int MouseEvent::getButtonID() const
 	 {
 		 return mButtonID;
 

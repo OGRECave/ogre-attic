@@ -69,7 +69,7 @@ namespace Ogre {
 		String getActionCommand();
 		void setActionCommand(const String& action);
 
-		bool isPressed();
+		bool isPressed() const;
 		virtual void setPressed(bool b);
 
 
