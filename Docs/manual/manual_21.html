@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 18 2005 by texi2html 1.64 -->
+<!-- Created on , 26 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -114,7 +114,7 @@ example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
 <DT>inverse_transpose_worldview_matrix
 <DD>The inverse transpose of the current concatenated world and view matrices.
 <DT>light_diffuse_colour
-<DD>The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
+<DD>The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light - note that directional lights are always first in the list and always present). NB if there are no lights this close, then the parameter will be set to black.
 <DT>light_specular_colour
 <DD>The specular colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
 <DT>light_attenuation
@@ -165,7 +165,7 @@ The allowed value codes and the meaning of extra_params are detailed in <A HREF=
 <A NAME="SEC92"></A>
 <H3> Shadows and Vertex Programs </H3>
 <!--docid::SEC92::-->
-When using shadows (See section <A HREF="manual_52.html#SEC197">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
+When using shadows (See section <A HREF="manual_52.html#SEC198">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
 
 If you use <STRONG>stencil shadows</STRONG>, then any vertex programs which do vertex deformation can be a problem, because stencil shadows are calculated on the CPU, which does not have access to the modified vertices. If the vertex program is doing standard skeletal animation, this is ok (see section above) because Ogre knows how to replicate the effect in software, but any other vertex deformation cannot be replicated, and you will either have to accept that the shadow will not reflect this deformation, or you should turn off shadows for that object. <BR><BR>
 
@@ -204,7 +204,7 @@ For the purposes of writing this alternate program, there is an automatic parame
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 18 2005</I>
+by <I>Steve Streeting</I> on <I>, 26 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
