@@ -30,9 +30,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     CgProgram::CmdEntryPoint CgProgram::msCmdEntryPoint;
     CgProgram::CmdProfiles CgProgram::msCmdProfiles;
-
+    CgProgram::CmdArgs CgProgram::msCmdArgs;
     //-----------------------------------------------------------------------
-    void CgProgram::selectProfile()
+    void CgProgram::selectProfile(void)
     {
         mSelectedProfile = "";
         mSelectedCgProfile = CG_PROFILE_UNKNOWN;
@@ -54,12 +54,73 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    void CgProgram::buildArgs(void)
+    {
+        StringVector args;
+        if (!mCompileArgs.empty())
+            args = mCompileArgs.split();
+
+        StringVector::const_iterator i;
+        if (mSelectedCgProfile == CG_PROFILE_VS_1_1)
+        {
+            // Need the 'dcls' argument whenever we use this profile
+            // otherwise compilation of the assembler will fail
+            bool dclsFound = false;
+            for (i = args.begin(); i != args.end(); ++i)
+            {
+                if (*i == "dcls")
+                {
+                    dclsFound = true;
+                    break;
+                }
+            }
+            if (!dclsFound)
+            {
+                args.push_back("-profileopts dcls");
+            }
+        }
+        // Now split args into that god-awful char** that Cg insists on
+        freeCgArgs();
+        mCgArguments = new char*[args.size() + 1];
+        int index = 0;
+        for (i = args.begin(); i != args.end(); ++i, ++index)
+        {
+            mCgArguments[index] = new char[i->length() + 1];
+            strcpy(mCgArguments[index], i->c_str());
+        }
+        // Null terminate list
+        mCgArguments[index] = 0;
+
+
+    }
+    //-----------------------------------------------------------------------
+    void CgProgram::freeCgArgs(void)
+    {
+        if (mCgArguments)
+        {
+            int index = 0;
+            char* current = mCgArguments[index];
+            while (current)
+            {
+                delete [] current;
+                current = mCgArguments[++index];
+            }
+            delete [] mCgArguments;
+            mCgArguments = 0;
+        }
+    }
+    //-----------------------------------------------------------------------
     void CgProgram::loadFromSource(void)
     {
         // Create Cg Program
         selectProfile();
+        buildArgs();
         mCgProgram = cgCreateProgram(mCgContext, CG_SOURCE, mSource.c_str(), 
-            mSelectedCgProfile, mEntryPoint.c_str(), NULL);
+            mSelectedCgProfile, mEntryPoint.c_str(), const_cast<const char**>(mCgArguments));
+
+        // Test
+        //LogManager::getSingleton().logMessage(cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM));
+
         // Check for errors
         checkForCgError("CgProgram::loadFromSource", 
             "Unable to compile Cg program " + mName + ": ", mCgContext);
@@ -71,6 +132,7 @@ namespace Ogre {
         // Create a low-level program, give it the same name as us
         mAssemblerProgram = 
             GpuProgramManager::getSingleton().create(mName, mType, mSelectedProfile);
+        mAssemblerProgram->setSource(cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM));
 
     }
     //-----------------------------------------------------------------------
@@ -96,10 +158,15 @@ namespace Ogre {
         CGparameter parameter = cgGetFirstLeafParameter(mCgProgram, CG_PROGRAM);
         while (parameter != 0) 
         {
-            // Look for uniform parameters only
+            // Look for uniform (non-sampler) parameters only
             // Don't bother enumerating unused parameters, especially since they will
             // be optimised out and therefore not in the indexed versions
             if (cgGetParameterVariability(parameter) == CG_UNIFORM &&
+                cgGetParameterType(parameter) != CG_SAMPLER1D &&
+                cgGetParameterType(parameter) != CG_SAMPLER2D &&
+                cgGetParameterType(parameter) != CG_SAMPLER3D &&
+                cgGetParameterType(parameter) != CG_SAMPLERCUBE &&
+                cgGetParameterType(parameter) != CG_SAMPLERRECT &&
                 cgIsParameterReferenced(parameter))
             {
                 String paramName = cgGetParameterName(parameter);
@@ -116,7 +183,7 @@ namespace Ogre {
     CgProgram::CgProgram(const String& name, GpuProgramType gpType, 
         const String& language, CGcontext context)
         : HighLevelGpuProgram(name, gpType, language), mCgContext(context), 
-        mCgProgram(0)
+        mCgProgram(0), mSelectedCgProfile(CG_PROFILE_UNKNOWN), mCgArguments(0)
     {
         if (createParamDictionary("CgProgram"))
         {
@@ -128,6 +195,9 @@ namespace Ogre {
             dict->addParameter(ParameterDef("profiles", 
                 "Space-separated list of Cg profiles supported by this profile.",
                 PT_STRING),&msCmdProfiles);
+            dict->addParameter(ParameterDef("compile_arguments", 
+                "A string of compilation arguments to pass to the Cg compiler.",
+                PT_STRING),&msCmdArgs);
         }
         
     }
@@ -166,8 +236,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String CgProgram::CmdEntryPoint::doGet(void *target)
     {
-        return StringConverter::toString(
-            static_cast<CgProgram*>(target)->getEntryPoint() );
+        return static_cast<CgProgram*>(target)->getEntryPoint();
     }
     void CgProgram::CmdEntryPoint::doSet(void *target, const String& val)
     {
@@ -181,8 +250,16 @@ namespace Ogre {
     }
     void CgProgram::CmdProfiles::doSet(void *target, const String& val)
     {
-        static_cast<CgProgram*>(target)->setProfiles(
-            StringConverter::parseStringVector(val) );
+        static_cast<CgProgram*>(target)->setProfiles(val.split());
+    }
+    //-----------------------------------------------------------------------
+    String CgProgram::CmdArgs::doGet(void *target)
+    {
+        return static_cast<CgProgram*>(target)->getCompileArguments();
+    }
+    void CgProgram::CmdArgs::doSet(void *target, const String& val)
+    {
+        static_cast<CgProgram*>(target)->setCompileArguments(val);
     }
 
 }

@@ -55,11 +55,19 @@ namespace Ogre {
             String doGet(void* target);
             void doSet(void* target, const String& val);
         };
+        /// Command object for setting compilation arguments
+        class CmdArgs : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
 
     protected:
 
         static CmdEntryPoint msCmdEntryPoint;
         static CmdProfiles msCmdProfiles;
+        static CmdArgs msCmdArgs;
 
         /// The CG context to use, passed in by factory
         CGcontext mCgContext;
@@ -80,8 +88,17 @@ namespace Ogre {
         String mEntryPoint;
         String mSelectedProfile;
         CGprofile mSelectedCgProfile;
+        String mCompileArgs;
+        // Unfortunately Cg uses char** for arguments - bleh
+        // This is a null-terminated list of char* (each null terminated)
+        char** mCgArguments;
+
         /// Internal method which works out which profile to use for this program
-        void selectProfile();
+        void selectProfile(void);
+        /// Internal method which merges manual and automatic compile arguments
+        void buildArgs(void);
+        /// Releases memory for the horrible Cg char**
+        void freeCgArgs(void);
 
 
     public:
@@ -97,6 +114,10 @@ namespace Ogre {
         void setProfiles(const StringVector& profiles);
         /** Gets the Cg profiles which can be supported by the program. */
         const StringVector& getProfiles(void) { return mProfiles; }
+        /** Sets the compilation arguments for this program ie the first method called. */
+        void setCompileArguments(const String& args) { mCompileArgs = args; }
+        /** Gets the entry point defined for this program. */
+        const String& getCompileArguments(void) { return mCompileArgs; }
         /// Overridden from GpuProgram
         bool isSupported(void);
     };
