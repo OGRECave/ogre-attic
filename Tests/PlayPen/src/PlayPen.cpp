@@ -2136,13 +2136,13 @@ protected:
 		Vector3 max(2000,0,2000);
 
 
-		Entity* e = mSceneMgr->createEntity("1", "gras_02.mesh");
+		Entity* e = mSceneMgr->createEntity("1", "column.mesh");
 		//createRandomEntityClones(e, 1000, min, max);
 		
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
 		s->setCastShadows(true);
 		s->setRegionDimensions(Vector3(500,500,500));
-		for (int i = 0; i < 3000; ++i)
+		for (int i = 0; i < 1000; ++i)
 		{
 			Vector3 pos;
 			pos.x = Math::RangeRandom(min.x, max.x);
