@@ -474,11 +474,18 @@ namespace Ogre {
         // Inifinite far plane always supported
         mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
 
-
         // Check for non-power-of-2 texture support
 		if(mGLSupport->checkExtension("GL_ARB_texture_non_power_of_two"))
         {
             mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
+        }
+
+        // Check for Float textures
+        if(mGLSupport->checkExtension("GL_ATI_texture_float") ||
+//           mGLSupport->checkExtension("GL_NV_float_buffer") ||
+           mGLSupport->checkExtension("GL_ARB_texture_float"))
+        {
+            mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
         }
 
         // Get extension function pointers
@@ -843,7 +850,7 @@ namespace Ogre {
 		if (enabled)
         {
             if (tex)
-                mTextureTypes[stage] = tex->getGLTextureType();
+                mTextureTypes[stage] = tex->getGLTextureTarget();
             else
                 // assume 2D
                 mTextureTypes[stage] = GL_TEXTURE_2D;
