@@ -53,6 +53,8 @@ namespace Ogre {
     class _OgreExport Renderable
     {
     public:
+        /** Virtual destructor needed as class has virtual methods. */
+        virtual ~Renderable() { }
         /** Retrieves a pointer to the material this renderable object uses.
         @remarks
             Note that the Renderable also has the option to override the getTechnique method
