@@ -9,7 +9,7 @@ Example/CubeMappingOverlay
 		left 5 
 		top 5
 		width 250
-		height 117
+		height 130
 		material Core/StatsBlockCenter
         	border_size 1 1 1 1
         	border_material Core/StatsBlockBorder
@@ -107,11 +107,25 @@ Example/CubeMappingOverlay
 			colour_bottom 0.3 0.5 0.3
 		}
 
-		element TextArea(Example/CubeMapping/Random)
+		element TextArea(Example/CubeMapping/CubeMap)
 		{
 			metrics_mode pixels
 			left 5
 			top 95
+			width 90
+			height 30
+			font_name TrebuchetMSBold
+			char_height 16
+			caption [C] CubeMap:
+			colour_top 0.5 0.7 0.5
+			colour_bottom 0.3 0.5 0.3
+		}
+		
+		element TextArea(Example/CubeMapping/Random)
+		{
+			metrics_mode pixels
+			left 5
+			top 110
 			width 90
 			height 30
 			font_name TrebuchetMSBold

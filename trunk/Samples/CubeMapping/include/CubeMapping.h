@@ -39,7 +39,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #define ENTITY_NAME "CubeMappedEntity"
 #define MESH_NAME "CubeMappedMesh"
+
 #define MATERIAL_NAME "Examples/SceneCubeMap2"
+#define SKYBOX_MATERIAL "Examples/SceneSkyBox2"
 
 /* ==================================================================== */
 /*    Perlin Noise data and algorithms - copied from Perlin himself :)  */
@@ -104,71 +106,7 @@ double noise3(double x, double y, double z) {
 					lerp(u, grad(p[AB+1], x  , y-1, z-1 ),
 						grad(p[BB+1], x-1, y-1, z-1 ))));
 }
-/* ==================================================================== */
-/*  Generic normal calculation, please fix it if it's slow/incorrect ;) */
-/* ==================================================================== */
-//~ void _normalsZero(GeometryData &geometry) 
-//~ {
-	//~ memset(geometry.pNormals, 0, sizeof(Real) * geometry.numVertices * 3);
-//~ }
-//~ void _normalsAdd(SubMesh *subMesh, GeometryData &geometry)
-//~ {
-	//~ int numFaces = subMesh->numFaces ;
-	//~ unsigned short *vertexIndices = subMesh->faceVertexIndices;
-	//~ int polyStep = (subMesh->useTriStrips)?1:3;
-	//~ Real *vertices = geometry.pVertices ;
-	//~ Real *normals = geometry.pNormals ;
-	//~ for(int i=0 ; i<numFaces ; i++, vertexIndices+=polyStep) {
-		//~ int p0 = vertexIndices[0] ;
-		//~ int p1 = vertexIndices[1] ;
-		//~ int p2 = vertexIndices[2] ;
-		//~ Vector3 v0(vertices[3*p0], vertices[3*p0+1], vertices[3*p0+2]);
-		//~ Vector3 v1(vertices[3*p1], vertices[3*p1+1], vertices[3*p1+2]);
-		//~ Vector3 v2(vertices[3*p2], vertices[3*p2+1], vertices[3*p2+2]);
-		//~ Vector3 diff1 = v1 - v2 ;
-		//~ Vector3 diff2 = v1 - v0 ;
-		//~ Vector3 fn = diff1.crossProduct(diff2);
-//~ #define _ADD_VECTOR_TO_REALS(ptr,vec) { *(ptr)+=vec.x; *(ptr+1)+=vec.y; *(ptr+2)+=vec.z; }
-		//~ _ADD_VECTOR_TO_REALS(normals+3*p0, fn);
-		//~ _ADD_VECTOR_TO_REALS(normals+3*p1, fn);
-		//~ _ADD_VECTOR_TO_REALS(normals+3*p2, fn);
-//~ #undef _ADD_VECTOR_TO_REALS
-	//~ }
-//~ }
-//~ void _normalsNormalize(GeometryData &geometry)
-//~ {
-	//~ Real *normals = geometry.pNormals ;
-	//~ int numVertices = geometry.numVertices ;
-	//~ for(int i=0;i<numVertices;i++, normals+=3) {
-		//~ Vector3 n(normals[0], normals[1], normals[2]);
-		//~ n.normalise(); // has to be normalise, not normalisedCopy() !
-		//~ normals[0] = n.x ;
-		//~ normals[1] = n.y ;
-		//~ normals[2] = n.z ;
-	//~ }
-//~ }
 
-//~ void calculateMeshNormals(Mesh *mesh)
-//~ {
-	//~ bool sharedUsed = false ;
-	//~ for(int m=0;m<mesh->getNumSubMeshes();m++) {
-		//~ SubMesh *subMesh = mesh->getSubMesh(m);
-		//~ if (subMesh->useSharedVertices) { 
-			//~ if (!sharedUsed) { //first time
-				//~ _normalsZero(mesh->sharedGeometry);
-				//~ sharedUsed = true ;
-			//~ }
-			//~ _normalsAdd(subMesh, mesh->sharedGeometry);
-		//~ } else {
-			//~ _normalsZero(subMesh->geometry);
-			//~ _normalsAdd(subMesh, subMesh->geometry);
-			//~ _normalsNormalize(subMesh->geometry);
-		//~ }
-	//~ }
-	//~ if (sharedUsed) {
-		//~ _normalsNormalize(mesh->sharedGeometry);
-	//~ }
-//~ }
 /* ==================================================================== */
 /*                                 Main part                            */
 /* ==================================================================== */
@@ -195,9 +133,11 @@ private:
 	Real timeDensity ;
 	bool noiseOn ;
 	int currentMeshIndex ;
+	std::vector<String> availableMeshes ;
 	int currentLBXindex ;
 	LayerBlendOperationEx currentLBX ;
-	std::vector<String> availableMeshes ;
+	int currentCubeMapIndex ;
+	std::vector<String> availableCubeMaps ;
 	Material *material ;
 	
 	void _updatePositionNoise(int numVertices, Real *dstVertices,
@@ -317,7 +257,6 @@ private:
 
 	void updateNoise()
 	{
-		//~ return ;
 		bool usedShared = false ;
 		Real *sharedNormals ;
 		for(int m=0;m<clonedMesh->getNumSubMeshes();m++) { // for each subMesh
@@ -579,6 +518,44 @@ private:
 		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Material")
 			->setCaption("[M] Material blend:"+lbxName);
 	}
+	void switchCubeMap()
+	{
+		int i ;
+		currentCubeMapIndex++;
+		if (currentCubeMapIndex>=availableCubeMaps.size())
+			currentCubeMapIndex = 0 ;
+		String cubeMapName = availableCubeMaps[currentCubeMapIndex];
+		
+		for(i=0;i<material->getTextureLayer(0)->getNumFrames();i++) {
+			String oldTexName = material->getTextureLayer(0)->
+				getFrameTextureName(i);
+			Texture *oldTex = (Texture*) 
+				TextureManager::getSingleton().getByName(oldTexName);
+			TextureManager::getSingleton().unload(oldTexName);
+			//~ oldTex->unload();
+			delete oldTex ;
+		}
+		material->getTextureLayer(0)->setCubicTextureName(cubeMapName, true);
+		
+		Material *mat2 = (Material*) 
+			MaterialManager::getSingleton().getByName(SKYBOX_MATERIAL);
+		for(i=0;i<mat2->getTextureLayer(0)->getNumFrames();i++) {
+			String oldTexName = mat2->getTextureLayer(0)->
+				getFrameTextureName(i);
+			Texture *oldTex = (Texture*) 
+				TextureManager::getSingleton().getByName(oldTexName);
+			TextureManager::getSingleton().unload(oldTexName);
+			//~ oldTex->unload();
+			delete oldTex ;
+		}
+		mat2->getTextureLayer(0)->setCubicTextureName(cubeMapName, false);
+
+		mSceneMgr->setSkyBox(true, SKYBOX_MATERIAL );
+
+		prepareEntity(availableMeshes[currentMeshIndex]);
+		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/CubeMap")
+			->setCaption("[C] CubeMap:"+cubeMapName);
+	}
 	
 #define RANDOM_FROM(a,b) (((float)(rand() & 65535)) / 65536.0f * ((b)-(a)) + (a))
 	void goRandom()
@@ -610,29 +587,41 @@ public:
 		
 		material = (Material*) MaterialManager::getSingleton().
 			getByName(MATERIAL_NAME);
+
 		if (!material) {
 			Except( Exception::ERR_ITEM_NOT_FOUND,
 				"Can't find material: "+String(MATERIAL_NAME),
 				"CubeMapListener::CubeMapListener");
 		}
 
-		// these two make problems - numVertices = 0, will play later
 		availableMeshes.push_back("ogrehead.mesh");
 		availableMeshes.push_back("geosphere4500.mesh");
-		availableMeshes.push_back("knot.mesh");
-		availableMeshes.push_back("geosphere12500.mesh");
 		availableMeshes.push_back("razor.mesh");
-		availableMeshes.push_back("robot.mesh");
+		availableMeshes.push_back("geosphere12500.mesh");
+		availableMeshes.push_back("knot.mesh");
+		availableMeshes.push_back("geosphere19220.mesh");
+		availableMeshes.push_back("RZR-002.mesh");
 		availableMeshes.push_back("geosphere1000.mesh");
 		availableMeshes.push_back("geosphere8000.mesh");
-		availableMeshes.push_back("geosphere19220.mesh");
 		availableMeshes.push_back("sphere.mesh");
+		//~ availableMeshes.push_back("robot.mesh");
+		
+		availableCubeMaps.push_back("early_morning.jpg");
+		availableCubeMaps.push_back("cubemap.jpg");
+		availableCubeMaps.push_back("morning.jpg");
+		availableCubeMaps.push_back("cubescene.jpg");
+		availableCubeMaps.push_back("cloudy_noon.jpg");
+		availableCubeMaps.push_back("evening.jpg");
+		availableCubeMaps.push_back("stormy.jpg");
 
 		currentMeshIndex = -1 ;
 		switchObjects();
 		
 		currentLBXindex = -1 ;
 		switchMaterialBlending();
+		
+		currentCubeMapIndex = -1 ;
+		switchCubeMap();
 		
 		noiseOn = false ;
 		switchNoiseOn();
@@ -691,6 +680,8 @@ public:
 		SWITCH_VALUE(KC_N, 0.5f, switchNoiseOn());
 
 		SWITCH_VALUE(KC_M, 0.5f, switchMaterialBlending());
+
+		SWITCH_VALUE(KC_C, 0.5f, switchCubeMap());
 		
 		SWITCH_VALUE(KC_SPACE, 0.5f, goRandom());
 
@@ -713,7 +704,7 @@ protected:
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
         // Create a skybox
-        mSceneMgr->setSkyBox(true, "Examples/SceneSkyBox2");
+        mSceneMgr->setSkyBox(true, SKYBOX_MATERIAL );
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
