@@ -111,6 +111,12 @@ namespace Ogre {
         virtual Viewport* addViewport(Camera* cam, int ZOrder = 0, float left = 0, float top = 0 ,
             float width = 100, float height = 100);
 
+        /** Returns the number of viewports attached to this target.*/
+        virtual unsigned short getNumViewports(void);
+
+        /** Retrieves a pointer to the viewport with the given index. */
+        virtual Viewport* getViewport(unsigned short index);
+
         /** Removes a viewport at a given ZOrder.
         */
         virtual void removeViewport(int ZOrder);
