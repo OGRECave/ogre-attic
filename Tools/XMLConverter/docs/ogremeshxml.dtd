@@ -19,12 +19,32 @@
 	v2		CDATA	#REQUIRED
 	v3		CDATA	#REQUIRED>
 <!ELEMENT geometry (vertexbuffer+)>
+<!ELEMENT skeletonlink EMPTY>
+<!ATTLIST skeletonlink
+	name	CDATA	#REQUIRED>
 <!ELEMENT boneassignments (vertexboneassignement+)>
 <!ELEMENT vertexboneassignment EMPTY>
 <!ATTLIST vertexboneassignment 
 	vertexindex		CDATA	#REQUIRED
 	boneindex		CDATA	#REQUIRED
 	weight			CDATA	"1.0">
+<!ELEMENT levelofdetail ( (lodmanual|lodgenerated)+ )>
+<!ATTLIST levelofdetail 
+	numlevels		CDATA			#REQUIRED
+	manual			(true|false)	"false">
+<!ELEMENT lodmanual EMPTY>
+<!ATTLIST lodmanual
+	fromdepthsquared	CDATA 	#REQUIRED
+	meshname			CDATA	#REQUIRED>
+<!ELEMENT lodgenerated (lodfacelist)>
+<!ATTLIST lodgenerated
+	fromdepthsquared	CDATA 	#REQUIRED
+	meshname			CDATA	#REQUIRED>
+<!ELEMENT lodfacelist (face)+>
+<!ATTLIST lodfacelist
+	submeshindex		CDATA	#REQUIRED
+	numfaces			CDATA	#REQUIRED>
+	
 <!ELEMENT vertexbuffer (vertex+)>
 <!ATTLIST vertexbuffer
 	positions 					(true|false)	"false"
