@@ -980,7 +980,7 @@ namespace Ogre {
 		{
 			// we can't get an edge list for some reason, return blank
 			// really we shouldn't be able to get here, but this is a safeguard
-			return getLastShadowVolumeRenderableIterator();
+			return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
 		}
 
         // Init shadow renderable list if required
@@ -1079,12 +1079,6 @@ namespace Ogre {
             mShadowRenderables, flags);
 
 
-        return getLastShadowVolumeRenderableIterator();
-    }
-    //-----------------------------------------------------------------------
-    ShadowCaster::ShadowRenderableListIterator 
-        Entity::getLastShadowVolumeRenderableIterator(void)
-    {
         return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
     }
     //-----------------------------------------------------------------------

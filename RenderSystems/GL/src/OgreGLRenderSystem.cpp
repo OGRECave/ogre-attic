@@ -1187,7 +1187,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setCullingMode(CullingMode mode)
     {
-        GLint cullMode;
+        // NB: Because two-sided stencil API dependence of the front face, we must
+        // use the same 'winding' for the front face everywhere. As the OGRE default
+        // culling mode is clockwise, we also treat anticlockwise winding as front
+        // face for consistently. On the assumption that, we can't change the front
+        // face by glFrontFace anywhere.
+
+        GLenum cullMode;
 
         switch( mode )
         {
@@ -1199,11 +1205,11 @@ namespace Ogre {
                 ((mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
                 (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding)))
             {
-                cullMode = GL_CW;
+                cullMode = GL_FRONT;
             }
             else
             {
-                cullMode = GL_CCW;
+                cullMode = GL_BACK;
             }
             break;
         case CULL_ANTICLOCKWISE:
@@ -1211,17 +1217,17 @@ namespace Ogre {
                 ((mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
                 (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding)))
             {
-                cullMode = GL_CCW;
+                cullMode = GL_BACK;
             }
             else
             {
-                cullMode = GL_CW;
+                cullMode = GL_FRONT;
             }
             break;
         }
 
         glEnable( GL_CULL_FACE );
-        glFrontFace( cullMode );
+        glCullFace( cullMode );
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setDepthBufferParams(bool depthTest, bool depthWrite, CompareFunction depthFunction)
@@ -1445,37 +1451,42 @@ namespace Ogre {
         StencilOperation depthFailOp, StencilOperation passOp, 
         bool twoSidedOperation)
     {
+        bool flip;
+
         if (twoSidedOperation)
         {
             if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
                 Except(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
                     "GLRenderSystem::setStencilBufferParams");
-            glActiveStencilFaceEXT_ptr(GL_FRONT);
-        }
-        
-        glStencilMask(mask);
-        glStencilFunc(convertCompareFunction(func), refValue, mask);
-        glStencilOp(convertStencilOp(stencilFailOp), convertStencilOp(depthFailOp), 
-            convertStencilOp(passOp));
+            glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+            // NB: We should always treat CCW as front face for consistent with default
+            // culling mode. Therefore, we must take care with two-sided stencil settings.
+            flip = (mInvertVertexWinding && !mActiveRenderTarget->requiresTextureFlipping()) ||
+                   (!mInvertVertexWinding && mActiveRenderTarget->requiresTextureFlipping());
 
-        if (twoSidedOperation)
-        {
-            // set everything again, inverted
+            // Set alternative versions of ops
             glActiveStencilFaceEXT_ptr(GL_BACK);
             glStencilMask(mask);
             glStencilFunc(convertCompareFunction(func), refValue, mask);
             glStencilOp(
-                convertStencilOp(stencilFailOp, true), 
-                convertStencilOp(depthFailOp, true), 
-                convertStencilOp(passOp, true));
+                convertStencilOp(stencilFailOp, !flip), 
+                convertStencilOp(depthFailOp, !flip), 
+                convertStencilOp(passOp, !flip));
             // reset
             glActiveStencilFaceEXT_ptr(GL_FRONT);
-            glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
         }
         else
         {
             glDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+            flip = false;
         }
+
+        glStencilMask(mask);
+        glStencilFunc(convertCompareFunction(func), refValue, mask);
+        glStencilOp(
+            convertStencilOp(stencilFailOp, flip),
+            convertStencilOp(depthFailOp, flip), 
+            convertStencilOp(passOp, flip));
     }
     //---------------------------------------------------------------------
     GLint GLRenderSystem::convertCompareFunction(CompareFunction func) const

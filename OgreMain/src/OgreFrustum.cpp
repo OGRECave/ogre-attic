@@ -473,10 +473,6 @@ namespace Ogre {
             const Quaternion& orientation = getOrientationForViewUpdate();
             const Vector3& position = getPositionForViewUpdate();
 			orientation.ToRotationMatrix(rot);
-            Vector3 left = rot.GetColumn(0);
-            Vector3 up = rot.GetColumn(1);
-            Vector3 direction = rot.GetColumn(2);
-
 
             // Make the translation relative to new axes
             Matrix3 rotT = rot.Transpose();
@@ -499,10 +495,6 @@ namespace Ogre {
             // Update the frustum planes
             // -------------------------
             updateFrustum();
-            // Use Frustum view direction for frustum, which is -Z not Z as for matrix calc
-            Vector3 camDirection = orientation* -Vector3::UNIT_Z;
-            // Calc distance along direction to position
-            Real fDdE = camDirection.dotProduct(position);
 
             Matrix4 combo = mStandardProjMatrix * mViewMatrix;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.x = combo[3][0] + combo[0][0];
