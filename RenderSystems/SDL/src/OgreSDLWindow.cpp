@@ -120,10 +120,11 @@ namespace Ogre {
 
     void SDLWindow::resize(int width, int height)
     {
-        ViewportList::iterator it = mViewportList.begin();
-        while (it != mViewportList.end())
+        for (ViewportList::iterator it = mViewportList.begin();
+             it != mViewportList.end(); ++it)
+        {
             (*it).second->_updateDimensions();
-        // XXX FIXME
+        }
     }
 
     void SDLWindow::swapBuffers(bool waitForVSync)
