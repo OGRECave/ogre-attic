@@ -92,6 +92,9 @@ namespace Ogre {
         bool mUseAutoTextureMatrix;
         GLfloat mAutoTextureMatrix[16];
 
+        // Initialise GL context
+        void initGL(void);
+
         // Pointer to glActiveTextureARB function
         typedef void (APIENTRY *GL_ActiveTextureARB_Func)(GLenum);
         GL_ActiveTextureARB_Func glActiveTextureARB_ptr;
