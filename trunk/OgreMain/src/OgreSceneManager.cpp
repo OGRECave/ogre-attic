@@ -1070,7 +1070,8 @@ namespace Ogre {
         Real tiling,
         Real distance,
         bool drawFirst,
-        const Quaternion& orientation )
+        const Quaternion& orientation,
+        int xsegments, int ysegments, int ySegmentsToKeep)
     {
         mSkyDomeEnabled = enable;
         if (enable)
@@ -1102,7 +1103,9 @@ namespace Ogre {
             // Set up the dome (5 planes)
             for (int i = 0; i < 5; ++i)
             {
-                Mesh* planeMesh = createSkydomePlane((BoxPlane)i, curvature, tiling, distance, orientation);
+                Mesh* planeMesh = createSkydomePlane((BoxPlane)i, curvature, 
+                    tiling, distance, orientation, xsegments, ysegments, 
+                    i!=BP_UP ? ySegmentsToKeep : -1);
 
                 String entName = "SkyDomePlane" + StringConverter::toString(i);
 
@@ -1198,7 +1201,8 @@ namespace Ogre {
         Real curvature,
         Real tiling,
         Real distance,
-        const Quaternion& orientation )
+        const Quaternion& orientation,
+        int xsegments, int ysegments, int ysegments_keep)
     {
 
         Plane plane;
@@ -1254,10 +1258,9 @@ namespace Ogre {
         }
         // Create new
         Real planeSize = distance * 2;
-        const int BOX_SEGMENTS = 16;
         planeMesh = mm.createCurvedIllusionPlane(meshName, plane, planeSize, planeSize, curvature, 
-			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, tiling, tiling, up, orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
-			false, false);
+			xsegments, ysegments, false, 1, tiling, tiling, up, orientation, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+            false, false, ysegments_keep);
 
         //planeMesh->_dumpContents(meshName);
 
