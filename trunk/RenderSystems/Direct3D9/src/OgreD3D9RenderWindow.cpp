@@ -513,15 +513,12 @@ namespace Ogre
 
 		if (!mIsFullScreen)
 		{
-			D3DVIEWPORT9 vp;
-			if (FAILED(hr = mpD3DDevice->GetViewport(&vp)))
-			{
-				SAFE_RELEASE(pTempSurf);
-				Except(hr, "Can't get viewport!", "D3D9RenderWindow::writeContentsToFile");
-			}
+			POINT pt={0, 0};
+			RECT srcRect;
+			GetWindowRect(mHWnd, &srcRect);
 
-			desc.Width = vp.Width;
-			desc.Height = vp.Height;
+			desc.Width = srcRect.right - srcRect.left;
+			desc.Height = srcRect.bottom - srcRect.top;
 			desc.Format = D3DFMT_A8R8G8B8;         // this is what we get from the screen, so stick with it
 
 			// NB we can't lock the back buffer direct because it's no created that way
@@ -538,10 +535,6 @@ namespace Ogre
 				SAFE_RELEASE(pSurf);
 				Except(hr, "Cannot create offscreen buffer 2!", "D3D9RenderWindow::writeContentsToFile");
 			}
-
-			POINT pt={0, 0};
-			RECT srcRect;
-			GetWindowRect(mHWnd, &srcRect);
 
 			// Copy
 			if (FAILED(hr = mpD3DDevice->UpdateSurface(pTempSurf, &srcRect, pSurf, &pt)))
