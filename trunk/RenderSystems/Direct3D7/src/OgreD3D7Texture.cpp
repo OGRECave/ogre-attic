@@ -214,13 +214,15 @@ namespace Ogre {
                 texRect.bottom >> mipLevel
             };
 
-            /* And do a blit from the base level into the next level. */
-            ddsNextLevel->Blt(
-                &mipRect,
+            /* Blit using D3DX in order to use bilinear filtering. */
+            D3DXLoadTextureFromSurface(
+                mD3DDevice,
+                ddsNextLevel,
+                0,
                 mSurface,
                 (RECT*)&texRect,
-                DDBLT_WAIT,
-                NULL );
+                (RECT*)&mipRect,
+                D3DX_FT_LINEAR );
 
             /* Release the current level and get the next one, incrementing the mip depth. */
             ddsMipLevel->Release();
