@@ -66,6 +66,8 @@ namespace Ogre {
     class _OgreExport Texture : public Resource
     {
     public:
+        Texture() {}
+        Texture(const String& name, TextureType texType, uint width, uint height, uint depth, uint num_mips, PixelFormat format, TextureUsage usage);
 
         /** Gets the type of texture 
         */

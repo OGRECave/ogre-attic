@@ -28,6 +28,29 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 	
+    Texture::Texture(const String& name, TextureType texType, uint width, uint height, uint depth, uint num_mips, PixelFormat format, TextureUsage usage):
+            mHeight(height),
+            mWidth(width),
+            mDepth(1),
+            mNumMipMaps(num_mips),
+            mGamma(1.0f),
+            mTextureType(texType),            
+            mFormat(format),
+            mUsage(usage),
+            // mSrcBpp inited later on
+            mSrcWidth(width),
+            mSrcHeight(height)
+            // mFinalBpp inited later on by enable32bit
+            // mHasAlpha inited later on            
+         {
+        mName = name;
+        mSrcBpp = Image::PF2BPP(mFormat);
+        mHasAlpha = Image::PFHasAlpha(mFormat);
+
+        enable32Bit(false);
+        
+    }
+  
 	void Texture::loadRawData( const DataChunk &pData, 
 		ushort uWidth, ushort uHeight, PixelFormat eFormat)
 	{

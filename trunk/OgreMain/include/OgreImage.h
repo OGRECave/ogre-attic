@@ -240,6 +240,31 @@ namespace Ogre {
 			}
 		}
 
+        /** Returns the existance of an alpha component given a pixel format.
+          @returns
+               True when there is an alpha.
+           @remarks
+               Passing one of the DXT_ formats will return false as it is unknown
+               from the format alone in that case.
+       */
+       inline static bool PFHasAlpha(PixelFormat format) 
+       {
+            switch(format) {
+                case PF_A8:
+                case PF_A4L4:
+                case PF_L4A4:
+                case PF_A4R4G4B4:
+                case PF_B4G4R4A4:
+                case PF_A8R8G8B8:
+                case PF_B8G8R8A8:
+                case PF_A2R10G10B10:
+                case PF_B10G10R10A2:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
 		/** Decides wether converting from a pixel format to another requires 
 			endian-flipping.
 			@param srcformat

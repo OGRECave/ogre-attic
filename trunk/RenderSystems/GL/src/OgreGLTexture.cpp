@@ -62,29 +62,13 @@ namespace Ogre {
         enable32Bit(false);
     }
 
-    // XXX init rather than assign
     GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType, 
         uint width, uint height, uint num_mips, PixelFormat format, 
-        TextureUsage usage) : mGLSupport(support)
+        TextureUsage usage) : 
+            Texture(name, texType, width, height, 1, num_mips, format, usage),
+            mGLSupport(support),
+            mTextureID(0)
     {
-        mName = name;
-        mTextureType = texType;
-
-        mSrcWidth = width;
-        mSrcHeight = height;
-        // Same dest dimensions for GL
-        mWidth = mSrcWidth;
-        mHeight = mSrcHeight;
-        mDepth = 1;
-
-        mNumMipMaps = num_mips;
-
-        mUsage = usage;
-        mFormat = format;
-
-        mSrcBpp = Image::PF2BPP(mFormat);
-
-        enable32Bit(false);
     }
 
     GLTexture::~GLTexture()
