@@ -458,7 +458,7 @@ namespace Ogre {
         // Call superclass
         BillboardSet::_updateBounds();
 
-        if (mParentNode)
+        if (mParentNode && !mAABB.isNull())
         {
             // Have to override because bounds are supposed to be in local node space
             // but we've already put particles in world space to decouple them from the
