@@ -366,6 +366,10 @@ namespace Ogre {
         */
         ushort getHeight(void) const;
 
+        /** Gets the depth of the image.
+        */
+        ushort getDepth(void) const;
+
         /** Gets the physical width in bytes of each row of pixels.
         */
         ushort getRowSpan(void) const;
@@ -396,6 +400,8 @@ namespace Ogre {
         ushort m_uWidth;
         // The height of the image in pixels
         ushort m_uHeight;
+        // The depth of the image
+        ushort m_uDepth;
         // The size of the image buffer
         uint m_uSize;
         // The number of mipmaps the image contains

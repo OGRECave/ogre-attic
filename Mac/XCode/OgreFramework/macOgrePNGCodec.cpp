@@ -71,6 +71,7 @@ namespace Ogre {
     
         ret_data->width = CGImageGetWidth(image);
         ret_data->height = CGImageGetHeight(image);
+        ret_data->depth = 1;
     
         uint components;
         CGColorSpaceRef colorSpace;

@@ -35,6 +35,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Image::Image()
         : m_uSize(0),
+          m_uDepth(0),
           m_uNumMipmaps(0),
           m_uFlags(0),
           m_pBuffer( NULL )
@@ -63,6 +64,7 @@ namespace Ogre {
     {
         m_uWidth = img.m_uWidth;
         m_uHeight = img.m_uHeight;
+        m_uDepth = img.m_uDepth;
         m_eFormat = img.m_eFormat;
         m_uSize = img.m_uSize;
         m_uFlags = img.m_uFlags;
@@ -269,6 +271,7 @@ namespace Ogre {
         // Get the format and compute the pixel size
         m_uWidth = pData->width;
         m_uHeight = pData->height;
+        m_uDepth = pData->depth;
         m_uSize = pData->size;
         m_eFormat = pData->format;
         m_uNumMipmaps = pData->num_mipmaps;
@@ -303,6 +306,7 @@ namespace Ogre {
 
         m_uWidth = pData->width;
         m_uHeight = pData->height;
+        m_uDepth = pData->depth;
         m_uSize = pData->size;
         m_uNumMipmaps = pData->num_mipmaps;
         m_uFlags = pData->flags;
@@ -356,6 +360,11 @@ namespace Ogre {
         }
     }
 
+    //-----------------------------------------------------------------------------
+    ushort Image::getDepth() const
+    {
+        return m_uDepth;
+    }
     //-----------------------------------------------------------------------------
     ushort Image::getWidth() const
     {
