@@ -35,6 +35,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringVector.h"
 #include "OgreEventDispatcher.h"
 #include "OgreTargetManager.h"
+#include "OgreOverlay.h"
+
 
 namespace Ogre {
 
@@ -46,42 +48,36 @@ namespace Ogre {
     protected:
         typedef std::list<MouseMotionListener*> MouseMotionListenerList;
         EventDispatcher mEventDispatcher;
-		Overlay* mCursorLevelOverlay;
+		OverlayPtr mCursorLevelOverlay;
         bool mCursorGuiInitialised;
 		GuiContainer* mCursorGuiRegistered;
 		MouseMotionListener* mCursorListener;
         MouseMotionListenerList mMouseMotionListenerList;
 
-        void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
-            bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
-        void parseAttrib( const String& line, Overlay* pOverlay);
-        void parseElementAttrib( const String& line, Overlay* pOverlay, OverlayElement* pElement );
-        void parseNewMesh(DataChunk& chunk, String& meshName, String& entityName, Overlay* pOverlay);
-        void skipToNextCloseBrace(DataChunk& chunk);
-        void skipToNextOpenBrace(DataChunk& chunk);
+        void parseNewElement( DataStreamPtr& chunk, String& elemType, String& elemName, 
+            bool isContainer, OverlayPtr& pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
+        void parseAttrib( const String& line, OverlayPtr& pOverlay);
+        void parseElementAttrib( const String& line, OverlayPtr& pOverlay, OverlayElement* pElement );
+        void parseNewMesh(DataStreamPtr& chunk, String& meshName, String& entityName, OverlayPtr& pOverlay);
+        void skipToNextCloseBrace(DataStreamPtr& chunk);
+        void skipToNextOpenBrace(DataStreamPtr& chunk);
         
         int mLastViewportWidth, mLastViewportHeight;
         bool mViewportDimensionsChanged;
 
-		StringVector mLoadedOverlays;
+	    bool parseChildren( DataStreamPtr& chunk, const String& line,
+            OverlayPtr& pOverlay, bool isTemplate, GuiContainer* parent = NULL);
 
-	    bool parseChildren( DataChunk& chunk, const String& line,
-            Overlay* pOverlay, bool isTemplate, GuiContainer* parent = NULL);
-
+        // @copydoc ResourceManager::createImpl
+        Resource* createImpl(const String& name, ResourceHandle handle, 
+            const String& group, bool isManual, ManualResourceLoader* loader, 
+            const NameValuePairList* createParams);
     public:
         OverlayManager();
         virtual ~OverlayManager();
 
-        /** Parses an overlay file passed as a chunk. */
-        void parseOverlayFile(DataChunk& chunk);
-        /** Parses all overlay files in resource folders & archives. */
-        void parseAllSources(const String& extension = ".overlay");
-	    void parseOverlayFile(Archive* pArchive, const String& name);
-
-	    void loadAndParseOverlayFile(const String& filename);
-
-        /** Create implementation required by ResourceManager. */
-        virtual ResourcePtr create( const String& name);
+        /// @copydoc ResourceManager::parseScript
+        void parseScript(DataStreamPtr& stream, const String& groupName);
 
         /** Internal method for queueing the visible overlays for rendering. */
         void _queueOverlaysForRendering(Camera* cam, RenderQueue* pQueue, Viewport *vp);

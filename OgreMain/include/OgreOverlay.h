@@ -65,8 +65,6 @@ namespace Ogre {
     public:
               typedef std::list<GuiContainer*> GuiContainerList;
     protected:
-        ulong mZOrder;
-        bool mVisible;
         /// Internal root node, used as parent for 3D objects
         SceneNode* mRootNode;
         // 2D elements
@@ -84,18 +82,21 @@ namespace Ogre {
         mutable Matrix4 mTransform;
         mutable bool mTransformOutOfDate;
         bool mTransformUpdated;
+        ulong mZOrder;
+        bool mVisible;
         /** Internal lazy update method. */
         void updateTransform(void) const;
 
+        /// @copydoc Resource::loadImpl
+        void loadImpl(void);
+        /// @copydoc Resource::unloadImpl
+        void unloadImpl(void);
     public:
         /// Constructor: do not call direct, use SceneManager::createOverlay
-        Overlay(const String& name);
+        Overlay(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         virtual ~Overlay();
 
-        /** Generic load - called by OverlayManager. */
-        virtual void load(void);
-        /** Generic unload - called by OverlayManager. */
-        virtual void unload(void);
 
 	    GuiContainer* getChild(const String& name);
 
@@ -258,7 +259,43 @@ namespace Ogre {
     };
 
 
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to OverlayPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport OverlayPtr : public SharedPtr<Overlay> 
+    {
+    public:
+        OverlayPtr() : SharedPtr<Overlay>() {}
+        OverlayPtr(Overlay* rep) : SharedPtr<Overlay>(rep) {}
+        OverlayPtr(const OverlayPtr& r) : SharedPtr<Overlay>(r) {} 
+        OverlayPtr(const ResourcePtr& r) : SharedPtr<Overlay>()
+        {
+            pRep = static_cast<Overlay*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+        }
 
+        /// Operator used to convert a ResourcePtr to a OverlayPtr
+        OverlayPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<Overlay*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<Overlay*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
+    };
 }
 
 
