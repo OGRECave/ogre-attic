@@ -64,7 +64,6 @@ class TerrainBufferCache
     {
       for( int i=0; i<mCache.size(); i++ )
 	{
-	  printf( "Deleting cached buffer %d\n", i );
 	  delete mCache[i];
 	}
     }
