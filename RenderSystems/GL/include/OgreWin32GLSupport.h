@@ -13,6 +13,7 @@ namespace Ogre
 	class Win32GLSupport : public GLSupport
 	{
 	public:
+        Win32GLSupport();
 		/**
 		* Add any special config values to the system.
 		* Must have a "Full Screen" value that is a bool and a "Video Mode" value
