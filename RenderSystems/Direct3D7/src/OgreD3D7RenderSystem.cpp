@@ -613,7 +613,7 @@ namespace Ogre {
         OgreUnguardRet( win );
     }
 
-    RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height )
+    RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format )
     {
         RenderTexture * rt = new D3D7RenderTexture( name, width, height );
         attachRenderTarget( *rt );

@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 #include "OgreGLSupport.h"
+#include "OgreGLTexture.h"
 #include "OgreLogManager.h"
 
 namespace Ogre {
@@ -85,6 +86,10 @@ namespace Ogre {
         ext.str("");
     }
 
+	void GLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) {
+		// Do nothing by default
+	}
+
     bool GLSupport::checkMinGLVersion(const String& v) const
     {
         unsigned int first, second, third;
@@ -129,5 +134,10 @@ namespace Ogre {
         
         return true;
     }
+
+    RenderTexture * GLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
+    {
+        return new GLRenderTexture(name, width, height, texType, format);
+    }  
 
 }

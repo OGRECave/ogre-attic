@@ -31,6 +31,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLXWindow.h"
 
+#ifdef HW_RTT
+#include "OgreGLXRenderTexture.h"
+#endif
+
 namespace Ogre {
 
 GLXGLSupport::GLXGLSupport():
@@ -143,39 +147,8 @@ void* GLXGLSupport::getProcAddress(const String& procname) {
 	return (void*)glXGetProcAddressARB((const GLubyte*)procname.c_str());
 }
 
-#if 0
-// TODO: multiple context/window support
-
-void GLXGLSupport::begin_context(RenderTarget *_target)
+RenderTexture * GLXGLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
 {
-	// Support nested contexts, in which case.. nothing happens
-    	++_context_ref;
-    	if (_context_ref == 1) {
-		if(_target) {
-			// Begin a specific context
-			OGREWidget *_ogre_widget = static_cast<GTKWindow*>(_target)->get_ogre_widget();
+    return new GLRenderTexture(name, width, height, texType, format);
+}  
 
-	        	_ogre_widget->get_gl_window()->gl_begin(_ogre_widget->get_gl_context());
-		} else {
-			// Begin a generic main context
-			_main_window->gl_begin(_main_context);
-		}
-    	}
-}
-
-void GLXGLSupport::end_context()
-{
-    	--_context_ref;
-    	if(_context_ref < 0)
-        	Except(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
-    	if (_context_ref == 0)
-    	{
-		// XX is this enough? (_main_window might not be the current window,
- 		// but we can never be sure the previous rendering window 
-		// even still exists)
-		_main_window->gl_end();
-    	}
-}
-#endif
-
-};

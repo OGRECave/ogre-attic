@@ -1,3 +1,4 @@
+#include "OgreRoot.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
@@ -7,6 +8,10 @@
 #include "OgreWin32GLSupport.h"
 
 #include "OgreWin32Window.h"
+
+#ifdef HW_RTT
+#include "OgreWin32RenderTexture.h"
+#endif
 
 using namespace Ogre;
 
@@ -228,6 +233,41 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage("*** Stopping Win32GL Subsystem ***");
 	}
 
+	void Win32GLSupport::initialiseExtensions() {
+		// First, initialise the normal extensions
+		GLSupport::initialiseExtensions();
+		// Welcome to the crazy world of W32 extension handling!
+		if(	!checkExtension("WGL_EXT_extensions_string") )
+			return;
+		// Check for W32 specific extensions probe function
+		PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglGetExtensionsStringEXT = 
+			(PFNWGLGETEXTENSIONSSTRINGEXTPROC)wglGetProcAddress("wglGetExtensionsStringEXT");
+		if(!_wglGetExtensionsStringEXT)
+			return;
+		const char *wgl_extensions = _wglGetExtensionsStringEXT();
+		LogManager::getSingleton().logMessage(
+			LML_NORMAL,
+			"Supported WGL extensions: %s", wgl_extensions);
+		// Parse the, and add them to the main list
+		std::stringstream ext;
+        String str;
+		ext << wgl_extensions;
+        while(ext >> str)
+        {
+            extensionList.insert(str);
+        }
+	}
+
+	void Win32GLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) {
+		
+
+		if(	checkExtension("WGL_ARB_pixel_format") &&
+			checkExtension("WGL_ARB_render_texture")) {
+			// If yes, add rendersystem flag RSC_HWRENDER_TO_TEXTURE	
+			caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
+		}
+	}
+
 	void* Win32GLSupport::getProcAddress(const String& procname)
 	{
         return wglGetProcAddress( procname.c_str() );
@@ -240,5 +280,15 @@ namespace Ogre {
 					pWin32Window->windowMovedOrResized();
 		}
 
+	}
+
+	RenderTexture * Win32GLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
+	{
+#ifdef HW_RTT
+		if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
+			return new Win32RenderTexture(name, width, height, texType, format);
+		else
+#endif
+			return new GLRenderTexture(name, width, height, texType, format);
 	}
 }

@@ -859,7 +859,7 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------
-	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height )
+	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format )
 	{
 		RenderTexture *rt = new D3D9RenderTexture( name, width, height );
 		attachRenderTarget( *rt );

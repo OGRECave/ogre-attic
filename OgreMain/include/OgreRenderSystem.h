@@ -290,7 +290,7 @@ namespace Ogre
 				size for the texture. Depending on the hardware driver or the underlying
 				API, these values might change when the texture is created.
 		*/
-        virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height ) = 0;
+        virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType = TEX_TYPE_2D,  PixelFormat format = PF_R8G8B8 ) = 0;
 
         /** Destroys a render window */
         virtual void destroyRenderWindow(const String& name);

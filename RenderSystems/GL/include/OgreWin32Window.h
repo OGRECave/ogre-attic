@@ -62,6 +62,9 @@ namespace Ogre {
 		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
 		void setActive(bool set) { mActive = set; }
+
+        /// internal method for firing events
+        virtual void firePreUpdate(void);
 	protected:
 		HWND	mExternalHandle;		// External Win32 window handle
 		HWND	mHWnd;					// Win32 Window handle
