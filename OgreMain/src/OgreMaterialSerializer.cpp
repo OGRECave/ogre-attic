@@ -1068,6 +1068,9 @@ namespace Ogre
         // Determine type
         size_t start, dims, i;
         bool isReal;
+
+        vecparams[1].toLowerCase();
+
         if (vecparams[1] == "matrix4x4")
         {
             dims = 16;
@@ -1091,6 +1094,7 @@ namespace Ogre
         {
             logParseError("Invalid " + commandname + " attribute - unrecognised "
                 "parameter type " + vecparams[1], context);
+            return;
         }
 
         if (vecparams.size() != 2 + dims)
@@ -1139,6 +1143,8 @@ namespace Ogre
 
         bool extras = false;
         GpuProgramParameters::AutoConstantType acType;
+
+        vecparams[1].toLowerCase();
 
         if (vecparams[1] == "world_matrix")
         {
@@ -1272,7 +1278,6 @@ namespace Ogre
             return false;
         }
 
-        params.toLowerCase();
         StringVector vecparams = params.split(" \t");
         if (vecparams.size() < 3)
         {
@@ -1305,7 +1310,6 @@ namespace Ogre
             return false;
         }
 
-        params.toLowerCase();
         StringVector vecparams = params.split(" \t");
         if (vecparams.size() != 2 && vecparams.size() != 3)
         {
