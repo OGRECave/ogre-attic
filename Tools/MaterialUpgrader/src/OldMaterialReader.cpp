@@ -973,15 +973,15 @@ OldMaterialReader::~OldMaterialReader()
 {
 }
 //-----------------------------------------------------------------------
-void OldMaterialReader::parseScript(DataChunk& chunk)
+void OldMaterialReader::parseScript(DataStreamPtr& stream)
 {
 	String line;
 	MaterialPtr pMat;
 	char tempBuf[512];
 
-	while(!chunk.isEOF())
+	while(!stream->eof())
 	{
-		line = chunk.getLine();
+		line = stream->getLine();
 		// Ignore comments & blanks
 		if (!(line.length() == 0 || line.substr(0,2) == "//"))
 		{
@@ -992,7 +992,7 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
                 pMat = MaterialManager::getSingleton().create(line, 
                     ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 				// Skip to and over next {
-				chunk.readUpTo(tempBuf, 511, "{");
+				stream->readLine(tempBuf, 511, "{");
 			}
 			else
 			{
@@ -1005,7 +1005,7 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
 				else if (line == "{")
 				{
 					// new pass
-					parseNewTextureLayer(chunk, pMat);
+					parseNewTextureLayer(stream, pMat);
 
 				}
 				else
@@ -1024,7 +1024,7 @@ void OldMaterialReader::parseScript(DataChunk& chunk)
 
 }
 //-----------------------------------------------------------------------
-void OldMaterialReader::parseNewTextureLayer(DataChunk& chunk, MaterialPtr& pMat)
+void OldMaterialReader::parseNewTextureLayer(DataStreamPtr& stream, MaterialPtr& pMat)
 {
 	String line;
 	TextureUnitState* pLayer;
@@ -1032,9 +1032,9 @@ void OldMaterialReader::parseNewTextureLayer(DataChunk& chunk, MaterialPtr& pMat
 	pLayer = pMat->getTechnique(0)->getPass(0)->createTextureUnitState("");
 
 
-	while (!chunk.isEOF())
+	while (!stream->eof())
 	{
-		line = chunk.getLine();
+		line = stream->getLine();
 		// Ignore comments & blanks
 		if (line.length() != 0 && !(line.substr(0,2) == "//"))
 		{

@@ -38,7 +38,7 @@ typedef void (*TEXLAYER_ATTRIB_PARSER)(StringVector::iterator&, int, MaterialPtr
 class OldMaterialReader 
 {
 protected:
-    void parseNewTextureLayer( DataChunk& chunk, MaterialPtr& pMat );
+    void parseNewTextureLayer( DataStreamPtr& stream, MaterialPtr& pMat );
     void parseAttrib( const String& line, MaterialPtr& pMat);
     void parseLayerAttrib( const String& line, MaterialPtr& pMat, TextureUnitState* pLayer );
 
@@ -56,9 +56,9 @@ public:
     OldMaterialReader();
     ~OldMaterialReader();
 
-    /** Parses a Material script file passed as a chunk.
+    /** Parses a Material script file passed as a stream.
     */
-    void parseScript(DataChunk& chunk);
+    void parseScript(DataStreamPtr& stream);
 
 };
 
