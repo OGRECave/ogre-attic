@@ -1,10 +1,11 @@
-<!-- "htb" HTML Beautifier, TG Schramer Consulting, tgs@digital-mines.com -->
-
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-    <title>OGRE FAQ</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <style type="text/css"> 
+<!-- "htb" HTML Beautifier, TG Schramer Consulting, tgs@digital-mines.com -->
+  <title>OGRE FAQ</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <style type="text/css"> 
 
 <!--
 .MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
@@ -79,239 +80,258 @@ CODE.str {
 .SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
 .header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
 -->
-    </style> 
+    </style>
 </head>
-<body bgcolor="#FFFFFF" text="#000000">
-
-<p class="header" align="center">OGRE (Object-Oriented Graphics Rendering
+<body bgcolor="#ffffff" text="#000000">
+<p class="header" align="center">OGRE (Object-Oriented Graphics
+Rendering
 Engine)</p>
-
 <p class="header" align="center">Frequently Asked Questions (FAQ)</p>
-
-<p class="MainHeader" align="left">Q: What platforms does OGRE build under?
+<p class="MainHeader" align="left">Q: What platforms does OGRE build
+under?
 </p>
 <table bordercolor="#996600" border="1" cellspacing="0" cellpadding="0"
-       width="100%">
+ width="100%">
+  <tbody>
     <tr>
-    <td class="BorderHeader" width="33%">
-    <div align="CENTER">Platform</div></td>
-    <td class="BorderHeader" width="20%">
-    <div align="CENTER">Compiler</div></td>
-    <td class="BorderHeader">
-    <div align="CENTER">Extra Notes</div></td>
+      <td class="BorderHeader" width="33%">
+      <div align="center">Platform</div>
+      </td>
+      <td class="BorderHeader" width="20%">
+      <div align="center">Compiler</div>
+      </td>
+      <td class="BorderHeader">
+      <div align="center">Extra Notes</div>
+      </td>
     </tr>
     <tr>
-    <td class="BorderContent" valign="MIDDLE" width="33%">
-    <div align="CENTER">
-
-        <p>Windows 95/98/Me/2000/XP</p>
-    </div></td>
-    <td class="BorderContent" width="20%">
-    <div align="CENTER">Microsoft Visual C++ 6 SP3+<br>Microsoft Visual
-        C++.Net<br></div></td>
-    <td class="BorderContent">
-    <div align="CENTER">DirectX 8.1b SDK<br>Due to STL problems with MS
-        compilers you MUST install <a href="http://www.stlport.org">STLport
-        4.5.3</a></div></td>
+      <td class="BorderContent" valign="middle" width="33%">
+      <div align="center">
+      <p>Windows 95/98/Me/2000/XP</p>
+      </div>
+      </td>
+      <td class="BorderContent" width="20%">
+      <div align="center">Microsoft Visual C++ 6 SP3+<br>
+Microsoft Visual C++.Net<br>
+      </div>
+      </td>
+      <td class="BorderContent">
+      <div align="center">DirectX 8.1b SDK<br>
+Due to STL problems with MS compilers you MUST install <a
+ href="http://www.stlport.org">STLport 4.5.3</a></div>
+      </td>
     </tr>
     <tr>
-    <td class="BorderContent" width="33%">
-    <div align="CENTER">Linux</div></td>
-    <td class="BorderContent" width="20%">
-    <div align="CENTER">
-
-        <p>gcc 3.x<br>gcc 2.9x with <a href="http://www.stlport.org">STLport
-        STLport 4.5.3</a></p>
-    </div></td>
-    <td class="BorderContent">
-    <div align="CENTER">gcc 3.2 highly recommended. See 
-        <a href="README.linux">Linux README</a></div></td>
+      <td class="BorderContent" width="33%">
+      <div align="center">Linux</div>
+      </td>
+      <td class="BorderContent" width="20%">
+      <div align="center">
+      <p>gcc 3.x<br>
+gcc 2.9x with <a href="http://www.stlport.org">STLport STLport 4.5.3</a></p>
+      </div>
+      </td>
+      <td class="BorderContent">
+      <div align="center">gcc 3.2 highly recommended. See <a
+ href="README.linux">Linux README</a></div>
+      </td>
     </tr>
     <tr>
-    <td class="BorderContent" width="33%">
-    <div align="CENTER">Mac OSX 
-    </div></td>
-    <td class="BorderContent" width="20%">
-    <div align="CENTER">gcc 3.x</div></td>
-    <td class="BorderContent">
-    <div align="CENTER">See the <a href="README_MacOSX.txt">Mac README</a></div>
-    </td>
+      <td class="BorderContent" width="33%">
+      <div align="center">Mac OSX </div>
+      </td>
+      <td class="BorderContent" width="20%">
+      <div align="center">gcc 3.x</div>
+      </td>
+      <td class="BorderContent">
+      <div align="center">See the <a href="README_MacOSX.txt">Mac
+README</a></div>
+      </td>
     </tr>
+  </tbody>
 </table>
-
 <p class="MainHeader" align="left">Q: When do I need STLport and why?</p>
-
 <p align="left">You need STLport if you're running Microsoft Visual C++
-(version 6 or .NET), because the STL implementation in VC++ 6 is very old
-(the one in VC++ .NET is very nice and actually works with OGRE, but we're
+(version 6 or .NET), because the STL implementation in VC++ 6 is very
+old
+(the one in VC++ .NET is very nice and actually works with OGRE, but
+we're
 not supporting it yet), pretty slow and has a number of known bugs. The
-issue which makes it totally unsuitable for OGRE is that STL classes cannot
-be passed across a DLL boundary using the MS STL; it will instantly cause a
-crash. OGRE is very DLL oriented so this makes the MS STL unusable. STLport
+issue which makes it totally unsuitable for OGRE is that STL classes
+cannot
+be passed across a DLL boundary using the MS STL; it will instantly
+cause a
+crash. OGRE is very DLL oriented so this makes the MS STL unusable.
+STLport
 is more stable, and is faster than MS STL in release mode. </p>
-
-<p align="left">You also need STLport if you're using gcc 2.9x because the
-STL included with this version is not ANSI compliant enough for OGRE. You
-don't need it if you have gcc v3.x because the STL in that version has been
+<p align="left">You also need STLport if you're using gcc 2.9x because
+the
+STL included with this version is not ANSI compliant enough for OGRE.
+You
+don't need it if you have gcc v3.x because the STL in that version has
+been
 updated. </p>
-
 <p class="MainHeader" align="left">Q: How do I install STLport?</p>
-<p align="left>First note that STLport should <b>NOT</b> be installed when
-compiling with VC .NET 2003 or gcc3.x.</p>
-<ol>
-    <li>Download STLport 4.5.3 from <a href="http://www.stlport.org">www.stlport.org</a>
-    and unzip it somewhere</li>
-    <li>Open a command prompt, and change to the folder STLport-4.5.3\src
+<p
+ align="left&gt;First note that STLport should &lt;b&gt;NOT&lt;/b&gt; be installed when
+compiling with VC .NET 2003 or gcc3.x.&lt;/p&gt;
+&lt;ol&gt;
+    &lt;li&gt;Download STLport 4.5.3 from &lt;a href="
+ http://www.stlport.org="">www.stlport.org and unzip it somewhere </p>
+<li>Open a command prompt, and change to the folder STLport-4.5.3\src </li>
+<li>If you're using Visual C++ 6:
+  <ol>
+    <li>make sure you've run VCVARS32.BAT from the MSVC6 folder, <span
+ style="font-weight: bold;">in the same command prompt window</span><br>
     </li>
-    <li>If you're using Visual C++ 6:
-    <ol>
-        <li>make sure you've run VCVARS32.BAT from the MSVC6 folder</li>
-        <li>type 'nmake -f vc6.mak clean all'</li>
-    </ol></li>
-    <li>If you're using Visual C++.Net:
-    <ol>
-        <li>make sure you've run VSVARS32.BAT from the MSVC .NET folder</li>
-        <li>type 'nmake -f vc7.mak clean all'</li>
-    </ol></li>
-    <li>If you're using gcc 2.9x:
-    <ol>
-        <li>type './configure'</li>
-        <li>type 'make'</li>
-        <li>type 'make install'</li>
-    </ol></li>
-    <li>Open Microsoft Visual C++ and select Tools | Options... from the
-    menu bar to bring up the options dialog</li>
-    <li>Go to the include folders list: in VC6 this is on the 'Directories'
-    tab, in VC++.Net it is under Projects|VC++ Directories in the tree on
-    the left</li>
-    <li>Make sure the stlport include directory is at the TOP of your
-    include folders list. Crucially, it MUST be above all Microsoft include
-    folders.</li>
-    <li>Make sure your stlport lib directory is in your library folder list.</li>
-    <li>Close VC++ to save the settings</li>
-</ol>
-
-<p class="MainHeader">Q: Why do I have problems compiling the DirectX-based
+    <li>type 'nmake -f vc6.mak clean all'</li>
+  </ol>
+</li>
+<li>If you're using Visual C++.Net:
+  <ol>
+    <li>make sure you've run VSVARS32.BAT from the MSVC .NET folder, <span
+ style="font-weight: bold;">in the same command prompt window</span></li>
+    <li>type 'nmake -f vc7.mak clean all'</li>
+  </ol>
+</li>
+<li>If you're using gcc 2.9x:
+  <ol>
+    <li>type './configure'</li>
+    <li>type 'make'</li>
+    <li>type 'make install'</li>
+  </ol>
+</li>
+<li>Open Microsoft Visual C++ and select Tools | Options... from the
+menu bar to bring up the options dialog</li>
+<li>Go to the include folders list: in VC6 this is on the 'Directories'
+tab, in VC++.Net it is under Projects|VC++ Directories in the tree on
+the left</li>
+<li>Make sure the stlport include directory is at the TOP of your
+include folders list. Crucially, it MUST be above all Microsoft include
+folders.</li>
+<li>Make sure your stlport lib directory is in your library folder list.</li>
+<li>Close VC++ to save the settings</li>
+<p class="MainHeader">Q: Why do I have problems compiling the
+DirectX-based
 source files in Microsoft Visual C++ 6? </p>
-
-<p class="MainContent">This is usually related to the fact that you haven't
-installed the DirectX SDK on your computer or you have installed it but the
-headers and libraries folders from the SDK aren't in the compiler's search
-path. Microsoft Visual C++ 6 comes with DirectX SDK version 5 while OGRE
-needs at least DirectX SDK version 8.1. You can get the latest DirectX SDK 
-distribution from <a href="http://msdn.microsoft.com/directx">Microsoft's 
+<p class="MainContent">This is usually related to the fact that you
+haven't
+installed the DirectX SDK on your computer or you have installed it but
+the
+headers and libraries folders from the SDK aren't in the compiler's
+search
+path. Microsoft Visual C++ 6 comes with DirectX SDK version 5 while
+OGRE
+needs at least DirectX SDK version 8.1. You can get the latest DirectX
+SDK distribution from <a href="http://msdn.microsoft.com/directx">Microsoft's
 DirectX page</a>.
 </p>
-
 <p class="MainHeader">Q: What is the 'Dependencies' folder for? </p>
-
-<p class="MainContent">Ogre depends on a number of external libraries such
-as jpeglib, libpng, zlib, and SDL. Rather than expect people to have these
+<p class="MainContent">Ogre depends on a number of external libraries
+such
+as jpeglib, libpng, zlib, and SDL. Rather than expect people to have
+these
 already or download them separately, and to minimise problems with
-incompatible versions of these libraries, you can download them from the 
-<a href="http://www.ogre3d.org/downloads.php">Ogre download page</a>
+incompatible versions of these libraries, you can download them from
+the <a href="http://www.ogre3d.org/downloads.php">Ogre download page</a>
 (get the '3rd party libraries' download). You only need this if you are
-using Microsoft Visual C++ because Linux distributions usually come with
-these libraries built in (just in case yours doesn't, use 
-<a href="http://rpmfind.net">RPMfind</a>).</p>
-
+using Microsoft Visual C++ because Linux distributions usually come
+with
+these libraries built in (just in case yours doesn't, use <a
+ href="http://rpmfind.net">RPMfind</a>).</p>
 <p class="MainHeader">Q: Why do I get a message like 'unable to open
 zlib.h' or some other header file?</p>
-
 <p>If you're using VC++, make sure you've downloaded the 3rd-party
-libraries distribution from the 
-<a href="http://www.ogre3d.org/downloads.php">Ogre download page</a>.
-This archive should be extracted into the parent folder of the 'ogrenew'
+libraries distribution from the <a
+ href="http://www.ogre3d.org/downloads.php">Ogre download page</a>.
+This archive should be extracted into the parent folder of the
+'ogrenew'
 folder.</p>
-
 <p class="MainHeader">Q: How do I extract the .tar.bz2 archives?</p>
-
-<p>If you're using Linux, or you have downloaded the 
-<a href="http://www.cygwin.com">Cygwin tools</a> under Windows, just type
+<p>If you're using Linux, or you have downloaded the <a
+ href="http://www.cygwin.com">Cygwin tools</a> under Windows, just type
 the followiing commands in the same folder as the file:</p>
-
 <p>bunzip2 &lt;file&gt;.tar.bz2</p>
-
 <p>tar -xvf &lt;file&gt;.tar</p>
-
 <p>If you're using Windows without the Cygwin tools, just use a decent
-archive GUI like <a href="http://www.powerarchiver.com">PowerArchiver</a> or 
-<a href="http://www.rarlab.com">WinRAR</a> which support bzip2 and tar
+archive GUI like <a href="http://www.powerarchiver.com">PowerArchiver</a>
+or <a href="http://www.rarlab.com">WinRAR</a> which support bzip2 and
+tar
 (among other formats).</p>
-
-<p class="MainHeader">Q: Why have you changed from zip format to .tar.bz2?
+<p class="MainHeader">Q: Why have you changed from zip format to
+.tar.bz2?
 </p>
-
 <p>Because the files created by bzip2 are up to half the size of the
 equivalent zip file. This makes your downloads quicker. </p>
-
 <p class="MainHeader">Q: When I try to debug a sample or my own
 application, I get an error saying plugins.cfg is not found, why?</p>
-
-<p>The relative location of OGRE library files and configuration files are
-very important for successfully starting an OGRE application, in debug mode
+<p>The relative location of OGRE library files and configuration files
+are
+very important for successfully starting an OGRE application, in debug
+mode
 or otherwise. The existing samples provided copy their executables into
-'Samples\Common\bin\Debug' or 'Samples\Common\bin\Release', where all the
-other files are placed correctly. It is recommended that you set up your
+'Samples\Common\bin\Debug' or 'Samples\Common\bin\Release', where all
+the
+other files are placed correctly. It is recommended that you set up
+your
 own examples to place their executables in the same location to avoid
 problems, and debug them from there too. </p>
-
-<p>If you do want to move the files, bear in mind the following dependencies:
+<p>If you do want to move the files, bear in mind the following
+dependencies:
 </p>
 <ul>
-    <li>The OgreMain and OgrePlatform libraries must be in the same folder
-    as the executable, or on the path</li>
-    <li>The plugins.cfg file must be in the same folder as the executable
-    </li>
-    <li>The plugin libraries listed in plugins.cfg must be located in the
-    folder specified in the 'PluginFolder' setting in plugins.cfg</li>
+  <li>The OgreMain and OgrePlatform libraries must be in the same
+folder as the executable, or on the path</li>
+  <li>The plugins.cfg file must be in the same folder as the executable
+  </li>
+  <li>The plugin libraries listed in plugins.cfg must be located in the
+folder specified in the 'PluginFolder' setting in plugins.cfg</li>
 </ul>
-
 <p class="MainHeader">Q: I have problems loading some resource files
 (textures, meshes, material definitions etc)</p>
-
 <p>Check the following:</p>
 <ol>
-    <li>Make sure the case of the filenames is correct. Some operating
-    systems are case-sensitive in their file operations, and all of OGRE's
-    internal lookups for reusing resources is case-sensitive so assume that
-    case IS important.</li>
-    <li>Make sure the location of the resource is on the resource path. You
-    can add resource paths by calling Root::addResourceLocation and
-    supplying either a folder or a ZIP compressed archive to search in</li>
-    <li>If you're trying to use a material or particle system scripted from
-    a .material or .particle file, ensure that the resource locations are
-    added <i>before </i>you call Root::initialise</li>
+  <li>Make sure the case of the filenames is correct. Some operating
+systems are case-sensitive in their file operations, and all of OGRE's
+internal lookups for reusing resources is case-sensitive so assume that
+case IS important.</li>
+  <li>Make sure the location of the resource is on the resource path.
+You can add resource paths by calling Root::addResourceLocation and
+supplying either a folder or a ZIP compressed archive to search in</li>
+  <li>If you're trying to use a material or particle system scripted
+from a .material or .particle file, ensure that the resource locations
+are added <i>before </i>you call Root::initialise</li>
 </ol>
-
-<p class="MainHeader">Q: What is the minimum set of resource files I need
+<p class="MainHeader">Q: What is the minimum set of resource files I
+need
 to run my own OGRE application?</p>
-
 <p>You need at least:</p>
 <ul>
-    <li>Ogre.overlay</li>
-    <li>Ogre.material </li>
-    <li>sample.fontdef. </li>
+  <li>Ogre.overlay</li>
+  <li>Ogre.material </li>
+  <li>sample.fontdef. </li>
 </ul>
-
-<p>These scripts contain the core overlay details used for the frame rate
+<p>These scripts contain the core overlay details used for the frame
+rate
 stats panel.</p>
-
-<p class="MainHeader">Q: After I did a CVS update, no matter what demo/app
-I try to run, I get thrown in the debugger because of what appears to be
+<p class="MainHeader">Q: After I did a CVS update, no matter what
+demo/app
+I try to run, I get thrown in the debugger because of what appears to
+be
 memory over-runs/allocation problems.</p>
-
-<p>This is because there have been major changes in the core OGRE library,
+<p>This is because there have been major changes in the core OGRE
+library,
 changes that affect all the other linked plug-ins/apps. The solution is
 simple (though a bit slow): a full rebuild of all the OGRE sources. </p>
-
 <p class="MainHeader">Q: Why do I get errors about 'LPDIRECTINPUT7' :
 missing storage-class or type specifiers?</p>
-
 <p>This is caused by either not having the DirectX SDK, or having the
-include folder for it lower down on your include list than an oder version
-of the Windows platform SDK or the Visual C++ include folders. Make sure
+include folder for it lower down on your include list than an oder
+version
+of the Windows platform SDK or the Visual C++ include folders. Make
+sure
 your DirectX SDK includes are above VC / Platform SDK but still below
 STLport.</p>
+&yuml;
 </body>
-</html>ÿ
+</html>
