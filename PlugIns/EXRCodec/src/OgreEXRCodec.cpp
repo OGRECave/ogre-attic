@@ -181,7 +181,7 @@ Codec::DecodeResult decode(DataStreamPtr& input) const
     }
     
     DecodeResult ret;
-    ret.first = 
+    ret.first = output; 
     ret.second = CodecDataPtr(imgData);
     return ret;
 }
