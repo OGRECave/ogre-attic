@@ -247,7 +247,7 @@ namespace Ogre {
 		
 		StringUtil::StrStreamType msg;
 		msg << "Added resource location '" << name << "' of type '" << locType
-			<< "' to resource group '" << resGroup;
+			<< "' to resource group '" << resGroup << "'";
 		if (recursive)
 			msg << " with recursive option";
 		LogManager::getSingleton().logMessage(msg.str());
