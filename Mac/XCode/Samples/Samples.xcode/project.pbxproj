@@ -653,6 +653,7 @@
 				82AFC93D0705F79F00CF9DB7,
 				82AFC93E0705F79F00CF9DB7,
 				82C985CC07074B2D0061A825,
+				82B17DA7072D8F7400CA2E63,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -745,6 +746,7 @@
 		};
 		82AFC7900705EEFD00CF9DB7 = {
 			children = (
+				82B17DA6072D8F7400CA2E63,
 				82AFC7930705EF3E00CF9DB7,
 				82AFC7910705EF1E00CF9DB7,
 				82AFC78F0705EEEF00CF9DB7,
@@ -4556,6 +4558,21 @@
 		};
 		82AFCDEF0706619700CF9DB7 = {
 			fileRef = 82AFCDEE0706619700CF9DB7;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		82B17DA6072D8F7400CA2E63 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			name = media.cfg;
+			path = ../../../../ogre/Samples/Common/bin/media.cfg;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82B17DA7072D8F7400CA2E63 = {
+			fileRef = 82B17DA6072D8F7400CA2E63;
 			isa = PBXBuildFile;
 			settings = {
 			};
