@@ -44,8 +44,6 @@ namespace Ogre {
     String BillboardSet::msMovableType = "BillboardSet";
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet() :
-        mBuffersCreated(false),
-        mPoolSize(0),
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
@@ -53,7 +51,9 @@ namespace Ogre {
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
-        mBillboardType(BBT_POINT)
+        mBillboardType(BBT_POINT),
+        mBuffersCreated(false),
+        mPoolSize(0)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -64,8 +64,6 @@ namespace Ogre {
     BillboardSet::BillboardSet(
         const String& name,
         unsigned int poolSize ) :
-        mBuffersCreated(false),
-        mPoolSize(poolSize),
         mName( name ),
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
@@ -74,7 +72,9 @@ namespace Ogre {
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
-        mBillboardType(BBT_POINT)
+        mBillboardType(BBT_POINT),
+        mBuffersCreated(false),
+        mPoolSize(poolSize)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
