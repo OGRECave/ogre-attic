@@ -492,5 +492,20 @@ namespace Ogre {
         *this = *this * factor;
         return len;
     }
-
+    //-----------------------------------------------------------------------
+	Real Quaternion::getRoll(void) const
+	{
+		return Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z);
+	}
+    //-----------------------------------------------------------------------
+	Real Quaternion::getPitch(void) const
+	{
+		return Math::ASin(-2*(x*z - w*y));
+	}
+    //-----------------------------------------------------------------------
+	Real Quaternion::getYaw(void) const
+	{
+		return Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z);
+	}
+    //-----------------------------------------------------------------------
 }
