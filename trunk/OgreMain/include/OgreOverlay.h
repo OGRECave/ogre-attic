@@ -160,7 +160,7 @@ namespace Ogre {
                 to ensure they are rendered on top</LI>
             </OL>
             One major consideration when using 3D objects in overlays is the behaviour of 
-            the depth buffer. Overlays are rendered with depth checking off, to ensure
+            the depth buffer. Overlays should use materials with depth checking off, to ensure
             that their contents are always displayed on top of the main scene (to do 
             otherwise would result in objects 'poking through' the overlay). The problem
             with using 3D objects is that if they are concave, or self-overlap, then you
