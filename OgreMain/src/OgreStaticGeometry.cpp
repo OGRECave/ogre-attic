@@ -313,6 +313,7 @@ namespace Ogre {
 		}
 		// Otherwise, we have to create a new one
 		SubMeshLodGeometryLinkList* lodList = new SubMeshLodGeometryLinkList();
+		mSubMeshGeometryLookup[sm] = lodList;
 		ushort numLods = sm->parent->isLodManual() ? 1 : 
 			sm->parent->getNumLodLevels();
 		lodList->resize(numLods);
@@ -548,6 +549,12 @@ namespace Ogre {
 			delete *i;
 		}
 		mQueuedSubMeshes.clear();
+		// Delete precached geoemtry lists
+		for (SubMeshGeometryLookup::iterator l = mSubMeshGeometryLookup.begin();
+			l != mSubMeshGeometryLookup.end(); ++l)
+		{
+			delete l->second;
+		}
 
 	}
 	//--------------------------------------------------------------------------
@@ -1046,6 +1053,7 @@ namespace Ogre {
 	void StaticGeometry::LODBucket::assign(QueuedSubMesh* qmesh, ushort atLod)
 	{
 		QueuedGeometry* q = new QueuedGeometry();
+		mQueuedGeometryList.push_back(q);
 		q->position = qmesh->position;
 		q->orientation = qmesh->orientation;
 		q->scale = qmesh->scale;
