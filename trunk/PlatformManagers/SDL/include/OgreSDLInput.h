@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreInputEvent.h"
 #include "OgreRenderWindow.h"
 
+#include <map>
+
 #include <SDL.h>
 
 namespace Ogre {
@@ -69,7 +71,10 @@ namespace Ogre {
         Real mScale;
         Uint8 mMouseKeys;
         bool _visible;
+        typedef std::map<SDLKey, KeyCode> InputKeyMap;
+        InputKeyMap _key_map;
 
+        void processBufferedKeyboard();
         void processBufferedMouse();
     };
 }
