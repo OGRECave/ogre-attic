@@ -44,6 +44,8 @@ namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
     {
+        int i;
+
         OgreGuard( "GLRenderSystem::GLRenderSystem" );
 
         LogManager::getSingleton().logMessage(getName() + " created.");
@@ -55,7 +57,7 @@ namespace Ogre {
 		mGLSupport = new Win32GLSupport();
 #endif
         
-        for( int i=0; i<MAX_LIGHTS; i++ )
+        for( i=0; i<MAX_LIGHTS; i++ )
             mLights[i] = NULL;
 
         mWorldMatrix = Matrix4::IDENTITY;
@@ -68,7 +70,7 @@ namespace Ogre {
         mStencilRef = 0;
         mStencilMask = 0xffffffff;
 
-        for (int i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
+        for (i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
         {
             mTextureTypes[i] = 0;
         }
