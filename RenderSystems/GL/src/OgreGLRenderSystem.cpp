@@ -1920,15 +1920,13 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
-        GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
-            GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
 
-        if (gptype == GPT_VERTEX_PROGRAM)
+        if (gptype == GPT_VERTEX_PROGRAM && mCurrentVertexProgram)
         {
             mCurrentVertexProgram->unbindProgram();
             mCurrentVertexProgram = 0;
         }
-        else
+        else if (gptype == GPT_FRAGMENT_PROGRAM && mCurrentFragmentProgram)
         {
             mCurrentFragmentProgram->unbindProgram();
             mCurrentFragmentProgram = 0;
