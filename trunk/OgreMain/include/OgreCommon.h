@@ -155,61 +155,6 @@ namespace Ogre {
         SDL_SOLID = 3
     };
 
-	/** The pixel format used for textures. */
-	enum PixelFormat
-	{
-		/// Unknown pixel format.
-		PF_UNKNOWN,
-		/// 8-bit pixel format, all bits luminace.
-		PF_L8,
-        /// 16-bit pixel format, all bits luminace.
-        PF_L16,
-		/// 8-bit pixel format, all bits alpha.
-		PF_A8,
-		/// 8-bit pixel format, 4 bits alpha, 4 bits luminace.
-		PF_A4L4,
-		/// 8-bit pixel format, 4 bits luminace, 4 bits alpha.
-		PF_L4A4,
-		/// 16-bit pixel format, 5 bits red, 6 bits green, 5 bits blue.
-		PF_R5G6B5,
-		/// 16-bit pixel format, 5 bits blue, 6 bits green, 5 bits red.
-		PF_B5G6R5,
-		/// 16-bit pixel format, 4 bits for alpha, red, green and blue.
-		PF_A4R4G4B4,
-		/// 16-bit pixel format, 4 bits for blue, green, red and alpha.
-		PF_B4G4R4A4,
-		/// 24-bit pixel format, 8 bits for red, green and blue.
-		PF_R8G8B8,
-		/// 24-bit pixel format, 8 bits for blue, green and red.
-		PF_B8G8R8,
-		/// 32-bit pixel format, 8 bits for alpha, red, green and blue.
-		PF_A8R8G8B8,
-		/// 32-bit pixel format, 8 bits for blue, green, red and alpha.
-		PF_B8G8R8A8,
-		/// 32-bit pixel format, 2 bits for alpha, 10 bits for red, green and blue.
-		PF_A2R10G10B10,
-		/// 32-bit pixel format, 10 bits for blue, green and red, 2 bits for alpha.
-		PF_B10G10R10A2,
-        /// DDS (DirectDraw Surface) DXT1 format
-        PF_DXT1,
-        /// DDS (DirectDraw Surface) DXT2 format
-        PF_DXT2,
-        /// DDS (DirectDraw Surface) DXT3 format
-        PF_DXT3,
-        /// DDS (DirectDraw Surface) DXT4 format
-        PF_DXT4,
-        /// DDS (DirectDraw Surface) DXT5 format
-        PF_DXT5,
-        // 48-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue
-        PF_FP_R16G16B16,
-        // 64-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue, 16 bits (float) for alpha
-        PF_FP_R16G16B16A16,
-       // 96-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue
-        PF_FP_R32G32B32,
-        // 128-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue, 32 bits (float) for alpha
-        PF_FP_R32G32B32A32
-	};
-
     /** An enumeration of broad shadow techniques */
     enum ShadowTechnique
     {
@@ -252,10 +197,6 @@ namespace Ogre {
         TVC_SPECULAR    = 0x4,
         TVC_EMISSIVE    = 0x8
     };
-
-
-	PixelFormat ilFormat2OgreFormat( int ImageFormat, int BytesPerPixel );
-	std::pair< int, int > OgreFormat2ilFormat( PixelFormat format );
 
     typedef std::vector<Light*> LightList;
 

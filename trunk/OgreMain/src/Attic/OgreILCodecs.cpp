@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 #include "OgreCodec.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
 #include "OgreILImageCodec.h"
 #include "OgreILCodecs.h"
 
@@ -34,67 +35,41 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <IL/ilu.h>
 
 namespace Ogre {
-
-    Codec *ILCodecs::mPNGCodec;
-    Codec *ILCodecs::mJPGCodec;
-    Codec *ILCodecs::mJPEGCodec;
-    Codec *ILCodecs::mTGACodec;
-    Codec *ILCodecs::mDDSCodec;
-    Codec *ILCodecs::mBMPCodec;
+    std::list<ILImageCodec*> ILCodecs::codeclist;
 
     void ILCodecs::registerCodecs(void) {
-        mPNGCodec = new PNGCodec;
-        Codec::registerCodec( mPNGCodec );
-        mJPEGCodec = new JPEGCodec;
-        Codec::registerCodec( mJPEGCodec );
-        mTGACodec = new TGACodec;
-        Codec::registerCodec( mTGACodec );
-        mDDSCodec = new DDSCodec;
-        Codec::registerCodec( mDDSCodec );
-        mJPGCodec = new JPGCodec;
-        Codec::registerCodec( mJPGCodec );
-        mBMPCodec = new BMPCodec;
-        Codec::registerCodec( mBMPCodec );
+        const char *il_extensions = ilGetString ( IL_LOAD_EXT );
+        LogManager::getSingleton().logMessage(
+         LML_NORMAL,
+            "DevIL image formats: %s", il_extensions);
+        std::stringstream ext;
+        String str;
+        ext << il_extensions;
+        while(ext >> str)
+        {
+            ILImageCodec *codec = new ILImageCodec(str, IL_TYPE_UNKNOWN);
+            Codec::registerCodec(codec);
+            codeclist.push_back(codec);
+        }
     }
 
     void ILCodecs::deleteCodecs(void) {
-        delete mBMPCodec;
-        delete mDDSCodec;
-        delete mTGACodec;
-        delete mJPGCodec;
-        delete mJPEGCodec;
-        delete mPNGCodec;
+        for(std::list<ILImageCodec*>::const_iterator i = codeclist.begin(); i != codeclist.end(); ++i)
+        {
+            Codec::unRegisterCodec(*i);   
+            delete *i;
+        }
+        codeclist.clear();
     }
 
     //---------------------------------------------------------------------
-    unsigned int BMPCodec::getILType(void) const
-    { 
+    /*
         return IL_BMP;
-    }
-
-    //---------------------------------------------------------------------
-    unsigned int TGACodec::getILType(void) const
-    { 
         return IL_TGA;
-    }
-
-    //---------------------------------------------------------------------
-    unsigned int JPEGCodec::getILType(void) const
-    { 
         return IL_JPG;
-    }
-
-    //---------------------------------------------------------------------
-    unsigned int DDSCodec::getILType(void) const
-    {
         return IL_DDS;
-    }
-
-    //---------------------------------------------------------------------
-    unsigned int PNGCodec::getILType(void) const
-    {
         return IL_PNG;
-    }
+    */
 
 }
 

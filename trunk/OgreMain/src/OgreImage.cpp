@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreArchiveManager.h"
 #include "OgreException.h"
 #include "OgreImageCodec.h"
+#include "OgreColourValue.h"
+
 // Dependency on IL/ILU for resize
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -538,7 +540,7 @@ namespace Ogre {
         ilGenImages( 1, &ImageName );
         ilBindImage( ImageName );
 
-        std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( m_eFormat );
+        std::pair< int, int > fmt_bpp = ILUtil::OgreFormat2ilFormat( m_eFormat );
         ilTexImage( 
             m_uWidth, m_uHeight, 1, fmt_bpp.second, fmt_bpp.first, IL_UNSIGNED_BYTE, 
             static_cast< void * >( m_pBuffer ) );
@@ -561,5 +563,10 @@ namespace Ogre {
 		// return to default filter
 		iluImageParameter(ILU_FILTER, ILU_NEAREST);
 	}
+    
+    //-----------------------------------------------------------------------------    
+    void Image::getColourAt(ColourValue *out, int x, int y, int z) {
+        PixelUtil::unpackColour(out, m_eFormat, &m_pBuffer[m_ucPixelSize * (z * m_uWidth * m_uHeight + m_uWidth * y + x)]);
+    }
 
 }

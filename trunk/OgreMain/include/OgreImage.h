@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreCommon.h"
+#include "OgrePixelFormat.h"
 #include "OgreDataStream.h"
 
 namespace Ogre {
@@ -143,7 +144,7 @@ namespace Ogre {
         */
         static uchar PF2PS( PixelFormat format )
         {
-			return getNumElemBytes( format );
+			return PixelUtil::getNumElemBytes( format );
         }
 
 		/** Returns the size in bytes of an element of the given pixel format.
@@ -156,39 +157,7 @@ namespace Ogre {
 		*/
 		inline static uchar getNumElemBytes( PixelFormat format )
 		{
-			switch( format )
-			{
-			case PF_UNKNOWN:
-				return 0;
-			case PF_L8:
-			case PF_A8:
-			case PF_A4L4:
-			case PF_L4A4:
-				return 1;
-			case PF_R5G6B5:
-			case PF_B5G6R5:
-			case PF_A4R4G4B4:
-			case PF_B4G4R4A4:
-				return 2;
-			case PF_R8G8B8:
-			case PF_B8G8R8:
-				return 3;
-			case PF_A8R8G8B8:
-			case PF_B8G8R8A8:
-			case PF_A2R10G10B10:
-			case PF_B10G10R10A2:
-				return 4;
-            case PF_FP_R16G16B16:
-                return 6;
-            case PF_FP_R16G16B16A16:
-                return 8;
-            case PF_FP_R32G32B32:
-                return 12;
-            case PF_FP_R32G32B32A32:
-                return 16;
-			default:
-				return 0xff;
-			}
+            return PixelUtil::getNumElemBytes( format );
 		}
 
         /** @deprecated
@@ -203,7 +172,7 @@ namespace Ogre {
         */
         static uchar PF2BPP( PixelFormat format )
         {
-            return getNumElemBits( format );
+            return PixelUtil::getNumElemBits( format );
         }
 
 		/** Returns the size in bits of an element of the given pixel format.
@@ -216,44 +185,7 @@ namespace Ogre {
 		*/
 		inline static uchar getNumElemBits( PixelFormat format )
 		{
-			switch( format )
-			{
-			case PF_UNKNOWN:
-				return 0;
-			case PF_L8:
-			case PF_A8:
-			case PF_A4L4:
-			case PF_L4A4:
-            case PF_DXT1:
-				return 8;
-			case PF_R5G6B5:
-			case PF_B5G6R5:
-			case PF_A4R4G4B4:
-			case PF_B4G4R4A4:
-            case PF_DXT2:
-            case PF_DXT3:
-            case PF_DXT4:
-            case PF_DXT5:
-				return 16;
-			case PF_R8G8B8:
-			case PF_B8G8R8:
-				return 24;
-			case PF_A8R8G8B8:
-			case PF_B8G8R8A8:
-			case PF_A2R10G10B10:
-			case PF_B10G10R10A2:
-				return 32;
-            case PF_FP_R16G16B16:
-                return 48;
-            case PF_FP_R16G16B16A16:
-                return 64;
-            case PF_FP_R32G32B32:
-                return 96;
-            case PF_FP_R32G32B32A32:
-                return 128;
-            default:
-				return 0xff;
-			}
+            return PixelUtil::getNumElemBits( format );
 		}
 
         /** Returns the existance of an alpha component given a pixel format.
@@ -262,42 +194,19 @@ namespace Ogre {
            @remarks
                Passing one of the DXT_ formats will return false as it is unknown
                from the format alone in that case.
-       */
-       inline static bool formatHasAlpha(PixelFormat format) 
-       {
-            switch(format) {
-                case PF_A8:
-                case PF_A4L4:
-                case PF_L4A4:
-                case PF_A4R4G4B4:
-                case PF_B4G4R4A4:
-                case PF_A8R8G8B8:
-                case PF_B8G8R8A8:
-                case PF_A2R10G10B10:
-                case PF_B10G10R10A2:
-                case PF_FP_R16G16B16A16:
-                case PF_FP_R32G32B32A32:
-                    return true;
-                default:
-                    return false;
-            }
+        */
+        inline static bool formatHasAlpha(PixelFormat format) 
+        {
+            return PixelUtil::getFlags( format ) & PFF_HASALPHA;
         }
 
         /** Returns wether a pixel format is floating point (at least not fixed point).
           @returns
                True when the format is floating point.
-       */
-       inline static bool formatIsFloat(PixelFormat format) 
-       {
-            switch(format) {
-                case PF_FP_R16G16B16:
-				case PF_FP_R32G32B32:
-                case PF_FP_R16G16B16A16:
-                case PF_FP_R32G32B32A32:
-                    return true;
-                default:
-                    return false;
-            }
+        */
+        inline static bool formatIsFloat(PixelFormat format) 
+        {
+            return PixelUtil::getFlags( format ) & PFF_FLOAT;
         }
 
 		/** 
@@ -305,100 +214,7 @@ namespace Ogre {
 		 * this returns [0,0,0,0] in rgba.
 		 */
 		inline static void formatGetDepths(PixelFormat format, int rgba[4]) {
-			// Default values
-			rgba[0] = rgba[1] = rgba[2] = rgba[3] = 0;
-			switch( format )
-			{
-			case PF_R5G6B5:
-			case PF_B5G6R5:
-				rgba[0] = rgba[1] = rgba[2] = 5;
-				break;
-			case PF_A4R4G4B4:
-			case PF_B4G4R4A4:
-				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 4;
-				break;
-            case PF_R8G8B8:
-			case PF_B8G8R8:
-				rgba[0] = rgba[1] = rgba[2] = 8;
-				break;
-			case PF_A8R8G8B8:
-			case PF_B8G8R8A8:
-				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 8;
-				break;
-			case PF_A2R10G10B10:
-			case PF_B10G10R10A2:
-				rgba[0] = rgba[1] = rgba[2] = 10;
-				rgba[3] = 2;
-				break;
-            case PF_FP_R16G16B16:
-				rgba[0] = rgba[1] = rgba[2] = 16;
-				break;
-            case PF_FP_R16G16B16A16:
-				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 16;
-				break;
-            case PF_FP_R32G32B32:
-                rgba[0] = rgba[1] = rgba[2] = 32;
-				break;
-            case PF_FP_R32G32B32A32:
-				rgba[0] = rgba[1] = rgba[2] = rgba[3] = 32;
-				break;
-			}
-		}
-
-		/** Decides wether converting from a pixel format to another requires 
-			endian-flipping.
-			@param srcformat
-				The source pixel format.
-			@param destformat
-				The destination pixel format.
-			@returns
-				true if the conversion requires flipping, false otherwise. See Remarks.
-			@remarks
-				If one of the two pixel formats is FMT_UNKNOWN or is not registered,
-				no assumption can be made for the returned value.
-		*/
-		inline static bool convReqsFlip( PixelFormat srcformat, PixelFormat destformat )
-		{
-			/* We increment the flag when the format is little endian. Then we check
-			   if the flag modulo 2 is zero. It it is, then we either haven't incremented
-			   at all (both formats big endian) or we have incremented twice (both formats
-			   little endian), so we need no flipping is needed. Otherwise, flipping is 
-			   required. */
-			uchar flag = 0;
-
-			switch( srcformat )
-			{
-			case PF_A4L4:
-			case PF_R5G6B5:
-			case PF_A4R4G4B4:
-			case PF_R8G8B8:
-			case PF_A8R8G8B8:
-			case PF_A2R10G10B10:
-				flag++;
-				break;
-
-			default:
-				break;
-			}
-
-			switch( destformat )
-			{
-			case PF_A4L4:
-			case PF_R5G6B5:
-			case PF_A4R4G4B4:
-			case PF_R8G8B8:
-			case PF_A8R8G8B8:
-			case PF_A2R10G10B10:
-				flag++;
-				break;
-
-			default:
-				break;
-			}
-
-			if( flag % 2 )
-				return true;
-			return false;
+            PixelUtil::getBitDepths( format, rgba );
 		}
 
         /** Stores a pointer to raw data in memory. The pixel format has to be specified.
@@ -518,6 +334,12 @@ namespace Ogre {
                 Castano Iguado
         */
         static void applyGamma( uchar *buffer, Real gamma, size_t size, uchar bpp );
+        
+        /**
+         * Get colour value from a certain location in the image. The z coordinate
+         * is only valid for cubemaps and volume textures.
+         */
+        void getColourAt(ColourValue *out, int x, int y, int z);
 
 		enum Filter
 		{
