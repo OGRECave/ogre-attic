@@ -25,10 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 /***************************************************************************
 OgreMouseMotionTarget.h  -  
 	Handles the adding and removing of MouseMotionListeners.
-	This is implemented through the use of a binary multicaster.
-	See EventMulticaster.
 
-	GuiElements (or other components) that process the Mouse Motion Event should subclass this class 
+	Components that process the Mouse Motion Event should subclass this class 
 	and call processMouseMotionEvent when that event is identified.
 
 -------------------
