@@ -254,14 +254,14 @@ void meshToXML(XmlOptions opts)
     struct stat tagStat;
 
     SDDataChunk chunk;
-    stat( opts.source, &tagStat );
-    chunk.allocate( tagStat.st_size );
     FILE* pFile = fopen( opts.source.c_str(), "rb" );
     if (!pFile)
     {
         cout << "Unable to open file " << opts.source << " - fatal error." << endl;
         exit (1);
     }
+    stat( opts.source, &tagStat );
+    chunk.allocate( tagStat.st_size );
     fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );
 
