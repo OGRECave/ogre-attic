@@ -73,6 +73,9 @@ namespace Ogre	{
 
         void needUpdate();
 
+        /** Overridden from Node in order to include parent Entity transform. */
+        void _updateFromParent(void) const;
+
 	private:
 		Entity *mParentEntity;
 		MovableObject *mChildObject;

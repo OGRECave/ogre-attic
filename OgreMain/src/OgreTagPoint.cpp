@@ -40,7 +40,9 @@ void TagPoint::setChildObject(MovableObject *pObject)
 
 Matrix4 TagPoint::_getFullTransform(void)
 {
-	return getParentEntityTransform() * Node::_getFullTransform();
+	//return getParentEntityTransform() * Node::_getFullTransform();
+    // Now that we're overriding updateFromParent(), this doesn't need to be different
+    return Node::_getFullTransform();
 }
 
 Matrix4 TagPoint::_getNodeFullTransform(void)
@@ -80,6 +82,30 @@ void TagPoint::needUpdate()
 
 }
 
+void TagPoint::_updateFromParent(void) const
+{
+    // Call superclass
+    Bone::_updateFromParent();
+
+    // Include Entity transform
+    if (mParentEntity)
+    {
+        Node* entityParentNode = mParentEntity->getParentNode();
+        if (entityParentNode)
+        {
+            Quaternion mParentQ = entityParentNode->_getDerivedOrientation();
+            mDerivedOrientation = mParentQ * mDerivedOrientation;
+
+            // Change position vector based on parent's orientation
+            mDerivedPosition = mParentQ * mDerivedPosition;
+
+
+            // Add altered position vector to parents
+            mDerivedPosition += entityParentNode->_getDerivedPosition();
+        }
+    }
+
+}
 
 
 
