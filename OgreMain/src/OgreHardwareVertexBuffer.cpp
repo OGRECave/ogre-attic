@@ -302,7 +302,7 @@ namespace Ogre {
         // NB will replace any existing buffer ptr at this index, and will thus cause
         // reference count to decrement on that buffer (possibly destroying it)
 		mBindingMap[index] = buffer;
-		mHighIndex = std::max(mHighIndex, index);
+		mHighIndex = std::max(mHighIndex, (unsigned short)(index+1));
 	}
     //-----------------------------------------------------------------------------
 	void VertexBufferBinding::unsetBinding(unsigned short index)
