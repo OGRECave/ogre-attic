@@ -361,6 +361,7 @@ inline void operator delete[](void *reportedAddress)
 	*/
     class _OgreExport MemoryManager
     {
+    public:
         static MemoryManager sMemManager;
 
         MemoryManager();
@@ -424,6 +425,9 @@ inline void operator delete[]( void* ptr )
 // (for more info, see http://www.cvshome.org/docs/manual/cvs_12.html#SEC103 )
 //
 // $Log$
+// Revision 1.10  2002/08/22 23:11:36  sinbad
+// Made all members public for now to prevent compile errors when debug manager off (Cearny - please investigate)
+//
 // Revision 1.9  2002/08/22 12:48:59  cearny
 // Added ending newline.
 //
