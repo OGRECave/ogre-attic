@@ -1157,7 +1157,8 @@ namespace Ogre {
 
             const VertexElement *sourceElem = 0;
             unsigned short proposedDest = 0;
-            for (unsigned short t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
+            unsigned short t = 0;
+            for (t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
             {
                 const VertexElement* testElem = 
                     vertexData->vertexDeclaration->findElementBySemantic(
