@@ -117,6 +117,16 @@ namespace Ogre {
         /// The render queue to use when rendering this entity
         RenderQueueGroupID mRenderQueueID;
 
+		/// The LOD number of the mesh to use, calculated by _notifyCurrentCamera
+		ushort mMeshLodIndex;
+
+		/// LOD bias factor, inverted for optimisation when calculating adjusted depth
+		Real mMeshLodFactorInv;
+		/// Index of minimum detail LOD (NB higher index is lower detail)
+		ushort mMinMeshLodIndex;
+		/// Index of maximum detail LOD (NB lower index is higher detail)
+		ushort mMaxMeshLodIndex;
+
 
     public:
         /** Default destructor.
@@ -208,6 +218,35 @@ namespace Ogre {
 
         /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
         RenderQueueGroupID getRenderQueueGroup(void);
+
+		/** Sets a level-of-detail bias on this entity.
+		@remarks
+			Level of detail reduction is normally applied automatically based on the Mesh 
+			settings. However, it is possible to influence this behaviour for this entity
+			by adjusting the LOD bias. This 'nudges' the level of detail used for this 
+			entity up or down depending on your requirements. You might want to use this
+			if there was a particularly important entity in your scene which you wanted to
+			detail better than the others, such as a player model.
+		@par
+			There are three parameters to this method; the first is a factor to apply; it 
+			defaults to 1.0 (no change), by increasing this to say 2.0, this model would 
+			take twice as long to reduce in detail, whilst at 0.5 this entity would use lower
+			detail versions twice as quickly. The other 2 parameters are hard limits which 
+			let you set the maximum and minimum level-of-detail version to use, after all
+			other calculations have been made. This lets you say that this entity should
+			never be simplified, or that it can only use LODs below a certain level even
+			when right next to the camera.
+		@param factor Proportional factor to apply to the distance at which LOD is changed. 
+			Higher values increase the distance at which higher LODs are displayed (2.0 is 
+			twice the normal distance, 0.5 is half).
+		@param maxDetailIndex The index of the maximum LOD this entity is allowed to use (lower
+			indexes are higher detail: index 0 is the original full detail model).
+		@param minDetailIndex The index of the minimum LOD this entity is allowed to use (higher
+			indexes are lower detail. Use something like 99 if you want unlimited LODs (the actual
+			LOD will be limited by the number in the Mesh)
+		*/
+		void setLodBias(Real factor = 1.0, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
+			
 
 
 

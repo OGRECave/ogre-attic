@@ -96,10 +96,6 @@ namespace Ogre {
         ushort numVerts, numCollapses;
         numVerts = mpGeomData->numVertices;
 		
-		// Bake top-level LOD
-        bakeNewLOD(&newLod);
-        outList->push_back(newLod);
-
 		PMVertex* test = &(mWorkingData[0].mVertList[347]);
 
 #if OGRE_DEBUG_MODE 

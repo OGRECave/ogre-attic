@@ -796,10 +796,10 @@ namespace Ogre {
         return msMovableType;
     }
     //-----------------------------------------------------------------------
-    Real BillboardSet::getViewDepth(const Camera* cam) const
+    Real BillboardSet::getSquaredViewDepth(const Camera* cam) const
     {
         assert(mParentNode);
-        return mParentNode->getViewDepth(cam);
+        return mParentNode->getSquaredViewDepth(cam);
     }
 
 }

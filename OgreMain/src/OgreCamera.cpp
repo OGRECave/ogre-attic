@@ -74,6 +74,9 @@ namespace Ogre {
         // Init no tracking
         mAutoTrackTarget = 0;
 
+		// Init lod
+		mSceneLodFactor = mSceneLodFactorInv =  1.0f;
+
 
         updateView();
 
@@ -843,6 +846,23 @@ namespace Ogre {
             lookAt(mAutoTrackTarget->_getDerivedPosition() + mAutoTrackOffset);
         }
     }
+    //-----------------------------------------------------------------------
+	void Camera::setLodBias(Real factor)
+	{
+		assert(factor <= 0.0f && "Bias factor must be > 0!");
+		mSceneLodFactor = factor;
+		mSceneLodFactorInv = 1.0f / factor;
+	}
+    //-----------------------------------------------------------------------
+	Real Camera::getLodBias(void)
+	{
+		return mSceneLodFactor;
+	}
+    //-----------------------------------------------------------------------
+	Real Camera::_getLodBiasInverse(void)
+	{
+		return mSceneLodFactorInv;
+	}
     //-----------------------------------------------------------------------
 
 } // namespace Ogre

@@ -502,7 +502,7 @@ namespace Ogre {
         virtual const String getMovableType(void) const;
 
         /** Overridden, see Renderable */
-        Real getViewDepth(const Camera* cam) const;
+        Real getSquaredViewDepth(const Camera* cam) const;
 
     };
 

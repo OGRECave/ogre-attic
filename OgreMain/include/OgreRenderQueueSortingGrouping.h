@@ -56,7 +56,7 @@ namespace Ogre {
             _OgreExport bool operator()(const Renderable* x, const Renderable* y) const
             {
 				// Sort DESCENDING by depth (ie far objects first)
-				if (x->getViewDepth(camera) > y->getViewDepth(camera))
+				if (x->getSquaredViewDepth(camera) > y->getSquaredViewDepth(camera))
 				{
 					return true;
 				}

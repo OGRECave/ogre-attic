@@ -562,7 +562,7 @@ namespace Ogre {
             const Quaternion& rotate, const Vector3& scale);
 
         /** Overridden, see Renderable */
-        Real getViewDepth(const Camera* cam) const;
+        Real getSquaredViewDepth(const Camera* cam) const;
 
 
 

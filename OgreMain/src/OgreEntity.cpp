@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
+#include "OgreCamera.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
@@ -77,6 +78,10 @@ namespace Ogre {
 
         mDisplaySkeleton = false;
         mRenderQueueID = RENDER_QUEUE_MAIN;
+
+		mMeshLodFactorInv = 1.0f;
+		mMaxMeshLodIndex = 0; 		// Backwards, remember low value = high detail
+		mMinMeshLodIndex = 99;
 
 
 
@@ -147,7 +152,23 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::_notifyCurrentCamera(Camera* cam)
     {
-        // do nothing
+        // Calculate the LOD
+		if (mParentNode)
+		{
+			Real squaredDepth = mParentNode->getSquaredViewDepth(cam);
+			// Adjust this depth by the entity bias factor
+			squaredDepth = squaredDepth * mMeshLodFactorInv;
+			// Now adjust it by the camera bias
+			squaredDepth = squaredDepth * cam->_getLodBiasInverse();
+			// Get the index at this biased depth
+			mMeshLodIndex = mMesh->getLodIndexSquaredDepth(squaredDepth);
+			// Apply maximum detail restriction (remember lower = higher detail)
+			mMeshLodIndex = std::max(mMaxMeshLodIndex, mMeshLodIndex);
+			// Apply minimum detail restriction (remember higher = lower detail)
+			mMeshLodIndex = std::min(mMinMeshLodIndex, mMeshLodIndex);
+			
+
+		}
     }
     //-----------------------------------------------------------------------
     const AxisAlignedBox& Entity::getBoundingBox(void) const
@@ -244,5 +265,14 @@ namespace Ogre {
     {
         return mRenderQueueID;
     }
+    //-----------------------------------------------------------------------
+	void Entity::setLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
+	{
+		assert(factor <= 0.0f && "Bias factor must be > 0!");
+		mMeshLodFactorInv = 1.0f / factor;
+		mMaxMeshLodIndex = maxDetailIndex;
+		mMinMeshLodIndex = minDetailIndex;
+
+	}
 
 }

@@ -96,11 +96,12 @@ namespace Ogre {
         */
         virtual bool useIdentityView(void) { return false; }
 
-		/** Returns the camera-relative depth of this renderable.
+		/** Returns the camera-relative squared depth of this renderable.
 		@remarks
-			Used to sort transparent objects.
+			Used to sort transparent objects. Squared depth is used rather than
+			actual depth to avoid having to perform a square root on the result.
 		*/
-		virtual Real getViewDepth(const Camera* cam) const = 0;
+		virtual Real getSquaredViewDepth(const Camera* cam) const = 0;
 
     };
 

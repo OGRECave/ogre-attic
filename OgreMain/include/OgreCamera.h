@@ -165,6 +165,11 @@ namespace Ogre {
         /// Tracking offset for fine tuning
         Vector3 mAutoTrackOffset;
 
+		// Scene LOD factor used to adjust overall LOD
+		Real mSceneLodFactor;
+		/// Inverted scene LOD factor, can be used by Renderables to adjust their LOD
+		Real mSceneLodFactorInv;
+
     public:
         /** Standard constructor.
         */
@@ -492,6 +497,33 @@ namespace Ogre {
         */
         void setAutoTracking(bool enabled, SceneNode* target = 0, 
             const Vector3& offset = Vector3::ZERO);
+
+
+		/** Sets the level-of-detail factor for this Camera.
+		@remarks
+			This method can be used to influence the overall level of detail of the scenes 
+			rendered using this camera. Various elements of the scene have level-of-detail
+			reductions to improve rendering speed at distance; this method allows you 
+			to hint to those elements that you would like to adjust the level of detail that
+			they would normally use (up or down). 
+		@par
+			The most common use for this method is to reduce the overall level of detail used
+			for a secondary camera used for sub viewports like rear-view mirrors etc.
+			Note that scene elements are at liberty to ignore this setting if they choose,
+			this is merely a hint.
+		@param factor The factor to apply to the usual level of detail calculation. Higher
+			values increase the detail, so 2.0 doubles the normal detail and 0.5 halves it.
+		*/
+		void setLodBias(Real factor = 1.0);
+
+		/** Returns the level-of-detail bias factor currently applied to this camera. 
+		@remarks
+			See Camera::setLodBias for more details.
+		*/
+		Real getLodBias(void);
+
+		/** Internal method for OGRE to use for LOD calculations. */
+		Real _getLodBiasInverse(void);
 
 
         /** Internal method used by OGRE to update auto-tracking cameras. */

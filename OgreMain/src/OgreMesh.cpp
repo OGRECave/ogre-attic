@@ -64,7 +64,13 @@ namespace Ogre {
         mUpdateBounds = true;
         setSkeletonName("");
         mBoneAssignmentsOutOfDate = false;
-		mNumLods = 0;
+		mNumLods = 1;
+		// Init first (manual) lod
+		MeshLodUsage lod;
+		lod.fromDepthSquared = 0.0f;
+		lod.useManual = true; // not stricly true, but it's a complete mesh!
+		mMeshLodUsageList.push_back(lod);
+
 
     }
 
@@ -703,26 +709,26 @@ namespace Ogre {
 				&((*isub)->mLodFaceList), 
 				reductionMethod, reductionValue);
 
-			// Iterate over the lods and record usage
-			LodDistanceList::const_iterator idist, idistend;
-			idistend = lodDistances.end();
-			// Record first LOD (full detail)
-			MeshLodUsage lod;
-			lod.fromDepth = 0.0f;
+		}
+
+		// Iterate over the lods and record usage
+		LodDistanceList::const_iterator idist, idistend;
+		idistend = lodDistances.end();
+		// Record first LOD (full detail)
+		MeshLodUsage lod;
+		lod.fromDepthSquared = 0.0f;
+		lod.useManual = false;
+		mMeshLodUsageList.push_back(lod);
+
+		for (idist = lodDistances.begin(); idist != idistend; ++idist)
+		{
+			// Record usage
+			lod.fromDepthSquared = (*idist) * (*idist);
 			lod.useManual = false;
 			mMeshLodUsageList.push_back(lod);
 
-			for (idist = lodDistances.begin(); idist != idistend; ++idist)
-			{
-				// Record usage
-				lod.fromDepth = *idist;
-				lod.useManual = false;
-				mMeshLodUsageList.push_back(lod);
-
-			}
 		}
-
-		mNumLods = static_cast<ushort>(lodDistances.size());
+		mNumLods = static_cast<ushort>(lodDistances.size() + 1);
 	}
     //---------------------------------------------------------------------
 	ushort Mesh::getNumLodLevels(void)
@@ -742,18 +748,56 @@ namespace Ogre {
 		bool operator() (const Mesh::MeshLodUsage& mesh1, const Mesh::MeshLodUsage& mesh2)
 		{
 			// sort ascending by depth
-			return mesh1.fromDepth < mesh2.fromDepth;
+			return mesh1.fromDepthSquared < mesh2.fromDepthSquared;
 		}
 	};
 	void Mesh::createManualLodLevel(Real fromDepth, const String& meshName)
 	{
 		MeshLodUsage lod;
-		lod.fromDepth = fromDepth;
+		lod.fromDepthSquared = fromDepth * fromDepth;
 		lod.useManual = true;
 		lod.manualName = meshName;
+		lod.manualMesh = NULL;
 		mMeshLodUsageList.push_back(lod);
 
 		std::sort(mMeshLodUsageList.begin(), mMeshLodUsageList.end(), ManualLodSortLess());
+	}
+    //---------------------------------------------------------------------
+	void Mesh::updateManualLodLevel(ushort index, const String& meshName)
+	{
+		// Basic prerequisites
+		assert(index != 0 && "Can't modify first lod level (full detail)");
+		assert(index < mMeshLodUsageList.size() && "Index out of bounds");
+		// get lod
+		MeshLodUsage* lod = &(mMeshLodUsageList[index]);
+
+		assert(lod->useManual && "Not using manual LODs!");
+		lod->manualName = meshName;
+		lod->manualMesh = NULL;
+	}
+    //---------------------------------------------------------------------
+	ushort Mesh::getLodIndex(Real depth)
+	{
+		return getLodIndexSquaredDepth(depth * depth);
+	}
+    //---------------------------------------------------------------------
+	ushort Mesh::getLodIndexSquaredDepth(Real squaredDepth)
+	{
+		MeshLodUsageList::iterator i, iend;
+		iend = mMeshLodUsageList.end();
+		ushort index = 0;
+		for (i = mMeshLodUsageList.begin(); i != iend; ++i, ++index)
+		{
+			if (i->fromDepthSquared > squaredDepth)
+			{
+				return index - 1;
+			}
+		}
+
+		// If we fall all the way through, use the highest value
+		return mMeshLodUsageList.size() - 1;
+
+
 	}
 
 }

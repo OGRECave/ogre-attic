@@ -102,8 +102,10 @@ namespace Ogre {
         /** Returns a RenderOperation structure required to render this mesh.
             @param 
                 rend Reference to a RenderOperation structure to populate.
+			@param
+				lodIndex The index of the LOD to use. 
         */
-        void _getRenderOperation(RenderOperation& rend);
+        void _getRenderOperation(RenderOperation& rend, ushort lodIndex = 0);
 
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    

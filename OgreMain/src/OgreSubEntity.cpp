@@ -75,7 +75,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubEntity::getRenderOperation(RenderOperation& rend)
     {
-        mSubMesh->_getRenderOperation(rend);
+		// Use LOD
+        mSubMesh->_getRenderOperation(rend, mParentEntity->mMeshLodIndex);
     }
     //-----------------------------------------------------------------------
     void SubEntity::getWorldTransforms(Matrix4* xform)
@@ -105,11 +106,11 @@ namespace Ogre {
             return mParentEntity->mNumBoneMatrices;
     }
     //-----------------------------------------------------------------------
-    Real SubEntity::getViewDepth(const Camera* cam) const
+    Real SubEntity::getSquaredViewDepth(const Camera* cam) const
     {
         Node* n = mParentEntity->getParentNode();
         assert(n);
-        return n->getViewDepth(cam);
+        return n->getSquaredViewDepth(cam);
     }
 
 }
