@@ -728,6 +728,13 @@ namespace Ogre {
             glEnable( GL_TEXTURE_GEN_T );
             glDisable( GL_TEXTURE_GEN_R );
             glDisable( GL_TEXTURE_GEN_Q );
+
+            // Need to use a texture matrix to flip the spheremap
+            mUseAutoTextureMatrix = true;
+            memset(mAutoTextureMatrix, 0, sizeof(GLfloat)*16);
+            mAutoTextureMatrix[0] = mAutoTextureMatrix[10] = mAutoTextureMatrix[15] = 1.0f;
+            mAutoTextureMatrix[5] = -1.0f;
+
             break;
 
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:            

@@ -922,17 +922,12 @@ namespace Ogre {
 		but it's the best approximation we have in the absence of a proper spheremap */
 		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
 		{
-			// if so we must concatenate the current with the env_map matrix
-			D3DXMATRIX d3dMatEnvMap; // the env_map matrix
-			// ident. it 
-			D3DXMatrixIdentity(&d3dMatEnvMap);
+            Matrix4 ogreMatEnvMap = Matrix4::IDENTITY;
 			// set env_map values
-			d3dMatEnvMap(0,0) = 0.5f;
-			d3dMatEnvMap(3,0) = 0.5f;
-			d3dMatEnvMap(1,1) = -0.5f;
-			d3dMatEnvMap(3,1) = 0.5f;
-			// convert it to ogre format
-			Matrix4 ogreMatEnvMap = convertD3DMatrix(d3dMatEnvMap);
+			ogreMatEnvMap[0][0] = 0.5f;
+			ogreMatEnvMap[0][3] = 0.5f;
+			ogreMatEnvMap[1][1] = -0.5f;
+			ogreMatEnvMap[1][3] = 0.5f;
 			// concatenate with the xForm
 			newMat = newMat.concatenate(ogreMatEnvMap);
 		}

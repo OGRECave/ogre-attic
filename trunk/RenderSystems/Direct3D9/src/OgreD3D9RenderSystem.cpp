@@ -1135,27 +1135,33 @@ namespace Ogre
 		// make the ident. matrix in D3D format
 		D3DXMatrixIdentity(&d3dMatId);
 
-		/* If envmap is applied, but device doesn't support spheremap,
-		then we have to use texture transform to make the camera space normal
-		reference the envmap properly. This isn't exactly the same as spheremap
-		(it looks nasty on flat areas because the camera space normals are the same)
-		but it's the best approximation we have in the absence of a proper spheremap */
-		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP &&
-			!(mCaps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP))
-		{
-			// if so we must concatenate the current with the env_map matrix
-			D3DXMATRIX d3dMatEnvMap; // the env_map matrix
-			// ident. it 
-			D3DXMatrixIdentity(&d3dMatEnvMap);
-			// set env_map values
-			d3dMatEnvMap(0,0) = 0.5f;
-			d3dMatEnvMap(3,0) = 0.5f;
-			d3dMatEnvMap(1,1) = -0.5f;
-			d3dMatEnvMap(3,1) = 0.5f;
-			// convert it to ogre format
-            Matrix4 ogreMatEnvMap = D3D9Mappings::convertD3DXMatrix(d3dMatEnvMap);
-			// concatenate with the xForm
-			newMat = newMat.concatenate(ogreMatEnvMap);
+		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
+        {
+            if (mCaps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP)
+            {
+                /** Invert the texture for the spheremap */
+                Matrix4 ogreMatEnvMap = Matrix4::IDENTITY;
+			    // set env_map values
+			    ogreMatEnvMap[1][1] = -1.0f;
+			    // concatenate with the xForm
+			    newMat = newMat.concatenate(ogreMatEnvMap);
+            }
+            else
+            {
+		        /* If envmap is applied, but device doesn't support spheremap,
+		        then we have to use texture transform to make the camera space normal
+		        reference the envmap properly. This isn't exactly the same as spheremap
+		        (it looks nasty on flat areas because the camera space normals are the same)
+		        but it's the best approximation we have in the absence of a proper spheremap */
+                Matrix4 ogreMatEnvMap = Matrix4::IDENTITY;
+			    // set env_map values
+			    ogreMatEnvMap[0][0] = 0.5f;
+			    ogreMatEnvMap[0][3] = 0.5f;
+			    ogreMatEnvMap[1][1] = -0.5f;
+			    ogreMatEnvMap[1][3] = 0.5f;
+			    // concatenate with the xForm
+			    newMat = newMat.concatenate(ogreMatEnvMap);
+            }
 		}
 
         // If this is a cubic reflection, we need to modify using the view matrix
