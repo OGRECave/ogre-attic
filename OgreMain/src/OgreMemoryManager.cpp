@@ -39,6 +39,9 @@ namespace Ogre
 
 #if OGRE_DEBUG_MEMORY_MANAGER && OGRE_DEBUG_MODE
 
+#define OGRE_MEMMANAGER_INCR_SPEED 1
+#define OGRE_MEMMANAGER_STRESS_TEST 0
+
 #if OGRE_MEMORY_STRESS_TEST
 
     bool randomWipe           = true;
@@ -47,7 +50,7 @@ namespace Ogre
     bool alwaysWipeAll        = false;
     bool cleanupLogOnFirstRun = true;
 
-    const unsigned int hashBits    = 16;
+    const unsigned int hashBits    = 24;
     const unsigned int paddingSize = 1024; // An extra 8K per allocation!
 
 #else
@@ -58,49 +61,51 @@ namespace Ogre
     bool alwaysWipeAll        = true;
     bool cleanupLogOnFirstRun = true;
 
-    const unsigned int hashBits    = 16;
+    const unsigned int hashBits    = 24;
     const unsigned int paddingSize = 4;
 
 #endif
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
-    // We define our own assert, because we don't want to bring up an assertion dialog, since that allocates RAM. Our new assert
-    // simply declares a forced breakpoint.
+    //---------------------------------------------------------------------------------------------
+    // We define our own assert, because we don't want to bring up an assertion dialog, since that 
+    // allocates RAM. Our new assert simply declares a forced breakpoint.
     //
     // The BEOS assert added by Arvid Norberg <arvid@iname.com>.    
     #ifdef    WIN32
-    #   ifdef    _DEBUG
-    #       define    m_assert(x) if ((x) == false) __asm { int 3 }
-    #   else
-    #       define    m_assert(x) {}
-    #   endif
+        #ifdef    _DEBUG
+            #define m_assert(x) { if( (x) == false ) __asm { int 3 } }
+        #else
+            #define    m_assert(x)
+        #endif
     #elif defined(__BEOS__)
-    #   ifdef DEBUG
+        #ifdef DEBUG
     extern void debugger(const char *message);
-    #       define    m_assert(x) if ((x) == false) debugger("mmgr: assert failed")
-    #   else
-    #       define m_assert(x) {}
-    #   endif
-    #else    // Linux uses assert, which we can use safely, since it doesn't bring up a dialog within the program.
-    #   define    m_assert(cond) assert(cond)
+            #define m_assert(x) { if( (x) == false ) debugger("mmgr: assert failed") }
+        #else
+            #define m_assert(x)
+        #endif
+    #else    // We can use this safely on *NIX, since it doesn't bring up a dialog window.
+        #define m_assert(cond) assert(cond)
     #endif
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
-    // Here, we turn off our macros because any place in this source file where the word 'new' or the word 'delete' (etc.)
-    // appear will be expanded by the macro. So to avoid problems using them within this source file, we'll just #undef them.    
+    //---------------------------------------------------------------------------------------------
+    // Here, we turn off our macros because any place in this source file where the word 'new' or 
+    // the word 'delete' (etc.) appear will be expanded by the macro. So to avoid problems using 
+    // them within this source file, we'll just #undef them.
     #include "OgreNoMemoryMacros.h"
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
-    // -DOC- Get to know these values. They represent the values that will be used to fill unused and deallocated RAM.    
+    //---------------------------------------------------------------------------------------------
+    // Get to know these values. They represent the values that will be used to fill unused and 
+    // deallocated RAM.    
     unsigned int prefixPattern   = 0xbaadf00d; // Fill pattern for bytes preceeding allocated blocks
     unsigned int postfixPattern  = 0xdeadc0de; // Fill pattern for bytes following allocated blocks
     unsigned int unusedPattern   = 0xfeedface; // Fill pattern for freshly allocated blocks 
     unsigned int releasedPattern = 0xdeadbeef; // Fill pattern for deallocated blocks
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
     // Other locals    
     const unsigned int hashSize = 1 << hashBits;
     const char *allocationTypes[] = 
@@ -115,7 +120,7 @@ namespace Ogre
         "delete[]", 
         "free"
     };
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
 
     sAllocUnit *hashTable[hashSize];
     sAllocUnit *reservoir;
@@ -132,24 +137,27 @@ namespace Ogre
     sAllocUnit    **reservoirBuffer      = NULL;
     unsigned int    reservoirBufferSize    = 0;
 
-    const    char        *memoryLogFile         = "OgreMemory.log";
-    const    char        *memoryLeakLogFile     = "OgreLeaks.log";
+    const char *memoryLogFile     = "OgreMemory.log";
+    const char *memoryLeakLogFile = "OgreLeaks.log";
 
-    void        doCleanupLogOnFirstRun();
+    void doCleanupLogOnFirstRun();
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
     // Local functions only
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
 
+    //---------------------------------------------------------------------------------------------
+    /** Logs a piece of information.
+    */
     void log( const char *format, ... )
     {
-        // Build the buffer
+        // The buffer
         char buffer[2048];
 
-        va_list    ap;
-        va_start(ap, format);
-        vsprintf(buffer, format, ap);
-        va_end(ap);
+        va_list ap;
+        va_start( ap, format );
+        vsprintf( buffer, format, ap );
+        va_end( ap );
 
         // Cleanup the log?
 
@@ -174,7 +182,9 @@ namespace Ogre
         fclose( fp );
     }
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    /** Cleans up the log.
+    */
     void doCleanupLogOnFirstRun()
     {
         if( cleanupLogOnFirstRun )
@@ -215,6 +225,7 @@ namespace Ogre
         }
     }
 
+    //---------------------------------------------------------------------------------------------
     /** This function strips the path from the beginning of the string that 
         contains a path and a file name.
         @returns
@@ -232,10 +243,10 @@ namespace Ogre
         return sourceFile;
     }
 
+    //---------------------------------------------------------------------------------------------
     /** This helper function writes file and line information to a string.
-		\internal
-		@note
-			Maybe remove the static tag from str?
+        @note
+            This function is not thread-safe.
     */
     const char *ownerString(
         const char *sourceFile, 
@@ -250,76 +261,52 @@ namespace Ogre
         return str;
     }
 
+    //---------------------------------------------------------------------------------------------
     /** This helper function transforms an integer into a string with decimal 
         separators.
+        @note
+            This function is not thread-safe.
     */
     const char *insertCommas( size_t value )
     {
         static char str[30];
-        char *ptr = &str[28];
-        size_t after_groups = value % 3;
-        size_t groups = value / 3;
 
+        // This pointer is used to add digits moving backwards in the string.
+        char *p = &str[28];
+        // The current digit
+        int c_digit = 1;
+
+        // Set the last character in the string to NULL.
         str[29] = 0;
 
-        // We can have at most 4 groups
-        if( groups )
+        // While we've still got some digits in value, add them.
+        while( value )
         {
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-        }
-        if( groups > 1 )
-        {
-            *ptr-- = ',';
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-        }
-        if( groups > 2 )
-        {
-            *ptr-- = ',';
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-        }
-        if( groups > 3 )
-        {
-            *ptr-- = ',';
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-            *ptr = (char)value % 10; value /= 10; ptr--;
-        }
-        if( after_groups )
-        {
-            if( groups )
-            {
-                *ptr-- = ',';
-            }
-            if( after_groups )
-            {
-                *ptr = (char)value % 10; value /= 10; ptr--;
-            }
-            if( after_groups == 2 )
-            {
-                *ptr = (char)value % 10; value /= 10; ptr--;
-            }
-        }
-        if( !groups && !after_groups )
-        {
-            *ptr = '0'; ptr--;
+            *p++ = '0' + (char)( value % 10 ); value /= 10;
+
+            // If the digit which was inserted was at the end of a group, add a comma.
+            if( !( c_digit % 3 ) )
+                *p++ = ',';
+
+            c_digit++;
         }
 
-        ptr++;
-
-        return ptr;        
+        // Now return the offset in the static string above.
+        return ++p;
     }
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    /** Converts a decimal memory value into human-readable format.
+        @note
+            This function is not thread-safe.
+    */
     const char *memorySizeString( size_t size )
-    {
+    {       
+#if OGRE_MEMMANAGER_INCR_SPEED
+        return insertCommas( size );
+#else
         static char str[90];
-        
+
         if( size > 1048576 )
             sprintf( str, "%10s (%7.2fM)", insertCommas( size ), (float) size / 1048576.0f );
         else if( size > 1024 )        
@@ -327,9 +314,12 @@ namespace Ogre
         else
             sprintf( str, "%10s bytes     ", insertCommas( size ) );
         return str;
+#endif
     }
 
-    // ---------------------------------------------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    /** Tries to locate an allocation unit.
+    */
     sAllocUnit *findAllocUnit(const void *reportedAddress)
     {
         // Just in case...
@@ -353,7 +343,10 @@ namespace Ogre
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------
-    size_t calculateActualSize( const size_t reportedSize )
+#if OGRE_MEMMANAGER_INCR_SPEED
+    #define calculateActualSize( reportedSize ) ( ( reportedSize ) + paddingSize * sizeof(long) * 2 )
+#else
+    static size_t calculateActualSize( const size_t reportedSize )
     {
         // We use DWORDS as our padding, and a long is guaranteed to be 4 bytes, 
         // but an int is not (ANSI defines an int as being the standard word size 
@@ -363,9 +356,13 @@ namespace Ogre
 
         return reportedSize + paddingSize * sizeof(long) * 2;
     }
+#endif
 
     // ---------------------------------------------------------------------------------------------------------------------------------
-    size_t    calculateReportedSize( const size_t actualSize )
+#if OGRE_MEMMANAGER_INCR_SPEED
+    #define calculateReportedSize( actualSize ) ( ( actualSize ) - paddingSize * sizeof(long) * 2 )
+#else
+    static size_t calculateReportedSize( const size_t actualSize )
     {
         // We use DWORDS as our padding, and a long is guaranteed to be 4 bytes, 
         // but an int is not (ANSI defines an int as being the standard word size 
@@ -375,8 +372,13 @@ namespace Ogre
 
         return actualSize - paddingSize * sizeof(long) * 2;
     }
+#endif
 
     // ---------------------------------------------------------------------------------------------------------------------------------
+#if OGRE_MEMMANAGER_INCR_SPEED
+    #define calculateReportedAddress( actualAddress ) ( !( actualAddress ) ? NULL : \
+        (void *)( (char *)(actualAddress) + sizeof(long) * paddingSize ) )
+#else
     void *calculateReportedAddress( const void *actualAddress )
     {
         // We allow this...
@@ -386,6 +388,7 @@ namespace Ogre
         // Just account for the padding
         return (void *)((char *) actualAddress + sizeof(long) * paddingSize );
     }
+#endif
 
     // ---------------------------------------------------------------------------------------------------------------------------------
     void wipeWithPattern(
