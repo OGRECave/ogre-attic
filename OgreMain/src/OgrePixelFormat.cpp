@@ -699,6 +699,20 @@ namespace Ogre {
         case IL_DXT4:   fmt = PF_DXT4; break;
         case IL_DXT5:   fmt = PF_DXT5; break;
             /* Normal formats */
+#if OGRE_ENDIAN == ENDIAN_BIG
+        case IL_RGB:
+            fmt = PF_R8G8B8;
+            break;
+        case IL_BGR:
+            fmt = PF_B8G8R8;
+            break;            
+        case IL_RGBA:
+            fmt = PF_A8R8G8B8;// No direct match
+            break;
+        case IL_BGRA:
+            fmt = PF_B8G8R8A8;
+            break;
+#else
         case IL_RGB:
             fmt = PF_B8G8R8;
             break;
@@ -711,6 +725,7 @@ namespace Ogre {
         case IL_BGRA:
             fmt = PF_A8R8G8B8;
             break;
+#endif
         case IL_LUMINANCE:
             switch(ImageType)
             {
@@ -818,17 +833,45 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ILUtil::toOgre(uint8 *tar, PixelFormat ogrefmt) 
     {
-        // TODO: check for easy fast passthrough for RGBA and RGB formats
-#if OGRE_ENDIAN == ENDIAN_BIG      
-        const bool bigendian = true;
-#else
-        const bool bigendian = false;    
-#endif
-
         int ilfmt = ilGetInteger( IL_IMAGE_FORMAT );
         int iltp = ilGetInteger( IL_IMAGE_TYPE );
-        // TODO pass DXT formats unharmed?
 
+        // check for easy fast passthrough for RGBA and RGB formats if in-memory
+        // layout matches       
+        bool passThrough = false;
+        if(iltp == IL_UNSIGNED_BYTE || iltp == IL_BYTE) 
+        {
+#if OGRE_ENDIAN == ENDIAN_BIG      
+            if( (ogrefmt == PF_R8G8B8 && ilfmt == IL_RGB)||
+                (ogrefmt == PF_B8G8R8 && ilfmt == IL_BGR)||
+                (ogrefmt == PF_B8G8R8A8 && ilfmt == IL_BGRA)||
+                (ogrefmt == PF_L8 && ilfmt == IL_LUMINANCE))
+#else
+            if( (ogrefmt == PF_B8G8R8 && ilfmt == IL_RGB)||
+                (ogrefmt == PF_R8G8B8 && ilfmt == IL_BGR)||
+                (ogrefmt == PF_A8B8G8R8 && ilfmt == IL_RGBA)||
+                (ogrefmt == PF_A8R8G8B8 && ilfmt == IL_BGRA)||
+                (ogrefmt == PF_L8 && ilfmt == IL_LUMINANCE))
+#endif
+            {
+                passThrough = true;
+            }
+        }
+        if(iltp == IL_UNSIGNED_SHORT || iltp == IL_SHORT) 
+        {
+            if( (ogrefmt == PF_L16 && ilfmt == IL_LUMINANCE)) {
+                passThrough = true;
+            }
+        }
+        
+        if(passThrough)
+        {
+            std::copy((uint8*)ilGetData(), 
+                (uint8*)ilGetData() + ilGetInteger( IL_IMAGE_SIZE_OF_DATA ), 
+                tar);
+            return;
+        }
+        
         if(iltp == IL_UNSIGNED_BYTE || iltp == IL_BYTE) 
         {
             ilToOgreInternal(tar, ogrefmt, (uint8)0x00,(uint8)0x00,(uint8)0x00,(uint8)0xFF);
