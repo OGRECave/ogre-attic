@@ -266,44 +266,72 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeGeometry(const VertexData* pGeom)
+    void MeshSerializerImpl::writeGeometry(const VertexData* vertexData)
     {
-		/* TODO
         // Header
-        writeChunkHeader(M_GEOMETRY, calcGeometrySize(pGeom));
+        writeChunkHeader(M_GEOMETRY, calcGeometrySize(vertexData));
 
-        // unsigned short numVertices
-        writeShorts(&pGeom->numVertices, 1);
+        // unsigned int numVertices
+        writeInts(&vertexData->vertexCount, 1);
 
         // Real* pVertices (x, y, z order x numVertices)
-        writeReals(pGeom->pVertices, pGeom->numVertices * 3);
-
-        if (pGeom->hasNormals)
+        const VertexElement* elem = 
+            vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+        if (!elem)
         {
-            writeChunkHeader(M_GEOMETRY_NORMALS, sizeof(Real) * pGeom->numVertices * 3);
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Can't find position elements in the "
+            "mesh to be written!", "MeshSerializerImpl::writeGeometry");
+        }
+        HardwareVertexBufferSharedPtr vbuf = 
+            vertexData->vertexBufferBinding->getBuffer(elem->getSource());
+        Real* pReal = static_cast<Real*>(
+            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+        writeReals(pReal, vertexData->vertexCount * 3);
+        vbuf->unlock();
+
+        elem = vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+        if (elem)
+        {
+            writeChunkHeader(M_GEOMETRY_NORMALS, elem->getSize() * vertexData->vertexCount);
 
             // Real* pNormals (x, y, z order x numVertices)
-            writeReals(pGeom->pNormals, pGeom->numVertices * 3);
+            vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
+            pReal = static_cast<Real*>(
+                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+            writeReals(pReal, vertexData->vertexCount * 3);
+            vbuf->unlock();
         }
 
-        if (pGeom->hasColours)
+        elem = vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
+        if (elem)
         {
-            writeChunkHeader(M_GEOMETRY_COLOURS, sizeof(unsigned long) * pGeom->numVertices);
+            writeChunkHeader(M_GEOMETRY_COLOURS, elem->getSize() * vertexData->vertexCount);
             // unsigned long* pColours (RGBA 8888 format x numVertices)
-            writeLongs((unsigned long*)pGeom->pColours, pGeom->numVertices);
+            vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
+            unsigned long *pLong = static_cast<unsigned long*>(
+                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+            writeLongs(pLong, vertexData->vertexCount);
+            vbuf->unlock();
         }
 
-        for (int t = 0; t < pGeom->numTexCoords; ++t)
+        for (int t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
         {
-            writeChunkHeader(M_GEOMETRY_TEXCOORDS, 
-                sizeof(Real) * pGeom->numVertices * pGeom->numTexCoordDimensions[t]);
+            elem = vertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, t);
+            if (elem)
+            {
+                writeChunkHeader(M_GEOMETRY_TEXCOORDS, elem->getSize() * vertexData->vertexCount);
+                vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
+                pReal = static_cast<Real*>(
+                    vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+                // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+                unsigned short dims = VertexElement::getTypeCount(elem->getType());
+                writeShorts(&dims, 1);
+                // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+                writeReals(pReal, vertexData->vertexCount * dims);
+                vbuf->unlock();
+            }
 
-            // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-            writeShorts(&pGeom->numTexCoordDimensions[t], 1);
-            // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-            writeReals(pGeom->pTexCoords[t], pGeom->numVertices * pGeom->numTexCoordDimensions[t]);
         }
-		*/
 
 
     }
@@ -345,15 +373,14 @@ namespace Ogre {
     unsigned long MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
-		/* TODO
 
         // Num shared vertices
-        size += sizeof(unsigned short);
+        size += sizeof(unsigned int);
 
         // Geometry
-        if (pMesh->sharedGeometry.numVertices > 0)
+        if (pMesh->sharedVertexData && pMesh->sharedVertexData->vertexCount > 0)
         {
-            size += calcGeometrySize(&(pMesh->sharedGeometry));
+            size += calcGeometrySize(pMesh->sharedVertexData);
         }
 
         // Submeshes
@@ -368,66 +395,53 @@ namespace Ogre {
             size += calcSkeletonLinkSize(pMesh->getSkeletonName());
         }
 
-		*/
         return size;
 
     }
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcSubMeshSize(const SubMesh* pSub)
     {
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
-		/* TODO
+        size_t size = CHUNK_OVERHEAD_SIZE;
 
         // Material name
         size += (unsigned long)pSub->getMaterialName().length() + 1;
 
         // bool useSharedVertices
         size += sizeof(bool);
-        // unsigned short numFaces
-        size += sizeof(unsigned short);
-        // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
-        size += sizeof(unsigned short) * pSub->numFaces * 3;
+        // unsigned int indexCount
+        size += sizeof(unsigned int);
+        // bool indexes32bit
+        size += sizeof(bool);
+        // unsigned int* faceVertexIndices 
+        size += sizeof(unsigned int) * pSub->indexData->indexCount;
 
         // Geometry
         if (!pSub->useSharedVertices)
         {
-            size += calcGeometrySize(&pSub->geometry);
+            size += calcGeometrySize(pSub->vertexData);
         }
 
-		*/
         return size;
     }
     //---------------------------------------------------------------------
-    unsigned long MeshSerializerImpl::calcGeometrySize(const GeometryData* pGeom)
+    unsigned long MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
-		/* TODO
 
         // Num vertices
-        size += sizeof(unsigned short);
-        // Vertex data
-        size += sizeof(Real) * pGeom->numVertices * 3;
+        size += sizeof(unsigned int);
 
-        if (pGeom->hasNormals)
+        const VertexDeclaration::VertexElementList& elems = 
+            vertexData->vertexDeclaration->getElements();
+
+        VertexDeclaration::VertexElementList::const_iterator i, iend;
+        iend = elems.end();
+        for (i = elems.begin(); i != iend; ++i)
         {
-            size += CHUNK_OVERHEAD_SIZE; // subheader
-            size += sizeof(Real) * pGeom->numVertices * 3; //data
+            const VertexElement& elem = *i;
+            // Vertex element
+            size += VertexElement::getTypeSize(elem.getType()) * vertexData->vertexCount;
         }
-
-        for (int i = 0; i < pGeom->numTexCoords; ++i)
-        {
-            size += CHUNK_OVERHEAD_SIZE; // subheader
-            size += sizeof(unsigned short); // dimensions
-            size += sizeof(Real) * pGeom->numVertices * pGeom->numTexCoordDimensions[i]; //data
-        }
-
-        if (pGeom->hasColours) 
-        {
-            size += CHUNK_OVERHEAD_SIZE; // subheader
-            size += sizeof(unsigned long) * pGeom->numVertices; //data
-        }
-
-		*/
         return size;
     }
     //---------------------------------------------------------------------
@@ -803,8 +817,8 @@ namespace Ogre {
     {
         writeChunkHeader(M_MESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
 
-        // unsigned short vertexIndex;
-        writeShorts(&(assign->vertexIndex), 1);
+        // unsigned int vertexIndex;
+        writeInts(&(assign->vertexIndex), 1);
         // unsigned short boneIndex;
         writeShorts(&(assign->boneIndex), 1);
         // Real weight;
@@ -815,8 +829,8 @@ namespace Ogre {
     {
         writeChunkHeader(M_SUBMESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
 
-        // unsigned short vertexIndex;
-        writeShorts(&(assign->vertexIndex), 1);
+        // unsigned int vertexIndex;
+        writeInts(&(assign->vertexIndex), 1);
         // unsigned short boneIndex;
         writeShorts(&(assign->boneIndex), 1);
         // Real weight;
@@ -827,8 +841,8 @@ namespace Ogre {
     {
         VertexBoneAssignment assign;
 
-        // unsigned short vertexIndex;
-        readShorts(chunk, &(assign.vertexIndex),1);
+        // unsigned int vertexIndex;
+        readInts(chunk, &(assign.vertexIndex),1);
         // unsigned short boneIndex;
         readShorts(chunk, &(assign.boneIndex),1);
         // Real weight;
@@ -842,8 +856,8 @@ namespace Ogre {
     {
         VertexBoneAssignment assign;
 
-        // unsigned short vertexIndex;
-        readShorts(chunk, &(assign.vertexIndex),1);
+        // unsigned int vertexIndex;
+        readInts(chunk, &(assign.vertexIndex),1);
         // unsigned short boneIndex;
         readShorts(chunk, &(assign.boneIndex),1);
         // Real weight;
@@ -860,7 +874,7 @@ namespace Ogre {
         size = CHUNK_OVERHEAD_SIZE;
 
         // Vert index
-        size += sizeof(unsigned short);
+        size += sizeof(unsigned int);
         // Bone index
         size += sizeof(unsigned short);
         // weight
@@ -938,7 +952,6 @@ namespace Ogre {
     void MeshSerializerImpl::writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage,
 		unsigned short lodNum)
     {
-		/* TODO
 		// Usage Header
         unsigned long size = CHUNK_OVERHEAD_SIZE;
 		unsigned short subidx;
@@ -951,12 +964,20 @@ namespace Ogre {
 		{
 			// header
 			size += CHUNK_OVERHEAD_SIZE;
-			// unsigned short numFaces;
-			size += sizeof(unsigned short);
+			// unsigned int numFaces;
+			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
-			// unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
-			size += sizeof(unsigned short) * 
-				sm->mLodFaceList[lodNum - 1]->indexCount;
+            const IndexData* indexData = sm->mLodFaceList[lodNum - 1];
+
+			// unsigned short*/int* faceIndexes;  
+            if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+            {
+			    size += sizeof(unsigned int) * indexData->indexCount;
+            }
+            else
+            {
+			    size += sizeof(unsigned short) * indexData->indexCount;
+            }
 
 		}
 
@@ -968,20 +989,41 @@ namespace Ogre {
 		for(subidx = 0; subidx < pMesh->getNumSubMeshes(); ++subidx)
 		{
 			size = CHUNK_OVERHEAD_SIZE;
-			// unsigned short numFaces;
-			size += sizeof(unsigned short);
+			// unsigned int numFaces;
+			size += sizeof(unsigned int);
 			SubMesh* sm = pMesh->getSubMesh(subidx);
-			// unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
-			size = sizeof(unsigned short) * 
-				sm->mLodFaceList[lodNum - 1]->indexCount;
+            const IndexData* indexData = sm->mLodFaceList[lodNum - 1];
+			// unsigned short*/int* faceIndexes;  
+            if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+            {
+			    size += sizeof(unsigned int) * indexData->indexCount;
+            }
+            else
+            {
+			    size += sizeof(unsigned short) * indexData->indexCount;
+            }
 
 			writeChunkHeader(M_MESH_LOD_GENERATED, size);
-			unsigned short numFaces = sm->mLodFaceList[lodNum - 1]->indexCount / 3;
-			writeShorts(&numFaces, 1);
-			writeShorts(sm->mLodFaceList[lodNum - 1]->indexCount, 
-				sm->mLodFaceList[lodNum - 1]->indexCount);
+			unsigned int idxCount = static_cast<unsigned int>(indexData->indexCount);
+			writeInts(&idxCount, 1);
+            // Lock index buffer to write
+            HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
+            if (ibuf->getType() == HardwareIndexBuffer::IT_32BIT)
+            {
+                unsigned int* pIdx = static_cast<unsigned int*>(
+                    ibuf->lock(0, ibuf->getSizeInBytes(),  HardwareBuffer::HBL_READ_ONLY));
+			    writeInts(pIdx, indexData->indexCount);
+                ibuf->unlock();
+            }
+            else
+            {
+                unsigned short* pIdx = static_cast<unsigned short*>(
+                    ibuf->lock(0, ibuf->getSizeInBytes(),  HardwareBuffer::HBL_READ_ONLY));
+			    writeShorts(pIdx, indexData->indexCount);
+                ibuf->unlock();
+            }
 		}
-		*/
+	
 
     }
     //---------------------------------------------------------------------
@@ -1055,7 +1097,6 @@ namespace Ogre {
 	void MeshSerializerImpl::readMeshLodUsageGenerated(DataChunk& chunk, 
 		unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
-		/* TODO
 		usage.manualName = "";
 		usage.manualMesh = 0;
 
@@ -1075,16 +1116,46 @@ namespace Ogre {
 
 			SubMesh* sm = mpMesh->getSubMesh(i);
 			// lodNum - 1 because SubMesh doesn't store full detail LOD
-			ProgressiveMesh::LODFaceData& data = sm->mLodFaceList[lodNum - 1];
-            unsigned short numFaces;
-			readShorts(chunk, &numFaces, 1);
-			data.numIndexes = numFaces * 3;
-            // unsigned short* faceIndexes;  ((v1, v2, v3) * numFaces)
-			data.pIndexes = new unsigned short[data.numIndexes];
-			readShorts(chunk, data.pIndexes, data.numIndexes);
+			IndexData* indexData = sm->mLodFaceList[lodNum - 1];
+            // unsigned int numIndexes
+            unsigned int numIndexes;
+			readInts(chunk, &numIndexes, 1);
+            indexData->indexCount = static_cast<size_t>(numIndexes);
+            // bool indexes32Bit
+            bool idx32Bit;
+            readBools(chunk, &idx32Bit, 1);
+            // unsigned short*/int* faceIndexes;  ((v1, v2, v3) * numFaces)
+            if (idx32Bit)
+            {
+                indexData->indexBuffer = HardwareBufferManager::getSingleton().
+                    createIndexBuffer(HardwareIndexBuffer::IT_32BIT, indexData->indexCount,
+                    HardwareBuffer::HBU_STATIC);
+                unsigned int* pIdx = static_cast<unsigned int*>(
+                    indexData->indexBuffer->lock(
+                        0, 
+                        indexData->indexBuffer->getSizeInBytes(), 
+                        HardwareBuffer::HBL_DISCARD) );
+
+			    readInts(chunk, pIdx, indexData->indexCount);
+                indexData->indexBuffer->unlock();
+
+            }
+            else
+            {
+                indexData->indexBuffer = HardwareBufferManager::getSingleton().
+                    createIndexBuffer(HardwareIndexBuffer::IT_16BIT, indexData->indexCount,
+                    HardwareBuffer::HBU_STATIC);
+                unsigned short* pIdx = static_cast<unsigned short*>(
+                    indexData->indexBuffer->lock(
+                        0, 
+                        indexData->indexBuffer->getSizeInBytes(), 
+                        HardwareBuffer::HBL_DISCARD) );
+			    readShorts(chunk, pIdx, indexData->indexCount);
+                indexData->indexBuffer->unlock();
+
+            }
 
 		}
-		*/
 	}
     //---------------------------------------------------------------------
     MeshSerializerImpl_v1::MeshSerializerImpl_v1()
@@ -1093,6 +1164,265 @@ namespace Ogre {
         mVersion = "[MeshSerializer_v1.00]";
 
     }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1::readSubMesh(DataChunk& chunk)
+    {
+        unsigned short chunkID;
+
+        SubMesh* sm = mpMesh->createSubMesh();
+        // char* materialName
+        String materialName = readString(chunk);
+        sm->setMaterialName(materialName);
+
+        // bool useSharedVertices
+        readBools(chunk,&sm->useSharedVertices, 1);
+
+        // unsigned short indexCount
+        sm->indexData->indexStart = 0;
+        unsigned short idxCount;
+        readShorts(chunk, &idxCount, 1);
+        sm->indexData->indexCount = idxCount;
+
+        // Indexes always 16-bit in this version
+        HardwareIndexBufferSharedPtr ibuf;
+        ibuf = HardwareBufferManager::getSingleton().
+            createIndexBuffer(
+                HardwareIndexBuffer::IT_16BIT, 
+                sm->indexData->indexCount, 
+                HardwareBuffer::HBU_STATIC);
+        // unsigned short* faceVertexIndices 
+        unsigned short* pIdx = static_cast<unsigned short*>(
+            ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
+            );
+        readShorts(chunk, pIdx, sm->indexData->indexCount);
+        ibuf->unlock();
+
+        // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+        if (!sm->useSharedVertices)
+        {
+            chunkID = readChunk(chunk);
+            if (chunkID != M_GEOMETRY)
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
+                    "MeshSerializerImpl::readSubMesh");
+            }
+            sm->vertexData = new VertexData();
+            readGeometry(chunk, sm->vertexData);
+        }
+
+
+        // Find all bone assignments (if present) 
+        if (!chunk.isEOF())
+        {
+            chunkID = readChunk(chunk);
+            while(!chunk.isEOF() &&
+                (chunkID == M_SUBMESH_BONE_ASSIGNMENT))
+            {
+                switch(chunkID)
+                {
+                case M_SUBMESH_BONE_ASSIGNMENT:
+                    readSubMeshBoneAssignment(chunk, sm);
+                    break;
+                }
+
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1::readGeometry(DataChunk& chunk, VertexData* dest)
+    {
+        unsigned short texCoordSet = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        unsigned short bindIdx = 0;
+        Real *pReal = 0;
+        RGBA* pRGBA = 0;
+
+        dest->vertexStart = 0;
+
+        // unsigned short numVertices
+        unsigned short numVerts;
+        readShorts(chunk, &numVerts, 1);
+        dest->vertexCount = numVerts;
+
+        // Vertex buffers
+        // TODO: consider redesigning this so vertex buffers can be combined
+
+        // Real* pVertices (x, y, z order x numVertices)
+        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_POSITION);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            HardwareBuffer::HBU_STATIC);
+        pReal = static_cast<Real*>(
+            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+        readReals(chunk, pReal, dest->vertexCount * 3);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+        ++bindIdx;
+
+        // Find optional geometry chunks
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(!chunk.isEOF() && 
+                (chunkID == M_GEOMETRY_NORMALS || 
+                 chunkID == M_GEOMETRY_COLOURS ||
+                 chunkID == M_GEOMETRY_TEXCOORDS ))
+            {
+                switch (chunkID)
+                {
+                case M_GEOMETRY_NORMALS:
+                    // Real* pNormals (x, y, z order x numVertices)
+                    dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
+                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+                        dest->vertexDeclaration->getVertexSize(bindIdx),
+                        dest->vertexCount,
+                        HardwareBuffer::HBU_STATIC);
+                    pReal = static_cast<Real*>(
+                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    readReals(chunk, pReal, dest->vertexCount * 3);
+                    vbuf->unlock();
+                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+                    ++bindIdx;
+                    break;
+                case M_GEOMETRY_COLOURS:
+                    // unsigned long* pColours (RGBA 8888 format x numVertices)
+                    dest->vertexDeclaration->addElement(bindIdx, 0, VET_COLOUR, VES_DIFFUSE);
+                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+                        dest->vertexDeclaration->getVertexSize(bindIdx),
+                        dest->vertexCount,
+                        HardwareBuffer::HBU_STATIC);
+                    pRGBA = static_cast<RGBA*>(
+                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    readLongs(chunk, pRGBA, dest->vertexCount);
+                    vbuf->unlock();
+                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+                    ++bindIdx;
+                    break;
+                case M_GEOMETRY_TEXCOORDS:
+                    // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+                    unsigned short dim;
+                    readShorts(chunk, &dim, 1);
+                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+                    dest->vertexDeclaration->addElement(
+                        bindIdx, 
+                        0, 
+                        VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
+                        VES_TEXTURE_COORDINATES,
+                        texCoordSet);
+                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+                        dest->vertexDeclaration->getVertexSize(bindIdx),
+                        dest->vertexCount,
+                        HardwareBuffer::HBU_STATIC);
+                    pReal = static_cast<Real*>(
+                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    readReals(chunk, pReal, dest->vertexCount * dim);
+                    vbuf->unlock();
+                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+                    ++texCoordSet;
+                    ++bindIdx;
+                    break;
+                }
+                // Get next chunk
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-submesh chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1::readMeshBoneAssignment(DataChunk& chunk)
+    {
+        VertexBoneAssignment assign;
+
+        // unsigned short vertexIndex;
+        unsigned short vIndex;
+        readShorts(chunk, &vIndex,1);
+        assign.vertexIndex = vIndex;
+        // unsigned short boneIndex;
+        readShorts(chunk, &(assign.boneIndex),1);
+        // Real weight;
+        readReals(chunk, &(assign.weight), 1);
+
+        mpMesh->addBoneAssignment(assign);
+
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1::readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub)
+    {
+        VertexBoneAssignment assign;
+
+        // unsigned short vertexIndex;
+        unsigned short vIndex;
+        readShorts(chunk, &vIndex,1);
+        assign.vertexIndex = vIndex;
+        // unsigned short boneIndex;
+        readShorts(chunk, &(assign.boneIndex),1);
+        // Real weight;
+        readReals(chunk, &(assign.weight), 1);
+
+        sub->addBoneAssignment(assign);
+    }
+    //---------------------------------------------------------------------
+	void MeshSerializerImpl_v1::readMeshLodUsageGenerated(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage)
+    {
+		usage.manualName = "";
+		usage.manualMesh = 0;
+
+		// Get one set of detail per SubMesh
+		unsigned short numSubs, i;
+		unsigned long chunkID;
+		numSubs = mpMesh->getNumSubMeshes();
+		for (i = 0; i < numSubs; ++i)
+		{
+			chunkID = readChunk(chunk);
+			if (chunkID != M_MESH_LOD_GENERATED)
+			{
+				Except(Exception::ERR_ITEM_NOT_FOUND, 
+					"Missing M_MESH_LOD_GENERATED chunk in " + mpMesh->getName(),
+					"MeshSerializerImpl::readMeshLodUsageGenerated");
+			}
+
+			SubMesh* sm = mpMesh->getSubMesh(i);
+			// lodNum - 1 because SubMesh doesn't store full detail LOD
+			IndexData* indexData = sm->mLodFaceList[lodNum - 1];
+            // unsigned short numIndexes
+            unsigned short numIndexes;
+			readShorts(chunk, &numIndexes, 1);
+            indexData->indexCount = static_cast<size_t>(numIndexes);
+            // unsigned short*/int* faceIndexes;  ((v1, v2, v3) * numFaces)
+            // Always 16-bit in 1.0
+            indexData->indexBuffer = HardwareBufferManager::getSingleton().
+                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, indexData->indexCount,
+                HardwareBuffer::HBU_STATIC);
+            unsigned short* pIdx = static_cast<unsigned short*>(
+                indexData->indexBuffer->lock(
+                    0, 
+                    indexData->indexBuffer->getSizeInBytes(), 
+                    HardwareBuffer::HBL_DISCARD) );
+			readShorts(chunk, pIdx, indexData->indexCount);
+            indexData->indexBuffer->unlock();
+
+		}
+    }
+    //---------------------------------------------------------------------
+
 
 
 

@@ -110,6 +110,9 @@ namespace Ogre {
                     // Required if M_MESH_LOD section manual = false
 					// Repeating section (1 per submesh)
                     // unsigned int indexCount;
+                    // bool indexes32Bit
+                    // unsigned short* faceIndexes;  (indexCount)
+                    // OR
                     // unsigned int* faceIndexes;  (indexCount)
                     
                     

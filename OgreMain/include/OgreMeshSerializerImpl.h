@@ -90,7 +90,7 @@ namespace Ogre {
         virtual unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
         virtual unsigned long calcMeshSize(const Mesh* pMesh);
         virtual unsigned long calcSubMeshSize(const SubMesh* pSub);
-        virtual unsigned long calcGeometrySize(const GeometryData* pGeom);
+        virtual unsigned long calcGeometrySize(const VertexData* pGeom);
         virtual unsigned long calcSkeletonLinkSize(const String& skelName);
         virtual unsigned long calcBoneAssignmentSize(void);
 
@@ -114,6 +114,11 @@ namespace Ogre {
     {
     public:
         MeshSerializerImpl_v1();
+        void readSubMesh(DataChunk& chunk);
+        void readGeometry(DataChunk& chunk, VertexData* dest);
+        void readMeshBoneAssignment(DataChunk& chunk);
+        void readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub);
+		void readMeshLodUsageGenerated(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage);
 
     };
 
