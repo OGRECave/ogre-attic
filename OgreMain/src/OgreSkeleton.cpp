@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreSkeletonManager.h"
 #include "OgreSkeletonSerializer.h"
+#include "OgreStringConverter.h"
 // Just for logging
 #include "OgreAnimationTrack.h"
 #include "OgreKeyFrame.h"
