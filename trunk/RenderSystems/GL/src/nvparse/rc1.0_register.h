@@ -6,13 +6,13 @@
 # define BYTE_ORDER !BIG_ENDIAN
 #endif
 
-#ifdef MACOS
-#include <OpenGL/gl.h>
-#include "GL/glext.h"
-#else
 #define GL_GLEXT_LEGACY
-#include <GL/gl.h>
 #define GL_GLEXT_PROTOTYPES
+#if defined(__APPLE__) &&  defined(__GNUC__)
+#include <OpenGL/gl.h>
+#include "glext.h"
+#else
+#include <GL/gl.h>
 #include <GL/glext.h>
 #endif
 

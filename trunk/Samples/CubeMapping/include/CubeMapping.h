@@ -564,8 +564,12 @@ private:
 #define MEDIA_FILENAME "media.cfg"
 	void readConfig()
 	{
+        std::string media_filename(MEDIA_FILENAME);
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+        media_filename = bundlePath() + "/Contents/Resources/" + media_filename;
+#endif
 		ConfigFile cfg;
-		cfg.load( MEDIA_FILENAME );
+		cfg.load( media_filename );
 		availableMeshes = cfg.getMultiSetting("Mesh");
 		availableCubeMaps = cfg.getMultiSetting("CubeMap");
 	}

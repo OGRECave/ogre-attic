@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-#ifdef MACOS
+#if defined(__APPLE__) && defined(__GNUC__)
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
@@ -38,7 +38,7 @@ bool avp10_init(char *);
 int  avp10_parse();
 bool is_avp10(const char *);
 
-#ifndef MACOS
+#if !defined(__APPLE__)
 // VP1.0  -- vertex program
 bool vp10_init(char *);
 int  vp10_parse();
@@ -111,7 +111,7 @@ void nvparse(const char * input_string, int argc /* = 0 */,...)
         }
     }
 
-#ifndef MACOS
+#if !defined(__APPLE__)
     // vertex constant program
     else if(is_vcp10(instring))
     {
@@ -195,7 +195,7 @@ char * const * const nvparse_print_errors(FILE * errfp)
 
 const int* nvparse_get_info(const char* input_string, int* pcount)
 {
-#ifndef MACOS
+#if !defined(__APPLE__)
     if (NULL == input_string)
     {
         errors.set("NULL string passed to nvparse_get_info");

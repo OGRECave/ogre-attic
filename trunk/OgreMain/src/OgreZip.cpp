@@ -297,8 +297,8 @@ namespace Ogre {
 			{
 				// found terminator
                 // reposition backwards
-                zzip_seek(mZzipFile, 
-					static_cast<zzip_off_t>(pos - readCount + 1), SEEK_CUR);
+                zzip_off_t offset = static_cast<zzip_off_t>(pos) - static_cast<zzip_off_t>(readCount) + 1;
+                zzip_seek(mZzipFile, offset, SEEK_CUR);
 			}
 
 			if (pos > 0)

@@ -4,7 +4,7 @@
 #include <string>
 #include <ctype.h>
 
-#ifdef MACOS
+#if defined(__APPLE__) && defined(__GNUC__)
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>

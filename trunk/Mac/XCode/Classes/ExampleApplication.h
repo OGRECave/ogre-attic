@@ -28,6 +28,27 @@ Description: Base class for all the OGRE examples
 
 using namespace Ogre;
 
+std::string bundlePath()
+{
+    char path[1024];
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    assert( mainBundle );
+
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL( mainBundle);
+    assert( mainBundleURL);
+
+    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+    assert( cfStringRef);
+
+    CFStringGetCString( cfStringRef, path, 1024, kCFStringEncodingASCII);
+
+    CFRelease( mainBundleURL);
+    CFRelease( cfStringRef);
+
+    return std::string( path);
+}
+
+
 /** Base class which manages the standard startup of an Ogre application.
     Designed to be subclassed for specific examples if required.
 */
@@ -67,12 +88,15 @@ protected:
     SceneManager* mSceneMgr;
     ExampleFrameListener* mFrameListener;
     RenderWindow* mWindow;
+    std::string mResourcePath;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
     virtual bool setup(void)
     {
-        mRoot = new Root();
+        mResourcePath = bundlePath() + "/Contents/Resources/";
+        mRoot = new Root(mResourcePath + "plugins.cfg", 
+            mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
 
         setupResources();
 
@@ -160,13 +184,9 @@ protected:
     /// Method which will define the source of resources (other than current folder)
     virtual void setupResources(void)
     {
-        char path[255];
-        getcwd(path, 255);
-        printf("Current Path: %s\n", path);
-
         // Load resource paths from config file
         ConfigFile cf;
-        cf.load("resources.cfg");
+        cf.load(mResourcePath + "resources.cfg");
 
         // Go through all sections & settings in the file
         ConfigFile::SectionIterator seci = cf.getSectionIterator();

@@ -15,9 +15,14 @@ extern char * myin;
     #include <stdio.h>
 #else
     #define GL_GLEXT_LEGACY
-    #include <GL/gl.h>
     #define GL_GLEXT_PROTOTYPES
-    #include <GL/glext.h>
+	#if defined(__APPLE__) && defined(__GNUC__)
+		#include <OpenGL/gl.h>
+		#include "glext.h"
+	#else
+		#include <GL/gl.h>
+		#include <GL/glext.h>
+	#endif
 #endif
 // END HACK 
 
