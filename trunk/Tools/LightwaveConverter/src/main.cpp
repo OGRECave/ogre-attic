@@ -29,6 +29,10 @@ bool flags[NUMFLAGS] =
 	false, // generate LOD
 	true,  // use fixed method
 	true,  // materials
+	false, // RenameMaterials
+	false, // UseInteractiveMethod
+	true,  // UseObjectMethod, default
+	false, // UsePrefixMethod
 	true,  // skeleton
 	true,  // has normals
 	true,  // new submesh
@@ -37,6 +41,7 @@ bool flags[NUMFLAGS] =
 
 Mesh::LodDistanceList distanceList;
 Real reduction = 0.0f;
+char *matPrefix = 0;
 
 ostream& nl(ostream& os)
 {
@@ -364,7 +369,7 @@ int make_filespec( char *spec, char *subdir, char *fullname )
 
 void help( char *filename )
 {
-	cout << "lwo2mesh v0.89 (2004.05.09) by Dennis Verbeek." << nl
+	cout << "lwo2mesh v0.89a (2004.10.05) by Dennis Verbeek." << nl
 		<< "Converts a Lightwave object to an Ogre mesh." << nl
 		<< "Please send any feedback to: dennis.verbeek@chello.nl" << nl << nl
 		<< "Usage: " << filename << " [options] source [dest]" << nl
@@ -375,9 +380,12 @@ void help( char *filename )
 		<< "   reduction (fixed) or reductionfactor (proportional)" << nl
 		<< "   number of LOD levels" << nl
 		<< "   distances" << nl
-		<< "   example: -d p 0.5 4 1000.0 2000.0 4000.0 8000.0" << nl
+		<< "   example: -dp 0.5 4 1000.0 2000.0 4000.0 8000.0" << nl
 		<< "-l save layers separately" << nl
 		<< "-m do not export materials" << nl
+		<< "-r rename materials" << nl
+		<< "   method (i)nteractive, (o)bjectname or (p)refix" << nl
+		<< "   example: -rp prefix_" << nl
 		<< "-s do not export skeleton" << nl
 		<< "-i info on .lwo only, no conversion to mesh" << nl
 		<< "   -v dump vertex maps" << endl;
@@ -514,8 +522,9 @@ void main( int argc, char *argv[] )
 			{
 			case 'd':
 			case 'D':
+				i--;
 				flags[GenerateLOD] = true;
-				switch (argv[i++][0])
+				switch (argv[i++][2])
 				{
 				case 'f':
 				case 'F':
@@ -563,6 +572,34 @@ void main( int argc, char *argv[] )
 			case 'm':
 			case 'M':
 				flags[ExportMaterials] = false;
+				break;
+			case 'r':
+			case 'R':
+				flags[RenameMaterials] = true;
+				if (strlen(argv[i-1]) > 2) {
+					i--;
+					switch (argv[i++][2])
+					{
+					case 'i':
+					case 'I':
+						flags[UseInteractiveMethod] = true;
+						break;
+					case 'o':
+					case 'O':
+						flags[UseObjectMethod] = true; // default
+						break;
+					case 'p':
+					case 'P':
+						flags[UsePrefixMethod] = true;
+						if (argv[i][0] != '-' && argv[i][0] != '/')
+							matPrefix = argv[i++];
+						else
+							help(argv[0]);
+						break;
+					default:
+						help(argv[0]);
+					}
+				}
 				break;
 			case 's':
 			case 'S':

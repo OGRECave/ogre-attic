@@ -12,6 +12,9 @@ extern Mesh::LodDistanceList distanceList;
 extern Real reduction;
 extern bool flags[NUMFLAGS];
 extern MaterialSerializer* materialSerializer;
+extern char *matPrefix;
+
+extern ostream& nl(ostream& os);
 
 void Lwo2MeshWriter::doExportMaterials()
 {
@@ -21,12 +24,45 @@ void Lwo2MeshWriter::doExportMaterials()
 		node[ _MAX_FNAME ],
 		ext[ _MAX_EXT ],
 		texname [128];
-	
+
+	unsigned int slength = 0;
+
+	if (flags[RenameMaterials])
+	{
+		if (flags[UseInteractiveMethod])
+		{
+			for (unsigned int i = 0; i < object->surfaces.size(); ++i)
+			{		
+				lwSurface *surface = object->surfaces[i];
+				cout << "Rename surface " << surface->name << " to: ";
+				cin >> texname;
+				surface->setname(texname);
+			}
+		} else {
+			_splitpath( dest, drive, dir, node, ext );
+
+			for (unsigned int i = 0; i < object->surfaces.size(); ++i)
+			{
+				lwSurface *surface = object->surfaces[i];
+				if (flags[UsePrefixMethod])
+					strcpy(texname,matPrefix);
+				else
+				{
+					strcpy(texname,node);
+					strcat(texname,"_");
+				}
+
+				strcat(texname, surface->name);
+				surface->setname(texname);
+			}
+		}
+	}
+
 	for (unsigned int i = 0; i < object->surfaces.size(); ++i)
 	{		
 		lwSurface *surface = object->surfaces[i];
+
 		// Create deferred material so no load
-		
 		Material* ogreMat = (Material*)MaterialManager::getSingleton().getByName(surface->name);
 		
 		if (!ogreMat)
@@ -44,14 +80,16 @@ void Lwo2MeshWriter::doExportMaterials()
 			(
 				surface->diffuse.val * surface->color.rgb[0],
 				surface->diffuse.val * surface->color.rgb[1],
-				surface->diffuse.val * surface->color.rgb[2]
+				surface->diffuse.val * surface->color.rgb[2],
+				1.0f
 			);
 			
 			ogreMat->setSpecular
 			(
 				surface->specularity.val * surface->color.rgb[0],
 				surface->specularity.val * surface->color.rgb[1],
-				surface->specularity.val * surface->color.rgb[2]
+				surface->specularity.val * surface->color.rgb[2],
+				1.0f
 			);
 			
 			ogreMat->setShininess(surface->glossiness.val);

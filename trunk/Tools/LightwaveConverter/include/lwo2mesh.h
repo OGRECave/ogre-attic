@@ -20,24 +20,23 @@ enum Parameters
 	GenerateLOD,
 	UseFixedMethod,
 	ExportMaterials,
+	RenameMaterials,
+	UseInteractiveMethod,
+	UseObjectMethod,
+	UsePrefixMethod,
 	ExportSkeleton,
 	HasNormals,
 	MakeNewSubMesh,
 	LinearCopy
 };
 
-#define NUMFLAGS 11
+#define NUMFLAGS 15
 
 class Lwo2MeshWriter
 {
 public:	
 	bool writeLwo2Mesh(lwObject *nobject, char *ndest);
 private:
-	void createSingletons(void);
-	void destroySingletons(void);
-	void createStatusArrays(void);
-	void destroyStatusArrays(void);
-
 	void countPointsPolys(void);
 	void prepLwObject(void);
 
