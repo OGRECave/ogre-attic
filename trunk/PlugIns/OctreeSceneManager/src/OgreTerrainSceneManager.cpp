@@ -329,6 +329,26 @@ namespace Ogre
                     pass->setFog(true, FOG_LINEAR, getFogColour(), 0, 1, 0);
                 }
 
+				// Also set shadow receiver program
+				const String& source2 = TerrainVertexProgram::getProgramSource(
+					fm, syntax, true);
+
+				prog = GpuProgramManager::getSingleton().createProgramFromString(
+					"Terrain/VertexMorphShadowReceive", 
+					ResourceGroupManager::getSingleton().getWorldResourceGroupName(), 
+					source2, GPT_VERTEX_PROGRAM, syntax);
+				pass->setShadowReceiverVertexProgram("Terrain/VertexMorphShadowReceive");
+				params = pass->getShadowReceiverVertexProgramParameters();
+				// worldviewproj
+				params->setAutoConstant(0, GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
+				// world
+				params->setAutoConstant(4, GpuProgramParameters::ACT_WORLD_MATRIX);
+				// texture view / proj
+				params->setAutoConstant(8, GpuProgramParameters::ACT_TEXTURE_VIEWPROJ_MATRIX);
+				// morph factor
+				params->setAutoConstant(12, GpuProgramParameters::ACT_CUSTOM, MORPH_CUSTOM_PARAM_ID);
+
+
                 // Set param index
                 mLodMorphParamName = "";
                 mLodMorphParamIndex = 4;
