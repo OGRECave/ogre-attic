@@ -49,6 +49,7 @@ protected:
 	int mSceneDetailIndex ;
     Real mMoveSpeed;
     Real mRotateSpeed;
+    Overlay* mDebugOverlay;
 
     void updateStats(void)
     {
@@ -90,6 +91,7 @@ public:
     // Constructor takes a RenderWindow because it uses that to determine input context
     ExampleFrameListener(RenderWindow* win, Camera* cam, bool useBufferedInputKeys = false, bool useBufferedInputMouse = false)
     {
+        mDebugOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
         mUseBufferedInputKeys = useBufferedInputKeys;
 		mUseBufferedInputMouse = useBufferedInputMouse;
 		mInputTypeSwitchingOn = mUseBufferedInputKeys || mUseBufferedInputMouse;
@@ -313,16 +315,15 @@ public:
 
     void showDebugOverlay(bool show)
     {
-        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
-        if (o)
+        if (mDebugOverlay)
         {
             if (show)
             {
-                o->show();
+                mDebugOverlay->show();
             }
             else
             {
-                o->hide();
+                mDebugOverlay->hide();
             }
         }
     }
