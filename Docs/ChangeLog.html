@@ -13,6 +13,75 @@
 <P CLASS="header" ALIGN=CENTER>OGRE (Object-Oriented Graphics
 Rendering Engine)</P>
 <P CLASS="header" ALIGN=CENTER>Change Log</P>
+<P CLASS="mainheader" ALIGN=LEFT>v1.0.1 [Azathoth] (30 March
+2005) - Maintenance Release</P>
+<UL>
+	<LI>Support for Cg 1.3</LI>
+	<LI>ConfigFile no longer crashes on empty parameter values</LI>
+	<LI>Fix crash when using sharing skeleton instance between entities</LI>
+	<LI>Shutdown primary rendertarget last, fix for crash on ATI OpenGL
+	shutdown when using multiple targets.</LI>
+	<LI>Fixed shutdown bug when exiting in frameEnded and using software 
+	  skinned entities</LI>
+    <LI>Fixed shutdown bug when using a Cg-based custom material in 
+	TerrainSceneManager</LI>
+	<LI>Tolerate not having loaded a texture to allow people making
+	editors to apply materials which have missing resources.</LI>
+	<LI>Fixed the case of vertex_program in OgreGLGpuProgramManager.cpp</LI>
+	<LI>Modified --with-platform=GLX to look for X11 headers.</LI>
+	<LI>Fix display corruption on DDS with custom mipmaps via DevIL (ie GL); 
+	the custom mipmaps are not loaded yet so just ignore them. D3D9 unaffected.</LI>
+	<LI>Fix bug when using colour_op_ex and alpha_op_ex to supply manual 
+	colour and alpha at the same time in the same texture unit</LI>
+	<LI> Don't define *any* memory macros if the user doesn't want them or we 
+	are in release mode</LI>
+	<LI>Add CEGUI-OGRE.pc.in back into the CEGUIRenderer.</LI>
+	<LI>Fix bufferering area contention in Zip</LI>
+	<LI>Fixed particle system so custom render queue id is properly passed 
+	through to renderer</LI>
+	<LI>Deal with zero-volume meshes in StaticGeometry</LI>
+	<LI>Actually use the left and right flags in StringUtil::trim</LI>
+	<LI>cppunit m4 fix needed for some autotools versions</LI>
+	<LI>Add Exception::getDescription so that it is possible to get the
+	  'description' field of the exception without the rest. This is
+	  useful for printing or logging errors compactly.</LI>
+	<LI>Make SceneManager::setSkyBox, setSkyPlane and setSkyDome only set
+	  their respective enabled flags at the end of the function. This
+	  makes sure that when an exception happens the renderloop will not
+	  crash in its next iteration.</LI>
+	<LI>Added missing OgreParticleSystemRenderer.h to 
+	  	OgreMain/include/Makefile.am</LI>
+	<LI>Fixed sysrq key for GLX</LI>
+	<LI>Fixed GLX screenshot colours</LI>
+	<LI>Fixed material exporting in Milkshape</LI>
+	<LI>Back buffer resizing, dedicated depth stencil and lost device 
+	/ destruction fixes for additional swap chains under Direct3D9</LI>
+	<LI>Added 'camera_position' auto shader parameter</LI>
+	<LI>Allow usage of external input system (GGI, SDL) with GLX</LI>
+	<LI>Fixed display of self- or common-oriented billboards that are attached 
+	to a rotated node</LI>
+	<LI>Fix for CEGUI renderer under latest Linux nVidia drivers; also
+	increases performance of CEGUI rendering</LI>
+	<LI>XSI mesh exporter: multiple UV sets supported, polygon mesh material 
+	clusters supported, submesh optimisation (index ordering and merging), 
+	LOD generation supported</LI>
+	<LI>Added a missing vertexbuffer unlock in MeshSerializerImpl::writeGeometry.
+</LI>
+	<LI>Add explicitly named methods to ConfigFile to resolve ambiguity when
+	  using defaulted paramters</LI>
+    <LI>Minor documentation updates</LI>
+	<LI>Hardware occlusion support fixes</LI>
+	<LI>Clean up some support for D3D9 buffer lock options</LI>
+	<LI>Fixed modifiers getting lost on mouseup</LI>
+	<LI>Frame / input event Listener removal now doesn't invalidate iterators 
+	anymore</LI>
+	<LI> Fixed ResourceManager::resourceExists bug which caused it to
+	  return true when the resource didn't exist.</LI>
+	<LI>Initialise mAnimController in the TextureUnitState copy contructor.</LI>
+	<LI>Fixed a problem which caused SkeletonInstance::unloadImpl() not
+	to be called on destruction.</LI>
+	<LI>Remove StringConverter downcast warnings from MSVC</LI>
+</UL>
 <P CLASS="mainheader" ALIGN=LEFT>v1.0.0 Final [Azathoth] (21 February
 2005) - Major Release</P>
 <P ALIGN=LEFT>The final 1.0.0 release includes a set of bugfixes to
