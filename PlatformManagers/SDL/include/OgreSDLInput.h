@@ -67,7 +67,6 @@ namespace Ogre {
         Uint8* mKeyboardBuffer;
         int mMaxKey;
         int mMouseX, mMouseY;
-        int mMouseCenterX, mMouseCenterY;
         Real mScale;
         Uint8 mMouseKeys;
         bool _visible;
