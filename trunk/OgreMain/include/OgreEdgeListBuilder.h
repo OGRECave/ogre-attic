@@ -148,25 +148,10 @@ namespace Ogre {
             The caller takes responsibility for deleting the returned structure.
         */
         EdgeData* build(void);
+
+        /// Debugging method
+        void log(Log* l);
     protected:
-
-        /** Comparator for unique vertex list
-        */
-        struct vectorLess
-        {
-		    _OgreExport bool operator()(const Vector3& v1, const Vector3& v2) const
-            {
-                // NB add a slight floating point inaccuracy tolerance
-                #define TOLERANCE 1e-04
-			    if (v1.x < (v2.x - TOLERANCE)) return true;
-                if (Math::RealEqual(v1.x, v2.x, TOLERANCE) && v1.y < (v2.y - TOLERANCE)) return true;
-                if (Math::RealEqual(v1.x, v2.x, TOLERANCE) && 
-                    Math::RealEqual(v1.y, v2.y, TOLERANCE) && 
-                    v1.z < (v2.z - TOLERANCE)) return true;
-
-			    return false;
-		    }
-	    };
 
         /** A vertex can actually represent several vertices in the final model, because
 		vertices along texture seams etc will have been duplicated. In order to properly
@@ -188,15 +173,13 @@ namespace Ogre {
         VertexDataList mVertexDataList;
         CommonVertexList mVertices;
         EdgeData* mEdgeData;
-		// Map for identifying duplicate position vertices
-		typedef std::map<Vector3, size_t, vectorLess> CommonVertexMap;
-
-        CommonVertexMap mVertexLookup;
-
 
         void buildTrianglesEdges(size_t indexSet, size_t vertexSet);
         void connectEdges(void);
         EdgeData::Edge* findEdge(size_t sharedIndex1, size_t sharedIndex2);
+
+        /// Finds an existing common vertex, or inserts a new one
+        size_t findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet);
 
     };
 
