@@ -33,6 +33,7 @@ Description: Base class for all the OGRE examples
 #define __ExampleApplication_H__
 
 #include "Ogre.h"
+#include "OgreConfigFile.h"
 #include "ExampleFrameListener.h"
 
 using namespace Ogre;
@@ -155,11 +156,20 @@ protected:
     /// Method which will define the source of resources (other than current folder)
     virtual void setupResources(void)
     {
-        // Add the ..\Resources folder
-        ResourceManager::addCommonArchiveEx( "../../../Media/dragon.zip", "Zip" );
-        ResourceManager::addCommonArchiveEx( "../../../Media/knot.zip", "Zip" );
-        ResourceManager::addCommonArchiveEx( "../../../Media/skybox.zip", "Zip" );
-        ResourceManager::addCommonArchiveEx( "../../../Media/", "FileSystem" );
+        // Load resource paths from config file
+        ConfigFile cf;
+        cf.load("resources.cfg");
+
+        // Go through all settings in the file
+        ConfigFile::SettingsIterator i = cf.getSettingsIterator();
+
+        String typeName, archName;
+        while (i.hasMoreElements())
+        {
+            typeName = i.peekNextKey();
+            archName = i.getNext();
+            ResourceManager::addCommonArchiveEx( archName, typeName );
+        }
     }
 
 
