@@ -44,6 +44,7 @@ namespace Ogre {
 	    sprintf(name, "Undefined%d", num++);
 	    mName = name;
         mCompilationRequired = true;
+        mIsLoaded = false;
 
     }
     //-----------------------------------------------------------------------
@@ -54,6 +55,7 @@ namespace Ogre {
 	    // Assign name
 	    mName = name;
         mCompilationRequired = true;
+        mIsLoaded = false;
 		
     }
     //-----------------------------------------------------------------------
@@ -78,6 +80,7 @@ namespace Ogre {
                 mSupportedTechniques.push_back(t);
         }
         mCompilationRequired = rhs.mCompilationRequired;
+        mIsLoaded = rhs.mIsLoaded;
 
 	    return *this;
     }
