@@ -22,8 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __Win32Window_H__
-#define __Win32Window_H__
+#ifndef __D3D7RenderWindow_H__
+#define __D3D7RenderWindow_H__
 
 // Precompiler options
 #include "OgreD3D7Prerequisites.h"
@@ -39,11 +39,11 @@ namespace Ogre {
             This class represents the rendering window on the
             Windows family of operating systems.
      */
-    class Win32Window : public RenderWindow
+    class D3D7RenderWindow : public RenderWindow
     {
     public:
-        Win32Window();
-        ~Win32Window();
+        D3D7RenderWindow();
+        ~D3D7RenderWindow();
 
 
         /** Overridden - see RenderWindow.
