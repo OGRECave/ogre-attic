@@ -45,8 +45,10 @@ using namespace Ogre;
 
 class ExampleFrameListener: public FrameListener, public KeyListener
 {
-private:
+protected:
 	int mSceneDetailIndex ;
+    Real mMoveSpeed;
+    Real mRotateSpeed;
 
     void updateStats(void)
     {
@@ -85,6 +87,8 @@ public:
         mUseBufferedInputKeys = useBufferedInputKeys;
 		mUseBufferedInputMouse = useBufferedInputMouse;
 		mInputTypeSwitchingOn = mUseBufferedInputKeys || mUseBufferedInputMouse;
+        mRotateSpeed = 36;
+        mMoveSpeed = 100;
 
 		if (mInputTypeSwitchingOn)
 		{
@@ -354,9 +358,9 @@ public:
 			else
 			{
 				// Move about 100 units per second,
-				mMoveScale = 100.0 * evt.timeSinceLastFrame;
+				mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
 				// Take about 10 seconds for full rotation
-				mRotScale = 36 * evt.timeSinceLastFrame;
+				mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
 			}
 			mRotX = 0;
             mRotY = 0;

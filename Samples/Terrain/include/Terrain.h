@@ -22,10 +22,55 @@ LGPL like the rest of the engine.
 
 #include "ExampleApplication.h"
 
+RaySceneQuery* raySceneQuery = 0;
+
+// Event handler to add ability to alter curvature
+class TerrainFrameListener : public ExampleFrameListener
+{
+public:
+    TerrainFrameListener(RenderWindow* win, Camera* cam)
+        : ExampleFrameListener(win, cam)
+    {
+        // Reduce move speed
+        mMoveSpeed = 50;
+
+    }
+
+    bool frameStarted(const FrameEvent& evt)
+    {
+        // clamp to terrain
+        bool ret = ExampleFrameListener::frameStarted(evt);
+        static Ray updateRay;
+        updateRay.setOrigin(mCamera->getPosition());
+        updateRay.setDirection(Vector3::NEGATIVE_UNIT_Y);
+        raySceneQuery->setRay(updateRay);
+        RaySceneQueryResult& qryResult = raySceneQuery->execute();
+        RaySceneQueryResult::iterator i = qryResult.begin();
+        if (i != qryResult.end() && i->worldFragment)
+        {
+            SceneQuery::WorldFragment* wf = i->worldFragment;
+            mCamera->setPosition(mCamera->getPosition().x, 
+                i->worldFragment->singleIntersection.y + 10, 
+                mCamera->getPosition().z);
+        }
+
+        return ret;
+
+    }
+
+};
+
+
+
 class TerrainApplication : public ExampleApplication
 {
 public:
     TerrainApplication() {}
+
+    ~TerrainApplication()
+    {
+        delete raySceneQuery;
+    }
 
 protected:
 
@@ -90,6 +135,16 @@ protected:
         mCamera->setOrientation(Quaternion(-0.3486, 0.0122, 0.9365, 0.0329));
         //mRoot -> showDebugOverlay( true );
 
+        raySceneQuery = mSceneMgr->createRayQuery(
+            Ray(mCamera->getPosition(), Vector3::NEGATIVE_UNIT_Y));
+
+
+    }
+    // Create new frame listener
+    void createFrameListener(void)
+    {
+        mFrameListener= new TerrainFrameListener(mWindow, mCamera);
+        mRoot->addFrameListener(mFrameListener);
     }
 
 };
