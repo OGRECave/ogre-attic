@@ -524,34 +524,37 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextAreaGuiElement::setMetricsMode(GuiMetricsMode gmm)
     {
-        GuiElement::setMetricsMode(gmm);
+        Real vpWidth, vpHeight;
+
+		vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+        vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+		mViewportAspectCoef = vpHeight/vpWidth;
+
+		GuiElement::setMetricsMode(gmm);
         if (gmm != GMM_RELATIVE)
         {
             // Set pixel variables based on viewport multipliers
-            Real vpWidth, vpHeight;
-            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
-            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
-
             mPixelCharHeight = mCharHeight * vpHeight;
             mPixelSpaceWidth = mSpaceWidth * vpHeight;
-			mViewportAspectCoef = vpHeight/vpWidth;
         }
     }
 
     //-----------------------------------------------------------------------
     void TextAreaGuiElement::_update(void)
     {
-        if (mMetricsMode != GMM_RELATIVE && 
+        Real vpWidth, vpHeight;
+
+        vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+        vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+		mViewportAspectCoef = vpHeight/vpWidth;
+		
+		if (mMetricsMode != GMM_RELATIVE && 
             (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
             // Recalc character size
-            Real vpWidth, vpHeight;
-            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
-            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
 
             mCharHeight = (Real) mPixelCharHeight / vpHeight;
             mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
-			mViewportAspectCoef = vpHeight/vpWidth;
 			mGeomPositionsOutOfDate = true;
         }
         GuiElement::_update();
