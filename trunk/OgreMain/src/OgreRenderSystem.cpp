@@ -421,12 +421,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned int RenderSystem::_getFaceCount(void)
     {
-        return mFaceCount;
+        return static_cast< unsigned int >( mFaceCount );
     }
     //-----------------------------------------------------------------------
     unsigned int RenderSystem::_getVertexCount(void)
     {
-        return mVertexCount;
+        return static_cast< unsigned int >( mVertexCount );
     }
     //-----------------------------------------------------------------------
     void RenderSystem::_render(const LegacyRenderOperation& op)
