@@ -2526,7 +2526,7 @@ namespace Ogre {
                     "have a hardware stencil. Shadows disabled.");
                 mShadowTechnique = SHADOWTYPE_NONE;
             }
-            else
+            else if (mShadowIndexBuffer.isNull())
             {
                 // Create an estimated sized shadow index buffer
                 mShadowIndexBuffer = HardwareBufferManager::getSingleton().
@@ -3369,21 +3369,15 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::setShadowTextureSize(unsigned short size)
     {
-        if (!mShadowTextures.empty() && size != mShadowTextureSize)
-        {
-            // recreate
-            createShadowTextures(size, mShadowTextureCount);
-        }
+        // possibly recreate
+        createShadowTextures(size, mShadowTextureCount);
         mShadowTextureSize = size;
     }
     //---------------------------------------------------------------------
     void SceneManager::setShadowTextureCount(unsigned short count)
     {
-        if (!mShadowTextures.empty() && count != mShadowTextureCount)
-        {
-            // recreate
-            createShadowTextures(mShadowTextureSize, count);
-        }
+        // possibly recreate
+        createShadowTextures(mShadowTextureSize, count);
         mShadowTextureCount = count;
     }
     //---------------------------------------------------------------------
@@ -3403,6 +3397,17 @@ namespace Ogre {
     void SceneManager::createShadowTextures(unsigned short size, unsigned short count)
     {
         static const String baseName = "Ogre/ShadowTexture";
+
+        if ((mShadowTechnique != SHADOWTYPE_TEXTURE_MODULATIVE 
+            /*&& mShadowTechnique != SHADOWTYPE_TEXTURE_SHADOWMAP */) ||
+            !mShadowTextures.empty() && 
+            count == mShadowTextureCount &&
+            size == mShadowTextureSize)
+        {
+            // no change
+            return;
+        }
+
 
         // destroy existing
         ShadowTextureList::iterator i, iend;
