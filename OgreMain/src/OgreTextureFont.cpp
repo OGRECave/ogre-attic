@@ -32,9 +32,97 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_GLYPH_H
 
 BEGIN_OGRE_NAMESPACE
 
+void renderTexChar( byte *pBuffer, byte *pTex, unsigned uTexX, unsigned uTexY, unsigned uBitR, unsigned uBitW, unsigned uStartX, unsigned uStartY )
+{
+    typedef byte pixel[3];
+    pixel *pLocalTex = (pixel *)pTex;
+    unsigned char *pLocalBuff = pBuffer;
+
+    for( unsigned i = 0; i < uBitR; i++ )
+    {
+        for( unsigned j = 0; j < uBitW; j++ )
+        {
+            if( *pLocalBuff )
+            {
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[0] = 
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[1] = 
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[2] = *pLocalBuff;                
+            }
+            pLocalBuff++;
+        }
+    }
+}
+
+void renderAlphaChar( byte *pBuffer, byte *pTex, unsigned uTexX, unsigned uTexY, unsigned uBitR, unsigned uBitW, unsigned uStartX, unsigned uStartY, unsigned cRed, unsigned cGreen, unsigned cBlue )
+{
+    typedef byte pixel[4];
+    pixel *pLocalTex = (pixel *)pTex;
+    unsigned char *pLocalBuff = pBuffer;
+
+    for( unsigned i = 0; i < uBitR; i++ )
+    {
+        for( unsigned j = 0; j < uBitW; j++ )
+        {
+            if( *pLocalBuff )
+            {
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[0] = cRed;
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[1] = cGreen;
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[2] = cBlue;
+                (*( pLocalTex + ( ( uStartY + i ) * uTexY + uStartX + j )))[3] = *pLocalBuff;                
+            }
+            pLocalBuff++;
+        }
+    }
+}
+
+void computeBBox( FT_BBox& bbox, std::list< FT_Glyph >& glyphList, std::list< FT_Vector >& vectorList )
+{
+    bbox.xMin = bbox.yMin = 32000;
+    bbox.xMax = bbox.yMax = -32000;
+
+    // for each glyph image, compute its bounding box, translate it,
+    // and grow the string bbox
+    std::list< FT_Glyph >::iterator it1 = glyphList.begin();
+    std::list< FT_Vector >::iterator it2 = vectorList.begin();    
+    for( ; it1 != glyphList.end(); ++it1, ++it2 )
+    {
+        FT_BBox   glyph_bbox;
+
+        FT_Glyph_Get_CBox( (*it1), ft_glyph_bbox_pixels, &glyph_bbox );
+
+        glyph_bbox.xMin += (*it2).x;
+        glyph_bbox.xMax += (*it2).x;
+        glyph_bbox.yMin += (*it2).y;
+        glyph_bbox.yMax += (*it2).y;
+
+        if (glyph_bbox.xMin < bbox.xMin)
+            bbox.xMin = glyph_bbox.xMin;
+
+        if (glyph_bbox.yMin < bbox.yMin)
+            bbox.yMin = glyph_bbox.yMin;
+
+        if (glyph_bbox.xMax > bbox.xMax)
+            bbox.xMax = glyph_bbox.xMax;
+
+        if (glyph_bbox.yMax > bbox.yMax)
+            bbox.yMax = glyph_bbox.yMax;
+    }
+
+    // check that we really grew the string bbox
+    if ( bbox.xMin > bbox.xMax )
+    {
+        bbox.xMin = 0;
+        bbox.yMin = 0;
+        bbox.xMax = 0;
+        bbox.yMax = 0;
+    }
+}
+
+//-----------------------------------------------------------------------------
 std::map< String, std::map< String, TextureFont * > > TextureFont::ms_mapFonts;
 FT_Library *TextureFont::ms_pLibrary = NULL;
 unsigned TextureFont::ms_uNumFonts = 0;
@@ -181,22 +269,19 @@ void TextureFont::createTexture( const String& strTexName, const String& strStri
 			continue;
 		}
 
-		for( j=0; j<slot->bitmap.rows; j++ )
-		{
-			for( k=0; k<slot->bitmap.width; k++ )
-			{
-				// pixel size is always 1 so we've got grays
-				pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][0] =
-				pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][1] =
-				pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][2] = *pChar;
-				pChar++;
-			}
-		}
+        renderTexChar( 
+            slot->bitmap.buffer, 
+            (byte *)&pTexture[0][0], 
+            uTexX, uTexY, 
+            slot->bitmap.rows, slot->bitmap.width, 
+            pen_dx, pen_dy );        
 
 		pen_x += slot->advance.x >> 6;
 	}
 
-	TextureManager::getSingleton().loadRawRGB( strTexName, (unsigned char*)pTexture, uTexX, uTexY );
+    Image img;
+    img.loadRawRGB( (Byte*)pTexture, uTexX, uTexY );
+    TextureManager::getSingleton().loadImage( strTexName, img );	
 
 	delete [] pTexture;
 }
@@ -211,6 +296,9 @@ void TextureFont::createAlphaMask( const String& strTexName, const String& strSt
     FT_UInt       glyph_index;
     FT_UInt		  pen_x, pen_y, pen_dx, pen_dy;
     FT_GlyphSlot  slot;
+
+    std::list< FT_Glyph > glyphs;
+    std::list< FT_Vector > vectors;
 
     // make sure face is loaded
     assert( m_pFace );
@@ -234,6 +322,7 @@ void TextureFont::createAlphaMask( const String& strTexName, const String& strSt
 
     for( size_t i = 0; i < strString.length(); i++ )
     {
+        /*
         if( strString.at( i ) == '\n' )
         {
             previous = 0;
@@ -241,9 +330,10 @@ void TextureFont::createAlphaMask( const String& strTexName, const String& strSt
             pen_y += (*m_pFace)->size->metrics.height >> 6;
             continue;
         }
+        */
 
         glyph_index = FT_Get_Char_Index( *m_pFace, strString.at(i) );        
-        FT_Load_Char( *m_pFace, (long)strString.at(i), FT_LOAD_RENDER );
+        //FT_Load_Char( *m_pFace, (long)strString.at(i), FT_LOAD_RENDER );
         slot = (*m_pFace)->glyph;
 
         if( use_kerning && previous && glyph_index )
@@ -253,7 +343,18 @@ void TextureFont::createAlphaMask( const String& strTexName, const String& strSt
             pen_x += delta.x >> 6;
         }
 
-        unsigned char *pChar = slot->bitmap.buffer;
+        FT_Vector diff;
+        FT_Glyph lett;
+        diff.x = pen_x;
+        diff.y = pen_y;        
+
+        FT_Load_Glyph( (*m_pFace), glyph_index, FT_LOAD_DEFAULT );
+        FT_Get_Glyph( (*m_pFace)->glyph, &(lett) );
+
+        glyphs.push_back( lett );
+        vectors.push_back( diff );
+
+        /*unsigned char *pChar = slot->bitmap.buffer;
 
         FT_Int j, k;
         pen_dx = pen_x + slot->bitmap_left;
@@ -274,18 +375,54 @@ void TextureFont::createAlphaMask( const String& strTexName, const String& strSt
             for( k=0; k<slot->bitmap.width; k++ )
             {
                 // pixel size is always 1 so we've got grays                
-                pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][0] = cRed;
-                pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][1] = cGreen;
-                pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][2] = cBlue;
-                pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][3] = *pChar;
+                if( *pChar )
+                {                
+                    pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][0] = cRed;
+                    pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][1] = cGreen;
+                    pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][2] = cBlue;
+                    pTexture[ ( pen_dy + j ) * uTexY + pen_dx + k ][3] = *pChar;
+                }                
                 pChar++;
             }
-        }
+        }*/
 
         pen_x += slot->advance.x >> 6;
     }
 
-    TextureManager::getSingleton().loadRawRGBA( strTexName, (unsigned char*)pTexture, uTexX, uTexY );
+    FT_BBox bbox;
+    computeBBox( bbox, glyphs, vectors );
+
+    // compute string dimensions in integer pixels
+    unsigned string_width  = (bbox.xMax - bbox.xMin);
+    unsigned string_height = (bbox.yMax - bbox.yMin);
+
+    // compute start pen position in 26.6 cartesian pixels
+    unsigned start_x = (( uTexX - string_width )/2);
+    unsigned start_y = (( uTexY - string_height)/2);
+
+    std::list< FT_Glyph >::iterator it1 = glyphs.begin();
+    std::list< FT_Vector >::iterator it2 = vectors.begin();
+    for( ; it1 != glyphs.end(); ++it1, ++it2 )
+    {
+        FT_Glyph  image;
+        FT_Vector pen;
+
+        image = (*it1);
+
+        pen.x = start_x + (*it2).x;
+        pen.y = start_y + (*it2).y;
+
+        if( !FT_Glyph_To_Bitmap( &image, ft_render_mode_normal, &pen, 0 ) )
+        {
+            FT_BitmapGlyph  bit = (FT_BitmapGlyph)image;            
+            renderAlphaChar( bit->bitmap.buffer, (byte *)&pTexture[0][0], uTexX, uTexY, bit->bitmap.rows, bit->bitmap.width, pen.x, pen.y, cRed, cGreen, cBlue );            
+            FT_Done_Glyph( image );
+        }
+    }
+
+    Image img;
+    img.loadRawRGBA( (Byte*)pTexture, uTexX, uTexY );
+    TextureManager::getSingleton().loadImage( strTexName, img );
 
     delete [] pTexture;
 }
