@@ -346,16 +346,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::_setWorldMatrices(const Matrix4* m, unsigned short count)
     {
-        if (!mCapabilities->hasCapability(RSC_VERTEXBLENDING))
+        // Save these matrices for software blending later
+        for (unsigned short i = 0; i < count; ++i)
         {
-            // Save these matrices for software blending later
-            for (unsigned short i = 0; i < count; ++i)
-            {
-                mWorldMatrices[i] = m[i];
-            }
-            // Set hardware matrix to nothing
-            _setWorldMatrix(Matrix4::IDENTITY);
+            mWorldMatrices[i] = m[i];
         }
+        // Set hardware matrix to nothing
+        _setWorldMatrix(Matrix4::IDENTITY);
     }
     //-----------------------------------------------------------------------
     void RenderSystem::_render(const RenderOperation& op)
