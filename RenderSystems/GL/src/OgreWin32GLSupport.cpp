@@ -254,11 +254,11 @@ namespace Ogre {
 			LML_NORMAL, str.str());
 		// Parse the, and add them to the main list
 		std::stringstream ext;
-        String str;
+        String instr;
 		ext << wgl_extensions;
-        while(ext >> str)
+        while(ext >> instr)
         {
-            extensionList.insert(str);
+            extensionList.insert(instr);
         }
 	}
 
