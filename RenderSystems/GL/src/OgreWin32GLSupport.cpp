@@ -19,8 +19,7 @@ using namespace Ogre;
 
 namespace Ogre {
     Win32GLSupport::Win32GLSupport():
-        mExternalWindowHandle(0),
-		mCurrentContext(0,0)
+        mExternalWindowHandle(0)
     {
     } 
 
@@ -293,38 +292,5 @@ namespace Ogre {
 		else
 #endif
 			return new GLRenderTexture(name, width, height, texType, format);
-	}
-
-	void Win32GLSupport::pushContext(HDC hdc, HGLRC hglrc) 
-	{
-		W32Context newCtx = W32Context(hdc, hglrc);
-		// We don't care what the outer context is
-		if(mContextStack.empty()) {
-			mContextStack.push_front(W32Context(0,0));
-		} else {
-			// Push current ctx to stack
-			mContextStack.push_front(mCurrentContext);
-		}
-		// Set new context as current
-		if(mCurrentContext != newCtx) {
-			// Optimalisation to prevent superfluous wglMakeCurrent, as those are expensive
-			// especially on ATI hardware.
-			wglMakeCurrent(hdc, hglrc);
-			mCurrentContext = newCtx;
-		}
-	}
-
-	void Win32GLSupport::popContext() 
-	{
-		// Push current ctx to stack
-		W32Context oldCtx = mContextStack.front();
-		mContextStack.pop_front();
-		// Check if mCurrentContext is not already equal to the old context, in which case
-		// do nothing. Also, see that we don't change the context to (0,0) when going to the most
-		// outer context (so that it's still possible to change textures and hardware buffers)
-		if(mCurrentContext != oldCtx && oldCtx.first!=0) {
-			wglMakeCurrent(oldCtx.first, oldCtx.second);
-			mCurrentContext = oldCtx;
-		}
 	}
 }

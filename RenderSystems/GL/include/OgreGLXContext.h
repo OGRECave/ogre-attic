@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-(Object-oriented Graphics Rendering Engine)
+    (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright © 2000-2004 The OGRE Team
@@ -22,33 +22,31 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __GLXRenderTexture_H__
-#define __GLXRenderTexture_H__
+#ifndef __OgreGLXContext_H__
+#define __OgreGLXContext_H__
 
-#include "OgrePrerequisites.h"
-
-#include "OgreGLTexture.h"
-#include "OgreGLXContext.h"
+#include "OgreGLContext.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
+#include <GL/glxext.h>
 
-namespace Ogre
-{
-    class _OgreExport GLXRenderTexture : public GLRenderTexture
+namespace Ogre {
+
+    class GLXContext: public GLContext
     {
     public:
-        GLXRenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format );
-        ~GLXRenderTexture();
-    protected:
-        //virtual void _copyToTexture();
+        GLXContext(::Display *dpy,
+                    ::GLXDrawable drawable,
+                    ::GLXContext ctx);
+        virtual ~GLXContext();
 
-        void createPBuffer();
+        /** See GLContext */
+        virtual void setCurrent();
 
-        ::Display      *_pDpy;
-        ::GLXContext   _hGLContext;
-        ::GLXPbuffer   _hPBuffer;
-        GLXContext   *mContext;
+        ::Display *mDpy;
+        ::GLXDrawable mDrawable;
+        ::GLXContext mCtx;
     };
 }
 

@@ -1,4 +1,3 @@
-noinst_HEADERS = OgreGLPrerequisites.h \
                  OgreGLGpuProgram.h \
                  OgreGLGpuNvparseProgram.h \
                  OgreGLGpuProgramManager.h \
@@ -12,6 +11,6 @@ noinst_HEADERS = OgreGLPrerequisites.h \
                  OgreSDLWindow.h \
                  OgreGLXGLSupport.h \
                  OgreGLXRenderTexture.h \
-                 OgreGLXWindow.h
-               
-                 
+                 OgreGLXWindow.h \
+                 OgreGLContext.h \
+                 OgreGLXContext.h

@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-(Object-oriented Graphics Rendering Engine)
+    (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright © 2000-2004 The OGRE Team
@@ -22,33 +22,39 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __GLXRenderTexture_H__
-#define __GLXRenderTexture_H__
+#ifndef __OgreGLContext_H__
+#define __OgreGLContext_H__
 
-#include "OgrePrerequisites.h"
+#include "OgreGLPrerequisites.h"
 
-#include "OgreGLTexture.h"
-#include "OgreGLXContext.h"
+namespace Ogre {
 
-#include <X11/Xlib.h>
-#include <GL/glx.h>
-
-namespace Ogre
-{
-    class _OgreExport GLXRenderTexture : public GLRenderTexture
+    /**
+     * Class that encapsulates an GL context. (IE a window/pbuffer). This is a 
+     * virtual base class which should be implemented in a GLSupport.
+     * This object can also be used to cache renderstate if we decide to do so
+     * in the future.
+     */
+    class GLContext
     {
     public:
-        GLXRenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format );
-        ~GLXRenderTexture();
+        GLContext();
+        virtual ~GLContext();
+
+        /**
+         * Enable the context. All subsequent rendering commands will go here.
+         */
+        virtual void setCurrent() = 0;
+        /**
+         * This is called before another context is made current. By default,
+         * nothing is done here.
+         */
+        virtual void endCurrent();
+        
+        bool getInitialized() { return initialized; };
+        void setInitialized() { initialized = true; };
     protected:
-        //virtual void _copyToTexture();
-
-        void createPBuffer();
-
-        ::Display      *_pDpy;
-        ::GLXContext   _hGLContext;
-        ::GLXPbuffer   _hPBuffer;
-        GLXContext   *mContext;
+        bool initialized;
     };
 }
 

@@ -24,9 +24,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 
-#include "OgreGLXRenderTexture.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreRoot.h"
+
+#include "OgreGLRenderSystem.h"
+
+#include "OgreGLXRenderTexture.h"
+#include "OgreGLXContext.h"
+
 
 #include <iostream>
 
@@ -42,11 +48,15 @@ namespace Ogre
   
     GLXRenderTexture::GLXRenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format):
         GLRenderTexture(name, width, height, texType, format),
-        _hPBuffer(0)
+        _hPBuffer(0),
+        mContext(0)
     {
-        // make sure it will be a RGBA texture
-        // and double buffered PBuffer
         createPBuffer();
+        // Create context
+        mContext = new GLXContext(_pDpy, _hPBuffer, _hGLContext);
+        // Register the context with the rendersystem
+        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+        rs->_registerContext(this, mContext);
     }
 
     void GLXRenderTexture::createPBuffer() {        
@@ -55,7 +65,7 @@ namespace Ogre
         );
            
         _pDpy = glXGetCurrentDisplay();
-        GLXContext context = glXGetCurrentContext();
+        ::GLXContext context = glXGetCurrentContext();
         int screen = DefaultScreen(_pDpy);
         XVisualInfo * visInfo = 0;
         int iFormat = 0;
@@ -143,38 +153,27 @@ namespace Ogre
         );
         mWidth = iWidth;  
         mHeight = iHeight;
-
     }
 
     GLXRenderTexture::~GLXRenderTexture()
     {
+        // Unregister and destroy mContext
+        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+        rs->_unregisterContext(this);
+        delete mContext;
+        // Destroy GL context
         glXDestroyContext(_pDpy, _hGLContext);
         _hGLContext = 0;
         glXDestroyPbuffer(_pDpy, _hPBuffer);
         _hPBuffer = 0;
     }
 
+/*
     void GLXRenderTexture::_copyToTexture()
     {
         // Should do nothing
     }
-    
-    void GLXRenderTexture::firePreUpdate(void)
-    {
-        // Set context
-        glXMakeCurrent(_pDpy, _hPBuffer, _hGLContext);
-        
-        GLRenderTexture::firePreUpdate();
-    }
-    void GLXRenderTexture::firePostUpdate(void)
-    {
-        GLRenderTexture::firePostUpdate();
-        // Unset, bind texture
-        //glXSwapBuffers(_pDpy, _hPBuffer);
-        
-        GLRenderTexture::_copyToTexture();
-
-    }
+ */  
     
   
 }

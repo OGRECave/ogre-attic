@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-(Object-oriented Graphics Rendering Engine)
+    (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright © 2000-2004 The OGRE Team
@@ -22,34 +22,24 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __GLXRenderTexture_H__
-#define __GLXRenderTexture_H__
 
-#include "OgrePrerequisites.h"
+#include "OgreWin32Context.h"
 
-#include "OgreGLTexture.h"
-#include "OgreGLXContext.h"
+namespace Ogre {
 
-#include <X11/Xlib.h>
-#include <GL/glx.h>
-
-namespace Ogre
-{
-    class _OgreExport GLXRenderTexture : public GLRenderTexture
+    Win32Context::Win32Context(HDC     HDC,
+                 HGLRC   Glrc):
+        mHDC(HDC),
+        mGlrc(Glrc)
     {
-    public:
-        GLXRenderTexture( const String & name, uint width, uint height, TextureType texType,  PixelFormat format );
-        ~GLXRenderTexture();
-    protected:
-        //virtual void _copyToTexture();
-
-        void createPBuffer();
-
-        ::Display      *_pDpy;
-        ::GLXContext   _hGLContext;
-        ::GLXPbuffer   _hPBuffer;
-        GLXContext   *mContext;
-    };
+    }
+    
+    Win32Context::~Win32Context()
+    {
+    }
+        
+    void Win32Context::setCurrent()
+    {
+         wglMakeCurrent(mHDC, mGlrc);      
+    }
 }
-
-#endif

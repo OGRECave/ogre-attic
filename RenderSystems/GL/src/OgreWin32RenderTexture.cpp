@@ -23,12 +23,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreWin32RenderTexture.h"
-#include "OgreWin32GLSupport.h"
+#include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreRenderSystem.h"
 #include "OgreImageCodec.h"
 #include "OgreException.h"
+
+#include "OgreWin32RenderTexture.h"
+#include "OgreWin32GLSupport.h"
+#include "OgreWin32Context.h"
 
 // ATI float extension
 #ifndef WGL_ATI_pixel_format_float
@@ -54,7 +57,8 @@ namespace Ogre {
 
 	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, uint width, uint height, TextureType texType,  PixelFormat format ):
 		GLRenderTexture(name, width, height, texType, format),
-		mGLSupport(glsupport)
+		mGLSupport(glsupport),
+        mContext(0)
 	{
 		if(!_wglChoosePixelFormatARB) _wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 		if(!_wglCreatePbufferARB) _wglCreatePbufferARB = (PFNWGLCREATEPBUFFERARBPROC)wglGetProcAddress("wglCreatePbufferARB");
@@ -68,6 +72,12 @@ namespace Ogre {
 	
 		createPBuffer();
 
+        // Create context
+        mContext = new Win32Context(mHDC, mGlrc);
+        // Register the context with the rendersystem
+        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+        rs->_registerContext(this, mContext);        
+
 		// Bind texture
 		glBindTexture(GL_TEXTURE_2D,
 	           static_cast<GLTexture*>(mTexture)->getGLID());
@@ -80,7 +90,13 @@ namespace Ogre {
 		    static_cast<GLTexture*>(mTexture)->getGLID());
 		glBindTexture(GL_TEXTURE_2D,
 			static_cast<GLTexture*>(mTexture)->getGLID());
-			_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+		_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+           
+        // Unregister and destroy mContext
+        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+        rs->_unregisterContext(this);
+        delete mContext;        
+           
 		// Destroy pbuffer
 		destroyPBuffer();
 	}
@@ -89,6 +105,7 @@ namespace Ogre {
 	{
 		// Not needed
 	}
+ /*
 	void Win32RenderTexture::firePreUpdate(void) 
 	{
 		//SwapBuffers(mHDC);
@@ -104,7 +121,7 @@ namespace Ogre {
 		// Possibly enable previous context
 		mGLSupport.popContext();
 	}
-
+*/
 	void Win32RenderTexture::createPBuffer() 
 	{
 		LogManager::getSingleton().logMessage(

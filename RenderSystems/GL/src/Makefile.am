@@ -24,7 +24,8 @@ RenderSystem_GL_so_SOURCES = OgreGLATIFSInit.cpp \
 							 OgreGLHardwareIndexBuffer.cpp \
 							 OgreGLHardwareOcclusionQuery.cpp \
 							 OgreGLHardwareVertexBuffer.cpp \
-                             OgreGLDefaultHardwareBufferManager.cpp
+                             OgreGLDefaultHardwareBufferManager.cpp \
+                             OgreGLContext.cpp
 
 RenderSystem_GL_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_builddir)/OgreMain/src
 RenderSystem_GL_so_LDADD = $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain \

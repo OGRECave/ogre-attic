@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __GLXWindow_H__
 
 #include "OgreRenderWindow.h"
+#include "OgreGLXContext.h"
 
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -37,15 +38,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 class GLXWindow : public RenderWindow {
 private:
-	Display *mDisplay;
-	Window mWindow;
-	Atom mAtomDeleteWindow;
-	GLXContext mGlxContext;
+	::Display *mDisplay;
+	::Window mWindow;
+	::Atom mAtomDeleteWindow;
+	::GLXContext mGlxContext;
 
 	bool mActive;	// Window is currently on screen?
 	bool mClosed;
 	bool mFullScreen;
 	int mOldMode;	// Mode before switching to fullscreen
+  
+    GLXContext   *mContext;    
 public:
 	// Pass X display to create this window on
 	GLXWindow(Display *display);
@@ -86,7 +89,6 @@ public:
 	bool requiresTextureFlipping() const {
 		return false;
 	}
-    void firePreUpdate(void);
 };
 }
 

@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLATIFSInit.h"
 #include "OgreGLSLExtSupport.h"
 #include "OgreGLHardwareOcclusionQuery.h"
+#include "OgreGLContext.h"
 
 
 #ifdef HAVE_CONFIG_H
@@ -141,7 +142,9 @@ namespace Ogre {
             mTextureTypes[i] = 0;
         }
 
-        mActiveRenderTarget = NULL;
+        mActiveRenderTarget = 0;
+        mCurrentContext = 0;
+        mMainContext = 0;
 
         mGLInitialized = false;
 
@@ -239,9 +242,10 @@ namespace Ogre {
 
     RenderWindow* GLRenderSystem::initialise(bool autoCreateWindow, const String& windowTitle)
     {
-
         mGLSupport->start();
+        
 		RenderWindow* autoWindow = mGLSupport->createWindow(autoCreateWindow, this, windowTitle);
+
 
         _setCullingMode( mCullingMode );
         
@@ -455,19 +459,6 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
 
-        // Check for FSAA
-        // Enable the extension if it was enabled by the GLSupport
-        if (mGLSupport->checkExtension("GL_ARB_multisample"))
-        {
-            int fsaa_active = false;
-            glGetIntegerv(GL_SAMPLE_BUFFERS_ARB,(GLint*)&fsaa_active);
-            if(fsaa_active)
-            {
-                glEnable(GL_MULTISAMPLE_ARB);
-                LogManager::getSingleton().logMessage("Using FSAA from GL_ARB_multisample extension.");
-            }            
-        }
-
 		// UBYTE4 always supported
 		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
 
@@ -641,9 +632,20 @@ namespace Ogre {
 
         if (!mGLInitialized) 
         {
+            // Initialise GL after the first window has been created
             initGL();
             mTextureManager = new GLTextureManager(*mGLSupport);
+            // Set main and current context
+            ContextMap::iterator i = mContextMap.find(win);
+            if(i != mContextMap.end()) {
+                mCurrentContext = i->second;
+                mMainContext =  i->second;
+                mCurrentContext->setCurrent();
+            }
+            // Initialise the main context
+            _oneTimeContextInitialization();
         }
+
 
         // XXX Do more?
 
@@ -1169,14 +1171,13 @@ namespace Ogre {
         // Check if viewport is different
         if (vp != mActiveViewport || vp->_isUpdated())
         {
-              mActiveViewport = vp;
-              mActiveRenderTarget = vp->getTarget();
-              // XXX Rendering target stuff?
+            RenderTarget* target;
+            target = vp->getTarget();
+            _setRenderTarget(target);
+            mActiveViewport = vp;
+              
               GLsizei x, y, w, h;
-  
-              RenderTarget* target;
-              target = vp->getTarget();
-  
+ 
               // Calculate the "lower-left" corner of the viewport
               w = vp->getActualWidth();
               h = vp->getActualHeight();
@@ -1345,10 +1346,6 @@ namespace Ogre {
         if (enabled) 
         {      
             glEnable(GL_LIGHTING);
-            
-            // Set nicer lighting model -- d3d9 has this by default
-            glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-            glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
         } 
         else 
         {
@@ -2376,6 +2373,68 @@ namespace Ogre {
         matrix[2][2] = c.z + 1.0F;
         matrix[2][3] = c.w; 
     }
-
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_oneTimeContextInitialization()
+    {
+        // Set nicer lighting model -- d3d9 has this by default
+        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+        glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);        
+        // Check for FSAA
+        // Enable the extension if it was enabled by the GLSupport
+        if (mGLSupport->checkExtension("GL_ARB_multisample"))
+        {
+            int fsaa_active = false;
+            glGetIntegerv(GL_SAMPLE_BUFFERS_ARB,(GLint*)&fsaa_active);
+            if(fsaa_active)
+            {
+                glEnable(GL_MULTISAMPLE_ARB);
+                LogManager::getSingleton().logMessage("Using FSAA from GL_ARB_multisample extension.");
+            }            
+        }
+    }
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_setRenderTarget(RenderTarget *target)
+    {
+        mActiveRenderTarget = target;
+        // Switch context if different from current one
+        ContextMap::iterator i = mContextMap.find(target);
+        if(i != mContextMap.end() && mCurrentContext != i->second) {
+            mCurrentContext->endCurrent();
+            mCurrentContext = i->second;
+            // Check if the context has already done one-time initialisation
+            if(!mCurrentContext->getInitialized()) {
+               _oneTimeContextInitialization();
+               mCurrentContext->setInitialized();
+            }
+            mCurrentContext->setCurrent();
+        }
+    }
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_registerContext(RenderTarget *target, GLContext *context)
+    {
+        mContextMap[target] = context;
+    }
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_unregisterContext(RenderTarget *target)
+    {
+        ContextMap::iterator i = mContextMap.find(target);
+        if(i != mContextMap.end() && mCurrentContext == i->second) {
+            // Change the context to something else so that a valid context
+            // remains active. When this is the main context being unregistered,
+            // we set the main context to 0.
+            if(mCurrentContext != mMainContext) {
+                mCurrentContext->endCurrent();
+                mCurrentContext = mMainContext;
+                mCurrentContext->setCurrent();
+            } else {
+                mMainContext = 0;
+            }
+        }
+        mContextMap.erase(target);
+    }
+    //---------------------------------------------------------------------
+    GLContext *GLRenderSystem::_getMainContext() {
+        return mMainContext;
+    }
 
 }
