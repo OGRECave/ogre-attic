@@ -113,7 +113,7 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 
 // You need to uncomment this if you are using MFC
-#pragma warn( "You need to uncomment this if you are using MFC" )
+
 //#include "stdafx.h"
 
 #include "Model_3DS.h"
