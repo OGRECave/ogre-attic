@@ -569,6 +569,8 @@ namespace Ogre {
     {
         PixelUtil::unpackColour(out, m_eFormat, &m_pBuffer[m_ucPixelSize * (z * m_uWidth * m_uHeight + m_uWidth * y + x)]);
     }
+    
+    //-----------------------------------------------------------------------------    
 
     PixelBox Image::getPixelBox(int cubeface, int mipmap) 
     {
