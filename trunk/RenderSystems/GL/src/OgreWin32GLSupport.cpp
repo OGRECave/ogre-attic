@@ -219,8 +219,7 @@ namespace Ogre {
 
 	void* Win32GLSupport::getProcAddress(const String& procname)
 	{
-		// XXX IMPL
-		return NULL;
+        return wglGetProcAddress( procname.c_str() );
 	}
 
 }
