@@ -36,6 +36,7 @@ terrainrenderable.h  -  description
 #ifndef TERRAINRENDERABLE_H
 #define TERRAINRENDERABLE_H
 
+#include "OgreTerrainPrerequisites.h"
 #include <OgreRenderable.h>
 #include <OgreMovableObject.h>
 #include <OgreAxisAlignedBox.h>
@@ -148,7 +149,7 @@ public:
   *@author Jon Anderson
   */
 
-class TerrainRenderable : public Renderable, public MovableObject
+class _OgreTerrainExport TerrainRenderable : public Renderable, public MovableObject
 {
 public:
 

@@ -700,9 +700,9 @@ float TerrainRenderable::getHeightAt( float x, float z )
     start.y = _vertex( 0, 0, 1 );
     start.z = _vertex( 0, 0, 2 );
 
-    end.x = _vertex( mSize - 2, mSize - 2, 0 );
-    end.y = _vertex( mSize - 2, mSize - 2, 1 );
-    end.z = _vertex( mSize - 2, mSize - 2, 2 );
+    end.x = _vertex( mSize - 1, mSize - 1, 0 );
+    end.y = _vertex( mSize - 1, mSize - 1, 1 );
+    end.z = _vertex( mSize - 1, mSize - 1, 2 );
 
     /* Safety catch, if the point asked for is outside
      * of this tile, it will ask the appropriate tile
@@ -745,14 +745,32 @@ float TerrainRenderable::getHeightAt( float x, float z )
     float x_pct = ( x - start.x ) / ( end.x - start.x );
     float z_pct = ( z - start.z ) / ( end.z - start.z );
 
-    float x_pt = x_pct * ( float ) ( mSize - 2 );
-    float z_pt = z_pct * ( float ) ( mSize - 2 );
+    float x_pt = x_pct * ( float ) ( mSize - 1 );
+    float z_pt = z_pct * ( float ) ( mSize - 1 );
 
     int x_index = ( int ) x_pt;
     int z_index = ( int ) z_pt;
 
-    x_pct = x_pt - x_index;
-    z_pct = z_pt - z_index;
+    // If we got to the far right / bottom edge, move one back
+    if (x_index == mSize - 1)
+    {
+        --x_index;
+        x_pct = 1.0f;
+    }
+    else
+    {
+        // get remainder
+        x_pct = x_pt - x_index;
+    }
+    if (z_index == mSize - 1)
+    {
+        --z_index;
+        z_pct = 1.0f;
+    }
+    else
+    {
+        z_pct = z_pt - z_index;
+    }
 
     //bilinear interpolate to find the height.
 
