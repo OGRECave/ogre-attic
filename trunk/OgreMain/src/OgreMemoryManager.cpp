@@ -25,56 +25,59 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreMemoryManager.h"
 
-#undef new
-#undef delete
-#undef malloc
-#undef calloc
-#undef realloc
-#undef free
+//-----------------------------------------------------------------------------
+// Allow the use of the real *alloc/free/new/delete functions
+#include "OgreNoMemoryMacros.h"
+//-----------------------------------------------------------------------------
 
-namespace Ogre
-{
-    MemoryManager MemoryManager::sMemManager;        
-    
-    MemoryManager::MemoryManager()
-    {        
-    }
+BEGIN_OGRE_NAMESPACE 
 
-    MemoryManager::~MemoryManager()
-    {                
-    }
+//-----------------------------------------------------------------------------
+MemoryManager MemoryManager::sMemManager;
+//-----------------------------------------------------------------------------
 
-    void MemoryManager::setAllocNewInfo( const char *szFile, size_t uLine )
-    {        
-    }
-
-    void MemoryManager::setDeallocNewInfo( const char *szFile, size_t uLine )
-    {        
-    }
-
-    void * MemoryManager::allocMem( const char *szFile, size_t uLine, size_t count )
-    {
-        void *ptr = malloc( count );
-        return ptr;
-    }        
-    void * MemoryManager::rllocMem( const char *szFile, size_t uLine, void *ptr , size_t count )
-    {
-        void *nptr = realloc( ptr, count );
-        return nptr;
-    }
-    void * MemoryManager::cllocMem( const char *szFile, size_t uLine, size_t num, size_t size )
-    {
-        void *ptr = malloc( num * size );
-
-        if( ptr )
-        {
-            memset( ptr , 0, num * size );
-        }
-        return ptr;
-    }
-    void MemoryManager::dllocMem( const char *szFile, size_t uLine, void *ptr )
-    {
-        free( ptr );
-    }
-
+//-----------------------------------------------------------------------------
+MemoryManager::MemoryManager()
+{        
 }
+
+//-----------------------------------------------------------------------------
+MemoryManager::~MemoryManager()
+{                
+}
+
+//-----------------------------------------------------------------------------
+void * MemoryManager::allocMem( const char *szFile, size_t uLine, size_t count )
+{
+    void *ptr = malloc( count );
+    return ptr;
+}        
+
+//-----------------------------------------------------------------------------
+void * MemoryManager::rllocMem( 
+    const char *szFile, size_t uLine, void *ptr , size_t count )
+{
+    void *nptr = realloc( ptr, count );
+    return nptr;
+}
+
+//-----------------------------------------------------------------------------
+void * MemoryManager::cllocMem( 
+    const char *szFile, size_t uLine, size_t num, size_t size )
+{
+    void *ptr = malloc( num * size );
+
+    if( ptr )
+    {
+        memset( ptr , 0, num * size );
+    }
+    return ptr;
+}
+
+//-----------------------------------------------------------------------------
+void MemoryManager::dllocMem( const char *szFile, size_t uLine, void *ptr )
+{
+    free( ptr );
+}
+
+END_OGRE_NAMESPACE
