@@ -24,9 +24,9 @@ namespace Ogre
 {
 unsigned long green = 0xFFFFFFFF;
 
-unsigned short OctreeNode::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,      //back
-        0, 6, 6, 5, 5, 1,            //left
-        3, 7, 7, 4, 4, 2,            //right
+unsigned short OctreeNode::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,       //back
+        0, 6, 6, 5, 5, 1,             //left
+        3, 7, 7, 4, 4, 2,             //right
         6, 7, 5, 4 };          //front
 unsigned long OctreeNode::mColors[ 8 ] = {green, green, green, green, green, green, green, green };
 

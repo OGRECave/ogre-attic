@@ -129,7 +129,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     }
 
     mTerrainMaterial -> setLightingEnabled( options.lit );
-  
+
     //create a root terrain node.
     mTerrainRoot = getRootSceneNode() -> createChild( "Terrain" );
 
@@ -208,15 +208,22 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
         }
 
     }
+
     /*
-    for ( j = 0; j < 13; j++ )
-    {
-        for ( i = 0; i < size; i++ )
-        {
-            mTiles[ i ][ j ] -> _generateVertexLighting( Vector3( 255, 50, 255 ), ColourValue( .25, .25, .25 ) );
-        }
-    }
-*/
+     for ( j = 0; j < size; j++ )
+     {
+         for ( i = 0; i < size; i++ )
+         {
+             mTiles[ i ][ j ] -> _generateVertexLighting( Vector3( 255, 50, 255 ), ColourValue( .25, .25, .25 ) );
+         }
+     }
+     */
+
+
+
+    //    intersectSegment( Vector3(255, getHeightAt(255,255), 255), Vector3(255,50,255), 0 );
+
+
 }
 
 
@@ -224,9 +231,9 @@ void TerrainSceneManager::_updateSceneGraph( Camera * cam )
 
 {
 
-    // Vector3 c = cam -> getPosition();
-    // c.y = getHeightAt(c.x, c.z ) + 3;
-    // cam -> setPosition( c );
+    //Vector3 c = cam -> getPosition();
+    //c.y = getHeightAt(c.x, c.z ) + 2;
+    //cam -> setPosition( c );
 
     OctreeSceneManager::_updateSceneGraph( cam );
 }
