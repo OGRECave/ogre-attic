@@ -209,10 +209,15 @@ material Examples/BumpMapping/1
 		// Base ambient pass
 		pass
 		{
-			// Should not be affected by ambient or specular
-			diffuse 0 0 0
-			specular 0 0 0
-			ambient 1 1 1
+			// Really basic vertex program
+			// NB we don't use fixed function here because GL does not like
+			// mixing fixed function and vertex programs, depth fighting can
+			// be an issue
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
 			
 		}
 		// Now do the lighting pass
@@ -249,14 +254,19 @@ material Examples/BumpMapping/1
 				colour_op_multipass_fallback dest_colour zero
 			}
 		}
+		
 		// Decal pass
 		pass
 		{
-			// NB for this fallback technique, we let this pass get lit
-			// by the standard diffuse and specular effects
-			// This is because without a fragment program we can't pick
-			// up the light colour any other way
-
+			// Really basic vertex program
+			// NB we don't use fixed function here because GL does not like
+			// mixing fixed function and vertex programs, depth fighting can
+			// be an issue
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
 			scene_blend dest_colour zero
 			texture_unit
 			{

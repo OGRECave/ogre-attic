@@ -1,3 +1,11 @@
+// General functions
+
+// Expand a range-compressed vector
+float3 expand(float3 v)
+{
+	return (v - 0.5) * 2;
+}
+
 
 /* Bump mapping vertex program
    In this program, we want to calculate the tangent space light vector
@@ -40,6 +48,25 @@ void main_vp(float4 position	: POSITION,
 	// Transform the light vector according to this matrix
 	oTSLightDir = normalize(mul(rotation, lightDir));
 	
+	
+}
+
+void main_fp( float2 uv			: TEXCOORD0,
+			  float  TSlightDir : TEXCOORD1,
+
+			  out float4 colour	: COLOR,
+
+			  uniform samplerCUBE normalCubeMap,
+			  uniform sampler2D   normalMap)
+{
+	// retrieve normalised light vector, expand from range-compressed
+	float3 lightVec = expand(texCUBE(normalCubeMap, TXlightDir));
+
+	// get bump map vector, again expand from range-compressed
+	float3 bumpVec = expand(tex2D(normalMap, uv));
+
+	// Calculate dot product
+	colour = dot(bumpVec, lightVec);
 	
 }
 
