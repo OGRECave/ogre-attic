@@ -145,7 +145,7 @@ protected:
         ball->setDynamicsEnabled(true);
         ball->getEntity()->setMaterialName("Ogre/Eyes");
 
-        Box* box = mWorld->createBox("shelf", 75, 125, 5, Vector3(-150, 40, 30));
+		OgreRefApp::Box* box = mWorld->createBox("shelf", 75, 125, 5, Vector3(-150, 40, 30));
         box->getEntity()->setMaterialName("Examples/Rocky");
 
         static const Real BOX_SIZE = 15.0f;
