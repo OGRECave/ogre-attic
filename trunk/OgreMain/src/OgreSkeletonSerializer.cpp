@@ -40,7 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     /// stream overhead = ID + size
-    const unsigned long stream_OVERHEAD_SIZE = sizeof(unsigned short) + sizeof(unsigned long);
+    const size_t stream_OVERHEAD_SIZE = sizeof(uint16) + sizeof(uint32);
     //---------------------------------------------------------------------
     SkeletonSerializer::SkeletonSerializer()
     {
@@ -220,10 +220,10 @@ namespace Ogre {
         writeObject(key->getScale());
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
+    uint32 SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
         const Bone* pBone)
     {
-        unsigned long size = stream_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // handle
         size += sizeof(unsigned short);
@@ -235,12 +235,11 @@ namespace Ogre {
         size += sizeof(Real) * 4;
 
         return size;
-
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcBoneParentSize(const Skeleton* pSkel)
+    uint32 SkeletonSerializer::calcBoneParentSize(const Skeleton* pSkel)
     {
-        unsigned long size = stream_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // handle
         size += sizeof(unsigned short);
@@ -252,13 +251,13 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcAnimationSize(const Skeleton* pSkel, 
+    uint32 SkeletonSerializer::calcAnimationSize(const Skeleton* pSkel, 
         const Animation* pAnim)
     {
-        unsigned long size = stream_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // Name, including terminator
-        size += (unsigned long)pAnim->getName().length() + 1;
+        size += pAnim->getName().length() + 1;
         // length
         size += sizeof(Real);
 
@@ -268,15 +267,13 @@ namespace Ogre {
             size += calcAnimationTrackSize(pSkel, pAnim->getTrack(i));
         }
 
-
         return size;
-
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
+    uint32 SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
         const AnimationTrack* pTrack)
     {
-        unsigned long size = stream_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // unsigned short boneIndex     : Index of bone to apply to
         size += sizeof(unsigned short);
@@ -291,10 +288,10 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
+    uint32 SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
         const KeyFrame* pKey)
     {
-        unsigned long size = stream_OVERHEAD_SIZE;
+        size_t size = stream_OVERHEAD_SIZE;
 
         // Real time                    : The time position (seconds)
         size += sizeof(Real);
@@ -377,7 +374,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-track
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-stream_OVERHEAD_SIZE);
             }
 
         }
@@ -416,7 +413,7 @@ namespace Ogre {
             if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-keyframe
-                stream->skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-stream_OVERHEAD_SIZE);
             }
 
         }
