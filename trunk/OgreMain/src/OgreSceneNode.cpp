@@ -487,17 +487,17 @@ namespace Ogre {
 
         if (relativeTo == TS_LOCAL || !mParent)
         {
-            mOrientation = targetOrientation;
+            setOrientation(targetOrientation);
         }
         else
         {
             if (relativeTo == TS_PARENT)
             {
-                mOrientation = targetOrientation * mParent->getOrientation().Inverse();
+                setOrientation(targetOrientation * mParent->getOrientation().Inverse());
             }
             else if (relativeTo == TS_WORLD)
             {
-                mOrientation = targetOrientation * mParent->_getDerivedOrientation().Inverse();
+                setOrientation(targetOrientation * mParent->_getDerivedOrientation().Inverse());
             }
         }
 
