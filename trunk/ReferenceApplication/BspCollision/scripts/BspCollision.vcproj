@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_BspCollision"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{1982C73F-3D1C-46A6-9DFB-C7B03310365B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

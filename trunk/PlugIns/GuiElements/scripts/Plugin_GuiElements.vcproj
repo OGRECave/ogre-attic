@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Plugin_GuiElements"
-	ProjectGUID="{3AD3E5EF-0CC8-4A69-9827-7D42C270007F}"
+	ProjectGUID="{3F34D3E2-677B-43FB-835A-E8C1C9474D34}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

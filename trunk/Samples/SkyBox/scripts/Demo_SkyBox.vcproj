@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_SkyBox"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{BC7E19F4-4B5D-4549-B473-E234011B6719}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Plugin_ParticleFX"
-	ProjectGUID="{3AD3E5EF-0CC8-4A69-9827-7D42C270007F}"
+	ProjectGUID="{C61A6060-5F0B-4B83-A0BC-678CCDA98FF6}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_SkyPlane"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{2EF34790-42A6-4722-925A-8255120A90E3}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

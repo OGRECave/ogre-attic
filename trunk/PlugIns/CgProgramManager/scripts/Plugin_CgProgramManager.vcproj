@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Plugin_CgProgramManager"
-	ProjectGUID="{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}"
+	ProjectGUID="{1C741C2F-3278-43D8-9FD2-E631A64B70AE}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.00"
 	Name="Demo_Smoke"
-	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+	ProjectGUID="{86B4ED07-3D95-45C3-B387-512046E95C68}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
