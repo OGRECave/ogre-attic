@@ -18,7 +18,6 @@ email                : janders@users.sf.net
 #include <OgreOctreeSceneManager.h>
 #include <OgreOctreeNode.h>
 #include <OgreOctreeCamera.h>
-
 #include <OgreRenderSystem.h>
 
 namespace Ogre
@@ -228,6 +227,31 @@ namespace Ogre
         mCameras.insert( CameraList::value_type( name, c ) );
         return c;
     }
+
+  void OctreeSceneManager::destroySceneNode( const String &name )
+  {
+    OctreeNode * on = static_cast<OctreeNode*>( getSceneNode( name ) );
+    if( on != 0 )
+      _removeOctreeNode( on );
+
+    SceneManager::destroySceneNode( name );
+  }
+  
+  bool OctreeSceneManager::getOptionValues( const String & key, std::list<SDDataChunk>&refValueList )
+  {
+    return SceneManager::getOptionValues( key, refValueList );
+  }
+
+  bool OctreeSceneManager::getOptionKeys( std::list< String > & refKeys)
+  {
+    SceneManager::getOptionKeys( refKeys );
+    refKeys.push_back( "CullCamera" );
+    refKeys.push_back( "Size" );
+    refKeys.push_back( "ShowOctree" );
+    refKeys.push_back( "Depth" );
+
+    return true;
+  }
 
 
     void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )

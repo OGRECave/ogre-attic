@@ -68,6 +68,11 @@ namespace Ogre
         /** Creates a specialized OctreeCamera */
         virtual Camera * createCamera( const String &name );
 
+	/** Deletes a scene node */
+	virtual void destroySceneNode( const String &name );
+
+
+
         /** Does nothing more */
         virtual void _updateSceneGraph( Camera * cam );
         /** Renders the visible objects in the Octree */
@@ -139,6 +144,11 @@ namespace Ogre
 	    See setOption
 	*/
 	virtual bool getOption( const String &, void * );
+  
+	bool getOptionValues( const String & key, std::list<SDDataChunk>&refValueList );
+	bool getOptionKeys( std::list< String > & refKeys);
+
+
 
 
     protected:
