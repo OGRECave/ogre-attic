@@ -481,6 +481,12 @@ namespace Ogre {
 		targetGeomLink->indexData->indexStart = 0;
 		targetGeomLink->indexData->indexCount = id->indexCount;
 		targetGeomLink->indexData->indexBuffer = ibuf;
+
+		// Store optimised geometry for deallocation later
+		OptimisedSubMeshGeometry *optGeom = new OptimisedSubMeshGeometry();
+		optGeom->indexData = targetGeomLink->indexData;
+		optGeom->vertexData = targetGeomLink->vertexData;
+		mOptimisedSubMeshGeometryList.push_back(optGeom);
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::addSceneNode(const SceneNode* node)
@@ -555,6 +561,14 @@ namespace Ogre {
 		{
 			delete l->second;
 		}
+		mSubMeshGeometryLookup.clear();
+		// Delete optimised geometry
+		for (OptimisedSubMeshGeometryList::iterator o = mOptimisedSubMeshGeometryList.begin();
+			o != mOptimisedSubMeshGeometryList.end(); ++o)
+		{
+			delete *o;
+		}
+		mOptimisedSubMeshGeometryList.clear();
 
 	}
 	//--------------------------------------------------------------------------
