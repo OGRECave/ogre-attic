@@ -210,7 +210,15 @@ namespace Ogre {
         /// DDS (DirectDraw Surface) DXT4 format
         PF_DXT4,
         /// DDS (DirectDraw Surface) DXT5 format
-        PF_DXT5
+        PF_DXT5,
+        // 48-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue
+        PF_FP_R16G16B16,
+        // 64-bit pixel format, 16 bits (float) for red, 16 bits (float) for green, 16 bits (float) for blue, 16 bits (float) for alpha
+        PF_FP_R16G16B16A16,
+       // 96-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue
+        PF_FP_R32G32B32,
+        // 128-bit pixel format, 32 bits (float) for red, 32 bits (float) for green, 32 bits (float) for blue, 32 bits (float) for alpha
+        PF_FP_R32G32B32A32
 	};
 
     /** An enumeration of broad shadow techniques */
