@@ -75,7 +75,7 @@ namespace Ogre {
                 
                 // unsigned short boneIndex     : Index of bone to apply to
 
-                SKELETON_ANIMATION_TRACK_KEYFRAME = 0x4110,
+                SKELETON_ANIMATION_TRACK_KEYFRAME = 0x4110
                 // A single keyframe within the track
                 // Repeating section
 

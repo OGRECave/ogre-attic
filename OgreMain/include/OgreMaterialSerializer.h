@@ -53,8 +53,8 @@ namespace Ogre {
 
     protected:
 		void writeMaterial(const Material *pMat);
-        void MaterialSerializer::writeTechnique(const Technique* pTech);
-        void MaterialSerializer::writePass(const Pass* pPass);
+        void writeTechnique(const Technique* pTech);
+        void writePass(const Pass* pPass);
 		void writeTextureUnit(const TextureUnitState *pTex);
 
 		void writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dest);
