@@ -11343,9 +11343,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.cpp.cpp;
 			name = OgreRenderQueueSortingGrouping.cpp;
-			path = /Users/temas/cvs/ogre/OgreMain/src/OgreRenderQueueSortingGrouping.cpp;
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = ../../../OgreMain/src/OgreRenderQueueSortingGrouping.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		82D30CC7062F2ED90069440B = {
 			fileRef = 82D30CC6062F2ED90069440B;
