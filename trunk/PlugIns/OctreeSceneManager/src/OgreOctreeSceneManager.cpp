@@ -317,6 +317,8 @@ void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
     {
         oct -> _removeNode( n );
     }
+
+    n->setOctant(0);
 }
 
 
