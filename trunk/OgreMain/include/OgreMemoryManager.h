@@ -22,6 +22,19 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+//---- ORIGINAL COPYRIGHT FOLLOWS -------------------------------------------
+// ---------------------------------------------------------------------------------------------------------------------------------
+// Copyright 2000, Paul Nettle. All rights reserved.
+//
+// You are free to use this source code in any commercial or non-commercial product.
+//
+// mmgr.cpp - Memory manager & tracking software
+//
+// The most recent version of this software can be found at: ftp://ftp.GraphicsPapers.com/pub/ProgrammingTools/MemoryManagers/
+//
+// [NOTE: Best when viewed with 8-character tabs]
+//
+// ---------------------------------------------------------------------------------------------------------------------------------
 #ifndef __MemoryManager_H__
 #define __MemoryManager_H__
 
