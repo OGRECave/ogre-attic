@@ -210,16 +210,29 @@ namespace OgreMaya {
 
 				MFnDependencyNode ShaderFn(ShaderPlugArray[iPlug].node());
 				MItDependencyGraph ItShaderGraph(ShaderPlugArray[iPlug], 
-					                             MFn::kTexture2d, 
+					                             MFn::kFileTexture, 
 										         MItDependencyGraph::kUpstream);
 				int iTexCoordSet = 0;
 				while (!ItShaderGraph.isDone()) {
 					MObject ShaderTexture = ItShaderGraph.thisNode();
 					MFnDependencyNode FnTexture(ShaderTexture);
-					mat->textureLayers.push_back(
-                        TextureLayer(FnTexture.name().asChar(), iTexCoordSet)
+
+                    MString textureFile;
+                    FnTexture.findPlug("fileTextureName").getValue(textureFile);
+
+                    int substrI;
+                    substrI = textureFile.rindex('\\');
+                    if(substrI<0)
+                        substrI = textureFile.rindex('/');
+
+                    if(substrI>0)
+                        textureFile = textureFile.substring(substrI+1, textureFile.length()-1);
+
+		    		mat->textureLayers.push_back(
+                        TextureLayer(textureFile.asChar(), iTexCoordSet)
                     );
-					ItShaderGraph.next();
+			          
+                    ItShaderGraph.next();
 					++iTexCoordSet;
 				}
 			}
