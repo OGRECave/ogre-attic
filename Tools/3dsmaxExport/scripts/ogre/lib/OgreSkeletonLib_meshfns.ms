@@ -245,10 +245,10 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 			if (exportUV) then
 			(
 				UVcoords=#();
-				local vertInds = getTVFace tmesh face ;
 				for ch=1 to numUVsets do
 				(
-					UVW = meshOp.getMapVert tmesh ch vertInds[localVertexIndex] ;	-- retrieve the UV for the corresponding channel.
+					local vertInds = meshOp.getMapFace tmesh ch face ;
+					local UVW = meshOp.getMapVert tmesh ch vertInds[localVertexIndex] ;	-- retrieve the UV for the corresponding channel.
 					append UVcoords UVW[1];
 					append UVcoords UVW[2];							-- don't care about the W coordinate
 				)
