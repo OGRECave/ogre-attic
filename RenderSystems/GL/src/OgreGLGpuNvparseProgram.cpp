@@ -44,12 +44,15 @@ void GLGpuNvparseProgram::bindProgram(void)
      glCallList(mProgramID);
      glEnable(GL_TEXTURE_SHADER_NV);
      glEnable(GL_REGISTER_COMBINERS_NV);
+     glEnable(GL_PER_STAGE_CONSTANTS_NV);
 }
 
 void GLGpuNvparseProgram::unbindProgram(void)
 {
+
     glDisable(GL_TEXTURE_SHADER_NV);
     glDisable(GL_REGISTER_COMBINERS_NV);
+    glDisable(GL_PER_STAGE_CONSTANTS_NV);
 }
 
 void GLGpuNvparseProgram::bindProgramParameters(GpuProgramParametersSharedPtr params)
