@@ -67,9 +67,10 @@ namespace Ogre {
 		*/
 		void linkBoneWithParent(DeformerEntry* deformer, 
 			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList);
-		/** Eliminate the current bone if it has no animated parameters
+		/** Validate and create a bone, or eliminate the current bone if it 
+			has no animated parameters
 		*/
-		void eliminateStaticBone(DeformerEntry* deformer, 
+		void validateAsBone(Skeleton* pSkeleton, DeformerEntry* deformer, 
 			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList, 
 			AnimationList& animList);
 		/*

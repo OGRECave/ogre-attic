@@ -127,37 +127,13 @@ namespace Ogre
 		for (std::list<DeformerEntry*>::iterator i = deformerList.begin(); i != deformerList.end(); ++i)
 		{
 			DeformerEntry* deformer = *i;
-			if (deformer->parentName.empty())
-			{
-				eliminateStaticBone(deformer, deformers, deformerList, animList);
-			}
+			validateAsBone(pSkeleton, deformer, deformers, deformerList, animList);
 		}
 
-		// Now create bones and link
+		// Now link
 		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
 		{
 			DeformerEntry* deformer = i->second;
-
-			if (!deformer->pBone)
-			{
-				String name = XSItoOgre(deformer->obj.GetName());
-				deformer->pBone = pSkeleton->createBone(name, deformer->boneID);
-				MATH::CTransformation trans; 
-
-				if (deformer->parentName.empty())
-				{
-					// set transform on bone to global transform since no parents
-					trans = deformer->obj.GetKinematics().GetGlobal().GetTransform();
-				}
-				else
-				{
-					// set transform on bone to local transform (since child)
-					trans = deformer->obj.GetKinematics().GetLocal().GetTransform();
-				}
-				deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
-				deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
-				deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
-			}
 
 			// link to parent
 			if (!deformer->parentName.empty())
@@ -219,7 +195,8 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::eliminateStaticBone(DeformerEntry* deformer, 
+	void XsiSkeletonExporter::validateAsBone(Skeleton* pSkeleton, 
+		DeformerEntry* deformer, 
 		DeformerMap& deformers, std::list<DeformerEntry*>& deformerList, 
 		AnimationList& animList)
 	{
@@ -232,6 +209,31 @@ namespace Ogre
 	   */
 
 		// TODO
+
+
+		// if we weren't static, create bone
+		if (!deformer->pBone)
+		{
+			String name = XSItoOgre(deformer->obj.GetName());
+			deformer->pBone = pSkeleton->createBone(name, deformer->boneID);
+			MATH::CTransformation trans; 
+
+			if (deformer->parentName.empty())
+			{
+				// set transform on bone to global transform since no parents
+				trans = deformer->obj.GetKinematics().GetGlobal().GetTransform();
+			}
+			else
+			{
+				// set transform on bone to local transform (since child)
+				trans = deformer->obj.GetKinematics().GetLocal().GetTransform();
+			}
+			deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
+			deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
+			deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
+		}
+
+
 
 	}
 	//-----------------------------------------------------------------------------
