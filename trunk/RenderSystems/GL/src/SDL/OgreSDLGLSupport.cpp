@@ -82,7 +82,8 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
-        return renderSystem->createRenderWindow(windowTitle, w, h, 32, fullscreen);
+        const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
+        return renderSystem->createRenderWindow(windowTitle, w, h, videoInfo->vfmt->BitsPerPixel, fullscreen);
     }
     else
     {
