@@ -661,7 +661,7 @@ namespace Ogre {
             switch (lt->getType())
             {
             case Light::LT_SPOTLIGHT:
-                glLightf( gl_index, GL_SPOT_CUTOFF, lt->getSpotlightOuterAngle() );
+                glLightf( gl_index, GL_SPOT_CUTOFF, lt->getSpotlightOuterAngle() * 0.5 );
                 break;
             default:
                 glLightf( gl_index, GL_SPOT_CUTOFF, 180.0 );
@@ -938,7 +938,7 @@ namespace Ogre {
 
             // Set scale and translation matrix for projective textures
             projectionBias = Matrix4::ZERO;
-            projectionBias[0][0] = 0.5; projectionBias[1][1] = 0.5; 
+            projectionBias[0][0] = 0.5; projectionBias[1][1] = -0.5; 
             projectionBias[2][2] = 1.0; projectionBias[0][3] = 0.5; 
             projectionBias[1][3] = 0.5; projectionBias[3][3] = 1.0;
 
