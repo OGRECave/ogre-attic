@@ -137,6 +137,11 @@ namespace Ogre {
         mBillboardSet->_notifyBillboardTextureCoordsModified();
     }
     //-----------------------------------------------------------------------
+    void BillboardParticleRenderer::_notifyDefaultDimensions(Real width, Real height)
+    {
+        mBillboardSet->setDefaultDimensions(width, height);
+    }
+    //-----------------------------------------------------------------------
     void BillboardParticleRenderer::_notifyParticleResized(void)
     {
         mBillboardSet->_notifyBillboardResized();
