@@ -273,7 +273,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     Ogre::MeshSerializer serializer;
 
     // Export, no materials for now
-    serializer.export(ogreMesh, szFile, false);
+    serializer.exportMesh(ogreMesh, szFile, false);
 
     delete ogreMesh;
 }
