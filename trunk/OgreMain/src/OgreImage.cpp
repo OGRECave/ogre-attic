@@ -101,6 +101,8 @@ namespace Ogre {
 
         memcpy( m_pBuffer, pTempBuffer, rowSpan * m_uHeight);
 
+        delete [] pTempBuffer;
+
         OgreUnguardRet( *this );
     }
 
