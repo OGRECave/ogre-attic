@@ -98,7 +98,6 @@ namespace Ogre {
         }
 
 		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
-		memcpy( output->getPtr(), ilGetData(), ImageSize );
 
 		ilDeleteImages( 1, &ImageName );
 
