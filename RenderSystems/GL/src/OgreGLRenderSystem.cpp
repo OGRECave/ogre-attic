@@ -82,7 +82,12 @@ GL_CombinerInputNV_Func glCombinerInputNV_ptr;
 GL_CombinerOutputNV_Func glCombinerOutputNV_ptr;
 GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
 GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
+PFNGLCOMPRESSEDTEXIMAGE1DARBPROC glCompressedTexImage1DARB_ptr;
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
+PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB_ptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC glCompressedTexSubImage1DARB_ptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC glCompressedTexSubImage2DARB_ptr;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC glCompressedTexSubImage3DARB_ptr;
 GL_ActiveStencilFaceEXT_Func glActiveStencilFaceEXT_ptr;
 GL_GenOcclusionQueriesNV_Func glGenOcclusionQueriesNV_ptr;	
 GL_DeleteOcclusionQueriesNV_Func glDeleteOcclusionQueriesNV_ptr;
@@ -561,8 +566,18 @@ namespace Ogre {
             (GL_FinalCombinerInputNV_Func)mGLSupport->getProcAddress("glFinalCombinerInputNV");
         glTrackMatrixNV_ptr = 
             (GL_TrackMatrixNV_Func)mGLSupport->getProcAddress("glTrackMatrixNV");
+		glCompressedTexImage1DARB_ptr =
+            (PFNGLCOMPRESSEDTEXIMAGE1DARBPROC)mGLSupport->getProcAddress("glCompressedTexImage1DARB");
         glCompressedTexImage2DARB_ptr =
             (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)mGLSupport->getProcAddress("glCompressedTexImage2DARB");
+		glCompressedTexImage3DARB_ptr =
+            (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)mGLSupport->getProcAddress("glCompressedTexImage3DARB");
+        glCompressedTexSubImage1DARB_ptr =
+            (PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC)mGLSupport->getProcAddress("glCompressedTexSubImage1DARB");
+        glCompressedTexSubImage2DARB_ptr =
+            (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)mGLSupport->getProcAddress("glCompressedTexSubImage2DARB");
+        glCompressedTexSubImage3DARB_ptr =
+            (PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC)mGLSupport->getProcAddress("glCompressedTexSubImage3DARB");
         InitATIFragmentShaderExtensions(*mGLSupport);
 		InitGLShaderLanguageExtensions(*mGLSupport);
         glActiveStencilFaceEXT_ptr = 

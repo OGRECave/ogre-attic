@@ -25,6 +25,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLTexture.h"
 #include "OgreGLSupport.h"
+#include "OgreGLPixelFormat.h"
+#include "OgreGLHardwarePixelBuffer.h"
+
 #include "OgreTextureManager.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
@@ -33,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreCodec.h"
 #include "OgreImageCodec.h"
-#include "OgreHardwarePixelBuffer.h"
+
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -85,136 +88,6 @@ namespace Ogre {
         };
     }
 
-    GLenum GLTexture::getGLTextureOriginFormat(void) const
-    {
-        switch(mFormat)
-        {
-            case PF_L8:
-                return GL_LUMINANCE;
-            case PF_L16:
-                return GL_LUMINANCE;
-#if OGRE_ENDIAN == ENDIAN_BIG
-            // Formats are in native endian, so R8G8B8 on little endian is
-            // BGR, on big endian it is RGB.
-            case PF_R8G8B8:
-                return GL_RGB;
-            case PF_B8G8R8:
-                return GL_BGR;
-#else
-            case PF_R8G8B8:
-                return GL_BGR;
-            case PF_B8G8R8:
-                return GL_RGB;
-#endif
-            case PF_A8R8G8B8:
-                return GL_BGRA;
-            case PF_A8B8G8R8:
-                return GL_RGBA;
-            case PF_B8G8R8A8:
-                return GL_BGRA;
-            case PF_A2R10G10B10:
-                return GL_BGRA;
-            case PF_A2B10G10R10:
-                return GL_RGBA;
-            case PF_FP_R16G16B16:
-                return GL_RGB;
-            case PF_FP_R16G16B16A16:
-                return GL_RGBA;
-            case PF_FP_R32G32B32:
-                return GL_RGB;
-            case PF_FP_R32G32B32A32:
-                return GL_RGBA;
-            case PF_DXT1:
-                return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-            case PF_DXT3:
-                 return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-            case PF_DXT5:
-                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-            default:
-                return 0;
-        }
-    }
-
-    GLenum GLTexture::getGLTextureOriginDataType(void) const
-    {
-        switch(mFormat)
-        {
-            case PF_L8:
-            case PF_R8G8B8:
-            case PF_B8G8R8:
-                return GL_UNSIGNED_BYTE;
-            case PF_L16:
-                return GL_UNSIGNED_SHORT;
-            case PF_A8B8G8R8:
-                return GL_UNSIGNED_INT_8_8_8_8_REV;
-            case PF_A8R8G8B8:
-                return GL_UNSIGNED_INT_8_8_8_8_REV;
-            case PF_B8G8R8A8:
-                return GL_UNSIGNED_INT_8_8_8_8;
-            case PF_A2R10G10B10:
-                return GL_UNSIGNED_INT_2_10_10_10_REV;
-            case PF_A2B10G10R10:
-                return GL_UNSIGNED_INT_2_10_10_10_REV;
-            case PF_FP_R16G16B16:
-            case PF_FP_R16G16B16A16:
-                return 0; // GL_HALF_FLOAT_ARB -- nyi
-            case PF_FP_R32G32B32:
-            case PF_FP_R32G32B32A32:
-                return GL_FLOAT;
-            default:
-                return 0;
-        }
-    }
-
-    GLenum GLTexture::getGLTextureInternalFormat(void) const
-    {
-        switch(mFormat) {
-            case PF_L8:
-                return GL_LUMINANCE8;
-            case PF_L16:
-                return GL_LUMINANCE16;
-            case PF_A8:
-                return GL_ALPHA8;
-            case PF_A4L4:
-            case PF_L4A4:
-                return GL_LUMINANCE4_ALPHA4;
-            case PF_R5G6B5:
-            case PF_B5G6R5:
-                return GL_RGB5;
-            case PF_A4R4G4B4:
-            case PF_B4G4R4A4:
-                return GL_RGBA4;
-            case PF_R8G8B8:
-            case PF_B8G8R8:
-                return GL_RGB8;
-            case PF_A8R8G8B8:
-            case PF_B8G8R8A8:
-                return GL_RGBA8;
-            case PF_A2R10G10B10:
-            case PF_A2B10G10R10:
-                return GL_RGB10_A2;
-            case PF_FP_R16G16B16:
-                return GL_RGB_FLOAT16_ATI;
-                //    return GL_RGB16F_ARB;
-            case PF_FP_R16G16B16A16:
-                return GL_RGBA_FLOAT16_ATI;
-                //    return GL_RGBA16F_ARB;
-            case PF_FP_R32G32B32:
-                return GL_RGB_FLOAT32_ATI;
-                //    return GL_RGB32F_ARB;
-            case PF_FP_R32G32B32A32:
-                return GL_RGBA_FLOAT32_ATI;
-                //    return GL_RGBA32F_ARB;
-            case PF_DXT1:
-                return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-            case PF_DXT3:
-                return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-            case PF_DXT5:
-                return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-            default:
-                return GL_RGBA8; // 0?
-        }
-    }
 
 
     void GLTexture::blitToTexture( 
@@ -229,53 +102,167 @@ namespace Ogre {
             GL_TEXTURE_2D, 0, 
             uStartX, uStartY,
             src.getWidth(), src.getHeight(),
-            getGLTextureOriginFormat(),
-            getGLTextureOriginDataType(), src.getData() );
+            GLPixelUtil::getGLOriginFormat(mFormat),
+            GLPixelUtil::getGLOriginDataType(mFormat), src.getData() );
     }
 
-    uchar* GLTexture::rescaleNPower2( const Image& src ) 
+	
+	//* Creation / loading methods ********************************************
+	void GLTexture::createInternalResources(void)
     {
-        // Scale image to n^2 dimensions
-        unsigned int newWidth = (1 << mostSignificantBitSet(mSrcWidth));
-        if (newWidth != mSrcWidth)
+		// Adjust requested parameters to capabilities
+		
+		// Check power-of-two size if required
+        unsigned int newWidth = (1 << mostSignificantBitSet(mWidth));
+        if (newWidth != mWidth)
             newWidth <<= 1;
 
-        unsigned int newHeight = (1 << mostSignificantBitSet(mSrcHeight));
-        if (newHeight != mSrcHeight)
+        unsigned int newHeight = (1 << mostSignificantBitSet(mHeight));
+        if (newHeight != mHeight)
             newHeight <<= 1;
+			
+		unsigned int newDepth = (1 << mostSignificantBitSet(mDepth));
+        if (newDepth != mDepth)
+            newDepth <<= 1;
 
-        uchar* pTempData;
-        if(!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_NON_POWER_OF_2_TEXTURES) && 
-            (newWidth != mSrcWidth || newHeight != mSrcHeight))
+        if(!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_NON_POWER_OF_2_TEXTURES))
+		{
+			mHeight = newHeight;
+			mWidth = newWidth;
+			mDepth = newDepth;
+		}
+		
+		// Check compressed texture support
+		// if a compressed format not supported, revert to PF_A8R8G8B8
+		if(PixelUtil::isCompressed(mFormat) &&
+		 !Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
+		{
+			mFormat = PF_A8R8G8B8;
+		}
+		// if floating point textures not supported, revert to PF_A8R8G8B8
+		if(PixelUtil::isFloatingPoint(mFormat) &&
+		 !Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_FLOAT ))
+		{
+			mFormat = PF_A8R8G8B8;
+		}
+		
+		// Check requested number of mipmaps
+		// Zero means create mip levels until 1x1
+		size_t maxMips = GLPixelUtil::getMaxMipmaps(mWidth, mHeight, mDepth, mFormat);
+		if(mNumMipmaps==0 || mNumMipmaps>maxMips)
+			mNumMipmaps = maxMips;
+		
+		// Generate texture name
+        glGenTextures( 1, &mTextureID );
+		
+		// Set texture type
+		glBindTexture( getGLTextureTarget(), mTextureID );
+        
+		// This needs to be set otherwise the texture doesn't get rendered
+        glTexParameteri( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps - 1 );
+		
+		// If we can do automip generation, do so
+		// TODO: make this a choice
+		if(mNumMipmaps &&
+		 Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
-            unsigned int newImageSize = newWidth * newHeight * 
-                PixelUtil::getNumElemBytes(mFormat);
-
-            pTempData = new uchar[ newImageSize ];
-
-            if(gluScaleImage(getGLTextureOriginFormat(), mSrcWidth, mSrcHeight,
-                getGLTextureOriginDataType(), src.getData(), newWidth, newHeight, 
-                getGLTextureOriginDataType(), pTempData) != 0)
-            {
-                Except(Exception::ERR_INTERNAL_ERROR, 
-                    "Error while rescaling image!", 
-                    "GLTexture::rescaleNPower2");
-            }
-
-            Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
-
-            mSrcWidth = mWidth = newWidth; 
-            mSrcHeight = mHeight = newHeight;
-        } else  {
-            // The texture is already a power of two, or the RenderSystem supports non-power-of-2 textures
-            pTempData = new uchar[ src.getSize() ];
-            memcpy( pTempData, src.getData(), src.getSize() );
-            Image::applyGamma( pTempData, mGamma, src.getSize(), mSrcBpp );
+            glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
         }
-
-        return pTempData;
+		
+		// Allocate internal buffer so that glTexSubImageXD can be used
+		// Internal format
+		GLenum format = GLPixelUtil::getClosestGLInternalFormat(mFormat);
+		size_t width = mWidth;
+		size_t height = mHeight;
+		size_t depth = mDepth;
+		if(PixelUtil::isCompressed(mFormat))
+		{
+			// Compressed formats
+			size_t size = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
+			// Provide temporary buffer filled with zeroes as glCompressedTexImageXD does not
+			// accept a 0 pointer like normal glTexImageXD
+			// Run through this process for every mipmap to pregenerate mipmap piramid
+			uint8 *tmpdata = new uint8(size);
+			std::fill(tmpdata, tmpdata+size, 0);
+			
+			for(int mip=0; mip<mNumMipmaps; mip++)
+			{
+			//int mip = 0;
+				size = PixelUtil::getMemorySize(width, height, depth, mFormat);
+				switch(mTextureType)
+				{
+					case TEX_TYPE_1D:
+						glCompressedTexImage1DARB_ptr(GL_TEXTURE_1D, mip, format, 
+							width, 0, 
+							size, tmpdata);
+						break;
+					case TEX_TYPE_2D:
+						glCompressedTexImage2DARB_ptr(GL_TEXTURE_2D, mip, format,
+							width, height, 0, 
+							size, tmpdata);
+						break;
+					case TEX_TYPE_3D:
+						glCompressedTexImage3DARB_ptr(GL_TEXTURE_3D, mip, format,
+							width, height, depth, 0, 
+							size, tmpdata);
+						break;
+					case TEX_TYPE_CUBE_MAP:
+						for(int face=0; face<6; face++) {
+							glCompressedTexImage2DARB_ptr(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mip, format,
+								width, height, 0, 
+								size, tmpdata);
+						}
+						break;
+				};
+				width = (width+1)/2;
+				height = (height+1)/2;
+				depth = (depth+1)/2;
+			}
+			delete tmpdata;
+		}
+		else
+		{
+			// Run through this process to pregenerate mipmap piramid
+			for(int mip=0; mip<mNumMipmaps; mip++)
+			{
+				// Normal formats
+				switch(mTextureType)
+				{
+					case TEX_TYPE_1D:
+						glTexImage1D(GL_TEXTURE_1D, mip, format,
+							width, 0, 
+							GL_RGBA, GL_UNSIGNED_INT, 0);
+	
+						break;
+					case TEX_TYPE_2D:
+						glTexImage2D(GL_TEXTURE_2D, mip, format,
+							width, height, 0, 
+							GL_RGBA, GL_UNSIGNED_INT, 0);
+						break;
+					case TEX_TYPE_3D:
+						glTexImage3D(GL_TEXTURE_3D, mip, format,
+							width, height, depth, 0, 
+							GL_RGBA, GL_UNSIGNED_INT, 0);
+						break;
+					case TEX_TYPE_CUBE_MAP:
+						for(int face=0; face<6; face++) {
+							glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mip, format,
+								width, height, 0, 
+								GL_RGBA, GL_UNSIGNED_INT, 0);
+						}
+						break;
+				};
+				width = (width+1)/2;
+				height = (height+1)/2;
+				depth = (depth+1)/2;
+			}
+		}
+		_createSurfaceList();
+		// Get final internal format
+		mFormat = getBuffer(0,0)->getFormat();
     }
-
+	
+	
     void GLTexture::loadImage( const Image& img )
     {
         std::vector<Image> images;
@@ -284,15 +271,14 @@ namespace Ogre {
         loadImages(images);
         images.clear();
     }
-
-    void GLTexture::createInternalResources(void)
-    {
-        glGenTextures( 1, &mTextureID );
-    }
+    
 
     void GLTexture::loadImages( const std::vector<Image>& images )
     {
-        bool useSoftwareMipmaps = true;
+		if(images.size() < 1)
+			Except(Exception::ERR_INVALIDPARAMS, "Cannot load empty vector of images",
+			 "GLTexture::loadImages");
+        
  
         if( mIsLoaded )
         {
@@ -300,55 +286,57 @@ namespace Ogre {
             unload();
         }
 
+		// Set desired texture size and properties from images[0]
+		mWidth = images[0].getWidth();
+		mHeight = images[0].getHeight();
+		mDepth = images[0].getDepth();
+		mFormat = images[0].getFormat();
+		mSrcBpp = PixelUtil::getNumElemBits(mFormat);
+		mHasAlpha = PixelUtil::hasAlpha(mFormat);
+		// The custom mipmaps in the image have priority over everything
+		bool doCustomMipmaps = images[0].getNumMipmaps()>0;
+		
+		if(doCustomMipmaps) {
+			mNumMipmaps = images[0].getNumMipmaps();
+			// TODO: disable flag for auto mip generation
+		}
+		
         // Create the GL texture
         createInternalResources();
-
-        glBindTexture( getGLTextureTarget(), mTextureID );
-
-        if(mNumMipmaps && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
-        {
-            glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
-            useSoftwareMipmaps = false;
-        }
 
         for(size_t i = 0; i < images.size(); i++)
         {
             const Image& img = images[i];
 
             StringUtil::StrStreamType str;
-            str << "GLTexture: Loading " << mName 
+            str << "GLTexture: Loading face=" << i << " filename=" << mName 
                 << "(" << PixelUtil::getFormatName(img.getFormat()) << ") with "
                 << mNumMipmaps << " mipmaps from Image.";
             LogManager::getSingleton().logMessage( 
                 LML_NORMAL, str.str());
 
-            mFormat = img.getFormat();
+			// Destination: entire texture. blitFromMemory does the scaling to
+			// a power of two for us when needed
+        	Box destBox(0, 0, 0, mWidth, mHeight, mDepth);
+			PixelBox src = img.getPixelBox(0, 0);
+			// TODO manual mips
+			if(mGamma != 1.0f) {
+				// Do gamma correction in temporary buffer
+				PixelBox corrected = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), src.format);
+				corrected.data = new uint8[ corrected.getConsecutiveSize() ];
+				PixelUtil::bulkPixelConversion(src, corrected);
+				
+				Image::applyGamma(static_cast<uint8*>(corrected.data), mGamma, corrected.getConsecutiveSize(), 
+					PixelUtil::getNumElemBits(src.format));
+				
+				getBuffer(i, 0)->blitFromMemory(corrected, destBox);
+				delete [] static_cast<uint8*>(corrected.data);
+			}
+			else 
+			{
+            	getBuffer(i, 0)->blitFromMemory(src, destBox);
+			}
 
-            mSrcBpp = PixelUtil::getNumElemBits(mFormat);
-            mHasAlpha = img.getHasAlpha();
-
-            mSrcWidth = img.getWidth();
-            mSrcHeight = img.getHeight();
-            // Same dest dimensions for GL
-            mWidth = mSrcWidth;
-            mHeight = mSrcHeight;
-            mDepth = img.getDepth();
-
-			// Never *generate* mipmaps for floating point textures. This is buggy in current
-			// GLU implementations
-			if(PixelUtil::getFlags(mFormat) & PFF_FLOAT)
-				mNumMipmaps = 0;
-
-			// The custom mipmaps in the image have priority over everything
-            unsigned short imageMipmaps = img.getNumMipmaps();
-            if(imageMipmaps)
-                mNumMipmaps = imageMipmaps;
-			glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps);
-
-            uchar *pTempData = rescaleNPower2(img);
-
-            generateMipmaps( pTempData, useSoftwareMipmaps, img.hasFlag(IF_COMPRESSED), i );
-            delete [] pTempData;
         }
 
         // Update size (the final size, not including temp space)
@@ -363,15 +351,8 @@ namespace Ogre {
             Except( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
 
         // Create the GL texture
+		// This already does everything neccessary
         createInternalResources();
-
-        glBindTexture( GL_TEXTURE_2D, mTextureID );
-
-        glTexImage2D( GL_TEXTURE_2D, 0, getGLTextureInternalFormat(),
-            mWidth, mHeight, 0, getGLTextureOriginFormat(), getGLTextureOriginDataType(), 0 );
-
-        // This needs to be set otherwise the texture doesn't get rendered
-        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipmaps );
     }
 
     void GLTexture::loadImpl()
@@ -446,97 +427,63 @@ namespace Ogre {
                 Except( Exception::UNIMPLEMENTED_FEATURE, "**** Unknown texture type ****", "GLTexture::load" );
         }
     }
+	
+	//*************************************************************************
     
     void GLTexture::unloadImpl()
     {
+		mSurfaceList.clear();
         glDeleteTextures( 1, &mTextureID );
     }
 
-    void GLTexture::generateMipmaps( const uchar *data, bool useSoftware, 
-        bool isCompressed, size_t faceNumber )
-    {
-        if(useSoftware && mNumMipmaps)
-        {
-            if(mTextureType == TEX_TYPE_1D)
-            {
-                gluBuild1DMipmaps(
-                    getGLTextureTarget(), getGLTextureInternalFormat(),
-                    mSrcWidth, getGLTextureOriginFormat(), getGLTextureOriginDataType(), data);
-            }
-            else if (mTextureType == TEX_TYPE_3D)
-            {
-                /* Requires GLU 1.3 which is harder to come by
-                   Most 3D textures don't need mipmaps?
-                gluBuild3DMipmaps(
-                    getGLTextureTarget(), getGLTextureInternalFormat(), 
-                    mSrcWidth, mSrcHeight, mDepth, getGLTextureOriginFormat(), 
-                    getGLTextureOriginDataType(), data);
-                */
-                glTexImage3D(
-                    getGLTextureTarget(), 0, getGLTextureInternalFormat(), 
-                    mSrcWidth, mSrcHeight, mDepth, 0, getGLTextureOriginFormat(), 
-                    getGLTextureOriginDataType(), data );
-            }
-            else
-            {
-                gluBuild2DMipmaps(
-                    mTextureType == TEX_TYPE_CUBE_MAP ? 
-                        GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
-                        getGLTextureTarget(), 
-                    getGLTextureInternalFormat(), mSrcWidth, mSrcHeight, 
-                    getGLTextureOriginFormat(), getGLTextureOriginDataType(), data);
-            }
-        }
-        else
-        {
-            if(mTextureType == TEX_TYPE_1D)
-            {
-                glTexImage1D(
-                    getGLTextureTarget(), 0, getGLTextureInternalFormat(), 
-                    mSrcWidth, 0, getGLTextureOriginFormat(), getGLTextureOriginDataType(), data);
-            }
-            else if (mTextureType == TEX_TYPE_3D)
-            {
-                glTexImage3D(
-                    getGLTextureTarget(), 0, getGLTextureInternalFormat(), 
-                    mSrcWidth, mSrcHeight, mDepth, 0, getGLTextureOriginFormat(), 
-                    getGLTextureOriginDataType(), data );
-            }
-            else
-            {
-			    if(isCompressed && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
-                {
-                    unsigned short blockSize = (mFormat == PF_DXT1) ? 8 : 16;
-                    int size = ((mWidth+3)/4)*((mHeight+3)/4)*blockSize; 
-
-                    glCompressedTexImage2DARB_ptr(
-                        mTextureType == TEX_TYPE_CUBE_MAP ?
-                            GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber :
-                            getGLTextureTarget(), 0,
-                         getGLTextureInternalFormat(), mSrcWidth, mSrcHeight, 0, 
-                         size, data);
-                }
-                else
-                {
-                    glTexImage2D(
-                        mTextureType == TEX_TYPE_CUBE_MAP ? 
-                            GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
-                            getGLTextureTarget(), 0, 
-                        getGLTextureInternalFormat(), mSrcWidth, mSrcHeight, 
-                        0, getGLTextureOriginFormat(), getGLTextureOriginDataType(), data );
-                }
-            }
-        }
-
-    }
+	
+	//---------------------------------------------------------------------------------------------
+	void GLTexture::_createSurfaceList()
+	{
+		mSurfaceList.clear();
+		// Make our understanding of the number of mips matches the GL one
+		glBindTexture( getGLTextureTarget(), mTextureID );
+		GLint value;
+		glGetTexParameteriv( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, &value );
+		mNumMipmaps = value + 1;
+		
+		// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
+		bool wantGeneratedMips = true; // TODO make option on texture
+		bool canMip = Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP);
+		
+		// Do mipmapping in software? (uses GLU) For some cards, this is still needed. Of course,
+		// only when mipmap generation is desired.
+		bool doSoftware = wantGeneratedMips && !canMip && getNumMipmaps()>1; 
+		
+		for(int face=0; face<getNumFaces(); face++)
+		{
+			for(int mip=0; mip<getNumMipmaps(); mip++)
+			{
+				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(
+					// TODO provide real usage instead of HBU_STATIC
+					new GLHardwarePixelBuffer(getGLTextureTarget(), mTextureID, face, mip,
+						HardwareBuffer::HBU_STATIC, doSoftware && mip==0)
+						//HardwareBuffer::HBU_DYNAMIC)
+				));
+			}
+		}
+	}
 	
 	//---------------------------------------------------------------------------------------------
 	HardwarePixelBufferSharedPtr GLTexture::getBuffer(int face, int mipmap)
 	{
-		// TODO
-		Except(Exception::UNIMPLEMENTED_FEATURE,
-				"Function not yet implemented",
-				"GLTexture::getBuffer");
+		if(getTextureType() != TEX_TYPE_CUBE_MAP && face != 0)
+			Except(Exception::ERR_INVALIDPARAMS, "Normal textures have only face 0",
+					"GLTexture::getBuffer");
+		if(face < 0 || face >= getNumFaces())
+			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
+					"GLTexture::getBuffer");
+		if(mipmap < 0 || mipmap >= mNumMipmaps)
+			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
+					"GLTexture::getBuffer");
+		int idx = face*mNumMipmaps + mipmap;
+		assert(idx < mSurfaceList.size());
+		return mSurfaceList[idx];
 	}
 	
 	//---------------------------------------------------------------------------------------------

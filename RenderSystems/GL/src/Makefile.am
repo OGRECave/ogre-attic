@@ -24,8 +24,10 @@ RenderSystem_GL_la_SOURCES = OgreGLATIFSInit.cpp \
                              OgreGLHardwareIndexBuffer.cpp \
                              OgreGLHardwareOcclusionQuery.cpp \
                              OgreGLHardwareVertexBuffer.cpp \
+                             OgreGLHardwarePixelBuffer.cpp \
                              OgreGLDefaultHardwareBufferManager.cpp \
                              OgreGLContext.cpp \
+                             OgreGLPixelFormat.cpp \
 				glprocs.c
 
 RenderSystem_GL_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
