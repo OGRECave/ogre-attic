@@ -265,6 +265,7 @@ namespace Ogre {
             mWidth = (Real) mPixelWidth / vpWidth;
             mTop = (Real) mPixelTop / vpHeight;
             mHeight = (Real) mPixelHeight / vpHeight;
+			mGeomPositionsOutOfDate = true;
         }
         _updateFromParent();
         // NB container subclasses will update children too

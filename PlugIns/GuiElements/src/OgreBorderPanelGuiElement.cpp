@@ -580,6 +580,7 @@ namespace Ogre {
             mRightBorderSize = (Real) mPixelRightBorderSize / vpWidth;
             mTopBorderSize = (Real) mPixelTopBorderSize / vpHeight;
             mBottomBorderSize = (Real) mPixelBottomBorderSize / vpHeight;
+			mGeomPositionsOutOfDate = true;
         }
         PanelGuiElement::_update();
 
