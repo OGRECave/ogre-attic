@@ -8,17 +8,17 @@ CFG=Demo_BspCollision - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Demo_BspCollision.mak".
+!MESSAGE NMAKE /f "BspCollision.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Demo_BspCollision.mak" CFG="Demo_BspCollision - Win32 Debug"
+!MESSAGE NMAKE /f "BspCollision.mak" CFG="Demo_BspCollision - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Demo_BspCollision - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE "Demo_BspCollision - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "Demo_BspCollision - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,86 +29,83 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Demo_BspCollision - Win32 Debug"
-
-# PROP BASE Use_MFC 0
-# PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "..\..\..\Samples\Common\bin\$(ConfigurationName)"
-# PROP BASE Intermediate_Dir "..\obj\$(ConfigurationName)"
-# PROP BASE Target_Dir ""
-# PROP Use_MFC 0
-# PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\..\..\Samples\Common\bin\$(ConfigurationName)"
-# PROP Intermediate_Dir "..\obj\$(ConfigurationName)"
-# PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /I "..\include" /I "..\..\Common\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\..\ReferenceAppLayer\include" /ZI /W3 /Od /Op /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Gm /Gy PRECOMP_VC7_TOBEREMOVED /GZ /c /GX 
-# ADD CPP /nologo /MDd /I "..\include" /I "..\..\Common\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\..\ReferenceAppLayer\include" /ZI /W3 /Od /Op /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Gm /Gy PRECOMP_VC7_TOBEREMOVED /GZ /c /GX 
-# ADD BASE MTL /nologo /win32 
-# ADD MTL /nologo /win32 
-# ADD BASE RSC /l 1033 
-# ADD RSC /l 1033 
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo 
-# ADD BSC32 /nologo 
-LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /out:"..\..\..\Samples\Common\bin\$(ConfigurationName)\Demo_BspCollision.exe" /incremental:yes /libpath:""..\..\..\OgreMain\lib\$(ConfigurationName)"" /libpath:""..\..\Dependencies\lib\$(ConfigurationName)"" /libpath:""..\..\ReferenceAppLayer\lib\$(ConfigurationName)"" /debug /pdb:"..\..\..\Samples\Common\bin\$(ConfigurationName)\Demo_BspCollision.pdb" /pdbtype:sept /subsystem:windows /machine:ix86 
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /out:"..\..\..\Samples\Common\bin\$(ConfigurationName)\Demo_BspCollision.exe" /incremental:yes /libpath:""..\..\..\OgreMain\lib\$(ConfigurationName)"" /libpath:""..\..\Dependencies\lib\$(ConfigurationName)"" /libpath:""..\..\ReferenceAppLayer\lib\$(ConfigurationName)"" /debug /pdb:"..\..\..\Samples\Common\bin\$(ConfigurationName)\Demo_BspCollision.pdb" /pdbtype:sept /subsystem:windows /machine:ix86 
-
-!ELSEIF  "$(CFG)" == "Demo_BspCollision - Win32 Release"
+!IF  "$(CFG)" == "Demo_BspCollision - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "..\..\..\Samples\Common\bin\$(ConfigurationName)"
-# PROP BASE Intermediate_Dir "..\obj\$(ConfigurationName)"
+# PROP BASE Output_Dir "..\bin\Release"
+# PROP BASE Intermediate_Dir "..\obj\Release"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\..\..\Samples\Common\bin\$(ConfigurationName)"
-# PROP Intermediate_Dir "..\obj\$(ConfigurationName)"
+# PROP Output_Dir "..\bin\Release"
+# PROP Intermediate_Dir "..\obj\Release"
+# PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /I "..\include" /I "..\..\Common\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\..\ReferenceAppLayer\include" /Zi /W3 /O2 /Og /Ob1 /Op /Ot /Oy /G6 /GA /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /GF /Gm /Gy PRECOMP_VC7_TOBEREMOVED /c /GX 
-# ADD CPP /nologo /MD /I "..\include" /I "..\..\Common\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\..\ReferenceAppLayer\include" /Zi /W3 /O2 /Og /Ob1 /Op /Ot /Oy /G6 /GA /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /GF /Gm /Gy PRECOMP_VC7_TOBEREMOVED /c /GX 
-# ADD BASE MTL /nologo /win32 
-# ADD MTL /nologo /win32 
-# ADD BASE RSC /l 1033 
-# ADD RSC /l 1033 
+# ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Zi /Od /I "..\include" /I "..\..\Common\include" /I "..\..\ReferenceAppLayer\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /D "NDEBUG" /D "_MBCS" /D "_WINDOWS" /D "WIN32" /YX /FD /c
+# SUBTRACT CPP /Fr
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x809 /d "NDEBUG"
+# ADD RSC /l 0x809 /d "NDEBUG"
 BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo 
-# ADD BSC32 /nologo 
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /out:"..\..\..\Samples\Common\bin\$(ConfigurationName)\Demo_BspCollision.exe" /incremental:no /libpath:""..\..\..\OgreMain\lib\$(ConfigurationName)"" /libpath:""..\..\Dependencies\lib\$(ConfigurationName)"" /libpath:""..\..\ReferenceAppLayer\lib\$(ConfigurationName)"" /pdbtype:sept /subsystem:windows /opt:ref /opt:icf /machine:ix86 
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /out:"..\..\..\Samples\Common\bin\$(ConfigurationName)\Demo_BspCollision.exe" /incremental:no /libpath:""..\..\..\OgreMain\lib\$(ConfigurationName)"" /libpath:""..\..\Dependencies\lib\$(ConfigurationName)"" /libpath:""..\..\ReferenceAppLayer\lib\$(ConfigurationName)"" /pdbtype:sept /subsystem:windows /opt:ref /opt:icf /machine:ix86 
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /subsystem:windows /machine:I386 /out:"../../Common/Bin/Release/Demo_BspCollision.exe" /libpath:"..\..\..\OgreMain\lib\release" /libpath:"..\..\ReferenceAppLayer\lib\debug"
+# SUBTRACT LINK32 /profile /debug
 
-!ENDIF
+!ELSEIF  "$(CFG)" == "Demo_BspCollision - Win32 Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "..\bin\Debug"
+# PROP BASE Intermediate_Dir "..\obj\Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "..\bin\Debug"
+# PROP Intermediate_Dir "..\obj\Debug"
+# PROP Ignore_Export_Lib 1
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\Common\include" /I "..\..\ReferenceAppLayer\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /D "_MBCS" /D "_WINDOWS" /D "_DEBUG" /D "WIN32" /FD /GZ /c
+# SUBTRACT CPP /Fr /YX /Yc /Yu
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
+# ADD BASE RSC /l 0x809 /d "_DEBUG"
+# ADD RSC /l 0x809 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib ReferenceAppLayer.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMT" /out:"../../Common/Bin/Debug/Demo_BspCollision.exe" /pdbtype:sept /libpath:"..\..\..\OgreMain\lib\debug" /libpath:"..\..\ReferenceAppLayer\lib\debug"
+# SUBTRACT LINK32 /verbose
+
+!ENDIF 
 
 # Begin Target
 
-# Name "Demo_BspCollision - Win32 Debug"
 # Name "Demo_BspCollision - Win32 Release"
+# Name "Demo_BspCollision - Win32 Debug"
 # Begin Group "Source Files"
 
-# PROP Default_Filter "cpp;c;cxx;def;odl;idl;hpj;bat;asm"
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
 SOURCE=..\src\BspCollision.cpp
 # End Source File
 # End Group
-# Begin Group "Header Files"
-
-# PROP Default_Filter "h;hpp;hxx;hm;inl;inc"
-# Begin Source File
-
-SOURCE=..\..\Common\include\ExampleRefAppApplication.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\Common\include\ExampleRefAppFrameListener.h
-# End Source File
-# End Group
 # Begin Group "Resource Files"
 
-# PROP Default_Filter "rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # End Group
 # End Target
 # End Project
-
