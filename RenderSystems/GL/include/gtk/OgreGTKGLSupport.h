@@ -35,7 +35,13 @@ namespace Ogre {
 
 class OGREWidget;
 
-class GTKGLSupport : public GLSupport
+/**
+ * GL support in a GTK window.
+ *
+ * I made this a Singleton, so that the main context can be queried by
+ * GTKWindows.
+ */
+class GTKGLSupport : public GLSupport, public Singleton<GTKGLSupport>
 {
 public:
     GTKGLSupport();
@@ -50,16 +56,27 @@ public:
                             bool vsync);
     void start();
     void stop();
-    void begin_context();
+    void begin_context(RenderTarget *_target = 0);
     void end_context();
     void initialiseExtensions(void);
     bool checkMinGLVersion(const String& v) const;
     bool checkExtension(const String& ext) const;
     void* getProcAddress(const String& procname);
+
+    Glib::RefPtr<const Gdk::GL::Context> getMainContext() const; 
+
+    /**
+     * This method just delegates to the template version anyway, but the implementation stays in this
+     * single compilation unit, preventing link errors.
+     */
+    static GTKGLSupport& getSingleton(void);
 private:
-    Gtk::Main _kit;
     int _context_ref;
-    OGREWidget* _ogre_widget;
+    Gtk::Main _kit;
+    //OGREWidget* _ogre_widget;
+
+    Glib::RefPtr<Gdk::GL::Context> _main_context;
+    Glib::RefPtr<Gdk::GL::Window> _main_window;
 }; // class GTKGLSupport
 
 }; // namespace Ogre

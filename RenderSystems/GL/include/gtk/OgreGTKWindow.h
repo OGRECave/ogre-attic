@@ -53,6 +53,7 @@ public:
     * @returns false when there are no events left to pump
     */
     bool pump_events();
+
     /**
     * Get the actual widget that is housing OGRE's GL view.
     */
@@ -86,7 +87,7 @@ protected:
     bool on_expose_event(GdkEventExpose* event);
     // bool SimpleGLScene::on_configure_event(GdkEventConfigure* event) 
 private:
-    Gtk::Main* kit;
+    //Gtk::Main* kit;
     Gtk::Window *mGtkWindow;
     OGREWidget* ogre;
 }; // class GTKWindow
