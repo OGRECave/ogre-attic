@@ -3,7 +3,7 @@
 -- 
 -- Copyright © 2002 John Martin
 --
--- $Id: ogreToolbar.mcr,v 1.5 2003-06-15 21:04:30 sinbad Exp $
+-- $Id: ogreToolbar.mcr,v 1.6 2003-06-29 21:40:38 sinbad Exp $
 --
 -- Macroscript for the Ogre Toolbar.
 --
@@ -20,236 +20,6 @@ include "ogre/lib/ogreSkeletonLib.ms"
 include "ogre/lib/ogreMaterialPlugin.ms"
 include "ogre/lib/ogreMaterialLib.ms"
 
--- Show an about box.
-macroScript showAbout
-	category:"Ogre Tools"
-	internalCategory:"Ogre Tools"
-	buttonText:"About"
-	tooltip:"About Ogre Tools"
-	Icon:#("OgreTools",1)
-(
-	-- create a floater
-	aboutBoxFloater = newRolloutFloater "About" 498 426 
-	
-	-- define the rollout
-	rollout aboutBoxRollout "About Ogre Tools"
-	(
-		bitmap logoBitmap "Ogre" filename:"$images\ogrelogo.jpg" pos:[11,8] width:450 height:228 ;
-		label label1 "Ogre Tools are created for use with the Ogre graphics engine. See website for details. " pos:[11,248] width:422 height:21 ;
-		label label2 "This software is distributed under the terms of the LGPL." pos:[11,272] width:402 height:21 ;
-		label label3 "Copyright © 2002 The Ogre Team" pos:[11,331] width:200 height:21 ;
-		button closeButton "Close" pos:[376,328] width:80 height:24 ;
-		
-		-- Close the dialog box.
-		on closeButton pressed do
-		(
-			closeRolloutFloater aboutBoxFloater
-		)
-	)
-	
-	-- add the rollout, which contains the dialog
-	addRollout aboutBoxRollout aboutBoxFloater
-)
-
--- Export static mesh button.
-macroScript exportStaticMesh
-	category:"Ogre Tools"
-	internalCategory:"Ogre Tools"
-	buttonText:"Export Mesh"
-	tooltip:"Export a Static Mesh"
-	Icon:#("OgreTools",2)
-(
-	-- must be a max file open to use this feature
-	if (maxFileName == "") then
-	(
-		messageBox "You must open a file first (or save your current work)." title:"Ogre Tools"
-	)
-	else
-	(
-		-- create a floater
-		staticMeshExportFloater = newRolloutFloater "Export Static Mesh" 310 290 
-		
-		-- define the rollout
-		rollout staticMeshExportRollout "Export Static Mesh"
-		(
-			-- mesh dropdown
-			dropDownList meshDropdown "Select editable mesh" pos:[16,8] width:248 height:40 enabled:true
-			
-			-- filename text box
-			editText filenameBox "File:" pos:[16,64] width:248 height:20
-			
-			-- file choose button
-			button chooseFileButton "Choose File..." pos:[176,96] width:88 height:24
-			
-			-- notes label
-			label debugLabel "Note: Debug information pertaining to the export will be written to the MaxScript listener and a log file within the 3dsmax directory." pos:[16,136] width:248 height:40
-
-			-- cancel button
-			button cancelButton "Cancel" pos:[160,192] width:48 height:24
-
-			-- export button
-			button exportButton "Export" pos:[216,192] width:48 height:24
-
-			--
-			-- Helper functions.
-			--
-			
-			-- Make sure we have enough info to export.
-			function validateExportInfo =
-			(
-				try
-				(
-					if (meshDropdown.selected == undefined) then
-					(
-						messageBox "There is no mesh to export. (Static mesh names must start with \"staticMesh_\".)" title:"Ogre Tools"
-						return false
-					)
-	
-					if (filenameBox.text == "") then
-					(
-						messageBox "Need a file to export to." title:"Ogre Tools"
-						return false
-					)
-				)
-				catch
-				(
-					messageBox "Unknown error validating export info." title:"Ogre Tools"
-				)
-
-				true
-			)
-
-			--
-			-- Event handlers.
-			--
-
-			-- Init function.
-			on staticMeshExportRollout open do
-			(
-				try
-				(
-					exportInfo = readStaticMeshExportInfoFromFile (getStaticMeshExportInfoFilename())
-				)
-				catch
-				(
-					messageBox "Error reading export configuation info." title:"Ogre Tools"
-				)
-				
-				try
-				(		
-					meshName = exportInfo[1]
-					filenameBox.text = exportInfo[2]
-					
-					-- populate the dropdown of meshes
-					meshList = for obj in $objects collect obj.name
-					meshDropdown.items = meshList
-					
-					-- try and select the previously selected mesh
-					for i = 1 to meshList.count do
-					(
-						if (meshList[i] == meshName) then
-						(
-							meshDropdown.selection = i
-						)
-					)
-				)
-				catch
-				(
-					messageBox "Unknown error populating mesh list." title:"Ogre Tools"
-				)
-			)
-
-			-- Close the dialog box without saving changes.
-			on cancelButton pressed do
-			(
-				closeRolloutFloater staticMeshExportFloater
-			)
-			
-			-- Export this sucker.
-			on exportButton pressed do
-			(
-				if (validateExportInfo()) then
-				(
-					try
-					(
-						writeStaticMeshExportInfoToFile (getStaticMeshExportInfoFilename()) meshDropdown.selected filenameBox.text
-					)
-					catch
-					(
-						messageBox "Error saving export info." title:"Ogre Tools"
-					)
-					
-					try
-					(
-						if (exportMesh meshDropdown.selected filenameBox.text) then
-						(
-							messageBox "Static mesh export successful." title:"Ogre Tools"
-						)
-						else
-						(
-							messageBox "Static mesh export failed." title:"Ogre Tools"
-						)
-						closeRolloutFloater staticMeshExportFloater
-					)
-					catch
-					(
-						messageBox "Static mesh export failed. Unknown error." title:"Ogre Tools"
-					)
-				)
-			)
-
-			-- Press of the choose file button.
-			on chooseFileButton pressed do
-			(
-				filename = getSaveFileName types:"Ogre Mesh File (*.mesh)|*.mesh|All Files(*.*)|*.*|"
-				
-				if (filename != undefined) then
-				(
-					filenameBox.text = filename
-				)
-			)
-
-		)
-		
-		-- add the rollout, which contains the dialog
-		addRollout staticMeshExportRollout staticMeshExportFloater
-	)
-)
-
--- Configure animations button.
-macroScript configAnimations
-	category:"Ogre Tools"
-	internalCategory:"Ogre Tools"
-	buttonText:"Config Anim"
-	tooltip:"Configure Animations"
-	Icon:#("OgreTools",3)
-(
-	messageBox "Animation configuration is not yet implemented." title:"Ogre Tools"
-)
-
--- Export anim mesh button.
-macroScript exportAnimMesh
-	category:"Ogre Tools"
-	internalCategory:"Ogre Tools"
-	buttonText:"Export Anim"
-	tooltip:"Export Animated Mesh"
-	Icon:#("OgreTools",4)
-(
-	messageBox "Animated mesh export is not yet implemented." title:"Ogre Tools"
-)
-
--- Set options button.
-macroScript setOptions
-	category:"Ogre Tools"
-	internalCategory:"Ogre Tools"
-	buttonText:"Options"
-	tooltip:"Set General Options"
-	Icon:#("OgreTools",5)
-(
-	messageBox "General options dialog is not yet implemented." title:"Ogre Tools"
-)
-
-
 macroScript showSkeletonTools
 	category:"Ogre Tools"
 	internalCategory:"Ogre Tools"
@@ -259,7 +29,7 @@ macroScript showSkeletonTools
 (
 
 	-- create a floater
-	SkeletonExportFloater = newRolloutFloater "SkeletonTools" 305 560 ; 
+	SkeletonExportFloater = newRolloutFloater "SkeletonTools" 305 580 ; 
 
 	rollout skeletonExportRollout "Export Mesh and Skeleton"
 	(
@@ -294,11 +64,15 @@ macroScript showSkeletonTools
 		button chooseFileButton "Choose File..." align:#right width:88 height:24 ;
 
 		-- options checkboxes
-		label materialLabel "NOTA:\nMaterial definition IS NOT INCLUDED in the .mesh.xml file.\nExport material with the material exporter" align:#left height:40;
+		label materialLabel "NOTA:\nMaterial definition IS NOT INCLUDED in the .mesh.xml file.\nWrite your material script or try the material exporter." align:#left height:40;
 		
-		--export button
+		-- export button
 		button exportButton "Export" align:#center width:80 ;
+		
+		-- log label
+		label logLabel "If you want to see a log file, open the Maxscript listener.\nYou can see how many submeshes have been exported." align:#left height:40;
 
+		
 		-- Events
 		---------
 		
@@ -335,8 +109,12 @@ macroScript showSkeletonTools
 				messageBox "You have to choose a filename and a valid object." ;
 			else
 			(
+				clearlistener() ;
+				
 				options = exportOptions scale:scaleSP.value flipYZ:false flipNormal:false exportColours:false exportUV:false ;
 				
+				-- sets options
+				---------------
 				if (flipYZCB.checked) then
 					options.flipYZ= true ;					
 				if (flipNormalCB.checked and flipNormalCB.enabled) then
@@ -346,14 +124,19 @@ macroScript showSkeletonTools
 				if (exportUVCB.checked and exportUVCB.enabled) then
 					options.exportUV = true ;	
 				
-						
+				-- exports mesh
+				---------------
 				if (exportMeshCB.enabled and exportMeshCB.checked) then
-				(	
+				(
+					lastFile = setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastFile" filenameET.text	
 					writeMesh m options (filenameET.text) ;
 				)
 			
+				-- exports skeleton
+				-------------------
 				if (exportSkeletonCB.enabled and exportSkeletonCB.checked) then
 				(
+					lastAnimName = setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastAnimName" animNameET.text
 					options.firstFrame = firstFrameSP.value ;
 					options.lastFrame = lastFrameSP.value ;
 					options.length = animLengthSP.value ;
@@ -361,6 +144,28 @@ macroScript showSkeletonTools
 					
 					writeSkeleton m options filenameET.text ;
 				)
+				
+				-- post traitement
+				------------------				
+				runXMLConverter = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Tools" "runXMLConverter"
+				
+				if (runXMLConverter=="yes") then
+				(
+					xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "XMLConverter"
+					mediaPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Directories" "Media"
+				
+					if (exportMeshCB.enabled and exportMeshCB.checked) then (
+						DOSCommand (xmlConvPath + "\\XMLConverter.exe \"" + filenameET.text + ".mesh.xml\" \"" + filenameET.text + ".mesh\"") ;
+						DOSCommand ("copy \"" + filenameET.text + ".mesh\" \"" + mediaPath + "\"") ;
+					)
+					if (exportSkeletonCB.enabled and exportSkeletonCB.checked) then (
+						DOSCommand (xmlConvPath + "\\XMLConverter.exe \"" + filenameET.text + ".skeleton.xml\" \"" + filenameET.text + ".skeleton\"") ;
+						DOSCommand ("copy \"" + filenameET.text + ".skeleton\" \"" + mediaPath + "\"") ;						
+					)
+					messageBox "XMLConverter has been run and files copied to the media directory." ;
+					
+				)
+				
 			)
 		)
 		
@@ -400,6 +205,12 @@ macroScript showSkeletonTools
 		-- When the rollout is opened
 		on skeletonExportRollout open do
 		(
+			
+			lastFile = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastFile"
+			lastAnimName = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastAnimName"
+			
+			filenameET.text = lastFile ;
+			animNameET.text = lastAnimName ;
 			exportMeshCB.enabled = false ;
 			exportSkeletonCB.enabled = false ;
 			firstFrameSP.enabled = false ;
@@ -413,39 +224,45 @@ macroScript showSkeletonTools
 			flipYZCB.checked = true ;
 
 		)
-		
-
-	)
-	
-	rollout smallToolsRollout "Other tools"
-	(
-		label smallToolsLabel1 "You can add missing keys to tracks of selected objects so there will not be an error when you press export button" align:#left width:248 height:40
-		-- addMissingKeys button
-		button addMissingKeysButton "Add missing keys to selected objects" align:#center ;
-		
-		on addMissingKeysButton pressed do
-		(
-			for obj in selection do
-			(
-				addMissingKeys obj ;
-			)
-			
-			messageBox "Missing keys have been added" ;
-		)
 	)
 	
 	rollout aboutBoxRollout "About"
 	(
-		label label11 "For use with the Ogre graphics engine." align:#left;
-		label label12 "See website for details: http://ogre.sourceforge.net" align:#left;
-		label label13 "This software is distributed under the terms of the LGPL." align:#left ;
+		label label11 "For use with the Ogre graphics engine." align:#center;
+		label label12 "See website for details: http://ogre.sourceforge.net" align:#center;
+		label label13 "This software is distributed under the terms of the LGPL." align:#center ;
+		label label14 "by EarthquakeProof - mallard@iie.cnam.fr  (summer 2003)" align:#right ;
+
+	)
+
+	rollout optionRollout "Options"
+	(
+		-- Elements
+		-----------
+		
+		-- option button
+		button openButton "Open ogreScript.ini" align:#right ;
+
+		-- Events 
+		---------
+		on openButton pressed do
+		(			
+			shellLaunch ((getDir #scripts) + "\\ogre\\ogreScript.ini") "" ;
+		)
+		
+		on optionRollout open do
+		(
+--			xmlConvPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Paths" "XMLConverterPath"
+--			exportPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Paths" "exportPath"
+--			mediaPath = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Paths" "Media"
+--			runXMLConv = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Tools" "runXMLConverter"
+		)
 		
 	)
 
-
 	-- add the rollout, which contains the dialog	
+	addRollout optionRollout skeletonExportFloater ;
 	addRollout skeletonExportRollout skeletonExportFloater ;
-	addRollout smallToolsRollout skeletonExportFloater ;
 	addRollout aboutBoxRollout skeletonExportFloater ;
 
 )
@@ -459,7 +276,7 @@ macroScript showMaterialTools
 	Icon:#("Material_Modifiers",3)
 (
 	-- create a floater
-	MaterialExportFloater = newRolloutFloater "MaterialTools" 305 305 ; 
+	MaterialExportFloater = newRolloutFloater "MaterialTools" 305 155 ; 
 
 	rollout materialExportRollout "Material Tools"
 	(
@@ -474,8 +291,10 @@ macroScript showMaterialTools
 			filename = filenameET.text ;			
 			if (filename != "") then
 			(
-			    --if (choosemtl.material != undefined) then et.text=classof (choosemtl.material) ;
-				exportOgreMaterial (choosemtl.material) filename ;
+				-- saves settings
+				setINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastMaterialFile" filenameET.text	
+
+				exportMultiMaterial (choosemtl.material) filename ;
 			)
 			else
 			    messageBox "You have to choose a filename." ;
@@ -490,6 +309,12 @@ macroScript showMaterialTools
 				filenameET.text = filename ;
 			)
 		)
+		
+		on materialExportRollout open do
+		(
+			filenameET.text = getINISetting ((getDir #scripts) + "\\ogre\\ogreScript.ini") "Settings" "lastMaterialFile"
+		)
+		
 	)
 		
 	rollout aboutBoxRollout "About"
@@ -497,6 +322,8 @@ macroScript showMaterialTools
 		label label11 "For use with the Ogre graphics engine." align:#left;
 		label label12 "See website for details: http://ogre.sourceforge.net" align:#left;
 		label label13 "This software is distributed under the terms of the LGPL." align:#left ;
+		label label14 "by EarthquakeProof - mallard@iie.cnam.fr (summer 2003)" align:#right ;
+		
 		
 	)
 	-- add the rollout, which contains the dialog

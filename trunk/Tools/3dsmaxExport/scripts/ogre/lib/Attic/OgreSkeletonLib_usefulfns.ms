@@ -2,6 +2,20 @@
 -- ------------------------------ SOME USEFUL FUNCTIONS ----------------------------- --
 ----------------------------------------------------------------------------------------
 
+function appendOrdered a value = (
+	i=1 ;
+	found = false ;
+	while (a[i] != undefined and a[i]<=value) do (		
+		if (a[i]==value) then
+			found = true ;
+		i+=1 ;
+	)
+	if (not found) then
+		insertItem value a i ;
+		
+	(not found) ;
+)
+
 ---------------------------------------------------------------------
 -- replace " " by "_" in a string.
 -- when a name is for example Left Biceps max knows it at Left_Biceps
@@ -99,3 +113,32 @@ function getRootsId skin =
 	)
 	rootstab ;
 )
+
+-----------------------------------------------------------------
+-- getParentId returns the id of the parent according to the skin
+-----------------------------------------------------------------
+
+function getParentIndex sk bid =
+(
+	local c,d,par,parName,bname,n,i,parentId ;
+	
+	parentId = 0 ;
+	c= skinOps.GetBoneName sk bid 1 ;
+	replaceSpaces c ;
+	d = execute ("$" + c) ;
+	par = d.parent ;
+		
+	if (par != undefined) then
+	(
+		parName = par.name ;
+		n = skinOps.GetNumberBones sk ;
+		for i=1 to n do
+		(
+			bname = skinOps.GetBoneName sk i 1;
+			replaceSpaces bName ;
+			if (parName==bname) then parentId = i ;
+		)
+	)
+	parentId;
+)
+
