@@ -46,16 +46,9 @@ namespace Ogre {
 		//HRESULT hr;
 		//LPDIRECT3DSURFACE8 pSurface;
 		//char filename[128];
-		//for( unsigned i=0 ; i <= mNumMipMaps; i++ )
-		//{
-		//	hr = mpTexture->GetSurfaceLevel( i, &pSurface );
-		//	if( SUCCEEDED( hr ) )
-		//	{
-		//		sprintf( filename, "%s%d.bmp", mName.c_str(), i );
-		//		D3DXSaveSurfaceToFile( filename, D3DXIFF_BMP, pSurface, NULL, NULL );
-		//	}
-		//}
-
+		//sprintf( filename, "%s.dds", mName.c_str() );
+		//if( FAILED( hr = D3DXSaveTextureToFile( filename, D3DXIFF_DDS, mpTexture, NULL ) ) )
+		//	DXTRACE_ERR_NOMSGBOX( "Failed to save file", hr );
 	}
 
 	void D3D8Texture::loadImage( const Image& img )
@@ -131,13 +124,13 @@ namespace Ogre {
 
 		HRESULT hr;
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
-		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, mNumMipMaps, 0, format, 
+		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 0, format, 
 			D3DPOOL_SYSTEMMEM, &mpTempTexture ) ) )
 		{
 			Except( hr, "Error creating temp Direct3D texture", "D3DXTexture::createTexture" );
 		}
 
-		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, mNumMipMaps, 0, format, 
+		if( FAILED( hr = D3DXCreateTexture( mpD3DDevice, mSrcWidth, mSrcHeight, (mNumMipMaps ? mNumMipMaps : 1), 0, format, 
 			D3DPOOL_DEFAULT, &mpTexture ) ) )
 		{
 			Except( hr, "Error creating Direct3D texture", "D3D8Texture::createTexture" );
@@ -382,8 +375,10 @@ namespace Ogre {
 		LPDIRECT3DSURFACE8 pDestSurface;
 		if( FAILED( hr = mpTempTexture->GetSurfaceLevel( 0, &pDestSurface ) ) )
 			Except( hr, "Failed to get level 0 surface for texture", "D3D8Texture::copyMemoryToTexture" );
-		if( FAILED( hr = mpD3DDevice->CopyRects( pTempSurface, NULL, 0, pDestSurface, NULL ) ) )
+		if( FAILED( hr = D3DXLoadSurfaceFromSurface( pDestSurface, NULL, NULL, pTempSurface, NULL, NULL, D3DX_DEFAULT, 0 ) ) )
 			Except( hr, "Failed to copy temp surface to texture", "D3D8Texture::copyMemoryToTexture" );
+		//if( FAILED( hr = mpD3DDevice->CopyRects( pTempSurface, NULL, 0, pDestSurface, NULL ) ) )
+		//	Except( hr, "Failed to copy temp surface to texture", "D3D8Texture::copyMemoryToTexture" );
 		if( FAILED( hr = mpD3DDevice->UpdateTexture( mpTempTexture, mpTexture ) ) )
 			Except( hr, "Failed to update texture", "D3D8Texture::copyMemoryToTexture" );
 
