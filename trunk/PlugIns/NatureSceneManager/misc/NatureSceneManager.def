@@ -1,0 +1,4 @@
+LIBRARY Plugin_NatureSceneManager
+EXPORTS	
+	dllStartPlugin
+	dllStopPlugin
