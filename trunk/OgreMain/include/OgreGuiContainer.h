@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 #include "OgreGuiElement.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -46,18 +47,24 @@ namespace Ogre {
     {
     public:
         typedef std::map<String, GuiElement*> ChildMap;
-        typedef MapIterator<ChildMap> ChildElementIterator;
+        typedef MapIterator<ChildMap> ChildIterator;
     protected:
         ChildMap mChildren;
     public:
         /// Constructor: do not call direct, use GuiManager::createContainer
         GuiContainer(const String& name);
-        virtual ~GuiElement();
+        virtual ~GuiContainer();
 
         /** Adds another GuiElement to this container. */
-        void addElement(GuiElement* elem);
+        void addChild(GuiElement* elem);
         /** Removes a named element from this container. */
-        void removeElement(const String& elemName);
+        void removeChild(const String& name);
+        /** Gets the named child of this container. */
+        GuiElement* getChild(const String& name);
+
+        /** Gets an object for iterating over the children of this object. */
+        ChildIterator getChildIterator(void);
+
 
 
 

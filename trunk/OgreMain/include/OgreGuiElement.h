@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
+#include "OgreRenderable.h"
+#include "OgreStringInterface.h"
 
 namespace Ogre {
 
@@ -58,7 +60,18 @@ namespace Ogre {
         Real mTop;
         Real mWidth;
         Real mHeight;
-        Material* pMaterial;
+        String mMaterialName;
+        Material* mpMaterial;
+
+        // Parent pointer
+        GuiContainer* mParent;
+        // Overlay attached to
+        Overlay* mOverlay;
+
+        // Derived positions from parent
+        Real mDerivedLeft;
+        Real mDerivedTop;
+        bool mDerivedOutOfDate;
 
     public:
         /// Constructor: do not call direct, use GuiManager::createElement
@@ -74,6 +87,10 @@ namespace Ogre {
 
         /** Hides this element if it was visible. */
         void hide(void);
+
+        /** Returns whether or not the element is visible. */
+        bool isVisible(void);
+
 
         /** Sets the dimensions of this element in relation to the screen (1.0 = screen width/height). */
         void setDimensions(Real width, Real height);
@@ -122,10 +139,26 @@ namespace Ogre {
         // --- Renderable Overrides ---
         /** See Renderable */
         Material* getMaterial(void) const;
-        /** See Renderable */
-        void getRenderOperation(RenderOperation& rend);
+
+        // NB getRenderOperation not implemented, still abstract here
+
         /** See Renderable */
         void getWorldTransforms(Matrix4* xform);
+
+        /** Internal method to update the element based on transforms applied. */
+        virtual void _update(void);
+
+        /** Updates this elements transform based on it's parent. */
+        virtual void _updateFromParent(void);
+
+        /** Internal method for notifying the gui element of it's parent and ultimate overlay. */
+        virtual void _notifyParent(GuiContainer* parent, Overlay* overlay);
+
+        /** Gets the 'left' position as derived from own left and that of parents. */
+        virtual Real _getDerivedLeft(void);
+
+        /** Gets the 'top' position as derived from own left and that of parents. */
+        virtual Real _getDerivedTop(void);
 
 
 

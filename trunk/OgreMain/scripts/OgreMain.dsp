@@ -188,6 +188,14 @@ SOURCE=..\src\OgreException.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGuiContainer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGuiElement.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreImage.cpp
 # End Source File
 # Begin Source File
@@ -261,6 +269,10 @@ SOURCE=..\src\OgreNode.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreOofModelFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreOverlay.cpp
 # End Source File
 # Begin Source File
 
@@ -596,6 +608,14 @@ SOURCE=..\include\OgreGeometryData.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreGuiContainer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGuiElement.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreImage.h
 # End Source File
 # Begin Source File
@@ -693,6 +713,10 @@ SOURCE=..\include\OgreOofFile.h
 # Begin Source File
 
 SOURCE=..\include\OgreOofModelFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreOverlay.h
 # End Source File
 # Begin Source File
 
