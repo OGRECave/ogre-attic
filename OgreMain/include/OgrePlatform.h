@@ -146,6 +146,13 @@ namespace Ogre {
 #       define OGRE_DEBUG_MODE 0
 #   endif
 
+#if OGRE_PLATFORM == PLATFORM_APPLE
+    #define OGRE_PLATFORM_LIB "OgrePlatform.bundle"
+#else
+    //PLATFORM_LINUX
+    #define OGRE_PLATFORM_LIB "libOgrePlatform.so"
+#endif
+
 #endif
 
 //For apple, we always have a custom config.h file
@@ -156,14 +163,6 @@ namespace Ogre {
 #ifndef OGRE_NONCLIENT_BUILD
 #   include <SDL/SDL_main.h>
 #endif
-
-#if OGRE_PLATFORM == PLATFORM_APPLE
-    #define OGRE_PLATFORM_LIB "OgrePlatform.bundle"
-#else
-    //PLATFORM_LINUX
-    #define OGRE_PLATFORM_LIB "libOgrePlatform.so"
-#endif
-
 
 #endif
 
