@@ -67,7 +67,13 @@ namespace Ogre {
 
         typedef std::vector<IndexData*> LODFaceList;
 
-        /** Constructor, takes the geometry data and index buffer. */
+        /** Constructor, takes the geometry data and index buffer. 
+		@remarks
+			DO NOT pass write-only, unshadowed buffers to this method! They will not
+			work. Pass only shadowed buffers, or better yet perform mesh reduction as
+			an offline process using DefaultHardwareBufferManager to manage vertex
+			buffers in system memory.
+		*/
         ProgressiveMesh(const VertexData* vertexData, const IndexData* indexData);
         virtual ~ProgressiveMesh();
 
@@ -78,6 +84,11 @@ namespace Ogre {
             simplifying the mesh is taken into account. This is because the cost of
             simplifying an animated mesh cannot be calculated from just the reference position,
             multiple positions needs to be assessed in order to find the best simplification option.
+		@par
+			DO NOT pass write-only, unshadowed buffers to this method! They will not
+			work. Pass only shadowed buffers, or better yet perform mesh reduction as
+			an offline process using DefaultHardwareBufferManager to manage vertex
+			buffers in system memory.
         @param buffer Pointer to x/y/z buffer with vertex positions. The number of vertices
             must be the same as in the original GeometryData passed to the constructor.
         */

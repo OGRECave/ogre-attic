@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreProgressiveMesh.h"
 #include "OgreString.h"
+#include "OgreHardwareBufferManager.h"
 #include <algorithm>
 
 #include <iostream>
@@ -175,16 +176,24 @@ namespace Ogre {
 		// Also resize common vert list to max, to avoid reallocations
 		work.mVertList.resize(vertexData->vertexCount);
 
-        /* TODO
-        Real* pReal = data->pVertices;
-        Vector3 pos;
+		// locate position element & hte buffer to go with it
+		const VertexElement* posElem = vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr vbuf = 
+			vertexData->vertexBufferBinding->getBuffer(posElem->getSource());
+		// lock the buffer for reading
+		unsigned char* pVertex = static_cast<unsigned char*>(
+			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+		Real* pReal;
+		Vector3 pos;
 		// Map for identifying duplicate position vertices
 		typedef std::map<Vector3, ushort, vectorLess> CommonVertexMap;
 		CommonVertexMap commonVertexMap;
 		CommonVertexMap::iterator iCommonVertex;
-		ushort numCommon = 0;
-        for (i = 0; i < data->numVertices; ++i)
+		size_t numCommon = 0;
+        for (size_t i = 0; i < vertexData->vertexCount; ++i, pVertex += vbuf->getVertexSize())
         {
+			posElem->baseVertexPointerToElement(pVertex, &pReal);
+
             pos.x = *pReal++;
             pos.y = *pReal++;
             pos.z = *pReal++;
@@ -221,21 +230,36 @@ namespace Ogre {
 			}
 			
         }
+		vbuf->unlock();
 
 		mNumCommonVertices = numCommon;
 
         // Build tri list
-        ushort numTris = numIndexes / 3;
-        ushort* pIdx = indexBuffer;
+        ushort numTris = indexData->indexCount / 3;
+		unsigned short* pShort;
+		unsigned int* pInt;
+		HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
+		bool use32bitindexes = (ibuf->getType() == HardwareIndexBuffer::IT_32BIT);
+		if (use32bitindexes)
+		{
+			pInt = static_cast<unsigned int*>(
+				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+		}
+		else
+		{
+			pShort = static_cast<unsigned short*>(
+				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+		}
         work.mTriList.resize(numTris); // assumed tri list
         for (i = 0; i < numTris; ++i)
         {
 			PMFaceVertex *v0, *v1, *v2;
-			ushort vindex = *pIdx++;
+			// use 32-bit index always since we're not storing
+			unsigned int vindex = use32bitindexes? *pInt++ : *pShort++;
 			v0 = &(work.mFaceVertList[vindex]);
-			vindex = *pIdx++;
+			vindex = use32bitindexes? *pInt++ : *pShort++;
 			v1 = &(work.mFaceVertList[vindex]);
-			vindex = *pIdx++;
+			vindex = use32bitindexes? *pInt++ : *pShort++;
 			v2 = &(work.mFaceVertList[vindex]);
 
 			work.mTriList[i].setDetails(i, v0, v1, v2);
@@ -243,7 +267,7 @@ namespace Ogre {
             work.mTriList[i].removed = false;
 
         }
-        */
+		ibuf->unlock();
 
     }
     //---------------------------------------------------------------------
@@ -616,12 +640,34 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void ProgressiveMesh::bakeNewLOD(IndexData* pData)
     {
-        /* TODO
         // Zip through the tri list of any working data copy and bake
-        pData->numIndexes = mCurrNumIndexes;
-        pData->pIndexes = new ushort[mCurrNumIndexes];
+        pData->indexCount = mCurrNumIndexes;
+		pData->indexStart = 0;
+		// Base size of indexes on original 
+		bool use32bitindexes = 
+			(mpIndexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
 
-        ushort* pIndex = pData->pIndexes;
+		// Create index buffer, we don't need to read it back or modify it a lot
+		pData->indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
+			use32bitindexes? HardwareIndexBuffer::IT_32BIT : HardwareIndexBuffer::IT_16BIT,
+			pData->indexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+
+        unsigned short* pShort;
+		unsigned int* pInt;
+		if (use32bitindexes)
+		{
+			pInt = static_cast<unsigned int*>(
+				pData->indexBuffer->lock( 0,
+					pData->indexBuffer->getSizeInBytes(),
+					HardwareBuffer::HBL_DISCARD));
+		}
+		else
+		{
+			pShort = static_cast<unsigned short*>(
+				pData->indexBuffer->lock( 0,
+					pData->indexBuffer->getSizeInBytes(),
+					HardwareBuffer::HBL_DISCARD));
+		}
         TriangleList::iterator tri, triend;
         // Use the first working data buffer, they are all the same index-wise
         WorkingDataList::iterator pWork = mWorkingData.begin();
@@ -630,12 +676,21 @@ namespace Ogre {
         {
             if (!tri->removed)
             {
-                *pIndex++ = tri->vertex[0]->realIndex;
-                *pIndex++ = tri->vertex[1]->realIndex;
-                *pIndex++ = tri->vertex[2]->realIndex;
+				if (use32bitindexes)
+				{
+					*pInt++ = tri->vertex[0]->realIndex;
+					*pInt++ = tri->vertex[1]->realIndex;
+					*pInt++ = tri->vertex[2]->realIndex;
+				}
+				else
+				{
+					*pShort++ = tri->vertex[0]->realIndex;
+					*pShort++ = tri->vertex[1]->realIndex;
+					*pShort++ = tri->vertex[2]->realIndex;
+				}
             }
         }
-        */
+		pData->indexBuffer->unlock();
 
     }
     //---------------------------------------------------------------------
