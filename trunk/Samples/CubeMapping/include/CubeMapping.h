@@ -107,7 +107,7 @@ double noise3(double x, double y, double z) {
 /* ==================================================================== */
 void _normalsZero(int numVertices, Real *normals) 
 {
-	memset(normals, 0, sizeof(Real)*numVertices);
+	memset(normals, 0, sizeof(Real)*numVertices * 3);
 }
 void _normalsAdd(int numFaces, unsigned short *vertexIndices, 
 	Real *vertices, Real *normals) 
@@ -134,7 +134,7 @@ void _normalsSaveNormalized(int numVertices, Real *normals)
 {
 	for(int i=0;i<numVertices;i++, normals+=3) {
 		Vector3 n(normals[0], normals[1], normals[2]);
-		n.normalise();
+		n.normalisedCopy();
 		normals[0] = n.x ;
 		normals[1] = n.y ;
 		normals[2] = n.z ;
