@@ -39,7 +39,6 @@ namespace Ogre
 
 #if OGRE_DEBUG_MEMORY_MANAGER && OGRE_DEBUG_MODE
 
-#define OGRE_MEMMANAGER_INCR_SPEED 1
 #define OGRE_MEMMANAGER_STRESS_TEST 0
 
 #if OGRE_MEMORY_STRESS_TEST
@@ -302,9 +301,6 @@ namespace Ogre
     */
     const char *memorySizeString( size_t size )
     {       
-#if OGRE_MEMMANAGER_INCR_SPEED
-        return insertCommas( size );
-#else
         static char str[90];
 
         if( size > 1048576 )
@@ -314,7 +310,6 @@ namespace Ogre
         else
             sprintf( str, "%10s bytes     ", insertCommas( size ) );
         return str;
-#endif
     }
 
     //---------------------------------------------------------------------------------------------
@@ -343,10 +338,7 @@ namespace Ogre
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------
-#if OGRE_MEMMANAGER_INCR_SPEED
-    #define calculateActualSize( reportedSize ) ( ( reportedSize ) + paddingSize * sizeof(long) * 2 )
-#else
-    static size_t calculateActualSize( const size_t reportedSize )
+    inline static size_t calculateActualSize( const size_t reportedSize )
     {
         // We use DWORDS as our padding, and a long is guaranteed to be 4 bytes, 
         // but an int is not (ANSI defines an int as being the standard word size 
@@ -356,13 +348,9 @@ namespace Ogre
 
         return reportedSize + paddingSize * sizeof(long) * 2;
     }
-#endif
 
     // ---------------------------------------------------------------------------------------------------------------------------------
-#if OGRE_MEMMANAGER_INCR_SPEED
-    #define calculateReportedSize( actualSize ) ( ( actualSize ) - paddingSize * sizeof(long) * 2 )
-#else
-    static size_t calculateReportedSize( const size_t actualSize )
+    inline static size_t calculateReportedSize( const size_t actualSize )
     {
         // We use DWORDS as our padding, and a long is guaranteed to be 4 bytes, 
         // but an int is not (ANSI defines an int as being the standard word size 
@@ -372,14 +360,9 @@ namespace Ogre
 
         return actualSize - paddingSize * sizeof(long) * 2;
     }
-#endif
 
     // ---------------------------------------------------------------------------------------------------------------------------------
-#if OGRE_MEMMANAGER_INCR_SPEED
-    #define calculateReportedAddress( actualAddress ) ( !( actualAddress ) ? NULL : \
-        (void *)( (char *)(actualAddress) + sizeof(long) * paddingSize ) )
-#else
-    void *calculateReportedAddress( const void *actualAddress )
+    inline void *calculateReportedAddress( const void *actualAddress )
     {
         // We allow this...
         if (!actualAddress)
@@ -388,7 +371,6 @@ namespace Ogre
         // Just account for the padding
         return (void *)((char *) actualAddress + sizeof(long) * paddingSize );
     }
-#endif
 
     // ---------------------------------------------------------------------------------------------------------------------------------
     void wipeWithPattern(
