@@ -178,6 +178,8 @@ namespace Ogre {
         TiXmlElement* subMeshNode = 
             mSubMeshesNode->InsertEndChild(TiXmlElement("submesh"))->ToElement();
 
+        size_t numFaces;
+
         // Material name
         subMeshNode->SetAttribute("material", s->getMaterialName());
         // bool useSharedVertices
@@ -214,15 +216,15 @@ namespace Ogre {
         if (s->operationType == RenderOperation::OT_TRIANGLE_LIST)
         {
             // tri list
-            facesNode->SetAttribute("count", 
-                StringConverter::toString(s->indexData->indexCount / 3));
+            numFaces = s->indexData->indexCount / 3;
         }
         else
         {
             // triangle fan or triangle strip
-            facesNode->SetAttribute("count", 
-                StringConverter::toString(s->indexData->indexCount - 2));
+            numFaces = s->indexData->indexCount - 2;
         }
+        facesNode->SetAttribute("count", 
+            StringConverter::toString(numFaces));
         // Write each face in turn
         ushort i;
 		unsigned int* pInt;
@@ -238,7 +240,7 @@ namespace Ogre {
 			pShort = static_cast<unsigned short*>(
 				ibuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
 		}
-        for (i = 0; i < s->indexData->indexCount; i += 3)
+        for (i = 0; i < numFaces; ++i)
         {
             TiXmlElement* faceNode = 
                 facesNode->InsertEndChild(TiXmlElement("face"))->ToElement();
