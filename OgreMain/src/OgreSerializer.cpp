@@ -233,6 +233,15 @@ namespace Ogre {
         flipFromLittleEndian(pDest, sizeof(unsigned long), count);
     }
     //---------------------------------------------------------------------
+    String Serializer::readString(DataChunk& chunk, size_t numChars)
+    {
+        assert (numChars <= 255);
+        char str[255];
+        chunk.read(str, numChars);
+        str[numChars] = '\0';
+        return str;
+    }
+    //---------------------------------------------------------------------
     String Serializer::readString(DataChunk& chunk)
     {
         char str[255];
