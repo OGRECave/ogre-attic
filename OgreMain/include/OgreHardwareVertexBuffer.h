@@ -245,7 +245,7 @@ namespace Ogre {
     {
     public:
 		/// Defines the list of vertex elements that makes up this declaration
-        typedef std::vector<VertexElement> VertexElementList;
+        typedef std::list<VertexElement> VertexElementList;
     protected:
         VertexElementList mElementList;
     public:

@@ -198,7 +198,8 @@ namespace Ogre {
     {
         assert(elem_index < mElementList.size() && "Index out of bounds");
         VertexElementList::iterator i = mElementList.begin();
-        i += elem_index;
+        for (unsigned short n = 0; n < elem_index; ++n)
+            ++i;
         mElementList.erase(i);
     }
     //-----------------------------------------------------------------------------
@@ -222,7 +223,8 @@ namespace Ogre {
     {
         assert(elem_index < mElementList.size() && "Index out of bounds");
         VertexElementList::iterator i = mElementList.begin();
-        i += elem_index;
+        for (unsigned short n = 0; n < elem_index; ++n)
+            ++i;
         (*i) = VertexElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------------
