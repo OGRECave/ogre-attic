@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    String String::BLANK = String("");
+    const String String::BLANK = String("");
     //-----------------------------------------------------------------------
     void String::trim(bool left, bool right)
     {
