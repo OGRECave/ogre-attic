@@ -181,6 +181,70 @@ AC_DEFUN([OGRE_GET_CONFIG_TOOLKIT],
   AC_SUBST(OGRE_CFGTK)
 ])
 
+AC_DEFUN([OGRE_GET_PLATFORM],
+[OGRE_PLATFORM=SDL
+ AC_ARG_WITH(platform, 
+             AC_HELP_STRING([--with-platform=PLATFORM],
+                            [the platform to build, currently SDL or gtk]),
+             OGRE_PLATFORM=$withval,
+             OGRE_PLATFORM=SDL)
+
+ 
+  if test ! -d PlatformManagers/$OGRE_PLATFORM; then
+    OGRE_PLATFORM=SDL
+  fi
+
+  PLATFORM_CFLAGS=""
+  PLATFORM_LIBS=""
+
+  dnl Do the extra checks per type here
+  case $OGRE_PLATFORM in 
+    SDL)
+      AM_PATH_SDL(1.2.0)
+      PLATFORM_CFLAGS=$SDL_CFLAGS
+      PLATFORM_LIBS=$SDL_LIBS
+      ;;
+    gtk)
+      PKG_CHECK_MODULES(PLATFORM, gtkglextmm-1.0 libglademm-2.0);;
+  esac
+
+  AC_SUBST(PLATFORM_CFLAGS)
+  AC_SUBST(PLATFORM_LIBS)
+  AC_SUBST(OGRE_PLATFORM)
+])
+
+AC_DEFUN([OGRE_GET_GLSUPPORT],
+[OGRE_GLSUPPORT=SDL
+ AC_ARG_WITH(gl-support, 
+             AC_HELP_STRING([--with-gl-support=PLATFORM],
+                            [the platform to build, currently SDL or gtk]),
+             OGRE_GLSUPPORT=$withval,
+             OGRE_GLSUPPORT=SDL)
+
+ 
+  if test ! -d RenderSystems/GL/src/$OGRE_GLSUPPORT; then
+    OGRE_GLSUPPORT=SDL
+  fi
+
+  GLSUPPORT_CFLAGS=""
+  GLSUPPORT_LIBS=""
+
+  dnl Do the extra checks per type here
+  case $OGRE_GLSUPPORT in 
+    SDL) AM_PATH_SDL(1.2.0)
+      GLSUPPORT_CFLAGS=$SDL_CFLAGS
+      GLSUPPORT_LIBS=$SDL_LIBS;;
+    gtk) 
+    PKG_CHECK_MODULES(GLSUPPORT, gtkglextmm-1.0)
+    GLSUPPORT_LIBS="$GLSUPPORT_LIBS -L$(top_srcdir)/PlatformManagers/gtk -lOgrePlatform"
+    ;;
+  esac
+
+  AC_SUBST(GLSUPPORT_CFLAGS)
+  AC_SUBST(GLSUPPORT_LIBS)
+  AC_SUBST(OGRE_GLSUPPORT)
+])
+
 AC_DEFUN([OGRE_BUILD_PYTHON_LINK],
 [AC_ARG_ENABLE(python-link,
               AC_HELP_STRING([--enable-python-link],

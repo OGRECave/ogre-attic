@@ -44,6 +44,8 @@ AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
 AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
 
 OGRE_GET_CONFIG_TOOLKIT
+OGRE_GET_PLATFORM
+OGRE_GET_GLSUPPORT
 
 dnl Find the optional components we should build
 OGRE_BUILD_PYTHON_LINK
@@ -67,6 +69,9 @@ AC_CONFIG_FILES([Makefile \
     PlatformManagers/SDL/Makefile \
     PlatformManagers/SDL/src/Makefile
     PlatformManagers/SDL/include/Makefile
+    PlatformManagers/gtk/Makefile \
+    PlatformManagers/gtk/src/Makefile \
+    PlatformManagers/gtk/include/Makefile \
     PlugIns/Makefile \
     PlugIns/BSPSceneManager/Makefile \
     PlugIns/BSPSceneManager/src/Makefile \
