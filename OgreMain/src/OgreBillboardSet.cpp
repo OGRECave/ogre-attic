@@ -786,7 +786,7 @@ namespace Ogre {
         Quaternion invTransform;
         if (!mWorldSpace)
         {
-            mParentNode->_getDerivedOrientation().Inverse();
+            invTransform = mParentNode->_getDerivedOrientation().Inverse();
         }
         Quaternion camQ;
 
