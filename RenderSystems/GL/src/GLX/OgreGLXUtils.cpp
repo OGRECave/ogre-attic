@@ -265,7 +265,7 @@ namespace Ogre {
      /* multisample attribs */
     #ifdef GLX_ARB_multisample
        if (ext && strstr("GLX_ARB_multisample", ext) == 0) {
-          glXGetConfig(dpy, vInfo, GLX_SAMPLE_BUFFERS_ARB, &attribs->numMultisample);
+          	glXGetConfig(dpy, vInfo, GLX_SAMPLE_BUFFERS_ARB, &attribs->numMultisample);
             glXGetConfig(dpy, vInfo, GLX_SAMPLES_ARB, &attribs->numSamples);
        }
     #endif
@@ -291,7 +291,7 @@ namespace Ogre {
      * that has no caveats.
      * @author Brian Paul (from the glxinfo source)
      */
-    int GLXUtils::findBestVisual(Display *dpy, int scrnum) 
+    int GLXUtils::findBestVisual(Display *dpy, int scrnum, int multiSample) 
     {
         XVisualInfo theTemplate;
        XVisualInfo *visuals;
@@ -299,6 +299,7 @@ namespace Ogre {
         long mask;
      int i;
      struct visual_attribs bestVis;
+	 int msDiff;
     
         /* get list of all visuals on this screen */
        theTemplate.screen = scrnum;
@@ -320,11 +321,15 @@ namespace Ogre {
     
             get_visual_attribs(dpy, &visuals[i], &vis);
     
-           /* always skip visuals with caveats */
-         if (vis.visualCaveat != GLX_NONE_EXT)
-              continue;
+           	/* always skip visuals that are slow */
+         	if (vis.visualCaveat == GLX_SLOW_VISUAL_EXT)
+         	    continue;
+		 	/* skip visual if it doesn't have the desired number of multisamples */
+			if (multiSample != -1 && vis.numSamples != multiSample)
+			   continue;
     
          /* see if this vis is better than bestVis */
+		   
            if ((!bestVis.supportsGL && vis.supportsGL) ||
                          (bestVis.visualCaveat != GLX_NONE_EXT) ||
                           (!bestVis.rgba && vis.rgba) ||
@@ -335,14 +340,18 @@ namespace Ogre {
                            (bestVis.alphaSize < vis.alphaSize) ||
                          (bestVis.depthSize < vis.depthSize) ||
                          (bestVis.stencilSize < vis.stencilSize) ||
-                         (bestVis.accumRedSize < vis.accumRedSize)) {
+                         (bestVis.accumRedSize < vis.accumRedSize)) 
+			{
                /* found a better visual */
                 bestVis = vis;
-         }
+			}
+         
       }
     
      XFree(visuals);
-    
+    	if (multiSample != -1 && bestVis.numSamples != multiSample)
+			// We found no visual with the desired FSAA
+			return -1;
        return bestVis.id;
     }
 

@@ -99,18 +99,17 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	size_t left = (int)DisplayWidth(mDisplay, screen)/2 - width/2; 
 	size_t top = (int)DisplayHeight(mDisplay, screen)/2 - height/2; 
 	String title = name;
+	size_t fsaa_samples = 0;
 	if(miscParams)
 	{
 		// Parse miscellenous parameters
 		NameValuePairList::const_iterator opt;
 		// Full screen anti aliasing
 		opt = miscParams->find("FSAA");
+		
 		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
 		{
-			// TODO
-			size_t fsaa_samples = StringConverter::parseUnsignedInt(opt->second);
-			LogManager::getSingleton().logMessage("GLXWindow::create -- Requested FSAA of "+
-				StringConverter::toString(fsaa_samples));
+			fsaa_samples = StringConverter::parseUnsignedInt(opt->second);
 		}
 		// left (x)
 		opt = miscParams->find("left");
@@ -124,7 +123,14 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		opt = miscParams->find("title");
 		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
 			title = opt->second;
-	}   
+	}  
+	
+	// Check for full screen mode if FSAA was asked for
+	if(!fullScreen && fsaa_samples>0)
+	{
+		LogManager::getSingleton().logMessage("GLXWindow::create -- FSAA only supported in fullscreen mode");
+		fsaa_samples = 0;
+	} 
 	
 	Window rootWindow = RootWindow(mDisplay,screen);
 #ifndef NO_XRANDR
@@ -138,7 +144,6 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		XRRScreenConfiguration *config;
 		XRRScreenSize *sizes;
 		Rotation current_rotation;
-		int current_size;
 		int nsizes;
 
 		// Get current screen info
@@ -154,7 +159,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			int mode = -1;
 			int mode_width = INT_MAX;
 			int mode_height = INT_MAX;
-			for(int i=0; i<nsizes; i++) {
+			for(size_t i=0; i<nsizes; i++) {
 				if(sizes[i].width >= width && sizes[i].height >= height &&
 				                sizes[i].width < mode_width && sizes[i].height < mode_height) {
 					mode = i;
@@ -177,7 +182,13 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	}
 #endif
 	// Apply some magic algorithm to get the best visual
-	int best_visual = GLXUtils::findBestVisual(mDisplay, screen);
+	int best_visual = GLXUtils::findBestVisual(mDisplay, screen, fsaa_samples);
+	if(best_visual == -1)
+	{
+		best_visual = GLXUtils::findBestVisual(mDisplay, screen);
+		LogManager::getSingleton().logMessage("GLXWindow::create -- Requested FSAA of "+
+				StringConverter::toString(fsaa_samples)+" was not acquirable, defaulting to first suitable visual");
+	}
 	LogManager::getSingleton().logMessage("GLXWindow::create -- Best visual is "+StringConverter::toString(best_visual));
 
 	// Get information about this so-called-best visual
