@@ -225,6 +225,9 @@ namespace Ogre {
 		newMesh->mSubMeshNameMap = mSubMeshNameMap ;
         // Copy any bone assignments
         newMesh->mBoneAssignments = mBoneAssignments;
+        // Copy bounds
+        newMesh->mAABB = mAABB;
+        newMesh->mBoundRadius = mBoundRadius;
 
         return newMesh;
 
