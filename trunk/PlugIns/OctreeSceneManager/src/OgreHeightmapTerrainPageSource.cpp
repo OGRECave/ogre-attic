@@ -251,15 +251,15 @@ namespace Ogre {
             firePageConstructed(0, 0, heightData);
             // Now turn into TerrainPage
             // Note that we're using a single material for now
-            mPage = buildPage(heightData, 
-                TerrainSceneManager::getOptions().terrainMaterial);
+            if (mSceneManager)
+            {
+                mPage = buildPage(heightData, 
+                    TerrainSceneManager::getOptions().terrainMaterial);
+                mSceneManager->attachPage(0, 0, mPage);
+            }
 
             // Free temp store
             delete [] heightData;
-
-            // Now attach the page to scene manager
-            mSceneManager->attachPage(0, 0, mPage);
-
         }
     }
     //-------------------------------------------------------------------------
