@@ -725,6 +725,9 @@ namespace Ogre
 		sub->indexData->indexStart =0;
         ibuf->writeData(0, ibuf->getSizeInBytes(), faces, true);
 
+        msh->_setBounds(AxisAlignedBox(-100,-100,0,100,100,0));
+        msh->_setBoundingSphereRadius(Math::Sqrt(100*100+100*100));
+
         mResources[msh->getName()] = msh;
     }
     //-----------------------------------------------------------------------
