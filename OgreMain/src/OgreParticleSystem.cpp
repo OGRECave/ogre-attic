@@ -60,10 +60,12 @@ namespace Ogre {
         // This will call setPoolSize in the BillboardSet context and create Billboard objects
         //  instead of Particle objects
         // Unavoidable due to C++ funky virtualisation rules & constructors
-        mpPositions = 0;
-        mpColours = 0;
-        mpIndexes = 0;
-        mpTexCoords = 0;
+        //mpPositions = 0;
+        //mpColours = 0;
+        //mpIndexes = 0;
+        mVertexData = 0;
+        mIndexData = 0;
+        //mpTexCoords = 0;
         mAutoExtendPool = true;
         mAllDefaultSize = true;
         mOriginType = BBO_CENTER;

@@ -25,7 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLHardwareBufferManager.h"
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
-#include "OgreGLVertexDeclaration.h"
 #include "OgreHardwareBuffer.h"
 
 namespace Ogre {
@@ -66,7 +65,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     VertexDeclaration* GLHardwareBufferManager::createVertexDeclaration(void)
     {
-        VertexDeclaration* decl = new GLVertexDeclaration();
+        VertexDeclaration* decl = new VertexDeclaration();
         mVertexDeclarations.push_back(decl);
         return decl;
     }
@@ -81,13 +80,12 @@ namespace Ogre {
     {
         switch(usage)
         {
-        case HardwareBuffer::HBU_DYNAMIC:
-        case HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY:
-            return GL_DYNAMIC_DRAW_ARB;
         case HardwareBuffer::HBU_STATIC:
             return GL_STATIC_DRAW_ARB;
+        case HardwareBuffer::HBU_DYNAMIC:
+        case HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY:
         default:
-            return GL_STREAM_DRAW_ARB;
+            return GL_DYNAMIC_DRAW_ARB;
         };
     }
 }
