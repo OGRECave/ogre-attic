@@ -159,15 +159,27 @@ void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &s
 //-----------------------------------------------------------------------------  
 void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
 {
-	// TODO: bulkPixelConversion if src.format is not directly supported by D3D9
-	// (_getPF returns PF_UNKNOWN) need _getClosestSupportedPF() and convert to that
+	// for scoped deletion of conversion buffer
+	MemoryDataStreamPtr buf;
+	PixelBox converted = src;
+
+	// convert to pixelbuffer's native format if necessary
+	if (D3D9Texture::_getPF(src.format) == D3DFMT_UNKNOWN)
+	{
+		buf.bind(new MemoryDataStream(
+			PixelUtil::getMemorySize(src.getWidth(), src.getHeight(), src.getDepth(),
+										mFormat)));
+		converted = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), mFormat, buf->getPtr());
+		PixelUtil::bulkPixelConversion(src, converted);
+	}
+
 	if(mSurface)
 	{
 		RECT destRect, srcRect;
 		srcRect.left = 0;
 		srcRect.top = 0;
-		srcRect.right = src.getWidth();
-		srcRect.bottom = src.getHeight();
+		srcRect.right = converted.getWidth();
+		srcRect.bottom = converted.getHeight();
 		
 		destRect.left = dstBox.left;
 		destRect.top = dstBox.top;
@@ -175,8 +187,9 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		destRect.bottom = dstBox.bottom;
 		
 		if(D3DXLoadSurfaceFromMemory(mSurface, NULL, &destRect, 
-			src.data, D3D9Texture::_getPF(src.format), src.rowPitch, NULL, &srcRect, 
-			D3DX_DEFAULT, 0) != D3D_OK)
+			converted.data, D3D9Texture::_getPF(converted.format),
+			converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
+			NULL, &srcRect, D3DX_DEFAULT, 0) != D3D_OK)
 		{
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
 		 		"D3D9HardwarePixelBuffer::blitFromMemory");
@@ -184,14 +197,13 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 	}
 	else
 	{
-		// D3DXLoadVolumeFromMemory(mVolume, ...		RECT destRect, srcRect;
 		D3DBOX destBox, srcBox;
 		srcBox.Left = 0;
 		srcBox.Top = 0;
 		srcBox.Front = 0;
-		srcBox.Right = src.getWidth();
-		srcBox.Bottom = src.getHeight();
-		srcBox.Back = src.getDepth();
+		srcBox.Right = converted.getWidth();
+		srcBox.Bottom = converted.getHeight();
+		srcBox.Back = converted.getDepth();
 		
 		destBox.Left = dstBox.left;
 		destBox.Top = dstBox.top;
@@ -201,8 +213,10 @@ void D3D9HardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::B
 		destBox.Back = dstBox.back;
 		
 		if(D3DXLoadVolumeFromMemory(mVolume, NULL, &destBox, 
-			src.data, D3D9Texture::_getPF(src.format), src.rowPitch, src.slicePitch, NULL, &srcBox, 
-			D3DX_DEFAULT, 0) != D3D_OK)
+			converted.data, D3D9Texture::_getPF(converted.format),
+			converted.rowPitch * PixelUtil::getNumElemBytes(converted.format),
+			converted.slicePitch * PixelUtil::getNumElemBytes(converted.format),
+			NULL, &srcBox, D3DX_DEFAULT, 0) != D3D_OK)
 		{
 			Except(Exception::ERR_RENDERINGAPI_ERROR, "D3DXLoadSurfaceFromMemory failed",
 		 		"D3D9HardwarePixelBuffer::blitFromMemory");

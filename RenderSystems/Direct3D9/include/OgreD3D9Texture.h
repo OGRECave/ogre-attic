@@ -163,6 +163,8 @@ namespace Ogre {
 		static PixelFormat _getPF(D3DFORMAT d3dPF);
 		/// utility method, convert Ogre pixel format to D3D9 pixel format
 		static D3DFORMAT _getPF(PixelFormat ogrePF);
+		/// utility method, find closest Ogre pixel format that D3D9 can support
+		static PixelFormat _getClosestSupportedPF(PixelFormat ogrePF);
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3D9TexturePtr 
