@@ -2,17 +2,6 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/OctreeSceneManager/include 
 
 noinst_PROGRAMS = OctreeSceneManager.so
 
-OctreeSceneManager_so_SOURCES = OgreOctreeCamera.cpp \
-                             OgreOctreeNode.cpp \
-                             OgreOctree.cpp \
-                             OgreOctreeSceneManager.cpp \
-                             OgreOctreeSceneManagerDll.cpp 
-                             
-
-OctreeSceneManager_so_LDFLAGS = -shared
-
-noinst_PROGRAMS = OctreeSceneManager.so
-
 OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
                              OgreOctreeSceneManager.cpp \
                              OgreOctreeNode.cpp \
