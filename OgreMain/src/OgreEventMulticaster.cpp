@@ -58,22 +58,11 @@ namespace Ogre {
 		return static_cast<ScrollListener*>(addInternal(a, b));
 	}
 
-	ListSelectionListener* EventMulticaster::add(ListSelectionListener* a, ListSelectionListener* b) 
-	{
-		return static_cast<ListSelectionListener*>(addInternal(a, b));
-	}
-
 	EventListener* EventMulticaster::addInternal(EventListener* a, EventListener* b) 
 	{
 		if (a == NULL)  return b;
 		if (b == NULL)  return a;
 		return convertMultiToListener(new EventMulticaster(a, b));
-	}
-
-	void EventMulticaster::listSelected(ListSelectionEvent* e) 
-	{
-		(static_cast<ListSelectionListener*>(mA))->listSelected(e);
-		(static_cast<ListSelectionListener*>(mB))->listSelected(e);
 	}
 
 	void EventMulticaster::actionPerformed(ActionEvent* e) 
@@ -134,12 +123,6 @@ namespace Ogre {
 		(static_cast<KeyListener*>(mA))->keyReleased(e);
 		(static_cast<KeyListener*>(mB))->keyReleased(e);
 	}
-
-	ListSelectionListener* EventMulticaster::remove(ListSelectionListener* l, ListSelectionListener* oldl) 
-	{
-		return static_cast<ListSelectionListener*>( removeInternal(l, oldl));
-	}
-
 
 	ActionListener* EventMulticaster::remove(ActionListener* l, ActionListener* oldl) 
 	{

@@ -100,14 +100,6 @@ namespace Ogre {
 		 * actionPerformed methods on listener-a and listener-b.
 		 * @param e the action event
 		 */
-		 void listSelected(ListSelectionEvent* e);
-
-
-		/**
-		 * Handles the actionPerformed event by invoking the
-		 * actionPerformed methods on listener-a and listener-b.
-		 * @param e the action event
-		 */
 		 void actionPerformed(ActionEvent* e);
 
 		/**
@@ -127,7 +119,6 @@ namespace Ogre {
 		 static MouseListener* add(MouseListener* a, MouseListener* b);
 		 static ActionListener* add(ActionListener* a, ActionListener* b);
 		 static MouseMotionListener* add(MouseMotionListener* a, MouseMotionListener* b) ;
-		 static ListSelectionListener* add(ListSelectionListener* a, ListSelectionListener* b) ;
 		 static ScrollListener* add(ScrollListener* a, ScrollListener* b) ;
 
 
@@ -220,14 +211,6 @@ namespace Ogre {
 		 * @param oldl the scroll-listener being removed
 		 */
 		 static ScrollListener* remove(ScrollListener* l, ScrollListener* oldl);
-
-		 /**
-		 * Removes the old listSlection-listener from action-listener-l and
-		 * returns the resulting multicast listener.
-		 * @param l action-listener-l
-		 * @param oldl the action-listener being removed
-		 */
-		 static ListSelectionListener* remove(ListSelectionListener* l, ListSelectionListener* oldl);
 
 		 /**
 		 * Removes the old key-listener from key-listener-l and

@@ -69,9 +69,6 @@ OgreKeyEvent.h \
 OgreKeyFrame.h \
 OgreKeyTarget.h \
 OgreLight.h \
-OgreListChanger.h \
-OgreListSelectionEvent.h \
-OgreListSelectionTarget.h \
 OgreLog.h \
 OgreLogManager.h \
 OgreMaterial.h \

@@ -35,7 +35,6 @@ OgreEventListeners.h  -
 						and mouse entered,exited, 
 		MouseMotionListener - handles mouse move and mouse drag
 		ActionListener - Used for buttons, when pressed and released.
-		ListSelectionListener - Used when a list item is selected.
 
 -------------------
 begin                : Nov 19 2002
@@ -165,19 +164,6 @@ namespace Ogre {
 		 * Invoked when an action occurs.
 		 */
 		virtual void actionPerformed(ActionEvent* e) = 0;
-	};
-
-	/** Specialised EventListener for list-style component events. */
-	class _OgreExport ListSelectionListener : public EventListener
-    {
-    protected:
-
-	public :
-
-		/**
-		 * Invoked when a scroll has occurred
-		 */
-		virtual void listSelected(ListSelectionEvent* e) = 0;
 	};
 
 	class _OgreExport ScrollListener : public EventListener
