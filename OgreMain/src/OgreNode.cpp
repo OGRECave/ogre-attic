@@ -118,20 +118,22 @@ namespace Ogre {
             // Update transforms from parent
             _updateFromParent();
 
-            ChildNodeMap::iterator it;
-            for (it = mChildren.begin(); it != mChildren.end(); ++it)
+            ChildNodeMap::iterator it, itend;
+			itend = mChildren.end();
+            for (it = mChildren.begin(); it != itend; ++it)
             {
                 Node* child = it->second;
                 child->_update(true, true);
             }
+            mChildrenToUpdate.clear();
         }
         else
         {
             // Just update selected children
 
-            typedef std::list<Node*>::iterator IT;
-            for(IT it = mChildrenToUpdate.begin(); 
-                it != mChildrenToUpdate.end(); ++it)
+            ChildUpdateSet::iterator it, itend;
+			itend = mChildrenToUpdate.end();
+            for(it = mChildrenToUpdate.begin(); it != itend; ++it)
             {
                 SceneNode* sceneChild = static_cast<SceneNode*>(*it);
                 sceneChild->_update(true, false);
@@ -691,7 +693,7 @@ namespace Ogre {
             return;
         }
             
-        mChildrenToUpdate.push_back(child);
+        mChildrenToUpdate.insert(child);
         // Request selective update of me
         if (mParent)
             mParent->requestUpdate(this);
@@ -700,10 +702,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::cancelUpdate(Node* child)
     {
-        mChildrenToUpdate.remove(child);
+        mChildrenToUpdate.erase(child);
 
         // Propogate this up if we're done
-        if (mChildrenToUpdate.size() == 0 && mParent)
+        if (mChildrenToUpdate.empty() && mParent)
         {
             mParent->cancelUpdate(this);
         }
