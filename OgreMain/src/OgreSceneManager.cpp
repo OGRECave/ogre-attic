@@ -638,6 +638,9 @@ namespace Ogre {
         // Begin the frame
         mDestRenderSystem->_beginFrame();
 
+        // Set rasterisation mode
+        mDestRenderSystem->_setRasterisationMode(camera->getDetailLevel());
+
         // Update controllers (after begineFrame since some are frameTime dependent)
         ControllerManager::getSingleton().updateAllControllers();
 
