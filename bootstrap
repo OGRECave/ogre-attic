@@ -3,9 +3,13 @@
 # Check for proper versions of autotools
 # We require:
 #  - autoconf 2.50+
-#  - automake 1.4+
+#  - automake 1.6+
 #  - libtool 1.4+
-#
+
+# Deal with some gentoo-specific issues
+export WANT_AUTOMAKE='1.7'
+export WANT_AUTOCONF_2_5=1
+
 ## Using prereq in autoconf rather than here, mostly for the debian systems at
 ## this point
 if test -z "`autoconf --version 2>&1|head -n 1|egrep '2.5'`"; then
