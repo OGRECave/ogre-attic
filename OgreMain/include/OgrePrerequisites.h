@@ -84,8 +84,9 @@ http://www.gnu.org/copyleft/lesser.txt
 namespace Ogre {
     // Define ogre version
     #define OGRE_VERSION_MAJOR 0
-    #define OGRE_VERSION_MINOR 14
-    #define OGRE_VERSION_PATCH 1
+    #define OGRE_VERSION_MINOR 15
+    #define OGRE_VERSION_PATCH 0
+    #define OGRE_VERSION_NAME "Hastur"
 
     #if OGRE_DOUBLE_PRECISION == 1
         typedef double Real;
