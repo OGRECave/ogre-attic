@@ -89,7 +89,7 @@ namespace Ogre {
 		/** Protected unnamed constructor to prevent default construction. 
 		*/
 		Resource() 
-			: mIsLoaded( false ), mSize( 0 )
+			: mCreator(0), mHandle(0), mIsLoaded(false), mSize(0), mIsManual(0), mLoader(0)
 		{ 
 		}
 
