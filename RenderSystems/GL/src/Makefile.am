@@ -15,8 +15,7 @@ RenderSystem_GL_so_SOURCES = OgreGLEngineDll.cpp \
                              OgreGLRenderSystem.cpp \
                              OgreGLSupport.cpp \
                              OgreGLTexture.cpp \
-                             OgreGLTextureManager.cpp \
-                             OgreGLVertexDeclaration.cpp
+                             OgreGLTextureManager.cpp
 
 RenderSystem_GL_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_builddir)/OgreMain/src
 RenderSystem_GL_so_LDADD = $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain \
