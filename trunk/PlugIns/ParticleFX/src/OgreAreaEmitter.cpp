@@ -57,13 +57,13 @@ namespace Ogre {
 
             // Custom params
             dict->addParameter(ParameterDef("width", 
-                "Width of the box in world coordinates.",
+                "Width of the shape in world coordinates.",
                 PT_REAL),&msWidthCmd);
             dict->addParameter(ParameterDef("height", 
-                "Height of the box in world coordinates.",
+                "Height of the shape in world coordinates.",
                 PT_REAL),&msHeightCmd);
             dict->addParameter(ParameterDef("depth", 
-                "Depth of the box in world coordinates.",
+                "Depth of the shape in world coordinates.",
                 PT_REAL),&msDepthCmd);
             return true;
 
