@@ -94,6 +94,13 @@ namespace Ogre {
             VO_BLEND_WEIGHTS = 16
         };
 
+        /** Vertex blend info */
+        struct VertexBlendData
+        {
+            unsigned short matrixIndex;
+            Real blendWeight;
+        };
+
         // true to use pIndexes to reference individual lines/triangles rather than embed. Allows vertex reuse.
         bool useIndexes;
 
@@ -154,14 +161,12 @@ namespace Ogre {
         /// The 'Stride' between sets of specular colour data. 0 indicates data is packed with no gaps.
         unsigned short specularStride;
 
-        /** Optional pointer to a list of vertex blending weights, organised in vertex order, then
-            by blend matrix order, with one Real between 0.0 and 1.0 per weight (the number of 
-            weights per vertex is recorded in numBlendWeightsPerVertex)
+        /** Optional pointer to a list of vertex blending details, organised in vertex order. 
+            The number of weights per vertex is recorded in numBlendWeightsPerVertex - there must
+            be this many for every vertex: set the weight to 0 for those vertices that don't 
+            use all the entries (if some vertices have more than others)
         */
-        Real* pBlendingWeights;
-
-        /// The 'Stride' between sets of vertex blend data (between clusters of weights for each vertex). 0 indicates data is packed with no gaps.
-        unsigned short blendingWeightStride;
+        VertexBlendData* pBlendingWeights;
 
         /** Pointer to a list of vertex indexes describing faces (only used if useIndexes is true).
             @note
@@ -181,7 +186,7 @@ namespace Ogre {
         {
             // Initialise all things
             vertexStride = normalStride = diffuseStride = specularStride = 0;
-            numBlendWeightsPerVertex = blendingWeightStride = 0;
+            numBlendWeightsPerVertex = 0;
             for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
             {
                 texCoordStride[i] = 0;

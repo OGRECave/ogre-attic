@@ -51,6 +51,10 @@ namespace Ogre {
         // This makes it the same as OpenGL and other right-handed systems
         mCullingMode = CULL_CLOCKWISE;
 
+        // Create an initially sized software vertex blend buffer
+        // Enough for 5000 vertices
+        mTempVertexBlendBuffer.resize(5000 * 3);
+
     }
 
     //-----------------------------------------------------------------------
@@ -429,6 +433,60 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
     {
+        // Source vector
+        Vector3 sourceVec;
+        // Accumulation vector
+        Vector3 accumVec;
+
+        Real* pVertElem;
+        RenderOperation::VertexBlendData* pBlend;
+
+        // Check buffer size
+        unsigned long numVertReals = op.numVertices * 3;
+        if (mTempVertexBlendBuffer.size() < numVertReals)
+        {
+            mTempVertexBlendBuffer.resize(numVertReals);
+        }
+
+        // Loop per vertex
+        pVertElem = op.pVertices;
+        pBlend = op.pBlendingWeights;
+        for (unsigned long vertIdx = 0; 
+            vertIdx < numVertReals; vertIdx += 3)
+        {
+            // Load source vertex elements
+            sourceVec.x = *pVertElem++;
+            sourceVec.y = *pVertElem++;
+            sourceVec.z = *pVertElem++;
+            // Load accumulator
+            accumVec = Vector3::ZERO;
+
+            // Loop per blend weight 
+            for (unsigned short blendIdx = 0; blendIdx < op.numBlendWeightsPerVertex; ++blendIdx)
+            {
+                // Blend by multiplying source by blend matrix and scaling by weight
+                // Add to accumulator
+                // NB weights must be normalised!!
+                if (pBlend->blendWeight != 0.0) 
+                {
+                    accumVec += (pMatrices[pBlend->matrixIndex] * sourceVec) 
+                        * pBlend->blendWeight;
+                }
+                pBlend++;
+            }
+
+            // Stored blended vertex in temp buffer
+            mTempVertexBlendBuffer[vertIdx] = accumVec.x;
+            mTempVertexBlendBuffer[vertIdx+1] = accumVec.y;
+            mTempVertexBlendBuffer[vertIdx+2] = accumVec.z;
+
+        }
+
+        // Re-point the render operation vertex buffer
+        op.pVertices = mTempVertexBlendBuffer.begin();
+
+        
+
 
     }
     //-----------------------------------------------------------------------
