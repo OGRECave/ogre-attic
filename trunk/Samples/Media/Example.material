@@ -401,20 +401,6 @@ material Examples/Droplet
 		}
 	}
 }
-material Examples/Robot
-{
-	technique
-	{
-		pass
-		{
-
-			texture_unit
-			{
-				texture r2skin.jpg
-			}
-		}
-	}
-}
 material Examples/Scrollbar/Up
 {
 	technique

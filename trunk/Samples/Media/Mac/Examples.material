@@ -1,0 +1,40 @@
+material Examples/Robot
+{
+	// Hardware skinning technique
+	technique
+	{
+		pass
+		{
+			vertex_program_ref Ogre/HardwareSkinningOneWeight
+			{
+				param_indexed_auto 0 worldMatrix3x4Array[0] world_matrix_array_3x4
+				param_indexed_auto 72 viewProjectionMatrix viewproj_matrix
+				param_indexed_auto 76 objectSpaceLightPos[0] light_position_object_space 0
+				param_indexed_auto 77 objectSpaceLightPos[1] light_position_object_space 1
+				param_indexed_auto 78 lightDiffuseColour[0] light_diffuse_colour 0
+				param_indexed_auto 79 lightDiffuseColour[1] light_diffuse_colour 1
+				param_indexed_auto 80 ambient ambient_light_colour
+			
+			}
+
+			texture_unit
+			{
+				texture r2skin.jpg
+			}
+		}
+	}
+
+	// Software blending technique
+	technique
+	{
+		pass
+		{
+
+			texture_unit
+			{
+				texture r2skin.jpg
+			}
+		}
+	}
+}
+
