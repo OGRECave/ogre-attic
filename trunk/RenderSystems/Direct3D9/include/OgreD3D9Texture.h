@@ -51,10 +51,6 @@ namespace Ogre {
 		IDirect3DCubeTexture9	*mpCubeTex;	
         /// Volume texture
         IDirect3DVolumeTexture9 *mpVolumeTex;
-		/// temp. 1D/2D normal texture pointer
-		IDirect3DTexture9		*mpTmpNormTex;
-		/// temp cubic texture pointer
-		IDirect3DCubeTexture9	*mpTmpCubeTex;
         /// z-buffer for the render surface pointer
 		IDirect3DSurface9		*mpZBuff;	
 		/// actual texture pointer
@@ -68,6 +64,8 @@ namespace Ogre {
 		D3DFORMAT						mBBPixelFormat;
 		/// device capabilities pointer
 		D3DCAPS9						mDevCaps;
+        // Auto-generated mipmaps?
+        bool                            mAutoGenMipMaps;
 	
 		/// internal method, load a cube texture
 		void _loadCubeTex();

@@ -67,7 +67,7 @@ namespace Ogre {
         mVertexData.vertexStart = 0;
         mVertexData.vertexBufferBinding->setBinding( 0,
             HardwareBufferManager::getSingleton().createVertexBuffer(
-                sizeof(Real)*3, 32, HardwareBuffer::HBU_DYNAMIC) );
+                sizeof(Real)*3, 32, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY) );
 
         // Initialise material
         mMaterial = static_cast<Material*>(
