@@ -31,10 +31,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
-        0.5,    0,  0, -0.5, 
-        0, -0.5,  0, -0.5, 
-        0,    0,  0,   1,
-        0,    0,  0,   1);
+        0.5,    0,    0,  0.5, 
+        0,   -0.5,    0,  0.5, 
+        0,      0,  0.5,  0.5,
+        0,      0,    0,    1);
 
     //-----------------------------------------------------------------------------
     AutoParamDataSource::AutoParamDataSource()
@@ -273,8 +273,8 @@ namespace Ogre {
         {
             mTextureViewProjMatrix = 
                 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * 
-                mCurrentTextureProjector->getViewMatrix() * 
-                mCurrentTextureProjector->getStandardProjectionMatrix();
+                mCurrentTextureProjector->getStandardProjectionMatrix() * 
+				mCurrentTextureProjector->getViewMatrix();
             mTextureViewProjMatrixDirty = false;
         }
         return mTextureViewProjMatrix;
