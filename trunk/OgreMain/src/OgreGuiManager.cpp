@@ -124,9 +124,10 @@ namespace Ogre {
         return Singleton<GuiManager>::getSingleton();
     }
     //-----------------------------------------------------------------------
-
-
-
+    GuiElement * GuiManager::getGuiElement( const String& name )
+    {
+        if( mInstances.find( name ) == mInstances.end() )
+            return NULL;
+        return mInstances.find( name )->second;
+    }
 }
-
-

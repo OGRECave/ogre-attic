@@ -69,6 +69,9 @@ namespace Ogre {
         */
         void destroyAllGuiElements(void);
 
+        /** Returns a pointer to the GuiElement with the passed name.
+        */
+        GuiElement * getGuiElement( const String& name );
         
         /** Registers a new GuiElementFactory with this manager.
         @remarks
