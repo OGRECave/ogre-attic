@@ -19,7 +19,6 @@ LGPL like the rest of the engine.
         Shows lighting support in OGRE.
 */
 
-#include "Ogre.h"
 #include "Lighting.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

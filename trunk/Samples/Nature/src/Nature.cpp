@@ -18,7 +18,6 @@ LGPL like the rest of the engine.
         Test for the nature plugin
 */
 
-#include "Ogre.h"
 #include "Nature.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

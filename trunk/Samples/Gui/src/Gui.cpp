@@ -19,7 +19,6 @@ LGPL like the rest of the engine.
         Show's Ogre's Gui features
 */
 
-#include "Ogre.h"
 #include "Gui.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

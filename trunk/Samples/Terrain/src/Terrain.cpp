@@ -19,7 +19,6 @@ LGPL like the rest of the engine.
         Shows OGRE's terrain rendering plugin.
 */
 
-#include "Ogre.h"
 #include "Terrain.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

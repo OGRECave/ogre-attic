@@ -24,7 +24,6 @@ LGPL like the rest of the engine.
         manager so this scene is kept deliberately simple.
 */
 
-#include "Ogre.h"
 #include "Transparency.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

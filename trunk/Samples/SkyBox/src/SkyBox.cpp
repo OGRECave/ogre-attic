@@ -20,7 +20,6 @@ LGPL like the rest of the engine.
         onto a cube around the camera.
 */
 
-#include "Ogre.h"
 #include "SkyBox.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

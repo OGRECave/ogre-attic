@@ -20,7 +20,6 @@ LGPL like the rest of the engine.
         is projected off of an object
 */
 
-#include "Ogre.h"
 #include "CubeMapping.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

@@ -12,7 +12,6 @@ LGPL like the rest of the engine.
 -----------------------------------------------------------------------------
 */
 
-#include "Ogre.h"
 #include "SkeletalAnimation.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

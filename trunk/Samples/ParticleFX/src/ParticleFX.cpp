@@ -13,7 +13,6 @@ LGPL like the rest of the engine.
 */
 
 
-#include "Ogre.h"
 #include "ParticleFX.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
