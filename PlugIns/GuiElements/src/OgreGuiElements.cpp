@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lgpl.html.
 -----------------------------------------------------------------------------
 */
 
+#include "OgreString.h"
 #include "OgreGuiManager.h"
 #include "OgreGuiElementFactories.h"
 #include "OgreException.h"
