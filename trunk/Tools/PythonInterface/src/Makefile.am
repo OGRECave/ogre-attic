@@ -7,17 +7,28 @@ Ogre_so_SOURCES = general.cpp \
                   AxisAlignedBox.cpp \
                   Camera.cpp \
                   ColourValue.cpp \
+                  ConfigDialog.cpp \
                   Entity.cpp \
+                  ErrorDialog.cpp \
+                  EventTarget.cpp \
+                  EventQueue.cpp \
                   FrameListener.cpp \
+                  Input.cpp \
+                  InputEvent.cpp \
+                  KeyEvent.cpp \
+                  KeyListener.cpp \
                   Light.cpp \
                   Material.cpp \
                   Matrix3.cpp \
                   Matrix4.cpp \
                   Mesh.cpp \
                   MeshManager.cpp \
+                  MouseMotionListener.cpp \
                   MovableObject.cpp \
                   Node.cpp \
                   Plane.cpp \
+                  PlatformManager.cpp \
+                  PositionTarget.cpp \
                   Quaternion.cpp \
                   RenderSystem.cpp \
                   RenderTarget.cpp \
