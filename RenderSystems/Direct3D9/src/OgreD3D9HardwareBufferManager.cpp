@@ -64,14 +64,20 @@ namespace Ogre {
             }
         }
 #endif
-        return HardwareVertexBufferSharedPtr(
-            new D3D9HardwareVertexBuffer(vertexSize, 
-            numVerts, usage, mlpD3DDevice, false, useShadowBuffer) );
+		D3D9HardwareVertexBuffer* vbuf = new D3D9HardwareVertexBuffer(
+			vertexSize, numVerts, usage, mlpD3DDevice, false, useShadowBuffer);
+		mVertexBuffers.insert(vbuf);
+        return HardwareVertexBufferSharedPtr(vbuf);
     }
     //-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
     {
-        delete buf;
+		VertexBufferList::iterator i = mVertexBuffers.find(buf);
+		if (i != mVertexBuffers.end())
+		{
+			delete *i;
+			mVertexBuffers.erase(i);
+		}
     }
     //-----------------------------------------------------------------------
     void D3D9HardwareBufferManager::destroyAllDeclarations(void)
@@ -106,16 +112,21 @@ namespace Ogre {
             }
         }
 #endif
-        // NB no longer store the buffer in a local list since reference counted
-        return HardwareIndexBufferSharedPtr(
-                new D3D9HardwareIndexBuffer(itype, numIndexes, 
-                usage, mlpD3DDevice, false, useShadowBuffer) );
+		D3D9HardwareIndexBuffer* idx = new D3D9HardwareIndexBuffer(
+			itype, numIndexes, usage, mlpD3DDevice, false, useShadowBuffer);
+		mIndexBuffers.insert(idx);
+		return HardwareIndexBufferSharedPtr(idx);
             
     }
     //-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
     {
-        delete buf;
+		IndexBufferList::iterator i = mIndexBuffers.find(buf);
+		if (i != mIndexBuffers.end())
+		{
+			delete *i;
+			mIndexBuffers.erase(i);
+		}
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* D3D9HardwareBufferManager::createVertexDeclaration(void)
