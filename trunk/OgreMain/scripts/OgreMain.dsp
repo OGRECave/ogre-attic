@@ -364,10 +364,6 @@ SOURCE=..\src\OgreSimpleRenderable.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreSimpleSpline.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreSingleton.cpp
 # End Source File
 # Begin Source File
@@ -821,10 +817,6 @@ SOURCE=..\include\OgreSerializer.h
 # Begin Source File
 
 SOURCE=..\include\OgreSimpleRenderable.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreSimpleSpline.h
 # End Source File
 # Begin Source File
 
