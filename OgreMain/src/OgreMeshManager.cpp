@@ -215,7 +215,6 @@ namespace Ogre
 
         // Generate face list
         pSub->useSharedVertices = true;
-        pSub->indexData = new IndexData();
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage);
 
         pMesh->_updateBounds();
