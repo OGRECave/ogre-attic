@@ -340,6 +340,10 @@ SOURCE=..\src\OgreRoot.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreRotationSpline.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSceneManager.cpp
 # End Source File
 # Begin Source File
@@ -797,6 +801,10 @@ SOURCE=..\include\OgreResourceMap.h
 # Begin Source File
 
 SOURCE=..\include\OgreRoot.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRotationalSpline.h
 # End Source File
 # Begin Source File
 
