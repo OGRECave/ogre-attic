@@ -295,6 +295,12 @@ namespace Ogre {
         isModified();
         return mDerivedDirection;
     }
+    //-----------------------------------------------------------------------
+    void Light::setVisible(bool visible)
+    {
+        MovableObject::setVisible(visible);
+        mModified = true;
+    }
 
 
 

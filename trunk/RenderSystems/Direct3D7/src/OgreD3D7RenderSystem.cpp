@@ -731,75 +731,78 @@ namespace Ogre {
         HRESULT hr;
         D3DLIGHT7 d3dLight;
 
-        switch (lt->getType())
+        if (lt->isVisible())
         {
-        case Light::LT_POINT:
-            d3dLight.dltType = D3DLIGHT_POINT;
-            break;
-        case Light::LT_DIRECTIONAL:
-            d3dLight.dltType = D3DLIGHT_DIRECTIONAL;
-            break;
-        case Light::LT_SPOTLIGHT:
-            d3dLight.dltType = D3DLIGHT_SPOT;
-            d3dLight.dvFalloff = lt->getSpotlightFalloff();
-            d3dLight.dvTheta = Math::getSingleton().DegreesToRadians(lt->getSpotlightInnerAngle());
-            d3dLight.dvPhi = Math::getSingleton().DegreesToRadians(lt->getSpotlightOuterAngle());
-            break;
+            switch (lt->getType())
+            {
+            case Light::LT_POINT:
+                d3dLight.dltType = D3DLIGHT_POINT;
+                break;
+            case Light::LT_DIRECTIONAL:
+                d3dLight.dltType = D3DLIGHT_DIRECTIONAL;
+                break;
+            case Light::LT_SPOTLIGHT:
+                d3dLight.dltType = D3DLIGHT_SPOT;
+                d3dLight.dvFalloff = lt->getSpotlightFalloff();
+                d3dLight.dvTheta = Math::getSingleton().DegreesToRadians(lt->getSpotlightInnerAngle());
+                d3dLight.dvPhi = Math::getSingleton().DegreesToRadians(lt->getSpotlightOuterAngle());
+                break;
+            }
+
+            // Colours
+            ColourValue col;
+            col = lt->getDiffuseColour();
+            d3dLight.dcvDiffuse.r = col.r;
+            d3dLight.dcvDiffuse.g = col.g;
+            d3dLight.dcvDiffuse.b = col.b;
+            d3dLight.dcvDiffuse.a = col.a;
+
+            col = lt->getSpecularColour();
+            d3dLight.dcvSpecular.r = col.r;
+            d3dLight.dcvSpecular.g = col.g;
+            d3dLight.dcvSpecular.b = col.b;
+            d3dLight.dcvSpecular.a = col.a;
+
+            // Never use ambient for a movable light
+            d3dLight.dcvAmbient.r = 0.0;
+            d3dLight.dcvAmbient.g = 0.0;
+            d3dLight.dcvAmbient.b = 0.0;
+            d3dLight.dcvAmbient.a = 0.0;
+
+            // Position (Irrelevant for directional)
+            Vector3 vec;
+            if (lt->getType() != Light::LT_DIRECTIONAL)
+            {
+                vec = lt->getDerivedPosition();
+
+                d3dLight.dvPosition.x = vec.x;
+                d3dLight.dvPosition.y = vec.y;
+                d3dLight.dvPosition.z = vec.z;
+            }
+            // Direction (Irrelevant for point lights)
+            if (lt->getType() != Light::LT_POINT)
+            {
+                vec = lt->getDerivedDirection();
+                d3dLight.dvDirection.x = vec.x;
+                d3dLight.dvDirection.y = vec.y;
+                d3dLight.dvDirection.z = vec.z;
+            }
+            // Attenuation parameters
+            d3dLight.dvRange = lt->getAttenuationRange();
+            d3dLight.dvAttenuation0 = lt->getAttenuationConstant();
+            d3dLight.dvAttenuation1 = lt->getAttenuationLinear();
+            d3dLight.dvAttenuation2 = lt->getAttenuationQuadric();
+
+
+
+            // Set light state
+            hr = mlpD3DDevice->SetLight(index, &d3dLight);
+
+            if (FAILED(hr))
+                Except(hr, "Unable to set light details", "D3DRenderSystem::setD3DLight");
         }
 
-        // Colours
-        ColourValue col;
-        col = lt->getDiffuseColour();
-        d3dLight.dcvDiffuse.r = col.r;
-        d3dLight.dcvDiffuse.g = col.g;
-        d3dLight.dcvDiffuse.b = col.b;
-        d3dLight.dcvDiffuse.a = col.a;
-
-        col = lt->getSpecularColour();
-        d3dLight.dcvSpecular.r = col.r;
-        d3dLight.dcvSpecular.g = col.g;
-        d3dLight.dcvSpecular.b = col.b;
-        d3dLight.dcvSpecular.a = col.a;
-
-        // Never use ambient for a movable light
-        d3dLight.dcvAmbient.r = 0.0;
-        d3dLight.dcvAmbient.g = 0.0;
-        d3dLight.dcvAmbient.b = 0.0;
-        d3dLight.dcvAmbient.a = 0.0;
-
-        // Position (Irrelevant for directional)
-        Vector3 vec;
-        if (lt->getType() != Light::LT_DIRECTIONAL)
-        {
-            vec = lt->getDerivedPosition();
-
-            d3dLight.dvPosition.x = vec.x;
-            d3dLight.dvPosition.y = vec.y;
-            d3dLight.dvPosition.z = vec.z;
-        }
-        // Direction (Irrelevant for point lights)
-        if (lt->getType() != Light::LT_POINT)
-        {
-            vec = lt->getDerivedDirection();
-            d3dLight.dvDirection.x = vec.x;
-            d3dLight.dvDirection.y = vec.y;
-            d3dLight.dvDirection.z = vec.z;
-        }
-        // Attenuation parameters
-        d3dLight.dvRange = lt->getAttenuationRange();
-        d3dLight.dvAttenuation0 = lt->getAttenuationConstant();
-        d3dLight.dvAttenuation1 = lt->getAttenuationLinear();
-        d3dLight.dvAttenuation2 = lt->getAttenuationQuadric();
-
-
-
-        // Set light state
-        hr = mlpD3DDevice->SetLight(index, &d3dLight);
-
-        if (FAILED(hr))
-            Except(hr, "Unable to set light details", "D3DRenderSystem::setD3DLight");
-
-        hr = mlpD3DDevice->LightEnable(index, TRUE);
+        hr = mlpD3DDevice->LightEnable(index, lt->isVisible());
         if (FAILED(hr))
             Except(hr, "Unable to enable light.", "D3DRenderSystem::setD3DLight");
 
@@ -1432,11 +1435,6 @@ namespace Ogre {
             hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, TRUE);
             if (FAILED(hr))
                 Except(hr, "Error enabling alpha blending option.",
-                    "D3DRenderSystem::_beginFrame");
-            // Allow stencilling
-            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILENABLE, TRUE);
-            if (FAILED(hr))
-                Except(hr, "Error enabling stencilling.",
                     "D3DRenderSystem::_beginFrame");
             firstTime = false;
         }
@@ -2262,6 +2260,16 @@ namespace Ogre {
         }
 
 
+    }
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::setStencilCheckEnabled(bool enabled)
+    {
+        // Allow stencilling
+        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_STENCILENABLE, enabled);
+        if (FAILED(hr))
+            Except(hr, "Error enabling / disabling stencilling.",
+                "D3DRenderSystem::setStencilCheckEnabled");
+        
     }
     //---------------------------------------------------------------------
     bool D3DRenderSystem::hasHardwareStencil(void)

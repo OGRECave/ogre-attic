@@ -65,6 +65,7 @@ public:
     vert_res = 768;
     top_coord = 1;
     near_plane = 1;
+    detail_tile = 1;
   };
 
   const uchar * data;     //pointer to the world 2D data.
@@ -78,6 +79,7 @@ public:
   int max_pixel_error;
   int near_plane;
   int vert_res;
+  int detail_tile;
   float top_coord;
 
 };

@@ -74,6 +74,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGuiElement.h"
 #include "OgreGuiContainer.h"
 #include "OgreOverlay.h"
+#include "OgreRenderQueueListener.h"
 // .... more to come
 
 #endif

@@ -250,7 +250,6 @@ namespace Ogre
                 normals will not be displayed. If false, no lighting is applied and all geometry will be full brightness.
         */
         virtual void setLightingEnabled(bool enabled) = 0;
-
         /** Creates a new rendering window.
             @remarks
                 This method creates a new rendering window as specified
@@ -639,6 +638,13 @@ namespace Ogre
         /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
         virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
 
+        /** Turns stencil buffer checking on or off. 
+        @remarks
+            Stencilling (masking off areas of the rendering target based on the stencil 
+            buffer) canbe turned on or off using this method. By default, stencilling is
+            disabled.
+        */
+        virtual void setStencilCheckEnabled(bool enabled) = 0;
         /** Determines if this system supports hardware accelerated stencil buffer. 
         @remarks
             Note that the lack of this function doesn't mean you can't do stencilling, but

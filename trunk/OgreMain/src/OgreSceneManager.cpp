@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreOverlay.h"
 #include "OgreOverlayManager.h"
 #include "OgreStringConverter.h"
+#include "OgreRenderQueueListener.h"
 
 // This class implements the most basic scene manager
 
@@ -1175,72 +1176,94 @@ namespace Ogre {
         //   parsing through non-existent queues (even though there are 10 available)
         while (queueIt.hasMoreElements())
         {
-            // TODO raise event to say queue is about to be rendered?
+            // Get queue group id
+            RenderQueueGroupID qId = queueIt.peekNextKey();
             RenderQueueGroup* pGroup = queueIt.getNext();
 
-            // Iterate through priorities
-            RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
 
-            while (groupIt.hasMoreElements())
+            bool repeatQueue = false;
+            do // for repeating queues
             {
-                RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
-
-                // Just render each entity in turn, grouped by material
-                RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
-                imatend = pPriorityGrp->mMaterialGroups.end();
-                static Matrix4 xform[256];
-                RenderOperation ro;
-
-                for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
+                // Fire queue started event
+                if (fireRenderQueueStarted(qId))
                 {
-                    // Set Material
-                    Material* thisMaterial = imat->first;
-                    int matLayersLeft = thisMaterial->getNumTextureLayers();
+                    // Someone requested we skip this queue
+                    continue;
+                }
 
-                    // NB do at least one rendering pass even if no layers! (Untextured materials)
-                    do
+                // Iterate through priorities
+                RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+                while (groupIt.hasMoreElements())
+                {
+                    RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+                    // Just render each entity in turn, grouped by material
+                    RenderPriorityGroup::MaterialGroupMap::iterator imat, imatend;
+                    imatend = pPriorityGrp->mMaterialGroups.end();
+                    static Matrix4 xform[256];
+                    RenderOperation ro;
+
+                    for (imat = pPriorityGrp->mMaterialGroups.begin(); imat != imatend; ++imat)
                     {
-                        // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
-                        matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+                        // Set Material
+                        Material* thisMaterial = imat->first;
+                        int matLayersLeft = thisMaterial->getNumTextureLayers();
 
-
-                        // Iterate through renderables and render
-                        // Note this may happen multiple times for multipass render
-                        std::vector<Renderable*>::iterator irend, irendend;
-                        irendend = imat->second.end();
-
-                        for (irend = imat->second.begin(); irend != irendend; ++irend)
+                        // NB do at least one rendering pass even if no layers! (Untextured materials)
+                        do
                         {
-                            // Set world transformation
-                            (*irend)->getWorldTransforms(xform);
-                            unsigned short numMatrices = (*irend)->getNumWorldTransforms();
-                            if (numMatrices > 1)
+                            // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
+                            matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+
+
+                            // Iterate through renderables and render
+                            // Note this may happen multiple times for multipass render
+                            std::vector<Renderable*>::iterator irend, irendend;
+                            irendend = imat->second.end();
+
+                            for (irend = imat->second.begin(); irend != irendend; ++irend)
                             {
-                                mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                                // Set world transformation
+                                (*irend)->getWorldTransforms(xform);
+                                unsigned short numMatrices = (*irend)->getNumWorldTransforms();
+                                if (numMatrices > 1)
+                                {
+                                    mDestRenderSystem->_setWorldMatrices(xform, numMatrices);
+                                }
+                                else
+                                {
+                                    mDestRenderSystem->_setWorldMatrix(*xform);
+                                }
+
+                                // Issue view / projection changes if any
+                                useRenderableViewProjMode(*irend);
+
+                                // Set up rendering operation
+                                (*irend)->getRenderOperation(ro);
+
+                                if( ro.numVertices )
+                                    mDestRenderSystem->_render(ro);
+
                             }
-                            else
-                            {
-                                mDestRenderSystem->_setWorldMatrix(*xform);
-                            }
-
-                            // Issue view / projection changes if any
-                            useRenderableViewProjMode(*irend);
-
-                            // Set up rendering operation
-                            (*irend)->getRenderOperation(ro);
-
-                            if( ro.numVertices )
-                                mDestRenderSystem->_render(ro);
-
-                        }
-                    } while (matLayersLeft > 0);
+                        } while (matLayersLeft > 0);
 
 
-                } // for each material
+                    } // for each material
 
-            }// for each priority
-        
-            // TODO raise event to say queue has been rendered?
+                }// for each priority
+            
+                // Fire queue ended event
+                if (fireRenderQueueEnded(qId))
+                {
+                    // Someone requested we repeat this queue
+                    repeatQueue = true;
+                }
+                else
+                {
+                    repeatQueue = false;
+                }
+            } while (repeatQueue);
 
         } // for each queue group
 
@@ -1802,6 +1825,52 @@ namespace Ogre {
                     mSkyDomeEntity[plane]->getSubEntity(0), qid);
             }
         }
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::addRenderQueueListener(RenderQueueListener* newListener)
+    {
+        mRenderQueueListeners.push_back(newListener);
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::removeRenderQueueListener(RenderQueueListener* delListener)
+    {
+        RenderQueueListenerList::iterator i, iend;
+        iend = mRenderQueueListeners.end();
+        for (i = mRenderQueueListeners.begin(); i != iend; ++i)
+        {
+            if (*i == delListener)
+            {
+                mRenderQueueListeners.erase(i);
+                break;
+            }
+        }
+
+    }
+    //---------------------------------------------------------------------
+    bool SceneManager::fireRenderQueueStarted(RenderQueueGroupID id)
+    {
+        RenderQueueListenerList::iterator i, iend;
+        bool skip = false;
+
+        iend = mRenderQueueListeners.end();
+        for (i = mRenderQueueListeners.begin(); i != iend; ++i)
+        {
+            (*i)->renderQueueStarted(id, skip);
+        }
+        return skip;
+    }
+    //---------------------------------------------------------------------
+    bool SceneManager::fireRenderQueueEnded(RenderQueueGroupID id)
+    {
+        RenderQueueListenerList::iterator i, iend;
+        bool repeat = false;
+
+        iend = mRenderQueueListeners.end();
+        for (i = mRenderQueueListeners.begin(); i != iend; ++i)
+        {
+            (*i)->renderQueueEnded(id, repeat);
+        }
+        return repeat;
     }
 
 }

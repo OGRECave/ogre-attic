@@ -71,6 +71,12 @@ namespace Ogre {
 
         initConfigOptions();
 
+        mStencilFail = mStencilZFail = mStencilPass = GL_KEEP;
+        mStencilFunc = GL_ALWAYS;
+        mStencilRef = 0;
+        mStencilMask = 0xffffffff;
+
+
         OgreUnguard();
     }
 
@@ -507,61 +513,68 @@ namespace Ogre {
     {
         GLint gl_index = GL_LIGHT0 + index;
         
-        switch (lt->getType())
+        if (lt->isVisible())
         {
-        case Light::LT_SPOTLIGHT:
-            glLightf( gl_index, GL_SPOT_CUTOFF, lt->getSpotlightOuterAngle() );
-            break;
-        default:
-            glLightf( gl_index, GL_SPOT_CUTOFF, 180.0 );
-            break;
+            switch (lt->getType())
+            {
+            case Light::LT_SPOTLIGHT:
+                glLightf( gl_index, GL_SPOT_CUTOFF, lt->getSpotlightOuterAngle() );
+                break;
+            default:
+                glLightf( gl_index, GL_SPOT_CUTOFF, 180.0 );
+                break;
+            }
+
+            // Color
+            ColourValue col;
+            col = lt->getDiffuseColour();
+            GLfloat f4vals[4] = {col.r, col.g, col.b, col.a};
+            glLightfv(gl_index, GL_DIFFUSE, f4vals);
+            
+            col = lt->getSpecularColour();
+            f4vals[0] = col.r;
+            f4vals[1] = col.g;
+            f4vals[2] = col.b;
+            f4vals[3] = col.a;
+            glLightfv(gl_index, GL_SPECULAR, f4vals);
+
+            // Disable ambient light for movables
+            glLighti(gl_index, GL_AMBIENT, 0);
+
+            // Position (don't set for directional)
+            Vector3 vec;
+            if (lt->getType() != Light::LT_DIRECTIONAL)
+            {
+                vec = lt->getDerivedPosition();
+                f4vals[0] = vec.x;
+                f4vals[1] = vec.y;
+                f4vals[2] = vec.z;
+                f4vals[3] = 1.0;
+                glLightfv(gl_index, GL_POSITION, f4vals);
+            }
+            // Direction (not needed for point lights)
+            if (lt->getType() != Light::LT_POINT)
+            {
+                vec = lt->getDerivedDirection();
+                f4vals[0] = vec.x;
+                f4vals[1] = vec.y;
+                f4vals[2] = vec.z;
+                f4vals[3] = 0.0;
+                glLightfv(gl_index, GL_SPOT_DIRECTION, f4vals);
+            }
+
+            // Attenuation
+            glLightf(gl_index, GL_CONSTANT_ATTENUATION, lt->getAttenuationConstant());
+            glLightf(gl_index, GL_LINEAR_ATTENUATION, lt->getAttenuationLinear());
+            glLightf(gl_index, GL_QUADRATIC_ATTENUATION, lt->getAttenuationQuadric());
+            // Enable in the scene
+            glEnable(gl_index);
         }
-
-        // Color
-        ColourValue col;
-        col = lt->getDiffuseColour();
-        GLfloat f4vals[4] = {col.r, col.g, col.b, col.a};
-        glLightfv(gl_index, GL_DIFFUSE, f4vals);
-        
-        col = lt->getSpecularColour();
-        f4vals[0] = col.r;
-        f4vals[1] = col.g;
-        f4vals[2] = col.b;
-        f4vals[3] = col.a;
-        glLightfv(gl_index, GL_SPECULAR, f4vals);
-
-        // Disable ambient light for movables
-        glLighti(gl_index, GL_AMBIENT, 0);
-
-        // Position (don't set for directional)
-        Vector3 vec;
-        if (lt->getType() != Light::LT_DIRECTIONAL)
+        else
         {
-            vec = lt->getDerivedPosition();
-            f4vals[0] = vec.x;
-            f4vals[1] = vec.y;
-            f4vals[2] = vec.z;
-            f4vals[3] = 1.0;
-            glLightfv(gl_index, GL_POSITION, f4vals);
+            // Disable in the scene
+            glDisable(gl_index);
         }
-        // Direction (not needed for point lights)
-        if (lt->getType() != Light::LT_POINT)
-        {
-            vec = lt->getDerivedDirection();
-            f4vals[0] = vec.x;
-            f4vals[1] = vec.y;
-            f4vals[2] = vec.z;
-            f4vals[3] = 0.0;
-            glLightfv(gl_index, GL_SPOT_DIRECTION, f4vals);
-        }
-
-        // Attenuation
-        glLightf(gl_index, GL_CONSTANT_ATTENUATION, lt->getAttenuationConstant());
-        glLightf(gl_index, GL_LINEAR_ATTENUATION, lt->getAttenuationLinear());
-        glLightf(gl_index, GL_QUADRATIC_ATTENUATION, lt->getAttenuationQuadric());
-
-        // Enable in the scene
-        glEnable(gl_index);
 
         lt->_clearModified();
     }
@@ -976,37 +989,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setAlphaRejectSettings(CompareFunction func, unsigned char value)
     {
-        GLint compFunc;
-        switch(func)
-        {
-        case CMPF_ALWAYS_FAIL:
-            compFunc = GL_NEVER;
-            break;
-        case CMPF_ALWAYS_PASS:
-            compFunc = GL_ALWAYS;
-            break;
-        case CMPF_LESS:
-            compFunc = GL_LESS;
-            break;
-        case CMPF_LESS_EQUAL:
-            compFunc = GL_LEQUAL;
-            break;
-        case CMPF_EQUAL:
-            compFunc = GL_EQUAL;
-            break;
-        case CMPF_NOT_EQUAL:
-            compFunc = GL_NOTEQUAL;
-            break;
-        case CMPF_GREATER_EQUAL:
-            compFunc = GL_GEQUAL;
-            break;
-        case CMPF_GREATER:
-            compFunc = GL_GREATER;
-            break;
-        };
-
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(compFunc, value);
+        glAlphaFunc(convertCompareFunction(func), value);
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setViewport(Viewport *vp)
@@ -1291,36 +1275,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setDepthBufferFunction(CompareFunction func)
     {
-        GLint depthFunc;
-        switch(func)
-        {
-        case CMPF_ALWAYS_FAIL:
-            depthFunc = GL_NEVER;
-            break;
-        case CMPF_ALWAYS_PASS:
-            depthFunc = GL_ALWAYS;
-            break;
-        case CMPF_LESS:
-            depthFunc = GL_LESS;
-            break;
-        case CMPF_LESS_EQUAL:
-            depthFunc = GL_LEQUAL;
-            break;
-        case CMPF_EQUAL:
-            depthFunc = GL_EQUAL;
-            break;
-        case CMPF_NOT_EQUAL:
-            depthFunc = GL_NOTEQUAL;
-            break;
-        case CMPF_GREATER_EQUAL:
-            depthFunc = GL_GEQUAL;
-            break;
-        case CMPF_GREATER:
-            depthFunc = GL_GREATER;
-            break;
-        };
-
-        glDepthFunc(depthFunc);
+        glDepthFunc(convertCompareFunction(func));
     }
     //-----------------------------------------------------------------------------
     String SDLRenderSystem::getErrorDescription(long errCode)
@@ -1430,6 +1385,19 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    void SDLRenderSystem::setStencilCheckEnabled(bool enabled)
+    {
+        if (enabled)
+        {
+            glEnable(GL_STENCIL_TEST);
+        }
+        else
+        {
+            glDisable(GL_STENCIL_TEST);
+        }
+        
+    }
+    //---------------------------------------------------------------------
     bool SDLRenderSystem::hasHardwareStencil(void)
     {
         // TODO
@@ -1438,38 +1406,97 @@ namespace Ogre {
     //---------------------------------------------------------------------
     ushort SDLRenderSystem::getStencilBufferBitDepth(void)
     {
-        // TODO
         return 8;
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilBufferFunction(CompareFunction func)
     {
-        // TODO
+        // Have to use saved values for other params since GL doesn't have 
+        // individual setters
+        mStencilFunc = convertCompareFunction(func);
+        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilBufferReferenceValue(ulong refValue)
     {
-        // TODO
+        // Have to use saved values for other params since GL doesn't have 
+        // individual setters
+        mStencilRef = refValue;
+        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilBufferMask(ulong mask)
     {
-        // TODO
+        // Have to use saved values for other params since GL doesn't have 
+        // individual setters
+        mStencilMask = mask;
+        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilBufferFailOperation(StencilOperation op)
     {
-        // TODO
+        // Have to use saved values for other params since GL doesn't have 
+        // individual setters
+        mStencilFail = convertStencilOp(op);
+        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
     {
-        // TODO
+        // Have to use saved values for other params since GL doesn't have 
+        // individual setters
+        mStencilZFail = convertStencilOp(op);
+        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
     }
     //---------------------------------------------------------------------
     void SDLRenderSystem::setStencilBufferPassOperation(StencilOperation op)
     {
-        // TODO
+        // Have to use saved values for other params since GL doesn't have 
+        // individual setters
+        mStencilPass = convertStencilOp(op);
+        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
+    }
+    //---------------------------------------------------------------------
+    GLint SDLRenderSystem::convertCompareFunction(CompareFunction func)
+    {
+        switch(func)
+        {
+        case CMPF_ALWAYS_FAIL:
+            return GL_NEVER;
+        case CMPF_ALWAYS_PASS:
+            return GL_ALWAYS;
+        case CMPF_LESS:
+            return GL_LESS;
+        case CMPF_LESS_EQUAL:
+            return GL_LEQUAL;
+        case CMPF_EQUAL:
+            return GL_EQUAL;
+        case CMPF_NOT_EQUAL:
+            return GL_NOTEQUAL;
+        case CMPF_GREATER_EQUAL:
+            return GL_GEQUAL;
+        case CMPF_GREATER:
+            return GL_GREATER;
+        };
+    }
+    //---------------------------------------------------------------------
+    GLint SDLRenderSystem::convertStencilOp(StencilOperation op)
+    {
+        switch(op)
+        {
+        case SOP_KEEP:
+            return GL_KEEP;
+        case SOP_ZERO:
+            return GL_ZERO;
+        case SOP_REPLACE:
+            return GL_REPLACE;
+        case SOP_INCREMENT:
+            return GL_INCR;
+        case SOP_DECREMENT:
+            return GL_DECR;
+        case SOP_INVERT:
+            return GL_INVERT;
+        };
     }
 
 }

@@ -81,6 +81,16 @@ namespace Ogre {
         // Store last depth write state
         bool mDepthWrite;
 
+        GLint convertCompareFunction(CompareFunction func);
+        GLint convertStencilOp(StencilOperation op);
+
+        // Save stencil settings since GL insists on having them in groups
+        // Means we have to call functions more than once, but what the hey
+        GLint mStencilFunc, mStencilRef;
+        GLuint mStencilMask;
+        GLint mStencilFail, mStencilZFail, mStencilPass;
+
+
     public:
         // Default constructor / destructor
         SDLRenderSystem();
@@ -290,6 +300,13 @@ namespace Ogre {
           RenderSystem
          */
         void _setRasterisationMode(SceneDetailLevel level);
+        /** See
+          RenderSystem
+         */
+        void setStencilCheckEnabled(bool enabled);
+        /** See
+          RenderSystem
+         */
         bool hasHardwareStencil(void);
         /** See
           RenderSystem

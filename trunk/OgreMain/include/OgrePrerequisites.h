@@ -158,6 +158,7 @@ namespace Ogre {
     class RenderPriorityGroup;
     class RenderQueue;
     class RenderQueueGroup;
+    class RenderQueueListener;
     class RenderSystem;
     class RenderTarget;
     class RenderTargetListener;

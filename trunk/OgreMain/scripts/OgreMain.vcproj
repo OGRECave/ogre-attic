@@ -688,6 +688,9 @@
 				RelativePath="..\include\OgreRenderQueue.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreRenderQueueListener.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreRenderQueueSortingGrouping.h">
 			</File>
 			<File
