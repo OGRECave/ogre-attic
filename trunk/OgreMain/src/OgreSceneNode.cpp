@@ -37,13 +37,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : Node(), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
+    : Node(), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), 
+    mCreator(creator), mYawFixed(false), mAutoTrackTarget(0)
     {
         needUpdate();
     }
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator, const String& name) 
-    : Node(name), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
+    : Node(name), mLightListDirty(true), mWireBoundingBox(0), mShowBoundingBox(false), 
+    mCreator(creator), mYawFixed(false), mAutoTrackTarget(0)
     {
         needUpdate();
     }
@@ -390,6 +392,127 @@ namespace Ogre {
         }
         return mLightList;
 
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::setAutoTracking(bool enabled, SceneNode* target, 
+        const Vector3& localDirectionVector,
+        const Vector3& offset)
+    {
+        if (enabled)
+        {
+            mAutoTrackTarget = target;
+            mAutoTrackOffset = offset;
+            mAutoTrackLocalDirection = localDirectionVector;
+        }
+        else
+        {
+            mAutoTrackTarget = 0;
+        }
+        mCreator->_notifyAutotrackingSceneNode(this, enabled);
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::setFixedYawAxis(bool useFixed, const Vector3& fixedAxis)
+    {
+        mYawFixed = useFixed;
+        mYawFixedAxis = fixedAxis;
+    }
+
+    //-----------------------------------------------------------------------
+    void SceneNode::setDirection(Real x, Real y, Real z, TransformSpace relativeTo, 
+        const Vector3& localDirectionVector)
+    {
+        setDirection(Vector3(x,y,z), relativeTo, localDirectionVector);
+    }
+
+    //-----------------------------------------------------------------------
+    void SceneNode::setDirection(const Vector3& vec, TransformSpace relativeTo, 
+        const Vector3& localDirectionVector)
+    {
+        // Do nothing if given a zero vector
+        if (vec == Vector3::ZERO) return;
+
+        // Adjust vector so that it is relative to local Z
+        Vector3 zAdjustVec;
+        if (localDirectionVector == Vector3::NEGATIVE_UNIT_Z)
+        {
+            zAdjustVec = -vec;
+        }
+        else
+        {
+            Quaternion localToUnitZ = localDirectionVector.getRotationTo(Vector3::UNIT_Z);
+            zAdjustVec = localToUnitZ * vec;
+        }
+        zAdjustVec.normalise();
+
+        Quaternion targetOrientation;
+        if( mYawFixed )
+        {
+            Vector3 xVec = mYawFixedAxis.crossProduct( zAdjustVec );
+            xVec.normalise();
+
+            Vector3 yVec = zAdjustVec.crossProduct( xVec );
+            yVec.normalise();
+            
+            targetOrientation.FromAxes( xVec, yVec, zAdjustVec );
+        }
+        else
+        {
+
+            // Get axes from current quaternion
+            Vector3 axes[3];
+            _getDerivedOrientation().ToAxes(axes);
+            Quaternion rotQuat;
+            if (-zAdjustVec == axes[2])
+            {
+                // Oops, a 180 degree turn (infinite possible rotation axes)
+                // Default to yaw i.e. use current UP
+                rotQuat.FromAngleAxis(Math::PI, axes[1]);
+            }
+            else
+            {
+                // Derive shortest arc to new direction
+                rotQuat = axes[2].getRotationTo(zAdjustVec);
+
+            }
+            targetOrientation = rotQuat * mOrientation;
+        }
+
+        if (relativeTo == TS_LOCAL || !mParent)
+        {
+            mOrientation = targetOrientation;
+        }
+        else
+        {
+            if (relativeTo == TS_PARENT)
+            {
+                mOrientation = targetOrientation * mParent->getOrientation().Inverse();
+            }
+            else if (relativeTo == TS_WORLD)
+            {
+                mOrientation = targetOrientation * mParent->_getDerivedOrientation().Inverse();
+            }
+        }
+
+
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::lookAt( const Vector3& targetPoint, TransformSpace relativeTo, 
+        const Vector3& localDirectionVector)
+    {
+        this->setDirection(targetPoint - _getDerivedPosition(), relativeTo, 
+            localDirectionVector);
+    }
+    //-----------------------------------------------------------------------
+    void SceneNode::_autoTrack(void)
+    {
+        // NB assumes that all scene nodes have been updated
+        if (mAutoTrackTarget)
+        {
+            lookAt(mAutoTrackTarget->_getDerivedPosition() + mAutoTrackOffset, 
+                TS_WORLD, mAutoTrackLocalDirection);
+            // update self & children
+            _update(true, true);
+        }
     }
 
 

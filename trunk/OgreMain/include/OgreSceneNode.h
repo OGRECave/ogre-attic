@@ -72,6 +72,18 @@ namespace Ogre {
 
         /** See Node. */
         Node* createChildImpl(const String& name);
+
+        /// Whether to yaw around a fixed axis.
+        bool mYawFixed;
+        /// Fixed axis to yaw around
+        Vector3 mYawFixedAxis;
+
+        /// Auto tracking target
+        SceneNode* mAutoTrackTarget;
+        /// Tracking offset for fine tuning
+        Vector3 mAutoTrackOffset;
+        /// Local 'normal' direction vector
+        Vector3 mAutoTrackLocalDirection;
     public:
         /** Constructor, only to be called by the creator SceneManager.
         @remarks
@@ -275,6 +287,83 @@ namespace Ogre {
             without recalculation. Can be useful when implementing Renderable::getLights.
         */
         const LightList& getLights(void) const;
+
+        /** Tells the node whether to yaw around it's own local Y axis or a fixed axis of choice.
+        @remarks
+        This method allows you to change the yaw behaviour of the node - by default, it
+        yaws around it's own local Y axis when told to yaw with TS_LOCAL, this makes it
+        yaw around a fixed axis. 
+        You only really need this when you're using auto tracking (see setAutoTracking,
+        because when you're manually rotating a node you can specify the TransformSpace
+        in which you wish to work anyway.
+        @param
+        useFixed If true, the axis passed in the second parameter will always be the yaw axis no
+        matter what the node orientation. If false, the node returns to it's default behaviour.
+        @param
+        fixedAxis The axis to use if the first parameter is true.
+        */
+        void setFixedYawAxis( bool useFixed, const Vector3& fixedAxis = Vector3::UNIT_Y );
+
+        /** Sets the node's direction vector ie it's local -z.
+        @remarks
+        Note that the 'up' vector for the orientation will automatically be 
+        recalculated based on the current 'up' vector (i.e. the roll will 
+        remain the same). If you need more control, use setOrientation.
+        @param x,y,z The components of the direction vector
+        @param relativeTo The space in which this direction vector is expressed
+        @param localDirectionVector The vector which normally describes the natural
+        direction of the node, usually -Z
+        */
+        void setDirection(Real x, Real y, Real z, 
+            TransformSpace relativeTo = TS_LOCAL, 
+            const Vector3& localDirectionVector = Vector3::NEGATIVE_UNIT_Z);
+
+        /** Sets the node's direction vector ie it's local -z.
+        @remarks
+        Note that the 'up' vector for the orientation will automatically be 
+        recalculated based on the current 'up' vector (i.e. the roll will 
+        remain the same). If you need more control, use setOrientation.
+        @param vec The direction vector
+        @param relativeTo The space in which this direction vector is expressed
+        @param localDirectionVector The vector which normally describes the natural
+        direction of the node, usually -Z
+        */
+        void setDirection(const Vector3& vec, TransformSpace relativeTo = TS_LOCAL, 
+            const Vector3& localDirectionVector = Vector3::NEGATIVE_UNIT_Z);
+        /** Points the local -Z direction of this node at a point in space.
+        @param targetPoint A vector specifying the look at point.
+        @param relativeTo The space in which the point resides
+        @param localDirectionVector The vector which normally describes the natural
+        direction of the node, usually -Z
+        */
+        void lookAt( const Vector3& targetPoint, TransformSpace relativeTo,
+            const Vector3& localDirectionVector = Vector3::NEGATIVE_UNIT_Z);
+        /** Enables / disables automatic tracking of another SceneNode.
+        @remarks
+        If you enable auto-tracking, this SceneNode will automatically rotate to
+        point it's -Z at the target SceneNode every frame, no matter how 
+        it or the other SceneNode move. Note that by default the -Z points at the 
+        origin of the target SceneNode, if you want to tweak this, provide a 
+        vector in the 'offset' parameter and the target point will be adjusted.
+        @param enabled If true, tracking will be enabled and the next 
+        parameter cannot be null. If false tracking will be disabled and the 
+        current orientation will be maintained.
+        @param target Pointer to the SceneNode to track. Make sure you don't
+        delete this SceneNode before turning off tracking (e.g. SceneManager::clearScene will
+        delete it so be careful of this). Can be null if and only if the enabled param is false.
+        @param localDirectionVector The local vector considered to be the usual 'direction'
+        of the node; normally the local -Z but can be another direction.
+        @param offset If supplied, this is the target point in local space of the target node
+        instead of the origin of the target node. Good for fine tuning the look at point.
+        */
+        void setAutoTracking(bool enabled, SceneNode* target = 0, 
+            const Vector3& localDirectionVector = Vector3::NEGATIVE_UNIT_Z,
+            const Vector3& offset = Vector3::ZERO);
+
+        /** Internal method used by OGRE to update auto-tracking cameras. */
+        void _autoTrack(void);
+
+
 
     };
 
