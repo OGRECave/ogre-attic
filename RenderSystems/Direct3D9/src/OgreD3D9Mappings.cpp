@@ -360,7 +360,7 @@ namespace Ogre
                     break;
                 }
             case FO_POINT:
-            case TFO_NONE:
+            case FO_NONE:
                 return D3DTEXF_POINT;
                 break;
             }
@@ -403,7 +403,7 @@ namespace Ogre
                     return D3DTEXF_POINT;
                     break;
                 }
-            case TFO_NONE:
+            case FO_NONE:
                 return D3DTEXF_NONE;
                 break;
             }
