@@ -2264,7 +2264,8 @@ namespace Ogre {
  		}
  	}
     //---------------------------------------------------------------------
-    void GLRenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane)
+    void GLRenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
+        bool forGpuProgram)
     {
         // Thanks to Eric Lenyel for posting this calculation at www.terathon.com
 

@@ -301,9 +301,9 @@ namespace Ogre {
                     // Translate the plane into view space
                     Plane viewSpaceNear = mViewMatrix * mObliqueProjPlane;
                     renderSystem->_applyObliqueDepthProjection(
-                        mProjMatrix, viewSpaceNear);
+                        mProjMatrix, viewSpaceNear, false);
                     renderSystem->_applyObliqueDepthProjection(
-                        mStandardProjMatrix, viewSpaceNear);
+                        mStandardProjMatrix, viewSpaceNear, true);
                 }
                 // Calculate co-efficients for the frustum planes
                 // Special-cased for L = -R and B = -T i.e. viewport centered 

@@ -2405,7 +2405,8 @@ namespace Ogre
         return -0.5f;
     }
     //---------------------------------------------------------------------
-    void D3D9RenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane)
+    void D3D9RenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
+        bool forGpuProgram)
     {
         // Thanks to Eric Lenyel for posting this calculation at www.terathon.com
 
@@ -2423,8 +2424,14 @@ namespace Ogre
         q.y = Math::Sign(plane.normal.y) / matrix[1][1];
         q.z = 1.0F; 
         // flip the next bit from Lengyel since we're right-handed
-        //q.w = (1.0F - matrix[2][2]) / matrix[2][3];
-        q.w = (1.0F + matrix[2][2]) / matrix[2][3];
+        if (forGpuProgram)
+        {
+            q.w = (1.0F - matrix[2][2]) / matrix[2][3];
+        }
+        else
+        {
+            q.w = (1.0F + matrix[2][2]) / matrix[2][3];
+        }
 
         // Calculate the scaled plane vector
         Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
@@ -2434,8 +2441,14 @@ namespace Ogre
         matrix[2][0] = c.x;
         matrix[2][1] = c.y;
         // flip the next bit from Lengyel since we're right-handed
-        //matrix[2][2] = c.z; 
-        matrix[2][2] = -c.z; 
+        if (forGpuProgram)
+        {
+            matrix[2][2] = c.z; 
+        }
+        else
+        {
+            matrix[2][2] = -c.z; 
+        }
         matrix[2][3] = c.w;        
     }
 }
