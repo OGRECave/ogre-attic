@@ -200,6 +200,7 @@
 		};
 		8227011C0700F52400E6B1F9 = {
 			children = (
+				82AC4FE20710711E007DF5B7,
 				822708870700FE8B00E6B1F9,
 				822705B50700F9FD00E6B1F9,
 				822705B60700F9FD00E6B1F9,
@@ -355,6 +356,7 @@
 		};
 		8227011D0700F53600E6B1F9 = {
 			children = (
+				82AC4FE407107140007DF5B7,
 				822708890700FE9900E6B1F9,
 				8227085D0700FB1500E6B1F9,
 				822706D90700FA3E00E6B1F9,
@@ -7392,7 +7394,7 @@
 		};
 		822709EE07010BCA00E6B1F9 = {
 			isa = PBXFileReference;
-			lastKnownFileType = file;
+			lastKnownFileType = archive.ar;
 			name = libnvparse.a;
 			path = ../../../RenderSystems/GL/src/libnvparse.a;
 			refType = 4;
@@ -10909,6 +10911,36 @@
 			settings = {
 			};
 		};
+		82AC4FE20710711E007DF5B7 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreMovablePlane.cpp;
+			path = ../../../OgreMain/src/OgreMovablePlane.cpp;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		82AC4FE30710711E007DF5B7 = {
+			fileRef = 82AC4FE20710711E007DF5B7;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		82AC4FE407107140007DF5B7 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreMovablePlane.h;
+			path = ../../../OgreMain/include/OgreMovablePlane.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		82AC4FE507107140007DF5B7 = {
+			fileRef = 82AC4FE407107140007DF5B7;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		82AFC2810705E8E900CF9DB7 = {
 			isa = PBXFileReference;
 			lastKnownFileType = image.jpeg;
@@ -11455,6 +11487,7 @@
 				822708580700FA3F00E6B1F9,
 				8227085E0700FB1500E6B1F9,
 				8227088A0700FE9900E6B1F9,
+				82AC4FE507107140007DF5B7,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -11623,6 +11656,7 @@
 				822706D70700F9FE00E6B1F9,
 				822706D80700F9FE00E6B1F9,
 				822708880700FE8B00E6B1F9,
+				82AC4FE30710711E007DF5B7,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
