@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 
-#define Except( a, b, c ) throw( Exception( a, b, c, __FILE__, __LINE__ ) )
+#define Except( num, desc, src ) throw( Exception( num, desc, src, __FILE__, __LINE__ ) )
 
 // Stack unwinding options
 #if OGRE_STACK_UNWINDING == 1
