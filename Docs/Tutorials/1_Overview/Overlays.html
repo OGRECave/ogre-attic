@@ -118,26 +118,39 @@ add a container (such as a Panel) to the overlay, simply call Overlay::add2D.</P
 you wish to add child elements to that container, call GuiContainer::addChild. 
 Child elements can be GuiElements or GuiContainer instances themselves. Remember 
 that the position of a child element is relative to the top-left corner of it's 
-parent.</P><P CLASS="SectionHeader">A word about 2D coordinates</P><P>Because 
-OGRE can run at any resolution, using pixels as coordinates to place 2D elements 
-is not practical. Instead, OGRE uses a relative coordinate system; the top-left 
+parent.</P><P CLASS="SectionHeader">A word about 2D coordinates</P><P>OGRE allows 
+you to place and size elements based on 2 coordinate systems: <B>relative</B> 
+and <B>pixel</B> based. </P><P><SPAN CLASS="NewsDate">Pixel Mode: </SPAN>This 
+mode is useful when you want to specify an exact size for your overlay items, 
+and you don't mind if those items get smaller on the screen if you increase the 
+screen resolution (in fact you might want this). In this mode the only way to 
+put something in the middle or at the right or bottom of the screen reliably in 
+any resolution is to use the aligning options, whilst in relative mode you can 
+do it just by using the right relative coordinates. This mode is very simple, 
+the top-left of the screen is (0,0) and the bottom-right of the screen depends 
+on the resolution. As mentioned above, you can use the aligning options to make 
+the horizontal and vertical coordinate origins the right, bottom or center of 
+the screen if you want to place pixel items in these locations without knowing 
+the resolution.</P><P CLASS="SectionHeader"></P><P><SPAN CLASS="NewsDate">Relative 
+Mode:</SPAN> This mode is useful when you want items in the overlay to be the 
+same size on the screen no matter what the resolution. In relative mode, the top-left 
 of the screen is (0,0) and the bottom-right is (1,1). So if you place an element 
 at (0.5, 0,5), it's top-left corner is placed exactly in the center of the screen, 
-no matter what resolution the application is running in.</P><P>The same principle 
-applies to sizes; if you set the width of an element to 0.5, it covers half the 
-width of the screen. Note that because the aspect ratio of the screen is typically 
-1.3333 : 1 (width : height), an element with dimensions (0.25, 0.25) will not 
-be square, but it will take up exactly 1/16th of the screen in area terms. If 
-you want square-looking areas you will have to compensate using the typical aspect 
-ratio eg use (0.1875, 0.25) instead.</P><P CLASS="SectionHeader">Transforming 
-Overlays</P><P>Another nice feature of overlays is being able to rotate, scroll 
-and scale them as a whole. You can use this for zooming in / out menu systems, 
-dropping them in from off screen and other nice effects. See the Overlay::scroll, 
-Overlay::rotate and Overlay::scale methods for more information.</P><P CLASS="SectionHeader">Input 
-And Overlays</P><P>Many uses for overlays naturally lend themselves to user input, 
-such as menu screens. At this point in time (0.99e) OGRE does not yet have a built 
-in event model for receiving input on GuiElement objects. However this is a feature 
-which is planned for a future version.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="index.html">Back 
+no matter what resolution the application is running in. The same principle applies 
+to sizes; if you set the width of an element to 0.5, it covers half the width 
+of the screen. Note that because the aspect ratio of the screen is typically 1.3333 
+: 1 (width : height), an element with dimensions (0.25, 0.25) will not be square, 
+but it will take up exactly 1/16th of the screen in area terms. If you want square-looking 
+areas you will have to compensate using the typical aspect ratio eg use (0.1875, 
+0.25) instead.</P><P CLASS="SectionHeader">Transforming Overlays</P><P>Another 
+nice feature of overlays is being able to rotate, scroll and scale them as a whole. 
+You can use this for zooming in / out menu systems, dropping them in from off 
+screen and other nice effects. See the Overlay::scroll, Overlay::rotate and Overlay::scale 
+methods for more information.</P><P CLASS="SectionHeader">Input And Overlays</P><P>Many 
+uses for overlays naturally lend themselves to user input, such as menu screens. 
+At this point in time (0.99e) OGRE does not yet have a built in event model for 
+receiving input on GuiElement objects. However this is a feature which is planned 
+for a future version.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="index.html">Back 
 to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="entity.html">&lt;&lt; 
 Previous section</A></TD><TD WIDTH="25%"><A HREF="OverlayScript.html">Next section 
 &gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>

@@ -109,7 +109,8 @@ Panel(MyGuiElements/AnotherPanel)<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
 0.1 <BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;material 
 MyMaterials/NestedPanel<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <BR>&nbsp;&nbsp;&nbsp;&nbsp;}<BR><BR>} 
 </P><HR><P ALIGN="LEFT">The above example defines a single overlay called 'MyOverlays/ANewOverlay', 
-with 2 panels in it, one nested under the other.</P><P ALIGN="LEFT">Every overlay 
+with 2 panels in it, one nested under the other. It uses relative metrics (the 
+default if no metrics_mode option is found).</P><P ALIGN="LEFT">Every overlay 
 in the script must be given a name, which is the line before the first opening 
 '{'. This name must be globally unique. It can include path characters (as in 
 the example) to logically divide up your overlays, and also to avoid duplicate 
@@ -137,7 +138,7 @@ all other elements / containers by which to identify the element. Note that you
 can obtain a pointer to any named element by calling GuiManager::getSingleton().getGuiElement(name).</P><P>The 
 properties which can be included within the braces depend on the custom type. 
 However the following are always valid:</P><P ALIGN="LEFT" CLASS="SectionHeader">Common 
-element attributes </P><UL><LI><A HREF="OverlayScriptAttributes.html#left">left</A></LI><LI><A HREF="OverlayScriptAttributes.html#top">top</A></LI><LI><A HREF="OverlayScriptAttributes.html#width">width</A></LI><LI><A HREF="OverlayScriptAttributes.html#height">height</A></LI><LI><A HREF="OverlayScriptAttributes.html#material">material</A></LI><LI><A HREF="OverlayScriptAttributes.html#caption">caption</A></LI></UL><P CLASS="SectionHeader"><A></A><A NAME="entity"></A>'entity' 
+element attributes </P><UL><LI><A HREF="OverlayScriptAttributes.html#metrics_mode">metrics_mode</A></LI><LI><A HREF="OverlayScriptAttributes.html#horz_align">horz_align</A></LI><LI><A HREF="OverlayScriptAttributes.html#vert_align">vert_align</A></LI><LI><A HREF="OverlayScriptAttributes.html#left">left</A></LI><LI><A HREF="OverlayScriptAttributes.html#top">top</A></LI><LI><A HREF="OverlayScriptAttributes.html#width">width</A></LI><LI><A HREF="OverlayScriptAttributes.html#height">height</A></LI><LI><A HREF="OverlayScriptAttributes.html#material">material</A></LI><LI><A HREF="OverlayScriptAttributes.html#caption">caption</A></LI></UL><P CLASS="SectionHeader"><A></A><A NAME="entity"></A>'entity' 
 blocks </P><P>These are delimited by curly braces. The format for the header preceding 
 the first brace is:</P><P>entity &lt;mesh_name&gt; ( &lt;entity_name&gt;)<BR>{ 
 ...</P><P>mesh_name: The name of a .mesh file defining the entity geometry</P><P>entity_name: 
