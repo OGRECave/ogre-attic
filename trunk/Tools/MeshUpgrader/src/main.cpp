@@ -65,6 +65,7 @@ SkeletonManager* skelMgr;
 MeshSerializer* meshSerializer;
 SkeletonSerializer* skeletonSerializer;
 DefaultHardwareBufferManager *bufferManager;
+MeshManager* meshMgr;
 
 String describeSemantic(VertexElementSemantic sem)
 {
@@ -346,6 +347,7 @@ int main(int numargs, char** args)
     meshSerializer = new MeshSerializer();
     skeletonSerializer = new SkeletonSerializer();
     bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
+    meshMgr = new MeshManager();
 
     
     UnaryOptionList unOptList;
@@ -553,6 +555,7 @@ int main(int numargs, char** args)
 
 
 
+    delete meshMgr;
     delete skeletonSerializer;
     delete meshSerializer;
     delete skelMgr;
