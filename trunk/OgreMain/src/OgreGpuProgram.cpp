@@ -80,6 +80,12 @@ namespace Ogre
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
 	//-----------------------------------------------------------------------------
+    GpuProgramParametersSharedPtr GpuProgram::createParameters(void)
+    {
+        // Default implementation simply returns standard parameters.
+        return GpuProgramManager::getSingleton().createParameters();
+    }
+	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, Real val)
 	{

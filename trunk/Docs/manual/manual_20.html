@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 23 2003 by texi2html 1.64 -->
+<!-- Created on , 30 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -37,9 +37,9 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 3.1.4 Declaring Vertex and Fragment Programs </H3>
 <!--docid::SEC68::-->
 
-In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC70">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you have to define them. The definition of a program can be in the same .material script, or it can be in another one - the ordering of the definition and the use do not matter in the script, so long as when the material is used for the first time, the program has been defined.<BR><BR>
+In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC70">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you have to define them. The definition of a program must be made in a .program script, which can then be referenced many times from a .material script.  Just like .material scripts, .program scripts will be read from any location which is on your resource path, and have a simple text structure. And just like .material, you can define many programs in a single script.<BR><BR>
 
-Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language. High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.<BR><BR>
+Vertex and fragment programs can be low-level (i.e. assembler code written to the specification of a given low level syntax such as vs_1_1 or arbfp1) or high-level such as nVidia's Cg language (See section <A HREF="manual_20.html#SEC69">High-level Programs</A>). High level languages give you a number of advantages, such as being able to write more intuitive code, and possibly being able to target multiple architectures in a single program (for example, the same Cg program might be able to be used in both D3D and GL, whilst the equivalent low-level programs would require separate techniques, each targetting a different API). High-level programs also allow you to use named parameters instead of simply indexed ones, although parameters are not defined here, they are used in the Pass.<BR><BR>
 
 Here is an example of a definition of a low-level vertex program:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program myVertexProgram asm
@@ -58,7 +58,7 @@ Fragment program syntax is exactly the same, just replace vertex_program with fr
 <!--docid::SEC69::-->
 Support for high level programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. The first high-level program type supported by OGRE is Cg, a cross-API, cross-platform and cross-card language which has the same syntax as Direct3D9's HLSL, but can be compiled for GL too (<A HREF="www.nvidia.com/cg">www.nvidia.com/cg</A>).<BR><BR>
 
-The definition of high-level programs in .material scripts allows for additional custom parameters to be set in the body of the program definition. Here is an example of declaring a Cg fragment program:
+The definition of high-level programs in .program scripts allows for additional custom parameters to be set in the body of the program definition. Here is an example of declaring a Cg fragment program:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>fragment_program myCgFragmentProgram cg
 {
     source mCgFragmentProgram.cg
@@ -83,7 +83,7 @@ Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles';
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 23 2003</I>
+by <I>Steve Streeting</I> on <I>, 30 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
