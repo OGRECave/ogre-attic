@@ -89,6 +89,7 @@ String describeSemantic(VertexElementSemantic sem)
 	case VES_TANGENT:
 		return "Tangents";
 	};
+    return "";
 }
 void displayVertexBuffers(VertexDeclaration::VertexElementList& elemList)
 {
@@ -364,7 +365,6 @@ int main(int numargs, char** args)
     // Load the mesh
     struct stat tagStat;
 
-    SDDataChunk chunk;
     FILE* pFile = fopen( source.c_str(), "rb" );
     if (!pFile)
     {
@@ -372,13 +372,14 @@ int main(int numargs, char** args)
             "File " + source + " not found.", "OgreMeshUpgrade");
     }
     stat( source.c_str(), &tagStat );
-    chunk.allocate( tagStat.st_size );
-    fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
+    MemoryDataStream* memstream = new MemoryDataStream(source, tagStat.st_size, true);
+    fread( (void*)memstream->getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );
 
-    Mesh mesh("conversion");
+    Mesh mesh(meshMgr, "conversion", 0, "");
 
-    meshSerializer->importMesh(chunk, &mesh);
+    DataStreamPtr stream(memstream);
+    meshSerializer->importMesh(stream, &mesh);
 
     // Write out the converted mesh
     String dest;
