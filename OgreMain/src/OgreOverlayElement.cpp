@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 #include "OgreOverlayElement.h"
 #include "OgreGuiManager.h"
 #include "OgreMaterialManager.h"
@@ -431,8 +433,18 @@ namespace Ogre {
         }
         else
         {
-            parentLeft = parentTop = 0.0f;
-            parentRight = parentBottom = 1.0f;
+            RenderSystem* rSys = Root::getSingleton().getRenderSystem();
+            OverlayManager& oMgr = OverlayManager::getSingleton();
+
+            // Calculate offsets required for mapping texel origins to pixel origins in the
+            // current rendersystem
+            Real hOffset = rSys->getHorizontalTexelOffset() / oMgr.getViewportWidth();
+            Real vOffset = rSys->getVerticalTexelOffset() / oMgr.getViewportHeight();
+
+            parentLeft = 0.0f + hOffset;
+            parentTop = 0.0f + vOffset;
+            parentRight = 1.0f + hOffset;
+            parentBottom = 1.0f + vOffset;
         }
 
         // Sort out position based on alignment
