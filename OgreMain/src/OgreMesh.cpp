@@ -132,12 +132,12 @@ namespace Ogre {
             else
             {
                 // Unsupported format
-                chunk.free();
+                chunk.clear();
                 Except(999, "Unsupported object file format.",
                     "Mesh::load");
             }
 
-            chunk.free();
+            chunk.clear();
         }
 
         _updateBounds();
