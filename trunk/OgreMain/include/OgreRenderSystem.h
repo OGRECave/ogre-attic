@@ -611,6 +611,14 @@ namespace Ogre
         /** Returns the number of matrices available to hardware vertex blending for this rendering system. */
         virtual unsigned short _getNumVertexBlendMatrices(void);
 
+        /** Builds a perspective projection matrix suitable for this render system.
+        @remarks
+            Because different APIs have different requirements (some incompatible) for the
+            projection matrix, this method allows each to implement their own correctly and pass
+            back a generic OGRE matrix for storage in the engine.
+        */
+        virtual void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest) = 0;
+
     protected:
 
         /** Set of registered frame listeners */
@@ -662,6 +670,7 @@ namespace Ogre
             RenderOperation instead of the original passed in vertex data.
         */
         void softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices);
+
 
 
 

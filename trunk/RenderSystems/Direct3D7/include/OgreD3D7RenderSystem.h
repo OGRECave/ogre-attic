@@ -292,6 +292,10 @@ namespace Ogre {
           RenderSystem
          */
         void _setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end);
+        /** See
+          RenderSystem
+         */
+        void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------
