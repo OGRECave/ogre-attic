@@ -116,6 +116,14 @@ SOURCE=..\src\OgreColourFaderAffector2.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreColourImageAffector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreColourInterpolatorAffector.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreCylinderEmitter.cpp
 # End Source File
 # Begin Source File
@@ -145,6 +153,10 @@ SOURCE=..\src\OgrePointEmitter.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreRingEmitter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreRotationAffector.cpp
 # End Source File
 # Begin Source File
 
@@ -181,6 +193,22 @@ SOURCE=..\include\OgreColourFaderAffectorFactory.h
 # Begin Source File
 
 SOURCE=..\include\OgreColourFaderAffectorFactory2.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreColourImageAffector.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreColourImageAffectorFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreColourInterpolatorAffector.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreColourInterpolatorAffectorFactory.h
 # End Source File
 # Begin Source File
 
@@ -233,6 +261,14 @@ SOURCE=..\include\OgreRingEmitter.h
 # Begin Source File
 
 SOURCE=..\include\OgreRingEmitterFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRotationAffector.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRotationAffectorFactory.h
 # End Source File
 # Begin Source File
 
