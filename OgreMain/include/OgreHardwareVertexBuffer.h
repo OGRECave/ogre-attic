@@ -194,6 +194,17 @@ namespace Ogre {
                 static_cast<void*>(
                     static_cast<unsigned char*>(pBase) + mOffset));
         }
+        /** Adjusts a pointer to the base of a vertex to point at this element.
+        @remarks
+            This variant is for char pointers, passed as a parameter because we can't
+            rely on covariant return types.
+        @param pBase Pointer to the start of a vertex in this buffer.
+        @param pElem Pointer to a pointer which will be set to the start of this element.
+        */
+        inline void baseVertexPointerToElement(void* pBase, unsigned char** pElem) const
+        {
+            *pElem = static_cast<unsigned char*>(pBase) + mOffset;
+        }
 
 
 
