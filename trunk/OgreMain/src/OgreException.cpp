@@ -35,7 +35,7 @@ namespace Ogre {
 
     Exception* Exception::last = NULL;
 
-    OgreChar Exception::msFunctionStack[ 512 ][ 256 ];
+    OgreChar Exception::msFunctionStack[ OGRE_CALL_STACK_DEPTH ][ 256 ];
     ushort   Exception::msStackDepth = 0;
 
     Exception::Exception(int num, const String& desc, const String& src) :
