@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreCursorGuiElement.h"
 #include "ExampleApplication.h"
-#include "OgreButtonGuiElement.h"
+#include "OgreBorderButtonGuiElement.h"
 #include "OgreListGuiElement.h"
 #include "OgreListChanger.h"
 #include "OgreEventProcessor.h"
@@ -79,9 +79,9 @@ protected:
 
         // A bit of a hacky test
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("SS/Setup/HostScreen/Overlay");
-		ActionTarget* at = static_cast<ButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Join"));
+		ActionTarget* at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Join"));
 		at->addActionListener(this);
-		at = static_cast<ButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Exit"));
+		at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Exit"));
 		at->addActionListener(this);
 		o->show();
 		//mRoot->showDebugOverlay(false);
@@ -95,6 +95,7 @@ protected:
 
 		GuiContainer* pCursorGui = OverlayManager::getSingleton().getCursorGui();
 		pCursorGui->setMaterialName("Cursor/default");
+		pCursorGui->setDimensions(32.0/640.0, 32.0/480.0);
     }
 
 	void actionPerformed(ActionEvent* e) 

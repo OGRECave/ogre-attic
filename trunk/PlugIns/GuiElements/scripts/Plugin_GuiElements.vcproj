@@ -134,6 +134,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\OgreBorderButtonGuiElement.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreBorderPanelGuiElement.cpp">
 			</File>
 			<File
@@ -152,12 +155,18 @@
 				RelativePath="..\src\OgrePanelGuiElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgrePopupMenuGuiElement.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTextAreaGuiElement.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\include\OgreBorderButtonGuiElement.h">
+			</File>
 			<File
 				RelativePath="..\include\OgreBorderPanelGuiElement.h">
 			</File>
@@ -178,6 +187,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePanelGuiElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgrePopupMenuGuiElement.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTextAreaGuiElement.h">

@@ -70,64 +70,82 @@ namespace Ogre {
 	bool EventDispatcher::processMouseEvent(MouseEvent* e) 
 	{
 		int id = e->getID();
-		PositionTarget* targetOver;	// if it = NULL, then use the default mouse listener
+		PositionTarget* targetOver;
 
-		targetOver = mTargetManager->getPositionTargetAt(e->getX(), e->getY());
-		trackMouseEnterExit(targetOver, e);
-		setMouseTarget(targetOver,e);
+		switch (id) 
+		{		
+		case MouseEvent::ME_MOUSE_PRESSED:
+			mDragging = true;
+			break;
 
-		if (mMousePositionTarget != NULL) 
-		{
-			// we are currently forwarding to some PositionTarget, check
-			// to see if we should continue to forward.
-			switch(id) 
+		case MouseEvent::ME_MOUSE_RELEASED:
+			mDragging = false;
+			targetOver = mTargetManager->getPositionTargetAt(e->getX(), e->getY());
+
+			if (targetOver && targetOver != mMousePositionTarget)
 			{
-			case MouseEvent::ME_MOUSE_DRAGGED:
-				if(mDragging) 
-				{
-					retargetMouseEvent(mMousePositionTarget, id, e);
-				}
-				break;
-			
-			case MouseEvent::ME_MOUSE_PRESSED:
-				mDragging = true;
-				retargetMouseEvent(mMousePositionTarget, id, e);
-				break;
-
-			case MouseEvent::ME_MOUSE_RELEASED:
-			{
-				PositionTarget* releasedTarget = mMousePositionTarget;
-				mDragging = false;
-				retargetMouseEvent(mMousePositionTarget, id, e);
+				mMousePositionTarget->processEvent(e);
+				retargetMouseEvent(targetOver, MouseEvent::ME_MOUSE_ENTERED, e);
 				setMouseTarget(targetOver, e);
 
-				break;
+				e->consume();
+				return e->isConsumed();
 			}
-			
-			case MouseEvent::ME_MOUSE_CLICKED:
-				// click event should not be redirected since PositionTarget has moved or hidden
-				retargetMouseEvent(mMousePositionTarget, id, e);
-				break;
-
-			case MouseEvent::ME_MOUSE_ENTERED:
-				break;
-
-			case MouseEvent::ME_MOUSE_EXITED:
-				if (!mDragging) 
-				{
-					setMouseTarget(NULL, e);
-				}
-				break;
-
-			case MouseEvent::ME_MOUSE_MOVED:
-				retargetMouseEvent(mMousePositionTarget, id, e);
-				break;
-
+			else if (targetOver && targetOver == mMousePositionTarget)
+			{
+				mMousePositionTarget->processEvent(e);
+				id = MouseEvent::ME_MOUSE_CLICKED;
 			}
-			e->consume();
+			break;
+
+		case MouseEvent::ME_MOUSE_ENTERED:
+			// If there is a click and drag, only give enter and exit events to the item originally clicked in
+			//
+			// This makes it tough to implement drag and drop, but works for everything else. Drag and
+			//	drop requires more extensive changes like testing if the original item can be dropped on the
+			//	item the mouse is currently over. So this seems like a reasonable limitation for now.
+			if (mDragging && mTargetManager->getPositionTargetAt(e->getX(), e->getY()) != mMousePositionTarget)
+			{
+				e->consume();
+
+				return e->isConsumed();
+			}
+			break;
+
+		case MouseEvent::ME_MOUSE_EXITED:
+			if (!mDragging) 
+			{
+				setMouseTarget(NULL, e);
+			}
+			else if (mTargetManager->getPositionTargetAt(e->getX(), e->getY()) != mMousePositionTarget)
+			{
+				e->consume();
+
+				return e->isConsumed();
+			}
+			break;
+
+		case MouseEvent::ME_MOUSE_MOVED:
+			targetOver = mTargetManager->getPositionTargetAt(e->getX(), e->getY());
+			trackMouseEnterExit(targetOver, e);
+
+			if (!mDragging) 
+			{
+				setMouseTarget(targetOver, e);
+			}
+			break;
+
+		case MouseEvent::ME_MOUSE_DRAGGED:
+			break;
+		
+		case MouseEvent::ME_MOUSE_CLICKED:
+			break;
+
 		}
+		retargetMouseEvent(mMousePositionTarget, id, e);
+		e->consume();
 
-	return e->isConsumed();
+		return e->isConsumed();
 	}
     //---------------------------------------------------------------------
 
@@ -139,7 +157,7 @@ namespace Ogre {
 			return;
 
 		}
-		Real x = e->getX(), y = e->getY();
+		/*Real x = e->getX(), y = e->getY();
 		PositionTarget* positionTarget;
 
 		for(positionTarget = target;
@@ -148,14 +166,14 @@ namespace Ogre {
 		{
 			x -= positionTarget->getLeft();
 			y -= positionTarget->getTop();
-		}
+		}*/
 		MouseEvent* retargeted = new MouseEvent(target,
 											   id, 
 											   e->getButtonID(),
 											   e->getWhen(), 
 											   e->getModifiers(),
-											   x, 
-											   y, 
+											   e->getX(), 
+											   e->getY(), 
 											   e->getZ(),
 											   e->getClickCount());
 
@@ -174,35 +192,43 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void EventDispatcher::trackMouseEnterExit(PositionTarget* targetOver, MouseEvent* e) 
 	{
-		PositionTarget*	targetEnter = NULL;
 		int	id = e->getID();
 
-		targetEnter = targetOver;
-
-		if (mTargetLastEntered == targetEnter) 
+		if (mTargetLastEntered == targetOver) 
 		{
 			return;
 		}
 
-		retargetMouseEvent(mTargetLastEntered, MouseEvent::ME_MOUSE_EXITED, e);
-		if (id == MouseEvent::ME_MOUSE_EXITED) 
+		// If there is a click and drag, only give enter and exit events to the item originally clicked in
+		//
+		// This makes it tough to implement drag and drop, but works for everything else. Drag and
+		//	drop requires more extensive changes like testing if the original item can be dropped on the
+		//	item the mouse is currently over. So this seems like a reasonable limitation for now.
+
+		if (mTargetLastEntered && (!mDragging || mTargetLastEntered == mMousePositionTarget))
 		{
-			// consume native exit event if we generate one
-			e->consume();
+			retargetMouseEvent(mTargetLastEntered, MouseEvent::ME_MOUSE_EXITED, e);
+			if (id == MouseEvent::ME_MOUSE_EXITED) 
+			{
+				// consume native exit event if we generate one
+				e->consume();
+			}
+
+			mTargetLastEntered = NULL;
 		}
 
-		retargetMouseEvent(targetEnter, MouseEvent::ME_MOUSE_ENTERED, e);
-		if (id == MouseEvent::ME_MOUSE_ENTERED) 
+		if (targetOver && (!mDragging || targetOver == mMousePositionTarget))
 		{
-			// consume native enter event if we generate one
-			e->consume();
-		}
+			retargetMouseEvent(targetOver, MouseEvent::ME_MOUSE_ENTERED, e);
+			if (id == MouseEvent::ME_MOUSE_ENTERED) 
+			{
+				// consume native enter event if we generate one
+				e->consume();
+			}
 
-		mTargetLastEntered = targetEnter;
+			mTargetLastEntered = targetOver;
+		}
 	}
-
-
-
 }
 
 

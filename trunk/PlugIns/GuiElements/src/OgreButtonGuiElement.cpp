@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -24,136 +23,173 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#include "OgreButtonGuiElement.h"	
-#include "OgreActionEvent.h"
-#include "OgreMouseEvent.h"
+#include "OgreButtonGuiElement.h"
 #include "OgreGuiManager.h"
-
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------
     String ButtonGuiElement::msTypeName = "Button";
-	ButtonGuiElement::CmdBorderDownMaterial ButtonGuiElement::msCmdBorderDownMaterial;
-	ButtonGuiElement::CmdBorderUpMaterial ButtonGuiElement::msCmdBorderUpMaterial;
+	ButtonGuiElement::CmdButtonDownMaterial ButtonGuiElement::msCmdButtonDownMaterial;
+	ButtonGuiElement::CmdButtonUpMaterial ButtonGuiElement::msCmdButtonUpMaterial;
+	ButtonGuiElement::CmdButtonHiliteDownMaterial ButtonGuiElement::msCmdButtonHiliteDownMaterial;
+	ButtonGuiElement::CmdButtonHiliteUpMaterial ButtonGuiElement::msCmdButtonHiliteUpMaterial;
+	ButtonGuiElement::CmdButtonDisabledMaterial ButtonGuiElement::msCmdButtonDisabledMaterial;
+    ButtonGuiElement::CmdCaptionColour ButtonGuiElement::msCmdCaptionColour;
+    ButtonGuiElement::CmdCaptionDisabledColour ButtonGuiElement::msCmdCaptionDisabledColour;
 	ButtonGuiElement::CmdButtonCaption ButtonGuiElement::msCmdButtonCaption;
 
     //-----------------------------------------------------------------------
 	ButtonGuiElement::ButtonGuiElement(const String& name) :
-		BorderPanelGuiElement(name),
-		ActionTarget()
+		PanelGuiElement(name),
+		GuiControl(name)
 	{
-		mPressed = false;
-		mActionCommand = "";
+		mButtonDown = false;
+
+		mDownMaterialName = "";
+		mUpMaterialName = "";
+		mHiliteDownMaterialName = "";
+		mHiliteUpMaterialName = "";
+		mDisabledMaterialName = "";
+
+		mSetCaptionColor = false;
+		mSetCaptionDisabledColor = false;
+
 		mInsideObject = 0;
 
         if (createParamDictionary("ButtonGuiElement"))
         {
             addBaseParameters();
         }
-
 	}
-
 
     //-----------------------------------------------------------------------
 	void ButtonGuiElement::processEvent(InputEvent* e) 
 	{
-		GuiElement::processEvent(e);
+		GuiControl::processEvent(e);
 
-		if (!e->isConsumed())
+		updateMaterials();
+	}
+
+    //-----------------------------------------------------------------------
+	void ButtonGuiElement::updateMaterials(bool init) 
+	{
+		bool buttonStatus;
+
+		// did the button's status change between last time
+		buttonStatus = (mButtonDown != (isPressed() && isMouseWithin()));
+
+		mButtonDown = (isPressed() && isMouseWithin());
+
+		String materialName;
+
+		if (!isEnabled())
 		{
-			switch(e->getID()) 
+			if (mInsideObject)
 			{
-			case ActionEvent::AE_ACTION_PERFORMED:
-				processActionEvent(static_cast<ActionEvent*>(e));
-				break;
-			case MouseEvent::ME_MOUSE_PRESSED:
-				setPressed(true);
-				break;
-			case MouseEvent::ME_MOUSE_RELEASED:
-				setPressed(false);
-				break;
-			case MouseEvent::ME_MOUSE_EXITED:
-				if (isPressed())
+				if (mSetCaptionDisabledColor)
+					mInsideObject->setColour(mCaptionDisabledColour);
+				else if (mSetCaptionColor)
+					mInsideObject->setColour(mCaptionColour);
+			}
+
+			if (strlen(mDisabledMaterialName))
+				materialName = mDisabledMaterialName;
+			else
+				materialName = mUpMaterialName;
+		}
+		else
+		{
+			if (mSetCaptionColor && mInsideObject)
+				mInsideObject->setColour(mCaptionColour);
+
+			if (mMouseWithin)
+			{
+				if (mButtonDown)
+					materialName = mHiliteDownMaterialName;
+				else
+					materialName = mHiliteUpMaterialName;
+
+				if (strlen(materialName) == 0)
 				{
-					setPressed(false);
+					if (mButtonDown)
+						materialName = mDownMaterialName;
+					else
+						materialName = mUpMaterialName;
 				}
-				break;
-			case MouseEvent::ME_MOUSE_CLICKED:
-				fireActionPerformed();
-				break;
-			default:
-				break;
+			}
+			else
+			{
+				if (mButtonDown)
+					materialName = mDownMaterialName;
+				else
+					materialName = mUpMaterialName;
 			}
 		}
-	}
 
-    //-----------------------------------------------------------------------
-	bool ButtonGuiElement::isPressed()
-	{ 
-		return mPressed;
-	}
+		PanelGuiElement::setMaterialName(materialName);
 
-    //-----------------------------------------------------------------------
-	String ButtonGuiElement::getActionCommand()
-	{ 
-		return (mActionCommand == "")? getName(): mActionCommand;
-	}
-
-    //-----------------------------------------------------------------------
-	void ButtonGuiElement::setPressed(bool b, bool init) 
-	{
-		if (mPressed == b && !init)
-		{
-			return;
-
-		}
-
-		mPressed = b;
-		BorderPanelGuiElement::setBorderMaterialName((b)?mBorderDownMaterialName:mBorderUpMaterialName);
-		if (!init)
+		if (buttonStatus && !init)
 		{
 			ChildIterator it = getChildIterator();
 			while (it.hasMoreElements())
 			{
-				changeChild(it.getNext(), ((b)?0.003:-0.003));
+				changeChild(it.getNext(), ((mButtonDown)?0.003:-0.003));
 			}
 		}
 	}
+
     //-----------------------------------------------------------------------
 	void ButtonGuiElement::changeChild(GuiElement* e, Real add)
 	{
 		e->setLeft(e->getLeft() + add);
 		e->setTop(e->getTop() + add);
 
-		e->setWidth(e->getWidth() - 2* add);
-		e->setHeight(e->getHeight() - 2* add);
+		e->setWidth(e->getWidth() - 2 * add);
+		e->setHeight(e->getHeight() - 2 * add);
 	}
-
-    //-----------------------------------------------------------------------
-	void ButtonGuiElement::fireActionPerformed()
-	{
-		ActionEvent* ae = new ActionEvent(this, ActionEvent::AE_ACTION_PERFORMED, 0, 0, getActionCommand());
-		processEvent(ae);
-		delete ae;
-	}
-
 
     //---------------------------------------------------------------------
     void ButtonGuiElement::addBaseParameters(void)
     {
-        BorderPanelGuiElement::addBaseParameters();
+        PanelGuiElement::addBaseParameters();
         ParamDictionary* dict = getParamDictionary();
 
-        dict->addParameter(ParameterDef("border_down_material", 
-            "The material to use for the border when the button is down."
+        dict->addParameter(ParameterDef("button_down_material", 
+            "The material to use when the button is down."
             , PT_STRING),
-            &ButtonGuiElement::msCmdBorderDownMaterial);
+            &ButtonGuiElement::msCmdButtonDownMaterial);
 
-        dict->addParameter(ParameterDef("border_up_material", 
-            "The material to use for the border when the button is up."
+        dict->addParameter(ParameterDef("button_up_material", 
+            "The material to use when the button is up."
             , PT_STRING),
-            &ButtonGuiElement::msCmdBorderUpMaterial);
+            &ButtonGuiElement::msCmdButtonUpMaterial);
+
+        dict->addParameter(ParameterDef("button_hilite_down_material", 
+            "The material to use when the button is highlighted and down."
+            , PT_STRING),
+            &ButtonGuiElement::msCmdButtonHiliteDownMaterial);
+
+        dict->addParameter(ParameterDef("button_hilite_up_material", 
+            "The material to use when the button is highlighted and up."
+            , PT_STRING),
+            &ButtonGuiElement::msCmdButtonHiliteUpMaterial);
+
+        dict->addParameter(ParameterDef("button_disabled_material", 
+            "The material to use when the button is disabled."
+            , PT_STRING),
+            &ButtonGuiElement::msCmdButtonDisabledMaterial);
+
+        dict->addParameter(ParameterDef("caption_colour", 
+            "Sets the caption's font colour."
+            , PT_STRING),
+            &msCmdCaptionColour);
+
+        dict->addParameter(ParameterDef("caption_disabled_colour", 
+            "Sets the caption's font colour when the button is disabled."
+            , PT_STRING),
+            &msCmdCaptionDisabledColour);
 
         dict->addParameter(ParameterDef("caption", 
             "The text in the middle of the button."
@@ -175,19 +211,65 @@ namespace Ogre {
 		return ret;
 	}
 
+	void ButtonGuiElement::setPressed(bool b)
+	{
+		GuiControl::setPressed(b);
+		updateMaterials();
+	}
+
+	void ButtonGuiElement::setEnabled(bool b)
+	{
+		GuiControl::setEnabled(b);
+		updateMaterials();
+	}
+
+	void ButtonGuiElement::setMouseWithin(bool b)
+	{
+		GuiControl::setMouseWithin(b);
+		updateMaterials();
+	}
 
     //-----------------------------------------------------------------------
-    void ButtonGuiElement::setBorderDownMaterialName(const String& name)
+    void ButtonGuiElement::setDownMaterialName(const String& name)
     {
-        mBorderDownMaterialName = name;
-
+        mDownMaterialName = name;
     }
     //-----------------------------------------------------------------------
-    void ButtonGuiElement::setBorderUpMaterialName(const String& name)
+    void ButtonGuiElement::setUpMaterialName(const String& name)
     {
-        mBorderUpMaterialName = name;
-		setPressed(false, true);
+        mUpMaterialName = name;
+		setPressed(false);
+		updateMaterials(true);
+    }
 
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::setHiliteDownMaterialName(const String& name)
+    {
+        mHiliteDownMaterialName = name;
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::setHiliteUpMaterialName(const String& name)
+    {
+        mHiliteUpMaterialName = name;
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::setDisabledMaterialName(const String& name)
+    {
+        mDisabledMaterialName = name;
+    }
+    //---------------------------------------------------------------------
+    void ButtonGuiElement::setCaptionColour(const ColourValue& col)
+    {
+        mCaptionColour = col;
+		mSetCaptionColor = true;
+		updateMaterials();
+    }
+    //---------------------------------------------------------------------
+    void ButtonGuiElement::setCaptionDisabledColour(const ColourValue& col)
+    {
+        mCaptionDisabledColour = col;
+		mSetCaptionDisabledColor = true;
+		updateMaterials();
     }
 
     //-----------------------------------------------------------------------
@@ -202,8 +284,8 @@ namespace Ogre {
 		if (name == "")
 		{
 			return;
-
 		}
+
 		mInsideObject = 
 			GuiManager::getSingleton().createGuiElementFromTemplate(templateName, "", mName + "/caption");
 
@@ -220,6 +302,8 @@ namespace Ogre {
 
 		addChild((GuiContainer*)mInsideObject);
 
+		// to make sure everything is right (colour)
+		updateMaterials();
     }
     //-----------------------------------------------------------------------
     String ButtonGuiElement::getButtonCaption()
@@ -228,14 +312,40 @@ namespace Ogre {
 	}
 
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getBorderDownMaterialName(void)
+    const String& ButtonGuiElement::getDownMaterialName(void)
     {
-        return mBorderDownMaterialName;
+        return mDownMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getBorderUpMaterialName(void)
+    const String& ButtonGuiElement::getUpMaterialName(void)
     {
-        return mBorderUpMaterialName;
+        return mUpMaterialName;
+    }
+
+    //---------------------------------------------------------------------
+    const String& ButtonGuiElement::getHiliteDownMaterialName(void)
+    {
+        return mHiliteDownMaterialName;
+    }
+    //---------------------------------------------------------------------
+    const String& ButtonGuiElement::getHiliteUpMaterialName(void)
+    {
+        return mHiliteUpMaterialName;
+    }
+    //---------------------------------------------------------------------
+    const String& ButtonGuiElement::getDisabledMaterialName(void)
+    {
+        return mDisabledMaterialName;
+    }
+    //---------------------------------------------------------------------
+    ColourValue ButtonGuiElement::getCaptionColour(void) const
+    {
+        return mCaptionColour;
+    }
+    //---------------------------------------------------------------------
+    ColourValue ButtonGuiElement::getCaptionDisabledColour(void) const
+    {
+        return mCaptionDisabledColour;
     }
 
     //---------------------------------------------------------------------
@@ -244,30 +354,89 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdBorderDownMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonDownMaterial::doGet(void* target)
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getBorderDownMaterialName();
+        return static_cast<ButtonGuiElement*>(target)->getDownMaterialName();
     }
     //-----------------------------------------------------------------------
-    void ButtonGuiElement::CmdBorderDownMaterial::doSet(void* target, const String& val)
+    void ButtonGuiElement::CmdButtonDownMaterial::doSet(void* target, const String& val)
     {
         std::vector<String> vec = val.split();
 
-        static_cast<ButtonGuiElement*>(target)->setBorderDownMaterialName(val);
+        static_cast<ButtonGuiElement*>(target)->setDownMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdBorderUpMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonUpMaterial::doGet(void* target)
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getBorderUpMaterialName();
+        return static_cast<ButtonGuiElement*>(target)->getUpMaterialName();
     }
     //-----------------------------------------------------------------------
-    void ButtonGuiElement::CmdBorderUpMaterial::doSet(void* target, const String& val)
+    void ButtonGuiElement::CmdButtonUpMaterial::doSet(void* target, const String& val)
     {
         std::vector<String> vec = val.split();
 
-        static_cast<ButtonGuiElement*>(target)->setBorderUpMaterialName(val);
+        static_cast<ButtonGuiElement*>(target)->setUpMaterialName(val);
+    }
+    //-----------------------------------------------------------------------
+    String ButtonGuiElement::CmdButtonHiliteDownMaterial::doGet(void* target)
+    {
+        // No need right now..
+        return static_cast<ButtonGuiElement*>(target)->getHiliteDownMaterialName();
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::CmdButtonHiliteDownMaterial::doSet(void* target, const String& val)
+    {
+        std::vector<String> vec = val.split();
+
+        static_cast<ButtonGuiElement*>(target)->setHiliteDownMaterialName(val);
+    }
+    //-----------------------------------------------------------------------
+    String ButtonGuiElement::CmdButtonHiliteUpMaterial::doGet(void* target)
+    {
+        // No need right now..
+        return static_cast<ButtonGuiElement*>(target)->getHiliteUpMaterialName();
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::CmdButtonHiliteUpMaterial::doSet(void* target, const String& val)
+    {
+        std::vector<String> vec = val.split();
+
+        static_cast<ButtonGuiElement*>(target)->setHiliteUpMaterialName(val);
+    }
+    //-----------------------------------------------------------------------
+    String ButtonGuiElement::CmdButtonDisabledMaterial::doGet(void* target)
+    {
+        // No need right now..
+        return static_cast<ButtonGuiElement*>(target)->getDisabledMaterialName();
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::CmdButtonDisabledMaterial::doSet(void* target, const String& val)
+    {
+        std::vector<String> vec = val.split();
+
+        static_cast<ButtonGuiElement*>(target)->setDisabledMaterialName(val);
+    }
+    //-----------------------------------------------------------------------
+    String ButtonGuiElement::CmdCaptionColour::doGet(void* target)
+    {
+        return StringConverter::toString(static_cast<ButtonGuiElement*>(target)->getCaptionColour());
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::CmdCaptionColour::doSet(void* target, const String& val)
+    {
+        static_cast<ButtonGuiElement*>(target)->setCaptionColour(StringConverter::parseColourValue(val));
+    }
+    //-----------------------------------------------------------------------
+    String ButtonGuiElement::CmdCaptionDisabledColour::doGet(void* target)
+    {
+        return StringConverter::toString(static_cast<ButtonGuiElement*>(target)->getCaptionDisabledColour());
+    }
+    //-----------------------------------------------------------------------
+    void ButtonGuiElement::CmdCaptionDisabledColour::doSet(void* target, const String& val)
+    {
+        static_cast<ButtonGuiElement*>(target)->setCaptionDisabledColour(StringConverter::parseColourValue(val));
     }
     //-----------------------------------------------------------------------
     String ButtonGuiElement::CmdButtonCaption::doGet(void* target)
@@ -278,7 +447,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonCaption::doSet(void* target, const String& val)
     {
-        std::vector<String> vec = val.split();
+        std::vector<String> vec = val.split("\t\n ", 1);
 
 
 		if (vec.size() < 2)
@@ -290,6 +459,5 @@ namespace Ogre {
 			static_cast<ButtonGuiElement*>(target)->setButtonCaption(vec[0], vec[1]);
 		}
     }
-
 }
 

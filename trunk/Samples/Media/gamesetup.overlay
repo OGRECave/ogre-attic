@@ -31,7 +31,7 @@ template element TextArea(SS/Templates/BasicText)
 	height 0.09
 }
 
-template container Button(SS/Templates/BasicButton) : SS/Templates/BasicBorderPanel
+template container BorderButton(SS/Templates/BasicButton) : SS/Templates/BasicBorderPanel
 {
 	left 0.82
 	top 0.45
@@ -75,7 +75,7 @@ SS/Setup/HostScreen/Overlay
 
 		}
 		    
-		container Button(SS/Setup/HostScreen/Host) : SS/Templates/BasicButton
+		container BorderButton(SS/Setup/HostScreen/Host) : SS/Templates/BasicButton
 		{
 			left 0.82
 			top 0.45
@@ -83,14 +83,14 @@ SS/Setup/HostScreen/Overlay
 		}
 
 
-		container Button(SS/Setup/HostScreen/Join) : SS/Templates/BasicButton
+		container BorderButton(SS/Setup/HostScreen/Join) : SS/Templates/BasicButton
 		{
 			left 0.82
 			top 0.60
 			caption SS/Templates/BasicText JOIN
 		}
 
-		container Button(SS/Setup/HostScreen/Exit) : SS/Templates/BasicButton
+		container BorderButton(SS/Setup/HostScreen/Exit) : SS/Templates/BasicButton
 		{
 			left 0.82
 			top 0.75

@@ -31,20 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 //-----------------------------------------------------------------------
 // Windows Settings
 //-----------------------------------------------------------------------
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#   if OGRE_DYNAMIC_LINKAGE == 0
-#       pragma warn( "No dynamic linkage" )
-#       define _OgreGuiElementExport
-#   else
-#       ifdef PLUGIN_GUIELEMENTS_EXPORTS
-#           define _OgreGuiElementExport __declspec(dllexport)
-#       else
-#           define _OgreGuiElementExport __declspec(dllimport)
-#       endif
-#   endif
-#else
-#   define _OgreGuiElementExport
-#endif
+
+#define _OgreGuiElementExport
 
 
 #endif

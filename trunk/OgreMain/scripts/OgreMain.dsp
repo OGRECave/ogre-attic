@@ -232,6 +232,10 @@ SOURCE=..\src\OgreGuiContainer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGuiControl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGuiElement.cpp
 # End Source File
 # Begin Source File
@@ -749,6 +753,10 @@ SOURCE=..\include\OgreGeometryData.h
 # Begin Source File
 
 SOURCE=..\include\OgreGuiContainer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGuiControl.h
 # End Source File
 # Begin Source File
 

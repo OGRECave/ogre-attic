@@ -35,7 +35,8 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreFont.cpp \
                          OgreFontManager.cpp \
                          OgreGuiContainer.cpp \
-                         OgreGuiElement.cpp \
+                         OgreGuiControl.cpp \
+						 OgreGuiElement.cpp \
                          OgreGuiElementCommands.cpp \
                          OgreGuiManager.cpp \
                          OgreImage.cpp \

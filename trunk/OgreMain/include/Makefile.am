@@ -42,6 +42,7 @@ OgreFontManager.h \
 OgreFrameListener.h \
 OgreGeometryData.h \
 OgreGuiContainer.h \
+OgreGuiControl.h \
 OgreGuiElement.h \
 OgreGuiElementCommands.h \
 OgreGuiElementFactory.h \

@@ -81,6 +81,9 @@ namespace Ogre {
         */
         virtual ChildContainerIterator getChildContainerIterator(void);
 
+		/** Tell the object and its children to recalculate */
+		virtual void _positionsOutOfDate(void);
+
         /** Overridden from GuiElement. */
         virtual void _update(void);
 

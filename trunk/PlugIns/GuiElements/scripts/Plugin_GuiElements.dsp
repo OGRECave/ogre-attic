@@ -104,6 +104,10 @@ PostBuild_Cmds=copy ..\bin\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\src\OgreBorderButtonGuiElement.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreBorderPanelGuiElement.cpp
 # End Source File
 # Begin Source File
@@ -132,12 +136,20 @@ SOURCE=..\src\OgrePanelGuiElement.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgrePopupMenuGuiElement.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreTextAreaGuiElement.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\include\OgreBorderButtonGuiElement.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreBorderPanelGuiElement.h
@@ -169,6 +181,10 @@ SOURCE=..\include\OgreListGuiElement.h
 # Begin Source File
 
 SOURCE=..\include\OgrePanelGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgrePopupMenuGuiElement.h
 # End Source File
 # Begin Source File
 

@@ -107,7 +107,7 @@ namespace Ogre {
             mHeight = height;
         }
         mDerivedOutOfDate = true;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     void GuiElement::setPosition(Real left, Real top)
@@ -123,7 +123,7 @@ namespace Ogre {
             mTop = top;
         }
         mDerivedOutOfDate = true;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
 
     }
     //---------------------------------------------------------------------
@@ -137,7 +137,7 @@ namespace Ogre {
         {
             mWidth = width;
         }
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     Real GuiElement::getWidth(void) const
@@ -155,7 +155,7 @@ namespace Ogre {
         {
             mHeight = height;
         }
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     Real GuiElement::getHeight(void) const
@@ -174,7 +174,7 @@ namespace Ogre {
             mLeft = left;
         }
         mDerivedOutOfDate = true;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     Real GuiElement::getLeft(void) const
@@ -194,7 +194,7 @@ namespace Ogre {
         }
 
         mDerivedOutOfDate = true;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     Real GuiElement::getTop(void) const
@@ -239,6 +239,13 @@ namespace Ogre {
     {
         return true;
     }
+
+    //---------------------------------------------------------------------
+	void GuiElement::_positionsOutOfDate(void)
+	{
+		mGeomPositionsOutOfDate = true;
+	}
+
     //---------------------------------------------------------------------
     void GuiElement::_update(void)
     {
@@ -408,12 +415,22 @@ namespace Ogre {
     void GuiElement::setCaption( const String& caption )
     {
         mCaption = caption;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
     const String& GuiElement::getCaption() const
     {
         return mCaption;
+    }
+    //-----------------------------------------------------------------------
+    void GuiElement::setColour(const ColourValue& col)
+    {
+        mColour = col;
+    }
+    //-----------------------------------------------------------------------
+    ColourValue GuiElement::getColour(void) const
+    {
+        return mColour;
     }
     //-----------------------------------------------------------------------
     void GuiElement::setMetricsMode(GuiMetricsMode gmm)
@@ -429,7 +446,7 @@ namespace Ogre {
             mPixelHeight = (short int)mHeight;
         }
         mDerivedOutOfDate = true;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
     GuiMetricsMode GuiElement::getMetricsMode(void)
@@ -440,7 +457,7 @@ namespace Ogre {
     void GuiElement::setHorizontalAlignment(GuiHorizontalAlignment gha)
     {
         mHorzAlign = gha;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
     GuiHorizontalAlignment GuiElement::getHorizontalAlignment(void)
@@ -451,7 +468,7 @@ namespace Ogre {
     void GuiElement::setVerticalAlignment(GuiVerticalAlignment gva)
     {
         mVertAlign = gva;
-        mGeomPositionsOutOfDate = true;
+        _positionsOutOfDate();
     }
     //-----------------------------------------------------------------------
     GuiVerticalAlignment GuiElement::getVerticalAlignment(void)

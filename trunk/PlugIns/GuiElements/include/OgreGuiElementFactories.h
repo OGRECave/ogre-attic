@@ -31,7 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePanelGuiElement.h"
 #include "OgreBorderPanelGuiElement.h"
 #include "OgreButtonGuiElement.h"
+#include "OgreBorderButtonGuiElement.h"
 #include "OgreListGuiElement.h"
+#include "OgrePopupMenuGuiElement.h"
 #include "OgreTextAreaGuiElement.h"
 
 
@@ -109,6 +111,23 @@ namespace Ogre {
     };
 
     /** Factory for creating ButtonGuiElement instances. */
+    class _OgreGuiElementExport BorderButtonGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new BorderButtonGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "BorderButton";
+            return name;
+        }
+    };
+
+    /** Factory for creating ButtonGuiElement instances. */
     class _OgreGuiElementExport ListGuiElementFactory: public GuiElementFactory
     {
     public:
@@ -121,6 +140,23 @@ namespace Ogre {
         const String& getTypeName(void)
         {
             static String name = "List";
+            return name;
+        }
+    };
+
+    /** Factory for creating ButtonGuiElement instances. */
+    class _OgreGuiElementExport PopupMenuGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new PopupMenuGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "PopupMenu";
             return name;
         }
     };

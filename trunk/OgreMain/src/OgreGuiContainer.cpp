@@ -106,6 +106,19 @@ namespace Ogre {
     {
         return ChildContainerIterator(mChildContainers.begin(), mChildContainers.end());
     }
+
+    //---------------------------------------------------------------------
+	void GuiContainer::_positionsOutOfDate(void)
+	{
+		GuiElement::_positionsOutOfDate();
+
+        ChildIterator it = getChildIterator();
+        while (it.hasMoreElements())
+        {
+			it.getNext()->_positionsOutOfDate();
+        }
+	}
+
     //---------------------------------------------------------------------
     void GuiContainer::_update(void)
     {

@@ -72,7 +72,7 @@ namespace Ogre {
 		{	// button up... trigger MouseReleased, and MouseClicked
 			mModifiers &= !nMouseCode;
 			createMouseEvent(MouseEvent::ME_MOUSE_RELEASED, nMouseCode);
-			createMouseEvent(MouseEvent::ME_MOUSE_CLICKED, nMouseCode);
+			//createMouseEvent(MouseEvent::ME_MOUSE_CLICKED, nMouseCode);	JCA - moved to EventDispatcher
 		}
 	}
 

@@ -175,7 +175,7 @@ namespace Ogre {
         }
 
         fi->second->destroyGuiElement(ii->second);
-
+		elementMap.erase(ii);
     }
     //---------------------------------------------------------------------
     void GuiManager::destroyAllGuiElements(bool isTemplate)
@@ -200,6 +200,7 @@ namespace Ogre {
 
             // Destroy
             fi->second->destroyGuiElement(i->second);
+			elementMap.erase(i);
         }
 
     }
