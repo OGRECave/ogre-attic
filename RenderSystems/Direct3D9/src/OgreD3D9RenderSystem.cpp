@@ -1326,19 +1326,31 @@ namespace Ogre
 	{
 		HRESULT hr;
 
-		if( mode == FOG_NONE || !(mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE))
+		D3DRENDERSTATETYPE fogType, fogTypeNot;
+
+		if (mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE)
+		{
+			fogType = D3DRS_FOGTABLEMODE;
+			fogTypeNot = D3DRS_FOGVERTEXMODE;
+		}
+		else
+		{
+			fogType = D3DRS_FOGVERTEXMODE;
+			fogTypeNot = D3DRS_FOGTABLEMODE;
+		}
+
+		if( mode == FOG_NONE)
 		{
 			// just disable
-			if (mCaps.RasterCaps & D3DPRASTERCAPS_FOGTABLE)
-				hr = __SetRenderState( D3DRS_FOGTABLEMODE, D3DFOG_NONE );
+			hr = __SetRenderState(fogType, D3DFOG_NONE );
 			hr = __SetRenderState(D3DRS_FOGENABLE, FALSE);
 		}
 		else
 		{
 			// Allow fog
 			hr = __SetRenderState( D3DRS_FOGENABLE, TRUE );
-			hr = __SetRenderState( D3DRS_FOGVERTEXMODE, D3DFOG_NONE );
-			hr = __SetRenderState( D3DRS_FOGTABLEMODE, D3D9Mappings::get(mode) );
+			hr = __SetRenderState( fogTypeNot, D3DFOG_NONE );
+			hr = __SetRenderState( fogType, D3D9Mappings::get(mode) );
 
 			hr = __SetRenderState( D3DRS_FOGCOLOR, colour.getAsLongARGB() );
 			hr = __SetRenderState( D3DRS_FOGSTART, *((LPDWORD)(&start)) );
