@@ -1511,15 +1511,12 @@ namespace Ogre {
             case FO_LINEAR:
                 // linear min, linear mip
                 return GL_LINEAR_MIPMAP_LINEAR;
-                break;
             case FO_POINT:
                 // linear min, point mip
                 return GL_LINEAR_MIPMAP_NEAREST;
-                break;
             case FO_NONE:
                 // linear min, no mip
                 return GL_LINEAR;
-                break;
             }
             break;
         case FO_POINT:
@@ -1530,15 +1527,12 @@ namespace Ogre {
             case FO_LINEAR:
                 // nearest min, linear mip
                 return GL_NEAREST_MIPMAP_LINEAR;
-                break;
             case FO_POINT:
                 // nearest min, point mip
                 return GL_NEAREST_MIPMAP_NEAREST;
-                break;
             case FO_NONE:
                 // nearest min, no mip
                 return GL_NEAREST;
-                break;
             }
             break;
         }
