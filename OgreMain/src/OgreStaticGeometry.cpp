@@ -31,6 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreLogManager.h"
+#include "OgreSceneManager.h"
+#include "OgreCamera.h"
+#include "OgreMaterialManager.h"
 
 namespace Ogre {
 
@@ -50,7 +53,9 @@ namespace Ogre {
 		mRegionDimensions(Vector3(1000,1000,1000)),
 		mHalfRegionDimensions(Vector3(500,500,500)),
 		mOrigin(Vector3(0,0,0)),
-		mVisible(true)
+		mVisible(true),
+        mRenderQueueID(RENDER_QUEUE_MAIN),
+        mRenderQueueIDSet(false)
 	{
 	}
 	//--------------------------------------------------------------------------
@@ -146,7 +151,12 @@ namespace Ogre {
 			str << mName << ":" << index;
 			// Calculate the region centre
 			Vector3 centre = getRegionCentre(x, y, z);
-			ret = new Region(str.str(), index, centre);
+			ret = new Region(str.str(), mOwner, index, centre);
+			ret->setVisible(mVisible);
+			if (mRenderQueueIDSet)
+			{
+				ret->setRenderQueueGroup(mRenderQueueID);
+			}
 			mRegionMap[index] = ret;
 		}
 		return ret;
@@ -339,7 +349,11 @@ namespace Ogre {
 						sm->indexData, &geomLink);
 				}
 			}
+			assert (geomLink.vertexData->vertexStart == 0 && 
+				"Cannot use vertexStart > 0 on indexed geometry due to "
+				"rendersystem incompatibilities - see the docs!");
 		}
+
 
 		return lodList;
 	}
@@ -383,7 +397,7 @@ namespace Ogre {
 		VertexData* newvd = targetGeomLink->vertexData;
 		IndexData* newid = targetGeomLink->indexData;
 			
-		unsigned short numvbufs = vd->vertexBufferBinding->getBufferCount();
+		size_t numvbufs = vd->vertexBufferBinding->getBufferCount();
 		// Copy buffers from old to new
 		for (unsigned short b = 0; b < numvbufs; ++b)
 		{
@@ -433,7 +447,7 @@ namespace Ogre {
 			uint32 *pSrc32, *pDst32;
 			pSrc32 = static_cast<uint32*>(id->indexBuffer->lock(
 				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
-			pSrc32 = static_cast<uint32*>(ibuf->lock(
+			pDst32 = static_cast<uint32*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc32, pDst32, indexRemap, id->indexCount);
 		}
@@ -442,7 +456,7 @@ namespace Ogre {
 			uint16 *pSrc16, *pDst16;
 			pSrc16 = static_cast<uint16*>(id->indexBuffer->lock(
 				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
-			pSrc16 = static_cast<uint16*>(ibuf->lock(
+			pDst16 = static_cast<uint16*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc16, pDst16, indexRemap, id->indexCount);
 		}
@@ -526,9 +540,53 @@ namespace Ogre {
 		}
 	}
 	//--------------------------------------------------------------------------
+    void StaticGeometry::setRenderQueueGroup(RenderQueueGroupID queueID)
+	{
+		mRenderQueueIDSet = true;
+		mRenderQueueID = queueID;
+		// tell any existing regions
+		for (RegionMap::iterator ri = mRegionMap.begin(); 
+			ri != mRegionMap.end(); ++ri)
+		{
+			ri->second->setRenderQueueGroup(queueID);
+		}
+	}
 	//--------------------------------------------------------------------------
-	StaticGeometry::Region::Region(const String& name, uint32 regionID, const Vector3& centre) 
-		: mName(name), mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f)
+	RenderQueueGroupID StaticGeometry::getRenderQueueGroup(void) const
+	{
+		return mRenderQueueID;
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::dump(const String& filename) const
+	{
+		std::ofstream of(filename.c_str());
+		of << "Static Geometry Report for " << mName << std::endl;
+		of << "-------------------------------------------------" << std::endl;
+		of << "Number of queued submeshes: " << mQueuedSubMeshes.size() << std::endl;
+		of << "Number of regions: " << mRegionMap.size() << std::endl;
+		of << "Region dimensions: " << mRegionDimensions << std::endl;
+		of << "Origin: " << mOrigin << std::endl;
+		of << "Max distance: " << mUpperDistance << std::endl;
+		of << "Casts shadows?: " << mCastShadows << std::endl;
+		of << std::endl;
+		for (RegionMap::const_iterator ri = mRegionMap.begin(); 
+			ri != mRegionMap.end(); ++ri)
+		{
+			ri->second->dump(of);
+		}
+		of << "-------------------------------------------------" << std::endl;
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::RegionIterator StaticGeometry::getRegionIterator(void)
+	{
+		return RegionIterator(mRegionMap.begin(), mRegionMap.end());
+	}
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	StaticGeometry::Region::Region(const String& name, SceneManager* mgr, 
+		uint32 regionID, const Vector3& centre) 
+		: mName(name), mSceneMgr(mgr), mNode(0), mRegionID(regionID), 
+		mCentre(centre), mBoundingRadius(0.0f), mCurrentLod(0)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -536,6 +594,12 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	StaticGeometry::Region::~Region()
 	{
+		if (mNode)
+		{
+			mNode->getParentSceneNode()->removeChild(mNode);
+			mSceneMgr->destroySceneNode(mNode->getName());
+			mNode = 0;
+		}
 		// delete
 		for (LODBucketList::iterator i = mLodBucketList.begin(); 
 			i != mLodBucketList.end(); ++i)
@@ -581,18 +645,26 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::build(void)
 	{
+		// Create a node
+		mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(mName, 
+			mCentre);
+		mNode->attachObject(this);
 		// We need to create enough LOD buckets to deal with the highest LOD
 		// we encountered in all the meshes queued
-		// We also need to copy meshes with less lods than the max to the lower
-		// lods
 		for (ushort lod = 0; lod < mLodSquaredDistances.size(); ++lod)
 		{
 			LODBucket* lodBucket = 
 				new LODBucket(this, lod, mLodSquaredDistances[lod]);
 			mLodBucketList.push_back(lodBucket);
-		
+			// Now iterate over the meshes and assign to LODs
+			// LOD bucket will pick the right LOD to use
+			QueuedSubMeshList::iterator qi, qiend;
+			qiend = mQueuedSubMeshes.end();
+			for (qi = mQueuedSubMeshes.begin(); qi != qiend; ++qi)
+			{
+				lodBucket->assign(*qi, lod);
+			}
 		}
-		
 	}
 	//--------------------------------------------------------------------------
 	const String& StaticGeometry::Region::getName(void) const
@@ -608,7 +680,21 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::_notifyCurrentCamera(Camera* cam)
 	{
-		// TODO
+		// Determine active lod
+		Vector3 diff = cam->getDerivedPosition() - mCentre;
+		// Distance from the edge of the bounding sphere
+		mCamDistanceSquared = diff.squaredLength() 
+			- mBoundingRadius*mBoundingRadius;
+		
+		for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
+		{
+			if (mLodSquaredDistances[i] < mCamDistanceSquared)
+			{
+				mCurrentLod = i;
+				break;
+			}
+		}
+		
 	}
 	//--------------------------------------------------------------------------
 	const AxisAlignedBox& StaticGeometry::Region::getBoundingBox(void) const
@@ -623,7 +709,31 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::_updateRenderQueue(RenderQueue* queue)
 	{
-		// TODO
+		mLodBucketList[mCurrentLod]->addRenderables(queue, mRenderQueueID, 
+			mCamDistanceSquared);
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::Region::LODIterator 
+	StaticGeometry::Region::getLODIterator(void)
+	{
+		return LODIterator(mLodBucketList.begin(), mLodBucketList.end());
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::Region::dump(std::ofstream& of) const
+	{
+		of << "Region " << mRegionID << std::endl;
+		of << "--------------------------" << std::endl;
+		of << "Centre: " << mCentre << std::endl;
+		of << "Local AABB: " << mAABB << std::endl;
+		of << "Bounding radius: " << mBoundingRadius << std::endl;
+		of << "Number of LODs: " << mLodBucketList.size() << std::endl;
+
+		for (LODBucketList::const_iterator i = mLodBucketList.begin(); 
+			i != mLodBucketList.end(); ++i)
+		{
+			(*i)->dump(of);
+		}
+		of << "--------------------------" << std::endl;
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -642,18 +752,91 @@ namespace Ogre {
 			delete i->second;
 		}
 		mMaterialBucketMap.clear();
+		for(QueuedGeometryList::iterator qi = mQueuedGeometryList.begin();
+			qi != mQueuedGeometryList.end(); ++qi)
+		{
+			delete *qi;
+		}
+		mQueuedGeometryList.clear();
 
 		// no need to delete queued meshes, these are managed in StaticGeometry
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::LODBucket::assign(QueuedSubMesh* qmesh)
+	void StaticGeometry::LODBucket::assign(QueuedSubMesh* qmesh, ushort atLod)
 	{
-		mQueuedSubMeshes.push_back(qmesh);
+		QueuedGeometry* q = new QueuedGeometry();
+		q->position = qmesh->position;
+		q->orientation = qmesh->orientation;
+		q->scale = qmesh->scale;
+		if (qmesh->geometryLodList->size() > atLod)
+		{
+			// This submesh has enough lods, use the right one
+			q->geometry = &(*qmesh->geometryLodList)[atLod];
+		}
+		else
+		{
+			// Not enough lods, use the lowest one we have
+			q->geometry = 
+				&(*qmesh->geometryLodList)[qmesh->geometryLodList->size() - 1];
+		}
+		// Locate a material bucket
+		MaterialBucket* mbucket = 0;
+		MaterialBucketMap::iterator m = 
+			mMaterialBucketMap.find(qmesh->materialName);
+		if (m != mMaterialBucketMap.end())
+		{
+			mbucket = m->second;
+		}
+		else
+		{
+			mbucket = new MaterialBucket(this, qmesh->materialName);
+			mMaterialBucketMap[qmesh->materialName] = mbucket;
+		}
+		mbucket->assign(q);
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::LODBucket::build(void)
 	{
-		// TODO
+		// Just pass this on to child buckets
+		for (MaterialBucketMap::iterator i = mMaterialBucketMap.begin(); 
+			i != mMaterialBucketMap.end(); ++i)
+		{
+			i->second->build();
+		}
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::LODBucket::addRenderables(RenderQueue* queue,
+		RenderQueueGroupID group, Real camDistanceSquared)
+	{
+		// Just pass this on to child buckets
+		MaterialBucketMap::iterator i, iend;
+		iend =  mMaterialBucketMap.end();
+		for (i = mMaterialBucketMap.begin(); i != iend; ++i)
+		{
+			i->second->addRenderables(queue, group, camDistanceSquared);
+		}
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::LODBucket::MaterialIterator 
+	StaticGeometry::LODBucket::getMaterialIterator(void)
+	{
+		return MaterialIterator(
+			mMaterialBucketMap.begin(), mMaterialBucketMap.end());
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::LODBucket::dump(std::ofstream& of) const
+	{
+		of << "LOD Bucket " << mLod << std::endl;
+		of << "------------------" << std::endl;
+		of << "Distance: " << Math::Sqrt(mSquaredDistance) << std::endl;
+		of << "Number of Materials: " << mMaterialBucketMap.size() << std::endl;
+		for (MaterialBucketMap::const_iterator i = mMaterialBucketMap.begin(); 
+			i != mMaterialBucketMap.end(); ++i)
+		{
+			i->second->dump(of);
+		}
+		of << "------------------" << std::endl;
+		
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -676,41 +859,169 @@ namespace Ogre {
 		// no need to delete queued meshes, these are managed in StaticGeometry
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::MaterialBucket::assign(QueuedSubMesh* qmesh)
+	void StaticGeometry::MaterialBucket::assign(QueuedGeometry* qgeom)
 	{
-		mQueuedSubMeshes.push_back(qmesh);
+		// Look up any current geometry
+		String formatString = getGeometryFormatString(qgeom->geometry);
+		CurrentGeometryMap::iterator gi = mCurrentGeometryMap.find(formatString);
+		bool newBucket = true;
+		if (gi != mCurrentGeometryMap.end())
+		{
+			// Found existing geometry, try to assign
+			newBucket = gi->second->assign(qgeom);
+			// Note that this bucket will be replaced as the 'current'
+			// for this format string below since it's out of space
+		}
+		// Do we need to create a new one?
+		if (newBucket)
+		{
+			GeometryBucket* gbucket = new GeometryBucket(this, formatString,
+				qgeom->geometry->vertexData, qgeom->geometry->indexData);
+			// Add to main list
+			mGeometryBucketList.push_back(gbucket);
+			// Also index in 'current' list
+			mCurrentGeometryMap[formatString] = gbucket;
+			if (!gbucket->assign(qgeom))
+			{
+				Except(Exception::ERR_INTERNAL_ERROR, 
+					"Somehow we couldn't fit the requested geometry even in a "
+					"brand new GeometryBucket!! Must be a bug, please report.",
+					"StaticGeometry::MaterialBucket::assign");
+			}
+		}
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::MaterialBucket::build(void)
 	{
-		// TODO
+		mMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
+		if (mMaterial.isNull())
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, 
+				"Material '" + mMaterialName + "' not found.", 
+				"StaticGeometry::MaterialBucket::build");
+		}
+		mMaterial->load();
+		// tell the geometry buckets to build
+		for (GeometryBucketList::iterator i = mGeometryBucketList.begin(); 
+			i != mGeometryBucketList.end(); ++i)
+		{
+			(*i)->build();
+		}
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::MaterialBucket::addRenderables(RenderQueue* queue,
+		RenderQueueGroupID group, Real camDistanceSquared)
+	{
+		// Determine the current material technique
+		mTechnique = mMaterial->getTechnique(
+			mMaterial->getLodIndexSquaredDepth(camDistanceSquared));
+
+		GeometryBucketList::iterator i, iend;
+		iend =  mGeometryBucketList.end();
+		for (i = mGeometryBucketList.begin(); i != iend; ++i)
+		{
+			queue->addRenderable(*i, group);
+		}
+
+	}
+	//--------------------------------------------------------------------------
+	String StaticGeometry::MaterialBucket::getGeometryFormatString(
+		SubMeshLodGeometryLink* geom)
+	{
+		// Formulate an identifying string for the geometry format
+		// Must take into account the vertex declaration and the index type
+		// Format is (all lines separated by '|'):
+		// Index type
+		// Vertex element (repeating)
+		//   source
+		//   semantic
+		//   type
+		StringUtil::StrStreamType str;
+
+		str << geom->indexData->indexBuffer->getType() << "|";
+		const VertexDeclaration::VertexElementList& elemList = 
+			geom->vertexData->vertexDeclaration->getElements();
+		VertexDeclaration::VertexElementList::const_iterator ei, eiend;
+		eiend = elemList.end();
+		for (ei = elemList.begin(); ei != eiend; ++ei)
+		{
+			const VertexElement& elem = *ei;
+			str << elem.getSource() << "|";
+			str << elem.getSource() << "|";
+			str << elem.getSemantic() << "|";
+			str << elem.getType() << "|";
+		}
+		
+		return str.str();
+
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::MaterialBucket::GeometryIterator 
+	StaticGeometry::MaterialBucket::getGeometryIterator(void)
+	{
+		return GeometryIterator(
+			mGeometryBucketList.begin(), mGeometryBucketList.end());
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::MaterialBucket::dump(std::ofstream& of) const
+	{
+		of << "Material Bucket " << mMaterialName << std::endl;
+		of << "--------------------------------------------------" << std::endl;
+		of << "Geometry buckets: " << mGeometryBucketList.size() << std::endl;
+		for (GeometryBucketList::const_iterator i = mGeometryBucketList.begin(); 
+			i != mGeometryBucketList.end(); ++i)
+		{
+			(*i)->dump(of);
+		}
+		of << "--------------------------------------------------" << std::endl;
+		
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	StaticGeometry::GeometryBucket::GeometryBucket(MaterialBucket* parent)
-		: mParent(parent)
+	StaticGeometry::GeometryBucket::GeometryBucket(MaterialBucket* parent,
+		const String& formatString, const VertexData* vData, 
+		const IndexData* iData)
+		: mParent(parent), mFormatString(formatString)
 	{
+		// Clone the structure from the example
+		mVertexData = vData->clone(false);
+		mIndexData = iData->clone(false);
+		mIndexType = iData->indexBuffer->getType();
+		// Derive the max vertices
+		if (mIndexType == HardwareIndexBuffer::IT_32BIT)
+		{
+			mMaxVertices = 1 << 32;
+		}
+		else
+		{
+			mMaxVertices = 1 << 16;
+		}
+
 	}
 	//--------------------------------------------------------------------------
 	StaticGeometry::GeometryBucket::~GeometryBucket()
 	{
+		delete mVertexData;
+		delete mIndexData;
 	}
 	//--------------------------------------------------------------------------
 	const MaterialPtr& StaticGeometry::GeometryBucket::getMaterial(void) const
 	{
-		// TODO
-		return MaterialPtr();
+		return mParent->getMaterial();
 	}
 	//--------------------------------------------------------------------------
 	Technique* StaticGeometry::GeometryBucket::getTechnique(void) const
 	{
-		// TODO
-		return 0;
+		return mParent->getCurrentTechnique();
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::getRenderOperation(RenderOperation& op)
 	{
-		// TODO
+		op.indexData = mIndexData;
+		op.operationType = RenderOperation::OT_TRIANGLE_LIST;
+		op.srcRenderable = this;
+		op.useIndexes = true;
+		op.vertexData = mVertexData;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::getWorldTransforms(Matrix4* xform) const
@@ -732,31 +1043,155 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	Real StaticGeometry::GeometryBucket::getSquaredViewDepth(const Camera* cam) const
 	{
-		// TODO
-		return 0;
+		return mParent->getParent()->getSquaredDistance();
 	}
 	//--------------------------------------------------------------------------
 	const LightList& StaticGeometry::GeometryBucket::getLights(void) const
 	{
-		// TODO
-		static LightList nullLightList;
-		return nullLightList;
+		return mParent->getParent()->getParent()->getParentSceneNode()->getLights();
 	}
 	//--------------------------------------------------------------------------
 	bool StaticGeometry::GeometryBucket::getCastsShadows(void) const
 	{
-		// TODO
-		return false;
+		return mParent->getParent()->getParent()->getCastShadows();
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::GeometryBucket::assign(QueuedSubMesh* qmesh)
+	bool StaticGeometry::GeometryBucket::assign(QueuedGeometry* qgeom)
 	{
-		mQueuedSubMeshes.push_back(qmesh);
+		// Do we have enough space?
+		if (mVertexData->vertexCount + qgeom->geometry->vertexData->vertexCount 
+			> mMaxVertices)
+		{
+			return false;
+		}
+
+		mQueuedGeometry.push_back(qgeom);
+		mVertexData->vertexCount += qgeom->geometry->vertexData->vertexCount;
+		mIndexData->indexCount += qgeom->geometry->indexData->indexCount;
+
+		return true;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::build(void)
 	{
-		// TODO
+		// Ok, here's where we transfer the vertices and indexes to the shared
+		// buffers
+		// Shortcuts
+		VertexDeclaration* dcl = mVertexData->vertexDeclaration;
+		VertexBufferBinding* binds = mVertexData->vertexBufferBinding;
+
+		// create index buffer, and lock
+		mIndexData->indexBuffer = HardwareBufferManager::getSingleton()
+			.createIndexBuffer(mIndexType, mIndexData->indexCount, 
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+		uint32* p32Dest = 0;
+		uint16* p16Dest = 0;
+		if (mIndexType == HardwareIndexBuffer::IT_32BIT)
+		{
+			p32Dest = static_cast<uint32*>(
+				mIndexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+		}
+		else
+		{
+			p16Dest = static_cast<uint16*>(
+				mIndexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+		}
+		// create all vertex buffers, and lock
+		ushort b;
+		std::vector<uchar*> destBufferLocks;
+		for (b = 0; b < binds->getBufferCount(); ++b)
+		{
+			HardwareVertexBufferSharedPtr vbuf = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+					dcl->getVertexSize(b),
+					mVertexData->vertexCount,
+					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			binds->setBinding(b, vbuf);
+			destBufferLocks.push_back(static_cast<uchar*>(
+				vbuf->lock(HardwareBuffer::HBL_DISCARD)));
+		}
+
+		// Iterate over the geometry items
+		size_t indexOffset = 0;
+		QueuedGeometryList::iterator gi, giend;
+		giend = mQueuedGeometry.end();
+		for (gi = mQueuedGeometry.begin(); gi != giend; ++gi)
+		{
+			QueuedGeometry* geom = *gi;
+			// Copy indexes across with offset
+			IndexData* srcIdxData = geom->geometry->indexData;
+			if (mIndexType == HardwareIndexBuffer::IT_32BIT)
+			{
+				// Lock source indexes
+				uint32* pSrc = static_cast<uint32*>(
+					srcIdxData->indexBuffer->lock(
+						srcIdxData->indexStart, srcIdxData->indexCount,
+						HardwareBuffer::HBL_READ_ONLY));
+
+				copyIndexes(pSrc, p32Dest, srcIdxData->indexCount, indexOffset);
+				p32Dest += srcIdxData->indexCount;
+				srcIdxData->indexBuffer->unlock();
+			}
+			else
+			{
+				// Lock source indexes
+				uint16* pSrc = static_cast<uint16*>(
+					srcIdxData->indexBuffer->lock(
+					srcIdxData->indexStart, srcIdxData->indexCount,
+					HardwareBuffer::HBL_READ_ONLY));
+
+				copyIndexes(pSrc, p16Dest, srcIdxData->indexCount, indexOffset);
+				p16Dest += srcIdxData->indexCount;
+				srcIdxData->indexBuffer->unlock();
+			}
+
+			// Now deal with vertex buffers
+			// we can rely on buffer counts / formats being the same
+			VertexData* srcVData = geom->geometry->vertexData;
+			VertexBufferBinding* srcBinds = srcVData->vertexBufferBinding;
+			for (b = 0; b < binds->getBufferCount(); ++b)
+			{
+				// lock source
+				HardwareVertexBufferSharedPtr srcBuf = 
+					srcBinds->getBuffer(0);
+				uchar* pSrcBase = static_cast<uchar*>(
+					srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+				// Get buffer lock pointer, we'll update this later
+				uchar* pDstBase = destBufferLocks[b];
+
+				// TODO - transform geometry here
+				// need to look for position and normal sematics
+
+				destBufferLocks[b] = pDstBase + 
+					srcBuf->getVertexSize() * srcVData->vertexCount;
+				srcBuf->unlock();
+			}
+
+			indexOffset += geom->geometry->vertexData->vertexCount;
+		}
+
+		// Unlock everything
+		mIndexData->indexBuffer->unlock();
+		for (b = 0; b < binds->getBufferCount(); ++b)
+		{
+			binds->getBuffer(b)->unlock();
+		}
+
+
+
+
+
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::GeometryBucket::dump(std::ofstream& of) const
+	{
+		of << "Geometry Bucket" << std::endl;
+		of << "---------------" << std::endl;
+		of << "Format string: " << mFormatString << std::endl;
+		of << "Vertex count: " << mVertexData->vertexCount << std::endl;
+		of << "Index count: " << mIndexData->indexCount << std::endl;
+		of << "---------------" << std::endl;
+		
 	}
 	//--------------------------------------------------------------------------
 
