@@ -178,18 +178,17 @@ namespace Ogre {
                 lightShadOp->indexData->indexCount = 0;
                 lightShadOp->indexData->indexStart = indexStart;
 
-                // Iterate over edges in group again, but only consider t1, 
-                // since it ensures uniqueness and affinity to this renderable's
-                // vertex buffer
-                for (i = eg.edges.begin(); i != iend; ++i)
+                EdgeData::TriangleList::iterator ti, tiend;
+                tiend = edgeData->triangles.end();
+                for (ti = edgeData->triangles.begin(); ti != tiend; ++ti)
                 {
-                    EdgeData::Edge& edge = *i;
-                    EdgeData::Triangle &t1 = edgeData->triangles[edge.triIndex[0]];
-                    if (t1.lightFacing)
+                    EdgeData::Triangle& t = *ti;
+                    // Light facing, and vertex set matches
+                    if (t.lightFacing && t.vertexSet == eg.vertexSet)
                     {
-                        *pIdx++ = t1.vertIndex[0];
-                        *pIdx++ = t1.vertIndex[1];
-                        *pIdx++ = t1.vertIndex[2];
+                        *pIdx++ = t.vertIndex[0];
+                        *pIdx++ = t.vertIndex[1];
+                        *pIdx++ = t.vertIndex[2];
                         lightShadOp->indexData->indexCount += 3;
                     }
                 }
