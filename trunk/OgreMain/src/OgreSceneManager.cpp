@@ -495,8 +495,7 @@ namespace Ogre {
         if (pass->hasVertexProgram())
         {
             mDestRenderSystem->bindGpuProgram(pass->getVertexProgram()->_getBindingDelegate());
-            mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
-                pass->getVertexProgramParameters());
+            // bind parameters later since they can be per-object
             lastUsedVertexProgram = true;
         }
         else
@@ -529,8 +528,7 @@ namespace Ogre {
         {
             mDestRenderSystem->bindGpuProgram(
                 pass->getFragmentProgram()->_getBindingDelegate());
-            mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
-                pass->getFragmentProgramParameters());
+            // bind parameters later since they can be per-object
 			lastUsedFragmentProgram = true;
         }
         else
@@ -1203,9 +1201,23 @@ namespace Ogre {
             // Update any automatic gpu params
             // Pass renderable and camera
             // Other bits of information will have to be looked up
+
             mAutoParamDataSource.setCurrentRenderable(rend);
             pass->_updateAutoParams(mAutoParamDataSource);
+            // NOTE: We MUST bind parameters AFTER updating the autos
+            if (pass->hasVertexProgram())
+            {
+                mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
+                    pass->getVertexProgramParameters());
+            }
+            if (pass->hasFragmentProgram())
+            {
+                mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
+                    pass->getFragmentProgramParameters());
+            }
         }
+
+
 
 
         // Set world transformation
