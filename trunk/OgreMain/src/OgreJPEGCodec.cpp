@@ -32,7 +32,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifdef FAR
 #   undef FAR
 #endif
-#define HAVE_BOOLEAN
+#if OGRE_COMPILER == COMPILER_MSVC
+#	define HAVE_BOOLEAN
+#endif
 extern "C" {
 #include "jpeglib.h"
 }
