@@ -29,59 +29,6 @@ http://www.gnu.org/copyleft/gpl.html.
 
 BEGIN_OGRE_NAMESPACE
 
-class _OgreExport GenericSet
-{
-protected:
-    template< class T >
-    struct GenericItem
-    {
-    protected:
-        T * mpData;
-
-    public:
-        GenericItem()
-        {
-            mpData = NULL;
-        }
-        GenericItem( const T& data )
-        {
-            mpData = new T( data );
-        }
-        ~GenericItem()
-        {
-            if( mpData )
-                delete mpData;
-        }
-
-        GenericItem& operator = ( const T& data )
-        {
-            if( mpData )
-                delete mpData;
-            mpData = new T( data );
-
-            return *this;
-        }
-
-        T& operator * ()
-        {
-            return *mpData;
-        }
-    };
-
-    std::map< String, GenericItem * > m_mapData;
-public:
-    template< class T >
-    void set( const String& key, const T& data )
-    {
-        m_mapData = new GenericItem< T >( data );
-    }
-    template< class T >
-    T& get( const String& key )
-    {
-        return **m_mapData[key];
-    }
-};
-
 class _OgreExport Codec
 {
 protected:
@@ -116,7 +63,7 @@ public:
 class _OgreExport ImageCodec : public Codec
 {
 public:
-    class ImageData : public CodecData
+    class ImageData : public Codec::CodecData
     {
     public:
         UInt32 ulHeight;
