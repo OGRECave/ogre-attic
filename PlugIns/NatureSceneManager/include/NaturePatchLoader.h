@@ -25,9 +25,7 @@ class NaturePatchLoader
 {
 public:
     NaturePatchLoader(SceneNode *sceneRoot)
-    {
-	mSceneRoot = sceneRoot;
-    }
+        : mSceneRoot(sceneRoot) { }
 
     virtual ~NaturePatchLoader() {}
 

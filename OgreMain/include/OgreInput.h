@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Input_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreInputEvent.h"
 
 namespace Ogre {
 

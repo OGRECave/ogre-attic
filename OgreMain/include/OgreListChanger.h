@@ -26,8 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _ListChanger_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreResource.h"
-
 
 namespace Ogre {
 	typedef std::list<Resource*> ResourceList;

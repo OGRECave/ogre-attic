@@ -24,10 +24,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 // Ogre includes
-#include <queue>
 #include "OgreEventQueue.h"
 #include "OgrePlatformManager.h"
 #include "OgreInput.h"
+#include "OgreInputEvent.h"
 
 namespace Ogre {    
     EventQueue::EventQueue()

@@ -430,6 +430,8 @@ namespace OgreRefApp
             return false;
         case SceneQuery::WFT_PLANE_BOUNDED_REGION:
             return testCollidePlaneBounds(wf);
+        default:
+            break;
         };
 
         // not handled

@@ -49,7 +49,7 @@ namespace Ogre
         setLength(length);
     }
     //---------------------------------------------------------------------
-    String AnimationState::getAnimationName() const
+    const String& AnimationState::getAnimationName() const
     {
         return mAnimationName;
     }
