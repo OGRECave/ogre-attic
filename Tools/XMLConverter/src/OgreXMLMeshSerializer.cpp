@@ -46,36 +46,43 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void XMLMeshSerializer::importMesh(const String& filename, Mesh* pMesh)
     {
+        LogManager::getSingleton().logMessage("XMLMeshSerializer reading mesh data from " + filename + "...");
         mpMesh = pMesh;
         mXMLDoc = new TiXmlDocument(filename);
         mXMLDoc->LoadFile();
 
         TiXmlElement* elem;
 
+        TiXmlElement* rootElem = mXMLDoc->RootElement();
+
         // materials
-        elem = mXMLDoc->FirstChildElement("materials");
+        elem = rootElem->FirstChildElement("materials");
         if (elem)
             readMaterials(elem);
 
         // shared geometry
-        elem = mXMLDoc->FirstChildElement("sharedgeometry");
+        elem = rootElem->FirstChildElement("sharedgeometry");
         if (elem)
             readGeometry(elem, &mpMesh->sharedGeometry);
 
         // submeshes
-        elem = mXMLDoc->FirstChildElement("submeshes");
+        elem = rootElem->FirstChildElement("submeshes");
         if (elem)
             readSubMeshes(elem);
 
         // skeleton link
-        elem = mXMLDoc->FirstChildElement("skeletonlink");
+        elem = rootElem->FirstChildElement("skeletonlink");
         if (elem)
             readSkeletonLink(elem);
 
         // bone assignments
-        elem = mXMLDoc->FirstChildElement("boneassignments");
+        elem = rootElem->FirstChildElement("boneassignments");
         if (elem)
             readBoneAssignments(elem);
+
+        delete mXMLDoc;
+
+        LogManager::getSingleton().logMessage("XMLMeshSerializer import successful.");
         
     }
     //---------------------------------------------------------------------
@@ -319,7 +326,6 @@ namespace Ogre {
         if (pGeom->hasNormals)
         {
             vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-            vbNode->SetAttribute("count", StringConverter::toString(pGeom->numVertices));
             vbNode->SetAttribute("positions","false");
             vbNode->SetAttribute("normals","true");
             vbNode->SetAttribute("colours","false");
@@ -340,7 +346,6 @@ namespace Ogre {
         if (pGeom->hasColours)
         {
             vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-            vbNode->SetAttribute("count", StringConverter::toString(pGeom->numVertices));
             vbNode->SetAttribute("positions","false");
             vbNode->SetAttribute("normals","false");
             vbNode->SetAttribute("colours","true");
@@ -360,7 +365,6 @@ namespace Ogre {
         for (int t = 0; t < pGeom->numTexCoords; ++t)
         {
             vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-            vbNode->SetAttribute("count", StringConverter::toString(pGeom->numVertices));
             vbNode->SetAttribute("positions","false");
             vbNode->SetAttribute("normals","false");
             vbNode->SetAttribute("colours","false");
@@ -418,7 +422,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readMaterials(TiXmlElement* mMaterialsNode)
     {
-        MaterialManager matMgr = MaterialManager::getSingleton();
+        LogManager::getSingleton().logMessage("Reading material data...");
+
+        MaterialManager& matMgr = MaterialManager::getSingleton();
 
         // All children will be materials
         for (TiXmlElement* matElem = mMaterialsNode->FirstChildElement();
@@ -480,10 +486,14 @@ namespace Ogre {
 
         } // material
 
+        LogManager::getSingleton().logMessage("Material data done.");
+
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readSubMeshes(TiXmlElement* mSubmeshesNode)
     {
+        LogManager::getSingleton().logMessage("Reading submeshes...");
+
         for (TiXmlElement* smElem = mSubmeshesNode->FirstChildElement();
             smElem != 0; smElem = smElem->NextSiblingElement())
         {
@@ -522,10 +532,15 @@ namespace Ogre {
                 readBoneAssignments(boneAssigns, sm);
 
         }
+        LogManager::getSingleton().logMessage("Submeshes done.");
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readGeometry(TiXmlElement* mGeometryNode, GeometryData* pGeom)
     {
+        LogManager::getSingleton().logMessage("Reading geometry...");
+        Real *pPos, *pNorm, *pTex[9];
+        RGBA* pCol;
+
         pGeom->numVertices = StringConverter::parseInt(mGeometryNode->Attribute("count"));
         // Skip empty 
         if (pGeom->numVertices <= 0) return;
@@ -547,6 +562,8 @@ namespace Ogre {
                 pGeom->pVertices = new Real[pGeom->numVertices * 3];
                 // TODO change when we do shared bufs
                 pGeom->vertexStride = 0;
+                pPos = pGeom->pVertices;
+
             }
             attrib = vbElem->Attribute("normals");
             if (attrib && StringConverter::parseBool(attrib))
@@ -555,6 +572,8 @@ namespace Ogre {
                 pGeom->pNormals = new Real[pGeom->numVertices * 3];
                 // TODO change when we do shared bufs
                 pGeom->normalStride = 0;
+                
+                pNorm = pGeom->pNormals;
             }
             attrib = vbElem->Attribute("colours");
             if (attrib && StringConverter::parseBool(attrib))
@@ -563,9 +582,12 @@ namespace Ogre {
                 pGeom->pColours = new RGBA[pGeom->numVertices];
                 // TODO change when we do shared bufs
                 pGeom->colourStride = 0;
+
+                pCol = pGeom->pColours;
+
             }
-            attrib = vbElem->Attribute("texcoords");
-            if (attrib && StringConverter::parseBool(attrib))
+            attrib = vbElem->Attribute("numtexcoords");
+            if (attrib && StringConverter::parseInt(attrib))
             {
                 pGeom->numTexCoords = StringConverter::parseInt(vbElem->Attribute("numtexcoords"));
                 String sets = vbElem->Attribute("texcoordsets");
@@ -583,32 +605,117 @@ namespace Ogre {
                     // TODO change when we do shared bufs
                     pGeom->texCoordStride[set] = 0;
 
+                    pTex[set] = pGeom->pTexCoords[set];
+
                 }
+            } 
 
+            // Now the buffers are set up, parse all the vertices
+            for (TiXmlElement* vertexElem = vbElem->FirstChildElement();
+            vertexElem != 0; vertexElem = vertexElem->NextSiblingElement())
+            {
+                ushort currentSet = 0;
+                // Each vertex can have 1 or more components
+                for (TiXmlElement* cmpElem = vertexElem->FirstChildElement();
+                cmpElem != 0; cmpElem = cmpElem->NextSiblingElement())
+                {
+                    if (!stricmp(cmpElem->Value(), "position"))
+                    {
+                        *pPos++ = StringConverter::parseReal(
+                            cmpElem->Attribute("x"));
+                        *pPos++ = StringConverter::parseReal(
+                            cmpElem->Attribute("y"));
+                        *pPos++ = StringConverter::parseReal(
+                            cmpElem->Attribute("z"));
 
-            }
+                        pPos += pGeom->vertexStride;
+                    }
+                    else if (!stricmp(cmpElem->Value(), "normal"))
+                    {
+                        *pNorm++ = StringConverter::parseReal(
+                            cmpElem->Attribute("x"));
+                        *pNorm++ = StringConverter::parseReal(
+                            cmpElem->Attribute("y"));
+                        *pNorm++ = StringConverter::parseReal(
+                            cmpElem->Attribute("z"));
 
+                        pNorm += pGeom->normalStride;
+                    }
+                    else if (!stricmp(cmpElem->Value(), "texcoord"))
+                    {
+                        *pTex[currentSet]++ = StringConverter::parseReal(
+                            cmpElem->Attribute("u"));
+                        if (pGeom->numTexCoordDimensions[currentSet] > 1)
+                        {
+                            *pTex[currentSet]++ = StringConverter::parseReal(
+                                cmpElem->Attribute("v"));
+                        }
+                        if (pGeom->numTexCoordDimensions[currentSet] > 2)
+                        {
+                            *pTex[currentSet]++ = StringConverter::parseReal(
+                                cmpElem->Attribute("w"));
+                        }
 
+                        pTex[currentSet] += pGeom->texCoordStride[currentSet];
+                        currentSet++;
+                    }
+                    else if (!stricmp(cmpElem->Value(), "colour"))
+                    {
+                        *pCol++ = StringConverter::parseLong(
+                            cmpElem->Attribute("value"));
+                    }
+                }// position / normal / texcoord / colour 
+            } // vertex
+        } // vertexbuffer
 
-
-        }
-
-
+        LogManager::getSingleton().logMessage("Geometry done...");
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readSkeletonLink(TiXmlElement* mSkelNode)
     {
-        // TODO
+        mpMesh->setSkeletonName(mSkelNode->Attribute("name"));
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readBoneAssignments(TiXmlElement* mBoneAssignmentsNode)
     {
-        // TODO
+        LogManager::getSingleton().logMessage("Reading bone assignments...");
+
+        // Iterate over all children (vertexboneassignment entries)
+        for (TiXmlElement* elem = mBoneAssignmentsNode->FirstChildElement();
+        elem != 0; elem = elem->NextSiblingElement())
+        {
+            VertexBoneAssignment vba;
+            vba.vertexIndex = StringConverter::parseInt(
+                elem->Attribute("vertexIndex"));
+            vba.boneIndex = StringConverter::parseInt(
+                elem->Attribute("boneIndex"));
+            vba.weight= StringConverter::parseReal(
+                elem->Attribute("weight"));
+
+            mpMesh->addBoneAssignment(vba);
+        }
+
+        LogManager::getSingleton().logMessage("Bone assignments done.");
     }
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readBoneAssignments(TiXmlElement* mBoneAssignmentsNode, SubMesh* sm)
     {
-        // TODO
+        LogManager::getSingleton().logMessage("Reading bone assignments...");
+        // Iterate over all children (vertexboneassignment entries)
+        for (TiXmlElement* elem = mBoneAssignmentsNode->FirstChildElement();
+        elem != 0; elem = elem->NextSiblingElement())
+        {
+            VertexBoneAssignment vba;
+            vba.vertexIndex = StringConverter::parseInt(
+                elem->Attribute("vertexIndex"));
+            vba.boneIndex = StringConverter::parseInt(
+                elem->Attribute("boneIndex"));
+            vba.weight= StringConverter::parseReal(
+                elem->Attribute("weight"));
+
+            sm->addBoneAssignment(vba);
+        }
+        LogManager::getSingleton().logMessage("Bone assignments done.");
     }
 
 }
