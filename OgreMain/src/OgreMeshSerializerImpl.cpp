@@ -1442,11 +1442,11 @@ namespace Ogre {
             if (!isManual)
             {
                 // unsigned long  numTriangles
-                unsigned long count = static_cast<unsigned long>(edgeData->triangles.size());
-                writeLongs(&count, 1);
+                uint32 count = static_cast<uint32>(edgeData->triangles.size());
+                writeInts(&count, 1);
                 // unsigned long numEdgeGroups
-                count = static_cast<unsigned long>(edgeData->edgeGroups.size());
-                writeLongs(&count, 1);
+                count = static_cast<uint32>(edgeData->edgeGroups.size());
+                writeInts(&count, 1);
                 // Triangle* triangleList
                 // Iterate rather than writing en-masse to allow endian conversion
                 for (EdgeData::TriangleList::const_iterator t = edgeData->triangles.begin();
@@ -1454,22 +1454,22 @@ namespace Ogre {
                 {
                     const EdgeData::Triangle& tri = *t;
                     // unsigned long indexSet; 
-                    unsigned long tmp[3];
+                    uint32 tmp[3];
                     tmp[0] = tri.indexSet;
-                    writeLongs(tmp, 1);
+                    writeInts(tmp, 1);
                     // unsigned long vertexSet;
                     tmp[0] = tri.vertexSet;
-                    writeLongs(tmp, 1);
+                    writeInts(tmp, 1);
                     // unsigned long vertIndex[3];
                     tmp[0] = tri.vertIndex[0];
                     tmp[1] = tri.vertIndex[1];
                     tmp[2] = tri.vertIndex[2];
-                    writeLongs(tmp, 3);
+                    writeInts(tmp, 3);
                     // unsigned long sharedVertIndex[3]; 
                     tmp[0] = tri.sharedVertIndex[0];
                     tmp[1] = tri.sharedVertIndex[1];
                     tmp[2] = tri.sharedVertIndex[2];
-                    writeLongs(tmp, 3);
+                    writeInts(tmp, 3);
                     // Real normal[4];   
                     writeReals(&(tri.normal.x), 4);
 
@@ -1481,30 +1481,30 @@ namespace Ogre {
                     const EdgeData::EdgeGroup& edgeGroup = *gi;
                     writeChunkHeader(M_EDGE_GROUP, calcEdgeGroupSize(edgeGroup));
                     // unsigned long vertexSet
-                    unsigned long vertexSet = static_cast<unsigned long>(edgeGroup.vertexSet);
-                    writeLongs(&vertexSet, 1);
+                    uint32 vertexSet = static_cast<uint32>(edgeGroup.vertexSet);
+                    writeInts(&vertexSet, 1);
                     // unsigned long numEdges
-                    count = static_cast<unsigned long>(edgeGroup.edges.size());
-                    writeLongs(&count, 1);
+                    count = static_cast<uint32>(edgeGroup.edges.size());
+                    writeInts(&count, 1);
                     // Edge* edgeList
                     // Iterate rather than writing en-masse to allow endian conversion
                     for (EdgeData::EdgeList::const_iterator ei = edgeGroup.edges.begin();
                         ei != edgeGroup.edges.end(); ++ei)
                     {
                         const EdgeData::Edge& edge = *ei;
-                        unsigned long tmp[2];
+                        uint32 tmp[2];
                         // unsigned long  triIndex[2]
                         tmp[0] = edge.triIndex[0];
                         tmp[1] = edge.triIndex[1];
-                        writeLongs(tmp, 2);
+                        writeInts(tmp, 2);
                         // unsigned long  vertIndex[2]
                         tmp[0] = edge.vertIndex[0];
                         tmp[1] = edge.vertIndex[1];
-                        writeLongs(tmp, 2);
+                        writeInts(tmp, 2);
                         // unsigned long  sharedVertIndex[2]
                         tmp[0] = edge.sharedVertIndex[0];
                         tmp[1] = edge.sharedVertIndex[1];
-                        writeLongs(tmp, 2);
+                        writeInts(tmp, 2);
                         // bool degenerate
                         writeBools(&(edge.degenerate), 1);
                     }
@@ -1542,33 +1542,33 @@ namespace Ogre {
 
                     usage.edgeData = new EdgeData();
                     // unsigned long numTriangles
-                    unsigned long numTriangles;
-                    readLongs(stream, &numTriangles, 1);
+                    uint32 numTriangles;
+                    readInts(stream, &numTriangles, 1);
                     // Allocate correct amount of memory
                     usage.edgeData->triangles.resize(numTriangles);
                     // unsigned long numEdgeGroups
-                    unsigned long numEdgeGroups;
-                    readLongs(stream, &numEdgeGroups, 1);
+                    uint32 numEdgeGroups;
+                    readInts(stream, &numEdgeGroups, 1);
                     // Allocate correct amount of memory
                     usage.edgeData->edgeGroups.resize(numEdgeGroups);
                     // Triangle* triangleList
-                    unsigned long tmp[3];
+                    uint32 tmp[3];
                     for (size_t t = 0; t < numTriangles; ++t)
                     {
                         EdgeData::Triangle& tri = usage.edgeData->triangles[t];
                         // unsigned long indexSet
-                        readLongs(stream, tmp, 1);
+                        readInts(stream, tmp, 1);
                         tri.indexSet = tmp[0];
                         // unsigned long vertexSet
-                        readLongs(stream, tmp, 1);
+                        readInts(stream, tmp, 1);
                         tri.vertexSet = tmp[0];
                         // unsigned long vertIndex[3]
-                        readLongs(stream, tmp, 3);
+                        readInts(stream, tmp, 3);
                         tri.vertIndex[0] = tmp[0];
                         tri.vertIndex[1] = tmp[1];
                         tri.vertIndex[2] = tmp[2];
                         // unsigned long sharedVertIndex[3] 
-                        readLongs(stream, tmp, 3);
+                        readInts(stream, tmp, 3);
                         tri.sharedVertIndex[0] = tmp[0];
                         tri.sharedVertIndex[1] = tmp[1];
                         tri.sharedVertIndex[2] = tmp[2];
@@ -1577,7 +1577,7 @@ namespace Ogre {
 
                     }
 
-                    for (unsigned long eg = 0; eg < numEdgeGroups; ++eg)
+                    for (uint32 eg = 0; eg < numEdgeGroups; ++eg)
                     {
                         streamID = readChunk(stream);
                         if (streamID != M_EDGE_GROUP)
@@ -1589,26 +1589,26 @@ namespace Ogre {
                         EdgeData::EdgeGroup& edgeGroup = usage.edgeData->edgeGroups[eg];
 
                         // unsigned long vertexSet
-                        readLongs(stream, tmp, 1);
+                        readInts(stream, tmp, 1);
                         edgeGroup.vertexSet = tmp[0];
                         // unsigned long numEdges
-                        unsigned long numEdges;
-                        readLongs(stream, &numEdges, 1);
+                        uint32 numEdges;
+                        readInts(stream, &numEdges, 1);
                         edgeGroup.edges.resize(numEdges);
                         // Edge* edgeList
-                        for (unsigned long e = 0; e < numEdges; ++e)
+                        for (uint32 e = 0; e < numEdges; ++e)
                         {
                             EdgeData::Edge& edge = edgeGroup.edges[e];
                             // unsigned long  triIndex[2]
-                            readLongs(stream, tmp, 2);
+                            readInts(stream, tmp, 2);
                             edge.triIndex[0] = tmp[0];
                             edge.triIndex[1] = tmp[1];
                             // unsigned long  vertIndex[2]
-                            readLongs(stream, tmp, 2);
+                            readInts(stream, tmp, 2);
                             edge.vertIndex[0] = tmp[0];
                             edge.vertIndex[1] = tmp[1];
                             // unsigned long  sharedVertIndex[2]
-                            readLongs(stream, tmp, 2);
+                            readInts(stream, tmp, 2);
                             edge.sharedVertIndex[0] = tmp[0];
                             edge.sharedVertIndex[1] = tmp[1];
                             // bool degenerate
