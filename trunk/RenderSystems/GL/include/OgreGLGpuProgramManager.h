@@ -41,7 +41,7 @@ private:
 
 public:
     GLGpuProgramManager() {}
-    ~GLGpuProgramManager() {}
+    ~GLGpuProgramManager();
     GpuProgramParametersSharedPtr createParameters(void);
     bool registerProgramFactory(const String& syntaxCode, CreateGpuProgramCallback createFn);
     bool unregisterProgramFactory(const String& syntaxCode);
