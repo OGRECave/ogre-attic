@@ -124,10 +124,19 @@
 			<File
 				RelativePath="..\misc\OgreXSIExport.def">
 			</File>
+			<File
+				RelativePath="..\src\OgreXSIMeshExporter.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath="..\include\OgreXSIHelper.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreXSIMeshExporter.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
