@@ -986,7 +986,6 @@ void SceneManager::setSkyPlane(
                                int xsegments, int ysegments, 
                                const String& groupName)
 {
-    mSkyPlaneEnabled = enable;
     if (enable)
     {
         String meshName = "SkyPlane";
@@ -1057,6 +1056,7 @@ void SceneManager::setSkyPlane(
         mSkyPlaneNode->attachObject(mSkyPlaneEntity);
 
     }
+	mSkyPlaneEnabled = enable;
 }
 //-----------------------------------------------------------------------
 void SceneManager::setSkyBox(
@@ -1067,7 +1067,6 @@ void SceneManager::setSkyBox(
                              const Quaternion& orientation,
                              const String& groupName)
 {
-    mSkyBoxEnabled = enable;
     if (enable)
     {
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
@@ -1139,7 +1138,7 @@ void SceneManager::setSkyBox(
         } // for each plane
 
     }
-
+	mSkyBoxEnabled = enable;
 }
 //-----------------------------------------------------------------------
 void SceneManager::setSkyDome(
@@ -1153,14 +1152,13 @@ void SceneManager::setSkyDome(
                               int xsegments, int ysegments, int ySegmentsToKeep,
                               const String& groupName)
 {
-    mSkyDomeEnabled = enable;
     if (enable)
     {
         MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
         if (m.isNull())
         {
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-                "Sky dome material '" + materialName + " not found.",
+                "Sky dome material '" + materialName + "' not found.",
                 "SceneManager::setSkyDome");
         }
         // Make sure the material doesn't update the depth buffer
@@ -1204,6 +1202,7 @@ void SceneManager::setSkyDome(
         } // for each plane
 
     }
+	mSkyDomeEnabled = enable;
 }
 //-----------------------------------------------------------------------
 MeshPtr SceneManager::createSkyboxPlane(
