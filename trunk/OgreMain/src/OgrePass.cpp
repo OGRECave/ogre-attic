@@ -587,12 +587,12 @@ namespace Ogre {
 		return mFragmentProgramUsage->getProgram();
 	}
 	//-----------------------------------------------------------------------
-    bool Pass::isLoaded(void)
+    bool Pass::isLoaded(void) const
     {
         return mParent->isLoaded();
     }
 	//-----------------------------------------------------------------------
-    unsigned long Pass::getHash(void)
+    unsigned long Pass::getHash(void) const
     {
         return mHash;
     }
@@ -614,9 +614,9 @@ namespace Ogre {
         size_t c = getNumTextureUnitStates();
 
         if (c)
-            mHash += (H(mTextureUnitStates[0]->getTextureName()) % (2^14)) << 14;
+            mHash += (H(mTextureUnitStates[0]->getTextureName()) % (1 << 14)) << 14;
         if (c > 1)
-            mHash += (H(mTextureUnitStates[1]->getTextureName()) % (2^14));
+            mHash += (H(mTextureUnitStates[1]->getTextureName()) % (1 << 14));
     }
 
     //-----------------------------------------------------------------------
