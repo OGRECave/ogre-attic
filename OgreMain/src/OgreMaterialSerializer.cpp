@@ -1595,6 +1595,7 @@ namespace Ogre
 		// Create new program definition-in-progress
 		context.programDef = new MaterialScriptProgramDefinition();
 		context.programDef->progType = GPT_FRAGMENT_PROGRAM;
+		context.programDef->supportsSkeletalAnimation = false;
 
 		// Get name and language code
 		StringVector vecparams = params.split(" \t");
