@@ -45,6 +45,7 @@ void GLXGLSupport::addConfig(void) {
 	ConfigOption optFullScreen;
 	ConfigOption optVideoMode;
 	ConfigOption optBitDepth;
+    ConfigOption optFSAA;
 
 	// FS setting possiblities
 	optFullScreen.name = "Full Screen";
@@ -58,7 +59,7 @@ void GLXGLSupport::addConfig(void) {
 	optVideoMode.immutable = false;
 
 	// We could query Xrandr here, but that wouldn't work in the non-fullscreen case
-	// or when that extension is disables. Anyway, this list of modes is fairly
+	// or when that extension is disabled. Anyway, this list of modes is fairly
 	// complete.
 	optVideoMode.possibleValues.push_back("640 x 480");
 	optVideoMode.possibleValues.push_back("800 x 600");
@@ -69,9 +70,19 @@ void GLXGLSupport::addConfig(void) {
 
 	optVideoMode.currentValue = "800 x 600";
 
+    //FSAA possibilities
+    optFSAA.name = "FSAA";
+    optFSAA.possibleValues.push_back("0");
+    optFSAA.possibleValues.push_back("2");
+    optFSAA.possibleValues.push_back("4");
+    optFSAA.possibleValues.push_back("6");
+    optFSAA.currentValue = "0";
+    optFSAA.immutable = false;
+
+
 	mOptions[optFullScreen.name] = optFullScreen;
 	mOptions[optVideoMode.name] = optVideoMode;
-
+    mOptions[optFSAA.name] = optFSAA;
 }
 
 String GLXGLSupport::validateConfig(void) {
@@ -95,6 +106,14 @@ RenderWindow* GLXGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
 
 		unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
 		unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
+
+        // Parse FSAA config
+        int fsaa_x_samples = 0;
+        opt = mOptions.find("FSAA");
+        if(opt != mOptions.end())
+        {
+            fsaa_x_samples = StringConverter::parseInt(opt->second.currentValue);
+        }
 
 		// Make sure the window is centered
 		int screen = DefaultScreen(mDisplay);

@@ -74,8 +74,8 @@ namespace Ogre {
         mFormat = pf;
         // This should probably change with new texture access methods, but
         // no changes made for now
-        mSrcBpp = Image::PF2BPP(mFormat);
-        mHasAlpha = Image::formatHasAlpha(mFormat);
+        mSrcBpp = PixelUtil::getNumElemBytes(mFormat);
+        mHasAlpha = PixelUtil::getFlags(mFormat) & PFF_HASALPHA;
     }
     //--------------------------------------------------------------------------
 	size_t Texture::calculateSize(void) const

@@ -248,7 +248,7 @@ namespace Ogre {
             (newWidth != mSrcWidth || newHeight != mSrcHeight))
         {
             unsigned int newImageSize = newWidth * newHeight * 
-                Image::getNumElemBytes(mFormat);
+                PixelUtil::getNumElemBytes(mFormat);
 
             pTempData = new uchar[ newImageSize ];
 
@@ -323,7 +323,7 @@ namespace Ogre {
 
             mFormat = img.getFormat();
 
-            mSrcBpp = Image::PF2BPP(mFormat);
+            mSrcBpp = PixelUtil::getNumElemBytes(mFormat);
             mHasAlpha = img.getHasAlpha();
 
             mSrcWidth = img.getWidth();
@@ -335,7 +335,7 @@ namespace Ogre {
 
 			// Never *generate* mipmaps for floating point textures. This is buggy in current
 			// GLU implementations
-			if(Image::formatIsFloat(mFormat))
+			if(PixelUtil::getFlags(mFormat) & PFF_FLOAT)
 				mNumMipMaps = 0;
 
 			// The custom mipmaps in the image have priority over everything
@@ -351,7 +351,7 @@ namespace Ogre {
         }
 
         // Update size (the final size, not including temp space)
-        mSize = mWidth * mHeight * Image::getNumElemBytes(mFormat);
+        mSize = mWidth * mHeight * PixelUtil::getNumElemBytes(mFormat);
 
         mIsLoaded = true;     
     }
