@@ -1273,11 +1273,11 @@ namespace Ogre {
         mDestRenderSystem->setStencilBufferParams();
         mDestRenderSystem->setStencilCheckEnabled(false);
 
-		// Iterate again
-		groupIt = pGroup->getIterator();
-		while (groupIt.hasMoreElements())
+		// Iterate again - variable name changed to appease gcc.
+        RenderQueueGroup::PriorityMapIterator groupIt2 = pGroup->getIterator();
+		while (groupIt2.hasMoreElements())
 		{
-			RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+			RenderPriorityGroup* pPriorityGrp = groupIt2.getNext();
 
 			// Do transparents
 			renderObjects(pPriorityGrp->mTransparentPasses, true);
