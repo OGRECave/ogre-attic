@@ -576,6 +576,10 @@ namespace Ogre {
             for (int oi = 0; oi < numObjects; ++oi, ++a)
             {
                 const MovableObject* aObj = *a;
+                // Skip this object if collision not enabled
+                if (!(aObj->getQueryFlags() & mQueryMask))
+                    continue;
+
                 if (oi < (numObjects-1))
                 {
                     // Check object against others in this node
@@ -583,9 +587,8 @@ namespace Ogre {
                     for (++b; b != theEnd; ++b)
                     {
                         const MovableObject* bObj = *b;
-                        // Apply mask (both must pass)
-                        if ( (aObj->getQueryFlags() & mQueryMask) && 
-                            (bObj->getQueryFlags() & mQueryMask))
+                        // Apply mask to b (both must pass)
+                        if ( bObj->getQueryFlags() & mQueryMask)
                         {
                             const AxisAlignedBox& box1 = aObj->getWorldBoundingBox();
                             const AxisAlignedBox& box2 = bObj->getWorldBoundingBox();
