@@ -47,7 +47,7 @@ namespace Ogre {
         /// Image containing the source heightmap if loaded from non-RAW
         Image mImage;
         /// Arbitrary data loaded from RAW
-        SDDataChunk mRawData;
+        MemoryDataStreamPtr mRawData;
         /// The (single) terrain page this source will provide
         TerrainPage* mPage;
         /// Source file name

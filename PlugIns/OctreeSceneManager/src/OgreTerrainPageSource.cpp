@@ -73,7 +73,7 @@ namespace Ogre {
 	TerrainPageSource::TerrainPageSource() : mSceneManager(0), mAsyncLoading(false) {
 	}
 	//-------------------------------------------------------------------------
-	TerrainPage* TerrainPageSource::buildPage(Real* heightData, MaterialPtr& pMaterial)
+	TerrainPage* TerrainPageSource::buildPage(Real* heightData, const MaterialPtr& pMaterial)
     {
         String name;
 

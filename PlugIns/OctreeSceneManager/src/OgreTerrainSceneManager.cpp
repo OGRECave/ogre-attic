@@ -261,7 +261,7 @@ namespace Ogre
             // define our own material
             mOptions.terrainMaterial = 
                 MaterialManager::getSingleton().getByName(TERRAIN_MATERIAL_NAME);
-            if (!mOptions.terrainMaterial)
+            if (mOptions.terrainMaterial.isNull())
             {
                 mOptions.terrainMaterial = MaterialManager::getSingleton().create(
                     "TerrainSceneManager/Terrain",
@@ -288,7 +288,7 @@ namespace Ogre
 
             if (mOptions.lodMorph && 
                 mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM) &&
-				GpuProgramManager::getSingleton().getByName("Terrain/VertexMorph") == 0)
+				GpuProgramManager::getSingleton().getByName("Terrain/VertexMorph").isNull())
             {
                 // Create & assign LOD morphing vertex program
                 String syntax;
@@ -306,8 +306,9 @@ namespace Ogre
                 const String& source = TerrainVertexProgram::getProgramSource(
                     fm, syntax);
 
-                GpuProgram* prog = GpuProgramManager::getSingleton().createProgramFromString(
-                    "Terrain/VertexMorph", source, GPT_VERTEX_PROGRAM, syntax);
+                GpuProgramPtr prog = GpuProgramManager::getSingleton().createProgramFromString(
+                    "Terrain/VertexMorph", ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME, 
+                    source, GPT_VERTEX_PROGRAM, syntax);
 
                 // Attach
                 pass->setVertexProgram("Terrain/VertexMorph");

@@ -103,7 +103,7 @@ namespace Ogre
             lodMorphStart = 0.5;
             useTriStrips = false;
             primaryCamera = 0;
-            terrainMaterial = 0;
+            terrainMaterial.setNull();
         };
         /// The size of one edge of a terrain page, in vertices
         size_t pageSize;
@@ -261,7 +261,7 @@ namespace Ogre
         }
 
 
-        void setMaterial(MaterialPtr& m )
+        void setMaterial(const MaterialPtr& m )
         {
             mMaterial = m;
         };
