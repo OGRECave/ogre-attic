@@ -23,8 +23,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D9VideoModeList.h"
-
-#include "OgreLogManager.h"
 #include "OgreException.h"
 
 namespace Ogre 
@@ -125,5 +123,20 @@ namespace Ogre
 		std::vector<D3D9VideoMode>::iterator p = mModeList.begin();
 
 		return &p[index];
+	}
+
+	D3D9VideoMode* D3D9VideoModeList::item( const String &name )
+	{
+		std::vector<D3D9VideoMode>::iterator it = mModeList.begin();
+		if (it == mModeList.end())
+			return NULL;
+
+		for (;it != mModeList.end(); ++it)
+		{
+			if (it->getDescription() == name)
+				return it;
+		}
+
+		return NULL;
 	}
 }

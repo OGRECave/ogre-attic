@@ -104,10 +104,6 @@ PostBuild_Cmds=copy ..\bin\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=..\include\dxutil.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreD3D9Driver.cpp
 # End Source File
 # Begin Source File
@@ -121,6 +117,22 @@ SOURCE=..\src\OgreD3D9DriverList.cpp
 # Begin Source File
 
 SOURCE=..\include\OgreD3D9DriverList.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreD3D9HWBuffers.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9HWBuffers.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreD3D9Mappings.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9Mappings.h
 # End Source File
 # Begin Source File
 

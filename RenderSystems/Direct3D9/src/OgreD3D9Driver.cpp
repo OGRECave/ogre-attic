@@ -23,10 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D9Driver.h"
-#include "OgreLogManager.h"
 #include "OgreD3D9VideoModeList.h"
 #include "OgreD3D9VideoMode.h"
-#include "dxutil.h"
 
 namespace Ogre 
 {
@@ -43,7 +41,6 @@ namespace Ogre
 	{
 		tempNo = ++driverCount;
 		mpD3D = ob.mpD3D;
-		mpD3D->AddRef();
 		mAdapterNumber = ob.mAdapterNumber;
 		mAdapterIdentifier = ob.mAdapterIdentifier;
 		mDesktopDisplayMode = ob.mDesktopDisplayMode;
@@ -54,7 +51,6 @@ namespace Ogre
 	{
 		tempNo = ++driverCount;
 		mpD3D = pD3D;
-		mpD3D->AddRef();
 		mAdapterNumber = adapterNumber;
 		mAdapterIdentifier = adapterIdentifier;
 		mDesktopDisplayMode = desktopDisplayMode;
@@ -64,8 +60,6 @@ namespace Ogre
 	D3D9Driver::~D3D9Driver()
 	{
 		SAFE_DELETE( mpVideoModeList );
-		SAFE_RELEASE( mpD3D );
-
 		driverCount--;
 	}
 

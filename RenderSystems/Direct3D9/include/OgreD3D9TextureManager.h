@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __D3D9TEXTUREMANAGER_H__
 
 #include "OgreD3D9Prerequisites.h"
-
 #include "OgreTextureManager.h"
 
 #include "OgreNoMemoryMacros.h"
@@ -45,10 +44,10 @@ namespace Ogre
 		~D3D9TextureManager();
 
 		/// Creates a D3D9Texture resource
-		virtual Texture * create( const String& name, TextureType texType );
-		virtual Texture * createAsRenderTarget( const String& name );
+		virtual Texture *create( const String& name, TextureType texType );
+		virtual Texture *createAsRenderTarget( const String& name );
 
-		virtual Texture * createManual( 
+		virtual Texture *createManual( 
 			const String & name,
             TextureType texType,
 			uint width,

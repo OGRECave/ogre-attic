@@ -23,11 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreD3D9DriverList.h"
-
 #include "OgreLogManager.h"
 #include "OgreException.h"
-
-#include "dxutil.h"
 
 namespace Ogre 
 {
@@ -35,20 +32,17 @@ namespace Ogre
 	{
 		if( !mpD3D )
 			Except( Exception::ERR_INVALIDPARAMS, "Direct3D9 interface pointer is NULL", "D3D9DriverList::D3D9DriverList" );
-		mpD3D->AddRef();
-
 		enumerate();
 	}
 
 	D3D9DriverList::~D3D9DriverList(void)
 	{
 		mDriverList.clear();
-		SAFE_RELEASE( mpD3D );
 	}
 
 	BOOL D3D9DriverList::enumerate()
 	{
-		LogManager::getSingleton().logMessage( "--- Direct3D9 Driver Detection Starts" );
+		LogManager::getSingleton().logMessage( "D3D9 : Driver Detection Starts" );
 		for( UINT iAdapter=0; iAdapter < mpD3D->GetAdapterCount(); iAdapter++ )
 		{
 			D3DADAPTER_IDENTIFIER9 adapterIdentifier;
@@ -59,7 +53,7 @@ namespace Ogre
 			mDriverList.push_back( D3D9Driver( mpD3D, iAdapter, adapterIdentifier, d3ddm ) );
 		}
 
-		LogManager::getSingleton().logMessage( "--- Direct3D9 Driver Detection Ends" );
+		LogManager::getSingleton().logMessage( "D3D9 : Driver Detection Ends" );
 
 		return TRUE;
 	}
@@ -72,5 +66,20 @@ namespace Ogre
 	D3D9Driver* D3D9DriverList::item( int index )
 	{
 		return &mDriverList.at( index );
+	}
+
+	D3D9Driver* D3D9DriverList::item( const String &name )
+	{
+		std::vector<D3D9Driver>::iterator it = mDriverList.begin();
+		if (it == mDriverList.end())
+			return NULL;
+
+		for (;it != mDriverList.end(); ++it)
+		{
+			if (it->DriverDescription() == name)
+				return it;
+		}
+
+		return NULL;
 	}
 }

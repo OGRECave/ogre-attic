@@ -22,13 +22,9 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
 #include "OgreD3D9TextureManager.h"
 #include "OgreD3D9Texture.h"
-
 #include "OgreException.h"
-
-#include "dxutil.h"
 
 namespace Ogre 
 {
@@ -36,35 +32,32 @@ namespace Ogre
 	{
 		mpD3DDevice = pD3DDevice;
 		if( !mpD3DDevice )
-			Except( 999, "Invalid Direct3DDevice passed", "D3D9TextureManager::D3D9TextureManager" );
-
-		mpD3DDevice->AddRef();
+			Except( Exception::ERR_INVALIDPARAMS, "Invalid Direct3DDevice passed", "D3D9TextureManager::D3D9TextureManager" );
 	}
 
 	D3D9TextureManager::~D3D9TextureManager()
 	{
 		this->unloadAndDestroyAll();
-		SAFE_RELEASE( mpD3DDevice );
 	}
 
-	Texture* D3D9TextureManager::create( const String& name, TextureType texType )
+	Texture *D3D9TextureManager::create( const String& name, TextureType texType )
 	{
-		D3D9Texture* t = new D3D9Texture( name, texType, mpD3DDevice, TU_DEFAULT );
+		D3D9Texture *t = new D3D9Texture( name, texType, mpD3DDevice, TU_DEFAULT );
 		t->enable32Bit( mIs32Bit );
 		return t;
 	}
 
-	Texture * D3D9TextureManager::createAsRenderTarget( const String& name )
+	Texture *D3D9TextureManager::createAsRenderTarget( const String& name )
 	{
-		D3D9Texture * newTex = new D3D9Texture( name, TEX_TYPE_2D, mpD3DDevice, TU_RENDERTARGET  );
+		D3D9Texture *newTex = new D3D9Texture( name, TEX_TYPE_2D, mpD3DDevice, TU_RENDERTARGET  );
 		newTex->enable32Bit( mIs32Bit );
 		newTex->load();
 		return newTex;
 	}
 
-	Texture * D3D9TextureManager::createManual( 
+	Texture *D3D9TextureManager::createManual( 
 		const String & name,
-        TextureType texType,
+		TextureType texType,
 		uint width,
 		uint height,
 		uint num_mips,

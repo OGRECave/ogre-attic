@@ -25,13 +25,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __D3D9RENDERSYSTEM_H__
 #define __D3D9RENDERSYSTEM_H__
 
-// Precompiler options
 #include "OgreD3D9Prerequisites.h"
 #include "OgreString.h"
-
+#include "OgreStringConverter.h"
 #include "OgreRenderSystem.h"
+#include "OgreD3D9HWBuffers.h"
+#include "OgreD3D9Mappings.h"
 
-// Include D3D files
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
 #include <d3dx9.h>
@@ -40,20 +40,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
+#define MAX_LIGHTS 8
+#define D3D_MAX_DECLSIZE 26
+
 	class D3D9DriverList;
 	class D3D9Driver;
-
-	struct HardwareVertexBuffer
-	{
-		LPDIRECT3DVERTEXBUFFER9 buffer;
-		UINT count;
-	};
-
-	struct HardwareIndexBuffer
-	{
-		LPDIRECT3DINDEXBUFFER9 buffer;
-		UINT count;
-	};
 
 	/**
 	Implementation of DirectX9 as a rendering system.
@@ -61,54 +52,59 @@ namespace Ogre
 	class D3D9RenderSystem : public RenderSystem
 	{
 	private:
-		// Direct3D rendering device
-		// Only created after top-level window created
+		/// Direct3D
 		LPDIRECT3D9			mpD3D;
+		/// Direct3D rendering device
 		LPDIRECT3DDEVICE9	mpD3DDevice;
 		
-		//full-screen multisampling, anti aliasing quality
-		DWORD mMultiSampleQuality;
-		//external window handle ;)
+		/// dynamic vertex buffers manager
+		D3D9DynVBManager *mDVBMgr;
+		/// dynamic index buffers manager
+		D3D9DynIBManager *mDIBMgr;
+
+		// Stored options
+		ConfigOptionMap mOptions;
+
+        /// wait for vsync
+		bool mVSync;
+		/// full-screen multisampling antialiasing type
+		D3DMULTISAMPLE_TYPE mFSAAType;
+		/// full-screen multisampling antialiasing level
+		DWORD mFSAAQuality;
+
+		/// external window handle ;)
 		HWND mExternalHandle;
+		/// instance
+		HINSTANCE mhInstance;
 
-		// List of D3D drivers installed (video cards)
-		// Enumerates itself
+		/// List of D3D drivers installed (video cards)
 		D3D9DriverList* mDriverList;
-		// Currently active driver
+		/// Currently active driver
 		D3D9Driver* mActiveD3DDriver;
-
+		/// Device caps.
 		D3DCAPS9 mCaps;
 
-		BYTE* mpRenderBuffer;
-		DWORD mRenderBufferSize;
-
-		// Vertex buffers.  Currently for rendering we need to place all the data
-		// that we receive into one of the following vertex buffers (one for each 
-		// component type).
-		HardwareVertexBuffer mpXYZBuffer;
-		HardwareVertexBuffer mpNormalBuffer;
-		HardwareVertexBuffer mpDiffuseBuffer;
-		HardwareVertexBuffer mpSpecularBuffer;
-		HardwareVertexBuffer mpTextures[OGRE_MAX_TEXTURE_LAYERS][4]; // max 8 textures with max 4 units per texture
-		UINT mStreamsInUse;
-		HardwareIndexBuffer mpIndicies;
+		/// structure holding texture unit settings for every stage
+		struct sD3DTextureStageDesc
+		{
+			/// the type of the texture
+			D3D9Mappings::eD3DTexType texType;
+			/// wich texCoordIndex to use
+			int coordIndex;
+			/// type of auto tex. calc. used
+			TexCoordCalcMethod autoTexCoordType;
+			/// texture 
+			IDirect3DBaseTexture9 *pTex;
+		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
 
 		// With a quick bit of adding up, I cannot see our vertex shader declaration being larger then 26 items
-#define D3D_MAX_DECLSIZE 26
 		D3DVERTEXELEMENT9 mCurrentDecl[D3D_MAX_DECLSIZE];
-		
 		LPDIRECT3DVERTEXDECLARATION9 mpCurrentVertexDecl;
 
 		// Array of up to 8 lights, indexed as per API
 		// Note that a null value indeicates a free slot
-#define MAX_LIGHTS 8
 		Light* mLights[MAX_LIGHTS];
 
-		HINSTANCE mhInstance;
-
-		// Stored options
-		ConfigOptionMap mOptions;
-		
 		D3D9DriverList* getDirect3DDrivers(void);
 		void refreshD3DSettings(void);
 
@@ -123,59 +119,97 @@ namespace Ogre
 		void processInputDevices(void);
 		void setD3D9Light( int index, Light* light );
 		
-#ifdef _DEBUG
-		void DumpBuffer( BYTE* pBuffer, DWORD vertexFormat, unsigned int numVertices, unsigned int stride );
-#endif
-
-		D3DCMPFUNC convertCompareFunction(CompareFunction func);
-		D3DSTENCILOP convertStencilOp(StencilOperation op);
-
+		// state management methods, very primitive !!!
 		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
 		HRESULT __SetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD value);
 		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
 
-		DWORD _getMipFilter(const TextureFilterOptions fo);
-		DWORD _getMagFilter(const TextureFilterOptions fo);
-		DWORD _getMinFilter(const TextureFilterOptions fo);
+		/// return anisotropy level
 		DWORD _getCurrentAnisotropy(int unit);
+		/// check if a FSAA is supported
+		bool _checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
+		/// set FSAA
+		void _setFSAA(D3DMULTISAMPLE_TYPE type, DWORD qualityLevel);
+		
+		/// findout if a tex. stage use the coord.index specified
+		bool _isCoordIndexInUse(int index)
+		{
+			for (int n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
+			{
+				if (mTexStageDesc[n].pTex > 0 &&
+					mTexStageDesc[n].autoTexCoordType == TEXCALC_NONE &&
+					mTexStageDesc[n].coordIndex == index)
+					return true;
+			}
+			return false;
+		}
+
+		/// return the D3D tex.coord.dim FVF ID for a tex.coord.dim.
+		D3DDECLTYPE _texCoordDimToDeclType(int coordDim)
+		{
+			D3DDECLTYPE ret;
+			switch (coordDim)
+			{
+			case 1:
+				ret = D3DDECLTYPE_FLOAT1;
+				break;
+			case 2:
+				ret = D3DDECLTYPE_FLOAT2;
+				break;
+			case 3:
+				ret = D3DDECLTYPE_FLOAT3;
+				break;
+			case 4:
+				ret = D3DDECLTYPE_FLOAT4;
+				break;
+			default:
+				Except( Exception::ERR_INVALIDPARAMS, "Invalid tex.coord.dimensions", "D3D9RenderSystem::_texCoordDimToDeclType" );
+				break;
+			}
+			return ret;
+		}
 
 	public:
+		// constructor
+		D3D9RenderSystem( HINSTANCE hInstance );
+		// destructor
+		~D3D9RenderSystem();
+
 		// method for resizing/repositing the render window
  		virtual ResizeRepositionWindow(HWND wich);
 		// method for setting external window hwnd
 		void SetExternalWindowHandle(HWND externalHandle){mExternalHandle = externalHandle;};
-		// method for setting fullscreen multisampling quality
-		// must be used before window creation
-		void setFullScreenMultiSamplingPasses(DWORD numPasses);
 
-		D3D9RenderSystem( HINSTANCE hInstance );
-		~D3D9RenderSystem();
-
-		// ------------------------------------------
 		// Overridden RenderSystem functions
-		// ------------------------------------------
-		const String& getName(void) const;
 		ConfigOptionMap& getConfigOptions(void);
-		void setConfigOption( const String &name, const String &value );
 		String validateConfigOptions(void);
 		RenderWindow* initialise( bool autoCreateWindow );
+		RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth, bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true, RenderWindow* parentWindowHandle = 0);
+		RenderTexture * createRenderTexture( const String & name, int width, int height );
+		String getErrorDescription( long errorNumber );
+		const String& getName(void) const;
+        void setTextureFiltering( TextureFilterOptions fo );
+		// Low-level overridden members
+		void setConfigOption( const String &name, const String &value );
 		void reinitialise();
 		void shutdown();
 		void startRendering();
 		void setAmbientLight( float r, float g, float b );
 		void setShadingType( ShadeOptions so );
-		void setTextureFiltering( TextureFilterOptions fo );
 		void setLightingEnabled( bool enabled );
-		RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
-			bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
-			RenderWindow* parentWindowHandle = 0);
-		RenderTexture * createRenderTexture( const String & name, int width, int height );
 		void destroyRenderWindow( RenderWindow* pWin );
-		String getErrorDescription( long errorNumber );
 		void convertColourValue( const ColourValue& colour, unsigned long* pDest );
-		// ------------------------------------------
-		// Low-level overridden members
-		// ------------------------------------------
+		void setStencilCheckEnabled(bool enabled);
+		void setStencilBufferFunction(CompareFunction func);
+		void setStencilBufferReferenceValue(ulong refValue);
+		void setStencilBufferMask(ulong mask);
+		void setStencilBufferFailOperation(StencilOperation op);
+		void setStencilBufferDepthFailOperation(StencilOperation op);
+		void setStencilBufferPassOperation(StencilOperation op);
+		bool hasHardwareStencil(void);
+		ushort getStencilBufferBitDepth(void);
+
+		// Low-level overridden members, mainly for internal use
 		void _addLight( Light* lt );
 		void _removeLight( Light* lt );
 		void _modifyLight( Light* lt );
@@ -185,12 +219,10 @@ namespace Ogre
 		void _setWorldMatrix( const Matrix4 &m );
 		void _setViewMatrix( const Matrix4 &m );
 		void _setProjectionMatrix( const Matrix4 &m );
-		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular,
-			const ColourValue &emissive, Real shininess );
-		unsigned short _getNumTextureUnits(void);
+		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular, const ColourValue &emissive, Real shininess );
 		void _setTexture( int unit, bool enabled, const String &texname );
-		void _setTextureCoordSet( int stage, int index );
-		void _setTextureCoordCalculation( int stage, TexCoordCalcMethod m );
+        void _setTextureCoordSet( int stage, int index );
+        void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
 		void _setTextureBlendMode( int stage, const LayerBlendModeEx& bm );
 		void _setTextureAddressingMode( int stage, Material::TextureLayer::TextureAddressingMode tam );
 		void _setTextureMatrix( int stage, const Matrix4 &xform );
@@ -205,61 +237,14 @@ namespace Ogre
 		void _setDepthBufferCheckEnabled( bool enabled = true );
 		void _setDepthBufferWriteEnabled(bool enabled = true);
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
-	/** See
-		RenderSystem
-		*/
 		void _setDepthBias(ushort bias);
 		void _setFog( FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
 		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
 		void _setRasterisationMode(SceneDetailLevel level);
-		/** See
-		RenderSystem
-		*/
-		void setStencilCheckEnabled(bool enabled);
-		/** See
-		RenderSystem
-		*/
-		bool hasHardwareStencil(void);
-		/** See
-		RenderSystem
-		*/
-		ushort getStencilBufferBitDepth(void);
-		/** See
-		RenderSystem
-		*/
-		void setStencilBufferFunction(CompareFunction func);
-		/** See
-		RenderSystem
-		*/
-		void setStencilBufferReferenceValue(ulong refValue);
-		/** See
-		RenderSystem
-		*/
-		void setStencilBufferMask(ulong mask);
-		/** See
-		RenderSystem
-		*/
-		void setStencilBufferFailOperation(StencilOperation op);
-		/** See
-		RenderSystem
-		*/
-		void setStencilBufferDepthFailOperation(StencilOperation op);
-		/** See
-		RenderSystem
-		*/
-		void setStencilBufferPassOperation(StencilOperation op);
-        /** See
-          RenderSystem
-         */
+        void _setAnisotropy(int maxAnisotropy);
 		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
-        /** See
-          RenderSystem
-         */
-		void _setAnisotropy(int maxAnisotropy);
-        /** See
-          RenderSystem
-         */
 		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
+		unsigned short _getNumTextureUnits(void);
 	};
 }
 #endif

@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __D3D9DRIVERLIST_H__
 
 #include "OgreD3D9Prerequisites.h"
-
 #include "OgreD3D9Driver.h"
 
 #include "OgreNoMemoryMacros.h"
@@ -48,6 +47,8 @@ namespace Ogre
 		BOOL enumerate();
 		unsigned int count() const;
 		D3D9Driver* item( int index );
+
+		D3D9Driver* item( const String &name );
 	};
 }
 #endif

@@ -25,15 +25,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __D3D9RENDERWINDOW_H__
 #define __D3D9RENDERWINDOW_H__
 
-// Precompiler options
 #include "OgreD3D9Prerequisites.h"
-
 #include "OgreRenderWindow.h"
 #include "OgreD3D9Driver.h"
-
-#include "OgreNoMemoryMacros.h"
-//#include "d3dfont.h"
-#include "OgreMemoryMacros.h"
 
 namespace Ogre 
 {
@@ -65,8 +59,6 @@ namespace Ogre
 		void writeContentsToFile(const String& filename);
 		bool requiresTextureFlipping() const { return false; }
 
-		// Method for getting multisample (anti aliasing) quality currently in use
-		DWORD getMultiSampleQuality(){return mMultiSampleQuality;};
 		// Method for dealing with resize / move & 3d library
 		void WindowMovedOrResized(void);
 		// Method for passing a external window handle before creation ;)
@@ -83,7 +75,6 @@ namespace Ogre
 		bool	mActive;				// Is active i.e. visible
 		bool	mReady;					// Is ready i.e. available for update
 		bool	mClosed;
-		DWORD	mMultiSampleQuality;
 
 		static LRESULT CALLBACK WndProc(
 			HWND hWnd,
@@ -105,7 +96,7 @@ namespace Ogre
 		LPDIRECT3DSURFACE9 mpRenderZBuffer;
 
 		// just check if the multisampling requested is supported by the device
-		bool _checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT fBack, D3DFORMAT fDepth, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
+		bool _checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
 	};
 }
 #endif
