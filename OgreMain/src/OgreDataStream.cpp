@@ -319,21 +319,40 @@ namespace Ogre {
 		{
 			trimCR = true;
 		}
-        mpStream->getline(buf, maxCount, delim.at(0));
+        // maxCount + 1 since count excludes terminator in getline
+        mpStream->getline(buf, maxCount+1, delim.at(0));
         size_t ret = mpStream->gcount();
 
+        if (mpStream->fail())
+        {
+            // Did we fail because of maxCount hit?
+            if (ret == maxCount)
+            {
+                // clear failbit for next time 
+                mpStream->clear();
+            }
+            else if (mpStream->eof())
+            {
+                // that's ok too
+            }
+            else
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, 
+                    "Streaming error occurred", 
+                    "FileStreamDataStream::readLine");
+            }
+        }
 		if (!ret)
         {
             buf[1] = '\0';
         }
         else
         {
-            --ret; // gcount returns count including separator
             // trim off CR if we found CR/LF
-		    if (trimCR && buf[ret-1] == '\r')
+		    if (trimCR && buf[ret] == '\r')
 		    {
 			    --ret;
-			    buf[ret] = '\0';
+			    buf[ret+1] = '\0';
 		    }
         }
 
