@@ -28,6 +28,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreException.h"
+#include "OgreOofModelFile.h"
+#include "OgreMaterialManager.h"
+#include "OgreLogManager.h"
 
 
 namespace Ogre {
@@ -38,7 +41,6 @@ namespace Ogre {
     MeshSerializer::MeshSerializer()
     {
         mpMesh = 0;
-        mShouldDelete = true;
 
         // Version number
         mVersion = "[MeshSerializer v1.00]";
@@ -46,65 +48,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     MeshSerializer::~MeshSerializer()
     {
-        freeMemory();
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::freeMemory(void)
+    void MeshSerializer::export(const Mesh* pMesh, const String& filename, bool includeMaterials)
     {
-        if (mpMesh && mShouldDelete)
-        {
-            delete mpMesh;
-            mpMesh = 0;
-        }
-
-        // Init materials
-        MaterialMap::iterator i;
-        for (i = mMaterialList.begin(); i != mMaterialList.end(); ++i)
-        {
-            delete i->second;
-        }
-        mMaterialList.clear();
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::setAutoDeleteMeshes(bool shouldDelete)
-    {
-        mShouldDelete = shouldDelete;
-    }
-    //---------------------------------------------------------------------
-    Mesh* MeshSerializer::createMesh(void)
-    {
-        freeMemory();
-        mpMesh = new Mesh("exporter");
-        return mpMesh;
-    }
-    //---------------------------------------------------------------------
-    Material* MeshSerializer::createMaterial(const String& name)
-    {
-        Material* pM = new Material(name);
-        mMaterialList[name] = pM;
-        return pM;
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::export(const String& name)
-    {
-        mpfFile = fopen(name, "wb");
-        
-        writeFileHeader((unsigned short)mMaterialList.size());
-
-        // Write materials if present
-        MaterialMap::iterator i;
-        for (i = mMaterialList.begin(); i != mMaterialList.end(); ++i)
-        {
-            writeMaterial(i->second);
-        }
-
-        writeMesh(mpMesh);
-
-        fclose(mpfFile);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::exportOther(const Mesh* pMesh, const String& filename, bool includeMaterials)
-    {
+        MaterialManager& matMgr = MaterialManager::getSingleton();
         mpfFile = fopen(filename, "wb");
 
         writeFileHeader((unsigned short)mMaterialList.size());
@@ -115,7 +63,11 @@ namespace Ogre {
             for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
             {
                 SubMesh* sm = pMesh->getSubMesh(i);
-                writeMaterial(sm->getMaterial());
+                Material* pMat = (Material*)matMgr.getByName(sm->getMaterialName());
+                if (pMat)
+                {
+                    writeMaterial(pMat);
+                }
             }
         }
 
@@ -124,10 +76,9 @@ namespace Ogre {
         fclose(mpfFile);
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::import(DataChunk& chunk)
+    void MeshSerializer::import(DataChunk& chunk, Mesh* pDest)
     {
-        freeMemory();
-        mpMesh = new Mesh("import");
+        mpMesh = pDest;
 
         // Check header
         readFileHeader(chunk);
@@ -138,38 +89,63 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    Mesh* MeshSerializer::getMesh(void)
+    void MeshSerializer::importLegacyOof(DataChunk& chunk, Mesh* pDest)
     {
-        return mpMesh;
-    }
-    //---------------------------------------------------------------------
-    Material* MeshSerializer::getMaterial(size_t index)
-    {
-        assert(index >= 0 && index < mMaterialList.size());
+        // Load from OOF (Ogre Object File)
+        OofModelFile oofModel;
+        MaterialManager& matMgr = MaterialManager::getSingleton();
 
-        MaterialMap::iterator i = mMaterialList.begin();
-        while(index)
-            ++i;
-        return i->second;
-        
-    }
-    //---------------------------------------------------------------------
-    Material* MeshSerializer::getMaterial(const String& name)
-    {
-        MaterialMap::iterator i = mMaterialList.find(name);
+        oofModel.load(chunk);
 
-        if (i == mMaterialList.end())
+        // Set memory deallocation off (allows us to use pointers)
+        oofModel.autoDeallocateMemory = false;
+        // Copy root-level geometry, including pointers
+        // We've told the OofModel not to deallocate
+        pDest->sharedGeometry = oofModel.sharedGeometry;
+
+        // Create sub-meshes from the loaded model
+        for (unsigned int meshNo = 0; meshNo < oofModel.materials.size(); ++meshNo)
         {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Material " + name + " not found.", 
-                "MeshSerializer::getMaterial");
-        }
+            SubMesh* sub = pDest->createSubMesh();
+            // Copy submesh geometry if present
+            sub->useSharedVertices = oofModel.materials[meshNo].useSharedVertices;
+            if (!sub->useSharedVertices)
+            {
+                sub->geometry = oofModel.materials[meshNo].materialGeometry;
+            }
 
-        return i->second;
-    }
-    //---------------------------------------------------------------------
-    size_t MeshSerializer::getNumMaterials(void)
-    {
-        return mMaterialList.size();
+            // Always create materials from oof
+            try 
+            {
+                matMgr.add(oofModel.materials[meshNo].material);
+            }
+            catch (Exception& e)
+            {
+                if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+                {
+                    // Material already exists
+                    char msg[256];
+                    sprintf(msg, "Material '%s' in model '%s' has been ignored "
+                        "because a material with the same name has already "
+                        "been registered.", 
+                        oofModel.materials[meshNo].material.getName().c_str(),
+                        pDest->getName().c_str());
+                    LogManager::getSingleton().logMessage(msg);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            sub->setMaterialName(oofModel.materials[meshNo].material.getName());
+
+            sub->numFaces = oofModel.materials[meshNo].numFaces;
+            sub->faceVertexIndices = oofModel.materials[meshNo].pIndexes;
+
+
+
+        }
     }
     //---------------------------------------------------------------------
     void MeshSerializer::writeFileHeader(unsigned short numMaterials)
@@ -259,7 +235,7 @@ namespace Ogre {
         writeChunkHeader(M_SUBMESH, calcSubMeshSize(s));
 
         // char* materialName
-        writeString(s->getMaterial()->getName());
+        writeString(s->getMaterialName());
 
         // bool useSharedVertices
         writeData(&s->useSharedVertices, sizeof(bool), 1);
@@ -396,7 +372,7 @@ namespace Ogre {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
 
         // Material name
-        size += (unsigned long)pSub->getMaterial()->getName().length() + 1;
+        size += (unsigned long)pSub->getMaterialName().length() + 1;
 
         // bool useSharedVertices
         size += sizeof(bool);

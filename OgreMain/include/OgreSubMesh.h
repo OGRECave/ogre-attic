@@ -44,14 +44,7 @@ namespace Ogre {
             Like the Mesh class, instatiations of 3D objects in the scene
             share the SubMesh instances, and have the option of overriding
             their material differences on a per-object basis if required.
-            See the SubEntityNode class for more information.
-        @par
-            Note that in Ogre submeshes are used only for material
-            and vertex format differences. Other reasons for subdividing a mesh,
-            such as skeletal animation (different vertices attached to different
-            bones) and detailed collision detection (eg determining that
-            a character has been shot in the arm) use different methods.
-            Ogre divides meshes for the purposes of rendering.
+            See the SubEntity class for more information.
     */
     class _OgreExport SubMesh
     {
@@ -80,8 +73,7 @@ namespace Ogre {
                 use one set of data.
             @par
                 The use of shared or non-shared buffers is determined when
-                model data is converted to the OGRE Object Format - see the
-                readme.txt in the 3ds2oof utility folder.
+                model data is converted to the OGRE .mesh format.
         */
         GeometryData geometry;
 
@@ -94,8 +86,9 @@ namespace Ogre {
         /// Reference to parent Mesh.
         Mesh* parent;
 
-        void setMaterial(const Material& mat);
-        const Material* getMaterial(void) const;
+        /// Sets the name of the Material which this SubMesh will use
+        void setMaterialName(const String& matName);
+        const String& getMaterialName(void) const;
 
         /** Returns true if a material has been assigned to the submesh, otherwise returns false.
         */
@@ -110,15 +103,9 @@ namespace Ogre {
 
 
 protected:
-        /** The material used by this submesh.
-            @note 
-                This material instance is held here temporarily
-                in order for it to be added to the SceneManager at the
-                appropriate time (at object instantiation). Once this has 
-                happened the SceneMangager holds the master reference to 
-                the material.
-        */
-        Material mMaterial;
+
+        /// Name of the material this SubMesh uses.
+        String mMaterialName;
 
         /// Is there a material yet?
         bool mMatInitialised;

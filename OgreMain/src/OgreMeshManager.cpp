@@ -74,7 +74,6 @@ namespace Ogre
         sub->numFaces = 2;
 
         mResources[msh->getName()] = msh;
-        msh->_registerMaterials();
 
 
         // Splash screen
@@ -112,7 +111,6 @@ namespace Ogre
         sub->numFaces = 2;
 
         mResources[msh->getName()] = msh;
-        msh->_registerMaterials();
 
 
 

@@ -123,11 +123,6 @@ namespace Ogre {
         */
         GeometryData sharedGeometry;
 
-        /** Instructs the object to register all the Materials loaded with
-            the SceneManager(s).
-        */
-        void _registerMaterials(void);
-
         /** Call this to indicate that this Mesh will be manually defined rather than loaded from a file.
             @remarks
                 Normally, when load() is called on a Resource such as a Mesh, a file of data is loaded. However,
