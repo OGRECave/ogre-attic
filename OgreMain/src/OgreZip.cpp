@@ -34,6 +34,36 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    /// Utility method to format out zzip errors
+    String getZzipErrorDescription(zzip_error_t zzipError) 
+    {
+        String errorMsg;
+        switch (zzipError)
+        {
+        case ZZIP_NO_ERROR:
+            break;
+        case ZZIP_OUTOFMEM:
+            errorMsg = "Out of memory.";
+            break;            
+        case ZZIP_DIR_OPEN:
+        case ZZIP_DIR_STAT: 
+        case ZZIP_DIR_SEEK:
+        case ZZIP_DIR_READ:
+            errorMsg = "Unable to read zip file.";
+            break;            
+        case ZZIP_UNSUPP_COMPR:
+            errorMsg = "Unsupported compression format.";
+            break;            
+        case ZZIP_CORRUPTED:
+            errorMsg = "Corrupted archive.";
+            break;            
+        default:
+            errorMsg = "Unknown error.";
+            break;            
+        };
+
+        return errorMsg;
+    }
     //-----------------------------------------------------------------------
     ZipArchive::ZipArchive(const String& name, const String& archType )
         : Archive(name, archType), mZzipDir(0)
@@ -92,8 +122,13 @@ namespace Ogre {
         // Format not used here (always binary)
         ZZIP_FILE* zzipFile = 
             zzip_file_open(mZzipDir, filename.c_str(), ZZIP_ONLYZIP | ZZIP_CASELESS);
-        if (zzip_error(mZzipDir) != ZZIP_NO_ERROR)
+        if (!zzipFile)
 		{
+            int zerr = zzip_error(mZzipDir);
+            String zzDesc = getZzipErrorDescription((zzip_error_t)zerr);
+            LogManager::getSingleton().logMessage(
+                mName + " - Unable to open file " + filename + ", error was '" + zzDesc + "'");
+                
 			// return null pointer
 			return DataStreamPtr();
 		}
@@ -207,32 +242,11 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-    void ZipArchive::checkZzipError(const zzip_error_t& zzipError, const String& operation) const
+    void ZipArchive::checkZzipError(zzip_error_t zzipError, const String& operation) const
     {
         if (zzipError != ZZIP_NO_ERROR)
         {
-            String errorMsg;
-            switch (zzipError)
-            {
-            case ZZIP_OUTOFMEM:
-                errorMsg = "Out of memory.";
-                break;            
-            case ZZIP_DIR_OPEN:
-            case ZZIP_DIR_STAT: 
-            case ZZIP_DIR_SEEK:
-            case ZZIP_DIR_READ:
-                errorMsg = "Unable to read zip file.";
-                break;            
-            case ZZIP_UNSUPP_COMPR:
-                errorMsg = "Unsupported compression format.";
-                break;            
-            case ZZIP_CORRUPTED:
-                errorMsg = "Corrupted archive.";
-                break;            
-            default:
-                errorMsg = "Unknown error.";
-                break;            
-            };
+            String errorMsg = getZzipErrorDescription(zzipError);
 
             Except(Exception::ERR_INTERNAL_ERROR, 
                 mName + " - error whilst " + operation + ": " + errorMsg,
