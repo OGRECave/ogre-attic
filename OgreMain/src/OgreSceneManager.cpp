@@ -451,6 +451,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::setPass(Pass* pass)
     {
+		static bool lastWasProgrammable = false;
         if (pass->isProgrammable())
         {
             // Programmable pass, we assume parameters have already been updated
@@ -461,10 +462,19 @@ namespace Ogre {
             mDestRenderSystem->bindGpuProgram(pass->getFragmentProgram());
             mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
                 pass->getFragmentProgramParameters());
+			lastWasProgrammable = true;
         }
         else
         {
             // Not programmable, set those things which are only of use in non-programmable mode
+			// Unbind programs first
+			if (lastWasProgrammable)
+			{
+				mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+				mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
+				lastWasProgrammable = false;
+			}
+			
 
             // Set surface reflectance properties        
             mDestRenderSystem->_setSurfaceParams( 

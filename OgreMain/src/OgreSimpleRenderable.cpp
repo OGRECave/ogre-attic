@@ -114,6 +114,7 @@ namespace Ogre {
 
     void SimpleRenderable::_updateRenderQueue(RenderQueue* queue)
     {
+        m_pMaterial->touch();
         queue->addRenderable( this );
     }
 

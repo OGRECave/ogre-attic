@@ -159,7 +159,7 @@ namespace Ogre
             else
             {
                 texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
-                Texture* tex = (Texture*)TextureManager::getSingleton().getByName(mSource);
+                Texture* tex = (Texture*)TextureManager::getSingleton().load(mSource);
 				if (!tex)
 				    Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
 					    "Font::load" );

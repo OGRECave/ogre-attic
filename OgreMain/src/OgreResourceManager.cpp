@@ -144,7 +144,6 @@ namespace Ogre {
             return 0;
         else
         {
-            it->second->touch();
             return it->second;
         }
     }

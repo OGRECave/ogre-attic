@@ -522,6 +522,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------    
     void BillboardSet::_updateRenderQueue(RenderQueue* queue)
     {
+        mpMaterial->touch();
         queue->addRenderable(this, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
     }
 
