@@ -247,11 +247,6 @@ namespace OgreMaya {
 		
         delete fnMesh;
 
-		// ===== Optimize Mesh
-        // TODO
-		//_optimizeMesh(FaceVertices, TriFaces);
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
                 
@@ -286,77 +281,55 @@ namespace OgreMaya {
         //
         // POSITIONS
         //
-        out << "\t\t\t\t<vertexbuffer positions=\"true\">\n";	    
+        out << "\t\t\t\t<vertexbuffer ";
+        out << "positions=\"true\"";	    
+        if(OPTIONS.exportNormals)
+            out << " normals=\"true\"";
+        if(OPTIONS.exportColours)
+            out << " colours_diffuse=\"true\"";
+        if(MayaGeometry.UVSets.size() > 0)          
+            out << " texture_coords=\"" << MayaGeometry.UVSets.size() << "\"";
+        out << ">\n";
+        
         
 		for(vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt)	{            
             out << "\t\t\t\t\t<vertex>\n";
+            
             out << "\t\t\t\t\t\t<position ";
             out << "x=\"" << vertexIt->vecPosition.x << "\" ";
 			out << "y=\"" << vertexIt->vecPosition.y << "\" ";
 			out << "z=\"" << vertexIt->vecPosition.z << "\"/>\n";
-            out << "\t\t\t\t\t</vertex>\n";
-		}
-		out << "\t\t\t\t</vertexbuffer>\n";
 
-        //
-        // NORMALS
-        //
-        if(OPTIONS.exportNormals) {
-            out << "\t\t\t\t<vertexbuffer normals=\"true\">\n";
-        
-		    for(vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt)	{            
-                out << "\t\t\t\t\t<vertex>\n";            
+            if(OPTIONS.exportNormals) {
                 out << "\t\t\t\t\t\t<normal ";
                 out << "x=\"" << vertexIt->vecNormal.x << "\" ";
 			    out << "y=\"" << vertexIt->vecNormal.y << "\" ";
                 out << "z=\"" << vertexIt->vecNormal.z << "\"/>\n";
-                out << "\t\t\t\t\t</vertex>\n";
-		    }
-		    out << "\t\t\t\t</vertexbuffer>\n";
-        }
+            }
 
-        //
-        // COLORS
-        //
-        if(OPTIONS.exportColours) {
-            out << "\t\t\t\t<vertexbuffer colours_diffuse=\"true\">\n";
 
-            for(vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt)	{            
-                out << "\t\t\t\t\t<vertex>\n";
-				//vertexIt->colour.getAsLongRGBA();
+            if(OPTIONS.exportColours) {            
                 out << "\t\t\t\t\t\t<colour_diffuse value=\"";
                 out << vertexIt->colour.r << " ";
 			    out << vertexIt->colour.g << " ";
                 out << vertexIt->colour.b << " ";
 			    out << vertexIt->colour.a << "\"/>\n";                
-                out << "\t\t\t\t\t</vertex>\n";
 		    }
-		    out << "\t\t\t\t</vertexbuffer>\n";
-        }
 
-
-        //
-        // TEXCORDS
-        //
-        if(MayaGeometry.UVSets.size() > 0) {
-            out << "\t\t\t\t<vertexbuffer ";
-            out << "texture_coords=\"" << MayaGeometry.UVSets.size() << "\"";
-            out << ">\n";
-
-            for(vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt)	{            
-                out << "\t\t\t\t\t<vertex>\n";
-				MeshVertexUVList::iterator uvIt, uvEnd;
-				uvEnd = vertexIt->listUV.end();
-				for (uvIt = vertexIt->listUV.begin(); uvIt!=uvEnd; ++uvIt) {                    
+            if(MayaGeometry.UVSets.size() > 0) {
+                MeshVertexUVList::iterator uvIt, uvEnd;
+			    uvEnd = vertexIt->listUV.end();
+			    for (uvIt = vertexIt->listUV.begin(); uvIt!=uvEnd; ++uvIt) {                    
                     out << "\t\t\t\t\t\t<texcoord ";
                     out << "u=\"" << uvIt->u << "\" ";
 			        out << "v=\"" << uvIt->v << "\"/>\n";
-				}
-
-                out << "\t\t\t\t\t</vertex>\n";
-		    }
-		    out << "\t\t\t\t</vertexbuffer>\n";
+			    }
+            }
+		    
+            out << "\t\t\t\t\t</vertex>\n";
         }
+           		
+		out << "\t\t\t\t</vertexbuffer>\n";
 
         out << "\t\t\t</geometry>\n";
 
@@ -365,7 +338,8 @@ namespace OgreMaya {
         if(OPTIONS.exportSkeleton) {
             out << "\t\t\t<boneassignments>\n";
 
-            for(vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt)	{            
+            int i;
+            for(i=0, vertexIt=FaceVertices.begin(); vertexIt!=vertexEnd; ++vertexIt, i++)	{            
                 VertexBoneAssigmentList::iterator boneIt, boneEnd;
 			    boneEnd = vertexIt->boneAssigments.end();
 			    for (boneIt=vertexIt->boneAssigments.begin(); boneIt!=boneEnd; ++boneIt) {
@@ -375,7 +349,7 @@ namespace OgreMaya {
                         continue;
 
                     out << "\t\t\t\t<vertexboneassignment ";
-                    out << "vertexindex=\""<<assigment.vertexId<<"\" ";
+                    out << "vertexindex=\""<<i<<"\" ";
                     out << "boneindex=\""<<assigment.boneId<<"\" ";
                     out << "weight=\""<<assigment.weight<<"\"/>\n";           
                 }
@@ -639,9 +613,10 @@ namespace OgreMaya {
 
 			// --- Loop over all face-vertices
 			unsigned int iTriVertex;
+            MeshFaceVertex faceVertices[3];
 			for (iTriVertex = 0; iTriVertex < 3; ++iTriVertex) {
 				
-				MeshFaceVertex FaceVertex;
+				MeshFaceVertex& FaceVertex = faceVertices[iTriVertex];
 
 				// Get polygon vertex id
 				unsigned int iPolyVertex;
@@ -715,148 +690,53 @@ namespace OgreMaya {
                         else {
                             VertexBoneAssigment vba;
 
-                            vba.boneId   = i;
-                            vba.vertexId = FaceVertices.size();
+                            vba.boneId   = i;                            
                             vba.weight   = (*weights)[i];// + (acc/(float)i);
 
                             FaceVertex.boneAssigments.push_front(vba);
                         }
                     }                    
                 }
-
-				// Add FaceVertex to list
-				FaceVertices.push_back(FaceVertex);
 			}
+
+
+            
+            // OPTIMIZIATION CODE: BEGIN
+            // Search in the current vertex vector for occurance           
+            int index[3];
+            for(int i=0; i<3; i++) {
+                
+                vector<MeshFaceVertex>::iterator it;
+                vector<MeshFaceVertex>::iterator end = FaceVertices.end();
+                
+                int j;
+                for(j=0, it=FaceVertices.begin(); it!=end; ++it, j++) {
+                    if(faceVertices[i] == *it) {
+                        // this vertex is already in vector -> reuse
+                        index[i] = j;
+                        break;
+                    }
+                }
+
+                // if can not be found in vector, insert
+                if(it==end) {
+                    index[i] = FaceVertices.size();
+                    FaceVertices.push_back(faceVertices[i]);
+                }
+            }
+            // OPTIMIZIATION CODE: END
+            
 
 			// --- Define face (three face-vertices)
 			MeshTriFace TriFace;
-			TriFace.index0 = (unsigned long)FaceVertices.size() - 3;
-			TriFace.index1 = (unsigned long)FaceVertices.size() - 2;
-			TriFace.index2 = (unsigned long)FaceVertices.size() - 1;
+			TriFace.index0 = (unsigned long)index[0];
+			TriFace.index1 = (unsigned long)index[1];
+			TriFace.index2 = (unsigned long)index[2];
 
 			TriFaces.push_back(TriFace);
 		}
 
 		return MStatus::kSuccess;
-	}
-
-
-	//	--------------------------------------------------------------------------
-	/** Optimize mesh by removing redundant face-vertices. Relies on mMeshOptions
-		member variable for settings.
-	*/	
-	//	--------------------------------------------------------------------------
-    
-	void MeshGenerator::_optimizeMesh(
-        MeshFaceVertexVector &FaceVertices,
-		MeshTriFaceList &TriFaces
-    ) {
-        // TODO
-        /*
-		// ===== Optimize
-		// Eliminate duplicate face-vertices
-		//   - duplication is determined using position and normal tolerances
-		//   - current implementation is very inefficient (O(n2))
-		LogManager::getSingleton().logMessage(LML_NORMAL, "MeshGenerator: Attempting to optimize %d vertices...", FaceVertices.size());
-
-		// Variables
-		unsigned long iOuter, iInner;
-		std::list<unsigned long> listRedundantIndices;
-		MeshFaceVertexVector::iterator iterOuter, iterInner;
-		std::list<MeshFaceVertexVector::iterator> listRedundantIters;
-
-		// Loop over all face-vertices
-		iOuter = 0;
-		iterOuter = FaceVertices.begin();
-		while (iterOuter != FaceVertices.end())
-		{
-			
-			// Identify redundant (nearly equal) face-vertices
-			listRedundantIndices.clear();
-			listRedundantIters.clear();
-
-			iInner = iOuter + 1;
-			iterInner = iterOuter;
-			++iterInner;
-			while (iterInner != FaceVertices.end())
-			{
-				if (iterOuter->isAlmostEqual(&(FaceVertices[iInner]),
-					                         mMeshOptions.bNormals, 
-				                             mMeshOptions.bColours, 
-				                             mMeshOptions.bUVs,
-				                             mMeshOptions.fVertexPosTol, 
-				                             mMeshOptions.fVertexNormTol)) 
-				{
-					listRedundantIndices.push_front(iInner);
-					listRedundantIters.push_front(iterInner);
-				}
-				++iterInner;
-				++iInner;
-			}
-			
-			// Process redundant face-vertices
-			if (listRedundantIndices.size() > 0) 
-			{
-				// Average vertex position and normal
-				MeshFaceVertex FVMerged;
-				FVMerged.vecNormal   = FaceVertices[iOuter].vecNormal;
-				FVMerged.vecPosition = FaceVertices[iOuter].vecPosition;
-
-				std::list<unsigned long>::iterator iterRedundantIndex;
-				iterRedundantIndex = listRedundantIndices.begin();
-				while (iterRedundantIndex != listRedundantIndices.end())
-				{
-					FVMerged.vecNormal   += FaceVertices[*iterRedundantIndex].vecNormal;
-					FVMerged.vecPosition += FaceVertices[*iterRedundantIndex].vecPosition;
-					++iterRedundantIndex;
-				}
-				FVMerged.vecPosition /= (listRedundantIndices.size() + 1);
-				FVMerged.vecNormal.normalise();
-
-				FaceVertices[iOuter].vecNormal   = FVMerged.vecNormal;
-				FaceVertices[iOuter].vecPosition = FVMerged.vecPosition;
-	
-				// Remove redundant face-vertices
-				std::list<MeshFaceVertexVector::iterator>::iterator iterRedundantIter;
-				iterRedundantIter = listRedundantIters.begin();
-				while (iterRedundantIter != listRedundantIters.end())
-				{
-					FaceVertices.erase(*iterRedundantIter);
-					++iterRedundantIter;
-				}
-
-				// Replace references to redundant face-vertices
-				MeshTriFaceList::iterator iterFaces;
-				iterFaces = TriFaces.begin();
-				while (iterFaces != TriFaces.end())
-				{
-					iterRedundantIndex = listRedundantIndices.begin();
-					while (iterRedundantIndex != listRedundantIndices.end())
-					{
-						unsigned long iRedundant = *iterRedundantIndex;
-
-						if (iterFaces->index0 == iRedundant) iterFaces->index0 = iOuter;
-						if (iterFaces->index1 == iRedundant) iterFaces->index1 = iOuter;
-						if (iterFaces->index2 == iRedundant) iterFaces->index2 = iOuter;
-
-						if (iterFaces->index0 > iRedundant) --(iterFaces->index0);
-						if (iterFaces->index1 > iRedundant) --(iterFaces->index1);
-						if (iterFaces->index2 > iRedundant) --(iterFaces->index2);
-
-						++iterRedundantIndex;
-					}
-					++iterFaces;
-				}
-			}
-
-
-			// Increment outer loop
-			++iterOuter;
-			++iOuter;
-		}
-
-		LogManager::getSingleton().logMessage(LML_NORMAL, "MeshGenerator: Optimized to %d vertices", FaceVertices.size());
-        */
 	}
     
 

@@ -45,13 +45,34 @@ namespace OgreMaya {
 
     typedef float Real;
 
+    template <typename Iterator>
+    bool listEqual(Iterator it1, Iterator it2, Iterator end1, Iterator end2) {        
+        bool eq = true;
+        while(eq && it1!=end1 && it2!=end2) {
+            eq = *it1 == *it2;
+            ++it1;
+            ++it2;
+        }        
+
+        return 
+            eq && it1==end1 && it2==end2;
+    }
+
 
     struct Vector3 {
         Real x,y,z;
+
+        bool operator ==(const Vector3& other) const {
+            return x==other.x && y==other.y && z==other.z;
+        }
     };
 
     struct ColourValue {
         Real r,g,b,a;
+
+        bool operator ==(const ColourValue& other) const {
+            return r==other.r && g==other.g && b==other.b && a==other.a;
+        }
     };
 
 	//	===========================================================================
@@ -59,15 +80,18 @@ namespace OgreMaya {
 		Simple structure with single set of UV coordinates for a single vertex.
 	*/	
 	//	===========================================================================
-	struct MeshVertexUV
-	{
+	struct MeshVertexUV {
 		Real u;
 		Real v;
-
+        
 		MeshVertexUV() {
 			u = (Real)0.0;
 			v = (Real)0.0;
 		}
+
+        bool operator ==(const MeshVertexUV& other) const {
+            return u==other.u && v==other.v;
+        }
 	};
 	typedef std::list<MeshVertexUV> MeshVertexUVList;
 	
@@ -91,7 +115,6 @@ namespace OgreMaya {
 	*/	
 	//	===========================================================================
 	struct VertexBoneAssigment {
-        int vertexId;
         int boneId;
 		float weight;
 	};
@@ -121,39 +144,23 @@ namespace OgreMaya {
 	*/	
 	//	===========================================================================
 	struct MeshFaceVertex {
-		Vector3       vecPosition;
-		Vector3       vecNormal;
-		ColourValue   colour;
-		MeshVertexUVList	listUV;
+		Vector3          vecPosition;
+		Vector3          vecNormal;
+		ColourValue      colour;
+		MeshVertexUVList listUV;
 
         VertexBoneAssigmentList boneAssigments;
 
-		bool isAlmostEqual(const MeshFaceVertex *other, 
-			               const bool bNormal, const bool bColour, const bool bUV,
-			               const Real fTolPos, const Real fTolNorm) const
-		{
-            // TODO
-            /*
-			bool bAlmostEqual = true;
-			bAlmostEqual &= ((vecPosition - other->vecPosition).length() < fTolPos);
-			if (bNormal) bAlmostEqual &= ((vecNormal - other->vecNormal).length() < fTolNorm);
-			if (bColour) bAlmostEqual &= (colour == other->colour);
-			if (bUV) {
-				bAlmostEqual &= (listUV.size() == other->listUV.size());
-				MeshVertexUVList::const_iterator iterUVthis, iterUVother;
-				iterUVthis = listUV.begin();
-				iterUVother = other->listUV.begin();
-				while (iterUVthis != listUV.end()) {
-					bAlmostEqual &= (iterUVthis->u == iterUVother->u);
-					bAlmostEqual &= (iterUVthis->v == iterUVother->v);
-
-					++iterUVthis;
-					++iterUVother;
-				}
-			}
-			return bAlmostEqual;
-            */
-            return false;
+		bool operator==(const MeshFaceVertex& other) const {
+            // that's enough for equality (boneAssigment is not neccessery)
+            return
+                colour == other.colour
+                && vecPosition == other.vecPosition
+                && vecNormal == other.vecNormal
+                && listEqual(
+                    listUV.begin(), other.listUV.begin(),
+                    listUV.end(), other.listUV.end()
+                );                
 		}
 	};
 	typedef std::vector<MeshFaceVertex> MeshFaceVertexVector;
@@ -212,8 +219,7 @@ namespace OgreMaya {
 		MStatus _parseMayaGeometry(MFnMesh &fnMesh,
 			                       MeshMayaGeometry &MayaGeometry, 
 			                       MeshFaceVertexVector &FaceVertices, 
-								   MeshTriFaceList &TriFaces);
-		void _optimizeMesh(MeshFaceVertexVector &FaceVertices, MeshTriFaceList &TriFaces);
+								   MeshTriFaceList &TriFaces);		
 
 		void _convertObjectToFace(MItMeshPolygon &iterPoly, MIntArray &objIndices, MIntArray &faceIndices);
 
