@@ -487,6 +487,7 @@ namespace Ogre {
         while (i != iend)
         {
             IlluminationPass* iPass;
+            bool haveAmbient = false;
             Pass* p = *i;
             switch(iStage)
             {
@@ -500,6 +501,7 @@ namespace Ogre {
                     iPass->originalPass = iPass->pass = p;
                     iPass->stage = iStage;
                     mIlluminationPasses.push_back(iPass);
+                    haveAmbient = true;
                     // progress to next pass
                     ++i;
                 }
@@ -537,7 +539,23 @@ namespace Ogre {
                         iPass->stage = iStage;
 
                         mIlluminationPasses.push_back(iPass);
+                        haveAmbient = true;
                         
+                    }
+                    
+                    if (!haveAmbient)
+                    {
+                        // Make up a new basic pass
+                        Pass* newPass = new Pass(this, p->getIndex());
+                        newPass->setAmbient(ColourValue::Black);
+                        newPass->setDiffuse(ColourValue::Black);
+                        iPass = new IlluminationPass();
+                        iPass->destroyOnShutdown = true;
+                        iPass->originalPass = p;
+                        iPass->pass = newPass;
+                        iPass->stage = iStage;
+                        mIlluminationPasses.push_back(iPass);
+                        haveAmbient = true;
                     }
                     // This means we're done with ambients, progress to per-light
                     iStage = IS_PER_LIGHT;
@@ -551,6 +569,7 @@ namespace Ogre {
                     iPass->destroyOnShutdown = false;
                     iPass->originalPass = iPass->pass = p;
                     iPass->stage = iStage;
+                    mIlluminationPasses.push_back(iPass);
                     // progress to next pass
                     ++i;
                 }
