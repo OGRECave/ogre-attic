@@ -49,7 +49,8 @@ namespace Ogre {
 
         if (trimAfter)
         {
-            StringUtil::trim(str.str());
+            String trimString(str.str());
+            StringUtil::trim(trimString);
         }
 
         return str.str();

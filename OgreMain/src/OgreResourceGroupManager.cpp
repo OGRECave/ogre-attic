@@ -47,7 +47,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ResourceGroupManager::ResourceGroupManager()
-        : mCurrentGroup(0), mAddDefaultLocationsToWorld(true)
+        : mAddDefaultLocationsToWorld(true), mCurrentGroup(0)
     {
         // Create the 'General' group
         ResourceGroup* grp = new ResourceGroup();

@@ -46,11 +46,15 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    BspLevel::BspLevel(ResourceManager* creator, const String& name, ResourceHandle handle,
-        const String& group, bool isManual, ManualResourceLoader* loader)
-        : Resource(creator, name, handle, group, isManual, loader), 
-        mRootNode(0), mBrushes(0), mVertexData(0), mFaceGroups(0), 
-        mLeafFaceGroups(0)
+    BspLevel::BspLevel(ResourceManager* creator, const String& name, 
+        ResourceHandle handle, const String& group, bool isManual, 
+        ManualResourceLoader* loader)
+      : Resource(creator, name, handle, group, isManual, loader), 
+        mRootNode(0), 
+        mVertexData(0), 
+        mLeafFaceGroups(0),
+        mFaceGroups(0), 
+        mBrushes(0)
     {
         mVisData.tableData = 0;
 
@@ -73,7 +77,7 @@ namespace Ogre {
         Quake3Level q3;
         DataStreamPtr stream = 
 			ResourceGroupManager::getSingleton()._findResource(mName, 
-            ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
+				ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 
         q3.loadFromStream(stream);
 

@@ -81,10 +81,10 @@ namespace Ogre {
 
         /** Load the library
         */
-        virtual void load();
+        void load();
         /** Unload the library
         */
-        virtual void unload();
+        void unload();
 		/// Get the name of the library
 		const String& getName(void) const { return mName; }
 
@@ -99,7 +99,7 @@ namespace Ogre {
                 If the function fails, the returned value is <b>NULL</b>.
 
         */
-        virtual void* getSymbol( const String& strName ) const throw();
+        void* getSymbol( const String& strName ) const throw();
 
     protected:
 
