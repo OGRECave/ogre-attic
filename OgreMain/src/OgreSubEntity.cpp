@@ -54,6 +54,14 @@ namespace Ogre {
         // Update SceneManager re material change
         //mParentEntity->mCreatorSceneManager->_notifyMaterialUsage(oldName, mMaterialName, this);
         mpMaterial = (Material*)MaterialManager::getSingleton().getByName(mMaterialName);
+
+        if (!mpMaterial)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Can't assign material " + name + 
+                " to SubEntity of " + mParentEntity->getName() + " because this "
+                "Material does not exist. Have you forgotten to define it in a "
+                ".material script?", "SubEntity::setMaterialName");
+        }
         // Ensure new material loaded (will not load again if already loaded)
         mpMaterial->load();
 
