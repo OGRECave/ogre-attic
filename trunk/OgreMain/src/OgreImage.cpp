@@ -72,6 +72,7 @@ namespace Ogre {
         m_uFlags = img.m_uFlags;
         m_ucPixelSize = img.m_ucPixelSize;
         m_uNumMipmaps = img.m_uNumMipmaps;
+        m_bAutoDelete = img.m_bAutoDelete;
 
 		//Only create/copy when previous data was not dynamic data
         if( m_bAutoDelete )
