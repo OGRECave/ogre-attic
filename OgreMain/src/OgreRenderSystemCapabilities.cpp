@@ -100,6 +100,9 @@ namespace Ogre {
             pLog->logMessage(
                 "   - DXT: " 
                 + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION_DXT), true));
+            pLog->logMessage(
+                "   - VTC: " 
+                + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION_VTC), true));
         }
 
     }

@@ -365,6 +365,11 @@ namespace Ogre {
             {
                 mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
             }
+            // Check for vtc compression
+            if(mGLSupport->checkExtension("GL_NV_texture_compression_vtc"))
+            {
+                mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
+            }
         }
 
         // Get extension function pointers
