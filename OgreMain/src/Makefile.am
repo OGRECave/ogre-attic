@@ -132,6 +132,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSkeletonInstance.cpp \
                          OgreSkeletonManager.cpp \
                          OgreSkeletonSerializer.cpp \
+						 OgreStaticGeometry.cpp \
                          OgreString.cpp \
                          OgreStringConverter.cpp \
                          OgreStringInterface.cpp \

@@ -506,6 +506,8 @@ namespace Ogre {
 		/// Destructor
 		virtual ~StaticGeometry();
 
+		/// Get the name of this object
+		const String& getName(void) const { return mName; }
 		/** Adds an Entity to the static geometry.
 		@remarks
 			This method takes an existing Entity and adds its details to the 

@@ -332,6 +332,7 @@ namespace Ogre {
     class SkeletonManager;
     class Sphere;
     class SphereSceneQuery;
+	class StaticGeometry;
     class StringConverter;
     class StringInterface;
     class SubEntity;

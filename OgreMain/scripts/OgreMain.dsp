@@ -629,6 +629,10 @@ SOURCE=..\src\OgreSkeletonSerializer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreStaticGeometry.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreString.cpp
 # End Source File
 # Begin Source File
@@ -1390,6 +1394,10 @@ SOURCE=..\include\OgreStableHeaders.h
 # Begin Source File
 
 SOURCE=..\include\OgreStaticFaceGroup.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreStaticGeometry.h
 # End Source File
 # Begin Source File
 

@@ -81,11 +81,11 @@ namespace Ogre {
 		getRegionIndexes(max, maxx, maxy, maxz);
 		Real maxVolume = 0.0f;
 		ushort finalx, finaly, finalz;
-		for (ushort x = minx; x < maxx; ++x)
+		for (ushort x = minx; x <= maxx; ++x)
 		{
-			for (ushort y = miny; y < maxy; ++y)
+			for (ushort y = miny; y <= maxy; ++y)
 			{
-				for (ushort z = minz; z < maxz; ++z)
+				for (ushort z = minz; z <= maxz; ++z)
 				{
 					Real vol = getVolumeIntersection(bounds, x, y, z);
 					if (vol > maxVolume)
@@ -283,8 +283,8 @@ namespace Ogre {
 			QueuedSubMesh* q = new QueuedSubMesh();
 
 			// Get the geometry for this SubMesh
-			q->geometryLodList = determineGeometry(q->submesh);
 			q->submesh = se->getSubMesh();
+			q->geometryLodList = determineGeometry(q->submesh);
 			q->materialName = se->getMaterialName();
 			q->orientation = orientation;
 			q->position = position;
@@ -664,7 +664,11 @@ namespace Ogre {
 			{
 				lodBucket->assign(*qi, lod);
 			}
+			// now build
+			lodBucket->build();
 		}
+
+
 	}
 	//--------------------------------------------------------------------------
 	const String& StaticGeometry::Region::getName(void) const
@@ -685,13 +689,15 @@ namespace Ogre {
 		// Distance from the edge of the bounding sphere
 		mCamDistanceSquared = diff.squaredLength() 
 			- mBoundingRadius*mBoundingRadius;
-		
+		// Clamp to 0
+		mCamDistanceSquared = std::max(0.0f, mCamDistanceSquared);
+
+		mCurrentLod = 0;
 		for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
 		{
-			if (mLodSquaredDistances[i] < mCamDistanceSquared)
+			if (mLodSquaredDistances[i] > mCamDistanceSquared)
 			{
-				mCurrentLod = i;
-				break;
+				mCurrentLod = i - 1;
 			}
 		}
 		
@@ -868,7 +874,7 @@ namespace Ogre {
 		if (gi != mCurrentGeometryMap.end())
 		{
 			// Found existing geometry, try to assign
-			newBucket = gi->second->assign(qgeom);
+			newBucket = !gi->second->assign(qgeom);
 			// Note that this bucket will be replaced as the 'current'
 			// for this format string below since it's out of space
 		}
@@ -1099,6 +1105,7 @@ namespace Ogre {
 		// create all vertex buffers, and lock
 		ushort b;
 		std::vector<uchar*> destBufferLocks;
+		std::vector<VertexDeclaration::VertexElementList> bufferElements;
 		for (b = 0; b < binds->getBufferCount(); ++b)
 		{
 			HardwareVertexBufferSharedPtr vbuf = 
@@ -1109,12 +1116,16 @@ namespace Ogre {
 			binds->setBinding(b, vbuf);
 			destBufferLocks.push_back(static_cast<uchar*>(
 				vbuf->lock(HardwareBuffer::HBL_DISCARD)));
+			// Pre-cache vertex elements per buffer
+			bufferElements.push_back(dcl->findElementsBySource(b));
 		}
+
 
 		// Iterate over the geometry items
 		size_t indexOffset = 0;
 		QueuedGeometryList::iterator gi, giend;
 		giend = mQueuedGeometry.end();
+		Vector3 regionCentre = mParent->getParent()->getParent()->getCentre();
 		for (gi = mQueuedGeometry.begin(); gi != giend; ++gi)
 		{
 			QueuedGeometry* geom = *gi;
@@ -1158,12 +1169,62 @@ namespace Ogre {
 					srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
 				// Get buffer lock pointer, we'll update this later
 				uchar* pDstBase = destBufferLocks[b];
+				
+				// Iterate over vertices
+				Real *pSrcReal, *pDstReal;
+				Vector3 tmp;
+				for (size_t v = 0; v < srcVData->vertexCount; ++v)
+				{
+					// Iterate over vertex elements
+					VertexDeclaration::VertexElementList& elems = 
+						bufferElements[b];
+					VertexDeclaration::VertexElementList::iterator ei;
+					for (ei = elems.begin(); ei != elems.end(); ++ei)
+					{
+						VertexElement& elem = *ei;
+						elem.baseVertexPointerToElement(pSrcBase, &pSrcReal);
+						elem.baseVertexPointerToElement(pDstBase, &pDstReal);
+						switch (elem.getSemantic())
+						{
+						case VES_POSITION:
+							tmp.x = *pSrcReal++;
+							tmp.y = *pSrcReal++;
+							tmp.z = *pSrcReal++;
+							// transform
+							tmp = (geom->orientation * (tmp * geom->scale)) +
+								geom->position;
+							// Adjust for region centre
+							tmp -= regionCentre;
+							*pDstReal++ = tmp.x;
+							*pDstReal++ = tmp.y;
+							*pDstReal++ = tmp.z;
+							break;		
+						case VES_NORMAL:
+							tmp.x = *pSrcReal++;
+							tmp.y = *pSrcReal++;
+							tmp.z = *pSrcReal++;
+							// rotation only
+							tmp = geom->orientation * tmp;
+							*pDstReal++ = tmp.x;
+							*pDstReal++ = tmp.y;
+							*pDstReal++ = tmp.z;
+							break;	
+						default:
+							// just raw copy
+							memcpy(pDstReal, pSrcReal, 
+									VertexElement::getTypeSize(elem.getType())); 							break;
+						};
+					
+					}
 
-				// TODO - transform geometry here
-				// need to look for position and normal sematics
+					// Increment both pointers
+					pDstBase += srcBuf->getVertexSize();
+					pSrcBase += srcBuf->getVertexSize();
+					
+				}
 
-				destBufferLocks[b] = pDstBase + 
-					srcBuf->getVertexSize() * srcVData->vertexCount;
+				// Update pointer
+				destBufferLocks[b] = pDstBase;
 				srcBuf->unlock();
 			}
 
@@ -1177,10 +1238,6 @@ namespace Ogre {
 			binds->getBuffer(b)->unlock();
 		}
 
-
-
-
-
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::GeometryBucket::dump(std::ofstream& of) const
@@ -1188,6 +1245,7 @@ namespace Ogre {
 		of << "Geometry Bucket" << std::endl;
 		of << "---------------" << std::endl;
 		of << "Format string: " << mFormatString << std::endl;
+		of << "Geometry items: " << mQueuedGeometry.size() << std::endl;
 		of << "Vertex count: " << mVertexData->vertexCount << std::endl;
 		of << "Index count: " << mIndexData->indexCount << std::endl;
 		of << "---------------" << std::endl;
