@@ -163,10 +163,10 @@ namespace Ogre {
 
         /** Get the axis-aligned bounding box for this mesh.
         */
-        const AxisAlignedBox& getBounds(void);
+        const AxisAlignedBox& getBounds(void) const;
 
 		/** Gets the radius of the bounding sphere surrounding this mesh. */
-		Real getBoundingSphereRadius(void);
+		Real getBoundingSphereRadius(void) const;
 
         /** Updates the local bounding box of this mesh.
         NOW REMOVED BECAUSE WE CANNOT READ HARDWARE BUFFERS
