@@ -127,7 +127,7 @@ namespace Ogre {
         // Pre-allocate buffers for pending geometry
         // Make them as big as they could ever need to be
         // Vertex, texture coords and normals use same buffer
-        mPendingGeometry.pVertices = (Real*)new BspLevel::BspVertex[mLevel->mNumVertices];
+        mPendingGeometry.pVertices = (Real *)( new BspLevel::BspVertex[mLevel->mNumVertices] );
         mPendingGeometry.pTexCoords[0] = ((float*)mPendingGeometry.pVertices + 3);
         mPendingGeometry.pTexCoords[1] = ((float*)mPendingGeometry.pVertices + 5);
         mPendingGeometry.pNormals = ((float*)mPendingGeometry.pVertices + 7);
@@ -138,8 +138,6 @@ namespace Ogre {
         mAABGeometry.pVertices = new Real[8*3*mLevel->mNumLeaves];
         mAABGeometry.pIndexes = new unsigned short[24*mLevel->mNumLeaves];
         mAABGeometry.pDiffuseColour = new RGBA[8*mLevel->mNumLeaves];
-
-
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::_findVisibleObjects(Camera* cam)
