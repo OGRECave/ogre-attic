@@ -94,6 +94,10 @@ namespace Ogre {
 	    mShowBoundingBoxes = false;
         mShadowTechnique = SHADOWTYPE_NONE;
         mDebugShadows = false;
+
+		// init render queues that do not need shadows
+		mRenderQueue.getQueueGroup(RENDER_QUEUE_BACKGROUND)->setShadowsEnabled(false);
+		mRenderQueue.getQueueGroup(RENDER_QUEUE_OVERLAY)->setShadowsEnabled(false);
     }
 
     SceneManager::~SceneManager()
@@ -623,6 +627,9 @@ namespace Ogre {
     void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
     {
         Root::getSingleton()._setCurrentSceneManager(this);
+		// Prep Pass for use in debug shadows
+		initShadowVolumeDebugMaterials();
+
         mCameraInProgress = camera;
         mCamChanged = true;
 
@@ -724,35 +731,8 @@ namespace Ogre {
         // Update controllers (after begineFrame since some are frameTime dependent)
         ControllerManager::getSingleton().updateAllControllers();
 
-        if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
-        {
-            // Need to do a ambient or depth-only pass here
-            //_renderVisibleObjectsSolidAmbientOnly();
-
-            // Need to render per light
-            //_renderVisibleObjectsSolidPerLight();
-
-            // Now render transparents
-            //_renderVisibleObjectsTransparent();
-
-        }
-        else 
-        {
-            // Render scene content 
-            _renderVisibleObjects();
-
-            if (mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
-            {
-                // Do a post-pass with stencils
-                renderModulativeStencilShadows(camera);
-            }
-        }
-
-
-
-        
-        
-        
+        // Render scene content 
+        _renderVisibleObjects();
 
         // End frame
         mDestRenderSystem->_endFrame();
@@ -1186,7 +1166,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::_renderVisibleObjects(void)
     {
-        int render_count = 0;
         // Render each separate queue
         RenderQueue::QueueGroupIterator queueIt = mRenderQueue._getQueueGroupIterator();
 
@@ -1210,53 +1189,7 @@ namespace Ogre {
                     continue;
                 }
 
-                // Iterate through priorities
-                RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
-
-                while (groupIt.hasMoreElements())
-                {
-                    render_count++;
-                    RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
-
-                    // Sort the queue first
-                    pPriorityGrp->sort(mCameraInProgress);
-
-
-
-                    // ----- SOLIDS LOOP -----
-                    RenderPriorityGroup::SolidRenderablePassMap::iterator ipass, ipassend;
-                    ipassend = pPriorityGrp->mSolidPasses.end();
-                    for (ipass = pPriorityGrp->mSolidPasses.begin(); ipass != ipassend; ++ipass)
-                    {
-                        // Fast bypass if this group is now empty
-                        if (ipass->second->empty()) continue;
-                        // For solids, we try to do each pass in turn
-                        setPass(ipass->first);
-                        RenderPriorityGroup::RenderableList* rendList = ipass->second;
-                        RenderPriorityGroup::RenderableList::const_iterator irend, irendend;
-                        irendend = rendList->end();
-                        for (irend = rendList->begin(); irend != irendend; ++irend)
-                        {
-                            // Render a single object, this will set up auto params if required
-                            renderSingleObject(*irend, ipass->first);
-                        }
-                    } 
-
-                    // ----- TRANSPARENT LOOP -----
-                    // This time we render by Z, not by pass
-                    // The mTransparentObjects set needs to be ordered first
-                    // Render each non-transparent entity in turn, grouped by material
-                    RenderPriorityGroup::TransparentRenderablePassList::iterator itrans, itransend;
-
-                    itransend = pPriorityGrp->mTransparentPasses.end();
-                    for (itrans = pPriorityGrp->mTransparentPasses.begin(); 
-                        itrans != itransend; ++itrans)
-                    {
-                        // For transparents, we have to accept that we can't sort entirely by pass
-                        setPass(itrans->pass);
-                        renderSingleObject(itrans->renderable, itrans->pass);
-                    }
-                }// for each priority
+				renderQueueGroupObjects(pGroup);
             
                 // Fire queue ended event
                 if (fireRenderQueueEnded(qId))
@@ -1272,6 +1205,144 @@ namespace Ogre {
 
         } // for each queue group
     }
+	//-----------------------------------------------------------------------
+	void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group)
+	{
+		/* We need to do the entire process once per light, and we need to 
+		   separate the process of rendering certain types of objects.
+	   */
+
+	}
+	//-----------------------------------------------------------------------
+	void SceneManager::renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
+	{
+		/* For each light, we need to render all the solids from each group, 
+		then do the modulative shadows, then render the transparents from
+		each group.
+		Now, this means we are going to reorder things more, but that it required
+		if the shadows are to look correct. The overall order is preserved anyway,
+		it's just that all the transparents are at the end instead of them being
+		interleaved as in the normal rendering loop. 
+		*/
+		// Iterate through priorities
+		RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+		while (groupIt.hasMoreElements())
+		{
+			RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+			// Sort the queue first
+			pPriorityGrp->sort(mCameraInProgress);
+
+			// Do solids
+			renderObjects(pPriorityGrp->mSolidPasses);
+		}
+
+		// Iterate over lights, render all volumes to stencil
+		LightList::const_iterator li, liend;
+		liend = mLightsAffectingFrustum.end();
+
+		for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
+		{
+			Light* l = *li;
+			renderShadowVolumesToStencil(l, mCameraInProgress);
+
+		}// for each priority
+
+		// render full-screen shadow modulator for all lights
+		// TODO
+
+		// Iterate again
+		groupIt = pGroup->getIterator();
+		while (groupIt.hasMoreElements())
+		{
+			RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+			// Do transparents
+			renderObjects(pPriorityGrp->mTransparentPasses);
+
+		}// for each priority
+
+	}
+	//-----------------------------------------------------------------------
+	void SceneManager::renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs)
+	{
+		// ----- SOLIDS LOOP -----
+		RenderPriorityGroup::SolidRenderablePassMap::const_iterator ipass, ipassend;
+		ipassend = objs.end();
+		for (ipass = objs.begin(); ipass != ipassend; ++ipass)
+		{
+			// Fast bypass if this group is now empty
+			if (ipass->second->empty()) continue;
+			// For solids, we try to do each pass in turn
+			setPass(ipass->first);
+			RenderPriorityGroup::RenderableList* rendList = ipass->second;
+			RenderPriorityGroup::RenderableList::const_iterator irend, irendend;
+			irendend = rendList->end();
+			for (irend = rendList->begin(); irend != irendend; ++irend)
+			{
+				// Render a single object, this will set up auto params if required
+				renderSingleObject(*irend, ipass->first);
+			}
+		} 
+	}
+	//-----------------------------------------------------------------------
+	void SceneManager::renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs)
+	{
+		// ----- TRANSPARENT LOOP -----
+		// This time we render by Z, not by pass
+		// The mTransparentObjects set needs to be ordered first
+		// Render each non-transparent entity in turn, grouped by material
+		RenderPriorityGroup::TransparentRenderablePassList::const_iterator itrans, itransend;
+
+		itransend = objs.end();
+		for (itrans = objs.begin(); 
+			itrans != itransend; ++itrans)
+		{
+			// For transparents, we have to accept that we can't sort entirely by pass
+			setPass(itrans->pass);
+			renderSingleObject(itrans->renderable, itrans->pass);
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void SceneManager::renderQueueGroupObjects(RenderQueueGroup* pGroup)
+	{
+		// Redirect to alternate versions if stencil shadows in use
+		if (pGroup->getShadowsEnabled() && 
+			mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
+		{
+			renderAdditiveStencilShadowedQueueGroupObjects(pGroup);
+		}
+		else if (pGroup->getShadowsEnabled() && 
+			mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE)
+		{
+			renderModulativeStencilShadowedQueueGroupObjects(pGroup);
+		}
+		else
+		{
+			// Basic render loop
+			// Iterate through priorities
+			RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+
+			while (groupIt.hasMoreElements())
+			{
+				RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+				// Sort the queue first
+				pPriorityGrp->sort(mCameraInProgress);
+
+				// Do solids
+				renderObjects(pPriorityGrp->mSolidPasses);
+				// Do transparents
+				renderObjects(pPriorityGrp->mTransparentPasses);
+
+
+			}// for each priority
+		}
+
+
+	}
     //-----------------------------------------------------------------------
     void SceneManager::renderSingleObject(Renderable* rend, Pass* pass)
     {
@@ -2042,36 +2113,6 @@ namespace Ogre {
 
         return mShadowCasterList;
     }
-	//---------------------------------------------------------------------
-    void SceneManager::renderModulativeStencilShadows(const Camera* camera)
-    {
-
-        // Prep Pass for use in debug shadows
-        initShadowVolumeDebugMaterials();
-
-
-        // Iterate over lights
-        LightList::const_iterator li, liend;
-        liend = mLightsAffectingFrustum.end();
-
-
-        for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
-        {
-            Light* l = *li;
-            renderShadowVolumesToStencil(l, camera);
-
-        }
-
-
-        // render full-screen shadow modulator
-        // TODO
-
-        // revert colour write state
-        mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
-        // revert depth write state
-        mDestRenderSystem->_setDepthBufferWriteEnabled(true);
-
-    }
     //---------------------------------------------------------------------
     void SceneManager::initShadowVolumeDebugMaterials(void)
     {
@@ -2192,6 +2233,11 @@ namespace Ogre {
 
             }
         }
+		// revert colour write state
+		mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
+		// revert depth write state
+		mDestRenderSystem->_setDepthBufferWriteEnabled(true);
+
 
     }
 	//---------------------------------------------------------------------
