@@ -204,6 +204,46 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    void HardwareBufferManager::_forceReleaseBufferCopies(
+        const HardwareVertexBufferSharedPtr& sourceBuffer)
+    {
+        TemporaryVertexBufferLicenseList::iterator i;
+        i = mTempVertexBufferLicenses.begin(); 
+    
+        // Erase the copies which are licensed out
+        while (i != mTempVertexBufferLicenses.end()) 
+        {
+            const VertexBufferLicense& vbl = *i;
+            if (vbl.originalBufferPtr == sourceBuffer.get())
+            {
+                // Just tell the owner that this is being released
+                vbl.licensee->licenseExpired(vbl.buffer.get());
+                i = mTempVertexBufferLicenses.erase(i);
+            }
+            else
+            {
+                ++i;
+            }
+        }
+        // Erase the free copies
+        FreeTemporaryVertexBufferMap::iterator fi =
+            mFreeTempVertexBufferMap.begin();
+        while (fi != mFreeTempVertexBufferMap.end())
+        {
+            if (fi->first == sourceBuffer.get())
+            {
+                delete fi->second;
+                FreeTemporaryVertexBufferMap::iterator deli = fi++;
+                mFreeTempVertexBufferMap.erase(deli);
+            }
+            else
+            {
+                ++fi;
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr 
     HardwareBufferManager::makeBufferCopy(
         const HardwareVertexBufferSharedPtr& source,

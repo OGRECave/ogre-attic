@@ -246,6 +246,16 @@ namespace Ogre {
         /** Internal method for releasing all temporary buffers which have been 
            allocated using BLT_AUTOMATIC_RELEASE; is called by OGRE. */
         virtual void _releaseBufferCopies(void);
+
+        /** Internal method that forces the release of copies of a given buffer.
+        @remarks
+            This usually means that the buffer which the copies are based on has
+            been changed in some fundamental way, and the owner of the original 
+            wishes to make that known so that new copies will reflect the
+            changes.
+        */
+        virtual void _forceReleaseBufferCopies(
+            const HardwareVertexBufferSharedPtr& sourceBuffer);
             
         /** Override standard Singleton retrieval.
             @remarks
