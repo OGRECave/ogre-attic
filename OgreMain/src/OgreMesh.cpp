@@ -864,6 +864,160 @@ namespace Ogre {
 		mIndexBufferUsage = vbUsage;
 		mIndexBufferShadowBuffer = shadowBuffer;
 	}
+    //---------------------------------------------------------------------
+    HardwareVertexBufferSharedPtr Mesh::getTangentsBuffer(VertexData *vertexData, 
+        unsigned short texCoordSet)
+    {
+	    VertexDeclaration *vDecl = vertexData->vertexDeclaration ;
+	    VertexBufferBinding *vBind = vertexData->vertexBufferBinding ;
+
+	    const VertexElement *tex3D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, texCoordSet);
+	    bool needsToBeCreated = false;
+    	
+	    if (!tex3D) 
+        { // no tex coords with index 1
+			    needsToBeCreated = true ;
+	    } 
+        else if (tex3D->getType() != VET_FLOAT3) 
+        { // no 3d-coords tex buffer
+		    vDecl->removeElement(VES_TEXTURE_COORDINATES, texCoordSet);
+		    vBind->unsetBinding(tex3D->getSource());
+		    needsToBeCreated = true ;
+	    }
+    	
+	    HardwareVertexBufferSharedPtr tex3DBuf ;
+	    if (needsToBeCreated) 
+        {
+		    tex3DBuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+			    3*sizeof(float), vertexData->vertexCount,
+			    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
+			    true );
+		    int source = vBind->getNextIndex()+1; // find next available source 
+		    vBind->setBinding(source, tex3DBuf);
+		    vDecl->addElement(source, 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoordSet);
+	    } 
+        else 
+        {
+		    tex3DBuf = vBind->getBuffer(tex3D->getSource());
+	    }
+    	
+	    return tex3DBuf;
+    }
+    //---------------------------------------------------------------------
+    void Mesh::buildTangentVectors(unsigned short sourceTexCoordSet, 
+        unsigned short destTexCoordSet)
+    {
+
+	    // our temp. buffers
+	    unsigned short	vertInd[3];
+	    Vector3         vertPos[3];
+        Real            u[3], v[3];
+	    // setup a new 3D texture coord-set buffer for every sub mesh
+	    int nSubMesh = getNumSubMeshes();
+	    for (int sm = 0; sm < nSubMesh; sm++)
+	    {
+		    // retrieve buffer pointers
+		    unsigned short	*pVIndices;	// the face indices buffer, read only
+		    Real			*p2DTC;		// pointer to 2D tex.coords, read only
+		    Real			*p3DTC;		// pointer to 3D tex.coords, write/read (discard)
+		    Real			*pVPos;		// vertex position buffer, read only
+
+		    SubMesh *pSubMesh = getSubMesh(sm);
+
+		    // retrieve buffer pointers
+		    // first, indices
+		    IndexData *indexData = pSubMesh->indexData;
+		    HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer ;
+		    pVIndices = (unsigned short*) buffIndex->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		    // then, vertices
+		    VertexData *usedVertexData ;
+		    if (pSubMesh->useSharedVertices) {
+			    usedVertexData = sharedVertexData;
+		    } else {
+			    usedVertexData = pSubMesh->vertexData;
+		    }
+		    VertexDeclaration *vDecl = usedVertexData->vertexDeclaration;
+		    VertexBufferBinding *vBind = usedVertexData->vertexBufferBinding;
+
+
+		    // get a new 3D tex.coord.buffer or an existing one
+		    HardwareVertexBufferSharedPtr buff3DTC = getTangentsBuffer(usedVertexData, destTexCoordSet);
+		    // clear it
+		    p3DTC = (Real*) buff3DTC->lock(HardwareBuffer::HBL_DISCARD); // ***LOCK***
+		    memset(p3DTC,0,buff3DTC->getSizeInBytes());
+		    // find a 2D tex coord buffer
+		    const VertexElement *elem2DTC = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, sourceTexCoordSet);
+
+            if (!elem2DTC || elem2DTC->getType() != VET_FLOAT2)
+            {
+                Except(Exception::ERR_INVALIDPARAMS, 
+                    "SubMesh " + StringConverter::toString(sm) + " of Mesh " + mName + 
+                    " has no 2D texture coordinates, therefore we cannot calculate tangents.", 
+                    "Mesh::buildTangentVectors");
+            }
+		    HardwareVertexBufferSharedPtr buff2DTC = vBind->getBuffer(elem2DTC->getSource());
+		    p2DTC = (Real*) buff2DTC->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		    // find a vertex coord buffer
+		    const VertexElement *elemVPos = vDecl->findElementBySemantic(VES_POSITION);
+		    HardwareVertexBufferSharedPtr buffVPos = vBind->getBuffer(elemVPos->getSource());
+		    pVPos = (Real*) buffVPos->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+    		
+		    size_t numFaces = indexData->indexCount / 3 ;
+    		
+		    // loop through all faces to calculate the tangents and normals
+		    size_t n;
+		    for (n = 0; n < numFaces; ++n)
+		    {
+			    int i;
+			    for (i = 0; i < 3; ++i)
+			    {
+				    // get indexes of vertices that form a polygon in the position buffer
+				    vertInd[i] = *pVIndices++;
+				    // get the vertices positions from the position buffer
+				    vertPos[i].x = pVPos[3 * vertInd[i] + 0];
+				    vertPos[i].y = pVPos[3 * vertInd[i] + 1];
+				    vertPos[i].z = pVPos[3 * vertInd[i] + 2];
+				    // get the vertices tex.coords from the 2D tex.coords buffer
+				    u[i] = p2DTC[2 * vertInd[i] + 0];
+				    v[i] = p2DTC[2 * vertInd[i] + 1];
+			    }
+			    // calculate the TSB
+                Vector3 tangent = Math::calculateTangentSpaceVector(
+                    vertPos[0], vertPos[1], vertPos[2], 
+                    u[0], v[0], u[1], v[1], u[2], v[2]);
+			    // write new tex.coords 
+                // note we only write the tangent, not the binormal since we can calculate
+                // the binormal in the vertex program
+			    for (i = 0; i < 3; ++i)
+			    {
+				    // write values (they must be 0 and we must add them so we can average
+                    // all the contributions from all the faces
+				    p3DTC[3 * vertInd[i] + 0] += tangent.x;
+				    p3DTC[3 * vertInd[i] + 1] += tangent.y;
+				    p3DTC[3 * vertInd[i] + 2] += tangent.z;
+			    }
+		    }
+		    // now loop through all vertices and normalize them
+		    size_t numVerts = usedVertexData->vertexCount ;
+		    for (n = 0; n < numVerts * 3; n += 3)
+		    {
+			    // read the vertex
+			    Vector3 temp(p3DTC[n + 0], p3DTC[n + 1], p3DTC[n + 2]);
+			    // normalize the vertex
+			    temp.normalise();
+			    // write it back
+			    p3DTC[n + 0] = temp.x;
+			    p3DTC[n + 1] = temp.y;
+			    p3DTC[n + 2] = temp.z;
+		    }
+		    // unlock buffers
+		    buffIndex->unlock();
+		    buff3DTC->unlock();
+		    buff2DTC->unlock();
+		    buffVPos->unlock();
+	    }
+        
+    }
 
 }
 

@@ -236,6 +236,11 @@ namespace Ogre
         static bool RealEqual(Real a, Real b,
             Real tolerance = std::numeric_limits<Real>::epsilon());
 
+        /** Calculates the tangent space vector for a given set of positions / texture coords. */
+        static Vector3 calculateTangentSpaceVector(
+            const Vector3& position1, const Vector3& position2, const Vector3& position3,
+            Real u1, Real v1, Real u2, Real v2, Real u3, Real v3);
+
         static const Real POS_INFINITY;
         static const Real NEG_INFINITY;
         static const Real PI;
