@@ -18,7 +18,7 @@
 TexturePtr ptex;
 HardwarePixelBufferSharedPtr buffer;
 Overlay* overlay;
-static const int reactorExtent = 258;
+static const int reactorExtent = 130; // must be 2^N + 2
 uint32 clut[1024];
 AnimationState *swim;
 // Nano fixed point library
@@ -86,8 +86,10 @@ public:
 		dt = FROMFLOAT(2.0f);
 		hdiv0 = FROMFLOAT(2.0E-5f/(2.0f*0.01f*0.01f)); // a / (2.0f*h*h); -- really diffusion rate 
 		hdiv1 = FROMFLOAT(1.0E-5f/(2.0f*0.01f*0.01f)); // a / (2.0f*h*h); -- really diffusion rate 
-		k = FROMFLOAT(0.056f);
-		F = FROMFLOAT(0.020f);
+		//k = FROMFLOAT(0.056f);
+		//F = FROMFLOAT(0.020f);
+		k = FROMFLOAT(0.0619f);
+		F = FROMFLOAT(0.0316f);
 		
 		resetReactor();
 		fireUpReactor();
@@ -190,13 +192,13 @@ public:
 
 	void buildTexture()
 	{
-		buffer->lock(HardwareBuffer::HBL_NORMAL);
+		buffer->lock(HardwareBuffer::HBL_DISCARD);
 		const PixelBox &pb = buffer->getCurrentLock();
 		unsigned int idx = reactorExtent+1;
-		for(unsigned int y=0; y<256; y++) {
+		for(unsigned int y=0; y<(reactorExtent-2); y++) {
 			uint32 *data = static_cast<uint32*>(pb.data) + y*pb.rowPitch;
 			int *chem = &chemical[0][idx];
-			for(unsigned int x=0; x<256; x++) {
+			for(unsigned int x=0; x<(reactorExtent-2); x++) {
 				data[x] = clut[(chem[x]>>6)&1023];
 			}
 			idx += reactorExtent;
@@ -272,14 +274,8 @@ public:
 		} else {
 			rpressed = false;
 		}
-
-		tim += evt.timeSinceLastFrame;
-		float rate = 100.0f;
-		while(tim > (1.0f/rate)) {
-			// 50 steps per second at most
+		for(int x=0; x<10; x++)
 			runStep();
-			tim -= (1.0f/rate);
-		}
 		buildTexture();
 		swim->addTime(evt.timeSinceLastFrame);
 
