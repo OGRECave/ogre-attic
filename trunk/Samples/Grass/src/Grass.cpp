@@ -38,10 +38,11 @@ LGPL like the rest of the engine.
     } \
 }
 
-#define GRASS_HEIGHT 60
-#define GRASS_WIDTH 50
+#define GRASS_HEIGHT 300
+#define GRASS_WIDTH 250
 #define GRASS_MESH_NAME "grassblades"
 #define GRASS_MATERIAL "Examples/GrassBlades"
+#define OFFSET_PARAM 999
 
 Light* mLight;
 SceneNode* mLightNode = 0;
@@ -340,14 +341,22 @@ protected:
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
 		s->setCastShadows(true);
 		s->setRegionDimensions(Vector3(2000,2000,2000));
-		for (int i = 0; i < 750; ++i)
+		for (int x = -1950; x < 1950; x += 150)
 		{
-			Vector3 pos;
-			pos.x = Math::RangeRandom(minV.x, maxV.x);
-			pos.y = Math::RangeRandom(minV.y, maxV.y);
-			pos.z = Math::RangeRandom(minV.z, maxV.z);
-
-			s->addEntity(e, pos, Quaternion::IDENTITY, Vector3(5,5,5));
+			for (int z = -1950; z < 1950; z += 150)
+			{
+				Vector3 pos(
+					x + Math::RangeRandom(-25, 25), 
+					0, 
+					z + Math::RangeRandom(-25, 25));
+				Quaternion orientation;
+				orientation.FromAngleAxis(
+					Degree(Math::RangeRandom(0, 359)),
+					Vector3::UNIT_Y);
+				Vector3 scale(
+					1, Math::RangeRandom(0.85, 1.15), 1);
+				s->addEntity(e, pos, orientation, scale);
+			}
 
 		}
 
