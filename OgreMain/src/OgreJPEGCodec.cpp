@@ -39,12 +39,13 @@ http://www.gnu.org/copyleft/gpl.html.
     #undef FAR
 #endif
 
-#define boolean unsigned char
 #define HAVE_BOOLEAN
 
 extern "C" {
 #include "jpeglib.h"
 }
+
+#define boolean unsigned char
 
 #include "OgreJPEGCodec.h"
 #include "OgreImage.h"
