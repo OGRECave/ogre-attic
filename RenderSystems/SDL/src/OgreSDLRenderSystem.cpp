@@ -998,18 +998,28 @@ namespace Ogre {
         // Check if viewport is different
         if (vp != mActiveViewport || vp->_isUpdated())
         {
-            mActiveViewport = vp;
-
-            // XXX Rendering target stuff?
-            GLsizei w, h;
-
-            w = vp->getActualWidth();
-            h = vp->getActualHeight();
-            
-            glViewport(0, 0, w, h);
-            fprintf(stderr, "Reset perspective\n");
-            
-            vp->_clearUpdatedFlag();
+              mActiveViewport = vp;
+  
+              // XXX Rendering target stuff?
+              GLsizei x, y, w, h;
+  
+              RenderTarget* target;
+              target = vp->getTarget();
+  
+              // Calculate the "lower-left" corner of the viewport
+              w = vp->getActualWidth();
+              h = vp->getActualHeight();
+              x = vp->getActualLeft();
+              y = target->getHeight() - vp->getActualTop() - h;
+  
+              glViewport(x, y, w, h);
+  
+              // Configure the viewport clipping
+              glScissor(x, y, w, h);
+  
+              fprintf(stderr, "Reset perspective\n");
+  
+              vp->_clearUpdatedFlag();
         }
     }
 
@@ -1025,6 +1035,9 @@ namespace Ogre {
         // Clear the viewport if required
         if (mActiveViewport->getClearEveryFrame())
         {
+            // Activate the viewport clipping
+            glEnable(GL_SCISSOR_TEST);
+
             ColourValue col = mActiveViewport->getBackgroundColour();
             
             glClearColor(col.r, col.g, col.b, col.a);
@@ -1393,6 +1406,8 @@ namespace Ogre {
             glmode = GL_FILL;
             break;
 
+            // Deactivate the viewport clipping.
+            glDisable(GL_SCISSOR_TEST);
         }
 
         glPolygonMode(GL_FRONT_AND_BACK, glmode);
