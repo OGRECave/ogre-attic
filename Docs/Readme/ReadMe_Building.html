@@ -1,171 +1,278 @@
-<html>
-<head>
-<title>Building OGRE</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
-<!--
-.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
-body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
-.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
-.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
-.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
-a:link {  color: #FFFF00; text-decoration: underline}
-a:hover {  color: #FFFFFF; text-decoration: underline}
-a:visited {  color: #FFCC66; text-decoration: underline}
-li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
-.NewsDate {  color: #CCFFCC; font-weight: bold}
-td {  font-size: 10pt}
-th {  font-size: 10pt}
-.Annotation {  font-size: 10px}
-
-H1 { text-align: center; }
-A.qindex {}
-A.qindexRef {}
-A.el { text-decoration: none; font-weight: bold }
-A.elRef { font-weight: bold }
-A.code { text-decoration: none; font-weight: normal; color: #4444ee }
-A.codeRef { font-weight: normal; color: #4444ee }
-DL.el { margin-left: -1cm }
-DIV.fragment { width: 100%; border: none; background-color: #003300 }
-DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
-TD.md { background-color: #006600 }
-DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
-DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
-FONT.keyword       { color: #008000 }
-FONT.keywordtype   { color: #999920 }
-FONT.keywordflow   { color: #e0FF00 }
-FONT.comment       { color: #009900 }
-FONT.preprocessor  { color: #809020 }
-FONT.stringliteral { color: #002080 }
-FONT.charliteral   { color: #008080 }
-
-H3 {
-    FONT-FAMILY: trebuchet ms,helvetica,arial
-}
-
-.ex {
-    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
-}
-CODE.keywordtype {
-    COLOR: #00ccff
-}
-CODE.keyword {
-    FONT-WEIGHT: bold; COLOR: #00ccff
-}
-CODE.fn {
-    COLOR: white;
-    FONT-WEIGHT: bold;
-}
-CODE.var {
-    COLOR: #dcdcdc;
-}
-CODE.macro {
-    COLOR: #809020;
-    FONT-WEIGHT: bold;
-}
-CODE.comm {
-    COLOR: lime
-}
-CODE.num {
-    COLOR: purple
-}
-CODE.str {
-    COLOR: #ffcc33;
-    font-style: italic
-}
-.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
-.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
--->
-</STYLE> 
-</head>
-
-<body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Building 
-OGRE </p><p align="center" class="header"><A HREF="http://www.ogre3d.org">http://www.ogre3d.org</A></p><p align="left" class="MainHeader">Building 
-and Installing OGRE</p><p align="left">This release of OGRE builds under the following 
-configurations:</p><TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"><TR><TD CLASS="BorderHeader" WIDTH="33%"><DIV ALIGN="CENTER">Platform</DIV></TD><TD CLASS="BorderHeader" WIDTH="20%"><DIV ALIGN="CENTER">Compiler</DIV></TD><TD CLASS="BorderHeader"><DIV ALIGN="CENTER">Extra 
-Notes</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%" VALIGN="MIDDLE"><DIV ALIGN="CENTER"><P><A HREF="#VC">Windows 
-95/98/Me/2000/XP</A></P></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>Microsoft 
-Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR>Microsoft Visual C++.Net 2003<BR></P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
-DirectX 8.1b SDK (9 to build the Direct3D9RenderSystem)<BR><A HREF="http://www.stlport.org">STLport 
-4.5.3</A> required for versions prior to .Net 2003<BR>You should also download 
-the latest 3rd-party libraries from the site.</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><A HREF="#Linux">Linux</A></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>gcc 
-(GNU Compiler Collection)</P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
-gcc 3.x</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><A HREF="#Mac">Mac 
-OSX </A></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc 
-(GNU Compiler Collection)</DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Requires 
-gcc 3.x</DIV></TD></TR></TABLE><p align="left">&nbsp;</p><p align="left" CLASS="MainHeader"><A NAME="VC"></A>Building 
-with Visual C++ 6 or Visual C++.Net</p><p align="left">If you're building with 
-Visual C++, follow these steps:</p><OL><LI>Make sure you have downloaded and installed 
-<A HREF="http://www.stlport.org">STLport</A>, version 4.5.3 if you are not using 
-.Net 2003. The instructions for building and installing STLport are in the <A HREF="../FAQ.html">FAQ</A></LI><LI>Download 
-and install the <A HREF="http://msdn.microsoft.com/directx">DirectX SDK</A>, you 
-need at least v8.1b, preferably 9.</LI><LI>Download and extract the latest 3rd 
-party libraries distribution (you can find this in the downloads section of the 
-<A HREF="http://www.ogre3d.org/">OGRE hompage</A>). See the <A HREF="../FAQ.html">FAQ</A> 
-for more details.</LI><LI>Open either Ogre.dsw (VC6) or Ogre.sln (VC7+)</LI><LI>Check 
-the ordering of your include and library paths (in Tools | Options). The ordering 
-should be STLport (if applicable), DirectX, then everything else.</LI><LI>Perform 
-a Batch Build for <B>all</B> the projects. The dependencies should ensure everything 
-is built in the right order.</LI></OL><P CLASS="MainHeader"><A NAME="Linux"></A>Building 
-under Linux</P><p align="left">If you're building under Linux with gcc, here's 
-a very quick overview:</p><OL><LI>If you're using gcc version 2.9x, make sure 
-you've installed <A HREF="http://www.stlport.org">STLport</A>. However, if you 
-can we advise using gcc 3.2+.</LI><LI>Confirm that you have SDL 1.2.4, Freetype2, 
-DevIL and pkg-config available on your system (if not, install them!)</LI><LI>Change 
-to the 'ogrenew' directory, </LI><LI>If you are installing from CVS, run './bootstrap'</LI><LI>type 
-'./configure'.</LI><LI>Run 'make' and 'make install' (the latter as root)</LI></OL><P>For 
-more detailed instructions, see the<A HREF="../README.linux"> Linux README</A>.</P><p align="left" CLASS="MainHeader"><A></A><A NAME="Mac"></A>Building 
-under Mac OSX</p><P ALIGN="left">Please read the <A HREF="../README_MacOSX.txt">Mac 
-README</A>.</P><p align="left" CLASS="MainHeader">Explanation of the Core libraries</p><p align="left">OGRE 
-compiles into a number of shared dynamically-linked libraries for use by OGRE 
-applications. It also has a number of optional plugin libraries, which are used 
-to provide rendering system implementations (e.g. an interface to DirectX) and 
-special features (e.g. a BSP-oriented scene manager). Plugins are configured using 
-the 'plugins.cfg' file located in the same folder as your application. Here's 
-an example:</p><p align="left">-----snip------------------------------------------------------</p><p align="left">PluginFolder=plugins\</p><P># 
-Define particle system plugin<BR>Plugin=Plugin_ParticleFX</P><P>-----snip------------------------------------------------------</P><P>This 
-simple plugins.cfg tells Ogre to load all plugins from the 'plugins' folder directly 
-under the application's folder, and to load Plugin_ParticleFX (.dll in Windows, 
-.so in Linux), the particle system implementation.</P><P>The best way to get started 
-with OGRE is to look at the example applications which are included. These should 
-make it clear to you how easy it is to get an OGRE application running in a surprisingly 
-small amount of code!</P><P CLASS="MainHeader">Libraries in detail</P><P ALIGN="left">The 
-libraries are:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
-<TR> <TD WIDTH="200">OgreMain</TD><TD>The core dll which includes all the basic 
-classes, and abstractions of all the engine components which will be refined per 
-OS platform, rendering API, or per scene type. This library must be on the path 
-or in the current folder to be loaded at startup. The source for this is completely 
-cross-platform. </TD></TR> <TR> <TD WIDTH="200"> <P>OgrePlatform</P></TD><TD><P>This 
-library implements concrete versions of the classes required to be implemented 
-for each platform. There are currently implementations for Win32 and Linux platforms.</P><P>This 
-library is loaded dynamically by the PlatformManager class (in OgreMain) and must 
-either be on the path or in the current folder.</P></TD></TR> <TR> <TD WIDTH="200">RenderSystem_Direct3D7/8/9</TD><TD>Plugin 
-library which adds a RenderSystem implementation for Direct3D. This library is 
-loaded dynamically by the plugin architecture described above, and must be located 
-in the folder specified in plugins.cfg. You may use any of these render systems 
-on Windows, but the more recent version support extra features.</TD></TR><TR><TD WIDTH="200">RenderSystem_GL</TD><TD>Implementation 
-of the RenderSystem which is based on OpenGL. Used for the Linux &amp; Mac platforms 
-primarily but can be used in Windows too.</TD></TR> <TR> <TD WIDTH="200">Plugin_BspSceneManager</TD><TD>Plugin 
-specialisation of the general-purpose SceneManager for rendering indoor levels 
-based on a BSP tree. Allows Quake3 maps to be loaded and rendered very efficiently 
-whilst exposing none of the complexity to the core Ogre system. This library is 
-loaded dynamically by the plugin architecture described above, and must be located 
-in the folder specified in plugins.cfg.</TD></TR><TR><TD WIDTH="200">Plugin_FileSystem</TD><TD>Archive 
-plugin that allows OGRE to read the filesystem of the target operating system.</TD></TR><TR><TD WIDTH="200">Plugin_ParticleFX</TD><TD>Plugin 
-which provides a range of particle system tools such as standard emitters and 
-affectors.</TD></TR><TR><TD WIDTH="200">Plugin_OctreeSceneManager</TD><TD>Plugin 
-which provides scene management based on an octree system.</TD></TR><TR><TD WIDTH="200">ReferenceAppLayer</TD><TD>This 
-is a utility library which is a client of the OgreMain library, and can be used 
-by your application to add additional non-graphics related features to your application. 
-It is designed to be an example of how you might tie together other libraries 
-with OGRE in order to build a larger system; in this case we implement collision 
-and physics using ODE.</TD></TR> </TABLE><P CLASS="MainContent" ALIGN="LEFT">There 
-are also several other plugins, tools and demos which are built as part of the 
-standard batch build process.</P><P CLASS="MainContent" ALIGN="CENTER"><A HREF="../ReadMe.html">Back 
-to Readme.html</A></P><P CLASS="MainHeader">&nbsp;</P><p> Copyright &copy; 2002 by The 
-OGRE Team<br /> <script type="text/javascript">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>Building OGRE</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.4  (Win32)">
+	<META NAME="CREATED" CONTENT="20050219;16550753">
+	<META NAME="CHANGED" CONTENT="20050219;17080725">
+	<STYLE>
+	<!--
+		TD P { color: #ccffcc; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		P { color: #ccffcc; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		P.header { color: #ffffcc; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 12pt; font-weight: bold }
+		P.mainheader { color: #ffff33; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt; font-weight: bold }
+		P.maincontent { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		A:link { color: #ffff00 }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" TEXT="#ccffcc" LINK="#ffff00" BGCOLOR="#003300" DIR="LTR">
+<P CLASS="header" ALIGN=CENTER>OGRE (Object-Oriented Graphics
+Rendering Engine)</P>
+<P CLASS="header" ALIGN=CENTER>Building OGRE 
+</P>
+<P CLASS="header" ALIGN=CENTER><A HREF="http://www.ogre3d.org/">http://www.ogre3d.org</A></P>
+<P CLASS="mainheader" ALIGN=LEFT>Building and Installing OGRE</P>
+<P ALIGN=LEFT>This release of OGRE builds under the following
+configurations:</P>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#996600" CELLPADDING=0 CELLSPACING=0>
+	<TR>
+		<TD WIDTH=33% BGCOLOR="#999900">
+			<P ALIGN=CENTER><FONT COLOR="#333300"><FONT SIZE=1 STYLE="font-size: 8pt"><B>Platform</B></FONT></FONT></P>
+		</TD>
+		<TD WIDTH=20% BGCOLOR="#999900">
+			<P ALIGN=CENTER><FONT COLOR="#333300"><FONT SIZE=1 STYLE="font-size: 8pt"><B>Compiler</B></FONT></FONT></P>
+		</TD>
+		<TD BGCOLOR="#999900">
+			<P ALIGN=CENTER><FONT COLOR="#333300"><FONT SIZE=1 STYLE="font-size: 8pt"><B>Extra
+			Notes</B></FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=33%>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<A HREF="#VC"><FONT SIZE=1 STYLE="font-size: 8pt"><FONT COLOR="#66cc33">Windows
+			95/98/Me/2000/XP</FONT></FONT></A></P>
+		</TD>
+		<TD WIDTH=20%>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">Microsoft
+			Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR>Microsoft Visual
+			C++.Net 2003</FONT></FONT></P>
+		</TD>
+		<TD>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<FONT SIZE=1 STYLE="font-size: 8pt"><FONT COLOR="#66cc33">Requires
+			DirectX 9.0 SDK. Note that the last version of the DirectX 9 SDK
+			supported for VC6 is the <B>Summer 2004 version</B>.<BR><A HREF="http://www.stlport.org/">STLport</A>
+			required for versions prior to .Net 2003<BR>You should also
+			download the latest 3rd-party libraries from the site.</FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=33%>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<A HREF="#Linux"><FONT SIZE=1 STYLE="font-size: 8pt"><FONT COLOR="#66cc33">Linux</FONT></FONT></A></P>
+		</TD>
+		<TD WIDTH=20%>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">gcc (GNU
+			Compiler Collection)</FONT></FONT></P>
+		</TD>
+		<TD>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">Requires
+			gcc 3.x</FONT></FONT></P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=33%>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<A HREF="#Mac"><FONT SIZE=1 STYLE="font-size: 8pt"><FONT COLOR="#66cc33">Mac
+			OSX </FONT></FONT></A>
+			</P>
+		</TD>
+		<TD WIDTH=20%>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">gcc (GNU
+			Compiler Collection)</FONT></FONT></P>
+		</TD>
+		<TD>
+			<P ALIGN=CENTER STYLE="border-top: none; border-bottom: 1.00pt solid #666600; border-left: 1.00pt solid #666600; border-right: 1.00pt solid #666600; padding-top: 0cm; padding-bottom: 0.26cm; padding-left: 0.05cm; padding-right: 0.05cm">
+			<FONT COLOR="#66cc33"><FONT SIZE=1 STYLE="font-size: 8pt">Requires
+			gcc 3.x</FONT></FONT></P>
+		</TD>
+	</TR>
+</TABLE>
+<P ALIGN=LEFT>&nbsp;</P>
+<P CLASS="mainheader" ALIGN=LEFT><A NAME="VC"></A>Building with
+Visual C++ 6 or Visual C++.Net</P>
+<P ALIGN=LEFT>If you're building with Visual C++, follow these steps:</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm">Make sure you have downloaded and
+	installed <A HREF="http://www.stlport.org/">STLport</A>, version
+	4.6.2 if you are not using .Net 2003. The instructions for building
+	and installing STLport are in the <A HREF="../FAQ.html">FAQ</A></P>
+	<LI><P STYLE="margin-bottom: 0cm">Download and install the <A HREF="http://msdn.microsoft.com/directx">DirectX9
+	SDK</A>, get the latest if you're using VC7+, the Summer 2004
+	version plus the 'Extras' if using VC6.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Download and extract the latest
+	3rd party libraries distribution (you can find this in the downloads
+	section of the <A HREF="http://www.ogre3d.org/">OGRE hompage</A>).
+	See the <A HREF="../FAQ.html">FAQ</A> for more details.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Open either Ogre.dsw (VC6) or
+	Ogre.sln (VC7+)</P>
+	<LI><P STYLE="margin-bottom: 0cm">Check the ordering of your include
+	and library paths (in Tools | Options). The ordering should be
+	STLport (if applicable), DirectX, then everything else.</P>
+	<LI><P>Perform a Batch Build for <B>all</B> the projects. The
+	dependencies should ensure everything is built in the right order.</P>
+</OL>
+<P CLASS="mainheader"><A NAME="Linux"></A>Building under Linux</P>
+<P ALIGN=LEFT>If you're building under Linux with gcc, here's a very
+quick overview:</P>
+<OL>
+	<LI><P STYLE="margin-bottom: 0cm">If you're using gcc version 2.9x,
+	make sure you've installed <A HREF="http://www.stlport.org/">STLport</A>.
+	However, if you can we advise using gcc 3.2+.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Confirm that you have SDL 1.2.4,
+	Freetype2, DevIL, zziplib, CEGUI 0.2.0 and pkg-config available on
+	your system (if not, install them!)</P>
+	<LI><P STYLE="margin-bottom: 0cm">Change to the 'ogrenew' directory,
+		</P>
+	<LI><P STYLE="margin-bottom: 0cm">If you are installing from CVS,
+	run './bootstrap'</P>
+	<LI><P STYLE="margin-bottom: 0cm">type './configure'.</P>
+	<LI><P>Run 'make' and 'make install' (the latter as root)</P>
+</OL>
+<P>For more detailed instructions, see the<A HREF="../README.linux">
+Linux README</A>.</P>
+<P CLASS="mainheader" ALIGN=LEFT><A NAME="Mac"></A>Building under Mac
+OSX</P>
+<P ALIGN=LEFT>Please read the <A HREF="../README_MacOSX.txt">Mac
+README</A>.</P>
+<P CLASS="mainheader" ALIGN=LEFT>Explanation of the Core libraries</P>
+<P ALIGN=LEFT>OGRE compiles into a number of shared
+dynamically-linked libraries for use by OGRE applications. It also
+has a number of optional plugin libraries, which are used to provide
+rendering system implementations (e.g. an interface to DirectX) and
+special features (e.g. a BSP-oriented scene manager). Plugins are
+configured using the 'plugins.cfg' file located in the same folder as
+your application. Here's an example:</P>
+<P ALIGN=LEFT>-----snip------------------------------------------------------</P>
+<P ALIGN=LEFT>PluginFolder=plugins\</P>
+<P># Define particle system plugin<BR>Plugin=Plugin_ParticleFX</P>
+<P>-----snip------------------------------------------------------</P>
+<P>This simple plugins.cfg tells Ogre to load all plugins from the
+'plugins' folder directly under the application's folder, and to load
+Plugin_ParticleFX (.dll in Windows, .so in Linux), the particle
+system implementation.</P>
+<P>The best way to get started with OGRE is to look at the example
+applications which are included. These should make it clear to you
+how easy it is to get an OGRE application running in a surprisingly
+small amount of code!</P>
+<P CLASS="mainheader">Libraries in detail</P>
+<P ALIGN=LEFT>The libraries are:</P>
+<TABLE WIDTH=100% BORDER=1 CELLPADDING=2 CELLSPACING=0>
+	<COL WIDTH=37*>
+	<COL WIDTH=219*>
+	<TR>
+		<TD WIDTH=14%>
+			<P>OgreMain</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>The core dll which includes all the basic classes, and
+			abstractions of all the engine components which will be refined
+			per OS platform, rendering API, or per scene type. This library
+			must be on the path or in the current folder to be loaded at
+			startup. The source for this is completely cross-platform. 
+			</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>OgrePlatform</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>This library implements concrete versions of the classes
+			required to be implemented for each platform. There are currently
+			implementations for Win32 and Linux platforms.</P>
+			<P>This library is loaded dynamically by the PlatformManager class
+			(in OgreMain) and must either be on the path or in the current
+			folder.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>RenderSystem_Direct3D7/9</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>Plugin library which adds a RenderSystem implementation for
+			Direct3D. This library is loaded dynamically by the plugin
+			architecture described above, and must be located in the folder
+			specified in plugins.cfg. You may use any of these render systems
+			on Windows, but the more recent version support extra features.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>RenderSystem_GL</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>Implementation of the RenderSystem which is based on OpenGL.
+			Used for the Linux &amp; Mac platforms primarily but can be used
+			in Windows too.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>Plugin_BspSceneManager</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>Plugin specialisation of the general-purpose SceneManager for
+			rendering indoor levels based on a BSP tree. Allows Quake3 maps to
+			be loaded and rendered very efficiently whilst exposing none of
+			the complexity to the core Ogre system. This library is loaded
+			dynamically by the plugin architecture described above, and must
+			be located in the folder specified in plugins.cfg.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>Plugin_ParticleFX</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>Plugin which provides a range of particle system tools such as
+			standard emitters and affectors.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>Plugin_OctreeSceneManager</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>Plugin which provides scene management based on an octree
+			system.</P>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH=14%>
+			<P>ReferenceAppLayer</P>
+		</TD>
+		<TD WIDTH=86%>
+			<P>This is a utility library which is a client of the OgreMain
+			library, and can be used by your application to add additional
+			non-graphics related features to your application. It is designed
+			to be an example of how you might tie together other libraries
+			with OGRE in order to build a larger system; in this case we
+			implement collision and physics using ODE.</P>
+		</TD>
+	</TR>
+</TABLE>
+<P CLASS="maincontent" ALIGN=LEFT>There are also several other
+plugins, tools and demos which are built as part of the standard
+batch build process.</P>
+<P CLASS="maincontent" ALIGN=LEFT>More tips and information can be
+obtained from the <A HREF="http://www.ogre3d.org/wiki">OGRE Wiki</A>.
+</P>
+<P CLASS="maincontent" ALIGN=CENTER><A HREF="../ReadMe.html">Back to
+Readme.html</A></P>
+<P CLASS="mainheader">&nbsp;</P>
+<P>Copyright &copy; 2005 by The OGRE Team<SCRIPT>
 <!--//hide script from old browsers
 document.write( "Last modified "+ document.lastModified );
 //end hiding contents -->
-</script> </p>
-</body>
-</html>
+</SCRIPT></P>
+</BODY>
+</HTML>
