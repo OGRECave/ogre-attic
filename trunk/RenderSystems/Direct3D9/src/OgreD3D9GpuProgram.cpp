@@ -27,77 +27,49 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreD3D9Mappings.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreSDDataChunk.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
 	D3D9GpuProgram::D3D9GpuProgram(const String& name, GpuProgramType gptype, 
         const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : GpuProgram(name, gptype, syntaxCode), mpDevice(pDev)
+        : GpuProgram(name, gptype, syntaxCode), mpDevice(pDev), mpExternalMicrocode(NULL)
     {
     }
 	//-----------------------------------------------------------------------------
-    D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(name, GPT_VERTEX_PROGRAM, syntaxCode, pDev), mpVertexShader(NULL)
+    void D3D9GpuProgram::load(void)
     {
-        // do nothing here, all is done in load()
-    }
-	//-----------------------------------------------------------------------------
-    void D3D9GpuVertexProgram::loadFromSource(void)
-    {
-        // Assemble source into microcode
-        LPD3DXBUFFER microcode;
-        LPD3DXBUFFER errors;
-		//LogManager::getSingleton().logMessage(mSource);
-        HRESULT hr = D3DXAssembleShader(
-            mSource.c_str(),
-            static_cast<UINT>(mSource.length()+1),
-            NULL,               // no #define support
-            NULL,               // no #include support
-            0,                  // standard compile options
-            &microcode,
-            &errors);
-
-        if (FAILED(hr))
+        if (mIsLoaded)
         {
-			
-			Except(hr, "Cannot assemble D3D9 vertex shader " + mName + 
-				": " + DXGetErrorDescription9(hr) + "\n" + 
-				(const char*)errors->GetBufferPointer(),
-                "D3D9GpuVertexProgram::loadFromSource");
-            
+            unload();
         }
 
-        // Create the shader
-        hr = mpDevice->CreateVertexShader( 
-            static_cast<DWORD*>(microcode->GetBufferPointer()), 
-            &mpVertexShader);
-
-        if (FAILED(hr))
+        if (mpExternalMicrocode)
         {
-            Except(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
-                "D3D9GpuVertexProgram::loadFromSource");
-            
+            loadFromMicrocode(mpExternalMicrocode);
+        }
+        else
+        {
+            // Normal load-from-source approach
+            if (mLoadFromFile)
+            {
+                // find & load source code
+                SDDataChunk chunk;
+                GpuProgramManager::getSingleton()._findResourceData(mFilename, chunk);
+                mSource = chunk.getAsString();
+            }
+
+            // Call polymorphic load
+            loadFromSource();
         }
 
-
-
+        mIsLoaded = true;
 
     }
 	//-----------------------------------------------------------------------------
-    void D3D9GpuVertexProgram::unload(void)
-    {
-        SAFE_RELEASE(mpVertexShader);
-    }
-	//-----------------------------------------------------------------------------
-	//-----------------------------------------------------------------------------
-    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(name, GPT_FRAGMENT_PROGRAM, syntaxCode, pDev), mpPixelShader(NULL)
-    {
-        // do nothing here, all is done in load()
-    }
-	//-----------------------------------------------------------------------------
-    void D3D9GpuFragmentProgram::loadFromSource(void)
+    void D3D9GpuProgram::loadFromSource(void)
     {
         // Create the shader
         // Assemble source into microcode
@@ -114,23 +86,63 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot assemble D3D9 pixel shader " + mName,
-                "D3D9GpuFragmentProgram::loadFromSource");
+            Except(hr, "Cannot assemble D3D9 shader " + mName,
+                "D3D9GpuProgram::loadFromSource");
             
         }
 
+        loadFromMicrocode(microcode);
+
+        SAFE_RELEASE(microcode);
+        SAFE_RELEASE(errors);
+    }
+	//-----------------------------------------------------------------------------
+    D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(name, GPT_VERTEX_PROGRAM, syntaxCode, pDev), mpVertexShader(NULL)
+    {
+        // do nothing here, all is done in load()
+    }
+	//-----------------------------------------------------------------------------
+    void D3D9GpuVertexProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
+    {
         // Create the shader
-        hr = mpDevice->CreatePixelShader(
+        HRESULT hr = mpDevice->CreateVertexShader( 
+            static_cast<DWORD*>(microcode->GetBufferPointer()), 
+            &mpVertexShader);
+
+        if (FAILED(hr))
+        {
+            Except(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
+                "D3D9GpuVertexProgram::loadFromMicrocode");
+            
+        }
+    }
+	//-----------------------------------------------------------------------------
+    void D3D9GpuVertexProgram::unload(void)
+    {
+        SAFE_RELEASE(mpVertexShader);
+    }
+	//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(name, GPT_FRAGMENT_PROGRAM, syntaxCode, pDev), mpPixelShader(NULL)
+    {
+        // do nothing here, all is done in load()
+    }
+	//-----------------------------------------------------------------------------
+    void D3D9GpuFragmentProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
+    {
+        // Create the shader
+        HRESULT hr = mpDevice->CreatePixelShader(
             static_cast<DWORD*>(microcode->GetBufferPointer()), 
             &mpPixelShader);
 
         if (FAILED(hr))
         {
-            Except(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
-                "D3D9GpuFragmentProgram::loadFromSource");
+            Except(hr, "Cannot create D3D9 pixel shader " + mName + " from microcode.",
+                "D3D9GpuFragmentProgram::loadFromMicrocode");
             
         }
-
     }
 	//-----------------------------------------------------------------------------
     void D3D9GpuFragmentProgram::unload(void)

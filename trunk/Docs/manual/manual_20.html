@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 17 2003 by texi2html 1.64 -->
+<!-- Created on , 28 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC50"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC74"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC76"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -37,7 +37,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <H3> 3.1.4 Declaring Vertex and Fragment Programs </H3>
 <!--docid::SEC72::-->
 
-In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC74">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you first have to define them. A single program definition can be used by any number of materials, the only prerequisite is that a program must be defined before being referenced in the pass section of a material.<BR><BR>
+In order to use a vertex or fragment program in your materials (See section <A HREF="manual_21.html#SEC76">3.1.5 Using Vertex and Fragment Programs in a Pass</A>), you first have to define them. A single program definition can be used by any number of materials, the only prerequisite is that a program must be defined before being referenced in the pass section of a material.<BR><BR>
 
 The definition of a program can either be embedded in the .material script itself (in which case it must precede any references to it in the script), or if you wish to use the same program across multiple .material files, you can define it in an external .program script. You define the program in exactly the same way whether you use a .program script or a .material script, the only difference is that all .program scripts are guaranteed to have been parsed before <STRONG>all</STRONG> .material scripts, so you can guarantee that your program has been defined before any .material script that might use it. Just like .material scripts, .program scripts will be read from any location which is on your resource path, and you can define many programs in a single script.<BR><BR>
 
@@ -49,34 +49,62 @@ Here is an example of a definition of a low-level vertex program:
     source myVertexProgram.asm 
     syntax vs_1_1
 }
-</pre></td></tr></table>As you can see, that's very simple. You give the program a name in the header, followed by the word 'asm' to indicate that this is a low-level program. Inside the braces, you specify where the source is going to come from (and this is loaded from any of the resource locations as with other media), and also indicate the syntax being used. You might wonder why the syntax specification is required when many of the assembler syntaxes have a header identifying them anyway - well the reason is that the engine needs to know what syntax the program is in before reading it, because during compilation of the material, we want to skip progams which use an unsupportable syntax quickly, without loading the program first.<BR><BR>
+</pre></td></tr></table>As you can see, that's very simple, and defining a fragment program is exactly the same, just with vertex_program replaced with fragment_program. You give the program a name in the header, followed by the word 'asm' to indicate that this is a low-level program. Inside the braces, you specify where the source is going to come from (and this is loaded from any of the resource locations as with other media), and also indicate the syntax being used. You might wonder why the syntax specification is required when many of the assembler syntaxes have a header identifying them anyway - well the reason is that the engine needs to know what syntax the program is in before reading it, because during compilation of the material, we want to skip progams which use an unsupportable syntax quickly, without loading the program first.<BR><BR>
 
-Syntaxes include vs_1_1, vs_2_0, vs_2_x, ps_1_1, ps_1_2, ps_1_3, ps_1_4, ps_2_x, arbvp1, arbfp1, but you can get a definitive list of those supported by your card by calling GpuProgramManager::getSingleton().getSupportedSyntax().<BR><BR>
+The current supported syntaxes are:
+<DL COMPACT>
+<DT>vs_1_1, vs_2_0, vs_2_x, vs_3_0
+<DD>These are the DirectX vertex shader assembler syntaxes. 
+<DT>arbvp1
+<DD>This is the OpenGL standard assembler format for vertex programs. It's roughly equivalent to DirectX vs_1_1.
+<DT>ps_1_1, ps_1_2, ps_1_3, ps_1_4, ps_2_x, ps_3_0, ps_3_x
+<DD>These are the DirectX pixel shader (ie fragment program) assembler syntaxes.
+<DT>arbfp1
+<DD>This is the OpenGL standard assembler format for fragment programs. It's roughly equivalent to ps_2_0, which means that not all cards that support basic pixel shaders under DirectX support arbfp1 (for example neither the GeForce3 or GeForce4 support arbfp1, but they do support ps_1_1).
+<DT>fp20
+<DD>This is an nVidia-specific OpenGL syntax which allows you to use the 'nvparse' format for basic fragment programs. It actually uses NV_texture_shader and NV_register_combiners to provide functionality equivalent to DirectX's ps_1_1 under GL, but only for nVidia cards. However, since ATI cards adopted arbfp1 a little earlier than nVidia, it is mainly nVidia cards like the GeForce3 and GeForce4 that this will be useful for. You can find more information about nvparse at http://developer.nvidia.com/object/nvparse.html.
+</DL>
 
-Fragment program syntax is exactly the same, just replace vertex_program with fragment_program.<BR><BR>
+You can get a definitive list of the syntaxes supported by the current card by calling GpuProgramManager::getSingleton().getSupportedSyntax().<BR><BR>
+
 
 <A NAME="SEC73"></A>
 <H3> High-level Programs </H3>
 <!--docid::SEC73::-->
-Support for high level programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. The first high-level program type supported by OGRE is Cg, a cross-API, cross-platform and cross-card language which has the same syntax as Direct3D9's HLSL, but can be compiled for GL too (<A HREF="www.nvidia.com/cg">www.nvidia.com/cg</A>).<BR><BR>
+Support for high level programs is provided through plugins; this is to make sure that an application using OGRE can use as little or as much of the high-level program functionality as they like. OGRE currently supports 2 high-level program types, Cg (an API- and card-independent, high-level language which lets you write programs for both OpenGL and DirectX for lots of cards), and DirectX 9 High-Level Shader Language (HLSL). HLSL is provided for people who only want to deploy in DirectX, or who don't want to include the Cg plugin for whatever reason. To be honest, Cg is a better bet because it lets you stay API independent - and don't be put off by the fact that it's made by nVidia, it will happily compile programs down to vendor-independent standards like DirectX and OpenGL's assembler formats, so you're not limited to nVidia cards.<BR><BR>
 
-The definition of high-level programs in .program scripts allows for additional custom parameters to be set in the body of the program definition. Here is an example of declaring a Cg fragment program:
+<A NAME="SEC74"></A>
+<H3> Cg programs </H3>
+<!--docid::SEC74::-->
+In order to define Cg programs, you have to have to load Plugin_CgProgramManager.so/.dll at startup, either through plugins.cfg or through your own plugin loading code. They are very easy to define:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>fragment_program myCgFragmentProgram cg
 {
-    source mCgFragmentProgram.cg
+    source myCgFragmentProgram.cg
     entry_point main
     profiles ps_2_0 arbfp1
 }
 </pre></td></tr></table>There are a few differences between this and the assembler program - to begin with, we declare that the fragment program is of type 'cg' rather than 'asm', which indicates that it's a high-level program using Cg. The 'source' parameter is the same, except this time it's referencing a Cg source file instead of a file of assembler. <BR><BR>
 Here is where things start to change. Firstly, we need to define an 'entry_point', which is the name of a function in the Cg program which will be the first one called as part of the fragment program. Unlike assembler programs, which just run top-to-bottom, Cg programs can include multiple functions and as such you must specify the one which start the ball rolling.<BR><BR>
-Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility.
+Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles'; profiles are how Cg compiles a program down to the low-level assembler. The profiles have the same names as the assembler syntax codes mentioned above; the main difference is that you can list more than one, thus allowing the program to be compiled down to more low-level syntaxes so you can write a single high-level program which runs on both D3D and GL. You are advised to just enter the simplest profiles under which your programs can be compiled in order to give it the maximum compatibility. The ordering also matters; if a card supports more than one syntax then the one listed first will be used.
+
+<A NAME="SEC75"></A>
+<H3> DirectX9 HLSL </H3>
+<!--docid::SEC75::-->
+DirectX9 HLSL has a vert similar language syntax to Cg but is tied to the DirectX API. The only benefit over Cg is that it only requires the DirectX 9 render system plugin, not any additional plugins. Declaring a DirectX9 HLSL program is very similar to Cg. Here's an example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program myHLSLVertexProgram hlsl
+{
+    source myHLSLVertexProgram.txt
+    entry_point main
+    target vs_2_0
+}
+</pre></td></tr></table>As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.
 
 <A NAME="Using Vertex and Fragment Programs in a Pass"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC50"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC74"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC76"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -85,7 +113,7 @@ Next, instead of a fixed 'syntax' parameter, you specify one or more 'profiles';
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 17 2003</I>
+by <I>Steve Streeting</I> on <I>, 28 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

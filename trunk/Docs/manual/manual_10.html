@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 17 2003 by texi2html 1.64 -->
+<!-- Created on , 28 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -41,7 +41,7 @@ An entity is an instance of a movable object in the scene. It could be a car, a 
 
 Entities are based on discrete meshes, i.e. collections of geometry which are self-contained and typically fairly small on a world scale, which are represented by the Mesh object. Multiple entities can be based on the same mesh, since often you want to create multiple copies of the same type of object in a scene.<BR><BR>
 
-You create an entity by calling the SceneManager::createEntity method, giving it a name and specifying the name of the mesh object which it will be based on (e.g. 'muscleboundhero.oof'). The SceneManager will ensure that the mesh is loaded by calling the MeshManager resource manager for you. Only one copy of the Mesh will be loaded.<BR><BR>
+You create an entity by calling the SceneManager::createEntity method, giving it a name and specifying the name of the mesh object which it will be based on (e.g. 'muscleboundhero.mesh'). The SceneManager will ensure that the mesh is loaded by calling the MeshManager resource manager for you. Only one copy of the Mesh will be loaded.<BR><BR>
 
 Entities are not deemed to be a part of the scene until you attach them to a SceneNode (see the section below). By attaching entities to SceneNodes, you can create complex hierarchical relationships between the positions and orientations of entities. You then modify the positions of the nodes to indirectly affect the entity positions.<BR><BR>
 
@@ -65,7 +65,7 @@ When an Entity is created based on this Mesh, it is composed of (possibly) multi
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 17 2003</I>
+by <I>Steve Streeting</I> on <I>, 28 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
