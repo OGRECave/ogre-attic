@@ -1,6 +1,6 @@
-noinst_HEADERS = OgreSDLExtensionManager.h \
-				 OgreSDLPrerequisites.h \
-                 OgreSDLRenderSystem.h \
-                 OgreSDLTexture.h \
-                 OgreSDLTextureManager.h \
+noinst_HEADERS = OgreGLRenderSystem.h \
+                 OgreGLSupport.h \
+                 OgreGLTexture.h \
+                 OgreGLTextureManager.h \
+                 OgreSDLGLSupport.h \
                  OgreSDLWindow.h
