@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreHighLevelGpuProgramManager.h"
+#include "OgreExternalTextureSourceManager.h"
 
 namespace Ogre 
 {
@@ -1476,6 +1477,9 @@ namespace Ogre
         // update section
         context.section = MSS_TECHNIQUE;
 
+		//Increase technique level depth
+		context.techLev += 1;
+
         // Return TRUE because this must be followed by a {
         return true;
     }
@@ -1488,6 +1492,9 @@ namespace Ogre
         // update section
         context.section = MSS_PASS;
 
+		//Increase pass level depth
+		context.passLev += 1;
+
         // Return TRUE because this must be followed by a {
         return true;
     }
@@ -1499,6 +1506,9 @@ namespace Ogre
 
         // update section
         context.section = MSS_TEXTUREUNIT;
+
+		// Increase texture unit depth
+		context.stateLev += 1;
 
         // Return TRUE because this must be followed by a {
         return true;
@@ -1658,6 +1668,55 @@ namespace Ogre
 
 		return false;
 	}
+
+	//-----------------------------------------------------------------------
+    bool parseTextureSource(String& params, MaterialScriptContext& context)
+    {
+		params.toLowerCase();
+        StringVector vecparams = params.split(" \t");
+        if (vecparams.size() != 1)
+			logParseError("Invalid texture source attribute - expected 1 parameter.",                 context);
+        //The only param should identify which ExternalTextureSource is needed
+		ExternalTextureSourceManager::getSingleton().SetCurrentPlugIn( vecparams[0] );
+
+		if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0 )
+		{
+			String tps;
+			tps = StringConverter::toString( context.techLev ) + " "
+				+ StringConverter::toString( context.passLev ) + " "
+				+ StringConverter::toString( context.stateLev);
+
+			ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->setParameter( "set_T_P_S", tps );
+		}
+			
+        // update section
+        context.section = MSS_TEXTURESOURCE;
+        // Return TRUE because this must be followed by a {
+        return true;
+    }
+
+    //-----------------------------------------------------------------------
+    bool parseTextureCustomParameter(String& params, MaterialScriptContext& context)
+    {
+		// This params object does not have the command stripped
+		// Lower case the all
+		// Split only up to first delimiter, program deals with the rest
+		params.toLowerCase();
+		StringVector vecparams = params.split(" \t", 1);
+		if (vecparams.size() != 2)
+		{
+            logParseError("Invalid texture parameter entry; "
+				"there must be a parameter name and at least one value.", 
+				context);
+            return false;
+		}
+		
+		if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0 )
+			////First is command, next could be a string with one or more values
+			ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->setParameter( vecparams[0], vecparams[1] );
+		
+		return false;
+	}
 	
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
@@ -1694,6 +1753,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
+		mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_source", (ATTRIBUTE_PARSER)parseTextureSource));
 
         // Set up texture unit attribute parsers
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture", (ATTRIBUTE_PARSER)parseTexture));
@@ -1737,6 +1797,9 @@ namespace Ogre
         mScriptContext.program = 0;
         mScriptContext.lineNo = 0;
         mScriptContext.filename = "";
+		mScriptContext.techLev = -1;
+		mScriptContext.passLev = -1;
+		mScriptContext.stateLev = -1;
 
         mBuffer = "";
     }
@@ -1754,6 +1817,9 @@ namespace Ogre
         mScriptContext.textureUnit = 0;
         mScriptContext.program = 0;
         mScriptContext.lineNo = 0;
+		mScriptContext.techLev = -1;
+		mScriptContext.passLev = -1;
+		mScriptContext.stateLev = -1;
         mScriptContext.filename = filename;
         while(!chunk.isEOF())
         {
@@ -1815,6 +1881,10 @@ namespace Ogre
                 // End of material
                 mScriptContext.section = MSS_NONE;
                 mScriptContext.material = NULL;
+				//Reset all levels for next material
+				mScriptContext.passLev = -1;
+				mScriptContext.stateLev= -1;
+				mScriptContext.techLev = -1;
             }
             else
             {
@@ -1828,6 +1898,7 @@ namespace Ogre
                 // End of technique
                 mScriptContext.section = MSS_MATERIAL;
                 mScriptContext.technique = NULL;
+				mScriptContext.passLev = -1;	//Reset pass level (yes, the pass level)
             }
             else
             {
@@ -1841,6 +1912,7 @@ namespace Ogre
                 // End of pass
                 mScriptContext.section = MSS_TECHNIQUE;
                 mScriptContext.pass = NULL;
+				mScriptContext.stateLev = -1;	//Reset state level (yes, the state level)
             }
             else
             {
@@ -1861,6 +1933,23 @@ namespace Ogre
                 return invokeParser(line, mTextureUnitAttribParsers); 
             }
             break;
+		case MSS_TEXTURESOURCE:
+			if( line == "}" )
+			{
+				//End texture source section
+				//Finish creating texture here
+				String sMaterialName = mScriptContext.material->getName();
+				if(	ExternalTextureSourceManager::getSingleton().getCurrentPlugIn() != 0)
+					ExternalTextureSourceManager::getSingleton().getCurrentPlugIn()->createDefinedTexture( sMaterialName );
+				//Revert back to texture unit
+				mScriptContext.section = MSS_TEXTUREUNIT;
+			}
+			else
+			{
+				// custom texture parameter, use original line
+				parseTextureCustomParameter(line, mScriptContext);
+			}
+			break;
         case MSS_PROGRAM_REF:
             if (line == "}")
             {

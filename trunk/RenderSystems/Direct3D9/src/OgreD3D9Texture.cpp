@@ -91,7 +91,146 @@ namespace Ogre
 	/****************************************************************************************/
 	void D3D9Texture::blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY )
 	{
-		Except( Exception::UNIMPLEMENTED_FEATURE, "**** Blit to texture called but not implemented!!! ****", "D3D9Texture::blitToTexture" );
+		/*
+		This (as implemented currently) function is a combination of the various functions 
+		that loadimage would call to apply a bitmap to a texture. But without some of the 
+		overhead of the other functions. Mostly temp image class and the bitwise class used in
+		conversion. Now, the elimination of the bitwise stuff makes a difference of 250+ fps.
+		However, this sacrifises flexibility for speed.	Some other things to note: 
+			I'm not sure if standard windows bitmaps have the r & b inverted... But, the ones 
+				used for testing this (mainly ffmpeg stuff) do. SO they are swapped in the loop code.
+			Also, the uStartX & Y have no effect. But are here because it has use in the OpenGL
+				version of this
+			I think this is pretty straight forward... But if anyone has a better way, I would love
+				to see it. :>
+		*/
+		const unsigned char* pSrc = src.getData();
+		HRESULT hr;
+		D3DFORMAT srcFormat = this->_getPF( src.getFormat() );
+		D3DFORMAT dstFormat = _chooseD3DFormat();
+		RECT tmpDataRect = {0, 0, src.getWidth(), src.getHeight()}; // the rectangle representing the src. image dim.
+
+		// this surface will hold our temp conversion image
+		IDirect3DSurface9 *pSrcSurface = NULL;
+		hr = mpDev->CreateOffscreenPlainSurface( src.getWidth(), src.getHeight(), dstFormat, 
+						D3DPOOL_SCRATCH, &pSrcSurface, NULL);
+		// check result and except if failed
+		if (FAILED(hr))
+		{
+			this->_freeResources();
+			Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
+		}
+
+		//*** Actual copying code here ***//
+		D3DSURFACE_DESC desc;
+		D3DLOCKED_RECT rect;
+		BYTE *pSurf8;
+		BYTE *pBuf8 = (BYTE*)pSrc;
+	
+		// NOTE - dimensions of surface may differ from buffer
+		// dimensions (e.g. power of 2 or square adjustments)
+		// Lock surface
+		pSrcSurface->GetDesc(&desc);
+
+		// lock our surface to acces raw memory
+		if( FAILED( hr = pSrcSurface->LockRect(&rect, NULL, D3DLOCK_NOSYSLOCK) ) )
+		{
+			Except( hr, "Unable to lock temp texture surface", "D3D9Texture::_copyMemoryToSurface" );
+			this->_freeResources();
+			SAFE_RELEASE(pSrcSurface);
+		}
+		
+		// loop through data and do conv.
+		char r, g, b;
+		unsigned int iRow, iCol;
+
+		//XXX: This loop is a hack. But - it means the difference between ~20fps and ~300fps
+		for( iRow = mSrcHeight - 1; iRow > 0; iRow-- )
+		{
+			// NOTE: Direct3D used texture coordinates where (0,0) is the TOP LEFT corner of texture
+			// Everybody else (OpenGL, 3D Studio, etc) uses (0,0) as BOTTOM LEFT corner
+			// So whilst we load, flip the texture in the Y-axis to compensate
+			pSurf8 = (BYTE*)rect.pBits + ((mSrcHeight - iRow - 1) * rect.Pitch);
+			for( iCol = 0; iCol < mSrcWidth; iCol++ )
+			{
+				// Read RGBA values from buffer
+				if( mSrcBpp >= 24 )
+				{
+					r = *pBuf8++;
+					g = *pBuf8++;
+					b = *pBuf8++;
+				}
+				//r & b are swapped
+				*pSurf8++ = b;
+				*pSurf8++ = g;
+				*pSurf8++ = r;
+				
+			} // for( iCol...
+		} // for( iRow...
+		// unlock the surface
+		pSrcSurface->UnlockRect();
+		
+		//*** Copy to main surface here ***//
+		IDirect3DSurface9 *pDstSurface; 
+		if (mpTmpNormTex)
+			hr = mpTmpNormTex->GetSurfaceLevel(0, &pDstSurface);// s/w mipmaps, use temp texture
+		else
+			hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);// h/w mipmaps, use the final texture
+
+		// check result and except if failed
+		if (FAILED(hr))
+		{
+			SAFE_RELEASE(pSrcSurface);
+			this->_freeResources();
+			Except( hr, "Error getting level 0 surface from dest. texture", "D3D9Texture::_blitImageToTexture" );
+		}
+
+		// copy surfaces
+		hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
+		// check result and except if failed
+		if (FAILED(hr))
+		{
+			SAFE_RELEASE(pSrcSurface);
+			SAFE_RELEASE(pDstSurface);
+			this->_freeResources();
+			Except( hr, "Error copying original surface to texture", "D3D9Texture::_blitImageToTexture" );
+		}
+
+		if (mpTmpNormTex)
+		{
+			if( FAILED( hr = D3DXFilterTexture( mpTmpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+			{
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+				Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToTexture" );
+			}
+			if( FAILED( hr = mpDev->UpdateTexture( mpTmpNormTex, mpNormTex ) ) )
+			{
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+				Except( hr, "Failed to update texture", "D3D9Texture::_blitImageToTexture" );
+			}
+		}
+		else
+		{
+			// Hardware mipmapping
+			// use best filtering method supported by hardware
+			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+			if (FAILED(hr))
+			{
+				SAFE_RELEASE(pSrcSurface);
+				SAFE_RELEASE(pDstSurface);
+				this->_freeResources();
+				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToNormTex" );
+			}
+			mpNormTex->GenerateMipSubLevels();
+		}
+
+		SAFE_RELEASE(pDstSurface);
+		SAFE_RELEASE(pSrcSurface);
+		SAFE_RELEASE(mpTmpNormTex);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::copyToTexture(Texture *target)

@@ -95,6 +95,7 @@ namespace Ogre
         RenderWindow* mAutoWindow;
         Profiler* mProfiler;
         HighLevelGpuProgramManager* mHighLevelGpuProgramManager;
+		ExternalTextureSourceManager* mExternalTextureSourceManager;
         unsigned long mCurrentFrame;
 
         std::vector<DynLib*> mPluginLibs;

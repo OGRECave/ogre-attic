@@ -240,6 +240,14 @@ SOURCE=..\src\OgreException.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreExternalTextureSource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreExternalTextureSourceManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreFont.cpp
 # End Source File
 # Begin Source File
@@ -863,6 +871,14 @@ SOURCE=..\include\OgreEventTarget.h
 # Begin Source File
 
 SOURCE=..\include\OgreException.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreExternalTextureSource.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreExternalTextureSourceManager.h
 # End Source File
 # Begin Source File
 
