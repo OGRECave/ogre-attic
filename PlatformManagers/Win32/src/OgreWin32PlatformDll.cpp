@@ -60,7 +60,16 @@ namespace Ogre {
 #endif
     }
 
+	/// Creates a Timer using default implementation
+	extern "C" void createTimer(Timer** ppTimer)
+	{
+		*ppTimer = new Timer();
+	}
 
+	extern "C" void destroyTimer(Timer* ppTimer)
+	{
+		delete ppTimer;
+	}
     /// Retrieves an instance of an input reader for this platform
     extern "C" void createPlatformInputReader(InputReader** ppReader)
     {

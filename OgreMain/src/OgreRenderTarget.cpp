@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreRenderTargetListener.h"
+#include "OgrePlatformManager.h"
 
 namespace Ogre {
 
@@ -40,6 +41,7 @@ namespace Ogre {
         mStatFlags = SF_NONE;
         mActive = true;
         mPriority = OGRE_DEFAULT_RT_GROUP;
+		mTimer = PlatformManager::getSingleton().createTimer();
         resetStatistics();
     }
 
@@ -51,6 +53,8 @@ namespace Ogre {
         {
             delete (*i).second;
         }
+
+        PlatformManager::getSingleton().destroyTimer(mTimer);
 
         // Write closing message
         LogManager::getSingleton().logMessage(
@@ -201,24 +205,45 @@ namespace Ogre {
         mLastFPS = 0.0;
         mLastFPS = 0.0;
         mWorstFPS = 999.0;
+		mBestFrameTime = 999.0;
+		mWorstFrameTime = 0.0;
     }
 
     void RenderTarget::updateStats(void)
     {
-        static float lastTime = 0.0f;
+        static unsigned long lastSecond = 0; // in ms
+		static unsigned long lastTime = 0; 
         static long numFrames  = 0;
+		static bool firstRun = true ;
+		static long bestFrameTime = 999999;
+		static long worstFrameTime = 0;
+		bool needUpdate ;
 
-        // Keep track of the time lapse and frame count
-        float fTime = ((float)clock())/CLOCKS_PER_SEC; // Get current time in seconds
+		if (firstRun) { 
+			//reset timer
+			mTimer->reset();
+			firstRun = false ;
+			needUpdate = true ;
+		} else { 
+			// measure statistics
+			needUpdate = false ;
         ++numFrames;
+			unsigned long thisTime = mTimer->getMilliseconds();
 
-        // Update the frame rate once per second
-        if( fTime - lastTime > 1.0f )
-        {
-            // Don't update stats first time (first time includes init times)
-            if (lastTime)
-            {
-                mLastFPS = numFrames / (fTime - lastTime);
+			// check frame time
+			unsigned long frameTime = thisTime - lastTime ;
+			if (frameTime > worstFrameTime)
+				worstFrameTime = frameTime ;
+			if (frameTime < bestFrameTime)
+				bestFrameTime = frameTime ;
+			lastTime = thisTime ;
+			
+			// check if new second
+			if (thisTime - lastSecond > 1000) { 
+				// new second - not 100% precise
+				needUpdate = true ;
+				mLastFPS = (float)numFrames / (float)(thisTime - lastSecond) * 1000.0;
+
                 if (mAvgFPS == 0)
                     mAvgFPS = mLastFPS;
                 else
@@ -229,13 +254,17 @@ namespace Ogre {
 
                 if (mWorstFPS > mLastFPS)
                     mWorstFPS = mLastFPS;
-            }
 
-
-            lastTime = fTime;
+				lastSecond = thisTime ;
             numFrames  = 0;
-        }
 
+				mBestFrameTime = bestFrameTime ;
+				mWorstFrameTime = worstFrameTime ;
+				
+				bestFrameTime = 999999;
+				worstFrameTime = 0 ;
+			}
+		}
 
         static String currFps = "Current FPS: ";
         static String avgFps = "Average FPS: ";
@@ -243,16 +272,23 @@ namespace Ogre {
         static String worstFps = "Worst FPS: ";
         static String tris = "Triangle Count: ";
 
+		if (needUpdate) {
+			// update stats when necessary
         GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
         GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
         GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
         GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
-        GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
 
         guiAvg->setCaption(avgFps + StringConverter::toString(mAvgFPS));
         guiCurr->setCaption(currFps + StringConverter::toString(mLastFPS));
-        guiBest->setCaption(bestFps + StringConverter::toString(mBestFPS));
-        guiWorst->setCaption(worstFps + StringConverter::toString(mWorstFPS));
+	        guiBest->setCaption(bestFps + StringConverter::toString(mBestFPS)
+				+" "+StringConverter::toString(mBestFrameTime)+" ms");
+	        guiWorst->setCaption(worstFps + StringConverter::toString(mWorstFPS)
+				+" "+StringConverter::toString(mWorstFrameTime)+" ms");
+		}
+
+        GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
+
         guiTris->setCaption(tris + StringConverter::toString(mTris));
 
         GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");

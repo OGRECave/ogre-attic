@@ -5,6 +5,7 @@ platform_PROGRAMS = OgrePlatform.so
 
 OgrePlatform_so_SOURCES = OgreSDLConfig.cpp\
                           OgreSDLInput.cpp \
+						  OgreSDLTimer.cpp \
                           OgreSDLPlatform.cpp
 
 BUILT_SOURCES = OgreSDLConfig.cpp

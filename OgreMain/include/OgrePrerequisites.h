@@ -204,6 +204,7 @@ namespace Ogre {
 	class TagPoint;
 	class TargetManager;
 	class TextureFont;
+	class Timer;
     class UserDefinedObject;
     class Vector3;
     class Viewport;  
