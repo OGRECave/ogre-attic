@@ -9,7 +9,7 @@ Example/DynTexOverlay
 		left 5 
 		top 5
 		width 200
-		height 87
+		height 100
 		material Core/StatsBlockCenter
         	border_size 1 1 1 1
         	border_material Core/StatsBlockBorder
@@ -88,6 +88,20 @@ Example/DynTexOverlay
 			font_name TrebuchetMSBold
 			char_height 16
 			caption [7/8]Diffusion 2:
+			colour_top 0.5 0.7 0.5
+			colour_bottom 0.3 0.5 0.3
+		}
+
+		element TextArea(Example/DynTex/Zero)
+		{
+			metrics_mode pixels
+			left 5
+			top 80
+			width 90
+			height 30
+			font_name TrebuchetMSBold
+			char_height 16
+			caption [0]Reset initial conditions
 			colour_top 0.5 0.7 0.5
 			colour_bottom 0.3 0.5 0.3
 		}
