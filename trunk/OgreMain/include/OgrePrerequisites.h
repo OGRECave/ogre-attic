@@ -116,6 +116,11 @@ namespace Ogre {
     typedef unsigned int uint;  
     typedef unsigned long ulong;
 
+    /// Useful macros
+    #define OGRE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
+    #define OGRE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
+
+
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files

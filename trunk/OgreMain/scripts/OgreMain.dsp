@@ -212,6 +212,10 @@ SOURCE=..\src\OgreDynLibManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreEdgeListBuilder.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreEntity.cpp
 # End Source File
 # Begin Source File
@@ -803,6 +807,10 @@ SOURCE=..\include\OgreDynLib.h
 # Begin Source File
 
 SOURCE=..\include\OgreDynLibManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreEdgeListBuilder.h
 # End Source File
 # Begin Source File
 

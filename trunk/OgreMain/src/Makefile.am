@@ -30,6 +30,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreDDSCodec.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
+                         OgreEdgeListBuilder.cpp \
                          OgreEntity.cpp \
                          OgreEventDispatcher.cpp \
                          OgreEventMulticaster.cpp \
