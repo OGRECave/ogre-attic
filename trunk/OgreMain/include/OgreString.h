@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 
 namespace Ogre {
-    typedef std::basic_string<OGRE_CHAR_TYPE> _StringBase;
+    typedef std::basic_string< Char > _StringBase;
        
 };
 
