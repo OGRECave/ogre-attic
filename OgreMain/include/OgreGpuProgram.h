@@ -95,7 +95,7 @@ namespace Ogre {
         public:
             /// The type of parameter
             AutoConstantType paramType;
-            /// The target index
+            /// The target constant index
             size_t index;
             /// Additional information to go with the parameter
             size_t data;
@@ -104,10 +104,30 @@ namespace Ogre {
                 : paramType(theType), index(theIndex), data(theData) {}
 
         };
+        /** Real parameter entry; contains both a group of 4 values and 
+        an indicator to say if it's been set or not. This allows us to 
+        filter out constant entries which have not been set by the renderer
+        and may actually be being used internally by the program. */
+        struct RealConstantEntry
+        {
+            Real val[4];
+            bool isSet;
+            RealConstantEntry() : isSet(false) {}
+        };
+        /** Int parameter entry; contains both a group of 4 values and 
+        an indicator to say if it's been set or not. This allows us to 
+        filter out constant entries which have not been set by the renderer
+        and may actually be being used internally by the program. */
+        struct IntConstantEntry
+        {
+            int val[4];
+            bool isSet;
+            IntConstantEntry() : isSet(false) {}
+        };
     protected:
         // Constant lists
-        typedef std::vector<Real> RealConstantList;
-        typedef std::vector<int> IntConstantList;
+        typedef std::vector<RealConstantEntry> RealConstantList;
+        typedef std::vector<IntConstantEntry> IntConstantList;
         // Auto parameter storage
         typedef std::vector<AutoConstantEntry> AutoConstantList;
         /// Packed list of floating-point constants
@@ -123,88 +143,42 @@ namespace Ogre {
 
     public:
 		GpuProgramParameters() {}
-		virtual ~GpuProgramParameters() {}
+		~GpuProgramParameters() {}
 
-		/** Sets a single value constant floating-point parameter to the program.
-        @remarks
-            Different types of GPU programs support different types of constant parameters.
-            For example, it's relatively common to find that vertex programs only support
-            floating point constants, and that fragment programs only support integer (fixed point)
-            parameters. This can vary depending on the program version supported by the
-            graphics card being used. You should consult the documentation for the type of
-            low level program you are using, or alternatively use the methods
-            provided on RenderSystemCapabilities to determine the options.
-        @param
-            Another possible limitation is that some systems only allow constants to be set
-            on certain boundaries, e.g. in sets of 4 values for example. Again, see
-            RenderSystemCapabilities for full details.
-		@param index The index at which to place the parameter
-		@param val The value to set
-		*/
-		virtual void setConstant(size_t index, Real val);
-		/** Sets a single value constant integer parameter to the program.
-        @remarks
-            Different types of GPU programs support different types of constant parameters.
-            For example, it's relatively common to find that vertex programs only support
-            floating point constants, and that fragment programs only support integer (fixed point)
-            parameters. This can vary depending on the program version supported by the
-            graphics card being used. You should consult the documentation for the type of
-            low level program you are using, or alternatively use the methods
-            provided on RenderSystemCapabilities to determine the options.
-        @param
-            Another possible limitation is that some systems only allow constants to be set
-            on certain boundaries, e.g. in sets of 4 values for example. Again, see
-            RenderSystemCapabilities for full details.
-		@param index The index at which to place the parameter
-		@param val The value to set
-		*/
-		virtual void setConstant(size_t index, int val);
-		/** Sets a Vector4 parameter to the program.
-		@param index The index at which to place the parameter
-			NB this index refers to the number of floats, so a Vector4 is 4. 
+		/** Sets a 4-element floating-point parameter to the program.
+		@param index The constant index at which to place the parameter (each constant is
+            a 4D float)
 		@param vec The value to set
 		*/
-		virtual void setConstant(size_t index, const Vector4& vec);
-		/** Sets a Vector3 parameter to the program.
-		@param index The index at which to place the parameter
-			NB this index refers to the number of floats, so a Vector3 is 3. Note that many 
-            rendersystems & programs assume that every floating point parameter is passed in
-            as a vector of 4 items, so you are strongly advised to check with 
-            RenderSystemCapabilities before using this version - if in doubt use Vector4
-            or ColourValue instead (both are 4D).
+		void setConstant(size_t index, const Vector4& vec);
+		/** Sets a 4-element floating-point parameter to the program via Vector3.
+		@param index The constant index at which to place the parameter (each constant is
+            a 4D float).
+            Note that since you're passing a Vector3, the last element of the 4-element
+            value will be set to 1 (a homogenous vector)
 		@param vec The value to set
 		*/
-		virtual void setConstant(size_t index, const Vector3& vec);
+		void setConstant(size_t index, const Vector3& vec);
 		/** Sets a Matrix4 parameter to the program.
-		@param index The index at which to place the parameter
-			NB this index refers to the number of floats, so a Matrix4 is 16. 
+		@param index The constant index at which to place the parameter (each constant is
+            a 4D float).
+            NB since a Matrix4 is 16 floats long, this parameter will take up 4 indexes.
 		@param m The value to set
 		*/
-		virtual void setConstant(size_t index, const Matrix4& m);
+		void setConstant(size_t index, const Matrix4& m);
 		/** Sets a multiple value constant floating-point parameter to the program.
-        @remarks
-            Different types of GPU programs support different types of constant parameters.
-            For example, it's relatively common to find that vertex programs only support
-            floating point constants, and that fragment programs only support integer (fixed point)
-            parameters. This can vary depending on the program version supported by the
-            graphics card being used. You should consult the documentation for the type of
-            low level program you are using, or alternatively use the methods
-            provided on RenderSystemCapabilities to determine the options.
-        @param
-            Another possible limitation is that some systems only allow constants to be set
-            on certain boundaries, e.g. in sets of 4 values for example. Again, see
-            RenderSystemCapabilities for full details.
-		@param index The index at which to start placing parameters
+		@param index The constant index at which to start placing parameters (each constant is
+            a 4D float)
 		@param val Pointer to the values to write
-		@param count The number of floats to write
+		@param count The number of floats to write, must be a multiple of 4.
 		*/
-		virtual void setConstant(size_t index, const Real *val, size_t count);
+		void setConstant(size_t index, const Real *val, size_t count);
 		/** Sets a ColourValue parameter to the program.
-		@param index The index at which to place the parameter
-			NB this index refers to the number of floats, so a Vector4 is 4. 
+		@param index The constant index at which to place the parameter (each constant is
+            a 4D float)
 		@param colour The value to set
 		*/
-        virtual void setConstant(size_t index, const ColourValue& colour);
+        void setConstant(size_t index, const ColourValue& colour);
 		
 		/** Sets a multiple value constant integer parameter to the program.
         @remarks
@@ -215,33 +189,33 @@ namespace Ogre {
             graphics card being used. You should consult the documentation for the type of
             low level program you are using, or alternatively use the methods
             provided on RenderSystemCapabilities to determine the options.
-        @param
-            Another possible limitation is that some systems only allow constants to be set
-            on certain boundaries, e.g. in sets of 4 values for example. Again, see
-            RenderSystemCapabilities for full details.
-		@param index The index at which to start placing parameters
+		@param index The constant index at which to place the parameter (each constant is
+            a 4D integer)
 		@param val Pointer to the values to write
-		@param count The number of integers to write
+		@param count The number of integers to write, must be a multiple of 4
 		*/
-		virtual void setConstant(size_t index, const int *val, size_t count);
+		void setConstant(size_t index, const int *val, size_t count);
 
         /** Deletes the contents of the Real constants registers. */
-        virtual void resetRealConstants(void) { mRealConstants.clear(); }
+        void resetRealConstants(void) { mRealConstants.clear(); }
         /** Deletes the contents of the int constants registers. */
-        virtual void resetIntConstants(void) { mIntConstants.clear(); }
+        void resetIntConstants(void) { mIntConstants.clear(); }
 
-        /// Gets a pointer to the array of Real constants
-        virtual const Real* getRealConstantPointer(void) const { return &mRealConstants[0]; }
-        /// Gets a pointer to the array of int constants
-        virtual const int* getIntConstantPointer(void) const { return &mIntConstants[0]; }
+        typedef VectorIterator<RealConstantList> RealConstantIterator;
+        typedef VectorIterator<IntConstantList> IntConstantIterator;
+        /// Gets an iterator over the Real constant parameters
+        RealConstantIterator getRealConstantIterator(void);
+        /// Gets an iterator over the integer constant parameters
+        IntConstantIterator getIntConstantIterator(void);
+        
         /// Gets the number of Real constants that have been set
-        virtual size_t getRealConstantCount(void) const { return mRealConstants.size(); }
+        size_t getRealConstantCount(void) const { return mRealConstants.size(); }
         /// Gets the number of int constants that have been set
-        virtual size_t getIntConstantCount(void) const { return mIntConstants.size(); }
+        size_t getIntConstantCount(void) const { return mIntConstants.size(); }
         /// Returns true if there are any Real constants contained here
-        virtual bool hasRealConstantParams(void) const { return !(mRealConstants.empty()); }
+        bool hasRealConstantParams(void) const { return !(mRealConstants.empty()); }
         /// Returns true if there are any int constants contained here
-        virtual bool hasIntConstantParams(void) const { return !(mIntConstants.empty()); }
+        bool hasIntConstantParams(void) const { return !(mIntConstants.empty()); }
 
         /** Sets up a constant which will automatically be updated by the system.
         @remarks
@@ -256,23 +230,16 @@ namespace Ogre {
         @param acType The type of automatic constant to set
         @param extraInfo If the constant type needs more information (like a light index) put it here.
         */
-        virtual void setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo = 0);
+        void setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo = 0);
         /** Clears all the existing automatic constants. */
-        virtual void clearAutoConstants(void);
+        void clearAutoConstants(void);
         typedef VectorIterator<AutoConstantList> AutoConstantIterator;
         /** Gets an iterator over the automatic constant bindings currently in place. */
-        virtual AutoConstantIterator getAutoConstantIterator(void);
+        AutoConstantIterator getAutoConstantIterator(void);
         /** Returns true if this instance has any automatic constants. */
-        virtual bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
+        bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
         /** Updates the automatic parameters based on the details provided. */
-        virtual void _updateAutoParams(const AutoParamDataSource& source);
-		/** Aligns the number of parameters in this GpuProgram to a multiple of
-		 the passed in value, padding out the end with zeroes.
-		 @remarks
-		 	This is useful for compatibility with rendersystems that require
-			values to be set on certain boundaries.
-		*/
-		virtual void _align(size_t intAlignment, size_t realAlignment);
+        void _updateAutoParams(const AutoParamDataSource& source);
 
 		/** Sets a single value constant floating-point parameter to the program.
         @remarks
@@ -293,7 +260,7 @@ namespace Ogre {
 		@param name The name of the parameter
 		@param val The value to set
 		*/
-		virtual void setNamedConstant(const String& name, Real val);
+		void setNamedConstant(const String& name, Real val);
 		/** Sets a single value constant integer parameter to the program.
         @remarks
             Different types of GPU programs support different types of constant parameters.
@@ -313,12 +280,12 @@ namespace Ogre {
         @param name The name of the parameter
 		@param val The value to set
 		*/
-		virtual void setNamedConstant(const String& name, int val);
+		void setNamedConstant(const String& name, int val);
 		/** Sets a Vector4 parameter to the program.
         @param name The name of the parameter
 		@param vec The value to set
 		*/
-		virtual void setNamedConstant(const String& name, const Vector4& vec);
+		void setNamedConstant(const String& name, const Vector4& vec);
 		/** Sets a Vector3 parameter to the program.
         @note
             This named option will only work if you are using a parameters object created
@@ -331,12 +298,12 @@ namespace Ogre {
             or ColourValue instead (both are 4D).
 		@param vec The value to set
 		*/
-		virtual void setNamedConstant(const String& name, const Vector3& vec);
+		void setNamedConstant(const String& name, const Vector3& vec);
 		/** Sets a Matrix4 parameter to the program.
         @param name The name of the parameter
 		@param m The value to set
 		*/
-		virtual void setNamedConstant(const String& name, const Matrix4& m);
+		void setNamedConstant(const String& name, const Matrix4& m);
 		/** Sets a multiple value constant floating-point parameter to the program.
         @remarks
             Different types of GPU programs support different types of constant parameters.
@@ -357,12 +324,12 @@ namespace Ogre {
 		@param val Pointer to the values to write
 		@param count The number of floats to write
 		*/
-		virtual void setNamedConstant(const String& name, const Real *val, size_t count);
+		void setNamedConstant(const String& name, const Real *val, size_t count);
 		/** Sets a ColourValue parameter to the program.
         @param name The name of the parameter
 		@param colour The value to set
 		*/
-        virtual void setNamedConstant(const String& name, const ColourValue& colour);
+        void setNamedConstant(const String& name, const ColourValue& colour);
 		
 		/** Sets a multiple value constant integer parameter to the program.
         @remarks
@@ -384,7 +351,7 @@ namespace Ogre {
 		@param val Pointer to the values to write
 		@param count The number of integers to write
 		*/
-		virtual void setNamedConstant(const String& name, const int *val, size_t count);
+		void setNamedConstant(const String& name, const int *val, size_t count);
 
         /** Sets up a constant which will automatically be updated by the system.
         @remarks
@@ -400,7 +367,7 @@ namespace Ogre {
         @param acType The type of automatic constant to set
         @param extraInfo If the constant type needs more information (like a light index) put it here.
         */
-        virtual void setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo = 0);
+        void setNamedAutoConstant(const String& name, AutoConstantType acType, size_t extraInfo = 0);
         /// Internal method for associating a parameter name with an index
         void _mapParameterNameToIndex(const String& name, size_t index);
     };

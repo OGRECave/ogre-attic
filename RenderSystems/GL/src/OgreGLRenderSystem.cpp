@@ -270,11 +270,8 @@ namespace Ogre {
 
             // Vertex Program Properties
             mCapabilities->setMaxVertexProgramVersion("arbvp1");
-            mCapabilities->setVertexProgramConstantBoolBoundary(0);
             mCapabilities->setVertexProgramConstantBoolCount(0);
-            mCapabilities->setVertexProgramConstantIntBoundary(0);
             mCapabilities->setVertexProgramConstantIntCount(0);
-            mCapabilities->setVertexProgramConstantFloatBoundary(4);
             mCapabilities->setVertexProgramConstantFloatCount(
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
@@ -286,11 +283,8 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             // Fragment Program Properties
             mCapabilities->setMaxFragmentProgramVersion("arbfp1");
-            mCapabilities->setFragmentProgramConstantBoolBoundary(0);
             mCapabilities->setFragmentProgramConstantBoolCount(0);
-            mCapabilities->setFragmentProgramConstantIntBoundary(0);
             mCapabilities->setFragmentProgramConstantIntCount(0);
-            mCapabilities->setFragmentProgramConstantFloatBoundary(4);
             mCapabilities->setFragmentProgramConstantFloatCount(
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
@@ -1748,18 +1742,24 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
     {
-		// Align first
-		params->_align(4, 4);
 
         GLenum type = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-
+        
         if (params->hasRealConstantParams())
         {
-            const Real* real_consts = params->getRealConstantPointer();
-            for (int i = 0; i < (params->getRealConstantCount()/4); ++i)
+            // Iterate over params and set the relevant ones
+            GpuProgramParameters::RealConstantIterator realIt = 
+                params->getRealConstantIterator();
+            unsigned int index = 0;
+            while (realIt.hasMoreElements())
             {
-                glProgramLocalParameter4fvARB(type, i, &real_consts[i*4]);
+                GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+                if (e->isSet)
+                {
+                    glProgramLocalParameter4fvARB(type, index++, e->val);
+                }
+                realIt.moveNext();
             }
         }
     }

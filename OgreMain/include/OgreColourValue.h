@@ -62,7 +62,12 @@ namespace Ogre {
 	    bool operator==(const ColourValue& rhs) const;
 	    bool operator!=(const ColourValue& rhs) const;
 
-	    Real r,g,b,a;
+        union {
+            struct {
+	            Real r,g,b,a;
+            };
+            Real val[4];
+        };
 
 	    /** Retrieves colour as RGBA.
 	    */

@@ -161,12 +161,23 @@ namespace Ogre {
             // Look for uniform (non-sampler) parameters only
             // Don't bother enumerating unused parameters, especially since they will
             // be optimised out and therefore not in the indexed versions
+            CGtype paramType = cgGetParameterType(parameter);
+            
+            // *** test
+            String tempName = cgGetParameterName(parameter);
+            size_t tempindex = cgGetParameterResourceIndex(parameter);
+            LogManager::getSingleton().logMessage(
+                tempName + " -> " + StringConverter::toString(tempindex));
+
+            // *** end test
+
             if (cgGetParameterVariability(parameter) == CG_UNIFORM &&
-                cgGetParameterType(parameter) != CG_SAMPLER1D &&
-                cgGetParameterType(parameter) != CG_SAMPLER2D &&
-                cgGetParameterType(parameter) != CG_SAMPLER3D &&
-                cgGetParameterType(parameter) != CG_SAMPLERCUBE &&
-                cgGetParameterType(parameter) != CG_SAMPLERRECT &&
+                paramType != CG_SAMPLER1D &&
+                paramType != CG_SAMPLER2D &&
+                paramType != CG_SAMPLER3D &&
+                paramType != CG_SAMPLERCUBE &&
+                paramType != CG_SAMPLERRECT &&
+                cgGetParameterDirection(parameter) != CG_OUT && 
                 cgIsParameterReferenced(parameter))
             {
                 String paramName = cgGetParameterName(parameter);
