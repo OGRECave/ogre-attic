@@ -64,9 +64,8 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------
     ResourcePtr ResourceManager::load(const String& name, 
-        const String& group,
-        const NameValuePairList& loadParams, bool isManual = false, 
-        ManualResourceLoader* loader = 0)
+        const String& group, bool isManual, ManualResourceLoader* loader, 
+        const NameValuePairList* loadParams)
     {
         ResourcePtr ret = create(name, group, isManual, loader, loadParams);
         ret->load();

@@ -174,18 +174,17 @@ namespace Ogre {
 			(containing per-Resource-type parameters).
 		@param name The name of the Resource
 		@param group The resource group to which this resource will belong
-		@param loadParams A list of name/value pairs containing loading parameters
-			for this type of resource.
 		@param isManual Is the resource to be manually loaded? If so, you should
 			provide a value for the loader parameter
 		@param loader The manual loader which is to perform the required actions
 			when this resource is loaded; only applicable when you specify true
 			for the previous parameter
+        @param loadParams Optional pointer to a list of name/value pairs 
+            containing loading parameters for this type of resource.
 		*/
 		virtual ResourcePtr load(const String& name, 
-            const String& group,
-			const NameValuePairList& loadParams, bool isManual = false, 
-			ManualResourceLoader* loader = 0);
+            const String& group, bool isManual = false, 
+			ManualResourceLoader* loader = 0, const NameValuePairList* loadParams = 0);
 
 		/** Gets the file patterns which should be used to find scripts for this
 			ResourceManager.
