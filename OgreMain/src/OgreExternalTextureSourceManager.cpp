@@ -65,7 +65,7 @@ namespace Ogre
 
 	//****************************************************************************************
 	
-	void ExternalTextureSourceManager::SetCurrentPlugIn( String sTexturePlugInType )
+	void ExternalTextureSourceManager::SetCurrentPlugIn( const String& sTexturePlugInType )
 	{
 		TextureSystemList::iterator i;
 			
@@ -83,7 +83,7 @@ namespace Ogre
 	}
 
 	//****************************************************************************************
-	void ExternalTextureSourceManager::DestroyAdvancedTexture( String sTextureName )
+	void ExternalTextureSourceManager::DestroyAdvancedTexture( const String& sTextureName )
 	{
 		TextureSystemList::iterator i;
 		for( i = mTextureSystems.begin(); i != mTextureSystems.end(); ++i )
@@ -94,7 +94,7 @@ namespace Ogre
 	}
 
 	//****************************************************************************************
-	void ExternalTextureSourceManager::setExternalTextureSource( String sTexturePlugInType, ExternalTextureSource* pTextureSystem )
+	void ExternalTextureSourceManager::setExternalTextureSource( const String& sTexturePlugInType, ExternalTextureSource* pTextureSystem )
 	{
 		LogManager::getSingleton().logMessage( "Registering Texture Controller: Type = "
 						+ sTexturePlugInType + " Name = " + pTextureSystem->getPlugInStringName());
@@ -123,7 +123,7 @@ namespace Ogre
 	}
 
 	//****************************************************************************************
-	ExternalTextureSource* ExternalTextureSourceManager::getExternalTextureSource( String sTexturePlugInType )
+	ExternalTextureSource* ExternalTextureSourceManager::getExternalTextureSource( const String& sTexturePlugInType )
 	{
 		TextureSystemList::iterator i;
 		for( i = mTextureSystems.begin(); i != mTextureSystems.end(); ++i )

@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreBillboardSet.h"
 #include "OgreVector3.h"
 #include "OgreString.h"
-#include "OgreAxisAlignedBox.h"
 #include "OgreParticleIterator.h"
 #include "OgreStringInterface.h"
 

@@ -307,7 +307,7 @@ namespace Ogre {
             the reference returned is to a shared volume which will be 
             reused across calls to this method.
         */
-        const PlaneBoundedVolume& _getNearClipVolume(const Camera* cam) const;
+        const PlaneBoundedVolume& _getNearClipVolume(const Camera* const cam) const;
 
         /** Internal method for calculating the clip volumes outside of the 
             frustum which can be used to determine which objects are casting
@@ -315,7 +315,7 @@ namespace Ogre {
         @remarks Each of the volumes is a pyramid for a point/spot light and
             a cuboid for a directional light. 
         */
-        const PlaneBoundedVolumeList& _getFrustumClipVolumes(const Camera* cam) const;
+        const PlaneBoundedVolumeList& _getFrustumClipVolumes(const Camera* const cam) const;
 
 
 

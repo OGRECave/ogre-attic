@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix3.h"
 #include "OgreMatrix4.h"
 #include "OgreQuaternion.h"
-#include "OgreAxisAlignedBox.h"
 #include "OgreString.h"
 #include "OgreRenderable.h"
 #include "OgreIteratorWrappers.h"

@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _Codec_H__
 #define _Codec_H__
 
-#include "OgreDataChunk.h"
+#include "OgrePrerequisites.h"
 
 namespace Ogre {
 
