@@ -39,7 +39,7 @@ namespace Ogre {
         #if OGRE_PLATFORM == PLATFORM_WIN32
             libraryName += "dll";
         #else
-            libraryName += "so";
+            libraryName = "lib" + libraryName + "so";
         #endif
 
         DynLib* lib = DynLibManager::getSingleton().load(libraryName);
