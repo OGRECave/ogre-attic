@@ -50,7 +50,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::activate(void)
 	{
-		if(!mLinked)
+		if (!mLinked)
 		{
 			glLinkProgramARB_ptr( mGLHandle );
 			glGetObjectParameterivARB_ptr( mGLHandle, GL_OBJECT_LINK_STATUS_ARB, &mLinked );
@@ -65,7 +65,7 @@ namespace Ogre {
 
 		}
 
-		if(mLinked)
+		if (mLinked)
 		{
 		    glUseProgramObjectARB_ptr( mGLHandle );
 		}
@@ -101,51 +101,51 @@ namespace Ogre {
 					// user defined uniform found, add it to the reference list
 					newUniformReference.mName = String( uniformName );
 					// decode uniform size and type
-					switch(newUniformReference.mType)
+					switch (newUniformReference.mType)
 					{
-						case GL_FLOAT:
-							newUniformReference.isReal = true;
-							newUniformReference.mElementCount = 1;
-							break;
+					case GL_FLOAT:
+						newUniformReference.isReal = true;
+						newUniformReference.mElementCount = 1;
+						break;
 
-						case GL_FLOAT_VEC2_ARB:
-							newUniformReference.isReal = true;
-							newUniformReference.mElementCount = 2;
-							break;
+					case GL_FLOAT_VEC2_ARB:
+						newUniformReference.isReal = true;
+						newUniformReference.mElementCount = 2;
+						break;
 
-						case GL_FLOAT_VEC3_ARB:
-							newUniformReference.isReal = true;
-							newUniformReference.mElementCount = 3;
-							break;
+					case GL_FLOAT_VEC3_ARB:
+						newUniformReference.isReal = true;
+						newUniformReference.mElementCount = 3;
+						break;
 
-						case GL_FLOAT_VEC4_ARB:
-							newUniformReference.isReal = true;
-							newUniformReference.mElementCount = 4;
-							break;
+					case GL_FLOAT_VEC4_ARB:
+						newUniformReference.isReal = true;
+						newUniformReference.mElementCount = 4;
+						break;
 
-						case GL_INT:
-						case GL_SAMPLER_1D_ARB:
-						case GL_SAMPLER_2D_ARB:
-						case GL_SAMPLER_3D_ARB:
-						case GL_SAMPLER_CUBE_ARB:
-							newUniformReference.isReal = false;
-							newUniformReference.mElementCount = 1;
-							break;
+					case GL_INT:
+					case GL_SAMPLER_1D_ARB:
+					case GL_SAMPLER_2D_ARB:
+					case GL_SAMPLER_3D_ARB:
+					case GL_SAMPLER_CUBE_ARB:
+						newUniformReference.isReal = false;
+						newUniformReference.mElementCount = 1;
+						break;
 
-						case GL_INT_VEC2_ARB:
-							newUniformReference.isReal = false;
-							newUniformReference.mElementCount = 2;
-							break;
+					case GL_INT_VEC2_ARB:
+						newUniformReference.isReal = false;
+						newUniformReference.mElementCount = 2;
+						break;
 
-						case GL_INT_VEC3_ARB:
-							newUniformReference.isReal = false;
-							newUniformReference.mElementCount = 3;
-							break;
+					case GL_INT_VEC3_ARB:
+						newUniformReference.isReal = false;
+						newUniformReference.mElementCount = 3;
+						break;
 
-						case GL_INT_VEC4_ARB:
-							newUniformReference.isReal = false;
-							newUniformReference.mElementCount = 4;
-							break;
+					case GL_INT_VEC4_ARB:
+						newUniformReference.isReal = false;
+						newUniformReference.mElementCount = 4;
+						break;
 					}// end switch
 
 					mUniformReferences.push_back(newUniformReference);
@@ -167,34 +167,34 @@ namespace Ogre {
 		GpuProgramParameters::RealConstantEntry* currentRealConstant;
 		GpuProgramParameters::IntConstantEntry* currentIntConstant;
 
-		while( currentUniform != endUniform)
+		while (currentUniform != endUniform)
 		{
 			// get the index in the parameter real list
 
-			if(currentUniform->isReal)
+			if (currentUniform->isReal)
 			{
 				currentRealConstant = params->getNamedRealConstantEntry( currentUniform->mName );
-				if(currentRealConstant != NULL)
+				if (currentRealConstant != NULL)
 				{
-					if(currentRealConstant->isSet) 
+					if (currentRealConstant->isSet) 
 					{
-						switch(currentUniform->mElementCount)
+						switch (currentUniform->mElementCount)
 						{
-							case 1:
-								glUniform1fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
-								break;
+						case 1:
+							glUniform1fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							break;
 
-							case 2:
-								glUniform2fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
-								break;
+						case 2:
+							glUniform2fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							break;
 
-							case 3:
-								glUniform3fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
-								break;
+						case 3:
+							glUniform3fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							break;
 
-							case 4:
-								glUniform4fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
-								break;
+						case 4:
+							glUniform4fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							break;
 
 						} // end switch
 					}
@@ -203,27 +203,27 @@ namespace Ogre {
 			else
 			{
 				currentIntConstant = params->getNamedIntConstantEntry( currentUniform->mName );
-				if(currentIntConstant != NULL)
+				if (currentIntConstant != NULL)
 				{
-					if(currentIntConstant->isSet) 
+					if (currentIntConstant->isSet) 
 					{
-						switch(currentUniform->mElementCount)
+						switch (currentUniform->mElementCount)
 						{
-							case 1:
-								glUniform1ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
-								break;
+						case 1:
+							glUniform1ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							break;
 
-							case 2:
-								glUniform2ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
-								break;
+						case 2:
+							glUniform2ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							break;
 
-							case 3:
-								glUniform3ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
-								break;
+						case 3:
+							glUniform3ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							break;
 
-							case 4:
-								glUniform4ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
-								break;
+						case 4:
+							glUniform4ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							break;
 						} // end switch
 					}
 				}

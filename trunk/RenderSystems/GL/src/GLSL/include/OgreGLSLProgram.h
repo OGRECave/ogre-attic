@@ -65,8 +65,11 @@ namespace Ogre {
 		~GLSLProgram() {}
 
 		const GLhandleARB getGLHandle() const { return mGLHandle; }
-		void attachToProgramObject( GLhandleARB programObject );
+		void attachToProgramObject( const GLhandleARB programObject );
 		String getAttachedShaderNames() const { return mAttachedShaderNames; }
+
+        /** Attach another GLSL Shader to this one. */
+        void attachChildShader(const String& name);
 
 	protected:
         static CmdAttach msCmdAttach;
@@ -84,10 +87,8 @@ namespace Ogre {
         void unloadImpl(void);
         /// Populate the passed parameters with name->index map, must be overridden
         void populateParameterNames(GpuProgramParametersSharedPtr params);
-        /** Attach another GLSL Shader to this one. */
-        void attachChildShader(const String& name);
 		/// compile source into shader object
-		bool compile(bool checkErrors = true);
+		bool compile( const bool checkErrors = true);
 
 	private:
 		/// GL handle for shader object

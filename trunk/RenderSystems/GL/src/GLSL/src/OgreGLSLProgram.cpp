@@ -51,18 +51,18 @@ namespace Ogre {
     }
     
     //---------------------------------------------------------------------------
-	bool GLSLProgram::compile(bool checkErrors)
+	bool GLSLProgram::compile(const bool checkErrors)
 	{
 
 		glCompileShaderARB_ptr(mGLHandle);
 		// check for compile errors
 		glGetObjectParameterivARB_ptr(mGLHandle, GL_OBJECT_COMPILE_STATUS_ARB, &mCompiled);
 		// force exception if not compiled
-		if(checkErrors)
+		if (checkErrors)
 		{
 			checkForGLSLError( "GLSLProgram::loadFromSource", "Cannot compile GLSL high-level shader : " + mName + " ", mGLHandle, !mCompiled, !mCompiled );
 			
-			if(mCompiled)
+			if (mCompiled)
 			{
 				logObjectInfo( mName + " : GLSL compiled ", mGLHandle );
 			}
@@ -80,7 +80,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void GLSLProgram::unloadImpl(void)
     {
-		if(isSupported())
+		if (isSupported())
 		{
 			glDeleteObjectARB_ptr(mGLHandle);
 		}
@@ -118,7 +118,7 @@ namespace Ogre {
 		// want scenemanager to pass on surface and light states to the rendersystem
 		mPassSurfaceAndLightStates = true;
 		// only create a shader object if glsl is supported
-		if(isSupported())
+		if (isSupported())
 		{
 			checkForGLSLError( "GLSLProgram::GLSLProgram", "GL Errors before creating shader object", 0 );
 			// create shader object
@@ -146,7 +146,6 @@ namespace Ogre {
 		for ( size_t i = 0; i < programNameCount; ++i )
 		{
 	        static_cast<GLSLProgram*>(target)->attachChildShader(vecShaderNames[i]);
-
 		}
     }
 
@@ -158,7 +157,7 @@ namespace Ogre {
 		HighLevelGpuProgram* hlProgram = static_cast<HighLevelGpuProgram*> (HighLevelGpuProgramManager::getSingleton().getByName(name));
 		if (hlProgram)
 		{
-			if(hlProgram->getSyntaxCode() == "glsl")
+			if (hlProgram->getSyntaxCode() == "glsl")
 			{
 				// make sure attached program source gets loaded and compiled
 				// don't need a low level implementation for attached shader objects
@@ -166,7 +165,7 @@ namespace Ogre {
 				// so don't worry about calling it several times
 				GLSLProgram* childShader = static_cast<GLSLProgram*>(hlProgram);
 				// load the source and attach the child shader only if supported
-				if(isSupported())
+				if (isSupported())
 				{
 					childShader->loadHighLevelImpl();
 					// add to the container
@@ -178,7 +177,7 @@ namespace Ogre {
 	}
 
 	//-----------------------------------------------------------------------
-	void GLSLProgram::attachToProgramObject( GLhandleARB programObject )
+	void GLSLProgram::attachToProgramObject( const GLhandleARB programObject )
 	{
 		glAttachObjectARB_ptr( programObject, mGLHandle );
 		checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram",
@@ -187,7 +186,7 @@ namespace Ogre {
 		GLSLProgramContainerIterator childprogramcurrent = mAttachedGLSLPrograms.begin();
 		GLSLProgramContainerIterator childprogramend = mAttachedGLSLPrograms.end();
 
- 		while( childprogramcurrent != childprogramend)
+ 		while (childprogramcurrent != childprogramend)
 		{
 
 			GLSLProgram* childShader = *childprogramcurrent;

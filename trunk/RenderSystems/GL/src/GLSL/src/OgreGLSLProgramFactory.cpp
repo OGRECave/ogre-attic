@@ -38,7 +38,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     GLSLProgramFactory::~GLSLProgramFactory(void)
     {
-		if(mLinkProgramManager)
+		if (mLinkProgramManager)
 			delete mLinkProgramManager;
     }
     //-----------------------------------------------------------------------
