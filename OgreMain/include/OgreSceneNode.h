@@ -63,7 +63,7 @@ namespace Ogre {
 
         /** Tells the SceneNode to update the world bound info it stores.
         */
-        void _updateBounds(void);
+        virtual void _updateBounds(void);
 
         /** See Node. */
         Node* createChildImpl(void);
@@ -180,12 +180,14 @@ namespace Ogre {
                 Updates this scene node and any relevant children to incorporate transforms etc.
                 Don't call this yourself unless you are writing a SceneManager implementation.
             @param
-                cam Pointer to Camera object to be used in the next render
-            @param
                 updateChildren If true, the update cascades down to all children. Specify false if you wish to
                 update children separately, e.g. because of a more selective SceneManager implementation.
+            @param
+                parentHasChanged This flag indicates that the parent xform has changed,
+                    so the child should retrieve the parent's xform and combine it with its own
+                    even if it hasn't changed itself.
         */
-        virtual void _update(Camera* cam, bool updateChildren = true);
+        virtual void _update(bool updateChildren, bool parentHasChanged);
 
         /** Internal method which locates any visible objects attached to this node and adds them to the passed in queue.
             @remarks

@@ -215,7 +215,7 @@ namespace Ogre {
         // Add 3D elements
         mRootNode->setPosition(cam->getDerivedPosition());
         mRootNode->setOrientation(cam->getDerivedOrientation());
-        mRootNode->_update(cam);
+        mRootNode->_update(true, false);
         // Set up the default queue group for the objects about to be added
         RenderQueueGroupID oldgrp = queue->getDefaultQueueGroup();
         queue->setDefaultQueueGroup(RENDER_QUEUE_OVERLAY);

@@ -60,7 +60,7 @@ public:
 
     /** Adds all the attached scenenodes to the render queue
     */
-    virtual void _addToRenderQueue( RenderQueue * );
+    virtual void _addToRenderQueue( Camera* cam, RenderQueue * );
 
     /** Sets up the renderoperation for rendering this scene node as geometry.
     @remarks
@@ -88,9 +88,7 @@ protected:
     any children. If the node has changed it's bounds, it is removed from its
     current octree, and reinserted into the tree.
     */
-    virtual void _updateOctreeBounds( void );
-
-    void _update( Camera* cam, bool updateChildren );
+    void _updateBounds( void );
 
     ///local bounding box
     AxisAlignedBox mLocalAABB;

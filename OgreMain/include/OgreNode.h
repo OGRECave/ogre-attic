@@ -59,6 +59,11 @@ namespace Ogre {
         /// Collection of pointers to direct children; hashmap for efficiency
         ChildNodeMap mChildren;
 
+        /// List of children which need updating, used if self is not out of date but children are
+        mutable std::list<Node*> mChildrenToUpdate;
+        /// Flag to indicate own transform is out of date
+        mutable bool mNeedUpdate;
+
         /// Friendly name of this node, can be automatically generated if you don't care
         String mName;
 
@@ -76,9 +81,6 @@ namespace Ogre {
 
         /// Stores whether this node inherits scale from it's parent
         bool mInheritScale;
-
-        /// Flag indicating derived transform is out of date 
-        mutable bool mDerivedOutOfDate;
 
         /// Only available internally - notification of parent.
         void setParent(Node* parent);
@@ -498,8 +500,12 @@ namespace Ogre {
             @param
                 updateChildren If true, the update cascades down to all children. Specify false if you wish to
                 update children separately, e.g. because of a more selective SceneManager implementation.
+            @param
+                parentHasChanged This flag indicates that the parent xform has changed,
+                    so the child should retrieve the parent's xform and combine it with its own
+                    even if it hasn't changed itself.
         */
-        virtual void _update(bool updateChildren = true);
+        virtual void _update(bool updateChildren, bool parentHasChanged);
 
         /** Overridden from Renderable.
         @remarks
@@ -563,6 +569,17 @@ namespace Ogre {
 
         /** Overridden, see Renderable */
         Real getSquaredViewDepth(const Camera* cam) const;
+
+        /** To be called in the event of transform changes to this node that require it's recalculation.
+        @remarks
+            This not only tags the node state as being 'dirty', it also requests it's parent to 
+            know about it's dirtiness so it will get an update next time.
+        */
+        virtual void needUpdate();
+        /** Called by children to notify their parent that they need an update. */
+        virtual void requestUpdate(Node* child);
+        /** Called by children to notify their parent that they no longer need an update. */
+        virtual void cancelUpdate(Node* child);
 
 
 

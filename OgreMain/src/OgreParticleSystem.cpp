@@ -222,6 +222,8 @@ namespace Ogre {
         _triggerEmitters(timeElapsed);
         _triggerAffectors(timeElapsed);
         _applyMotion(timeElapsed);
+        _updateBounds();
+
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_expire(Real timeElapsed)
@@ -451,10 +453,11 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::_notifyCurrentCamera(Camera *cam)
+    void ParticleSystem::_updateBounds()
     {
         // Call superclass
-        BillboardSet::_notifyCurrentCamera(cam);
+        BillboardSet::_updateBounds();
+
         // Have to override because bounds are supposed to be in local node space
         // but we've already put particles in world space to decouple them from the
         // node transform, so reverse transform back

@@ -233,7 +233,7 @@ namespace Ogre {
     void Skeleton::setBindingPose(void)
     {
         // Update the derived transforms
-        getRootBone()->_update();
+        getRootBone()->_update(true, false);
 
 
         BoneList::iterator i;
@@ -322,7 +322,7 @@ namespace Ogre {
     void Skeleton::_getBoneMatrices(Matrix4* pMatrices)
     {
         // Update derived transforms
-        getRootBone()->_update();
+        getRootBone()->_update(true, false);
 
         /* 
             Calculating the bone matrices
