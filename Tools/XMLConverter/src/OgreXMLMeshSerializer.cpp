@@ -322,7 +322,7 @@ namespace Ogre {
 			// Set up the data access for this buffer (lock read-only)
 			unsigned char* pVert;
 			Real* pReal;
-			RGBA* pColour;
+			ARGB* pColour;
 
 			pVert = static_cast<unsigned char*>(
 				vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
@@ -393,15 +393,29 @@ namespace Ogre {
 						elem.baseVertexPointerToElement(pVert, &pColour);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("colour_diffuse"))->ToElement();
-						
-						dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
+						{
+							ARGB rc = *pColour++;
+							ColourValue cv;
+							cv.b = (rc & 0xFF) / 255.0f;		rc >>= 8;
+							cv.g = (rc & 0xFF) / 255.0f;		rc >>= 8;
+							cv.r = (rc & 0xFF) / 255.0f;		rc >>= 8;
+							cv.a = (rc & 0xFF) / 255.0f;
+                            dataNode->SetAttribute("value", StringConverter::toString(cv));
+						}
 						break;
 					case VES_SPECULAR:
 						elem.baseVertexPointerToElement(pVert, &pColour);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("colour_specular"))->ToElement();
-						
-						dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
+						{
+							ARGB rc = *pColour++;
+							ColourValue cv;
+							cv.b = (rc & 0xFF) / 255.0f;		rc >>= 8;
+							cv.g = (rc & 0xFF) / 255.0f;		rc >>= 8;
+							cv.r = (rc & 0xFF) / 255.0f;		rc >>= 8;
+							cv.a = (rc & 0xFF) / 255.0f;
+							dataNode->SetAttribute("value", StringConverter::toString(cv));
+						}
 						break;
 					case VES_TEXTURE_COORDINATES:
 						elem.baseVertexPointerToElement(pVert, &pReal);
@@ -587,7 +601,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Reading geometry...");
         unsigned char *pVert;
         Real *pReal;
-        RGBA *pCol;
+        ARGB *pCol;
 
         vertexData->vertexCount = StringConverter::parseInt(mGeometryNode->Attribute("vertexcount"));
         // Skip empty 
@@ -714,7 +728,7 @@ namespace Ogre {
                         pos.y = StringConverter::parseReal(
                             xmlElem->Attribute("y"));
                         pos.z = StringConverter::parseReal(
-                            xmlElem->Attribute("y"));
+                            xmlElem->Attribute("z"));
                         
                         if (first)
                         {
@@ -753,9 +767,12 @@ namespace Ogre {
                                 "XMLSerializer::readGeometry");
                         }
                         elem.baseVertexPointerToElement(pVert, &pCol);
-
-                        *pCol++ = StringConverter::parseLong(
-                            xmlElem->Attribute("value"));
+						{
+							ColourValue cv;
+							cv = StringConverter::parseColourValue(
+								xmlElem->Attribute("value"));
+							*pCol++ = cv.getAsLongARGB();
+						}
                         break;
                     case VES_SPECULAR:
                         xmlElem = vertexElem->FirstChildElement("colour_specular");
@@ -765,9 +782,12 @@ namespace Ogre {
                                 "XMLSerializer::readGeometry");
                         }
                         elem.baseVertexPointerToElement(pVert, &pCol);
-
-                        *pCol++ = StringConverter::parseLong(
-                            xmlElem->Attribute("value"));
+						{
+							ColourValue cv;
+							cv = StringConverter::parseColourValue(
+								xmlElem->Attribute("value"));
+							*pCol++ = cv.getAsLongARGB();
+						}
                         break;
                     case VES_TEXTURE_COORDINATES:
                         if (!texCoordElem)
