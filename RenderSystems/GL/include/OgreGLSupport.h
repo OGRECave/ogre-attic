@@ -97,7 +97,7 @@ public:
     */
     virtual void* getProcAddress(const String& procname) = 0;
 
-    void setExternalWindowHandle(void* hwnd) { }
+    virtual void setExternalWindowHandle(void* hwnd) { }
 
     /** Intialises GL extensions, must be done AFTER the GL context has been
         established.
