@@ -209,7 +209,7 @@ namespace Ogre {
     except to do so requires a form VC6 does not support i.e.
     ResourceSubclassPtr<T> : public SharedPtr<T>
     */
-    class _OgreExport BspLevelPtr : public SharedPtr<BspLevel> 
+    class BspLevelPtr : public SharedPtr<BspLevel> 
     {
     public:
         BspLevelPtr() : SharedPtr<BspLevel>() {}
