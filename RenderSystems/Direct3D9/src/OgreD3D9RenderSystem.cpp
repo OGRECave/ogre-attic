@@ -1845,7 +1845,13 @@ namespace Ogre
 	{
 		// Guard
 		OgreGuard ("D3D9RenderSystem::_render");
-		// Call super class
+
+        // Exit immediately if there is nothing to render
+        // This caused a problem on FireGL 8800
+        if (op.vertexData->vertexCount == 0)
+            return;
+
+        // Call super class
 		RenderSystem::_render(op);
 
         // To think about: possibly remove setVertexDeclaration and 
