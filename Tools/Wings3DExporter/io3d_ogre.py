@@ -67,44 +67,28 @@ class ogre_writer:
 
 		geometry_elem.setProp("vertexcount", str(len(vertices)))
 
-		vb_position_elem = geometry_elem.newChild(None, "vertexbuffer", None)
-		vb_position_elem.setProp("positions", "true")
-		vb_position_elem.setProp("normals", "false")
-		vb_position_elem.setProp("colours", "false")
-		vb_position_elem.setProp("numtexcoords", "0")
-
-		vb_normal_elem = geometry_elem.newChild(None, "vertexbuffer", None)
-		vb_normal_elem.setProp("positions", "false")
-		vb_normal_elem.setProp("normals", "true")
-		vb_normal_elem.setProp("colours", "false")
-		vb_normal_elem.setProp("numtexcoords", "0")
-
-		vb_texcoord_elem = None
-		want_uvs = vertices[0].uv != None
-		if want_uvs:
-			vb_texcoord_elem = geometry_elem.newChild(None, "vertexbuffer", None)
-			vb_texcoord_elem.setProp("positions", "false")
-			vb_texcoord_elem.setProp("normals", "false")
-			vb_texcoord_elem.setProp("colours", "false")
-			vb_texcoord_elem.setProp("numtexcoords", "1")
-			vb_texcoord_elem.setProp("texture_coords", "0")
-			vb_texcoord_elem.setProp("texture_coord_dimensions_0", "2")
+ 		want_uvs = vertices[0].uv != None
+ 		vb_elem = geometry_elem.newChild(None, "vertexbuffer", None)
+ 		vb_elem.setProp("positions", "true")
+ 		vb_elem.setProp("normals", "true")
+ 		vb_elem.setProp("colours_diffuse", "false")
+ 		if want_uvs:
+ 			vb_elem.setProp("texture_coords", "1")
+ 			vb_elem.setProp("texture_coord_dimensions_0", "2")
+ 		else:
+ 			vb_elem.setProp("texture_coords", "0")
 
 		try:
 			for vert in vertices:
-				# position
-				vertex_elem = vb_position_elem.newChild(None, "vertex", None)
+				vertex_elem = vb_elem.newChild(None, "vertex", None)
+
 				position_elem = vertex_elem.newChild(None, "position", None)
 				vector_to_xml(position_elem, vert.pos, ["x", "y", "z"])
 
-				# normal
-				vertex_elem = vb_normal_elem.newChild(None, "vertex", None)
 				normal_elem = vertex_elem.newChild(None, "normal", None)
 				vector_to_xml(normal_elem, vert.normal, ["x", "y", "z"])
 
-				# uv texture coords
 				if want_uvs:
-					vertex_elem = vb_texcoord_elem.newChild(None, "vertex", None)
 					texcoord_elem = vertex_elem.newChild(None, "texcoord", None)
 					vector_to_xml(texcoord_elem, vert.uv, ["u", "v"])
 		except:
