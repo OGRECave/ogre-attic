@@ -41,7 +41,7 @@ class TerrainBufferCache
 public:
     ~TerrainBufferCache()
     {
-        for( int i=0; i<mCache.size(); i++ )
+        for( size_t i=0; i<mCache.size(); i++ )
         {
             delete mCache[i];
         }
@@ -250,7 +250,7 @@ public:
     void _generateVertexLighting( const Vector3 &sun, ColourValue ambient );
 
 
-    static int mRenderedTris;
+    static size_t mRenderedTris;
 
     /** Overridden, see Renderable */
     Real getSquaredViewDepth(const Camera* cam) const;

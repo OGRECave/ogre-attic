@@ -1593,27 +1593,32 @@ namespace Ogre {
             switch(elem->getSemantic())
             {
             case VES_POSITION:
-                glVertexPointer(VertexElement::getTypeCount(elem->getType()), 
+                glVertexPointer(VertexElement::getTypeCount(
+                    elem->getType()), 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), pBufferData);
+                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                    pBufferData);
                 glEnableClientState( GL_VERTEX_ARRAY );
                 break;
             case VES_NORMAL:
                 glNormalPointer(
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), pBufferData);
+                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                    pBufferData);
                 glEnableClientState( GL_NORMAL_ARRAY );
                 break;
             case VES_DIFFUSE:
                 glColorPointer(4, 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), pBufferData);
+                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                    pBufferData);
                 glEnableClientState( GL_COLOR_ARRAY );
                 break;
             case VES_SPECULAR:
                 glSecondaryColorPointerEXT_ptr(4, 
                     GLHardwareBufferManager::getGLType(elem->getType()), 
-                    vertexBuffer->getVertexSize(), pBufferData);
+                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                    pBufferData);
                 glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
@@ -1633,7 +1638,8 @@ namespace Ogre {
 							glTexCoordPointer(
 								VertexElement::getTypeCount(elem->getType()), 
 								GLHardwareBufferManager::getGLType(elem->getType()),
-								vertexBuffer->getVertexSize(), pBufferData);
+								static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                                pBufferData);
 						}
 						glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 					}
@@ -1709,4 +1715,13 @@ namespace Ogre {
         // UnGuard
         OgreUnguard();
 	}
+    //---------------------------------------------------------------------
+    void GLRenderSystem::setNormaliseNormals(bool normalise)
+    {
+        if (normalise)
+            glEnable(GL_NORMALIZE);
+        else
+            glDisable(GL_NORMALIZE);
+
+    }
 }

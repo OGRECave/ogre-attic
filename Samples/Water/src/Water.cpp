@@ -284,7 +284,7 @@ protected:
 	
 	void processCircles(Real timeSinceLastFrame)
 	{
-		for(int i=0;i<circles.size();i++) {
+		for(unsigned int i=0;i<circles.size();i++) {
 			circles[i]->animate(timeSinceLastFrame);
 		}
 		bool found ;

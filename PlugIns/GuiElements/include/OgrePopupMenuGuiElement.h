@@ -121,7 +121,7 @@ namespace Ogre {
 		ResourceListConstIterator getConstIterator();
 		ResourceListConstIterator getConstEndIterator();
 		Resource* popFront() ;
-		int getListSize() ;
+		size_t getListSize() ;
 
     protected:
 		void setSelectedItem(GuiElement* item, bool on);

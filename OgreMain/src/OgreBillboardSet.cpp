@@ -624,12 +624,12 @@ namespace Ogre {
                 idxOff = bboard * 4;
                 texOff = bboard * 4 * 2;
 
-                pIdx[idx] = idxOff; // + 0;, for clarity
-                pIdx[idx+1] = idxOff + 1;
-                pIdx[idx+2] = idxOff + 3;
-                pIdx[idx+3] = idxOff + 0;
-                pIdx[idx+4] = idxOff + 3;
-                pIdx[idx+5] = idxOff + 2;
+                pIdx[idx] = static_cast<unsigned short>(idxOff); // + 0;, for clarity
+                pIdx[idx+1] = static_cast<unsigned short>(idxOff + 1);
+                pIdx[idx+2] = static_cast<unsigned short>(idxOff + 3);
+                pIdx[idx+3] = static_cast<unsigned short>(idxOff + 0);
+                pIdx[idx+4] = static_cast<unsigned short>(idxOff + 3);
+                pIdx[idx+5] = static_cast<unsigned short>(idxOff + 2);
 
                 // Do tex coords
                 pT[texOff]   = texData[0];

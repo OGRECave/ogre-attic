@@ -69,9 +69,9 @@ namespace Ogre {
 	 * that fired it.
 
 	 */
-	int mTopVisible;
-	int mRange;
-	int mTotal;
+	size_t mTopVisible;
+	size_t mRange;
+	size_t mTotal;
 
 
 
@@ -113,11 +113,11 @@ namespace Ogre {
 		 * of what actually caused the event.
 		 */
 		 ScrollEvent(ScrollTarget* source, int id, Real when, int modifiers,
-			int topVisible, int range, int total) ;
+			size_t topVisible, size_t range, size_t total) ;
 
-		int getTopVisible() const;
-		int getRange() const;
-		int getTotal() const;
+		size_t getTopVisible() const;
+		size_t getRange() const;
+		size_t getTotal() const;
 
 
 		/**

@@ -45,7 +45,7 @@ namespace Ogre {
 		virtual ResourceListConstIterator getConstIterator() = 0;
 		virtual ResourceListConstIterator getConstEndIterator() = 0;
 		virtual  Resource* popFront() = 0;
-		virtual  int getListSize() = 0;
+		virtual  size_t getListSize() = 0;
     };
 
 } // namespace

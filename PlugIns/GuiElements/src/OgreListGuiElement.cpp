@@ -430,7 +430,7 @@ namespace Ogre {
             mScrollBar->scrollToIndex(getSelectedIndex());
 	}
 
-	void ListGuiElement::setSelectedIndex(int index)
+	void ListGuiElement::setSelectedIndex(size_t index)
 	{
 		if (mSelectedElement)
 		{
@@ -441,7 +441,7 @@ namespace Ogre {
 		{
 			index = 0;
 		}
-		else if (index > (int)getListSize())
+		else if (index > getListSize())
 		{
 			index = getListSize();
 		}
@@ -625,7 +625,7 @@ namespace Ogre {
         return r;
 	}
 	
-	int ListGuiElement::getListSize() 
+	size_t ListGuiElement::getListSize() 
 	{
 		return mResourceList.size();
 	}

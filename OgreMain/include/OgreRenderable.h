@@ -106,6 +106,9 @@ namespace Ogre {
         */
         virtual SceneDetailLevel getRenderDetail(){return SDL_SOLID;} 
 
+        /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
+        virtual bool getNormaliseNormals(void) { return false; }
+
     };
 
 

@@ -126,7 +126,7 @@ namespace Ogre {
 		void mouseReleased(MouseEvent* e) {};
 		void mouseDragged(MouseEvent* e) ;
 		void mouseMoved(MouseEvent* e) ;
-		void setSelectedIndex(int index);
+		void setSelectedIndex(size_t index);
 
 		String getItemPanelMaterial();
 		String getItemPanelMaterialSelected();
@@ -149,7 +149,7 @@ namespace Ogre {
 		ResourceListConstIterator getConstEndIterator();
 
 		Resource* popFront() ;
-		int getListSize() ;
+		size_t getListSize() ;
 
     protected:
 		void setSelectedItem(GuiElement* item, bool on);
@@ -168,7 +168,7 @@ namespace Ogre {
         static String msTypeName;
 
 		void layoutItems();
-		int mFirstVisibleItem, mVisibleRange;
+		size_t mFirstVisibleItem, mVisibleRange;
 		Real mVSpacing;
 		Real mHSpacing;
 

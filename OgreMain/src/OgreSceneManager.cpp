@@ -364,7 +364,9 @@ namespace Ogre {
         // Clear animations
         destroyAllAnimations();
 
-
+        // Remove sky nodes since they've been deleted
+        mSkyBoxNode = mSkyPlaneNode = mSkyDomeNode = 0;
+        mSkyBoxEnabled = mSkyPlaneEnabled = mSkyDomeEnabled = false; 
 
     }
 
@@ -1185,6 +1187,8 @@ namespace Ogre {
                             std::vector<Renderable*>::iterator irend, irendend;
                             irendend = imat->second.end();
 
+                            bool normalisedNormals = false;
+
                             for (irend = imat->second.begin(); irend != irendend; ++irend)
                             {
                                 // Set world transformation
@@ -1207,6 +1211,14 @@ namespace Ogre {
                                 {
                                     matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
                                     isMaterialSet = true;
+                                }
+                        
+                                // Sort out normalisation
+                                bool thisNormalise = (*irend)->getNormaliseNormals();
+                                if (thisNormalise != normalisedNormals)
+                                {
+                                    mDestRenderSystem->setNormaliseNormals(thisNormalise);
+                                    normalisedNormals = thisNormalise;
                                 }
 
                                 // Set up the solid / wireframe override
@@ -1268,6 +1280,10 @@ namespace Ogre {
 
                             // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
                             matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
+
+                            // Sort out normalisation - always do it since material set every time
+                            mDestRenderSystem->setNormaliseNormals(
+                                (*iTrans)->getNormaliseNormals());
 
                             // Set up the solid / wireframe override
                             SceneDetailLevel reqDetail = (*iTrans)->getRenderDetail();

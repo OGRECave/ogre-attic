@@ -32,7 +32,7 @@ namespace Ogre
 
 TerrainBufferCache gIndexCache;
 
-int TerrainRenderable::mRenderedTris = 0;
+size_t TerrainRenderable::mRenderedTris = 0;
 
 String TerrainRenderable::mType = "TerrainMipMap";
 

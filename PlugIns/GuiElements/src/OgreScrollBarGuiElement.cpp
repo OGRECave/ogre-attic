@@ -177,7 +177,7 @@ namespace Ogre {
 	}
 //-----------------------------------------------------------------------
 
-	void ScrollBarGuiElement::setLimits(int first, int visibleRange, int total)
+	void ScrollBarGuiElement::setLimits(size_t first, size_t visibleRange, size_t total)
 	{
 		mTotalItems = total;
 		mStartingItem = first;
@@ -345,7 +345,7 @@ namespace Ogre {
 		mouseHeldAtY = -1;
 
 	}
-	void ScrollBarGuiElement::scrollToIndex(int index)
+	void ScrollBarGuiElement::scrollToIndex(size_t index)
 	{
 		if (index >= mStartingItem + mVisibilityRange)
 		{

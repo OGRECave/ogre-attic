@@ -385,7 +385,7 @@ namespace Ogre {
 		}
     }
 
-    void Image::applyGamma( unsigned char *buffer, Real gamma, uint size, uchar bpp )
+    void Image::applyGamma( unsigned char *buffer, Real gamma, size_t size, uchar bpp )
     {
         if( gamma == 1.0f )
             return;
@@ -395,7 +395,7 @@ namespace Ogre {
 
         uint stride = bpp >> 3;
 
-        for( uint i = 0, j = size / stride; i < j; i++, buffer += stride )
+        for( size_t i = 0, j = size / stride; i < j; i++, buffer += stride )
         {
             float r, g, b;
 

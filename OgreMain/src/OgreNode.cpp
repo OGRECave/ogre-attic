@@ -268,6 +268,7 @@ namespace Ogre {
                 "Child index out of bounds.", 
                 "Node::getChild" );
         }
+        needUpdate();
         return 0;
     }
     //-----------------------------------------------------------------------

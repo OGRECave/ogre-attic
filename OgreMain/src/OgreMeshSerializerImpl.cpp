@@ -303,7 +303,8 @@ namespace Ogre {
         elem = vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
         if (elem)
         {
-            writeChunkHeader(M_GEOMETRY_NORMALS, elem->getSize() * vertexData->vertexCount);
+            writeChunkHeader(M_GEOMETRY_NORMALS, 
+                static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
 
             // Real* pNormals (x, y, z order x numVertices)
             vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
@@ -316,7 +317,8 @@ namespace Ogre {
         elem = vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
         if (elem)
         {
-            writeChunkHeader(M_GEOMETRY_COLOURS, elem->getSize() * vertexData->vertexCount);
+            writeChunkHeader(M_GEOMETRY_COLOURS, 
+                static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
             // unsigned long* pColours (RGBA 8888 format x numVertices)
             vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
             unsigned long *pLong = static_cast<unsigned long*>(
@@ -330,7 +332,8 @@ namespace Ogre {
             elem = vertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, t);
             if (elem)
             {
-                writeChunkHeader(M_GEOMETRY_TEXCOORDS, elem->getSize() * vertexData->vertexCount);
+                writeChunkHeader(M_GEOMETRY_TEXCOORDS, 
+                    static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
                 vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
                 pReal = static_cast<Real*>(
                     vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
@@ -432,7 +435,7 @@ namespace Ogre {
             size += calcGeometrySize(pSub->vertexData);
         }
 
-        return size;
+        return static_cast<unsigned long>(size);
     }
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
@@ -442,7 +445,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
     {
-        unsigned long size = CHUNK_OVERHEAD_SIZE;
+        size_t size = CHUNK_OVERHEAD_SIZE;
 
         // Num vertices
         size += sizeof(unsigned int);
@@ -458,7 +461,7 @@ namespace Ogre {
             // Vertex element
             size += VertexElement::getTypeSize(elem.getType()) * vertexData->vertexCount;
         }
-        return size;
+        return static_cast<unsigned long>(size);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readMaterial(DataChunk& chunk)
@@ -997,11 +1000,13 @@ namespace Ogre {
 			// unsigned short*/int* faceIndexes;  
             if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
             {
-			    size += sizeof(unsigned int) * indexData->indexCount;
+			    size += static_cast<unsigned long>(
+                    sizeof(unsigned int) * indexData->indexCount);
             }
             else
             {
-			    size += sizeof(unsigned short) * indexData->indexCount;
+			    size += static_cast<unsigned long>(
+                    sizeof(unsigned short) * indexData->indexCount);
             }
 
 		}
@@ -1023,11 +1028,13 @@ namespace Ogre {
 			// unsigned short*/int* faceIndexes;  
             if (indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
             {
-			    size += sizeof(unsigned int) * indexData->indexCount;
+			    size += static_cast<unsigned long>(
+                    sizeof(unsigned int) * indexData->indexCount);
             }
             else
             {
-			    size += sizeof(unsigned short) * indexData->indexCount;
+			    size += static_cast<unsigned long>(
+                    sizeof(unsigned short) * indexData->indexCount);
             }
 
 			writeChunkHeader(M_MESH_LOD_GENERATED, size);
@@ -1246,6 +1253,7 @@ namespace Ogre {
         unsigned short chunkID;
 
         mFirstGeometry = true;
+        mIsSkeletallyAnimated = false;
 
         // M_GEOMETRY chunk
         chunkID = readChunk(chunk);

@@ -147,6 +147,9 @@ namespace Ogre {
 
         HardwareBufferManager* mHardwareBufferManager;
 
+        bool mForcedNormalisation;
+
+
 	public:
         // Default constructor / destructor
         D3DRenderSystem(HINSTANCE hInstance);
@@ -399,7 +402,10 @@ namespace Ogre {
           RenderSystem
          */
 		void setVertexBufferBinding(VertexBufferBinding* binding);
-
+        /** See
+          RenderSystem
+         */
+        void setNormaliseNormals(bool normalise);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

@@ -155,7 +155,7 @@ namespace Ogre {
         class PMVertex {
         public:
             PMVertex();
-	        void setDetails(const Vector3& v, int index);
+	        void setDetails(const Vector3& v, size_t index);
 	        void removeIfNonNeighbor(PMVertex *n);
 			bool isBorder(void);/// true if this vertex is on the edge of an open geometry patch
 			bool isManifoldEdgeWith(PMVertex* v); // is edge this->src a manifold edge?

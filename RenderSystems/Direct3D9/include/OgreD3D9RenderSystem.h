@@ -119,7 +119,10 @@ namespace Ogre
 		void _setFSAA(D3DMULTISAMPLE_TYPE type, DWORD qualityLevel);
 		
 		D3D9HardwareBufferManager* mHardwareBufferManager;
-		unsigned short mLastVertexSourceCount;
+		size_t mLastVertexSourceCount;
+
+        /// Flag to indicate normal normalisation is forced
+        bool mForcedNormalisation;
 
 	public:
 		// constructor
@@ -158,6 +161,7 @@ namespace Ogre
 		void setStencilBufferFailOperation(StencilOperation op);
 		void setStencilBufferDepthFailOperation(StencilOperation op);
 		void setStencilBufferPassOperation(StencilOperation op);
+        void setNormaliseNormals(bool normalise);
 
 		// Low-level overridden members, mainly for internal use
 		void _addLight( Light* lt );

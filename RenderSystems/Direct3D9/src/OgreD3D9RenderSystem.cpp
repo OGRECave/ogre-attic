@@ -86,6 +86,9 @@ namespace Ogre
 
 		mLastVertexSourceCount = 0;
 
+        mForcedNormalisation = false;
+
+
 		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
@@ -1027,9 +1030,15 @@ namespace Ogre
 
 		// choose normalization method
 		if (m == TEXCALC_ENVIRONMENT_MAP_NORMAL || m == TEXCALC_ENVIRONMENT_MAP)
-			hr = __SetRenderState( D3DRS_NORMALIZENORMALS, TRUE );
+        {
+            mForcedNormalisation = true;
+			setNormaliseNormals(true);
+        }
 		else
-			hr = __SetRenderState( D3DRS_NORMALIZENORMALS, FALSE );
+        {
+            mForcedNormalisation = false;
+			setNormaliseNormals(false);
+        }
 		if (FAILED(hr))
 			Except( hr, "Unable to set auto-normalisation", "D3D9RenderSystem::_setTextureCoordCalculation" );
 
@@ -1685,10 +1694,10 @@ namespace Ogre
             const D3D9HardwareVertexBuffer* d3d9buf = 
                 static_cast<const D3D9HardwareVertexBuffer*>(i->second.get());
             hr = mpD3DDevice->SetStreamSource(
-                i->first,
+                static_cast<UINT>(i->first),
                 d3d9buf->getD3D9VertexBuffer(),
                 0, // no stream offset, this is handled in _render instead
-                d3d9buf->getVertexSize() // stride
+                static_cast<UINT>(d3d9buf->getVertexSize()) // stride
                 );
             if (FAILED(hr))
             {
@@ -1703,7 +1712,7 @@ namespace Ogre
 		for (size_t unused = binds.size(); unused < mLastVertexSourceCount; ++unused)
 		{
 			
-            hr = mpD3DDevice->SetStreamSource(unused, NULL, 0, 0);
+            hr = mpD3DDevice->SetStreamSource(static_cast<UINT>(unused), NULL, 0, 0);
             if (FAILED(hr))
             {
                 Except(hr, "Unable to reset unused D3D9 stream source", 
@@ -1786,19 +1795,21 @@ namespace Ogre
 			// do indexed draw operation
 			hr = mpD3DDevice->DrawIndexedPrimitive(
                 primType, 
-                op.vertexData->vertexStart, 
+                static_cast<INT>(op.vertexData->vertexStart), 
                 0, // Min vertex index - assume we can go right down to 0 
-                op.vertexData->vertexCount, 
-                op.indexData->indexStart, 
-                primCount );
+                static_cast<UINT>(op.vertexData->vertexCount), 
+                static_cast<UINT>(op.indexData->indexStart), 
+                static_cast<UINT>(primCount)
+                );
 		}
 		else
         {
             // Unindexed, a little simpler!
 			hr = mpD3DDevice->DrawPrimitive(
                 primType, 
-                op.vertexData->vertexStart, 
-                primCount ); 
+                static_cast<UINT>(op.vertexData->vertexStart), 
+                static_cast<UINT>(primCount)
+                ); 
         }
 
 		if( FAILED( hr ) )
@@ -1811,5 +1822,11 @@ namespace Ogre
 		OgreUnguard();
 
 	}
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::setNormaliseNormals(bool normalise)
+    {
+        __SetRenderState(D3DRS_NORMALIZENORMALS, 
+            (normalise || mForcedNormalisation) ? TRUE : FALSE);
+    }
 	//---------------------------------------------------------------------
 }

@@ -91,10 +91,10 @@ namespace Ogre {
 		String getScrollBitName();
 
 		void createElements();
-		void setLimits(int first, int visibleRange, int total);
+		void setLimits(size_t first, size_t visibleRange, size_t total);
 		void layoutItems();
 		void updateScrollBit();
-		void scrollToIndex(int index);
+		void scrollToIndex(size_t index);
 
         /** See GuiElement. */
         virtual const String& getTypeName(void);
@@ -123,7 +123,7 @@ namespace Ogre {
 		ButtonGuiElement *mUpButton, *mDownButton;
 		PanelGuiElement *mScrollBit;
 
-		int mTotalItems, mStartingItem, mVisibilityRange;
+		size_t mTotalItems, mStartingItem, mVisibilityRange;
 		Real mSpacing;
 		Real mouseHeldAtY;
     };

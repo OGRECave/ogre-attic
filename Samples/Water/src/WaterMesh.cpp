@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 {
-	int i,x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
+	int x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
 	
 	this->meshName = meshName ;
 	this->complexity =  complexity ;

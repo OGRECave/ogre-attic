@@ -153,6 +153,8 @@ namespace Ogre {
 		/// Bounding box that 'contains' all the mesh of each child entity
 		AxisAlignedBox *mFullBoundingBox;
 
+        bool mNormaliseNormals;
+
 
     public:
         /** Default destructor.
@@ -289,6 +291,18 @@ namespace Ogre {
         ChildObjectListIterator getAttachedObjectIterator(void);
         /** @see MovableObject::getBoundingRadius */
 		Real getBoundingRadius(void) const;
+        /** If set to true, this forces normals of this entity to be normalised
+            dynamically by the hardware.
+        @remarks
+            This option can be used to prevent lighting variations when scaling an
+            Entity using a SceneNode - normally because this scaling is hardware
+            based, the normals get scaled too which causes lighting to become inconsistent.
+            However, this has an overhead so only do this if you really need to.
+        */
+        void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
+
+        /** Returns true if this entity has auto-normalisation of normals set. */
+        bool getNormaliseNormals(void) {return mNormaliseNormals; }
 
 
     };
