@@ -108,7 +108,8 @@ namespace Ogre {
 	}
 
     GLRenderSystem::GLRenderSystem()
-      : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0), mExternalWindowHandle(0)
+      : mExternalWindowHandle(0), mDepthWrite(true), mHardwareBufferManager(0),
+        mGpuProgramManager(0)
     {
         size_t i;
 
@@ -561,9 +562,9 @@ namespace Ogre {
 
 
     RenderWindow* GLRenderSystem::createRenderWindow(
-            const String & name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left, int top, bool depthBuffer, 
-            RenderWindow* parentWindowHandle)
+            const String & name, unsigned int width, unsigned int height, 
+            unsigned int colourDepth, bool fullScreen, int left, int top, 
+            bool depthBuffer, RenderWindow* parentWindowHandle)
     {
         if (mRenderTargets.find(name) != mRenderTargets.end())
         {
@@ -573,7 +574,7 @@ namespace Ogre {
                 "GLRenderSystem::createRenderWindow" );
         }
 
-		((Win32GLSupport*)mGLSupport)->setExternalWindowHandle(mExternalWindowHandle);
+		mGLSupport->setExternalWindowHandle(mExternalWindowHandle);
         // Create the window
         RenderWindow* win = mGLSupport->newWindow(name, width, height, 
             colourDepth, fullScreen, left, top, depthBuffer, parentWindowHandle,
@@ -2226,7 +2227,7 @@ namespace Ogre {
         return 0.0f;
     }
  	//---------------------------------------------------------------------
- 	GLRenderSystem::resizeRepositionWindow(void* wich)
+ 	void GLRenderSystem::resizeRepositionWindow(void* wich)
  	{
  		mGLSupport->resizeRepositionWindow(wich);
  		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)		
