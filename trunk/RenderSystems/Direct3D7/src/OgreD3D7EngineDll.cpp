@@ -35,7 +35,7 @@ namespace Ogre {
         // Create d3d rendering api
 
         // Must get HISTANCE
-        HINSTANCE hInst = GetModuleHandle("OgreD3DEngine.dll");
+        HINSTANCE hInst = GetModuleHandle("RenderSystem_Direct3D7.dll");
 
         d3dRendPlugin = new D3DRenderSystem(hInst);
 
