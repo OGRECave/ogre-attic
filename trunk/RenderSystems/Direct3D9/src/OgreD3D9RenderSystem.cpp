@@ -46,8 +46,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFrustum.h"
 
 
+
 namespace Ogre 
 {
+
+    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE(
+        0.5,    0,  0, 0.5, 
+        0, -0.5,  0, 0.5, 
+        0,    0,  0,   1,
+        0,    0,  0,   1);
+
 
 	//---------------------------------------------------------------------
 	D3D9RenderSystem::D3D9RenderSystem( HINSTANCE hInstance )
@@ -1247,7 +1255,7 @@ namespace Ogre
             newMat = mViewMatrix.inverse() * newMat;
             newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
             newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
-            newMat = Matrix4::CLIPSPACE2DTOIMAGESPACE * newMat;
+            newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE * newMat;
 
         }
 
