@@ -72,7 +72,8 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     EdgeListBuilder::EdgeListBuilder()
-        : mWeldVerticesAcrossSets(true), mWeldVerticesWithinSets(true)
+        : mEdgeData(0), mWeldVertices(true), mWeldVerticesAcrossVertexSets(true), 
+        mWeldVerticesAcrossIndexSets(true)
     {
     }
     //---------------------------------------------------------------------
@@ -137,11 +138,139 @@ namespace Ogre {
         vertex buffer which this index set uses.
         */
 
-        // Default to try to form a combined hull from multiple non-manifold parts
-        mWeldVerticesAcrossSets = true;
-        mWeldVerticesWithinSets = true;
 
-        mEdgeData = new EdgeData();
+        /* 
+        There is a major consideration: 'What is a common vertex'? This is a
+        crucial decision, since to form a completely close hull, you need to treat
+        vertices which are not physically the same as equivalent. This is because
+        there will be 'seams' in the model, where discrepancies in vertex components
+        other than position (such as normals or texture coordinates) will mean
+        that there are 2 vertices in the same place, and we MUST 'weld' them
+        into a single common vertex in order to have a closed hull. Just looking
+        at the unique vertex indices is not enough, since these seams would render
+        the hull invalid.
+
+        So, we look for positions which are the same across vertices, and treat 
+        those as as single vertex for our edge calculation. However, this has
+        it's own problems. There are OTHER vertices which may have a common 
+        position that should not be welded. Imagine 2 cubes touching along one
+        single edge. The common vertices on that edge, if welded, will cause 
+        an ambiguous hull, since the edge will have 4 triangles attached to it,
+        whilst a manifold mesh should only have 2 triangles attached to each edge.
+        This is a problem.
+
+        We deal with this with fallback techniques. We try the following approaches,
+        in order, falling back on the next approach if the current one results in
+        an ambiguous hull:
+        
+        1. Weld all vertices at the same position across all vertex and index sets. 
+        2. Weld vertices at the same position if they are in the same vertex set, 
+           but regardless of the index set
+        3. Weld vertices at the same position if they were first referred to in 
+           the same index set, but regardless of the vertex set.
+        4. Weld vertices only if they are in the same vertex set AND they are first
+           referenced in the same index set.
+        5. Never weld vertices at the same position. This will only result in a
+           valid hull if there are no seams in the mesh (perfect vertex sharing)
+
+        If all these techniques fail, the hull cannot be built. 
+
+        Therefore, when you have a model which has a potentially ambiguous hull,
+        (meeting at edges), you MUST EITHER:
+
+           A. differentiate the individual sub-hulls by separating them by 
+              vertex set or by index set.
+        or B. ensure that you have no seams, ie you have perfect vertex sharing.
+              This is typically only feasible when you have no textures and 
+              completely smooth shading
+        */
+
+        ushort technique = 1;
+        bool validHull= false;
+
+        while (!validHull && technique <= 5)
+        {
+            switch (technique)
+            {
+            case 1: // weld across everything
+                mWeldVertices = true;
+                mWeldVerticesAcrossVertexSets = true;
+                mWeldVerticesAcrossIndexSets = true;
+                break;
+            case 2: // weld across index sets only
+                mWeldVertices = true;
+                mWeldVerticesAcrossVertexSets = false;
+                mWeldVerticesAcrossIndexSets = true;
+                break;
+            case 3: // weld across vertex sets only
+                mWeldVertices = true;
+                mWeldVerticesAcrossVertexSets = true;
+                mWeldVerticesAcrossIndexSets = false;
+                break;
+            case 4: // weld within same index & vertex set only
+                mWeldVertices = true;
+                mWeldVerticesAcrossVertexSets = false;
+                mWeldVerticesAcrossIndexSets = false;
+                break;
+            case 5: // never weld
+                mWeldVertices = false;
+                mWeldVerticesAcrossVertexSets = false;
+                mWeldVerticesAcrossIndexSets = false;
+                break;
+            };
+
+            // Log alternate techniques
+            if (technique > 1)
+            {
+                LogManager::getSingleton().logMessage(
+                    "Trying alternate edge building technique " + 
+                    StringConverter::toString(technique));
+            }
+
+            try 
+            {
+                attemptBuild();
+                // if we got here with no exceptions, we're done 
+                validHull = true;
+            }
+            catch (Exception& e) 
+            {
+                if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+                {
+                    // Ambiguous hull, try next technique
+                    ++technique;
+                }
+                else
+                {
+                    throw;
+                }
+
+            }
+        }
+
+        return mEdgeData;
+
+    }        
+    //---------------------------------------------------------------------
+    void EdgeListBuilder::attemptBuild(void)
+    {
+        // reset
+        mVertices.clear();
+        mUniqueEdges.clear();
+        if (mEdgeData)
+        {
+            mEdgeData->triangles.clear();
+            EdgeData::EdgeGroupList::iterator egi, egiend;
+            egiend = mEdgeData->edgeGroups.end();
+            for(egi = mEdgeData->edgeGroups.begin(); egi != egiend; ++egi)
+            {
+                egi->edges.clear();
+            }
+        }
+        else
+        {
+            mEdgeData = new EdgeData();
+        }
         // resize the edge group list to equal the number of vertex sets
         mEdgeData->edgeGroups.resize(mVertexDataList.size());
         // Initialise edge group data
@@ -160,136 +289,13 @@ namespace Ogre {
         size_t indexSet = 0;
         for (i = mIndexDataList.begin(); i != iend; ++i, ++mapi, ++indexSet)
         {
-            try 
-            {
-                buildTrianglesEdges(indexSet, *mapi);
-            }
-            catch (Exception& e)
-            {
-                if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-                {
-                    // Ok, we found a case where there are too many triangles
-                    // attached to a single edge. This can happen in valid cases
-                    // where a mesh has multiple submeshes which 'but up' against
-                    // each other perfectly, but are individually closed
-                    // In this case, we try disabling the 'welding across vertex sets'
-                    // option, which means we ignore it when 2 vertices from different
-                    // sets are in the same position (thus we stop trying to form
-                    // a complete hull from multiple non-manifold submeshes). 
-                    // This is on the assumption that all submeshes have their own
-                    // geometry and are manifold in their own right. If this results
-                    // in degenerates, then it's the modellers fault (and unavoidable 
-                    // since the 'too many tris on an edge' case would have resulted in 
-                    // artefacts anyway)
-
-                    if (mWeldVerticesAcrossSets || mWeldVerticesWithinSets)
-                    {
-                        if (mWeldVerticesAcrossSets)
-                        {
-                            LogManager::getSingleton().logMessage(
-                                "RECOVERY: attempting to find valid hull "
-                                "by assuming all individual submeshes are "
-                                "manifold with their own geometry...");
-
-                            mWeldVerticesAcrossSets = false;
-                        }
-                        else if (mWeldVerticesWithinSets)
-                        {
-                            LogManager::getSingleton().logMessage(
-                                "WARNING: edge calculation process detected "
-                                "ambiguous hull. This is almost certainly going "
-                                "to result in stencil shadow artefacts.");
-
-                            mWeldVerticesWithinSets = false;
-                        }
-
-                        // reset
-                        mUniqueEdges.clear();
-                        mEdgeData->triangles.clear();
-                        EdgeData::EdgeGroupList::iterator egi, egiend;
-                        egiend = mEdgeData->edgeGroups.end();
-                        for(egi = mEdgeData->edgeGroups.begin(); egi != egiend; ++egi)
-                        {
-                            egi->edges.clear();
-                        }
-                        // try again (reset and issue 1st)
-                        // Any exceptions this time will be thrown to parent
-                        i = mIndexDataList.begin();
-                        mapi = mIndexDataVertexDataSetList.begin();
-                        indexSet = 0;
-                        try 
-                        {
-
-                            buildTrianglesEdges(indexSet, *mapi);
-                        }
-                        catch (Exception& e2)
-                        {
-                            if (e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-                            {
-                                if (mWeldVerticesWithinSets)
-                                {
-                                    // Oh, for feck sakes
-                                    // This means that, even splitting by vertex set
-                                    // we still managed to get a situation where there
-                                    // are too many faces meeting at the same edge
-                                    // This is likely because the source of this mesh
-                                    // has co-incident vertices, but they're not meant
-                                    // to be treated as the same edge
-                                    // So we don't weld at all now
-                                    mWeldVerticesWithinSets = false;
-
-                                    LogManager::getSingleton().logMessage(
-                                        "WARNING: edge calculation process detected "
-                                        "ambiguous hull. This is almost certainly going "
-                                        "to result in stencil shadow artefacts.");
-                                    // reset
-                                    mUniqueEdges.clear();
-                                    mEdgeData->triangles.clear();
-                                    EdgeData::EdgeGroupList::iterator egi, egiend;
-                                    egiend = mEdgeData->edgeGroups.end();
-                                    for(egi = mEdgeData->edgeGroups.begin(); egi != egiend; ++egi)
-                                    {
-                                        egi->edges.clear();
-                                    }
-                                    // try again (reset and issue 1st) - LAST CHANCE!
-                                    // Any exceptions this time will be thrown to parent
-                                    i = mIndexDataList.begin();
-                                    mapi = mIndexDataVertexDataSetList.begin();
-                                    indexSet = 0;
-                                    buildTrianglesEdges(indexSet, *mapi);
-                                }
-                                else
-                                {
-                                    throw;
-                                }
-
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                else
-                {
-                    throw;
-                }
-
-            }
+            buildTrianglesEdges(indexSet, *mapi);
         }
         // Stage 2, link edges
         connectEdges();
 
         // Log
         //log(LogManager::getSingleton().createLog("EdgeListBuilder.log"));
-
-        return mEdgeData;
-
 
     }
     //---------------------------------------------------------------------
@@ -407,7 +413,8 @@ namespace Ogre {
                 v[i].y = *pReal++;
                 v[i].z = *pReal++;
                 // find this vertex in the existing vertex map, or create it
-                tri.sharedVertIndex[i] = findOrCreateCommonVertex(v[i], vertexSet);
+                tri.sharedVertIndex[i] = 
+                    findOrCreateCommonVertex(v[i], vertexSet, indexSet, index[i]);
             }
             // Calculate triangle normal (NB will require recalculation for 
             // skeletally animated meshes)
@@ -482,7 +489,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    size_t EdgeListBuilder::findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet)
+    size_t EdgeListBuilder::findOrCreateCommonVertex(const Vector3& vec, 
+        size_t vertexSet, size_t indexSet, size_t originalIndex)
     {
         // Iterate over existing list
         CommonVertexList::iterator i, iend;
@@ -491,15 +499,17 @@ namespace Ogre {
         for (i = mVertices.begin(); i != iend; ++i, ++index)
         {
             const CommonVertex& commonVec = *i;
-
+            // weld common vertex by position
             if (Math::RealEqual(vec.x, commonVec.position.x, 1e-04) && 
                 Math::RealEqual(vec.y, commonVec.position.y, 1e-04) && 
                 Math::RealEqual(vec.z, commonVec.position.z, 1e-04) && 
-                ((commonVec.vertexSet == vertexSet && mWeldVerticesWithinSets)
-                || mWeldVerticesAcrossSets))
+                (commonVec.vertexSet == vertexSet || mWeldVerticesAcrossVertexSets) && 
+                (commonVec.indexSet == indexSet || mWeldVerticesAcrossIndexSets) && 
+                (commonVec.originalIndex == originalIndex || mWeldVertices))
             {
                 return index;
             }
+            
 
         }
         // Not found, insert
@@ -507,6 +517,8 @@ namespace Ogre {
         newCommon.index = mVertices.size();
         newCommon.position = vec;
         newCommon.vertexSet = vertexSet;
+        newCommon.indexSet = indexSet;
+        newCommon.originalIndex = originalIndex;
         mVertices.push_back(newCommon);
         return newCommon.index;
     }
@@ -750,7 +762,7 @@ namespace Ogre {
                 CommonVertex& c = mVertices[i];
                 l->logMessage("Common vertex " + StringConverter::toString(i) + 
                     ": (vertexSet=" + StringConverter::toString(c.vertexSet) + 
-                    ", originalIndex=" + StringConverter::toString(c.index) + 
+                    ", originalIndex=" + StringConverter::toString(c.originalIndex) + 
                     ", position=" + StringConverter::toString(c.position));
             }
         }

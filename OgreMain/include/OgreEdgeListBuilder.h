@@ -166,8 +166,10 @@ namespace Ogre {
 		*/
         struct CommonVertex {
             Vector3  position;  // location of point in euclidean space
-	        size_t index;       // place of vertex in original vertex set
+	        size_t index;       // place of vertex in common vertex list
             size_t vertexSet;   // The vertex set this came from
+            size_t indexSet;    // The index set this was referenced (first) from
+            size_t originalIndex; // place of vertex in original vertex set
         };
 
         typedef std::vector<const VertexData*> VertexDataList;
@@ -184,20 +186,26 @@ namespace Ogre {
         /// Unique edges, used to detect whether there are too many triangles on an edge
         typedef std::set< std::pair<size_t, size_t> > UniqueEdgeSet;
         UniqueEdgeSet mUniqueEdges;
+        // Do we weld common vertices at all?
+        bool mWeldVertices;
         // Should we treat coincident vertices from different vertex sets as one?
-        bool mWeldVerticesAcrossSets;
-        // Should we treat coincident vertices from the same vertex sets as one?
-        bool mWeldVerticesWithinSets;
+        bool mWeldVerticesAcrossVertexSets;
+        // Should we treat coincident vertices referenced from different index sets as one?
+        bool mWeldVerticesAcrossIndexSets;
 
         void buildTrianglesEdges(size_t indexSet, size_t vertexSet);
         void connectEdges(void);
         EdgeData::Edge* findEdge(size_t sharedIndex1, size_t sharedIndex2);
 
         /// Finds an existing common vertex, or inserts a new one
-        size_t findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet);
+        size_t findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet, 
+            size_t indexSet, size_t originalIndex);
         /** Create a new edge - utility method during building */
         void createEdge(size_t vertexSet, size_t triangleIndex, size_t vertIndex0, size_t vertIndex1, 
             size_t sharedVertIndex0, size_t sharedVertIndex1);
+
+        /// Internal method to attempt to build the edge list
+        void attemptBuild(void);
 
     };
 
