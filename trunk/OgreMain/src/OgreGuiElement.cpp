@@ -98,8 +98,8 @@ namespace Ogre {
     {
         if (mMetricsMode == GMM_PIXELS)
         {
-            mPixelWidth = width;
-            mPixelHeight = height;
+            mPixelWidth = (short int)width;
+            mPixelHeight = (short int)height;
         }
         else
         {
@@ -114,8 +114,8 @@ namespace Ogre {
     {
         if (mMetricsMode == GMM_PIXELS)
         {
-            mPixelLeft = left;
-            mPixelTop = top;
+            mPixelLeft = (short int)left;
+            mPixelTop = (short int)top;
         }
         else
         {
@@ -131,7 +131,7 @@ namespace Ogre {
     {
         if (mMetricsMode == GMM_PIXELS)
         {
-            mPixelWidth = width;
+            mPixelWidth = (short int)width;
         }
         else
         {
@@ -149,7 +149,7 @@ namespace Ogre {
     {
         if (mMetricsMode == GMM_PIXELS)
         {
-            mPixelHeight = height;
+            mPixelHeight = (short int)height;
         }
         else
         {
@@ -167,7 +167,7 @@ namespace Ogre {
     {
         if (mMetricsMode == GMM_PIXELS)
         {
-            mPixelLeft = left;
+            mPixelLeft = (short int)left;
         }
         else
         {
@@ -186,7 +186,7 @@ namespace Ogre {
     {
         if (mMetricsMode == GMM_PIXELS)
         {
-            mPixelTop = top;
+            mPixelTop = (short int)top;
         }
         else
         {
@@ -422,10 +422,10 @@ namespace Ogre {
         {
             // Copy settings into pixel versions
             // Relative versions will be derived at viewport change time
-            mPixelLeft = mLeft;
-            mPixelTop = mTop;
-            mPixelWidth = mWidth;
-            mPixelHeight = mHeight;
+            mPixelLeft = (short int)mLeft;
+            mPixelTop = (short int)mTop;
+            mPixelWidth = (short int)mWidth;
+            mPixelHeight = (short int)mHeight;
         }
         mDerivedOutOfDate = true;
         mGeomPositionsOutOfDate = true;

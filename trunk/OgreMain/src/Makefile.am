@@ -78,7 +78,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreRenderSystem.cpp \
                          OgreRenderTarget.cpp \
                          OgreRenderWindow.cpp \
-                         OgreRenderWindowMap.cpp \
                          OgreResourceManager.cpp \
                          OgreResourceMap.cpp \
                          OgreRoot.cpp \
