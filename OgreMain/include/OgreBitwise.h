@@ -76,6 +76,105 @@ namespace Ogre {
 			DestT destValue = (srcValue * destMax) / srcMax;
 			return (destValue << destBitShift);
 		}
+
+        /**
+         * Convert N bit colour channel value to P bits. It fills P bits with the
+         * bit pattern repeated. (this is /((1<<n)-1) in fixed point)
+         */
+        static inline unsigned int fixedToFixed(uint32 value, unsigned int n, int p) 
+        {
+            if(n > p) 
+            {
+                // Less bits required than available; this is easy
+                value >>= n-p;
+            } 
+            else if(n < p)
+            {
+                // More bits required than are there, do the fill
+                // Use old fashioned division, probably better than a loop
+                if(value == 0)
+                        value = 0;
+                else if(value == (1<<n)-1)
+                        value = (1<<p)-1;
+                else    value = value*(1<<p)/((1<<n)-1);
+            }
+            return value;    
+        }
+
+        /**
+         * Convert floating point colour channel value between 0.0 and 1.0 (otherwise clamped) 
+         * to integer of a certain number of bits. Works for any value of bits between 0 and 31.
+         */
+        static inline unsigned int floatToFixed(float value, unsigned int bits) 
+        {
+            if(value < 0.0f) return 0;
+            else if (value == 1.0f) return (1<<bits)-1;
+            else return (unsigned int)(value * (1<<bits));     
+        }
+
+        /**
+         * Fixed point to float
+         */
+        static inline float fixedToFloat(unsigned value, unsigned int bits)
+        {
+            return (float)value/(float)((1<<bits)-1);
+        }
+
+        /**
+         * Write a n*8 bits integer value to memory in native endian.
+         */
+        static inline void intWrite(void *dest, int n, unsigned int value) 
+        {
+            switch(n) {
+                case 1:
+                    ((uint8*)dest)[0] = (uint8)value;
+                    break;
+                case 2:
+                    ((uint16*)dest)[0] = (uint16)value;
+                    break;
+                case 3:
+#if OGRE_ENDIAN == ENDIAN_BIG      
+                    ((uint8*)dest)[0] = (uint8)(value >> 16);
+                    ((uint8*)dest)[1] = (uint8)(value >> 8);
+                    ((uint8*)dest)[2] = (uint8)(value);
+#else
+                    ((uint8*)dest)[2] = (uint8)(value >> 16);
+                    ((uint8*)dest)[1] = (uint8)(value >> 8);
+                    ((uint8*)dest)[0] = (uint8)(value);
+#endif
+                    break;
+                case 4:
+                    ((uint32*)dest)[0] = (uint32)value;                
+                    break;                
+            }        
+        }
+    
+        /**
+         * Read a n*8 bits integer value to memory in native endian.
+         */
+        static inline unsigned int intRead(const void *src, int n) {
+            switch(n) {
+                case 1:
+                    return ((uint8*)src)[0];
+                case 2:
+                    return ((uint16*)src)[0];
+                case 3:
+#if OGRE_ENDIAN == ENDIAN_BIG      
+                    return ((uint32)((uint8*)src)[0]<<16)|
+                            ((uint32)((uint8*)src)[1]<<8)|
+                            ((uint32)((uint8*)src)[2]);
+#else
+                    return ((uint32)((uint8*)src)[0])|
+                            ((uint32)((uint8*)src)[1]<<8)|
+                            ((uint32)((uint8*)src)[2]<<16);
+#endif
+                case 4:
+                    return ((uint32*)src)[0];
+            } 
+            return 0; // ?
+        }
+
+
     };
 }
 
