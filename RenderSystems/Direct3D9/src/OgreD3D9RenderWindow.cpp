@@ -132,7 +132,6 @@ namespace Ogre
 
 		case WM_CLOSE:
 			DestroyWindow( win->mHWnd );
-			Root::getSingleton().getRenderSystem()->detachRenderTarget( win->getName() );
 			win->mClosed = true;
 			return 0;
 		}
