@@ -103,7 +103,7 @@ namespace Ogre {
 
         // Destroy animations
         AnimationList::iterator ai;
-        for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++i)
+        for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++ai)
         {
             delete ai->second;
         }
@@ -211,7 +211,7 @@ namespace Ogre {
     void Skeleton::setBindingPose(void)
     {
         // Update the derived transforms
-        mRootBone->_update();
+        getRootBone()->_update();
 
 
         BoneList::iterator i;
@@ -300,7 +300,7 @@ namespace Ogre {
     void Skeleton::_getBoneMatrices(Matrix4* pMatrices)
     {
         // Update derived transforms
-        mRootBone->_update();
+        getRootBone()->_update();
 
         /* 
             Calculating the bone matrices

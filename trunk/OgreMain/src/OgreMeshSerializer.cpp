@@ -241,16 +241,19 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("Skeleton link exported.");
 
             // Write bone assignments
-            LogManager::getSingleton().logMessage("Exporting shared geometry bone assignments...");
-
-            Mesh::VertexBoneAssignmentList::const_iterator vi;
-            for (vi = pMesh->mBoneAssignments.begin(); 
-            vi != pMesh->mBoneAssignments.end(); ++vi)
+            if (!pMesh->mBoneAssignments.empty())
             {
-                writeMeshBoneAssignment(&(vi->second));
-            }
+                LogManager::getSingleton().logMessage("Exporting shared geometry bone assignments...");
 
-            LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
+                Mesh::VertexBoneAssignmentList::const_iterator vi;
+                for (vi = pMesh->mBoneAssignments.begin(); 
+                vi != pMesh->mBoneAssignments.end(); ++vi)
+                {
+                    writeMeshBoneAssignment(&(vi->second));
+                }
+
+                LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
+            }
         }
 
 
@@ -291,7 +294,7 @@ namespace Ogre {
                 writeSubMeshBoneAssignment(&(vi->second));
             }
 
-            LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
+            LogManager::getSingleton().logMessage("Dedicated geometry bone assignments exported.");
         }
 
 

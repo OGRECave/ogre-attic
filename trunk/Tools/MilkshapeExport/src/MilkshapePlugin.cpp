@@ -156,6 +156,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 {
 
 
+    // Create singletons
+    Ogre::MaterialManager matMgr;
+    Ogre::SkeletonManager skelMgr;
     Ogre::LogManager logMgr;
 
     
@@ -191,6 +194,8 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     logMgr.logMessage("Creating Mesh object...");
     Ogre::Mesh* ogreMesh = new Ogre::Mesh("export");
     logMgr.logMessage("Mesh object created.");
+
+    bool foundBoneAssignment = false;
 
     // No shared geometry
     int i, j;
@@ -254,6 +259,18 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             ogreSubMesh->geometry.pTexCoords[0][j*2] = uv[0];
             ogreSubMesh->geometry.pTexCoords[0][(j*2)+1] = uv[1];
 
+            int boneIdx = msVertex_GetBoneIndex(pVertex);
+            if (boneIdx != -1)
+            {
+                foundBoneAssignment = true;
+                Ogre::VertexBoneAssignment vertAssign;
+                vertAssign.boneIndex = boneIdx;
+                vertAssign.vertexIndex = j;
+                vertAssign.weight = 1.0; // Milkshape only supports single assignments
+                ogreSubMesh->addBoneAssignment(vertAssign);
+            }
+
+
         }
         // Aargh, Milkshape uses stupid separate normal indexes for the same vertex like 3DS
         // Normals aren't described per vertex but per triangle vertex index
@@ -293,27 +310,45 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         logMgr.logMessage("Geometry done.");
     } // SubMesh
 
-    // Create singletons
-    Ogre::MaterialManager matMgr;
 
     if (exportMaterials)
     {
         doExportMaterials(pModel);
     }
 
-    if (exportSkeleton)
+    // Keep hold of a Skeleton pointer for deletion later
+    // Mesh uses Skeleton pointer for skeleton name
+    Ogre::Skeleton* pSkel = 0;
+
+    if (exportSkeleton && foundBoneAssignment)
     {
         // export skeleton, also update mesh to point to it
-        doExportSkeleton(pModel, ogreMesh);
+        pSkel = doExportSkeleton(pModel, ogreMesh);
+    }
+    else if (!exportSkeleton && foundBoneAssignment)
+    {
+        // We've found bone assignments, but skeleton is not to be exported
+        // Prompt the user to find the skeleton 
+        if (!locateSkeleton(ogreMesh))
+            return;
+
     }
     
     // Export
+    logMgr.logMessage("Creating MeshSerializer..");
     Ogre::MeshSerializer serializer;
+    logMgr.logMessage("MeshSerializer created.");
 
     // Export, no materials for now
+    Ogre::String msg;
+    msg << "Exporting mesh data to file '" << szFile << "'";
+    logMgr.logMessage(msg);
     serializer.exportMesh(ogreMesh, szFile, false);
+    logMgr.logMessage("Export successful");
 
     delete ogreMesh;
+    if (pSkel)
+        delete pSkel;
 }
 
 void MilkshapePlugin::doExportMaterials(msModel* pModel)
@@ -347,8 +382,10 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
     }
 }
 
-void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
+Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
 {
+    Ogre::LogManager &logMgr = Ogre::LogManager::getSingleton();
+    Ogre::String msg;
 
     //
     // choose filename
@@ -374,11 +411,17 @@ void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
     ofn.lpstrTitle = "Export to OGRE Skeleton";
 
     if (!::GetSaveFileName (&ofn))
-        return /*0*/;
+        return 0;
 
+    // Strip off the path
+    Ogre::String skelName = szFile;
+    size_t lastSlash = skelName.find_last_of("\\");
+    skelName = skelName.substr(lastSlash+1);
 
     // Set up
-    Ogre::Skeleton *ogreskel = new Ogre::Skeleton("export");
+    logMgr.logMessage("Trying to create Skeleton object");
+    Ogre::Skeleton *ogreskel = new Ogre::Skeleton(skelName);
+    logMgr.logMessage("Skeleton object created");
 
     // Complete the details
     
@@ -386,12 +429,21 @@ void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
     // Milkshape only supports 1 animation (hmm)
     // Get animation length
     // Map frames -> seconds, this can be changed in speed of animation anyway
-    int numFrames = msModel_GetTotalFrames(pModel);
 
+    int numFrames = msModel_GetTotalFrames(pModel);
+    msg = "Number of frames: ";
+    msg << numFrames;
+    logMgr.logMessage(msg);
+
+    logMgr.logMessage("Trying to create Animation object");
     Ogre::Animation *ogreanim = ogreskel->createAnimation("Default", numFrames);
+    logMgr.logMessage("Animation object created.");
 
     // Do the bones, include the animation tracks too
     int numBones = msModel_GetBoneCount(pModel);
+    msg = "Number of bones: ";
+    msg << numBones;
+    logMgr.logMessage(msg);
 
     int i;
     // Create all the bones in turn
@@ -399,32 +451,55 @@ void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
     {
         msBone* bone = msModel_GetBoneAt(pModel, i);
         Ogre::Bone* ogrebone = ogreskel->createBone(bone->szName);
-        ogrebone->setPosition(bone->Position[0], bone->Position[1], bone->Position[2]);
+        Ogre::Vector3 bonePos(bone->Position[0], bone->Position[1], bone->Position[2]);
+        ogrebone->setPosition(bonePos);
         // Hmm, Milkshape has chosen a Euler angle representation of orientation which is not smart
         // Rotation Matrix or Quaternion would have been the smarter choice
         // Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
         // Grr, we'll try our best anyway...
-        Ogre::Quaternion qx, qy, qz;
-        qx.FromAngleAxis(bone->Rotation[0], Ogre::Vector3::UNIT_X);
-        qy.FromAngleAxis(bone->Rotation[1], Ogre::Vector3::UNIT_Y);
-        qz.FromAngleAxis(bone->Rotation[2], Ogre::Vector3::UNIT_Z);
+        Ogre::Quaternion qx, qy, qz, qfinal;
+        qx.FromAngleAxis(Ogre::Math::DegreesToRadians(bone->Rotation[0]), Ogre::Vector3::UNIT_X);
+        qy.FromAngleAxis(Ogre::Math::DegreesToRadians(bone->Rotation[1]), Ogre::Vector3::UNIT_Y);
+        qz.FromAngleAxis(Ogre::Math::DegreesToRadians(bone->Rotation[2]), Ogre::Vector3::UNIT_Z);
 
         // Assume rotate by x then y then z
-        ogrebone->setOrientation(qz * qy * qx);
+        qfinal = qz * qy * qx;
+        ogrebone->setOrientation(qfinal);
+
+        msg = "";
+        msg << "Bone #" << i << ": " <<
+            "Name='" << bone->szName << "' " <<
+            "Position: " << bonePos << " " <<
+            "Ms3d Rotation: {" << bone->Rotation[0] << ", " << bone->Rotation[1] << ", " << bone->Rotation[2] << "} " <<
+            "Orientation: " << qfinal;
+        logMgr.logMessage(msg);
 
         // Create animation tracks
+        msg = "";
+        msg << "Creating AnimationTrack for bone " << i;
+        logMgr.logMessage(msg);
+
         Ogre::AnimationTrack *ogretrack = ogreanim->createTrack(i, ogrebone);
+        logMgr.logMessage("Animation track created.");
 
         // OGRE uses keyframes which are both position and rotation
         // Milkshape separates them, so create merged OGRE keyframes
         int numPosKeys = msBone_GetPositionKeyCount(bone);
         int numRotKeys = msBone_GetRotationKeyCount(bone);
+
+        msg = "";
+        msg << "Number of keyframes: Pos: " << numPosKeys << " Rot: " << numRotKeys;
+        logMgr.logMessage(msg);
+
         int currPosIdx, currRotIdx;
         msPositionKey* currPosKey;
         msRotationKey* currRotKey;
         currPosKey = msBone_GetPositionKeyAt(bone, 0);
         currRotKey = msBone_GetRotationKeyAt(bone, 0);
-        for (currPosIdx = 0, currRotIdx = 0; ; )
+        int ogreKeyFrameCount = 0;
+        for (currPosIdx = 0, currRotIdx = 0; 
+            currPosIdx < numPosKeys && currRotIdx < numRotKeys;
+            ++ogreKeyFrameCount )
         {
             Ogre::Real time;
             if (currPosKey->fTime > currRotKey->fTime)
@@ -436,13 +511,29 @@ void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
                 time = currRotKey->fTime;
             }
 
+            msg = "";
+            msg << "Creating combined (pos & rot) KeyFrame #" << ogreKeyFrameCount <<
+                " for bone #" << i;
+            logMgr.logMessage(msg);
+            // Create keyframe
             Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(time);
+            logMgr.logMessage("KeyFrame created");
 
-            ogrekey->setTranslate(Ogre::Vector3(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]));
-            qx.FromAngleAxis(currRotKey->Rotation[0], Ogre::Vector3::UNIT_X);
-            qy.FromAngleAxis(currRotKey->Rotation[1], Ogre::Vector3::UNIT_Y);
-            qz.FromAngleAxis(currRotKey->Rotation[2], Ogre::Vector3::UNIT_Z);
-            ogrekey->setRotation(qz * qy * qx);
+            Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
+            Ogre::Quaternion kfQ;
+
+            ogrekey->setTranslate(kfPos);
+            qx.FromAngleAxis(Ogre::Math::DegreesToRadians(currRotKey->Rotation[0]), Ogre::Vector3::UNIT_X);
+            qy.FromAngleAxis(Ogre::Math::DegreesToRadians(currRotKey->Rotation[1]), Ogre::Vector3::UNIT_Y);
+            qz.FromAngleAxis(Ogre::Math::DegreesToRadians(currRotKey->Rotation[2]), Ogre::Vector3::UNIT_Z);
+            kfQ = qz * qy * qx;
+            ogrekey->setRotation(kfQ);
+
+            msg = "";
+            msg << "KeyFrame details: Position=" << kfPos << " " <<
+                "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[3] << "} " <<
+                "Orientation=" << kfQ;
+            logMgr.logMessage(msg);
 
             // Check to see which one is next
             if (currPosIdx+1 == numPosKeys && currRotIdx+1 == numRotKeys)
@@ -492,22 +583,109 @@ void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
         
     }
     // Now we've created all the bones, link them up
-    // Link up all the bones
+    logMgr.logMessage("Establishing bone hierarchy..");
     for (i = 0; i < numBones; ++i)
     {
         msBone* bone = msModel_GetBoneAt(pModel, i);
-        Ogre::Bone* ogrechild = ogreskel->getBone(bone->szName);
-        Ogre::Bone* ogreparent = ogreskel->getBone(bone->szParentName);
 
-        ogreparent->addChild(ogrechild);
+        if (strlen(bone->szParentName) == 0)
+        {
+            // Root bone
+            msg = "Root bone detected: Name='";
+            msg << bone->szName << "' Index=" << i;
+            logMgr.logMessage(msg);
+        }
+        else
+        {
+            Ogre::Bone* ogrechild = ogreskel->getBone(bone->szName);
+            Ogre::Bone* ogreparent = ogreskel->getBone(bone->szParentName);
+
+            if (ogrechild == 0)
+            {
+                msg = "Error: could not locate child bone '";
+                msg << bone->szName << "'";
+                logMgr.logMessage(msg);
+                continue;
+            }
+            if (ogreparent == 0)
+            {
+                msg = "Error: could not locate parent bone '";
+                msg << bone->szParentName << "'";
+                logMgr.logMessage(msg);
+                continue;
+            }
+            // Make child
+            ogreparent->addChild(ogrechild);
+        }
+
+
     }
+    logMgr.logMessage("Bone hierarchy established.");
 
 
     // Create skeleton serializer & export
     Ogre::SkeletonSerializer serializer;
-
+    msg = "";
+    msg << "Exporting skeleton to " << szFile;
+    logMgr.logMessage(msg);
     serializer.exportSkeleton(ogreskel, szFile);
+    logMgr.logMessage("Skeleton exported");
 
-    delete ogreskel;
+
+    msg << "Linking mesh to skeleton file '" << skelName << "'";
+    Ogre::LogManager::getSingleton().logMessage(msg);
+    
+    mesh->_notifySkeleton(ogreskel);
+
+    return ogreskel;
 
 }
+
+bool MilkshapePlugin::locateSkeleton(Ogre::Mesh* mesh)
+{
+    //
+    // choose filename
+    //
+    OPENFILENAME ofn;
+    memset (&ofn, 0, sizeof (OPENFILENAME));
+    
+    char szFile[MS_MAX_PATH];
+    char szFileTitle[MS_MAX_PATH];
+    char szDefExt[32] = "skeleton";
+    char szFilter[128] = "OGRE .skeleton Files (*.skeleton)\0*.skeleton\0All Files (*.*)\0*.*\0\0";
+    szFile[0] = '\0';
+    szFileTitle[0] = '\0';
+
+    ofn.lStructSize = sizeof (OPENFILENAME);
+    ofn.lpstrDefExt = szDefExt;
+    ofn.lpstrFilter = szFilter;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = MS_MAX_PATH;
+    ofn.lpstrFileTitle = szFileTitle;
+    ofn.nMaxFileTitle = MS_MAX_PATH;
+    ofn.Flags = OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ofn.lpstrTitle = "Locate OGRE Skeleton (since you're not exporting it)";
+
+    if (!::GetOpenFileName (&ofn))
+        return false;
+
+    // Strip off the path
+    Ogre::String skelName = szFile;
+    size_t lastSlash = skelName.find_last_of("\\");
+    skelName = skelName.substr(lastSlash+1);
+
+    Ogre::String msg;
+    msg << "Linking mesh to skeleton file '" << skelName << "'";
+    Ogre::LogManager::getSingleton().logMessage(msg);
+    
+    // Create a dummy skeleton for Mesh to link to (saves it trying to load it)
+    Ogre::Skeleton* pSkel = (Ogre::Skeleton*)Ogre::SkeletonManager::getSingleton().create(skelName);
+    Ogre::LogManager::getSingleton().logMessage("Dummy Skeleton object created for link.");
+
+    mesh->_notifySkeleton(pSkel);
+
+    return true;
+
+}
+
+

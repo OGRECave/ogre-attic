@@ -131,6 +131,16 @@ namespace Ogre {
             const Quaternion& orientation, 
             Matrix4& destMatrix );
 
+        /** Internal method for building an inverse Matrix4 from orientation / scale / position. 
+        @remarks
+            As makeTransform except it build the inverse given the same data as makeTransform, so
+            performing -translation, 1/scale, -rotate in that order.
+        */
+        void makeInverseTransform(
+            const Vector3& position, 
+            const Vector3& scale, 
+            const Quaternion& orientation, 
+            Matrix4& destMatrix );
     public:
         /** Constructor, should only be called by parent, not directly.
         @remarks

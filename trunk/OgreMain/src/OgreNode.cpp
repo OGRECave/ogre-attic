@@ -424,6 +424,42 @@ namespace Ogre {
         destMatrix.setTrans(position);
     }
     //-----------------------------------------------------------------------
+    void Node::makeInverseTransform(const Vector3& position, const Vector3& scale, const Quaternion& orientation, 
+        Matrix4& destMatrix)
+    {
+        destMatrix = Matrix4::IDENTITY;
+
+        // Invert the parameters
+        Vector3 invTranslate = -position;
+        Vector3 invScale;
+        invScale.x = 1 / scale.x;
+        invScale.y = 1 / scale.x;
+        invScale.z = 1 / scale.x;
+
+        Quaternion invRot = -orientation;
+        
+        // Because we're inverting, order is translation, scale, rotation
+        // So make translation relative to scale & rotation
+        invTranslate.x *= invScale.x; // scale
+        invTranslate.y *= invScale.y; // scale
+        invTranslate.z *= invScale.z; // scale
+        invTranslate = invRot * invTranslate; // rotate
+
+        // Next, make a 3x3 scale matrix and apply inverse rotation
+        Matrix3 scale3x3, rot3x3;
+        scale3x3 = Matrix3::IDENTITY;
+        scale3x3[0][0] *= invScale.x;
+        scale3x3[1][1] *= invScale.y;
+        scale3x3[2][2] *= invScale.z;
+
+        invRot.ToRotationMatrix(rot3x3);
+
+        // Set up final matrix with scale & rotation
+        destMatrix = (rot3x3 * scale3x3);
+
+        destMatrix.setTrans(invTranslate);
+    }
+    //-----------------------------------------------------------------------
     const String& Node::getName(void)
     {
         return mName;

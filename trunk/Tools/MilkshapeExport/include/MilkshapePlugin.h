@@ -66,8 +66,8 @@ protected:
     void showOptions(void);
     void doExportMesh(msModel* pModel);
     void doExportMaterials(msModel* pModel);
-    void doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh);
-
+    Ogre::Skeleton* doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh); // Skeleton returned for deletion later
+    bool locateSkeleton(Ogre::Mesh* mesh);
 };
 
 #endif
