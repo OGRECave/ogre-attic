@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterial.h"
 #include "OgreTechnique.h"
 #include "OgrePass.h"
+#include "OgreMaterialManager.h"
 
 namespace Ogre {
 
@@ -154,10 +155,18 @@ namespace Ogre {
         {
             // Check material & technique supplied (the former since the default implementation
             // of getTechnique is based on it for backwards compatibility
-            assert(pRend->getMaterial() && pRend->getTechnique() &&
-                "Can't add a renderable with a null material / technique!");
-            // Get technique
-            Technique* pTech = pRend->getTechnique();
+            Technique* pTech;
+            if(!pRend->getMaterial() || !pRend->getTechnique())
+            {
+                // Use default base white
+                pTech = static_cast<Material*>(
+                    MaterialManager::getSingleton().getByName("BaseWhite"))->getTechnique(0);
+            }
+            else
+            {
+                // Get technique
+                pTech = pRend->getTechnique();
+            }
             Technique::PassIterator pi = pTech->getPassIterator();
 
             if (pTech->isTransparent())

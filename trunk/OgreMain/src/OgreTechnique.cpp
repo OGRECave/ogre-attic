@@ -72,20 +72,12 @@ namespace Ogre {
                 Root::getSingleton().getRenderSystem()->getCapabilities();
             unsigned short numTexUnits = caps->getNumTextureUnits();
 
-            if (currPass->isProgrammable())
+            if (currPass->hasFragmentProgram())
             {
                 // Check texture units
                 if (numTexUnitsRequested > numTexUnits)
                 {
-                    // Can't do this one, and can't split a programmable pass
-                    mIsSupported = false;
-                    return;
-                }
-                // Check vertex program version
-                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
-                    currPass->getVertexProgram()->getSyntaxCode() ))
-                {
-                    // Can't do this one
+                    // Can't do this one, and can't split a fragment pass
                     mIsSupported = false;
                     return;
                 }
@@ -94,6 +86,17 @@ namespace Ogre {
                     currPass->getFragmentProgram()->getSyntaxCode() ))
                 {
                     // Can't do this one, and can't split a programmable pass
+                    mIsSupported = false;
+                    return;
+                }
+            }
+            if (currPass->hasVertexProgram())
+            {
+                // Check vertex program version
+                if (!GpuProgramManager::getSingleton().isSyntaxSupported(
+                    currPass->getVertexProgram()->getSyntaxCode() ))
+                {
+                    // Can't do this one
                     mIsSupported = false;
                     return;
                 }

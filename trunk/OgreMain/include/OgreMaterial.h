@@ -467,7 +467,7 @@ namespace Ogre {
 
 
         /** Tells the material that it needs recompilation. */
-        void _notifyNeedsRecompile(void) { mCompilationRequired = true; }
+        void _notifyNeedsRecompile(void);
 
 
 
