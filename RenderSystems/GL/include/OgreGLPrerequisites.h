@@ -123,9 +123,36 @@ extern GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 typedef void (APIENTRY *GL_CombinerStageParameterfvNV_Func)(GLenum, GLenum, const GLfloat *);
 extern GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
 
+// Pointer to glCombinerParameterfvNV function
+typedef void (APIENTRY *GL_CombinerParameterfvNV_Func)(GLenum, const GLfloat *);
+extern GL_CombinerParameterfvNV_Func glCombinerParameterfvNV_ptr;
+
+// Pointer to glCombinerParameteriNV function
+typedef void (APIENTRY *GL_CombinerParameteriNV_Func)(GLenum, GLint);
+extern GL_CombinerParameteriNV_Func glCombinerParameteriNV_ptr;
+
+// Pointer to glCombinerInputNV function
+typedef void (APIENTRY *GL_CombinerInputNV_Func)(GLenum, GLenum, GLenum, GLenum, GLenum, GLenum);
+extern GL_CombinerInputNV_Func glCombinerInputNV_ptr;
+
+// Pointer to glCombinerOutputNV function
+typedef void (APIENTRY *GL_CombinerOutputNV_Func)(GLenum, GLenum, GLenum, GLenum, GLenum, GLenum, GLenum, GLboolean, GLboolean, GLboolean);
+
+extern GL_CombinerOutputNV_Func glCombinerOutputNV_ptr;
+
+// Pointer to glFinalCombinerInputNV function
+typedef void (APIENTRY *GL_FinalCombinerInputNV_Func)(GLenum variable, GLenum input, GLenum mapping, GLenum componentUsage);
+
+extern GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
+
 // Pointer to glGetProgramivARB function
 typedef void (APIENTRY *GL_GetProgramivARB_Func)(GLenum, GLenum, GLint *);
 extern GL_GetProgramivARB_Func glGetProgramivARB_ptr;
+
+// Pointer to glLoadProgramNV function
+typedef void (APIENTRY *GL_LoadProgramNV_Func)(GLenum, GLuint, GLsizei, const GLubyte *);
+
+extern GL_LoadProgramNV_Func glLoadProgramNV_ptr;
 };
 
 namespace Ogre {
