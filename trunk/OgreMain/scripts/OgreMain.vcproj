@@ -271,16 +271,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreGpuProgramUsage.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreGuiContainer.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreGuiElementCommands.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreGuiManager.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreGuiPressable.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreHardwareBufferManager.cpp">
@@ -391,7 +382,13 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreOverlay.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreOverlayContainer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreOverlayElement.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreOverlayElementCommands.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreOverlayManager.cpp">
@@ -792,16 +789,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreGpuProgramUsage.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreGuiContainer.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreGuiElementCommands.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreGuiManager.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreGuiPressable.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreHardwareBuffer.h">
@@ -936,7 +924,16 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreOverlay.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreOverlayContainer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreOverlayElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreOverlayElementCommands.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreOverlayElementFactory.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOverlayManager.h">
