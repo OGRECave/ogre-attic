@@ -70,6 +70,7 @@ public:
         mCamera = cam;
         mWindow = win;
         mStatsOn = true;
+		mNumScreenShots = 0;
     }
     virtual ~ExampleFrameListener()
     {
@@ -204,6 +205,14 @@ public:
             timeUntilNextToggle = 1;
         }
 
+        if (mInputDevice->isKeyDown(KC_SYSRQ) && timeUntilNextToggle <= 0)
+        {
+			char tmp[20];
+			sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
+            mWindow->writeContentsToFile(tmp);
+            timeUntilNextToggle = 0.5;
+			mWindow->setDebugText(String("Wrote ") + tmp);
+        }
 
         // Return true to continue rendering
         return true;
@@ -230,6 +239,7 @@ protected:
     RenderWindow* mWindow;
     bool mStatsOn;
     bool mUseBufferedInput;
+	uint mNumScreenShots;
 
 };
 
