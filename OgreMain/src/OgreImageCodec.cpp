@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-	bool ImageCodec::_is_initialized = false;    
+    bool ImageCodec::_is_initialised = false;
     //---------------------------------------------------------------------
     void ImageCodec::codeToFile( const DataChunk& input, 
         const String& outFileName, Codec::CodecData* pData) const
@@ -41,13 +41,6 @@ namespace Ogre {
         OgreGuard( "ImageCodec::codeToFile" );
 
 		ILuint ImageName;
-
-		if( !_is_initialized )
-		{
-			ilInit();
-			ilEnable( IL_FILE_OVERWRITE );
-			_is_initialized = true;
-		}
 
 		ilGenImages( 1, &ImageName );
 		ilBindImage( ImageName );
@@ -66,4 +59,15 @@ namespace Ogre {
         
         OgreUnguard();
     }
+    //---------------------------------------------------------------------
+    void ImageCodec::initialiseIL(void)
+    {
+		if( !_is_initialised )
+		{
+			ilInit();
+			ilEnable( IL_FILE_OVERWRITE );
+			_is_initialised = true;
+		}
+    }
+    //---------------------------------------------------------------------
 }

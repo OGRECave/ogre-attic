@@ -38,6 +38,8 @@ namespace Ogre {
         CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
         String getType() const { return "png"; }
+
+        unsigned int getILType(void) const;
     };
 
 } // namespace

@@ -57,6 +57,8 @@ namespace Ogre {
         CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
         String getType() const { return "tga"; }
+
+        unsigned int getILType(void) const;
     };
 
 }

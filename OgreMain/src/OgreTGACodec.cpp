@@ -49,38 +49,30 @@ namespace Ogre {
 		ILint Imagformat, BytesPerPixel;
 		ImageData * ret_data = new ImageData;
 
-		// Ensure DevIL is started
-		if( !_is_initialized )
-		{
-			ilInit();
-			ilEnable( IL_FILE_OVERWRITE );
-			_is_initialized = true;
-		}
-
 		// Load the image
 		ilGenImages( 1, &ImageName );
 		ilBindImage( ImageName );
 
 		ilLoadL( 
-			IL_TGA, 
+			getILType(), 
 			( void * )const_cast< uchar * >( input.getPtr() ), 
 			static_cast< ILuint >( input.getSize() ) );
 
 		// Check if everything was ok
-                ILenum PossibleError = ilGetError() ;
-                if( PossibleError != IL_NO_ERROR )
-                {
-                        Except( Exception::UNIMPLEMENTED_FEATURE,
-                                        "IL Error",
-                                        iluErrorString(PossibleError) ) ;
-                }
+        ILenum PossibleError = ilGetError();
+        if( PossibleError != IL_NO_ERROR )
+        {
+            Except( Exception::UNIMPLEMENTED_FEATURE,
+                    "IL Error",
+                    iluErrorString(PossibleError) );
+        }
+
+		Imagformat = ilGetInteger( IL_IMAGE_FORMAT );
+		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
 		// Now sets some variables
 		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-
-		Imagformat = ilGetInteger( IL_IMAGE_FORMAT );
-		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
 		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
 		
@@ -101,5 +93,9 @@ namespace Ogre {
 
 		OgreUnguardRet( ret_data );
     }
-
+    //---------------------------------------------------------------------
+    unsigned int TGACodec::getILType(void) const
+    { 
+        return IL_TGA;
+    }
 }
