@@ -172,6 +172,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreBillboard.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreBillboardParticleRenderer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreBillboardSet.cpp">
 			</File>
 			<File
@@ -661,6 +664,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreBillboard.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBillboardParticleRenderer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreBillboardSet.h">

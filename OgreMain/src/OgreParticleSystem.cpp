@@ -48,23 +48,28 @@ namespace Ogre {
     ParticleSystem::CmdMaterial ParticleSystem::msMaterialCmd;
     ParticleSystem::CmdQuota ParticleSystem::msQuotaCmd;
     ParticleSystem::CmdWidth ParticleSystem::msWidthCmd;
-    ParticleSystem::CmdBillboardType ParticleSystem::msBillboardTypeCmd;
-    ParticleSystem::CmdCommonDirection ParticleSystem::msCommonDirectionCmd;
 
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() :
-        mAllDefaultSize( true ),
 		mSpeedFactor(1.0f),
+        mBoundsUpdateTime(5.0f),
         mPoolSize(0),
         mRenderer(0),
         mCullIndividual(false)
     {
         initParameters();
+        mAABB.setExtents(-1, -1, -1, 1, 1, 1);
+        mBoundingRadius = 1;
+        // Init world AABB to something silly
+        Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
+        Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
+        mWorldAABB.setExtents(min, max);
+
     }
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem(const String& name):
-        mAllDefaultSize( true ),
 		mSpeedFactor(1.0f),
+        mBoundsUpdateTime(5.0f),
         mPoolSize(0),
         mRenderer(0),
         mCullIndividual(false)
@@ -75,6 +80,12 @@ namespace Ogre {
         // Default to 10 particles, expect app to specify (will only be increased, not decreased)
         setParticleQuota( 10 );
         initParameters();
+        mAABB.setExtents(-1, -1, -1, 1, 1, 1);
+        mBoundingRadius = 1;
+        // Init world AABB to something silly
+        Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
+        Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
+        mWorldAABB.setExtents(min, max);
 
     }
     //-----------------------------------------------------------------------
@@ -239,11 +250,14 @@ namespace Ogre {
         	_applyMotion(timeElapsed);
 			// Emit new particles
         	_triggerEmitters(timeElapsed);
-			// Update bounds
-            if (mRenderer)
-        	    mRenderer->_updateBounds(mActiveParticles);
+
+            if (mBoundsUpdateTime > 0.0f)
+            {
+                mBoundsUpdateTime -= timeElapsed;
+                _updateBounds();
+            }
 		}
-		
+
 
     }
     //-----------------------------------------------------------------------
@@ -511,38 +525,36 @@ namespace Ogre {
                 PT_BOOL),
                 &msCullCmd);
 
-            dict->addParameter(ParameterDef("billboard_type", 
-                "The type of billboard to use. 'point' means a simulated spherical particle, " 
-                "'oriented_common' means all particles in the set are oriented around common_direction, "
-                "and 'oriented_self' means particles are oriented around their own direction.",
-                PT_STRING),
-                &msBillboardTypeCmd);
-
-            dict->addParameter(ParameterDef("common_direction", 
-                "Only useful when billboard_type is oriented_common. This parameter sets the common "
-                "orientation for all particles in the set (e.g. raindrops may all be oriented downwards).",
-                PT_VECTOR3),
-                &msCommonDirectionCmd);
 
         }
     }
-    /*
     //-----------------------------------------------------------------------
     void ParticleSystem::_updateBounds()
     {
 
         if (mParentNode)
         {
-            // We've already put particles in world space to decouple them from the
-            // node transform, so reverse transform back
+            // Iterate over the particles in world space and grow the box as required
+            Vector3 min = mWorldAABB.getMinimum();
+            Vector3 max = mWorldAABB.getMaximum();
+            ActiveParticleList::iterator p;
+            for (p = mActiveParticles.begin(); p != mActiveParticles.end(); ++p)
+            {
+                min.makeFloor((*p)->position);
+                min.makeCeil((*p)->position);
+            }
+            mWorldAABB.setExtents(min, max);
 
-            Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
-            Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
+
+            // We've already put particles in world space to decouple them from the
+            // node transform, so reverse transform back since we're expected to 
+            // provide a local AABB
             Vector3 temp;
-            const Vector3 *corner = mAABB.getAllCorners();
+            const Vector3 *corner = mWorldAABB.getAllCorners();
             Quaternion invQ = mParentNode->_getDerivedOrientation().Inverse();
             Vector3 t = mParentNode->_getDerivedPosition();
-
+            min.x = min.y = min.z = Math::POS_INFINITY;
+            max.x = max.y = max.z = Math::NEG_INFINITY;
             for (int i = 0; i < 8; ++i)
             {
                 // Reverse transform corner
@@ -550,12 +562,13 @@ namespace Ogre {
                 min.makeFloor(temp);
                 max.makeCeil(temp);
             }
-            mAABB.setExtents(min, max);
+            AxisAlignedBox newAABB;
+            newAABB.setExtents(min, max);
+            // Merge calculated box with current AABB to preserve any user-set AABB
+            mAABB.merge(newAABB);
         }
     }
-    */
     //-----------------------------------------------------------------------
-
     void ParticleSystem::fastForward(Real time, Real interval)
     {
         // First make sure all transforms are up to date
@@ -574,7 +587,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_notifyParticleResized(void)
     {
-        mAllDefaultSize = false;
+        if (mRenderer)
+        {
+            mRenderer->_notifyParticleResized();
+        }
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_notifyParticleRotated(void)
@@ -609,32 +625,6 @@ namespace Ogre {
     Real ParticleSystem::getDefaultHeight(void) const
     {
         return mDefaultHeight;
-    }
-    //-----------------------------------------------------------------------
-    const AxisAlignedBox& ParticleSystem::getBoundingBox(void) const
-    {
-        if (mRenderer)
-        {
-            return mRenderer->getBoundingBox();
-        }
-        else
-        {
-            static AxisAlignedBox aabb;
-            return aabb;
-        }
-    }
-    //-----------------------------------------------------------------------
-    Real ParticleSystem::getBoundingRadius(void) const
-    {
-        if (mRenderer)
-        {
-            return mRenderer->getBoundingRadius();
-        }
-        else
-        {
-            return 0.0f;
-        }
-
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_notifyCurrentCamera(Camera* cam)
@@ -733,41 +723,14 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
-    /*
-    bool ParticleSystem::particleVisible(Camera* cam, ActiveParticleList::iterator p)
+    void ParticleSystem::setBounds(const AxisAlignedBox& aabb)
     {
-        if (mCullIndividual) 
-        {
-            return mRenderer->particleVisible(p);
-        }
-        else
-        {
-            // Return always visible if not culling individually
-            return true;
-        }
-
-
-        // Cull based on sphere (have to transform less)
-        Sphere sph;
-        Matrix4 xworld;
-
-        getWorldTransforms(&xworld);
-
-        sph.setCenter(xworld * (*bill)->mPosition);
-
-        if ((*bill)->mOwnDimensions)
-        {
-            sph.setRadius(std::max((*bill)->mWidth, (*bill)->mHeight));
-        }
-        else
-        {
-            sph.setRadius(std::max(mDefaultWidth, mDefaultHeight));
-        }
-
-        return cam->isVisible(sph);
+        mAABB = aabb;
+        Real sqDist = std::max(mAABB.getMinimum().squaredLength(), 
+            mAABB.getMaximum().squaredLength());
+        mBoundingRadius = Math::Sqrt(sqDist);
 
     }
-    */
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdCull::doGet(const void* target) const
     {

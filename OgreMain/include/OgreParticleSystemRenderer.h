@@ -35,21 +35,9 @@ namespace Ogre {
     */
     class _OgreExport ParticleSystemRenderer : public StringInterface
     {
-    protected:
-        /// The particle system for which this class will provide the rendering
-        ParticleSystem* mSystem;
-        /// Visual bounds of this set
-        AxisAlignedBox mAABB;
-        /// Bounding radius
-        Real mBoundingRadius;
-
-        /** Internal method to determine if a particle is visible. */
-        virtual bool particleVisible(Camera* cam, std::list<Particle*>::iterator p) = 0;
-
-
     public:
         /// Constructor
-        ParticleSystemRenderer(ParticleSystem* sys) : mSystem(sys) {}
+        ParticleSystemRenderer() {}
         /// Destructor
         virtual ~ParticleSystemRenderer() {}
 
@@ -66,16 +54,12 @@ namespace Ogre {
 
         /** Sets the material this renderer must use; called by ParticleSystem. */
         virtual void _setMaterial(MaterialPtr& mat) = 0;
-        /** Delegated to by ParticleSystem::_updateBounds */
-        virtual void _updateBounds(std::list<Particle*>& currentParticles) = 0;
         /** Delegated to by ParticleSystem::_notifyCurrentCamera */
         virtual void _notifyCurrentCamera(Camera* cam) = 0;
-        /** Delegated to by ParticleSystem::getBoundingBox */
-        virtual const AxisAlignedBox& getBoundingBox(void) const { return mAABB; }
-        /** Delegated to by ParticleSystem::getBoundingRadius */
-        virtual Real getBoundingRadius(void) const { return mBoundingRadius; }
         /** Optional callback notified when particles are rotated */
         virtual void _notifyParticleRotated(void) {}
+        /** Optional callback notified when particles are resized individually */
+        virtual void _notifyParticleResized(void) {}
         /** Tells the renderer that the particle quota has changed */
         virtual void _notifyParticleQuota(size_t quota) = 0;
 		/** Create a new ParticleVisualData instance for attachment to a particle.

@@ -53,6 +53,9 @@ namespace Ogre {
     protected:
         /// Parent ParticleSystem
         ParticleSystem* mParentSystem;
+		/// Additional visual data you might want to associate with the Particle
+		ParticleVisualData* mVisual;
+    public:
         /// Does this particle have it's own dimensions?
         bool mOwnDimensions;
         /// Personal width if mOwnDimensions == true
@@ -61,9 +64,6 @@ namespace Ogre {
         Real mHeight;
         /// Current rotation value
         Radian mRotation;
-		/// Additional visual data you might want to associate with the Particle
-		ParticleVisualData* mVisual;
-    public:
         // Note the intentional public access to internal variables
         // Accessing via get/set would be too costly for 000's of particles
         /// World position

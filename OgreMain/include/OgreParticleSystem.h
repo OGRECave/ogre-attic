@@ -87,20 +87,6 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        /** Command object for billboard type (see ParamCommand).*/
-        class CmdBillboardType : public ParamCommand
-        {
-        public:
-            String doGet(const void* target) const;
-            void doSet(void* target, const String& val);
-        };
-        /** Command object for common direction (see ParamCommand).*/
-        class CmdCommonDirection : public ParamCommand
-        {
-        public:
-            String doGet(const void* target) const;
-            void doSet(void* target, const String& val);
-        };
 
         /// Default constructor required for STL creation in manager
         ParticleSystem();
@@ -301,13 +287,13 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual const AxisAlignedBox& getBoundingBox(void) const;
+        virtual const AxisAlignedBox& getBoundingBox(void) const { return mAABB; }
 
         /** Overridden from MovableObject
             @see
                 MovableObject
         */
-        virtual Real getBoundingRadius(void) const;
+        virtual Real getBoundingRadius(void) const { return mBoundingRadius; }
 
         /** Overridden from MovableObject
             @see
@@ -410,9 +396,14 @@ namespace Ogre {
         static CmdMaterial msMaterialCmd;
         static CmdQuota msQuotaCmd;
         static CmdWidth msWidthCmd;
-        static CmdBillboardType msBillboardTypeCmd;
-        static CmdCommonDirection msCommonDirectionCmd;
 
+
+        AxisAlignedBox mAABB;
+        Real mBoundingRadius;
+        Real mBoundsUpdateTime;
+
+        /// World AABB, only used to compare world-space positions to calc bounds
+        AxisAlignedBox mWorldAABB;
 
         /// Name of the system; used for location in the scene.
         String mName;
@@ -424,8 +415,6 @@ namespace Ogre {
         Real mDefaultWidth;
         /// Default height of each particle
         Real mDefaultHeight;
-        /// Are all the particles default size?
-        bool mAllDefaultSize;
 		/// Speed factor
 		Real mSpeedFactor;
 
@@ -503,6 +492,38 @@ namespace Ogre {
 		void createVisualParticles(size_t poolstart, size_t poolend);
 		/// Internal method for destroying ParticleVisualData instances for the pool
 		void destroyVisualParticles(size_t poolstart, size_t poolend);
+
+        /** Set the (initial) bounds of the particle system manually. 
+        @remarks
+            If you can, set the bounds of a particle system up-front and 
+            call setBoundsUpdatePeriod(0); this is the most efficient way to
+            organise it. Otherwise, set an initial bounds and let the bounds increase
+            for a little while (the default is 5 seconds), after which time the 
+            AABB is fixed to save time.
+        */
+        void setBounds(const AxisAlignedBox& aabb);
+
+        /** Sets the period of time for which the bounds of the particle system 
+            are measured and updated (increased only), after which time they
+            are assumed to have reached their maximum and will not be 
+            updated any more. 
+        */
+        void setBoundsUpdatePeriod(Real time) { mBoundsUpdateTime = time; }
+
+        /** Internal method for updating the bounds of the particle system.
+        @remarks
+            This is called automatically for a period of time after the system's
+            creation (5 seconds by default, settable by setBoundsUpdatePeriod) 
+            to increase (and only increase) the bounds of the system according 
+            to the emitted and affected particles. After this period, the 
+            system is assumed to achieved its maximum size, and the bounds are
+            no longer computed for efficiency. You can tweak the behaviour by 
+            either setting the bounds manually (setBounds, preferred), or 
+            changing the time over which the bounds are updated (performance cost).
+            You can also call this method manually if you need to update the 
+            bounds on an ad-hoc basis.
+        */
+        void _updateBounds(void);
 
     };
 
