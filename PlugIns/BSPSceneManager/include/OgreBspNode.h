@@ -140,6 +140,16 @@ namespace Ogre {
 
         typedef std::set<const MovableObject*> IntersectingObjectSet;
 
+        struct Brush
+        {
+            std::list<Plane> planes;
+        };
+        typedef std::list<Brush> BrushList;
+
+        /** Get the list of solid Brushes for this node.
+        @remarks Only applicable for leaf nodes. 
+        */
+        const BrushList& getSolidBrushes(void);
     protected:
         BspLevel* mOwner; // Back-reference to containing level
         bool mIsLeaf;
@@ -183,6 +193,8 @@ namespace Ogre {
         int mFaceGroupStart;
 
         IntersectingObjectSet mMovables;
+
+        BrushList mSolidBrushes;
     public:
         const IntersectingObjectSet& getObjects(void) { return mMovables; }
 

@@ -577,5 +577,53 @@ namespace Ogre {
 	{
 		mLevel->_notifyObjectDetached(mov);
 	}
+    //-----------------------------------------------------------------------
+    AxisAlignedBoxSceneQuery* BspSceneManager::
+    createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+    //-----------------------------------------------------------------------
+    SphereSceneQuery* BspSceneManager::
+    createSphereQuery(const Sphere& sphere, unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+    //-----------------------------------------------------------------------
+    RaySceneQuery* BspSceneManager::
+    createRayQuery(const Ray& ray, unsigned long mask)
+    {
+        // TODO
+        return NULL;
+    }
+    //-----------------------------------------------------------------------
+    IntersectionSceneQuery* BspSceneManager::
+    createIntersectionQuery(unsigned long mask)
+    {
+        BspIntersectionSceneQuery* q = new BspIntersectionSceneQuery(this);
+        q->setQueryMask(mask);
+        return q;
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    BspIntersectionSceneQuery::BspIntersectionSceneQuery(SceneManager* creator) 
+        : DefaultIntersectionSceneQuery(creator)
+    {
+        // Add bounds fragment type
+        mSupportedWorldFragments.insert(SceneQuery::WFT_PLANE_BOUNDED_REGION);
+        
+    }
+    void BspIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
+    {
+        /*
+        Go through each leaf node in BspLevel and check movables against each other and world
+        Issue: some movable-movable intersections could be reported twice if 2 movables
+        overlap 2 leaves?
+        */
+
+
+    }
 }
 
