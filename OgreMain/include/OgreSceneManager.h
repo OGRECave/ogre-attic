@@ -141,6 +141,10 @@ namespace Ogre {
         /// Root scene node
         SceneNode* mSceneRoot;
 
+        /// Autotracking scene nodes
+        typedef std::set<SceneNode*> AutoTrackingSceneNodes;
+        AutoTrackingSceneNodes mAutoTrackingSceneNodes;
+
         // Sky params
         // Sky plane
         Entity* mSkyPlaneEntity;
@@ -1110,6 +1114,9 @@ namespace Ogre {
 
 		/** Returns if all bounding boxes of scene nodes are to be displayed */
 		bool getShowBoundingBoxes() const;
+
+        /** Internal method for notifying the manager that a SceneNode is autotracking. */
+        void _notifyAutotrackingSceneNode(SceneNode* node, bool autoTrack);
 
         
         /** Creates an AxisAlignedBoxSceneQuery for this scene manager. 

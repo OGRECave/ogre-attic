@@ -638,6 +638,13 @@ namespace Ogre {
         _applySceneAnimations();
         _updateSceneGraph(camera);
 
+        // Auto-track nodes
+        AutoTrackingSceneNodes::iterator atsni, atsniend;
+        atsniend = mAutoTrackingSceneNodes.end();
+        for (atsni = mAutoTrackingSceneNodes.begin(); atsni != atsniend; ++atsni)
+        {
+            (*atsni)->_autoTrack();
+        }
         // Auto-track camera if required
         camera->_autoTrack();
 
@@ -1907,6 +1914,18 @@ namespace Ogre {
 	{
 		return mShowBoundingBoxes;
 	}
+    //---------------------------------------------------------------------
+    void SceneManager::_notifyAutotrackingSceneNode(SceneNode* node, bool autoTrack)
+    {
+        if (autoTrack)
+        {
+            mAutoTrackingSceneNodes.insert(node);
+        }
+        else
+        {
+            mAutoTrackingSceneNodes.erase(node);
+        }
+    }
 	//---------------------------------------------------------------------
     void SceneManager::setShadowTechnique(ShadowTechnique technique,
         bool debug)
