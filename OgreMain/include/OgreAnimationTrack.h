@@ -56,10 +56,10 @@ namespace Ogre
         virtual ~AnimationTrack();
 
         /** Returns the number of keyframes in this animation. */
-        unsigned short getNumKeyFrames(void);
+        unsigned short getNumKeyFrames(void) const;
 
         /** Returns the KeyFrame at the specified index. */
-        KeyFrame* getKeyFrame(unsigned short index);
+        KeyFrame* getKeyFrame(unsigned short index) const;
 
         /** Gets the 2 KeyFrame objects which are active at the time given, and the blend value between them.
         @remarks
@@ -80,7 +80,7 @@ namespace Ogre
             value is, e.g. 0.0 for exactly at 1, 0.25 for a quarter etc. By definition the range of this 
             value is:  0.0 <= returnValue < 1.0 .
         */
-        Real getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2);
+        Real getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2) const;
 
         /** Creates a new KeyFrame and adds it to this animation at the given time index.
         @remarks
@@ -109,7 +109,7 @@ namespace Ogre
             position and scaling transforms are linearly interpolated (lerp), whilst the rotation is
             spherically linearly interpolated (slerp) for the most natural result.
         */
-        KeyFrame getInterpolatedKeyFrame(Real timeIndex);
+        KeyFrame getInterpolatedKeyFrame(Real timeIndex) const;
 
         /** Applies an animation track at a certain position to the target node.
         @remarks
@@ -122,7 +122,7 @@ namespace Ogre
         void apply(Real timePos, Real weight = 1.0);
 
         /** Returns a pointer to the associated Node object (if any). */
-        Node* getAssociatedNode(void);
+        Node* getAssociatedNode(void) const;
 
         /** Sets the associated Node object which will be automatically affected by calls to 'apply'. */
         void setAssociatedNode(Node* node);

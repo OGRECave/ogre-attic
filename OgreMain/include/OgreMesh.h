@@ -180,10 +180,10 @@ namespace Ogre {
         void setSkeletonName(const String& skelName);
 
         /** Returns true if this Mesh has a linked Skeleton. */
-        bool hasSkeleton(void);
+        bool hasSkeleton(void) const;
 
         /** Gets a pointer to any linked Skeleton. */
-        Skeleton* getSkeleton(void);
+        Skeleton* getSkeleton(void) const;
 
         /** Initialise an animation set suitable for use with this mesh. 
         @remarks

@@ -52,10 +52,10 @@ namespace Ogre {
         virtual ~Animation();
 
         /** Gets the name of this animation. */
-        String getName(void);
+        String getName(void) const;
 
         /** Gets the total length of the animation. */
-        Real getLength(void);
+        Real getLength(void) const;
 
         /** Creates an AnimationTrack. 
         @param handle Numeric handle to give the track, used for accessing the track later. 
@@ -74,10 +74,10 @@ namespace Ogre {
         AnimationTrack* createTrack(unsigned short handle, Node* node);
 
         /** Gets the number of AnimationTrack objects which make up this animation. */
-        unsigned short getNumTracks(void);
+        unsigned short getNumTracks(void) const;
 
         /** Gets a track by it's handle. */
-        AnimationTrack* getTrack(unsigned short handle);
+        AnimationTrack* getTrack(unsigned short handle) const;
 
 
         /** Destroys the track with the given handle. */

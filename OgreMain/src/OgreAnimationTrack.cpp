@@ -49,19 +49,19 @@ namespace Ogre {
         removeAllKeyFrames();
     }
     //---------------------------------------------------------------------
-    unsigned short AnimationTrack::getNumKeyFrames(void)
+    unsigned short AnimationTrack::getNumKeyFrames(void) const
     {
         return (unsigned short)mKeyFrames.size();
     }
     //---------------------------------------------------------------------
-    KeyFrame* AnimationTrack::getKeyFrame(unsigned short index)
+    KeyFrame* AnimationTrack::getKeyFrame(unsigned short index) const
     {
         assert (index >= 0 && index < mKeyFrames.size() && 
             "KeyFrame index out of bounds");
         return mKeyFrames[index];
     }
     //---------------------------------------------------------------------
-    Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2)
+    Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2) const
     {
         Real totalAnimationLength = mParent->getLength();
 
@@ -71,7 +71,7 @@ namespace Ogre {
             timePos -= totalAnimationLength;
         }
 
-        KeyFrameList::iterator i = mKeyFrames.begin();
+        KeyFrameList::const_iterator i = mKeyFrames.begin();
         while ((*i)->getTime() > timePos)
         {
             ++i;
@@ -159,7 +159,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    KeyFrame AnimationTrack::getInterpolatedKeyFrame(Real timeIndex)
+    KeyFrame AnimationTrack::getInterpolatedKeyFrame(Real timeIndex) const
     {
         // Return value
         KeyFrame kret(timeIndex);
@@ -202,7 +202,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    Node* AnimationTrack::getAssociatedNode(void)
+    Node* AnimationTrack::getAssociatedNode(void) const
     {
         return mTargetNode;
     }
