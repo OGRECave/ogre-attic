@@ -926,15 +926,15 @@ namespace Ogre
 				// Will be reduced to size later
 
 				// Red
-				out32 = Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0xFF000000, rMask );
+				out32 = Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0xFF000000, (DWORD)rMask );
 				// Green
-				out32 |= Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0x00FF0000, gMask );
+				out32 |= Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0x00FF0000, (DWORD)gMask );
 				// Blue
-				out32 |= Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0x0000FF00, bMask );
+				out32 |= Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0x0000FF00, (DWORD)bMask );
 				// Alpha
 				if( aMask > 0 )
 				{
-					out32 |= Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0x000000FF, aMask );
+					out32 |= Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0x000000FF, (DWORD)aMask );
 				}
 				// Assign results to surface pixel
 				// Write up to 4 bytes

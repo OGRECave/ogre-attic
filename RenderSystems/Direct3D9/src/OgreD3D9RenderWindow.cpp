@@ -584,9 +584,9 @@ namespace Ogre
 					val = *((WORD*)pRow);
 					pRow += 2;
 
-					*pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0xF800, 0xFF);
-					*pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0x07E0, 0xFF);
-					*pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0x001F, 0xFF);
+					*pDest++ = Bitwise::convertBitPattern((WORD)val, (WORD)0xF800, (BYTE)0xFF);
+					*pDest++ = Bitwise::convertBitPattern((WORD)val, (WORD)0x07E0, (BYTE)0xFF);
+					*pDest++ = Bitwise::convertBitPattern((WORD)val, (WORD)0x001F, (BYTE)0xFF);
 					break;
 				case D3DFMT_A8R8G8B8:
 				case D3DFMT_X8R8G8B8:
