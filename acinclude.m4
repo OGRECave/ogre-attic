@@ -236,7 +236,7 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
       GLSUPPORT_LIBS=$SDL_LIBS;;
     gtk) 
     PKG_CHECK_MODULES(GLSUPPORT, gtkglextmm-1.0)
-    GLSUPPORT_LIBS="$GLSUPPORT_LIBS -L$(top_srcdir)/PlatformManagers/gtk -lOgrePlatform"
+    GLSUPPORT_LIBS="$GLSUPPORT_LIBS"
     ;;
   esac
 
