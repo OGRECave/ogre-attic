@@ -7,8 +7,8 @@
 class lwReader
 {
 public:
-	lwObject *readObjectFromFile( const char *nfilename, bool flags[] );
-	lwObject *readObjectFromStream( istream *nis, bool flags[] );
+	lwObject *readObjectFromFile( const char *nfilename);
+	lwObject *readObjectFromStream( istream *nis);
 private:
 	istream *is;
 	unsigned long chunksize;

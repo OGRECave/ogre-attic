@@ -16,7 +16,7 @@ Lightwave SDK.
 #include <algorithm>
 #include "Point.h"
 
-using namespace std;
+//using namespace std;
 
 /* chunk and subchunk IDs */
 
