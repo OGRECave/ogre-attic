@@ -150,7 +150,7 @@ void XMLToBinary(String source)
 
         if (genLod)
         {
-            ushort numLod;
+            unsigned short numLod;
             ProgressiveMesh::VertexReductionQuota quota;
             Real reduction;
 
@@ -177,7 +177,7 @@ void XMLToBinary(String source)
 
             Real distance;
             Mesh::LodDistanceList distanceList;
-            for (ushort iLod = 0; iLod < numLod; ++iLod)
+            for (unsigned short iLod = 0; iLod < numLod; ++iLod)
             {
                 cout << "\nLOD Level " << (iLod+1) << ":";
                 cin >> distance;
