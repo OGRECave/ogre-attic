@@ -154,6 +154,14 @@ namespace Ogre {
         /// The scale to use as a base for keyframe animation
         Vector3 mInitialScale;
 
+        // Weight of applied animations so far, used for blending
+        Real mAccumAnimWeight;
+        // The total weighted translation from the initial state so far
+        Vector3 mTransFromInitial;
+        // The total weighted rotation from the initial state so far
+        Quaternion mRotFromInitial;
+
+
     public:
         /** Constructor, should only be called by parent, not directly.
         @remarks
@@ -528,7 +536,10 @@ namespace Ogre {
         /** Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info. */
         virtual void resetToInitialState(void);
 
-        /** Gets the initial position of this node, see setInitialState for more info. */
+        /** Gets the initial position of this node, see setInitialState for more info. 
+        @remarks
+            Also resets the cumulative animation weight used for blending.
+        */
         virtual const Vector3& getInitialPosition(void) const;
 
         /** Gets the initial orientation of this node, see setInitialState for more info. */
@@ -536,6 +547,20 @@ namespace Ogre {
 
         /** Gets the initial position of this node, see setInitialState for more info. */
         virtual const Vector3& getInitialScale(void) const;
+
+        /** Internal weighted transform method.
+        @remarks
+            This method transforms a Node by a weighted amount from it's
+            initial state. If weighted transforms have already been applied, 
+            the previous transforms and this one are blended together based
+            on their relative weight. This method should not be used in
+            combination with the unweighted rotate, translate etc methods.
+        */
+        virtual void _weightedTransform(Real weight, const Vector3& translate, 
+            const Quaternion& rotate);
+
+
+
     };
 
 } //namespace

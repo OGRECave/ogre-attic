@@ -54,6 +54,7 @@ namespace Ogre {
         static char temp[64];
         sprintf(temp, "Unnamed_%lu", msNextGeneratedNameExt++);
         mName = temp;
+        mAccumAnimWeight = 0.0f;
 
 
     }
@@ -67,6 +68,7 @@ namespace Ogre {
         mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mDerivedOutOfDate = true;
+        mAccumAnimWeight = 0.0f;
     }
 
     //-----------------------------------------------------------------------
@@ -522,6 +524,12 @@ namespace Ogre {
         mPosition = mInitialPosition;
         mOrientation = mInitialOrientation;
         mScale = mInitialScale;
+
+        // Reset weights
+        mAccumAnimWeight = 0.0f;
+        mTransFromInitial = Vector3::ZERO;
+        mRotFromInitial = Quaternion::IDENTITY;
+
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
@@ -577,6 +585,32 @@ namespace Ogre {
         return ChildNodeIterator(mChildren.begin(), mChildren.end());
     }
     //-----------------------------------------------------------------------
+    void Node::_weightedTransform(Real weight, const Vector3& translate, 
+       const Quaternion& rotate)
+    {
+        // If no previous transforms, we can just apply
+        if (mAccumAnimWeight == 0.0f)
+        {
+            mRotFromInitial = rotate;
+            mTransFromInitial = translate;
+            mAccumAnimWeight = weight;
+        }
+        else
+        {
+            // Blend with existing
+            Real factor = weight / (mAccumAnimWeight + weight);
+            mTransFromInitial += (translate - mTransFromInitial) * factor;
+            mRotFromInitial = 
+                Quaternion::Slerp(factor, mRotFromInitial, rotate);
+            mAccumAnimWeight += weight;
 
+        }
+
+        // Update final based on bind position + offsets
+        mOrientation = mInitialOrientation * mRotFromInitial;
+        mPosition = mInitialPosition + mTransFromInitial;
+        mDerivedOutOfDate = true;
+
+    }
 }
 
