@@ -101,6 +101,7 @@ void VolumeRenderable::initialise()
 	size_t nvertices = mSlices*4; // n+1 planes
 	size_t elemsize = 3*3;
 	size_t dsize = elemsize*nvertices;
+	size_t x;
 	
 	Ogre::IndexData *idata = new Ogre::IndexData();
 	Ogre::VertexData *vdata = new Ogre::VertexData();
@@ -114,7 +115,7 @@ void VolumeRenderable::initialise()
 		{1.0f, 0.0f},
 		{1.0f, 1.0f}
 	};
-	for(size_t x=0; x<mSlices; x++) 
+	for(x=0; x<mSlices; x++) 
 	{
 		for(size_t y=0; y<4; y++)
 		{
@@ -137,7 +138,7 @@ void VolumeRenderable::initialise()
 		} 
 	}
 	unsigned short *faces = new unsigned short[mSlices*6];
-	for(size_t x=0; x<mSlices; x++) 
+	for(x=0; x<mSlices; x++) 
 	{
 		faces[x*6+0] = x*4+0;
 		faces[x*6+1] = x*4+1;
