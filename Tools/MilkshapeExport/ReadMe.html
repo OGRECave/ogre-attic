@@ -50,43 +50,38 @@
 	--></STYLE>
 	</head>
 	<body bgcolor="#ffffff" text="#000000">
-		<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
-		<p align="center" class="header">Milkshape Exporter README file</p>
-		<p align="center" class="header"><A HREF="http://ogre.sourceforge.net">http://ogre.sourceforge.net</A></p>
-		<p align="left" class="MainHeader">Summary</p>
-		<p>OGRE (Object-Oriented Graphics Rendering Engine) is a scene-oriented, flexible 
-			3D engine written in C++ designed to make it easier and more intuitive for 
-			developers to produce games and demos utilising 3D hardware. The class library 
-			abstracts all the details of using the underlying system libraries like 
-			Direct3D and OpenGL and provides an interface based on world objects and other 
-			intuitive classes.
-		</p>
-		<p>This distribution contains the bare files required to export OGRE .mesh files 
-			from the shareware modelling tool <A HREF="http://www.milkshape3d.com">Milkshape3d</A>.</p>
-		<p align="left" class="MainHeader">How to Install</p>
-		<P>If you are using the prebuilt archive, just extract it into the folder you 
-			installed Milkshape3D into (e.g. C:\Program Files\Milkshape3d). If you are 
-			building the exporter yourself, copy the msOGREExporter.dll into the Milkshape 
-			folder, and either copy OgreMain.dll from the 'Release' build of OgreMain into 
-			the Milkshape folder too, or make sure it is somewhere on your path.
-		</P>
-		<P ALIGN="left" CLASS="MainHeader">How to Use</P>
-		<P>Select an object and click File|Export|OGRE Mesh / Skeleton...</P>
-		<P>It's possible to export Material definitions from Milkshape into the .mesh file, 
-			but because Milkshape only supports very basic material types, I recommend you 
-			don't do this. Instead, create materials in Milkshape and use them for skinning 
-			purposes, but don't check the 'Export Materials' box in the OGRE export dialog. 
-			Make sure you note down the names of the materials you defined in Milkshape, 
-			then write definitions for the materials in OGRE .material scripts instead, 
-			using the same names. The meshes exported will still have a reference to the 
-			material name defined in Milkshape, but the superior OGRE material will be used 
-			at runtime.</P>
-		<P>&nbsp;</P>
-		<P ALIGN="left" CLASS="MainHeader">To get more information
-		</P>
-		<P>To obtain more information and to download the OGRE source code, go to <A HREF="http://ogre.sourceforge.net">
-				http://ogre.sourceforge.net</A>.</P>
-		<P></P>
-		<P>&nbsp;</P>
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Milkshape 
+Exporter README file</p><p align="center" class="header"><A HREF="http://ogre.sourceforge.net">http://ogre.sourceforge.net</A></p><p align="left" class="MainHeader">Summary</p><p>OGRE 
+(Object-Oriented Graphics Rendering Engine) is a scene-oriented, flexible 3D engine 
+written in C++ designed to make it easier and more intuitive for developers to 
+produce games and demos utilising 3D hardware. The class library abstracts all 
+the details of using the underlying system libraries like Direct3D and OpenGL 
+and provides an interface based on world objects and other intuitive classes. 
+</p><p>This distribution contains the bare files required to export OGRE .mesh 
+files from the shareware modelling tool <A HREF="http://www.milkshape3d.com">Milkshape3d</A>.</p><p align="left" class="MainHeader">How 
+to Install</p><P>If you are using the prebuilt archive, just extract it into the 
+folder you installed Milkshape3D into (e.g. C:\Program Files\Milkshape3d). If 
+you are building the exporter yourself, copy the msOGREExporter.dll into the Milkshape 
+folder, and either copy OgreMain.dll from the 'Release' build of OgreMain into 
+the Milkshape folder too, or make sure it is somewhere on your path. </P><P ALIGN="left" CLASS="MainHeader">How 
+to Use</P><P>Select an object and click File|Export|OGRE Mesh / Skeleton...</P><P>It's 
+possible to export Material definitions from Milkshape into the .mesh file, but 
+because Milkshape only supports very basic material types, I recommend you don't 
+do this. Instead, create materials in Milkshape and use them for skinning purposes, 
+but don't check the 'Export Materials' box in the OGRE export dialog. Make sure 
+you note down the names of the materials you defined in Milkshape, then write 
+definitions for the materials in OGRE .material scripts instead, using the same 
+names. The meshes exported will still have a reference to the material name defined 
+in Milkshape, but the superior OGRE material will be used at runtime.</P><P>Skeletons 
+can be exported too: if you choose not to export a skeleton and there are bones 
+in the model, you must link the mesh to it's target skeleton.</P><P>You can optionally 
+choose to split the single animation sequence in Milkshape into multiple separate 
+animations. To do this you have to supply a simple comma-separated text file to 
+record which frames are for which animation, e.g:</P><P>1,30,Walk<BR>31,40,Wave<BR>41,80,Run</P><P>These 
+3 animations would then show up under Skeleton::getAnimation(&quot;Walk&quot;), 
+Skeleton::getAnimation(&quot;Run&quot;) etc as well as Entity::getAnimationState(&quot;Walk&quot;) 
+etc. </P><P>&nbsp;</P><P ALIGN="left" CLASS="MainHeader">To get more information </P><P>To 
+obtain more information and to download the OGRE source code, go to <A HREF="http://ogre.sourceforge.net"> 
+http://ogre.sourceforge.net</A>.</P><P></P><P>&nbsp;</P>
 	</body>
 </html>
