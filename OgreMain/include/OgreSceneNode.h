@@ -45,8 +45,7 @@ namespace Ogre {
 
     protected:
         std::vector<MovableObject*> mObjects;
-        std::vector<Camera*> mCameras;
-        std::vector<Light*> mLights;
+        std::map<String, MovableObject*> mObjectsByName;
 
         /// SceneManager which created this node
         SceneManager* mCreator;
@@ -84,6 +83,9 @@ namespace Ogre {
         SceneNode* removeChild(unsigned short index);
 
         /** Adds an instance of a scene object to this node.
+        @remarks
+            Scene objects can include Entity objects, Camera objects, Light objects, 
+            ParticleSystem objects etc. Anything that subclasses from MovableObject.
         */
         void attachObject(MovableObject* obj);
 
@@ -91,9 +93,15 @@ namespace Ogre {
         */
         unsigned short numAttachedObjects(void);
 
-        /** Retrieves a pointer to an attached entity.
+        /** Retrieves a pointer to an attached object.
+        @remarks Retrieves by index, see alternate version to retrieve by name.
         */
         MovableObject* getAttachedObject(unsigned short index);
+
+        /** Retrieves a pointer to an attached object.
+        @remarks Retrieves by object name, see alternate version to retrieve by index.
+        */
+        MovableObject* getAttachedObject(const String& name);
 
         /** Detaches the indexed Entity from this scene node.
         */
@@ -104,44 +112,16 @@ namespace Ogre {
         void detachAllObjects(void);
 
         /** Adds a light to this node.
+        @remarks
+            DEPRECATED. Use attachObject instead now.
         */
         void attachLight(Light* l);
 
-        /** Reports the number of lights attached to this node.
-        */
-        unsigned short numAttachedLights(void);
-
-        /** Retrieves a pointer to an attached light.
-        */
-        Light* getAttachedLight(unsigned short index);
-
-        /** Detaches the indexed Light from this scene node.
-        */
-        Light* detachLight(unsigned short index);
-
-        /** Detaches all lights attached to this node.
-        */
-        void detachAllLights(void);
-
         /** Adds a Camera to this node.
+        @remarks
+            DEPRECATED. Use attachObject instead now.
         */
         void attachCamera(Camera* ent);
-
-        /** Reports the number of cameras attached to this node.
-        */
-        unsigned short numAttachedCameras(void);
-
-        /** Retrieves a pointer to an attached camera.
-        */
-        Camera* getAttachedCamera(unsigned short index);
-
-        /** Detaches the indexed Camera from this scene node.
-        */
-        Camera* detachCamera(unsigned short index);
-
-        /** Detaches all cameras from this node.
-        */
-        void detachAllCameras(void);
 
         /** Internal method to update the Node.
             @note

@@ -31,6 +31,15 @@ namespace Ogre {
 
         Camera *m_pCamera;
 
+        /// Name, for conformance with MovableObject
+        String mName;
+
+        /// Counter for auto-generating names for backwards compatibility
+        static int msGenNameCount;
+
+        /// Shared class-level name for Movable type
+        static String msMovableType;
+
     public:
         SimpleRenderable()
         {
@@ -48,6 +57,14 @@ namespace Ogre {
 
             mParentNode = NULL;
             m_pCamera = NULL;
+
+            // Generate name
+            char tempName[128];
+            sprintf(tempName, "SimpleRenderable%1", msGenNameCount++);
+            mName = tempName;
+
+
+
         }
 
         // These are to quickly set the RO's properties
@@ -82,6 +99,14 @@ namespace Ogre {
         virtual void _updateRenderQueue(RenderQueue* queue);
 
         virtual ~SimpleRenderable();
+
+        /** Overridden from MovableObject */
+        String getName(void);
+
+        /** Overridden from MovableObject */
+        String getMovableType(void);
+
+
     };
 }
 

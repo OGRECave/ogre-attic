@@ -308,8 +308,6 @@ namespace Ogre {
         // Clear root node of all children
         mSceneRoot->removeAllChildren();
         mSceneRoot->detachAllObjects();
-        mSceneRoot->detachAllCameras();
-        mSceneRoot->detachAllLights();
 
         // Delete all entities
         for (EntityList::iterator ei = mEntities.begin();

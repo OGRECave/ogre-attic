@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreException.h"
 #include "OgreEntity.h"
 #include "OgreCamera.h"
+#include "OgreLight.h"
 #include "OgreMath.h"
 #include "OgreSceneManager.h"
 #include "OgreMovableObject.h"
@@ -73,6 +74,9 @@ namespace Ogre {
     {
         mObjects.push_back(obj);
         obj->_notifyAttached(this);
+
+        // Also add to name index
+        mObjectsByName[obj->getName()] = obj;
     }
     //-----------------------------------------------------------------------
     unsigned short SceneNode::numAttachedObjects(void)
@@ -94,6 +98,21 @@ namespace Ogre {
         return 0;
     }
     //-----------------------------------------------------------------------
+    MovableObject* SceneNode::getAttachedObject(const String& name)
+    {
+        // Look up 
+        std::map<String, MovableObject*>::iterator i = mObjectsByName.find(name);
+
+        if (i == mObjectsByName.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Attached object " + 
+                name + " not found.", "SceneNode::getAttachedObject");
+        }
+
+        return i->second;
+
+    }
+    //-----------------------------------------------------------------------
     MovableObject* SceneNode::detachObject(unsigned short index)
     {
         MovableObject* ret;
@@ -104,6 +123,13 @@ namespace Ogre {
             ret = *i;
             mObjects.erase(i);
             ret->_notifyAttached(0);
+
+            // Also remove from name index
+            std::map<String, MovableObject*>::iterator idxi = 
+                mObjectsByName.find(ret->getName());
+            mObjectsByName.erase(idxi);
+
+
             return ret;
 
             /* XXX temas: Original code
@@ -124,115 +150,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneNode::attachCamera(Camera* cam)
     {
-        mCameras.push_back(cam);
-        cam->_notifyAttached(this);
+        attachObject(cam);
     }
     //-----------------------------------------------------------------------
-    unsigned short SceneNode::numAttachedCameras(void)
+    void SceneNode::attachLight(Light* lgt)
     {
-        return static_cast< unsigned short >( mCameras.size() );
-    }
-    //-----------------------------------------------------------------------
-    Camera* SceneNode::getAttachedCamera(unsigned short index)
-    {
-        if (index < mCameras.size())
-        {
-            std::vector<Camera*>::iterator i = mCameras.begin();
-            return i[index];
-        }
-        else
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Camera index out of bounds.", "SceneNode::getAttachedCamera");
-        }
-        return 0;
-    }
-    //-----------------------------------------------------------------------
-    Camera* SceneNode::detachCamera(unsigned short index)
-    {
-        Camera* ret;
-        if (index < mCameras.size())
-        {
-            /* XXX temas: original code
-            std::vector<Camera*>::iterator i = mCameras.begin();
-            ret = i[index];
-            ret->_notifyAttached(0);
-            mCameras.erase(&i[index]);
-            return ret;
-            */
-            std::vector<Camera*>::iterator i = mCameras.begin() + index;
-            ret = *i;
-            ret->_notifyAttached(0);
-            mCameras.erase(i);
-            return ret;
-        }
-        else
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Camera index out of bounds.", "SceneNode::getAttchedCamera");
-        }
-        return 0;
-    }
-    //-----------------------------------------------------------------------
-    void SceneNode::attachLight(Light* ent)
-    {
-        mLights.push_back(ent);
-    }
-    //-----------------------------------------------------------------------
-    unsigned short SceneNode::numAttachedLights(void)
-    {
-        return static_cast< unsigned short >( mLights.size() );
-    }
-    //-----------------------------------------------------------------------
-    Light* SceneNode::getAttachedLight(unsigned short index)
-    {
-        if (index < mLights.size())
-        {
-            std::vector<Light*>::iterator i = mLights.begin();
-            return i[index];
-        }
-        else
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Light index out of bounds.", "SceneNode::getAttchedLight");
-        }
-        return 0;
-    }
-    //-----------------------------------------------------------------------
-    Light* SceneNode::detachLight(unsigned short index)
-    {
-        Light* ret;
-        if (index < mLights.size())
-        {
-            /* XXX temas: original code
-            std::vector<Light*>::iterator i = mLights.begin();
-            ret = i[index];
-            mLights.erase(&i[index]);
-            return ret;
-            */
-            std::vector<Light*>::iterator i = mLights.begin() + index;
-            ret = *i;
-            mLights.erase(i);
-            return ret;
-        }
-        else
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Light index out of bounds.", "SceneNode::getAttchedLight");
-        }
-        return 0;
-
+        attachObject(lgt);
     }
     //-----------------------------------------------------------------------
     void SceneNode::detachAllObjects(void)
     {
         mObjects.clear();
-    }
-    //-----------------------------------------------------------------------
-    void SceneNode::detachAllLights(void)
-    {
-        mLights.clear();
-    }
-    //-----------------------------------------------------------------------
-    void SceneNode::detachAllCameras(void)
-    {
-        mCameras.clear();
     }
     //-----------------------------------------------------------------------
     void SceneNode::_updateBounds(void)

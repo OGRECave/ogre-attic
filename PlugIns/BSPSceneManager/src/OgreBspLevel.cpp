@@ -301,9 +301,10 @@ namespace Ogre {
         mNumLeaves = q3lvl.mNumLeaves;
         mLeafStart = q3lvl.mNumNodes;
         mRootNode = new BspNode[mNumNodes];
+        int i;
         // Convert nodes
         // In our array, first q3lvl.mNumNodes are non-leaf, others are leaves
-        for (int i = 0; i < q3lvl.mNumNodes; ++i)
+        for (i = 0; i < q3lvl.mNumNodes; ++i)
         {
             BspNode* node = &mRootNode[i];
             bsp_node_t* q3node = &q3lvl.mNodes[i];
@@ -348,7 +349,7 @@ namespace Ogre {
 
         }
         // Convert Leaves
-        for (int i = 0; i < q3lvl.mNumLeaves; ++i)
+        for (i = 0; i < q3lvl.mNumLeaves; ++i)
         {
             BspNode* node = &mRootNode[i + mLeafStart];
             bsp_leaf_t* q3leaf = &q3lvl.mLeaves[i];

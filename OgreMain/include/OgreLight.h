@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreColourValue.h"
 #include "OgreVector3.h"
 #include "OgreString.h"
+#include "OgreMovableObject.h"
 
 namespace Ogre {
 
@@ -56,7 +57,7 @@ namespace Ogre {
             extended for certain scene types so an alternative to the standard dynamic lighting may be used, such
             as dynamic lightmaps.
     */
-    class _OgreExport Light
+    class _OgreExport Light : public MovableObject
     {
     public:
         /// Defines the type of light
@@ -257,9 +258,18 @@ namespace Ogre {
         */
         void _clearModified(void);
 
-        /** Internal method for notification of attachments. Not to be used by outside programs.
-        */
-        void _notifyAttached(SceneNode* attachedTo);
+        /** Overridden from MovableObject */
+        void _notifyCurrentCamera(Camera* cam);
+
+        /** Overridden from MovableObject */
+        const AxisAlignedBox& getBoundingBox(void) const;
+
+        /** Overridden from MovableObject */
+        void _updateRenderQueue(RenderQueue* queue);
+
+        /** Overridden from MovableObject */
+        String getMovableType(void);
+
 
     private:
         String mName;
@@ -280,8 +290,10 @@ namespace Ogre {
         Real mAttenuationQuad;
 
         bool mModified;
-        // optional pointer to parent scene node
-        SceneNode* mSceneNode;
+
+        /// Shared class-level name for Movable type
+        static String msMovableType;
+
 
 
     };

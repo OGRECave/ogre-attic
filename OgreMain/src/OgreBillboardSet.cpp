@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+    String BillboardSet::msMovableType = "BillboardSet";
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet() :
         mOriginType( BBO_CENTER ),
@@ -775,4 +776,15 @@ namespace Ogre {
         pDestVec[3] = vRightOff + vBottomOff;
 
     }
+    //-----------------------------------------------------------------------
+    String BillboardSet::getName(void)
+    {
+        return mName;
+    }
+    //-----------------------------------------------------------------------
+    String BillboardSet::getMovableType(void)
+    {
+        return msMovableType;
+    }
+
 }

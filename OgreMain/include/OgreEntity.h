@@ -99,6 +99,10 @@ namespace Ogre {
         /// State of animation for animable meshes
         AnimationStateSet mAnimationState;
 
+        /// Shared class-level name for Movable type
+        static String msMovableType;
+
+
     public:
         /** Default destructor.
         */
@@ -153,6 +157,12 @@ namespace Ogre {
         /** Overridden - see MovableObject.
         */
         void _updateRenderQueue(RenderQueue* queue);
+
+        /** Overridden from MovableObject */
+        String getName(void);
+
+        /** Overridden from MovableObject */
+        String getMovableType(void);
 
         /** For entities based on animated meshes, gets the AnimationState object for a single animation.
         @remarks
