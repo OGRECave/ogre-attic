@@ -116,7 +116,7 @@ function exploreKeys sk =
 -- nb: so first key has time 0.
 -----------------------------------------------------------------------------
 
-function getAllKeys sk boneId firstFrame lastFrame length xAxis yAxis zAxis scale =
+function getAllKeys sk boneId firstFrame lastFrame length scale =
 (
 	local angle,ax,timef,nKeys ,i,j,tmp;
 	local bname,d,rotContr,posContr,subRotContr,subPosContr,rotValues,posValues ;
@@ -142,9 +142,9 @@ function getAllKeys sk boneId firstFrame lastFrame length xAxis yAxis zAxis scal
 	--subPosContr = #(posContr.x_position.controller,posContr.y_position.controller,posContr.z_position.controller) ;
 	
 	nkeys = numKeys subRotContr[1] ;
-	-- attention limitation:
-	-- il faut qu'a une meme frame, il y ait toutes les cles: position x, y, z et rotation x, y, z.
-	-- utiliser exploreKeys...
+	-- NOTA !!!
+	-- there must be all the keys : position X,Y,Z and rotation X,Y,Z
+	-- exploreKeys verifies this...
 	
 	for i = 1 to nkeys do
 	(
@@ -227,7 +227,7 @@ function writeB sk id scale flipYZ outFile =
 	d = execute ("$" + c) ;
 	format("\t\t<bone id=\"%\" name=\"%\">\n") id d.name to:outFile ;
 	
-	keys = getAllKeys sk id 0 0 1 1 2 3 scale ;
+	keys = getAllKeys sk id 0 0 1 scale ; -- retrieving the first key.
 
 	k = keys[1] ;	
 	
@@ -242,7 +242,7 @@ function writeB sk id scale flipYZ outFile =
 	m = mZ*mY*mX ;
 
 
-	if ((d.parent == undefined) and flipYZ) then  -- root bone
+	if ((d.parent == undefined) and flipYZ) then  -- FLIP Y/Z: root bone
 	(
 		print "Flipping root bone..." ;
 		-- rotate
@@ -353,8 +353,8 @@ function writeTrack sk boneId firstFrame lastFrame length outFile =
 	format("\t\t\t\t<track bone = \"%\">\n") d.name to: outFile ;
 	format("\t\t\t\t\t<keyframes>\n") to:outFile ;
 	
-	initialKey = getAllkeys sk boneId 0 0 length 1 2 3 1 ;
-	keys = getAllkeys sk boneId firstFrame lastFrame length 1 2 3 1 ;
+	initialKey = getAllkeys sk boneId 0 0 length 1 ;
+	keys = getAllkeys sk boneId firstFrame lastFrame length 1 ;
 	
 	k1 = initialKey[1] ;
 	
@@ -363,16 +363,6 @@ function writeTrack sk boneId firstFrame lastFrame length outFile =
 		trans = k[3] - k1[3] ;
 		rot = k[2] - k1[2] ;
 		
---		aaX = Angleaxis (k[2].x - k1[2].x) (point3 1 0 0) ;
---		aaY = Angleaxis (k[2].y - k1[2].y) (point3 0 1 0) ;
---		aaZ = Angleaxis (k[2].z - k1[2].z) (point3 0 0 1) ;
-			
---		mX = aaX as matrix3 ;
---		mY = aaY as matrix3 ;
---		mZ = aaZ as matrix3 ;
-		
---		m = mZ*mY*mX ;
-
 		aaX = Angleaxis (k1[2].x) (point3 1 0 0) ;
 		aaY = Angleaxis (k1[2].y) (point3 0 1 0) ;
 		aaZ = Angleaxis (k1[2].z) (point3 0 0 1) ;
@@ -392,7 +382,7 @@ function writeTrack sk boneId firstFrame lastFrame length outFile =
 		mZ = aaZ as matrix3 ;		
 		
 		m1 = mZ*mY*mX ;	
-		m = m1*(inverse m0) --> MAtrix in Parent coords (!) (dans la base du pere).
+		m = m1*(inverse m0) --> Matrix in Parent coords (!) (dans la base du pere).
 		
 		-- change coords (changement de repere)
 		

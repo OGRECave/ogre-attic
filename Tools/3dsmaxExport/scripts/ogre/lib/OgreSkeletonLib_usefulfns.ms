@@ -115,6 +115,59 @@ function getRootsId skin =
 -- write corresponding tables between vertices and tvertices
 ------------------------------------------------------------
 
+-- appends the couple #(v,tv) if it doesn't exist in the array
+function addOgreVertexTable table v tv =
+(
+	local w, isIn ;
+	isIn = false ;
+	for w in table do (
+		if (w[1] == v and w[2] == tv) then
+		(
+			isIn = true ;
+		)
+	)
+	if (not isIn) then
+	(
+		append table #(v,tv) ;
+	)
+)
+
+-- Creates an array of (vertex number, tvertex number)
+function getOgreVertexTable mesh =
+(
+    local i,f,tvf,table,j ;
+	table = #() ;
+	for i = 1 to (getnumfaces mesh) do
+	(
+		tvf = gettvface mesh i ;
+		f = getface mesh i ;
+		for j=1 to 3 do (
+			addOgreVertexTable table ((int) (f[j])) ((int) (tvf[j]))  ;
+		)
+	)
+    table ;		
+) 
+
+-- returns index of #(v,tv) in table, or -1 if it doesn't exist
+-- Unknown results if table wasn't created qwith getOgreVertexTable
+function searchOgreVertexTable table v tv =
+(
+	local w, pos, i ;
+	pos = -1 ;
+	i = 0 ;
+	for w in table do (
+	    i+=1 ;
+		if (w[1] == v and w[2] == tv) then
+			pos = i ;
+	)
+	pos ;
+)
+
+
+-- getTVertTable And getVertTable Are not used anymore...
+--   |    |    |      |    |    |
+--   V    V    V      V    V    V
+
 -- return an array whose length is (getnumverts mesh)
 -- and whose elements are #(numtvert1, numtvert2, ...)
 
@@ -164,3 +217,37 @@ function getTVertTable mesh =
 	)
 	table ;
 )
+
+--------------------------------------------------------------
+-- write corresponding tables between vertices and material ID
+--------------------------------------------------------------
+
+function getMaterialTable mesh=
+(
+	local i, m, f, table ;
+	table = #() ;
+	for i=1 to (getnumfaces mesh) do
+	(
+		f = gettvface mesh i ;
+		m = getFaceMatId mesh i ;
+		table[f.x] = m ;
+		table[f.y] = m ;
+		table[f.z] = m ;
+	)
+	table ;
+)
+
+function GetUsedMaterialIds mesh =
+(
+	local m, ids ;
+	ids = #() ;
+	for i=1 to (getnumfaces mesh) do
+	(
+		m = getFaceMatId mesh i ;
+		--if (finditem ids m) != 0 then
+			append ids m ;
+
+	)
+	ids ;
+)
+
