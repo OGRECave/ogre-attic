@@ -200,8 +200,11 @@ namespace OgreRefApp
             pProxy->setPosition(pos.x, pos.y, pos.z);
             const Quaternion& orientation = mSceneNode->getOrientation();
             dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
-            //pProxy->setRotation(dquat);
-        }
+            // Hmm, no setQuaternion on proxy
+            //pProxy->setQuaternion(dquat);
+            dMatrix3 m3; 
+            dQtoR(dquat, m3); 
+            pProxy->setRotation(m3); 
 
     }
     //-------------------------------------------------------------------------
