@@ -66,6 +66,14 @@ protected:
         //  other objects, but I don't
         l->setPosition(20,80,50);
 
+        // Fog
+        // NB it's VERY important to set this before calling setWorldGeometry 
+        // because the vertex program picked will be different
+        ColourValue fadeColour(0.93, 0.86, 0.76);
+        mSceneMgr->setFog( FOG_EXP, fadeColour, .001);
+        mWindow->getViewport(0)->setBackgroundColour(fadeColour);
+
+
         mSceneMgr -> setWorldGeometry( "terrain.cfg" );
         // Infinite far plane
         mCamera->setFarClipDistance(0);
@@ -77,10 +85,6 @@ protected:
         // Above the camera, facing down
         plane.normal = -Vector3::UNIT_Y;
 
-        ColourValue fadeColour(0.93, 0.86, 0.76);
-
-        mSceneMgr->setFog( FOG_EXP2, fadeColour, .001);
-        mWindow->getViewport(0)->setBackgroundColour(fadeColour);
         // Set a nice viewpoint
         mCamera->setPosition(707,52,528);
         mCamera->setOrientation(Quaternion(-0.3486, 0.0122, 0.9365, 0.0329));
