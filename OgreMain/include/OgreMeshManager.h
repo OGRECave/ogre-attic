@@ -48,6 +48,7 @@ namespace Ogre {
     {
     public:
         MeshManager();
+        ~MeshManager();
 
         /** Initialises the manager, only to be called by OGRE internally. */
         void _initialise(void);
