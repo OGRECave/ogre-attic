@@ -370,8 +370,7 @@ namespace Ogre {
         */
         virtual void setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided);
         /** Render a single shadow volume to the stencil buffer. */
-        void renderSingleShadowVolumeToStencil(ShadowRenderable* sr, bool zfail, bool stencil2sided, 
-            const LightList* manualLightList);
+        void renderSingleShadowVolumeToStencil(ShadowRenderable* sr, bool zfail, bool stencil2sided, const LightList* manualLightList, bool bSecondPass);
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
         SphereSceneQuery* mShadowCasterSphereQuery;
@@ -1703,4 +1702,3 @@ namespace Ogre {
 
 
 #endif
-

@@ -919,9 +919,14 @@ namespace Ogre {
             mShadowRenderables, flags);
 
 
-        return ShadowRenderableListIterator(mShadowRenderables.begin(), 
-            mShadowRenderables.end());
+        return getLastShadowVolumeRenderableIterator();
     }
+	//-----------------------------------------------------------------------
+	ShadowCaster::ShadowRenderableListIterator 
+	Entity::getLastShadowVolumeRenderableIterator(void)
+	{
+		return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
+	}
     //-----------------------------------------------------------------------
     const VertexData* Entity::findBlendedVertexData(const VertexData* orig)
     {
