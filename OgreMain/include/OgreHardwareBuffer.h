@@ -251,8 +251,16 @@ namespace Ogre {
                     // Do this manually to avoid locking problems
                     const void *srcData = mpShadowBuffer->lockImpl(
     					mLockStart, mLockSize, HBL_READ_ONLY);
+					// Lock with discard if the whole buffer was locked, otherwise normal
+					LockOptions lockOpt;
+					if (mLockStart == 0 && mLockSize == mSizeInBytes)
+						lockOpt = HBL_DISCARD;
+					else
+						lockOpt = HBL_NORMAL;
+					
                     void *destData = this->lockImpl(
-    					mLockStart, mLockSize, HBL_NORMAL);
+    					mLockStart, mLockSize, lockOpt);
+					// Copy shadow to real
                     memcpy(destData, srcData, mLockSize);
                     this->unlockImpl();
                     mpShadowBuffer->unlockImpl();
