@@ -74,7 +74,7 @@ namespace Ogre {
         typedef MapIterator<RenderQueueGroupMap> QueueGroupIterator;
     protected:
         RenderQueueGroupMap mGroups;
-        // The current default queue group
+        /// The current default queue group
         RenderQueueGroupID mDefaultQueueGroup;
     public:
         RenderQueue();
@@ -83,6 +83,13 @@ namespace Ogre {
         /** Empty the queue - should only be called by SceneManagers.
         */
         void clear(void);
+
+		/** Get a render queue group.
+		@remarks
+			OGRE registers new queue groups as they are requested, 
+			therefore this method will always return a valid group.
+		*/
+		RenderQueueGroup* getQueueGroup(RenderQueueGroupID qid);
 
         /** Add a renderable object to the queue.
         @remarks

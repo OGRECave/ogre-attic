@@ -297,12 +297,14 @@ namespace Ogre {
         typedef std::map<ushort, RenderPriorityGroup*, std::less<ushort> > PriorityMap;
         typedef MapIterator<PriorityMap> PriorityMapIterator;
     protected:
-        // Map of RenderPriorityGroup objects
+        /// Map of RenderPriorityGroup objects
         PriorityMap mPriorityGroups;
+		/// Whether shadows are enabled for this queue
+		bool mShadowsEnabled;
 
 
     public:
-        RenderQueueGroup() {}
+		RenderQueueGroup() :mShadowsEnabled(true) {}
 
         ~RenderQueueGroup() {
             // destroy contents now
@@ -358,7 +360,22 @@ namespace Ogre {
 
         }
 
+		/** Indicate whether a given queue group will be doing any
+		shadow setup.
+		@remarks
+		This method allows you to inform the queue about a queue group, and to 
+		indicate whether this group will require shadow processing of any sort.
+		In order to preserve rendering order, OGRE has to treat queue groups
+		as very separate elements of the scene, and this can result in it
+		having to duplicate shadow setup for each group. Therefore, if you
+		know that a group which you are using will never need shadows, you
+		should preregister the group using this method in order to improve
+		the performance.
+		*/
+		void setShadowsEnabled(bool enabled) { mShadowsEnabled = enabled; }
 
+		/** Are shadows enabled for this queue? */
+		bool getShadowsEnabled(void) { return mShadowsEnabled; }
     };
 
 

@@ -68,20 +68,7 @@ namespace Ogre {
     void RenderQueue::addRenderable(Renderable* pRend, RenderQueueGroupID groupID, ushort priority)
     {
         // Find group
-        RenderQueueGroupMap::iterator groupIt;
-        RenderQueueGroup* pGroup;
-
-        groupIt = mGroups.find(groupID);
-        if (groupIt == mGroups.end())
-        {
-            // Insert new
-            pGroup = new RenderQueueGroup();
-            mGroups.insert(RenderQueueGroupMap::value_type(groupID, pGroup));
-        }
-        else
-        {
-            pGroup = groupIt->second;
-        }
+        RenderQueueGroup* pGroup = getQueueGroup(groupID);
 
         // tell material it's been used
         pRend->getMaterial()->touch();
@@ -128,5 +115,28 @@ namespace Ogre {
     {
         mDefaultQueueGroup = grp;
     }
+	//-----------------------------------------------------------------------
+	RenderQueueGroup* RenderQueue::getQueueGroup(RenderQueueGroupID groupID)
+	{
+		// Find group
+		RenderQueueGroupMap::iterator groupIt;
+		RenderQueueGroup* pGroup;
+
+		groupIt = mGroups.find(groupID);
+		if (groupIt == mGroups.end())
+		{
+			// Insert new
+			pGroup = new RenderQueueGroup();
+			mGroups.insert(RenderQueueGroupMap::value_type(groupID, pGroup));
+		}
+		else
+		{
+			pGroup = groupIt->second;
+		}
+
+		return pGroup;
+
+	}
+
 }
 

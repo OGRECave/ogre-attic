@@ -40,6 +40,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreSceneQuery.h"
 #include "OgreAutoParamDataSource.h"
 #include "OgreAnimationState.h"
+#include "OgreRenderQueue.h"
+#include "OgreRenderQueueSortingGrouping.h"
 
 namespace Ogre {
 
@@ -285,8 +287,17 @@ namespace Ogre {
         */
         virtual const ShadowCasterList& findShadowCastersForLight(const Light* light, 
             const Camera* camera);
-        /** Internal method for adding post-render modulative stencil shadows. */
-        virtual void renderModulativeStencilShadows(const Camera* camera);
+		/** Render the objects in a given queue group 
+		*/
+		virtual void renderQueueGroupObjects(RenderQueueGroup* group);
+		/** Render a group with the added complexity of additive stencil shadows. */
+		virtual void renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
+		/** Render a group with the added complexity of additive stencil shadows. */
+		virtual void renderModulativeStencilShadowedQueueGroupObjects(RenderQueueGroup* group);
+		/** Render a set of objects */
+		virtual void renderObjects(const RenderPriorityGroup::SolidRenderablePassMap& objs);
+		/** Render a set of objects */
+		virtual void renderObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs);
 
     public:
         /** Default constructor.
