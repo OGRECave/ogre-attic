@@ -567,6 +567,10 @@ namespace Ogre {
         // Skip empty 
         if (pGeom->numVertices <= 0) return;
 
+        // Determine type(s) present per vertex
+        pGeom->hasNormals = pGeom->hasColours = false;
+        pGeom->numTexCoords = 0;
+
         // Iterate over all children (vertexbuffer entries)
         for (TiXmlElement* vbElem = mGeometryNode->FirstChildElement();
             vbElem != 0; vbElem = vbElem->NextSiblingElement())
@@ -574,9 +578,6 @@ namespace Ogre {
             // Skip non-vertexbuffer elems
             if (stricmp(vbElem->Value(), "vertexbuffer")) continue;
 
-            // Determine type(s) present per vertex
-            pGeom->hasNormals = pGeom->hasColours = false;
-            pGeom->numTexCoords = 0;
 
             const char* attrib = vbElem->Attribute("positions");
             if (attrib && StringConverter::parseBool(attrib))
