@@ -43,7 +43,17 @@ namespace Ogre {
     */
     class _OgreExport Animation
     {
+
     public:
+        /** The types of animation interpolation available. */
+        enum InterpolationMode
+        {
+            /** Values are interpolated along straight lines. */
+            IM_LINEAR,
+            /** Values are interpolated along a spline, resulting in smoother changes in direction. */
+            IM_SPLINE
+        };
+
         /** You should not use this constructor directly, use the parent object such as Skeleton instead.
         @param name The name of the animation, should be unique within it's parent (e.g. Skeleton)
         @param length The length of the animation in seconds.
@@ -97,6 +107,37 @@ namespace Ogre {
         void apply(Real timePos, Real weight = 1.0);
 
 
+        /** Tells the animation how to interpolate between keyframes.
+        @remarks
+            By default, animations normally interpolate linearly between keyframes. This is
+            fast, but when animations include quick changes in direction it can look a little
+            unnatural because directions change instantly at keyframes. An alternative is to
+            tell the animation to interpolate along a spline, which is more expensive in terms
+            of calculation time, but looks smoother because major changes in direction are 
+            distributed around the keyframes rather than just at the keyframe.
+        @par
+            You can also change the default animation behaviour by calling 
+            Animation::setDefaultInterpolationMode.
+        */
+        void setInterpolationMode(InterpolationMode im);
+
+        /** Gets the current interpolation mode of this animation. 
+        @remarks
+            See setInterpolationMode for more info.
+        */
+        InterpolationMode getInterpolationMode(void) const;
+
+        // Methods for setting the defaults
+        /** Sets the default animation interpolation mode. 
+        @remarks
+            Every animation created after this option is set will have the new interpolation
+            mode specified. You can also change the mode per animation by calling the 
+            setInterpolationMode method on the instance in question.
+        */
+        static void setDefaultInterpolationMode(InterpolationMode im);
+
+        /** Gets the default interpolation mode for all animations. */
+        static InterpolationMode getDefaultInterpolationMode(void);
 
 
 
@@ -109,6 +150,10 @@ namespace Ogre {
         String mName;
 
         Real mLength;
+
+        InterpolationMode mInterpolationMode;
+
+        static InterpolationMode msDefaultInterpolationMode;
 
         
     };

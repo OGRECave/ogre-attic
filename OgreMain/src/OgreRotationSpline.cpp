@@ -40,7 +40,10 @@ namespace Ogre {
     void RotationalSpline::addPoint(const Quaternion& p)
     {
         mPoints.push_back(p);
-        recalcTangents();
+        if (mAutoCalc)
+        {
+            recalcTangents();
+        }
     }
     //---------------------------------------------------------------------
     Quaternion RotationalSpline::interpolate(Real t)
@@ -163,7 +166,15 @@ namespace Ogre {
             "Point index is out of bounds!!");
 
         mPoints[index] = value;
-        recalcTangents();
+        if (mAutoCalc)
+        {
+            recalcTangents();
+        }
+    }
+    //---------------------------------------------------------------------
+    void RotationalSpline::setAutoCalculate(bool autoCalc)
+    {
+        mAutoCalc = autoCalc;
     }
     //---------------------------------------------------------------------
 

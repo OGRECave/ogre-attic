@@ -29,9 +29,11 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+    Animation::InterpolationMode Animation::msDefaultInterpolationMode = Animation::IM_LINEAR;
     //---------------------------------------------------------------------
     Animation::Animation(const String& name, Real length) : mName(name), mLength(length)
     {
+        mInterpolationMode = Animation::msDefaultInterpolationMode;
     }
     //---------------------------------------------------------------------
     Animation::~Animation()
@@ -117,6 +119,27 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+    void Animation::setInterpolationMode(InterpolationMode im)
+    {
+        mInterpolationMode = im;
+    }
+    //---------------------------------------------------------------------
+    Animation::InterpolationMode Animation::getInterpolationMode(void) const
+    {
+        return mInterpolationMode;
+    }
+    //---------------------------------------------------------------------
+    void Animation::setDefaultInterpolationMode(InterpolationMode im)
+    {
+        msDefaultInterpolationMode = im;
+    }
+    //---------------------------------------------------------------------
+    Animation::InterpolationMode Animation::getDefaultInterpolationMode(void)
+    {
+        return msDefaultInterpolationMode;
+    }
+    //---------------------------------------------------------------------
 
 }
 

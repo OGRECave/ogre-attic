@@ -83,11 +83,30 @@ namespace Ogre {
         Vector3 interpolate(unsigned int fromIndex, Real t);
 
 
-    protected:
+        /** Tells the spline whether it should automatically calculate tangents on demand
+            as points are added.
+        @remarks
+            The spline calculates tangents at each point automatically based on the input points.
+            Normally it does this every time a point changes. However, if you have a lot of points
+            to add in one go, you probably don't want to incur this overhead and would prefer to 
+            defer the calculation until you are finished setting all the points. You can do this
+            by calling this method with a parameter of 'false'. Just remember to manually call 
+            the recalcTangents method when you are done.
+        @param autoCalc If true, tangents are calculated for you whenever a point changes. If false, 
+            you must call reclacTangents to recalculate them when it best suits.
+        */
+        void setAutoCalculate(bool autoCalc);
 
-        /** Recalculates the tangents associated with this spline. */
+        /** Recalculates the tangents associated with this spline. 
+        @remarks
+            If you tell the spline not to update on demand by calling setAutoCalculate(false)
+            then you must call this after completing your updates to the spline points.
+        */
         void recalcTangents(void);
 
+    protected:
+
+        bool mAutoCalc;
 
         std::vector<Vector3> mPoints;
         std::vector<Vector3> mTangents;
