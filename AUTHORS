@@ -44,6 +44,7 @@ Attila Tajti (attis)                  : Wings3D exporter
 ? (Firestorm)                         : Particle scale and rotate affectors
 Lee Sandberg                          : Hardware occlusion query support
 Phillip Castaneda (pjcast)            : External texture sources / dynamic textures
+Henry Goffin (qsilver)				  : Ultra-fast scaling code in OgreImageResampler.h
 
 Others
 ------

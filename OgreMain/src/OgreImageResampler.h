@@ -22,9 +22,6 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-// TODO: copyright, proper comments and documentation
-// freely given by Henry Goffin to Ogre
-
 #ifndef OGREIMAGERESAMPLER_H
 #define OGREIMAGERESAMPLER_H
 
