@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 7 2004 by texi2html 1.64 -->
+<!-- Created on , 11 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual: Passes</TITLE>
+<TITLE>OGRE Manual v0.14: Passes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual: Passes">
-<META NAME="keywords" CONTENT="OGRE Manual: Passes">
+<META NAME="description" CONTENT="OGRE Manual v0.14: Passes">
+<META NAME="keywords" CONTENT="OGRE Manual v0.14: Passes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC31"></A>
+<A NAME="SEC34"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC28"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC31"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC50"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC53"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,57 +35,57 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.1.2 Passes </H3>
-<!--docid::SEC31::-->
+<!--docid::SEC34::-->
 A pass is a single render of the geometry in question; a single call to the rendering API with a certain set of rendering properties. A technique can have between one and 16 passes, although clearly the more passes you use, the more expensive the technique will be to render.<BR><BR>
-Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_19.html#SEC50">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_21.html#SEC77">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
+Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_19.html#SEC53">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_21.html#SEC81">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
 
 <BR><BR>
 Here are the attributes you can use in a 'pass' section of a .material script:
 
 <UL>
 <LI>
-<A HREF="manual_18.html#SEC33">ambient</A>
+<A HREF="manual_18.html#SEC36">ambient</A>
 <LI>
-<A HREF="manual_18.html#SEC34">diffuse</A>
+<A HREF="manual_18.html#SEC37">diffuse</A>
 <LI>
-<A HREF="manual_18.html#SEC35">specular</A>
+<A HREF="manual_18.html#SEC38">specular</A>
 <LI>
-<A HREF="manual_18.html#SEC36">emissive</A>
+<A HREF="manual_18.html#SEC39">emissive</A>
 <LI>
-<A HREF="manual_18.html#SEC37">scene_blend</A>
+<A HREF="manual_18.html#SEC40">scene_blend</A>
 <LI>
-<A HREF="manual_18.html#SEC38">depth_check</A>
+<A HREF="manual_18.html#SEC41">depth_check</A>
 <LI>
-<A HREF="manual_18.html#SEC39">depth_write</A>
+<A HREF="manual_18.html#SEC42">depth_write</A>
 <LI>
-<A HREF="manual_18.html#SEC40">depth_func</A>
+<A HREF="manual_18.html#SEC43">depth_func</A>
 <LI>
-<A HREF="manual_18.html#SEC41">depth_bias</A>
+<A HREF="manual_18.html#SEC44">depth_bias</A>
 <LI>
-<A HREF="manual_18.html#SEC42">cull_hardware</A>
+<A HREF="manual_18.html#SEC45">cull_hardware</A>
 <LI>
-<A HREF="manual_18.html#SEC43">cull_software</A>
+<A HREF="manual_18.html#SEC46">cull_software</A>
 <LI>
-<A HREF="manual_18.html#SEC44">lighting</A>
+<A HREF="manual_18.html#SEC47">lighting</A>
 <LI>
-<A HREF="manual_18.html#SEC45">shading</A>
+<A HREF="manual_18.html#SEC48">shading</A>
 <LI>
-<A HREF="manual_18.html#SEC46">fog_override</A>
+<A HREF="manual_18.html#SEC49">fog_override</A>
 <LI>
-<A HREF="manual_18.html#SEC47">colour_write</A>
+<A HREF="manual_18.html#SEC50">colour_write</A>
 <LI>
-<A HREF="manual_18.html#SEC48">max_lights</A>
+<A HREF="manual_18.html#SEC51">max_lights</A>
 <LI>
-<A HREF="manual_18.html#SEC49">iteration</A>
+<A HREF="manual_18.html#SEC52">iteration</A>
 </UL>
 
-<A NAME="SEC32"></A>
+<A NAME="SEC35"></A>
 <H2> Attribute Descriptions </H2>
-<!--docid::SEC32::-->
+<!--docid::SEC35::-->
 <A NAME="ambient"></A>
-<A NAME="SEC33"></A>
+<A NAME="SEC36"></A>
 <H3> ambient </H3>
-<!--docid::SEC33::-->
+<!--docid::SEC36::-->
 
 Sets the ambient colour reflectance properties of this pass. <STRONG>This attribute has no effect if a vertex program is used.</STRONG> <BR><BR>
 
@@ -99,9 +99,9 @@ The base colour of a pass is determined by how much red, green and blue light is
 Default: ambient 1.0 1.0 1.0<BR><BR>
 
 <A NAME="diffuse"></A>
-<A NAME="SEC34"></A>
+<A NAME="SEC37"></A>
 <H3> diffuse </H3>
-<!--docid::SEC34::-->
+<!--docid::SEC37::-->
 
 Sets the diffuse colour reflectance properties of this pass. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
 
@@ -115,9 +115,9 @@ The base colour of a pass is determined by how much red, green and blue light is
 Default: diffuse 1.0 1.0 1.0<BR><BR>
 
 <A NAME="specular"></A>
-<A NAME="SEC35"></A>
+<A NAME="SEC38"></A>
 <H3> specular </H3>
-<!--docid::SEC35::-->
+<!--docid::SEC38::-->
 
 Sets the specular colour reflectance properties of this pass. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
 
@@ -131,9 +131,9 @@ The base colour of a pass is determined by how much red, green and blue light is
 Default: specular 0.0 0.0 0.0 0.0<BR><BR>
 
 <A NAME="emissive"></A>
-<A NAME="SEC36"></A>
+<A NAME="SEC39"></A>
 <H3> emissive </H3>
-<!--docid::SEC36::-->
+<!--docid::SEC39::-->
 
 Sets the amount of self-illumination an object has. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
 
@@ -147,9 +147,9 @@ If an object is self-illuminating, it does not need external sources to light it
 Default: emissive 0.0 0.0 0.0<BR><BR>
 
 <A NAME="scene_blend"></A>
-<A NAME="SEC37"></A>
+<A NAME="SEC40"></A>
 <H3> scene_blend </H3>
-<!--docid::SEC37::-->
+<!--docid::SEC40::-->
 
 Sets the kind of blending this pass has with the existing contents of the scene. Wheras the texture blending operations seen in the texture_unit entries are concerned with blending between texture layers, this blending is about combining the output of this pass as a whole with the existing contents of the rendering target. This blending therefore allows object transparency and other special effects. There are 2 formats, one using predefined blend types, the other allowing a roll-your-own approach using source and destination factors.<BR><BR>
 
@@ -198,9 +198,9 @@ This version of the method allows complete control over the blending operation, 
 Default: scene_blend one zero (opaque)
 <BR>
 <A NAME="depth_check"></A>
-<A NAME="SEC38"></A>
+<A NAME="SEC41"></A>
 <H3> depth_check </H3>
-<!--docid::SEC38::-->
+<!--docid::SEC41::-->
 
 Sets whether or not this pass renders with depth-buffer checking on or not.<BR><BR>
 
@@ -211,9 +211,9 @@ If depth-buffer checking is on, whenever a pixel is about to be written to the f
 Default: depth_check on<BR><BR>
 
 <A NAME="depth_write"></A>
-<A NAME="SEC39"></A>
+<A NAME="SEC42"></A>
 <H3> depth_write </H3>
-<!--docid::SEC39::-->
+<!--docid::SEC42::-->
 
 Sets whether or not this pass renders with depth-buffer writing on or not.<BR>
 
@@ -224,9 +224,9 @@ If depth-buffer writing is on, whenever a pixel is written to the frame buffer t
 Default: depth_write on<BR>
 
 <A NAME="depth_func"></A>
-<A NAME="SEC40"></A>
+<A NAME="SEC43"></A>
 <H3> depth_func </H3>
-<!--docid::SEC40::-->
+<!--docid::SEC43::-->
 
 Sets the function used to compare depth values when depth checking is on.<BR><BR>
 
@@ -255,9 +255,9 @@ If depth checking is enabled (see depth_check) a comparison occurs between the d
 Default: depth_func less_equal
 
 <A NAME="depth_bias"></A>
-<A NAME="SEC41"></A>
+<A NAME="SEC44"></A>
 <H3> depth_bias </H3>
-<!--docid::SEC41::-->
+<!--docid::SEC44::-->
 
 Sets the bias applied to the depth value of this pass. Can be used to make coplanar polygons appear on top of others e.g. for decals. <BR><BR>
 
@@ -266,9 +266,9 @@ Format: depth_bias &#60;value&#62;<BR><BR>
 Where &#60;value&#62; is between 0 and 16, the default being 0. The higher the value, the greater the offset (for if you want to do multiple overlapping decals).<BR><BR>
 
 <A NAME="cull_hardware"></A>
-<A NAME="SEC42"></A>
+<A NAME="SEC45"></A>
 <H3> cull_hardware </H3>
-<!--docid::SEC42::-->
+<!--docid::SEC45::-->
 
 Sets the hardware culling mode for this pass.<BR><BR>
 
@@ -280,9 +280,9 @@ Default: cull_hardware clockwise<BR>
 NB this is the same as OpenGL's default but the opposite of Direct3D's default (because Ogre uses a right-handed coordinate system like OpenGL).
 
 <A NAME="cull_software"></A>
-<A NAME="SEC43"></A>
+<A NAME="SEC46"></A>
 <H3> cull_software </H3>
-<!--docid::SEC43::-->
+<!--docid::SEC46::-->
 
 Sets the software culling mode for this pass.<BR><BR>
 
@@ -293,9 +293,9 @@ In some situations the engine will also cull geometry in software before sending
 Default: cull_software back<BR><BR>
 
 <A NAME="lighting"></A>
-<A NAME="SEC44"></A>
+<A NAME="SEC47"></A>
 <H3> lighting </H3>
-<!--docid::SEC44::-->
+<!--docid::SEC47::-->
 
 Sets whether or not dynamic lighting is turned on for this pass or not. If lighting is turned off, all objects rendered using the pass will be fully lit. <STRONG>This attribute has no effect if a vertex program is used.</STRONG><BR><BR>
 
@@ -306,9 +306,9 @@ Turning dynamic lighting off makes any ambient, diffuse, specular, emissive and 
 Default: lighting on<BR><BR>
 
 <A NAME="shading"></A>
-<A NAME="SEC45"></A>
+<A NAME="SEC48"></A>
 <H3> shading </H3>
-<!--docid::SEC45::-->
+<!--docid::SEC48::-->
 
 Sets the kind of shading which should be used for representing dynamic lighting for this pass.<BR><BR>
 
@@ -326,9 +326,9 @@ When dynamic lighting is turned on, the effect is to generate colour values at e
 Default: shading gouraud<BR><BR>
 
 <A NAME="fog_override"></A>
-<A NAME="SEC46"></A>
+<A NAME="SEC49"></A>
 <H3> fog_override </H3>
-<!--docid::SEC46::-->
+<!--docid::SEC49::-->
 
 Tells the pass whether it should override the scene fog settings, and enforce it's own. Very useful for things that you don't want to be affected by fog when the rest of the scene is fogged, or vice versa.<BR><BR>
 
@@ -356,9 +356,9 @@ If you specify 'true' for the first parameter and you supply the rest of the par
 Example: fog_override true exp 1 1 1 0.002 100 10000
 
 <A NAME="colour_write"></A>
-<A NAME="SEC47"></A>
+<A NAME="SEC50"></A>
 <H3> colour_write </H3>
-<!--docid::SEC47::-->
+<!--docid::SEC50::-->
 
 Sets whether or not this pass renders with colour writing on or not.<BR>
 
@@ -369,21 +369,21 @@ If colour writing is off no visible pixels are written to the screen during this
 Default: colour_write on<BR>
 
 <A NAME="max_lights"></A>
-<A NAME="SEC48"></A>
+<A NAME="SEC51"></A>
 <H3> max_lights </H3>
-<!--docid::SEC48::-->
+<!--docid::SEC51::-->
 
 Sets the maximum number of lights which will be considered for use with this pass.<BR><BR>
 Format: max_lights &#60;number&#62;<BR><BR>
 
-The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_21.html#SEC77">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_18.html#SEC49">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_21.html#SEC81">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_18.html#SEC52">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
 
 Default: max_lights 8<BR>
 
 <A NAME="iteration"></A>
-<A NAME="SEC49"></A>
+<A NAME="SEC52"></A>
 <H3> iteration </H3>
-<!--docid::SEC49::-->
+<!--docid::SEC52::-->
 
 Sets whether or not this pass is iterated, ie issued more than once.<BR><BR>
 
@@ -401,9 +401,9 @@ Default: iteration once
 <A NAME="Texture Units"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC28"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_17.html#SEC31"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC50"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC53"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -412,7 +412,7 @@ Default: iteration once
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 7 2004</I>
+by <I>Steve Streeting</I> on <I>, 11 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

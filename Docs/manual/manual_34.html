@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 7 2004 by texi2html 1.64 -->
+<!-- Created on , 11 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual: Exporters</TITLE>
+<TITLE>OGRE Manual v0.14: Exporters</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual: Exporters">
-<META NAME="keywords" CONTENT="OGRE Manual: Exporters">
+<META NAME="description" CONTENT="OGRE Manual v0.14: Exporters">
+<META NAME="keywords" CONTENT="OGRE Manual v0.14: Exporters">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC146"></A>
+<A NAME="SEC151"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC145"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC145"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC151"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC150"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC150"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC156"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,7 +35,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 4.1 Exporters </H2>
-<!--docid::SEC146::-->
+<!--docid::SEC151::-->
 
 Exporters are plugins to 3D modelling tools which write meshes and skeletal animation to file formats which OGRE can use for realtime rendering. The files the exporters write end in .mesh and .skeleton respectively.<BR><BR>
 
@@ -43,9 +43,9 @@ Each exporter has to be written specifically for the modeller in question, altho
 
 All the exporters here can be built from the source code, or you can download precompiled versions from the OGRE web site.<BR><BR>
 
-<A NAME="SEC147"></A>
+<A NAME="SEC152"></A>
 <H2> A Note About Modelling / Animation For OGRE </H2>
-<!--docid::SEC147::-->
+<!--docid::SEC152::-->
 There are a few rules when creating an animated model for OGRE:
 <UL>
 <LI>You must have no more than 4 weighted bone assignments per vertex. If you have more, OGRE will eliminate the lowest weighted assignments and renormalise the other weights. This limit is imposed by hardware blending limitations.
@@ -54,9 +54,9 @@ There are a few rules when creating an animated model for OGRE:
 </UL>
 If you're creating unanimated meshes, then you do not need to be concerned with the above.
 
-<A NAME="SEC148"></A>
+<A NAME="SEC153"></A>
 <H2> Milkshape3D </H2>
-<!--docid::SEC148::-->
+<!--docid::SEC153::-->
 
 Milkshape3D is a popular low-polygon editor, especially popular in the modding community because of it's low price and the fact that it supports many game file formats. Installation instructions are included with the exporter itself. The Milkshape exporter supports exporting of meshes and animations. An important tip: Make sure you are not in 'animation' mode when you do this, otherwise Milkshape gets confused as to what the 'reference' position of the mesh is. Just make sure the 'Anim' button in the bottom-right is NOT depressed.<BR><BR>
 
@@ -76,14 +76,14 @@ You then get a dialog box with several options:
 <DD>The Milkshape timeline is in frames, but OGRE likes to deal with animations in terms of seconds for simplicity. This value allows the exporter to do the conversion. Note there's nothing to stop you animating the mesh at a different frame rate in OGRE at runtime by scaling the amount you change the animation by each time, but this bakes a 'default animation speed' into the animation for simplicity.
 </DL>
 
-<A NAME="SEC149"></A>
+<A NAME="SEC154"></A>
 <H2> 3D Studio Max R4/5 </H2>
-<!--docid::SEC149::-->
-The 3D Studio exporter exports both mesh definitions and animations created with Biped and Physique. It requires no compilation because it is written in MaxScript, and exports data to XML before converting it using <A HREF="manual_35.html#SEC151">4.2 XmlConverter</A>. There are tutorials included with the exporter in it's Docs/ folder.
+<!--docid::SEC154::-->
+The 3D Studio exporter exports both mesh definitions and animations created with Biped and Physique. It requires no compilation because it is written in MaxScript, and exports data to XML before converting it using <A HREF="manual_35.html#SEC156">4.2 XmlConverter</A>. There are tutorials included with the exporter in it's Docs/ folder.
 
-<A NAME="SEC150"></A>
+<A NAME="SEC155"></A>
 <H2> Other exporters </H2>
-<!--docid::SEC150::-->
+<!--docid::SEC155::-->
 These other exporters are provided with OGRE, but are either still under development or are supported externally:
 <UL>
 <LI>Wings3D
@@ -95,9 +95,9 @@ These other exporters are provided with OGRE, but are either still under develop
 <A NAME="XmlConverter"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC145"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC145"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC151"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC150"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC150"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC156"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -106,7 +106,7 @@ These other exporters are provided with OGRE, but are either still under develop
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 7 2004</I>
+by <I>Steve Streeting</I> on <I>, 11 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
