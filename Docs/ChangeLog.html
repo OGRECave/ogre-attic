@@ -97,17 +97,21 @@ do need depth writing to be turned off will need to set it in your material scri
 legacy cards supported through the DirectX7 rendersystem or OpenGL</LI><LI>Support 
 for cubic textures and cubic reflection mapping added</LI><LI>Support for DOT3 
 bump mapping added</LI><LI>Significant speed improvements on rebuilding bezier 
-patch surfaces, changing detail level is now a lot faster</LI><LI>DTDs for .mesh.xml 
-and .skeleton.xml added</LI><LI>Added Gtk platform manager with support for ogre 
-as a Gtk/GL widget</LI><LI>3D Studio Exporter now supports IK and Biped </LI><LI>Memory 
-leaks with controllers removed</LI><LI>Lightwave converter added</LI><LI>Wings3D 
-converter added</LI><LI>Visual real-time profiling tool added</LI><LI>Many bugfixes 
-and minor enhancements</LI></UL><p align="left" class="MainHeader">v0.11.0 (18 
-June 2003)</p><P ALIGN="left">Changes since 0.10.0:</P><UL><LI> SceneQuery introduced; 
-a generic way to query the SceneManager database of objects and world geometry 
-in a way which is optimised per scene management technique but transparent for 
-the client application. Currently only IntersectionSceneQuery is implemented but 
-RaySceneQuery, SphereSceneQuery and others will soon be available too</LI><LI> 
+patch surfaces, changing detail level is now a lot faster</LI><LI>Binary .mesh 
+format updated - please run 'OgreMeshUpgrade' (from Tools/MeshUpgrader) on your 
+old meshes, they may not work properly unless you do this</LI><LI>OgreXmlConverter 
+now includes parameters to allow you to generate LODs as you convert</LI><LI>Mesh 
+serializer now rationalises bone assignments so that only 4 are included per vertex</LI><LI>DTDs 
+for .mesh.xml and .skeleton.xml added</LI><LI>Added Gtk platform manager with 
+support for ogre as a Gtk/GL widget</LI><LI>3D Studio Exporter now supports IK 
+and Biped</LI><LI>Lightwave converter added</LI><LI>Wings3D converter added</LI><LI>Memory 
+leaks with controllers removed</LI><LI>Visual real-time profiling tool added</LI><LI>Many 
+bugfixes and minor enhancements</LI></UL><p align="left" class="MainHeader">v0.11.0 
+(18 June 2003)</p><P ALIGN="left">Changes since 0.10.0:</P><UL><LI> SceneQuery 
+introduced; a generic way to query the SceneManager database of objects and world 
+geometry in a way which is optimised per scene management technique but transparent 
+for the client application. Currently only IntersectionSceneQuery is implemented 
+but RaySceneQuery, SphereSceneQuery and others will soon be available too</LI><LI> 
 ReferenceApplication introduced; this is a new library which sits on top of the 
 main OGRE library in order to provide a reference implementation of combining 
 OGRE with other libraries for use in a full application. Currently combines OGRE 
