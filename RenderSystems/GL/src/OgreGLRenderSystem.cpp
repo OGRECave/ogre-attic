@@ -1298,27 +1298,33 @@ namespace Ogre {
             return;
 
         GLenum src1op, src2op, cmd;
-        GLfloat cv1[4], cv2[4], av1[4], av2[4];
+        GLfloat cv1[4], cv2[4];
 
-		cv1[0] = bm.colourArg1.r;
-		cv1[1] = bm.colourArg1.g;
-		cv1[2] = bm.colourArg1.b;
-		cv1[3] = bm.colourArg1.a;
+		if (bm.blendType == LBT_COLOUR)
+        {
+		    cv1[0] = bm.colourArg1.r;
+		    cv1[1] = bm.colourArg1.g;
+		    cv1[2] = bm.colourArg1.b;
+		    cv1[3] = bm.colourArg1.a;
 
-		cv2[0] = bm.colourArg2.r;
-		cv2[1] = bm.colourArg2.g;
-		cv2[2] = bm.colourArg2.b;
-		cv2[3] = bm.colourArg2.a;
+		    cv2[0] = bm.colourArg2.r;
+		    cv2[1] = bm.colourArg2.g;
+		    cv2[2] = bm.colourArg2.b;
+		    cv2[3] = bm.colourArg2.a;
+        }
 
-		av1[0] = 0;
-		av1[1] = 0;
-		av1[2] = 0;
-		av1[3] = bm.alphaArg1;
+		if (bm.blendType == LBT_ALPHA)
+        {
+		    cv1[0] = 0;
+		    cv1[1] = 0;
+		    cv1[2] = 0;
+		    cv1[3] = bm.alphaArg1;
 
-		av2[0] = 0;
-		av2[1] = 0;
-		av2[2] = 0;
-		av2[3] = bm.alphaArg2;
+		    cv2[0] = 0;
+		    cv2[1] = 0;
+		    cv2[2] = 0;
+		    cv2[3] = bm.alphaArg2;
+        }
 
         switch (bm.source1)
         {
@@ -1406,11 +1412,6 @@ namespace Ogre {
 		glActiveTextureARB_ptr(GL_TEXTURE0 + stage);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
-        /*
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_MODULATE);
-        */
-
 	    if (bm.blendType == LBT_COLOUR)
 	    {
 		    glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, cmd);
@@ -1467,10 +1468,10 @@ namespace Ogre {
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA, GL_SRC_ALPHA);
 
-		if (bm.blendType == LBT_COLOUR && bm.source1 == LBS_MANUAL)
-			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv1);
-		if (bm.blendType == LBT_COLOUR && bm.source2 == LBS_MANUAL)
-			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv2);
+        if(bm.source1 == LBS_MANUAL)
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv1);
+        if (bm.source2 == LBS_MANUAL)
+            glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv2);
 
         glActiveTextureARB_ptr(GL_TEXTURE0);
 	}
