@@ -607,6 +607,7 @@ namespace Ogre {
             mRightBorderSize = mPixelRightBorderSize * mPixelScaleX;
             mTopBorderSize = mPixelTopBorderSize * mPixelScaleY;
             mBottomBorderSize = mPixelBottomBorderSize * mPixelScaleY;
+            mGeomPositionsOutOfDate = true;
         }
     }
     //-----------------------------------------------------------------------
