@@ -4,7 +4,7 @@ noinst_PROGRAMS = Plugin_FileSystem.so
 
 Plugin_FileSystem_so_SOURCES = FileSystem.cpp FileSystemFactory.cpp SearchOps.cpp
 
-Plugin_FileSystem_so_LDFLAGS = -shared
+Plugin_FileSystem_so_LDFLAGS = $(SHARED_FLAGS)
 
 install-exec-local:
 	mkdir -m 755 -p $(pkglibdir)

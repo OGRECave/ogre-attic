@@ -180,25 +180,25 @@ namespace Ogre {
 
         // Ambient
         const ColourValue& ambient = m->getAmbient();
-        writeData(&ambient.r, sizeof(Real), 1);
-        writeData(&ambient.g, sizeof(Real), 1);
-        writeData(&ambient.b, sizeof(Real), 1);
+        writeReals(&ambient.r, 1);
+        writeReals(&ambient.g, 1);
+        writeReals(&ambient.b, 1);
 
         // Diffuse
         const ColourValue& diffuse = m->getDiffuse();
-        writeData(&diffuse.r, sizeof(Real), 1);
-        writeData(&diffuse.g, sizeof(Real), 1);
-        writeData(&diffuse.b, sizeof(Real), 1);
+        writeReals(&diffuse.r, 1);
+        writeReals(&diffuse.g, 1);
+        writeReals(&diffuse.b, 1);
 
         // Specular
         const ColourValue& specular = m->getSpecular();
-        writeData(&specular.r, sizeof(Real), 1);
-        writeData(&specular.g, sizeof(Real), 1);
-        writeData(&specular.b, sizeof(Real), 1);
+        writeReals(&specular.r, 1);
+        writeReals(&specular.g, 1);
+        writeReals(&specular.b, 1);
 
         // Shininess
         Real val = m->getShininess();
-        writeData(&val, sizeof(Real), 1);
+        writeReals(&val, 1);
 
         // Nested texture layers
         for (int i = 0; i < m->getNumTextureLayers(); ++i)
@@ -270,10 +270,10 @@ namespace Ogre {
         writeString(s->getMaterialName());
 
         // bool useSharedVertices
-        writeData(&s->useSharedVertices, sizeof(bool), 1);
+        writeBools(&s->useSharedVertices, 1);
 
         // unsigned short numFaces
-        writeData(&s->numFaces, sizeof(unsigned short), 1);
+        writeShorts(&s->numFaces, 1);
 
         // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
         writeShorts(s->faceVertexIndices, s->numFaces * 3);
@@ -308,7 +308,7 @@ namespace Ogre {
         writeChunkHeader(M_GEOMETRY, calcGeometrySize(pGeom));
 
         // unsigned short numVertices
-        writeData(&pGeom->numVertices, sizeof(unsigned short), 1);
+        writeShorts(&pGeom->numVertices, 1);
 
         // Real* pVertices (x, y, z order x numVertices)
         writeReals(pGeom->pVertices, pGeom->numVertices * 3);
@@ -334,7 +334,7 @@ namespace Ogre {
                 sizeof(Real) * pGeom->numVertices * pGeom->numTexCoordDimensions[t]);
 
             // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-            writeData(&pGeom->numTexCoordDimensions[t], sizeof(unsigned short), 1);
+            writeShorts(&pGeom->numTexCoordDimensions[t], 1);
             // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
             writeReals(pGeom->pTexCoords[t], pGeom->numVertices * pGeom->numTexCoordDimensions[t]);
         }
@@ -498,28 +498,28 @@ namespace Ogre {
 
         // AMBIENT
         // Real r, g, b
-        chunk.read(&col.r, sizeof(Real));
-        chunk.read(&col.g, sizeof(Real));
-        chunk.read(&col.b, sizeof(Real));
+        readReals(chunk, &col.r, 1);
+        readReals(chunk, &col.g, 1);
+        readReals(chunk, &col.b, 1);
         pMat->setAmbient(col);
 
         // DIFFUSE
         // Real r, g, b
-        chunk.read(&col.r, sizeof(Real));
-        chunk.read(&col.g, sizeof(Real));
-        chunk.read(&col.b, sizeof(Real));
+        readReals(chunk, &col.r, 1);
+        readReals(chunk, &col.g, 1);
+        readReals(chunk, &col.b, 1);
         pMat->setDiffuse(col);
 
         // SPECULAR
         // Real r, g, b
-        chunk.read(&col.r, sizeof(Real));
-        chunk.read(&col.g, sizeof(Real));
-        chunk.read(&col.b, sizeof(Real));
+        readReals(chunk, &col.r, 1);
+        readReals(chunk, &col.g, 1);
+        readReals(chunk, &col.b, 1);
         pMat->setSpecular(col);
 
         // SHININESS
         // Real val;
-        chunk.read(&rVal, sizeof(Real));
+        readReals(chunk, &rVal, 1);
         pMat->setShininess(rVal);
 
         // Read any texture layers
@@ -611,10 +611,10 @@ namespace Ogre {
         sm->setMaterialName(materialName);
 
         // bool useSharedVertices
-        chunk.read(&sm->useSharedVertices, sizeof(bool));
+        readBools(chunk,&sm->useSharedVertices, 1);
 
         // unsigned short numFaces
-        chunk.read(&sm->numFaces, sizeof(unsigned short));
+        readShorts(chunk, &sm->numFaces, 1);
 
         // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
         sm->faceVertexIndices = new unsigned short[sm->numFaces * 3];
@@ -667,7 +667,7 @@ namespace Ogre {
         unsigned short texCoordSet = 0;
 
         // unsigned short numVertices
-        chunk.read(&dest->numVertices, sizeof(unsigned short));
+        readShorts(chunk, &dest->numVertices, 1);
 
         // Real* pVertices (x, y, z order x numVertices)
         dest->pVertices = new Real[dest->numVertices * 3];
@@ -701,7 +701,7 @@ namespace Ogre {
                     break;
                 case M_GEOMETRY_TEXCOORDS:
                     // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-                    chunk.read(&dest->numTexCoordDimensions[texCoordSet], sizeof(unsigned short));
+                    readShorts(chunk, &dest->numTexCoordDimensions[texCoordSet], 1);
                     // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
                     dest->pTexCoords[texCoordSet] = 
                         new Real[dest->numVertices * dest->numTexCoordDimensions[texCoordSet]];

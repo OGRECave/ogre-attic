@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
 #   include "SearchOps.h"
 #   include <sys/param.h>
 #   define MAX_PATH MAXPATHLEN
@@ -365,7 +365,8 @@ namespace Ogre {
             retList.push_back(tagData.name);
             res = _findnext( lHandle, &tagData );
         }
-        _findclose(lHandle);
+        if(lHandle != -1)
+            _findclose(lHandle);
 
         retunset(retList);
     };

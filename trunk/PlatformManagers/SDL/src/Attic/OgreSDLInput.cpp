@@ -46,7 +46,9 @@ namespace Ogre {
     {
         // Hide the cursor
         SDL_ShowCursor(0);
+#		if OGRE_PLATFORM != PLATFORM_APPLE
         SDL_WM_GrabInput(SDL_GRAB_ON);
+#		endif
 
         if (!mUseBuffered)
         {

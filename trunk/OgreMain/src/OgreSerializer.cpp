@@ -49,9 +49,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeFileHeader(void)
     {
-       
+        
         unsigned short val = HEADER_CHUNK_ID;
-        writeData(&val, sizeof(unsigned short), 1);
+        writeShorts(&val, 1);
 
         writeString(mVersion);
 
@@ -59,24 +59,75 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Serializer::writeChunkHeader(unsigned short id, unsigned long size)
     {
-        writeData(&id, sizeof(unsigned short), 1);
-        writeData(&size, sizeof(unsigned long), 1);
+        writeShorts(&id, 1);
+        writeLongs(&size, 1);
     }
     //---------------------------------------------------------------------
     void Serializer::writeReals(const Real* pReal, unsigned short count)
     {
-        writeData(pReal, sizeof(Real), count);
+#	if OGRE_ENDIAN == ENDIAN_BIG
+            Real * pRealToWrite = (Real *)malloc(sizeof(Real) * count);
+            memcpy(pRealToWrite, pReal, sizeof(Real) * count);
+            
+            flipToLittleEndian(pRealToWrite, sizeof(Real), count);
+            writeData(pRealToWrite, sizeof(Real), count);
+            
+            free(pRealToWrite);
+# 	else
+            writeData(pReal, sizeof(Real), count);
+#	endif
     }
     //---------------------------------------------------------------------
     void Serializer::writeShorts(const unsigned short* pShort, unsigned short count)
     {
-        writeData(pShort, sizeof(unsigned short), count);
+#	if OGRE_ENDIAN == ENDIAN_BIG
+            unsigned short * pShortToWrite = (unsigned short *)malloc(sizeof(unsigned short) * count);
+            memcpy(pShortToWrite, pShort, sizeof(unsigned short) * count);
+            
+            flipToLittleEndian(pShortToWrite, sizeof(unsigned short), count);
+            writeData(pShortToWrite, sizeof(unsigned short), count);
+            
+            free(pShortToWrite);
+# 	else
+            writeData(pShort, sizeof(unsigned short), count);
+#	endif
     }
     //---------------------------------------------------------------------
     void Serializer::writeLongs(const unsigned long* pLong, unsigned short count)
     {
-        writeData(pLong, sizeof(unsigned long), count);
+#	if OGRE_ENDIAN == ENDIAN_BIG
+            unsigned long * pLongToWrite = (unsigned long *)malloc(sizeof(unsigned long) * count);
+            memcpy(pLongToWrite, pLong, sizeof(unsigned long) * count);
+            
+            flipToLittleEndian(pLongToWrite, sizeof(unsigned long), count);
+            writeData(pLongToWrite, sizeof(unsigned long), count);
+            
+            free(pLongToWrite);
+# 	else
+            writeData(pLong, sizeof(unsigned long), count);
+#	endif
     }
+    //---------------------------------------------------------------------
+    void Serializer::writeBools(const bool* pBool, unsigned short count)
+    {
+    //no endian flipping for 1-byte bools
+    //XXX Nasty Hack to convert to 1-byte bools
+#	if OGRE_PLATFORM == PLATFORM_APPLE
+        char * pCharToWrite = (char *)malloc(sizeof(char) * count);
+        for(int i = 0; i < count; i++)
+        {
+            *(char *)(pCharToWrite + i) = *(bool *)(pBool + i);
+        }
+        
+        writeData(pCharToWrite, sizeof(char), count);
+        
+        free(pCharToWrite);
+#	else
+        writeData(pBool, sizeof(bool), count);
+#	endif
+
+    }
+    
     //---------------------------------------------------------------------
     void Serializer::writeData(const void* buf, size_t size, size_t count)
     {
@@ -95,7 +146,8 @@ namespace Ogre {
         unsigned short headerID;
         
         // Read header ID
-        chunk.read(&headerID, sizeof(headerID));
+        readShorts(chunk, &headerID, 1);
+        
         if (headerID == HEADER_CHUNK_ID)
         {
             // Read version
@@ -119,24 +171,44 @@ namespace Ogre {
     unsigned short Serializer::readChunk(DataChunk& chunk)
     {
         unsigned short id;
-        chunk.read(&id, sizeof(id));
-        chunk.read(&mCurrentChunkLen, sizeof(mCurrentChunkLen));
+        readShorts(chunk, &id, 1);
+        
+        readLongs(chunk, &mCurrentChunkLen, 1);
         return id;
+    }
+    //---------------------------------------------------------------------
+    void Serializer::readBools(DataChunk& chunk, bool* pDest, unsigned short count)
+    {
+        //XXX Nasty Hack to convert 1 byte bools to 4 byte bools
+#	if OGRE_PLATFORM == PLATFORM_APPLE
+        char * pTemp = (char *)malloc(1*count); // to hold 1-byte bools
+        chunk.read(pTemp, 1 * count);
+        for(int i = 0; i < count; i++)
+            *(bool *)(pDest + i) = *(char *)(pTemp + i);
+            
+        free (pTemp);
+#	else
+        chunk.read(pDest, sizeof(bool) * count);
+#	endif
+        //no flipping on 1-byte datatypes
     }
     //---------------------------------------------------------------------
     void Serializer::readReals(DataChunk& chunk, Real* pDest, unsigned short count)
     {
         chunk.read(pDest, sizeof(Real) * count);
+        flipFromLittleEndian(pDest, sizeof(Real), count);
     }
     //---------------------------------------------------------------------
     void Serializer::readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count)
     {
         chunk.read(pDest, sizeof(unsigned short) * count);
+        flipFromLittleEndian(pDest, sizeof(unsigned short), count);
     }
     //---------------------------------------------------------------------
     void Serializer::readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count) 
     {
         chunk.read(pDest, sizeof(unsigned long) * count);
+        flipFromLittleEndian(pDest, sizeof(unsigned long), count);
     }
     //---------------------------------------------------------------------
     String Serializer::readString(DataChunk& chunk)
@@ -182,5 +254,38 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
 
+    void Serializer::flipToLittleEndian(void* pData, size_t size, unsigned short count)
+    {
+#	if OGRE_ENDIAN == ENDIAN_BIG
+        flipEndian(pData, size, count);
+#	endif
+    }
+    
+    void Serializer::flipFromLittleEndian(void* pData, size_t size, unsigned short count)
+    {
+#	if OGRE_ENDIAN == ENDIAN_BIG
+        flipEndian(pData, size, count);
+#	endif
+    }
+    
+    void Serializer::flipEndian(void * pData, size_t size, unsigned short count)
+    {
+        for(unsigned short index = 0; index < count; index++)
+        {
+            flipEndian((void *)((int)pData + (index * size)), size);
+        }
+    }
+    
+    void Serializer::flipEndian(void * pData, size_t size)
+    {
+        char swapByte;
+        for(unsigned short byteIndex = 0; byteIndex < size/2; byteIndex++)
+        {
+            swapByte = *(char *)((int)pData + byteIndex);
+            *(char *)((int)pData + byteIndex) = *(char *)((int)pData + size - byteIndex - 1);
+            *(char *)((int)pData + size - byteIndex - 1) = swapByte;
+        }
+    }
+    
 }
 

@@ -59,6 +59,10 @@ public:
 
         bool updateSky;
         updateSky = false;
+        
+        if(!ExampleFrameListener::frameStarted(evt))
+            return false;
+        
         if (mInputDevice->isKeyDown(KC_H) && timeDelay <= 0)
         {
             mCurvature += 1;
@@ -93,8 +97,7 @@ public:
             mSceneMgr->setSkyDome(true, "Examples/CloudySky", mCurvature, mTiling);
         }
 
-        // Call default
-        return ExampleFrameListener::frameStarted(evt);
+        return true;
 
     }
 

@@ -26,7 +26,7 @@
 
 
 // Standard 3dsmax exports.
-__declspec(dllexport) const TCHAR *LibDescription(void) { return _T("Ogre export library."); }
+__declspec(dllexport) const TCHAR *LibDescription(void) { return _TO_CHAR("Ogre export library."); }
 __declspec(dllexport) void LibInit(void) { }
 __declspec(dllexport) ULONG LibVersion(void) { return VERSION_3DSMAX; }
 

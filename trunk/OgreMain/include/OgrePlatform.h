@@ -37,6 +37,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define COMPILER_GNUC 2
 #define COMPILER_BORL 3
 
+#define ENDIAN_LITTLE 1
+#define ENDIAN_BIG 2
+
 /* Finds the compiler type and version.
 */
 #if defined( _MSC_VER )
@@ -75,11 +78,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   define FORCEINLINE __inline
 #endif
 
-/* Finds the current platform - note Apple is not yet
-   searched for.
-*/
+/* Finds the current platform */
+
 #if defined( __WIN32__ ) || defined( _WIN32 )
 #   define OGRE_PLATFORM PLATFORM_WIN32
+#elif defined( __APPLE_CC__)
+#   define OGRE_PLATFORM PLATFORM_APPLE
 #else
 #   define OGRE_PLATFORM PLATFORM_LINUX
 #endif
@@ -117,8 +121,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
-// Linux Settings
-#if OGRE_PLATFORM == PLATFORM_LINUX
+// Linux/Apple Settings
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
 
 // Linux compilers don't have symbol import/export directives.
 #   define _OgreExport
@@ -136,5 +140,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #endif
 //----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+// Endian Settings
+// check for BIG_ENDIAN config flag, set OGRE_ENDIAN correctly
+#ifdef CONFIG_BIG_ENDIAN
+#    define OGRE_ENDIAN ENDIAN_BIG
+#else
+#    define OGRE_ENDIAN ENDIAN_LITTLE
+#endif
+
 
 #endif

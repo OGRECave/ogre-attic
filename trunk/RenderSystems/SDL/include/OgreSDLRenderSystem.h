@@ -36,11 +36,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include "gl.h"
 #   define GL_GLEXT_PROTOTYPES
 #   include "glprocs.h"
-#else
+#   include <GL/glu.h>
+#elif OGRE_PLATFORM == PLATFORM_LINUX
 #   include <GL/gl.h>
+#   include <GL/glu.h>
+#elif OGRE_PLATFORM == PLATFORM_APPLE
+#   include <OpenGL/gl.h>
+#   define GL_EXT_texture_env_combine 1
+#   include <OpenGL/glext.h>
+#   include <OpenGL/glu.h>
 #endif
 
-#include <GL/glu.h>
+
 
 namespace Ogre {
 
