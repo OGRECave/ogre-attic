@@ -1,6 +1,8 @@
 #ifndef _ZipArchiveFactory_H__
 #define _ZipArchiveFactory_H__
 
+#include "OgrePrerequisites.h"
+
 #include "OgreArchiveFactory.h"
 #include "OgreZip.h"
 
