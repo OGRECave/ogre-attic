@@ -30,6 +30,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_vertexcolor.h>
 #include <xsi_math.h>
 #include <xsi_ref.h>
+#include <xsi_actionsource.h>
+#include <xsi_animationsourceitem.h>
+
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
@@ -124,7 +127,7 @@ namespace Ogre {
 		String parentName;
 		Bone* pBone;
 		// lists of action source items (probably only one per param?)
-		XSI::CRefArray xsiTrack[XTT_COUNT];
+		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 
 		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
 			:boneID(theboneID), obj(theobj), pBone(0)
@@ -142,8 +145,9 @@ namespace Ogre {
 	struct AnimationEntry
 	{
 		String animationName;
-		long startFrame;
+		long startFrame; // -1 if 'from start'
 		long endFrame; // -1 if 'to end'
+		XSI::ActionSource source;
 	};
 	/// Map from deformer name to deformer entry
 	typedef std::vector<AnimationEntry> AnimationList;
