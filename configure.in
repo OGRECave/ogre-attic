@@ -114,9 +114,6 @@ AC_CONFIG_FILES([Makefile \
     PlugIns/CgProgramManager/Makefile \
     PlugIns/CgProgramManager/src/Makefile \
     PlugIns/CgProgramManager/include/Makefile \
-    PlugIns/NatureSceneManager/Makefile \
-    PlugIns/NatureSceneManager/src/Makefile \
-    PlugIns/NatureSceneManager/include/Makefile \
     PlugIns/OctreeSceneManager/Makefile \
     PlugIns/OctreeSceneManager/src/Makefile \
     PlugIns/OctreeSceneManager/include/Makefile \
@@ -163,9 +160,6 @@ AC_CONFIG_FILES([Makefile \
     Samples/Lighting/Makefile \
     Samples/Lighting/src/Makefile \
     Samples/Lighting/include/Makefile \
-    Samples/Nature/include/Makefile \
-    Samples/Nature/src/Makefile \
-    Samples/Nature/Makefile \
     Samples/ParticleFX/Makefile \
     Samples/ParticleFX/src/Makefile \
     Samples/ParticleFX/include/Makefile \
