@@ -174,7 +174,7 @@ namespace Ogre {
         "DPH result.position.y, R0.xyzz, c0[1];\n"
         "DPH result.position.z, R0.xyzz, c0[2];\n"
         "DPH result.position.w, R0.xyzz, c0[3];\n"
-        "END;\n";
+        "END\n";
 
      String ShadowVolumeExtrudeProgram::mPointVs_1_1Finite = 
          "vs_1_1\n"
@@ -205,7 +205,7 @@ namespace Ogre {
          "DPH result.position.y, R0.xyzz, c0[1];\n"
          "DPH result.position.z, R0.xyzz, c0[2];\n"
          "DPH result.position.w, R0.xyzz, c0[3];\n"
-         "END";
+         "END\n";
      String ShadowVolumeExtrudeProgram::mDirVs_1_1Finite = 
          "vs_1_1\n"
          "def c6, 1, 0, 0, 0\n"
