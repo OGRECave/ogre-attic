@@ -233,6 +233,10 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
         CString objectName = param.GetValue();
         param = prop.GetParameters().GetItem( L"targetMeshFileName" );
         CString meshFileName = param.GetValue();
+		param = prop.GetParameters().GetItem( L"mergeSubmeshes" );
+		bool mergeSubmeshes = param.GetValue();
+		param = prop.GetParameters().GetItem( L"exportChildren" );
+		bool exportChildren = param.GetValue();
         param = prop.GetParameters().GetItem( L"calculateEdgeLists" );
         bool edgeLists = param.GetValue();
         param = prop.GetParameters().GetItem( L"calculateTangents" );
@@ -246,7 +250,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
         try 
         {
-            exporter.exportMesh(meshFileName, objectName, edgeLists, tangents);
+            exporter.exportMesh(meshFileName, mergeSubmeshes, 
+				exportChildren, edgeLists, tangents);
         }
         catch (Ogre::Exception& e)
         {
@@ -285,6 +290,10 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"Export Mesh", L"", 
         nullValue, param) ;	
 	prop.AddParameter(	
+		L"objects",CValue::siRefArray, caps, 
+		L"Collection of selected objects", L"", 
+		nullValue, param) ;	
+	prop.AddParameter(	
         L"exportMesh",CValue::siBool, caps, 
 		L"Export Mesh", L"", 
 		CValue(true), param) ;	
@@ -292,6 +301,19 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"targetMeshFileName",CValue::siString, caps, 
 		L"Mesh Filename", L"", 
 		nullValue, param) ;	
+	prop.AddParameter(
+		L"mergeSubmeshes",CValue::siBool, caps, 
+		L"Merge objects with same material?", 
+		L"If false, a separate named SubMesh will be created for every PolygonMesh "
+		L"preserving your model divisions. If true, the exporter will merge all "
+		L"PolygonMesh objects with the same material, which is more efficient, but "
+		L"does not preserve your modelling divisions.",
+		CValue(true), param) ;	
+	prop.AddParameter(
+		L"exportChildren",CValue::siBool, caps, 
+		L"Export Children", 
+		L"If true, children of all selected objects will be exported.",
+		CValue(true), param) ;	
     prop.AddParameter(	
         L"calculateEdgeLists",CValue::siBool, caps, 
         L"Calculate Edge Lists (stencil shadows)", L"", 
@@ -342,14 +364,16 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	oLayout.Clear() ;
 
     // Object picker
-    oLayout.AddGroup(L"Object to Export");
+    oLayout.AddGroup(L"Object(s) to Export");
     oLayout.AddRow();
 
     item = oLayout.AddItem(L"objectName");
     item.PutAttribute( siUINoLabel, true );
+	/*
     item.PutWidthPercentage(80);
-    item = oLayout.AddButton(L"Pick", L"Pick");
+    item = oLayout.AddButton(L"Refresh", L"Refresh");
     item.PutWidthPercentage(1) ;
+	*/
 
     oLayout.EndRow();
     oLayout.EndGroup();
@@ -358,8 +382,10 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
     item = oLayout.AddGroup(L"Mesh");
     item = oLayout.AddItem(L"exportMesh") ;
     item = oLayout.AddItem(L"targetMeshFileName", L"Target", siControlFilePath);
-    item.PutAttribute( siUINoLabel, true );
-    item.PutAttribute( siUIFileFilter, L"OGRE Mesh format (*.mesh)|*.mesh|All Files (*.*)|*.*||" );
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute( siUIFileFilter, L"OGRE Mesh format (*.mesh)|*.mesh|All Files (*.*)|*.*||" );
+	item = oLayout.AddItem(L"mergeSubmeshes") ;
+	item = oLayout.AddItem(L"exportChildren") ;
 
     item = oLayout.AddItem(L"calculateEdgeLists");
     item = oLayout.AddItem(L"calculateTangents");
@@ -404,10 +430,24 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
     // On open dialog
     if ( eventID == PPGEventContext::siOnInit )
 	{
-        // Pre-populate object with currently selected item
+        // Pre-populate object with currently selected item(s)
 		Selection sel(app.GetSelection());
-		if ( sel.GetCount() > 0 )
-			prop.PutParameterValue( L"objectName", SIObject(sel[0]).GetName()); 
+		if (sel.GetCount() > 0)
+		{
+			CString val;
+			for (int i = 0; i < sel.GetCount(); ++i)
+			{
+				val += SIObject(sel[i]).GetName();
+				if (i < sel.GetCount() - 1)
+					val += L", ";
+			}
+			prop.PutParameterValue(L"objectName", val);
+		}
+		else
+		{
+			// no selection, assume entire scene
+			prop.PutParameterValue(L"objectName", L"[Entire Scene]");
+		}
         // Make the selection read-only
 		objectNameParam.PutCapabilityFlag( siReadOnly, true );
 
@@ -417,12 +457,26 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 	else if ( eventID == PPGEventContext::siButtonClicked )
 	{
 		CValue buttonPressed = ctx.GetAttribute( L"Button" );	
-        // Clicked the pick button
-		if ( buttonPressed.GetAsText() == L"Pick" )
+        // Clicked the refresh button
+		/*
+		if ( buttonPressed.GetAsText() == L"Refresh" )
 		{
 			objectNameParam.PutCapabilityFlag( siReadOnly, false );
-			prop.PutParameterValue( L"objectName", GetUserSelectedObject() ) ; 
+			// Pre-populate object with currently selected item
+			Selection sel(app.GetSelection());
+			CString val;
+			for (int i = 0; i < sel.GetCount(); ++i)
+			{
+				val += SIObject(sel[0]).GetName();
+				if (i < sel.GetCount() - 1)
+					val += L", ";
+			}
+			prop.PutParameterValue(L"objectName", val);
+			prop.PutParameterValue(L"objects", CValue(CRefArray(sel.GetArray())));
+			// Make the selection read-only
+			objectNameParam.PutCapabilityFlag( siReadOnly, true );
 		}
+		*/
 	}
     // Changed a parameter
 	else if ( eventID == PPGEventContext::siParameterChange )

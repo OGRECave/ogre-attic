@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <xsi_string.h>
 #include <xsi_vertexcolor.h>
+#include <xsi_math.h>
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
 
