@@ -207,12 +207,12 @@ public:
     /** Returns the TerrainRenderable that contains the given pt.
         If no tile exists at the point, it returns 0;
     */
-    TerrainRenderable * getTerrainTile( const Vector3 & pt );
+    virtual TerrainRenderable * getTerrainTile( const Vector3 & pt );
 
     /** Returns the TerrainPage that contains the given pt.
     If no page exists at the point, it returns 0;
     */
-    TerrainPage* getTerrainPage( const Vector3 & pt );
+    virtual TerrainPage* getTerrainPage( const Vector3 & pt );
 
     /** Creates a RaySceneQuery for this scene manager. 
     @remarks
