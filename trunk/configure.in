@@ -70,7 +70,6 @@ OGRE_GET_GLSUPPORT
 
 dnl Find the optional components we should build
 OGRE_CHECK_CG
-OGRE_BUILD_PYTHON_LINK
 OGRE_CHECK_OPENEXR
 OGRE_CHECK_DX9
 
