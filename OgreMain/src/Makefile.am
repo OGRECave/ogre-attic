@@ -43,6 +43,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreMovableObject.cpp \
                          OgreNode.cpp \
                          OgreOofModelFile.cpp \
+                         OgreOverlay.cpp \
                          OgrePNGCodec.cpp \
                          OgreParticleEmitter.cpp \
                          OgreParticleEmitterCommands.cpp \

@@ -5,3 +5,6 @@ noinst_PROGRAMS = SkeletalAnimation
 SkeletalAnimation_SOURCES = SkeletalAnimation.cpp
 SkeletalAnimation_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 SkeletalAnimation_LDADD = -lOgreMain
+
+install-exec-local:
+	$(INSTALL_PROGRAM) SkeletalAnimation $(top_builddir)/Samples/Common/bin/Debug/SkeletalAnimation

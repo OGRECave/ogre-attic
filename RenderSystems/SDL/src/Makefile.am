@@ -10,3 +10,7 @@ OgreSDLEngine_so_SOURCES = OgreSDLEngineDll.cpp \
 
 OgreSDLEngine_so_LDFLAGS = -shared
 OgreSDLEngine_so_LDADD = $(SDL_LIBS) -lGL -lGLU
+
+install-exec-local:
+	mkdir -m 775 -p $(pkglibdir)
+	$(INSTALL_DATA) OgreSDLEngine.so $(pkglibdir)/OgreSDLEngine.so

@@ -77,8 +77,7 @@ int _findnext(long id, struct _finddata_t *data)
             return -1;
 
         /* See if the filename matches our pattern */
-        // XXX FNM_CASEFOLD is a GNU extension... change?
-        if (fnmatch(G_find_searches[id].pattern, entry->d_name, FNM_CASEFOLD) == 0)
+        if (fnmatch(G_find_searches[id].pattern, entry->d_name, 0) == 0)
             break;
     } while ( entry != NULL );
 

@@ -68,7 +68,7 @@ public:
         float moveScale;
         float rotScale;
         // local just to stop toggles flipping too fast
-        static int timeUntilNextToggle = 0;
+        static Real timeUntilNextToggle = 0;
 
         if (timeUntilNextToggle > 0) timeUntilNextToggle -= evt.timeSinceLastFrame;
 

@@ -144,7 +144,10 @@ namespace Ogre {
     void SDLRenderSystem::setConfigOption(const String &name, 
                                           const String &value)
     {
-        // XXX Update values based on set options
+        ConfigOptionMap::iterator it = mOptions.find(name);
+
+        if (it != mOptions.end())
+            it->second.currentValue = value;
     }
 
     String SDLRenderSystem::validateConfigOptions(void)
@@ -170,7 +173,6 @@ namespace Ogre {
         {
             bool fullscreen = false;
 
-            /* XXX 
             ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
             if (opt == mOptions.end())
             {
@@ -182,10 +184,26 @@ namespace Ogre {
                 fullscreen = true;
             else
                 fullscreen = false;
-            */
 
-            // XXX Actually get the video mode from options
-            autoWindow = createRenderWindow("OGRE Render Window", 640, 480, 32, fullscreen);
+            int w, h;
+            opt = mOptions.find("Video Mode");
+            if (opt == mOptions.end())
+            {
+                Except(999, "Can't find full screen options!",
+                        "SDLRenderSystem::initialise");
+            }
+
+            std::string val = opt->second.currentValue;
+            std::string::size_type pos = val.find("x");
+            if (pos == std::string::npos)
+            {
+                Except(999, "Invalid Video Mode provided",
+                        "SDLRenderSystem::initialise");
+            }
+
+            w = atoi(val.substr(0, pos).c_str());
+            h = atoi(val.substr(pos + 1).c_str());
+            autoWindow = createRenderWindow("OGRE Render Window", w, h, 32, fullscreen);
         }
         else
         {
@@ -875,10 +893,12 @@ namespace Ogre {
     {
         GLfloat mat[16];
         makeGLMatrix(mat, xform);
+
+        glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glMatrixMode(GL_TEXTURE);
         glLoadMatrixf(mat);
-
         glMatrixMode(GL_MODELVIEW);
+        glActiveTextureARB(GL_TEXTURE0_ARB);
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
