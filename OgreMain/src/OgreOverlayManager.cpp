@@ -60,12 +60,14 @@ namespace Ogre {
     {
 	    String line;
 	    Overlay* pOverlay;
+		bool skipLine;
 
 	    pOverlay = 0;
 
 	    while(!chunk.isEOF())
 	    {
 			bool isTemplate = false;
+			skipLine = false;
 		    line = chunk.getLine();
 		    // Ignore comments & blanks
 		    if (!(line.length() == 0 || line.substr(0,2) == "//"))
@@ -87,9 +89,10 @@ namespace Ogre {
 						pOverlay = (Overlay*)create(line);
 						// Skip to and over next {
 						skipToNextOpenBrace(chunk);
+						skipLine = true;
 					}
 			    }
-			    if (pOverlay || isTemplate)
+			    if ((pOverlay && !skipLine) || isTemplate)
 			    {
 				    // Already in overlay
                     std::vector<String> params = line.split("\t\n ()");
