@@ -511,6 +511,11 @@ namespace Ogre {
         mParent = parent;
         mOverlay = overlay;
 
+		if (mOverlay->isInitialised() && !mInitialised)
+		{
+			initialise();
+		}
+
         mDerivedOutOfDate = true;
     }
     //---------------------------------------------------------------------

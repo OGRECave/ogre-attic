@@ -111,7 +111,10 @@ namespace Ogre {
         /** Gets whether the overlay is displayed or not. */
         bool isVisible(void) const;
 
-        /** Shows the overlay if it was hidden. */
+		/** Gets whether the overlay is initialised or not. */
+		bool isInitialised(void) const { return mInitialised; }
+
+		/** Shows the overlay if it was hidden. */
         void show(void);
 
         /** Hides the overlay if it was visible. */
