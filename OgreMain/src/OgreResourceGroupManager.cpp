@@ -513,7 +513,9 @@ namespace Ogre {
 		mCurrentGroup = grp;
 
 		// Count up the number of scripts we have to parse
-		std::list<DataStreamListPtr> streamListList;
+        typedef std::list<DataStreamListPtr> StreamListList;
+        typedef std::map<ScriptLoader*, StreamListList> ScriptLoaderStreamList;
+        ScriptLoaderStreamList scriptLoaderStreamList;
 		size_t scriptCount = 0;
 		// Iterate over script users in loading order and get streams
 		ScriptLoaderOrderMap::iterator oi;
@@ -521,6 +523,8 @@ namespace Ogre {
 			oi != mScriptLoaderOrderMap.end(); ++oi)
 		{
 			ScriptLoader* su = oi->second;
+            StreamListList streamListList;
+
 			// Get all the patterns and search them
 			const StringVector& patterns = su->getScriptPatterns();
 			for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
@@ -529,23 +533,29 @@ namespace Ogre {
 				scriptCount += streamList->size();
 				streamListList.push_back(streamList);
 			}
+            scriptLoaderStreamList[su] = streamListList;
 		}
 		// Fire scripting event
 		fireResourceGroupScriptingStarted(name, scriptCount);
 
 		// Iterate over scripts and parse
 		// Note we respect original ordering
-		oi = mScriptLoaderOrderMap.begin();
-		for (std::list<DataStreamListPtr>::iterator i = streamListList.begin();
-			i != streamListList.end(); ++i, ++oi)
-		{
-			ScriptLoader* su = oi->second;
-			// Iterate over each item in the list
-			for (DataStreamList::iterator si = (*i)->begin(); si != (*i)->end(); ++si)
-			{
-				su->parseScript(*si, name);
-				fireScriptParsed((*si)->getName());
-			}
+        for (ScriptLoaderStreamList::iterator slsi = scriptLoaderStreamList.begin();
+            slsi != scriptLoaderStreamList.end(); ++slsi)
+        {
+			ScriptLoader* su = slsi->first;
+            // Iterate over each list
+            for (StreamListList::iterator slli = slsi->second.begin(); slli != slsi->second.end(); ++slli)
+            {
+			    // Iterate over each item in the list
+			    for (DataStreamList::iterator si = (*slli)->begin(); si != (*slli)->end(); ++si)
+			    {
+                    LogManager::getSingleton().logMessage(
+                        "Parsing script " + (*si)->getName());
+				    su->parseScript(*si, name);
+				    fireScriptParsed((*si)->getName());
+			    }
+            }
 		}
 
 		// Reset current group
