@@ -82,7 +82,7 @@ namespace Ogre {
         }
         else if(options == HBL_READ_ONLY)
         {
-            if(mUsage & HBU_WRITE_ONLY)
+            if(mUsage == HBU_WRITE_ONLY)
             {
                 LogManager::getSingleton().logMessage(
                     "GLHardwareVertexBuffer: Locking a write-only vertex "
