@@ -513,56 +513,56 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 
 Sets the ambient colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.} @*@*
 
-Format: ambient <red> <green> <blue>@*
+Format: ambient <red> <green> <blue> [<alpha>]@*
 NB valid colour values are between 0.0 and 1.0.@*@*
 
 Example: ambient 0.0 0.8 0.0@*@*
 
 The base colour of a pass is determined by how much red, green and blue light is reflects at each vertex. This property determines how much ambient light (directionless global light) is reflected. The default is full white, meaning objects are completely globally illuminated. Reduce this if you want to see diffuse or specular light effects, or change the blend of colours to make the object have a base colour other than white. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: ambient 1.0 1.0 1.0@*@*
+Default: ambient 1.0 1.0 1.0 1.0@*@*
 
 @anchor{diffuse}
 @subheading diffuse
 
 Sets the diffuse colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.}@*@*
 
-Format: diffuse <red> <green> <blue>@*
+Format: diffuse <red> <green> <blue> [<alpha>]@*
 NB valid colour values are between 0.0 and 1.0.@*@*
 
 Example: diffuse 1.0 0.5 0.5@*@*
 
 The base colour of a pass is determined by how much red, green and blue light is reflects at each vertex. This property determines how much diffuse light (light from instances of the Light class in the scene) is reflected. The default is full white, meaning objects reflect the maximum white light they can from Light objects. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: diffuse 1.0 1.0 1.0@*@*
+Default: diffuse 1.0 1.0 1.0 1.0@*@*
 
 @anchor{specular}
 @subheading specular
 
 Sets the specular colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.}@*@*
 
-Format: specular <red> <green> <blue> <shininess>@*
+Format: specular <red> <green> <blue> [<alpha>] <shininess>@*
 NB valid colour values are between 0.0 and 1.0. Shininess can be any value greater than 0.@*@*
 
 Example: specular 1.0 1.0 1.0 12.5@*@*
 
 The base colour of a pass is determined by how much red, green and blue light is reflects at each vertex. This property determines how much specular light (highlights from instances of the Light class in the scene) is reflected. The default is to reflect no specular light. The colour of the specular highlights is determined by the colour parameters, and the size of the highlights by the separate shininess parameter. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: specular 0.0 0.0 0.0 0.0@*@*
+Default: specular 0.0 0.0 0.0 0.0 0.0@*@*
 
 @anchor{emissive}
 @subheading emissive
 
 Sets the amount of self-illumination an object has. @strong{This attribute has no effect if a vertex program is used.}@*@*
 
-Format: emissive <red> <green> <blue>@*
+Format: emissive <red> <green> <blue> [<alpha>]@*
 NB valid colour values are between 0.0 and 1.0.@*@*
 
 Example: emissive 1.0 0.0 0.0@*@*
 
 If an object is self-illuminating, it does not need external sources to light it, ambient or otherwise. It's like the object has it's own personal ambient light. Unlike the name suggests, this object doesn't act as a light source for other objects in the scene (if you want it to, you have to create a light which is centered on the object). This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: emissive 0.0 0.0 0.0@*@*
+Default: emissive 0.0 0.0 0.0 0.0@*@*
 
 @anchor{scene_blend}
 @subheading scene_blend
