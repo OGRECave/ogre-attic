@@ -255,6 +255,9 @@
 				RelativePath="..\src\OgreGuiPressable.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreHardwareBufferManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreHardwareIndexBuffer.cpp">
 			</File>
 			<File

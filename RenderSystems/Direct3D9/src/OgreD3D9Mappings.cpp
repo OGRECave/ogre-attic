@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(ShadeOptions so)
 	{
 		switch( so )
@@ -44,7 +44,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3DLIGHTTYPE D3D9Mappings::get(Ogre::Light::LightTypes lightType)
 	{
 		switch( lightType )
@@ -58,7 +58,7 @@ namespace Ogre
 		}
 		return D3DLIGHT_FORCE_DWORD;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(TexCoordCalcMethod m)
 	{
 		switch( m )
@@ -76,7 +76,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3DTEXTUREADDRESS D3D9Mappings::get(Material::TextureLayer::TextureAddressingMode tam)
 	{
 		switch( tam )
@@ -90,7 +90,7 @@ namespace Ogre
 		}
 		return D3DTADDRESS_FORCE_DWORD;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3DTEXTURESTAGESTATETYPE D3D9Mappings::get(LayerBlendType lbt)
 	{
 		switch( lbt )
@@ -102,7 +102,7 @@ namespace Ogre
 		}
 		return  D3DTSS_FORCE_DWORD;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(LayerBlendSource lbs)
 	{
 		switch( lbs )
@@ -120,7 +120,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(LayerBlendOperationEx lbo, D3DCAPS9 devCaps)
 	{
 		switch( lbo )
@@ -159,7 +159,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3DBLEND D3D9Mappings::get(SceneBlendFactor sbf)
 	{
 		switch( sbf )
@@ -187,7 +187,7 @@ namespace Ogre
 		}
 		return D3DBLEND_FORCE_DWORD;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(CompareFunction cf)
 	{
 		switch( cf )
@@ -211,7 +211,7 @@ namespace Ogre
 		};
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(CullingMode cm, bool flip)
 	{
 		switch( cm )
@@ -231,7 +231,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3DFOGMODE D3D9Mappings::get(FogMode fm)
 	{
 		switch( fm )
@@ -245,7 +245,7 @@ namespace Ogre
 		}
 		return D3DFOG_FORCE_DWORD;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3DFILLMODE D3D9Mappings::get(SceneDetailLevel level)
 	{
 		switch(level)
@@ -259,7 +259,7 @@ namespace Ogre
 		}
 		return D3DFILL_FORCE_DWORD;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(StencilOperation op)
 	{
 		switch(op)
@@ -279,7 +279,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	DWORD D3D9Mappings::get(TextureFilterOptions tfo, D3DCAPS9 devCaps, eD3DTexType texType, eD3DFilterUsage usage)
 	{
 		DWORD capsType;
@@ -334,7 +334,7 @@ namespace Ogre
 		}
 		return 0;
 	}
-	/***************************************************************************/
+	//---------------------------------------------------------------------
 	D3D9Mappings::eD3DTexType D3D9Mappings::get(TextureType ogreTexType)
 	{
 		switch( ogreTexType )
@@ -349,4 +349,94 @@ namespace Ogre
 		}
 		return D3D9Mappings::D3D_TEX_TYPE_NONE;
 	}
+	//---------------------------------------------------------------------
+    DWORD D3D9Mappings::get(HardwareBuffer::Usage usage)
+    {
+        DWORD ret = 0;
+        if (usage & HardwareBuffer::HBU_DYNAMIC)
+        {
+            ret |= D3DUSAGE_DYNAMIC;
+        }
+        if (usage & HardwareBuffer::HBU_WRITE_ONLY)
+        {
+            ret |= D3DUSAGE_WRITEONLY;
+        }
+        return ret;
+    }
+	//---------------------------------------------------------------------
+    DWORD D3D9Mappings::get(HardwareBuffer::LockOptions options)
+    {
+        DWORD ret = 0;
+        if (options & HardwareBuffer::HBL_DISCARD)
+        {
+            ret |= D3DLOCK_DISCARD;
+        }
+        if (options & HardwareBuffer::HBL_READ_ONLY)
+        {
+            ret |= D3DLOCK_READONLY;
+        }
+
+        return ret;
+    }
+	//---------------------------------------------------------------------
+    D3DFORMAT D3D9Mappings::get(HardwareIndexBuffer::IndexType itype)
+    {
+        if (itype == HardwareIndexBuffer::IT_32BIT)
+        {
+            return D3DFMT_INDEX32;
+        }
+        else
+        {
+            return D3DFMT_INDEX16;
+        }
+    }
+	//---------------------------------------------------------------------
+	D3DDECLTYPE D3D9Mappings::get(VertexElementType vType)
+	{
+		switch (vType)
+		{
+		case VET_COLOUR:
+			return D3DDECLTYPE_D3DCOLOR;
+			break;
+		case VET_FLOAT1:
+			return D3DDECLTYPE_FLOAT1;
+			break;
+		case VET_FLOAT2:
+			return D3DDECLTYPE_FLOAT2;
+			break;
+		case VET_FLOAT3:
+			return D3DDECLTYPE_FLOAT3;
+			break;
+		}
+	}
+	//---------------------------------------------------------------------
+	D3DDECLUSAGE D3D9Mappings::get(VertexElementSemantic sem)
+	{
+		switch (sem)
+		{
+		case VES_BLEND_INDICES:
+			return D3DDECLUSAGE_BLENDINDICES;
+			break;
+		case VES_BLEND_WEIGHTS:
+			return D3DDECLUSAGE_BLENDWEIGHT;
+			break;
+		case VES_DIFFUSE:
+			return D3DDECLUSAGE_COLOR; // NB index will differentiate
+			break;
+		case VES_SPECULAR:
+			return D3DDECLUSAGE_COLOR; // NB index will differentiate
+			break;
+		case VES_NORMAL:
+			return D3DDECLUSAGE_NORMAL;
+			break;
+		case VES_POSITION:
+			return D3DDECLUSAGE_POSITION;
+			break;
+		case VES_TEXTURE_COORDINATES:
+			return D3DDECLUSAGE_TEXCOORD;
+			break;
+		}
+	}
+
+
 }

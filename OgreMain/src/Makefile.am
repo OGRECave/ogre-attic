@@ -40,6 +40,9 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreGuiElementCommands.cpp \
                          OgreGuiManager.cpp \
 						 OgreGuiPressable.cpp \
+						 OgreHardwareBufferManager.cpp \
+						 OgreHardwareIndexBuffer.cpp \
+						 OgreHardwareVertexBuffer.cpp \
                          OgreImage.cpp \
                          OgreImageCodec.cpp \
                          OgreInput.cpp \

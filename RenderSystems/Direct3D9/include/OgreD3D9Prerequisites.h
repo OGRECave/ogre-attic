@@ -35,6 +35,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
 #define SAFE_RELEASE(p)      { if(p) { (p)->Release(); (p)=NULL; } }
 
+
+#include "OgreNoMemoryMacros.h"
+#include <d3d9.h>
+#include <d3dx9.h>
+#include <dxerr9.h>
+#include "OgreMemoryMacros.h"
+
+
 namespace Ogre 
 {
 	// Predefine classes

@@ -34,9 +34,11 @@ namespace Ogre {
     class _OgreExport HardwareVertexBuffer : public HardwareBuffer
     {
 	    public:
+            /* TODO: move this to VertexDeclaration, VertexElement
 			#define MAX_BLEND_WEIGHTS 4
 			#define MAX_TEXTURE_COORD_SETS 7
 			#define MAX_TEXTURE_COORD_DIMENSIONS 3
+            
 		    /// Vertex content options, defintely not mutually exclusive but note that the order of the vertex components is FIXED
 		    enum VertexFlags {
 			    /// Position, 3 reals per vertex
@@ -66,28 +68,181 @@ namespace Ogre {
 			    unsigned short numTextureCoordDimensions[MAX_TEXTURE_COORD_SETS];
     			
 		    };
+            */
 
 	    protected:
-		    VertexFormat mFormat;
+		    
 		    size_t mNumVertices;
             size_t mVertexSize;
 
             /// Internal method for calculating the size of a single vertex from the format
-            size_t calcVertexSize(const VertexFormat& format);
+            //size_t calcVertexSize(const VertexFormat& format);
 	    public:
 		    /// Should be called by HardwareBufferManager
-		    HardwareVertexBuffer(const VertexFormat& format, size_t numVertices, 
+		    HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
                 HardwareBuffer::Usage usage);
             /// Gets the size in bytes of a single vertex in this buffer
             size_t getVertexSize(void) { return mVertexSize; }
             /// Get the number of vertices in this buffer
             size_t getNumVertices(void) { return mNumVertices; }
             /// Getthe format of the vertices in this buffer
-            const VertexFormat& getVertexFormat(void) { return mFormat; }
+            //const VertexFormat& getVertexFormat(void) { return mFormat; }
     		
 		    // NB subclasses should override lock, unlock, readData, writeData
     	
     };
+
+
+    /// Vertex element semantics, used to identify the meaning of vertex buffer contents
+	enum VertexElementSemantic {
+		/// Position, 3 reals per vertex
+		VES_POSITION,
+		/// Normal, 3 reals per vertex
+		VES_NORMAL,
+		/// Blending weights
+		VES_BLEND_WEIGHTS,
+        /// Blending indices
+        VES_BLEND_INDICES,
+		/// Diffuse colours
+		VES_DIFFUSE,
+		/// Specular colours
+		VES_SPECULAR,
+		/// Texture coordinates
+		VES_TEXTURE_COORDINATES
+	};
+
+    /// Vertex element type, used to identify the base types of the vertex contents
+    enum VertexElementType
+    {
+        VET_FLOAT1,
+        VET_FLOAT2,
+        VET_FLOAT3,
+        VET_FLOAT4,
+        VET_COLOUR
+    };
+
+    /** This class declares the usage of a single vertex buffer as a component
+        of a complete VertexDeclaration. 
+        @remarks
+        Several vertex buffers can be used to supply the input geometry for a
+        rendering operation, and in each case a vertex buffer can be used in
+        different ways for different operations; the buffer itself does not
+        define the semantics (position, normal etc), the VertexElement
+        class does.
+    */
+    class _OgreExport VertexElement
+    {
+    protected:
+        /// The source vertex buffer, as bound to an index using VertexBufferBinding
+        unsigned short mSource;
+        /// The offset in the buffer that this element starts at
+        size_t mOffset;
+        /// The type of element
+        VertexElementType mType;
+        /// The meaning of the element
+        VertexElementSemantic mSemantic;
+        /// Index of the item, only applicable for some elements like texture coords
+        unsigned short mIndex;
+    public:
+        /// Constructor, should not be called directly, call VertexDeclaration::addElement
+        VertexElement(unsigned short source, size_t offset, VertexElementType theType,
+            VertexElementSemantic semantic, unsigned short index = 0);
+        /// Gets the vertex buffer index from where this element draws it's values
+        unsigned short getSource(void) const { return mSource; }
+        /// Gets the offset into the buffer where this element starts
+        size_t getOffset(void) const { return mOffset; }
+        /// Gets the data format of this element
+        VertexElementType getType(void) const { return mType; }
+        /// Gets the meaning of this element
+        VertexElementSemantic getSemantic(void) const { return mSemantic; }
+        /// Gets the index of this element, only applicable for repeating elements
+        unsigned short getIndex(void) const { return mIndex; }
+
+    };
+    /** This class declares the format of a set of vertex inputs, which
+        can be issued to the rendering API through a RenderOperation. 
+	@remarks
+		Like the other classes in this functional area, these declarations should be created and
+		destroyed using the HardwareBufferManager.
+    */
+    class _OgreExport VertexDeclaration
+    {
+    public:
+		/// Defines the list of vertex elements that makes up this declaration
+        typedef std::vector<VertexElement> VertexElementList;
+    protected:
+        VertexElementList mElementList;
+    public:
+        /// Standard constructor, not you should use HardwareBufferManager::createVertexDeclaration
+        VertexDeclaration();
+        virtual ~VertexDeclaration();
+        
+        /** Gets read-only access to the list of vertex elements. */
+        const VertexElementList& getElements(void) const;
+
+        /** Adds a new VertexElement to this declaration. 
+        @remarks
+            This method adds a single element (positions, normals etc) to the
+            vertex declaration. <b>Note that on some APIs such as D3D there are 
+            restrictions on the ordering of the vertex elements</b> on older drivers, 
+            so for maximum compatibility you should order your elements like this:
+            position, blending weights, normals, diffuse colours, specular colours, 
+            texture coordinates (in order, with no gaps).
+        @param source The binding index of HardwareVertexBuffer which will provide the source for this element.
+			See VertexBufferBindingState for full information.
+        @param offset The offset in bytes where this element is located in the buffer
+        @param theType The data format of the element (3 floats, a colour etc)
+        @param semantic The meaning of the data (position, normal, diffuse colour etc)
+        @param index Optional index for multi-input elements like texture coordinates
+        */
+        virtual void addElement(unsigned short source, size_t offset, VertexElementType theType,
+            VertexElementSemantic semantic, unsigned short index = 0);
+
+        /** Remove the element at the given index from this declaration. */
+        virtual void removeElement(unsigned short elem_index);
+
+        /** Modify an element in-place, params as addElement. */
+        virtual void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
+            VertexElementSemantic semantic, unsigned short index = 0);
+
+    };
+
+	/** Records the state of all the vertex buffer bindings required to provide a vertex declaration
+		with the input data it needs for the vertex elements.
+	@remarks
+		Why do we have this binding list rather than just have VertexElement referring to the
+		vertex buffers direct? Well, in the underlying APIs, binding the vertex buffers to an
+		index (or 'stream') is the way that vertex data is linked, so this structure better
+		reflects the realities of that. In addition, by separating the vertex declaration from
+		the list of vertex buffer bindings, it becomes possible to reuse bindings between declarations
+		and vice versa, giving opportunities to reduce the state changes required to perform rendering.
+	@par
+		Like the other classes in this functional area, these binding maps should be created and
+		destroyed using the HardwareBufferManager.
+	*/
+	class _OgreExport VertexBufferBinding
+	{
+	public:
+		/// Defines the vertex buffer bindings used as source for vertex declarations
+		typedef std::map<unsigned short, HardwareVertexBuffer*> VertexBufferBindingMap;
+	protected:
+		VertexBufferBindingMap mBindingMap;
+	public:
+		/// Constructor, should not be called direct, use HardwareBufferManager::createVertexBufferBinding
+		VertexBufferBinding();
+		virtual ~VertexBufferBinding();
+		/** Set a binding, associating a vertex buffer with a given index. 
+		@remarks
+			If the index is already associated with a vertex buffer, the association will be replaced.
+		*/
+		virtual void setBinding(unsigned short index, HardwareVertexBuffer* buffer);
+		/** Removes an existing binding. */
+		virtual void unsetBinding(unsigned short index);
+
+		/// Gets a read-only version of the buffer bindings
+		virtual const VertexBufferBindingMap& getBindings(void) const;
+	};
+
 }
 #endif
 

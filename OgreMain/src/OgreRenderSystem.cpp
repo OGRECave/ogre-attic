@@ -594,6 +594,66 @@ namespace Ogre {
         setStencilBufferDepthFailOperation(depthFailOp);
         setStencilBufferPassOperation(passOp);
     }
+    //-----------------------------------------------------------------------
+    void RenderSystem::_render(const RenderOperation& op)
+    {
+        // Update stats
+        int val;
 
+        if (op.useIndexes)
+            val = op.indexCount;
+        else
+            val = op.vertexCount;
+
+        switch(op.operationType)
+        {
+		case RenderOperation::OT_TRIANGLE_LIST:
+            mFaceCount += val / 3;
+            break;
+        case RenderOperation::OT_TRIANGLE_STRIP:
+        case RenderOperation::OT_TRIANGLE_FAN:
+            mFaceCount += val - 2;
+            break;
+	    case RenderOperation::OT_POINT_LIST:
+	    case RenderOperation::OT_LINE_LIST:
+	    case RenderOperation::OT_LINE_STRIP:
+	        break;
+	    }
+
+        mVertexCount += op.vertexCount;
+
+        // Vertex blending: do software if required
+		bool vertexBlend = false;
+		const VertexDeclaration::VertexElementList& elemList = 
+			op.vertexDeclaration->getElements();
+		VertexDeclaration::VertexElementList::const_iterator i, iend;
+		iend = elemList.end();
+		for (i = elemList.begin(); i != iend; ++i)
+		{
+			if (i->getSemantic() == VES_BLEND_WEIGHTS)
+			{
+				vertexBlend = true;
+				break;
+			}
+		}
+
+        if (vertexBlend && !this->_isVertexBlendSupported())
+        {
+            // Software blending required, hack the constness since we need to fudge
+            softwareVertexBlend(const_cast<RenderOperation&>(op), mWorldMatrices);
+        }
+    }
+    //-----------------------------------------------------------------------
+	void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
+	{
+		// Software blend using new vertex buffers
+
+		// TODO
+		/*
+			We have to take weights and indexes from different buffers
+			We have to derive the number of weights per vertex somehow
+
+		*/
+	}
 }
 

@@ -2348,4 +2348,20 @@ namespace Ogre {
         else
             return mpD3DDevice->SetTextureStageState(stage, type, value);
     }
+    //---------------------------------------------------------------------
+	void D3D8RenderSystem::setVertexDeclaration(VertexDeclaration* decl)
+	{
+		// TODO
+	}
+    //---------------------------------------------------------------------
+	void D3D8RenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
+	{
+		// TODO
+	}
+    //---------------------------------------------------------------------
+    void D3D8RenderSystem::_render(const RenderOperation& op)
+	{
+		// TODO
+	}
+
 }

@@ -53,8 +53,10 @@ namespace Ogre {
 		    /// Enums describing buffer usage; not mutually exclusive
 		    enum Usage 
 		    {
+                /** Static buffer which the application can never modify once created. */
+                HBU_STATIC,
 			    /** Indicates the application would like to modify this buffer with the CPU
-			    sometimes. Absence of this flag means the application will never modify. 
+			    sometimes. 
 			    Buffers created with this flag will typically end up in AGP memory rather 
 			    than video memory.
 			    */
@@ -70,6 +72,8 @@ namespace Ogre {
 		    /// Locking options
 		    enum LockOptions
 		    {
+                /** Normal mode, ie allows read/write and contents are preserved. */
+                HBL_NORMAL,
 			    /** Discards the <em>entire</em> buffer while locking; this allows optimisation to be 
 				performed because synchronisation issues are relaxed. Only allowed on buffers 
 			    created with the HBU_DYNAMIC flag. 
@@ -89,6 +93,7 @@ namespace Ogre {
 	    public:
 		    /// Constructor, to be called by HardwareBufferManager only
             HardwareBuffer(Usage usage) : mUsage(usage) {}
+            virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
 		    @param length The size of the area to lock, in bytes

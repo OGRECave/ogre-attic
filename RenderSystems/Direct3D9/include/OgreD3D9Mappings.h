@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLight.h"
 #include "OgreMaterial.h"
 #include "OgreRenderSystem.h"
+#include "OgreHardwareBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d9.h>
@@ -96,6 +98,16 @@ namespace Ogre
 		static DWORD get(TextureFilterOptions tfo, D3DCAPS9 devCaps, eD3DTexType texType, eD3DFilterUsage usage);
 		/// return the D3DtexType equivalent of a Ogre tex. type
 		static eD3DTexType get(TextureType ogreTexType);
+        /// return the combination of D3DUSAGE values for Ogre buffer usage
+        static DWORD get(HardwareBuffer::Usage usage);
+        /// Get lock options
+        static DWORD get(HardwareBuffer::LockOptions);
+        /// Get index type
+        static D3DFORMAT get(HardwareIndexBuffer::IndexType itype);
+		/// Get vertex data type
+		static D3DDECLTYPE get(VertexElementType vType);
+		/// Get vertex semantic
+		static D3DDECLUSAGE get(VertexElementSemantic sem);
 	};
 }
 #endif

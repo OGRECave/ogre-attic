@@ -1649,5 +1649,21 @@ namespace Ogre {
             glLightfv(GL_LIGHT0 + lightindex, GL_SPOT_DIRECTION, f4vals);
         }
     }
+    //---------------------------------------------------------------------
+	void GLRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
+	{
+		// TODO
+	}
+    //---------------------------------------------------------------------
+	void GLRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
+	{
+		// TODO
+	}
+    //---------------------------------------------------------------------
+    void GLRenderSystem::_render(const RenderOperation& op)
+	{
+		// TODO
+	}
+
 
 }

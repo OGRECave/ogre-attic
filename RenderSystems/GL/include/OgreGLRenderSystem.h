@@ -371,6 +371,19 @@ namespace Ogre {
           RenderSystem
          */
 		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
+        /** See
+          RenderSystem
+         */
+		void setVertexDeclaration(VertexDeclaration* decl);
+        /** See
+          RenderSystem
+         */
+		void setVertexBufferBinding(VertexBufferBinding* binding);
+        /** See
+          RenderSystem
+         */
+        void _render(const RenderOperation& op);
+
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

@@ -35,11 +35,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLight.h"
 #include "OgreMath.h"
 
-#include "OgreNoMemoryMacros.h"
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <dxerr9.h>
-#include "OgreMemoryMacros.h"
 
 namespace Ogre 
 {
@@ -563,6 +558,7 @@ namespace Ogre
 
 			// Create the texture manager for use by others
 			mTextureManager = new D3D9TextureManager( mpD3DDevice );
+            // Also create hardware buffer manager
 		}
 
 		OgreUnguardRet( win );
@@ -1881,6 +1877,21 @@ namespace Ogre
 
 		// UnGuard
 		OgreUnguard();
+	}
+    //---------------------------------------------------------------------
+	void D3D9RenderSystem::setVertexDeclaration(VertexDeclaration* decl)
+	{
+		// TODO
+	}
+    //---------------------------------------------------------------------
+	void D3D9RenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
+	{
+		// TODO
+	}
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::_render(const RenderOperation& op)
+	{
+		// TODO
 	}
 	//---------------------------------------------------------------------
 }
