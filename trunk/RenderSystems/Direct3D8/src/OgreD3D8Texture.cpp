@@ -189,7 +189,7 @@ namespace Ogre {
 			*pdwRGBBitCount = 16;
 			break;
 		case D3DFMT_A4R4G4B4:
-			*pdwRed = 0x00000F00; *pdwGreen = 0x000000F0; *pdwBlue = 0x000000F0; *pdwAlpha = 0x0000F000;
+			*pdwRed = 0x00000F00; *pdwGreen = 0x000000F0; *pdwBlue = 0x0000000F; *pdwAlpha = 0x0000F000;
 			*pdwRGBBitCount = 16;
 			break;
 		case D3DFMT_A8:
