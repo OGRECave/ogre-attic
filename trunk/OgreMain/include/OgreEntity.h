@@ -217,6 +217,8 @@ namespace Ogre {
             const Vector3& getWorldPosition(void) const;
             HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
             HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
+            /// Rebind the source positions (for temp buffer users)
+            void rebindPositionBuffer(const VertexData* vertData);
 
         };
     public:

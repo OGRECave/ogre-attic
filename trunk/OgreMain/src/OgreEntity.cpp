@@ -824,6 +824,18 @@ namespace Ogre {
                 }
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData);
             }
+            else if (hasSkeleton())
+            {
+                // If we have a skeleton, we have no guarantee that the position
+                // buffer we used last frame is the same one we used last frame
+                // since a temporary buffer is requested each frame
+                // therefore, we need to update the EntityShadowRenderable
+                // with the current position buffer
+                const VertexData *pVertData = 0;
+                pVertData = findBlendedVertexData(egi->vertexData);
+                static_cast<EntityShadowRenderable*>(*si)->rebindPositionBuffer(pVertData);
+                
+            }
             // Get shadow renderable
             esr = static_cast<EntityShadowRenderable*>(*si);
             // For animated entities we need to recalculate the face normals
@@ -950,7 +962,13 @@ namespace Ogre {
         return mParent->getParentNode()->_getDerivedPosition();
     }
     //-----------------------------------------------------------------------
+    void Entity::EntityShadowRenderable::rebindPositionBuffer(const VertexData* vertexData)
+    {
+        mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(
+            vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource());
+        mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
 
+    }
 
 
 }
