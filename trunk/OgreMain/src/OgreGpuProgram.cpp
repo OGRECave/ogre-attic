@@ -208,6 +208,7 @@ namespace Ogre
         size_t index;
         size_t numMatrices;
         const Matrix4* pMatrix;
+        size_t m;
 
         AutoConstantList::const_iterator i, iend;
         iend = mAutoConstants.end();
@@ -227,7 +228,7 @@ namespace Ogre
                 pMatrix = source.getWorldMatrixArray();
                 numMatrices = source.getWorldMatrixCount();
                 index = i->index;
-                for (size_t m = 0; m < numMatrices; ++m)
+                for (m = 0; m < numMatrices; ++m)
                 {
                     GpuProgramParameters::setConstant(index++, (*pMatrix)[0], 1);
                     GpuProgramParameters::setConstant(index++, (*pMatrix)[1], 1);
