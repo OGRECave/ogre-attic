@@ -142,6 +142,10 @@ namespace Ogre {
 
         virtual void destroy(void)
         {
+            // IF YOU GET A CRASH HERE, YOU FORGOT TO FREE UP POINTERS
+            // BEFORE SHUTTING OGRE DOWN
+            // Use setNull() before shutdown or make sure your pointer goes
+            // out of scope before OGRE shuts down to avoid this.
             delete pRep;
             delete pUseCount;
 			OGRE_DELETE_AUTO_SHARED_MUTEX
