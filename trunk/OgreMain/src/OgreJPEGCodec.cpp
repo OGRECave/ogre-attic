@@ -46,6 +46,12 @@ namespace Ogre {
 
         OgreUnguard();
     }
+
+    Codec::CodecData* JPEGCodec::decode(const DataChunk& input, DataChunk* output, ...) const
+    {
+        return ImageCodec::decode(input, output);
+    }
+    
     //---------------------------------------------------------------------
     unsigned int JPEGCodec::getILType(void) const
     { 

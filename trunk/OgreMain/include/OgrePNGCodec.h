@@ -35,7 +35,9 @@ namespace Ogre {
     {
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
-
+        
+        Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const;
+    
         String getType() const { return "png"; }
 
         unsigned int getILType(void) const;

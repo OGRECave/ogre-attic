@@ -52,7 +52,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <OpenGL/gl.h>
 #   include <OpenGL/glu.h>
 #endif
-#include <GL/glext.h>
+#include "GL/glext.h"
 
 extern "C" {
 // Pointer to glActiveTextureARB function

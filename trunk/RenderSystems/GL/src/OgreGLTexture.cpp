@@ -197,7 +197,7 @@ namespace Ogre {
     void GLTexture::loadImage( const Image& img )
     {
         std::vector<Image> images;
-
+		
         images.push_back(img);
         loadImages(images);
         images.clear();
