@@ -55,7 +55,7 @@ namespace Ogre {
             notifications of frame events, you should create a subclass of
             FrameListener and override the methods for which you would like
             to customise the resulting processing. You should then call
-            RenderSystem::addFrameListener passing an instance of this class.
+            Root::addFrameListener passing an instance of this class.
             There is no limit to the number of frame listeners you can register,
             allowing you to register multiple listeners for different purposes.
             Frame events only occur when Ogre is in continuous rendering mode,

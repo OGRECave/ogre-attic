@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreViewport.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreRenderTargetListener.h"
 
 namespace Ogre {
 
@@ -82,6 +83,10 @@ namespace Ogre {
 
     void RenderTarget::update(void)
     {
+
+        // notify listeners (pre)
+        firePreUpdate();
+
         mTris = 0;
         // Go through viewports in Z-order
         // Tell each to refresh
@@ -93,8 +98,12 @@ namespace Ogre {
 
         }
 
-        // Update statistics
+        // notify listeners (post)
+        firePostUpdate();
+
+        // Update statistics (always on top)
         updateStats();
+
 
     }
 
@@ -280,6 +289,60 @@ namespace Ogre {
     void RenderTarget::setDebugText(const String& text)
     {
         mDebugText = text;
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::addListener(RenderTargetListener* listener)
+    {
+        mListeners.push_back(listener);
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::removeListener(RenderTargetListener* listener)
+    {
+        RenderTargetListenerList::iterator i;
+        for (i = mListeners.begin(); i != mListeners.end(); ++i)
+        {
+            if (*i == listener)
+            {
+                mListeners.erase(i);
+                break;
+            }
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::removeAllListeners(void)
+    {
+        mListeners.clear();
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::firePreUpdate(void)
+    {
+        RenderTargetEvent evt;
+        evt.source = this;
+
+        RenderTargetListenerList::iterator i, iend;
+        i = mListeners.begin();
+        iend = mListeners.end();
+        for(; i != iend; ++i)
+        {
+            (*i)->preRenderTargetUpdate(evt);
+        }
+
+
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::firePostUpdate(void)
+    {
+        RenderTargetEvent evt;
+        evt.source = this;
+
+        RenderTargetListenerList::iterator i, iend;
+        i = mListeners.begin();
+        iend = mListeners.end();
+        for(; i != iend; ++i)
+        {
+            (*i)->postRenderTargetUpdate(evt);
+        }
     }
 
 }        
