@@ -459,7 +459,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             ogreSubMesh->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(
                 foundBoneAssignment);
         Ogre::BufferUsageList bufferUsages;
-        for (size_t u = 0; u < ogreSubMesh->vertexData->vertexBufferBinding->getBufferCount(); ++u)
+        for (size_t u = 0; u <= newDecl->getMaxSource(); ++u)
             bufferUsages.push_back(Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         ogreSubMesh->vertexData->reorganiseBuffers(newDecl, bufferUsages);
 

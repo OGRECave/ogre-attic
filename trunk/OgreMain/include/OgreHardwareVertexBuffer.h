@@ -310,6 +310,10 @@ namespace Ogre {
         */
         VertexDeclaration* getAutoOrganisedDeclaration(bool animated);
 
+        /** Gets the indeex of the highest source value referenced by this declaration. */
+        unsigned short getMaxSource(void) const;
+
+
 
         /** Adds a new VertexElement to this declaration. 
         @remarks

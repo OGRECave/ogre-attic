@@ -449,6 +449,22 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------------
+    unsigned short VertexDeclaration::getMaxSource(void) const
+    {
+        VertexElementList::const_iterator i, iend;
+        iend = mElementList.end();
+        unsigned short ret = 0;
+        for (i = mElementList.begin(); i != iend; ++i)
+        {
+            if (i->getSource() > ret)
+            {
+                ret = i->getSource();
+            }
+
+        }
+        return ret;
+    }
+    //-----------------------------------------------------------------------------
 	VertexBufferBinding::VertexBufferBinding() : mHighIndex(0)
 	{
 	}
