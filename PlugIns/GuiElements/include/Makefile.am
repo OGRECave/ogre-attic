@@ -1,4 +1,4 @@
-noinst_HEADERS = OgreBorderPanelGuiElement.h \
+pkginclude_HEADERS = OgreBorderPanelGuiElement.h \
 		 OgreBorderButtonGuiElement.h \
 		 OgreButtonGuiElement.h \
 		 OgreCursorGuiElement.h \
