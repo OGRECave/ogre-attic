@@ -24,7 +24,7 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 
 #include "GTKConfig.h"
-
+#include "OgreLogManager.h"
 #include <gtkmm/main.h>
 #include <gtkmm/menushell.h>
 #include <libglademm/xml.h>
@@ -39,16 +39,16 @@ bool GTKConfig::display(void)
     Glib::RefPtr<Gnome::Glade::Xml> xml = Gnome::Glade::Xml::create( sharedir + "/ogre-config.glade");
     if (!xml)
     {
-        std::cerr << "Problem loading config" << std::endl;
-        exit(1);
+        LogManager::getSingleton().logMessage("Problem loading config " + sharedir + "/ogre-config.glade");
+	return false;
     }
 
     _winConfig = NULL;
     xml->get_widget("dlgConfig", _winConfig);
     if (!_winConfig)
     {
-        std::cerr << "Invalid window." << std::endl;
-        exit(1);
+	LogManager::getSingleton().logMessage("Invalid window.");
+	return false;
     }
 
     xml->get_widget("lstOptions", _lstOptions);
@@ -60,7 +60,9 @@ bool GTKConfig::display(void)
     Gtk::Button* btn_cancel;
     xml->get_widget("btnCancel", btn_cancel);
 
-    _opt_menu = NULL;
+    // Set menu (empty)
+    _opt_menu = Gtk::manage(new Gtk::Menu());
+    _optOptValues->set_menu(*_opt_menu);
 
     // Hookup signals
     _winConfig->signal_delete_event().connect(SigC::slot(*this,
@@ -129,9 +131,6 @@ void GTKConfig::on_option_changed()
     _lblOptName->set_text(name);
     ConfigOption opt = _options[name.raw()];
 
-    if (!_opt_menu)
-        _opt_menu = Gtk::manage(new Gtk::Menu());
-
     Gtk::Menu_Helpers::MenuList items = _opt_menu->items();
     items.erase(items.begin(), items.end());
 
@@ -158,7 +157,7 @@ void GTKConfig::on_renderer_changed()
     _selected_renderer = pRend[_optRenderer->get_history()];
     if (!_selected_renderer)
     {
-        std::cerr << "Selected no renderer!" << std::endl;
+        LogManager::getSingleton().logMessage("Selected no renderer!");
         return;
     }
 

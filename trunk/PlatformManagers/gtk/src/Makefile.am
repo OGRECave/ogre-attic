@@ -8,10 +8,9 @@ platform_PROGRAMS = libOgrePlatform.so
 libOgrePlatform_so_SOURCES = GTKConfig.cpp\
                              GTKInput.cpp \
                              GTKTimer.cpp \
-                             GTKWindow.cpp \
                              Platform.cpp
 
 libOgrePlatform_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
 libOgrePlatform_so_LDADD = $(PLATFORM_LIBS) $(GL_LIBS) -lOgreMain
 
-pkgdata_DATA = ogre-config.glade
+pkgdata_DATA = ogre-config.glade ogre-gtk-side.png
