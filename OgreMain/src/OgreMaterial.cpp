@@ -181,7 +181,13 @@ namespace Ogre {
 
 		if (!defaults.isNull())
 		{
+            // save name & handle
+            String savedName = mName;
+            ResourceHandle savedHandle = mHandle;
 			*this = *defaults;
+            // restore name & handle
+            mName = savedName;
+            mHandle = savedHandle;
 		}
         mCompilationRequired = true;
 
