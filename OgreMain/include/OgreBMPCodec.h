@@ -25,13 +25,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _BMPCodec_H__
 #define _BMPCodec_H__
 
-#include "OgreImageCodec.h"
+#include "OgreILImageCodec.h"
 
 namespace Ogre {
 
     /** ImageCodec specialized in Portable Network Graphics images.
     */
-    class _OgreExport BMPCodec : public ImageCodec
+    class _OgreExport BMPCodec : public ILImageCodec
     {
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;

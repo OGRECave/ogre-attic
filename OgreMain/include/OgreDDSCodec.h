@@ -25,14 +25,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef _DDSCodec_H__
 #define _DDSCodec_H__
 
-#include "OgreImageCodec.h"
-#include "OgreSDDataChunk.h"
+#include "OgreILImageCodec.h"
 
 namespace Ogre 
 {
     /** ImageCodec specialized in DDS images.
     */
-    class _OgreExport DDSCodec : public ImageCodec
+    class _OgreExport DDSCodec : public ILImageCodec
     {
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
