@@ -588,14 +588,6 @@ void TerrainRenderable::_calculateMinLevelDist2( Real C )
                             // Save height difference 
                             pDeltas[fulldetailx + (fulldetailz * mSize)] = 
                                 interp_h - actual_h;
-                            if (interp_h == actual_h)
-                            {
-                                LogManager::getSingleton().logMessage(
-                                    "No difference for " + getName() + " level " + 
-                                    StringConverter::toString(level) + " at (" + 
-                                    StringConverter::toString(fulldetailx) + ", " + 
-                                    StringConverter::toString(fulldetailz) + ")"); 
-                            }
                         }
 
                     }
