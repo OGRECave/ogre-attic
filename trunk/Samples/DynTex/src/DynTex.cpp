@@ -388,6 +388,13 @@ protected:
 		overlay->show();
     }
 
+	void destroyScene(void)
+	{
+		// Free resource pointers before shutdown
+		ptex.setNull();
+		buffer.setNull();
+	}
+
 };
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
