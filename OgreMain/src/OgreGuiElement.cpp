@@ -814,6 +814,13 @@ namespace Ogre {
 		return mParent;		
 	}
 
+    const LightList& GuiElement::getLights(void) const
+    {
+        // Guielements should not be lit by the scene, this will not get called
+        static LightList ll;
+        return ll;
+    }
+
     void GuiElement::copyFromTemplate(GuiElement* templateGui)
 	{
 		templateGui->copyParametersTo(this);

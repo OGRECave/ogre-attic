@@ -68,12 +68,7 @@ namespace Ogre {
         /// Overridden from Renderable
         Real getSquaredViewDepth(const Camera* cam) const{ return 0; /* not used */}
         /// Overridden from Renderable
-        const LightList& getLights(void) const 
-        {
-            // return empty
-            static LightList ll;
-            return ll;
-        }
+        const LightList& getLights(void) const;
         /** Does this renderable require a separate light cap?
         @remarks
             If possible, the light cap (when required) should be contained in the

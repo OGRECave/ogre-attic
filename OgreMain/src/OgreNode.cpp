@@ -800,5 +800,12 @@ namespace Ogre {
 			mParentNotified = false ;
         }
     }
+    //-----------------------------------------------------------------------
+    const LightList& Node::getLights(void) const
+    {
+        // Nodes should not be lit by the scene, this will not get called
+        static LightList ll;
+        return ll;
+    }
 }
 
