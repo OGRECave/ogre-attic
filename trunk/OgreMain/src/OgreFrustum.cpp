@@ -538,7 +538,6 @@ namespace Ogre {
         updateView();
         updateFrustum();
         op.operationType = RenderOperation::OT_LINE_LIST;
-        op.srcRenderable = this;
         op.useIndexes = false;
         op.vertexData = &mVertexData;
     }
