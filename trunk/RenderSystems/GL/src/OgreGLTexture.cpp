@@ -281,7 +281,7 @@ namespace Ogre {
 		// Check requested number of mipmaps
 		// Zero means create mip levels until 1x1
 		size_t maxMips = GLPixelUtil::getMaxMipmaps(mWidth, mHeight, mDepth, mFormat);
-		if(mNumMipmaps==0 || mNumMipmaps>maxMips)
+		if(mNumMipmaps>maxMips)
 			mNumMipmaps = maxMips;
 		
 		// Generate texture name
@@ -291,12 +291,12 @@ namespace Ogre {
 		glBindTexture( getGLTextureTarget(), mTextureID );
         
 		// This needs to be set otherwise the texture doesn't get rendered
-        glTexParameteri( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps - 1 );
+        glTexParameteri( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps );
 		
 		// If we can do automip generation, do so
 		// TODO: make this a choice
-		if(mNumMipmaps>1 &&
-		 Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
+		if(mNumMipmaps &&
+		 	Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
         }
@@ -317,7 +317,7 @@ namespace Ogre {
 			uint8 *tmpdata = new uint8[size];
 			memset(tmpdata, 0, size);
 			
-			for(int mip=0; mip<mNumMipmaps; mip++)
+			for(int mip=0; mip<=mNumMipmaps; mip++)
 			{
 			//int mip = 0;
 				size = PixelUtil::getMemorySize(width, height, depth, mFormat);
@@ -355,7 +355,7 @@ namespace Ogre {
 		else
 		{
 			// Run through this process to pregenerate mipmap piramid
-			for(int mip=0; mip<mNumMipmaps; mip++)
+			for(int mip=0; mip<=mNumMipmaps; mip++)
 			{
 				// Normal formats
 				switch(mTextureType)
@@ -644,7 +644,7 @@ namespace Ogre {
 		glBindTexture( getGLTextureTarget(), mTextureID );
 		GLint value;
 		glGetTexParameteriv( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, &value );
-		mNumMipmaps = value + 1;
+		mNumMipmaps = value;
 		
 		// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 		bool wantGeneratedMips = true; // TODO make option on texture
@@ -652,11 +652,11 @@ namespace Ogre {
 		
 		// Do mipmapping in software? (uses GLU) For some cards, this is still needed. Of course,
 		// only when mipmap generation is desired.
-		bool doSoftware = wantGeneratedMips && !canMip && getNumMipmaps()>1; 
+		bool doSoftware = wantGeneratedMips && !canMip && getNumMipmaps(); 
 		
 		for(int face=0; face<getNumFaces(); face++)
 		{
-			for(int mip=0; mip<getNumMipmaps(); mip++)
+			for(int mip=0; mip<=getNumMipmaps(); mip++)
 			{
 				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(
 					// TODO provide real usage instead of HBU_STATIC
@@ -677,10 +677,10 @@ namespace Ogre {
 		if(face < 0 || face >= getNumFaces())
 			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
 					"GLTexture::getBuffer");
-		if(mipmap < 0 || mipmap >= mNumMipmaps)
+		if(mipmap < 0 || mipmap > mNumMipmaps)
 			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"GLTexture::getBuffer");
-		unsigned int idx = face*mNumMipmaps + mipmap;
+		unsigned int idx = face*(mNumMipmaps+1) + mipmap;
 		assert(idx < mSurfaceList.size());
 		return mSurfaceList[idx];
 	}
