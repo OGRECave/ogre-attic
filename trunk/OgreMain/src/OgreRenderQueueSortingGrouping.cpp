@@ -54,14 +54,6 @@ namespace Ogre {
             mSolidPasses.erase(i);
         }
 
-        i = mSolidPassesAmbient.find(p);
-        if (i != mSolidPassesAmbient.end())
-        {
-            // free memory
-            delete i->second;
-            // erase from map
-            mSolidPassesAmbient.erase(i);
-        }
         i = mSolidPassesDiffuseSpecular.find(p);
         if (i != mSolidPassesDiffuseSpecular.end())
         {
@@ -168,7 +160,7 @@ namespace Ogre {
             switch(p->stage)
             {
             case IS_AMBIENT:
-                passMap = &mSolidPassesAmbient;
+                passMap = &mSolidPasses;
                 break;
             case IS_PER_LIGHT:
                 passMap = &mSolidPassesDiffuseSpecular;
@@ -246,7 +238,6 @@ namespace Ogre {
         // We do not clear the unchanged solid pass maps, only the contents of each list
         // This is because we assume passes are reused a lot and it saves resorting
         clearSolidPassMap(mSolidPasses);
-        clearSolidPassMap(mSolidPassesAmbient);
         clearSolidPassMap(mSolidPassesDecal);
         clearSolidPassMap(mSolidPassesDiffuseSpecular);
 

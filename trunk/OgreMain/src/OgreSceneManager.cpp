@@ -101,6 +101,7 @@ namespace Ogre {
         mShadowCasterSphereQuery = 0;
         mShadowCasterAABBQuery = 0;
         mShadowDirLightExtrudeDist = 10000;
+        mIlluminationStage = IS_NONE;
 
 
 		// init render queues that do not need shadows
@@ -660,6 +661,8 @@ namespace Ogre {
         Root::getSingleton()._setCurrentSceneManager(this);
 		// Prep Pass for use in debug shadows
 		initShadowVolumeMaterials();
+        // init lighting stage
+        mIlluminationStage = IS_NONE;
 
         mCameraInProgress = camera;
         mCamChanged = true;
@@ -727,12 +730,6 @@ namespace Ogre {
         {
             // Locate any lights which could be affecting the frustum
             findLightsAffectingFrustum(camera);
-        }
-        // Deal with shadow setup
-        if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
-        {
-            // Additive stencil, we need to split everything by light
-            // TODO - add a different queue handler to do this
         }
 
         // Parse the scene and tag visibles
@@ -1240,11 +1237,67 @@ namespace Ogre {
         } // for each queue group
     }
 	//-----------------------------------------------------------------------
-	void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* group)
+	void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
 	{
-		/* We need to do the entire process once per light, and we need to 
-		   separate the process of rendering certain types of objects.
-	   */
+        RenderQueueGroup::PriorityMapIterator groupIt = pGroup->getIterator();
+        LightList lightList;
+
+        while (groupIt.hasMoreElements())
+        {
+            RenderPriorityGroup* pPriorityGrp = groupIt.getNext();
+
+            // Sort the queue first
+            pPriorityGrp->sort(mCameraInProgress);
+
+            // Clear light list
+            lightList.clear();
+
+            // Render all the ambient passes first, no light iteration, no lights
+            mIlluminationStage = IS_AMBIENT;
+            renderObjects(pPriorityGrp->_getSolidPasses(), false, &lightList);
+
+            // Now iterate per light
+            mIlluminationStage = IS_PER_LIGHT;
+
+            // Iterate over lights, render all volumes to stencil
+            LightList::const_iterator li, liend;
+            liend = mLightsAffectingFrustum.end();
+
+            for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
+            {
+                Light* l = *li;
+                // Set light state
+
+                if (l->getCastShadows())
+                {
+                    // Clear stencil
+                    mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
+                    renderShadowVolumesToStencil(l, mCameraInProgress);
+                    // turn stencil check on
+                    mDestRenderSystem->setStencilCheckEnabled(true);
+                    // NB we render where the stencil is equal to zero to render lit areas
+                    mDestRenderSystem->setStencilBufferParams(CMPF_EQUAL, 0);
+                }
+
+                // render lighting passes for this light
+                if (lightList.empty())
+                    lightList.push_back(l);
+                else
+                    lightList[0] = l;
+                renderObjects(pPriorityGrp->_getSolidPassesDiffuseSpecular(), false, &lightList);
+
+                // Reset stencil params
+                mDestRenderSystem->setStencilBufferParams();
+                mDestRenderSystem->setStencilCheckEnabled(false);
+                mDestRenderSystem->_setDepthBufferParams();
+
+            }// for each light
+
+            // Now render decal passes, no need to set lights as lighting will be disabled
+            renderObjects(pPriorityGrp->_getSolidPassesDecal(), false);
+
+
+        }// for each priority
 
 	}
 	//-----------------------------------------------------------------------
@@ -1298,7 +1351,7 @@ namespace Ogre {
                 mDestRenderSystem->_setDepthBufferParams();
             }
 
-		}// for each priority
+		}// for each light
 
 
 		// Iterate again - variable name changed to appease gcc.
@@ -1315,7 +1368,8 @@ namespace Ogre {
 	}
 	//-----------------------------------------------------------------------
 	void SceneManager::renderObjects(
-        const RenderPriorityGroup::SolidRenderablePassMap& objs, bool doLightIteration)
+        const RenderPriorityGroup::SolidRenderablePassMap& objs, bool doLightIteration, 
+        const LightList* manualLightList)
 	{
 		// ----- SOLIDS LOOP -----
 		RenderPriorityGroup::SolidRenderablePassMap::const_iterator ipass, ipassend;
@@ -1332,13 +1386,14 @@ namespace Ogre {
 			for (irend = rendList->begin(); irend != irendend; ++irend)
 			{
 				// Render a single object, this will set up auto params if required
-				renderSingleObject(*irend, ipass->first, doLightIteration);
+				renderSingleObject(*irend, ipass->first, doLightIteration, manualLightList);
 			}
 		} 
 	}
 	//-----------------------------------------------------------------------
 	void SceneManager::renderObjects(
-        const RenderPriorityGroup::TransparentRenderablePassList& objs, bool doLightIteration)
+        const RenderPriorityGroup::TransparentRenderablePassList& objs, bool doLightIteration,
+        const LightList* manualLightList)
 	{
 		// ----- TRANSPARENT LOOP -----
 		// This time we render by Z, not by pass
@@ -1352,7 +1407,8 @@ namespace Ogre {
 		{
 			// For transparents, we have to accept that we can't sort entirely by pass
 			setPass(itrans->pass);
-			renderSingleObject(itrans->renderable, itrans->pass, doLightIteration);
+			renderSingleObject(itrans->renderable, itrans->pass, doLightIteration, 
+                manualLightList);
 		}
 
 	}
@@ -1395,7 +1451,8 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-    void SceneManager::renderSingleObject(Renderable* rend, Pass* pass, bool doLightIteration)
+    void SceneManager::renderSingleObject(Renderable* rend, Pass* pass, 
+        bool doLightIteration, const LightList* manualLightList)
     {
         static Matrix4 xform[256];
         unsigned short numMatrices;
@@ -1534,11 +1591,19 @@ namespace Ogre {
 			    mDestRenderSystem->_render(ro);
 		    } // possibly iterate per light
         }
-        else // no light processing
+        else // no automatic light processing
         {
             // Do we need to update GPU program parameters?
             if (pass->isProgrammable())
             {
+                // Do we have a manual light list?
+                if (manualLightList)
+                {
+                    // Update any automatic gpu params for lights
+                    mAutoParamDataSource.setCurrentLightList(manualLightList);
+                    pass->_updateAutoParamsLightsOnly(mAutoParamDataSource);
+                }
+
                 if (pass->hasVertexProgram())
                 {
                     mDestRenderSystem->bindGpuProgramParameters(GPT_VERTEX_PROGRAM, 
@@ -1549,6 +1614,13 @@ namespace Ogre {
                     mDestRenderSystem->bindGpuProgramParameters(GPT_FRAGMENT_PROGRAM, 
                         pass->getFragmentProgramParameters());
                 }
+            }
+
+            // Use manual lights if present, and not using vertex programs
+            if (manualLightList && 
+                pass->getLightingEnabled() && !pass->hasVertexProgram())
+            {
+                mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
             }
             // issue the render op		
             mDestRenderSystem->_render(ro);
@@ -2121,6 +2193,12 @@ namespace Ogre {
                 HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
             // tell all meshes to prepare shadow volumes
             MeshManager::getSingleton().setPrepareAllMeshesForShadowVolumes(true);
+        }
+
+        if (mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE)
+        {
+            // Additive stencil, we need to split everything by illumination stage
+            mRenderQueue.setSplitPassesByLightingType(true);
         }
 
     }

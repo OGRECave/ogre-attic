@@ -125,10 +125,8 @@ namespace Ogre {
         /// Parent queue group
         RenderQueueGroup* mParent;
         bool mSplitPassesByLightingType;
-        /// Solid pass list, used when no shadows or modulative shadows
+        /// Solid pass list, used when no shadows, modulative shadows, or ambient passes for additive
         SolidRenderablePassMap mSolidPasses;
-        /// Solid ambient only pass list, used with additive shadows
-        SolidRenderablePassMap mSolidPassesAmbient;
         /// Solid per-light pass list, used with additive shadows
         SolidRenderablePassMap mSolidPassesDiffuseSpecular;
         /// Solid decal (texture) pass list, used with additive shadows
@@ -159,7 +157,6 @@ namespace Ogre {
         ~RenderPriorityGroup() {
             // destroy all the pass map entries
             destroySolidPassMap(mSolidPasses);
-            destroySolidPassMap(mSolidPassesAmbient);
             destroySolidPassMap(mSolidPassesDecal);
             destroySolidPassMap(mSolidPassesDiffuseSpecular);
             mTransparentPasses.clear();
@@ -169,9 +166,6 @@ namespace Ogre {
         /** Get the collection of solid passes currently queued */
         const SolidRenderablePassMap& _getSolidPasses(void) 
         { return mSolidPasses; }
-        /** Get the collection of solid passes currently queued (ambient only) */
-        const SolidRenderablePassMap& _getSolidPassesAmbient(void) 
-        { return mSolidPassesAmbient; }
         /** Get the collection of solid passes currently queued (per-light) */
         const SolidRenderablePassMap& _getSolidPassesDiffuseSpecular(void) 
         { return mSolidPassesDiffuseSpecular; }
@@ -311,6 +305,7 @@ namespace Ogre {
         */
         void setSplitPassesByLightingType(bool split)
         {
+            mSplitPassesByLightingType = split;
             PriorityMap::iterator i, iend;
             iend = mPriorityGroups.end();
             for (i = mPriorityGroups.begin(); i != iend; ++i)
