@@ -560,20 +560,9 @@ namespace Ogre {
         // TODO: for skeletal animation, use an intermediate buffer or some such
 
         // Calculate the object space light details
-        Vector4 lightPos;
-        if (light->getType() == Light::LT_DIRECTIONAL)
-        {
-            // lightPos = dir.x, dir.y, dir.z, 0.0
-            lightPos = mParentNode->_getDerivedOrientation().Inverse() *
-                light->getDirection();
-            lightPos.w = 0.0f;
-        }
-        else
-        {
-            // lightPos = pos.x, pos.y, pos.z, 1.0
-            Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-            lightPos =  world2Obj * light->getPosition(); // sets w=1.0f
-        }
+        Vector4 lightPos = light->getAs4DVector();
+        Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+        lightPos =  world2Obj * lightPos; 
 
         // We need to search the edge list for silhouette edges
         EdgeData* edgeList = getEdgeList();

@@ -1647,43 +1647,17 @@ namespace Ogre {
     void GLRenderSystem::setGLLightPositionDirection(Light* lt, size_t lightindex)
     {
         // Set position / direction
-        Vector3 vec;
-        GLfloat f4vals[4];
-        if (lt->getType() == Light::LT_POINT)
-        {
-            vec = lt->getDerivedPosition();
-            f4vals[0] = vec.x;
-            f4vals[1] = vec.y;
-            f4vals[2] = vec.z;
-            f4vals[3] = 1.0;
-            glLightfv(GL_LIGHT0 + lightindex, GL_POSITION, f4vals);
-        }
-        if (lt->getType() == Light::LT_DIRECTIONAL)
-        {
-            vec = lt->getDerivedDirection();
-            f4vals[0] = -vec.x; // GL light directions are in eye coords
-            f4vals[1] = -vec.y;
-            f4vals[2] = -vec.z; // GL light directions are in eye coords
-            f4vals[3] = 0.0; // important!
-            // In GL you set direction through position, but the
-            //  w value of the vector being 0 indicates which it is
-            glLightfv(GL_LIGHT0 + lightindex, GL_POSITION, f4vals);
-        }
+        Vector4 vec;
+		// Use general 4D vector which is the same as GL's approach
+		vec = lt->getAs4DVector();
+
+		glLightfv(GL_LIGHT0 + lightindex, GL_POSITION, vec.val);
+		// Set spotlight direction
         if (lt->getType() == Light::LT_SPOTLIGHT)
         {
-            vec = lt->getDerivedPosition();
-            f4vals[0] = vec.x;
-            f4vals[1] = vec.y;
-            f4vals[2] = vec.z;
-            f4vals[3] = 1.0;
-            glLightfv(GL_LIGHT0 + lightindex, GL_POSITION, f4vals);
-
             vec = lt->getDerivedDirection();
-            f4vals[0] = vec.x; 
-            f4vals[1] = vec.y;
-            f4vals[2] = vec.z; 
-            f4vals[3] = 0.0; 
-            glLightfv(GL_LIGHT0 + lightindex, GL_SPOT_DIRECTION, f4vals);
+            vec.w = 0.0; 
+            glLightfv(GL_LIGHT0 + lightindex, GL_SPOT_DIRECTION, vec.val);
         }
     }
     //---------------------------------------------------------------------

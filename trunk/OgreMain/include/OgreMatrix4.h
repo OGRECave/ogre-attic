@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreVector3.h"
 #include "OgreMatrix3.h"
-
+#include "OgreVector4.h"
 namespace Ogre
 {
     /** Class encapsulating a standard 4x4 homogenous matrix.
@@ -172,6 +172,16 @@ namespace Ogre
 
             return r;
         }
+        inline Vector4 operator * (const Vector4& v) const
+        {
+            return Vector4(
+                m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * v.w, 
+                m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * v.w,
+                m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w,
+                m[3][0] * v.x + m[3][1] * v.y + m[3][2] * v.z + m[3][3] * v.w
+                );
+        }
+
 
         /** Matrix addition.
         */
@@ -426,5 +436,20 @@ namespace Ogre
 		Matrix4 inverse() const;
 
     };
+
+    /* Removed from Vector4 and made a non-member here because otherwise
+       OgreMatrix4.h and OgreVector4.h have to try to include and inline each 
+       other, which frankly doesn't work ;)
+   */
+    inline Vector4 operator * (const Vector4& v, const Matrix4& mat)
+    {
+        return Vector4(
+            v.x*mat[0][0] + v.y*mat[1][0] + v.z*mat[2][0] + v.w*mat[3][0],
+            v.x*mat[0][1] + v.y*mat[1][1] + v.z*mat[2][1] + v.w*mat[3][1],
+            v.x*mat[0][2] + v.y*mat[1][2] + v.z*mat[2][2] + v.w*mat[3][2],
+            v.x*mat[0][3] + v.y*mat[1][3] + v.z*mat[2][3] + v.w*mat[3][3]
+            );
+    }
+
 }
 #endif
