@@ -31,21 +31,25 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "OgreSceneManager.h"
 #include "OgreMovableObject.h"
+#include "OgreWireBoundingBox.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : Node(), mCreator(creator)
+    : Node(), mCreator(creator), mWireBoundingBox(0), mShowBoundingBox(false)
     {
     }
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator, const String& name) 
-    : Node(name), mCreator(creator)
+    : Node(name), mCreator(creator), mWireBoundingBox(0), mShowBoundingBox(false)
     {
     }
     //-----------------------------------------------------------------------
     SceneNode::~SceneNode()
     {
+		if (mWireBoundingBox) {
+			delete mWireBoundingBox;
+		}
     }
     //-----------------------------------------------------------------------
     void SceneNode::_update(Camera* cam, bool updateChildren)
@@ -238,7 +242,35 @@ namespace Ogre {
             queue->addRenderable(this);
         }
 
+		// Check if the bounding box should be shown.
+		// See if our flag is set or if the scene manager flag is set.
+		if (mShowBoundingBox || mCreator->getShowBoundingBoxes()) 
+		{ 
+			_addBoundingBoxToQueue(queue);
+		}
+
+
     }
+
+
+	void SceneNode::_addBoundingBoxToQueue(RenderQueue* queue) {
+		// Create a WireBoundingBox if needed.
+		if (mWireBoundingBox == NULL) {
+			mWireBoundingBox = new WireBoundingBox();
+		}
+		mWireBoundingBox->setupBoundingBox(mWorldAABB);
+		queue->addRenderable(mWireBoundingBox);
+	}
+
+	void SceneNode::showBoundingBox(bool bShow) {
+		mShowBoundingBox = bShow;
+	}
+
+	bool SceneNode::getShowBoundingBox() {
+		return mShowBoundingBox;
+	}
+
+
     //-----------------------------------------------------------------------
     Node* SceneNode::createChildImpl(void)
     {

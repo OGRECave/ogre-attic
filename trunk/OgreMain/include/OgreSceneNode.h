@@ -50,6 +50,11 @@ namespace Ogre {
     protected:
         ObjectMap mObjectsByName;
 
+		/// Pointer to a Wire Bounding Box for this Node
+		WireBoundingBox *mWireBoundingBox;
+		/// Flag that determines if the bounding box of the node should be displayed
+		bool mShowBoundingBox;
+
         /// SceneManager which created this node
         SceneManager* mCreator;
 
@@ -259,6 +264,25 @@ namespace Ogre {
             node will be detached but will not be destroyed.
         */
         void removeAndDestroyAllChildren(void);
+
+        /** Allows the showing of the node's bounding box.
+        @remarks
+            Use this to show or hide the bounding box of the node.
+        */
+		void showBoundingBox(bool bShow);
+
+        /** Add the bounding box to the rendering queue.
+        */
+		void _addBoundingBoxToQueue(RenderQueue* queue);
+
+        /** This allows scene managers to determine if the node's bounding box
+			should be added to the rendering queue.
+        @remarks
+            Scene Managers that implement their own _findVisibleObjects will have to 
+			check this flag and then use _addBoundingBoxToQueue to add the bounding box
+			wireframe.
+        */
+		bool getShowBoundingBox();
 
     };
 

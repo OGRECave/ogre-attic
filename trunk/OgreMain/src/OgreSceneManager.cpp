@@ -82,6 +82,7 @@ namespace Ogre {
 
         mDisplayNodes = false;
 
+	  mShowBoundingBoxes = false;
     }
 
     SceneManager::~SceneManager()
@@ -1891,6 +1892,16 @@ namespace Ogre {
         // Set viewport in render system
         mDestRenderSystem->_setViewport(vp);
     }
+	//---------------------------------------------------------------------
+	void SceneManager::showBoundingBoxes(bool bShow) 
+	{
+		mShowBoundingBoxes = bShow;
+	}
+	//---------------------------------------------------------------------
+	bool SceneManager::getShowBoundingBoxes() 
+	{
+		return mShowBoundingBoxes;
+	}
 
 
 }

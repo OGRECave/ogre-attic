@@ -223,6 +223,10 @@ namespace Ogre {
 
         /** Internal method for setting the destination viewport for the next render. */
         virtual void setViewport(Viewport *vp);
+
+		/** Flag that indicates if all of the scene node's bounding boxes should be shown as a wireframe. */
+		bool mShowBoundingBoxes;       
+
     public:
         /** Default constructor.
         */
@@ -1058,7 +1062,13 @@ namespace Ogre {
         /** Removes a listener previously added with addRenderQueueListener. */
         virtual void removeRenderQueueListener(RenderQueueListener* delListener);
 
-       
+		/** Allows all bounding boxes of scene nodes to be displayed. */
+		void showBoundingBoxes(bool bShow);
+
+		/** Returns if all bounding boxes of scene nodes are to be displayed */
+		bool getShowBoundingBoxes();
+
+
 
 
 

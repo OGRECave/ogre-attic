@@ -148,8 +148,6 @@ protected:
         // Attach to child of root node, better for culling (otherwise bounds are the combination of the 2)
         mSceneMgr->getRootSceneNode()->createChild()->attachObject(ent);
 
-
-
     }
     // Create new frame listener
     void createFrameListener(void)

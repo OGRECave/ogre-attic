@@ -106,6 +106,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreTextureManager.cpp \
                          OgreVector3.cpp \
                          OgreViewport.cpp \
+			 OgreWireBoundingBox.cpp \
                          OgreZip.cpp \
                          OgreZipArchiveFactory.cpp \
                          unzip.c

@@ -141,6 +141,7 @@ OgreTextureManager.h \
 OgreVector3.h \
 OgreVertexBoneAssignment.h \
 OgreViewport.h \
+OgreWireBoundingBox.h \
 OgreZip.h \
 OgreZipArchiveFactory.h \
 asm_math.h \
