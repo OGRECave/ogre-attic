@@ -18,11 +18,13 @@ Jon Anderson (janders)                : octree plugin
 Martin Persson                        : Nature plugin
 Jesse Rusak (jder) 	  				  : Mac OSX port
 Etienne Mallard (earthquakeproof)	  : 3D Studio Model Exporter
+Banania								  : ditto
 Paolo Gavocanov (cTh) 				  : Initial D3D9 port, Meshviewer, 
                                         3D Studio Scene Exporter
 Ivica Aracic (macross/bytelord)       : Ogre4J, Maya exporter, .scene format
 Jeff Leigh							  : Sky enhancements, debug overlay
-Jose A Milan (jamilan)                : Paging landscape plugin
+Jose A Milan (jamilan/spoke)          : Paging landscape plugin
+Tuan Kuranes (kuranes)                : ditto
 Stephan Kaiser (psyclonist)           : OgreFsrad, OgreLMTS, .scene format
 Philippe Culet                        : Attaching objects to bones
 Jon L. Griffeth (silent3)             : GUI enhancements
@@ -43,8 +45,11 @@ Sam le Pirate                         : BMP support
 Attila Tajti (attis)                  : Wings3D exporter
 ? (Firestorm)                         : Particle scale and rotate affectors
 Lee Sandberg                          : Hardware occlusion query support
-Phillip Castaneda (pjcast)            : External texture sources / dynamic textures
-Henry Goffin (qsilver)				  : Ultra-fast scaling code in OgreImageResampler.h
+Phillip Castaneda (pjcast)            : External texture sources / dynamic
+										textures
+Henry Goffin (qsilver)				  : Ultra-fast scaling code in 
+										OgreImageResampler.h
+Federico Di Gregorio (fog)			  : Debian packaging
 
 Others
 ------
@@ -52,7 +57,7 @@ The following people have been notable in their support of OGRE through the
 fixing of bugs, testing patches, and various other miscellaneous contributions:
 
 Timo Keller (norondion) 
-Kai-Peter B?ckman
+Kai-Peter Backman
 Daniel Wessl?n
 Benny Kramek (wolfman8k) 
 Riku Nurminen (rakkis)
@@ -67,6 +72,13 @@ Te'ja (thiveertm)
 Keith Jackson
 Wladimir J. van der Laan (miathan6/wumpus)
 G Nikolakis
+Genva
+Christian Larsen (DWORD)
+Chris Heald (Antiarc)
+Green Eyed Monster (monster)
+
+
+
 
 If we've forgotten you in the above list, please contact us!
 
