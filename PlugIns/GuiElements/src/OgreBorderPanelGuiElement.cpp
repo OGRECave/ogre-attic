@@ -468,7 +468,7 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vbuf = 
             mRenderOp2.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
         Real* pPos = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         for (ushort cell = 0; cell < 8; ++cell)
         {
             /*
@@ -501,7 +501,7 @@ namespace Ogre {
         // NB don't use superclass because we need to make it smaller because of border
         vbuf = mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
         pPos = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         // Use cell 1 and 3 to determine positions
         *pPos++ = left[1];
         *pPos++ = top[3];

@@ -160,6 +160,15 @@ namespace Ogre {
 				mLockSize = length;
                 return ret;
             }
+
+            /** Lock the entire buffer for (potentially) reading / writing.
+		    @param options Locking options
+		    @returns Pointer to the locked memory
+            */
+            void* lock(LockOptions options)
+            {
+                return this->lock(0, mSizeInBytes, options);
+            }
 		    /** Releases the lock on this buffer. 
             @remarks 
                 Locking and unlocking a buffer can, in some rare circumstances such as 

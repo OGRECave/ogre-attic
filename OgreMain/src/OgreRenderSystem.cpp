@@ -461,7 +461,7 @@ namespace Ogre {
         assert (elemPos->getOffset() == 0 && 
             "Positions must be first element in dedicated buffer!");
         pDestPos = static_cast<Real*>(
-            posBuf->lock(0, posBuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            posBuf->lock(HardwareBuffer::HBL_DISCARD));
         if (elemNorm)
         {
             if (posNormShareBuffer)
@@ -477,7 +477,7 @@ namespace Ogre {
                 assert (elemNorm->getOffset() == 0 && 
                     "Normals must be first element in dedicated buffer!");
                 pDestNorm = static_cast<Real*>(
-                    normBuf->lock(0, normBuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    normBuf->lock(HardwareBuffer::HBL_DISCARD));
             }
         }
 

@@ -344,9 +344,9 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         ogreSubMesh->useSharedVertices = false;
 
         Ogre::Real* pPos = static_cast<Ogre::Real*>(
-            pbuf->lock(0, pbuf->getSizeInBytes(), Ogre::HardwareBuffer::HBL_DISCARD));
+            pbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
         Ogre::Real* pTex = static_cast<Ogre::Real*>(
-            tbuf->lock(0, tbuf->getSizeInBytes(), Ogre::HardwareBuffer::HBL_DISCARD));
+            tbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
 
         logMgr.logMessage("Doing positions and texture coords...");
         for (j = 0; j < ogreSubMesh->vertexData->vertexCount; ++j)
@@ -404,7 +404,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         // Pain in the arse, we have to do vertex duplication again if normals differ at a vertex (non smooth)
         // WHY don't people realise this format is a pain for passing to 3D APIs in vertex buffers?
         Ogre::Real* pNorm = static_cast<Ogre::Real*>(
-            nbuf->lock(0, nbuf->getSizeInBytes(), Ogre::HardwareBuffer::HBL_DISCARD));
+            nbuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
         ogreSubMesh->indexData->indexCount = msMesh_GetTriangleCount (pMesh) * 3;
         // Always use 16-bit buffers, Milkshape can't handle more anyway
         Ogre::HardwareIndexBufferSharedPtr ibuf = Ogre::HardwareBufferManager::getSingleton().
@@ -412,7 +412,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
             ogreSubMesh->indexData->indexCount, Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         ogreSubMesh->indexData->indexBuffer = ibuf;
         unsigned short *pIdx = static_cast<unsigned short*>(
-            ibuf->lock(0, ibuf->getSizeInBytes(), Ogre::HardwareBuffer::HBL_DISCARD));
+            ibuf->lock(Ogre::HardwareBuffer::HBL_DISCARD));
         for (j = 0; j < ogreSubMesh->indexData->indexCount; j+=3)
         {
             msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, j/3);

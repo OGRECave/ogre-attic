@@ -320,15 +320,13 @@ namespace Ogre {
             mVertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
 
         Real* pV = static_cast<Real*>( 
-            vPosBuf->lock(0, vPosBuf->getSizeInBytes(),
-                HardwareBuffer::HBL_DISCARD) );
+            vPosBuf->lock(HardwareBuffer::HBL_DISCARD) );
 
         HardwareVertexBufferSharedPtr vColBuf = 
             mVertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
 
         RGBA* pC = static_cast<RGBA*>( 
-            vColBuf->lock(0, vColBuf->getSizeInBytes(),
-                HardwareBuffer::HBL_DISCARD) );
+            vColBuf->lock(HardwareBuffer::HBL_DISCARD) );
         
         if( mAllDefaultSize ) // If they're all the same size
         {
@@ -614,7 +612,7 @@ namespace Ogre {
             vbuf = mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
 
             Real* pT = static_cast<Real*>(
-                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+                vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
             for(
                 size_t idx, idxOff, texOff, bboard = 0;

@@ -534,7 +534,7 @@ namespace Ogre {
         VertexBoneAssignmentList::const_iterator i;
         i = boneAssignments.begin();
 		Real *pWeight = static_cast<Real*>(
-			mBlendingVB->lock(0, mBlendingVB->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)); 
+			mBlendingVB->lock(HardwareBuffer::HBL_DISCARD)); 
         // Iterate by vertex
         for (v = 0; v < targetVertexData->vertexCount; ++v)
         {

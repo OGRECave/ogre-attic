@@ -200,12 +200,12 @@ namespace Ogre {
 		if (use32BitIndexes)
 		{
 			pInt = static_cast<unsigned int*>(
-				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+				ibuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
 		}
 		else
 		{
 			pShort = static_cast<unsigned short*>(
-				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+				ibuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
 		}
         for (i = 0; i < s->indexData->indexCount; i += 3)
         {
@@ -281,7 +281,7 @@ namespace Ogre {
 			RGBA* pColour;
 
 			pVert = static_cast<unsigned char*>(
-				vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+				vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
 
             // Skim over the elements to set up the general data
             unsigned short numTextureCoords = 0;
@@ -446,12 +446,12 @@ namespace Ogre {
             if (use32BitIndexes)
             {
                 pInt = static_cast<unsigned int*>(
-                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    ibuf->lock(HardwareBuffer::HBL_DISCARD));
             }
             else
             {
                 pShort = static_cast<unsigned short*>(
-                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    ibuf->lock(HardwareBuffer::HBL_DISCARD));
             }
             TiXmlElement* faceElem;
             for (faceElem = faces->FirstChildElement();
@@ -584,7 +584,7 @@ namespace Ogre {
             bind->setBinding(bufCount, vbuf);
             // Lock it
             pVert = static_cast<unsigned char*>(
-                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                vbuf->lock(HardwareBuffer::HBL_DISCARD));
 
             // Get the element list for this buffer alone
             VertexDeclaration::VertexElementList elems = decl->findElementsBySource(bufCount);
@@ -856,12 +856,12 @@ namespace Ogre {
 		    if (use32BitIndexes)
 		    {
 			    pInt = static_cast<unsigned int*>(
-				    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+				    ibuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
 		    }
 		    else
 		    {
 			    pShort = static_cast<unsigned short*>(
-				    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+				    ibuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
 		    }
 			
 			for (size_t f = 0; f < facedata->indexCount; f += 3)
@@ -977,12 +977,12 @@ namespace Ogre {
             if (use32bitindexes)
             {
                 pInt = static_cast<unsigned int*>(
-                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    ibuf->lock(HardwareBuffer::HBL_DISCARD));
             }
             else
             {
                 pShort = static_cast<unsigned short*>(
-                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                    ibuf->lock(HardwareBuffer::HBL_DISCARD));
             }
             TiXmlElement* faceElem = faceListElem->FirstChildElement("face");
 			for (unsigned int face = 0; face < numFaces; ++face, faceElem = faceElem->NextSiblingElement())

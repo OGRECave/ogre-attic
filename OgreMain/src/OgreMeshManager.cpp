@@ -166,7 +166,7 @@ namespace Ogre
         // Generate vertex data
 		// Lock the whole buffer
 		Real* pReal = static_cast<Real*>(
-			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
@@ -315,7 +315,7 @@ namespace Ogre
 
         // Generate vertex data
 		Real* pReal = static_cast<Real*>(
-			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)); 
+			vbuf->lock(HardwareBuffer::HBL_DISCARD)); 
 		Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
@@ -484,7 +484,6 @@ namespace Ogre
         // The lower the curvature, the larger the sphere
         // Use the angle from viewer to the points on the plane
         // Credit to Aftershock for the general approach
-        Real *pBase, *pTex;
         Real camPos;      // Camera position relative to sphere center
 
         // Derive sphere radius
@@ -501,7 +500,7 @@ namespace Ogre
 
 		// Lock the whole buffer
 		Real* pReal = static_cast<Real*>(
-			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
@@ -620,7 +619,7 @@ namespace Ogre
 		HardwareIndexBufferSharedPtr ibuf = sm->indexData->indexBuffer;
 		// Lock the whole buffer
 		unsigned short* pIndexes = static_cast<unsigned short*>(
-			ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+			ibuf->lock(HardwareBuffer::HBL_DISCARD) );
 
         while (iterations--)
         {

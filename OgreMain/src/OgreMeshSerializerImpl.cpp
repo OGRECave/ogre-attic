@@ -227,7 +227,7 @@ namespace Ogre {
 
         // unsigned short* faceVertexIndices ((indexCount)
         HardwareIndexBufferSharedPtr ibuf = s->indexData->indexBuffer;
-        void* pIdx = ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY);
+        void* pIdx = ibuf->lock(HardwareBuffer::HBL_READ_ONLY);
         if (idx32bit)
         {
             unsigned int* pIdx32 = static_cast<unsigned int*>(pIdx);
@@ -283,7 +283,7 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vbuf = 
             vertexData->vertexBufferBinding->getBuffer(elem->getSource());
         Real* pReal = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+            vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
         writeReals(pReal, vertexData->vertexCount * 3);
         vbuf->unlock();
 
@@ -295,7 +295,7 @@ namespace Ogre {
             // Real* pNormals (x, y, z order x numVertices)
             vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
             pReal = static_cast<Real*>(
-                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+                vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
             writeReals(pReal, vertexData->vertexCount * 3);
             vbuf->unlock();
         }
@@ -307,7 +307,7 @@ namespace Ogre {
             // unsigned long* pColours (RGBA 8888 format x numVertices)
             vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
             unsigned long *pLong = static_cast<unsigned long*>(
-                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+                vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
             writeLongs(pLong, vertexData->vertexCount);
             vbuf->unlock();
         }
@@ -320,7 +320,7 @@ namespace Ogre {
                 writeChunkHeader(M_GEOMETRY_TEXCOORDS, elem->getSize() * vertexData->vertexCount);
                 vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
                 pReal = static_cast<Real*>(
-                    vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY) );
+                    vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
                 // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
                 unsigned short dims = VertexElement::getTypeCount(elem->getType());
                 writeShorts(&dims, 1);
@@ -571,7 +571,7 @@ namespace Ogre {
 					mpMesh->mIndexBufferShadowBuffer);
             // unsigned int* faceVertexIndices 
             unsigned int* pIdx = static_cast<unsigned int*>(
-                ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
+                ibuf->lock(HardwareBuffer::HBL_DISCARD)
                 );
             readInts(chunk, pIdx, sm->indexData->indexCount);
             ibuf->unlock();
@@ -587,7 +587,7 @@ namespace Ogre {
 					mpMesh->mIndexBufferShadowBuffer);
             // unsigned short* faceVertexIndices 
             unsigned short* pIdx = static_cast<unsigned short*>(
-                ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
+                ibuf->lock(HardwareBuffer::HBL_DISCARD)
                 );
             readShorts(chunk, pIdx, sm->indexData->indexCount);
             ibuf->unlock();
@@ -669,7 +669,7 @@ namespace Ogre {
             mpMesh->mVertexBufferUsage, 
 			mpMesh->mIndexBufferShadowBuffer);
         pReal = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
         if (mIsSkeletallyAnimated)
         {
             // Copy data into software buffers for source of blending
@@ -708,7 +708,7 @@ namespace Ogre {
                         mpMesh->mVertexBufferUsage,
 						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
-                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     if (mIsSkeletallyAnimated)
                     {
                         // Copy data into software buffers for source of blending
@@ -737,7 +737,7 @@ namespace Ogre {
                         mpMesh->mVertexBufferUsage,
 						mpMesh->mVertexBufferShadowBuffer);
                     pRGBA = static_cast<RGBA*>(
-                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     readLongs(chunk, pRGBA, dest->vertexCount);
                     vbuf->unlock();
                     dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
@@ -760,7 +760,7 @@ namespace Ogre {
                         mpMesh->mVertexBufferUsage,
 						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
-                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * dim);
                     vbuf->unlock();
                     dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
@@ -1011,14 +1011,14 @@ namespace Ogre {
             if (idx32)
             {
                 unsigned int* pIdx = static_cast<unsigned int*>(
-                    ibuf->lock(0, ibuf->getSizeInBytes(),  HardwareBuffer::HBL_READ_ONLY));
+                    ibuf->lock(HardwareBuffer::HBL_READ_ONLY));
 			    writeInts(pIdx, indexData->indexCount);
                 ibuf->unlock();
             }
             else
             {
                 unsigned short* pIdx = static_cast<unsigned short*>(
-                    ibuf->lock(0, ibuf->getSizeInBytes(),  HardwareBuffer::HBL_READ_ONLY));
+                    ibuf->lock(HardwareBuffer::HBL_READ_ONLY));
 			    writeShorts(pIdx, indexData->indexCount);
                 ibuf->unlock();
             }
@@ -1312,7 +1312,7 @@ namespace Ogre {
         sm->indexData->indexBuffer = ibuf;
         // unsigned short* faceVertexIndices 
         unsigned short* pIdx = static_cast<unsigned short*>(
-            ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
+            ibuf->lock(HardwareBuffer::HBL_DISCARD)
             );
         readShorts(chunk, pIdx, sm->indexData->indexCount);
         ibuf->unlock();
@@ -1402,7 +1402,7 @@ namespace Ogre {
             mpMesh->mVertexBufferUsage,
 			mpMesh->mVertexBufferShadowBuffer);
         pReal = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
         if (mIsSkeletallyAnimated)
         {
             // Copy data into software buffers for source of blending
@@ -1486,7 +1486,7 @@ namespace Ogre {
                         mpMesh->mVertexBufferUsage,
 						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
-                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     if (mIsSkeletallyAnimated)
                     {
                         // Copy data into software buffers for source of blending
@@ -1514,7 +1514,7 @@ namespace Ogre {
                         mpMesh->mVertexBufferUsage,
 						mpMesh->mVertexBufferShadowBuffer);
                     pRGBA = static_cast<RGBA*>(
-                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     readLongs(chunk, pRGBA, dest->vertexCount);
                     vbuf->unlock();
                     dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
@@ -1537,7 +1537,7 @@ namespace Ogre {
                         mpMesh->mVertexBufferUsage,
 						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
-                        vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * dim);
                     vbuf->unlock();
                     dest->vertexBufferBinding->setBinding(bindIdx, vbuf);

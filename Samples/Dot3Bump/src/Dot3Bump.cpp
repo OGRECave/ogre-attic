@@ -199,8 +199,7 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 		// first, indices
 		IndexData *indexData = pSubMesh->indexData;
 		HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer ;
-		pVIndices = (unsigned short*) buffIndex->lock(0, buffIndex->getSizeInBytes(),
-			HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		pVIndices = (unsigned short*) buffIndex->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
 		// then, vertices
 		VertexData *usedVertexData ;
 		if (pSubMesh->useSharedVertices) {
@@ -213,19 +212,16 @@ void create3DTexCoordsFromTSLVector(Entity *pEnt, Vector3 objectLightPositionVec
 		// get a new 3D tex.coord.buffer or an existing one
 		HardwareVertexBufferSharedPtr buff3DTC = get3DTexCoordBuffer(usedVertexData);
 		// clear it
-		p3DTC = (Real*) buff3DTC->lock(0, buff3DTC->getSizeInBytes(), 
-			HardwareBuffer::HBL_DISCARD); // ***LOCK***
+		p3DTC = (Real*) buff3DTC->lock(HardwareBuffer::HBL_DISCARD); // ***LOCK***
 		memset(p3DTC,0,buff3DTC->getSizeInBytes());
 		// find a 2D tex coord buffer
 		const VertexElement *elem2DTC = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
 		HardwareVertexBufferSharedPtr buff2DTC = vBind->getBuffer(elem2DTC->getSource());
-		p2DTC = (Real*) buff2DTC->lock(0, buff2DTC->getSizeInBytes(),
-			HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		p2DTC = (Real*) buff2DTC->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
 		// find a vertex coord buffer
 		const VertexElement *elemVPos = vDecl->findElementBySemantic(VES_POSITION);
 		HardwareVertexBufferSharedPtr buffVPos = vBind->getBuffer(elemVPos->getSource());
-		pVPos = (Real*) buffVPos->lock(0, buffVPos->getSizeInBytes(),
-			HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		pVPos = (Real*) buffVPos->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
 		
 		int numFaces = indexData->indexCount / 3 ;
 		

@@ -120,7 +120,7 @@ namespace Ogre {
             mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);     
 
         Real* pPos = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
 
 		// line 0
         *pPos++ = minx;

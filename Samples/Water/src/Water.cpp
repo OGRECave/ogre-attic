@@ -137,8 +137,7 @@ private:
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
 					false); // no shadow buffer
 			Real *posnormBufData = (Real*) posnormVertexBuffer->
-				lock(0, posnormVertexBuffer->getSizeInBytes(), 
-					HardwareBuffer::HBL_DISCARD);
+				lock(HardwareBuffer::HBL_DISCARD);
 			for(i=0;i<numVertices;i++) {
 				posnormBufData[6*i+0]=((Real)(i%2)-0.5f)*CIRCLE_SIZE; // pos X
 				posnormBufData[6*i+1]=0; // pos Y
@@ -161,8 +160,7 @@ private:
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
 					false); // no shadow buffer
 			Real *texcoordsBufData = (Real*) texcoordsVertexBuffer->
-				lock(0, texcoordsVertexBuffer->getSizeInBytes(),
-					HardwareBuffer::HBL_DISCARD);
+				lock(HardwareBuffer::HBL_DISCARD);
 			for(lvl=0;lvl<16;lvl++) {
 				float x0 = (Real)(lvl % 4) * 0.25 ;
 				float y0 = (Real)(lvl / 4) * 0.25 ;

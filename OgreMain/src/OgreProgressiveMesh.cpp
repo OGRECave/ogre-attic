@@ -182,7 +182,7 @@ namespace Ogre {
 			vertexData->vertexBufferBinding->getBuffer(posElem->getSource());
 		// lock the buffer for reading
 		unsigned char* pVertex = static_cast<unsigned char*>(
-			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+			vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
 		Real* pReal;
 		Vector3 pos;
 		// Map for identifying duplicate position vertices
@@ -244,12 +244,12 @@ namespace Ogre {
 		if (use32bitindexes)
 		{
 			pInt = static_cast<unsigned int*>(
-				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+				ibuf->lock(HardwareBuffer::HBL_READ_ONLY));
 		}
 		else
 		{
 			pShort = static_cast<unsigned short*>(
-				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
+				ibuf->lock(HardwareBuffer::HBL_READ_ONLY));
 		}
         work.mTriList.resize(numTris); // assumed tri list
         for (i = 0; i < numTris; ++i)

@@ -183,7 +183,7 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vbuf = 
             mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
         Real* pPos = static_cast<Real*>(
-            vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         
         // Use -1 for Z position, furthest forward in homogenous clip space
         *pPos++ = left;
@@ -254,7 +254,7 @@ namespace Ogre {
             HardwareVertexBufferSharedPtr vbuf = 
                 mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
             Real* pVBStart = static_cast<Real*>(
-                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+                vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
             size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(Real);
             size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(Real);
