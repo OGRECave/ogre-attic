@@ -637,16 +637,40 @@ namespace Ogre {
          HRESULT hr;
          LPDIRECTDRAWSURFACE7 pTempSurf;
          DDSURFACEDESC2 desc;
+         RECT srcRect;
  
          // Cannot lock surface direct, so create temp surface and blit
+         memset(&desc, 0, sizeof (DDSURFACEDESC2));
 		 desc.dwSize = sizeof(DDSURFACEDESC2);
-		 hr = mlpDDSBack->GetSurfaceDesc(&desc);
+         if (FAILED(hr = mlpDDSBack->GetSurfaceDesc(&desc)))
+         {
+	         Except(hr, "Error getting description of back buffer!", 
+                 "D3D7RenderWindow::writeContentsToFile");
+         }
+
+         desc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH | DDSD_PIXELFORMAT;
+         desc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+
 		 if (FAILED(hr = mlpDDDriver->directDraw()->CreateSurface(&desc, &pTempSurf, NULL)))
 		 {
              Except(hr, "Error creating temporary surface!", 
                  "D3D7RenderWindow::writeContentsToFile");
 		 }
-		 pTempSurf->Blt(NULL, mlpDDSBack, NULL, NULL, NULL);
+
+         if (mIsFullScreen)
+		 {
+         	pTempSurf->Blt(NULL, mlpDDSFront, NULL, NULL, NULL);
+		 }
+         else
+         {
+         	GetWindowRect(mHWnd, &srcRect);
+            srcRect.left += GetSystemMetrics(SM_CXSIZEFRAME);
+            srcRect.top += GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CYCAPTION);
+            srcRect.right = srcRect.left + desc.dwWidth;
+            srcRect.bottom = srcRect.top + desc.dwHeight;
+
+            pTempSurf->Blt(NULL, mlpDDSFront, &srcRect, NULL, NULL);
+         }
 
 		 if (FAILED(hr = pTempSurf->Lock(NULL, &desc,  
              DDLOCK_WAIT | DDLOCK_READONLY, NULL)))
