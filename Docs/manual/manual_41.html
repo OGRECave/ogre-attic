@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 21 2004 by texi2html 1.64 -->
+<!-- Created on , 5 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -46,7 +46,7 @@ When you lock a buffer, you call one of the following methods:
 pBuffer-&#62;lock(lockType);
 // Lock only part of the buffer
 pBuffer-&#62;lock(start, length, lockType);
-</pre></td></tr></table>The first call locks the entire buffer, the second locks only the section from 'start' (as a byte offset), for 'length' bytes. This could be faster than locking hte entire buffer since less is transferred, but not if you later update the rest of the buffer too, because doing it in small chunks like this means you cannot use HBL_DISCARD (see below).
+</pre></td></tr></table>The first call locks the entire buffer, the second locks only the section from 'start' (as a byte offset), for 'length' bytes. This could be faster than locking the entire buffer since less is transferred, but not if you later update the rest of the buffer too, because doing it in small chunks like this means you cannot use HBL_DISCARD (see below).
 <BR><BR>
 The lockType parameter can have a large effect on the performance of your application, especially if you are not using a shadow buffer. 
 <DL COMPACT>
@@ -76,7 +76,7 @@ Once you have locked a buffer, you can use the pointer returned however you wish
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 21 2004</I>
+by <I>Steve Streeting</I> on <I>, 5 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 21 2004 by texi2html 1.64 -->
+<!-- Created on , 5 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -58,27 +58,27 @@ The ExternalTextureSource class is the base class that Texture Source PlugIns mu
 
 Default Command Parameters defined in ExternalTextureSource base class are:
 <UL>
-<LI>Parameter Name: "filename" Argument Type: Ogre:String
+<LI>Parameter Name: "filename" Argument Type: Ogre::String
 Sets a filename plugin will read from
-<LI>Parameter Name: "play_mode" Argument Type: Ogre:String
+<LI>Parameter Name: "play_mode" Argument Type: Ogre::String
 Sets initial play mode to be used by the plugin - "play", "loop", "pause"
-<LI>Parameter Name: "set_T_P_S" Argument Type: Ogre:String
+<LI>Parameter Name: "set_T_P_S" Argument Type: Ogre::String
 Used to set the technique, pass, and texture unit level to apply this texture to. As an example: To set a technique level of 1, a pass level of 2, and a texture unit level of 3, send this string "1 2 3".
-<LI>Parameter Name: "frames_per_second" Argument Type: Ogre:String
+<LI>Parameter Name: "frames_per_second" Argument Type: Ogre::String
 Set a Frames per second update speed. (Integer Values only)
 </UL>
 
 <A NAME="SEC186"></A>
 <H2> ExternalTextureSourceManager Class </H2>
 <!--docid::SEC186::-->
-ExternalTextureSourceManager is responsible for keeping track of loaded Texture Source PlugIns. It also aides in the creation of texture source textures from scripts. It also is the interface you should use when dealing with texture source plugins.<BR><BR>
+ExternalTextureSourceManager is responsible for keeping track of loaded Texture Source PlugIns. It also aids in the creation of texture source textures from scripts. It also is the interface you should use when dealing with texture source plugins.<BR><BR>
 
 Note: The function prototypes shown below are mockups - param names are simplified to better illustrate purpose here...
 Steps needed to create a new texture via ExternalTextureSourceManager:
 
 <UL>
 <LI>Obviously, the first step is to have the desired plugin included in plugin.cfg for it to be loaded.
-@itemSet the desired PlugIn as Active via AdvancedTextureManager::getSingleton().SetCurrentPlugIn( String Type ); -- type is whatever the plugin registers as handling (eg. "video", "flash", "whatever", etc).
+<LI>Set the desired PlugIn as Active via AdvancedTextureManager::getSingleton().SetCurrentPlugIn( String Type ); -- type is whatever the plugin registers as handling (eg. "video", "flash", "whatever", etc).
 <LI>Note: Consult Desired PlugIn to see what params it needs/expects.
 Set params/value pairs via AdvancedTextureManager::getSingleton().getCurrentPlugIn()-&#62;setParameter( String Param, String Value );
 <LI>After required params are set, a simple call to AdvancedTextureManager::getSingleton().getCurrentPlugIn()-&#62;createDefinedTexture( sMaterialName ); will create a texture to the material name given.
@@ -132,7 +132,7 @@ This diagram uses ffmpegVideoPlugin as example, but all plug ins will work the s
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 21 2004</I>
+by <I>Steve Streeting</I> on <I>, 5 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
