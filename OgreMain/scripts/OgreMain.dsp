@@ -104,6 +104,14 @@ PostBuild_Cmds=copy ..\lib\Debug\OgreMain.dll ..\..\Samples\Common\bin\Debug
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=..\src\OgreAnimation.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreAnimationTrack.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreArchiveEx.cpp
 # End Source File
 # Begin Source File
@@ -125,6 +133,10 @@ SOURCE=..\src\OgreBillboardSet.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreBitwise.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreBoneTrack.cpp
 # End Source File
 # Begin Source File
 
@@ -177,6 +189,10 @@ SOURCE=..\src\OgreImage.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreInput.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreKeyFrame.cpp
 # End Source File
 # Begin Source File
 
@@ -392,6 +408,14 @@ SOURCE=..\include\Ogre.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreAnimation.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreAnimationTrack.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreArchiveEx.h
 # End Source File
 # Begin Source File
@@ -421,6 +445,10 @@ SOURCE=..\include\OgreBitwise.h
 # Begin Source File
 
 SOURCE=..\include\OgreBlendMode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreBoneTrack.h
 # End Source File
 # Begin Source File
 
@@ -505,6 +533,10 @@ SOURCE=..\include\OgreImage.h
 # Begin Source File
 
 SOURCE=..\include\OgreInput.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreKeyFrame.h
 # End Source File
 # Begin Source File
 

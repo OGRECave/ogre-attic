@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.stevestreeting.com/ogre/
 
-Copyright © 2000-2001 Steven J. Streeting
+Copyright © 2000-2002 Steven J. Streeting
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -77,12 +77,16 @@ namespace Ogre {
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files
+    class Animation;
+    class AnimationTrack;
     class ArchiveEx;
     class ArchiveManager;
     class ArchiveFactory;
     class AxisAlignedBox;
     class Billboard;
     class BillboardSet;
+    class Bone;
+    class BoneTrack;
     class Camera;
     class ColourValue;
     class ControllerManager;
@@ -94,6 +98,7 @@ namespace Ogre {
     class Entity;
     class FrameListener;
     class InputReader;
+    class KeyFrame;
     class Light;
     class LogManager;
     class Material;
@@ -125,6 +130,8 @@ namespace Ogre {
     class SceneNode;
     class SDDataChunk;
     class SimpleRenderable;
+    class Skeleton;
+    class SkeletonManager;
     class Sphere;
     class String;
     class StringInterface;
