@@ -32,7 +32,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTexture.h"
 #include "OgreSingleton.h"
 #include "OgreException.h"
-#include "OgreImage.h"
 
 
 namespace Ogre {

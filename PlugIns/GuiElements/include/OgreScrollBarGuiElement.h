@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePanelGuiElement.h"
 #include "OgreButtonGuiElement.h"
 #include "OgreEventListeners.h"
+#include "OgreScrollTarget.h"
 
 namespace Ogre {
 

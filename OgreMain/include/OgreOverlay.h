@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Overlay_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreString.h"
 #include "OgreSceneNode.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreMatrix4.h"

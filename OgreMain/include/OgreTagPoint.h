@@ -28,8 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreBone.h"
-#include "OgreQuaternion.h"
-#include "OgreVector3.h"
 #include "OgreMatrix4.h"
 
 namespace Ogre	{

@@ -44,6 +44,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreOverlayManager.h"
 #include "OgreStringConverter.h"
 #include "OgreRenderQueueListener.h"
+#include "OgreBillboardSet.h"
 
 // This class implements the most basic scene manager
 
