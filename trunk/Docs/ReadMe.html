@@ -1,0 +1,354 @@
+<html>
+<head>
+<title>OGRE Readme</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Source 
+Distribution README file</p><p align="center" class="header"><A HREF="http://ogre.sourceforge.net">http://ogre.sourceforge.net</A></p><p align="left" class="MainHeader">Summary</p><p>OGRE 
+(Object-Oriented Graphics Rendering Engine) is a scene-oriented, flexible 3D engine 
+written in C++ designed to make it easier and more intuitive for developers to 
+produce games and demos utilising 3D hardware. The class library abstracts all 
+the details of using the underlying system libraries like Direct3D and OpenGL 
+and provides an interface based on world objects and other intuitive classes. 
+</p><p align="left" class="MainHeader">Authors</p><P>The following people are 
+responsible for the blood, sweat and tears it took to bring you OGRE:</P><P><B>Steve 
+Streeting (<A HREF="mailto:steve@stevestreeting.com">steve@stevestreeting.com</A>)</B></P><P>Steve 
+had been thinking about creating something like OGRE since about February 2000, 
+but work really started on it in 2001. Steve is responsible for the overall design, 
+project management and changes to all the core functionality. He is also the main 
+public contact for the project, at the above address. Steve is prone to ranting 
+about why games should have the same coding and design standards as business software, 
+and is based in St Peter Port, Guernsey (a small British island off the French 
+coast).</P><P><B>Adrian 'cearny' Cearn&#x0103;u (<A HREF="mailto:cearny@cearny.ro">cearny@cearny.ro</A>)</B> 
+</P><P>Cearny joined the project in February 2002, although it seems longer because 
+he's contributed so much in a short space of time. Cearny supplied the impetus 
+and much of the implementation for switching OGRE to a completely dynamically-loaded 
+library, and has done a fine job in challenging all my assumptions and generally 
+improving the quality of the project. Since then he has added a ROAM-based landscape 
+renderer and made significant progress in getting OGRE to compile on Linux. Cearny 
+is based in Bucharest, Romania.</P><P><B>Thomas 'temas' Muldowney (<A HREF="mailto:cearny@cearny.ro">temas@jabber.org</A>)</B></P><P>Temas 
+joined the project in April 2002 and has been working hard on Linux porting and 
+also generally on ANSI C++ compliance. He comes from a background of open-source 
+development, and is currently a lead contributor to the Jabber open-source server 
+as well as working on OGRE. He's based in Texas, USA.</P><p align="left" class="MainHeader">Building 
+an Application Which Uses Ogre</p><p align="left">Currently because of limited 
+time and resources, OGRE is only fully configured to build/run on Windows platforms 
+using the DirectX SDK v7 or 8. However, I do stress that the architecture has 
+been designed so this doesn't have to be so - currently a Linux port is well under 
+way and I am confident that given the time to implement the specialisations the 
+same class interfaces will work just as well under OpenGL and on other platforms 
+- I just haven't had the time to implement them. A great deal of the system (the 
+OgreCore and OgreEngine modules below) are not tied to Windows or DirectX in any 
+way.</p><p align="left"><B>Core DLLs</B></p><p align="left">OGRE compiles into 
+a number of DLLs for use by applications. Client applications simply have to link 
+to OgreMain.lib, which automatically starts up the core dll (OgreMain.dll). Both 
+this and OgrePlatform.dll must be on your Windows path or in the same folder as 
+the application. </p><p align="left"><B>Plugins</B></p><p align="left">Further 
+'plugin' dlls are used to provide rendering system implementations (e.g. an interface 
+to DirectX) and special features (e.g. a BSP-oriented scene manager). Plugins 
+are configured using the 'plugins.cfg' file located in the same folder as your 
+application. Here's an example:</p><p align="left">-----snip------------------------------------------------------</p><p align="left">PluginFolder=plugins\</p><P># 
+Define D3D rendering implementation plugin<BR>Plugin=OgreD3DEngine.dll</P><P>-----snip------------------------------------------------------</P><P>This 
+simple plugins.cfg tells Ogre to load all plugins from the 'plugins' folder directly 
+under the application's folder, and to load OgreD3DEngine.dll, the DirectX rendering 
+implementation (you have to have at least one of these, and currently only a DirectX 
+plugin is available due to time constraints).</P><P>The best way to get started 
+with OGRE is to look at the example applications which are included. These should 
+make it clear to you how easy it is to get an OGRE application running in a surprisingly 
+small amount of code!</P><P CLASS="MainHeader">Building New Plugins</P><P>If you 
+want to customise the engine to add new features, but you don't want to do it 
+in an application (say you want it to be reusable in binary form between projects, 
+or maybe you just want to contribute to the engine without writing an actual application), 
+you can write a plugin. Plugins do their work by calling the same interfaces an 
+application can call - they can install new RenderSystem implementations, provide 
+a SceneManager specialised for a particular scene type, add a new set of Controllers, 
+whatever.</P><P>Plugins are built very much like applications - you link to OgreMain.lib 
+and include the Ogre header files in your project. The only requirement is that 
+you expose two methods from the dll you create:</P><P> <B>dllStartPlugin</B>: 
+called when your plugin is loaded. Your plugin should create any classes, allocate 
+memory, register with other Ogre objects etc. You should not assume that the RenderSystem 
+has been initialised at this stage, it almost certainly has not been, so do not 
+try to use the RenderSystem class or any class dependent on it (e.g. TextureManager). 
+For instance, you could define a subclass of SceneManager in your dll and call 
+Root::setSceneManager to provide your new implementation.</P><P><B>dllStopPlugin</B>: 
+called on shutdown of the Ogre system just before unloading your dll. Release 
+any memory you allocated here.</P><P>You can use the SOgreSfxPlugin, OgreD3DEngineDll 
+and OgreBspSceneManagerDll projects as examples of writing plugins for Ogre.</P><P CLASS="MainHeader">Building 
+The Ogre Libraries</P><p align="left">To build the core OGRE libraries you will 
+need:</p><UL><LI> DirectX 8 SDK (or v7), library and include files on your path</LI><LI> 
+Visual C++ 6 SP3+ or Visual C++.Net (VC7) </LI><LI>STLport (available from <A HREF="http://www.stlport.org">www.stlport.org</A>), 
+built and with libraries and the appropriate dll (stlport_vc645.dll or stlport_vc745 
+depending on your version of VC) on your path</LI></UL><P>Project files are supplied 
+for VC6 (Ogre.dsw) and VC.Net (Ogre.sln). OGRE also uses additional open-source 
+libraries (see <a href="#ack">acknowledgements</a> below) but these are included 
+in the CVS repository and the download snapshot. </P><p align="left">You are strongly 
+advised to review the documentation for Ogre before embarking on any changes. 
+Ogre is a complex system, and is strongly pattern and OO design based, with many 
+layers of abstraction being the norm. Unlike many 3D engines you will come across, 
+Ogre has not been specifically designed around a single scene-type (e.g. running 
+around inside a series of rooms, running over close terrain, flying through space), 
+it can in theory be applied to all of them (although specialisations for specific 
+scene types is required for performance, which is what the SceneManager is supposed 
+to be subclassed for). This generality leads to a more flexible system, but you 
+need to orientate yourself with the design first.</p><p align="left"><A HREF="Tutorials/index.html">Tutorials</A> 
+and API <A HREF="docs/html/index.html">documentation</A> are available - please 
+use them! </p><p align="left">The libraries are:</p><table width="100%" border="1" class="MainContent" CELLSPACING="0"> 
+<tr> <td width="200">OgreMain.dll</td><td>The core dll which includes all the 
+basic classes, and abstractions of all the engine components which will be refined 
+per OS platform, rendering API, or per scene type. Everything which usees Ogre 
+uses this library by linking to OgreMain.lib. This library must be on the path 
+or in the current folder to be loaded at startup.</td></tr> <tr> <td width="200"> 
+<p>OgrePlatform.dll</p></td><td><P>This library implements concrete versions of 
+the classes required to be implemented for each platform, such as RenderWindows, 
+InputReaders etc. The implementation included with Ogre at the moment is for Win32, 
+but this dll should be replaced (e.g. by OgrePlatform.so) on other platforms, 
+exposing an identical interface but implementing the features for that platform.</P><P>This 
+library is loaded dynamically by the PlatformManager class (in OgreMain.dll) and 
+must either be on the path or in the current folder.</P></td></tr> <tr> <td width="200">OgreD3DEngine.dll</td><td>Plugin 
+library which adds a RenderSystem implementation for Direct3D. This library is 
+loaded dynamically by the plugin architecture described above, and must be located 
+in the folder specified in plugins.cfg.</td></tr> <tr> <td width="200">OgreBspSceneManager.dll</td><td>Plugin 
+specialisation of the general-purpose SceneManager for rendering indoor levels 
+based on a BSP tree. Allows Quake3 maps to be loaded and rendered very efficiently 
+whilst exposing none of the complexity to the core Ogre system. This library is 
+loaded dynamically by the plugin architecture described above, and must be located 
+in the folder specified in plugins.cfg.</td></tr><tr><td width="200">OgreSfxPlugin.dll</td><td>Plugin 
+to provide additional special effects. At present this plugin adds a set of standard 
+particle emitters and particle affectors.</td></tr><tr><td width="200">FileSystem.dll</td><td>Archive 
+plugin that allows OGRE to manipulate file folders.</td></tr><tr><td width="200">Zip.dll</td><td>Archive 
+plugin that allows OGRE t manipulate ZIP archives.</td></tr> </table><p align="left">Each 
+of the .lib files has 2 build configurations, Debug and Release. </p><P><B>Building 
+Under DirectX 7 SDK</B></P><P>OGRE is configured to build under DirectX8 but is 
+still using the DirectX 7 interfaces so can be built under this version if need 
+be. I haven't upgraded the interfaces to v8 because I wanted to concentrate on 
+engine design and features rather than porting the API calls to the new version 
+(I have already ported OGRE and it's predecessors twice and to be honest I'm fed 
+up with doing it!). I may wait until the imminent release of version 9 before 
+I do another port.</P><P>So you can still build OGRE under the DirectX 7 SDK, 
+you just need to make a small change to the linker settings of the examples and 
+anything you create. In VC++, on the Project menu, click 'Settings'. In the 'General' 
+section, in the 'Object/Library Modules' text box, change the 'd3d8.lib' entry 
+to 'd3dim.lib'</P><p align="left">&nbsp;</p><p align="left" CLASS="MainHeader">Building 
+the Examples</p><p align="left">In the Examples folder, there are a number of 
+subfolders each containing an example program (with the exception of the Framework 
+folder which contains the base code for all the examples). To build these you 
+can either:</p><OL><LI>Load the individual .dsp or .vcproj project file from the 
+example folder and build it individually (requires that you have already built 
+the libraries as described above)</LI><LI>Load the Ogre.dsw or Ogre.sln workspace 
+from the base Ogre folder, which contains <I>all</I> the examples and all the 
+library projects, set the example you want to be the active one (right-click on 
+the project explorer and click 'Set As Active Project') and perform a standard 
+build. </LI></OL><P>The latter method has the advantage that you can flip between 
+examples and the original OGRE code quickly, plus the fact that dependecies are 
+in place such that if you make changes to the OGRE code or download new versions 
+from CVS, the updated OGRE library will automatically be built when you build 
+an example.</P><P>Here's a summary of the examples:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
+<TR> <TD WIDTH="114">Bezier</TD><TD WIDTH="994">Demonstrates the use of bezier 
+patches for approximating curved surfaces. Displays a single curved surface at 
+a predefined subdivision level.</TD></TR> <TR> <TD WIDTH="114"> <P>Bsp</P></TD><TD WIDTH="994"><P>Demonstrates 
+a specialisation of the SceneManager class for a very specific kind of scene - 
+the indoor level as used by countless first-person shooter games. Loads Quake3Arena 
+levels.<BR><B>IMPORTANT NOTE:</B> For copyright reasons no Quake3 data can be 
+distributed with OGRE. You are expected to provide your own level data to use 
+this example - edit the quake3settings.cfg file to specify the location of your 
+pak0.pk3 file and the map you wish to load.</P></TD></TR><TR><TD WIDTH="114">EnvMap</TD><TD WIDTH="994">Demonstrates 
+the environment mapping effect which can be applied to texture layers, together 
+with the blending that can be used to combine multiple texture layers. Also now 
+includes a few billboards as flare effects</TD></TR><TR><TD WIDTH="114">Lights</TD><TD WIDTH="994">Demonstrates 
+the use of dynamic coloured lights. </TD></TR><TR><TD WIDTH="114">Particles</TD><TD WIDTH="994">Demonstrates 
+particle system effects, using predefined particle scripts.</TD></TR><TR><TD WIDTH="114">SkyPlane</TD><TD WIDTH="994">Shows 
+how a skyplane can be used, i.e. a fixed camera-relative plane which can be used 
+to create a flat sky.</TD></TR><TR><TD WIDTH="114">SkyBox</TD><TD WIDTH="994">Shows 
+how a skybox is used, creating a complete wrap-around sky</TD></TR><TR><TD WIDTH="114">SkyDome</TD><TD WIDTH="994">Demonstrates 
+the skydome feature, an illusion of a curved dome above the camera displaying 
+the sky.</TD></TR><TR><TD WIDTH="114">Trans</TD><TD WIDTH="994">Shows what happens 
+when you apply scene-level transparency to an object, i.e. not just blending between 
+texture layers onthe same object by blending new objects with those already in 
+the scene.</TD></TR><TR><TD WIDTH="114">TextureEffects</TD><TD WIDTH="994">A demo 
+of a few texture effects (scrolling, scaling, rotating) that can be done with 
+Ogre's 'Controller' architecture, a way of using input values from one object 
+(in this case time) to affect another (in this case texture coordinates) by translating 
+them through a function. This could be as simple as a scale factor, or be a little 
+more complex such as a wave function.</TD></TR> </TABLE><P>All the examples are 
+controlled as follows:</P><TABLE WIDTH="100%" BORDER="1" CLASS="MainContent" CELLSPACING="0"> 
+<TR> <TD WIDTH="139">Mouse</TD><TD WIDTH="969">Freelook</TD></TR> <TR> <TD WIDTH="139"> 
+<P>W or Up Arrow</P></TD><TD WIDTH="969"><P>Camera forward</P></TD></TR><TR><TD WIDTH="139">S 
+or Down Arrow</TD><TD WIDTH="969">Camera backwards</TD></TR><TR><TD WIDTH="139">A</TD><TD WIDTH="969">Camera 
+strafe left</TD></TR><TR><TD WIDTH="139">D</TD><TD WIDTH="969">Camera strafe right</TD></TR><TR><TD WIDTH="139">PageUp</TD><TD WIDTH="969">Camera 
+ascend </TD></TR><TR><TD WIDTH="139">PageDown</TD><TD WIDTH="969">Camera descend</TD></TR><TR><TD WIDTH="139">O 
+&amp; P</TD><TD WIDTH="969">Yaw the root scene node (and thus all the movable 
+objects in the scene)</TD></TR><TR><TD WIDTH="139">I &amp; K</TD><TD WIDTH="969">Pitch 
+the root scene node (and thus all the movable objects in the scene)</TD></TR><TR><TD WIDTH="139">F</TD><TD WIDTH="969">Toggle 
+frame rate stats on/off</TD></TR> </TABLE><P CLASS="MainHeader">Building Your 
+Own Applications</P><P>The easiest way to get started with your own application 
+is to start with the <A HREF="examples/" TARGET="_blank">examples</A>. Feel free 
+to reuse the framework there, which consists mainly of a base object called ExampleApplication. 
+This handles all the engine initialisation and all you need to do is subclass 
+it and override the createScene method to provide your own scene. You can optionally 
+override any of the other methods if you wish to have more control over the scene. 
+By default the camera is controllable via the standard freelook and WASD key combinations, 
+but you can change this by replacing or subclassing the ExampleFrameListener class.</P><P>How 
+do you find out what all the terms and classes mean? The best place to start is 
+with the documentation. From this release onward, the full documentation will 
+always be included as part of the source code release, rather than as a separate 
+download. You can find the documentation <A HREF="Docs/index.html" TARGET="_blank">here</A>.</P><P>Also 
+available is a <A HREF="Tutorials/index.html">short tutorial</A> which will give 
+you a quick overview of the engine and how to use it. </P><p align="left" CLASS="MainHeader">Keeping 
+Up To Date</p><p align="left">The best place to keep up to date with developments 
+on OGRE is the <A HREF="http://ogre.sourceforge.net">Official Web Site</A>. From 
+there you can download the latest source code and documentation. You can choose 
+between keeping bang up to date with CVS (Concurrent Versioning System) or by 
+just getting the regularly released snapshots.</p><p align="left">The changes 
+included in this current version can be viewed on the <A HREF="ChangeLog.html"> 
+ChangeLog</A>. </p><p align="left" CLASS="MainHeader">Contributing</p><p align="left">If 
+you would like to contribute to the development of OGRE, please contact Steve 
+Streeting at <A HREF="mailto:steve@stevestreeting.com">steve@stevestreeting.com</A>. 
+</p><p align="left" CLASS="MainHeader">Reporting a bug or requesting a feature</p><p align="left">This 
+can be done through the Sourceforge project site, which you can find at <A HREF="http://sourceforge.net/projects/ogre">http://sourceforge.net/projects/ogre</A>.</p><p align="left" CLASS="MainHeader">Licensing</p><P>OGRE 
+is distributed as free software under the GNU Public License (see <A HREF="License.html">License.html</A>). 
+In summary this means that if you distribute any software based on OGRE, you must 
+release the source code for this software under the GPL. If you make any changes 
+or enhancements to OGRE, you must release the changes back into into the public 
+domain and make it clear where you have made the changes. </P><P>If you do not 
+distribute your application, you do not have to release your source. If you want 
+to distribute your application but do not wish to release your source under the 
+GPL (e.g. some commercial projects may not wish to release their source) please 
+contact me. I may allow Ogre to be released in parallel under an alternative license 
+if there is the demand, whilst always keeping a GPL'ed version available for open 
+source developers. Any fees / royalties for this closed source license (because 
+the projects using it will certainly be charging for the end result) will be subject 
+to negotiation, but I would intend to make it particularly appropriate for shareware 
+authors for whom commercial engines are out of the question. If you wish to license 
+OGRE for a closed-source project please contact me at <A HREF="mailto:steve@stevestreeting.com">steve@stevestreeting.com</A>.</P><P>This 
+program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+PURPOSE. See the GNU General Public License for more details.</P><P>You should 
+have received a copy of the GNU General Public License along with this program; 
+if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, 
+Boston, MA 02111-1307, USA, or go to <A HREF="http://www.gnu.org/copyleft/gpl.html">http://www.gnu.org/copyleft/gpl.html</A>.</P><P>In 
+addition, if you use Ogre I request that you<I><B></B></I> display the Ogre logo 
+somewhere in your application (start up or shutdown) for a minimum of 2 seconds. 
+This splash-screen is displayed on the standard Ogre configuration dialog anyway, 
+so if you use that you don't need to do anything extra. The logo is included in 
+the download archive as Examples\Resources\ogrelogo.png.</P><P>Some textures distrubuted 
+with Ogre are used with permission of <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A> 
+and may not be re-distributed, sold, or given away except in the form of rendered 
+images, animations, or real time 3D applications when credit is given to <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A>.</P><p align="left" CLASS="MainHeader"><a name="ack"></a>Acknowledgements</p><p>The 
+author wishes to credit the following for their work which is used in whole or 
+in part in OGRE:</p><p>Artwork:</p><UL><LI>Matt Anderson at <A HREF="http://www.The3dStudio.com">www.The3dStudio.com</A> 
+who kindly gave permission for the use of some textures</LI><LI>Paul Bourke at 
+<A HREF="http://astronomy.swin.edu.au/~pbourke/">http://astronomy.swin.edu.au/~pbourke/</A> 
+for the textures used in the landscape demo. These textures "are provided for 
+personal, non-commercial use only".</LI><LI>Jonathan Clark at <A HREF="http://www.jonathanclark.com">http://www.jonathanclark.com</A> 
+for some Golgotha textures thet were released to the public domain.</LI><LI>The 
+'Raptor Assault Gunboat' mesh & texture are &copy; 2002 by Adrian 'cearny' Cearn&#x0103;u.</LI></UL><p>Included 
+as source (modified as appropriate), and credited appropriately in the source 
+files affected:</p><ul> <li>Many of the maths/spatial routines are &copy; Dr D.H. 
+Eberley, adapted from the 'free' parts of the Wild Magic engine 0.2 source provided 
+with his book &quot;3D Engine Design&quot; (<a href="http://www.wild-magic.com/">http://www.wild-magic.com/</a>)</li><li>3D 
+Studio conversion routines are based on work by Matthew Fairfax (no known web 
+address)</li><li>Quake3 loading routines used a lot of information gleaned from 
+<a href="http://www.planetquake.com/aftershock/">Aftershock</a> and <a href="http://strony.poland.com/bsekura/">Bart 
+Sekura's ROGL</a></li><li>Singleton template class is &copy; Scott Bilas 2000 
+from Game Programming Gems </li></ul><p>Source not modified, but linked in as 
+part of the complete OGRE system:</p><ul> <li>Compression is courtesy of the zlib 
+compression library &copy; 1995-1998 Jean-loup Gailly and Mark Adler (<a href="http://www.gzip.org/zlib">http://www.gzip.org/zlib</a>)</li><li>JPEG 
+image loading is provided by jpeglib &copy; 1991-1998, Thomas G. Lane &amp; the 
+Independent JPEG Group (<a href="http://www.ijg.org">http://www.ijg.org</a>)</li><li>PNG 
+image loading comes from libpng &copy; 1998, 1999 Glenn Randers-Pehrson (<a href="http://libpng.sourceforge.net">http://libpng.sourceforge.net</a>)</li><li>Integration 
+with the Python scripting language is provided by the <a href="http://boost.org">Boost 
+Python</a> library.</li><li>ZIP archive support is &copy; Gilles Vollant 1998 
+(<a href="http://www.winimage.com/zLibDll/unzip.htm">http://www.winimage.com/zLibDll/unzip.htm</a>)</li></ul><p>Standalone 
+tools used:</p><ul> <li>Document generation from C++ source code is by Doxygen 
+&copy; Dimitri van Heesch (<a href="http://www.doxygen.org">http://www.doxygen.org</a>)</li></ul><p>And 
+I'd also like to thank the following just for inspiration, ideas, and pretty much 
+anything else:</p><ul> <li>Scott Meyers for his superb 'Effective C++' series</li><li>Everybody 
+who has ever written for Game Developer magazine, but particularly Chris Hecker 
+and Jeff Lander whose work is consistently enlightening</li><li>Michael Abrash 
+for his 'Zen' books which inspired me to try graphics programming in the first 
+place</li><li>Everybody at SourceForge and VA Linux for providing <b>fantastic</b> 
+facilities for developers with modest budgets</li><li>Scott Adams (Dilbert) for 
+providing a humourous distraction when I've had enough for the day</li><li>My 
+fianc&eacute;e Marie for putting up with all this!</li></ul><p> Copyright &copy; 
+2002 by The OGRE Team<br /> <script type="text/javascript">
+<!--//hide script from old browsers
+document.write( "Last modified "+ document.lastModified );
+//end hiding contents -->
+</script> </p>
+</body>
+</html>

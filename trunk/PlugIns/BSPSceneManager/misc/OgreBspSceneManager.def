@@ -1,0 +1,4 @@
+LIBRARY Plugin_BSPSceneManager
+EXPORTS	
+	dllStartPlugin
+	dllStopPlugin

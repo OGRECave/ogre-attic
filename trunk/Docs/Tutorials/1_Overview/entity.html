@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>Tutorial: The Mesh Object</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Tutorial 
+1 - Overview<BR>The Entity Object</p><p align="left" class="MainHeader">&nbsp;</p><P ALIGN="LEFT" CLASS="SectionHeader">The 
+Entity object</P><P ALIGN="LEFT">An entity is an instance of a movable object 
+in the scene. It could be a car, a person, a dog, a shuriken, whatever. The only 
+assumption is that it does not necessarily have a fixed position in the world.</P><P ALIGN="LEFT">Entities 
+are based on discrete meshes, i.e. collections of geometry which are self-contained 
+and typically fairly small on a world scale, which are represented by the Mesh 
+object. Multiple entities can be based on the same mesh, since often you want 
+to create multiple copies of the same type of object in a scene.</P><P ALIGN="LEFT">You 
+create an entity by calling the SceneManager::createEntity method, giving it a 
+name and specifying the name of the mesh object which it will be based on (e.g. 
+'muscleboundhero.oof'). The SceneManager will ensure that the mesh is loaded by 
+calling the MeshManager resource manager for you. Only one copy of the Mesh will 
+be loaded. </P><P ALIGN="LEFT">Entities are not deemed to be a part of the scene 
+until you attach them to a SceneNode (see the section below). By attaching entities 
+to SceneNodes, you can create complex hierarchical relationships between the positions 
+and orientations of entities. You then modify the positions of the nodes to indirectly 
+affect the entity positions.</P><P ALIGN="LEFT">When a Mesh is loaded, it automatically 
+comes with a number of materials defined. It is possible to have more than one 
+material attached to a mesh - different parts of the mesh may use different materials. 
+Any entity created from the mesh will automatically use the default materials. 
+However, you can change this on a per-entity basis if you like so you can create 
+a number of entities based on the same mesh but with different textures etc.</P><P ALIGN="LEFT">To 
+understand how this works, you have to know that all Mesh objects are actually 
+composed of SubMesh objects, each of which represents a part of the mesh using 
+one Material. If a Mesh uses only one Material, it will only have one SubMesh. 
+</P><P ALIGN="LEFT">When an Entity is created based on this Mesh, it is composed 
+of (possibly) multiple SubEntity objects, each matching 1 for 1 with the SubMesh 
+objects from the original Mesh. You can access the SubEntity objects using the 
+Entity::getSubEntity method. Once you have a reference to a SubEntity, you can 
+change the material it uses by calling it's setMaterialName method. In this way 
+you can make an Entity deviate from the default materials and thus create an individual 
+looking version of it.</P><P ALIGN="LEFT" CLASS="SectionHeader">&nbsp;</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
+to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="3ds2oof.html">&lt;&lt; 
+Previous section</A></TD><TD WIDTH="25%"><A HREF="material.html">Next section 
+&gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
+</body>
+</html>
