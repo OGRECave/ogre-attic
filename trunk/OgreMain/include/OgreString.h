@@ -29,8 +29,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+#if OGRE_WCHAR_T_STRINGS
+    typedef std::wstring _StringBase;
+#else
     typedef std::string _StringBase;
-
+#endif
 }
 
 // If we're using the GCC 3.1 C++ Std lib
