@@ -68,6 +68,15 @@ namespace Ogre {
         virtual void* lock(size_t offset, size_t length, LockOptions options);
         
         const PixelBox &getCurrentLock();
+        
+        /**
+         * Blits a box from the source PixelBuffer to a region of the destination 
+         * PixelBuffer. Only call this function when both buffers are unlocked. 
+         * Source and target boxes must be equally sized.
+         * Implementations can override this, otherwise software implementation
+         * will be used
+         */        
+        virtual void blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox);
     };
 
     /** Shared pointer implementation used to share pixel buffers. */

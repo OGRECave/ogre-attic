@@ -85,7 +85,8 @@ namespace Ogre
     }
     
     //-----------------------------------------------------------------------------    
-    const PixelBox &HardwarePixelBuffer::getCurrentLock() { 
+    const PixelBox &HardwarePixelBuffer::getCurrentLock() 
+	{ 
         assert(isLocked() && "Cannot get current lock: buffer not locked");
         
         return mCurrentLock; 
@@ -98,6 +99,33 @@ namespace Ogre
         Except(Exception::ERR_INTERNAL_ERROR, "lockImpl(offset,length) is not valid for PixelBuffers and should never be called",
             "HardwarePixelBuffer::lockImpl");
     }
+
+    //-----------------------------------------------------------------------------    
+
+    void HardwarePixelBuffer::blit(const Image::Box &srcBox, HardwarePixelBuffer *dst, const Image::Box &dstBox)
+	{
+		if(isLocked() || dst->isLocked())
+		{
+			Except(Exception::ERR_INTERNAL_ERROR,
+				"Source and destination buffer may not be locked!",
+				"HardwarePixelBuffer::blit");
+		}
+		const PixelBox &srclock = lock(srcBox, HBL_READ_ONLY);
+
+		LockOptions method = HBL_NORMAL;
+		if(dstBox.left == 0 && dstBox.top == 0 && dstBox.front == 0 &&
+		   dstBox.right == dst->mWidth && dstBox.bottom == dst->mHeight &&
+		   dstBox.back == dst->mDepth)
+			// Entire buffer -- we can discard the previous contents
+			method = HBL_DISCARD;
+			
+		const PixelBox &dstlock = dst->lock(dstBox, method);
+
+		PixelUtil::bulkPixelConversion(srclock, dstlock);
+
+		unlock();
+		dst->unlock();
+	}
     
     //-----------------------------------------------------------------------------    
     
@@ -106,4 +134,5 @@ namespace Ogre
     {
 
     }    
+
 };
