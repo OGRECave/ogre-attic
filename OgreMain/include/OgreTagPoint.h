@@ -67,9 +67,11 @@ namespace Ogre	{
 
         void _update(bool updateChildren, bool parentHasChanged);
 
+        /** Gets the transform of this node including the parent entity and skeleton. */
         Matrix4 _getFullTransform(void);
 
-		Matrix4 _getNodeFullTransform(void);
+        /** Gets the transform of this node just for the skeleton (not entity) */
+		Matrix4 _getFullLocalTransform(void);
 
         void needUpdate();
 
@@ -79,6 +81,7 @@ namespace Ogre	{
 	private:
 		Entity *mParentEntity;
 		MovableObject *mChildObject;
+        mutable Matrix4 mFullLocalTransform;
 		
 	};
 

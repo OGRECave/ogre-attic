@@ -70,9 +70,9 @@ Matrix4 TagPoint::_getFullTransform(void)
     return Node::_getFullTransform();
 }
 
-Matrix4 TagPoint::_getNodeFullTransform(void)
+Matrix4 TagPoint::_getFullLocalTransform(void)
 {
-	return Node::_getFullTransform();
+	return mFullLocalTransform;
 }
 
 
@@ -111,6 +111,9 @@ void TagPoint::_updateFromParent(void) const
 {
     // Call superclass
     Bone::_updateFromParent();
+
+    // Save transform for local skeleton
+    makeTransform(mDerivedPosition, mDerivedScale, mDerivedOrientation, mFullLocalTransform);
 
     // Include Entity transform
     if (mParentEntity)
