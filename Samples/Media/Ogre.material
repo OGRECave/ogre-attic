@@ -27,7 +27,7 @@ Ogre/Tusks
 	ambient 0.5 0.5 0.4
 	diffuse 1.0 1.0 0.8
 	{
-		texture Dirt01.jpg
+		texture dirt01.jpg
 		colour_op add
 	}
 
