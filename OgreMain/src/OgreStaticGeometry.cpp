@@ -152,7 +152,7 @@ namespace Ogre {
 			str << mName << ":" << index;
 			// Calculate the region centre
 			Vector3 centre = getRegionCentre(x, y, z);
-			ret = new Region(str.str(), mOwner, index, centre);
+			ret = new Region(this, str.str(), mOwner, index, centre);
 			ret->setVisible(mVisible);
 			if (mRenderQueueIDSet)
 			{
@@ -584,11 +584,11 @@ namespace Ogre {
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
-	StaticGeometry::Region::Region(const String& name, SceneManager* mgr, 
-		uint32 regionID, const Vector3& centre) 
-		: mName(name), mSceneMgr(mgr), mNode(0), mRegionID(regionID), 
-		mCentre(centre), mBoundingRadius(0.0f), mCurrentLod(0), 
-		mLightListUpdated(0)
+	StaticGeometry::Region::Region(StaticGeometry* parent, const String& name, 
+		SceneManager* mgr, uint32 regionID, const Vector3& centre) 
+		: mParent(parent), mName(name), mSceneMgr(mgr), mNode(0), 
+		mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f), 
+		mCurrentLod(0), mLightListUpdated(0), mBeyondFarDistance(false)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -694,12 +694,22 @@ namespace Ogre {
 		// Clamp to 0
 		mCamDistanceSquared = std::max(0.0f, mCamDistanceSquared);
 
-		mCurrentLod = 0;
-		for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
+		Real maxDist = mParent->getSquaredRenderingDistance();
+		if (maxDist && mCamDistanceSquared > maxDist)
 		{
-			if (mLodSquaredDistances[i] > mCamDistanceSquared)
+			mBeyondFarDistance = true;
+		}
+		else
+		{
+			mBeyondFarDistance = false;
+
+			mCurrentLod = 0;
+			for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
 			{
-				mCurrentLod = i - 1;
+				if (mLodSquaredDistances[i] > mCamDistanceSquared)
+				{
+					mCurrentLod = i - 1;
+				}
 			}
 		}
 		
@@ -719,6 +729,11 @@ namespace Ogre {
 	{
 		mLodBucketList[mCurrentLod]->addRenderables(queue, mRenderQueueID, 
 			mCamDistanceSquared);
+	}
+	//--------------------------------------------------------------------------
+	bool StaticGeometry::Region::isVisible(void) const
+	{
+		return mVisible && !mBeyondFarDistance;
 	}
 	//--------------------------------------------------------------------------
 	StaticGeometry::Region::LODIterator 

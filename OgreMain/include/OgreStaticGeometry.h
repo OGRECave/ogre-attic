@@ -337,6 +337,8 @@ namespace Ogre {
 			/// list of LOD Buckets in this region
 			typedef std::vector<LODBucket*> LODBucketList;
 		protected:
+			/// Parent static geometry
+			StaticGeometry* mParent;
 			/// Generated name
 			String mName;
 			/// Scene manager link
@@ -365,11 +367,13 @@ namespace Ogre {
 			mutable LightList mLightList;
 			/// The last frame that this light list was updated in
 			mutable ulong mLightListUpdated;
+			/// Hidden because of distance?
+			bool mBeyondFarDistance;
 
 
 		public:
-			Region(const String& name, SceneManager* mgr, uint32 regionID, 
-				const Vector3& centre);
+			Region(StaticGeometry* parent, const String& name, SceneManager* mgr, 
+				uint32 regionID, const Vector3& centre);
 			virtual ~Region();
 			// more fields can be added in subclasses
 			
@@ -387,6 +391,7 @@ namespace Ogre {
 			const AxisAlignedBox& getBoundingBox(void) const;
 			Real getBoundingRadius(void) const;
 			void _updateRenderQueue(RenderQueue* queue);
+			bool isVisible(void) const;
 
 			typedef VectorIterator<LODBucketList> LODIterator;
 			/// Get an iterator over the LODs in this region
@@ -600,6 +605,10 @@ namespace Ogre {
 
 		/** Gets the distance at which batches are no longer rendered. */
 		virtual Real getRenderingDistance(void) const { return mUpperDistance; }
+
+		/** Gets the squared distance at which batches are no longer rendered. */
+		virtual Real getSquaredRenderingDistance(void) const 
+		{ return mSquaredUpperDistance; }
 
 		/** Hides or shows all the batches. */
 		virtual void setVisible(bool visible);
