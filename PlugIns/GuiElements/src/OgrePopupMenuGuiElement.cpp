@@ -61,6 +61,7 @@ namespace Ogre {
 		mSelectedMenuItem = new StringResource("");
 		mSeparatormenuItem = new StringResource("-----------------------");
 		setSource(this);
+		addMouseMotionListener(this);
 	}
 
     //---------------------------------------------------------------------
@@ -294,8 +295,9 @@ namespace Ogre {
 		_update();
 	}
 
+	void PopupMenuGuiElement::mouseDragged(MouseEvent* e) {}
 
-	void PopupMenuGuiElement::mouseMoved(InputEvent* e) 
+	void PopupMenuGuiElement::mouseMoved(MouseEvent* e) 
 	{
 		MouseEvent* me = static_cast<MouseEvent*>(e);
 		GuiElement* newSelect = GuiContainer::findElementAt(me->getX(), me->getY());
@@ -391,6 +393,16 @@ namespace Ogre {
 	{
 		// do later
 	}
+	void PopupMenuGuiElement::setSelectedItem(Resource* r)
+	{
+		// do later
+	}
+
+	void PopupMenuGuiElement::setSelectedItem(GuiElement* item)
+	{
+		// do later
+	}
+
 	void PopupMenuGuiElement::setSelectedItem(GuiElement* item, bool on)
 	{
 		if (on)

@@ -93,7 +93,8 @@ namespace Ogre {
 		void createElements();
 		void setLimits(int first, int visibleRange, int total);
 		void layoutItems();
-    void updateScrollBit();
+		void updateScrollBit();
+		void scrollToIndex(int index);
 
         /** See GuiElement. */
         virtual const String& getTypeName(void);
@@ -107,9 +108,9 @@ namespace Ogre {
 		void mouseExited(MouseEvent* e) {};
 		void mousePressed(MouseEvent* e) ;
 		void mouseReleased(MouseEvent* e) ;
+		void moveScrollBitTo(Real moveY);
 
     protected:
-		void moveScrollBitTo(Real moveY);
 
 	    void addBaseParameters(void);
         static CmdUpButton msCmdUpButton;
