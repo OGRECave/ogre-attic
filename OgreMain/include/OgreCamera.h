@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlane.h"
 #include "OgreQuaternion.h"
 #include "OgreCommon.h"
+#include "OgreFrustum.h"
 
 
 namespace Ogre {
@@ -49,17 +50,6 @@ namespace Ogre {
         PT_PERSPECTIVE
     };
 
-    /** Worldspace clipping planes.
-    */
-    enum FrustumPlane
-    {
-        FRUSTUM_PLANE_NEAR   = 0,
-        FRUSTUM_PLANE_FAR    = 1,
-        FRUSTUM_PLANE_LEFT   = 2,
-        FRUSTUM_PLANE_RIGHT  = 3,
-        FRUSTUM_PLANE_TOP    = 4,
-        FRUSTUM_PLANE_BOTTOM = 5
-    };
 
     /** A viewpoint from which the scene will be rendered.
         @remarks

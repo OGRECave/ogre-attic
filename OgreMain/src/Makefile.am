@@ -38,6 +38,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreException.cpp \
                          OgreFont.cpp \
                          OgreFontManager.cpp \
+						 OgreFrustum.cpp \
                          OgreGpuProgram.cpp \
                          OgreGpuProgramManager.cpp \
                          OgreGpuProgramUsage.cpp \
