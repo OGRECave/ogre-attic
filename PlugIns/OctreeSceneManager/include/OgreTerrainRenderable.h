@@ -44,6 +44,8 @@ terrainrenderable.h  -  description
 
 #include <vector>
 
+#define MORPH_CUSTOM_PARAM_ID 77
+
 namespace Ogre
 {
 
@@ -345,6 +347,7 @@ protected:
 
     int mNumMipMaps;
     int mRenderLevel;
+    int mLastNextLevel; // frame coherency, remember last morph target
     Real mLODMorphFactor;
 
     Real *mMinLevelDistSqr;

@@ -235,7 +235,11 @@ void TerrainSceneManager::setupTerrainMaterial(void)
         if (mOptions.lodMorph)
         {
             // Create & assign LOD morphing vertex program
+            
 
+            // Set param index
+            mLodMorphParamName = "";
+            mLodMorphParamIndex = 4;
         }
 
         mTerrainMaterial->load();
@@ -247,6 +251,49 @@ void TerrainSceneManager::setupTerrainMaterial(void)
         mTerrainMaterial = static_cast<Material*>(
             MaterialManager::getSingleton().getByName(mCustomMaterialName));
         mTerrainMaterial->load();
+
+    }
+
+    // now set up the linkage between vertex program and LOD morph param
+    if (mOptions.lodMorph)
+    {
+        Technique* t = mTerrainMaterial->getBestTechnique();
+        for (ushort i = 0; i < t->getNumPasses(); ++i)
+        {
+            Pass* p = t->getPass(i);
+            if (p->hasVertexProgram())
+            {
+                // we have to assume vertex program includes LOD morph capability
+                GpuProgramParametersSharedPtr params = 
+                    p->getVertexProgramParameters();
+                // Check to see if custom param is already there
+                GpuProgramParameters::AutoConstantIterator aci = params->getAutoConstantIterator();
+                bool found = false;
+                while (aci.hasMoreElements())
+                {
+                    GpuProgramParameters::AutoConstantEntry& ace = aci.getNext();
+                    if (ace.paramType == GpuProgramParameters::ACT_CUSTOM && 
+                        ace.data == MORPH_CUSTOM_PARAM_ID)
+                    {
+                        found = true;
+                    }
+                }
+                if (!found)
+                {
+                    if(mLodMorphParamName != "")
+                    {
+                        params->setNamedAutoConstant(mLodMorphParamName, 
+                            GpuProgramParameters::ACT_CUSTOM, MORPH_CUSTOM_PARAM_ID);
+                    }
+                    else
+                    {
+                        params->setAutoConstant(mLodMorphParamIndex, 
+                            GpuProgramParameters::ACT_CUSTOM, MORPH_CUSTOM_PARAM_ID);
+                    }
+                }
+
+            }
+        }
     }
 
 }
