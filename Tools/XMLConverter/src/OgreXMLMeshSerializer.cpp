@@ -785,6 +785,8 @@ namespace Ogre {
                             Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <texcoord> element.",
                                 "XMLSerializer::readGeometry");
                         }
+						// Record the latest texture coord entry
+						texCoordElem = xmlElem;
                         elem.baseVertexPointerToElement(pVert, &pReal);
 
                         *pReal++ = StringConverter::parseReal(
