@@ -40,9 +40,8 @@ namespace Ogre {
         D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice);
         virtual ~D3DTexture();
         void load(void);
-        /** Overridden - see Texture. */
-        void loadRawRGB(void* buffer, int width, int height);
-        void loadRawRGBA( void *buffer, int width, int height );
+        void loadImage( const Image &img );
+        void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );        
         void unload(void);
 
         // D3D-specific
