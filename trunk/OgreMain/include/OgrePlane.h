@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __Plane_H__
 #define __Plane_H__
 
-#include <vector>
 #include "OgrePrerequisites.h"
 
 #include "OgreVector3.h"

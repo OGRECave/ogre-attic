@@ -32,7 +32,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix4.h"
 #include "OgreMaterial.h"
 #include "OgrePlane.h"
-#include "OgreRectangle.h"
 #include "OgreGpuProgram.h"
 #include "OgreVector4.h"
 #include "OgreException.h"

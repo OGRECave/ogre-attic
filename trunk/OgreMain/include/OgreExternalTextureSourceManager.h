@@ -37,8 +37,6 @@ email                : pjcast@yahoo.com
 #include "OgreString.h"
 #include "OgreExternalTextureSource.h"
 
-#include <map>
-
 namespace Ogre
 {
 	/** 
@@ -53,19 +51,19 @@ namespace Ogre
 		~ExternalTextureSourceManager();
 
 		/** ie. "video", "effect", "generic", etc.. */
-		void SetCurrentPlugIn( String sTexturePlugInType );
+		void SetCurrentPlugIn( const String& sTexturePlugInType );
 
 		/** Returns currently selected plugin, may be null if none selected */
 		ExternalTextureSource* getCurrentPlugIn() { return mpCurrExternalTextureSource; }
 	
 		/** Destroys a texture created by one of the registered controllers */
-		void DestroyAdvancedTexture( String sTextureName );
+		void DestroyAdvancedTexture( const String& sTextureName );
 
 		/** Returns the VideoSystem which reistered itself with a specific name ("wideo"), or null if none */
-		ExternalTextureSource* getExternalTextureSource( String sTexturePlugInType );
+		ExternalTextureSource* getExternalTextureSource( const String& sTexturePlugInType );
 
 		/** Called from VideoSystem plugin to register itself */
-		void setExternalTextureSource( String sTexturePlugInType, ExternalTextureSource* pTextureSystem );
+		void setExternalTextureSource( const String& sTexturePlugInType, ExternalTextureSource* pTextureSystem );
 
         /** Override standard Singleton retrieval.
         @remarks

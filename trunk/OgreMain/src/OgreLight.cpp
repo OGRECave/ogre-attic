@@ -310,7 +310,7 @@ namespace Ogre {
 		return ret;
 	}
     //-----------------------------------------------------------------------
-    const PlaneBoundedVolume& Light::_getNearClipVolume(const Camera* cam) const
+    const PlaneBoundedVolume& Light::_getNearClipVolume(const Camera* const cam) const
     {
         // First check if the light is close to the near plane, since
         // in this case we have to build a degenerate clip volume
@@ -407,7 +407,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    const PlaneBoundedVolumeList& Light::_getFrustumClipVolumes(const Camera* cam) const
+    const PlaneBoundedVolumeList& Light::_getFrustumClipVolumes(const Camera* const cam) const
     {
 
         // Homogenous light position

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreNode.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreAxisAlignedBox.h"
 
 namespace Ogre {
 

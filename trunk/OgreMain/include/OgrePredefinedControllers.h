@@ -27,9 +27,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
+#include "OgreCommon.h"
 #include "OgreController.h"
 #include "OgreFrameListener.h"
-#include "OgreMaterial.h"
 #include "OgreGpuProgram.h"
 
 namespace Ogre {

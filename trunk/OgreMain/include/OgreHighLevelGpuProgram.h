@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __HighLevelGpuProgram_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreResource.h"
 #include "OgreGpuProgram.h"
 #include "OgreStringInterface.h"
 
