@@ -426,6 +426,8 @@ namespace Ogre {
             mOverlayManager->parseAllSources();
         }
 
+        // Initialise timer
+        Timer::getSingleton().reset();
         return retWin;
 
     }

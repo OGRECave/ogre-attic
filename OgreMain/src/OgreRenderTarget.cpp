@@ -221,8 +221,6 @@ namespace Ogre {
 		bool needUpdate ;
 
 		if (firstRun) { 
-			//reset timer
-			mTimer->reset();
 			firstRun = false ;
 			needUpdate = true ;
 		} else { 
