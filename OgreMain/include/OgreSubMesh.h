@@ -123,7 +123,15 @@ namespace Ogre {
         */
         void clearBoneAssignments(void);
 
+        /// Multimap of verex bone assignments (orders by vertex index)
+        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+        typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
 
+        /** Gets an iterator for access all bone assignments. 
+        @remarks
+            Only valid if this SubMesh has dedicated geometry.
+        */
+        BoneAssignmentIterator getBoneAssignmentIterator(void);
 
     protected:
 
@@ -133,8 +141,6 @@ namespace Ogre {
         /// Is there a material yet?
         bool mMatInitialised;
 
-        /// Multimap of verex bone assignments (orders by vertex index)
-        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
        
         VertexBoneAssignmentList mBoneAssignments;
 

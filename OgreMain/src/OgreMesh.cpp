@@ -62,7 +62,7 @@ namespace Ogre {
         // Default to load from file
         mManuallyDefined = false;
         mUpdateBounds = true;
-        mSkeleton = 0;
+        setSkeletonName("");
         mBoneAssignmentsOutOfDate = false;
 
     }
@@ -505,6 +505,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::setSkeletonName(const String& skelName)
     {
+        mSkeletonName = skelName;
+
         if (skelName == "")
         {
             // No skeleton
@@ -513,7 +515,19 @@ namespace Ogre {
         else
         {
             // Load skeleton
-            mSkeleton = SkeletonManager::getSingleton().load(skelName);
+            try {
+                mSkeleton = SkeletonManager::getSingleton().load(skelName);
+            }
+            catch (...)
+            {
+                mSkeleton = 0;
+                // Log this error
+                String msg = "Unable to load skeleton ";
+                msg << skelName << " for Mesh " << mName
+                    << " This Mesh will not be animated. ";
+                LogManager::getSingleton().logMessage(msg);
+
+            }
 
 
         }
@@ -521,7 +535,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Mesh::hasSkeleton(void) const
     {
-        return mSkeleton != 0;
+        return !(mSkeletonName.empty());
     }
     //-----------------------------------------------------------------------
     Skeleton* Mesh::getSkeleton(void) const
@@ -656,6 +670,18 @@ namespace Ogre {
     void Mesh::_notifySkeleton(Skeleton* pSkel)
     {
         mSkeleton = pSkel;
+        mSkeletonName = pSkel->getName();
+    }
+    //---------------------------------------------------------------------
+    Mesh::BoneAssignmentIterator Mesh::getBoneAssignmentIterator(void)
+    {
+        return BoneAssignmentIterator(mBoneAssignments.begin(),
+            mBoneAssignments.end());
+    }
+    //---------------------------------------------------------------------
+    const String& Mesh::getSkeletonName(void) const
+    {
+        return mSkeletonName;
     }
 
 }
