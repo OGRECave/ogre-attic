@@ -284,6 +284,9 @@ namespace Ogre {
         */
         void _notifyCurrentCamera(Camera* cam);
 
+        /// Overridden - see MovableObject.
+        void setRenderQueueGroup(RenderQueueGroupID queueID);
+        
         /** Overridden - see MovableObject.
         */
         const AxisAlignedBox& getBoundingBox(void) const;
