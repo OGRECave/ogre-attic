@@ -842,6 +842,7 @@ namespace Ogre {
 			}
 			delete j->second;
 		}
+        grp->loadResourceOrderMap.clear();
 	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::deleteGroup(ResourceGroup* grp)
