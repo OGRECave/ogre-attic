@@ -222,7 +222,7 @@ namespace Ogre {
         WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
                               LoadIcon( NULL, "IDI_ICON1" ),
                               LoadCursor(NULL, IDC_ARROW),
-                              (HBRUSH)GetStockObject(WHITE_BRUSH), NULL,
+                              (HBRUSH)GetStockObject(BLACK_BRUSH), NULL,
                               TEXT(name.c_str()) };
         RegisterClass( &wndClass );
 

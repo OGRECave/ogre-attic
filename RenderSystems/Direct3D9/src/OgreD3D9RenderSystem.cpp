@@ -782,8 +782,8 @@ namespace Ogre
 			case Light::LT_SPOTLIGHT:
 				d3dLight.Type = D3DLIGHT_SPOT;
 				d3dLight.Falloff = lt->getSpotlightFalloff();
-				d3dLight.Theta = Math::getSingleton().DegreesToRadians( lt->getSpotlightInnerAngle() );
-				d3dLight.Phi = Math::getSingleton().DegreesToRadians( lt->getSpotlightOuterAngle() );
+				d3dLight.Theta = Math::getSingleton().AngleUnitsToRadians( lt->getSpotlightInnerAngle() );
+				d3dLight.Phi = Math::getSingleton().AngleUnitsToRadians( lt->getSpotlightOuterAngle() );
 				break;
 			}
 
@@ -2094,7 +2094,7 @@ namespace Ogre
 
 	void D3D9RenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest)
 	{
-		Real theta = Math::DegreesToRadians(fovy * 0.5);
+        Real theta = Math::AngleUnitsToRadians(fovy * 0.5);
 		Real h = 1 / Math::Tan(theta);
 		Real w = h / aspect;
 		Real Q = farPlane / ( farPlane - nearPlane );

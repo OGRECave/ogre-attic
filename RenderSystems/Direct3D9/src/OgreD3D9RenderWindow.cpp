@@ -196,7 +196,7 @@ namespace Ogre
 			WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
 				LoadIcon( NULL, "IDI_ICON1" ),
 				LoadCursor( NULL, IDC_ARROW ),
-				(HBRUSH)GetStockObject( WHITE_BRUSH ), NULL,
+				(HBRUSH)GetStockObject( BLACK_BRUSH ), NULL,
 				TEXT(name.c_str()) };
 			RegisterClass( &wndClass );
 
@@ -231,8 +231,24 @@ namespace Ogre
 			mIsFullScreen = fullScreen;
 		}
 
+		if( fullScreen )
+		{
+			mColourDepth = colourDepth;
+			mLeft = 0;
+			mTop = 0;
+		}
+		else
+		{
+			// Get colour depth from display
+			HDC hdc = GetDC( mHWnd );
+			mColourDepth = GetDeviceCaps( hdc, BITSPIXEL );
+			ReleaseDC( mHWnd, hdc );
+			mTop = top;
+			mLeft = left;
+		}
+
 		LogManager::getSingleton().logMessage(
-			LML_NORMAL, "Created D3D9 Rendering Window '%s' : %i x %i @ %ibpp",
+			LML_NORMAL, "Created D3D9 Rendering Window '%s' : %ix%i, %ibpp",
 			mName.c_str(), mWidth, mHeight, mColourDepth );
 
 		if( driver && mParentHWnd == NULL )
@@ -466,27 +482,90 @@ namespace Ogre
 	void D3D9RenderWindow::writeContentsToFile(const String& filename)
 	{
 		HRESULT hr;
-		LPDIRECT3DSURFACE9 pSurf, pTempSurf;
+		LPDIRECT3DSURFACE9 pSurf=NULL, pTempSurf=NULL;
 		D3DSURFACE_DESC desc;
+		D3DDISPLAYMODE dm;
 
-		// Get the back buffer
-		if (FAILED(hr = mpD3DDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurf)))
-			Except(hr, "Cannot access back buffer!", "D3D9RenderWindow::writeContentsToFile");
+		// get display dimensions
+		// this will be the dimensions of the front buffer
+		if (FAILED(hr = mpD3DDevice->GetDisplayMode(0, &dm)))
+			Except(hr, "Can't get display mode!", "D3D9RenderWindow::writeContentsToFile");
 
-		if (FAILED(hr = pSurf->GetDesc(&desc)))
-			Except(hr, "Cannot get surface description.", "D3D9RenderWindow::writeContentsToFile");
+		desc.Width = dm.Width;
+		desc.Height = dm.Height;
+		desc.Format = D3DFMT_A8R8G8B8;
+		if (FAILED(hr = mpD3DDevice->CreateOffscreenPlainSurface(
+						desc.Width, 
+						desc.Height, 
+						desc.Format, 
+						D3DPOOL_SYSTEMMEM, 
+						&pTempSurf, 
+						NULL)))
+		{
+			Except(hr, "Cannot create offscreen buffer 1!", "D3D9RenderWindow::writeContentsToFile");
+		}
 
-		// NB we can't lock the back buffer direct because it's no created that way
-		// and to do so hits performance, so copy to another surface
-		// Must be the same format as the source surface
-		hr = mpD3DDevice->CreateOffscreenPlainSurface(desc.Width, desc.Height, desc.Format, D3DPOOL_SCRATCH, &pTempSurf, NULL);
+		if (FAILED(hr = mpD3DDevice->GetFrontBufferData(0, pTempSurf)))
+		{
+			SAFE_RELEASE(pTempSurf);
+			Except(hr, "Can't get front buffer!", "D3D9RenderWindow::writeContentsToFile");
+		}
 
-		// Copy
-		hr = mpD3DDevice->UpdateSurface(pSurf, NULL, pTempSurf, NULL);
+		if (!mIsFullScreen)
+		{
+			D3DVIEWPORT9 vp;
+			if (FAILED(hr = mpD3DDevice->GetViewport(&vp)))
+			{
+				SAFE_RELEASE(pTempSurf);
+				Except(hr, "Can't get viewport!", "D3D9RenderWindow::writeContentsToFile");
+			}
+
+			desc.Width = vp.Width;
+			desc.Height = vp.Height;
+			desc.Format = D3DFMT_A8R8G8B8;         // this is what we get from the screen, so stick with it
+
+			// NB we can't lock the back buffer direct because it's no created that way
+			// and to do so hits performance, so copy to another surface
+			// Must be the same format as the source surface
+			if (FAILED(hr = mpD3DDevice->CreateOffscreenPlainSurface(
+							desc.Width, 
+							desc.Height, 
+							desc.Format, 
+							D3DPOOL_DEFAULT, 
+							&pSurf,
+							NULL)))
+			{
+				SAFE_RELEASE(pSurf);
+				Except(hr, "Cannot create offscreen buffer 2!", "D3D9RenderWindow::writeContentsToFile");
+			}
+
+			POINT pt={0, 0};
+			RECT srcRect;
+
+			srcRect.left = vp.X;
+			srcRect.top = vp.Y;
+			srcRect.right = srcRect.left + vp.Width;
+			srcRect.bottom = srcRect.top + vp.Height;
+
+			// Copy
+			if (FAILED(hr = mpD3DDevice->UpdateSurface(pTempSurf, &srcRect, pSurf, &pt)))
+			{
+				SAFE_RELEASE(pTempSurf);
+				SAFE_RELEASE(pSurf);
+				Except(hr, "Cannot update surface!", "D3D9RenderWindow::writeContentsToFile");
+			}
+
+			SAFE_RELEASE(pTempSurf);
+			pTempSurf = pSurf;
+			pSurf = NULL;
+		}
+
 		D3DLOCKED_RECT lockedRect;
-
-		if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_NO_DIRTY_UPDATE)))
-			Except(hr, String("Cannot lock surface: ") + DXGetErrorDescription9( hr ), "D3D9RenderWindow::writeContentsToFile");
+		if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
+			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK | D3DLOCK_NO_DIRTY_UPDATE)))
+		{
+			Except(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
+		} 
 
 		ImageCodec::ImageData imgData;
 		imgData.width = desc.Width;
@@ -545,6 +624,8 @@ namespace Ogre
 					pRow += 3; 
 					break;
 				}
+
+
 			}
 			// increase by one line
 			pData += lockedRect.Pitch;
