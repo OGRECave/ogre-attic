@@ -139,6 +139,12 @@
 				RelativePath="..\src\OgreGLEngineDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLGpuProgram.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreGLGpuProgramManager.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLHardwareBufferManager.cpp">
 			</File>
 			<File
@@ -174,6 +180,12 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\include\OgreGLDefaultHardwareBufferManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLGpuProgram.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLGpuProgramManager.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGLHardwareBufferManager.h">

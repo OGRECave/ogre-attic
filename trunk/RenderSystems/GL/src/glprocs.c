@@ -8831,6 +8831,84 @@ static void APIENTRY InitGetBufferPointervARB (GLenum a, GLenum b, GLvoid* *c)
 
 	glGetBufferPointervARB(a, b, c);
 }
+
+void APIENTRY InitProgramStringARB (GLenum a, GLenum b, GLsizei c, const GLvoid *d)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glProgramStringARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glProgramStringARB = extproc;
+
+	glProgramStringARB(a, b, c, d);
+}
+
+void APIENTRY InitBindProgramARB (GLenum a, GLuint b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glBindProgramARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glBindProgramARB = extproc;
+
+	glBindProgramARB(a, b);
+}
+void APIENTRY InitDeleteProgramsARB (GLsizei a, const GLuint * b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glDeleteProgramsARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glDeleteProgramsARB = extproc;
+
+	glDeleteProgramsARB(a, b);
+}
+void APIENTRY InitGenProgramsARB (GLsizei a, GLuint *b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glGenProgramsARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glGenProgramsARB = extproc;
+
+	glGenProgramsARB(a, b);
+}
+void APIENTRY InitProgramLocalParameter4fvARB (GLenum a, GLuint b, const GLfloat *c)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glProgramEnvParameter4fvARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glProgramLocalParameter4fvARB = extproc;
+
+	glProgramLocalParameter4fvARB(a, b, c);
+}
+
 // END OGRE CHANGES
 
 _GLextensionProcs _extensionProcs = {
@@ -9386,5 +9464,10 @@ _GLextensionProcs _extensionProcs = {
 	InitUnmapBufferARB,
 	InitGetBufferParameterivARB,
 	InitGetBufferPointervARB,
+    InitProgramStringARB, 
+    InitBindProgramARB, 
+    InitDeleteProgramsARB, 
+    InitGenProgramsARB, 
+    InitProgramLocalParameter4fvARB
 	// END OGRE CHANGES
 };

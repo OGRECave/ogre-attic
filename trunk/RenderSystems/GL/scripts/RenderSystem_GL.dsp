@@ -116,6 +116,14 @@ SOURCE=..\src\OgreGLEngineDll.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreGLGpuProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGLGpuProgramManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreGLHardwareBufferManager.cpp
 # End Source File
 # Begin Source File
@@ -173,6 +181,14 @@ SOURCE=..\include\glxext.h
 # Begin Source File
 
 SOURCE=..\include\OgreGLDefaultHardwareBufferManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLGpuProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGLGpuProgramManager.h
 # End Source File
 # Begin Source File
 
