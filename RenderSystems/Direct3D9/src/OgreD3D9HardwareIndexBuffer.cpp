@@ -30,8 +30,9 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer(HardwareIndexBuffer::IndexType idxType, 
-        size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMemory)
-        : HardwareIndexBuffer(idxType, numIndexes, usage, useSystemMemory)
+        size_t numIndexes, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, 
+        bool useSystemMemory, bool useShadowBuffer)
+        : HardwareIndexBuffer(idxType, numIndexes, usage, useSystemMemory, useShadowBuffer)
     {
         // Create the Index buffer
         HRESULT hr = pDev->CreateIndexBuffer(
@@ -57,7 +58,7 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DBuffer);
     }
 	//---------------------------------------------------------------------
-    void* D3D9HardwareIndexBuffer::lock(size_t offset, 
+    void* D3D9HardwareIndexBuffer::lockImpl(size_t offset, 
         size_t length, LockOptions options)
     {
         void* pBuf;
@@ -74,18 +75,14 @@ namespace Ogre {
         }
 
 
-        mIsLocked = true;
-
         return pBuf;
 
 
     }
 	//---------------------------------------------------------------------
-	void D3D9HardwareIndexBuffer::unlock(void)
+	void D3D9HardwareIndexBuffer::unlockImpl(void)
     {
         HRESULT hr = mlpD3DBuffer->Unlock();
-
-        mIsLocked = false;
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareIndexBuffer::readData(size_t offset, size_t length, 

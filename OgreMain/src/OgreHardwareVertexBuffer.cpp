@@ -27,17 +27,34 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreStringConverter.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreDefaultHardwareBufferManager.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
     HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,  
-        size_t numVertices, HardwareBuffer::Usage usage, bool useSystemMemory) 
-        : HardwareBuffer(usage, useSystemMemory), mVertexSize(vertexSize), mNumVertices(numVertices)
+        size_t numVertices, HardwareBuffer::Usage usage, 
+        bool useSystemMemory, bool useShadowBuffer) 
+        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer), mVertexSize(vertexSize), mNumVertices(numVertices)
     {
         // Calculate the size of the vertices
         mSizeInBytes = mVertexSize * numVertices;
 
+        // Create a shadow buffer if required
+        if (mUseShadowBuffer)
+        {
+            mpShadowBuffer = new DefaultHardwareVertexBuffer(mVertexSize, 
+                    mNumVertices, HardwareBuffer::HBU_DYNAMIC);
+        }
+
+    }
+    //-----------------------------------------------------------------------------
+    HardwareVertexBuffer::~HardwareVertexBuffer()
+    {
+        if (mpShadowBuffer)
+        {
+            delete mpShadowBuffer;
+        }
     }
     //-----------------------------------------------------------------------------
     VertexElement::VertexElement(unsigned short source, size_t offset, 

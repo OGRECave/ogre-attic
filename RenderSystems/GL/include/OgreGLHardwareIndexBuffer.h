@@ -35,15 +35,15 @@ namespace Ogre {
     {
     private:
         GLuint mBufferId;
-
+    protected:
+        /** See HardwareBuffer. */
+        void* lockImpl(size_t offset, size_t length, LockOptions options);
+        /** See HardwareBuffer. */
+        void unlockImpl(void);
     public:
         GLHardwareIndexBuffer(IndexType idxType, size_t numIndexes, 
-            HardwareBuffer::Usage usage); 
+            HardwareBuffer::Usage usage, bool useShadowBuffer); 
         ~GLHardwareIndexBuffer();
-        /** See HardwareBuffer. */
-        void* lock(size_t offset, size_t length, LockOptions options);
-        /** See HardwareBuffer. */
-        void unlock(void);
         /** See HardwareBuffer. */
         void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */

@@ -55,10 +55,10 @@ namespace Ogre {
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
-		mVertexBufferUsage = HardwareBuffer::HBU_STATIC;
-		mIndexBufferUsage = HardwareBuffer::HBU_STATIC;
-		mVertexBufferSysMem = false;
-		mIndexBufferSysMem = false;
+		mVertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
+		mIndexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY;
+		mVertexBufferShadowBuffer = false;
+		mIndexBufferShadowBuffer = false;
 
     }
 
@@ -686,16 +686,16 @@ namespace Ogre {
         return mBoundRadius;
     }
     //---------------------------------------------------------------------
-	void Mesh::setVertexBufferPolicy(HardwareBuffer::Usage vbUsage, bool systemMemory)
+	void Mesh::setVertexBufferPolicy(HardwareBuffer::Usage vbUsage, bool shadowBuffer)
 	{
 		mVertexBufferUsage = vbUsage;
-		mVertexBufferSysMem = systemMemory;
+		mVertexBufferShadowBuffer = shadowBuffer;
 	}
     //---------------------------------------------------------------------
-	void Mesh::setIndexBufferPolicy(HardwareBuffer::Usage vbUsage, bool systemMemory)
+	void Mesh::setIndexBufferPolicy(HardwareBuffer::Usage vbUsage, bool shadowBuffer)
 	{
 		mIndexBufferUsage = vbUsage;
-		mIndexBufferSysMem = systemMemory;
+		mIndexBufferShadowBuffer = shadowBuffer;
 	}
 
 }

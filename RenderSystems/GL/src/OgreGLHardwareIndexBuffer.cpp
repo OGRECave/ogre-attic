@@ -29,8 +29,8 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     GLHardwareIndexBuffer::GLHardwareIndexBuffer(IndexType idxType,
-        size_t numIndexes, HardwareBuffer::Usage usage)
-        : HardwareIndexBuffer(idxType, numIndexes, usage, false)
+        size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer)
+        : HardwareIndexBuffer(idxType, numIndexes, usage, false, useShadowBuffer)
     {
         glGenBuffersARB( 1, &mBufferId );
 
@@ -47,7 +47,7 @@ namespace Ogre {
         glDeleteBuffersARB(1, &mBufferId);
     }
 	//---------------------------------------------------------------------
-    void* GLHardwareIndexBuffer::lock(size_t offset, 
+    void* GLHardwareIndexBuffer::lockImpl(size_t offset, 
         size_t length, LockOptions options)
     {
         GLenum access = 0;
@@ -73,14 +73,14 @@ namespace Ogre {
             */
 
             glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, length, NULL, 
-                mUsage == HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
+                (mUsage & HBU_STATIC) ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
 
-            access = (mUsage == HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
 
         }
         else if(options == HBL_READ_ONLY)
         {
-            if(mUsage == HBU_WRITE_ONLY)
+            if(mUsage & HBU_WRITE_ONLY)
             {
                 Except(Exception::ERR_INTERNAL_ERROR, 
                     "Invalid attempt to lock a write-only index buffer as read-only",
@@ -90,7 +90,7 @@ namespace Ogre {
         }
         else if(options == HBL_NORMAL)
         {
-            access = (mUsage == HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            access = (mUsage & HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
         }
         else
         {
@@ -112,7 +112,7 @@ namespace Ogre {
         return pBuffer;
     }
 	//---------------------------------------------------------------------
-	void GLHardwareIndexBuffer::unlock(void)
+	void GLHardwareIndexBuffer::unlockImpl(void)
     {
         glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
 
@@ -129,7 +129,7 @@ namespace Ogre {
     void GLHardwareIndexBuffer::readData(size_t offset, size_t length, 
         void* pDest)
     {
-        if(mUsage == HBU_STATIC)
+        if(mUsage & HBU_STATIC)
         {
             glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
             glGetBufferSubDataARB(mBufferId, offset, length, pDest);
@@ -147,7 +147,7 @@ namespace Ogre {
             const void* pSource,
 			bool discardWholeBuffer)
     {
-        if(mUsage == HBU_STATIC)
+        if(mUsage & HBU_STATIC)
         {
             glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mBufferId );
             glBufferDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 

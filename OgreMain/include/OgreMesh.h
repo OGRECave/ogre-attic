@@ -377,12 +377,12 @@ namespace Ogre {
 			MeshManager::load if you wish; this means the Mesh is loaded with those options
 			the first time instead of you having to reload the mesh after changing these options.
 		@param usage The usage flags, which by default are 
-			HardwareBuffer::HBU_STATIC | HardwareBuffer::HBU_WRITE_ONLY
-		@param systemMemory If set to true, the vertex buffer will be created in system
-			memory rather than hardware. You should set this if you want to be able to
+			HardwareBuffer::HBU_STATIC_WRITE_ONLY
+		@param shadowBuffer If set to true, the vertex buffers will be created with a
+            system memory shadow buffer. You should set this if you want to be able to
 			read from the buffer, because reading from a hardware buffer is a no-no.
 		*/
-		void setVertexBufferPolicy(HardwareBuffer::Usage usage, bool systemMemory = false);
+		void setVertexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
 		/** Sets the policy for the index buffers to be used when loading
 			this Mesh.
 		@remarks
@@ -400,12 +400,12 @@ namespace Ogre {
 			MeshManager::load if you wish; this means the Mesh is loaded with those options
 			the first time instead of you having to reload the mesh after changing these options.
 		@param usage The usage flags, which by default are 
-			HardwareBuffer::HBU_STATIC | HardwareBuffer::HBU_WRITE_ONLY
-		@param systemMemory If set to true, the vertex buffer will be created in system
-			memory rather than hardware. You should set this if you want to be able to
+			HardwareBuffer::HBU_STATIC_WRITE_ONLY
+		@param shadowBuffer If set to true, the index buffers will be created with a
+            system memory shadow buffer. You should set this if you want to be able to
 			read from the buffer, because reading from a hardware buffer is a no-no.
 		*/
-		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool systemMemory = false);
+		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;
@@ -456,8 +456,8 @@ namespace Ogre {
 
 		HardwareBuffer::Usage mVertexBufferUsage;
 		HardwareBuffer::Usage mIndexBufferUsage;
-		bool mVertexBufferSysMem;
-		bool mIndexBufferSysMem;
+		bool mVertexBufferShadowBuffer;
+		bool mIndexBufferShadowBuffer;
 
 
 

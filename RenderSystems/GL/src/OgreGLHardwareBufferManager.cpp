@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
 #include "OgreGLVertexDeclaration.h"
-#include "OgreDefaultHardwareBufferManager.h"
 
 
 namespace Ogre {
@@ -40,18 +39,10 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     HardwareVertexBufferSharedPtr GLHardwareBufferManager::createVertexBuffer(
-        size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, bool useSystemMemory)
+        size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-		if (useSystemMemory)
-		{
-			return HardwareVertexBufferSharedPtr(
-				new DefaultHardwareVertexBuffer(vertexSize, numVerts, usage) );
-		}
-		else
-		{
-			return HardwareVertexBufferSharedPtr(
-				new GLHardwareVertexBuffer(vertexSize, numVerts, usage) );
-		}
+		return HardwareVertexBufferSharedPtr(
+			new GLHardwareVertexBuffer(vertexSize, numVerts, usage, useShadowBuffer) );
     }
     //-----------------------------------------------------------------------
     void GLHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
@@ -62,18 +53,10 @@ namespace Ogre {
     HardwareIndexBufferSharedPtr 
     GLHardwareBufferManager:: createIndexBuffer(
         HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
-        HardwareBuffer::Usage usage, bool useSystemMemory)
+        HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
-		if (useSystemMemory)
-		{
-			return HardwareIndexBufferSharedPtr(
-				new DefaultHardwareIndexBuffer(itype, numIndexes, usage) );
-		}
-		else
-		{
-			return HardwareIndexBufferSharedPtr(
-				new GLHardwareIndexBuffer(itype, numIndexes, usage) );
-		}
+		return HardwareIndexBufferSharedPtr(
+			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer) );
     }
     //-----------------------------------------------------------------------
     void GLHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)

@@ -551,9 +551,8 @@ namespace Ogre {
 		if (skelAnim)
 		{
 			// If we're skeletally animated, we need to set the vertex buffer
-			// policy to dynamic and software-based, since at the moment we're 
-			// animating the mesh using the CPU so the default static buffers would be slower
-			mpMesh->setVertexBufferPolicy(HardwareBuffer::HBU_DYNAMIC, true);
+			// policy to dynamic and shadowed, so we can read and update regularly
+			mpMesh->setVertexBufferPolicy(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, true);
 		}
 
 
@@ -650,7 +649,7 @@ namespace Ogre {
                     HardwareIndexBuffer::IT_32BIT, 
                     sm->indexData->indexCount, 
                     mpMesh->mIndexBufferUsage,
-					mpMesh->mIndexBufferSysMem);
+					mpMesh->mIndexBufferShadowBuffer);
             // unsigned int* faceVertexIndices 
             unsigned int* pIdx = static_cast<unsigned int*>(
                 ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
@@ -666,7 +665,7 @@ namespace Ogre {
                     HardwareIndexBuffer::IT_16BIT, 
                     sm->indexData->indexCount, 
                     mpMesh->mIndexBufferUsage,
-					mpMesh->mIndexBufferSysMem);
+					mpMesh->mIndexBufferShadowBuffer);
             // unsigned short* faceVertexIndices 
             unsigned short* pIdx = static_cast<unsigned short*>(
                 ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
@@ -742,7 +741,7 @@ namespace Ogre {
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
             mpMesh->mVertexBufferUsage, 
-			mpMesh->mIndexBufferSysMem);
+			mpMesh->mIndexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
         readReals(chunk, pReal, dest->vertexCount * 3);
@@ -768,7 +767,7 @@ namespace Ogre {
                         dest->vertexDeclaration->getVertexSize(bindIdx),
                         dest->vertexCount,
                         mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferSysMem);
+						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
                         vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * 3);
@@ -783,7 +782,7 @@ namespace Ogre {
                         dest->vertexDeclaration->getVertexSize(bindIdx),
                         dest->vertexCount,
                         mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferSysMem);
+						mpMesh->mVertexBufferShadowBuffer);
                     pRGBA = static_cast<RGBA*>(
                         vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
                     readLongs(chunk, pRGBA, dest->vertexCount);
@@ -806,7 +805,7 @@ namespace Ogre {
                         dest->vertexDeclaration->getVertexSize(bindIdx),
                         dest->vertexCount,
                         mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferSysMem);
+						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
                         vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * dim);
@@ -1171,7 +1170,7 @@ namespace Ogre {
             {
                 indexData->indexBuffer = HardwareBufferManager::getSingleton().
                     createIndexBuffer(HardwareIndexBuffer::IT_32BIT, indexData->indexCount,
-                    mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferSysMem);
+                    mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferShadowBuffer);
                 unsigned int* pIdx = static_cast<unsigned int*>(
                     indexData->indexBuffer->lock(
                         0, 
@@ -1186,7 +1185,7 @@ namespace Ogre {
             {
                 indexData->indexBuffer = HardwareBufferManager::getSingleton().
                     createIndexBuffer(HardwareIndexBuffer::IT_16BIT, indexData->indexCount,
-                    mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferSysMem);
+                    mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferShadowBuffer);
                 unsigned short* pIdx = static_cast<unsigned short*>(
                     indexData->indexBuffer->lock(
                         0, 
@@ -1302,7 +1301,7 @@ namespace Ogre {
                 HardwareIndexBuffer::IT_16BIT, 
                 sm->indexData->indexCount, 
                 mpMesh->mIndexBufferUsage,
-				mpMesh->mIndexBufferSysMem);
+				mpMesh->mIndexBufferShadowBuffer);
         sm->indexData->indexBuffer = ibuf;
         // unsigned short* faceVertexIndices 
         unsigned short* pIdx = static_cast<unsigned short*>(
@@ -1387,7 +1386,7 @@ namespace Ogre {
             dest->vertexDeclaration->getVertexSize(bindIdx),
             dest->vertexCount,
             mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferSysMem);
+			mpMesh->mVertexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
         readReals(chunk, pReal, dest->vertexCount * 3);
@@ -1413,7 +1412,7 @@ namespace Ogre {
                         dest->vertexDeclaration->getVertexSize(bindIdx),
                         dest->vertexCount,
                         mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferSysMem);
+						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
                         vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * 3);
@@ -1428,7 +1427,7 @@ namespace Ogre {
                         dest->vertexDeclaration->getVertexSize(bindIdx),
                         dest->vertexCount,
                         mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferSysMem);
+						mpMesh->mVertexBufferShadowBuffer);
                     pRGBA = static_cast<RGBA*>(
                         vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
                     readLongs(chunk, pRGBA, dest->vertexCount);
@@ -1451,7 +1450,7 @@ namespace Ogre {
                         dest->vertexDeclaration->getVertexSize(bindIdx),
                         dest->vertexCount,
                         mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferSysMem);
+						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
                         vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
                     readReals(chunk, pReal, dest->vertexCount * dim);
@@ -1539,7 +1538,7 @@ namespace Ogre {
             // Always 16-bit in 1.0
             indexData->indexBuffer = HardwareBufferManager::getSingleton().
                 createIndexBuffer(HardwareIndexBuffer::IT_16BIT, indexData->indexCount,
-                mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferSysMem);
+                mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferShadowBuffer);
             unsigned short* pIdx = static_cast<unsigned short*>(
                 indexData->indexBuffer->lock(
                     0, 

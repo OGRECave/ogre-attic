@@ -38,14 +38,14 @@ namespace Ogre {
     {
 	protected:
 		unsigned char* mpData;
+        /** See HardwareBuffer. */
+        void* lockImpl(size_t offset, size_t length, LockOptions options);
+        /** See HardwareBuffer. */
+		void unlockImpl(void);
     public:
 		DefaultHardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
             HardwareBuffer::Usage usage);
         ~DefaultHardwareVertexBuffer();
-        /** See HardwareBuffer. */
-        void* lock(size_t offset, size_t length, LockOptions options);
-        /** See HardwareBuffer. */
-		void unlock(void);
         /** See HardwareBuffer. */
         void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
@@ -60,13 +60,13 @@ namespace Ogre {
     {
 	protected:
 		unsigned char* mpData;
+        /** See HardwareBuffer. */
+        void* lockImpl(size_t offset, size_t length, LockOptions options);
+        /** See HardwareBuffer. */
+		void unlockImpl(void);
     public:
 		DefaultHardwareIndexBuffer(IndexType idxType, size_t numIndexes, HardwareBuffer::Usage usage);
         ~DefaultHardwareIndexBuffer();
-        /** See HardwareBuffer. */
-        void* lock(size_t offset, size_t length, LockOptions options);
-        /** See HardwareBuffer. */
-		void unlock(void);
         /** See HardwareBuffer. */
         void readData(size_t offset, size_t length, void* pDest);
         /** See HardwareBuffer. */
@@ -95,11 +95,11 @@ namespace Ogre {
         /// Creates a vertex buffer
 		HardwareVertexBufferSharedPtr 
             createVertexBuffer(size_t vertexSize, size_t numVerts, 
-				HardwareBuffer::Usage usage, bool useSystemMemory = false);
+				HardwareBuffer::Usage usage, bool useShadowBuffer = false);
 		/// Create a hardware vertex buffer
 		HardwareIndexBufferSharedPtr 
             createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
-				HardwareBuffer::Usage usage, bool useSystemMeory = false);
+				HardwareBuffer::Usage usage, bool useShadowBuffer = false);
 
     };
 

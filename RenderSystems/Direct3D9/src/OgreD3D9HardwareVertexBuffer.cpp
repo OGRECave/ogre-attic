@@ -30,8 +30,9 @@ namespace Ogre {
 
 	//---------------------------------------------------------------------
     D3D9HardwareVertexBuffer::D3D9HardwareVertexBuffer(size_t vertexSize, 
-        size_t numVertices, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, bool useSystemMemory)
-        : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory)
+        size_t numVertices, HardwareBuffer::Usage usage, LPDIRECT3DDEVICE9 pDev, 
+        bool useSystemMemory, bool useShadowBuffer)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory, useShadowBuffer)
     {
         // Create the vertex buffer
         HRESULT hr = pDev->CreateVertexBuffer(
@@ -55,7 +56,7 @@ namespace Ogre {
         SAFE_RELEASE(mlpD3DBuffer);
     }
 	//---------------------------------------------------------------------
-    void* D3D9HardwareVertexBuffer::lock(size_t offset, 
+    void* D3D9HardwareVertexBuffer::lockImpl(size_t offset, 
         size_t length, LockOptions options)
     {
         void* pBuf;
@@ -71,19 +72,12 @@ namespace Ogre {
                 "D3D9HardwareVertexBuffer::lock");
         }
 
-        mIsLocked = true;
-
         return pBuf;
-
-
-
     }
 	//---------------------------------------------------------------------
-	void D3D9HardwareVertexBuffer::unlock(void)
+	void D3D9HardwareVertexBuffer::unlockImpl(void)
     {
         HRESULT hr = mlpD3DBuffer->Unlock();
-
-        mIsLocked = false;
     }
 	//---------------------------------------------------------------------
     void D3D9HardwareVertexBuffer::readData(size_t offset, size_t length, 

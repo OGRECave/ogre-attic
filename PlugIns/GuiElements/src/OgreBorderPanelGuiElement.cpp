@@ -73,7 +73,7 @@ namespace Ogre {
             .createVertexBuffer(
                 decl->getVertexSize(POSITION_BINDING), 
                 mRenderOp2.vertexData->vertexCount,
-                HardwareBuffer::HBU_STATIC);
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         // bind position
         VertexBufferBinding* binding = mRenderOp2.vertexData->vertexBufferBinding;
         binding->setBinding(POSITION_BINDING, vbuf);
@@ -83,7 +83,7 @@ namespace Ogre {
             .createVertexBuffer(
                 decl->getVertexSize(TEXCOORD_BINDING), 
                 mRenderOp2.vertexData->vertexCount,
-                HardwareBuffer::HBU_STATIC);
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
         // bind texcoord
         binding->setBinding(TEXCOORD_BINDING, vbuf);
 
@@ -105,7 +105,7 @@ namespace Ogre {
             createIndexBuffer(
                 HardwareIndexBuffer::IT_16BIT, 
                 mRenderOp2.indexData->indexCount, 
-                HardwareBuffer::HBU_STATIC);
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
         ushort* pIdx = static_cast<ushort*>(
             mRenderOp2.indexData->indexBuffer->lock(

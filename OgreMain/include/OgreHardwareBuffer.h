@@ -98,11 +98,20 @@ namespace Ogre {
 		    size_t mSizeInBytes;
 		    Usage mUsage;
 			bool mSystemMemory;
+            bool mUseShadowBuffer;
+            HardwareBuffer* mpShadowBuffer;
+            bool mShadowUpdated;
     		
-	    public:
+            /// Internal implementation of lock()
+		    virtual void* lockImpl(size_t offset, size_t length, LockOptions options) = 0;
+            /// Internal implementation of unlock()
+		    virtual void unlockImpl(void) = 0;
+
+    public:
 		    /// Constructor, to be called by HardwareBufferManager only
-            HardwareBuffer(Usage usage, bool systemMemory) 
-				: mUsage(usage), mIsLocked(false), mSystemMemory(systemMemory) {}
+            HardwareBuffer(Usage usage, bool systemMemory, bool useShadowBuffer) 
+				: mUsage(usage), mIsLocked(false), mSystemMemory(systemMemory), 
+                mUseShadowBuffer(useShadowBuffer), mpShadowBuffer(NULL), mShadowUpdated(false) {}
             virtual ~HardwareBuffer() {}
 		    /** Lock the buffer for (potentially) reading / writing.
 		    @param offset The byte offset from the start of the buffer to lock
@@ -110,7 +119,26 @@ namespace Ogre {
 		    @param options Locking options
 		    @returns Pointer to the locked memory
 		    */
-		    virtual void* lock(size_t offset, size_t length, LockOptions options) = 0;
+		    virtual void* lock(size_t offset, size_t length, LockOptions options)
+            {
+                assert(!mIsLocked && "Cannot lock this buffer, it is already locked!");
+                void* ret;
+                if (mUseShadowBuffer)
+                {
+                    if (options != HBL_READ_ONLY)
+                    {
+                        // we have to assume the buffer is being updated so tag for sync next time
+                        mShadowUpdated = true;
+                    }
+                    ret = mpShadowBuffer->lock(offset, length, options);
+                }
+                else
+                {
+                    ret = lockImpl(offset, length, options);
+                }
+                mIsLocked = true;
+                return ret;
+            }
 		    /** Releases the lock on this buffer. 
             @remarks 
                 Locking and unlocking a buffer can, in some rare circumstances such as 
@@ -123,7 +151,23 @@ namespace Ogre {
                 suffer from this problem, so if you want to be 100% sure your
                 data will not be lost, use the 'read' and 'write' forms instead.
             */
-		    virtual void unlock(void) = 0;
+		    virtual void unlock(void)
+            {
+                assert(mIsLocked && "Cannot unlock this buffer, it is not locked!");
+
+                if (mUseShadowBuffer)
+                {
+                    mpShadowBuffer->unlock();
+                    // Potentially update the 'real' buffer from the shadow buffer
+                    _updateFromShadow();
+                }
+                else
+                {
+                    unlockImpl();
+                }
+                mIsLocked = false;
+
+            }
 
             /** Reads data from the buffer and places it in the memory pointed to by pDest.
 		    @param offset The byte offset from the start of the buffer to read
@@ -145,8 +189,8 @@ namespace Ogre {
 
 			/** Copy data from another buffer into this one.
 			@remarks
-				Note that this buffer must be able to be written to so it must
-				not static. 
+				Note that the source buffer must not be created with the
+                usage HBU_WRITE_ONLY otherwise this will fail. 
 			@param srcBuffer The buffer from which to read the copied data
 			@param srcOffset Offset in the source buffer at which to start reading
 			@param dstOffset Offset in the destination buffer to start writing
@@ -161,6 +205,16 @@ namespace Ogre {
 				this->writeData(dstOffset, length, srcData, discardWholeBuffer);
 				srcBuffer.unlock();
 			}
+
+            /// Updates the real buffer from the shadow buffer, if required
+            virtual void _updateFromShadow(void)
+            {
+                if (mUseShadowBuffer && mShadowUpdated)
+                {
+                    copyData(*mpShadowBuffer, 0, 0, mSizeInBytes, true);
+                    mShadowUpdated = false;
+                }
+            }
 
             /// Returns the size of this buffer in bytes
             size_t getSizeInBytes(void) { return mSizeInBytes; }

@@ -27,7 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 	DefaultHardwareVertexBuffer::DefaultHardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-		HardwareBuffer::Usage usage) : HardwareVertexBuffer(vertexSize, numVertices, usage, true)
+		HardwareBuffer::Usage usage)
+        : HardwareVertexBuffer(vertexSize, numVertices, usage, true, false) // always software, never shadowed
 	{
 		mpData = new unsigned char[mSizeInBytes];
 	}
@@ -37,15 +38,14 @@ namespace Ogre {
 		delete [] mpData;
 	}
 	//-----------------------------------------------------------------------
-    void* DefaultHardwareVertexBuffer::lock(size_t offset, size_t length, LockOptions options)
+    void* DefaultHardwareVertexBuffer::lockImpl(size_t offset, size_t length, LockOptions options)
 	{
 		return mpData + offset;
-		mIsLocked = true;
 	}
 	//-----------------------------------------------------------------------
-	void DefaultHardwareVertexBuffer::unlock(void)
+	void DefaultHardwareVertexBuffer::unlockImpl(void)
 	{
-		mIsLocked = false;
+        // Nothing to do
 	}
 	//-----------------------------------------------------------------------
     void DefaultHardwareVertexBuffer::readData(size_t offset, size_t length, void* pDest)
@@ -66,7 +66,7 @@ namespace Ogre {
 
 	DefaultHardwareIndexBuffer::DefaultHardwareIndexBuffer(IndexType idxType, 
 		size_t numIndexes, HardwareBuffer::Usage usage) 
-		: HardwareIndexBuffer(idxType, numIndexes, usage, true)
+		: HardwareIndexBuffer(idxType, numIndexes, usage, true, false) // always software, never shadowed
 	{
 		mpData = new unsigned char[mSizeInBytes];
 	}
@@ -76,15 +76,14 @@ namespace Ogre {
 		delete [] mpData;
 	}
 	//-----------------------------------------------------------------------
-    void* DefaultHardwareIndexBuffer::lock(size_t offset, size_t length, LockOptions options)
+    void* DefaultHardwareIndexBuffer::lockImpl(size_t offset, size_t length, LockOptions options)
 	{
 		return mpData + offset;
-		mIsLocked = true;
 	}
 	//-----------------------------------------------------------------------
-	void DefaultHardwareIndexBuffer::unlock(void)
+	void DefaultHardwareIndexBuffer::unlockImpl(void)
 	{
-		mIsLocked = false;
+        // Nothing to do
 	}
 	//-----------------------------------------------------------------------
     void DefaultHardwareIndexBuffer::readData(size_t offset, size_t length, void* pDest)

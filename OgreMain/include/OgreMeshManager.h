@@ -69,8 +69,8 @@ namespace Ogre {
 			@param priority The priority of this mesh in the resource system
         */
         Mesh* load( const String& filename, 
-			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC, 
-			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC, 
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 			bool vertexBufferSysMem = false, bool indexBufferSysMem = false,
 			int priority = 1);
 
@@ -129,8 +129,8 @@ namespace Ogre {
             int xsegments = 1, int ysegments = 1,
             bool normals = true, int numTexCoordSets = 1,
             Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
-			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC, 
-			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
 			bool vertexSystemMemory = false, bool indexSystemMemory = false);
 
 		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
@@ -185,7 +185,7 @@ namespace Ogre {
         */
         void tesselate2DMesh(SubMesh* pSub, int meshWidth, int meshHeight, 
 			bool doubleSided = false, 
-			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC,
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
 			bool indexSysMem = false);
 
         void createPrefabPlane(void);

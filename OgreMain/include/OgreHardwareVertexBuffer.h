@@ -42,7 +42,8 @@ namespace Ogre {
 	    public:
 		    /// Should be called by HardwareBufferManager
 		    HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
-                HardwareBuffer::Usage usage, bool useSystemMemory);
+                HardwareBuffer::Usage usage, bool useSystemMemory, bool useShadowBuffer);
+            ~HardwareVertexBuffer();
             /// Gets the size in bytes of a single vertex in this buffer
             size_t getVertexSize(void) const { return mVertexSize; }
             /// Get the number of vertices in this buffer
