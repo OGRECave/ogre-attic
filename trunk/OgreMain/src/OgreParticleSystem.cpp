@@ -222,8 +222,7 @@ namespace Ogre {
         }
         setParticleQuota(rhs.getParticleQuota());
         setMaterialName(rhs.mMaterialName);
-        mDefaultHeight = rhs.mDefaultHeight;
-        mDefaultWidth = rhs.mDefaultWidth;
+        setDefaultDimensions(rhs.mDefaultWidth, rhs.mDefaultHeight);
         mCullIndividual = rhs.mCullIndividual;
 
         setRenderer(rhs.getRendererName());
@@ -679,6 +678,10 @@ namespace Ogre {
     void ParticleSystem::setDefaultWidth(Real width)
     {
         mDefaultWidth = width;
+        if (mRenderer)
+        {
+            mRenderer->_notifyDefaultDimensions(mDefaultWidth, mDefaultHeight);
+        }
     }
     //-----------------------------------------------------------------------
     Real ParticleSystem::getDefaultWidth(void) const
@@ -689,6 +692,10 @@ namespace Ogre {
     void ParticleSystem::setDefaultHeight(Real height)
     {
         mDefaultHeight = height;
+        if (mRenderer)
+        {
+            mRenderer->_notifyDefaultDimensions(mDefaultWidth, mDefaultHeight);
+        }
     }
     //-----------------------------------------------------------------------
     Real ParticleSystem::getDefaultHeight(void) const
@@ -761,6 +768,9 @@ namespace Ogre {
         if (mRenderer && !mIsRendererConfigured)
         {
             mRenderer->_notifyParticleQuota(mParticlePool.size());
+            if (mParentNode)
+                mRenderer->_notifyAttached(mParentNode);
+            mRenderer->_notifyDefaultDimensions(mDefaultWidth, mDefaultHeight);
             createVisualParticles(0, mParticlePool.size());
             MaterialPtr mat = MaterialManager::getSingleton().load(
                 mMaterialName, mResourceGroupName);
