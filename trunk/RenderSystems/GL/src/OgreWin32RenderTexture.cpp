@@ -131,16 +131,17 @@ namespace Ogre {
 		HGLRC old_context = wglGetCurrentContext();
 
 		// Bind to RGB or RGBA texture
-		int bttype = Image::formatHasAlpha(mInternalFormat)?
+		int bttype = PixelUtil::hasAlpha(mInternalFormat)?
 			WGL_BIND_TO_TEXTURE_RGBA_ARB : WGL_BIND_TO_TEXTURE_RGB_ARB;
-		int texformat = Image::formatHasAlpha(mInternalFormat)?
+		int texformat = PixelUtil::hasAlpha(mInternalFormat)?
 			WGL_TEXTURE_RGBA_ARB : WGL_TEXTURE_RGB_ARB;
 		// Make a float buffer?
-		int pixeltype = Image::formatIsFloat(mInternalFormat)?
+        int pixeltype = PixelUtil::isFloatingPoint(mInternalFormat)?
 			WGL_TYPE_RGBA_FLOAT_ATI : WGL_TYPE_RGBA_ARB;
 		// Get R,G,B,A depths
 		int depths[4];
-		Image::formatGetDepths(mInternalFormat, depths);
+		PixelUtil::getBitDepths(mInternalFormat, depths);
+
 
 		int attrib[] = {
 			WGL_RED_BITS_ARB,depths[0],

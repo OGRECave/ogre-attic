@@ -187,11 +187,24 @@ namespace Ogre {
         /** Returns the property flags for this pixel format
           @returns
                A bitfield combination of PFF_HASALPHA, PFF_ISCOMPRESSED,
-               PFF_FLOAT, PFF_DEPTH, PFF_NATIVEENDIAN, PFF_INTENSITY
+               PFF_FLOAT, PFF_DEPTH, PFF_NATIVEENDIAN, PFF_LUMINENCE
           @remarks
                This replaces the seperate functions for formatHasAlpha, formatIsFloat, ...
         */
         static unsigned int getFlags( PixelFormat format );
+
+        /** Shortcut method to determine if the format has an alpha component */
+        static bool hasAlpha(PixelFormat format);
+        /** Shortcut method to determine if the format is floating point */
+        static bool isFloatingPoint(PixelFormat format);
+        /** Shortcut method to determine if the format is compressed */
+        static bool isCompressed(PixelFormat format);
+        /** Shortcut method to determine if the format is a depth format. */
+        static bool isDepth(PixelFormat format);
+        /** Shortcut method to determine if the format is in native endian format. */
+        static bool isNativeEndian(PixelFormat format);
+        /** Shortcut method to determine if the format is a luminence format. */
+        static bool isLuminence(PixelFormat format);
 
         /** Gives the number of bits (RGBA) for a format. See remarks.          
           @remarks      For non-colour formats (dxt, depth) this returns [0,0,0,0].
