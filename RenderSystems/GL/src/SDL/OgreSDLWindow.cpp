@@ -69,6 +69,11 @@ namespace Ogre {
         int flags = SDL_OPENGL | SDL_HWPALETTE;
 
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+        // request good stencil size if 32-bit colour
+        if (colourDepth == 32 && depthBuffer)
+        {
+            SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
+        }
 		
         if (fullScreen)
             flags |= SDL_FULLSCREEN;
