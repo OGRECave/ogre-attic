@@ -59,29 +59,38 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ConfigFile::load(const String& filename, const String& separators, bool trimWhitespace)
     {
-        
-        /* Open the configuration file */
-        std::ifstream fp;
-        fp.open(filename.c_str());
-        if(!fp)
-            OGRE_EXCEPT(
-                Exception::ERR_FILE_NOT_FOUND, "'" + filename + "' file not found!", "ConfigFile::load" );
-        
-        // Wrap as a stream
-        DataStreamPtr stream(new FileStreamDataStream(filename, &fp, false));
-        load(stream, separators, trimWhitespace);
-
-
+        loadDirect(filename, separators, trimWhitespace);
     }
     //-----------------------------------------------------------------------
     void ConfigFile::load(const String& filename, const String& resourceGroup, 
         const String& separators, bool trimWhitespace)
     {
-        DataStreamPtr stream = 
-            ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
-        load(stream, separators, trimWhitespace);
-
+		loadFromResourceSystem(filename, resourceGroup, separators, trimWhitespace);
     }
+	//-----------------------------------------------------------------------
+	void ConfigFile::loadDirect(const String& filename, const String& separators, 
+		bool trimWhitespace)
+	{
+		/* Open the configuration file */
+		std::ifstream fp;
+		fp.open(filename.c_str());
+		if(!fp)
+			OGRE_EXCEPT(
+			Exception::ERR_FILE_NOT_FOUND, "'" + filename + "' file not found!", "ConfigFile::load" );
+
+		// Wrap as a stream
+		DataStreamPtr stream(new FileStreamDataStream(filename, &fp, false));
+		load(stream, separators, trimWhitespace);
+
+	}
+	//-----------------------------------------------------------------------
+	void ConfigFile::loadFromResourceSystem(const String& filename, 
+		const String& resourceGroup, const String& separators, bool trimWhitespace)
+	{
+		DataStreamPtr stream = 
+			ResourceGroupManager::getSingleton().openResource(filename, resourceGroup);
+		load(stream, separators, trimWhitespace);
+	}
     //-----------------------------------------------------------------------
     void ConfigFile::load(const DataStreamPtr& stream, const String& separators, 
         bool trimWhitespace)
