@@ -923,7 +923,7 @@ namespace Ogre
 			LogManager::getSingleton().logMessage(ss.str());
 		}
 		// Create render texture
-		D3D9RenderTexture *rt = new D3D9RenderTexture( name, width, height );
+		D3D9RenderTexture *rt = new D3D9RenderTexture( name, width, height, texType, internalFormat, miscParams );
 		attachRenderTarget( *rt );
 		return rt;
 	}
