@@ -406,17 +406,17 @@ namespace Ogre
 				switch (ef.type)
 				{
 				//case Material::TextureLayer::TextureEffectType::ET_BUMP_MAP :
-				case Material::TextureLayer::TextureEffectType::ET_ENVIRONMENT_MAP :
+				case Material::TextureLayer::ET_ENVIRONMENT_MAP :
 					if (!pTex->isCubic())
 						writeEnvironmentMapEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::TextureEffectType::ET_ROTATE :
+				case Material::TextureLayer::ET_ROTATE :
 					writeRotationEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::TextureEffectType::ET_SCROLL :
+				case Material::TextureLayer::ET_SCROLL :
 					writeScrollEffect(ef, pTex);
 					break;
-				case Material::TextureLayer::TextureEffectType::ET_TRANSFORM :
+				case Material::TextureLayer::ET_TRANSFORM :
 					writeTransformEffect(ef, pTex);
 					break;
 				default:
@@ -459,19 +459,19 @@ namespace Ogre
 		
 		switch (effect.type)
 		{
-		case Material::TextureLayer::TextureTransformType::TT_ROTATE:
+		case Material::TextureLayer::TT_ROTATE:
 			writeValue("rotate");
 			break;
-		case Material::TextureLayer::TextureTransformType::TT_SCALE_U:
+		case Material::TextureLayer::TT_SCALE_U:
 			writeValue("scale_x");
 			break;
-		case Material::TextureLayer::TextureTransformType::TT_SCALE_V:
+		case Material::TextureLayer::TT_SCALE_V:
 			writeValue("scale_u");
 			break;
-		case Material::TextureLayer::TextureTransformType::TT_TRANSLATE_U:
+		case Material::TextureLayer::TT_TRANSLATE_U:
 			writeValue("scroll_x");
 			break;
-		case Material::TextureLayer::TextureTransformType::TT_TRANSLATE_V:
+		case Material::TextureLayer::TT_TRANSLATE_V:
 			writeValue("scroll_y");
 			break;
 		}
