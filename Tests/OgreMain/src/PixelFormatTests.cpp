@@ -58,14 +58,14 @@ void PixelFormatTests::testFloatPackUnpack()
     // Float32
     float data[4] = {1.0f, 2.0f, 3.0f, 4.0f};
     float r,g,b,a;
-    PixelUtil::unpackColour(&r, &g, &b, &a, PF_FP_R32G32B32A32, data);
+    PixelUtil::unpackColour(&r, &g, &b, &a, PF_FLOAT32_RGBA, data);
     CPPUNIT_ASSERT_EQUAL(r, 1.0f);
     CPPUNIT_ASSERT_EQUAL(g, 2.0f);
     CPPUNIT_ASSERT_EQUAL(b, 3.0f);
     CPPUNIT_ASSERT_EQUAL(a, 4.0f);
     
     // Float16
-    setupBoxes(PF_A8B8G8R8, PF_FP_R16G16B16A16);
+    setupBoxes(PF_A8B8G8R8, PF_FLOAT16_RGBA);
     dst2.format = PF_A8B8G8R8;
     unsigned int eob = src.getWidth()*4;
     
@@ -82,7 +82,7 @@ void PixelFormatTests::testFloatPackUnpack()
     }
 
     // src and dst2 should match    
-    CPPUNIT_ASSERT_MESSAGE("PF_FP_R16G16B16A16<->PF_A8B8G8R8 conversion was not lossless "+s.str(), 
+    CPPUNIT_ASSERT_MESSAGE("PF_FLOAT16_RGBA<->PF_A8B8G8R8 conversion was not lossless "+s.str(), 
         memcmp(src.data, dst2.data, eob) == 0);
 }
 

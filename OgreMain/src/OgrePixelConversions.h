@@ -81,13 +81,13 @@ struct Col3b {
         x((uint8)a), y((uint8)b), z((uint8)c) { }
     uint8 x,y,z;
 };
-/** Type for PF_FP_R32G32B32 */
+/** Type for PF_FLOAT32_RGB */
 struct Col3f {
 	Col3f(float r, float g, float b):
 		r(r), g(g), b(b) { }
 	float r,g,b;
 };
-/** Type for PF_FP_R32G32B32A32 */
+/** Type for PF_FLOAT32_RGBA */
 struct Col4f {
 	Col4f(float r, float g, float b, float a):
 		r(r), g(g), b(b), a(a) { }

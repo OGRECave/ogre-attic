@@ -1361,9 +1361,9 @@ namespace Ogre
         case D3DFMT_A2B10G10R10:
            return PF_A2B10G10R10;
 		case D3DFMT_A16B16G16R16F: // verify?
-			return PF_FP_R16G16B16A16;
+			return PF_FLOAT16_RGBA;
 		case D3DFMT_A32B32G32R32F: // verify?
-			return PF_FP_R32G32B32A32;
+			return PF_FLOAT32_RGBA;
 		case D3DFMT_DXT1:
 			return PF_DXT1;
 		case D3DFMT_DXT2:
@@ -1409,9 +1409,9 @@ namespace Ogre
             return D3DFMT_A2B10G10R10;
 		case PF_A2R10G10B10:
 			return D3DFMT_A2R10G10B10;
-		case PF_FP_R16G16B16A16: // verify?
+		case PF_FLOAT16_RGBA:
 			return D3DFMT_A16B16G16R16F;
-		case PF_FP_R32G32B32A32: // verify?
+		case PF_FLOAT32_RGBA:
 			return D3DFMT_A32B32G32R32F;
 		case PF_DXT1:
 			return D3DFMT_DXT1;
@@ -1447,10 +1447,10 @@ namespace Ogre
 			return PF_R8G8B8;
 		case PF_B8G8R8A8:
 			return PF_A8R8G8B8;
-		case PF_FP_R16G16B16:
-			return PF_FP_R16G16B16A16;
-		case PF_FP_R32G32B32:
-			return PF_FP_R32G32B32A32;
+		case PF_FLOAT16_RGB:
+			return PF_FLOAT16_RGBA;
+		case PF_FLOAT32_RGB:
+			return PF_FLOAT32_RGBA;
 		case PF_UNKNOWN:
 		default:
 			return PF_A8R8G8B8;
