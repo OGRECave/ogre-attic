@@ -26,7 +26,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "MilkshapePlugin.h"
 #include "Ogre.h"
 #include "msLib.h"
-#include "windows.h"
+#include "resource.h"
+#include "OgreMaterialManager.h"
+
 
 //---------------------------------------------------------------------
 MilkshapePlugin::MilkshapePlugin ()
@@ -65,7 +67,91 @@ int MilkshapePlugin::Execute (msModel* pModel)
         return 0;
     }
 
-    // TODO: Dialog to allow specification of just .mesh or .mesh and .skeleton
+    showOptions();
+
+    if (exportMesh)
+    {
+        doExportMesh(pModel);
+    }
+
+
+    return 0;
+
+}
+//---------------------------------------------------------------------
+MilkshapePlugin *plugin;
+BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+{
+    HWND hwndDlgItem;
+
+    switch (iMsg)
+    {
+
+    case WM_INITDIALOG:
+        // Center myself
+        int x, y, screenWidth, screenHeight;
+        RECT rcDlg;
+        GetWindowRect(hDlg, &rcDlg);
+        screenWidth = GetSystemMetrics(SM_CXFULLSCREEN);
+        screenHeight = GetSystemMetrics(SM_CYFULLSCREEN);
+
+        x = (screenWidth / 2) - ((rcDlg.right - rcDlg.left) / 2);
+        y = (screenHeight / 2) - ((rcDlg.bottom - rcDlg.top) / 2);
+
+        MoveWindow(hDlg, x, y, (rcDlg.right - rcDlg.left),
+            (rcDlg.bottom - rcDlg.top), TRUE);
+
+        // Check mesh export
+        hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MESH);
+        SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
+
+        return TRUE;
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+            case IDOK:
+                // Set options
+                hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MESH);
+                plugin->exportMesh = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+
+                hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
+                plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+
+                hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MATERIALS);
+                plugin->exportMaterials = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+                
+
+                EndDialog(hDlg, TRUE);
+                return TRUE;
+            case IDCANCEL:
+                EndDialog(hDlg, FALSE);
+                return TRUE;
+        }
+    }
+
+    return FALSE;
+
+}
+
+//---------------------------------------------------------------------
+void MilkshapePlugin::showOptions(void)
+{
+    int i;
+    HINSTANCE hInst = GetModuleHandle("msOGREExporter.dll");
+    plugin = this;
+    exportMesh = true;
+    exportSkeleton = false;
+    exportMaterials = false;
+    i = DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc);
+
+
+    
+
+}
+
+void MilkshapePlugin::doExportMesh(msModel* pModel)
+{
+
 
     //
     // choose filename
@@ -91,9 +177,7 @@ int MilkshapePlugin::Execute (msModel* pModel)
     ofn.lpstrTitle = "Export to OGRE Mesh";
 
     if (!::GetSaveFileName (&ofn))
-        return 0;
-
-    Ogre::MeshSerializer serializer;
+        return /*0*/;
 
     Ogre::Mesh* ogreMesh = new Ogre::Mesh("export");
 
@@ -103,15 +187,28 @@ int MilkshapePlugin::Execute (msModel* pModel)
     {
         msMesh *pMesh = msModel_GetMeshAt (pModel, i);
 
+
         Ogre::SubMesh* ogreSubMesh = ogreMesh->createSubMesh();
+        // Set material
+        int matIdx = msMesh_GetMaterialIndex(pMesh);
+        msMaterial *pMat = msModel_GetMaterialAt(pModel, matIdx);
+        ogreSubMesh->setMaterialName(pMat->szName);
         // Set up mesh geometry
         // Always 1 texture layer, 2D coords
         ogreSubMesh->geometry.numTexCoords = 1;
         ogreSubMesh->geometry.numTexCoordDimensions[0] = 2;
+        ogreSubMesh->geometry.hasNormals = true;
+        ogreSubMesh->geometry.hasColours = false;
+        ogreSubMesh->geometry.vertexStride = 0;
+        ogreSubMesh->geometry.texCoordStride[0] = 0;
+        ogreSubMesh->geometry.normalStride = 0;
         ogreSubMesh->useSharedVertices = false;
         ogreSubMesh->useTriStrips = false;
 
         ogreSubMesh->geometry.numVertices = msMesh_GetVertexCount (pMesh);
+        ogreSubMesh->geometry.pVertices = new Ogre::Real[ogreSubMesh->geometry.numVertices * 3];
+        ogreSubMesh->geometry.pNormals = new Ogre::Real[ogreSubMesh->geometry.numVertices * 3];
+        ogreSubMesh->geometry.pTexCoords[0] = new Ogre::Real[ogreSubMesh->geometry.numVertices * 2];
         for (j = 0; j < ogreSubMesh->geometry.numVertices; ++j)
         {
             msVertex *pVertex = msMesh_GetVertexAt (pMesh, j);
@@ -121,21 +218,83 @@ int MilkshapePlugin::Execute (msModel* pModel)
             msVertex_GetVertex (pVertex, Vertex);
             msVertex_GetTexCoords (pVertex, uv);
 
-            // Aargh, Milkshape uses stupid separate normal indexes for the same vertex like 3DS
-            // Normals aren't described per vertex but per triangle vertex index
-            // Pain in the arse, we have to do vertex duplication again if normals differ at a vertex (non smooth)
-            // WHY don't people realise this format is a pain for passing to 3D APIs in vertex buffers?
+            ogreSubMesh->geometry.pVertices[j*3] = Vertex[0];
+            ogreSubMesh->geometry.pVertices[(j*3)+1] = Vertex[1];
+            ogreSubMesh->geometry.pVertices[(j*3)+2] = Vertex[2];
 
-            // TODO: the rest
+            ogreSubMesh->geometry.pTexCoords[0][j*2] = uv[0];
+            ogreSubMesh->geometry.pTexCoords[0][(j*2)+1] = uv[1];
+
         }
+        // Aargh, Milkshape uses stupid separate normal indexes for the same vertex like 3DS
+        // Normals aren't described per vertex but per triangle vertex index
+        // Pain in the arse, we have to do vertex duplication again if normals differ at a vertex (non smooth)
+        // WHY don't people realise this format is a pain for passing to 3D APIs in vertex buffers?
+        ogreSubMesh->numFaces = msMesh_GetTriangleCount (pMesh);
+        ogreSubMesh->faceVertexIndices = new unsigned short[ogreSubMesh->numFaces * 3];
+        for (j = 0; j < ogreSubMesh->numFaces; j++)
+        {
+            msTriangle *pTriangle = msMesh_GetTriangleAt (pMesh, j);
+            
+            word nIndices[3];
+            msTriangle_GetVertexIndices (pTriangle, nIndices);
+
+            msVec3 Normal;
+            int k, normIdx, vertIdx;
+            for (k = 0; k < 3; ++k)
+            {
+                vertIdx = nIndices[k];
+                // Face index
+                ogreSubMesh->faceVertexIndices[(j*3)+k] = vertIdx;
+
+                // Vertex normals
+                // For the moment, ignore any discrepancies per vertex
+                normIdx = pTriangle->nNormalIndices[k];
+                msMesh_GetVertexNormalAt (pMesh, normIdx, Normal);
+
+                ogreSubMesh->geometry.pNormals[(vertIdx*3)] = Normal[0];
+                ogreSubMesh->geometry.pNormals[(vertIdx*3)+1] = Normal[1];
+                ogreSubMesh->geometry.pNormals[(vertIdx*3)+2] = Normal[2];
+
+            }
 
 
+        } // Faces
+    } // SubMesh
 
+    // Create singleton
+    Ogre::MaterialManager matMgr;
+    if (exportMaterials)
+    {
+        doExportMaterials(pModel);
+    }
+    
+    // Export
+    Ogre::MeshSerializer serializer;
 
+    // Export, no materials for now
+    serializer.export(ogreMesh, szFile, false);
 
-
-
-
+    delete ogreMesh;
 }
 
+void MilkshapePlugin::doExportMaterials(msModel* pModel)
+{
+    Ogre::MaterialManager& matMgr = Ogre::MaterialManager::getSingleton();
 
+    int matCount = msModel_GetMaterialCount(pModel);
+    for (int i = 0; i < matCount; ++i)
+    {
+        msMaterial *pMat = msModel_GetMaterialAt(pModel, i);
+        Ogre::Material* ogreMat = (Ogre::Material*)matMgr.create(pMat->szName);
+
+        ogreMat->setAmbient(pMat->Ambient[0], pMat->Ambient[1], pMat->Ambient[2]);
+        ogreMat->setDiffuse(pMat->Diffuse[0], pMat->Diffuse[1], pMat->Diffuse[2]);
+        ogreMat->setShininess(pMat->fShininess);
+        if (strlen(pMat->szDiffuseTexture) > 0)
+        {
+            // Diffuse texture only
+            ogreMat->addTextureLayer(pMat->szDiffuseTexture);
+        }
+    }
+}
