@@ -944,8 +944,11 @@ namespace Ogre {
 	    Material::mDefaultSettings = new Material();
 	    Material::mDefaultSettings->mName = "DefaultSettings";
 
-	    // Set up a base white material
+	    // Set up a lit base white material
 	    this->create("BaseWhite");
+	    // Set up an unlit base white material
+        Material* baseWhiteNoLighting = (Material*)this->create("BaseWhiteNoLighting");
+        baseWhiteNoLighting->setLightingEnabled(false);
 
 	    // Set up material attribute parsers
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("ambient", (MATERIAL_ATTRIB_PARSER)parseAmbient));
