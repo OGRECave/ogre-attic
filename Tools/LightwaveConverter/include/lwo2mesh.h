@@ -41,6 +41,8 @@ enum Parameters
 	UseSharedVertexData,
 	UseSeparateLayers,
 	GenerateLOD,
+	GenerateEdgeLists,
+	GenerateTangents,
 	UseFixedMethod,
 	ExportMaterials,
 	RenameMaterials,
@@ -53,7 +55,7 @@ enum Parameters
 	LinearCopy
 };
 
-#define NUMFLAGS 15
+#define NUMFLAGS 17
 
 class Lwo2MeshWriter
 {
@@ -84,7 +86,7 @@ private:
 
 	char *dest;
 	lwObject *object;
-	Mesh* ogreMesh;
+	MeshPtr ogreMesh;
 	
 	unsigned int nLayers;
 	unsigned int nSurfaces;
