@@ -74,7 +74,6 @@ namespace Ogre {
             mTexStageDesc[n].pTex = NULL;
         }
 
-        mForcedNormalisation = false;
         mCurrentLights = 0;
 
         OgreUnguard();
@@ -558,6 +557,19 @@ namespace Ogre {
                 mCapabilities->setStencilBufferBitDepth(stencil);
             }
 
+            // Anisotropy?
+            if (mD3DDeviceDesc.dwMaxAnisotropy > 1)
+                mCapabilities->setCapability(RSC_ANISOTROPY);
+            // Blending between stages supported
+            mCapabilities->setCapability(RSC_BLENDING);
+            // Cubemapping
+            if (mD3DDeviceDesc.dpcTriCaps.dwTextureCaps & D3DPTEXTURECAPS_CUBEMAP)
+                mCapabilities->setCapability(RSC_CUBEMAPPING);
+
+            // DOT3
+            if (mD3DDeviceDesc.dwTextureOpCaps & D3DTEXOPCAPS_DOTPRODUCT3)
+                mCapabilities->setCapability(RSC_DOT3);
+
             // Set the number of texture units based on details from current device
             mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
 
@@ -878,28 +890,18 @@ namespace Ogre {
         {
         case TEXCALC_NONE:
 		    // if no calc we've already set index through D3D9RenderSystem::_setTextureCoordSet
-			setNormaliseNormals(false);
-            mForcedNormalisation = false;
             break;
         case TEXCALC_ENVIRONMENT_MAP: 
             // D3D7 does not support spherical reflection
-			setNormaliseNormals(true);
-            mForcedNormalisation = true;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
             break;
         case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
-			setNormaliseNormals(false);
-            mForcedNormalisation = false;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR );
             break;
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:
-			setNormaliseNormals(false);
-            mForcedNormalisation = false;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION );
             break;
         case TEXCALC_ENVIRONMENT_MAP_NORMAL:
-			setNormaliseNormals(true);
-            mForcedNormalisation = true;
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACENORMAL );
             break;
         }
@@ -2478,7 +2480,7 @@ namespace Ogre {
     void D3DRenderSystem::setNormaliseNormals(bool normalise)
     {
         __SetRenderState(D3DRENDERSTATE_NORMALIZENORMALS, 
-            (normalise || mForcedNormalisation) ? TRUE : FALSE);
+            normalise ? TRUE : FALSE);
     }
     //---------------------------------------------------------------------
     HRESULT D3DRenderSystem::__SetRenderState(D3DRENDERSTATETYPE state, DWORD value)

@@ -121,8 +121,6 @@ namespace Ogre
 
 		size_t mLastVertexSourceCount;
 
-        /// Flag to indicate normal normalisation is forced
-        bool mForcedNormalisation;
 
         /// Internal method for populating the capabilities structure
         void initCapabilities(void);
