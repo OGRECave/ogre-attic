@@ -31,9 +31,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void String::trim(bool left, bool right)
     {
-        int lspaces, rspaces;
-        int len = length();
-        int i;
+        size_t lspaces, rspaces, len = length(), i;
 
         lspaces = rspaces = 0;
 
@@ -64,7 +62,7 @@ namespace Ogre {
         unsigned int numSplits = 0;
 
         // Use STL methods 
-        unsigned int start, pos;
+        size_t start, pos;
         start = 0;
         do 
         {
