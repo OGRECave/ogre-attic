@@ -2,7 +2,7 @@ function isPelvis bipObj =
 (
 	--format "isPelvis: % Vs %  --> % \n" bipObj.name (biped.getNode bipObj 12).name  ((biped.getNode bipObj 12) == bipObj);
 	if (bipObj == undefined) then return false ;
-	return ((biped.getNode bipObj 12) == bipObj) ;
+	return ((biped.getNode bipObj 13) == bipObj) ;
 )
 
 function isFootStep bipObj =
@@ -18,18 +18,46 @@ function isFootStep bipObj =
 -----------------------------------------------------------------------------
 function getBipedTimeList obj firstframe lastframe =
 (
-	local list,rotContr,posContr,  ;
+	local list,rotContr,posContr,e  ;
 	list = #(firstframe) ;
 	list2 = #() ; -- this is the list which will be returned.
 	
-	-- Biped_Objects and Bones don't have the same properties
+	-- Biped Bones and the root: Bip01 for example don't have the same controller
 	
-	-- Biped_Objets
-	for e in obj.controller.keys do (
-		t =e.time ;
-		if (t>firstFrame and t<=lastFrame) then
-			append list t ;
+	-- Root
+	if (isPelvis obj) then (
+		-- vertical controller
+		for e in obj.controller.vertical.controller.keys do (
+			t =e.time ;
+			if (t>firstFrame and t<=lastFrame) then (
+				append list t ;
+				print t ;	
+			)
+		)
+		-- horizontal controller
+		for e in obj.controller.horizontal.controller.keys do (
+			t =e.time ;
+			if (t>firstFrame and t<=lastFrame) then
+				append list t ;
+		)
+		-- turn controller
+		for e in obj.controller.turning.controller.keys do (
+			t =e.time ;
+			if (t>firstFrame and t<=lastFrame) then
+				append list t ;
+		)
+		sort list ;
 	)
+	
+	else (
+		-- Biped Bones
+		for e in obj.controller.keys do (
+			t =e.time ;
+			if (t>firstFrame and t<=lastFrame) then
+				append list t ;
+		)
+	)
+	
 	-- if several keyframes have the same value, we keep just one
 	keepLoneValues list list2 ;
 	list2 ;
@@ -79,6 +107,8 @@ function writeBipedTrack phy sk boneId firstframe lastframe length scale flipYZ 
 		)
 		else if (flipYZ) then (
 			format " - flipping pelvis track..." ;
+			-- we add the bip Transform
+			--initTform = initTform * d.controller.rootNode.transform ;
 			initTform = flipYZTransform initTform ;
 		)
 	)
