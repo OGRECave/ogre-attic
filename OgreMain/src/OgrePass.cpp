@@ -183,11 +183,12 @@ namespace Ogre {
 	    mAmbient = ambient;
     }
     //-----------------------------------------------------------------------
-    void Pass::setDiffuse(Real red, Real green, Real blue)
+    void Pass::setDiffuse(Real red, Real green, Real blue, Real alpha)
     {
 	    mDiffuse.r = red;
 	    mDiffuse.g = green;
 	    mDiffuse.b = blue;
+		mDiffuse.a = alpha;
     }
     //-----------------------------------------------------------------------
     void Pass::setDiffuse(const ColourValue& diffuse)
@@ -195,11 +196,12 @@ namespace Ogre {
 	    mDiffuse = diffuse;
     }
     //-----------------------------------------------------------------------
-    void Pass::setSpecular(Real red, Real green, Real blue)
+    void Pass::setSpecular(Real red, Real green, Real blue, Real alpha)
     {
 	    mSpecular.r = red;
 	    mSpecular.g = green;
 	    mSpecular.b = blue;
+		mSpecular.a = alpha;
     }
     //-----------------------------------------------------------------------
     void Pass::setSpecular(const ColourValue& specular)

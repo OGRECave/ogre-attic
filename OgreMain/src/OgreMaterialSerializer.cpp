@@ -152,7 +152,9 @@ namespace Ogre
             context.pass->setSpecular(
                 StringConverter::parseReal(vecparams[0]), 
                 StringConverter::parseReal(vecparams[1]), 
-                StringConverter::parseReal(vecparams[2]));
+                StringConverter::parseReal(vecparams[2]), 
+                vecparams.size() == 5? 
+                    StringConverter::parseReal(vecparams[3]) : 1.0f);
             context.pass->setShininess(
                 StringConverter::parseReal(vecparams[vecparams.size() - 1]) );
         }
