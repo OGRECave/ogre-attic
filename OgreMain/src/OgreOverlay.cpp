@@ -282,7 +282,7 @@ namespace Ogre {
 				GuiElement* elementFound = (*i)->findElementAt(x,y);
 				if(elementFound)
 				{
-					currZ = z;
+					currZ = elementFound->getZOrder();
 					ret = elementFound;
 				}
 			}

@@ -155,7 +155,6 @@ namespace Ogre {
     }
 
 
-
 	GuiElement* GuiContainer::findElementAt(Real x, Real y) 		// relative to parent
 	{
 
@@ -177,7 +176,7 @@ namespace Ogre {
 						int z = currentGuiElement->getZOrder();
 						if (z > currZ)
 						{
-							GuiElement* elementFound = currentGuiElement->findElementAt(x - mLeft,y - mTop);
+							GuiElement* elementFound = currentGuiElement->findElementAt(x ,y );
 							if (elementFound)
 							{
 								currZ = z;

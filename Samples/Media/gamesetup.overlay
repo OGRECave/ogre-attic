@@ -44,7 +44,7 @@ template container Button(SS/Templates/BasicButton) : SS/Templates/BasicBorderPa
 
 SS/Setup/HostScreen/Overlay
 {
-	zorder 510
+	zorder 490
 	// Stats block
 	container BorderPanel(SS/Setup/HostScreen/BackPanel) : SS/Templates/BasicBorderPanel
 	{

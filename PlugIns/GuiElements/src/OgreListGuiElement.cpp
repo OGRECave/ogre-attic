@@ -52,6 +52,8 @@ namespace Ogre {
 		mSelectedElement = 0;
 		mVSpacing = 0;
 		mHSpacing = 0;
+		mPixelVSpacing = 0;
+		mPixelHSpacing = 0;
 		mItemPanelMaterial = "";
 		mItemPanelMaterialSelected = "";
 	}
