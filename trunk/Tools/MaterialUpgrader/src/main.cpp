@@ -106,6 +106,9 @@ int main(int numargs, char** args)
     while (it.hasMoreElements())
     {
         Material *m = static_cast<Material*>(it.getNext());
+        // Skip builtin materials
+        if (m->getName() == "BaseWhite" || m->getName() == "BaseWhiteNoLighting")
+            continue;
         serializer.queueForExport(m);
     }
     serializer.exportQueued(dest);
