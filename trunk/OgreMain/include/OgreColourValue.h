@@ -58,7 +58,8 @@ namespace Ogre {
 	    ColourValue( Real red = 1.0f,
 				    Real green = 1.0f,
 				    Real blue = 1.0f,
-				    Real alpha = 1.0f );
+				    Real alpha = 1.0f ) : r(red), g(green), b(blue), a(alpha)
+        { }
 
 	    bool operator==(const ColourValue& rhs) const;
 	    bool operator!=(const ColourValue& rhs) const;

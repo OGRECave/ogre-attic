@@ -35,14 +35,6 @@ namespace Ogre {
     ColourValue ColourValue::Blue = ColourValue(0.0,0.0,1.0);
 
     //---------------------------------------------------------------------
-    inline ColourValue::ColourValue(float red, float green, float blue, float alpha)
-    {
-        r = red;
-        g = green;
-        b = blue;
-        a = alpha;
-    }
-    //---------------------------------------------------------------------
     unsigned long ColourValue::getAsLongRGBA(void) const
     {
         unsigned char val8;

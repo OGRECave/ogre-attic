@@ -79,4 +79,9 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #define OGRE_DEBUG_MEMORY_MANAGER 0
 
+// configure options
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #endif

@@ -29,6 +29,10 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreImageCodec.h"
 
+extern "C" {
+#include "jpeglib.h"
+}
+
 /* To avoid having to add library dependencies to the client apps */
 struct j_decompress_struct;
 typedef struct jpeg_decompress_struct * j_decompress_ptr;
