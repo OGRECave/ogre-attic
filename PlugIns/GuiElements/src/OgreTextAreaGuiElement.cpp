@@ -342,7 +342,7 @@ namespace Ogre {
 
     void TextAreaGuiElement::setCharHeight( Real height )
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelCharHeight = height;
         }
@@ -366,7 +366,7 @@ namespace Ogre {
 
     void TextAreaGuiElement::setSpaceWidth( Real width )
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelSpaceWidth = width;
         }
@@ -521,19 +521,24 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-	void TextAreaGuiElement::setMetricsMode(GuiMetricsMode gmm)
-	{
-		GuiElement::setMetricsMode(gmm);
-		if (gmm == GMM_PIXELS)
-		{
-			mPixelCharHeight = mCharHeight;
-			mPixelSpaceWidth = mSpaceWidth;
-		}
-	}
+    void TextAreaGuiElement::setMetricsMode(GuiMetricsMode gmm)
+    {
+        GuiElement::setMetricsMode(gmm);
+        if (gmm != GMM_RELATIVE)
+        {
+            // Set pixel variables based on viewport multipliers
+            Real vpHeight;
+            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
+            mPixelCharHeight = mCharHeight * vpHeight;
+            mPixelSpaceWidth = mSpaceWidth * vpHeight;
+        }
+    }
+
     //-----------------------------------------------------------------------
     void TextAreaGuiElement::_update(void)
     {
-        if (mMetricsMode == GMM_PIXELS && 
+        if (mMetricsMode != GMM_RELATIVE && 
             (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
             // Recalc character size

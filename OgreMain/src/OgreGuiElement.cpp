@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreGuiElement.h"
+#include "OgreGuiManager.h"
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
 #include "OgreGuiContainer.h"
@@ -71,9 +72,15 @@ namespace Ogre {
         mMetricsMode = GMM_RELATIVE;
         mHorzAlign = GHA_LEFT;
         mVertAlign = GVA_TOP;
-        mGeomPositionsOutOfDate = true;       
+        mGeomPositionsOutOfDate = true;  
 		mEnabled = true;
-    mSourceTemplate = NULL ;
+        mPixelLeft = 0.0;
+        mPixelTop = 0.0;
+        mPixelWidth = 1.0;
+        mPixelHeight = 1.0;
+        mPixelScaleX = 1.0;
+        mPixelScaleY = 1.0;
+        mSourceTemplate = NULL;
     }
     //---------------------------------------------------------------------
     GuiElement::~GuiElement()
@@ -102,10 +109,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setDimensions(Real width, Real height)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelWidth = (short int)width;
-            mPixelHeight = (short int)height;
+            mPixelWidth = width;
+            mPixelHeight = height;
         }
         else
         {
@@ -118,10 +125,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setPosition(Real left, Real top)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelLeft = (short int)left;
-            mPixelTop = (short int)top;
+            mPixelLeft = left;
+            mPixelTop = top;
         }
         else
         {
@@ -135,22 +142,23 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setWidth(Real width)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelWidth = (short int)width;
+            mPixelWidth = width;
         }
         else
         {
             mWidth = width;
         }
+        mDerivedOutOfDate = true;
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     Real GuiElement::getWidth(void) const
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-			return (Real)mPixelWidth;
+			return mPixelWidth;
 		}
 		else
 		{
@@ -160,22 +168,23 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setHeight(Real height)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelHeight = (short int)height;
+            mPixelHeight = height;
         }
         else
         {
             mHeight = height;
         }
+        mDerivedOutOfDate = true;
         _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     Real GuiElement::getHeight(void) const
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-			return (Real)mPixelHeight;
+			return mPixelHeight;
 		}
 		else
 		{
@@ -185,9 +194,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setLeft(Real left)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelLeft = (short int)left;
+            mPixelLeft = left;
         }
         else
         {
@@ -199,9 +208,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real GuiElement::getLeft(void) const
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-			return (Real)mPixelLeft;
+			return mPixelLeft;
 		}
 		else
 		{
@@ -211,9 +220,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::setTop(Real top)
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-            mPixelTop = (short int)top;
+            mPixelTop = top;
         }
         else
         {
@@ -226,14 +235,72 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real GuiElement::getTop(void) const
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
-			return (Real)mPixelTop;
+			return mPixelTop;
 		}
 		else
 		{
 	        return mTop;
 		}
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_setLeft(Real left)
+    {
+        mLeft = left;
+        mPixelLeft = left / mPixelScaleX;
+
+        mDerivedOutOfDate = true;
+        _positionsOutOfDate();
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_setTop(Real top)
+    {
+        mTop = top;
+        mPixelTop = top / mPixelScaleY;
+
+        mDerivedOutOfDate = true;
+        _positionsOutOfDate();
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_setWidth(Real width)
+    {
+        mWidth = width;
+        mPixelWidth = width / mPixelScaleX;
+
+        mDerivedOutOfDate = true;
+        _positionsOutOfDate();
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_setHeight(Real height)
+    {
+        mHeight = height;
+        mPixelHeight = height / mPixelScaleY;
+
+        mDerivedOutOfDate = true;
+        _positionsOutOfDate();
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_setPosition(Real left, Real top)
+    {
+        mLeft = left;
+        mTop  = top;
+        mPixelLeft = left / mPixelScaleX;
+        mPixelTop  = top / mPixelScaleY;
+
+        mDerivedOutOfDate = true;
+        _positionsOutOfDate();
+    }
+    //---------------------------------------------------------------------
+    void GuiElement::_setDimensions(Real width, Real height)
+    {
+        mWidth  = width;
+        mHeight = height;
+        mPixelWidth  = width / mPixelScaleX;
+        mPixelHeight = height / mPixelScaleY;
+
+        mDerivedOutOfDate = true;
+        _positionsOutOfDate();
     }
     //---------------------------------------------------------------------
     const String& GuiElement::getMaterialName(void) const
@@ -296,20 +363,45 @@ namespace Ogre {
     void GuiElement::_update(void)
     {
         // Check size if pixel-based
-        if (mMetricsMode == GMM_PIXELS &&
-            (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
+        switch (mMetricsMode)
         {
-            // Derive parametric version of dimensions
-            Real vpWidth, vpHeight;
-            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
-            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+        case GMM_PIXELS :
+            if (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate)
+            {
+                Real vpWidth, vpHeight;
+                OverlayManager& oMgr = OverlayManager::getSingleton();
+                vpWidth = (Real) (oMgr.getViewportWidth());
+                vpHeight = (Real) (oMgr.getViewportHeight());
 
-            mLeft = (Real) mPixelLeft / vpWidth;
-            mWidth = (Real) mPixelWidth / vpWidth;
-            mTop = (Real) mPixelTop / vpHeight;
-            mHeight = (Real) mPixelHeight / vpHeight;
-			mGeomPositionsOutOfDate = true;
+                mPixelScaleX = 1.0 / vpWidth;
+                mPixelScaleY = 1.0 / vpHeight;
+
+                mLeft = mPixelLeft * mPixelScaleX;
+                mTop = mPixelTop * mPixelScaleY;
+                mWidth = mPixelWidth * mPixelScaleX;
+                mHeight = mPixelHeight * mPixelScaleY;
+            }
+            break;
+
+        case GMM_RELATIVE_ASPECT_ADJUSTED :
+            if (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate)
+            {
+                Real vpWidth, vpHeight;
+                OverlayManager& oMgr = OverlayManager::getSingleton();
+                vpWidth = (Real) (oMgr.getViewportWidth());
+                vpHeight = (Real) (oMgr.getViewportHeight());
+
+                mPixelScaleX = 1.0 / (10000.0 * (vpWidth / vpHeight));
+                mPixelScaleY = 1.0 /  10000.0;
+
+                mLeft = mPixelLeft * mPixelScaleX;
+                mTop = mPixelTop * mPixelScaleY;
+                mWidth = mPixelWidth * mPixelScaleX;
+                mHeight = mPixelHeight * mPixelScaleY;
+            }
+            break;
         }
+
         _updateFromParent();
         // NB container subclasses will update children too
 
@@ -375,6 +467,27 @@ namespace Ogre {
 
         mDerivedOutOfDate = false;
 
+        if (mParent != 0)
+        {
+            Rectangle parent;
+            Rectangle child;
+
+            mParent->_getClippingRegion(parent);
+
+            child.left   = mDerivedLeft;
+            child.top    = mDerivedTop;
+            child.right  = mDerivedLeft + mWidth;
+            child.bottom = mDerivedTop + mHeight;
+
+            mClippingRegion = intersect(parent, child);
+        }
+        else
+        {
+            mClippingRegion.left   = mDerivedLeft;
+            mClippingRegion.top    = mDerivedTop;
+            mClippingRegion.right  = mDerivedLeft + mWidth;
+            mClippingRegion.bottom = mDerivedTop + mHeight;
+        }
     }
     //---------------------------------------------------------------------
     void GuiElement::_notifyParent(GuiContainer* parent, Overlay* overlay)
@@ -402,11 +515,74 @@ namespace Ogre {
         }
         return mDerivedTop;
     }
+    //---------------------------------------------------------------------    
+    void GuiElement::_getClippingRegion(Rectangle &clippingRegion)
+    {
+        if (mDerivedOutOfDate)
+        {
+            _updateFromParent();
+        }
+        clippingRegion = mClippingRegion;
+    }
     //---------------------------------------------------------------------
     void GuiElement::_notifyZOrder(ushort newZOrder)
     {
         mZOrder = newZOrder;
     }
+
+    //---------------------------------------------------------------------
+    void GuiElement::_notifyWorldTransforms(const Matrix4& xform)
+    {
+        mXForm = xform;
+    }
+
+    //---------------------------------------------------------------------
+    void GuiElement::_notifyViewport()
+    {
+        switch (mMetricsMode)
+        {
+        case GMM_PIXELS :
+            {
+                Real vpWidth, vpHeight;
+                OverlayManager& oMgr = OverlayManager::getSingleton();
+                vpWidth = (Real) (oMgr.getViewportWidth());
+                vpHeight = (Real) (oMgr.getViewportHeight());
+
+                mPixelScaleX = 1.0 / vpWidth;
+                mPixelScaleY = 1.0 / vpHeight;
+            }
+            break;
+
+        case GMM_RELATIVE_ASPECT_ADJUSTED :
+            {
+                Real vpWidth, vpHeight;
+                OverlayManager& oMgr = OverlayManager::getSingleton();
+                vpWidth = (Real) (oMgr.getViewportWidth());
+                vpHeight = (Real) (oMgr.getViewportHeight());
+
+                mPixelScaleX = 1.0 / (10000.0 * (vpWidth / vpHeight));
+                mPixelScaleY = 1.0 /  10000.0;
+            }
+            break;
+
+        case GMM_RELATIVE :
+            mPixelScaleX = 1.0;
+            mPixelScaleY = 1.0;
+            mPixelLeft = mLeft;
+            mPixelTop = mTop;
+            mPixelWidth = mWidth;
+            mPixelHeight = mHeight;
+            break;
+        }
+
+        mLeft = mPixelLeft * mPixelScaleX;
+        mTop = mPixelTop * mPixelScaleY;
+        mWidth = mPixelWidth * mPixelScaleX;
+        mHeight = mPixelHeight * mPixelScaleY;
+
+        mGeomPositionsOutOfDate = true;
+    }
+
     //---------------------------------------------------------------------
     void GuiElement::_updateRenderQueue(RenderQueue* queue)
     {
@@ -446,7 +622,7 @@ namespace Ogre {
             , PT_STRING),
             &msCaptionCmd);
         dict->addParameter(ParameterDef("metrics_mode", 
-            "The type of metrics to use, either 'relative' to the screen, or 'pixels'."
+            "The type of metrics to use, either 'relative' to the screen, 'pixels' or 'relative_aspect_adjusted'."
             , PT_STRING),
             &msMetricsModeCmd);
         dict->addParameter(ParameterDef("horz_align", 
@@ -486,16 +662,64 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void GuiElement::setMetricsMode(GuiMetricsMode gmm)
     {
-        mMetricsMode = gmm;
-        if (mMetricsMode == GMM_PIXELS)
+        switch (gmm)
         {
-            // Copy settings into pixel versions
-            // Relative versions will be derived at viewport change time
-            mPixelLeft = (short int)mLeft;
-            mPixelTop = (short int)mTop;
-            mPixelWidth = (short int)mWidth;
-            mPixelHeight = (short int)mHeight;
+        case GMM_PIXELS :
+            {
+                Real vpWidth, vpHeight;
+                OverlayManager& oMgr = OverlayManager::getSingleton();
+                vpWidth = (Real) (oMgr.getViewportWidth());
+                vpHeight = (Real) (oMgr.getViewportHeight());
+
+                mPixelScaleX = 1.0 / vpWidth;
+                mPixelScaleY = 1.0 / vpHeight;
+
+                if (mMetricsMode == GMM_RELATIVE)
+                {
+                    mPixelLeft = mLeft;
+                    mPixelTop = mTop;
+                    mPixelWidth = mWidth;
+                    mPixelHeight = mHeight;
+                }
+            }
+            break;
+
+        case GMM_RELATIVE_ASPECT_ADJUSTED :
+            {
+                Real vpWidth, vpHeight;
+                OverlayManager& oMgr = OverlayManager::getSingleton();
+                vpWidth = (Real) (oMgr.getViewportWidth());
+                vpHeight = (Real) (oMgr.getViewportHeight());
+
+                mPixelScaleX = 1.0 / (10000.0 * (vpWidth / vpHeight));
+                mPixelScaleY = 1.0 /  10000.0;
+
+                if (mMetricsMode == GMM_RELATIVE)
+                {
+                    mPixelLeft = mLeft;
+                    mPixelTop = mTop;
+                    mPixelWidth = mWidth;
+                    mPixelHeight = mHeight;
+                }
+            }
+            break;
+
+        case GMM_RELATIVE :
+            mPixelScaleX = 1.0;
+            mPixelScaleY = 1.0;
+            mPixelLeft = mLeft;
+            mPixelTop = mTop;
+            mPixelWidth = mWidth;
+            mPixelHeight = mHeight;
+            break;
         }
+
+        mLeft = mPixelLeft * mPixelScaleX;
+        mTop = mPixelTop * mPixelScaleY;
+        mWidth = mPixelWidth * mPixelScaleX;
+        mHeight = mPixelHeight * mPixelScaleY;
+
+        mMetricsMode = gmm;
         mDerivedOutOfDate = true;
         _positionsOutOfDate();
     }
@@ -532,7 +756,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	bool GuiElement::contains(Real x, Real y) const
 	{
-	return (x >= mDerivedLeft) && (x < mDerivedLeft + mWidth ) && (y >= mDerivedTop) && (y < mDerivedTop + mHeight );
+        return mClippingRegion.inside(x, y);
 	}
 
     //-----------------------------------------------------------------------
@@ -594,6 +818,16 @@ namespace Ogre {
     mSourceTemplate = templateGui ;
 		return;
 	}
+
+    GuiElement* GuiElement::clone(const String& instanceName)
+    {
+        GuiElement* newElement;
+
+        newElement = GuiManager::getSingleton().createGuiElement(getTypeName(), instanceName + "/" + mName);
+        copyParametersTo(newElement);
+
+        return newElement;
+    }
 
     //-----------------------------------------------------------------------
 	bool GuiElement::isEnabled() const

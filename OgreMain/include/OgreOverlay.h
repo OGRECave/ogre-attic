@@ -83,6 +83,7 @@ namespace Ogre {
 
         mutable Matrix4 mTransform;
         mutable bool mTransformOutOfDate;
+        bool mTransformUpdated;
         /** Internal lazy update method. */
         void updateTransform(void) const;
 

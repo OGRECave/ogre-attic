@@ -1341,6 +1341,8 @@ namespace Ogre {
 
         }
 
+        mDestRenderSystem->setClipPlanes(rend->getClipPlanes());
+
         // Set up rendering operation
         rend->getRenderOperation(ro);
 		ro.srcRenderable = rend;

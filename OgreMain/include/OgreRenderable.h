@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderOperation.h"
 #include "OgreMatrix4.h"
 #include "OgreMaterial.h"
+#include "OgrePlane.h"
+#include "OgreRectangle.h"
 
 
 namespace Ogre {
@@ -137,7 +139,10 @@ namespace Ogre {
         */
         virtual const LightList& getLights(void) const = 0;
 
+        virtual const PlaneList& getClipPlanes() const { return msDummyPlaneList; };
 
+    private:
+        static const PlaneList msDummyPlaneList;
     };
 
 

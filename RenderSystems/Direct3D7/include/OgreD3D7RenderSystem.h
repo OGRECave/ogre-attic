@@ -379,7 +379,11 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params) { /* do nothing */}
+        void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params) { /* do nothing */}    
+        /** See
+          RenderSystem
+         */
+        void setClipPlanes(const PlaneList& clipPlanes);
         /** See
           RenderSystem
          */

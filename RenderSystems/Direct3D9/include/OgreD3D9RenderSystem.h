@@ -207,6 +207,11 @@ namespace Ogre
         void bindGpuProgram(GpuProgram* prg);
         void unbindGpuProgram(GpuProgramType gptype);
         void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params);
+        /** See
+          RenderSystem
+         */
+        void setClipPlanes(const PlaneList& clipPlanes);
+
         void setScissorTest(bool enabled, size_t left = 0, size_t top = 0, size_t right = 800, size_t bottom = 600);
         void clearFrameBuffer(unsigned int buffers, 
             const ColourValue& colour = ColourValue::Black, 

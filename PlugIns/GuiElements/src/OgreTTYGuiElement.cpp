@@ -597,7 +597,7 @@ namespace Ogre {
 
     void TTYGuiElement::setCharHeight( Real height )
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelCharHeight = height;
         }
@@ -622,7 +622,7 @@ namespace Ogre {
 
     void TTYGuiElement::setSpaceWidth( Real width )
     {
-        if (mMetricsMode == GMM_PIXELS)
+        if (mMetricsMode != GMM_RELATIVE)
         {
             mPixelSpaceWidth = width;
         }
@@ -753,7 +753,7 @@ namespace Ogre {
     void TTYGuiElement::setMetricsMode(GuiMetricsMode gmm)
     {
         GuiElement::setMetricsMode(gmm);
-        if (gmm == GMM_PIXELS)
+        if (gmm != GMM_RELATIVE)
         {
             mPixelCharHeight = mCharHeight;
             mPixelSpaceWidth = mSpaceWidth;
@@ -762,7 +762,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TTYGuiElement::_update(void)
     {
-        if (mMetricsMode == GMM_PIXELS && 
+        if (mMetricsMode != GMM_RELATIVE && 
             (OverlayManager::getSingleton().hasViewportChanged() || mGeomPositionsOutOfDate))
         {
             // Recalc character size

@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
+
 	//---------------------------------------------------------------------
 	D3D9RenderSystem::D3D9RenderSystem( HINSTANCE hInstance )
 	{
@@ -2112,6 +2113,42 @@ namespace Ogre
             break;
         };
     }
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::setClipPlanes(const PlaneList& clipPlanes)
+    {
+        size_t i;
+        size_t numClipPlanes;
+        float dx9ClipPlane[4];
+        DWORD mask = 0;
+        HRESULT hr;
+
+        numClipPlanes = clipPlanes.size();
+        for (i = 0; i < numClipPlanes; ++i)
+        {
+            const Plane& plane = clipPlanes[i];
+
+            dx9ClipPlane[0] = plane.normal.x;
+            dx9ClipPlane[1] = plane.normal.y;
+            dx9ClipPlane[2] = plane.normal.z;
+            dx9ClipPlane[3] = -plane.d;
+
+            hr = mpD3DDevice->SetClipPlane(i, dx9ClipPlane);
+            if (FAILED(hr))
+            {
+                Except(hr, "Unable to set clip plane", 
+                    "D3D9RenderSystem::setClipPlanes");
+            }
+
+            mask |= (1 << i);
+        }
+
+        hr = mpD3DDevice->SetRenderState(D3DRS_CLIPPLANEENABLE, mask);
+        if (FAILED(hr))
+        {
+            Except(hr, "Unable to set render state for clip planes", 
+                "D3D9RenderSystem::setClipPlanes");
+        }
+    }
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::setScissorTest(bool enabled, size_t left, size_t top, size_t right,
         size_t bottom)
@@ -2214,5 +2251,4 @@ namespace Ogre
     {
         return new D3D9HardwareOcclusionQuery(mpD3DDevice); 
     }
-
 }

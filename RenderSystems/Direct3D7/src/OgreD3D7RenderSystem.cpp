@@ -22,6 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include <malloc.h>
 #include "OgreD3D7RenderSystem.h"
 #include "OgreDDDriver.h"
 #include "OgreD3D7Device.h"
@@ -2518,6 +2519,7 @@ namespace Ogre {
         else
             return mlpD3DDevice->SetTextureStageState(stage, type, value);
     }
+
     //---------------------------------------------------------------------
     void D3DRenderSystem::clearFrameBuffer(unsigned int buffers, 
         const ColourValue& colour, Real depth, unsigned short stencil)
@@ -2568,6 +2570,43 @@ namespace Ogre {
         dest[2][3] = -Q * nearPlane;
     }
 
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::setClipPlanes(const PlaneList& clipPlanes)
+    {
+        size_t i;
+        size_t numClipPlanes;
+        D3DVALUE dx7ClipPlane[4];
+        DWORD mask = 0;
+        HRESULT hr;
+        numClipPlanes = clipPlanes.size();
+
+        for (i = 0; i < numClipPlanes; ++i)
+        {
+            const Plane& plane = clipPlanes[i];
+
+            dx7ClipPlane[0] = plane.normal.x;
+            dx7ClipPlane[1] = plane.normal.y;
+            dx7ClipPlane[2] = plane.normal.z;
+            dx7ClipPlane[3] = -plane.d;
+
+            hr = mlpD3DDevice->SetClipPlane(i, dx7ClipPlane);
+            if (FAILED(hr))
+            {
+                Except(hr, "Unable to set clip plane", 
+                    "D3D7RenderSystem::setClipPlanes");
+            }
+
+            mask |= (1 << i);
+        }
+
+        hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_CLIPPLANEENABLE, mask);
+        if (FAILED(hr))
+        {
+            Except(hr, "Unable to set render state for clip planes", 
+                "D3D7RenderSystem::setClipPlanes");
+        }
+    }
+
     // ------------------------------------------------------------------
     void D3DRenderSystem::setClipPlane (ushort index, Real A, Real B, Real C, Real D)
     {
@@ -2587,6 +2626,5 @@ namespace Ogre {
     {
         return (HardwareOcclusionQuery*) 0;	// Hardware occlusion is not supported when DirectX7 is used
     }
-
 
 }
