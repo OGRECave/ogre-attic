@@ -67,6 +67,12 @@ namespace Ogre {
         mPosition = Vector3::ZERO;
         mDirection = Vector3::UNIT_Z;
 
+        // Default some spot values
+        mSpotInner = 30.0f;
+        mSpotOuter = 40.0f;
+        mSpotFalloff = 1.0f;
+
+
         // Deafult modified
         mModified = true;
     }
