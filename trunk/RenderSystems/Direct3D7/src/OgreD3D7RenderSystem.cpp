@@ -46,9 +46,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 namespace Ogre {
-    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE(
+    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
         0.5,    0,  0, -0.5, 
         0, -0.5,  0, -0.5, 
+        0,    0,  0,   1,
+        0,    0,  0,   1);
+
+    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO(
+        -0.5,    0,  0, -0.5, 
+        0, 0.5,  0, -0.5, 
         0,    0,  0,   1,
         0,    0,  0,   1);
 
@@ -989,7 +995,14 @@ namespace Ogre {
             newMat = mViewMatrix.inverse() * newMat;
             newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
             newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
-            newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE * newMat;
+            if (mTexStageDesc[stage].frustum->getProjectionType() == PT_PERSPECTIVE)
+            {
+                newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * newMat;
+            }
+            else
+            {
+                newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO * newMat;
+            }
 
         }
 
