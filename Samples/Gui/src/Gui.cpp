@@ -129,6 +129,17 @@ public:
 		CEGUI::System::getSingleton().injectChar(e->getKeyChar());
         e->consume();
     }
+
+	void keyReleased(KeyEvent* e)
+	{
+		CEGUI::System::getSingleton().injectKeyUp(e->getKey());
+		e->consume();
+	}
+	void keyClicked(KeyEvent* e) 
+	{
+		// Do nothing
+		e->consume();
+	}
 };
 
 class GuiApplication : public ExampleApplication
