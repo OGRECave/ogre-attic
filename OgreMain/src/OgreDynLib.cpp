@@ -77,7 +77,7 @@ namespace Ogre {
             Except(
                 Exception::ERR_INTERNAL_ERROR, 
                 "Could not load dynamic library " + mName + 
-                ".  System Error: " + DYNLIB_ERROR(),
+                ".  System Error: " + dynlibError(),
                 "DynLib::load" );
 
         OgreUnguard();
@@ -96,7 +96,7 @@ namespace Ogre {
             Except(
                 Exception::ERR_INTERNAL_ERROR, 
                 "Could not unload dynamic library " + mName +
-                ".  System Error: " + DYNLIB_ERROR(),
+                ".  System Error: " + dynlibError(),
                 "DynLib::unload");
 		}
 
@@ -108,4 +108,33 @@ namespace Ogre {
     {
         return (void*)DYNLIB_GETSYM( m_hInst, strName.c_str() );
     }
+    //-----------------------------------------------------------------------
+    String DynLib::dynlibError( void ) 
+    {
+#if OGRE_PLATFORM == PLATFORM_WIN32
+        LPVOID lpMsgBuf; 
+        FormatMessage( 
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+            FORMAT_MESSAGE_FROM_SYSTEM | 
+            FORMAT_MESSAGE_IGNORE_INSERTS, 
+            NULL, 
+            GetLastError(), 
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), 
+            (LPTSTR) &lpMsgBuf, 
+            0, 
+            NULL 
+            ); 
+        String ret = (char*)lpMsgBuf;
+        // Free the buffer.
+        LocalFree( lpMsgBuf );
+        return ret;
+#elif OGRE_PLATFORM == PLATFORM_LINUX
+        return String(dlerror());
+#elif OGRE_PLATFORM == PLATFORM_APPLE
+        return String(mac_errorBundle());
+#else
+        return String("");
+#endif
+    }
+
 }

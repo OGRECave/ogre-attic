@@ -32,7 +32,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #    define DYNLIB_LOAD( a ) LoadLibrary( a )
 #    define DYNLIB_GETSYM( a, b ) GetProcAddress( a, b )
 #    define DYNLIB_UNLOAD( a ) !FreeLibrary( a )
-#    define DYNLIB_ERROR( )  "Unknown Error"
 
 struct HINSTANCE__;
 typedef struct HINSTANCE__* hInstance;
@@ -42,14 +41,12 @@ typedef struct HINSTANCE__* hInstance;
 #    define DYNLIB_LOAD( a ) dlopen( a, RTLD_LAZY )
 #    define DYNLIB_GETSYM( a, b ) dlsym( a, b )
 #    define DYNLIB_UNLOAD( a ) dlclose( a )
-#    define DYNLIB_ERROR( ) dlerror( )
 
 #elif OGRE_PLATFORM == PLATFORM_APPLE
 #    define DYNLIB_HANDLE CFBundleRef
 #    define DYNLIB_LOAD( a ) mac_loadExeBundle( a )
 #    define DYNLIB_GETSYM( a, b ) mac_getBundleSym( a, b )
 #    define DYNLIB_UNLOAD( a ) mac_unloadExeBundle( a )
-#    define DYNLIB_ERROR( ) mac_errorBundle()
 #endif
 
 namespace Ogre {
@@ -69,6 +66,8 @@ namespace Ogre {
     {
 	protected:
 		String mName;
+        /// Gets the last loading error
+        String dynlibError(void);
     public:
         /** Default constructor - used by DynLibManager.
             @warning
