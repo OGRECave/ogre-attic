@@ -44,15 +44,15 @@ namespace Ogre
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
     //---------------------------------------------------------------------
-	FontManager::FontManager() : ResourceManager()
+	FontManager::FontManager() : ResourceManager(),
 	{
+        // Loading order
+        mLoadOrder = 200.0f;
 		// Scripting is supported by this manager
 		mScriptPatterns.push_back("*.fontdef");
 		// Register scripting with resource group manager
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 
-		// Loading order
-		mLoadOrder = 200.0f;
 		// Resource type
 		mResourceType = "Font";
 

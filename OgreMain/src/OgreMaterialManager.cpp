@@ -56,13 +56,13 @@ namespace Ogre {
 	    mDefaultMipFilter = FO_POINT;
 		mDefaultMaxAniso = 1;
 
+        // Loading order
+        mLoadOrder = 100.0f;
 		// Scripting is supported by this manager
 		mScriptPatterns.push_back("*.program");
 		mScriptPatterns.push_back("*.material");
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
 
-		// Loading order
-		mLoadOrder = 100.0f;
 		// Resource type
 		mResourceType = "Material";
 

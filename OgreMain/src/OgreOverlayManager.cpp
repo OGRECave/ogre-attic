@@ -59,11 +59,11 @@ namespace Ogre {
     {
 		mCursorGuiRegistered = 0;
 
+        // Loading order
+        mLoadOrder = 200.0f;
         // Scripting is supported by this manager
         mScriptPatterns.push_back("*.overlay");
 		ResourceGroupManager::getSingleton()._registerScriptLoader(this);
-        // Loading order
-        mLoadOrder = 200.0f;
         // Resource type
         mResourceType = "Overlay";
 
