@@ -56,7 +56,7 @@ InstallDir "c:\OgreSDK"
 ShowInstDetails show
 ShowUnInstDetails show
 
-Section "MainSection" SEC01
+Section -Headers
 
   ; Required header files
   ; Core
@@ -78,15 +78,16 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR\include\refapp"
   SetOverwrite try
   File /r /x CVS "..\..\ReferenceApplication\ReferenceAppLayer\include\*.*"
-
-
+  
   ; Optional headers (for linking direct to plugins)
   SetOutPath "$INSTDIR\include\opt"
   SetOverwrite try
   File /r /x CVS "..\..\Plugins\OctreeSceneManager\include\*.h"
   File /r /x CVS "..\..\Plugins\BspSceneManager\include\*.h"
 
+SectionEnd
 
+Section -Libs
   ; Library files
   SetOutPath "$INSTDIR\lib"
   SetOverwrite try
@@ -116,21 +117,9 @@ Section "MainSection" SEC01
   File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
   File "..\..\ReferenceApplication\ReferenceAppLayer\lib\Release\ReferenceAppLayer.lib"
 
-  ; Samples
-  ; We assume copysamples.sh has been run recently enough for these files to be available
-  SetOutPath "$INSTDIR\Samples\scripts"
-  SetOverwrite try
-  File ".\Samples\scripts\*.vcproj"
-  SetOutPath "$INSTDIR\Samples\src"
-  SetOverwrite try
-  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.cpp"
-  SetOutPath "$INSTDIR\Samples\include"
-  SetOverwrite try
-  File /r /x CVS /x CEGUIRenderer "..\..\Samples\*.h"
+SectionEnd
 
-  ; TODO: reference app source & bspcollision source
-
-
+Section -Binaries
 
   ; Binaries - debug
   SetOutPath "$INSTDIR\bin\Debug"
@@ -157,8 +146,6 @@ Section "MainSection" SEC01
   File "..\..\Samples\Common\bin\Debug\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Debug\OgreGUIRenderer_d.dll"
 
-
-
   ; Binaries - release
   SetOutPath "$INSTDIR\bin\Release"
   SetOverwrite ifnewer
@@ -184,6 +171,9 @@ Section "MainSection" SEC01
   File "..\..\Samples\Common\bin\Release\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Release\OgreGUIRenderer.dll"
 
+SectionEnd
+
+Section -Docs
   ; Documentation
   SetOutPath "$INSTDIR\docs\manual\images"
   SetOverwrite try
@@ -193,11 +183,11 @@ Section "MainSection" SEC01
 
   SetOutPath "$INSTDIR\docs\api"
   SetOverwrite try
-  File "..\..\Docs\api\html\*.*"
+  File "..\..\Docs\api\html\OgreAPIReference.*"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
   CreateShortCut "OGRE Manual.lnk" "$INSTDIR\docs\manual\index.html"
-  CreateShortCut "OGRE API Reference.lnk" "$INSTDIR\docs\api\index.html"
+  CreateShortCut "OGRE API Reference.lnk" "$INSTDIR\docs\api\OgreAPIReference.chm"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
@@ -219,6 +209,9 @@ Section -Post
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  
+  ; Register OGRE_HOME
+
 SectionEnd
 
 
