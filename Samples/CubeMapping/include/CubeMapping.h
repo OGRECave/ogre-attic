@@ -132,12 +132,12 @@ private:
 	Real density ;
 	Real timeDensity ;
 	bool noiseOn ;
-	unsigned int currentMeshIndex ;
-	std::vector<String> availableMeshes ;
-	int currentLBXindex ;
+	size_t currentMeshIndex ;
+	StringVector availableMeshes ;
+	size_t currentLBXindex ;
 	LayerBlendOperationEx currentLBX ;
 	size_t currentCubeMapIndex ;
-	std::vector<String> availableCubeMaps ;
+	StringVector availableCubeMaps ;
 	Material *material ;
 	
 	void _updatePositionNoise(int numVertices, Real *dstVertices,
@@ -257,15 +257,13 @@ private:
 
 	void updateNoise()
 	{
-		bool usedShared = false ;
-		Real *sharedNormals ;
+		Real *sharedNormals = 0 ;
 		for(int m=0;m<clonedMesh->getNumSubMeshes();m++) { // for each subMesh
 			SubMesh *subMesh = clonedMesh->getSubMesh(m);
 			SubMesh *orgSubMesh = originalMesh->getSubMesh(m);
 			if (subMesh->useSharedVertices) {
-				if (!usedShared) { // first of shared
+				if (!sharedNormals) { // first of shared
 					sharedNormals = _normalsGetCleared(clonedMesh->sharedVertexData);
-					usedShared = true ;
 				}
 				_updateVertexDataNoiseAndNormals(
 					clonedMesh->sharedVertexData, 
@@ -282,7 +280,7 @@ private:
 				_normalsSaveNormalized(subMesh->vertexData, normals);
 			}
 		}
-		if (usedShared) {
+		if (sharedNormals) {
 			_normalsSaveNormalized(clonedMesh->sharedVertexData, sharedNormals);
 		}
 	}
@@ -477,30 +475,23 @@ private:
 		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/TimeDensity")
 			->setCaption("[5/6] Time density: "+StringConverter::toString(timeDensity));
 	}
-	void switchObjects()
+	void setObject()
 	{
-		currentMeshIndex++;
-		if (currentMeshIndex >= availableMeshes.size())
-			currentMeshIndex=0;
-
+		currentMeshIndex %= availableMeshes.size();
 		const String& meshName = availableMeshes[currentMeshIndex];
 		printf("Switching to object: %s\n", meshName.c_str());
 		prepareEntity(meshName);
 		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Object")
-			->setCaption("[O] Object: "+meshName);		
+			->setCaption("[O] Object: "+meshName);
 	}
-	void switchNoiseOn()
+	void setNoiseOn()
 	{
-		noiseOn = !noiseOn ;
 		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Noise")
 			->setCaption(String("[N] Noise: ")+ ((noiseOn)?"on":"off") );		
 	}
-	void switchMaterialBlending()
+	void setMaterialBlending()
 	{
-		currentLBXindex++;
-		if (currentLBXindex>5) {
-			currentLBXindex = 0;
-		}
+		currentLBXindex %= 5;
 		String lbxName ;
 #define _LAZYERU_(a,b,c) case a : currentLBX = b ; lbxName = c ; break ;
 		switch (currentLBXindex) {
@@ -518,12 +509,10 @@ private:
 		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Material")
 			->setCaption("[M] Material blend:"+lbxName);
 	}
-	void switchCubeMap()
+	void setCubeMap()
 	{
+		currentCubeMapIndex %= availableCubeMaps.size();
 		int i ;
-		currentCubeMapIndex++;
-		if (currentCubeMapIndex>=availableCubeMaps.size())
-			currentCubeMapIndex = 0 ;
 		String cubeMapName = availableCubeMaps[currentCubeMapIndex];
 		
 		for(i=0;i<material->getTextureLayer(0)->getNumFrames();i++) {
@@ -570,6 +559,15 @@ private:
 		updateInfoTimeDensity();
 	}
 	
+#define MEDIA_FILENAME "media.cfg"
+	void readConfig()
+	{
+		ConfigFile cfg;
+		cfg.load( MEDIA_FILENAME );
+		availableMeshes = cfg.getMultiSetting("Mesh");
+		availableCubeMaps = cfg.getMultiSetting("CubeMap");
+	}
+	
 public:
     CubeMapListener(RenderWindow* win, Camera* cam,
 			SceneManager *sceneMgr, SceneNode *objectNode)
@@ -593,38 +591,20 @@ public:
 				"Can't find material: "+String(MATERIAL_NAME),
 				"CubeMapListener::CubeMapListener");
 		}
+		
+		readConfig();
 
-		availableMeshes.push_back("ogrehead.mesh");
-		availableMeshes.push_back("geosphere4500.mesh");
-		availableMeshes.push_back("razor.mesh");
-		availableMeshes.push_back("geosphere12500.mesh");
-		availableMeshes.push_back("knot.mesh");
-		availableMeshes.push_back("geosphere19220.mesh");
-		availableMeshes.push_back("RZR-002.mesh");
-		availableMeshes.push_back("geosphere1000.mesh");
-		availableMeshes.push_back("geosphere8000.mesh");
-		availableMeshes.push_back("sphere.mesh");
-		//~ availableMeshes.push_back("robot.mesh");
+		currentMeshIndex = 0 ;
+		setObject();
 		
-		availableCubeMaps.push_back("early_morning.jpg");
-		availableCubeMaps.push_back("cubemap.jpg");
-		availableCubeMaps.push_back("morning.jpg");
-		availableCubeMaps.push_back("cubescene.jpg");
-		availableCubeMaps.push_back("cloudy_noon.jpg");
-		availableCubeMaps.push_back("evening.jpg");
-		availableCubeMaps.push_back("stormy.jpg");
-
-		currentMeshIndex = -1 ;
-		switchObjects();
+		currentLBXindex = 0 ;
+		setMaterialBlending();
 		
-		currentLBXindex = -1 ;
-		switchMaterialBlending();
+		currentCubeMapIndex = 0 ;
+		setCubeMap();
 		
-		currentCubeMapIndex = -1 ;
-		switchCubeMap();
-		
-		noiseOn = false ;
-		switchNoiseOn();
+		noiseOn = true ;
+		setNoiseOn();
 
 		updateInfoDisplacement();
 		updateInfoDensity();
@@ -675,13 +655,13 @@ public:
 		if (timeoutDelay<=0)
 			timeoutDelay = 0;
 
-		SWITCH_VALUE(KC_O, 0.5f, switchObjects());
+		SWITCH_VALUE(KC_O, 0.5f, currentMeshIndex++ ; setObject());
 
-		SWITCH_VALUE(KC_N, 0.5f, switchNoiseOn());
+		SWITCH_VALUE(KC_N, 0.5f, noiseOn = !noiseOn ; setNoiseOn());
 
-		SWITCH_VALUE(KC_M, 0.5f, switchMaterialBlending());
+		SWITCH_VALUE(KC_M, 0.5f, currentLBXindex++ ; setMaterialBlending());
 
-		SWITCH_VALUE(KC_C, 0.5f, switchCubeMap());
+		SWITCH_VALUE(KC_C, 0.5f, currentCubeMapIndex++ ; setCubeMap());
 		
 		SWITCH_VALUE(KC_SPACE, 0.5f, goRandom());
 
