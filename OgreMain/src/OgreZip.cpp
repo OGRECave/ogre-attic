@@ -301,6 +301,10 @@ namespace Ogre {
         zzip_file_close(mZzipFile);
     }
     //-----------------------------------------------------------------------
-
+    const String& ZipArchiveFactory::getType(void) const
+    {
+        static String name = "Zip";
+        return name;
+    }
 
 }
