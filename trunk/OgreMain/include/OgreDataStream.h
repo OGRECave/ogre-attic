@@ -118,7 +118,7 @@ namespace Ogre {
 		virtual size_t skipLine(const String& delim = "\n") = 0;
 
 		/** Skip a defined number of bytes. */
-		virtual void skip(size_t count) = 0;
+		virtual void skip(ssize_t count) = 0;
 	
 	    /** Repositions the read point to a specified byte.
 	    */
@@ -274,7 +274,7 @@ namespace Ogre {
 
 		/** @copydoc DataStream::skip
 		*/
-		void skip(size_t count);
+		void skip(ssize_t count);
 	
 		/** @copydoc DataStream::seek
 		*/
@@ -356,7 +356,7 @@ namespace Ogre {
 
 		/** @copydoc DataStream::skip
 		*/
-		void skip(size_t count);
+		void skip(ssize_t count);
 	
 		/** @copydoc DataStream::seek
 		*/
@@ -406,7 +406,7 @@ namespace Ogre {
 
 		/** @copydoc DataStream::skip
 		*/
-		void skip(size_t count);
+		void skip(ssize_t count);
 	
 		/** @copydoc DataStream::seek
 		*/

@@ -336,7 +336,7 @@ namespace Ogre {
         return readLine(nullBuf, 1024, delim);
     }
     //-----------------------------------------------------------------------
-    void ZipDataStream::skip(size_t count)
+    void ZipDataStream::skip(ssize_t count)
     {
         zzip_seek(mZzipFile, static_cast<zzip_off_t>(count), SEEK_CUR);
     }
