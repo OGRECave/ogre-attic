@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 14 2004 by texi2html 1.64 -->
+<!-- Created on , 21 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v0.14: Modulative Shadows</TITLE>
+<TITLE>OGRE Manual v0.15: Modulative Shadows</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v0.14: Modulative Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v0.14: Modulative Shadows">
+<META NAME="description" CONTENT="OGRE Manual v0.15: Modulative Shadows">
+<META NAME="keywords" CONTENT="OGRE Manual v0.15: Modulative Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC210"></A>
+<A NAME="SEC211"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC199"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC188"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC212"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC200"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC189"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC213"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,15 +35,15 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 7.3 Modulative Shadows </H2>
-<!--docid::SEC210::-->
+<!--docid::SEC211::-->
 Modulative shadows work by darkening an already rendered scene with a fixed colour. First, the scene is rendered normally containing all the objects which will be shadowed, then a modulative pass is done per light, which darkens areas in shadow. Finally, objects which do not receive shadows are rendered.<BR><BR>
 
-There are 2 modulative shadow techniques; stencil-based (See section <A HREF="manual_53.html#SEC191">7.1 Stencil Shadows</A> : SHADOWTYPE_STENCIL_MODULATIVE) and texture-based (See section <A HREF="manual_54.html#SEC199">7.2 Texture-based Shadows</A> : SHADOWTYPE_TEXTURE_MODULATIVE). Modulative shadows are an inaccurate lighting model, since they darken the areas of shadow uniformly, irrespective of the amount of light which would have fallen on the shadow area anyway. However, they can give fairly attractive results for a much lower overhead than more 'correct' methods like <A HREF="manual_56.html#SEC212">7.4 Additive Light Masking</A>, and they also combine well with pre-baked static lighting (such as precalculated lightmaps), which additive lighting does not. The main thing to consider is that using multiple light sources can result in overly dark shadows (where shadows overlap, which intuitively looks right in fact, but it's not physically correct) and artefacts when using stencil shadows (See section <A HREF="manual_53.html#SEC196">The Silhouette Edge</A>). <BR><BR>
+There are 2 modulative shadow techniques; stencil-based (See section <A HREF="manual_53.html#SEC192">7.1 Stencil Shadows</A> : SHADOWTYPE_STENCIL_MODULATIVE) and texture-based (See section <A HREF="manual_54.html#SEC200">7.2 Texture-based Shadows</A> : SHADOWTYPE_TEXTURE_MODULATIVE). Modulative shadows are an inaccurate lighting model, since they darken the areas of shadow uniformly, irrespective of the amount of light which would have fallen on the shadow area anyway. However, they can give fairly attractive results for a much lower overhead than more 'correct' methods like <A HREF="manual_56.html#SEC213">7.4 Additive Light Masking</A>, and they also combine well with pre-baked static lighting (such as precalculated lightmaps), which additive lighting does not. The main thing to consider is that using multiple light sources can result in overly dark shadows (where shadows overlap, which intuitively looks right in fact, but it's not physically correct) and artefacts when using stencil shadows (See section <A HREF="manual_53.html#SEC197">The Silhouette Edge</A>). <BR><BR>
 
 <A NAME="Shadow Colour"></A>
-<A NAME="SEC211"></A>
+<A NAME="SEC212"></A>
 <H3> Shadow Colour </H3>
-<!--docid::SEC211::-->
+<!--docid::SEC212::-->
 The colour which is used to darken the areas in shadow is set by SceneManager::setShadowColour; it defaults to a dark grey (so that the underlying colour still shows through a bit).<BR><BR>
 
 <A NAME="Additive Light Masking"></A>
@@ -51,7 +51,7 @@ The colour which is used to darken the areas in shadow is set by SceneManager::s
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 14 2004</I>
+by <I>Steve Streeting</I> on <I>, 21 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
