@@ -598,6 +598,7 @@ void main( int argc, char *argv[] )
 		logMgr = new LogManager();
 		mth = new Math();
 		matMgr = new MaterialManager();;
+        matMgr->initialise();
 		skelMgr = new SkeletonManager();
 		meshSerializer = new MeshSerializer();
 		materialSerializer = new MaterialSerializer();
