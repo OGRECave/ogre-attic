@@ -53,6 +53,7 @@ namespace Ogre {
         // Create an initially sized software vertex blend buffer
         // Enough for 5000 vertices
         mTempVertexBlendBuffer.resize(5000 * 3);
+        mTempNormalBlendBuffer.resize(5000 * 3);
 
     }
 
@@ -412,8 +413,6 @@ namespace Ogre {
         {
             // Software blending required
             softwareVertexBlend(op, mWorldMatrices);
-            // Turn off main world matrix
-            this->_setWorldMatrix(Matrix4::IDENTITY);
         }
     }
     //-----------------------------------------------------------------------
@@ -433,11 +432,13 @@ namespace Ogre {
     void RenderSystem::softwareVertexBlend(RenderOperation& op, Matrix4* pMatrices)
     {
         // Source vector
-        Vector3 sourceVec;
-        // Accumulation vector
-        Vector3 accumVec;
+        Vector3 sourceVec, sourceNorm;
+        // Accumulation vectors
+        Vector3 accumVecPos, accumVecNorm;
+        
+        Matrix3 rot3x3;
 
-        Real* pVertElem;
+        Real *pVertElem, *pNormElem;
         RenderOperation::VertexBlendData* pBlend;
 
         // Check buffer size
@@ -446,9 +447,16 @@ namespace Ogre {
         {
             mTempVertexBlendBuffer.resize(numVertReals);
         }
+        if ((op.vertexOptions & RenderOperation::VO_NORMALS) &&
+            mTempNormalBlendBuffer.size() < numVertReals)
+        {
+            mTempNormalBlendBuffer.resize(numVertReals);
+        }
+
 
         // Loop per vertex
         pVertElem = op.pVertices;
+        pNormElem = op.pNormals;
         pBlend = op.pBlendingWeights;
         for (unsigned long vertIdx = 0; 
             vertIdx < numVertReals; vertIdx += 3)
@@ -457,8 +465,16 @@ namespace Ogre {
             sourceVec.x = *pVertElem++;
             sourceVec.y = *pVertElem++;
             sourceVec.z = *pVertElem++;
-            // Load accumulator
-            accumVec = Vector3::ZERO;
+
+            if (op.vertexOptions & RenderOperation::VO_NORMALS) 
+            {
+                sourceNorm.x = *pNormElem++;
+                sourceNorm.y = *pNormElem++;
+                sourceNorm.z = *pNormElem++;
+            }
+            // Load accumulators
+            accumVecPos = Vector3::ZERO;
+            accumVecNorm = Vector3::ZERO;
 
             // Loop per blend weight 
             for (unsigned short blendIdx = 0; blendIdx < op.numBlendWeightsPerVertex; ++blendIdx)
@@ -468,21 +484,39 @@ namespace Ogre {
                 // NB weights must be normalised!!
                 if (pBlend->blendWeight != 0.0) 
                 {
-                    accumVec += (pMatrices[pBlend->matrixIndex] * sourceVec) 
+                    // Blend position
+                    accumVecPos += (pMatrices[pBlend->matrixIndex] * sourceVec) 
                         * pBlend->blendWeight;
+                    if (op.vertexOptions & RenderOperation::VO_NORMALS)
+                    {
+                        // Blend normal
+                        // We should blend by inverse transform here, but because we're assuming the 3x3
+                        // aspect of the matrix is orthogonal (no non-uniform scaling), the inverse transpose
+                        // is equal to the main 3x3 matrix
+                        // Note because it's a normal we just extract the rotational part, saves us renormalising
+                        pMatrices[pBlend->matrixIndex].extractRotationMatrix(rot3x3);
+                        accumVecNorm += (rot3x3 * pBlend->blendWeight) * sourceNorm;
+                    }
+
                 }
                 pBlend++;
             }
 
             // Stored blended vertex in temp buffer
-            mTempVertexBlendBuffer[vertIdx] = accumVec.x;
-            mTempVertexBlendBuffer[vertIdx+1] = accumVec.y;
-            mTempVertexBlendBuffer[vertIdx+2] = accumVec.z;
+            mTempVertexBlendBuffer[vertIdx] = accumVecPos.x;
+            mTempVertexBlendBuffer[vertIdx+1] = accumVecPos.y;
+            mTempVertexBlendBuffer[vertIdx+2] = accumVecPos.z;
 
+            // Stored blended vertex in temp buffer
+            mTempNormalBlendBuffer[vertIdx] = accumVecNorm.x;
+            mTempNormalBlendBuffer[vertIdx+1] = accumVecNorm.y;
+            mTempNormalBlendBuffer[vertIdx+2] = accumVecNorm.z;
         }
 
         // Re-point the render operation vertex buffer
         op.pVertices = &( mTempVertexBlendBuffer.front() );
+        if (op.vertexOptions & RenderOperation::VO_NORMALS)
+            op.pNormals = &( mTempNormalBlendBuffer.front() );
 
         
 
@@ -499,6 +533,8 @@ namespace Ogre {
             {
                 mWorldMatrices[i] = m[i];
             }
+            // Set hardware matrix to nothing
+            _setWorldMatrix(Matrix4::IDENTITY);
         }
         // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
     }

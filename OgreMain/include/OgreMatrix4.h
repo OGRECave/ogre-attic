@@ -373,6 +373,23 @@ namespace Ogre
             return r;
         }
 
+        /** Extracts the rotation part of the Matrix as a 3x3 matrix. 
+        @param m3x3 Destination Matrix3
+        */
+        inline void extractRotationMatrix(Matrix3& m3x3)
+        {
+            m3x3.m[0][0] = m[0][0];
+            m3x3.m[0][1] = m[0][1];
+            m3x3.m[0][2] = m[0][2];
+            m3x3.m[1][0] = m[1][0];
+            m3x3.m[1][1] = m[1][1];
+            m3x3.m[1][2] = m[1][2];
+            m3x3.m[2][0] = m[2][0];
+            m3x3.m[2][1] = m[2][1];
+            m3x3.m[2][2] = m[2][2];
+
+        }
+
         static const Matrix4 ZERO;
         static const Matrix4 IDENTITY;
 
