@@ -3,6 +3,8 @@
 #include "OgreLogManager.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 #include "OgreNoMemoryMacros.h"
 #include <d3d8.h>
@@ -108,9 +110,10 @@ namespace Ogre
 			break;
 
 		case WM_CLOSE:
-			DestroyWindow( win->mHWnd );
-			win->mClosed = true;
-			return 0;
+            DestroyWindow( win->mHWnd );
+            Root::getSingleton().getRenderSystem()->detachRenderTarget( win->getName() );
+            win->mClosed = true;
+            return 0;
 		}
 
 		return DefWindowProc( hWnd, uMsg, wParam, lParam );

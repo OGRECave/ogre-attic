@@ -58,8 +58,8 @@ namespace Ogre {
     void D3DTexture::blitToTexture( 
         const Image &src, unsigned uStartX, unsigned uStartY )
     {
-        // I have no FREAKING idea how this is done in DX7 and besides, I don't
-        // have the API docs installed. Sorry, guys :(
+		blitImage( src, Image::Rect( uStartX, uStartY, src.getWidth(), src.getHeight() ),
+			Image::Rect( 0, 0, getWidth(), getHeight() ) );
     }
 
     //---------------------------------------------------------------------------------------------
@@ -123,16 +123,9 @@ namespace Ogre {
             }
         }
 
-        /* If we will have mip-maps, mark the flags. */
-        DWORD mipFlag, numMips = mNumMipMaps;
-        if( mNumMipMaps )
-        {
-             mipFlag = 0;
-        }
-        else
-        {
-             mipFlag = D3DX_TEXTURE_NOMIPMAP;
-        }
+        /* We generate the mip-maps by hand. */
+        DWORD mipFlag, numMips;
+		mipFlag = D3DX_TEXTURE_NOMIPMAP;
 
         /* Set the width and height. */
         DWORD dwWidth = src.getWidth(), dwHeight = src.getHeight();
@@ -178,6 +171,8 @@ namespace Ogre {
         finalRect.left   = Real( imgRect.left )   * fWidthFactor;
         finalRect.right  = Real( imgRect.right )  * fWidthFactor;
 
+		/* We have to use a mirror up/down (around the X axis) effect since in DirectX the
+		   positive Y is downward, which is different from OGRE's way. */
         DDBLTFX  ddbltfx;
         ZeroMemory(&ddbltfx, sizeof(ddbltfx));
 
@@ -195,7 +190,7 @@ namespace Ogre {
             Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );
         }
 
-        /* Load the texture in all the mip-maps (if there are any, that is). */
+        /* Load the image in all the mip-maps (if there are any, that is). */
         LPDIRECTDRAWSURFACE7 ddsMipLevel, ddsNextLevel;
         DDSCAPS2 ddsCaps;
         HRESULT mipRes = DD_OK;
@@ -219,7 +214,7 @@ namespace Ogre {
                 texRect.bottom >> mipLevel
             };
 
-            /* And do a blit from the base texture in the next level. */
+            /* And do a blit from the base level into the next level. */
             ddsNextLevel->Blt(
                 &mipRect,
                 mSurface,

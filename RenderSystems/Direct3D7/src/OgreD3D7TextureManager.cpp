@@ -26,11 +26,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D7Texture.h"
 
 namespace Ogre {
-    //-----------------------------------------------------------------------
-    //TextureManager* D3DTextureManager::ms_Singleton=0;
 
-/* IMPORTANT: auto-inlining must be disabled for this class otherwise problems with the 
-   dll boundary occur on the constructor in release mode */
+/* Auto-inlining must be disabled for this method otherwise problems with the 
+   DLL boundary occur on the constructor in release mode. */
 #if OGRE_COMPILER == COMPILER_MSVC
     #pragma auto_inline( off )
 #endif

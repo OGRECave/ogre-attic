@@ -83,12 +83,12 @@ namespace Ogre {
     SDLRenderSystem::~SDLRenderSystem()
     {
         // Destroy render windows
-        RenderWindowMap::iterator i;
-        for (i = mRenderWindows.begin(); i != mRenderWindows.end(); ++i)
+        RenderTargetMap::iterator i;
+        for (i = mRenderTargets.begin(); i != mRenderTargets.end(); ++i)
         {
             delete i->second;
         }
-        mRenderWindows.clear();
+        mRenderTargets.clear();
 
         SDL_Quit();
 
@@ -255,7 +255,7 @@ namespace Ogre {
         bool allWindowsClosed;
         static clock_t lastStartTime;
         static clock_t lastEndTime;
-        RenderWindowMap::iterator i;
+        RenderTargetMap::iterator i;
 
         // Init times to avoid large first-frame time
         lastStartTime = lastEndTime = clock();
@@ -263,40 +263,8 @@ namespace Ogre {
         RenderSystem::startRendering();
         
         mStopRendering = false;
-        while (!mStopRendering)
+        while( mRenderTargets.size() )
         {
-            // Check all windows to see if any are active / closed
-            isActive = false;
-            allWindowsClosed = true; // assume all closed unless we find otherwise
-            for(i = mRenderWindows.begin(); 
-                i != mRenderWindows.end(); 
-                /* Nada */ )
-            {
-                if (i->second->isActive())
-                    isActive = true;
-
-                if (i->second->isClosed())
-                {
-                    // Window has been closed, destroy
-                    RenderWindowMap::iterator j = i; ++j;                    
-                    destroyRenderWindow(i->second);      
-                    i = j;
-                }
-                else
-                {
-                    allWindowsClosed = false;
-                    ++i;
-                }
-
-            }
-
-            // Break out if all windows closed
-            if (allWindowsClosed)
-            {
-                return;
-            }
-
-
             FrameEvent evt;
 
             // Do frame start event, only if time has advanced
@@ -316,11 +284,9 @@ namespace Ogre {
             lastStartTime = fTime;
 
             // Render a frame during idle time (no messages are waiting)
-            for(i = mRenderWindows.begin(); 
-                i != mRenderWindows.end(); 
-                ++i )
+            for( i = mRenderTargets.begin(); i != mRenderTargets.end(); i++ )
             {
-                if (i->second->isActive())
+                if( i->second->isActive() )
                 {
                     i->second->update();
                 }
@@ -336,8 +302,6 @@ namespace Ogre {
                 if(!fireFrameEnded(evt))
                     return;
             }
-                
-
 
             lastEndTime = fTime;
         }
@@ -421,7 +385,7 @@ namespace Ogre {
             bool fullScreen, int left, int top, bool depthBuffer, 
             RenderWindow* parentWindowHandle)
     {
-        if (mRenderWindows.find(name) != mRenderWindows.end())
+        if (mRenderTargets.find(name) != mRenderTargets.end())
         {
             Except(
                 Exception::ERR_INVALIDPARAMS, 
@@ -434,7 +398,7 @@ namespace Ogre {
         win->create(name, width, height, colourDepth, fullScreen,
             left, top, depthBuffer, parentWindowHandle);
 
-        mRenderWindows[name] = win;
+        mRenderTargets.insert( RenderTargetMap::value_type( name, win ) );
 
         if (parentWindowHandle == NULL)
         {
@@ -450,13 +414,13 @@ namespace Ogre {
     void SDLRenderSystem::destroyRenderWindow(RenderWindow* pWin)
     {
         // Find it to remove from list
-        RenderWindowMap::iterator i = mRenderWindows.begin();
+        RenderTargetMap::iterator i = mRenderTargets.begin();
 
-        while (i != mRenderWindows.end())
+        while (i != mRenderTargets.end())
         {
             if (i->second == pWin)
             {
-                mRenderWindows.erase(i);
+                mRenderTargets.erase(i);
                 delete pWin;
                 break;
             }

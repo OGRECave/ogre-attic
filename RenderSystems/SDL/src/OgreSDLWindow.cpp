@@ -24,6 +24,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreSDLWindow.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -36,6 +38,8 @@ namespace Ogre {
     {
         if (mScreen != NULL)
             SDL_FreeSurface(mScreen);
+
+        Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
     }
 
     void SDLWindow::create(String name, int width, int height, int colourDepth,
@@ -75,6 +79,9 @@ namespace Ogre {
     {
         SDL_FreeSurface(mScreen);
         mScreen = NULL;
+        mActive = false;
+
+        Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
     }
 
     bool SDLWindow::isActive()
