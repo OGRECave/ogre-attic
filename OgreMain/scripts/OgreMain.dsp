@@ -452,6 +452,10 @@ SOURCE=..\src\OgreSceneNode.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreSceneQuery.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSDDataChunk.cpp
 # End Source File
 # Begin Source File
@@ -1045,6 +1049,10 @@ SOURCE=..\include\OgreSceneManagerEnumerator.h
 # Begin Source File
 
 SOURCE=..\include\OgreSceneNode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreSceneQuery.h
 # End Source File
 # Begin Source File
 
