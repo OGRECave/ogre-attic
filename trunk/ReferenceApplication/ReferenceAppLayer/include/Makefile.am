@@ -1,4 +1,5 @@
 noinst_HEADERS = OgreRefAppApplicationObject.h \
+	OgreRefAppBall.h \
 	OgreRefAppBox.h \
 	OgreRefAppOgreHead.h \
 	OgreRefAppJoint.h \

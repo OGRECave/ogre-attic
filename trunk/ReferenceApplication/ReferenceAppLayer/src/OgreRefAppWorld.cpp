@@ -287,8 +287,8 @@ namespace OgreRefApp
         static Real leftOverTime = 0.0f;
 
 		Real time = timeElapsed + leftOverTime;	
-		uint steps = (uint)(time / mSimulationStepSize);
-		for(uint i=0; i < steps; ++i)
+		unsigned int steps = (unsigned int)(time / mSimulationStepSize);
+		for(unsigned int  i=0; i < steps; ++i)
         {
 			_applyCollision();
             _applyDynamics(mSimulationStepSize);

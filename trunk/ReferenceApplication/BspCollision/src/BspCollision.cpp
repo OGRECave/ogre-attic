@@ -108,9 +108,6 @@ protected:
     }
     void createScene(void)
     {
-		ExampleRefAppApplication::setupResources();
-        ResourceManager::addCommonArchiveEx("../../../Media/ogretestmap.zip", "Zip");
-
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.6, 0.6, 0.6));
         // Create a point light

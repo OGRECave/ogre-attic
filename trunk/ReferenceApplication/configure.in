@@ -37,7 +37,10 @@ dnl Create the makefiles
 AC_CONFIG_FILES([Makefile \
     ReferenceAppLayer/Makefile \
     ReferenceAppLayer/src/Makefile \
-    ReferenceAppLayer/include/Makefile 
+    ReferenceAppLayer/include/Makefile \
+	BspCollision/Makefile \
+	BspCollision/src/Makefile 
+	
     ])
 
 AC_OUTPUT

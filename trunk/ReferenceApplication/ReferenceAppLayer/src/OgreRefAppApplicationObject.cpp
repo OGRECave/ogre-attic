@@ -44,7 +44,7 @@ namespace OgreRefApp
 		mSoftness = 0.0;
 		mBounceCoeffRestitution = 0;
 		mBounceVelocityThreshold = 0.1;
-        mFriction = Math::POS_INFINITY;
+        setFriction(Math::POS_INFINITY);
         dMassSetZero(&mMass);
 
         mDisableTimeEnd = 0;
@@ -569,7 +569,14 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::setFriction(Real friction)
     {
-        mFriction = friction;
+        if (friction == Math::POS_INFINITY)
+        {
+            mFriction = dInfinity;
+        }
+        else
+        {
+            mFriction = friction;
+        }
     }
     //-------------------------------------------------------------------------
     Real ApplicationObject::getFriction(void)
