@@ -35,14 +35,15 @@ namespace Ogre {
     /// Enum describing the different hardware capabilities we want to check for
     enum Capabilities
     {
-        RSC_MULTITEXTURE = 0x00000001,
-        RSC_AUTOMIPMAP   = 0x00000002,
-        RSC_BLENDING     = 0x00000004,
-        RSC_ANISOTROPY   = 0x00000008,
-        RSC_DOT3         = 0x00000010,
-        RSC_CUBEMAPPING  = 0x00000020,
-        RSC_HWSTENCIL    = 0x00000040,
-        RSC_VBO          = 0x00000080,
+        //RSC_MULTITEXTURE   = 0x00000001,
+        RSC_AUTOMIPMAP     = 0x00000002,
+        RSC_BLENDING       = 0x00000004,
+        RSC_ANISOTROPY     = 0x00000008,
+        RSC_DOT3           = 0x00000010,
+        RSC_CUBEMAPPING    = 0x00000020,
+        RSC_HWSTENCIL      = 0x00000040,
+        RSC_VBO            = 0x00000080,
+        RSC_VERTEXBLENDING = 0x00000100,
     };
 
     /** singleton class for storing the capabilities of the graphics card. 
@@ -54,9 +55,13 @@ namespace Ogre {
     {
         private:
             /// The number of world matricies available
-            int mNumWorldMatrices;
+            ushort mNumWorldMatrices;
             /// The number of texture units available
-            int mNumTextureUnits;
+            ushort mNumTextureUnits;
+            /// The stencil buffer bit depth
+            ushort mStencilBufferBitDepth;
+            /// The number of matrices available for hardware blending
+            ushort mNumVertexBlendMatrices;
             /// Stores the capabilities flags.
             int mCapabilities;
            
@@ -64,24 +69,62 @@ namespace Ogre {
             RenderSystemCapabilities ();
             ~RenderSystemCapabilities ();
 
-            void setNumWorldMatricies(int num)
+            void setNumWorldMatricies(ushort num)
             {
                 mNumWorldMatrices = num;
             }
 
-            void setNumTextureUnits(int num)
+            void setNumTextureUnits(ushort num)
             {
                 mNumTextureUnits = num;
             }
 
-            ushort numWorldMatricies() const
+            void setStencilBufferBitDepth(ushort num)
+            {
+                mStencilBufferBitDepth = num;
+            }
+
+            void setNumVertexBlendMatrices(ushort num)
+            {
+                mNumVertexBlendMatrices = num;
+            }
+
+            ushort numWorldMatricies(void) const
             { 
                 return mNumWorldMatrices;
             }
 
-            ushort numTextureUnits() const
+            /** Returns the number of texture units the current output hardware
+                supports.
+
+                For use in rendering, this determines how many texture units the
+                are available for multitexturing (i.e. rendering multiple 
+                textures in a single pass). Where a Material has multiple 
+                texture layers, it will try to use multitexturing where 
+                available, and where it is not available, will perform multipass
+                rendering to achieve the same effect.
+            */
+            ushort numTextureUnits(void) const
             {
                 return mNumTextureUnits;
+            }
+
+            /** Determines the bit depth of the hardware accelerated stencil 
+                buffer, if supported.
+                @remarks
+                    If hardware stencilling is not supported, the software will
+                    provide an 8-bit software stencil.
+            */
+            ushort getStencilBufferBitDepth(void) const
+            {
+                return mStencilBufferBitDepth;
+            }
+
+            /** Returns the number of matrices available to hardware vertex 
+                blending for this rendering system. */
+            ushort numVertexBlendMatrices(void) const
+            {
+                return mNumVertexBlendMatrices;
             }
 
             /** Adds a capability flag to mCapabilities

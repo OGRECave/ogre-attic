@@ -112,6 +112,12 @@ namespace Ogre {
 		mpRenderBuffer = NULL;
 		mRenderBufferSize = 0;
 
+        if(mCapabilities)
+        {
+            delete mCapabilities;
+            mCapabilities = NULL;
+        }
+
 		LogManager::getSingleton().logMessage( getName() + " destroyed." );
 		
 		OgreUnguard();
@@ -406,6 +412,26 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage( "******************************************" );
 		LogManager::getSingleton().logMessage( "*** Direct3D8 Subsystem Initialised OK ***" );
 		LogManager::getSingleton().logMessage( "******************************************" );
+
+        LogManager::getSingleton().logMessage(
+            "The following capabilities are available:");
+
+        // Check for hardware stencil support
+        LPDIRECT3DSURFACE8 pSurf;
+        D3DSURFACE_DESC surfDesc;
+        mpD3DDevice->GetDepthStencilSurface(&pSurf);
+        pSurf->GetDesc(&surfDesc);
+
+        if (surfDesc.Format == D3DFMT_D24S8)
+        {
+            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+            mCapabilities->setCapability(RSC_HWSTENCIL);
+            // Actually, it's always 8-bit
+            mCapabilities->setStencilBufferBitDepth(8);
+        }
+
+        // Set number of texture units
+        mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
 
 		return autoWindow;
 	}
@@ -839,11 +865,6 @@ namespace Ogre {
 			lastEmissive = emissive;
 			lastShininess = shininess;
 		}
-	}
-    //---------------------------------------------------------------------
-	unsigned short D3D8RenderSystem::_getNumTextureUnits()
-	{
-		return mCaps.MaxSimultaneousTextures;
 	}
     //---------------------------------------------------------------------
 	void D3D8RenderSystem::_setTexture( int stage, bool enabled, const String &texname )
@@ -2007,30 +2028,6 @@ namespace Ogre {
             Except(hr, "Error enabling / disabling stencilling.",
                 "D3D8RenderSystem::setStencilCheckEnabled");
         
-    }
-    //---------------------------------------------------------------------
-    bool D3D8RenderSystem::hasHardwareStencil(void)
-    {
-
-        LPDIRECT3DSURFACE8 pSurf;
-        D3DSURFACE_DESC surfDesc;
-        mpD3DDevice->GetDepthStencilSurface(&pSurf);
-        pSurf->GetDesc(&surfDesc);
-        if (surfDesc.Format == D3DFMT_D24S8)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
-    }
-    //---------------------------------------------------------------------
-    ushort D3D8RenderSystem::getStencilBufferBitDepth(void)
-    {
-        // Actually, it's always 8-bit
-        return 8;
     }
     //---------------------------------------------------------------------
     void D3D8RenderSystem::setStencilBufferFunction(CompareFunction func)

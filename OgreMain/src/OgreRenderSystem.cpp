@@ -46,6 +46,7 @@ namespace Ogre {
         mActiveViewport = 0;
 		mActiveRenderTarget = NULL;
         mTextureManager = 0;
+        mCapabilities = 0;
         mVSync = true;
 
 
@@ -186,6 +187,9 @@ namespace Ogre {
 
         // Init mesh manager
         MeshManager::getSingleton()._initialise();
+
+        // instanciate RenderSystemCapabilities
+        mCapabilities = new RenderSystemCapabilities;
 
         // Subclasses should take it from here
         // They should ALL call this superclass method from
@@ -336,13 +340,13 @@ namespace Ogre {
     //---------------------------------------------------------------------
  	void RenderSystem::_setAnisotropy(int maxAnisotropy)
  	{
- 		for (int n = 0; n < _getNumTextureUnits(); n++)
+ 		for (int n = 0; n < mCapabilities->numTextureUnits(); n++)
  			_setTextureLayerAnisotropy(n, maxAnisotropy);
  	}
     //-----------------------------------------------------------------------
     void RenderSystem::setTextureFiltering(TextureFilterOptions fo)
     {
-        int units = _getNumTextureUnits();
+        int units = mCapabilities->numTextureUnits();
         for (int i = 0; i < units; ++i)
 			_setTextureLayerFiltering(i, fo);
     }
@@ -454,25 +458,21 @@ namespace Ogre {
 
         // Vertex blending: do software if required
         if ((op.vertexOptions & LegacyRenderOperation::VO_BLEND_WEIGHTS) && 
-            !this->_isVertexBlendSupported())
+            !mCapabilities->hasCapability(RSC_VERTEXBLENDING))
         {
             // Software blending required, hack the constness since we need to fudge
             softwareVertexBlend(const_cast<LegacyRenderOperation&>(op), mWorldMatrices);
         }
     }
     //-----------------------------------------------------------------------
+    /*
     bool RenderSystem::_isVertexBlendSupported(void)
     {
         // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
         // DX7 support not good enough - only 4 matrices supported
         return false;
     }
-    //-----------------------------------------------------------------------
-    unsigned short RenderSystem::_getNumVertexBlendMatrices(void)
-    {
-        // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
-        return 1;
-    }
+    */
     //-----------------------------------------------------------------------
     void RenderSystem::softwareVertexBlend(LegacyRenderOperation& op, Matrix4* pMatrices)
     {
@@ -569,7 +569,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderSystem::_setWorldMatrices(const Matrix4* m, unsigned short count)
     {
-        if (!_isVertexBlendSupported())
+        if (!mCapabilities->hasCapability(RSC_VERTEXBLENDING))
         {
             // Save these matrices for software blending later
             int i;
@@ -637,7 +637,7 @@ namespace Ogre {
 			}
 		}
 
-        if (vertexBlend && !this->_isVertexBlendSupported())
+        if (vertexBlend && !mCapabilities->hasCapability(RSC_VERTEXBLENDING))
         {
             // Software blending required, hack the constness since we need to fudge
             softwareVertexBlend(const_cast<RenderOperation&>(op), mWorldMatrices);

@@ -48,9 +48,6 @@ namespace Ogre {
         // Get our GLSupport
         mGLSupport = getGLSupport();
 
-        // instanciate RenderSystemCapabilities
-        mCapabilities = new RenderSystemCapabilities;
-        
         for( i=0; i<MAX_LIGHTS; i++ )
             mLights[i] = NULL;
 
@@ -157,12 +154,20 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_BLENDING);
         }
 
-        // Check for Multitexturing support
+        // Check for Multitexturing support and set number of texture units
         if(mGLSupport->checkMinGLVersion("1.3.0") || 
             mGLSupport->checkExtension("GL_ARB_multitexture"))
         {
+            GLint units;
+            glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
+
             LogManager::getSingleton().logMessage("- Multitexturing");
-            mCapabilities->setCapability(RSC_MULTITEXTURE);
+            mCapabilities->setNumTextureUnits(units);
+        }
+        else
+        {
+            // If no multitexture support then set one texture unit
+            mCapabilities->setNumTextureUnits(1);
         }
             
         glActiveTextureARB_ptr = (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
@@ -193,11 +198,15 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
         
-        // Check for hardware stencil support
-        if(getStencilBufferBitDepth())
+        // Check for hardware stencil support and set bit depth
+        GLint stencil;
+        glGetIntegerv(GL_STENCIL_BITS,&stencil);
+
+        if(stencil)
         {
             LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
             mCapabilities->setCapability(RSC_HWSTENCIL);
+            mCapabilities->setStencilBufferBitDepth(stencil);
         }
 
         // Check for VBO support
@@ -551,19 +560,6 @@ namespace Ogre {
         f4val[3] = emissive.a;
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, f4val);
         glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-    }
-
-    //-----------------------------------------------------------------------------
-    unsigned short GLRenderSystem::_getNumTextureUnits(void)
-    {
-        if (!mCapabilities->hasCapability(RSC_MULTITEXTURE))
-        {
-            return 1;
-        }
-
-        GLint units;
-        glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
-        return (unsigned short)units;
     }
 
     //-----------------------------------------------------------------------------
@@ -955,7 +951,7 @@ namespace Ogre {
 		*/
 
 		GLint index = GL_TEXTURE0;
-        for (int i = 0; i < _getNumTextureUnits(); i++)
+        for (int i = 0; i < mCapabilities->numTextureUnits(); i++)
         {
             if( (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS) )
             {                
@@ -1224,25 +1220,6 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    bool GLRenderSystem::hasHardwareStencil(void)
-    {
-        if(!getStencilBufferBitDepth())
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-    //---------------------------------------------------------------------
-    ushort GLRenderSystem::getStencilBufferBitDepth(void)
-    {
-        GLint stencil;
-        glGetIntegerv(GL_STENCIL_BITS,&stencil);
-        return stencil;
-    }
-    //---------------------------------------------------------------------
     void GLRenderSystem::setStencilBufferFunction(CompareFunction func)
     {
         // Have to use saved values for other params since GL doesn't have 
@@ -1439,7 +1416,7 @@ namespace Ogre {
         if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
             return;
 
-        for (int n = 0; n < _getNumTextureUnits(); n++)
+        for (int n = 0; n < mCapabilities->numTextureUnits(); n++)
             _setTextureLayerAnisotropy(n, maxAnisotropy);
     }
 	//-----------------------------------------------------------------------------
@@ -1535,6 +1512,12 @@ namespace Ogre {
         case LBX_ADD_SIGNED:
             cmd = GL_ADD_SIGNED;
             break;
+        case LBX_SUBTRACT:
+            cmd = GL_SUBTRACT;
+            break;
+        case LBX_BLEND_DIFFUSE_ALPHA:
+            cmd = GL_INTERPOLATE;
+            break;
         case LBX_BLEND_TEXTURE_ALPHA:
             cmd = GL_INTERPOLATE;
             break;
@@ -1545,7 +1528,6 @@ namespace Ogre {
             cmd = mCapabilities->hasCapability(RSC_DOT3) 
                 ? GL_DOT3_RGB : GL_MODULATE;
             break;
-		// XXX
 		default:
             cmd = 0;
         }
@@ -1575,6 +1557,10 @@ namespace Ogre {
 
         switch (bm.operation)
         {
+          case LBX_BLEND_DIFFUSE_ALPHA:
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PRIMARY_COLOR);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PRIMARY_COLOR);
+            break;
           case LBX_BLEND_TEXTURE_ALPHA:
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_TEXTURE);
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_TEXTURE);
@@ -1583,11 +1569,12 @@ namespace Ogre {
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_PREVIOUS);
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA, GL_PREVIOUS);
             break;
-          case LBX_ADD:
-		  case LBX_MODULATE:
-			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
-                GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
+          default:
             break;
+        };
+
+        switch (bm.operation)
+        {
 		  case LBX_MODULATE_X2:
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 2);
@@ -1597,6 +1584,8 @@ namespace Ogre {
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 4);
             break;
           default:
+			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
+                GL_RGB_SCALE : GL_ALPHA_SCALE, 1);
             break;
 		}
 

@@ -224,10 +224,6 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        unsigned short _getNumTextureUnits(void);
-        /** See
-          RenderSystem
-         */
         void _setTexture(int unit, bool enabled, const String &texname);
         /** See
           RenderSystem
@@ -313,14 +309,6 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilCheckEnabled(bool enabled);
-        /** See
-          RenderSystem
-         */
-        bool hasHardwareStencil(void);
-        /** See
-          RenderSystem
-         */
-        ushort getStencilBufferBitDepth(void);
         /** See
           RenderSystem
          */

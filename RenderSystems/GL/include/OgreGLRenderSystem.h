@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLPrerequisites.h"
 #include "OgrePlatform.h"
 #include "OgreRenderSystem.h"
-#include "OgreRenderSystemCapabilities.h"
 
 #include "OgreGLSupport.h"
 
@@ -87,9 +86,6 @@ namespace Ogre {
         /// GL support class, used for creating windows etc
         GLSupport* mGLSupport;
         
-        /// Used to store the capabilities of the graphics card
-        RenderSystemCapabilities* mCapabilities;
-
         /// Internal method to set pos / direction of a light
         void setGLLightPositionDirection(Light* lt, int lightindex);
 
@@ -228,10 +224,6 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        unsigned short _getNumTextureUnits(void);
-        /** See
-          RenderSystem
-         */
         void _setTexture(int unit, bool enabled, const String &texname);
         /** See
           RenderSystem
@@ -317,14 +309,6 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilCheckEnabled(bool enabled);
-        /** See
-          RenderSystem
-         */
-        bool hasHardwareStencil(void);
-        /** See
-          RenderSystem
-         */
-        ushort getStencilBufferBitDepth(void);
         /** See
           RenderSystem
          */

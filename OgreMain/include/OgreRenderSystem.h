@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCommon.h"
 
 #include "OgreRenderOperation.h"
+#include "OgreRenderSystemCapabilities.h"
 #include "OgreRenderTarget.h"
 #include "OgreRenderTexture.h"
 #include "OgreFrameListener.h"
@@ -462,22 +463,12 @@ namespace Ogre
           Note that this method is called by _setMaterial.
 
           @param unit The index of the texture unit to modify. Multitexturing hardware
-          can support multiple units (see _getNumTextureUnits)
+          can support multiple units (see RenderSystemCapabilites::numTextureUnits)
           @param enabled Boolean to turn the unit on/off
           @param texname The name of the texture to use - this should have
               already been loaded with TextureManager::load.
          */
         virtual void _setTexture(int unit, bool enabled, const String &texname) = 0;
-        /** Returns the number of texture units the current output hardware supports.
-
-            For use in rendering, this determines how many texture units the
-            are available for multitexturing (i.e. rendering multiple textures
-            in a single pass). Where a Material has multiple texture layers,
-            it will try to use multitexturing where available, and where
-            it is not available, will perform multipass rendering to
-            achieve the same effect.
-        */
-        virtual unsigned short _getNumTextureUnits(void) = 0;
 
         /**
           Sets the texture coordinate set to use for a texture unit.
@@ -668,14 +659,6 @@ namespace Ogre
         */
         virtual void convertColourValue(const ColourValue& colour, unsigned long* pDest) = 0;
 
-        /** Returns whether or not this RenderSystem supports hardware vertex blending, ie multiple
-            world matrices per vertex with blending weights.
-        */
-        virtual bool _isVertexBlendSupported(void);
-
-        /** Returns the number of matrices available to hardware vertex blending for this rendering system. */
-        virtual unsigned short _getNumVertexBlendMatrices(void);
-
         /** Builds a perspective projection matrix suitable for this render system.
         @remarks
             Because different APIs have different requirements (some incompatible) for the
@@ -709,14 +692,7 @@ namespace Ogre
             This can mean that if you use stencilling, your applications may be faster in 
             32-but colour than in 16-bit, which may seem odd to some people.
         */
-        virtual bool hasHardwareStencil(void) = 0;
-
-        /** Determines the bit depth of the hardware accelerated stencil buffer, if supported.
-        @remarks
-            If hardware stencilling is not supported, the software will provide an 8-bit 
-            software stencil.
-        */
-        virtual ushort getStencilBufferBitDepth(void) = 0;
+        /*virtual bool hasHardwareStencil(void) = 0;*/
 
         /** This method allows you to set all the stencil buffer parameters in one call.
         @remarks
@@ -869,6 +845,9 @@ namespace Ogre
         // made available under the TextureManager singleton,
         // managed by the RenderSystem
         TextureManager* mTextureManager;
+
+        /// Used to store the capabilities of the graphics card
+        RenderSystemCapabilities* mCapabilities;
 
         // Active viewport (dest for future rendering operations)
         Viewport* mActiveViewport;
