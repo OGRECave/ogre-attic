@@ -69,6 +69,9 @@ namespace Ogre {
             mTextureTypes[i] = 0;
         }
 
+        glActiveTextureARB_ptr = 0;
+        glClientActiveTextureARB_ptr = 0;
+
         OgreUnguard();
     }
 
@@ -159,6 +162,9 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("- Multitexturing");
             mCapabilities->setCapability(RSC_MULTITEXTURE);
         }
+            
+        glActiveTextureARB_ptr = (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
+        glClientActiveTextureARB_ptr = (GL_ClientActiveTextureARB_Func)mGLSupport->getProcAddress("glClientActiveTextureARB");
 
         // Check for Anisotropy support
         if(mGLSupport->checkExtension("GL_EXT_texture_filter_anisotropic"))
@@ -557,7 +563,7 @@ namespace Ogre {
 
         GLenum lastTextureType = mTextureTypes[stage];
 
-		glActiveTextureARB( GL_TEXTURE0 + stage );
+		glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
 		if (enabled && tex)
         {
             mTextureTypes[stage] = tex->getGLTextureType();
@@ -574,7 +580,7 @@ namespace Ogre {
 			glDisable( mTextureTypes[stage] );
 			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         }
-        glActiveTextureARB( GL_TEXTURE0 );
+        glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
 
     //-----------------------------------------------------------------------------
@@ -589,7 +595,7 @@ namespace Ogre {
         // Default to no extra auto texture matrix
         mUseAutoTextureMatrix = false;
 
-        glActiveTextureARB( GL_TEXTURE0 + stage );
+        glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
 
         switch( m )
         {
@@ -671,7 +677,7 @@ namespace Ogre {
         default:
             break;
         }
-        glActiveTextureARB( GL_TEXTURE0 );
+        glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
@@ -690,11 +696,11 @@ namespace Ogre {
             break;
         }
 
-        glActiveTextureARB( GL_TEXTURE0 + stage );
+        glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
         glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_S, type );
         glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_T, type );
         glTexParameteri( mTextureTypes[stage], GL_TEXTURE_WRAP_R, type );
-        glActiveTextureARB( GL_TEXTURE0 );
+        glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureMatrix(int stage, const Matrix4& xform)
@@ -717,7 +723,7 @@ namespace Ogre {
 //            printf("\n");
 //        }
 
-        glActiveTextureARB(GL_TEXTURE0 + stage);
+        glActiveTextureARB_ptr(GL_TEXTURE0 + stage);
         glMatrixMode(GL_TEXTURE);
 
         if (mUseAutoTextureMatrix)
@@ -735,7 +741,7 @@ namespace Ogre {
         }
 
         glMatrixMode(GL_MODELVIEW);
-        glActiveTextureARB(GL_TEXTURE0);
+        glActiveTextureARB_ptr(GL_TEXTURE0);
     }
     //-----------------------------------------------------------------------------
     GLint GLRenderSystem::getBlendMode(SceneBlendFactor ogreBlend)
@@ -943,7 +949,7 @@ namespace Ogre {
         {
             if( (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS) )
             {                
-                glClientActiveTextureARB(index + i);
+                glClientActiveTextureARB_ptr(index + i);
 				if (glIsEnabled(GL_TEXTURE_2D))
 				{
 					int texCoordIndex = 
@@ -965,13 +971,13 @@ namespace Ogre {
             }
             else
             {
-				glClientActiveTextureARB( index + i );
+				glClientActiveTextureARB_ptr( index + i );
 				glDisableClientState( GL_TEXTURE_COORD_ARRAY );
             }
         }
 
 		// Reset the texture to 0
-        glClientActiveTextureARB(index);
+        glClientActiveTextureARB_ptr(index);
 
         // Find the correct type to render
         GLint primType;
@@ -1340,7 +1346,7 @@ namespace Ogre {
 	{
         OgreGuard( "GLRenderSystem::_setTextureLayerFiltering" );        
 
-		glActiveTextureARB( GL_TEXTURE0 + unit );
+		glActiveTextureARB_ptr( GL_TEXTURE0 + unit );
 		switch( texLayerFilterOps )
 		{
 		case TFO_ANISOTROPIC:
@@ -1392,7 +1398,7 @@ namespace Ogre {
 			break;
 		}
 
-        glActiveTextureARB( GL_TEXTURE0 );
+        glActiveTextureARB_ptr( GL_TEXTURE0 );
 
 		OgreUnguard();
 	}
@@ -1534,7 +1540,7 @@ namespace Ogre {
             cmd = 0;
         }
 
-		glActiveTextureARB(GL_TEXTURE0 + stage);
+		glActiveTextureARB_ptr(GL_TEXTURE0 + stage);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
         /*
@@ -1596,7 +1602,7 @@ namespace Ogre {
 		if (bm.blendType == LBT_COLOUR && bm.source2 == LBS_MANUAL)
 			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv2);
 
-        glActiveTextureARB(GL_TEXTURE0);
+        glActiveTextureARB_ptr(GL_TEXTURE0);
 	}
     //---------------------------------------------------------------------
     void GLRenderSystem::setGLLightPositionDirection(Light* lt, int lightindex)

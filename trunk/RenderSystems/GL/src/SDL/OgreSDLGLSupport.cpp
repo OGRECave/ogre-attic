@@ -125,6 +125,5 @@ void SDLGLSupport::stop()
 
 void* SDLGLSupport::getProcAddress(const String& procname)
 {
-    // XXX IMPL
-    return NULL;
+    return SDL_GL_GetProcAddress(procname.c_str());
 }
