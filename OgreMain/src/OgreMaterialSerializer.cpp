@@ -1150,7 +1150,7 @@ namespace Ogre
         // the index or the parameter name, which we ignore
 
         // Determine type
-        size_t start, dims, i;
+        size_t start, dims, roundedDims, i;
         bool isReal;
 
         vecparams[1].toLowerCase();
@@ -1164,14 +1164,30 @@ namespace Ogre
         {
             // find the dimensionality
             start = vecparams[1].find_first_not_of("float");
-            dims = StringConverter::parseInt(vecparams[1].substr(start));
+            // Assume 1 if not specified
+            if (start == -1)
+            {
+                dims = 1;
+            }
+            else
+            {
+                dims = StringConverter::parseInt(vecparams[1].substr(start));
+            }
             isReal = true;
         }
         else if ((start = vecparams[1].find("int")) != String::npos)
         {
             // find the dimensionality
             start = vecparams[1].find_first_not_of("int");
-            dims = StringConverter::parseInt(vecparams[1].substr(start));
+            // Assume 1 if not specified
+            if (start == -1)
+            {
+                dims = 1;
+            }
+            else
+            {
+                dims = StringConverter::parseInt(vecparams[1].substr(start));
+            }
             isReal = false;
         }
         else
@@ -1188,33 +1204,49 @@ namespace Ogre
                 "type " + vecparams[1], context);
         }
 
-        if (dims % 4 != 0)
+        // Round dims to multiple of 4
+        if (dims %4 != 0)
         {
-            logParseError("Invalid " + commandname + " attribute; parameter type must "
-                "have a cardinality which is a multiple of 4", context);
+            roundedDims = dims + 4 - (dims % 4);
+        }
+        else
+        {
+            roundedDims = dims;
         }
 
         // Now parse all the values
         if (isReal)
         {
-            Real* realBuffer = new Real[dims];
+            Real* realBuffer = new Real[roundedDims];
+            // Do specified values
             for (i = 0; i < dims; ++i)
             {
                 realBuffer[i] = StringConverter::parseReal(vecparams[i+2]);
             }
+            // Fill up to multiple of 4 with zero
+            for (; i < roundedDims; ++i)
+            {
+                realBuffer[i] = 0.0f;
+            }
             // Set
-            context.programParams->setConstant(index, realBuffer, dims * 0.25);
+            context.programParams->setConstant(index, realBuffer, roundedDims * 0.25);
             delete [] realBuffer;
         }
         else
         {
-            int* intBuffer = new int[dims];
+            int* intBuffer = new int[roundedDims];
+            // Do specified values
             for (i = 0; i < dims; ++i)
             {
                 intBuffer[i] = StringConverter::parseInt(vecparams[i+2]);
             }
+            // Fill to multiple of 4 with 0
+            for (; i < roundedDims; ++i)
+            {
+                intBuffer[i] = 0;
+            }
             // Set
-            context.programParams->setConstant(index, intBuffer, dims * 0.25);
+            context.programParams->setConstant(index, intBuffer, roundedDims * 0.25);
             delete [] intBuffer;
         }
     }
