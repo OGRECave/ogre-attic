@@ -1331,6 +1331,11 @@ namespace Ogre {
                 convertStencilOp(passOp, true));
             // reset
             glActiveStencilFaceEXT_ptr(GL_FRONT);
+            glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+        }
+        else
+        {
+            glDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
         }
     }
     //---------------------------------------------------------------------
@@ -1680,7 +1685,6 @@ namespace Ogre {
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA, GL_SRC_ALPHA);
-
         if(bm.source1 == LBS_MANUAL)
             glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv1);
         if (bm.source2 == LBS_MANUAL)
