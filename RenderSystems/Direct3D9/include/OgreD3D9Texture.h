@@ -132,10 +132,6 @@ namespace Ogre {
 		~D3D9Texture();
 
 		/// overriden from Texture
-		void blitImage(const Image& src, const Image::Rect imgRect, const Image::Rect texRect );
-		/// overriden from Texture
-        void blitToTexture( const Image &src, unsigned uStartX, unsigned uStartY );
-		/// overriden from Texture
 		void copyToTexture( TexturePtr& target );
 		/// overriden from Texture
 		void loadImage( const Image &img );
