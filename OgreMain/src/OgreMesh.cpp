@@ -194,11 +194,12 @@ namespace Ogre {
             delete sharedVertexData;
             sharedVertexData = NULL;
         }
-        // Destroy edge lists
-        freeEdgeList();
 		// Clear SubMesh lists
 		mSubMeshList.clear();
 		mSubMeshNameMap.clear();
+        // Removes all LOD data
+        removeLodLevels();
+        mPreparedForShadowVolumes = false;
         mIsLoaded = false;
     }
 
@@ -225,7 +226,7 @@ namespace Ogre {
             newSub = newMesh->createSubMesh();
             newSub->mMaterialName = (*subi)->mMaterialName;
             newSub->mMatInitialised = (*subi)->mMatInitialised;
-            newSub->parent = newMesh;
+            newSub->operationType = (*subi)->operationType;
             newSub->useSharedVertices = (*subi)->useSharedVertices;
 
             if (!(*subi)->useSharedVertices)
@@ -235,12 +236,19 @@ namespace Ogre {
             }
 
             // Copy index data
+            delete newSub->indexData;
 			newSub->indexData = (*subi)->indexData->clone();
             // Copy any bone assignments
             newSub->mBoneAssignments = (*subi)->mBoneAssignments;
             newSub->mBoneAssignmentsOutOfDate = (*subi)->mBoneAssignmentsOutOfDate;
-            newSub->mMatInitialised = (*subi)->mMatInitialised;
 
+            // Copy lod face lists
+            newSub->mLodFaceList.reserve((*subi)->mLodFaceList.size());
+            ProgressiveMesh::LODFaceList::const_iterator facei;
+            for (facei = (*subi)->mLodFaceList.begin(); facei != (*subi)->mLodFaceList.end(); ++facei) {
+                IndexData* newIndexData = (*facei)->clone();
+                newSub->mLodFaceList.push_back(newIndexData);
+            }
         }
 
         // Copy shared geometry, if any
@@ -253,15 +261,21 @@ namespace Ogre {
 		newMesh->mSubMeshNameMap = mSubMeshNameMap ;
         // Copy any bone assignments
         newMesh->mBoneAssignments = mBoneAssignments;
+        newMesh->mBoneAssignmentsOutOfDate = mBoneAssignmentsOutOfDate;
         // Copy bounds
         newMesh->mAABB = mAABB;
         newMesh->mBoundRadius = mBoundRadius;
-        // copy BoneAssignment information
-        newMesh->mBoneAssignmentsOutOfDate = mBoneAssignmentsOutOfDate;
 
 		newMesh->mIsLodManual = mIsLodManual;
 		newMesh->mNumLods = mNumLods;
 		newMesh->mMeshLodUsageList = mMeshLodUsageList;
+        // Unreference edge lists, otherwise we'll delete the same lot twice, build on demand
+        MeshLodUsageList::iterator lodi;
+        for (lodi = newMesh->mMeshLodUsageList.begin(); lodi != newMesh->mMeshLodUsageList.end(); ++lodi) {
+            MeshLodUsage& lod = *lodi;
+            lod.edgeData = NULL;
+            // TODO: Copy manual lod meshes
+        }
 
 		newMesh->mVertexBufferUsage = mVertexBufferUsage;
 		newMesh->mIndexBufferUsage = mIndexBufferUsage;
@@ -270,6 +284,9 @@ namespace Ogre {
 
         newMesh->mSkeletonName = mSkeletonName;
         newMesh->mSkeleton = mSkeleton;
+
+        // mPreparedForShadowVolumes, mEdgeListsBuilt and edgeData of mMeshLodUsageList
+        // will up to date on demand
 
         newMesh->load();
         newMesh->touch();
@@ -627,8 +644,18 @@ namespace Ogre {
     void Mesh::generateLodLevels(const LodDistanceList& lodDistances, 
         ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue)
     {
-        mMeshLodUsageList.clear();
-        mIsLodManual = false;
+#if OGRE_DEBUG_MODE
+        Real prev = 0;
+        for (LodDistanceList::const_iterator it = lodDistances.begin();
+            it != lodDistances.end(); ++it)
+        {
+            Real cur = (*it) * (*it);
+            assert(cur >= prev && "The lod distances must be sort ascending");
+            prev = cur;
+        }
+#endif
+
+        removeLodLevels();
 
         char msg[128];
         sprintf(msg, "Generating %d lower LODs for mesh %s.",
@@ -653,21 +680,15 @@ namespace Ogre {
         // Iterate over the lods and record usage
         LodDistanceList::const_iterator idist, idistend;
         idistend = lodDistances.end();
-        // Record first LOD (full detail)
-        MeshLodUsage lod;
-        lod.fromDepthSquared = 0.0f;
-        lod.edgeData = NULL;
-        lod.manualMesh = NULL;
-        mMeshLodUsageList.push_back(lod);
-
+        mMeshLodUsageList.resize(lodDistances.size() + 1);
+        MeshLodUsageList::iterator ilod = mMeshLodUsageList.begin();
         for (idist = lodDistances.begin(); idist != idistend; ++idist)
         {
             // Record usage
+            MeshLodUsage& lod = *++ilod;
             lod.fromDepthSquared = (*idist) * (*idist);
             lod.edgeData = NULL;
             lod.manualMesh = NULL;
-            mMeshLodUsageList.push_back(lod);
-
         }
         mNumLods = static_cast<ushort>(lodDistances.size() + 1);
     }
@@ -707,6 +728,12 @@ namespace Ogre {
 	};
 	void Mesh::createManualLodLevel(Real fromDepth, const String& meshName)
 	{
+        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists builded");
+
+		// Basic prerequisites
+        assert(fromDepth > 0 && "The LOD depth must be greater than zero");
+        assert((mIsLodManual || mNumLods == 1) && "Generated LODs already in use!");
+
 		mIsLodManual = true;
 		MeshLodUsage lod;
 		lod.fromDepthSquared = fromDepth * fromDepth;
@@ -721,6 +748,8 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Mesh::updateManualLodLevel(ushort index, const String& meshName)
 	{
+        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
+
 		// Basic prerequisites
 		assert(mIsLodManual && "Not using manual LODs!");
 		assert(index != 0 && "Can't modify first lod level (full detail)");
@@ -760,6 +789,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Mesh::_setLodInfo(unsigned short numLevels, bool isManual)
 	{
+        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
+
+		// Basic prerequisites
+        assert(numLevels > 0 && "Must be at least one level (full detail level must exist)");
+
 		mNumLods = numLevels;
 		mMeshLodUsageList.resize(numLevels);
 		// Resize submesh face data lists too
@@ -772,12 +806,26 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Mesh::_setLodUsage(unsigned short level, Mesh::MeshLodUsage& usage)
 	{
+        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
+
+		// Basic prerequisites
+		assert(level != 0 && "Can't modify first lod level (full detail)");
+		assert(level < mMeshLodUsageList.size() && "Index out of bounds");
+
 		mMeshLodUsageList[level] = usage;
 	}
     //---------------------------------------------------------------------
 	void Mesh::_setSubMeshLodFaceList(unsigned short subIdx, unsigned short level, 
 		IndexData* facedata)
 	{
+        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
+
+		// Basic prerequisites
+		assert(!mIsLodManual && "Not using generated LODs!");
+        assert(subIdx <= mSubMeshList.size() && "Index out of bounds");
+		assert(level != 0 && "Can't modify first lod level (full detail)");
+		assert(level <= mSubMeshList[subIdx]->mLodFaceList.size() && "Index out of bounds");
+
 		SubMesh* sm = mSubMeshList[subIdx];
 		sm->mLodFaceList[level - 1] = facedata;
 
@@ -806,6 +854,7 @@ namespace Ogre {
             }
         }
 
+        freeEdgeList();
         mMeshLodUsageList.clear();
 
         // Reinitialise
@@ -813,6 +862,8 @@ namespace Ogre {
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
+        lod.edgeData = NULL;
+        lod.manualMesh = NULL;
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
@@ -1204,10 +1255,7 @@ namespace Ogre {
     void Mesh::buildEdgeList(void)
     {
         if (mEdgeListsBuilt)
-        {
-            // destroy existing edge data
-            freeEdgeList();
-        }
+            return;
 
         // Loop over LODs
         for (unsigned int lodIndex = 0; lodIndex < mMeshLodUsageList.size(); ++lodIndex)
@@ -1289,6 +1337,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Mesh::freeEdgeList(void)
     {
+        if (!mEdgeListsBuilt)
+            return;
+
         // Loop over LODs
         MeshLodUsageList::iterator i, iend;
         iend = mMeshLodUsageList.end();
@@ -1305,10 +1356,15 @@ namespace Ogre {
             }
             usage.edgeData = NULL;
         }
+
+        mEdgeListsBuilt = false;
     }
     //---------------------------------------------------------------------
     void Mesh::prepareForShadowVolume(void)
     {
+        if (mPreparedForShadowVolumes)
+            return;
+
         if (sharedVertexData)
         {
             sharedVertexData->prepareForShadowVolume();
@@ -1328,6 +1384,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
     EdgeData* Mesh::getEdgeList(unsigned int lodIndex)
     {
+        // Build edge list on demand
+        if (!mEdgeListsBuilt)
+        {
+            buildEdgeList();
+        }
+
         return getLodLevel(lodIndex).edgeData;
     }
     //---------------------------------------------------------------------
