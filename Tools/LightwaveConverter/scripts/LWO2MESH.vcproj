@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include,..\..\..\OgreMain/include,..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
 				PreprocessorDefinitions="_DEBUG,_CONSOLE,WIN32,TIXML_USE_STL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -44,7 +44,7 @@
 				OutputFile=".\..\bin\Debug\LWO2MESH.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="\projects\stlport\lib,\projects\Ogre\OgreMain\lib\debug,\projects\Ogre\Dependencies\lib\debug"
+				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\Debug"
 				IgnoreDefaultLibraryNames="libc.lib,libcd.lib,libcmt.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\..\bin\Debug\LWO2MESH.pdb"
@@ -78,10 +78,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="2"
-				AdditionalIncludeDirectories="..\include"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
 				PreprocessorDefinitions="NDEBUG,_CONSOLE,WIN32,TIXML_USE_STL"
 				StringPooling="TRUE"
-				RuntimeLibrary="4"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
 				PrecompiledHeaderFile=".\..\obj\Release\LWO2MESH.pch"
 				AssemblerListingLocation=".\..\obj\Release\"
@@ -101,7 +101,7 @@
 				OutputFile=".\..\bin\Release\LWO2MESH.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="\projects\stlport\lib,\projects\Ogre\OgreMain\lib\release,\projects\Ogre\Dependencies\lib\release"
+				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\Release"
 				IgnoreDefaultLibraryNames="libcd.lib,libcmt.lib,libcmtd.lib"
 				SubSystem="1"/>
 			<Tool

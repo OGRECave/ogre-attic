@@ -368,7 +368,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     Quaternion Quaternion::Slerp (Real fT, const Quaternion& rkP,
-        const Quaternion& rkQ)
+        const Quaternion& rkQ, bool shortestPath)
     {
         Real fCos = rkP.Dot(rkQ);
         Real fAngle = Math::ACos(fCos);
@@ -379,6 +379,11 @@ namespace Ogre {
         Real fSin = Math::Sin(fAngle);
         Real fInvSin = 1.0/fSin;
         Real fCoeff0 = Math::Sin((1.0-fT)*fAngle)*fInvSin;
+        // Do we need to invert rotation?
+        if (fCos < 0.0f && shortestPath)
+        {
+            fCoeff0 = -fCoeff0;
+        }
         Real fCoeff1 = Math::Sin(fT*fAngle)*fInvSin;
         return fCoeff0*rkP + fCoeff1*rkQ;
     }
@@ -419,12 +424,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Quaternion Quaternion::Squad (Real fT,
         const Quaternion& rkP, const Quaternion& rkA,
-        const Quaternion& rkB, const Quaternion& rkQ)
+        const Quaternion& rkB, const Quaternion& rkQ, bool shortestPath)
     {
         Real fSlerpT = 2.0*fT*(1.0-fT);
-        Quaternion kSlerpP = Slerp(fT,rkP,rkQ);
-        Quaternion kSlerpQ = Slerp(fT,rkA,rkB);
-        return Slerp(fSlerpT,kSlerpP,kSlerpQ);
+        Quaternion kSlerpP = Slerp(fT, rkP, rkQ, shortestPath);
+        Quaternion kSlerpQ = Slerp(fT, rkA, rkB);
+        return Slerp(fSlerpT, kSlerpP ,kSlerpQ);
     }
     //-----------------------------------------------------------------------
     bool Quaternion::operator== (const Quaternion& rhs) const

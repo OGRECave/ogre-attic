@@ -98,8 +98,12 @@ namespace Ogre {
     #ifdef GCC_3_1
     #   define HashMap ::__gnu_cxx::hash_map
     #else
-    #   if OGRE_COMPILER == COMPILER_MSVC && OGRE_COMP_VER > 1300
-    #       define HashMap ::stdext::hash_map
+    #   if OGRE_COMPILER == COMPILER_MSVC
+    #       if OGRE_COMP_VER > 1300
+    #           define HashMap ::stdext::hash_map
+    #       else
+    #           define HashMap ::std::hash_map
+    #       endif
     #   else
     #       define HashMap ::std::hash_map
     #   endif
@@ -225,8 +229,6 @@ namespace Ogre {
     class Vector3;
     class Viewport;  
     class WireBoundingBox; 
-
-    struct GeometryData;
 }
 
 #endif // __OgrePrerequisites_H__

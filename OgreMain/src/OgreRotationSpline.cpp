@@ -88,7 +88,8 @@ namespace Ogre {
         Quaternion &a = mTangents[fromIndex];
         Quaternion &b = mTangents[fromIndex+1];
 
-        return Quaternion::Squad(t, p, a, b, q);
+        // NB interpolate to nearest rotation
+        return Quaternion::Squad(t, p, a, b, q, true);
 
     }
     //---------------------------------------------------------------------

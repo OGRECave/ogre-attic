@@ -61,9 +61,10 @@ namespace Ogre {
     {
         void* pBuf;
 		DWORD lockOpts;
-		if (!(mUsage & HBU_DYNAMIC) && options == HBL_DISCARD)
+		if (!(mUsage & HBU_DYNAMIC) && 
+				(options == HBL_DISCARD || options == HBL_NO_OVERWRITE))
 		{
-			// D3D doesn't like discard on non-dynamic buffers
+			// D3D doesn't like discard or no_overwrite on non-dynamic buffers
 			lockOpts = 0;
 		}
 		else

@@ -104,7 +104,7 @@ namespace Ogre {
 
         // spherical linear interpolation
         static Quaternion Slerp (Real fT, const Quaternion& rkP,
-            const Quaternion& rkQ);
+            const Quaternion& rkQ, bool shortestPath = false);
 
         static Quaternion SlerpExtraSpins (Real fT,
             const Quaternion& rkP, const Quaternion& rkQ,
@@ -118,7 +118,7 @@ namespace Ogre {
         // spherical quadratic interpolation
         static Quaternion Squad (Real fT, const Quaternion& rkP,
             const Quaternion& rkA, const Quaternion& rkB,
-            const Quaternion& rkQ);
+            const Quaternion& rkQ, bool shortestPath = false);
 
         // cutoff for sine near zero
         static const Real ms_fEpsilon;
