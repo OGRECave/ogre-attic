@@ -233,6 +233,7 @@ namespace Ogre {
                     Pass *shadPass = shadMat->getTechnique(0)->getPass(0);
                     // Try jpg
                     TextureUnitState* tex = shadPass->createTextureUnitState(tryName + ".jpg");
+                    tex->_load();
                     if (tex->isBlank())
                     {
                         // Try tga
