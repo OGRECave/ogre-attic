@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAxisAlignedBox.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h" 
+#include "OgreException.h"
 
 namespace Ogre {
 
