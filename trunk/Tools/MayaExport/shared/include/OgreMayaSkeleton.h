@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMayaCommon.h"
 
 #include <maya/MGlobal.h>
+#include <maya/MDagPath.h>
 #include <maya/MFloatArray.h>
 #include <maya/MPointArray.h>
 #include <maya/MFloatVectorArray.h>
@@ -42,11 +43,33 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include <string>
 #include <list>
+#include <map>
 
 namespace OgreMaya {
 
-    typedef float Real;
+    using namespace std;
 
+    struct Keyframe {
+        Keyframe(Real time, MVector pos, MQuaternion rot):
+            time(time), pos(pos), rot(rot) {}
+
+        Real time; // in s
+        MVector pos;
+        MQuaternion rot;
+    };
+    
+    typedef list<Keyframe> KeyframeList;    
+    typedef map<string, KeyframeList> KeyframesMap;
+
+    struct Animation {
+        Animation(): time(0) {}
+        float time;
+
+        KeyframesMap keyframes; // bonename -> keyframelist
+    };
+
+    typedef map<string, Animation> AnimationMap;
+    
 
 	//	===========================================================================
 	/** \struct		SkeletonJoint
@@ -54,6 +77,8 @@ namespace OgreMaya {
 	*/	
 	//	===========================================================================
 	struct SkeletonJoint {
+        MDagPath       dagPath;
+
         int            index;
 
         std::string    name;
@@ -61,16 +86,17 @@ namespace OgreMaya {
         bool           hasParent;
 
         MMatrix        worldMatrix;
-        MQuaternion    worldQuat;
-        MQuaternion    invWorldQuat;
+        MMatrix        invWorldMatrix;
+        MMatrix        localMatrix;
+        MMatrix        invLocalMatrix;
 
         SkeletonJoint* parent;
 
         MVector        relPos;
-        MQuaternion    relRot;
+        MQuaternion    relRot;        
     };
 
-	typedef std::list<SkeletonJoint*> SkeletonJointList;
+	typedef list<SkeletonJoint*> SkeletonJointList;
 
 
 	//	===========================================================================
@@ -103,9 +129,11 @@ namespace OgreMaya {
 
     protected:
         bool _querySkeleton();
+        bool _querySkeletonAnim();
 
 	protected:
         SkeletonJointList jointList;
+        AnimationMap animations;
 	};
 
 } // namespace OgreMaya
