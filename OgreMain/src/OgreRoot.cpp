@@ -97,7 +97,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     template<> Root* Singleton<Root>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
-    Root::Root()
+    Root::Root(const String& pluginFileName)
     {
         // First create new exception handler
         SET_TERM_HANDLER;
@@ -156,7 +156,7 @@ namespace Ogre {
         Codec::registerCodec( mJPGCodec );
 
         // Load plugins
-        loadPlugins();        
+        loadPlugins(pluginFileName);        
 
         mLogManager->logMessage("*-*-* OGRE Initialising");
         msg = "*-*-* Version " + mVersion;
@@ -207,6 +207,7 @@ namespace Ogre {
         delete mPNGCodec;
         delete mZipArchiveFactory;
         delete mGuiManager;
+        delete mOverlayManager;
         delete mFontManager;
         delete mArchiveManager;
         delete mSkeletonManager;

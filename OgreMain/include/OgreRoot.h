@@ -117,8 +117,12 @@ namespace Ogre
 
         static void termHandler();
 
-        // Constructor
-        Root();
+        /** Constructor
+            @param
+                pluginFileName The file that contains plugins information.
+                Defaults to "plugins.cfg".
+		*/
+        Root(const String& pluginFileName = "plugins.cfg");
         ~Root();
 
         /** Saves the details of the current configuration

@@ -87,6 +87,9 @@ namespace Ogre {
                 out of the rendering loop.
         */
         virtual bool frameEnded(const FrameEvent& evt) { return true; }
+
+		virtual ~FrameListener() {}
+		
     };
 }
 
