@@ -602,7 +602,7 @@ namespace Ogre {
         if (!pSubMesh)
         {
             MeshPtr pMesh = MeshManager::getSingleton().load("axes.mesh", 
-				ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+				ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME);
             pSubMesh = pMesh->getSubMesh(0);
         }
         pSubMesh->_getRenderOperation(op);
