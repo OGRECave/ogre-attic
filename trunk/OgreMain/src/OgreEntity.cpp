@@ -612,6 +612,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation, const Vector3 &offsetPosition)
     {
+        if (mChildObjectList.find(pMovable->getName()) != mChildObjectList.end())
+        {
+            Except(Exception::ERR_DUPLICATE_ITEM,
+                "An object with the name " + pMovable->getName() + " already attached",
+                "Entity::attachObjectToBone");
+        }
         if(pMovable->isAttached())
         {
             Except(Exception::ERR_INVALIDPARAMS, "Object already attached to a sceneNode or a Bone", 
