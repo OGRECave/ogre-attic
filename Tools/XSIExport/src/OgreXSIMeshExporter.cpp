@@ -87,6 +87,7 @@ namespace Ogre {
         const CString& objectName, bool edgeLists, bool tangents)
     {
         LogManager logMgr;
+		ResourceGroupManager rgm;
         MeshManager *meshMgr = new MeshManager();
         DefaultHardwareBufferManager *hardwareBufMgr = new DefaultHardwareBufferManager();
 
@@ -96,12 +97,13 @@ namespace Ogre {
         X3DObject sceneRoot(mXsiApp.GetActiveSceneRoot());
 
         // Construct mesh
-        Mesh* pMesh = MeshManager::getSingleton().createManual("XSIExport");
+        MeshPtr pMesh = MeshManager::getSingleton().createManual("XSIExport", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         if (objectName.IsEmpty())
         {
             // export the entire scene
-            exportX3DObject(pMesh, sceneRoot);
+            exportX3DObject(pMesh.getPointer(), sceneRoot);
         }
         else
         {
@@ -119,7 +121,7 @@ namespace Ogre {
                     "XsiMeshExporter::exportMesh");
             }
 
-            exportX3DObject(pMesh, obj);
+            exportX3DObject(pMesh.getPointer(), obj);
 
         }
 
@@ -145,7 +147,7 @@ namespace Ogre {
         }
 
         MeshSerializer serializer;
-        serializer.exportMesh(pMesh, XSItoOgre(fileName));
+        serializer.exportMesh(pMesh.getPointer(), XSItoOgre(fileName));
 
         delete meshMgr;
         delete hardwareBufMgr;
