@@ -535,10 +535,11 @@ namespace Ogre {
             by the renderer, but the extraneous ones will never be used. In fact the limit will
             be imposed by Pass::getMaxSimultaneousLights.
         @param position The position at which to evaluate the list of lights
+        @param radius The bounding radius to test
         @param destList List to be populated with ordered set of lights; will be cleared by 
             this method before population.
         */
-        virtual void _populateLightList(const Vector3& position, LightList& destList);
+        virtual void _populateLightList(const Vector3& position, Real radius, LightList& destList);
 
         /** Creates a new material with default settings with the specified name.
         @see SceneManager::getDefaultMaterialSettings

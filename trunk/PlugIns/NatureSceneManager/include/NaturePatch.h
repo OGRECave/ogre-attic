@@ -14,7 +14,7 @@ Author: Martin Persson
 #include <OgreSimpleRenderable.h>
 #include <OgreRenderOperation.h>
 #include <OgreCamera.h>
-#include <OgreNode.h>
+#include <OgreSceneNode.h>
 
 namespace Ogre
 {
@@ -230,7 +230,7 @@ namespace Ogre
         virtual void _notifyCurrentCamera(Camera *cam) = 0;
 
         /** @copydoc Renderable::getLights */
-        const LightList& getLights(void) const { return mParentNode->getLights(); }
+        const LightList& getLights(void) const { return getParentSceneNode()->findLights(getBoundingRadius()); }
 
     protected:
         /// Pointers to neighboring patches

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneNode.h"
 #include "OgreTagPoint.h"
 #include "OgreLight.h"
+#include "OgreEntity.h"
 
 namespace Ogre {
 
@@ -62,6 +63,19 @@ namespace Ogre {
     Node* MovableObject::getParentNode(void) const
     {
         return mParentNode;
+    }
+    //-----------------------------------------------------------------------
+    SceneNode* MovableObject::getParentSceneNode(void) const
+    {
+        if (mParentIsTagPoint)
+        {
+            TagPoint* tp = static_cast<TagPoint*>(mParentNode);
+            return tp->getParentEntity()->getParentSceneNode();
+        }
+        else
+        {
+            return static_cast<SceneNode*>(mParentNode);
+        }
     }
     //-----------------------------------------------------------------------
     bool MovableObject::isAttached(void) const

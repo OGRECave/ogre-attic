@@ -130,7 +130,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const LightList& TagPoint::getLights(void) const
     {
-        return mParentEntity->getParentNode()->getLights();
+        return mParentEntity->getParentSceneNode()->findLights(mParentEntity->getBoundingRadius());
     }
 
 }

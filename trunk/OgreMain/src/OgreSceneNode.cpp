@@ -380,7 +380,7 @@ namespace Ogre {
 		return static_cast<SceneNode*>(this->createChild(name, translate, rotate));
 	}
     //-----------------------------------------------------------------------
-    const LightList& SceneNode::getLights(void) const
+    const LightList& SceneNode::findLights(Real radius) const
     {
         // TEMP FIX
         // If a scene node is static and lights have moved, light list won't change
@@ -391,7 +391,7 @@ namespace Ogre {
         if (mCreator)
         {
             // Use SceneManager to calculate
-            mCreator->_populateLightList(this->_getDerivedPosition(), mLightList);
+            mCreator->_populateLightList(this->_getDerivedPosition(), radius, mLightList);
             mLightListDirty = false;
         }
         return mLightList;

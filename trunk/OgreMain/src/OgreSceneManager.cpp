@@ -292,10 +292,12 @@ namespace Ogre {
         return a->tempSquareDist < b->tempSquareDist;
     }
     //-----------------------------------------------------------------------
-    void SceneManager::_populateLightList(const Vector3& position, LightList& destList)
+    void SceneManager::_populateLightList(const Vector3& position, Real radius, LightList& destList)
     {
         // Really basic trawl of the lights, then sort
+        // Subclasses could do something smarter
         destList.clear();
+        Real squaredRadius = radius * radius;
 
         SceneLightList::iterator i, iend;
         iend = mLights.end();
@@ -314,6 +316,7 @@ namespace Ogre {
                 {
                     // Calc squared distance
                     lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
+                    lt->tempSquareDist -= squaredRadius;
                     // only add in-range lights
                     Real range = lt->getAttenuationRange();
                     if (lt->tempSquareDist <= (range * range))

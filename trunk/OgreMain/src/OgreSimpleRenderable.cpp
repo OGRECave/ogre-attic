@@ -25,7 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreSimpleRenderable.h"
 #include "OgreException.h"
-#include "OgreNode.h"
+#include "OgreSceneNode.h"
 
 #include "OgreMaterialManager.h"
 
@@ -138,8 +138,9 @@ namespace Ogre {
     {
         static LightList dummyLightList;
         // Use parent node
-        if (mParentNode)
-            return mParentNode->getLights();
+        SceneNode* n = getParentSceneNode();
+        if (n)
+            return n->findLights(this->getBoundingRadius());
         else
             return dummyLightList;
     }
