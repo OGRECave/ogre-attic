@@ -79,6 +79,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreOverlayManager.h"
 #include "OgreRenderTexture.h"
 #include "OgreUserDefinedObject.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
+
 // .... more to come
 
 #endif
