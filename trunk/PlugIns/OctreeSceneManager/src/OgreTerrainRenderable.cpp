@@ -678,8 +678,9 @@ namespace Ogre
                 "TerrainRenderable::_calculateCFactor");
         }
 
-        //A = nearPlane / fabs( ( Real ) mTopCoord );
-        A = Math::Tan(Math::AngleUnitsToRadians(opts.primaryCamera->getFOVy()));
+        //A = 1 / Math::Tan(Math::AngleUnitsToRadians(opts.primaryCamera->getFOVy()));
+        // Turn off detail compression at higher FOVs
+        A = 1.0f;
 
         int vertRes = opts.primaryCamera->getViewport()->getActualHeight();
 
