@@ -212,7 +212,7 @@ namespace Ogre {
         ParticleSystem* pTemplate = getTemplate(templateName);
         if (!pTemplate)
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Cannot find required template'" + templateName + "'", "ParticleSystemManager::createSystem");
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot find required template '" + templateName + "'", "ParticleSystemManager::createSystem");
         }
 
         ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota());
