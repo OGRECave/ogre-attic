@@ -73,12 +73,6 @@ namespace Ogre {
             release();
 		}
 
-        virtual void destroy(void)
-        {
-			delete pRep;
-			delete pUseCount;
-        }
-
 
 		inline T& operator*() const { assert(pRep); return *pRep; }
 		inline T* operator->() const { assert(pRep); return pRep; }
@@ -107,6 +101,8 @@ namespace Ogre {
             pUseCount = 0;
         }
 
+    protected:
+
         inline void release(void) {
             if (pUseCount)
             {
@@ -114,6 +110,12 @@ namespace Ogre {
                     destroy();
                 }
             }
+        }
+
+        virtual void destroy(void)
+        {
+            delete pRep;
+            delete pUseCount;
         }
 	};
 
