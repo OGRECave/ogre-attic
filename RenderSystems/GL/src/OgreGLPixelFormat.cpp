@@ -56,6 +56,8 @@ namespace Ogre  {
                 return GL_RGBA;
             case PF_B8G8R8A8:
                 return GL_BGRA;
+			case PF_R8G8B8A8:
+				return GL_RGBA;
             case PF_A2R10G10B10:
                 return GL_BGRA;
             case PF_A2B10G10R10:
@@ -99,6 +101,8 @@ namespace Ogre  {
 				return GL_UNSIGNED_INT_8_8_8_8_REV;
             case PF_B8G8R8A8:
                 return GL_UNSIGNED_BYTE;
+			case PF_R8G8B8A8:
+				return GL_UNSIGNED_BYTE;
 #else
 			case PF_X8B8G8R8:
 			case PF_A8B8G8R8:
@@ -108,6 +112,8 @@ namespace Ogre  {
 				return GL_UNSIGNED_BYTE;
             case PF_B8G8R8A8:
                 return GL_UNSIGNED_INT_8_8_8_8;
+			case PF_R8G8B8A8:
+				return GL_UNSIGNED_INT_8_8_8_8;
 #endif
             case PF_A2R10G10B10:
                 return GL_UNSIGNED_INT_2_10_10_10_REV;
