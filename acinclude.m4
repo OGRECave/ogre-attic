@@ -485,3 +485,18 @@ AC_MSG_CHECKING([whether -fPIC is needed])
         ;;
     esac
 ])
+
+AC_DEFUN([OGRE_CHECK_CEGUI], [
+    PKG_CHECK_MODULES(CEGUI, CEGUI-OGRE, 
+            [build_cegui_sample=true], [build_cegui_sample=false])
+    if test x$build_cegui_sample = xtrue; then
+        AC_CONFIG_FILES([Samples/Gui/Makefile \
+                         Samples/Gui/src/Makefile])
+        AC_SUBST(CEGUI_CFLAGS)
+        AC_SUBST(CEGUI_LIBS)
+        AC_MSG_RESULT([CEGUI available, Gui sample will be built])
+    else
+        AC_MSG_RESULT([CEGUI not available, Gui sample will not be built])
+    fi
+    AM_CONDITIONAL([BUILD_CEGUI_SAMPLE], [test x$build_cegui_sample = xtrue])
+])
