@@ -75,8 +75,7 @@ PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "PLUGIN_GuiElements_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_USRDLL" /D "PLUGIN_GUIELEMENTS_EXPORTS" /D "_MBCS" /D "OGRE_WIN32" /D "_WINDOWS" /D "_DEBUG" /D "WIN32" /D "OGRE_DYNAMIC_LINKAGE" /YX /FD /GZ /c
-# SUBTRACT CPP /Fr
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\include" /D "_USRDLL" /D "PLUGIN_GUIELEMENTS_EXPORTS" /D "_MBCS" /D "OGRE_WIN32" /D "_WINDOWS" /D "_DEBUG" /D "WIN32" /D "OGRE_DYNAMIC_LINKAGE" /YX /FD /GZ /Zm500 /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "_DEBUG"
@@ -108,10 +107,6 @@ SOURCE=..\src\OgreBorderButtonGuiElement.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreBorderPanelGuiElement.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreButtonGuiElement.cpp
 # End Source File
 # Begin Source File
@@ -132,19 +127,11 @@ SOURCE=..\src\OgreListGuiElement.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgrePanelGuiElement.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgrePopupMenuGuiElement.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\OgreScrollBarGuiElement.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreTextAreaGuiElement.cpp
 # End Source File
 # Begin Source File
 
@@ -161,10 +148,6 @@ SOURCE=..\src\OgreTTYGuiElement.cpp
 # Begin Source File
 
 SOURCE=..\include\OgreBorderButtonGuiElement.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreBorderPanelGuiElement.h
 # End Source File
 # Begin Source File
 
@@ -192,19 +175,11 @@ SOURCE=..\include\OgreListGuiElement.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgrePanelGuiElement.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\OgrePopupMenuGuiElement.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreScrollBarGuiElement.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreTextAreaGuiElement.h
 # End Source File
 # Begin Source File
 
