@@ -66,6 +66,8 @@ namespace Ogre {
         mutable bool mNeedParentUpdate;
 		/// Flag indicating that all children need to be updated
 		mutable bool mNeedChildUpdate;
+		/// Flag indicating that parent has been notified about update request
+	    mutable bool mParentNotified ;
 
         /// Friendly name of this node, can be automatically generated if you don't care
         String mName;

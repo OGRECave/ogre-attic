@@ -45,6 +45,7 @@ namespace Ogre {
         mPosition = mInitialPosition = mDerivedPosition = Vector3::ZERO;
         mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
+		mParentNotified = false ;
 
         // Generate a name
         static char temp[64];
@@ -65,6 +66,7 @@ namespace Ogre {
         mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mAccumAnimWeight = 0.0f;
+		mParentNotified = false ;
 
         needUpdate();
 
@@ -86,6 +88,7 @@ namespace Ogre {
     {
         mParent = parent;
         // Request update from parent
+		mParentNotified = false ;
         needUpdate();
     }
 
@@ -105,6 +108,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::_update(bool updateChildren, bool parentHasChanged)
     {
+		// always clear information about parent notification
+		mParentNotified = false ;
+		
         // Short circuit the off case
         if (!updateChildren && !mNeedParentUpdate && !mNeedChildUpdate && !parentHasChanged )
         {
@@ -692,10 +698,11 @@ namespace Ogre {
 		mNeedChildUpdate = true;
         mCachedTransformOutOfDate = true;
 
-        // Make sure we're not root
-        if (mParent)
+        // Make sure we're not root and parent hasn't been notified before
+        if (mParent && !mParentNotified)
         {
             mParent->requestUpdate(this);
+			mParentNotified = true ;
         }
 
         // all children will be updated
@@ -711,9 +718,11 @@ namespace Ogre {
         }
             
         mChildrenToUpdate.insert(child);
-        // Request selective update of me
-        if (mParent)
+        // Request selective update of me, if we didn't do it before
+        if (mParent && !mParentNotified) {
             mParent->requestUpdate(this);
+			mParentNotified = true ;
+		}
 
     }
     //-----------------------------------------------------------------------
@@ -722,9 +731,10 @@ namespace Ogre {
         mChildrenToUpdate.erase(child);
 
         // Propogate this up if we're done
-        if (mChildrenToUpdate.empty() && mParent)
+        if (mChildrenToUpdate.empty() && mParent && !mNeedChildUpdate)
         {
             mParent->cancelUpdate(this);
+			mParentNotified = false ;
         }
     }
 }
