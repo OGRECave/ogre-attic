@@ -2306,14 +2306,14 @@ namespace Ogre {
                         mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
                         assert(sr->getLightCapRenderable() && "Shadow renderable is "
                             "missing a light cap renderable!");
-                        mDestRenderSystem->_setCullingMode(CULL_NONE);
+                        mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
                         mDestRenderSystem->setStencilBufferParams(
                             CMPF_ALWAYS_PASS, // always pass stencil check
                             0, // no ref value (no compare)
                             0xFFFFFFFF, // no mask
                             SOP_KEEP, // stencil test will never fail
                             SOP_DECREMENT, // front face depth fail
-                            SOP_INCREMENT, // front face pass
+                            SOP_KEEP, // front face pass
                             false
                             );
                         renderSingleObject(sr->getLightCapRenderable(), mShadowStencilPass, false);
