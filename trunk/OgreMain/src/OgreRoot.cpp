@@ -505,14 +505,24 @@ namespace Ogre {
                 "Root::loadPlugins");
         }
 
-        char szBuffer[260];
-        getcwd( szBuffer, 259 );
-        chdir( pluginDir.c_str() );
+        char last_char = pluginDir[pluginDir.length()-1];
+        if (last_char != '/' || last_char != '\\')
+        {
+#if OGRE_PLATFORM == PLATFORM_WIN32
+            pluginDir += "\\";
+#else
+            pluginDir += "/";
+#endif
+        }
+
+//        char szBuffer[260];
+//        getcwd( szBuffer, 259 );
+//        chdir( pluginDir.c_str() );
 
         for( StringVector::iterator it = pluginList.begin(); it != pluginList.end(); ++it )
         {
             // Load plugin library
-            lib = DynLibManager::getSingleton().load( *it );
+            lib = DynLibManager::getSingleton().load( pluginDir + (*it));
             // Store for later unload
             mPluginLibs.push_back(lib);
 
@@ -525,7 +535,7 @@ namespace Ogre {
             pFunc();
         }
 
-        chdir( szBuffer );
+//        chdir( szBuffer );
     }
     //-----------------------------------------------------------------------
     void Root::unloadPlugins(void)
