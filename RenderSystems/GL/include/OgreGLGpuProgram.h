@@ -31,33 +31,58 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
-class GLGpuProgram : public GpuProgram
-{
-public:
-    GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
-    virtual ~GLGpuProgram() { }
+    /** Generalised low-level GL program, can be applied to multiple types (eg ARB and NV) */
+    class GLGpuProgram : public GpuProgram
+    {
+    public:
+        GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+        virtual ~GLGpuProgram() { }
 
-    /// @copydoc Resource::unload
-    void unload(void);
+        /// Execute the binding functions for this program
+        virtual void bindProgram(void) = 0;
+        /// Execute the binding functions for this program
+        virtual void unbindProgram(void) = 0;
 
-    /// Execute the binding functions for this program
-    void bindProgram(void);
+        /// Execute the param binding functions for this program
+        virtual void bindProgramParameters(GpuProgramParametersSharedPtr params) = 0;
 
-    /// Get the assigned GL program id
-    const GLuint getProgramID(void) const
-    { return mProgramID; }
+        /// Get the assigned GL program id
+        const GLuint getProgramID(void) const
+        { return mProgramID; }
 
-    /// Get the GL type for the program
-    const GLuint getProgramType(void) const
-    { return mProgramType; }
+    protected:
 
-protected:
-    void loadFromSource(void);
+        GLuint mProgramID;
+        GLenum mProgramType;
+    };
 
-private:
-    GLuint mProgramID;
-    GLenum mProgramType;
-};
+    /** Specialisation of the GL low-level program for ARB programs. */
+    class GLArbGpuProgram : public GLGpuProgram
+    {
+    public:
+        GLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
+        virtual ~GLArbGpuProgram() { }
+
+        /// @copydoc Resource::unload
+        void unload(void);
+
+        /// Execute the binding functions for this program
+        void bindProgram(void);
+        /// Execute the unbinding functions for this program
+        void unbindProgram(void);
+        /// Execute the param binding functions for this program
+        void bindProgramParameters(GpuProgramParametersSharedPtr params);
+
+        /// Get the GL type for the program
+        const GLuint getProgramType(void) const
+        { return mProgramType; }
+
+    protected:
+        void loadFromSource(void);
+
+    };
+
+
 
 }; // namespace Ogre
 

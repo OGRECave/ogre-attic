@@ -27,11 +27,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __GLGpuNvparseProgram_H__
 
 #include "OgreGLPrerequisites.h"
-#include "OgreGpuProgram.h"
+#include "OgreGLGpuProgram.h"
 
 namespace Ogre {
 
-class GLGpuNvparseProgram : public GpuProgram
+class GLGpuNvparseProgram : public GLGpuProgram
 {
 public:
     GLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode);
@@ -42,14 +42,14 @@ public:
 
     /// Execute the binding functions for this program
     void bindProgram(void);
+    /// Execute the unbinding functions for this program
+    void unbindProgram(void);
+    /// Execute the param binding functions for this program
+    void bindProgramParameters(GpuProgramParametersSharedPtr params);
 
     /// Get the assigned GL program id
     const GLuint getProgramID(void) const
     { return mProgramID; }
-
-    /// Get the GL type for the program
-    const GLuint getProgramType(void) const
-    { return mProgramType; }
 
 protected:
     void loadFromSource(void);

@@ -29,14 +29,14 @@ http://www.gnu.org/copyleft/gpl.html.
 
 using namespace Ogre;
 
-bool GLGpuProgramManager::registerProgram(GpuProgramType gptype, CreateGpuProgramCallback createFn)
+bool GLGpuProgramManager::registerProgramFactory(const String& syntaxCode, CreateGpuProgramCallback createFn)
 {
-    return mProgramMap.insert(ProgramMap::value_type(gptype, createFn)).second;
+    return mProgramMap.insert(ProgramMap::value_type(syntaxCode, createFn)).second;
 }
 
-bool GLGpuProgramManager::unregisterProgram(GpuProgramType gptype)
+bool GLGpuProgramManager::unregisterProgramFactory(const String& syntaxCode)
 {
-    return mProgramMap.erase(gptype);
+    return mProgramMap.erase(syntaxCode);
 }
 
 GpuProgramParametersSharedPtr GLGpuProgramManager::createParameters(void)
@@ -46,11 +46,12 @@ GpuProgramParametersSharedPtr GLGpuProgramManager::createParameters(void)
 
 GpuProgram* GLGpuProgramManager::create(const String& name, GpuProgramType gptype, const String& syntaxCode)
 {
-    ProgramMap::const_iterator iter = mProgramMap.find(gptype);
+    ProgramMap::const_iterator iter = mProgramMap.find(syntaxCode);
     if(iter == mProgramMap.end())
     {
-        LogManager::getSingleton().logMessage("No such shader program type " + gptype);
-        return 0;
+        // No factory, this is an unsupported syntax code, probably for another rendersystem
+        // Create a basic one, it doesn't matter what it is since it won't be used
+        iter = mProgramMap.begin();
     }
     
     return (iter->second)(name, gptype, syntaxCode);

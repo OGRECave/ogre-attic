@@ -185,6 +185,25 @@ namespace Ogre {
             {
                 String paramName = cgGetParameterName(parameter);
                 size_t index = cgGetParameterResourceIndex(parameter);
+
+                // Get the parameter resource, so we know what type we're dealing with
+                CGresource res = cgGetParameterResource(parameter);
+                switch (res)
+                {
+                case CG_COMBINER_STAGE_CONST0:
+                    // register combiner, const 0
+                    // the index relates to the texture stage; store this as (stage * 2) + 0
+                    index = index * 2;
+                    break;
+                case CG_COMBINER_STAGE_CONST1:
+                    // register combiner, const 1
+                    // the index relates to the texture stage; store this as (stage * 2) + 1
+                    index = (index * 2) + 1;
+                    break;
+                default:
+                    // do nothing, normal constant
+                    break;
+                };
                 params->_mapParameterNameToIndex(paramName, index);
             }
             // Get next

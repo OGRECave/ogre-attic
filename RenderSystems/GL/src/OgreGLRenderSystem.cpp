@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 -----------------------------------------------------------------------------
 */
 
+
 #include "OgreGLRenderSystem.h"
 #include "OgreRenderSystem.h"
 #include "OgreLogManager.h"
@@ -37,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLGpuNvparseProgram.h"
 #include "OgreGLGpuProgramManager.h"
 #include "OgreException.h"
+
 
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
@@ -62,13 +64,14 @@ GL_DeleteProgramsARB_Func glDeleteProgramsARB_ptr;
 GL_BindProgramARB_Func glBindProgramARB_ptr;
 GL_ProgramStringARB_Func glProgramStringARB_ptr;
 GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
+GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
 
 namespace Ogre {
 
     // Callback function used when registering GLGpuPrograms
-    GpuProgram* createGLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    GpuProgram* createGLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLGpuProgram(name, gptype, syntaxCode);
+        return new GLArbGpuProgram(name, gptype, syntaxCode);
     }
 
     GpuProgram* createGLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
@@ -130,10 +133,13 @@ namespace Ogre {
         glBindProgramARB_ptr = 0;
         glProgramStringARB_ptr = 0;
         glProgramLocalParameter4fvARB_ptr = 0;
+        glCombinerStageParameterfvNV_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
         mMipFilter = FO_POINT;
+        mCurrentVertexProgram = 0;
+        mCurrentFragmentProgram = 0;
 
         OgreUnguard();
     }
@@ -301,7 +307,17 @@ namespace Ogre {
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
-            mGpuProgramManager->registerProgram(GPT_VERTEX_PROGRAM, createGLGpuProgram);
+            mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
+        }
+
+        if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
+            mGLSupport->checkExtension("GL_NV_texture_shader"))
+        {
+            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+            mCapabilities->setMaxFragmentProgramVersion("fp20");
+
+            mGpuProgramManager->_pushSyntaxCode("fp20");
+            mGpuProgramManager->registerProgramFactory("fp20", createGLGpuNvparseProgram);
         }
 
         if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
@@ -314,18 +330,8 @@ namespace Ogre {
             mCapabilities->setFragmentProgramConstantFloatCount(
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
-            //mGpuProgramManager->registerProgram(GPT_VERTEX_PROGRAM, createProgram<GLGpuProgram>);
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
-            mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createGLGpuProgram);
-        }
-        else if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
-            mGLSupport->checkExtension("GL_NV_texture_shader"))
-        {
-            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
-            mCapabilities->setMaxFragmentProgramVersion("fp20");
-
-            mGpuProgramManager->_pushSyntaxCode("fp20");
-            mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createGLGpuNvparseProgram);
+            mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
         }
 
         // Get extension function pointers
@@ -361,6 +367,9 @@ namespace Ogre {
             (GL_ProgramStringARB_Func)mGLSupport->getProcAddress("glProgramStringARB");
         glProgramLocalParameter4fvARB_ptr =
             (GL_ProgramLocalParameter4fvARB_Func)mGLSupport->getProcAddress("glProgramLocalParameter4fvARB");
+        glCombinerStageParameterfvNV_ptr =
+            (GL_CombinerStageParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerStageParameterfvNV");
+
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
@@ -1802,47 +1811,45 @@ namespace Ogre {
     {
         GLGpuProgram* glprg = static_cast<GLGpuProgram*>(prg);
         glprg->bindProgram();
+        if (glprg->getType() == GPT_VERTEX_PROGRAM)
+        {
+            mCurrentVertexProgram = glprg;
+        }
+        else
+        {
+            mCurrentFragmentProgram = glprg;
+        }
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
         GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-        if(gptype == GPT_FRAGMENT_PROGRAM && 
-            mCapabilities->getMaxFragmentProgramVersion() == "fp20")
+
+        if (gptype == GPT_VERTEX_PROGRAM)
         {
-            glDisable(GL_TEXTURE_SHADER_NV);
-            glDisable(GL_REGISTER_COMBINERS_NV);
+            mCurrentVertexProgram->unbindProgram();
+            mCurrentVertexProgram = 0;
         }
         else
         {
-            glBindProgramARB_ptr(glProgType, 0);
-            glDisable(glProgType);
+            mCurrentFragmentProgram->unbindProgram();
+            mCurrentFragmentProgram = 0;
         }
+
+
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
     {
-
-        GLenum type = (gptype == GPT_VERTEX_PROGRAM) ? 
-            GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-        
-        if (params->hasRealConstantParams())
+        if (gptype == GPT_VERTEX_PROGRAM)
         {
-            // Iterate over params and set the relevant ones
-            GpuProgramParameters::RealConstantIterator realIt = 
-                params->getRealConstantIterator();
-            unsigned int index = 0;
-            while (realIt.hasMoreElements())
-            {
-                GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
-                if (e->isSet)
-                {
-                    glProgramLocalParameter4fvARB_ptr(type, index, e->val);
-                }
-                index++;
-                realIt.moveNext();
-            }
+            mCurrentVertexProgram->bindProgramParameters(params);
+        }
+        else
+        {
+            mCurrentFragmentProgram->bindProgramParameters(params);
         }
     }
+
 }
