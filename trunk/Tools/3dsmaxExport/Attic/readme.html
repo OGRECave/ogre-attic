@@ -6,8 +6,16 @@
   <title>Using the 3DS Max exporter</title>
 </head>
 <body>
-<span style="font-weight: bold; text-decoration: underline;">How to use
-the 3DS exporter</span><br>
+<div style="text-align: left;">
+<div style="text-align: center;"><span
+ style="font-weight: bold; text-decoration: underline;">OGRE 3D Studio
+Max Exporter<br>
+</span><a href="http://ogre.sourceforge.net">http://ogre.sourceforge.net</a><span
+ style="font-weight: bold; text-decoration: underline;"><br>
+</span></div>
+<span style="font-weight: bold; text-decoration: underline;"></span></div>
+<span style="font-weight: bold; text-decoration: underline;"><br>
+How to use the 3DS exporter</span><br>
 <br>
 Please read '<a href="install.txt">install.txt</a>' for information on
 how to install the exporter.<br>
@@ -18,8 +26,8 @@ Features of the exporter:<br>
   <li>exports bones, vertex assignements and bones animation, using the
 skin modifier</li>
   <li>optionally exports embedded material definitions, however you are
-better to simply assign named materials and use an OGRE .material
-script to define them, since you can then use the full OGRE material
+better to simply assign named materials and use an OGRE .material script
+to define them, since you can then use the full OGRE material
 properties.</li>
   <li>exports everything to XML, which allows you to review or alter
 the exported details if you wish. The CML must be converted to OGRE
@@ -55,8 +63,8 @@ files, and combine the extra animations in one XML file by adding the
 <span style="font-weight: bold; text-decoration: underline;">Converting
 XML to binary files</span><br>
 Once you're happy with the files, you need to convert them to OGRE's
-binary formats to use them at runtime (XML is too inefficient to use
-for large data structures like meshes at runtime).<br>
+binary formats to use them at runtime (XML is too inefficient to use for
+large data structures like meshes at runtime).<br>
 <br>
 To do this, you need to use the XMLConverter tool, provided in the Ogre
 source tree under ogrenew/Tools/XMLConverter, or available as a
@@ -82,10 +90,10 @@ this, this is because the converter uses the runtime objects from OGRE
 itself and has not established any resource locations; <br>
 this message will not affect the validity of the .mesh produced.</li>
   <li>At every keyframe, you have to had a key for position x,y,z and
-rotation x,y,z, otherwise you will have an error message: "a key
-missing for a track" or something like that. To get around this, use
-the&nbsp; 'Add missing keys for selected object' button at the bottom
-of the export dialog.</li>
+rotation x,y,z, otherwise you will have an error message: "a key missing
+for a track" or something like that. To get around this, use the&nbsp;
+'Add missing keys for selected object' button at the bottom of the
+export dialog.</li>
   <li>Frame 0 must be a keyframe and at this keyframe, bones mustn't be
 rotated, they must be in their rest position. If you want to begin your
 animation with a different position, start animating at a higher frame
@@ -96,10 +104,9 @@ modifier.</li>
 required.</li>
   <li><span style="font-weight: bold;"></span>A new material is
 available in the material editor: OGRE Material. Only this kind of
-material can be embedded in the .mesh; however, in any case it is
-better to simply name your materials and use a .material script to
-define the material, that way you can use all the OGRE material
-properties.</li>
+material can be embedded in the .mesh; however, in any case it is better
+to simply name your materials and use a .material script to define the
+material, that way you can use all the OGRE material properties.</li>
 </ul>
 The OGRE team would like to thank John Martin and EarthquakeProof for
 developing this exporter.<br>
