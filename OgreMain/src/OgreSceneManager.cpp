@@ -63,7 +63,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    SceneManager::SceneManager() :
+//-----------------------------------------------------------------------
+unsigned long SceneManager::WORLD_GEOMETRY_QUERY_MASK = 0x80000000;
+//-----------------------------------------------------------------------
+SceneManager::SceneManager() :
 mRenderQueue(0),
 mSkyPlaneEntity(0),
 mSkyPlaneNode(0),
@@ -116,7 +119,7 @@ mShadowTextureFadeEnd(0.9)
 
 
 }
-
+//-----------------------------------------------------------------------
 SceneManager::~SceneManager()
 {
     clearScene();
@@ -3305,7 +3308,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
                 if (sr->isVisible())
                 {
                     // render volume, including dark and (maybe) light caps
-                    renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided, &lightList, i);
+                    renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided, &lightList, i != 0);
 
                     // optionally render separate light cap
                     if (sr->isLightCapSeparate() && (flags & SRF_INCLUDE_LIGHT_CAP))
@@ -3313,7 +3316,7 @@ void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera
                         // must always fail depth check
                         mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
                         assert(sr->getLightCapRenderable() && "Shadow renderable is missing a separate light cap renderable!");
-                        renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(), zfailAlgo, stencil2sided, &lightList, i);
+                        renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(), zfailAlgo, stencil2sided, &lightList, i != 0);
                         // reset depth function
                         mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
                     }

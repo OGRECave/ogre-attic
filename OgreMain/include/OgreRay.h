@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreVector3.h"
+#include "OgrePlaneBoundedVolume.h"
 
 namespace Ogre {
 
@@ -74,6 +75,16 @@ namespace Ogre {
 		{
 			return Math::intersects(*this, p);
 		}
+        /** Tests whether this ray intersects the given plane bounded volume. 
+        @returns A pair structure where the first element indicates whether
+        an intersection occurs, and if true, the second element will
+        indicate the distance along the ray at which it intersects. 
+        This can be converted to a point in space by calling getPoint().
+        */
+        std::pair<bool, Real> intersects(const PlaneBoundedVolume& p) const
+        {
+            return Math::intersects(*this, p.planes, p.outside == Plane::POSITIVE_SIDE);
+        }
 		/** Tests whether this ray intersects the given sphere. 
 		@returns A pair structure where the first element indicates whether
 			an intersection occurs, and if true, the second element will

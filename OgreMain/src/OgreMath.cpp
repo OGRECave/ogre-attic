@@ -298,6 +298,96 @@ namespace Ogre
         
     }
     //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, 
+        const std::vector<Plane>& planes, bool normalIsOutside)
+    {
+        std::vector<Plane>::const_iterator planeit, planeitend;
+        planeitend = planes.end();
+        bool allInside = true;
+        std::pair<bool, Real> ret;
+        ret.first = false;
+        ret.second = 0.0f;
+
+        // derive side
+        // NB we don't pass directly since that would require Plane::Side in 
+        // interface, which results in recursive includes since Math is so fundamental
+        Plane::Side outside = normalIsOutside ? Plane::POSITIVE_SIDE : Plane::NEGATIVE_SIDE;
+
+        for (planeit = planes.begin(); planeit != planeitend; ++planeit)
+        {
+            const Plane& plane = *planeit;
+            // is origin outside?
+            if (plane.getSide(ray.getOrigin()) == outside)
+            {
+                allInside = false;
+                // Test single plane
+                std::pair<bool, Real> planeRes = 
+                    ray.intersects(plane);
+                if (planeRes.first)
+                {
+                    // Ok, we intersected
+                    ret.first = true;
+                    // Use the most distant result since convex volume
+                    ret.second = std::max(ret.second, planeRes.second);
+                }
+            }
+        }
+
+        if (allInside)
+        {
+            // Intersecting at 0 distance since inside the volume!
+            ret.first = true;
+            ret.second = 0.0f;
+        }
+
+        return ret;
+    }
+    //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, 
+        const std::list<Plane>& planes, bool normalIsOutside)
+    {
+        std::list<Plane>::const_iterator planeit, planeitend;
+        planeitend = planes.end();
+        bool allInside = true;
+        std::pair<bool, Real> ret;
+        ret.first = false;
+        ret.second = 0.0f;
+
+        // derive side
+        // NB we don't pass directly since that would require Plane::Side in 
+        // interface, which results in recursive includes since Math is so fundamental
+        Plane::Side outside = normalIsOutside ? Plane::POSITIVE_SIDE : Plane::NEGATIVE_SIDE;
+
+        for (planeit = planes.begin(); planeit != planeitend; ++planeit)
+        {
+            const Plane& plane = *planeit;
+            // is origin outside?
+            if (plane.getSide(ray.getOrigin()) == outside)
+            {
+                allInside = false;
+                // Test single plane
+                std::pair<bool, Real> planeRes = 
+                    ray.intersects(plane);
+                if (planeRes.first)
+                {
+                    // Ok, we intersected
+                    ret.first = true;
+                    // Use the most distant result since convex volume
+                    ret.second = std::max(ret.second, planeRes.second);
+                }
+            }
+        }
+
+        if (allInside)
+        {
+            // Intersecting at 0 distance since inside the volume!
+            ret.first = true;
+            ret.second = 0.0f;
+        }
+
+        return ret;
+    }
+    //-----------------------------------------------------------------------
     std::pair<bool, Real> Math::intersects(const Ray& ray, const Sphere& sphere, 
         bool discardInside)
     {

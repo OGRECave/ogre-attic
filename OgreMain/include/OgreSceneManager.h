@@ -82,6 +82,8 @@ namespace Ogre {
 	    friend class DefaultAxisAlignedBoxSceneQuery;
         friend class DefaultPlaneBoundedVolumeListSceneQuery;
     public:
+        /// Query mask which will be used for world geometry @see SceneQuery
+        static unsigned long WORLD_GEOMETRY_QUERY_MASK;
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
         struct materialLess

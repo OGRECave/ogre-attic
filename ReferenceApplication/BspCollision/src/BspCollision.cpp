@@ -27,6 +27,9 @@ Description: Somewhere to play in the sand...
 // Hacky globals
 ApplicationObject *ball;
 
+SceneNode* targetNode;
+RaySceneQuery* rsq;
+
 
 // Event handler to add ability to alter curvature
 class BspCollisionListener : public ExampleRefAppFrameListener
@@ -65,6 +68,17 @@ public:
                 mCamera->getDirection() * mCamera->getNearClipDistance() * 2);
             ball->setLinearVelocity(mCamera->getDirection() * 200);
             ball->setAngularVelocity(Vector3::ZERO);
+        }
+
+        // Move the targeter
+        rsq->setRay(mCamera->getRealCamera()->getCameraToViewportRay(0.5, 0.5));
+        RaySceneQueryResult& rsqResult = rsq->execute();
+        RaySceneQueryResult::iterator ri = rsqResult.begin();
+        if (ri != rsqResult.end())
+        {
+            RaySceneQueryResultEntry& res = *ri;
+            targetNode->setPosition(rsq->getRay().getPoint(res.distance));
+
         }
 
 
@@ -152,6 +166,31 @@ protected:
                 box->getEntity()->setMaterialName("Examples/10PointBlock");
             }
         }
+        mCamera->setCollisionEnabled(false);
+        mCamera->getRealCamera()->setQueryFlags(0);
+
+        // Create the targeting sphere
+        Entity* targetEnt = mSceneMgr->createEntity("testray", "sphere.mesh");
+        Material* mat = (Material*)MaterialManager::getSingleton().create("targeter");
+        Pass* pass = mat->getTechnique(0)->getPass(0);
+        TextureUnitState* tex = pass->createTextureUnitState();
+        tex->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 
+            ColourValue::Red);
+        pass->setLightingEnabled(false);
+        pass->setSceneBlending(SBT_ADD);
+        pass->setDepthWriteEnabled(false);
+
+
+        targetEnt->setMaterialName("targeter");
+        targetEnt->setCastShadows(false);
+        targetEnt->setQueryFlags(0);
+        targetNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        targetNode->scale(0.025, 0.025, 0.025);
+        targetNode->attachObject(targetEnt);
+
+        rsq = mSceneMgr->createRayQuery(Ray());
+        rsq->setSortByDistance(true, 1);
+        rsq->setWorldFragmentType(SceneQuery::WFT_SINGLE_INTERSECTION);
 
         mWindow->setDebugText("Press SPACE to throw the ball");
     }
