@@ -1,10 +1,10 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/ParticleFX/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Smoke/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
 
-noinst_PROGRAMS = ParticleFX
+noinst_PROGRAMS = Smoke
 
-ParticleFX_SOURCES = ParticleFX.cpp
-ParticleFX_LDFLAGS = -L$(top_srcdir)/OgreMain/src
-ParticleFX_LDADD = -lOgreMain
+Smoke_SOURCES = Smoke.cpp
+Smoke_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Smoke_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) .libs/ParticleFX $(top_builddir)/Samples/Common/bin/ParticleFX
+	$(INSTALL_PROGRAM) .libs/Smoke $(top_builddir)/Samples/Common/bin/Smoke
