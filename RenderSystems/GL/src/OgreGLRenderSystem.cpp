@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLHardwareIndexBuffer.h"
 #include "OgreGLDefaultHardwareBufferManager.h"
 #include "OgreGLUtil.h"
+#include "OgreGLGpuProgram.h"
+#include "OgreGLGpuProgramManager.h"
 #include "OgreException.h"
 
 #ifdef HAVE_CONFIG_H
@@ -127,6 +129,7 @@ namespace Ogre {
         if (mHardwareBufferManager)
             delete mHardwareBufferManager;
 
+        delete mGpuProgramManager;
         delete mCapabilities;
         delete mGLSupport;
     }
@@ -256,6 +259,46 @@ namespace Ogre {
         {
             mHardwareBufferManager = new GLDefaultHardwareBufferManager;
         }
+
+        // XXX Need to check for nv2 support and make a program manager for it
+        // XXX Probably nv1 as well for older cards
+        if(mGLSupport->checkMinGLVersion("1.3.0") ||
+            (mGLSupport->checkExtension("GL_ARB_vertex_program") &&
+            mGLSupport->checkExtension("GL_ARB_fragment_program")) )
+        {
+            mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
+            mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
+
+            // Vertex Program Properties
+            mCapabilities->setMaxVertexProgramVersion("arbvp1");
+            mCapabilities->setVertexProgramConstantBoolBoundary(0);
+            mCapabilities->setVertexProgramConstantBoolCount(0);
+            mCapabilities->setVertexProgramConstantIntBoundary(0);
+            mCapabilities->setVertexProgramConstantIntCount(0);
+            mCapabilities->setVertexProgramConstantFloatBoundary(4);
+            mCapabilities->setVertexProgramConstantFloatCount(
+                GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+
+            // Fragment Program Properties
+            mCapabilities->setMaxFragmentProgramVersion("arbfp1");
+            mCapabilities->setFragmentProgramConstantBoolBoundary(0);
+            mCapabilities->setFragmentProgramConstantBoolCount(0);
+            mCapabilities->setFragmentProgramConstantIntBoundary(0);
+            mCapabilities->setFragmentProgramConstantIntCount(0);
+            mCapabilities->setFragmentProgramConstantFloatBoundary(4);
+            mCapabilities->setFragmentProgramConstantFloatCount(
+                GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+
+            // GPU Program Manager setup
+            mGpuProgramManager = new GLGpuProgramManager();
+            mGpuProgramManager->_pushSyntaxCode("arbvp1");
+            mGpuProgramManager->_pushSyntaxCode("arbfp1");
+        }
+        else
+        {
+            // XXX What do we do?
+        }
+        
 
         // Get extension function pointers
         glActiveTextureARB_ptr = 
@@ -1689,16 +1732,32 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgram(GpuProgram* prg)
     {
-        // TODO
+        GLGpuProgram* glprg = static_cast<GLGpuProgram*>(prg);
+        glBindProgramARB(glprg->getProgramType(), glprg->getProgramID());
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
-        // TODO
+        glBindProgramARB((gptype == GPT_VERTEX_PROGRAM) ? 
+            GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB, 0);
     }
 	//---------------------------------------------------------------------
     void GLRenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params)
     {
-        // TODO
+        assert(params->getRealConstantCount() % 4 == 0 &&
+               params->getIntConstantCount() % 4 == 0 &&
+               "GL can only accept GPU program parameters in multiples of 4 items.");
+
+        GLenum type = (gptype == GPT_VERTEX_PROGRAM) ? 
+            GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
+
+        if (params->hasRealConstantParams())
+        {
+            const Real* real_consts = params->getRealConstantPointer();
+            for (int i = 0; i < (params->getRealConstantCount()/4); ++i)
+            {
+                glProgramLocalParameter4fvARB(type, i, &real_consts[i*4]);
+            }
+        }
     }
 }
