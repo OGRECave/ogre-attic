@@ -38,6 +38,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAxisAlignedBox.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreVector4.h"
+#include "OgreRoot.h"
+#include "OgreTechnique.h"
+#include "OgrePass.h"
 
 namespace Ogre {
     String Entity::msMovableType = "Entity";
@@ -47,6 +50,8 @@ namespace Ogre {
 		mFullBoundingBox = new AxisAlignedBox;
         mNormaliseNormals = false;
         mCastShadows = true;
+        mFrameAnimationLastUpdated = 0;
+        mHardwareSkinning = false;
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, Mesh* mesh, SceneManager* creator) :
@@ -55,6 +60,8 @@ namespace Ogre {
         mCreatorSceneManager(creator)
     {
 		mFullBoundingBox = new AxisAlignedBox;
+        mHardwareSkinning = false;
+        mSharedBlendedVertexData = NULL;
 	
 		// Build main subentity list
 		buildSubEntityList(mesh, &mSubEntityList);
@@ -82,12 +89,24 @@ namespace Ogre {
             mesh->_initAnimationState(&mAnimationState);
             mNumBoneMatrices = mesh->_getNumBoneMatrices();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
+            if (mesh->sharedVertexData)
+            {
+                // Create temporary vertex blend info
+                // Prepare temp vertex data if needed
+                // Clone without copying data, remove blending info
+                // (since blend is performed in software)
+                mSharedBlendedVertexData = 
+                    cloneVertexDataRemoveBlendInfo(mesh->sharedVertexData);
+                extractTempBufferInfo(mSharedBlendedVertexData, &mTempBlendedBuffer);
+            }
         }
         else
         {
             mBoneMatrices = 0;
             mNumBoneMatrices = 0;
         }
+
+        reevaluateHardwareSkinning();
 
         mDisplaySkeleton = false;
 
@@ -102,6 +121,7 @@ namespace Ogre {
 
 
         mCastShadows = true;
+        mFrameAnimationLastUpdated = 0;
     }
     //-----------------------------------------------------------------------
     Entity::~Entity()
@@ -307,10 +327,10 @@ namespace Ogre {
         }
 
         // Since we know we're going to be rendered, take this opportunity to 
-        // cache bone matrices & apply world matrix to them
+        // update the animation
         if (mMesh->hasSkeleton())
         {
-            cacheBoneMatrices();
+            updateAnimation();
 			
 			//--- pass this point,  we are sure that the transformation matrix of each bone and tagPoint have been updated			
 			ChildObjectList::iterator child_itr = mChildObjectList.begin();
@@ -361,6 +381,61 @@ namespace Ogre {
     const String& Entity::getMovableType(void) const
     {
         return msMovableType;
+    }
+    //-----------------------------------------------------------------------
+    void Entity::updateAnimation(void)
+    {
+        // We only do these tasks if they have not already been done for 
+        // this frame 
+        Root& root = Root::getSingleton();
+        unsigned long currentFrameNumber = root.getCurrentFrameNumber();
+        if (mFrameAnimationLastUpdated != currentFrameNumber)
+        {
+            cacheBoneMatrices();
+
+            // Software blend?
+            bool hwSkinning = isHardwareSkinningEnabled();
+            if (!hwSkinning ||
+                root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
+                root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE)
+            {
+                // Ok, we need to do a software blend
+                // Blend normals in s/w only if we're not using h/w skinning,
+                // since shadows only require positions
+                bool blendNormals = !hwSkinning;
+                // Firstly, check out working vertex buffers
+                if (mSharedBlendedVertexData)
+                {
+                    // Blend shared geometry
+                    mTempBlendedBuffer.checkoutTempCopies();
+                    mTempBlendedBuffer.bindTempCopies(mSharedBlendedVertexData, 
+                        mHardwareSkinning);
+                    Mesh::softwareVertexBlend(mMesh->sharedVertexData, 
+                        mSharedBlendedVertexData, mBoneMatrices, blendNormals);
+                }
+                SubEntityList::iterator i, iend;
+                iend = mSubEntityList.end();
+                for (i = mSubEntityList.begin(); i != iend; ++i)
+                {
+                    // Blend dedicated geometry
+                    SubEntity* se = *i;
+                    if (se->mBlendedVertexData)
+                    {
+                        se->mTempBlendedBuffer.checkoutTempCopies();
+                        se->mTempBlendedBuffer.bindTempCopies(se->mBlendedVertexData, 
+                            mHardwareSkinning);
+                        Mesh::softwareVertexBlend(se->mSubMesh->vertexData, 
+                            se->mBlendedVertexData, mBoneMatrices, blendNormals);
+                    }
+
+                }
+
+
+
+            }
+
+            mFrameAnimationLastUpdated = currentFrameNumber;
+        }
     }
     //-----------------------------------------------------------------------
     void Entity::cacheBoneMatrices(void)
@@ -449,9 +524,7 @@ namespace Ogre {
         for (i = 0; i < numSubMeshes; ++i)
         {
             subMesh = mesh->getSubMesh(i);
-            subEnt = new SubEntity();
-            subEnt->mParentEntity = this;
-            subEnt->mSubMesh = subMesh;
+            subEnt = new SubEntity(this, subMesh);
             if (subMesh->isMatInitialised())
                 subEnt->setMaterialName(subMesh->getMaterialName());
             sublist->push_back(subEnt);
@@ -536,10 +609,93 @@ namespace Ogre {
         return rad;
 	}
     //-----------------------------------------------------------------------
+    void Entity::extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info)
+    {
+        VertexDeclaration* decl = sourceData->vertexDeclaration;
+        VertexBufferBinding* bind = sourceData->vertexBufferBinding;
+        const VertexElement *posElem = decl->findElementBySemantic(VES_POSITION);
+        const VertexElement *normElem = decl->findElementBySemantic(VES_NORMAL);
+
+        assert(posElem && "Positions are required");
+
+        info->posBindIndex = posElem->getSource();
+        info->srcPositionBuffer = bind->getBuffer(info->posBindIndex);
+
+        if (!normElem)
+        {
+            info->posNormalShareBuffer = false;
+            info->srcNormalBuffer.release();
+        }
+        else
+        {
+            info->normBindIndex = normElem->getSource();
+            if (info->normBindIndex == info->posBindIndex)
+            {
+                info->posNormalShareBuffer = true;
+                info->srcNormalBuffer.release();
+            }
+            else
+            {
+                info->posNormalShareBuffer = false;
+                info->srcNormalBuffer = bind->getBuffer(info->normBindIndex);
+            }
+        }
+    }
+    //-----------------------------------------------------------------------
+    VertexData* Entity::cloneVertexDataRemoveBlendInfo(const VertexData* source)
+    {
+        // Clone without copying data
+        VertexData* ret = source->clone(false);
+        const VertexElement* blendIndexElem = 
+            source->vertexDeclaration->findElementBySemantic(VES_BLEND_INDICES);
+        const VertexElement* blendWeightElem = 
+            source->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
+        // Remove blend index
+        if (blendIndexElem)
+        {
+            // Remove buffer reference
+            ret->vertexBufferBinding->unsetBinding(blendIndexElem->getSource());
+
+        }
+        if (blendWeightElem && 
+            blendWeightElem->getSource() != blendIndexElem->getSource())
+        {
+            // Remove buffer reference
+            ret->vertexBufferBinding->unsetBinding(blendWeightElem->getSource());
+        }
+        // remove elements from declaration
+        ret->vertexDeclaration->removeElement(VES_BLEND_INDICES);
+        ret->vertexDeclaration->removeElement(VES_BLEND_WEIGHTS);
+        return ret;
+    }
+    //-----------------------------------------------------------------------
     EdgeData* Entity::getEdgeList(void)
     {
         // Get from Mesh
         return mMesh->getEdgeList();
+    }
+    //-----------------------------------------------------------------------
+    void Entity::reevaluateHardwareSkinning(void)
+    {
+        SubEntityList::iterator i, iend;
+        iend = mSubEntityList.end();
+        for (i = mSubEntityList.begin(); i != iend; ++i)
+        {
+            Material* m = (*i)->getMaterial();
+            Pass* p = m->getBestTechnique()->getPass(0);
+            if (!p->hasVertexProgram() ||
+                !p->getVertexProgram()->isSkeletalAnimationIncluded())
+            {
+                // If one material does not support skinning, treat all of them 
+                // the same
+                mHardwareSkinning = false;
+                return;
+            }
+        }
+
+        // If we got this far, all materials must support hardware skinning
+        mHardwareSkinning = true;
+
     }
     //-----------------------------------------------------------------------
     ShadowCaster::ShadowRenderableListIterator 

@@ -413,15 +413,6 @@ namespace Ogre {
 
 		// bool skeletallyAnimated
 		readBools(chunk, &mIsSkeletallyAnimated, 1);
-		if (mIsSkeletallyAnimated)
-		{
-			// If we're skeletally animated, we need to set the vertex buffer
-			// policy to dynamic, so we can update regularly
-			mpMesh->setVertexBufferPolicy(HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, true);
-            // Note that later on we'll have to set up a system memory copy of the 
-            // positions & normals which will be used as the reference data
-		}
-
 
         // Find all subchunks 
         if (!chunk.isEOF())
@@ -605,13 +596,6 @@ namespace Ogre {
         
         unsigned short bindIdx = 0;
 
-        if (mIsSkeletallyAnimated)
-        {
-            // Create software blending structure
-            dest->softwareBlendInfo = new VertexData::SoftwareBlendInfo();
-            // Automatic blending on
-            dest->softwareBlendInfo->automaticBlend = true;
-        }
         dest->vertexStart = 0;
 
         // unsigned int numVertices
@@ -672,20 +656,7 @@ namespace Ogre {
 			mpMesh->mIndexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        if (mIsSkeletallyAnimated)
-        {
-            // Copy data into software buffers for source of blending
-            dest->softwareBlendInfo->pSrcPositions = new Real[dest->vertexCount * 3];
-            readReals(chunk, dest->softwareBlendInfo->pSrcPositions, dest->vertexCount * 3);
-            // Copy into hardware buffer
-            memcpy(pReal, dest->softwareBlendInfo->pSrcPositions, 
-                sizeof(Real) * dest->vertexCount * 3);
-        }
-        else
-        {
-            // Read direct into hardware buffer
-            readReals(chunk, pReal, dest->vertexCount * 3);
-        }
+        readReals(chunk, pReal, dest->vertexCount * 3);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
@@ -704,21 +675,7 @@ namespace Ogre {
 			mpMesh->mVertexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        if (mIsSkeletallyAnimated)
-        {
-            // Copy data into software buffers for source of blending
-            dest->softwareBlendInfo->pSrcNormals = new Real[dest->vertexCount * 3];
-            readReals(chunk, 
-                dest->softwareBlendInfo->pSrcNormals, dest->vertexCount * 3);
-            // Copy into hardware buffer
-            memcpy(pReal, dest->softwareBlendInfo->pSrcNormals, 
-                sizeof(Real) * dest->vertexCount * 3);
-        }
-        else
-        {
-            // Read direct into hardware buffer
-            readReals(chunk, pReal, dest->vertexCount * 3);
-        }
+        readReals(chunk, pReal, dest->vertexCount * 3);
         vbuf->unlock();
         dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
     }
@@ -1425,13 +1382,6 @@ namespace Ogre {
         RGBA* pRGBA = 0;
 
         dest->vertexStart = 0;
-        if (mIsSkeletallyAnimated)
-        {
-            // Create software blending structure
-            dest->softwareBlendInfo = new VertexData::SoftwareBlendInfo();
-            // Automatic blending on
-            dest->softwareBlendInfo->automaticBlend = true;
-        }
 
         // unsigned short numVertices
         unsigned short numVerts;
@@ -1460,20 +1410,7 @@ namespace Ogre {
 			mpMesh->mVertexBufferShadowBuffer);
         pReal = static_cast<Real*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        if (mIsSkeletallyAnimated)
-        {
-            // Copy data into software buffers for source of blending
-            dest->softwareBlendInfo->pSrcPositions = new Real[dest->vertexCount * 3];
-            readReals(chunk, dest->softwareBlendInfo->pSrcPositions, dest->vertexCount * 3);
-            // Copy into hardware buffer
-            memcpy(pReal, dest->softwareBlendInfo->pSrcPositions, 
-                sizeof(Real) * dest->vertexCount * 3);
-        }
-        else
-        {
-            // Read direct into hardware buffers
-            readReals(chunk, pReal, dest->vertexCount * 3);
-        }
+        readReals(chunk, pReal, dest->vertexCount * 3);
 
         // Since in v1 we did not save mesh bounds, we need to calculate them now
 		AxisAlignedBox localBox;
@@ -1544,20 +1481,7 @@ namespace Ogre {
 						mpMesh->mVertexBufferShadowBuffer);
                     pReal = static_cast<Real*>(
                         vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    if (mIsSkeletallyAnimated)
-                    {
-                        // Copy data into software buffers for source of blending
-                        dest->softwareBlendInfo->pSrcNormals = new Real[dest->vertexCount * 3];
-                        readReals(chunk, dest->softwareBlendInfo->pSrcNormals, dest->vertexCount * 3);
-                        // Copy into hardware buffer
-                        memcpy(pReal, dest->softwareBlendInfo->pSrcNormals, 
-                            sizeof(Real) * dest->vertexCount * 3);
-                    }
-                    else
-                    {
-                        // Copy direct into hardware buffers
-                        readReals(chunk, pReal, dest->vertexCount * 3);
-                    }
+                    readReals(chunk, pReal, dest->vertexCount * 3);
                     vbuf->unlock();
                     dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
                     ++bindIdx;

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreString.h"
 #include "OgreRenderable.h"
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre {
 
@@ -56,11 +57,11 @@ namespace Ogre {
     private:
         /** Private constructor - don't allow creation by anybody else.
         */
-        SubEntity();
+        SubEntity(Entity* parent, SubMesh* subMeshBasis);
 
         /** Private destructor.
         */
-        virtual ~SubEntity() { }
+        virtual ~SubEntity();
 
         /// Pointer to parent.
         Entity* mParentEntity;
@@ -80,6 +81,12 @@ namespace Ogre {
         SceneDetailLevel mRenderDetail;
 		/// The LOD number of the material to use, calculated by Entity::_notifyCurrentCamera
 		unsigned short mMaterialLodIndex;
+
+        /// blend buffer details for dedicated geometry
+        VertexData* mBlendedVertexData;
+        /// Quick lookup of buffers
+        TempBlendedBufferInfo mTempBlendedBuffer;
+
     public:
         /** Gets the name of the Material in use by this instance.
         */

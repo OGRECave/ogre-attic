@@ -98,9 +98,9 @@ namespace Ogre {
         /// Multimap of vertex bone assignments (orders by vertex index)
         typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
         typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
+        typedef std::vector<SubMesh*> SubMeshList;
 
     protected:
-        typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
             Each mesh is made up of 1 or more submeshes, which
             are each based on a single material and can have their
@@ -139,16 +139,14 @@ namespace Ogre {
         /// Flag indicating that bone assignments need to be recompiled
         bool mBoneAssignmentsOutOfDate;
 
+        /** Compile bone assignments into blend index and weight buffers. */
+        void compileBoneAssignments(const VertexBoneAssignmentList& boneAssignments,
+            unsigned short numBlendWeightsPerVertex, 
+            VertexData* targetVertexData);
         /** Software blending oriented bone assignment compilation */
         void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
             unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
-        /** Hardware blending oriented bone assignment compilation */
-        void compileBoneAssignmentsHardware(const VertexBoneAssignmentList& boneAssignments,
-            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
 
-        HardwareVertexBufferSharedPtr mBlendingVB;
-        /// Option whether to use software or hardware blending, there are tradeoffs to both
-        bool mUseSoftwareBlending;
 
 		bool mIsLodManual;
 		ushort mNumLods;
@@ -219,6 +217,11 @@ namespace Ogre {
 		*/
 		SubMesh* getSubMesh(const String& name) const ;
 
+        typedef VectorIterator<SubMeshList> SubMeshIterator;
+        /// Gets an iterator over the available submeshes
+        SubMeshIterator getSubMeshIterator(void)
+        { return SubMeshIterator(mSubMeshList.begin(), mSubMeshList.end()); }
+      
         /** Shared vertex data.
             @remarks
                 This vertex data can be shared among multiple submeshes. SubMeshes may not have
@@ -574,6 +577,26 @@ namespace Ogre {
         /** Returns whether this mesh has already had it's geometry prepared for use in 
             rendering shadow volumes. */
         bool isPreparedForShadowVolumes(void) { return mPreparedForShadowVolumes; }
+
+
+        /** Performs a software indexed vertex blend, of the kind used for
+            skeletal animation although it can be used for other purposes. 
+        @remarks
+        This function is supplied to update vertex data with blends 
+        done in software, either because no hardware support is available, 
+        or that you need the results of the blend for some other CPU operations.
+        @param sourceVertexData VertexData class containing positions, normals,
+            blend indices and blend weights.
+        @param targetVertexData VertexData class containing target position
+            and normal buffers which will be updated with the blended versions.
+            Note that the layout of the source and target position / normal 
+            buffers must be identical, ie they must use the same buffer indexes
+        @param pMatrices Pointer to an array of matrices to be used to blend
+        @param blendNormals If true, normals are blended as well as positions
+        */
+        static void softwareVertexBlend(const VertexData* sourceVertexData, 
+            const VertexData* targetVertexData, const Matrix4* pMatrices, 
+            bool blendNormals);
 
     };
 

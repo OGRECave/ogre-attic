@@ -120,6 +120,10 @@ namespace Ogre {
             return;
         }
 
+        parent->compileBoneAssignments(mBoneAssignments, maxBones, 
+            vertexData);
+
+        /*
         if (parent->mUseSoftwareBlending)
         {
             parent->compileBoneAssignmentsSoftware(mBoneAssignments, maxBones, vertexData);
@@ -128,6 +132,7 @@ namespace Ogre {
         {
             parent->compileBoneAssignmentsHardware(mBoneAssignments, maxBones, vertexData);
         }
+        */
 
         mBoneAssignmentsOutOfDate = false;
     }

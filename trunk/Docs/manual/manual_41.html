@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 16 2004 by texi2html 1.64 -->
+<!-- Created on , 29 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC156"></A>
+<A NAME="SEC157"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC155"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_37.html#SEC152"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_42.html#SEC158"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC156"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_37.html#SEC153"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_42.html#SEC159"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,12 +35,12 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 5.4 Locking buffers </H2>
-<!--docid::SEC156::-->
+<!--docid::SEC157::-->
 In order to read or update a hardware buffer, you have to 'lock' it. This performs 2 functions - it tells the card that you want access to the buffer (which can have an effect on its rendering queue), and it returns a pointer which you can manipulate. Note that if you've asked to read the buffer (and remember, you really shouldn't unless you've set the buffer up with a shadow buffer), the contents of the hardware buffer will have been copied into system memory somewhere in order for you to get access to it. For the same reason, when you're finished with the buffer you must unlock it; if you locked the buffer for writing this will trigger the process of uploading the modified information to the graphics hardware.
 <BR><BR>
-<A NAME="SEC157"></A>
+<A NAME="SEC158"></A>
 <H3> Lock parameters </H3>
-<!--docid::SEC157::-->
+<!--docid::SEC158::-->
 When you lock a buffer, you call one of the following methods:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>// Lock the entire buffer
 pBuffer-&#62;lock(lockType);
@@ -60,14 +60,14 @@ The lockType parameter can have a large effect on the performance of your applic
 <DD>This is useful if you are locking just part of the buffer and thus cannot use HBL_DISCARD. It tells the card that you promise not to modify any section of the buffer which has already been used in a rendering operation this frame. Again this is only useful on buffers with no shadow buffer.
 </DL>
 
-Once you have locked a buffer, you can use the pointer returned however you wish (just don't bother trying to read the data that's there if you've used HBL_DISCARD, or write the data if you've used HBL_READ_ONLY). Modifying the contents depends on the type of buffer, See section <A HREF="manual_43.html#SEC159">5.6 Hardware Vertex Buffers</A> and See section <A HREF="manual_48.html#SEC167">5.7 Hardware Index Buffers</A>
+Once you have locked a buffer, you can use the pointer returned however you wish (just don't bother trying to read the data that's there if you've used HBL_DISCARD, or write the data if you've used HBL_READ_ONLY). Modifying the contents depends on the type of buffer, See section <A HREF="manual_43.html#SEC160">5.6 Hardware Vertex Buffers</A> and See section <A HREF="manual_48.html#SEC168">5.7 Hardware Index Buffers</A>
 
 <A NAME="Practical Buffer Tips"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC155"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_37.html#SEC152"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_42.html#SEC158"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_40.html#SEC156"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_37.html#SEC153"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_42.html#SEC159"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -76,7 +76,7 @@ Once you have locked a buffer, you can use the pointer returned however you wish
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 16 2004</I>
+by <I>Steve Streeting</I> on <I>, 29 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

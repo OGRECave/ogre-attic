@@ -55,6 +55,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDDSCodec.h"
 
 #include "OgreFontManager.h"
+#include "OgreHardwareBufferManager.h"
 
 #include "OgreOverlay.h"
 #include "OgreHighLevelGpuProgramManager.h"
@@ -130,6 +131,7 @@ namespace Ogre {
 
         // Create SceneManager enumerator (note - will be managed by singleton)
         mSceneManagerEnum = new SceneManagerEnumerator();
+        mCurrentSceneManager = NULL;
 
         // ..material manager
         mMaterialManager = new MaterialManager();
@@ -494,6 +496,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Root::_fireFrameStarted(FrameEvent& evt)
     {
+        // Increment frame number
+        ++mCurrentFrame;
+
         // Tell all listeners
         std::set<FrameListener*>::iterator i;
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
@@ -515,6 +520,10 @@ namespace Ogre {
             if (!(*i)->frameEnded(evt))
                 return false;
         }
+
+        // Tell buffer manager to free temp buffers used this fram
+        HardwareBufferManager::getSingleton()._releaseBufferCopies();
+
         return true;
     }
     //-----------------------------------------------------------------------

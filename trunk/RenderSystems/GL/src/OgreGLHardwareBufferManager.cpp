@@ -106,6 +106,7 @@ namespace Ogre {
             case VET_SHORT4:
                 return GL_SHORT;
             case VET_COLOUR:
+            case VET_UBYTE4:
                 return GL_UNSIGNED_BYTE;
             default:
                 return 0;

@@ -51,10 +51,10 @@ namespace Ogre {
 		/// The number of vertices used in this operation
 		size_t vertexCount;
 
-		/** Clones this vertex data, including replicating any vertex buffers.
+		/** Clones this vertex data, potentially including replicating any vertex buffers.
 		@remarks The caller is expected to delete the returned pointer when ready
 		*/
-		VertexData* clone(void);
+		VertexData* clone(bool copyData = true) const;
 
         /** Modifies the vertex data to be suitable for use for rendering shadow geometry.
         @remarks
@@ -93,58 +93,6 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr hardwareShadowVolWBuffer;
 
 
-
-		
-        /** Software vertex blend information.
-        @remarks
-            This data is here in order to allow the creator of the VertexData 
-            to request a software vertex blend, ie a blend using information which you
-            do not want to be passed to the GPU.
-        @par
-            The assumption here is that you have a VES_POSITION and VES_NORMAL elements in 
-            your declaration which you wish to update with a blended version of 
-            positions / normals from a system-memory location. We advise that 
-            if you're blending a lot, you set the hardware vertex buffer 
-            to HBU_DYNAMIC_WRITE_ONLY, with no shadow buffer. 
-        @par    
-            Note that future versions of the engine are likely to support vertex shader
-            based animation so there will be a hardware alternative; however, note that sometimes
-            you may still want to perform blending in software, for example when you need to read
-            back the blended positions in applications such as shadow volume construction.
-        @par
-            In order to apply this blending, the world matrices must be set and 
-            RenderSystem::softwareVertexBlend called. This is done automatically for skeletally
-            animated entities, but this can be done manually if required. After calling this
-            method, the vertex buffers are updated with the blended positions and the blend does
-            not need to be called again unless it's basis changes.
-        */
-        class SoftwareBlendInfo
-        {
-        public:
-            /** If true, the RenderSystem will automatically apply the blend when rendering 
-            with this vertexData, otherwise the user of the vertex data must call 
-            RenderSystem::sofwareVertexBlend manually as required. */
-            bool automaticBlend;
-            /// System-memory pointer to source positions, note this will be deleted when this class is destroyed
-            Real* pSrcPositions;
-            /** System-memory pointer to source normals, can be null if vertexData does not include normals
-                , note this will be deleted when this class is destroyed
-            */
-            Real* pSrcNormals;
-            /// The number of blending weights per vertex, will be deleted on destruction
-            unsigned short numWeightsPerVertex;
-            /// Pointer to blending weights, will be deleted on destruction
-            Real* pBlendWeights;
-            /// Pointer to blending indexes (index into world matrices)
-            unsigned char* pBlendIndexes;
-            
-            SoftwareBlendInfo() : automaticBlend(true), pSrcPositions(0), pSrcNormals(0),
-                numWeightsPerVertex(1), pBlendWeights(0), pBlendIndexes(0) {}
-            ~SoftwareBlendInfo();
-        };
-        /// Software vertex blend information
-        SoftwareBlendInfo* softwareBlendInfo;
-
 	};
 
 	/** Summary class collecting together index data source information. */
@@ -162,10 +110,10 @@ namespace Ogre {
 		/// The number of indexes to use from the buffer
 		size_t indexCount;
 
-		/** Clones this index data, including replicating the index buffer.
+		/** Clones this index data, potentially including replicating the index buffer.
 		@remarks The caller is expected to delete the returned pointer when finished
 		*/
-		IndexData* clone(void);
+		IndexData* clone(bool copyData = true) const;
 	};
 
 

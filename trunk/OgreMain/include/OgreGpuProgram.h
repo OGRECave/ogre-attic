@@ -430,6 +430,8 @@ namespace Ogre {
         bool mLoadFromFile;
         /// Syntax code eg arbvp1, vs_2_0 etc
         String mSyntaxCode;
+        /// Does this (vertex) program include skeletal animation?
+        bool mSkeletalAnimation;
 
 	public:
 
@@ -477,6 +479,23 @@ namespace Ogre {
             they are appropriate.
         */
         virtual GpuProgramParametersSharedPtr createParameters(void);
+
+        /** Sets whether a vertex program includes the required instructions
+        to perform skeletal animation. 
+        @remarks
+        If this is set to true, OGRE will not blend the geometry according to 
+        skeletal animation, it will expect the vertex program to do it.
+        */
+        virtual void setSkeletalAnimationIncluded(bool included) 
+        { mSkeletalAnimation = included; }
+
+        /** Returns whether a vertex program includes the required instructions
+            to perform skeletal animation. 
+        @remarks
+            If this returns true, OGRE will not blend the geometry according to 
+            skeletal animation, it will expect the vertex program to do it.
+        */
+        virtual bool isSkeletalAnimationIncluded(void) { return mSkeletalAnimation; }
 
 
     protected:

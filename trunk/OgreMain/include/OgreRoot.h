@@ -78,6 +78,7 @@ namespace Ogre
         LogManager* mLogManager;
         ControllerManager* mControllerManager;
         SceneManagerEnumerator* mSceneManagerEnum;
+        SceneManager* mCurrentSceneManager;
         DynLibManager* mDynLibManager;
         PlatformManager* mPlatformManager;
         ArchiveManager* mArchiveManager;
@@ -94,6 +95,7 @@ namespace Ogre
         RenderWindow* mAutoWindow;
         Profiler* mProfiler;
         HighLevelGpuProgramManager* mHighLevelGpuProgramManager;
+        unsigned long mCurrentFrame;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all
@@ -549,6 +551,9 @@ namespace Ogre
             you should call this method to ensure that FrameListener objects are notified
             of frame events; processes like texture animation and particle systems rely on 
             this.
+        @par
+            Calling this method also increments the frame number, which is
+            important for keeping some elements of the engine up to date.
         @note
             This method takes an event object as a parameter, so you can specify the times
             yourself. If you are happy for OGRE to automatically calculate the frame time
@@ -583,6 +588,9 @@ namespace Ogre
             you should call this method to ensure that FrameListener objects are notified
             of frame events; processes like texture animation and particle systems rely on 
             this.
+        @par
+            Calling this method also increments the frame number, which is
+            important for keeping some elements of the engine up to date.
         @note
             This method calculates the frame timing information for you based on the elapsed
             time. If you want to specify elapsed times yourself you should call the other 
@@ -606,6 +614,22 @@ namespace Ogre
             be terminated, true otherwise.
         */
         bool _fireFrameEnded();
+
+        /** Gets the number of the current frame. */
+        unsigned long getCurrentFrameNumber(void) { return mCurrentFrame; }
+
+        /** Returns the scene manager currently being used to render a frame.
+        @remarks
+            This is only intended for internal use; it is only valid during the
+            rendering of a frame.
+        */
+        SceneManager* _getCurrentSceneManager(void) { return mCurrentSceneManager; }
+        /** Sets the scene manager currently being used to render a frame.
+        @remarks
+            This is only intended for internal use.
+        */
+        void _setCurrentSceneManager(SceneManager* sm) { mCurrentSceneManager = sm; }
+
     };
 } // Namespace Ogre
 #endif

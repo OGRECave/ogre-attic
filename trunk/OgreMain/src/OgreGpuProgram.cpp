@@ -36,7 +36,7 @@ namespace Ogre
 {
 	//-----------------------------------------------------------------------------
 	GpuProgram::GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) 
-		: mType(gptype), mLoadFromFile(true), mSyntaxCode(syntaxCode)
+		: mType(gptype), mLoadFromFile(true), mSyntaxCode(syntaxCode), mSkeletalAnimation(false)
 	{
 		mName = name;
 	}

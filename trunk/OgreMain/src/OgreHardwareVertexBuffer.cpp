@@ -94,6 +94,8 @@ namespace Ogre {
 			return sizeof(short)*3;
 		case VET_SHORT4:
 			return sizeof(short)*4;
+        case VET_UBYTE4:
+            return sizeof(unsigned char)*4;
 		}
 		return 0;
 	}
@@ -120,6 +122,8 @@ namespace Ogre {
 			return 3;
 		case VET_SHORT4:
 			return 4;
+        case VET_UBYTE4:
+            return 4;
 		}
 		Except(Exception::ERR_INVALIDPARAMS, "Invalid type", 
 			"VertexElement::getTypeCount");

@@ -100,7 +100,8 @@ namespace Ogre {
 		VET_SHORT1,
 		VET_SHORT2,
 		VET_SHORT3,
-		VET_SHORT4
+		VET_SHORT4, 
+        VET_UBYTE4
     };
 
     /** This class declares the usage of a single vertex buffer as a component

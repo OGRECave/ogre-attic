@@ -1241,6 +1241,13 @@ vertex_program myHLSLVertexProgram hlsl
 @end example
 As you can see, the syntax is almost identical, except that instead of 'profiles' with a list of assembler formats, you have a 'target' parameter which allows a single assembler target to be specified - obviously this has to be a DirectX assembler format syntax code.
 
+@subheading Skeletal Animatin in Vertex Programs
+You can implement skeletal animation in hardware by writing a vertex program which uses the per-vertex blending indices and blending weights, together with an array of world matrices (which will be provided for you by Ogre if you bind the automatic parameter 'world_matrix'). However, you need to communicate this support to Ogre so it does not perform skeletal animation in software for you. You do this by adding the following attribute to your vertex_program definition:
+@example
+	includes_skeletal_animation true
+@end example
+When you do this, any skeletally animated entity which uses this material will forgo the usual animation blend and will expect the vertex program to do it, for both vertex positions and normals.
+
 @node Using Vertex and Fragment Programs in a Pass
 @subsection Using Vertex and Fragment Programs in a Pass
 

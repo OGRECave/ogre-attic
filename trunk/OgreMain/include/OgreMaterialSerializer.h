@@ -52,6 +52,7 @@ namespace Ogre {
 		String language;
 		String source;
 		String syntax;
+        bool supportsSkeletalAnimation;
 		std::map<String, String> customParameters;
 	};
     /** Struct for holding the script context while parsing. */
