@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVertexBoneAssignment.h"
 #include "OgreAnimationState.h"
 #include "OgreIteratorWrappers.h"
+#include "OgreProgressiveMesh.h"
 
 
 namespace Ogre {
@@ -245,6 +246,65 @@ namespace Ogre {
         /** Gets an iterator for access all bone assignments. 
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
+
+
+		/** A way of recording the way each LODs is recorded this Mesh. */
+		struct MeshLodUsage
+		{
+			/// Z value from which this LOD will apply
+			Real fromDepth;
+			/// If true, this LOD is a link to another Mesh object; otherwise alternative index buffer assumed 
+			bool useManual;
+			/// Only relevant if useManual is true, the name of the alternative mesh to use
+			String manualName;
+		};
+
+		typedef std::vector<Real> LodDistanceList;
+		/** Automatically generates lower level of detail versions of this mesh for use
+			when a simpler version of the model is acceptable for rendering.
+		@remarks
+			There are 2 ways that you can create level-of-detail (LOD) versions of a mesh;
+			the first is to call this method, which does fairly extensive calculations to
+			work out how to simplify the mesh whilst having the minimum affect on the model.
+			The alternative is to actually create simpler versions of the mesh yourself in 
+			a modelling tool, and having exported them, tell the 'master' mesh to use these
+			alternative meshes for lower detail versions; this is done by calling the 
+			createManualLodLevel method.
+		@par
+			As well as creating the lower detail versions of the mesh, this method will
+			also associate them with depth values. As soon as an object is at least as far
+			away from the camera as the depth value associated with it's LOD, it will drop 
+			to that level of detail. 
+		@par
+			I recommend calling this method before mesh export, not at runtime.
+		@param lodDistances A list of depth values indicating the distances at which new lods should be
+			generated. 
+		@param reductionMethod The way to determine the number of vertices collapsed per LOD
+		@param reductionValue Meaning depends on reductionMethod, typically either the proportion
+			of remaining vertices to collapse or a fixed number of vertices.
+		*/
+		void generateLodLevels(const LodDistanceList& lodDistances, 
+			ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue);
+
+		/** Returns the number of levels of detail that this mesh supports. */
+		ushort getNumLodLevels(void);
+		/** Gets details of the numbered level of detail entry. */
+		const MeshLodUsage& getLodLevel(ushort index);
+		/** Adds a new manual level-of-detail entry to this Mesh.
+		@remarks
+			As an alternative to generating lower level of detail versions of a mesh, you can
+			use your own manually modelled meshes as lower level versions. This lets you 
+			have complete control over the LOD, and in addition lets you scale down other
+			aspects of the model which cannot be done using the generated method; for example, 
+			you could use less detailed materials and / or use less bones in the skeleton if
+			this is an animated mesh. Therefore for complex models you are likely to be better off
+			modelling your LODs yourself and using this method, whilst for models with fairly
+			simple materials and no animation you can just use the generateLodLevels method.
+		@param fromDepth The z value from which this Lod will apply.
+		@param meshName The name of the mesh which will be the lower level detail version.
+		*/
+		void createManualLodLevel(Real fromDepth, const String& meshName);
+
     private:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -278,6 +338,10 @@ namespace Ogre {
         bool mBoneAssignmentsOutOfDate;
         /** Must be called once to compile bone assignments into geometry buffer. */
         void compileBoneAssignments(void);
+
+		ushort mNumLods;
+		typedef std::vector<MeshLodUsage> MeshLodUsageList;
+		MeshLodUsageList mMeshLodUsageList;
 
 
     };

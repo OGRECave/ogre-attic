@@ -80,10 +80,10 @@ namespace Ogre {
         addWorkingData(buffer, mpGeomData, mpIndexBuffer, mNumIndexes);
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::build(ushort numLevels, LODGeometryList* outList, 
+    void ProgressiveMesh::build(ushort numLevels, LODFaceList* outList, 
 			VertexReductionQuota quota, Real reductionValue)
     {
-        LODGeometryData newLod;
+        LODFaceData newLod;
 
         computeAllCosts();
 
@@ -617,7 +617,7 @@ namespace Ogre {
         return bestIndex;
     }
     //---------------------------------------------------------------------
-    void ProgressiveMesh::bakeNewLOD(ProgressiveMesh::LODGeometryData* pData)
+    void ProgressiveMesh::bakeNewLOD(ProgressiveMesh::LODFaceData* pData)
     {
         // Zip through the tri list of any working data copy and bake
         pData->numIndexes = mCurrNumIndexes;
