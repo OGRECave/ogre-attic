@@ -135,8 +135,16 @@ function doesVertexExistAlready searchTable vertexIndex vertexNormal vertexColor
 		
 		if (exportUV) then
 		(
+			local equal = true;
 			for i=1 to UVs.count do
+			(
 				if (vertex[start_uvs+i]!=UVs[i]) then
+				(
+					equal = false;
+					exit;
+				)
+			)
+			if (not equal) then 
 				continue;
 		)
 		
@@ -240,7 +248,6 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 				local vertInds = getTVFace tmesh face ;
 				for ch=1 to numUVsets do
 				(
-				
 					UVW = meshOp.getMapVert tmesh ch vertInds[localVertexIndex] ;	-- retrieve the UV for the corresponding channel.
 					append UVcoords UVW[1];
 					append UVcoords UVW[2];							-- don't care about the W coordinate
@@ -265,7 +272,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 			if (res==0) then
 			(
 				newVertex = 1 ;
-				--format "nouveau vertex % %\n" (getVert tmesh vertexIndex) vertexNormal;
+				--format "nouveau vertex % % %\n" vertexIndex vertexNormal UVcoords;
 			)
 			else
 			(
@@ -517,7 +524,7 @@ function writeM exportUV numUVsets exportColours material outName =
 			if (exportUV) then
 			(
 				for ch=1 to numUVsets do
-					format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[11+(ch-1)*2] (1 - v[12+(ch-1)*2]) to:outFile ;		
+					format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[11+((ch-1)*2)] (1 - v[12+((ch-1)*2)]) to:outFile ;		
 			)
 			if (exportColours) then 
 			(
