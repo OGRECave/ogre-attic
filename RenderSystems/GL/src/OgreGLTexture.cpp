@@ -89,7 +89,7 @@ namespace Ogre {
         unload();
     }
 
-    GLenum GLTexture::getGLTextureType(void)
+    GLenum GLTexture::getGLTextureType(void) const
     {
         switch(mTextureType)
         {
@@ -272,7 +272,7 @@ namespace Ogre {
                 Image img;
                 String baseName, ext;
                 std::vector<Image> images;
-                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_bk", "_fr"};// "_fr", "_bk"};
 
                 for(unsigned int i = 0; i < 6; i++)
                 {
@@ -305,30 +305,23 @@ namespace Ogre {
     void GLTexture::generateMipMaps( uchar *data, bool useSoftware, 
         unsigned int faceNumber )
     {
-        GLenum cubeFaces [] = { 
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
-        };
-
         if(useSoftware && mNumMipMaps)
         {
             gluBuild2DMipmaps(
                 mTextureType == TEX_TYPE_CUBE_MAP ? 
-                cubeFaces[faceNumber] : getGLTextureType(), 
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
+                    getGLTextureType(), 
                 mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 
                 mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
         }
         else
         {
             glTexImage2D(
-              mTextureType == TEX_TYPE_CUBE_MAP ? 
-              cubeFaces[faceNumber] : getGLTextureType(), 0, 
-              mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 0, 
-              mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
+                mTextureType == TEX_TYPE_CUBE_MAP ? 
+                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + faceNumber : 
+                    getGLTextureType(), 0,
+                mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 0, 
+                mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
         }
     }
 
