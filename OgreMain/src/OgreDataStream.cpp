@@ -319,7 +319,7 @@ namespace Ogre {
 			trimCR = true;
 		}
         mpStream->getline(buf, maxCount, delim.at(0));
-        size_t ret = mpStream->gcount();
+        size_t ret = mpStream->gcount() - 1;
 
 		// trim off CR if we found CR/LF
 		if (trimCR && buf[ret-1] == '\r')
@@ -428,7 +428,6 @@ namespace Ogre {
                 // found terminator
                 // reposition backwards
                 fseek(mFileHandle, pos - readCount + 1, SEEK_CUR);
-                break;
             }
 
 			if (pos > 0)
@@ -448,6 +447,10 @@ namespace Ogre {
                 totalCount += pos;
             }
 
+            if (pos < readCount)
+            {
+                break;
+            }
             // Adjust chunkSize for next time
             chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 

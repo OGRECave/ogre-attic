@@ -256,7 +256,6 @@ namespace Ogre {
 				// found terminator
                 // reposition backwards
                 zzip_seek(mZzipFile, pos - readCount + 1, SEEK_CUR);
-				break;
 			}
 
 			if (pos > 0)
@@ -275,6 +274,11 @@ namespace Ogre {
 				totalCount += pos;
 			}
 
+            if (pos < readCount)
+            {
+                // Found delimiter, break out
+                break;
+            }
 			// Adjust chunkSize for next time
 			chunkSize = std::min(maxCount-totalCount, (size_t)OGRE_STREAM_TEMP_SIZE-1);
 			
