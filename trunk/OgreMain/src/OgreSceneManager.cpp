@@ -1248,8 +1248,6 @@ namespace Ogre {
 			renderObjects(pPriorityGrp->mSolidPasses, true);
 		}
 
-        // Clear stencil
-        mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
 
 		// Iterate over lights, render all volumes to stencil
 		LightList::const_iterator li, liend;
@@ -1258,20 +1256,26 @@ namespace Ogre {
 		for (li = mLightsAffectingFrustum.begin(); li != liend; ++li)
 		{
 			Light* l = *li;
-			renderShadowVolumesToStencil(l, mCameraInProgress);
+            if (l->getCastShadows())
+            {
+                // Clear stencil
+                mDestRenderSystem->clearFrameBuffer(FBT_STENCIL);
+                renderShadowVolumesToStencil(l, mCameraInProgress);
+                // render full-screen shadow modulator for all lights
+                setPass(mShadowModulativePass);
+                // turn stencil check on
+                mDestRenderSystem->setStencilCheckEnabled(true);
+                // NB we render where the stencil is not equal to zero to render shadows, not lit areas
+                mDestRenderSystem->setStencilBufferParams(CMPF_NOT_EQUAL, 0);
+                renderSingleObject(mFullScreenQuad, mShadowModulativePass, false);
+                // Reset stencil params
+                mDestRenderSystem->setStencilBufferParams();
+                mDestRenderSystem->setStencilCheckEnabled(false);
+                mDestRenderSystem->_setDepthBufferParams();
+            }
 
 		}// for each priority
 
-		// render full-screen shadow modulator for all lights
-		setPass(mShadowModulativePass);
-        // turn stencil check on
-        // NB we render where the stencil is not equal to zero to render shadows, not lit areas
-        mDestRenderSystem->setStencilBufferParams(CMPF_NOT_EQUAL, 0);
-        mDestRenderSystem->setStencilCheckEnabled(true);
-        renderSingleObject(mFullScreenQuad, mShadowModulativePass, false);
-        // Reset stencil params
-        mDestRenderSystem->setStencilBufferParams();
-        mDestRenderSystem->setStencilCheckEnabled(false);
 
 		// Iterate again - variable name changed to appease gcc.
         RenderQueueGroup::PriorityMapIterator groupIt2 = pGroup->getIterator();
@@ -2140,6 +2144,7 @@ namespace Ogre {
         }
         else
         {
+            // Really basic
             SphereSceneQuery* ssc = createSphereQuery(
                 Sphere(light->getPosition(), light->getAttenuationRange()) );
 
@@ -2307,9 +2312,8 @@ namespace Ogre {
         }
 		// revert colour write state
 		mDestRenderSystem->_setColourBufferWriteEnabled(true, true, true, true);
-		// revert depth write state
-		mDestRenderSystem->_setDepthBufferWriteEnabled(true);
-        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS_EQUAL);
+		// revert depth state
+		mDestRenderSystem->_setDepthBufferParams();
 
         mDestRenderSystem->setStencilCheckEnabled(false);
 
