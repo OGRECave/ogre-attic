@@ -143,6 +143,12 @@ namespace Ogre {
             const Quaternion& orientation, 
             Matrix4& destMatrix );
 
+        /// The position to use as a base for keyframe animation
+        Vector3 mInitialPosition;
+        /// The orientation to use as a base for keyframe animation
+        Quaternion mInitialOrientation;
+        /// The scale to use as a base for keyframe animation
+        Vector3 mInitialScale;
 
     public:
         /** Constructor, should only be called by parent, not directly.
@@ -465,6 +471,29 @@ namespace Ogre {
         */
         void getWorldTransforms(Matrix4* xform);
 
+        /** Sets the current transform of this node to be the 'initial state' ie that
+            position / orientation / scale to be used as a basis for delta values used
+            in keyframe animation.
+        @remarks
+            You never need to call this method unless you plan to animate this node. If you do
+            plan to animate it, call this method once you've loaded the node with it's base state,
+            ie the state on which all keyframes are based.
+        @par
+            If you never call this method, the initial state is the identity transform, ie do nothing.
+        */
+        virtual void setInitialState(void);
+
+        /** Resets the position / orientation / scale of this node to it's initial state, see setInitialState for more info. */
+        virtual void resetToInitialState(void);
+
+        /** Gets the initial position of this node, see setInitialState for more info. */
+        virtual const Vector3& getInitialPosition(void) const;
+
+        /** Gets the initial orientation of this node, see setInitialState for more info. */
+        virtual const Quaternion& getInitialOrientation(void) const;
+
+        /** Gets the initial position of this node, see setInitialState for more info. */
+        virtual const Vector3& getInitialScale(void) const;
     };
 
 } //namespace

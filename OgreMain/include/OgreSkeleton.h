@@ -240,6 +240,9 @@ namespace Ogre {
         */
         void deriveRootBone(void) const;
 
+        /// Debugging method
+        void _dumpContents(const String& filename);
+
 
     };
 
