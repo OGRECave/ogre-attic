@@ -163,12 +163,13 @@ namespace Ogre {
 
         /// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
 		bool mUsingManualLOD;
-		/** List of SubEntity lists (for manual LODs).
+		/** List of LOD Entity instances (for manual LODs).
 			We don't know when the mesh is using manual LODs whether one LOD to the next will have the
-			same number of SubMeshes, therefore we have to allow a SubEntity list with each alternate one.
+			same number of SubMeshes, therefore we have to allow a separate Entity list 
+            with each alternate one.
 		*/
-		typedef std::vector<SubEntityList*> LODSubEntityList;
-		LODSubEntityList mLodSubEntityList;
+		typedef std::vector<Entity*> LODEntityList;
+		LODEntityList mLodEntityList;
 
         /** This Entity's personal copy of the skeleton, if skeletally animated
         */
@@ -433,6 +434,9 @@ namespace Ogre {
             vertex programs must support 'include_skeletal_animation true'.
         */
         bool isHardwareSkinningEnabled(void) { return mHardwareSkinning; }
+
+        /** Overridden from MOvableObject */
+        void _notifyAttached(Node* parent, bool isTagPoint = false);
 
 
     };

@@ -1182,6 +1182,7 @@ namespace Ogre {
 			{
 				readMeshLodUsageGenerated(chunk, i, usage);
 			}
+            usage.edgeData = NULL;
 
 			// Save usage
 			mpMesh->mMeshLodUsageList.push_back(usage);

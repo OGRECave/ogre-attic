@@ -1101,6 +1101,7 @@ namespace Ogre {
 		const char* val = manualNode->Attribute("fromdepthsquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
 		usage.manualName = manualNode->Attribute("meshname");
+        usage.edgeData = NULL;
 
 		mpMesh->_setLodUsage(index, usage);
 	}
@@ -1112,6 +1113,7 @@ namespace Ogre {
 		usage.fromDepthSquared = StringConverter::parseReal(val);
 		usage.manualMesh = NULL;
 		usage.manualName = "";
+        usage.edgeData = NULL;
 
 		mpMesh->_setLodUsage(index, usage);
 

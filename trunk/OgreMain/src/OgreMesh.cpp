@@ -55,6 +55,8 @@ namespace Ogre {
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
+        lod.edgeData = NULL;
+        lod.manualMesh = NULL;
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 
@@ -66,8 +68,7 @@ namespace Ogre {
         mBoundRadius = 0.0f;
 
         mPreparedForShadowVolumes = false;
-
-        mEdgeData = 0;
+        mEdgeListsBuilt = false;
 
     }
 
@@ -163,6 +164,7 @@ namespace Ogre {
         if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())
         {
             prepareForShadowVolume();
+            buildEdgeList();
         }
 
 		mIsLoaded = true;
@@ -185,8 +187,8 @@ namespace Ogre {
             delete sharedVertexData;
             sharedVertexData = NULL;
         }
-
-        OGRE_DELETE(mEdgeData);
+        // Destroy edge lists
+        freeEdgeList();
 		// Clear SubMesh lists
 		mSubMeshList.clear();
 		mSubMeshNameMap.clear();
@@ -666,12 +668,16 @@ namespace Ogre {
         // Record first LOD (full detail)
         MeshLodUsage lod;
         lod.fromDepthSquared = 0.0f;
+        lod.edgeData = NULL;
+        lod.manualMesh = NULL;
         mMeshLodUsageList.push_back(lod);
 
         for (idist = lodDistances.begin(); idist != idistend; ++idist)
         {
             // Record usage
             lod.fromDepthSquared = (*idist) * (*idist);
+            lod.edgeData = NULL;
+            lod.manualMesh = NULL;
             mMeshLodUsageList.push_back(lod);
 
         }
@@ -686,7 +692,7 @@ namespace Ogre {
     const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index) const
     {
         assert(index < mMeshLodUsageList.size());
-        if (mIsLodManual && mMeshLodUsageList[index].manualMesh == NULL)
+        if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh == NULL)
         {
             // Load the mesh now
             mMeshLodUsageList[index].manualMesh = 
@@ -711,6 +717,7 @@ namespace Ogre {
 		lod.fromDepthSquared = fromDepth * fromDepth;
 		lod.manualName = meshName;
 		lod.manualMesh = NULL;
+        lod.edgeData = NULL;
 		mMeshLodUsageList.push_back(lod);
 		++mNumLods;
 
@@ -728,6 +735,8 @@ namespace Ogre {
 
 		lod->manualName = meshName;
 		lod->manualMesh = NULL;
+        if (lod->edgeData) delete lod->edgeData;
+        lod->edgeData = NULL;
 	}
     //---------------------------------------------------------------------
 	ushort Mesh::getLodIndex(Real depth) const
@@ -989,46 +998,107 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Mesh::buildEdgeList(void)
     {
-        // Delete any existing edge information
-        OGRE_DELETE(mEdgeData);
-
-        EdgeListBuilder eb;
-        size_t vertexSetCount = 0;
-
-        if (sharedVertexData)
+        if (mEdgeListsBuilt)
         {
-            eb.addVertexData(sharedVertexData);
-            vertexSetCount++;
+            // destroy existing edge data
+            freeEdgeList();
         }
 
-        // Prepare the builder using the submesh information
-        SubMeshList::iterator i, iend;
-        iend = mSubMeshList.end();
-        for (i = mSubMeshList.begin(); i != iend; ++i)
+        // Loop over LODs
+        for (unsigned int lodIndex = 0; lodIndex < mMeshLodUsageList.size(); ++lodIndex)
         {
-            SubMesh* s = *i;
-            if (s->useSharedVertices)
+            // use getLodLevel to enforce loading of manual mesh lods
+            MeshLodUsage& usage = const_cast<MeshLodUsage&>(getLodLevel(lodIndex));
+
+            if (mIsLodManual && lodIndex != 0)
             {
-                // Use shared vertex data, index as set 0
-                eb.addIndexData(s->indexData, 0, s->operationType);
+                // Delegate edge building to manual mesh
+                // It should have already built it's own edge list while loading
+                usage.edgeData = usage.manualMesh->getEdgeList(0);
             }
             else
             {
-                // own vertex data, add it and reference it directly
-                eb.addVertexData(s->vertexData);
-                eb.addIndexData(s->indexData, vertexSetCount++, s->operationType);
+                // Build
+                EdgeListBuilder eb;
+                size_t vertexSetCount = 0;
+
+                if (sharedVertexData)
+                {
+                    eb.addVertexData(sharedVertexData);
+                    vertexSetCount++;
+                }
+
+                // Prepare the builder using the submesh information
+                SubMeshList::iterator i, iend;
+                iend = mSubMeshList.end();
+                for (i = mSubMeshList.begin(); i != iend; ++i)
+                {
+                    SubMesh* s = *i;
+                    if (s->useSharedVertices)
+                    {
+                        // Use shared vertex data, index as set 0
+                        if (lodIndex == 0)
+                        {
+                            eb.addIndexData(s->indexData, 0, s->operationType);
+                        }
+                        else
+                        {
+                            eb.addIndexData(s->mLodFaceList[lodIndex-1], 0, 
+                                s->operationType);
+                        }
+                    }
+                    else
+                    {
+                        // own vertex data, add it and reference it directly
+                        eb.addVertexData(s->vertexData);
+                        if (lodIndex == 0)
+                        {
+                            // Base index data
+                            eb.addIndexData(s->indexData, vertexSetCount++, 
+                                s->operationType);
+                        }
+                        else
+                        {
+                            // LOD index data
+                            eb.addIndexData(s->mLodFaceList[lodIndex-1], 
+                                vertexSetCount++, s->operationType);
+                        }
+
+                    }
+                }
+
+                usage.edgeData = eb.build();
+
+                #if OGRE_DEBUG_MODE
+                    // Override default log
+                    Log* log = LogManager::getSingleton().createLog(
+                        mName + "_lod" + StringConverter::toString(lodIndex) + 
+                        "_prepshadow.log", false, false);
+                    usage.edgeData->log(log);
+                #endif
+
             }
         }
+    }
+    //---------------------------------------------------------------------
+    void Mesh::freeEdgeList(void)
+    {
+        // Loop over LODs
+        MeshLodUsageList::iterator i, iend;
+        iend = mMeshLodUsageList.end();
+        unsigned short index = 0;
+        for (i = mMeshLodUsageList.begin(); i != iend; ++i, ++index)
+        {
+            MeshLodUsage& usage = *i;
 
-        mEdgeData = eb.build();
-
-#if OGRE_DEBUG_MODE
-        // Override default log
-        Log* log = LogManager::getSingleton().createLog(mName + "_prepshadow.log", false, false);
-        mEdgeData->log(log);
-#endif
-
-
+            if (!mIsLodManual || index == 0)
+            {
+                // Only delete if we own this data
+                // Manual LODs > 0 own their own 
+                delete usage.edgeData;
+            }
+            usage.edgeData = NULL;
+        }
     }
     //---------------------------------------------------------------------
     void Mesh::prepareForShadowVolume(void)
@@ -1050,13 +1120,9 @@ namespace Ogre {
         mPreparedForShadowVolumes = true;
     }
     //---------------------------------------------------------------------
-    EdgeData* Mesh::getEdgeList(void)
+    EdgeData* Mesh::getEdgeList(unsigned int lodIndex)
     {
-        if (!mEdgeData)
-        {
-            buildEdgeList();
-        }
-        return mEdgeData;
+        return getLodLevel(lodIndex).edgeData;
     }
     //---------------------------------------------------------------------
     void Mesh::softwareVertexBlend(const VertexData* sourceVertexData, 
