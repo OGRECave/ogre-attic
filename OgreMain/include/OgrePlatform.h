@@ -109,10 +109,10 @@ http://www.gnu.org/copyleft/gpl.html.
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   if OGRE_DYNAMIC_LINKAGE == 0
 #       define _OgreExport
-#   elif defined( OGRE_LIBRARY_IMPORTS )
-#       define _OgreExport __declspec(dllimport)
-#   else
+#   elif defined( OGREMAIN_EXPORTS )
 #       define _OgreExport __declspec(dllexport)
+#   else
+#       define _OgreExport __declspec(dllimport)
 #   endif
 #endif // OGRE_WIN32
 
