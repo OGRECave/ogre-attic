@@ -58,7 +58,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy "..\bin\OgreGUIRenderer.dll" "..\..\..\..Samples\Common\bin\Release"
+PostBuild_Cmds=copy "..\bin\OgreGUIRenderer.dll" "..\..\bin\Release"
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "OgreGUIRenderer - Win32 Debug"
