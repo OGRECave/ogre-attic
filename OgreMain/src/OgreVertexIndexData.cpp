@@ -430,7 +430,61 @@ namespace Ogre {
 		vertexBufferBinding = newBinding;		
 
 	}
-	//-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    void VertexData::reorganiseBuffers(VertexDeclaration* newDeclaration)
+    {
+        // Derive the buffer usages from looking at where the source has come
+        // from
+        BufferUsageList usages;
+        for (unsigned short b = 0; b <= newDeclaration->getMaxSource(); ++b)
+        {
+            VertexDeclaration::VertexElementList destElems = newDeclaration->findElementsBySource(b);
+            // Initialise with most restrictive version 
+            // (not really a usable option, but these flags will be removed)
+            HardwareBuffer::Usage final = static_cast<HardwareBuffer::Usage>(
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY | HardwareBuffer::HBU_DISCARDABLE);
+            VertexDeclaration::VertexElementList::iterator v;
+            for (v = destElems.begin(); v != destElems.end(); ++v)
+            {
+                VertexElement& destelem = *v;
+                // get source
+                const VertexElement* srcelem =
+                    vertexDeclaration->findElementBySemantic(
+                        destelem.getSemantic(), destelem.getIndex());
+                // get buffer
+                HardwareVertexBufferSharedPtr srcbuf = 
+                    vertexBufferBinding->getBuffer(srcelem->getIndex());
+                // improve flexibility only
+                if (srcbuf->getUsage() & HardwareBuffer::HBU_DYNAMIC)
+                {
+                    // remove static
+                    final = static_cast<HardwareBuffer::Usage>(
+                        final & ~HardwareBuffer::HBU_STATIC);
+                    // add dynamic
+                    final = static_cast<HardwareBuffer::Usage>(
+                        final | HardwareBuffer::HBU_DYNAMIC);
+                }
+                if (!(srcbuf->getUsage() & HardwareBuffer::HBU_WRITE_ONLY))
+                {
+                    // remove write only
+                    final = static_cast<HardwareBuffer::Usage>(
+                        final & ~HardwareBuffer::HBU_WRITE_ONLY);
+                }
+                if (!(srcbuf->getUsage() & HardwareBuffer::HBU_DISCARDABLE))
+                {
+                    // remove discardable
+                    final = static_cast<HardwareBuffer::Usage>(
+                        final & ~HardwareBuffer::HBU_DISCARDABLE);
+                }
+                
+            }
+            usages.push_back(final);
+        }
+        // Call specific method
+        reorganiseBuffers(newDeclaration, usages);
+
+    }
+    //-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	IndexData::IndexData()
 	{

@@ -296,6 +296,24 @@ private:
 	{
 		if (!orgVD)
 			return 0 ;
+
+        // Hacky bit: reorganise vertex buffers to a buffer-per-element
+        // Since this demo was written a while back to assume that
+        // Really this demo should be replaced with a vertex program noise
+        // distortion, but left the software for now since it's nice for older
+        // card owners
+        VertexDeclaration* newDecl = orgVD->vertexDeclaration->clone();
+        const VertexDeclaration::VertexElementList& elems = newDecl->getElements();
+        VertexDeclaration::VertexElementList::const_iterator di;
+        unsigned short buf = 0;
+        for (di = elems.begin(); di != elems.end(); ++di)
+        {
+            newDecl->modifyElement(buf, buf, 0, di->getType(), di->getSemantic(), di->getIndex()); 
+            buf++;
+        }
+        orgVD->reorganiseBuffers(newDecl);
+
+
 		VertexData* newVD = new VertexData();
 		// copy things that do not change
 		newVD->vertexCount = orgVD->vertexCount ;
