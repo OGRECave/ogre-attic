@@ -56,6 +56,9 @@ namespace Ogre {
         MeshPtr(const ResourcePtr& r);
         /// Operator used to convert a ResourcePtr to a MeshPtr
         MeshPtr& operator=(const ResourcePtr& r);
+    protected:
+        /// Override destroy since we need to delete Mesh after fully defined
+        void destroy(void);
     };
 
     /** Resource holding data about 3D mesh.

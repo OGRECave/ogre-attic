@@ -68,6 +68,12 @@ namespace Ogre {
         return *this;
     }
     //-----------------------------------------------------------------------
+    void MeshPtr::destroy(void)
+    {
+        // We're only overriding so that we can destroy after full definition of Mesh
+        SharedPtr<Mesh>::destroy();
+    }
+    //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     Mesh::Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
