@@ -226,6 +226,7 @@ namespace Ogre {
 
         m_uWidth = uWidth;
         m_uHeight = uHeight;
+		m_uDepth = 1;
         m_eFormat = eFormat;
         m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
         m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
@@ -247,6 +248,7 @@ namespace Ogre {
 
         m_uWidth = uWidth;
         m_uHeight = uHeight;
+		m_uDepth = 1;
         m_eFormat = eFormat;
         m_ucPixelSize = PixelUtil::getNumElemBytes( m_eFormat );
         m_uSize = m_uWidth * m_uHeight * m_ucPixelSize;
@@ -471,7 +473,7 @@ namespace Ogre {
     {
         return PixelUtil::getFlags(m_eFormat) & PFF_HASALPHA;
     }
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
     void Image::applyGamma( unsigned char *buffer, Real gamma, size_t size, uchar bpp )
     {
         if( gamma == 1.0f )
@@ -554,18 +556,43 @@ namespace Ogre {
 		delete [] m_pBuffer;
 		m_uWidth = width;
 		m_uHeight = height;
-		size_t dataSize = width * height * m_ucPixelSize;
+		m_uDepth = 1;
+		size_t dataSize = PixelUtil::getMemorySize(m_uWidth, m_uHeight, m_uDepth, m_eFormat);
 		m_pBuffer = new uchar[dataSize];
-
-		ILUtil::toOgre(m_pBuffer, m_eFormat);
+		
+		PixelBox dest(m_uWidth, m_uHeight, m_uDepth, m_eFormat, m_pBuffer);
+		ILUtil::toOgre(dest);
 
         ilDeleteImages(1, &ImageName);
 
 		// return to default filter
 		iluImageParameter(ILU_FILTER, ILU_NEAREST);
 	}
-    
-    //-----------------------------------------------------------------------------    
+    //-----------------------------------------------------------------------
+	void Image::scale(const PixelBox &src, const PixelBox &scaled, Filter filter) 
+	{
+		ILuint ImageName;
+
+        ilGenImages( 1, &ImageName );
+        ilBindImage( ImageName );
+
+		// Convert image from OGRE to current IL image
+		ILUtil::fromOgre(src);
+
+		// set filter
+		iluImageParameter(ILU_FILTER, filter);
+		iluScale(scaled.getWidth(), scaled.getHeight(), scaled.getDepth());
+		
+		ILUtil::toOgre(scaled);
+
+        ilDeleteImages(1, &ImageName);
+
+		// return to default filter
+		iluImageParameter(ILU_FILTER, ILU_NEAREST);
+	}
+
+	//-----------------------------------------------------------------------------    
+
     ColourValue Image::getColourAt(int x, int y, int z) 
     {
 		ColourValue rval;
@@ -575,10 +602,10 @@ namespace Ogre {
     
     //-----------------------------------------------------------------------------    
 
-    PixelBox Image::getPixelBox(int cubeface, int mipmap) 
+    PixelBox Image::getPixelBox(int cubeface, int mipmap) const
     {
         // TODO - do something with cubeface & mipmap
-        PixelBox src(getWidth(), getHeight(), getDepth(), getFormat(), getData());
+        PixelBox src(getWidth(), getHeight(), getDepth(), getFormat(), const_cast<uint8*>(getData()));
         return src;
     }
 

@@ -27,7 +27,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreBitwise.h"
 #include "OgreColourValue.h"
 #include "OgreException.h"
+
 #include <IL/il.h>
+#include <IL/ilu.h>
 
 namespace {
 #include "OgrePixelConversions.h"
@@ -340,6 +342,16 @@ namespace Ogre {
 	}
 	PixelBox PixelBox::getSubVolume(const Box &def) const
 	{
+		if(PixelUtil::isCompressed(format))
+		{
+			if(def.left == left && def.top == top && def.front == front &&
+			   def.right == right && def.bottom == bottom && def.back == back)
+			{
+				// Entire buffer is being queried
+				return *this;
+			}
+			Except(Exception::ERR_INVALIDPARAMS, "Cannot return subvolume of compressed PixelBuffer", "PixelBox::getSubVolume");
+		}
 		if(!contains(def))
 			Except(Exception::ERR_INVALIDPARAMS, "Bounds out of range", "PixelBox::getSubVolume");
 
@@ -440,6 +452,28 @@ namespace Ogre {
         return (PixelUtil::getFlags(format) & PFF_LUMINANCE) > 0;
     }
     //-----------------------------------------------------------------------
+	bool PixelUtil::isValidExtent(size_t width, size_t height, size_t depth, PixelFormat format)
+	{
+		if(isCompressed(format)) 
+		{
+			switch(format) 
+			{
+				case PF_DXT1:
+				case PF_DXT2:
+				case PF_DXT3:
+				case PF_DXT4:
+				case PF_DXT5:
+					return ((width&3)==0 && (height&3)==0 && depth==1);
+				default:
+					return true;
+			}
+		} 
+		else 
+		{
+			return true; 
+		}
+	}
+	//-----------------------------------------------------------------------
     void PixelUtil::getBitDepths(PixelFormat format, int rgba[4])
     {
         const PixelFormatDescription &des = getDescriptionFor(format);
@@ -721,7 +755,7 @@ namespace Ogre {
             dstptr += dstSliceSkipBytes;
         }
     }
-    //-----------------------------------------------------------------------
+    
     /*************************************************************************
     * IL specific functions
     */
@@ -864,34 +898,58 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
-    void ILUtil::toOgre(uint8 *tar, PixelFormat ogrefmt) 
+    void ILUtil::toOgre(const PixelBox &dst) 
     {
+		if(!dst.isConsecutive())
+			Except( Exception::UNIMPLEMENTED_FEATURE,
+                "Destination must currently be consecutive",
+                "ILUtil::ilToOgre" ) ;
+		if(dst.getWidth() != ilGetInteger( IL_IMAGE_WIDTH ) ||
+        	dst.getHeight() != ilGetInteger( IL_IMAGE_HEIGHT ) ||
+        	dst.getDepth() != ilGetInteger( IL_IMAGE_DEPTH ))
+			Except( Exception::ERR_INVALIDPARAMS,
+                "Destination dimensions must equal IL dimension",
+                "ILUtil::ilToOgre" ) ;
+        
         int ilfmt = ilGetInteger( IL_IMAGE_FORMAT );
         int iltp = ilGetInteger( IL_IMAGE_TYPE );
 
 		// Check if in-memory format just matches
 		// If yes, we can just copy it and save conversion
-		ILFormat ifmt = OgreFormat2ilFormat( ogrefmt );
+		ILFormat ifmt = OgreFormat2ilFormat( dst.format );
 		if(ifmt.format == ilfmt && ILabs(ifmt.type) == ILabs(iltp)) {
-            std::copy((uint8*)ilGetData(), 
-                (uint8*)ilGetData() + ilGetInteger( IL_IMAGE_SIZE_OF_DATA ), 
-                tar);
+            std::copy(static_cast<uint8*>(ilGetData()), 
+                static_cast<uint8*>(ilGetData()) + ilGetInteger( IL_IMAGE_SIZE_OF_DATA ), 
+                static_cast<uint8*>(dst.data));
             return;
         }
-        
+		// Try if buffer is in a known OGRE format so we can use OGRE its
+		// conversion routines
+		PixelFormat bufFmt = ilFormat2OgreFormat((int)ilfmt, (int)iltp);
+		
+		ifmt = OgreFormat2ilFormat( bufFmt );
+		if(ifmt.format == ilfmt && ILabs(ifmt.type) == ILabs(iltp))
+		{
+			// IL format matches another OGRE format
+			PixelBox src(dst.getWidth(), dst.getHeight(), dst.getDepth(), bufFmt, ilGetData());
+			PixelUtil::bulkPixelConversion(src, dst);
+			return;
+		}
+		
+        // Thee extremely slow method
         if(iltp == IL_UNSIGNED_BYTE || iltp == IL_BYTE) 
         {
-            ilToOgreInternal(tar, ogrefmt, (uint8)0x00,(uint8)0x00,(uint8)0x00,(uint8)0xFF);
+            ilToOgreInternal(static_cast<uint8*>(dst.data), dst.format, (uint8)0x00,(uint8)0x00,(uint8)0x00,(uint8)0xFF);
         } 
         else if(iltp == IL_FLOAT)
         {
-            ilToOgreInternal(tar, ogrefmt, 0.0f,0.0f,0.0f,1.0f);          
+            ilToOgreInternal(static_cast<uint8*>(dst.data), dst.format, 0.0f,0.0f,0.0f,1.0f);          
         }
         else 
         {
             Except( Exception::UNIMPLEMENTED_FEATURE,
                 "Cannot convert this DevIL type",
-                "ilToOgre" ) ;
+                "ILUtil::ilToOgre" ) ;
         }
     }
     //-----------------------------------------------------------------------
