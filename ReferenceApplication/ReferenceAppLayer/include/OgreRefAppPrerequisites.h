@@ -55,6 +55,7 @@ namespace OgreRefApp {
     class ApplicationObject;
     class OgreHead;
     class Player;
+    class Plane;
 
 }
 

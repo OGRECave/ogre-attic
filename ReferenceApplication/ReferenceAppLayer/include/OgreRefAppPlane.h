@@ -22,17 +22,24 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#ifndef __REFAPP_PLANE_H__
+#define __REFAPP_PLANE_H__
 
-#ifndef __REFERENCE_APP_LAYER_H__
-#define __REFERENCE_APP_LAYER_H__
-
-// This is a utility header for client applications to use
 #include "OgreRefAppPrerequisites.h"
-#include "OgreRefAppWorld.h"
 #include "OgreRefAppApplicationObject.h"
-#include "OgreRefAppOgreHead.h"
-#include "OgreRefAppPlane.h"
 
+namespace OgreRefApp {
 
+    class _OgreRefAppExport Plane : public ApplicationObject
+    {
+    protected:
+        Real mWidth;
+        Real mHeight;
+        void setUp(const String& name);
+    public:
+        Plane(const String& name, Real width, Real height);
+        ~Plane();
+    };
+
+}
 #endif
-

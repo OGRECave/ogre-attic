@@ -65,14 +65,18 @@ namespace OgreRefApp
     void ApplicationObject::setPosition(const Vector3& vec)
     {
         mSceneNode->setPosition(vec);
-        mOdeBody->setPosition(vec.x, vec.y, vec.z);
+        if (mDynamicsEnabled && mOdeBody)
+            mOdeBody->setPosition(vec.x, vec.y, vec.z);
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::setOrientation(const Quaternion& orientation)
     {
         mSceneNode->setOrientation(orientation);
-        dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
-        mOdeBody->setQuaternion(dquat);
+        if (mDynamicsEnabled && mOdeBody)
+        {
+            dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
+            mOdeBody->setQuaternion(dquat);
+        }
     }
     //-------------------------------------------------------------------------
     const Vector3& ApplicationObject::getPosition(void)
@@ -125,6 +129,51 @@ namespace OgreRefApp
             mOdeBody->enable();
         else
             mOdeBody->disable();
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addForce(const Vector3& direction, const Vector3& atPosition)
+    {
+        assert (mOdeBody && "No dynamics body set up for this object");
+        mOdeBody->addRelForceAtRelPos(direction.x, direction.y, direction.z, 
+            atPosition.x, atPosition.y, atPosition.z);
+
+        // Test
+        const dReal* force = mOdeBody->getForce();
+        Real val = (Real)force[1];
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addForceWorldSpace(const Vector3& direction, const Vector3& atPosition)
+    {
+        assert (mOdeBody && "No dynamics body set up for this object");
+        mOdeBody->addForceAtPos(direction.x, direction.y, direction.z, 
+            atPosition.x, atPosition.y, atPosition.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addTorque(const Vector3& direction)
+    {
+        assert (mOdeBody && "No dynamics body set up for this object");
+        mOdeBody->addRelTorque(direction.x, direction.y, direction.z);
+    }
+    //-------------------------------------------------------------------------
+    void ApplicationObject::addTorqueWorldSpace(const Vector3& direction)
+    {
+        assert (mOdeBody && "No dynamics body set up for this object");
+        mOdeBody->addTorque(direction.x, direction.y, direction.z);
+    }
+    //-------------------------------------------------------------------------
+    SceneNode* ApplicationObject::getSceneNode(void)
+    {
+        return mSceneNode;
+    }
+    //-------------------------------------------------------------------------
+    Entity* ApplicationObject::getEntity(void)
+    {
+        return mEntity;
+    }
+    //-------------------------------------------------------------------------
+    dBody* ApplicationObject::getOdeBody(void)
+    {
+        return mOdeBody;
     }
 
 

@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace OgreRefApp {
 
-    class OgreHead : public ApplicationObject
+    class _OgreRefAppExport OgreHead : public ApplicationObject
     {
     protected:
         void setUp(const String& name);

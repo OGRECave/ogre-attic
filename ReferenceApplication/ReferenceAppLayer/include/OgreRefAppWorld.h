@@ -62,6 +62,10 @@ namespace OgreRefApp {
         OgreHead* createOgreHead(const String& name, const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
+        /** Create a plane object. */
+        OgreRefApp::Plane* createPlane(const String& name, Real width, Real height, const Vector3& pos = Vector3::ZERO, 
+            const Quaternion& orientation = Quaternion::IDENTITY);
+
         void clear(void);
 
         dWorld* getOdeWorld(void);
