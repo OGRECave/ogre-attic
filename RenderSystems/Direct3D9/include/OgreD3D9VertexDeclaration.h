@@ -46,6 +46,11 @@ namespace Ogre {
             VertexElementSemantic semantic, unsigned short index = 0);
 
         /** See VertexDeclaration */
+        const VertexElement& insertElement(unsigned short atPosition,
+            unsigned short source, size_t offset, VertexElementType theType,
+            VertexElementSemantic semantic, unsigned short index = 0);
+
+        /** See VertexDeclaration */
         void removeElement(unsigned short elem_index);
 
         /** See VertexDeclaration */

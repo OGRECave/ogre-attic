@@ -45,6 +45,14 @@ namespace Ogre {
         mNeedsRebuild = true;
         return VertexDeclaration::addElement(source, offset, theType, semantic, index);
     }
+    //-----------------------------------------------------------------------------
+    const VertexElement& D3D9VertexDeclaration::insertElement(unsigned short atPosition,
+        unsigned short source, size_t offset, VertexElementType theType,
+        VertexElementSemantic semantic, unsigned short index)
+    {
+        mNeedsRebuild = true;
+        return VertexDeclaration::insertElement(atPosition, source, offset, theType, semantic, index);
+    }
     //-----------------------------------------------------------------------
     void D3D9VertexDeclaration::removeElement(unsigned short elem_index)
     {

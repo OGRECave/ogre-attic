@@ -541,14 +541,34 @@ namespace Ogre {
                 );
         // bind new buffer
         bind->setBinding(bindIndex, vbuf);
-        
+        const VertexElement *pIdxElem, *pWeightElem;
+
         // add new vertex elements
-        const VertexElement& pIdxElem = 
-            decl->addElement(bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
-        const VertexElement& pWeightElem = 
-            decl->addElement(bindIndex, sizeof(unsigned char)*4, 
-            VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
-            VES_BLEND_WEIGHTS);
+        // Note, insert directly after position to abide by pre-Dx9 format restrictions
+        if(decl->getElement(0)->getSemantic() == VES_POSITION)
+        {
+            const VertexElement& idxElem = 
+                decl->insertElement(1, bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
+            const VertexElement& wtElem = 
+                decl->insertElement(2, bindIndex, sizeof(unsigned char)*4, 
+                VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
+                VES_BLEND_WEIGHTS);
+            pIdxElem = &idxElem;
+            pWeightElem = &wtElem;
+        }
+        else
+        {
+            // Position is not the first semantic, therefore this declaration is
+            // not pre-Dx9 compatible anyway, so just tack it on the end
+            const VertexElement& idxElem = 
+                decl->addElement(bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
+            const VertexElement& wtElem = 
+                decl->addElement(bindIndex, sizeof(unsigned char)*4, 
+                VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
+                VES_BLEND_WEIGHTS);
+            pIdxElem = &idxElem;
+            pWeightElem = &wtElem;
+        }
 
         // Assign data
         size_t v;
@@ -562,8 +582,8 @@ namespace Ogre {
         for (v = 0; v < targetVertexData->vertexCount; ++v)
         {
             /// Convert to specific pointers
-            pWeightElem.baseVertexPointerToElement(pBase, &pWeight);
-            pIdxElem.baseVertexPointerToElement(pBase, &pIndex);
+            pWeightElem->baseVertexPointerToElement(pBase, &pWeight);
+            pIdxElem->baseVertexPointerToElement(pBase, &pIndex);
             for (unsigned short bone = 0; bone < numBlendWeightsPerVertex; ++bone)
             {
                 // Do we still have data for this vertex?
