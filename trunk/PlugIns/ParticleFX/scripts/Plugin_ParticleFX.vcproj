@@ -4,6 +4,10 @@
 	Version="7.00"
 	Name="Plugin_ParticleFX"
 	ProjectGUID="{3AD3E5EF-0CC8-4A69-9827-7D42C270007F}"
+	SccProjectName="Ogre"
+	SccAuxPath=""
+	SccLocalPath="..\..\.."
+	SccProvider="MSSCCI:ComponentSoftware RCS"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -212,9 +216,6 @@
 			</File>
 			<File
 				RelativePath="..\misc\OgreParticleFXDll.def">
-			</File>
-			<File
-				RelativePath="..\include\OgreParticleFXPluginPrerequisites.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreParticleFXPrerequisites.h">
