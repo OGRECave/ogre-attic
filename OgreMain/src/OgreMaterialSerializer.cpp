@@ -1945,25 +1945,33 @@ namespace Ogre
 					", you must specify a source file.", mScriptContext);
 			}
 			// Create
-			HighLevelGpuProgram* gp = HighLevelGpuProgramManager::getSingleton().
-				createProgram(def->name, def->language, def->progType);
-            // Set source file
-            gp->setSourceFile(def->source);
-            // Skel animation supported
-            gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+            try 
+            {
+			    HighLevelGpuProgram* gp = HighLevelGpuProgramManager::getSingleton().
+				    createProgram(def->name, def->language, def->progType);
+                // Set source file
+                gp->setSourceFile(def->source);
+                // Skel animation supported
+                gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
 
-			// Set custom parameters
-			std::map<String, String>::const_iterator i, iend;
-			iend = def->customParameters.end();
-			for (i = def->customParameters.begin(); i != iend; ++i)
-			{
-				if (!gp->setParameter(i->first, i->second))
-				{
-					logParseError("Error in program " + def->name + 
-						" parameter " + i->first + " is not valid.", mScriptContext);
-				}
-			}
-		}
+			    // Set custom parameters
+			    std::map<String, String>::const_iterator i, iend;
+			    iend = def->customParameters.end();
+			    for (i = def->customParameters.begin(); i != iend; ++i)
+			    {
+				    if (!gp->setParameter(i->first, i->second))
+				    {
+					    logParseError("Error in program " + def->name + 
+						    " parameter " + i->first + " is not valid.", mScriptContext);
+				    }
+			    }
+            }
+            catch (Exception& e)
+            {
+                LogManager::getSingleton().logMessage("Could not create GPU program '"
+                    + def->name + "', error reported was: " + e.getFullDescription());
+            }
+        }
 	}
     //-----------------------------------------------------------------------
 	bool MaterialSerializer::invokeParser(String& line, AttribParserList& parsers)
