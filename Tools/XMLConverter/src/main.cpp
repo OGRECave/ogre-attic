@@ -598,9 +598,9 @@ int main(int numargs, char** args)
     }
 
     logMgr = new LogManager();
+	logMgr->createLog("OgreXMLConverter.log"); 
     rgm = new ResourceGroupManager();
     mth = new Math();
-    rgm = new ResourceGroupManager();
     meshMgr = new MeshManager();
     matMgr = new MaterialManager();
     matMgr->initialise();
