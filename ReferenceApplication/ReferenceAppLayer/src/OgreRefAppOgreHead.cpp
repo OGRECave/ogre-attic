@@ -44,7 +44,7 @@ namespace OgreRefApp
         // Create visual presence
         SceneManager* sm = World::getSingleton().getSceneManager();
         mEntity = sm->createEntity(name, "OgreHead.mesh");
-        mSceneNode = sm->getRootSceneNode()->createChild(name);
+        mSceneNode = static_cast<SceneNode*>(sm->getRootSceneNode()->createChild(name));
         mSceneNode->attachObject(mEntity);
         // Add reverse reference
         mEntity->setUserObject(this);
