@@ -34,7 +34,10 @@ This means you do not need to update the buffer very often, and you do not need 
 This means you expect to update the buffer often, and that you may wish to read from it. This is the least optimal buffer setting.
 
 @item HBU_DYNAMIC_WRITE_ONLY
-This means you expect to update the buffer often, but that you never want to read from it. However, you may read from it's shadow buffer if you set one up (@xref{Shadow Buffers}).
+This means you expect to update the buffer often, but that you never want to read from it. However, you may read from it's shadow buffer if you set one up (@xref{Shadow Buffers}). If you use this option, and replace the entire contents of the buffer every frame, then you should use HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE instead, since that has better performance characteristics on some platforms.
+
+@item HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE
+This means that you expect to replace the entire contents of the buffer on an extremely regular basis, most likely every frame. By selecting this option, you free the system up from having to be concerned about losing the existing contents of the buffer at any time, because if it does lose them, you will be replacing them next frame anyway. On some platforms this can make a significant performance difference, so you should try to use this whenever you have a buffer you need to update regularly. Note that if you create a buffer this way, you should use the HBL_DISCARD flag when locking the contents of it for writing.
 
 @end table
 Choosing the usage of your buffers carefully is important to getting optimal performance out of your geometry. If you have a situation where you need to update a vertex buffer often, consider whether you actually need to update @strong{all} the parts of it, or just some. If it's the latter, consider using more than one buffer, with only the data you need to modify in the HBU_DYNAMIC buffer.

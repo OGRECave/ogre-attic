@@ -48,7 +48,9 @@ namespace Ogre {
 #if OGRE_D3D_MANAGE_BUFFERS
         // Override shadow buffer setting; managed buffers are automatically
         // backed by system memory
-        if (useShadowBuffer)
+        // Don't override shadow buffer if discardable, since then we use
+        // unmanaged buffers for speed (avoids write-through overhead)
+        if (useShadowBuffer && !(usage & HardwareBuffer::HBU_DISCARDABLE))
         {
             useShadowBuffer = false;
             // Also drop any WRITE_ONLY so we can read direct
