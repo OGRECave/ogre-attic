@@ -93,7 +93,7 @@ namespace Ogre
     Mesh* MeshManager::createPlane( const String& name, const Plane& plane, Real width, Real height, int xsegments, int ysegments,
         bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
 		HardwareBuffer::Usage vertexBufferUsage, HardwareBuffer::Usage indexBufferUsage,
-		bool vertexSystemMemory, bool indexSystemMemory)
+		bool vertexShadowBuffer, bool indexShadowBuffer)
     {
         int i;
         Mesh* pMesh = createManual(name);
@@ -129,7 +129,7 @@ namespace Ogre
 		HardwareVertexBufferSharedPtr vbuf = 
 			HardwareBufferManager::getSingleton().
 			createVertexBuffer(vertexDecl->getVertexSize(0), vertexData->vertexCount,
-			vertexBufferUsage, vertexSystemMemory);
+			vertexBufferUsage, vertexShadowBuffer);
 
 		// Set up the binding (one source only)
 		VertexBufferBinding* binding = vertexData->vertexBufferBinding;
@@ -165,9 +165,8 @@ namespace Ogre
 
         // Generate vertex data
 		// Lock the whole buffer
-		Real* pBufStart = static_cast<Real*>(
+		Real* pReal = static_cast<Real*>(
 			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
-		Real* pReal;
         Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
@@ -183,8 +182,6 @@ namespace Ogre
         {
             for (int x = 0; x < xsegments + 1; ++x)
             {
-				// Get vertex start
-                pReal = pBufStart + (((y * (xsegments+1)) + x) * (vbuf->getVertexSize() / sizeof(Real)) );
                 // Work out centered on origin
                 vec.x = (x * xSpace) - halfWidth;
                 vec.y = (y * ySpace) - halfHeight;
@@ -237,14 +234,14 @@ namespace Ogre
 		vbuf->unlock();
         // Generate face list
         pSub->useSharedVertices = true;
-        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage, indexSystemMemory);
+        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage, indexShadowBuffer);
 
         //pMesh->_updateBounds();
         pMesh->_setBounds(AxisAlignedBox(min, max));
         pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
         return pMesh;
     }
-
+	
 	//-----------------------------------------------------------------------
 	Mesh* MeshManager::createCurvedPlane( const String& name, const Plane& plane, Real width, Real height, Real bow, int xsegments, int ysegments,
         bool normals, int numTexCoordSets, Real xTile, Real yTile, const Vector3& upVector,
@@ -317,9 +314,8 @@ namespace Ogre
         xform = xlate * rot;
 
         // Generate vertex data
-		Real* pBase = static_cast<Real*>(
+		Real* pReal = static_cast<Real*>(
 			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)); 
-        Real* pReal;
 		Real xSpace = width / xsegments;
         Real ySpace = height / ysegments;
         Real halfWidth = width / 2;
@@ -338,7 +334,6 @@ namespace Ogre
         {
             for (int x = 0; x < xsegments + 1; ++x)
             {
-                pReal = pBase + (((y * (xsegments+1)) + x) * vbuf->getVertexSize());
                 // Work out centered on origin
                 vec.x = (x * xSpace) - halfWidth;
                 vec.y = (y * ySpace) - halfHeight;
@@ -405,6 +400,192 @@ namespace Ogre
 
         return pMesh;
     }
+    //-----------------------------------------------------------------------
+	Mesh* MeshManager::createCurvedIllusionPlane(
+        const String& name, const Plane& plane,
+        Real width, Real height, Real curvature,
+        int xsegments, int ysegments,
+        bool normals, int numTexCoordSets,
+        Real uTile, Real vTile, const Vector3& upVector,
+		HardwareBuffer::Usage vertexBufferUsage, 
+		HardwareBuffer::Usage indexBufferUsage,
+		bool vertexShadowBuffer, bool indexShadowBuffer)
+	{
+        int i;
+        Mesh* pMesh = createManual(name);
+		SubMesh *pSub = pMesh->createSubMesh();
+
+		// Set up vertex data
+		// Use a single shared buffer
+		pMesh->sharedVertexData = new VertexData();
+		VertexData* vertexData = pMesh->sharedVertexData;
+		// Set up Vertex Declaration
+		VertexDeclaration* vertexDecl = vertexData->vertexDeclaration;
+		size_t currOffset = 0;
+		// We always need positions
+		vertexDecl->addElement(0, currOffset, VET_FLOAT3, VES_POSITION);
+		currOffset += VertexElement::getTypeSize(VET_FLOAT3);
+		// Optional normals
+		if(normals)
+		{
+			vertexDecl->addElement(0, currOffset, VET_FLOAT3, VES_NORMAL);
+			currOffset += VertexElement::getTypeSize(VET_FLOAT3);
+		}
+
+        for (i = 0; i < numTexCoordSets; ++i)
+        {
+			// Assumes 2D texture coords
+            vertexDecl->addElement(0, currOffset, VET_FLOAT2, VES_TEXTURE_COORDINATES, i);
+			currOffset += VertexElement::getTypeSize(VET_FLOAT2);
+        }
+
+		vertexData->vertexCount = (xsegments + 1) * (ysegments + 1);
+
+        // Allocate vertex buffer
+		HardwareVertexBufferSharedPtr vbuf = 
+			HardwareBufferManager::getSingleton().
+			createVertexBuffer(vertexDecl->getVertexSize(0), vertexData->vertexCount,
+			vertexBufferUsage, vertexShadowBuffer);
+
+		// Set up the binding (one source only)
+		VertexBufferBinding* binding = vertexData->vertexBufferBinding;
+		binding->setBinding(0, vbuf);
+
+		// Work out the transform required
+        // Default orientation of plane is normal along +z, distance 0
+        Matrix4 xlate, xform, rot;
+        Matrix3 rot3;
+        xlate = rot = Matrix4::IDENTITY;
+        // Determine axes
+        Vector3 zAxis, yAxis, xAxis;
+        zAxis = plane.normal;
+        zAxis.normalise();
+        yAxis = upVector;
+        yAxis.normalise();
+        xAxis = yAxis.crossProduct(zAxis);
+        if (xAxis.length() == 0)
+        {
+            //upVector must be wrong
+            Except(Exception::ERR_INVALIDPARAMS, "The upVector you supplied is parallel to the plane normal, so is not valid.",
+                "MeshManager::createPlane");
+        }
+
+        rot3.FromAxes(xAxis, yAxis, zAxis);
+        rot = rot3;
+
+        // Set up standard xform from origin
+        xlate.setTrans(plane.normal * -plane.d);
+
+        // concatenate
+        xform = xlate * rot;
+
+        // Generate vertex data
+        // Imagine a large sphere with the camera located near the top
+        // The lower the curvature, the larger the sphere
+        // Use the angle from viewer to the points on the plane
+        // Credit to Aftershock for the general approach
+        Real *pBase, *pTex;
+        Real camPos;      // Camera position relative to sphere center
+
+        // Derive sphere radius
+        Vector3 vertPos;  // position relative to camera
+        Real sphDist;      // Distance from camera to sphere along box vertex vector
+        // Vector3 camToSph; // camera position to sphere
+        Real sphereRadius;// Sphere radius
+        // Actual values irrelevant, it's the relation between sphere radius and camera position that's important
+        const Real SPHERE_RAD = 100.0;
+        const Real CAM_DIST = 5.0;
+
+        sphereRadius = SPHERE_RAD - curvature;
+        camPos = sphereRadius - CAM_DIST;
+
+		// Lock the whole buffer
+		Real* pReal = static_cast<Real*>(
+			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD) );
+        Real xSpace = width / xsegments;
+        Real ySpace = height / ysegments;
+        Real halfWidth = width / 2;
+        Real halfHeight = height / 2;
+        Vector3 vec, norm;
+        Vector3 min, max;
+        Real maxSquaredLength;
+        bool firstTime = true;
+
+        for (int y = 0; y < ysegments + 1; ++y)
+        {
+            for (int x = 0; x < xsegments + 1; ++x)
+            {
+                // Work out centered on origin
+                vec.x = (x * xSpace) - halfWidth;
+                vec.y = (y * ySpace) - halfHeight;
+                vec.z = 0.0f;
+                // Transform by orientation and distance
+                vec = xform * vec;
+                // Assign to geometry
+                *pReal++ = vec.x;
+                *pReal++ = vec.y;
+                *pReal++ = vec.z;
+
+                // Build bounds as we go
+                if (firstTime)
+                {
+                    min = vec;
+                    max = vec;
+                    maxSquaredLength = vec.squaredLength();
+                    firstTime = false;
+                }
+                else
+                {
+                    min.makeFloor(vec);
+                    max.makeCeil(vec);
+                    maxSquaredLength = std::max(maxSquaredLength, vec.squaredLength());
+                }
+
+                if (normals)
+                {
+                    // Default normal is along unit Z
+                    norm = Vector3::UNIT_Z;
+                    // Rotate
+                    norm = rot * norm;
+
+                    *pReal++ = norm.x;
+                    *pReal++ = norm.y;
+                    *pReal++ = norm.z;
+                }
+
+				// Generate texture coords
+				// Normalise position
+				vec.normalise();
+				// Find distance to sphere
+				sphDist = Math::Sqrt(camPos*camPos * (vec.y*vec.y-1.0) + sphereRadius*sphereRadius) - camPos*vec.y;
+
+				vec.x *= sphDist;
+				vec.z *= sphDist;
+
+				// Use x and y on sphere as texture coordinates, tiled
+				Real s = vec.x * (0.01 * uTile);
+				Real t = vec.z * (0.01 * vTile);
+                for (i = 0; i < numTexCoordSets; ++i)
+                {
+                    *pReal++ = s;
+                    *pReal++ = t;
+                }
+
+
+            } // x
+        } // y
+
+		// Unlock
+		vbuf->unlock();
+        // Generate face list
+        pSub->useSharedVertices = true;
+        tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage, indexShadowBuffer);
+
+        //pMesh->_updateBounds();
+        pMesh->_setBounds(AxisAlignedBox(min, max));
+        pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
+        return pMesh;
+	}
 
     //-----------------------------------------------------------------------
     void MeshManager::tesselate2DMesh(SubMesh* sm, int meshWidth, int meshHeight, 

@@ -1092,69 +1092,12 @@ namespace Ogre {
         // Create new
         Real planeSize = distance * 2;
         const int BOX_SEGMENTS = 16;
-        planeMesh = mm.createPlane(meshName, plane, planeSize, planeSize, 
-			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, 1, 1, up, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
-			true, false);
+        planeMesh = mm.createCurvedIllusionPlane(meshName, plane, planeSize, planeSize, curvature, 
+			BOX_SEGMENTS, BOX_SEGMENTS, false, 1, tiling, tiling, up, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			false, false);
 
         //planeMesh->_dumpContents(meshName);
 
-        // Now we've created a basic plane, modify the texture coordinates to appear curved
-        // Imagine a large sphere with the camera located near the top
-        // The lower the curvature, the larger the sphere
-        // Use the angle from viewer to the points on the plane
-        // Credit to Aftershock for the general approach
-        Real *pBase, *pTex;
-        Vector3 vertPos;  // position relative to camera
-        Real sphDist;      // Distance from camera to sphere along box vertex vector
-        // Vector3 camToSph; // camera position to sphere
-        Real sphereRadius;// Sphere radius
-        Real camPos;      // Camera position relative to sphere center
-
-        // Derive sphere radius
-        // Actual values irrelevant, it's the relation between sphere radius and camera position that's important
-        const Real SPHERE_RAD = 100.0;
-        const Real CAM_DIST = 5.0;
-
-        sphereRadius = SPHERE_RAD - curvature;
-        camPos = sphereRadius - CAM_DIST;
-
-		// Get element for texture coords in order to update the buffer
-		const VertexElement* elem = planeMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES,0);
-		HardwareVertexBufferSharedPtr vbuf = planeMesh->sharedVertexData->vertexBufferBinding->getBuffer(elem->getSource());
-		pBase = static_cast<Real*>(
-			vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_NORMAL));
-		const VertexElement* poselem = planeMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-		ushort texOffset, vertSize;
-		texOffset = elem->getOffset() / sizeof(Real);
-		vertSize = vbuf->getVertexSize() / sizeof(Real);
-
-		/* TODO
-        for (int y = 0; y < BOX_SEGMENTS + 1; ++y)
-        {
-            for (int x = 0; x < BOX_SEGMENTS + 1; ++x)
-            {
-                pTex = pBase + (((y * (BOX_SEGMENTS+1)) + x) * vertSize) + texOffset;
-
-                // Get position of box vertex in view space
-                vertPos = Vector3(planeMesh->sharedGeometry.pVertices + (((y * (BOX_SEGMENTS+1)) + x) * 3));
-                // Adjust by -orientation to return to +y up
-                vertPos = orientation.Inverse() * vertPos;
-                // Normalise
-                vertPos.normalise();
-                // Find distance to sphere
-                sphDist = Math::Sqrt(camPos*camPos * (vertPos.y*vertPos.y-1.0) + sphereRadius*sphereRadius) - camPos*vertPos.y;
-
-                vertPos.x *= sphDist;
-                vertPos.z *= sphDist;
-
-                // Use x and y on sphere as texture coordinates, tiled
-                pTex[0] = vertPos.x * (0.01 * tiling);
-                pTex[1] = vertPos.z * (0.01 * tiling);
-
-            }
-        }
-		*/
-		vbuf->unlock();
         return planeMesh;
 
     }

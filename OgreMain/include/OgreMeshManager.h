@@ -137,7 +137,61 @@ namespace Ogre {
 			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
 			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
 
-		/** Creates a curved plane, by default majoring on the x/y axes facing positive Z.
+        
+        /** Creates a plane, which because of it's texture coordinates looks like a curved
+			surface, useful for skies in a skybox. 
+            @param
+                name The name to give the resulting mesh
+            @param
+                plane The orientation of the plane and distance from the origin
+            @param
+                width The width of the plane in world coordinates
+            @param
+                height The height of the plane in world coordinates
+            @param
+				curvature The curvature of the plane. Good values are
+                between 2 and 65. Higher values are more curved leading to
+                a smoother effect, lower values are less curved meaning
+                more distortion at the horizons but a better distance effect.
+			@param
+                xsegments The number of segements to the plane in the x direction
+            @param
+                ysegments The number of segements to the plane in the y direction
+            @param
+                normals If true, normals are created perpendicular to the plane
+            @param
+                numTexCoordSets The number of 2D texture coordinate sets created - by default the corners
+                are created to be the corner of the texture.
+            @param
+                uTile The number of times the texture should be repeated in the u direction
+            @param
+                vTile The number of times the texture should be repeated in the v direction
+            @param
+                upVector The 'Up' direction of the plane.
+			@param
+				vertexBufferUsage The usage flag with which the vertex buffer for this plane will be created
+			@param
+				indexBufferUsage The usage flag with which the index buffer for this plane will be created
+			@param
+				vertexShadowBuffer If this flag is set to true, the vertex buffer will be created 
+				with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+			@param
+				indexShadowBuffer If this flag is set to true, the index buffer will be 
+				created with a system memory shadow buffer,
+				allowing you to read it back more efficiently than if it is in hardware
+        */
+		Mesh* createCurvedIllusionPlane(
+            const String& name, const Plane& plane,
+            Real width, Real height, Real curvature,
+            int xsegments = 1, int ysegments = 1,
+            bool normals = true, int numTexCoordSets = 1,
+            Real uTile = 1.0f, Real vTile = 1.0f, const Vector3& upVector = Vector3::UNIT_Y,
+			HardwareBuffer::Usage vertexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
+			HardwareBuffer::Usage indexBufferUsage = HardwareBuffer::HBU_STATIC_WRITE_ONLY,
+			bool vertexShadowBuffer = false, bool indexShadowBuffer = false);
+
+		/** Creates a genuinely curved plane, by default majoring on the x/y axes facing positive Z.
             @param
                 name The name to give the resulting mesh
             @param
