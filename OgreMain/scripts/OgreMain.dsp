@@ -400,6 +400,10 @@ SOURCE=..\src\OgreSubMesh.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreTexture.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreTextureFont.cpp
 # End Source File
 # Begin Source File
@@ -452,6 +456,10 @@ SOURCE=..\include\OgreAnimation.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreAnimationState.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreAnimationTrack.h
 # End Source File
 # Begin Source File
@@ -493,6 +501,10 @@ SOURCE=..\include\OgreBone.h
 # Begin Source File
 
 SOURCE=..\include\OgreCamera.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreCodec.h
 # End Source File
 # Begin Source File
 
@@ -560,6 +572,10 @@ SOURCE=..\include\OgreException.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreFactoryObj.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreFrameListener.h
 # End Source File
 # Begin Source File
@@ -572,7 +588,15 @@ SOURCE=..\include\OgreImage.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreImageCodec.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreInput.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreJPEGCodec.h
 # End Source File
 # Begin Source File
 
@@ -612,6 +636,14 @@ SOURCE=..\include\OgreMatrix4.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreMemoryMacros.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreMemoryManager.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreMesh.h
 # End Source File
 # Begin Source File
@@ -633,6 +665,10 @@ SOURCE=..\include\OgreMovableObject.h
 # Begin Source File
 
 SOURCE=..\include\OgreNode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreNoMemoryMacros.h
 # End Source File
 # Begin Source File
 
@@ -693,6 +729,10 @@ SOURCE=..\include\OgrePlatform.h
 # Begin Source File
 
 SOURCE=..\include\OgrePlatformManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgrePNGCodec.h
 # End Source File
 # Begin Source File
 
@@ -832,11 +872,19 @@ SOURCE=..\include\OgreTextureManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreTGACodec.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreUnzip.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreVector3.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreVertexBoneAssignment.h
 # End Source File
 # Begin Source File
 
@@ -849,6 +897,10 @@ SOURCE=..\include\OgreZip.h
 # Begin Source File
 
 SOURCE=..\include\OgreZipArchiveFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\unzip.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

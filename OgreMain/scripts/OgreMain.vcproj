@@ -96,7 +96,7 @@ makeall_vc7.bat
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="0"/>
+				DebugInformationFormat="3"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -501,6 +501,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreImage.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreImageCodec.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreInput.h">
 			</File>
 			<File
@@ -534,6 +537,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreMatrix4.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreMemoryMacros.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreMemoryManager.h">
 			</File>
 			<File
@@ -550,6 +556,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreMovableObject.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreNoMemoryMacros.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreNode.h">
