@@ -485,6 +485,7 @@ namespace Ogre {
         int newHandle = newMat->getHandle();
         // Assign values from this
         *newMat = *this;
+		newMat->mIsLoaded = this->mIsLoaded;
         // Correct the name & handle, they get copied too
         newMat->mName = newName;
         newMat->mHandle = newHandle;
