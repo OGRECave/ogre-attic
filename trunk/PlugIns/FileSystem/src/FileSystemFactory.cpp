@@ -8,7 +8,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String FileSystemFactory::getArchiveType(void)
+    String FileSystemFactory::getArchiveType(void) const
     {
         return "FileSystem";
     }
@@ -19,7 +19,7 @@ namespace Ogre {
         return new FileSystem(name);
     }
 
-    String FileSystemFactory::getType()
+    String FileSystemFactory::getType() const
     {
         return "FileSystem";
     }

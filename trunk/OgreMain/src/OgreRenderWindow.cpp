@@ -38,7 +38,8 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void RenderWindow::getMetrics(int &width, int &height, int &colourDepth, int &left, int &top)
+    void RenderWindow::getMetrics(unsigned int& width, unsigned int& height, unsigned int& colourDepth,
+		int& left, int& top)
     {
         width = mWidth;
         height = mHeight;

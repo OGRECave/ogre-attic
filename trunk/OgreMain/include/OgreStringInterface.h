@@ -67,7 +67,7 @@ namespace Ogre {
     class _OgreExport ParamCommand
     {
     public:
-        virtual String doGet(void* target) = 0;
+        virtual String doGet(const void* target) const = 0;
         virtual void doSet(void* target, const String& val) = 0;
     };
     typedef std::map<String, ParamCommand* > ParamCommandMap;
@@ -96,6 +96,19 @@ namespace Ogre {
                 return 0;
             }
         }
+
+		const ParamCommand* getParamCommand(const String& name) const
+        {
+            ParamCommandMap::const_iterator i = mParamCommands.find(name);
+            if (i != mParamCommands.end())
+            {
+                return i->second;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     public:
         ParamDictionary()  {}
         /** Method for adding a parameter definition for this class. 
@@ -114,7 +127,7 @@ namespace Ogre {
             A reference to a static list of ParameterDef objects.
 
         */
-        const ParameterList& getParameters(void)
+        const ParameterList& getParameters(void) const
         {
             return mParamDefs;
         }
@@ -190,16 +203,29 @@ namespace Ogre {
             }
         }
 
+		const ParamDictionary* getParamDictionary(void) const
+        {
+            ParamDictionaryMap::const_iterator i = msDictionary.find(mParamDictName);
+            if (i != msDictionary.end())
+            {
+                return &(i->second);
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         /** Retrieves a list of parameters valid for this object. 
         @returns
             A reference to a static list of ParameterDef objects.
 
         */
-        const ParameterList& getParameters(void)
+        const ParameterList& getParameters(void) const
         {
             static ParameterList emptyList;
 
-            ParamDictionary* dict = getParamDictionary();
+            const ParamDictionary* dict = getParamDictionary();
             if (dict)
                 return dict->getParameters();
             else
@@ -233,15 +259,15 @@ namespace Ogre {
         @returns
             String value of parameter, blank if not found
         */
-        virtual String getParameter(const String& name)
+        virtual String getParameter(const String& name) const
         {
             // Get dictionary
-            ParamDictionary* dict = getParamDictionary();
+            const ParamDictionary* dict = getParamDictionary();
 
             if (dict)
             {
                 // Look up command object
-                ParamCommand* cmd = dict->getParamCommand(name);
+                const ParamCommand* cmd = dict->getParamCommand(name);
 
                 if (cmd)
                 {
@@ -264,15 +290,15 @@ namespace Ogre {
         @param dest Pointer to object to have it's parameters set the same as this object.
 
         */
-        virtual void copyParametersTo(StringInterface* dest)
+        virtual void copyParametersTo(StringInterface* dest) const
         {
             // Get dictionary
-            ParamDictionary* dict = getParamDictionary();
+            const ParamDictionary* dict = getParamDictionary();
 
             if (dict)
             {
                 // Iterate through own parameters
-                ParameterList::iterator i;
+                ParameterList::const_iterator i;
             
                 for (i = dict->mParamDefs.begin(); 
                 i != dict->mParamDefs.end(); ++i)

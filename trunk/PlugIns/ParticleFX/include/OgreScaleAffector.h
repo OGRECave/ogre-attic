@@ -45,7 +45,7 @@ namespace Ogre {
         class CmdScaleAdjust : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -64,7 +64,7 @@ namespace Ogre {
         void setAdjust( Real rate );
 
         /** Gets the scale adjustment to be made per second to particles. */
-        Real getAdjust(void);
+        Real getAdjust(void) const;
 
         static CmdScaleAdjust msScaleCmd;
 

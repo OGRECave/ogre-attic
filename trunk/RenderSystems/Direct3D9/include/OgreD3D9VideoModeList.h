@@ -43,8 +43,8 @@ namespace Ogre
 
 		BOOL enumerate();
 
-		D3D9VideoMode* item( int index );
-		unsigned int count();
+		D3D9VideoMode* item( size_t index );
+		size_t count();
 
 		D3D9VideoMode* item( const String &name );
 	};

@@ -279,34 +279,34 @@ namespace Ogre {
 		updateMaterials();
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::getButtonCaption()
+    String ButtonGuiElement::getButtonCaption() const
 	{
 		return (mInsideObject)?mInsideObject->getCaption():String("");
 	}
 
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getDownMaterialName(void)
+    const String& ButtonGuiElement::getDownMaterialName(void) const
     {
         return mDownMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getUpMaterialName(void)
+    const String& ButtonGuiElement::getUpMaterialName(void) const
     {
         return mUpMaterialName;
     }
 
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getHiliteDownMaterialName(void)
+    const String& ButtonGuiElement::getHiliteDownMaterialName(void) const
     {
         return mHiliteDownMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getHiliteUpMaterialName(void)
+    const String& ButtonGuiElement::getHiliteUpMaterialName(void) const
     {
         return mHiliteUpMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& ButtonGuiElement::getDisabledMaterialName(void)
+    const String& ButtonGuiElement::getDisabledMaterialName(void) const
     {
         return mDisabledMaterialName;
     }
@@ -327,10 +327,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdButtonDownMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonDownMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getDownMaterialName();
+        return static_cast<const ButtonGuiElement*>(target)->getDownMaterialName();
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonDownMaterial::doSet(void* target, const String& val)
@@ -340,10 +340,10 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setDownMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdButtonUpMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonUpMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getUpMaterialName();
+        return static_cast<const ButtonGuiElement*>(target)->getUpMaterialName();
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonUpMaterial::doSet(void* target, const String& val)
@@ -353,10 +353,10 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setUpMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdButtonHiliteDownMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonHiliteDownMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getHiliteDownMaterialName();
+        return static_cast<const ButtonGuiElement*>(target)->getHiliteDownMaterialName();
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonHiliteDownMaterial::doSet(void* target, const String& val)
@@ -366,10 +366,10 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setHiliteDownMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdButtonHiliteUpMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonHiliteUpMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getHiliteUpMaterialName();
+        return static_cast<const ButtonGuiElement*>(target)->getHiliteUpMaterialName();
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonHiliteUpMaterial::doSet(void* target, const String& val)
@@ -379,10 +379,10 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setHiliteUpMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdButtonDisabledMaterial::doGet(void* target)
+    String ButtonGuiElement::CmdButtonDisabledMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getDisabledMaterialName();
+        return static_cast<const ButtonGuiElement*>(target)->getDisabledMaterialName();
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonDisabledMaterial::doSet(void* target, const String& val)
@@ -392,9 +392,9 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setDisabledMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdCaptionColour::doGet(void* target)
+    String ButtonGuiElement::CmdCaptionColour::doGet(const void* target) const
     {
-        return StringConverter::toString(static_cast<ButtonGuiElement*>(target)->getCaptionColour());
+        return StringConverter::toString(static_cast<const ButtonGuiElement*>(target)->getCaptionColour());
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdCaptionColour::doSet(void* target, const String& val)
@@ -402,9 +402,9 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setCaptionColour(StringConverter::parseColourValue(val));
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdCaptionDisabledColour::doGet(void* target)
+    String ButtonGuiElement::CmdCaptionDisabledColour::doGet(const void* target) const
     {
-        return StringConverter::toString(static_cast<ButtonGuiElement*>(target)->getCaptionDisabledColour());
+        return StringConverter::toString(static_cast<const ButtonGuiElement*>(target)->getCaptionDisabledColour());
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdCaptionDisabledColour::doSet(void* target, const String& val)
@@ -412,10 +412,10 @@ namespace Ogre {
         static_cast<ButtonGuiElement*>(target)->setCaptionDisabledColour(StringConverter::parseColourValue(val));
     }
     //-----------------------------------------------------------------------
-    String ButtonGuiElement::CmdButtonCaption::doGet(void* target)
+    String ButtonGuiElement::CmdButtonCaption::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<ButtonGuiElement*>(target)->getButtonCaption();
+        return static_cast<const ButtonGuiElement*>(target)->getButtonCaption();
     }
     //-----------------------------------------------------------------------
     void ButtonGuiElement::CmdButtonCaption::doSet(void* target, const String& val)

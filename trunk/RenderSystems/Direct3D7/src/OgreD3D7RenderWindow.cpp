@@ -171,7 +171,7 @@ namespace Ogre {
 
 
 
-    void D3D7RenderWindow::create(const String& name, int width, int height, int colourDepth,
+    void D3D7RenderWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...)
     {
 
@@ -301,12 +301,12 @@ namespace Ogre {
 
     }
 
-    bool D3D7RenderWindow::isActive(void)
+    bool D3D7RenderWindow::isActive(void) const
     {
         return mActive;
     }
 
-    bool D3D7RenderWindow::isClosed(void)
+    bool D3D7RenderWindow::isClosed(void) const
     {
         return mClosed;
     }
@@ -316,7 +316,7 @@ namespace Ogre {
 
     }
 
-    void D3D7RenderWindow::resize(int width, int height)
+    void D3D7RenderWindow::resize(unsigned int width, unsigned int height)
     {
         mWidth = width;
         mHeight = height;
@@ -438,7 +438,7 @@ namespace Ogre {
             // Windowed mode - need to use client rect for surface dimensions
             // I.e. we need to ignore menu bars, borders, title bar etc
             RECT rcClient;
-            int cWidth, cHeight;
+            unsigned int cWidth, cHeight;
 
             GetClientRect( mHWnd, &rcClient );
             ClientToScreen( mHWnd, (POINT*)&rcClient.left );
@@ -702,23 +702,13 @@ namespace Ogre {
 				 if (desc.ddpfPixelFormat.dwRGBBitCount == 16)
 				 {
                      WORD val;
-					 BYTE result;
-                     ushort srcMask;
-                     BYTE destMask;
  
-                     destMask = 0xFF;
                      val = *((WORD*)pRow);
 					 pRow += 2;
 
-					 srcMask = 0xF800;
-                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
-					 *pDest++ = result;
-                     srcMask = 0x07E0;
-                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
-					 *pDest++ = result;
-                     srcMask = 0x1F;
-                     Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
-					 *pDest++ = result;
+					 *pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0xF800, 0xFF);
+					 *pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0x07E0, 0xFF);
+					 *pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0x001F, 0xFF);
 				 }
 				 else
 				 {

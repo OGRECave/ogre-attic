@@ -81,9 +81,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    String ScrollBarGuiElement::CmdUpButton::doGet(void* target)
+    String ScrollBarGuiElement::CmdUpButton::doGet(const void* target) const
     {
-        return static_cast<ScrollBarGuiElement*>(target)->getUpButtonName();
+        return static_cast<const ScrollBarGuiElement*>(target)->getUpButtonName();
     }
     void ScrollBarGuiElement::CmdUpButton::doSet(void* target, const String& val)
     {
@@ -92,9 +92,9 @@ namespace Ogre {
         static_cast<ScrollBarGuiElement*>(target)->setUpButtonName(val);
     }
     //-----------------------------------------------------------------------
-    String ScrollBarGuiElement::CmdDownButton::doGet(void* target)
+    String ScrollBarGuiElement::CmdDownButton::doGet(const void* target) const
     {
-        return static_cast<ScrollBarGuiElement*>(target)->getDownButtonName();
+        return static_cast<const ScrollBarGuiElement*>(target)->getDownButtonName();
     }
     void ScrollBarGuiElement::CmdDownButton::doSet(void* target, const String& val)
     {
@@ -103,9 +103,9 @@ namespace Ogre {
         static_cast<ScrollBarGuiElement*>(target)->setDownButtonName(val);
     }
     //-----------------------------------------------------------------------
-    String ScrollBarGuiElement::CmdScrollBit::doGet(void* target)
+    String ScrollBarGuiElement::CmdScrollBit::doGet(const void* target) const
     {
-        return static_cast<ScrollBarGuiElement*>(target)->getScrollBitName();
+        return static_cast<const ScrollBarGuiElement*>(target)->getScrollBitName();
     }
     void ScrollBarGuiElement::CmdScrollBit::doSet(void* target, const String& val)
     {
@@ -115,15 +115,15 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
 
-	String ScrollBarGuiElement::getUpButtonName()
+	String ScrollBarGuiElement::getUpButtonName() const
 	{
 		return mUpButtonName;
 	}
-	String ScrollBarGuiElement::getDownButtonName()
+	String ScrollBarGuiElement::getDownButtonName() const
 	{
 		return mDownButtonName;
 	}
-	String ScrollBarGuiElement::getScrollBitName()
+	String ScrollBarGuiElement::getScrollBitName() const
 	{
 		return mScrollBitName;
 	}

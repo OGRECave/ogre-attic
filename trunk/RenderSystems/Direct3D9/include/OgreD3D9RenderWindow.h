@@ -37,17 +37,17 @@ namespace Ogre
 		D3D9RenderWindow();
 		~D3D9RenderWindow();
 
-		void create( const String& name, int width, int height, int colourDepth,
+		void create( const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
 			bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ... );
 
 		void destroy(void);
-		bool isActive() { return mActive; }
-		bool isClosed() { return mClosed; }
+		bool isActive() const { return mActive; }
+		bool isClosed() const { return mClosed; }
 		void reposition( int left, int top ) {}
-		void resize( int width, int height );
+		void resize( unsigned int width, unsigned int height );
 		void swapBuffers( bool waitForVSync = true );
-		HWND getWindowHandle() { return mHWnd; }
-		HWND getParentWindowHandle() { return mParentHWnd; }
+		HWND getWindowHandle() const { return mHWnd; }
+		HWND getParentWindowHandle() const { return mParentHWnd; }
 
 		D3D9Driver* getDirectD3DDriver() { return mpD3DDriver; }
 		LPDIRECT3DDEVICE9 getD3DDevice() { return mpD3DDevice; }
@@ -64,7 +64,7 @@ namespace Ogre
 		// Method for passing a external window handle before creation ;)
 		void SetExternalWindowHandle(HWND externalHandle) {mExternalHandle = externalHandle;};
 
-		bool isReady() { return mReady; }
+		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
 		void setActive(bool set) { mActive = set; }
 

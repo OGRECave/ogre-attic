@@ -69,7 +69,7 @@ namespace Ogre
                     LPD3DDEVICEDESC7 lpD3DDeviceDesc);
         ~D3DDevice();
         void Cleanup(void);
-        void logCaps(void);
+        void logCaps(void) const;
 
         /** Creates a new per-rendering surface device */
         LPDIRECT3DDEVICE7 createDevice(LPDIRECTDRAWSURFACE7 renderTarget);
@@ -79,10 +79,10 @@ namespace Ogre
         D3DDevice operator=(const D3DDevice &orig);
 
         // Information accessors
-        String DeviceName(void);
-        String DeviceDescription(void);
-        bool HardwareAccelerated(void);
-        bool NeedsZBuffer(void);
+        String DeviceName(void) const;
+        String DeviceDescription(void) const;
+        bool HardwareAccelerated(void) const;
+        bool NeedsZBuffer(void) const;
 
         void createDepthBuffer(LPDIRECTDRAWSURFACE7 renderTarget);
 
@@ -102,14 +102,14 @@ namespace Ogre
 
 
         // Capability access
-        bool CanMipMap(void);
-        bool CanBilinearFilter(void);
-        bool CanTrilinearFilter(void);
-        int RenderBitDepth(void);
-        int ZBufferBitDepth(void);
-        bool CanHWTransformAndLight(void);
-        int MaxSinglePassTextureLayers(void);
-        ushort StencilBufferBitDepth(void);
+        bool CanMipMap(void) const;
+        bool CanBilinearFilter(void) const;
+        bool CanTrilinearFilter(void) const;
+        unsigned int RenderBitDepth(void) const;
+        unsigned int ZBufferBitDepth(void) const;
+        bool CanHWTransformAndLight(void) const;
+        unsigned int MaxSinglePassTextureLayers(void) const;
+        ushort StencilBufferBitDepth(void) const;
 
 
 

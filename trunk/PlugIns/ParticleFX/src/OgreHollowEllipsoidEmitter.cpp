@@ -138,17 +138,17 @@ namespace Ogre {
         mInnerSize.z = z;
     }
     //-----------------------------------------------------------------------
-    Real HollowEllipsoidEmitter::getInnerSizeX(void)
+    Real HollowEllipsoidEmitter::getInnerSizeX(void) const
     {
         return mInnerSize.x;
     }
     //-----------------------------------------------------------------------
-    Real HollowEllipsoidEmitter::getInnerSizeY(void)
+    Real HollowEllipsoidEmitter::getInnerSizeY(void) const
     {
         return mInnerSize.y;
     }
     //-----------------------------------------------------------------------
-    Real HollowEllipsoidEmitter::getInnerSizeZ(void)
+    Real HollowEllipsoidEmitter::getInnerSizeZ(void) const
     {
         return mInnerSize.z;
     }
@@ -157,30 +157,30 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String HollowEllipsoidEmitter::CmdInnerX::doGet(void* target)
+    String HollowEllipsoidEmitter::CmdInnerX::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<HollowEllipsoidEmitter*>(target)->getInnerSizeX() );
+            static_cast<const HollowEllipsoidEmitter*>(target)->getInnerSizeX() );
     }
     void HollowEllipsoidEmitter::CmdInnerX::doSet(void* target, const String& val)
     {
         static_cast<HollowEllipsoidEmitter*>(target)->setInnerSizeX(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String HollowEllipsoidEmitter::CmdInnerY::doGet(void* target)
+    String HollowEllipsoidEmitter::CmdInnerY::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<HollowEllipsoidEmitter*>(target)->getInnerSizeY() );
+            static_cast<const HollowEllipsoidEmitter*>(target)->getInnerSizeY() );
     }
     void HollowEllipsoidEmitter::CmdInnerY::doSet(void* target, const String& val)
     {
         static_cast<HollowEllipsoidEmitter*>(target)->setInnerSizeY(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String HollowEllipsoidEmitter::CmdInnerZ::doGet(void* target)
+    String HollowEllipsoidEmitter::CmdInnerZ::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<HollowEllipsoidEmitter*>(target)->getInnerSizeZ() );
+            static_cast<const HollowEllipsoidEmitter*>(target)->getInnerSizeZ() );
     }
     void HollowEllipsoidEmitter::CmdInnerZ::doSet(void* target, const String& val)
     {

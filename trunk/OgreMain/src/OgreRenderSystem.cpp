@@ -372,7 +372,8 @@ namespace Ogre {
         pBlendIdx = vertexData->softwareBlendInfo->pBlendIndexes;
         pBlendWeight = vertexData->softwareBlendInfo->pBlendWeights;
         // Make sure we have the source pointers we need
-        assert(pSrcPos && pBlendIdx && pBlendWeight && (pSrcNorm || !elemNorm)); 
+        assert(pSrcPos && pBlendIdx && pBlendWeight && (pSrcNorm || !elemNorm));
+		Vector3 tempVec;
         for (size_t vertIdx = 0; vertIdx < vertexData->vertexCount; ++vertIdx)
         {
             // Load source vertex elements
@@ -400,8 +401,9 @@ namespace Ogre {
                 if (*pBlendWeight != 0.0) 
                 {
                     // Blend position
-                    accumVecPos += (pMatrices[*pBlendIdx] * sourceVec) 
-                        * (*pBlendWeight);
+					tempVec = pMatrices[*pBlendIdx] * sourceVec;
+					tempVec *= *pBlendWeight;
+                    accumVecPos += tempVec;
                     if (elemNorm)
                     {
                         // Blend normal
@@ -410,7 +412,9 @@ namespace Ogre {
                         // is equal to the main 3x3 matrix
                         // Note because it's a normal we just extract the rotational part, saves us renormalising here
                         pMatrices[*pBlendIdx].extract3x3Matrix(rot3x3);
-                        accumVecNorm += (rot3x3 * sourceNorm) * (*pBlendWeight)  ;
+						tempVec = rot3x3 * sourceNorm;
+						tempVec *= *pBlendWeight;
+                        accumVecNorm += tempVec;
                     }
 
                 }
@@ -456,8 +460,7 @@ namespace Ogre {
         if (!mCapabilities->hasCapability(RSC_VERTEXBLENDING))
         {
             // Save these matrices for software blending later
-            int i;
-            for (i = 0; i < count; ++i)
+            for (unsigned short i = 0; i < count; ++i)
             {
                 mWorldMatrices[i] = m[i];
             }

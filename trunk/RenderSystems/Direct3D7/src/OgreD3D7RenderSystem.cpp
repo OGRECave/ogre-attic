@@ -367,7 +367,7 @@ namespace Ogre {
 
             // Get video mode
             DDVideoMode* vid;
-            int height, width, colourDepth;
+            unsigned int height, width, colourDepth;
 
             vid = 0;
             String temp;
@@ -510,7 +510,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    RenderWindow* D3DRenderSystem::createRenderWindow(const String &name, int width, int height, int colourDepth,
+    RenderWindow* D3DRenderSystem::createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
         bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
     {
         static bool firstWindow = true;
@@ -551,7 +551,7 @@ namespace Ogre {
             lpTarget->Release(); // decrement ref count
             DDPIXELFORMAT pf;
             lpTarget->GetPixelFormat(&pf);
-            ushort stencil =  pf.dwStencilBitDepth;
+            DWORD stencil =  pf.dwStencilBitDepth;
             if(stencil > 0)
             {
                 mCapabilities->setCapability(RSC_HWSTENCIL);
@@ -569,7 +569,7 @@ namespace Ogre {
         OgreUnguardRet( win );
     }
 
-    RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, int width, int height )
+    RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height )
     {
         RenderTexture * rt = new D3D7RenderTexture( name, width, height );
         attachRenderTarget( *rt );
@@ -598,7 +598,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::setD3DLight(int index, Light* lt)
+    void D3DRenderSystem::setD3DLight(size_t index, Light* lt)
     {
         // Add to D3D
         HRESULT hr;
@@ -725,8 +725,8 @@ namespace Ogre {
         // D3D uses row vectors i.e. V*M
         // Ogre, OpenGL and everything else uses coloumn vectors i.e. M*V
         Matrix4 mat;
-        for (int row = 0; row < 4; ++row)
-            for (int col = 0; col < 4; ++col)
+        for (unsigned row = 0; row < 4; ++row)
+            for (unsigned col = 0; col < 4; ++col)
                 mat[col][row] = d3dmat.m[row][col];
 
         return mat;
@@ -1363,7 +1363,7 @@ namespace Ogre {
         RenderSystem::_render(op);
         // Set up vertex flags
         DWORD d3dVertexFormat = 0;
-        int numTexCoords = 0;
+        unsigned int numTexCoords = 0;
 
         // Assume no more than 10 buffers!
         static unsigned char* pBufPtrs[10];
@@ -1678,7 +1678,7 @@ namespace Ogre {
     String D3DRenderSystem::getErrorDescription(long errCode)
     {
         char* errDesc;
-        int i;
+        DWORD i;
 
         errDesc = new char[255];
         // Try windows errors first
@@ -2362,7 +2362,7 @@ namespace Ogre {
         __SetTextureStageState(unit, _getFilterCode(ftype), _getFilter(ftype, filter));
     }
 
-    void D3DRenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
+    void D3DRenderSystem::_setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy)
     {
         if ((DWORD)maxAnisotropy > mD3DDeviceDesc.dwMaxAnisotropy)
             maxAnisotropy = mD3DDeviceDesc.dwMaxAnisotropy;

@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
-	static int driverCount = 0;
+	static unsigned int driverCount = 0;
 
 	class D3D9VideoModeList;
 	class D3D9VideoMode;
@@ -49,7 +49,7 @@ namespace Ogre
 		D3DADAPTER_IDENTIFIER9 mAdapterIdentifier;
 		D3DDISPLAYMODE mDesktopDisplayMode;
 		D3D9VideoModeList* mpVideoModeList;
-		int tempNo;
+		unsigned int tempNo;
 
 	public:
 		// Constructors
@@ -59,8 +59,8 @@ namespace Ogre
 		~D3D9Driver();
 
 		// Information accessors
-		String DriverName();
-		String DriverDescription();
+		String DriverName() const;
+		String DriverDescription() const;
 
 		LPDIRECT3D9 getD3D() { return mpD3D; }
 		unsigned int getAdapterNumber() const { return mAdapterNumber; }

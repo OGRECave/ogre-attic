@@ -120,7 +120,7 @@ namespace Ogre {
 		}
 	}
     //-----------------------------------------------------------------------
-    String ColourImageAffector::getImageAdjust(void)
+    String ColourImageAffector::getImageAdjust(void) const
     {
         return mColourImageName;
     }
@@ -132,9 +132,9 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String ColourImageAffector::CmdImageAdjust::doGet(void* target)
+    String ColourImageAffector::CmdImageAdjust::doGet(const void* target) const
     {
-        return static_cast<ColourImageAffector*>(target)->getImageAdjust();
+        return static_cast<const ColourImageAffector*>(target)->getImageAdjust();
     }
     void ColourImageAffector::CmdImageAdjust::doSet(void* target, const String& val)
     {

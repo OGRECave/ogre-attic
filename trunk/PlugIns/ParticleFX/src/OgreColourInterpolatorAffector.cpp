@@ -107,24 +107,24 @@ namespace Ogre {
     }
     
 	//-----------------------------------------------------------------------
-    void ColourInterpolatorAffector::setColourAdjust(int index, ColourValue colour)
+    void ColourInterpolatorAffector::setColourAdjust(size_t index, ColourValue colour)
     {
         mColourAdj[index] = colour;
     }
     //-----------------------------------------------------------------------
-    ColourValue ColourInterpolatorAffector::getColourAdjust(int index)
+    ColourValue ColourInterpolatorAffector::getColourAdjust(size_t index) const
     {
         return mColourAdj[index];
     }
 
 
     //-----------------------------------------------------------------------
-    void ColourInterpolatorAffector::setTimeAdjust(int index, Real time)
+    void ColourInterpolatorAffector::setTimeAdjust(size_t index, Real time)
     {
         mTimeAdj[index] = time;
     }
     //-----------------------------------------------------------------------
-    Real ColourInterpolatorAffector::getTimeAdjust(int index)
+    Real ColourInterpolatorAffector::getTimeAdjust(size_t index) const
     {
         return mTimeAdj[index];
     }
@@ -136,10 +136,10 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String ColourInterpolatorAffector::CmdColourAdjust::doGet(void* target)
+    String ColourInterpolatorAffector::CmdColourAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ColourInterpolatorAffector*>(target)->getColourAdjust(mIndex) );
+            static_cast<const ColourInterpolatorAffector*>(target)->getColourAdjust(mIndex) );
     }
     void ColourInterpolatorAffector::CmdColourAdjust::doSet(void* target, const String& val)
     {
@@ -147,10 +147,10 @@ namespace Ogre {
             StringConverter::parseColourValue(val));
     }
 	//-----------------------------------------------------------------------
-    String ColourInterpolatorAffector::CmdTimeAdjust::doGet(void* target)
+    String ColourInterpolatorAffector::CmdTimeAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ColourInterpolatorAffector*>(target)->getTimeAdjust(mIndex) );
+            static_cast<const ColourInterpolatorAffector*>(target)->getTimeAdjust(mIndex) );
     }
     void ColourInterpolatorAffector::CmdTimeAdjust::doSet(void* target, const String& val)
     {

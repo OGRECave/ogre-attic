@@ -14,11 +14,7 @@ class GLSupport
 {
 public:
     GLSupport() { }
-    virtual ~GLSupport() 
-    { 
-        // XXX Is this really necessary?
-        extensionList.clear();
-    }
+    virtual ~GLSupport() { }
 
     /**
     * Add any special config values to the system.
@@ -43,7 +39,7 @@ public:
 	/**
     * Create a specific instance of a render window
     */
-    virtual RenderWindow* newWindow(const String& name, int width, int height, int colourDepth,
+    virtual RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
 			bool vsync) = 0;
 
@@ -71,7 +67,7 @@ public:
     /**
     * get vendor information
     */
-    const String& getGLVendor(void)
+    const String& getGLVendor(void) const
     {
         return mVendor;
     }
@@ -79,7 +75,7 @@ public:
     /**
     * get version information
     */
-    const String& getGLVersion(void)
+    const String& getGLVersion(void) const
     {
         return mVersion;
     }
@@ -87,12 +83,12 @@ public:
     /**
     * compare GL version numbers
     */
-    bool checkMinGLVersion(const String& v);
+    bool checkMinGLVersion(const String& v) const;
 
     /**
     * Check if an extension is available
     */
-    virtual bool checkExtension(const String& ext);
+    virtual bool checkExtension(const String& ext) const;
     /**
     * Get the address of a function
     */

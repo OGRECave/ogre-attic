@@ -381,7 +381,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Plane& Camera::getFrustumPlane(FrustumPlane plane)
+    const Plane& Camera::getFrustumPlane(FrustumPlane plane) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
@@ -391,7 +391,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Camera::isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy)
+    bool Camera::isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy) const
     {
         // Null boxes always invisible
         if (bound.isNull()) return false;
@@ -405,7 +405,7 @@ namespace Ogre {
 
         // For each plane, see if all points are on the negative side
         // If so, object is not visible
-        for (int plane = 0; plane < 6; ++plane)
+        for (size_t plane = 0; plane < 6; ++plane)
         {
             if (mFrustumPlanes[plane].getSide(pCorners[0]) == Plane::NEGATIVE_SIDE &&
                 mFrustumPlanes[plane].getSide(pCorners[1]) == Plane::NEGATIVE_SIDE &&
@@ -428,14 +428,14 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Camera::isVisible(const Vector3& vert, FrustumPlane* culledBy)
+    bool Camera::isVisible(const Vector3& vert, FrustumPlane* culledBy) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
 
         // For each plane, see if all points are on the negative side
         // If so, object is not visible
-        for (int plane = 0; plane < 6; ++plane)
+        for (size_t plane = 0; plane < 6; ++plane)
         {
             if (mFrustumPlanes[plane].getSide(vert) == Plane::NEGATIVE_SIDE)
             {
@@ -451,14 +451,14 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Camera::isVisible(const Sphere& sphere, FrustumPlane* culledBy)
+    bool Camera::isVisible(const Sphere& sphere, FrustumPlane* culledBy) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
 
         // For each plane, see if sphere is on negative side
         // If so, object is not visible
-        for (int plane = 0; plane < 6; ++plane)
+        for (size_t plane = 0; plane < 6; ++plane)
         {
             // If the distance from sphere center to plane is negative, and 'more negative' 
             // than the radius of the sphere, sphere is outside frustum

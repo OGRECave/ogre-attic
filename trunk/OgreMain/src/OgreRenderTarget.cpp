@@ -71,22 +71,22 @@ namespace Ogre {
     }
 
 
-    void RenderTarget::getMetrics(int &width, int &height, int &colourDepth)
+    void RenderTarget::getMetrics(unsigned int& width, unsigned int& height, unsigned int& colourDepth)
     {
         width = mWidth;
         height = mHeight;
         colourDepth = mColourDepth;
     }
 
-    int RenderTarget::getWidth(void) const
+    unsigned int RenderTarget::getWidth(void) const
     {
         return mWidth;
     }
-    int RenderTarget::getHeight(void) const
+    unsigned int RenderTarget::getHeight(void) const
     {
         return mHeight;
     }
-    int RenderTarget::getColourDepth(void) const
+    unsigned int RenderTarget::getColourDepth(void) const
     {
         return mColourDepth;
     }

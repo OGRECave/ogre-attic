@@ -243,7 +243,7 @@ namespace Ogre
                 stand-alone. Otherwise, specify a pointer to a RenderWindow
                 which represents the parent window.
         */
-        virtual RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
+        virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0) = 0;
 
@@ -263,7 +263,7 @@ namespace Ogre
 				size for the texture. Depending on the hardware driver or the underlying
 				API, these values might change when the texture is created.
 		*/
-        virtual RenderTexture * createRenderTexture( const String & name, int width, int height ) = 0;
+        virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height ) = 0;
 
         /** Attaches the passed render target to the render system.
         */
@@ -425,7 +425,7 @@ namespace Ogre
         virtual void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter) = 0;
 
 		/** Sets the maximal anisotropy for the specified texture unit.*/
-		virtual void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy) = 0;
+		virtual void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy) = 0;
 
 		/** Sets the texture addressing mode for a texture unit.*/
         virtual void _setTextureAddressingMode(size_t unit, TextureUnitState::TextureAddressingMode tam) = 0;

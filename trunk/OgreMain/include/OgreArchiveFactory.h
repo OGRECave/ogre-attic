@@ -51,7 +51,7 @@ namespace Ogre {
     {
     public:
         virtual ArchiveEx *createObj(const String& name ) = 0;
-        virtual String getType() = 0;
+        virtual String getType() const = 0;
     };
 
 } // namespace

@@ -44,8 +44,8 @@ public:
     String validateConfig();
     RenderWindow* createWindow(bool autoCreateWindow, 
                                GLRenderSystem* renderSystem);
-    RenderWindow* newWindow(const String& name, int width, int height, 
-                            int colourDepth, bool fullScreen, int left, int top,
+    RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, 
+                            unsigned int colourDepth, bool fullScreen, int left, int top,
                             bool depthBuffer, RenderWindow* parentWindowHandle,
                             bool vsync);
     void start();
@@ -53,8 +53,8 @@ public:
     void begin_context();
     void end_context();
     void initialiseExtensions(void);
-    bool checkMinGLVersion(const String& v);
-    bool checkExtension(const String& ext);
+    bool checkMinGLVersion(const String& v) const;
+    bool checkExtension(const String& ext) const;
     void* getProcAddress(const String& procname);
 private:
     Gtk::Main _kit;

@@ -98,14 +98,14 @@ namespace Ogre {
         class CmdOffsetX : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying the cursor's Y offset (see ParamCommand).*/
         class CmdOffsetY : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 

@@ -48,7 +48,7 @@ namespace Ogre {
     {
     private:
         typename T::iterator mCurrent;
-        typename T::iterator mEnd;
+        typename T::const_iterator mEnd;
         /// Private constructor since only the parameterised constructor should be used
         VectorIterator() {};
     public:
@@ -56,13 +56,13 @@ namespace Ogre {
         @remarks
             Provide a start and end iterator to initialise.
         */
-        VectorIterator(typename T::iterator start, typename T::iterator end)
+        VectorIterator(typename T::iterator start, typename T::const_iterator end)
             : mCurrent(start), mEnd(end)
         {
         }
 
         /** Returns true if there are more items in the collection. */
-        bool hasMoreElements(void)
+        bool hasMoreElements(void) const
         {
             return mCurrent != mEnd;
         }
@@ -111,7 +111,7 @@ namespace Ogre {
     {
     private:
         typename T::iterator mCurrent;
-        typename T::iterator mEnd;
+        typename T::const_iterator mEnd;
         /// Private constructor since only the parameterised constructor should be used
         MapIterator() {};
     public:
@@ -119,13 +119,13 @@ namespace Ogre {
         @remarks
             Provide a start and end iterator to initialise.
         */
-        MapIterator(typename T::iterator start, typename T::iterator end)
+        MapIterator(typename T::iterator start, typename T::const_iterator end)
             : mCurrent(start), mEnd(end)
         {
         }
 
         /** Returns true if there are more items in the collection. */
-        bool hasMoreElements(void)
+        bool hasMoreElements(void) const
         {
             return mCurrent != mEnd;
         }

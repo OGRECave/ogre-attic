@@ -146,30 +146,30 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String AreaEmitter::CmdWidth::doGet(void* target)
+    String AreaEmitter::CmdWidth::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<AreaEmitter*>(target)->getWidth() );
+            static_cast<const AreaEmitter*>(target)->getWidth() );
     }
     void AreaEmitter::CmdWidth::doSet(void* target, const String& val)
     {
         static_cast<AreaEmitter*>(target)->setWidth(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String AreaEmitter::CmdHeight::doGet(void* target)
+    String AreaEmitter::CmdHeight::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<AreaEmitter*>(target)->getHeight() );
+            static_cast<const AreaEmitter*>(target)->getHeight() );
     }
     void AreaEmitter::CmdHeight::doSet(void* target, const String& val)
     {
         static_cast<AreaEmitter*>(target)->setHeight(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String AreaEmitter::CmdDepth::doGet(void* target)
+    String AreaEmitter::CmdDepth::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<AreaEmitter*>(target)->getDepth() );
+            static_cast<const AreaEmitter*>(target)->getDepth() );
     }
     void AreaEmitter::CmdDepth::doSet(void* target, const String& val)
     {

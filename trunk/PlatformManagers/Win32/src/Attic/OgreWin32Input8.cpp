@@ -505,7 +505,7 @@ namespace Ogre {
 
             /* Get the mouse buttons. This for loop can be unwrapped for speed. */
             mMouseState.Buttons = 0;
-            for( int i = 0; i < 8; i++ )
+            for( size_t i = 0; i < 8; i++ )
                 if( mouseState.rgbButtons[ i ] & 0x80 )
                     mMouseState.Buttons |= ( 1 << i );
         }
@@ -746,7 +746,7 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------
 
-	Real Win32Input8::getScaled(DWORD dwVal)
+	Real Win32Input8::getScaled(DWORD dwVal) const
 	{
 		return (Real)((int)dwVal) * mScale;
 	}
@@ -803,9 +803,9 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------------------------------
-	long Win32Input8::getKeyModifiers()
+	long Win32Input8::getKeyModifiers() const
 	{
-		int ret = mModifiers;
+		long ret = mModifiers;
 
 		if (mModifiers == 16)
 		{

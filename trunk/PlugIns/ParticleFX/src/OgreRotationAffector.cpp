@@ -103,12 +103,12 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationSpeedRangeStart(void)
+    Real RotationAffector::getRotationSpeedRangeStart(void) const
     {
         return mRotationSpeedRangeStart;
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationSpeedRangeEnd(void)
+    Real RotationAffector::getRotationSpeedRangeEnd(void) const
     {
         return mRotationSpeedRangeEnd;
     }
@@ -123,12 +123,12 @@ namespace Ogre {
         mRotationSpeedRangeEnd = val;
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationRangeStart(void)
+    Real RotationAffector::getRotationRangeStart(void) const
     {
         return mRotationRangeStart;
     }
     //-----------------------------------------------------------------------
-    Real RotationAffector::getRotationRangeEnd(void)
+    Real RotationAffector::getRotationRangeEnd(void) const
     {
         return mRotationRangeEnd;
     }
@@ -149,20 +149,20 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String RotationAffector::CmdRotationSpeedRangeEnd::doGet(void* target)
+    String RotationAffector::CmdRotationSpeedRangeEnd::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<RotationAffector*>(target)->getRotationSpeedRangeEnd() );
+            static_cast<const RotationAffector*>(target)->getRotationSpeedRangeEnd() );
     }
     void RotationAffector::CmdRotationSpeedRangeEnd::doSet(void* target, const String& val)
     {
         static_cast<RotationAffector*>(target)->setRotationSpeedRangeEnd(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String RotationAffector::CmdRotationSpeedRangeStart::doGet(void* target)
+    String RotationAffector::CmdRotationSpeedRangeStart::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<RotationAffector*>(target)->getRotationSpeedRangeStart() );
+            static_cast<const RotationAffector*>(target)->getRotationSpeedRangeStart() );
     }
     void RotationAffector::CmdRotationSpeedRangeStart::doSet(void* target, const String& val)
     {
@@ -170,20 +170,20 @@ namespace Ogre {
     }
     
 	//-----------------------------------------------------------------------
-    String RotationAffector::CmdRotationRangeEnd::doGet(void* target)
+    String RotationAffector::CmdRotationRangeEnd::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<RotationAffector*>(target)->getRotationRangeEnd() );
+            static_cast<const RotationAffector*>(target)->getRotationRangeEnd() );
     }
     void RotationAffector::CmdRotationRangeEnd::doSet(void* target, const String& val)
     {
         static_cast<RotationAffector*>(target)->setRotationRangeEnd(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String RotationAffector::CmdRotationRangeStart::doGet(void* target)
+    String RotationAffector::CmdRotationRangeStart::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<RotationAffector*>(target)->getRotationRangeStart() );
+            static_cast<const RotationAffector*>(target)->getRotationRangeStart() );
     }
     void RotationAffector::CmdRotationRangeStart::doSet(void* target, const String& val)
     {

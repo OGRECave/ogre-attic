@@ -58,7 +58,7 @@ namespace Ogre {
         FilterOptions mMipFilter;
 
         // XXX 8 max texture units?
-        int mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
+        size_t mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
 
         /// holds texture type settings for every stage
         GLenum mTextureTypes[OGRE_MAX_TEXTURE_LAYERS];
@@ -67,7 +67,7 @@ namespace Ogre {
         void initInputDevices(void);
         void processInputDevices(void);
 
-        void setGLLight(int index, Light* lt);
+        void setGLLight(size_t index, Light* lt);
         void makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m);
  
         GLint getBlendMode(SceneBlendFactor ogreBlend);
@@ -95,7 +95,7 @@ namespace Ogre {
         GLSupport* mGLSupport;
         
         /// Internal method to set pos / direction of a light
-        void setGLLightPositionDirection(Light* lt, int lightindex);
+        void setGLLightPositionDirection(Light* lt, size_t lightindex);
 
         bool mUseAutoTextureMatrix;
         GLfloat mAutoTextureMatrix[16];
@@ -165,11 +165,11 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
+        RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0);
 
-        RenderTexture * createRenderTexture( const String & name, int width, int height );
+        RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height );
 
         /** See
           RenderSystem
@@ -344,7 +344,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy);
+		void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);
         /** See
           RenderSystem
          */

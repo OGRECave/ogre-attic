@@ -158,12 +158,12 @@ namespace Ogre {
         }
 	}
     //-----------------------------------------------------------------------
-	void MaterialManager::setDefaultAnisotropy(int maxAniso)
+	void MaterialManager::setDefaultAnisotropy(unsigned int maxAniso)
 	{
 		mDefaultMaxAniso = maxAniso;
 	}
     //-----------------------------------------------------------------------
-	int MaterialManager::getDefaultAnisotropy() const
+	unsigned int MaterialManager::getDefaultAnisotropy() const
 	{
 		return mDefaultMaxAniso;
 	}

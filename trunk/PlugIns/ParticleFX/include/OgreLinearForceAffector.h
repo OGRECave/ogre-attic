@@ -52,7 +52,7 @@ namespace Ogre {
         class CmdForceVector : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -60,7 +60,7 @@ namespace Ogre {
         class CmdForceApp : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Choice of how to apply the force vector to particles
@@ -82,7 +82,7 @@ namespace Ogre {
         void setForceVector(const Vector3& force);
 
         /** Gets the force vector to apply to the particles in a system. */
-        Vector3 getForceVector(void);
+        Vector3 getForceVector(void) const;
 
         /** Sets how the force vector is applied to a particle. 
         @remarks
@@ -94,7 +94,7 @@ namespace Ogre {
         /** Retrieves how the force vector is applied to a particle. 
         @param fa A member of the ForceApplication enum.
         */
-        ForceApplication getForceApplication(void);
+        ForceApplication getForceApplication(void) const;
 
         /// Command objects
         static CmdForceVector msForceVectorCmd;

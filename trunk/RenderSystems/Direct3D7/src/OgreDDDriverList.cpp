@@ -69,7 +69,7 @@ namespace Ogre {
 
     DDDriverList::~DDDriverList()
     {
-		for(unsigned int i=0; i<count(); i++)
+		for(size_t i=0; i<count(); i++)
 		{
 			item(i)->Cleanup();
 		}
@@ -134,12 +134,12 @@ namespace Ogre {
         LogManager::getSingleton().logMessage( LML_NORMAL, "Detected DirectDraw driver %s.\n", lpDriverDesc );
     }
 
-    unsigned int DDDriverList::count(void) const throw()
+    size_t DDDriverList::count(void) const
     {
-        return static_cast< unsigned int >( mDriverList.size() );
+        return mDriverList.size();
     }
 
-    DDDriver* DDDriverList::item(int index) throw( std::out_of_range )
+    DDDriver* DDDriverList::item(size_t index)
     {
         return &mDriverList.at( index );
     }

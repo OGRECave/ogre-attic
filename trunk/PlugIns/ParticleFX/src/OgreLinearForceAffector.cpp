@@ -101,12 +101,12 @@ namespace Ogre {
         mForceApplication = fa;
     }
     //-----------------------------------------------------------------------
-    Vector3 LinearForceAffector::getForceVector(void)
+    Vector3 LinearForceAffector::getForceVector(void) const
     {
         return mForceVector;
     }
     //-----------------------------------------------------------------------
-    LinearForceAffector::ForceApplication LinearForceAffector::getForceApplication(void)
+    LinearForceAffector::ForceApplication LinearForceAffector::getForceApplication(void) const
     {
         return mForceApplication;
     }
@@ -116,10 +116,10 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String LinearForceAffector::CmdForceVector::doGet(void* target)
+    String LinearForceAffector::CmdForceVector::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<LinearForceAffector*>(target)->getForceVector() );
+            static_cast<const LinearForceAffector*>(target)->getForceVector() );
     }
     void LinearForceAffector::CmdForceVector::doSet(void* target, const String& val)
     {
@@ -127,9 +127,9 @@ namespace Ogre {
             StringConverter::parseVector3(val));
     }
     //-----------------------------------------------------------------------
-    String LinearForceAffector::CmdForceApp::doGet(void* target)
+    String LinearForceAffector::CmdForceApp::doGet(const void* target) const
     {
-        ForceApplication app = static_cast<LinearForceAffector*>(target)->getForceApplication();
+        ForceApplication app = static_cast<const LinearForceAffector*>(target)->getForceApplication();
         switch(app)
         {
         case LinearForceAffector::FA_AVERAGE:

@@ -34,13 +34,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
-	static int modeCount = 0;
+	static unsigned int modeCount = 0;
 
 	class D3D9VideoMode
 	{
 	private:
 		D3DDISPLAYMODE mDisplayMode;
-		int modeNumber;
+		unsigned int modeNumber;
 
 	public:
 		D3D9VideoMode() { modeNumber = ++modeCount; ZeroMemory( &mDisplayMode, sizeof(D3DDISPLAYMODE) ); }
@@ -58,7 +58,7 @@ namespace Ogre
 		unsigned int getColourDepth() const;
 		D3DDISPLAYMODE getDisplayMode() const { return mDisplayMode; }
 		void increaseRefreshRate(unsigned int rr) { mDisplayMode.RefreshRate = rr; } 
-		String getDescription();
+		String getDescription() const;
 	};
 }
 #endif

@@ -152,7 +152,7 @@ namespace Ogre
 			// get the target cube texture
 			IDirect3DCubeTexture9 *pOthTex = other->getCubeTexture();
 			// blit to 6 cube faces
-			for (int face = 0; face < 6; face++)
+			for (size_t face = 0; face < 6; face++)
 			{
 				// get our source surface
 				IDirect3DSurface9 *pSrcSurface;
@@ -316,7 +316,7 @@ namespace Ogre
 		    this->_createCubeTex();
 
 		    // prepare faces
-		    for (int face = 0; face < 6; face++)
+		    for (size_t face = 0; face < 6; face++)
 		    {
 			    // first face is already loaded
 			    if (face > 0)
@@ -645,7 +645,7 @@ namespace Ogre
 		mpTmpNormTex = NULL;
 		mpTmpCubeTex = NULL;
 
-		for (int i = 0; i < 6; ++i)
+		for (size_t i = 0; i < 6; ++i)
 			mCubeFaceNames[i] = "";
 
 		mWidth = mHeight = mSrcWidth = mSrcHeight = 0;
@@ -694,7 +694,7 @@ namespace Ogre
 	void D3D9Texture::_constructCubeFaceNames(const String& name)
 	{
 		// the suffixes
-		String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+		static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 		size_t pos = -1;
 
 		String ext; // the extension
@@ -713,7 +713,7 @@ namespace Ogre
 		ext = fakeName.substr(pos);
 
 		// construct the full 6 faces file names from the baseName, suffixes and extension
-		for (int i = 0; i < 6; ++i)
+		for (size_t i = 0; i < 6; ++i)
 			mCubeFaceNames[i] = baseName + suffixes[i] + ext;
 	}
 	/****************************************************************************************/
@@ -728,7 +728,7 @@ namespace Ogre
 
 		// Update size (the final size, not including temp space)
 		// this is needed in Resource class
-		short bytesPerPixel = mFinalBpp >> 3;
+		unsigned short bytesPerPixel = mFinalBpp >> 3;
 		if( !mHasAlpha && mFinalBpp == 32 )
 			bytesPerPixel--;
 		mSize = mWidth * mHeight * mDepth * bytesPerPixel 
@@ -873,8 +873,6 @@ namespace Ogre
 		BYTE *pBuf8;
 		DWORD data32;
 		DWORD out32;
-		DWORD temp32;
-		DWORD srcPattern;
 		unsigned iRow, iCol;
 		// NOTE - dimensions of surface may differ from buffer
 		// dimensions (e.g. power of 2 or square adjustments)
@@ -926,25 +924,17 @@ namespace Ogre
 				// Use bit concersion function
 				// NOTE: we use a 32-bit value to manipulate
 				// Will be reduced to size later
-				out32 = 0;
+
 				// Red
-				srcPattern = 0xFF000000;
-				Bitwise::convertBitPattern( &data32, &srcPattern, 32, &temp32, &rMask, 32 );
-				out32 |= temp32;
+				out32 = Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0xFF000000, rMask );
 				// Green
-				srcPattern = 0x00FF0000;
-				Bitwise::convertBitPattern( &data32, &srcPattern, 32, &temp32, &gMask, 32 );
-				out32 |= temp32;
+				out32 |= Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0x00FF0000, gMask );
 				// Blue
-				srcPattern = 0x0000FF00;
-				Bitwise::convertBitPattern( &data32, &srcPattern, 32, &temp32, &bMask, 32 );
-				out32 |= temp32;
+				out32 |= Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0x0000FF00, bMask );
 				// Alpha
 				if( aMask > 0 )
 				{
-					srcPattern = 0x000000FF;
-					Bitwise::convertBitPattern( &data32, &srcPattern, 32, &temp32, &aMask, 32 );
-					out32 |= temp32;
+					out32 |= Bitwise::convertBitPattern<DWORD, DWORD>( data32, 0x000000FF, aMask );
 				}
 				// Assign results to surface pixel
 				// Write up to 4 bytes
@@ -1076,7 +1066,7 @@ namespace Ogre
 		D3DFORMAT dstFormat = _chooseD3DFormat();
 
 		// we must loop through all 6 cube map faces :(
-		for (int face = 0; face < 6; face++)
+		for (size_t face = 0; face < 6; face++)
 		{
 			D3DFORMAT srcFormat = this->_getPF(srcImages[face].getFormat());
 			RECT tmpDataRect = {0, 0, srcImages[face].getWidth(), srcImages[face].getHeight()}; // the rectangle representing the src. image dim.

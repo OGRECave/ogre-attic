@@ -73,20 +73,20 @@ namespace Ogre
         class CmdBackPanel : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdTextArea : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
     void setBackPanel(const String& templateName, int size);
     void setTextArea(const String& templateName, const String& name);
-    String getBackPanelName();
-    String getTextAreaName();
+    String getBackPanelName() const;
+    String getTextAreaName() const;
 
     protected:
 

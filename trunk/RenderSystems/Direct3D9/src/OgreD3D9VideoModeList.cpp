@@ -113,12 +113,12 @@ namespace Ogre
 		return TRUE;
 	}
 
-	unsigned int D3D9VideoModeList::count()
+	size_t D3D9VideoModeList::count()
 	{
-		return static_cast< unsigned int >( mModeList.size() );
+		return mModeList.size();
 	}
 
-	D3D9VideoMode* D3D9VideoModeList::item( int index )
+	D3D9VideoMode* D3D9VideoModeList::item( size_t index )
 	{
 		std::vector<D3D9VideoMode>::iterator p = mModeList.begin();
 

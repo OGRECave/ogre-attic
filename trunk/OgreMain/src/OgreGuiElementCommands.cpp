@@ -33,49 +33,49 @@ namespace Ogre {
     namespace GuiElementCommands {
 
         //-----------------------------------------------------------------------
-        String CmdLeft::doGet(void* target)
+        String CmdLeft::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<GuiElement*>(target)->getLeft() );
+                static_cast<const GuiElement*>(target)->getLeft() );
         }
         void CmdLeft::doSet(void* target, const String& val)
         {
             static_cast<GuiElement*>(target)->setLeft(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
-        String CmdTop::doGet(void* target)
+        String CmdTop::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<GuiElement*>(target)->getTop() );
+                static_cast<const GuiElement*>(target)->getTop() );
         }
         void CmdTop::doSet(void* target, const String& val)
         {
             static_cast<GuiElement*>(target)->setTop(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
-        String CmdWidth::doGet(void* target)
+        String CmdWidth::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<GuiElement*>(target)->getWidth() );
+                static_cast<const GuiElement*>(target)->getWidth() );
         }
         void CmdWidth::doSet(void* target, const String& val)
         {
             static_cast<GuiElement*>(target)->setWidth(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
-        String CmdHeight::doGet(void* target)
+        String CmdHeight::doGet(const void* target) const
         {
             return StringConverter::toString(
-                static_cast<GuiElement*>(target)->getHeight() );
+                static_cast<const GuiElement*>(target)->getHeight() );
         }
         void CmdHeight::doSet(void* target, const String& val)
         {
             static_cast<GuiElement*>(target)->setHeight(StringConverter::parseReal(val));
         }
         //-----------------------------------------------------------------------
-        String CmdMaterial::doGet(void* target)
+        String CmdMaterial::doGet(const void* target) const
         {
-            return static_cast<GuiElement*>(target)->getMaterialName();
+            return static_cast<const GuiElement*>(target)->getMaterialName();
         }
         void CmdMaterial::doSet(void* target, const String& val)
         {
@@ -86,9 +86,9 @@ namespace Ogre {
         }
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
-        String CmdCaption::doGet(void* target)
+        String CmdCaption::doGet(const void* target) const
         {
-            return static_cast<GuiElement*>(target)->getCaption();
+            return static_cast<const GuiElement*>(target)->getCaption();
         }
         void CmdCaption::doSet(void* target, const String& val)
         {
@@ -97,10 +97,10 @@ namespace Ogre {
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
-        String CmdMetricsMode::doGet(void* target)
+        String CmdMetricsMode::doGet(const void* target) const
         {
             GuiMetricsMode gmm = 
-                static_cast<GuiElement*>(target)->getMetricsMode();
+                static_cast<const GuiElement*>(target)->getMetricsMode();
             if (gmm == GMM_PIXELS)
             {
                 return "pixels";
@@ -124,10 +124,10 @@ namespace Ogre {
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
-        String CmdHorizontalAlign::doGet(void* target)
+        String CmdHorizontalAlign::doGet(const void* target) const
         {
             GuiHorizontalAlignment gha = 
-                static_cast<GuiElement*>(target)->getHorizontalAlignment();
+                static_cast<const GuiElement*>(target)->getHorizontalAlignment();
             switch(gha)
             {
             case GHA_LEFT:
@@ -158,10 +158,10 @@ namespace Ogre {
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
-        String CmdVerticalAlign::doGet(void* target)
+        String CmdVerticalAlign::doGet(const void* target) const
         {
             GuiVerticalAlignment gva = 
-                static_cast<GuiElement*>(target)->getVerticalAlignment();
+                static_cast<const GuiElement*>(target)->getVerticalAlignment();
             switch(gva)
             {
             case GVA_TOP:
@@ -193,10 +193,10 @@ namespace Ogre {
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
         //-----------------------------------------------------------------------
-        String CmdVisible::doGet(void* target)
+        String CmdVisible::doGet(const void* target) const
         {
             bool visible = 
-                static_cast<GuiElement*>(target)->isVisible();
+                static_cast<const GuiElement*>(target)->isVisible();
             switch(visible)
             {
             case true:

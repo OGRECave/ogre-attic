@@ -200,27 +200,27 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------
-    const String& BorderButtonGuiElement::getBorderDownMaterialName(void)
+    const String& BorderButtonGuiElement::getBorderDownMaterialName(void) const
     {
         return mBorderDownMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& BorderButtonGuiElement::getBorderUpMaterialName(void)
+    const String& BorderButtonGuiElement::getBorderUpMaterialName(void) const
     {
         return mBorderUpMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& BorderButtonGuiElement::getBorderHiliteDownMaterialName(void)
+    const String& BorderButtonGuiElement::getBorderHiliteDownMaterialName(void) const
     {
         return mBorderHiliteDownMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& BorderButtonGuiElement::getBorderHiliteUpMaterialName(void)
+    const String& BorderButtonGuiElement::getBorderHiliteUpMaterialName(void) const
     {
         return mBorderHiliteUpMaterialName;
     }
     //---------------------------------------------------------------------
-    const String& BorderButtonGuiElement::getBorderDisabledMaterialName(void)
+    const String& BorderButtonGuiElement::getBorderDisabledMaterialName(void) const
     {
         return mBorderDisabledMaterialName;
     }
@@ -257,7 +257,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::getButtonCaption()
+    String BorderButtonGuiElement::getButtonCaption() const
 	{
 		return (mInsideObject)?mInsideObject->getCaption():String("");
 	}
@@ -268,10 +268,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::CmdBorderDownMaterial::doGet(void* target)
+    String BorderButtonGuiElement::CmdBorderDownMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<BorderButtonGuiElement*>(target)->getBorderDownMaterialName();
+        return static_cast<const BorderButtonGuiElement*>(target)->getBorderDownMaterialName();
     }
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderDownMaterial::doSet(void* target, const String& val)
@@ -281,10 +281,10 @@ namespace Ogre {
         static_cast<BorderButtonGuiElement*>(target)->setBorderDownMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::CmdBorderUpMaterial::doGet(void* target)
+    String BorderButtonGuiElement::CmdBorderUpMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<BorderButtonGuiElement*>(target)->getBorderUpMaterialName();
+        return static_cast<const BorderButtonGuiElement*>(target)->getBorderUpMaterialName();
     }
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderUpMaterial::doSet(void* target, const String& val)
@@ -294,10 +294,10 @@ namespace Ogre {
         static_cast<BorderButtonGuiElement*>(target)->setBorderUpMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::CmdBorderHiliteDownMaterial::doGet(void* target)
+    String BorderButtonGuiElement::CmdBorderHiliteDownMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<BorderButtonGuiElement*>(target)->getBorderHiliteDownMaterialName();
+        return static_cast<const BorderButtonGuiElement*>(target)->getBorderHiliteDownMaterialName();
     }
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderHiliteDownMaterial::doSet(void* target, const String& val)
@@ -307,10 +307,10 @@ namespace Ogre {
         static_cast<BorderButtonGuiElement*>(target)->setBorderHiliteDownMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::CmdBorderHiliteUpMaterial::doGet(void* target)
+    String BorderButtonGuiElement::CmdBorderHiliteUpMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<BorderButtonGuiElement*>(target)->getBorderHiliteUpMaterialName();
+        return static_cast<const BorderButtonGuiElement*>(target)->getBorderHiliteUpMaterialName();
     }
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderHiliteUpMaterial::doSet(void* target, const String& val)
@@ -320,10 +320,10 @@ namespace Ogre {
         static_cast<BorderButtonGuiElement*>(target)->setBorderHiliteUpMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::CmdBorderDisabledMaterial::doGet(void* target)
+    String BorderButtonGuiElement::CmdBorderDisabledMaterial::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<BorderButtonGuiElement*>(target)->getBorderDisabledMaterialName();
+        return static_cast<const BorderButtonGuiElement*>(target)->getBorderDisabledMaterialName();
     }
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderDisabledMaterial::doSet(void* target, const String& val)
@@ -333,10 +333,10 @@ namespace Ogre {
         static_cast<BorderButtonGuiElement*>(target)->setBorderDisabledMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String BorderButtonGuiElement::CmdBorderButtonCaption::doGet(void* target)
+    String BorderButtonGuiElement::CmdBorderButtonCaption::doGet(const void* target) const
     {
         // No need right now..
-        return static_cast<BorderButtonGuiElement*>(target)->getButtonCaption();
+        return static_cast<const BorderButtonGuiElement*>(target)->getButtonCaption();
     }
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::CmdBorderButtonCaption::doSet(void* target, const String& val)

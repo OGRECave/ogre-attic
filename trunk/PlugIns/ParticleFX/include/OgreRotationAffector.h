@@ -44,7 +44,7 @@ namespace Ogre {
         class CmdRotationSpeedRangeStart : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -52,7 +52,7 @@ namespace Ogre {
         class CmdRotationSpeedRangeEnd : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -60,7 +60,7 @@ namespace Ogre {
         class CmdRotationRangeStart : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -68,7 +68,7 @@ namespace Ogre {
         class CmdRotationRangeEnd : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -88,9 +88,9 @@ namespace Ogre {
         /** Sets the maximum rotation speed of particles to be emitted. */
         void setRotationSpeedRangeEnd(Real angle);
         /** Gets the minimum rotation speed of particles to be emitted. */
-        Real getRotationSpeedRangeStart(void);
+        Real getRotationSpeedRangeStart(void) const;
         /** Gets the maximum rotation speed of particles to be emitted. */
-        Real getRotationSpeedRangeEnd(void);
+        Real getRotationSpeedRangeEnd(void) const;
 
 		
 		/** Sets the minimum rotation angle of particles to be emitted. */
@@ -98,9 +98,9 @@ namespace Ogre {
         /** Sets the maximum rotation angle of particles to be emitted. */
         void setRotationRangeEnd(Real angle);
         /** Gets the minimum rotation of particles to be emitted. */
-        Real getRotationRangeStart(void);
+        Real getRotationRangeStart(void) const;
         /** Gets the maximum rotation of particles to be emitted. */
-        Real getRotationRangeEnd(void);
+        Real getRotationRangeEnd(void) const;
 
 		static CmdRotationSpeedRangeStart	msRotationSpeedRangeStartCmd;
         static CmdRotationSpeedRangeEnd		msRotationSpeedRangeEndCmd;

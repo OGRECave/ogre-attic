@@ -11,11 +11,11 @@ namespace Ogre {
     public:
         virtual ~FileSystemFactory();
 
-        String getArchiveType(void);
+        String getArchiveType(void) const;
         ArchiveEx* createArchive(const String& name);
 
         ArchiveEx *createObj( const String& name );
-        String getType();        
+        String getType() const;        
     };
 
 }

@@ -76,36 +76,36 @@ namespace Ogre {
         /** Sets the name of the material to use for the borders. */
         void setBorderDownMaterialName(const String& name);
         /** Gets the name of the material to use for the borders. */
-        const String& getBorderDownMaterialName(void);
+        const String& getBorderDownMaterialName(void) const;
 
         /** Sets the name of the material to use for the borders. */
         void setBorderUpMaterialName(const String& name);
         /** Gets the name of the material to use for the borders. */
-        const String& getBorderUpMaterialName(void);
+        const String& getBorderUpMaterialName(void) const;
 
         /** Sets the name of the material to use for the hilited borders. */
         void setBorderHiliteDownMaterialName(const String& name);
         /** Gets the name of the material to use for the hilited borders. */
-        const String& getBorderHiliteDownMaterialName(void);
+        const String& getBorderHiliteDownMaterialName(void) const;
 
         /** Sets the name of the material to use for the hilited borders. */
         void setBorderHiliteUpMaterialName(const String& name);
         /** Gets the name of the material to use for the hilited borders. */
-        const String& getBorderHiliteUpMaterialName(void);
+        const String& getBorderHiliteUpMaterialName(void) const;
 
         /** Sets the name of the material to use for the disabled borders. */
         void setBorderDisabledMaterialName(const String& name);
         /** Gets the name of the material to use for the disabled borders. */
-        const String& getBorderDisabledMaterialName(void);
+        const String& getBorderDisabledMaterialName(void) const;
 
 	    void setButtonCaption(const String& templateName, const String& name);
-	    String getButtonCaption();
+	    String getButtonCaption() const;
 
         /** Command object for specifying the Material for the border (see ParamCommand).*/
         class CmdBorderDownMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -113,7 +113,7 @@ namespace Ogre {
         class CmdBorderUpMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -121,7 +121,7 @@ namespace Ogre {
         class CmdBorderHiliteDownMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -129,7 +129,7 @@ namespace Ogre {
         class CmdBorderHiliteUpMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -137,7 +137,7 @@ namespace Ogre {
         class CmdBorderDisabledMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -145,7 +145,7 @@ namespace Ogre {
         class CmdBorderButtonCaption : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 

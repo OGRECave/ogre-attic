@@ -103,9 +103,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    String PopupMenuGuiElement::CmdItemTemplate::doGet(void* target)
+    String PopupMenuGuiElement::CmdItemTemplate::doGet(const void* target) const
     {
-        return static_cast<PopupMenuGuiElement*>(target)->getItemTemplateName();
+        return static_cast<const PopupMenuGuiElement*>(target)->getItemTemplateName();
     }
     void PopupMenuGuiElement::CmdItemTemplate::doSet(void* target, const String& val)
     {
@@ -114,9 +114,9 @@ namespace Ogre {
         static_cast<PopupMenuGuiElement*>(target)->setItemTemplateName(val);
     }
     //-----------------------------------------------------------------------
-    String PopupMenuGuiElement::CmdVSpacing::doGet(void* target)
+    String PopupMenuGuiElement::CmdVSpacing::doGet(const void* target) const
     {
-        return static_cast<PopupMenuGuiElement*>(target)->getVSpacing();
+        return static_cast<const PopupMenuGuiElement*>(target)->getVSpacing();
     }
     void PopupMenuGuiElement::CmdVSpacing::doSet(void* target, const String& val)
     {
@@ -125,9 +125,9 @@ namespace Ogre {
         static_cast<PopupMenuGuiElement*>(target)->setVSpacing(val);
     }
     //-----------------------------------------------------------------------
-    String PopupMenuGuiElement::CmdHSpacing::doGet(void* target)
+    String PopupMenuGuiElement::CmdHSpacing::doGet(const void* target) const
     {
-        return static_cast<PopupMenuGuiElement*>(target)->getHSpacing();
+        return static_cast<const PopupMenuGuiElement*>(target)->getHSpacing();
     }
     void PopupMenuGuiElement::CmdHSpacing::doSet(void* target, const String& val)
     {
@@ -136,25 +136,25 @@ namespace Ogre {
         static_cast<PopupMenuGuiElement*>(target)->setHSpacing(val);
     }
     //-----------------------------------------------------------------------
-    String PopupMenuGuiElement::CmdItemPanelMaterialSelected::doGet(void* target)
+    String PopupMenuGuiElement::CmdItemPanelMaterialSelected::doGet(const void* target) const
     {
-        return static_cast<PopupMenuGuiElement*>(target)->getItemPanelMaterialSelected();
+        return static_cast<const PopupMenuGuiElement*>(target)->getItemPanelMaterialSelected();
     }
     void PopupMenuGuiElement::CmdItemPanelMaterialSelected::doSet(void* target, const String& val)
     {
         static_cast<PopupMenuGuiElement*>(target)->setItemPanelMaterialSelected(val);
     }
     //-----------------------------------------------------------------------
-    String PopupMenuGuiElement::CmdItemPanelMaterial::doGet(void* target)
+    String PopupMenuGuiElement::CmdItemPanelMaterial::doGet(const void* target) const
     {
-        return static_cast<PopupMenuGuiElement*>(target)->getItemPanelMaterial();
+        return static_cast<const PopupMenuGuiElement*>(target)->getItemPanelMaterial();
     }
     void PopupMenuGuiElement::CmdItemPanelMaterial::doSet(void* target, const String& val)
     {
         static_cast<PopupMenuGuiElement*>(target)->setItemPanelMaterial(val);
     }
     //-----------------------------------------------------------------------
-	String PopupMenuGuiElement::getItemTemplateName()
+	String PopupMenuGuiElement::getItemTemplateName() const
 	{
 		return mItemTemplateName;
 	}
@@ -168,7 +168,7 @@ namespace Ogre {
 	{
 		mHSpacing = StringConverter::parseReal(val);
 	}
-	String PopupMenuGuiElement::getHSpacing()
+	String PopupMenuGuiElement::getHSpacing() const
 	{
 		return  StringConverter::toString(mHSpacing);
 	}
@@ -179,12 +179,12 @@ namespace Ogre {
 	{
 		mVSpacing = StringConverter::parseReal(val);
 	}
-	String PopupMenuGuiElement::getVSpacing()
+	String PopupMenuGuiElement::getVSpacing() const
 	{
 		return  StringConverter::toString(mVSpacing);
 	}
     //-----------------------------------------------------------------------
-	String PopupMenuGuiElement::getItemPanelMaterial()
+	String PopupMenuGuiElement::getItemPanelMaterial() const
 	{
 		return mItemPanelMaterial;
 	}
@@ -193,7 +193,7 @@ namespace Ogre {
 		mItemPanelMaterial = val;
 	}
     //-----------------------------------------------------------------------
-	String PopupMenuGuiElement::getItemPanelMaterialSelected()
+	String PopupMenuGuiElement::getItemPanelMaterialSelected() const
 	{
 		return mItemPanelMaterialSelected;
 
@@ -429,12 +429,12 @@ namespace Ogre {
 			}
 		}
 	}
-	ResourceListConstIterator PopupMenuGuiElement::getConstIterator()
+	ResourceListConstIterator PopupMenuGuiElement::getConstIterator() const
 	{
         return ResourceListConstIterator(mResourceList.begin());
 	}
 
-	ResourceListConstIterator PopupMenuGuiElement::getConstEndIterator()
+	ResourceListConstIterator PopupMenuGuiElement::getConstEndIterator() const
 	{
         return ResourceListConstIterator(mResourceList.end());
 	}

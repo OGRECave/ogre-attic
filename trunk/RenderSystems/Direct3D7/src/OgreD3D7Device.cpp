@@ -151,12 +151,12 @@ namespace Ogre {
     }
 
 
-    bool D3DDevice::HardwareAccelerated(void)
+    bool D3DDevice::HardwareAccelerated(void) const
     {
         return mIsHardwareAccelerated;
     }
 
-    void D3DDevice::logCaps(void)
+    void D3DDevice::logCaps(void) const
     {
         // Sends capabilities of this driver to the log
         char msg[255];
@@ -341,12 +341,12 @@ namespace Ogre {
 
 
 
-    String D3DDevice::DeviceName(void)
+    String D3DDevice::DeviceName(void) const
     {
         return mDeviceName;
     }
 
-    String D3DDevice::DeviceDescription(void)
+    String D3DDevice::DeviceDescription(void) const
     {
         return mDeviceDescription;
     }
@@ -450,22 +450,22 @@ namespace Ogre {
         }
     }
 
-    bool D3DDevice::CanMipMap(void)
+    bool D3DDevice::CanMipMap(void) const
     {
         return (mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_MIPNEAREST) > 0;
     }
 
-    bool D3DDevice::CanBilinearFilter(void)
+    bool D3DDevice::CanBilinearFilter(void) const
     {
         return (mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR) > 0;
     }
 
-    bool D3DDevice::CanTrilinearFilter(void)
+    bool D3DDevice::CanTrilinearFilter(void) const
     {
         return (mD3DDeviceDesc.dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEARMIPLINEAR) > 0;
     }
 
-    int D3DDevice::RenderBitDepth(void)
+    unsigned int D3DDevice::RenderBitDepth(void) const
     {
 
         if (mD3DDeviceDesc.dwDeviceRenderBitDepth & DDBD_32)
@@ -480,7 +480,7 @@ namespace Ogre {
             return 0;
     }
 
-    int D3DDevice::ZBufferBitDepth(void)
+    unsigned int D3DDevice::ZBufferBitDepth(void) const
     {
         switch(mD3DDeviceDesc.dwDeviceZBufferBitDepth)
         {
@@ -497,24 +497,24 @@ namespace Ogre {
         return 0;
 
     }
-    bool D3DDevice::NeedsZBuffer(void)
+    bool D3DDevice::NeedsZBuffer(void) const
     {
         return mNeedsZBuffer;
     }
 
-    bool D3DDevice::CanHWTransformAndLight(void)
+    bool D3DDevice::CanHWTransformAndLight(void) const
     {
         return (mD3DDeviceDesc.dwDevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT) > 0;
     }
 
-    int D3DDevice::MaxSinglePassTextureLayers(void)
+    unsigned int D3DDevice::MaxSinglePassTextureLayers(void) const
     {
         // The maximum number of texture layers the device can support in a singe pass
 
         return mD3DDeviceDesc.wMaxSimultaneousTextures;
     }
 
-    ushort D3DDevice::StencilBufferBitDepth(void)
+    ushort D3DDevice::StencilBufferBitDepth(void) const
     {
         return mStencilBufferDepth;
     }

@@ -118,20 +118,20 @@ namespace Ogre {
             &msCmdOffsetY);
     }
     //-----------------------------------------------------------------------
-    String CursorGuiElement::CmdOffsetX::doGet(void* target)
+    String CursorGuiElement::CmdOffsetX::doGet(const void* target) const
     {
         return StringConverter::toString(
-                static_cast<CursorGuiElement*>(target)->getOffsetX() );
+                static_cast<const CursorGuiElement*>(target)->getOffsetX() );
     }
     void CursorGuiElement::CmdOffsetX::doSet(void* target, const String& val)
     {
         static_cast<CursorGuiElement*>(target)->setOffsetX(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String CursorGuiElement::CmdOffsetY::doGet(void* target)
+    String CursorGuiElement::CmdOffsetY::doGet(const void* target) const
     {
         return StringConverter::toString(
-                static_cast<CursorGuiElement*>(target)->getOffsetY() );
+                static_cast<const CursorGuiElement*>(target)->getOffsetY() );
     }
     void CursorGuiElement::CmdOffsetY::doSet(void* target, const String& val)
     {

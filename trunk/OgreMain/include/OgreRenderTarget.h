@@ -84,11 +84,11 @@ namespace Ogre {
         virtual const String& getName(void) const;
 
         /// Retrieve information about the render target.
-        virtual void getMetrics(int &width, int &height, int &colourDepth);
+        virtual void getMetrics(unsigned int& width, unsigned int& height, unsigned int& colourDepth);
 
-        virtual int getWidth(void) const;
-        virtual int getHeight(void) const;
-        virtual int getColourDepth(void) const;
+        virtual unsigned int getWidth(void) const;
+        virtual unsigned int getHeight(void) const;
+        virtual unsigned int getColourDepth(void) const;
 
         /** Tells the target to update it's contents.
             @remarks
@@ -281,9 +281,9 @@ namespace Ogre {
 		/// The priority of the render target.
 		uchar mPriority;
 
-        int mWidth;
-        int mHeight;
-        int mColourDepth;
+        unsigned int mWidth;
+        unsigned int mHeight;
+        unsigned int mColourDepth;
         bool mIsDepthBuffered;
 
         // Stats

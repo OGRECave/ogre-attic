@@ -401,7 +401,7 @@ namespace Ogre {
             @remarks
                 Gets a reference to one of the planes which make up the camera frustum, e.g. for clipping purposes.
         */
-        const Plane& getFrustumPlane( FrustumPlane plane );
+        const Plane& getFrustumPlane( FrustumPlane plane ) const;
 
         /** Tests whether the given container is visible in the Frustum.
             @param
@@ -414,7 +414,7 @@ namespace Ogre {
             @par
                 Otherwise, false is returned.
         */
-        bool isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy = 0);
+        bool isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy = 0) const;
 
         /** Tests whether the given container is visible in the Frustum.
             @param
@@ -427,7 +427,7 @@ namespace Ogre {
             @par
                 Otherwise, false is returned.
         */
-        bool isVisible(const Sphere& bound, FrustumPlane* culledBy = 0);
+        bool isVisible(const Sphere& bound, FrustumPlane* culledBy = 0) const;
 
         /** Tests whether the given vertex is visible in the Frustum.
             @param
@@ -440,7 +440,7 @@ namespace Ogre {
             @par
                 Otherwise, false is returned.
         */
-        bool isVisible(const Vector3& vert, FrustumPlane* culledBy = 0);
+        bool isVisible(const Vector3& vert, FrustumPlane* culledBy = 0) const;
 
         /** Returns the camera's current orientation.
         */

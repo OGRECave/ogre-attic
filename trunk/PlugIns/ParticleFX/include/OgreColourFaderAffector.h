@@ -45,7 +45,7 @@ namespace Ogre {
         class CmdRedAdjust : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -53,7 +53,7 @@ namespace Ogre {
         class CmdGreenAdjust : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -61,7 +61,7 @@ namespace Ogre {
         class CmdBlueAdjust : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -69,7 +69,7 @@ namespace Ogre {
         class CmdAlphaAdjust : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -96,7 +96,7 @@ namespace Ogre {
         void setRedAdjust(Real red);
 
         /** Gets the red adjustment to be made per second to particles. */
-        Real getRedAdjust(void);
+        Real getRedAdjust(void) const;
 
         /** Sets the green adjustment to be made per second to particles. 
         @param green
@@ -106,7 +106,7 @@ namespace Ogre {
         */
         void setGreenAdjust(Real green);
         /** Gets the green adjustment to be made per second to particles. */
-        Real getGreenAdjust(void);
+        Real getGreenAdjust(void) const;
         /** Sets the blue adjustment to be made per second to particles. 
         @param blue
             The adjustment to be made to the colour component per second. This
@@ -115,7 +115,7 @@ namespace Ogre {
         */
         void setBlueAdjust(Real blue);
         /** Gets the blue adjustment to be made per second to particles. */
-        Real getBlueAdjust(void);
+        Real getBlueAdjust(void) const;
 
         /** Sets the alpha adjustment to be made per second to particles. 
         @param alpha
@@ -125,7 +125,7 @@ namespace Ogre {
         */
         void setAlphaAdjust(Real alpha);
         /** Gets the alpha adjustment to be made per second to particles. */
-        Real getAlphaAdjust(void);
+        Real getAlphaAdjust(void) const;
 
         static CmdRedAdjust msRedCmd;
         static CmdGreenAdjust msGreenCmd;

@@ -68,28 +68,28 @@ namespace Ogre {
         class CmdItemTemplate : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdVSpacing : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdHSpacing : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdItemPanelMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -97,29 +97,29 @@ namespace Ogre {
         class CmdItemPanelMaterialSelected : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
 		void setItemTemplateName(const String& val);
 		void addListItem(Resource* r);
 		void removeListItem(Resource* r);
-		String getItemTemplateName();
-		String getVSpacing();
-		String getHSpacing();
+		String getItemTemplateName() const;
+		String getVSpacing() const;
+		String getHSpacing() const;
 		void setVSpacing(const String& val);
 		void setHSpacing(const String& val);
 
-		String getItemPanelMaterial();
-		String getItemPanelMaterialSelected();
+		String getItemPanelMaterial() const;
+		String getItemPanelMaterialSelected() const;
 		void setItemPanelMaterial(const String& val);
 		void setItemPanelMaterialSelected(const String& val);
 		Resource* getSelectedItem();
 
 		void setSelectedItem(Resource* r, bool on);
 		void setSelectedItem(Resource* r);
-		ResourceListConstIterator getConstIterator();
-		ResourceListConstIterator getConstEndIterator();
+		ResourceListConstIterator getConstIterator() const;
+		ResourceListConstIterator getConstEndIterator() const;
 		Resource* popFront() ;
 		size_t getListSize() const;
 

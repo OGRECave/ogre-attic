@@ -58,15 +58,15 @@ public:
     */
     OGREWidget* get_ogre_widget();
 
-    void create(const String& name, int width, int height, int colourDepth,
+    void create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
                 bool fullScreen, int left, int top, bool depthBuffer, 
                 void* miscParam, ...);
 
     void destroy(void);
-    bool isActive(void);
-    bool isClosed(void);
+    bool isActive(void) const;
+    bool isClosed(void) const;
     void reposition(int left, int top);
-    void resize(int width, int height);
+    void resize(unsigned int width, unsigned int height);
     void swapBuffers(bool waitForVSync);
     void outputText(int x, int y, const String& text);
     void writeContentsToFile(const String& filename);

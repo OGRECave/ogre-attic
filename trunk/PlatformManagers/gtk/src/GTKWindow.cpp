@@ -73,7 +73,7 @@ OGREWidget* GTKWindow::get_ogre_widget()
     return ogre;
 }
 
-void GTKWindow::create(const String& name, int width, int height, int colourDepth, 
+void GTKWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth, 
                        bool fullScreen, int left, int top, bool depthBuffer, 
                        void* miscParam, ...)
 {
@@ -107,12 +107,12 @@ void GTKWindow::destroy()
     Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
 }
 
-bool GTKWindow::isActive()
+bool GTKWindow::isActive() const
 {
     return is_realized();
 }
 
-bool GTKWindow::isClosed()
+bool GTKWindow::isClosed() const
 {
     return is_visible();
 }
@@ -122,7 +122,7 @@ void GTKWindow::reposition(int left, int top)
     move(left, top);
 }
 
-void GTKWindow::resize(int width, int height)
+void GTKWindow::resize(unsigned int width, unsigned int height)
 {
     resize(width, height);
 }

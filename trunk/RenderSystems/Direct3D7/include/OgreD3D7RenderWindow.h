@@ -65,7 +65,7 @@ namespace Ogre {
         */
         void create(
             const String& name, 
-            int width, int height, int colourDepth,
+            unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, 
             int left, int top, 
             bool depthBuffer, void* miscParam, ... );
@@ -76,11 +76,11 @@ namespace Ogre {
 
         /** Overridden - see RenderWindow
         */
-        bool isActive(void);
+        bool isActive(void) const;
 
         /** Overridden - see RenderWindow
         */
-        bool isClosed(void);
+        bool isClosed(void) const;
 
         /** Overridden - see RenderWindow
         */
@@ -88,7 +88,7 @@ namespace Ogre {
 
         /** Overridden - see RenderWindow
         */
-        void resize(int width, int height);
+        void resize(unsigned int width, unsigned int height);
 
         /** Overridden - see RenderWindow
         */

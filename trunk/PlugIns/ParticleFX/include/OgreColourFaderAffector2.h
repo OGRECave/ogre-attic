@@ -45,7 +45,7 @@ namespace Ogre {
         class CmdRedAdjust1 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -53,7 +53,7 @@ namespace Ogre {
         class CmdGreenAdjust1 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -61,7 +61,7 @@ namespace Ogre {
         class CmdBlueAdjust1 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -69,7 +69,7 @@ namespace Ogre {
         class CmdAlphaAdjust1 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -77,7 +77,7 @@ namespace Ogre {
         class CmdRedAdjust2 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -85,7 +85,7 @@ namespace Ogre {
         class CmdGreenAdjust2 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -93,7 +93,7 @@ namespace Ogre {
         class CmdBlueAdjust2 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -101,7 +101,7 @@ namespace Ogre {
         class CmdAlphaAdjust2 : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -109,7 +109,7 @@ namespace Ogre {
         class CmdStateChange : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -138,8 +138,8 @@ namespace Ogre {
 		void setRedAdjust2(Real red);
 
         /** Gets the red adjustment to be made per second to particles. */
-        Real getRedAdjust1(void);
-		Real getRedAdjust2(void);
+        Real getRedAdjust1(void) const;
+		Real getRedAdjust2(void) const;
 
         /** Sets the green adjustment to be made per second to particles. 
         @param green
@@ -150,8 +150,8 @@ namespace Ogre {
         void setGreenAdjust1(Real green);
 		void setGreenAdjust2(Real green);
         /** Gets the green adjustment to be made per second to particles. */
-        Real getGreenAdjust1(void);
-		Real getGreenAdjust2(void);
+        Real getGreenAdjust1(void) const;
+		Real getGreenAdjust2(void) const;
         /** Sets the blue adjustment to be made per second to particles. 
         @param blue
             The adjustment to be made to the colour component per second. This
@@ -161,8 +161,8 @@ namespace Ogre {
         void setBlueAdjust1(Real blue);
 		void setBlueAdjust2(Real blue);
         /** Gets the blue adjustment to be made per second to particles. */
-        Real getBlueAdjust1(void);
-		Real getBlueAdjust2(void);
+        Real getBlueAdjust1(void) const;
+		Real getBlueAdjust2(void) const;
 
         /** Sets the alpha adjustment to be made per second to particles. 
         @param alpha
@@ -173,12 +173,12 @@ namespace Ogre {
         void setAlphaAdjust1(Real alpha);
 		void setAlphaAdjust2(Real alpha);
         /** Gets the alpha adjustment to be made per second to particles. */
-        Real getAlphaAdjust1(void);
-		Real getAlphaAdjust2(void);
+        Real getAlphaAdjust1(void) const;
+		Real getAlphaAdjust2(void) const;
 
 
         void setStateChange(Real NewValue );
-        Real getStateChange(void);
+        Real getStateChange(void) const;
 
         static CmdRedAdjust1 msRedCmd1;
 		static CmdRedAdjust2 msRedCmd2;

@@ -82,7 +82,7 @@ namespace Ogre
 			/// the type of the texture
 			D3D9Mappings::eD3DTexType texType;
 			/// wich texCoordIndex to use
-			int coordIndex;
+			size_t coordIndex;
 			/// type of auto tex. calc. used
 			TexCoordCalcMethod autoTexCoordType;
 			/// texture 
@@ -96,12 +96,12 @@ namespace Ogre
 		D3D9DriverList* getDirect3DDrivers(void);
 		void refreshD3DSettings(void);
 
-		inline bool compareDecls( D3DVERTEXELEMENT9* pDecl1, D3DVERTEXELEMENT9* pDecl2, int size );
+		inline bool compareDecls( D3DVERTEXELEMENT9* pDecl1, D3DVERTEXELEMENT9* pDecl2, size_t size );
 
 
 		void initInputDevices(void);
 		void processInputDevices(void);
-		void setD3D9Light( int index, Light* light );
+		void setD3D9Light( size_t index, Light* light );
 		
 		// state management methods, very primitive !!!
 		HRESULT __SetRenderState(D3DRENDERSTATETYPE state, DWORD value);
@@ -149,8 +149,8 @@ namespace Ogre
 		ConfigOptionMap& getConfigOptions(void);
 		String validateConfigOptions(void);
 		RenderWindow* initialise( bool autoCreateWindow );
-		RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth, bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true, RenderWindow* parentWindowHandle = 0);
-		RenderTexture * createRenderTexture( const String & name, int width, int height );
+		RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth, bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true, RenderWindow* parentWindowHandle = 0);
+		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height );
 		String getErrorDescription( long errorNumber );
 		const String& getName(void) const;
 		// Low-level overridden members
@@ -200,7 +200,7 @@ namespace Ogre
             Matrix4& dest, bool forGpuProgram = false);
 		void _setRasterisationMode(SceneDetailLevel level);
         void _setTextureUnitFiltering(size_t unit, FilterType ftype, FilterOptions filter);
-		void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy);
+		void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);
 		void setVertexDeclaration(VertexDeclaration* decl);
 		void setVertexBufferBinding(VertexBufferBinding* binding);
         void _render(const RenderOperation& op);

@@ -1,5 +1,6 @@
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 
 #include <algorithm>
 
@@ -169,13 +170,13 @@ namespace Ogre {
             if (pos == String::npos)
                 Except(999, "Invalid Video Mode provided", "Win32GLSupport::createWindow");
 
-            int w = atoi(val.substr(0, pos).c_str());
-            int h = atoi(val.substr(pos + 1).c_str());
+			unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
+            unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
 			opt = mOptions.find("Colour Depth");
 			if (opt == mOptions.end())
 				Except(999, "Can't find Colour Depth options!", "Win32GLSupport::createWindow");
-			int colourDepth = atoi(opt->second.currentValue);
+			unsigned int colourDepth = atoi(opt->second.currentValue);
 
 			opt = mOptions.find("VSync");
 			if (opt == mOptions.end())
@@ -192,14 +193,14 @@ namespace Ogre {
         }
 	}
 
-	RenderWindow* Win32GLSupport::newWindow(const String& name, int width, int height, int colourDepth,
+	RenderWindow* Win32GLSupport::newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
 			bool vsync)
 	{
 		ConfigOptionMap::iterator opt = mOptions.find("Display Frequency");
 		if (opt == mOptions.end())
 			Except(999, "Can't find Colour Depth options!", "Win32GLSupport::newWindow");
-		int displayFrequency = atoi(opt->second.currentValue);
+		unsigned int displayFrequency = atoi(opt->second.currentValue);
 
 		Win32Window* window = new Win32Window();
 		window->create(name, width, height, colourDepth, fullScreen, left, top, depthBuffer,

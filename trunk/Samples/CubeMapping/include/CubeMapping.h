@@ -425,13 +425,13 @@ private:
                     Pass* clonedPass = cloned->getTechnique(0)->getPass(0);
 					// can't help it - have to do it :)
 					if (meshName=="knot.mesh") {
-						for(int tl=0;tl<clonedPass->getNumTextureUnitStates();tl++) {
+						for(size_t tl=0;tl<clonedPass->getNumTextureUnitStates();tl++) {
 							TextureUnitState *tlayer = clonedPass->getTextureUnitState(tl);
 							tlayer->setScrollAnimation(1.0 , 0);
 						}
 					}
 					// add layers
-					for(int tl=0;tl<pass->getNumTextureUnitStates();tl++) {
+					for(size_t tl=0;tl<pass->getNumTextureUnitStates();tl++) {
 						TextureUnitState *orgTL = pass->getTextureUnitState(tl);
 						TextureUnitState *newTL = clonedPass->createTextureUnitState(
 							orgTL->getTextureName());

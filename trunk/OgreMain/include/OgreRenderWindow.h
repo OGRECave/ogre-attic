@@ -83,7 +83,7 @@ namespace Ogre
                 miscParam A variable number of pointers to platform-specific arguments. The
                 actual requirements must be defined by the implementing subclasses.
         */
-        virtual void create(const String& name, int width, int height, int colourDepth,
+        virtual void create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...) = 0;
 
         /** Destroys the window.
@@ -92,7 +92,7 @@ namespace Ogre
 
         /** Alter the size of the window.
         */
-        virtual void resize(int width, int height) = 0;
+        virtual void resize(unsigned int width, unsigned int height) = 0;
 
         /** Reposition the window.
         */
@@ -100,7 +100,7 @@ namespace Ogre
 
         /** Indicates whether the window has been closed by the user.
         */
-        virtual bool isClosed(void) = 0;
+        virtual bool isClosed(void) const = 0;
 
         /** Swaps the frame buffers to display the next frame.
             @remarks
@@ -139,7 +139,8 @@ namespace Ogre
         /** Overloaded version of getMetrics from RenderTarget, including extra details
             specific to windowing systems.
         */
-        virtual void getMetrics(int &width, int &height, int &colourDepth, int &left, int &top);
+        virtual void getMetrics(unsigned int& width, unsigned int& height, unsigned int& colourDepth, 
+			int& left, int& top);
 
 
     protected:

@@ -60,7 +60,7 @@ namespace Ogre {
 
     }
 
-    void SDLWindow::create(const String& name, int width, int height, int colourDepth,
+    void SDLWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
                            bool fullScreen, int left, int top, bool depthBuffer,
                            void* miscParam, ...)
     {
@@ -104,12 +104,12 @@ namespace Ogre {
         Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
     }
 
-    bool SDLWindow::isActive()
+    bool SDLWindow::isActive() const
     {
         return mActive;
     }
 
-    bool SDLWindow::isClosed()
+    bool SDLWindow::isClosed() const
     {
         return mClosed;
     }
@@ -119,7 +119,7 @@ namespace Ogre {
         // XXX FIXME
     }
 
-    void SDLWindow::resize(int width, int height)
+    void SDLWindow::resize(unsigned int width, unsigned int height)
     {
         for (ViewportList::iterator it = mViewportList.begin();
              it != mViewportList.end(); ++it)

@@ -97,7 +97,7 @@ namespace Ogre {
 
         /* State of modifiers at last 'capture' call 
 		   NOTE this doesn't support keyboard buffering yet */
-		long getKeyModifiers();
+		long getKeyModifiers() const;
 
     private:
         /* For mouse immediate mode. Note that the space origin in DX is (0,0,0), here we
@@ -107,7 +107,7 @@ namespace Ogre {
 
 		/* For mouse buffered mode. */
 		Real mScale;
-		Real getScaled(DWORD dwVal);
+		Real getScaled(DWORD dwVal) const;
 
 		/* For keyboard immediate mode. */
         char mKeyboardBuffer[256];

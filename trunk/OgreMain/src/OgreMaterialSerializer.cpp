@@ -2319,7 +2319,7 @@ namespace Ogre
             if (pTex->getNumFrames() > 1 && !pTex->isCubic())
             {
                 writeAttribute(4, "anim_texture");
-                for (int n = 0; n < pTex->getNumFrames(); n++)
+                for (unsigned int n = 0; n < pTex->getNumFrames(); n++)
                     writeValue(pTex->getFrameTextureName(n));
                 writeValue(StringConverter::toString(pTex->getAnimationDuration()));
             }
@@ -2328,7 +2328,7 @@ namespace Ogre
             if (pTex->isCubic())
             {
                 writeAttribute(4, "cubic_texture");
-                for (int n = 0; n < pTex->getNumFrames(); n++)
+                for (unsigned int n = 0; n < pTex->getNumFrames(); n++)
                     writeValue(pTex->getFrameTextureName(n));
 
                 //combinedUVW/separateUW

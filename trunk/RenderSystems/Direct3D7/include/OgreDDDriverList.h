@@ -52,9 +52,9 @@ namespace Ogre {
         /** Returns the item at the specified position. Throws an
             std::out_of_range if the index is greater then the size.
         */
-        DDDriver* item(int index);
+        DDDriver* item(size_t index);
 
-        unsigned int count(void) const;
+        size_t count(void) const;
 
 
 

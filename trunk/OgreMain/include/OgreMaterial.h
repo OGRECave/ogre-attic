@@ -166,7 +166,7 @@ namespace Ogre {
         @remarks
             Note that this will not be up to date until the material has been compiled.
         */
-        unsigned short getNumLodLevels(void) { 
+        unsigned short getNumLodLevels(void) const { 
             return static_cast<unsigned short>(mBestTechniqueList.size()); }
 
         /** Gets the best supported technique. 
@@ -199,13 +199,13 @@ namespace Ogre {
 
         /** Creates a new copy of this material with the same settings but a new name.
         */
-        Material* clone(const String& newName);
+        Material* clone(const String& newName) const;
 
         /** Copies the details of this material into another, preserving the target's handle and name
         (unlike operator=) but copying everything else.
         @param mat Pointer to material which will receive this material's settings.
         */
-        void copyDetailsTo(Material* mat);
+        void copyDetailsTo(Material* mat) const;
 
         /** 'Compiles' this Material.
         @remarks
@@ -502,9 +502,9 @@ namespace Ogre {
         void setLodLevels(const LodDistanceList& lodDistances);
 
         /** Gets the LOD index to use at the given distance. */
-        unsigned short getLodIndex(Real d);
+        unsigned short getLodIndex(Real d) const;
         /** Gets the LOD index to use at the given squared distance. */
-        unsigned short getLodIndexSquaredDepth(Real squaredDepth);
+        unsigned short getLodIndexSquaredDepth(Real squaredDepth) const;
 
         /** @copydoc Resource::touch
         */

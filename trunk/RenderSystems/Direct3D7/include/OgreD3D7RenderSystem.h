@@ -105,7 +105,7 @@ namespace Ogre {
  			/// the type of the texture
  			eD3DTexType texType;
  			/// wich texCoordIndex to use
- 			int coordIndex;
+ 			size_t coordIndex;
  			/// type of auto tex. calc. used
  			TexCoordCalcMethod autoTexCoordType;
  			/// texture, if it's 0/NULL the tex layer is disabled
@@ -120,7 +120,7 @@ namespace Ogre {
         void initConfigOptions(void);
         void initInputDevices(void);
         void processInputDevices(void);
-        void setD3DLight(int index, Light* light);
+        void setD3DLight(size_t index, Light* light);
 
         D3DCMPFUNC convertCompareFunction(CompareFunction func);
         D3DSTENCILOP convertStencilOp(StencilOperation op);
@@ -196,11 +196,11 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
+        RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0);
 
-        RenderTexture * createRenderTexture( const String & name, int width, int height );
+        RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height );
 
         /** See
           RenderSystem
@@ -369,7 +369,7 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy);
+		void _setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy);
         /** See
           RenderSystem
          */

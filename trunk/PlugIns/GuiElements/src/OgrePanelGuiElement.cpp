@@ -107,12 +107,12 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Real PanelGuiElement::getTileX(ushort layer)
+    Real PanelGuiElement::getTileX(ushort layer) const
     {
         return mTileX[layer];
     }
     //---------------------------------------------------------------------
-    Real PanelGuiElement::getTileY(ushort layer)
+    Real PanelGuiElement::getTileY(ushort layer) const
     {
         return mTileY[layer];
     }
@@ -122,7 +122,7 @@ namespace Ogre {
         mTransparent = isTransparent;
     }
     //---------------------------------------------------------------------
-    bool PanelGuiElement::isTransparent(void)
+    bool PanelGuiElement::isTransparent(void) const
     {
         return mTransparent;
     }
@@ -319,13 +319,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     // Command objects
     //-----------------------------------------------------------------------
-    String PanelGuiElement::CmdTiling::doGet(void* target)
+    String PanelGuiElement::CmdTiling::doGet(const void* target) const
     {
         // NB only returns 1st layer tiling
         String ret = "0 " + StringConverter::toString(
-            static_cast<PanelGuiElement*>(target)->getTileX() );
+            static_cast<const PanelGuiElement*>(target)->getTileX() );
         ret += " " + StringConverter::toString(
-            static_cast<PanelGuiElement*>(target)->getTileY() );
+            static_cast<const PanelGuiElement*>(target)->getTileY() );
         return ret;
     }
     void PanelGuiElement::CmdTiling::doSet(void* target, const String& val)
@@ -340,10 +340,10 @@ namespace Ogre {
         static_cast<PanelGuiElement*>(target)->setTiling(x_tile, y_tile, layer);
     }
     //-----------------------------------------------------------------------
-    String PanelGuiElement::CmdTransparent::doGet(void* target)
+    String PanelGuiElement::CmdTransparent::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<PanelGuiElement*>(target)->isTransparent() );
+            static_cast<const PanelGuiElement*>(target)->isTransparent() );
     }
     void PanelGuiElement::CmdTransparent::doSet(void* target, const String& val)
     {

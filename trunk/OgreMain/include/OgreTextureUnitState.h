@@ -162,7 +162,7 @@ namespace Ogre {
         @param
         texCoordSet The index of the texture coordinate set to use.
         */
-		TextureUnitState( Pass* parent, const String& texName, int texCoordSet = 0);
+		TextureUnitState( Pass* parent, const String& texName, unsigned int texCoordSet = 0);
 
         /** Get the name of current texture image for this layer.
         @remarks
@@ -297,7 +297,7 @@ namespace Ogre {
         duration The length of time it takes to display the whole animation sequence, in seconds.
         If 0, no automatic transition occurs.
         */
-        void setAnimatedTextureName( const String& name, int numFrames, Real duration = 0 );
+        void setAnimatedTextureName( const String& name, unsigned int numFrames, Real duration = 0 );
 
         /** Sets the names of the texture images for an animated texture.
         @remarks
@@ -320,11 +320,11 @@ namespace Ogre {
         duration The length of time it takes to display the whole animation sequence, in seconds.
         If 0, no automatic transition occurs.
         */
-        void setAnimatedTextureName( const String* const names, int numFrames, Real duration = 0 );
+        void setAnimatedTextureName( const String* const names, unsigned int numFrames, Real duration = 0 );
 
         /** Returns the width and height of the texture in the given frame.
         */
-        std::pair< uint, uint > getTextureDimensions( int frame = 0 ) const;
+        std::pair< uint, uint > getTextureDimensions( unsigned int frame = 0 ) const;
 
         /** Changes the active frame in an animated or multi-image texture.
         @remarks
@@ -333,25 +333,25 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        void setCurrentFrame( int frameNumber );
+        void setCurrentFrame( unsigned int frameNumber );
 
         /** Gets the active frame in an animated or multi-image texture layer.
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        int getCurrentFrame(void) const;
+        unsigned int getCurrentFrame(void) const;
 
         /** Gets the name of the texture associated with a frame.
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        const String& getFrameTextureName(int frameNumber) const;
+        const String& getFrameTextureName(unsigned int frameNumber) const;
 
         /** Gets the number of frames for a texture.
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        int getNumFrames(void) const;
+        unsigned int getNumFrames(void) const;
 
         /** Returns true if this texture unit is either a series of 6 2D textures, each
             in it's own frame, or is a full 3D cube map. You can tell which by checking
@@ -377,7 +377,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        int getTextureCoordSet(void) const;
+        unsigned int getTextureCoordSet(void) const;
 
         /** Sets the index of the set of texture co-ords this layer uses.
         @note
@@ -386,7 +386,7 @@ namespace Ogre {
         @note
         Applies to both fixed-function and programmable pipeline.
         */
-        void setTextureCoordSet(int set);
+        void setTextureCoordSet(unsigned int set);
 
         /** Sets a matrix used to transform any texture coordinates on this layer.
         @remarks
@@ -830,9 +830,9 @@ namespace Ogre {
         @note
         This option applies in both the fixed function and the programmable pipeline.
         */
-        void setTextureAnisotropy(int maxAniso);
+        void setTextureAnisotropy(unsigned int maxAniso);
         // get this layer texture anisotropy level
-        int getTextureAnisotropy() const;
+        unsigned int getTextureAnisotropy() const;
 
         /// Gets the parent Pass object
         Pass* getParent(void) { return mParent; }
@@ -857,9 +857,9 @@ protected:
 #define MAX_FRAMES 32
 
         /// Number of frames of animation, or frames making up cubic
-        int mNumFrames;        
+        unsigned int mNumFrames;        
         /// The xurrent animation frame.
-        int mCurrentFrame;
+        unsigned int mCurrentFrame;
         // String mFrames[MAX_FRAMES] is at the end of the class                
 
         /// Duration of animation in seconds
@@ -868,7 +868,7 @@ protected:
         bool mCubic; // is this a series of 6 2D textures to make up a cube?
         TextureType mTextureType; 
 
-        int mTextureCoordSetIndex;
+        unsigned int mTextureCoordSetIndex;
         TextureAddressingMode mAddressMode;                
 
         LayerBlendModeEx colourBlendMode;
@@ -897,7 +897,7 @@ protected:
         /// Texture filtering - mipmapping
         FilterOptions mMipFilter;
         ///Texture anisotropy
-        int mMaxAniso;
+        unsigned int mMaxAniso;
 
         bool mIsDefaultAniso;
         bool mIsDefaultFiltering;

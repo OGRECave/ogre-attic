@@ -100,7 +100,7 @@ namespace Ogre {
         mRedAdj = red;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getRedAdjust(void)
+    Real ColourFaderAffector::getRedAdjust(void) const
     {
         return mRedAdj;
     }
@@ -110,7 +110,7 @@ namespace Ogre {
         mGreenAdj = green;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getGreenAdjust(void)
+    Real ColourFaderAffector::getGreenAdjust(void) const
     {
         return mGreenAdj;
     }
@@ -120,7 +120,7 @@ namespace Ogre {
         mBlueAdj = blue;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getBlueAdjust(void)
+    Real ColourFaderAffector::getBlueAdjust(void) const
     {
         return mBlueAdj;
     }
@@ -130,7 +130,7 @@ namespace Ogre {
         mAlphaAdj = alpha;
     }
     //-----------------------------------------------------------------------
-    Real ColourFaderAffector::getAlphaAdjust(void)
+    Real ColourFaderAffector::getAlphaAdjust(void) const
     {
         return mAlphaAdj;
     }
@@ -140,10 +140,10 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String ColourFaderAffector::CmdRedAdjust::doGet(void* target)
+    String ColourFaderAffector::CmdRedAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ColourFaderAffector*>(target)->getRedAdjust() );
+            static_cast<const ColourFaderAffector*>(target)->getRedAdjust() );
     }
     void ColourFaderAffector::CmdRedAdjust::doSet(void* target, const String& val)
     {
@@ -151,10 +151,10 @@ namespace Ogre {
             StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String ColourFaderAffector::CmdGreenAdjust::doGet(void* target)
+    String ColourFaderAffector::CmdGreenAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ColourFaderAffector*>(target)->getGreenAdjust() );
+            static_cast<const ColourFaderAffector*>(target)->getGreenAdjust() );
     }
     void ColourFaderAffector::CmdGreenAdjust::doSet(void* target, const String& val)
     {
@@ -162,10 +162,10 @@ namespace Ogre {
             StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String ColourFaderAffector::CmdBlueAdjust::doGet(void* target)
+    String ColourFaderAffector::CmdBlueAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ColourFaderAffector*>(target)->getBlueAdjust() );
+            static_cast<const ColourFaderAffector*>(target)->getBlueAdjust() );
     }
     void ColourFaderAffector::CmdBlueAdjust::doSet(void* target, const String& val)
     {
@@ -173,10 +173,10 @@ namespace Ogre {
             StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String ColourFaderAffector::CmdAlphaAdjust::doGet(void* target)
+    String ColourFaderAffector::CmdAlphaAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ColourFaderAffector*>(target)->getAlphaAdjust() );
+            static_cast<const ColourFaderAffector*>(target)->getAlphaAdjust() );
     }
     void ColourFaderAffector::CmdAlphaAdjust::doSet(void* target, const String& val)
     {

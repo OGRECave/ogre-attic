@@ -81,7 +81,7 @@ namespace Ogre
 		mFSAAQuality = 0;
 
 		// set stages desc. to defaults
-		for (int n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
+		for (size_t n = 0; n < OGRE_MAX_TEXTURE_LAYERS; n++)
 		{
 			mTexStageDesc[n].autoTexCoordType = TEXCALC_NONE;
 			mTexStageDesc[n].coordIndex = 0;
@@ -350,7 +350,7 @@ namespace Ogre
 					}
 
 					// set maskable levels supported
-					for (int n = 2; n < 17; n++)
+					for (unsigned int n = 2; n < 17; n++)
 					{
 						bOK = this->_checkMultiSampleQuality(
 							(D3DMULTISAMPLE_TYPE)n, 
@@ -442,7 +442,7 @@ namespace Ogre
 			fullScreen = opt->second.currentValue == "Yes";
 
 			D3D9VideoMode* videoMode = NULL;
-			int width, height, colourDepth;
+			unsigned int width, height, colourDepth;
 			String temp;
 
 			opt = mOptions.find( "Video Mode" );
@@ -506,7 +506,7 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
 	}
 	//---------------------------------------------------------------------
-	RenderWindow* D3D9RenderSystem::createRenderWindow( const String &name, int width, int height, int colourDepth,
+	RenderWindow* D3D9RenderSystem::createRenderWindow( const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
 		bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
 	{
 		static bool firstWindow = true;
@@ -780,7 +780,7 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------
-	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, int width, int height )
+	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height )
 	{
 		RenderTexture *rt = new D3D9RenderTexture( name, width, height );
 		attachRenderTarget( *rt );
@@ -908,7 +908,7 @@ namespace Ogre
 			Except( hr, "Failed to set render state D3DRS_LIGHTING", "D3D9RenderSystem::setLightingEnabled" );
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setD3D9Light( int index, Light* lt )
+	void D3D9RenderSystem::setD3D9Light( size_t index, Light* lt )
 	{
 		HRESULT hr;
 
@@ -1563,7 +1563,7 @@ namespace Ogre
 			return oldVal;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
+	void D3D9RenderSystem::_setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy)
 	{
 		if ((DWORD)maxAnisotropy > mCaps.MaxAnisotropy)
 			maxAnisotropy = mCaps.MaxAnisotropy;
@@ -1734,9 +1734,9 @@ namespace Ogre
 		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
-	inline bool D3D9RenderSystem::compareDecls( D3DVERTEXELEMENT9* pDecl1, D3DVERTEXELEMENT9* pDecl2, int size )
+	inline bool D3D9RenderSystem::compareDecls( D3DVERTEXELEMENT9* pDecl1, D3DVERTEXELEMENT9* pDecl2, size_t size )
 	{
-		for( int i=0; i < size; i++ )
+		for( size_t i=0; i < size; i++ )
 		{
 			if( pDecl1[i].Method != pDecl2[i].Method ||
 				pDecl1[i].Offset != pDecl2[i].Offset ||
