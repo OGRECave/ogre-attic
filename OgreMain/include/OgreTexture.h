@@ -220,6 +220,8 @@ namespace Ogre {
         unsigned long mSrcWidth, mSrcHeight;
         unsigned short mFinalBpp;
         bool mHasAlpha;
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const;
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 

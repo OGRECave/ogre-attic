@@ -96,6 +96,10 @@ namespace Ogre {
         */
         virtual void setMemoryBudget( size_t bytes);
 
+        /** Get the limit on the amount of memory this resource handler may use.
+        */
+        virtual size_t getMemoryBudget(void) const;
+
 		/** Unloads a single resource by name.
 		@remarks
 			Unloaded resources are not removed, they simply free up their memory
@@ -168,7 +172,17 @@ namespace Ogre {
 		/** Notify this manager that a resource which it manages has been 
 			'touched', ie used. 
 		*/
-		virtual void _notifyResourceTouched(ResourcePtr res);
+		virtual void _notifyResourceTouched(Resource* res);
+
+		/** Notify this manager that a resource which it manages has been 
+			loaded. 
+		*/
+		virtual void _notifyResourceLoaded(Resource* res);
+
+		/** Notify this manager that a resource which it manages has been 
+			unloaded.
+		*/
+		virtual void _notifyResourceUnloaded(Resource* res);
 
 		/** Generic load method, used to create a Resource specific to this 
 			ResourceManager without using one of the specialised 'load' methods
@@ -265,7 +279,10 @@ namespace Ogre {
 		virtual void removeImpl( ResourcePtr& res );
 		/** Checks memory usage and pages out if required.
 		*/
-		void checkUsage(void);
+		virtual void checkUsage(void);
+		/** Gets the current memory usage, in bytes. */
+		virtual size_t getMemoryUsage(void) const { return mMemoryUsage; }
+
 
     public:
 		typedef HashMap< String, ResourcePtr > ResourceMap;
@@ -275,7 +292,7 @@ namespace Ogre {
         ResourceMap mResources;
         ResourceHandle mNextHandle;
         size_t mMemoryBudget; // In bytes
-        size_t mMemoryUsage; // In bytes, at last checkUsage() call
+        size_t mMemoryUsage; // In bytes
 
 		// IMPORTANT - all subclasses must populate the fields below
 

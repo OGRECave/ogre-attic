@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreResource.h"
 #include "OgreResourceManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre 
 {
@@ -54,12 +55,26 @@ namespace Ogre
 				{
 					mLoader->loadResource(this);
 				}
+				else
+				{
+					// Warn that this resource is not reloadable
+					LogManager::getSingleton().logMessage(
+						"WARNING: " + mCreator->getResourceType() + 
+						" instance '" + mName + "' was defined as manually "
+						"loaded, but no manual loader was provided. This Resource "
+						"will be lost if it has to be reloaded.");
+				}
 			}
 			else
 			{
 				loadImpl();
 			}
+			// Calculate resource size
+			mSize = calculateSize();
+			// Now loaded
 			mIsLoaded = true;
+			// Notify manager
+			mCreator->_notifyResourceLoaded(this);
 		}
 
 	}
@@ -70,6 +85,8 @@ namespace Ogre
 		{
 			unloadImpl();
 			mIsLoaded = false;
+			// Notify manager
+			mCreator->_notifyResourceUnloaded(this);
 		}
 	}
 	//-----------------------------------------------------------------------

@@ -1677,6 +1677,44 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+	size_t Mesh::calculateSize(void) const
+	{
+		// calculate GPU size
+		size_t ret = 0;
+		size_t i;
+		// Shared vertices
+		if (sharedVertexData)
+		{
+			for (i = 0; 
+				i < sharedVertexData->vertexBufferBinding->getBufferCount(); 
+				++i)
+			{
+				ret += sharedVertexData->vertexBufferBinding
+					->getBuffer(i)->getSizeInBytes();
+			}
+		}
+
+		SubMeshList::const_iterator si;
+		for (si = mSubMeshList.begin(); sm != mSubMeshList.end(); ++si)
+		{
+			// Dedicated vertices
+			if (!(*si)->useSharedVertices)
+			{
+				for (i = 0; 
+					i < (*si)->vertexData->vertexBufferBinding->getBufferCount(); 
+					++i)
+				{
+					ret += (*si)->vertexData->vertexBufferBinding
+						->getBuffer(i)->getSizeInBytes();
+				}
+			}
+			// Index data
+			ret += (*si)->indexData->indexBuffer->getSizeInBytes();
+
+		}
+		return ret;
+	}
 
 }
 

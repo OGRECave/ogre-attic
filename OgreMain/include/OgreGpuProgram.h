@@ -553,6 +553,8 @@ namespace Ogre {
 		*/
 		void setupBaseParamDictionary(void);
 
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const { return 0; } // TODO 
 
 		/// @copydoc Resource::loadImpl
 		void loadImpl(void);

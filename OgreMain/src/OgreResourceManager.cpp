@@ -119,6 +119,11 @@ namespace Ogre {
         mMemoryBudget = bytes;
         checkUsage();
     }
+    //-----------------------------------------------------------------------
+    size_t ResourceManager::getMemoryBudget(void) const
+    {
+        return mMemoryBudget;
+    }
 	//-----------------------------------------------------------------------
 	void ResourceManager::unload(const String& name)
 	{
@@ -231,9 +236,19 @@ namespace Ogre {
         // TODO Page out here?
     }
 	//-----------------------------------------------------------------------
-	void ResourceManager::_notifyResourceTouched(ResourcePtr res)
+	void ResourceManager::_notifyResourceTouched(Resource* res)
 	{
 		// TODO
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::_notifyResourceLoaded(Resource* res)
+	{
+		mMemoryUsage += res->getSize();
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::_notifyResourceUnloaded(Resource* res)
+	{
+		mMemoryUsage -= res->getSize();
 	}
 	//-----------------------------------------------------------------------
 

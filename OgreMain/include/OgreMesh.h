@@ -183,6 +183,8 @@ namespace Ogre {
         void loadImpl(void);
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void);
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const;
 
     public:
         /** Default constructor - used by MeshManager

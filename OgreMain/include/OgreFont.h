@@ -145,10 +145,12 @@ namespace Ogre
         /// Internal method for loading from ttf
         void createTextureFromFont(void);
 
-		/** See Resource. */
+		/// @copydoc Resource::loadImpl
 		virtual void loadImpl();
-		/** See Resource. */
+		/// @copydoc Resource::unloadImpl
 		virtual void unloadImpl();
+		/// @copydoc Resource::calculateSize
+		size_t calculateSize(void) const { return 0; } // permanent resource is in the texture 
     public:
 
         /** Constructor.

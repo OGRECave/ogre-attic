@@ -77,5 +77,11 @@ namespace Ogre {
         mSrcBpp = Image::PF2BPP(mFormat);
         mHasAlpha = Image::formatHasAlpha(mFormat);
     }
+    //--------------------------------------------------------------------------
+	size_t Texture::calculateSize(void) const
+	{
+		// TODO - how do we calculate real DDS texture size?
+		return mWidth * mHeight * mDepth * mFinalBpp;
+	}
   
 }
