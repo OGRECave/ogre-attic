@@ -247,12 +247,12 @@ namespace Ogre {
 
         bool isActive;
         bool allWindowsClosed;
-        static float lastStartTime;
-        static float lastEndTime;
+        static clock_t lastStartTime;
+        static clock_t lastEndTime;
         RenderWindowMap::iterator i;
 
         // Init times to avoid large first-frame time
-        lastStartTime = lastEndTime = ((float)clock())/CLOCKS_PER_SEC;
+        lastStartTime = lastEndTime = clock();
         
         RenderSystem::startRendering();
         
@@ -293,14 +293,19 @@ namespace Ogre {
 
             FrameEvent evt;
 
-            // Do frame start event
-            float fTime = ((float)clock())/CLOCKS_PER_SEC; // Get current time in seconds
-            evt.timeSinceLastFrame = fTime - lastStartTime;
-            evt.timeSinceLastEvent = fTime - lastEndTime;
+            // Do frame start event, only if time has advanced
+            // Protects us against over-updating when FPS very high
+            clock_t fTime = clock(); // Get current time
+            if (fTime != lastStartTime || fTime != lastEndTime)
+            {
+                evt.timeSinceLastFrame = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
+                evt.timeSinceLastEvent = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
+                // Stop rendering if frame callback says so
+                if(!fireFrameStarted(evt))
+                    return;
+            }
+          
 
-            // Stop rendering if frame callback says so
-            if(!fireFrameStarted(evt))
-                return;
 
             lastStartTime = fTime;
 
@@ -316,13 +321,17 @@ namespace Ogre {
             }
 
             // Do frame ended event
-            fTime = ((float)clock())/CLOCKS_PER_SEC; // Get current time in seconds
-            evt.timeSinceLastFrame = fTime - lastEndTime;
-            evt.timeSinceLastEvent = fTime - lastStartTime;
+            fTime = clock(); // Get current time
+            if (lastEndTime != fTime || fTime != lastStartTime)
+            {
+                evt.timeSinceLastFrame = (float)(fTime - lastEndTime) / CLOCKS_PER_SEC;
+                evt.timeSinceLastEvent = (float)(fTime - lastStartTime) / CLOCKS_PER_SEC;
+                // Stop rendering if frame callback says so
+                if(!fireFrameEnded(evt))
+                    return;
+            }
+                
 
-            // Stop rendering if frame callback says so
-            if(!fireFrameEnded(evt))
-                return;
 
             lastEndTime = fTime;
         }
