@@ -349,7 +349,7 @@ namespace Ogre {
             for (int b = 0; b < numBones; ++b)
             {
                 Bone* bone = mSkeletonInstance->getBone(b);
-                queue->addRenderable(bone, mRenderQueueID);
+                queue->addRenderable(bone, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
             }
         }
 
