@@ -451,7 +451,7 @@ namespace Ogre {
 		if(!contains(def))
 			Except(Exception::ERR_INVALIDPARAMS, "Bounds out of range", "PixelBox::getSubVolume");
 
-		int elemSize = PixelUtil::getNumElemBytes(format);
+		const size_t elemSize = PixelUtil::getNumElemBytes(format);
 		// Calculate new data origin
 		PixelBox rval(def, format, ((uint8*)data) 
 			+ ((def.left-left)*elemSize)
@@ -470,9 +470,9 @@ namespace Ogre {
     * Directly get the description record for provided pixel format. For debug builds,
     * this checks the bounds of fmt with an assertion.
     */    
-    static inline const PixelFormatDescription &getDescriptionFor(PixelFormat fmt) 
+    static inline const PixelFormatDescription &getDescriptionFor(const PixelFormat fmt)
     {
-        int ord = (int)fmt;
+        const int ord = (int)fmt;
         assert(ord>=0 && ord<PF_COUNT);
 
         return _pixelFormats[ord];
@@ -604,12 +604,12 @@ namespace Ogre {
     /*************************************************************************
     * Pixel packing/unpacking utilities
     */
-    void PixelUtil::packColour(const ColourValue &colour, PixelFormat pf,  void* dest)
+    void PixelUtil::packColour(const ColourValue &colour, const PixelFormat pf,  const void* dest)
     {
         packColour(colour.r, colour.g, colour.b, colour.a, pf, dest);
     }
     //-----------------------------------------------------------------------
-    void PixelUtil::packColour(uint8 r, uint8 g, uint8 b, uint8 a, PixelFormat pf,  void* dest)
+    void PixelUtil::packColour(const uint8 r, const uint8 g, const uint8 b, const uint8 a, const PixelFormat pf,  const void* dest)
     {
         const PixelFormatDescription &des = getDescriptionFor(pf);
         if(des.flags & PFF_NATIVEENDIAN) {
@@ -626,14 +626,14 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void PixelUtil::packColour(float r, float g, float b, float a, PixelFormat pf,  void* dest)
+    void PixelUtil::packColour(const float r, const float g, const float b, const float a, const PixelFormat pf,  const void* dest)
     {
         // Catch-it-all here
         const PixelFormatDescription &des = getDescriptionFor(pf);
         if(des.flags & PFF_NATIVEENDIAN) {
             // Do the packing
             //std::cerr << dest << " " << r << " " << g <<  " " << b << " " << a << std::endl;
-            unsigned int value = ((Bitwise::floatToFixed(r, des.rbits)<<des.rshift) & des.rmask) |
+            const unsigned int value = ((Bitwise::floatToFixed(r, des.rbits)<<des.rshift) & des.rmask) |
                 ((Bitwise::floatToFixed(g, des.gbits)<<des.gshift) & des.gmask) |
                 ((Bitwise::floatToFixed(b, des.bbits)<<des.bshift) & des.bmask) |
                 ((Bitwise::floatToFixed(a, des.abits)<<des.ashift) & des.amask);
@@ -695,7 +695,7 @@ namespace Ogre {
         const PixelFormatDescription &des = getDescriptionFor(pf);
         if(des.flags & PFF_NATIVEENDIAN) {
             // Shortcut for integer formats unpacking
-            unsigned int value = Bitwise::intRead(src, des.elemBytes);
+            const unsigned int value = Bitwise::intRead(src, des.elemBytes);
             if(des.flags & PFF_LUMINANCE) 
             {
                 // Luminance format -- only rbits used
@@ -733,7 +733,7 @@ namespace Ogre {
         const PixelFormatDescription &des = getDescriptionFor(pf);
         if(des.flags & PFF_NATIVEENDIAN) {
             // Shortcut for integer formats unpacking
-            unsigned int value = Bitwise::intRead(src, des.elemBytes);
+            const unsigned int value = Bitwise::intRead(src, des.elemBytes);
             if(des.flags & PFF_LUMINANCE) 
             {
                 // Luminance format -- only rbits used
@@ -832,19 +832,6 @@ namespace Ogre {
 					"PixelUtil::bulkPixelConversion");
 			}
 		}
-        uint8 *srcptr = static_cast<uint8*>(src.data);
-        uint8 *dstptr = static_cast<uint8*>(dst.data);
-        unsigned int srcPixelSize = PixelUtil::getNumElemBytes(src.format);
-        unsigned int dstPixelSize = PixelUtil::getNumElemBytes(dst.format);
-
-        // Calculate pitches+skips in bytes
-        size_t srcRowPitchBytes = src.rowPitch*srcPixelSize;
-        size_t srcRowSkipBytes = src.getRowSkip()*srcPixelSize;
-        size_t srcSliceSkipBytes = src.getSliceSkip()*srcPixelSize;
-
-        size_t dstRowPitchBytes = dst.rowPitch*dstPixelSize;
-        size_t dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
-        size_t dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
 
         // The easy case
         if(src.format == dst.format) {
@@ -855,8 +842,22 @@ namespace Ogre {
                 return;
             }
 
+            uint8 *srcptr = static_cast<uint8*>(src.data);
+            uint8 *dstptr = static_cast<uint8*>(dst.data);
+            const size_t srcPixelSize = PixelUtil::getNumElemBytes(src.format);
+            const size_t dstPixelSize = PixelUtil::getNumElemBytes(dst.format);
+
+            // Calculate pitches+skips in bytes
+            const size_t srcRowPitchBytes = src.rowPitch*srcPixelSize;
+            //const size_t srcRowSkipBytes = src.getRowSkip()*srcPixelSize;
+            const size_t srcSliceSkipBytes = src.getSliceSkip()*srcPixelSize;
+
+            const size_t dstRowPitchBytes = dst.rowPitch*dstPixelSize;
+            //const size_t dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
+            const size_t dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
+
             // Otherwise, copy per row
-            size_t rowSize = src.getWidth()*srcPixelSize;
+            const size_t rowSize = src.getWidth()*srcPixelSize;
             for(size_t z=src.front; z<src.back; z++) 
             {
                 for(size_t y=src.top; y<src.bottom; y++)
@@ -902,6 +903,17 @@ namespace Ogre {
             return;
         }
 #endif 
+
+        uint8 *srcptr = static_cast<uint8*>(src.data);
+        uint8 *dstptr = static_cast<uint8*>(dst.data);
+        const size_t srcPixelSize = PixelUtil::getNumElemBytes(src.format);
+        const size_t dstPixelSize = PixelUtil::getNumElemBytes(dst.format);
+
+        // Calculate pitches+skips in bytes
+        const size_t srcRowSkipBytes = src.getRowSkip()*srcPixelSize;
+        const size_t srcSliceSkipBytes = src.getSliceSkip()*srcPixelSize;
+        const size_t dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
+        const size_t dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
 
         // The brute force fallback
         float r,g,b,a;
@@ -1036,10 +1048,10 @@ namespace Ogre {
     template <typename T> void ilToOgreInternal(uint8 *tar, PixelFormat ogrefmt, 
         T r, T g, T b, T a)
     {
-        int ilfmt = ilGetInteger( IL_IMAGE_FORMAT );
+        const int ilfmt = ilGetInteger( IL_IMAGE_FORMAT );
         T *src = (T*)ilGetData();
         T *srcend = (T*)((uint8*)ilGetData() + ilGetInteger( IL_IMAGE_SIZE_OF_DATA ));
-        int elemSize = PixelUtil::getNumElemBytes(ogrefmt);
+        const size_t elemSize = PixelUtil::getNumElemBytes(ogrefmt);
         while(src < srcend) {
             switch(ilfmt) {
 			case IL_RGB:

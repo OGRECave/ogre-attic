@@ -105,7 +105,7 @@ namespace Ogre {
          * Convert floating point colour channel value between 0.0 and 1.0 (otherwise clamped) 
          * to integer of a certain number of bits. Works for any value of bits between 0 and 31.
          */
-        static inline unsigned int floatToFixed(float value, unsigned int bits) 
+        static inline unsigned int floatToFixed(const float value, const unsigned int bits)
         {
             if(value <= 0.0f) return 0;
             else if (value >= 1.0f) return (1<<bits)-1;
@@ -123,7 +123,7 @@ namespace Ogre {
         /**
          * Write a n*8 bits integer value to memory in native endian.
          */
-        static inline void intWrite(void *dest, int n, unsigned int value) 
+        static inline void intWrite(const void *dest, const int n, const unsigned int value)
         {
             switch(n) {
                 case 1:
@@ -148,7 +148,6 @@ namespace Ogre {
                     break;                
             }        
         }
-    
         /**
          * Read a n*8 bits integer value to memory in native endian.
          */

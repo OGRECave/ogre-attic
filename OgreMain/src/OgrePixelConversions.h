@@ -1,4 +1,4 @@
-/*
+ /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
@@ -47,13 +47,14 @@ template <class U> struct PixelBoxConverter
     {
         typename U::SrcType *srcptr = static_cast<typename U::SrcType*>(src.data);
         typename U::DstType *dstptr = static_cast<typename U::DstType*>(dst.data);
-        size_t srcSliceSkip = src.getSliceSkip();
-        size_t dstSliceSkip = dst.getSliceSkip();
+        const size_t srcSliceSkip = src.getSliceSkip();
+        const size_t dstSliceSkip = dst.getSliceSkip();
+        const size_t k = src.right - src.left;
         for(size_t z=src.front; z<src.back; z++) 
         {
             for(size_t y=src.top; y<src.bottom; y++)
             {
-                for(size_t x=src.left; x<src.right; x++)
+                for(size_t x=0; x<k; x++)
                 {
                     dstptr[x] = U::pixelConvert(srcptr[x]);
                 }
