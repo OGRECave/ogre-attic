@@ -74,6 +74,13 @@ namespace Ogre {
         return mDefaultLog;
     }
     //-----------------------------------------------------------------------
+    Log* LogManager::setDefaultLog(Log* newLog)
+    {
+        Log* oldLog = mDefaultLog;
+        mDefaultLog = newLog;
+        return oldLog;
+    }
+    //-----------------------------------------------------------------------
     Log* LogManager::getLog( const String& name)
     {
         LogList::iterator i = mLogs.find(name);

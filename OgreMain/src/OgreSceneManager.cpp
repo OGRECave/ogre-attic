@@ -94,6 +94,9 @@ namespace Ogre {
 	    mShowBoundingBoxes = false;
         mShadowTechnique = SHADOWTYPE_NONE;
         mDebugShadows = false;
+        mShadowDebugPass = 0;
+        mShadowStencilPass = 0;
+
 
 		// init render queues that do not need shadows
 		mRenderQueue.getQueueGroup(RENDER_QUEUE_BACKGROUND)->setShadowsEnabled(false);
@@ -630,7 +633,7 @@ namespace Ogre {
     {
         Root::getSingleton()._setCurrentSceneManager(this);
 		// Prep Pass for use in debug shadows
-		initShadowVolumeDebugMaterials();
+		initShadowVolumeMaterials();
 
         mCameraInProgress = camera;
         mCamChanged = true;
@@ -2119,7 +2122,7 @@ namespace Ogre {
         return mShadowCasterList;
     }
     //---------------------------------------------------------------------
-    void SceneManager::initShadowVolumeDebugMaterials(void)
+    void SceneManager::initShadowVolumeMaterials(void)
     {
         Material* matDebug = static_cast<Material*>(
             MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes"));
@@ -2128,31 +2131,41 @@ namespace Ogre {
             // Create
             matDebug = static_cast<Material*>(
                 MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
-            Pass* p = matDebug->getTechnique(0)->getPass(0);
-            p->setSceneBlending(SBT_ADD); 
-            p->setLightingEnabled(false);
-            p->setDepthWriteEnabled(false);
-            TextureUnitState* t = p->createTextureUnitState();
+            mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
+            mShadowDebugPass->setSceneBlending(SBT_ADD); 
+            mShadowDebugPass->setLightingEnabled(false);
+            mShadowDebugPass->setDepthWriteEnabled(false);
+            TextureUnitState* t = mShadowDebugPass->createTextureUnitState();
             t->setColourOperationEx(LBX_MODULATE, LBS_MANUAL, LBS_CURRENT, 
                 ColourValue(0.7, 0.0, 0.2));
-            p->setCullingMode(CULL_NONE);
+            mShadowDebugPass->setCullingMode(CULL_NONE);
             if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
             {
                 // TODO, add hardware extrusion program
             }
             matDebug->compile();
+
+            Material* matStencil = static_cast<Material*>(
+                MaterialManager::getSingleton().getByName("Ogre/StencilShadowVolumes"));
+            if (!matStencil)
+            {
+                // Init
+                matStencil = static_cast<Material*>(
+                    MaterialManager::getSingleton().create("Ogre/StencilShadowVolumes"));
+                mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
+                if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+                {
+                    // TODO, add hardware extrusion program
+                }
+                // Nothing else, we don't use this like a 'real' pass anyway,
+                // it's more of a placeholder
+            }
         }
 
     }
     //---------------------------------------------------------------------
     void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
     {
-        // Get debug material
-        Material* matDebug = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes"));
-        Pass* debugPass = matDebug->getTechnique(0)->getPass(0);
-
-
         // Can we do a 2-sided stencil?
         bool stencil2sided = false;
         if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL))
@@ -2213,16 +2226,38 @@ namespace Ogre {
                     {
                         // Single pass
                         mDestRenderSystem->_setCullingMode(CULL_NONE);
-
-
                     }
                     else
                     {
                         // First pass, do front faces (facing outside)
                         mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
-
+                    }
+                    // Do front faces (or both if 2-sided stencil)
+                    mDestRenderSystem->setStencilBufferParams(
+                        CMPF_ALWAYS_PASS, // always pass stencil check
+                        0, // no ref value (no compare)
+                        0xFFFFFFFF, // no mask
+                        SOP_KEEP, // stencil test will never fail
+                        zfailAlgo? SOP_DECREMENT : SOP_KEEP, // front face depth fail
+                        zfailAlgo? SOP_KEEP : SOP_INCREMENT, // front face pass
+                        stencil2sided
+                        );
+                    renderSingleObject(sr, mShadowStencilPass);
+                    
+                    if (!stencil2sided)
+                    {
                         // Second pass, do back faces (facing inside)
                         mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
+                        mDestRenderSystem->setStencilBufferParams(
+                            CMPF_ALWAYS_PASS, // always pass stencil check
+                            0, // no ref value (no compare)
+                            0xFFFFFFFF, // no mask
+                            SOP_KEEP, // stencil test will never fail
+                            zfailAlgo? SOP_INCREMENT : SOP_KEEP, // back face depth fail
+                            zfailAlgo? SOP_KEEP : SOP_DECREMENT, // back face pass
+                            stencil2sided
+                            );
+                        renderSingleObject(sr, mShadowStencilPass);
                     }
 
                     // Do we need to render a debug shadow marker?
@@ -2230,8 +2265,8 @@ namespace Ogre {
                     {
                         // reset stencil & colour ops
                         mDestRenderSystem->setStencilBufferParams();
-                        setPass(debugPass);
-                        renderSingleObject(sr, debugPass);
+                        setPass(mShadowDebugPass);
+                        renderSingleObject(sr, mShadowDebugPass);
                         mDestRenderSystem->_setColourBufferWriteEnabled(false, false, false, false);
                     }
                 }
