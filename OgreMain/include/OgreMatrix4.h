@@ -373,10 +373,10 @@ namespace Ogre
             return r;
         }
 
-        /** Extracts the rotation part of the Matrix as a 3x3 matrix. 
+        /** Extracts the rotation / scaling part of the Matrix as a 3x3 matrix. 
         @param m3x3 Destination Matrix3
         */
-        inline void extractRotationMatrix(Matrix3& m3x3)
+        inline void extract3x3Matrix(Matrix3& m3x3)
         {
             m3x3.m[0][0] = m[0][0];
             m3x3.m[0][1] = m[0][1];
