@@ -592,7 +592,7 @@ namespace Ogre {
             HardwareBufferManager::getSingleton().createVertexBuffer(
                 decl->getVertexSize(POSITION_BINDING),
                 mVertexData->vertexCount, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         // bind position and diffuses
         binding->setBinding(POSITION_BINDING, vbuf);
 
@@ -600,7 +600,7 @@ namespace Ogre {
             HardwareBufferManager::getSingleton().createVertexBuffer(
                 decl->getVertexSize(COLOUR_BINDING),
                 mVertexData->vertexCount, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         // bind position and diffuses
         binding->setBinding(COLOUR_BINDING, vbuf);
 
@@ -608,7 +608,7 @@ namespace Ogre {
             HardwareBufferManager::getSingleton().createVertexBuffer(
                 decl->getVertexSize(TEXCOORD_BINDING),
                 mVertexData->vertexCount, 
-                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
         // bind position
         binding->setBinding(TEXCOORD_BINDING, vbuf);
 
