@@ -443,7 +443,10 @@ namespace Ogre {
         /* Release the last mip-map level surface. */
         ddsMipLevel->Release();
 
-        OgreUnguard();
+        /* Release the temporary surface. */
+        pddsTempSurface->Release();
+
+		OgreUnguard();
     }
     //---------------------------------------------------------------------------------------------
 HRESULT WINAPI testEnumAtt( 
