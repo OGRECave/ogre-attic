@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreCgPrerequisites.h"
 #include "OgreHighLevelGpuProgram.h"
+#include "OgreStringVector.h"
 
 namespace Ogre {
     /** Specialisation of HighLevelGpuProgram to provide support for nVidia's CG language.
