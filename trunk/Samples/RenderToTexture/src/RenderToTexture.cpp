@@ -125,7 +125,7 @@ protected:
 
         rootNode->createChildSceneNode( "Head" )->attachObject( ogreHead );
 
-        RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512 );
+        RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512, TEX_TYPE_2D, PF_R8G8B8 );
         {
             mReflectCam = mSceneMgr->createCamera("ReflectCam");
             mReflectCam->setNearClipDistance(mCamera->getNearClipDistance());

@@ -488,6 +488,9 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
         }
 
+		// Check for GLSupport specific extensions
+		mGLSupport->initialiseCapabilities(*mCapabilities);
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
@@ -647,10 +650,10 @@ namespace Ogre {
         return win;
     }
 
-    RenderTexture * GLRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height )
+    RenderTexture * GLRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format  )
     {
-        RenderTexture* rt = new GLRenderTexture(name, width, height);
-        attachRenderTarget(*rt);
+        RenderTexture *rt = mGLSupport->createRenderTexture(name, width, height, texType, format);
+        attachRenderTarget( *rt );
         return rt;
     }
 

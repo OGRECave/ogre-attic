@@ -44,6 +44,11 @@ public:
 			bool vsync) = 0;
 
     /**
+     * Create a RenderTexture
+     */
+    virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format);
+
+    /**
     * Start anything special
     */
     virtual void start() = 0;
@@ -102,7 +107,12 @@ public:
     /** Intialises GL extensions, must be done AFTER the GL context has been
         established.
     */
-    virtual void initialiseExtensions(void);
+    virtual void initialiseExtensions();
+
+	/**	GLsupport specific capabilities (hardware render-to-texture, being one of 
+	    them) are marked in caps.
+	*/
+	virtual void initialiseCapabilities(RenderSystemCapabilities &caps);
 
 	virtual void resizeRepositionWindow(void * window){m_windowToResize = window;};
 	virtual void resizeReposition(void*){;};  // should change to pure when it is implemented for all cases
@@ -113,9 +123,9 @@ protected:
 
 	void *m_windowToResize;
 
-private:
-    // This contains the complete list of supported extensions
+	// This contains the complete list of supported extensions
     std::set<String> extensionList;
+private:
     String mVersion;
     String mVendor;
 

@@ -583,6 +583,13 @@ void GLXWindow::getCustomAttribute( const String& name, void* pData ) {
 	RenderWindow::getCustomAttribute(name, pData);
 }
 
+void GLXWindow::firePreUpdate(void)
+{
+    glXMakeCurrent(mDisplay, mWindow, mGlxContext);
+    RenderWindow::firePreUpdate();
+}
+
+
 void GLXWindow::writeContentsToFile(const String& filename) {
 
 	ImageCodec::ImageData imgData;

@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <X11/keysym.h>
 #include <X11/extensions/xf86vmode.h>
 #include <GL/glx.h>
+#include <GL/glxext.h>
 
 namespace Ogre {
 class GLXWindow : public RenderWindow {
@@ -85,6 +86,7 @@ public:
 	bool requiresTextureFlipping() const {
 		return false;
 	}
+    void firePreUpdate(void);
 };
 }
 

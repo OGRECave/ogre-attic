@@ -511,8 +511,7 @@ namespace Ogre {
     }
 
     void GLRenderTexture::_copyToTexture(void)
-    {
-		
+    {		
         glBindTexture(GL_TEXTURE_2D,
             static_cast<GLTexture*>(mTexture)->getGLID());
 			

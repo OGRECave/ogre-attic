@@ -411,4 +411,11 @@ namespace Ogre {
 
 		return DefWindowProc( hWnd, uMsg, wParam, lParam );
 	}
+
+	void Win32Window::firePreUpdate(void) {
+		// Enable current context
+		wglMakeCurrent(mHDC, mGlrc);
+		// Fire default preupdate
+		RenderWindow::firePreUpdate();
+	}
 }
