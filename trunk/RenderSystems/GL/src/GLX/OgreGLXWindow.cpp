@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
  
-Copyright © 2000-2004 The OGRE Team
+Copyright ? 2000-2004 The OGRE Team
 Also see acknowledgements in Readme.html
  
 This program is free software; you can redistribute it and/or modify it under
@@ -347,8 +347,11 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	int depth = DisplayPlanes(mDisplay, screen);
 	Window rootWindow = RootWindow(mDisplay,screen);
 #ifndef NO_XRANDR
-	// Attempt mode switch for fullscreen
-	if(fullScreen) {
+	// Attempt mode switch for fullscreen -- only if RANDR extension is there
+	int dummy;
+	if(fullScreen && ! XQueryExtension(mDisplay, "RANDR", &dummy, &dummy, &dummy)) {
+			LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No XRANDR extension found");		
+	} else if(fullScreen) {
 		// Use Xrandr extension to switch video modes. This is much better than
 		// XVidMode as you can't scroll away from the full-screen applications.
 		XRRScreenConfiguration *config;
