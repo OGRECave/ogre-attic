@@ -74,6 +74,15 @@ namespace OgreRefApp {
         virtual void setCollisionEnabled(bool enabled);
         virtual void setDynamicsEnabled(bool enabled);
 
+        virtual void addForce(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
+        virtual void addForceWorldSpace(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
+        virtual void addTorque(const Vector3& direction);
+        virtual void addTorqueWorldSpace(const Vector3& direction);
+
+        SceneNode* getSceneNode(void);
+        Entity* getEntity(void);
+        dBody* getOdeBody(void);
+
 
     };
 

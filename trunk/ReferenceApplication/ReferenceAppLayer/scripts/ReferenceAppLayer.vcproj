@@ -136,6 +136,9 @@
 				RelativePath="..\src\OgreRefAppOgreHead.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRefAppPlane.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRefAppWorld.cpp">
 			</File>
 		</Filter>
@@ -149,6 +152,9 @@
 				RelativePath="..\include\OgreRefAppOgreHead.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreRefAppPlane.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreRefAppPrerequisites.h">
 			</File>
 			<File
@@ -156,6 +162,15 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreReferenceAppLayer.h">
+			</File>
+			<File
+				RelativePath="..\..\..\Dependencies\include\ode\ode.h">
+			</File>
+			<File
+				RelativePath="..\..\..\Dependencies\include\ode\odecpp.h">
+			</File>
+			<File
+				RelativePath="..\..\..\Dependencies\include\ode\odecpp_collision.h">
 			</File>
 		</Filter>
 		<Filter

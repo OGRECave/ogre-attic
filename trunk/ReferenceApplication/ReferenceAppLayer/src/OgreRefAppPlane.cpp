@@ -22,17 +22,44 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-
-#ifndef __REFERENCE_APP_LAYER_H__
-#define __REFERENCE_APP_LAYER_H__
-
-// This is a utility header for client applications to use
-#include "OgreRefAppPrerequisites.h"
-#include "OgreRefAppWorld.h"
-#include "OgreRefAppApplicationObject.h"
-#include "OgreRefAppOgreHead.h"
 #include "OgreRefAppPlane.h"
+#include "OgreRefAppWorld.h"
+
+namespace OgreRefApp
+{
+    //-------------------------------------------------------------------------
+    Plane::Plane(const String& name, Real width, Real height) : ApplicationObject(name)
+    {
+        mWidth = width;
+        mHeight = height;
+        setUp(name);
+    }
+    //-------------------------------------------------------------------------
+    Plane::~Plane()
+    {
+
+    }
+    //-------------------------------------------------------------------------
+    void Plane::setUp(const String& name)
+    {
+        // Create visual presence
+        SceneManager* sm = World::getSingleton().getSceneManager();
+        mEntity = sm->createEntity(name, "Prefab_Plane");
+        mEntity->setMaterialName("Examples/BumpyMetal");
+        mSceneNode = sm->getRootSceneNode()->createChild(name);
+        mSceneNode->attachObject(mEntity);
+        // Add reverse reference
+        mEntity->setUserObject(this);
+
+        // Default plane is 100x100
+        mSceneNode->scale(mWidth / 100.0f, mHeight / 100.0f, 1.0);
+
+        // No mass body (considered static)
+
+        // Create collision proxy
 
 
-#endif
 
+    }
+
+}

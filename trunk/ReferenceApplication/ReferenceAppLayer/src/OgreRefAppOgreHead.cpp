@@ -55,7 +55,7 @@ namespace OgreRefApp
         mOdeBody->setData(this);
         // Set mass 
         dMass mass;
-        dMassSetSphere(&mass, 5, 10); // TODO change to more realistic values
+        dMassSetSphere(&mass, 5, 1); // TODO change to more realistic values
         mOdeBody->setMass(&mass);
 
 
