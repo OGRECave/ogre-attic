@@ -842,4 +842,11 @@ namespace Ogre {
         // delegate
         mActiveRenderer->_updateAllRenderTargets();
     }
+	//-----------------------------------------------------------------------
+	void Root::clearEventTimes(void)
+	{
+		// Clear event times
+		for(int i=0; i<3; ++i)
+			mEventTimes[i].clear();
+	}
 }
