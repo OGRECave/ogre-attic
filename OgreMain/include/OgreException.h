@@ -113,7 +113,7 @@ namespace Ogre {
         ushort stackDepth;
         static Exception* last;
 
-        static OgreChar msFunctionStack[ OGRE_CALL_STACK_DEPTH ][ 256 ];
+        static String msFunctionStack[ OGRE_CALL_STACK_DEPTH ];
         static ushort   msStackDepth;
     public:
         /** Static definitions of error codes.

@@ -42,11 +42,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonManager.h"
 #include "OgreGuiManager.h"
 #include "OgreOverlayManager.h"
-#include "OgreZipArchiveFactory.h"
 #include "OgreProfiler.h"
 #include "OgreErrorDialog.h"
 #include "OgreConfigDialog.h"
 #include "OgreStringConverter.h"
+#include "OgrePlatformManager.h"
+#include "OgreArchiveManager.h"
 
 #include "OgreILCodecs.h"
 
@@ -87,7 +88,7 @@ namespace Ogre {
     // Termination handler
     extern "C" _OgreExport void handleTerminate(void)
     {
-        LogManager::getSingleton().logMessage(LML_CRITICAL, "Termination handler: uncaught exception!");
+        LogManager::getSingleton().logMessage("Termination handler: uncaught exception!", LML_CRITICAL);
 
         Root::getSingleton().shutdown();
 
@@ -246,7 +247,6 @@ namespace Ogre {
         delete mDynLibManager;
         delete mLogManager;
 
-        ResourceManager::cleanupCommonArchive () ;
 
         StringInterface::cleanupDictionary ();
     }
@@ -254,34 +254,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::saveConfig(void)
     {
-        ::FILE *fp;
-        char rec[100];
+		std::ofstream of(mConfigFileName.c_str());
 
-        fp = fopen(mConfigFileName.c_str(), "w");
-        if (!fp)
+        if (!of)
             Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create settings file.",
             "Root::saveConfig");
 
         if (mActiveRenderer)
         {
-            sprintf(rec, "Render System\t%s\n", mActiveRenderer->getName().c_str());
-            fputs(rec, fp);
+			of << "Render System\t " << mActiveRenderer->getName() << "\n";
 
             ConfigOptionMap& opts = mActiveRenderer->getConfigOptions();
             for(  ConfigOptionMap::iterator pOpt = opts.begin(); pOpt != opts.end(); ++pOpt )
             {
-                sprintf(rec, "%s\t%s\n", pOpt->first.c_str(),
-                    pOpt->second.currentValue.c_str());
-                fputs(rec, fp);
+				of << pOpt->first << "\t" << pOpt->second.currentValue;
             }
         }
         else
         {
-            strcpy(rec, "Render System\t ");
-            fputs(rec, fp);
+            of << "Render System\t ";
         }
 
-        fclose(fp);
+        of.close();
 
     }
     //-----------------------------------------------------------------------
@@ -667,7 +661,7 @@ namespace Ogre {
             DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
             pFunc();
             // Unload library & destroy
-            DynLibManager::getSingleton().unload((ResourcePtr)*i);
+            DynLibManager::getSingleton().unload(*i);
             delete *i;
 
         }
@@ -784,7 +778,7 @@ namespace Ogre {
 				DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
 				pFunc();
 				// Unload library & destroy
-				DynLibManager::getSingleton().unload((ResourcePtr)*i);
+				DynLibManager::getSingleton().unload(*i);
 				delete *i;
 				mPluginLibs.erase(i);
 				return;
@@ -806,10 +800,8 @@ namespace Ogre {
 			mMaterialManager->initialise();
             // Init particle systems manager
             mParticleManager->_initialise();
-            // parse all font scripts
-            mFontManager->parseAllSources();
-            // init overlays
-            mOverlayManager->parseAllSources();
+            // initialise resource groups, includes parsing scripts
+			mResourceGroupManager->_initialise();
 			// Init mesh manager
 			MeshManager::getSingleton()._initialise();
             mFirstTimePostWindowInit = true;

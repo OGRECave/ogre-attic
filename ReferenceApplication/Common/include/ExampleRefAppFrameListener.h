@@ -203,11 +203,11 @@ public:
 
         if (mInputDevice->isKeyDown(KC_SYSRQ) && mTimeUntilNextToggle <= 0)
         {
-			char tmp[20];
-			sprintf(tmp, "screenshot_%d.png", ++mNumScreenShots);
-            mWindow->writeContentsToFile(tmp);
+			StringUtil::StrStreamType tmp;
+			tmp << "screenshot_" << ++mNumScreenShots << ".png";
+            mWindow->writeContentsToFile(tmp.str());
             mTimeUntilNextToggle = 0.5;
-			mWindow->setDebugText(String("Wrote ") + tmp);
+			mWindow->setDebugText(String("Wrote ") + tmp.str());
         }
 
 

@@ -106,7 +106,8 @@ namespace Ogre {
 		the resource in a script file which is on one of the resource locations
 		which has been defined for a group. There is still no instance of Resource,
 		but Ogre will know to create this resource when 
-		ResourceGroupManager::initialiseResourceGroup is called.</li>
+		ResourceGroupManager::initialiseResourceGroup is called (which is automatic
+		if you declare the resource group before Root::initialise).</li>
 		<li><b>Unloaded</b>. There is now a Resource instance for this resource, 
 		although it is not loaded. This means that code which looks for this
 		named resource will find it, but the Resource is not using a lot of memory
@@ -297,6 +298,15 @@ namespace Ogre {
 			pick up any new scripts or pre-declared resources, unless you
 			call clearResourceGroup, set up declared resources, and call this
 			method again.
+		@note 
+			When you call Root::initialise, all resource groups that have already been
+			created are automatically initialised too. Therefore you do not need to 
+			call this method for groups you define and set up before you call 
+			Root::initialise. However, since one of the most useful features of 
+			resource groups is to set them up after the main system initialisation
+			has occurred (e.g. a group per game level), you must remember to call this
+			method for the groups you create after this.
+
 		@param name The name of the resource group to initialise
 		*/
 		void initialiseResourceGroup(const String& name);
@@ -480,6 +490,11 @@ namespace Ogre {
 		@param manager Pointer to the manager for which all resources are being removed
 		*/
 		void _notifyAllResourcesRemoved(ResourceManager* manager);
+
+		/** Internal method called by Root::initialise, it calls initialiseResourceGroup
+			for all the existing resource groups.
+		*/
+		void _initialise(void);
 
 		/** Override standard Singleton retrieval.
         @remarks

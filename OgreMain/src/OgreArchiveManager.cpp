@@ -78,7 +78,7 @@ namespace Ogre {
         // Unload & delete resources in turn
         for( ArchiveMap::iterator it = mArchives.begin(); it != mArchives.end(); ++it )
         {
-            Archive* arch = i->second;
+            Archive* arch = it->second;
             // Unload
             arch->unload();
             // Find factory to destroy
@@ -87,7 +87,7 @@ namespace Ogre {
             {
                 // Factory not found
                 Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
-                "to deal with archive of type " + archiveType, "ArchiveManager::~ArchiveManager");
+                "to deal with archive of type " + arch->getType(), "ArchiveManager::~ArchiveManager");
             }
             fit->second->destroyInstance(arch);
             

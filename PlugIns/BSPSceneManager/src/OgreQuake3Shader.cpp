@@ -66,23 +66,25 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MaterialPtr Quake3Shader::createAsMaterial(SceneManager* sm, int lightmapNumber)
     {
-        char matName[72];
-        sprintf(matName, "%s#%d", mName.c_str(), lightmapNumber);
+		String matName;
+		StringUtil::StrStreamType str;
+
+        str << mName << "#" << lightmapNumber;
+		matName = str.str();
+
         MaterialPtr mat = MaterialManager::getSingleton().create(matName, 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-        char msg[256];
-        sprintf(msg, "Using Q3 shader %s", mName.c_str());
-        LogManager::getSingleton().logMessage(msg, LML_CRITICAL);
+        LogManager::getSingleton().logMessage("Using Q3 shader " + mName, LML_CRITICAL);
         for (int p = 0; p < numPasses; ++p)
         {
             TextureUnitState* t;
             // Create basic texture
             if (pass[p].textureName == "$lightmap")
             {
-                char lightmapName[16];
-                sprintf(lightmapName, "@lightmap%d", lightmapNumber);
-                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(lightmapName);
+				str.clear();
+				str << "@lightmap" << lightmapNumber;
+                t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(str.str());
             }
             // Animated texture support
             else if (pass[p].animNumFrames > 0)

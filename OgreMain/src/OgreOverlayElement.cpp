@@ -65,7 +65,6 @@ namespace Ogre {
         mHeight = 1.0f;
 		mMouseListener = 0;
         mVisible = true;
-        mpMaterial = 0;
         mDerivedOutOfDate = true;
         mZOrder = 0;
 		mCloneable = true;

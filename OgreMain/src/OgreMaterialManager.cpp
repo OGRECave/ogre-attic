@@ -80,7 +80,8 @@ namespace Ogre {
     }
 	//-----------------------------------------------------------------------
 	Resource* MaterialManager::createImpl(const String& name, ResourceHandle handle, 
-		const String& group, bool isManual, ManualResourceLoader* loader)
+		const String& group, bool isManual, ManualResourceLoader* loader,
+        const NameValuePairList* params)
 	{
 		return new Material(this, name, handle, group, isManual, loader);
 	}
@@ -88,14 +89,15 @@ namespace Ogre {
 	void MaterialManager::initialise(void)
 	{
 		// Set up default material - don't use name contructor as we want to avoid applying defaults
-	    mDefaultSettings = create("DefaultSettings");
+		mDefaultSettings = create("DefaultSettings", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         // Add a single technique and pass, non-programmable
         mDefaultSettings->createTechnique()->createPass();
 
 	    // Set up a lit base white material
-	    create("BaseWhite");
+	    create("BaseWhite", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 	    // Set up an unlit base white material
-        MaterialPtr baseWhiteNoLighting = create("BaseWhiteNoLighting");
+        MaterialPtr baseWhiteNoLighting = create("BaseWhiteNoLighting", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         baseWhiteNoLighting->setLightingEnabled(false);
 
 	}

@@ -65,9 +65,9 @@ namespace Ogre {
     void Skeleton::loadImpl(void)
     {
         SkeletonSerializer serializer;
-        char msg[100];
-        sprintf(msg, "Skeleton: Loading %s .", mName.c_str());
-        LogManager::getSingleton().logMessage(msg);
+		StringUtil::StrStreamType msg;
+		msg << "Skeleton: Loading " << mName;
+        LogManager::getSingleton().logMessage(msg.str());
 
         DataStreamPtr stream = 
             ResourceGroupManager::getSingleton()._findResource(mName, mGroup);

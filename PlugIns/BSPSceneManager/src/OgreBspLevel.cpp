@@ -208,7 +208,7 @@ namespace Ogre {
         // To do this I actually need to parse the faces since they have the
         //  shader/lightmap combo (lightmap number is not in the shader since
         //  it can be used with multiple lightmaps)
-        char shaderName[256];
+        String shaderName;
         int face;
         face = q3lvl.mNumFaces;
         int matHandle;
@@ -220,9 +220,9 @@ namespace Ogre {
             // Check to see if existing material
             // Format shader#lightmap
             int shadIdx = q3lvl.mFaces[face].shader;
-            sprintf(shaderName, "%s#%d",
-                q3lvl.mShaders[shadIdx].name,
-                q3lvl.mFaces[face].lm_texture);
+			StringUtil::StrStreamType tmp;
+			tmp << q3lvl.mShaders[shadIdx].name << "#" << q3lvl.mFaces[face].lm_texture;
+			shaderName = tmp.str();
 
             MaterialPtr shadMat = MaterialManager::getSingleton().getByName(shaderName);
             if (shadMat.isNull())
@@ -258,9 +258,9 @@ namespace Ogre {
                     if (q3lvl.mFaces[face].lm_texture != -1)
                     {
                         // Add lightmap, additive blending
-                        char lightmapName[16];
-                        sprintf(lightmapName, "@lightmap%d",q3lvl.mFaces[face].lm_texture);
-                        tex = shadPass->createTextureUnitState(lightmapName);
+						StringUtil::StrStreamType lightmapName;
+                        lightmapName << "@lightmap" << q3lvl.mFaces[face].lm_texture;
+                        tex = shadPass->createTextureUnitState(lightmapName.str());
                         // Blend
                         tex->setColourOperation(LBO_MODULATE);
                         // Use 2nd texture co-ordinate set

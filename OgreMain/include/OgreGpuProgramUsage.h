@@ -99,9 +99,9 @@ namespace Ogre
             new program being linked, so if you had previously set parameters
             you will have to set them again.
         */
-        void setProgram(GpuProgram* prog);
+        void setProgram(GpuProgramPtr& prog);
 		/** Gets the program being used. */
-        GpuProgram* getProgram() const { return mProgram; }
+        const GpuProgramPtr& getProgram() const { return mProgram; }
 		/** Gets the program being used. */
         const String& getProgramName(void) const { return mProgram->getName(); }
 

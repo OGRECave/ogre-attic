@@ -53,7 +53,7 @@ namespace Ogre {
         /** Destroys an object which was created by this factory.
         @param ptr Pointer to the object to destroy
         */
-        virtual void destroyInstance( const String& name ) = 0;    
+        virtual void destroyInstance( T* ) = 0;    
     };
 
 } // namespace

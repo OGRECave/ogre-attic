@@ -57,10 +57,12 @@ namespace Ogre {
 
 
         // Write closing message
-        LogManager::getSingleton().logMessage(
-            LML_NORMAL,
-            "Render Target '%s' Average FPS: %f Best FPS: %f Worst FPS: %f", 
-            mName.c_str(), mStats.avgFPS, mStats.bestFPS, mStats.worstFPS );
+		StringUtil::StrStreamType msg;
+		msg << "Render Target '" << mName << "' "
+			<< "Average FPS: " << mStats.avgFPS << " "
+			<< "Best FPS: " << mStats.bestFPS << " "
+			<< "Worst FPS: " << mStats.worstFPS; 
+        LogManager::getSingleton().logMessage(msg.str());
 
     }
 
@@ -126,11 +128,11 @@ namespace Ogre {
 
         if (it != mViewportList.end())
         {
-            char msg[256];
-            sprintf(msg, "Can't create another viewport for %s with Z-Order %i "
-                " because a viewport exists with this Z-Order already.",
-                this->getName().c_str(), ZOrder);
-            Except(9999, msg, "RenderTarget::addViewport");
+			StringUtil::StrStreamType str;
+			str << "Can't create another viewport for "
+				<< mName << " with Z-Order " << ZOrder
+				<< " because a viewport exists with this Z-Order already.";
+            Except(9999, str.str(), "RenderTarget::addViewport");
         }
         // Add viewport to list
         // Order based on Z-Order

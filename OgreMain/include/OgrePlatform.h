@@ -106,10 +106,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define OGRE_DEBUG_MODE 0
 #   endif
 
-// A quick define to overcome different names for the same function
-#	define snprintf _snprintf
-#   define vsnprintf _vsnprintf
-
 #endif
 //----------------------------------------------------------------------------
 

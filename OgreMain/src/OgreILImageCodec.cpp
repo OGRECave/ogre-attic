@@ -39,7 +39,7 @@ namespace Ogre {
     bool ILImageCodec::_is_initialised = false;    
 
     //---------------------------------------------------------------------
-    DataStreamPtr ILImageCodec::code(MemoryDataStreamPtr& input, Codec::CodecData* pData) const
+    DataStreamPtr ILImageCodec::code(MemoryDataStreamPtr& input, Codec::CodecDataPtr& pData) const
     {        
         OgreGuard( "ILCodec::code" );
 

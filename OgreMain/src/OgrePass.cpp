@@ -710,7 +710,7 @@ namespace Ogre {
 		return mVertexProgramUsage->getParameters();
 	}
 	//-----------------------------------------------------------------------
-	GpuProgram* Pass::getVertexProgram(void)
+	const GpuProgramPtr& Pass::getVertexProgram(void)
 	{
 		return mVertexProgramUsage->getProgram();
 	}
@@ -725,7 +725,7 @@ namespace Ogre {
 		return mFragmentProgramUsage->getParameters();
 	}
 	//-----------------------------------------------------------------------
-	GpuProgram* Pass::getFragmentProgram(void)
+	const GpuProgramPtr& Pass::getFragmentProgram(void)
 	{
 		return mFragmentProgramUsage->getProgram();
 	}
@@ -939,7 +939,7 @@ namespace Ogre {
         return mShadowCasterVertexProgramUsage->getParameters();
     }
     //-----------------------------------------------------------------------
-    GpuProgram* Pass::getShadowCasterVertexProgram(void)
+    const GpuProgramPtr& Pass::getShadowCasterVertexProgram(void)
     {
         return mShadowCasterVertexProgramUsage->getProgram();
     }
@@ -994,9 +994,14 @@ namespace Ogre {
         return mShadowReceiverVertexProgramUsage->getParameters();
     }
     //-----------------------------------------------------------------------
-    GpuProgram* Pass::getShadowReceiverVertexProgram(void)
+    const GpuProgramPtr& Pass::getShadowReceiverVertexProgram(void)
     {
         return mShadowReceiverVertexProgramUsage->getProgram();
     }
+    //-----------------------------------------------------------------------
+	const String& Pass::getResourceGroup(void) const
+	{
+		return mParent->getResourceGroup();
+	}
 
 }

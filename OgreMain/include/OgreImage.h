@@ -437,11 +437,13 @@ namespace Ogre {
                 The type can be determined by calling getFormat().             
             @param
                 strFileName Name of a file file to load.
+            @param
+                groupName Name of the resource group to search for the image
             @note
                 The memory associated with this buffer is destroyed with the
                 Image object.
         */
-        Image & load( const String& strFileName );
+        Image & load( const String& strFileName, const String& groupName );
 
         /** Loads an image file from a stream.
             @remarks

@@ -297,7 +297,7 @@ namespace Ogre {
 		Codec::DecodeResult res = pCodec->decode(encoded);
 
 		ImageCodec::ImageData* pData = 
-			static_cast<ImageCodec::ImageData*>(res.second);
+			static_cast<ImageCodec::ImageData*>(res.second.getPointer());
 
         // Get the format and compute the pixel size
         m_uWidth = pData->width;
@@ -345,14 +345,16 @@ namespace Ogre {
             "Unable to save image file '" + filename + "' - invalid extension.",
             "Image::save" );
 
-        ImageCodec::ImageData imgData;
-        imgData.format = m_eFormat;
-        imgData.height = m_uHeight;
-        imgData.width = m_uWidth;
+        ImageCodec::ImageData* imgData = new ImageCodec::ImageData();
+        imgData->format = m_eFormat;
+        imgData->height = m_uHeight;
+        imgData->width = m_uWidth;
+		// Wrap in CodecDataPtr, this will delete
+		Codec::CodecDataPtr codeDataPtr(imgData);
 		// Wrap memory, be sure not to delete when stream destroyed
         MemoryDataStreamPtr wrapper(new MemoryDataStream(m_pBuffer, m_uSize, false));
-
-        pCodec->codeToFile(wrapper, filename, &imgData);
+		
+        pCodec->codeToFile(wrapper, filename, codeDataPtr);
     }
     //-----------------------------------------------------------------------------
     Image & Image::load(DataStreamPtr& stream, const String& type )
@@ -371,7 +373,7 @@ namespace Ogre {
 		Codec::DecodeResult res = pCodec->decode(stream);
 
 		ImageCodec::ImageData* pData = 
-			static_cast<ImageCodec::ImageData*>(res.second);
+			static_cast<ImageCodec::ImageData*>(res.second.getPointer());
 
         m_uWidth = pData->width;
         m_uHeight = pData->height;

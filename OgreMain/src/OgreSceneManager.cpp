@@ -961,7 +961,7 @@ void SceneManager::setSkyPlane(
         else
         {
             planeMesh = MeshManager::getSingleton().createPlane(
-                meshName, plane, gscale * 100, gscale * 100, xsegments, ysegments, false, 
+                meshName, groupName, plane, gscale * 100, gscale * 100, xsegments, ysegments, false, 
                 1, tiling, tiling, up);
         }
 
@@ -1032,7 +1032,7 @@ void SceneManager::setSkyBox(
         // Set up the box (6 planes)
         for (int i = 0; i < 6; ++i)
         {
-            MeshPtr planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation, grpupName);
+            MeshPtr planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation, groupName);
             String entName = "SkyBoxPlane" + StringConverter::toString(i);
 
             // Create entity 
@@ -1046,7 +1046,7 @@ void SceneManager::setSkyBox(
             // Have to create 6 materials, one for each frame
             // Used to use combined material but now we're using queue we can't split to change frame
             // This doesn't use much memory because textures aren't duplicated
-            MaterialPtr& boxMat = matMgr.getByName(entName);
+            MaterialPtr boxMat = matMgr.getByName(entName);
             if (boxMat.isNull())
             {
                 // Create new by clone
@@ -1262,8 +1262,8 @@ MeshPtr SceneManager::createSkydomePlane(
 
     // Check to see if existing plane
     MeshManager& mm = MeshManager::getSingleton();
-    Mesh* planeMesh = mm.getByName(meshName);
-    if(!planeMesh->isNull())
+    MeshPtr planeMesh = mm.getByName(meshName);
+    if(!planeMesh.isNull())
     {
         // destroy existing
         mm.remove(planeMesh->getHandle());
@@ -2911,12 +2911,15 @@ void SceneManager::initShadowVolumeMaterials(void)
         TextureManager::getSingleton().getByName("spot_shadow_fade.png");
     if (spotShadowFadeTex.isNull())
     {
-        // Load the manual buffer into an image
-        MemoryDataStream stream(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE);
+        // Load the manual buffer into an image (don't destroy memory!
+        DataStreamPtr stream(
+			new MemoryDataStream(SPOT_SHADOW_FADE_PNG, SPOT_SHADOW_FADE_PNG_SIZE, false));
         Image img;
         img.load(stream, "png");
         spotShadowFadeTex = 
-            TextureManager::getSingleton().loadImage("spot_shadow_fade.png", img, TEX_TYPE_2D);
+            TextureManager::getSingleton().loadImage(
+			"spot_shadow_fade.png", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+			img, TEX_TYPE_2D);
     }
 
     mShadowMaterialInitDone = true;
@@ -2937,7 +2940,7 @@ Pass* SceneManager::deriveShadowCasterPass(Pass* pass)
             // Did this result in a new vertex program?
             if (mShadowCasterPlainBlackPass->hasVertexProgram())
             {
-                GpuProgram* prg = mShadowCasterPlainBlackPass->getVertexProgram();
+                const GpuProgramPtr& prg = mShadowCasterPlainBlackPass->getVertexProgram();
                 // Load this program if not done already
                 if (!prg->isLoaded())
                     prg->load();
@@ -2979,7 +2982,7 @@ Pass* SceneManager::deriveShadowReceiverPass(Pass* pass)
             // Did this result in a new vertex program?
             if (mShadowReceiverPass->hasVertexProgram())
             {
-                GpuProgram* prg = mShadowReceiverPass->getVertexProgram();
+                const GpuProgramPtr& prg = mShadowReceiverPass->getVertexProgram();
                 // Load this program if required
                 if (!prg->isLoaded())
                     prg->load();
@@ -3425,7 +3428,7 @@ void SceneManager::createShadowTextures(unsigned short size, unsigned short coun
         mShadowTextures.push_back(shadowTex);
 
         // Also create corresponding Material used for rendering this shadow
-        MaterialPtr mat = (Material*)MaterialManager::getSingleton().getByName(matName);
+        MaterialPtr mat = MaterialManager::getSingleton().getByName(matName);
         if (mat.isNull())
         {
             mat = MaterialManager::getSingleton().create(

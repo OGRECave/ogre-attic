@@ -47,7 +47,7 @@ namespace Ogre {
         virtual ~ILImageCodec() { }
 
         /// @copydoc Codec::code
-        DataStreamPtr code(MemoryDataStreamPtr& input, CodecData* pData) const;
+        DataStreamPtr code(MemoryDataStreamPtr& input, CodecDataPtr& pData) const;
         /// @copydoc Codec::codeToFile
         void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecDataPtr& pData) const;
         /// @copydoc Codec::decode

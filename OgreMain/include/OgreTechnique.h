@@ -101,6 +101,9 @@ namespace Ogre {
         /** Overloaded operator to copy on Technique to another. */
         Technique& operator=(const Technique& rhs);
 
+		/// Gets the resource group of the ultimate parent Material
+		const String& getResourceGroup(void) const;
+
 		/** Returns true if this Technique involves transparency. 
 		@remarks
 			This basically boils down to whether the first pass

@@ -140,7 +140,7 @@ namespace Ogre {
     {
         Real *pVert;
 
-		if (!mpFont)
+		if (mpFont.isNull())
 		{
 			// not initialised yet, probably due to the order of creation in a template
 			return;

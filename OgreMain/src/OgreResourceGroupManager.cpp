@@ -87,6 +87,17 @@ namespace Ogre {
 		parseResourceGroupScripts(name);
 		createDeclaredResources(name);
 	}
+	//-----------------------------------------------------------------------
+	void ResourceGroupManager::_initialise(void)
+	{
+		// Intialise all declared resource groups
+		ResourceGroupMap::iterator i, iend;
+		iend = mResourceGroupMap.end();
+		for (i = mResourceGroupMap.begin(); i != iend; ++i)
+		{
+			initialiseResourceGroup(i->first);
+		}
+	}
     //-----------------------------------------------------------------------
     void ResourceGroupManager::loadResourceGroup(const String& name)
     {
@@ -499,7 +510,7 @@ namespace Ogre {
 			{
 				// Get all the patterns and search them
 				const StringVector& patterns = mgr->getScriptPatterns();
-				for (StringVector::iterator p = patterns.begin(); p != patterns.end(); ++p)
+				for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
 				{
 					DataStreamListPtr streamList = _findResources(*p, name);
 					scriptCount += streamList->size();

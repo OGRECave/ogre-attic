@@ -153,8 +153,8 @@ namespace Ogre {
                 }
             }
 #if OGRE_DEBUG_MODE
-			char logname[20];
-			sprintf(logname, "pm_level%d.log", numLevels);
+			String::StrStreamType logname;
+			logname << "pm_level" << numLevels << ".log";
 			dumpContents(logname);
 #endif
 

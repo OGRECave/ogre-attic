@@ -647,10 +647,10 @@ namespace Ogre {
 
         removeLodLevels();
 
-        char msg[128];
-        sprintf(msg, "Generating %d lower LODs for mesh %s.",
-            lodDistances.size(), mName.c_str());
-        LogManager::getSingleton().logMessage(msg);
+		StringUtil::StrStreamType str;
+		str << "Generating " << lodDistances.size() 
+			<< " lower LODs for mesh " << mName;
+        LogManager::getSingleton().logMessage(str.str());
 
         SubMeshList::iterator isub, isubend;
         isubend = mSubMeshList.end();

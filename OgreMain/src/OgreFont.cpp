@@ -382,7 +382,8 @@ namespace Ogre
             }
         }
 
-        MemoryDataStream memStream(imageData, tex_side * tex_side * 4, true);
+        DataStreamPtr memStream(
+			new MemoryDataStream(imageData, tex_side * tex_side * 4, true));
 
         Image img; 
 		img.loadRawData( memStream, tex_side, tex_side, PF_A8R8G8B8 );

@@ -356,12 +356,12 @@ namespace Ogre {
 			for (unsigned short v = 0; v < NUM_SHADOW_EXTRUDER_PROGRAMS; ++v)
 			{
 				// Create debug extruders
-				if (!GpuProgramManager::getSingleton().getByName(
-					programNames[v]))
+				if (GpuProgramManager::getSingleton().getByName(
+					programNames[v]).isNull())
 				{
-					GpuProgram* vp = 
+					GpuProgramPtr vp = 
 						GpuProgramManager::getSingleton().createProgramFromString(
-						programNames[v],
+						programNames[v], ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
 						ShadowVolumeExtrudeProgram::getProgramSource(
 						vertexProgramLightTypes[v], syntax, 
 						vertexProgramFinite[v], vertexProgramDebug[v]),
