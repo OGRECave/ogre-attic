@@ -133,6 +133,9 @@
 				RelativePath="OgreMain\src\EdgeBuilderTests.cpp">
 			</File>
 			<File
+				RelativePath="OgreMain\src\FileSystemArchiveTests.cpp">
+			</File>
+			<File
 				RelativePath="OgreMain\src\StringTests.cpp">
 			</File>
 			<File
@@ -144,6 +147,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="OgreMain\include\EdgeBuilderTests.h">
+			</File>
+			<File
+				RelativePath="OgreMain\include\FileSystemArchiveTests.h">
 			</File>
 			<File
 				RelativePath="OgreMain\include\StringTests.h">
