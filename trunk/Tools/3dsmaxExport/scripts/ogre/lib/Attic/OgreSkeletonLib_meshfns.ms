@@ -235,6 +235,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV numUVsets exportColours
 		else
 		(
 			faceVertexColorIndices = Point3 1 1 1 ;
+			faceVertexAlphaIndices = Point3 1 1 1 ;
 		)
 		
 		-- For each vertex whose face is made up of.
