@@ -51,7 +51,7 @@ namespace Ogre {
     protected:
         String mName;
         mutable Plane mDerivedPlane;
-        mutable Vector3 mLastTranlate;
+        mutable Vector3 mLastTranslate;
         mutable Quaternion mLastRotate;
         AxisAlignedBox mNullBB;
         mutable bool mDirty;

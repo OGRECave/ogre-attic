@@ -34,7 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePlatform.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
+#if OGRE_PLATFORM == PLATFORM_WIN32 || OGRE_PLATFORM == PLATFORM_APPLE
 #include "OgreArchive.h"
 #include "OgreAxisAlignedBox.h"
 #include "OgreBitwise.h"

@@ -224,15 +224,31 @@ namespace Ogre
 
 		if (!mExternalHandle)
 		{
+			DWORD dwStyle = (fullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			RECT rc;
+
 			mWidth = width;
 			mHeight = height;
+
 			if (!fullScreen)
 			{
-				if (!left && (unsigned)GetSystemMetrics(SM_CXSCREEN) > mWidth)
+				// Calculate window dimensions required to get the requested client area
+				SetRect(&rc, 0, 0, mWidth, mHeight);
+				AdjustWindowRect(&rc, dwStyle, false);
+				mWidth = rc.right - rc.left;
+				mHeight = rc.bottom - rc.top;
+
+				// Clamp width and height to the desktop dimensions
+				if (mWidth > (unsigned)GetSystemMetrics(SM_CXSCREEN))
+					mWidth = (unsigned)GetSystemMetrics(SM_CXSCREEN);
+				if (mHeight > (unsigned)GetSystemMetrics(SM_CYSCREEN))
+					mHeight = (unsigned)GetSystemMetrics(SM_CYSCREEN);
+
+				if (!left)
 					mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
 				else
 					mLeft = left;
-				if (!top && (unsigned)GetSystemMetrics(SM_CYSCREEN) > mHeight)
+				if (!top)
 					mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
 				else
 					mTop = top;
@@ -253,16 +269,11 @@ namespace Ogre
 			// Pass pointer to self
 			HWND hWnd = CreateWindow(TEXT(name.c_str()),
 									 TEXT(name.c_str()),
-									 WS_OVERLAPPEDWINDOW, mLeft, mTop,
+									 dwStyle, mLeft, mTop,
 									 mWidth, mHeight, 0L, 0L, hInst, this);
-
-			if (!fullScreen)
-			{
-				RECT rc;
-				GetClientRect(hWnd,&rc);
-				mWidth = rc.right;
-				mHeight = rc.bottom;
-			}
+			GetClientRect(hWnd,&rc);
+			mWidth = rc.right;
+			mHeight = rc.bottom;
 
 			ShowWindow(hWnd, SW_SHOWNORMAL);
 			UpdateWindow(hWnd);

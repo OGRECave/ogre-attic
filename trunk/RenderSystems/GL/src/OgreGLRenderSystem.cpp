@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLRenderSystem.h"
 #include "OgreRenderSystem.h"
 #include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 #include "OgreLight.h"
 #include "OgreCamera.h"
 #include "OgreGLTextureManager.h"
@@ -782,8 +783,13 @@ namespace Ogre {
             f4vals[3] = col.a;
             glLightfv(gl_index, GL_SPECULAR, f4vals);
 
-            // Disable ambient light for movables
-            glLighti(gl_index, GL_AMBIENT, 0);
+
+            // Disable ambient light for movables;
+            f4vals[0] = 0;
+            f4vals[1] = 0;
+            f4vals[2] = 0;
+            f4vals[3] = 1;
+            glLightfv(gl_index, GL_AMBIENT, f4vals);
 
             setGLLightPositionDirection(lt, gl_index);
 
@@ -1248,7 +1254,7 @@ namespace Ogre {
             if (mLights[i] != NULL)
             {
                 Light* lt = mLights[i];
-                setGLLightPositionDirection(lt, i);
+                setGLLightPositionDirection(lt, GL_LIGHT0 + i);
             }
         }
 	}
@@ -1391,8 +1397,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
     String GLRenderSystem::getErrorDescription(long errCode) const
     {
-        // XXX FIXME
-        return String("Uknown Error");
+        const GLubyte *errString = gluErrorString (errCode);
+        return String((const char*) errString);
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::setLightingEnabled(bool enabled)
@@ -1532,7 +1538,6 @@ namespace Ogre {
             glmode = GL_FILL;
             break;
         }
-
         glPolygonMode(GL_FRONT_AND_BACK, glmode);
     }
     //---------------------------------------------------------------------
@@ -1946,20 +1951,20 @@ namespace Ogre {
         glActiveTextureARB_ptr(GL_TEXTURE0);
 	}
     //---------------------------------------------------------------------
-    void GLRenderSystem::setGLLightPositionDirection(Light* lt, size_t lightindex)
+    void GLRenderSystem::setGLLightPositionDirection(Light* lt, GLenum lightindex)
     {
         // Set position / direction
         Vector4 vec;
 		// Use general 4D vector which is the same as GL's approach
 		vec = lt->getAs4DVector();
 
-		glLightfv(GL_LIGHT0 + lightindex, GL_POSITION, vec.val);
+		glLightfv(lightindex, GL_POSITION, vec.val);
 		// Set spotlight direction
         if (lt->getType() == Light::LT_SPOTLIGHT)
         {
             vec = lt->getDerivedDirection();
             vec.w = 0.0; 
-            glLightfv(GL_LIGHT0 + lightindex, GL_SPOT_DIRECTION, vec.val);
+            glLightfv(lightindex, GL_SPOT_DIRECTION, vec.val);
         }
     }
     //---------------------------------------------------------------------

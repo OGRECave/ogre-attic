@@ -617,12 +617,7 @@ namespace Ogre {
         virtual void cancelUpdate(Node* child);
 
         /** @copydoc Renderable::getLights */
-        const LightList& getLights(void) const
-        {
-            // Nodes should not be lit by the scene, this will not get called
-            static LightList ll;
-            return ll;
-        }
+        const LightList& getLights(void) const;
 
 
 

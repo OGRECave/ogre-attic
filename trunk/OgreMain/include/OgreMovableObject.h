@@ -202,11 +202,7 @@ namespace Ogre {
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
             HardwareIndexBufferSharedPtr* indexBuffer, 
-            bool extrudeVertices, Real extrusionDist, unsigned long flags = 0 )
-        {
-            static ShadowRenderableList dummyList;
-            return ShadowRenderableListIterator(dummyList.begin(), dummyList.end());
-        }
+            bool extrudeVertices, Real extrusionDist, unsigned long flags = 0);
 		
         /** Overridden member from ShadowCaster. */
         const AxisAlignedBox& getLightCapBounds(void) const;

@@ -27,6 +27,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
+    const LightList& ShadowRenderable::getLights(void) const 
+    {
+        // return empty
+        static LightList ll;
+        return ll;
+    }
     // ------------------------------------------------------------------------
     void ShadowCaster::updateEdgeListLightFacing(EdgeData* edgeData, 
         const Vector4& lightPos)

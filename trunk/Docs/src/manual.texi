@@ -1604,6 +1604,15 @@ The options for this parameter are:
 @item oriented_self
 	Particles are oriented around their own direction vector, which acts as their local Y axis. As the particle changes direction, so the billboard reorients itself to face this way. Good for laser fire, fireworks and other 'streaky' particles that should look like they are travelling in their own direction.
 @end table
+
+@anchor{common_direction}
+@subheading common_direction
+
+Only required if @ref{billboard_type} is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.@*@*
+
+format: common_direction <x> <y> <z>@*
+example: common_direction 0 -1 0@*
+default: none@*
 @*@*
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 
@@ -1639,6 +1648,18 @@ Particle emitters are classified by 'type' e.g. 'Point' emitters emit from a sin
 @ref{time_to_live_min}
 @item
 @ref{time_to_live_max}
+@item
+@ref{duration}
+@item
+@ref{duration_min}
+@item
+@ref{duration_max}
+@item
+@ref{repeat_delay}
+@item
+@ref{repeat_delay_min}
+@item
+@ref{repeat_delay_max}
 @end itemize
 @*@*
 See also: @ref{Particle Scripts}, @ref{Particle Affectors}
@@ -1745,13 +1766,51 @@ example:@*
 default: both 5@*
 @*
 
-@anchor{common_direction}
-@subheading common_direction
-Only required if @ref{billboard_type} is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.
-@*@*
-format: common_direction <x> <y> <z>@*
-example: common_direction 0 -1 0@*
-default: none@*
+@anchor{duration}
+@subheading duration
+
+Sets the number of seconds the emitter is active. The emitter can be started again, see @ref{repeat_delay}. A value of 0 means infinite duration. See also the duration_min and duration_max attributes which let you set a duration range instead of a fixed one.@*@*
+
+format: duration <seconds>@*
+example:@*
+@ @ @ @ duration 2.5@*
+default: 0@*
+@*
+
+@anchor{duration_min} @anchor{duration_max}
+@subheading duration_min & duration_max
+
+As duration, except these attributes set a variable time range between the min and max values each time the emitter is started.@*@*
+
+format: as duration@*
+example:@*
+@ @ @ @ duration_min 2@*
+@ @ @ @ duration_max 5@*
+default: both 0@*
+@*
+
+@anchor{repeat_delay}
+@subheading repeat_delay
+
+Sets the number of seconds to wait before the emission is repeated when stopped by a limited @ref{duration}. See also the repeat_delay_min and repeat_delay_max attributes which allow you to set a range of repeat_delays instead of a fixed one.@*@*
+
+format: repeat_delay <seconds>@*
+example:@*
+@ @ @ @ repeat_delay 2.5@*
+default: 0@*
+@*
+
+@anchor{repeat_delay_min} @anchor{repeat_delay_max}
+@subheading repeat_delay_min & repeat_delay_max
+
+As repeat_delay, except this sets a range of repeat delays and each time the emitter is started it gets a random value inbetween.@*@*
+
+format: as repeat_delay@*
+example:@*
+@ @ @ @ repeat_delay 2@*
+@ @ @ @ repeat_delay 5@*
+default: both 0@*
+@*
 
 See also: @ref{Standard Particle Emitters}, @ref{Particle Scripts}, @ref{Particle Affectors}
 
@@ -1875,8 +1934,16 @@ Ogre comes preconfigured with a few particle affectors. New ones can be added by
 @ref{Linear Force Affector}
 @item 
 @ref{ColourFader Affector}
-@item 
+@item
+@ref{ColourFader2 Affector}
+@item
 @ref{Scaler Affector}
+@item
+@ref{Rotator Affector}
+@item
+@ref{ColourInterpolator Affector}
+@item
+@ref{ColourImage Affector}
 @end itemize
 
 @anchor{Linear Force Affector}
@@ -1947,6 +2014,65 @@ affector ColourFader
 }
 @end example
 
+@anchor{ColourFader2 Affector}
+@subheading ColourFader2 Affector
+
+This affector is similar to the @ref{ColourFader Affector}, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
+@table @asis
+@item red1
+Sets the adjustment to be made to the red component of the particle colour per second for the first state.@*
+@ @ @ @ format: red <delta_value>@*
+@ @ @ @ example: red -0.1@*
+@ @ @ @ default: 0@*
+@item green1
+Sets the adjustment to be made to the green component of the particle colour per second for the first state.@*
+@ @ @ @ format: green <delta_value>@*
+@ @ @ @ example: green -0.1@*
+@ @ @ @ default: 0@*
+@item blue1
+Sets the adjustment to be made to the blue component of the particle colour per second for the first state.@*
+@ @ @ @ format: blue <delta_value>@*
+@ @ @ @ example: blue -0.1@*
+@ @ @ @ default: 0@*
+@item alpha1
+Sets the adjustment to be made to the alpha component of the particle colour per second for the first state.@*
+@ @ @ @ format: alpha <delta_value>@*
+example: alpha -0.1@*
+default: 0@*
+@item red2
+Sets the adjustment to be made to the red component of the particle colour per second for the second state.@*
+@ @ @ @ format: red <delta_value>@*
+@ @ @ @ example: red -0.1@*
+@ @ @ @ default: 0@*
+@item green2
+Sets the adjustment to be made to the green component of the particle colour per second for the second state.@*
+@ @ @ @ format: green <delta_value>@*
+@ @ @ @ example: green -0.1@*
+@ @ @ @ default: 0@*
+@item blue2
+Sets the adjustment to be made to the blue component of the particle colour per second for the second state.@*
+@ @ @ @ format: blue <delta_value>@*
+@ @ @ @ example: blue -0.1@*
+@ @ @ @ default: 0@*
+@item alpha2
+Sets the adjustment to be made to the alpha component of the particle colour per second for the second state.@*
+@ @ @ @ format: alpha <delta_value>@*
+example: alpha -0.1@*
+default: 0@*
+@item state_change
+When a particle has this much time left to live, it will switch to state 2.@*
+@ @ @ @ format: state_change <seconds>@*
+example: state_change 2@*
+default: 1@*
+@end table
+To create a ColourFader2 affector, include a section like this within your particle system script:
+@example
+affector ColourFader2
+{
+    // Settings go here
+}
+@end example
+
 @anchor{Scaler Affector}
 @subheading Scaler Affector
 
@@ -1962,6 +2088,106 @@ affector Scaler
     // Settings go here
 }
 @end example
+
+@anchor{Rotator Affector}
+@subheading Rotator Affector
+
+This affector rotates particles in flight. This is done by rotating the texture. It's extra attributes are:
+@table @asis
+@item rotation_speed_range_start
+The start of a range of rotation speeds to be assigned to emitted particles.@*
+@ @ @ @ format: rotation_speed_range_start <degrees_per_second>@*
+example: rotation_speed_range_start 90@*
+default: 0@*
+@item rotation_speed_range_end
+The end of a range of rotation speeds to be assigned to emitted particles.@*
+@ @ @ @ format: rotation_speed_range_end <degrees_per_second>@*
+example: rotation_speed_range_end 180@*
+default: 0@*
+@item rotation_range_start
+The start of a range of rotation angles to be assigned to emitted particles.@*
+@ @ @ @ format: rotation_range_start <degrees>@*
+example: rotation_range_start 0@*
+default: 0@*
+@item rotation_range_end
+The end of a range of rotation angles to be assigned to emitted particles.@*
+@ @ @ @ format: rotation_range_end <degrees>@*
+example: rotation_range_end 360@*
+default: 0@*
+@end table
+To create a rotate affector, include a section like this within your particle system script:
+@example
+affector Rotator
+{
+    // Settings go here
+}
+@end example
+
+@anchor{ColourInterpolator Affector}
+@subheading ColourInterpolator Affector
+
+Similar to the ColourFader and ColourFader2 Affector?s, this affector modifies the colour of particles in flight, except it has a variable number of defined stages. It swaps the particle colour for several stages in the life of a particle and interpolates between them. It's extra attributes are:
+@table @asis
+@item time0
+The point in time of stage 0.@*
+@ @ @ @ format: time0 <seconds>@*
+example: time0 0.5@*
+default: 1@*
+@item colour0
+The colour at stage 0.@*
+@ @ @ @ format: colour0 <r> <g> <b> [<a>]@*
+example: colour0 1 0 0 1@*
+default: 0.5 0.5 0.5 0.5@*
+@item time1
+The point in time of stage 1.@*
+@ @ @ @ format: time1 <seconds>@*
+example: time1 1@*
+default: 1@*
+@item colour1
+The colour at stage 1.@*
+@ @ @ @ format: colour1 <r> <g> <b> [<a>]@*
+example: colour1 0 1 0 1@*
+default: 0.5 0.5 0.5 0.5@*
+@item time2
+The point in time of stage 2.@*
+@ @ @ @ format: time2 <seconds>@*
+example: time2 2@*
+default: 1@*
+@item colour2
+The colour at stage 2.@*
+@ @ @ @ format: colour2 <r> <g> <b> [<a>]@*
+example: colour2 0 0 1 1@*
+default: 0.5 0.5 0.5 0.5@*
+@item [...]
+@end table
+The number of stages is variable. The maximal number of stages is 6; where time5 and colour5 are the last possible parameters.
+To create a colour interpolation affector, include a section like this within your particle system script:
+@example
+affector ColourInterpolator
+{
+    // Settings go here
+}
+@end example
+
+@anchor{ColourImage Affector}
+@subheading ColourImage Affector
+
+This is another affector that modifies the colour of particles in flight, but instead of programmatically defining colours, the colours are taken from a specified image file. The range of colour values begins from the left side of the image and move to the right over the lifetime of the particle, therefore only the horizontal dimension of the image is used. Its extra attributes are:
+@table @asis
+@item image
+The start of a range of rotation speed to be assigned to emitted particles.@*
+@ @ @ @ format: image <image_name>@*
+example: image rainbow.png@*
+default: none@*
+@end table
+To create a ColourImage affector, include a section like this within your particle system script:
+@example
+affector ColourImage
+{
+    // Settings go here
+}
+@end example
+
 
 @node Overlay Scripts
 @section Overlay Scripts
