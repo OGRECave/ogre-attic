@@ -215,6 +215,7 @@ namespace OgreMaya {
 					if ((*iterMat)->name == mat->name) {
 						delete mat;
 						mat = NULL;
+						break;
 					}
 				}
 			}
