@@ -61,6 +61,7 @@ namespace Ogre {
         mMaxTTL = mMinTTL = 5;
         mPosition = Vector3::ZERO;
         mColourRangeStart = mColourRangeEnd = ColourValue::White;
+        mEnabled = true;
 
     }
     //-----------------------------------------------------------------------
