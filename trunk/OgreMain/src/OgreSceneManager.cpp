@@ -704,11 +704,10 @@ namespace Ogre {
 		// Prep Pass for use in debug shadows
 		initShadowVolumeMaterials();
         // Perform a quick pre-check to see whether we should override far distance
-        // When using vertex programs to extrude stencil volumes we have to use
-        // infinite far distance
+        // When using stencil volumes we have to use infinite far distance
+        // to prevent dark caps getting clipped
         if ((mShadowTechnique == SHADOWTYPE_STENCIL_ADDITIVE ||
             mShadowTechnique == SHADOWTYPE_STENCIL_MODULATIVE) && 
-            mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM) &&
             camera->getFarClipDistance() != 0)
         {
             // infinite far distance
@@ -3059,14 +3058,13 @@ namespace Ogre {
 
         // Set up scissor test (point & spot lights only)
         bool scissored = false;
-        /*
         if (light->getType() != Light::LT_DIRECTIONAL && 
             mDestRenderSystem->getCapabilities()->hasCapability(RSC_SCISSOR_TEST))
         {
             // Project the sphere onto the camera
             Real left, right, top, bottom;
             Sphere sphere(light->getDerivedPosition(), light->getAttenuationRange());
-            if (camera->projectSphere(sphere, &left, &right, &top, &bottom))
+            if (camera->projectSphere(sphere, &left, &top, &right, &bottom))
             {
                 scissored = true;
                 // Turn normalised device coordinates into pixels
@@ -3084,7 +3082,9 @@ namespace Ogre {
             }
 
         }
-        */
+
+
+
         mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
 
         // Can we do a 2-sided stencil?
