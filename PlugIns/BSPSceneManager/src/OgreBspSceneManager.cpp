@@ -417,7 +417,7 @@ namespace Ogre {
         mShowNodeAABs = show;
     }
     //-----------------------------------------------------------------------
-    void BspSceneManager::addBoundingBox(AxisAlignedBox& aab, bool visible)
+    void BspSceneManager::addBoundingBox(const AxisAlignedBox& aab, bool visible)
     {
         /*
         unsigned long visibleColour;
@@ -552,14 +552,16 @@ namespace Ogre {
         // TODO
         return NULL;
     }
+    */
     //-----------------------------------------------------------------------
     RaySceneQuery* BspSceneManager::
     createRayQuery(const Ray& ray, unsigned long mask)
     {
-        // TODO
-        return NULL;
+        BspRaySceneQuery* q = new BspRaySceneQuery(this);
+        q->setRay(ray);
+        q->setQueryMask(mask);
+        return q;
     }
-    */
     //-----------------------------------------------------------------------
     IntersectionSceneQuery* BspSceneManager::
     createIntersectionQuery(unsigned long mask)
@@ -625,36 +627,39 @@ namespace Ogre {
                     }
                 }
                 // Check object against brushes
-                const BspNode::NodeBrushList& brushes = leaf->getSolidBrushes();
-                BspNode::NodeBrushList::const_iterator bi, biend;
-                biend = brushes.end();
-                Real radius = aObj->getBoundingRadius();
-                const Vector3& pos = aObj->getParentNode()->_getDerivedPosition();
-
-                for (bi = brushes.begin(); bi != biend; ++bi)
+                if (mQueryMask & SceneManager::WORLD_GEOMETRY_QUERY_MASK)
                 {
-                    std::list<Plane>::const_iterator planeit, planeitend;
-                    planeitend = (*bi)->planes.end();
-                    bool brushIntersect = true; // Assume intersecting for now
+                    const BspNode::NodeBrushList& brushes = leaf->getSolidBrushes();
+                    BspNode::NodeBrushList::const_iterator bi, biend;
+                    biend = brushes.end();
+                    Real radius = aObj->getBoundingRadius();
+                    const Vector3& pos = aObj->getParentNode()->_getDerivedPosition();
 
-                    for (planeit = (*bi)->planes.begin(); planeit != planeitend; ++planeit)
+                    for (bi = brushes.begin(); bi != biend; ++bi)
                     {
-                        Real dist = planeit->getDistance(pos);
-                        if (dist > radius)
+                        std::list<Plane>::const_iterator planeit, planeitend;
+                        planeitend = (*bi)->planes.end();
+                        bool brushIntersect = true; // Assume intersecting for now
+
+                        for (planeit = (*bi)->planes.begin(); planeit != planeitend; ++planeit)
                         {
-                            // Definitely excluded
-                            brushIntersect = false;
-                            break;
+                            Real dist = planeit->getDistance(pos);
+                            if (dist > radius)
+                            {
+                                // Definitely excluded
+                                brushIntersect = false;
+                                break;
+                            }
                         }
-                    }
-                    if (brushIntersect)
-                    {
-                        // report this brush as it's WorldFragment
-                        assert((*bi)->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
-                        listener->queryResult(const_cast<MovableObject*>(aObj), // hacky
-                                const_cast<WorldFragment*>(&((*bi)->fragment))); 
-                    }
+                        if (brushIntersect)
+                        {
+                            // report this brush as it's WorldFragment
+                            assert((*bi)->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
+                            listener->queryResult(const_cast<MovableObject*>(aObj), // hacky
+                                    const_cast<WorldFragment*>(&((*bi)->fragment))); 
+                        }
 
+                    }
                 }
 
 
@@ -666,5 +671,172 @@ namespace Ogre {
 
 
     }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+    BspRaySceneQuery::BspRaySceneQuery(SceneManager* creator)
+        :DefaultRaySceneQuery(creator)
+    {
+        // Add supported fragment types
+        mSupportedWorldFragments.insert(SceneQuery::WFT_SINGLE_INTERSECTION);
+        mSupportedWorldFragments.insert(SceneQuery::WFT_PLANE_BOUNDED_REGION);
+    }
+    //-----------------------------------------------------------------------
+    void BspRaySceneQuery::execute(RaySceneQueryListener* listener)
+    {
+        clearTemporaries();
+        processNode(
+            static_cast<BspSceneManager*>(mParentSceneMgr)->getLevel()->getRootNode(), 
+            mRay, listener);
+    }
+    //-----------------------------------------------------------------------
+    BspRaySceneQuery::~BspRaySceneQuery()
+    {
+        clearTemporaries();
+    }
+    //-----------------------------------------------------------------------
+    void BspRaySceneQuery::clearTemporaries(void)
+    {
+        mObjsThisQuery.clear();
+        std::vector<WorldFragment*>::iterator i;
+        for (i = mSingleIntersections.begin(); i != mSingleIntersections.end(); ++i)
+        {
+            delete *i;
+        }
+        mSingleIntersections.clear();
+    }
+    //-----------------------------------------------------------------------
+    bool BspRaySceneQuery::processNode(const BspNode* node, const Ray& tracingRay, 
+        RaySceneQueryListener* listener, Real maxDistance, Real traceDistance)
+    {
+        if (node->isLeaf())
+        {
+            return processLeaf(node, tracingRay, listener, maxDistance, traceDistance);
+        }
+
+        bool res = true;
+        std::pair<bool, Real> result = tracingRay.intersects(node->getSplitPlane());
+        if (result.first && result.second < maxDistance)
+        {
+            // Crosses the split plane, need to perform 2 queries
+            // Calculate split point ray
+            Vector3 splitPoint = tracingRay.getOrigin() 
+                + tracingRay.getDirection() * result.second;
+            Ray splitRay(splitPoint, tracingRay.getDirection());
+
+            if (node->getSide(tracingRay.getOrigin()) == Plane::NEGATIVE_SIDE)
+            {
+                // Intersects from -ve side, so do back then front
+                res = processNode(
+                    node->getBack(), tracingRay, listener, result.second, traceDistance);
+                if (!res) return res;
+                
+                res = processNode(
+                    node->getFront(), splitRay, listener, 
+                    maxDistance - result.second, 
+                    traceDistance + result.second);
+            }
+            else
+            {
+                // Intersects from +ve side, so do front then back
+                res = processNode(node->getFront(), tracingRay, listener, 
+                    result.second, traceDistance);
+                if (!res) return res;
+                res = processNode(node->getBack(), splitRay, listener,
+                    maxDistance - result.second, 
+                    traceDistance + result.second);
+            }
+        }
+        else
+        {
+            // Does not cross the splitting plane, just cascade down one side
+            res = processNode(node->getNextNode(tracingRay.getOrigin()),
+                tracingRay, listener, maxDistance, traceDistance);
+        }
+
+        return res;
+    }
+    //-----------------------------------------------------------------------
+    bool BspRaySceneQuery::processLeaf(const BspNode* leaf, const Ray& tracingRay, 
+        RaySceneQueryListener* listener, Real maxDistance, Real traceDistance)
+    {
+        const BspNode::IntersectingObjectSet& objects = leaf->getObjects();
+
+        BspNode::IntersectingObjectSet::const_iterator i, iend;
+        iend = objects.end();
+        //Check ray against objects
+        for(i = objects.begin(); i != iend; ++i)
+        {
+            // cast away constness, constness of node is nothing to do with objects
+            MovableObject* obj = const_cast<MovableObject*>(*i);
+            // Skip this object if not enabled
+            if((obj->getQueryFlags() & mQueryMask) == 0)
+                continue;
+
+            // check we haven't reported this one already
+            // (objects can be intersecting more than one node)
+            if (mObjsThisQuery.find(obj) != mObjsThisQuery.end())
+                continue;
+
+            //Test object as bounding box
+            std::pair<bool, Real> result = 
+                tracingRay.intersects(obj->getWorldBoundingBox());
+            // if the result came back positive and intersection point is inside
+            // the node, fire the event handler
+            if(result.first && result.second <= maxDistance)
+            {
+                listener->queryResult(obj, result.second + traceDistance);
+            }
+        }
+
+
+        // Check ray against brushes
+        if (mQueryMask & SceneManager::WORLD_GEOMETRY_QUERY_MASK)
+        {
+            const BspNode::NodeBrushList& brushList = leaf->getSolidBrushes();
+            BspNode::NodeBrushList::const_iterator bi, biend;
+            biend = brushList.end();
+            bool intersectedBrush = false;
+            for (bi = brushList.begin(); bi != biend; ++bi)
+            {
+                BspNode::Brush* brush = *bi;
+                
+
+                std::pair<bool, Real> result = Math::intersects(tracingRay, brush->planes, true);
+                // if the result came back positive and intersection point is inside
+                // the node, check if this brush is closer
+                if(result.first && result.second <= maxDistance)
+                {
+                    intersectedBrush = true;
+                    if(mWorldFragmentType == SceneQuery::WFT_SINGLE_INTERSECTION)
+                    {
+                        // We're interested in a single intersection
+                        // Have to create these 
+                        SceneQuery::WorldFragment* wf = new SceneQuery::WorldFragment();
+                        wf->fragmentType = SceneQuery::WFT_SINGLE_INTERSECTION;
+                        wf->singleIntersection = tracingRay.getPoint(result.second);
+                        // save this so we can clean up later
+                        mSingleIntersections.push_back(wf);
+                        listener->queryResult(wf, result.second + traceDistance);
+                    }
+                    else if (mWorldFragmentType ==  SceneQuery::WFT_PLANE_BOUNDED_REGION)
+                    {
+                        // We want the whole bounded volume
+                        assert((*bi)->fragment.fragmentType == SceneQuery::WFT_PLANE_BOUNDED_REGION);
+                        listener->queryResult(const_cast<WorldFragment*>(&(brush->fragment)), 
+                            result.second + traceDistance); 
+
+                    }
+                }
+            }
+            if (intersectedBrush)
+            {
+                return false; // stop here
+            }
+        }
+
+        return true;
+
+    } 
+    //-----------------------------------------------------------------------
 }
 

@@ -74,7 +74,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Plane BspNode::getSplitPlane(void)
+    const Plane& BspNode::getSplitPlane(void) const
     {
         if (mIsLeaf)
             throw Exception(Exception::ERR_INVALIDPARAMS,
@@ -86,7 +86,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    AxisAlignedBox& BspNode::getBoundingBox(void)
+    const AxisAlignedBox& BspNode::getBoundingBox(void) const
     {
         if (!mIsLeaf)
             throw Exception(Exception::ERR_INVALIDPARAMS,
@@ -97,7 +97,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    int BspNode::getNumFaceGroups(void)
+    int BspNode::getNumFaceGroups(void) const
     {
         if (!mIsLeaf)
             throw Exception(Exception::ERR_INVALIDPARAMS,
@@ -107,7 +107,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    int BspNode::getFaceGroupStart(void)
+    int BspNode::getFaceGroupStart(void) const
     {
         if (!mIsLeaf)
             throw Exception(Exception::ERR_INVALIDPARAMS,
@@ -117,7 +117,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool BspNode::isLeafVisible(const BspNode* leaf)
+    bool BspNode::isLeafVisible(const BspNode* leaf) const
     {
         return mOwner->isLeafVisible(this, leaf);
     }
@@ -167,7 +167,7 @@ namespace Ogre {
         mMovables.erase(mov);
     }
     //-----------------------------------------------------------------------
-    Real BspNode::getDistance(const Vector3& pos)
+    Real BspNode::getDistance(const Vector3& pos) const
     {
         if (mIsLeaf)
             throw Exception(Exception::ERR_INVALIDPARAMS,
@@ -178,7 +178,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    const BspNode::NodeBrushList& BspNode::getSolidBrushes(void)
+    const BspNode::NodeBrushList& BspNode::getSolidBrushes(void) const
     {
         return mSolidBrushes;
     }

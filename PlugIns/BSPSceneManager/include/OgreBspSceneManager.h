@@ -36,8 +36,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    // Forward declaration
-    class BspIntersectionSceneManager;
 
     /** Specialisation of the SceneManager class to deal with indoor scenes
         based on a BSP tree.
@@ -62,7 +60,6 @@ namespace Ogre {
     */
     class BspSceneManager : public SceneManager
     {
-        friend class BspIntersectionSceneManager;
     protected:
 
         // Pointer to resource manager just for singleton management
@@ -102,7 +99,7 @@ namespace Ogre {
         void freeMemory(void);
 
         /** Adds a bounding box to draw if turned on. */
-        void addBoundingBox(AxisAlignedBox& aab, bool visible);
+        void addBoundingBox(const AxisAlignedBox& aab, bool visible);
 
         /** Renders the static level geometry tagged in walkTree. */
         void renderStaticGeometry(void);
@@ -188,10 +185,8 @@ namespace Ogre {
         @param mask The query mask to apply to this query; can be used to filter out
             certain objects; see SceneQuery for details.
         */
-        /*
         virtual RaySceneQuery* 
             createRayQuery(const Ray& ray, unsigned long mask = 0xFFFFFFFF);
-        */
         /** Creates an IntersectionSceneQuery for this scene manager. 
         @remarks
             This method creates a new instance of a query object for locating
@@ -219,6 +214,34 @@ namespace Ogre {
 
     };
 
+    /** BSP specialisation of RaySceneQuery */
+    class BspRaySceneQuery : public DefaultRaySceneQuery
+    {
+    public:
+        BspRaySceneQuery(SceneManager* creator);
+        ~BspRaySceneQuery();
+
+        /** See RaySceneQuery. */
+        void execute(RaySceneQueryListener* listener);
+    protected:
+        /// Set for eliminating duplicates since objects can be in > 1 node
+        std::set<MovableObject*> mObjsThisQuery;
+        /// list of the last single intersection world fragments (derived)
+        std::vector<SceneQuery::WorldFragment*> mSingleIntersections;
+
+        void clearTemporaries(void);
+        /** Internal processing of a single node.
+        @returns true if we should continue tracing, false otherwise
+        */
+        bool processNode(const BspNode* node, const Ray& tracingRay, RaySceneQueryListener* listener,
+            Real maxDistance = Math::POS_INFINITY, Real traceDistance = 0.0f);
+        /** Internal processing of a single leaf.
+        @returns true if we should continue tracing, false otherwise
+        */
+        bool processLeaf(const BspNode* node, const Ray& tracingRay, RaySceneQueryListener* listener,
+            Real maxDistance = Math::POS_INFINITY, Real traceDistance = 0.0f);
+
+    };
 }
 
 #endif
