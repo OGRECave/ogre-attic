@@ -186,7 +186,7 @@ namespace Ogre {
 				oi != grp->loadResourceOrderMap.end(); ++oi)
 			{
 				for (LoadUnloadResourceList::iterator l = oi->second->begin();
-					l != oi->second->end(); ++oi)
+					l != oi->second->end(); ++l)
 				{
 					fireResourceStarted(*l);
 					(*l)->load();
