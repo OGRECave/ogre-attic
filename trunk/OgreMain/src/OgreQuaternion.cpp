@@ -204,7 +204,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    Vector3 Quaternion::xAxis(void)
+    Vector3 Quaternion::xAxis(void) const
     {
         Real fTx  = 2.0*x;
         Real fTy  = 2.0*y;
@@ -219,7 +219,7 @@ namespace Ogre {
         return Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
     }
     //-----------------------------------------------------------------------
-    Vector3 Quaternion::yAxis(void)
+    Vector3 Quaternion::yAxis(void) const
     {
         Real fTx  = 2.0*x;
         Real fTy  = 2.0*y;
@@ -234,7 +234,7 @@ namespace Ogre {
         return Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
     }
     //-----------------------------------------------------------------------
-    Vector3 Quaternion::zAxis(void)
+    Vector3 Quaternion::zAxis(void) const
     {
         Real fTx  = 2.0*x;
         Real fTy  = 2.0*y;
