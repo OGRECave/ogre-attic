@@ -23,8 +23,8 @@ CFG=Plugin_CgProgramManager - Win32 Debug
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
-# PROP Scc_ProjName ""
-# PROP Scc_LocalPath ""
+# PROP Scc_ProjName "Plugin_CgProgramManager"
+# PROP Scc_LocalPath ".."
 CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
@@ -105,6 +105,10 @@ SOURCE=..\src\OgreCgProgram.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreCgProgramFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\misc\OgreCgProgramManager.def
 # End Source File
 # Begin Source File
 
