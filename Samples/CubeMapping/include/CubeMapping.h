@@ -105,41 +105,69 @@ double noise3(double x, double y, double z) {
 /* ==================================================================== */
 /*  Generic normal calculation, please fix it if it's slow/incorrect ;) */
 /* ==================================================================== */
-void calculateNormals(
-	int numFaces, unsigned short *vertexIndices,
-	int numVertices, Real *vertices, 
-	Real *normals, Vector3 *tempNormals )
+void _normalsZero(int numVertices, Real *normals) 
 {
-	int i;
-	// zero normals
-	for(i=0;i<numVertices;i++) {
-		tempNormals[i] = Vector3::ZERO;
-	}
-	// first, calculate normals for faces, add them to proper vertices
-	for(i=0;i<numFaces;i++) {
+	memset(normals, 0, sizeof(Real)*numVertices);
+}
+void _normalsAdd(int numFaces, unsigned short *vertexIndices, 
+	Real *vertices, Real *normals) 
+{
+	for(int i=0;i<numFaces;i++) {
 		int p0 = vertexIndices[3*i] ;
 		int p1 = vertexIndices[3*i+1] ;
 		int p2 = vertexIndices[3*i+2] ;
 		Vector3 v0(vertices[3*p0], vertices[3*p0+1], vertices[3*p0+2]);
 		Vector3 v1(vertices[3*p1], vertices[3*p1+1], vertices[3*p1+2]);
 		Vector3 v2(vertices[3*p2], vertices[3*p2+1], vertices[3*p2+2]);
-		//~ Vector3 diff1 = v2 - v1 ;
-		//~ Vector3 diff2 = v0 - v1 ;
 		Vector3 diff1 = v1 - v2 ;
 		Vector3 diff2 = v1 - v0 ;
 		Vector3 fn = diff1.crossProduct(diff2);
-		tempNormals[p0] += fn ;
-		tempNormals[p1] += fn ;
-		tempNormals[p2] += fn ;
+#define _ADD_VECTOR_TO_REALS(ptr,vec) { *(ptr)+=vec.x; *(ptr+1)+=vec.y; *(ptr+2)+=vec.z; }
+		_ADD_VECTOR_TO_REALS(normals+3*p0, fn);
+		_ADD_VECTOR_TO_REALS(normals+3*p1, fn);
+		_ADD_VECTOR_TO_REALS(normals+3*p2, fn);
+#undef _ADD_VECTOR_TO_REALS
 	}
-	// now normalize vertex normals
-	for(i=0;i<numVertices;i++) {
-		Vector3 n = tempNormals[i];
+}
+
+void _normalsSaveNormalized(int numVertices, Real *normals)
+{
+	for(int i=0;i<numVertices;i++, normals+=3) {
+		Vector3 n(normals[0], normals[1], normals[2]);
 		n.normalise();
-		Real *normal = normals + 3*i ;
-		normal[0] = n.x ;
-		normal[1] = n.y ;
-		normal[2] = n.z ;
+		normals[0] = n.x ;
+		normals[1] = n.y ;
+		normals[2] = n.z ;
+	}
+}
+
+void calculateMeshNormals(Mesh *mesh)
+{
+	bool sharedUsed = false ;
+	for(int m=0;m<mesh->getNumSubMeshes();m++) {
+		SubMesh *subMesh = mesh->getSubMesh(m);
+		if (subMesh->useSharedVertices) { 
+			if (!sharedUsed) { //first time
+				_normalsZero(mesh->sharedGeometry.numVertices, 
+					mesh->sharedGeometry.pNormals);
+				sharedUsed = true ;
+			}
+			_normalsAdd(subMesh->numFaces, subMesh->faceVertexIndices,
+				mesh->sharedGeometry.pVertices,
+				mesh->sharedGeometry.pNormals);
+		} else {
+			_normalsZero(subMesh->geometry.numVertices,
+				subMesh->geometry.pNormals);
+			_normalsAdd(subMesh->numFaces, subMesh->faceVertexIndices,
+				subMesh->geometry.pVertices,
+				subMesh->geometry.pNormals);
+			_normalsSaveNormalized(subMesh->geometry.numVertices,
+				subMesh->geometry.pNormals);
+		}
+	}
+	if (sharedUsed) {
+		_normalsSaveNormalized(mesh->sharedGeometry.numVertices,
+			mesh->sharedGeometry.pNormals);
 	}
 }
 /* ==================================================================== */
@@ -159,8 +187,8 @@ private:
 	Mesh *objectMesh ;
 	Entity *objectEntity ;
 	int numSubMeshes ;
-	Vector3 *tempNormals ;
 	Real **defaultVertices ;
+	Real *parentVertexBuffer ;
 	std::vector<Material*> clonedMaterials ;
 
 	// configuration
@@ -169,32 +197,41 @@ private:
 	Real timeDensity ;
 	bool noiseOn ;
 	int currentMeshIndex ;
+	int currentLBXindex ;
+	LayerBlendOperationEx currentLBX ;
 	std::vector<String> availableMeshes ;
 	Material *material ;
 	
+	void _updateGeometryNoise(GeometryData& geometry, Real *defaultVertices)
+	{
+		int numVertices = geometry.numVertices ;
+		for(int i=0;i<3*numVertices;i+=3) {
+			double n = 1 + displacement * noise3(
+				defaultVertices[i]/density + tm,
+				defaultVertices[i+1]/density + tm,
+				defaultVertices[i+2]/density + tm);
+			geometry.pVertices[i+0] = defaultVertices[i] * n ;
+			geometry.pVertices[i+1] = defaultVertices[i+1] * n ;
+			geometry.pVertices[i+2] = defaultVertices[i+2] * n ;
+		}
+	}
+	
 	void updateNoise()
 	{
+		int currentVertexBuffer=0;
+		bool usedShared = false ;
 		for(int m=0;m<numSubMeshes;m++) { // for each subMesh
 			SubMesh *subMesh = objectMesh->getSubMesh(m);
-			int numVertices = subMesh->geometry.numVertices ;
-			Real* vertices = defaultVertices[m];
-			// update vertices
-			for(int i=0;i<3*numVertices;i+=3) {
-				double n = 1 + displacement * noise3(
-					vertices[i]/density + tm,
-					vertices[i+1]/density + tm,
-					vertices[i+2]/density + tm);
-				subMesh->geometry.pVertices[i+0] = vertices[i] * n ;
-				subMesh->geometry.pVertices[i+1] = vertices[i+1] * n ;
-				subMesh->geometry.pVertices[i+2] = vertices[i+2] * n ;
+			if (subMesh->useSharedVertices) {
+				usedShared = true ;
+				continue ;
 			}
-			// update normals
-			calculateNormals(subMesh->numFaces, subMesh->faceVertexIndices,
-				numVertices,
-				subMesh->geometry.pVertices,
-				subMesh->geometry.pNormals,
-				tempNormals);
+			_updateGeometryNoise(subMesh->geometry, defaultVertices[m]);
 		}
+		if (usedShared) {
+			_updateGeometryNoise(objectMesh->sharedGeometry, parentVertexBuffer);
+		}
+		calculateMeshNormals(objectMesh);
 	}
 
 	void clearEntity()
@@ -202,6 +239,8 @@ private:
 		int m;
 		// delete cloned materials 
 		for(m=0;m<clonedMaterials.size();m++) {
+			printf("###Destroying material %s\n", 
+				clonedMaterials[m]->getName().c_str());
 			MaterialManager::getSingleton().unload(clonedMaterials[m]) ;
 			delete clonedMaterials[m];
 		}
@@ -209,12 +248,15 @@ private:
 		
 		// delete vertex buffers
 		for(m=0;m<numSubMeshes;m++) {
-			delete [] defaultVertices[m];
+			if (defaultVertices[m]) 
+				delete defaultVertices[m];
 		}
 		delete [] defaultVertices ;
 
-		delete [] tempNormals;
-		
+		if (parentVertexBuffer) {
+			delete [] parentVertexBuffer ;
+		}
+
 		// detach and destroy entity
 		objectNode->detachAllObjects();
 		mSceneMgr->removeEntity(ENTITY_NAME);
@@ -241,29 +283,28 @@ private:
 					"CubeMapListener::prepareEntity");
 			}
 		}
-		
-		// save old vertices, calculate needed space for normals
-		// prepare materials if necessary
-		int maxNumVertices = 0 ;
+
+		// save old vertices, prepare materials if necessary
 		numSubMeshes = objectMesh->getNumSubMeshes();
 		defaultVertices = new Real*[numSubMeshes];
+		parentVertexBuffer = 0 ;
+
+#define COPY_VERTEX_DATA(dstBuf,srcGeom) \
+int numVertices = (srcGeom).numVertices; \
+dstBuf = new Real[numVertices*3] ;\
+memcpy(dstBuf,(srcGeom).pVertices,numVertices*3*sizeof(Real)); 
+
 		for(int m=0;m<numSubMeshes;m++) {
 			SubMesh *subMesh = objectMesh->getSubMesh(m);
-			int numVertices = subMesh->geometry.numVertices ;
-			printf("Mesh '%s', subMesh #%d - numVertices=%d useTriStrips=%s\n", 
-				meshName.c_str(), m, numVertices, subMesh->useTriStrips?"true":"false");
-			// check if it's a new maximum
-			if (numVertices > maxNumVertices) {
-				maxNumVertices = numVertices ;
+			if (subMesh->useSharedVertices) { // need to store shared geometry 
+				if (!parentVertexBuffer) { // only once
+					COPY_VERTEX_DATA(parentVertexBuffer, objectMesh->sharedGeometry);
+				}
+				defaultVertices[m] = 0 ;
+			} else {
+				COPY_VERTEX_DATA(defaultVertices[m], subMesh->geometry);
 			}
-			// save old vertex data
-			defaultVertices[m] = new Real[numVertices*3];
-			memcpy(defaultVertices[m], subMesh->geometry.pVertices, 
-				numVertices*3*sizeof(Real));
 		}
-		// prepare data for normals
-		tempNormals = new Vector3[maxNumVertices];
-		printf("Allocated normal space for %d vertices\n", maxNumVertices);
 
         objectEntity = mSceneMgr->createEntity( ENTITY_NAME, meshName);
         objectEntity->setMaterialName( material->getName() );
@@ -277,9 +318,16 @@ private:
 				const String& matName = subMesh->getMaterialName();
 				Material *subMat = (Material*) MaterialManager::getSingleton().
 					getByName(matName);
-				if (subMat) { // clone material, add layers from global material
+				if (subMat && subMat) { // clone material, add layers from global material
 					Material *cloned = subMat->clone(
 						"CubeMapTempMaterial#"+StringConverter::toString(m));
+					// can't help it - have to do it
+					if (meshName=="knot.mesh") {
+						for(int tl=0;tl<cloned->getNumTextureLayers();tl++) {
+							Material::TextureLayer *orgTL = cloned->getTextureLayer(tl);
+							orgTL->setScrollAnimation(0.25, 0);
+						}
+					}
 					// add layers
 					printf("SubMesh #%d cloned material had %d texture layers\n", m, cloned->getNumTextureLayers());
 					for(int tl=0;tl<material->getNumTextureLayers();tl++) {
@@ -287,13 +335,16 @@ private:
 						Material::TextureLayer *newTL = cloned->addTextureLayer(
 							orgTL->getTextureName());
 						*newTL = *orgTL ;
-						//~ newTL->setColourOperation(LBO_MODULATE);
-						newTL->setColourOperation(LBO_ADD);
+						newTL->setColourOperationEx(currentLBX);
 					}
 					printf("SubMesh #%d cloned material now has %d texture layers\n", m, cloned->getNumTextureLayers());
 					subEntity->setMaterialName(cloned->getName());
 					clonedMaterials.push_back(cloned);
+				} else {
+					subEntity->setMaterialName(material->getName());
 				}
+			} else {
+				subEntity->setMaterialName(material->getName());
 			}
 		}
 
@@ -334,7 +385,30 @@ private:
 	{
 		noiseOn = !noiseOn ;
 		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Noise")
-			->setCaption(String("[N!] Noise: ")+ ((noiseOn)?"on":"off") );		
+			->setCaption(String("[N] Noise: ")+ ((noiseOn)?"on":"off") );		
+	}
+	void switchMaterialBlending()
+	{
+		currentLBXindex++;
+		if (currentLBXindex>5) {
+			currentLBXindex = 0;
+		}
+		String lbxName ;
+#define _LAZYERU_(a,b,c) case a : currentLBX = b ; lbxName = c ; break ;
+		switch (currentLBXindex) {
+			_LAZYERU_(0, LBX_ADD, "ADD")
+			_LAZYERU_(1, LBX_MODULATE, "MODULATE")
+			_LAZYERU_(2, LBX_MODULATE_X2, "MODULATE X2")
+			_LAZYERU_(3, LBX_MODULATE_X4, "MODULATE X4")
+			_LAZYERU_(4, LBX_SOURCE1, "SOURCE1")
+			_LAZYERU_(5, LBX_SOURCE2, "SOURCE2")
+			// more?
+		}
+#undef _LAZYERU_		
+		// reset entities, materials and so on
+		prepareEntity(availableMeshes[currentMeshIndex]);
+		GuiManager::getSingleton().getGuiElement("Example/CubeMapping/Material")
+			->setCaption("[M] Material blend:"+lbxName);
 	}
 	
 #define RANDOM_FROM(a,b) (((float)(rand() & 65535)) / 65536.0f * ((b)-(a)) + (a))
@@ -373,20 +447,23 @@ public:
 				"CubeMapListener::CubeMapListener");
 		}
 
-		availableMeshes.push_back("geosphere4500.mesh");
+		// these two make problems - numVertices = 0, will play later
 		availableMeshes.push_back("ogrehead.mesh");
+		availableMeshes.push_back("geosphere4500.mesh");
+		availableMeshes.push_back("knot.mesh");
+		availableMeshes.push_back("geosphere12500.mesh");
+		availableMeshes.push_back("razor.mesh");
+		availableMeshes.push_back("robot.mesh");
 		availableMeshes.push_back("geosphere1000.mesh");
 		availableMeshes.push_back("geosphere8000.mesh");
-		availableMeshes.push_back("robot.mesh");
-		availableMeshes.push_back("geosphere12500.mesh");
 		availableMeshes.push_back("geosphere19220.mesh");
 		availableMeshes.push_back("sphere.mesh");
-		// these two make problems - numVertices = 0, will play later
-		//~ availableMeshes.push_back("razor.mesh");
-		//~ availableMeshes.push_back("knot.mesh");
 
 		currentMeshIndex = -1 ;
 		switchObjects();
+		
+		currentLBXindex = -1 ;
+		switchMaterialBlending();
 		
 		noiseOn = false ;
 		switchNoiseOn();
@@ -395,7 +472,7 @@ public:
 		updateInfoDensity();
 		updateInfoTimeDensity();
     }
-    bool frameStarted(const FrameEvent& evt)
+    virtual bool frameStarted(const FrameEvent& evt)
     {
 		tm += evt.timeSinceLastFrame / timeDensity ;
 
@@ -405,7 +482,7 @@ public:
         // Call default
         return ExampleFrameListener::frameStarted(evt);
     }
-	bool processUnbufferedKeyInput(const FrameEvent& evt)
+	virtual bool processUnbufferedKeyInput(const FrameEvent& evt)
     {
 		bool retval = ExampleFrameListener::processUnbufferedKeyInput(evt);
 
@@ -443,6 +520,8 @@ public:
 		SWITCH_VALUE(KC_O, 0.5f, switchObjects());
 
 		SWITCH_VALUE(KC_N, 0.5f, switchNoiseOn());
+
+		SWITCH_VALUE(KC_M, 0.5f, switchMaterialBlending());
 		
 		SWITCH_VALUE(KC_SPACE, 0.5f, goRandom());
 
