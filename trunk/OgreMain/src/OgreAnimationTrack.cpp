@@ -151,7 +151,7 @@ namespace Ogre {
         {
             // Search 
             KeyFrameList::iterator i = mKeyFrames.begin();
-            while ((*i)->getTime() > timePos && i != mKeyFrames.end())
+            while ((*i)->getTime() < timePos && i != mKeyFrames.end())
             {
                 ++i;
             }
