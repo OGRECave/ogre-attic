@@ -96,6 +96,7 @@ namespace Ogre {
         mDebugShadows = false;
         mShadowDebugPass = 0;
         mShadowStencilPass = 0;
+        mShadowModulativePass = 0;
         mFullScreenQuad = 0;
 
 

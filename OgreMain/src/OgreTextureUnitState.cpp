@@ -71,6 +71,9 @@ namespace Ogre {
         mTextureType = TEX_TYPE_2D;
         mTextureCoordSetIndex = 0;
 
+        mFrames[0] = String::BLANK;
+        mCurrentFrame = 0;
+
         mParent->_dirtyHash();
 
     }
@@ -475,12 +478,12 @@ namespace Ogre {
         return colourBlendFallbackDest;
     }
     //-----------------------------------------------------------------------
-    LayerBlendModeEx TextureUnitState::getColourBlendMode(void) const
+    const LayerBlendModeEx& TextureUnitState::getColourBlendMode(void) const
     {
         return colourBlendMode;
     }
     //-----------------------------------------------------------------------
-    LayerBlendModeEx TextureUnitState::getAlphaBlendMode(void) const
+    const LayerBlendModeEx& TextureUnitState::getAlphaBlendMode(void) const
     {
         return alphaBlendMode;
     }

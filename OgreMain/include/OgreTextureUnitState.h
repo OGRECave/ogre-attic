@@ -619,11 +619,11 @@ namespace Ogre {
 
         /** Get multitexturing colour blending mode.
         */
-        LayerBlendModeEx getColourBlendMode(void) const;
+        const LayerBlendModeEx& getColourBlendMode(void) const;
 
         /** Get multitexturing alpha blending mode.
         */
-        LayerBlendModeEx getAlphaBlendMode(void) const;
+        const LayerBlendModeEx& getAlphaBlendMode(void) const;
 
         /** Get the multipass fallback for colour blending operation source factor.
         */
