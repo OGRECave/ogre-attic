@@ -563,7 +563,10 @@ namespace Ogre {
         if (!chunk.isEOF())
         {
             chunkID = readChunk(chunk);
-            while(!chunk.isEOF())
+            while(!chunk.isEOF() &&
+                (chunkID == M_SUBMESH ||
+                 chunkID == M_MESH_SKELETON_LINK ||
+                 chunkID == M_MESH_BONE_ASSIGNMENT))
             {
                 switch(chunkID)
                 {
@@ -576,13 +579,6 @@ namespace Ogre {
                 case M_MESH_BONE_ASSIGNMENT:
                     readMeshBoneAssignment(chunk);
                     break;
-                default:
-                    // Not a recognised chunk, must be non-nested
-                    // Break out
-                    // Backpedal back to start of chunk
-                    chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-                    return;
-
                 }
 
                 if (!chunk.isEOF())
@@ -636,20 +632,14 @@ namespace Ogre {
         if (!chunk.isEOF())
         {
             chunkID = readChunk(chunk);
-            while(!chunk.isEOF())
+            while(!chunk.isEOF() &&
+                (chunkID == M_SUBMESH_BONE_ASSIGNMENT))
             {
                 switch(chunkID)
                 {
                 case M_SUBMESH_BONE_ASSIGNMENT:
                     readSubMeshBoneAssignment(chunk, sm);
                     break;
-                default:
-                    // Not a recognised chunk, must be non-nested
-                    // Break out
-                    // Backpedal back to start of chunk
-                    chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-                    return;
-
                 }
 
                 if (!chunk.isEOF())
