@@ -441,6 +441,25 @@ namespace Ogre {
             and re-normalises the remaining assignments.
         */
         void _compileBoneAssignments(void);
+
+        /** This method builds a set of tangent vectors for a given mesh into a 3D texture coordinate buffer.
+        @remarks
+            Tangent vectors are vectors representing the local 'X' axis for a given vertex based
+            on the orientation of the 2D texture on the geometry. They are built from a combination
+            of existing normals, and from the 2D texture coordinates already baked into the model.
+            They can be used for a number of things, but most of all they are useful for 
+            vertex and fragment programs, when you wish to arrive at a common space for doing
+            per-pixel calculations.
+        @par
+            The prerequisites for calling this method include that the vertex data used by every
+            SubMesh has both vertex normals and 2D texture coordinates.
+        @param sourceTexCoordSet The texture coordinate index which should be used as the source
+            of 2D texture coordinates, with which to calculate the tangents.
+        @param destTexCoordSet The texture coordinate set which should be used to store the 3D
+            coordinates representing a tangent vector per vertex. If this already exists, it
+            will be overwritten.
+        */
+        void buildTangentVectors(unsigned short sourceTexCoordSet = 0, unsigned short destTexCoordSet = 1);
     protected:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -451,6 +470,9 @@ namespace Ogre {
         */
         SubMeshList mSubMeshList;
 	
+        /** Internal method for getting or creating a 3D texture coord buffer to hold tangents. */
+        HardwareVertexBufferSharedPtr getTangentsBuffer(VertexData *vertexData, unsigned short texCoordSet);
+
 		/** A hashmap used to store optional SubMesh names.
 			Translates a name into SubMesh index
 		*/
