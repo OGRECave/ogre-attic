@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __SDLPrerequisites_H__
 #define __SDLPrerequisites_H__
 
+#include "OgrePlatform.h"
+
 #if OGRE_PLATFORM == PLATFORM_APPLE
 #	include <SDL/sdl.h>
 #else
