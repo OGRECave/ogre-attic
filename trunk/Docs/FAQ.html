@@ -90,21 +90,18 @@ Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR></DIV></TD><TD CLASS="BorderCon
 3.x<BR>gcc 2.9x with <A HREF="http://www.stlport.org">STLport 4.5.3</A></P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">gcc 
 3.2 highly recommended. See <A HREF="README.linux">Linux README</A></DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER">Mac 
 OSX </DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc 3.x</DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">See 
-the <A HREF="README_MacOSX.txt">Mac README</A></DIV></TD></TR></TABLE><p align="left">MacOS 
-X has not been tested but you could probably get it to work with gcc using the 
-Linux makefiles with a little work. Borland compilers are not yet supported but 
-may be in the future.</p><p align="left" CLASS="MainHeader">Q: When do I need 
-STLport and why?</p><p align="left">You need STLport if you're running Microsoft 
-Visual C++ (version 6 or .NET), because the STL implementation in VC++ 6 is very 
-old (the one in VC++ .NET is very nice and actually works with OGRE, but we're 
-not supporting it yet), pretty slow and has a number of known bugs. The issue 
-which makes it totally unsuitable for OGRE is that STL classes cannot be passed 
-across a DLL boundary using the MS STL; it will instantly cause a crash. OGRE 
-is very DLL oriented so this makes the MS STL unusable. STLport is more stable, 
-and is faster than MS STL in release mode. </p><p align="left">You also need STLport 
-if you're using gcc 2.9x because the STL included with this version is not ANSI 
-compliant enough for OGRE. You don't need it if you have gcc v3.x because the 
-STL in that version has been updated. </p><p align="left" CLASS="MainHeader">Q: 
+the <A HREF="README_MacOSX.txt">Mac README</A></DIV></TD></TR></TABLE><p align="left" CLASS="MainHeader">Q: 
+When do I need STLport and why?</p><p align="left">You need STLport if you're 
+running Microsoft Visual C++ (version 6 or .NET), because the STL implementation 
+in VC++ 6 is very old (the one in VC++ .NET is very nice and actually works with 
+OGRE, but we're not supporting it yet), pretty slow and has a number of known 
+bugs. The issue which makes it totally unsuitable for OGRE is that STL classes 
+cannot be passed across a DLL boundary using the MS STL; it will instantly cause 
+a crash. OGRE is very DLL oriented so this makes the MS STL unusable. STLport 
+is more stable, and is faster than MS STL in release mode. </p><p align="left">You 
+also need STLport if you're using gcc 2.9x because the STL included with this 
+version is not ANSI compliant enough for OGRE. You don't need it if you have gcc 
+v3.x because the STL in that version has been updated. </p><p align="left" CLASS="MainHeader">Q: 
 How do I install STLport?</p><OL><LI>Download STLport 4.5.3 from <A HREF="http://www.stlport.org">www.stlport.org</A> 
 and unzip it somewhere</LI><LI>Open a command prompt, and change to the folder 
 STLport-4.5.3\src</LI><LI>If you're using Visual C++ 6:<OL><LI> make sure you've 
