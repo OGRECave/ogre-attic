@@ -44,6 +44,11 @@ namespace Ogre {
         class ImageData : public Codec::CodecData
         {
         public:
+			ImageData():
+				height(0), width(0), depth(1), size(0),
+				num_mipmaps(0), flags(0), format(PF_UNKNOWN)
+			{
+			}
             uint height;
             uint width;
             uint size;
