@@ -87,7 +87,7 @@ namespace Ogre {
             @remarks
                 This rotation is relative to the center of the billboard.
         */
-        Radian getRotation(void) const { return mRotation; }
+        const Radian& getRotation(void) const { return mRotation; }
 
         /** Set the rotation of the billboard.
             @remarks

@@ -439,7 +439,7 @@ namespace Ogre {
         /**
         * Returns the parent container.
         */
-        PositionTarget* getPositionTargetParent() ;
+        PositionTarget* getPositionTargetParent() const;
 
         /**
         * Returns the parent container.

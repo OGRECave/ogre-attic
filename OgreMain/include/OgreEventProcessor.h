@@ -178,7 +178,7 @@ namespace Ogre {
 		/**
 		 * returns NULL, There is no parent of the default event target.
 		 */
-		PositionTarget* getPositionTargetParent() ;
+		PositionTarget* getPositionTargetParent() const;
 
 
 

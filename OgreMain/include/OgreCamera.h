@@ -330,10 +330,10 @@ namespace Ogre {
 
         /** Gets the derived orientation of the camera, including any 
             rotation inherited from a node attachment. */
-        Quaternion getDerivedOrientation(void) const;
+        const Quaternion& getDerivedOrientation(void) const;
         /** Gets the derived position of the camera, including any 
             translation inherited from a node attachment. */
-        Vector3 getDerivedPosition(void) const;
+        const Vector3& getDerivedPosition(void) const;
         /** Gets the derived direction vector of the camera, including any 
             translation inherited from a node attachment. */
         Vector3 getDerivedDirection(void) const;
@@ -393,7 +393,7 @@ namespace Ogre {
         @param screenx, screeny The x and y position at which the ray should intersect the viewport, 
             in normalised screen coordinates [0,1]
         */
-        Ray getCameraToViewportRay(Real screenx, Real screeny);
+        Ray getCameraToViewportRay(Real screenx, Real screeny) const;
 
 		/** Internal method for OGRE to use for LOD calculations. */
 		Real _getLodBiasInverse(void) const;
@@ -423,7 +423,7 @@ namespace Ogre {
         /** Overridden from MovableObject */
         Real getBoundingRadius(void) const;
 		/** Get the auto tracking target for this camera, if any. */
-        SceneNode* getAutoTrackTarget(void) { return mAutoTrackTarget; }
+        SceneNode* getAutoTrackTarget(void) const { return mAutoTrackTarget; }
 		/** Get the auto tracking offset for this camera, if it is auto tracking. */
 		const Vector3& getAutoTrackOffset(void) const { return mAutoTrackOffset; }
 		

@@ -121,7 +121,7 @@ namespace Ogre {
         Real getTop(void) const ;
 
 		/** The parent of the cursor is NULL as it's position is absolute in the window */
-		PositionTarget* getPositionTargetParent();
+		PositionTarget* getPositionTargetParent() const;
 
 		inline virtual bool isKeyEnabled() const
 		{ return false; }
