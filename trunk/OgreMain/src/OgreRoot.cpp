@@ -162,6 +162,23 @@ namespace Ogre {
         // Seed random number generator for future use
         srand((unsigned)time(0));
 
+        // Instantiate templates for spooling to a String
+        // This seems to be a crappy VC6 thing, it generates link errors if we use
+        //  the templates from outside OgreMain, even when 'inline'.
+        String str1, str2;
+        Quaternion q;
+        Vector3 v;
+        Matrix4 m;
+        float f = 0.0;
+        int i = 0;
+        char c = 'A';
+        str1 = "";
+        str2 = "aa";
+        str1 << str2 << q << v << f << i << c;
+        // Stop instantiating templates
+
+        
+
 
     }
 
