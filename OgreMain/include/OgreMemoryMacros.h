@@ -38,11 +38,22 @@ http://www.gnu.org/copyleft/gpl.html.
 //
 #ifndef OGRE_MEMORY_MACROS
 #define OGRE_MEMORY_MACROS
-#define new new
-#define delete delete
-#define malloc( sz ) ::Ogre::MemoryManager::sMemManager.allocMem( __FILE__, __LINE__, sz )
-#define free( ptr ) ::Ogre::MemoryManager::sMemManager.dllocMem( __FILE__, __LINE__, ptr )
-#define realloc( ptr, sz ) ::Ogre::MemoryManager::sMemManager.rllocMem( __FILE__, __LINE__, ptr, sz )
-#define calloc( cnt, sz ) ::Ogre::MemoryManager::sMemManager.cllocMem( __FILE__, __LINE__, cnt, sz )
-#endif
+
+#if OGRE_DEBUG_MEMORY_MANAGER
+#   define new    (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                   : new
+#   define delete (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? ::Ogre::MemoryManager::sMemManager.setOwner("",0,"") : delete
+#   define malloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_malloc, sz,      gProcessID)
+#   define calloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_calloc, sz,      gProcessID)
+#   define realloc(ptr,sz) ::Ogre::MemoryManager::sMemManager.rllocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_realloc,sz, ptr, gProcessID)
+#   define free(ptr)       ::Ogre::MemoryManager::sMemManager.dllocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_free,       ptr, gProcessID)
+#else
+#   define new new
+#   define delete delete
+#   define malloc( sz ) ::Ogre::MemoryManager::sMemManager.allocMem( __FILE__, __LINE__, sz )
+#   define free( ptr ) ::Ogre::MemoryManager::sMemManager.dllocMem( __FILE__, __LINE__, ptr )
+#   define realloc( ptr, sz ) ::Ogre::MemoryManager::sMemManager.rllocMem( __FILE__, __LINE__, ptr, sz )
+#   define calloc( cnt, sz ) ::Ogre::MemoryManager::sMemManager.cllocMem( __FILE__, __LINE__, cnt, sz )
+#endif // OGRE_DEBUG_MEMORY_MANAGER
+
+#endif // OGRE_MEMORY_MACROS
 //-----------------------------------------------------------------------------
