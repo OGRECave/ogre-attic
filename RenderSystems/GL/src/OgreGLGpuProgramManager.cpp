@@ -83,7 +83,7 @@ Resource* GLGpuProgramManager::createImpl(const String& name, ResourceHandle han
     }
 
     GpuProgramType gpt;
-    if (paramType->second == "vertex_Program")
+    if (paramType->second == "vertex_program")
     {
         gpt = GPT_VERTEX_PROGRAM;
     }
