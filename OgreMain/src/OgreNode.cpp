@@ -307,23 +307,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::roll(Real degrees)
     {
-        // Rotate around local Z axis
-        Vector3 zAxis = mOrientation * Vector3::UNIT_Z;
-        rotate(zAxis, degrees);
+        rotate(Vector3::UNIT_Z, degrees);
     }
     //-----------------------------------------------------------------------
     void Node::pitch(Real degrees)
     {
-        // Rotate around local X axis
-        Vector3 xAxis = mOrientation * Vector3::UNIT_X;
-        rotate(xAxis, degrees);
+        rotate(Vector3::UNIT_X, degrees);
     }
     //-----------------------------------------------------------------------
     void Node::yaw(Real degrees)
     {
-        // Rotate around local Y axis
-        Vector3 yAxis = mOrientation * Vector3::UNIT_Y;
-        rotate(yAxis, degrees);
+        rotate(Vector3::UNIT_Y, degrees);
 
     }
     //-----------------------------------------------------------------------
