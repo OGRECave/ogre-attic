@@ -209,7 +209,7 @@ namespace Ogre {
 						skipLine = true;
 					}
 			    }
-			    if ((!!pOverlay && !skipLine) || isTemplate)
+			    if ((pOverlay && !skipLine) || isTemplate)
 			    {
 				    // Already in overlay
                     std::vector<String> params = StringUtil::split(line, "\t\n ()");
