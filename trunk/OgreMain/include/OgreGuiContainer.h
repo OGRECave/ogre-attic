@@ -57,7 +57,7 @@ namespace Ogre {
         ChildContainerMap mChildContainers;
         
     public:
-        /// Constructor: do not call direct, use GuiManager::createContainer
+        /// Constructor: do not call direct, use GuiManager::createElement
         GuiContainer(const String& name);
         virtual ~GuiContainer();
 
