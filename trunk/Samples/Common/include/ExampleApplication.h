@@ -111,7 +111,7 @@ protected:
             // If returned true, user clicked OK so initialise
             // Here we choose to let the system create a default rendering window by passing 'true'
             mWindow = mRoot->initialise(true);
-            mWindow->setStatsDisplay(RenderTarget::SF_ALL);
+            mRoot->showDebugOverlay(true);
             return true;
         }
         else

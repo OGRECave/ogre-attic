@@ -55,7 +55,7 @@ public:
         mInputDevice->initialise(win,true, true);
         mCamera = cam;
         mWindow = win;
-        mStatsOn = false;
+        mStatsOn = true;
     }
     virtual ~ExampleFrameListener()
     {
@@ -70,7 +70,8 @@ public:
         // local just to stop toggles flipping too fast
         static Real timeUntilNextToggle = 0;
 
-        if (timeUntilNextToggle > 0) timeUntilNextToggle -= evt.timeSinceLastFrame;
+        if (timeUntilNextToggle >= 0) 
+            timeUntilNextToggle -= evt.timeSinceLastFrame;
 
         // If this is the first frame, pick a speed
         if (evt.timeSinceLastFrame == 0)
@@ -177,17 +178,10 @@ public:
 
         if (mInputDevice->isKeyDown(KC_F) && timeUntilNextToggle <= 0)
         {
-            if (mStatsOn)
-            {
-                mWindow->setStatsDisplay(RenderTarget::SF_NONE);
-            }
-            else
-            {
-                mWindow->setStatsDisplay(RenderTarget::SF_ALL);
-            }
             mStatsOn = !mStatsOn;
+            Root::getSingleton().showDebugOverlay(mStatsOn);
 
-            timeUntilNextToggle = 10;
+            timeUntilNextToggle = 1;
         }
 
 

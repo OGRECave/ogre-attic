@@ -23,6 +23,9 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreRenderTarget.h"
+#include "OgreGuiElement.h"
+#include "OgreGuiManager.h"
+#include "OgreStringConverter.h"
 
 #include "OgreViewport.h"
 #include "OgreException.h"
@@ -156,7 +159,6 @@ namespace Ogre {
     void RenderTarget::setStatsDisplay(StatFlags sf)
     {
         mStatFlags = sf;
-
     }
 
     void RenderTarget::getStatistics(float& lastFPS, float& avgFPS,
@@ -232,52 +234,27 @@ namespace Ogre {
             numFrames  = 0;
         }
 
-        // Display the stats
-        char strStats[255];
-        int iLine;
 
-        iLine = 0;
+        static String currFps = "CURRENT FPS: ";
+        static String avgFps = "AVERAGE FPS: ";
+        static String bestFps = "BEST FPS: ";
+        static String worstFps = "WORST FPS: ";
+        static String tris = "#TRIS: ";
 
-        // HACK
-        // Prevents inexplicable framerate drop in some cases when frame counters are turned off??!?!?
-        outputText(0,512, "");
+        GuiElement* guiAvg = GuiManager::getSingleton().getGuiElement("Core/AverageFps");
+        GuiElement* guiCurr = GuiManager::getSingleton().getGuiElement("Core/CurrFps");
+        GuiElement* guiBest = GuiManager::getSingleton().getGuiElement("Core/BestFps");
+        GuiElement* guiWorst = GuiManager::getSingleton().getGuiElement("Core/WorstFps");
+        GuiElement* guiTris = GuiManager::getSingleton().getGuiElement("Core/NumTris");
 
-        if (mStatFlags != SF_NONE)
-        {
-            if (mStatFlags & SF_FPS)
-            {
-                sprintf(strStats, "Current FPS: %.2f", mLastFPS);
-                outputText(0,iLine*16,strStats);
-                iLine++;
-            }
-            if (mStatFlags & SF_AVG_FPS)
-            {
-                sprintf(strStats, "Average FPS: %.2f", mAvgFPS);
-                outputText(0,iLine*16,strStats);
-                iLine++;
-            }
-            if (mStatFlags & SF_BEST_FPS)
-            {
-                sprintf(strStats, "Best FPS: %.2f", mBestFPS);
-                outputText(0,iLine*16,strStats);
-                iLine++;
-            }
-            if (mStatFlags & SF_WORST_FPS)
-            {
-                sprintf(strStats, "Worst FPS: %.2f", mWorstFPS);
-                outputText(0,iLine*16,strStats);
-                iLine++;
-            }
-            if (mStatFlags & SF_TRIANGLE_COUNT)
-            {
-                sprintf(strStats, "Tris: %d", mTris);
-                outputText(0,iLine*16,strStats);
-                iLine++;
-            }
-        }
+        guiAvg->setCaption(avgFps + StringConverter::toString(mAvgFPS));
+        guiCurr->setCaption(currFps + StringConverter::toString(mLastFPS));
+        guiBest->setCaption(bestFps + StringConverter::toString(mBestFPS));
+        guiWorst->setCaption(worstFps + StringConverter::toString(mWorstFPS));
+        guiTris->setCaption(tris + StringConverter::toString(mTris));
 
-        // Output debug text
-        outputText(0, iLine*16, mDebugText);
+        GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
+        guiDbg->setCaption(mDebugText);
 
     }
 

@@ -1,14 +1,14 @@
 // Ogre overlay scripts
-Ogre/DebugOverlay
+Core/DebugOverlay
 {
 	zorder 500
 	// Stats block
-	container BorderPanel(StatPanel)
+	container BorderPanel(Core/StatPanel)
 	{
 		left 0 
 		top 0
-		width 0.25
-		height 0.75
+		width 1
+		height 0.15
 		material Core/StatsBlockCenter
         	border_size 0.05 0.05 0.06665 0.06665
         	border_material Core/StatsBlockBorder
@@ -20,36 +20,66 @@ Ogre/DebugOverlay
 	        border_bottomleft_uv  0.0000 0.2148 0.1914 0.0000
         	border_bottom_uv      0.1914 0.2148 0.8086 0.0000
 	        border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
-
-		element TextArea(StatText)
-		{
-			left 0.02
-			top 0.22
-			width 0.21
-			height 0.4
-			font_name StarWars
-			char_height 0.02
-			caption cool stuff here
-		}
-
-		element BorderPanel(SubPanel)
-		{
-			left 0.02
-			top 0.02
-			width 0.21
-			height 0.2
-			material Core/StatsBlockCenter
-	        	border_size 0.05 0.05 0.06665 0.06665
-        		border_material Core/StatsBlockBorder
-        		border_topleft_uv     0.0000 1.0000 0.1914 0.7969
-		        border_top_uv         0.1914 1.0000 0.8086 0.7969
-		        border_topright_uv    0.8086 1.0000 1.0000 0.7969
-	        	border_left_uv        0.0000 0.7969 0.1914 0.2148
-		        border_right_uv       0.8086 0.7969 1.0000 0.2148
-		        border_bottomleft_uv  0.0000 0.2148 0.1914 0.0000
-        		border_bottom_uv      0.1914 0.2148 0.8086 0.0000
-		        border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
-		}
+		        
+			element TextArea(Core/CurrFps)
+			{
+				left 0.02
+				top 0.02
+				width 0.21
+				height 0.04
+				font_name Ogre
+				char_height 0.04
+				caption CURRENT FPS:
+			}
+			element TextArea(Core/AverageFps)
+			{
+				left 0.02
+				top 0.06
+				width 0.21
+				height 0.04
+				font_name Ogre
+				char_height 0.04
+				caption AVERAGE FPS:
+			}
+			element TextArea(Core/WorstFps)
+			{
+				left 0.3
+				top 0.02
+				width 0.21
+				height 0.04
+				font_name Ogre
+				char_height 0.04
+				caption WORST FPS:
+			}
+			element TextArea(Core/BestFps)
+			{
+				left 0.3
+				top 0.06
+				width 0.21
+				height 0.04
+				font_name Ogre
+				char_height 0.04
+				caption BEST FPS:
+			}
+			element TextArea(Core/NumTris)
+			{
+				left 0.6
+				top 0.02
+				width 0.21
+				height 0.04
+				font_name Ogre
+				char_height 0.04
+				caption #TRIS:
+			}
+			element TextArea(Core/DebugText)
+			{
+				left 0.02
+				top 0.1
+				width 0.21
+				height 0.04
+				font_name Ogre
+				char_height 0.04
+			}
 				
 	}
 	
