@@ -2003,7 +2003,8 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
             }
             // Do we need to update light states? 
             // Only do this if fixed-function vertex lighting applies
-            if (pass->getLightingEnabled() && !pass->hasVertexProgram())
+            if (pass->getLightingEnabled() &&
+                (!pass->hasVertexProgram() || pass->getVertexProgram()->getPassSurfaceAndLightStates()))
             {
                 mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
             }
@@ -2036,9 +2037,10 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
             }
         }
 
-        // Use manual lights if present, and not using vertex programs
+        // Use manual lights if present, and fixed-function vertex lighting applies
         if (manualLightList && 
-            pass->getLightingEnabled() && !pass->hasVertexProgram())
+            pass->getLightingEnabled() &&
+            (!pass->hasVertexProgram() || pass->getVertexProgram()->getPassSurfaceAndLightStates()))
         {
             mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
         }
