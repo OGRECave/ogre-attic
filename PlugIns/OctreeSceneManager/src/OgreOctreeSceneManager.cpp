@@ -189,24 +189,6 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
     mOctree -> mHalfSize = ( max - min ) / 2;
 
 
-    mRenderOp.useIndexes = true;
-
-    mRenderOp.numTextureCoordSets = 0; // no textures
-
-    mRenderOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
-
-    mRenderOp.operationType = RenderOperation::OT_LINE_LIST;
-
-    mRenderOp.numVertices = 8;
-
-    mRenderOp.numIndexes = 24;
-
-    mRenderOp.pVertices = mCorners;
-
-    mRenderOp.pIndexes = mIndexes;
-
-    mRenderOp.pDiffuseColour = mColors;
-
     mShowBoxes = false;
 
     mCullCamera = false;
@@ -217,13 +199,7 @@ void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
 
     mScaleFactor.setScale( v );
 
-    mBlankMaterial = getMaterial( "OctreeBlankMaterial" );
 
-    if ( mBlankMaterial == 0 )
-    {
-        mBlankMaterial = getDefaultMaterialSettings( ) -> clone ( "OctreeBlankMaterial" );
-        mBlankMaterial -> setLightingEnabled( false );
-    }
 
     // setDisplaySceneNodes( true );
     // setShowBoxes( true );
@@ -427,66 +403,6 @@ void OctreeSceneManager::_alertVisibleObjects( void )
     }
 }
 
-void OctreeSceneManager::_renderVisibleObjects( void )
-{
-
-    if ( mShowBoxes || mCullCamera )
-    {
-
-        BoxList::iterator it = mBoxes.begin();
-
-        mDestRenderSystem->_setWorldMatrix( Matrix4::IDENTITY );
-        mDestRenderSystem->_setViewMatrix( mCameraInProgress->getViewMatrix() );
-        mDestRenderSystem->_setProjectionMatrix( mCameraInProgress -> getProjectionMatrix() );
-
-        mDestRenderSystem->_beginFrame();
-        setMaterial( mBlankMaterial, 0 );
-
-        if ( mShowBoxes )
-        {
-            while ( it != mBoxes.end() )
-            {
-                getBoxVerts( *( *it ), mRenderOp.pVertices );
-
-                mDestRenderSystem->_render( mRenderOp );
-                ++it;
-            }
-        }
-
-        if ( mCullCamera )
-        {
-            Camera * c = getCamera( "CullCamera" );
-
-            if ( c != 0 )
-            {
-                RenderOperation r;
-                static_cast < OctreeCamera* > ( c ) -> getRenderOperation( r );
-                mDestRenderSystem -> _render( r );
-            }
-        }
-
-        mDestRenderSystem -> _endFrame();
-    }
-
-
-    SceneManager::_renderVisibleObjects( );
-
-
-
-}
-
-void OctreeSceneManager::getBoxVerts( AxisAlignedBox &box, Real *r )
-{
-    const Vector3 * corners = box.getAllCorners();
-
-    for ( int i = 0; i < 8; i++ )
-    {
-        *r = corners[ i ].x; r++;
-        *r = corners[ i ].y; r++;
-        *r = corners[ i ].z; r++;
-    }
-}
-
 void OctreeSceneManager::_findVisibleObjects( Camera * cam )
 {
 
@@ -506,6 +422,35 @@ void OctreeSceneManager::_findVisibleObjects( Camera * cam )
 
     //walk the octree, adding all visible Octreenodes nodes to the render queue.
     walkOctree( static_cast < OctreeCamera * > ( cam ), &mRenderQueue, mOctree, false );
+
+
+    // Show the octree boxes & cull camera if required
+    if ( mShowBoxes || mCullCamera )
+    {
+
+        
+
+        if ( mShowBoxes )
+        {
+            for ( BoxList::iterator it = mBoxes.begin(); it != mBoxes.end(); ++it )
+            {
+		        mRenderQueue.addRenderable(*it);
+            }
+        }
+
+        if ( mCullCamera )
+        {
+            OctreeCamera * c = static_cast<OctreeCamera*>(getCamera( "CullCamera" ));
+
+            if ( c != 0 )
+            {
+                mRenderQueue.addRenderable(c);
+            }
+        }
+
+    }
+
+
 
 }
 
@@ -544,7 +489,10 @@ void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, O
         NodeList::iterator it = octant -> mNodes.begin();
 
         if ( mShowBoxes )
-            mBoxes.push_back( &( octant -> mBox ) );
+        {
+            octant->mWireBox.setupBoundingBox(octant->mBox);
+            mBoxes.push_back( &( octant -> mWireBox ) );
+        }
 
         bool vis = true;
 

@@ -19,6 +19,7 @@ email                : janders@users.sf.net
 #define OCTREE_H
 
 #include <OgreAxisAlignedBox.h>
+#include <OgreWireBoundingBox.h>
 
 #include <list>
 
@@ -67,6 +68,7 @@ public:
     This is used for octant index determination and rendering, but not culling
     */
     AxisAlignedBox mBox;
+    WireBoundingBox mWireBox;
 
     /** Vector containing the dimensions of this octree / 2
     */
