@@ -32,6 +32,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreKeyFrame.h"
 #include "OgreSkeletonSerializer.h"
 #include <xsi_model.h>
+#include <xsi_kinematics.h>
+#include <xsi_kinematicstate.h>
+#include <xsi_math.h>
+#include <xsi_rotation.h>
 
 using namespace XSI;
 
@@ -50,6 +54,8 @@ namespace Ogre
 	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
 		DeformerList& deformers)
 	{
+		mXsiApp.LogMessage(L"** Begin OGRE Skeleton Export **");
+
 		SkeletonPtr skeleton = SkeletonManager::getSingleton().create("export",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		// construct the hierarchy
@@ -58,6 +64,8 @@ namespace Ogre
 
 		SkeletonSerializer ser;
 		ser.exportSkeleton(skeleton.get(), skeletonFileName);
+
+		mXsiApp.LogMessage(L"** OGRE Skeleton Export Complete **");
 
 
 	}
@@ -134,6 +142,12 @@ namespace Ogre
 				if (!deformer->pBone)
 				{
 					deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
+					// set transform on bone to global transform since no parents
+					MATH::CTransformation trans = 
+						deformer->obj.GetKinematics().GetGlobal().GetTransform();
+					deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
+					deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
+					deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
 				}
 			}
 
@@ -175,6 +189,12 @@ namespace Ogre
 			if (!deformer->pBone)
 			{
 				deformer->pBone = pSkeleton->createBone(childName, deformer->boneID);
+				// set transform on bone to local transform 
+				MATH::CTransformation trans = 
+					deformer->obj.GetKinematics().GetLocal().GetTransform();
+				deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
+				deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
+				deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
 			}
 
 
