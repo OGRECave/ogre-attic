@@ -282,10 +282,12 @@ namespace Ogre {
 
         // Set addressing
         Material::TextureLayer::TextureAddressingMode addr = tl.getTextureAddressingMode();
-        if (currIsBlank || curr.getTextureAddressingMode() != addr)
-        {
+        // Fix: GL requires addressing mode to be set in ALL cases
+        // If the extra state changes in D3D become problematic, refactor this
+        //if (currIsBlank || curr.getTextureAddressingMode() != addr)
+        //{
             _setTextureAddressingMode(texUnit, addr );
-        }
+        //}
 
 
         // Set texture effects
