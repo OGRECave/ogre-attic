@@ -835,6 +835,12 @@ namespace Ogre {
             }
 
         }
+        // Ok, we do need the updated light pos for the edge list
+        if (hasSkeleton())
+        {
+            Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+            lightPos =  world2Obj * lightPos; 
+        }
         // Calc triangle light facing
         updateEdgeListLightFacing(edgeList, lightPos);
 
