@@ -576,7 +576,7 @@ namespace Ogre {
         PixelBox src;
         src.width = getWidth();
         src.height = getHeight();
-        src.depth = 1;
+        src.depth = getDepth();
         src.format = getFormat();
         src.data = getData();
         src.setConsecutive();
