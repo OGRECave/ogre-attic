@@ -477,6 +477,29 @@ namespace Ogre {
         return selectedResource;
 	}
 
+	ResourceListConstIterator ListGuiElement::getConstIterator()
+	{
+        return ResourceListConstIterator(mResourceList.begin());
+	}
+
+	ResourceListConstIterator ListGuiElement::getConstEndIterator()
+	{
+        return ResourceListConstIterator(mResourceList.end());
+	}
+	Resource* ListGuiElement::popFront()
+	{
+		Resource* r = mResourceList.front();
+		mResourceList.pop_front();
+
+        return r;
+	}
+	
+	int ListGuiElement::getListSize() 
+	{
+		return mResourceList.size();
+	}
+
+
 }
 
 

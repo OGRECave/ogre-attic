@@ -43,9 +43,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	BorderButtonGuiElement::BorderButtonGuiElement(const String& name) :
 		BorderPanelGuiElement(name),
-		GuiControl(name)
+		GuiPressable(name)
 	{
 		mButtonDown = false;
+		mChildrenProcessEvents = false;
 
 		mBorderDownMaterialName = "";
 		mBorderUpMaterialName = "";
@@ -59,14 +60,13 @@ namespace Ogre {
         {
             addBaseParameters();
         }
+		setSource(this);
 	}
 
     //-----------------------------------------------------------------------
 	void BorderButtonGuiElement::processEvent(InputEvent* e) 
 	{
-		GuiElement::processEvent(e);
-
-		GuiControl::processEvent(e);
+		BorderPanelGuiElement::processEvent(e);
 
 		updateMaterials();
 	}
@@ -165,19 +165,6 @@ namespace Ogre {
             &BorderButtonGuiElement::msCmdBorderButtonCaption);
 	}
 
-    //-----------------------------------------------------------------------
-	GuiElement* BorderButtonGuiElement::findElementAt(Real x, Real y) 		// relative to parent
-		// don't look in children (ie text)
-	{
-
-		GuiElement* ret = NULL;
-
-		if (mVisible)
-		{
-			ret = GuiElement::findElementAt(x,y);	//default to the current container if no others are found
-		}
-		return ret;
-	}
 
     //-----------------------------------------------------------------------
     void BorderButtonGuiElement::setBorderDownMaterialName(const String& name)

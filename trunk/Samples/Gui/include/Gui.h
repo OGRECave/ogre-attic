@@ -46,7 +46,7 @@ class GuiFrameListener : public ExampleFrameListener
 public:
     // NB using buffered input, this is the only change
     GuiFrameListener(RenderWindow* win, Camera* cam)
-        : ExampleFrameListener(win, cam, true)
+        : ExampleFrameListener(win, cam, true, true)
     {
     }
 
@@ -116,7 +116,12 @@ protected:
 
 
 	void mouseClicked(MouseEvent* e) {}
-	void mouseEntered(MouseEvent* e) {}
+	void mouseEntered(MouseEvent* e) 
+	{
+		int i =5;
+
+	
+	}
 	void mouseExited(MouseEvent* e) {}
 	void mousePressed(MouseEvent* e) {}
 	void mouseReleased(MouseEvent* e) {}
@@ -125,6 +130,7 @@ protected:
     void createFrameListener(void)
     {
         mFrameListener= new GuiFrameListener(mWindow, mCamera);
+        mRoot->addFrameListener(mFrameListener);
     }
 
 

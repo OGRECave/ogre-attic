@@ -252,6 +252,9 @@
 				RelativePath="..\src\OgreGuiManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGuiPressable.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
@@ -267,7 +270,13 @@
 				RelativePath="..\src\OgreJPEGCodec.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreKeyEvent.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreKeyFrame.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreKeyTarget.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreLight.cpp">
@@ -412,6 +421,12 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreSceneQuery.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreScrollEvent.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreScrollTarget.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreSerializer.cpp">
@@ -649,6 +664,9 @@
 				RelativePath="..\include\OgreGuiManager.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreGuiPressable.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreImage.h">
 			</File>
 			<File
@@ -670,7 +688,13 @@
 				RelativePath="..\include\OgreJPEGCodec.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreKeyEvent.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreKeyFrame.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreKeyTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreLight.h">
@@ -875,6 +899,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreSceneQuery.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScrollEvent.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreScrollTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSerializer.h">

@@ -47,6 +47,7 @@ OgreGuiElement.h \
 OgreGuiElementCommands.h \
 OgreGuiElementFactory.h \
 OgreGuiManager.h \
+OgreGuiPressable.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \

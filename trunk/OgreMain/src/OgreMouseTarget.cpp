@@ -37,6 +37,8 @@ namespace Ogre {
 	MouseTarget::MouseTarget() 
 	{
 		mMouseListener = 0;
+		mMouseWithin = false;
+
 	}
     //-----------------------------------------------------------------------
 
@@ -58,9 +60,11 @@ namespace Ogre {
 				listener->mouseClicked(e);
 				break;
 			case MouseEvent::ME_MOUSE_EXITED:
+				mMouseWithin = false;
 				listener->mouseExited(e);
 				break;
 			case MouseEvent::ME_MOUSE_ENTERED:
+				mMouseWithin = true;
 				listener->mouseEntered(e);
 				break;
 			}
@@ -83,6 +87,12 @@ namespace Ogre {
 			return;
 		}
 		mMouseListener = EventMulticaster::remove(mMouseListener,l);
+	}
+
+    //-----------------------------------------------------------------------
+	bool MouseTarget::isMouseWithin()
+	{ 
+		return mMouseWithin;
 	}
 }
 

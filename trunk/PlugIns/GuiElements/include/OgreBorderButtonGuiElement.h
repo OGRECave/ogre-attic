@@ -26,9 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __BorderButtonGuiElement_H__
 
 #include "OgreGuiElementPrerequisites.h"
-//#include "OgreActionTarget.h"
 #include "OgreBorderPanelGuiElement.h"
-#include "OgreGuiControl.h"
+#include "OgreGuiPressable.h"
 
 namespace Ogre {
 
@@ -52,11 +51,9 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport BorderButtonGuiElement : public BorderPanelGuiElement, public GuiControl
+	class _OgreGuiElementExport BorderButtonGuiElement : public BorderPanelGuiElement, public GuiPressable
     {
     protected:
-		bool mButtonDown;
-
 		String mBorderDownMaterialName;
 		String mBorderUpMaterialName;
 		String mBorderHiliteDownMaterialName;
@@ -73,11 +70,8 @@ namespace Ogre {
 	    void addBaseParameters(void);
 
 		BorderButtonGuiElement(const String& name);
-		void processEvent(InputEvent* e) ;
-
 		void updateMaterials(bool init = false);
-
-		GuiElement* findElementAt(Real x, Real y);
+		void processEvent(InputEvent* e) ;
 
         /** Sets the name of the material to use for the borders. */
         void setBorderDownMaterialName(const String& name);

@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreListSelectionTarget.h"
 #include "OgrePanelGuiElement.h"
 #include "OgreListChanger.h"
-#include "OgreGuiControl.h"
+#include "OgreGuiPressable.h"
 #include "OgreStringResource.h"
 
 namespace Ogre {
@@ -56,14 +56,12 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport PopupMenuGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public GuiControl
+	class _OgreGuiElementExport PopupMenuGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public GuiPressable
     {
 	public :
 //	    void addBaseParameters(void);
 
 		PopupMenuGuiElement(const String& name);
-
-		GuiElement* findElementAt(Real x, Real y);
 
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdItemTemplate : public ParamCommand
@@ -111,8 +109,6 @@ namespace Ogre {
 		void setVSpacing(const String& val);
 		void setHSpacing(const String& val);
 
-		void processEvent(InputEvent* e);
-
 		String getItemPanelMaterial();
 		String getItemPanelMaterialSelected();
 		void setItemPanelMaterial(const String& val);
@@ -120,6 +116,11 @@ namespace Ogre {
 		Resource* getSelectedItem();
 
 		void setSelectedItem(Resource* r, bool on);
+		ResourceListConstIterator getConstIterator();
+		ResourceListConstIterator getConstEndIterator();
+		Resource* popFront() ;
+		int getListSize() ;
+
     protected:
 		void setSelectedItem(GuiElement* item, bool on);
 

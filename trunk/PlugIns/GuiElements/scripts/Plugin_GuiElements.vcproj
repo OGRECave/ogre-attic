@@ -158,7 +158,13 @@
 				RelativePath="..\src\OgrePopupMenuGuiElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreScrollBarGuiElement.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTextAreaGuiElement.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreTextBoxGuiElement.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -192,7 +198,13 @@
 				RelativePath="..\include\OgrePopupMenuGuiElement.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreScrollBarGuiElement.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreTextAreaGuiElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTextBoxGuiElement.h">
 			</File>
 		</Filter>
 		<Filter

@@ -232,10 +232,6 @@ SOURCE=..\src\OgreGuiContainer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreGuiControl.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreGuiElement.cpp
 # End Source File
 # Begin Source File
@@ -245,6 +241,10 @@ SOURCE=..\src\OgreGuiElementCommands.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreGuiManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreGuiPressable.cpp
 # End Source File
 # Begin Source File
 
@@ -772,10 +772,6 @@ SOURCE=..\include\OgreGuiContainer.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreGuiControl.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\OgreGuiElement.h
 # End Source File
 # Begin Source File
@@ -789,6 +785,10 @@ SOURCE=..\include\OgreGuiElementFactory.h
 # Begin Source File
 
 SOURCE=..\include\OgreGuiManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreGuiPressable.h
 # End Source File
 # Begin Source File
 

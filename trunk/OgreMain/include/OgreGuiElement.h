@@ -32,6 +32,7 @@
     #include "OgreStringInterface.h"
     #include "OgreGuiElementCommands.h"
     
+    #include "OgreActionTarget.h"
     #include "OgreMouseTarget.h"
     #include "OgreMouseMotionTarget.h"
     
@@ -88,7 +89,7 @@
         Because this class is designed to be extensible, it subclasses from StringInterface
         so its parameters can be set in a generic way.
     */
-    class _OgreExport GuiElement : public StringInterface, public Renderable, public MouseTarget, public MouseMotionTarget
+    class _OgreExport GuiElement : public StringInterface, public Renderable, public MouseTarget, public MouseMotionTarget, public ActionTarget
     {
     public:
 
@@ -144,6 +145,11 @@
         // Derived from parent
         ushort mZOrder;
 
+
+		// is element enabled
+		bool mEnabled;
+
+
         /** Internal method which is triggered when the positions of the element get updated,
             meaning the element should be rebuilding it's mesh positions. Abstract since
             subclasses must implement this.
@@ -177,6 +183,9 @@
 
         /** Returns whether or not the element is visible. */
         bool isVisible(void);
+
+		bool isEnabled();
+		virtual void setEnabled(bool b);
 
 
         /** Sets the dimensions of this element in relation to the screen (1.0 = screen width/height). */

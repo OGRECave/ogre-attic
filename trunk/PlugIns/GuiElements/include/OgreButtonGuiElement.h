@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgrePanelGuiElement.h"
-#include "OgreGuiControl.h"
+#include "OgreGuiPressable.h"
 
 namespace Ogre {
 
@@ -51,7 +51,7 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-	class _OgreGuiElementExport ButtonGuiElement : public PanelGuiElement, public GuiControl
+	class _OgreGuiElementExport ButtonGuiElement : public PanelGuiElement, public GuiPressable
     {
     protected:
 		bool mButtonDown;
@@ -81,11 +81,6 @@ namespace Ogre {
 
 		void updateMaterials(bool init = false);
 
-		GuiElement* findElementAt(Real x, Real y);
-
-		virtual void setPressed(bool b);
-		virtual void setEnabled(bool b);
-		virtual void setMouseWithin(bool b);
 
         /** Sets the name of the material to use for the button. */
         void setDownMaterialName(const String& name);

@@ -222,7 +222,7 @@ namespace Ogre {
 				while (it.hasMoreElements())
 				{
 					GuiElement* currentGuiElement = it.getNext();
-					if (currentGuiElement->isVisible())
+					if (currentGuiElement->isVisible() && currentGuiElement->isEnabled())
 					{
 						int z = currentGuiElement->getZOrder();
 						if (z > currZ)

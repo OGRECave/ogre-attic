@@ -59,12 +59,16 @@ namespace Ogre {
     protected:
 		MouseListener* mMouseListener;
 
+		// is mouse inside the object
+		bool mMouseWithin;
+
     public:
 		MouseTarget();
 
-	void processMouseEvent(MouseEvent* e) ;
-	void addMouseListener(MouseListener* l) ;
-	void removeMouseListener(MouseListener* l) ;
+		void processMouseEvent(MouseEvent* e) ;
+		void addMouseListener(MouseListener* l) ;
+		void removeMouseListener(MouseListener* l) ;
+		bool isMouseWithin();
     };
 
 

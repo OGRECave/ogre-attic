@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 namespace Ogre {
+	typedef std::list<Resource*> ResourceList;
+    typedef ResourceList::const_iterator ResourceListConstIterator;
 
     class ListChanger 
     {
@@ -39,7 +41,10 @@ namespace Ogre {
 		virtual void removeListItem(Resource* r) = 0;
 		virtual Resource* getSelectedItem() = 0;
 		virtual void setSelectedItem(Resource* r, bool on) = 0;
-
+		virtual ResourceListConstIterator getConstIterator() = 0;
+		virtual ResourceListConstIterator getConstEndIterator() = 0;
+		virtual  Resource* popFront() = 0;
+		virtual  int getListSize() = 0;
     };
 
 } // namespace
