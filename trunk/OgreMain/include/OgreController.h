@@ -140,9 +140,9 @@ namespace Ogre {
         virtual ~Controller();
 
         void setSource(SharedPtr<ControllerValue> src);
-        SharedPtr<ControllerValue> getSource(void);
+        SharedPtr<ControllerValue> getSource(void) const;
         void setDestination(SharedPtr<ControllerValue> dest);
-        SharedPtr<ControllerValue> getDestination(void);
+        SharedPtr<ControllerValue> getDestination(void) const;
 
         /// Returns true if this controller is currently enabled
         bool getEnabled(void) const;
@@ -156,7 +156,7 @@ namespace Ogre {
 
         /** Returns a pointer to the function object used by this controller.
         */
-        SharedPtr<ControllerFunction> getFunction(void);
+        SharedPtr<ControllerFunction> getFunction(void) const;
 
         void update(void);
     };

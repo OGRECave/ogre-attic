@@ -78,7 +78,7 @@ namespace Ogre {
             @see
                 RenderSystem::beginFrame
         */
-        SharedPtr<ControllerValue> getFrameTimeSource(void);
+        SharedPtr<ControllerValue> getFrameTimeSource(void) const;
 
         /** Creates a texture layer animator controller.
             @remarks

@@ -88,7 +88,7 @@ namespace Ogre {
 		 *
 		 * @return a string identifying the event and its attributes
 		 */
-		 String paramString();
+		 String paramString() const;
 
 
 		 /** return the ID of the button */

@@ -46,7 +46,7 @@ namespace Ogre
         mSource = src;
     }
     //-----------------------------------------------------------------------
-    SharedPtr<ControllerValue> Controller::getSource(void)
+    SharedPtr<ControllerValue> Controller::getSource(void) const
     {
         return mSource;
     }
@@ -56,7 +56,7 @@ namespace Ogre
         mDest = dest;
     }
     //-----------------------------------------------------------------------
-    SharedPtr<ControllerValue> Controller::getDestination(void)
+    SharedPtr<ControllerValue> Controller::getDestination(void) const
     {
         return mDest;
     }
@@ -66,7 +66,7 @@ namespace Ogre
         mFunc = func;
     }
     //-----------------------------------------------------------------------
-    SharedPtr<ControllerFunction> Controller::getFunction(void)
+    SharedPtr<ControllerFunction> Controller::getFunction(void) const
     {
         return mFunc;
     }

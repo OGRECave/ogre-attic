@@ -101,7 +101,7 @@ namespace Ogre {
 
         /** Returns both the width and height of the texture.
         */
-        std::pair< uint, uint > getDimensions() { return std::pair< uint, uint >( mWidth, mHeight ); }
+        std::pair< uint, uint > getDimensions() const { return std::pair< uint, uint >( mWidth, mHeight ); }
 
         /** Returns the TextureUsage indentifier for this Texture
         */

@@ -82,7 +82,7 @@ namespace Ogre {
         mPosition = pos; 
     }
     //-----------------------------------------------------------------------
-    Vector3 ParticleEmitter::getPosition(void) 
+    const Vector3& ParticleEmitter::getPosition(void) const 
     { 
         return mPosition; 
     }
@@ -96,7 +96,7 @@ namespace Ogre {
         mUp.normalise();
     }
     //-----------------------------------------------------------------------
-    Vector3& ParticleEmitter::getDirection(void) 
+    const Vector3& ParticleEmitter::getDirection(void) const
     { 
         return mDirection; 
     }

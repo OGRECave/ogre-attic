@@ -569,7 +569,7 @@ namespace Ogre {
             @remarks
                 If it does not, false is returned.
         */
-        virtual bool hasOption( const String& strKey ) { return false; }
+        virtual bool hasOption( const String& strKey ) const { return false; }
         /** Method for getting all possible values for a specific option. When this list is too large
             (i.e. the option expects, for example, a float), the return value will be true, but the
             list will contain just one element whose size will be set to 0.
@@ -840,7 +840,7 @@ namespace Ogre {
                 FOG_LINEAR.
         */
         void setFog(
-            FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White,
+            FogMode mode = FOG_NONE, const ColourValue& colour = ColourValue::White,
             Real expDensity = 0.001, Real linearStart = 0.0, Real linearEnd = 1.0);
 
         /** Returns the fog mode for the scene.

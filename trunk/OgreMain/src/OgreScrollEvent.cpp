@@ -62,7 +62,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	String ScrollEvent::paramString() {
+	String ScrollEvent::paramString() const {
 		String typeStr;
 		switch(mId) {
 		  case SE_SCROLL_PERFORMED:

@@ -1209,7 +1209,7 @@ namespace Ogre {
         return vp;
     }
     //-----------------------------------------------------------------------
-    void SceneManager::setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end)
+    void SceneManager::setFog(FogMode mode, const ColourValue& colour, Real density, Real start, Real end)
     {
         mFogMode = mode;
         mFogColour = colour;

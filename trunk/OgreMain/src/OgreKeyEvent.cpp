@@ -56,7 +56,7 @@ namespace Ogre {
 	 *
 	 * @return a string identifying the event and its attributes
 	 */
-	 String KeyEvent::paramString() {
+	 String KeyEvent::paramString() const {
 		String typeStr;
 		switch(mId) {
 		  case KE_KEY_PRESSED:
