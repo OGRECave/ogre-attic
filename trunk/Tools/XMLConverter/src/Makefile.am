@@ -1,5 +1,6 @@
 INCLUDES=-I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Tools/XMLConverter/include
 bin_PROGRAMS=OgreXMLConverter
+OgreXMLConverter_CXXFLAGS=-DTIXML_USE_STL
 OgreXMLConverter_SOURCES= OgreXMLMeshSerializer.cpp \
                       OgreXMLSkeletonSerializer.cpp \
                       main.cpp \
