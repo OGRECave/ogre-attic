@@ -183,6 +183,7 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
 		if(data.getHeight()*data.getWidth() != data.slicePitch)
 			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
 		
 		switch(mTarget)
 		{
@@ -219,8 +220,6 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 				data.data);
 			break;
 		}
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-		glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
 	} 
 	else
 	{
@@ -228,6 +227,7 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
 		if(data.getHeight()*data.getWidth() != data.slicePitch)
 			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
 		switch(mTarget) {
 			case GL_TEXTURE_1D:
 				glTexSubImage1D(GL_TEXTURE_1D, mLevel, 
@@ -257,10 +257,12 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 					data.data);
 				break;
-		}
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-		glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+		}	
 	}
+	// Restore defaults
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::download(PixelBox &data)
