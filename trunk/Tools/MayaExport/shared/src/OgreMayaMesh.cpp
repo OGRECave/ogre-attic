@@ -125,7 +125,7 @@ namespace OgreMaya {
 
             out << "\t</submeshes>\n";
             
-            if(OPTIONS.exportSkeleton) {
+            if(OPTIONS.exportSkeleton || OPTIONS.exportVBA) {
                 string skeletonName =
                     OPTIONS.outSkelFile.substr(
                         0, OPTIONS.outSkelFile.find_last_of('.')
@@ -155,9 +155,10 @@ namespace OgreMaya {
 		\todo		Submesh optimization (merge submeshes that share materials)
 	*/	
 	//	--------------------------------------------------------------------------
-	MStatus MeshGenerator::_processPolyMesh(ofstream& out, const MDagPath dagPath) {
-		
-        cout << "dagPath = \"" << dagPath.fullPathName().asChar() << "\"\n";
+	MStatus MeshGenerator::_processPolyMesh(ofstream& out, const MDagPath dagPath) {		        
+
+        cout << "\nMeshGenerator::_processPolyMesh\n";
+        cout << "\tdagPath = \"" << dagPath.fullPathName().asChar() << "\"\n";
         
         MFnMesh* fnMesh = 0;                                    
 
@@ -181,12 +182,12 @@ namespace OgreMaya {
 
 		    MFnSkinCluster kSkinClusterFn(kObject, &status);
 
-            cout << kSkinClusterFn.name().asChar() << '\n';
+            cout << "\tskin cluster name: " << kSkinClusterFn.name().asChar() << '\n';
 
 
             unsigned int uiNumGeometries = kSkinClusterFn.numOutputConnections();
 
-            cout << "[" << uiNumGeometries << "] geometry objects\n";
+            cout << "\tfound " << uiNumGeometries << " geometry object(s) in skin cluster\n";
 
             for(unsigned int uiGeometry = 0; uiGeometry < uiNumGeometries; ++uiGeometry ) {
 	            unsigned int uiIndex = kSkinClusterFn.indexForOutputConnection( uiGeometry, &status );
@@ -196,7 +197,7 @@ namespace OgreMaya {
 	            kOutputObject = kSkinClusterFn.outputShapeAtIndex( uiIndex, &status );
 
                 if(kOutputObject == fnTargetMesh.object()) {
-                    cout << "geometry found in skin cluster\n";
+                    cout << "\tgeometry located in skin cluster\n";
                     hasSkinCluster = true;
 
                     fnMesh = new MFnMesh(kInputObject);
@@ -225,8 +226,7 @@ namespace OgreMaya {
         //MFnMesh fnMesh(dagPath, &status); 
         
 //*******************************************************************        
-
-        cout << "_queryMayaGeometry\n";
+        
         // ===== Get Maya geometry		
 		status = _queryMayaGeometry(*fnMesh, MayaGeometry);
 		if (status == MStatus::kFailure) {
@@ -234,7 +234,6 @@ namespace OgreMaya {
 		}
 
 
-        cout << "_parseMayaGeometry\n";
 		// ===== Parse into MeshGenerator format
 		MeshFaceVertexVector FaceVertices;
 		MeshTriFaceList      TriFaces;
@@ -451,6 +450,8 @@ namespace OgreMaya {
         MFnMesh &fnMesh, 
 		MeshMayaGeometry &rGeom
     ) {
+        cout << "\nMeshGenerator::_queryMayaGeometry\n";
+
 		MStatus status = MStatus::kSuccess;                
 
 		// ===== Identification		
@@ -463,16 +464,16 @@ namespace OgreMaya {
 		// --- Vertices
 		status = fnMesh.getPoints(rGeom.Vertices, MSpace::kWorld);
 		if (status == MStatus::kFailure) {
-			MGlobal::displayError("MFnMesh::getPoints()"); 
+			cout << "\t[ERROR] MFnMesh::getPoints() failed\n"; 
 			return status;
 		}
 
-        cout << "vertices count: " << rGeom.Vertices.length() << '\n';
+        cout << "\tvertices count: " << rGeom.Vertices.length() << '\n';
 
 		// --- Vertex normals
 		status = fnMesh.getNormals(rGeom.FaceVertexNormals);
 		if (status == MStatus::kFailure) {
-			MGlobal::displayError("MFnMesh::getNormals()"); 
+			cout << "\t[ERROR] MFnMesh::getNormals() failed\n"; 
 			return status;
 		}
 
@@ -506,7 +507,7 @@ namespace OgreMaya {
 		// --- Face vertex colours
 		status = fnMesh.getFaceVertexColors(rGeom.FaceVertexColours);
 		if (status == MStatus::kFailure) {
-			MGlobal::displayError("MFnMesh::getFaceVertexColors()"); 
+			cout << "\t[ERROR] MFnMesh::getFaceVertexColors() failed\n"; 
 			return status;
 		}
 		// Override non-existent colours with semi-transparent white
@@ -525,7 +526,7 @@ namespace OgreMaya {
 		MStringArray UVSetNames;
 		status = fnMesh.getUVSetNames(UVSetNames);
 		if (status == MStatus::kFailure) {
-			MGlobal::displayError("MFnMesh::getUVSetNames()"); 
+			cout << "\t[ERROR] MFnMesh::getUVSetNames() failed\n"; 
 			return status;
 		}
 
@@ -567,6 +568,8 @@ namespace OgreMaya {
 		MeshFaceVertexVector &FaceVertices, 
 		MeshTriFaceList &TriFaces
     ) {
+        cout << "\nMeshGenerator::_parseMayaGeometry\n";
+
 		MStatus status;
 
 		// --- Determine number of triangles
@@ -578,13 +581,13 @@ namespace OgreMaya {
 		// --- Confirm number of triangle vertices
 		unsigned int nTriVertices = MayaGeometry.TriangleVertexIds.length();
 		if (nTriVertices != 3*nTris) {
-			cout << "MeshGenerator: "<<nTris<<" triangles require "<<(3*nTris)<<" vertices but "<<nTriVertices<<" vertices present!\n";
+			cout << "\t[ERROR] "<<nTris<<" triangles require "<<(3*nTris)<<" vertices but "<<nTriVertices<<" vertices present!\n";
 			return MStatus::kFailure;
 		}
 
 		// --- Loop over all triangles
 		unsigned int iTri;
-		cout << "MeshGenerator: Exporting "<<fnMesh.numPolygons()<<" faces as "<<nTris<<" triangles from "<<MayaGeometry.Name.asChar()<<" (material "<<MayaGeometry.MaterialName.asChar()<<")...\n";
+		cout << "\texporting "<<fnMesh.numPolygons()<<" faces as "<<nTris<<" triangles from "<<MayaGeometry.Name.asChar()<<" (material "<<MayaGeometry.MaterialName.asChar()<<")...\n";
 
 		for (iTri = 0; iTri < nTris; ++iTri) {
 
@@ -750,19 +753,21 @@ namespace OgreMaya {
 					unable to determine visibility
 	*/	
 	//	--------------------------------------------------------------------------
-	bool MeshGenerator::_isVisible(MFnDagNode &fnDag, MStatus &status) {
-		if(fnDag.isIntermediateObject()) {
+	bool MeshGenerator::_isVisible(MFnDagNode &fnDag, MStatus &status) {		        
+
+        if(fnDag.isIntermediateObject()) {
 			return false;
 		}
 
 		bool bVisible = false;
 		MPlug visPlug = fnDag.findPlug("visibility", &status);
 		if (MStatus::kFailure == status) {
-			MGlobal::displayError("MPlug::findPlug");
+			cout << "[WARNING] can not find \"visibility\" plug, returning false\n";
 		} else {
 			status = visPlug.getValue(bVisible);
 			if (MStatus::kFailure == status) {
-				MGlobal::displayError("MPlug::getValue");
+				bVisible = false;
+                cout << "[WARNING] can not query \"visibility\" plug, returning false\n";
 			}
 		}
 

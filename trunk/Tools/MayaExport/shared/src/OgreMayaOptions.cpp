@@ -41,10 +41,13 @@ namespace OgreMaya {
         builderMap["-n"      ] = &Options::parseN;
         builderMap["-c"      ] = &Options::parseC;
         builderMap["-t"      ] = &Options::parseT;
+        builderMap["-v"      ] = &Options::parseV;
     }
 
     void Options::reset() {
         valid          = false;
+
+        verboseMode    = false;
 
         exportMesh     = false;
 		exportSkeleton = false;
@@ -188,6 +191,10 @@ namespace OgreMaya {
 
     void Options::parseT() {
         exportUVs = true;
+    }
+    
+    void Options::parseV() {
+        verboseMode = true;
     }
     
 } // namespace OgreMaya

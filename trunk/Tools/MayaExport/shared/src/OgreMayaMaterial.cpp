@@ -62,6 +62,9 @@ namespace OgreMaya {
 	*/	
 	//	--------------------------------------------------------------------------
 	bool MatGenerator::exportAll() {
+
+        cout << "\nMatGenerator::exportAll\n";
+
 		MStatus status;
 		bool bStatus = true;
 
@@ -200,7 +203,7 @@ namespace OgreMaya {
 			}
 			else {
 				MFnDependencyNode FnShader(ShaderNode);
-				cout << "MatGenerator: Unable to create Ogre material for shader " << FnShader.name().asChar() << '\n';
+				cout << "\tunable to create Ogre material for shader " << FnShader.name().asChar() << '\n';
 			}
 
 			// Check for duplicates
@@ -281,7 +284,7 @@ namespace OgreMaya {
 		
 		mat->shininess = FnShader.cosPower();
 			
-		cout << "MatGenerator: Created phong material " << mat->name << '\n';
+		cout << "\tCreated phong material " << mat->name << '\n';
 		return mat;
 	}
 
@@ -348,7 +351,7 @@ namespace OgreMaya {
 		
 		mat->shininess = 0;
 			
-		cout << "MatGenerator: Created lambert material " << mat->name << '\n';
+		cout << "\tCreated lambert material " << mat->name << '\n';
 		return mat;
 	}
 

@@ -70,6 +70,8 @@ namespace OgreMaya {
             matPrefix;
 
         bool
+            verboseMode,
+
             exportMesh,
 			exportSkeleton,
             exportVBA,
@@ -105,6 +107,7 @@ namespace OgreMaya {
         void parseN();
         void parseC();
         void parseT();
+        void parseV();
 
     private:
         Options();
