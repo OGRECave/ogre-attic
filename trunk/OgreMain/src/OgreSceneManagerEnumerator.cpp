@@ -100,6 +100,11 @@ namespace Ogre {
         mUniqueSceneMgrs.insert(sm);
 
 
+        // Set rendersystem, incase this one is late & rendersystem already picked
+        sm->_setDestinationRenderSystem(Root::getSingleton().getRenderSystem());
+
+
+
     }
 
     //-----------------------------------------------------------------------
