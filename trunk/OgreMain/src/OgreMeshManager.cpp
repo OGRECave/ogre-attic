@@ -56,7 +56,16 @@ namespace Ogre
     {
         mPrepAllMeshesForShadowVolumes = false;
 
+        mLoadOrder = 350.0f;
+        mResourceType = "Mesh";
 
+        ResourceGroupManager::getSingleton()._registerResourceManager(mResourceType, this);
+
+    }
+    //-----------------------------------------------------------------------
+    MeshManager::~MeshManager()
+    {
+        ResourceGroupManager::getSingleton()._unregisterResourceManager(mResourceType);
     }
     //-----------------------------------------------------------------------
     void MeshManager::_initialise(void)
