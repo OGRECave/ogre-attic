@@ -171,12 +171,12 @@ namespace Ogre {
         /// The pixel format 
         PixelFormat format;
         /** Number of elements between the leftmost pixel of one row and the left
-         	pixel of the next. This can be a negative value.
+         	pixel of the next. This value is undefined for compressed formats.
         */
         size_t rowPitch;
         /** Number of elements between the top left pixel of one (depth) slice and 
          	the top left pixel of the next. This can be a negative value. Must be a multiple of
-         	rowPitch.
+         	rowPitch. This value is undefined for compressed formats.
         */
         size_t slicePitch;
         
