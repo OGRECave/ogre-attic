@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib Plugin_GuiElements.lib /nologo /subsystem:windows /machine:I386 /out:"../../Common/Bin/Release/Demo_Gui.exe" /libpath:"..\..\..\OgreMain\lib\release" /libpath:"..\..\..\Plugins\GuiElements\bin\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib OgreMain.lib Plugin_GuiElements.lib /nologo /subsystem:windows /machine:I386 /out:"../../Common/Bin/Release/Demo_Gui.exe" /libpath:"..\..\..\OgreMain\lib\release" /libpath:"..\..\..\Plugins\GuiElements\bin\Release"
 # SUBTRACT LINK32 /profile /debug
 
 !ELSEIF  "$(CFG)" == "Demo_Gui - Win32 Debug"
