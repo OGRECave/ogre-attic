@@ -693,11 +693,9 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			Except( hr, "Failed to get D3D9 device pixel format", "D3D9Texture::_setDevice" );
-			SAFE_RELEASE(pSrf);
 		}
 
 		mBBPixelFormat = srfDesc.Format;
-		SAFE_RELEASE(pSrf);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_setFinalAttributes(unsigned long width, unsigned long height, 
@@ -1146,15 +1144,20 @@ namespace Ogre
 	{
 		if(mD3DPool == D3DPOOL_DEFAULT)
 		{
-			if (mUsage & TU_RENDERTARGET)
+			// There are 2 possible scenarios here:
+			// 1. This is a render target
+			// 2. This is a dynamic texture, which probably won't have a loader,
+			//    but if it does, we'll call it
+			if ((mUsage & TU_RENDERTARGET) || !mLoader)
 			{
+				// render target, or dynamic texture with no loader
+				// just recreate underlying surfaces
 				createInternalResources();
 			}
 			else
 			{
-				// This can only happen if someone created a texture 
-				// and used the TU_DYNAMIC flag
-				load();
+				// Dynamic texture with a loader, call it
+                load();
 			}
 		}
 		// re-query the surface list anyway
