@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/GTKDemo/include -I$(top_src
 
 noinst_PROGRAMS = GTKDemo
 GTKDemo_SOURCES = GTKDemo.cpp
-GTKDemo_LDFLAGS = -L$(top_srcdir)/OgreMain/src $(PLATFORM_LIBS)
+GTKDemo_LDFLAGS = -L$(top_builddir)/OgreMain/src $(PLATFORM_LIBS)
 GTKDemo_LDADD = -lOgreMain
 
 install-exec-local:

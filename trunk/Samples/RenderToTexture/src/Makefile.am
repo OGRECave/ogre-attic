@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/RenderToTexture/include -I$
 
 noinst_PROGRAMS = RenderToTexture
 RenderToTexture_SOURCES = RenderToTexture.cpp
-RenderToTexture_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+RenderToTexture_LDFLAGS = -L$(top_builddir)/OgreMain/src
 RenderToTexture_LDADD = -lOgreMain
 
 install-exec-local:

@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/SkyBox/include -I$(top_srcd
 
 noinst_PROGRAMS = SkyBox
 SkyBox_SOURCES = SkyBox.cpp
-SkyBox_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+SkyBox_LDFLAGS = -L$(top_builddir)/OgreMain/src
 SkyBox_LDADD = -lOgreMain
 
 install-exec-local:

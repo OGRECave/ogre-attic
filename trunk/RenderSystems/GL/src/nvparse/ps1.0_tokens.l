@@ -3,6 +3,7 @@ digit    [0-9]
 char     [a-zA-Z_.]
 alphanum [0-9a-zA-Z_]
 
+%option prefix="ps10_"
 %{  /* code to be included */
 
 #include <stdlib.h>

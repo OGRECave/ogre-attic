@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Sa
 
 noinst_PROGRAMS = Shadows
 Shadows_SOURCES = Shadows.cpp
-Shadows_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Shadows_LDFLAGS = -L$(top_builddir)/OgreMain/src
 Shadows_LDADD = -lOgreMain
 
 install-exec-local:

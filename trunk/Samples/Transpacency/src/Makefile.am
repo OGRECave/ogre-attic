@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Transpacency/include -I$(to
 
 noinst_PROGRAMS = Transparency
 Transparency_SOURCES = Transparency.cpp
-Transparency_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Transparency_LDFLAGS = -L$(top_builddir)/OgreMain/src
 Transparency_LDADD = -lOgreMain
 
 install-exec-local:

@@ -4,7 +4,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include \
            -I$(top_srcdir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT) \
            -I$(top_srcdir)/RenderSystems/GL/src/atifs/include
 
-noinst_LIBRARIES=libatifs.a
-libatifs_a_SOURCES = ATI_FS_GLGpuProgram.cpp \
+noinst_LTLIBRARIES=libatifs.la
+libatifs_la_SOURCES = ATI_FS_GLGpuProgram.cpp \
                      Compiler2Pass.cpp \
                      ps_1_4.cpp

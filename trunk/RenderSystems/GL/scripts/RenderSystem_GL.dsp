@@ -388,7 +388,7 @@ SOURCE=..\src\nvparse\ts1.0_inst_list.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\nvparse\unistd.h
+SOURCE=..\src\nvparse\winheaders\unistd.h
 # End Source File
 # Begin Source File
 

@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/CubeMapping/include -I$(top
 
 noinst_PROGRAMS = CubeMapping
 CubeMapping_SOURCES = CubeMapping.cpp
-CubeMapping_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+CubeMapping_LDFLAGS = -L$(top_builddir)/OgreMain/src
 CubeMapping_LDADD = -lOgreMain
 
 install-exec-local:

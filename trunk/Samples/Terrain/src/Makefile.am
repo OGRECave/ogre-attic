@@ -2,7 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Terrain/include -I$(top_src
 
 noinst_PROGRAMS = Terrain 
 Terrain_SOURCES = Terrain.cpp
-Terrain_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Terrain_LDFLAGS = -L$(top_builddir)/OgreMain/src
 Terrain_LDADD = -lOgreMain -lpthread
 
 install-exec-local:

@@ -3,7 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Smoke/include -I$(top_srcdi
 noinst_PROGRAMS = Smoke
 
 Smoke_SOURCES = Smoke.cpp
-Smoke_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Smoke_LDFLAGS = -L$(top_builddir)/OgreMain/src
 Smoke_LDADD = -lOgreMain
 
 install-exec-local:

@@ -9,9 +9,9 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include \
 DIST_SUBDIRS = gtk SDL win32 GLX
 SUBDIRS = $(OGRE_GLSUPPORT) nvparse atifs GLSL
 
-pkglib_PROGRAMS = RenderSystem_GL.so
+pkglib_LTLIBRARIES = RenderSystem_GL.la
 
-RenderSystem_GL_so_SOURCES = OgreGLATIFSInit.cpp \
+RenderSystem_GL_la_SOURCES = OgreGLATIFSInit.cpp \
                              OgreGLEngineDll.cpp \
                              OgreGLGpuProgram.cpp \
                              OgreGLGpuNvparseProgram.cpp \
@@ -20,16 +20,19 @@ RenderSystem_GL_so_SOURCES = OgreGLATIFSInit.cpp \
                              OgreGLSupport.cpp \
                              OgreGLTexture.cpp \
                              OgreGLTextureManager.cpp \
-							 OgreGLHardwareBufferManager.cpp \
-							 OgreGLHardwareIndexBuffer.cpp \
-							 OgreGLHardwareOcclusionQuery.cpp \
-							 OgreGLHardwareVertexBuffer.cpp \
+                             OgreGLHardwareBufferManager.cpp \
+                             OgreGLHardwareIndexBuffer.cpp \
+                             OgreGLHardwareOcclusionQuery.cpp \
+                             OgreGLHardwareVertexBuffer.cpp \
                              OgreGLDefaultHardwareBufferManager.cpp \
-                             OgreGLContext.cpp
+                             OgreGLContext.cpp \
+				glprocs.c
 
-RenderSystem_GL_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_builddir)/OgreMain/src
-RenderSystem_GL_so_LDADD = $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain \
-    $(top_builddir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT)/libsupport.a \
-    $(top_builddir)/RenderSystems/GL/src/libnvparse.a \
-    $(top_builddir)/RenderSystems/GL/src/atifs/src/libatifs.a \
-    $(top_builddir)/RenderSystems/GL/src/GLSL/src/libGLSL.a
+RenderSystem_GL_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+RenderSystem_GL_la_LIBADD = \
+    $(top_builddir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT)/libsupport.la \
+    $(top_builddir)/RenderSystems/GL/src/GLSL/src/libGLSL.la \
+    $(top_builddir)/RenderSystems/GL/src/nvparse/libnvparse.la \
+    $(top_builddir)/RenderSystems/GL/src/atifs/src/libatifs.la \
+    $(GL_LIBS) $(GLSUPPORT_LIBS) -lOgreMain
+

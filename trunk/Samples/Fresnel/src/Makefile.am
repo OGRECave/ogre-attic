@@ -3,7 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Fresnel/include -I$(top_src
 noinst_PROGRAMS = Fresnel
 
 Fresnel_SOURCES = Fresnel.cpp
-Fresnel_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Fresnel_LDFLAGS = -L$(top_builddir)/OgreMain/src
 Fresnel_LDADD = -lOgreMain
 
 install-exec-local:

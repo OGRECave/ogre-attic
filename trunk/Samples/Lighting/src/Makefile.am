@@ -3,7 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Lighting/include -I$(top_sr
 noinst_PROGRAMS = Lighting
 
 Lighting_SOURCES = Lighting.cpp
-Lighting_LDFLAGS = -L$(top_srcdir)/OgreMain/src
+Lighting_LDFLAGS = -L$(top_builddir)/OgreMain/src
 Lighting_LDADD = -lOgreMain
 
 install-exec-local:

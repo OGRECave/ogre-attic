@@ -9,5 +9,5 @@ LightwaveConverter_SOURCES= BitArray.cpp \
 							lwReader.cpp \
 							main.cpp \
 							Vector3.cpp
-LightwaveConverter_LDFLAGS= -L$(top_srcdir)/OgreMain/src
+LightwaveConverter_LDFLAGS= -L$(top_builddir)/OgreMain/src
 LightwaveConverter_LDADD= -lOgreMain

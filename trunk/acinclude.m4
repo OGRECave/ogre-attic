@@ -209,6 +209,11 @@ AC_DEFUN([OGRE_GET_PLATFORM],
     GLX)
       PLATFORM_CFLAGS="-I/usr/X11R6/include"
       PLATFORM_LIBS="-L/usr/X11R6/lib -lX11 -lXaw"
+    ;;
+    Win32)
+      PLATFORM_CFLAGS=""
+      PLATFORM_LIBS="-lgdi32 -lwinmm -ldinput8 -ldxguid"
+    ;;
   esac
 
   AC_SUBST(PLATFORM_CFLAGS)
@@ -224,7 +229,10 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
              OGRE_GLSUPPORT=$withval,
              OGRE_GLSUPPORT=SDL)
 
- 
+  if test "$OGRE_GLSUPPORT" = "Win32" ; then
+    # Uppercase/lowercase
+    OGRE_GLSUPPORT=win32
+  fi
   if test ! -d RenderSystems/GL/src/$OGRE_GLSUPPORT; then
     OGRE_GLSUPPORT=SDL
   fi
@@ -238,12 +246,17 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
       GLSUPPORT_CFLAGS=$SDL_CFLAGS
       GLSUPPORT_LIBS=$SDL_LIBS;;
     gtk) 
-    PKG_CHECK_MODULES(GLSUPPORT, gtkglextmm-1.0)
-    GLSUPPORT_LIBS="$GLSUPPORT_LIBS"
+    	PKG_CHECK_MODULES(GLSUPPORT, gtkglextmm-1.0)
+    	GLSUPPORT_LIBS="$GLSUPPORT_LIBS"
     ;;
     GLX)
 	GLSUPPORT_CFLAGS="-I/usr/X11R6/include"
 	GLSUPPORT_LIBS="-L/usr/X11R6/lib -lX11 -lXext -lGL -lXrandr"
+    ;;
+    win32)
+	GLSUPPORT_CFLAGS=""
+	GLSUPPORT_LIBS="-lgdi32 -lwinmm"
+    ;;
   esac
 
   AC_SUBST(GLSUPPORT_CFLAGS)
@@ -251,7 +264,8 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
   AC_SUBST(OGRE_GLSUPPORT)
   AC_CONFIG_FILES([RenderSystems/GL/src/gtk/Makefile
                    RenderSystems/GL/src/SDL/Makefile
-		   RenderSystems/GL/src/GLX/Makefile])
+		   RenderSystems/GL/src/GLX/Makefile
+		   RenderSystems/GL/src/win32/Makefile])
 ])
 
 AC_DEFUN([OGRE_BUILD_PYTHON_LINK],
@@ -348,13 +362,32 @@ AC_SUBST(PYTHON_LIBS)
 
 ])
 
-AC_DEFUN([OGRE_SETUP_FOR_HOST],
+AC_DEFUN([OGRE_SETUP_FOR_TARGET],
 [case $target in
-*) dnl default to standard linux
+*-*-cygwin* | *-*-mingw* | *-*-pw32*)
+	AC_SUBST(SHARED_FLAGS, "-shared -no-undefined -Xlinker --export-all-symbols")
+	AC_SUBST(PLUGIN_FLAGS, "-shared -no-undefined -avoid-version")
+	AC_SUBST(GL_LIBS, "-lopengl32 -lglu32")	
+	AC_CHECK_TOOL(RC, windres)
+        nt=true
+;;
+*-*-darwin*)
+        AC_SUBST(SHARED_FLAGS, "-shared")
+        AC_SUBST(PLUGIN_FLAGS, "-shared -avoid-version")
+        AC_SUBST(GL_LIBS, "-lGL -lGLU")
+        osx=true
+;;
+ *) dnl default to standard linux
 	AC_SUBST(SHARED_FLAGS, "-shared")
+	AC_SUBST(PLUGIN_FLAGS, "-shared -avoid-version")
 	AC_SUBST(GL_LIBS, "-lGL -lGLU")
+        linux=true
 ;;
 esac
+dnl you must arrange for every AM_conditional to run every time configure runs
+AM_CONDITIONAL(OGRE_NT, test x$nt = xtrue)
+AM_CONDITIONAL(OGRE_LINUX, test x$linux = xtrue)
+AM_CONDITIONAL(OGRE_OSX,test x$osx = xtrue )
 ])
 
 
@@ -422,3 +455,13 @@ AM_CONDITIONAL(BUILD_CGPLUGIN, test x$build_cg = xyes)
 ])
 
 
+AC_DEFUN([OGRE_CHECK_DX9],
+[AC_ARG_ENABLE(direct3d,
+              AC_HELP_STRING([--enable-direct3d],
+                             [Build the DirectX 9 Render System]),
+              [build_dx9=true],
+              [build_dx9=false])
+
+AM_CONDITIONAL(BUILD_DX9RENDERSYSTEM, test x$build_dx9 = xtrue)
+
+])
