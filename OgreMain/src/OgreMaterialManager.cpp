@@ -950,7 +950,7 @@ namespace Ogre {
 	    Material::mDefaultSettings = new Material();
 	    Material::mDefaultSettings->mName = "DefaultSettings";
         // Add a single technique and pass, non-programmable
-        Material::mDefaultSettings->createTechnique()->createPass(false);
+        Material::mDefaultSettings->createTechnique()->createPass();
 
 	    // Set up a lit base white material
 	    this->create("BaseWhite");

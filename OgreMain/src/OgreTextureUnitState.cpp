@@ -817,5 +817,21 @@ namespace Ogre {
     {
         mParent->_notifyNeedsRecompile();
     }
+    //-----------------------------------------------------------------------
+    bool TextureUnitState::hasViewRelativeTextureCoordinateGeneration(void)
+    {
+        // Right now this only returns true for reflection maps
+
+        EffectMap::const_iterator i, iend;
+        iend = mEffects.end();
+        
+        for(i = mEffects.find(ET_ENVIRONMENT_MAP); i != iend; ++i)
+        {
+            if (i->second.subtype == ENV_REFLECTION)
+                return true;
+        }
+
+        return false;
+    }
 
 }

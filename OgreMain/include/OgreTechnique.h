@@ -62,14 +62,14 @@ namespace Ogre {
         /** Creates a new Pass for this Technique.
         @remarks
             A Pass is a single rendering pass, ie a single draw of the given material.
-            Note that if you create a non-programmable pass, during compilation of the
+            Note that if you create a pass without a fragment program, during compilation of the
             material the pass may be split into multiple passes if the graphics card cannot
-            handle the number of texture units requested. For programmable passes, however, 
+            handle the number of texture units requested. For passes with fragment programs, however, 
             the number of passes you create will never be altered, so you have to make sure 
             that you create an alternative fallback Technique for if a card does not have 
             enough facilities for what you're asking for.
         */
-        Pass* createPass(bool programmable);
+        Pass* createPass(void);
         /** Retrieves the Pass with the given index. */
         Pass* getPass(unsigned short index);
         /** Retrieves the number of passes. */

@@ -815,6 +815,8 @@ namespace Ogre {
 		void _load(void);
 		/** Internal method for unloading this object as part of Material::unload */
 		void _unload(void);
+        /// Returns whether this unit has texture coordinate generation that depends on the camera
+        bool hasViewRelativeTextureCoordinateGeneration(void);
 
         // Is this loaded?
         bool isLoaded(void);
@@ -866,6 +868,7 @@ protected:
         TextureFilterOptions mTextureFiltering;
         ///Texture anisotropy
         int mMaxAniso;
+
 
         //-----------------------------------------------------------------------------
         // Complex members (those that can't be copied using memcpy) are at the end to 

@@ -114,9 +114,9 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------------
-    Pass* Technique::createPass(bool programmable)
+    Pass* Technique::createPass(void)
     {
-		Pass* newPass = new Pass(this, static_cast<unsigned short>(mPasses.size()), programmable);
+		Pass* newPass = new Pass(this, static_cast<unsigned short>(mPasses.size()));
 		mPasses.push_back(newPass);
 		return newPass;
     }

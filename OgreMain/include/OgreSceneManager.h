@@ -222,7 +222,10 @@ namespace Ogre {
 		/** Flag that indicates if all of the scene node's bounding boxes should be shown as a wireframe. */
 		bool mShowBoundingBoxes;       
 
-        /** Internal utility method for rendering a single object. */
+        /** Internal utility method for rendering a single object. 
+        @remarks
+            Assumes that the pass has already bee set up.
+        */
         virtual void renderSingleObject(Renderable* rend, Pass* pass);
 
     public:
