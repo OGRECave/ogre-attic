@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>Tutorial: The RenderSystem Object</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Tutorial 
+1 - Overview<BR>The RenderSystem Object</p><p align="left" class="MainHeader">&nbsp;</p><p align="left" class="SectionHeader">The 
+RenderSystem object</p><P ALIGN="left">The RenderSystem object is actually an 
+abstract class which defines the interface to the underlying 3D API. It is responsible 
+for sending rendering operations to the API and setting all the various rendering 
+options. This class is abstract because all the implementation is rendering API 
+specific - there are API-specific subclasses for each rendering API (e.g. D3DRenderSystem 
+for Direct3D). After the system has been initialised through Root::initialise, 
+the RenderSystem object for the selected rendering API is available via the Root::getRenderSystem() 
+method. </P><P ALIGN="left">However, a typical application should not normally 
+need to manipulate the RenderSystem object directly - everything you need for 
+rendering objects and customising settings should be available on the SceneManager, 
+Material and other scene-oriented classes. It's only if you want to create multiple 
+rendering windows (completely separate windows in this case, not multiple viewports 
+like a split-screen effect which is done via the RenderWindow class) or access 
+other advanced features that you need access to the RenderSystem object.</P><P ALIGN="left">For 
+this reason I will not discuss the RenderSystem object further in these tutorials. 
+You can assume the SceneManager handles the calls to the RenderSystem at the appropriate 
+times.</P><P ALIGN="left" CLASS="SectionHeader">&nbsp;</P><P ALIGN="left">&nbsp;</P><p align="left">&nbsp;</p><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
+to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="root.html">&lt;&lt; 
+Previous section</A></TD><TD WIDTH="25%"><A HREF="scenemanager.html">Next section 
+&gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
+</body>
+</html>

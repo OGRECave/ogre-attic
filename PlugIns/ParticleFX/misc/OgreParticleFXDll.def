@@ -1,0 +1,4 @@
+LIBRARY ParticleFX.dll
+EXPORTS	
+	dllStartPlugin	@1
+	dllStopPlugin	@2

@@ -1,0 +1,155 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Neutral resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(1250)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SPLASH              BITMAP  DISCARDABLE     "ogrelogo.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_OGREICON            ICON    DISCARDABLE     "ogre.ico"
+#endif    // Neutral resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DLG_CONFIG DIALOG DISCARDABLE  0, 0, 300, 271
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "OGRE Engine Rendering Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "&OK",IDOK,175,254,60,14
+    PUSHBUTTON      "&Cancel",IDCANCEL,237,254,60,14
+    LTEXT           "Rendering Subsystem:",IDC_STATIC,3,144,73,12
+    COMBOBOX        IDC_CBO_RENDERSYSTEM,77,142,219,57,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Rendering System Options",IDC_OPTFRAME,2,159,295,94
+    LISTBOX         IDC_LST_OPTIONS,7,168,286,63,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    RTEXT           "[Click On An Option]:",IDC_LBL_OPTION,8,237,123,11
+    COMBOBOX        IDC_CBO_OPTION,133,235,160,94,CBS_DROPDOWNLIST | 
+                    WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    CONTROL         106,IDC_STATIC,"Static",SS_BITMAP,0,0,300,140
+END
+
+IDD_DLG_ERROR DIALOG DISCARDABLE  0, 0, 243, 178
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Error"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "&Close",IDOK,81,157,80,14
+    LTEXT           "The Ogre engine has encountered an error from which it cannot recover. The last message was:",
+                    IDC_STATIC,7,7,229,19
+    LTEXT           "",IDC_ERRMSG,17,29,209,84,SS_SUNKEN
+    LTEXT           "If you cannot resolve this issue yourself, please report it through the web site at http://ogre.sourceforge.net.",
+                    IDC_STATIC,7,118,229,19
+    LTEXT           "If you report the error, please include details of your hardware setup, and attach a copy of the 'ogre.log' file which you will find in the local folder.",
+                    IDC_STATIC,7,138,229,17
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_DLG_CONFIG, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 268
+    END
+
+    IDD_DLG_ERROR, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 236
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 171
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

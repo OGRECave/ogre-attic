@@ -1,0 +1,159 @@
+<html>
+<head>
+<title>Tutorial: Design overview</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Tutorial 
+1 - Overview<BR>Overview of OGRE's Design Principles</p><p align="left" class="MainHeader">&nbsp;</p><p align="left" class="SectionHeader">Introduction</p><p align="left">This 
+is the first tutorial and is intended to give you an overview of the main components 
+of OGRE and why they have been put together that way.</p><p align="left" class="SectionHeader">1 
+- Object Orientation - It's more than a buzzword</p><p align="left">The name is 
+a dead giveaway. It says <B>Object-Oriented</B> Graphics Rendering Engine, and 
+that's exactly what it is. Ok, but why? Why did I choose to make such a big deal 
+about this?</p><p align="left">Well, nowadays graphics engines are like any other 
+large software system. They start small, but soon they balloon into monstrously 
+complex beasts which just can't be all understood at once. It's pretty hard to 
+manage systems of this size, and even harder to make changes to them reliably, 
+and that's pretty important in a field where new techniques and approaches seem 
+to appear every other week. Designing systems around huge files full of C function 
+calls just doesn't cut it anymore - even if the whole thing is written by one 
+person (not likely) they will find it hard to locate that elusive bit of code 
+after a few months and even harder to work out how it all fits together.</p><p align="left">Object 
+orientation is a very popular approach to addressing the complexity problem. It's 
+a step up from decomposing your code into separate functions, it groups function 
+and state data together in classes which are designed to represent real concepts. 
+It allows you to hide complexity inside easily recognised packages with a conceptually 
+simple interface so they are easy to recognise and have a feel of 'building blocks' 
+which you can plug together again later. You can also organise these blocks so 
+that some of them look the same on the outside, but have very different ways of 
+achieving their objectives on the inside, again reducing the complexity for the 
+developers because they only have to learn one interface.</p><p align="left">I'm 
+not going to teach you OO here, that's a subject for many other books, but suffice 
+to say I'd seen enough benefits of OO in business systems that I was surprised 
+most graphics code seemed to be written in C function stylee. I was interested 
+to see whether I could apply my design experience in other types of software to 
+an area which has long held a place in my heart - 3D graphics engines. Some people 
+I spoke to were of the opinion that using full C++ wouldn't be fast enough for 
+a real-time graphics engine, but others (including me) were of the opinion that, 
+with care, and object-oriented framework can be performant<I></I>. We were right.</p><p align="left">In 
+summary, here's the benefits an object-oriented approach brings to OGRE:</p><UL><LI>Abstraction: 
+common interfaces hide the nuances between different implementations of 3D API 
+and operating systems</LI><LI>Encapsulation: There is a lot of state management 
+and context-specific actions to be done in a graphics engine - encapsulation allows 
+me to put the code and data nearest to where it is used which makes the code cleaner 
+and easier to understand, and more reliable because duplication is avoided</LI><LI>Polymorphism: 
+The behaviour of methods changes depending on the type of object you are using, 
+even if you only learn one interface, e.g. a class specialised for managing indoor 
+levels behaves completely differently from the standard scene manager, but looks 
+identical to other classes in the system and has the same methods called on it</LI></UL><P CLASS="SectionHeader">2 
+- Multi-everything</P><P>I wanted to do <B>more</B> than create a 3D engine that 
+ran on one 3D API, on one platform, with one type of scene (indoor levels are 
+most popular). I wanted OGRE to be able to extend to any kind of scene (buy yet 
+still imlement scene-specific optimisations under the surface), any platform and 
+any 3D API. </P><P>Therefore all the 'visible' parts of OGRE are completely independent 
+of platform, 3D API and scene type. There are no dependencies on Windows types, 
+no assumptions about the type of scene you are creating, and the principles of 
+the 3D aspects are based on core maths texts rather than one particular API implementation. 
+</P><P>Now of course somewhere OGRE has to get down to the nitty-gritty of the 
+specifics of the platform, API and scene, but it does this in subclasses specially 
+designed for the environment in question, but which still expose the same interface 
+as the abstract versions. </P><P>For example, there is a 'Win32Window' class which 
+handles all the details about rendering windows on a Win32 platform - however 
+the application designer only has to manipulate it via the superclass interface 
+'RenderWindow', which will be the same across all platforms.</P><P>Similarly the 
+'SceneManager' class looks after the arrangement of objects in the scene and their 
+rendering sequence. Applications only have to use this interface, but there is 
+a 'BspSceneManager' class which optimises the scene management for indoor levels, 
+meaning you get both performance <I>and</I> an easy to learn interface. All applications 
+have to do is hint about the kind of scene they will be creating and let OGRE 
+choose the most appropriate implementation - this is covered in a later tutorial.</P><P>OGRE's 
+object-oriented nature makes all this possible. Unfortunately because of time 
+constraints I have only been able to write the classes required to implement OGRE 
+on Windows under DirectX. However it is important to stress that as I have designed 
+the base interfaces I have been checking how I <I>would </I>do it under OpenGL 
+or another windowing system, thus I am confident that an implementation on other 
+3D APIs and platforms will be straight forward, given the time. I have been balancing 
+my time between API implementations and engine features, and so an OpenGL/Linux 
+implementation has taken a back seat for the moment. In the meantime though, applications 
+can use OGRE at the abstract level, and will <I>automatically</I> be able to take 
+advantage of extra platform and API support when it is added becuse they will 
+contain no platform or API specific code.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
+to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="../index.html">&lt;&lt; 
+Previous section</A></TD><TD WIDTH="25%"><A HREF="objects.html">Next section &gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
+</body>
+</html>

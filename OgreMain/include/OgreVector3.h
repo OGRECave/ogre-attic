@@ -1,0 +1,477 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.stevestreeting.com/ogre/
+
+Copyright © 2000-2001 Steven J. Streeting
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/gpl.html.
+-----------------------------------------------------------------------------
+*/
+#ifndef __Vector3_H__
+#define __Vector3_H__
+
+#include "OgrePrerequisites.h"
+#include "OgreMath.h"
+#include "OgreQuaternion.h"
+
+namespace Ogre
+{
+
+    /** Standard 3-dimensional vector.
+        @remarks
+            A direction in 3D space represented as distances along the 3
+            orthoganal axes (x, y, z). Note that positions, directions and
+            scaling factors can be represented by a vector, depending on how
+            you interpret the values.
+    */
+    class _OgreExport Vector3
+    {
+    public:
+        Real x, y, z;        
+
+    public:
+        inline Vector3()
+        {
+        }
+
+        inline Vector3( Real fX, Real fY, Real fZ ) 
+            : x( fX ), y( fY ), z( fZ )
+        {
+        }
+
+        inline Vector3( Real afCoordinate[3] )
+            : x( afCoordinate[0] ),
+              y( afCoordinate[1] ),
+              z( afCoordinate[2] )
+        {
+        }
+
+        inline Vector3( int afCoordinate[3] )
+        {
+            x = (Real)afCoordinate[0];
+            y = (Real)afCoordinate[1];
+            z = (Real)afCoordinate[2];
+        }
+
+        inline Vector3( const Real* const r )
+            : x( r[0] ), y( r[1] ), z( r[2] )
+        {
+        }
+
+        inline Vector3( const Vector3& rkVector )
+            : x( rkVector.x ), y( rkVector.y ), z( rkVector.z )
+        {
+        }
+
+        inline Real operator [] ( unsigned i ) const
+        {
+            assert( i < 3 );
+
+            return *(&x+i);
+        }
+
+		inline Real& operator [] ( unsigned i )
+        {
+            assert( i < 3 );
+
+            return *(&x+i);
+        }
+
+        /** Assigns the value of the other vector.
+            @param
+                rkVector The other vector
+        */
+        inline Vector3& operator = ( const Vector3& rkVector )
+        {
+            memcpy( &x, &rkVector.x, 3 * sizeof( Real ) );
+
+            return *this;
+        }
+
+        inline bool operator == ( const Vector3& rkVector ) const
+        {
+            return ( x == rkVector.x && y == rkVector.y && z == rkVector.z );
+        }
+
+        inline bool operator != ( const Vector3& rkVector ) const
+        {
+            return ( x != rkVector.x || y != rkVector.y || z != rkVector.z );
+        }
+
+        // arithmetic operations
+        inline Vector3 operator + ( const Vector3& rkVector ) const
+        {
+            Vector3 kSum;
+
+            kSum.x = x + rkVector.x;
+            kSum.y = y + rkVector.y;
+            kSum.z = z + rkVector.z;
+
+            return kSum;
+        }
+
+        inline Vector3 operator - ( const Vector3& rkVector ) const
+        {
+            Vector3 kDiff;
+
+            kDiff.x = x - rkVector.x;
+            kDiff.y = y - rkVector.y;
+            kDiff.z = z - rkVector.z;
+
+            return kDiff;
+        }
+
+        inline Vector3 operator * ( Real fScalar ) const
+        {
+            Vector3 kProd;
+
+            kProd.x = fScalar*x;
+            kProd.y = fScalar*y;
+            kProd.z = fScalar*z;
+
+            return kProd;
+        }
+
+        inline Vector3 operator / ( Real fScalar ) const
+        {
+            assert( fScalar != 0.0 );
+
+            Vector3 kDiv;
+
+            Real fInv = 1.0 / fScalar;
+            kDiv.x = x * fInv;
+            kDiv.y = y * fInv;
+            kDiv.z = z * fInv;
+
+            return kDiv;
+        }
+
+        inline Vector3 operator - () const
+        {
+            Vector3 kNeg;
+
+            kNeg.x = -x;
+            kNeg.y = -y;
+            kNeg.z = -z;
+
+            return kNeg;
+        }
+
+        inline friend Vector3 operator * ( Real fScalar, const Vector3& rkVector )
+        {
+            Vector3 kProd;
+
+            kProd.x = fScalar * rkVector.x;
+            kProd.y = fScalar * rkVector.y;
+            kProd.z = fScalar * rkVector.z;
+
+            return kProd;
+        }
+
+        // arithmetic updates
+        inline Vector3& operator += ( const Vector3& rkVector )
+        {
+            x += rkVector.x;
+            y += rkVector.y;
+            z += rkVector.z;
+
+            return *this;
+        }
+
+        inline Vector3& operator -= ( const Vector3& rkVector )
+        {
+            x -= rkVector.x;
+            y -= rkVector.y;
+            z -= rkVector.z;
+
+            return *this;
+        }
+
+        inline Vector3& operator *= ( Real fScalar )
+        {
+            x *= fScalar;
+            y *= fScalar;
+            z *= fScalar;
+            return *this;
+        }
+
+        inline Vector3& operator /= ( Real fScalar )
+        {
+            assert( fScalar != 0.0 );
+
+            Real fInv = 1.0 / fScalar;
+
+            x *= fInv;
+            y *= fInv;
+            z *= fInv;
+
+            return *this;
+        }
+
+        /** Returns the length (magnitude) of the vector.
+            @warning
+                This operation requires a square root and is expensive in
+                terms of CPU operations. If you don't need to know the exact
+                length (e.g. for just comparing lengths) use squaredLength()
+                instead.
+        */
+        inline Real length () const
+        {
+            return Math::Sqrt( x * x + y * y + z * z );
+        }
+
+        /** Returns the square of the length(magnitude) of the vector.
+            @remarks
+                This  method is for efficiency - calculating the actual
+                length of a vector requires a square root, which is expensive
+                in terms of the operations required. This method returns the
+                square of the length of the vector, i.e. the same as the
+                length but before the square root is taken. Use this if you
+                want to find the longest / shortest vector without incurring
+                the square root.
+        */
+        inline Real squaredLength () const
+        {
+            return x * x + y * y + z * z;
+        }
+
+        /** Calculates the dot (scalar) product of this vector with another.
+            @remarks
+                The dot product can be used to calculate the angle between 2
+                vectors. If both are unit vectors, the dot product is the
+                cosine of the angle; otherwise the dot product must be
+                divided by the product of the lengths of both vectors to get
+                the cosine of the angle. This result can further be used to
+                calculate the distance of a point from a plane.
+            @param
+                vec Vector with which to calculate the dot product (together
+                with this one).
+            @returns
+                A float representing the dot product value.
+        */
+        inline Real dotProduct(const Vector3& vec) const
+        {
+            return x * vec.x + y * vec.y + z * vec.z;
+        }
+
+        /** Normalises the vector.
+            @remarks
+                This method normalises the vector such that it's
+                length / magnitude is 1. The result is called a unit vector.
+            @note
+                This function will not crash for zero-sized vectors, but there
+                will be no changes made to their components.
+        */
+        inline void normalise(void)
+        {
+            Real fLength = Math::Sqrt( x * x + y * y + z * z );
+
+            // Will also work for zero-sized vectors, but will change nothing
+            if ( fLength > 1e-06 )
+            {
+                Real fInvLength = 1.0 / fLength;
+                x *= fInvLength;
+                y *= fInvLength;
+                z *= fInvLength;
+            }
+        }
+
+        /** Calculates the cross-product of 2 vectors, i.e. the vector that
+            lies perpendicular to them both.
+            @remarks
+                The cross-product is normally used to calculate the normal
+                vector of a plane, by calculating the cross-product of 2
+                non-equivalent vectors which lie on the plane (e.g. 2 edges
+                of a triangle).
+            @param
+                vec Vector which, together with this one, will be used to
+                calculate the cross-product.
+            @returns
+                A vector which is the result of the cross-product. This
+                vector will <b>NOT</b> be normalised, to maximise efficiency
+                - call Vector3::normalise on the result if you wish this to
+                be done. As for which side the resultant vector will be on, the
+                returned vector will be on the side from which the arc from 'this'
+                to rkVector is anticlockwise, e.g. UNIT_Y.crossProduct(UNIT_Z) 
+                = UNIT_X, whilst UNIT_Z.crossProduct(UNIT_Y) = -UNIT_X.
+            @par
+                For a clearer explanation, look a the left and the bottom edges
+                of your monitor's screen. Assume that the first vector is the
+                left edge and the second vector is the bottom edge, both of
+                them starting from the lower-left corner of the screen. The
+                resulting vector is going to be perpendicular to both of them
+                and will go <i>inside</i> the screen, towards the cathode tube
+                (assuming you're using a CRT monitor, of course).
+        */
+        inline Vector3 crossProduct( const Vector3& rkVector ) const
+        {
+            Vector3 kCross;
+
+            kCross.x = y * rkVector.z - z * rkVector.y;
+            kCross.y = z * rkVector.x - x * rkVector.z;
+            kCross.z = x * rkVector.y - y * rkVector.x;
+
+            return kCross;
+        }
+
+        /** Returns a vector at a point half way between this and the passed
+            in vector.
+        */
+        inline Vector3 midPoint( const Vector3& vec ) const
+        {
+            return Vector3( 
+                ( x + vec.x ) * 0.5, 
+                ( y + vec.y ) * 0.5, 
+                ( z + vec.z ) * 0.5 );
+        }
+
+        /** Returns true if the vector's scalar components are all greater
+            that the ones of the vector it is compared against.
+        */
+        inline bool operator < ( const Vector3& rhs ) const
+        {
+            if( x < rhs.x && y < rhs.y && z < rhs.z )
+                return true;
+            return false;
+        }
+
+        /** Returns true if the vector's scalar components are all smaller
+            that the ones of the vector it is compared against.
+        */
+        inline bool operator > ( const Vector3& rhs ) const
+        {
+            if( x > rhs.x && y > rhs.y && z > rhs.z )
+                return true;
+            return false;
+        }
+
+        /** Sets this vector's components to the minimum of its own and the 
+            ones of the passed in vector.
+            @remarks
+                'Minimum' in this case means the combination of the lowest
+                value of x, y and z from both vectors. Lowest is taken just
+                numerically, not magnitude, so -1 < 0.
+        */
+        inline void makeFloor( const Vector3& cmp )
+        {
+            if( cmp.x < x ) x = cmp.x;
+            if( cmp.y < y ) y = cmp.y;
+            if( cmp.z < z ) z = cmp.z;
+        }
+
+        /** Sets this vector's components to the maximum of its own and the 
+            ones of the passed in vector.
+            @remarks
+                'Maximum' in this case means the combination of the highest
+                value of x, y and z from both vectors. Highest is taken just
+                numerically, not magnitude, so 1 > -3.
+        */
+        inline void makeCeil( const Vector3& cmp )
+        {
+            if( cmp.x > x ) x = cmp.x;
+            if( cmp.y > y ) y = cmp.y;
+            if( cmp.z > z ) z = cmp.z;
+        }
+
+        /** Generates a vector perpendicular to this vector (eg an 'up' vector).
+            @remarks
+                This method will return a vector which is perpendicular to this
+                vector. There are an infinite number of possibilities but this 
+                method will guarantee to generate one of them. If you need more 
+                control you should use the Quaternion class.
+        */
+        inline Vector3 perpendicular(void)
+        {
+            static Real fSquareZero = 1e-06 * 1e-06;
+
+            Vector3 perp = this->crossProduct( Vector3::UNIT_X );
+
+            // Check length
+            if( perp.squaredLength() < fSquareZero )
+            {
+                /* This vector is the Y axis multiplied by a scalar, so we have 
+                   to use another axis.
+                */
+                perp = this->crossProduct( Vector3::UNIT_Y );
+            }
+
+            return perp;
+        }
+        /** Generates a new random vector which deviates from this vector by a
+            given angle in a random direction.
+            @remarks
+                This method assumes that the random number generator has already 
+                been seeded appropriately.
+            @param 
+                angle The angle at which to deviate in radians
+            @param 
+                up Any vector perpendicular to this one (which could generated 
+                by cross-product of this vector and any other non-colinear 
+                vector). If you choose not to provide this the function will 
+                derive one on it's own, however if you provide one yourself the 
+                function will be faster (this allows you to reuse up vectors if 
+                you call this method more than once) 
+            @returns 
+                A random vector which deviates from this vector by angle. This 
+                vector will not be normalised, normalise it if you wish 
+                afterwards.
+        */
+        inline Vector3 randomDeviant(
+            Real angle, 
+            const Vector3& up = Vector3::ZERO )
+        {
+            Vector3 newUp;
+
+            if (up == Vector3::ZERO)
+            {
+                // Generate an up vector
+                newUp = this->perpendicular();
+            }
+            else
+            {
+                newUp = up;
+            }
+
+            // Rotate up vector by random amount around this
+            Quaternion q;
+            q.FromAngleAxis( Math::UnitRandom() * Math::TWO_PI, *this );
+            newUp = q * newUp;
+
+            // Finally rotate this by given angle around randomised up
+            q.FromAngleAxis( angle, newUp );
+            return q * (*this);
+        }
+
+        // special points
+        static const Vector3 ZERO;
+        static const Vector3 UNIT_X;
+        static const Vector3 UNIT_Y;
+        static const Vector3 UNIT_Z;
+
+        /** Function for writing to a stream.
+        */
+        inline _OgreExport friend std::ostream& operator <<
+            ( std::ostream& o, Vector3& v )
+        {
+            o << "Vector3(" << v.x << ", " << v.y << ", " << v.z << ")";
+            return o;
+        }
+    };
+
+}
+#endif

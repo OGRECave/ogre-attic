@@ -1,0 +1,141 @@
+<html>
+<head>
+<title>Tutorial: Design overview</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Tutorial 
+1 - Overview<BR>The 3ds2oof Utility</p><p align="left" class="MainHeader">&nbsp;</p><p align="left" class="SectionHeader">The 
+3ds2oof Utility</p><p align="left">The 3ds2oof utility is designed to extract 
+geometry information from a 3D Studio (.3ds) object file into a custom file format 
+designed for loading into OGRE, which I have named OOF (OGRE Object Format). These 
+object files can then be loaded in as <A HREF="mesh.html">Mesh</A> objects.</p><P>I 
+chose the 3DS format since it's one of the most popular formats, and there are 
+conversions available to it from most other formats. I chose to provide a conversion 
+tool rather than directly loading 3DS in OGRE, because I wanted a bit more control 
+over the format loaded at runtime - the 3DS format is fine in some ways, but for 
+a realtime<BR>engine there's plenty of extras that you typically want - like splitting 
+the geometry down into chunks suitable for submission to the pipeline, extra pre-calculable 
+information like bounding boxes, level-of-detail reductions, etc.</P><P>This conversion 
+tool is not all my own work - I used code written by Matthew Fairfax for his OpenGL 
+engine as a starting point for loading the raw 3DS data, although I have made 
+considerable enhancements of my own. </P><P CLASS="SectionHeader">Usage</P><P>3ds2oof 
+filename [-vn] [-tc] [-tn] [-vc] [-oObjectName] [-lnnn] [-snnn] [-extExtension] 
+[-matnames] [-usecolours]</P><P>The parameters are:</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="10%"><DIV ALIGN="CENTER"><B>Parameter</B></DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER"><B>Mandatory?</B></DIV></TD><TD WIDTH="83%"><B>Description</B></TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">filename</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">Yes</DIV></TD><TD WIDTH="83%">The 
+name of the 3DS file to read from.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-vn</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER"><P>No</P></DIV></TD><TD WIDTH="83%">Excluded 
+vertex normals from the output file even if they are present in the 3DS file (e.g. 
+if you are doing your own lighting)</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-tc</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Excludes 
+texture co-ordinates from the output file.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-tn</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Excludes 
+texture names from the output model.You may wish to use this if you don't intend 
+to use the same textures in OGRE as have been used in 3DS.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-vc</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%"> 
+Excludes vertex colours from the output model.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-o&lt;Name&gt;</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Outputs 
+just the named object, if there are multiple objects in the original 3DS file.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-s&lt;NNN&gt;</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Sets 
+the percentage vertex limit above which a material group will use the shared vertex 
+pool to NNN. (Default 100%). See below.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-ext&lt;EXT&gt;</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Sets 
+the extension of all texture maps in the model to EXT. Useful if your 3ds file 
+uses one type of graphics file but you wish to use<BR> a different one (I use 
+this to convert BMP references to PNG or JPG). You obviously need to convert your 
+graphics files too.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-matnames</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Causes 
+the utility to prompt you for new names for the materials defined in the 3DS file. 
+You will be asked for a new name for each; you can enter nothing to leave the 
+name unchanged.</TD></TR><TR><TD WIDTH="10%"><DIV ALIGN="CENTER">-usecolours</DIV></TD><TD WIDTH="7%"><DIV ALIGN="CENTER">No</DIV></TD><TD WIDTH="83%">Causes 
+3ds2oof to use the material colours stored in the 3DS file to tint the various 
+parts of the model. Not normally recommended, so turned off by default, since 
+most 3DS models designed for texturing use colours only to indicate groups of 
+items (so they tend to be garish). If your model uses material colours properly, 
+then use this option.</TD></TR></TABLE><P CLASS="SectionHeader">Shared and dedicated 
+vertex buffers</P><P>When rendering parts of a model which use different materials, 
+separate rendering calls have to be made with each material setting. When this 
+call is made, a face list is passed which references vertices in a list. This 
+vertex list can either just include the vertices required for this set of faces 
+(dedicated), or may share a buffer of vertices with other parts of the model which 
+use different materials. </P><P>If the face list for one material is very small, 
+using a small percentage of the shared vertex list, it is wasteful to pass all 
+the models vertices just to render a small set of faces. Therefore 3ds2oof has 
+a parameter to allow you to specify how much of the overall vertex list a material 
+group must use before sharing vertices; it defaults to -s100 i.e. share vertices 
+only where the material uses 100% of the vertices in the model.</P><P>You can 
+save memory (for multi-material objects) by reducing this number at the expense 
+of slightly less efficient rendering calls. Also if you decide to use vertex buffers 
+for rendering an object, you could set -s0 to use a shared buffer for everything, 
+allowing it to be put in the hardware's vertex buffer for efficient processing 
+(NB using vertex buffers in OGRE is not yet supported but is upcoming).</P><P CLASS="SectionHeader">File 
+Format</P><P>See 3ds2oof\OgreOOfFile.h for details.</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
+to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="mesh.html">&lt;&lt; 
+Previous section</A></TD><TD WIDTH="25%"><A HREF="entity.html">Next section &gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
+</body>
+</html>
