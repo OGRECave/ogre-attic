@@ -99,7 +99,7 @@ namespace Ogre {
             ResourceManager::load( res, priority );
         }
 
-        virtual Texture * create( const String& name )
+        virtual Resource * create( const String& name )
         {
             return create(name, TEX_TYPE_2D);
         }
