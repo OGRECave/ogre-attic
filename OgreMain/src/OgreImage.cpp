@@ -540,10 +540,10 @@ namespace Ogre {
         ilGenImages( 1, &ImageName );
         ilBindImage( ImageName );
 
-        std::pair< int, int > fmt_bpp = ILUtil::OgreFormat2ilFormat( m_eFormat );
-        ilTexImage( 
-            m_uWidth, m_uHeight, 1, fmt_bpp.second, fmt_bpp.first, IL_UNSIGNED_BYTE, 
-            static_cast< void * >( m_pBuffer ) );
+		PixelBox src = getPixelBox(0, 0);
+
+		// Convert image from OGRE to current IL image
+		ILUtil::fromOgre(src);
 
 		// set filter
 		iluImageParameter(ILU_FILTER, getILFilter(filter));
@@ -556,7 +556,8 @@ namespace Ogre {
 		m_uHeight = height;
 		size_t dataSize = width * height * m_ucPixelSize;
 		m_pBuffer = new uchar[dataSize];
-		memcpy(m_pBuffer, ilGetData(), dataSize);
+
+		ILUtil::toOgre(m_pBuffer, m_eFormat);
 
         ilDeleteImages(1, &ImageName);
 
@@ -575,13 +576,7 @@ namespace Ogre {
     PixelBox Image::getPixelBox(int cubeface, int mipmap) 
     {
         // TODO - do something with cubeface & mipmap
-        PixelBox src;
-        src.width = getWidth();
-        src.height = getHeight();
-        src.depth = getDepth();
-        src.format = getFormat();
-        src.data = getData();
-        src.setConsecutive();
+        PixelBox src(getWidth(), getHeight(), getDepth(), getFormat(), getData());
         return src;
     }
 

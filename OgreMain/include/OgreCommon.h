@@ -206,6 +206,101 @@ namespace Ogre {
 	/// Name / value parameter pair (first = name, second = value)
 	typedef std::map<String, String> NameValuePairList;
 
+        /** Structure used to define a rectangle in a 2-D integer space.
+        */
+        struct Rect
+        {
+            long left, top, right, bottom;
+
+            Rect()
+            {
+            }
+            Rect( long l, long t, long r, long b )
+            {
+                left = l;
+                top = t;   
+                right = r;
+                bottom = b;                
+            }
+            Rect& operator = ( const Rect& other )
+            {
+                left = other.left;
+                top = other.top;
+                right = other.right;
+                bottom = other.bottom;       
+
+                return *this;
+            }
+        };
+
+        /** Structure used to define a box in a 3-D integer space.
+         	Note that the left, top, and front edges are included but the right, 
+         	bottom and top ones are not.
+         */
+        struct Box
+        {
+            long left, top, right, bottom, front, back;
+			/// Parameterless constructor for setting the members manually
+            Box()
+            {
+            }
+            /** Define a box from left, top, right and bottom coordinates
+            	This box will have depth one (front=0 and back=1).
+            	@param	l	x value of left edge
+            	@param	t	y value of top edge
+            	@param	r	x value of right edge
+            	@param	b	y value of bottom edge
+            	@note Note that the left, top, and front edges are included 
+ 		           	but the right, bottom and top ones are not.
+            */
+            Box( long l, long t, long r, long b ):
+                left(l),
+                top(t),   
+                right(r),
+                bottom(b),
+                front(0),
+                back(1)
+            {
+          		assert(right >= left && bottom >= top && back >= front);
+            }
+            /** Define a box from left, top, front, right, bottom and back
+            	coordinates.
+            	@param	l	x value of left edge
+            	@param	t	y value of top edge
+            	@param  ff  z value of front edge
+            	@param	r	x value of right edge
+            	@param	b	y value of bottom edge
+            	@param  bb  z value of back edge
+            	@note Note that the left, top, and front edges are included 
+ 		           	but the right, bottom and top ones are not.
+            */
+            Box( long l, long t, long ff, long r, long b, long bb ):
+                left(l),
+                top(t),   
+                right(r),
+                bottom(b),
+                front(ff),
+                back(bb)
+            {
+          		assert(right >= left && bottom >= top && back >= front);
+            }
+            
+            /// Return true if the other box is a part of this one
+            bool contains(const Box &def) const
+            {
+            	return (def.left >= left && def.top >= top && def.front >= front &&
+					def.right <= right && def.bottom <= bottom && def.back <= back);
+            }
+            
+            /// Get the width of this box
+            size_t getWidth() const { return right-left; }
+            /// Get the height of this box
+            size_t getHeight() const { return bottom-top; }
+            /// Get the depth of this box
+            size_t getDepth() const { return back-front; }
+        };
+
+    
 	
 	/** Locate command-line options of the unary form '-blah' and of the
         binary form '-blah foo', passing back the index of the next non-option.

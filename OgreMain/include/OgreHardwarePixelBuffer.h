@@ -59,7 +59,7 @@ namespace Ogre {
         virtual void* lockImpl(size_t offset, size_t length, LockOptions options);
 
         /// Internal implementation of unlock(), must be overridden in subclasses
-        /// virtual void unlockImpl(void) = 0;
+        // virtual void unlockImpl(void) = 0;
     public:
         /// Should be called by HardwareBufferManager
         HardwarePixelBuffer(size_t mWidth, size_t mHeight, size_t mDepth,

@@ -379,7 +379,7 @@ protected:
 		buffer->lock(HardwareBuffer::HBL_NORMAL);
 		const PixelBox &pb = buffer->getCurrentLock();
 		d.str("");
-		d << "PixelBox " << pb.width << " " << pb.height << " " << pb.depth << " " << pb.rowPitch << " " << pb.slicePitch << " " << pb.data << " " << PixelUtil::getFormatName(pb.format);
+		d << "PixelBox " << pb.getWidth() << " " << pb.getHeight() << " " << pb.getDepth() << " " << pb.rowPitch << " " << pb.slicePitch << " " << pb.data << " " << PixelUtil::getFormatName(pb.format);
 		LogManager::getSingleton().logMessage(d.str());
 		buffer->unlock();
 		

@@ -68,12 +68,12 @@ namespace Ogre {
         ilGenImages( 1, &ImageName );
         ilBindImage( ImageName );
 
-        ImageData* pImgData = static_cast< ImageData * >( pData.getPointer() );
-        std::pair< int, int > fmt_bpp = ILUtil::OgreFormat2ilFormat( pImgData->format );
+		ImageData* pImgData = static_cast< ImageData * >( pData.getPointer() );
+		PixelBox src(pImgData->width, pImgData->height, pImgData->depth, pImgData->format, input->getPtr());
 
-        ilTexImage( 
-            pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, 
-            IL_UNSIGNED_BYTE, input->getPtr());
+		// Convert image from OGRE to current IL image
+		ILUtil::fromOgre(src);
+
         iluFlipImage();
 
         // Implicitly pick DevIL codec

@@ -339,25 +339,12 @@ Pixmap GLXConfigurator::CreateBackdrop(Window rootWindow, int depth) {
             return 0;
         }
 
-        PixelBox src = img.getPixelBox(0);
+        PixelBox src = img.getPixelBox(0, 0);
 
 		// Convert and copy image
 		data = (unsigned char*)malloc(mWidth * mHeight * bpl); // Must be allocated with malloc
         
-        PixelBox dst;
-        dst.width = src.width;
-        dst.height = src.height;
-        dst.depth = 1;
-        if(bpl == 2)
-        {
-            dst.format = PF_B5G6R5;
-        }
-        else
-        {
-            dst.format = PF_A8R8G8B8;
-        }
-        dst.data = data;
-        dst.setConsecutive();
+        PixelBox dst(src, bpl == 2 ? PF_B5G6R5 : PF_A8R8G8B8, data );
         
         PixelUtil::bulkPixelConversion(src, dst);
 	} catch(Exception &e) {
