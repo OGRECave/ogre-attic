@@ -571,7 +571,7 @@ protected:
 		
 		// Create light node
         SceneNode* lightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->attachLight(l);
+		lightNode->attachObject(l);
 
         // set up spline animation of light node
         Animation* anim = mSceneMgr->createAnimation("WaterLight", 20);

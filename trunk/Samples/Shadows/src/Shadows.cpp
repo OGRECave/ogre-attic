@@ -291,7 +291,7 @@ protected:
         // Create light node
         mLightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "MovingLightNode");
-        mLightNode->attachLight(mLight);
+        mLightNode->attachObject(mLight);
         // create billboard set
         BillboardSet* bbs = mSceneMgr->createBillboardSet("lightbbs", 1);
         bbs->setMaterialName("Examples/Flare");

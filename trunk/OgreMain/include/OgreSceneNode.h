@@ -135,18 +135,6 @@ namespace Ogre {
         */
         virtual void detachAllObjects(void);
 
-        /** Adds a light to this node.
-        @remarks
-            DEPRECATED. Use attachObject instead now.
-        */
-        void attachLight(Light* l);
-
-        /** Adds a Camera to this node.
-        @remarks
-            DEPRECATED. Use attachObject instead now.
-        */
-        void attachCamera(Camera* ent);
-
         /** Internal method to update the Node.
             @note
                 Updates this scene node and any relevant children to incorporate transforms etc.

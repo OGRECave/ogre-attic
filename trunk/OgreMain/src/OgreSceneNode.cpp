@@ -193,16 +193,6 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SceneNode::attachCamera(Camera* cam)
-    {
-        attachObject(cam);
-    }
-    //-----------------------------------------------------------------------
-    void SceneNode::attachLight(Light* lgt)
-    {
-        attachObject(lgt);
-    }
-    //-----------------------------------------------------------------------
     void SceneNode::detachAllObjects(void)
     {
 		ObjectMap::iterator itr;
