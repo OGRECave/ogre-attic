@@ -793,7 +793,7 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
 	matSer.exportQueued(matName);
 }
 
-Ogre::ColourValue const & MilkshapePlugin::msVec4ToColourValue(float prop[4])
+Ogre::ColourValue MilkshapePlugin::msVec4ToColourValue(float prop[4])
 {
 	Ogre::ColourValue colour;
 	colour.r = prop[0];

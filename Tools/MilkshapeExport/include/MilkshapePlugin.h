@@ -76,7 +76,7 @@ protected:
     void doExportAnimations(msModel* pModel, Ogre::Skeleton* skel);
     Ogre::Skeleton* doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh); // Skeleton returned for deletion later
     bool locateSkeleton(Ogre::Mesh* mesh);
-	Ogre::ColourValue const & msVec4ToColourValue(float prop[4]);
+	Ogre::ColourValue msVec4ToColourValue(float prop[4]);
 };
 
 #endif
