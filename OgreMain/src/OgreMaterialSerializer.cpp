@@ -1588,7 +1588,7 @@ namespace Ogre
 
         // Set up program definition attribute parsers
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
-        mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSource));
+        mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
 		
 
         mScriptContext.section = MSS_NONE;
@@ -1794,8 +1794,7 @@ namespace Ogre
 			}
 			// Create
 			GpuProgram* gp = GpuProgramManager::getSingleton().
-				create(def->name, def->progType, def->syntax);
-            gp->setSourceFile(def->source);
+				createProgram(def->name, def->source, def->progType, def->syntax);
 			
 		}
 		else

@@ -154,9 +154,9 @@ namespace Ogre {
             returned in preference to low-level programs.
         */
         Resource* getByName(const String& name, bool preferHighLevelPrograms = true);
+    protected:
 		/** Create a new GpuProgram. */
         virtual GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode) = 0;
-    protected:
 
 
 	};

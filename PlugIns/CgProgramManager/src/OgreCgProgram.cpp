@@ -131,8 +131,11 @@ namespace Ogre {
     {
         // Create a low-level program, give it the same name as us
         mAssemblerProgram = 
-            GpuProgramManager::getSingleton().create(mName, mType, mSelectedProfile);
-        mAssemblerProgram->setSource(cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM));
+            GpuProgramManager::getSingleton().createProgramFromString(
+                mName, 
+                cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM),
+                mType, 
+                mSelectedProfile);
 
     }
     //-----------------------------------------------------------------------
