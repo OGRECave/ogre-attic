@@ -339,6 +339,9 @@
 				RelativePath="..\src\OgreSimpleRenderable.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSimpleSpline.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSingleton.cpp">
 			</File>
 			<File
@@ -679,6 +682,9 @@
 				RelativePath="..\include\OgreSimpleRenderable.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreSimpleSpline.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreSingleton.h">
 			</File>
 			<File
@@ -734,6 +740,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreVector3.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreVector4.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreVertexBoneAssignment.h">
