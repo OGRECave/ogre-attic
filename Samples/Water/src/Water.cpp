@@ -296,9 +296,9 @@ protected:
 		while(!pit.end()) {
 			Particle *particle = pit.getNext();
 			Vector3 ppos = particle->getPosition();
-			if (ppos.y<=0 && particle->mTimeToLive>0) { // hits the water!
+			if (ppos.y<=0 && particle->timeToLive>0) { // hits the water!
 				// delete particle
-				particle->mTimeToLive = 0.0f;
+				particle->timeToLive = 0.0f;
 				// push the water
 				float x = ppos.x / PLANE_SIZE * COMPLEXITY ;
 				float y = ppos.z / PLANE_SIZE * COMPLEXITY ;
