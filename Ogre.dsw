@@ -393,6 +393,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Demo_Shadows"=.\Samples\Shadows\scripts\Demo_Shadows.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Demo_SkeletalAnimation"=.\Samples\SkeletalAnimation\scripts\Demo_SkeletalAnimation.dsp - Package Owner=<4>
 
 Package=<5>
