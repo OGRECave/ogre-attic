@@ -774,6 +774,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "RenderSystem_Direct3D9"=.\RenderSystems\Direct3D9\scripts\RenderSystem_Direct3D9.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "RenderSystem_GL"=.\RenderSystems\GL\scripts\RenderSystem_GL.dsp - Package Owner=<4>
 
 Package=<5>
