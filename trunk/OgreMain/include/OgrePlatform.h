@@ -93,12 +93,16 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // If we're not including this from a client build, specify that the stuff
 // should get exported. Otherwise, import it.
-#   if defined( OGRE_NONCLIENT_BUILD )
-#       define _OgreExport __declspec( dllexport )
+#	if defined( __MINGW32__ )
+		// Linux compilers don't have symbol import/export directives.
+#   	define _OgreExport
 #   else
-#       define _OgreExport __declspec( dllimport )
-#   endif
-
+#   	if defined( OGRE_NONCLIENT_BUILD )
+#       	define _OgreExport __declspec( dllexport )
+#   	else
+#       	define _OgreExport __declspec( dllimport )
+#   	endif
+#	endif
 // Win32 compilers use _DEBUG for specifying debug builds.
 #   ifdef _DEBUG
 #       define OGRE_DEBUG_MODE 1
