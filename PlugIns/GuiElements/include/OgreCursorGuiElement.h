@@ -62,6 +62,8 @@ namespace Ogre {
 		void mouseMoved(MouseEvent* e);
 		void mouseDragged(MouseEvent* e);
 
+		float getViewDepth( Camera * ) const { return 0.0; }
+
 		GuiElement* findElementAt(Real x, Real y);
     };
 

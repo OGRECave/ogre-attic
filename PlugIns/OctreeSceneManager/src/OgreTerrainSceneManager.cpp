@@ -36,10 +36,10 @@ TerrainSceneManager::TerrainSceneManager() : OctreeSceneManager( )
 
 TerrainSceneManager::~TerrainSceneManager()
 {
-    int size = mTiles.size();
+    size_t size = mTiles.size();
 
-    for ( int i = 0; i < size; i++ )
-        for ( int j = 0; j < size; j++ )
+    for ( size_t i = 0; i < size; i++ )
+        for ( size_t j = 0; j < size; j++ )
             delete mTiles[ i ][ j ];
 }
 
@@ -99,7 +99,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
         Except( Exception::ERR_INVALIDPARAMS, err, "TerrainSceneManager::setWorldGeometry" );
     }
 
-    if ( image.getFormat() != Image::FMT_GREY )
+    if ( image.getFormat() != PF_L8 )
     {
         Except( Exception::ERR_INVALIDPARAMS, "Error: Image is not a grayscale image.",
                 "TerrainSceneManager::setWorldGeometry" );

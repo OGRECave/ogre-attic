@@ -24,10 +24,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 /**
-    \file 
+    @file 
         Terrain.cpp
-    \brief
-        Shows OGRE's terrain rendering plugin
+    @brief
+        Shows OGRE's terrain rendering plugin.
 */
 
 #include "Ogre.h"
@@ -36,11 +36,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
-
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
-#else
-int main(int argc, char *argv[])
 #endif
+
+int main(int argc, char *argv[])
 {
     // Create application object
     TerrainApplication app;

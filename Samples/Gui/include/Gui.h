@@ -108,12 +108,7 @@ protected:
 	}
 
 
-	void mouseClicked(MouseEvent* e) 
-	{
-		  Entity *ent;
-
-
-	}
+	void mouseClicked(MouseEvent* e) {}
 	void mouseEntered(MouseEvent* e) {}
 	void mouseExited(MouseEvent* e) {}
 	void mousePressed(MouseEvent* e) {}
