@@ -72,7 +72,7 @@ namespace Ogre {
         // Allow SceneManager full access
         friend class SceneManager;
         friend class SubEntity;
-    private:
+    protected:
 
         /** Private constructor (instances cannot be created directly).
         */
@@ -162,6 +162,7 @@ namespace Ogre {
 
         bool mNormaliseNormals;
 
+        bool mCastShadows;
 
     public:
         /** Default destructor.
@@ -338,6 +339,19 @@ namespace Ogre {
 
         /** Returns true if this entity has auto-normalisation of normals set. */
         bool getNormaliseNormals(void) const {return mNormaliseNormals; }
+
+        /** Sets whether or not this entity will cast shadows.
+        @remarks
+            This setting simply allows you to turn off shadows for a given entity. 
+            An entity will not cast shadows unless the scene supports it in any case
+            (see SceneManager::setShadowTechnique), and by default all entities cast
+            shadows if the scene-level feature is enabled. If, however, for some reason
+            you wish to disable this for a single entity then you can do so using this
+            method.
+        */
+        void setCastShadows(bool enabled) { mCastShadows = enabled; }
+        /** Returns whether shadow casting is enabled for this entity. */
+        bool getCastShadows(void) const { return mCastShadows; }
 
 
     };

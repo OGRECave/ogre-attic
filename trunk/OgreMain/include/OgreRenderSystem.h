@@ -72,6 +72,10 @@ namespace Ogre
         SOP_INCREMENT,
         /// Decrease the stencil value by 1, clamping at 0
         SOP_DECREMENT,
+        /// Increase the stencil value by 1, wrapping back to 0 when incrementing the maximum value
+        SOP_INCREMENT_WRAP,
+        /// Decrease the stencil value by 1, wrapping when decrementing 0
+        SOP_DECREMENT_WRAP,
         /// Invert the bits of the stencil buffer
         SOP_INVERT
     };
@@ -641,41 +645,17 @@ namespace Ogre
         @param depthFailOp The action to perform when the stencil check passes, but the
             depth buffer check still fails
         @param passOp The action to take when both the stencil and depth check pass.
+        @param twoSidedOperation If set to true, then if you render both back and front faces 
+            (you'll have to turn off culling) then these parameters will apply for front faces, 
+            and the inverse of them will happen for back faces (keep remains the same).
         */
         virtual void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
             ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
             StencilOperation stencilFailOp = SOP_KEEP, 
             StencilOperation depthFailOp = SOP_KEEP,
-            StencilOperation passOp = SOP_KEEP);
+            StencilOperation passOp = SOP_KEEP, 
+            bool twoSidedOperation = false) = 0;
 
-        /** Sets the stencil test function.
-        @remarks
-            The stencil test is:<PRE>
-            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
-        */
-        virtual void setStencilBufferFunction(CompareFunction func) = 0;
-        /** Sets the stencil buffer reference value.
-        @remarks
-            This value is used in the stencil test:<PRE>
-            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
-            It can also be used as the destination value for the stencil buffer if the
-            operation which is performed is SOP_REPLACE.
-        */
-        virtual void setStencilBufferReferenceValue(ulong refValue) = 0;
-        /** Sets the stencil buffer mask value.
-        @remarks
-            This is applied thus:<PRE>
-            (Reference Value & Mask) CompareFunction (Stencil Buffer Value & Mask)</PRE>
-        */
-        virtual void setStencilBufferMask(ulong mask) = 0;
-        /** Sets the action to perform if the stencil test fails. */
-        virtual void setStencilBufferFailOperation(StencilOperation op) = 0;
-        /** Sets the action to perform if the stencil test passes, but the depth
-            buffer test fails. */
-        virtual void setStencilBufferDepthFailOperation(StencilOperation op) = 0;
-        /** Sets the action to perform if both the stencil test and the depth buffer 
-            test passes. */
-        virtual void setStencilBufferPassOperation(StencilOperation op) = 0;
 
         /** Performs a software vertex blend on the passed in operation. 
         @remarks

@@ -469,18 +469,6 @@ namespace Ogre {
         }
         // TODO: implement vertex blending support in DX8 & possibly GL_ARB_VERTEX_BLEND (in subclasses)
     }
-    //---------------------------------------------------------------------
-    void RenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
-        ulong mask, StencilOperation stencilFailOp, 
-        StencilOperation depthFailOp, StencilOperation passOp)
-    {
-        setStencilBufferFunction(func);
-        setStencilBufferReferenceValue(refValue);
-        setStencilBufferMask(mask);
-        setStencilBufferFailOperation(stencilFailOp);
-        setStencilBufferDepthFailOperation(depthFailOp);
-        setStencilBufferPassOperation(passOp);
-    }
     //-----------------------------------------------------------------------
     void RenderSystem::_render(const RenderOperation& op)
     {

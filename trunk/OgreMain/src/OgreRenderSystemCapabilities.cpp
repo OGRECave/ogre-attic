@@ -69,6 +69,12 @@ namespace Ogre {
             pLog->logMessage(
                 "   - Stencil depth: " 
                 + StringConverter::toString(getStencilBufferBitDepth()));
+            pLog->logMessage(
+                "   - Two sided stencil support: " 
+                + StringConverter::toString(hasCapability(RSC_TWO_SIDED_STENCIL), true));
+            pLog->logMessage(
+                "   - Wrap stencil values: " 
+                + StringConverter::toString(hasCapability(RSC_STENCIL_WRAP), true));
         }
         pLog->logMessage(
             " * Hardware vertex / index buffers: " 
@@ -104,6 +110,11 @@ namespace Ogre {
                 "   - VTC: " 
                 + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION_VTC), true));
         }
+
+        pLog->logMessage(
+            " * Scissor Rectangle Support: " 
+            + StringConverter::toString(hasCapability(RSC_SCISSOR_TEST), true));
+
 
     }
 };

@@ -161,12 +161,12 @@ namespace Ogre
 		void destroyRenderWindow( RenderWindow* pWin );
 		void convertColourValue( const ColourValue& colour, unsigned long* pDest );
 		void setStencilCheckEnabled(bool enabled);
-		void setStencilBufferFunction(CompareFunction func);
-		void setStencilBufferReferenceValue(ulong refValue);
-		void setStencilBufferMask(ulong mask);
-		void setStencilBufferFailOperation(StencilOperation op);
-		void setStencilBufferDepthFailOperation(StencilOperation op);
-		void setStencilBufferPassOperation(StencilOperation op);
+        void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 
+            ulong refValue = 0, ulong mask = 0xFFFFFFFF, 
+            StencilOperation stencilFailOp = SOP_KEEP, 
+            StencilOperation depthFailOp = SOP_KEEP,
+            StencilOperation passOp = SOP_KEEP, 
+            bool twoSidedOperation = false);
         void setNormaliseNormals(bool normalise);
 
 		// Low-level overridden members, mainly for internal use

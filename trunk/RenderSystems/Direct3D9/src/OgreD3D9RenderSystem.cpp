@@ -611,6 +611,15 @@ namespace Ogre
         if (mCaps.RasterCaps & D3DPRASTERCAPS_SCISSORTEST)
             mCapabilities->setCapability(RSC_SCISSOR_TEST);
 
+        // Two-sided stencil
+        if (mCaps.StencilCaps & D3DSTENCILCAPS_TWOSIDED)
+            mCapabilities->setCapability(RSC_TWO_SIDED_STENCIL);
+
+        // stencil wrap
+        if ((mCaps.StencilCaps & D3DSTENCILCAPS_INCR) && 
+            (mCaps.StencilCaps & D3DSTENCILCAPS_DECR))
+            mCapabilities->setCapability(RSC_STENCIL_WRAP);
+
         convertVertexShaderCaps();
         convertPixelShaderCaps();
 
@@ -1485,53 +1494,68 @@ namespace Ogre
 			Except(hr, "Error enabling / disabling stencilling.",
 			"D3D9RenderSystem::setStencilCheckEnabled");
 	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setStencilBufferFunction(CompareFunction func)
-	{
-		HRESULT hr = __SetRenderState(D3DRS_STENCILFUNC, D3D9Mappings::get(func));
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
+        ulong mask, StencilOperation stencilFailOp, 
+        StencilOperation depthFailOp, StencilOperation passOp, 
+        bool twoSidedOperation)
+    {
+        HRESULT hr;
+
+        // 2-sided operation
+        if (twoSidedOperation)
+        {
+            if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
+                Except(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
+                    "D3D9RenderSystem::setStencilBufferParams");
+            hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, TRUE);
+		    if (FAILED(hr))
+			    Except(hr, "Error setting 2-sided stencil mode.",
+			    "D3D9RenderSystem::setStencilBufferParams");
+        }
+        else
+        {
+            hr = __SetRenderState(D3DRS_TWOSIDEDSTENCILMODE, FALSE);
+		    if (FAILED(hr))
+			    Except(hr, "Error setting 1-sided stencil mode.",
+			    "D3D9RenderSystem::setStencilBufferParams");
+        }
+
+        // func
+        hr = __SetRenderState(D3DRS_STENCILFUNC, D3D9Mappings::get(func));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil buffer test function.",
-			"D3D9RenderSystem::_setStencilBufferFunction");
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setStencilBufferReferenceValue(ulong refValue)
-	{
-		HRESULT hr = __SetRenderState(D3DRS_STENCILREF, refValue);
+			"D3D9RenderSystem::setStencilBufferParams");
+
+        // reference value
+        hr = __SetRenderState(D3DRS_STENCILREF, refValue);
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil buffer reference value.",
-			"D3D9RenderSystem::setStencilBufferReferenceValue");
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setStencilBufferMask(ulong mask)
-	{
-		HRESULT hr = __SetRenderState(D3DRS_STENCILMASK, mask);
+			"D3D9RenderSystem::setStencilBufferParams");
+
+        // mask
+        hr = __SetRenderState(D3DRS_STENCILMASK, mask);
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil buffer mask.",
-			"D3D9RenderSystem::setStencilBufferMask");
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setStencilBufferFailOperation(StencilOperation op)
-	{
-		HRESULT hr = __SetRenderState(D3DRS_STENCILFAIL, D3D9Mappings::get(op));
+			"D3D9RenderSystem::setStencilBufferParams");
+
+		// fail op
+        hr = __SetRenderState(D3DRS_STENCILFAIL, D3D9Mappings::get(stencilFailOp));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil fail operation.",
-			"D3D9RenderSystem::setStencilBufferFailOperation");
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
-	{
-		HRESULT hr = __SetRenderState(D3DRS_STENCILZFAIL, D3D9Mappings::get(op));
+			"D3D9RenderSystem::setStencilBufferParams");
+
+        // depth fail op
+        hr = __SetRenderState(D3DRS_STENCILZFAIL, D3D9Mappings::get(depthFailOp));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil depth fail operation.",
-			"D3D9RenderSystem::setStencilBufferDepthFailOperation");
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setStencilBufferPassOperation(StencilOperation op)
-	{
-		HRESULT hr = __SetRenderState(D3DRS_STENCILPASS, D3D9Mappings::get(op));
+			"D3D9RenderSystem::setStencilBufferParams");
+
+        // pass op
+        hr = __SetRenderState(D3DRS_STENCILPASS, D3D9Mappings::get(passOp));
 		if (FAILED(hr))
 			Except(hr, "Error setting stencil pass operation.",
-			"D3D9RenderSystem::setStencilBufferPassOperation");
+			"D3D9RenderSystem::setStencilBufferParams");
 	}
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::_setTextureUnitFiltering(size_t unit, FilterType ftype, 

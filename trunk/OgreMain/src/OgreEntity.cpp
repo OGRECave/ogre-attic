@@ -44,6 +44,7 @@ namespace Ogre {
     {
 		mFullBoundingBox = new AxisAlignedBox;
         mNormaliseNormals = false;
+        mCastShadows = true;
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, Mesh* mesh, SceneManager* creator) :
@@ -98,6 +99,7 @@ namespace Ogre {
 		mMinMaterialLodIndex = 99;
 
 
+        mCastShadows = true;
     }
     //-----------------------------------------------------------------------
     Entity::~Entity()

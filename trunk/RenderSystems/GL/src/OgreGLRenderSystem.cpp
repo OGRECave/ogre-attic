@@ -77,6 +77,7 @@ GL_CombinerOutputNV_Func glCombinerOutputNV_ptr;
 GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
 GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
 PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB_ptr;
+GL_ActiveStencilFaceEXT_Func glActiveStencilFaceEXT_ptr;
 
 namespace Ogre {
 
@@ -116,11 +117,6 @@ namespace Ogre {
         mViewMatrix = Matrix4::IDENTITY;
         
         initConfigOptions();
-
-        mStencilFail = mStencilZFail = mStencilPass = GL_KEEP;
-        mStencilFunc = GL_ALWAYS;
-        mStencilRef = 0;
-        mStencilMask = 0xffffffff;
 
         mColourWrite[0] = mColourWrite[1] = mColourWrite[2] = mColourWrite[3] = true;
 
@@ -162,6 +158,7 @@ namespace Ogre {
         glCombinerOutputNV_ptr = 0;
         glFinalCombinerInputNV_ptr = 0;
         glTrackMatrixNV_ptr = 0;
+        glActiveStencilFaceEXT_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -409,6 +406,18 @@ namespace Ogre {
         // Scissor test is standard in GL 1.2 (is it emulated on some cards though?)
         mCapabilities->setCapability(RSC_SCISSOR_TEST);
 
+        // 2-sided stencil?
+        if (mGLSupport->checkExtension("GL_EXT_stencil_two_side"))
+        {
+            mCapabilities->setCapability(RSC_TWO_SIDED_STENCIL);
+        }
+        // stencil wrapping?
+        if (mGLSupport->checkExtension("GL_EXT_stencil_wrap"))
+        {
+            mCapabilities->setCapability(RSC_STENCIL_WRAP);
+        }
+
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");
@@ -464,6 +473,8 @@ namespace Ogre {
         glCompressedTexImage2DARB_ptr =
             (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)mGLSupport->getProcAddress("glCompressedTexImage2DARB");
         InitATIFragmentShaderExtensions(*mGLSupport);
+        glActiveStencilFaceEXT_ptr = 
+            (GL_ActiveStencilFaceEXT_Func)mGLSupport->getProcAddress("glActiveStencilFaceEXT");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
@@ -1271,52 +1282,37 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferFunction(CompareFunction func)
+    void GLRenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
+        ulong mask, StencilOperation stencilFailOp, 
+        StencilOperation depthFailOp, StencilOperation passOp, 
+        bool twoSidedOperation)
     {
-        // Have to use saved values for other params since GL doesn't have 
-        // individual setters
-        mStencilFunc = convertCompareFunction(func);
-        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferReferenceValue(ulong refValue)
-    {
-        // Have to use saved values for other params since GL doesn't have 
-        // individual setters
-        mStencilRef = refValue;
-        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferMask(ulong mask)
-    {
-        // Have to use saved values for other params since GL doesn't have 
-        // individual setters
-        mStencilMask = mask;
-        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferFailOperation(StencilOperation op)
-    {
-        // Have to use saved values for other params since GL doesn't have 
-        // individual setters
-        mStencilFail = convertStencilOp(op);
-        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferDepthFailOperation(StencilOperation op)
-    {
-        // Have to use saved values for other params since GL doesn't have 
-        // individual setters
-        mStencilZFail = convertStencilOp(op);
-        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferPassOperation(StencilOperation op)
-    {
-        // Have to use saved values for other params since GL doesn't have 
-        // individual setters
-        mStencilPass = convertStencilOp(op);
-        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
+        if (twoSidedOperation)
+        {
+            if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
+                Except(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
+                    "GLRenderSystem::setStencilBufferParams");
+            glActiveStencilFaceEXT_ptr(GL_FRONT);
+        }
+        
+        glStencilMask(mask);
+        glStencilFunc(convertCompareFunction(func), refValue, mask);
+        glStencilOp(convertStencilOp(stencilFailOp), convertStencilOp(depthFailOp), 
+            convertStencilOp(passOp));
+
+        if (twoSidedOperation)
+        {
+            // set everything again, inverted
+            glActiveStencilFaceEXT_ptr(GL_BACK);
+            glStencilMask(mask);
+            glStencilFunc(convertCompareFunction(func), refValue, mask);
+            glStencilOp(
+                convertStencilOp(stencilFailOp, true), 
+                convertStencilOp(depthFailOp, true), 
+                convertStencilOp(passOp, true));
+            // reset
+            glActiveStencilFaceEXT_ptr(GL_FRONT);
+        }
     }
     //---------------------------------------------------------------------
     GLint GLRenderSystem::convertCompareFunction(CompareFunction func)
@@ -1344,7 +1340,7 @@ namespace Ogre {
         return GL_ALWAYS;
     }
     //---------------------------------------------------------------------
-    GLint GLRenderSystem::convertStencilOp(StencilOperation op)
+    GLint GLRenderSystem::convertStencilOp(StencilOperation op, bool invert)
     {
         switch(op)
         {
@@ -1355,29 +1351,18 @@ namespace Ogre {
         case SOP_REPLACE:
             return GL_REPLACE;
         case SOP_INCREMENT:
-            return GL_INCR;
+            return invert ? GL_DECR : GL_INCR;
         case SOP_DECREMENT:
-            return GL_DECR;
+            return invert ? GL_INCR : GL_DECR;
+        case SOP_INCREMENT_WRAP:
+            return invert ? GL_DECR_WRAP_EXT : GL_INCR_WRAP_EXT;
+        case SOP_DECREMENT_WRAP:
+            return invert ? GL_INCR_WRAP_EXT : GL_DECR_WRAP_EXT;
         case SOP_INVERT:
             return GL_INVERT;
         };
         // to keep compiler happy
         return SOP_KEEP;
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::setStencilBufferParams(CompareFunction func, ulong refValue, 
-        ulong mask, StencilOperation stencilFailOp, 
-        StencilOperation depthFailOp, StencilOperation passOp)
-    {
-        // optimise this into 2 calls instead of many
-        mStencilFunc = convertCompareFunction(func);
-        mStencilRef = refValue;
-        mStencilMask = mask;
-        mStencilFail = convertStencilOp(stencilFailOp);
-        mStencilZFail = convertStencilOp(depthFailOp);
-        mStencilPass = convertStencilOp(passOp);
-        glStencilFunc(mStencilFunc, mStencilRef, mStencilMask);
-        glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
     }
 	//---------------------------------------------------------------------
     GLuint GLRenderSystem::getCombinedMinMipFilter(void)
