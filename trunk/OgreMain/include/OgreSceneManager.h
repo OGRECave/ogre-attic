@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreDataChunk.h"
 #include "OgreBillboardSet.h"
 #include "OgreCustomizable.h"
+#include "OgreAnimationState.h"
 
 namespace Ogre {
 
@@ -201,6 +202,9 @@ namespace Ogre {
         /// Storage of animations, lookup by name
         typedef std::map<String, Animation*> AnimationList;
         AnimationList mAnimationsList;
+        AnimationStateSet mAnimationStates;
+
+
 
 
     public:
@@ -587,6 +591,12 @@ namespace Ogre {
         */
         virtual void _findVisibleObjects(Camera* cam);
 
+        /** Internal method for applying animations to scene nodes.
+        @remarks
+            Uses the internally stored AnimationState objects to apply animation to SceneNodes.
+        */
+        virtual void _applySceneAnimations(void);
+
         /** Sends visible objects found in _findVisibleObjects to the rendering engine.
         */
         virtual void _renderVisibleObjects(void);
@@ -925,6 +935,45 @@ namespace Ogre {
 
         /** Removes all animations created using this SceneManager. */
         virtual void destroyAllAnimations(void);
+
+        /** Create an AnimationState object for managing application of animations.
+        @remarks
+            You can create Animation objects for animating SceneNode obejcts using the
+            createAnimation method. However, in order to actually apply those animations
+            you have to call methods on Node and Animation in a particular order (namely
+            Node::resetToInitialState and Animation::apply). To make this easier and to
+            help track the current time position of animations, the AnimationState object
+            is provided. </p>
+            So if you don't want to control animation application manually, call this method,
+            update the returned object as you like every frame and let SceneManager apply 
+            the animation state for you.
+        @par
+            Remember, AnimationState objects are disabled by default at creation time. 
+            Turn them on when you want them using their setEnabled method.
+        @par
+            Note that any SceneNode affected by this automatic animation will have it's state
+            reset to it's initial position before application of the animation. Unless specifically
+            modified using Node::setInitialState the Node assumes it's initial state is at the
+            origin. If you want the base state of the SceneNode to be elsewhere, make your changes
+            to the node using the standard transform methods, then call setInitialState to 
+            'bake' this reference position into the node.
+        @param animName The name of an animation created already with createAnimation.
+        */
+        virtual AnimationState* createAnimationState(const String& animName);
+
+        /** Retrieves animation state as previously created using createAnimationState */
+        virtual AnimationState* getAnimationState(const String& animName);
+
+        /** Destroys an AnimationState. 
+        @remarks
+            You should ensure that none of your code is referencing this animation 
+            state object since the memory will be freed.
+        */
+        virtual void destroyAnimationState(const String& name);
+
+        /** Removes all animation states created using this SceneManager. */
+        virtual void destroyAllAnimationStates(void);
+
     };
 
 

@@ -24,9 +24,9 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 /*
 -----------------------------------------------------------------------------
-Filename:    ParticleApplication.cpp
+Filename:    SkeletalAnimation.h
 Description: Specialisation of OGRE's framework application to show the
-             environment mapping feature.
+             skeletal animation feature, including spline animation.
 -----------------------------------------------------------------------------
 */
 

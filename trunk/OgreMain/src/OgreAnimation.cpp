@@ -140,6 +140,11 @@ namespace Ogre {
         return msDefaultInterpolationMode;
     }
     //---------------------------------------------------------------------
+    const Animation::TrackList& Animation::_getTrackList(void) const
+    {
+        return mTrackList;
+
+    }
 
 }
 
