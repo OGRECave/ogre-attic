@@ -38,10 +38,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   define GL_GLEXT_PROTOTYPES
 #   include "glprocs.h"
 #   include <GL/glu.h>
-#elif OGRE_PLATFORM == PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #   include <GL/gl.h>
 #   include <GL/glu.h>
-#elif OGRE_PLATFORM == PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #   include <OpenGL/gl.h>
 #   define GL_EXT_texture_env_combine 1
 #   include <OpenGL/glext.h>

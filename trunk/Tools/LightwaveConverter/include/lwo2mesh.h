@@ -13,7 +13,7 @@
 #include "lwObject.h"
 #include "Ogre.h"
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 
 /* GNU libc has no equivalent to _splitpath() and _makepath(), so we'll write my
  * own using a combination of string functions and dirname() / basname().

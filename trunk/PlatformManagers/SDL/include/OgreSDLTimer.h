@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreTimer.h"
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #	include <SDL/sdl.h>
 #else
 #	include <SDL.h>

@@ -8,7 +8,7 @@
 #include "OgreDataChunk.h"
 #include "OgreDefaultHardwareBufferManager.h"
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include "asm/io.h"
 #else
 #include "io.h"
@@ -377,7 +377,7 @@ void help( char *filename )
 	cout << "lwo2mesh v0.89a (2004.10.05) by Dennis Verbeek." << nl
 		<< "Converts a Lightwave object to an Ogre mesh." << nl
 		<< "Please send any feedback to: dennis.verbeek@chello.nl" << nl << nl
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 		<< "Linux Port (2004.10.16) by Magnus Møller Petersen." << nl
 		<< "Please send feedback concerning Linux to: magnus@moaner.dk" << nl << nl
 #endif
@@ -513,7 +513,7 @@ int readFiles( char *source, char *dest)
 	free (filename);
 	return 1;
 }
-#elif OGRE_PLATFORM == PLATFORM_LINUX
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 int readFiles( char *source, char *dest ) {
 	return 1;
 }

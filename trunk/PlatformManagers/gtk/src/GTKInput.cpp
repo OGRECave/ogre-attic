@@ -228,7 +228,7 @@ void GTKInput::capture()
         		mMouseState.Zrel = 0;
     		}
 
-#if OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     		XWarpPointer(GDK_WINDOW_XDISPLAY(_win->get_window()->gobj()), None,
                 	 GDK_WINDOW_XWINDOW(_win->get_window()->gobj()), 0, 0, 0, 0, 
                  	mMouseCenterX, mMouseCenterY);
