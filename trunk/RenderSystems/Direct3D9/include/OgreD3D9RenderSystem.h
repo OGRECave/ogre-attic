@@ -200,7 +200,7 @@ namespace Ogre
         void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
             const Frustum* frustum = 0);
 		void _setTextureBlendMode( size_t unit, const LayerBlendModeEx& bm );
-		void _setTextureAddressingMode( size_t unit, TextureUnitState::TextureAddressingMode tam );
+        void _setTextureAddressingMode(size_t stage, const TextureUnitState::UVWAddressingMode& uvw);
 		void _setTextureMatrix( size_t unit, const Matrix4 &xform );
 		void _setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor );
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );

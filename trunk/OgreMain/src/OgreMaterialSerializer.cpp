@@ -731,19 +731,56 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+	TextureUnitState::TextureAddressingMode convTexAddressMode(const String& params, MaterialScriptContext& context)
+	{
+		if (params=="wrap")
+			return TextureUnitState::TAM_WRAP;
+		else if (params=="mirror")
+			return TextureUnitState::TAM_MIRROR;
+		else if (params=="clamp")
+			return TextureUnitState::TAM_CLAMP;
+		else
+			logParseError("Bad tex_address_mode attribute, valid parameters are "
+				"'wrap', 'clamp' or 'mirror'.", context);
+		// default
+		return TextureUnitState::TAM_WRAP;
+	}
+    //-----------------------------------------------------------------------
     bool parseTexAddressMode(String& params, MaterialScriptContext& context)
     {
         StringUtil::toLowerCase(params);
-        if (params=="wrap")
-            context.textureUnit->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
-        else if (params=="mirror")
-            context.textureUnit->setTextureAddressingMode(TextureUnitState::TAM_MIRROR);
-        else if (params=="clamp")
-            context.textureUnit->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
-        else
-            logParseError("Bad tex_address_mode attribute, valid parameters are "
-                "'wrap', 'clamp' or 'mirror'.", context);
 
+        StringVector vecparams = StringUtil::split(params, " \t");
+        size_t numParams = vecparams.size();
+		
+		if (numParams > 3 || numParams < 1)
+		{
+			logParseError("Invalid number of parameters to tex_address_mode"
+					" - must be between 1 and 3", context);
+		}
+		if (numParams == 1)
+		{
+			// Single-parameter option
+			context.textureUnit->setTextureAddressingMode(
+				convTexAddressMode(vecparams[0], context));
+		}
+		else 
+		{
+			// 2-3 parameter option
+			TextureUnitState::UVWAddressingMode uvw;
+			uvw.u = convTexAddressMode(vecparams[0], context);
+			uvw.v = convTexAddressMode(vecparams[1], context);
+			if (numParams == 3)
+			{
+				// w
+				uvw.w = convTexAddressMode(vecparams[2], context);
+			}
+			else
+			{
+				uvw.w = TextureUnitState::TAM_WRAP;
+			}
+			context.textureUnit->setTextureAddressingMode(uvw);
+		}
         return false;
     }
     //-----------------------------------------------------------------------
@@ -2869,11 +2906,15 @@ namespace Ogre
             }
 
             //addressing mode
+			const TextureUnitState::UVWAddressingMode& uvw = 
+				pTex->getTextureAddressingMode();
             if (mDefaults || 
-                pTex->getTextureAddressingMode() != Ogre::TextureUnitState::TAM_WRAP)
+                uvw.u != Ogre::TextureUnitState::TAM_WRAP ||
+				uvw.v != Ogre::TextureUnitState::TAM_WRAP ||
+				uvw.w != Ogre::TextureUnitState::TAM_WRAP )
             {
                 writeAttribute(4, "tex_address_mode");
-                switch (pTex->getTextureAddressingMode())
+                switch (uvw.u)
                 {
                 case Ogre::TextureUnitState::TAM_CLAMP:
                     writeValue("clamp");
@@ -2885,6 +2926,30 @@ namespace Ogre
                     writeValue("wrap");
                     break;
                 }
+				switch (uvw.v)
+				{
+				case Ogre::TextureUnitState::TAM_CLAMP:
+					writeValue(" clamp");
+					break;
+				case Ogre::TextureUnitState::TAM_MIRROR:
+					writeValue(" mirror");
+					break;
+				case Ogre::TextureUnitState::TAM_WRAP:
+					writeValue(" wrap");
+					break;
+				}
+				switch (uvw.w)
+				{
+				case Ogre::TextureUnitState::TAM_CLAMP:
+					writeValue(" clamp");
+					break;
+				case Ogre::TextureUnitState::TAM_MIRROR:
+					writeValue(" mirror");
+					break;
+				case Ogre::TextureUnitState::TAM_WRAP:
+					writeValue(" wrap");
+					break;
+				}
             }
 
             //filtering

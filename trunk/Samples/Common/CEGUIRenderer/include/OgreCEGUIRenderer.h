@@ -435,6 +435,7 @@ private:
 	Ogre::SceneManager*			d_sceneMngr;		//!< The scene manager we are hooked into.
 	Ogre::LayerBlendModeEx		d_colourBlendMode;	//!< Controls colour blending mode used.
 	Ogre::LayerBlendModeEx		d_alphaBlendMode;	//!< Controls alpha blending mode used.
+	Ogre::TextureUnitState::UVWAddressingMode d_uvwAddressMode; 
 
 	CEGUIRQListener*			d_ourlistener;
 	bool						d_post_queue;		//!< true if we render after everything else in our queue.
