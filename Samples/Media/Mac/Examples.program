@@ -11,3 +11,19 @@ vertex_program Ogre/BasicVertexPrograms/AmbientOneTexture asm
 	syntax arbvp1
 }
 
+// Basic hardware skinning using one indexed weight per vertex
+vertex_program Ogre/HardwareSkinningOneWeight asm
+{
+   source Example_HardwareSkinningOneWeight.asm
+   syntax arbvp1
+   includes_skeletal_animation true
+}
+// Basic hardware skinning using four indexed weights per vertex
+vertex_program Ogre/HardwareSkinningFourWeights asm
+{
+   source Example_HardwareSkinningFourWeights.asm
+   syntax arbvp1
+   includes_skeletal_animation true
+}
+
+

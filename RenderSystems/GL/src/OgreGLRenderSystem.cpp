@@ -68,6 +68,9 @@ GL_BindProgramARB_Func glBindProgramARB_ptr;
 GL_ProgramStringARB_Func glProgramStringARB_ptr;
 GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 GL_ProgramParameter4fvNV_Func glProgramParameter4fvNV_ptr;
+GL_VertexAttribPointerARB_Func glVertexAttribPointerARB_ptr;
+GL_EnableVertexAttribArrayARB_Func glEnableVertexAttribArrayARB_ptr;
+GL_DisableVertexAttribArrayARB_Func glDisableVertexAttribArrayARB_ptr;
 GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
 GL_CombinerParameterfvNV_Func glCombinerParameterfvNV_ptr;
 GL_CombinerParameteriNV_Func glCombinerParameteriNV_ptr;
@@ -474,7 +477,13 @@ namespace Ogre {
             (GL_ProgramLocalParameter4fvARB_Func)mGLSupport->getProcAddress("glProgramLocalParameter4fvARB");
          glProgramParameter4fvNV_ptr =
             (GL_ProgramParameter4fvNV_Func)mGLSupport->getProcAddress("glProgramParameter4fvNV");
-        glCombinerStageParameterfvNV_ptr =
+         glVertexAttribPointerARB_ptr =
+             (GL_VertexAttribPointerARB_Func)mGLSupport->getProcAddress("glVertexAttribPointerARB");
+         glEnableVertexAttribArrayARB_ptr =
+             (GL_EnableVertexAttribArrayARB_Func)mGLSupport->getProcAddress("glEnableVertexAttribArrayARB");
+         glDisableVertexAttribArrayARB_ptr =
+             (GL_DisableVertexAttribArrayARB_Func)mGLSupport->getProcAddress("glDisableVertexAttribArrayARB");
+         glCombinerStageParameterfvNV_ptr =
             (GL_CombinerStageParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerStageParameterfvNV");
         glCombinerParameterfvNV_ptr = 
             (GL_CombinerParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerParameterfvNV");
@@ -1782,6 +1791,28 @@ namespace Ogre {
 					}
                 }
                 break;
+            case VES_BLEND_INDICES:
+                assert(mCapabilities->hasCapability(RSC_VERTEX_PROGRAM));
+                glVertexAttribPointerARB_ptr(
+                    7, // matrix indices are vertex attribute 7 (no def?)
+                    VertexElement::getTypeCount(elem->getType()), 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    GL_FALSE, // normalisation disabled
+                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                    pBufferData);
+                glEnableVertexAttribArrayARB_ptr(7);
+                break;
+            case VES_BLEND_WEIGHTS:
+                assert(mCapabilities->hasCapability(RSC_VERTEX_PROGRAM));
+                glVertexAttribPointerARB_ptr(
+                    1, // weights are vertex attribute 1 (no def?)
+                    VertexElement::getTypeCount(elem->getType()), 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    GL_FALSE, // normalisation disabled
+                    static_cast<GLsizei>(vertexBuffer->getVertexSize()), 
+                    pBufferData);
+                glEnableVertexAttribArrayARB_ptr(1);
+                break;
             default:
                 break;
             };
@@ -1850,6 +1881,11 @@ namespace Ogre {
         glDisableClientState( GL_NORMAL_ARRAY );
         glDisableClientState( GL_COLOR_ARRAY );
         glDisableClientState( GL_SECONDARY_COLOR_ARRAY );
+        if (mCapabilities->hasCapability(RSC_VERTEX_PROGRAM))
+        {
+            glDisableVertexAttribArrayARB_ptr(7); // disable indices
+            glDisableVertexAttribArrayARB_ptr(1); // disable weights
+        }
         glColor4f(1,1,1,1);
 
         // UnGuard

@@ -123,6 +123,18 @@ extern GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 typedef void (APIENTRY *GL_ProgramParameter4fvNV_Func)(GLenum, GLuint, const GLfloat *);
 extern GL_ProgramParameter4fvNV_Func glProgramParameter4fvNV_ptr;
 
+// Pointer to glVertexAttribPointerARB function
+typedef void (APIENTRY *GL_VertexAttribPointerARB_Func) (GLuint, GLint, GLenum, GLboolean, GLsizei, const GLvoid *);
+extern GL_VertexAttribPointerARB_Func glVertexAttribPointerARB_ptr;
+// Pointer to glEnableVertexAttribArrayARB function
+typedef void (APIENTRY *GL_EnableVertexAttribArrayARB_Func) (GLuint);
+extern GL_EnableVertexAttribArrayARB_Func glEnableVertexAttribArrayARB_ptr;
+// Pointer to glDisableVertexAttribArrayARB function
+typedef void (APIENTRY *GL_DisableVertexAttribArrayARB_Func) (GLuint);
+extern GL_DisableVertexAttribArrayARB_Func glDisableVertexAttribArrayARB_ptr;
+
+
+
 // Pointer to glCombinerStageParameterfvNV function
 typedef void (APIENTRY *GL_CombinerStageParameterfvNV_Func)(GLenum, GLenum, const GLfloat *);
 extern GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
