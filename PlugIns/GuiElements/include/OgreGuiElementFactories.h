@@ -2,9 +2,9 @@
 -----------------------------------------------------------------------------
 This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://www.stevestreeting.com/ogre/
+For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 Steven J. Streeting
+Copyright © 2000-2002 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under

@@ -83,32 +83,33 @@ CODE.str {
 Log</p><p align="left" class="MainHeader">v0.99e (25 October 2002)</p><p align="left">Changes 
 since 0.99d:</p><UL><LI>Overlay support (HUDs, menus)</LI><LI>Font rendering</LI><LI>Octree 
 scene manager added</LI><LI>XMLConverter allows conversion of .mesh and .skeleton 
-files to / from XML</LI><LI>DirectX 8 render system</LI><LI>Spline interpolation 
-of animation, both for skeletal animation and for animating any SceneNode</LI><LI>Automatic 
-camera tracking, spline animations can be used to script smooth camera sweeps</LI><LI>Many 
-bugfixes </LI></UL><p align="left" class="MainHeader">v0.99d (5 September 2002)</p><p align="left" class="MainContent">Changes 
-since 0.99c:</p><UL><LI>Full Linux support!</LI><LI>Debug memory manager tracing 
-memory leaks</LI><LI>Generic animation support via Animation, AnimationTrack and 
-KeyFrame classes</LI><LI>Skeletal animation on meshes, including multiple bone 
-assignments and animation blending</LI><LI>Updated Milkshape exporter, exports 
-skeleton and animations, can split the combined sequence into many separate animations</LI><LI>Codec 
-structure, used for loading images more generically and can be used for general 
-coding / decoding</LI><LI>Many bugfixes</LI><LI>New tutorials</LI></UL><p align="left" class="MainHeader">v0.99c 
-(19 July 2002)</p><P ALIGN="left">Changes since 0.99b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>New 
-MeshSerializer class for importing / exporting mesh data, to be used as the framework 
-for all future modelling tool exporters </LI><LI>Milkshape3D exporter provided, 
-which uses MeshSerializer to export to the new .mesh file format. This replaces 
-the 3ds2oof utility which along with the .oof is now deprecated, although .oof 
-models can still be loaded. In this version the Milkshape exporter only exports 
-static mesh data without bones or animation.</LI><LI>SceneNode now supports scaling 
-(uniform and non-uniform), including the option to inherit parent scale or just 
-use own</LI><LI>Completely new source code folder layout; should be more obvious 
-than the old one. All dependencies are now included in the code structure to avoid 
-having to distribute binary libraries</LI><LI>Boost added to the Dependencies 
-area</LI><LI>New tutorial added, kindly written by Nicholas Green</LI></UL><P>Work-in-progress:</P><UL><LI>Linux 
-makefiles now present, buildable with gcc 3+</LI><LI>SDL / OpenGL render system 
-implementation provided, not totally complete yet but almost there</LI><LI>Skeletal 
-animation classes (Animation, AnimationTrack, KeyFrame, Skeleton, Bone) </LI></UL><P>Bugfixes:</P><UL><LI>Math::NEG_INFINITY 
+files to XML (XML to .mesh and .skeleton is not finished yet)</LI><LI>DirectX 
+8 render system</LI><LI>Spline interpolation of animation, both for skeletal animation 
+and for animating any SceneNode</LI><LI>Automatic camera tracking, spline animations 
+can be used to script smooth camera sweeps</LI><LI>Many bugfixes </LI></UL><p align="left" class="MainHeader">v0.99d 
+(5 September 2002)</p><p align="left" class="MainContent">Changes since 0.99c:</p><UL><LI>Full 
+Linux support!</LI><LI>Debug memory manager tracing memory leaks</LI><LI>Generic 
+animation support via Animation, AnimationTrack and KeyFrame classes</LI><LI>Skeletal 
+animation on meshes, including multiple bone assignments and animation blending</LI><LI>Updated 
+Milkshape exporter, exports skeleton and animations, can split the combined sequence 
+into many separate animations</LI><LI>Codec structure, used for loading images 
+more generically and can be used for general coding / decoding</LI><LI>Many bugfixes</LI><LI>New 
+tutorials</LI></UL><p align="left" class="MainHeader">v0.99c (19 July 2002)</p><P ALIGN="left">Changes 
+since 0.99b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>New MeshSerializer class 
+for importing / exporting mesh data, to be used as the framework for all future 
+modelling tool exporters </LI><LI>Milkshape3D exporter provided, which uses MeshSerializer 
+to export to the new .mesh file format. This replaces the 3ds2oof utility which 
+along with the .oof is now deprecated, although .oof models can still be loaded. 
+In this version the Milkshape exporter only exports static mesh data without bones 
+or animation.</LI><LI>SceneNode now supports scaling (uniform and non-uniform), 
+including the option to inherit parent scale or just use own</LI><LI>Completely 
+new source code folder layout; should be more obvious than the old one. All dependencies 
+are now included in the code structure to avoid having to distribute binary libraries</LI><LI>Boost 
+added to the Dependencies area</LI><LI>New tutorial added, kindly written by Nicholas 
+Green</LI></UL><P>Work-in-progress:</P><UL><LI>Linux makefiles now present, buildable 
+with gcc 3+</LI><LI>SDL / OpenGL render system implementation provided, not totally 
+complete yet but almost there</LI><LI>Skeletal animation classes (Animation, AnimationTrack, 
+KeyFrame, Skeleton, Bone) </LI></UL><P>Bugfixes:</P><UL><LI>Math::NEG_INFINITY 
 now correctly defined</LI><LI>ColourValue getAsLongARGB alpha bug fixed</LI><LI>Problems 
 with camera positioning &amp; lookat behaviour when attached to a SceneNode fixed</LI></UL></BLOCKQUOTE><p align="left" class="MainHeader">v0.99b 
 (9 June 2002)</p><P ALIGN="left">Changes since 0.98b:</P><BLOCKQUOTE><P>Enhancements:</P><UL><LI>Particle 
