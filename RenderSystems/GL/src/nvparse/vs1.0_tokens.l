@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #ifdef _WIN32
 #include <io.h>
+#  ifdef __GNUC__
+#    include <sys/types.h>
+#    include <ctype.h>
+#  endif
 #else
 #include <sys/types.h>
 #include <ctype.h>

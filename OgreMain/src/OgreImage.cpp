@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSDDataChunk.h"
 
 namespace Ogre {
+    ImageCodec::~ImageCodec() {
+    }
 
     //-----------------------------------------------------------------------------
     Image::Image()

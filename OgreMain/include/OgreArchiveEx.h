@@ -79,7 +79,7 @@ namespace Ogre {
 
         /** Default destructor.
         */
-        virtual ~ArchiveEx() {}
+        virtual ~ArchiveEx();
 
         /** Loads the archive.
             @remarks

@@ -25,3 +25,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreArchiveEx.h"
+namespace Ogre {
+
+ArchiveEx::~ArchiveEx() {
+}
+
+}
