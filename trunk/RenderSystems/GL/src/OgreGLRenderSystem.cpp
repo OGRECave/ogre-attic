@@ -534,6 +534,8 @@ namespace Ogre {
     {
         GLfloat M[16];
         GLfloat T[16];
+        // Default to no extra auto texture matrix
+        mUseAutoTextureMatrix = false;
 
         glActiveTextureARB( GL_TEXTURE0 + stage );
 
@@ -579,28 +581,27 @@ namespace Ogre {
             break;
         case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
             
-            glMatrixMode( GL_TEXTURE );
-            glGetFloatv( GL_TEXTURE_MATRIX, T );
-            glMatrixMode( GL_MODELVIEW );
-            glGetFloatv( GL_MODELVIEW_MATRIX, M );
-
-            // Transpose 3x3 in order to invert matrix (rotation)
-            T[0] = M[0]; T[1] = M[4]; T[2] = M[8];
-            T[4] = M[1]; T[5] = M[5]; T[6] = M[9];
-            T[8] = M[2]; T[9] = M[6]; T[10] = M[10];
-
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
-
-            glMatrixMode(GL_TEXTURE);
-            glLoadMatrixf( T );
-            glMatrixMode(GL_MODELVIEW);
 
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             glEnable( GL_TEXTURE_GEN_R );
             glDisable( GL_TEXTURE_GEN_Q );
+
+            // We need an extra texture matrix here
+            mUseAutoTextureMatrix = true;
+            glGetFloatv( GL_MODELVIEW_MATRIX, M );
+
+            // Transpose 3x3 in order to invert matrix (rotation)
+            mAutoTextureMatrix[0] = M[0]; mAutoTextureMatrix[1] = M[4]; mAutoTextureMatrix[2] = M[8];
+            mAutoTextureMatrix[4] = M[1]; mAutoTextureMatrix[5] = M[5]; mAutoTextureMatrix[6] = M[9];
+            mAutoTextureMatrix[8] = M[2]; mAutoTextureMatrix[9] = M[6]; mAutoTextureMatrix[10] = M[10];
+            mAutoTextureMatrix[3] = mAutoTextureMatrix[7] = mAutoTextureMatrix[11] = 0.0f;
+            mAutoTextureMatrix[12] = mAutoTextureMatrix[13] = mAutoTextureMatrix[14] = 0.0f;
+            mAutoTextureMatrix[15] = 1.0f;
+
             break;
         case TEXCALC_ENVIRONMENT_MAP_NORMAL:
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
@@ -663,7 +664,21 @@ namespace Ogre {
 
         glActiveTextureARB(GL_TEXTURE0 + stage);
         glMatrixMode(GL_TEXTURE);
-        glLoadMatrixf(mat);
+
+        if (mUseAutoTextureMatrix)
+        {
+            // Load auto matrix in
+            glLoadMatrixf(mAutoTextureMatrix);
+            // Concat new matrix
+            glMultMatrixf(mat);
+
+        }
+        else
+        {
+            // Just load this matrix
+            glLoadMatrixf(mat);
+        }
+
         glMatrixMode(GL_MODELVIEW);
         glActiveTextureARB(GL_TEXTURE0);
     }
