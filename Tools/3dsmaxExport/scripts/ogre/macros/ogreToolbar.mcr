@@ -247,9 +247,9 @@ macroScript setOptions
 macroScript showSkeletonTools
 	category:"Ogre Tools"
 	internalCategory:"Ogre Tools"
-	buttonText:"Skeleton"
-	tooltip:"Skeleton Tools"
-	-- Icon:#("OgreTools",1)
+	buttonText:"Export"
+	tooltip:"Export to OGRE"
+	Icon:#("OgreTools",3)
 (
 
 	-- create a floater
