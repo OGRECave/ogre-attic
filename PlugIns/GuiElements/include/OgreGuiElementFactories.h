@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePopupMenuGuiElement.h"
 #include "OgreTextAreaGuiElement.h"
 #include "OgreTextBoxGuiElement.h"
+#include "OgreTTYGuiElement.h"
 
 
 // This file includes definitions for all the GuiElement factories provided with OGRE
@@ -197,6 +198,22 @@ namespace Ogre {
         }
     };
 
+    /** Factory for creating TextAreaGuiElement instances. */
+    class _OgreGuiElementExport TTYGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new TTYGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "TTY";
+            return name;
+        }
+    };
 
 }
 

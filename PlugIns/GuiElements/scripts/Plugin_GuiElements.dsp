@@ -148,6 +148,10 @@ SOURCE=..\src\OgreTextAreaGuiElement.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreTTYGuiElement.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreTextBoxGuiElement.cpp
 # End Source File
 # End Group
@@ -205,6 +209,10 @@ SOURCE=..\include\OgreTextAreaGuiElement.h
 # Begin Source File
 
 SOURCE=..\include\OgreTextBoxGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTTYGuiElement.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

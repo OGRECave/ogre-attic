@@ -161,6 +161,9 @@
 				RelativePath="..\src\OgreScrollBarGuiElement.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreTTYGuiElement.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreTextAreaGuiElement.cpp">
 			</File>
 			<File
@@ -199,6 +202,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreScrollBarGuiElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTTYGuiElement.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTextAreaGuiElement.h">
