@@ -67,7 +67,7 @@ namespace Ogre {
         Technique* technique;
         Pass* pass;
         TextureUnitState* textureUnit;
-        GpuProgram* program; // used when referencing a program, not when defining it
+        GpuProgramPtr program; // used when referencing a program, not when defining it
         bool isProgramShadowCaster; // when referencing, are we in context of shadow caster
         bool isProgramShadowReceiver; // when referencing, are we in context of shadow caster
         GpuProgramParametersSharedPtr programParams;
