@@ -77,7 +77,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short SceneNode::numAttachedObjects(void)
     {
-        return mObjects.size();
+        return static_cast< unsigned short >( mObjects.size() );
     }
     //-----------------------------------------------------------------------
     MovableObject* SceneNode::getAttachedObject(unsigned short index)
@@ -130,7 +130,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short SceneNode::numAttachedCameras(void)
     {
-        return mCameras.size();
+        return static_cast< unsigned short >( mCameras.size() );
     }
     //-----------------------------------------------------------------------
     Camera* SceneNode::getAttachedCamera(unsigned short index)
@@ -179,7 +179,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short SceneNode::numAttachedLights(void)
     {
-        return mLights.size();
+        return static_cast< unsigned short >( mLights.size() );
     }
     //-----------------------------------------------------------------------
     Light* SceneNode::getAttachedLight(unsigned short index)

@@ -105,7 +105,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short ParticleSystem::getNumEmitters(void) const
     {
-        return mEmitters.size();
+        return static_cast< unsigned short >( mEmitters.size() );
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::removeEmitter(unsigned short index)
@@ -142,7 +142,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned short ParticleSystem::getNumAffectors(void) const
     {
-        return mAffectors.size();
+        return static_cast< unsigned short >( mAffectors.size() );
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::removeAffector(unsigned short index)
@@ -251,7 +251,7 @@ namespace Ogre {
         if( requested.size() != mEmitters.size() )
             requested.resize( mEmitters.size() );
 
-        unsigned int totalRequested, emitterCount, i, emissionAllowed;
+        size_t totalRequested, emitterCount, i, emissionAllowed;
         ParticleEmitterList::iterator it, iEmitEnd;
         
         iEmitEnd = mEmitters.end();
@@ -325,14 +325,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::increasePool(unsigned int size)
     {
-        unsigned int oldSize = mBillboardPool.size();
+        size_t oldSize = mBillboardPool.size();
 
         // Increase size
         mBillboardPool.reserve(size);
         mBillboardPool.resize(size);
 
         // Create new particles
-        for (unsigned int i = oldSize; i < size; ++i)
+        for( size_t i = oldSize; i < size; i++ )
             mBillboardPool[i] = new Particle();
 
     }

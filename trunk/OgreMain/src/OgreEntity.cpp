@@ -91,7 +91,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned int Entity::getNumSubEntities(void)
     {
-        return mSubEntityList.size();
+        return static_cast< unsigned int >( mSubEntityList.size() );
     }
     //-----------------------------------------------------------------------
     Entity* Entity::clone( const String& newName)
