@@ -31,6 +31,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreIteratorWrappers.h"
 #include "OgreTechnique.h"
 #include "OgreLogManager.h"
+#include "OgreException.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 

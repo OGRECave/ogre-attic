@@ -25,11 +25,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 
+#include "OgreScrollTarget.h"
+
 #include "OgreScrollEvent.h"
 #include "OgreEventListeners.h"
-#include "OgreScrollTarget.h"	// HACK move higher
 #include "OgreEventMulticaster.h"	
-
 
 
 namespace Ogre {
