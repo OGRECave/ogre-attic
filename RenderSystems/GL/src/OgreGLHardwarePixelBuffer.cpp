@@ -43,26 +43,31 @@ GLHardwarePixelBuffer::GLHardwarePixelBuffer(GLenum target, GLuint id, GLint fac
 	
 	glBindTexture( mTarget, mTextureID );
 	
+	// Get face identifier
+	GLuint faceTarget = mTarget;
+	if(mTarget == GL_TEXTURE_CUBE_MAP)
+		faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
+	
 	// Get width
-	glGetTexLevelParameteriv(mTarget, level, GL_TEXTURE_WIDTH, &value);
+	glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_WIDTH, &value);
 	mWidth = value;
 	
 	// Get height
 	if(target == GL_TEXTURE_1D)
 		value = 1;	// Height always 1 for 1D textures
 	else
-		glGetTexLevelParameteriv(mTarget, level, GL_TEXTURE_HEIGHT, &value);
+		glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_HEIGHT, &value);
 	mHeight = value;
 	
 	// Get depth
 	if(target != GL_TEXTURE_3D)
 		value = 1; // Depth always 1 for non-3D textures
 	else
-		glGetTexLevelParameteriv(mTarget, level, GL_TEXTURE_DEPTH, &value);
+		glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_DEPTH, &value);
 	mDepth = value;
 	
 	// Get format
-	glGetTexLevelParameteriv(mTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &value);
+	glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &value);
 	int mGLInternalFormat = value;
 	mFormat = GLPixelUtil::getClosestOGREFormat(value);
 	
