@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCamera.h"
 #include "OgreMaterialManager.h"
 #include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
 namespace Ogre {
 
@@ -510,12 +511,19 @@ namespace Ogre {
 			Region* region = getRegion(qsm->worldBounds, true);
 			region->assign(qsm);
 		}
+		bool stencilShadows = false;
+		if (mCastShadows && 
+			(mOwner->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
+			mOwner->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE))
+		{
+			stencilShadows = true;
+		}
 
 		// Now tell each region to build itself
 		for (RegionMap::iterator ri = mRegionMap.begin(); 
 			ri != mRegionMap.end(); ++ri)
 		{
-			ri->second->build();
+			ri->second->build(stencilShadows);
 		}
 
 	}
@@ -614,7 +622,7 @@ namespace Ogre {
 		: mParent(parent), mName(name), mSceneMgr(mgr), mNode(0), 
 		mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f), 
 		mCurrentLod(0), mLightListUpdated(0), mBeyondFarDistance(false),
-		mEdgeList(0)
+		mEdgeList(0), mVertexProgramInUse(false)
 	{
 		// First LOD mandatory, and always from 0
 		mLodSquaredDistances.push_back(0.0f);
@@ -671,7 +679,7 @@ namespace Ogre {
 
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::Region::build(void)
+	void StaticGeometry::Region::build(bool stencilShadows)
 	{
 		// Create a node
 		mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(mName, 
@@ -693,13 +701,11 @@ namespace Ogre {
 				lodBucket->assign(*qi, lod);
 			}
 			// now build
-			lodBucket->build();
+			lodBucket->build(stencilShadows);
 		}
 
 		// Do we need to build an edge list?
-		if (mCastShadows && 
-			(mSceneMgr->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
-			mSceneMgr->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE))
+		if (stencilShadows)
 		{
 			EdgeListBuilder eb;
 			size_t vertexSet = 0;
@@ -713,9 +719,31 @@ namespace Ogre {
 					MaterialBucket* mat = matIt.getNext();
 					MaterialBucket::GeometryIterator geomIt = 
 						mat->getGeometryIterator();
+					// Check if we have vertex programs here
+					Technique* t = mat->getMaterial()->getBestTechnique();
+					if (t)
+					{
+						Pass* p = t->getPass(0);
+						if (p)
+						{
+							if (p->hasVertexProgram())
+							{
+								mVertexProgramInUse = true;
+							}
+						}
+					}
+
 					while (geomIt.hasMoreElements())
 					{
 						GeometryBucket* geom = geomIt.getNext();
+
+						// Check we're dealing with 16-bit indexes here
+						// Since stencil shadows can only deal with 16-bit
+						// More than that and stencil is probably too CPU-heavy
+						// in any case
+						assert(geom->getIndexData()->indexBuffer->getType() 
+							== HardwareIndexBuffer::IT_16BIT && 
+							"Only 16-bit indexes allowed when using stencil shadows");
 						eb.addVertexData(geom->getVertexData());
 						eb.addIndexData(geom->getIndexData(), vertexSet++);
 					}
@@ -816,11 +844,74 @@ namespace Ogre {
 	StaticGeometry::Region::getShadowVolumeRenderableIterator(
 		ShadowTechnique shadowTechnique, const Light* light, 
 		HardwareIndexBufferSharedPtr* indexBuffer, 
-		bool extrudeVertices, Real extrusionDistance, unsigned long flags)
+		bool extrude, Real extrusionDistance, unsigned long flags)
 	{
-		// TODO
-		return MovableObject::getShadowVolumeRenderableIterator(shadowTechnique, 
-			light, indexBuffer, extrudeVertices, extrusionDistance, flags);
+
+		assert(indexBuffer && "Only external index buffers are supported right now");
+		assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
+			"Only 16-bit indexes supported for now");
+
+		// Calculate the object space light details
+		Vector4 lightPos = light->getAs4DVector();
+		Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+		lightPos =  world2Obj * lightPos; 
+
+		// We need to search the edge list for silhouette edges
+		if (!mEdgeList)
+		{
+			Except(Exception::ERR_INVALIDPARAMS, 
+				"You enabled stencil shadows after the buid process!",
+				"StaticGeometry::Region::getShadowVolumeRenderableIterator");
+		}
+
+		// Init shadow renderable list if required
+		bool init = mShadowRenderables.empty();
+
+		EdgeData::EdgeGroupList::iterator egi;
+		ShadowRenderableList::iterator si, siend;
+		RegionShadowRenderable* esr = 0;
+		if (init)
+			mShadowRenderables.resize(mEdgeList->edgeGroups.size());
+
+		bool updatedSharedGeomNormals = false;
+		siend = mShadowRenderables.end();
+		egi = mEdgeList->edgeGroups.begin();
+		for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
+		{
+			if (init)
+			{
+				// Create a new renderable, create a separate light cap if
+				// we're using a vertex program (either for this model, or
+				// for extruding the shadow volume) since otherwise we can 
+				// get depth-fighting on the light cap
+
+				*si = new RegionShadowRenderable(this, indexBuffer, 
+					egi->vertexData, mVertexProgramInUse || !extrude);
+			}
+			// Get shadow renderable
+			esr = static_cast<RegionShadowRenderable*>(*si);
+			HardwareVertexBufferSharedPtr esrPositionBuffer = esr->getPositionBuffer();
+			// Extrude vertices in software if required
+			if (extrude)
+			{
+				extrudeVertices(esrPositionBuffer, 
+					egi->vertexData->vertexCount, 
+					lightPos, extrusionDistance);
+
+			}
+
+		}
+		// Calc triangle light facing
+		updateEdgeListLightFacing(mEdgeList, lightPos);
+
+		// Generate indexes and update renderables
+		generateShadowVolume(mEdgeList, *indexBuffer, light,
+			mShadowRenderables, flags);
+
+
+		return ShadowRenderableListIterator(mShadowRenderables.begin(), mShadowRenderables.end());
+
+
 	}
 	//--------------------------------------------------------------------------
 	EdgeData* StaticGeometry::Region::getEdgeList(void)
@@ -843,6 +934,86 @@ namespace Ogre {
 			(*i)->dump(of);
 		}
 		of << "--------------------------" << std::endl;
+	}
+	//--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	StaticGeometry::Region::RegionShadowRenderable::RegionShadowRenderable(
+		Region* parent, HardwareIndexBufferSharedPtr* indexBuffer, 
+		const VertexData* vertexData, bool createSeparateLightCap, 
+		bool isLightCap)
+		: mParent(parent)
+	{
+		// Initialise render op
+		mRenderOp.indexData = new IndexData();
+		mRenderOp.indexData->indexBuffer = *indexBuffer;
+		mRenderOp.indexData->indexStart = 0;
+		// index start and count are sorted out later
+
+		// Create vertex data which just references position component (and 2 component)
+		mRenderOp.vertexData = new VertexData();
+		mRenderOp.vertexData->vertexDeclaration = 
+			HardwareBufferManager::getSingleton().createVertexDeclaration();
+		mRenderOp.vertexData->vertexBufferBinding = 
+			HardwareBufferManager::getSingleton().createVertexBufferBinding();
+		// Map in position data
+		mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
+		ushort origPosBind = 
+			vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(origPosBind);
+		mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
+		// Map in w-coord buffer (if present)
+		if(!vertexData->hardwareShadowVolWBuffer.isNull())
+		{
+			mRenderOp.vertexData->vertexDeclaration->addElement(1,0,VET_FLOAT1, VES_TEXTURE_COORDINATES, 0);
+			mWBuffer = vertexData->hardwareShadowVolWBuffer;
+			mRenderOp.vertexData->vertexBufferBinding->setBinding(1, mWBuffer);
+		}
+		// Use same vertex start as input
+		mRenderOp.vertexData->vertexStart = vertexData->vertexStart;
+
+		if (isLightCap)
+		{
+			// Use original vertex count, no extrusion
+			mRenderOp.vertexData->vertexCount = vertexData->vertexCount;
+		}
+		else
+		{
+			// Vertex count must take into account the doubling of the buffer,
+			// because second half of the buffer is the extruded copy
+			mRenderOp.vertexData->vertexCount = 
+				vertexData->vertexCount * 2;
+			if (createSeparateLightCap)
+			{
+				// Create child light cap
+				mLightCap = new RegionShadowRenderable(parent, 
+					indexBuffer, vertexData, false, true);
+			}
+		}
+	}
+	//--------------------------------------------------------------------------
+	StaticGeometry::Region::RegionShadowRenderable::~RegionShadowRenderable()
+	{
+		delete mRenderOp.indexData;
+		delete mRenderOp.vertexData;
+	}
+	//--------------------------------------------------------------------------
+	void StaticGeometry::Region::RegionShadowRenderable::getWorldTransforms(
+		Matrix4* xform) const
+	{
+		// pretransformed
+		*xform = mParent->_getParentNodeFullTransform();
+	}
+	//--------------------------------------------------------------------------
+	const Quaternion& 
+	StaticGeometry::Region::RegionShadowRenderable::getWorldOrientation(void) const
+	{
+		return mParent->getParentNode()->_getDerivedOrientation();
+	}
+	//--------------------------------------------------------------------------
+	const Vector3& 
+	StaticGeometry::Region::RegionShadowRenderable::getWorldPosition(void) const
+	{
+		return mParent->getCentre();
 	}
 	//--------------------------------------------------------------------------
 	//--------------------------------------------------------------------------
@@ -904,13 +1075,13 @@ namespace Ogre {
 		mbucket->assign(q);
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::LODBucket::build(void)
+	void StaticGeometry::LODBucket::build(bool stencilShadows)
 	{
 		// Just pass this on to child buckets
 		for (MaterialBucketMap::iterator i = mMaterialBucketMap.begin(); 
 			i != mMaterialBucketMap.end(); ++i)
 		{
-			i->second->build();
+			i->second->build(stencilShadows);
 		}
 	}
 	//--------------------------------------------------------------------------
@@ -1000,7 +1171,7 @@ namespace Ogre {
 		}
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::MaterialBucket::build(void)
+	void StaticGeometry::MaterialBucket::build(bool stencilShadows)
 	{
 		mMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
 		if (mMaterial.isNull())
@@ -1014,7 +1185,7 @@ namespace Ogre {
 		for (GeometryBucketList::iterator i = mGeometryBucketList.begin(); 
 			i != mGeometryBucketList.end(); ++i)
 		{
-			(*i)->build();
+			(*i)->build(stencilShadows);
 		}
 	}
 	//--------------------------------------------------------------------------
@@ -1181,7 +1352,7 @@ namespace Ogre {
 		return true;
 	}
 	//--------------------------------------------------------------------------
-	void StaticGeometry::GeometryBucket::build(void)
+	void StaticGeometry::GeometryBucket::build(bool stencilShadows)
 	{
 		// Ok, here's where we transfer the vertices and indexes to the shared
 		// buffers
@@ -1207,18 +1378,31 @@ namespace Ogre {
 		}
 		// create all vertex buffers, and lock
 		ushort b;
+		ushort posBufferIdx = dcl->findElementBySemantic(VES_POSITION)->getSource();
+
 		std::vector<uchar*> destBufferLocks;
 		std::vector<VertexDeclaration::VertexElementList> bufferElements;
 		for (b = 0; b < binds->getBufferCount(); ++b)
 		{
+			size_t vertexCount = mVertexData->vertexCount;
+			// Need to double the vertex count for the position buffer 
+			// if we're doing stencil shadows
+			if (stencilShadows && b == posBufferIdx)
+			{
+				vertexCount = vertexCount * 2;
+				assert(vertexCount <= mMaxVertices && 
+					"Index range exceeded when using stencil shadows, consider "
+					"reducing your region size or reducing poly count");
+			}
 			HardwareVertexBufferSharedPtr vbuf = 
 				HardwareBufferManager::getSingleton().createVertexBuffer(
 					dcl->getVertexSize(b),
-					mVertexData->vertexCount,
+					vertexCount,
 					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 			binds->setBinding(b, vbuf);
-			destBufferLocks.push_back(static_cast<uchar*>(
-				vbuf->lock(HardwareBuffer::HBL_DISCARD)));
+			uchar* pLock = static_cast<uchar*>(
+				vbuf->lock(HardwareBuffer::HBL_DISCARD));
+			destBufferLocks.push_back(pLock);
 			// Pre-cache vertex elements per buffer
 			bufferElements.push_back(dcl->findElementsBySource(b));
 		}
@@ -1267,11 +1451,12 @@ namespace Ogre {
 			{
 				// lock source
 				HardwareVertexBufferSharedPtr srcBuf = 
-					srcBinds->getBuffer(0);
+					srcBinds->getBuffer(b);
 				uchar* pSrcBase = static_cast<uchar*>(
 					srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
 				// Get buffer lock pointer, we'll update this later
 				uchar* pDstBase = destBufferLocks[b];
+				size_t bufInc = srcBuf->getVertexSize();
 				
 				// Iterate over vertices
 				Real *pSrcReal, *pDstReal;
@@ -1315,14 +1500,15 @@ namespace Ogre {
 						default:
 							// just raw copy
 							memcpy(pDstReal, pSrcReal, 
-									VertexElement::getTypeSize(elem.getType())); 							break;
+									VertexElement::getTypeSize(elem.getType())); 
+							break;
 						};
 					
 					}
 
 					// Increment both pointers
-					pDstBase += srcBuf->getVertexSize();
-					pSrcBase += srcBuf->getVertexSize();
+					pDstBase += bufInc;
+					pSrcBase += bufInc;
 					
 				}
 
@@ -1339,6 +1525,42 @@ namespace Ogre {
 		for (b = 0; b < binds->getBufferCount(); ++b)
 		{
 			binds->getBuffer(b)->unlock();
+		}
+
+		// If we're dealing with stencil shadows, copy the position data from
+		// the early half of the buffer to the latter part 
+		if (stencilShadows)
+		{
+			HardwareVertexBufferSharedPtr buf = binds->getBuffer(posBufferIdx);
+			void* pSrc = buf->lock(HardwareBuffer::HBL_NORMAL);
+			// Point dest at second half (remember vertexcount is original count)
+			void* pDest = static_cast<uchar*>(pSrc) + 
+				buf->getVertexSize() * mVertexData->vertexCount;
+			memcpy(pDest, pSrc, buf->getVertexSize() * mVertexData->vertexCount);
+			buf->unlock();
+
+			// Also set up hardware W buffer if appropriate
+			RenderSystem* rend = Root::getSingleton().getRenderSystem();
+			if (rend && rend->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+			{
+				buf = HardwareBufferManager::getSingleton().createVertexBuffer(
+					sizeof(Real), mVertexData->vertexCount * 2, 
+					HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+				// Fill the first half with 1.0, second half with 0.0
+				Real *pW = static_cast<Real*>(
+					buf->lock(HardwareBuffer::HBL_DISCARD));
+				size_t v;
+				for (v = 0; v < mVertexData->vertexCount; ++v)
+				{
+					*pW++ = 1.0f;
+				}
+				for (v = 0; v < mVertexData->vertexCount; ++v)
+				{
+					*pW++ = 0.0f;
+				}
+				buf->unlock();
+				mVertexData->hardwareShadowVolWBuffer = buf;
+			}
 		}
 
 	}
