@@ -75,8 +75,11 @@ namespace Ogre {
         */
         virtual ~MaterialManager();
 
-
-        /** Parses a Material script file passed as a chunk.
+		/** Intialises the material manager, which also triggers it to 
+		 * parse all available .program and .material scripts. */
+		void initialise(void);
+        
+		/** Parses a Material script file passed as a chunk.
         */
         void parseScript(DataChunk& chunk);
 

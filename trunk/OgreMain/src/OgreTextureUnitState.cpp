@@ -67,6 +67,7 @@ namespace Ogre {
         mAnimController = 0;
         mCubic = false;
         mIs3D = false;
+        mTextureCoordSetIndex = 0;
 
     }
 
@@ -109,6 +110,7 @@ namespace Ogre {
 
         mCubic = false;
         mIs3D = false;
+        mTextureCoordSetIndex = 0;
 
         setTextureName(texName);
         setTextureCoordSet(texCoordSet);
@@ -734,7 +736,6 @@ namespace Ogre {
                 effect.frequency, effect.phase, effect.amplitude);
             break;
 	case ET_ENVIRONMENT_MAP:
-	case ET_BUMP_MAP:
 	    break;
         }
     }

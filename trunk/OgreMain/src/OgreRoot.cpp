@@ -441,8 +441,8 @@ namespace Ogre {
 
         mAutoWindow =  mActiveRenderer->initialise(autoCreateWindow);
 
-        // Parse all material scripts
-        mMaterialManager->parseAllSources();
+        // Initialise material manager
+		mMaterialManager->initialise();
 
         if (autoCreateWindow)
         {

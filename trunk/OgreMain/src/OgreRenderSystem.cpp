@@ -304,7 +304,6 @@ namespace Ogre {
                     anyCalcs = true;
                 }
                 break;
-	    case TextureUnitState::ET_BUMP_MAP:
 	    case TextureUnitState::ET_SCROLL:
 	    case TextureUnitState::ET_ROTATE:
 	    case TextureUnitState::ET_TRANSFORM:

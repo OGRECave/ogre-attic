@@ -782,7 +782,6 @@ namespace Ogre {
                 effect.frequency, effect.phase, effect.amplitude);
             break;
 	case ET_ENVIRONMENT_MAP:
-	case ET_BUMP_MAP:
 	    break;
         }
     }
