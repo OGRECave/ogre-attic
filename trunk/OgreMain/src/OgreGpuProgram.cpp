@@ -88,7 +88,8 @@ namespace Ogre
     void GpuProgramParameters::setConstant(size_t index, const Real *val, size_t count)
     {
         // Expand if required
-        mRealConstants.reserve(index + count);
+        if (mRealConstants.size() < index + count)
+        	mRealConstants.resize(index + count);
 
         // Copy directly in since vector is a contiguous container
         memcpy(&mRealConstants[index], val, sizeof(Real)*count);
@@ -98,7 +99,8 @@ namespace Ogre
     void GpuProgramParameters::setConstant(size_t index, const int *val, size_t count)
     {
         // Expand if required
-        mIntConstants.reserve(index + count);
+        if (mIntConstants.size() < index + count)
+			mIntConstants.resize(index + count);
 
         // Copy directly in since vector is a contiguous container
         memcpy(&mIntConstants[index], val, sizeof(int)*count);

@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9HardwareIndexBuffer.h"
 #include "OgreD3D9HardwareVertexBuffer.h"
 #include "OgreD3D9VertexDeclaration.h"
+#include "OgreD3D9GpuProgram.h"
 
 
 namespace Ogre 
@@ -1831,17 +1832,116 @@ namespace Ogre
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::bindGpuProgram(GpuProgram* prg)
     {
-        // TODO
+        HRESULT hr;
+        switch (prg->getType())
+        {
+        case GPT_VERTEX_PROGRAM:
+            hr = mpD3DDevice->SetVertexShader(
+                static_cast<D3D9GpuVertexProgram*>(prg)->getVertexShader());
+            if (FAILED(hr))
+            {
+                Except(hr, "Error calling SetVertexShader", "D3D9RenderSystem::bindGpuProgram");
+            }
+            break;
+        case GPT_FRAGMENT_PROGRAM:
+            hr = mpD3DDevice->SetPixelShader(
+                static_cast<D3D9GpuFragmentProgram*>(prg)->getPixelShader());
+            if (FAILED(hr))
+            {
+                Except(hr, "Error calling SetPixelShader", "D3D9RenderSystem::bindGpuProgram");
+            }
+            break;
+        };
+
     }
 	//---------------------------------------------------------------------
     void D3D9RenderSystem::unbindGpuProgram(GpuProgramType gptype)
     {
-        // TODO
+        HRESULT hr;
+        switch(gptype)
+        {
+        case GPT_VERTEX_PROGRAM:
+            hr = mpD3DDevice->SetVertexShader(NULL);
+            if (FAILED(hr))
+            {
+                Except(hr, "Error resetting SetVertexShader to NULL", 
+                    "D3D9RenderSystem::unbindGpuProgram");
+            }
+            break;
+        case GPT_FRAGMENT_PROGRAM:
+            hr = mpD3DDevice->SetPixelShader(NULL);
+            if (FAILED(hr))
+            {
+                Except(hr, "Error resetting SetPixelShader to NULL", 
+                    "D3D9RenderSystem::unbindGpuProgram");
+            }
+            break;
+        };
     }
 	//---------------------------------------------------------------------
-    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramParameters* params)
+    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params)
     {
-        // TODO
+        HRESULT hr;
+        // D3D can only accept constant parameters in multiples of 4
+        assert(params->getRealConstantCount() % 4 == 0 &&
+            params->getIntConstantCount() % 4 == 0 &&
+            "D3D can only accept shader parameters in multiples of 4 items");
+
+        switch(gptype)
+        {
+        case GPT_VERTEX_PROGRAM:
+            // Bind floats
+            if (params->hasRealConstantParams())
+            {
+                if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
+                    0, // Load all params in bulk from start
+                    params->getRealConstantPointer(), 
+                    static_cast<UINT>(params->getRealConstantCount() * 0.25)))) // multiples of 4 in D3D
+                {
+                    Except(hr, "Unable to upload shader float parameters", 
+                        "D3D9RenderSystem::bindGpuProgramParameters");
+                }
+            }
+            // Bind ints
+            if (params->hasIntConstantParams())
+            {
+                if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
+                    0, // Load all params in bulk from start
+                    params->getIntConstantPointer(), 
+                    static_cast<UINT>(params->getIntConstantCount() * 0.25)))) // multiples of 4 in D3D
+                {
+                    Except(hr, "Unable to upload shader int parameters", 
+                        "D3D9RenderSystem::bindGpuProgramParameters");
+                }
+            }
+            break;
+        case GPT_FRAGMENT_PROGRAM:
+            // Bind floats
+            if (params->hasRealConstantParams())
+            {
+                if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
+                    0, // Load all params in bulk from start
+                    params->getRealConstantPointer(), 
+                    static_cast<UINT>(params->getRealConstantCount() * 0.25)))) // multiples of 4 in D3D
+                {
+                    Except(hr, "Unable to upload shader float parameters", 
+                        "D3D9RenderSystem::bindGpuProgramParameters");
+                }
+            }
+            // Bind ints
+            if (params->hasIntConstantParams())
+            {
+                if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
+                    0, // Load all params in bulk from start
+                    params->getIntConstantPointer(), 
+                    static_cast<UINT>(params->getIntConstantCount() * 0.25)))) // multiples of 4 in D3D
+                {
+                    Except(hr, "Unable to upload shader int parameters", 
+                        "D3D9RenderSystem::bindGpuProgramParameters");
+                }
+            }
+            break;
+        };
     }
 
 }

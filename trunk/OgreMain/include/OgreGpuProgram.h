@@ -166,6 +166,10 @@ namespace Ogre {
         virtual size_t getRealConstantCount(void) { return mRealConstants.size(); }
         /// Gets the number of int constants that have been set
         virtual size_t getIntConstantCount(void) { return mIntConstants.size(); }
+        /// Returns true if there are any Real constants contained here
+        virtual bool hasRealConstantParams(void) { return !(mRealConstants.empty()); }
+        /// Returns true if there are any int constants contained here
+        virtual bool hasIntConstantParams(void) { return !(mIntConstants.empty()); }
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances
@@ -208,7 +212,8 @@ namespace Ogre {
         virtual const String& getSource(void) const { return mSource; }
         /// Sets the parameters to be used for this program
         virtual void setParameters(const GpuProgramParametersSharedPtr params) {mParams = params;}
-
+        /// Get the program type
+        virtual GpuProgramType getType(void) const { return mType; }
         /// Gets the parameters to be used for this program
         virtual GpuProgramParametersSharedPtr getParameters(void) {return mParams;}
 
