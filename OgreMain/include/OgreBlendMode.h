@@ -208,7 +208,9 @@ namespace Ogre {
         /// Make the object transparent based on the colour values in the texture (brighter = more opaque)
         SBT_TRANSPARENT_COLOUR,
         /// Add the texture values to the existing scene content
-        SBT_ADD
+        SBT_ADD,
+		/// Multiply the 2 colours together
+		SBT_MODULATE
         // TODO : more
     };
 

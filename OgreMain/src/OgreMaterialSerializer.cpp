@@ -260,7 +260,7 @@ namespace Ogre
             if (vecparams[0] == "add")
                 stype = SBT_ADD;
             else if (vecparams[0] == "modulate")
-                stype = SBT_TRANSPARENT_COLOUR;
+                stype = SBT_MODULATE;
             else if (vecparams[0] == "alpha_blend")
                 stype = SBT_TRANSPARENT_ALPHA;
             else

@@ -685,7 +685,7 @@ protected:
         pMesh->touch();
     }
 
-    void testBug(void)
+    void stressTestStaticGeometry(void)
     {
 
 		// Set ambient light
@@ -737,6 +737,38 @@ protected:
         
 
     }
+
+	void testBug()
+	{
+		// Full white diffuse lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.0f, 0.0f, 0.0f));
+		Light* l = mSceneMgr->createLight("MainLight");
+		l->setType(Light::LT_DIRECTIONAL);
+		Vector3 dir(1, -1, -1.5);
+		dir.normalise();
+		l->setDirection(dir);
+		l->setDiffuseColour(1.0, 1.0, 1.0);
+
+		MaterialPtr m = MaterialManager::getSingleton().create("testbug", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+		Pass *p1, *p2, *p3;
+		p1 = m->getTechnique(0)->getPass(0);
+		p2 = m->getTechnique(0)->createPass();
+		p3 = m->getTechnique(0)->createPass();
+
+		p1->setDiffuse(ColourValue(1, 0, 0));
+		p2->setDiffuse(ColourValue(0, 0, 1));
+		p2->setSceneBlending(SBT_MODULATE);
+		p3->setDiffuse(ColourValue(0, 1, 0));
+		p3->setSceneBlending(SBT_MODULATE);
+		m->load();
+
+		Entity* e = mSceneMgr->createEntity("1", "ogrehead.mesh");
+		e->setMaterialName("testbug");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+
+	}
 
     void testCthNewBlending(void)
     {
@@ -2254,7 +2286,6 @@ protected:
         //testBsp();
         //testAlpha();
         //testAnimation();
-        //testBug();
 
         //testGpuPrograms();
         //testMultiViewports();
