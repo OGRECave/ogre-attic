@@ -29,6 +29,7 @@
 // STL algorithms & functions
 #include <algorithm>
 #include <functional>
+#include <limits>
 
 // C++ Stream stuff
 #include <fstream>
