@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
+#include "OgreRenderTarget.h"
 #include "OgreRenderWindow.h"
 #include "OgreMeshManager.h"
 #include "OgreMaterial.h"
@@ -157,6 +158,41 @@ namespace Ogre {
     {
         mRenderWindows.erase(name);
 
+    }
+
+    //---------------------------------------------------------------------------------------------
+    void RenderSystem::attachRenderTarget( RenderTarget &target )
+    {
+        mRenderTargets.insert( RenderTargetMap::value_type( target.getName(), &target ) );
+    }
+
+    //---------------------------------------------------------------------------------------------
+    RenderTarget * RenderSystem::getRenderTarget( const String &name )
+    {
+        RenderTargetMap::iterator it = mRenderTargets.find( name );
+        RenderTarget *ret = NULL;
+
+        if( it != mRenderTargets.end() )
+        {
+            ret = it->second;
+        }
+
+        return ret;
+    }
+
+    //---------------------------------------------------------------------------------------------
+    RenderTarget * RenderSystem::detachRenderTarget( const String &name )
+    {
+        RenderTargetMap::iterator it = mRenderTargets.find( name );
+        RenderTarget *ret = NULL;
+
+        if( it != mRenderTargets.end() )
+        {
+            ret = it->second;
+            mRenderTargets.erase( it );
+        }
+
+        return ret;
     }
     //-----------------------------------------------------------------------
     Viewport* RenderSystem::_getViewport(void)

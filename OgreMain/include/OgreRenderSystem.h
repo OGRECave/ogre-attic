@@ -36,10 +36,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderOperation.h"
 #include "OgreFrameListener.h"
 #include "OgreConfigOptionMap.h"
-#include "OgreRenderWindowMap.h"
 
 namespace Ogre
 {
+
+    typedef std::map< String, RenderWindow * > RenderWindowMap;
+    typedef std::map< String, RenderTarget * > RenderTargetMap;
 
     class TextureManager;
     /// Enum describing the ways to generate texture coordinates
@@ -293,6 +295,19 @@ namespace Ogre
         /** Destroys a rendering window.
         */
         virtual void destroyRenderWindow(RenderWindow* pWin) = 0;
+        /** Attaches the passed render target to the render system.
+        */
+        virtual void attachRenderTarget( RenderTarget &target );
+        /** Returns a pointer to the render target with the passed name, or NULL if that
+            render target cannot be found.
+        */
+        virtual RenderTarget * getRenderTarget( const String &name );
+        /** Detaches the render target with the passed name from the render system and
+            returns a pointer to it.
+            @note
+                If the render target cannot be found, NULL is returned.
+        */
+        virtual RenderTarget * detachRenderTarget( const String &name );
 
         /** Destroys a named rendering window.
         */
@@ -775,9 +790,10 @@ namespace Ogre
         // Stored options
         ConfigOptionMap mOptions;
 
-
         // Available rendering targets
         RenderWindowMap mRenderWindows;
+        ///
+        RenderTargetMap mRenderTargets;
 
         // Texture manager
         // A concrete class of this will be created and
@@ -804,18 +820,7 @@ namespace Ogre
         /// Temporary buffer for vertex blending in software
         std::vector<Real> mTempVertexBlendBuffer;
         std::vector<Real> mTempNormalBlendBuffer;
-
-
-
-
-
-
     };
-
-
-
-
 }
-
 
 #endif

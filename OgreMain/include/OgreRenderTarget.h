@@ -211,6 +211,14 @@ namespace Ogre {
         /** Removes all listeners from this instance. */
         virtual void removeAllListeners(void);
 
+        /** Used to retrieve or set the active state of the render target.
+        */
+        virtual bool isActive() const;
+
+        /** Used to retrieve the active state of the render target.
+        */
+        virtual void setActive( bool state );
+
     protected:
         /// The name of this target
         String mName;
@@ -228,6 +236,8 @@ namespace Ogre {
         float mWorstFPS;
         unsigned int mTris;
         String mDebugText;
+
+        bool mActive;
 
         void updateStats(void);
 
