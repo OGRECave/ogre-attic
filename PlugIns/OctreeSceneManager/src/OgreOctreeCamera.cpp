@@ -23,6 +23,9 @@ email                : janders@users.sf.net
 
 namespace Ogre
 {
+#define POSITION_BINDING 0
+#define COLOUR_BINDING 1
+
 unsigned long red = 0xFF0000FF;
 
 unsigned short OctreeCamera::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,       //back
@@ -36,10 +39,42 @@ OctreeCamera::OctreeCamera( String name, SceneManager* sm ) : Camera( name, sm )
 {
     mMaterial = sm->getMaterial("BaseWhite");
 
+    mVertexData = new VertexData;
+    mVertexData->vertexStart = 0;
+    mVertexData->vertexCount = 8;
+
+    mIndexData = new IndexData;
+    mIndexData->indexStart = 0;
+    mIndexData->indexCount = 24;
+
+    VertexDeclaration* decl = mVertexData->vertexDeclaration;
+    VertexBufferBinding* bind = mVertexData->vertexBufferBinding;
+
+    decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+    decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
+
+    HardwareVertexBufferSharedPtr vbuf =
+        HardwareBufferManager::getSingleton().createVertexBuffer(
+            decl->getVertexSize(POSITION_BINDING),
+            mVertexData->vertexCount,
+            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+    bind->setBinding(POSITION_BINDING, vbuf);
+
+    mIndexData->indexBuffer = 
+        HardwareBufferManager::getSingleton().createIndexBuffer(
+            HardwareIndexBuffer::IT_16BIT,
+            24, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                                                                      
 }
 
 OctreeCamera::~OctreeCamera()
-{}
+{
+    if(mVertexData)
+        delete mVertexData;
+    if(mIndexData)
+        delete mIndexData;
+}
 
 OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &bound )
 {
@@ -95,7 +130,7 @@ OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &boun
 
 }
 
-void OctreeCamera::getRenderOperation( RenderOperation& rend )
+void OctreeCamera::getRenderOperation( RenderOperation& op )
 {
     std::cerr << "OctreeCamera::getRenderOperation\n";
 
@@ -126,11 +161,25 @@ void OctreeCamera::getRenderOperation( RenderOperation& rend )
 
     updateView();
 
-    /* TODO
+    HardwareVertexBufferSharedPtr vbuf = 
+        mVertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+
+    vbuf->writeData(0, 8 * sizeof(Real), mCorners);
+
+    vbuf = mVertexData->vertexBufferBinding->getBuffer(COLOUR_BINDING);
+    vbuf->writeData(0, 8 * sizeof(RGBA), mColors);
+
+    mIndexData->indexBuffer->writeData(0, 24 * sizeof(unsigned short), mIndexes);
+
+    op.useIndexes = true;
+    op.operationType = RenderOperation::OT_LINE_LIST;
+    op.vertexData = mVertexData;
+    op.indexData = mIndexData;
+
+    /* 
     rend.useIndexes = true;
     rend.numTextureCoordSets = 0; // no textures
     rend.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-    rend.operationType = LegacyRenderOperation::OT_LINE_LIST;
     rend.numVertices = 8;
     rend.numIndexes = 24;
 

@@ -19,6 +19,7 @@ email                : janders@users.sf.net
 #define OCTREECAMERA_H
 
 #include <OgreCamera.h>
+#include <OgreHardwareBufferManager.h>
 #include <OgreSimpleRenderable.h>
 
 /**
@@ -83,6 +84,9 @@ protected:
 
     Material* mMaterial;
 
+private:
+    VertexData* mVertexData;
+    IndexData* mIndexData;
 };
 
 }
