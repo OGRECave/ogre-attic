@@ -136,6 +136,15 @@ namespace Ogre {
 
         bsp_vis_t* mVis;
 
+        bsp_brush_t* mBrushes;
+        int mNumBrushes;
+
+        bsp_brushside_t* mBrushSides;
+        int mNumBrushSides;
+
+        int* mLeafBrushes;      // Groups of indexes to brushes by leaf
+        int mNumLeafBrushes;
+
 
 
     };

@@ -229,4 +229,22 @@ struct bsp_header_t {
     int version;
     bsp_lump_entry_t lumps[17];
 };
+
+//
+// Brushes sides in BSP tree
+//
+struct bsp_brushside_t {
+	bsp_plane_t *plane;
+	int content;			// ¿?shader¿?
+};
+
+
+//
+// Brushes in BSP tree
+//
+struct bsp_brush_t {
+	bsp_brushside_t *firstside;
+	int numsides;
+	int contents;
+};
 #endif

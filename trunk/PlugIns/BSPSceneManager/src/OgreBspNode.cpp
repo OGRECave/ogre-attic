@@ -178,6 +178,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    const BspNode::BrushList& BspNode::getSolidBrushes(void)
+    {
+        return mSolidBrushes;
+    }
+    //-----------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, BspNode& n)
     {
         o << "BspNode(";

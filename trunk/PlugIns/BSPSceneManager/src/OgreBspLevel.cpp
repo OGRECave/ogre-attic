@@ -378,6 +378,9 @@ namespace Ogre {
         memcpy(mVisData.tableData, q3lvl.mVis->data, q3lvl.mVis->row_size * q3lvl.mVis->cluster_count);
 
 
+        // Brushes
+        // Only load solid ones, we don't care about any other types
+
 
 
     }

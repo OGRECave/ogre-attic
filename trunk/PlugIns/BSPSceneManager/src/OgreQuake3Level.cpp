@@ -87,6 +87,15 @@ namespace Ogre {
         mVertices = (bsp_vertex_t*) getLump(BSP_VERTICES_LUMP);
         mNumVertices = getLumpSize(BSP_VERTICES_LUMP)/sizeof(bsp_vertex_t);
 
+        mLeafBrushes = (int*)getLump(BSP_LBRUSHES_LUMP);
+        mNumLeafBrushes = getLumpSize(BSP_LBRUSHES_LUMP)/sizeof(int);
+
+        mBrushes = (bsp_brush_t*) getLump(BSP_BRUSH_LUMP);
+        mNumBrushes = getLumpSize(BSP_BRUSH_LUMP)/sizeof(bsp_brush_t);
+
+        mBrushSides = (bsp_brushside_t*) getLump(BSP_BRUSHSIDES_LUMP);
+        mNumBrushSides = getLumpSize(BSP_BRUSHSIDES_LUMP)/sizeof(bsp_brushside_t);
+
     }
 
     void* Quake3Level::getLump(int lumpType)

@@ -35,6 +35,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    // Forward declaration
+    class BspIntersectionSceneManager;
+
     /** Specialisation of the SceneManager class to deal with indoor scenes
         based on a BSP tree.
         This class refines the behaviour of the default SceneManager to manage
@@ -58,6 +61,7 @@ namespace Ogre {
     */
     class BspSceneManager : public SceneManager
     {
+        friend class BspIntersectionSceneManager;
     protected:
 
         // Pointer to resource manager just for singleton management
@@ -138,6 +142,75 @@ namespace Ogre {
         void _notifyObjectMoved(const MovableObject* mov, const Vector3& pos);
 		/** Internal method for notifying the level that an object has been detached from a node */
 		void _notifyObjectDetached(const MovableObject* mov);
+
+        /** Creates an AxisAlignedBoxSceneQuery for this scene manager. 
+        @remarks
+            This method creates a new instance of a query object for this scene manager, 
+            for an axis aligned box region. See SceneQuery and AxisAlignedBoxSceneQuery 
+            for full details.
+        @par
+            The instance returned from this method must be destroyed by calling
+            SceneManager::destroyQuery when it is no longer required.
+        @param box Details of the box which describes the region for this query.
+        @param mask The query mask to apply to this query; can be used to filter out
+            certain objects; see SceneQuery for details.
+        */
+        virtual AxisAlignedBoxSceneQuery* 
+            createAABBQuery(const AxisAlignedBox& box, unsigned long mask = 0xFFFFFFFF);
+        /** Creates a SphereSceneQuery for this scene manager. 
+        @remarks
+            This method creates a new instance of a query object for this scene manager, 
+            for a spherical region. See SceneQuery and SphereSceneQuery 
+            for full details.
+        @par
+            The instance returned from this method must be destroyed by calling
+            SceneManager::destroyQuery when it is no longer required.
+        @param sphere Details of the sphere which describes the region for this query.
+        @param mask The query mask to apply to this query; can be used to filter out
+            certain objects; see SceneQuery for details.
+        */
+        virtual SphereSceneQuery* 
+            createSphereQuery(const Sphere& sphere, unsigned long mask = 0xFFFFFFFF);
+        /** Creates a RaySceneQuery for this scene manager. 
+        @remarks
+            This method creates a new instance of a query object for this scene manager, 
+            looking for objects which fall along a ray. See SceneQuery and RaySceneQuery 
+            for full details.
+        @par
+            The instance returned from this method must be destroyed by calling
+            SceneManager::destroyQuery when it is no longer required.
+        @param ray Details of the ray which describes the region for this query.
+        @param mask The query mask to apply to this query; can be used to filter out
+            certain objects; see SceneQuery for details.
+        */
+        virtual RaySceneQuery* 
+            createRayQuery(const Ray& ray, unsigned long mask = 0xFFFFFFFF);
+        //PyramidSceneQuery* createPyramidQuery(const Pyramid& p, unsigned long mask = 0xFFFFFFFF);
+        /** Creates an IntersectionSceneQuery for this scene manager. 
+        @remarks
+            This method creates a new instance of a query object for locating
+            intersecting objects. See SceneQuery and IntersectionSceneQuery
+            for full details.
+        @par
+            The instance returned from this method must be destroyed by calling
+            SceneManager::destroyQuery when it is no longer required.
+        @param mask The query mask to apply to this query; can be used to filter out
+            certain objects; see SceneQuery for details.
+        */
+        virtual IntersectionSceneQuery* 
+            createIntersectionQuery(unsigned long mask = 0xFFFFFFFF);
+
+    };
+
+    /** BSP specialisation of IntersectionSceneQuery */
+    class BspIntersectionSceneQuery : public DefaultIntersectionSceneQuery
+    {
+    public:
+        BspIntersectionSceneQuery(SceneManager* creator);
+
+        /** See IntersectionSceneQuery. */
+        void execute(IntersectionSceneQueryListener* listener);
+
     };
 
 }
