@@ -90,6 +90,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 #include "OgreStringConverter.h"
 #include "OgreProfiler.h"
+#include "OgreGpuProgramManager.h"
+#include "OgreGpuProgram.h"
 
 // .... more to come
 

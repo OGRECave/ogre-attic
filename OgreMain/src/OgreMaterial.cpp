@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreTechnique.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -256,6 +257,14 @@ namespace Ogre {
             }
         }
         mCompilationRequired = false;
+
+        // Did we find any?
+        if (mSupportedTechniques.empty())
+        {
+            LogManager::getSingleton().logMessage(
+                "Warning: material " + mName + " has no supportable Techniques on this "
+                "hardware, it will be rendered blank.");
+        }
     }
     //-----------------------------------------------------------------------
     void Material::setAmbient(Real red, Real green, Real blue)
@@ -470,7 +479,13 @@ namespace Ogre {
             (*i)->setSceneBlending(sourceFactor, destFactor);
         }
     }
-
+    // --------------------------------------------------------------------
+    void Material::_notifyNeedsRecompile(void)
+    {
+        mCompilationRequired = true;
+        // Also need to flag as unloaded to ensure we loaded any new items
+        mIsLoaded = false;
+    }
 
 
 

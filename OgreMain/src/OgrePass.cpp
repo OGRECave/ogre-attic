@@ -71,6 +71,7 @@ namespace Ogre {
 	
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique *parent, unsigned short index, const Pass& oth)
+        :mParent(parent), mIndex(index)
     {
         *this = oth;
         mParent = parent;
@@ -230,12 +231,16 @@ namespace Ogre {
 	    t->setTextureName(textureName);
 	    t->setTextureCoordSet(texCoordSet);
         mTextureUnitStates.push_back(t);
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
 	    return t;
     }
     //-----------------------------------------------------------------------
 	void Pass::addTextureUnitState(TextureUnitState* state)
 	{
 		mTextureUnitStates.push_back(state);
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
 	}
     //-----------------------------------------------------------------------
     TextureUnitState* Pass::getTextureUnitState(unsigned short index) 
@@ -257,6 +262,8 @@ namespace Ogre {
         TextureUnitStates::iterator i = mTextureUnitStates.begin() + index;
         delete *i;
 	    mTextureUnitStates.erase(i);
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
     void Pass::removeAllTextureUnitStates(void)
@@ -268,7 +275,8 @@ namespace Ogre {
             delete *i;
         }
         mTextureUnitStates.clear();
-
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
     }
     //-----------------------------------------------------------------------
     void Pass::setSceneBlending(SceneBlendType sbt)
@@ -550,6 +558,8 @@ namespace Ogre {
             }
 		    mVertexProgramUsage->setProgramName(name);
         }
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
 	}
     //-----------------------------------------------------------------------
 	void Pass::setVertexProgramParameters(GpuProgramParametersSharedPtr params)
@@ -579,6 +589,8 @@ namespace Ogre {
             }
 		    mFragmentProgramUsage->setProgramName(name);
         }
+        // Needs recompilation
+        mParent->_notifyNeedsRecompile();
 	}
     //-----------------------------------------------------------------------
 	void Pass::setFragmentProgramParameters(GpuProgramParametersSharedPtr params)
