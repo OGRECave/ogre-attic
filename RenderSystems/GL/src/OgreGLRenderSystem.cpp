@@ -108,7 +108,7 @@ namespace Ogre {
 	}
 
     GLRenderSystem::GLRenderSystem()
-      : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
+      : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0), mExternalWindowHandle(0)
     {
         size_t i;
 
@@ -573,6 +573,7 @@ namespace Ogre {
                 "GLRenderSystem::createRenderWindow" );
         }
 
+		((Win32GLSupport*)mGLSupport)->setExternalWindowHandle(mExternalWindowHandle);
         // Create the window
         RenderWindow* win = mGLSupport->newWindow(name, width, height, 
             colourDepth, fullScreen, left, top, depthBuffer, parentWindowHandle,
@@ -2224,7 +2225,18 @@ namespace Ogre {
         // No offset in GL
         return 0.0f;
     }
-
+ 	//---------------------------------------------------------------------
+ 	GLRenderSystem::resizeRepositionWindow(void* wich)
+ 	{
+ 		mGLSupport->resizeRepositionWindow(wich);
+ 		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)		
+ 		{
+ 			if (it->second->isActive())
+ 			{
+ 				mGLSupport->resizeReposition(it->second);
+ 			}
+ 		}
+ 	}
 
 
 }

@@ -203,6 +203,11 @@ namespace Ogre {
 		unsigned int displayFrequency = atoi(opt->second.currentValue);
 
 		Win32Window* window = new Win32Window();
+		if (!fullScreen && mExternalWindowHandle) // ADD CONTROL IF WE HAVE A WINDOW)
+		{
+			Win32Window *pWin32Window = (Win32Window *)window;
+	 		pWin32Window->setExternalWindowHandle(mExternalWindowHandle);
+		}
 		window->create(name, width, height, colourDepth, fullScreen, left, top, depthBuffer,
 			parentWindowHandle, vsync, displayFrequency);
 		return window;
@@ -223,4 +228,12 @@ namespace Ogre {
         return wglGetProcAddress( procname.c_str() );
 	}
 
+	void Win32GLSupport::resizeReposition(void* renderTarget)
+	{
+		Win32Window  *pWin32Window = (Win32Window *)renderTarget;
+		if (pWin32Window->getWindowHandle()== m_windowToResize){
+					pWin32Window->windowMovedOrResized();
+		}
+
+	}
 }

@@ -270,8 +270,11 @@ namespace Ogre {
 		// TODO - resize window
     }
 
-	void Win32Window::WindowMovedOrResized()
+	void Win32Window::windowMovedOrResized()
 	{
+		RECT temprect;
+		::GetWindowRect(getWindowHandle(),&temprect);
+		resize(temprect.right-temprect.left,temprect.bottom-temprect.top);
 		// TODO
 	}
 
@@ -381,7 +384,7 @@ namespace Ogre {
 			break;
 
 		case WM_EXITSIZEMOVE:
-			win->WindowMovedOrResized();
+			win->windowMovedOrResized();
 			win->mReady = true;
 			break;
 
@@ -394,7 +397,7 @@ namespace Ogre {
 			{
 				win->mActive = true;
 				if( win->mReady )
-					win->WindowMovedOrResized();
+					win->windowMovedOrResized();
 			}
 			break;
 

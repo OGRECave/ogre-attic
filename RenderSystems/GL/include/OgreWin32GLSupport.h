@@ -49,11 +49,19 @@ namespace Ogre
 		* Get the address of a function
 		*/
 		void* getProcAddress(const String& procname);
+
+		void setExternalWindowHandle(void* hwnd){
+			mExternalWindowHandle=(HWND) hwnd;
+		};
+
+		virtual void resizeReposition(void*);
 	private:
 		// Allowed video modes
 		vector<DEVMODE> mDevModes;
 
 		void refreshConfig();
+
+		HWND mExternalWindowHandle;
 	};
 
 }

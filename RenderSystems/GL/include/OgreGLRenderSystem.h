@@ -41,7 +41,13 @@ namespace Ogre {
      */
     class GLRenderSystem : public RenderSystem
     {
+	public:
+		virtual void setExternalWindowHandle(void *ptr){mExternalWindowHandle = ptr;};
+		virtual resizeRepositionWindow(void*);
+
     private:
+		void* mExternalWindowHandle;
+
         // Rendering loop control
         bool mStopRendering;
 

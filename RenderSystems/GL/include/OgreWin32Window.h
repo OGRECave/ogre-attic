@@ -56,9 +56,9 @@ namespace Ogre {
 		HWND getWindowHandle() const { return mHWnd; }
 		
 		// Method for dealing with resize / move & 3d library
-		void WindowMovedOrResized(void);
+		virtual void windowMovedOrResized(void);
 		// Method for passing a external window handle before creation ;)
-		void SetExternalWindowHandle(HWND externalHandle) {mExternalHandle = externalHandle;};
+		void setExternalWindowHandle(HWND externalHandle) {mExternalHandle = externalHandle;};
 
 		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
