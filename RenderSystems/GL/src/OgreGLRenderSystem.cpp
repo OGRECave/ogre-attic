@@ -2436,5 +2436,17 @@ namespace Ogre {
     GLContext *GLRenderSystem::_getMainContext() {
         return mMainContext;
     }
+    //---------------------------------------------------------------------
+    Real GLRenderSystem::getMinimumDepthInputValue(void)
+    {
+        // Range [-1.0f, 1.0f]
+        return -1.0f;
+    }
+    //---------------------------------------------------------------------
+    Real GLRenderSystem::getMaximumDepthInputValue(void)
+    {
+        // Range [-1.0f, 1.0f]
+        return 1.0f;
+    }
 
 }

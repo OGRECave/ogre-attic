@@ -39,6 +39,7 @@ namespace Ogre {
         mVisible = true;
         mUserObject = 0;
         mRenderQueueID = RENDER_QUEUE_MAIN;
+        mRenderQueueIDSet = false;
         mQueryFlags = 0xFFFFFFFF;
         mWorldAABB.setNull();
         mParentIsTagPoint = false;
@@ -109,6 +110,7 @@ namespace Ogre {
     void MovableObject::setRenderQueueGroup(RenderQueueGroupID queueID)
     {
         mRenderQueueID = queueID;
+        mRenderQueueIDSet = true;
     }
     //-----------------------------------------------------------------------
     RenderQueueGroupID MovableObject::getRenderQueueGroup(void) const

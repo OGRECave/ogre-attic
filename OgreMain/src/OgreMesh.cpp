@@ -701,13 +701,16 @@ namespace Ogre {
     const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index) const
     {
         assert(index < mMeshLodUsageList.size());
-        if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh == NULL)
+        if (mIsLodManual && index > 0)
         {
-            // Load the mesh now
-            mMeshLodUsageList[index].manualMesh = 
-                MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
+			if (!mMeshLodUsageList[index].manualMesh)
+			{
+				// Load the mesh now
+				mMeshLodUsageList[index].manualMesh = 
+					MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
+			}
             // get the edge data, if required
-            if (!mAutoBuildEdgeLists)
+            if (!mMeshLodUsageList[index].edgeData)
             {
                 mMeshLodUsageList[index].edgeData = 
                     mMeshLodUsageList[index].manualMesh->getEdgeList(0);
@@ -728,7 +731,6 @@ namespace Ogre {
 	};
 	void Mesh::createManualLodLevel(Real fromDepth, const String& meshName)
 	{
-        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists builded");
 
 		// Basic prerequisites
         assert(fromDepth > 0 && "The LOD depth must be greater than zero");
@@ -748,7 +750,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Mesh::updateManualLodLevel(ushort index, const String& meshName)
 	{
-        assert(!mEdgeListsBuilt && "Can't modify LOD after edge lists built");
 
 		// Basic prerequisites
 		assert(mIsLodManual && "Not using manual LODs!");
@@ -1385,7 +1386,7 @@ namespace Ogre {
     EdgeData* Mesh::getEdgeList(unsigned int lodIndex)
     {
         // Build edge list on demand
-        if (!mEdgeListsBuilt)
+        if (!mEdgeListsBuilt && mAutoBuildEdgeLists)
         {
             buildEdgeList();
         }

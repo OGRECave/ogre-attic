@@ -1534,6 +1534,44 @@ protected:
 
     }
 
+	void testManualLOD()
+	{
+		Mesh* msh1 = (Mesh*)MeshManager::getSingleton().load("robot.mesh");
+
+		msh1->createManualLodLevel(200, "razor.mesh");
+		msh1->createManualLodLevel(500, "sphere.mesh");
+
+		Entity *ent;
+		for (int i = 0; i < 5; ++i)
+		{
+			ent = mSceneMgr->createEntity("robot" + StringConverter::toString(i), "robot.mesh");
+			// Add entity to the scene node
+			mSceneMgr->getRootSceneNode()->createChildSceneNode(
+				Vector3(0,0,(i*50)-(5*50/2)))->attachObject(ent);
+		}
+		mAnimState = ent->getAnimationState("Walk");
+		mAnimState->setEnabled(true);
+
+
+
+		// Give it a little ambience with lights
+		Light* l;
+		l = mSceneMgr->createLight("BlueLight");
+		l->setPosition(-200,-80,-100);
+		l->setDiffuseColour(0.5, 0.5, 1.0);
+
+		l = mSceneMgr->createLight("GreenLight");
+		l->setPosition(0,0,-100);
+		l->setDiffuseColour(0.5, 1.0, 0.5);
+
+		// Position the camera
+		mCamera->setPosition(100,50,100);
+		mCamera->lookAt(-50,50,0);
+
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+	}
+
     void clearSceneSetup()
     {
         bool showOctree = true;
@@ -1981,7 +2019,7 @@ protected:
         //testPrepareShadowVolume();
         //testWindowedViewportMode();
         //testSubEntityVisibility();
-        testAttachObjectsToBones();
+        //testAttachObjectsToBones();
         //testSkeletalAnimation();
         //testOrtho();
         //testClearScene();
@@ -1996,6 +2034,8 @@ protected:
         //testIntersectionSceneQuery();
 
         //test2Spotlights();
+
+		testManualLOD();
     }
     // Create new frame listener
     void createFrameListener(void)

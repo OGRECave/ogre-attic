@@ -78,6 +78,9 @@ namespace Ogre {
         RenderQueueGroupMap mGroups;
         /// The current default queue group
         RenderQueueGroupID mDefaultQueueGroup;
+        /// The default priority
+        ushort mDefaultRenderablePriority;
+
         bool mSplitPassesByLightingType;
         bool mSplitNoShadowPasses;
     public:
@@ -123,31 +126,56 @@ namespace Ogre {
         @remarks
             This methods adds a Renderable to the queue, which will be rendered later by 
             the SceneManager. This is the simplified version of the call which does not 
-            require a queue or priority to be specified. The queue group is taken from the
-            current default (see setDefaultQueueGroup).
+            require a priority to be specified. The queue priority is take from the
+            current default (see setDefaultRenderablePriority).
         @note
             Called by implementation of MovableObject::_updateRenderQueue.
         @param
             pRend Pointer to the Renderable to be added to the queue
-        @param
-            priority Controls the priority of the renderable within the queue group. If this number
-            is raised, the renderable will be rendered later in the group compared to it's peers.
-            Don't use this unless you really need to, manually ordering renderables prevents OGRE
-            from sorting them for best efficiency. However this could be useful for ordering 2D
-            elements manually for example.
+		@param
+            groupID The group the renderable is to be added to. This
+            can be used to schedule renderable objects in separate groups such that the SceneManager
+            respects the divisions between the groupings and does not reorder them outside these
+            boundaries. This can be handy for overlays where no matter what you want the overlay to 
+            be rendered last.
         */
-        void addRenderable(Renderable* pRend, ushort priority = RENDERABLE_DEFAULT_PRIORITY);
+        void addRenderable(Renderable* pRend, RenderQueueGroupID groupId);
 
+        /** Add a renderable object to the queue.
+        @remarks
+            This methods adds a Renderable to the queue, which will be rendered later by 
+            the SceneManager. This is the simplified version of the call which does not 
+            require a queue or priority to be specified. The queue group is taken from the
+            current default (see setDefaultQueueGroup).  The queue priority is take from the
+            current default (see setDefaultRenderablePriority).
+        @note
+            Called by implementation of MovableObject::_updateRenderQueue.
+        @param
+            pRend Pointer to the Renderable to be added to the queue
+        */
+        void addRenderable(Renderable* pRend);
+        
         /** Gets the current default queue group, which will be used for all renderable which do not
             specify which group they wish to be on.
         */
         RenderQueueGroupID getDefaultQueueGroup(void) const;
 
+        /** Sets the current default renderable priority, 
+            which will be used for all renderables which do not
+            specify which priority they wish to use.
+        */
+        void setDefaultRenderablePriority(ushort priority);
+
+        /** Gets the current default renderable priority, which will be used for all renderables which do not
+            specify which priority they wish to use.
+        */
+        ushort getDefaultRenderablePriority(void) const;
+
         /** Sets the current default queue group, which will be used for all renderable which do not
             specify which group they wish to be on.
         */
         void setDefaultQueueGroup(RenderQueueGroupID grp);
-
+        
         /** Internal method, returns an iterator for the queue groups. */
         QueueGroupIterator _getQueueGroupIterator(void);
         /** Sets whether or not the queue will split passes by their lighting type,
