@@ -223,4 +223,37 @@ namespace Ogre {
 }
 
 
+#ifdef  OGRE_DEBUG_MODE
+
+#ifndef GL_ERROR_EXCEPT
+
+#define OGRE_GL_GETERROR(ERROR_MSG) {const GLubyte *errString; \
+    GLenum errCode = glGetError(); \
+    if (errCode != GL_NO_ERROR) {  \
+    errString = gluErrorString (errCode);  \
+    LogManager::getSingleton().logMessage  ("[GL] :" + ERROR_MSG +  \
+    " : " + Ogre::String( (const char*) errString)); \
+        } \
+    }
+
+#else //GL_ERROR_EXCEPT
+
+#define OGRE_GL_GETERROR(ERROR_MSG) {const GLubyte *errString; \
+    GLenum errCode = glGetError(); \
+    if (errCode != GL_NO_ERROR) {  \
+    errString = gluErrorString (errCode);  \
+    Except (Exception::ERR_INTERNAL_ERROR,  \
+    ERROR_MSG +  \
+    " : " + Ogre::String( (const char*) errString), String("")); \
+        } \
+    }
+
+#endif //GL_ERROR_EXCEPT
+
+#else //OGRE_DEBUG_MODE
+
+#define OGRE_GL_GETERROR()
+
+#endif //OGRE_DEBUG_MODE
+
 #endif

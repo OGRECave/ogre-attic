@@ -101,7 +101,7 @@ namespace Ogre {
         GLSupport* mGLSupport;
         
         /// Internal method to set pos / direction of a light
-        void setGLLightPositionDirection(Light* lt, size_t lightindex);
+        void setGLLightPositionDirection(Light* lt, GLenum lightindex);
 
         bool mUseAutoTextureMatrix;
         GLfloat mAutoTextureMatrix[16];
