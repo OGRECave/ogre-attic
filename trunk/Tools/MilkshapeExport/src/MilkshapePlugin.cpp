@@ -649,7 +649,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
             SplitAnimationStruct newSplit;
 
             std::ifstream istr;
-            istr.open("c:\\temp\\test.txt");
+            istr.open(szFile);
 
             while (!istr.eof())
             {
