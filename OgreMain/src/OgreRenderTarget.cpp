@@ -420,4 +420,21 @@ namespace Ogre {
             (*i)->postViewportUpdate(evt);
         }
     }
+
+    void RenderTarget::writeContentsToTimestampedFile(const String& filenamePrefix, const String& filenameSuffix)
+    {
+	struct tm *pTime;
+        time_t ctTime; time(&ctTime);
+        pTime = localtime( &ctTime );
+        std::ostringstream oss;
+	oss	<< std::setw(2) << std::setfill('0') << pTime->tm_mon
+		<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_mday
+		<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_year
+		<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_hour
+        	<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_min
+        	<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_sec
+		<< ":" << std::setw(3) << std::setfill('0') << (mTimer->getMilliseconds() % 1000);
+	    writeContentsToFile(filenamePrefix + String(oss.str()) + filenameSuffix);
+	    
+    }
 }        
