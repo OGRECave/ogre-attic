@@ -384,10 +384,13 @@ namespace Ogre {
             }
             else if (mTextureType == TEX_TYPE_3D)
             {
+                /* Requires GLU 1.3 which is harder to come by
+                   Most 3D textures don't need mipmaps?
                 gluBuild3DMipmaps(
                     getGLTextureType(), mHasAlpha ? GL_RGBA8 : GL_RGB8, 
                     mSrcWidth, mSrcHeight, mDepth, getGLTextureFormat(), 
                     GL_UNSIGNED_BYTE, data);
+                */
             }
             else
             {
