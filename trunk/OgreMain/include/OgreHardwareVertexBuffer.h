@@ -255,10 +255,12 @@ namespace Ogre {
         
         /** Gets read-only access to the list of vertex elements. */
         const VertexElementList& getElements(void) const;
+        /** Get a single element. */
+        const VertexElement* getElement(unsigned short index);
 
         /** Adds a new VertexElement to this declaration. 
         @remarks
-            This method adds a single element (positions, normals etc) to the
+            This method adds a single element (positions, normals etc) to the end of the
             vertex declaration. <b>Please read the information in VertexDeclaration about
 	    the importance of ordering and structure for compatibility with older D3D drivers</b>.
 	    @param source The binding index of HardwareVertexBuffer which will provide the source for this element.
@@ -270,6 +272,22 @@ namespace Ogre {
 		@returns A reference to the VertexElement added.
         */
         virtual const VertexElement& addElement(unsigned short source, size_t offset, VertexElementType theType,
+            VertexElementSemantic semantic, unsigned short index = 0);
+        /** Inserts a new VertexElement at a given position in this declaration. 
+        @remarks
+        This method adds a single element (positions, normals etc) at a given position in this
+        vertex declaration. <b>Please read the information in VertexDeclaration about
+        the importance of ordering and structure for compatibility with older D3D drivers</b>.
+        @param source The binding index of HardwareVertexBuffer which will provide the source for this element.
+        See VertexBufferBindingState for full information.
+        @param offset The offset in bytes where this element is located in the buffer
+        @param theType The data format of the element (3 floats, a colour etc)
+        @param semantic The meaning of the data (position, normal, diffuse colour etc)
+        @param index Optional index for multi-input elements like texture coordinates
+        @returns A reference to the VertexElement added.
+        */
+        virtual const VertexElement& insertElement(unsigned short atPosition,
+            unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
         /** Remove the element at the given index from this declaration. */

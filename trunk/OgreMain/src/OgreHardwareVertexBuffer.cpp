@@ -194,6 +194,37 @@ namespace Ogre {
 		return mElementList.back();
     }
     //-----------------------------------------------------------------------------
+    const VertexElement& VertexDeclaration::insertElement(unsigned short atPosition,
+        unsigned short source, size_t offset, VertexElementType theType,
+        VertexElementSemantic semantic, unsigned short index)
+    {
+        if (atPosition >= mElementList.size())
+        {
+            return addElement(source, offset, theType, semantic, index);
+        }
+
+        VertexElementList::iterator i = mElementList.begin();
+        for (unsigned short n = 0; n < atPosition; ++n)
+            ++i;
+
+        i = mElementList.insert(i, 
+            VertexElement(source, offset, theType, semantic, index));
+        return *i;
+
+    }
+    //-----------------------------------------------------------------------------
+    const VertexElement* VertexDeclaration::getElement(unsigned short index)
+    {
+        assert(index < mElementList.size() && "Index out of bounds");
+
+        VertexElementList::iterator i = mElementList.begin();
+        for (unsigned short n = 0; n < index; ++n)
+            ++i;
+
+        return &(*i);
+
+    }
+    //-----------------------------------------------------------------------------
     void VertexDeclaration::removeElement(unsigned short elem_index)
     {
         assert(elem_index < mElementList.size() && "Index out of bounds");
