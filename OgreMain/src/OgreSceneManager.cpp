@@ -1220,6 +1220,9 @@ namespace Ogre {
 
                                 // Set up rendering operation
                                 (*irend)->getRenderOperation(ro);
+								#if OGRE_DEBUG_MODE
+									ro.srcRenderable = *irend;
+								#endif
                                 mDestRenderSystem->_render(ro);
 
                             }
@@ -1277,6 +1280,9 @@ namespace Ogre {
 
                             // Set up rendering operation
                             (*iTrans)->getRenderOperation(ro);
+							#if OGRE_DEBUG_MODE
+								ro.srcRenderable = *iTrans;
+							#endif
                             mDestRenderSystem->_render(ro);
 
                         } while (matLayersLeft > 0);

@@ -64,6 +64,10 @@ namespace Ogre {
 
 		/// Index data - only valid if useIndexes is true
 		IndexData *indexData;
+#if OGRE_DEBUG_MODE
+		/// Debug pointer back to renderable which created this
+		Renderable* srcRenderable;
+#endif
 
 
         RenderOperation() :

@@ -1771,7 +1771,9 @@ namespace Ogre
 			break;
 		}
 
-        
+        if (!primCount)
+			return;
+
 		// Issue the op
         HRESULT hr;
 		if( op.useIndexes )
