@@ -152,12 +152,12 @@ namespace Ogre
         virtual ~Frustum();
         /** Sets the Y-dimension Field Of View (FOV) of the frustum.
             @remarks
-                Field Of View (FOV) is the angle made between the frustum's position, and the left & right edges
+                Field Of View (FOV) is the angle made between the frustum's position, and the edges
                 of the 'screen' onto which the scene is projected. High values (90+ degrees) result in a wide-angle,
                 fish-eye kind of view, low values (30- degrees) in a stretched, telescopic kind of view. Typical values
                 are between 45 and 60 degrees.
             @par
-                This value represents the HORIZONTAL field-of-view. The vertical field of view is calculated from
+                This value represents the VERTICAL field-of-view. The horizontal field of view is calculated from
                 this depending on the dimensions of the viewport (they will only be the same if the viewport is square).
             @note
                 Setting the FOV overrides the value supplied for frustum::setNearClipPlane.
