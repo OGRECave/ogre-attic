@@ -685,16 +685,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureCoordSet(int stage, int index)
     {
-        // XXX Will stage ever not be the same as previous _setTexture? aka Do I
-        // need to reset the texture unit? Can GL do that?
-
-        if( index )
-            Except(
-                9999,
-                "Feature not implemented.",
-                "SDLRenderSystem::_setTextureCoordSet" );
-
-        // XXX WTF Do I do here?
+        mTextureCoordIndex[stage] = index;
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
@@ -728,10 +719,127 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
     {
+        GLint param;
+        
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
+
+
+#if 0
+        switch (bm.operation)
+        {
+        case LBX_SOURCE1:
+            param = GL_REPLACE;
+            value = D3DTOP_SELECTARG1;
+            break;
+        case LBX_SOURCE2:
+            value = D3DTOP_SELECTARG2;
+            break;
+        case LBX_MODULATE:
+            value = D3DTOP_MODULATE;
+            break;
+        case LBX_MODULATE_X2:
+            value = D3DTOP_MODULATE2X;
+            break;
+        case LBX_MODULATE_X4:
+            value = D3DTOP_MODULATE4X;
+            break;
+        case LBX_ADD:
+            value = D3DTOP_ADD;
+            break;
+        case LBX_ADD_SIGNED:
+            value = D3DTOP_ADDSIGNED;
+            break;
+        case LBX_ADD_SMOOTH:
+            value = D3DTOP_ADDSMOOTH;
+            break;
+        case LBX_SUBTRACT:
+            value = D3DTOP_SUBTRACT;
+            break;
+        case LBX_BLEND_DIFFUSE_ALPHA:
+            value = D3DTOP_BLENDDIFFUSEALPHA;
+            break;
+        case LBX_BLEND_TEXTURE_ALPHA:
+            value = D3DTOP_BLENDTEXTUREALPHA;
+            break;
+        case LBX_BLEND_CURRENT_ALPHA:
+            value = D3DTOP_BLENDCURRENTALPHA;
+            break;
+        case LBX_BLEND_MANUAL:
+            value = D3DTOP_BLENDFACTORALPHA;
+            // Set factor in render state
+            hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
+                D3DRGBA(0,0,0,bm.factor));
+            break;
+        }
+
+        if (bm.blendType == LBT_COLOUR)
+        {
+            glTexEnvf
+        }
+        else if (bm.blendType == LBT_ALPHA)
+        {
+            tss= D3DTSS_ALPHAOP;
+        }
+
+        // Make call to set operation
+        hr = mlpD3DDevice->SetTextureStageState(stage, tss, value);
+
+        // Now set up sources
+        D3DCOLOR manualD3D;
+        if (bm.blendType == LBT_COLOUR)
+        {
+            tss = D3DTSS_COLORARG1;
+            manualD3D = D3DRGBA(bm.colourArg1.r,bm.colourArg1.g,bm.colourArg1.b,1.0);
+        }
+        else if (bm.blendType == LBT_ALPHA)
+        {
+            tss = D3DTSS_ALPHAARG1;
+            manualD3D = D3DRGBA(0,0,0,bm.alphaArg1);
+        }
+        LayerBlendSource bs = bm.source1;
+        for (int i = 0; i < 2; ++i)
+        {
+            switch (bs)
+            {
+            case LBS_CURRENT:
+                value = D3DTA_CURRENT;
+                break;
+            case LBS_TEXTURE:
+                value = D3DTA_TEXTURE;
+                break;
+            case LBS_DIFFUSE:
+                value = D3DTA_DIFFUSE;
+                break;
+            case LBS_SPECULAR:
+                value = D3DTA_SPECULAR;
+                break;
+            case LBS_MANUAL:
+                value = D3DTA_TFACTOR;
+                // Set factor in render state
+                hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,    manualD3D);
+                break;
+
+            }
+
+            // Set source
+            hr = mlpD3DDevice->SetTextureStageState(stage,tss,value);
+
+            // Source2
+            bs = bm.source2;
+            if (bm.blendType == LBT_COLOUR)
+            {
+                tss = D3DTSS_COLORARG2;
+                manualD3D = D3DRGBA(bm.colourArg2.r,bm.colourArg2.g,bm.colourArg2.b,1.0);
+            }
+            else if (bm.blendType == LBT_ALPHA)
+            {
+                tss = D3DTSS_ALPHAARG2;
+                manualD3D = D3DRGBA(0,0,0,bm.alphaArg2);
+            }
+        }
+#endif
         glActiveTextureARB(GL_TEXTURE0_ARB);
-        // XXX Check for GL_EXT_texture_env_combine, with gluCheckExtension then code each type
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setTextureAddressingMode(int stage, Material::TextureLayer::TextureAddressingMode tam)
@@ -961,10 +1069,10 @@ namespace Ogre {
                     glClientActiveTextureARB(index + i);
                     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                     glTexCoordPointer(
-                        op.numTextureDimensions[i],
+                        op.numTextureDimensions[mTextureCoordIndex[i]],
                         GL_FLOAT,
-                        op.texCoordStride[i], 
-                        op.pTexCoords[i] );
+                        op.texCoordStride[mTextureCoordIndex[i]], 
+                        op.pTexCoords[mTextureCoordIndex[i]] );
                 }
                 else
                 {
@@ -1074,7 +1182,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setDepthBufferWriteEnabled(bool enabled)
     {
-        // XXX Why is this flipped so much?
         GLboolean flag = enabled ? GL_TRUE : GL_FALSE;
         glDepthMask( flag );  
         // Store for reference in _beginFrame

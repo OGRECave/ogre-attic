@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 #include "OgreMaterial.h"
 #include "OgreString.h"
+#include "OgreMesh.h"
 
 namespace Ogre {
 

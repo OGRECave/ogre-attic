@@ -102,7 +102,7 @@ namespace Ogre {
             This method should only be called on a leaf node. It returns a box which can be used in calls like
             Camera::isVisible to determine if the leaf node is visible in the view.
         */
-        AxisAlignedBox getBoundingBox(void);
+        AxisAlignedBox& getBoundingBox(void);
 
         /** Returns the number of faces contained in this leaf node.
             Should only be called on a leaf node.

@@ -170,14 +170,11 @@ namespace Ogre {
 #ifdef GCC_3_1
         typedef __gnu_cxx::hash_map< String, ArchiveEx *, _StringHash > FileMap;
 #else
-#ifdef GCC_3_1
-        typedef __gnu_cxx::hash_map< String, ArchiveEx *, _StringHash > FileMap;
-#else
         typedef std::hash_map< String, ArchiveEx *, _StringHash > FileMap;
 #endif
         static FileMap mCommonArchiveFiles;
         FileMap mArchiveFiles;
-#endif
+
         /// @todo Implement priorities
         ResourceMap mResources;
 

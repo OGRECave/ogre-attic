@@ -23,40 +23,36 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-/**
-    \file 
-        Bezier.cpp
-    \brief
-        Shows OGRE's bezier patch feature
-*/
 
-#include "Ogre.h"
-#include "Bezier.h"
+#ifndef __SDLInputReader_H__
+#define __SDLInputReader_H__
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
+#include "OgreInput.h"
+#include "OgreRenderWindow.h"
 
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
-#else
-int main(int argc, char **argv)
-#endif
-{
+#include <SDL.h>
 
-    // Create application object
-    BezierApplication app;
+namespace Ogre {
+    class SDLInput : public InputReader
+    {
+    public:
+        SDLInput();
+        virtual ~SDLInput();
 
-    try {
-        app.go();
-    } catch( Ogre::Exception& e ) {
-#if OGRE_PLATFORM == PLATFORM_WIN32
-        MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL );
-#else
-        fprintf(stderr, "An exception has occured: %s\n",
-                e.getFullDescription().c_str());
-#endif
-    }
-
-
-    return 0;
+        void initialise(RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false);
+        void capture(void);
+        bool isKeyDown(KeyCode kc);
+        int getMouseRelativeX(void);
+        int getMouseRelativeY(void);
+    private:
+        // State at last 'capture' call
+        Uint8* mKeyboardBuffer;
+        int mMaxKey;
+        int mMouseX, mMouseY;
+        int mMouseCenterX, mMouseCenterY;
+        Uint8 mMouseKeys;
+    };
 }
+
+#endif
+

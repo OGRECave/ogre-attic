@@ -273,7 +273,7 @@ namespace Ogre {
                     //}
                     processVisibleLeaf(nd, camera);
                     if (mShowNodeAABs)
-                        addBoundingBox(nd->getBoundingBox(),true);
+                        addBoundingBox(nd->getBoundingBox(), true);
                 }
             }
             nd++;

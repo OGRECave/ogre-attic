@@ -251,7 +251,7 @@ namespace Ogre {
                 dest->plane.normal = Vector3(src->normal);
                 dest->plane.d = dest->plane.normal.dotProduct(Vector3(src->org));
             }
-            else if (src->type = BSP_FACETYPE_PATCH)
+            else if (src->type == BSP_FACETYPE_PATCH)
             {
                 // Seems to be some crap in the Q3 level where vertex count = 0 or num control points = 0?
                 if (dest->numVertices == 0 || src->mesh_cp[0] == 0)
@@ -348,7 +348,7 @@ namespace Ogre {
 
         }
         // Convert Leaves
-        for (i = 0; i < q3lvl.mNumLeaves; ++i)
+        for (int i = 0; i < q3lvl.mNumLeaves; ++i)
         {
             BspNode* node = &mRootNode[i + mLeafStart];
             bsp_leaf_t* q3leaf = &q3lvl.mLeaves[i];

@@ -64,6 +64,9 @@ namespace Ogre {
         Matrix4 mViewMatrix;
         Matrix4 mWorldMatrix;
 
+        // XXX 8 max texture units?
+        int mTextureCoordIndex[OGRE_MAX_TEXTURE_COORD_SETS];
+
 
         void initConfigOptions(void);
         void initInputDevices(void);
