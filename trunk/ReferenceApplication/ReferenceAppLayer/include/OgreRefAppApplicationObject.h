@@ -46,10 +46,13 @@ namespace OgreRefApp {
         SceneNode* mSceneNode;
         Entity* mEntity;
 
-        // Dynamics properties, must be set up by subclasses if dynamics enabled
+        /// Dynamics properties, must be set up by subclasses if dynamics enabled
         dBody* mOdeBody;
+        /// Mass parameters
+        dMass mMass;
 
-        // Collision proxies, must be set up if collision enabled
+
+        /// Collision proxies, must be set up if collision enabled
         typedef std::list<dGeom*> CollisionProxyList;
         CollisionProxyList mCollisionProxies;
 
@@ -199,6 +202,50 @@ namespace OgreRefApp {
         Entity* getEntity(void);
         /** Gets the ODE body used to represent this object's mass and current velocity. */
         dBody* getOdeBody(void);
+
+        /** Set the mass parameters of this object to represent a sphere.
+        @remarks
+            This method sets the mass and inertia properties of this object such
+            that it is like a sphere, ie center of gravity at the origin and
+            an even distribution of mass in all directions.
+        @param density Density of the sphere in Kg/m^3
+        @param radius of the sphere mass
+        */
+        void setMassSphere(Real density, Real radius);
+
+        /** Set the mass parameters of this object to represent a box. 
+        @remarks
+            This method sets the mass and inertia properties of this object such
+            that it is like a box.
+        @param density Density of the box in Kg/m^3
+        @param dimensions Width, height and depth of the box.
+        @param orientation Optional orientation of the box.
+        */
+        void setMassBox(Real density, const Vector3& dimensions, 
+            const Quaternion& orientation = Quaternion::IDENTITY);
+
+        /** Set the mass parameters of this object to represent a capped cylinder. 
+        @remarks
+            This method sets the mass and inertia properties of this object such
+            that it is like a capped cylinder, by default lying along the Z-axis.
+        @param density Density of the cylinder in Kg/m^3
+        @param length Length of the cylinder
+        @param width Width of the cylinder
+        @param orientation Optional orientation if you wish the cylinder to lay 
+            along a different axis from Z.
+        */
+        void setMassCappedCylinder(Real density, Real length, Real width, 
+            const Quaternion& orientation = Quaternion::IDENTITY);
+
+        /** Sets the mass parameters manually, use only if you know how!
+        @param mass Mass in Kg
+        @param center The center of gravity
+        @param inertia The inertia matrix describing distribution of the mass around the body.
+        */
+        void setMassExpert(Real mass, const Vector3 center, const Matrix3 inertia);
+
+        /** Gets the ODE mass parameters for this object. */
+        const dMass* getOdeMass(void);
 
 
     };
