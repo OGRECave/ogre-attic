@@ -252,7 +252,7 @@ namespace Ogre {
         unsigned int newHeight = (1 << mostSignificantBitSet(mHeight));
         if (newHeight != mHeight)
             newHeight <<= 1;
-			
+
 		unsigned int newDepth = (1 << mostSignificantBitSet(mDepth));
         if (newDepth != mDepth)
             newDepth <<= 1;
@@ -392,6 +392,7 @@ namespace Ogre {
 		_createSurfaceList();
 		// Get final internal format
 		mFormat = getBuffer(0,0)->getFormat();
+		mIsLoaded = true;
 	}
 #endif	
 	
