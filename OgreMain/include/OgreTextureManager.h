@@ -145,7 +145,7 @@ namespace Ogre {
                 not available in this context.
 			@param 
 				usage The kind of usage this texture is intended for. It 
-				is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, TU_DISCARDABLE, 
+				is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, 
 				TU_AUTOMIPMAP and TU_RENDERTARGET (see TextureUsage enum). You are
             	strongly advised to use HBU_STATIC_WRITE_ONLY wherever possible, if you need to 
             	update regularly, consider HBU_DYNAMIC_WRITE_ONLY.
@@ -183,7 +183,7 @@ namespace Ogre {
                 not available in this context.
 			@param 
 				usage The kind of usage this texture is intended for. It 
-				is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, TU_DISCARDABLE, 
+				is a combination of TU_STATIC, TU_DYNAMIC, TU_WRITE_ONLY, 
 				TU_AUTOMIPMAP and TU_RENDERTARGET (see TextureUsage enum). You are
             	strongly advised to use HBU_STATIC_WRITE_ONLY wherever possible, if you need to 
             	update regularly, consider HBU_DYNAMIC_WRITE_ONLY.
