@@ -271,9 +271,9 @@ namespace Ogre
 	{
 		OgreGuard( "D3D9RenderSystem::setConfigOption" );
 
-		char msg[128];
-		sprintf( msg, "D3D9 : RenderSystem Option: %s = %s", name.c_str(), value.c_str() );
-		LogManager::getSingleton().logMessage( msg );
+        StringUtil::StrStreamType str;
+        str << "D3D9 : RenderSystem Option: " << name << " = " << value;
+		LogManager::getSingleton().logMessage(str.str());
 
 		// Find option
 		ConfigOptionMap::iterator it = mOptions.find( name );
@@ -283,8 +283,9 @@ namespace Ogre
 			it->second.currentValue = value;
 		else
 		{
-			sprintf( msg, "Option named '%s' does not exist.", name.c_str() );
-			Except( Exception::ERR_INVALIDPARAMS, msg, "D3D9RenderSystem::setConfigOption" );
+            str.clear();
+            str << "Option named '" << name << "' does not exist.";
+			Except( Exception::ERR_INVALIDPARAMS, str.str(), "D3D9RenderSystem::setConfigOption" );
 		}
 
 		// Refresh other options if D3DDriver changed

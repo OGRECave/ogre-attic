@@ -83,7 +83,8 @@ namespace Ogre {
         screen = SDL_SetVideoMode(width, height, colourDepth, flags);
         if (!screen)
         {
-            LogManager::getSingleton().logMessage(LML_CRITICAL, "Could not make screen: %s.", SDL_GetError());
+            LogManager::getSingleton().logMessage(LML_CRITICAL, 
+                String("Could not make screen: ") + SDL_GetError());
             exit(1);
         }
         LogManager::getSingleton().logMessage("screen is valid", LML_TRIVIAL);
