@@ -54,16 +54,13 @@ namespace Ogre {
     OverlayElementCommands::CmdVisible OverlayElement::msVisibleCmd;
     //---------------------------------------------------------------------
     OverlayElement::OverlayElement(const String& name)
-        : MouseTarget(),
-          MouseMotionTarget(),
-          mName(name)
+      : mName(name)
     {
         mParent = 0;
         mLeft = 0.0f;
         mTop = 0.0f;
         mWidth = 1.0f;
         mHeight = 1.0f;
-		mMouseListener = 0;
         mVisible = true;
         mpMaterial = 0;
         mDerivedOutOfDate = true;
@@ -772,42 +769,6 @@ namespace Ogre {
 		return ret;
 	}
 
-    //-----------------------------------------------------------------------
-	void OverlayElement::processEvent(InputEvent* e) 
-	{
-
-		if (!mEnabled || e->isConsumed())
-		{
-			return;
-		}
-		switch(e->getID()) 
-		{
-		case ActionEvent::AE_ACTION_PERFORMED:
-			processActionEvent(static_cast<ActionEvent*>(e));
-			break;
-		case MouseEvent::ME_MOUSE_PRESSED:
-		case MouseEvent::ME_MOUSE_RELEASED:
-		case MouseEvent::ME_MOUSE_CLICKED:
-		case MouseEvent::ME_MOUSE_ENTERED:
-		case MouseEvent::ME_MOUSE_EXITED:
-		case MouseEvent::ME_MOUSE_DRAGENTERED:
-		case MouseEvent::ME_MOUSE_DRAGEXITED:
-		case MouseEvent::ME_MOUSE_DRAGDROPPED:
-			processMouseEvent(static_cast<MouseEvent*>(e));
-			break;
-		case MouseEvent::ME_MOUSE_MOVED:
-		case MouseEvent::ME_MOUSE_DRAGGED:
-		case MouseEvent::ME_MOUSE_DRAGMOVED:
-			processMouseMotionEvent(static_cast<MouseEvent*>(e));
-			break;
-		}
-	}
-
-    //-----------------------------------------------------------------------
-	PositionTarget* OverlayElement::getPositionTargetParent() const 
-	{ 
-		return static_cast<MouseTarget*> (mParent);		// need to choose 1 parent of the EventTarget
-	}
     //-----------------------------------------------------------------------
 	OverlayContainer* OverlayElement::getParent() 
 	{ 
