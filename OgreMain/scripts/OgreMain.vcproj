@@ -57,7 +57,8 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)"/>
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)
+copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -123,7 +124,8 @@
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)"/>
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Samples\Common\bin\$(ConfigurationName)
+copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

@@ -366,7 +366,7 @@ void XMLToBinary(XmlOptions opts)
                 cout << "\nHow many extra LOD levels would you like to generate?";
                 cin >> numLod;
 
-                cout << "\nWhat unit of reduction would you like to use:"
+                cout << "\nWhat unit of reduction would you like to use:" <<
                     "\n(f)ixed or (p)roportional?";
                 cin >> response;
                 if (response.toLowerCase() == "f")
