@@ -71,7 +71,7 @@ namespace Ogre {
 
         loadQuake3Level(q3);
 
-        chunk.free();
+        chunk.clear();
 
     }
 
