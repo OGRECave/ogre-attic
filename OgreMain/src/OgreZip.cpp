@@ -99,7 +99,7 @@ namespace Ogre {
 		zzip_dir_stat(mZzipDir, filename.c_str(), &zstat, 0);
 
         // Construct & return stream
-        return DataStreamPtr(new ZipDataStream(filename, zzipFile, static_cast<size_t>(zstat.d_csize)));
+        return DataStreamPtr(new ZipDataStream(filename, zzipFile, static_cast<size_t>(zstat.st_size)));
 
     }
     //-----------------------------------------------------------------------
@@ -240,6 +240,7 @@ namespace Ogre {
 				if (buf)
 				{
 					memcpy(buf, (const void*)mTmpArea, pos);
+                    buf[pos] = '\0';
 				}
 				totalCount += pos;
 			}
@@ -277,7 +278,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool ZipDataStream::eof(void) const
     {
-        return (zzip_tell(mZzipFile) > mUncompressedSize);
+        return (zzip_tell(mZzipFile) >= mUncompressedSize);
     }
     //-----------------------------------------------------------------------
     void ZipDataStream::close(void)
