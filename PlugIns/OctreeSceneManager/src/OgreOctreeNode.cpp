@@ -130,7 +130,10 @@ namespace Ogre
         while ( mit != mObjectsByName.end() )
         {
             MovableObject * mo = mit->second;
-            mo -> _updateRenderQueue( queue );
+            if (mo->isVisible()) 
+            { 
+                mo -> _updateRenderQueue( queue );
+            }
             ++mit;
         }
 
