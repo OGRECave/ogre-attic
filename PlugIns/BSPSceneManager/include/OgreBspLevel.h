@@ -144,7 +144,7 @@ namespace Ogre {
         /// indexes for the whole level, will be copied to the real indexdata per frame
         size_t mNumIndexes;
         // system-memory buffer
-        DefaultHardwareIndexBuffer* mIndexes;
+        HardwareIndexBufferSharedPtr mIndexes;
 
         /// Brushes as used for collision, main memory is here
         BspNode::Brush *mBrushes;
@@ -213,7 +213,7 @@ namespace Ogre {
     {
     public:
         BspLevelPtr() : SharedPtr<BspLevel>() {}
-        BspLevelPtr(BspLevel* rep) : SharedPtr<BspLevel>(rep) {}
+        explicit BspLevelPtr(BspLevel* rep) : SharedPtr<BspLevel>(rep) {}
         BspLevelPtr(const BspLevelPtr& r) : SharedPtr<BspLevel>(r) {} 
         BspLevelPtr(const ResourcePtr& r) : SharedPtr<BspLevel>()
         {

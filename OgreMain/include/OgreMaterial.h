@@ -566,7 +566,7 @@ namespace Ogre {
 	{
 	public:
 		MaterialPtr() : SharedPtr<Material>() {}
-		MaterialPtr(Material* rep) : SharedPtr<Material>(rep) {}
+		explicit MaterialPtr(Material* rep) : SharedPtr<Material>(rep) {}
 		MaterialPtr(const MaterialPtr& r) : SharedPtr<Material>(r) {} 
 		MaterialPtr(const ResourcePtr& r) : SharedPtr<Material>()
 		{

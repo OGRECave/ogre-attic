@@ -307,7 +307,7 @@ namespace Ogre {
     {
     public:
         SkeletonPtr() : SharedPtr<Skeleton>() {}
-        SkeletonPtr(Skeleton* rep) : SharedPtr<Skeleton>(rep) {}
+        explicit SkeletonPtr(Skeleton* rep) : SharedPtr<Skeleton>(rep) {}
         SkeletonPtr(const SkeletonPtr& r) : SharedPtr<Skeleton>(r) {} 
         SkeletonPtr(const ResourcePtr& r) : SharedPtr<Skeleton>()
         {

@@ -51,7 +51,7 @@ namespace Ogre {
     {
     public:
         MeshPtr() : SharedPtr<Mesh>() {}
-        MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
+        explicit MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
         MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
         MeshPtr(const ResourcePtr& r);
         /// Operator used to convert a ResourcePtr to a MeshPtr

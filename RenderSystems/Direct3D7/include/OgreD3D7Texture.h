@@ -97,7 +97,7 @@ namespace Ogre {
     {
     public:
         D3DTexturePtr() : SharedPtr<D3DTexture>() {}
-        D3DTexturePtr(D3DTexture* rep) : SharedPtr<D3DTexture>(rep) {}
+        explicit D3DTexturePtr(D3DTexture* rep) : SharedPtr<D3DTexture>(rep) {}
         D3DTexturePtr(const D3DTexturePtr& r) : SharedPtr<D3DTexture>(r) {} 
         D3DTexturePtr(const ResourcePtr& r) : SharedPtr<D3DTexture>()
         {

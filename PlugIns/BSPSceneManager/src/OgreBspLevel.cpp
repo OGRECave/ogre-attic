@@ -54,7 +54,6 @@ namespace Ogre {
         mVertexData(0), 
         mLeafFaceGroups(0),
         mFaceGroups(0), 
-        mIndexes(0),
         mBrushes(0)
     {
         mVisData.tableData = 0;
@@ -94,8 +93,7 @@ namespace Ogre {
     {
         if (mVertexData)
             delete mVertexData;
-        if (mIndexes)
-            delete mIndexes;
+        mIndexes.setNull();
         if (mFaceGroups)
             delete [] mFaceGroups;
         if (mLeafFaceGroups)
@@ -113,6 +111,11 @@ namespace Ogre {
         mLeafFaceGroups = 0;
         mBrushes = 0;
         mVisData.tableData = 0;
+        for (PatchMap::iterator pi = mPatches.begin(); pi != mPatches.end(); ++pi)
+        {
+            delete pi->second;
+        }
+        mPatches.clear();
     }
 
     //-----------------------------------------------------------------------
@@ -186,10 +189,10 @@ namespace Ogre {
         // Copy the indexes into a software area for staging
         mNumIndexes = q3lvl.mNumElements + mPatchIndexCount;
         // Create an index buffer manually in system memory, allow space for patches
-        mIndexes = new DefaultHardwareIndexBuffer(
+        mIndexes.bind(new DefaultHardwareIndexBuffer(
             HardwareIndexBuffer::IT_32BIT, 
             mNumIndexes, 
-            HardwareBuffer::HBU_DYNAMIC);
+            HardwareBuffer::HBU_DYNAMIC));
         // Write main indexes
         mIndexes->writeData(0, sizeof(unsigned int) * q3lvl.mNumElements, q3lvl.mElements, true);
 
