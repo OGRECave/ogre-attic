@@ -264,6 +264,9 @@ public:
         if (mInputDevice->isKeyDown(KC_P) && mTimeUntilNextToggle <= 0)
         {
             displayCameraDetails = !displayCameraDetails;
+            mTimeUntilNextToggle = 0.5;
+            if (!displayCameraDetails)
+                mWindow->setDebugText("");
         }
         if (displayCameraDetails)
         {
