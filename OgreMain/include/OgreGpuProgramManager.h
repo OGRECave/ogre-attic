@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreResourceManager.h"
 #include "OgreException.h"
+#include "OgreGpuProgram.h"
 
 namespace Ogre {
 
@@ -53,11 +54,12 @@ namespace Ogre {
 		virtual Resource* create( const String& name ) 
 		{
 			// N/A, we need to know the type
-			Except(Exception::ERR_INTERNAL_ERROR, "You should call create "
+			Except(Exception::ERR_INTERNAL_ERROR, "You should call load "
 				"with a specific type", "GpuProgramManager::create");
 		}
 
-		/** Creates a GPU program from a file of assembly. 
+
+        /** Loads a GPU program from a file of assembly. 
 		@remarks
 			This method creates a new program of the type specified as the second parameter.
 			As with all types of ResourceManager, this class will search for the file in
@@ -66,9 +68,9 @@ namespace Ogre {
 			identifying name of the GpuProgram which is returned.
 		@param gptype The type of program to create
 		*/
-		virtual GpuProgram* create(const String& filename, GpuProgramType gptype) = 0;
+		virtual GpuProgram* load(const String& filename, GpuProgramType gptype, int priority = 1);
 
-		/** Creates a GPU program from a string of assembly code.
+		/** Loads a GPU program from a string of assembly code.
 		@remarks
 			The assembly code must be compatible with this manager - call the 
 			getSupportedSyntax method for details of the supported syntaxes 
@@ -77,7 +79,7 @@ namespace Ogre {
 		@param code A string of assembly code which will form the program to run
 		@param gptype The type of prgram to create.
 		*/
-		virtual GpuProgram* create(const String& name, const String& code, GpuProgramType gptype) = 0;
+		virtual GpuProgram* load(const String& name, const String& code, GpuProgramType gptype, int priority = 1);
 
 		/** Returns the syntaxes that this manager supports. */
 		virtual const SyntaxCodes& getSupportedSyntax(void) { return mSyntaxCodes; };
@@ -94,6 +96,10 @@ namespace Ogre {
                 single compilation unit, preventing link errors.
         */
         static GpuProgramManager& getSingleton(void);
+    protected:
+		/** Create a new GpuProgram. */
+        virtual GpuProgram* create(const String& name, GpuProgramType gptype) = 0;
+
 
 	};
 

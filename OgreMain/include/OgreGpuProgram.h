@@ -51,6 +51,10 @@ namespace Ogre {
 	protected:
 		/// The type of the program
 		GpuProgramType mType;
+        /// The assembler source of the program
+        String mSource;
+        /// Whether we need to load source from file or not
+        bool mLoadFromFile;
 
 	public:
 		GpuProgram(GpuProgramType gptype);
@@ -63,7 +67,11 @@ namespace Ogre {
             parameters. This can vary depending on the program version supported by the
             graphics card being used. You should consult the documentation for the type of
             low level program you are using, or alternatively use the methods
-            provided on this class for determining the constants supported (such as isFloatConstantAllowed).
+            provided on RenderSystemCapabilities to determine the options.
+        @param
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
 		@param index The index at which to place the parameter
 		@param val The value to set
 		*/
@@ -75,8 +83,12 @@ namespace Ogre {
             floating point constants, and that fragment programs only support integer (fixed point)
             parameters. This can vary depending on the program version supported by the
             graphics card being used. You should consult the documentation for the type of
-            low level program you are using, or alternatively use the properties
-            provided on the RenderSystemCapabilities class to determine the level of support.
+            low level program you are using, or alternatively use the methods
+            provided on RenderSystemCapabilities to determine the options.
+        @param
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
 		@param index The index at which to place the parameter
 		@param val The value to set
 		*/
@@ -89,7 +101,11 @@ namespace Ogre {
             parameters. This can vary depending on the program version supported by the
             graphics card being used. You should consult the documentation for the type of
             low level program you are using, or alternatively use the methods
-            provided on this class for determining the constants supported (such as isFloatConstantAllowed).
+            provided on RenderSystemCapabilities to determine the options.
+        @param
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
 		@param index The index at which to place the parameter
 		@param val The value to set
 		*/
@@ -106,12 +122,6 @@ namespace Ogre {
 		@param vec The value to set
 		*/
 		virtual void setConstant(size_t index, const Vector3& vec);
-		/** Sets a Matrix3 parameter to the program.
-		@param index The index at which to place the parameter
-			NB this index refers to the number of floats, so a Matrix3 is 9. 
-		@param m The value to set
-		*/
-		virtual void setConstant(size_t index, const Matrix3& m) = 0; // left to rendersystem since column / row vectors matter
 		/** Sets a Matrix4 parameter to the program.
 		@param index The index at which to place the parameter
 			NB this index refers to the number of floats, so a Matrix4 is 16. 
@@ -126,7 +136,11 @@ namespace Ogre {
             parameters. This can vary depending on the program version supported by the
             graphics card being used. You should consult the documentation for the type of
             low level program you are using, or alternatively use the methods
-            provided on this class for determining the constants supported (such as isFloatConstantAllowed).
+            provided on RenderSystemCapabilities to determine the options.
+        @param
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
 		@param index The index at which to start placing parameters
 		@param val Pointer to the values to write
 		@param count The number of floats to write
@@ -141,7 +155,11 @@ namespace Ogre {
             parameters. This can vary depending on the program version supported by the
             graphics card being used. You should consult the documentation for the type of
             low level program you are using, or alternatively use the methods
-            provided on this class for determining the constants supported (such as isFloatConstantAllowed).
+            provided on RenderSystemCapabilities to determine the options.
+        @param
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
 		@param index The index at which to start placing parameters
 		@param val Pointer to the values to write
 		@param count The number of integers to write
@@ -156,12 +174,35 @@ namespace Ogre {
             parameters. This can vary depending on the program version supported by the
             graphics card being used. You should consult the documentation for the type of
             low level program you are using, or alternatively use the methods
-            provided on this class for determining the constants supported (such as isFloatConstantAllowed).
+            provided on RenderSystemCapabilities to determine the options.
+        @param
+            Another possible limitation is that some systems only allow constants to be set
+            on certain boundaries, e.g. in sets of 4 values for example. Again, see
+            RenderSystemCapabilities for full details.
 		@param index The index at which to start placing parameters
 		@param val Pointer to the values to write
 		@param count The number of bools to write
 		*/
 		virtual void setConstant(size_t index, const bool *val, size_t count) = 0;
+
+        /** Sets the source assembly for this program.
+        @remarks
+            You should not need to use this method - use the GpuProgramManager::load
+            methods instead, which will call this method. Setting this will have no effect
+            unless you reload the program in any case.
+        */
+        virtual void setSource(const String& source);
+
+        /** Gets the assembler source for this program. */
+        virtual const String& getSource(void) const { return mSource; }
+
+        /// @copydoc Resource::load
+        void load(void);
+
+    protected:
+        /// Virtual method which must be implemented by subclasses, load from mSource
+        virtual void loadFromSource(void) = 0;
+
 	};
 
 

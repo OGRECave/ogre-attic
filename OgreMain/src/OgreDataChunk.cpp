@@ -177,5 +177,10 @@ namespace Ogre {
         return ret;
 
     }
+    //-----------------------------------------------------------------------
+    String DataChunk::getAsString(void)
+    {
+        return String((const char*)mData);
+    }
 
 }

@@ -151,6 +151,8 @@ namespace Ogre {
     class Font;
     class FontManager;
     class FrameListener;
+    class GpuProgram;
+    class GpuProgramManager;
     class GuiElement;
     class GuiElementFactory;
     class GuiContainer;
