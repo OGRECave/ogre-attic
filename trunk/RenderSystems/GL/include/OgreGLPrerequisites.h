@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   define NOMINMAX // required to stop windows.h messing up std::min
 #   include <windows.h>
 #   include <wingdi.h>
-#   include "gl.h"
+#   include <GL/gl.h>
 #   define GL_GLEXT_PROTOTYPES
 #   include "glprocs.h"
 #   include <GL/glu.h>
@@ -52,7 +52,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   include <OpenGL/gl.h>
 #   include <OpenGL/glu.h>
 #endif
-#include "glext.h"
+#include <GL/glext.h>
 
 extern "C" {
 // Pointer to glActiveTextureARB function

@@ -39,7 +39,7 @@
 
 #ifdef _WIN32
   #include <windows.h>
-  #include "gl.h"  /* Include local "gl.h". Don't include vc32 <GL/gl.h>. */
+  #include <GL/gl.h>  
   #include "glprocs.h"
 #else /* GLX */
   #include <GL/gl.h>
