@@ -260,9 +260,9 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::apply(Real timePos, Real weight)
+    void AnimationTrack::apply(Real timePos, Real weight, bool accumulate)
     {
-        applyToNode(mTargetNode, timePos, weight);
+        applyToNode(mTargetNode, timePos, weight, accumulate);
         
     }
     //---------------------------------------------------------------------
@@ -276,9 +276,30 @@ namespace Ogre {
         mTargetNode = node;
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::applyToNode(Node* node, Real timePos, Real weight)
+    void AnimationTrack::applyToNode(Node* node, Real timePos, Real weight, bool accumulate)
     {
         KeyFrame kf = this->getInterpolatedKeyFrame(timePos);
+		if (accumulate) 
+        {
+            // add to existing. Weights are not relative, but treated as absolute multipliers for the animation
+            Vector3 translate = kf.getTranslate() * weight;
+			node->translate(translate);
+
+			// interpolate between no-rotation and full rotation, to point 'weight', so 0 = no rotate, 1 = full
+			Quaternion rotate = Quaternion::Slerp(weight, Quaternion::IDENTITY, kf.getRotation());
+			node->rotate(rotate);
+
+			Vector3 scale = kf.getScale();
+			// Not sure how to modify scale for cumulative anims... leave it alone
+			//scale = ((Vector3::UNIT_SCALE - kf.getScale()) * weight) + Vector3::UNIT_SCALE;
+			node->scale(scale);
+		} 
+        else 
+        {
+			// apply using weighted transform method
+			node->_weightedTransform(weight, kf.getTranslate(), kf.getRotation(),
+				kf.getScale());
+		}
 
         /*
         // DEBUG
@@ -294,8 +315,6 @@ namespace Ogre {
         //node->rotate(kf.getRotation() * weight);
         //node->translate(kf.getTranslate() * weight);
 
-        node->_weightedTransform(weight, kf.getTranslate(), kf.getRotation(), 
-            kf.getScale());
 
 
 

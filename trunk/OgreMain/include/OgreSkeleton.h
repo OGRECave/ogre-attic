@@ -32,6 +32,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    /**  */
+    enum SkeletonAnimationBlendMode {
+        /// Animations are applied by calculating a weighted average of all animations
+	    ANIMBLEND_AVERAGE,
+        /// Animations are applied by calculating a weighted cumulative total
+	    ANIMBLEND_CUMULATIVE
+    };
+
 #define OGRE_MAX_NUM_BONES 256
 
     /** A collection of Bone objects used to animate a skinned mesh.
@@ -223,9 +231,14 @@ namespace Ogre {
         /** Gets a single animation by index. */
         Animation* getAnimation(unsigned short index) const;
 
+		/** Gets the animation blending mode which this skeleton will use. */
+        SkeletonAnimationBlendMode getBlendMode();
+        /** Sets the animation blending mode this skeleton will use. */
+		void setBlendMode(SkeletonAnimationBlendMode state);
 
 
     protected:
+		SkeletonAnimationBlendMode mBlendState;
         /// Storage of bones, lookup by bone handle
         typedef std::map<unsigned short, Bone*> BoneList;
         BoneList mBoneList;

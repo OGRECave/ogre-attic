@@ -47,6 +47,8 @@ namespace Ogre {
 
         // Indicate root has not been derived yet
         mRootBone = 0;
+		// set animation blending to weighted, not cumulative
+		mBlendState = ANIMBLEND_AVERAGE;
 
     }
     //---------------------------------------------------------------------
@@ -221,7 +223,7 @@ namespace Ogre {
             if (animState.getEnabled())
             {
                 Animation* anim = getAnimation(animState.getAnimationName());
-                anim->apply(animState.getTimePosition(), animState.getWeight());
+				anim->apply(animState.getTimePosition(), animState.getWeight(), mBlendState == ANIMBLEND_CUMULATIVE);
             }
         }
 
@@ -482,6 +484,16 @@ namespace Ogre {
         }
 
     }
+    //---------------------------------------------------------------------
+	SkeletonAnimationBlendMode Skeleton::getBlendMode() 
+    {
+		return mBlendState;
+	}
+    //---------------------------------------------------------------------
+	void Skeleton::setBlendMode(SkeletonAnimationBlendMode state) 
+    {
+		mBlendState = state;
+	}
 
 }
 
