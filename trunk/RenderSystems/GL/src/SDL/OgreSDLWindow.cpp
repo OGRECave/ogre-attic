@@ -168,7 +168,7 @@ namespace Ogre {
 			Except(
 			Exception::ERR_INVALIDPARAMS, 
 			"Unable to determine image type for '" + filename + "' - invalid extension.",
-			"D3D8RenderWindow::writeContentsToFile" );
+			"SDLWindow::writeContentsToFile" );
 
 		while( pos != filename.length() - 1 )
 			extension += filename[++pos];

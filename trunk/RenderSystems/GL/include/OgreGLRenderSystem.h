@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLPrerequisites.h"
 #include "OgrePlatform.h"
 #include "OgreRenderSystem.h"
+#include "OgreRenderSystemCapabilities.h"
 
 #include "OgreGLSupport.h"
 
@@ -85,6 +86,9 @@ namespace Ogre {
 		
         /// GL support class, used for creating windows etc
         GLSupport* mGLSupport;
+        
+        /// Used to store the capabilities of the graphics card
+        RenderSystemCapabilities* mCapabilities;
 
         /// Internal method to set pos / direction of a light
         void setGLLightPositionDirection(Light* lt, int lightindex);

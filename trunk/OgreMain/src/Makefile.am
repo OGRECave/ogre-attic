@@ -84,6 +84,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreQuaternion.cpp \
                          OgreRenderQueue.cpp \
                          OgreRenderSystem.cpp \
+                         OgreRenderSystemCapabilities.cpp \
                          OgreRenderTarget.cpp \
                          OgreRenderTexture.cpp \
                          OgreRenderWindow.cpp \

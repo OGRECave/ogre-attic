@@ -29,8 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    template<> GLSupport* Singleton<GLSupport>::ms_Singleton = 0;
-
 	void GLSupport::setConfigOption(const String &name, const String &value)
 	{
 		ConfigOptionMap::iterator it = mOptions.find(name);
@@ -117,8 +115,4 @@ namespace Ogre {
         return true;
     }
 
-    GLSupport& GLSupport::getSingleton(void)
-    {   
-      return Singleton<GLSupport>::getSingleton();
-    }
 }
