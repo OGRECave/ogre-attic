@@ -48,6 +48,7 @@ namespace Ogre {
         RenderOperation mRenderOp;
     public:
         ShadowRenderable() {}
+        virtual ~ShadowRenderable() {}
         /** Set the material to be used by the shadow, should be set by the caller 
           before adding to a render queue
         */
