@@ -14,12 +14,18 @@ using namespace std;
 int main(int argc, char** argv)
 {
     int size;
-    std::string datName, newName;
+    std::string datName, newName, fontName, imageName, genGlyph;
 
-    cout << "Enter size of (square) texture: ";
+		cout << "Enter unique font name: ";
+		cin >> fontName;
+		cout << "Enter font image name: ";
+		cin >> imageName;
+		cout << "Enter size of texture(Example: 256): ";
     cin >> size;
     cout << "Enter name of file containing binary widths: ";
     cin >> datName;
+		cout << "Generate all glyph statements(Not Recommended)(Y/N): ";
+		cin >> genGlyph;
     cout << "Enter name of new text file to create: ";
     cin >> newName;
 
@@ -28,6 +34,11 @@ int main(int argc, char** argv)
     FILE *fp = fopen(datName.c_str(), "rb");
 
     ofstream o(newName.c_str());
+
+		o << fontName << endl;
+		o << "{" << "\n\n";
+		o << "\ttype\timage" << endl;
+		o << "\tsource\t" << imageName << "\n\n\n";
 
     int posx = 0;
     int posy = size; // work backwards so same as uv
@@ -51,19 +62,25 @@ int main(int argc, char** argv)
         v1 = (float)posy / (float)(size);
         v2 = (float)(posy - charSize) / (float)(size);
 
-        std::string s = " ";
-        s.at(0) = c;
-        o << "glyph " << s << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
-
-        posx += charSize;
-
+				if((genGlyph.at(0) == 'N' || genGlyph.at(0) == 'n') && c >= '!' && c <= '~')
+				{
+					std::string s = " ";
+					s.at(0) = c;
+					o << "\tglyph " << s << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
+				}
+				
+				if((genGlyph.at(0) != 'N' && genGlyph.at(0) != 'n'))
+				{
+					std::string s = " ";
+					s.at(0) = c;
+					o << "\tglyph " << s << " " << u1 << " " << v1 << " " << u2 << " " << v2 << std::endl;
+				}
+				posx += charSize;
 
     }
-
+		o << endl;
+		o << "}" << endl;
     fclose(fp);
-    
-
-
 
     return 0;
 }
