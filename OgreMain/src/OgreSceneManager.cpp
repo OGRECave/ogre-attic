@@ -593,7 +593,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SceneManager::_renderScene(Camera* camera, Viewport* vp)
+    void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeHUD)
     {
         mCameraInProgress = camera;
 
@@ -605,6 +605,9 @@ namespace Ogre {
 
         // Auto-track camera if required
         camera->_autoTrack();
+
+        // Clear the render queue
+        mRenderQueue.clear();
 
         // Parse the scene and tag visibles
         _findVisibleObjects(camera);
@@ -1234,7 +1237,6 @@ namespace Ogre {
     void SceneManager::_findVisibleObjects(Camera* cam)
     {
         // Tell nodes to find, cascade down all nodes
-        mRenderQueue.clear();
         mSceneRoot->_findVisibleObjects(cam, &mRenderQueue, true, mDisplayNodes);
 
     }
@@ -1624,6 +1626,11 @@ namespace Ogre {
 
         mDestRenderSystem->_endFrame();
         
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::_queueHUDObjects(void)
+    {
+        // TODO
     }
 
 }

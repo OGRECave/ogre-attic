@@ -76,6 +76,7 @@ namespace Ogre {
         }
 
         mDisplaySkeleton = false;
+        mRenderQueueID = RENDER_QUEUE_MAIN;
 
 
 
@@ -162,7 +163,7 @@ namespace Ogre {
         iend = mSubEntityList.end();
         for (i = mSubEntityList.begin(); i != iend; ++i)
         {
-            queue->addRenderable(*i);
+            queue->addRenderable(*i, mRenderQueueID);
         }
 
         // Since we know we're going to be rendered, take this opportunity to 
@@ -182,7 +183,7 @@ namespace Ogre {
             for (int b = 0; b < numBones; ++b)
             {
                 Bone* bone = pSkel->getBone(b);
-                queue->addRenderable(bone);
+                queue->addRenderable(bone, mRenderQueueID);
             }
         }
 
@@ -232,6 +233,16 @@ namespace Ogre {
     void Entity::setDisplaySkeleton(bool display)
     {
         mDisplaySkeleton = display;
+    }
+    //-----------------------------------------------------------------------
+    void Entity::setRenderQueueGroup(RenderQueueGroupID queueID)
+    {
+        mRenderQueueID = queueID;
+    }
+    //-----------------------------------------------------------------------
+    RenderQueueGroupID Entity::getRenderQueueGroup(void)
+    {
+        return mRenderQueueID;
     }
 
 }
