@@ -82,28 +82,32 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Frequently 
 Asked Questions (FAQ)</p><p align="left" class="MainHeader">Q: What platforms 
 does OGRE build under?</p><TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"><TR><TD CLASS="BorderHeader" WIDTH="33%"><DIV ALIGN="CENTER">Platform</DIV></TD><TD CLASS="BorderHeader" WIDTH="20%"><DIV ALIGN="CENTER">Compiler</DIV></TD><TD CLASS="BorderHeader"><DIV ALIGN="CENTER">Extra 
-Notes</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><P CLASS="BorderContent">Windows 
+Notes</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%" VALIGN="MIDDLE"><DIV ALIGN="CENTER"><P>Windows 
 95/98/Me/2000/XP</P></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">Microsoft 
 Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">DirectX 
 8 SDK<BR>Due to STL problems with MS compilers you MUST install <A HREF="http://www.stlport.org">STLport 
-4.5.3</A></DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER">Linux</DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc 
-3.x </DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Run 'configure' then 
-'make' </DIV></TD></TR></TABLE><p align="left">MacOS X has not been tested but 
-you could probably get it to work with gcc using the Linux makefiles with a little 
-work. Borland compilers are not yet supported but may be in the future.</p><p align="left" CLASS="MainHeader">Q: 
-Why do I need STLport when compiling with VC++?</p><p align="left">Because the 
-STL implementation in VC++ 6 and VC++.Net is very old, pretty slow and has a number 
-of known bugs. The issue which makes it totally unsuitable for OGRE is that STL 
-classes cannot be passed across a DLL boundary using the MS STL; it will instantly 
-cause a crash. OGRE is very DLL oriented so this makes the MS STL unusable.</p><p align="left">STLport 
-is more stable, and is faster than MS STL in release mode. STLport is not a requirement 
-for gcc under Linux because gcc's STL is much better (better than STLports in 
-fact)</p><p align="left" CLASS="MainHeader">Q: How do I install STLport?</p><OL><LI>Download 
-STLport 4.5.3 from <A HREF="http://www.stlport.org">www.stlport.org</A> and unzip 
-it somewhere</LI><LI>Open a command prompt, and change to the folder STLport-4.5.3\src</LI><LI>If 
-you're using Visual C++ 6:<OL><LI> type 'nmake -f vc6.mak clean all'</LI><LI>type 
-'nmake -f vc6.mak install'</LI></OL></LI><LI>If you're using Visual C++.Net:<OL><LI>type 
-'nmake -f vc7.mak clean all'</LI><LI>type 'nmake -f vc7.mak install'</LI></OL></LI><LI>Open 
+4.5.3</A></DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER">Linux</DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER"><P>gcc 
+3.x<BR>gcc 2.9x with <A HREF="http://www.stlport.org">STLport 4.5.3</A></P></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Run 
+'configure' then 'make' </DIV></TD></TR></TABLE><p align="left">MacOS X has not 
+been tested but you could probably get it to work with gcc using the Linux makefiles 
+with a little work. Borland compilers are not yet supported but may be in the 
+future.</p><p align="left" CLASS="MainHeader">Q: When do I need STLport and why?</p><p align="left">You 
+need STLport if you're running Microsoft Visual C++ (version 6 or .NET), because 
+the STL implementation in VC++ 6 and VC++.Net is very old, pretty slow and has 
+a number of known bugs. The issue which makes it totally unsuitable for OGRE is 
+that STL classes cannot be passed across a DLL boundary using the MS STL; it will 
+instantly cause a crash. OGRE is very DLL oriented so this makes the MS STL unusable. 
+STLport is more stable, and is faster than MS STL in release mode. </p><p align="left">You 
+also need STLport if you're using gcc 2.9x because the STL included with this 
+version is not ANSI compliant enough for OGRE. You don't need it if you have gcc 
+v3.x because the STL in that version has been updated. </p><p align="left" CLASS="MainHeader">Q: 
+How do I install STLport?</p><OL><LI>Download STLport 4.5.3 from <A HREF="http://www.stlport.org">www.stlport.org</A> 
+and unzip it somewhere</LI><LI>Open a command prompt, and change to the folder 
+STLport-4.5.3\src</LI><LI>If you're using Visual C++ 6:<OL><LI> type 'nmake -f 
+vc6.mak clean all'</LI><LI>type 'nmake -f vc6.mak install'</LI></OL></LI><LI>If 
+you're using Visual C++.Net:<OL><LI>type 'nmake -f vc7.mak clean all'</LI><LI>type 
+'nmake -f vc7.mak install'</LI></OL></LI><LI>If you're using gcc 2.9x:<OL><LI>type 
+'./configure'</LI><LI>type 'make'</LI><LI>type 'make install'</LI></OL></LI><LI>Open 
 Microsoft Visual C++ and select Tools | Options... from the menu bar to bring 
 up the options dialog</LI><LI>Go to the include folders list: in VC6 this is on 
 the 'Directories' tab, in VC++.Net it is under Projects|VC++ Directories in the 
