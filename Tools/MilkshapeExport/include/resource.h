@@ -7,7 +7,6 @@
 #define IDC_EXPORT_MESH                 1003
 #define IDC_CHECK2                      1004
 #define IDC_EXPORT_SKEL                 1004
-#define IDC_EXPORT_SKEL2                1005
 #define IDC_SPLIT_ANIMATION             1005
 #define IDC_EDIT1                       1006
 #define IDC_FPS                         1006
@@ -19,8 +18,6 @@
 #define IDC_GRP_SKELETON                1012
 #define IDC_GRP_MATERIAL                1013
 #define IDC_NUM_LODS                    1014
-#define IDC_EXPORT_SKEL3                1015
-#define IDC_EXPORT_MATERIAL             1015
 #define IDC_EDGE_LISTS                  1016
 #define IDC_TANGENT_VECTORS             1017
 
