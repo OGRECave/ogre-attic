@@ -288,7 +288,6 @@ namespace Ogre {
 	{
 #ifdef HW_RTT
 		bool useBind = checkExtension("WGL_ARB_render_texture");
-		useBind = true;
 
 		if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
 			return new Win32RenderTexture(*this, name, width, height, texType, 
