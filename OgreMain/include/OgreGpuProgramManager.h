@@ -89,10 +89,10 @@ namespace Ogre {
             const String& syntaxCode, int priority = 1);
 
 		/** Returns the syntaxes that this manager supports. */
-		virtual const SyntaxCodes& getSupportedSyntax(void) { return mSyntaxCodes; };
+		virtual const SyntaxCodes& getSupportedSyntax(void) const { return mSyntaxCodes; };
 
         /** Returns whether a given syntax code (e.g. "ps_1_3", "fp20", "arbvp1") is supported. */
-        virtual bool isSyntaxSupported(const String& syntaxCode);
+        virtual bool isSyntaxSupported(const String& syntaxCode) const;
 		
 		/** Creates a new GpuProgramParameters instance which can be used to bind
             parameters to your programs.

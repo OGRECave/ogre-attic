@@ -68,7 +68,7 @@ namespace Ogre {
         return prg;
     }
     //---------------------------------------------------------------------------
-    bool GpuProgramManager::isSyntaxSupported(const String& syntaxCode)
+    bool GpuProgramManager::isSyntaxSupported(const String& syntaxCode) const
     {
         if (std::find(mSyntaxCodes.begin(), mSyntaxCodes.end(), syntaxCode) != mSyntaxCodes.end())
         {

@@ -202,17 +202,17 @@ namespace Ogre {
         virtual void resetIntConstants(void) { mIntConstants.clear(); }
 
         /// Gets a pointer to the array of Real constants
-        virtual const Real* getRealConstantPointer(void) { return &mRealConstants[0]; }
+        virtual const Real* getRealConstantPointer(void) const { return &mRealConstants[0]; }
         /// Gets a pointer to the array of int constants
-        virtual const int* getIntConstantPointer(void) { return &mIntConstants[0]; }
+        virtual const int* getIntConstantPointer(void) const { return &mIntConstants[0]; }
         /// Gets the number of Real constants that have been set
-        virtual size_t getRealConstantCount(void) { return mRealConstants.size(); }
+        virtual size_t getRealConstantCount(void) const { return mRealConstants.size(); }
         /// Gets the number of int constants that have been set
-        virtual size_t getIntConstantCount(void) { return mIntConstants.size(); }
+        virtual size_t getIntConstantCount(void) const { return mIntConstants.size(); }
         /// Returns true if there are any Real constants contained here
-        virtual bool hasRealConstantParams(void) { return !(mRealConstants.empty()); }
+        virtual bool hasRealConstantParams(void) const { return !(mRealConstants.empty()); }
         /// Returns true if there are any int constants contained here
-        virtual bool hasIntConstantParams(void) { return !(mIntConstants.empty()); }
+        virtual bool hasIntConstantParams(void) const { return !(mIntConstants.empty()); }
 
         /** Sets up a constant which will automatically be updated by the system.
         @remarks

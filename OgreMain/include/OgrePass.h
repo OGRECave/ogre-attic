@@ -138,7 +138,7 @@ namespace Ogre {
         ~Pass();
 
         /// Returns true if this pass is programmable ie supports vertex & fragment programs.
-        bool isProgrammable(void) { return mIsProgrammable; }
+        bool isProgrammable(void) const { return mIsProgrammable; }
         /// Sets whether this Pass is programmable or not
         void setProgrammable(bool programmable) {mIsProgrammable = programmable;}
         /// Gets the index of this Pass in the parent Technique
@@ -642,7 +642,7 @@ namespace Ogre {
 		/** Internal method for unloading this pass. */
 		void _unload(void);
         // Is this loaded?
-        bool isLoaded(void);
+        bool isLoaded(void) const;
 
         /** Gets the 'hash' of this pass, ie a precomputed number to use for sorting
         @remarks
@@ -650,7 +650,7 @@ namespace Ogre {
             using firstly its index (so that all passes are rendered in order), then
             by the textures which it's TextureUnitState instances are using.
         */
-        unsigned long getHash(void);
+        unsigned long getHash(void) const;
 
         /// Internal method for recalculating the hash
         void _recalculateHash(void);
