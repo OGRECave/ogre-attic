@@ -1848,13 +1848,16 @@ namespace Ogre {
         numEntities = (uint)mParentSceneMgr->mEntities.size();
         for (int i = 0; i < (numEntities - 1); ++i, ++a)
         {
+            // Skip if a does not pass the mask
+            if (! (a->second->getQueryFlags() & mQueryMask))
+                continue;
+
             // Loop b from a+1 to last
             b = a;
             for (++b; b != theEnd; ++b)
             {
-                // Apply mask (both must pass)
-                if ( (a->second->getQueryFlags() & mQueryMask) && 
-                     (b->second->getQueryFlags() & mQueryMask))
+                // Apply mask to b (both must pass)
+                if (b->second->getQueryFlags() & mQueryMask)
                 {
                     const AxisAlignedBox& box1 = a->second->getWorldBoundingBox();
                     const AxisAlignedBox& box2 = b->second->getWorldBoundingBox();
