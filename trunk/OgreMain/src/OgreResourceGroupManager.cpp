@@ -944,5 +944,125 @@ namespace Ogre {
             i->second->removeAll();
         }
     }
+    //-----------------------------------------------------------------------
+    StringVectorPtr ResourceGroupManager::listResourceNames(const String& groupName)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        StringVectorPtr vec(new StringVector());
+
+        // Try to find in resource index first
+        ResourceGroup* grp = getResourceGroup(groupName);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + groupName + "'", 
+                "ResourceGroupManager::listResourceNames");
+        }
+
+        OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+        // Iterate over the archives
+        LocationList::iterator i, iend;
+        iend = grp->locationList.end();
+        for (i = grp->locationList.begin(); i != iend; ++i)
+        {
+            StringVectorPtr lst = (*i)->archive->list((*i)->recursive);
+            vec->insert(vec->end(), lst->begin(), lst->end());
+        }
+
+        return vec;
+
+
+    }
+    //-----------------------------------------------------------------------
+    FileInfoListPtr ResourceGroupManager::listResourceFileInfo(const String& groupName)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        FileInfoListPtr vec(new FileInfoList());
+
+        // Try to find in resource index first
+        ResourceGroup* grp = getResourceGroup(groupName);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + groupName + "'", 
+                "ResourceGroupManager::listResourceFileInfo");
+        }
+
+        OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+        // Iterate over the archives
+        LocationList::iterator i, iend;
+        iend = grp->locationList.end();
+        for (i = grp->locationList.begin(); i != iend; ++i)
+        {
+            FileInfoListPtr lst = (*i)->archive->listFileInfo((*i)->recursive);
+            vec->insert(vec->end(), lst->begin(), lst->end());
+        }
+
+        return vec;
+
+    }
+    //-----------------------------------------------------------------------
+    StringVectorPtr ResourceGroupManager::findResourceNames(const String& groupName, 
+        const String& pattern)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        StringVectorPtr vec(new StringVector());
+
+        // Try to find in resource index first
+        ResourceGroup* grp = getResourceGroup(groupName);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + groupName + "'", 
+                "ResourceGroupManager::findResourceNames");
+        }
+
+        OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+            // Iterate over the archives
+            LocationList::iterator i, iend;
+        iend = grp->locationList.end();
+        for (i = grp->locationList.begin(); i != iend; ++i)
+        {
+            StringVectorPtr lst = (*i)->archive->find(pattern, (*i)->recursive);
+            vec->insert(vec->end(), lst->begin(), lst->end());
+        }
+
+        return vec;
+    }
+    //-----------------------------------------------------------------------
+    FileInfoListPtr ResourceGroupManager::findResourceFileInfo(const String& groupName, 
+        const String& pattern)
+    {
+        OGRE_LOCK_AUTO_MUTEX
+        FileInfoListPtr vec(new FileInfoList());
+
+        // Try to find in resource index first
+        ResourceGroup* grp = getResourceGroup(groupName);
+        if (!grp)
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + groupName + "'", 
+                "ResourceGroupManager::findResourceFileInfo");
+        }
+
+        OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+
+            // Iterate over the archives
+            LocationList::iterator i, iend;
+        iend = grp->locationList.end();
+        for (i = grp->locationList.begin(); i != iend; ++i)
+        {
+            FileInfoListPtr lst = (*i)->archive->findFileInfo(pattern, (*i)->recursive);
+            vec->insert(vec->end(), lst->begin(), lst->end());
+        }
+
+        return vec;
+    }
+    //-----------------------------------------------------------------------
+
+
 
 }

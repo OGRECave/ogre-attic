@@ -58,7 +58,7 @@ namespace Ogre {
             archive, for file naming
         */
         void findFiles(const String& pattern, bool recursive, StringVector* simpleList,
-            Archive::FileInfoList* detailList, const String& currentDir = "");
+            FileInfoList* detailList, const String& currentDir = "");
 
         /// Utility method to change the current directory
         void changeDirectory(const String& dir) const;
