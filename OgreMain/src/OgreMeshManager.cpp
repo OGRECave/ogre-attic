@@ -74,15 +74,15 @@ namespace Ogre
     Mesh* MeshManager::load( const String& filename, 
 		HardwareBuffer::Usage vertexBufferUsage, 
 		HardwareBuffer::Usage indexBufferUsage, 
-		bool vertexBufferSysMem, bool indexBufferSysMem,
+		bool vertexBufferShadowed, bool indexBufferShadowed,
 		int priority)
     {
         Mesh* pMesh = (Mesh*)(getByName(filename));
         if (!pMesh)
         {
             pMesh = (Mesh*)create(filename);
-			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferSysMem);
-			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferSysMem);
+			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferShadowed);
+			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferShadowed);
             ResourceManager::load(pMesh, priority);
             //pMesh->_registerMaterials();
         }
