@@ -185,6 +185,9 @@ namespace Ogre {
         Real mPhase;
         Real mAmplitude;
 
+        /** Overridden from ControllerFunction. */
+        Real getAdjustedInput(Real input);
+
     public:
         /** Default contructor, requires at least a wave type, other parameters can be defaulted unless required.
             @param
