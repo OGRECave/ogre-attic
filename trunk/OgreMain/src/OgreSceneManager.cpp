@@ -454,41 +454,41 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     int SceneManager::setMaterial(Material* mat, int numLayersLeft)
     {
-        static bool firstTime = true;
+        //static bool firstTime = true;
         static bool lastUsedFallback = false;
         static int lastNumTexUnitsUsed = 0;
-        static Material lastMat; // Last material settings, to minimise render state changes
+        //static Material lastMat; // Last material settings, to minimise render state changes
 
         // Recent changes: eliminated the need to copy all material settings to set with RenderSystem
         // Now only issues required render state changes to the render system for maximum performance
 
         // Set surface properties
-        if (firstTime || mat->_compareSurfaceParams(lastMat) == false)
-        {
+        //if (firstTime || mat->_compareSurfaceParams(lastMat) == false)
+        //{
            ColourValue a, b, c, d;
            a = mat->getAmbient();
            b = mat->getDiffuse();
            c = mat->getSpecular();
            d = mat->getSelfIllumination();
             mDestRenderSystem->_setSurfaceParams( a, b, c, d, mat->getShininess() );
-        }
+        //}
 
         // Set global blending, play it safe if last one was fallback
-        if (firstTime || lastUsedFallback ||
-        (lastMat.getSourceBlendFactor() != mat->getSourceBlendFactor() ||
-         lastMat.getDestBlendFactor() != mat->getDestBlendFactor()))
-        {
+        //if (firstTime || lastUsedFallback ||
+        //(lastMat.getSourceBlendFactor() != mat->getSourceBlendFactor() ||
+        // lastMat.getDestBlendFactor() != mat->getDestBlendFactor()))
+        //{
             mDestRenderSystem->_setSceneBlending(mat->getSourceBlendFactor(), mat->getDestBlendFactor());
-        }
+        //}
 
         // Fog
         // New fog params can either be from scene or from material
         FogMode newFogMode;
         ColourValue newFogColour;
         Real newFogStart, newFogEnd, newFogDensity;
-        static FogMode oldFogMode;
-        static ColourValue oldFogColour;
-        static Real oldFogStart, oldFogEnd, oldFogDensity;
+        //static FogMode oldFogMode;
+        //static ColourValue oldFogColour;
+        //static Real oldFogStart, oldFogEnd, oldFogDensity;
         if (mat->getFogOverride())
         {
             // New fog params from material
@@ -507,17 +507,17 @@ namespace Ogre {
             newFogEnd = mFogEnd;
             newFogDensity = mFogDensity;
         }
-        if (firstTime || newFogMode != oldFogMode || newFogColour != oldFogColour ||
-            newFogStart != oldFogStart || newFogEnd != oldFogEnd ||
-            newFogDensity != oldFogDensity)
-        {
+        //if (firstTime || newFogMode != oldFogMode || newFogColour != oldFogColour ||
+        //    newFogStart != oldFogStart || newFogEnd != oldFogEnd ||
+        //    newFogDensity != oldFogDensity)
+        //{
             mDestRenderSystem->_setFog(newFogMode, newFogColour, newFogDensity, newFogStart, newFogEnd);
-            oldFogMode = newFogMode;
-            oldFogColour = newFogColour;
-            oldFogStart = newFogStart;
-            oldFogEnd = newFogEnd;
-            oldFogDensity = newFogDensity;
-        }
+        //    oldFogMode = newFogMode;
+        //    oldFogColour = newFogColour;
+        //    oldFogStart = newFogStart;
+        //    oldFogEnd = newFogEnd;
+        //    oldFogDensity = newFogDensity;
+        //}
 
 
 
@@ -548,10 +548,12 @@ namespace Ogre {
             {
                 Material::TextureLayer* pTex = mat->getTextureLayer(texLayer);
                 // We still have texture layers to put in this unit
-                if (unit == 0 && thisUnitsRequested > 0 && thisUnitsRequested < mat->getNumTextureLayers())
+                if (unit == 0 && 
+                    thisUnitsRequested > 0 && 
+                    thisUnitsRequested < mat->getNumTextureLayers())
                 {
                     // We're on the second (or more) leg of a multipass render
-                    //  because remaining layers is not the total number
+                    // because remaining layers is not the total number
 
                     // So we need to use the multipass fallback and override first texture layer blend
                     lastUsedFallback = true;
@@ -586,55 +588,54 @@ namespace Ogre {
 
         // Set up non-texture related material settings
         // Depth buffer settings
-        if (firstTime || lastMat.getDepthFunction() != mat->getDepthFunction())
-        {
+        //if (firstTime || lastMat.getDepthFunction() != mat->getDepthFunction())
+        //{
             mDestRenderSystem->_setDepthBufferFunction(mat->getDepthFunction());
-        }
-        if (firstTime || lastMat.getDepthCheckEnabled() != mat->getDepthCheckEnabled())
-        {
+        //}
+        //if (firstTime || lastMat.getDepthCheckEnabled() != mat->getDepthCheckEnabled())
+        //{
             mDestRenderSystem->_setDepthBufferCheckEnabled(mat->getDepthCheckEnabled());
-        }
-        if (firstTime || lastMat.getDepthWriteEnabled() != mat->getDepthWriteEnabled())
-        {
+        //}
+        //if (firstTime || lastMat.getDepthWriteEnabled() != mat->getDepthWriteEnabled())
+        //{
             mDestRenderSystem->_setDepthBufferWriteEnabled(mat->getDepthWriteEnabled());
-        }
-        if (firstTime || lastMat.getDepthBias() != mat->getDepthBias())
-        {
+        //}
+        //if (firstTime || lastMat.getDepthBias() != mat->getDepthBias())
+        //{
             mDestRenderSystem->_setDepthBias(mat->getDepthBias());
-        }
+        //}
 
 
         // Culling mode
-        if (firstTime || lastMat.getCullingMode() != mat->getCullingMode())
-        {
+        //if (firstTime || lastMat.getCullingMode() != mat->getCullingMode())
+        //{
             mDestRenderSystem->_setCullingMode(mat->getCullingMode());
-
-        }
+        //}
         // Dynamic lighting enabled
-        if (firstTime || lastMat.getLightingEnabled() != mat->getLightingEnabled())
-        {
+        //if (firstTime || lastMat.getLightingEnabled() != mat->getLightingEnabled())
+        //{
             mDestRenderSystem->setLightingEnabled(mat->getLightingEnabled());
-        }
+        //}
         // Shading
-        if (firstTime || lastMat.getShadingMode() != mat->getShadingMode())
-        {
+        //if (firstTime || lastMat.getShadingMode() != mat->getShadingMode())
+        //{
             mDestRenderSystem->setShadingType(mat->getShadingMode());
-        }
+        //}
         // Texture filtering
-        if (firstTime || lastMat.getTextureFiltering() != mat->getTextureFiltering())
-        {
+        //if (firstTime || lastMat.getTextureFiltering() != mat->getTextureFiltering())
+        //{
             mDestRenderSystem->setTextureFiltering(mat->getTextureFiltering());
-        }
+        //}
         // anisotropy
-        if (firstTime || lastMat.getAnisotropy() != mat->getAnisotropy())
-        {
+        //if (firstTime || lastMat.getAnisotropy() != mat->getAnisotropy())
+        //{
             mDestRenderSystem->_setAnisotropy(mat->getAnisotropy());
-        }
+        //}
 
 
-        firstTime = false;
+        //firstTime = false;
         // Copy material settings from last render
-        lastMat = *mat;
+        //lastMat = *mat;
         lastNumTexUnitsUsed = unit;
         return numLayersLeft;
 

@@ -259,10 +259,10 @@ namespace Ogre {
 
         // Texture name
         String texName = tl.getTextureName();
-        if (currIsBlank || curr.getTextureName() != texName)
-        {
+        //if (currIsBlank || curr.getTextureName() != texName)
+        //{
             _setTexture(texUnit, true, texName);
-        }
+        //}
 
         // Set texture coordinate set
         int coordSet = tl.getTextureCoordSet();
@@ -288,15 +288,15 @@ namespace Ogre {
 
 		// Set blend modes
         LayerBlendModeEx newBlend = tl.getColourBlendMode();
-        if (currIsBlank || curr.getColourBlendMode() != newBlend)
-        {
+        //if (currIsBlank || curr.getColourBlendMode() != newBlend)
+        //{
             _setTextureBlendMode(texUnit, newBlend);
-        }
+        //}
         newBlend = tl.getAlphaBlendMode();
-        if (currIsBlank || curr.getAlphaBlendMode() != newBlend)
-        {
+        //if (currIsBlank || curr.getAlphaBlendMode() != newBlend)
+        //{
             _setTextureBlendMode(texUnit, newBlend);
-        }
+        //}
 
         Material::TextureLayer::TextureAddressingMode addr = tl.getTextureAddressingMode();
 
