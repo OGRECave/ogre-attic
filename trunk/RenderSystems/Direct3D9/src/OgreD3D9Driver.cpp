@@ -70,7 +70,10 @@ namespace Ogre
 
 	String D3D9Driver::DriverDescription() const
 	{
-		return String(mAdapterIdentifier.Description);
+        String driverDescription(mAdapterIdentifier.Description);
+        StringUtil::trim(driverDescription);
+
+        return  driverDescription;
 	}
 
 	D3D9VideoModeList* D3D9Driver::getVideoModeList()
