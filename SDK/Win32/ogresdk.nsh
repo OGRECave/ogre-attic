@@ -64,7 +64,6 @@ Section -Headers
   SetOverwrite try
   File "..\..\OgreMain\include\*.h"
   File "..\..\Samples\Common\include\*.h"
-  File "..\..\Samples\Common\include\*.h"
   File "..\..\Samples\Common\CEGUIRenderer\include\*.h"
   ; Dependencies - only ODE and CEGui
   SetOutPath "$INSTDIR\include\CEGUI"
@@ -74,11 +73,6 @@ Section -Headers
   SetOverwrite try
   File /r /x CVS "..\..\Dependencies\include\ode\*.*"
 
-  ; Reference app
-  SetOutPath "$INSTDIR\include\refapp"
-  SetOverwrite try
-  File /r /x CVS "..\..\ReferenceApplication\ReferenceAppLayer\include\*.*"
-  
   ; Optional headers (for linking direct to plugins)
   SetOutPath "$INSTDIR\include\opt"
   SetOverwrite try
@@ -110,19 +104,17 @@ Section -Libs
   File "..\..\Plugins\OctreeSceneManager\bin\debug\Plugin_OctreeSceneManager.pdb"
   File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.lib"
   File "..\..\Plugins\BspSceneManager\bin\debug\Plugin_BspSceneManager.pdb"
-  File "..\..\ReferenceApplication\ReferenceAppLayer\lib\Debug\ReferenceAppLayer.lib"
   SetOutPath "$INSTDIR\lib\opt\release"
   SetOverwrite try
   File "..\..\Plugins\OctreeSceneManager\bin\release\Plugin_OctreeSceneManager.lib"
   File "..\..\Plugins\BspSceneManager\bin\release\Plugin_BspSceneManager.lib"
-  File "..\..\ReferenceApplication\ReferenceAppLayer\lib\Release\ReferenceAppLayer.lib"
 
 SectionEnd
 
 Section -Binaries
 
   ; Binaries - debug
-  SetOutPath "$INSTDIR\bin\Debug"
+  SetOutPath "$INSTDIR\bin\debug"
   SetOverwrite ifnewer
   File "..\..\Samples\Common\bin\Debug\ilut.dll"
   File "..\..\Samples\Common\bin\Debug\ilu.dll"
@@ -140,14 +132,16 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Debug\Plugin_CgProgramManager.dll"
   File "..\..\Samples\Common\bin\Debug\Plugin_OctreeSceneManager.dll"
   File "..\..\Samples\Common\bin\Debug\Plugin_ParticleFX.dll"
-  File "..\..\Samples\Common\bin\Debug\ReferenceAppLayer.dll"
   File "..\..\Samples\Common\bin\Debug\RenderSystem_Direct3D7.dll"
   File "..\..\Samples\Common\bin\Debug\RenderSystem_Direct3D9.dll"
   File "..\..\Samples\Common\bin\Debug\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Debug\OgreGUIRenderer_d.dll"
 
+  File "..\..\Samples\Common\bin\Debug\resources.cfg"
+  File "..\..\Samples\Common\bin\Debug\plugins.cfg"
+  File "..\..\Samples\Common\bin\Debug\terrain.cfg"
   ; Binaries - release
-  SetOutPath "$INSTDIR\bin\Release"
+  SetOutPath "$INSTDIR\bin\release"
   SetOverwrite ifnewer
   File "..\..\Samples\Common\bin\Release\ilut.dll"
   File "..\..\Samples\Common\bin\Release\ilu.dll"
@@ -165,11 +159,22 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Release\Plugin_CgProgramManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_OctreeSceneManager.dll"
   File "..\..\Samples\Common\bin\Release\Plugin_ParticleFX.dll"
-  File "..\..\Samples\Common\bin\Release\ReferenceAppLayer.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_Direct3D7.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_Direct3D9.dll"
   File "..\..\Samples\Common\bin\Release\RenderSystem_GL.dll"
   File "..\..\Samples\Common\bin\Release\OgreGUIRenderer.dll"
+
+  File "..\..\Samples\Common\bin\Release\resources.cfg"
+  File "..\..\Samples\Common\bin\Release\plugins.cfg"
+  File "..\..\Samples\Common\bin\Release\terrain.cfg"
+
+SectionEnd
+
+Section -Media
+  SetOutPath "$INSTDIR\bin\media"
+  SetOverwrite ifnewer
+
+  File /r /x CVS "..\..\Samples\Media\*.*"
 
 SectionEnd
 
@@ -186,8 +191,8 @@ Section -Docs
   File "..\..\Docs\api\html\OgreAPIReference.*"
 
   !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
-  CreateShortCut "OGRE Manual.lnk" "$INSTDIR\docs\manual\index.html"
-  CreateShortCut "OGRE API Reference.lnk" "$INSTDIR\docs\api\OgreAPIReference.chm"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE Manual.lnk" "$INSTDIR\docs\manual\index.html"
+  CreateShortCut "$SMPROGRAMS\$ICONS_GROUP\OGRE API Reference.lnk" "$INSTDIR\docs\api\OgreAPIReference.chm"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
