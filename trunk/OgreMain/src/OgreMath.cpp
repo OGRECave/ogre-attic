@@ -255,7 +255,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     bool Math::RealEqual( Real a, Real b, Real tolerance )
     {
-        if ((b < (a + tolerance)) && (b > (a - tolerance)))
+        if (fabs(b-a) <= tolerance)
             return true;
         else
             return false;
