@@ -380,20 +380,12 @@ namespace Ogre {
         finalRect.left   = Real( imgRect.left )   * fWidthFactor;
         finalRect.right  = Real( imgRect.right )  * fWidthFactor;
 
-        /* We have to use a mirror up/down (around the X axis) effect since in DirectX the
-           positive Y is downward, which is different from OGRE's way. */
-        DDBLTFX  ddbltfx;
-        ZeroMemory(&ddbltfx, sizeof(ddbltfx));
-
-        ddbltfx.dwSize = sizeof(ddbltfx);
-        ddbltfx.dwDDFX = DDBLTFX_MIRRORUPDOWN;
-
         if( FAILED( hr = mSurface->Blt(
             (RECT*)&texRect,
             pddsTempSurface, 
             (RECT*)&finalRect,
-            DDBLT_WAIT | DDBLT_DDFX,
-            &ddbltfx ) ) )
+            DDBLT_WAIT,
+            NULL ) ) )
         {
             pddsTempSurface->Release();
             Except( hr, "Error during blit operation.", "D3DTexture::blitImage" );

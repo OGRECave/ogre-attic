@@ -135,6 +135,7 @@ namespace Ogre {
 		DWORD _getCurrentAnisotropy(size_t unit);
 
         HardwareBufferManager* mHardwareBufferManager;
+        GpuProgramManager* mGpuProgramManager;
 
         bool mForcedNormalisation;
 

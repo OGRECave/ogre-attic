@@ -41,6 +41,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "OgreD3D7RenderWindow.h"
 #include "OgreCamera.h"
+#include "OgreD3D7GpuProgramManager.h"
 
 
 namespace Ogre {
@@ -57,6 +58,7 @@ namespace Ogre {
         mActiveDDDriver = NULL;
         mhInstance = hInstance;
         mHardwareBufferManager = NULL;
+        mGpuProgramManager = NULL;
 
         initConfigOptions();
 
@@ -87,6 +89,7 @@ namespace Ogre {
         SAFE_DELETE(mDriverList);
         SAFE_DELETE(mCapabilities);
         SAFE_DELETE(mHardwareBufferManager);
+        SAFE_DELETE(mGpuProgramManager);
 
         D3DXUninitialize();
         LogManager::getSingleton().logMessage(getName() + " destroyed.");
@@ -428,6 +431,8 @@ namespace Ogre {
 
         // Create buffer manager
         mHardwareBufferManager = new D3D7HardwareBufferManager();
+        // Create dummy gpu manager
+        mGpuProgramManager = new D3D7GpuProgramManager();
 
 
         return autoWindow;
