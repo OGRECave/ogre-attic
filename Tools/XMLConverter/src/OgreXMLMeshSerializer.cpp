@@ -430,8 +430,17 @@ namespace Ogre {
         for (TiXmlElement* matElem = mMaterialsNode->FirstChildElement();
             matElem != 0; matElem = matElem->NextSiblingElement())
         {
+            Material* newMat = NULL;
             String name = matElem->Attribute("name");
-            Material* newMat = (Material*)matMgr.createDeferred(name);
+            try
+            {
+                std::cout << "Creating material: " << name << std::endl;
+                newMat = (Material*)matMgr.createDeferred(name);
+            }
+            catch (Exception& e)
+            {
+                continue;
+            }
 
             ColourValue col;
             TiXmlElement* colElem;
@@ -456,7 +465,7 @@ namespace Ogre {
                 newMat->setDiffuse(col);
             }
             // Specular
-            colElem = matElem->FirstChildElement("diffuse");
+            colElem = matElem->FirstChildElement("specular");
             if (colElem)
             {
                 col.r = StringConverter::parseReal(colElem->Attribute("red"));
@@ -500,7 +509,9 @@ namespace Ogre {
             // All children should be submeshes 
             SubMesh* sm = mpMesh->createSubMesh();
 
-            sm->setMaterialName(smElem->Attribute("material"));
+            const char* mat = smElem->Attribute("material");
+            if (mat)
+                sm->setMaterialName(mat);
             sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("useSharedVertices"));
 
             // Faces
@@ -719,3 +730,4 @@ namespace Ogre {
     }
 
 }
+
