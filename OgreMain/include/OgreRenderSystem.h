@@ -790,14 +790,14 @@ namespace Ogre
 		/** Gets the capabilities of the render system. */
 		const RenderSystemCapabilities* getCapabilities(void) { return mCapabilities; }
 
-        /** Binds a given GpuProgram and it's associated parameters. 
+        /** Binds a given GpuProgram (but not the parameters). 
         @remarks Only one GpuProgram of each type can be bound at once, binding another
         one will simply replace the exsiting one.
         */
         virtual void bindGpuProgram(GpuProgram* prg) = 0;
 
         /** Bind Gpu program parameters. */
-        virtual void bindGpuProgramParameters(GpuProgramParameters* params) = 0;
+        virtual void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParameters* params) = 0;
         /** Unbinds GpuPrograms of a given GpuProgramType.
         @remarks
             This returns the pipeline to fixed-function processing for this type.

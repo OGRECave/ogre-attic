@@ -59,6 +59,9 @@ namespace Ogre {
         D3D9GpuVertexProgram(LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
+
+        /// Gets the vertex shader
+        LPDIRECT3DVERTEXSHADER9 getVertexShader(void) const { return mpVertexShader; }
     protected:
         void loadFromSource(void);
     };
@@ -72,6 +75,8 @@ namespace Ogre {
         D3D9GpuFragmentProgram(LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
+        /// Gets the pixel shader
+        LPDIRECT3DPIXELSHADER9 getPixelShader(void) const { return mpPixelShader; }
     protected:
         void loadFromSource(void);
     };
