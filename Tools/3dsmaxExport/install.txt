@@ -1,12 +1,18 @@
 To install the 3ds exporter, do the following:
 
-1. Copy the folders plugins, scripts, and UI to your 3dsMax root folder (e.g. c:\3dsMax)
-2. Start 3D Studio
-3. Open the 'Customize' menu and select 'Load Custom UI Scheme'
-4. In the dialog, change 'Files of Type' to 'UI File(*.cui)'
-5. Navigate to your 3dsMax\ui folder and double-click 'ogreTools.cui'
+1. If you have a previous version of the exporter, delete all your previous 
+   files and remove any existing toolbars / buttons before installing the new 
+   one. 
+2. Copy the 'scripts' folder into your 3DSMax folder
+2. Open your 3DSMAX and run MAXScript. (choose MAXScript/Run Script...)
+3. Go to folder 3DSMAX\scripts\orge\macros and run "ogreToolbar.mcr"
+4. After you run the "ogreToolbar.mcr" there is nothing appears on screen yet. 
+   You just need to go to /Customize/Customize User Interface... 
+   Choose Ogre Tools from Category. Under the list there will be 
+   (maybe 3 icons) "Ogre Exporter" icon shows up.
+5. Create a new tab with the name "Orge Exporter" (or whatever you want) and 
+   drag the icon to the tab.
+6. That's it. You are able to run the exporter. Everything you need is in that 
+   little icon. 
 
-That's it, you should now have an 'Ogre Tools' toolbar with 2 buttons on it.
-
-
-The OGRE Team would like to thank Banania and Etienne 'earthquakeProof' Mallard for developing this exporter.
+The OGRE Team would like to thank Banania for the latest exporter, and EarthquakeProof for developing the original exporter.
