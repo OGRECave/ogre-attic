@@ -335,6 +335,8 @@ public:
     // Override frameStarted event to process that (don't care about frameEnded)
     bool frameStarted(const FrameEvent& evt)
     {
+        if(mWindow->isClosed())
+            return false;
 
         if (!mInputTypeSwitchingOn)
     	{
