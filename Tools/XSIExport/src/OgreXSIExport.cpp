@@ -40,6 +40,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_ppgeventcontext.h>
 #include <xsi_selection.h>
 #include <xsi_comapihandler.h>
+#include <xsi_uitoolkit.h>
+
+#include "OgreXSIMeshExporter.h"
+#include "OgreLogManager.h"
+#include "OgreException.h"
+#include "OgreXSIHelper.h"
 
 using namespace XSI;
 
@@ -82,6 +88,9 @@ CString GetUserSelectedObject();
 CValue Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& in_mode, bool in_throw );
 void DeleteObj( const CValue& in_inputobj );
 
+// LogManager is created for the life of the plugin
+Ogre::LogManager* ogreLogManager;
+
 #ifdef unix
 extern "C" 
 #endif
@@ -92,6 +101,8 @@ CStatus XSILoadPlugin( XSI::PluginRegistrar& registrar )
 	registrar.PutName( L"OGRE Exporter Plugin" );	
     registrar.PutVersion( 0, 15 );
     registrar.PutURL(L"http://www.ogre3d.org");
+    ogreLogManager = new Ogre::LogManager();
+    ogreLogManager->createLog("OgreXSIPlugin.log", true);
     
 
 	// register the mesh export command
@@ -107,6 +118,7 @@ CStatus XSILoadPlugin( XSI::PluginRegistrar& registrar )
     Application app;
     app.LogMessage( registrar.GetName() + L" has been loaded.");
 #endif
+    ogreLogManager->logMessage("OGRE XSI Plugin loaded");
 
     return XSI::CStatus::OK;	
 }
@@ -121,6 +133,9 @@ XSI::CStatus XSIUnloadPlugin( const XSI::PluginRegistrar& registrar )
     Application app;
 	app.LogMessage(registrar.GetName() + L" has been unloaded.");
 #endif
+    ogreLogManager->logMessage("OGRE XSI Plugin unloaded");
+    delete ogreLogManager;
+
 	return XSI::CStatus::OK;
 }
 
@@ -196,7 +211,7 @@ XSI::CStatus OgreMeshExportMenu_Init( XSI::CRef& in_ref )
 
 	CStatus st;
 	MenuItem item;
-	menu.AddCallbackItem(L"Export OGRE Mesh / Skeleton...", L"OnOgreMeshExportMenu", item);
+	menu.AddCallbackItem(L"OGRE Mesh / Skeleton...", L"OnOgreMeshExportMenu", item);
 
 	return CStatus::OK;	
 }
@@ -218,8 +233,34 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 	bool ret = Popup(L"OgreMeshExportOptions",CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
 	if (!ret)
 	{
+        Ogre::XsiMeshExporter exporter;
 
-        // TODO fire off the export!
+        // retrieve the parameters
+        Parameter param = prop.GetParameters().GetItem(L"objectName");
+        CString objectName = param.GetValue();
+        param = prop.GetParameters().GetItem( L"targetMeshFileName" );
+        CString meshFileName = param.GetValue();
+        param = prop.GetParameters().GetItem( L"calculateEdgeLists" );
+        bool edgeLists = param.GetValue();
+        param = prop.GetParameters().GetItem( L"calculateTangents" );
+        bool tangents = param.GetValue();
+        /* TODO
+        "lodGeneration"
+        "targetSkeletonFileName"
+        "fps"
+        "animationSplit"
+        */
+
+        try 
+        {
+            exporter.exportMesh(meshFileName, objectName, edgeLists, tangents);
+        }
+        catch (Ogre::Exception& e)
+        {
+            // Will already have been logged to the Ogre log manager
+            // Tell XSI
+            app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siErrorMsg);
+        }
 
 	}
 	DeleteObj( L"OgreMeshExportOptions" );
