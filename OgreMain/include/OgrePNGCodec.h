@@ -25,13 +25,15 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifndef _PNGCodec_H__
 #define _PNGCodec_H__
 
-#include "OgreCodec.h"
+#include "OgreImageCodec.h"
 #include "OgreSDDataChunk.h"
 
 #include "png.h"
 
 BEGIN_OGRE_NAMESPACE
 
+/** ImageCodec specialized in Portable Network Graphics images.
+*/
 class _OgreExport PNGCodec : public ImageCodec
 {
 protected:    
@@ -40,7 +42,7 @@ protected:
 
 public:
     void code( const DataChunk& input, DataChunk* output, ... ) const;
-    CodecData * decode( const DataChunk& input, DataChunk* output ) const;
+    CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
     String getType() const { return "png"; }
 };

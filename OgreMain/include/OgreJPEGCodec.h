@@ -24,8 +24,7 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgrePrerequisites.h"
 
-#include "OgreCodec.h"
-#include "OgreException.h"
+#include "OgreImageCodec.h"
 
 /* To avoid having to add library dependencies to the client apps */
 struct j_decompress_struct;
@@ -33,7 +32,7 @@ typedef struct jpeg_decompress_struct * j_decompress_ptr;
 
 BEGIN_OGRE_NAMESPACE
 
-/** Codec that handles loading JPEG images.
+/** ImageCodec specialized in JPEG images.
 */
 class _OgreExport JPEGCodec : public ImageCodec
 {
@@ -46,7 +45,7 @@ protected:
 
 public:
     void code( const DataChunk& input, DataChunk* output, ... ) const;
-    CodecData * decode( const DataChunk& input, DataChunk* output ) const;
+    CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
     String getType() const { return "jpeg"; }
 };
