@@ -137,7 +137,6 @@ namespace Ogre {
         HardwareBufferManager* mHardwareBufferManager;
         GpuProgramManager* mGpuProgramManager;
 
-        bool mForcedNormalisation;
 
         unsigned short mCurrentLights;
 
