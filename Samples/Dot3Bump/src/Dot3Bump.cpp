@@ -34,10 +34,11 @@ LGPL like the rest of the engine.
 #endif
 
 // entities we'll use
-#define NUM_ENTITIES 2
+#define NUM_ENTITIES 3
 Entity* mEntities[NUM_ENTITIES];
 String mEntityMeshes[NUM_ENTITIES] = 
 {
+    "athene.mesh",
     "knot.mesh",
     "ogrehead.mesh"
 };
@@ -90,11 +91,22 @@ bool mLightState[NUM_LIGHTS] =
 };
 // The materials
 #define NUM_MATERIALS 4
-String mMaterialNames[NUM_MATERIALS] = 
+String mMaterialNames[NUM_ENTITIES][NUM_MATERIALS] = 
 {
+    // athene
+    "Examples/Athene/Basic",
+    "Examples/Athene/NormalMapped",
+    "Examples/Athene/NormalMappedSpecular",
+    "Examples/Athene/NormalMapped",
+    // knot
 	"Examples/BumpMapping/SingleLight",
 	"Examples/BumpMapping/MultiLight",
 	"Examples/BumpMapping/MultiLightSpecular",
+    "Examples/OffsetMapping/Specular",
+    // ogre head
+    "Examples/BumpMapping/SingleLight",
+    "Examples/BumpMapping/MultiLight",
+    "Examples/BumpMapping/MultiLightSpecular",
     "Examples/OffsetMapping/Specular"
 };
 size_t mCurrentMaterial = 1;
@@ -150,15 +162,16 @@ public:
             mEntities[mCurrentEntity]->setVisible(false); 
             mCurrentEntity = (++mCurrentEntity) % NUM_ENTITIES; 
             mEntities[mCurrentEntity]->setVisible(true);
-            mEntities[mCurrentEntity]->setMaterialName(mMaterialNames[mCurrentMaterial]);
+            mEntities[mCurrentEntity]->setMaterialName(mMaterialNames[mCurrentEntity][mCurrentMaterial]);
             mObjectInfo->setCaption("Current: " + mEntityMeshes[mCurrentEntity]);
+            mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentEntity][mCurrentMaterial]);
         );
 
 		// switch materials
 		KEY_PRESSED(KC_M, 1, 
             mCurrentMaterial = (++mCurrentMaterial) % NUM_MATERIALS; 
-            mEntities[mCurrentEntity]->setMaterialName(mMaterialNames[mCurrentMaterial]);
-            mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentMaterial]);
+            mEntities[mCurrentEntity]->setMaterialName(mMaterialNames[mCurrentEntity][mCurrentMaterial]);
+            mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentEntity][mCurrentMaterial]);
         );
 
 		// enable / disable lights
@@ -234,7 +247,7 @@ protected:
     		mMainNode->attachObject(mEntities[mn]);
             // Make invisible, except for index 0
             if (mn == 0)
-                mEntities[mn]->setMaterialName(mMaterialNames[mCurrentMaterial]);
+                mEntities[mn]->setMaterialName(mMaterialNames[mCurrentEntity][mCurrentMaterial]);
             else
                 mEntities[mn]->setVisible(false);
 		}
@@ -269,7 +282,7 @@ protected:
         mInfo = GuiManager::getSingleton().getGuiElement("Example/DP3/Info");
 
         mObjectInfo->setCaption("Current: " + mEntityMeshes[mCurrentEntity]);
-        mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentMaterial]);
+        mMaterialInfo->setCaption("Current: " + mMaterialNames[mCurrentEntity][mCurrentMaterial]);
         if (!caps->hasCapability(RSC_FRAGMENT_PROGRAM))
         {
             mInfo->setCaption("NOTE: Light colours and specular highlights are not supported by your card.");
