@@ -172,6 +172,7 @@ namespace Ogre {
 		public:
 			GeometryBucket(MaterialBucket* parent);
 			virtual ~GeometryBucket();
+			MaterialBucket* getParent(void) { return mParent; }
 			/// @copydoc Renderable::getMaterial
 			const MaterialPtr& getMaterial(void) const;
 			Technique* getTechnique(void) const;
@@ -209,6 +210,7 @@ namespace Ogre {
 		public:
 			MaterialBucket(LODBucket* parent, const String& materialName);
 			virtual ~MaterialBucket();
+			LODBucket* getParent(void) { return mParent; }
 			/// Assign a queued submesh to this bucket
 			void assign(QueuedSubMesh* qsm);
 			/// Build
@@ -236,6 +238,7 @@ namespace Ogre {
 		public:
 			LODBucket(Region* parent, unsigned short lod, Real lodDist);
 			virtual ~LODBucket();
+			Region* getParent(void) { return mParent; }
 			/// Assign a queued submesh to this bucket
 			void assign(QueuedSubMesh* qsm);
 			/// Build
@@ -263,6 +266,10 @@ namespace Ogre {
 			Vector3 mCentre;
 			/// LOD distances (squared) as built up - use the max at each level
 			std::vector<Real> mLodSquaredDistances;
+			/// Local AABB relative to region centre
+			AxisAlignedBox mAABB;
+			/// Local bounding radius
+			Real mBoundingRadius;
 			
 			/// list of LOD Buckets in this region
 			typedef std::vector<LODBucket*> LODBucketList;
@@ -277,7 +284,8 @@ namespace Ogre {
 			void assign(QueuedSubMesh* qmesh);
 			/// Build this region
 			void build(void);
-
+			/// Get the centre point of the region
+			const Vector3& getCentre(void) const { return mCentre; }
 			const String& getName(void) const;
 			const String& getMovableType(void) const;
 			void _notifyCurrentCamera(Camera* cam);
