@@ -222,7 +222,8 @@ namespace Ogre {
             case Animation::IM_LINEAR:
                 // Interpolate linearly
                 // Rotation
-                kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation()) );
+                // Interpolate to nearest rotation
+                kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation(), true) );
 
                 // Translation
                 base = k1->getTranslate();
