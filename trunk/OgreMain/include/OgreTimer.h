@@ -4,7 +4,7 @@ This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright Š 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Timer_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreSingleton.h"
 
 namespace Ogre
 {
@@ -34,7 +33,7 @@ namespace Ogre
     @remarks
         You should never create a Timer instance manually; instead, use PlatformManager::createTimer.
     */
-    class _OgreExport Timer : public Singleton<Timer>
+    class _OgreExport Timer 
 	{
 	protected:	
 		clock_t zeroClock ;

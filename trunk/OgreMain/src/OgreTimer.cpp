@@ -26,9 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-    //-----------------------------------------------------------------------
-    template<> Timer* Singleton<Timer>::ms_Singleton = 0;
-    //-----------------------------------------------------------------------
 	Timer::Timer()
 	{
         // SJS: removed reset call since this is not polymorphic

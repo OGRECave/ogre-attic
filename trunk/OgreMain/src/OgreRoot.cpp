@@ -427,7 +427,7 @@ namespace Ogre {
         }
 
         // Initialise timer
-        Timer::getSingleton().reset();
+        mTimer->reset();
         return retWin;
 
     }
@@ -694,4 +694,9 @@ namespace Ogre {
 
         }
 	}
+    //-----------------------------------------------------------------------
+    Timer* Root::getTimer(void)
+    {
+        return mTimer;
+    }
 }
