@@ -90,8 +90,6 @@ namespace Ogre {
         FO_ANISOTROPIC
     };
 
-
-
     /** Light shading modes. */
     enum ShadeOptions
     {
@@ -252,6 +250,16 @@ namespace Ogre {
             fragment to the light.
         SHADOWTYPE_TEXTURE_SHADOWMAP
         */
+    };
+
+    /** An enumeration describing which material properties should track the vertex colours */
+    typedef int TrackVertexColourType;
+    enum TrackVertexColourEnum {
+        TVC_NONE        = 0x0,
+        TVC_AMBIENT     = 0x1,        
+        TVC_DIFFUSE     = 0x2,
+        TVC_SPECULAR    = 0x4,
+        TVC_EMISSIVE    = 0x8
     };
 
 

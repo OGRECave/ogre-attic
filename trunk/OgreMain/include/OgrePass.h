@@ -65,6 +65,7 @@ namespace Ogre {
         ColourValue mSpecular;    
         ColourValue mEmissive;
         Real mShininess;
+        TrackVertexColourType mTracking;
         //-------------------------------------------------------------------------
 
         //-------------------------------------------------------------------------
@@ -263,6 +264,10 @@ namespace Ogre {
         */
         void setSelfIllumination(const ColourValue& selfIllum);
 
+        /** Sets which material properties follow the vertex colour
+         */
+        void setVertexColourTracking(TrackVertexColourType tracking);
+
         /** Gets the ambient colour reflectance of the pass.
         */
         const ColourValue& getAmbient(void) const;
@@ -282,6 +287,10 @@ namespace Ogre {
         /** Gets the 'shininess' property of the pass (affects specular highlights).
         */
         Real getShininess(void) const;
+        
+        /** Gets which material properties follow the vertex colour
+         */
+        TrackVertexColourType getVertexColourTracking(void) const;
 
         /** Inserts a new TextureUnitState object into the Pass.
         @remarks

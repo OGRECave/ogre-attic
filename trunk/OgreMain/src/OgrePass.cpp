@@ -44,6 +44,7 @@ namespace Ogre {
 	    mAmbient = mDiffuse = ColourValue::White;
 	    mSpecular = mEmissive = ColourValue::Black;
 	    mShininess = 0;
+       mTracking = TVC_NONE;
         mHash = 0;
 
         // By default, don't override the scene's fog settings
@@ -105,6 +106,7 @@ namespace Ogre {
 	    mSpecular = oth.mSpecular;
         mEmissive = oth.mEmissive;
 	    mShininess = oth.mShininess;
+       mTracking = oth.mTracking;
 
         // Copy fog parameters
         mFogOverride = oth.mFogOverride;
@@ -237,6 +239,11 @@ namespace Ogre {
 	    mEmissive = selfIllum;
     }
     //-----------------------------------------------------------------------
+    void Pass::setVertexColourTracking(TrackVertexColourType tracking)
+    {
+        mTracking = tracking;
+    }
+    //-----------------------------------------------------------------------
     const ColourValue& Pass::getAmbient(void) const
     {
 	    return mAmbient;
@@ -260,6 +267,11 @@ namespace Ogre {
     Real Pass::getShininess(void) const
     {
 	    return mShininess;
+    }
+    //-----------------------------------------------------------------------
+    TrackVertexColourType Pass::getVertexColourTracking(void) const
+    {
+        return mTracking;
     }
     //-----------------------------------------------------------------------
     TextureUnitState* Pass::createTextureUnitState(void)
