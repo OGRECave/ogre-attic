@@ -432,10 +432,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void BillboardSet::getWorldTransform( Matrix4& xform )
+    void BillboardSet::getWorldTransforms( Matrix4* xform )
     {
-        xform = mParentNode->_getFullTransform();
-        //xform = Matrix4::IDENTITY;       
+        *xform = mParentNode->_getFullTransform(); 
     }
 
     //-----------------------------------------------------------------------
@@ -632,7 +631,7 @@ namespace Ogre {
         Sphere sph;
         Matrix4 xworld;
 
-        getWorldTransform(xworld);
+        getWorldTransforms(&xworld);
 
         sph.setCenter(xworld * (*bill)->mPosition);
 

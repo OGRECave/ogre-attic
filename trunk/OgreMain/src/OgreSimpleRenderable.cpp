@@ -18,32 +18,32 @@ namespace Ogre {
         return mRO;
     }
 
-    void **SimpleRenderable::getVertexCache()
+    Real **SimpleRenderable::getVertexCache()
     {
         return &m_pVertexCache;
     }
 
-    void **SimpleRenderable::getIndexCache()
+    unsigned short **SimpleRenderable::getIndexCache()
     {
         return &m_pIndexCache;
     }
 
-    void **SimpleRenderable::getNormalCache()
+    Real **SimpleRenderable::getNormalCache()
     {
         return &m_pNormalCache;
     }
 
-    void **SimpleRenderable::getDiffuseCache()
+    RGBA **SimpleRenderable::getDiffuseCache()
     {
         return &m_pDiffuseCache;
     }
 
-    void **SimpleRenderable::getSpecularCache()
+    RGBA **SimpleRenderable::getSpecularCache()
     {
         return &m_pSpecularCache;
     }
 
-    void **SimpleRenderable::getTexCoordCcache( unsigned short cn )
+    Real **SimpleRenderable::getTexCoordCcache( unsigned short cn )
     {
         assert( cn < OGRE_MAX_TEXTURE_COORD_SETS );
 
@@ -80,9 +80,9 @@ namespace Ogre {
         mWorldTransform = xform;
     }
 
-    void SimpleRenderable::getWorldTransform( Matrix4& xform )
+    void SimpleRenderable::getWorldTransforms( Matrix4* xform )
     {
-        xform = mParentNode->_getFullTransform();
+        *xform = mParentNode->_getFullTransform();
     }
 
     SceneNode* SimpleRenderable::getParentNode(void)

@@ -108,9 +108,14 @@ namespace Ogre
         Skeleton* mCreator;
 
         /// Original orientation in binding pose
-        Quaternion mOriginalOrientation;
+        Quaternion mBindOrientation;
         /// Original position in binding pose
-        Vector3 mOriginalPosition;
+        Vector3 mBindPosition;
+
+        /// The derived orientation of the bone in the binding pose
+        Quaternion mBindDerivedOrientation;
+        /// The derived position of the bone in the binding pose
+        Vector3 mBindDerivedPosition;
 
     };
 

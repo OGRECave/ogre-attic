@@ -438,7 +438,7 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual void getWorldTransform(Matrix4& xform);
+        virtual void getWorldTransforms(Matrix4* xform);
 
         /** Internal callback used by Billboards to notify their parent that they have been resized.
         */

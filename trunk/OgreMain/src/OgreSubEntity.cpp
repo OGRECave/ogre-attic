@@ -70,9 +70,9 @@ namespace Ogre {
         mSubMesh->_getRenderOperation(rend);
     }
     //-----------------------------------------------------------------------
-    void SubEntity::getWorldTransform(Matrix4& xform)
+    void SubEntity::getWorldTransforms(Matrix4* xform)
     {
-        xform = mParentEntity->getParentNode()->_getFullTransform();
+        *xform = mParentEntity->getParentNode()->_getFullTransform();
     }
 
 }

@@ -154,6 +154,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Skeleton::setBindingPose(void)
     {
+        // Update the derived transforms
+        mRootBone->_update();
+
+
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {

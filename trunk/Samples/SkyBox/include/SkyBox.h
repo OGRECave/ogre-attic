@@ -92,8 +92,8 @@ public:
     Starfield()
     {        
         m_pVertexCache = new Real[ 300 * 3 ];
-        m_pDiffuseCache = new long[ 300 ];
-        m_pSpecularCache = new long[ 300 ];
+        m_pDiffuseCache = new RGBA[ 300 ];
+        m_pSpecularCache = new RGBA[ 300 ];
 
         Real *pVertices = (Real*)m_pVertexCache;
         long *pDiffuses = (long*)m_pDiffuseCache;

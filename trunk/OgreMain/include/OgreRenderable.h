@@ -54,12 +54,27 @@ namespace Ogre {
                 rend RenderOperation structure to update.
         */
         virtual void getRenderOperation(RenderOperation& rend) = 0;
-        /** Gets the complete world transform matrix for this renderable object.
+        /** Gets the world transform matrix / matrices for this renderable object.
             @remarks
                 If the object has any derived transforms, these are expected to be up to date as long as
                 all the SceneNode structures have been updated before this is called.
+            @par
+                This method will populate xform with 1 matrix if it does not use vertex blending. If it
+                does use vertex blending it will fill the passed in pointer with an array of matrices,
+                the length being the value returned from getNumWorldTransforms.
         */
-        virtual void getWorldTransform(Matrix4& xform) = 0;
+        virtual void getWorldTransforms(Matrix4* xform) = 0;
+
+        /** Returns the number of world transform matrices this renderable requires.
+        @remarks
+            When a renderable uses vertex blending, it uses multiple world matrices instead of a single
+            one. Each vertex sent to the pipeline can reference one or more matrices in this list
+            with given weights.
+            If a renderable does not use vertex blending this method returns 1, which is the default for 
+            simplicity.
+        */
+        virtual unsigned short getNumWorldTransforms(void) { return 1; }
+
 
     };
 
