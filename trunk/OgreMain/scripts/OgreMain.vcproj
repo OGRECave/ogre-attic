@@ -233,6 +233,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreMovableObject.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreNode.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreOofModelFile.cpp">
 			</File>
 			<File
@@ -475,6 +478,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\include\OgreMovableObject.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreNode.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreOofFile.h">

@@ -46,7 +46,7 @@ namespace Ogre {
     SceneManager::SceneManager()
     {
         // Root scene node
-        mSceneRoot = this->createSceneNode();
+        mSceneRoot = new SceneNode(this);
 
 
         // No sky by default
@@ -61,6 +61,7 @@ namespace Ogre {
     SceneManager::~SceneManager()
     {
         clearScene();
+        delete mSceneRoot;
     }
 
     //-----------------------------------------------------------------------
@@ -296,7 +297,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneManager::clearScene(void)
     {
-        // Delete all SceneNodes
+        // Delete all SceneNodes, except root that is
         for (SceneNodeList::iterator i = mSceneNodes.begin();
             i != mSceneNodes.end(); ++i)
         {
