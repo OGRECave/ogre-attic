@@ -549,6 +549,7 @@ namespace Ogre {
             mlpD3DDevice->GetRenderTarget(&lpTarget);
             lpTarget->Release(); // decrement ref count
             DDPIXELFORMAT pf;
+            pf.dwSize = sizeof(DDPIXELFORMAT);
             lpTarget->GetPixelFormat(&pf);
             DWORD stencil =  pf.dwStencilBitDepth;
             if(stencil > 0)
