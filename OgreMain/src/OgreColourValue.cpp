@@ -79,11 +79,11 @@ namespace Ogre {
 
         // Alpha
         val8 = (unsigned char)(a * 255);
-        val32 += val8 << 24;
+        val32 = val8 << 24;
 
         // Red
         val8 = (unsigned char)(r * 255);
-        val32 = val8 << 16;
+        val32 += val8 << 16;
 
         // Green
         val8 = (unsigned char)(g * 255);
@@ -107,11 +107,11 @@ namespace Ogre {
 
         // Alpha
         val8 = (unsigned char)(a * 255);
-        val32 += val8 << 24;
+        val32 = val8 << 24;
 
         // Blue
         val8 = (unsigned char)(b * 255);
-        val32 = val8 << 16;
+        val32 += val8 << 16;
 
         // Green
         val8 = (unsigned char)(g * 255);
