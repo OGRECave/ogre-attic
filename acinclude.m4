@@ -238,13 +238,17 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
     PKG_CHECK_MODULES(GLSUPPORT, gtkglextmm-1.0)
     GLSUPPORT_LIBS="$GLSUPPORT_LIBS"
     ;;
+    GLX)
+	GLSUPPORT_CFLAGS="-I/usr/X11R6/include"
+	GLSUPPORT_LIBS="-L/usr/X11R6/lib -lX11 -lXext -lGL -lXrandr"
   esac
 
   AC_SUBST(GLSUPPORT_CFLAGS)
   AC_SUBST(GLSUPPORT_LIBS)
   AC_SUBST(OGRE_GLSUPPORT)
   AC_CONFIG_FILES([RenderSystems/GL/src/gtk/Makefile
-                   RenderSystems/GL/src/SDL/Makefile])
+                   RenderSystems/GL/src/SDL/Makefile
+		   RenderSystems/GL/src/GLX/Makefile])
 ])
 
 AC_DEFUN([OGRE_BUILD_PYTHON_LINK],

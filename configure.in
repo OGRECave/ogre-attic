@@ -33,7 +33,7 @@ fi
 
 dnl Other stuff we need
 OGRE_USE_STLPORT
-AM_PATH_SDL(1.2.0)
+#AM_PATH_SDL(1.2.0)
 AC_CHECK_FT2(9.0.0)
 
 AC_CHECK_LIB(dl, dlopen)
@@ -92,6 +92,9 @@ AC_CONFIG_FILES([Makefile \
     PlatformManagers/gtk/Makefile \
     PlatformManagers/gtk/src/Makefile \
     PlatformManagers/gtk/include/Makefile \
+    PlatformManagers/GLX/Makefile \
+    PlatformManagers/GLX/src/Makefile \
+    PlatformManagers/GLX/include/Makefile \
     PlugIns/Makefile \
     PlugIns/BSPSceneManager/Makefile \
     PlugIns/BSPSceneManager/src/Makefile \
