@@ -48,17 +48,8 @@ namespace Ogre {
     PlatformManager::PlatformManager()
     {
         // Load library
-        String libraryName = "OgrePlatform.";
-        #if OGRE_PLATFORM == PLATFORM_WIN32
-            libraryName += "dll";
-        #elif OGRE_PLATFORM == PLATFORM_APPLE
-            libraryName += "bundle";
-        #else
-            //PLATFORM_LINUX
-            libraryName = "lib" + libraryName + "so";
-        #endif
 
-        DynLib* lib = DynLibManager::getSingleton().load(libraryName);
+        DynLib* lib = DynLibManager::getSingleton().load(OGRE_PLATFORM_LIB);
 
         mpfCreateConfigDialog = (DLL_CREATECONFIGDIALOG)lib->getSymbol("createPlatformConfigDialog");
         mpfCreateErrorDialog = (DLL_CREATEERRORDIALOG)lib->getSymbol("createPlatformErrorDialog");

@@ -47,7 +47,7 @@ namespace Ogre {
     extern "C" void createPlatformConfigDialog(ConfigDialog** ppDlg)
     {
         // Must get HINSTANCE
-        HINSTANCE hInst = GetModuleHandle("OgrePlatform.dll");
+        HINSTANCE hInst = GetModuleHandle(OGRE_PLATFORM_LIB);
         *ppDlg = new Win32ConfigDialog(hInst);
 
 #ifdef DEBUG
@@ -58,7 +58,7 @@ namespace Ogre {
     /// Retrieves an instance of an error dialog for this platform
     extern "C" void createPlatformErrorDialog(ErrorDialog** ppDlg)
     {
-        HINSTANCE hInst = GetModuleHandle("OgrePlatform.dll");
+        HINSTANCE hInst = GetModuleHandle(OGRE_PLATFORM_LIB);
         *ppDlg = new Win32ErrorDialog(hInst);
 
 #ifdef DEBUG

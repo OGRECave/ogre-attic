@@ -314,7 +314,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Win32Input8: DirectInput Activation Starts");
 
         // Get HINST
-        HINSTANCE hInst = GetModuleHandle("OgrePlatform.dll");
+        HINSTANCE hInst = GetModuleHandle(OGRE_PLATFORM_LIB);
 
         // Get HWND
         HWND hWnd = GetActiveWindow();
