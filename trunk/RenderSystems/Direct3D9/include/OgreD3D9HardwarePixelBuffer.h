@@ -49,6 +49,11 @@ namespace Ogre {
 		IDirect3DSurface9 *mTempSurface;
 		/// Temporary volume in main memory if direct locking of mVolume is not possible
 		IDirect3DVolume9 *mTempVolume;
+		
+		// Mipmapping
+		bool mDoMipmapGen;
+		bool mHWMipmaps;
+		IDirect3DBaseTexture9 *mMipTex;
 	public:
 		D3D9HardwarePixelBuffer(IDirect3DSurface9 *pSurface);
 		D3D9HardwarePixelBuffer(IDirect3DVolume9 *pVolume);
@@ -61,6 +66,12 @@ namespace Ogre {
 		
 		/// @copydoc HardwarePixelBuffer::blitToMemory
 		void blitToMemory(const Image::Box &srcBox, const PixelBox &dst);
+		
+		/// Internal function to update mipmaps on update of level 0
+		void _genMipmaps();
+		
+		/// Function to set mipmap generation
+		void _setMipmapping(bool doMipmapGen, bool HWMipmaps, IDirect3DBaseTexture9 *mipTex);
 		
 		~D3D9HardwarePixelBuffer();
 	};

@@ -622,6 +622,14 @@ namespace Ogre
 			Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
 		}
 		
+		// set the base texture we'll use in the render system
+		hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+		if (FAILED(hr))
+		{
+			Except( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
+			this->_freeResources();
+		}
+		
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
 		D3DSURFACE_DESC desc;
@@ -632,14 +640,6 @@ namespace Ogre
 			this->_freeResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
-		
-		// set the base texture we'll use in the render system
-		hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
-		if (FAILED(hr))
-		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
-			this->_freeResources();
-		}
 		
 		// create a depth stencil if this is a render target
 		if (mUsage & TU_RENDERTARGET)
@@ -702,6 +702,14 @@ namespace Ogre
 			this->_freeResources();
 			Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
 		}
+
+		// set the base texture we'll use in the render system
+		hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+		if (FAILED(hr))
+		{
+			Except( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
+			this->_freeResources();
+		}
 		
 		// set final tex. attributes from tex. description
 		// they may differ from the source image !!!
@@ -713,14 +721,6 @@ namespace Ogre
 			this->_freeResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
-
-		// set the base texture we'll use in the render system
-		hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
-		if (FAILED(hr))
-		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
-			this->_freeResources();
-		}
 		
 		// create a depth stencil if this is a render target
 		if (mUsage & TU_RENDERTARGET)
@@ -1308,26 +1308,32 @@ namespace Ogre
 	{
 		IDirect3DSurface9 *surface;
 		IDirect3DVolume9 *volume;
-		
+		D3D9HardwarePixelBuffer *buffer;
+		assert(mpTex);
+		// Make sure number of mips is right
+		mNumMipmaps = mpTex->GetLevelCount() - 1;
+			
 		mSurfaceList.clear();
 		switch(getTextureType()) {
 		case TEX_TYPE_2D:
 		case TEX_TYPE_1D:
 			assert(mpNormTex);
-			// Make sure number of mips is right
-			mNumMipmaps = mpNormTex->GetLevelCount() - 1;
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 			for(int mip=0; mip<=mNumMipmaps; mip++)
 			{
 				if(mpNormTex->GetSurfaceLevel(mip, &surface) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get surface level failed",
-		 				"D3D9Texture::_createSurfaceList");	
-				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(new D3D9HardwarePixelBuffer(surface)));
+		 				"D3D9Texture::_createSurfaceList");
+
+				buffer = new D3D9HardwarePixelBuffer(surface);
+				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
+					buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
+					
+				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buffer));
 			}
 			break;
 		case TEX_TYPE_CUBE_MAP:
 			assert(mpCubeTex);
-			mNumMipmaps = mpCubeTex->GetLevelCount() - 1;
 			// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 			for(int face=0; face<6; face++)
 			{
@@ -1336,24 +1342,32 @@ namespace Ogre
 					if(mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, mip, &surface) != D3D_OK)
 						Except(Exception::ERR_RENDERINGAPI_ERROR, "Get cubemap surface failed",
 		 				"D3D9Texture::getBuffer");
-					mSurfaceList.push_back(HardwarePixelBufferSharedPtr(new D3D9HardwarePixelBuffer(surface)));
+						
+					buffer = new D3D9HardwarePixelBuffer(surface);
+					if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
+						buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
+						
+					mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buffer));
 				}
 			}
 			break;
 		case TEX_TYPE_3D:
 			assert(mpVolumeTex);
-			mNumMipmaps = mpVolumeTex->GetLevelCount() - 1;
 			// For all mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 			for(int mip=0; mip<=mNumMipmaps; mip++)
 			{
 				if(mpVolumeTex->GetVolumeLevel(mip, &volume) != D3D_OK)
 					Except(Exception::ERR_RENDERINGAPI_ERROR, "Get volume level failed",
 		 				"D3D9Texture::getBuffer");	
-				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(new D3D9HardwarePixelBuffer(volume)));
+						
+				buffer = new D3D9HardwarePixelBuffer(volume);
+				if(mNumMipmaps>0 && mip == 0 && (mUsage & TU_AUTOMIPMAP)) 
+					buffer->_setMipmapping(true, mAutoGenMipmaps, mpTex);
+					
+				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buffer));
 			}
 			break;
 		};
-
 	}
 	/****************************************************************************************/
 	HardwarePixelBufferSharedPtr D3D9Texture::getBuffer(int face, int mipmap) 
