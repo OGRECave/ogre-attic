@@ -1189,6 +1189,8 @@ A float4 containing the 4 light attenuation variables for a given light. This re
 The position of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.
 @item LIGHT_DIRECTION_OBJECT_SPACE
 The direction of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.
+@item AMBIENT_LIGHT_COLOUR
+The colour of the ambient light currently set in the scene.
 @item CAMERA_POSITION_OBJECT_SPACE
 The current cameras position in object space (ie when the object is at (0,0,0)).
 @end table
