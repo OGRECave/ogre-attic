@@ -69,3 +69,18 @@ material Examples/DynaTest4
 		}
 	}
 }
+
+material Examples/VTDarkStuff
+{
+	technique
+	{
+		pass
+		{
+			diffuse 0.0 0.0 0.0
+			ambient 0.1 0.1 0.15
+			cull_hardware none
+			lighting on
+		}
+		
+	}
+}
