@@ -216,8 +216,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     const Vector3& SimpleSpline::getPoint(unsigned short index) const
     {
-        assert (index >= 0 && index < mPoints.size() && 
-            "Point index is out of bounds!!");
+        assert (index < mPoints.size() && "Point index is out of bounds!!");
 
         return mPoints[index];
     }
@@ -235,8 +234,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SimpleSpline::updatePoint(unsigned short index, const Vector3& value)
     {
-        assert (index >= 0 && index < mPoints.size() && 
-            "Point index is out of bounds!!");
+        assert (index < mPoints.size() && "Point index is out of bounds!!");
 
         mPoints[index] = value;
         if (mAutoCalc)

@@ -169,8 +169,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     const Quaternion& RotationalSpline::getPoint(unsigned short index) const
     {
-        assert (index >= 0 && index < mPoints.size() && 
-            "Point index is out of bounds!!");
+        assert (index < mPoints.size() && "Point index is out of bounds!!");
 
         return mPoints[index];
     }
@@ -188,8 +187,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void RotationalSpline::updatePoint(unsigned short index, const Quaternion& value)
     {
-        assert (index >= 0 && index < mPoints.size() && 
-            "Point index is out of bounds!!");
+        assert (index < mPoints.size() && "Point index is out of bounds!!");
 
         mPoints[index] = value;
         if (mAutoCalc)

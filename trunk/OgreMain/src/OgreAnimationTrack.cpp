@@ -72,7 +72,7 @@ namespace Ogre {
     Real AnimationTrack::getKeyFramesAtTime(Real timePos, KeyFrame** keyFrame1, KeyFrame** keyFrame2,
             unsigned short* firstKeyIndex) const
     {
-        unsigned short firstIndex = -1;
+        short firstIndex = -1;
         Real totalAnimationLength = mParent->getLength();
 
         // Wrap time 
