@@ -186,7 +186,7 @@ namespace Ogre {
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
             HardwareIndexBufferSharedPtr* indexBuffer, 
-            bool extrudeVertices, Real dirLightExtrusionDist, unsigned long flags = 0 )
+            bool extrudeVertices, Real extrusionDist, unsigned long flags = 0 )
         {
             static ShadowRenderableList dummyList;
             return ShadowRenderableListIterator(dummyList.begin(), dummyList.end());

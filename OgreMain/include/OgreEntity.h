@@ -412,7 +412,7 @@ namespace Ogre {
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
             HardwareIndexBufferSharedPtr* indexBuffer, 
-            bool extrudeVertices, Real dirLightExtrusionDistance, unsigned long flags = 0 );
+            bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
 
 
 		/** Internal method for retrieving bone matrix information. */

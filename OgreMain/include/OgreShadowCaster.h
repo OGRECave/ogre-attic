@@ -133,14 +133,13 @@ namespace Ogre {
         @param extrudeVertices If true, this means this class should extrude
             the vertices of the back of the volume in software. If false, it
             will not be done (a vertex program is assumed).
-        @param dirLightExtrusionDistance The distance to extrude a directional 
-            lights shadow volume
+        @param extrusionDistance The distance to extrude the shadow volume
         @param flags Technique-specific flags, see ShadowRenderableFlags
         */
         virtual ShadowRenderableListIterator getShadowVolumeRenderableIterator(
             ShadowTechnique shadowTechnique, const Light* light, 
             HardwareIndexBufferSharedPtr* indexBuffer, 
-            bool extrudeVertices, Real dirLightExtrusionDistance, unsigned long flags = 0 ) = 0;
+            bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 ) = 0;
 
         /** Utility method for extruding vertices based on a light. 
         @remarks

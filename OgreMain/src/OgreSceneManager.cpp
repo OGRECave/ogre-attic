@@ -2470,6 +2470,16 @@ namespace Ogre {
         mDestRenderSystem->setStencilCheckEnabled(true);
         mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
 
+        // Calculate extrusion distance
+        Real extrudeDist;
+        if (light->getType() == Light::LT_DIRECTIONAL)
+        {
+            extrudeDist = mShadowDirLightExtrudeDist;
+        }
+        else
+        {
+            extrudeDist = light->getAttenuationRange(); 
+        }
 
         // Figure out the near clip volume
         const PlaneBoundedVolume& nearClipVol = 
@@ -2512,18 +2522,18 @@ namespace Ogre {
                 {
                     flags |= SRF_INCLUDE_LIGHT_CAP;
                 }
-                // Dark cap
-                if(camera->isVisible(caster->getDarkCapBounds(*light, mShadowDirLightExtrudeDist)))
-                {
-                    flags |= SRF_INCLUDE_DARK_CAP;
-                }
+            }
+            // Dark cap
+            if(camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
+            {
+                flags |= SRF_INCLUDE_DARK_CAP;
             }
 
             // Get shadow renderables
             ShadowCaster::ShadowRenderableListIterator iShadowRenderables =
                 caster->getShadowVolumeRenderableIterator(mShadowTechnique,
                 light, &mShadowIndexBuffer, extrudeInSoftware, 
-                mShadowDirLightExtrudeDist, flags);
+                extrudeDist, flags);
 
             while (iShadowRenderables.hasMoreElements())
             {

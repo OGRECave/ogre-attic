@@ -768,7 +768,7 @@ namespace Ogre {
     Entity::getShadowVolumeRenderableIterator(
         ShadowTechnique shadowTechnique, const Light* light, 
         HardwareIndexBufferSharedPtr* indexBuffer, 
-        bool extrude, Real dirLightExtrusionDistance, unsigned long flags)
+        bool extrude, Real extrusionDistance, unsigned long flags)
     {
         assert(indexBuffer && "Only external index buffers are supported right now");
         assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
@@ -873,10 +873,7 @@ namespace Ogre {
             {
                 extrudeVertices(esr->getPositionBuffer(), 
                     egi->vertexData->vertexCount, 
-                    lightPos, 
-                    light->getType() == Light::LT_DIRECTIONAL?
-                        dirLightExtrusionDistance : light->getAttenuationRange()
-                );
+                    lightPos, extrusionDistance);
 
             }
             // Stop suppressing hardware update now, if we were
