@@ -317,7 +317,7 @@ namespace Ogre
             @par
                 See the FrameListener class for more details on the specifics
                 It is imperitive that the instance passed to this method is
-                not destroyed before iether the rendering loop ends, or the
+                not destroyed before either the rendering loop ends, or the
                 class is removed from the listening list using
                 removeFrameListener.
             @note

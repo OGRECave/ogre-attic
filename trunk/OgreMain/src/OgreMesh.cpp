@@ -69,6 +69,7 @@ namespace Ogre {
 
         mPreparedForShadowVolumes = false;
         mEdgeListsBuilt = false;
+        mAutoBuildEdgeLists = true; // will be set to false by serializers of 1.30 and above
 
     }
 
@@ -163,8 +164,15 @@ namespace Ogre {
         // Prepare for shadow volumes?
         if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())
         {
-            prepareForShadowVolume();
-            buildEdgeList();
+            if (mEdgeListsBuilt || mAutoBuildEdgeLists)
+            {
+                prepareForShadowVolume();
+            }
+
+            if (!mEdgeListsBuilt && mAutoBuildEdgeLists)
+            {
+                buildEdgeList();
+            }
         }
 
 		mIsLoaded = true;
@@ -359,7 +367,8 @@ namespace Ogre {
                 // Log this error
                 String msg = "Unable to load skeleton ";
                 msg += skelName + " for Mesh " + mName
-                    + " This Mesh will not be animated. ";
+                    + ". This Mesh will not be animated. "
+                    + "You can ignore this message if you are using an offline tool.";
                 LogManager::getSingleton().logMessage(msg);
 
             }
@@ -555,13 +564,21 @@ namespace Ogre {
         const VertexElement *pIdxElem, *pWeightElem;
 
         // add new vertex elements
-        // Note, insert directly after position to abide by pre-Dx9 format restrictions
-        if(decl->getElement(0)->getSemantic() == VES_POSITION)
+        // Note, insert directly after all elements using the same source as 
+        // position to abide by pre-Dx9 format restrictions
+        const VertexElement* firstElem = decl->getElement(0);
+        if(firstElem->getSemantic() == VES_POSITION)
         {
+            unsigned short insertPoint = 1;
+            while (insertPoint < decl->getElementCount() &&
+                decl->getElement(insertPoint)->getSource() == firstElem->getSource())
+            {
+                ++insertPoint;
+            }
             const VertexElement& idxElem = 
-                decl->insertElement(1, bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
+                decl->insertElement(insertPoint, bindIndex, 0, VET_UBYTE4, VES_BLEND_INDICES);
             const VertexElement& wtElem = 
-                decl->insertElement(2, bindIndex, sizeof(unsigned char)*4, 
+                decl->insertElement(insertPoint+1, bindIndex, sizeof(unsigned char)*4, 
                 VertexElement::multiplyTypeCount(VET_FLOAT1, numBlendWeightsPerVertex),
                 VES_BLEND_WEIGHTS);
             pIdxElem = &idxElem;
@@ -698,6 +715,13 @@ namespace Ogre {
             // Load the mesh now
             mMeshLodUsageList[index].manualMesh = 
                 MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
+            // get the edge data, if required
+            if (!mAutoBuildEdgeLists)
+            {
+                mMeshLodUsageList[index].edgeData = 
+                    mMeshLodUsageList[index].manualMesh->getEdgeList(0);
+            }
+
         }
         return mMeshLodUsageList[index];
     }
@@ -842,13 +866,13 @@ namespace Ogre {
 		mIndexBufferShadowBuffer = shadowBuffer;
 	}
     //---------------------------------------------------------------------
-    HardwareVertexBufferSharedPtr Mesh::getTangentsBuffer(VertexData *vertexData, 
-        unsigned short texCoordSet)
+    void Mesh::organiseTangentsBuffer(VertexData *vertexData, 
+        unsigned short destCoordSet)
     {
 	    VertexDeclaration *vDecl = vertexData->vertexDeclaration ;
 	    VertexBufferBinding *vBind = vertexData->vertexBufferBinding ;
 
-	    const VertexElement *tex3D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, texCoordSet);
+	    const VertexElement *tex3D = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, destCoordSet);
 	    bool needsToBeCreated = false;
     	
 	    if (!tex3D) 
@@ -856,34 +880,82 @@ namespace Ogre {
 			    needsToBeCreated = true ;
 	    } 
         else if (tex3D->getType() != VET_FLOAT3) 
-        { // no 3d-coords tex buffer
-		    vDecl->removeElement(VES_TEXTURE_COORDINATES, texCoordSet);
-		    vBind->unsetBinding(tex3D->getSource());
-		    needsToBeCreated = true ;
+        { 
+            // tex buffer exists, but not 3D
+            Except(Exception::ERR_INVALIDPARAMS, 
+                "Texture coordinate set " + StringConverter::toString(destCoordSet) + 
+                "already exists but is not 3D, therefore cannot contain tangents. Pick "
+                "an alternative destination coordinate set. ", 
+                "Mesh::organiseTangentsBuffer");
 	    }
     	
-	    HardwareVertexBufferSharedPtr tex3DBuf ;
+	    HardwareVertexBufferSharedPtr newBuffer;
 	    if (needsToBeCreated) 
         {
-		    tex3DBuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-			    3*sizeof(float), vertexData->vertexCount,
-			    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, 
-			    true );
-		    int source = vBind->getNextIndex(); // find next available source 
-		    vBind->setBinding(source, tex3DBuf);
-		    vDecl->addElement(source, 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoordSet);
+            // What we need to do, to be most efficient with our vertex streams, 
+            // is to tack the new 3D coordinate set onto the same buffer as the 
+            // previous texture coord set
+            const VertexElement* prevTexCoordElem = 
+                vertexData->vertexDeclaration->findElementBySemantic(
+                    VES_TEXTURE_COORDINATES, destCoordSet - 1);
+            if (!prevTexCoordElem)
+            {
+                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                    "Cannot locate the texture coordinate element preceding the "
+                    "destination texture coordinate set to which to append the new "
+                    "tangents.", "Mesh::orgagniseTangentsBuffer");
+            }
+            // Find the buffer associated with  this element
+            HardwareVertexBufferSharedPtr origBuffer = 
+                vertexData->vertexBufferBinding->getBuffer(
+                    prevTexCoordElem->getSource());
+            // Now create a new buffer, which includes the previous contents
+            // plus extra space for the 3D coords
+		    newBuffer = HardwareBufferManager::getSingleton().createVertexBuffer(
+                origBuffer->getVertexSize() + 3*sizeof(float), 
+                vertexData->vertexCount,
+			    origBuffer->getUsage(), 
+			    origBuffer->hasShadowBuffer() );
+            // Add the new element
+		    vDecl->addElement(
+                prevTexCoordElem->getSource(), 
+                origBuffer->getVertexSize(), 
+                VET_FLOAT3, 
+                VES_TEXTURE_COORDINATES, 
+                destCoordSet);
+            // Now copy the original data across
+            unsigned char* pSrc = static_cast<unsigned char*>(
+                origBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+            unsigned char* pDest = static_cast<unsigned char*>(
+                newBuffer->lock(HardwareBuffer::HBL_DISCARD));
+            size_t vertSize = origBuffer->getVertexSize();
+            for (int v = 0; v < vertexData->vertexCount; ++v)
+            {
+                // Copy original vertex data
+                memcpy(pDest, pSrc, vertSize);
+                pSrc += vertSize;
+                pDest += vertSize;
+                // Set the new part to 0 since we'll accumulate in this
+                memset(pDest, 0, sizeof(float)*3);
+                pDest += sizeof(float)*3;
+            }
+            origBuffer->unlock();
+            newBuffer->unlock();
+
+            // Rebind the new buffer
+            vBind->setBinding(prevTexCoordElem->getSource(), newBuffer);
 	    } 
-        else 
-        {
-		    tex3DBuf = vBind->getBuffer(tex3D->getSource());
-	    }
-    	
-	    return tex3DBuf;
     }
     //---------------------------------------------------------------------
     void Mesh::buildTangentVectors(unsigned short sourceTexCoordSet, 
         unsigned short destTexCoordSet)
     {
+        if (destTexCoordSet == 0)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, 
+                "Destination texture coordinate set must be greater than 0", 
+                "Mesh::buildTangentVectors");
+        }
 
 	    // our temp. buffers
 	    unsigned short	vertInd[3];
@@ -891,6 +963,7 @@ namespace Ogre {
         Real            u[3], v[3];
 	    // setup a new 3D texture coord-set buffer for every sub mesh
 	    int nSubMesh = getNumSubMeshes();
+        bool sharedGeometryDone = false;
 	    for (int sm = 0; sm < nSubMesh; sm++)
 	    {
 		    // retrieve buffer pointers
@@ -905,11 +978,15 @@ namespace Ogre {
 		    // first, indices
 		    IndexData *indexData = pSubMesh->indexData;
 		    HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer ;
-		    pVIndices = (unsigned short*) buffIndex->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+		    pVIndices = (unsigned short*) buffIndex->lock(HardwareBuffer::HBL_READ_ONLY); 
 		    // then, vertices
 		    VertexData *usedVertexData ;
 		    if (pSubMesh->useSharedVertices) {
+                // Don't do shared geometry more than once
+                if (sharedGeometryDone)
+                    continue;
 			    usedVertexData = sharedVertexData;
+                sharedGeometryDone = true;
 		    } else {
 			    usedVertexData = pSubMesh->vertexData;
 		    }
@@ -917,27 +994,67 @@ namespace Ogre {
 		    VertexBufferBinding *vBind = usedVertexData->vertexBufferBinding;
 
 
-		    // get a new 3D tex.coord.buffer or an existing one
-		    HardwareVertexBufferSharedPtr buff3DTC = getTangentsBuffer(usedVertexData, destTexCoordSet);
-		    // clear it
-		    p3DTC = (Real*) buff3DTC->lock(HardwareBuffer::HBL_DISCARD); // ***LOCK***
-		    memset(p3DTC,0,buff3DTC->getSizeInBytes());
-		    // find a 2D tex coord buffer
-		    const VertexElement *elem2DTC = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, sourceTexCoordSet);
+		    // make sure we have a 3D coord to place data in
+		    organiseTangentsBuffer(usedVertexData, destTexCoordSet);
 
-            if (!elem2DTC || elem2DTC->getType() != VET_FLOAT2)
+            // Get the target element
+            const VertexElement* destElem = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, destTexCoordSet);
+            // Get the source element
+            const VertexElement* srcElem = vDecl->findElementBySemantic(VES_TEXTURE_COORDINATES, sourceTexCoordSet);
+
+            if (!srcElem || srcElem->getType() != VET_FLOAT2)
             {
                 Except(Exception::ERR_INVALIDPARAMS, 
                     "SubMesh " + StringConverter::toString(sm) + " of Mesh " + mName + 
-                    " has no 2D texture coordinates, therefore we cannot calculate tangents.", 
+                    " has no 2D texture coordinates at the selected set, therefore we cannot calculate tangents.", 
                     "Mesh::buildTangentVectors");
             }
-		    HardwareVertexBufferSharedPtr buff2DTC = vBind->getBuffer(elem2DTC->getSource());
-		    p2DTC = (Real*) buff2DTC->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+            HardwareVertexBufferSharedPtr srcBuf, destBuf, posBuf;
+            unsigned char *pSrcBase, *pDestBase, *pPosBase;
+            size_t srcInc, destInc, posInc;
+
+            srcBuf = vBind->getBuffer(srcElem->getSource());
+            // Is the source and destination buffer the same?
+            if (srcElem->getSource() == destElem->getSource())
+            {
+                // lock source for read and write
+                pSrcBase = static_cast<unsigned char*>(
+                    srcBuf->lock(HardwareBuffer::HBL_NORMAL)); 
+                srcInc = srcBuf->getVertexSize();
+                pDestBase = pSrcBase;
+                destInc = srcInc;
+            }
+            else
+            {
+                pSrcBase = static_cast<unsigned char*>(
+                    srcBuf->lock(HardwareBuffer::HBL_READ_ONLY)); 
+                srcInc = srcBuf->getVertexSize();
+                destBuf = vBind->getBuffer(destElem->getSource());
+                destInc = destBuf->getVertexSize();
+                pDestBase = static_cast<unsigned char*>(
+                    destBuf->lock(HardwareBuffer::HBL_NORMAL));
+            }
+		    
 		    // find a vertex coord buffer
 		    const VertexElement *elemVPos = vDecl->findElementBySemantic(VES_POSITION);
-		    HardwareVertexBufferSharedPtr buffVPos = vBind->getBuffer(elemVPos->getSource());
-		    pVPos = (Real*) buffVPos->lock(HardwareBuffer::HBL_READ_ONLY); // ***LOCK***
+            if (elemVPos->getSource() == srcElem->getSource())
+            {
+                pPosBase = pSrcBase;
+                posInc = srcInc;
+            }
+            else if (elemVPos->getSource() == destElem->getSource())
+            {
+                pPosBase = pDestBase;
+                posInc = destInc;
+            }
+            else
+            {
+                // A different buffer
+                posBuf = vBind->getBuffer(elemVPos->getSource());
+                pPosBase = static_cast<unsigned char*>(
+                    posBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+                posInc = posBuf->getVertexSize();
+            }
     		
 		    size_t numFaces = indexData->indexCount / 3 ;
     		
@@ -951,12 +1068,16 @@ namespace Ogre {
 				    // get indexes of vertices that form a polygon in the position buffer
 				    vertInd[i] = *pVIndices++;
 				    // get the vertices positions from the position buffer
-				    vertPos[i].x = pVPos[3 * vertInd[i] + 0];
-				    vertPos[i].y = pVPos[3 * vertInd[i] + 1];
-				    vertPos[i].z = pVPos[3 * vertInd[i] + 2];
+                    unsigned char* vBase = pPosBase + (posInc * vertInd[i]);
+                    elemVPos->baseVertexPointerToElement(vBase, &pVPos);
+				    vertPos[i].x = pVPos[0];
+				    vertPos[i].y = pVPos[1];
+				    vertPos[i].z = pVPos[2];
 				    // get the vertices tex.coords from the 2D tex.coords buffer
-				    u[i] = p2DTC[2 * vertInd[i] + 0];
-				    v[i] = p2DTC[2 * vertInd[i] + 1];
+                    vBase = pSrcBase + (srcInc * vertInd[i]);
+                    srcElem->baseVertexPointerToElement(vBase, &p2DTC);
+				    u[i] = p2DTC[0];
+				    v[i] = p2DTC[1];
 			    }
 			    // calculate the TSB
                 Vector3 tangent = Math::calculateTangentSpaceVector(
@@ -969,33 +1090,145 @@ namespace Ogre {
 			    {
 				    // write values (they must be 0 and we must add them so we can average
                     // all the contributions from all the faces
-				    p3DTC[3 * vertInd[i] + 0] += tangent.x;
-				    p3DTC[3 * vertInd[i] + 1] += tangent.y;
-				    p3DTC[3 * vertInd[i] + 2] += tangent.z;
+                    unsigned char* vBase = pDestBase + (destInc * vertInd[i]);
+                    destElem->baseVertexPointerToElement(vBase, &p3DTC);
+				    p3DTC[0] += tangent.x;
+				    p3DTC[1] += tangent.y;
+				    p3DTC[2] += tangent.z;
 			    }
 		    }
 		    // now loop through all vertices and normalize them
 		    size_t numVerts = usedVertexData->vertexCount ;
-		    for (n = 0; n < numVerts * 3; n += 3)
+		    for (n = 0; n < numVerts; ++n)
 		    {
+                destElem->baseVertexPointerToElement(pDestBase, &p3DTC);
 			    // read the vertex
-			    Vector3 temp(p3DTC[n + 0], p3DTC[n + 1], p3DTC[n + 2]);
+			    Vector3 temp(p3DTC[0], p3DTC[1], p3DTC[2]);
 			    // normalize the vertex
 			    temp.normalise();
 			    // write it back
-			    p3DTC[n + 0] = temp.x;
-			    p3DTC[n + 1] = temp.y;
-			    p3DTC[n + 2] = temp.z;
+			    p3DTC[0] = temp.x;
+			    p3DTC[1] = temp.y;
+			    p3DTC[2] = temp.z;
+
+                pDestBase += destInc;
 		    }
 		    // unlock buffers
+            srcBuf->unlock();
+            if (!destBuf.isNull())
+            {
+                destBuf->unlock();
+            }
+            if (!posBuf.isNull())
+            {
+                posBuf->unlock();
+            }
 		    buffIndex->unlock();
-		    buff3DTC->unlock();
-		    buff2DTC->unlock();
-		    buffVPos->unlock();
 	    }
         
     }
 
+    //---------------------------------------------------------------------
+    bool Mesh::suggestTangentVectorBuildParams(unsigned short& outSourceCoordSet, 
+        unsigned short& outDestCoordSet)
+    {
+        // Go through all the vertex data and locate source and dest (must agree)
+        bool sharedGeometryDone = false;
+        bool foundExisting = false;
+        bool firstOne = true;
+        SubMeshList::iterator i, iend;
+        iend = mSubMeshList.end();
+        for (i = mSubMeshList.begin(); i != iend; ++i)
+        {
+            SubMesh* sm = *i;
+            VertexData* vertexData;
+
+            if (sm->useSharedVertices)
+            {
+                if (sharedGeometryDone)
+                    continue;
+                vertexData = sharedVertexData;
+                sharedGeometryDone = true;
+            }
+            else
+            {
+                vertexData = sm->vertexData;
+            }
+
+            const VertexElement *sourceElem = 0;
+            unsigned short proposedDest = 0;
+            for (unsigned short t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
+            {
+                const VertexElement* testElem = 
+                    vertexData->vertexDeclaration->findElementBySemantic(
+                        VES_TEXTURE_COORDINATES, t);
+                if (!testElem)
+                    break; // finish if we've run out, t will be the target
+
+                if (!sourceElem)
+                {
+                    // We're still looking for the source texture coords
+                    if (testElem->getType() == VET_FLOAT2)
+                    {
+                        // Ok, we found it
+                        sourceElem = testElem;
+                    }
+                }
+                else
+                {
+                    // We're looking for the destination
+                    // Check to see if we've found a possible
+                    if (testElem->getType() == VET_FLOAT3)
+                    {
+                        // This is a 3D set, might be tangents
+                        foundExisting = true;
+                    }
+
+                }
+
+            }
+
+            // After iterating, we should have a source and a possible destination (t)
+            if (!sourceElem)
+            {
+                Except(Exception::ERR_ITEM_NOT_FOUND, 
+                    "Cannot locate an appropriate 2D texture coordinate set for "
+                    "all the vertex data in this mesh to create tangents from. ",
+                    "Mesh::suggestTangentVectorBuildParams");
+            }
+            // Check that we agree with previous decisions, if this is not the 
+            // first one
+            if (!firstOne)
+            {
+                if (sourceElem->getIndex() != outSourceCoordSet)
+                {
+                    Except(Exception::ERR_INVALIDPARAMS, 
+                        "Multiple sets of vertex data in this mesh disagree on "
+                        "the appropriate index to use for the source texture coordinates. "
+                        "This ambiguity must be rectified before tangents can be generated.",
+                        "Mesh::suggestTangentVectorBuildParams");
+                }
+                if (t != outDestCoordSet)
+                {
+                    Except(Exception::ERR_INVALIDPARAMS, 
+                        "Multiple sets of vertex data in this mesh disagree on "
+                        "the appropriate index to use for the target texture coordinates. "
+                        "This ambiguity must be rectified before tangents can be generated.",
+                        "Mesh::suggestTangentVectorBuildParams");
+                }
+            }
+
+            // Otherwise, save this result
+            outSourceCoordSet = sourceElem->getIndex();
+            outDestCoordSet = t;
+
+            firstOne = false;
+
+       }
+
+        return foundExisting;
+        
+    }
     //---------------------------------------------------------------------
     void Mesh::buildEdgeList(void)
     {
@@ -1080,6 +1313,7 @@ namespace Ogre {
 
             }
         }
+        mEdgeListsBuilt = true;
     }
     //---------------------------------------------------------------------
     void Mesh::freeEdgeList(void)
@@ -1122,6 +1356,11 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     EdgeData* Mesh::getEdgeList(unsigned int lodIndex)
+    {
+        return getLodLevel(lodIndex).edgeData;
+    }
+    //---------------------------------------------------------------------
+    const EdgeData* Mesh::getEdgeList(unsigned int lodIndex) const
     {
         return getLodLevel(lodIndex).edgeData;
     }
@@ -1245,6 +1484,11 @@ namespace Ogre {
                 // Same buffer, must be packed directly after position
                 assert (destElemNorm->getOffset() == sizeof(Real) * 3 && 
                     "Normals must be packed directly after positions in buffer!");
+                // Must be no other information in the buffer
+                assert(destPosBuf->getVertexSize() == 
+                    destElemPos->getSize() + destElemNorm->getSize() && 
+                    "When software skinning, position & normal buffer must not include "
+                    "any other vertex elements!");
                 // pDestNorm will not be used
             }
             else
@@ -1252,6 +1496,15 @@ namespace Ogre {
                 // Different buffer
                 assert (destElemNorm->getOffset() == 0 && 
                     "Normals must be first element in dedicated buffer!");
+                // Must be no other information in the buffer
+                assert(destPosBuf->getVertexSize() == 
+                    destElemPos->getSize() && 
+                    "When software skinning, dedicated position buffer must not include "
+                    "any other vertex elements!");
+                assert(destNormBuf->getVertexSize() == 
+                    destElemNorm->getSize() && 
+                    "When software skinning, dedicated normal buffer must not include "
+                    "any other vertex elements!");
                 pDestNorm = static_cast<Real*>(
                     destNormBuf->lock(HardwareBuffer::HBL_DISCARD));
             }

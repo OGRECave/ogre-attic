@@ -37,7 +37,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 
-
 namespace Ogre {
 
     /// Chunk overhead = ID + size
@@ -48,7 +47,7 @@ namespace Ogre {
         mpMesh = 0;
 
         // Version number
-        mVersion = "[MeshSerializer_v1.20]";
+        mVersion = "[MeshSerializer_v1.30]";
     }
     //---------------------------------------------------------------------
     MeshSerializerImpl::~MeshSerializerImpl()
@@ -76,13 +75,6 @@ namespace Ogre {
         writeMesh(pMesh);
         LogManager::getSingleton().logMessage("Mesh data exported.");
 
-		// Added by DrEvil
-		LogManager::getSingleton().logMessage("Writing submesh name table...");
-
-		writeSubMeshNameTable(pMesh);
-		LogManager::getSingleton().logMessage("Done writing submesh name table");
-
-
         fclose(mpfFile);
         LogManager::getSingleton().logMessage("MeshSerializer export successful.");
     }
@@ -103,14 +95,8 @@ namespace Ogre {
             case M_MESH:
                 readMesh(chunk);
                 break;
-            case M_MATERIAL:	 // removed in 1.1 but still present in 1.0
-                 readMaterial(chunk);	 
-                 break;                
+			}
 
-			// Added by DrEvil optional chunk which lists submesh indexes & their names.
-			case M_SUBMESH_NAME_TABLE:
-                readSubMeshNameTable(chunk);
-            }
         }
     }
     //---------------------------------------------------------------------
@@ -172,6 +158,18 @@ namespace Ogre {
         writeBoundsInfo(pMesh);
         LogManager::getSingleton().logMessage("Bounds information exported.");
 
+		// Write submesh name table
+		LogManager::getSingleton().logMessage("Exporting submesh name table...");
+		writeSubMeshNameTable(pMesh);
+		LogManager::getSingleton().logMessage("Submesh name table exported.");
+		
+		// Write edge lists
+		if (pMesh->isEdgeListBuilt())
+		{
+			LogManager::getSingleton().logMessage("Exporting edge lists...");
+			writeEdgeList(pMesh);
+			LogManager::getSingleton().logMessage("Edge lists exported");
+		}
 
     }
     //---------------------------------------------------------------------
@@ -269,100 +267,98 @@ namespace Ogre {
         writeShorts(&opType, 1);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeCondensedVertexBuffer(HardwareVertexBufferSharedPtr vbuf, 
-        const VertexElement* elem, size_t vertexCount)
-    {
-        // Hacky method, turns shared buffers into unshared
-        // Needed because for now the mesh format only supports unshared for simplicity
-        // This will probably be upgraded in the next version, but there were enough
-        // changes going on as it is!
-        void* pVert = vbuf->lock(HardwareBuffer::HBL_READ_ONLY);
-
-        // Check see if already unshared
-        if (vbuf->getVertexSize() == elem->getSize())
-        {
-            // Bulk copy
-            writeReals(static_cast<Real*>(pVert), vertexCount * VertexElement::getTypeCount(elem->getType()));
-        }
-        else
-        {
-            // Do it the hard way
-            Real* pReal;
-            while (vertexCount--)
-            {
-                elem->baseVertexPointerToElement(pVert, &pReal);
-                writeReals(pReal, VertexElement::getTypeCount(elem->getType()));
-                pVert = static_cast<void*>(
-                    static_cast<unsigned char*>(pVert) + vbuf->getVertexSize() );
-            }
-        }
-        
-        vbuf->unlock();
-    }
-    //---------------------------------------------------------------------
     void MeshSerializerImpl::writeGeometry(const VertexData* vertexData)
     {
-        // Header
-        writeChunkHeader(M_GEOMETRY, calcGeometrySize(vertexData));
+		// calc size
+        const VertexDeclaration::VertexElementList& elemList = 
+            vertexData->vertexDeclaration->getElements();
+        const VertexBufferBinding::VertexBufferBindingMap& bindings = 
+            vertexData->vertexBufferBinding->getBindings();
+        VertexBufferBinding::VertexBufferBindingMap::const_iterator vbi, vbiend;
+
+		size_t size = CHUNK_OVERHEAD_SIZE + sizeof(unsigned int) + // base
+			(CHUNK_OVERHEAD_SIZE + elemList.size() * (CHUNK_OVERHEAD_SIZE + sizeof(unsigned short) * 5)); // elements
+        vbiend = bindings.end();
+		for (vbi = bindings.begin(); vbi != vbiend; ++vbi)
+		{
+			const HardwareVertexBufferSharedPtr& vbuf = vbi->second;
+			size += (CHUNK_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
+		}
+
+		// Header
+        writeChunkHeader(M_GEOMETRY, size);
 
         // unsigned int numVertices
         writeInts(&vertexData->vertexCount, 1);
 
-        // Real* pVertices (x, y, z order x numVertices)
-        const VertexElement* elem = 
-            vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-        if (!elem)
-        {
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Can't find position elements in the "
-            "mesh to be written!", "MeshSerializerImpl::writeGeometry");
-        }
-        HardwareVertexBufferSharedPtr vbuf = 
-            vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-        writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
-        //writeReals(pReal, vertexData->vertexCount * 3);
+		// Vertex declaration
+		size = CHUNK_OVERHEAD_SIZE + elemList.size() * (CHUNK_OVERHEAD_SIZE + sizeof(unsigned short) * 5);
+		writeChunkHeader(M_GEOMETRY_VERTEX_DECLARATION, size);
+		
+        VertexDeclaration::VertexElementList::const_iterator vei, veiend;
+		veiend = elemList.end();
+		unsigned short tmp;
+		size = CHUNK_OVERHEAD_SIZE + sizeof(unsigned short) * 5;
+		for (vei = elemList.begin(); vei != veiend; ++vei)
+		{
+			const VertexElement& elem = *vei;
+			writeChunkHeader(M_GEOMETRY_VERTEX_ELEMENT, size);
+			// unsigned short source;  	// buffer bind source
+			tmp = elem.getSource();
+			writeShorts(&tmp, 1);
+			// unsigned short type;    	// VertexElementType
+			tmp = static_cast<unsigned short>(elem.getType());
+			writeShorts(&tmp, 1);
+			// unsigned short semantic; // VertexElementSemantic
+			tmp = static_cast<unsigned short>(elem.getSemantic());
+			writeShorts(&tmp, 1);
+			// unsigned short offset;	// start offset in buffer in bytes
+			tmp = static_cast<unsigned short>(elem.getOffset());
+			writeShorts(&tmp, 1);
+			// unsigned short index;	// index of the semantic (for colours and texture coords)
+			tmp = elem.getIndex();
+			writeShorts(&tmp, 1);
 
-        elem = vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
-        if (elem)
-        {
-            writeChunkHeader(M_GEOMETRY_NORMALS, 
-                static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
+		}
 
-            // Real* pNormals (x, y, z order x numVertices)
-            vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-            writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
-        }
-
-        elem = vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
-        if (elem)
-        {
-            writeChunkHeader(M_GEOMETRY_COLOURS, 
-                static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
-            // unsigned long* pColours (RGBA 8888 format x numVertices)
-            vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-            writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
-        }
-
-        for (int t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
-        {
-            elem = vertexData->vertexDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, t);
-            if (elem)
-            {
-                writeChunkHeader(M_GEOMETRY_TEXCOORDS, 
-                    static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
-                vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-                // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-                unsigned short dims = VertexElement::getTypeCount(elem->getType());
-                writeShorts(&dims, 1);
-                // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-                writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
-            }
-
-        }
+		// Buffers and bindings
+		vbiend = bindings.end();
+		for (vbi = bindings.begin(); vbi != vbiend; ++vbi)
+		{
+			const HardwareVertexBufferSharedPtr& vbuf = vbi->second;
+			size = (CHUNK_OVERHEAD_SIZE * 2) + (sizeof(unsigned short) * 2) + vbuf->getSizeInBytes();
+			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER,  size);
+			// unsigned short bindIndex;	// Index to bind this buffer to
+			tmp = vbi->first;
+			writeShorts(&tmp, 1);
+			// unsigned short vertexSize;	// Per-vertex size, must agree with declaration at this index
+			tmp = (unsigned short)vbuf->getVertexSize();
+			writeShorts(&tmp, 1);
+			
+			// Data
+			size = CHUNK_OVERHEAD_SIZE + vbuf->getSizeInBytes();
+			writeChunkHeader(M_GEOMETRY_VERTEX_BUFFER_DATA, size);
+			void* pBuf = vbuf->lock(HardwareBuffer::HBL_READ_ONLY);
+#		if OGRE_ENDIAN == ENDIAN_BIG
+			// endian conversion for OSX
+			// Copy data
+			unsigned char* tempData = new unsigned char[vbuf->getSizeInBytes()];
+			memcpy(tempData, pBuf, vbuf->getSizeInBytes());
+			flipToLittleEndian(
+				tempData, 
+				vertexData->vertexCount,
+				vbuf->getVertexSize();
+				vertexData->vertexDeclaration->findElementsBySource(vbi->first));
+			writeData(tempData, vbuf->getVertexSize(), vertexData->vertexCount);
+			delete [] tempData;
+#		else
+			writeData(pBuf, vbuf->getVertexSize(), vertexData->vertexCount);
+#		endif
+		}
 
 
     }
     //---------------------------------------------------------------------
-	// Added by DrEvil
 	unsigned long MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh *pMesh)
 	{
 		size_t size = CHUNK_OVERHEAD_SIZE;
@@ -408,7 +404,16 @@ namespace Ogre {
             size += calcSkeletonLinkSize(pMesh->getSkeletonName());
         }
 
-        return size;
+		// Submesh name table
+		size += calcSubMeshNameTableSize(pMesh);
+
+		// Edge list
+		if (pMesh->isEdgeListBuilt())
+		{
+			size += calcEdgeListSize(pMesh);
+		}
+		
+		return size;
 
     }
     //---------------------------------------------------------------------
@@ -463,7 +468,143 @@ namespace Ogre {
         return static_cast<unsigned long>(size);
     }
     //---------------------------------------------------------------------
-	// Added by DrEvil
+    void MeshSerializerImpl::readGeometry(DataChunk& chunk, VertexData* dest)
+    {
+
+        dest->vertexStart = 0;
+
+        // unsigned int numVertices
+        readInts(chunk, &dest->vertexCount, 1);
+
+        // Find optional geometry chunks
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(!chunk.isEOF() && 
+                (chunkID == M_GEOMETRY_VERTEX_DECLARATION || 
+                 chunkID == M_GEOMETRY_VERTEX_BUFFER ))
+            {
+                switch (chunkID)
+                {
+                case M_GEOMETRY_VERTEX_DECLARATION:
+                    readGeometryVertexDeclaration(chunk, dest);
+                    break;
+                case M_GEOMETRY_VERTEX_BUFFER:
+                    readGeometryVertexBuffer(chunk, dest);
+                    break;
+                }
+                // Get next chunk
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-submesh chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryVertexDeclaration(DataChunk& chunk, VertexData* dest)
+    {
+        // Find optional geometry chunks
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(!chunk.isEOF() && 
+                (chunkID == M_GEOMETRY_VERTEX_ELEMENT ))
+            {
+                switch (chunkID)
+                {
+                case M_GEOMETRY_VERTEX_ELEMENT:
+                    readGeometryVertexElement(chunk, dest);
+                    break;
+                }
+                // Get next chunk
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-submesh chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+		
+	}
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryVertexElement(DataChunk& chunk, VertexData* dest)
+    {
+		unsigned short source, offset, index, tmp;
+		VertexElementType vType;
+		VertexElementSemantic vSemantic;
+		// unsigned short source;  	// buffer bind source
+		readShorts(chunk, &source, 1);
+		// unsigned short type;    	// VertexElementType
+		readShorts(chunk, &tmp, 1);
+		vType = static_cast<VertexElementType>(tmp);
+		// unsigned short semantic; // VertexElementSemantic
+		readShorts(chunk, &tmp, 1);
+		vSemantic = static_cast<VertexElementSemantic>(tmp);
+		// unsigned short offset;	// start offset in buffer in bytes
+		readShorts(chunk, &offset, 1);
+		// unsigned short index;	// index of the semantic
+		readShorts(chunk, &index, 1);
+
+		dest->vertexDeclaration->addElement(source, offset, vType, vSemantic, index);
+
+	}
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readGeometryVertexBuffer(DataChunk& chunk, VertexData* dest)
+    {
+		unsigned short bindIndex, vertexSize;
+		// unsigned short bindIndex;	// Index to bind this buffer to
+		readShorts(chunk, &bindIndex, 1);
+		// unsigned short vertexSize;	// Per-vertex size, must agree with declaration at this index
+		readShorts(chunk, &vertexSize, 1);
+
+		// Check for vertex data header
+		unsigned short headerID;
+		headerID = readChunk(chunk);
+		if (headerID != M_GEOMETRY_VERTEX_BUFFER_DATA)
+		{
+			Except(Exception::ERR_ITEM_NOT_FOUND, "Can't find vertex buffer data area",
+            	"MeshSerializerImpl::readGeometryVertexBuffer");
+		}
+		// Check that vertex size agrees
+		if (dest->vertexDeclaration->getVertexSize(bindIndex) != vertexSize)
+		{
+			Except(Exception::ERR_INTERNAL_ERROR, "Buffer vertex size does not agree with vertex declaration",
+            	"MeshSerializerImpl::readGeometryVertexBuffer");
+		}
+		
+		// Create / populate vertex buffer
+		HardwareVertexBufferSharedPtr vbuf;
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            vertexSize,
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage, 
+			mpMesh->mVertexBufferShadowBuffer);
+        void* pBuf = vbuf->lock(HardwareBuffer::HBL_DISCARD);
+        chunk.read(pBuf, dest->vertexCount * vertexSize);
+
+		// endian conversion for OSX
+		flipFromLittleEndian(
+			pBuf, 
+			dest->vertexCount, 
+			vertexSize,
+			dest->vertexDeclaration->findElementsBySource(bindIndex));
+        vbuf->unlock();
+		
+		// Set binding
+        dest->vertexBufferBinding->setBinding(bindIndex, vbuf);
+
+	}
+    //---------------------------------------------------------------------
 	void MeshSerializerImpl::readSubMeshNameTable(DataChunk& chunk)
 	{
 		// The map for
@@ -519,6 +660,10 @@ namespace Ogre {
     {
         unsigned short chunkID;
 
+        // Never automatically build edge lists for this version
+        // expect them in the file or not at all
+        mpMesh->mAutoBuildEdgeLists = false;
+
 		// bool skeletallyAnimated
 		readBools(chunk, &mIsSkeletallyAnimated, 1);
 
@@ -532,7 +677,9 @@ namespace Ogre {
                  chunkID == M_MESH_SKELETON_LINK ||
                  chunkID == M_MESH_BONE_ASSIGNMENT ||
 				 chunkID == M_MESH_LOD ||
-                 chunkID == M_MESH_BOUNDS))
+                 chunkID == M_MESH_BOUNDS ||
+				 chunkID == M_SUBMESH_NAME_TABLE ||
+				 chunkID == M_EDGE_LISTS))
             {
                 switch(chunkID)
                 {
@@ -572,6 +719,13 @@ namespace Ogre {
                 case M_MESH_BOUNDS:
                     readBoundsInfo(chunk);
                     break;
+				case M_SUBMESH_NAME_TABLE:
+    	            readSubMeshNameTable(chunk);
+					break;
+                case M_EDGE_LISTS:
+                    readEdgeList(chunk);
+                    break;
+					
                 }
 
                 if (!chunk.isEOF())
@@ -698,142 +852,6 @@ namespace Ogre {
         sm->operationType = static_cast<RenderOperation::OperationType>(opType);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometry(DataChunk& chunk, VertexData* dest)
-    {
-        unsigned short texCoordSet = 0;
-        
-        unsigned short bindIdx = 0;
-
-        dest->vertexStart = 0;
-
-        // unsigned int numVertices
-        readInts(chunk, &dest->vertexCount, 1);
-
-        // Vertex buffers
-        // TODO: consider redesigning this so vertex buffers can be combined
-
-        readGeometryPositions(bindIdx, chunk, dest);
-        ++bindIdx;
-
-        // Find optional geometry chunks
-        if (!chunk.isEOF())
-        {
-            unsigned short chunkID = readChunk(chunk);
-            while(!chunk.isEOF() && 
-                (chunkID == M_GEOMETRY_NORMALS || 
-                 chunkID == M_GEOMETRY_COLOURS ||
-                 chunkID == M_GEOMETRY_TEXCOORDS ))
-            {
-                switch (chunkID)
-                {
-                case M_GEOMETRY_NORMALS:
-                    readGeometryNormals(bindIdx++, chunk, dest);
-                    break;
-                case M_GEOMETRY_COLOURS:
-                    readGeometryColours(bindIdx++, chunk, dest);
-                    break;
-                case M_GEOMETRY_TEXCOORDS:
-                    readGeometryTexCoords(bindIdx++, chunk, dest, texCoordSet++);
-                    break;
-                }
-                // Get next chunk
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-            }
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of non-submesh chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
-        }
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryPositions(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest)
-    {
-        Real *pReal = 0;
-        HardwareVertexBufferSharedPtr vbuf;
-        // Real* pVertices (x, y, z order x numVertices)
-        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_POSITION);
-        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            dest->vertexDeclaration->getVertexSize(bindIdx),
-            dest->vertexCount,
-            mpMesh->mVertexBufferUsage, 
-			mpMesh->mIndexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * 3);
-        vbuf->unlock();
-        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryNormals(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest)
-    {
-        Real *pReal = 0;
-        HardwareVertexBufferSharedPtr vbuf;
-        // Real* pNormals (x, y, z order x numVertices)
-        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
-        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            dest->vertexDeclaration->getVertexSize(bindIdx),
-            dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * 3);
-        vbuf->unlock();
-        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryColours(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest)
-    {
-        RGBA* pRGBA = 0;
-        HardwareVertexBufferSharedPtr vbuf;
-        // unsigned long* pColours (RGBA 8888 format x numVertices)
-        dest->vertexDeclaration->addElement(bindIdx, 0, VET_COLOUR, VES_DIFFUSE);
-        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            dest->vertexDeclaration->getVertexSize(bindIdx),
-            dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
-        pRGBA = static_cast<RGBA*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readLongs(chunk, pRGBA, dest->vertexCount);
-        vbuf->unlock();
-        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryTexCoords(unsigned short bindIdx, 
-        DataChunk& chunk, VertexData* dest, unsigned short texCoordSet)
-    {
-        Real *pReal = 0;
-        HardwareVertexBufferSharedPtr vbuf;
-        // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-        unsigned short dim;
-        readShorts(chunk, &dim, 1);
-        // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-        dest->vertexDeclaration->addElement(
-            bindIdx, 
-            0, 
-            VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
-            VES_TEXTURE_COORDINATES,
-            texCoordSet);
-        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            dest->vertexDeclaration->getVertexSize(bindIdx),
-            dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * dim);
-        vbuf->unlock();
-        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-    }
-    //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSkeletonLink(const String& skelName)
     {
         writeChunkHeader(M_MESH_SKELETON_LINK, calcSkeletonLinkSize(skelName));
@@ -846,13 +864,6 @@ namespace Ogre {
     {
         String skelName = readString(chunk);
         mpMesh->setSkeletonName(skelName);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl::readMaterial(DataChunk& chunk)
-    {
-
-        // Material definition section phased out of 1.1
-
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readTextureLayer(DataChunk& chunk, Material* pMat)
@@ -1273,6 +1284,526 @@ namespace Ogre {
 		}
 	}
     //---------------------------------------------------------------------
+    void MeshSerializerImpl::flipFromLittleEndian(void* pData, size_t vertexCount, 
+        size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
+	{
+#	if OGRE_ENDIAN == ENDIAN_BIG
+        flipEndian(pData, vertexCount, vertexSize, decl);
+#	endif	
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::flipToLittleEndian(void* pData, size_t vertexCount, 
+			size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
+	{
+#	if OGRE_ENDIAN == ENDIAN_BIG
+        flipEndian(pData, vertexCount, vertexSize, decl);
+#	endif	
+	}
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::flipEndian(void* pData, size_t vertexCount, 
+        size_t vertexSize, const VertexDeclaration::VertexElementList& elems)
+	{
+		void *pBase = pData;
+		for (size_t v = 0; v < vertexCount; ++v)
+		{
+			VertexDeclaration::VertexElementList::const_iterator ei, eiend;
+			eiend = elems.end();
+			for (ei = elems.begin(); ei != eiend; ++ei)
+			{
+				void *pElem;
+				// re-base pointer to the element
+				(*ei).baseVertexPointerToElement(pBase, &pElem);
+				// Flip the endian based on the type
+				size_t typeSize = 0;
+				switch (VertexElement::getBaseType((*ei).getType()))
+				{
+					case VET_FLOAT1:
+						typeSize = sizeof(Real);
+						break;
+					case VET_SHORT1:
+						typeSize = sizeof(short);
+						break;
+					case VET_COLOUR:
+						typeSize = sizeof(RGBA);
+						break;
+					case VET_UBYTE4:
+						typeSize = 0; // NO FLIPPING
+						break;
+				};
+                Serializer::flipEndian(pElem, typeSize, 
+					VertexElement::getTypeCount((*ei).getType()));
+				
+			}
+
+			pBase = static_cast<void*>(
+				static_cast<unsigned char*>(pBase) + vertexSize);
+			
+		}
+	}
+    //---------------------------------------------------------------------
+	unsigned long MeshSerializerImpl::calcEdgeListSize(const Mesh *pMesh)
+	{
+        size_t size = CHUNK_OVERHEAD_SIZE;
+
+        for (ushort i = 0; i < pMesh->getNumLodLevels(); ++i)
+        {
+            
+            const EdgeData* edgeData = pMesh->getEdgeList(i);
+            bool isManual = pMesh->isLodManual() && (i > 0);
+
+            size += calcEdgeListLodSize(edgeData, isManual);
+
+        }
+
+        return size;
+	}
+    //---------------------------------------------------------------------
+    unsigned long MeshSerializerImpl::calcEdgeListLodSize(const EdgeData* edgeData, bool isManual)
+    {
+        size_t size = CHUNK_OVERHEAD_SIZE;
+
+        // unsigned short lodIndex
+        size += sizeof(unsigned short);
+
+        // bool isManual			// If manual, no edge data here, loaded from manual mesh
+        size += sizeof(bool);
+        if (!isManual)
+        {
+            // unsigned long numTriangles
+            size += sizeof(unsigned long);
+            // unsigned long numEdgeGroups
+            size += sizeof(unsigned long);
+            // Triangle* triangleList
+            size_t triSize = 0;
+            // unsigned long indexSet
+            // unsigned long vertexSet
+            // unsigned long vertIndex[3]
+            // unsigned long sharedVertIndex[3] 
+            // Real normal[4] 
+            triSize += sizeof(unsigned long) * 8 
+                    + sizeof(Real) * 4;
+
+            size += triSize * edgeData->triangles.size();
+            // Write the groups
+            for (EdgeData::EdgeGroupList::const_iterator gi = edgeData->edgeGroups.begin();
+                gi != edgeData->edgeGroups.end(); ++gi)
+            {
+                const EdgeData::EdgeGroup& edgeGroup = *gi;
+                size += calcEdgeGroupSize(edgeGroup);
+            }
+
+        }
+
+        return size;
+    }
+    //---------------------------------------------------------------------
+    unsigned long MeshSerializerImpl::calcEdgeGroupSize(const EdgeData::EdgeGroup& group)
+    {
+        size_t size = CHUNK_OVERHEAD_SIZE;
+
+        // unsigned long vertexSet
+        size += sizeof(unsigned long);
+        // unsigned long numEdges
+        size += sizeof(unsigned long);
+        // Edge* edgeList
+        size_t edgeSize = 0;
+        // unsigned long  triIndex[2]
+        // unsigned long  vertIndex[2]
+        // unsigned long  sharedVertIndex[2]
+        // bool degenerate
+        edgeSize += sizeof(unsigned long) * 6 + sizeof(bool);
+        size += edgeSize * group.edges.size();
+
+        return size;
+    }
+    //---------------------------------------------------------------------
+	void MeshSerializerImpl::writeEdgeList(const Mesh* pMesh)
+	{
+        writeChunkHeader(M_EDGE_LISTS, calcEdgeListSize(pMesh));
+
+        for (ushort i = 0; i < pMesh->getNumLodLevels(); ++i)
+        {
+            const EdgeData* edgeData = pMesh->getEdgeList(i);
+            bool isManual = pMesh->isLodManual() && (i > 0);
+            writeChunkHeader(M_EDGE_LIST_LOD, calcEdgeListLodSize(edgeData, isManual));
+
+            // unsigned short lodIndex
+            writeShorts(&i, 1);
+
+            // bool isManual			// If manual, no edge data here, loaded from manual mesh
+            writeBools(&isManual, 1);
+            if (!isManual)
+            {
+                // unsigned long  numTriangles
+                unsigned long count = static_cast<unsigned long>(edgeData->triangles.size());
+                writeLongs(&count, 1);
+                // unsigned long numEdgeGroups
+                count = static_cast<unsigned long>(edgeData->edgeGroups.size());
+                writeLongs(&count, 1);
+                // Triangle* triangleList
+                // Iterate rather than writing en-masse to allow endian conversion
+                for (EdgeData::TriangleList::const_iterator t = edgeData->triangles.begin();
+                    t != edgeData->triangles.end(); ++t)
+                {
+                    const EdgeData::Triangle& tri = *t;
+                    // unsigned long indexSet; 
+                    unsigned long tmp[3];
+                    tmp[0] = tri.indexSet;
+                    writeLongs(tmp, 1);
+                    // unsigned long vertexSet;
+                    tmp[0] = tri.vertexSet;
+                    writeLongs(tmp, 1);
+                    // unsigned long vertIndex[3];
+                    tmp[0] = tri.vertIndex[0];
+                    tmp[1] = tri.vertIndex[1];
+                    tmp[2] = tri.vertIndex[2];
+                    writeLongs(tmp, 3);
+                    // unsigned long sharedVertIndex[3]; 
+                    tmp[0] = tri.sharedVertIndex[0];
+                    tmp[1] = tri.sharedVertIndex[1];
+                    tmp[2] = tri.sharedVertIndex[2];
+                    writeLongs(tmp, 3);
+                    // Real normal[4];   
+                    writeReals(&(tri.normal.x), 4);
+
+                }
+                // Write the groups
+                for (EdgeData::EdgeGroupList::const_iterator gi = edgeData->edgeGroups.begin();
+                    gi != edgeData->edgeGroups.end(); ++gi)
+                {
+                    const EdgeData::EdgeGroup& edgeGroup = *gi;
+                    writeChunkHeader(M_EDGE_GROUP, calcEdgeGroupSize(edgeGroup));
+                    // unsigned long vertexSet
+                    unsigned long vertexSet = static_cast<unsigned long>(edgeGroup.vertexSet);
+                    writeLongs(&vertexSet, 1);
+                    // unsigned long numEdges
+                    count = static_cast<unsigned long>(edgeGroup.edges.size());
+                    writeLongs(&count, 1);
+                    // Edge* edgeList
+                    // Iterate rather than writing en-masse to allow endian conversion
+                    for (EdgeData::EdgeList::const_iterator ei = edgeGroup.edges.begin();
+                        ei != edgeGroup.edges.end(); ++ei)
+                    {
+                        const EdgeData::Edge& edge = *ei;
+                        unsigned long tmp[2];
+                        // unsigned long  triIndex[2]
+                        tmp[0] = edge.triIndex[0];
+                        tmp[1] = edge.triIndex[1];
+                        writeLongs(tmp, 2);
+                        // unsigned long  vertIndex[2]
+                        tmp[0] = edge.vertIndex[0];
+                        tmp[1] = edge.vertIndex[1];
+                        writeLongs(tmp, 2);
+                        // unsigned long  sharedVertIndex[2]
+                        tmp[0] = edge.sharedVertIndex[0];
+                        tmp[1] = edge.sharedVertIndex[1];
+                        writeLongs(tmp, 2);
+                        // bool degenerate
+                        writeBools(&(edge.degenerate), 1);
+                    }
+
+                }
+
+            }
+
+        }
+	}
+    //---------------------------------------------------------------------
+	void MeshSerializerImpl::readEdgeList(DataChunk& chunk)
+	{
+        unsigned short chunkID;
+
+        if (!chunk.isEOF())
+        {
+            chunkID = readChunk(chunk);
+            while(!chunk.isEOF() &&
+                chunkID == M_EDGE_LIST_LOD)
+            {
+                // Process single LOD
+
+                // unsigned short lodIndex
+                unsigned short lodIndex;
+                readShorts(chunk, &lodIndex, 1);
+
+                // bool isManual			// If manual, no edge data here, loaded from manual mesh
+                bool isManual;
+                readBools(chunk, &isManual, 1);
+                // Only load in non-manual levels; others will be connected up by Mesh on demand
+                if (!isManual)
+                {
+                    Mesh::MeshLodUsage& usage = const_cast<Mesh::MeshLodUsage&>(mpMesh->getLodLevel(lodIndex));
+
+                    usage.edgeData = new EdgeData();
+                    // unsigned long numTriangles
+                    unsigned long numTriangles;
+                    readLongs(chunk, &numTriangles, 1);
+                    // Allocate correct amount of memory
+                    usage.edgeData->triangles.resize(numTriangles);
+                    // unsigned long numEdgeGroups
+                    unsigned long numEdgeGroups;
+                    readLongs(chunk, &numEdgeGroups, 1);
+                    // Allocate correct amount of memory
+                    usage.edgeData->edgeGroups.resize(numEdgeGroups);
+                    // Triangle* triangleList
+                    unsigned long tmp[3];
+                    for (size_t t = 0; t < numTriangles; ++t)
+                    {
+                        EdgeData::Triangle& tri = usage.edgeData->triangles[t];
+                        // unsigned long indexSet
+                        readLongs(chunk, tmp, 1);
+                        tri.indexSet = tmp[0];
+                        // unsigned long vertexSet
+                        readLongs(chunk, tmp, 1);
+                        tri.vertexSet = tmp[0];
+                        // unsigned long vertIndex[3]
+                        readLongs(chunk, tmp, 3);
+                        tri.vertIndex[0] = tmp[0];
+                        tri.vertIndex[1] = tmp[1];
+                        tri.vertIndex[2] = tmp[2];
+                        // unsigned long sharedVertIndex[3] 
+                        readLongs(chunk, tmp, 3);
+                        tri.sharedVertIndex[0] = tmp[0];
+                        tri.sharedVertIndex[1] = tmp[1];
+                        tri.sharedVertIndex[2] = tmp[2];
+                        // Real normal[4] 
+                        readReals(chunk, &(tri.normal.x), 4);
+
+                    }
+
+                    for (unsigned long eg = 0; eg < numEdgeGroups; ++eg)
+                    {
+                        chunkID = readChunk(chunk);
+                        if (chunkID != M_EDGE_GROUP)
+                        {
+                            Except(Exception::ERR_INTERNAL_ERROR, 
+                                "Missing M_EDGE_GROUP chunk", 
+                                "MeshSerializerImpl::readEdgeList");
+                        }
+                        EdgeData::EdgeGroup& edgeGroup = usage.edgeData->edgeGroups[eg];
+
+                        // unsigned long vertexSet
+                        readLongs(chunk, tmp, 1);
+                        edgeGroup.vertexSet = tmp[0];
+                        // unsigned long numEdges
+                        unsigned long numEdges;
+                        readLongs(chunk, &numEdges, 1);
+                        edgeGroup.edges.resize(numEdges);
+                        // Edge* edgeList
+                        for (unsigned long e = 0; e < numEdges; ++e)
+                        {
+                            EdgeData::Edge& edge = edgeGroup.edges[e];
+                            // unsigned long  triIndex[2]
+                            readLongs(chunk, tmp, 2);
+                            edge.triIndex[0] = tmp[0];
+                            edge.triIndex[1] = tmp[1];
+                            // unsigned long  vertIndex[2]
+                            readLongs(chunk, tmp, 2);
+                            edge.vertIndex[0] = tmp[0];
+                            edge.vertIndex[1] = tmp[1];
+                            // unsigned long  sharedVertIndex[2]
+                            readLongs(chunk, tmp, 2);
+                            edge.sharedVertIndex[0] = tmp[0];
+                            edge.sharedVertIndex[1] = tmp[1];
+                            // bool degenerate
+                            readBools(chunk, &(edge.degenerate), 1);
+                        }
+                        // Populate edgeGroup.vertexData pointers
+                        // If there is shared vertex data, vertexSet 0 is that, 
+                        // otherwise 0 is first dedicated
+                        if (mpMesh->sharedVertexData)
+                        {
+                            if (edgeGroup.vertexSet == 0)
+                            {
+                                edgeGroup.vertexData = mpMesh->sharedVertexData;
+                            }
+                            else
+                            {
+                                edgeGroup.vertexData = mpMesh->getSubMesh(
+                                    edgeGroup.vertexSet-1)->vertexData;
+                            }
+                        }
+                        else
+                        {
+                            edgeGroup.vertexData = mpMesh->getSubMesh(
+                                edgeGroup.vertexSet)->vertexData;
+                        }
+                    }
+                    
+                }
+
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+
+
+
+        mpMesh->mEdgeListsBuilt = true;
+	}
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    MeshSerializerImpl_v1_2::MeshSerializerImpl_v1_2()
+    {
+        // Version number
+        mVersion = "[MeshSerializer_v1.20]";
+    }
+    //---------------------------------------------------------------------
+    MeshSerializerImpl_v1_2::~MeshSerializerImpl_v1_2()
+    {
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_2::readMesh(DataChunk& chunk)
+    {
+        MeshSerializerImpl::readMesh(chunk);
+        // Always automatically build edge lists for this version
+        mpMesh->mAutoBuildEdgeLists = true;
+        
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_2::readGeometry(DataChunk& chunk, VertexData* dest)
+    {
+        unsigned short texCoordSet = 0;
+        
+        unsigned short bindIdx = 0;
+
+        dest->vertexStart = 0;
+
+        // unsigned int numVertices
+        readInts(chunk, &dest->vertexCount, 1);
+
+        // Vertex buffers
+
+        readGeometryPositions(bindIdx, chunk, dest);
+        ++bindIdx;
+
+        // Find optional geometry chunks
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(!chunk.isEOF() && 
+                (chunkID == M_GEOMETRY_NORMALS || 
+                 chunkID == M_GEOMETRY_COLOURS ||
+                 chunkID == M_GEOMETRY_TEXCOORDS ))
+            {
+                switch (chunkID)
+                {
+                case M_GEOMETRY_NORMALS:
+                    readGeometryNormals(bindIdx++, chunk, dest);
+                    break;
+                case M_GEOMETRY_COLOURS:
+                    readGeometryColours(bindIdx++, chunk, dest);
+                    break;
+                case M_GEOMETRY_TEXCOORDS:
+                    readGeometryTexCoords(bindIdx++, chunk, dest, texCoordSet++);
+                    break;
+                }
+                // Get next chunk
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-submesh chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_2::readGeometryPositions(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // Real* pVertices (x, y, z order x numVertices)
+        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_POSITION);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage, 
+			mpMesh->mIndexBufferShadowBuffer);
+        pReal = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readReals(chunk, pReal, dest->vertexCount * 3);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_2::readGeometryNormals(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // Real* pNormals (x, y, z order x numVertices)
+        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage,
+			mpMesh->mVertexBufferShadowBuffer);
+        pReal = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readReals(chunk, pReal, dest->vertexCount * 3);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_2::readGeometryColours(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest)
+    {
+        RGBA* pRGBA = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // unsigned long* pColours (RGBA 8888 format x numVertices)
+        dest->vertexDeclaration->addElement(bindIdx, 0, VET_COLOUR, VES_DIFFUSE);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage,
+			mpMesh->mVertexBufferShadowBuffer);
+        pRGBA = static_cast<RGBA*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readLongs(chunk, pRGBA, dest->vertexCount);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl_v1_2::readGeometryTexCoords(unsigned short bindIdx, 
+        DataChunk& chunk, VertexData* dest, unsigned short texCoordSet)
+    {
+        Real *pReal = 0;
+        HardwareVertexBufferSharedPtr vbuf;
+        // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+        unsigned short dim;
+        readShorts(chunk, &dim, 1);
+        // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+        dest->vertexDeclaration->addElement(
+            bindIdx, 
+            0, 
+            VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
+            VES_TEXTURE_COORDINATES,
+            texCoordSet);
+        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
+            dest->vertexDeclaration->getVertexSize(bindIdx),
+            dest->vertexCount,
+            mpMesh->mVertexBufferUsage,
+			mpMesh->mVertexBufferShadowBuffer);
+        pReal = static_cast<Real*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD));
+        readReals(chunk, pReal, dest->vertexCount * dim);
+        vbuf->unlock();
+        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
+    }
+    //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     MeshSerializerImpl_v1_1::MeshSerializerImpl_v1_1()
@@ -1326,516 +1857,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
     //---------------------------------------------------------------------
-    MeshSerializerImpl_v1::MeshSerializerImpl_v1()
-    {
-        // Version number
-        mVersion = "[MeshSerializer_v1.00]";
-
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readMesh(DataChunk& chunk)
-    {
-        unsigned short chunkID;
-
-        mFirstGeometry = true;
-        mIsSkeletallyAnimated = false;
-
-        // M_GEOMETRY chunk
-        chunkID = readChunk(chunk);
-        if (chunkID == M_GEOMETRY)
-        {
-			mpMesh->sharedVertexData = new VertexData();
-            try {
-			    readGeometry(chunk, mpMesh->sharedVertexData);
-            }
-            catch (Exception& e)
-            {
-                if (e.getNumber() == Exception::ERR_ITEM_NOT_FOUND)
-                {
-                    // duff geometry data entry with 0 vertices
-                    delete mpMesh->sharedVertexData;
-                    mpMesh->sharedVertexData = 0;
-                    // Skip this chunk (pointer will have been returned to just after header)
-                    chunk.skip(mCurrentChunkLen - CHUNK_OVERHEAD_SIZE);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-        }
-
-        // Find all subchunks 
-        if (!chunk.isEOF())
-        {
-            chunkID = readChunk(chunk);
-            while(!chunk.isEOF() &&
-                (chunkID == M_SUBMESH ||
-                 chunkID == M_MESH_SKELETON_LINK ||
-                 chunkID == M_MESH_BONE_ASSIGNMENT ||
-				 chunkID == M_MESH_LOD))
-            {
-                switch(chunkID)
-                {
-                case M_SUBMESH:
-                    readSubMesh(chunk);
-                    break;
-                case M_MESH_SKELETON_LINK:
-                    readSkeletonLink(chunk);
-                    break;
-                case M_MESH_BONE_ASSIGNMENT:
-                    readMeshBoneAssignment(chunk);
-                    break;
-                case M_MESH_LOD:
-					readMeshLodInfo(chunk);
-					break;
-                }
-
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-
-            }
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
-        }
-
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readSubMesh(DataChunk& chunk)
-    {
-        unsigned short chunkID;
-
-        SubMesh* sm = mpMesh->createSubMesh();
-        // char* materialName
-        String materialName = readString(chunk);
-        sm->setMaterialName(materialName);
-
-        // bool useSharedVertices
-        readBools(chunk,&sm->useSharedVertices, 1);
-
-        // unsigned short faceCount
-        sm->indexData->indexStart = 0;
-        unsigned short faceCount;
-        readShorts(chunk, &faceCount, 1);
-        sm->indexData->indexCount = faceCount * 3;
-
-        // Indexes always 16-bit in this version
-        HardwareIndexBufferSharedPtr ibuf;
-        ibuf = HardwareBufferManager::getSingleton().
-            createIndexBuffer(
-                HardwareIndexBuffer::IT_16BIT, 
-                sm->indexData->indexCount, 
-                mpMesh->mIndexBufferUsage,
-				mpMesh->mIndexBufferShadowBuffer);
-        sm->indexData->indexBuffer = ibuf;
-        // unsigned short* faceVertexIndices 
-        unsigned short* pIdx = static_cast<unsigned short*>(
-            ibuf->lock(HardwareBuffer::HBL_DISCARD)
-            );
-        readShorts(chunk, pIdx, sm->indexData->indexCount);
-        ibuf->unlock();
-
-        // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
-        if (!sm->useSharedVertices)
-        {
-            chunkID = readChunk(chunk);
-            if (chunkID != M_GEOMETRY)
-            {
-                Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
-                    "MeshSerializerImpl::readSubMesh");
-            }
-            sm->vertexData = new VertexData();
-            readGeometry(chunk, sm->vertexData);
-        }
-
-
-        // Find all bone assignments (if present) 
-        if (!chunk.isEOF())
-        {
-            chunkID = readChunk(chunk);
-            while(!chunk.isEOF() &&
-                (chunkID == M_SUBMESH_BONE_ASSIGNMENT))
-            {
-                switch(chunkID)
-                {
-                case M_SUBMESH_BONE_ASSIGNMENT:
-                    readSubMeshBoneAssignment(chunk, sm);
-                    break;
-                }
-
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-
-            }
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
-        }
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readGeometry(DataChunk& chunk, VertexData* dest)
-    {
-        unsigned short texCoordSet = 0;
-        HardwareVertexBufferSharedPtr vbuf;
-        unsigned short bindIdx = 0;
-        Real *pReal = 0;
-        RGBA* pRGBA = 0;
-
-        dest->vertexStart = 0;
-
-        // unsigned short numVertices
-        unsigned short numVerts;
-        readShorts(chunk, &numVerts, 1);
-        dest->vertexCount = numVerts;
-
-        if (dest->vertexCount == 0)
-        {
-            // Empty positions
-            // skip back to where we were
-            chunk.skip(0 - sizeof(unsigned short));
-            Except(Exception::ERR_ITEM_NOT_FOUND, "Geometry section found but no "
-                "positions defined - you should upgrade this .mesh to the latest version "
-                "to eliminate this problem.", "MeshSerializerImpl::readGeometry");
-        }
-
-        // Vertex buffers
-        // TODO: consider redesigning this so vertex buffers can be combined
-
-        // Real* pVertices (x, y, z order x numVertices)
-        dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_POSITION);
-        vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-            dest->vertexDeclaration->getVertexSize(bindIdx),
-            dest->vertexCount,
-            mpMesh->mVertexBufferUsage,
-			mpMesh->mVertexBufferShadowBuffer);
-        pReal = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD));
-        readReals(chunk, pReal, dest->vertexCount * 3);
-
-        // Since in v1 we did not save mesh bounds, we need to calculate them now
-		AxisAlignedBox localBox;
-		Vector3 min, max;
-		bool first = true;
-        Real maxSquaredRadius = -1;
-
-		for (size_t vert = 0; vert < dest->vertexCount; ++vert)
-		{
-			Vector3 vec(pReal[0], pReal[1], pReal[2]);
-
-			// Update sphere bounds
-			maxSquaredRadius = std::max(vec.squaredLength(), maxSquaredRadius);
-
-			// Update box
-			if (first)
-			{
-				min = vec;
-				max = vec;
-				first = false;
-			}
-			else
-			{
-				min.makeFloor(vec);
-				max.makeCeil(vec);
-			}
-
-			pReal += 3;
-		}
-		localBox.setExtents(min, max);
-        
-        if (mFirstGeometry)
-        {
-            mpMesh->_setBounds(localBox);
-            mpMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
-            mFirstGeometry = false;
-        }
-        else
-        {
-            localBox.merge(mpMesh->mAABB);
-            mpMesh->_setBounds(localBox);
-            maxSquaredRadius = std::max(maxSquaredRadius, mpMesh->mBoundRadius);
-            mpMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
-        }
-
-        vbuf->unlock();
-        dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-        ++bindIdx;
-
-        // Find optional geometry chunks
-        if (!chunk.isEOF())
-        {
-            unsigned short chunkID = readChunk(chunk);
-            while(!chunk.isEOF() && 
-                (chunkID == M_GEOMETRY_NORMALS || 
-                 chunkID == M_GEOMETRY_COLOURS ||
-                 chunkID == M_GEOMETRY_TEXCOORDS ))
-            {
-                switch (chunkID)
-                {
-                case M_GEOMETRY_NORMALS:
-                    // Real* pNormals (x, y, z order x numVertices)
-                    dest->vertexDeclaration->addElement(bindIdx, 0, VET_FLOAT3, VES_NORMAL);
-                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-                        dest->vertexDeclaration->getVertexSize(bindIdx),
-                        dest->vertexCount,
-                        mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferShadowBuffer);
-                    pReal = static_cast<Real*>(
-                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    readReals(chunk, pReal, dest->vertexCount * 3);
-                    vbuf->unlock();
-                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-                    ++bindIdx;
-                    break;
-                case M_GEOMETRY_COLOURS:
-                    // unsigned long* pColours (RGBA 8888 format x numVertices)
-                    dest->vertexDeclaration->addElement(bindIdx, 0, VET_COLOUR, VES_DIFFUSE);
-                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-                        dest->vertexDeclaration->getVertexSize(bindIdx),
-                        dest->vertexCount,
-                        mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferShadowBuffer);
-                    pRGBA = static_cast<RGBA*>(
-                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    readLongs(chunk, pRGBA, dest->vertexCount);
-                    vbuf->unlock();
-                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-                    ++bindIdx;
-                    break;
-                case M_GEOMETRY_TEXCOORDS:
-                    // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
-                    unsigned short dim;
-                    readShorts(chunk, &dim, 1);
-                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-                    dest->vertexDeclaration->addElement(
-                        bindIdx, 
-                        0, 
-                        VertexElement::multiplyTypeCount(VET_FLOAT1, dim), 
-                        VES_TEXTURE_COORDINATES,
-                        texCoordSet);
-                    vbuf = HardwareBufferManager::getSingleton().createVertexBuffer(
-                        dest->vertexDeclaration->getVertexSize(bindIdx),
-                        dest->vertexCount,
-                        mpMesh->mVertexBufferUsage,
-						mpMesh->mVertexBufferShadowBuffer);
-                    pReal = static_cast<Real*>(
-                        vbuf->lock(HardwareBuffer::HBL_DISCARD));
-                    readReals(chunk, pReal, dest->vertexCount * dim);
-
-					// Adjust individual v values to (1 - v)
-					if (dim == 2)
-					{
-						for (size_t i = 0; i < dest->vertexCount; ++i)
-						{
-							++pReal; // skip u
-							*pReal = 1.0 - *pReal; // v = 1 - v
-							++pReal;
-						}
-			            
-					}
-
-					vbuf->unlock();
-                    dest->vertexBufferBinding->setBinding(bindIdx, vbuf);
-                    ++texCoordSet;
-                    ++bindIdx;
-                    break;
-                }
-                // Get next chunk
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-            }
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of non-submesh chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
-        }
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readMeshBoneAssignment(DataChunk& chunk)
-    {
-        VertexBoneAssignment assign;
-
-        // unsigned short vertexIndex;
-        unsigned short vIndex;
-        readShorts(chunk, &vIndex,1);
-        assign.vertexIndex = vIndex;
-        // unsigned short boneIndex;
-        readShorts(chunk, &(assign.boneIndex),1);
-        // Real weight;
-        readReals(chunk, &(assign.weight), 1);
-
-        mpMesh->addBoneAssignment(assign);
-
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readSubMeshBoneAssignment(DataChunk& chunk, SubMesh* sub)
-    {
-        VertexBoneAssignment assign;
-
-        // unsigned short vertexIndex;
-        unsigned short vIndex;
-        readShorts(chunk, &vIndex,1);
-        assign.vertexIndex = vIndex;
-        // unsigned short boneIndex;
-        readShorts(chunk, &(assign.boneIndex),1);
-        // Real weight;
-        readReals(chunk, &(assign.weight), 1);
-
-        sub->addBoneAssignment(assign);
-    }
-    //---------------------------------------------------------------------
-	void MeshSerializerImpl_v1::readMeshLodUsageGenerated(DataChunk& chunk, unsigned short lodNum, Mesh::MeshLodUsage& usage)
-    {
-		usage.manualName = "";
-		usage.manualMesh = 0;
-
-		// Get one set of detail per SubMesh
-		unsigned short numSubs, i;
-		unsigned long chunkID;
-		numSubs = mpMesh->getNumSubMeshes();
-		for (i = 0; i < numSubs; ++i)
-		{
-			chunkID = readChunk(chunk);
-			if (chunkID != M_MESH_LOD_GENERATED)
-			{
-				Except(Exception::ERR_ITEM_NOT_FOUND, 
-					"Missing M_MESH_LOD_GENERATED chunk in " + mpMesh->getName(),
-					"MeshSerializerImpl::readMeshLodUsageGenerated");
-			}
-
-			SubMesh* sm = mpMesh->getSubMesh(i);
-			// lodNum - 1 because SubMesh doesn't store full detail LOD
-            sm->mLodFaceList[lodNum - 1] = new IndexData();
-			IndexData* indexData = sm->mLodFaceList[lodNum - 1];
-            // unsigned short numFaces
-            unsigned short numFaces;
-			readShorts(chunk, &numFaces, 1);
-            indexData->indexCount = static_cast<size_t>(numFaces * 3);
-            // unsigned short*/int* faceIndexes;  ((v1, v2, v3) * numFaces)
-            // Always 16-bit in 1.0
-            indexData->indexBuffer = HardwareBufferManager::getSingleton().
-                createIndexBuffer(HardwareIndexBuffer::IT_16BIT, indexData->indexCount,
-                mpMesh->mIndexBufferUsage, mpMesh->mIndexBufferShadowBuffer);
-            unsigned short* pIdx = static_cast<unsigned short*>(
-                indexData->indexBuffer->lock(
-                    0, 
-                    indexData->indexBuffer->getSizeInBytes(), 
-                    HardwareBuffer::HBL_DISCARD) );
-			readShorts(chunk, pIdx, indexData->indexCount);
-            indexData->indexBuffer->unlock();
-
-		}
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readMaterial(DataChunk& chunk)
-    {
-        ColourValue col;
-        Real rVal;
-
-        // Material definition section phased out of 1.1
-        LogManager::getSingleton().logMessage(
-            "Warning: Material definitions are no longer supported in .mesh files, "
-            "you should move these definitions to a material script when you "
-            "upgrade this mesh to the latest version. ");
-
-        // char* name 
-        String name = readString(chunk);
-
-        // Create a new material
-        Material* pMat;
-        try 
-        {
-            pMat = (Material*)MaterialManager::getSingleton().create(name);
-            Pass* p = pMat->createTechnique()->createPass();
-        }
-        catch (Exception& e)
-        {
-            if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-            {
-                // Material already exists
-                char msg[256];
-                sprintf(msg, "Material '%s' in model '%s' has been ignored "
-                    "because a material with the same name has already "
-                    "been registered.", name.c_str(),
-                    mpMesh->getName().c_str());
-                LogManager::getSingleton().logMessage(msg);
-                // Skip the rest of this material
-                chunk.skip(mCurrentChunkLen - name.length() - 1 - CHUNK_OVERHEAD_SIZE);
-                return;
-
-            }
-            else
-            {
-                throw;
-            }
-        }
-
-        // AMBIENT
-        // Real r, g, b
-        readReals(chunk, &col.r, 1);
-        readReals(chunk, &col.g, 1);
-        readReals(chunk, &col.b, 1);
-        pMat->setAmbient(col);
-
-        // DIFFUSE
-        // Real r, g, b
-        readReals(chunk, &col.r, 1);
-        readReals(chunk, &col.g, 1);
-        readReals(chunk, &col.b, 1);
-        pMat->setDiffuse(col);
-
-        // SPECULAR
-        // Real r, g, b
-        readReals(chunk, &col.r, 1);
-        readReals(chunk, &col.g, 1);
-        readReals(chunk, &col.b, 1);
-        pMat->setSpecular(col);
-
-        // SHININESS
-        // Real val;
-        readReals(chunk, &rVal, 1);
-        pMat->setShininess(rVal);
-
-        // Read any texture layers
-        if (!chunk.isEOF())
-        {
-            unsigned short chunkID = readChunk(chunk);
-            while(chunkID == M_TEXTURE_LAYER && !chunk.isEOF())
-            {
-                readTextureLayer(chunk, pMat);
-                if (!chunk.isEOF())
-                {
-                    chunkID = readChunk(chunk);
-                }
-            }
-            // Get next chunk
-            if (!chunk.isEOF())
-            {
-                // Backpedal back to start of non-texture layer chunk
-                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
-            }
-        }
-
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1::readTextureLayer(DataChunk& chunk, Material* pMat)
-    {
-        // Just name for now
-        String name = readString(chunk);
-
-        pMat->getTechnique(0)->getPass(0)->createTextureUnitState(name);
-    }
 
 
 

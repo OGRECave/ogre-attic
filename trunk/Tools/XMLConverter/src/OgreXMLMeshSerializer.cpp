@@ -373,12 +373,12 @@ namespace Ogre {
 			// For each vertex
 			for (size_t v = 0; v < vertexData->vertexCount; ++v)
 			{
+                vertexNode = 
+                    vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
 				// Iterate over the elements
 				for (i = elems.begin(); i != iend; ++i)
 				{
 					VertexElement& elem = *i;
-					vertexNode = 
-						vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
 					switch(elem.getSemantic())
 					{
 					case VES_POSITION:

@@ -238,7 +238,11 @@ protected:
 				HardwareBuffer::HBU_STATIC_WRITE_ONLY, 
 				true, true); //so we can still read it
             // Build tangent vectors, all our meshes use only 1 texture coordset 
-            pMesh->buildTangentVectors(0, 1);
+            unsigned short src, dest;
+            if (!pMesh->suggestTangentVectorBuildParams(src, dest))
+            {
+                pMesh->buildTangentVectors(src, dest);
+            }
             // Create entity
             mEntities[mn] = mSceneMgr->createEntity("Ent" + StringConverter::toString(mn), 
                 mEntityMeshes[mn]);

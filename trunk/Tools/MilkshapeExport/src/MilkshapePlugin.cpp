@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "resource.h"
 #include "OgreStringConverter.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreVertexIndexData.h"
 
 
 //---------------------------------------------------------------------
@@ -117,6 +119,9 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
         SendMessage(hwndDlgItem, CB_ADDSTRING, 0, (LPARAM)"vertices");
         SendMessage(hwndDlgItem, CB_SETCURSEL, 0, 0);
 
+        // Check edge lists
+        hwndDlgItem = GetDlgItem(hDlg, IDC_EDGE_LISTS);
+        SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
 
         // Check skeleton export
         hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
@@ -187,6 +192,12 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                     }
 
                 }
+
+                hwndDlgItem = GetDlgItem(hDlg, IDC_EDGE_LISTS);
+                plugin->generateEdgeLists = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+
+                hwndDlgItem = GetDlgItem(hDlg, IDC_TANGENT_VECTORS);
+                plugin->generateTangents = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
 
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
                 plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
@@ -443,6 +454,16 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         nbuf->unlock();
         ibuf->unlock();
 
+        // Now use Ogre's ability to reorganise the vertex buffers the best way
+        Ogre::VertexDeclaration* newDecl = 
+            ogreSubMesh->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(
+                foundBoneAssignment);
+        Ogre::BufferUsageList bufferUsages;
+        for (size_t u = 0; u < ogreSubMesh->vertexData->vertexBufferBinding->getBufferCount(); ++u)
+            bufferUsages.push_back(Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        ogreSubMesh->vertexData->reorganiseBuffers(newDecl, bufferUsages);
+
+
         logMgr.logMessage("Geometry done.");
     } // SubMesh
 
@@ -489,6 +510,15 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         ogreMesh->generateLodLevels(distList, lodReductionMethod, lodReductionAmount);
     }
 
+    if (generateEdgeLists)
+    {
+        ogreMesh->buildEdgeList();
+    }
+
+    if (generateTangents)
+    {
+        ogreMesh->buildTangentVectors();
+    }
 
     // Export
     Ogre::String msg;

@@ -100,9 +100,9 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void LogManager::logMessage( const String& message, LogMessageLevel lml)
+    void LogManager::logMessage( const String& message, LogMessageLevel lml, bool maskDebug)
     {
-        getDefaultLog()->logMessage(message, lml);
+        getDefaultLog()->logMessage(message, lml, maskDebug);
     }
     //-----------------------------------------------------------------------
     void LogManager::logMessage( LogMessageLevel lml, const char* szMessage, ... )

@@ -87,7 +87,8 @@ namespace Ogre {
 
         /** Log a message to the default log.
         */
-        void logMessage( const String& message, LogMessageLevel lml = LML_NORMAL);
+        void logMessage( const String& message, LogMessageLevel lml = LML_NORMAL, 
+            bool maskDebug = false);
 
         /** Log a message, smarter form - allows a variable number of
             arguments.

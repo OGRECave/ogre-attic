@@ -78,11 +78,11 @@ namespace Ogre {
         String readString(DataChunk& chunk);
         String readString(DataChunk& chunk, size_t numChars);
         
-        void flipToLittleEndian(void* pData, size_t size, size_t count = 1);
-        void flipFromLittleEndian(void* pData, size_t size, size_t count = 1);
+        virtual void flipToLittleEndian(void* pData, size_t size, size_t count = 1);
+        virtual void flipFromLittleEndian(void* pData, size_t size, size_t count = 1);
         
-        void flipEndian(void * pData, size_t size, size_t count);
-        void flipEndian(void * pData, size_t size);
+        virtual void flipEndian(void * pData, size_t size, size_t count);
+        virtual void flipEndian(void * pData, size_t size);
     };
 
 }

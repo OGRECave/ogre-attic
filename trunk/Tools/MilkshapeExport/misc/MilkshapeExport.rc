@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "../include/resource.h"
+#include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,14 @@ BEGIN
                     IDC_STATIC,205,66,165,44
     EDITTEXT        IDC_NUM_LODS,99,42,30,13,ES_AUTOHSCROLL
     RTEXT           "Number of lower LODs:",IDC_STATIC,16,44,81,10
-    CONTROL         "Export Materials",IDC_EXPORT_MATERIAL,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,7,118,68,10
+    CONTROL         "Generate Edge Lists (Allow Stencil Shadows)",
+                    IDC_EDGE_LISTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,
+                    89,165,10
+    CONTROL         "Generate Tangents (Allow Normal Maps)",
+                    IDC_TANGENT_VECTORS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,13,103,149,10
+    CONTROL         "Export Materials",IDC_EXPORT_MATERIALS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,14,120,92,10
 END
 
 

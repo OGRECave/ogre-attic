@@ -251,6 +251,23 @@ namespace Ogre {
 	std::pair< int, int > OgreFormat2ilFormat( PixelFormat format );
 
     typedef std::vector<Light*> LightList;
+
+    typedef std::map<String, bool> UnaryOptionList;
+    typedef std::map<String, String> BinaryOptionList;
+    /** Locate command-line options of the unary form '-blah' and of the
+        binary form '-blah foo', passing back the index of the next non-option.
+    @param numargs, argv The standard parameters passed to the main method
+    @param unaryOptList Map of unary options (ie those that do not require a parameter).
+        Should be pre-populated with, for example '-e' in the key and false in the 
+        value. Options which are found will be set to true on return.
+    @param binOptList Map of binnary options (ie those that require a parameter
+        e.g. '-e afile.txt').
+        Should be pre-populated with, for example '-e' and the default setting. 
+        Options which are found will have the value updated.
+    */
+    int _OgreExport findCommandLineOpts(int numargs, char** argv, UnaryOptionList& unaryOptList, 
+        BinaryOptionList& binOptList);
+
 }
 
 #endif

@@ -76,7 +76,8 @@ namespace Ogre {
         */
         void logMessage(
             const String& message,
-            LogMessageLevel lml = LML_NORMAL);
+            LogMessageLevel lml = LML_NORMAL, 
+            bool maskDebug = false);
 
         /** Sets the level of the log detail.
         */

@@ -42,11 +42,11 @@ namespace Ogre {
         mfpLog.close();
     }
     //-----------------------------------------------------------------------
-    void Log::logMessage( const String& message, LogMessageLevel lml )
+    void Log::logMessage( const String& message, LogMessageLevel lml, bool maskDebug )
     {
         if ((mLogLevel + lml) >= LOG_THRESHOLD)
         {
-            if (mDebugOut)
+            if (mDebugOut && !maskDebug)
                 fprintf( stderr, "%s\n", message.c_str());
 
             // Write time into log

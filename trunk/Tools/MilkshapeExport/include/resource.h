@@ -21,6 +21,9 @@
 #define IDC_NUM_LODS                    1014
 #define IDC_EXPORT_SKEL3                1015
 #define IDC_EXPORT_MATERIAL             1015
+#define IDC_EDGE_LISTS                  1016
+#define IDC_TANGENT_VECTORS             1017
+
 
 // Next default values for new objects
 // 
