@@ -45,6 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #endif
 
 #ifndef GL_VERSION_1_3
+#   include "glext.h"
 // texture_env_combine
 #   ifdef GL_ARB_texture_env_combine
 #       define GL_COMBINE GL_COMBINE_ARB
@@ -95,12 +96,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_TEXTURE0 GL_TEXTURE0_ARB
 #   endif
 // texture_env_dot3
-#   ifndef GL_DOT3_RGB
-#       define GL_DOT3_RGB                       0x86AE
+#   ifdef GL_ARB_texture_env_dot3
+#       define GL_DOT3_RGB GL_DOT3_RGB_ARB
+#   elif GL_EXT_texture_env_dot3
+#       define GL_DOT3_RGB GL_DOT3_RGB_EXT
 #   endif
-#   ifndef GL_DOT3_RGB_EXT
-#       define GL_DOT3_RGB_EXT                   0x8740
-#   endif
+//#   ifndef GL_DOT3_RGB_EXT
+//#       define GL_DOT3_RGB_EXT                   0x8740
+//#   endif
 // texture_cube_map
 #   ifdef GL_ARB_texture_cube_map
 #       define GL_TEXTURE_CUBE_MAP GL_TEXTURE_CUBE_MAP_ARB
@@ -120,6 +123,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_TEXTURE_CUBE_MAP_NEGATIVE_Y GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_EXT
 #       define GL_TEXTURE_CUBE_MAP_POSITIVE_Z GL_TEXTURE_CUBE_MAP_POSITIVE_Z_EXT
 #       define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_EXT
+#   endif
+// texgen_reflection/texture_cube_map
+#   ifdef GL_ARB_texture_cube_map
+#       define GL_NORMAL_MAP GL_NORMAL_MAP_ARB
+#       define GL_REFLECTION_MAP GL_REFLECTION_MAP_ARB
+#   elif GL_EXT_texture_cube_map
+#       define GL_NORMAL_MAP GL_NORMAL_MAP_EXT
+#       define GL_REFLECTION_MAP GL_REFLECTION_MAP_EXT
+#   elif GL_NV_texgen_reflection
+#       define GL_NORMAL_MAP GL_NORMAL_MAP_NV
+#       define GL_REFLECTION_MAP GL_REFLECTION_MAP_NV
 #   endif
 #endif
 

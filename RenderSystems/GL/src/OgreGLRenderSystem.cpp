@@ -1422,18 +1422,7 @@ namespace Ogre {
             cmd = GL_INTERPOLATE;
             break;
         case LBX_DOTPRODUCT:
-            if(mGLSupport->hasDot3())
-            {
-              cmd = GL_DOT3_RGB;
-            }
-            else if(mGLSupport->hasDot3EXT())
-            {
-              cmd = GL_DOT3_RGB_EXT;
-            }
-            else
-            {
-              cmd = GL_MODULATE;
-            }
+            cmd = mGLSupport->hasDot3() ? GL_DOT3_RGB : GL_MODULATE;
             break;
 		// XXX
 		default:
@@ -1457,7 +1446,7 @@ namespace Ogre {
         }
         else
         {
-            if (!(cmd == GL_DOT3_RGB || cmd == GL_DOT3_RGB_EXT))
+            if (cmd != GL_DOT3_RGB)
                 glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, cmd);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, src1op);
             glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA, src2op);
@@ -1485,6 +1474,8 @@ namespace Ogre {
           case LBX_MODULATE_X4:
 			glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ? 
                 GL_RGB_SCALE : GL_ALPHA_SCALE, 4);
+            break;
+          default:
             break;
 		}
 
