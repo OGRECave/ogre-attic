@@ -34,11 +34,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib sicppsdk.lib xsiftk.lib odbc32.lib odbccp32.lib sicoresdk.lib"
+				AdditionalDependencies="OgreMain_d.lib odbc32.lib odbccp32.lib sicppsdk.lib sicoresdk.lib"
 				OutputFile="$(OutDir)/OgreXSIExporter.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\lib\$(ConfigurationName);..\..\..\OgreMain\lib\$(ConfigurationName);$(XSISDK_ROOT)\lib\nt-x86;$(XSIFTK_ROOT)\export\bin;$(XSIFTK_ROOT)\export\lib"
-				ModuleDefinitionFile="XSIExporter.def"
+				ModuleDefinitionFile="..\misc\OgreXSIExport.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/XSIExport.pdb"
 				SubSystem="2"
@@ -86,11 +86,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib sicppsdk.lib xsiftk.lib odbc32.lib odbccp32.lib sicoresdk.lib"
+				AdditionalDependencies="OgreMain.lib odbc32.lib odbccp32.lib sicppsdk.lib  sicoresdk.lib"
 				OutputFile="$(OutDir)/OgreXSIExporter.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\lib\$(ConfigurationName);..\..\..\OgreMain\lib\$(ConfigurationName);$(XSISDK_ROOT)\lib\nt-x86;$(XSIFTK_ROOT)\export\bin;$(XSIFTK_ROOT)\export\lib"
-				ModuleDefinitionFile="..\misc\XSIExporter.def"
+				ModuleDefinitionFile="..\misc\OgreXSIExport.def"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -119,7 +119,10 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\misc\XSIExporter.def">
+				RelativePath="..\src\OgreXSIExport.cpp">
+			</File>
+			<File
+				RelativePath="..\misc\OgreXSIExport.def">
 			</File>
 		</Filter>
 		<Filter
