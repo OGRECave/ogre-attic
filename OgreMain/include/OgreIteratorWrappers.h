@@ -80,7 +80,7 @@ namespace Ogre {
         /** Returns a pointer to the next element in the collection, without advancing to the next afterwards. */
         typename T::pointer peekNextPtr(void)
         {
-            return mCurrent;
+            return &(*mCurrent);
         }
         /** Moves the iterator on one element. */
         void moveNext(void)
