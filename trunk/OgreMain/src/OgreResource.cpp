@@ -88,7 +88,8 @@ namespace Ogre
 			unloadImpl();
 			mIsLoaded = false;
 			// Notify manager
-			mCreator->_notifyResourceUnloaded(this);
+			if(mCreator)
+				mCreator->_notifyResourceUnloaded(this);
 		}
 	}
 	//-----------------------------------------------------------------------
