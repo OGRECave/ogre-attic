@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLXGLSupport.h"
 
 #include "OgreGLXWindow.h"
+#include "OgreGLTexture.h"
 
 #ifdef HW_RTT
 #include "OgreGLXRenderTexture.h"
@@ -149,6 +150,7 @@ void* GLXGLSupport::getProcAddress(const String& procname) {
 
 RenderTexture * GLXGLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
 {
-    return new GLRenderTexture(name, width, height, texType, format);
+	return new GLRenderTexture(name, width, height, texType, format);
 }  
 
+}
