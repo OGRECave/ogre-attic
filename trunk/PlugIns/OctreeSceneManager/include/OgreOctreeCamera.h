@@ -61,21 +61,6 @@ public:
     */
     OctreeCamera::Visibility getVisibility( const AxisAlignedBox &bound );
 
-    /** Sets up the render operation to render the view frustum of the camera
-    */
-    virtual void getRenderOperation(RenderOperation& op);
-
-    virtual Material* getMaterial(void) const;
-
-    virtual void getWorldTransforms(Matrix4* xform) const;
-    virtual const Quaternion& getWorldOrientation(void) const;
-    virtual const Vector3& getWorldPosition(void) const;
-
-    /** @copydoc Renderable::getLights */
-    const LightList& getLights(void) const;
-
-    Real getSquaredViewDepth(const Camera* cam) const;
-
 protected:
     /** Internal method used to find corners of the view frustum
     */
@@ -87,11 +72,6 @@ protected:
     ///Shared list of colors used to render
     static unsigned long mColors[ 8 ];
 
-    Material* mMaterial;
-
-private:
-    VertexData* mVertexData;
-    IndexData* mIndexData;
 };
 
 }
