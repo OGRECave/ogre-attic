@@ -346,6 +346,11 @@ namespace Ogre {
 		zzip_seek(mZzipFile, static_cast<zzip_off_t>(pos), SEEK_SET);
     }
     //-----------------------------------------------------------------------
+    size_t ZipDataStream::tell()
+    {
+		return zzip_tell(mZzipFile);
+    }
+    //-----------------------------------------------------------------------
     bool ZipDataStream::eof(void) const
     {
         return (zzip_tell(mZzipFile) >= mSize);
