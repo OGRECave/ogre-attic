@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMaterial.h"
 
 #include "OgreSceneManagerEnumerator.h"
+#include "OgreMaterialManager.h"
 
 namespace Ogre {
 
@@ -473,6 +474,24 @@ namespace Ogre {
 	    {
 		    return true;
 	    }
+    }
+    //-----------------------------------------------------------------------
+    Material* Material::clone(const String& newName)
+    {
+        Material* newMat = (Material*)MaterialManager::getSingleton().create(newName);
+
+        // Keep handle (see below, copy overrides everything)
+        int newHandle = newMat->getHandle();
+        // Assign values from this
+        *newMat = *this;
+        // Correct the name & handle, they get copied too
+        newMat->mName = newName;
+        newMat->mHandle = newHandle;
+
+        return newMat;
+
+
+
     }
 
 }

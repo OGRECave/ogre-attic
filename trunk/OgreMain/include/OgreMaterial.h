@@ -1323,6 +1323,10 @@ namespace Ogre {
                 True if identical, false otherwise.
         */
         bool _compareSurfaceParams( const Material& cmp ) const;
+
+        /** Creates a new copy of this material with the same settings but a new name.
+        */
+        Material* clone(const String& newName);
     };
 
 } //namespace 
