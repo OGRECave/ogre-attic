@@ -513,7 +513,7 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 
 Sets the ambient colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.} @*@*
 
-Format: ambient (<red> <green> <blue> | vertexcolour)@*
+Format: ambient (<red> <green> <blue> [<alpha>]| vertexcolour)@*
 NB valid colour values are between 0.0 and 1.0.@*@*
 
 Example: ambient 0.0 0.8 0.0@*@*
@@ -522,14 +522,14 @@ The base colour of a pass is determined by how much red, green and blue light is
 It is also possible to make the ambient reflectance track the vertex colour as defined in the mesh by using the keyword vertexcolour instead of the colour values.
 The default is full white, meaning objects are completely globally illuminated. Reduce this if you want to see diffuse or specular light effects, or change the blend of colours to make the object have a base colour other than white. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: ambient 1.0 1.0 1.0@*@*
+Default: ambient 1.0 1.0 1.0 1.0@*@*
 
 @anchor{diffuse}
 @subheading diffuse
 
 Sets the diffuse colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.}@*@*
 
-Format: diffuse (<red> <green> <blue> | vertexcolour)@*
+Format: diffuse (<red> <green> <blue> [<alpha>]| vertexcolour)@*
 NB valid colour values are between 0.0 and 1.0.@*@*
 
 Example: diffuse 1.0 0.5 0.5@*@*
@@ -538,14 +538,14 @@ The base colour of a pass is determined by how much red, green and blue light is
 It is also possible to make the diffuse reflectance track the vertex colour as defined in the mesh by using the keyword vertexcolour instead of the colour values.
 The default is full white, meaning objects reflect the maximum white light they can from Light objects. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: diffuse 1.0 1.0 1.0@*@*
+Default: diffuse 1.0 1.0 1.0 1.0@*@*
 
 @anchor{specular}
 @subheading specular
 
 Sets the specular colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.}@*@*
 
-Format: specular (<red> <green> <blue> | vertexcolour) <shininess>@*
+Format: specular (<red> <green> <blue> [<alpha>]| vertexcolour) <shininess>@*
 NB valid colour values are between 0.0 and 1.0. Shininess can be any value greater than 0.@*@*
 
 Example: specular 1.0 1.0 1.0 12.5@*@*
@@ -554,14 +554,14 @@ The base colour of a pass is determined by how much red, green and blue light is
 It is also possible to make the diffuse reflectance track the vertex colour as defined in the mesh by using the keyword vertexcolour instead of the colour values.
 The default is to reflect no specular light. The colour of the specular highlights is determined by the colour parameters, and the size of the highlights by the separate shininess parameter. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: specular 0.0 0.0 0.0 0.0@*@*
+Default: specular 0.0 0.0 0.0 0.0 0.0@*@*
 
 @anchor{emissive}
 @subheading emissive
 
 Sets the amount of self-illumination an object has. @strong{This attribute has no effect if a vertex program is used.}@*@*
 
-Format: emissive (<red> <green> <blue> | vertexcolour)@*
+Format: emissive (<red> <green> <blue> [<alpha>]| vertexcolour)@*
 NB valid colour values are between 0.0 and 1.0.@*@*
 
 Example: emissive 1.0 0.0 0.0@*@*
@@ -570,7 +570,7 @@ If an object is self-illuminating, it does not need external sources to light it
 It is also possible to make the emissive colour track the vertex colour as defined in the mesh by using the keyword vertexcolour instead of the colour values.
 This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
-Default: emissive 0.0 0.0 0.0@*@*
+Default: emissive 0.0 0.0 0.0 0.0@*@*
 
 @anchor{scene_blend}
 @subheading scene_blend
