@@ -29,11 +29,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 #include "OgreSubMesh.h"
 #include "OgreException.h"
+#include "OgreHardwareBufferManager.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
 
 #define LEVEL_WIDTH(lvl) ((1 << (lvl+1)) + 1)
 
 namespace Ogre {
 
+    // TODO: make this deal with colours and more than 2 texture coords
 
     //-----------------------------------------------------------------------
     PatchSurface::PatchSurface()
@@ -55,26 +59,40 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::defineSurface(String meshName, const std::vector<Vector3>* controlPoints, int width,
-        PatchSurface::PatchSurfaceType pType, int subdivisionLevel, VisibleSide visibleSide)
+    void PatchSurface::defineSurface(String meshName, void* controlPointBuffer, 
+        VertexDeclaration *declaration, size_t width, size_t height,
+        PatchSurface::PatchSurfaceType pType, size_t subdivisionLevel, size_t maxSubdivisionLevel,
+        VisibleSide visibleSide)
     {
-        if (controlPoints->empty() || width == 0)
+        if (height == 0 || width == 0)
             return; // Do nothing - garbage
 
         mMeshName = meshName;
-        mVecCtlPoints = controlPoints;
         mType = pType;
         mCtlWidth = width;
-        if (mVecCtlPoints->size() % mCtlWidth != 0)
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Invalid patch width - does not divide equally into number of control points.",
-                "PatchSurface::defineSurface");
-        }
-        mCtlHeight = mVecCtlPoints->size() / mCtlWidth;
+        mCtlHeight = height;
+        mCtlCount = width * height;
+        mControlPointBuffer = controlPointBuffer;
+        mDeclaration = declaration;
 
-        setSubdivisionLevel(subdivisionLevel);
+        // Copy positions into Vector3 vector
+        mVecCtlPoints.clear();
+        const VertexElement* elem = declaration->findElementBySemantic(VES_POSITION);
+        size_t vertSize = declaration->getVertexSize(0);
+        const unsigned char *pVert = static_cast<const unsigned char*>(controlPointBuffer);
+        Real* pReal;
+        for (size_t i = 0; i < mCtlCount; ++i)
+        {
+            elem->baseVertexPointerToElement((void*)pVert, &pReal);
+            mVecCtlPoints.push_back(Vector3(pReal));
+            pVert += vertSize;
+        }
 
         mVSide = visibleSide;
+
+        setMaxSubdivisionLevel(maxSubdivisionLevel);
+        setSubdivisionLevel(subdivisionLevel);
+
 
         mNeedsBuild = true;
 
@@ -83,27 +101,32 @@ namespace Ogre {
     void PatchSurface::build(void)
     {
 
-        if (mVecCtlPoints->empty())
+        if (mVecCtlPoints.empty())
             return;
 
-        allocateMemory();
+        // Set current vertex count
+        mMesh->sharedVertexData->vertexCount = mMeshWidth * mMeshHeight;
 
-        distributeControlPoints();
+        HardwareVertexBufferSharedPtr vbuf = mMesh->sharedVertexData->vertexBufferBinding->getBuffer(0);
+        void* lockedBuffer = vbuf->lock(HardwareBuffer::HBL_DISCARD);
+
+        distributeControlPoints(lockedBuffer);
 
         // DEBUG
         //mMesh->_dumpContents(mMesh->getName() + "_preSubdivision.log");
 
 
+        
         // Subdivide the curve
         // Do u direction first, so need to step over v levels not done yet
-        int vStep = 1 << mVLevel;
-        int uStep = 1 << mULevel;
+        size_t vStep = 1 << mVLevel;
+        size_t uStep = 1 << mULevel;
 
-        int v, u;
+        size_t v, u;
         for (v = 0; v < mMeshHeight; v += vStep)
         {
             // subdivide this row in u
-            subdivideCurve(v*mMeshWidth, uStep, mMeshWidth / uStep, mULevel);
+            subdivideCurve(lockedBuffer, v*mMeshWidth, uStep, mMeshWidth / uStep, mULevel);
         }
 
         // DEBUG
@@ -112,8 +135,11 @@ namespace Ogre {
         // Now subdivide in v direction, this time all the u direction points are there so no step
         for (u = 0; u < mMeshWidth; ++u)
         {
-            subdivideCurve(u, vStep*mMeshWidth, mMeshHeight / vStep, mVLevel);
+            subdivideCurve(lockedBuffer, u, vStep*mMeshWidth, mMeshHeight / vStep, mVLevel);
         }
+        
+
+        vbuf->unlock();
 
         // DEBUG
         //mMesh->_dumpContents(mMesh->getName() + "_postSubdivisionV.log");
@@ -125,7 +151,7 @@ namespace Ogre {
         std::vector<Vector3>::const_iterator ctli;
         Vector3 min, max;
         bool first = true;
-        for (ctli = mVecCtlPoints->begin(); ctli != mVecCtlPoints->end(); ++ctli)
+        for (ctli = mVecCtlPoints.begin(); ctli != mVecCtlPoints.end(); ++ctli)
         {
             if (first || ctli->x < min.x)
                 min.x = ctli->x;
@@ -148,7 +174,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::setSubdivisionLevel(int level)
+    void PatchSurface::setSubdivisionLevel(size_t level)
     {
         if (level != AUTO_LEVEL)
         {
@@ -160,14 +186,14 @@ namespace Ogre {
             // determine levels
             // Derived from work by Bart Sekura in Rogl
             Vector3 a,b,c;
-            int u,v;
+            size_t u,v;
             bool found=false;
             // Find u level
             for(v = 0; v < mCtlHeight; v++) {
                 for(u = 0; u < mCtlWidth-1; u += 2) {
-                    a = (*mVecCtlPoints)[v * mCtlWidth + u];
-                    b = (*mVecCtlPoints)[v * mCtlWidth + u+1];
-                    c = (*mVecCtlPoints)[v * mCtlWidth + u+2];
+                    a = mVecCtlPoints[v * mCtlWidth + u];
+                    b = mVecCtlPoints[v * mCtlWidth + u+1];
+                    c = mVecCtlPoints[v * mCtlWidth + u+2];
                     if(a!=c) {
                         found=true;
                         break;
@@ -186,9 +212,9 @@ namespace Ogre {
             found=false;
             for(u = 0; u < mCtlWidth; u++) {
                 for(v = 0; v < mCtlHeight-1; v += 2) {
-                    a = (*mVecCtlPoints)[v * mCtlWidth + u];
-                    b = (*mVecCtlPoints)[(v+1) * mCtlWidth + u];
-                    c = (*mVecCtlPoints)[(v+2) * mCtlWidth + u];
+                    a = mVecCtlPoints[v * mCtlWidth + u];
+                    b = mVecCtlPoints[(v+1) * mCtlWidth + u];
+                    c = mVecCtlPoints[(v+2) * mCtlWidth + u];
                     if(a!=c) {
                         found=true;
                         break;
@@ -205,11 +231,33 @@ namespace Ogre {
 
 
         }
+        if (mVLevel > mMaxLevel)
+        {
+            mVLevel = mMaxLevel;
+        }
+        if (mULevel > mMaxLevel)
+        {
+            mULevel = mMaxLevel;
+        }
         // Derive mesh width / height
         mMeshWidth  = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
         mMeshHeight = (LEVEL_WIDTH(mVLevel)-1) * ((mCtlHeight-1)/2) + 1;
 
+
+
         mNeedsBuild = true;
+    }
+    //-----------------------------------------------------------------------
+    void PatchSurface::setMaxSubdivisionLevel(size_t level)
+    {
+        if (level != mMaxLevel)
+        {
+            mMaxLevel = level;
+            // Derive mesh width / height
+            mMaxMeshWidth  = (LEVEL_WIDTH(mMaxLevel)-1) * ((mCtlWidth-1)/2) + 1;
+            mMaxMeshHeight = (LEVEL_WIDTH(mMaxLevel)-1) * ((mCtlHeight-1)/2) + 1;
+            allocateMemory();
+        }
     }
     //-----------------------------------------------------------------------
     Mesh* PatchSurface::getMesh(void)
@@ -220,15 +268,15 @@ namespace Ogre {
         return mMesh;
     }
     //-----------------------------------------------------------------------
-    int PatchSurface::findLevel(Vector3& a, Vector3& b, Vector3& c)
+    size_t PatchSurface::findLevel(Vector3& a, Vector3& b, Vector3& c)
     {
         // Derived from work by Bart Sekura in rogl
         // Apart from I think I fixed a bug - see below
         // I also commented the code, the only thing wrong with rogl is almost no comments!!
 
-        const int max_levels = 5;
+        const size_t max_levels = 5;
         const float subdiv = 10;
-        int level;
+        size_t level;
 
         float test=subdiv*subdiv;
         Vector3 s,t,d;
@@ -259,79 +307,63 @@ namespace Ogre {
         if (mMemoryAllocated)
             deallocateMemory();
 
-        int tex;
-
-        /* TODO
-            Remember this has been changed somewhat 
-
-        // Is the input geometry sharing a buffer for all components?
-        if (mCtlPointData.vertexStride == 0)
-            // Not shared, separate allocation buffers per vertex component
-            mSharedVertexData = false;
-        else
-            mSharedVertexData = true;
+        // Allocate to the size of max level
 
         // Create mesh
         mMesh = MeshManager::getSingleton().createManual(mMeshName);
+        mMesh->sharedVertexData = new VertexData();
         // Copy all vertex parameters
-        mMesh->sharedGeometry.numVertices = mMeshWidth * mMeshHeight;
-        mMesh->sharedGeometry.hasColours =     mCtlPointData.hasColours;
-        mMesh->sharedGeometry.hasNormals = mCtlPointData.hasNormals;
-        mMesh->sharedGeometry.numTexCoords = mCtlPointData.numTexCoords;
-        for ( tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
-        {
-            mMesh->sharedGeometry.numTexCoordDimensions[tex] = mCtlPointData.numTexCoordDimensions[tex];
-            mMesh->sharedGeometry.texCoordStride[tex] = mCtlPointData.texCoordStride[tex];
-        }
-        mMesh->sharedGeometry.normalStride = mCtlPointData.normalStride;
-        mMesh->sharedGeometry.vertexStride = mCtlPointData.vertexStride;
-        mMesh->sharedGeometry.colourStride = mCtlPointData.colourStride;
+        mMesh->sharedVertexData->vertexStart = 0;
+        // Vertex count will be set on build() because it depends on current level
+        mMesh->sharedVertexData->vertexDeclaration = mDeclaration;
+        // Create buffer (only a single buffer)
+        // Allocate enough buffer memory for maximum subdivision, not current subdivision
+        HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().
+            createVertexBuffer(
+                mDeclaration->getVertexSize(0), 
+                mMaxMeshHeight * mMaxMeshWidth, // maximum size 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY); // dynamic for changing level
 
-        mMesh->createSubMesh();
+        // Set binding
+        mMesh->sharedVertexData->vertexBufferBinding->setBinding(0, vbuf);
 
-        // Allocate geometry data
-        if (mSharedVertexData)
-        {
-            // 1 buffer for all data
-            // Assume size is vertexStride + vertex pos size
-            int vertSize = sizeof(Real) * 3; // position data mandatory
-            vertSize += mCtlPointData.vertexStride;
-
-			// We HAVE to use new[] since the de-allocator uses delete[]
-            mMesh->sharedGeometry.pVertices = reinterpret_cast<Real *>( new uchar[ vertSize *  mMeshWidth * mMeshHeight ] );
-
-            // Set other pointers relative to this
-            if (mCtlPointData.hasNormals)
-                mMesh->sharedGeometry.pNormals = mMesh->sharedGeometry.pVertices +
-                    (mCtlPointData.pNormals - mCtlPointData.pVertices);
-            if (mCtlPointData.hasColours)
-                mMesh->sharedGeometry.pColours = (unsigned long*)((char*)mMesh->sharedGeometry.pVertices +
-                    ((char*)mCtlPointData.pColours - (char*)mCtlPointData.pVertices));
-            for (tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
-            {
-                mMesh->sharedGeometry.pTexCoords[tex] = mMesh->sharedGeometry.pVertices +
-                    (mCtlPointData.pTexCoords[tex] - mCtlPointData.pVertices);
-            }
-
-
-        }
-        else
-        {
-            // Separate buffers
-            mMesh->sharedGeometry.pVertices = new Real[3 * mMeshWidth * mMeshHeight];
-            if (mCtlPointData.hasNormals)
-                mMesh->sharedGeometry.pNormals = new Real[3 * mMeshWidth * mMeshHeight];
-            if (mCtlPointData.hasColours)
-                mMesh->sharedGeometry.pColours = new unsigned long[mMeshWidth * mMeshHeight];
-            for (tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
-            {
-                mMesh->sharedGeometry.pTexCoords[tex] = new Real[mCtlPointData.numTexCoordDimensions[tex] * mMeshWidth * mMeshHeight];
-            }
-
-        }
+        SubMesh* sm = mMesh->createSubMesh();
+        // Allocate enough index data for max subdivision
+        sm->indexData->indexStart = 0;
+        // Index count will be set on build()
+        unsigned short iterations = (mVSide == VS_BOTH ? 2 : 1);
+        sm->indexData->indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(
+            HardwareIndexBuffer::IT_16BIT, 
+            (mMaxMeshWidth-1) * (mMaxMeshHeight-1) * 2 * iterations * 3,  
+            HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
 
         mMesh->load();
-        */
+
+        // Derive bounds from control points, cannot stray outside that
+        Vector3 min, max;
+        Real maxSquaredRadius;
+        bool first = true;
+        std::vector<Vector3>::iterator i, iend;
+        iend = mVecCtlPoints.end();
+        for (i = mVecCtlPoints.begin(); i != iend; ++i)
+        {
+            if (first)
+            {
+                min = max = *i;
+                maxSquaredRadius = i->squaredLength();
+            }
+            else
+            {
+                min.makeFloor(*i);
+                max.makeCeil(*i);
+                maxSquaredRadius = std::max(maxSquaredRadius, i->squaredLength());
+            }
+
+        }
+        mMesh->_setBounds(AxisAlignedBox(min, max));
+        mMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
+
+
 
     }
     //-----------------------------------------------------------------------
@@ -345,71 +377,83 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::distributeControlPoints(void)
+    void PatchSurface::distributeControlPoints(void* lockedBuffer)
     {
-        /* TODO
         // Insert original control points into expanded mesh
-        int uStep = 1 << mULevel;
-        int vStep = 1 << mVLevel;
-        int tex;
+        size_t uStep = 1 << mULevel;
+        size_t vStep = 1 << mVLevel;
 
-        // Set up the 'step' variables for indexing into the source and destination buffers
-        // These are required in order to support both vertex data which all components share a
-        // single buffer, AND vertex data in which each component has its own buffer
-        mBufPosStep = (sizeof(Real) * 3) + mCtlPointData.vertexStride;
-        mBufNormStep = (sizeof(Real) * 3) + mCtlPointData.normalStride;
-        mBufColourStep = (sizeof(Real) * 3) + mCtlPointData.colourStride;
-        for ( tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
-            mBufTexCoordStep[tex] = (sizeof(Real) * mCtlPointData.numTexCoordDimensions[tex]) + mCtlPointData.texCoordStride[tex];
 
-        int u, v;
-        int destIdx, srcIdx;
-        GeomVertexPosition *pDestVert, *pSrcVert;
-        GeomVertexNormal *pDestNorm, *pSrcNorm;
-        Real *pDestReal, *pSrcReal;
-
-        srcIdx = 0;
-        for (v = 0; v < mMeshHeight; v += vStep)
+        void* pSrc = mControlPointBuffer;
+        size_t vertexSize = mDeclaration->getVertexSize(0);
+        Real *pSrcReal, *pDestReal;
+        void* pDest;
+        const VertexElement* elemPos = mDeclaration->findElementBySemantic(VES_POSITION);
+        const VertexElement* elemNorm = mDeclaration->findElementBySemantic(VES_NORMAL);
+        const VertexElement* elemTex0 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
+        const VertexElement* elemTex1 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
+        const VertexElement* elemDiffuse = mDeclaration->findElementBySemantic(VES_DIFFUSE);
+        for (size_t v = 0; v < mMeshHeight; v += vStep)
         {
-            for (u = 0; u < mMeshWidth; u += uStep)
+            // set dest by v from base
+            pDest = static_cast<void*>(
+                static_cast<unsigned char*>(lockedBuffer) + (vertexSize * mMeshWidth * v));
+            for (size_t u = 0; u < mMeshWidth; u += uStep)
             {
-                destIdx = (v * mMeshWidth) + u;
+
                 // Copy Position
-                pDestVert = (GeomVertexPosition*)((char*)mMesh->sharedGeometry.pVertices + (destIdx * mBufPosStep));
-                pSrcVert = (GeomVertexPosition*)((char*)mCtlPointData.pVertices + (srcIdx * mBufPosStep));
-                *pDestVert = *pSrcVert;
+                elemPos->baseVertexPointerToElement(pSrc, &pSrcReal);
+                elemPos->baseVertexPointerToElement(pDest, &pDestReal);
+                *pDestReal++ = *pSrcReal++;
+                *pDestReal++ = *pSrcReal++;
+                *pDestReal++ = *pSrcReal++;
 
                 // Copy Normals
-                if (mCtlPointData.hasNormals)
+                if (elemNorm)
                 {
-                    pDestNorm = (GeomVertexNormal*)((char*)mMesh->sharedGeometry.pNormals + (destIdx * mBufNormStep));
-                    pSrcNorm = (GeomVertexNormal*)((char*)mCtlPointData.pNormals + (srcIdx * mBufNormStep));
-                    *pDestNorm = *pSrcNorm;
+                    elemNorm->baseVertexPointerToElement(pSrc, &pSrcReal);
+                    elemNorm->baseVertexPointerToElement(pDest, &pDestReal);
+                    *pDestReal++ = *pSrcReal++;
+                    *pDestReal++ = *pSrcReal++;
+                    *pDestReal++ = *pSrcReal++;
                 }
 
                 // Copy texture coords
-                for (tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
+                if (elemTex0)
                 {
-                    pDestReal = (Real*)((char*)mMesh->sharedGeometry.pTexCoords[tex] + (destIdx * mBufTexCoordStep[tex]));
-                    pSrcReal = (Real*)((char*)mCtlPointData.pTexCoords[tex] + (srcIdx * mBufTexCoordStep[tex]));
-                    for (int dim = 0; dim < mCtlPointData.numTexCoordDimensions[tex]; ++dim)
+                    elemTex0->baseVertexPointerToElement(pSrc, &pSrcReal);
+                    elemTex0->baseVertexPointerToElement(pDest, &pDestReal);
+                    for (size_t dim = 0; dim < VertexElement::getTypeCount(elemTex0->getType()); ++dim)
                         *pDestReal++ = *pSrcReal++;
                 }
-                ++srcIdx;
+                if (elemTex1)
+                {
+                    elemTex1->baseVertexPointerToElement(pSrc, &pSrcReal);
+                    elemTex1->baseVertexPointerToElement(pDest, &pDestReal);
+                    for (size_t dim = 0; dim < VertexElement::getTypeCount(elemTex1->getType()); ++dim)
+                        *pDestReal++ = *pSrcReal++;
+                }
+
+                // Increment source by one vertex
+                pSrc = static_cast<void*>(
+                    static_cast<unsigned char*>(pSrc) + vertexSize);
+                // Increment dest by 1 vertex * uStep
+                pDest = static_cast<void*>(
+                    static_cast<unsigned char*>(pDest) + (vertexSize * uStep));
             } // u
         } // v
 
-        */
+       
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::subdivideCurve(int startIdx, int stepSize, int numSteps, int iterations)
+    void PatchSurface::subdivideCurve(void* lockedBuffer, size_t startIdx, size_t stepSize, size_t numSteps, size_t iterations)
     {
         // Subdivides a curve within a sparsely populated buffer (gaps are already there to be interpolated into)
-        int leftIdx, rightIdx, destIdx, halfStep, maxIdx;
+        size_t leftIdx, rightIdx, destIdx, halfStep, maxIdx;
         bool firstSegment;
 
         maxIdx = startIdx + (numSteps * stepSize);
-        int step = stepSize;
+        size_t step = stepSize;
 
         while(iterations--)
         {
@@ -421,12 +465,12 @@ namespace Ogre {
             while (leftIdx < maxIdx)
             {
                 // Interpolate
-                interpolateVertexData(leftIdx, rightIdx, destIdx);
+                interpolateVertexData(lockedBuffer, leftIdx, rightIdx, destIdx);
 
                 // If 2nd or more segment, interpolate current left between current and last mid points
                 if (!firstSegment)
                 {
-                    interpolateVertexData(leftIdx - halfStep, leftIdx + halfStep, leftIdx);
+                    interpolateVertexData(lockedBuffer, leftIdx - halfStep, leftIdx + halfStep, leftIdx);
                 }
                 // Next segment
                 leftIdx = rightIdx;
@@ -442,8 +486,9 @@ namespace Ogre {
     void PatchSurface::makeTriangles(void)
     {
         // The mesh is built, just make a list of indexes to spit out the triangles
-        int vInc, uInc, v, u, iterations;
-        int vCount, uCount;
+        int vInc, uInc;
+        
+        int vCount, uCount, v, u, iterations;
 
         if (mVSide == VS_BOTH)
         {
@@ -466,18 +511,13 @@ namespace Ogre {
             }
         }
 
-        // Allocate memory for faces
-
-        /* TODO
-
         SubMesh* sm = mMesh->getSubMesh(0);
         // Num faces, width*height*2 (2 tris per square)
-        sm->numFaces = (mMeshWidth-1) * (mMeshHeight-1) * 2 * iterations;
-        sm->faceVertexIndices = new unsigned short[sm->numFaces * 3];
+        sm->indexData->indexCount = (mMeshWidth-1) * (mMeshHeight-1) * 2 * iterations * 3;
 
-        int v1, v2, v3;
-        // bool firstTri = true;
-        unsigned short* pIndexes = sm->faceVertexIndices;
+        size_t v1, v2, v3;
+        unsigned short* pIndexes = static_cast<unsigned short*>(
+            sm->indexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
 
         while (iterations--)
         {
@@ -526,45 +566,71 @@ namespace Ogre {
 
         }
 
-        */
+        sm->indexData->indexBuffer->unlock();
 
 
     }
     //-----------------------------------------------------------------------
-    void PatchSurface::interpolateVertexData(int leftIdx, int rightIdx, int destIdx)
+    void PatchSurface::interpolateVertexData(void* lockedBuffer, size_t leftIdx, size_t rightIdx, size_t destIdx)
     {
-        /* TODO
-        GeomVertexPosition *pDestVert, *pLeftVert, *pRightVert;
-        GeomVertexNormal *pDestNorm, *pLeftNorm, *pRightNorm;
+        size_t vertexSize = mDeclaration->getVertexSize(0);
+        const VertexElement* elemPos = mDeclaration->findElementBySemantic(VES_POSITION);
+        const VertexElement* elemNorm = mDeclaration->findElementBySemantic(VES_NORMAL);
+        const VertexElement* elemTex0 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
+        const VertexElement* elemTex1 = mDeclaration->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
+        const VertexElement* elemDiffuse = mDeclaration->findElementBySemantic(VES_DIFFUSE);
+
         Real *pDestReal, *pLeftReal, *pRightReal;
+        unsigned char *pDest, *pLeft, *pRight;
 
         // Set up pointers & interpolate
-        pDestVert = (GeomVertexPosition*)((char*)mMesh->sharedGeometry.pVertices + (destIdx * mBufPosStep));
-        pLeftVert = (GeomVertexPosition*)((char*)mMesh->sharedGeometry.pVertices + (leftIdx * mBufPosStep));
-        pRightVert = (GeomVertexPosition*)((char*)mMesh->sharedGeometry.pVertices + (rightIdx * mBufPosStep));
-        pDestVert->x = (pLeftVert->x + pRightVert->x) * 0.5;
-        pDestVert->y = (pLeftVert->y + pRightVert->y) * 0.5;
-        pDestVert->z = (pLeftVert->z + pRightVert->z) * 0.5;
+        pDest = static_cast<unsigned char*>(lockedBuffer) + (vertexSize * destIdx);
+        pLeft = static_cast<unsigned char*>(lockedBuffer) + (vertexSize * leftIdx);
+        pRight = static_cast<unsigned char*>(lockedBuffer) + (vertexSize * rightIdx);
 
-        if (mMesh->sharedGeometry.hasNormals)
+        // Position
+        elemPos->baseVertexPointerToElement(pDest, &pDestReal);
+        elemPos->baseVertexPointerToElement(pLeft, &pLeftReal);
+        elemPos->baseVertexPointerToElement(pRight, &pRightReal);
+
+        *pDestReal++ = (*pLeftReal++ + *pRightReal++) * 0.5;
+        *pDestReal++ = (*pLeftReal++ + *pRightReal++) * 0.5;
+        *pDestReal++ = (*pLeftReal++ + *pRightReal++) * 0.5;
+
+        if (elemNorm)
         {
-            pDestNorm = (GeomVertexNormal*)((char*)mMesh->sharedGeometry.pNormals + (destIdx * mBufNormStep));
-            pLeftNorm = (GeomVertexNormal*)((char*)mMesh->sharedGeometry.pNormals + (leftIdx * mBufNormStep));
-            pRightNorm = (GeomVertexNormal*)((char*)mMesh->sharedGeometry.pNormals + (rightIdx * mBufNormStep));
-            pDestNorm->x = (pLeftNorm->x + pRightNorm->x) * 0.5;
-            pDestNorm->y = (pLeftNorm->y + pRightNorm->y) * 0.5;
-            pDestNorm->z = (pLeftNorm->z + pRightNorm->z) * 0.5;
+            elemNorm->baseVertexPointerToElement(pDest, &pDestReal);
+            elemNorm->baseVertexPointerToElement(pLeft, &pLeftReal);
+            elemNorm->baseVertexPointerToElement(pRight, &pRightReal);
+            Vector3 norm;
+            norm.x = (*pLeftReal++ + *pRightReal++) * 0.5;
+            norm.y = (*pLeftReal++ + *pRightReal++) * 0.5;
+            norm.z = (*pLeftReal++ + *pRightReal++) * 0.5;
+            norm.normalise();
+
+            *pDestReal++ = norm.x;
+            *pDestReal++ = norm.y;
+            *pDestReal++ = norm.z;
         }
         // Skip colours for now
-        for (int tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
+        if (elemTex0)
         {
-            pDestReal = (Real*)((char*)mMesh->sharedGeometry.pTexCoords[tex] + (destIdx * mBufTexCoordStep[tex]));
-            pLeftReal = (Real*)((char*)mMesh->sharedGeometry.pTexCoords[tex] + (leftIdx * mBufTexCoordStep[tex]));
-            pRightReal = (Real*)((char*)mMesh->sharedGeometry.pTexCoords[tex] + (rightIdx * mBufTexCoordStep[tex]));
-            for (int dim = 0; dim < mMesh->sharedGeometry.numTexCoordDimensions[tex]; ++dim)
+            elemTex0->baseVertexPointerToElement(pDest, &pDestReal);
+            elemTex0->baseVertexPointerToElement(pLeft, &pLeftReal);
+            elemTex0->baseVertexPointerToElement(pRight, &pRightReal);
+
+            for (size_t dim = 0; dim < VertexElement::getTypeCount(elemTex0->getType()); ++dim)
                 *pDestReal++ = ((*pLeftReal++) + (*pRightReal++)) * 0.5;
         }
-        */
+        if (elemTex1)
+        {
+            elemTex1->baseVertexPointerToElement(pDest, &pDestReal);
+            elemTex1->baseVertexPointerToElement(pLeft, &pLeftReal);
+            elemTex1->baseVertexPointerToElement(pRight, &pRightReal);
+
+            for (size_t dim = 0; dim < VertexElement::getTypeCount(elemTex1->getType()); ++dim)
+                *pDestReal++ = ((*pLeftReal++) + (*pRightReal++)) * 0.5;
+        }
     }
 
 }

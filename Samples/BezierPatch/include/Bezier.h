@@ -83,14 +83,17 @@ public:
 class BezierApplication : public ExampleApplication
 {
 protected:
+    VertexDeclaration* patchDecl;
+    Real* patchCtlPoints;
 
-    GeometryData patchCtlPoints;
 public:
-    BezierApplication() { patchCtlPoints.pVertices = 0; }
+    BezierApplication() : patchCtlPoints(NULL), patchDecl(NULL) { }
     ~BezierApplication()
     {
-        if (patchCtlPoints.pVertices)
-            delete [] patchCtlPoints.pVertices;
+        if (patchCtlPoints)
+            delete [] patchCtlPoints;
+
+        // patch vertex declaration will be deleted automatically
     }
 
 protected:
@@ -123,22 +126,16 @@ protected:
         l->setDirection(-0.5, -0.5, 0);
 
         // Create patch
-        patchCtlPoints.hasColours = false;
-        patchCtlPoints.hasNormals = true;
-        patchCtlPoints.numTexCoords = 1;
-        patchCtlPoints.numTexCoordDimensions[0] = 2;
-        // Packed data
-        patchCtlPoints.vertexStride = sizeof(Real) * 5;
-        patchCtlPoints.normalStride = sizeof(Real) * 5;
-        patchCtlPoints.texCoordStride[0] = sizeof(Real) * 6;
+        patchDecl = HardwareBufferManager::getSingleton().createVertexDeclaration();
+        patchDecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
+        patchDecl->addElement(0, sizeof(Real)*3, VET_FLOAT3, VES_NORMAL);
+        patchDecl->addElement(0, sizeof(Real)*6, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+
         // Make a 3x3 patch for test
-        patchCtlPoints.pVertices = (Real*)( new PatchVertex[9] );
-        patchCtlPoints.numVertices = 9;
-        patchCtlPoints.pNormals = patchCtlPoints.pVertices + 3;
-        patchCtlPoints.pTexCoords[0] = patchCtlPoints.pVertices + 6;
+        patchCtlPoints = (Real*)( new PatchVertex[9] );
 
         // Patch data
-        PatchVertex *pVert = (PatchVertex*)patchCtlPoints.pVertices;
+        PatchVertex *pVert = (PatchVertex*)patchCtlPoints;
 
         pVert->x = -500.0; pVert->y = 200.0; pVert->z = -500.0;
         pVert->nx = -0.5; pVert->ny = 0.5; pVert->nz = 0.0;
@@ -180,7 +177,7 @@ protected:
         pVert++;
 
 
-        ps.defineSurface("Bezier1", patchCtlPoints, 3, PatchSurface::PST_BEZIER, 0, PatchSurface::VS_BOTH);
+        ps.defineSurface("Bezier1", patchCtlPoints, patchDecl, 3, 3, PatchSurface::PST_BEZIER, 1, 4, PatchSurface::VS_BOTH);
         ps.build();
 
         // Create entity based on patch

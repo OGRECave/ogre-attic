@@ -67,8 +67,7 @@ namespace Ogre {
         };
         /** Sets up the surface by defining it's control points, type and initial subdivision level.
             @remarks
-                This method initialises the surface by passing it a set of control points (in the form of
-                a GeometryData object, since there are many optional components). The type of curves to be used
+                This method initialises the surface by passing it a set of control points. The type of curves to be used
                 are also defined here, although the only supported option currently is a bezier patch. You can also
                 specify a global subdivision level here if you like, although it is recommended that the parameter
                 is left as AUTO_LEVEL, which means the system decides how much subdivision is required (based on the
@@ -77,19 +76,32 @@ namespace Ogre {
                 meshName The name to give to the mesh which is created, for MeshManager registration purposes (this allows you
                 to create entities from this at a later time if you wish)
             @param
-                controlPoints A set of vertex data which defines control points of the curves rather than actual vertices.
+                controlPointBuffer A pointer to a buffer containing the vertex data which defines control points 
+                of the curves rather than actual vertices. Note that you are expected to provide not
+                just position information, but potentially normals and texture coordinates too. The
+                format of the buffer is defined in the VertexDeclaration parameter
             @param
-                width Specifies the width of the patch in control points. It is assumed that controlPoints.numVertices / width is the height.
+                decaration VertexDeclaration describing the contents of the buffer. 
+                Note this declaration must _only_ draw on buffer source 0!
+            @param
+                width Specifies the width of the patch in control points.
+            @param
+                height Specifies the height of the patch in control points. 
             @param
                 pType The type of surface - currently only PST_BEZIER is supported
             @param
                 subdivisionLevel If you want to manually set the level of subdivision, do it here, otherwise let the system decide.
             @param
                 visibleSide Determines which side of the patch (or both) triangles are generated for.
+            @param
+                maxSubdividionLevel Determines the maximum subdivision level this surface will support.
+                Setting this value allows you to tell the system to allocate enough space to efficiently
+                switch levels up to this maximum level.
         */
-        void defineSurface(String meshName, const std::vector<Vector3>* controlPoints, int width,
-            PatchSurfaceType pType = PST_BEZIER, int subdivisionLevel = AUTO_LEVEL,
-            VisibleSide visibleSide = VS_FRONT);
+        void defineSurface(String meshName, void* controlPointBuffer, 
+            VertexDeclaration *declaration, size_t width, size_t height,
+            PatchSurfaceType pType = PST_BEZIER, size_t subdivisionLevel = AUTO_LEVEL,
+            size_t maxSubdivisionLevel = AUTO_LEVEL, VisibleSide visibleSide = VS_FRONT);
 
         /** Tells the system to build the mesh relating to the surface.
             @remarks
@@ -106,8 +118,18 @@ namespace Ogre {
             @see
                 PatchSurface::build, PatchSurface::getMesh
         */
-        void setSubdivisionLevel(int level = AUTO_LEVEL);
+        void setSubdivisionLevel(size_t level = AUTO_LEVEL);
 
+        /** Alters the maximum level of subdivision for this surface.
+            @remarks
+                This method is provided to alter the maximum subdivision level of the surface at 
+                some point after defineSurface has been called. Note that this call will almost
+                certainly involve memory reallocation, so use it with caution, try to get the 
+                maximum subdivision level set in defineSurface.
+            @see
+                PatchSurface::build, PatchSurface::getMesh
+        */
+        void setMaxSubdivisionLevel(size_t level = AUTO_LEVEL);
         /** Retrieves a pointer to the mesh which has been built for this surface.
             @remarks
                 If PatchSurface::build has not already been called, this method calls it for you to ensure the
@@ -122,8 +144,10 @@ namespace Ogre {
     protected:
         /// MeshManager registered name
         String mMeshName;
-        /// Vertex data
-        VertexData mVertexData;
+        /// Vertex declaration describing the control point buffer
+        VertexDeclaration* mDeclaration;
+        /// Buffer containing the system-memory control points
+        void* mControlPointBuffer;
         /// The mesh
         Mesh* mMesh;
         /// Flag indicating build required
@@ -131,37 +155,44 @@ namespace Ogre {
         /// Type of surface
         PatchSurfaceType mType;
         /// Width in control points
-        int mCtlWidth;
+        size_t mCtlWidth;
         /// Height in control points
-        int mCtlHeight;
+        size_t mCtlHeight;
+        /// TotalNumber of control points
+        size_t mCtlCount;
         /// U-direction subdivision level
-        int mULevel;
+        size_t mULevel;
         /// V-direction subdivision level
-        int mVLevel;
-        /// Width of the subdivided mesh
-        int mMeshWidth;
-        /// Height of the subdivided mesh
-        int mMeshHeight;
+        size_t mVLevel;
+        /// Max subdivision level
+        size_t mMaxLevel;
+        /// Width of the subdivided mesh (max)
+        size_t mMaxMeshWidth;
+        /// Height of the subdivided mesh (max)
+        size_t mMaxMeshHeight;
+        /// Width of the subdivided mesh (current)
+        size_t mMeshWidth;
+        /// Height of the subdivided mesh (current)
+        size_t mMeshHeight;
         /// Which side is visible
         VisibleSide mVSide;
 
-        bool mSharedVertexData;
         bool mMemoryAllocated;
 
-        const std::vector<Vector3>* mVecCtlPoints;
+        std::vector<Vector3> mVecCtlPoints;
 
         // Steps for use in buffers
         int mBufPosStep, mBufNormStep, mBufColourStep, mBufTexCoordStep[OGRE_MAX_TEXTURE_COORD_SETS] ;
 
         /** Internal method for finding the subdivision level given 3 control points.
         */
-        int findLevel( Vector3& a, Vector3& b, Vector3& c);
+        size_t findLevel( Vector3& a, Vector3& b, Vector3& c);
 
         void allocateMemory(void);
         void deallocateMemory(void);
-        void distributeControlPoints(void);
-        void subdivideCurve(int startIdx, int stepSize, int numSteps, int iterations);
-        void interpolateVertexData(int leftIndex, int rightIndex, int destIndex);
+        void distributeControlPoints(void* lockedBuffer);
+        void subdivideCurve(void* lockedBuffer, size_t startIdx, size_t stepSize, size_t numSteps, size_t iterations);
+        void interpolateVertexData(void* lockedBuffer, size_t leftIndex, size_t rightIndex, size_t destIndex);
         void makeTriangles(void);
 
 
