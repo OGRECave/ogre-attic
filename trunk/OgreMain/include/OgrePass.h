@@ -104,15 +104,6 @@ namespace Ogre {
         /// Shading options
         ShadeOptions mShadeOptions;
 
-        /// Texture filtering
-        TextureFilterOptions mTextureFiltering;
-        /// texture anisotropy level
-        int mMaxAniso;
-        /// is filtering default
-        bool mIsDefFiltering;
-        /// is anisotropy default
-        bool mIsDefAniso;
-
         //-------------------------------------------------------------------------    
         // Fog
         bool mFogOverride;

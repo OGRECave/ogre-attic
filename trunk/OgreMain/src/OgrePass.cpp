@@ -64,11 +64,6 @@ namespace Ogre {
         mOnlyLightType = Light::LT_POINT;
 	    mShadeOptions = SO_GOURAUD;
 
-		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
-		mMaxAniso = MaterialManager::getSingleton().getDefaultAnisotropy();
-		mIsDefFiltering = true;
-		mIsDefAniso = true;
-
 		mVertexProgramUsage = NULL;
 		mFragmentProgramUsage = NULL;
    }
@@ -126,11 +121,6 @@ namespace Ogre {
         mRunOnlyForOneLightType = oth.mRunOnlyForOneLightType;
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
-
-		mTextureFiltering = oth.mTextureFiltering;
-		mMaxAniso = oth.mMaxAniso;
-		mIsDefFiltering = oth.mIsDefFiltering;
-		mIsDefAniso = oth.mIsDefAniso;
 
 		if (oth.mVertexProgramUsage)
 		{

@@ -899,6 +899,9 @@ protected:
         ///Texture anisotropy
         int mMaxAniso;
 
+        bool mIsDefaultAniso;
+        bool mIsDefaultFiltering;
+
 
         //-----------------------------------------------------------------------------
         // Complex members (those that can't be copied using memcpy) are at the end to 

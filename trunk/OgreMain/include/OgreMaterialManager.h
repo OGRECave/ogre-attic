@@ -57,11 +57,14 @@ namespace Ogre {
 
         typedef HashMap<int, Material*> MaterialHandleList;
 
-		/// default texture filtering
-		TextureFilterOptions mDefTextureFiltering;
-
-		/// default maxAnisotropy
-		int mDefAniso;
+        /// Default Texture filtering - minification
+        FilterOptions mDefaultMinFilter;
+        /// Default Texture filtering - magnification
+        FilterOptions mDefaultMagFilter;
+        /// Default Texture filtering - mipmapping
+        FilterOptions mDefaultMipFilter;
+        /// Default Texture anisotropy
+        int mDefaultMaxAniso;
 
         /// Serializer
         MaterialSerializer mSerializer;
@@ -101,8 +104,19 @@ namespace Ogre {
                 The default value is TFO_BILINEAR.
         */
         virtual void setDefaultTextureFiltering(TextureFilterOptions fo);
+        /** Sets the default texture filtering to be used for loaded textures, for when textures are
+            loaded automatically (e.g. by Material class) or when 'load' is called with the default
+            parameters by the application.
+        */
+        virtual void setDefaultTextureFiltering(FilterType ftype, FilterOptions opts);
+        /** Sets the default texture filtering to be used for loaded textures, for when textures are
+            loaded automatically (e.g. by Material class) or when 'load' is called with the default
+            parameters by the application.
+        */
+        virtual void setDefaultTextureFiltering(FilterOptions minFilter, FilterOptions magFilter, FilterOptions mipFilter);
+
 		/// get the default texture filtering
-        virtual TextureFilterOptions getDefaultTextureFiltering() const;
+        virtual FilterOptions getDefaultTextureFiltering(FilterType ftype) const;
 
         /** Sets the default anisotropy level to be used for loaded textures, for when textures are
             loaded automatically (e.g. by Material class) or when 'load' is called with the default
