@@ -888,16 +888,32 @@ namespace Ogre {
 		case IL_DXT5:   fmt = PF_DXT5; break;
 		/* Normal formats */
         case IL_RGB:
-            fmt = PF_BYTE_RGB;
+			switch(ImageType)
+            {
+			case IL_FLOAT:  fmt = PF_FLOAT32_RGB; break;
+			default:       	fmt = PF_BYTE_RGB; break;
+			}
             break;
         case IL_BGR:
-            fmt = PF_BYTE_BGR;
+			switch(ImageType)
+            {
+			case IL_FLOAT:  fmt = PF_FLOAT32_RGB; break;
+			default:       	fmt = PF_BYTE_BGR; break;
+			}
             break;            
         case IL_RGBA:
-            fmt = PF_BYTE_RGBA;
+			switch(ImageType)
+            {
+			case IL_FLOAT:  fmt = PF_FLOAT32_RGBA; break;
+			default:       	fmt = PF_BYTE_RGBA; break;
+			}
             break;
         case IL_BGRA:
-            fmt = PF_BYTE_BGRA;
+			switch(ImageType)
+            {
+			case IL_FLOAT:  fmt = PF_FLOAT32_RGBA; break;
+			default:       	fmt = PF_BYTE_BGRA; break;
+			}
             break;
         case IL_LUMINANCE:
             switch(ImageType)
