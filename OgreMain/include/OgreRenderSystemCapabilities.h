@@ -45,7 +45,7 @@ namespace Ogre {
         RSC_VERTEXBLENDING   = 0x00000100,
 		RSC_VERTEX_PROGRAM   = 0x00000200,
 		RSC_FRAGMENT_PROGRAM = 0x00000400,
-		RSC_COMPRESSED_TEX   = 0x00000800,
+		RSC_COMPRESSED_TEX   = 0x00000800
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

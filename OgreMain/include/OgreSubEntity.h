@@ -110,7 +110,7 @@ namespace Ogre {
         const Vector3& getWorldPosition(void) const;
         /** Overridden - see Renderable.
         */
-        bool SubEntity::getNormaliseNormals(void);      
+        bool getNormaliseNormals(void);      
         /** Overridden - see Renderable.
         */
         unsigned short getNumWorldTransforms(void);

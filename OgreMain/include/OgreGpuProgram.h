@@ -73,7 +73,7 @@ namespace Ogre {
             /// A light direction in object space (index determined by setAutoConstant call)
             ACT_LIGHT_DIRECTION_OBJECT_SPACE,
             /// The current camera's position in object space 
-            ACT_CAMERA_POSITION_OBJECT_SPACE,
+            ACT_CAMERA_POSITION_OBJECT_SPACE
         };
         /** Structure recording the use of an automatic parameter. */
         class AutoConstantEntry

@@ -215,7 +215,7 @@ namespace Ogre {
         virtual void setDebugText(const String& text);
 
 		/** Returns the debug text. */
-		const String& RenderTarget::getDebugText() const;
+		const String& getDebugText() const;
 
         /** Add a listener to this RenderTarget which will be called back before & after rendering.
         @remarks
