@@ -69,8 +69,6 @@ namespace Ogre {
         int flags = SDL_OPENGL | SDL_HWPALETTE;
 
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-		SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 32);
-		SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8);
 		
         if (fullScreen)
             flags |= SDL_FULLSCREEN;
