@@ -92,6 +92,7 @@ void prepareCircleMaterial()
 	Material::TextureLayer *texLayer = material->addTextureLayer( CIRCLES_MATERIAL );
 	texLayer->setTextureAddressingMode( Material::TextureLayer::TAM_CLAMP );	
 	material->setSceneBlending( SBT_ADD );
+	material->setDepthWriteEnabled( false ) ;
 }
 
 

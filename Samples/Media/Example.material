@@ -265,6 +265,7 @@ Examples/Flare
 {
 	lighting off
 	scene_blend add
+	depth_write off
 	{
 		texture flare.png
 	}
@@ -274,6 +275,7 @@ Examples/Flare2
 {
 	lighting off
 	scene_blend add
+	depth_write off
 	{
 		texture flaretrail.png
 	}
@@ -291,6 +293,7 @@ Examples/Tree
 Examples/Droplet
 {
 	diffuse 1.0 1.0 1.0
+	depth_write off
 	scene_blend modulate
 	{
 		texture basic_droplet.png
