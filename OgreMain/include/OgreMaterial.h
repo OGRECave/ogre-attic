@@ -64,8 +64,6 @@ namespace Ogre {
             SceneManager::getDefaultMaterialSettings. Any changes you make to the 
             Material returned from this method will apply to any materials created 
             from this point onward.
-        @todo
-            Add bump-mapping support.
     */
     class _OgreExport Material : public Resource
     {
