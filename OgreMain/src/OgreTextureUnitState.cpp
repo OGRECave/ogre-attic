@@ -64,6 +64,7 @@ namespace Ogre {
         mAnimDuration = 0;
         mAnimController = 0;
         mCubic = false;
+        mIs3D = false;
 
     }
 
@@ -101,6 +102,9 @@ namespace Ogre {
         mRecalcTexMatrix = false;
         mAlphaRejectFunc = CMPF_ALWAYS_PASS;
         mAlphaRejectVal = 0;
+
+        mCubic = false;
+        mIs3D = false;
 
         setTextureName(texName);
         setTextureCoordSet(texCoordSet);
