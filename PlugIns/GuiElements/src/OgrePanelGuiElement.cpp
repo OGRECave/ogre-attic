@@ -34,19 +34,20 @@ namespace Ogre {
     PanelGuiElement::PanelGuiElement(const String& name)
         : GuiContainer(name)
     {
-        mTransparent = 0;
+        mTransparent = false;
         // Setup render op in advance
         // TODO make this more VB friendly
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
         mRenderOp.numVertices = 4;
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
-        for (ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; ++i)
+        for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             mTileX[i] = 1.0f;
             mTileY[i] = 1.0f;
             mRenderOp.pTexCoords[i] = 0;
             mRenderOp.texCoordStride[i] = 0;
+            mRenderOp.numTextureDimensions[i] = 2;
         }
         mRenderOp.pVertices = new Real[4*3];
         mRenderOp.useIndexes = false;
@@ -70,7 +71,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
     {
-        assert (layer >= 0 && layer < OGRE_MAX_TEXTURE_LAYERS);
+        assert (layer >= 0 && layer < OGRE_MAX_TEXTURE_COORD_SETS);
         assert (x != 0 && y != 0);
 
         mTileX[layer] = x;
@@ -97,7 +98,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelGuiElement::getRenderOperation(RenderOperation& rend)
     {
+
         rend = mRenderOp;
+
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setMaterialName(const String& matName)
@@ -129,11 +132,11 @@ namespace Ogre {
     void PanelGuiElement::updatePositionGeometry(void)
     {
         /*
-            3-----2
+            0-----2
             |    /|
             |  /  |
             |/    |
-            0-----1
+            1-----3
         */
         Real left, right, top, bottom;
 
@@ -149,19 +152,19 @@ namespace Ogre {
         
         // Use -1 for Z position, furthest forward in homogenous clip space
         *pPos++ = left;
-        *pPos++ = bottom;
-        *pPos++ = -1;
-
-        *pPos++ = right;
-        *pPos++ = bottom;
-        *pPos++ = -1;
-
-        *pPos++ = right;
         *pPos++ = top;
         *pPos++ = -1;
 
         *pPos++ = left;
+        *pPos++ = bottom;
+        *pPos++ = -1;
+
+        *pPos++ = right;
         *pPos++ = top;
+        *pPos++ = -1;
+
+        *pPos++ = right;
+        *pPos++ = bottom;
         *pPos++ = -1;
     }
     //---------------------------------------------------------------------
@@ -171,6 +174,7 @@ namespace Ogre {
         if (mpMaterial)
         {
             ushort numLayers = mpMaterial->getNumTextureLayers();
+            mRenderOp.numTextureCoordSets = numLayers;
             for (ushort i = 0; i < numLayers; ++i)
             {
                 // Allocate if necessary
@@ -182,25 +186,27 @@ namespace Ogre {
                 Real upperX = 1.0f / mTileX[i];
                 Real upperY = 1.0f / mTileY[i];
                 /*
-                    3-----2
+                    0-----2
                     |    /|
                     |  /  |
                     |/    |
-                    0-----1
+                    1-----3
                 */
                 Real* pTex = mRenderOp.pTexCoords[i];
 
                 *pTex++ = 0.0f;
-                *pTex++ = 0.0f;
+                *pTex++ = upperY;
 
-                *pTex++ = upperX;
+                *pTex++ = 0.0f;
                 *pTex++ = 0.0f;
 
                 *pTex++ = upperX;
                 *pTex++ = upperY;
 
+                *pTex++ = upperX;
                 *pTex++ = 0.0f;
-                *pTex++ = upperY;
+
+
             }
         }
     }

@@ -127,6 +127,7 @@ namespace Ogre {
     {
         mScrollX = x;
         mScrollY = y;
+        mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real Overlay::getScrollX(void)
@@ -143,11 +144,13 @@ namespace Ogre {
     {
         mScrollX += xoff;
         mScrollY += yoff;
+        mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
     void Overlay::setRotate(Real degrees)
     {
         mRotate = degrees;
+        mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real Overlay::getRotate(void)
@@ -157,13 +160,14 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Overlay::rotate(Real degrees)
     {
-        mRotate += degrees;
+        setRotate(mRotate += degrees);
     }
     //---------------------------------------------------------------------
     void Overlay::setScale(Real x, Real y)
     {
         mScaleX = x;
         mScaleY = y;
+        mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
     Real Overlay::getScaleX(void)
@@ -198,6 +202,8 @@ namespace Ogre {
         iend = m2DElements.end();
         for (i = m2DElements.begin(); i != iend; ++i)
         {
+            (*i)->_update();
+
             (*i)->_updateRenderQueue(queue);
         }
        
@@ -218,6 +224,7 @@ namespace Ogre {
         scale3x3[1][1] = mScaleY;
         scale3x3[2][2] = 1.0f;
 
+        mTransform = Matrix4::IDENTITY;
         mTransform = rot3x3 * scale3x3;
         mTransform.setTrans(Vector3(mScrollX, mScrollY, 0));
 

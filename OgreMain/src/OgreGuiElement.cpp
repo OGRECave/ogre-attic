@@ -140,6 +140,10 @@ namespace Ogre {
         mpMaterial = (Material*)MaterialManager::getSingleton().getByName(matName);
         assert(mpMaterial);
         mpMaterial->load();
+        // Set some prerequisites to be sure
+        mpMaterial->setLightingEnabled(false);
+        mpMaterial->setDepthCheckEnabled(false);
+
     }
     //---------------------------------------------------------------------
     Material* GuiElement::getMaterial(void) const
@@ -173,7 +177,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GuiElement::_updateFromParent(void)
     {
-        if (!mParent)
+        if (mParent)
         {
             mDerivedLeft = mParent->_getDerivedLeft() + mLeft;
             mDerivedTop = mParent->_getDerivedTop() + mTop;
