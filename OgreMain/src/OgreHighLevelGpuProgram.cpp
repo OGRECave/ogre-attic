@@ -71,9 +71,13 @@ namespace Ogre
     GpuProgramParametersSharedPtr HighLevelGpuProgram::createParameters(void)
     {
         // Make sure param defs are loaded
-        loadHighLevelImpl();
         GpuProgramParametersSharedPtr params = GpuProgramManager::getSingleton().createParameters();
-        populateParameterNames(params);
+		// Only populate named parameters if we can support this program
+		if (this->isSupported())
+		{
+			loadHighLevelImpl();
+			populateParameterNames(params);
+		}
         return params;
     }
     //---------------------------------------------------------------------------

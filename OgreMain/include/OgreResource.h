@@ -97,7 +97,7 @@ namespace Ogre {
 
         /** 'Touches' the resource to indicate it has been used.
         */
-        void touch(void) 
+        virtual void touch(void) 
         { 
             mLastAccess = time(NULL); 
             if (!mIsLoaded) load();
