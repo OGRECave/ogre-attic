@@ -77,6 +77,12 @@ Node * OctreeNode::removeChild( unsigned short index )
     on -> _removeNodeAndChildren(); 
     return on; 
 }
+Node * OctreeNode::removeChild( Node* child )
+{
+    OctreeNode *on = static_cast<OctreeNode* >( SceneNode::removeChild( child ) );
+    on -> _removeNodeAndChildren(); 
+    return on; 
+}
     
 Node * OctreeNode::removeChild( const String & name )
 {
@@ -84,7 +90,6 @@ Node * OctreeNode::removeChild( const String & name )
     on -> _removeNodeAndChildren( ); 
     return on; 
 }
-
 
 //same as SceneNode, only it doesn't care about children...
 void OctreeNode::_updateBounds( void )

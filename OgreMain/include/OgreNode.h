@@ -424,6 +424,7 @@ namespace Ogre {
         virtual Node* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
         /** Adds a (precreated) child scene node to this node.
+        @param child The Node which is to become a child node of this one
         */
         virtual void addChild(Node* child);
 
@@ -461,6 +462,14 @@ namespace Ogre {
             child from this node.
         */
         virtual Node* removeChild(unsigned short index);
+        /** Drops the specified child from this node. 
+        @remarks
+        Does not delete the node, just detaches it from
+        this parent, potentially to be reattached elsewhere. 
+        There is also an alternate version which drops a named
+        child from this node.
+        */
+        virtual Node* removeChild(Node* child);
 
         /** Drops the named child from this node. 
         @remarks
