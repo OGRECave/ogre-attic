@@ -596,8 +596,7 @@ namespace Ogre {
 
 		for(unsigned int i = 0; i < dwElements; i++ ) 
 		{
-			keyChanged( didod[ i ].dwOfs, (bool) (didod[ i ].dwData & 0x80));
-
+			keyChanged( didod[ i ].dwOfs, (didod[ i ].dwData & 0x80) != 0);
 		}
 		return true;
 	}

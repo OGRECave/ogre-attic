@@ -40,7 +40,7 @@ namespace Ogre {
             @param errorMessage The error message which has caused the failure.
             @param logName Optional name of the log to display in the detail pane.
         */
-        void display(String errorMessage, String logName = "");
+        void display(const String& errorMessage, String logName = "");
 
     protected:
         String mErrorMsg;

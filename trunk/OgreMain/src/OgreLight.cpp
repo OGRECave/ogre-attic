@@ -50,7 +50,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    Light::Light(String name)
+    Light::Light(const String& name)
     {
         mName = name;
 

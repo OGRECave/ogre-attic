@@ -167,9 +167,8 @@ namespace Ogre {
     String DataChunk::getLine(bool trimAfter)
     {
         static char buf[512]; // prevent continuous allocation / deallocation - not thread safe!
-        int count;
 
-        count = readUpTo(buf, 511);
+        size_t count = readUpTo(buf, 511);
         buf[count] = '\0';
         String ret = buf;
         if (trimAfter)

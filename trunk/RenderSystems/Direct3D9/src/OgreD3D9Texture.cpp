@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre 
 {
 	/****************************************************************************************/
-	D3D9Texture::D3D9Texture( String name, TextureType texType, IDirect3DDevice9 *pD3DDevice, TextureUsage usage )
+	D3D9Texture::D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, TextureUsage usage )
 	{
 		// normal constructor
 		this->_initMembers();
@@ -51,7 +51,7 @@ namespace Ogre
 			_constructCubeFaceNames(mName);
 	}
 	/****************************************************************************************/
-	D3D9Texture::D3D9Texture( String name, TextureType texType, IDirect3DDevice9 *pD3DDevice, uint width, uint height, uint numMips, PixelFormat format, TextureUsage usage )
+	D3D9Texture::D3D9Texture( const String& name, TextureType texType, IDirect3DDevice9 *pD3DDevice, uint width, uint height, uint numMips, PixelFormat format, TextureUsage usage )
 	{
 		// this constructor is mainly used for RTT
 		this->_initMembers();
@@ -587,7 +587,7 @@ namespace Ogre
 		SAFE_RELEASE(pSrf);
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_constructCubeFaceNames(const String name)
+	void D3D9Texture::_constructCubeFaceNames(const String& name)
 	{
 		// the suffixes
 		String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};

@@ -46,7 +46,7 @@ namespace Ogre {
 		destroy();
     }
 
-    void Win32Window::create(String name, int width, int height, int colourDepth,
+    void Win32Window::create(const String& name, int width, int height, int colourDepth,
                            bool fullScreen, int left, int top, bool depthBuffer,
                            void* miscParam, ...)
     {
@@ -70,7 +70,7 @@ namespace Ogre {
 			parentHWnd = parentRW->getWindowHandle();
 
 		tempPtr = va_arg( marker, long );
-		bool vsync = static_cast<bool>(tempPtr);
+		bool vsync = (tempPtr != 0);
 
 		tempPtr = va_arg( marker, long );
 		int displayFrequency = static_cast<int>(tempPtr);
@@ -308,7 +308,7 @@ namespace Ogre {
 			Except(
 			Exception::ERR_INVALIDPARAMS, 
 			"Unable to determine image type for '" + filename + "' - invalid extension.",
-			"D3D8RenderWindow::writeContentsToFile" );
+			"Win32Window::writeContentsToFile" );
 
 		while( pos != filename.length() - 1 )
 			extension += filename[++pos];

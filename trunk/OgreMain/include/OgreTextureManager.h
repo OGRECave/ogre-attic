@@ -125,7 +125,7 @@ namespace Ogre {
 
         /** Manually unloads a texture from the loaded set.
         */
-        virtual void unload(String filename);
+        virtual void unload(const String& filename);
 
         /** Enables / disables 32-bit textures.
         */

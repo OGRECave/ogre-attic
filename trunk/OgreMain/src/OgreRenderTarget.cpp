@@ -305,7 +305,7 @@ namespace Ogre {
 
     }
 
-    void RenderTarget::getCustomAttribute(String name, void* pData)
+    void RenderTarget::getCustomAttribute(const String& name, void* pData)
     {
         Except(Exception::ERR_INVALIDPARAMS, "Attribute not found.", "RenderTarget::getCustomAttribute");
     }

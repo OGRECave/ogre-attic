@@ -37,7 +37,7 @@ namespace Ogre
 		D3D9RenderWindow();
 		~D3D9RenderWindow();
 
-		void create( String name, int width, int height, int colourDepth,
+		void create( const String& name, int width, int height, int colourDepth,
 			bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ... );
 
 		void destroy(void);
@@ -53,7 +53,7 @@ namespace Ogre
 		LPDIRECT3DDEVICE9 getD3DDevice() { return mpD3DDevice; }
 
 		void outputText( int x, int ty, const String& text );
-		void getCustomAttribute( String name, void* pData );
+		void getCustomAttribute( const String& name, void* pData );
 		/** Overridden - see RenderTarget.
 		*/
 		void writeContentsToFile(const String& filename);

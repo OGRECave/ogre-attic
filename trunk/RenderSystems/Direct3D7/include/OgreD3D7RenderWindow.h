@@ -64,7 +64,7 @@ namespace Ogre {
                 window). Supply 0 to make the window a top-level window.
         */
         void create(
-            String name, 
+            const String& name, 
             int width, int height, int colourDepth,
             bool fullScreen, 
             int left, int top, 
@@ -139,7 +139,7 @@ namespace Ogre {
 
         /** Overridden - see RenderTarget.
         */
-        void getCustomAttribute(String name, void* pData);
+        void getCustomAttribute(const String& name, void* pData);
 
         /** Overridden - see RenderTarget.
         */

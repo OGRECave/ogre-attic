@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace OgreRefApp {
 
     //-----------------------------------------------------------------------
-    CollideCamera::CollideCamera(String name): ApplicationObject(name) 
+    CollideCamera::CollideCamera(const String& name): ApplicationObject(name) 
     {
         setUp(name);
         

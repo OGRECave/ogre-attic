@@ -493,7 +493,7 @@ namespace Ogre
 			This method allows you to load plugins in code.
 		@param pluginName Name of the plugin library to load
 		*/
-		void loadPlugin(String pluginName);
+		void loadPlugin(const String& pluginName);
 
 		/** Manually unloads a plugin.
 		 @remarks
@@ -502,7 +502,7 @@ namespace Ogre
 			make sure their dependencies are decoupled frist.
 		@param pluginName Name of the plugin library to unload
 		*/
-		void unloadPlugin(String pluginName);
+		void unloadPlugin(const String& pluginName);
 
         /** Gets a pointer to the central timer used for all OGRE timings */
         Timer* getTimer(void);

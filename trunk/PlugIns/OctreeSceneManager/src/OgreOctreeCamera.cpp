@@ -35,7 +35,7 @@ unsigned short OctreeCamera::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,       //b
 
 unsigned long OctreeCamera::mColors[ 8 ] = {red, red, red, red, red, red, red, red};
 
-OctreeCamera::OctreeCamera( String name, SceneManager* sm ) : Camera( name, sm )
+OctreeCamera::OctreeCamera( const String& name, SceneManager* sm ) : Camera( name, sm )
 {
     mMaterial = sm->getMaterial("BaseWhite");
 

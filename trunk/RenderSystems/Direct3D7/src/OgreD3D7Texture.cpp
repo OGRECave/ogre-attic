@@ -213,7 +213,7 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------------------------------
-    D3DTexture::D3DTexture(String name, TextureType texType, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
+    D3DTexture::D3DTexture(const String& name, TextureType texType, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
     {
         mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
 
@@ -226,7 +226,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------------------------------
     D3DTexture::D3DTexture( 
-        String name, 
+        const String& name, 
 		TextureType texType, 
         IDirect3DDevice7 * lpDirect3dDevice, 
         uint width, 

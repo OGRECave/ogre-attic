@@ -171,7 +171,7 @@ namespace Ogre
 			return false;
 	}
 
-	void D3D9RenderWindow::create( String name, int width, int height, int colourDepth, 
+	void D3D9RenderWindow::create( const String& name, int width, int height, int colourDepth, 
 		bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ... )
 	{
 		HWND parentHWnd;
@@ -424,7 +424,7 @@ namespace Ogre
 		}
 	}
 
-	void D3D9RenderWindow::getCustomAttribute( String name, void* pData )
+	void D3D9RenderWindow::getCustomAttribute( const String& name, void* pData )
 	{
 		// Valid attributes and their equvalent native functions:
 		// D3DDEVICE			: getD3DDevice

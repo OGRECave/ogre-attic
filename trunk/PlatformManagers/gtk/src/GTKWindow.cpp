@@ -73,7 +73,7 @@ OGREWidget* GTKWindow::get_ogre_widget()
     return ogre;
 }
 
-void GTKWindow::create(String name, int width, int height, int colourDepth, 
+void GTKWindow::create(const String& name, int width, int height, int colourDepth, 
                        bool fullScreen, int left, int top, bool depthBuffer, 
                        void* miscParam, ...)
 {

@@ -209,7 +209,7 @@ namespace Ogre {
             @param
                 pData Pointer to memory of the right kind of structure to receive the info.
         */
-        virtual void getCustomAttribute(String name, void* pData);
+        virtual void getCustomAttribute(const String& name, void* pData);
 
         /** Adds debug text to this window. */
         virtual void setDebugText(const String& text);

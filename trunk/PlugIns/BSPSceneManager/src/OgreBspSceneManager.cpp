@@ -372,7 +372,7 @@ namespace Ogre {
         // Offset the indexes here
         // we have to do this now rather than up-front because the 
         // indexes are sometimes reused to address different vertex chunks
-        for (int elem = 0; elem < numIdx; ++elem)
+        for (size_t elem = 0; elem < numIdx; ++elem)
         {
             *pIndexes++ = *pSrc++ + vertexStart;
         }

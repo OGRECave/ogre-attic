@@ -59,7 +59,7 @@ namespace Ogre {
 
     }
 
-    void SDLWindow::create(String name, int width, int height, int colourDepth,
+    void SDLWindow::create(const String& name, int width, int height, int colourDepth,
                            bool fullScreen, int left, int top, bool depthBuffer,
                            void* miscParam, ...)
     {

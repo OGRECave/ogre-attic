@@ -33,7 +33,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    Quake3Shader::Quake3Shader(String name)
+    Quake3Shader::Quake3Shader(const String& name)
     {
         mName = name;
         numPasses = 0;
@@ -258,7 +258,7 @@ namespace Ogre {
         mat->setLightingEnabled(false);
         return mat;
     }
-    String Quake3Shader::getAlternateName(String texName)
+    String Quake3Shader::getAlternateName(const String& texName)
     {
         // Get alternative JPG to TGA and vice versa
         size_t pos;

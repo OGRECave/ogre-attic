@@ -108,7 +108,7 @@ namespace Ogre {
         return tex;
 	}
     //-----------------------------------------------------------------------
-    void TextureManager::unload( String filename )
+    void TextureManager::unload( const String& filename )
     {
         Resource* res = getByName( filename );
         ResourceManager::unload( res );

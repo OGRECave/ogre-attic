@@ -38,7 +38,7 @@ public:
     GTKError()
     { }
 
-    void display(String errorMessage, String logName = "")
+    void display(const String& errorMessage, String logName = "")
     {
         Gtk::MessageDialog dlg(errorMessage, Gtk::MESSAGE_ERROR);
         dlg.run();

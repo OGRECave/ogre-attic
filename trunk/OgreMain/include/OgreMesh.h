@@ -86,7 +86,7 @@ namespace Ogre {
             @warning
                 Do not call this method directly.
         */
-        Mesh(String name);
+        Mesh(const String& name);
         ~Mesh();
 
         /** Generic load - called by MeshManager.
@@ -159,7 +159,7 @@ namespace Ogre {
                 This is useful if you want to tweak an existing mesh without affecting the original one. The
                 newly cloned mesh is registered with the MeshManager under the new name.
         */
-        Mesh* clone(String newName);
+        Mesh* clone(const String& newName);
 
         /** Get the axis-aligned bounding box for this mesh.
         */
