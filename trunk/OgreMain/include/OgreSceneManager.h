@@ -206,7 +206,7 @@ namespace Ogre {
         /** Creates a camera to be managed by this scene manager.
             @remarks
                 This camera must be added to the scene at a later time using
-                the attachCamera method of the SceneNode class.
+                the attachObject method of the SceneNode class.
             @param
                 name Name to give the new camera.
         */

@@ -210,6 +210,10 @@ namespace Ogre {
         inline void genVertOffsets(Real inleft, Real inright, Real intop, Real inbottom,
             Real width, Real height,
             const Vector3& x, const Vector3& y, Vector3* pDestVec);
+
+        /// Shared class-level name for Movable type
+        static String msMovableType;
+
     public:
 
         /** Usual constructor - this is called by the SceneManager.
@@ -490,6 +494,14 @@ namespace Ogre {
 
         /** Gets the common direction for all billboards (BBT_ORIENTED_COMMON) */
         virtual Vector3 getCommonDirection(void);
+
+        /** Overridden from MovableObject */
+        String getName(void);
+
+        /** Overridden from MovableObject */
+        String getMovableType(void);
+
+
     };
 
 }

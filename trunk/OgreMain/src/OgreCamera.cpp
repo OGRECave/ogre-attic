@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+    String Camera::msMovableType = "Camera";
     //-----------------------------------------------------------------------
     Camera::Camera(String name, SceneManager* sm)
     {
@@ -62,7 +63,7 @@ namespace Ogre {
         mViewMatrix = Matrix4::ZERO;
         mProjMatrix = Matrix4::ZERO;
 
-        mSceneNode = 0;
+        mParentNode = 0;
 
         // Record name & SceneManager
         mName = name;
@@ -79,31 +80,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Camera::isAttached(void) const
-    {
-        return (mSceneNode != 0);
-    }
-
-    //-----------------------------------------------------------------------
-    SceneNode* Camera::getAttachedSceneNode(void) const
-    {
-        return mSceneNode;
-    }
-
-    //-----------------------------------------------------------------------
     SceneManager* Camera::getSceneManager(void) const
     {
         return mSceneMgr;
     }
-
-    //-----------------------------------------------------------------------
-    void Camera::_notifyAttached(SceneNode* attachedTo)
-    {
-        assert(mSceneNode == 0 || "Camera already attached to a node!");
-
-        mSceneNode = attachedTo;
-    }
-
     //-----------------------------------------------------------------------
     const String& Camera::getName(void) const
     {
@@ -602,18 +582,18 @@ namespace Ogre {
     bool Camera::isViewOutOfDate(void)
     {
         // Attached to node?
-        if (mSceneNode != 0)
+        if (mParentNode != 0)
         {
-            if (mSceneNode->_getDerivedOrientation() == mLastParentOrientation &&
-                mSceneNode->_getDerivedPosition() == mLastParentPosition)
+            if (mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
+                mParentNode->_getDerivedPosition() == mLastParentPosition)
             {
                 return false;
             }
             else
             {
                 // Ok, we're out of date with SceneNode we're attached to
-                mLastParentOrientation = mSceneNode->_getDerivedOrientation();
-                mLastParentPosition = mSceneNode->_getDerivedPosition();
+                mLastParentOrientation = mParentNode->_getDerivedOrientation();
+                mLastParentPosition = mParentNode->_getDerivedPosition();
                 mDerivedOrientation = mLastParentOrientation * mOrientation;
                 mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
                 return true;
@@ -814,4 +794,32 @@ namespace Ogre {
         updateView();
         return mDerivedOrientation * -Vector3::UNIT_Z;
     }
+    //-----------------------------------------------------------------------
+    void Camera::_notifyCurrentCamera(Camera* cam)
+    {
+        // Do nothing
+    }
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& Camera::getBoundingBox(void) const
+    {
+        // Null, cameras are not visible
+        static AxisAlignedBox box;
+        return box;
+    }
+    //-----------------------------------------------------------------------
+    void Camera::_updateRenderQueue(RenderQueue* queue)
+    {
+        // Do nothing
+    }
+    //-----------------------------------------------------------------------
+    String Camera::getName(void)
+    {
+        return mName;
+    }
+    //-----------------------------------------------------------------------
+    String Camera::getMovableType(void)
+    {
+        return msMovableType;
+    }
+
 } // namespace Ogre

@@ -42,9 +42,18 @@ namespace Ogre {
     class _OgreExport MovableObject
     {
     public:
+        /// Constructor
+        MovableObject();
+
         /** Virtual destructor - read Scott Meyers if you don't know why this is needed.
         */
         virtual ~MovableObject() {}
+
+        /** Returns the name of this object. */
+        virtual String getName(void) = 0;
+
+        /** Returns the type name of this object. */
+        virtual String getMovableType(void) = 0;
 
         /** Returns the node to which this object is attached.
             @remarks
@@ -57,6 +66,9 @@ namespace Ogre {
         /** Internal method called to notify the object that it has been attached to a node.
         */
         virtual void _notifyAttached(SceneNode* parent);
+
+        /** Returns true if this object is attached to a SceneNode. */
+        virtual bool isAttached(void) const;
 
         /** Internal method to notify the object of the camera to be used for the next rendering operation.
             @remarks

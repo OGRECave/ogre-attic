@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSceneManager.h"
 
 namespace Ogre {
+    String Entity::msMovableType = "Entity";
     //-----------------------------------------------------------------------
     Entity::Entity ()
     {
@@ -159,4 +160,15 @@ namespace Ogre {
     {
         return &mAnimationState;
     }
+    //-----------------------------------------------------------------------
+    String Entity::getName(void)
+    {
+        return mName;
+    }
+    //-----------------------------------------------------------------------
+    String Entity::getMovableType(void)
+    {
+        return msMovableType;
+    }
+
 }

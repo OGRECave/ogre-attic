@@ -4,6 +4,9 @@
 
 namespace Ogre {
 
+    int SimpleRenderable::msGenNameCount = 0;
+    String SimpleRenderable::msMovableType = "SimpleRenderable";
+
     // These are to quickly set the RO's properties
     RenderOperation& SimpleRenderable::getRO()
     {
@@ -133,4 +136,15 @@ namespace Ogre {
         if( m_pSpecularCache )
             delete[] m_pSpecularCache;
     }
+    //-----------------------------------------------------------------------
+    String SimpleRenderable::getName(void)
+    {
+        return mName;
+    }
+    //-----------------------------------------------------------------------
+    String SimpleRenderable::getMovableType(void)
+    {
+        return msMovableType;
+    }
+
 }

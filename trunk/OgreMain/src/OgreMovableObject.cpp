@@ -28,6 +28,11 @@ http://www.gnu.org/copyleft/gpl.html.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
+    MovableObject::MovableObject()
+    {
+        mParentNode = 0;
+    }
+    //-----------------------------------------------------------------------
     void MovableObject::_notifyAttached(SceneNode* parent)
     {
         mParentNode = parent;
@@ -37,6 +42,13 @@ namespace Ogre {
     {
         return mParentNode;
     }
+    //-----------------------------------------------------------------------
+    bool MovableObject::isAttached(void) const
+    {
+        return (mParentNode != 0);
+
+    }
+
 
 
 

@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreSceneNode.h"
 
 namespace Ogre {
+    String Light::msMovableType = "Light";
+
     //-----------------------------------------------------------------------
     Light::Light()
     {
@@ -39,8 +41,6 @@ namespace Ogre {
         mAttenuationConst = 1.0f;
         mAttenuationLinear = 0.0f;
         mAttenuationQuad = 0.0f;
-        // Not attached
-        mSceneNode = 0;
 
         // Center in world, direction irrelevant but set anyway
         mWorldPos = Vector3::ZERO;
@@ -62,8 +62,6 @@ namespace Ogre {
         mAttenuationConst = 1.0f;
         mAttenuationLinear = 0.0f;
         mAttenuationQuad = 0.0f;
-        // Not attached
-        mSceneNode = 0;
 
         // Center in world, direction irrelevant but set anyway
         mWorldPos = Vector3::ZERO;
@@ -232,13 +230,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Light::isModified(void)
     {
-        if (mSceneNode)
+        if (mParentNode)
         {
             Vector3 pos, direction;
 
-            pos = mSceneNode->_getDerivedPosition();
+            pos = mParentNode->_getDerivedPosition();
 
-            direction = mSceneNode->_getDerivedOrientation() * Vector3::UNIT_Z;
+            direction = mParentNode->_getDerivedOrientation() * Vector3::UNIT_Z;
 
             // Update if required - this will set modified flag
             if (pos != mWorldPos)
@@ -256,11 +254,26 @@ namespace Ogre {
         mModified = false;
     }
     //-----------------------------------------------------------------------
-    void Light::_notifyAttached(SceneNode* attachedTo)
+    void Light::_notifyCurrentCamera(Camera* cam)
     {
-        assert(mSceneNode == 0 || "Light already attached to a node!");
-
-        mSceneNode = attachedTo;
+        // Do nothing
+    }
+    //-----------------------------------------------------------------------
+    const AxisAlignedBox& Light::getBoundingBox(void) const
+    {
+        // Null, lights are not visible
+        static AxisAlignedBox box;
+        return box;
+    }
+    //-----------------------------------------------------------------------
+    void Light::_updateRenderQueue(RenderQueue* queue)
+    {
+        // Do nothing
+    }
+    //-----------------------------------------------------------------------
+    String Light::getMovableType(void)
+    {
+        return msMovableType;
     }
 
 

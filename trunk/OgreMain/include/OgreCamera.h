@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 
 #include "OgreString.h"
+#include "OgreMovableObject.h"
 
 // Matrices & Vectors
 #include "OgreMatrix4.h"
@@ -93,12 +94,12 @@ namespace Ogre {
             aspect ratio as the camera to avoid distortion (unless you want it!).
         @par
             Note that a Camera can be attached to a SceneNode, using the method
-            SceneNode::attachCamera. If this is done the Camera will combine it's own
+            SceneNode::attachObject. If this is done the Camera will combine it's own
             position/orientation settings with it's parent SceneNode. 
             This is useful for implementing more complex Camera / object
             relationships i.e. having a camera attached to a world object.
     */
-    class _OgreExport Camera
+    class _OgreExport Camera : public MovableObject
     {
     protected:
         /// Camera name
@@ -151,9 +152,6 @@ namespace Ogre {
         /// Something re the view pos has changed
         bool mRecalcView;
 
-        /// Poniter to scene node attached to
-        SceneNode* mSceneNode;
-
         /** Temp coefficient values calculated from a frustum change,
             used when establishing the frustum planes when the view changes
         */
@@ -169,6 +167,9 @@ namespace Ogre {
         /// Stored number of visible faces in the last render
         unsigned int mVisFacesLastRender;
 
+        /// Shared class-level name for Movable type
+        static String msMovableType;
+
     public:
         /** Standard constructor.
         */
@@ -178,23 +179,10 @@ namespace Ogre {
         */
         virtual ~Camera();
 
-        /** Returns true if this Camera is attached to a SceneNode, and thus may have its
-            transformations altered by the node.
-        */
-        bool isAttached(void) const;
 
         /** Returns a pointer to the SceneManager this camera is rendering through.
         */
         SceneManager* getSceneManager(void) const;
-
-        /** Returns a pointer to the SceneNode to which this Camera is attached, if any.
-        */
-        SceneNode* getAttachedSceneNode(void) const;
-
-        /** Internal method for notification of attachments. Not to be used by outside programs.
-        */
-        void _notifyAttached( SceneNode* attachedTo );
-
 
         /** Gets the camera's name.
         */
@@ -473,6 +461,23 @@ namespace Ogre {
         /** Gets the derived direction vector of the camera, including any 
             translation inherited from a node attachment. */
         Vector3 getDerivedDirection(void);
+
+        /** Overridden from MovableObject */
+        void _notifyCurrentCamera(Camera* cam);
+
+        /** Overridden from MovableObject */
+        const AxisAlignedBox& getBoundingBox(void) const;
+
+        /** Overridden from MovableObject */
+        void _updateRenderQueue(RenderQueue* queue);
+
+        /** Overridden from MovableObject */
+        String getName(void);
+
+        /** Overridden from MovableObject */
+        String getMovableType(void);
+
+
     };
 
 } // namespace Ogre
