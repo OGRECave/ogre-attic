@@ -1961,9 +1961,7 @@ namespace Ogre {
 
             GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
 
-            glDrawRangeElements(primType, op.indexData->indexStart, 
-                op.indexData->indexStart + op.indexData->indexCount - 1,
-                op.indexData->indexCount, indexType, pBufferData);
+            glDrawElements(primType, op.indexData->indexCount, indexType, pBufferData);
 
         }
         else
