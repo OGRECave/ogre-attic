@@ -470,11 +470,11 @@ namespace Ogre {
         }
 
         // Log original index data
-        for(i = 0; i < mIndexDataList.size(); ++i)
+        for(i = 0; i < mIndexDataList.size(); i += 3)
         {
             const IndexData* iData = mIndexDataList[i];
             l->logMessage(".");
-            l->logMessage("Original index set " + 
+            l->logMessage("Original triangle set " + 
                 StringConverter::toString(i) + " - index count " + 
                 StringConverter::toString(iData->indexCount) + " - " + 
             "vertex set " + StringConverter::toString(mIndexDataVertexDataSetList[i]));
@@ -497,7 +497,7 @@ namespace Ogre {
             {
                 if (iData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
                 {
-                    l->logMessage("Index " + StringConverter::toString(j) + 
+                    l->logMessage("Triangle " + StringConverter::toString(j) + 
                         ": (" + StringConverter::toString(*p32Idx++) + 
                         ", " + StringConverter::toString(*p32Idx++) + 
                         ", " + StringConverter::toString(*p32Idx++) + ")");
