@@ -427,11 +427,7 @@ namespace Ogre {
 	    bool useUVW;
         String uvOpt = params[numParams-1].toLowerCase();
 	    if (uvOpt == "combineduvw")
-		{
-		    LogManager::getSingleton().logMessage("Material " + pMat->getName() +
-			    ", 'cubic_texture' with 'combinedUVW' is not yet supported.");
 		    useUVW = true;
-		}
 	    else if (uvOpt == "separateuv")
 		    useUVW = false;
 	    else
@@ -793,15 +789,16 @@ namespace Ogre {
 	    if (params[1]=="off")
 		    pTex->setEnvironmentMap(false);
 	    else if (params[1]=="spherical")
-		    pTex->setEnvironmentMap(true, false);
+		    pTex->setEnvironmentMap(true, Material::TextureLayer::ENV_CURVED);
 	    else if (params[1]=="planar")
-		    pTex->setEnvironmentMap(true, true);
-	    else if (params[1]=="cubic")
-		    LogManager::getSingleton().logMessage("Material " + pMat->getName() +
-			    ", 'env_map cubic' is not yet supported.");
+		    pTex->setEnvironmentMap(true, Material::TextureLayer::ENV_PLANAR);
+	    else if (params[1]=="cubic_reflection")
+		    pTex->setEnvironmentMap(true, Material::TextureLayer::ENV_REFLECTION);
+	    else if (params[1]=="cubic_normal")
+		    pTex->setEnvironmentMap(true, Material::TextureLayer::ENV_NORMAL);
 	    else
 		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
-			    + pMat->getName() + ", valid parameters are 'off', 'spherical', 'planar' and 'cubic'.");
+			    + pMat->getName() + ", valid parameters are 'off', 'spherical', 'planar', 'cubic_reflection' and 'cubic_normal'.");
 
     }
     //-----------------------------------------------------------------------

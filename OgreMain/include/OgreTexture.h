@@ -32,10 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    /** Enum identifying the texture usage
+    */
     enum TextureUsage
     {
-        TU_DEFAULT = 0x0,
-        TU_RENDERTARGET = 0x1
+        TU_DEFAULT = 0x0, /// default usage
+        TU_RENDERTARGET = 0x1 /// this texture will be a render target, ie. used as a target for render to texture
     };
 
     /** Enum identifying the texture type
@@ -101,6 +103,8 @@ namespace Ogre {
         */
         std::pair< uint, uint > getDimensions() { return std::pair< uint, uint >( mWidth, mHeight ); }
 
+        /** Returns the TextureUsage indentifier for this Texture
+        */
         TextureUsage getUsage() const
         {
             return mUsage;

@@ -103,7 +103,11 @@ namespace Ogre {
                 /// Envmap based on vector from camera to vertex position, good for planar geometry
                 ENV_PLANAR,
                 /// Envmap based on dot of vector from camera to vertex and vertex normal, good for curves
-                ENV_CURVED
+                ENV_CURVED,
+                /// Envmap entended to supply reflection vectors for cube mapping
+                ENV_REFLECTION,
+                /// Envmap entended to supply normal vectors for cube mapping
+                ENV_NORMAL,
             };
 
             /** Useful enumeration when dealing with procedural transforms.
@@ -655,7 +659,7 @@ namespace Ogre {
                     planar If set to true, instead of being based on normals the environment effect is based on
                     vertex positions. This is good for planar surfaces.
             */
-            void setEnvironmentMap(bool enable, bool planar = false);
+            void setEnvironmentMap(bool enable, EnvMapType envMapType = ENV_CURVED);
 
             /** Sets up an animated scroll for the texture layer.
                 @note
