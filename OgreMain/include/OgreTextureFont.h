@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 
+#include "OgreString.h"
+
 // Hack to avoid needing to include the freetype
 // headers in every client build
 struct FT_LibraryRec_;
