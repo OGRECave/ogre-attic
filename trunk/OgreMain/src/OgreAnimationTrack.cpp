@@ -283,8 +283,10 @@ namespace Ogre {
         mMainWindow->setDebugText(msg);
         */
 
-        node->rotate(kf.getRotation() * weight);
-        node->translate(kf.getTranslate() * weight);
+        //node->rotate(kf.getRotation() * weight);
+        //node->translate(kf.getTranslate() * weight);
+
+        node->_weightedTransform(weight, kf.getTranslate(), kf.getRotation());
 
 
 
