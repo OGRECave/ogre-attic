@@ -174,6 +174,8 @@ namespace Ogre {
 
         /// Initialise the creation of these vertex programs
         static void initialise(void);
+        /// Shutdown & destroy the vertex programs
+        static void shutdown(void);
         /// Get extruder program source for point lights, compatible with arbvp1
         static const String& getPointLightExtruderArbvp1(void) { return mPointArbvp1; }
         /// Get extruder program source for point lights, compatible with vs_1_1
