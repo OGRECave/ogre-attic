@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __RenderQueueListener_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreRenderQueue.h"
 
 namespace Ogre {
 
