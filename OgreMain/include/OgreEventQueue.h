@@ -63,7 +63,9 @@ namespace Ogre {
 		 * Turn the queue on so it can pop and push InputEvents
 		 */
 		void activateEventQueue(bool set);
-		int getSize();
+
+        /* Adrian Cearnau - modified the return type from int to size_t and made the method const. */
+		size_t getSize() const;
 
     };
 

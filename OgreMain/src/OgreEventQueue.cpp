@@ -78,10 +78,9 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	int EventQueue::getSize()
+	size_t EventQueue::getSize() const
 	{
 		return mEventQueue.size();
-
 	}
 
 }
