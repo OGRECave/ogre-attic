@@ -54,6 +54,7 @@ namespace Ogre {
         sprintf(temp, "Unnamed_%lu", msNextGeneratedNameExt++);
         mName = temp;
         mAccumAnimWeight = 0.0f;
+        mCachedTransformOutOfDate = true;
 
         needUpdate();
 
@@ -95,12 +96,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Matrix4 Node::_getFullTransform(void)
     {
-        // Use derived values 
-        Matrix4 result;
-        makeTransform( 
-            _getDerivedPosition(), _getDerivedScale(), 
-            _getDerivedOrientation(), result);
-        return result;
+        if (mCachedTransformOutOfDate)
+        {
+            // Use derived values 
+            makeTransform( 
+                _getDerivedPosition(), _getDerivedScale(), 
+                _getDerivedOrientation(), mCachedTransform);
+            mCachedTransformOutOfDate = false;
+        }
+        return mCachedTransform;
     }
     //-----------------------------------------------------------------------
     void Node::_update(bool updateChildren, bool parentHasChanged)
@@ -185,6 +189,8 @@ namespace Ogre {
             mDerivedPosition = mPosition;
             mDerivedScale = mScale;
         }
+        
+        mCachedTransformOutOfDate = true;
 
     }
     //-----------------------------------------------------------------------
