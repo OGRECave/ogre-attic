@@ -97,6 +97,7 @@ OgrePlatformManager.h \
 OgrePositionTarget.h \
 OgrePredefinedControllers.h \
 OgrePrerequisites.h \
+OgreProgressiveMesh.h \
 OgreQuaternion.h \
 OgreRenderOperation.h \
 OgreRenderQueue.h \

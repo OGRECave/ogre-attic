@@ -108,13 +108,18 @@ namespace Ogre {
         // Internal classes
         class PMTriangle;
         class PMVertex;
-		/** A vertex as used by a face. This records the index of the actual vertex which is used
+
+        public: // VC6 hack
+
+        /** A vertex as used by a face. This records the index of the actual vertex which is used
 		by the face, and a pointer to the common vertex used for surface evaluation. */
 		class PMFaceVertex {
 		public:
 			ushort realIndex;
 			PMVertex* commonVertex;
 		};
+
+        protected:
 
         /** A triangle in the progressive mesh, holds extra info like face normal. */
         class PMTriangle {
