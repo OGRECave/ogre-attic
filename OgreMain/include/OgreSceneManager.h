@@ -1156,9 +1156,13 @@ namespace Ogre {
         @param worldMatrix The transform to apply from object to world space
         @param viewMatrix The transform to apply from world to view space
         @param projMatrix The transform to apply from view to screen space
+        @param doBeginEndFrame If true, beginFrame() and endFrame() are called, 
+            otherwise not. You should leave this as false if you are calling
+            this within the main render loop.
         */
         virtual void manualRender(RenderOperation* rend, Pass* pass, Viewport* vp, 
-            const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix) ;
+            const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix, 
+            bool doBeginEndFrame = false) ;
 
         /** Creates a new Overlay.
         @remarks
