@@ -42,7 +42,7 @@ namespace Ogre {
 
     public:
         /** See ParticleEmitterFactory */
-        String getName() 
+        String getName() const
         { 
             return "Ring"; 
         }
