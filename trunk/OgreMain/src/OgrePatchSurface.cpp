@@ -264,12 +264,18 @@ namespace Ogre {
     {
         assert(factor >= 0.0f && factor <= 1.0f);
 
+        mSubdivisionFactor = factor;
         mULevel = factor * mMaxULevel;
         mVLevel = factor * mMaxVLevel;
 
         makeTriangles();
 
 
+    }
+    //-----------------------------------------------------------------------
+    Real PatchSurface::getSubdivisionFactor(void) const
+    {
+        return mSubdivisionFactor;
     }
     //-----------------------------------------------------------------------
     size_t PatchSurface::getCurrentIndexCount(void) const
