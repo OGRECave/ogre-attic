@@ -812,12 +812,7 @@ namespace Ogre {
         // Do nothing
     }
     //-----------------------------------------------------------------------
-    String Camera::getName(void)
-    {
-        return mName;
-    }
-    //-----------------------------------------------------------------------
-    String Camera::getMovableType(void)
+    const String Camera::getMovableType(void) const
     {
         return msMovableType;
     }
