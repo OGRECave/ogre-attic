@@ -154,6 +154,27 @@ namespace Ogre {
     {
         return mSphere;
     }
+
+    //-----------------------------------------------------------------------
+    PlaneBoundedVolumeListSceneQuery::PlaneBoundedVolumeListSceneQuery(SceneManager* mgr)
+        : RegionSceneQuery(mgr)
+    {
+    }
+    //-----------------------------------------------------------------------
+    PlaneBoundedVolumeListSceneQuery::~PlaneBoundedVolumeListSceneQuery()
+    {
+    }
+    //-----------------------------------------------------------------------
+    void PlaneBoundedVolumeListSceneQuery::setVolumes(const PlaneBoundedVolumeList& volumes)
+    {
+        mVolumes = volumes;
+    }
+    //-----------------------------------------------------------------------
+    const PlaneBoundedVolumeList& PlaneBoundedVolumeListSceneQuery::getVolumes() const
+    {
+        return mVolumes;
+    }
+
     //-----------------------------------------------------------------------
     RaySceneQuery::RaySceneQuery(SceneManager* mgr) : SceneQuery(mgr)
     {

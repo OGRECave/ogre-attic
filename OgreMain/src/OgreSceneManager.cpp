@@ -99,6 +99,7 @@ namespace Ogre {
         mShadowModulativePass = 0;
         mFullScreenQuad = 0;
         mShadowCasterSphereQuery = 0;
+        mShadowCasterAABBQuery = 0;
         mShadowDirLightExtrudeDist = 10000;
 
 
@@ -116,6 +117,7 @@ namespace Ogre {
         delete mSceneRoot;
         delete mFullScreenQuad;
         delete mShadowCasterSphereQuery;
+        delete mShadowCasterAABBQuery;
     }
 
     //-----------------------------------------------------------------------
@@ -2167,10 +2169,11 @@ namespace Ogre {
             }
 
             // Otherwise, object can only be casting a shadow into our view if
-            // the light is outside the frustum, and the object is intersecting
+            // the light is outside the frustum (or it's a directional light, 
+            // which are always outside), and the object is intersecting
             // on of the volumes formed between the edges of the frustum and the
             // light
-            if (!mIsLightInFrustum)
+            if (!mIsLightInFrustum || mLight->getType() == Light::LT_DIRECTIONAL)
             {
                 // Iterate over volumes
                 PlaneBoundedVolumeList::const_iterator i, iend;
@@ -2187,6 +2190,7 @@ namespace Ogre {
 
             }
         }
+        return true;
     }
 	//---------------------------------------------------------------------
     bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
@@ -2203,8 +2207,35 @@ namespace Ogre {
 
         if (light->getType() == Light::LT_DIRECTIONAL)
         {
-            // Hmm, how to efficiently locate shadow casters for an infinite light?
-            // TODO
+            // Basic AABB query encompassing the frustum and the extrusion of it
+            AxisAlignedBox aabb;
+            const Vector3* corners = camera->getWorldSpaceCorners();
+            Vector3 min, max;
+            Vector3 extrude = light->getDirection() * -mShadowDirLightExtrudeDist;
+            // do first corner
+            min = max = corners[0];
+            min.makeFloor(corners[0] + extrude);
+            max.makeCeil(corners[0] + extrude);
+            for (int c = 1; c < 8; ++c)
+            {
+                min.makeFloor(corners[c]);
+                max.makeCeil(corners[c]);
+                min.makeFloor(corners[c] + extrude);
+                max.makeCeil(corners[c] + extrude);
+            }
+            aabb.setExtents(min, max);
+
+            if (!mShadowCasterAABBQuery)
+                mShadowCasterAABBQuery = createAABBQuery(aabb);
+            else
+                mShadowCasterAABBQuery->setBox(aabb);
+            // Execute, use callback
+            mShadowCasterQueryListener.prepare(false, 
+                &(light->_getFrustumClipVolumes(camera)), 
+                light, camera, &mShadowCasterList);
+            mShadowCasterAABBQuery->execute(&mShadowCasterQueryListener);
+
+
         }
         else
         {
@@ -2229,7 +2260,7 @@ namespace Ogre {
 
                 // Execute, use callback
                 mShadowCasterQueryListener.prepare(lightInFrustum, 
-                    volList, camera, &mShadowCasterList);
+                    volList, light, camera, &mShadowCasterList);
                 mShadowCasterSphereQuery->execute(&mShadowCasterQueryListener);
 
             }
@@ -2535,6 +2566,17 @@ namespace Ogre {
         q->setQueryMask(mask);
         return q;
     }
+    //---------------------------------------------------------------------
+    PlaneBoundedVolumeListSceneQuery* 
+    SceneManager::createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, 
+        unsigned long mask)
+    {
+        DefaultPlaneBoundedVolumeListSceneQuery* q = new DefaultPlaneBoundedVolumeListSceneQuery(this);
+        q->setVolumes(volumes);
+        q->setQueryMask(mask);
+        return q;
+    }
+
 	//---------------------------------------------------------------------
     RaySceneQuery* 
     SceneManager::createRayQuery(const Ray& ray, unsigned long mask)
@@ -2699,6 +2741,40 @@ namespace Ogre {
             }
         }
     }
-
+    //---------------------------------------------------------------------
+    DefaultPlaneBoundedVolumeListSceneQuery::
+        DefaultPlaneBoundedVolumeListSceneQuery(SceneManager* creator) 
+        : PlaneBoundedVolumeListSceneQuery(creator)
+    {
+        // No world geometry results supported
+        mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
+    }
+    //---------------------------------------------------------------------
+    DefaultPlaneBoundedVolumeListSceneQuery::~DefaultPlaneBoundedVolumeListSceneQuery()
+    {
+    }
+    //---------------------------------------------------------------------
+    void DefaultPlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listener)
+    {
+        // Entities only for now
+        SceneManager::EntityList::const_iterator i, iEnd;
+        iEnd = mParentSceneMgr->mEntities.end();
+        Sphere testSphere;
+        for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
+        {
+            PlaneBoundedVolumeList::iterator pi, piend;
+            piend = mVolumes.end();
+            for (pi = mVolumes.begin(); pi != piend; ++pi)
+            {
+                PlaneBoundedVolume& vol = *pi;
+                // Do AABB / plane volume test
+                if (vol.intersects(i->second->getWorldBoundingBox()))
+                {
+                    listener->queryResult(i->second);
+                    break;
+                }
+            }
+        }
+    }
 
 }

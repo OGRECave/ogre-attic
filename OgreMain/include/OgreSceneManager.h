@@ -80,6 +80,7 @@ namespace Ogre {
 	    friend class DefaultRaySceneQuery;
 	    friend class DefaultSphereSceneQuery;
 	    friend class DefaultAxisAlignedBoxSceneQuery;
+        friend class DefaultPlaneBoundedVolumeListSceneQuery;
     public:
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
@@ -282,7 +283,7 @@ namespace Ogre {
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
         SphereSceneQuery* mShadowCasterSphereQuery;
-
+        AxisAlignedBoxSceneQuery* mShadowCasterAABBQuery;
 
         /// Inner class to use as callback for shadow caster scene query
         class ShadowCasterSceneQueryListener : public SceneQueryListener
@@ -292,6 +293,7 @@ namespace Ogre {
             bool mIsLightInFrustum;
             const PlaneBoundedVolumeList* mLightClipVolumeList;
             const Camera* mCamera;
+            const Light* mLight;
         public:
             ShadowCasterSceneQueryListener() : mCasterList(0), 
                 mIsLightInFrustum(false), mLightClipVolumeList(0), 
@@ -299,12 +301,13 @@ namespace Ogre {
             // Prepare the listener for use with a set of parameters  
             void prepare(bool lightInFrustum, 
                 const PlaneBoundedVolumeList* lightClipVolumes, 
-                const Camera* cam, ShadowCasterList* casterList) 
+                const Light* light, const Camera* cam, ShadowCasterList* casterList) 
             {
                 mCasterList = casterList;
                 mIsLightInFrustum = lightInFrustum;
                 mLightClipVolumeList = lightClipVolumes;
                 mCamera = cam;
+                mLight = light;
             }
             bool queryResult(MovableObject* object);
             bool queryResult(SceneQuery::WorldFragment* fragment);
@@ -1217,6 +1220,22 @@ namespace Ogre {
         */
         virtual SphereSceneQuery* 
             createSphereQuery(const Sphere& sphere, unsigned long mask = 0xFFFFFFFF);
+        /** Creates a PlaneBoundedVolumeListSceneQuery for this scene manager. 
+        @remarks
+        This method creates a new instance of a query object for this scene manager, 
+        for a region enclosed by a set of planes (normals pointing inwards). 
+        See SceneQuery and PlaneBoundedVolumeListSceneQuery for full details.
+        @par
+        The instance returned from this method must be destroyed by calling
+        SceneManager::destroyQuery when it is no longer required.
+        @param volumes Details of the volumes which describe the region for this query.
+        @param mask The query mask to apply to this query; can be used to filter out
+        certain objects; see SceneQuery for details.
+        */
+        virtual PlaneBoundedVolumeListSceneQuery* 
+            createPlaneBoundedVolumeQuery(const PlaneBoundedVolumeList& volumes, unsigned long mask = 0xFFFFFFFF);
+
+
         /** Creates a RaySceneQuery for this scene manager. 
         @remarks
             This method creates a new instance of a query object for this scene manager, 
@@ -1382,6 +1401,16 @@ namespace Ogre {
     public:
         DefaultSphereSceneQuery(SceneManager* creator);
         ~DefaultSphereSceneQuery();
+
+        /** See SceneQuery. */
+        void execute(SceneQueryListener* listener);
+    };
+    /** Default implementation of PlaneBoundedVolumeListSceneQuery. */
+    class _OgreExport DefaultPlaneBoundedVolumeListSceneQuery : public PlaneBoundedVolumeListSceneQuery
+    {
+    public:
+        DefaultPlaneBoundedVolumeListSceneQuery(SceneManager* creator);
+        ~DefaultPlaneBoundedVolumeListSceneQuery();
 
         /** See SceneQuery. */
         void execute(SceneQueryListener* listener);
