@@ -45,6 +45,23 @@ namespace Ogre {
     createVertexBuffer(size_t vertexSize, size_t numVerts, HardwareBuffer::Usage usage,
 		bool useShadowBuffer)
     {
+#if OGRE_D3D_MANAGE_BUFFERS
+        // Override shadow buffer setting; managed buffers are automatically
+        // backed by system memory
+        if (useShadowBuffer)
+        {
+            useShadowBuffer = false;
+            // Also drop any WRITE_ONLY so we can read direct
+            if (usage == HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY)
+            {
+                usage = HardwareBuffer::HBU_DYNAMIC;
+            }
+            else if (usage == HardwareBuffer::HBU_STATIC_WRITE_ONLY)
+            {
+                usage = HardwareBuffer::HBU_STATIC;
+            }
+        }
+#endif
         return HardwareVertexBufferSharedPtr(
             new D3D9HardwareVertexBuffer(vertexSize, 
             numVerts, usage, mlpD3DDevice, false, useShadowBuffer) );
@@ -70,6 +87,23 @@ namespace Ogre {
     createIndexBuffer(HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
         HardwareBuffer::Usage usage, bool useShadowBuffer)
     {
+#if OGRE_D3D_MANAGE_BUFFERS
+        // Override shadow buffer setting; managed buffers are automatically
+        // backed by system memory
+        if (useShadowBuffer)
+        {
+            useShadowBuffer = false;
+            // Also drop any WRITE_ONLY so we can read direct
+            if (usage == HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY)
+            {
+                usage = HardwareBuffer::HBU_DYNAMIC;
+            }
+            else if (usage == HardwareBuffer::HBU_STATIC_WRITE_ONLY)
+            {
+                usage = HardwareBuffer::HBU_STATIC;
+            }
+        }
+#endif
         // NB no longer store the buffer in a local list since reference counted
         return HardwareIndexBufferSharedPtr(
                 new D3D9HardwareIndexBuffer(itype, numIndexes, 

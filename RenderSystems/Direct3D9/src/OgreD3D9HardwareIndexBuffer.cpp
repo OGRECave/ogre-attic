@@ -39,7 +39,11 @@ namespace Ogre {
             static_cast<UINT>(mSizeInBytes),
             D3D9Mappings::get(usage),
             D3D9Mappings::get(idxType),
-			mSystemMemory ? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT,
+#if OGRE_D3D_MANAGE_BUFFERS
+            useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_MANAGED, 
+#else
+            useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT, 
+#endif
             &mlpD3DBuffer,
             NULL
             );

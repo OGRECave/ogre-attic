@@ -62,7 +62,12 @@ namespace Ogre
     class D3D9HLSLProgram;
     class D3D9VertexDeclaration;
 
-	//-------------------------------------------
+// Should we ask D3D to manage vertex/index buffers automatically?
+// Doing so avoids lost devices, but also has a performance impact
+// which is unacceptably bad when using very large buffers
+#define OGRE_D3D_MANAGE_BUFFERS 0
+    
+    //-------------------------------------------
 	// Windows setttings
 	//-------------------------------------------
 #if OGRE_PLATFORM == PLATFORM_WIN32

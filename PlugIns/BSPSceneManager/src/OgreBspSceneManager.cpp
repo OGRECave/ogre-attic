@@ -106,7 +106,7 @@ namespace Ogre {
             .createIndexBuffer(
                 HardwareIndexBuffer::IT_32BIT, // always 32-bit
                 mLevel->mNumIndexes, 
-                HardwareBuffer::HBU_DYNAMIC, false);
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY, false);
 
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
         mRenderOp.useIndexes = true;

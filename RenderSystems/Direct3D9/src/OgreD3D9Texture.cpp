@@ -47,6 +47,7 @@ namespace Ogre
 		mName = name;
 		mTextureType = texType;
 		mUsage = usage;
+        mAutoGenMipMaps = false;
 
 		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
 			_constructCubeFaceNames(mName);
@@ -63,6 +64,7 @@ namespace Ogre
 		mTextureType = texType;
 		mUsage = usage;
 		mNumMipMaps = numMips;
+        mAutoGenMipMaps = false;
 
 		if (this->getTextureType() == TEX_TYPE_CUBE_MAP)
 			_constructCubeFaceNames(mName);
@@ -172,10 +174,7 @@ namespace Ogre
 		
 		//*** Copy to main surface here ***//
 		IDirect3DSurface9 *pDstSurface; 
-		if (mpTmpNormTex)
-			hr = mpTmpNormTex->GetSurfaceLevel(0, &pDstSurface);// s/w mipmaps, use temp texture
-		else
-			hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);// h/w mipmaps, use the final texture
+		hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);
 
 		// check result and except if failed
 		if (FAILED(hr))
@@ -196,27 +195,12 @@ namespace Ogre
 			Except( hr, "Error copying original surface to texture", "D3D9Texture::_blitImageToTexture" );
 		}
 
-		if (mpTmpNormTex)
-		{
-			if( FAILED( hr = D3DXFilterTexture( mpTmpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-			{
-				SAFE_RELEASE(pSrcSurface);
-				SAFE_RELEASE(pDstSurface);
-				this->_freeResources();
-				Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToTexture" );
-			}
-			if( FAILED( hr = mpDev->UpdateTexture( mpTmpNormTex, mpNormTex ) ) )
-			{
-				SAFE_RELEASE(pSrcSurface);
-				SAFE_RELEASE(pDstSurface);
-				this->_freeResources();
-				Except( hr, "Failed to update texture", "D3D9Texture::_blitImageToTexture" );
-			}
-		}
-		else
-		{
-			// Hardware mipmapping
-			// use best filtering method supported by hardware
+        // Dirty the texture to force update
+        mpNormTex->AddDirtyRect(NULL);
+
+        // Mipmapping
+        if (mAutoGenMipMaps)
+        {
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if (FAILED(hr))
 			{
@@ -225,12 +209,20 @@ namespace Ogre
 				this->_freeResources();
 				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToNormTex" );
 			}
-			mpNormTex->GenerateMipSubLevels();
-		}
+            mpNormTex->GenerateMipSubLevels();
+        }
+        else
+        {
+            // Software mipmaps
+            if( FAILED( hr = D3DXFilterTexture( mpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+            {
+                this->_freeResources();
+                Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitToTexure" );
+            }
+        }
 
 		SAFE_RELEASE(pDstSurface);
 		SAFE_RELEASE(pSrcSurface);
-		SAFE_RELEASE(mpTmpNormTex);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::copyToTexture(Texture *target)
@@ -442,35 +434,79 @@ namespace Ogre
         else
         {
 
-		    HRESULT hr = S_OK; // D3D9 methods result
-		    Image tImages[6]; // temp. images we'll use
+            // Load from 6 separate files
+            // First create the base surface, for that we need to know the size
+            Image img;
+            img.load(this->_getCubeFaceName(0));
+            _setSrcAttributes(img.getWidth(), img.getHeight(), 1, img.getFormat());
+            // now create the texture
+            this->_createCubeTex();
 
-		    // we need src. image info so load first face
-		    // we assume that all faces are of the same dimensions
-		    // if they are not, they will be automatically 
-		    // resized when blitting
-		    tImages[0].load(this->_getCubeFaceName(0));
-		    this->_setSrcAttributes(tImages[0].getWidth(), tImages[0].getHeight(), 1, tImages[0].getFormat());
-		    // now create the texture
-		    this->_createCubeTex();
+		    HRESULT hr; // D3D9 methods result
 
-		    // prepare faces
+		    // load faces
 		    for (size_t face = 0; face < 6; face++)
 		    {
-			    // first face is already loaded
-			    if (face > 0)
-				    tImages[face].load(this->_getCubeFaceName(face)); // load the cube face
-			    // set gamma prior to blitting
-			    Image::applyGamma(
-					    tImages[face].getData(), 
-					    this->getGamma(), 
-					    (uint)tImages[face].getSize(), 
-					    tImages[face].getBPP());
+                SDDataChunk chunk;
+                TextureManager::getSingleton()._findResourceData(
+                    this->_getCubeFaceName(face), chunk);
+                
+                LPDIRECT3DSURFACE9 pDstSurface;
+                hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
+                if (FAILED(hr))
+                {
+                    Except(Exception::ERR_INTERNAL_ERROR, "Cannot get cubemap surface", 
+                        "D3D9Texture::_loadCubeTex");
+                }
+
+                // Load directly using D3DX
+                hr = D3DXLoadSurfaceFromFileInMemory(
+                    pDstSurface,
+                    NULL,                       // no palette
+                    NULL,                       // entire surface
+                    chunk.getPtr(),
+                    chunk.getSize(),
+                    NULL,                       // entire source
+                    D3DX_DEFAULT,               // default filtering
+                    0,                          // No colour key
+                    NULL);                      // no src info
+                        
+                if (FAILED(hr))
+                {
+                    Except(Exception::ERR_INTERNAL_ERROR, "Cannot load cubemap surface", 
+                        "D3D9Texture::_loadCubeTex");
+                }
+
 		    }
-		    // blit them all :(
-		    this->_blitImagesToCubeTex(tImages);
+
+            // Mipmaps
+            if (mAutoGenMipMaps)
+            {
+                // use best filtering method supported by hardware
+                hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
+                if (FAILED(hr))
+                {
+                    this->_freeResources();
+                    Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToCubeTex" );
+                }
+                mpCubeTex->GenerateMipSubLevels();
+            }
+            else
+            {
+                // Software mipmaps
+                if( FAILED( hr = D3DXFilterTexture( mpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+                {
+                    this->_freeResources();
+                    Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToCubeTex" );
+                }
+
+            }
+
+            // Do final attributes
+            D3DSURFACE_DESC texDesc;
+            mpCubeTex->GetLevelDesc(0, &texDesc);
+            _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  _getPF(texDesc.Format));
         }
-		// say IT'S loaded loud ;) 
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
@@ -549,21 +585,6 @@ namespace Ogre
         _setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
         _setFinalAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
         
-        /*        
-        Image tImage; // temp. image we'll use
-		HRESULT hr = S_OK; // D3D9 methods result
-
-		// we need src image info
-		tImage.load(this->getName());
-		this->_setSrcAttributes(tImage.getWidth(), tImage.getHeight(), tImage.getFormat());
-		// now create it
-		this->_createNormTex();
-		// set gamma prior to blitting
-        Image::applyGamma(tImage.getData(), this->getGamma(), (uint)tImage.getSize(), tImage.getBPP());
-		// make the BLT !!!
-		this->_blitImageToNormTex(tImage);
-		// say IT'S loaded loud ;) 
-        */
 		mIsLoaded = true;
 	}
 	/****************************************************************************************/
@@ -604,32 +625,11 @@ namespace Ogre
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
 		{
 			// use auto.gen. if available
-			if (this->_canAutoGenMipMaps(usage, D3DRTYPE_TEXTURE, d3dPF))
+            mAutoGenMipMaps = this->_canAutoGenMipMaps(usage, D3DRTYPE_TEXTURE, d3dPF);
+			if (mAutoGenMipMaps)
 			{
 				usage |= D3DUSAGE_AUTOGENMIPMAP;
 				numMips = 0;
-			}
-			else
-			{
-				if (mUsage != TU_RENDERTARGET)
-				{
-					// we must create a temp. texture in SYSTEM MEMORY if no auto gen. mip map is present
-					hr = D3DXCreateTexture(	
-						mpDev,								// device
-						mSrcWidth,							// width
-						mSrcHeight,							// height
-						numMips,							// number of mip map levels
-						usage,								// usage
-						d3dPF,								// pixel format
-						D3DPOOL_SYSTEMMEM,					// memory pool
-						&mpTmpNormTex);						// data pointer
-					// check result and except if failed
-					if (FAILED(hr))
-					{
-						Except( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
-						this->_freeResources();
-					}
-				}
 			}
 		}
 		else
@@ -647,7 +647,8 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-				D3DPOOL_DEFAULT,					// memory pool
+                (mUsage == TU_RENDERTARGET)?
+                D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
 				&mpNormTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
@@ -697,31 +698,11 @@ namespace Ogre
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
 		{
 			// use auto.gen. if available
-			if (this->_canAutoGenMipMaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF))
+            mAutoGenMipMaps = this->_canAutoGenMipMaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
+			if (mAutoGenMipMaps)
 			{
 				usage |= D3DUSAGE_AUTOGENMIPMAP;
 				numMips = 0;
-			}
-			else
-			{
-				if (mUsage != TU_RENDERTARGET)
-				{
-					// we must create a temp. texture in SYSTEM MEMORY if no auto gen. mip map is present
-					hr = D3DXCreateCubeTexture(	
-						mpDev,								// device
-						mSrcWidth,							// dimension
-						numMips,							// number of mip map levels
-						usage,								// usage
-						d3dPF,								// pixel format
-						D3DPOOL_SYSTEMMEM,					// memory pool
-						&mpTmpCubeTex);						// data pointer
-					// check result and except if failed
-					if (FAILED(hr))
-					{
-						Except( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
-						this->_freeResources();
-					}
-				}
 			}
 		}
 		else
@@ -738,7 +719,8 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-				D3DPOOL_DEFAULT,					// memory pool
+                (mUsage == TU_RENDERTARGET)?
+                D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
 				&mpCubeTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
@@ -780,9 +762,6 @@ namespace Ogre
 		mpCubeTex = NULL;
 		mpZBuff = NULL;
 		mpTex = NULL;
-
-		mpTmpNormTex = NULL;
-		mpTmpCubeTex = NULL;
 
 		for (size_t i = 0; i < 6; ++i)
 			mCubeFaceNames[i] = "";
@@ -1124,19 +1103,9 @@ namespace Ogre
 		this->_copyMemoryToSurface(srcImage.getData(), pSrcSurface);
 
 		// Now we need to copy the source surface (where our image is) to the texture
-		// This will be a temp texture for s/w filtering and the final one for h/w filtering
 		// This will perform any size conversion (inc stretching)
 		IDirect3DSurface9 *pDstSurface; 
-		if (mpTmpNormTex)
-		{
-			// s/w mipmaps, use temp texture
-			hr = mpTmpNormTex->GetSurfaceLevel(0, &pDstSurface);
-		}
-		else
-		{
-			// h/w mipmaps, use the final texture
-			hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);
-		}
+		hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);
 
 		// check result and except if failed
 		if (FAILED(hr))
@@ -1157,29 +1126,10 @@ namespace Ogre
 			Except( hr, "Error copying original surface to texture", "D3D9Texture::_blitImageToTexture" );
 		}
 
-		if (mpTmpNormTex)
-		{
-			// Software filtering
-			// Now update the texture & filter the results
-			// we will use D3DX to create the mip map levels
-			if( FAILED( hr = D3DXFilterTexture( mpTmpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-			{
-				SAFE_RELEASE(pSrcSurface);
-				SAFE_RELEASE(pDstSurface);
-				this->_freeResources();
-				Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToTexture" );
-			}
-			if( FAILED( hr = mpDev->UpdateTexture( mpTmpNormTex, mpNormTex ) ) )
-			{
-				SAFE_RELEASE(pSrcSurface);
-				SAFE_RELEASE(pDstSurface);
-				this->_freeResources();
-				Except( hr, "Failed to update texture", "D3D9Texture::_blitImageToTexture" );
-			}
-		}
-		else
-		{
-			// Hardware mipmapping
+        // Generate mipmaps
+        if (mAutoGenMipMaps)
+        {
+            // Hardware mipmapping
 			// use best filtering method supported by hardware
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if (FAILED(hr))
@@ -1189,14 +1139,21 @@ namespace Ogre
 				this->_freeResources();
 				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToNormTex" );
 			}
-			mpNormTex->GenerateMipSubLevels();
+            mpNormTex->GenerateMipSubLevels();
+        }
+        else
+        {
+            // Software mipmaps
+            if( FAILED( hr = D3DXFilterTexture( mpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+            {
+                this->_freeResources();
+                Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToNormTex" );
+            }
+        }
 
 			
-		}
-
 		SAFE_RELEASE(pDstSurface);
 		SAFE_RELEASE(pSrcSurface);
-		SAFE_RELEASE(mpTmpNormTex);
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_blitImagesToCubeTex(const Image srcImages[])
@@ -1243,16 +1200,7 @@ namespace Ogre
 			// either the the temp. texture level 0 surface (for s/w mipmaps)
 			// or the final texture (for h/w mipmaps)
 			IDirect3DSurface9 *pDstSurface; 
-			if (mpTmpCubeTex)
-			{
-				// copy into temp
-                hr = mpTmpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
-			}
-			else
-			{
-				// copy into temp
-                hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
-			}
+            hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
 			// check result and except if failed
 			if (FAILED(hr))
 			{
@@ -1262,7 +1210,15 @@ namespace Ogre
 			}
 
 			// load the surface with an in memory buffer
-			hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
+			hr = D3DXLoadSurfaceFromSurface(
+                pDstSurface, 
+                NULL, 
+                NULL, 
+                pSrcSurface, 
+                NULL, 
+                NULL, 
+                D3DX_DEFAULT, 
+                0);
 			// check result and except if failed
 			if (FAILED(hr))
 			{
@@ -1276,26 +1232,9 @@ namespace Ogre
 			SAFE_RELEASE(pSrcSurface);
 		}
 
-		// After doing all the faces, we generate mipmaps
-		// For s/w mipmaps this involves an extra copying step
-		if (mpTmpCubeTex)
-		{
-			// Filter
-			if( FAILED( hr = D3DXFilterTexture( mpTmpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-			{
-				this->_freeResources();
-				Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToCubeTex" );
-			}
-			// Update main texture
-			if( FAILED( hr = mpDev->UpdateTexture( mpTmpCubeTex, mpCubeTex ) ) )
-			{
-				this->_freeResources();
-				Except( hr, "Failed to update texture", "D3D9Texture::_blitImageToCubeTex" );
-			}
-		}
-		else
-		{
-			// Hardware filter
+        // Mipmaps
+        if (mAutoGenMipMaps)
+        {
 			// use best filtering method supported by hardware
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if (FAILED(hr))
@@ -1303,11 +1242,19 @@ namespace Ogre
 				this->_freeResources();
 				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToCubeTex" );
 			}
-			mpCubeTex->GenerateMipSubLevels();
+            mpCubeTex->GenerateMipSubLevels();
+        }
+        else
+        {
+            // Software mipmaps
+            if( FAILED( hr = D3DXFilterTexture( mpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
+            {
+                this->_freeResources();
+                Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToCubeTex" );
+            }
 
-		}
+        }
 
-		SAFE_RELEASE(mpTmpCubeTex);
 
 	}
 	/****************************************************************************************/

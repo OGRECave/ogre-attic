@@ -435,7 +435,11 @@ namespace Ogre
         DWORD ret = 0;
         if (usage & HardwareBuffer::HBU_DYNAMIC)
         {
+#if OGRE_D3D_MANAGE_BUFFERS
+            // Don't add the dynamic flag since not supported in managed mode
+#else
             ret |= D3DUSAGE_DYNAMIC;
+#endif
         }
         if (usage & HardwareBuffer::HBU_WRITE_ONLY)
         {
@@ -449,7 +453,11 @@ namespace Ogre
         DWORD ret = 0;
         if (options == HardwareBuffer::HBL_DISCARD)
         {
+#if OGRE_D3D_MANAGE_BUFFERS
+            // Don't add the discard flag since not supported in managed mode
+#else
             ret |= D3DLOCK_DISCARD;
+#endif
         }
         if (options == HardwareBuffer::HBL_READ_ONLY)
         {
@@ -457,7 +465,11 @@ namespace Ogre
         }
         if (options == HardwareBuffer::HBL_NO_OVERWRITE)
         {
+#if OGRE_D3D_MANAGE_BUFFERS
+            // Don't add the nooverwrite flag since not supported in managed mode
+#else
             ret |= D3DLOCK_NOOVERWRITE;
+#endif 
         }
 
         return ret;
