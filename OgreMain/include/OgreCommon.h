@@ -240,8 +240,8 @@ namespace Ogre {
             of the shadow caster and a projection of that texture onto the 
             shadow receivers, followed by a depth test to detect the closest
             fragment to the light.
-        */
         SHADOWTYPE_TEXTURE_SHADOWMAP
+        */
     };
 
 
