@@ -53,6 +53,10 @@ namespace Ogre {
         void writeData(size_t offset, size_t length, const unsigned char* pSource,
 				bool discardWholeBuffer = false);
 
+        /// Get D3D9-specific vertex buffer
+        LPDIRECT3DVERTEXBUFFER9 getD3D9VertexBuffer(void) const { return mlpD3DBuffer; }
+
+
     };
 
 }

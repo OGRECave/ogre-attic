@@ -82,9 +82,9 @@ namespace Ogre {
 		    HardwareVertexBuffer(size_t vertexSize, size_t numVertices, 
                 HardwareBuffer::Usage usage);
             /// Gets the size in bytes of a single vertex in this buffer
-            size_t getVertexSize(void) { return mVertexSize; }
+            size_t getVertexSize(void) const { return mVertexSize; }
             /// Get the number of vertices in this buffer
-            size_t getNumVertices(void) { return mNumVertices; }
+            size_t getNumVertices(void) const { return mNumVertices; }
             /// Getthe format of the vertices in this buffer
             //const VertexFormat& getVertexFormat(void) { return mFormat; }
     		
