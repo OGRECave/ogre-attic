@@ -197,7 +197,7 @@ namespace Ogre {
         */
         inline static bool formatHasAlpha(PixelFormat format) 
         {
-            return PixelUtil::getFlags( format ) & PFF_HASALPHA;
+            return (PixelUtil::getFlags( format ) & PFF_HASALPHA) > 0;
         }
 
         /** Returns wether a pixel format is floating point (at least not fixed point).
@@ -206,7 +206,7 @@ namespace Ogre {
         */
         inline static bool formatIsFloat(PixelFormat format) 
         {
-            return PixelUtil::getFlags( format ) & PFF_FLOAT;
+            return (PixelUtil::getFlags( format ) & PFF_FLOAT) > 0;
         }
 
 		/** 
