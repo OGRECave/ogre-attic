@@ -118,7 +118,7 @@ namespace Ogre {
         return *this;
     }
     //-----------------------------------------------------------------------
-    Real String::toReal(void)
+    Real String::toReal(void) const
     {
         return (Real)atof(this->c_str());
     }
