@@ -67,22 +67,22 @@ TerrainRenderable::~TerrainRenderable()
 void TerrainRenderable::deleteGeometry()
 {
     if ( mTerrain.pVertices != 0 )
-        delete mTerrain.pVertices;
+        delete [] mTerrain.pVertices;
 
     if ( mTerrain.pNormals != 0 )
-        delete mTerrain.pNormals;
+        delete [] mTerrain.pNormals;
 
     if ( mTerrain.pColours != 0 )
-        delete mTerrain.pColours;
+        delete [] mTerrain.pColours;
 
     if ( mTerrain.pTexCoords[ 0 ] != 0 )
-        delete mTerrain.pTexCoords[ 0 ];
+        delete [] mTerrain.pTexCoords[ 0 ];
 
     if ( mTerrain.pTexCoords[ 1 ] != 0 )
-        delete mTerrain.pTexCoords[ 1 ];
+        delete [] mTerrain.pTexCoords[ 1 ];
 
     if ( mMinLevelDistSqr != 0 )
-        delete mMinLevelDistSqr;
+        delete [] mMinLevelDistSqr;
 }
 
 void TerrainRenderable::init( TerrainOptions &options )

@@ -167,7 +167,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
             sprintf( name, "tile[%d,%d]", p, q );
 
             SceneNode *c = mTerrainRoot -> createChild( name );
-            TerrainRenderable *tile = new TerrainRenderable( this );
+            TerrainRenderable *tile = new TerrainRenderable();
 
             tile -> setMaterial( mTerrainMaterial );
             tile -> init( options );
