@@ -45,9 +45,9 @@ Light* mLight;
 SceneNode* mLightNode = 0;
 AnimationState* mLightAnimationState = 0;
 ColourValue mMinLightColour(0.3, 0.0, 0);
-ColourValue mMaxLightColour(0.4, 0.2, 0.0);
-Real mMinFlareSize = 20;
-Real mMaxFlareSize = 40;
+ColourValue mMaxLightColour(0.5, 0.3, 0.1);
+Real mMinFlareSize = 40;
+Real mMaxFlareSize = 80;
 
 
 
@@ -180,16 +180,15 @@ protected:
 
         // Fixed light, dim
         mLight = mSceneMgr->createLight("SunLight");
-        mLight->setPosition(1000,1450,500);
-        mLight->setDiffuseColour(0.45, 0.45, 0.48);
+        mLight->setPosition(1000,1250,500);
+        mLight->setDiffuseColour(0.35, 0.35, 0.38);
         mLight->setSpecularColour(0.9, 0.9, 1);
-        mLight->setAttenuation(10000,1,0.001,0);
 
         // Point light, movable, reddish
         mLight = mSceneMgr->createLight("Light2");
         mLight->setDiffuseColour(mMinLightColour);
         mLight->setSpecularColour(1, 1, 1);
-        mLight->setAttenuation(10000,1,0.001,0);
+        mLight->setAttenuation(10000,1,0.0005,0);
 
         // Create light node
         mLightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
@@ -215,34 +214,33 @@ protected:
 
 
         // Create a track for the light
-        Animation* anim = mSceneMgr->createAnimation("LightTrack", 42);
+        Animation* anim = mSceneMgr->createAnimation("LightTrack", 20);
         // Spline it for nice curves
         anim->setInterpolationMode(Animation::IM_SPLINE);
         // Create a track to animate the camera's node
         AnimationTrack* track = anim->createTrack(0, mLightNode);
         // Setup keyframes
-        KeyFrame* key = track->createKeyFrame(0); // startposition
-        key = track->createKeyFrame(2);//A
+        KeyFrame* key = track->createKeyFrame(0); // A startposition
         key->setTranslate(Vector3(300,250,-300));
-        key = track->createKeyFrame(4);//B
+        key = track->createKeyFrame(2);//B
         key->setTranslate(Vector3(150,300,-250));
-        key = track->createKeyFrame(6);//C
+        key = track->createKeyFrame(4);//C
         key->setTranslate(Vector3(-150,350,-100));
-        key = track->createKeyFrame(8);//D
+        key = track->createKeyFrame(6);//D
         key->setTranslate(Vector3(-400,200,-200));
-        key = track->createKeyFrame(10);//E
+        key = track->createKeyFrame(8);//E
         key->setTranslate(Vector3(-200,200,-400));
-        key = track->createKeyFrame(12);//F
+        key = track->createKeyFrame(10);//F
         key->setTranslate(Vector3(-100,150,-200));
-        key = track->createKeyFrame(14);//G
+        key = track->createKeyFrame(12);//G
         key->setTranslate(Vector3(-100,75,180));
-        key = track->createKeyFrame(16);//H
+        key = track->createKeyFrame(14);//H
         key->setTranslate(Vector3(0,250,300));
-        key = track->createKeyFrame(18);//I
+        key = track->createKeyFrame(16);//I
         key->setTranslate(Vector3(100,350,100));
-        key = track->createKeyFrame(20);//J
+        key = track->createKeyFrame(18);//J
         key->setTranslate(Vector3(250,300,0));
-        key = track->createKeyFrame(22);//K == A
+        key = track->createKeyFrame(20);//K == A
         key->setTranslate(Vector3(300,250,-300));
         // Create a new animation state to track this
         mAnimState = mSceneMgr->createAnimationState("LightTrack");
