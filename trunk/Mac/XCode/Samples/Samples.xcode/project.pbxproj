@@ -422,7 +422,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = /Users/temas/cvs/ogre/Mac/XCode/Ogre/build;
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build $(HOME)/Library/Frameworks";
 				INFOPLIST_FILE = "DynTex-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				OTHER_CFLAGS = "";
@@ -571,7 +571,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = /Users/temas/cvs/ogre/Mac/XCode/Ogre/build;
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build $(HOME)/Library/Frameworks";
 				INFOPLIST_FILE = "Grass-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				OTHER_CFLAGS = "";
@@ -749,7 +749,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = /Users/temas/cvs/ogre/Mac/XCode/Ogre/build;
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build $(HOME)/Library/Frameworks";
 				INFOPLIST_FILE = "VolumeTex-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				OTHER_CFLAGS = "";
