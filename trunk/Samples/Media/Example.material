@@ -155,7 +155,7 @@ Examples/TextureEffect3
 Examples/TextureEffect4
 { 
    ambient 0.3 0.3 0.3 
-   scene_blend add 
+   scene_blend modulate
    // double-sided 
    cull_hardware none 
    cull_software none 

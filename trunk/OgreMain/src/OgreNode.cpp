@@ -251,6 +251,7 @@ namespace Ogre {
             cancelUpdate(ret);
 
             mChildren.erase(i);
+            ret->setParent(NULL);
             return ret;            
         }
         else
@@ -615,6 +616,7 @@ namespace Ogre {
         cancelUpdate(ret);
 
         mChildren.erase(i);
+        ret->setParent(NULL);
 
         return ret;
 

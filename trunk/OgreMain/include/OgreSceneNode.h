@@ -83,50 +83,6 @@ namespace Ogre {
         SceneNode(SceneManager* creator, const String& name);
         ~SceneNode();
 
-        /** Creates a new unnamed Node as a child of this node.
-        @remarks
-            This creates a node with no name (or rather, a generated name). If you want
-            to give the node a specific name, use the alternate form which takes a name
-            as the first parameter, which allows you to look the node up from SceneManager::getSceneNode.
-            @param
-                translate Initial translation offset of child relative to parent
-            @param
-                rotate Initial rotation relative to parent
-        */
-        SceneNode* createChild(const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
-
-        /** Creates a new named Node as a child of this node.
-        @remarks
-            This creates a child node with a given name, which allows you to look the node up from 
-            SceneManager::getSceneNode.
-            @param
-                translate Initial translation offset of child relative to parent
-            @param
-                rotate Initial rotation relative to parent
-        */
-        SceneNode* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
-
-        /** Gets a pointer to a child node.
-        @remarks
-            Also available is version which retrieves by name.
-        */
-        SceneNode* getChild(unsigned short index) const;
-
-        /** Gets a named child node. */
-        SceneNode* getChild(const String& name) const;
-
-        /** Drops the specified child from this node. Does not delete the node, just detaches it from
-            this parent, potentially to be reattached elsewhere.
-        @remarks
-            There is also a version which removes a node by name.
-        */
-        SceneNode* removeChild(unsigned short index);
-
-        /** Drops the named child from this node. Does not delete the node, just detaches it from
-            this parent, potentially to be reattached elsewhere.
-        */
-        SceneNode* removeChild(const String& name);
-
         /** Adds an instance of a scene object to this node.
         @remarks
             Scene objects can include Entity objects, Camera objects, Light objects, 

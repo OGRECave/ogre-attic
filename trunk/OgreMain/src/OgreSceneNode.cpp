@@ -277,35 +277,6 @@ namespace Ogre {
         return mCreator->createSceneNode(name);
     }
     //-----------------------------------------------------------------------
-    SceneNode* SceneNode::createChild(const Vector3& translate, const Quaternion& rotate)
-    {
-        // Provided as a passthrough to superclass just for compatibility with 
-        // the previous version of the SceneNode interface (before I abstracted to Node)
-        return static_cast<SceneNode*>(Node::createChild(translate, rotate));
-    }
-    //-----------------------------------------------------------------------
-    SceneNode* SceneNode::createChild(const String& name, 
-        const Vector3& translate,const Quaternion& rotate)
-    {
-        // Provided as a passthrough to superclass just for compatibility with 
-        // the previous version of the SceneNode interface (before I abstracted to Node)
-        return static_cast<SceneNode*>(Node::createChild(name, translate, rotate));
-    }
-    //-----------------------------------------------------------------------
-    SceneNode* SceneNode::getChild(unsigned short index) const
-    {
-        // Provided as a passthrough to superclass just for compatibility with 
-        // the previous version of the SceneNode interface (before I abstracted to Node)
-        return static_cast<SceneNode*>(Node::getChild(index));
-    }
-    //-----------------------------------------------------------------------
-    SceneNode* SceneNode::removeChild(unsigned short index)
-    {
-        // Provided as a passthrough to superclass just for compatibility with 
-        // the previous version of the SceneNode interface (before I abstracted to Node)
-        return static_cast<SceneNode*>(Node::removeChild(index));
-    }
-    //-----------------------------------------------------------------------
     AxisAlignedBox SceneNode::_getWorldAABB(void) const
     {
         return mWorldAABB;
@@ -316,22 +287,6 @@ namespace Ogre {
         return ObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
     }
     //-----------------------------------------------------------------------
-    SceneNode* SceneNode::getChild(const String& name) const
-    {
-        // Provided as a passthrough to superclass just for compatibility with 
-        // the previous version of the SceneNode interface (before I abstracted to Node)
-        return static_cast<SceneNode*>(Node::getChild(name));
-
-    }
-    //-----------------------------------------------------------------------
-    SceneNode* SceneNode::removeChild(const String& name)
-    {
-        // Provided as a passthrough to superclass just for compatibility with 
-        // the previous version of the SceneNode interface (before I abstracted to Node)
-        return static_cast<SceneNode*>(Node::removeChild(name));
-
-    }
-    //-----------------------------------------------------------------------
     SceneManager* SceneNode::getCreator(void)
     {
         return mCreator;
@@ -339,7 +294,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneNode::removeAndDestroyChild(const String& name)
     {
-        SceneNode* pChild = getChild(name);
+        SceneNode* pChild = static_cast<SceneNode*>(getChild(name));
         pChild->removeAndDestroyAllChildren();
 
         removeChild(name);
@@ -349,7 +304,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneNode::removeAndDestroyChild(unsigned short index)
     {
-        SceneNode* pChild = getChild(index);
+        SceneNode* pChild = static_cast<SceneNode*>(getChild(index));
         pChild->removeAndDestroyAllChildren();
 
         removeChild(index);

@@ -44,12 +44,6 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    Bone* Bone::createChild(const Vector3& translate, const Quaternion& rotate)
-    {
-        // Provided as a passthrough to superclass just for ease
-        return static_cast<Bone*>(Node::createChild(translate, rotate));
-    }
-    //---------------------------------------------------------------------
     Bone* Bone::createChild(unsigned short handle, const Vector3& translate, 
         const Quaternion& rotate)
     {
@@ -58,28 +52,6 @@ namespace Ogre {
         retBone->rotate(rotate);
         this->addChild(retBone);
         return retBone;
-    }
-    //---------------------------------------------------------------------
-    Bone* Bone::createChild(const String& name, const Vector3& translate, 
-        const Quaternion& rotate)
-    {
-        Bone* retBone = mCreator->createBone(name);
-        retBone->translate(translate);
-        retBone->rotate(rotate);
-        this->addChild(retBone);
-        return retBone;
-    }
-    //---------------------------------------------------------------------
-    Bone* Bone::getChild(unsigned short index) const
-    {
-        // Provided as a passthrough to superclass just for ease
-        return static_cast<Bone*>(Node::getChild(index));
-    }
-    //---------------------------------------------------------------------
-    Bone* Bone::removeChild(unsigned short index)
-    {
-        // Provided as a passthrough to superclass just for ease
-        return static_cast<Bone*>(Node::removeChild(index));
     }
     //---------------------------------------------------------------------
     Node* Bone::createChildImpl(void)
