@@ -82,7 +82,7 @@ protected:
 		ActionTarget* at = static_cast<ButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Join"));
 		at->addActionListener(this);
 		o->show();
-		mRoot->showDebugOverlay(false);
+		//mRoot->showDebugOverlay(false);
 
 		ListChanger* list = static_cast<ListGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/AvailableGamesList"));
 
