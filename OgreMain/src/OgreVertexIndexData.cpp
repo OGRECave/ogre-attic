@@ -76,9 +76,23 @@ namespace Ogre {
 			dest->vertexBufferBinding->setBinding(vbi->first, dstBuf);
 		}
 
+        // Basic vertex info
+        dest->vertexStart = this->vertexStart;
 		dest->vertexCount = this->vertexCount;
-		dest->vertexDeclaration = this->vertexDeclaration;
-		dest->vertexStart = this->vertexStart;
+        // Copy elements
+        const VertexDeclaration::VertexElementList elems = 
+            this->vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator ei, eiend;
+        eiend = elems.end();
+        for (ei = elems.begin(); ei != eiend; ++ei)
+        {
+            dest->vertexDeclaration->addElement(
+                ei->getSource(),
+                ei->getOffset(),
+                ei->getType(),
+                ei->getSemantic(),
+                ei->getIndex() );
+        }
 		return dest;
 	}
     //-----------------------------------------------------------------------
