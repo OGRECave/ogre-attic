@@ -1119,7 +1119,7 @@ namespace Ogre
                 realBuffer[i] = StringConverter::parseReal(vecparams[i+2]);
             }
             // Set
-            context.programParams->setConstant(index, realBuffer, dims);
+            context.programParams->setConstant(index, realBuffer, dims * 0.25);
             delete [] realBuffer;
         }
         else
@@ -1130,7 +1130,7 @@ namespace Ogre
                 intBuffer[i] = StringConverter::parseInt(vecparams[i+2]);
             }
             // Set
-            context.programParams->setConstant(index, intBuffer, dims);
+            context.programParams->setConstant(index, intBuffer, dims * 0.25);
             delete [] intBuffer;
         }
     }
