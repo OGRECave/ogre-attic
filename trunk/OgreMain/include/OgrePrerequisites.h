@@ -205,9 +205,6 @@ namespace Ogre {
 	class KeyListener;
 	class KeyTarget;
     class Light;
-	class ListSelectionEvent;
-	class ListSelectionListener;
-	class ListSelectionTarget;
     class Log;
     class LogManager;
     class Material;

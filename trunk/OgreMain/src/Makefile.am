@@ -60,7 +60,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreKeyFrame.cpp \
 						 OgreKeyTarget.cpp \
                          OgreLight.cpp \
-                         OgreListSelectionTarget.cpp \
                          OgreLog.cpp \
                          OgreLogManager.cpp \
                          OgreMaterial.cpp \
