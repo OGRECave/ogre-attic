@@ -613,6 +613,7 @@ namespace Ogre {
     void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
     {
         mCameraInProgress = camera;
+        mCamChanged = true;
         mViewportInProgress = vp;
 
 
@@ -1756,16 +1757,15 @@ namespace Ogre {
     void SceneManager::useRenderableViewProjMode(Renderable* pRend)
     {
         // Check view matrix
-        static bool firstTime = true;
         static bool lastViewWasIdentity = false;
         bool useIdentityView = pRend->useIdentityView();
-        if (useIdentityView && (firstTime || !lastViewWasIdentity))
+        if (useIdentityView && (mCamChanged || !lastViewWasIdentity))
         {
             // Using identity view now, change it
             mDestRenderSystem->_setViewMatrix(Matrix4::IDENTITY);
             lastViewWasIdentity = true;
         }
-        else if (!useIdentityView && (firstTime || lastViewWasIdentity))
+        else if (!useIdentityView && (mCamChanged || lastViewWasIdentity))
         {
             // Coming back to normal from identity view
             mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix());
@@ -1775,7 +1775,7 @@ namespace Ogre {
         static bool lastProjWasIdentity = false;
         bool useIdentityProj = pRend->useIdentityProjection();
 
-        if (useIdentityProj && (firstTime || !lastProjWasIdentity))
+        if (useIdentityProj && (mCamChanged || !lastProjWasIdentity))
         {
             // Using flat projection now
             /*
@@ -1790,14 +1790,14 @@ namespace Ogre {
 
             lastProjWasIdentity = true;
         }
-        else if (!useIdentityProj && (firstTime || lastProjWasIdentity))
+        else if (!useIdentityProj && (mCamChanged || lastProjWasIdentity))
         {
             // Coming back from flat projection
             mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrix());
             lastProjWasIdentity = false;
         }
 
-        firstTime = false;
+        mCamChanged = false;
 
     }
 
