@@ -543,11 +543,7 @@ namespace Ogre {
         while(texIter.hasMoreElements())
         {
             TextureUnitState* pTex = texIter.getNext();
-            if (pTex->hasViewRelativeTextureCoordinateGeneration())
-            {
-                // Re-issue texture unit details to ensure correct
-                mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
-            }
+            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
             ++unit;
         }
         // Disable remaining texture units
@@ -1173,16 +1169,18 @@ namespace Ogre {
         // Issue view / projection changes if any
         useRenderableViewProjMode(rend);
 
-        //--
+        // Reissue any texture gen settings which are dependent on view matrix
         Pass::TextureUnitStateIterator texIter =  pass->getTextureUnitStateIterator();
         size_t unit = 0;
         while(texIter.hasMoreElements())
         {
             TextureUnitState* pTex = texIter.getNext();
-            mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            if (pTex->hasViewRelativeTextureCoordinateGeneration())
+            {
+                mDestRenderSystem->_setTextureUnitSettings(unit, *pTex);
+            }
             ++unit;
         }
-        //--
 
 
         // Sort out normalisation
