@@ -580,7 +580,7 @@ namespace Ogre {
 		ILUtil::fromOgre(src);
 
 		// set filter
-		iluImageParameter(ILU_FILTER, filter);
+		iluImageParameter(ILU_FILTER, getILFilter(filter));
 		iluScale(scaled.getWidth(), scaled.getHeight(), scaled.getDepth());
 		
 		ILUtil::toOgre(scaled);
