@@ -65,7 +65,7 @@ namespace Ogre {
     public:
               typedef std::list<GuiContainer*> GuiContainerList;
     protected:
-        ushort mZOrder;
+        ulong mZOrder;
         bool mVisible;
         /// Internal root node, used as parent for 3D objects
         SceneNode* mRootNode;
@@ -103,7 +103,7 @@ namespace Ogre {
         const String& getName(void) const;
         /** Alters the ZOrder of this overlay. 
         @remarks
-            Values between 0 and 600 are valid here.
+            Values between 0 and 650 are valid here.
         */
         void setZOrder(ushort zorder);
         /** Gets the ZOrder of this overlay. */
