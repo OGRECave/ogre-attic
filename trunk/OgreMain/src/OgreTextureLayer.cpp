@@ -104,7 +104,6 @@ namespace Ogre {
 
     Material::TextureLayer::~TextureLayer()
     {
-        /*
         // Destroy controllers
         if (mAnimController)
         {
@@ -120,7 +119,6 @@ namespace Ogre {
 
         }
         // Don't unload textures. may be used elsewhere
-        */
 
     }
     //-----------------------------------------------------------------------

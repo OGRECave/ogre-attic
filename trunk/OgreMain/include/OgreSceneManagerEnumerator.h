@@ -94,6 +94,9 @@ namespace Ogre {
         */
         void setRenderSystem(RenderSystem* rs);
 
+        /// Utility method to control shutdown of the managers
+        void shutdownAll(void);
+
         /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,
