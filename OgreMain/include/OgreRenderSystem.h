@@ -302,7 +302,7 @@ namespace Ogre
 
         /** Returns a description of an error code.
         */
-        virtual String getErrorDescription(long errorNumber) = 0;
+        virtual String getErrorDescription(long errorNumber) const = 0;
 
         /** Defines whether or now fullscreen render windows wait for the vertical blank before flipping buffers.
             @remarks

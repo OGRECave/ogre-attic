@@ -148,10 +148,10 @@ namespace Ogre {
         bool isProgrammable(void) const { return mVertexProgramUsage || mFragmentProgramUsage; }
 
         /// Returns true if this pass uses a programmable vertex pipeline
-        bool hasVertexProgram(void) { return mVertexProgramUsage != NULL; }
+        bool hasVertexProgram(void) const { return mVertexProgramUsage != NULL; }
 
         /// Returns true if this pass uses a programmable fragment pipeline
-        bool hasFragmentProgram(void) { return mFragmentProgramUsage != NULL; }
+        bool hasFragmentProgram(void) const { return mFragmentProgramUsage != NULL; }
 
         /// Gets the index of this Pass in the parent Technique
         unsigned short getIndex(void) const { return mIndex; }
@@ -679,7 +679,7 @@ namespace Ogre {
 		*/
 		void setVertexProgramParameters(GpuProgramParametersSharedPtr params);
 		/** Gets the name of the vertex program used by this pass. */
-		const String& getVertexProgramName(void);
+		const String& getVertexProgramName(void) const;
         /** Gets the vertex program parameters used by this pass. */
         GpuProgramParametersSharedPtr getVertexProgramParameters(void);
 		/** Gets the vertex program used by this pass, only available after _load(). */
@@ -724,7 +724,7 @@ namespace Ogre {
         */
         void setShadowCasterVertexProgramParameters(GpuProgramParametersSharedPtr params);
         /** Gets the name of the vertex program used by this pass when rendering shadow casters. */
-        const String& getShadowCasterVertexProgramName(void);
+        const String& getShadowCasterVertexProgramName(void) const;
         /** Gets the vertex program parameters used by this pass when rendering shadow casters. */
         GpuProgramParametersSharedPtr getShadowCasterVertexProgramParameters(void);
         /** Gets the vertex program used by this pass when rendering shadow casters, 
@@ -765,7 +765,7 @@ namespace Ogre {
         */
         void setShadowReceiverVertexProgramParameters(GpuProgramParametersSharedPtr params);
         /** Gets the name of the vertex program used by this pass when rendering shadow receivers. */
-        const String& getShadowReceiverVertexProgramName(void);
+        const String& getShadowReceiverVertexProgramName(void) const;
         /** Gets the vertex program parameters used by this pass when rendering shadow receivers. */
         GpuProgramParametersSharedPtr getShadowReceiverVertexProgramParameters(void);
         /** Gets the vertex program used by this pass when rendering shadow receivers, 
@@ -796,7 +796,7 @@ namespace Ogre {
 		*/
 		void setFragmentProgramParameters(GpuProgramParametersSharedPtr params);
 		/** Gets the name of the fragment program used by this pass. */
-		const String& getFragmentProgramName(void);
+		const String& getFragmentProgramName(void) const;
 		/** Gets the vertex program parameters used by this pass. */
 		GpuProgramParametersSharedPtr getFragmentProgramParameters(void);
 		/** Gets the vertex program used by this pass, only available after _load(). */
@@ -890,7 +890,7 @@ namespace Ogre {
 
         /** Returns whether this pass is ambient only.
         */
-        bool isAmbientOnly(void);
+        bool isAmbientOnly(void) const;
 
         
     };

@@ -679,7 +679,7 @@ namespace Ogre {
 		mFragmentProgramUsage->setParameters(params);
 	}
 	//-----------------------------------------------------------------------
-	const String& Pass::getVertexProgramName(void)
+	const String& Pass::getVertexProgramName(void) const
 	{
         if (!mVertexProgramUsage)
             return String::BLANK;
@@ -703,7 +703,7 @@ namespace Ogre {
 		return mVertexProgramUsage->getProgram();
 	}
 	//-----------------------------------------------------------------------
-	const String& Pass::getFragmentProgramName(void)
+	const String& Pass::getFragmentProgramName(void) const
 	{
 		return mFragmentProgramUsage->getProgramName();
 	}
@@ -864,7 +864,7 @@ namespace Ogre {
         msPassGraveyard.insert(this);
     }
     //-----------------------------------------------------------------------
-    bool Pass::isAmbientOnly(void)
+    bool Pass::isAmbientOnly(void) const
     {
         // treat as ambient if lighting is off, or colour write is off, 
         // or all non-ambient (& emissive) colours are black
@@ -908,7 +908,7 @@ namespace Ogre {
         mShadowCasterVertexProgramUsage->setParameters(params);
     }
     //-----------------------------------------------------------------------
-    const String& Pass::getShadowCasterVertexProgramName(void)
+    const String& Pass::getShadowCasterVertexProgramName(void) const
     {
         if (!mShadowCasterVertexProgramUsage)
             return String::BLANK;
@@ -963,7 +963,7 @@ namespace Ogre {
         mShadowReceiverVertexProgramUsage->setParameters(params);
     }
     //-----------------------------------------------------------------------
-    const String& Pass::getShadowReceiverVertexProgramName(void)
+    const String& Pass::getShadowReceiverVertexProgramName(void) const
     {
         if (!mShadowReceiverVertexProgramUsage)
             return String::BLANK;

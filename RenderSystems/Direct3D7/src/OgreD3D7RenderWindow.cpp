@@ -377,17 +377,17 @@ namespace Ogre {
 
     }
 
-    HWND D3D7RenderWindow::getWindowHandle(void)
+    HWND D3D7RenderWindow::getWindowHandle(void) const
     {
         return mHWnd;
     }
 
-    HWND D3D7RenderWindow::getParentWindowHandle(void)
+    HWND D3D7RenderWindow::getParentWindowHandle(void) const
     {
         return mParentHWnd;
     }
 
-    bool D3D7RenderWindow::isUsingDirectDraw(void)
+    bool D3D7RenderWindow::isUsingDirectDraw(void) const
     {
         return mIsUsingDirectDraw;
     }

@@ -849,9 +849,9 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	String D3D9RenderSystem::getErrorDescription( long errorNumber )
+	String D3D9RenderSystem::getErrorDescription( long errorNumber ) const
 	{
-		String errMsg = DXGetErrorDescription9( errorNumber );
+		const String errMsg = DXGetErrorDescription9( errorNumber );
 		return errMsg;
 	}
 	//---------------------------------------------------------------------

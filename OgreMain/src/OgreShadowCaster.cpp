@@ -271,7 +271,7 @@ namespace Ogre {
 
     }
     // ------------------------------------------------------------------------
-    void ShadowCaster::extrudeBounds(AxisAlignedBox& box, const Vector4& light, Real extrudeDist)
+    void ShadowCaster::extrudeBounds(AxisAlignedBox& box, const Vector4& light, Real extrudeDist) const
     {
         Vector3 extrusionDir;
 

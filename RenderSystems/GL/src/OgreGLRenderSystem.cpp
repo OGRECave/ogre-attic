@@ -110,7 +110,7 @@ namespace Ogre {
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
     {
-        unsigned int i;
+        size_t i;
 
         OgreGuard( "GLRenderSystem::GLRenderSystem" );
 
@@ -704,7 +704,7 @@ namespace Ogre {
     void GLRenderSystem::makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m)
     {
         size_t x = 0;
-        for (size_t i=0; i < 4; i++)
+        for (size_t i = 0; i < 4; i++)
         {
             for (size_t j = 0; j < 4; j++)
             {
@@ -1017,7 +1017,7 @@ namespace Ogre {
         glActiveTextureARB_ptr(GL_TEXTURE0);
     }
     //-----------------------------------------------------------------------------
-    GLint GLRenderSystem::getBlendMode(SceneBlendFactor ogreBlend)
+    GLint GLRenderSystem::getBlendMode(SceneBlendFactor ogreBlend) const
     {
         switch(ogreBlend)
         {
@@ -1230,7 +1230,7 @@ namespace Ogre {
 		mColourWrite[3] = alpha;
 	}
 	//-----------------------------------------------------------------------------
-    String GLRenderSystem::getErrorDescription(long errCode)
+    String GLRenderSystem::getErrorDescription(long errCode) const
     {
         // XXX FIXME
         return String("Uknown Error");
@@ -1423,7 +1423,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    GLint GLRenderSystem::convertCompareFunction(CompareFunction func)
+    GLint GLRenderSystem::convertCompareFunction(CompareFunction func) const
     {
         switch(func)
         {
@@ -1448,7 +1448,7 @@ namespace Ogre {
         return GL_ALWAYS;
     }
     //---------------------------------------------------------------------
-    GLint GLRenderSystem::convertStencilOp(StencilOperation op, bool invert)
+    GLint GLRenderSystem::convertStencilOp(StencilOperation op, bool invert) const
     {
         switch(op)
         {
@@ -1473,7 +1473,7 @@ namespace Ogre {
         return SOP_KEEP;
     }
 	//---------------------------------------------------------------------
-    GLuint GLRenderSystem::getCombinedMinMipFilter(void)
+    GLuint GLRenderSystem::getCombinedMinMipFilter(void) const
     {
         switch(mMinFilter)
         {
@@ -2190,8 +2190,8 @@ namespace Ogre {
     // ------------------------------------------------------------------
     void GLRenderSystem::setGLClipPlanes() const
     {
-        int size = mClipPlanes.size();
-        for (int i=0; i<size; i++)
+        size_t size = mClipPlanes.size();
+        for (size_t i=0; i<size; i++)
         {
             const Vector4 &p = mClipPlanes[i];
             GLdouble plane[4] = { p.x, p.y, p.z, p.w };

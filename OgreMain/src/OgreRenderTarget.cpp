@@ -431,7 +431,7 @@ namespace Ogre {
         mAutoUpdate = autoup;
     }
     //-----------------------------------------------------------------------
-    bool RenderTarget::isAutoUpdated(void)
+    bool RenderTarget::isAutoUpdated(void) const
     {
         return mAutoUpdate;
     }

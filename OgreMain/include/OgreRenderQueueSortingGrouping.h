@@ -170,19 +170,19 @@ namespace Ogre {
         }
 
         /** Get the collection of solid passes currently queued */
-        const SolidRenderablePassMap& _getSolidPasses(void) 
+        const SolidRenderablePassMap& _getSolidPasses(void) const
         { return mSolidPasses; }
         /** Get the collection of solid passes currently queued (per-light) */
-        const SolidRenderablePassMap& _getSolidPassesDiffuseSpecular(void) 
+        const SolidRenderablePassMap& _getSolidPassesDiffuseSpecular(void) const
         { return mSolidPassesDiffuseSpecular; }
         /** Get the collection of solid passes currently queued (decal textures)*/
-        const SolidRenderablePassMap& _getSolidPassesDecal(void) 
+        const SolidRenderablePassMap& _getSolidPassesDecal(void) const
         { return mSolidPassesDecal; }
         /** Get the collection of solid passes for which shadow receipt is disabled*/
-        const SolidRenderablePassMap& _getSolidPassesNoShadow(void) 
+        const SolidRenderablePassMap& _getSolidPassesNoShadow(void) const
         { return mSolidPassesNoShadow; }
         /** Get the collection of transparent passes currently queued */
-        const TransparentRenderablePassList& _getTransparentPasses(void)
+        const TransparentRenderablePassList& _getTransparentPasses(void) const
         { return mTransparentPasses; }
 
 
@@ -318,7 +318,7 @@ namespace Ogre {
 		void setShadowsEnabled(bool enabled) { mShadowsEnabled = enabled; }
 
 		/** Are shadows enabled for this queue? */
-		bool getShadowsEnabled(void) { return mShadowsEnabled; }
+		bool getShadowsEnabled(void) const { return mShadowsEnabled; }
 
         /** Sets whether or not the queue will split passes by their lighting type,
         ie ambient, per-light and decal. 

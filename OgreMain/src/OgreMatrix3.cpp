@@ -35,17 +35,17 @@ namespace Ogre
     const Matrix3 Matrix3::ZERO(0,0,0,0,0,0,0,0,0);
     const Matrix3 Matrix3::IDENTITY(1,0,0,0,1,0,0,0,1);
     const Real Matrix3::ms_fSvdEpsilon = 1e-04;
-    const int Matrix3::ms_iSvdMaxIterations = 32;
+    const unsigned int Matrix3::ms_iSvdMaxIterations = 32;
 
     //-----------------------------------------------------------------------
-    Vector3 Matrix3::GetColumn (int iCol) const
+    Vector3 Matrix3::GetColumn (size_t iCol) const
     {
         assert( 0 <= iCol && iCol < 3 );
         return Vector3(m[0][iCol],m[1][iCol],
             m[2][iCol]);
     }
     //-----------------------------------------------------------------------
-    void Matrix3::SetColumn(int iCol, const Vector3& vec)
+    void Matrix3::SetColumn(size_t iCol, const Vector3& vec)
     {
         assert( 0 <= iCol && iCol < 3 );
         m[0][iCol] = vec.x;
@@ -65,9 +65,9 @@ namespace Ogre
     //-----------------------------------------------------------------------
     bool Matrix3::operator== (const Matrix3& rkMatrix) const
     {
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
             {
                 if ( m[iRow][iCol] != rkMatrix.m[iRow][iCol] )
                     return false;
@@ -80,9 +80,9 @@ namespace Ogre
     Matrix3 Matrix3::operator+ (const Matrix3& rkMatrix) const
     {
         Matrix3 kSum;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
             {
                 kSum.m[iRow][iCol] = m[iRow][iCol] +
                     rkMatrix.m[iRow][iCol];
@@ -94,9 +94,9 @@ namespace Ogre
     Matrix3 Matrix3::operator- (const Matrix3& rkMatrix) const
     {
         Matrix3 kDiff;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
             {
                 kDiff.m[iRow][iCol] = m[iRow][iCol] -
                     rkMatrix.m[iRow][iCol];
@@ -108,9 +108,9 @@ namespace Ogre
     Matrix3 Matrix3::operator* (const Matrix3& rkMatrix) const
     {
         Matrix3 kProd;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
             {
                 kProd.m[iRow][iCol] =
                     m[iRow][0]*rkMatrix.m[0][iCol] +
@@ -124,7 +124,7 @@ namespace Ogre
     Vector3 Matrix3::operator* (const Vector3& rkPoint) const
     {
         Vector3 kProd;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
             kProd[iRow] =
                 m[iRow][0]*rkPoint[0] +
@@ -137,7 +137,7 @@ namespace Ogre
     Vector3 operator* (const Vector3& rkPoint, const Matrix3& rkMatrix)
     {
         Vector3 kProd;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
             kProd[iRow] =
                 rkPoint[0]*rkMatrix.m[0][iRow] +
@@ -150,9 +150,9 @@ namespace Ogre
     Matrix3 Matrix3::operator- () const
     {
         Matrix3 kNeg;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
                 kNeg[iRow][iCol] = -m[iRow][iCol];
         }
         return kNeg;
@@ -161,9 +161,9 @@ namespace Ogre
     Matrix3 Matrix3::operator* (Real fScalar) const
     {
         Matrix3 kProd;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
                 kProd[iRow][iCol] = fScalar*m[iRow][iCol];
         }
         return kProd;
@@ -172,9 +172,9 @@ namespace Ogre
     Matrix3 operator* (Real fScalar, const Matrix3& rkMatrix)
     {
         Matrix3 kProd;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
                 kProd[iRow][iCol] = fScalar*rkMatrix.m[iRow][iCol];
         }
         return kProd;
@@ -183,9 +183,9 @@ namespace Ogre
     Matrix3 Matrix3::Transpose () const
     {
         Matrix3 kTranspose;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
                 kTranspose[iRow][iCol] = m[iCol][iRow];
         }
         return kTranspose;
@@ -224,9 +224,9 @@ namespace Ogre
             return false;
 
         Real fInvDet = 1.0/fDet;
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
                 rkInverse[iRow][iCol] *= fInvDet;
         }
 
@@ -399,7 +399,7 @@ namespace Ogre
         kA[1][0] = -fSin*kA[1][1];
         kA[1][1] *= fCos;
 
-        int iRow;
+        size_t iRow;
         for (iRow = 0; iRow < 3; iRow++)
         {
             fTmp0 = kR[0][iRow];
@@ -423,7 +423,7 @@ namespace Ogre
         kA[0][2] = -fSin*kA[1][2];
         kA[1][2] *= fCos;
 
-        int iCol;
+        size_t iCol;
         for (iCol = 0; iCol < 3; iCol++)
         {
             fTmp0 = kL[iCol][0];
@@ -482,12 +482,12 @@ namespace Ogre
     {
         // temas: currently unused
         //const int iMax = 16;
-        int iRow, iCol;
+		size_t iRow, iCol;
 
         Matrix3 kA = *this;
         Bidiagonalize(kA,kL,kR);
 
-        for (int i = 0; i < ms_iSvdMaxIterations; i++)
+        for (unsigned int i = 0; i < ms_iSvdMaxIterations; i++)
         {
             Real fTmp, fTmp0, fTmp1;
             Real fSin0, fCos0, fTan0;
@@ -603,7 +603,7 @@ namespace Ogre
     void Matrix3::SingularValueComposition (const Matrix3& kL,
         const Vector3& kS, const Matrix3& kR)
     {
-        int iRow, iCol;
+        size_t iRow, iCol;
         Matrix3 kTmp;
 
         // product S*R
@@ -760,8 +760,8 @@ namespace Ogre
 
         if ( fDet < 0.0 )
         {
-            for (int iRow = 0; iRow < 3; iRow++)
-                for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iRow = 0; iRow < 3; iRow++)
+                for (size_t iCol = 0; iCol < 3; iCol++)
                     kQ[iRow][iCol] = -kQ[iRow][iCol];
         }
 
@@ -839,7 +839,7 @@ namespace Ogre
     Real Matrix3::SpectralNorm () const
     {
         Matrix3 kP;
-        int iRow, iCol;
+        size_t iRow, iCol;
         Real fPmax = 0.0;
         for (iRow = 0; iRow < 3; iRow++)
         {
@@ -1393,13 +1393,13 @@ namespace Ogre
         // QL iteration with implicit shifting to reduce matrix from tridiagonal
         // to diagonal
 
-        for (int i0 = 0; i0 < 3; i0++)
+        for (size_t i0 = 0; i0 < 3; i0++)
         {
-            const int iMaxIter = 32;
-            int iIter;
+            const unsigned int iMaxIter = 32;
+            unsigned int iIter;
             for (iIter = 0; iIter < iMaxIter; iIter++)
             {
-                int i1;
+                size_t i1;
                 for (i1 = i0; i1 <= 1; i1++)
                 {
                     Real fSum = Math::Abs(afDiag[i1]) +
@@ -1419,7 +1419,7 @@ namespace Ogre
                 Real fSin = 1.0;
                 Real fCos = 1.0;
                 Real fTmp2 = 0.0;
-                for (int i2 = i1-1; i2 >= i0; i2--)
+                for (size_t i2 = i1-1; i2 >= i0; i2--)
                 {
                     Real fTmp3 = fSin*afSubDiag[i2];
                     Real fTmp4 = fCos*afSubDiag[i2];
@@ -1445,7 +1445,7 @@ namespace Ogre
                     afDiag[i2+1] = fTmp0+fTmp2;
                     fTmp0 = fCos*fTmp1-fTmp4;
 
-                    for (int iRow = 0; iRow < 3; iRow++)
+                    for (size_t iRow = 0; iRow < 3; iRow++)
                     {
                         fTmp3 = m[iRow][i2+1];
                         m[iRow][i2+1] = fSin*m[iRow][i2] +
@@ -1477,7 +1477,7 @@ namespace Ogre
         kMatrix.Tridiagonal(afEigenvalue,afSubDiag);
         kMatrix.QLAlgorithm(afEigenvalue,afSubDiag);
 
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             akEigenvector[i][0] = kMatrix[0][i];
             akEigenvector[i][1] = kMatrix[1][i];
@@ -1498,9 +1498,9 @@ namespace Ogre
     void Matrix3::TensorProduct (const Vector3& rkU, const Vector3& rkV,
         Matrix3& rkProduct)
     {
-        for (int iRow = 0; iRow < 3; iRow++)
+        for (size_t iRow = 0; iRow < 3; iRow++)
         {
-            for (int iCol = 0; iCol < 3; iCol++)
+            for (size_t iCol = 0; iCol < 3; iCol++)
                 rkProduct[iRow][iCol] = rkU[iRow]*rkV[iCol];
         }
     }

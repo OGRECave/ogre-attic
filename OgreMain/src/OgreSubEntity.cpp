@@ -194,7 +194,7 @@ namespace Ogre {
         mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
     }
     //-----------------------------------------------------------------------
-    bool SubEntity::getCastsShadows(void)
+    bool SubEntity::getCastsShadows(void) const
     {
         return mParentEntity->getCastShadows();
     }

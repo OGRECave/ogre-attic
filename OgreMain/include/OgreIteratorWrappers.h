@@ -211,12 +211,12 @@ namespace Ogre {
             return *mCurrent++;
         }
         /** Returns the next element in the collection, without advancing to the next. */
-        typename T::value_type peekNext(void)
+        typename T::value_type peekNext(void) const
         {
             return *mCurrent;
         }
         /** Returns a pointer to the next element in the collection, without advancing to the next afterwards. */
-        typename T::pointer peekNextPtr(void)
+        typename T::const_pointer peekNextPtr(void) const
         {
             return &(*mCurrent);
         }
@@ -274,12 +274,12 @@ namespace Ogre {
             return (mCurrent++)->second;
         }
         /** Returns the next value element in the collection, without advancing to the next. */
-        typename T::mapped_type peekNextValue(void)
+        typename T::mapped_type peekNextValue(void) const
         {
             return mCurrent->second;
         }
         /** Returns the next key element in the collection, without advancing to the next. */
-        typename T::key_type peekNextKey(void)
+        typename T::key_type peekNextKey(void) const
         {
             return mCurrent->first;
         }
@@ -292,7 +292,7 @@ namespace Ogre {
         }
         /** Returns a pointer to the next value element in the collection, without 
         advancing to the next afterwards. */
-        typename T::pointer peekNextValuePtr(void)
+        typename T::const_pointer peekNextValuePtr(void) const
         {
             return &(mCurrent->second);
         }

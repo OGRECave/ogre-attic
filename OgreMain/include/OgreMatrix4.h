@@ -106,13 +106,13 @@ namespace Ogre
             m[3][3] = m33;
         }
 
-        inline Real* operator [] ( unsigned iRow )
+        inline Real* operator [] ( size_t iRow )
         {
             assert( iRow < 4 );
             return m[iRow];
         }
 
-        inline const Real *const operator [] ( unsigned iRow ) const
+        inline const Real *const operator [] ( size_t iRow ) const
         {
             assert( iRow < 4 );
             return m[iRow];
@@ -421,10 +421,10 @@ namespace Ogre
             ( std::ostream& o, const Matrix4& m )
         {
             o << "Matrix4(";
-            for (int i = 0; i < 4; ++i)
+			for (size_t i = 0; i < 4; ++i)
             {
-                o << " row" << i << "{";
-                for(int j = 0; j < 4; ++j)
+                o << " row" << (unsigned)i << "{";
+                for(size_t j = 0; j < 4; ++j)
                 {
                     o << m[i][j] << " ";
                 }

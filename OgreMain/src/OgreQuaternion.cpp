@@ -71,14 +71,14 @@ namespace Ogre {
         else
         {
             // |w| <= 1/2
-            static int s_iNext[3] = { 1, 2, 0 };
-            int i = 0;
+            static size_t s_iNext[3] = { 1, 2, 0 };
+            size_t i = 0;
             if ( kRot[1][1] > kRot[0][0] )
                 i = 1;
             if ( kRot[2][2] > kRot[i][i] )
                 i = 2;
-            int j = s_iNext[i];
-            int k = s_iNext[j];
+            size_t j = s_iNext[i];
+            size_t k = s_iNext[j];
 
             fRoot = Math::Sqrt(kRot[i][i]-kRot[j][j]-kRot[k][k] + 1.0);
             Real* apkQuat[3] = { &x, &y, &z };
@@ -160,7 +160,7 @@ namespace Ogre {
     {
         Matrix3 kRot;
 
-        for (int iCol = 0; iCol < 3; iCol++)
+        for (size_t iCol = 0; iCol < 3; iCol++)
         {
             kRot[0][iCol] = akAxis[iCol].x;
             kRot[1][iCol] = akAxis[iCol].y;
@@ -196,7 +196,7 @@ namespace Ogre {
 
         ToRotationMatrix(kRot);
 
-        for (int iCol = 0; iCol < 3; iCol++)
+        for (size_t iCol = 0; iCol < 3; iCol++)
         {
             akAxis[iCol].x = kRot[0][iCol];
             akAxis[iCol].y = kRot[1][iCol];
@@ -483,12 +483,6 @@ namespace Ogre {
         Quaternion kSlerpP = Slerp(fT, rkP, rkQ, shortestPath);
         Quaternion kSlerpQ = Slerp(fT, rkA, rkB);
         return Slerp(fSlerpT, kSlerpP ,kSlerpQ);
-    }
-    //-----------------------------------------------------------------------
-    bool Quaternion::operator== (const Quaternion& rhs) const
-    {
-        return (rhs.x == x) && (rhs.y == y) &&
-            (rhs.z == z) && (rhs.w == w);
     }
     //-----------------------------------------------------------------------
     Real Quaternion::normalise(void)

@@ -96,15 +96,15 @@ namespace Ogre {
 
         /** Retrieves a handle to the window (Win32 specific)
         */
-        HWND getWindowHandle(void);
+        HWND getWindowHandle(void) const;
 
         /** Retrieves a handle to the window's parent, or 0 if there is no parent.
         */
-        HWND getParentWindowHandle(void);
+        HWND getParentWindowHandle(void) const;
 
         /** Returns true if this window is using DirectDraw.
         */
-        bool isUsingDirectDraw(void);
+        bool isUsingDirectDraw(void) const;
         /** Retrieves a pointer to the DirectDraw wrapper object used to 
             manage the window's surface. (Win32 specific)
             @note

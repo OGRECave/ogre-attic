@@ -47,7 +47,7 @@ namespace Ogre {
             "Unable to destroy Cg context: ", mCgContext);
     }
     //-----------------------------------------------------------------------
-    const String& CgProgramFactory::getLanguage(void)
+    const String& CgProgramFactory::getLanguage(void) const
     {
         return sLanguageName;
     }

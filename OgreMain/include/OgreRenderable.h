@@ -147,7 +147,7 @@ namespace Ogre {
             Subclasses should override this if they could have been used to 
             generate a shadow.
         */
-        virtual bool getCastsShadows(void) { return false; }
+        virtual bool getCastsShadows(void) const { return false; }
 
     private:
         static const PlaneList msDummyPlaneList;

@@ -398,16 +398,16 @@ namespace Ogre {
         /// Cancel view window.
         virtual void resetWindow (void);
         /// Returns if a viewport window is being used
-        virtual bool isWindowSet(void) { return mWindowSet; }
+        virtual bool isWindowSet(void) const { return mWindowSet; }
         /// Gets the window clip planes, only applicable if isWindowSet == true
-        const std::vector<Plane>& getWindowPlanes(void);
+        const std::vector<Plane>& getWindowPlanes(void) const;
 
         /** Overridden from MovableObject */
         Real getBoundingRadius(void) const;
 		/** Get the auto tracking target for this camera, if any. */
         SceneNode* getAutoTrackTarget(void) { return mAutoTrackTarget; }
 		/** Get the auto tracking offset for this camera, if it is auto tracking. */
-		const Vector3& getAutoTrackOffset(void) { return mAutoTrackOffset; }
+		const Vector3& getAutoTrackOffset(void) const { return mAutoTrackOffset; }
 		
 
     };
