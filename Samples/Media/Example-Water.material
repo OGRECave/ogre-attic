@@ -95,7 +95,7 @@ Examples/Water5
    } 
 } 
 
-Examples/Water6
+Examples/Water8
 {
     // No dynamic lighting, fully lit
     lighting off
@@ -132,7 +132,7 @@ Examples/Water7
    } 
 } 
 
-Examples/Water8
+Examples/Water6
 {
     // No dynamic lighting, fully lit
    lighting off
