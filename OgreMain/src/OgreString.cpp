@@ -33,6 +33,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void String::trim(bool left, bool right)
     {
+        /*
         size_t lspaces, rspaces, len = length(), i;
 
         lspaces = rspaces = 0;
@@ -54,6 +55,10 @@ namespace Ogre {
         }
 
         *this = substr(lspaces, len-lspaces-rspaces);
+        */
+        String delims = " \t\r";
+        erase(find_last_not_of(delims)+1); // trim right
+        erase(0, find_first_not_of(delims)); // trim left
     }
 
     //-----------------------------------------------------------------------
