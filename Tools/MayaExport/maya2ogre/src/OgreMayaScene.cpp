@@ -62,6 +62,9 @@ namespace OgreMaya {
 	*/	
 	//	--------------------------------------------------------------------------
 	bool SceneMgr::load() {
+
+        cout << "\nSceneMgr::load\n";
+
 		MStatus status;
 
 		// Store working directory to restore later
@@ -70,7 +73,7 @@ namespace OgreMaya {
 
 		// Initialize Maya if required
 		if (!mbInitialized) {
-			cout << "SceneMgr: Initializing Maya...\n";
+			cout << "\tinitializing Maya...\n";
 
 			status = MLibrary::initialize("Maya-to-Ogre", false);
 			if (!status) {
@@ -79,13 +82,13 @@ namespace OgreMaya {
 			}
 			mbInitialized = true;
 
-			cout << "SceneMgr: Maya initialized\n";
+			cout << "\tMaya initialized\n";
         }
 
 		// Prepare Maya to read a new scene file
 		status = MFileIO::newFile(true);
 		if (!status) {
-			cout << "SceneMgr: MFileIO::newFile() failed\n";
+			cout << "\t[ERROR] MFileIO::newFile() failed\n";
 			return false;
 		}
 
@@ -95,10 +98,10 @@ namespace OgreMaya {
 		// Read the scene file
 		status = MFileIO::open(OPTIONS.inFile.c_str());
 		if (!status) {
-			cout << "SceneMgr: MFileIO::open() failed:\n";
+			cout << "\t[ERROR] MFileIO::open() failed:\n";
 			return false;
 		}
-		cout << "SceneMgr: File " << OPTIONS.inFile.c_str() << " opened\n";
+		cout << "\tfile " << OPTIONS.inFile.c_str() << " opened\n";
 
 		// Done
 		return true;

@@ -60,52 +60,47 @@ int main(int argc, char *argv[]) {
 
 	    bool bStatus;
 
-	    // ===== Initialize Maya and load scene
-	    cout << "Loading Maya scene...\n";	
+	    // ===== Initialize Maya and load scene	    
 	    bStatus = sceneMgr.load();
 	    if (!bStatus) {
-		    cout << "\tSceneMgr::load() failed!\n";
+		    cout << "\tFAILED\n";
 		    return -2;
 	    }
 	    
 
-        
-        // DEBUG
-        // ===== Iterate over mesh components of DAG       
-        /*
-        cout << "=== DAG Nodes ==============================\n";
-        MItDag dagIter( MItDag::kBreadthFirst, MFn::kInvalid, 0 );
-        for ( ; !dagIter.isDone(); dagIter.next()) {
-            MDagPath dagPath;
-            dagIter.getPath( dagPath );
+        if(OPTIONS.verboseMode) {
+            // ===== Iterate over mesh components of DAG               
+            cout << "\n=== DAG Nodes ==============================\n";
+            MItDag dagIter( MItDag::kBreadthFirst, MFn::kInvalid, 0 );
+            for ( ; !dagIter.isDone(); dagIter.next()) {
+                MDagPath dagPath;
+                dagIter.getPath( dagPath );
 
-            cout << "Node: "
-               << dagPath.fullPathName().asChar()
-               << "\n";
+                cout << "Node: "
+                   << dagPath.fullPathName().asChar()
+                   << "\n";
+            }
+            cout << "============================================\n";
         }
-        cout << "============================================\n";
-        */
         
 
 
 	    // ===== Export
   	    // --- Skeleton
-	    if (OPTIONS.exportSkeleton) {
-		    cout << "Exporting skeleton...\n";	
+	    if (OPTIONS.exportSkeleton) {		    
 		    bStatus = skelGen.exportAll();
 		    if (!bStatus) {
-			    printf("SkelGenerator::exportAll() failed!");
+			    cout << "\tFAILED\n";
 			    return -3;
 		    }
 	    }
 
 	    
 	    // --- Mesh	    
-	    if (OPTIONS.exportMesh) {
-			cout << "Exporting mesh...\n";	
+	    if (OPTIONS.exportMesh) {			
 			bStatus = meshGen.exportAll();
 			if (!bStatus) {
-				cout << "\tMeshGenerator::exportAll() failed!\n";
+				cout << "\tFAILED\n";
 				return -4;
 			}
 		}
@@ -113,11 +108,10 @@ int main(int argc, char *argv[]) {
 
 		// --- Material		
 
-        if(OPTIONS.exportMaterial) {
-            cout << "Exporting material...\n";	
+        if(OPTIONS.exportMaterial) {            
 		    bStatus = matGen.exportAll();
 		    if (!bStatus) {            
-			    cout << "\tMatGenerator::exportAll() failed!\n";
+			    cout << "\tFAILED\n";
 			    return -5;
 		    }
         }  
@@ -134,7 +128,7 @@ void showHelp()
 	cout << "Usage: maya2ogre -in FILE [-mesh [FILE]] [-vba] [-skel [FILE]]\n";
     cout << "                 [-anim NAME START END STEP]\n";
     cout << "                 [-mat [FILE]] [-mprefix PREFIX]\n";
-    cout << "                 [-n] [-c] [-t]\n\n";
+    cout << "                 [-n] [-c] [-t] [-v]\n\n";
 	cout << " -in      FILE   input mb File\n";
     cout << " -mesh    FILE   export mesh (FILE is optional)\n";
     cout << " -vba            export vertex bone assignments\n";    
@@ -147,7 +141,8 @@ void showHelp()
     cout << " -mprefix PREFIX material prefix\n";
     cout << " -n              export normals\n";
     cout << " -c              export diffuse colours\n";
-    cout << " -t              export texture coords\n\n";    
+    cout << " -t              export texture coords\n";    
+    cout << " -v              more output\n\n";
     cout << "Examples:\n";
     cout << " maya2ogre -in foo.mb -mesh -skel -mat\n";
     cout << "     => exports skeleton, mesh and material using default file names,\n";
