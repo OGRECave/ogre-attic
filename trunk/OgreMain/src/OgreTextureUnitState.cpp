@@ -836,6 +836,8 @@ namespace Ogre {
         case FT_MIP:
             return mMipFilter;
         }
+		// to keep compiler happy
+		return mMinFilter;
 	}
 
 	//-----------------------------------------------------------------------
