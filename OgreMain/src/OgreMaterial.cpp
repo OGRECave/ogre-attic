@@ -153,6 +153,12 @@ namespace Ogre {
         ResourceHandle newHandle = newMat->getHandle();
         // Assign values from this
         *newMat = *this;
+		// Restore new group if required, will have been overridden by operator
+		if (changeGroup)
+		{
+			newMat->mGroup = newGroup;
+		}
+		
 		newMat->mIsLoaded = this->mIsLoaded;
         // Correct the name & handle, they get copied too
         newMat->mName = newName;
