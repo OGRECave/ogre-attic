@@ -49,18 +49,7 @@ namespace Ogre {
         std::vector<ParticleEmitter*> mEmitters;
     public:
         ParticleEmitterFactory() {};
-        virtual ~ParticleEmitterFactory() 
-        {
-            // Destroy all emitters
-            std::vector<ParticleEmitter*>::iterator i;
-            for (i = mEmitters.begin(); i != mEmitters.end(); ++i)
-            {
-                delete (*i);
-            }
-            
-            mEmitters.clear();
-
-        };
+        virtual ~ParticleEmitterFactory();
 
         /** Returns the name of the factory, the name which identifies the particle emitter type this factory creates. */
         virtual String getName() const = 0;
@@ -72,19 +61,7 @@ namespace Ogre {
         virtual ParticleEmitter* createEmitter(void) = 0;
 
         /** Destroys the emitter pointed to by the parameter (for early clean up if reauired). */
-        virtual void destroyEmitter(ParticleEmitter* e)
-        {
-            std::vector<ParticleEmitter*>::iterator i;
-            for (i = mEmitters.begin(); i != mEmitters.end(); ++i)
-            {
-                if ((*i) == e)
-                {
-                    mEmitters.erase(i);
-                    delete e;
-                    break;
-                }
-            }
-        }
+        virtual void destroyEmitter(ParticleEmitter* e);
 
     };
 

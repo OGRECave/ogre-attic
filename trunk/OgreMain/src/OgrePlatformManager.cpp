@@ -28,6 +28,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDynLibManager.h"
 #include "OgreDynLib.h"
 
+#include "OgreConfigDialog.h"
+#include "OgreErrorDialog.h"
+
+
 namespace Ogre {
 
     //-----------------------------------------------------------------------
@@ -123,6 +127,13 @@ namespace Ogre {
         mpfDestroyTimer(timer);
     }
 
+    //-----------------------------------------------------------------------
+    ConfigDialog::~ConfigDialog() {
+    }
+
+    //-----------------------------------------------------------------------
+    ErrorDialog::~ErrorDialog() {
+    }
 
 
 }

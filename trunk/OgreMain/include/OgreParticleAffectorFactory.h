@@ -48,19 +48,7 @@ namespace Ogre {
         std::vector<ParticleAffector*> mAffectors;
     public:
         ParticleAffectorFactory() {};
-        virtual ~ParticleAffectorFactory() 
-        {
-            // Destroy all affectors
-            std::vector<ParticleAffector*>::iterator i;
-            for (i = mAffectors.begin(); i != mAffectors.end(); ++i)
-            {
-                delete (*i);
-            }
-            
-            mAffectors.clear();
-
-        };
-
+        virtual ~ParticleAffectorFactory();
         /** Returns the name of the factory, the name which identifies the particle affector type this factory creates. */
         virtual String getName() const = 0;
 
@@ -71,20 +59,7 @@ namespace Ogre {
         virtual ParticleAffector* createAffector(void) = 0;
 
         /** Destroys the affector pointed to by the parameter (for early clean up if reauired). */
-        virtual void destroyAffector(ParticleAffector* e)
-        {
-            std::vector<ParticleAffector*>::iterator i;
-            for (i = mAffectors.begin(); i != mAffectors.end(); ++i)
-            {
-                if ((*i) == e)
-                {
-                    mAffectors.erase(i);
-                    delete e;
-                    break;
-                }
-            }
-        }
-
+        virtual void destroyAffector(ParticleAffector* e);
     };
 
 
