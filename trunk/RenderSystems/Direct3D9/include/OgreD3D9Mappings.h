@@ -93,7 +93,7 @@ namespace Ogre
 		/// return a D3D9 equivalent for a Ogre SceneDetailLevel value
 		static D3DFILLMODE get(SceneDetailLevel level);
 		/// return a D3D9 equivalent for a Ogre StencilOperation value
-		static DWORD get(StencilOperation op);
+		static DWORD get(StencilOperation op, bool invert = false);
 		/// return a D3D9 state type for Ogre FilterType value
 		static D3DSAMPLERSTATETYPE get(FilterType ft);
 		/// return a D3D9 filter option for Ogre FilterType & FilterOption value

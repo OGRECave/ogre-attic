@@ -278,7 +278,7 @@ namespace Ogre
 		return D3DFILL_FORCE_DWORD;
 	}
 	//---------------------------------------------------------------------
-	DWORD D3D9Mappings::get(StencilOperation op)
+	DWORD D3D9Mappings::get(StencilOperation op, bool invert)
 	{
 		switch(op)
 		{
@@ -289,13 +289,13 @@ namespace Ogre
 		case SOP_REPLACE:
 			return D3DSTENCILOP_REPLACE;
 		case SOP_INCREMENT:
-			return D3DSTENCILOP_INCRSAT;
+            return invert? D3DSTENCILOP_DECRSAT : D3DSTENCILOP_INCRSAT;
 		case SOP_DECREMENT:
-			return D3DSTENCILOP_DECRSAT;
+            return invert? D3DSTENCILOP_INCRSAT : D3DSTENCILOP_DECRSAT;
 		case SOP_INCREMENT_WRAP:
-			return D3DSTENCILOP_INCR;
+            return invert? D3DSTENCILOP_DECR : D3DSTENCILOP_INCR;
 		case SOP_DECREMENT_WRAP:
-			return D3DSTENCILOP_DECR;
+            return invert? D3DSTENCILOP_INCR : D3DSTENCILOP_DECR;
 		case SOP_INVERT:
 			return D3DSTENCILOP_INVERT;
 		}
