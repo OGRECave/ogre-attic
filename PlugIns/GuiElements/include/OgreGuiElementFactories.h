@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lgpl.html.
 #include "OgreGuiElementFactory.h"
 #include "OgrePanelGuiElement.h"
 #include "OgreBorderPanelGuiElement.h"
-//#include "OgreTextAreaGuiElement.h"
+#include "OgreTextAreaGuiElement.h"
 
 
 // This file includes definitions for all the GuiElement factories provided with OGRE
@@ -72,22 +72,22 @@ namespace Ogre {
         }
     };
 
-    ///** Factory for creating TextAreaGuiElement instances. */
-    //class _OgreGuiElementExport TextAreaGuiElementFactory: public GuiElementFactory
-    //{
-    //public:
-    //    /** See GuiElementFactory */
-    //    GuiElement* createGuiElement(const String& instanceName)
-    //    {
-    //        return new TextAreaGuiElement(instanceName);
-    //    }
-    //    /** See GuiElementFactory */
-    //    const String& getTypeName(void)
-    //    {
-    //        static String name = "TextArea";
-    //        return name;
-    //    }
-    //};
+    /** Factory for creating TextAreaGuiElement instances. */
+    class _OgreGuiElementExport TextAreaGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new TextAreaGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "TextArea";
+            return name;
+        }
+    };
 
 }
 

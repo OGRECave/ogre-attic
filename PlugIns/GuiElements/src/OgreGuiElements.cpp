@@ -49,10 +49,10 @@ namespace Ogre {
         pBorderPanelFactory = new BorderPanelGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pBorderPanelFactory);
 
-        /*
+        
         pTextAreaFactory = new TextAreaGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pTextAreaFactory);
-        */
+        
 
     }
 

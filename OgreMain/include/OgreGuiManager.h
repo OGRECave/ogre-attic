@@ -48,6 +48,9 @@ namespace Ogre {
         */
         GuiElement* createGuiElement(const String& typeName, const String& instanceName);
 
+        /** Gets a reference to an existing element. */
+        GuiElement* getGuiElement(const String& name);
+        
         /** Destroys a GuiElement. 
         @remarks
             Make sure you're not still using this in an Overlay. If in
@@ -68,11 +71,7 @@ namespace Ogre {
             should rarely be a need to call it yourself.
         */
         void destroyAllGuiElements(void);
-
-        /** Returns a pointer to the GuiElement with the passed name.
-        */
-        GuiElement * getGuiElement( const String& name );
-        
+      
         /** Registers a new GuiElementFactory with this manager.
         @remarks
             Should be used by plugins or other apps wishing to provide

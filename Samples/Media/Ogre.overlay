@@ -21,6 +21,17 @@ Ogre/DebugOverlay
         	border_bottom_uv      0.1914 0.2148 0.8086 0.0000
 	        border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
 
+		element TextArea(StatText)
+		{
+			left 0.02
+			top 0.22
+			width 0.21
+			height 0.4
+			font_name StarWars
+			char_height 0.02
+			caption cool stuff here
+		}
+
 		element BorderPanel(SubPanel)
 		{
 			left 0.02

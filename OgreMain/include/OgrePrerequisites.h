@@ -124,6 +124,8 @@ namespace Ogre {
     class DynLibManager;
     class Entity;
     class Factory;
+    class Font;
+    class FontManager;
     class FrameListener;
     class GuiElement;
     class GuiElementFactory;

@@ -67,6 +67,13 @@ namespace Ogre  {
             String doGet(void* target);
             void doSet(void* target, const String& val);
         };
+        /// Command object for GuiElement  - see ParamCommand 
+        class _OgreExport CmdCaption : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
 
     }
 }

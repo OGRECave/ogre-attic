@@ -21,7 +21,7 @@
 				Optimization="0"
 				ImproveFloatingPointConsistency="FALSE"
 				OptimizeForProcessor="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_GUIELEMENTS_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -83,7 +83,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_GUIELEMENTS_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -142,6 +142,9 @@
 			<File
 				RelativePath="..\src\OgrePanelGuiElement.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreTextAreaGuiElement.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -157,6 +160,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgrePanelGuiElement.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreTextAreaGuiElement.h">
 			</File>
 		</Filter>
 		<Filter
