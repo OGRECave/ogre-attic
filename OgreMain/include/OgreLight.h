@@ -41,8 +41,8 @@ namespace Ogre {
             parameters like type, position, attenuation (how light intensity fades with
             distance), colour etc.
         @par
-            The defaults when a light is created is pure white diffues light, with linear
-            attenuation (decreases steadily with distance) and a range of 1000 world units.
+            The defaults when a light is created is pure white diffues light, with no
+            attenuation (does not decrease with distance) and a range of 1000 world units.
         @par
             Lights are created by using the SceneManager::createLight method. They can subsequently be
             added to a SceneNode if required to allow them to move relative to a node in the scene. A light attached
