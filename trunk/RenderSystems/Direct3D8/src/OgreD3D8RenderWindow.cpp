@@ -234,7 +234,7 @@ namespace Ogre
 			{
 				md3dpp.BackBufferFormat		= D3DFMT_R5G6B5;
 				if( mColourDepth > 16 )
-					md3dpp.BackBufferFormat = D3DFMT_R8G8B8;
+					md3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
 			}
             // Depth-stencil format
             if (mColourDepth > 16 )
@@ -261,7 +261,7 @@ namespace Ogre
                 else
                 {
                     // Woohoo!
-                    md3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+                    md3dpp.AutoDepthStencilFormat = D3DFMT_D24S8;
                 }
 
 
