@@ -65,6 +65,25 @@ namespace Ogre {
 
         /** Sets the center point of the sphere. */
         void setCenter(const Vector3& center) { mCenter = center; }
+
+		/** Returns whether or not this sphere interects another sphere. */
+		bool intersects(const Sphere& s) const
+		{
+			return (s.mCenter - mCenter).length() <=
+				(s.mRadius + mRadius);
+		}
+		/** Returns whether or not this sphere interects a box. */
+		bool intersects(const AxisAlignedBox& box) const
+		{
+			return Math::intersects(*this, box);
+		}
+		/** Returns whether or not this sphere interects a plane. */
+		bool intersects(const Plane& plane) const
+		{
+			return Math::intersects(*this, plane);
+		}
+        
+
     };
 
 }

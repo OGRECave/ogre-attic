@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreSceneQuery.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -48,6 +49,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneQuery::setWorldFragmentType(enum SceneQuery::WorldFragmentType wft)
     {
+        // Check supported
+        if (mSupportedWorldFragments.find(wft) == mSupportedWorldFragments.end())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "This world fragment type is not supported.",
+                "SceneQuery::setWorldFragmentType");
+        }
         mWorldFragmentType = wft;
     }
     //-----------------------------------------------------------------------
@@ -80,6 +87,33 @@ namespace Ogre {
             delete mLastResult;
         }
         mLastResult = NULL;
+    }
+	//---------------------------------------------------------------------
+    SceneQueryResult&
+    RegionSceneQuery::execute(void)
+    {
+        clearResults();
+        mLastResult = new SceneQueryResult();
+        // Call callback version with self as listener
+        execute(this);
+        return *mLastResult;
+    }
+	//---------------------------------------------------------------------
+    bool RegionSceneQuery::
+        queryResult(MovableObject* obj)
+    {
+        // Add to internal list
+        mLastResult->movables.push_back(obj);
+        // Continue
+        return true;
+    }
+	//---------------------------------------------------------------------
+    bool RegionSceneQuery::queryResult(SceneQuery::WorldFragment* fragment)
+    {
+        // Add to internal list
+        mLastResult->worldFragments.push_back(fragment);
+        // Continue
+        return true;
     }
     //-----------------------------------------------------------------------
     AxisAlignedBoxSceneQuery::AxisAlignedBoxSceneQuery(SceneManager* mgr)
@@ -156,6 +190,7 @@ namespace Ogre {
         return mMaxResults;
     }
     //-----------------------------------------------------------------------
+    /*
     PyramidSceneQuery::PyramidSceneQuery(SceneManager* mgr) : RegionSceneQuery(mgr)
     {
     }
@@ -163,6 +198,7 @@ namespace Ogre {
     PyramidSceneQuery::~PyramidSceneQuery()
     {
     }
+    */
     //-----------------------------------------------------------------------
     IntersectionSceneQuery::IntersectionSceneQuery(SceneManager* mgr)
     : SceneQuery(mgr), mLastResult(NULL)
@@ -187,6 +223,38 @@ namespace Ogre {
             delete mLastResult;
         }
         mLastResult = NULL;
+    }
+	//---------------------------------------------------------------------
+    IntersectionSceneQueryResult&
+    IntersectionSceneQuery::execute(void)
+    {
+        clearResults();
+        mLastResult = new IntersectionSceneQueryResult();
+        // Call callback version with self as listener
+        execute(this);
+        return *mLastResult;
+    }
+	//---------------------------------------------------------------------
+    bool IntersectionSceneQuery::
+        queryResult(MovableObject* first, MovableObject* second)
+    {
+        // Add to internal list
+        mLastResult->movables2movables.push_back(
+            SceneQueryMovableObjectPair(first, second)
+            );
+        // Continue
+        return true;
+    }
+	//---------------------------------------------------------------------
+    bool IntersectionSceneQuery::
+        queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment)
+    {
+        // Add to internal list
+        mLastResult->movables2world.push_back(
+            SceneQueryMovableObjectWorldFragmentPair(movable, fragment)
+            );
+        // Continue
+        return true;
     }
 
 

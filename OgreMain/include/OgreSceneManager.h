@@ -50,8 +50,11 @@ namespace Ogre {
         Quaternion orientation;
     };
 
-	// Forward declaration
+	// Forward declarations
 	class DefaultIntersectionSceneQuery;
+	class DefaultRaySceneQuery;
+	class DefaultSphereSceneQuery;
+	class DefaultAxisAlignedBoxSceneQuery;
 
     /** Manages the rendering of a 'scene' i.e. a collection of primitives.
         @remarks
@@ -71,6 +74,9 @@ namespace Ogre {
     class _OgreExport SceneManager
     {
 		friend class DefaultIntersectionSceneQuery; 
+	    friend class DefaultRaySceneQuery;
+	    friend class DefaultSphereSceneQuery;
+	    friend class DefaultAxisAlignedBoxSceneQuery;
     public:
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
@@ -1141,23 +1147,49 @@ namespace Ogre {
 
     };
 
-    /** Internal implementation of IntersectionSceneQuery. */
+    /** Default implementation of IntersectionSceneQuery. */
     class _OgreExport DefaultIntersectionSceneQuery : 
-        public IntersectionSceneQuery, public IntersectionSceneQueryListener 
+        public IntersectionSceneQuery
     {
     public:
         DefaultIntersectionSceneQuery(SceneManager* creator);
-        virtual ~DefaultIntersectionSceneQuery();
+        ~DefaultIntersectionSceneQuery();
 
         /** See IntersectionSceneQuery. */
-        IntersectionSceneQueryResult& execute(void);
-        /** See IntersectionSceneQuery. */
         void execute(IntersectionSceneQueryListener* listener);
-        /** Self-callback in order to deal with execute which returns collection. */
-        bool queryResult(MovableObject* first, MovableObject* second);
-        /** Self-callback in order to deal with execute which returns collection. */
-        bool queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment);
     };
+
+    /** Default implementation of RaySceneQuery. */
+	class _OgreExport DefaultRaySceneQuery : public RaySceneQuery
+    {
+    public:
+        DefaultRaySceneQuery(SceneManager* creator);
+        ~DefaultRaySceneQuery();
+
+        /** See RayScenQuery. */
+        void execute(SceneQueryListener* listener);
+    };
+    /** Default implementation of SphereSceneQuery. */
+	class _OgreExport DefaultSphereSceneQuery : public SphereSceneQuery
+    {
+    public:
+        DefaultSphereSceneQuery(SceneManager* creator);
+        ~DefaultSphereSceneQuery();
+
+        /** See RayScenQuery. */
+        void execute(SceneQueryListener* listener);
+    };
+    /** Default implementation of AxisAlignedBoxSceneQuery. */
+	class _OgreExport DefaultAxisAlignedBoxSceneQuery : public AxisAlignedBoxSceneQuery
+    {
+    public:
+        DefaultAxisAlignedBoxSceneQuery(SceneManager* creator);
+        ~DefaultAxisAlignedBoxSceneQuery();
+
+        /** See RayScenQuery. */
+        void execute(SceneQueryListener* listener);
+    };
+    
 
 
 } // Namespace

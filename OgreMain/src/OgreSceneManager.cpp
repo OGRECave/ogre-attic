@@ -1946,22 +1946,25 @@ namespace Ogre {
     AxisAlignedBoxSceneQuery* 
     SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
     {
-        // TODO
-        return NULL;
+        DefaultAxisAlignedBoxSceneQuery* q = new DefaultAxisAlignedBoxSceneQuery(this);
+        q->setQueryMask(mask);
+        return q;
     }
 	//---------------------------------------------------------------------
     SphereSceneQuery* 
     SceneManager::createSphereQuery(const Sphere& sphere, unsigned long mask)
     {
-        // TODO
-        return NULL;
+        DefaultSphereSceneQuery* q = new DefaultSphereSceneQuery(this);
+        q->setQueryMask(mask);
+        return q;
     }
 	//---------------------------------------------------------------------
     RaySceneQuery* 
     SceneManager::createRayQuery(const Ray& ray, unsigned long mask)
     {
-        // TODO
-        return NULL;
+        DefaultRaySceneQuery* q = new DefaultRaySceneQuery(this);
+        q->setQueryMask(mask);
+        return q;
     }
 	//---------------------------------------------------------------------
     IntersectionSceneQuery* 
@@ -1987,16 +1990,6 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
     {
-    }
-	//---------------------------------------------------------------------
-    IntersectionSceneQueryResult& 
-    DefaultIntersectionSceneQuery::execute(void)
-    {
-        clearResults();
-        mLastResult = new IntersectionSceneQueryResult();
-        // Call callback version with self as listener
-        execute(this);
-        return *mLastResult;
     }
 	//---------------------------------------------------------------------
     void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
@@ -2032,26 +2025,77 @@ namespace Ogre {
         }
     }
 	//---------------------------------------------------------------------
-    bool DefaultIntersectionSceneQuery::
-        queryResult(MovableObject* first, MovableObject* second)
+    DefaultAxisAlignedBoxSceneQuery::
+    DefaultAxisAlignedBoxSceneQuery(SceneManager* creator)
+    : AxisAlignedBoxSceneQuery(creator)
     {
-        // Add to internal list
-        mLastResult->movables2movables.push_back(
-            SceneQueryMovableObjectPair(first, second)
-            );
-        // Continue
-        return true;
+        // No world geometry results supported
+        mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
     }
 	//---------------------------------------------------------------------
-    bool DefaultIntersectionSceneQuery::
-        queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment)
+    DefaultAxisAlignedBoxSceneQuery::~DefaultAxisAlignedBoxSceneQuery()
     {
-        // Add to internal list
-        mLastResult->movables2world.push_back(
-            SceneQueryMovableObjectWorldFragmentPair(movable, fragment)
-            );
-        // Continue
-        return true;
+    }
+	//---------------------------------------------------------------------
+    void DefaultAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
+    {
+        // TODO: BillboardSets? Will need per-billboard collision most likely
+        // Entities only for now
+		SceneManager::EntityList::const_iterator i, iEnd;
+        iEnd = mParentSceneMgr->mEntities.end();
+        for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
+        {
+            if (mAABB.intersects(i->second->getWorldBoundingBox()))
+            {
+                listener->queryResult(i->second);
+            }
+        }
+    }
+	//---------------------------------------------------------------------
+    DefaultRaySceneQuery::
+    DefaultRaySceneQuery(SceneManager* creator) : RaySceneQuery(creator)
+    {
+        // No world geometry results supported
+        mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
+    }
+	//---------------------------------------------------------------------
+    DefaultRaySceneQuery::~DefaultRaySceneQuery()
+    {
+    }
+	//---------------------------------------------------------------------
+    void DefaultRaySceneQuery::execute(SceneQueryListener* listener)
+    {
+        // TODO
+    }
+	//---------------------------------------------------------------------
+    DefaultSphereSceneQuery::
+    DefaultSphereSceneQuery(SceneManager* creator) : SphereSceneQuery(creator)
+    {
+        // No world geometry results supported
+        mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
+    }
+	//---------------------------------------------------------------------
+    DefaultSphereSceneQuery::~DefaultSphereSceneQuery()
+    {
+    }
+	//---------------------------------------------------------------------
+    void DefaultSphereSceneQuery::execute(SceneQueryListener* listener)
+    {
+        // TODO: BillboardSets? Will need per-billboard collision most likely
+        // Entities only for now
+		SceneManager::EntityList::const_iterator i, iEnd;
+        iEnd = mParentSceneMgr->mEntities.end();
+        Sphere testSphere;
+        for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
+        {
+            // Do sphere / sphere test
+            testSphere.setCenter(i->second->getParentNode()->_getDerivedPosition());
+            testSphere.setRadius(i->second->getBoundingRadius());
+            if (mSphere.intersects(testSphere))
+            {
+                listener->queryResult(i->second);
+            }
+        }
     }
 
 

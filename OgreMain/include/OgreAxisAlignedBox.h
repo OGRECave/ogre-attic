@@ -94,14 +94,14 @@ namespace Ogre {
 
 	    /** Gets the minimum corner of the box.
 	    */
-	    inline Vector3 getMinimum(void) const
+	    inline const Vector3& getMinimum(void) const
 	    { 
 		    return mMinimum; 
 	    }
 
 	    /** Gets the maximum corner of the box.
 	    */
-	    inline Vector3 getMaximum(void) const
+	    inline const Vector3& getMaximum(void) const
 	    { 
 		    return mMaximum;
 	    }
@@ -334,6 +334,19 @@ namespace Ogre {
             mMinimum = mMinimum * s;
             mMaximum = mMaximum * s;
         }
+
+		/** Tests whether this box intersects a sphere. */
+		bool intersects(const Sphere& s) const
+		{
+			return Math::intersects(s, *this); 
+		}
+		/** Tests whether this box intersects a plane. */
+		bool intersects(const Plane& p) const
+		{
+			return Math::intersects(p, *this);
+		}
+
+
     };
 
 } // namespace Ogre

@@ -76,13 +76,13 @@ namespace Ogre {
 		
 		// inflate the wire bounding box just a bit so that it will set apart from
 		//      a solid object
-		float maxx = vmax.x + 1.0;
-		float maxy = vmax.y + 1.0;
-		float maxz = vmax.z + 1.0;
+		Real maxx = vmax.x + 1.0;
+		Real maxy = vmax.y + 1.0;
+		Real maxz = vmax.z + 1.0;
 		
-		float minx = vmin.x - 1.0;
-		float miny = vmin.y - 1.0;
-		float minz = vmin.z - 1.0;
+		Real minx = vmin.x - 1.0;
+		Real miny = vmin.y - 1.0;
+		Real minz = vmin.z - 1.0;
 		
 		int i = 0;
 
