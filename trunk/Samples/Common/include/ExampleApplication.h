@@ -105,6 +105,10 @@ protected:
             // If returned true, user clicked OK so initialise
             // Here we choose to let the system create a default rendering window by passing 'true'
             mWindow = mRoot->initialise(true);
+			// Create any resource listeners (for loading screens)
+			createResourceListener();
+			// Load resources
+			loadResources();
             return true;
         }
         else
@@ -177,6 +181,21 @@ protected:
             }
         }
     }
+
+	/// Optional override method where you can create resource listeners (e.g. for loading screens)
+	virtual void createResourceListener(void)
+	{
+
+	}
+
+	/// Optional override method where you can perform resource group loading
+	/// Must at least do ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+	virtual void loadResources(void)
+	{
+		// Initialise, parse scripts etc
+		ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+	}
 
 
 
