@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\zlib\include" /D "_CONSOLE" /D "NDEBUG" /D "_MBCS" /D "OGRE_WIN32" /D "WIN32" /D "_STLP_USE_DYNAMIC_LIB" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\zlib\include" /D "_CONSOLE" /D "NDEBUG" /D "_MBCS" /D "WIN32" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
 # ADD RSC /l 0x809 /d "NDEBUG"
@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\zlib\include" /D "_CONSOLE" /D "CEARNY" /D "_MBCS" /D "OGRE_WIN32" /D "_STLP_USE_DYNAMIC_LIB" /D "_DEBUG" /D "WIN32" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../OgreMain/include" /I "..\..\..\Dependencies\zlib\include" /D "_CONSOLE" /D "_MBCS" /D "_DEBUG" /D "WIN32" /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x809 /d "_DEBUG"
 # ADD RSC /l 0x809 /d "_DEBUG"
