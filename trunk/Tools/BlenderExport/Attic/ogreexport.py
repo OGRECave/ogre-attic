@@ -123,6 +123,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - use Blender.World.GetCurrent() for Blender > 2.34
 #          - fixed calculation of initial bone rotation
 #          - preliminary bump map support
+#          - option to export in objects local coordinates
 #   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
 #          - option to run OgreXMLConverter automatically on the exported files
 #
@@ -931,7 +932,7 @@ class Logger:
 ######
 uvToggle = Draw.Create(1)
 armatureToggle = Draw.Create(1)
-armatureMeshToggle = Draw.Create(0)
+worldCoordinatesToggle = Draw.Create(0)
 pathString = Draw.Create(os.path.dirname(Blender.Get('filename')))
 materialString = Draw.Create("export.material")
 scaleNumber = Draw.Create(1.0)
@@ -960,7 +961,7 @@ BUTTON_EVENT_QUIT = 102
 BUTTON_EVENT_EXPORT = 103
 BUTTON_EVENT_UVTOGGLE = 104
 BUTTON_EVENT_ARMATURETOGGLE = 105
-BUTTON_EVENT_ARMATUREMESHTOGGLE = 106
+BUTTON_EVENT_WORLDCOORDINATESTOGGLE = 106
 BUTTON_EVENT_PATHSTRING = 107
 BUTTON_EVENT_PATHBUTTON = 108
 BUTTON_EVENT_MATERIALSTRING = 109
@@ -1501,12 +1502,22 @@ def blender_bone2matrix(head, tail, roll):
   rMatrix = matrix_rotate(nor, roll)
   return matrix_multiply(rMatrix, bMatrix)
 
-def convert_armature(skeleton, obj, debugskel):
+def convert_armature(skeleton, obj, debugskel, meshObject):
   """Calculate inital bone positions and rotations.
   """
   stack = []
-  matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix("worldspace"))
- 
+  matrix = None
+  if worldCoordinatesToggle.val:
+    # world coordinates
+    matrix = obj.getMatrix("worldspace")
+  else:
+    # local mesh coordinates
+    armatureMatrix = obj.getMatrix("worldspace")
+    inverseMeshMatrix = meshObject.getMatrix("worldspace")
+    inverseMeshMatrix.invert()
+    matrix = armatureMatrix*inverseMeshMatrix
+  # apply additional export transformation
+  matrix = matrix*BASE_MATRIX
   loc = [ 0.0, 0, 0 ]
   matrix_one = [[1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
   parent = None
@@ -1571,7 +1582,7 @@ def convert_armature(skeleton, obj, debugskel):
       rotQuat = bbone.getRestMatrix('bonespace').toQuat()
 
     else:
-      rotQuat = (bbone.getRestMatrix('bonespace')*obj.getMatrix("worldspace")*BASE_MATRIX).toQuat()
+      rotQuat = (bbone.getRestMatrix('bonespace')*matrix).toQuat()
 
     x, y, z = pos
     # pos = loc * M_{Ogre}
@@ -1593,8 +1604,8 @@ def convert_armature(skeleton, obj, debugskel):
     for child in bbone.getChildren():
       stack.append([child, parent, accu_mat, pos, ds, invertedOgreTransformation])
 
-def export_skeleton(object):
-	global armatureToggle, fpsNumber, armatureMeshToggle, armatureActionActuatorListViewDict
+def export_skeleton(object, meshObject):
+	global armatureToggle, fpsNumber, armatureActionActuatorListViewDict
 	global skeletonsDict
 	global exportLogger
 	
@@ -1602,17 +1613,22 @@ def export_skeleton(object):
 	threshold = 1e-6
 	
 	if ((armatureToggle.val == 1) and (not skeletonsDict.has_key(object.getName())) and (object.getType() == "Armature")):
-		skeleton = Skeleton(object.name)
+		name = None
+		if worldCoordinatesToggle.val:
+			name = object.name
+		else:
+			name = meshObject.name+"-"+object.name
+		skeleton = Skeleton(name)
 		skeletonsDict[object.name] = skeleton
 		
 		testskel = None
-		if armatureMeshToggle.val:
-			testskel = TestSkel(skeleton)
+		#if armatureMeshToggle.val:
+		#	testskel = TestSkel(skeleton)
 		
-		convert_armature(skeleton, object, testskel)
+		convert_armature(skeleton, object, testskel, meshObject)
 		
-		if testskel:
-			export_testskel(testskel)
+		#if testskel:
+		#	export_testskel(testskel)
 		
 		# export animations
 		if armatureActionActuatorListViewDict.has_key(object.getName()):
@@ -1977,17 +1993,19 @@ def export_mesh(object):
 		skeleton = None
 		if armatureToggle.val:
 			parent = object.getParent()
-			if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
-				export_skeleton(parent)
+			#if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
+			if (parent and (parent.getType() == "Armature")):
+				export_skeleton(parent, object)
 				skeleton = skeletonsDict[parent.getName()]
 
 		#NMesh of the object
 		data = object.getData()
 		matrix = None
-		if (Blender.Get("version") >= 234):
-			matrix = matrix_multiply(BASE_MATRIX, object.getMatrix("worldspace"))
+		if worldCoordinatesToggle.val:
+			matrix = object.getMatrix("worldspace")
 		else:
-			matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
+			matrix = Mathutils.Matrix([1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1])
+		matrix = matrix*BASE_MATRIX
 		# materials of the object
 		# note: ogre assigns different textures and different facemodes
 		#       to different materials
@@ -2524,14 +2542,14 @@ def export(selectedObjectsList):
       exportLogger.logInfo("Exporting selected objects into \"" + pathString.val + "\":")
       n = 0
       for obj in selectedObjectsList:
-          if not obj:
-              continue
-          
-          if obj.getType() == "Mesh":
-            export_mesh(obj)
-            n = 1
-          elif obj.getType() == "Armature":
-            export_skeleton(obj)
+          if obj:
+              if obj.getType() == "Mesh":
+                  export_mesh(obj)
+                  n = 1
+              elif obj.getType() == "Armature":
+                  # TODO export debug armature
+                  pass
+                  #export_skeleton(obj)
       if n == 0:
           exportLogger.logWarning("No mesh objects selected!")
       elif len(materialsDict) == 0:
@@ -2563,7 +2581,7 @@ def saveSettings():
 	"""
 	global uvToggle
 	global armatureToggle
-	global armatureMeshToggle
+	global worldCoordinatesToggle
 	global pathString
 	global materialString
 	global scaleNumber
@@ -2578,7 +2596,7 @@ def saveSettings():
 	# save general settings
 	settingsDict['uvToggle'] = uvToggle.val
 	settingsDict['armatureToggle'] = armatureToggle.val
-	settingsDict['armatureMeshToggle'] = armatureMeshToggle.val
+	settingsDict['worldCoordinatesToggle'] = worldCoordinatesToggle.val
 	settingsDict['pathString'] = pathString.val
 	settingsDict['materialString'] = materialString.val
 	settingsDict['scaleNumber'] = scaleNumber.val
@@ -2639,7 +2657,7 @@ def loadSettings(filename):
 	"""
 	global uvToggle
 	global armatureToggle
-	global armatureMeshToggle
+	global worldCoordinatesToggle
 	global pathString
 	global materialString
 	global scaleNumber
@@ -2685,8 +2703,11 @@ def loadSettings(filename):
 		uvToggle = Blender.Draw.Create(settingsDict['uvToggle'])
 	if settingsDict.has_key('armatureToggle'):
 		armatureToggle = Blender.Draw.Create(settingsDict['armatureToggle'])
-	if settingsDict.has_key('armatureMeshToggle'):
-		armatureMeshToggle = Blender.Draw.Create(settingsDict['armatureMeshToggle'])
+	if settingsDict.has_key('worldCoordinatesToggle'):
+		worldCoordinatesToggle = Blender.Draw.Create(settingsDict['worldCoordinatesToggle'])
+	elif settingsDict.has_key('armatureMeshToggle'):
+		# old default was export in world coordinates
+		worldCoordinatesToggle = Blender.Draw.Create(1)
 	if settingsDict.has_key('pathString'):
 		pathString = Blender.Draw.Create(settingsDict['pathString'])
 	if settingsDict.has_key('materialString'):
@@ -2895,7 +2916,7 @@ def frameDecorator(x, y, width):
 def gui():
 	"""draws the screen
 	"""
-	global uvToggle, armatureToggle, armatureMeshToggle, pathString, materialString, \
+	global uvToggle, armatureToggle, worldCoordinatesToggle, pathString, materialString, \
 		scaleNumber, fpsNumber, scrollbar, rotXNumber, rotYNumber, rotZNumber
 	global selectedObjectsList, selectedObjectsMenu, armatureActionActuatorListViewDict, armatureDict
 	# get size of the window
@@ -2943,10 +2964,9 @@ def gui():
 			rotYNumber.val, -360.0, 360.0, "angle of the second rotation, around the y-axis")
 	remainRect[3] -= 25
 	# fourth row
-	if (armatureToggle.val == 1):
-		armatureMeshToggle = Draw.Toggle("Export Armature as Mesh", BUTTON_EVENT_ARMATUREMESHTOGGLE, \
-				remainRect[0], remainRect[3]-25, 220, 20, \
-				armatureMeshToggle.val, "create an extra mesh with the form of the skeleton")
+	worldCoordinatesToggle = Draw.Toggle("World Coordinates", BUTTON_EVENT_WORLDCOORDINATESTOGGLE, \
+			remainRect[0], remainRect[3]-25, 220, 20, \
+			worldCoordinatesToggle.val, "use world coordinates instead of object coordinates")
 	rotZNumber = Draw.Number("RotZ: ", BUTTON_EVENT_ROTZNUMBER, \
 			remainRect[0]+230, remainRect[3]-25, 220, 20, \
 			rotZNumber.val, -360.0, 360.0, "angle of the third rotation, around the z-axis")
