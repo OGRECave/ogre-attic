@@ -25,6 +25,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 /** Internal include file -- do not use externally */
 using namespace Ogre;
 
+// NB VC6 can't handle these templates
+#if OGRE_COMPILER != COMPILER_MSVC || OGRE_COMP_VER >= 1300
+
 #define FMTCONVERTERID(from,to) (((from)<<8)|(to))
 
 /**
@@ -326,3 +329,5 @@ inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
     }
 }
 #undef CASECONVERTER
+
+#endif // VC6 protection

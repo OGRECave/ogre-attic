@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib freetype.lib /nologo /dll /machine:I386 /libpath:"..\..\Dependencies\lib\Release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zdll.lib zziplib.lib freetype219MT.lib /nologo /dll /machine:I386 /libpath:"..\..\Dependencies\lib\Release"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release	copy ..\lib\Release\OgreMain.dll ..\..\Tools\Common\bin\Release
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib freetype.lib /nologo /dll /debug /machine:I386 /out:"..\lib\Debug/OgreMain_d.dll" /pdbtype:sept /libpath:"..\..\Dependencies\lib\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zdll.lib zziplibd.lib freetype219MT_D.lib /nologo /dll /debug /machine:I386 /out:"..\lib\Debug/OgreMain_d.dll" /pdbtype:sept /libpath:"..\..\Dependencies\lib\Debug"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug	copy ..\lib\Debug\OgreMain_d.dll ..\..\Tools\Common\bin\Debug
@@ -120,10 +120,6 @@ SOURCE=..\src\OgreAnimationTrack.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreArchiveEx.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreArchiveManager.cpp
 # End Source File
 # Begin Source File
@@ -137,6 +133,10 @@ SOURCE=..\src\OgreAxisAlignedBox.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreBillboard.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreBillboardParticleRenderer.cpp
 # End Source File
 # Begin Source File
 
@@ -192,7 +192,7 @@ SOURCE=..\src\OgreCursor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreDataChunk.cpp
+SOURCE=..\src\OgreDataStream.cpp
 # End Source File
 # Begin Source File
 
@@ -240,6 +240,10 @@ SOURCE=..\src\OgreExternalTextureSourceManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreFileSystem.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreFont.cpp
 # End Source File
 # Begin Source File
@@ -277,6 +281,10 @@ SOURCE=..\src\OgreHardwareIndexBuffer.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreHardwareOcclusionQuery.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreHardwarePixelBuffer.cpp
 # End Source File
 # Begin Source File
 
@@ -428,6 +436,10 @@ SOURCE=..\src\OgrePanelOverlayElement.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreParticle.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreParticleEmitter.cpp
 # End Source File
 # Begin Source File
@@ -460,6 +472,14 @@ SOURCE=..\src\OgrePatchSurface.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgrePixelConversions.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgrePixelFormat.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgrePlane.cpp
 # End Source File
 # Begin Source File
@@ -469,7 +489,15 @@ SOURCE=..\src\OgrePlatformManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgrePrecompiledHeaders.cpp
+
+!IF  "$(CFG)" == "OgreMain - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "OgreMain - Win32 Debug"
+
 # ADD CPP /Yc"OgreStableHeaders.h"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -521,6 +549,14 @@ SOURCE=..\src\OgreRenderWindow.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreResource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreResourceGroupManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreResourceManager.cpp
 # End Source File
 # Begin Source File
@@ -554,10 +590,6 @@ SOURCE=..\src\OgreScrollEvent.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreScrollTarget.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreSDDataChunk.cpp
 # End Source File
 # Begin Source File
 
@@ -657,6 +689,10 @@ SOURCE=..\src\OgreUserDefinedObject.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreVector2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreVector3.cpp
 # End Source File
 # Begin Source File
@@ -674,15 +710,6 @@ SOURCE=..\src\OgreWireBoundingBox.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreZip.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreZipArchiveFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\unzip.c
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -718,7 +745,7 @@ SOURCE=..\include\OgreAnimationTrack.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreArchiveEx.h
+SOURCE=..\include\OgreArchive.h
 # End Source File
 # Begin Source File
 
@@ -739,6 +766,10 @@ SOURCE=..\include\OgreAxisAlignedBox.h
 # Begin Source File
 
 SOURCE=..\include\OgreBillboard.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreBillboardParticleRenderer.h
 # End Source File
 # Begin Source File
 
@@ -767,10 +798,6 @@ SOURCE=..\include\OgreCamera.h
 # Begin Source File
 
 SOURCE=..\include\OgreCodec.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreCodecFactory.h
 # End Source File
 # Begin Source File
 
@@ -810,11 +837,11 @@ SOURCE=..\include\OgreCursor.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreCustomizable.h
+SOURCE=..\include\OgreDataStream.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreDataChunk.h
+SOURCE=..\include\OgreDefaultHardwareBufferManager.h
 # End Source File
 # Begin Source File
 
@@ -874,6 +901,10 @@ SOURCE=..\include\OgreFactoryObj.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreFileSystem.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreFont.h
 # End Source File
 # Begin Source File
@@ -887,10 +918,6 @@ SOURCE=..\include\OgreFrameListener.h
 # Begin Source File
 
 SOURCE=..\include\OgreFrustum.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreGeometryData.h
 # End Source File
 # Begin Source File
 
@@ -923,6 +950,10 @@ SOURCE=..\include\OgreHardwareIndexBuffer.h
 # Begin Source File
 
 SOURCE=..\include\OgreHardwareOcclusionQuery.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHardwarePixelBuffer.h
 # End Source File
 # Begin Source File
 
@@ -1070,10 +1101,6 @@ SOURCE=..\include\OgreNoMemoryMacros.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreOofFile.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\OgreOverlay.h
 # End Source File
 # Begin Source File
@@ -1138,6 +1165,10 @@ SOURCE=..\include\OgreParticleSystemManager.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreParticleSystemRenderer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgrePass.h
 # End Source File
 # Begin Source File
@@ -1150,7 +1181,15 @@ SOURCE=..\include\OgrePatchSurface.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgrePixelFormat.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgrePlane.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgrePlaneBoundedVolume.h
 # End Source File
 # Begin Source File
 
@@ -1187,6 +1226,10 @@ SOURCE=..\include\OgreQuaternion.h
 # Begin Source File
 
 SOURCE=..\include\OgreRay.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreRectangle.h
 # End Source File
 # Begin Source File
 
@@ -1230,6 +1273,10 @@ SOURCE=..\include\OgreRenderTargetListener.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreRenderTargetTexture.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreRenderTexture.h
 # End Source File
 # Begin Source File
@@ -1239,6 +1286,10 @@ SOURCE=..\include\OgreRenderWindow.h
 # Begin Source File
 
 SOURCE=..\include\OgreResource.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreResourceGroupManager.h
 # End Source File
 # Begin Source File
 
@@ -1270,6 +1321,10 @@ SOURCE=..\include\OgreSceneQuery.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreScriptLoader.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreScrollEvent.h
 # End Source File
 # Begin Source File
@@ -1278,7 +1333,7 @@ SOURCE=..\include\OgreScrollTarget.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreSDDataChunk.h
+SOURCE=..\include\OgreSearchOps.h
 # End Source File
 # Begin Source File
 
@@ -1362,10 +1417,6 @@ SOURCE=..\include\OgreStringInterface.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreStringResource.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\OgreStringVector.h
 # End Source File
 # Begin Source File
@@ -1410,11 +1461,11 @@ SOURCE=..\include\OgreTimer.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreUnzip.h
+SOURCE=..\include\OgreUserDefinedObject.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreUserDefinedObject.h
+SOURCE=..\include\OgreVector2.h
 # End Source File
 # Begin Source File
 
@@ -1430,6 +1481,10 @@ SOURCE=..\include\OgreVertexBoneAssignment.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreVertexIndexData.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreViewport.h
 # End Source File
 # Begin Source File
@@ -1442,11 +1497,7 @@ SOURCE=..\include\OgreZip.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreZipArchiveFactory.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\unzip.h
+SOURCE=..\include\stl_user_config.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
