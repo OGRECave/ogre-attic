@@ -1,0 +1,144 @@
+<html>
+<head>
+<title>OGRE FAQ</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Frequently 
+Asked Questions (FAQ)</p><p align="left" class="MainHeader">Q: What platforms 
+does OGRE build under?</p><TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"><TR><TD CLASS="BorderHeader" WIDTH="33%"><DIV ALIGN="CENTER">Platform</DIV></TD><TD CLASS="BorderHeader" WIDTH="20%"><DIV ALIGN="CENTER">Compiler</DIV></TD><TD CLASS="BorderHeader"><DIV ALIGN="CENTER">Extra 
+Notes</DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER"><P CLASS="BorderContent">Windows 
+95/98/Me/2000/XP</P></DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">Microsoft 
+Visual C++ 6 SP3+<BR>Microsoft Visual C++.Net<BR></DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">DirectX 
+8 SDK<BR>Due to STL problems with MS compilers you MUST install <A HREF="http://www.stlport.org">STLport 
+4.5.3</A></DIV></TD></TR><TR><TD CLASS="BorderContent" WIDTH="33%"><DIV ALIGN="CENTER">Linux</DIV></TD><TD CLASS="BorderContent" WIDTH="20%"><DIV ALIGN="CENTER">gcc 
+3.x </DIV></TD><TD CLASS="BorderContent"><DIV ALIGN="CENTER">Run 'configure' then 
+'make' </DIV></TD></TR></TABLE><p align="left">MacOS X has not been tested but 
+you could probably get it to work with gcc using the Linux makefiles with a little 
+work. Borland compilers are not yet supported but may be in the future.</p><p align="left" CLASS="MainHeader">Q: 
+Why do I need STLport when compiling with VC++?</p><p align="left">Because the 
+STL implementation in VC++ 6 and VC++.Net is very old, pretty slow and has a number 
+of known bugs. The issue which makes it totally unsuitable for OGRE is that STL 
+classes cannot be passed across a DLL boundary using the MS STL; it will instantly 
+cause a crash. OGRE is very DLL oriented so this makes the MS STL unusable.</p><p align="left">STLport 
+is more stable, and is faster than MS STL in release mode. STLport is not a requirement 
+for gcc under Linux because gcc's STL is much better (better than STLports in 
+fact)</p><p align="left" CLASS="MainHeader">Q: How do I install STLport?</p><OL><LI>Download 
+STLport 4.5.3 from <A HREF="http://www.stlport.org">www.stlport.org</A> and unzip 
+it somewhere</LI><LI>Open a command prompt, and change to the folder STLport-4.5.3\src</LI><LI>If 
+you're using Visual C++ 6:<OL><LI> type 'nmake -f vc6.mak clean all'</LI><LI>type 
+'nmake -f vc6.mak install'</LI></OL></LI><LI>If you're using Visual C++.Net:<OL><LI>type 
+'nmake -f vc7.mak clean all'</LI><LI>type 'nmake -f vc7.mak install'</LI></OL></LI><LI>Open 
+Microsoft Visual C++ and select Tools | Options... from the menu bar to bring 
+up the options dialog</LI><LI>Go to the include folders list: in VC6 this is on 
+the 'Directories' tab, in VC++.Net it is under Projects|VC++ Directories in the 
+tree on the left</LI><LI>Make sure the stlport include directory is at the TOP 
+of your include folders list. Crucially, it MUST be above all Microsoft include 
+folders.</LI><LI>Close VC++ to save the settings</LI></OL><P CLASS="MainHeader">Q: 
+What is the 'Dependencies' folder for? </P><P CLASS="MainContent">Ogre depends 
+on a number of external libraries such as jpeglib, libpng, zlib, and SDL. Rather 
+than expect people to have these already or download them separately, and to minimise 
+problems with incompatible versions of these libraries, they are included with 
+the OGRE distribution (NB the exception is STLport - this is not distributed because 
+it is only required for Microsoft compilers).</P><P CLASS="MainContent">The dependencies 
+are built for you automatically as part of the build process so you should not 
+need to do anything with these folders.</P><P CLASS="MainHeader">Q: When I try 
+to debug a sample or my own application, I get an error saying plugins.cfg is 
+not found, why?</P><P>The relative location of OGRE library files and configuration 
+files are very important for successfully starting an OGRE application, in debug 
+mode or otherwise. The existing samples provided copy their executables into 'Samples\Common\bin\Debug' 
+or 'Samples\Common\bin\Release', where all the other files are placed correctly. 
+It is recommended that you set up your own examples to place their executables 
+in the same location to avoid problems, and debug them from there too. </P><P>If 
+you do want to move the files, bear in mind the following dependencies:</P><UL><LI>The 
+OgreMain and OgrePlatform libraries must be in the same folder as the executable, 
+or on the path</LI><LI>The plugins.cfg file must be in the same folder as the 
+executable</LI><LI>The plugin libraries listed in plugins.cfg must be located 
+in the folder specified in the 'PluginFolder' setting in plugins.cfg</LI></UL><P CLASS="MainHeader">Q: 
+I have problems loading some resource files (textures, meshes, material definitions 
+etc)</P><P>Check the following:</P><OL><LI>Make sure the case of the filenames 
+is correct. Some operating systems are case-sensitive in their file operations, 
+and all of OGRE's internal lookups for reusing resources is case-sensitive so 
+assume that case IS important.</LI><LI>Make sure the location of the resource 
+is on the resource path. You can add resource paths by calling Root::addResourceLocation 
+and supplying either a folder or a ZIP compressed archive to search in</LI><LI>If 
+you're trying to use a material or particle system scripted from a .material or 
+.particle file, ensure that the resource locations are added <I>before </I>you 
+call Root::initialise</LI></OL>
+</body>
+</html>
