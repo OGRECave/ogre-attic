@@ -138,7 +138,7 @@ namespace Ogre {
 		    */
 		    virtual void* lock(size_t offset, size_t length, LockOptions options)
             {
-                assert(!mIsLocked && "Cannot lock this buffer, it is already locked!");
+                assert(!isLocked() && "Cannot lock this buffer, it is already locked!");
                 void* ret;
 				// if lock is to discard, then we obviously do not have a requirement to read
 				// therefore we can lock the real buffer all the time
@@ -157,8 +157,8 @@ namespace Ogre {
 					// Lock the real buffer if there is no shadow buffer or we're
 					// discarding the contents
                     ret = lockImpl(offset, length, options);
+                    mIsLocked = true;
                 }
-                mIsLocked = true;
 				mLockStart = offset;
 				mLockSize = length;
                 return ret;
@@ -177,7 +177,7 @@ namespace Ogre {
             */
 		    virtual void unlock(void)
             {
-                assert(mIsLocked && "Cannot unlock this buffer, it is not locked!");
+                assert(isLocked() && "Cannot unlock this buffer, it is not locked!");
 
 				// If we used the shadow buffer this time...
                 if (mUseShadowBuffer && mpShadowBuffer->isLocked())
@@ -190,8 +190,8 @@ namespace Ogre {
                 {
 					// Otherwise, unlock the real one
                     unlockImpl();
+                    mIsLocked = false;
                 }
-                mIsLocked = false;
 
             }
 
@@ -237,8 +237,14 @@ namespace Ogre {
             {
                 if (mUseShadowBuffer && mShadowUpdated)
                 {
-					// Copy only the region which was locked for efficiency
-                    copyData(*mpShadowBuffer, mLockStart, mLockStart, mLockSize, true);
+                    // Do this manually to avoid locking problems
+                    const void *srcData = mpShadowBuffer->lockImpl(
+    					mLockStart, mLockSize, HBL_READ_ONLY);
+                    void *destData = this->lockImpl(
+    					mLockStart, mLockSize, HBL_DISCARD);
+                    memcpy(destData, srcData, mLockSize);
+                    this->unlockImpl();
+                    mpShadowBuffer->unlockImpl();
                     mShadowUpdated = false;
                 }
             }
@@ -250,7 +256,9 @@ namespace Ogre {
 			/// Returns whether this buffer is held in system memory
 			bool isSystemMemory(void) { return mSystemMemory; }
             /// Returns whether or not this buffer is currently locked.
-            bool isLocked(void) { return mIsLocked; };
+            bool isLocked(void) { 
+                return mIsLocked || (mUseShadowBuffer && mpShadowBuffer->isLocked()); 
+            }
 
 
 
