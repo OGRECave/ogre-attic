@@ -278,7 +278,8 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::findActionSources(const XSI::Model& obj, 
 		DeformerList& deformers)
-	{
+	{			if (
+
 		CRefArray sources = obj.GetSources();
 		for (int s = 0; s < sources.GetCount(); ++s)
 		{
@@ -298,6 +299,14 @@ namespace Ogre
 	void XsiSkeletonExporter::processActionSource(const XSI::ActionSource& actSource,
 		DeformerList& deformers)
 	{
+		// Clear existing deformer links
+		for(DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		{
+			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
+			{
+				di->second->xsiTrack[tt].ResetObject();
+			}
+		}
 		// Get all the items
 		CRefArray items = actSource.GetItems();
 		for (int i = 0; i < items.GetCount(); ++i)
@@ -336,49 +345,65 @@ namespace Ogre
 		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
 		{
 			AnimationEntry& animEntry = *ai;
-			float animLength;
-			if (animEntry.endFrame == -1)
-			{
-				// ok, we need to figure out the length of the animation by looking at the 
-				// highest keyframe on any deformer
-				animEntry.endFrame = getMaxKeyFrame(deformers);
-			}
-			animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
-			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
-
+			// tease out all the animation source items
 			processActionSource(animEntry.source, deformers);
+
+			// Get the keyframe numbers from all XSI tracks
+			// XSI tracks might be sparse
+			buildKeyframeList(deformers, animEntry);
+
+			float animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
+			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
 
 			createAnimationTracks(anim, animEntry, deformers, fps);
 			
 		}
 	}
 	//-----------------------------------------------------------------------------
-	long XsiSkeletonExporter::getMaxKeyFrame(DeformerList& deformers)	
+	void XsiSkeletonExporter::buildKeyframeList(DeformerList& deformers, 
+		AnimationEntry& animEntry)
 	{
-		long maxKeyframe = 0;
+		bool first = true;
 		for (DeformerList::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			DeformerEntry* deformer = di->second;
 			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
 			{
 				AnimationSourceItem item = deformer->xsiTrack[tt];
-				// skip non-FCurve items
-				if (!item.GetSource().IsA(XSI::siFCurveID))
+				// skip invalid or non-FCurve items
+				if (!item.IsValid() || !item.GetSource().IsA(XSI::siFCurveID))
 					continue;
+				
 				FCurve fcurve = item.GetSource();
 				CRefArray keys = fcurve.GetKeys();
 				for (int k = 0; k < keys.GetCount(); ++k)
 				{
 					long currFrame = fcurve.GetKeyTime(k).GetTime();
-					maxKeyframe = std::max(maxKeyframe, currFrame);
+					if (first)
+					{
+						animEntry.startFrame = currFrame;
+						animEntry.endFrame = currFrame;
+						first = false;
+					}
+					else 
+					{
+						if (currFrame < animEntry.startFrame)
+						{
+							animEntry.startFrame = currFrame;
+						}
+						if (currFrame > animEntry.endFrame)
+						{
+							animEntry.endFrame = currFrame;
+						}
+					}
+					
+					animEntry.frames.insert(currFrame);
 				}
-
 			}
-
-
 		}
+	
 
-		return maxKeyframe;
+
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::createAnimationTracks(Animation* pAnim, 
@@ -398,39 +423,12 @@ namespace Ogre
 			DeformerEntry* deformer = di->second;
 
 			// create track
-			AnimationTrack* track = pAnim->createTrack(deformer->boneID);
+			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
 
-			// iterate once to determine the set of key frames
-			// since between XSI tracks they might be sparse
-			std::set<long> uniqueFrames;
-			// add start and end frame (always need those)
-			uniqueFrames.insert(animEntry.startFrame);
-			uniqueFrames.insert(animEntry.endFrame);
-		
-			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
-			{
-				AnimationSourceItem item = deformer->xsiTrack[tt];
-				// skip non-FCurve items
-				if (!item.GetSource().IsA(XSI::siFCurveID))
-					continue;
-				
-				FCurve fcurve = item.GetSource();
-				CRefArray keys = fcurve.GetKeys();
-				for (int k = 0; k < keys.GetCount(); ++k)
-				{
-					long currFrame = fcurve.GetKeyTime(k).GetTime();
-					if (currFrame > animEntry.startFrame 
-						&& currFrame < animEntry.endFrame)
-					{
-						uniqueFrames.insert(currFrame);
-					}
-				}
-			}
-
-
-			// Ok, now iterate over the frames and pull out the values we need
-			for (std::set<long>::iterator fi = uniqueFrames.begin(); 
-				fi != uniqueFrames.end(); ++fi)
+			// Iterate over the frames and pull out the values we need
+			// bake keyframe for all
+			for (std::set<long>::iterator fi = animEntry.frames.begin(); 
+				fi != animEntry.frames.end(); ++fi)
 			{
 				Vector3 pos, rot, scl;
 				pos.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_X], *fi);
@@ -442,6 +440,10 @@ namespace Ogre
 				scl.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_X], *fi);
 				scl.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Y], *fi);
 				scl.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Z], *fi);
+
+				// HACK - XSI seems to be reporting 0 all the time for scale??
+				// TODO
+				scl = Vector3::UNIT_SCALE;
 
 				// Build combined rotation (assume rotation ordering)
 				Quaternion rotQX(Degree(rot.x), Vector3::UNIT_X);
@@ -469,7 +471,7 @@ namespace Ogre
 
 
 				// create keyframe
-				KeyFrame* kf = track->createKeyFrame((float)(*fi) / fps);
+				KeyFrame* kf = track->createKeyFrame((float)(*fi - 1) / fps);
 				kf->setTranslate(pos);
 				kf->setRotation(combinedRot);
 				kf->setScale(scl);

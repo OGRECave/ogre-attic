@@ -80,8 +80,8 @@ namespace Ogre {
 		/// Bake animation tracks, and return the time length found
 		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
 			DeformerList& deformers, float fps);
-		/// Pre-parse the deformers animation to find the highest keyframe number
-		long getMaxKeyFrame(DeformerList& deformerList);
+		/// Pre-parse the deformers animation to find the keyframe numbers
+		void buildKeyframeList(DeformerList& deformers, AnimationEntry& animEntry);		
 		/// Derive a keyframe value from XSI's tracks
 		float deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame);
 		
