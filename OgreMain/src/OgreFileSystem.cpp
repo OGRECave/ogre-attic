@@ -220,11 +220,28 @@ namespace Ogre {
     StringVectorPtr FileSystemArchive::find(const String& pattern, bool recursive, 
         bool caseSensitive)
     {
+        pushDirectory(mBasePath);
+        StringVectorPtr ret(new StringVector());
+
+        findFiles(pattern, recursive, ret);
+
+        popDirectory();
+
+        return ret;
+
     }
     //-----------------------------------------------------------------------
     Archive::FileInfoListPtr FileSystemArchive::findFileInfo(const String& pattern, 
         bool recursive, bool caseSensitive)
     {
+        pushDirectory(mBasePath);
+        Archive::FileInfoListPtr ret(new Archive::FileInfoList());
+
+        findFiles(pattern, recursive, ret);
+
+        popDirectory();
+
+        return ret;
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
