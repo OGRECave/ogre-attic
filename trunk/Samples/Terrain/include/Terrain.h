@@ -21,171 +21,6 @@ LGPL like the rest of the engine.
 */
 
 #include "ExampleApplication.h"
-#include "OgreStringConverter.h"
-
-#define FLOW_SPEED 0.2
-#define FLOW_HEIGHT 0.8
-
-class TerrainListener : public ExampleFrameListener
-{
-  public:
-    TerrainListener(RenderWindow* win, Camera* cam) :ExampleFrameListener(win, cam) { };
-
- // Override frameStarted event to process that (don't care about frameEnded)
-    bool frameStarted(const FrameEvent& evt)
-    {
-        float moveScale;
-        float rotScale;
-        float waterFlow;
-        static float flowAmount = 0.0f;
-        static bool flowUp = true;
-
-        // local just to stop toggles flipping too fast
-        static Real timeUntilNextToggle = 0;
-
-        if (timeUntilNextToggle >= 0)
-            timeUntilNextToggle -= evt.timeSinceLastFrame;
-
-        // If this is the first frame, pick a speed
-        if (evt.timeSinceLastFrame == 0)
-        {
-            moveScale = 1;
-            rotScale = 0.1;
-            waterFlow = 0.0f;
-        }
-        // Otherwise scale movement units by time passed since last frame
-        else
-        {
-            // Move about 100 units per second,
-            moveScale = 10.0 * evt.timeSinceLastFrame;
-            // Take about 10 seconds for full rotation
-            rotScale = 36 * evt.timeSinceLastFrame;
-            
-            // set a nice waterflow rate
-            waterFlow = FLOW_SPEED * evt.timeSinceLastFrame;            
-        }
-
-        // Grab input device state
-        mInputDevice->capture();
-
-        SceneNode *waterNode = static_cast<SceneNode*>(
-            mCamera->getSceneManager()->getRootSceneNode()->getChild("WaterNode"));
-        if(waterNode)
-        {
-            if(flowUp)
-                flowAmount += waterFlow;
-            else
-                flowAmount -= waterFlow;
-
-            if(flowAmount >= FLOW_HEIGHT)
-                flowUp = false;
-            else if(flowAmount <= 0.0f)
-                flowUp = true;
-
-            waterNode->translate(0, (flowUp ? waterFlow : -waterFlow), 0);
-        }
-
-        static Vector3 vec;
-
-        vec = Vector3::ZERO;
-
-        if (mInputDevice->isKeyDown(KC_A))
-        {
-            // Move camera left
-            vec.x = -moveScale;
-        }
-
-        if (mInputDevice->isKeyDown(KC_D))
-        {
-            // Move camera RIGHT
-            vec.x = moveScale;
-        }
-
-        if (mInputDevice->isKeyDown(KC_UP) || mInputDevice->isKeyDown(KC_W))
-        {
-            // Move camera forward
-            vec.z = -moveScale;
-        }
-
-        if (mInputDevice->isKeyDown(KC_DOWN) || mInputDevice->isKeyDown(KC_S))
-        {
-            // Move camera backward
-            vec.z = moveScale;
-        }
-
-        if (mInputDevice->isKeyDown(KC_PGUP))
-        {
-            // Move camera up
-            vec.y = moveScale;
-        }
-
-        if (mInputDevice->isKeyDown(KC_PGDOWN))
-        {
-            // Move camera down
-            vec.y = -moveScale;
-        }
-
-        if (mInputDevice->isKeyDown(KC_RIGHT))
-        {
-            mCamera->yaw(-rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_LEFT))
-        {
-            mCamera->yaw(rotScale);
-        }
-
-        if( mInputDevice->isKeyDown( KC_ESCAPE) )
-        {            
-            return false;
-        }
-
-        // Rotate view by mouse relative position
-        float rotX, rotY;
-        rotX = -mInputDevice->getMouseRelativeX() * 0.13;
-        rotY = -mInputDevice->getMouseRelativeY() * 0.13;
-
-
-        // Make all the changes to the camera
-        // Note that YAW direction is around a fixed axis (freelook stylee) rather than a natural YAW (e.g. airplane)
-        mCamera->yaw(rotX);
-        mCamera->pitch(rotY);
-        mCamera->moveRelative(vec);
-
-        // Rotate scene node if required
-        SceneNode* node = mCamera->getSceneManager()->getRootSceneNode();
-        if (mInputDevice->isKeyDown(KC_O))
-        {
-            node->yaw(rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_P))
-        {
-            node->yaw(-rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_I))
-        {
-            node->pitch(rotScale);
-        }
-        if (mInputDevice->isKeyDown(KC_K))
-        {
-            node->pitch(-rotScale);
-        }
-
-        if (mInputDevice->isKeyDown(KC_F) && timeUntilNextToggle <= 0)
-        {
-            mStatsOn = !mStatsOn;
-            //Root::getSingleton().showDebugOverlay(mStatsOn);
-            showDebugOverlay(mStatsOn);
-
-            timeUntilNextToggle = 1;
-        }
-
-
-        // Return true to continue rendering
-        return true;
-    }
-
-};
-
 
 class TerrainApplication : public ExampleApplication
 {
@@ -193,12 +28,6 @@ public:
     TerrainApplication() {}
 
 protected:
-    virtual void createFrameListener(void)
-    {
-        mFrameListener= new TerrainListener(mWindow, mCamera);
-        mFrameListener->showDebugOverlay(true);
-        mRoot->addFrameListener(mFrameListener);
-    }
 
 
     virtual void chooseSceneManager(void)
@@ -221,13 +50,6 @@ protected:
 
     }
    
-   virtual void createViewports(void)
-    {
-        // Create one viewport, entire window
-        Viewport* vp = mWindow->addViewport(mCamera);
-        vp->setBackgroundColour(ColourValue::White);
-    }
-
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -236,27 +58,6 @@ protected:
 
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
-      
-        // create a water plane/scene node
-        waterPlane.normal = Vector3::UNIT_Y; 
-        waterPlane.d = -1.5; 
-        MeshManager::getSingleton().createPlane(
-            "WaterPlane",
-            waterPlane,
-            2800, 2800,
-            20, 20,
-            true, 1, 
-            10, 10,
-            Vector3::UNIT_Z
-        );
-
-        waterEntity = mSceneMgr->createEntity("water", "WaterPlane"); 
-        waterEntity->setMaterialName("Examples/TextureEffect4"); 
-
-        SceneNode *waterNode = 
-            mSceneMgr->getRootSceneNode()->createChildSceneNode("WaterNode"); 
-        waterNode->attachObject(waterEntity); 
-        waterNode->translate(1000, 0, 1000);
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
@@ -266,8 +67,22 @@ protected:
         l->setPosition(20,80,50);
 
         mSceneMgr -> setWorldGeometry( "terrain.cfg" );
+        // Infinite far plane
+        mCamera->setFarClipDistance(0);
 
-        mSceneMgr->setFog( FOG_EXP2, ColourValue::White, .008, 0,  250 );
+        // Define the required skyplane
+        Plane plane;
+        // 5000 world units from the camera
+        plane.d = 5000;
+        // Above the camera, facing down
+        plane.normal = -Vector3::UNIT_Y;
+
+        ColourValue fadeColour(0.93, 0.86, 0.76);
+
+        mSceneMgr->setFog( FOG_EXP2, fadeColour, .001);
+        mWindow->getViewport(0)->setBackgroundColour(fadeColour);
+        mCamera->setPosition(100,100,100);
+        mCamera->lookAt(512,100,512);
         //mRoot -> showDebugOverlay( true );
 
     }

@@ -51,24 +51,23 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
 
     /* Set up the options */
     ConfigFile config;
-    TerrainOptions options;
 
     config.load( filename );
 
     if ( config.getSetting( "DetailTile" ) != "" )
-        options.detail_tile = atoi( config.getSetting( "DetailTile" ) );
+        mOptions.detail_tile = atoi( config.getSetting( "DetailTile" ) );
 
-    options.max_mipmap = atoi( config.getSetting( "MaxMipMapLevel" ) );
+    mOptions.max_mipmap = atoi( config.getSetting( "MaxMipMapLevel" ) );
 
-    options.scalex = atof( config.getSetting( "ScaleX" ) );
+    mOptions.scalex = atof( config.getSetting( "ScaleX" ) );
 
-    options.scaley = atof( config.getSetting( "ScaleY" ) );
+    mOptions.scaley = atof( config.getSetting( "ScaleY" ) );
 
-    options.scalez = atof( config.getSetting( "ScaleZ" ) );
+    mOptions.scalez = atof( config.getSetting( "ScaleZ" ) );
 
-    options.max_pixel_error = atoi( config.getSetting( "MaxPixelError" ) );
+    mOptions.max_pixel_error = atoi( config.getSetting( "MaxPixelError" ) );
 
-    options.size = atoi( config.getSetting( "TileSize" ) );
+    mOptions.size = atoi( config.getSetting( "TileSize" ) );
 
     String terrain_filename = config.getSetting( "Terrain" );
 
@@ -77,14 +76,14 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     String world_texture = config.getSetting( "WorldTexture" );
 
     if ( config.getSetting( "VertexColors" ) == "yes" )
-        options.colored = true;
+        mOptions.colored = true;
 
     if ( config.getSetting( "VertexNormals" ) == "yes" )
-        options.lit = true;
+        mOptions.lit = true;
 
-    mScale = Vector3( options.scalex, options.scaley, options.scalez );
+    mScale = Vector3( mOptions.scalex, mOptions.scaley, mOptions.scalez );
 
-    mTileSize = options.size;
+    mTileSize = mOptions.size;
 
     Image image;
 
@@ -112,19 +111,19 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     int size = image.getWidth();
 
     // set up the octree size.
-    float max_x = options.scalex * size;
+    float max_x = mOptions.scalex * size;
 
-    float max_y = 255 * options.scaley;
+    float max_y = 255 * mOptions.scaley;
 
-    float max_z = options.scalez * size;
+    float max_z = mOptions.scalez * size;
 
     resize( AxisAlignedBox( 0, 0, 0, max_x, max_y, max_z ) );
 
 
 
-    options.data = data;
+    mOptions.data = data;
 
-    options.world_size = size;
+    mOptions.world_size = size;
 
     mTerrainMaterial = createMaterial( "Terrain" );
 
@@ -136,7 +135,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
         mTerrainMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( detail_texture, 1 );
     }
 
-    mTerrainMaterial -> setLightingEnabled( options.lit );
+    mTerrainMaterial -> setLightingEnabled( mOptions.lit );
 
     mTerrainMaterial->load();
 
@@ -145,7 +144,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     mTerrainRoot = getRootSceneNode() -> createChildSceneNode( "Terrain" );
 
     //setup the tile array.
-    int num_tiles = ( options.world_size - 1 ) / ( options.size - 1 );
+    int num_tiles = ( mOptions.world_size - 1 ) / ( mOptions.size - 1 );
 
     for ( i = 0; i < num_tiles; i++ )
     {
@@ -161,21 +160,21 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
     int p = 0;
     int q = 0;
 
-    for ( j = 0; j < options.world_size - 1; j += ( options.size - 1 ) )
+    for ( j = 0; j < mOptions.world_size - 1; j += ( mOptions.size - 1 ) )
     {
         p = 0;
 
-        for ( i = 0; i < options.world_size - 1; i += ( options.size - 1 ) )
+        for ( i = 0; i < mOptions.world_size - 1; i += ( mOptions.size - 1 ) )
         {
-            options.startx = i;
-            options.startz = j;
+            mOptions.startx = i;
+            mOptions.startz = j;
             sprintf( name, "tile[%d,%d]", p, q );
 
             SceneNode *c = mTerrainRoot -> createChildSceneNode( name );
             TerrainRenderable *tile = new TerrainRenderable();
 
             tile -> setMaterial( mTerrainMaterial );
-            tile -> init( options );
+            tile -> init( mOptions );
 
             mTiles[ p ][ q ] = tile;
 
@@ -210,7 +209,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
         }
     }
 
-    if(options.lit)
+    if(mOptions.lit)
     {
         for ( j = 0; j < size; j++ )
         {
