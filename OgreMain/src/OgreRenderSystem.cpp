@@ -214,6 +214,7 @@ namespace Ogre {
         _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
 
 		// Set blend modes
+		// Note, colour before alpha is important
         _setTextureBlendMode(texUnit, tl.getColourBlendMode());
         _setTextureBlendMode(texUnit, tl.getAlphaBlendMode());
 
