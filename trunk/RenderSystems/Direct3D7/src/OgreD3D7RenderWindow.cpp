@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreLogManager.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 #include "OgreD3D7TextureManager.h"
 
 namespace Ogre {
@@ -129,6 +131,7 @@ namespace Ogre {
 
             case WM_CLOSE:
                 DestroyWindow( win->mHWnd );
+                Root::getSingleton().getRenderSystem()->detachRenderTarget( win->getName() );
                 win->mClosed = true;
                 return 0;
 

@@ -442,9 +442,6 @@ namespace Ogre {
     {
         OgreGuard( "D3DRenderSystem::startRendering" );
 
-        BOOL bGotMsg;
-        bool isActive;
-        bool allWindowsClosed;
         MSG  msg;
         static clock_t lastStartTime;
         static clock_t lastEndTime;
@@ -458,54 +455,14 @@ namespace Ogre {
         // Render this window
         PeekMessage( &msg, NULL, 0U, 0U, PM_NOREMOVE );
 
-        while( /*WM_QUIT != msg.message*/ true  ) // no need to check for WM_QUIT anymore
+        while( mRenderTargets.size() )
         {
-            // Check all windows to see if any are active / closed
-            isActive = false;
-            allWindowsClosed = true; // assume all closed unless we find otherwise
-            for(RenderWindowMap::iterator i = mRenderWindows.begin(); i != mRenderWindows.end(); )
-            {
-                if (i->second->isActive())
-                    isActive = true;
-
-                if (i->second->isClosed())
-                {
-                    // Window has been closed, destroy
-                    RenderWindowMap::iterator j = i; ++j;
-                    destroyRenderWindow(i->second);                    
-                    i = j;
-                }
-                else
-                {
-                    allWindowsClosed = false;
-                    ++i;
-                }
-
-            }
-
-            // Break out if all windows closed
-            if (allWindowsClosed)
-            {
-                return;
-            }
-
-
-            // Use PeekMessage() if any windows are active, so we can use idle time to
-            // render the scene. Else, use GetMessage() to avoid eating CPU time.
-            if( isActive )
-            {
-                bGotMsg = PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE );
-            }
-            else
-            {
-                bGotMsg = GetMessage( &msg, NULL, 0U, 0U );
-            }
-            if( bGotMsg )
+            while( PeekMessage( &msg, NULL, 0U, 0U, PM_REMOVE ) )
             {
                 TranslateMessage( &msg );
                 DispatchMessage( &msg );
             }
-            else
+            
             {
                 FrameEvent evt;
 
@@ -523,12 +480,10 @@ namespace Ogre {
                 lastStartTime = fTime;
 
                 // Render a frame during idle time (no messages are waiting)
-                for(i = mRenderWindows.begin(); i!=mRenderWindows.end(); ++i)
+                for( RenderTargetMap::iterator i = mRenderTargets.begin(); i != mRenderTargets.end(); ++i )
                 {
-                    if (i->second->isActive())
-                    {
+                    if( i->second->isActive() )
                         i->second->update();
-                    }
                 }
 
                 // Do frame ended event
@@ -542,7 +497,6 @@ namespace Ogre {
                         return;
                 }
                 lastEndTime = fTime;
-
             }
         }
 
@@ -632,7 +586,7 @@ namespace Ogre {
 
         // Make sure we don't already have a render target of the
         // same name as the one supplied
-        if (mRenderWindows.find(name) != mRenderWindows.end() )
+        if( mRenderTargets.find( name ) != mRenderTargets.end() )
         {
             msg = msg + "A render target of the same name (" + name + ") already "
                 "exists. You cannot create a new window with this name.";
@@ -645,7 +599,7 @@ namespace Ogre {
             left, top, depthBuffer, &mhInstance, mActiveDDDriver, parentWindowHandle);
 
         // Add window to render target list
-        mRenderWindows.insert( RenderWindowMap::value_type( name, win ) );
+        mRenderTargets.insert( RenderTargetMap::value_type( name, win ) );
 
         // If this is the parent window, get the D3D device
         //  and create the texture manager
@@ -665,13 +619,13 @@ namespace Ogre {
     void D3DRenderSystem::destroyRenderWindow(RenderWindow* pWin)
     {
         // Find it to remove from list
-        RenderWindowMap::iterator i = mRenderWindows.begin();
+        RenderTargetMap::iterator i = mRenderTargets.begin();
 
-        while (i != mRenderWindows.end())
+        while (i != mRenderTargets.end())
         {
             if (i->second == pWin)
             {
-                mRenderWindows.erase(i);
+                mRenderTargets.erase(i);
                 delete pWin;
                 break;
             }
