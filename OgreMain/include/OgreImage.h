@@ -178,6 +178,14 @@ namespace Ogre {
 			case PF_A2R10G10B10:
 			case PF_B10G10R10A2:
 				return 4;
+            case PF_FP_R16G16B16:
+                return 6;
+            case PF_FP_R16G16B16A16:
+                return 8;
+            case PF_FP_R32G32B32:
+                return 12;
+            case PF_FP_R32G32B32A32:
+                return 16;
 			default:
 				return 0xff;
 			}
@@ -235,7 +243,15 @@ namespace Ogre {
 			case PF_A2R10G10B10:
 			case PF_B10G10R10A2:
 				return 32;
-			default:
+            case PF_FP_R16G16B16:
+                return 48;
+            case PF_FP_R16G16B16A16:
+                return 64;
+            case PF_FP_R32G32B32:
+                return 96;
+            case PF_FP_R32G32B32A32:
+                return 128;
+            default:
 				return 0xff;
 			}
 		}
@@ -247,7 +263,7 @@ namespace Ogre {
                Passing one of the DXT_ formats will return false as it is unknown
                from the format alone in that case.
        */
-       inline static bool PFHasAlpha(PixelFormat format) 
+       inline static bool formatHasAlpha(PixelFormat format) 
        {
             switch(format) {
                 case PF_A8:
@@ -259,6 +275,8 @@ namespace Ogre {
                 case PF_B8G8R8A8:
                 case PF_A2R10G10B10:
                 case PF_B10G10R10A2:
+                case PF_FP_R16G16B16A16:
+                case PF_FP_R32G32B32A32:
                     return true;
                 default:
                     return false;
@@ -441,8 +459,6 @@ namespace Ogre {
                 Castano Iguado
         */
         static void applyGamma( uchar *buffer, Real gamma, size_t size, uchar bpp );
-
-        static bool formatHasAlpha(PixelFormat format);
 
 		enum Filter
 		{
