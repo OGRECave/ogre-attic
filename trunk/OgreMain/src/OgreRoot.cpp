@@ -350,6 +350,11 @@ namespace Ogre {
 
         RenderWindow *retWin =  mActiveRenderer->initialise(autoCreateWindow);
 
+        if (autoCreateWindow)
+        {
+            // Init particle systems manager
+            mParticleManager->_initialise();
+        }
 
         return retWin;
 
