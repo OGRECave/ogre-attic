@@ -54,8 +54,8 @@ Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
                   inside[ 0 ].y > outside[ 0 ].y &&
                   inside[ 0 ].z > outside[ 0 ].z &&
                   inside[ 4 ].x < outside[ 4 ].x &&
-                  inside[ 4 ].x < outside[ 4 ].x &&
-                  inside[ 4 ].x < outside[ 4 ].x );
+                  inside[ 4 ].y < outside[ 4 ].y &&
+                  inside[ 4 ].z < outside[ 4 ].z );
 
     if ( full )
         return INSIDE;
