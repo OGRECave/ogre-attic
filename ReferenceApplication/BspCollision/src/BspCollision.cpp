@@ -105,6 +105,7 @@ protected:
         // Create a point light
         Light* l = mSceneMgr->createLight("MainLight");
         l->setPosition(-100,50,100);
+        l->setAttenuation(8000,1,0,0);
 
 
         // Setup World
@@ -113,7 +114,7 @@ protected:
 
         // modify camera for close work
         mCamera->setNearClipDistance(10);
-        mCamera->setFarClipDistance(10000);
+        mCamera->setFarClipDistance(20000);
 
         // Also change position, and set Quake-type orientation
         // Get random player start point
