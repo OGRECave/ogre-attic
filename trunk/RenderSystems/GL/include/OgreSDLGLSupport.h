@@ -41,10 +41,6 @@ public:
     void stop();
 
     /**
-    * Check if an extension is available
-    */
-    bool checkExtension(const std::string& ext);
-    /**
     * Get the address of a function
     */
     void* getProcAddress(const std::string& procname);

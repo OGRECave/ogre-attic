@@ -24,11 +24,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreGLTexture.h"
+#include "OgreGLSupport.h"
 #include "OgreTextureManager.h"
 #include "OgreDataChunk.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
 #include "OgreCamera.h"
+#include <limits>
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -36,6 +38,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 #endif
 
 namespace Ogre {
+
+    // Simple round up function
+    double round_up(double value) {
+        if (value - floor(value) > std::numeric_limits<double>::epsilon())
+        {
+            return floor(value) + 1;
+        }
+        else
+        {
+            return floor(value);
+        }
+    }
 
     GLTexture::GLTexture(String name)
     {
@@ -113,19 +127,40 @@ namespace Ogre {
         mWidth = mSrcWidth;
         mHeight = mSrcHeight;
 
-        uchar *pTempData = new uchar[ img.getSize() ];
-        memcpy( pTempData, img.getData(), img.getSize() );
+        // Scale image to n^2 dimensions
+        unsigned int newWidth = 
+          (unsigned int)pow(2,round_up(log((double)mSrcWidth) / log(2.0)));
+
+        unsigned int newHeight = 
+          (unsigned int)pow(2,round_up(log((double)mSrcHeight) / log(2.0)));
+
+        uchar *pTempData;
+        if(newWidth != mSrcWidth || newHeight != mSrcHeight)
+        {
+          unsigned int newImageSize = newWidth * newHeight * 
+            (mHasAlpha ? 4 : 3);
+
+          pTempData = new uchar[ newImageSize ];
+          if(gluScaleImage(mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight,
+                GL_UNSIGNED_BYTE, img.getData(), newWidth, newHeight, 
+                GL_UNSIGNED_BYTE, pTempData) != 0)
+          {
+            Except(Exception::ERR_INTERNAL_ERROR, 
+                "Error while rescaling image!", "GLTexture::loadImage");
+          }
+
+          Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
+        }
+        else
+        {
+          pTempData = new uchar[ img.getSize() ];
+          memcpy( pTempData, img.getData(), img.getSize() );
+          Image::applyGamma( pTempData, mGamma, img.getSize(), mSrcBpp );
+        }
 
         // Create the GL texture
         glGenTextures( 1, &mTextureID );
         glBindTexture( GL_TEXTURE_2D, mTextureID );
-
-        Image::applyGamma( pTempData, mGamma, img.getSize(), mSrcBpp );
-
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, mHasAlpha ? GL_RGBA : GL_RGB, 
-            img.getWidth(), img.getHeight(), 0, 
-            mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, pTempData );
 
         generateMipMaps( pTempData );
 
@@ -183,17 +218,52 @@ namespace Ogre {
 
     void GLTexture::generateMipMaps( uchar *data )
     {
+        bool foundHardware = false;
+
+        if(mNumMipMaps)
+        {
+#ifdef GL_VERSION_1_4 // GL 1.4 supports hardware mipmapping
+            String version = GLSupport::getSingleton().getGLVersion();
+              //(const char*)glGetString(GL_VERSION);
+            //if(version.substr(0, version.find(" ")) == "1.4.0")
+            if(version == "1.4.0")
+            {
+                glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+                foundHardware = true;
+            }
+#endif
+#ifdef GL_SGIS_generate_mipmap // Otherwise try and use the SGI extension
+            if(GLSupport::getSingleton().checkExtension("GL_SGIS_generate_mipmap") && !foundHardware)
+            {
+                glTexParameteri( 
+                    GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
+                foundHardware = true;
+            }
+#endif
+        }
+
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
-        gluBuild2DMipmaps(
-            GL_TEXTURE_2D, mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 
+
+        if(!foundHardware && mNumMipMaps)
+        {
+          gluBuild2DMipmaps(
+              GL_TEXTURE_2D, mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, 
+              mSrcHeight, mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data);
+        }
+        else
+        {
+          glTexImage2D(
+            GL_TEXTURE_2D, 0, mHasAlpha ? GL_RGBA : GL_RGB, 
+            mSrcWidth, mSrcHeight, 0, 
             mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
+        }
     }
 
     void GLRenderTexture::_copyToTexture(void)
     {
         if(getNumViewports() != 1)
         {
-            LogManager::getSingleton().logMessage(LML_NORMAL, "GLRenderTexture: Invalid number of viewports set %d.  Must onlyy be one", getNumViewports());
+            LogManager::getSingleton().logMessage(LML_NORMAL, "GLRenderTexture: Invalid number of viewports set %d.  Must only be one", getNumViewports());
             return;
         }
 
