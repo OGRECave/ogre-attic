@@ -110,6 +110,11 @@ namespace Ogre {
         mShadowTextureSize = 512;
         mShadowTextureCount = 1;
         mShadowColour = ColourValue(0.25, 0.25, 0.25);
+        mShadowTextureOffset = 0.6; 
+        mShadowTextureFadeStart = 0.7; 
+        mShadowTextureFadeEnd = 0.9; 
+
+
 
 
     }
@@ -3190,8 +3195,10 @@ namespace Ogre {
             shadowDist = cam->getNearClipDistance() * 300;
         }
         // set fogging to hide the shadow edge
+        Real shadowOffset = shadowDist * mShadowTextureOffset;
+        Real shadowEnd = shadowDist + shadowOffset;
         mShadowReceiverPass->setFog(true, FOG_LINEAR, ColourValue::White, 
-            0, shadowDist * 0.65, shadowDist * 0.8);
+            0, shadowEnd * mShadowTextureFadeStart, shadowEnd * mShadowTextureFadeEnd);
 
         // Iterate over the lights we've found, max out at the limit of light textures
 
@@ -3218,15 +3225,15 @@ namespace Ogre {
                 texCam->setProjectionType(PT_ORTHOGRAPHIC);
                 // set easy FOV and near dist so that texture covers far dist
                 texCam->setFOVy(90);
-                texCam->setNearClipDistance(shadowDist * 0.5);
+                texCam->setNearClipDistance(shadowDist);
 
                 // Set size of projection
 
                 // Calculate look at position
-                // We want to look at a spot 0.4 * shadowdist away from near plane
+                // We want to look at a spot shadowOffset away from near plane
                 // 0.5 is a litle too close for angles
                 Vector3 target = cam->getDerivedPosition() + 
-                    (cam->getDerivedDirection() * (shadowDist * 0.4));
+                    (cam->getDerivedDirection() * shadowOffset);
 
                 // Calculate position
                 // We want to be in the -ve direction of the light direction
