@@ -41,6 +41,7 @@ namespace Ogre {
         mQueryFlags = 0xFFFFFFFF;
         mWorldAABB.setNull();
         mParentIsTagPoint = false;
+        mCastShadows = true;
     }
     //-----------------------------------------------------------------------
     MovableObject::~MovableObject()

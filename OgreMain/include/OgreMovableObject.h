@@ -61,6 +61,9 @@ namespace Ogre {
 		mutable Sphere mWorldBoundingSphere;
         /// World space AABB of this object's dark cap
         mutable AxisAlignedBox mWorldDarkCapBounds;
+        /// Does this object cast shadows?
+        bool mCastShadows;
+
 
     public:
         /// Constructor
@@ -178,8 +181,6 @@ namespace Ogre {
         virtual unsigned long getQueryFlags(void) const { return mQueryFlags; }
 
         /// Define a default implementation of method from ShadowCaster which implements no shadows
-        bool getCastShadows(void) const { return false; }
-        /// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }
         /// Define a default implementation of method from ShadowCaster which implements no shadows
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(
@@ -194,6 +195,22 @@ namespace Ogre {
         const AxisAlignedBox& getLightCapBounds(void);
         /** Overridden member from ShadowCaster. */
         const AxisAlignedBox& getDarkCapBounds(const Light& light);
+        /** Sets whether or not this object will cast shadows.
+        @remarks
+        This setting simply allows you to turn on/off shadows for a given object.
+        An object will not cast shadows unless the scene supports it in any case
+        (see SceneManager::setShadowTechnique), and by default all entities cast
+        shadows if the scene-level feature is enabled. If, however, for some reason
+        you wish to disable this for a single object then you can do so using this
+        method.
+        @note This method normally refers to objects which block the light, but
+        since Light is also a subclass of MovableObject, in that context it means
+        whether the light causes shadows itself.
+        */
+        void setCastShadows(bool enabled) { mCastShadows = enabled; }
+        /** Returns whether shadow casting is enabled for this object. */
+        bool getCastShadows(void) const { return mCastShadows; }
+
 
 
 

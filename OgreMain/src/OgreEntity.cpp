@@ -50,7 +50,6 @@ namespace Ogre {
     {
 		mFullBoundingBox = new AxisAlignedBox;
         mNormaliseNormals = false;
-        mCastShadows = true;
         mFrameAnimationLastUpdated = 0;
         mHardwareSkinning = false;
         mSkeletonInstance = 0;
@@ -124,7 +123,6 @@ namespace Ogre {
 		mMinMaterialLodIndex = 99;
 
 
-        mCastShadows = true;
         mFrameAnimationLastUpdated = 0;
     }
     //-----------------------------------------------------------------------
