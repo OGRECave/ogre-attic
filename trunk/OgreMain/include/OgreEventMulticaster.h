@@ -171,13 +171,6 @@ namespace Ogre {
 		 void mouseClicked(MouseEvent* e);
 
 		 /**
-		 * Handles the mouseDragged event by invoking the
-		 * mouseDragged methods on listener-a and listener-b.
-		 * @param e the mouse event
-		 */
-		 void mouseDragged(MouseEvent* e);
-
-		 /**
 		 * Handles the mouseEntered event by invoking the
 		 * mouseEntered methods on listener-a and listener-b.
 		 * @param e the mouse event
