@@ -73,7 +73,9 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #define OGRE_DYNAMIC_LINKAGE 1
 
-/** Set this to 0 if you want to use the standard memory manager
+
+/** Set this to 0 if you want to use the standard memory manager in Debug builds
+    Release builds always use the standard memory manager
 */
 #define OGRE_DEBUG_MEMORY_MANAGER 1
 

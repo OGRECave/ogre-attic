@@ -39,7 +39,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifndef OGRE_MEMORY_MACROS
 #define OGRE_MEMORY_MACROS
 
-#if OGRE_DEBUG_MEMORY_MANAGER
+#if OGRE_DEBUG_MEMORY_MANAGER && OGRE_DEBUG_MODE
 #   define new    (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? NULL                                                 : new
 #   define delete (::Ogre::MemoryManager::sMemManager.setOwner(__FILE__,__LINE__,__FUNCTION__),false) ? ::Ogre::MemoryManager::sMemManager.setOwner("",0,"") : delete
 #   define malloc(sz)      ::Ogre::MemoryManager::sMemManager.allocMem(__FILE__,__LINE__,__FUNCTION__, m_alloc_malloc, sz,      gProcessID)
