@@ -927,4 +927,22 @@ namespace Ogre {
         mReflect = false;
         mRecalcView = true;
     }
+    //-----------------------------------------------------------------------
+    Ray Camera::getCameraToViewportRay(Real screenX, Real screenY)
+    {
+        Real centeredScreenX = (screenX - 0.5f);
+        Real centeredScreenY = (0.5f - screenY);
+
+        Real normalizedSlope = Math::Tan(Math::DegreesToRadians(mFOVy / 2));
+        Real viewportYToWorldY = normalizedSlope * mNearDist * 2;
+        Real viewportXToWorldX = viewportYToWorldY * mAspect;
+
+        Vector3 rayDirection(centeredScreenX * viewportXToWorldX,
+            centeredScreenY * viewportYToWorldY,
+            -mNearDist);
+        rayDirection = getDerivedOrientation() * rayDirection;
+        rayDirection.normalise();
+
+        return Ray(getDerivedPosition(), rayDirection);
+    } 
 } // namespace Ogre
