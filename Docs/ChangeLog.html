@@ -1,1518 +1,2015 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-  <title>OGRE ChangeLog</title>
-  <meta http-equiv="Content-Type"
- content="text/html; charset=iso-8859-1">
-  <style type="text/css">
-<!--
-.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
-body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
-.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
-.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
-.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
-a:link {  color: #FFFF00; text-decoration: underline}
-a:hover {  color: #FFFFFF; text-decoration: underline}
-a:visited {  color: #FFCC66; text-decoration: underline}
-li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
-.NewsDate {  color: #CCFFCC; font-weight: bold}
-td {  font-size: 10pt}
-th {  font-size: 10pt}
-.Annotation {  font-size: 10px}
-
-H1 { text-align: center; }
-A.qindex {}
-A.qindexRef {}
-A.el { text-decoration: none; font-weight: bold }
-A.elRef { font-weight: bold }
-A.code { text-decoration: none; font-weight: normal; color: #4444ee }
-A.codeRef { font-weight: normal; color: #4444ee }
-DL.el { margin-left: -1cm }
-DIV.fragment { width: 100%; border: none; background-color: #003300 }
-DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
-TD.md { background-color: #006600 }
-DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
-DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
-FONT.keyword       { color: #008000 }
-FONT.keywordtype   { color: #999920 }
-FONT.keywordflow   { color: #e0FF00 }
-FONT.comment       { color: #009900 }
-FONT.preprocessor  { color: #809020 }
-FONT.stringliteral { color: #002080 }
-FONT.charliteral   { color: #008080 }
-
-H3 {
-    FONT-FAMILY: trebuchet ms,helvetica,arial
-}
-
-.ex {
-    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
-}
-CODE.keywordtype {
-    COLOR: #00ccff
-}
-CODE.keyword {
-    FONT-WEIGHT: bold; COLOR: #00ccff
-}
-CODE.fn {
-    COLOR: white;
-    FONT-WEIGHT: bold;
-}
-CODE.var {
-    COLOR: #dcdcdc;
-}
-CODE.macro {
-    COLOR: #809020;
-    FONT-WEIGHT: bold;
-}
-CODE.comm {
-    COLOR: lime
-}
-CODE.num {
-    COLOR: purple
-}
-CODE.str {
-    COLOR: #ffcc33;
-    font-style: italic
-}
-.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
-.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
--->
-  </style>
-</head>
-<body bgcolor="#ffffff" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics
-Rendering Engine)</p>
-<p align="center" class="header">Change Log</p>
-<p align="left" class="MainHeader">v1.0.0 [Azathoth] (5 February 2005)
--
-Major Release<br>
-</p>
-<p>1.0.0 is a big release, and due to us wanting to freeze interfaces at the best possible level for 1.0.0 there are more interface breaking changes in 1.0.0 than is typical for previous releases. For the full lowdown on upgrading your code from Hastur (0.15.x) to Azathoth (1.0.x) , please see the <a href="http://ogrewiki.digitalsentience.com/index.php/AzathothNotes">Azathoth Porting Notes Wiki Page</a>.
-<p align="left">Enhancements and new Features:<br>
-<ul>
-	<li><span style="color: rgb(255, 255, 51);">Resource System Overhaul</span>:
-		<ul>
-			<li>Resources now addressed through shared pointers</li>
-			<li>Resource groups can now be defined so that you can load and unload resources in groups, and also set up group-specific search paths and scripting tasks.</li>
-			<li>Manual resource provision formalised; there is now a ManualLoader class that should be implemented when creating resources in code; this allows resource reloads to be possible in all cases</li>
-			<li>Streaming support - data is now accessed from Ogre's virtual file system solely through the DataStream class (and subclasses), meaning that accessing very large files efficiently is now possible while still using the resource system.</li>
-			<li>Loading progress reports; you can now register ResourceGroupListeners in order to implement loading bars</li>
-			<li>Thread safety - steps have been taked to make the resource system thread-safe to allow background loading. This feature is experimental and should only be used by experienced users.</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">Hardware Pixel Buffers &amp; Image enhancements</span>:
-	<ul>
-		<li>Direct access to read / write to texture surfaces through the HardwarePixelBuffer class, including mip levels, cube surfaces and volume slices</li>
-		<li>Pixel formats have been extended, are now unambiguous across endianness, having separate 'native' endian formats and per-byte formats</li>
-		<li>Support for floating-point pixel formats, luminence formats, depth formats, and compressed formats</li> 
-		<li>Image class has been tidied and enhanced to support composite images (like cube maps)</li>
-		<li>PixelUtil class now provides access to all pixel format conversion functions, with optimised templated conversion routines available in capable compilers</li>
-	</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">High Dynamic Range (HDR) rendering support</span>:
-	<ul>
-		<li>Create render textures in floating-point pixel formats</li>
-		<li>Load .hdr or .exr textures from disk using the OpenEXR plugin (optional)</li>
-	</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">Particle System enhancements</span>: Particle systems are no longer limited to rendering with billboards, they render through instances of ParticleSystemRenderer subclasses, which can be implemented in plugins and added at runtime. Use of these alternative renderers is scriptable and can be used to implement alternative particle types like ribbons.</li>
-	<li><span style="color: rgb(255, 255, 51);">GUI changes</span>: 
-	<ul>
-		<li>The OGRE internal GUI has been replaced with <a href="http://www.cegui.org.uk">Crazy Eddie's GUI</a>, a superior GUI system which follows the same kind of design principles as Ogre itself (portable, clean OO code).</li>
-		<li>Non-interactive overlays remain within OGRE itself, the classes have been renamed *OverlayElement instead of *GuiElement to reflect their role</li> 	
-	</ul>
-	</li>
-	<li>Material changes:
-	<ul>
-		<li>alpha_rejection has been moved from the texture_unit to the pass</li>
-		<li>Linking vertex colours to material attributes; you can now link vertex colours to any of the diffuse, specular, emissive or ambient material attribures, (e.g. 'ambient vertexcolour')  rather than the linkage being implicit.</li>
-		<li>You can now define the number of mipmaps to be generated when loading a texture in the material script, from '0' to 'unlimited'</li>
-	</ul>
-	</li>
-	<li>New StaticGeometry class allows you to batch up individual meshes and render thousands of them far more efficiently than if they were separate movable objects</li>
-	<li>GL now supports render textures larger than the frame buffer (through pbuffers)</li>
-	<li>D3D9 uses best possible filter method supported by hardware for generating Mipmaps, this can improve display quality especially when using trilinear filtering</li>
-	<li> Support all image types that DevIL can load: bmp, gif, hdr, ico, jpeg, pnm, mng and many more</li>
-	<li>GLX, SDL, D3D9: FSAA(Full Scene AntiAliasing) support improved</li>
-	<li>Image codecs are now completely replaceable, if you wish to remove the use of DevIL</li>
-	<li>Better support for 3D and compressed textures</li>
-	<li>New and improved demos:
-	<ul>
-		<li>'DynTex' shows how to procedurally generate textures using the new pixel buffer API</li>
-		<li>'VolumeTex' demonstrates volume rendering and procedurally generated meshes and 3D textures</li>
-		<li>'Grass' demonstrates the use of the new StaticGeometry class to batch up lots of individual meshes</li>
-		<li>'Gui' has been updated to use Crazy Eddies GUI. </li>
-	</ul>
-	</li>
-	<li>Interface to RenderSystem::createWindow and RenderSystem::createRenderTexture cleaned up and made more flexible</li>
-	<li>Support Athlon 64 in native 64-bit mode (Linux)</li>
-	<li>Support running the OGRE core in double precision floating point mode through the use of OGRE_DOUBLE_PRECISION</li>
-	<li>Add 'inverse transform' automatic shader parameter bindings</li> 
-	<li>MinGW/Cygwin build system using auto* tools included</li>
-	<li>Visual C++ 2005 Beta support</li>
-</ul>
-</p>
-<p align="left">Bugfixes:<br>
-<ul>
-	<li>Fixed texture_view_proj shader parameter binding</li>
-	<li>Terrain now supports texture shadows</li>
-	<li>Fixed 4-weight hardware skinning vertex shader</li>
-	<li>Fixed possible texture frame overflow in animated texture controller</li>
-	<li>GLX: alt-tab now allows mouse to escape window</li>
-	
-</ul>
-</p>
-
-<p align="left" class="MainHeader">v0.15.2 [Hastur] (13 January 2005)
--
-Maintenance Release<br>
-</p>
-<p align="left">Changes:<br>
-</p>
-<ul>
-	<li><span style="color: rgb(255, 255, 51);">Stencil shadows</span>:
-		<ul>
-			<li>Runtime performance improvements</li>
-			<li>Edge list construction can now deal with non-manifold meshes, and is faster. You can re-calculate edge lists on your affected .mesh files by using OgreXmlConverter to convert to XML and back.</li>
-			<li>Shadow culling fixes including in reflected camera scenarios</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">TerrainSceneManager</span>:  Fixed crash when you clear the terrain scene but don't call setWorldGeometry again</li>
-	<li><span style="color: rgb(255, 255, 51);">Direct3D textures</span>: Prefer D3DFMT_X8R8G8B8 over D3DFMT_R8G8B8 for texture formats, and disable auto mipmap generation when mipmaps == 0</li>
-	<li><span style="color: rgb(255, 255, 51);">BillboardSet</span>: avoid double-free crashes under certain calling orders.</li>
-	<li><span style="color: rgb(255, 255, 51);">Camera</span>: 
-		<ul>
-			<li>Better safety checks for bad parameters to setDirection</li>
-			<li>Camera::getCameraToViewportRay now works for orthographic projection</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">GL</span>: 
-		<ul>
-			<li>Added virtual keyword to GLSupport::setExternalWindowHandle</li>
-			<li>Fix a couple of potential consistency issues in fixed-function lighting states</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">Scene Queries</span>:
-		<ul>
-			<li>Query mask flags for world geometry made more explicit</li>
-			<li>Boolean result from query listeners consistently respected</li>
-			<li>Added specialised BspRaySceneQuery for fast BSP ray results</li>
-			<li>Don't match objects which are attached to detached subtrees of the scene graph</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">Font</span>: several fixes to make on-screen fonts much crisper</li>
-	<li><span style="color: rgb(255, 255, 51);">Windows</span>: requested size now translated to client area size in windowed mode (except if full window size exceeds the desktop size)</li>
-	<li><span style="color: rgb(255, 255, 51);">Material scripts</span>: automatic GPU program parameter 'projection_matrix' now parsed correctly</li>
-	<li><span style="color: rgb(255, 255, 51);">VC7.1+ STL</span>: Avoid long shutdown in debug mode</li>
-	<li><span style="color: rgb(255, 255, 51);">VC6</span>: Added /Zm option to VC6 to avoid compiler out of heap space errors</li>
-	<li><span style="color: rgb(255, 255, 51);">Blender exporter</span>:
-		<ul>
-			<li>Fixed calculation of initial bone rotation.</li>
-			<li>Restored possibility to export an armature as mesh.</li>
-			<li>Option to export in objects local coordinates.</li>
-			<li>Allow image textures to be assigned via a material texture channel.</li>
-			<li>Preliminary bump map support.</li>
-			<li>Option to run OgreXMLConverter automatically</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">3DS exporter</span>:
-		<ul>
-			<li>Export vertex alpha export as the a component of the vertex color</li>
-			<li>Fixed a couple of bugs in UV export (inc multi-UV export)</li>
-			<li>Fix a bug for IK export</li>
-			<li>Speed up the mesh export process. No very easy to notice for small objects but great speed improvements for very big objects.</li>
-			<li>Any kind of objects can now be part of the hierarchy if they are part of the Skin/Physique modifier.</li>
-			<li>Log a warning when there is a vertex with more than 4 bones assigned.</li>
-			<li>Scale of 0.0 is no longer possible. 0.0 is replaced by 1.0 when used.</li>
-			<li>Animation names are properly exported when using multiple animations.</li>
-		</ul>
-	</li>
-	<li><span style="color: rgb(255, 255, 51);">Memory manager</span>: Fix use of memory macros without namespace Ogre</li>
-	<li><span style="color: rgb(255, 255, 51);">Manual updates</span>:
-		<ul>
-			<li>Mention optional alpha components to ambient / diffuse / specular / emissive</li>
-			<li>Documented additional community-contributed particle emitters / affectors</li>
-		</ul>
-	</li>
-</ul>  
-<p align="left" class="MainHeader">v0.15.1 [Hastur] (28 November 2004)
--
-Maintenance Release<br>
-</p>
-<p align="left">Bugfixes:<br>
-</p>
-<ul>
-  <li>Particle system performance improved</li>
-  <li>Blender exporter fixes &amp; enhancements:</li>
-  <ul>
-    <li>vertex colours supported</li>
-    <li>initial bone rotation bug fixed</li>
-    <li>location keyframe export bug fixed<br>
-    </li>
-  </ul>
-  <li>3DS Max exporter fixes and enhancements<br>
-(Note you must completely delete your existing exporter files and add
-the new 'Ogre Exporter' button to your interface)<br>
-  </li>
-  <ul>
-    <li>Smoothing groups now work correctly</li>
-    <li>Bones without any vertices assignements will be exported
-correctly</li>
-    <li>Biped export is now automatic and is fixed up<br>
-    </li>
-    <li>Specify edge list precalculation, tangent vector precalculation
-(normal mapping) and LOD generation</li>
-    <li>Multiple UV channels supported</li>
-    <li>Multiple animation support</li>
-    <li>IK sampling (experimental)</li>
-  </ul>
-  <li>Lightwave exporter now compatible with 0.15<br>
-  </li>
-  <li>Removing texture effects did not remove properly controllers<br>
-  </li>
-  <li>MipFilter now set correctly when using
-TextureUnitState::setTextureFiltering<br>
-  </li>
-  <li>Mesh fix: allow manual LOD to be created even after edge lists
-have been built</li>
-  <li>Fixed handling of overlays with 3D elements</li>
-  <li>Octree scene queries now deal with null AABBs correctly</li>
-  <li>Prevent a memory leak when closing a D3D7 or D3D9 window using
-WM_CLOSE (e.g. the 'X')</li>
-  <li>Added missing toLowerCase call in MaterialSerializer</li>
-  <li>Particle System: fix parameter types and descriptions</li>
-  <li>Fixed missing _dirtyHash in TextureUnitState constructor <br>
-  </li>
-  <li>Fixed a couple of typos in the manual <br>
-  </li>
-  <li>Fixed errors when undefining OGRE_FORCE_ANGLE_TYPES</li>
-  <li>Fixed bug with aspect ratio of text in relative metrics mode</li>
-  <li>Set Terrain query flags so it can be excluded / included
-specifically in scene queries</li>
-  <li>Added stl_user_config.h to ensure use of _STLP_DEBUG is consistent</li>
-  <li>BillboardSet did not add billboards back to the free list on
-clear()</li>
-  <li>TerrainSceneManager fix when calling clearScene()<br>
-  </li>
-</ul>
-<p align="left"></p>
-<p align="left" class="MainHeader">v0.15.0 [Hastur] (23 October 2004) -
-Major Release<br>
-</p>
-<p align="left">Note: Ogre development branches will now have code
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE>OGRE ChangeLog</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.1.4  (Win32)">
+	<META NAME="CREATED" CONTENT="20050219;16201881">
+	<META NAME="CHANGED" CONTENT="20050219;16472179">
+	<STYLE>
+	<!--
+		P { color: #ccffcc; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		P.header { color: #ffffcc; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 12pt; font-weight: bold }
+		P.mainheader { color: #ffff33; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt; font-weight: bold }
+		P.maincontent { font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		BLOCKQUOTE { color: #ccffcc; font-family: "Verdana", "Arial", "Helvetica", sans-serif; font-size: 10pt }
+		A:link { color: #ffff00 }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" TEXT="#ccffcc" LINK="#ffff00" BGCOLOR="#003300" DIR="LTR">
+<P CLASS="header" ALIGN=CENTER>OGRE (Object-Oriented Graphics
+Rendering Engine)</P>
+<P CLASS="header" ALIGN=CENTER>Change Log</P>
+<P CLASS="mainheader" ALIGN=LEFT>v1.0.0 Final [Azathoth] (21 February
+2005) - Major Release</P>
+<P ALIGN=LEFT>The final 1.0.0 release includes a set of bugfixes to
+the original release candidate, and will also see the first emergence
+of a precompiled SDK for OGRE. Again, if you are upgrading from
+Hastur (0.15.x) please read the <A HREF="http://www.ogre3d.org/wiki/index.php/AzathothNotes">Azathoth
+Porting Notes Wiki Page</A>. 
+</P>
+<P ALIGN=LEFT>Bugfixes &amp; changes since RC1:</P>
+<UL>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fixed a couple of
+	memory leaks and a buffer overrun in StaticGeometry</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">API doc introduction
+	page added</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fixed version numbers
+	in Linux build system</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">ResourceGroupManager
+	iterator bugs and memory leak on removing groups fixed</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Vsync option was not
+	being passed correctly in D3D rendersystems</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Add external access to
+	software blend data in Entity</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fix DynLib .so
+	appending issue on Linux</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Depth bias fixed on
+	D3D9 and GL</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fixed problem with
+	particle systems in some fullscreen modes</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Convert paletted images
+	to RGBA automatically</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fix a skeleton issue
+	when unloading &amp; reloading resources</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Disable fog when
+	rendering shadow textures</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Allow users to
+	configure custom texture shadows; change caster &amp; receiver
+	material and texture format</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fix a shutdown problem
+	when external apps linked directly to octree plugin</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">OgreGuiRenderer project
+	moved from CEGUI source repository to Ogre repository to simplify
+	dependencies</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Be tolerant of
+	externally created LogManager instances</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Fix crash on invalid
+	DXTx surface sizes</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Image based fonts fixed</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">API documentation
+	content and style updates</P>
+	<LI><P ALIGN=LEFT STYLE="margin-bottom: 0cm">Update version of image
+	scaling routines</P>
+</UL>
+<P ALIGN=LEFT STYLE="margin-left: 0.77cm; margin-bottom: 0cm"><BR>
+</P>
+<P CLASS="mainheader" ALIGN=LEFT>v1.0.0 RC1 [Azathoth] (5 February
+2005) - Major Release</P>
+<P>1.0.0 is a big release, and due to us wanting to freeze interfaces
+at the best possible level for 1.0.0 there are more interface
+breaking changes in 1.0.0 than is typical for previous releases. For
+the full lowdown on upgrading your code from Hastur (0.15.x) to
+Azathoth (1.0.x) , please see the <A HREF="http://www.ogre3d.org/wiki/index.php/AzathothNotes">Azathoth
+Porting Notes Wiki Page</A>. 
+</P>
+<P ALIGN=LEFT>Enhancements and new Features:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Resource
+	System Overhaul</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Resources now addressed through
+		shared pointers 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Resource groups can now be
+		defined so that you can load and unload resources in groups, and
+		also set up group-specific search paths and scripting tasks. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Manual resource provision
+		formalised; there is now a ManualLoader class that should be
+		implemented when creating resources in code; this allows resource
+		reloads to be possible in all cases 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Streaming support - data is now
+		accessed from Ogre's virtual file system solely through the
+		DataStream class (and subclasses), meaning that accessing very
+		large files efficiently is now possible while still using the
+		resource system. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Loading progress reports; you can
+		now register ResourceGroupListeners in order to implement loading
+		bars 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Thread safety - steps have been
+		taked to make the resource system thread-safe to allow background
+		loading. This feature is experimental and should only be used by
+		experienced users. 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Hardware
+	Pixel Buffers &amp; Image enhancements</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Direct access to read / write to
+		texture surfaces through the HardwarePixelBuffer class, including
+		mip levels, cube surfaces and volume slices 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Pixel formats have been extended,
+		are now unambiguous across endianness, having separate 'native'
+		endian formats and per-byte formats 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Support for floating-point pixel
+		formats, luminence formats, depth formats, and compressed formats 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Image class has been tidied and
+		enhanced to support composite images (like cube maps) 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">PixelUtil class now provides
+		access to all pixel format conversion functions, with optimised
+		templated conversion routines available in capable compilers 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">High Dynamic
+	Range (HDR) rendering support</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Create render textures in
+		floating-point pixel formats 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Load .hdr or .exr textures from
+		disk using the OpenEXR plugin (optional) 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Particle
+	System enhancements</FONT>: Particle systems are no longer limited
+	to rendering with billboards, they render through instances of
+	ParticleSystemRenderer subclasses, which can be implemented in
+	plugins and added at runtime. Use of these alternative renderers is
+	scriptable and can be used to implement alternative particle types
+	like ribbons. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">GUI changes</FONT>:
+		</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">The OGRE internal GUI has been
+		replaced with <A HREF="http://www.cegui.org.uk/">Crazy Eddie's GUI</A>,
+		a superior GUI system which follows the same kind of design
+		principles as Ogre itself (portable, clean OO code). 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Non-interactive overlays remain
+		within OGRE itself, the classes have been renamed *OverlayElement
+		instead of *GuiElement to reflect their role 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm">Material changes: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">alpha_rejection has been moved
+		from the texture_unit to the pass 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Linking vertex colours to
+		material attributes; you can now link vertex colours to any of the
+		diffuse, specular, emissive or ambient material attribures, (e.g.
+		'ambient vertexcolour') rather than the linkage being implicit. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">You can now define the number of
+		mipmaps to be generated when loading a texture in the material
+		script, from '0' to 'unlimited' 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm">New StaticGeometry class allows
+	you to batch up individual meshes and render thousands of them far
+	more efficiently than if they were separate movable objects 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">GL now supports render textures
+	larger than the frame buffer (through pbuffers) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">D3D9 uses best possible filter
+	method supported by hardware for generating Mipmaps, this can
+	improve display quality especially when using trilinear filtering 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Support all image types that DevIL
+	can load: bmp, gif, hdr, ico, jpeg, pnm, mng and many more 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">GLX, SDL, D3D9: FSAA(Full Scene
+	AntiAliasing) support improved 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Image codecs are now completely
+	replaceable, if you wish to remove the use of DevIL 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Better support for 3D and
+	compressed textures 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">New and improved demos: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">'DynTex' shows how to
+		procedurally generate textures using the new pixel buffer API 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">'VolumeTex' demonstrates volume
+		rendering and procedurally generated meshes and 3D textures 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">'Grass' demonstrates the use of
+		the new StaticGeometry class to batch up lots of individual meshes 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">'Gui' has been updated to use
+		Crazy Eddies GUI. 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm">Interface to
+	RenderSystem::createWindow and RenderSystem::createRenderTexture
+	cleaned up and made more flexible 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Support Athlon 64 in native 64-bit
+	mode (Linux) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Support running the OGRE core in
+	double precision floating point mode through the use of
+	OGRE_DOUBLE_PRECISION 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Add 'inverse transform' automatic
+	shader parameter bindings 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">MinGW/Cygwin build system using
+	auto* tools included 
+	</P>
+	<LI><P>Visual C++ 2005 Beta support 
+	</P>
+</UL>
+<P ALIGN=LEFT>Bugfixes:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed texture_view_proj shader
+	parameter binding 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Terrain now supports texture
+	shadows 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed 4-weight hardware skinning
+	vertex shader 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed possible texture frame
+	overflow in animated texture controller 
+	</P>
+	<LI><P>GLX: alt-tab now allows mouse to escape window 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.15.2 [Hastur] (13 January 2005) -
+Maintenance Release</P>
+<P ALIGN=LEFT>Changes:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Stencil
+	shadows</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Runtime performance improvements 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Edge list construction can now
+		deal with non-manifold meshes, and is faster. You can re-calculate
+		edge lists on your affected .mesh files by using OgreXmlConverter
+		to convert to XML and back. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Shadow culling fixes including in
+		reflected camera scenarios 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">TerrainSceneManager</FONT>:
+	Fixed crash when you clear the terrain scene but don't call
+	setWorldGeometry again 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Direct3D
+	textures</FONT>: Prefer D3DFMT_X8R8G8B8 over D3DFMT_R8G8B8 for
+	texture formats, and disable auto mipmap generation when mipmaps ==
+	0 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">BillboardSet</FONT>:
+	avoid double-free crashes under certain calling orders. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Camera</FONT>:
+		</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Better safety checks for bad
+		parameters to setDirection 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Camera::getCameraToViewportRay
+		now works for orthographic projection 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">GL</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Added virtual keyword to
+		GLSupport::setExternalWindowHandle 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Fix a couple of potential
+		consistency issues in fixed-function lighting states 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Scene
+	Queries</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Query mask flags for world
+		geometry made more explicit 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Boolean result from query
+		listeners consistently respected 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Added specialised
+		BspRaySceneQuery for fast BSP ray results 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Don't match objects which are
+		attached to detached subtrees of the scene graph 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Font</FONT>:
+	several fixes to make on-screen fonts much crisper 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Windows</FONT>:
+	requested size now translated to client area size in windowed mode
+	(except if full window size exceeds the desktop size) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Material
+	scripts</FONT>: automatic GPU program parameter 'projection_matrix'
+	now parsed correctly 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">VC7.1+ STL</FONT>:
+	Avoid long shutdown in debug mode 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">VC6</FONT>:
+	Added /Zm option to VC6 to avoid compiler out of heap space errors 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Blender
+	exporter</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Fixed calculation of initial bone
+		rotation. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Restored possibility to export an
+		armature as mesh. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Option to export in objects local
+		coordinates. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Allow image textures to be
+		assigned via a material texture channel. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Preliminary bump map support. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Option to run OgreXMLConverter
+		automatically 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">3DS
+	exporter</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Export vertex alpha export as the
+		a component of the vertex color 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Fixed a couple of bugs in UV
+		export (inc multi-UV export) 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Fix a bug for IK export 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Speed up the mesh export process.
+		No very easy to notice for small objects but great speed
+		improvements for very big objects. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Any kind of objects can now be
+		part of the hierarchy if they are part of the Skin/Physique
+		modifier. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Log a warning when there is a
+		vertex with more than 4 bones assigned. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Scale of 0.0 is no longer
+		possible. 0.0 is replaced by 1.0 when used. 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Animation names are properly
+		exported when using multiple animations. 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Memory
+	manager</FONT>: Fix use of memory macros without namespace Ogre 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Manual
+	updates</FONT>: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Mention optional alpha components
+		to ambient / diffuse / specular / emissive 
+		</P>
+		<LI><P>Documented additional community-contributed particle
+		emitters / affectors 
+		</P>
+	</UL>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.15.1 [Hastur] (28 November 2004)
+- Maintenance Release</P>
+<P ALIGN=LEFT>Bugfixes:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Particle system performance
+	improved 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Blender exporter fixes &amp;
+	enhancements: 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">vertex colours supported 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">initial bone rotation bug fixed 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">location keyframe export bug
+		fixed</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm">3DS Max exporter fixes and
+	enhancements<BR>(Note you must completely delete your existing
+	exporter files and add the new 'Ogre Exporter' button to your
+	interface)</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Smoothing groups now work
+		correctly 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Bones without any vertices
+		assignements will be exported correctly 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Biped export is now automatic and
+		is fixed up</P>
+		<LI><P STYLE="margin-bottom: 0cm">Specify edge list precalculation,
+		tangent vector precalculation (normal mapping) and LOD generation 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Multiple UV channels supported 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Multiple animation support 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">IK sampling (experimental) 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm">Lightwave exporter now compatible
+	with 0.15</P>
+	<LI><P STYLE="margin-bottom: 0cm">Removing texture effects did not
+	remove properly controllers</P>
+	<LI><P STYLE="margin-bottom: 0cm">MipFilter now set correctly when
+	using TextureUnitState::setTextureFiltering</P>
+	<LI><P STYLE="margin-bottom: 0cm">Mesh fix: allow manual LOD to be
+	created even after edge lists have been built 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed handling of overlays with 3D
+	elements 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Octree scene queries now deal with
+	null AABBs correctly 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Prevent a memory leak when closing
+	a D3D7 or D3D9 window using WM_CLOSE (e.g. the 'X') 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added missing toLowerCase call in
+	MaterialSerializer 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Particle System: fix parameter
+	types and descriptions 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed missing _dirtyHash in
+	TextureUnitState constructor 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a couple of typos in the
+	manual 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed errors when undefining
+	OGRE_FORCE_ANGLE_TYPES 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed bug with aspect ratio of
+	text in relative metrics mode 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Set Terrain query flags so it can
+	be excluded / included specifically in scene queries 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added stl_user_config.h to ensure
+	use of _STLP_DEBUG is consistent 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">BillboardSet did not add
+	billboards back to the free list on clear() 
+	</P>
+	<LI><P>TerrainSceneManager fix when calling clearScene()</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.15.0 [Hastur] (23 October 2004) -
+Major Release</P>
+<P ALIGN=LEFT>Note: Ogre development branches will now have code
 names; the 0.15 stable branch is known as 'Hastur', the continuing
 development branch (which will be released as 1.0) is called
-'Azathoth'. <br>
-</p>
-<p align="left">Enhancements:<br>
-</p>
-<ul>
-  <li><span style="color: rgb(255, 255, 51);">Binary mesh format
-enhanced</span>. Previously the binary mesh format did not support all
-the flexibility you could attain when you built meshes
-programmatically. This has been addressed, and the mesh can now store
-arbitrary vertex buffer formats, precomputed edge lists (for stencil
-shadows), and tangent-space vectors (for normal mapping). You are
-strongly adviced to use the OgreMeshUpgrade tool on all your meshes to
-uprade them to the latest version, and choose 'y' when asked if you
-want to reorganise your vertex buffers. The 'automatic' option is the
-quickest way to get your meshes up to date, and you may find them
-slightly faster to render as a result. <br>
-Bear in mind that the .mesh size will increase because edge lists are
-precomputed and stored by default - if you don't intend to use stencil
-shadows then you can disable this with the '-e' parameter.<br>
-  </li>
-  <li><span style="color: rgb(255, 255, 51);">OpenGL Shading Language
-(GLSL) support</span>. This means Ogre now supports programmable
-shaders written in Cg, HLSL, GLSL and all variants of assembler
-(DirectX and GL).</li>
-  <li><span style="color: rgb(255, 255, 51);">Explicit Radian, Degree
-and AngleUnit classes</span>. To resolve ambiguity as to which angle
-unit is being used, all methods which take an angle now take a Radian
-class. You can pass Degree instances to this too and get automatic
-degree-to-radian conversion. You can also use the AngleUnit class which
-defaults to the current angle units (see Math). Note that conversions
-are inlined and are thus very cheap; although if you want to avoid them
-entirely, use Radian. This is an <span style="color: rgb(255, 102, 0);">interface
-breaking change</span>, so you will need to update your code to use
-Radian(radianValue) or Degree(degreeValue) where you are using basic
-types to store angles.<br>
-  </li>
-  <li><span style="color: rgb(255, 255, 0);">Reflection enhancements</span>.
-Automatic reflections using dynamic planes are now simple to create
-using MovablePlane, and 'custom near clip planes' (oblique depth
-projection) are available to allow you to clip reflected geometry to an
-arbitrary plane without requiring additional hardware support such as
-user clip planes.</li>
-  <li>Per-Renderable custom parameters can now be mapped into vertex /
-fragment programs (using ACT_CUSTOM) to better customise the look of
-your programmably shaded objects<br>
-  </li>
-  <li>Skeletal animation optimisation: by default it now uses an
-approximation of true rotational interpolation which is slightly
-faster; true spherical interpolation is still an option if more
-accuracy is required.<br>
-  </li>
-  <li>Edge list improvements; Ogre can now deal with even more model
-construction variants while still retaining stencil shadow integrity</li>
-  <li>Billboard / particle system index and vertex buffers are now
-deferred loading</li>
-  <li>Blender and Milkshape exporters updated</li>
-  <li>GL now has a FSAA option like D3D</li>
-  <li>Specialised scene queries for the OctreeSceneManager</li>
-  <li>Mesh bounds padding is now more configurable</li>
-  <li>Skeleton instances can now be shared between multiple entities to
-allow optional add-ons to animated meshes</li>
-  <li>Transparent materials can now cast texture shadows, if an option
-is enabled in their material (useful for alpha rejection textures)</li>
-  <li>Added <span style="color: rgb(255, 255, 51);">GLX</span> platform manager, 
-  enabling the use of OGRE on Linux without using SDL. This also has a nice configuration 
-  dialog instead of the text based one.</li>
-</ul>
-Bugfixes:<br>
-<ul>
-  <li>Ogre::String is no longer a subclass of std::string, but a
-typedef to it. All extra methods which were on Ogre::String are now on
-the Ogre::StringUtil class. This is to resolve compatibility issues on
-some STLs; this is an <span style="color: rgb(255, 102, 0);">interface
-breaking change</span> so you will need to update your code to use the
-equivalent StringUtil methods.<br>
-  </li>
-  <li>DirectX no longer prefers W buffers over Z buffers unless 16-bit
-colour is being used</li>
-  <li>DirectInput usage now plays nicer with other apps</li>
-  <li>Fixed the number of textures used when a custom number of shadow
-textures were specified</li>
-  <li>Fixed TS_PARENT and TS_WORLD Node transform options</li>
-  <li>Fixed LBX_BLEND_MANUAL in GL</li>
-  <li>Fixed finding of nearby lights so it takes into account bounds of
-node</li>
-  <li>Avoided ATI shutdown issues in GL/Linux by making the shutdown
-sequence more explicit</li>
-  <li>Initialisation of shadow materials now works when more than one
-SceneManager is active</li>
-  <li>Some frustum calculation issues were resolved, especially
-calculation of corners and planes in orthographic mode</li>
-  <li>use32bitindexes was not being read from XML correctly</li>
-  <li>Fixed memory leak when attaching and detaching objects from bones</li>
-  <li>Stencil shadows were not working correctly when 2-sided
-stencilling was not available and there was more than one SubMesh with
-it's own geometry</li>
-  <li>Various other minor issues<br>
-  </li>
-</ul>
-Deprecation warnings:<br>
-<ul>
-  <li><span style="color: rgb(255, 255, 51);">SceneNode::attachCamera
-and SceneNode::attachLight</span>, which have been deprecated for some
-time, have been removed. Use SceneNode::attachObject.<br>
-  </li>
-  <li><span style="color: rgb(255, 255, 51);">Internal GUI classes</span>;
-in the next release, the internal GUI will be removed in favour of <a
- href="http://crayzedsgui.sourceforge.net">Crazy Eddie's GUI</a>, and
-we advise all users to begin migrating their code now. This covers the
-interactive GUIs (ie buttons, scroll bars etc) and not static overlays,
-which will still be available in Ogre.</li>
-  <li><span style="color: rgb(255, 255, 51);">NatureSceneManager</span>;
-this will be moved to ogreaddons in the next version incase anyone
-wishes to continue to maintain it. The Ogre team have no plans to
-support this scene manager since TerrainSceneManager and
-PagingLandscape (in ogreaddons) provide better terrain rendering
-options.<br>
-  </li>
-</ul>
-<p align="left" class="MainHeader">v0.14.1 (28 July 2004) -
-Maintenance
-Release<br>
-</p>
-<p align="left">Enhancements:<br>
-</p>
-<ul>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">TerrainSceneManager
-improved<br>
-    </span></li>
-  <ul>
-    <li>Vertex program morphing allows for almost imperceptible
-leve l-of-detail changes<br>
-    </li>
-    <li>Improved efficiency allows for larger terrains</li>
-    <li>Improved LOD calculation leads to more accurate rendering with
-the same or fewer triangles<br>
-    </li>
-    <li>Custom terrain materials can now be used</li>
-    <li>Pluggable terrain data sources allow terrain data to come from
-any source</li>
-    <li>Demo now demonstrates the use of RaySceneQuery to 'stick' the
-camera to the terrain<br>
-    </li>
-  </ul>
-  <li>Maya, Blender and 3DS exporters updated</li>
-  <li>RenderSystem can now report the texel offset differences between
-systems (required for <a href="http://crayzedsgui.sourceforge.net">CrazyEddie's
-GUI</a>)</li>
-  <li>Code is now more 'MingW friendly', although this is still not
-officially supported, community supported DevPaks are available from <a
- href="http://the-agency.sourceforge.net">The Agency</a></li>
-</ul>
-Bugfixes:<br>
-<ul>
-  <li>Visibility of child objects attached to the skeleton of an Entity
-was being ignored</li>
-  <li>Fixed infinite loop in resize() methods of D3D windows</li>
-  <li>Fixed XMLConverter bug when using constant reduction in
-interactive mode</li>
-  <li>Made the XML mesh serializer properly assume 'false' for
-usesharedvertices and use32bitindexes</li>
-  <li>Skeletally animated meshes with a vertex program which did not
-implement hardware skinning were transformed incorrectly.</li>
-  <li>Fixed some driver crashes on GL<br>
-  </li>
-  <li>Fixed a few memory leaks, especially when no rendering is
-performed before shutdown</li>
-  <li>Prevented multiple instances of HollowEllipsoidEmitter and
-RingEmitter from adding their custom params to the dictionary twice. <br>
-  </li>
-  <li>Math::UnitRandom should have been Math::SymmetricRandom in
-RingEmitter</li>
-  <li>Corrected docs for TextureUnitState::setAnimatedTextureName</li>
-  <li>Fixed light update so that lights attached to nodes update
-properly even when the node does not change.</li>
-  <li> Assign queue groups to manual LOD entities too <br>
-  </li>
-  <li>Fix to the early-exit in Overlay::_findVisibleObjects could cause
-important updates to be missed if the overlay wasn't visible on startup</li>
-  <li>Patched the EdgeBuilder (calculates stencil shadow structures) so
-that it detects when there are too many triangles attached to a single
-edge, and reverts to not welding vertices across vertex sets. This
-allow it to deal with multiple capped submeshes with their own geometry
-(which are manifold in themselves) even if they touch at the
-boundaries. At the same time it still deals with the case where a model
-is only manifold when all submeshes are combined (it tries to find this
-case first).<br>
-  </li>
-</ul>
-<p align="left" class="MainHeader">v0.14.0 (12 May 2004) - Major
-Release<br>
-</p>
-<p align="left">Enhancements:<br>
-</p>
-<ul>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">Shadows</span></li>
-  <ul>
-    <li>3 different techniques:</li>
-    <ul>
-      <li>Modulative stencil shadows (simple extra pass darkens the
-shadowed areas)</li>
-      <li>Additive stencil shadows (masking of light contribution, aka
-Doom3-style, including a smart pass categoriser / splitter which means
-you don't need to rewrite your materials)</li>
-      <li>Modulative projective texture shadows</li>
-    </ul>
-    <li>Multiple stencil shadow optimisations, including vertex program
-extrusion, smart light and shadow caster culling, integration with mesh
-LOD, zpass and zfail methods, 2-sided stencilling, scissor region
-clipping</li>
-    <li>Texture shadows fade out at the far distance and around the
-edges of spotlight, hiding the finite edges of these shadow types<br>
-    </li>
-    <li>Important: Those writing custom SceneManager implementations
-will
-have to review the changes to the render queues and render sequence
-when shadows are enabled,
-since supporting several types of shadows has required these processes
-to be significantly enhanced and decomposed into multiple parts (which
-should lend themselves to customisation in your SMs if you need them).
-In particular, note that the signature of
-SceneManager::_findVisibleObjects has changed so if you override this
-you will need to alter yours too - the compiler will not tell you about
-this!<br>
-    </li>
-  </ul>
-</ul>
-<ul>
-  <li style="font-weight: bold; color: rgb(51, 204, 0);"><span
- style="color: rgb(255, 255, 51);">Hardware Skinning</span></li>
-  <ul>
-    <li>Skeletal animation can now be driven using vertex programs</li>
-    <li>Number of bones limited only by your target vertex program
-version<br>
-    </li>
-  </ul>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">General
-purpose projective texturing</span>. Projective texturing was possible
-in Ogre before, but it required you to manually set up the texture
-matrices. Now there is a simple 1-method call which allows you to link
-a texture unit to a Frustum instance, and it will automatically sync
-the projection of the texture with changes to the frustum.</li>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">Node/SceneNode
-enhancements</span>. You can now make a node automatically track
-(constantly look at) another node, and all transforms now take a
-'transform space' parameter to make it easier to perform
-transformations relative to any space.</li>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">Skeleton
-instances</span>. The sharing of skeletons between multiple animated
-objects has been made more flexible so that you can now more easily
-hook up external effects on the bones on particular instances of that
-skeleton (in entities); applications such as manually controlling bones
-or ragdoll simulations benefit from these enhancements.</li>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">External
-Texture Sources</span>. You can now register external texture sources
-in order to feed texture data in from another source; this has been
-used to render video through a texture for example, although the
-technique can be used for many other things.<br>
-  </li>
-  <li>Updated GTK demo showing you how to embed an Ogre window in a GTK
-application.<br>
-  </li>
-  <li>Added an offset (parallax) mapping example to the Dot3Bump demo,
-along with a normal mapped statue<br>
-  </li>
-  <li>Mac OSX now supports Cg so the plugin has been enabled<br>
-  </li>
-  <li>Introduced the Frustum class as a superclass of Camera,
-abstracting many of the features so they can be reused in other
-situations like texture projection.</li>
-  <li>Updated Blender and Lightwave exporters</li>
-  <li>SubEntities can now have their visibility toggled individually</li>
-  <li>Hardware occlusion query support<br>
-  </li>
-  <li>Animation looping can now be disabled on AnimationState<br>
-  </li>
-</ul>
-<p align="left">Bugfixes:<br>
-</p>
-<ul>
-  <li>Too many to list individually; please read the CVS log for a full
-account.<br>
-  </li>
-</ul>
-<p align="left"></p>
-<p align="left" class="MainHeader">v0.13.1 (1 March 2004) - Maintenance
-Release<br>
-</p>
-<p align="left">Enhancements:<br>
-</p>
-<ul>
-  <li>Updated Blender exporter, now includes a GUI and full skeletal
-animation support<br>
-  </li>
-</ul>
-<p align="left">Bugfixes:<br>
-</p>
-<ul>
-  <li>Removed redundant Demo_TechDemo.vcproj link from Ogre.sln <br>
-  </li>
-  <li>Removed the forced normal normalisation code from the D3D
-renderers, it
-is not required so long as the models have unit-length normals, and
-this is now fixable on a per-Entity basis. Including this code in the
-render system caused some state management problems with SceneManager. <br>
-  </li>
-  <li>D3D7 now correctly records all capabilities (inc cubemapping,
-anisotropy)</li>
-  <li>Fixed a bug with multiple attachments of objects to bones.
-Previously
-attached objects were not always properly visible and/or did not move
-correctly.</li>
-  <li>Fixed a crash bug with ConfigFile when an empty value was
-specified</li>
-  <li>Win32Input8::capture() should not capture input types which are
-disabled</li>
-  <li>Fixed Wings exporter 'v' texture coordinates</li>
-  <li>Fixed AxisAlignedBox::scale</li>
-  <li>Particle fix, could result in stuttery particle emission in some
-cases</li>
-  <li>Fixed a couple of problems with the pass map custom sort handler
-which resulted in "Error inserting new pass entry into
-SolidRenderablePassMap" assert. <br>
-  </li>
-  <li>Small refapp fix for segfault when using objects without an ODE
-body</li>
-  <li>Fix for HardwareVertexBufferBinding::getNextIndex not
-incrementing the
-next index properly. <br>
-  </li>
-  <li>Added pthread check to configure.in</li>
-  <li>bootstrap now deals with automake 1.8</li>
-  <li>Relative mouse coordinate fixes on linux</li>
-</ul>
-<p align="left"></p>
-<span style="font-weight: bold; color: rgb(255, 255, 0);"></span>
-<p align="left" class="MainHeader">v0.13.0 (18 January 2004) - Major
-Release<br>
-</p>
-<p align="left">Changes since 0.12.3:<br>
-</p>
-<ul>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 0);">Major
-material upgrade</span>! This is a subsection of it's own..</li>
-  <ul>
-    <li>Support for <span style="color: rgb(255, 255, 0);">vertex and
-fragment programs</span> (shaders), including:</li>
-    <ul>
-      <li><span style="color: rgb(255, 255, 0);">Low-level assembler
-programs</span> under D3D9 (vs_1_1, vs_2_x, ps_1_x, ps_2_x) and GL
-(NV_texture_shader, NV_register_combiners, arbvp1, arbfp1,
-ATI_fragment_shader)</li>
-      <li><span style="color: rgb(255, 255, 0);">High-level program
-support</span> via plugins, so far we support Cg and D3D9 HLSL. Cg
-compiles down to D3D and GL assembler, and includes converters to
-non-assembler formats including NV_register_combiners and
-ATI_fragment_shader so you can write a single program for all targets.</li>
-      <li>Support for automatically updated parameter bindings such as
-'object space camera position', 'object space light direction' and many
-more</li>
-      <li>Programs can be defined and reused many times with different
-parameters, all through .material scripts</li>
-    </ul>
-    <li>Materials now support <span style="color: rgb(255, 255, 0);">multiple
-'techniques'</span>, which can be used as automatic fallbacks for older
-cards which don't support the requisite features for your preferred
-shading approach<br>
-    </li>
-    <li><span style="color: rgb(255, 255, 0);">Material LOD</span> -
-you can tell materials to change technique over distance to save
-rendering power on distant objects; this is subject to the same control
-parameters (camera bias and entity bias) that is used for mesh LOD so
-you can tweak it heavily</li>
-    <li><span style="color: rgb(255, 255, 0);">Scriptable multipass
-rendering</span>; you can now specify multiple passes in one material
-if you wish, and those passes can also be iterated once per light
-automatically, and the engine will call the pass with each nearby light</li>
-    <li>The .material script format has been extensively upgraded to
-handle all these new options; however if you have 0.12.x or previous
-scripts you can automatically update them using the OgreMaterialUpgrade
-tool</li>
-  </ul>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 0);">Light
-management upgraded</span>; you can now have an unlimited number of
-lights in the scene, and OGRE will pick and use the 'n' closest lights
-('n' is configurable per pass in the material scripts) which are within
-their attenuation range when rendering an object. This makes light
-management much more practical, especially when using vertex and
-fragment programs. As mentioned above, passes can even be configured to
-iterate using the 'n' nearest lights.</li>
-  <li><span style="color: rgb(255, 255, 0); font-weight: bold;">More
-texture formats supported</span>: we now support <span
- style="color: rgb(255, 255, 0);">1D</span> textures, <span
- style="color: rgb(255, 255, 0);">compressed textures</span> (DXT
-formats), <span style="color: rgb(255, 255, 0);">volume textures</span>
-(true 3D textures, not just 6 faces like cube maps), and loading all of
-the above from the <span style="color: rgb(255, 255, 0);">.dds format</span>,
-even in GL.</li>
-  <li><span style="font-weight: bold; color: rgb(255, 255, 0);">XCode </span>IDE
-support on Mac OSX<br>
-  </li>
-  <li>Precompiled header support on VC6 and VC7, this makes compilation
-a lot faster.</li>
-  <li>Updated 3DS and Maya exporters<br>
-  </li>
-  <li>Frame events can now be raised externally, which makes it easier
-to update the internal state of particle systems, controllers et al
-when you're running your own rendering loop instead of using
-Root::startRendering.</li>
-  <li>Texture filtering can now be controlled more finely by optionally
-setting the min, mag an mip filter instead of one abstracted filter
-type.<br>
-  </li>
-  <li>Fonts now look cleaner, texture size has been optimised and
-filtering tuned <br>
-  </li>
-  <li>The 'v' texture coordinate has been flipped so that the origin is
-now in the top-left, this removes the need to flip textures and
-improves loading times as well as making compressed texture support
-feasible. The .mesh format will be converted on the fly automatically,
-but you should use OgreMeshUpgrade to fix it permanently</li>
-</ul>
-<p align="left"></p>
-<p align="left" class="MainHeader">v0.12.3 (4 January 2004) -
-Maintenance Release<br>
-</p>
-<p align="left">Changes since 0.12.2:<br>
-</p>
-<ul>
-  <li>Fixed a problem with overlay sizes when using multiple render
-targets</li>
-  <li>Fixed a bug with frame rate stats when using multiple render
-targets<br>
-  </li>
-  <li>Fixed a few boundary conditions in the mesh LOD generation which
-could cause crashes</li>
-  <li>GL render system now pumps events properly in Windows</li>
-  <li>RenderTarget::writeContentsToTimestampedFile erroneous characters
-removed</li>
-  <li>Compatibility with new STLport version (4.6)</li>
-  <li>Fixed a few memory leaks in D3D</li>
-  <li>Fixed a buffer overrun problem in TextAreaGuiElement when using
-'\n'<br>
-  </li>
-  <li>Fixed a precompiled header option which sneaked into 0.12 in VC6
-OgreMain<br>
-  </li>
-</ul>
-<p align="left" class="MainHeader">v0.12.2 (21 November 2003) -
-Maintenance Release<br>
-</p>
-<p align="left">Changes since 0.12.1:<br>
-</p>
-<ul>
-  <li>Blender exporter updated; now supports the latest version of
-Blender, and
-also supports animation</li>
-  <li>Wings3D exporter updated, now supports the new uv exporting
-format of 0.98.16b</li>
-  <li>Fixed bug in BspIntersectionQuery which caused intersectins to be
-reported between entities and the world when collision was disabled</li>
-  <li>Meshes exported with more than 4 bone assignments per vertex now
-have their weights rebalanced to just 4 automatically on conversion to
-.mesh<br>
-  </li>
-  <li>Fixed a bug in Quaternion::Slerp which resulted in a non-unit
-Quaternion being returned sometimes when the 'shortestPath' option was
-used. This manifested itself as oddly scaling bones when animating an
-entity<br>
-  </li>
-  <li>Fixed a bug in ray / plane intersection where it was incorrectly
-concluded that the ray was parallel to the plane</li>
-  <li>Fixed some D3D memory leaks</li>
-  <li>Fixed some Mesh automatic loading and unloading issues</li>
-  <li>Colour values in XML files are now parsed as r,g,b,a instead of a
-packed long</li>
-</ul>
-<p align="left" class="MainHeader">v0.12.1 (12 October 2003) -
-Maintenance Release<br>
-</p>
-<p align="left">Changes since 0.12.0:<br>
-</p>
-<ul>
-  <li>Added new, improved Maya exporter from macross and fifty1</li>
-  <li>Fixed bug in the TerrainSceneManager where we were locking a
-write-only buffer for reading</li>
-  <li>Added lines in bootstrap to make sure the correct versions of
-auto* tools are used on Gentoo</li>
-  <li>Fixed screenshot taking bug in Direct3D9 on some older cards</li>
-  <li>Fixed bounding boxes on skeletally animated entities with other
-entities attached to bones</li>
-  <li>Fixed particle display problem in VC6 release mode<br>
-  </li>
-  <li>Fixed links in tutorials index</li>
-  <li>Fixed bug in BillboardSet::removeBillboard and getBillboard when
-indexing a billboard in the latter part of the list</li>
-  <li>XMLConverter now deals with multiple texture coordinate sets
-properly</li>
-  <li>Fixed minor issue in StringConverter's quaternion handling</li>
-  <li>NatureSceneManager now clears down terrain data properly</li>
-  <li>New option in ConfigFile to turn off trimming of values, used in
-loading ogre.cfg since some ATI drivers have a trailing space<br>
-  </li>
-</ul>
-<p align="left" class="MainHeader">v0.12.0 (23 September 2003) - Major
-Release <br>
-</p>
-<p align="left">Changes since 0.11.0:</p>
-<ul>
-  <li>Complete overhaul of core geometry usage resulting in optimised
-use of hardware vertex and index buffers, providing significant speed
-boosts on all cards, typically of between 50 and 200% depending on the
-application. ATI 9500+ cards on DirectX9 will see particularly large
-increases (often five-fold) due to their particular affinity to this
-approach.</li>
-  <li>Geometry structures redesigned to support the above and also to
-provide the basis for vertex and pixel shaders. This will not affect
-you unless you manipulated geometry structures such as the old
-GeometryData directly - those who did <a href="vbo-update/index.html">should
-read about the details of the changes</a>.</li>
-  <li>Transparent materials no longer assume that depth writing needs
-to be off, this setting was causing some problems with those using
-alpha blending. Those of you using transparent materials which do need
-depth writing to be turned off will need to set it in your material
-scripts</li>
-  <li>DirectX 8 rendersystem retired, the current DirectX rendersystem
-is now DirectX9, with legacy cards supported through the DirectX7
-rendersystem or OpenGL</li>
-  <li>Support for cubic textures and cubic reflection mapping added</li>
-  <li>Support for DOT3 bump mapping added</li>
-  <li>Significant speed improvements on rebuilding bezier patch
-surfaces, changing detail level is now a lot faster</li>
-  <li>Binary .mesh format updated - please run 'OgreMeshUpgrade' (from
-Tools/MeshUpgrader) on your old meshes, they may not work properly
-unless you do this</li>
-  <li>OgreXmlConverter now includes parameters to allow you to generate
-LODs as you convert</li>
-  <li>Mesh serializer now rationalises bone assignments so that only 4
-are included per vertex</li>
-  <li>DTDs for .mesh.xml and .skeleton.xml added</li>
-  <li>Added Gtk platform manager with support for ogre as a Gtk/GL
-widget</li>
-  <li>3D Studio Exporter now supports IK and Biped</li>
-  <li>Lightwave converter added</li>
-  <li>Wings3D converter added</li>
-  <li>Memory leaks with controllers removed</li>
-  <li>Visual real-time profiling tool added</li>
-  <li>Many bugfixes and minor enhancements</li>
-</ul>
-<p align="left" class="MainHeader">v0.11.0 (18 June 2003)</p>
-<p align="left">Changes since 0.10.0:</p>
-<ul>
-  <li> SceneQuery introduced; a generic way to query the SceneManager
-database of objects and world geometry in a way which is optimised per
-scene management technique but transparent for the client application.
-Currently only IntersectionSceneQuery is implemented but RaySceneQuery,
-SphereSceneQuery and others will soon be available too</li>
-  <li> ReferenceApplication introduced; this is a new library which
-sits on top of the main OGRE library in order to provide a reference
-implementation of combining OGRE with other libraries for use in a full
-application. Currently combines OGRE and ODE to provide an easy to use
-collision and realistic physics system, utilising the new SceneQuery
-functions for generic collision detection. Object to object collision
-is currently supported, together this object to world collision for the
-BspSceneManager (ie collision against Quake3 levels), see the
-BspCollision demo for an example. Per-object friction, bounciness and
-mass parameters are all definable, also most of the ODE joint types ie
-ball, hinge, hinge2, universal. World collision for the terrain
-managers will be added shortly.</li>
-  <li> Many structural enhancements to the GLRenderSystem, including an
-extension manager, separation of window creation etc into a GLSupport
-class (to enable platform specific window management). Win32GLSupport
-added so Win32 no longer uses SDL for window management.</li>
-  <li> Hardware mipmap generation supported in GL 1.3+</li>
-  <li>New demos: BspCollision and Demo_Water</li>
-  <li> RenderTargetListener now supports pre and post Viewport update
-events</li>
-  <li> RenderSystem now supports anisotropic texture filtering and dot3
-texture operations</li>
-  <li> Significant updates to the 3D Studio Max exporter, now very
-mature</li>
-  <li> Added 3 more basic mesh exporters / converters: Maya, Wings3D
-and VRML 97</li>
-  <li> Attaching objects to a skeleton: any MovableObject (entities,
-particle systems etc) can now be attached to any bone on an entity, and
-will move correctly with the animation</li>
-  <li> XMLConverter can now generate / update LOD information for
-meshes too</li>
-  <li> Bones can now be manually controlled in combination with
-animation tracks much more easily, allowing you to do things like tilt
-a characters head toward a target while playing other animations, make
-a character bend at the waist etc.</li>
-  <li> New particle affectors: ScaleAffector (particle resizing) and
-ColourFaderAffector2 (dual-state colour affector which changes
-behaviour based on a particle's TTL)</li>
-  <li> Alternative terrain engine added (NatureSceneManager), supports
-paging and very large areas</li>
-  <li> Significant speed enhancements to Node, in particular skeletal
-animation is now many times faster for large skeletons</li>
-  <li> Interface breaking change since 0.10.0: SceneNode::createChild
-now returns a Node* rather than a SceneNode*, you will have to cast it.
-This was to resolve virtualisation problems</li>
-  <li> Platform-specific Timer classes and general timing improvements
-mean that accuracy and consistency is much better</li>
-  <li> Rendering to texture now supported in GL as well as D3D</li>
-  <li> SDLRenderSystem renamed to GLRenderSystem</li>
-  <li> Python support resurrected, Linux only for now due to Boost
-problems with VC</li>
-  <li> Gui enhancements, including pop up menus and scrollable text
-areas and being able to #include in .overlay files to reuse definitions
-(NB: the event and gui classes will shortly be moved into a separate
-plugin)</li>
-  <li> Added ability to switch between buffered and unbuffered input on
-demand</li>
-  <li> VC++.Net 2003 support added</li>
-  <li> MaterialSerializer for writing .material scripts from an
-in-memory version</li>
-  <li> Many bugfixes, including the removal of all remaining memory
-leaks</li>
-</ul>
-<p align="left" class="MainHeader">v0.10.0 (28 Feb 2003)</p>
-<p align="left">Changes since 0.9.7:</p>
-<ul>
-  <li>Major speed increases for large scenes. Scenes with more than
-1500 objects are now feasible at high frame rates.</li>
-  <li>3D Studio Max 4 / 5 script for exporting meshes and skeletons to
-XML (which can then be converted to binary using XMLConverter)</li>
-  <li>Major updates to the Python bindings</li>
-  <li>Added UserDefinedObject to allow references back to external app
-objects from OGRE objects</li>
-  <li>Experimental Direct3D 9 Render System</li>
-  <li>Skeletal animation now supports additive blending of multiple
-animations as well as average blending</li>
-  <li>Bugfixes &amp; small feature enhancements</li>
-</ul>
-<p align="left" class="MainHeader">v0.9.7 (26 January 2003)</p>
-<p align="left">Changes since 0.99f:</p>
-<ul>
-  <li>Mac OSX support added</li>
-  <li>Mesh LOD support: both automatic algorithmic detail reduction,
-and manual LOD assignment</li>
-  <li>Milkshape exporter extended to support generation of LODs</li>
-  <li>Rendering to a texture (supported in Direct3D only for now, GL
-support to follow)</li>
-  <li>Screenshot support</li>
-  <li>DevIL now used for image loading / saving</li>
-  <li>Blender export script</li>
-  <li>Initial GUI support and buffered input support</li>
-  <li>Updates to the Python exports </li>
-  <li>A few vector / quaternion optimisations</li>
-  <li>Linux / Mac 'install' target paths rationalised</li>
-  <li>Bugfixes (including GL lighting and texture effect problems, many
-memory leaks fixed)</li>
-  <li>Version numbering change (to more standard format)</li>
-</ul>
-<p align="left" class="MainHeader">v0.99f (1 December 2002)</p>
-<p align="left">Changes since 0.99e:</p>
-<ul>
-  <li>Terrain rendering through the OctreeSceneManager subclass
-TerrainSceneManager, including detail texturing and vertex colouring
-options</li>
-  <li>Overlays can now have pixel metrics as well as relative metrics,
-and can be flexibly aligned</li>
-  <li>New debug overlay</li>
-  <li>Curved sky planes (fog-friendly alternative to sky domes)</li>
-  <li>Animation tracks can now scale nodes as well as rotate and
-translate</li>
-  <li>Depth bias now available as a material option, for doing decals</li>
-  <li>Stencil buffer operations now supported</li>
-  <li>RenderQueueListener allows custom filters to be plugged in,
-compositing operations to be performed</li>
-  <li>New version of 3DSMax exporter </li>
-  <li>Many bugfixes (as usual)</li>
-</ul>
-<p align="left" class="MainHeader">v0.99e (25 October 2002)</p>
-<p align="left">Changes since 0.99d:</p>
-<ul>
-  <li>Overlay support (HUDs, menus)</li>
-  <li>Font rendering</li>
-  <li>Octree scene manager added</li>
-  <li>XMLConverter allows conversion of .mesh and .skeleton files to
-XML (XML to .mesh and .skeleton is not finished yet)</li>
-  <li>DirectX 8 render system</li>
-  <li>Spline interpolation of animation, both for skeletal animation
-and for animating any SceneNode</li>
-  <li>Automatic camera tracking, spline animations can be used to
-script smooth camera sweeps</li>
-  <li>Many bugfixes </li>
-</ul>
-<p align="left" class="MainHeader">v0.99d (5 September 2002)</p>
-<p align="left" class="MainContent">Changes since 0.99c:</p>
-<ul>
-  <li>Full Linux support!</li>
-  <li>Debug memory manager tracing memory leaks</li>
-  <li>Generic animation support via Animation, AnimationTrack and
-KeyFrame classes</li>
-  <li>Skeletal animation on meshes, including multiple bone assignments
-and animation blending</li>
-  <li>Updated Milkshape exporter, exports skeleton and animations, can
-split the combined sequence into many separate animations</li>
-  <li>Codec structure, used for loading images more generically and can
-be used for general coding / decoding</li>
-  <li>Many bugfixes</li>
-  <li>New tutorials</li>
-</ul>
-<p align="left" class="MainHeader">v0.99c (19 July 2002)</p>
-<p align="left">Changes since 0.99b:</p>
-<blockquote>
-  <p>Enhancements:</p>
-  <ul>
-    <li>New MeshSerializer class for importing / exporting mesh data,
-to be used as the framework for all future modelling tool exporters </li>
-    <li>Milkshape3D exporter provided, which uses MeshSerializer to
-export to the new .mesh file format. This replaces the 3ds2oof utility
-which along with the .oof is now deprecated, although .oof models can
-still be loaded. In this version the Milkshape exporter only exports
-static mesh data without bones or animation.</li>
-    <li>SceneNode now supports scaling (uniform and non-uniform),
-including the option to inherit parent scale or just use own</li>
-    <li>Completely new source code folder layout; should be more
-obvious than the old one. All dependencies are now included in the code
-structure to avoid having to distribute binary libraries</li>
-    <li>Boost added to the Dependencies area</li>
-    <li>New tutorial added, kindly written by Nicholas Green</li>
-  </ul>
-  <p>Work-in-progress:</p>
-  <ul>
-    <li>Linux makefiles now present, buildable with gcc 3+</li>
-    <li>SDL / OpenGL render system implementation provided, not totally
-complete yet but almost there</li>
-    <li>Skeletal animation classes (Animation, AnimationTrack,
-KeyFrame, Skeleton, Bone) </li>
-  </ul>
-  <p>Bugfixes:</p>
-  <ul>
-    <li>Math::NEG_INFINITY now correctly defined</li>
-    <li>ColourValue getAsLongARGB alpha bug fixed</li>
-    <li>Problems with camera positioning &amp; lookat behaviour when
-attached to a SceneNode fixed</li>
-  </ul>
-</blockquote>
-<p align="left" class="MainHeader">v0.99b (9 June 2002)</p>
-<p align="left">Changes since 0.98b:</p>
-<blockquote>
-  <p>Enhancements:</p>
-  <ul>
-    <li>Particle systems implemented, including customisable emitters /
-affectors through the use of plugins, defining particle system
-templates through text scripts for easy modification, flexible culling
-options, flat and oriented billboards for point or directional
-particles, fast-forwarding of systems to avoid obvious particle system
-startup, force application, randomised colours &amp; emission angles,
-randomised velocities and lifetimes and much more.</li>
-    <li>Billboarding support (used by particle systems, but can also be
-used on their own to create backgrounds, static light flares etc)</li>
-    <li>Now builds under VC.Net (VC7), .sln and .vcproj files are now
-included in the distribution</li>
-    <li>Zip archives now cache a file index for more efficient retrieval</li>
-    <li>StringInterface base class and helper classes like ParamCommand
-and StringConverter now available to make scriptable classes easier to
-create</li>
-  </ul>
-  <p>Bugfixes:</p>
-  <ul>
-    <li>Several bugs in 3DS2OOF 3D Studio converter fixed, such as
-exported files including camera &amp; lights (these are now ignored),
-objects with missing SmoothGroups, and issue with merging multiple
-objects</li>
-    <li>Environment mapping bug which caused incorrect wrapping is now
-fixed</li>
-    <li>All container 'wrappers' have now been replaced with the
-original STL class since we are now using STLport and don't have the
-dll boundary problems present in theMicrosoft STL implementation</li>
-    <li>SceneNodes now derive their orientation &amp; position on
-demand if they are out of date</li>
-  </ul>
-</blockquote>
-<p align="left" class="MainHeader">v0.98b (29 March 2002)</p>
-<p align="left">Changes since 0.97e:</p>
-<ul>
-  <li>Material scripts. All materials can now be specified in .material
-files, which are loaded at startup and can be altered without
-recompiling your application. Tweak to your hearts content! See the
-material scripting section in the Tutorials for more information.</li>
-  <li>Landscape rendering - a ROAM scene manager example implementation
-is now included in the distribution, together with an example demo.
-Whilst the ROAM approach will not be developed further due to it's
-relatively high CPU overhead, it serves as an example of how vastly
-different scene managers can be plugged into Ogre. </li>
-  <li>Billboarding. Billboards can now be used to create special
-effects. Particle systems using this facility are under development.</li>
-  <li>Better culling on the standard scene manager. The standard
-non-scene-specific scene manager now hierarchically culls movables
-based on their bounding boxes. A triangle counter monitors culling
-performance.</li>
-  <li>Refactored the methods called in the main rendering loop in
-SceneManager to allow subclasses to modify the behaviour more easily
-without having to duplicate code.</li>
-  <li>Better compliance with STL standards. Ogre is now built using <a
- href="http://www.stlport.org">STLport</a> on both Windows and Linux,
-and this has necessitated a closer fit with the STL standard rather
-than the Microsoft implementation. </li>
-</ul>
-<p>&nbsp;</p>
-<p align="left" class="MainHeader">v0.97e (16 Feb 2002)</p>
-<p align="left&quot;">Changes since 0.97b:</p>
-<ul>
-  <li>Archive driver system is in! Say bye-bye to the Ogre::Archive
-class and welcome to dynamically-loaded archive codecs!</li>
-  <li>Two archive codecs are provided: FileSystem codec (works like a
-normal directory) and Zip Archive codec (works with Zip archives)</li>
-  <li>Changed all examples and the Indoor Engine to work with the new
-codecs</li>
-  <li>Modified the way ResourceManager::_findResourceData returns data:
-now it takes a pointer to a DataChunk and fills the pointed object with
-all the data, thus avoiding unnecesary memory copying (and eventually
-fragmentation)</li>
-  <li>Some cosmetic changes to the way plug-ins are loaded - no need to
-specify the extension of the plug-in anymore, and it is registered as
-given in the Plugins.cfg file. This is because we don't want to load a
-Dll two times - the first time as [PluginPath]\PluginName.dll and the
-second time as plain PluginName</li>
-  <li>Cosmetic changes in projects and workspaces. They should give no
-error when compiling and you shouldn't need to create the necessary
-directories yourselves</li>
-  <li>The Resources folder has changed. The two .oof models and their
-textures now reside in zip archives to reflect the usage of the new
-Archive codecs.</li>
-</ul>
-<p align="left" class="MainHeader">v0.97b (6 Feb 2002)</p>
-<p align="left">Changes since 0.96b:</p>
-<ul>
-  <li>Added some more standard Controller objects to allow easy texture
-scrolling, rotating and scaling. Added support for these to the Quake3
-renderer .</li>
-  <li>Wave-based controllers allow texture modifications (among other
-things) to be based on wave types rather than just constant effects</li>
-  <li>Added more friendly error dialog when an unhandled exception is
-thrown</li>
-  <li>Fixed a couple of bugs in the config dialog which causes crashes</li>
-  <li>Fogging enabled - scene-wide or customised per material</li>
-</ul>
-<p align="left">&nbsp;</p>
-<p align="left" class="MainHeader">v0.96b (6 January 2002)</p>
-<p align="left">I've changed this log a little to be more concise
-regarding changes made between snapshot versions. </p>
-<p align="left">Changes since 0.95b:</p>
-<ul>
-  <li>Animated tetxure support. Each texture layer can have multiple
-frames, with one being active at a time.</li>
-  <li>Controller architecture. Controller allow object properties to be
-updated based on other events or values whilst only loosely coupling
-the source and destination objects together. In this version
-Controllers are used for animating texture layers by setting the active
-texture frame based on a frame timer object.</li>
-  <li>Quake 3 .shader script support. Animated textures, multilayer
-textures etc now being loaded in. No scrolling, rotating or stretching
-effects yet though</li>
-  <li>Skyplanes, skydomes and skyboxes are now supported</li>
-  <li>Major improvement in rendering speed thanks to a far smarter
-render state management approach. </li>
-  <li>Transparent objects now always render correctly when in front of
-solid objects.</li>
-</ul>
-<p align="left" class="MainHeader">6 January 2002</p>
-<p align="left">Most bugs in shader parsing sorted out. A few shader
+'Azathoth'. 
+</P>
+<P ALIGN=LEFT>Enhancements:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Binary mesh
+	format enhanced</FONT>. Previously the binary mesh format did not
+	support all the flexibility you could attain when you built meshes
+	programmatically. This has been addressed, and the mesh can now
+	store arbitrary vertex buffer formats, precomputed edge lists (for
+	stencil shadows), and tangent-space vectors (for normal mapping).
+	You are strongly adviced to use the OgreMeshUpgrade tool on all your
+	meshes to uprade them to the latest version, and choose 'y' when
+	asked if you want to reorganise your vertex buffers. The 'automatic'
+	option is the quickest way to get your meshes up to date, and you
+	may find them slightly faster to render as a result. <BR>Bear in
+	mind that the .mesh size will increase because edge lists are
+	precomputed and stored by default - if you don't intend to use
+	stencil shadows then you can disable this with the '-e' parameter.</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">OpenGL
+	Shading Language (GLSL) support</FONT>. This means Ogre now supports
+	programmable shaders written in Cg, HLSL, GLSL and all variants of
+	assembler (DirectX and GL). 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Explicit
+	Radian, Degree and AngleUnit classes</FONT>. To resolve ambiguity as
+	to which angle unit is being used, all methods which take an angle
+	now take a Radian class. You can pass Degree instances to this too
+	and get automatic degree-to-radian conversion. You can also use the
+	AngleUnit class which defaults to the current angle units (see
+	Math). Note that conversions are inlined and are thus very cheap;
+	although if you want to avoid them entirely, use Radian. This is an
+	<FONT COLOR="#ff6600">interface breaking change</FONT>, so you will
+	need to update your code to use Radian(radianValue) or
+	Degree(degreeValue) where you are using basic types to store angles.</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff00">Reflection
+	enhancements</FONT>. Automatic reflections using dynamic planes are
+	now simple to create using MovablePlane, and 'custom near clip
+	planes' (oblique depth projection) are available to allow you to
+	clip reflected geometry to an arbitrary plane without requiring
+	additional hardware support such as user clip planes. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Per-Renderable custom parameters
+	can now be mapped into vertex / fragment programs (using ACT_CUSTOM)
+	to better customise the look of your programmably shaded objects</P>
+	<LI><P STYLE="margin-bottom: 0cm">Skeletal animation optimisation:
+	by default it now uses an approximation of true rotational
+	interpolation which is slightly faster; true spherical interpolation
+	is still an option if more accuracy is required.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Edge list improvements; Ogre can
+	now deal with even more model construction variants while still
+	retaining stencil shadow integrity 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Billboard / particle system index
+	and vertex buffers are now deferred loading 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Blender and Milkshape exporters
+	updated 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">GL now has a FSAA option like D3D 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Specialised scene queries for the
+	OctreeSceneManager 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Mesh bounds padding is now more
+	configurable 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Skeleton instances can now be
+	shared between multiple entities to allow optional add-ons to
+	animated meshes 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Transparent materials can now cast
+	texture shadows, if an option is enabled in their material (useful
+	for alpha rejection textures) 
+	</P>
+	<LI><P>Added <FONT COLOR="#ffff33">GLX</FONT> platform manager,
+	enabling the use of OGRE on Linux without using SDL. This also has a
+	nice configuration dialog instead of the text based one. 
+	</P>
+</UL>
+<P>Bugfixes:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Ogre::String is no longer a
+	subclass of std::string, but a typedef to it. All extra methods
+	which were on Ogre::String are now on the Ogre::StringUtil class.
+	This is to resolve compatibility issues on some STLs; this is an
+	<FONT COLOR="#ff6600">interface breaking change</FONT> so you will
+	need to update your code to use the equivalent StringUtil methods.</P>
+	<LI><P STYLE="margin-bottom: 0cm">DirectX no longer prefers W
+	buffers over Z buffers unless 16-bit colour is being used 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">DirectInput usage now plays nicer
+	with other apps 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed the number of textures used
+	when a custom number of shadow textures were specified 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed TS_PARENT and TS_WORLD Node
+	transform options 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed LBX_BLEND_MANUAL in GL 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed finding of nearby lights so
+	it takes into account bounds of node 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Avoided ATI shutdown issues in
+	GL/Linux by making the shutdown sequence more explicit 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Initialisation of shadow materials
+	now works when more than one SceneManager is active 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Some frustum calculation issues
+	were resolved, especially calculation of corners and planes in
+	orthographic mode 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">use32bitindexes was not being read
+	from XML correctly 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed memory leak when attaching
+	and detaching objects from bones 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Stencil shadows were not working
+	correctly when 2-sided stencilling was not available and there was
+	more than one SubMesh with it's own geometry 
+	</P>
+	<LI><P>Various other minor issues</P>
+</UL>
+<P>Deprecation warnings:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">SceneNode::attachCamera
+	and SceneNode::attachLight</FONT>, which have been deprecated for
+	some time, have been removed. Use SceneNode::attachObject.</P>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33">Internal GUI
+	classes</FONT>; in the next release, the internal GUI will be
+	removed in favour of <A HREF="http://crayzedsgui.sourceforge.net/">Crazy
+	Eddie's GUI</A>, and we advise all users to begin migrating their
+	code now. This covers the interactive GUIs (ie buttons, scroll bars
+	etc) and not static overlays, which will still be available in Ogre.
+		</P>
+	<LI><P><FONT COLOR="#ffff33">NatureSceneManager</FONT>; this will be
+	moved to ogreaddons in the next version incase anyone wishes to
+	continue to maintain it. The Ogre team have no plans to support this
+	scene manager since TerrainSceneManager and PagingLandscape (in
+	ogreaddons) provide better terrain rendering options.</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.14.1 (28 July 2004) - Maintenance
+Release</P>
+<P ALIGN=LEFT>Enhancements:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff33"><B>TerrainSceneManager
+	improved</B></FONT></P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Vertex program morphing allows
+		for almost imperceptible leve l-of-detail changes</P>
+		<LI><P STYLE="margin-bottom: 0cm">Improved efficiency allows for
+		larger terrains 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Improved LOD calculation leads to
+		more accurate rendering with the same or fewer triangles</P>
+		<LI><P STYLE="margin-bottom: 0cm">Custom terrain materials can now
+		be used 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Pluggable terrain data sources
+		allow terrain data to come from any source 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Demo now demonstrates the use of
+		RaySceneQuery to 'stick' the camera to the terrain</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm">Maya, Blender and 3DS exporters
+	updated 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">RenderSystem can now report the
+	texel offset differences between systems (required for <A HREF="http://crayzedsgui.sourceforge.net/">CrazyEddie's
+	GUI</A>) 
+	</P>
+	<LI><P>Code is now more 'MingW friendly', although this is still not
+	officially supported, community supported DevPaks are available from
+	<A HREF="http://the-agency.sourceforge.net/">The Agency</A> 
+	</P>
+</UL>
+<P>Bugfixes:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Visibility of child objects
+	attached to the skeleton of an Entity was being ignored 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed infinite loop in resize()
+	methods of D3D windows 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed XMLConverter bug when using
+	constant reduction in interactive mode 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Made the XML mesh serializer
+	properly assume 'false' for usesharedvertices and use32bitindexes 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Skeletally animated meshes with a
+	vertex program which did not implement hardware skinning were
+	transformed incorrectly. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed some driver crashes on GL</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a few memory leaks,
+	especially when no rendering is performed before shutdown 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Prevented multiple instances of
+	HollowEllipsoidEmitter and RingEmitter from adding their custom
+	params to the dictionary twice. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Math::UnitRandom should have been
+	Math::SymmetricRandom in RingEmitter 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Corrected docs for
+	TextureUnitState::setAnimatedTextureName 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed light update so that lights
+	attached to nodes update properly even when the node does not
+	change. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Assign queue groups to manual LOD
+	entities too 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fix to the early-exit in
+	Overlay::_findVisibleObjects could cause important updates to be
+	missed if the overlay wasn't visible on startup 
+	</P>
+	<LI><P>Patched the EdgeBuilder (calculates stencil shadow
+	structures) so that it detects when there are too many triangles
+	attached to a single edge, and reverts to not welding vertices
+	across vertex sets. This allow it to deal with multiple capped
+	submeshes with their own geometry (which are manifold in themselves)
+	even if they touch at the boundaries. At the same time it still
+	deals with the case where a model is only manifold when all
+	submeshes are combined (it tries to find this case first).</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.14.0 (12 May 2004) - Major
+Release</P>
+<P ALIGN=LEFT>Enhancements:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff33">Shadows</FONT></B>
+		</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">3 different techniques: 
+		</P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm">Modulative stencil shadows
+			(simple extra pass darkens the shadowed areas) 
+			</P>
+			<LI><P STYLE="margin-bottom: 0cm">Additive stencil shadows
+			(masking of light contribution, aka Doom3-style, including a smart
+			pass categoriser / splitter which means you don't need to rewrite
+			your materials) 
+			</P>
+			<LI><P STYLE="margin-bottom: 0cm">Modulative projective texture
+			shadows 
+			</P>
+		</UL>
+		<LI><P STYLE="margin-bottom: 0cm">Multiple stencil shadow
+		optimisations, including vertex program extrusion, smart light and
+		shadow caster culling, integration with mesh LOD, zpass and zfail
+		methods, 2-sided stencilling, scissor region clipping 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Texture shadows fade out at the
+		far distance and around the edges of spotlight, hiding the finite
+		edges of these shadow types</P>
+		<LI><P>Important: Those writing custom SceneManager implementations
+		will have to review the changes to the render queues and render
+		sequence when shadows are enabled, since supporting several types
+		of shadows has required these processes to be significantly
+		enhanced and decomposed into multiple parts (which should lend
+		themselves to customisation in your SMs if you need them). In
+		particular, note that the signature of
+		SceneManager::_findVisibleObjects has changed so if you override
+		this you will need to alter yours too - the compiler will not tell
+		you about this!</P>
+	</UL>
+</UL>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff33">Hardware
+	Skinning</FONT></B> 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Skeletal animation can now be
+		driven using vertex programs 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">Number of bones limited only by
+		your target vertex program version</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff33">General
+	purpose projective texturing</FONT></B>. Projective texturing was
+	possible in Ogre before, but it required you to manually set up the
+	texture matrices. Now there is a simple 1-method call which allows
+	you to link a texture unit to a Frustum instance, and it will
+	automatically sync the projection of the texture with changes to the
+	frustum. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff33">Node/SceneNode
+	enhancements</FONT></B>. You can now make a node automatically track
+	(constantly look at) another node, and all transforms now take a
+	'transform space' parameter to make it easier to perform
+	transformations relative to any space. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff33">Skeleton
+	instances</FONT></B>. The sharing of skeletons between multiple
+	animated objects has been made more flexible so that you can now
+	more easily hook up external effects on the bones on particular
+	instances of that skeleton (in entities); applications such as
+	manually controlling bones or ragdoll simulations benefit from these
+	enhancements. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff33">External
+	Texture Sources</FONT></B>. You can now register external texture
+	sources in order to feed texture data in from another source; this
+	has been used to render video through a texture for example,
+	although the technique can be used for many other things.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Updated GTK demo showing you how
+	to embed an Ogre window in a GTK application.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added an offset (parallax) mapping
+	example to the Dot3Bump demo, along with a normal mapped statue</P>
+	<LI><P STYLE="margin-bottom: 0cm">Mac OSX now supports Cg so the
+	plugin has been enabled</P>
+	<LI><P STYLE="margin-bottom: 0cm">Introduced the Frustum class as a
+	superclass of Camera, abstracting many of the features so they can
+	be reused in other situations like texture projection. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Updated Blender and Lightwave
+	exporters 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">SubEntities can now have their
+	visibility toggled individually 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Hardware occlusion query support</P>
+	<LI><P>Animation looping can now be disabled on AnimationState</P>
+</UL>
+<P ALIGN=LEFT>Bugfixes:</P>
+<UL>
+	<LI><P>Too many to list individually; please read the CVS log for a
+	full account.</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.13.1 (1 March 2004) - Maintenance
+Release</P>
+<P ALIGN=LEFT>Enhancements:</P>
+<UL>
+	<LI><P>Updated Blender exporter, now includes a GUI and full
+	skeletal animation support</P>
+</UL>
+<P ALIGN=LEFT>Bugfixes:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Removed redundant
+	Demo_TechDemo.vcproj link from Ogre.sln 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Removed the forced normal
+	normalisation code from the D3D renderers, it is not required so
+	long as the models have unit-length normals, and this is now fixable
+	on a per-Entity basis. Including this code in the render system
+	caused some state management problems with SceneManager. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">D3D7 now correctly records all
+	capabilities (inc cubemapping, anisotropy) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a bug with multiple
+	attachments of objects to bones. Previously attached objects were
+	not always properly visible and/or did not move correctly. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a crash bug with ConfigFile
+	when an empty value was specified 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Win32Input8::capture() should not
+	capture input types which are disabled 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed Wings exporter 'v' texture
+	coordinates 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed AxisAlignedBox::scale 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Particle fix, could result in
+	stuttery particle emission in some cases 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a couple of problems with
+	the pass map custom sort handler which resulted in &quot;Error
+	inserting new pass entry into SolidRenderablePassMap&quot; assert. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Small refapp fix for segfault when
+	using objects without an ODE body 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fix for
+	HardwareVertexBufferBinding::getNextIndex not incrementing the next
+	index properly. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added pthread check to
+	configure.in 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">bootstrap now deals with automake
+	1.8 
+	</P>
+	<LI><P>Relative mouse coordinate fixes on linux 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.13.0 (18 January 2004) - Major
+Release</P>
+<P ALIGN=LEFT>Changes since 0.12.3:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff00">Major
+	material upgrade</FONT></B>! This is a subsection of it's own.. 
+	</P>
+	<UL>
+		<LI><P STYLE="margin-bottom: 0cm">Support for <FONT COLOR="#ffff00">vertex
+		and fragment programs</FONT> (shaders), including: 
+		</P>
+		<UL>
+			<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff00">Low-level
+			assembler programs</FONT> under D3D9 (vs_1_1, vs_2_x, ps_1_x,
+			ps_2_x) and GL (NV_texture_shader, NV_register_combiners, arbvp1,
+			arbfp1, ATI_fragment_shader) 
+			</P>
+			<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff00">High-level
+			program support</FONT> via plugins, so far we support Cg and D3D9
+			HLSL. Cg compiles down to D3D and GL assembler, and includes
+			converters to non-assembler formats including
+			NV_register_combiners and ATI_fragment_shader so you can write a
+			single program for all targets. 
+			</P>
+			<LI><P STYLE="margin-bottom: 0cm">Support for automatically
+			updated parameter bindings such as 'object space camera position',
+			'object space light direction' and many more 
+			</P>
+			<LI><P STYLE="margin-bottom: 0cm">Programs can be defined and
+			reused many times with different parameters, all through .material
+			scripts 
+			</P>
+		</UL>
+		<LI><P STYLE="margin-bottom: 0cm">Materials now support <FONT COLOR="#ffff00">multiple
+		'techniques'</FONT>, which can be used as automatic fallbacks for
+		older cards which don't support the requisite features for your
+		preferred shading approach</P>
+		<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff00">Material
+		LOD</FONT> - you can tell materials to change technique over
+		distance to save rendering power on distant objects; this is
+		subject to the same control parameters (camera bias and entity
+		bias) that is used for mesh LOD so you can tweak it heavily 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm"><FONT COLOR="#ffff00">Scriptable
+		multipass rendering</FONT>; you can now specify multiple passes in
+		one material if you wish, and those passes can also be iterated
+		once per light automatically, and the engine will call the pass
+		with each nearby light 
+		</P>
+		<LI><P STYLE="margin-bottom: 0cm">The .material script format has
+		been extensively upgraded to handle all these new options; however
+		if you have 0.12.x or previous scripts you can automatically update
+		them using the OgreMaterialUpgrade tool 
+		</P>
+	</UL>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff00">Light
+	management upgraded</FONT></B>; you can now have an unlimited number
+	of lights in the scene, and OGRE will pick and use the 'n' closest
+	lights ('n' is configurable per pass in the material scripts) which
+	are within their attenuation range when rendering an object. This
+	makes light management much more practical, especially when using
+	vertex and fragment programs. As mentioned above, passes can even be
+	configured to iterate using the 'n' nearest lights. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff00">More
+	texture formats supported</FONT></B>: we now support <FONT COLOR="#ffff00">1D</FONT>
+	textures, <FONT COLOR="#ffff00">compressed textures</FONT> (DXT
+	formats), <FONT COLOR="#ffff00">volume textures</FONT> (true 3D
+	textures, not just 6 faces like cube maps), and loading all of the
+	above from the <FONT COLOR="#ffff00">.dds format</FONT>, even in GL.
+		</P>
+	<LI><P STYLE="margin-bottom: 0cm"><B><FONT COLOR="#ffff00">XCode </FONT></B>IDE
+	support on Mac OSX</P>
+	<LI><P STYLE="margin-bottom: 0cm">Precompiled header support on VC6
+	and VC7, this makes compilation a lot faster. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Updated 3DS and Maya exporters</P>
+	<LI><P STYLE="margin-bottom: 0cm">Frame events can now be raised
+	externally, which makes it easier to update the internal state of
+	particle systems, controllers et al when you're running your own
+	rendering loop instead of using Root::startRendering. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Texture filtering can now be
+	controlled more finely by optionally setting the min, mag an mip
+	filter instead of one abstracted filter type.</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fonts now look cleaner, texture
+	size has been optimised and filtering tuned 
+	</P>
+	<LI><P>The 'v' texture coordinate has been flipped so that the
+	origin is now in the top-left, this removes the need to flip
+	textures and improves loading times as well as making compressed
+	texture support feasible. The .mesh format will be converted on the
+	fly automatically, but you should use OgreMeshUpgrade to fix it
+	permanently 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.12.3 (4 January 2004) -
+Maintenance Release</P>
+<P ALIGN=LEFT>Changes since 0.12.2:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a problem with overlay sizes
+	when using multiple render targets 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a bug with frame rate stats
+	when using multiple render targets</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a few boundary conditions in
+	the mesh LOD generation which could cause crashes 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">GL render system now pumps events
+	properly in Windows 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">RenderTarget::writeContentsToTimestampedFile
+	erroneous characters removed 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Compatibility with new STLport
+	version (4.6) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a few memory leaks in D3D 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a buffer overrun problem in
+	TextAreaGuiElement when using '\n'</P>
+	<LI><P>Fixed a precompiled header option which sneaked into 0.12 in
+	VC6 OgreMain</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.12.2 (21 November 2003) -
+Maintenance Release</P>
+<P ALIGN=LEFT>Changes since 0.12.1:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Blender exporter updated; now
+	supports the latest version of Blender, and also supports animation 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Wings3D exporter updated, now
+	supports the new uv exporting format of 0.98.16b 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed bug in BspIntersectionQuery
+	which caused intersectins to be reported between entities and the
+	world when collision was disabled 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Meshes exported with more than 4
+	bone assignments per vertex now have their weights rebalanced to
+	just 4 automatically on conversion to .mesh</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a bug in Quaternion::Slerp
+	which resulted in a non-unit Quaternion being returned sometimes
+	when the 'shortestPath' option was used. This manifested itself as
+	oddly scaling bones when animating an entity</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a bug in ray / plane
+	intersection where it was incorrectly concluded that the ray was
+	parallel to the plane 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed some D3D memory leaks 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed some Mesh automatic loading
+	and unloading issues 
+	</P>
+	<LI><P>Colour values in XML files are now parsed as r,g,b,a instead
+	of a packed long 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.12.1 (12 October 2003) -
+Maintenance Release</P>
+<P ALIGN=LEFT>Changes since 0.12.0:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Added new, improved Maya exporter
+	from macross and fifty1 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed bug in the
+	TerrainSceneManager where we were locking a write-only buffer for
+	reading 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added lines in bootstrap to make
+	sure the correct versions of auto* tools are used on Gentoo 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed screenshot taking bug in
+	Direct3D9 on some older cards 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed bounding boxes on skeletally
+	animated entities with other entities attached to bones 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed particle display problem in
+	VC6 release mode</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed links in tutorials index 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed bug in
+	BillboardSet::removeBillboard and getBillboard when indexing a
+	billboard in the latter part of the list 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">XMLConverter now deals with
+	multiple texture coordinate sets properly 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed minor issue in
+	StringConverter's quaternion handling 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">NatureSceneManager now clears down
+	terrain data properly 
+	</P>
+	<LI><P>New option in ConfigFile to turn off trimming of values, used
+	in loading ogre.cfg since some ATI drivers have a trailing space</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.12.0 (23 September 2003) - Major
+Release 
+</P>
+<P ALIGN=LEFT>Changes since 0.11.0:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Complete overhaul of core geometry
+	usage resulting in optimised use of hardware vertex and index
+	buffers, providing significant speed boosts on all cards, typically
+	of between 50 and 200% depending on the application. ATI 9500+ cards
+	on DirectX9 will see particularly large increases (often five-fold)
+	due to their particular affinity to this approach. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Geometry structures redesigned to
+	support the above and also to provide the basis for vertex and pixel
+	shaders. This will not affect you unless you manipulated geometry
+	structures such as the old GeometryData directly - those who did
+	<A HREF="vbo-update/index.html">should read about the details of the
+	changes</A>. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Transparent materials no longer
+	assume that depth writing needs to be off, this setting was causing
+	some problems with those using alpha blending. Those of you using
+	transparent materials which do need depth writing to be turned off
+	will need to set it in your material scripts 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">DirectX 8 rendersystem retired,
+	the current DirectX rendersystem is now DirectX9, with legacy cards
+	supported through the DirectX7 rendersystem or OpenGL 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Support for cubic textures and
+	cubic reflection mapping added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Support for DOT3 bump mapping
+	added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Significant speed improvements on
+	rebuilding bezier patch surfaces, changing detail level is now a lot
+	faster 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Binary .mesh format updated -
+	please run 'OgreMeshUpgrade' (from Tools/MeshUpgrader) on your old
+	meshes, they may not work properly unless you do this 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">OgreXmlConverter now includes
+	parameters to allow you to generate LODs as you convert 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Mesh serializer now rationalises
+	bone assignments so that only 4 are included per vertex 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">DTDs for .mesh.xml and
+	.skeleton.xml added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added Gtk platform manager with
+	support for ogre as a Gtk/GL widget 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">3D Studio Exporter now supports IK
+	and Biped 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Lightwave converter added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Wings3D converter added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Memory leaks with controllers
+	removed 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Visual real-time profiling tool
+	added 
+	</P>
+	<LI><P>Many bugfixes and minor enhancements 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.11.0 (18 June 2003)</P>
+<P ALIGN=LEFT>Changes since 0.10.0:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">SceneQuery introduced; a generic
+	way to query the SceneManager database of objects and world geometry
+	in a way which is optimised per scene management technique but
+	transparent for the client application. Currently only
+	IntersectionSceneQuery is implemented but RaySceneQuery,
+	SphereSceneQuery and others will soon be available too 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">ReferenceApplication introduced;
+	this is a new library which sits on top of the main OGRE library in
+	order to provide a reference implementation of combining OGRE with
+	other libraries for use in a full application. Currently combines
+	OGRE and ODE to provide an easy to use collision and realistic
+	physics system, utilising the new SceneQuery functions for generic
+	collision detection. Object to object collision is currently
+	supported, together this object to world collision for the
+	BspSceneManager (ie collision against Quake3 levels), see the
+	BspCollision demo for an example. Per-object friction, bounciness
+	and mass parameters are all definable, also most of the ODE joint
+	types ie ball, hinge, hinge2, universal. World collision for the
+	terrain managers will be added shortly. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Many structural enhancements to
+	the GLRenderSystem, including an extension manager, separation of
+	window creation etc into a GLSupport class (to enable platform
+	specific window management). Win32GLSupport added so Win32 no longer
+	uses SDL for window management. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Hardware mipmap generation
+	supported in GL 1.3+ 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">New demos: BspCollision and
+	Demo_Water 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">RenderTargetListener now supports
+	pre and post Viewport update events 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">RenderSystem now supports
+	anisotropic texture filtering and dot3 texture operations 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Significant updates to the 3D
+	Studio Max exporter, now very mature 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added 3 more basic mesh exporters
+	/ converters: Maya, Wings3D and VRML 97 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Attaching objects to a skeleton:
+	any MovableObject (entities, particle systems etc) can now be
+	attached to any bone on an entity, and will move correctly with the
+	animation 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">XMLConverter can now generate /
+	update LOD information for meshes too 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Bones can now be manually
+	controlled in combination with animation tracks much more easily,
+	allowing you to do things like tilt a characters head toward a
+	target while playing other animations, make a character bend at the
+	waist etc. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">New particle affectors:
+	ScaleAffector (particle resizing) and ColourFaderAffector2
+	(dual-state colour affector which changes behaviour based on a
+	particle's TTL) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Alternative terrain engine added
+	(NatureSceneManager), supports paging and very large areas 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Significant speed enhancements to
+	Node, in particular skeletal animation is now many times faster for
+	large skeletons 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Interface breaking change since
+	0.10.0: SceneNode::createChild now returns a Node* rather than a
+	SceneNode*, you will have to cast it. This was to resolve
+	virtualisation problems 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Platform-specific Timer classes
+	and general timing improvements mean that accuracy and consistency
+	is much better 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Rendering to texture now supported
+	in GL as well as D3D 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">SDLRenderSystem renamed to
+	GLRenderSystem 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Python support resurrected, Linux
+	only for now due to Boost problems with VC 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Gui enhancements, including pop up
+	menus and scrollable text areas and being able to #include in
+	.overlay files to reuse definitions (NB: the event and gui classes
+	will shortly be moved into a separate plugin) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added ability to switch between
+	buffered and unbuffered input on demand 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">VC++.Net 2003 support added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">MaterialSerializer for writing
+	.material scripts from an in-memory version 
+	</P>
+	<LI><P>Many bugfixes, including the removal of all remaining memory
+	leaks 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.10.0 (28 Feb 2003)</P>
+<P ALIGN=LEFT>Changes since 0.9.7:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Major speed increases for large
+	scenes. Scenes with more than 1500 objects are now feasible at high
+	frame rates. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">3D Studio Max 4 / 5 script for
+	exporting meshes and skeletons to XML (which can then be converted
+	to binary using XMLConverter) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Major updates to the Python
+	bindings 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added UserDefinedObject to allow
+	references back to external app objects from OGRE objects 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Experimental Direct3D 9 Render
+	System 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Skeletal animation now supports
+	additive blending of multiple animations as well as average blending
+		</P>
+	<LI><P>Bugfixes &amp; small feature enhancements 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.9.7 (26 January 2003)</P>
+<P ALIGN=LEFT>Changes since 0.99f:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Mac OSX support added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Mesh LOD support: both automatic
+	algorithmic detail reduction, and manual LOD assignment 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Milkshape exporter extended to
+	support generation of LODs 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Rendering to a texture (supported
+	in Direct3D only for now, GL support to follow) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Screenshot support 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">DevIL now used for image loading /
+	saving 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Blender export script 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Initial GUI support and buffered
+	input support 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Updates to the Python exports 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">A few vector / quaternion
+	optimisations 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Linux / Mac 'install' target paths
+	rationalised 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Bugfixes (including GL lighting
+	and texture effect problems, many memory leaks fixed) 
+	</P>
+	<LI><P>Version numbering change (to more standard format) 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.99f (1 December 2002)</P>
+<P ALIGN=LEFT>Changes since 0.99e:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Terrain rendering through the
+	OctreeSceneManager subclass TerrainSceneManager, including detail
+	texturing and vertex colouring options 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Overlays can now have pixel
+	metrics as well as relative metrics, and can be flexibly aligned 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">New debug overlay 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Curved sky planes (fog-friendly
+	alternative to sky domes) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Animation tracks can now scale
+	nodes as well as rotate and translate 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Depth bias now available as a
+	material option, for doing decals 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Stencil buffer operations now
+	supported 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">RenderQueueListener allows custom
+	filters to be plugged in, compositing operations to be performed 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">New version of 3DSMax exporter 
+	</P>
+	<LI><P>Many bugfixes (as usual) 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.99e (25 October 2002)</P>
+<P ALIGN=LEFT>Changes since 0.99d:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Overlay support (HUDs, menus) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Font rendering 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Octree scene manager added 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">XMLConverter allows conversion of
+	.mesh and .skeleton files to XML (XML to .mesh and .skeleton is not
+	finished yet) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">DirectX 8 render system 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Spline interpolation of animation,
+	both for skeletal animation and for animating any SceneNode 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Automatic camera tracking, spline
+	animations can be used to script smooth camera sweeps 
+	</P>
+	<LI><P>Many bugfixes 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.99d (5 September 2002)</P>
+<P CLASS="maincontent" ALIGN=LEFT>Changes since 0.99c:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Full Linux support! 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Debug memory manager tracing
+	memory leaks 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Generic animation support via
+	Animation, AnimationTrack and KeyFrame classes 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Skeletal animation on meshes,
+	including multiple bone assignments and animation blending 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Updated Milkshape exporter,
+	exports skeleton and animations, can split the combined sequence
+	into many separate animations 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Codec structure, used for loading
+	images more generically and can be used for general coding /
+	decoding 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Many bugfixes 
+	</P>
+	<LI><P>New tutorials 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.99c (19 July 2002)</P>
+<P ALIGN=LEFT>Changes since 0.99b:</P>
+<BLOCKQUOTE>Enhancements:</BLOCKQUOTE>
+<UL>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">New MeshSerializer class
+	for importing / exporting mesh data, to be used as the framework for
+	all future modelling tool exporters 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Milkshape3D exporter
+	provided, which uses MeshSerializer to export to the new .mesh file
+	format. This replaces the 3ds2oof utility which along with the .oof
+	is now deprecated, although .oof models can still be loaded. In this
+	version the Milkshape exporter only exports static mesh data without
+	bones or animation. 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">SceneNode now supports
+	scaling (uniform and non-uniform), including the option to inherit
+	parent scale or just use own 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Completely new source
+	code folder layout; should be more obvious than the old one. All
+	dependencies are now included in the code structure to avoid having
+	to distribute binary libraries 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Boost added to the
+	Dependencies area 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE>New tutorial added, kindly written by Nicholas Green
+		</BLOCKQUOTE>
+</UL>
+<BLOCKQUOTE>Work-in-progress:</BLOCKQUOTE>
+<UL>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Linux makefiles now
+	present, buildable with gcc 3+ 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">SDL / OpenGL render
+	system implementation provided, not totally complete yet but almost
+	there 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE>Skeletal animation classes (Animation,
+	AnimationTrack, KeyFrame, Skeleton, Bone) 
+	</BLOCKQUOTE>
+</UL>
+<BLOCKQUOTE>Bugfixes:</BLOCKQUOTE>
+<UL>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Math::NEG_INFINITY now
+	correctly defined 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">ColourValue getAsLongARGB
+	alpha bug fixed 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE>Problems with camera positioning &amp; lookat
+	behaviour when attached to a SceneNode fixed 
+	</BLOCKQUOTE>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.99b (9 June 2002)</P>
+<P ALIGN=LEFT>Changes since 0.98b:</P>
+<BLOCKQUOTE>Enhancements:</BLOCKQUOTE>
+<UL>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Particle systems
+	implemented, including customisable emitters / affectors through the
+	use of plugins, defining particle system templates through text
+	scripts for easy modification, flexible culling options, flat and
+	oriented billboards for point or directional particles,
+	fast-forwarding of systems to avoid obvious particle system startup,
+	force application, randomised colours &amp; emission angles,
+	randomised velocities and lifetimes and much more. 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Billboarding support
+	(used by particle systems, but can also be used on their own to
+	create backgrounds, static light flares etc) 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Now builds under VC.Net
+	(VC7), .sln and .vcproj files are now included in the distribution 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Zip archives now cache a
+	file index for more efficient retrieval 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE>StringInterface base class and helper classes like
+	ParamCommand and StringConverter now available to make scriptable
+	classes easier to create 
+	</BLOCKQUOTE>
+</UL>
+<BLOCKQUOTE>Bugfixes:</BLOCKQUOTE>
+<UL>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Several bugs in 3DS2OOF
+	3D Studio converter fixed, such as exported files including camera &amp;
+	lights (these are now ignored), objects with missing SmoothGroups,
+	and issue with merging multiple objects 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">Environment mapping bug
+	which caused incorrect wrapping is now fixed 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE STYLE="margin-bottom: 0cm">All container 'wrappers'
+	have now been replaced with the original STL class since we are now
+	using STLport and don't have the dll boundary problems present in
+	theMicrosoft STL implementation 
+	</BLOCKQUOTE>
+	<LI><BLOCKQUOTE>SceneNodes now derive their orientation &amp;
+	position on demand if they are out of date 
+	</BLOCKQUOTE>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.98b (29 March 2002)</P>
+<P ALIGN=LEFT>Changes since 0.97e:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Material scripts. All materials
+	can now be specified in .material files, which are loaded at startup
+	and can be altered without recompiling your application. Tweak to
+	your hearts content! See the material scripting section in the
+	Tutorials for more information. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Landscape rendering - a ROAM scene
+	manager example implementation is now included in the distribution,
+	together with an example demo. Whilst the ROAM approach will not be
+	developed further due to it's relatively high CPU overhead, it
+	serves as an example of how vastly different scene managers can be
+	plugged into Ogre. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Billboarding. Billboards can now
+	be used to create special effects. Particle systems using this
+	facility are under development. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Better culling on the standard
+	scene manager. The standard non-scene-specific scene manager now
+	hierarchically culls movables based on their bounding boxes. A
+	triangle counter monitors culling performance. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Refactored the methods called in
+	the main rendering loop in SceneManager to allow subclasses to
+	modify the behaviour more easily without having to duplicate code. 
+	</P>
+	<LI><P>Better compliance with STL standards. Ogre is now built using
+	<A HREF="http://www.stlport.org/">STLport</A> on both Windows and
+	Linux, and this has necessitated a closer fit with the STL standard
+	rather than the Microsoft implementation. 
+	</P>
+</UL>
+<P>&nbsp;</P>
+<P CLASS="mainheader" ALIGN=LEFT>v0.97e (16 Feb 2002)</P>
+<P>Changes since 0.97b:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Archive driver system is in! Say
+	bye-bye to the Ogre::Archive class and welcome to dynamically-loaded
+	archive codecs! 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Two archive codecs are provided:
+	FileSystem codec (works like a normal directory) and Zip Archive
+	codec (works with Zip archives) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Changed all examples and the
+	Indoor Engine to work with the new codecs 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Modified the way
+	ResourceManager::_findResourceData returns data: now it takes a
+	pointer to a DataChunk and fills the pointed object with all the
+	data, thus avoiding unnecesary memory copying (and eventually
+	fragmentation) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Some cosmetic changes to the way
+	plug-ins are loaded - no need to specify the extension of the
+	plug-in anymore, and it is registered as given in the Plugins.cfg
+	file. This is because we don't want to load a Dll two times - the
+	first time as [PluginPath]\PluginName.dll and the second time as
+	plain PluginName 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Cosmetic changes in projects and
+	workspaces. They should give no error when compiling and you
+	shouldn't need to create the necessary directories yourselves 
+	</P>
+	<LI><P>The Resources folder has changed. The two .oof models and
+	their textures now reside in zip archives to reflect the usage of
+	the new Archive codecs. 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>v0.97b (6 Feb 2002)</P>
+<P ALIGN=LEFT>Changes since 0.96b:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Added some more standard
+	Controller objects to allow easy texture scrolling, rotating and
+	scaling. Added support for these to the Quake3 renderer . 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Wave-based controllers allow
+	texture modifications (among other things) to be based on wave types
+	rather than just constant effects 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Added more friendly error dialog
+	when an unhandled exception is thrown 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Fixed a couple of bugs in the
+	config dialog which causes crashes 
+	</P>
+	<LI><P>Fogging enabled - scene-wide or customised per material 
+	</P>
+</UL>
+<P ALIGN=LEFT>&nbsp;</P>
+<P CLASS="mainheader" ALIGN=LEFT>v0.96b (6 January 2002)</P>
+<P ALIGN=LEFT>I've changed this log a little to be more concise
+regarding changes made between snapshot versions. 
+</P>
+<P ALIGN=LEFT>Changes since 0.95b:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Animated tetxure support. Each
+	texture layer can have multiple frames, with one being active at a
+	time. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Controller architecture.
+	Controller allow object properties to be updated based on other
+	events or values whilst only loosely coupling the source and
+	destination objects together. In this version Controllers are used
+	for animating texture layers by setting the active texture frame
+	based on a frame timer object. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Quake 3 .shader script support.
+	Animated textures, multilayer textures etc now being loaded in. No
+	scrolling, rotating or stretching effects yet though 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Skyplanes, skydomes and skyboxes
+	are now supported 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm">Major improvement in rendering
+	speed thanks to a far smarter render state management approach. 
+	</P>
+	<LI><P>Transparent objects now always render correctly when in front
+	of solid objects. 
+	</P>
+</UL>
+<P CLASS="mainheader" ALIGN=LEFT>6 January 2002</P>
+<P ALIGN=LEFT>Most bugs in shader parsing sorted out. A few shader
 effects are not supported yet, but most are there and look good.
 Texture coordinate modifications are missing for the moment, but
-environment mapping is in (albeit a little different from Q3A's method
-- I chose to use cameraspace reflection vectors to produce the effect
-because these are hardware accelerable, whilst Q3A's method of using
-the vector from camera location to vertex is not), as are all the
-shafts of light, animated flames etc.</p>
-<p align="left">No MD3 models are being rendered so there are a few
+environment mapping is in (albeit a little different from Q3A's
+method - I chose to use cameraspace reflection vectors to produce the
+effect because these are hardware accelerable, whilst Q3A's method of
+using the vector from camera location to vertex is not), as are all
+the shafts of light, animated flames etc.</P>
+<P ALIGN=LEFT>No MD3 models are being rendered so there are a few
 blank spots in the level where a gargoyle, wall sconce etc should be.
-I'm not going to implement this for now, I've proved the point I wanted
-to prove which is that Ogre can handle this type of scene well. It's
-just a few Q3-specific details which are missing which is no big deal,
-I never set out to produce a working copy of Q3A.</p>
-<p align="left">I will be releasing another snapshot based on this
-codebase, and also will release binary demos of all the examples.</p>
-<p align="left">Next: texture coordinate modifications, extensions to
-the controller classes. Then particle systems. </p>
-<p align="left" class="MainHeader">5 January 2002</p>
-<p align="left">Skydomes and skyboxes are in and working, giving you 3
+I'm not going to implement this for now, I've proved the point I
+wanted to prove which is that Ogre can handle this type of scene
+well. It's just a few Q3-specific details which are missing which is
+no big deal, I never set out to produce a working copy of Q3A.</P>
+<P ALIGN=LEFT>I will be releasing another snapshot based on this
+codebase, and also will release binary demos of all the examples.</P>
+<P ALIGN=LEFT>Next: texture coordinate modifications, extensions to
+the controller classes. Then particle systems. 
+</P>
+<P CLASS="mainheader" ALIGN=LEFT>5 January 2002</P>
+<P ALIGN=LEFT>Skydomes and skyboxes are in and working, giving you 3
 types of sky to play with. Skyboxes are for static, wrap-around
 environment textures like space, whilst skydomes are like skyplanes,
-but curved.</p>
-<p align="left">Quake3 shader script conversion is going well, Ogre
+but curved.</P>
+<P ALIGN=LEFT>Quake3 shader script conversion is going well, Ogre
 loads in the .shader files and converts them to Material objects as
 required, meaning that you can now see flames, shafts of light, TV
 screens etc inside Ogre. Animated textures are being loaded but not
-animated yet - I'm going to try and get animation working within a nice
-generic OO controller framework if I can rather than bash out a
-single-use approach.</p>
-<p align="left">One thing I've noticed now the sky is being displayed
-is there are 'sparklies' around the curved surfaces visible mostly when
-there is a light-coloured sky. Damn. It appears the points generated
-from the bezier patches don't quite match up with the surrounding
-static geometry, meaning there are small gaps. This is a TODO.</p>
-<p align="left">I still need to fix the odd crash point and a few
-shaders aren't being loaded properly. Also environment mapping needs a
-bit of work since Quake3 bases them on camera position -&gt; vertex
+animated yet - I'm going to try and get animation working within a
+nice generic OO controller framework if I can rather than bash out a
+single-use approach.</P>
+<P ALIGN=LEFT>One thing I've noticed now the sky is being displayed
+is there are 'sparklies' around the curved surfaces visible mostly
+when there is a light-coloured sky. Damn. It appears the points
+generated from the bezier patches don't quite match up with the
+surrounding static geometry, meaning there are small gaps. This is a
+TODO.</P>
+<P ALIGN=LEFT>I still need to fix the odd crash point and a few
+shaders aren't being loaded properly. Also environment mapping needs
+a bit of work since Quake3 bases them on camera position -&gt; vertex
 rather than camera eye vector -&gt; normal, which means they look
 wrong. I should alos render the 'models' in the level i.e. geometry
-that doesn't have lightmaps like gargoyles.</p>
-<p align="left" class="MainHeader">27 December 2001</p>
-<p align="left">Skyplanes are now working. You can now create a plane
-which is at contant distance from the camera at and orientation for use
-as a sky. I'll be moving on to skyboxes imminently which will allow
-full wrap-around skies.</p>
-<p align="left">I have also totally revamped the example code that is
-included with the engine. Instead of the single TestApp project, there
-is now an Examples folder with multiple projects under this which demo
-each effect. I have also created an object-oriented framework for the
-examples too, meaning they are now a lot better structured and
-hopefully better to understand.</p>
-<p align="left">I also intend to release some binary demos soon so
-people can quickly see what the engine is capable of without having to
-build from the source. The good news this week is that I just did a
-Release build of the Quake3 level renderer, and it runs at a very sweet
-170fps in windowed mode on my Athlon 1Ghz and GeForce 2. In fullscreen
-mode at 1024x768 at 32-bit colour it still manages between 50 and 80
-fps. I'm very pleased indeed. I would like to tidy up some of the
-missing textures before I do a binary release so I'll be sorting out
-the skybox support and other texture effects first.</p>
-<p align="left" class="MainHeader">24 December 2001</p>
-<p align="left">Refactored the entity rendering routines in the base
-SceneManager class to make them easier to reuse in subclasses.</p>
-<p align="left">Material class enhanced to contain all the other render
+that doesn't have lightmaps like gargoyles.</P>
+<P CLASS="mainheader" ALIGN=LEFT>27 December 2001</P>
+<P ALIGN=LEFT>Skyplanes are now working. You can now create a plane
+which is at contant distance from the camera at and orientation for
+use as a sky. I'll be moving on to skyboxes imminently which will
+allow full wrap-around skies.</P>
+<P ALIGN=LEFT>I have also totally revamped the example code that is
+included with the engine. Instead of the single TestApp project,
+there is now an Examples folder with multiple projects under this
+which demo each effect. I have also created an object-oriented
+framework for the examples too, meaning they are now a lot better
+structured and hopefully better to understand.</P>
+<P ALIGN=LEFT>I also intend to release some binary demos soon so
+people can quickly see what the engine is capable of without having
+to build from the source. The good news this week is that I just did
+a Release build of the Quake3 level renderer, and it runs at a very
+sweet 170fps in windowed mode on my Athlon 1Ghz and GeForce 2. In
+fullscreen mode at 1024x768 at 32-bit colour it still manages between
+50 and 80 fps. I'm very pleased indeed. I would like to tidy up some
+of the missing textures before I do a binary release so I'll be
+sorting out the skybox support and other texture effects first.</P>
+<P CLASS="mainheader" ALIGN=LEFT>24 December 2001</P>
+<P ALIGN=LEFT>Refactored the entity rendering routines in the base
+SceneManager class to make them easier to reuse in subclasses.</P>
+<P ALIGN=LEFT>Material class enhanced to contain all the other render
 settings such as depth buffer parameters, culling modes, texture
 filtering etc. It is now possible to drive all the rendering settings
 via the Material class now so that no calls are required to the
-RenderSystem class. This makes the settings more intuitive to use, and
-ensures that you can have different settings per object if you want by
-assigning different materials, and the SceneManager controls the
-changes to the rendering settings.</p>
-<p align="left">Major rewrite of SceneManager::setMaterial and added
-RenderSystem::_setTextureUnitSettings (used by the former) so that only
-<b>changes</b> to the material settings are sent to the RenderSystem.
-This ensures that rendering state changes are minimised and that custom
-settings are reset only when required. This has improved the framerate
-across the board by about 50%. A further optimisation which is still to
-be made is ordering the materials in the render sequence to minimise
-the render state changes still further, e.g. scheduling 2 materials
-that have the same layer 0 texture but different layer 1 textures next
-to each other.</p>
-<p align="left">Started adding sky plane and sky box support to the
-SceneManager class, but this is not yet functional.</p>
-<p align="left">Merry Xmas!</p>
-<p align="left" class="MainHeader">4 December 2001</p>
-<p align="left">General Bezier Patch support through the PatchSurface
-class.</p>
-<p align="left">Quake3 level loading uses curved surface support to
-display Q3A's bezier curves. Custom shader scripts still to be done.</p>
-<p align="left">IMPORTANT: To compile &amp; run the TestApp demo
+RenderSystem class. This makes the settings more intuitive to use,
+and ensures that you can have different settings per object if you
+want by assigning different materials, and the SceneManager controls
+the changes to the rendering settings.</P>
+<P ALIGN=LEFT>Major rewrite of SceneManager::setMaterial and added
+RenderSystem::_setTextureUnitSettings (used by the former) so that
+only <B>changes</B> to the material settings are sent to the
+RenderSystem. This ensures that rendering state changes are minimised
+and that custom settings are reset only when required. This has
+improved the framerate across the board by about 50%. A further
+optimisation which is still to be made is ordering the materials in
+the render sequence to minimise the render state changes still
+further, e.g. scheduling 2 materials that have the same layer 0
+texture but different layer 1 textures next to each other.</P>
+<P ALIGN=LEFT>Started adding sky plane and sky box support to the
+SceneManager class, but this is not yet functional.</P>
+<P ALIGN=LEFT>Merry Xmas!</P>
+<P CLASS="mainheader" ALIGN=LEFT>4 December 2001</P>
+<P ALIGN=LEFT>General Bezier Patch support through the PatchSurface
+class.</P>
+<P ALIGN=LEFT>Quake3 level loading uses curved surface support to
+display Q3A's bezier curves. Custom shader scripts still to be done.</P>
+<P ALIGN=LEFT>IMPORTANT: To compile &amp; run the TestApp demo
 application you will need to change line 414 of WinMainTest.cpp to
-point at your Quake3Arena pak0.pk3, since I can't distribute Q3A levels
-and textures for size and copyright reasons.</p>
-<p align="left" class="MainHeader">11 November 2001</p>
-<p>First Quake3 level rendering release. No support for shader scripts
-or curved surfaces yet. </p>
-<p align="left" class="MainHeader">12 October 2001</p>
-<p>Modified the material blending routines to make it more reliable to
-fall back on multipass rendering whilst preserving all the correct
+point at your Quake3Arena pak0.pk3, since I can't distribute Q3A
+levels and textures for size and copyright reasons.</P>
+<P CLASS="mainheader" ALIGN=LEFT>11 November 2001</P>
+<P>First Quake3 level rendering release. No support for shader
+scripts or curved surfaces yet. 
+</P>
+<P CLASS="mainheader" ALIGN=LEFT>12 October 2001</P>
+<P>Modified the material blending routines to make it more reliable
+to fall back on multipass rendering whilst preserving all the correct
 effects. To do this I had to simplify the basic multitexture blending
-operations which automatically fall back to multipass, and require that
-the application explicitly specifies a fallback blend multipass
+operations which automatically fall back to multipass, and require
+that the application explicitly specifies a fallback blend multipass
 operation if it chooses to use the more complex blending modes which
-are only available under multitexture hardware. I hope by doing this I
-keep it simple for most cases (people normally use jusy ADD, MODULATE,
-REPLACE or ALPHABLEND anyway) whilst still allowing complete
-flexibility for those who like to tinker with the obscure modes.</p>
-<p>Decided to make another point release even without the finished
-Quake3 stuff because there's so much that's useful.</p>
-<p></p>
-<p align="left" class="MainHeader">9 October 2001</p>
-<p>Object/scene blending operations (as opposed to multiple texture
-layer blending on the same object) support has been added, allowing new
-effects like transparency.</p>
-<p>I keep getting distracted from my Quake3 level work but I am
+are only available under multitexture hardware. I hope by doing this
+I keep it simple for most cases (people normally use jusy ADD,
+MODULATE, REPLACE or ALPHABLEND anyway) whilst still allowing
+complete flexibility for those who like to tinker with the obscure
+modes.</P>
+<P>Decided to make another point release even without the finished
+Quake3 stuff because there's so much that's useful.</P>
+<P CLASS="mainheader" ALIGN=LEFT>9 October 2001</P>
+<P>Object/scene blending operations (as opposed to multiple texture
+layer blending on the same object) support has been added, allowing
+new effects like transparency.</P>
+<P>I keep getting distracted from my Quake3 level work but I am
 progressing - the reason why I switched to this subject is that I
 realised my fallback technique to multipass rendering when not enough
-multitexturing hardware was available was not correct, and in order to
-be able to fix it I needed these new blending options. I'm now
-wondering whether to fix the multipass fallback now I have the tools or
-to leave it until later. Right now, if you use more texture layers than
-the hardware supports in a single pass, things won't look right. I'll
-get to it.</p>
-<p align="left" class="MainHeader">6 October 2001</p>
-<p>Ok, remember the problem from 16 September re texture coordinates
+multitexturing hardware was available was not correct, and in order
+to be able to fix it I needed these new blending options. I'm now
+wondering whether to fix the multipass fallback now I have the tools
+or to leave it until later. Right now, if you use more texture layers
+than the hardware supports in a single pass, things won't look right.
+I'll get to it.</P>
+<P CLASS="mainheader" ALIGN=LEFT>6 October 2001</P>
+<P>Ok, remember the problem from 16 September re texture coordinates
 and confusion over whether (0,0) was the top or bottom left corner of
-the texture? Well it turns out that once again Direct3D is the odd one
-out, and 3DS is actually using the more common convention, i.e. (0,0)
-is the <i>bottom</i> left corner. I have therefore changed the 3ds2oof
-routine <i>back</i> to how it was before (using 3DS UV corrdinates
-directly) and am flipping the texture itself in the Y-axis when loading
-it in the Direct3D texture implementation to compensate
-(D3DTexture.cpp). I should have checked more thoroughly before changing
-things to be in line with D3D, I should have known it would probably be
-the odd one.</p>
-<p>I've done this because I want Ogre to follow industry standards
+the texture? Well it turns out that once again Direct3D is the odd
+one out, and 3DS is actually using the more common convention, i.e.
+(0,0) is the <I>bottom</I> left corner. I have therefore changed the
+3ds2oof routine <I>back</I> to how it was before (using 3DS UV
+corrdinates directly) and am flipping the texture itself in the
+Y-axis when loading it in the Direct3D texture implementation to
+compensate (D3DTexture.cpp). I should have checked more thoroughly
+before changing things to be in line with D3D, I should have known it
+would probably be the odd one.</P>
+<P>I've done this because I want Ogre to follow industry standards
 (e.g. right-handed coordinates, anticlockwise vertex winding) rather
 than Direct3D's viewpoint which is usually the opposite, even though
-it's Direct3D I'm working on at the moment. I do this because it's what
-everybody will be used to when they come from maths texts or modelling
-tools, and is the same as the OpenGL approach (so the OpenGL port
-should be easier than Direct3D). I just compensate inside my
-Direct3D-specific classes (e.g. by flipping the Z axis, changing the
-culling mode, or flipping the texture as above).</p>
-<p></p>
-<p align="left" class="MainHeader">5 October 2001</p>
-<p>Progressive updates are being made to the OgreEngineIndoor module in
-CVS. Quake3 levels are being loaded and coversion is in progress.</p>
-<p>I have also fixed a couple more bugs: the ColourValue class was
+it's Direct3D I'm working on at the moment. I do this because it's
+what everybody will be used to when they come from maths texts or
+modelling tools, and is the same as the OpenGL approach (so the
+OpenGL port should be easier than Direct3D). I just compensate inside
+my Direct3D-specific classes (e.g. by flipping the Z axis, changing
+the culling mode, or flipping the texture as above).</P>
+<P CLASS="mainheader" ALIGN=LEFT>5 October 2001</P>
+<P>Progressive updates are being made to the OgreEngineIndoor module
+in CVS. Quake3 levels are being loaded and coversion is in progress.</P>
+<P>I have also fixed a couple more bugs: the ColourValue class was
 implementing colours a little too bright and wrapped around to black
 when pure white was specified. This has been fixed. In addition, the
 mipmap generation was not generating enough mipmaps under Direct3D
 because D3DX ignores requests for the number of mipmaps and generates
 as many as required to reduce to a 1x1 texture. This caused smaller
-mipmaps to be black and thus textures would wink out at long distances.
-This has been fixed.</p>
-<p align="left" class="MainHeader">16 September 2001</p>
-<p>Slow going due to moving house. However, fixed a problem with
+mipmaps to be black and thus textures would wink out at long
+distances. This has been fixed.</P>
+<P CLASS="mainheader" ALIGN=LEFT>16 September 2001</P>
+<P>Slow going due to moving house. However, fixed a problem with
 texture coordinates as converted from 3DS using 3ds2oof - I just
-realised that 3DS uses UV coordinates where V=0.0 is at the <i>bottom</i>
+realised that 3DS uses UV coordinates where V=0.0 is at the <I>bottom</I>
 of the texture map, instead of the top as with everything else! That
 explains the strange textures on some models. Fixed 3ds2oof to make
-V=(1.0 - V) during the conversion. Reconvert your models!</p>
-<p align="left" class="MainHeader">29 August 2001</p>
-<p>Ogre now supports loading of resources from more flexible locations,
-including compressed archives (.zip and Quake3 .pk3 files). You can
-specify a list of search paths and archives which are either general
-across the whole of Ogre or specific to a resource type (e.g. textures,
-meshes).</p>
-<p>I've also added support for loading TGA images as well, since Quake3
-maps use them in places. </p>
-<p>I have also dropped support for BMP files. This is because I have
-had to implement memory-based versions of the image decoders to support
-loading from archives, and to be frank I couldn't be bothered to
-implement one for BMP since it's a naff format in my opinion and tied
-to the Windows platform anyway. Ogre supports JPEG, PNG and TGA which
-should be plenty of flexibility. Personally I think when you've got PNG
-(for lossless) and JPEG (for lossy), you don't need anything else.</p>
-<p align="left" class="MainHeader">10 August 2001</p>
-<p>Texture blending is now in and working! The new TestApp demonstrates
-the functionality by loading a base model with a standard texture, then
-adding a second texture layer and applying an environment map to it.
-The keys 0-7 change the texture blending mode to show what effects
-different parameters have.</p>
-<p>I'm now moving onto other features; I want to look at Quake3 file
+V=(1.0 - V) during the conversion. Reconvert your models!</P>
+<P CLASS="mainheader" ALIGN=LEFT>29 August 2001</P>
+<P>Ogre now supports loading of resources from more flexible
+locations, including compressed archives (.zip and Quake3 .pk3
+files). You can specify a list of search paths and archives which are
+either general across the whole of Ogre or specific to a resource
+type (e.g. textures, meshes).</P>
+<P>I've also added support for loading TGA images as well, since
+Quake3 maps use them in places. 
+</P>
+<P>I have also dropped support for BMP files. This is because I have
+had to implement memory-based versions of the image decoders to
+support loading from archives, and to be frank I couldn't be bothered
+to implement one for BMP since it's a naff format in my opinion and
+tied to the Windows platform anyway. Ogre supports JPEG, PNG and TGA
+which should be plenty of flexibility. Personally I think when you've
+got PNG (for lossless) and JPEG (for lossy), you don't need anything
+else.</P>
+<P CLASS="mainheader" ALIGN=LEFT>10 August 2001</P>
+<P>Texture blending is now in and working! The new TestApp
+demonstrates the functionality by loading a base model with a
+standard texture, then adding a second texture layer and applying an
+environment map to it. The keys 0-7 change the texture blending mode
+to show what effects different parameters have.</P>
+<P>I'm now moving onto other features; I want to look at Quake3 file
 loading - there are a couple of things nagging me about managing
-materials and entities that I'd like to look at but I'd really like to
-get started on Q3A bsp files now. I also wanted to work on animation,
-both within models (skeletal animation &amp; bones) and for paths of
-objects (bezier curves &amp; bsplines), but I just don't have time to
-do everything I want to! Q3A files first.</p>
-<p align="left" class="MainHeader">5 August 2001</p>
-<p>Back from a break for holidays!</p>
-<p>The Camera class now allows a SceneNode to override it's position
+materials and entities that I'd like to look at but I'd really like
+to get started on Q3A bsp files now. I also wanted to work on
+animation, both within models (skeletal animation &amp; bones) and
+for paths of objects (bezier curves &amp; bsplines), but I just don't
+have time to do everything I want to! Q3A files first.</P>
+<P CLASS="mainheader" ALIGN=LEFT>5 August 2001</P>
+<P>Back from a break for holidays!</P>
+<P>The Camera class now allows a SceneNode to override it's position
 and orientation when the Camera is attached to a SceneNode. This will
-allow cameras attached to world objects etc.</p>
-<p>Started implementing the texture blending operations - the interface
-is complete, I'm now moving onto the Direct3D implementation. For the
-moment I'm not worrying about minimising the number of times that
-changes to blending parameters are made during a frame - I'm still
-concentrating on minimising the texture changes, which is the main
-overhead anyway. More optimisation will likely come along with new
-SceneManager subclasses.</p>
-<p align="left" class="MainHeader">21 July 2001</p>
-<p>The Camera class now uses quaternions too. Camera rotation is a lot
-more concise now (instead of storing &amp; trying to update 3 vectors I
-just have a single quaternion) and is more predictable and hopefully
-more flexible for the future.&nbsp;</p>
-<p>You can attach a Camera to a SceneNode (this is meant for use in
+allow cameras attached to world objects etc.</P>
+<P>Started implementing the texture blending operations - the
+interface is complete, I'm now moving onto the Direct3D
+implementation. For the moment I'm not worrying about minimising the
+number of times that changes to blending parameters are made during a
+frame - I'm still concentrating on minimising the texture changes,
+which is the main overhead anyway. More optimisation will likely come
+along with new SceneManager subclasses.</P>
+<P CLASS="mainheader" ALIGN=LEFT>21 July 2001</P>
+<P>The Camera class now uses quaternions too. Camera rotation is a
+lot more concise now (instead of storing &amp; trying to update 3
+vectors I just have a single quaternion) and is more predictable and
+hopefully more flexible for the future.&nbsp;</P>
+<P>You can attach a Camera to a SceneNode (this is meant for use in
 having cameras tracking other objects in the world) but I have yet to
-implement this - I intend now that they're both on the same basis that
-if you choose to attach a camera to a scene node then the SceneNode
-overrides the camera's own position and direction, and maybe even that
-they update each other (so telling a camera to look somewhere would
-update the orientation of it's SceneNode too).</p>
-<p align="left" class="MainHeader">19 July 2001</p>
-<p>Updated SceneNode class to use quaternions internally for all
+implement this - I intend now that they're both on the same basis
+that if you choose to attach a camera to a scene node then the
+SceneNode overrides the camera's own position and direction, and
+maybe even that they update each other (so telling a camera to look
+somewhere would update the orientation of it's SceneNode too).</P>
+<P CLASS="mainheader" ALIGN=LEFT>19 July 2001</P>
+<P>Updated SceneNode class to use quaternions internally for all
 orientations / rotations. This should both be faster and give me more
-flexibility for the future. Also added a lot more manipulation routines
-the SceneNode class which were sorely lacking before if you wanted to
-move stuff around. The Camera class still uses matrices internally but
-I intend to change that so that a Camera depends on the SceneNode it is
-attached to for positioning rather than doing it itself. To this end I
-will need to add extra features to the SceneNode class to replicate
-functions like lookAt(), which is ok since this will be handy for
-pointing other objects at each other too.</p>
-<p align="left" class="MainHeader"></p>
-<p align="left" class="MainHeader">17 July 2001</p>
-<p>Fixed an issue with the 3ds2oof utility - it now generates vertex
-normals based on smooth groups rather than just averaging based on the
-faces which use the vertex. This removes artefacts along model 'seams'
-e.g. the point where a texture wraps around on the model.</p>
-<p>Reimplemented environment mapping using the new
+flexibility for the future. Also added a lot more manipulation
+routines the SceneNode class which were sorely lacking before if you
+wanted to move stuff around. The Camera class still uses matrices
+internally but I intend to change that so that a Camera depends on
+the SceneNode it is attached to for positioning rather than doing it
+itself. To this end I will need to add extra features to the
+SceneNode class to replicate functions like lookAt(), which is ok
+since this will be handy for pointing other objects at each other
+too.</P>
+<P CLASS="mainheader" ALIGN=LEFT>17 July 2001</P>
+<P>Fixed an issue with the 3ds2oof utility - it now generates vertex
+normals based on smooth groups rather than just averaging based on
+the faces which use the vertex. This removes artefacts along model
+'seams' e.g. the point where a texture wraps around on the model.</P>
+<P>Reimplemented environment mapping using the new
 Material::TextureLayer structure. Started work on adding more
-manipulation features to the SceneNode class (body code still to do).</p>
-<p align="left" class="MainHeader">4 July 2001</p>
-<p>Python now has full access to the engine, and it's working great.
+manipulation features to the SceneNode class (body code still to do).</P>
+<P CLASS="mainheader" ALIGN=LEFT>4 July 2001</P>
+<P>Python now has full access to the engine, and it's working great.
 I've also enabled callbacks into Python from the engine, so you can
 register a Python class as a listener for frame update events so C++
-calls Python every frame. Nice.</p>
-<p>Future Python developments include an embedded version of Python in
-Ogre so you can build a compiled application which still used
+calls Python every frame. Nice.</P>
+<P>Future Python developments include an embedded version of Python
+in Ogre so you can build a compiled application which still used
 interpreted scripts for some things - this will be useful for level
 scripting etc where the script can be kept in the level data. For now
-though I'm going back to developing the core engine features .</p>
-<p align="left" class="MainHeader">20 June 2001</p>
-<p>Spending an awful lot of time exposing all the necessary objects and
-their interfaces to Python (up till now I have it working but only a
-few interfaces were exposed). About 90% there now, with a few issues to
-iron out - I had to extend the compiler heap limit to get it to compile
-so far since the heavy usage of templates puts a great strain on the
-compiler memory usage. In a few days I should be in a position to do
-all my engine testing through Python as well as through a custom C++
-application (currently TestApp). </p>
-<p align="left" class="MainHeader">13 June 2001</p>
-<p>Added FrameListener and FrameEvent classes in order to represent the
-frame update callback functions in a more object-oriented way. User
-applications now extend FrameListener and register their interest in
-receiving frame events - this is based on the Java model of event
-listening. Note that a boon of this method is that Boost Python allows
-you to extend existing C++ classes so this provides a perfect mechanism
-to have C++ call Python scripts when events occur. </p>
-<p>I intend to extend this pattern to other events like collisions when
-I implement them. </p>
-<p align="left" class="MainHeader">10 June 2001</p>
-<p align="left">Changed from using SWIG to Boost Python for Python
-script integration<a href="http://boost.org"></a>. I changed because
-Boost Python supports C++ features much beter (including catching C++
-exceptions and turning them into Python exceptions, support for
-namespaces and overloaded operators), it integrates better with my
-build cycle (doesn't require a separate generate from interface files
-and can be built directly into the library), and is more up-to-date
-with the latest Python libraries. I was finding that SWIG's emphasis on
-pure C as opposed to C++ was getting in the way, and Boost has
-definitely addressed this.</p>
-<p align="left">Introduced PythonLink class to expose classes to Python.</p>
-<p align="left" class="MainHeader">7 June 2001</p>
-<p align="left">Implemented Python integration using SWIG (Simplified
-Wrapper and Interface Generator). You can now start and initialise Ogre
-from a Python console and drive it interactively. More work required to
-expose the full interface to Python however.</p>
-<p align="left" class="MainHeader">31 May 2001</p>
-<p align="left">Cut over to CVS - CVS repository is now up and running
-at SourceForge.</p>
-<p align="left" class="MainHeader">20 May 2001</p>
-<p align="left">SceneNode class integrated with Entity / SubEntity
-classes. Working basic scene graph. Also reimplemented my previous hack
-using DirectInput as a proper platform-specific user input class -
-added the OgreUtility module for this purpose.</p>
-<p align="left" class="MainHeader">15 May 2001</p>
-<p align="left">SubEntity implementation complete, together with
+though I'm going back to developing the core engine features .</P>
+<P CLASS="mainheader" ALIGN=LEFT>20 June 2001</P>
+<P>Spending an awful lot of time exposing all the necessary objects
+and their interfaces to Python (up till now I have it working but
+only a few interfaces were exposed). About 90% there now, with a few
+issues to iron out - I had to extend the compiler heap limit to get
+it to compile so far since the heavy usage of templates puts a great
+strain on the compiler memory usage. In a few days I should be in a
+position to do all my engine testing through Python as well as
+through a custom C++ application (currently TestApp). 
+</P>
+<P CLASS="mainheader" ALIGN=LEFT>13 June 2001</P>
+<P>Added FrameListener and FrameEvent classes in order to represent
+the frame update callback functions in a more object-oriented way.
+User applications now extend FrameListener and register their
+interest in receiving frame events - this is based on the Java model
+of event listening. Note that a boon of this method is that Boost
+Python allows you to extend existing C++ classes so this provides a
+perfect mechanism to have C++ call Python scripts when events occur. 
+</P>
+<P>I intend to extend this pattern to other events like collisions
+when I implement them. 
+</P>
+<P CLASS="mainheader" ALIGN=LEFT>10 June 2001</P>
+<P ALIGN=LEFT>Changed from using SWIG to Boost Python for Python
+script integration. I changed because Boost Python supports C++
+features much beter (including catching C++ exceptions and turning
+them into Python exceptions, support for namespaces and overloaded
+operators), it integrates better with my build cycle (doesn't require
+a separate generate from interface files and can be built directly
+into the library), and is more up-to-date with the latest Python
+libraries. I was finding that SWIG's emphasis on pure C as opposed to
+C++ was getting in the way, and Boost has definitely addressed this.</P>
+<P ALIGN=LEFT>Introduced PythonLink class to expose classes to
+Python.</P>
+<P CLASS="mainheader" ALIGN=LEFT>7 June 2001</P>
+<P ALIGN=LEFT>Implemented Python integration using SWIG (Simplified
+Wrapper and Interface Generator). You can now start and initialise
+Ogre from a Python console and drive it interactively. More work
+required to expose the full interface to Python however.</P>
+<P CLASS="mainheader" ALIGN=LEFT>31 May 2001</P>
+<P ALIGN=LEFT>Cut over to CVS - CVS repository is now up and running
+at SourceForge.</P>
+<P CLASS="mainheader" ALIGN=LEFT>20 May 2001</P>
+<P ALIGN=LEFT>SceneNode class integrated with Entity / SubEntity
+classes. Working basic scene graph. Also reimplemented my previous
+hack using DirectInput as a proper platform-specific user input class
+- added the OgreUtility module for this purpose.</P>
+<P CLASS="mainheader" ALIGN=LEFT>15 May 2001</P>
+<P ALIGN=LEFT>SubEntity implementation complete, together with
 customisable Materials at the SubEntity level. Material usage by
-SubEntities is now indexed by the SceneManager so that rendering can be
-grouped by Material such that as few as possible render state changes
-take place. Note that this does not currently deal with transparency.</p>
-<p align="left" class="MainHeader">13 May 2001</p>
-<p align="left">Bugs with the new Mesh loading routines now ironed out.</p>
-<p align="left" class="MainHeader">24 April 2001</p>
-<p align="left">Implemented Mesh, SubMesh and MeshManager classes for
+SubEntities is now indexed by the SceneManager so that rendering can
+be grouped by Material such that as few as possible render state
+changes take place. Note that this does not currently deal with
+transparency.</P>
+<P CLASS="mainheader" ALIGN=LEFT>13 May 2001</P>
+<P ALIGN=LEFT>Bugs with the new Mesh loading routines now ironed out.</P>
+<P CLASS="mainheader" ALIGN=LEFT>24 April 2001</P>
+<P ALIGN=LEFT>Implemented Mesh, SubMesh and MeshManager classes for
 loading Ogre Object Format files (converted from .3ds using the Ogre
-3ds2oof tool). Decided to allow the original 3ds mesh to be broken down
-into chunks specific per material or grouped as a whole depending on
-requirements. The 3ds2oof utility makes a goos guess as to what is
-best, based on the percentage of the vertices each SubMesh uses out of
-the whole model - the lower the percentage the greater chance it will
-have a dedicated vertex list rather than sharing the whole since that
-saves sending unnecessary vertices to the pipeline. However this can be
-customised with parameters since you may want to use vertex buffers
-where it's more efficient to store 1 buffer even if you only use parts
-of it.</p>
-<p align="left" class="MainHeader">1 April 2001</p>
-<p align="left">Began overhaul of Mesh loading routines.</p>
-<p align="left" class="MainHeader">30 March 2001</p>
-<p align="left">Switched to Doxygen for document generation since ccdoc
+3ds2oof tool). Decided to allow the original 3ds mesh to be broken
+down into chunks specific per material or grouped as a whole
+depending on requirements. The 3ds2oof utility makes a goos guess as
+to what is best, based on the percentage of the vertices each SubMesh
+uses out of the whole model - the lower the percentage the greater
+chance it will have a dedicated vertex list rather than sharing the
+whole since that saves sending unnecessary vertices to the pipeline.
+However this can be customised with parameters since you may want to
+use vertex buffers where it's more efficient to store 1 buffer even
+if you only use parts of it.</P>
+<P CLASS="mainheader" ALIGN=LEFT>1 April 2001</P>
+<P ALIGN=LEFT>Began overhaul of Mesh loading routines.</P>
+<P CLASS="mainheader" ALIGN=LEFT>30 March 2001</P>
+<P ALIGN=LEFT>Switched to Doxygen for document generation since ccdoc
 still doesn't support namespaces. Doxygen is better at
-cross-referencing anyway and draws nice diagrams.</p>
-<p align="left" class="MainHeader">24 March 2001</p>
-<p align="left">Added JPEG loading support, and moved this and existing
+cross-referencing anyway and draws nice diagrams.</P>
+<P CLASS="mainheader" ALIGN=LEFT>24 March 2001</P>
+<P ALIGN=LEFT>Added JPEG loading support, and moved this and existing
 image loading code (PNG) into the Image class. BMP loading is still
 supported but only on Windows platforms so this is still residing in
-the D3DTexture class as a special case.</p>
-<p align="left">Improved the handling of non-square textures on
-hardware that supports only square textures. The image is now stretched
-into the square area so that the relative texture coordinates are still
-valid and no black bands appear on the model.</p>
-<p align="left" class="MainHeader">23 March 2001</p>
-<p align="left">Multiple viewports per window is implemented and
+the D3DTexture class as a special case.</P>
+<P ALIGN=LEFT>Improved the handling of non-square textures on
+hardware that supports only square textures. The image is now
+stretched into the square area so that the relative texture
+coordinates are still valid and no black bands appear on the model.</P>
+<P CLASS="mainheader" ALIGN=LEFT>23 March 2001</P>
+<P ALIGN=LEFT>Multiple viewports per window is implemented and
 working Ok. Z-Order also applies so picture-in-picture views are
-possible by placing a smaller viewport on top of another larger one.</p>
-<p align="left" class="MainHeader">11 March 2001</p>
-<p align="left">Changed the default mechanism for supplying vertex
+possible by placing a smaller viewport on top of another larger one.</P>
+<P CLASS="mainheader" ALIGN=LEFT>11 March 2001</P>
+<P ALIGN=LEFT>Changed the default mechanism for supplying vertex
 components (position, normals, texture coords, colours) to the
 RenderOperation class. They were previously assumed to be part of the
-same buffer with flags indicating which were present. However this was
-too restrictive and prevented you using entirely separate memory areas
-for different components, and adding extra components to vertices on
-the fly. </p>
-<p align="left">Instead the RenderOperation class now takes pointers
-for each component, and a 'span' value determines the gap between each
-value. This allows you to use separate buffers if you like, but also
-use a combined buffer if that suits you (by using the 'span' value to
-skip over values in between).</p>
-<p align="left" class="MainHeader">6 March 2001</p>
-<p align="left">Implemented a 3DStudio conversion tool that works
+same buffer with flags indicating which were present. However this
+was too restrictive and prevented you using entirely separate memory
+areas for different components, and adding extra components to
+vertices on the fly. 
+</P>
+<P ALIGN=LEFT>Instead the RenderOperation class now takes pointers
+for each component, and a 'span' value determines the gap between
+each value. This allows you to use separate buffers if you like, but
+also use a combined buffer if that suits you (by using the 'span'
+value to skip over values in between).</P>
+<P CLASS="mainheader" ALIGN=LEFT>6 March 2001</P>
+<P ALIGN=LEFT>Implemented a 3DStudio conversion tool that works
 directly from the .3DS files rather than from ASCII exports (as
 previously) or from a MAX plugin as some others do, which requires a
 3DS license. I based my code on an existing open source routine but I
@@ -1520,34 +2017,34 @@ have exteded it since it had a few shortcomings. The tool is called
 '3ds2oof' because it converts 3DS files to a proprietary format, .OOF
 (Ogre Object File). This is because it's more efficient for me to do
 extra processing at conversion time like calculating bounding boxes,
-splitting vertex buffers, strippifying etc (not that I'm doing all this
-yet, but I <i>can</i>) rather than at load time as I would have to do
-if I loaded direct from 3DS inside Ogre.</p>
-<p align="left" class="MainHeader">1 March 2001</p>
-<p align="left">Over the last 2 weeks I reimplemented my interface to
+splitting vertex buffers, strippifying etc (not that I'm doing all
+this yet, but I <I>can</I>) rather than at load time as I would have
+to do if I loaded direct from 3DS inside Ogre.</P>
+<P CLASS="mainheader" ALIGN=LEFT>1 March 2001</P>
+<P ALIGN=LEFT>Over the last 2 weeks I reimplemented my interface to
 the DirectX rendering pipeline in the new Ogre structure, under the
 D3DRenderSystem class. Rendering requests are now packaged up in the
 RenderOperation class, giving me more flexibility on how rendering
 requests are submitted and handled. Now all the support classes (mesh
-loading, scene management) are needed.</p>
-<p align="left" class="MainHeader">11 February 2001</p>
-<p align="left">I've been picking apart the platform dependencies in
+loading, scene management) are needed.</P>
+<P CLASS="mainheader" ALIGN=LEFT>11 February 2001</P>
+<P ALIGN=LEFT>I've been picking apart the platform dependencies in
 Ogre so it'll be more portable. I'm also making it flexible enough to
 handle any number of rendering windows and viewports within thse
-windows, and also giving you the choice of an automatic rendering loop
-(max frame rate) and a render-on-demand interface much like you would
-need for an application like a modelling tool where you want to free up
-cycles when things don't move and frae rate isn't the most important
-thing.</p>
-<p align="left">I now have a nice hierarchy crossing the OgreEngine and
+windows, and also giving you the choice of an automatic rendering
+loop (max frame rate) and a render-on-demand interface much like you
+would need for an application like a modelling tool where you want to
+free up cycles when things don't move and frae rate isn't the most
+important thing.</P>
+<P ALIGN=LEFT>I now have a nice hierarchy crossing the OgreEngine and
 OgreWin32Platform modules, with functionality broken down into
 RenderTarget, RenderWindow and Win32RenderWindow classes. Other
 platforms can be implemented later, just replacing the
-Win32RenderWindow maybe with XRenderWindow or MacRenderWindow.</p>
-<p align="left" class="MainHeader">29 December 2000</p>
-<p align="left">Ogre development starts again after almost a year's
+Win32RenderWindow maybe with XRenderWindow or MacRenderWindow.</P>
+<P CLASS="mainheader" ALIGN=LEFT>29 December 2000</P>
+<P ALIGN=LEFT>Ogre development starts again after almost a year's
 break while I finished my degree. Lots of research and design work at
-this stage to work out how I should structure the object model.</p>
-<p align="left">&nbsp;</p>
-</body>
-</html>
+this stage to work out how I should structure the object model.</P>
+<P ALIGN=LEFT>&nbsp;</P>
+</BODY>
+</HTML>
