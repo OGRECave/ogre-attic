@@ -111,23 +111,25 @@ namespace Ogre {
 		 void actionPerformed(ActionEvent* e);
 
 		/**
+		 * Handles the scrollPerformed event by invoking the
+		 * scrollPerformed methods on listener-a and listener-b.
+		 * @param e the action event
+		 */
+		 void scrollPerformed(ScrollEvent* e);
+
+		/**
 		 * Adds action-listener-a with action-listener-b and
 		 * returns the resulting multicast listener.
 		 * @param a action-listener-a
 		 * @param b action-listener-b
 		 */
+		 static KeyListener* add(KeyListener* a, KeyListener* b);
 		 static MouseListener* add(MouseListener* a, MouseListener* b);
 		 static ActionListener* add(ActionListener* a, ActionListener* b);
 		 static MouseMotionListener* add(MouseMotionListener* a, MouseMotionListener* b) ;
 		 static ListSelectionListener* add(ListSelectionListener* a, ListSelectionListener* b) ;
+		 static ScrollListener* add(ScrollListener* a, ScrollListener* b) ;
 
-		/**
-		 * Adds key-listener-a with key-listener-b and
-		 * returns the resulting multicast listener.
-		 * @param a key-listener-a
-		 * @param b key-listener-b
-		 */
-//		 static KeyListener* add(KeyListener* a, KeyListener* b);
 
 		 /**
 		 * Adds mouse-listener-a with mouse-listener-b and
@@ -145,21 +147,21 @@ namespace Ogre {
 		 * keyPressed methods on listener-a and listener-b.
 		 * @param e the key event
 		 */
-//		 void keyPressed(KeyEvent* e);
+		 void keyPressed(KeyEvent* e);
 
 		 /**
 		 * Handles the keyReleased event by invoking the
 		 * keyReleased methods on listener-a and listener-b.
 		 * @param e the key event
 		 */
-//		 void keyReleased(KeyEvent* e);
+		 void keyReleased(KeyEvent* e);
 
 		 /**
 		 * Handles the keyTyped event by invoking the
 		 * keyTyped methods on listener-a and listener-b.
 		 * @param e the key event
 		 */
-//		 void keyTyped(KeyEvent* e);
+		 void keyClicked(KeyEvent* e);
 
 		 /**
 		 * Handles the mouseClicked event by invoking the
@@ -219,6 +221,14 @@ namespace Ogre {
 		 static ActionListener* remove(ActionListener* l, ActionListener* oldl);
 
 		 /**
+		 * Removes the old scroll-listener from scroll-listener-l and
+		 * returns the resulting multicast listener.
+		 * @param l scroll-listener-l
+		 * @param oldl the scroll-listener being removed
+		 */
+		 static ScrollListener* remove(ScrollListener* l, ScrollListener* oldl);
+
+		 /**
 		 * Removes the old listSlection-listener from action-listener-l and
 		 * returns the resulting multicast listener.
 		 * @param l action-listener-l
@@ -232,7 +242,7 @@ namespace Ogre {
 		 * @param l key-listener-l
 		 * @param oldl the key-listener being removed
 		 */
-//		 static KeyListener* remove(KeyListener* l, KeyListener* oldl);
+		 static KeyListener* remove(KeyListener* l, KeyListener* oldl);
 
 		 /**
 		 * Removes the old mouse-listener from mouse-listener-l and

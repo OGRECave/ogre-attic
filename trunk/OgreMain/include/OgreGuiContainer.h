@@ -57,16 +57,20 @@ namespace Ogre {
         ChildMap mChildren;
         // Map of container children (subset of mChildren)
         ChildContainerMap mChildContainers;
+
+		bool mChildrenProcessEvents;
  
     public:
-        /// Constructor: do not call direct, use GuiManager::createElement
+        /// Constructor: do not call direct, use GuiManager::createContainer
         GuiContainer(const String& name);
         virtual ~GuiContainer();
 
         /** Adds another GuiElement to this container. */
         virtual void addChild(GuiElement* elem);
+        /** Adds another GuiElement to this container. */
+        virtual void addChildImpl(GuiElement* elem);
         /** Add a nested container to this container. */
-        virtual void addChild(GuiContainer* cont);
+        virtual void addChildImpl(GuiContainer* cont);
         /** Removes a named element from this container. */
         virtual void removeChild(const String& name);
         /** Gets the named child of this container. */
@@ -91,11 +95,22 @@ namespace Ogre {
         virtual void _notifyZOrder(ushort newZOrder);
 
         /** Overridden from GuiElement. */
+	    virtual void _notifyParent(GuiContainer* parent, Overlay* overlay);
+
+        /** Overridden from GuiElement. */
         virtual void _updateRenderQueue(RenderQueue* queue);
 
         /** Overridden from GuiElement. */
 		inline bool isContainer()
 		{ return true; }
+
+		/** Should this container pass events to their children */
+		virtual inline bool isChildrenProcessEvents()
+		{ return true; }
+
+		/** Should this container pass events to their children */
+		virtual inline void setChildrenProcessEvents(bool val)
+		{ mChildrenProcessEvents = val; }
 
         /** This returns a GuiElement at position x,y. */
 		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent

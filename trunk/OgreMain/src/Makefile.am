@@ -44,7 +44,9 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreInput.cpp \
                          OgreInputEvent.cpp \
                          OgreJPEGCodec.cpp \
+						 OgreKeyEvent.cpp \
                          OgreKeyFrame.cpp \
+						 OgreKeyTarget.cpp \
                          OgreLight.cpp \
                          OgreListSelectionTarget.cpp \
                          OgreLog.cpp \
@@ -88,6 +90,8 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreResourceMap.cpp \
                          OgreRoot.cpp \
                          OgreRotationSpline.cpp \
+						 OgreScrollEvent.cpp \
+						 OgreScrollTarget.cpp \
                          OgreSDDataChunk.cpp \
                          OgreSceneManager.cpp \
                          OgreSceneManagerEnumerator.cpp \

@@ -1,13 +1,12 @@
 // Ogre overlay scripts
-
 template container BorderPanel(SS/Templates/BasicBorderPanel)
 {
-	left 0 
+	left 0
 	top 0
 	width 1
 	height 1
 	material Core/StatsBlockCenter
-    border_size 0.05 0.05 0.06665 0.06665
+    border_size 0.06 0.06 0.06665 0.06665
     border_material Core/StatsBlockBorder
     border_topleft_uv     0.0000 1.0000 0.1914 0.7969
 	border_top_uv         0.1914 1.0000 0.8086 0.7969
@@ -18,6 +17,12 @@ template container BorderPanel(SS/Templates/BasicBorderPanel)
     border_bottom_uv      0.1914 0.2148 0.8086 0.0000
 	border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
 }
+
+template container BorderPanel(SS/Templates/BasicSmallBorderPanel) : SS/Templates/BasicBorderPanel
+{
+    border_size 0.04 0.04 0.04665 0.04665
+}
+
 
 template element TextArea(SS/Templates/BasicText)
 {
@@ -40,6 +45,34 @@ template container BorderButton(SS/Templates/BasicButton) : SS/Templates/BasicBo
 	material Core/StatsBlockCenter
 	border_up_material Core/StatsBlockBorder/Up
 	border_down_material Core/StatsBlockBorder/Down
+}
+
+template container BorderButton(SS/Templates/BasicSmallButton) : SS/Templates/BasicButton
+{
+    border_size 0.02 0.02 0.02665 0.02665
+}
+
+template container BorderButton(SS/Templates/ScrollBar/UpButton) : SS/Templates/BasicSmallButton
+{
+	caption SS/Templates/BasicText UP
+}
+
+template container BorderButton(SS/Templates/ScrollBar/DownButton) : SS/Templates/BasicSmallButton
+{
+	caption SS/Templates/BasicText DOWN
+}
+template container Panel(SS/Templates/ScrollBar/ScrollBit) 
+{
+	material Core/StatsBlockCenter
+}
+
+template container ScrollBar(SS/Templates/ScrollBar)
+{
+	width 0.05
+	material Examples/RustySteel
+	up_button SS/Templates/ScrollBar/UpButton
+	down_button SS/Templates/ScrollBar/DownButton
+	scroll_bit SS/Templates/ScrollBar/ScrollBit
 }
 
 SS/Setup/HostScreen/Overlay
@@ -71,6 +104,7 @@ SS/Setup/HostScreen/Overlay
 				height 0.6
 				item_material_selected Ogre/Eyes
 				material Core/StatsBlockCenter
+				scroll_bar SS/Templates/ScrollBar
 			}
 
 		}
@@ -97,6 +131,11 @@ SS/Setup/HostScreen/Overlay
 			caption SS/Templates/BasicText EXIT
 		}
 				
+
+		container TextBox(SS/Setup/HostScreen/Text) : SS/Templates/BasicText
+		{
+		}
+
 	}
 	
 }

@@ -54,6 +54,7 @@ namespace Ogre {
         BorderPanelGuiElement(const String& name);
         ~BorderPanelGuiElement();
 
+		const String& getTypeName(void);
         /** Sets the size of the border.
         @remarks
             This method sets a constant size for all borders. There are also alternative

@@ -79,7 +79,7 @@ namespace Ogre
         const String& getFontName() const;
 
         /** See GuiElement. */
-        const String& getTypeName(void);
+        virtual const String& getTypeName(void);
         /** See Renderable. */
         void getRenderOperation(RenderOperation& rend);
         /** Overridden from GuiElement */
@@ -249,3 +249,4 @@ namespace Ogre
 }
 
 #endif
+

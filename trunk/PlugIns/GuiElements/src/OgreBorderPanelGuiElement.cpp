@@ -460,11 +460,13 @@ namespace Ogre {
         // Have to do this to allow 2 materials
         if (mVisible)
         {
-            // Add inner
-            PanelGuiElement::_updateRenderQueue(queue);
 
             // Add outer
             queue->addRenderable(mBorderRenderable, RENDER_QUEUE_OVERLAY, mZOrder);
+
+			// do inner last so the border artifacts don't overwrite the children
+            // Add inner
+            PanelGuiElement::_updateRenderQueue(queue);
         }
     }
     //-----------------------------------------------------------------------
@@ -670,6 +672,11 @@ namespace Ogre {
             StringConverter::parseReal(vec[2]),
             StringConverter::parseReal(vec[3])
             );
+    }
+    //---------------------------------------------------------------------
+    const String& BorderPanelGuiElement::getTypeName(void)
+    {
+        return msTypeName;
     }
 
 

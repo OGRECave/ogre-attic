@@ -33,7 +33,8 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     GuiContainer::GuiContainer(const String& name)
-        : GuiElement(name)
+        : GuiElement(name),
+		mChildrenProcessEvents(true)
     {
     }
     //---------------------------------------------------------------------
@@ -42,6 +43,20 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void GuiContainer::addChild(GuiElement* elem)
+    {
+		if (elem->isContainer())
+		{
+			addChildImpl(static_cast<GuiContainer*>(elem));
+		}
+		else
+		{
+			addChildImpl(elem);
+	        elem->_notifyParent(this, mOverlay);
+		    elem->_notifyZOrder(mZOrder + 1);
+		}
+	}
+    //---------------------------------------------------------------------
+    void GuiContainer::addChildImpl(GuiElement* elem)
     {
         String name = elem->getName();
         ChildMap::iterator i = mChildren.find(name);
@@ -54,9 +69,30 @@ namespace Ogre {
         mChildren.insert(ChildMap::value_type(name, elem));
 
         // tell child about parent & ZOrder
-        elem->_notifyParent(this, mOverlay);
-        elem->_notifyZOrder(mZOrder + 1);
 
+
+    }
+    //---------------------------------------------------------------------
+    void GuiContainer::addChildImpl(GuiContainer* cont)
+    {
+        // Add to main map first 
+        // This will pick up duplicates
+        GuiElement* pElem = cont;
+        addChildImpl(pElem);
+        cont->_notifyParent(this, mOverlay);
+        cont->_notifyZOrder(mZOrder + 1);
+
+		// tell children of new container the current overlay
+        ChildIterator it = cont->getChildIterator();
+        while (it.hasMoreElements())
+        {
+            // Give children ZOrder 1 higher than this
+            GuiElement* pElemChild = it.getNext();
+			pElemChild->_notifyParent(cont, mOverlay);
+            pElemChild->_notifyZOrder(mZOrder + 1);
+        }
+        // Now add to specific map too
+        mChildContainers.insert(ChildContainerMap::value_type(cont->getName(), cont));
 
     }
     //---------------------------------------------------------------------
@@ -88,18 +124,6 @@ namespace Ogre {
     GuiContainer::ChildIterator GuiContainer::getChildIterator(void)
     {
         return ChildIterator(mChildren.begin(), mChildren.end());
-    }
-    //---------------------------------------------------------------------
-    void GuiContainer::addChild(GuiContainer* cont)
-    {
-        // Add to main map first 
-        // This will pick up duplicates
-        GuiElement* pElem = cont;
-        addChild(pElem);
-
-        // Now add to specific map too
-        mChildContainers.insert(ChildContainerMap::value_type(cont->getName(), cont));
-
     }
     //---------------------------------------------------------------------
     GuiContainer::ChildContainerIterator GuiContainer::getChildContainerIterator(void)
@@ -149,6 +173,20 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    void GuiContainer::_notifyParent(GuiContainer* parent, Overlay* overlay)
+    {
+        GuiElement::_notifyParent(parent, overlay);
+
+        // Update children
+        ChildIterator it = getChildIterator();
+        while (it.hasMoreElements())
+        {
+            // Notify the children of the overlay 
+            it.getNext()->_notifyParent(this, overlay);
+        }
+    }
+
+    //---------------------------------------------------------------------
     void GuiContainer::_updateRenderQueue(RenderQueue* queue)
     {
         if (mVisible)
@@ -178,7 +216,7 @@ namespace Ogre {
 		if (mVisible)
 		{
 			ret = GuiElement::findElementAt(x,y);	//default to the current container if no others are found
-			if (ret)
+			if (ret && mChildrenProcessEvents)
 			{
 				ChildIterator it = getChildIterator();
 				while (it.hasMoreElements())

@@ -10,7 +10,9 @@ Plugin_GuiElements_so_SOURCES = OgreBorderPanelGuiElement.cpp \
 				OgreListGuiElement.cpp \
 				OgrePanelGuiElement.cpp \
 				OgrePopupMenuGuiElement.cpp \
-				OgreTextAreaGuiElement.cpp
+				OgreScrollBarGuiElement.cpp \
+				OgreTextAreaGuiElement.cpp \
+				OgreTextBoxGuiElement.cpp 
 
 Plugin_GuiElements_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
 Plugin_GuiElements_so_LDADD = -lOgreMain

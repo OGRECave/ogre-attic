@@ -54,6 +54,9 @@ namespace Ogre {
         virtual Real getTop(void) const = 0;
 
 		virtual PositionTarget* getPositionTargetParent() = 0;
+
+		virtual bool isKeyEnabled() = 0;
+
     };
 }
 

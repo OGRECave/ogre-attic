@@ -35,6 +35,7 @@ namespace Ogre {
 
     String ListGuiElement::msTypeName = "List";
 	ListGuiElement::CmdItemTemplate ListGuiElement::msCmdItemTemplate;
+	ListGuiElement::CmdScrollBar ListGuiElement::msCmdScrollBar;
 	ListGuiElement::CmdVSpacing ListGuiElement::msCmdVSpacing;
 	ListGuiElement::CmdHSpacing ListGuiElement::msCmdHSpacing;
 	ListGuiElement::CmdItemPanelMaterial ListGuiElement::msCmdItemPanelMaterial;
@@ -48,14 +49,16 @@ namespace Ogre {
         {
             addBaseParameters();
         }
-
 		mSelectedElement = 0;
 		mVSpacing = 0;
 		mHSpacing = 0;
 		mPixelVSpacing = 0;
 		mPixelHSpacing = 0;
+        mFirstVisibleItem = 0;
+        mScrollBar = 0;
 		mItemPanelMaterial = "";
 		mItemPanelMaterialSelected = "";
+
 	}
 
     //---------------------------------------------------------------------
@@ -69,12 +72,20 @@ namespace Ogre {
             , PT_STRING),
             &ListGuiElement::msCmdItemTemplate);
 
+        dict->addParameter(ParameterDef("scroll_bar", 
+            "The name of the scroll bar template"
+            , PT_STRING),
+            &ListGuiElement::msCmdScrollBar);
+
         dict->addParameter(ParameterDef("v_spacing", 
             "The vertical spacing of the elements"
             , PT_STRING),
             &ListGuiElement::msCmdVSpacing);
+
+
         dict->addParameter(ParameterDef("h_spacing", 
             "The horizontal spacing of the elements from the edge of the list"
+
             , PT_STRING),
             &ListGuiElement::msCmdHSpacing);
         dict->addParameter(ParameterDef("item_material", 
@@ -112,6 +123,30 @@ namespace Ogre {
 
         static_cast<ListGuiElement*>(target)->setVSpacing(val);
     }
+
+    //-----------------------------------------------------------------------
+    String ListGuiElement::CmdScrollBar::doGet(void* target)
+    {
+        return static_cast<ListGuiElement*>(target)->getScrollBarName();
+    }
+    void ListGuiElement::CmdScrollBar::doSet(void* target, const String& val)
+    {
+        std::vector<String> vec = val.split();
+
+        static_cast<ListGuiElement*>(target)->setScrollBarName(val);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     //-----------------------------------------------------------------------
     String ListGuiElement::CmdHSpacing::doGet(void* target)
     {
@@ -172,11 +207,41 @@ namespace Ogre {
 		mVSpacing = StringConverter::parseReal(val);
 
 	}
+
 	String ListGuiElement::getVSpacing()
 	{
 		return  StringConverter::toString(mVSpacing);
 
 	}
+
+	String ListGuiElement::getScrollBarName()
+	{
+		return  mScrollBar->getName();
+
+	}
+
+	void ListGuiElement::setScrollBarName(const String& val)
+	{
+
+		if (mScrollBar != 0)
+		{
+			removeChild(mScrollBar->getName());
+			GuiManager::getSingleton().destroyGuiElement(mScrollBar->getName());
+		}
+		mScrollBar = static_cast<ScrollBarGuiElement*> (
+			GuiManager::getSingleton().createGuiElementFromTemplate(val, "", mName + "/ScrollBar"));
+
+		mScrollBar->setLeft(getWidth()-mScrollBar->getWidth()-0.001);
+		mScrollBar->setTop(0);
+		mScrollBar->setHeight(getHeight());
+
+		addChild(mScrollBar);
+		mScrollBar->layoutItems();
+		mScrollBar->addScrollListener(this);
+
+	}
+
+
     //-----------------------------------------------------------------------
 	String ListGuiElement::getItemPanelMaterial()
 	{
@@ -211,23 +276,35 @@ namespace Ogre {
 		GuiContainer* pBackPanel = static_cast<GuiContainer*>
 			(GuiManager::getSingleton().createGuiElement("Panel",getListItemPanelName(r)));
 
-		pBackPanel->setLeft(mVSpacing);
-		pBackPanel->setWidth(getWidth()-mVSpacing);
+		pBackPanel->setLeft(mHSpacing);
+		Real scrollBarWidth = (mScrollBar) ? mScrollBar->getWidth() : 0;
+		pBackPanel->setWidth(getWidth()-mHSpacing-scrollBarWidth);
 		pBackPanel->setHeight(mInsideObject->getHeight());
-		addChild((GuiContainer*)pBackPanel);
+		pBackPanel->setChildrenProcessEvents(false);
+		pBackPanel->addMouseListener(this);
+		addChild(pBackPanel);
 
 		mInsideObject->setCaption(r->getName());
 		mInsideObject->setLeft(0);
 		mInsideObject->setTop(0);
 		mInsideObject->setWidth(pBackPanel->getWidth());
-		mInsideObject->addMouseListener(this);
 
 
 		mResourceList.push_back(r);
-		pBackPanel->addChild((GuiContainer*)mInsideObject);
+		pBackPanel->addChild(mInsideObject);
 
 
+
+
+		if (mSelectedElement == NULL)
+		{
+			setSelectedItem(mInsideObject,true);
+			mSelectedElement = mInsideObject;
+		}
+		else
+		{
 		setSelectedItem(mInsideObject,false);
+		}
 		layoutItems();
 
 	}
@@ -236,8 +313,10 @@ namespace Ogre {
 	{
 		GuiContainer* backPanel = static_cast<GuiContainer*> (getChild(getListItemPanelName(r)));
 
+
 		backPanel->removeChild(getListItemName(r));
 		removeChild(getListItemPanelName(r));
+
 
 		GuiManager::getSingleton().destroyGuiElement(getListItemName(r));
 		GuiManager::getSingleton().destroyGuiElement(getListItemPanelName(r));
@@ -278,20 +357,56 @@ namespace Ogre {
 
 	}
 
+
 	void ListGuiElement::layoutItems()
 	{
 
 		Real currentTop = mVSpacing;
+		int currentItemNo = 0;
+		mVisibleRange = 0;
         ChildIterator it = getChildIterator();
         while (it.hasMoreElements())
         {
             GuiElement* currentElement = it.getNext();
 
+			if (currentElement->getName() == mName + "/ScrollBar")
+			{
+				continue;
+			}
+			if (currentItemNo < mFirstVisibleItem) 
+			{
+				currentElement->hide();
+			}
+			else 
+			{
 			currentElement->setTop(currentTop);
+			currentElement->_update();
 			currentTop += currentElement->getHeight() + mVSpacing;
+				if (currentTop > mHeight)
+				{
+					currentElement->hide();
+				}
+				else
+				{
+					mVisibleRange ++;
+					currentElement->show();
+				}
+			}
+			currentItemNo++;
         }
-		
+		mScrollBar->setLimits(mFirstVisibleItem, mVisibleRange, mChildren.size()-1); // don't count the scroll bar child as a list item
+
+        }
+	void ListGuiElement::scrollPerformed(ScrollEvent* se)
+	{
+		mFirstVisibleItem = se->getTopVisible();
+		layoutItems();
 	}
+
+
+
+
+
 
 
 	void ListGuiElement::setSelectedItem(GuiElement* item, bool on)
@@ -303,6 +418,8 @@ namespace Ogre {
 		else
 		{
 			if (mItemPanelMaterial == "")
+
+
 			{
 				// default to the list material
 				item->getParent()->setMaterialName(mMaterialName);
@@ -310,7 +427,10 @@ namespace Ogre {
 			else
 			{
 				item->getParent()->setMaterialName(mItemPanelMaterial);
+
+
 			}
+
 		}
 
 
@@ -325,13 +445,39 @@ namespace Ogre {
 
 		}
 
-		mSelectedElement = static_cast<GuiElement*>(static_cast<MouseTarget*>(e->getSource()));
+		GuiContainer* backPanelSelected = static_cast<GuiContainer*>(static_cast<MouseTarget*>(e->getSource()));
+
+		// get the child of the backpanel.. there is only 1 child
+		mSelectedElement = backPanelSelected->getChildIterator().getNext();
 		setSelectedItem(mSelectedElement,true);
+	}
 
+	void ListGuiElement::setSelectedItem(Resource* r, bool on)
+	{
+		GuiContainer* backPanel = static_cast<GuiContainer*> (getChild(getListItemPanelName(r)));
 
+		setSelectedItem(backPanel->getChild(getListItemName(r)), on);
+	}
 
+	Resource* ListGuiElement::getSelectedItem()
+	{
+		Resource* selectedResource = NULL;
+        ResourceList::iterator i;
+		if (mSelectedElement != NULL)
+		{
 
+			for (i = mResourceList.begin(); i != mResourceList.end(); ++i)
+			{
+				if ((*i)->getName() == mSelectedElement->getCaption())
+				{
+					selectedResource = *i;
+				}
+			}
+		}
+        return selectedResource;
 	}
 
 }
+
+
 

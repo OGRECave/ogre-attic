@@ -1,72 +1,71 @@
-/*
------------------------------------------------------------------------------
-This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://ogre.sourceforge.net/
-
-Copyright © 2000-2002 The OGRE Team
-Also see acknowledgements in Readme.html
-
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU Lesser General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/lesser.txt.
------------------------------------------------------------------------------
-*/
-
-#ifndef __GuiElement_H__
-#define __GuiElement_H__
-
-#include "OgrePrerequisites.h"
-#include "OgreString.h"
-#include "OgreRenderable.h"
-#include "OgreStringInterface.h"
-#include "OgreGuiElementCommands.h"
-
-#include "OgreMouseTarget.h"
-#include "OgreMouseMotionTarget.h"
-
-namespace Ogre {
-
-
-    /** Enum describing how the position / size of an element is to be recorded. 
+    /*
+    -----------------------------------------------------------------------------
+    This source file is part of OGRE
+        (Object-oriented Graphics Rendering Engine)
+    For the latest info, see http://ogre.sourceforge.net/
+    
+    Copyright © 2000-2002 The OGRE Team
+    Also see acknowledgements in Readme.html
+    
+    This program is free software; you can redistribute it and/or modify it under
+    the terms of the GNU Lesser General Public License as published by the Free Software
+    Foundation; either version 2 of the License, or (at your option) any later
+    version.
+    
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+    
+    You should have received a copy of the GNU Lesser General Public License along with
+    this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+    Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+    http://www.gnu.org/copyleft/lesser.txt.
+    -----------------------------------------------------------------------------
     */
-    enum GuiMetricsMode
-    {
-        /// 'left', 'top', 'height' and 'width' are parametrics from 0.0 to 1.0
-        GMM_RELATIVE,
-        /// Positions & sizes are in absolute pixels
-        GMM_PIXELS
-    };
-
-    /** Enum describing where '0' is in relation to the parent in the horizontal dimension.
-    @remarks Affects how 'left' is interpreted.
-    */
-    enum GuiHorizontalAlignment
-    {
-        GHA_LEFT,
-        GHA_CENTER,
-        GHA_RIGHT
-    };
-    /** Enum describing where '0' is in relation to the parent in the vertical dimension.
-    @remarks Affects how 'top' is interpreted.
-    */
-    enum GuiVerticalAlignment
-    {
-        GVA_TOP,
-        GVA_CENTER,
-        GVA_BOTTOM
-    };
-
+    
+    #ifndef __GuiElement_H__
+    #define __GuiElement_H__
+    
+    #include "OgrePrerequisites.h"
+    #include "OgreString.h"
+    #include "OgreRenderable.h"
+    #include "OgreStringInterface.h"
+    #include "OgreGuiElementCommands.h"
+    
+    #include "OgreMouseTarget.h"
+    #include "OgreMouseMotionTarget.h"
+    
+    namespace Ogre {
+    
+    
+      /** Enum describing how the position / size of an element is to be recorded. 
+      */
+      enum GuiMetricsMode
+      {
+          /// 'left', 'top', 'height' and 'width' are parametrics from 0.0 to 1.0
+          GMM_RELATIVE,
+          /// Positions & sizes are in absolute pixels
+          GMM_PIXELS
+      };
+  
+      /** Enum describing where '0' is in relation to the parent in the horizontal dimension.
+      @remarks Affects how 'left' is interpreted.
+      */
+      enum GuiHorizontalAlignment
+      {
+          GHA_LEFT,
+          GHA_CENTER,
+          GHA_RIGHT
+      };
+      /** Enum describing where '0' is in relation to the parent in the vertical dimension.
+      @remarks Affects how 'top' is interpreted.
+      */
+      enum GuiVerticalAlignment
+      {
+          GVA_TOP,
+          GVA_CENTER,
+          GVA_BOTTOM
+      };
 
     /** Abstract definition of a 2D element to be displayed in an Overlay.
     @remarks
@@ -333,77 +332,80 @@ namespace Ogre {
             (or the screen if this is a root element). You can alter this by calling this method, which is
             especially useful when you want to use pixel-based metrics (see setMetricsMode) since in this
             mode you can't use relative positioning.
-        @par
-            For example, if you were using GMM_PIXELS metrics mode, and you wanted to place a 30x30 pixel
-            crosshair in the center of the screen, you would use GHA_CENTER with a 'top' property of -15.
-        @par
-            Note that neither GVA_CENTER or GVA_BOTTOM alter the position of the element based
-            on it's height, you have to alter the 'top' to a negative number to do that; all this
-            does is establish the origin. This is because this way you can align multiple things
-            in the center and bottom with different 'top' offsets for maximum flexibility.
-        */
-        virtual void setVerticalAlignment(GuiVerticalAlignment gva);
-        /** Gets the vertical alignment for this element. */
-        virtual GuiVerticalAlignment getVerticalAlignment(void);
-
-
-
-
-		/** Returns true if xy is within the constraints of the component */
-		virtual bool contains(Real x, Real y) const;
-
-		/** Returns true if xy is within the constraints of the component */
-		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
-
-		/**
-		 * Processes events occurring on this component. By default this
-		 * method calls the appropriate process event method
-		 */
-		virtual void processEvent(InputEvent* e);
-
-		/**
-		 * returns false as this class is not a container type 
-		 */
-		inline virtual bool isContainer()
-		{ return false; }
-
-		inline virtual bool isCloneable()
-		{ return mCloneable; }
-
-		inline virtual void setCloneable(bool c)
-		{ mCloneable = c; }
-	
-		/**
-		 * Returns the parent container.
-		 */
-		PositionTarget* getPositionTargetParent() ;
-
-		/**
-		 * Returns the parent container.
-		 */
-		GuiContainer* getParent() ;
-
-		/**
-		 * Returns the zOrder of the element
-		 */
-		inline ushort getZOrder() const
-		{ return mZOrder; }
-
-        /** Overridden from Renderable */
-        Real getSquaredViewDepth(const Camera* cam) const 
-        { 
-            return 10000 - getZOrder(); 
-        }
-
-
-	    void copyFromTemplate(GuiElement* templateGui);
-
-	};
-
-
-
-}
-
-
-#endif
-
+          @par
+              For example, if you were using GMM_PIXELS metrics mode, and you wanted to place a 30x30 pixel
+              crosshair in the center of the screen, you would use GHA_CENTER with a 'top' property of -15.
+          @par
+              Note that neither GVA_CENTER or GVA_BOTTOM alter the position of the element based
+              on it's height, you have to alter the 'top' to a negative number to do that; all this
+              does is establish the origin. This is because this way you can align multiple things
+              in the center and bottom with different 'top' offsets for maximum flexibility.
+          */
+          virtual void setVerticalAlignment(GuiVerticalAlignment gva);
+          /** Gets the vertical alignment for this element. */
+          virtual GuiVerticalAlignment getVerticalAlignment(void);
+  
+  
+  
+    
+    		/** Returns true if xy is within the constraints of the component */
+    		virtual bool contains(Real x, Real y) const;
+    
+    		/** Returns true if xy is within the constraints of the component */
+    		virtual GuiElement* findElementAt(Real x, Real y);		// relative to parent
+    
+    		/**
+    		 * Processes events occurring on this component. By default this
+    		 * method calls the appropriate process event method
+    		 */
+    		virtual void processEvent(InputEvent* e);
+    
+    		/**
+    		 * returns false as this class is not a container type 
+    		 */
+    		inline virtual bool isContainer()
+    		{ return false; }
+    
+  		inline virtual bool isKeyEnabled()
+  		{ return false; }
+  
+    		inline virtual bool isCloneable()
+    		{ return mCloneable; }
+    
+    		inline virtual void setCloneable(bool c)
+    		{ mCloneable = c; }
+    	
+    		/**
+    		 * Returns the parent container.
+    		 */
+    		PositionTarget* getPositionTargetParent() ;
+    
+    		/**
+  		 * Returns the parent container.
+  		 */
+  		GuiContainer* getParent() ;
+  
+  		/**
+    		 * Returns the zOrder of the element
+    		 */
+    		inline ushort getZOrder() const
+    		{ return mZOrder; }
+    
+            /** Overridden from Renderable */
+            Real getSquaredViewDepth(const Camera* cam) const 
+            { 
+                return 10000 - getZOrder(); 
+            }
+    
+    
+    	    void copyFromTemplate(GuiElement* templateGui);
+  
+    	};
+    
+    
+    
+    }
+    
+    
+    #endif
+    

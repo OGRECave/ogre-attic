@@ -49,6 +49,7 @@ email                : kenny@sparksuit.com
 #include "OgrePrerequisites.h"
 #include "OgreMouseEvent.h"
 #include "OgreActionEvent.h"
+#include "OgreScrollEvent.h"
 
 namespace Ogre {
 
@@ -100,6 +101,27 @@ namespace Ogre {
 
     };
 
+
+	class _OgreExport KeyListener : public EventListener
+    {
+    protected:
+
+	public :
+		/**
+		 * Invoked when the key has been clicked on a component.
+		 */
+		virtual void keyClicked(KeyEvent* e) = 0;
+		/**
+		 * Invoked when a key button has been pressed on a component.
+		 */
+		virtual void keyPressed(KeyEvent* e) = 0;
+		/**
+		 * Invoked when a key button has been released on a component.
+		 */
+		virtual void keyReleased(KeyEvent* e) = 0;
+
+    };
+
 	/** Specialised EventListener for mouse motion. */
 	class _OgreExport MouseMotionListener : public EventListener
     {
@@ -137,11 +159,22 @@ namespace Ogre {
 	public :
 
 		/**
-		 * Invoked when an action occurs.
+		 * Invoked when a scroll has occurred
 		 */
 		virtual void listSelected(ListSelectionEvent* e) = 0;
 	};
 
+	class _OgreExport ScrollListener : public EventListener
+    {
+    protected:
+
+	public :
+
+		/**
+		 * Invoked when an action occurs.
+		 */
+		virtual void scrollPerformed(ScrollEvent* e) = 0;
+	};
 
 
 }

@@ -38,9 +38,11 @@ namespace Ogre {
     GuiElementFactory* pPanelFactory = NULL;
     GuiElementFactory* pBorderPanelFactory = NULL;
     GuiElementFactory* pTextAreaFactory = NULL;
+    GuiElementFactory* pTextBoxFactory = NULL;
     GuiElementFactory* pButtonFactory = NULL;
     GuiElementFactory* pBorderButtonFactory = NULL;
     GuiElementFactory* pListFactory = NULL;
+    GuiElementFactory* pScrollBarFactory = NULL;
     GuiElementFactory* pPopupMenuFactory = NULL;
 	CursorGuiElement* pCursorGui = NULL;
     //-----------------------------------------------------------------------
@@ -59,6 +61,9 @@ namespace Ogre {
         pTextAreaFactory = new TextAreaGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pTextAreaFactory);
 
+        pTextBoxFactory = new TextBoxGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pTextBoxFactory);
+
 		pButtonFactory = new ButtonGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pButtonFactory);
 
@@ -68,13 +73,16 @@ namespace Ogre {
 		pListFactory = new ListGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pListFactory);
 
+		pScrollBarFactory = new ScrollBarGuiElementFactory();
+        GuiManager::getSingleton().addGuiElementFactory(pScrollBarFactory);
+
 		pPopupMenuFactory = new PopupMenuGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pPopupMenuFactory);
 
 		pCursorGui = new CursorGuiElement("Cursor default");
 		OverlayManager::getSingleton().setCursorGui(pCursorGui, pCursorGui);
 
-    }
+    } 
 
     //-----------------------------------------------------------------------
     extern "C" void dllStopPlugin(void)
@@ -82,7 +90,9 @@ namespace Ogre {
         delete pPanelFactory;
         delete pBorderPanelFactory;
         delete pTextAreaFactory;
+        delete pTextBoxFactory;
 		delete pButtonFactory;
+		delete pScrollBarFactory;
 		delete pBorderButtonFactory;
 		delete pListFactory;
 		delete pCursorGui;
@@ -90,3 +100,4 @@ namespace Ogre {
     }
 
 }
+

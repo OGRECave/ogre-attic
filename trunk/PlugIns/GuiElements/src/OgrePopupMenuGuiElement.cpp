@@ -292,25 +292,6 @@ namespace Ogre {
 		_update();
 	}
 
-	void PopupMenuGuiElement::setSelectedItem(GuiElement* item, bool on)
-	{
-		if (on)
-		{
-			item->getParent()->setMaterialName(mItemPanelMaterialSelected);
-		}
-		else
-		{
-			if (mItemPanelMaterial == "")
-			{
-				// default to the list material
-				item->getParent()->setMaterialName(mMaterialName);
-			}
-			else
-			{
-				item->getParent()->setMaterialName(mItemPanelMaterial);
-			}
-		}
-	}
 
     //-----------------------------------------------------------------------
 	// don't look in children (ie text)
@@ -446,4 +427,35 @@ namespace Ogre {
 			break;
 		}
 	}
+
+	Resource* PopupMenuGuiElement::getSelectedItem()
+	{
+		Resource* selectedResource = NULL;
+        return selectedResource;
+	}
+
+	void PopupMenuGuiElement::setSelectedItem(Resource* r, bool on)
+	{
+		// do later
+	}
+	void PopupMenuGuiElement::setSelectedItem(GuiElement* item, bool on)
+	{
+		if (on)
+		{
+			item->getParent()->setMaterialName(mItemPanelMaterialSelected);
+		}
+		else
+		{
+			if (mItemPanelMaterial == "")
+			{
+				// default to the list material
+				item->getParent()->setMaterialName(mMaterialName);
+			}
+			else
+			{
+				item->getParent()->setMaterialName(mItemPanelMaterial);
+			}
+		}
+	}
+
 }

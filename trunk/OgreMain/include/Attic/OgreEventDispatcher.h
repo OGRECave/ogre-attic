@@ -78,9 +78,9 @@ namespace Ogre {
 	 PositionTarget* mMousePositionTarget;
 
 	/**
-	 * PositionTarget the cursor is on 
+	 * PositionTarget the Keycursor is on 
 	 */
-	  PositionTarget* mCursorOn;	// isn't implemented yet
+	  PositionTarget* mKeyCursorOn;	
 
 	/**
 	 * The last PositionTarget entered
@@ -98,6 +98,8 @@ namespace Ogre {
 
 	 //-------------------
 	 // protected methods	
+
+	bool processKeyEvent(KeyEvent* e) ;
 
 	/**
 	 * This method attempts to distribute a mouse event to a lightweight

@@ -110,6 +110,7 @@ namespace Ogre {
         pVert = mRenderOp.pVertices;
         pTex = mRenderOp.pTexCoords[ 0 ];
 
+		float largestWidth = 0;
         float left = _getDerivedLeft() * 2.0 - 1.0;
         float top = -( (_getDerivedTop() * 2.0 ) - 1.0 );
 
@@ -245,7 +246,15 @@ namespace Ogre {
             *pTex++ = u2;
             *pTex++ = v2;
             //---------------------------------------------------------------------------------
+
+			float currentWidth = (left + 1)/2 - _getDerivedLeft();
+			if (currentWidth > largestWidth)
+			{
+				largestWidth = currentWidth;
+
+			}
         }
+		setWidth(largestWidth);
         updateColours();
 
     }
@@ -463,6 +472,7 @@ namespace Ogre {
             mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
         }
         GuiElement::_update();
+		updateGeometry();
 
     }
     //---------------------------------------------------------------------------------------------

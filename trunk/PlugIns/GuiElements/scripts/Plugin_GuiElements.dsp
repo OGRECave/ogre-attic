@@ -136,11 +136,19 @@ SOURCE=..\src\OgrePanelGuiElement.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreScrollBarGuiElement.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgrePopupMenuGuiElement.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\OgreTextAreaGuiElement.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTextBoxGuiElement.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -184,11 +192,19 @@ SOURCE=..\include\OgrePanelGuiElement.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreScrollBarGuiElement.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgrePopupMenuGuiElement.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreTextAreaGuiElement.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTextBoxGuiElement.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

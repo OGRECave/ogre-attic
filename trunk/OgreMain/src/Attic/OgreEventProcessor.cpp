@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventQueue.h"
 #include "OgreRoot.h"
 #include "OgreMouseEvent.h"
+#include "OgreKeyEvent.h"
 #include "OgreActionEvent.h"
 #include "OgreInput.h"
 #include "OgreCursor.h"
@@ -151,6 +152,11 @@ namespace Ogre {
 		case MouseEvent::ME_MOUSE_MOVED:
 		case MouseEvent::ME_MOUSE_DRAGGED:
 			processMouseMotionEvent(static_cast<MouseEvent*>(e));
+			break;
+		case KeyEvent::KE_KEY_PRESSED:
+		case KeyEvent::KE_KEY_RELEASED:
+		case KeyEvent::KE_KEY_CLICKED:
+			processKeyEvent(static_cast<KeyEvent*>(e));
 			break;
 		}
 	}
