@@ -764,6 +764,22 @@ namespace Ogre {
         assert(src.getWidth() == dst.getWidth() && 
 			   src.getHeight() == dst.getHeight() && 
 			   src.getDepth() == dst.getDepth());
+
+		// Check for compressed formats, we don't support decompression, compression or recoding
+		if(PixelUtil::isCompressed(src.format) || PixelUtil::isCompressed(dst.format))
+		{
+			if(src.format == dst.format)
+			{
+				memcpy(dst.data, src.data, src.getConsecutiveSize());
+				return;
+			}
+			else
+			{
+				Except(Exception::UNIMPLEMENTED_FEATURE, 
+					"This method can not be used to compress or decompress images", 
+					"PixelUtil::bulkPixelConversion");
+			}
+		}
         uint8 *srcptr = static_cast<uint8*>(src.data);
         uint8 *dstptr = static_cast<uint8*>(dst.data);
         unsigned int srcPixelSize = PixelUtil::getNumElemBytes(src.format);
@@ -783,7 +799,7 @@ namespace Ogre {
             // Everything consecutive?
             if(src.isConsecutive() && dst.isConsecutive()) 
             {
-                std::copy(srcptr, srcptr+src.getConsecutiveSize(), dstptr);
+				memcpy(dst.data, src.data, src.getConsecutiveSize());
                 return;
             }
 
@@ -793,7 +809,7 @@ namespace Ogre {
             {
                 for(size_t y=src.top; y<src.bottom; y++)
                 {
-                    std::copy(srcptr, srcptr+rowSize, dstptr);
+					memcpy(dstptr, srcptr, rowSize);
                     srcptr += srcRowPitchBytes;
                     dstptr += dstRowPitchBytes;
                 }
