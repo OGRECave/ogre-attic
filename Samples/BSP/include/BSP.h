@@ -54,7 +54,8 @@ protected:
         mQuakeLevel = cf.getSetting("Map");
 
 		ExampleApplication::setupResources();
-        ResourceManager::addCommonArchiveEx(mQuakePk3, "Zip");
+        ResourceGroupManager::getSingleton().addResourceLocation(
+            mQuakePk3, "Zip", ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 
     }
     // Override scene manager (use indoor instead of generic)
