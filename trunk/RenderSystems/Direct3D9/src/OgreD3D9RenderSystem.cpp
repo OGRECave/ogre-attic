@@ -120,11 +120,6 @@ namespace Ogre
 		OgreGuard( "D3D9RenderSystem::~D3D9RenderSystem" );
         shutdown();
 
-		// Unbind any vertex streams to avoid memory leaks
-		for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
-		{
-            HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
-		}
 		
 		
 		SAFE_DELETE( mDriverList );
@@ -536,9 +531,15 @@ namespace Ogre
 	{
 		// Set all texture units to nothing to release texture surfaces
 		_disableTextureUnitsFrom(0);
+		// Unbind any vertex streams to avoid memory leaks
+		for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
+		{
+			HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+		}
 		RenderSystem::shutdown();
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
+		mpD3DDevice = NULL;
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
 	}
 	//---------------------------------------------------------------------
@@ -546,10 +547,24 @@ namespace Ogre
 		unsigned int width, unsigned int height, bool fullScreen,
 		const NameValuePairList *miscParams)
 	{
-		static bool firstWindow = true;
-		
+
 		OgreGuard( "D3D9RenderSystem::createRenderWindow" );
 
+		// Check we're not creating a secondary window when the primary
+		// was fullscreen
+		if (mPrimaryWindow && mPrimaryWindow->isFullScreen())
+		{
+			Except(Exception::ERR_INVALIDPARAMS, 
+				"Cannot create secondary windows when the primary is full screen",
+				"D3D9RenderSystem::createRenderWindow");
+		}
+		if (mPrimaryWindow && fullScreen)
+		{
+			Except(Exception::ERR_INVALIDPARAMS, 
+				"Cannot create full screen secondary windows",
+				"D3D9RenderSystem::createRenderWindow");
+		}
+		
 		// Log a message
 		std::stringstream ss;
 		ss << "D3D9RenderSystem::createRenderWindow \"" << name << "\", " <<
@@ -580,14 +595,15 @@ namespace Ogre
 			Except( Exception::ERR_INTERNAL_ERROR, msg, "D3D9RenderSystem::createRenderWindow" );
 		}
 
-		RenderWindow* win = new D3D9RenderWindow(mhInstance, mActiveD3DDriver);
+		RenderWindow* win = new D3D9RenderWindow(mhInstance, mActiveD3DDriver, 
+			mPrimaryWindow ? mpD3DDevice : 0);
 
 		win->create( name, width, height, fullScreen, miscParams);
 
 		attachRenderTarget( *win );
 
 		// If this is the first window, get the D3D device and create the texture manager
-		if( firstWindow )
+		if( !mPrimaryWindow )
 		{
 			mPrimaryWindow = (D3D9RenderWindow *)win;
 			win->getCustomAttribute( "D3DDEVICE", &mpD3DDevice );
@@ -608,9 +624,10 @@ namespace Ogre
             // Initialise the capabilities structures
             initCapabilities();
 
-
-			firstWindow = false;
-			
+		}
+		else
+		{
+			mSecondaryWindows.push_back(static_cast<D3D9RenderWindow *>(win));
 		}
 
 		OgreUnguardRet( win );
@@ -905,25 +922,36 @@ namespace Ogre
 			LogManager::getSingleton().logMessage(ss.str());
 		}
 		// Create render texture
-		RenderTexture *rt = new D3D9RenderTexture( name, width, height );
+		D3D9RenderTexture *rt = new D3D9RenderTexture( name, width, height );
 		attachRenderTarget( *rt );
 		return rt;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::destroyRenderWindow( RenderWindow* pWin )
+	void D3D9RenderSystem::destroyRenderTarget(const String& name)
 	{
-		// Find it to remove from list
-		RenderTargetMap::iterator i = mRenderTargets.begin();
-
-		while( i->second != pWin && i != mRenderTargets.end() )
+		// Check in specialised lists
+		if (mPrimaryWindow->getName() == name)
 		{
-			if( i->second == pWin )
+			// We're destroying the primary window, so reset device and window
+			mPrimaryWindow = 0;
+			mpD3DDevice = 0;
+		}
+		else
+		{
+			// Check secondary windows
+			SecondaryWindowList::iterator sw;
+			for (sw = mSecondaryWindows.begin(); sw != mSecondaryWindows.end(); ++sw)
 			{
-				mRenderTargets.erase(i);
-				delete pWin;
-				break;
+				if ((*sw)->getName() == name)
+				{
+					mSecondaryWindows.erase(sw);
+					break;
+				}
 			}
 		}
+		// Do the real removal
+		RenderSystem::destroyRenderTarget(name);
+
 	}
 	//---------------------------------------------------------------------
 	String D3D9RenderSystem::getErrorDescription( long errorNumber ) const
@@ -2541,7 +2569,12 @@ namespace Ogre
 		static_cast<D3D9HardwareBufferManager*>(mHardwareBufferManager)
 			->releaseDefaultPoolResources();
 
-		// TODO - release additional swap chains here
+		// release additional swap chains (secondary windows)
+		SecondaryWindowList::iterator sw;
+		for (sw = mSecondaryWindows.begin(); sw != mSecondaryWindows.end(); ++sw)
+		{
+			(*sw)->destroy();
+		}
 
 		// Reset the device, using the primary window presentation params
 		HRESULT hr = mpD3DDevice->Reset(
@@ -2554,7 +2587,11 @@ namespace Ogre
 				"D3D9RenderWindow::restoreLostDevice" );
 		}
 
-		// TODO - recreate additional swap chains here
+		// recreate additional swap chains
+		for (sw = mSecondaryWindows.begin(); sw != mSecondaryWindows.end(); ++sw)
+		{
+			(*sw)->createD3DResources();
+		}
 
 		// Recreate all non-managed resources
 		static_cast<D3D9TextureManager*>(mTextureManager)

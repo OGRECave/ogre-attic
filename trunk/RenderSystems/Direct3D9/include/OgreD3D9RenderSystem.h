@@ -132,8 +132,15 @@ namespace Ogre
         /// Saved last view matrix
         Matrix4 mViewMatrix;
 
+		// What follows is a set of duplicated lists just to make it
+		// easier to deal with lost devices
+		
 		/// Primary window, the one used to create the device
 		D3D9RenderWindow* mPrimaryWindow;
+
+		typedef std::vector<D3D9RenderWindow*> SecondaryWindowList;
+		// List of additional windows after the first (swap chains)
+		SecondaryWindowList mSecondaryWindows;
 
 
 	public:
@@ -170,7 +177,7 @@ namespace Ogre
 		void setAmbientLight( float r, float g, float b );
 		void setShadingType( ShadeOptions so );
 		void setLightingEnabled( bool enabled );
-		void destroyRenderWindow( RenderWindow* pWin );
+		void destroyRenderTarget(const String& name);
 		void convertColourValue( const ColourValue& colour, uint32* pDest );
 		void setStencilCheckEnabled(bool enabled);
         void setStencilBufferParams(CompareFunction func = CMPF_ALWAYS_PASS, 

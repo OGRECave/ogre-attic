@@ -45,6 +45,7 @@ namespace Ogre
         mpD3D(NULL), 
         mpNormTex(NULL),
         mpCubeTex(NULL),
+		mpVolumeTex(NULL),
         mpZBuff(NULL),
         mpTex(NULL),
         mAutoGenMipmaps(false)
