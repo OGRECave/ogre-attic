@@ -42,9 +42,9 @@ public:
 
 	lwEnvelope *lwFindEnvelope( int index )
 	{
-		for (unsigned int i = 0; i < envelopes.size(); i++);
-		if (envelopes[i]->index == index)
-			return envelopes[i];
+		for (unsigned int i = 0; i < envelopes.size(); i++)
+			if (envelopes[i]->index == index)
+				return envelopes[i];
 		return 0;
 	}
 

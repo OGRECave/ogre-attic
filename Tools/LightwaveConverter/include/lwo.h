@@ -582,6 +582,20 @@ public:
 	{
 		return new lwSurface;
 	}
+
+	char *setname(const char *newname)
+	{
+		unsigned int slength = strlen(newname);
+
+		if (name && slength > strlen(name))
+		{
+			free(name);
+			name = 0;			
+		}
+		if (!name) name = (char *)malloc(slength+1);
+
+		return strcpy(name, newname);
+	}
 	
 	char             *name;
 	char             *srcname;

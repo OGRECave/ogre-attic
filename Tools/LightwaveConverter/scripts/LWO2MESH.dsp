@@ -76,7 +76,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ogremain.lib /nologo /subsystem:console /profile /debug /machine:I386 /nodefaultlib:"libc.lib" /nodefaultlib:"libcd.lib" /nodefaultlib:"libcmt.lib" /libpath:"..\..\..\OgreMain\lib\Debug"
+# ADD LINK32 ogremain_d.lib /nologo /subsystem:console /profile /debug /machine:I386 /nodefaultlib:"libc.lib" /nodefaultlib:"libcd.lib" /nodefaultlib:"libcmt.lib" /libpath:"..\..\..\OgreMain\lib\Debug"
 # SUBTRACT LINK32 /verbose
 
 !ENDIF 
