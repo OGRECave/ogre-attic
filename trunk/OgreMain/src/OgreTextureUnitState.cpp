@@ -609,13 +609,11 @@ namespace Ogre {
             rot[1][0] = sinTheta;
             rot[1][1] = cosTheta;
             // Offset center of rotation to center of texture
-            Real cosThetaOff = cosTheta * -0.5;
-            Real sinThetaOff = sinTheta * -0.5;
-            rot[0][2] = cosThetaOff - sinThetaOff;
-            rot[1][2] = sinThetaOff + cosThetaOff;
+            rot[0][2] = 0.5 + ( (-0.5 * cosTheta) - (-0.5 * sinTheta) );
+            rot[1][2] = 0.5 + ( (-0.5 * sinTheta) + (-0.5 * cosTheta) );
 
 
-            xform = xform * rot;
+            xform = rot * xform;
         }
 
         mTexModMatrix = xform;
