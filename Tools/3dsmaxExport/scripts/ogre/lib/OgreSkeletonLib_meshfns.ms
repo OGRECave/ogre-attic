@@ -272,7 +272,7 @@ function writeM exportUV exportColours outName =
 	hasSkeleton = false ;
 	texCoordString = "" ;
 	if (exportUV) then 
-		texCoordString = "numtexcoords=\"1\" texcoordsets=\"0\" texcoorddimensions=\"2\" "
+		texCoordString = "texture_coords=\"1\" texture_coord_dimensions_0=\"2\" "
 	hasColours = false ;	
 	if (exportColours) then
 		hasColours = true ;		
@@ -289,11 +289,26 @@ function writeM exportUV exportColours outName =
 	
 	-- for each submesh
 	for matId in submeshesId do (
-		format("\t\t<submesh material = \"%_sub%\" useSharedVertices=\"false\">\n") materialName matId to:outFile ;
+		-- Do we need 32-bit indexes?
+		use32bitindexes = "false";
+		if arrayLength verticesArrays[matId] > 65535 then
+			use32bitindexes = "true";
+		
+		format("\t\t<submesh material = \"%_sub%\" usesharedvertices=\"false\" use32bitindexes=\"%\">\n") materialName matId use32bitindexes to:outFile ;
 	
+		format "- writing faces...\n"		
+		format("\t\t\t<faces count=\"%\">\n") (arraylength facesArrays[matId]) to:outFile;
+		
+		-- for each face
+		for f in facesArrays[matId] do (
+			format("\t\t\t\t<face ") to:outFile ;
+			format("v1=\"%\" v2=\"%\" v3=\"%\" />\n") ((int)f[1]) ((int)f[2]) ((int)f[3]) to:outFile ;
+		)
+		format("\t\t\t</faces>\n") to:outFile ;
+
 		format "- writing vertices...\n"	
-		format("\t\t\t<geometry count=\"%\">\n") (arrayLength verticesArrays[matId] ) to:outFile;
-		format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"%\" %>\n") hasColours TexCoordString to:outFile ;		
+		format("\t\t\t<geometry vertexcount=\"%\">\n") (arrayLength verticesArrays[matId] ) to:outFile;
+		format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours_diffuse=\"%\" %>\n") hasColours TexCoordString to:outFile ;		
 		
 		-- for each vertex
 		for v in verticesArrays[matId] do
@@ -304,21 +319,12 @@ function writeM exportUV exportColours outName =
 			if (exportUV) then
 				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] v[8] to:outFile ;		
 			if (exportColours) then
-				format("\t\t\t\t\t\t<colour value=\"%%%%\" />\n") ((int)v[12]) ((int)v[11]) ((int)v[10]) ((int)v[9]) to:outFile ;
+				format("\t\t\t\t\t\t<colour_diffuse value=\"%%%%\" />\n") ((int)v[12]) ((int)v[11]) ((int)v[10]) ((int)v[9]) to:outFile ;
 			format("\t\t\t\t\t</vertex>\n") to:outFile ;
 		)	
 		format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
 		format("\t\t\t</geometry>\n") to:outFile ;
 					
-		format "- writing faces...\n"		
-		format("\t\t\t<faces count=\"%\">\n") (arraylength facesArrays[matId]) to:outFile;
-		
-		-- for each face
-		for f in facesArrays[matId] do (
-			format("\t\t\t\t<face ") to:outFile ;
-			format("v1=\"%\" v2=\"%\" v3=\"%\" />\n") ((int)f[1]) ((int)f[2]) ((int)f[3]) to:outFile ;
-		)
-		format("\t\t\t</faces>\n") to:outFile ;
 		
 		
 		-- and now bone assignments (and skeleton), if there is at least one element in boneAssignments array.
@@ -328,7 +334,7 @@ function writeM exportUV exportColours outName =
 			format "- writing bone assignments...\n"	
 			format("\t\t\t<boneassignments>\n") to:outFile ;
 			for a in boneAssignments[matId] do
-				format("\t\t\t\t<vertexboneassignment vertexIndex=\"%\" boneIndex=\"%\" weight=\"%\" />\n") a[1] a[2] a[3] to:outFile ;
+				format("\t\t\t\t<vertexboneassignment vertexindex=\"%\" boneindex=\"%\" weight=\"%\" />\n") a[1] a[2] a[3] to:outFile ;
 			format("\t\t\t</boneassignments>\n") to:outFile ;		
 		)
 	
