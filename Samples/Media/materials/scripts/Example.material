@@ -263,6 +263,7 @@ material Examples/SpaceSkyPlane
 		{
 			lighting off
 			depth_write off
+			fog_override true none
 
 			texture_unit
 			{

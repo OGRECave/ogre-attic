@@ -25,10 +25,13 @@ email                : janders@users.sf.net
 
 namespace Ogre
 {
+#define MAIN_BINDING 0
+    /*
 #define POSITION_BINDING 0
 #define NORMAL_BINDING 1
 #define TEXCOORD_BINDING 2
 #define COLOUR_BINDING 3
+    */
 
 TerrainBufferCache gIndexCache;
 
@@ -40,7 +43,7 @@ LevelArray TerrainRenderable::mLevelIndex;
 bool TerrainRenderable::mLevelInit = false;
 
 TerrainRenderable::TerrainRenderable()
-    : mTerrain(0)
+    : mTerrain(0), mPositionBuffer(0)
 {
     mForcedRenderLevel = -1;
 
@@ -71,6 +74,9 @@ void TerrainRenderable::deleteGeometry()
 {
     if(mTerrain)
         delete mTerrain;
+
+    if (mPositionBuffer)
+        delete [] mPositionBuffer;
 
     if ( mMinLevelDistSqr != 0 )
         delete [] mMinLevelDistSqr;
@@ -129,46 +135,35 @@ void TerrainRenderable::init( TerrainOptions &options )
 
     // positions
     size_t offset = 0;
-    decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
-    decl->addElement(NORMAL_BINDING, 0, VET_FLOAT3, VES_NORMAL);
+    decl->addElement(MAIN_BINDING, offset, VET_FLOAT3, VES_POSITION);
+    offset += VertexElement::getTypeSize(VET_FLOAT3);
+    if (mLit)
+    {
+        decl->addElement(MAIN_BINDING, offset, VET_FLOAT3, VES_NORMAL);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+    }
     // texture coord sets
-    decl->addElement(TEXCOORD_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+    decl->addElement(MAIN_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
     offset += VertexElement::getTypeSize(VET_FLOAT2);
-    decl->addElement(TEXCOORD_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
+    decl->addElement(MAIN_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
     offset += VertexElement::getTypeSize(VET_FLOAT2);
-    decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
+    if (mColored)
+    {
+        decl->addElement(MAIN_BINDING, offset, VET_COLOUR, VES_DIFFUSE);
+        offset += VertexElement::getTypeSize(VET_COLOUR);
+    }
 
-    HardwareVertexBufferSharedPtr vbuf =
+    // Create shared vertex buffer
+    mMainBuffer =
         HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(POSITION_BINDING),
-            mTerrain->vertexCount, 
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY, true);
-
-    bind->setBinding(POSITION_BINDING, vbuf);
-
-    vbuf =
-        HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(NORMAL_BINDING),
+            decl->getVertexSize(MAIN_BINDING),
             mTerrain->vertexCount, 
             HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+    // Create system memory copy with just positions in it, for use in simple reads
+    mPositionBuffer = new Real[mTerrain->vertexCount * 3];
 
-    bind->setBinding(NORMAL_BINDING, vbuf);
+    bind->setBinding(MAIN_BINDING, mMainBuffer);
 
-    vbuf =
-        HardwareBufferManager::getSingleton().createVertexBuffer(
-            offset,
-            mTerrain->vertexCount, 
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-    bind->setBinding(TEXCOORD_BINDING, vbuf);
-
-    vbuf =
-        HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(COLOUR_BINDING),
-            mTerrain->vertexCount, 
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-
-    bind->setBinding(COLOUR_BINDING, vbuf);
 
     mInit = true;
 
@@ -183,54 +178,51 @@ void TerrainRenderable::init( TerrainOptions &options )
 
     mScale.z = options.scalez;
 
-
-    RGBA* pCol = static_cast<RGBA*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
-    for ( int i = 0; i < mSize*mSize; i++ )
-    {
-        *pCol++ = 0xFFFFFFFF;
-    }
-    vbuf->unlock();
-
     int endx = options.startx + options.size;
 
     int endz = options.startz + options.size;
 
     Vector3 left, down, here;
 
-    vbuf = bind->getBuffer(POSITION_BINDING);
+    const VertexElement* poselem = decl->findElementBySemantic(VES_POSITION);
+    const VertexElement* texelem0 = decl->findElementBySemantic(VES_TEXTURE_COORDINATES, 0);
+    const VertexElement* texelem1 = decl->findElementBySemantic(VES_TEXTURE_COORDINATES, 1);
+    Real* pSysPos = mPositionBuffer;
 
-    Real* pPos = static_cast<Real*>(vbuf->lock(HardwareBuffer::HBL_DISCARD));
-
-    HardwareVertexBufferSharedPtr vtexbuf = bind->getBuffer(TEXCOORD_BINDING);
-
-    Real* pTex = static_cast<Real*>(vtexbuf->lock(HardwareBuffer::HBL_DISCARD));
+    unsigned char* pBase = static_cast<unsigned char*>(mMainBuffer->lock(HardwareBuffer::HBL_DISCARD));
 
     for ( int j = options.startz; j < endz; j++ )
     {
         for ( int i = options.startx; i < endx; i++ )
         {
+            Real *pPos, *pTex0, *pTex1;
+            poselem->baseVertexPointerToElement(pBase, &pPos);
+            texelem0->baseVertexPointerToElement(pBase, &pTex0);
+            texelem1->baseVertexPointerToElement(pBase, &pTex1);
+
             Real height = options._worldheight( i, j ) * options.scaley;
 
-            *pPos++ = ( Real ) i * options.scalex; //x
-            *pPos++ = height; //y
-            *pPos++ = ( Real ) j * options.scalez; //z
+            *pSysPos++ = *pPos++ = ( Real ) i * options.scalex; //x
+            *pSysPos++ = *pPos++ = height; //y
+            *pSysPos++ = *pPos++ = ( Real ) j * options.scalez; //z
 
-            *pTex++ = ( Real ) i / ( Real ) options.world_size ;
-            *pTex++ = ( Real ) ( Real ) j / ( Real ) options.world_size;
+            *pTex0++ = ( Real ) i / ( Real ) options.world_size ;
+            *pTex0++ = ( Real ) ( Real ) j / ( Real ) options.world_size;
 
-            *pTex++ = ( ( Real ) i / ( Real ) mSize ) * options.detail_tile;
-            *pTex++ = ( ( Real ) ( Real ) j / ( Real ) mSize ) * options.detail_tile;
+            *pTex1++ = ( ( Real ) i / ( Real ) mSize ) * options.detail_tile;
+            *pTex1++ = ( ( Real ) ( Real ) j / ( Real ) mSize ) * options.detail_tile;
 
             if ( height < min )
                 min = ( Real ) height;
 
             if ( height > max )
                 max = ( Real ) height;
+
+            pBase += mMainBuffer->getVertexSize();
         }
     }
 
-    vtexbuf->unlock();
-    vbuf->unlock();
+    mMainBuffer->unlock();
 
     mBounds.setExtents( ( Real ) options.startx * options.scalex, min, ( Real ) options.startz * options.scalez,
                         ( Real ) ( endx - 1 ) * options.scalex, max, ( Real ) ( endz - 1 ) * options.scalez );
@@ -244,12 +236,15 @@ void TerrainRenderable::init( TerrainOptions &options )
     Real C = _calculateCFactor();
 
     _calculateMinLevelDist2( C );
-    _calculateNormals();
+    if (mLit)
+        _calculateNormals();
 
 }
 
 void TerrainRenderable::_getNormalAt( float x, float z, Vector3 * result )
 {
+
+    assert(mLit && "No normals present");
 
     Vector3 here, left, down;
     here.x = x;
@@ -283,9 +278,13 @@ void TerrainRenderable::_calculateNormals()
 {
     Vector3 norm;
 
+    assert (mLit && "No normals present");
+
     HardwareVertexBufferSharedPtr vbuf = 
-        mTerrain->vertexBufferBinding->getBuffer(NORMAL_BINDING);
-    Real* pNorm = static_cast<Real*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+        mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
+    const VertexElement* elem = mTerrain->vertexDeclaration->findElementBySemantic(VES_NORMAL);
+    unsigned char* pBase = static_cast<unsigned char*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+    Real* pNorm;
 
     for ( int j = 0; j < mSize; j++ )
     {
@@ -295,10 +294,11 @@ void TerrainRenderable::_calculateNormals()
             _getNormalAt( _vertex( i, j, 0 ), _vertex( i, j, 2 ), &norm );
 
             //  printf( "Normal = %5f,%5f,%5f\n", norm.x, norm.y, norm.z );
-
+            elem->baseVertexPointerToElement(pBase, &pNorm);
             *pNorm++ = norm.x;
             *pNorm++ = norm.y;
             *pNorm++ = norm.z;
+            pBase += vbuf->getVertexSize();
         }
 
     }
@@ -902,9 +902,9 @@ bool TerrainRenderable::intersectSegment( const Vector3 & start, const Vector3 &
 
 void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue ambient )
 {
-    if ( !mColored )
+    if ( !mColored || !mLit )
     {
-        printf( "Can't generate terrain vertex lighting with out vertex colors enabled.\n" );
+        printf( "Can't generate terrain vertex lighting with out vertex normals and colors enabled.\n" );
         return ;
     }
 
@@ -913,6 +913,9 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
     Vector3 normal;
     Vector3 light;
 
+    HardwareVertexBufferSharedPtr vbuf = 
+        mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
+    const VertexElement* elem = mTerrain->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
     //for each point in the terrain, see if it's in the line of sight for the sun.
     for ( int i = 0; i < mSize; i++ )
     {
@@ -953,9 +956,9 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
 
                 RGBA colour;
                 Root::getSingleton().convertColourValue( v, &colour );
-                HardwareVertexBufferSharedPtr vbuf = 
-                    mTerrain->vertexBufferBinding->getBuffer(COLOUR_BINDING);
-                vbuf->writeData(_index( i, j ) * sizeof(RGBA), sizeof(RGBA), &colour);
+                vbuf->writeData(
+                    (_index( i, j ) * vbuf->getVertexSize()) + elem->getOffset(),
+                    sizeof(RGBA), &colour);
             }
 
             else
@@ -963,9 +966,9 @@ void TerrainRenderable::_generateVertexLighting( const Vector3 &sun, ColourValue
                 RGBA colour;
                 Root::getSingleton().convertColourValue( ambient, &colour );
 
-                HardwareVertexBufferSharedPtr vbuf = 
-                    mTerrain->vertexBufferBinding->getBuffer(COLOUR_BINDING);
-                vbuf->writeData(_index( i, j ) * sizeof(RGBA), sizeof(RGBA), &colour);
+                vbuf->writeData(
+                    (_index( i, j ) * vbuf->getVertexSize()) + elem->getOffset(), 
+                    sizeof(RGBA), &colour);
             }
 
         }

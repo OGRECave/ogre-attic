@@ -102,6 +102,8 @@ protected:
 
     Terrain2D mTiles;
 
+    TerrainOptions mOptions;
+
 };
 
 }

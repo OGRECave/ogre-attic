@@ -277,17 +277,7 @@ protected:
     /** Returns the  vertex coord for the given coordinates */
     inline float _vertex( int x, int z, int n )
     {
-        HardwareVertexBufferSharedPtr vbuf = 
-            mTerrain->vertexBufferBinding->getBuffer(0);
-
-        Real vertex = 0.0;
-
-        vbuf->readData((x * 3 + z * mSize * 3 + n) * sizeof(Real), sizeof(Real), &vertex);
-
-        return vertex;
-      /* 
-        return mTerrain.pVertices[ x * 3 + z * mSize * 3 + n ];
-        */
+        return mPositionBuffer[x * 3 + z * mSize * 3 + n];
     };
 
 
@@ -357,6 +347,10 @@ protected:
     int mMaxPixelError;
     int mVertResolution;
     Real mTopCoord;
+    /// The buffer with all the renderable geometry in it
+    HardwareVertexBufferSharedPtr mMainBuffer;
+    /// System-memory buffer with just positions in it, for CPU operations
+    Real* mPositionBuffer;
 
     Real old_L;
 
