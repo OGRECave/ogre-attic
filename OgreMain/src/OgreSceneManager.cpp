@@ -2705,7 +2705,7 @@ namespace Ogre {
                     mShadowCasterSphereQuery->setSphere(s);
 
                 // Determine if light is inside or outside the frustum
-                bool lightInFrustum = camera->isVisible(light->getPosition());
+                bool lightInFrustum = camera->isVisible(light->getDerivedPosition());
                 const PlaneBoundedVolumeList* volList = 0;
                 if (!lightInFrustum)
                 {
