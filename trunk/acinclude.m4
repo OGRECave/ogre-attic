@@ -190,7 +190,7 @@ AC_DEFUN([OGRE_GET_PLATFORM],
              OGRE_PLATFORM=SDL)
 
  
-  if test ! -d PlatformManagers/$OGRE_PLATFORM; then
+  if test ! -d ${srcdir}/PlatformManagers/$OGRE_PLATFORM; then
     OGRE_PLATFORM=SDL
   fi
 
@@ -233,7 +233,7 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
     # Uppercase/lowercase
     OGRE_GLSUPPORT=win32
   fi
-  if test ! -d RenderSystems/GL/src/$OGRE_GLSUPPORT; then
+  if test ! -d ${srcdir}/RenderSystems/GL/src/$OGRE_GLSUPPORT; then
     OGRE_GLSUPPORT=SDL
   fi
 
