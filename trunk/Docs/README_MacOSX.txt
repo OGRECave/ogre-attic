@@ -20,15 +20,18 @@
 7) Use fink to install the following packages 
 <fink install libjpeg libpng pkgconfig sdl libtool14> 
 
-8) Get the latest cvs version of OGRE (see http://ogre.sourceforge.net) 
+8) run the following: 
+"ln -s /sw/bin/glibtool /sw/bin/libtool" 
 
-9) set the following using the setenv command: 
+9) Get the latest cvs version of OGRE (see http://ogre.sourceforge.net) 
+
+10) set the following using the setenv command: 
 setenv ACLOCAL_FLAGS "-I /sw/share/aclocal" 
 setenv CPPFLAGS "-I/usr/local/include -I/sw/include" 
 setenv LDFLAGS "-L/usr/local/lib -L/sw/lib" 
 setenv FT2_CONFIG "/usr/local/bin/freetype-config" 
 
-10) run the following in the "ogrenew" dirctory: 
+11) run the following in the "ogrenew" dirctory: 
 "./bootstrap" 
 "./configure" 
 "make" 
