@@ -1635,11 +1635,17 @@ namespace Ogre
         D3D9VertexDeclaration* d3ddecl = 
             static_cast<D3D9VertexDeclaration*>(decl);
 
-        // TODO: attempt to detect duplicates
-        if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
+        static VertexDeclaration* lastDecl = 0;
+
+        // attempt to detect duplicates
+        if (!lastDecl || !(*lastDecl == *decl))
         {
-            Except(hr, "Unable to set D3D9 vertex declaration", 
-                "D3D9RenderSystem::setVertexDeclaration");
+
+            if (FAILED(hr = mpD3DDevice->SetVertexDeclaration(d3ddecl->getD3DVertexDeclaration())))
+            {
+                Except(hr, "Unable to set D3D9 vertex declaration", 
+                    "D3D9RenderSystem::setVertexDeclaration");
+            }
         }
 
         // UnGuard

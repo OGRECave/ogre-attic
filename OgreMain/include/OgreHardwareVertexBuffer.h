@@ -145,6 +145,20 @@ namespace Ogre {
 		*/
 		static VertexElementType multiplyTypeCount(VertexElementType baseType, unsigned short count);
 
+        inline bool operator== (const VertexElement& rhs) const
+        {
+            if (mType != rhs.mType || 
+                mIndex != rhs.mIndex ||
+                mOffset != rhs.mOffset ||
+                mSemantic != rhs.mSemantic ||
+                mSource != rhs.mSource)
+                return false;
+            else
+                return true;
+
+        }
+
+
 
     };
     /** This class declares the format of a set of vertex inputs, which
@@ -212,6 +226,24 @@ namespace Ogre {
 		@param source The buffer binding index for which to get the vertex size.
 		*/
 		virtual size_t getVertexSize(unsigned short source);
+
+        inline bool operator== (const VertexDeclaration& rhs) const
+        {
+            if (mElementList.size() != rhs.mElementList.size())
+                return false;
+
+            VertexElementList::const_iterator i, iend, rhsi, rhsiend;
+            iend = mElementList.end();
+            rhsiend = rhs.mElementList.end();
+            rhsi = rhs.mElementList.begin();
+            for (i = mElementList.begin(); i != iend && rhsi != rhsiend; ++i, ++rhsi)
+            {
+                if ( !(i == rhsi) )
+                    return false;
+            }
+
+            return true;
+        }
 
     };
 
