@@ -189,9 +189,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const LightList& SubEntity::getLights(void) const
     {
-        Node* n = mParentEntity->getParentNode();
+        SceneNode* n = mParentEntity->getParentSceneNode();
         assert(n);
-        return n->getLights();
+        return n->findLights(mParentEntity->getBoundingRadius());
     }
     //-----------------------------------------------------------------------
     void SubEntity::setVisible(bool visible)

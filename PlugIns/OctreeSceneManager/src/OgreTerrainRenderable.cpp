@@ -945,7 +945,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     const LightList& TerrainRenderable::getLights(void) const
     {
-        return mParentNode->getLights();
+        return getParentSceneNode()->findLights(this->getBoundingRadius());
     }
     //-----------------------------------------------------------------------
     IndexData* TerrainRenderable::getIndexData(void)

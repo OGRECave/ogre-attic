@@ -80,12 +80,21 @@ namespace Ogre {
         virtual const String& getMovableType(void) const = 0;
 
         /** Returns the node to which this object is attached.
-            @remarks
-                An object is not visible in the scene unless attached to a SceneNode.
-            @par
-                Attaching an object is done via the SceneNode::attachObject method.
+        @remarks
+            A MovableObject may be attached to either a SceneNode or to a TagPoint, 
+            the latter case if it's attached to a bone on an animated entity. 
+            Both are Node subclasses so this method will return either.
         */
         virtual Node* getParentNode(void) const;
+
+        /** Returns the scene node to which this object is attached.
+        @remarks
+            A MovableObject may be attached to either a SceneNode or to a TagPoint, 
+            the latter case if it's attached to a bone on an animated entity. 
+            This method will return the scene node of the parent entity 
+            if the latter is true.
+        */
+        virtual SceneNode* getParentSceneNode(void) const;
 
         /** Internal method called to notify the object that it has been attached to a node.
         */

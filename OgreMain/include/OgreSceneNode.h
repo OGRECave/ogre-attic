@@ -285,8 +285,10 @@ namespace Ogre {
             this SceneNode, to be retrieved. Multiple access to this method when neither 
             the node nor the lights have moved will result in the same list being returned
             without recalculation. Can be useful when implementing Renderable::getLights.
+        @param radius Optional parameter to specify lights intersecting a given radius of
+            this SceneNode's centre.
         */
-        const LightList& getLights(void) const;
+        const LightList& findLights(Real radius) const;
 
         /** Tells the node whether to yaw around it's own local Y axis or a fixed axis of choice.
         @remarks
