@@ -54,6 +54,8 @@ namespace Ogre {
 		String source;
 		String syntax;
         bool supportsSkeletalAnimation;
+        String shadowCasterProgramName;
+        String shadowReceiverProgramName;
 		std::map<String, String> customParameters;
 	};
     /** Struct for holding the script context while parsing. */

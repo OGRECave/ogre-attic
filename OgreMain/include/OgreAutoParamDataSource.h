@@ -57,6 +57,7 @@ namespace Ogre {
         mutable Matrix4 mInverseWorldViewMatrix;
         mutable Matrix4 mInverseViewMatrix;
         mutable Vector4 mCameraPositionObjectSpace;
+        mutable Matrix4 mTextureViewProjMatrix;
 
         mutable bool mWorldMatrixDirty;
         mutable bool mWorldViewMatrixDirty;
@@ -66,11 +67,13 @@ namespace Ogre {
         mutable bool mInverseWorldViewMatrixDirty;
         mutable bool mInverseViewMatrixDirty;
         mutable bool mCameraPositionObjectSpaceDirty;
+        mutable bool mTextureViewProjMatrixDirty;
 		mutable ColourValue mAmbientLight;
 
         const Renderable* mCurrentRenderable;
         const Camera* mCurrentCamera;
         const LightList* mCurrentLightList;
+        const Frustum* mCurrentTextureProjector;
 
         Light mBlankLight;
     public:
@@ -82,6 +85,8 @@ namespace Ogre {
         void setCurrentCamera(const Camera* cam);
         /** Sets the light list that should be used */
         void setCurrentLightList(const LightList* ll);
+        /** Sets the current texture projector */
+        void setTextureProjector(const Frustum* frust);
 
         const Matrix4& getWorldMatrix(void) const;
         const Matrix4* getWorldMatrixArray(void) const;
@@ -99,6 +104,7 @@ namespace Ogre {
         const Light& getLight(size_t index) const;
 		void setAmbientLightColour(const ColourValue& ambient);
 		const ColourValue& getAmbientLightColour(void) const;
+        const Matrix4& getTextureViewProjMatrix(void) const;
 
 
     };

@@ -97,7 +97,9 @@ namespace Ogre {
             /// The current camera's position in object space 
             ACT_CAMERA_POSITION_OBJECT_SPACE,
 			/// The ambient light colour set in the scene
-			ACT_AMBIENT_LIGHT_COLOUR
+			ACT_AMBIENT_LIGHT_COLOUR, 
+            /// The view/projection matrix of the assigned texture projection frustum
+            ACT_TEXTURE_VIEWPROJ_MATRIX
         };
         /** Structure recording the use of an automatic parameter. */
         class AutoConstantEntry
@@ -458,6 +460,10 @@ namespace Ogre {
         String mSyntaxCode;
         /// Does this (vertex) program include skeletal animation?
         bool mSkeletalAnimation;
+        /// Alternate (vertex) program for use when rendering shadow caster
+        String mShadowCasterProgramName;
+        /// Alternate (vertex) program for use when rendering shadow receiver
+        String mShadowReceiverProgramName;
 
 	public:
 
@@ -522,6 +528,68 @@ namespace Ogre {
             skeletal animation, it will expect the vertex program to do it.
         */
         virtual bool isSkeletalAnimationIncluded(void) const { return mSkeletalAnimation; }
+        /** Gets the name of the alternate program to be used for rendering
+            shadow casters to a texture-based shadow.
+        @remarks
+            Texture-based shadows require that the caster is rendered to a texture 
+            in a solid colour (the shadow colour in the case of modulative texture
+            shadows). Whilst Ogre can arrange this for the fixed function 
+            pipeline, passes which use vertex programs might need the vertex
+            programs still to run in order to preserve any deformation etc
+            that it does. However, lighting calculations must be a lot simpler, 
+            with only the ambient colour being used (which the engine will ensure
+            is bound to the shadow colour). 
+        @par
+            Therefore, it is up to implemetors of vertex programs to provide an
+            alternative vertex program which can be used to render the object
+            to a shadow texture. Do all the same vertex transforms, but set the
+            colour of the vertex to the ambient colour, as bound using the 
+            standard auto parameter binding mechanism. 
+        @note
+            Some vertex programs will work without doing this, because Ogre ensures
+            that all lights except for ambient are set black. However, the chances
+            are that your vertex program is doing a lot of unnecessary work in this
+            case, since the other lights are having no effect, and it is good practice
+            to supply an alternative.
+        @note
+            This is only applicable to vertex programs, Ogre automatically disables
+            fragment programs when rendering shadows.
+        @par
+            The default behaviour is for Ogre to switch to fixed-function 
+            rendering if an explict vertex program alternative is not set.
+        */
+        virtual void setShadowCasterProgramName(const String& name);
+        /** Gets the alternative program to be used when rendering to a shadow
+            texture. */
+        virtual const String& getShadowCasterProgramName(void);
+        /** Gets the name of the alternate program to be used for rendering
+        shadow receivers when using texture-based shadows.
+        @remarks
+        Texture-based shadows require that the shadow receiver is rendered using
+        a projective texture. Whilst Ogre can arrange this for the fixed function 
+        pipeline, passes which use vertex programs might need the vertex
+        programs still to run in order to preserve any deformation etc
+        that it does. So in this case, we need a vertex program which does the 
+        appropriate vertex transformation, but generates projective texture
+        coordinates. 
+        @par
+        Therefore, it is up to implemetors of vertex programs to provide an
+        alternative vertex program which can be used to render the object
+        as a shadow receiver. Do all the same vertex transforms, but generate
+        <strong>2 sets</strong> of texture coordinates using the auto parameter
+        ACT_TEXTURE_VIEWPROJ_MATRIX. 2 sets are needed because Ogre needs to use
+        2 texture units for some shadow effects.
+        @note
+        This is only applicable to vertex programs, Ogre automatically disables
+        fragment programs when rendering shadows.
+        @par
+        The default behaviour is for Ogre to switch to fixed-function 
+        rendering if an explict vertex program alternative is not set. 
+        */
+        virtual void setShadowReceiverProgramName(const String& name);
+        /** Gets the alternative program to be used when rendering to a shadow
+        receiver. */
+        virtual const String& getShadowReceiverProgramName(void);
 
 
     protected:
