@@ -1256,6 +1256,7 @@ namespace Ogre {
             mIlluminationStage = IS_AMBIENT;
             renderObjects(pPriorityGrp->_getSolidPasses(), false, &lightList);
 
+
             // Now iterate per light
             mIlluminationStage = IS_PER_LIGHT;
 
@@ -1906,19 +1907,22 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::manualRender(RenderOperation* rend, 
         Pass* pass, Viewport* vp, const Matrix4& worldMatrix, 
-        const Matrix4& viewMatrix, const Matrix4& projMatrix) 
+        const Matrix4& viewMatrix, const Matrix4& projMatrix, 
+        bool doBeginEndFrame) 
     {
         mDestRenderSystem->_setViewport(vp);
         mDestRenderSystem->_setWorldMatrix(worldMatrix);
         mDestRenderSystem->_setViewMatrix(viewMatrix);
         mDestRenderSystem->_setProjectionMatrix(projMatrix);
 
-        mDestRenderSystem->_beginFrame();
+        if (doBeginEndFrame)
+            mDestRenderSystem->_beginFrame();
 
         setPass(pass);
         mDestRenderSystem->_render(*rend);
 
-        mDestRenderSystem->_endFrame();
+        if (doBeginEndFrame)
+            mDestRenderSystem->_endFrame();
         
     }
     //---------------------------------------------------------------------
