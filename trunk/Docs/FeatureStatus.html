@@ -79,593 +79,172 @@ CODE.str {
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
-<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
-<p align="center" class="header">Feature Status</p>
-<p class="MainHeader">What is this document for?</p>
-This document is to give OGRE users a guide to how complete / mature each aspect of
-the engine is, so they can make informed decisions about the parts they can 
-definitely rely on out of the box, and which parts they might need to extend, or
-at least be a little careful around because they are new or unfinished.</p>
-Here's a guide to the statuses I've chosen to use:
-<TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600">
-<TR>
-  <TD CLASS="BorderHeader" WIDTH="10%">
-    <DIV ALIGN="CENTER">Status</DIV>
-  </TD>
-  <TD CLASS="BorderHeader" WIDTH="90%">
-    <DIV ALIGN="CENTER">Description</DIV>
-  </TD>
-</TR>
-<TR>
-  <TD>
-    Incomplete
-  </TD>
-  <TD>
-    This feature has been started, but is not complete so should not be considered 
-    usable unless you are willing to extend what's there yourself. These features are
-    not listed on the OGRE features list or on the ChangeLog for obvious reasons,
-    but are listed here because you will discover them in the code and the generated
-    documents, albeit not advertised.
-  </TD>
-</TR>
-<TR>
-  <TD>
-    Alpha
-  </TD>
-  <TD>
-    This feature is included, but is very new and has not been extensively tested
-    yet. Because it is in it's first version it may undergo significant changes 
-    in future releases. There is also a reasonable chance that you will find bugs 
-    in it. 
-  </TD>
-</TR>
-<TR>
-  <TD>
-    Beta
-  </TD>
-  <TD>
-    This feature has been tested frequently by the team and probably other keen
-    people who keep up with CVS. It is therefore considered to be pretty stable, 
-    but is still quite new.
-  </TD>
-</TR>
-<TR>
-  <TD>
-    Production
-  </TD>
-  <TD>
-    This feature has been included in the engine for some time and is considered
-    stable and mature.
-  </TD>
-</TR>
-</TABLE>
-<p>This document is divided into sections relating to the structure of the CVS repository,
-which broadly conforms to OGRE's module structure:</p>
-<BLOCKQUOTE>
-  <A href="#OgreMain">OgreMain</A><BR>
-  PlatformManagers<BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#PlatformManager_SDL">SDL</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#PlatformManager_Win32">Win32</A><BR>
-  Plugins<BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_BspSceneManager">BspSceneManager</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_FileSystem">FileSystem</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_GuiElements">GuiElements</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_OctreeSceneManager">OctreeSceneManager</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_ParticleFX">ParticleFX</A><BR>
-  RenderSystems<BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#RenderSystem_Direct3D7">Direct3D7</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#RenderSystem_Direct3D8">Direct3D8</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#RenderSystem_SDL">SDL</A><BR>
-  Tools<BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_3ds2oof">3ds2oof</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_3dsMaxExport">3dsMaxExport</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_BitmapFontBuilderTool">BitmapFontBuilderTool</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_MilkshapeExport">MilkshapeExport</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_PythonInterface">PythonInterface</A><BR>
-  &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_XMLConverter">XMLConverter</A><BR>
-</BLOCKQUOTE>
-<p class="MainHeader"><A name="OgreMain"/>OgreMain module</p>
-This is the core module of the system and is on the whole very mature. Here 
-are the specifics:
-<TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600">
-<TR>
-  <TD CLASS="BorderHeader">
-    Feature
-  </TD>
-  <TD CLASS="BorderHeader">
-    Example classes
-  </TD>
-  <TD CLASS="BorderHeader">
-    Status
-  </TD>
-  <TD CLASS="BorderHeader">
-    Notes
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Hierarchical scene graph
-  </TD>
-  <TD> <!-- Classes -->
-    Node, SceneNode, SceneManager, Camera, MovableObject
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    Still under incremental enhancement and subject to the odd bugfix, but generally very stable.
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Material management
-  </TD>
-  <TD> <!-- Classes -->
-    MaterialManager, Material, Material::TextureLayer
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Dynamic loading plugin system
-  </TD>
-  <TD> <!-- Classes -->
-    Root, DynLibManager, DynLib
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Mathematical routines
-  </TD>
-  <TD> <!-- Classes -->
-    Math, Vector3, Matrix3, Matrix4, Quaternion
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Rendering & geometry pipeline
-  </TD>
-  <TD> <!-- Classes -->
-    RenderSystem, RenderQueue, Renderable
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Mesh / geometry management
-  </TD>
-  <TD> <!-- Classes -->
-    MeshManager, Mesh, SubMesh, MeshSerializer, PatchSurface
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Resource management
-  </TD>
-  <TD> <!-- Classes -->
-    ResourceManager, Resource, ArchiveManager, ArchiveEx
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Sky / background rendering
-  </TD>
-  <TD> <!-- Classes -->
-    SceneManager
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Billboarding & particle systems
-  </TD>
-  <TD> <!-- Classes -->
-    BillboardSet, Billboard, ParticleSystemManager, ParticleSystem, ParticleEmitter, ParticleAffector
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Logging and exception reporting
-  </TD>
-  <TD> <!-- Classes -->
-    Exception, LogManager, Log
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Event listeners (rendering related)
-  </TD>
-  <TD> <!-- Classes -->
-    FrameListener, RenderTargetListener
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Codecs and image loaders
-  </TD>
-  <TD> <!-- Classes -->
-    Codec, JPGCodec, TGACodec, PNGCodec
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Custom memory manager
-  </TD>
-  <TD> <!-- Classes -->
-    MemoryManager
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Animation infrastructure
-  </TD>
-  <TD> <!-- Classes -->
-    Animation, AnimationTrack, KeyFrame
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    Could be considered production, but still a bit new and spline interpolation is
-    especially new.
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Skeletal animation
-  </TD>
-  <TD> <!-- Classes -->
-    Skeleton, Bone, Animation, AnimationTrack, KeyFrame
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Font rendering / loading
-  </TD>
-  <TD> <!-- Classes -->
-    FontManager, Font
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Overlays, 2D elements
-  </TD>
-  <TD> <!-- Classes -->
-    Overlaymanager, Overlay, GuiElement, GuiContainer
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    Although the display aspects of overlays are complete, there is no event model
-    for accepting input via 2D screen elements yet.
-  </TD>
-</TR>
-</TABLE>
-<p class="MainHeader"><A name="PlatformManager_SDL"/>SDL platform manager module</p>
-This implements the base platform services via SDL, used for non-Windows platforms.
-<TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600">
-<TR>
-  <TD CLASS="BorderHeader">
-    Feature
-  </TD>
-  <TD CLASS="BorderHeader">
-    Example classes
-  </TD>
-  <TD CLASS="BorderHeader">
-    Status
-  </TD>
-  <TD CLASS="BorderHeader">
-    Notes
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Input management
-  </TD>
-  <TD> <!-- Classes -->
-    SDLInput
-  </TD>
-  <TD> <!-- Status -->
-    Incomplete
-  </TD>
-  <TD> <!-- Notes -->
-    Keyboard and mouse position are production quality, but mouse buttons and game
-    controllers are not implemented yet (general weakness in all input management
-    at the moment).
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Configuration system
-  </TD>
-  <TD> <!-- Classes -->
-    SDLConfig
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-  </TD>
-</TR>
-</TABLE>
-<p class="MainHeader"><A name="PlatformManager_Win32"/>Win32 platform manager module</p>
-This implements the base platform services for Windows platforms.
-<TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600">
-<TR>
-  <TD CLASS="BorderHeader">
-    Feature
-  </TD>
-  <TD CLASS="BorderHeader">
-    Example classes
-  </TD>
-  <TD CLASS="BorderHeader">
-    Status
-  </TD>
-  <TD CLASS="BorderHeader">
-    Notes
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Input management
-  </TD>
-  <TD> <!-- Classes -->
-    Win32Input
-  </TD>
-  <TD> <!-- Status -->
-    Incomplete
-  </TD>
-  <TD> <!-- Notes -->
-    Keyboard and mouse position are production quality, but mouse buttons and game
-    controllers are not implemented yet (general weakness in all input management
-    at the moment).
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Configuration
-  </TD>
-  <TD> <!-- Classes -->
-    Win32ConfigDialog
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-</TABLE>
-
-<p class="MainHeader"><A name="Plugin_BspSceneManager"/>BSP scene manager</p>
-This plugin customises the scene management approach for indoor environments by using
-a BSP tree and vis clusters. It can import Quake3 levels.
-<TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600">
-<TR>
-  <TD CLASS="BorderHeader">
-    Feature
-  </TD>
-  <TD CLASS="BorderHeader">
-    Example classes
-  </TD>
-  <TD CLASS="BorderHeader">
-    Status
-  </TD>
-  <TD CLASS="BorderHeader">
-    Notes
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    BSP tree navigation
-  </TD>
-  <TD> <!-- Classes -->
-    BspSceneManager, BspLevel, BspNode
-  </TD>
-  <TD> <!-- Status -->
-    Production
-  </TD>
-  <TD> <!-- Notes -->
-    &nbsp;
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Quake3 Level Import
-  </TD>
-  <TD> <!-- Classes -->
-    Quake3Level
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    Support for all level geometry including curved surfaces, although these are
-    built at a fixed subdivision rather than changing on the fly.
-  </TD>
-</TR>
-<TR>
-  <TD> <!-- Feature -->
-    Quake3 shader support
-  </TD>
-  <TD> <!-- Classes -->
-    Quake3Shadermanager, Quake3Shader
-  </TD>
-  <TD> <!-- Status -->
-    Beta
-  </TD>
-  <TD> <!-- Notes -->
-    A few shaders do not parse correctly, deformable geometry & warps are not supported.
-  </TD>
-</TR>
-</TABLE>
-
-<p class="MainHeader"><A name="Plugin_FileSystem"/>FileSystem Plugin</p>
-This plugin adds the ability to locate resources in folders of the filesystem.
-<p>All features are <b>production</b> status.</p>
-
-<p class="MainHeader"><A name="Plugin_GuiElements"/>GuiElements Plugin</p>
-This plugin provides the standard 2D overlay elements which come with OGRE such as
-Panel and TextArea.
-
-<p>All features are <b>beta</b> status.</p>
-
-<p class="MainHeader"><A name="Plugin_OctreeSceneManager"/>OctreeSceneManager Plugin</p>
-This plugin customises the standard scene organisation so that the scene is managed 
-using an octree.
-
-<p>All features are <b>beta</b> status.</p>
-
-<p class="MainHeader"><A name="Plugin_ParticleFX"/>ParticleFX Plugin</p>
-This plugin provides the standard ParticleEmitter and ParticleAffector classes which
-come with OGRE.
-
-<p>All features are <b>production</b> status.</p>
-
-
-<p class="MainHeader"><A name="RenderSystem_Direct3D7"/>Direct3D v7 RenderSystem Plugin</p>
-This plugin provides a rendering system implementation based on Direct3D version 7.
-
-<p>All features are <b>production</b> status.</p>
-
-<p class="MainHeader"><A name="RenderSystem_Direct3D8"/>Direct3D v8 RenderSystem Plugin</p>
-This plugin provides a rendering system implementation based on Direct3D version 8.1.
-
-<p>All features are <b>beta</b> status. You may get better frame rates with the v7
-render system for now because compiled vertex buffer support is not yet implemented,
-and Dx8.1 prefers to work in a vertex buffer manner.</p>
-
-<p class="MainHeader"><A name="RenderSystem_Direct3D8"/>SDL RenderSystem Plugin</p>
-This plugin provides a rendering system implementation based on Open GL and SDL.
-
-<p>All features are <b>beta</b> status. </p>
-
-<p class="MainHeader"><A name="Tools_3ds2oof"/>3ds2oof utility</p>
-This is an old tool which we used to use to convert binary 3D Studion mesh files
-(.3ds) to the .oof format (OGRE's old mesh file format).
-
-<p>This tool is <b>deprecated</b>. You should not use it unless you really have to,
-please try to move to the new exporters. A basic 3DS exporter is included with this
-release and is undergoing further development.</p>
-
-<p class="MainHeader"><A name="Tools_3dsMaxExport"/>3DStudio Max exporter</p>
-This is a 3D Studio MAX (v4 or v5) plugin for exporting model data from 3D Studio
-to OGRE's native .mesh and .skeleton formats.
-
-<p>This tool is in <b>alpha</b> stage. Mesh exporting is supported, but not 
-material definitions or bones / animation.
-
-<p class="MainHeader"><A name="Tools_BitmapFontBuilderTool"/>BitmapFontBuilderTool</p>
-This is just a quick hack to convert the binary character width files created by the
-BitmapFontBuilder tool into 'glyph' lines for OGRE .fontdef files.
-
-<p>This tool is in <b>beta</b> stage. No project files are provided because it is
-very simple to build (one .cpp) and is more of a code snippet than a separate project.
-
-<p class="MainHeader"><A name="Tools_MilkshapeExport"/>Milkshape3D exporter</p>
-This tool is a plugin for the Milkshape3D modeller to allow you to export models
-and animation into OGRE's native .mesh and .skeleton formats.
-<p>This tool is in <b>beta</b> stage.</p>
-
-<p class="MainHeader"><A name="Tools_PythonInterface"/>Python interface</p>
-This sub-project was designed to provide an interface dll so that Python scripts 
-could drive OGRE directly, and to allow Python scripts to be called from the engine
-to provide game-related scripting.
-<p>This sub-project is <b>incomplete</b>. The Python interface has lagged behind
-because of lack of resources to keep it up to date with the rapidly growing
-feature set. In addition, problems with Boost.Python using STLport have hampered
-quick-fix attempts. The project ideally needs outside help from Python enthusiasts
-to bring this up to date.</p>
-
-<p class="MainHeader"><A name="Tools_XMLConverter"/>XML Converter</p>
-This tool converts .mesh and .skeleton files to and from XML. The main OGRE engine
-uses the binary formats for speed and size efficiency, but this tool lets you
-export and import XML in order to examine and tweak models.
-<p>This tool is <b>incomplete</b>. The conversion from .mesh and .skeleton to XML 
-is working but the reverse is still under development. This should be available for 
-the next release.
-
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Feature 
+Status</p><p class="MainHeader">What is this document for?</p>This document is 
+to give OGRE users a guide to how complete / mature each aspect of the engine 
+is, so they can make informed decisions about the parts they can definitely rely 
+on out of the box, and which parts they might need to extend, or at least be a 
+little careful around because they are new or unfinished.<P></p>Here's a guide 
+to the statuses I've chosen to use: <TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"> 
+<TR> <TD CLASS="BorderHeader" WIDTH="10%"> <DIV ALIGN="CENTER">Status</DIV></TD><TD CLASS="BorderHeader" WIDTH="90%"> 
+<DIV ALIGN="CENTER">Description</DIV></TD></TR> <TR> <TD> Incomplete </TD><TD> 
+This feature has been started, but is not complete so should not be considered 
+usable unless you are willing to extend what's there yourself. These features 
+are not listed on the OGRE features list or on the ChangeLog for obvious reasons, 
+but are listed here because you will discover them in the code and the generated 
+documents, albeit not advertised. </TD></TR> <TR> <TD> Alpha </TD><TD> This feature 
+is included, but is very new and has not been extensively tested yet. Because 
+it is in it's first version it may undergo significant changes in future releases. 
+There is also a reasonable chance that you will find bugs in it. </TD></TR> <TR> 
+<TD> Beta </TD><TD> This feature has been tested frequently by the team and probably 
+other keen people who keep up with CVS. It is therefore considered to be pretty 
+stable, but is still quite new. </TD></TR> <TR> <TD> Production </TD><TD> This 
+feature has been included in the engine for some time and is considered stable 
+and mature. </TD></TR> </TABLE><p>This document is divided into sections relating 
+to the structure of the CVS repository, which broadly conforms to OGRE's module 
+structure:</p><BLOCKQUOTE> <P><A href="#OgreMain">OgreMain</A><BR> PlatformManagers<BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#PlatformManager_SDL">SDL</A><BR> &nbsp;&nbsp;&nbsp;&nbsp;<A href="#PlatformManager_Win32">Win32</A><BR> 
+Plugins<BR> &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_BspSceneManager">BspSceneManager</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_FileSystem">FileSystem</A><BR> &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_GuiElements">GuiElements</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_OctreeSceneManager">OctreeSceneManager</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Plugin_ParticleFX">ParticleFX</A><BR> RenderSystems<BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#RenderSystem_Direct3D7">Direct3D7</A><BR> &nbsp;&nbsp;&nbsp;&nbsp;<A href="#RenderSystem_Direct3D8">Direct3D8</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#RenderSystem_SDL">SDL</A><BR> Tools<BR> &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_3ds2oof">3ds2oof</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_3dsMaxExport">3dsMaxExport</A><BR> &nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_BitmapFontBuilderTool">BitmapFontBuilderTool</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_MilkshapeExport">MilkshapeExport</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_PythonInterface">PythonInterface</A><BR> 
+&nbsp;&nbsp;&nbsp;&nbsp;<A href="#Tools_XMLConverter">XMLConverter</A><BR> </P></BLOCKQUOTE><p class="MainHeader"><A name="OgreMain"/></A>OgreMain 
+module</p>This is the core module of the system and is on the whole very mature. 
+Here are the specifics: <TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"> 
+<TR> <TD CLASS="BorderHeader"> Feature </TD><TD CLASS="BorderHeader"> Example 
+classes </TD><TD CLASS="BorderHeader"> Status </TD><TD CLASS="BorderHeader"> Notes 
+</TD></TR> <TR> <TD> <!-- Feature --> Hierarchical scene graph </TD><TD> <!-- Classes --> 
+Node, SceneNode, SceneManager, Camera, MovableObject </TD><TD> <!-- Status --> 
+Production </TD><TD> <!-- Notes --> Still under incremental enhancement and subject 
+to the odd bugfix, but generally very stable. </TD></TR> <TR> <TD> <!-- Feature --> 
+Material management </TD><TD> <!-- Classes --> MaterialManager, Material, Material::TextureLayer 
+</TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> &nbsp; </TD></TR> 
+<TR> <TD> <!-- Feature --> Dynamic loading plugin system </TD><TD> <!-- Classes --> 
+Root, DynLibManager, DynLib </TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> 
+&nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Mathematical routines </TD><TD> <!-- Classes --> 
+Math, Vector3, Matrix3, Matrix4, Quaternion </TD><TD> <!-- Status --> Production 
+</TD><TD> <!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Rendering 
+& geometry pipeline </TD><TD> <!-- Classes --> RenderSystem, RenderQueue, Renderable 
+</TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> &nbsp; </TD></TR> 
+<TR> <TD> <!-- Feature --> Mesh / geometry management </TD><TD> <!-- Classes --> 
+MeshManager, Mesh, SubMesh, MeshSerializer, PatchSurface </TD><TD> <!-- Status --> 
+Production </TD><TD> <!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> 
+Resource management </TD><TD> <!-- Classes --> ResourceManager, Resource, ArchiveManager, 
+ArchiveEx </TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> &nbsp; 
+</TD></TR> <TR> <TD> <!-- Feature --> Sky / background rendering </TD><TD> <!-- Classes --> 
+SceneManager </TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> &nbsp; 
+</TD></TR> <TR> <TD> <!-- Feature --> Billboarding & particle systems </TD><TD> 
+<!-- Classes --> BillboardSet, Billboard, ParticleSystemManager, ParticleSystem, 
+ParticleEmitter, ParticleAffector </TD><TD> <!-- Status --> Production </TD><TD> 
+<!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Logging and exception 
+reporting </TD><TD> <!-- Classes --> Exception, LogManager, Log </TD><TD> <!-- Status --> 
+Production </TD><TD> <!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> 
+Event listeners (rendering related) </TD><TD> <!-- Classes --> FrameListener, 
+RenderTargetListener </TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> 
+&nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Codecs and image loaders </TD><TD> 
+<!-- Classes --> Codec, JPGCodec, TGACodec, PNGCodec </TD><TD> <!-- Status --> 
+Production </TD><TD> <!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> 
+Custom memory manager </TD><TD> <!-- Classes --> MemoryManager </TD><TD> <!-- Status --> 
+Beta </TD><TD> <!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Animation 
+infrastructure </TD><TD> <!-- Classes --> Animation, AnimationTrack, KeyFrame 
+</TD><TD> <!-- Status --> Beta </TD><TD> <!-- Notes --> Could be considered production, 
+but still a bit new and spline interpolation is especially new. </TD></TR> <TR> 
+<TD> <!-- Feature --> Skeletal animation </TD><TD> <!-- Classes --> Skeleton, 
+Bone, Animation, AnimationTrack, KeyFrame </TD><TD> <!-- Status --> Beta </TD><TD> 
+<!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Font rendering / loading 
+</TD><TD> <!-- Classes --> FontManager, Font </TD><TD> <!-- Status --> Beta </TD><TD> 
+<!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Overlays, 2D elements 
+</TD><TD> <!-- Classes --> Overlaymanager, Overlay, GuiElement, GuiContainer </TD><TD> 
+<!-- Status --> Beta </TD><TD> <!-- Notes --> Although the display aspects of 
+overlays are complete, there is no event model for accepting input via 2D screen 
+elements yet. </TD></TR> </TABLE><p class="MainHeader"><A name="PlatformManager_SDL"/></A>SDL 
+platform manager module</p>This implements the base platform services via SDL, 
+used for non-Windows platforms. <TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"> 
+<TR> <TD CLASS="BorderHeader"> Feature </TD><TD CLASS="BorderHeader"> Example 
+classes </TD><TD CLASS="BorderHeader"> Status </TD><TD CLASS="BorderHeader"> Notes 
+</TD></TR> <TR> <TD> <!-- Feature --> Input management </TD><TD> <!-- Classes --> 
+SDLInput </TD><TD> <!-- Status --> Incomplete </TD><TD> <!-- Notes --> Keyboard 
+and mouse position are production quality, but mouse buttons and game controllers 
+are not implemented yet (general weakness in all input management at the moment). 
+</TD></TR> <TR> <TD> <!-- Feature --> Configuration system </TD><TD> <!-- Classes --> 
+SDLConfig </TD><TD> <!-- Status --> Beta </TD><TD> <!-- Notes --> </TD></TR> </TABLE><p class="MainHeader"><A name="PlatformManager_Win32"/></A>Win32 
+platform manager module</p>This implements the base platform services for Windows 
+platforms. <TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"> 
+<TR> <TD CLASS="BorderHeader"> Feature </TD><TD CLASS="BorderHeader"> Example 
+classes </TD><TD CLASS="BorderHeader"> Status </TD><TD CLASS="BorderHeader"> Notes 
+</TD></TR> <TR> <TD> <!-- Feature --> Input management </TD><TD> <!-- Classes --> 
+Win32Input </TD><TD> <!-- Status --> Incomplete </TD><TD> <!-- Notes --> Keyboard 
+and mouse position are production quality, but mouse buttons and game controllers 
+are not implemented yet (general weakness in all input management at the moment). 
+</TD></TR> <TR> <TD> <!-- Feature --> Configuration </TD><TD> <!-- Classes --> 
+Win32ConfigDialog </TD><TD> <!-- Status --> Production </TD><TD> <!-- Notes --> 
+&nbsp; </TD></TR> </TABLE><p class="MainHeader"><A name="Plugin_BspSceneManager"/></A>BSP 
+scene manager</p>This plugin customises the scene management approach for indoor 
+environments by using a BSP tree and vis clusters. It can import Quake3 levels. 
+<TABLE WIDTH="100%" BORDER="1" CELLSPACING="0" CELLPADDING="0" BORDERCOLOR="#996600"> 
+<TR> <TD CLASS="BorderHeader"> Feature </TD><TD CLASS="BorderHeader"> Example 
+classes </TD><TD CLASS="BorderHeader"> Status </TD><TD CLASS="BorderHeader"> Notes 
+</TD></TR> <TR> <TD> <!-- Feature --> BSP tree navigation </TD><TD> <!-- Classes --> 
+BspSceneManager, BspLevel, BspNode </TD><TD> <!-- Status --> Production </TD><TD> 
+<!-- Notes --> &nbsp; </TD></TR> <TR> <TD> <!-- Feature --> Quake3 Level Import 
+</TD><TD> <!-- Classes --> Quake3Level </TD><TD> <!-- Status --> Beta </TD><TD> 
+<!-- Notes --> Support for all level geometry including curved surfaces, although 
+these are built at a fixed subdivision rather than changing on the fly. </TD></TR> 
+<TR> <TD> <!-- Feature --> Quake3 shader support </TD><TD> <!-- Classes --> Quake3Shadermanager, 
+Quake3Shader </TD><TD> <!-- Status --> Beta </TD><TD> <!-- Notes --> A few shaders 
+do not parse correctly, deformable geometry & warps are not supported. </TD></TR> 
+</TABLE><p class="MainHeader"><A name="Plugin_FileSystem"/></A>FileSystem Plugin</p>This 
+plugin adds the ability to locate resources in folders of the filesystem. <p>All 
+features are <b>production</b> status.</p><p class="MainHeader"><A name="Plugin_GuiElements"/></A>GuiElements 
+Plugin</p>This plugin provides the standard 2D overlay elements which come with 
+OGRE such as Panel and TextArea. <p>All features are <b>beta</b> status.</p><p class="MainHeader"><A name="Plugin_OctreeSceneManager"/></A>OctreeSceneManager 
+Plugin</p>This plugin customises the standard scene organisation so that the scene 
+is managed using an octree. Asfrom this version it also allows you to render terrain.<p>All 
+features are <b>beta</b> status.</p><p class="MainHeader"><A name="Plugin_ParticleFX"/></A>ParticleFX 
+Plugin</p>This plugin provides the standard ParticleEmitter and ParticleAffector 
+classes which come with OGRE. <p>All features are <b>production</b> status.</p><p class="MainHeader"><A name="RenderSystem_Direct3D7"/></A>Direct3D 
+v7 RenderSystem Plugin</p>This plugin provides a rendering system implementation 
+based on Direct3D version 7. <p>All features are <b>production</b> status.</p><p class="MainHeader"><A name="RenderSystem_Direct3D8"/></A>Direct3D 
+v8 RenderSystem Plugin</p>This plugin provides a rendering system implementation 
+based on Direct3D version 8.1. <p>All features are <b>beta</b> status. You may 
+get better frame rates with the v7 render system for now because compiled vertex 
+buffer support is not yet implemented, and Dx8.1 prefers to work in a vertex buffer 
+manner.</p><p class="MainHeader"><A name="RenderSystem_Direct3D8"/></A>SDL RenderSystem 
+Plugin</p>This plugin provides a rendering system implementation based on Open 
+GL and SDL. <p>All features are <b>production</b> status. </p><p class="MainHeader"><A name="Tools_3ds2oof"/></A>3ds2oof 
+utility</p>This is an old tool which we used to use to convert binary 3D Studion 
+mesh files (.3ds) to the .oof format (OGRE's old mesh file format). <p>This tool 
+is <b>deprecated</b>. You should not use it unless you really have to, please 
+try to move to the new exporters. A basic 3DS exporter is included with this release 
+and is undergoing further development.</p><p class="MainHeader"><A name="Tools_3dsMaxExport"/></A>3DStudio 
+Max exporter</p>This is a 3D Studio MAX (v4 or v5) plugin for exporting model 
+data from 3D Studio to OGRE's native .mesh and .skeleton formats. <p>This tool 
+is in <b>alpha</b> stage. Mesh exporting is supported, but not material definitions 
+or bones / animation. <p class="MainHeader"><A name="Tools_BitmapFontBuilderTool"/></A>BitmapFontBuilderTool</p>This 
+is just a quick hack to convert the binary character width files created by the 
+BitmapFontBuilder tool into 'glyph' lines for OGRE .fontdef files. <p>This tool 
+is in <b>beta</b> stage. No project files are provided because it is very simple 
+to build (one .cpp) and is more of a code snippet than a separate project. <p class="MainHeader"><A name="Tools_MilkshapeExport"/></A>Milkshape3D 
+exporter</p>This tool is a plugin for the Milkshape3D modeller to allow you to 
+export models and animation into OGRE's native .mesh and .skeleton formats. <p>This 
+tool is in <b>production</b> stage.</p><p class="MainHeader"><A name="Tools_PythonInterface"/></A>Python 
+interface</p>This sub-project was designed to provide an interface dll so that 
+Python scripts could drive OGRE directly, and to allow Python scripts to be called 
+from the engine to provide game-related scripting. <p>This sub-project is <b>incomplete</b>. 
+The Python interface has lagged behind because of lack of resources to keep it 
+up to date with the rapidly growing feature set. In addition, problems with Boost.Python 
+using STLport have hampered quick-fix attempts. The project ideally needs outside 
+help from Python enthusiasts to bring this up to date.</p><p class="MainHeader"><A name="Tools_XMLConverter"/></A>XML 
+Converter</p>This tool converts .mesh and .skeleton files to and from XML. The 
+main OGRE engine uses the binary formats for speed and size efficiency, but this 
+tool lets you export and import XML in order to examine and tweak models. <p>This 
+tool is <b>incomplete</b>. The conversion from .mesh and .skeleton to XML is working 
+but the reverse is still under development. This should be available for the next 
+release. 
 </body>
 </html>
