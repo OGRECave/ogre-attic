@@ -1,0 +1,27 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReferenceAppLayer", "ReferenceAppLayer\scripts\ReferenceAppLayer.vcproj", "{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlayPen", "PlayPen\scripts\PlayPen.vcproj", "{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}.Debug.ActiveCfg = Debug|Win32
+		{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}.Debug.Build.0 = Debug|Win32
+		{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}.Release.ActiveCfg = Release|Win32
+		{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}.Release.Build.0 = Release|Win32
+		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Debug.ActiveCfg = Debug|Win32
+		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Debug.Build.0 = Debug|Win32
+		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Release.ActiveCfg = Release|Win32
+		{EDD4B978-5ABA-448B-8DA7-A02F99714D66}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
