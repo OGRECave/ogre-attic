@@ -9,6 +9,8 @@ SUBDIRS = $(OGRE_GLSUPPORT)
 pkglib_PROGRAMS = RenderSystem_GL.so
 
 RenderSystem_GL_so_SOURCES = OgreGLEngineDll.cpp \
+                             OgreGLGpuProgram.cpp \
+                             OgreGLGpuProgramManager.cpp \
                              OgreGLRenderSystem.cpp \
                              OgreGLSupport.cpp \
                              OgreGLTexture.cpp \

@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlatform.h"
 #include "OgreRenderSystem.h"
 #include "OgreGLHardwareBufferManager.h"
+#include "OgreGLGpuProgramManager.h"
 
 #include "OgreGLSupport.h"
 
@@ -99,6 +100,7 @@ namespace Ogre {
         void initGL(void);
 
         HardwareBufferManager* mHardwareBufferManager;
+        GLGpuProgramManager* mGpuProgramManager;
 
         unsigned short mCurrentLights;
 
