@@ -544,17 +544,21 @@ namespace Ogre {
         mRemovedFrameListeners.clear();
         
         // Tell all listeners
+		bool ret = true;
         for (i= mFrameListeners.begin(); i != mFrameListeners.end(); ++i)
         {
             if (!(*i)->frameEnded(evt))
-                return false;
+			{
+                ret = false;
+				break;
+			}
         }
 
         // Tell buffer manager to free temp buffers used this frame
         if (HardwareBufferManager::getSingletonPtr())
             HardwareBufferManager::getSingleton()._releaseBufferCopies();
 
-        return true;
+        return ret;
     }
     //-----------------------------------------------------------------------
     bool Root::_fireFrameStarted()
