@@ -1486,7 +1486,7 @@ namespace Ogre {
         {
             vec = lt->getDerivedDirection();
             f4vals[0] = -vec.x; // GL light directions are in eye coords
-            f4vals[1] = vec.y;
+            f4vals[1] = -vec.y;
             f4vals[2] = -vec.z; // GL light directions are in eye coords
             f4vals[3] = 0.0; // important!
             // In GL you set direction through position, but the
