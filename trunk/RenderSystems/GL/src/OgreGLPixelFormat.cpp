@@ -35,6 +35,8 @@ namespace Ogre  {
                 return GL_LUMINANCE;
             case PF_L16:
                 return GL_LUMINANCE;
+			case PF_BYTE_LA:
+				return GL_LUMINANCE_ALPHA;
 #if OGRE_ENDIAN == ENDIAN_BIG
             // Formats are in native endian, so R8G8B8 on little endian is
             // BGR, on big endian it is RGB.
@@ -90,10 +92,10 @@ namespace Ogre  {
             case PF_L8:
             case PF_R8G8B8:
             case PF_B8G8R8:
+			case PF_BYTE_LA:
                 return GL_UNSIGNED_BYTE;
             case PF_L16:
                 return GL_UNSIGNED_SHORT;
-            
 #if OGRE_ENDIAN == ENDIAN_BIG
 			case PF_X8B8G8R8:
 			case PF_A8B8G8R8:
@@ -145,6 +147,8 @@ namespace Ogre  {
                 return GL_ALPHA8;
             case PF_A4L4:
                 return GL_LUMINANCE4_ALPHA4;
+			case PF_BYTE_LA:
+				return GL_LUMINANCE8_ALPHA8;
             case PF_R5G6B5:
             case PF_B5G6R5:
                 return GL_RGB5;
@@ -199,7 +203,9 @@ namespace Ogre  {
 		case GL_ALPHA8:
 			return PF_A8;
 		//case GL_LUMINANCE4_ALPHA4:
-		//	return PF_A8L8; // TODO luminance alpha formats for GL
+		// Unsupported by GL as input format
+		case GL_LUMINANCE8_ALPHA8:
+			return PF_BYTE_LA;
 		case GL_RGB5:
 			return PF_R5G6B5;
 		case GL_RGBA4:

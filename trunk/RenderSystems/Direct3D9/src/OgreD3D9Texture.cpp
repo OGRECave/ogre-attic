@@ -1037,6 +1037,8 @@ namespace Ogre
 			return PF_L16;
 		case D3DFMT_A4L4:
 			return PF_A4L4;
+		case D3DFMT_A8L8:
+			return PF_BYTE_LA;
 		case D3DFMT_A4R4G4B4:
 			return PF_A4R4G4B4;
 		case D3DFMT_R5G6B5:
@@ -1088,6 +1090,8 @@ namespace Ogre
 			return D3DFMT_A8;
 		case PF_A4L4:
 			return D3DFMT_A4L4;
+		case PF_BYTE_LA:
+			return D3DFMT_A8L8;
 		case PF_R5G6B5:
 			return D3DFMT_R5G6B5;
 		case PF_A4R4G4B4:
