@@ -79,10 +79,10 @@ namespace Ogre {
 
 // define the Char type as either char or wchar_t
 #if OGRE_WCHAR_T_STRINGS == 1
-	typedef wchar_t Char;
+#   define Char wchar_t
 #	define _T( x ) L##x
 #else
-	typedef char Char;
+#   define Char char
 #	define _T( x ) x
 #endif
 
@@ -91,7 +91,16 @@ namespace Ogre {
     typedef unsigned char uchar;
     typedef unsigned short ushort;
     typedef unsigned int uint;  
-    typedef unsigned long ulong;      
+    typedef unsigned long ulong;
+
+    class IDestroyable
+    {
+    public:
+        virtual void destroy()
+        {
+            delete this;
+        }
+    };
 
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
