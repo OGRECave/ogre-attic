@@ -599,7 +599,7 @@ material Examples/GeneralTexProjection
 			texture_unit
 			{
 				// Project the OGRE logo
-				texture ogrelogo.jpg
+				texture ogrelogo.png
 				tex_address_mode clamp
 			}
 		}
