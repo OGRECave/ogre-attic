@@ -45,9 +45,10 @@ namespace Ogre {
     protected:
         Material* mMaterial;
         RenderOperation mRenderOp;
+        ShadowRenderable* mLightCap; // used only if isLightCapSeparate == true
     public:
-        ShadowRenderable() : mMaterial(0) {}
-        virtual ~ShadowRenderable() { }
+        ShadowRenderable() : mMaterial(0), mLightCap(0) {}
+        virtual ~ShadowRenderable() { delete mLightCap; }
         /** Set the material to be used by the shadow, should be set by the caller 
           before adding to a render queue
         */
@@ -73,6 +74,20 @@ namespace Ogre {
             static LightList ll;
             return ll;
         }
+        /** Does this renderable require a separate light cap?
+        @remarks
+            If possible, the light cap (when required) should be contained in the
+            usual geometry of the shadow renderable. However, if for some reason
+            the normal depth function (less than) could cause artefacts, then a
+            separate light cap with a depth function of 'always fail' can be used 
+            instead. The primary example of this is when there are floating point
+            inaccuracies caused by calculating the shadow geometry separately from
+            the real geometry. 
+        */
+        bool isLightCapSeparate(void) { return mLightCap != 0; }
+
+        /// Get the light cap version of this renderable
+        ShadowRenderable* getLightCapRenderable(void) { return mLightCap; }
 
     };
 

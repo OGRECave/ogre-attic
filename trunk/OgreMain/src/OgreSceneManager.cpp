@@ -2341,9 +2341,22 @@ namespace Ogre {
                 while (iShadowRenderables.hasMoreElements())
                 {
                     ShadowRenderable* sr = iShadowRenderables.getNext();
-                    // render volume, including light and dark caps
+                    // render volume, including dark and (maybe) light caps
                     renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided);
 
+                    // optionally render separate light cap
+                    if (sr->isLightCapSeparate() &&
+                        (flags & SRF_INCLUDE_LIGHT_CAP))
+                    {
+                        // must always fail depth check
+                        mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
+                        assert(sr->getLightCapRenderable() && "Shadow renderable is "
+                            "missing a separate light cap renderable!");
+                        renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(),
+                            zfailAlgo, stencil2sided);
+                        // reset depth function
+                        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
+                    }
                 }
 
             }

@@ -212,7 +212,8 @@ namespace Ogre {
 
         public:
             EntityShadowRenderable(Entity* parent, 
-                HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData);
+                HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
+                bool createSeparateLightCap, bool isLightCap = false);
             ~EntityShadowRenderable();
             /// Overridden from ShadowRenderable
             void getWorldTransforms(Matrix4* xform) const;

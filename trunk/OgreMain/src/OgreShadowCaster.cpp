@@ -170,6 +170,20 @@ namespace Ogre {
             // Do light cap
             if (flags & SRF_INCLUDE_LIGHT_CAP) 
             {
+                ShadowRenderable* lightCapRend = 0;
+                RenderOperation* lightShadOp = 0;
+
+                if ((*si)->isLightCapSeparate())
+                {
+                    // separate light cap
+                    lightCapRend = (*si)->getLightCapRenderable();
+                    lightShadOp = lightCapRend->getRenderOperationForUpdate();
+                    lightShadOp->indexData->indexCount = 0;
+                    // start indexes after the current total
+                    // NB we don't update the total here since that's done below
+                    lightShadOp->indexData->indexStart = 
+                        indexStart + shadOp->indexData->indexCount;
+                }
 
                 EdgeData::TriangleList::iterator ti, tiend;
                 tiend = edgeData->triangles.end();
@@ -182,7 +196,14 @@ namespace Ogre {
                         *pIdx++ = t.vertIndex[0];
                         *pIdx++ = t.vertIndex[1];
                         *pIdx++ = t.vertIndex[2];
-                        shadOp->indexData->indexCount += 3;
+                        if (lightShadOp)
+                        {
+                            lightShadOp->indexData->indexCount += 3;
+                        }
+                        else
+                        {
+                            shadOp->indexData->indexCount += 3;
+                        }
                     }
                 }
 
