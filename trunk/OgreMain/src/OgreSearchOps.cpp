@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <ctype.h>
 
 /* Win32 directory operations emulation */
-#if OGRE_PLATFORM != PLATFORM_WIN32
+#if OGRE_PLATFORM != OGRE_PLATFORM_WIN32
 
 /* If we've initialized yet */
 static int G_searches_initialized = 0;

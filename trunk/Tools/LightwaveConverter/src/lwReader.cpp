@@ -321,7 +321,7 @@ Fail:
 
 #define FLEN_ERROR INT_MIN
 
-#if OGRE_PLATFORM == PLATFORM_WIN32 || OGRE_PLATFORM == PLATFORM_LINUX
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 || OGRE_PLATFORM == PLATFORM_LINUX
 /*
 =====================================================================
 revbytes()
