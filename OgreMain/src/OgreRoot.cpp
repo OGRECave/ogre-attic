@@ -568,7 +568,7 @@ namespace Ogre {
     Real Root::calculateEventTime(unsigned long now, FrameEventTimeType type)
     {
         // Calculate the average time passed between events of the given type
-        // during the last 0.1 seconds.
+        // during the last 0.5 seconds.
 
         std::deque<unsigned long>& times = mEventTimes[type];
         times.push_back(now);
@@ -576,8 +576,8 @@ namespace Ogre {
         if(times.size() == 1)
             return 0;
 
-        // Times up to 0.1 seconds old should be kept
-        unsigned long discardLimit = now - 100;
+        // Times up to 0.5 seconds old should be kept
+        unsigned long discardLimit = now - 500;
 
         // Find the oldest time to keep
         std::deque<unsigned long>::iterator it = times.begin(),
