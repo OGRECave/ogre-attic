@@ -1,11 +1,42 @@
 #include "lwo.h"
 #include "lwReader.h"
 #include "lwo2mesh.h"
-#include <io.h>
-#include <time.h>
 
-using namespace Ogre;
-using namespace std;
+#include "Ogre.h"
+#include "OgreMeshSerializer.h"
+#include "OgreSkeletonSerializer.h"
+#include "OgreDataChunk.h"
+#include "OgreDefaultHardwareBufferManager.h"
+
+#include "io.h"
+#include "time.h"
+
+LogManager* logMgr;
+Math* mth;
+MaterialManager* matMgr;
+SkeletonManager* skelMgr;
+MeshSerializer* meshSerializer;
+MaterialSerializer* materialSerializer;
+SkeletonSerializer* skeletonSerializer;
+DefaultHardwareBufferManager *bufferManager;
+
+bool flags[NUMFLAGS] =
+{
+	false, // lightwave info
+	false, // dump vmaps
+	true,  // shared geometry
+	false, // layers
+	false, // generate LOD
+	true,  // use fixed method
+	true,  // materials
+	true,  // skeleton
+	true,  // has normals
+	true,  // new submesh
+	true   // linear copy
+};
+
+Mesh::LodDistanceList distanceList;
+Real reduction = 0.0f;
 
 ostream& nl(ostream& os)
 {
@@ -333,21 +364,27 @@ int make_filespec( char *spec, char *subdir, char *fullname )
 
 void help( char *filename )
 {
-	cout << "lwo2mesh v0.87 (2003.07.20) by Dennis Verbeek." << nl
+	cout << "lwo2mesh v0.88 (2003.09.21) by Dennis Verbeek." << nl
 		<< "Converts a Lightwave object to an Ogre mesh." << nl
 		<< "Please send any feedback to: dennis.verbeek@chello.nl" << nl << nl
 		<< "Usage: " << filename << " [options] source [dest]" << nl
 		<< "options:" << nl
 		<< "-g do not use shared geometry" << nl
-		<< "-i info on .lwo only, no conversion to mesh" << nl
-		<< "   -v dump vertex maps" << nl
+		<< "-d generate level of detail information" << nl
+		<< "   method (f)ixed or (p)roportional" << nl
+		<< "   reduction (fixed) or reductionfactor (proportional)" << nl
+		<< "   number of LOD levels" << nl
+		<< "   distances" << nl
+		<< "   example: -d p 0.5 4 1000.0 2000.0 4000.0 8000.0" << nl
 		<< "-l save layers separately" << nl
 		<< "-m do not export materials" << nl
-		<< "-s do not export skeleton" << endl;
+		<< "-s do not export skeleton" << nl
+		<< "-i info on .lwo only, no conversion to mesh" << nl
+		<< "   -v dump vertex maps" << endl;
 	exit(0);
 }
 
-void info( lwObject *object, char *filename, bool flags[] )
+void info(lwObject *object, char *filename)
 {
 	unsigned int points = 0;
 	unsigned int polygons = 0;
@@ -401,7 +438,7 @@ void info( lwObject *object, char *filename, bool flags[] )
 		print_vmaps( object );
 }
 
-int readFiles( char *source, char *dest, bool flags[] )
+int readFiles( char *source, char *dest)
 {
 	long h, err;
 	struct _finddata_t data;
@@ -428,7 +465,7 @@ int readFiles( char *source, char *dest, bool flags[] )
 		if (( data.attrib & _A_SUBDIR ) && data.name[ 0 ] != '.' )
 		{
 			make_filespec( source, data.name, filename );
-			readFiles( filename, dest, flags );
+			readFiles( filename, dest );
 		}
 		if ( !( data.attrib & _A_SUBDIR ))
 		{
@@ -438,15 +475,15 @@ int readFiles( char *source, char *dest, bool flags[] )
 			strcpy( prevname, filename );
 			failID = failpos = 0;
 
-			lwObject *object = reader.readObjectFromFile( filename, flags );
+			lwObject *object = reader.readObjectFromFile( filename );
 			if ( object )
 			{
 				if (flags[InfoOnly])
-					info(object, filename, flags);
+					info(object, filename);
 				else
 				{
 					make_destname( dest, data.name, destname );
-					lwo2mesh.writeLwo2Mesh(object, destname, flags);
+					lwo2mesh.writeLwo2Mesh(object, destname);
 				}
 				delete object;
 			}
@@ -461,33 +498,59 @@ int readFiles( char *source, char *dest, bool flags[] )
 
 void main( int argc, char *argv[] )
 {
-	int i;
+	int i = 1;
+	unsigned int ndistances = 0;
+	Real distance = 0;
 	char *source = 0;
 	char *dest = 0;
-	bool flags[NUMFLAGS] =
-	{
-		false, // lightwave info
-		false, // dump vmaps
-		true,  // shared geometry
-		false, // layers
-		true,  // materials
-		true,  // skeleton
-		true,  // has normals
-		true,  // new submesh
-		true   // linear copy
-	};
 
 	if ( argc < 2 ) help(argv[0]);
 
-	for (i = 1; i < argc; i++)
+	while (i < argc)
 	{
 		if (argv[i][0] == '-' || argv[i][0] == '/')
 		{
-			switch (argv[i][1])
+			switch (argv[i++][1])
 			{
+			case 'd':
+			case 'D':
+				flags[GenerateLOD] = true;
+				switch (argv[i++][0])
+				{
+				case 'f':
+				case 'F':
+					flags[UseFixedMethod] = true;
+					break;
+				case 'p':
+				case 'P':
+					flags[UseFixedMethod] = false;
+					break;
+				default:
+					help(argv[0]);
+				}
+				try
+				{
+					reduction = atof(argv[i++]);
+					ndistances = atoi(argv[i++]);
+					while (ndistances > 0)
+					{
+						if (i < argc && argv[i][0] != '-' && argv[i][0] != '/')
+							distanceList.push_back(atof(argv[i++]));									
+						else
+							ndistances = 0;
+						ndistances--;
+					}
+				}
+				catch (Exception *e)
+				{
+					ndistances = 0;
+					distanceList.clear();
+					flags[GenerateLOD] = false;
+				}
+				break;
 			case 'g':
 			case 'G':
-				flags[UseSharedGeometry] = false;
+				flags[UseSharedVertexData] = false;
 				break;
 			case 'i':
 			case 'I':
@@ -518,6 +581,7 @@ void main( int argc, char *argv[] )
 			if (!source) source = argv[i];
 			else
 				if (!dest) dest = argv[i];
+			i++;
 		}
 	}
 
@@ -529,16 +593,28 @@ void main( int argc, char *argv[] )
 	
 	t1 = ( float ) clock() / CLOCKS_PER_SEC;
 
+	if (!flags[InfoOnly])
+	{
+		logMgr = new LogManager();
+		mth = new Math();
+		matMgr = new MaterialManager();;
+		skelMgr = new SkeletonManager();
+		meshSerializer = new MeshSerializer();
+		materialSerializer = new MaterialSerializer();
+		skeletonSerializer = new SkeletonSerializer();
+		bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
+	}
+
 	if ( strchr(source, '*') )
-		readFiles( source, dest, flags );
+		readFiles( source, dest );
 	else
 	{
 		lwReader reader;
-		lwObject *object = reader.readObjectFromFile( source, flags );
+		lwObject *object = reader.readObjectFromFile(source);
 		if ( object )
 		{
 			if (flags[InfoOnly])
-				info(object, source, flags);
+				info(object, source);
 			else
 			{
 				char *destname = (char *)malloc(512);
@@ -550,7 +626,7 @@ void main( int argc, char *argv[] )
 					make_destname(dest, source, destname);
 
 				Lwo2MeshWriter lwo2mesh;
-				lwo2mesh.writeLwo2Mesh(object, destname, flags);
+				lwo2mesh.writeLwo2Mesh(object, destname);
 				free(destname);
 			}
 			delete object;
@@ -570,5 +646,16 @@ void main( int argc, char *argv[] )
 			<< setw(8) << npoints << " points" << nl
 			<< setw(8) << npolygons << " polygons" << nl
 			<< setw(8) << t2 << " seconds processing time." << endl;
+	}
+	else
+	{
+		delete bufferManager;
+	    delete skeletonSerializer;
+		delete materialSerializer;
+		delete meshSerializer;
+		delete skelMgr;
+		delete matMgr;
+		delete mth;
+		delete logMgr;
 	}
 }

@@ -1,6 +1,6 @@
 #include "lwReader.h"
 
-lwObject *lwReader::readObjectFromFile( const char *nfilename, bool nflags[] )
+lwObject *lwReader::readObjectFromFile( const char *nfilename)
 {
 	lwObject *nobject = NULL;
 
@@ -11,7 +11,7 @@ lwObject *lwReader::readObjectFromFile( const char *nfilename, bool nflags[] )
 		if (ifs->fail())
 			cout << "Could not open file: " << nfilename << endl;
 		else
-			nobject = readObjectFromStream( ifs, nflags );
+			nobject = readObjectFromStream( ifs );
 	}
 	catch (...)
 	{
@@ -23,7 +23,7 @@ lwObject *lwReader::readObjectFromFile( const char *nfilename, bool nflags[] )
 	return nobject;
 }
 
-lwObject *lwReader::readObjectFromStream( istream *nis, bool nflags[] )
+lwObject *lwReader::readObjectFromStream( istream *nis)
 {
 	lwObject *nobject = 0;
 	chunksize = 0;
@@ -32,7 +32,6 @@ lwObject *lwReader::readObjectFromStream( istream *nis, bool nflags[] )
 	flen = 0;
 
 	is = nis;
-	flags = nflags;
 
 	try
 	{

@@ -21,14 +21,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../include,../../../OgreMain/include,..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include,..\..\..\OgreMain/include,..\..\..\Dependencies\include"
 				PreprocessorDefinitions="_DEBUG,_CONSOLE,WIN32,TIXML_USE_STL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				PrecompiledHeaderFile=".\..\obj\Debug/LWO2MESH.pch"
-				AssemblerListingLocation=".\..\obj\Debug/"
-				ObjectFile=".\..\obj\Debug/"
-				ProgramDataBaseFileName=".\..\obj\Debug/"
+				PrecompiledHeaderFile=".\..\obj\Debug\LWO2MESH.pch"
+				AssemblerListingLocation=".\..\obj\Debug\"
+				ObjectFile=".\..\obj\Debug\"
+				ProgramDataBaseFileName=".\..\obj\Debug\"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -41,17 +41,17 @@
 				IgnoreImportLibrary="TRUE"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="ogremain.lib"
-				OutputFile=".\..\bin\Debug/LWO2MESH.exe"
+				OutputFile=".\..\bin\Debug\LWO2MESH.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="\projects\stlport\lib,\projects\Ogre\OgreMain\lib\debug,\projects\Ogre\Dependencies\lib\debug"
 				IgnoreDefaultLibraryNames="libc.lib,libcd.lib,libcmt.lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\..\bin\Debug/LWO2MESH.pdb"
+				ProgramDatabaseFile=".\..\bin\Debug\LWO2MESH.pdb"
 				SubSystem="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\bin\Debug/LWO2MESH.tlb"/>
+				TypeLibraryName=".\..\bin\Debug\LWO2MESH.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -83,10 +83,10 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
-				PrecompiledHeaderFile=".\..\obj\Release/LWO2MESH.pch"
-				AssemblerListingLocation=".\..\obj\Release/"
-				ObjectFile=".\..\obj\Release/"
-				ProgramDataBaseFileName=".\..\obj\Release/"
+				PrecompiledHeaderFile=".\..\obj\Release\LWO2MESH.pch"
+				AssemblerListingLocation=".\..\obj\Release\"
+				ObjectFile=".\..\obj\Release\"
+				ProgramDataBaseFileName=".\..\obj\Release\"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
@@ -98,7 +98,7 @@
 				IgnoreImportLibrary="TRUE"
 				AdditionalOptions="/MACHINE:I386"
 				AdditionalDependencies="ogremain.lib"
-				OutputFile=".\..\bin\Release/LWO2MESH.exe"
+				OutputFile=".\..\bin\Release\LWO2MESH.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="\projects\stlport\lib,\projects\Ogre\OgreMain\lib\release,\projects\Ogre\Dependencies\lib\release"
@@ -106,7 +106,7 @@
 				SubSystem="1"/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\bin\Release/LWO2MESH.tlb"/>
+				TypeLibraryName=".\..\bin\Release\LWO2MESH.tlb"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

@@ -3,9 +3,15 @@
 #include "Ogre.h"
 #include "OgreMesh.h"
 #include "OgreStringConverter.h"
+#include "OgreDefaultHardwareBufferManager.h"
 
 #define POLYLIMIT 0x5555
 #define POINTLIMIT 0x5555
+
+extern Mesh::LodDistanceList distanceList;
+extern Real reduction;
+extern bool flags[NUMFLAGS];
+extern MaterialSerializer* materialSerializer;
 
 void Lwo2MeshWriter::doExportMaterials()
 {
@@ -16,60 +22,64 @@ void Lwo2MeshWriter::doExportMaterials()
 		ext[ _MAX_EXT ],
 		texname [128];
 	
-    for (unsigned int i = 0; i < object->surfaces.size(); ++i)
-    {		
-        lwSurface *surface = object->surfaces[i];
-        // Create deferred material so no load
+	for (unsigned int i = 0; i < object->surfaces.size(); ++i)
+	{		
+		lwSurface *surface = object->surfaces[i];
+		// Create deferred material so no load
 		
-		Ogre::Material* ogreMat = (Ogre::Material*)pMatMgr->getByName(surface->name);
+		Material* ogreMat = (Material*)MaterialManager::getSingleton().getByName(surface->name);
+		
 		if (!ogreMat)
-			ogreMat = (Ogre::Material*)pMatMgr->createDeferred(surface->name);
-		
-        ogreMat->setAmbient
-		(
-			surface->color.rgb[0],
-			surface->color.rgb[1],
-			surface->color.rgb[2]
-		);
-
-        ogreMat->setDiffuse
-		(
-			surface->diffuse.val * surface->color.rgb[0],
-			surface->diffuse.val * surface->color.rgb[1],
-			surface->diffuse.val * surface->color.rgb[2]
-		);
-
-        ogreMat->setSpecular
-		(
-			surface->specularity.val * surface->color.rgb[0],
-			surface->specularity.val * surface->color.rgb[1],
-			surface->specularity.val * surface->color.rgb[2]
-		);
-
-        ogreMat->setShininess(surface->glossiness.val);
-
-		ogreMat->setSelfIllumination
-		(
-			surface->luminosity.val * surface->color.rgb[0],
-			surface->luminosity.val * surface->color.rgb[1],
-			surface->luminosity.val * surface->color.rgb[2]
-		);
-		
-		for (unsigned int j = 0; j < surface->color.textures.size(); j++)
 		{
-			lwTexture *tex = surface->color.textures[j];
-			int cindex = tex->param.imap->cindex;
-			lwClip *clip = object->lwFindClip(cindex);
+			ogreMat = (Material*)MaterialManager::getSingleton().createDeferred(surface->name);
 			
-			if (clip)
+			ogreMat->setAmbient
+			(
+				surface->color.rgb[0],
+				surface->color.rgb[1],
+				surface->color.rgb[2]
+			);
+			
+			ogreMat->setDiffuse
+			(
+				surface->diffuse.val * surface->color.rgb[0],
+				surface->diffuse.val * surface->color.rgb[1],
+				surface->diffuse.val * surface->color.rgb[2]
+			);
+			
+			ogreMat->setSpecular
+			(
+				surface->specularity.val * surface->color.rgb[0],
+				surface->specularity.val * surface->color.rgb[1],
+				surface->specularity.val * surface->color.rgb[2]
+			);
+			
+			ogreMat->setShininess(surface->glossiness.val);
+			
+			ogreMat->setSelfIllumination
+			(
+				surface->luminosity.val * surface->color.rgb[0],
+				surface->luminosity.val * surface->color.rgb[1],
+				surface->luminosity.val * surface->color.rgb[2]
+			);
+			
+			for (unsigned int j = 0; j < surface->color.textures.size(); j++)
 			{
-				_splitpath( clip->source.still->name, drive, dir, node, ext );
-				_makepath( texname, 0, 0, node, ext );
+				lwTexture *tex = surface->color.textures[j];
+				int cindex = tex->param.imap->cindex;
+				lwClip *clip = object->lwFindClip(cindex);
 				
-				ogreMat->addTextureLayer(texname);
-			}
+				if (clip)
+				{
+					_splitpath( clip->source.still->name, drive, dir, node, ext );
+					_makepath( texname, 0, 0, node, ext );
+					
+					ogreMat->addTextureLayer(texname);
+				}
+			}			
+		materialSerializer->queueForExport(ogreMat);
 		}
-    }
+	}
 }
 
 Skeleton *Lwo2MeshWriter::doExportSkeleton(const String &skelName, int l)
@@ -96,121 +106,148 @@ Skeleton *Lwo2MeshWriter::doExportSkeleton(const String &skelName, int l)
 		copyPolygons(-1, ID_BONE, object->layers[l]->polygons, bones);
 	}
 
-    if (!bones.size()) return NULL; // no bones means no skeleton
+	if (!bones.size()) return NULL; // no bones means no skeleton
 
-    Skeleton *ogreskel = new Skeleton(skelName);
+	Skeleton *ogreskel = new Skeleton(skelName);
 
-    unsigned int i;
-    // Create all the bones in turn
-    for (i = 0; i < bones.size(); ++i)
-    {
-        lwPolygon* bone = bones[i];
+	unsigned int i;
+	// Create all the bones in turn
+	for (i = 0; i < bones.size(); ++i)
+	{
+		lwPolygon* bone = bones[i];
 		if (bone->vertices.size() != 2) continue; // a bone has only 2 sides
 
-        Bone* ogreBone = ogreskel->createBone("Bone");
+		Bone* ogreBone = ogreskel->createBone("Bone");
 
 		Ogre::Vector3 bonePos(bone->vertices[0]->point->x, bone->vertices[0]->point->y, bone->vertices[0]->point->z);
 
-        ogreBone->setPosition(bonePos);
-        // Hmm, Milkshape has chosen a Euler angle representation of orientation which is not smart
-        // Rotation Matrix or Quaternion would have been the smarter choice
-        // Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
-        // Grr, we'll try our best anyway...
-        Ogre::Quaternion qx, qy, qz, qfinal;
+		ogreBone->setPosition(bonePos);
+		// Hmm, Milkshape has chosen a Euler angle representation of orientation which is not smart
+		// Rotation Matrix or Quaternion would have been the smarter choice
+		// Might we have Gimbal lock here? What order are these 3 angles supposed to be applied?
+		// Grr, we'll try our best anyway...
+		Quaternion qx, qy, qz, qfinal;
 /*
-        qx.FromAngleAxis(msBoneRot[0], Ogre::Vector3::UNIT_X);
-        qy.FromAngleAxis(msBoneRot[1], Ogre::Vector3::UNIT_Y);
-        qz.FromAngleAxis(msBoneRot[2], Ogre::Vector3::UNIT_Z);
+		qx.FromAngleAxis(msBoneRot[0], Vector3::UNIT_X);
+		qy.FromAngleAxis(msBoneRot[1], Vector3::UNIT_Y);
+		qz.FromAngleAxis(msBoneRot[2], Vector3::UNIT_Z);
 */
 		// Assume rotate by x then y then z
-        qfinal = qz * qy * qx;
-        ogreBone->setOrientation(qfinal);
-    }
+		qfinal = qz * qy * qx;
+		ogreBone->setOrientation(qfinal);
+	}
 /*
-    for (i = 0; i < numBones; ++i)
-    {
-        msBone* bone = msModel_GetBoneAt(pModel, i);
+	for (i = 0; i < numBones; ++i)
+	{
+		msBone* bone = msModel_GetBoneAt(pModel, i);
 
-        if (strlen(bone->szParentName) == 0)
-        {
-        }
-        else
-        {
-            Ogre::Bone* ogrechild = ogreskel->getBone(bone->szName);
-            Ogre::Bone* ogreparent = ogreskel->getBone(bone->szParentName);
+		if (strlen(bone->szParentName) == 0)
+		{
+		}
+		else
+		{
+			Bone* ogrechild = ogreskel->getBone(bone->szName);
+			Bone* ogreparent = ogreskel->getBone(bone->szParentName);
 
-            if (ogrechild == 0)
-            {
-                continue;
-            }
-            if (ogreparent == 0)
-            {
-                continue;
-            }
-            // Make child
-            ogreparent->addChild(ogrechild);
-        }
+			if (ogrechild == 0)
+			{
+				continue;
+			}
+			if (ogreparent == 0)
+			{
+				continue;
+			}
+			// Make child
+			ogreparent->addChild(ogrechild);
+		}
 
 
-    }
+	}
 
-    // Create the Animation(s)
-    doExportAnimations(pModel, ogreskel);
+	// Create the Animation(s)
+	doExportAnimations(pModel, ogreskel);
 
-    // Create skeleton serializer & export
-    SkeletonSerializer serializer;
-    serializer.exportSkeleton(ogreskel, szFile);
+	// Create skeleton serializer & export
+	SkeletonSerializer serializer;
+	serializer.exportSkeleton(ogreskel, szFile);
 
-    ogreMesh->_notifySkeleton(ogreskel);
+	ogreMesh->_notifySkeleton(ogreskel);
 
-    return ogreskel;
+	return ogreskel;
 */
 	delete ogreskel;
 	return NULL;
 }
 
-unsigned short Lwo2MeshWriter::setupGeometry(GeometryData *geometry, unsigned short numVertices)
+#define POSITION_BINDING 0
+#define NORMAL_BINDING 1
+#define TEXCOORD_BINDING 2
+
+VertexData *Lwo2MeshWriter::setupVertexData(unsigned short vertexCount, VertexData *oldVertexData, bool deleteOldVertexData)
 {
-	unsigned short oldNumvertices = geometry->numVertices;
-	
-	Real* pVertices;
-	Real* pNormals;
-	Real* pTexCoords[OGRE_MAX_TEXTURE_COORD_SETS];
-	
-	if (oldNumvertices)
+	VertexData *vertexData = new VertexData();
+
+	if (oldVertexData)
 	{
-		pVertices = geometry->pVertices;
-		if (geometry->hasNormals)
-			pNormals = geometry->pNormals;
-		pTexCoords[0] = geometry->pTexCoords[0];		
-		
-		numVertices += geometry->numVertices;
+        // Basic vertex info
+        vertexData->vertexStart = oldVertexData->vertexStart;
+		vertexData->vertexCount = oldVertexData->vertexCount + vertexCount;
+
+		const VertexBufferBinding::VertexBufferBindingMap bindings = oldVertexData->vertexBufferBinding->getBindings();
+		VertexBufferBinding::VertexBufferBindingMap::const_iterator vbi, vbend;
+		vbend = bindings.end();
+
+		for (vbi = bindings.begin(); vbi != vbend; ++vbi)
+		{
+			HardwareVertexBufferSharedPtr srcbuf = vbi->second;
+			// create new buffer with the same settings
+			HardwareVertexBufferSharedPtr dstBuf = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+					srcbuf->getVertexSize(), srcbuf->getNumVertices() + vertexCount, srcbuf->getUsage(), srcbuf->isSystemMemory());
+
+			// copy data
+			dstBuf->copyData(*srcbuf, 0, 0, srcbuf->getSizeInBytes(), true);
+
+			// Copy binding
+			vertexData->vertexBufferBinding->setBinding(vbi->first, dstBuf);
+		}
+
+        // Copy elements
+        const VertexDeclaration::VertexElementList elems = oldVertexData->vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator ei, eiend;
+        eiend = elems.end();
+        for (ei = elems.begin(); ei != eiend; ++ei)
+        {
+            vertexData->vertexDeclaration->addElement(
+                ei->getSource(),
+                ei->getOffset(),
+                ei->getType(),
+                ei->getSemantic(),
+                ei->getIndex() );
+        }
+		if (deleteOldVertexData) delete oldVertexData;
 	}
-	
-	geometry->numVertices = numVertices;
-	geometry->pVertices = new Ogre::Real[geometry->numVertices * 3];
-	geometry->hasNormals = flags[HasNormals];
-	if (geometry->hasNormals)
-		geometry->pNormals = new Ogre::Real[geometry->numVertices * 3];
 	else
-		geometry->pNormals = 0;
-	
-	geometry->pTexCoords[0] = new Ogre::Real[geometry->numVertices * 2];
-	
-	if (oldNumvertices)
 	{
-		memcpy(geometry->pVertices, pVertices, oldNumvertices * 3 * 4);
-		if (geometry->hasNormals)
-			memcpy(geometry->pNormals, pNormals, oldNumvertices * 3 * 4);
-		memcpy(geometry->pTexCoords[0], pTexCoords[0], oldNumvertices * 2 * 4);
+		vertexData->vertexCount = vertexCount;
 		
-		delete []pVertices;
-		if (geometry->hasNormals)
-			delete []pNormals;
-		delete []pTexCoords[0];
+		VertexBufferBinding* bind = vertexData->vertexBufferBinding;
+		VertexDeclaration* decl = vertexData->vertexDeclaration;
+		
+		decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+		HardwareVertexBufferSharedPtr pbuf = HardwareBufferManager::getSingleton().createVertexBuffer(decl->getVertexSize(POSITION_BINDING), vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC, false);
+		bind->setBinding(POSITION_BINDING, pbuf);
+		
+		decl->addElement(NORMAL_BINDING, 0, VET_FLOAT3, VES_NORMAL);
+		HardwareVertexBufferSharedPtr nbuf = HardwareBufferManager::getSingleton().createVertexBuffer(decl->getVertexSize(NORMAL_BINDING), vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC, false);
+		bind->setBinding(NORMAL_BINDING, nbuf);
+		
+		decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+		HardwareVertexBufferSharedPtr tbuf = HardwareBufferManager::getSingleton().createVertexBuffer(decl->getVertexSize(TEXCOORD_BINDING), vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC, false);
+		bind->setBinding(TEXCOORD_BINDING, tbuf);
 	}
 	
-	return oldNumvertices;
+	return vertexData;
 }
 
 void Lwo2MeshWriter::copyPoints(int surfaceIndex, unsigned long polygontype, vpoints &sourcepoints, vpoints &destpoints)
@@ -243,16 +280,26 @@ void Lwo2MeshWriter::copyPolygons(int surfaceIndex, unsigned long polygontype, v
 	}
 }
 
-void Lwo2MeshWriter::copyDataToGeometry(vpoints &points,
+void Lwo2MeshWriter::copyDataToVertexData(vpoints &points,
 										vpolygons &polygons,
 										vvmaps &vmaps,
-										SubMesh *ogreSubMesh,
-										GeometryData *geometry,
-										unsigned short geometryOffset)
+										IndexData *indexData,
+										VertexData *vertexData,
+										unsigned short vertexDataOffset)
 {
 	lwVMap *vmap = 0;
 	unsigned int ni;
 	
+	HardwareVertexBufferSharedPtr pbuf = vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+	HardwareVertexBufferSharedPtr nbuf = vertexData->vertexBufferBinding->getBuffer(NORMAL_BINDING);
+	HardwareVertexBufferSharedPtr tbuf = vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+	HardwareIndexBufferSharedPtr ibuf = indexData->indexBuffer;
+
+	Real* pPos = static_cast<Real*>(pbuf->lock(HardwareBuffer::HBL_DISCARD));
+	Real* pNor = static_cast<Real*>(nbuf->lock(HardwareBuffer::HBL_DISCARD));
+	Real* pTex = static_cast<Real*>(tbuf->lock(HardwareBuffer::HBL_DISCARD));
+	unsigned short *pIdx = static_cast<unsigned short*>(ibuf->lock(HardwareBuffer::HBL_DISCARD));
+
 	for (unsigned int p = 0; p < polygons.size(); p++)
 	{
 		lwPolygon *polygon = polygons[p];
@@ -264,24 +311,22 @@ void Lwo2MeshWriter::copyDataToGeometry(vpoints &points,
 			lwVertex *vertex = polygon->vertices[v];
 			lwPoint *point = vertex->point;
 			unsigned short i = getPointIndex(point, points);
-			ogreSubMesh->faceVertexIndices[p*3 + v] = geometryOffset + i;
+
+			pIdx[p*3 + v] = vertexDataOffset + i;
 			
-			ni = (geometryOffset + i) * 3;
+			ni = (vertexDataOffset + i) * 3;
 			
-			geometry->pVertices[ni] = vertex->point->x;
-			geometry->pVertices[ni + 1] = vertex->point->y;
-			geometry->pVertices[ni + 2] = vertex->point->z;
+			pPos[ni] = vertex->point->x;
+			pPos[ni + 1] = vertex->point->y;
+			pPos[ni + 2] = vertex->point->z;
 			
-			if (geometry->hasNormals)
-			{
-				geometry->pNormals[ni] = vertex->normal.x;
-				geometry->pNormals[ni + 1] = vertex->normal.y;
-				geometry->pNormals[ni + 2] = vertex->normal.z;
-			}
+			pNor[ni] = vertex->normal.x;
+			pNor[ni + 1] = vertex->normal.y;
+			pNor[ni + 2] = vertex->normal.z;
 			
 			bool found = false;
 			
-			ni = (geometryOffset + i) * 2;
+			ni = (vertexDataOffset + i) * 2;
 			
 			for (unsigned int v = 0; v < point->vmaps.size(); v++)
 			{
@@ -292,8 +337,8 @@ void Lwo2MeshWriter::copyDataToGeometry(vpoints &points,
 					{
 						int n = point->vmaps[v].index;
 						
-						geometry->pTexCoords[0][ni] = vmap->val[n][0];
-						geometry->pTexCoords[0][ni + 1] = vmap->val[n][1];
+						pTex[ni] = vmap->val[n][0];
+						pTex[ni + 1] = vmap->val[n][1];
 						found = true;
 						break;
 					}
@@ -302,7 +347,10 @@ void Lwo2MeshWriter::copyDataToGeometry(vpoints &points,
 			}
 		}
 	}
-	
+    pbuf->unlock();
+    nbuf->unlock();
+    tbuf->unlock();
+	ibuf->unlock();
 }
 
 void Lwo2MeshWriter::prepLwObject(void)
@@ -384,6 +432,28 @@ inline String Lwo2MeshWriter::makeLayerFileName(char* dest, unsigned int l, char
 	return LayerFileName;
 }
 
+inline String Lwo2MeshWriter::makeMaterialFileName(char* dest)
+{
+	char
+		drive[ _MAX_DRIVE ],
+		dir[ _MAX_DIR ],
+		node[ _MAX_FNAME ],
+		ext[ _MAX_EXT ];
+
+	_splitpath( dest, drive, dir, node, ext );
+
+	String MaterialFileName;
+
+	MaterialFileName += drive;
+	MaterialFileName += dir;
+	MaterialFileName += node;
+	MaterialFileName += ".material";
+
+	const char *test = MaterialFileName.c_str();
+
+	return MaterialFileName;
+}
+
 inline void Lwo2MeshWriter::getTextureVMaps(vtextures &textures, vvmaps &svmaps, vvmaps &dvmaps)
 {
 	for (unsigned int i = 0; i < textures.size(); i++)
@@ -404,16 +474,15 @@ inline void Lwo2MeshWriter::getTextureVMaps(vtextures &textures, vvmaps &svmaps,
 	return;
 }
 
-bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest, bool nflags[])
+bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest)
 {
 	object = nobject;
 	dest = ndest;
-	flags = nflags;
 	
 	if (!object) return false;
 	if (!object->layers.size()) return false;
 	
-	pLogMgr->createLog("Lwo2MeshWriter.log");
+	LogManager::getSingleton().createLog("Lwo2MeshWriter.log");
 	
 	prepLwObject();
 	
@@ -424,7 +493,10 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest, bool nflags[]
 	MeshSerializer meshserializer;
 
 	if (flags[ExportMaterials])
+	{
 		doExportMaterials();
+		materialSerializer->exportQueued(makeMaterialFileName(dest));
+	}
 
 	unsigned int ml = object->layers.size();
 
@@ -460,19 +532,31 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest, bool nflags[]
 				copyPolygons(s, ID_FACE, object->layers[l]->polygons, polygons);
 				getTextureVMaps(surface->color.textures, object->layers[l]->vmaps, vmaps);
 
-				if (SeparateLayers)	break;
+				if (SeparateLayers) break;
 			}
 
-			if (!polygons.size()) continue;				
+			if (!polygons.size()) continue; 			
 			
 			SubMesh *ogreSubMesh = ogreMesh->createSubMesh();
-			ogreSubMesh->numFaces = polygons.size();
-			ogreSubMesh->faceVertexIndices = new unsigned short[ogreSubMesh->numFaces * 3];
+			ogreSubMesh->useSharedVertices = flags[UseSharedVertexData] && points.size() < POINTLIMIT;
+
+			ogreSubMesh->indexData->indexCount = polygons.size() * 3;
+			ogreSubMesh->indexData->indexBuffer = HardwareBufferManager::getSingleton().createIndexBuffer(HardwareIndexBuffer::IT_16BIT, ogreSubMesh->indexData->indexCount, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 			ogreSubMesh->setMaterialName(surface->name);
 			
-			ogreSubMesh->useSharedVertices = flags[UseSharedGeometry] && points.size() < POINTLIMIT;
-			GeometryData* geometry = ogreSubMesh->useSharedVertices ? &ogreMesh->sharedGeometry : &ogreSubMesh->geometry;
-			copyDataToGeometry(points, polygons, vmaps, ogreSubMesh, geometry, setupGeometry(geometry, points.size()));
+
+			if (ogreSubMesh->useSharedVertices)
+			{
+				unsigned short vertexDataOffset = 0;
+				if (ogreMesh->sharedVertexData) vertexDataOffset = ogreMesh->sharedVertexData->vertexCount;
+				ogreMesh->sharedVertexData = setupVertexData(points.size(), ogreMesh->sharedVertexData);
+				copyDataToVertexData(points, polygons, vmaps, ogreSubMesh->indexData, ogreMesh->sharedVertexData, vertexDataOffset);
+			}
+			else
+			{
+				ogreSubMesh->vertexData = setupVertexData(points.size());
+				copyDataToVertexData(points, polygons, vmaps, ogreSubMesh->indexData, ogreSubMesh->vertexData);
+			}
 		}
 		
 		String fname = SeparateLayers ? makeLayerFileName(dest, ol, object->layers[ol]->name) : dest;
@@ -484,10 +568,22 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest, bool nflags[]
 				skeleton = doExportSkeleton(fname, ol);
 			else
 				if (!ol) skeleton = doExportSkeleton(fname, -1);
+
+		if (flags[GenerateLOD])
+		{
+			ProgressiveMesh::VertexReductionQuota quota;
+
+			if (flags[UseFixedMethod])
+				quota = ProgressiveMesh::VRQ_CONSTANT;
+			else
+				quota = ProgressiveMesh::VRQ_PROPORTIONAL;
+					
+			ogreMesh->generateLodLevels(distanceList, quota, reduction);
+		}
 		
 		try
 		{
-			meshserializer.exportMesh(ogreMesh, fname, flags[ExportMaterials]);
+			meshserializer.exportMesh(ogreMesh, fname);
 		}
 		catch (...)
 		{
