@@ -37,6 +37,8 @@ extern "C" {
 }
 
 #include "OgreJPEGCodec.h"
+#include "OgreImage.h"
+#include "OgreException.h"
 
 BEGIN_OGRE_NAMESPACE
 
@@ -68,7 +70,7 @@ void JPEGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
     OgreUnguard();
 }
 
-Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output ) const
+Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
 {
     OgreGuard( "JPEGCodec::decode" );
 
@@ -155,14 +157,22 @@ Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output 
     // This is an important step since it will release a good deal of memory.
     jpeg_destroy_decompress(&cinfo);
 
-    ImageData * data = new ImageData;
+    ImageData * ret_data = new ImageData;
 
-    data->ulHeight = height;
-    data->ulWidth = width;
-    data->bGreyS = greyscale;
-    data->b32Bit = has_alpha;
+    ret_data->ulHeight = height;
+    ret_data->ulWidth = width;
 
-    OgreUnguardRet( data );
+    uchar ucBpp = 0;
+    if( has_alpha )
+        ucBpp += 8;
+    if( greyscale )
+        ucBpp += 8;
+    else
+        ucBpp += 24;
+
+    ret_data->eFormat = Image::BPP2PF( ucBpp );
+
+    OgreUnguardRet( ret_data );
 }
 
 END_OGRE_NAMESPACE
