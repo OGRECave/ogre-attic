@@ -47,7 +47,8 @@ namespace Ogre {
 		ZeroMemory( &mpNormalBuffer, sizeof(HardwareVertexBuffer) );
 		ZeroMemory( &mpDiffuseBuffer, sizeof(HardwareVertexBuffer) );
 		ZeroMemory( &mpSpecularBuffer, sizeof(HardwareVertexBuffer) );
-		for( int i=0; i < OGRE_MAX_TEXTURE_LAYERS; i++ )
+        int i;
+		for( i=0; i < OGRE_MAX_TEXTURE_LAYERS; i++ )
 		{
 			for( int j=0; j < 4; j++ )
 				ZeroMemory( &mpTextures[i][j], sizeof(HardwareVertexBuffer) );
@@ -57,7 +58,7 @@ namespace Ogre {
 		ZeroMemory( mCurrentDecl, sizeof(DWORD) * D3D_MAX_DECLSIZE );
 		mhCurrentShader = 0;
 
-		for( int i=0; i < MAX_LIGHTS; i++ )
+		for(i=0; i < MAX_LIGHTS; i++ )
 			mLights[i] = 0;
 
 		// Create our Direct3D object
@@ -74,7 +75,8 @@ namespace Ogre {
 		OgreGuard( "D3D8RenderSystem::~D3D8RenderSystem" );
 
 		// Make sure no streams are being used anymore
-		for( int i=0; i < mStreamsInUse; i++ )
+        int i;
+		for( i=0; i < mStreamsInUse; i++ )
 			mpD3DDevice->SetStreamSource( i, NULL, 0 );
 
 		// Delete the shader
@@ -86,7 +88,7 @@ namespace Ogre {
 		SAFE_RELEASE( mpNormalBuffer.buffer );
 		SAFE_RELEASE( mpDiffuseBuffer.buffer );
 		SAFE_RELEASE( mpSpecularBuffer.buffer );
-		for( int i=0; i < OGRE_MAX_TEXTURE_LAYERS; i++ )
+		for( i=0; i < OGRE_MAX_TEXTURE_LAYERS; i++ )
 		{
 			for( int j=0; j < 4; j++ )
 				SAFE_RELEASE( mpTextures[i][j].buffer );

@@ -7,7 +7,7 @@
 
 namespace Ogre {
 
-	class _OgreD3DExport D3D8Device
+	class _OgreD3D8Export D3D8Device
 	{
 
 	public:
