@@ -26,68 +26,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePlatform.h"
 #include "OgreStdHeaders.h"
 
-// We might as well re-define boolean in this source file, as it doesn't change anything outside.
-#ifdef boolean
-    #undef boolean
-#endif
-
-#ifndef XMD_H
-    #define XMD_H
-#endif
-
-#ifdef FAR
-    #undef FAR
-#endif
-
-//#define HAVE_BOOLEAN
-
-extern "C" {
-
-#ifdef __BORLANDC__
-struct jpeg_common_struct;
-struct jpeg_compress_struct;
-struct jpeg_decompress_struct;
-
-typedef struct jpeg_common_struct * j_common_ptr;
-typedef struct jpeg_compress_struct * j_compress_ptr;
-typedef struct jpeg_decompress_struct * j_decompress_ptr;
-#endif
-
-#include "jpeglib.h"
-}
-
-//#define boolean unsigned char
-
 #include "OgreJPEGCodec.h"
 #include "OgreImage.h"
 #include "OgreException.h"
 
+#include <il/il.h>
+
 namespace Ogre {
 
-    // Non-member method because I want to use 'boolean' as defined by jpeglib
-    // but I don't want to make the .h dependent on this type (which I'd have to do if I used
-    // a static method). Hence the non-member hack.
-    boolean dummy_fill_input_buffer( j_decompress_ptr cinfo )
-    {
-        return TRUE;
-    }
-    //---------------------------------------------------------------------
-    void JPEGCodec::init_source( j_decompress_ptr cinfo )
-    {
-    }
-    //---------------------------------------------------------------------
-    void JPEGCodec::skip_input_data( j_decompress_ptr cinfo, long count )
-    {
-        jpeg_source_mgr * src = cinfo->src;
-        if(count > 0) {
-            src->bytes_in_buffer -= count;
-            src->next_input_byte += count;
-        }
-    }
-    //---------------------------------------------------------------------
-    void JPEGCodec::term_source( j_decompress_ptr cinfo )
-    {
-    }
     //---------------------------------------------------------------------
     void JPEGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
     {
@@ -112,108 +58,44 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
     {
-        OgreGuard( "JPEGCodec::decode" );
+		OgreGuard( "JPEGCodec::decode" );
 
-        struct jpeg_decompress_struct cinfo;
+		ILuint ImageName;
+		ILint Imagformat, BytesPerPixel;
+		ImageData * ret_data = new ImageData;
 
-        // allocate and initialize JPEG decompression object
-        struct jpeg_error_mgr jerr;
+		if( !_is_initialized )
+		{
+			ilInit();
+			ilEnable( IL_FILE_OVERWRITE );
+			_is_initialized = true;
+		}
 
-        /* We have to set up the error handler first, in case the initialization
-        step fails.  (Unlikely, but it could happen if you are out of memory.)
-        This routine fills in the contents of struct jerr, and returns jerr's
-        address which we place into the link field in cinfo.
-        */
-        cinfo.err = jpeg_std_error(&jerr);
-        /* Now we can initialize the JPEG decompression object. */
-        jpeg_create_decompress(&cinfo);
+		ilGenImages( 1, &ImageName );
+		ilBindImage( ImageName );
 
-        // specify data source
-        jpeg_source_mgr jsrc;
+		ilLoadL( 
+			IL_JPG, 
+			( void * )const_cast< uchar * >( input.getPtr() ), 
+			static_cast< ILuint >( input.getSize() ) );
 
-        // Set up data pointer
-        jsrc.bytes_in_buffer = input.getSize();
-        jsrc.next_input_byte = (JOCTET*) input.getPtr();
-        cinfo.src = &jsrc;
+		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
+		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
 
-        jsrc.init_source = init_source;
-        jsrc.fill_input_buffer = dummy_fill_input_buffer;
-        jsrc.skip_input_data = skip_input_data;
-        jsrc.resync_to_restart = jpeg_resync_to_restart;    // use default method
-        jsrc.term_source = term_source;
+		Imagformat = ilGetInteger( IL_IMAGE_FORMAT );
+		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
-        // Decodes JPG input from whatever source
-        // Does everything AFTER jpeg_create_decompress
-        //   and BEFORE jpeg_destroy_decompress
-        // Caller is responsible for arranging these + setting up cinfo
+		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
+		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
+		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
 
-        /* read file parameters with jpeg_read_header() */
-        (void) jpeg_read_header(&cinfo, TRUE);
+		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
 
-        /* Start decompressor */
-        (void) jpeg_start_decompress(&cinfo);
+		output->allocate( ImageSize );
+		memcpy( output->getPtr(), ilGetData(), ImageSize );
 
-        // Get image data
-        unsigned short rowspan = cinfo.image_width * cinfo.num_components;
-        unsigned width = cinfo.image_width;
-        unsigned height = cinfo.image_height;
+		ilDeleteImages( 1, &ImageName );
 
-        bool has_alpha= false;  //(JPEG never has alpha)
-        bool greyscale;
-
-        if (cinfo.jpeg_color_space == JCS_GRAYSCALE)
-        {
-            greyscale = true;
-        }
-        else
-        {
-            greyscale = false;
-        }
-
-        // Allocate memory for buffer
-        output->allocate( rowspan * height );
-        uchar *buffer = const_cast< uchar * >( output->getPtr() );
-
-        /* Here we use the library's state variable cinfo.output_scanline as the
-        * loop counter, so that we don't have to keep track ourselves.
-        */
-        // Create array of row pointers for lib
-        uchar **rowPtr = new uchar * [height];
-        for( unsigned i = 0; i < height; i++ )
-            rowPtr[i] = &buffer[ i * rowspan ];
-        unsigned rowsRead = 0;
-        while( cinfo.output_scanline < cinfo.output_height )
-        {
-            rowsRead += jpeg_read_scanlines( &cinfo, &rowPtr[rowsRead], cinfo.output_height - rowsRead );
-        }
-
-        delete [] rowPtr;
-        /* Finish decompression */
-
-        (void) jpeg_finish_decompress(&cinfo);
-
-        // Release JPEG decompression object
-
-        // This is an important step since it will release a good deal of memory.
-        jpeg_destroy_decompress(&cinfo);
-
-        ImageData * ret_data = new ImageData;
-
-        ret_data->ulHeight = height;
-        ret_data->ulWidth = width;
-
-        uchar ucBpp = 0;
-        if( has_alpha )
-            ucBpp += 8;
-        if( greyscale )
-            ucBpp += 8;
-        else
-            ucBpp += 24;
-
-        ret_data->eFormat = Image::BPP2PF( ucBpp );
-
-        OgreUnguardRet( ret_data );
+		OgreUnguardRet( ret_data );
     }
-
 }
-

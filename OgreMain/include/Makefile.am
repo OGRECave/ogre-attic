@@ -105,6 +105,7 @@ OgreRenderQueueSortingGrouping.h \
 OgreRenderSystem.h \
 OgreRenderTarget.h \
 OgreRenderTargetListener.h \
+OgreRenderTexture.h \
 OgreRenderWindow.h \
 OgreRenderable.h \
 OgreResource.h \

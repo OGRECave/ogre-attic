@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreString.h"
+#include "OgreCommon.h"
 #include "OgreDataChunk.h"
 
 namespace Ogre {
@@ -45,19 +46,6 @@ namespace Ogre {
     */
     class _OgreExport Image
     {
-    public:
-        /** Pixel formats allowed by the Image class.
-        */
-        enum PixelFormat
-        {
-            FMT_UNKNOWN = 0,
-            FMT_ALPHA = 1,
-            FMT_GREY = 2,
-            FMT_GREY_ALPHA = 3,
-            FMT_RGB = 4,
-            FMT_RGB_ALPHA = 5
-        };
-
     public:
         /** Structure used to define a rectangle in a 2-D integer space.
         */
@@ -139,82 +127,165 @@ namespace Ogre {
         */                 
         Image & flipAroundX();
 
-        /** Returns the pixel size  for a given PixelFormat
+        /** @deprecated
+				Use getNumElemBytes instead.
+			@internal
+			@brief
+				Returns the pixel size  for a given PixelFormat
             @param
                 eFormat the PixelFormat to get the pixel size for
             @returns
                 the number of bytes per pixel of data
         */
-        static uchar PF2PS( PixelFormat eFormat )
+        static uchar PF2PS( PixelFormat format )
         {
-            uchar res = 0;
-
-            if( eFormat & FMT_ALPHA )
-            {
-                res += 1;
-            }
-            if( eFormat & FMT_RGB )
-            {
-                res += 3;
-            }
-            else
-            {
-                res += 1;
-            }
-
-            return res;
+			return getNumElemBytes( format );
         }
 
-        /** Returns the BPP for a given PixelFormat
+		/** Returns the size in bytes of an element of the given pixel format.
+			@returns
+				The size in bytes of an element. See Remarks.
+			@remarks
+				Passing PF_UNKNOWN will result in returning a size of 0 bytes while
+				passing an unregistered pixel format will result in returning a size
+				of 256 bytes.
+		*/
+		inline static uchar getNumElemBytes( PixelFormat format )
+		{
+			switch( format )
+			{
+			case PF_UNKNOWN:
+				return 0;
+			case PF_L8:
+			case PF_A8:
+			case PF_A4L4:
+			case PF_L4A4:
+				return 1;
+			case PF_R5G6B5:
+			case PF_B5G6R5:
+			case PF_A4R4G4B4:
+			case PF_B4G4R4A4:
+				return 2;
+			case PF_R8G8B8:
+			case PF_B8R8G8:
+				return 3;
+			case PF_A8R8G8B8:
+			case PF_B8G8R8A8:
+			case PF_A2R10G10B10:
+			case PF_B10G10R10A2:
+				return 4;
+			default:
+				return 0xff;
+			}
+		}
+
+        /** @deprecated
+				Use getNumElemBits instead.
+			@internal
+			@brief
+				Returns the BPP for a given PixelFormat
             @param
                 eFormat the PixelFormat to get the BPP for
             @returns
                 the number of bits per pixel of data
         */
-        static uchar PF2BPP( PixelFormat fmt )
+        static uchar PF2BPP( PixelFormat format )
         {
-            uchar res = 0;
-
-            if( fmt & FMT_ALPHA )
-                res = 8;
-
-            if( fmt & FMT_GREY )
-                res += 8;
-            else
-                res += 24;
-
-            return res;
+            return getNumElemBits( format );
         }
 
-        /** Converts a BPP value into a pixel format.
-        */
-        static PixelFormat BPP2PF( uchar bpp )
-        {
-            if( bpp == 8 )
-                return FMT_GREY;
-            if( bpp == 16 )
-                return FMT_GREY_ALPHA;
-            if( bpp == 24 )
-                return FMT_RGB;
-            if( bpp == 32 )
-                return FMT_RGB_ALPHA;
-            return FMT_UNKNOWN;
-        }
+		/** Returns the size in bits of an element of the given pixel format.
+			@returns
+				The size in bits of an element. See Remarks.
+			@remarks
+				Passing PF_UNKNOWN will result in returning a size of 0 bits while
+				passing an unregistered pixel format will result in returning a size
+				of 256 bits.
+		*/
+		inline static uchar getNumElemBits( PixelFormat format )
+		{
+			switch( format )
+			{
+			case PF_UNKNOWN:
+				return 0;
+			case PF_L8:
+			case PF_A8:
+			case PF_A4L4:
+			case PF_L4A4:
+				return 8;
+			case PF_R5G6B5:
+			case PF_B5G6R5:
+			case PF_A4R4G4B4:
+			case PF_B4G4R4A4:
+				return 16;
+			case PF_R8G8B8:
+			case PF_B8R8G8:
+				return 24;
+			case PF_A8R8G8B8:
+			case PF_B8G8R8A8:
+			case PF_A2R10G10B10:
+			case PF_B10G10R10A2:
+				return 32;
+			default:
+				return 0xff;
+			}
+		}
 
-        /** Converts a pixel size value into a pixel format.
-        */
-        static PixelFormat PS2PF( uchar bpp )
-        {
-            if( bpp == 1 )
-                return FMT_GREY;
-            if( bpp == 2 )
-                return FMT_GREY_ALPHA;
-            if( bpp == 3 )
-                return FMT_RGB;
-            if( bpp == 4 )
-                return FMT_RGB_ALPHA;
-            return FMT_UNKNOWN;
-        }
+		/** Decides wether converting from a pixel format to another requires 
+			endian-flipping.
+			@param srcformat
+				The source pixel format.
+			@param destformat
+				The destination pixel format.
+			@returns
+				true if the conversion requires flipping, false otherwise. See Remarks.
+			@remarks
+				If one of the two pixel formats is FMT_UNKNOWN or is not registered,
+				no assumption can be made for the returned value.
+		*/
+		inline static bool convReqsFlip( PixelFormat srcformat, PixelFormat destformat )
+		{
+			/* We increment the flag when the format is little endian. Then we check
+			   if the flag modulo 2 is zero. It it is, then we either haven't incremented
+			   at all (both formats big endian) or we have incremented twice (both formats
+			   little endian), so we need no flipping is needed. Otherwise, flipping is 
+			   required. */
+			uchar flag = 0;
+
+			switch( srcformat )
+			{
+			case PF_A4L4:
+			case PF_R5G6B5:
+			case PF_A4R4G4B4:
+			case PF_R8G8B8:
+			case PF_A8R8G8B8:
+			case PF_A2R10G10B10:
+				flag++;
+				break;
+
+			default:
+				break;
+			}
+
+			switch( destformat )
+			{
+			case PF_A4L4:
+			case PF_R5G6B5:
+			case PF_A4R4G4B4:
+			case PF_R8G8B8:
+			case PF_A8R8G8B8:
+			case PF_A2R10G10B10:
+				flag++;
+				break;
+
+			default:
+				break;
+			}
+
+			if( flag % 2 )
+				return true;
+			return false;
+		}
 
         /** Loads raw data from memory. The pixel format has to be specified.
         */

@@ -37,17 +37,19 @@ namespace Ogre {
     */
     class _OgreExport ImageCodec : public Codec
     {
+	protected:
+		static bool _is_initialized;
+
     public:
         /** Codec return class for images. Has imformation about the size and the
-            pixel format of the image.
-        */
+            pixel format of the image. */
         class ImageData : public Codec::CodecData
         {
         public:
-            uint ulHeight;
-            uint ulWidth;
+            uint height;
+            uint width;
 
-            Image::PixelFormat eFormat;
+            PixelFormat format;
 
         public:
             String dataType()

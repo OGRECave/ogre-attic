@@ -29,22 +29,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreImageCodec.h"
 
-/* To avoid having to add library dependencies to the client apps */
-struct j_decompress_struct;
-typedef struct jpeg_decompress_struct * j_decompress_ptr;
-
 namespace Ogre {
 
     /** ImageCodec specialized in JPEG images.
     */
     class _OgreExport JPEGCodec : public ImageCodec
     {
-    protected:
-        /* Crappy  callbacks required by jpeglib */
-        static void init_source(j_decompress_ptr cinfo);
-        static void skip_input_data(j_decompress_ptr cinfo, long count);
-        static void term_source(j_decompress_ptr cinfo);
-
     public:
         void code( const DataChunk& input, DataChunk* output, ... ) const;
         /** Encodes data to a jpeg file.
