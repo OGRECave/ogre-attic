@@ -28,6 +28,20 @@ the basic resources required for the progress bar and will be loaded automatical
 
 using namespace Ogre;
 
+/** Defines an example loading progress bar which you can use during 
+	startup, level changes etc to display loading progress. 
+@remarks
+	Basically you just need to create an instance of this class, call start()
+	before loading and finish() afterwards. You may also need to stop areas of
+	your scene rendering in between since this method will call 
+	RenderWindow::update() to update the display of the bar - we advise using
+	SceneManager's 'special case render queues' for this, see
+	SceneManager::addSpecialCaseRenderQueue for details.
+@note 
+	This progress bar relies on you having the OgreCore.zip package already 
+	added to a resource group called 'Bootstrap' - this provides the basic 
+	resources required for the progress bar and will be loaded automatically.
+*/
 class ExampleLoadingBar : public ResourceGroupListener
 {
 protected:
