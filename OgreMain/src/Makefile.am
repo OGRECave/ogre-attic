@@ -107,6 +107,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreTexture.cpp \
                          OgreTextureLayer.cpp \
                          OgreTextureManager.cpp \
+						 OgreUserDefinedObject.cpp \
                          OgreVector3.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
