@@ -293,18 +293,48 @@ namespace Ogre {
     /** Common subclass of DataStream for handling data from 
 		std::basic_istream.
 	*/
-	class _OgreExport BasicIstreamDataStream : public DataStream
+	class _OgreExport FileStreamDataStream : public DataStream
 	{
 	protected:
 		/// Reference to source stream
-		const std::basic_istream<unsigned char*>& mStream;
+		const std::ifstream* mpStream;
+        bool mFreeOnDestroy;			
 	public:
-		/// Construct stream from an STL stream
-		BasicIstreamDataStream(const std::basic_istream<unsigned char*>& istream);
-		/// Construct named stream from an STL stream
-		BasicIstreamDataStream(const String& name, const std::basic_istream<unsigned char*>& istream);
+		/** Construct stream from an STL stream
+        @param istream Pointer to source stream
+        @param freeOnDestroy Whether to delete the underlying stream on 
+            destruction of this class
+        */
+		FileStreamDataStream(std::ifstream* istream, 
+            bool freeOnDestroy = true);
+		/** Construct named stream from an STL stream
+        @param name The name to give this stream
+        @param istream Pointer to source stream
+        @param freeOnDestroy Whether to delete the underlying stream on 
+            destruction of this class
+        */
+		FileStreamDataStream(const String& name, 
+            const std::ifstream* istream, 
+            bool freeOnDestroy = true);
 
-		~BasicIstreamDataStream();
+		/** Construct named stream from an STL stream, and tell it the size
+        @remarks
+            This variant tells the class the size of the stream too, which 
+            means this class does not need to seek to the end of the stream 
+            to determine the size up-front. This can be beneficial if you have
+            metadata about the contents of the stream already.
+        @param name The name to give this stream
+        @param istream Pointer to source stream
+        @param size Size of the stream contents in bytes
+        @param freeOnDestroy Whether to delete the underlying stream on 
+            destruction of this class
+        */
+		FileStreamDataStream(const String& name, 
+            std::ifstream* istream, 
+            size_t size, 
+            bool freeOnDestroy = true);
+
+        ~FileStreamDataStream();
 
 		/** @copydoc DataStream::read
 		*/

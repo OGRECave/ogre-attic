@@ -86,7 +86,7 @@ namespace Ogre {
 
         /** Default destructor.
         */
-        virtual ~Archive();
+            virtual ~Archive() { unload(); }
 
 		/// Get the name of this archive
 		const String& getName(void) const { return mName; }
@@ -117,11 +117,6 @@ namespace Ogre {
 			shared pointer.
         */
         virtual DataStreamPtr open(const String& filename) const = 0;
-
-        /** Remove a specific file from the Archive. 
-        @param filename The filename to remove.
-        */
-        virtual void kill(const String& filename) = 0;
 
         /** List all file names in the archive.
         @note

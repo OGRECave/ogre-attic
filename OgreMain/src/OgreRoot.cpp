@@ -48,6 +48,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgrePlatformManager.h"
 #include "OgreArchiveManager.h"
+#include "OgreZip.h"
+#include "OgreFileSystem.h"
 
 #include "OgreILCodecs.h"
 
@@ -176,6 +178,8 @@ namespace Ogre {
         mProfiler = new Profiler();
 		Profiler::getSingleton().setTimer(mTimer);
 #endif
+        mFileSystemArchiveFactory = new FileSystemArchiveFactory();
+        ArchiveManager::getSingleton().addArchiveFactory( mFileSystemArchiveFactory );
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 
@@ -218,6 +222,7 @@ namespace Ogre {
 
         ILCodecs::deleteCodecs();
         delete mZipArchiveFactory;
+        delete mFileSystemArchiveFactory;
 #if OGRE_PROFILING
         delete mProfiler;
 #endif

@@ -43,6 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCommon.h"
 #include "OgreDataStream.h"
 #include "OgreException.h"
+#include "OgreFileSystem.h"
 #include "OgreLog.h"
 #include "OgreMath.h"
 #include "OgreMatrix3.h"

@@ -42,7 +42,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ZipArchive::~ZipArchive()
     {
-        unload();
     }
     //-----------------------------------------------------------------------
     void ZipArchive::load()
@@ -83,14 +82,6 @@ namespace Ogre {
         // Construct & return stream
         return DataStreamPtr(new ZipDataStream(filename, zzipFile, static_cast<size_t>(zstat.d_csize)));
 
-    }
-    //-----------------------------------------------------------------------
-    void ZipArchive::kill(const String& filename)
-    {
-        // Not supported
-        Except(Exception::ERR_CANNOT_WRITE_TO_FILE, 
-            "Writing to zip archives is not currently supported", 
-            "ZipArchive::kill");
     }
     //-----------------------------------------------------------------------
     StringVectorPtr ZipArchive::list(bool recursive)

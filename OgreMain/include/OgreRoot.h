@@ -88,6 +88,7 @@ namespace Ogre
         OverlayManager* mOverlayManager;
         FontManager* mFontManager;
         ArchiveFactory *mZipArchiveFactory;
+        ArchiveFactory *mFileSystemArchiveFactory;
 		ResourceGroupManager* mResourceGroupManager;
 
         Timer* mTimer;
