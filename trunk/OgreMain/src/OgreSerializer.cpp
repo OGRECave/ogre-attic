@@ -27,6 +27,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreLogManager.h"
 #include "OgreDataChunk.h"
 #include "OgreException.h"
+#include "OgreVector3.h"
+#include "OgreQuaternion.h"
 
 
 namespace Ogre {
@@ -45,7 +47,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void Serializer::writeFileHeader(unsigned short numMaterials)
+    void Serializer::writeFileHeader(void)
     {
        
         unsigned short val = HEADER_CHUNK_ID;
@@ -145,6 +147,37 @@ namespace Ogre {
         str[readcount] = '\0';
         return str;
 
+    }
+    //---------------------------------------------------------------------
+    void Serializer::writeObject(const Vector3& vec)
+    {
+        writeReals(&vec.x, 1);
+        writeReals(&vec.y, 1);
+        writeReals(&vec.z, 1);
+
+    }
+    //---------------------------------------------------------------------
+    void Serializer::writeObject(const Quaternion& q)
+    {
+        writeReals(&q.x, 1);
+        writeReals(&q.y, 1);
+        writeReals(&q.z, 1);
+        writeReals(&q.w, 1);
+    }
+    //---------------------------------------------------------------------
+    void Serializer::readObject(DataChunk& chunk, Vector3* pDest)
+    {
+        readReals(chunk, &pDest->x, 1);
+        readReals(chunk, &pDest->y, 1);
+        readReals(chunk, &pDest->z, 1);
+    }
+    //---------------------------------------------------------------------
+    void Serializer::readObject(DataChunk& chunk, Quaternion* pDest)
+    {
+        readReals(chunk, &pDest->x, 1);
+        readReals(chunk, &pDest->y, 1);
+        readReals(chunk, &pDest->z, 1);
+        readReals(chunk, &pDest->w, 1);
     }
     //---------------------------------------------------------------------
 

@@ -50,7 +50,7 @@ namespace Ogre {
     }    
 
     //-----------------------------------------------------------------------
-    Node* Node::getParent(void)
+    Node* Node::getParent(void) const
     {
         return mParent;
     }
@@ -151,12 +151,12 @@ namespace Ogre {
         child->_updateFromParent();
     }
     //-----------------------------------------------------------------------
-    unsigned short Node::numChildren(void)
+    unsigned short Node::numChildren(void) const
     {
         return static_cast< unsigned short >( mChildren.size() );
     }
     //-----------------------------------------------------------------------
-    Node* Node::getChild(unsigned short index)
+    Node* Node::getChild(unsigned short index) const
     {
         if( index < mChildren.size() )
             return mChildren[index];
@@ -184,7 +184,7 @@ namespace Ogre {
         return 0;
     }
     //-----------------------------------------------------------------------
-    const Quaternion& Node::getOrientation()
+    const Quaternion& Node::getOrientation() const
     {
         return mOrientation;
     }
@@ -219,7 +219,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Vector3 & Node::getPosition(void)
+    const Vector3 & Node::getPosition(void) const
     {
         return mPosition;
     }
@@ -348,7 +348,7 @@ namespace Ogre {
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
-    const Vector3 & Node::getScale(void)
+    const Vector3 & Node::getScale(void) const
     {
         return mScale;
     }
@@ -359,7 +359,7 @@ namespace Ogre {
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
-    bool Node::getInheritScale(void)
+    bool Node::getInheritScale(void) const
     {
         return mInheritScale;
     }

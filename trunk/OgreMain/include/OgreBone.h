@@ -73,7 +73,7 @@ namespace Ogre
             const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
         /** Gets a pointer to a child node.*/
-        Bone* getChild(unsigned short index);
+        Bone* getChild(unsigned short index) const;
 
         /** Drops the specified child from this node. Does not delete the node, just detaches it from
             this parent, potentially to be reattached elsewhere.
@@ -81,7 +81,7 @@ namespace Ogre
         Bone* removeChild(unsigned short index);
 
         /** Gets the numeric handle for this bone (unique within the skeleton). */
-        unsigned short getHandle(void);
+        unsigned short getHandle(void) const;
 
         /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
             bones were originally bound to a mesh.
@@ -102,7 +102,6 @@ namespace Ogre
             Internal use only.
         */
         Matrix4 _getBindingPoseInverseTransform(void);
-
 
     protected:
         /// The numeric handle of this bone

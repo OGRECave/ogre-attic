@@ -51,6 +51,7 @@ namespace Ogre {
         // Bones are assigned indexes automatically based on their order of declaration
         // starting with 0.
 
+            // unsigned short handle            : handle of the bone, should be contiguous & start at 0
             // Vector3 position                 : position of this bone relative to parent 
             // Quaternion orientation           : orientation of this bone relative to parent 
 
@@ -58,7 +59,8 @@ namespace Ogre {
         // Record of the parent of a single bone, used to build the node tree
         // Repeating section, listed in Bone Index order, one per Bone
 
-            // unsigned short parentBoneIndex   : parent bone
+            // unsigned short handle             : child bone
+            // unsigned short parentHandle   : parent bone
 
         SKELETON_ANIMATION         = 0x4000,
         // A single animation for this skeleton
