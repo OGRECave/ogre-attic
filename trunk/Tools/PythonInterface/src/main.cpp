@@ -41,4 +41,5 @@ BOOST_PYTHON_MODULE(Ogre)
     exportFrameListener();
     exportAxisAlignedBox();
     exportSphere();
+	exportNode();
 }

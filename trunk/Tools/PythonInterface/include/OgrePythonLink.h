@@ -64,4 +64,5 @@ void exportLight(void);
 void exportMovableObject(void);
 void exportEntity(void);
 void exportSceneNode(void);
-void exportFrameListener(void);
+void exportFrameListener(void)i;
+void exportNode(void);
