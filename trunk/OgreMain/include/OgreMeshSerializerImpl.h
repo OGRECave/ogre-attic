@@ -87,6 +87,8 @@ namespace Ogre {
         virtual void writeLodUsageManual(const Mesh::MeshLodUsage& usage);
         virtual void writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage, unsigned short lodNum);
         virtual void writeBoundsInfo(const Mesh* pMesh);
+        virtual void writeCondensedVertexBuffer(HardwareVertexBufferSharedPtr vbuf, 
+            const VertexElement* elem, size_t vertexCount);
 
         virtual unsigned long calcMaterialSize(const Material* pMat);
         virtual unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);

@@ -55,7 +55,13 @@ namespace Ogre {
     {
         LogManager::getSingleton().logMessage("MeshSerializer writing mesh data to " + filename + "...");
 
-        MaterialManager& matMgr = MaterialManager::getSingleton();
+        // Check that the mesh has it's bounds set
+        if (pMesh->getBounds().isNull() || pMesh->getBoundingSphereRadius() == 0.0f)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "The Mesh you have supplied does not have its"
+                " bounds completely defined. Define them first before exporting.", 
+                "MeshSerializerImpl::exportMesh");
+        }
         mpfFile = fopen(filename, "wb");
 
         writeFileHeader();
@@ -277,6 +283,37 @@ namespace Ogre {
         writeShorts(&opType, 1);
     }
     //---------------------------------------------------------------------
+    void MeshSerializerImpl::writeCondensedVertexBuffer(HardwareVertexBufferSharedPtr vbuf, 
+        const VertexElement* elem, size_t vertexCount)
+    {
+        // Hacky method, turns shared buffers into unshared
+        // Needed because for now the mesh format only supports unshared for simplicity
+        // This will probably be upgraded in the next version, but there were enough
+        // changes going on as it is!
+        void* pVert = vbuf->lock(HardwareBuffer::HBL_READ_ONLY);
+
+        // Check see if already unshared
+        if (vbuf->getVertexSize() == elem->getSize())
+        {
+            // Bulk copy
+            writeReals(static_cast<Real*>(pVert), vertexCount * 3);
+        }
+        else
+        {
+            // Do it the hard way
+            Real* pReal;
+            while (vertexCount--)
+            {
+                elem->baseVertexPointerToElement(pVert, &pReal);
+                writeReals(pReal, VertexElement::getTypeCount(elem->getType()));
+                pVert = static_cast<void*>(
+                    static_cast<unsigned char*>(pVert) + vbuf->getVertexSize() );
+            }
+        }
+        
+        vbuf->unlock();
+    }
+    //---------------------------------------------------------------------
     void MeshSerializerImpl::writeGeometry(const VertexData* vertexData)
     {
         // Header
@@ -295,10 +332,8 @@ namespace Ogre {
         }
         HardwareVertexBufferSharedPtr vbuf = 
             vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-        Real* pReal = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
-        writeReals(pReal, vertexData->vertexCount * 3);
-        vbuf->unlock();
+        writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
+        //writeReals(pReal, vertexData->vertexCount * 3);
 
         elem = vertexData->vertexDeclaration->findElementBySemantic(VES_NORMAL);
         if (elem)
@@ -308,10 +343,7 @@ namespace Ogre {
 
             // Real* pNormals (x, y, z order x numVertices)
             vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-            pReal = static_cast<Real*>(
-                vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
-            writeReals(pReal, vertexData->vertexCount * 3);
-            vbuf->unlock();
+            writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
         }
 
         elem = vertexData->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
@@ -321,10 +353,7 @@ namespace Ogre {
                 static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
             // unsigned long* pColours (RGBA 8888 format x numVertices)
             vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-            unsigned long *pLong = static_cast<unsigned long*>(
-                vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
-            writeLongs(pLong, vertexData->vertexCount);
-            vbuf->unlock();
+            writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
         }
 
         for (int t = 0; t < OGRE_MAX_TEXTURE_COORD_SETS; ++t)
@@ -335,14 +364,11 @@ namespace Ogre {
                 writeChunkHeader(M_GEOMETRY_TEXCOORDS, 
                     static_cast<unsigned long>(elem->getSize() * vertexData->vertexCount));
                 vbuf = vertexData->vertexBufferBinding->getBuffer(elem->getSource());
-                pReal = static_cast<Real*>(
-                    vbuf->lock(HardwareBuffer::HBL_READ_ONLY) );
                 // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
                 unsigned short dims = VertexElement::getTypeCount(elem->getType());
                 writeShorts(&dims, 1);
                 // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
-                writeReals(pReal, vertexData->vertexCount * dims);
-                vbuf->unlock();
+                writeCondensedVertexBuffer(vbuf, elem, vertexData->vertexCount);
             }
 
         }
