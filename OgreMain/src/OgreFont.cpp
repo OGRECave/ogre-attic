@@ -382,10 +382,10 @@ namespace Ogre
             }
         }
 
-        SDDataChunk imgchunk(imageData, tex_side * tex_side * 4);
+        MemoryDataStream memStream(imageData, tex_side * tex_side * 4, true);
 
         Image img; 
-		img.loadRawData( imgchunk, tex_side, tex_side, PF_A8R8G8B8 );
+		img.loadRawData( memStream, tex_side, tex_side, PF_A8R8G8B8 );
 
 		TexturePtr texPtr = res;
 		texPtr->loadImage(img);

@@ -40,6 +40,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
+	Skeleton::Skeleton()
+		: Resource(),
+		mNextAutoHandle(0), mBlendState(ANIMBLEND_AVERAGE)
+	{
+	}
+	//---------------------------------------------------------------------
     Skeleton::Skeleton(ResourceManager* creator, const String& name, ResourceHandle handle,
         const String& group, bool isManual, ManualResourceLoader* loader) 
         : Resource(creator, name, handle, group, isManual, loader), 

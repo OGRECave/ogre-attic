@@ -64,7 +64,7 @@ namespace Ogre
     protected:
         GpuProgramType mType;
         // The program link
-        GpuProgram* mProgram;
+        GpuProgramPtr mProgram;
 
         /// program parameters
         GpuProgramParametersSharedPtr mParameters;

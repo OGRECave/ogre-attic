@@ -46,7 +46,7 @@ namespace Ogre {
         /** Constructor, don't call directly, this will be created automatically
         when you create an Entity based on a skeletally animated Mesh.
         */
-        SkeletonInstance(SkeletonPtr masterCopy);
+        SkeletonInstance(SkeletonPtr& masterCopy);
         ~SkeletonInstance();
 
         /** Gets the number of animations on this skeleton. */

@@ -31,7 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-------------------------------------------------------------------------
     SkeletonInstance::SkeletonInstance(SkeletonPtr& masterCopy) 
-        : Skeleton(""), mSkeleton(masterCopy)
+        : Skeleton(), mSkeleton(masterCopy)
     {
         mNextTagPointAutoHandle = 0;
     }

@@ -49,7 +49,7 @@ namespace Ogre {
         /// @copydoc Codec::code
         DataStreamPtr code(MemoryDataStreamPtr& input, CodecData* pData) const;
         /// @copydoc Codec::codeToFile
-        void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecData* pData) const;
+        void codeToFile(MemoryDataStreamPtr& input, const String& outFileName, CodecDataPtr& pData) const;
         /// @copydoc Codec::decode
         DecodeResult decode(DataStreamPtr& input) const;
         /// Get DevIL-specific type

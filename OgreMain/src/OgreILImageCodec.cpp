@@ -51,7 +51,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void ILImageCodec::codeToFile(MemoryDataStreamPtr& input, 
-        const String& outFileName, Codec::CodecData* pData) const
+        const String& outFileName, Codec::CodecDataPtr& pData) const
     {
         OgreGuard( "ILImageCodec::codeToFile" );
 
@@ -60,7 +60,7 @@ namespace Ogre {
         ilGenImages( 1, &ImageName );
         ilBindImage( ImageName );
 
-        ImageData* pImgData = static_cast< ImageData * >( pData );
+        ImageData* pImgData = static_cast< ImageData * >( pData.getPointer() );
         std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( pImgData->format );
         ilTexImage( 
             pImgData->width, pImgData->height, 1, fmt_bpp.second, fmt_bpp.first, 

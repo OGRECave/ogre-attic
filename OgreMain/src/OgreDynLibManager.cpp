@@ -46,7 +46,7 @@ namespace Ogre
 	{
 	}
 	//-----------------------------------------------------------------------
-    DynLib* DynLibManager::load( const String& filename, int priority /* = 1 */ )
+    DynLib* DynLibManager::load( const String& filename)
     {        
         DynLib* pLib = new DynLib(filename);
 		pLib->load();        

@@ -71,7 +71,11 @@ namespace Ogre {
     */
     class _OgreExport Skeleton : public Resource
     {
-        friend class SkeletonInstance;
+		friend class SkeletonInstance;
+	protected:
+		/// Internal constructor for use by SkeletonInstance only
+		Skeleton();
+
     public:
         /** Constructor, don't call directly, use SkeletonManager.
         @remarks

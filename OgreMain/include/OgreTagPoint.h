@@ -52,7 +52,7 @@ namespace Ogre	{
 	{
 
 	public:
-		TagPoint(unsigned short handle, SkeletonPtr& creator);
+		TagPoint(unsigned short handle, Skeleton* creator);
 		virtual ~TagPoint();
 
 		Entity *getParentEntity(void);

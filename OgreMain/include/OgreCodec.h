@@ -83,7 +83,7 @@ namespace Ogre {
         /** Codes the data in the input stream and saves the result in the output
             stream.
         */
-        virtual DataStreamPtr code(MemoryDataStreamPtr& input, CodecData* pData) const = 0;
+        virtual DataStreamPtr code(MemoryDataStreamPtr& input, CodecDataPtr& pData) const = 0;
         /** Codes the data in the input chunk and saves the result in the output
             filename provided. Provided for efficiency since coding to memory is
             progressive therefore memory required is unknown leading to reallocations.

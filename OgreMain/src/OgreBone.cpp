@@ -31,12 +31,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    Bone::Bone(unsigned short handle, SkeletonPtr& creator) 
+    Bone::Bone(unsigned short handle, Skeleton* creator) 
         : Node(), mHandle(handle), mManuallyControlled(false), mCreator(creator)
     {
     }
     //---------------------------------------------------------------------
-    Bone::Bone(const String& name, unsigned short handle, SkeletonPtr& creator) 
+    Bone::Bone(const String& name, unsigned short handle, Skeleton* creator) 
         : Node(name), mHandle(handle), mManuallyControlled(false), mCreator(creator)
     {
     }

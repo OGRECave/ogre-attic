@@ -45,8 +45,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	void GpuProgramUsage::setProgramName(const String& name, bool resetParams)
 	{
-		mProgram = static_cast<GpuProgram*>(
-			GpuProgramManager::getSingleton().getByName(name));
+		mProgram = GpuProgramManager::getSingleton().getByName(name);
 
         if (!mProgram)
         {

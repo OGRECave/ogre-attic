@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
-    TagPoint::TagPoint(unsigned short handle, SkeletonPtr& creator): Bone(handle, creator)
+    TagPoint::TagPoint(unsigned short handle, Skeleton* creator): Bone(handle, creator)
     {
         mParentEntity = 0; 
         mChildObject = 0; 

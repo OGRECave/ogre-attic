@@ -99,7 +99,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    const MaterialPtr SubEntity::getMaterial(void) const
+    const MaterialPtr& SubEntity::getMaterial(void) const
     {
         return mpMaterial;
     }

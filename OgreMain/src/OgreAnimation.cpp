@@ -126,7 +126,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void Animation::apply(SkeletonPtr& skel, Real timePos, Real weight, bool accumulate)
+    void Animation::apply(Skeleton* skel, Real timePos, Real weight, bool accumulate)
     {
         TrackList::iterator i;
         for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
