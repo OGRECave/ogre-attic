@@ -160,10 +160,6 @@ protected:
     /// Method which will define the source of resources (other than current folder)
     virtual void setupResources(void)
     {
-        char path[255];
-        getcwd(path, 255);
-        printf("Current Path: %s\n", path);
-
         // Load resource paths from config file
         ConfigFile cf;
         cf.load("resources.cfg");
