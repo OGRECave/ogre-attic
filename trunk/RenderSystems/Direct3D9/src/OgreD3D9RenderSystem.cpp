@@ -1376,13 +1376,6 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilBufferPassOperation");
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::setTextureFiltering( TextureFilterOptions fo )
-	{
-		int units = _getNumTextureUnits();
-		for( int i=0; i < units; i++ )
-			_setTextureLayerFiltering(i, fo);
-	}
-	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
 	{
 		HRESULT hr;
@@ -1407,12 +1400,6 @@ namespace Ogre
 		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
 			return oldVal;
 	}
-	//---------------------------------------------------------------------
- 	void D3D9RenderSystem::_setAnisotropy(int maxAnisotropy)
- 	{
- 		for (int n = 0; n < _getNumTextureUnits(); n++)
- 			_setTextureLayerAnisotropy(n, maxAnisotropy);
- 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
 	{

@@ -646,14 +646,6 @@ namespace Ogre {
 
     }
 
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::setTextureFiltering(TextureFilterOptions fo)
-    {
-        int units = _getNumTextureUnits();
-        for (int i = 0; i < units; ++i)
-			_setTextureLayerFiltering(i, fo);
-    }
-
 
     //-----------------------------------------------------------------------
     RenderWindow* D3DRenderSystem::createRenderWindow(const String &name, int width, int height, int colourDepth,
@@ -2436,9 +2428,5 @@ namespace Ogre {
 			mlpD3DDevice->SetTextureStageState( unit, D3DTSS_MAXANISOTROPY, maxAnisotropy );
 	}
 
-	void D3DRenderSystem::_setAnisotropy(int maxAnisotropy)
-	{
-		for (int n = 0; n < _getNumTextureUnits(); n++)
-			_setTextureLayerAnisotropy(n, maxAnisotropy);
-	}
+
 }

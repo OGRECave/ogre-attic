@@ -151,10 +151,6 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void setTextureFiltering(TextureFilterOptions fo);
-        /** See
-          RenderSystem
-         */
         void setLightingEnabled(bool enabled);
         /** See
           RenderSystem
@@ -353,10 +349,6 @@ namespace Ogre {
           RenderSystem
          */
 		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
-        /** See
-          RenderSystem
-         */
-		void _setAnisotropy(int maxAnisotropy);
         /** See
           RenderSystem
          */

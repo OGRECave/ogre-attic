@@ -333,6 +333,20 @@ namespace Ogre {
 
 
     }
+    //---------------------------------------------------------------------
+ 	void RenderSystem::_setAnisotropy(int maxAnisotropy)
+ 	{
+ 		for (int n = 0; n < _getNumTextureUnits(); n++)
+ 			_setTextureLayerAnisotropy(n, maxAnisotropy);
+ 	}
+    //-----------------------------------------------------------------------
+    void RenderSystem::setTextureFiltering(TextureFilterOptions fo)
+    {
+        int units = _getNumTextureUnits();
+        for (int i = 0; i < units; ++i)
+			_setTextureLayerFiltering(i, fo);
+    }
+
     //-----------------------------------------------------------------------
     /*
     void RenderSystem::_setMaterial(Material &mat)

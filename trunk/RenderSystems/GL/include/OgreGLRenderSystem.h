@@ -144,10 +144,6 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void setTextureFiltering(TextureFilterOptions fo);
-        /** See
-          RenderSystem
-         */
         void setLightingEnabled(bool enabled);
         /** See
           RenderSystem
