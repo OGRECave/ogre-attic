@@ -1701,12 +1701,14 @@ namespace Ogre {
                     static_cast<GLHardwareIndexBuffer*>(
                         op.indexData->indexBuffer.get())->getGLBufferId());
 
-                pBufferData = VBO_BUFFER_OFFSET(0);
+                pBufferData = VBO_BUFFER_OFFSET(
+                    op.vertexData->vertexStart * op.indexData->indexBuffer->getIndexSize());
             }
             else
             {
                 pBufferData = static_cast<GLDefaultHardwareIndexBuffer*>(
-                    op.indexData->indexBuffer.get())->getDataPtr(0);
+                    op.indexData->indexBuffer.get())->getDataPtr(
+                        op.vertexData->vertexStart * op.indexData->indexBuffer->getIndexSize());
             }
 
             GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
