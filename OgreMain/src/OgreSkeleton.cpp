@@ -66,7 +66,6 @@ namespace Ogre {
         if (mIsLoaded)
         {
             unload();
-            mIsLoaded = false;
         }
 
         SkeletonSerializer serializer;
@@ -97,6 +96,9 @@ namespace Ogre {
 
         chunk.clear();
 
+        // Mark resource as loaded
+        mIsLoaded = true;
+
     }
     //---------------------------------------------------------------------
     void Skeleton::unload(void)
@@ -125,6 +127,8 @@ namespace Ogre {
         }
         mAnimationsList.clear();
 
+        // Mark resource as not loaded
+        mIsLoaded = false;
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(void)
