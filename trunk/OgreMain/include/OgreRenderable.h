@@ -53,9 +53,9 @@ namespace Ogre {
         virtual Material* getMaterial(void) const = 0;
         /** Gets the render operation required to send this object to the frame buffer.
             @param
-                rend RenderOperation structure to update.
+                rend LegacyRenderOperation structure to update.
         */
-        virtual void getRenderOperation(RenderOperation& rend) = 0;
+        virtual void getLegacyRenderOperation(LegacyRenderOperation& rend) = 0;
         /** Gets the world transform matrix / matrices for this renderable object.
             @remarks
                 If the object has any derived transforms, these are expected to be up to date as long as

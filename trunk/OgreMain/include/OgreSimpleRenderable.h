@@ -37,7 +37,7 @@ namespace Ogre {
     class _OgreExport SimpleRenderable : public MovableObject, public Renderable
     {
     protected:
-        RenderOperation mRendOp;
+        LegacyRenderOperation mRendOp;
         Matrix4 m_matWorldTransform;
         AxisAlignedBox mBox;
 
@@ -76,9 +76,9 @@ namespace Ogre {
         void setMaterial( const String& matName );
         virtual Material* getMaterial(void) const;
 
-        virtual void setRenderOperation( const RenderOperation& rend );
-        virtual void getRenderOperation( RenderOperation& rend );
-        RenderOperation& getRenderOperation();
+        virtual void setLegacyRenderOperation( const LegacyRenderOperation& rend );
+        virtual void getLegacyRenderOperation( LegacyRenderOperation& rend );
+        LegacyRenderOperation& getLegacyRenderOperation();
 
         void setWorldTransform( const Matrix4& xform );
         virtual void getWorldTransforms( Matrix4* xform );

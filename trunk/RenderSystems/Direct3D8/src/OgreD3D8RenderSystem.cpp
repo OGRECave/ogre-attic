@@ -1356,19 +1356,19 @@ namespace Ogre {
 		return true;
 	}
 
-	void D3D8RenderSystem::_render( RenderOperation &op )
+	void D3D8RenderSystem::_render( LegacyRenderOperation &op )
 	{
 		OgreGuard( "D3D8RenderSystem::_render" );
 
 		// Okay, lets explain what is going to happen in here.  Currently there are a pile of HardwareBuffers
 		// for each of the rendering types (XYZ, Normal, Diffuse, Specular, TextureCoordinates).  Each of
 		// these HardwareBuffers currently contains a count as to the number of vertices that it can represent.
-		// So if our little RenderOperation has more vertices then we need to resize each of these buffers,
+		// So if our little LegacyRenderOperation has more vertices then we need to resize each of these buffers,
 		// if it is going to be used in this render call.  At the same time, we then set the stream source to
 		// the vertex buffer contained in the hardware buffer.
 		//
 		// Finally we have to put the data into these vertex buffers.  If we are using non strided data, then
-		// it is as simple as copying each of the RenderOperations buffers data across to the HardwareBuffers
+		// it is as simple as copying each of the LegacyRenderOperations buffers data across to the HardwareBuffers
 		// vertex buffer for that type e.g. op.pVertices <-> mpXYZBuffer.buffer.  If however it is strided, 
 		// we need to step through all of the data and copy those pieces to the relevate hardware buffers.
 		//
@@ -1424,7 +1424,7 @@ namespace Ogre {
 			Except( hr, "Failed to set stream source for XYZ buffer", "D3D8RenderSystem::_render" );
 
 		// Normal
-		if( op.vertexOptions & RenderOperation::VO_NORMALS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
 		{
 			if( mpNormalBuffer.count < op.numVertices )
 			{
@@ -1443,7 +1443,7 @@ namespace Ogre {
 		}
 
 		// Vertex colours
-		if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
 		{
 			if( mpDiffuseBuffer.count < op.numVertices )
 			{
@@ -1461,7 +1461,7 @@ namespace Ogre {
 				Except( hr, "Failed to set stream source for diffuse buffer", "D3D8RenderSystem::_render" );
 		}
 
-		if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
 		{
 			if( mpSpecularBuffer.count < op.numVertices )
 			{
@@ -1480,7 +1480,7 @@ namespace Ogre {
 		}
 
 		// Do texture co-ords
-		if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS )
 		{
 			for( i=0; i < op.numTextureCoordSets; i++ )
 			{
@@ -1575,32 +1575,32 @@ namespace Ogre {
 		DWORD primCount = 0;
 		switch( op.operationType )
 		{
-        case RenderOperation::OT_POINT_LIST:
+        case LegacyRenderOperation::OT_POINT_LIST:
             primType = D3DPT_POINTLIST;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices);
             break;
 
-		case RenderOperation::OT_LINE_LIST:
+		case LegacyRenderOperation::OT_LINE_LIST:
             primType = D3DPT_LINELIST;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) / 2;
 	        break;
 
-		case RenderOperation::OT_LINE_STRIP:
+		case LegacyRenderOperation::OT_LINE_STRIP:
             primType = D3DPT_LINESTRIP;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 1;
             break;
 
-		case RenderOperation::OT_TRIANGLE_LIST:
+		case LegacyRenderOperation::OT_TRIANGLE_LIST:
             primType = D3DPT_TRIANGLELIST;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) / 3;
             break;
 
-		case RenderOperation::OT_TRIANGLE_STRIP:
+		case LegacyRenderOperation::OT_TRIANGLE_STRIP:
             primType = D3DPT_TRIANGLESTRIP;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 2;
             break;
 
-		case RenderOperation::OT_TRIANGLE_FAN:
+		case LegacyRenderOperation::OT_TRIANGLE_FAN:
             primType = D3DPT_TRIANGLEFAN;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 2;
             break;
@@ -1622,25 +1622,25 @@ namespace Ogre {
 			if( FAILED( hr = mpXYZBuffer.buffer->Lock( 0, 0, &pXYZ, D3DLOCK_DISCARD ) ) )
 				Except( hr, "Failed to lock XYZ buffer", "D3D8RenderSystem::_render" );
 			pSrcXYZ = (BYTE*)op.pVertices;
-			if( op.vertexOptions & RenderOperation::VO_NORMALS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
 			{
 				if( FAILED( hr = mpNormalBuffer.buffer->Lock( 0, 0, &pNormal, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock normal buffer", "D3D8RenderSystem::_render" );
 				pSrcNormal = (BYTE*)op.pNormals;
 			}
-			if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
 			{
 				if( FAILED( hr = mpDiffuseBuffer.buffer->Lock( 0, 0, &pDiffuse, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock diffuse buffer", "D3D8RenderSystem::_render" );
 				pSrcDiffuse = (BYTE*)op.pDiffuseColour;
 			}
-			if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
 			{
 				if( FAILED( hr = mpSpecularBuffer.buffer->Lock( 0, 0, &pSpecular, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock specular buffer", "D3D8RenderSystem::_render" );
 				pSrcSpecular = (BYTE*)op.pSpecularColour;
 			}
-			if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS )
 			{
 				for( i = 0; i < op.numTextureCoordSets; i++ )
 				{
@@ -1657,25 +1657,25 @@ namespace Ogre {
 				memcpy( pXYZ, pSrcXYZ, sizeof(D3DXVECTOR3) );
 				pXYZ += sizeof(D3DXVECTOR3);
 				pSrcXYZ += op.vertexStride + (sizeof(float)*3);
-				if( op.vertexOptions & RenderOperation::VO_NORMALS )
+				if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
 				{
 					memcpy( pNormal, pSrcNormal, sizeof(D3DXVECTOR3) );
 					pNormal += sizeof(D3DXVECTOR3);
 					pSrcNormal += op.normalStride + (sizeof(float)*3);
 				}
-				if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
+				if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
 				{
 					memcpy( pDiffuse, pSrcDiffuse, sizeof(D3DCOLOR) );
 					pDiffuse += sizeof(D3DCOLOR);
 					pSrcDiffuse += op.diffuseStride + sizeof(long);
 				}
-				if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
+				if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
 				{
 					memcpy( pDiffuse, pSrcSpecular, sizeof(D3DCOLOR) );
 					pDiffuse += sizeof(D3DCOLOR);
 					pSrcSpecular += op.specularStride + sizeof(long);
 				}
-				if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+				if( op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS )
 					for( i=0; i < op.numTextureCoordSets; i++ )
 					{
 						memcpy( pTexture[i], pSrcTexture[i], pTextureBufferSizes[i] );
@@ -1686,13 +1686,13 @@ namespace Ogre {
 
 			// Unlock all the buffers that were locked
 			mpXYZBuffer.buffer->Unlock();
-			if( op.vertexOptions & RenderOperation::VO_NORMALS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
 				mpNormalBuffer.buffer->Unlock();
-			if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
 				mpDiffuseBuffer.buffer->Unlock();
-			if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
 				mpSpecularBuffer.buffer->Unlock();
-			if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS )
 			{
 				for( i=0; i < op.numTextureCoordSets; i++ )
 					pTextureBuffers[i]->Unlock();
@@ -1711,7 +1711,7 @@ namespace Ogre {
 			memcpy( pVec3, op.pVertices, sizeof(D3DXVECTOR3)*op.numVertices );
 			mpXYZBuffer.buffer->Unlock();
 
-			if( op.vertexOptions & RenderOperation::VO_NORMALS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
 			{
 				if( FAILED( hr = mpNormalBuffer.buffer->Lock( 0, 0, (BYTE**)&pVec3, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock normal buffer", "D3D8RenderSystem::_render" );
@@ -1719,7 +1719,7 @@ namespace Ogre {
 				mpNormalBuffer.buffer->Unlock();
 			}
 
-			if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
 			{
 				if( FAILED( hr = mpDiffuseBuffer.buffer->Lock( 0, 0, (BYTE**)&pCol, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock diffuse buffer", "D3D8RenderSystem::_render" );
@@ -1727,7 +1727,7 @@ namespace Ogre {
 				mpDiffuseBuffer.buffer->Unlock();
 			}
 
-			if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
 			{
 				if( FAILED( hr = mpSpecularBuffer.buffer->Lock( 0, 0, (BYTE**)&pCol, D3DLOCK_DISCARD ) ) )
 					Except( hr, "Failed to lock specular buffer", "D3D8RenderSystem::_render" );
@@ -1735,7 +1735,7 @@ namespace Ogre {
 				mpSpecularBuffer.buffer->Unlock();
 			}
 
-			if( op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS )
+			if( op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS )
 			{
 				for( i=0; i < op.numTextureCoordSets; i++ )
 				{

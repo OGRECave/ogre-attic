@@ -85,7 +85,7 @@ public:
     void generateMesh();
     
    
-    void getRenderOperation(RenderOperation& rend);
+    void getLegacyRenderOperation(LegacyRenderOperation& rend);
     
     void _notifyCurrentCamera(Camera *cam);
 

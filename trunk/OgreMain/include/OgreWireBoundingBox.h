@@ -52,9 +52,9 @@ namespace Ogre {
         */
 		void getWorldTransforms( Matrix4* xform );
 		
-        /** Pointer to a RenderOperation that contains the OT_LINE_LIST description of the wireframe.
+        /** Pointer to a LegacyRenderOperation that contains the OT_LINE_LIST description of the wireframe.
         */
-//		RenderOperation mRenderOp; 
+//		LegacyRenderOperation mRenderOp; 
 
         /** Builds the wireframe line list.
         */

@@ -157,7 +157,7 @@ namespace Ogre
 			// say 'it's locked man!!'
 			mIsLocked = true;
 			// set the in use flag
-			// this is needed because in one RenderOperation can be for example 2 tex.coord.
+			// this is needed because in one LegacyRenderOperation can be for example 2 tex.coord.
 			// buffers, and the buffer manager can return twice the same buffer to be used
 			// wich is not what we want, so this flag will say to the buffer manager not to use this buffer ;)
 			mIsInUse = true;
@@ -463,7 +463,7 @@ namespace Ogre
 			uint numVertices, 
 			uint vertexStride = 0);
 		/// clear 'inUse' flags from all tex.coord buffers
-		/// only tex.coords VB can be used more that one in one RenderOperation
+		/// only tex.coords VB can be used more that one in one LegacyRenderOperation
 		void clearInUseFlagedBuffers();
 	};
 

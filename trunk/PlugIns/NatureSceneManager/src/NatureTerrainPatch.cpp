@@ -775,14 +775,14 @@ void NatureTerrainPatch::triangulate(int cx, int cz, int node, int level)
 
 //----------------------------------------------------------------------------
 
-void NatureTerrainPatch::getRenderOperation(RenderOperation &rend)
+void NatureTerrainPatch::getLegacyRenderOperation(LegacyRenderOperation &rend)
 {
     rend.useIndexes = true;
-    rend.operationType = RenderOperation::OT_TRIANGLE_LIST;
+    rend.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
     rend.vertexOptions = 0;
 
 #if USE_TEXTURES
-    rend.vertexOptions |= RenderOperation::VO_TEXTURE_COORDS;
+    rend.vertexOptions |= LegacyRenderOperation::VO_TEXTURE_COORDS;
 
     // texture coordinates
     rend.numTextureCoordSets = 2;
@@ -802,7 +802,7 @@ void NatureTerrainPatch::getRenderOperation(RenderOperation &rend)
 
 #if USE_COLOURS
     // diffuse colors
-    rend.vertexOptions |= RenderOperation::VO_DIFFUSE_COLOURS;
+    rend.vertexOptions |= LegacyRenderOperation::VO_DIFFUSE_COLOURS;
 
     rend.pDiffuseColour = mColourCache;
     rend.diffuseStride  = 0;
@@ -810,7 +810,7 @@ void NatureTerrainPatch::getRenderOperation(RenderOperation &rend)
 
 #if USE_NORMALS
     // lighting
-    rend.vertexOptions |= RenderOperation::VO_NORMALS;
+    rend.vertexOptions |= LegacyRenderOperation::VO_NORMALS;
 
     rend.normalStride = 0;
     rend.pNormals     = mNormalCache;

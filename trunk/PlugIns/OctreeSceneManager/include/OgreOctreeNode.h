@@ -68,11 +68,11 @@ public:
     */
     virtual void _addToRenderQueue( Camera* cam, RenderQueue * );
 
-    /** Sets up the renderoperation for rendering this scene node as geometry.
+    /** Sets up the LegacyRenderOperation for rendering this scene node as geometry.
     @remarks
     This will render the scenenode as a bounding box.
     */
-    virtual void getRenderOperation( RenderOperation& rend );
+    virtual void getLegacyRenderOperation( LegacyRenderOperation& rend );
 
     /** Returns the local bounding box of this OctreeNode.
     @remarks

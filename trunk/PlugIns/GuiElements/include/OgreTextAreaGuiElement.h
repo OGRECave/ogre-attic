@@ -81,7 +81,7 @@ namespace Ogre
         /** See GuiElement. */
         virtual const String& getTypeName(void);
         /** See Renderable. */
-        void getRenderOperation(RenderOperation& rend);
+        void getLegacyRenderOperation(LegacyRenderOperation& rend);
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
 
@@ -209,7 +209,7 @@ namespace Ogre
         bool mTransparent;
 
         /// Render operation
-        RenderOperation mRenderOp;
+        LegacyRenderOperation mRenderOp;
 
         /// Method for setting up base parameters for this class
         void addBaseParameters(void);

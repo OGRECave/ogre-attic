@@ -662,7 +662,7 @@ NaturePatch* NaturePatchManager::getPatchAtPosition(const Vector3& pos)
 
 }
 
-void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<RenderOperation>& opList)
+void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::list<LegacyRenderOperation>& opList)
 {
     // Get the patches at the 4 corners at the bottom of the box, ie 0, 3, 6, 7
     std::set<NaturePatch*> uniqueSet;
@@ -676,10 +676,10 @@ void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::
 
     // Iterate over uniques
     std::set<NaturePatch*>::iterator i, iend;
-    RenderOperation rend;
+    LegacyRenderOperation rend;
     for (i = uniqueSet.begin(); i != iend; ++i)
     {
-        (*i)->getRenderOperation(rend);
+        (*i)->getLegacyRenderOperation(rend);
         opList.push_back(rend);
     }
 

@@ -99,7 +99,7 @@ namespace Ogre {
 
         /** Overridden - see Renderable.
         */
-        void getRenderOperation(RenderOperation& rend);
+        void getLegacyRenderOperation(LegacyRenderOperation& rend);
 
         /** Overridden - see Renderable.
         */

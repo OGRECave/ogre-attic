@@ -1593,7 +1593,7 @@ namespace Ogre
 		return true;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_render(RenderOperation &op)
+	void D3D9RenderSystem::_render(LegacyRenderOperation &op)
 	{
 		// Guard
 		OgreGuard("D3D9RenderSystem::_render");
@@ -1646,7 +1646,7 @@ namespace Ogre
 		pPos->setData(op.pVertices, op.numVertices);
 
 		// Vertex normals
-		if( op.vertexOptions & RenderOperation::VO_NORMALS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_NORMALS )
 		{
 			D3D9DynVBManager::FloatVB *pNor = mDVBMgr->getNormalBuffer(op.numVertices, op.normalStride);
 			// calc. size
@@ -1669,7 +1669,7 @@ namespace Ogre
 		}
 
 		// Diffuse colours
-		if( op.vertexOptions & RenderOperation::VO_DIFFUSE_COLOURS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_DIFFUSE_COLOURS )
 		{
 			D3D9DynVBManager::ColorVB *pDif = mDVBMgr->getDiffuseBuffer(op.numVertices, op.diffuseStride);
 			// calc. size
@@ -1692,7 +1692,7 @@ namespace Ogre
 		}
 
 		// specular colors
-		if( op.vertexOptions & RenderOperation::VO_SPECULAR_COLOURS )
+		if( op.vertexOptions & LegacyRenderOperation::VO_SPECULAR_COLOURS )
 		{
 			D3D9DynVBManager::ColorVB *pSpe = mDVBMgr->getSpecularBuffer(op.numVertices, op.specularStride);
 			// calc. size
@@ -1714,8 +1714,8 @@ namespace Ogre
 			pSpe->setData(op.pSpecularColour, op.numVertices);
 		}
 
-		// set texture coords only if they are present in the renderOperation
-		if (op.vertexOptions & RenderOperation::VO_TEXTURE_COORDS)
+		// set texture coords only if they are present in the LegacyRenderOperation
+		if (op.vertexOptions & LegacyRenderOperation::VO_TEXTURE_COORDS)
 		{
 			// do tex. coord. for every unit if req. and present in 'op'
 			for (int index = 0; index < op.numTextureCoordSets; index++)
@@ -1775,32 +1775,32 @@ namespace Ogre
 		DWORD primCount = 0;
 		switch( op.operationType )
 		{
-		case RenderOperation::OT_POINT_LIST:
+		case LegacyRenderOperation::OT_POINT_LIST:
 			primType = D3DPT_POINTLIST;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices);
 			break;
 
-		case RenderOperation::OT_LINE_LIST:
+		case LegacyRenderOperation::OT_LINE_LIST:
 			primType = D3DPT_LINELIST;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) / 2;
 			break;
 
-		case RenderOperation::OT_LINE_STRIP:
+		case LegacyRenderOperation::OT_LINE_STRIP:
 			primType = D3DPT_LINESTRIP;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 1;
 			break;
 
-		case RenderOperation::OT_TRIANGLE_LIST:
+		case LegacyRenderOperation::OT_TRIANGLE_LIST:
 			primType = D3DPT_TRIANGLELIST;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) / 3;
 			break;
 
-		case RenderOperation::OT_TRIANGLE_STRIP:
+		case LegacyRenderOperation::OT_TRIANGLE_STRIP:
 			primType = D3DPT_TRIANGLESTRIP;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 2;
 			break;
 
-		case RenderOperation::OT_TRIANGLE_FAN:
+		case LegacyRenderOperation::OT_TRIANGLE_FAN:
 			primType = D3DPT_TRIANGLEFAN;
 			primCount = (op.useIndexes ? op.numIndexes : op.numVertices) - 2;
 			break;

@@ -190,12 +190,12 @@ public:
     virtual void _updateRenderQueue( RenderQueue* queue );
 
     /**
-      Constructs a RenderOperation to render the TerrainRenderable.
+      Constructs a LegacyRenderOperation to render the TerrainRenderable.
       @remarks
         Each TerrainRenderable has a block of vertices that represent the terrain.  Index arrays are dynamically
         created for mipmap level, and then cached.
      */
-    virtual void getRenderOperation( RenderOperation& rend );
+    virtual void getLegacyRenderOperation( LegacyRenderOperation& rend );
 
     virtual Material* getMaterial( void ) const
     {

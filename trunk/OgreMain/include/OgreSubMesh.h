@@ -99,13 +99,13 @@ namespace Ogre {
         */
         bool isMatInitialised(void) const;
 
-        /** Returns a RenderOperation structure required to render this mesh.
+        /** Returns a LegacyRenderOperation structure required to render this mesh.
             @param 
-                rend Reference to a RenderOperation structure to populate.
+                rend Reference to a LegacyRenderOperation structure to populate.
             @param
                 lodIndex The index of the LOD to use. 
         */
-        void _getRenderOperation(RenderOperation& rend, ushort lodIndex = 0);
+        void _getLegacyRenderOperation(LegacyRenderOperation& rend, ushort lodIndex = 0);
 
         /** Assigns a vertex to a bone with a given weight, for skeletal animation. 
         @remarks    

@@ -48,11 +48,11 @@ namespace Ogre {
 		mRendOp.pVertices = mVertexData; 
 		mRendOp.pDiffuseColour = (unsigned long*)mDiffuses; 
 		mRendOp.pSpecularColour = NULL; 
-		mRendOp.operationType = RenderOperation::OT_LINE_LIST; 
+		mRendOp.operationType = LegacyRenderOperation::OT_LINE_LIST; 
 		mRendOp.numTextureCoordSets = 0;
 
 		// only need diffuse colors, other options not needed
-		mRendOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS; 
+		mRendOp.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS; 
 
 		// setup the bounding box of this SimpleRenderable
 		setBoundingBox(aabb);

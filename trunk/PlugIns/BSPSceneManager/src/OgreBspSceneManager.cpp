@@ -52,8 +52,8 @@ namespace Ogre {
         mShowNodeAABs = false;
         mAABGeometry.useIndexes = true;
         mAABGeometry.numTextureCoordSets = 0; // no textures
-        mAABGeometry.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
-        mAABGeometry.operationType = RenderOperation::OT_LINE_LIST;
+        mAABGeometry.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
+        mAABGeometry.operationType = LegacyRenderOperation::OT_LINE_LIST;
         mAABGeometry.numVertices = 0;
         mAABGeometry.numIndexes = 0;
 
@@ -63,8 +63,8 @@ namespace Ogre {
         mPendingGeometry.numTextureCoordSets = 2; // texture + lightmap
         mPendingGeometry.numTextureDimensions[0] = 2; // 2D coords
         mPendingGeometry.numTextureDimensions[1] = 2; // 2D coords
-        mPendingGeometry.vertexOptions = RenderOperation::VO_NORMALS | RenderOperation::VO_TEXTURE_COORDS;
-        mPendingGeometry.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        mPendingGeometry.vertexOptions = LegacyRenderOperation::VO_NORMALS | LegacyRenderOperation::VO_TEXTURE_COORDS;
+        mPendingGeometry.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
         // Strides
         // Format is:
         //   vertex       3 x float

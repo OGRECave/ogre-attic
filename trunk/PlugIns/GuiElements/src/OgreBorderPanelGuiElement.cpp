@@ -56,7 +56,7 @@ namespace Ogre {
         mRenderOp2.numTextureDimensions[0] = 2;
         mRenderOp2.numVertices = 4 * 8; // 8 cells, can't necessarily share vertices cos
                                         // texcoords may differ
-        mRenderOp2.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        mRenderOp2.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
         // Only 1 set of texcoords allowed
         mRenderOp2.pTexCoords[0] = new Real[4 * 8 * 2];
         mRenderOp2.texCoordStride[0] = 0;
@@ -66,7 +66,7 @@ namespace Ogre {
         mRenderOp2.useIndexes = true;
         mRenderOp2.numIndexes = 8 * 6;
         // No normals or colours
-        mRenderOp2.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+        mRenderOp2.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
         mRenderOp2.vertexStride = 0;
 
         /* Each cell is

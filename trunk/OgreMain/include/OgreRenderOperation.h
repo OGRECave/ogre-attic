@@ -22,15 +22,20 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef _RenderOperation_H__
-#define _RenderOperation_H__
+#ifndef _LegacyRenderOperation_H__
+#define _LegacyRenderOperation_H__
 
 #include "OgrePrerequisites.h"
 #include "OgreColourValue.h"
+#include "OgreHardwareVertexBuffer.h"
+#include "OgreHardwareIndexBuffer.h"
 
 namespace Ogre {
-    /** Class describing a rendering operation like how to draw a triangle.
+    /** LEGACY Class describing a rendering operation like how to draw a triangle.
         @remarks
+			PENDING REPLACEMENT - this class has been renamed to LegacyRenderOperation
+			to allow it to coexist with the new RenderOperation. It will soon be phased
+			out (before the next release).
             This class encapsulates the description of a rendering operation,
             including the type (single triangle, list of triangles, triangle strip,
             etc), the vertex format (e.g. whether vertex colours, texture
@@ -63,7 +68,7 @@ namespace Ogre {
             the vertices are in counter-clockwise in RH co-ords as viewed from
             the camera.
      */
-    class RenderOperation {
+    class LegacyRenderOperation {
     public:
         enum OpType {
             OT_POINT_LIST,
@@ -182,7 +187,7 @@ namespace Ogre {
         /// The type of rendering operation.
         OpType operationType;
 
-        RenderOperation()
+        LegacyRenderOperation()
         {
             // Initialise all things
             vertexStride = normalStride = diffuseStride = specularStride = 0;
@@ -203,21 +208,65 @@ namespace Ogre {
 
     /* Example usage (camera at (0,0,0) pointing down -Z (lookAt(0,0,-300))
 
-        RenderOperation ro;
+        LegacyRenderOperation ro;
         float vertexData[9] = {100,   0, -300,
                                    0, 200, -300,
                               -100,   0, -300 };
         float normalData[9] = { 0, 0, 1,
                                 0, 0, 1,
                                 0, 0, 1};
-        ro.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        ro.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
         ro.numVertices = 3;
         ro.useIndexes = false;
-        ro.vertexOptions = RenderOperation::VO_NORMAL;
+        ro.vertexOptions = LegacyRenderOperation::VO_NORMAL;
         ro.pVertices = vertexData;
         ro.pNormals = normalData;
         mDestRenderSystem->_render(ro);
     */
+
+
+	typedef std::list<HardwareVertexBuffer*> VertexBufferList;
+	class RenderOperation {
+		/// The rendering operation type to perform
+		enum OperationType {
+			/// A list of points, 1 vertex per point
+            OT_POINT_LIST,
+			/// A list of lines, 2 vertices per line
+            OT_LINE_LIST,
+			/// A strip of connected lines, 1 vertex per line plus 1 start vertex
+            OT_LINE_STRIP,
+			/// A list of triangles, 3 vertices per triangle
+            OT_TRIANGLE_LIST,
+			/// A strip of triangles, 3 vertices for the first triangle, and 1 per triangle after that 
+            OT_TRIANGLE_STRIP,
+			/// A fan of triangles, 3 vertices for the first triangle, and 1 per triangle after that
+            OT_TRIANGLE_FAN
+        };
+
+		/// The type of operation to perform
+		OperationType operationType;
+		/** List of vertex buffers which are used as vertex sources to this render operation; note 
+		  the data at each index in all vertex buffers are deemed to refer to the same vertex. */
+		VertexBufferList vertexBuffers;
+		/// The base vertex index to start from, either as a vertex list, or as a base for indexes
+		size_t vertexStart;
+
+		/** Specifies whether to use indexes to determine the vertices to use as input. If false, the vertices are
+		 simply read in sequence to define the primitives. If true, indexes are used instead to identify vertices
+		 anywhere in the buffer, and allowing vertices to be used more than once.
+	   	 If true, then the indexBuffer, indexStart and numIndexes properties must be valid. */
+		bool useIndexes;
+
+		/// pointer to the HardwareIndexBuffer to use, must be specified if useIndexes = true
+		HardwareIndexBuffer* indexBuffer;
+
+		/// index in the buffer to start from for this operation
+		size_t indexStart;
+
+		/// The number of indexes to use from the buffer
+		size_t numIndexes;
+
+	};
 }
 
 
