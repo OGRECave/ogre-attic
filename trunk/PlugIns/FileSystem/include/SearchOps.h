@@ -1,3 +1,5 @@
+#if OGRE_PLATFORM != PLATFORM_WIN32
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -33,3 +35,5 @@ struct _finddata_t
 long _findfirst(const char *pattern, struct _finddata_t *data);
 int _findnext(long id, struct _finddata_t *data);
 int _findclose(long id);
+
+#endif

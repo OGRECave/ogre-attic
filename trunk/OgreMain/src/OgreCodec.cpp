@@ -31,6 +31,8 @@ namespace Ogre {
 
     std::map< String, Codec * > Codec::ms_mapCodecs;
 
+    Codec::~Codec() {
+    }
 
     Codec* Codec::getCodec(const String& extension)
     {

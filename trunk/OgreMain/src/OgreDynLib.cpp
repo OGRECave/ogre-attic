@@ -112,6 +112,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void* DynLib::getSymbol( const String& strName ) const throw()
     {
-        return DYNLIB_GETSYM( m_hInst, strName.c_str() );
+        return (void*)DYNLIB_GETSYM( m_hInst, strName.c_str() );
     }
 }

@@ -32,6 +32,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+
+#ifdef _WIN32
+#include <sys/time.h>
+#endif
+                                            
     class SDLTimer : public Timer
     {
 	private:

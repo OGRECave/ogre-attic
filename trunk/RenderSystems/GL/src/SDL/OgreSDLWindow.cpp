@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
 #   include <wingdi.h>
-#   include "gl.h"
+#   include <GL/gl.h>
 #   define GL_GLEXT_PROTOTYPES
 #   include "glprocs.h"
 #   include <GL/glu.h>

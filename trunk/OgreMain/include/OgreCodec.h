@@ -58,6 +58,8 @@ namespace Ogre {
         };
 
     public:
+    	virtual ~Codec();
+    	
         /** Registers a new codec in the database.
         */
         static void registerCodec( Codec *pCodec )

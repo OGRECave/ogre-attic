@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
+/* Win32 directory operations emulation */
+#if OGRE_PLATFORM != PLATFORM_WIN32
+
 /* If we've initialized yet */
 static int G_searches_initialized = 0;
 
@@ -107,3 +110,4 @@ int _findclose(long id)
     return ret;
 }
 
+#endif
