@@ -36,12 +36,8 @@ namespace Ogre {
     protected:
         LPDIRECT3DDEVICE9 mlpD3DDevice;
 
-		/// Destroy a hardware vertex buffer
-		void destroyVertexBuffer(HardwareVertexBuffer* buf);
-		/// Destroy a hardware index buffer
-		void destroyIndexBuffer(HardwareIndexBuffer* buf);
-
         void destroyAllDeclarations(void);
+
     public:
         D3D9HardwareBufferManager(LPDIRECT3DDEVICE9 device);
         ~D3D9HardwareBufferManager();
@@ -69,7 +65,6 @@ namespace Ogre {
 
 
     };
-
 
 }
 

@@ -128,28 +128,6 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------
-	
-	
-	//-----------------------------------------------------------------------
-	void DefaultHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
-	{
-        VertexBufferList::iterator i = mVertexBuffers.find(buf);
-        if (i != mVertexBuffers.end())
-        {
-		    delete *i;
-            mVertexBuffers.erase(i);
-        }
-	}
-    //-----------------------------------------------------------------------
-	void DefaultHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
-	{
-        IndexBufferList::iterator i = mIndexBuffers.find(buf);
-        if (i != mIndexBuffers.end())
-        {
-		    delete *i;
-            mIndexBuffers.erase(i);
-        }
-	}
     //-----------------------------------------------------------------------
     DefaultHardwareBufferManager::DefaultHardwareBufferManager()
 	{
@@ -166,7 +144,6 @@ namespace Ogre {
 		size_t numVerts, HardwareBuffer::Usage usage, bool useShadowBuffer)
 	{
         DefaultHardwareVertexBuffer* vb = new DefaultHardwareVertexBuffer(vertexSize, numVerts, usage);
-        mVertexBuffers.insert(vb);
         return HardwareVertexBufferSharedPtr(vb);
 	}
     //-----------------------------------------------------------------------
@@ -175,7 +152,6 @@ namespace Ogre {
 		size_t numIndexes, HardwareBuffer::Usage usage, bool useShadowBuffer)
 	{
         DefaultHardwareIndexBuffer* ib = new DefaultHardwareIndexBuffer(itype, numIndexes, usage);
-        mIndexBuffers.insert(ib);
 		return HardwareIndexBufferSharedPtr(ib);
 	}
 }

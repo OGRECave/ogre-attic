@@ -46,11 +46,6 @@ namespace Ogre {
 			new GLHardwareVertexBuffer(vertexSize, numVerts, usage, useShadowBuffer) );
     }
     //-----------------------------------------------------------------------
-    void GLHardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
-    {
-        delete buf;
-    }
-    //-----------------------------------------------------------------------
     HardwareIndexBufferSharedPtr 
     GLHardwareBufferManager:: createIndexBuffer(
         HardwareIndexBuffer::IndexType itype, size_t numIndexes, 
@@ -58,11 +53,6 @@ namespace Ogre {
     {
 		return HardwareIndexBufferSharedPtr(
 			new GLHardwareIndexBuffer(itype, numIndexes, usage, useShadowBuffer) );
-    }
-    //-----------------------------------------------------------------------
-    void GLHardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
-    {
-        delete buf;
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* GLHardwareBufferManager::createVertexDeclaration(void)

@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9HardwareIndexBuffer.h"
 #include "OgreD3D9Mappings.h"
 #include "OgreException.h"
+#include "OgreD3D9HardwareBufferManager.h"
 
 namespace Ogre {
 

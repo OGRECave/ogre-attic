@@ -70,16 +70,6 @@ namespace Ogre {
         return HardwareVertexBufferSharedPtr(vbuf);
     }
     //-----------------------------------------------------------------------
-	void D3D9HardwareBufferManager::destroyVertexBuffer(HardwareVertexBuffer* buf)
-    {
-		VertexBufferList::iterator i = mVertexBuffers.find(buf);
-		if (i != mVertexBuffers.end())
-		{
-			delete *i;
-			mVertexBuffers.erase(i);
-		}
-    }
-    //-----------------------------------------------------------------------
     void D3D9HardwareBufferManager::destroyAllDeclarations(void)
     {
         VertexDeclarationList::iterator decl;
@@ -117,16 +107,6 @@ namespace Ogre {
 		mIndexBuffers.insert(idx);
 		return HardwareIndexBufferSharedPtr(idx);
             
-    }
-    //-----------------------------------------------------------------------
-	void D3D9HardwareBufferManager::destroyIndexBuffer(HardwareIndexBuffer* buf)
-    {
-		IndexBufferList::iterator i = mIndexBuffers.find(buf);
-		if (i != mIndexBuffers.end())
-		{
-			delete *i;
-			mIndexBuffers.erase(i);
-		}
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* D3D9HardwareBufferManager::createVertexDeclaration(void)
