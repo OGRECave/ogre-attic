@@ -27,87 +27,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __XMLPrerequisites_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreString.h"
-#include "OgreStringConverter.h"
 
-// Include Xerces headers
-#include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/framework/LocalFileFormatTarget.hpp>
+// Include tinyxml headers
+#include "tinyxml.h"
 
-namespace Ogre {
-    // ---------------------------------------------------------------------------
-    //  This is a simple class that lets us do easy (though not terribly efficient)
-    //  trancoding of char* data to XMLCh data.
-    // ---------------------------------------------------------------------------
-    class XStr
-    {
-    public :
-        // -----------------------------------------------------------------------
-        //  Constructors and Destructor
-        // -----------------------------------------------------------------------
-        XStr(const char* const toTranscode)
-        {
-            // Call the private transcoding method
-            XMLString::transcode(toTranscode, bufUnicode, 1024);
-        }
-        XStr(String toTranscode)
-        {
-            // Call the private transcoding method
-            XMLString::transcode(toTranscode.c_str(), bufUnicode, 1024);
-        }
-        XStr(Real toTranscode)
-        {
-            String temp = StringConverter::toString(toTranscode);
-            // Call the private transcoding method
-            XMLString::transcode(temp.c_str(), bufUnicode, 1024);
-        }
-        XStr(unsigned short toTranscode)
-        {
-            String temp = StringConverter::toString(toTranscode);
-            // Call the private transcoding method
-            XMLString::transcode(temp.c_str(), bufUnicode, 1024);
-        }
-        XStr(short toTranscode)
-        {
-            String temp = StringConverter::toString(toTranscode);
-            // Call the private transcoding method
-            XMLString::transcode(temp.c_str(), bufUnicode, 1024);
-        }
-        XStr(unsigned long toTranscode)
-        {
-            String temp = StringConverter::toString(toTranscode);
-            // Call the private transcoding method
-            XMLString::transcode(temp.c_str(), bufUnicode, 1024);
-        }
-        XStr(long toTranscode)
-        {
-            String temp = StringConverter::toString(toTranscode);
-            // Call the private transcoding method
-            XMLString::transcode(temp.c_str(), bufUnicode, 1024);
-        }
-
-
-        ~XStr()
-        {
-        }
-
-
-        // -----------------------------------------------------------------------
-        //  Getter methods
-        // -----------------------------------------------------------------------
-        const XMLCh* unicodeForm() const
-        {
-            return bufUnicode;
-        }
-
-    private :
-        XMLCh bufUnicode[1024];
-    };
-
-    #define X(str) XStr(str).unicodeForm()
-
-}
 
 #endif

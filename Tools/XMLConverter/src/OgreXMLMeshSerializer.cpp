@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
 #include "OgreSkeleton.h"
+#include "OgreStringConverter.h"
 
 
 
@@ -37,23 +38,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     XMLMeshSerializer::XMLMeshSerializer()
     {
-        try
-        {
-            XMLPlatformUtils::Initialize();
-        }
-        catch(const XMLException& toCatch)
-        {
-            char msg[256];
-            XMLString::transcode(toCatch.getMessage(), msg, 256);
-            String fullMsg = "Error during Xerces-c Initialization: ";
-            fullMsg << msg;
-            LogManager::getSingleton().logMessage(fullMsg);
-        }
     }
     //---------------------------------------------------------------------
     XMLMeshSerializer::~XMLMeshSerializer()
     {
-        XMLPlatformUtils::Terminate();
     }
     //---------------------------------------------------------------------
     Mesh* XMLMeshSerializer::importMesh(const String& filename, Mesh* pMesh)
@@ -66,13 +54,9 @@ namespace Ogre {
     {
         LogManager::getSingleton().logMessage("XMLMeshSerializer writing mesh data to " + filename + "...");
 
-        DOMImplementation* impl =  
-            DOMImplementationRegistry::getDOMImplementation(X("Core"));
-
-        mXMLDoc = impl->createDocument(
-                    0,                    // root element namespace URI.
-                    X("mesh"),            // root element name
-                    0);                   // document type object (DTD).
+        mXMLDoc = new TiXmlDocument();
+        mXMLDoc->InsertEndChild(TiXmlElement("mesh"));
+        TiXmlElement* rootNode = mXMLDoc->RootElement();
 
         LogManager::getSingleton().logMessage("Populating DOM...");
 
@@ -83,9 +67,8 @@ namespace Ogre {
             MaterialManager& matMgr = MaterialManager::getSingleton();
             LogManager::getSingleton().logMessage("Writing Materials...");
             // Insert a 'Materials' node to contain
-            DOMElement* rootNode = mXMLDoc->getDocumentElement();
-            DOMElement* matsNode = mXMLDoc->createElement(X("materials"));
-            rootNode->appendChild(matsNode);
+            TiXmlElement* matsNode = 
+                rootNode->InsertEndChild(TiXmlElement("materials"))->ToElement();
             
             for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
             {
@@ -105,14 +88,10 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("DOM populated, writing XML file..");
 
         // Write out to a file
-        DOMWriter* writer = impl->createDOMWriter();
-        LocalFileFormatTarget target(X(filename));
-        writer->writeNode(&target, *mXMLDoc);
-
-        writer->release();
+        mXMLDoc->SaveFile(filename);
 
     
-        mXMLDoc->release();
+        delete mXMLDoc;
 
         LogManager::getSingleton().logMessage("XMLMeshSerializer export successful.");
 
@@ -120,15 +99,15 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void XMLMeshSerializer::writeMesh(const Mesh* pMesh)
     {
-        DOMElement* rootNode = mXMLDoc->getDocumentElement();
+        TiXmlElement* rootNode = mXMLDoc->RootElement();
         // Write geometry
-        DOMElement* geomNode = mXMLDoc->createElement(X("sharedgeometry"));
-        rootNode->appendChild(geomNode);
+        TiXmlElement* geomNode = 
+            rootNode->InsertEndChild(TiXmlElement("sharedgeometry"))->ToElement();
         writeGeometry(geomNode, &pMesh->sharedGeometry);
 
         // Write Submeshes
-        DOMElement* subMeshesNode = mXMLDoc->createElement(X("submeshes"));
-        rootNode->appendChild(subMeshesNode);
+        TiXmlElement* subMeshesNode = 
+            rootNode->InsertEndChild(TiXmlElement("submeshes"))->ToElement();
         for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
         {
             LogManager::getSingleton().logMessage("Writing submesh...");
@@ -148,8 +127,8 @@ namespace Ogre {
             if (!pMesh->mBoneAssignments.empty())
             {
                 LogManager::getSingleton().logMessage("Exporting shared geometry bone assignments...");
-                DOMElement* boneAssignNode = mXMLDoc->createElement(X("boneassignments"));
-                rootNode->appendChild(boneAssignNode);
+                TiXmlElement* boneAssignNode = 
+                    rootNode->InsertEndChild(TiXmlElement("boneassignments"))->ToElement();
 
                 Mesh::VertexBoneAssignmentList::const_iterator vi;
                 for (vi = pMesh->mBoneAssignments.begin(); 
@@ -168,78 +147,77 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeMaterial(DOMElement* mMaterialsNode, const Material* m)
+    void XMLMeshSerializer::writeMaterial(TiXmlElement* mMaterialsNode, const Material* m)
     {
         // Create Node
-        DOMElement* matNode = mXMLDoc->createElement(X("material"));
-        mMaterialsNode->appendChild(matNode);
+        TiXmlElement* matNode = 
+            mMaterialsNode->InsertEndChild(TiXmlElement("material"))->ToElement();
 
         // Name
-        matNode->setAttribute(X("name"), X(m->getName()));
+        matNode->SetAttribute("name", m->getName());
 
         // Ambient
-        DOMElement* subNode = mXMLDoc->createElement(X("ambient"));
-        matNode->appendChild(subNode);
+        TiXmlElement* subNode = 
+            matNode->InsertEndChild(TiXmlElement("ambient"))->ToElement();
         const ColourValue& ambient = m->getAmbient();
-        subNode->setAttribute(X("red"), X(ambient.r));
-        subNode->setAttribute(X("green"), X(ambient.g));
-        subNode->setAttribute(X("blue"), X(ambient.b));
+        subNode->SetAttribute("red", StringConverter::toString(ambient.r));
+        subNode->SetAttribute("green", StringConverter::toString(ambient.g));
+        subNode->SetAttribute("blue", StringConverter::toString(ambient.b));
 
         // Diffuse
-        subNode = mXMLDoc->createElement(X("diffuse"));
-        matNode->appendChild(subNode);
+        subNode = 
+            matNode->InsertEndChild(TiXmlElement("diffuse"))->ToElement();
         const ColourValue& diffuse = m->getDiffuse();
-        subNode->setAttribute(X("red"), X(diffuse.r));
-        subNode->setAttribute(X("green"), X(diffuse.g));
-        subNode->setAttribute(X("blue"), X(diffuse.b));
+        subNode->SetAttribute("red", StringConverter::toString(diffuse.r));
+        subNode->SetAttribute("green", StringConverter::toString(diffuse.g));
+        subNode->SetAttribute("blue", StringConverter::toString(diffuse.b));
 
         // Specular
-        subNode = mXMLDoc->createElement(X("specular"));
-        matNode->appendChild(subNode);
+        subNode = 
+            matNode->InsertEndChild(TiXmlElement("specular"))->ToElement();
         const ColourValue& specular = m->getSpecular();
-        subNode->setAttribute(X("red"), X(specular.r));
-        subNode->setAttribute(X("green"), X(specular.g));
-        subNode->setAttribute(X("blue"), X(specular.b));
+        subNode->SetAttribute("red", StringConverter::toString(specular.r));
+        subNode->SetAttribute("green", StringConverter::toString(specular.g));
+        subNode->SetAttribute("blue", StringConverter::toString(specular.b));
 
         // Shininess
-        subNode = mXMLDoc->createElement(X("shininess"));
-        matNode->appendChild(subNode);
-        subNode->setAttribute(X("value"), X(m->getShininess()));
+        subNode = matNode->InsertEndChild(TiXmlElement("shininess"))->ToElement();
+        subNode->SetAttribute("value", StringConverter::toString(m->getShininess()));
 
         // Nested texture layers
-        DOMElement* mLayersNode = mXMLDoc->createElement(X("texturelayers"));
-        matNode->appendChild(mLayersNode);
+        TiXmlElement* mLayersNode = 
+             matNode->InsertEndChild(TiXmlElement("texturelayers"))->ToElement();
         for (int i = 0; i < m->getNumTextureLayers(); ++i)
         {
             writeTextureLayer(mLayersNode, m->getTextureLayer(i));
         }
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeTextureLayer(DOMElement* mLayersNode, const Material::TextureLayer* pTex)
+    void XMLMeshSerializer::writeTextureLayer(TiXmlElement* mLayersNode, const Material::TextureLayer* pTex)
     {
-        DOMElement* texNode = mXMLDoc->createElement(X("texturelayer"));
-        mLayersNode->appendChild(texNode);
+        TiXmlElement* texNode = 
+            mLayersNode->InsertEndChild(TiXmlElement("texturelayer"))->ToElement();
 
-        texNode->setAttribute(X("texture"), X(pTex->getTextureName()));
+        texNode->SetAttribute("texture", pTex->getTextureName());
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeSubMesh(DOMElement* mMeshNode, const SubMesh* s)
+    void XMLMeshSerializer::writeSubMesh(TiXmlElement* mMeshNode, const SubMesh* s)
     {
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeGeometry(DOMElement* mParentNode, const GeometryData* pGeom)
+    void XMLMeshSerializer::writeGeometry(TiXmlElement* mParentNode, const GeometryData* pGeom)
     {
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeSkeletonLink(DOMElement* mMeshNode, const Skeleton* pSkel)
+    void XMLMeshSerializer::writeSkeletonLink(TiXmlElement* mMeshNode, const Skeleton* pSkel)
     {
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeMeshBoneAssignment(DOMElement* mBoneAssignNode, const VertexBoneAssignment* assign)
+    void XMLMeshSerializer::writeMeshBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign)
     {
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeSubMeshBoneAssignment(DOMElement* mBoneAssignNode, const VertexBoneAssignment* assign)
+    void XMLMeshSerializer::writeSubMeshBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign)
     {
     }
     //---------------------------------------------------------------------

@@ -61,19 +61,19 @@ namespace Ogre {
 
     protected:
         // State for export
-        DOMDocument* mXMLDoc;
+        TiXmlDocument* mXMLDoc;
         // State for import
         Mesh* mpMesh;
 
         // Internal methods
-        void writeMaterial(DOMElement* mMaterialsNode, const Material* m);
-        void writeTextureLayer(DOMElement* mLayersNode, const Material::TextureLayer* pTex);
+        void writeMaterial(TiXmlElement* mMaterialsNode, const Material* m);
+        void writeTextureLayer(TiXmlElement* mLayersNode, const Material::TextureLayer* pTex);
         void writeMesh(const Mesh* pMesh);
-        void writeSubMesh(DOMElement* mSubmeshesNode, const SubMesh* s);
-        void writeGeometry(DOMElement* mParentNode, const GeometryData* pGeom);
-        void writeSkeletonLink(DOMElement* mMeshNode, const Skeleton* pSkel);
-        void writeMeshBoneAssignment(DOMElement* mBoneAssignNode, const VertexBoneAssignment* assign);
-        void writeSubMeshBoneAssignment(DOMElement* mBoneAssignNode, const VertexBoneAssignment* assign);
+        void writeSubMesh(TiXmlElement* mSubmeshesNode, const SubMesh* s);
+        void writeGeometry(TiXmlElement* mParentNode, const GeometryData* pGeom);
+        void writeSkeletonLink(TiXmlElement* mMeshNode, const Skeleton* pSkel);
+        void writeMeshBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
+        void writeSubMeshBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
 
 
     };
