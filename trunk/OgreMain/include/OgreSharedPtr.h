@@ -108,6 +108,8 @@ namespace Ogre {
 		inline unsigned int useCount() const { assert(pUseCount); return *pUseCount; }
 
 		inline T* getPointer() { assert(pRep); return pRep; }
+
+		inline isNull(void) { return pRep == 0; }
 	};
 
 	template<class T, class U> inline bool operator==(SharedPtr<T> const& a, SharedPtr<U> const& b)
