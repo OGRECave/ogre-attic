@@ -91,6 +91,9 @@ namespace Ogre {
             RenderableList newList;
 
             Material* pMat = pRend->getMaterial();
+
+            assert(pMat && "Can't add a renderable with a null material!");
+
             // Try to insert, if already there existing will be returned
             retPair = mMaterialGroups.insert(MaterialGroupMap::value_type(pMat, newList));
 
