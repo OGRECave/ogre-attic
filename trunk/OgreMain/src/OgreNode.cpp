@@ -401,7 +401,7 @@ namespace Ogre {
     {
         Quaternion q;
         q.FromAngleAxis(Math::AngleUnitsToRadians(angleunits),axis);
-        rotate(q);
+        rotate(q, relativeTo);
     }
 
     //-----------------------------------------------------------------------
