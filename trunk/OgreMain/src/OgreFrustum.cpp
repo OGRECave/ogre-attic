@@ -276,12 +276,6 @@ namespace Ogre {
             Real vpRight = tanThetaX * mNearDist;
             Real vpBottom = -vpTop;
             Real vpLeft = -vpRight;
-            Real fNSqr = mNearDist * mNearDist;
-            Real fLSqr = vpRight * vpRight;
-            Real fRSqr = fLSqr;
-            Real fTSqr = vpTop * vpTop;
-            Real fBSqr = fTSqr;
-            Real fInvLength = 1.0 / Math::Sqrt( fNSqr + fLSqr );
 
             RenderSystem* renderSystem = Root::getSingleton().getRenderSystem();
             // Recalc if frustum params changed
@@ -305,24 +299,6 @@ namespace Ogre {
                     renderSystem->_applyObliqueDepthProjection(
                         mStandardProjMatrix, viewSpaceNear, true);
                 }
-                // Calculate co-efficients for the frustum planes
-                // Special-cased for L = -R and B = -T i.e. viewport centered 
-                // on direction vector.
-                // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-                mCoeffL[0] = mNearDist * fInvLength;
-                mCoeffL[1] = -vpLeft * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
-                mCoeffR[0] = -mNearDist * fInvLength;
-                mCoeffR[1] = vpRight * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
-                mCoeffB[0] = mNearDist * fInvLength;
-                mCoeffB[1] = -vpBottom * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
-                mCoeffT[0] = -mNearDist * fInvLength;
-                mCoeffT[1] = vpTop * fInvLength;
             }
             else if (mProjType == PT_ORTHOGRAPHIC)
             {
@@ -334,27 +310,6 @@ namespace Ogre {
                 Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
                     mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
 
-
-                // Calculate co-efficients for the frustum planes
-                // Special-cased for L = -R and B = -T i.e. viewport centered 
-                // on direction vector.
-                // Taken from ideas in WildMagic 0.2 http://www.magic-software.com
-
-                // TODO: shouldn't this be changed for ortho?
-                mCoeffL[0] = mNearDist * fInvLength;
-                mCoeffL[1] = -vpLeft * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fRSqr );
-                mCoeffR[0] = -mNearDist * fInvLength;
-                mCoeffR[1] = vpRight * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fBSqr );
-                mCoeffB[0] = mNearDist * fInvLength;
-                mCoeffB[1] = -vpBottom * fInvLength;
-
-                fInvLength = 1.0 / Math::Sqrt( fNSqr + fTSqr );
-                mCoeffT[0] = -mNearDist * fInvLength;
-                mCoeffT[1] = vpTop * fInvLength;
 
             }
 
@@ -549,38 +504,43 @@ namespace Ogre {
             // Calc distance along direction to position
             Real fDdE = camDirection.dotProduct(position);
 
-            // left plane
-            mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal = mCoeffL[0]*left +
-                    mCoeffL[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_LEFT].d =
-                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal);
+            Matrix4 combo = mStandardProjMatrix * mViewMatrix;
+            mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.x = combo[3][0] + combo[0][0];
+            mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.y = combo[3][1] + combo[0][1];
+            mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.z = combo[3][2] + combo[0][2];
+            mFrustumPlanes[FRUSTUM_PLANE_LEFT].d = combo[3][3] + combo[0][3];
 
-            // right plane
-            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal = mCoeffR[0]*left +
-                    mCoeffR[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d =
-                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal);
+            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal.x = combo[3][0] - combo[0][0];
+            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal.y = combo[3][1] - combo[0][1];
+            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].normal.z = combo[3][2] - combo[0][2];
+            mFrustumPlanes[FRUSTUM_PLANE_RIGHT].d = combo[3][3] - combo[0][3];
 
-            // bottom plane
-            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal = mCoeffB[0]*up +
-                    mCoeffB[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d =
-                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal);
+            mFrustumPlanes[FRUSTUM_PLANE_TOP].normal.x = combo[3][0] - combo[1][0];
+            mFrustumPlanes[FRUSTUM_PLANE_TOP].normal.y = combo[3][1] - combo[1][1];
+            mFrustumPlanes[FRUSTUM_PLANE_TOP].normal.z = combo[3][2] - combo[1][2];
+            mFrustumPlanes[FRUSTUM_PLANE_TOP].d = combo[3][3] - combo[1][3];
 
-            // top plane
-            mFrustumPlanes[FRUSTUM_PLANE_TOP].normal = mCoeffT[0]*up +
-                    mCoeffT[1]*camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_TOP].d =
-                    -position.dotProduct(mFrustumPlanes[FRUSTUM_PLANE_TOP].normal);
+            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal.x = combo[3][0] + combo[1][0];
+            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal.y = combo[3][1] + combo[1][1];
+            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].normal.z = combo[3][2] + combo[1][2];
+            mFrustumPlanes[FRUSTUM_PLANE_BOTTOM].d = combo[3][3] + combo[1][3];
 
-            // far plane
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
-            // d is distance along normal to origin
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = fDdE + mFarDist;
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.x = combo[3][0] + combo[2][0];
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.y = combo[3][1] + combo[2][1];
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.z = combo[3][2] + combo[2][2];
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = combo[3][3] + combo[2][3];
 
-            // near plane
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.x = combo[3][0] - combo[2][0];
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.y = combo[3][1] - combo[2][1];
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.z = combo[3][2] - combo[2][2];
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = combo[3][3] - combo[2][3];
+
+            // Renormalise any normals which were not unit length
+            for(int i=0; i<6; i++ ) 
+            {
+                float length = mFrustumPlanes[i].normal.normalise();
+                mFrustumPlanes[i].d /= length;
+            }
 
             // Update worldspace corners
             Matrix4 eyeToWorld = mViewMatrix.inverse();
@@ -604,35 +564,6 @@ namespace Ogre {
             mWorldSpaceCorners[6] = eyeToWorld * Vector3(-farx, -fary, -farDist);
             mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -farDist);
 
-            // Deal with reflection on frustum planes
-            if (mReflect)
-            {
-                Vector3 pos = mReflectMatrix * position;
-                Vector3 dir = camDirection.reflect(mReflectPlane.normal);
-                fDdE = dir.dotProduct(pos);
-                unsigned int i;
-                for (i = 0; i < 6; ++i)
-                {
-                    mFrustumPlanes[i].normal = mFrustumPlanes[i].normal.reflect(mReflectPlane.normal);
-                    // Near / far plane dealt with differently since they don't pass through camera
-                    switch (i)
-                    {
-                    case FRUSTUM_PLANE_NEAR:
-                        mFrustumPlanes[i].d = -(fDdE + mNearDist);
-                        break;
-                    case FRUSTUM_PLANE_FAR:
-                        mFrustumPlanes[i].d = fDdE + mFarDist;
-                        break;
-                    default:
-                        mFrustumPlanes[i].d = -pos.dotProduct(mFrustumPlanes[i].normal);
-                    }
-                }
-                // Also reflect corners
-                for (i = 0; i < 8; ++i)
-                {
-                    mWorldSpaceCorners[i] = mReflectMatrix * mWorldSpaceCorners[i];
-                }
-            }
 
             mRecalcView = false;
 
