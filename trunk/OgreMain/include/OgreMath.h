@@ -389,6 +389,23 @@ namespace Ogre
         /** Plane / box intersection test. */
         static bool intersects(const Plane& plane, const AxisAlignedBox& box);
 
+        /** Ray / convex plane list intersection test. 
+        @param ray The ray to test with
+        @param plaeList List of planes which form a convex volume
+        @param normalIsOutside Does the normal point outside the volume
+        */
+        static std::pair<bool, Real> intersects(
+            const Ray& ray, const std::vector<Plane>& planeList, 
+            bool normalIsOutside);
+        /** Ray / convex plane list intersection test. 
+        @param ray The ray to test with
+        @param plaeList List of planes which form a convex volume
+        @param normalIsOutside Does the normal point outside the volume
+        */
+        static std::pair<bool, Real> intersects(
+            const Ray& ray, const std::list<Plane>& planeList, 
+            bool normalIsOutside);
+
         /** Sphere / plane intersection test. 
         @remarks NB just do a plane.getDistance(sphere.getCenter()) for more detail!
         */

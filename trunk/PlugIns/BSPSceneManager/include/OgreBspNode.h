@@ -97,18 +97,18 @@ namespace Ogre {
             This method should only be called on a splitting node, i.e. where isLeaf() returns false. Calling this
             method on a leaf node will throw an exception.
         */
-        Plane getSplitPlane(void);
+        const Plane& getSplitPlane(void) const;
 
         /** Returns the axis-aligned box which contains this node if it is a leaf.
             This method should only be called on a leaf node. It returns a box which can be used in calls like
             Camera::isVisible to determine if the leaf node is visible in the view.
         */
-        AxisAlignedBox& getBoundingBox(void);
+        const AxisAlignedBox& getBoundingBox(void) const;
 
         /** Returns the number of faces contained in this leaf node.
             Should only be called on a leaf node.
         */
-        int getNumFaceGroups(void);
+        int getNumFaceGroups(void) const;
         /** Returns the index to the face group index list for this leaf node.
             The contents of this buffer is a list of indexes which point to the
             actual face groups held in a central buffer in the BspLevel class (in
@@ -118,7 +118,7 @@ namespace Ogre {
             main buffer of face groups may not be.
             Should only be called on a leaf node.
         */
-        int getFaceGroupStart(void);
+        int getFaceGroupStart(void) const;
 
         /** Determines if the passed in node (must also be a leaf) is visible from this leaf.
             Must only be called on a leaf node, and the parameter must also be a leaf node. If
@@ -126,7 +126,7 @@ namespace Ogre {
             Note that internally this uses the Potentially Visible Set (PVS) which is precalculated
             and stored with the BSP level.
         */
-        bool isLeafVisible(const BspNode* leaf);
+        bool isLeafVisible(const BspNode* leaf) const;
 
         friend std::ostream& operator<< (std::ostream& o, BspNode& n);
 
@@ -137,7 +137,7 @@ namespace Ogre {
         void _removeMovable(const MovableObject* mov);
 
         /// Gets the signed distance to the dividing plane
-        Real getDistance(const Vector3& pos);
+        Real getDistance(const Vector3& pos) const;
 
         typedef std::set<const MovableObject*> IntersectingObjectSet;
 
@@ -151,7 +151,7 @@ namespace Ogre {
         /** Get the list of solid Brushes for this node.
         @remarks Only applicable for leaf nodes. 
         */
-        const NodeBrushList& getSolidBrushes(void);
+        const NodeBrushList& getSolidBrushes(void) const;
     protected:
         BspLevel* mOwner; // Back-reference to containing level
         bool mIsLeaf;
@@ -198,7 +198,7 @@ namespace Ogre {
 
         NodeBrushList mSolidBrushes;
     public:
-        const IntersectingObjectSet& getObjects(void) { return mMovables; }
+        const IntersectingObjectSet& getObjects(void) const { return mMovables; }
 
 
     };
