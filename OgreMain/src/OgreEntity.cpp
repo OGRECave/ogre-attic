@@ -383,6 +383,13 @@ namespace Ogre {
 		theMesh->getSkeleton()->setCurrentEntity(this);
 
         theMesh->_getBoneMatrices(mAnimationState, mBoneMatrices);
+		//--- Update the child object's transforms
+		ChildObjectList::iterator child_itr = mChildObjectList.begin();
+		ChildObjectList::iterator child_itr_end = mChildObjectList.end();
+		for( ; child_itr != child_itr_end; child_itr++)
+		{
+            (*child_itr).second->getParentNode()->_update(true, true);
+		}
 		// Reset the skeleton to 'no caller'
         theMesh->getSkeleton()->setCurrentEntity(0);
 		
