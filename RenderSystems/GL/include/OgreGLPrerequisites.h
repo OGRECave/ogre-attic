@@ -119,6 +119,10 @@ extern GL_ProgramStringARB_Func glProgramStringARB_ptr;
 typedef void (APIENTRY *GL_ProgramLocalParameter4fvARB_Func)(GLenum, GLuint, const GLfloat *);
 extern GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 
+// Pointer to glProgramParameter4fvNV function
+typedef void (APIENTRY *GL_ProgramParameter4fvNV_Func)(GLenum, GLuint, const GLfloat *);
+extern GL_ProgramParameter4fvNV_Func glProgramParameter4fvNV_ptr;
+
 // Pointer to glCombinerStageParameterfvNV function
 typedef void (APIENTRY *GL_CombinerStageParameterfvNV_Func)(GLenum, GLenum, const GLfloat *);
 extern GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
@@ -151,8 +155,11 @@ extern GL_GetProgramivARB_Func glGetProgramivARB_ptr;
 
 // Pointer to glLoadProgramNV function
 typedef void (APIENTRY *GL_LoadProgramNV_Func)(GLenum, GLuint, GLsizei, const GLubyte *);
-
 extern GL_LoadProgramNV_Func glLoadProgramNV_ptr;
+
+// Pointer to glTrackMatrixNV function
+typedef void (APIENTRY *GL_TrackMatrixNV_Func)(GLenum, GLuint, GLenum, GLenum);
+extern GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
 };
 
 namespace Ogre {

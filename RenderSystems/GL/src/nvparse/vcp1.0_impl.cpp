@@ -4,6 +4,7 @@
 #include <string>
 #include <ctype.h>
 #include <GL/gl.h>
+#include <OgreGLPrerequisites.h>
 
 #ifndef _WIN32
 # define strnicmp strncasecmp
@@ -209,10 +210,10 @@ namespace
 								else
 								{
 									// untrack any currently tracked matrix
-									glTrackMatrixNV(target, iConstID, GL_NONE, GL_IDENTITY_NV);
+									glTrackMatrixNV_ptr(target, iConstID, GL_NONE, GL_IDENTITY_NV);
 									
 									// tell GL the matrix to track
-									glTrackMatrixNV(target, iConstID, iMatrixID, iTransformID);         
+									glTrackMatrixNV_ptr(target, iConstID, iMatrixID, iTransformID);         
 								}
 							}
 						}
@@ -239,10 +240,10 @@ namespace
 						else 
 						{
 							// Always set the closest matrix location to tracking NONE to avoid errors!
-							glTrackMatrixNV(target, iConstID - (iConstID % 4), GL_NONE, GL_IDENTITY_NV);
+							glTrackMatrixNV_ptr(target, iConstID - (iConstID % 4), GL_NONE, GL_IDENTITY_NV);
 							
 							// tell GL the constant values
-							glProgramParameter4fvNV(target, iConstID, xyzw);
+							glProgramParameter4fvNV_ptr(target, iConstID, xyzw);
 						}
 					}
         }

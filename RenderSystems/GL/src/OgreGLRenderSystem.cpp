@@ -64,6 +64,7 @@ GL_DeleteProgramsARB_Func glDeleteProgramsARB_ptr;
 GL_BindProgramARB_Func glBindProgramARB_ptr;
 GL_ProgramStringARB_Func glProgramStringARB_ptr;
 GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
+GL_ProgramParameter4fvNV_Func glProgramParameter4fvNV_ptr;
 GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
 GL_CombinerParameterfvNV_Func glCombinerParameterfvNV_ptr;
 GL_CombinerParameteriNV_Func glCombinerParameteriNV_ptr;
@@ -72,6 +73,7 @@ GL_LoadProgramNV_Func glLoadProgramNV_ptr;
 GL_CombinerInputNV_Func glCombinerInputNV_ptr;
 GL_CombinerOutputNV_Func glCombinerOutputNV_ptr;
 GL_FinalCombinerInputNV_Func glFinalCombinerInputNV_ptr;
+GL_TrackMatrixNV_Func glTrackMatrixNV_ptr;
 
 namespace Ogre {
 
@@ -142,6 +144,7 @@ namespace Ogre {
         glBindProgramARB_ptr = 0;
         glProgramStringARB_ptr = 0;
         glProgramLocalParameter4fvARB_ptr = 0;
+        glProgramParameter4fvNV_ptr = 0;
         glCombinerStageParameterfvNV_ptr = 0;
         glCombinerParameterfvNV_ptr = 0;
         glCombinerParameteriNV_ptr = 0;
@@ -150,6 +153,7 @@ namespace Ogre {
         glCombinerInputNV_ptr = 0;
         glCombinerOutputNV_ptr = 0;
         glFinalCombinerInputNV_ptr = 0;
+        glTrackMatrixNV_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -383,6 +387,8 @@ namespace Ogre {
             (GL_ProgramStringARB_Func)mGLSupport->getProcAddress("glProgramStringARB");
         glProgramLocalParameter4fvARB_ptr =
             (GL_ProgramLocalParameter4fvARB_Func)mGLSupport->getProcAddress("glProgramLocalParameter4fvARB");
+         glProgramParameter4fvNV_ptr =
+            (GL_ProgramParameter4fvNV_Func)mGLSupport->getProcAddress("glProgramParameter4fvNV");
         glCombinerStageParameterfvNV_ptr =
             (GL_CombinerStageParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerStageParameterfvNV");
         glCombinerParameterfvNV_ptr = 
@@ -398,6 +404,8 @@ namespace Ogre {
             (GL_CombinerOutputNV_Func)mGLSupport->getProcAddress("glCombinerOutputNV");
         glFinalCombinerInputNV_ptr = 
             (GL_FinalCombinerInputNV_Func)mGLSupport->getProcAddress("glFinalCombinerInputNV");
+        glTrackMatrixNV_ptr = 
+            (GL_TrackMatrixNV_Func)mGLSupport->getProcAddress("glTrackMatrixNV");
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
