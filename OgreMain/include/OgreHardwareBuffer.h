@@ -152,6 +152,7 @@ namespace Ogre {
 						// and tag for sync on unlock()
                         mShadowUpdated = true;
                     }
+
                     ret = mpShadowBuffer->lock(offset, length, options);
                 }
                 else
@@ -251,7 +252,7 @@ namespace Ogre {
                     const void *srcData = mpShadowBuffer->lockImpl(
     					mLockStart, mLockSize, HBL_READ_ONLY);
                     void *destData = this->lockImpl(
-    					mLockStart, mLockSize, HBL_DISCARD);
+    					mLockStart, mLockSize, HBL_NORMAL);
                     memcpy(destData, srcData, mLockSize);
                     this->unlockImpl();
                     mpShadowBuffer->unlockImpl();
