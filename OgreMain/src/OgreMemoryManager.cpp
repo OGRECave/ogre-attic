@@ -1,27 +1,27 @@
-/*
------------------------------------------------------------------------------
-This source file is part of OGRE
+/*-------------------------------------------------------------------------
+This source file is a part of OGRE
 (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://www.stevestreeting.com/ogre/
 
-Copyright © 2000-2001 Steven J. Streeting
+For the latest info, see http://ogre.sourceforge.net/
+
+Copyright © 2000-2001 The OGRE Team
 Also see acknowledgements in Readme.html
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
+This library is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License (LGPL) as 
+published by the Free Software Foundation; either version 2.1 of the 
+License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+This library is distributed in the hope that it will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public 
+License for more details.
 
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-Place - Suite 330, Boston, MA 02111-1307, USA, or go to
-http://www.gnu.org/copyleft/gpl.html.
------------------------------------------------------------------------------
-*/
+You should have received a copy of the GNU Lesser General Public License 
+along with this library; if not, write to the Free Software Foundation, 
+Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
+http://www.gnu.org/copyleft/lesser.txt
+-------------------------------------------------------------------------*/
 
 #include "OgreMemoryManager.h"
 
@@ -253,41 +253,79 @@ namespace Ogre
     /** This helper function transforms an integer into a string with decimal 
         separators.
     */
-    const char *insertCommas( unsigned long value )
+    const char *insertCommas( size_t value )
     {
         static char str[30];
-        sprintf( str, "%lu", value );
+        char *ptr = &str[28];
+        size_t after_groups = value % 3;
+        size_t groups = value / 3;
 
-        if( strlen(str) > 3 )
+        str[29] = 0;
+
+        // We can have at most 4 groups
+        if( groups )
         {
-            memmove(&str[strlen(str)-3], &str[strlen(str)-4], 4);
-            str[strlen(str) - 4] = ',';
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
         }
-        if (strlen(str) > 7)
+        if( groups > 1 )
         {
-            memmove(&str[strlen(str)-7], &str[strlen(str)-8], 8);
-            str[strlen(str) - 8] = ',';
+            *ptr-- = ',';
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
         }
-        if( strlen(str) > 11 )
+        if( groups > 2 )
         {
-            memmove(&str[strlen(str)-11], &str[strlen(str)-12], 12);
-            str[strlen(str) - 12] = ',';
+            *ptr-- = ',';
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
+        }
+        if( groups > 3 )
+        {
+            *ptr-- = ',';
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
+            *ptr = (char)value % 10; value /= 10; ptr--;
+        }
+        if( after_groups )
+        {
+            if( groups )
+            {
+                *ptr-- = ',';
+            }
+            if( after_groups )
+            {
+                *ptr = (char)value % 10; value /= 10; ptr--;
+            }
+            if( after_groups == 2 )
+            {
+                *ptr = (char)value % 10; value /= 10; ptr--;
+            }
+        }
+        if( !groups && !after_groups )
+        {
+            *ptr = '0'; ptr--;
         }
 
-        return str;
+        ptr++;
+
+        return ptr;        
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------
-    const char *memorySizeString( unsigned long size )
+    const char *memorySizeString( size_t size )
     {
         static char str[90];
         
-        if( size > (1024*1024) )    
-            sprintf( str, "%10s (%7.2fM)", insertCommas(size), (float) size / (1024.0f * 1024.0f) );
+        if( size > 1048576 )
+            sprintf( str, "%10s (%7.2fM)", insertCommas( size ), (float) size / 1048576.0f );
         else if( size > 1024 )        
-            sprintf( str, "%10s (%7.2fK)", insertCommas(size), (float) size / 1024.0f );
+            sprintf( str, "%10s (%7.2fK)", insertCommas( size ), (float) size / 1024.0f );
         else
-            sprintf( str, "%10s bytes     ", insertCommas(size) );
+            sprintf( str, "%10s bytes     ", insertCommas( size ) );
         return str;
     }
 
@@ -302,8 +340,8 @@ namespace Ogre
         // four-, eight- or even sixteen-byte boundaries. If we didn't do this, 
         // the hash index would not have very good coverage.
 
-        unsigned int hashIndex = ((unsigned int)reportedAddress >> 4) & (hashSize - 1);
-        sAllocUnit *ptr = hashTable[hashIndex];
+        size_t hashIndex = ( (size_t)reportedAddress >> 4 ) & ( hashSize - 1 );
+        sAllocUnit *ptr = hashTable[ hashIndex ];
         while( ptr )
         {
             if( ptr->reportedAddress == reportedAddress )
@@ -353,10 +391,10 @@ namespace Ogre
     void wipeWithPattern(
         sAllocUnit *allocUnit, 
         unsigned long pattern, 
-        const unsigned int originalReportedSize = 0 )
+        const size_t originalReportedSize = 0 )
     {
         // For a serious test run, we use wipes of random a random value. However, 
-        // if this causes a crash, we don't want it to crash in a differnt place 
+        // if this causes a crash, we don't want it to crash in a different place 
         // each time, so we specifically DO NOT call srand. If, by chance your 
         // program calls srand(), you may wish to disable that when running with a 
         // random wipe test. This will make any crashes more consistent so they
@@ -371,7 +409,7 @@ namespace Ogre
         // following line for releases.
         //
         // Note that the "alwaysWipeAll" should be turned on for this to have 
-        // effect, otherwise it won't do much good. But we'll leave it this way (as 
+        // effect, otherwise it won't do much good. But we will leave it this way (as 
         // an option) because this does slow things down.
 
         //    pattern = 0;
@@ -380,20 +418,20 @@ namespace Ogre
         if( alwaysWipeAll && allocUnit->reportedSize > originalReportedSize )
         {
             // Fill the bulk
-            long    *lptr = (long *) ((char *)allocUnit->reportedAddress + originalReportedSize);
-            int    length = allocUnit->reportedSize - originalReportedSize;
-            int    i;
+            long  *lptr = (long *) ((char *)allocUnit->reportedAddress + originalReportedSize);
+            size_t length = allocUnit->reportedSize - originalReportedSize;
+            size_t i;
             for( i = 0; i < (length >> 2); i++, lptr++ )
             {
                 *lptr = pattern;
             }
 
             // Fill the remainder
-            unsigned int    shiftCount = 0;
-            char        *cptr = (char *) lptr;
-            for( i = 0; i < (length & 0x3); i++, cptr++, shiftCount += 8 )
+            unsigned int shiftCount = 0;
+            char *cptr = (char *) lptr;
+            for( i = 0; i < ( length & 0x3 ); i++, cptr++, shiftCount += 8 )
             {
-                *cptr = (pattern & (0xff << shiftCount)) >> shiftCount;
+                *cptr =  (char)((( pattern & ( 0xff << shiftCount ) ) >> shiftCount) & 0xff);
             }
         }
 
@@ -421,8 +459,8 @@ namespace Ogre
             {
                 fprintf(fp, "%06d 0x%08X 0x%08X 0x%08X 0x%08X 0x%08X %-8s    %c       %c    %s(%d) %s\r\n",
                     ptr->allocationNumber,
-                    (unsigned int) ptr->reportedAddress, ptr->reportedSize,
-                    (unsigned int) ptr->actualAddress, ptr->actualSize,
+                    (size_t) ptr->reportedAddress, ptr->reportedSize,
+                    (size_t) ptr->actualAddress, ptr->actualSize,
                     MemoryManager::sMemManager.calcUnused(ptr),
                     allocationTypes[ptr->allocationType],
                     ptr->breakOnDealloc ? 'Y':'N',
@@ -737,7 +775,7 @@ namespace Ogre
             }
 
             // Insert the new allocation into the hash table
-            unsigned int hashIndex = ((unsigned int) au->reportedAddress >> 4) & (hashSize - 1);
+            size_t hashIndex = ((size_t) au->reportedAddress >> 4) & (hashSize - 1);
             if( hashTable[hashIndex]) 
             {
                 hashTable[hashIndex]->prev = au;
@@ -774,7 +812,7 @@ namespace Ogre
 
             // Log the result
             if( alwaysLogAll )
-                log("[+] ---->             addr 0x%08X", (unsigned int) au->reportedAddress);
+                log("[+] ---->             addr 0x%08X", (size_t) au->reportedAddress);
 
             // Resetting the globals insures that if at some later time, somebody 
             // calls our memory manager from an unknown source (i.e. they didn't 
@@ -879,7 +917,7 @@ namespace Ogre
             m_assert( au->breakOnRealloc == false );
 
             // Keep track of the original size
-            unsigned int originalReportedSize = au->reportedSize;
+            size_t originalReportedSize = au->reportedSize;
 
             if (alwaysLogAll) log("[~] ---->             from 0x%08X(%08d)", 
                 originalReportedSize, 
@@ -950,12 +988,12 @@ namespace Ogre
             // The reallocation may cause the address to change, so we should 
             // relocate our allocation unit within the hash table
 
-            unsigned int hashIndex = (unsigned int) -1;
+            size_t hashIndex = (unsigned int) -1;
             if( oldReportedAddress != au->reportedAddress )
             {
                 // Remove this allocation unit from the hash table
                 {
-                    unsigned int hashIndex = ((unsigned int) oldReportedAddress >> 4) & (hashSize - 1);
+                    size_t hashIndex = ((size_t) oldReportedAddress >> 4) & (hashSize - 1);
                     if( hashTable[hashIndex] == au )
                     {
                         hashTable[hashIndex] = hashTable[hashIndex]->next;
@@ -970,7 +1008,7 @@ namespace Ogre
                 }
 
                 // Re-insert it back into the hash table
-                hashIndex = ((unsigned int) au->reportedAddress >> 4) & (hashSize - 1);
+                hashIndex = ((size_t) au->reportedAddress >> 4) & (hashSize - 1);
                 if (hashTable[hashIndex]) 
                     hashTable[hashIndex]->prev = au;
                 au->next = hashTable[hashIndex];
@@ -985,7 +1023,7 @@ namespace Ogre
                 stats.peakReportedMemory = stats.totalReportedMemory;
             if (stats.totalActualMemory   > stats.peakActualMemory)   
                 stats.peakActualMemory   = stats.totalActualMemory;
-            int deltaReportedSize = reportedSize - originalReportedSize;
+            size_t deltaReportedSize = reportedSize - originalReportedSize;
             if( deltaReportedSize > 0 )
             {
                 stats.accumulatedReportedMemory += deltaReportedSize;
@@ -1007,7 +1045,7 @@ namespace Ogre
 
             // Log the result
             if (alwaysLogAll) log("[~] ---->             addr 0x%08X", 
-                (unsigned int) au->reportedAddress);
+                (size_t) au->reportedAddress);
 
             // Resetting the globals insures that if at some later time, somebody 
             // calls our memory manager from an unknown source (i.e. they didn't 
@@ -1038,7 +1076,7 @@ namespace Ogre
             // Log the request
             if (alwaysLogAll) log("[-] ----- %8s of addr 0x%08X           by %s", 
                 allocationTypes[deallocationType], 
-                (unsigned int) reportedAddress, 
+                (size_t) reportedAddress, 
                 ownerString(sourceFile, sourceLine, sourceFunc) );
 
             // Go get the allocation unit
@@ -1109,7 +1147,7 @@ namespace Ogre
             free(au->actualAddress);
 
             // Remove this allocation unit from the hash table
-            unsigned int hashIndex = ((unsigned int) au->reportedAddress >> 4) & (hashSize - 1);
+            size_t hashIndex = ((size_t) au->reportedAddress >> 4) & (hashSize - 1);
             if( hashTable[hashIndex] == au )
             {
                 hashTable[hashIndex] = au->next;
