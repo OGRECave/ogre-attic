@@ -129,7 +129,13 @@ namespace Ogre {
         else if (!mDeferLoad)
         {
             // Ensure texture is loaded, default MipMaps and priority
-            try {
+            if( TextureManager::getSingleton().getByName( name ) != NULL )
+			{
+				mIsBlank = false;
+                return;
+			}
+
+            try {                
                 TextureManager::getSingleton().load(name);
                 mIsBlank = false;
             }
