@@ -43,14 +43,19 @@ protected:
     // Hack struct for test
     PatchSurface ps;
     GeometryData patchCtlPoints;
+
+#if OGRE_COMPILER == COMPILER_MSVC
     #pragma pack(push)
     #pragma pack(1)
+#endif
     struct PatchVertex {
         Real x, y, z;
         Real nx, ny, nz;
         Real u, v;
     };
+#if OGRE_COMPILER == COMPILER_MSVC
     #pragma pack(pop)
+#endif
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -127,12 +132,43 @@ protected:
         ps.defineSurface("Bezier1", patchCtlPoints, 3, PatchSurface::PST_BEZIER, 4, PatchSurface::VS_BOTH);
         ps.build();
 
+        TextureFont *pFont;
 
+        // This is hard-coded and should really get changed
+        try {        
+		    pFont = new TextureFont( "c:\\WINDOWS\\fonts\\trebucbd.ttf" );
+        }
+        catch( Exception e )
+        {
+            pFont = new TextureFont( "c:\\WINNT\\fonts\\trebucbd.ttf" );
+        }
+
+		pFont->createAlphaMask( 
+            "TextTexture", 
+            "Yay! I finally got a screenshot showing text rendering with Ogre & FreeType 2 :)\n"
+            "This should be the second line :)\n"
+            "\n"
+            "\n"
+            "This is a Bezier patch that uses a material which holds a texture created with the\n"
+            "function TextureFont::createAlphaMask\n"
+            "The font used is Trebuchet MS\n"
+            "The material has a SBT_TRANSPARENT_ALPHA scene blending and has depth\n"
+            "writing set to off!"
+            "\n"
+            "\n"
+            "Look up ;)", 
+            512, 512, 
+            0xff, 0xcc, 0x00, 710 );
+		
+        Material *pMat = (Material*)MaterialManager::getSingleton().create( "TextMat" );
+        pMat->addTextureLayer( "TextTexture" );
+        pMat->setSceneBlending( SBT_TRANSPARENT_ALPHA );
+        pMat->setDepthWriteEnabled( false );
 
         // Create entity based on patch
         Entity* ent = mSceneMgr->createEntity("Entity1", "Bezier1");
 
-        ent->setMaterialName("Examples/OgreLogo");
+        ent->setMaterialName("TextMat");
 
         // Attach the entity to the root of the scene
         mSceneMgr->getRootSceneNode()->attachObject(ent);
