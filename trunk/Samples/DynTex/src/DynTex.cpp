@@ -126,7 +126,8 @@ public:
 	
 	void runStep()
 	{
-		for(unsigned int x=0; x<mSize; x++) 
+		unsigned int x, y;
+		for(x=0; x<mSize; x++) 
 		{
 			delta[0][x] = 0;
 			delta[1][x] = 0;
@@ -134,7 +135,7 @@ public:
 		// Boundary conditions
 		unsigned int idx;
 		idx = 0;
-		for(unsigned int y=0; y<reactorExtent; y++) 
+		for(y=0; y<reactorExtent; y++) 
 		{
 			chemical[0][idx] = chemical[0][idx+reactorExtent-2];
 			chemical[0][idx+reactorExtent-1] = chemical[0][idx+1];
@@ -143,7 +144,7 @@ public:
 			idx += reactorExtent;
 		}
 		unsigned int skip = reactorExtent*(reactorExtent-1);
-		for(unsigned int y=0; y<reactorExtent; y++) 
+		for(y=0; y<reactorExtent; y++) 
 		{
 			chemical[0][y] = chemical[0][y + skip - reactorExtent];
 			chemical[0][y + skip] = chemical[0][y + reactorExtent];
@@ -152,9 +153,9 @@ public:
 		}
 		// Diffusion
 		idx = reactorExtent+1;
-		for(unsigned int y=0; y<reactorExtent-2; y++) 
+		for(y=0; y<reactorExtent-2; y++) 
 		{
-			for(unsigned int x=0; x<reactorExtent-2; x++) 
+			for(x=0; x<reactorExtent-2; x++) 
 			{
 				delta[0][idx] += MULT(chemical[0][idx-reactorExtent] + chemical[0][idx-1]
 								-4*chemical[0][idx] + chemical[0][idx+1]
@@ -170,9 +171,9 @@ public:
 		idx = reactorExtent+1;
 		int U,V;
 
-		for(unsigned int y=0; y<reactorExtent-2; y++) 
+		for(y=0; y<reactorExtent-2; y++) 
 		{
-			for(unsigned int x=0; x<reactorExtent-2; x++) 
+			for(x=0; x<reactorExtent-2; x++) 
 			{                        
 				U = chemical[0][idx]; V = chemical[1][idx];
 				int UVV = MULT(MULT(U,V),V);
@@ -183,7 +184,7 @@ public:
 			idx += 2;
 		}
 		// Update concentrations
-		for(unsigned int x=0; x<mSize; x++) 
+		for(x=0; x<mSize; x++) 
 		{
 			chemical[0][x] += MULT(delta[0][x], dt);
 			chemical[1][x] += MULT(delta[1][x], dt);

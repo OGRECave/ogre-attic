@@ -801,12 +801,16 @@ namespace Ogre {
 			bulkPixelConversion(tempsrc, dst);
 			return;
 		}
+
+// NB VC6 can't handle the templates required for optimised conversion, tough
+#if OGRE_COMPILER != COMPILER_MSVC || OGRE_COMP_VER >= 1300
         // Is there a specialized, inlined, conversion?
         if(doOptimizedConversion(src, dst))
         {
             // If so, good
             return;
         }
+#endif 
 
         // The brute force fallback
         float r,g,b,a;
