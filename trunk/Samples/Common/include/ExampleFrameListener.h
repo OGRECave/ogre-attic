@@ -151,22 +151,11 @@ public:
         {
             mTranslateVector.z = -mMoveScale;
         }
-        /* Move camera forward by mousewheel. */
-        if( mInputDevice->getMouseRelativeZ() > 0 )
-        {
-            mTranslateVector.z = -mMoveScale * 8.0;
-        }
 
         /* Move camera backward by keypress. */
         if (mInputDevice->isKeyDown(KC_DOWN) || mInputDevice->isKeyDown(KC_S) )
         {
             mTranslateVector.z = mMoveScale;
-        }
-
-        /* Move camera backward by mouse wheel. */
-        if( mInputDevice->getMouseRelativeZ() < 0 )
-        {
-            mTranslateVector.z = mMoveScale * 8.0;
         }
 
         if (mInputDevice->isKeyDown(KC_PGUP))
