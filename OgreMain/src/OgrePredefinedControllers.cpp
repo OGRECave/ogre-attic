@@ -238,10 +238,10 @@ namespace Ogre
                 output = -1.0;
             break;
         case WFT_SAWTOOTH:
-            output = (input * 2) - 0.5;
+            output = (input * 2) - 1;
             break;
         case WFT_INVERSE_SAWTOOTH:
-            output = 1.0 - ((input * 2) - 0.5);
+            output = -((input * 2) - 1);
             break;
         }
 
