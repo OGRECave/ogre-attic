@@ -447,22 +447,12 @@ namespace Ogre {
 
     void GLRenderTexture::_copyToTexture(void)
     {
-        if(getNumViewports() != 1)
-        {
-            LogManager::getSingleton().logMessage(LML_NORMAL, "GLRenderTexture: Invalid number of viewports set %d.  Must only be one", getNumViewports());
-            return;
-        }
-
-        Viewport* vp = getViewport(0);
-
-        vp->getCamera()->_renderScene(vp, false);
 		
         glBindTexture(GL_TEXTURE_2D,
             static_cast<GLTexture*>(mTexture)->getGLID());
 
         glCopyTexSubImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 0, 0,
-            vp->getActualLeft(), vp->getActualTop(), vp->getActualWidth(), 
-            vp->getActualHeight());
+            0, 0, mWidth, mHeight);
 
     }
 }
