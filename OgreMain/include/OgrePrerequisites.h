@@ -60,9 +60,11 @@ http://www.gnu.org/copyleft/lesser.txt
 #endif
 
 #if OGRE_COMPILER == COMPILER_MSVC
+#   undef _DEFINE_DEPRECATED_HASH_CLASSES
 #   if OGRE_COMP_VER > 1300
-#       undef _DEFINE_DEPRECATED_HASH_CLASSES
 #       define _DEFINE_DEPRECATED_HASH_CLASSES 0
+#   else
+#      define _DEFINE_DEPRECATED_HASH_CLASSES 1
 #   endif
 #endif
 
