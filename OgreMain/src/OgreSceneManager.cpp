@@ -2232,10 +2232,11 @@ namespace Ogre {
 
         // Can we do a 2-sided stencil?
         bool stencil2sided = false;
-        if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL))
+        if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL) && 
+            mDestRenderSystem->getCapabilities()->hasCapability(RSC_STENCIL_WRAP))
         {
-            // TODO enable
-            //stencil2sided = true;
+            // enable
+            stencil2sided = true;
         }
 
         // Do we have access to vertex programs?
@@ -2369,8 +2370,8 @@ namespace Ogre {
                 0, // no ref value (no compare)
                 0xFFFFFFFF, // no mask
                 SOP_KEEP, // stencil test will never fail
-                zfail? SOP_INCREMENT : SOP_KEEP, // back face depth fail
-                zfail? SOP_KEEP : SOP_DECREMENT, // back face pass
+                zfail? (twosided? SOP_INCREMENT_WRAP : SOP_INCREMENT) : SOP_KEEP, // back face depth fail
+                zfail? SOP_KEEP : (twosided? SOP_DECREMENT_WRAP : SOP_DECREMENT), // back face pass
                 twosided
                 );
         }
@@ -2383,8 +2384,8 @@ namespace Ogre {
                 0, // no ref value (no compare)
                 0xFFFFFFFF, // no mask
                 SOP_KEEP, // stencil test will never fail
-                zfail? SOP_DECREMENT : SOP_KEEP, // front face depth fail
-                zfail? SOP_KEEP : SOP_INCREMENT, // front face pass
+                zfail? (twosided? SOP_DECREMENT_WRAP : SOP_DECREMENT) : SOP_KEEP, // front face depth fail
+                zfail? SOP_KEEP : (twosided? SOP_INCREMENT_WRAP : SOP_INCREMENT), // front face pass
                 twosided
                 );
         }

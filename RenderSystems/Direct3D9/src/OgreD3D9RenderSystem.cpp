@@ -1532,6 +1532,26 @@ namespace Ogre
 		    if (FAILED(hr))
 			    Except(hr, "Error setting 2-sided stencil mode.",
 			    "D3D9RenderSystem::setStencilBufferParams");
+
+            // Set alternative versions of ops
+            // fail op
+            hr = __SetRenderState(D3DRS_CCW_STENCILFAIL, D3D9Mappings::get(stencilFailOp, true));
+            if (FAILED(hr))
+                Except(hr, "Error setting stencil fail operation (2-sided).",
+                "D3D9RenderSystem::setStencilBufferParams");
+
+            // depth fail op
+            hr = __SetRenderState(D3DRS_CCW_STENCILZFAIL, D3D9Mappings::get(depthFailOp, true));
+            if (FAILED(hr))
+                Except(hr, "Error setting stencil depth fail operation (2-sided).",
+                "D3D9RenderSystem::setStencilBufferParams");
+
+            // pass op
+            hr = __SetRenderState(D3DRS_CCW_STENCILPASS, D3D9Mappings::get(passOp, true));
+            if (FAILED(hr))
+                Except(hr, "Error setting stencil pass operation (2-sided).",
+                "D3D9RenderSystem::setStencilBufferParams");
+
         }
         else
         {

@@ -285,7 +285,7 @@ namespace Ogre {
         HardwareBufferManager &mgr = HardwareBufferManager::getSingleton();
         destPositionBuffer = mgr.allocateVertexBufferCopy(srcPositionBuffer, 
             HardwareBufferManager::BLT_AUTOMATIC_RELEASE, this);
-        if (!posNormalShareBuffer)
+        if (!srcNormalBuffer.isNull() && !posNormalShareBuffer)
         {
             destNormalBuffer = mgr.allocateVertexBufferCopy(srcNormalBuffer, 
                 HardwareBufferManager::BLT_AUTOMATIC_RELEASE, this);
@@ -297,7 +297,7 @@ namespace Ogre {
         this->destPositionBuffer->suppressHardwareUpdate(suppressHardwareUpload);
         targetData->vertexBufferBinding->setBinding(
             this->posBindIndex, this->destPositionBuffer);
-        if (!posNormalShareBuffer)
+        if (!srcNormalBuffer.isNull() && !posNormalShareBuffer)
         {
             this->destNormalBuffer->suppressHardwareUpdate(suppressHardwareUpload);
             targetData->vertexBufferBinding->setBinding(
