@@ -44,6 +44,11 @@ private:
 	int numFaces ;
 	int numVertices ;
 	Vector3* vNormals ;
+
+	HardwareVertexBufferSharedPtr posVertexBuffer ;
+	HardwareVertexBufferSharedPtr normVertexBuffer ;
+	HardwareVertexBufferSharedPtr texcoordsVertexBuffer ;
+	HardwareIndexBufferSharedPtr indexBuffer ;
 	
 	void calculateFakeNormals();
 	void calculateNormals();
@@ -57,6 +62,9 @@ public:
 	*  		big objects falling into water
 	*/
 	void push(Real x, Real y, Real depth, bool absolute=false) ;
+
+	/** gets height at given x and y, takes average value of the closes nodes */
+	Real getHeight(Real x, Real y);
 
 	/** updates mesh */
 	void updateMesh(Real timeSinceLastFrame) ;

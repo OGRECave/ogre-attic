@@ -23,8 +23,6 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 
-
-
 /* Static water simulation by eru
  * Started 29.05.2003, 20:54:37
  */
@@ -33,6 +31,11 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "ExampleApplication.h"
 #include "WaterMesh.h"
+
+#include "OgreParticle.h"
+#include "OgreMaterial.h"
+
+#include "iostream.h"
 
 AnimationState* mAnimState;
 
@@ -43,11 +46,225 @@ AnimationState* mAnimState;
 #define MATERIAL_NAME "Examples/Water0"
 #define COMPLEXITY 64 		// watch out - number of polys is 2*ACCURACY*ACCURACY !
 #define PLANE_SIZE 3000.0f
+//~ #define CIRCLES_MATERIAL "Examples/Water/Circles"
+#define CIRCLES_MATERIAL "Examples/Water6"
 
 /* Some global variables */
 SceneNode *headNode ;
 Overlay *waterOverlay ;
+ParticleSystem *particleSystem ;
+ParticleEmitter *particleEmitter ;
+SceneManager *sceneMgr ;
 
+void prepareCircleMaterial()
+{
+	char *bmap = new char[256 * 256 * 4] ;
+	memset(bmap, 127, 256 * 256 * 4);
+	for(int b=0;b<16;b++) {
+		int x0 = b % 4 ;
+		int y0 = b >> 2 ;
+		Real radius = 4.0f + 1.4 * (float) b ;
+		for(int x=0;x<64;x++) {
+			for(int y=0;y<64;y++) {
+				Real dist = Math::Sqrt((x-32)*(x-32)+(y-32)*(y-32)); // 0..ca.45
+				dist = fabs(dist -radius -2) / 2.0f ; 
+				dist = dist * 255.0f;
+				if (dist>255)
+					dist=255 ;
+				int colour = 255-(int)dist ;
+				colour = (int)( ((Real)(15-b))/15.0f * (Real) colour );
+				
+				bmap[4*(256*(y+64*y0)+x+64*x0)+0]=colour ;
+				bmap[4*(256*(y+64*y0)+x+64*x0)+1]=colour ;
+				bmap[4*(256*(y+64*y0)+x+64*x0)+2]=colour ;
+				bmap[4*(256*(y+64*y0)+x+64*x0)+3]=colour ;
+			}
+		}
+	}
+	
+	SDDataChunk imgchunk(bmap, 256 * 256 * 4);
+	Image img; 
+	img.loadRawData( imgchunk, 256, 256, PF_A8R8G8B8 );
+	TextureManager::getSingleton().loadImage( CIRCLES_MATERIAL , img );
+	Material *material = (Material*) 
+		MaterialManager::getSingleton().create( CIRCLES_MATERIAL );
+	Material::TextureLayer *texLayer = material->addTextureLayer( CIRCLES_MATERIAL );
+	texLayer->setTextureAddressingMode( Material::TextureLayer::TAM_CLAMP );	
+	material->setSceneBlending( SBT_ADD );
+}
+
+
+/* =========================================================================*/
+/*               WaterCircle class                                          */
+/* =========================================================================*/
+#define CIRCLE_SIZE 500.0 
+#define CIRCLE_TIME 0.5f
+class WaterCircle 
+{
+private:
+	String name ;
+	SceneNode *node ;
+	Mesh *mesh ;
+	SubMesh *subMesh ;
+	Entity *entity ;
+	Real tm ;
+	static bool first ;
+	// some buffers shared by all circles
+	static HardwareVertexBufferSharedPtr posnormVertexBuffer ; 
+	static HardwareIndexBufferSharedPtr indexBuffer ; // indices for 2 faces
+	static HardwareVertexBufferSharedPtr texcoordsVertexBuffer ;
+	
+	Real *texBufData;
+	void _prepareMesh()
+	{
+		int i,lvl ;
+		
+		mesh= (Mesh*) MeshManager::getSingleton().createManual(name) ;
+		subMesh = mesh->createSubMesh();
+		subMesh->useSharedVertices=false;
+
+		int numFaces = 2 ;
+		int numVertices = 4 ;
+
+		if (first) { // first Circle, create some static common data
+			first = false ;
+			
+			// static buffer for position and normals
+			posnormVertexBuffer = 
+				HardwareBufferManager::getSingleton().createVertexBuffer( 
+					6*sizeof(Real), // size of one vertex data
+					4, // number of vertices
+					HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
+					false); // no shadow buffer
+			Real *posnormBufData = (Real*) posnormVertexBuffer->
+				lock(0, posnormVertexBuffer->getSizeInBytes(), 
+					HardwareBuffer::HBL_DISCARD);
+			for(i=0;i<numVertices;i++) {
+				posnormBufData[6*i+0]=((Real)(i%2)-0.5f)*CIRCLE_SIZE; // pos X
+				posnormBufData[6*i+1]=0; // pos Y
+				posnormBufData[6*i+2]=((Real)(i/2)-0.5f)*CIRCLE_SIZE; // pos Z
+				posnormBufData[6*i+3]=0 ; // normal X
+				posnormBufData[6*i+4]=1 ; // normal Y
+				posnormBufData[6*i+5]=0 ; // normal Z
+			}
+			posnormVertexBuffer->unlock();
+			//~ posnormVertexBuffer->writeData(0, 
+				//~ posnormVertexBuffer->getSizeInBytes(),
+				//~ posnormBufData,
+				//~ true); // discard ?
+
+			// static buffer for 16 sets of texture coordinates
+			texcoordsVertexBuffer = 
+				HardwareBufferManager::getSingleton().createVertexBuffer( 
+					2*sizeof(Real), // size of one vertex data
+					16*numVertices, // number of vertices
+					HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
+					false); // no shadow buffer
+			Real *texcoordsBufData = (Real*) texcoordsVertexBuffer->
+				lock(0, texcoordsVertexBuffer->getSizeInBytes(),
+					HardwareBuffer::HBL_DISCARD);
+			for(lvl=0;lvl<16;lvl++) {
+				float x0 = (Real)(lvl % 4) * 0.25 ;
+				float y0 = (Real)(lvl / 4) * 0.25 ;
+				y0 = 0.75-y0 ; // upside down
+				for(i=0;i<4;i++) {
+					texcoordsBufData[(lvl*numVertices+i)*2 + 0]=
+						x0 + 0.25 * (Real)(i%2) ;
+					texcoordsBufData[(lvl*numVertices+i)*2 + 1]=
+						y0 + 0.25 * (Real)(i/2) ;
+				}
+			}
+			texcoordsVertexBuffer->unlock();
+
+			// Index buffer for 2 faces
+			unsigned short faces[6] = {2,1,0,  2,3,1};
+			indexBuffer = 
+				HardwareBufferManager::getSingleton().createIndexBuffer(
+					HardwareIndexBuffer::IT_16BIT, 
+					6, 
+					HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+			indexBuffer->writeData(0, 
+				indexBuffer->getSizeInBytes(),
+				faces,
+				true); // true?
+		}
+		
+		// Initialize vertex data
+		subMesh->vertexData = new VertexData();
+		// first, set vertex buffer bindings
+		VertexBufferBinding *vbind = subMesh->vertexData->vertexBufferBinding ; 
+		vbind->setBinding(0, posnormVertexBuffer);
+		vbind->setBinding(1, texcoordsVertexBuffer);
+		// now, set vertex buffer declaration
+		VertexDeclaration *vdecl = subMesh->vertexData->vertexDeclaration ;
+		vdecl->addElement(0, 0, VET_FLOAT3, VES_POSITION);
+		vdecl->addElement(0, 3*sizeof(Real), VET_FLOAT3, VES_NORMAL);
+		vdecl->addElement(0, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES); 
+		
+		// Initialize index data
+		subMesh->indexData->indexBuffer = indexBuffer;
+		subMesh->indexData->indexStart = 0;
+		subMesh->indexData->indexCount = 6;
+		
+		// set mesh bounds
+		AxisAlignedBox circleBounds(-CIRCLE_SIZE/2.0f, 0, -CIRCLE_SIZE/2.0f,
+			CIRCLE_SIZE/2.0f, 0, CIRCLE_SIZE/2.0f);
+		mesh->_setBounds(circleBounds);
+	}
+public:
+	int lvl ;
+	void setTextureLevel()
+	{
+		subMesh->vertexData->vertexDeclaration->modifyElement(2,
+			1, lvl*8*sizeof(Real), VET_FLOAT2, VES_TEXTURE_COORDINATES); // I like it :)
+	}
+	WaterCircle(const String& name, Real x, Real y)
+	{
+		this->name = name ;
+		_prepareMesh();
+		node = static_cast<SceneNode*> (sceneMgr->getRootSceneNode()->createChild(name));
+		node->translate(x*(PLANE_SIZE/COMPLEXITY), 10, y*(PLANE_SIZE/COMPLEXITY));
+		entity = sceneMgr->createEntity(name, name);
+		entity->setMaterialName(CIRCLES_MATERIAL);
+		node->attachObject(entity);
+		tm = 0 ;
+		lvl = 0 ;
+		setTextureLevel();
+	}
+	~WaterCircle()
+	{
+		MeshManager::getSingleton().unload(mesh);
+		delete mesh ; // nice, I think I don't have to delete any buffers here ;)
+		sceneMgr->removeEntity(entity->getName());
+		static_cast<SceneNode*> (sceneMgr->getRootSceneNode())->removeChild(node->getName());
+	}
+	void animate(Real timeSinceLastFrame)
+	{
+		int lastlvl = lvl ;
+		tm += timeSinceLastFrame ;
+		lvl = (int) ( (Real)(tm)/CIRCLE_TIME * 16 );
+		if (lvl<16 && lvl!=lastlvl) {
+			setTextureLevel();
+		}
+	}
+	static void clearStaticBuffers()
+	{
+		posnormVertexBuffer = HardwareVertexBufferSharedPtr() ;
+		indexBuffer = HardwareIndexBufferSharedPtr() ;
+		texcoordsVertexBuffer = HardwareVertexBufferSharedPtr() ;
+	}
+} ;
+bool WaterCircle::first = true ;
+HardwareVertexBufferSharedPtr WaterCircle::posnormVertexBuffer = 
+	HardwareVertexBufferSharedPtr() ;
+HardwareIndexBufferSharedPtr WaterCircle::indexBuffer = 
+	HardwareIndexBufferSharedPtr() ;
+HardwareVertexBufferSharedPtr WaterCircle::texcoordsVertexBuffer =
+	HardwareVertexBufferSharedPtr() ;
+
+/* =========================================================================*/
+/*               WaterListener class                                          */
+/* =========================================================================*/
 // Event handler 
 class WaterListener: public ExampleFrameListener
 {
@@ -60,6 +277,59 @@ protected:
 #define RAIN_FREQ 2
 #define RAIN_HEIGHT_RANDOM 5
 #define RAIN_HEIGHT_CONSTANT 5
+	
+
+	typedef std::vector<WaterCircle*> WaterCircles ;
+	WaterCircles circles ;
+	
+	void processCircles(Real timeSinceLastFrame)
+	{
+		for(int i=0;i<circles.size();i++) {
+			circles[i]->animate(timeSinceLastFrame);
+		}
+		bool found ;
+		do {
+			found = false ;
+			for(WaterCircles::iterator it = circles.begin() ; 
+					it != circles.end(); 
+					++it) {
+				if ((*it)->lvl>=16) {
+					delete (*it);
+					circles.erase(it);
+					found = true ;
+					break ;
+				}
+			}
+		} while (found) ;
+	}
+
+	void processParticles()
+	{
+		static int pindex = 0 ;
+		ParticleIterator pit = particleSystem->_getIterator() ;
+		while(!pit.end()) {
+			Particle *particle = pit.getNext();
+			Vector3 ppos = particle->getPosition();
+			if (ppos.y<=0 && particle->mTimeToLive>0) { // hits the water!
+				// delete particle
+				particle->mTimeToLive = 0.0f;
+				// push the water
+				float x = ppos.x / PLANE_SIZE * COMPLEXITY ;
+				float y = ppos.z / PLANE_SIZE * COMPLEXITY ;
+				float h = rand() % RAIN_HEIGHT_RANDOM + RAIN_HEIGHT_CONSTANT ;
+				if (x<1) x=1 ;
+				if (x>COMPLEXITY-1) x=COMPLEXITY-1;
+				if (y<1) y=1 ;
+				if (y>COMPLEXITY-1) y=COMPLEXITY-1;
+				waterMesh->push(x,y,-h) ;
+				WaterCircle *circle = new WaterCircle(
+					"Circle#"+StringConverter::toString(pindex++),
+					x, y);
+				circles.push_back(circle);
+			}
+		}
+	}
+	
 	/** Simple rain */
 	void rain()
 	{
@@ -179,7 +449,8 @@ public:
 
     bool frameStarted(const FrameEvent& evt)
     {
-        mAnimState->addTime(evt.timeSinceLastFrame);
+		bool retval = ExampleFrameListener::frameStarted(evt); 
+        //~ mAnimState->addTime(evt.timeSinceLastFrame);
 		
 		// process keyboard events
 		mInputDevice->capture();
@@ -194,9 +465,14 @@ public:
 		}
 		
 		// rain
+		processCircles(evt.timeSinceLastFrame);
 		if (mInputDevice->isKeyDown(KC_SPACE)) {
-			rain();
+			//~ rain();
+			particleEmitter->setEmissionRate(20.0f);
+		} else {
+			particleEmitter->setEmissionRate(0.0f);
 		}
+		processParticles();
 
 		// adjust values (some macros for faster change		
 #define ADJUST_RANGE(_value,_keyPlus,_keyMinus,_minVal,_maxVal,_change,_macro) {\
@@ -231,10 +507,14 @@ public:
 		animateHead(evt.timeSinceLastFrame);
 			
 		waterMesh->updateMesh(evt.timeSinceLastFrame);
+			
+		// check if we are exiting, if so, clear static HardwareBuffers to avoid
+		// segfault
+		if (!retval)
+			WaterCircle::clearStaticBuffers();
 
-        // Call default
-        return ExampleFrameListener::frameStarted(evt); 
-
+        // return result from default
+		return retval ;
     }
 };
 
@@ -254,7 +534,7 @@ protected:
 // Just override the mandatory create scene method
     void createScene(void)
     {
-
+		sceneMgr = mSceneMgr ;
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.75, 0.75, 0.75));
 
@@ -281,7 +561,7 @@ protected:
         headNode->attachObject(ent);
 
 		// Make sure the camera track this node
-        mCamera->setAutoTracking(true, headNode);
+        //~ mCamera->setAutoTracking(true, headNode);
 
 		// Create the camera node & attach camera
         SceneNode* camNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
@@ -346,6 +626,20 @@ protected:
 		// show overlay
 		waterOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Example/WaterOverlay");    
 		waterOverlay->show();
+		
+        // Let there be rain
+        particleSystem = ParticleSystemManager::getSingleton().createSystem("rain", 
+            "Examples/Water/Rain");
+		particleEmitter = particleSystem->getEmitter(0);
+        SceneNode* rNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        rNode->translate(PLANE_SIZE/2.0f, 3000, PLANE_SIZE/2.0f);
+        rNode->attachObject(particleSystem);
+        // Fast-forward the rain so it looks more natural
+        particleSystem->fastForward(20);
+		// It can't be set in .particle file, and we need it ;)
+		particleSystem->setBillboardOrigin(BBO_BOTTOM_CENTER);
+		
+		prepareCircleMaterial();
 	}
 
     // Create new frame listener

@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 {
-	int x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
+	int i,x,y,b; // I prefer to initialize for() variables inside it, but VC doesn't like it ;(
 	
 	this->meshName = meshName ;
 	this->complexity =  complexity ;
@@ -49,22 +49,63 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 	mesh= (Mesh*) MeshManager::getSingleton().createManual(meshName) ;
 	subMesh = mesh->createSubMesh();
 	subMesh->useSharedVertices=false;
-	subMesh->useTriStrips=false;
-	subMesh->geometry.hasColours=false;
-	subMesh->geometry.hasNormals=true;
-	subMesh->geometry.numTexCoords = 1 ;
-	subMesh->geometry.numTexCoordDimensions[0]=2;
-	subMesh->geometry.texCoordStride[0]=0;
-	subMesh->geometry.normalStride=0;
-	subMesh->numFaces = numFaces ;
-	subMesh->faceVertexIndices = new unsigned short[numFaces*3];
-	subMesh->geometry.numVertices = numVertices ;
-	subMesh->geometry.pTexCoords[0] = new Real[numVertices * 2];
-	subMesh->geometry.pNormals = new Real[numVertices * 3] ;
-	// prepare faces
+	
+	// Vertex buffers
+	subMesh->vertexData = new VertexData();
+	VertexDeclaration* vdecl = subMesh->vertexData->vertexDeclaration; 
+	VertexBufferBinding* vbind = subMesh->vertexData->vertexBufferBinding;
+	
+	// Prepare texture coords buffer - static one
+	// todo: optimize to write directly into buffer
+	Real *texcoordsBufData = new Real[numVertices*2];
+	for(y=0;y<=complexity;y++) {
+		for(x=0;x<=complexity;x++) {
+			texcoordsBufData[2*(y*(complexity+1)+x)+0] = (float)x / complexity ;
+			texcoordsBufData[2*(y*(complexity+1)+x)+1] = 1.0f - ((float)y / (complexity)) ;
+		}
+	}
+	texcoordsVertexBuffer = 
+         HardwareBufferManager::getSingleton().createVertexBuffer( 
+            2*sizeof(Real), 
+			numVertices, 
+			HardwareBuffer::HBU_STATIC_WRITE_ONLY); 
+	texcoordsVertexBuffer->writeData(0, 
+		texcoordsVertexBuffer->getSizeInBytes(),
+		texcoordsBufData,
+		true); // true?
+	delete [] texcoordsBufData;
+    vbind->setBinding(0, texcoordsVertexBuffer); 
+	vdecl->addElement(0, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+	
+	// Prepare buffer for normals - write only
+	normVertexBuffer = 
+         HardwareBufferManager::getSingleton().createVertexBuffer( 
+            3*sizeof(Real), 
+			numVertices, 
+			HardwareBuffer::HBU_WRITE_ONLY);
+	vbind->setBinding(1, normVertexBuffer);
+	vdecl->addElement(1, 0, VET_FLOAT3, VES_NORMAL);
+	
+	// Prepare buffer for positions - todo: first attempt, slow
+	posVertexBuffer = 
+         HardwareBufferManager::getSingleton().createVertexBuffer( 
+            3*sizeof(Real), 
+			numVertices, 
+			HardwareBuffer::HBU_WRITE_ONLY);
+	vbind->setBinding(2, posVertexBuffer);
+	vdecl->addElement(2, 0, VET_FLOAT3, VES_POSITION);
+	
+	// Prepare buffer for indices
+	indexBuffer = 
+		HardwareBufferManager::getSingleton().createIndexBuffer(
+			HardwareIndexBuffer::IT_16BIT, 
+			3*numFaces, 
+			HardwareBuffer::HBU_STATIC, true);
+	unsigned short *faceVertexIndices = (unsigned short*) 
+		indexBuffer->lock(0, numFaces*3*2, HardwareBuffer::HBL_DISCARD);
 	for(y=0 ; y<complexity ; y++) {
 		for(int x=0 ; x<complexity ; x++) {
-			unsigned short *twoface = subMesh->faceVertexIndices + (y*complexity+x)*2*3;
+			unsigned short *twoface = faceVertexIndices + (y*complexity+x)*2*3;
 			int p0 = y*(complexity+1) + x ;
 			int p1 = y*(complexity+1) + x + 1 ;
 			int p2 = (y+1)*(complexity+1) + x ;
@@ -77,21 +118,12 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 			twoface[5]=p1;
 		}
 	}
-
-	/*	prepare normals and texture coordinates */
-	for(y=0;y<=complexity;y++) {
-		for(x=0;x<=complexity;x++) {
-			int numPoint = y*(complexity+1) + x ;
-			Real* normal = subMesh->geometry.pNormals + 3*numPoint ;
-			normal[0]=0;
-			normal[1]=1;
-			normal[2]=0;
-			Real* texCoord = subMesh->geometry.pTexCoords[0] + 2*numPoint ;
-			texCoord[0] = (float)x / complexity ;
-			texCoord[1] = 1.0f - ((float)y / (complexity)) ;
-		}
-	}
-
+	indexBuffer->unlock();
+	// Set index buffer for this submesh
+	subMesh->indexData->indexBuffer = indexBuffer;
+	subMesh->indexData->indexStart = 0;
+	subMesh->indexData->indexCount = 3*numFaces;
+	
 	/*	prepare vertex positions
 	 *	note - we use 3 vertex buffers, since algorighm uses two last phases 
 	 *	to calculate the next one
@@ -109,9 +141,15 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 		}
 	}
 	
+	AxisAlignedBox meshBounds(0,0,0,
+		planeSize,0, planeSize);
+	mesh->_setBounds(meshBounds);
+	
 	currentBuffNumber = 0 ;
-	subMesh->geometry.pVertices = vertexBuffers[currentBuffNumber];
-	mesh->_updateBounds(); 
+	posVertexBuffer->writeData(0, 
+		posVertexBuffer->getSizeInBytes(), // size 
+		vertexBuffers[currentBuffNumber], // source
+		true); // discard?
 }
 /* ========================================================================= */
 void WaterMesh::push(Real x, Real y, Real depth, bool absolute)
@@ -137,12 +175,29 @@ void WaterMesh::push(Real x, Real y, Real depth, bool absolute)
 #undef _PREP	
 }
 /* ========================================================================= */
+Real WaterMesh::getHeight(Real x, Real y)
+{
+#define hat(_x,_y) buf[3*((int)_y*(complexity+1)+(int)(_x))]
+	Real *buf = vertexBuffers[currentBuffNumber] ;
+	Real xa = floor(x);
+	Real xb = xa + 1 ;
+	Real ya = floor(y);
+	Real yb = ya + 1 ;
+	Real *vertex = buf + 3*((int)(ya)*(complexity+1)+(int)(xa));
+	Real yaxavg = hat(xa,ya) * (1.0f-fabs(xa-x)) + hat(xb,ya) * (1.0f-fabs(xb-x));
+	Real ybxavg = hat(xa,yb) * (1.0f-fabs(xa-x)) + hat(xb,yb) * (1.0f-fabs(xb-x));
+	Real yavg = yaxavg * (1.0f-fabs(ya-y)) + ybxavg * (1.0f-fabs(yb-y)) ;
+	return yavg ;
+}
+/* ========================================================================= */
 void WaterMesh::calculateFakeNormals()
 {
 	int x,y;
 	Real *buf = vertexBuffers[currentBuffNumber] + 1;
+	Real *pNormals = (Real*) normVertexBuffer->lock(
+		0,normVertexBuffer->getSizeInBytes(), HardwareBuffer::HBL_DISCARD);
 	for(y=1;y<complexity;y++) {
-		Real *nrow = subMesh->geometry.pNormals + 3*y*(complexity+1);
+		Real *nrow = pNormals + 3*y*(complexity+1);
 		Real *row = buf + 3*y*(complexity+1) ;
 		Real *rowup = buf + 3*(y-1)*(complexity+1) ;
 		Real *rowdown = buf + 3*(y+1)*(complexity+1) ;
@@ -156,6 +211,7 @@ void WaterMesh::calculateFakeNormals()
 			nrow[3*x+2] = norm.z;
 		}
 	}
+	normVertexBuffer->unlock();
 }
 /* ========================================================================= */
 void WaterMesh::calculateNormals()
@@ -168,7 +224,10 @@ void WaterMesh::calculateNormals()
 	}
 	// first, calculate normals for faces, add them to proper vertices
 	buf = vertexBuffers[currentBuffNumber] ;
-	unsigned short* vinds = subMesh->faceVertexIndices ;
+	unsigned short* vinds = (unsigned short*) indexBuffer->lock(
+		0, indexBuffer->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY);
+	Real *pNormals = (Real*) normVertexBuffer->lock(
+		0, normVertexBuffer->getSizeInBytes(), HardwareBuffer::HBL_DISCARD);
 	for(i=0;i<numFaces;i++) {
 		int p0 = vinds[3*i] ;
 		int p1 = vinds[3*i+1] ;
@@ -184,26 +243,27 @@ void WaterMesh::calculateNormals()
 		vNormals[p2] += fn ;
 	}
 	// now normalize vertex normals
-	for(y=1;y<complexity;y++) {
-		for(x=1;x<complexity;x++) {
+	for(y=0;y<=complexity;y++) {
+		for(x=0;x<=complexity;x++) {
 			int numPoint = y*(complexity+1) + x ;
 			Vector3 n = vNormals[numPoint] ;
 			n.normalise() ;
-			Real* normal = subMesh->geometry.pNormals + 3*numPoint ;
+			Real* normal = pNormals + 3*numPoint ;
 			normal[0]=n.x;
 			normal[1]=n.y;
 			normal[2]=n.z;
 		}
 	}
+	indexBuffer->unlock();
+	normVertexBuffer->unlock();
 }
 /* ========================================================================= */
 void WaterMesh::updateMesh(Real timeSinceLastFrame)
 {
 	int x, y ;
 	
-	// switch buffers
+	// switch buffer numbers
 	currentBuffNumber = (currentBuffNumber + 1) % 3 ;
-	subMesh->geometry.pVertices = vertexBuffers[currentBuffNumber];
 	Real *buf = vertexBuffers[currentBuffNumber] + 1 ; // +1 for Y coordinate
 	Real *buf1 = vertexBuffers[(currentBuffNumber+2)%3] + 1 ; 
 	Real *buf2 = vertexBuffers[(currentBuffNumber+1)%3] + 1; 	
@@ -232,9 +292,6 @@ void WaterMesh::updateMesh(Real timeSinceLastFrame)
 		}
 	}
 
-	// we could update mesh bounds, but who cares...
-	//~ mesh->_updateBounds(); 
-	
 	if (useFakeNormals) {
 		calculateFakeNormals();
 	} else {
@@ -242,5 +299,8 @@ void WaterMesh::updateMesh(Real timeSinceLastFrame)
 	}
 
 	// set vertex buffer
-	subMesh->geometry.pVertices = vertexBuffers[currentBuffNumber];
+	posVertexBuffer->writeData(0, 
+		posVertexBuffer->getSizeInBytes(), // size 
+		vertexBuffers[currentBuffNumber], // source
+		true); // discard?
 }
