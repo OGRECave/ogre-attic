@@ -268,19 +268,15 @@ SOURCE=..\src\OgreGpuProgramUsage.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreGuiContainer.cpp
+SOURCE=..\src\OgreOverlayContainer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreGuiElementCommands.cpp
+SOURCE=..\src\OgreOverlayElementCommands.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\OgreGuiManager.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreGuiPressable.cpp
 # End Source File
 # Begin Source File
 
@@ -922,19 +918,15 @@ SOURCE=..\include\OgreGpuProgramUsage.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreGuiContainer.h
+SOURCE=..\include\OgreOverlayContainer.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\OgreGuiElementCommands.h
+SOURCE=..\include\OgreOverlayElementCommands.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreGuiManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreGuiPressable.h
 # End Source File
 # Begin Source File
 
