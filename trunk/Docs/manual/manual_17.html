@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 30 2003 by texi2html 1.64 -->
+<!-- Created on , 4 2003 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -27,7 +27,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC29"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC30"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -42,21 +42,38 @@ A "technique" section in your material script encapsulates a single method of re
 When a material is used for the first time, it is 'compiled'. That involves scanning the techniques which have been defined, and marking which of them are supportable using the current rendering API and graphics card. If no techniques are supportable, your material will render as blank white. The compilation examines a number of things, such as:
 <UL>
 <LI>The number of texture_unit entries in each pass<BR>
-Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_19.html#SEC59">colour_op_multipass_fallback</A>).
+Note that if the number of texture_unit entries exceeds the number of texture units in the current graphics card, the technique may still be supportable so long as a fragment program is not being used. In this case, Ogre will split the pass which has too many entries into multiple passes for the less capable card, and the multitexture blend will be turned into a multipass blend (See section <A HREF="manual_19.html#SEC60">colour_op_multipass_fallback</A>).
 <LI>Whether vertex or fragment programs are used, and if so which syntax they use (e.g. vs_1_1, ps_2_x, arbfp1 etc)
 <LI>Other effects like cube mapping and dot3 blending
 </UL>
 <BR>
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.<BR><BR>
 
-Techniques do not have any attributes of their own, they are simply a container for a number of passes, See section <A HREF="manual_18.html#SEC29">3.1.2 Passes</A>.
+Techniques have only one attribute of their own, which indicates which LOD index they belong to.
+
+<A NAME="SEC29"></A>
+<H3> lod_index </H3>
+<!--docid::SEC29::-->
+
+Sets the level-of-detail (LOD) index this Technique belongs to. <BR><BR>
+
+Format: lod_index &#60;number&#62;<BR>
+NB Valid values are 0 (highest level of detail) to 65535, although this is unlikely. You should not leave gaps in the LOD indexes between Techniques.<BR><BR>
+
+Example: lod_index 1<BR><BR>
+
+All techniques must belong to a LOD index, by default they all belong to index 0, ie the highest LOD. Increasing indexes denote lower levels of detail. You can (and often will) assign more than one technique to the same LOD index, what this means is that OGRE will pick the best technique of the ones listed at the same LOD index. Fo readability, it is advised that you list your techniques in order of LOD, then in order of preference, although the latter is the only prerequisite (OGRE determines which one is 'best' by which one is listed first).<BR><BR>
+
+Default: lod_index 0<BR><BR>
+
+Techniques also containone or more passes (and there must be at least one), See section <A HREF="manual_18.html#SEC30">3.1.2 Passes</A>.
 
 <A NAME="Passes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC29"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_18.html#SEC30"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -65,7 +82,7 @@ Techniques do not have any attributes of their own, they are simply a container 
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 30 2003</I>
+by <I>Steve Streeting</I> on <I>, 4 2003</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
