@@ -1,0 +1,24 @@
+#!/bin/sh
+
+FOLDERS="Bezier BSP CameraTrack EnvMapping Gui Lighting Nature ParticleFX RenderToTexture SkeletalAnimation SkyBox SkyDome SkyPlane Terrain TextureFX Transparency CubeMapping Water Dot3Bump"
+
+BUILDSTYLE=Development
+if [ "$1" = "release" -o  "$1" = "Release" ]
+then
+	BUILDSTYLE=Deployment
+fi
+
+for myFolder in $FOLDERS
+do
+	cd $myFolder
+	xcodebuild -activetarget -buildstyle $BUILDSTYLE
+	
+	if [ $? -ne 0 ] 
+	then
+  		break
+	fi 
+	
+ 	cd ..
+done
+
+
