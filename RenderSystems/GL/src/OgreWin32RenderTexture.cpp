@@ -69,13 +69,13 @@ namespace Ogre {
 		createPBuffer();
 
 		// Bind texture
-		glBindTexture(GL_TEXTURE_2D, mTexture->getGLID());
+		glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
 		_wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 	}
 	Win32RenderTexture::~Win32RenderTexture() 
 	{
 		// Unbind texture
-		glBindTexture(GL_TEXTURE_2D, mTexture->getGLID());
+		glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
 		_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 		// Destroy pbuffer
 		destroyPBuffer();
