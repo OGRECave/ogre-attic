@@ -637,8 +637,8 @@ namespace Ogre {
             // Offset center of rotation to center of texture
             Real cosThetaOff = cosTheta * -0.5;
             Real sinThetaOff = sinTheta * -0.5;
-            rot[0][2] = cosThetaOff - sinThetaOff;
-            rot[1][2] = sinThetaOff + cosThetaOff;
+            rot[0][2] = 0.5 + cosThetaOff - sinThetaOff;
+            rot[1][2] = 0.5 + sinThetaOff + cosThetaOff;
 
 
             xform = xform * rot;
