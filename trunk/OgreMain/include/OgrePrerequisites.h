@@ -182,9 +182,6 @@ namespace Ogre {
 // Pre-declare classes
 // Allows use of pointers in header files without including individual .h
 // so decreases dependencies between files
-	class ActionEvent;
-	class ActionListener;
-	class ActionTarget;
     class Angle;
     class Animation;
     class AnimationState;
@@ -323,10 +320,7 @@ namespace Ogre {
     class SceneNode;
     class SceneQuery;
     class SceneQueryListener;
-	class ScrollEvent;
-	class ScrollListener;
 	class ScriptLoader;
-	class ScrollTarget;
     class Serializer;
     class ShadowCaster;
     class ShadowRenderable;

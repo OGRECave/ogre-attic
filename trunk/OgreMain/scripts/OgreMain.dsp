@@ -100,14 +100,6 @@ PostBuild_Cmds=copy ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug	c
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\src\OgreActionEvent.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreActionTarget.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreAnimation.cpp
 # End Source File
 # Begin Source File
@@ -593,14 +585,6 @@ SOURCE=..\src\OgreSceneQuery.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\OgreScrollEvent.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\OgreScrollTarget.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\OgreSerializer.cpp
 # End Source File
 # Begin Source File
@@ -734,14 +718,6 @@ SOURCE=..\include\asm_math.h
 # Begin Source File
 
 SOURCE=..\include\Ogre.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreActionEvent.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreActionTarget.h
 # End Source File
 # Begin Source File
 
@@ -1338,14 +1314,6 @@ SOURCE=..\include\OgreSceneQuery.h
 # Begin Source File
 
 SOURCE=..\include\OgreScriptLoader.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreScrollEvent.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\OgreScrollTarget.h
 # End Source File
 # Begin Source File
 
