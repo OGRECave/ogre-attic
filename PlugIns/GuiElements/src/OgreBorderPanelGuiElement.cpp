@@ -270,22 +270,50 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Real BorderPanelGuiElement::getLeftBorderSize(void)
     {
-        return mLeftBorderSize;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return mPixelLeftBorderSize;
+		}
+		else
+		{
+			return mLeftBorderSize;
+		}
     }
     //---------------------------------------------------------------------
     Real BorderPanelGuiElement::getRightBorderSize(void)
     {
-        return mRightBorderSize;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return mPixelRightBorderSize;
+		}
+		else
+		{
+			return mRightBorderSize;
+		}
     }
     //---------------------------------------------------------------------
     Real BorderPanelGuiElement::getTopBorderSize(void)
     {
-        return mTopBorderSize;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return mPixelTopBorderSize;
+		}
+		else
+		{
+			return mTopBorderSize;
+		}
     }
     //---------------------------------------------------------------------
     Real BorderPanelGuiElement::getBottomBorderSize(void)
     {
-        return mBottomBorderSize;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return mPixelBottomBorderSize;
+		}
+		else
+		{
+			return mBottomBorderSize;
+		}
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setCellUV(BorderCellIndex idx, Real& u1, 

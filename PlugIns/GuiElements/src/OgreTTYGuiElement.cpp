@@ -389,6 +389,7 @@ namespace Ogre {
         TextBlockQueue::iterator t;
         TextBlockQueue::iterator tend;
 
+
         if (!mUpdateGeometry)
           return;
 
@@ -609,7 +610,14 @@ namespace Ogre {
 
     Real TTYGuiElement::getCharHeight() const
     {
-        return mCharHeight;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return mPixelCharHeight;
+		}
+		else
+		{
+			return mCharHeight;
+		};
     }
 
     void TTYGuiElement::setSpaceWidth( Real width )
@@ -628,7 +636,14 @@ namespace Ogre {
 
     Real TTYGuiElement::getSpaceWidth() const
     {
-        return mSpaceWidth;
+        if (mMetricsMode == GMM_PIXELS)
+        {
+			return mPixelSpaceWidth;
+		}
+		else
+		{
+			return mSpaceWidth;
+		};
     }
 
     //---------------------------------------------------------------------
@@ -740,12 +755,8 @@ namespace Ogre {
         GuiElement::setMetricsMode(gmm);
         if (gmm == GMM_PIXELS)
         {
-            // Set pixel variables based on viewport multipliers
-            Real vpHeight;
-            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
-
-            mPixelCharHeight = mCharHeight * vpHeight;
-            mPixelSpaceWidth = mSpaceWidth * vpHeight;
+            mPixelCharHeight = mCharHeight;
+            mPixelSpaceWidth = mSpaceWidth;
         }
     }
     //-----------------------------------------------------------------------

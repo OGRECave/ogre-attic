@@ -114,10 +114,10 @@ namespace Ogre {
 		virtual void addListItem(Resource* r);
 		virtual void removeListItem(Resource* r);
 		virtual String getItemTemplateName();
-		virtual String getVSpacing();
-		virtual String getHSpacing();
-		virtual void setVSpacing(const String& val);
-		virtual void setHSpacing(const String& val);
+ 		virtual Real getVSpacing();
+ 		virtual Real getHSpacing();
+ 		virtual void setVSpacing(Real val);
+ 		virtual void setHSpacing(Real val);
 
 		void mouseClicked(MouseEvent* e) {};
 		void mouseEntered(MouseEvent* e)  {};

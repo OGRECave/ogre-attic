@@ -121,13 +121,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     String ListGuiElement::CmdVSpacing::doGet(void* target)
     {
-        return static_cast<ListGuiElement*>(target)->getVSpacing();
+		ListGuiElement *t = static_cast<ListGuiElement*>(target);
+		return StringConverter::toString(t->getVSpacing());
     }
     void ListGuiElement::CmdVSpacing::doSet(void* target, const String& val)
     {
         std::vector<String> vec = val.split();
 
-        static_cast<ListGuiElement*>(target)->setVSpacing(val);
+        static_cast<ListGuiElement*>(target)->setVSpacing(StringConverter::parseReal(val));
     }
 
     //-----------------------------------------------------------------------
@@ -143,26 +144,17 @@ namespace Ogre {
     }
 
 
-
-
-
-
-
-
-
-
-
-
     //-----------------------------------------------------------------------
     String ListGuiElement::CmdHSpacing::doGet(void* target)
     {
-        return static_cast<ListGuiElement*>(target)->getHSpacing();
+		ListGuiElement *t = static_cast<ListGuiElement*>(target);
+		return StringConverter::toString(t->getHSpacing());
     }
     void ListGuiElement::CmdHSpacing::doSet(void* target, const String& val)
     {
         std::vector<String> vec = val.split();
 
-        static_cast<ListGuiElement*>(target)->setHSpacing(val);
+        static_cast<ListGuiElement*>(target)->setHSpacing(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
     String ListGuiElement::CmdItemPanelMaterialSelected::doGet(void* target)
@@ -195,30 +187,28 @@ namespace Ogre {
 	}
     //-----------------------------------------------------------------------
 
-	void ListGuiElement::setHSpacing(const String& val)
+	void ListGuiElement::setHSpacing(Real val)
 	{
-		mHSpacing = StringConverter::parseReal(val);
-
+		mHSpacing = val;
 	}
-	String ListGuiElement::getHSpacing()
+	Real ListGuiElement::getHSpacing()
 	{
-		return  StringConverter::toString(mHSpacing);
+		return  mHSpacing;
 
 	}
 
     //-----------------------------------------------------------------------
 
-	void ListGuiElement::setVSpacing(const String& val)
+	void ListGuiElement::setVSpacing(Real val)
 	{
-		mVSpacing = StringConverter::parseReal(val);
-
+		mVSpacing = val;
 	}
 
-	String ListGuiElement::getVSpacing()
+	Real ListGuiElement::getVSpacing()
 	{
-		return  StringConverter::toString(mVSpacing);
-
+		return  mVSpacing;
 	}
+
 
 	String ListGuiElement::getScrollBarName()
 	{
