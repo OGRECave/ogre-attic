@@ -66,6 +66,16 @@ namespace Ogre
 				return PF_B8G8R8A8;
 			case IL_RGBA:
 				return PF_A8R8G8B8;
+            case IL_DXT1:
+                return PF_DXT1;
+            case IL_DXT2:
+                return PF_DXT2;
+            case IL_DXT3:
+                return PF_DXT3;
+            case IL_DXT4:
+                return PF_DXT4;
+            case IL_DXT5:
+                return PF_DXT5;
 			}
 
 		default:
