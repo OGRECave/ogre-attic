@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix4.h"
 #include "OgreVector4.h"
 #include "OgreLight.h"
+#include "OgreColourValue.h"
 
 namespace Ogre {
 
@@ -64,6 +65,7 @@ namespace Ogre {
         mutable bool mInverseViewMatrixDirty;
         mutable bool mCameraPositionObjectSpaceDirty;
         mutable bool mLightListDirty;
+		mutable ColourValue mAmbientLight;
 
         const Renderable* mCurrentRenderable;
         const Camera* mCurrentCamera;
@@ -88,6 +90,8 @@ namespace Ogre {
         const Vector4& getCameraPositionObjectSpace(void) const;
         /** Get the light which is 'index'th closest to the current object */
         const Light& getLight(size_t index) const;
+		void setAmbientLightColour(const ColourValue& ambient);
+		const ColourValue& getAmbientLightColour(void) const;
 
 
     };

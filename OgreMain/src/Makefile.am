@@ -50,6 +50,8 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreHardwareBufferManager.cpp \
 						 OgreHardwareIndexBuffer.cpp \
 						 OgreHardwareVertexBuffer.cpp \
+						 OgreHighLevelGpuProgram.cpp \
+						 OgreHighLevelGpuProgramManager.cpp \
                          OgreImage.cpp \
                          OgreImageCodec.cpp \
                          OgreInput.cpp \

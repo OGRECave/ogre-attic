@@ -614,6 +614,9 @@ namespace Ogre {
         // Tell params about camera
         mAutoParamDataSource.setCurrentCamera(camera);
 
+		// Tell params about current ambient light
+		mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+
 
         // Update the scene
         _applySceneAnimations();

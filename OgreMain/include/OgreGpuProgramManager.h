@@ -66,13 +66,13 @@ namespace Ogre {
 		@remarks
 			This method creates a new program of the type specified as the second parameter.
 			As with all types of ResourceManager, this class will search for the file in
-			all resource locations it has been configured to look in. 
-		@param filename The file to load, which will also become the 
-			identifying name of the GpuProgram which is returned.
+			all resource locations it has been configured to look in.
+		@param name The name of the GpuProgram
+		@param filename The file to load
 		@param gptype The type of program to create
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* load(const String& filename, GpuProgramType gptype, 
+		virtual GpuProgram* load(const String& name, const String& filename, GpuProgramType gptype, 
             const String& syntaxCode, int priority = 1);
 
 		/** Loads a GPU program from a string of assembly code.
@@ -85,7 +85,7 @@ namespace Ogre {
 		@param gptype The type of prgram to create.
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* load(const String& name, const String& code, GpuProgramType gptype,
+		virtual GpuProgram* loadFromString(const String& name, const String& code, GpuProgramType gptype,
             const String& syntaxCode, int priority = 1);
 
 		/** Returns the syntaxes that this manager supports. */
@@ -122,13 +122,13 @@ namespace Ogre {
 			This method creates a new program of the type specified as the second parameter.
 			As with all types of ResourceManager, this class will search for the file in
 			all resource locations it has been configured to look in. 
-		@param filename The file to load, which will also become the 
-			identifying name of the GpuProgram which is returned.
+		@param name The name of the program
+		@param filename The file to load
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		@param gptype The type of program to create
 		*/
-		virtual GpuProgram* createProgram(const String& filename, GpuProgramType gptype, 
-            const String& syntaxCode, int priority = 1);
+		virtual GpuProgram* createProgram(const String& name, const String& filename, 
+			GpuProgramType gptype, const String& syntaxCode, int priority = 1);
 
 		/** Create a GPU program from a string of assembly code.
         @remarks    
@@ -143,7 +143,7 @@ namespace Ogre {
 		@param gptype The type of prgram to create.
         @param syntaxCode The name of the syntax to be used for this program e.g. arbvp1, vs_1_1
 		*/
-		virtual GpuProgram* createProgram(const String& name, const String& code, 
+		virtual GpuProgram* createProgramFromString(const String& name, const String& code, 
             GpuProgramType gptype, const String& syntaxCode, int priority = 1);
 
         /** Internal method for populating the supported syntax codes, called by RenderSystem. */
