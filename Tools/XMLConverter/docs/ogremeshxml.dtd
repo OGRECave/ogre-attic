@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE mesh (materials?, sharedgeometry?, submeshes, 
+	skeletonlink?, boneassignments?, levelofdetail?) >
+<!ELEMENT materials (material+) >
+<!ELEMENT material (ambient, diffuse, specular, shininess, texturelayers) >
+<!ELEMENT ambient EMPTY>
+<!ATTLIST ambient 
+	red 	CDATA #REQUIRED 
+	green 	CDATA #REQUIRED 
+	blue 	CDATA #REQUIRED >
+<!ELEMENT diffuse EMPTY>
+<!ATTLIST diffuse 
+	red		CDATA #REQUIRED 
+	green	CDATA #REQUIRED 
+	blue	CDATA #REQUIRED >
+<!ELEMENT specular EMPTY>
+<!ATTLIST specular 
+	red		CDATA #REQUIRED 
+	green	CDATA #REQUIRED 
+	blue	CDATA #REQUIRED >
+<!ELEMENT shininess EMPTY>
+<!ATTLIST shininess
+	value 	CDATA #REQUIRED >
+<!ELEMENT texturelayers (texturelayer+)>
+<!ELEMENT texturelayer EMPTY>
+<!ATTLIST texturelayer
+	texture CDATA #REQUIRED>
+<!ELEMENT sharedgeometry (vertexbuffer+)>
+<!ATTLIST sharedgeometry
+	vertexcount CDATA #REQUIRED>
+<!ELEMENT vertexbuffer (vertex+)>
+<!ATTLIST vertexbuffer
+	positions 					CDATA 	"false"
+	normals 					CDATA 	"false"
+	colours_diffuse 			CDATA 	"false"
+	colours_specular 			CDATA 	"false"
+	texture_coords				CDATA 	"0"
+	texture_coord_dimensions_0 	CDATA 	"2"
+	texture_coord_dimensions_1 	CDATA 	"2"
+	texture_coord_dimensions_2 	CDATA 	"2"
+	texture_coord_dimensions_3 	CDATA 	"2"
+	texture_coord_dimensions_4 	CDATA 	"2"
+	texture_coord_dimensions_5 	CDATA 	"2"
+	texture_coord_dimensions_6 	CDATA 	"2"
+	texture_coord_dimensions_7 	CDATA 	"2" >
+<!ELEMENT vertex (position?, normal?, colour_diffuse?, colour_specular?, 
+	texcoord*)>
+<!ELEMENT position EMPTY>
+<!ATTLIST position 
+	x	CDATA	#REQUIRED	
+	y	CDATA	#REQUIRED	
+	z	CDATA	#REQUIRED >
+<!ELEMENT normal EMPTY>
+<!ATTLIST normal 
+	x	CDATA	#REQUIRED	
+	y	CDATA	#REQUIRED	
+	z	CDATA	#REQUIRED >
+<!ELEMENT colour_diffuse EMPTY>
+<!ATTLIST colour_diffuse 
+	value	CDATA	#REQUIRED>
+<!ELEMENT colour_specular EMPTY>
+<!ATTLIST colour_specular 
+	value	CDATA	#REQUIRED>
+<!ELEMENT texcoord EMPTY>
+<!ATTLIST texcoord
+	u	CDATA	#REQUIRED	
+	v	CDATA	"0"	
+	w	CDATA	"0" >
+<!ELEMENT submeshes (submesh+)>
+<!ELEMENT submesh (faces)>
+<!ATTLIST submesh 
+	material 			CDATA 	#REQUIRED
+	usesharedvertices	CDATA	"false"
+	use32bitindexes		CDATA	"false">
+	
+				
+	
+
+
+
+
