@@ -108,7 +108,7 @@ namespace Ogre {
         mShadowFarDistSquared = 0;
 		mShadowIndexBufferSize = 51200;
         mShadowTextureSize = 512;
-        mShadowTexture = 0;
+        mShadowTextureCount = 1;
 
 
     }
@@ -693,16 +693,6 @@ namespace Ogre {
         mCamChanged = true;
 
 
-        // Set the viewport
-        setViewport(vp);
-
-        // Tell params about camera
-        mAutoParamDataSource.setCurrentCamera(camera);
-
-		// Tell params about current ambient light
-		mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
-
-
         // Update the scene
         _applySceneAnimations();
         _updateSceneGraph(camera);
@@ -717,6 +707,31 @@ namespace Ogre {
         // Auto-track camera if required
         camera->_autoTrack();
 
+        // Are we using any shadows at all?
+        if (mShadowTechnique != SHADOWTYPE_NONE && 
+            mIlluminationStage != IRS_RENDER_TO_TEXTURE)
+        {
+            // Locate any lights which could be affecting the frustum
+            findLightsAffectingFrustum(camera);
+            if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
+                mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+            {
+                // *******
+                // WARNING
+                // *******
+                // This call will result in re-entrant calls to this method
+                // therefore anything which comes before this is NOT 
+                // guaranteed persistent. Make sure that anything which 
+                // MUST be specific to this camera / target is done 
+                // AFTER THIS POINT
+                prepareShadowTextures(camera, vp);
+                // reset the cameras because of the re-entrant call
+                mCameraInProgress = camera;
+                mCamChanged = true;
+            }
+        }
+        
+        // Invert vertex winding?
         if (camera->isReflected())
         {
             mDestRenderSystem->setInvertVertexWinding(true);
@@ -725,6 +740,16 @@ namespace Ogre {
         {
             mDestRenderSystem->setInvertVertexWinding(false);
         }
+
+        // Set the viewport
+        setViewport(vp);
+
+        // Tell params about camera
+        mAutoParamDataSource.setCurrentCamera(camera);
+
+        // Tell params about current ambient light
+        mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+
 
         // Set camera window clipping planes (if any)
 		if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_USER_CLIP_PLANES))
@@ -747,15 +772,9 @@ namespace Ogre {
 				}
 			}
 		}
+
         // Clear the render queue
         getRenderQueue()->clear();
-
-        // Are we using any shadows at all?
-        if (mShadowTechnique != SHADOWTYPE_NONE)
-        {
-            // Locate any lights which could be affecting the frustum
-            findLightsAffectingFrustum(camera);
-        }
 
         // Parse the scene and tag visibles
         _findVisibleObjects(camera, 
@@ -767,7 +786,6 @@ namespace Ogre {
         }
         // Queue skies
         _queueSkiesForRendering(camera);
-
 
 
         // Don't do view / proj here anymore
@@ -1264,6 +1282,7 @@ namespace Ogre {
         } // for each queue group
 
         // For texture-based shadows, we need to perform additional rendering
+        // to render the shadow receivers
         if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
             mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
         {
@@ -1274,14 +1293,11 @@ namespace Ogre {
     void SceneManager::renderTextureShadows(void)
     {
         // only perform this if we're in the 'normal' render stage
-        // otherwise this process will become infinitely recursive
         if (mIlluminationStage != IRS_NONE)
             return;
 
-        // First, we need to save the current rendering queue, because
-        // we'll need it to render the modulative pass for each light
 
-        // Set ill
+
     }
     //-----------------------------------------------------------------------
 	void SceneManager::renderAdditiveStencilShadowedQueueGroupObjects(RenderQueueGroup* pGroup)
@@ -1541,19 +1557,20 @@ namespace Ogre {
             // Modulative stencil shadows in use
 			renderModulativeStencilShadowedQueueGroupObjects(pGroup);
 		}
-        else if (pGroup->getShadowsEnabled() && 
-            mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+        else if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
         {
             // Modulative texture shadows in use
             if (mIlluminationStage == IRS_RENDER_TO_TEXTURE)
             {
                 // Shadow caster pass
-                renderTextureShadowCasterQueueGroupObjects(pGroup);
+                if (pGroup->getShadowsEnabled())
+                    renderTextureShadowCasterQueueGroupObjects(pGroup);
             }
             else if (mIlluminationStage == IRS_RENDER_MODULATIVE_PASS)
             {
                 // Shadow receiver pass
-                renderTextureShadowReceiverQueueGroupObjects(pGroup);
+                if (pGroup->getShadowsEnabled())
+                    renderTextureShadowReceiverQueueGroupObjects(pGroup);
             }
             else
             {
@@ -2376,7 +2393,7 @@ namespace Ogre {
         if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE ||
             mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
         {
-            createShadowTexture(mShadowTextureSize);
+            createShadowTextures(mShadowTextureSize, mShadowTextureCount);
         }
 
     }
@@ -2898,33 +2915,138 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::setShadowTextureSize(unsigned short size)
     {
-        if (mShadowTexture && size != mShadowTextureSize)
+        if (!mShadowTextures.empty() && size != mShadowTextureSize)
         {
             // recreate
-            createShadowTexture(size);
+            createShadowTextures(size, mShadowTextureCount);
         }
         mShadowTextureSize = size;
     }
     //---------------------------------------------------------------------
-    void SceneManager::createShadowTexture(unsigned short size)
+    void SceneManager::setShadowTextureCount(unsigned short count)
     {
-        static const String texname = "Ogre/ShadowTexture";
-        // destroy existing
-        if (mShadowTexture)
-            mDestRenderSystem->destroyRenderTexture(texname);
+        if (!mShadowTextures.empty() && count != mShadowTextureCount)
+        {
+            // recreate
+            createShadowTextures(mShadowTextureSize, count);
+        }
+        mShadowTextureCount = count;
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::setShadowTextureSettings(unsigned short size, unsigned short count)
+    {
+        if (!mShadowTextures.empty() && 
+            (count != mShadowTextureCount ||
+             size != mShadowTextureSize))
+        {
+            // recreate
+            createShadowTextures(size, count);
+        }
+        mShadowTextureCount = count;
+        mShadowTextureSize = size;
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::createShadowTextures(unsigned short size, unsigned short count)
+    {
+        static const String baseName = "Ogre/ShadowTexture";
 
-        // Recreate shadow texture
-        if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+        // destroy existing
+        ShadowTextureList::iterator i, iend;
+        iend = mShadowTextures.end();
+        for (i = mShadowTextures.begin(); i != iend; ++i)
         {
-            mShadowTexture = mDestRenderSystem->createRenderTexture( 
-                texname, size, size );
+            RenderTexture* r = *i;
+            // remove camera and destroy texture
+            removeCamera(r->getViewport(0)->getCamera());
+            mDestRenderSystem->destroyRenderTexture(r->getName());
         }
-        else if (mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+        mShadowTextures.clear();
+
+        // Recreate shadow textures
+        for (unsigned short t = 0; t < mShadowTextureCount; ++t)
         {
-            // todo
+            String targName = baseName + StringConverter::toString(t);
+            String matName = baseName + "Mat" + StringConverter::toString(t);
+            String camName = baseName + "Cam" + StringConverter::toString(t);
+
+            RenderTexture* shadowTex;
+            if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+            {
+                shadowTex = mDestRenderSystem->createRenderTexture( 
+                    targName, size, size );
+            }
+            else if (mShadowTechnique == SHADOWTYPE_TEXTURE_SHADOWMAP)
+            {
+                // todo
+            }
+            // Create a camera to go with this texture
+            Camera* cam = createCamera(camName);
+            cam->setAspectRatio(1.0f);
+            // Create a viewport
+            Viewport *v = shadowTex->addViewport(cam);
+            v->setClearEveryFrame(true);
+            // remove overlays
+            v->setOverlaysEnabled(false);
+            // Don't update automatically - we'll do it when required
+            shadowTex->setAutoUpdated(false);
+            mShadowTextures.push_back(shadowTex);
+
+            // Also create corresponding Material used for rendering this shadow
+            Material* mat = (Material*)MaterialManager::getSingleton().getByName(matName);
+            if (!mat)
+            {
+                mat = (Material*)MaterialManager::getSingleton().create(matName);
+            }
+            else
+            {
+                mat->getTechnique(0)->getPass(0)->removeAllTextureUnitStates();
+            }
+            // create texture unit referring to render target texture
+            TextureUnitState* texUnit = 
+                mat->getTechnique(0)->getPass(0)->createTextureUnitState(targName);
+            // set projective based on camera
+            texUnit->setProjectiveTexturing(true, cam);
+            texUnit->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
+            mat->touch();
+
         }
-        // Don't auto-update, we'll do this manually
-        mShadowTexture->setAutoUpdated(false);
+    }
+    //---------------------------------------------------------------------
+    void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
+    {
+        // Set the illumination stage, prevents recursive calls
+        IlluminationRenderStage savedStage = mIlluminationStage;
+        mIlluminationStage = IRS_RENDER_TO_TEXTURE;
+
+        // Iterate over the lights we've found, max out at the limit of light textures
+
+        LightList::iterator i, iend;
+        ShadowTextureList::iterator si, siend;
+        iend = mLightsAffectingFrustum.end();
+        siend = mShadowTextures.end();
+        for (i = mLightsAffectingFrustum.begin(), si = mShadowTextures.begin();
+             i != iend && si != siend; ++i)
+        {
+            Light* light = *i;
+            RenderTexture* shadowTex = *si;
+            // Directional lights only for now
+            if (light->getType() == Light::LT_DIRECTIONAL)
+            {
+                // set up the shadow texture
+                Camera* texCam = shadowTex->getViewport(0)->getCamera();
+                // HACK - TODO do this properly
+                // Set position / orientation
+                texCam->setPosition(800,600,0);
+                texCam->lookAt(0,0,0);
+
+                // Update target
+                shadowTex->update();
+
+                ++si;
+            }
+        }
+        // Set the illumination stage, prevents recursive calls
+        mIlluminationStage = savedStage;
     }
     //---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 
