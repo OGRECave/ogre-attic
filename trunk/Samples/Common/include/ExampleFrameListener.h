@@ -52,7 +52,6 @@ protected:
 
     void updateStats(void)
     {
-        return;
         static String currFps = "Current FPS: ";
         static String avgFps = "Average FPS: ";
         static String bestFps = "Best FPS: ";
