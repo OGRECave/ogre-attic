@@ -129,6 +129,10 @@ namespace Ogre {
         mutable bool mRecalcWindow;
         /// The last viewport to be added using this camera
         Viewport* mLastViewport;
+        /** Whether aspect ratio will automaticaally be recalculated 
+            when a vieport changes its size
+        */
+        bool mAutoAspectRatio;
 
         // Internal functions for calcs
         void updateFrustum(void) const;
@@ -420,7 +424,19 @@ namespace Ogre {
         /** Notifies this camera that a viewport is using it.*/
         void _notifyViewport(Viewport* viewport) {mLastViewport = viewport;}
 
-    };
+        /** If set to true a vieport that owns this frustum will be able to 
+            recalculate the aspect ratio whenever the frustum is resized.
+        @remarks
+            You should set this to true only if the frustum / camera is used by 
+            one viewport at the same time. Otherwise the aspect ratio for other 
+            viewports may be wrong.
+        */    
+        void setAutoAspectRatio(bool autoratio);
+
+        /** Retreives if AutoAspectRatio is currently set or not
+        */
+        bool getAutoAspectRatio(void) const;
+     };
 
 } // namespace Ogre
 #endif
