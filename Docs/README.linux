@@ -5,6 +5,7 @@ License: LGPL
 
 Edited by Steve Streeting following configuration changes.
 Edited by James O'Sullivan following requirement changes.
+Edited by Wladimir J. van der Laan following configuration changes.
 
 Downloading The Files
 =====================
@@ -33,7 +34,7 @@ Dependencies
 
 So additional files that may not be found on your system that ogre will need.
 
-SDL 1.2.x - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org. It would be best to insure that this installs into a standard directory. If you are installing from source run ./configure --prefix=/usr. 
+SDL 1.2.x (when not using the GLX platform manager -- see below) - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org. It would be best to insure that this installs into a standard directory. If you are installing from source run ./configure --prefix=/usr. 
 
 FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
 
@@ -112,6 +113,10 @@ make install
 
 Well you must be thinking that was easy compared to 2.95.3 and you are right. That's part of the reason I decided to upgrade (again changing compilers is a really good way to turn a linux box into a paper wait, if you can't compile what else are you going to do).
 
+GLX platform manager
+====================
+
+If you add the options --with-gl-support=GLX --with-platform=GLX to the ./configure statement, the GLX platform manager will be used instead of the default, SDL. This means that OGRE will work without the SDL libraries installed and directly make use of the capabilities of your X server. You will also get a nice X startup screen to select your resolution. There is little reason to use SDL, unless you want to use it for input or sound.
 
 Ogre Samples
 ============
