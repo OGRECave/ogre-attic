@@ -57,8 +57,6 @@ namespace Ogre
 		
 		// Stored options
 		ConfigOptionMap mOptions;
-        /// wait for vsync
-		bool mVSync;
 		/// full-screen multisampling antialiasing type
 		D3DMULTISAMPLE_TYPE mFSAAType;
 		/// full-screen multisampling antialiasing level
