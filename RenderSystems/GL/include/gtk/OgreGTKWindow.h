@@ -69,7 +69,6 @@ public:
     void reposition(int left, int top);
     void resize(unsigned int width, unsigned int height);
     void swapBuffers(bool waitForVSync);
-    void outputText(int x, int y, const String& text);
     void writeContentsToFile(const String& filename);
 
     bool requiresTextureFlipping() const { return false; }

@@ -43,8 +43,10 @@ namespace Ogre {
         // Note we sequentially name since page can be attached at different points
         // so page x/z is not appropriate
         static size_t pageIndex = 0;
+		StringUtil::StrStreamType page_str;
+		page_str << pageIndex;
         name = "page[";
-        name << (int)pageIndex << "]";
+        name += page_str.str() + "]";
         page->pageSceneNode = mSceneManager->createSceneNode(name);
         
         size_t q = 0;
@@ -54,9 +56,11 @@ namespace Ogre {
 
             for ( size_t i = 0; i < mPageSize - 1; i += ( mTileSize - 1 ) )
             {
+				StringUtil::StrStreamType new_name_str;
+				
                 // Create scene node for the tile and the TerrainRenderable
-                name = "tile[";
-                name << pageIndex << "][" << (int)p << "," << (int)q << "]";
+                new_name_str << "tile[" << pageIndex << "][" << (int)p << "," << (int)q << "]";
+				name = new_name_str.str();
 
                 SceneNode *c = page->pageSceneNode->createChildSceneNode( name );
                 TerrainRenderable *tile = new TerrainRenderable(name);

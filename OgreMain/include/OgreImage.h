@@ -380,7 +380,7 @@ namespace Ogre {
 
         /** Returns true if the image has the appropriate flag set.
         */
-        bool hasFlag(const ImageFlags imgFlag);
+        bool hasFlag(const ImageFlags imgFlag) const;
 
         /** Gets the width of the image in pixels.
         */

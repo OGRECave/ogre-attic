@@ -198,27 +198,6 @@ namespace Ogre {
         // Seed random number generator for future use
         srand((unsigned)time(0));
 
-#if OGRE_COMPILER == COMPILER_MSVC
-#   if OGRE_COMP_VER < 1300
-        // Instantiate templates for spooling to a String
-        // This seems to be a crappy VC6 thing, it generates link errors if we use
-        //  the templates from outside OgreMain, even when 'inline'.
-        String str1, str2;
-        Quaternion q;
-        Vector3 v;
-        Matrix4 m;
-        float f = 0.0;
-        int i = 0;
-        char c = 'A';
-        str1 = "";
-        str2 = "aa";
-        str1 << str2 << q << v << f << i << c;
-        // Stop instantiating templates
-#   endif
-#endif
-
-        
-
 
     }
 
@@ -267,7 +246,7 @@ namespace Ogre {
         ::FILE *fp;
         char rec[100];
 
-        fp = fopen(mConfigFileName, "w");
+        fp = fopen(mConfigFileName.c_str(), "w");
         if (!fp)
             Except(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create settings file.",
             "Root::saveConfig");
@@ -322,7 +301,7 @@ namespace Ogre {
         }
 
         renderSystem = cfg.getSetting("Render System");
-        if(!renderSystem)
+        if(renderSystem.empty())
         {
             // No render system entry - error
             return false;

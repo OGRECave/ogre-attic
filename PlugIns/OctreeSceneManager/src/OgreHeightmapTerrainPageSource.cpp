@@ -120,25 +120,25 @@ namespace Ogre {
         for (ti = optionList.begin(); ti != tiend; ++ti)
         {
             String val = ti->first;
-            val.trim();
-            if (val.startsWith("Heightmap.image", false))
+            StringUtil::trim(val);
+            if (StringUtil::startsWith(val, "Heightmap.image", false))
             {
                 mSource = ti->second;
                 imageFound = true;
                 // is it a raw?
-                if (mSource.endsWith("raw"))
+                if (StringUtil::endsWith(mSource, "raw"))
                 {
                     mIsRaw = true;
                 }
             }
-            else if (val.startsWith("Heightmap.raw.size", false))
+            else if (StringUtil::startsWith(val, "Heightmap.raw.size", false))
             {
-                mRawSize = atoi(ti->second);
+                mRawSize = atoi(ti->second.c_str());
                 rawSizeFound = true;
             }
-            else if (val.startsWith("Heightmap.raw.bpp", false))
+            else if (StringUtil::startsWith(val, "Heightmap.raw.bpp", false))
             {
-                mRawBpp = atoi(ti->second);
+                mRawBpp = atoi(ti->second.c_str());
                 if (mRawBpp < 1 || mRawBpp > 2)
                 {
                     Except(Exception::ERR_INVALIDPARAMS, 
@@ -147,7 +147,7 @@ namespace Ogre {
                 }
                 rawBppFound = true;
             }
-            else if (val.startsWith("Heightmap.flip", false))
+            else if (StringUtil::startsWith(val, "Heightmap.flip", false))
             {
                 mFlipTerrain = StringConverter::parseBool(ti->second);
             }

@@ -520,10 +520,6 @@ void GLXWindow::swapBuffers(bool waitForVSync) {
 	glXSwapBuffers(mDisplay,mWindow);
 }
 
-void GLXWindow::outputText(int x, int y, const String& text) {
-	// Deprecated
-}
-
 void GLXWindow::processEvent(const XEvent &event) {
 	// Process only events for this window
 	switch(event.type) {

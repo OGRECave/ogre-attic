@@ -414,7 +414,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    bool Image::hasFlag(const ImageFlags imgFlag)
+    bool Image::hasFlag(const ImageFlags imgFlag) const
     {
         if(m_uFlags & imgFlag)
         {

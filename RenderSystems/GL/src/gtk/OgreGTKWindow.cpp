@@ -174,11 +174,6 @@ void GTKWindow::swapBuffers(bool waitForVSync)
     	glwindow->swap_buffers();
 }
 
-void GTKWindow::outputText(int x, int y, const String& text)
-{
-    	// XXX impl me
-}
-
 void GTKWindow::writeContentsToFile(const String& filename)
 {
     	// XXX impl me

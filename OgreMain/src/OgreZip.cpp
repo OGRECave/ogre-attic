@@ -176,7 +176,7 @@ namespace Ogre {
         char comment[260];
 
         szPattern = strPattern;
-        szPattern.toLowerCase();
+        StringUtil::toLowerCase(szPattern);
 
         int iRes = unzGoToFirstFile(mArchive);
         while( iRes == UNZ_OK )
@@ -192,7 +192,7 @@ namespace Ogre {
 
             if( info.uncompressed_size > 0 )
             {
-                filename.toLowerCase();
+                StringUtil::toLowerCase(filename);
 			
                 if( static_cast<int>(filename.find(szPattern)) >= 0 )
                 {

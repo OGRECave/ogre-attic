@@ -85,7 +85,7 @@ int main(int numargs, char** args)
         Except(Exception::ERR_FILE_NOT_FOUND, 
             "File " + source + " not found.", "OgreMaterialUpgrade");
     }
-    stat( source, &tagStat );
+    stat( source.c_str(), &tagStat );
     chunk.allocate( tagStat.st_size );
     fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );

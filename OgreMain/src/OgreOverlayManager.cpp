@@ -85,7 +85,7 @@ namespace Ogre {
 		    {
 				if (line.substr(0,8) == "#include")
 				{
-                    std::vector<String> params = line.split("\t\n ()<>");
+                    std::vector<String> params = StringUtil::split(line, "\t\n ()<>");
 					loadAndParseOverlayFile(params[1]);
 					continue;
 				}
@@ -112,7 +112,7 @@ namespace Ogre {
 			    if ((pOverlay && !skipLine) || isTemplate)
 			    {
 				    // Already in overlay
-                    std::vector<String> params = line.split("\t\n ()");
+                    std::vector<String> params = StringUtil::split(line, "\t\n ()");
 
 
 					uint skipParam = 0;
@@ -332,7 +332,7 @@ namespace Ogre {
 		bool ret = false;
 		std::vector<String> params;
 		uint skipParam =0;
-		params = line.split("\t\n ()");
+		params = StringUtil::split(line, "\t\n ()");
 
 		if (isTemplate)
 		{
@@ -400,10 +400,11 @@ namespace Ogre {
         std::vector<String> vecparams;
 
         // Split params on first space
-        vecparams = line.split("\t ", 1);
+        vecparams = StringUtil::split(line, "\t ", 1);
 
         // Look up first param (command setting)
-        if (vecparams[0].toLowerCase() == "zorder")
+		StringUtil::toLowerCase(vecparams[0]);
+        if (vecparams[0] == "zorder")
         {
             pOverlay->setZOrder(StringConverter::parseUnsignedInt(vecparams[1]));
         }
@@ -419,10 +420,11 @@ namespace Ogre {
         std::vector<String> vecparams;
 
         // Split params on first space
-        vecparams = line.split("\t ", 1);
+        vecparams = StringUtil::split(line, "\t ", 1);
 
         // Look up first param (command setting)
-        if (!pElement->setParameter(vecparams[0].toLowerCase(), vecparams[1]))
+		StringUtil::toLowerCase(vecparams[0]);
+        if (!pElement->setParameter(vecparams[0], vecparams[1]))
         {
             // BAD command. BAD!
             LogManager::getSingleton().logMessage("Bad element attribute line: '"
@@ -484,7 +486,7 @@ namespace Ogre {
                 {
                     if (line.substr(0, 8) == "position")
                     {
-                        params = line.split(" \t");
+                        params = StringUtil::split(line, " \t");
                         if (params.size() != 4)
                         {
                             LogManager::getSingleton().logMessage("Bad position attribute line: '"
@@ -498,7 +500,7 @@ namespace Ogre {
                     }
                     else if (line.substr(0, 8) == "rotation")
                     {
-                        params = line.split(" \t");
+                        params = StringUtil::split(line, " \t");
                         if (params.size() != 5)
                         {
                             LogManager::getSingleton().logMessage("Bad rotation attribute line: '"

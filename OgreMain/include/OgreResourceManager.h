@@ -192,8 +192,8 @@ namespace Ogre {
         /** Allocates the next handle. */
         ResourceHandle getNextHandle(void);
 
-        typedef HashMap< String, ArchiveEx *, _StringHash > FileMap;
-        typedef HashMap< String, Resource*, _StringHash > ResourceMap;
+        typedef HashMap< String, ArchiveEx * > FileMap;
+        typedef HashMap< String, Resource* > ResourceMap;
 
 
         static FileMap mCommonArchiveFiles;

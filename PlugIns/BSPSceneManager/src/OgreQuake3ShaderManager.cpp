@@ -89,7 +89,8 @@ namespace Ogre {
                     else
                     {
                         // Attribute
-                        parseShaderAttrib(line.toLowerCase(), pShader);
+						StringUtil::toLowerCase(line);
+                        parseShaderAttrib(line, pShader);
                     }
 
                 }
@@ -212,7 +213,7 @@ namespace Ogre {
     {
         StringVector vecparams;
 
-        vecparams = line.split(" \t");
+        vecparams = StringUtil::split(line, " \t");
         StringVector::iterator params = vecparams.begin();
 
         if (params[0] == "skyparms")
@@ -265,15 +266,15 @@ namespace Ogre {
     {
         StringVector vecparams;
 
-        vecparams = line.split(" \t");
+        vecparams = StringUtil::split(line, " \t");
         StringVector::iterator params = vecparams.begin();
 
-        params[0] == params[0].toLowerCase();
+        StringUtil::toLowerCase(params[0]);
         if (params[0] != "map" && params[0] != "clampmap" && params[0] != "animmap")
         {
             // lower case all except textures
             for (size_t i = 1; i < vecparams.size(); ++i)
-                params[i] = params[i].toLowerCase();
+                StringUtil::toLowerCase(params[i]);
         }
 
 
@@ -281,14 +282,16 @@ namespace Ogre {
         if (params[0] == "map")
         {
             pPass->textureName = params[1];
-            if (params[1].toLowerCase() == "$lightmap")
+			StringUtil::toLowerCase(params[1]);
+            if (params[1] == "$lightmap")
                 pPass->texGen = TEXGEN_LIGHTMAP;
         }
         // CLAMPMAP
         if (params[0] == "clampmap")
         {
             pPass->textureName = params[1];
-            if (params[1].toLowerCase() == "$lightmap")
+			StringUtil::toLowerCase(params[1]);
+            if (params[1] == "$lightmap")
                 pPass->texGen = TEXGEN_LIGHTMAP;
             pPass->addressMode = TextureUnitState::TAM_CLAMP;
         }
@@ -376,17 +379,17 @@ namespace Ogre {
         {
             if (params[1] == "rotate")
             {
-                pPass->tcModRotate = -atof(params[2]) / 360; // +ve is clockwise degrees in Q3 shader, anticlockwise complete rotations in Ogre
+                pPass->tcModRotate = -atof(params[2].c_str()) / 360; // +ve is clockwise degrees in Q3 shader, anticlockwise complete rotations in Ogre
             }
             else if (params[1] == "scroll")
             {
-                pPass->tcModScroll[0] = atof(params[2]);
-                pPass->tcModScroll[1] = atof(params[3]);
+                pPass->tcModScroll[0] = atof(params[2].c_str());
+                pPass->tcModScroll[1] = atof(params[3].c_str());
             }
             else if (params[1] == "scale")
             {
-                pPass->tcModScale[0] = atof(params[2]);
-                pPass->tcModScale[1] = atof(params[3]);
+                pPass->tcModScale[0] = atof(params[2].c_str());
+                pPass->tcModScale[1] = atof(params[3].c_str());
             }
             else if (params[1] == "stretch")
             {
@@ -401,10 +404,10 @@ namespace Ogre {
                 else if (params[2] == "inversesawtooth")
                     pPass->tcModStretchWave = SHADER_FUNC_INVERSESAWTOOTH;
 
-                pPass->tcModStretchParams[0] = atof(params[3]);
-                pPass->tcModStretchParams[1] = atof(params[4]);
-                pPass->tcModStretchParams[2] = atof(params[5]);
-                pPass->tcModStretchParams[3] = atof(params[6]);
+                pPass->tcModStretchParams[0] = atof(params[3].c_str());
+                pPass->tcModStretchParams[1] = atof(params[4].c_str());
+                pPass->tcModStretchParams[2] = atof(params[5].c_str());
+                pPass->tcModStretchParams[3] = atof(params[6].c_str());
 
             }
         }
@@ -412,10 +415,10 @@ namespace Ogre {
         else if (params[0] == "turb")
         {
             pPass->tcModTurbOn = true;
-            pPass->tcModTurb[0] = atof(params[2]);
-            pPass->tcModTurb[1] = atof(params[3]);
-            pPass->tcModTurb[2] = atof(params[4]);
-            pPass->tcModTurb[3] = atof(params[5]);
+            pPass->tcModTurb[0] = atof(params[2].c_str());
+            pPass->tcModTurb[1] = atof(params[3].c_str());
+            pPass->tcModTurb[2] = atof(params[4].c_str());
+            pPass->tcModTurb[3] = atof(params[5].c_str());
         }
         // DEPTHFUNC
         else if (params[0] == "depthfunc")

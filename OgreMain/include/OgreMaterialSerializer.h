@@ -74,6 +74,7 @@ namespace Ogre {
 		int techLev,	//Keep track of what tech, pass, and state level we are in
 			passLev,
 			stateLev;
+        StringVector defaultParamLines;
 
 		// Error reporting state
         size_t lineNo;

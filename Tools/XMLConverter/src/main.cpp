@@ -179,9 +179,10 @@ XmlOptions parseArgs(int numArgs, char **args)
     }
     // Work out what kind of conversion this is
     opts.source = source;
-    std::vector<String> srcparts = opts.source.split(".");
+	std::vector<String> srcparts = StringUtil::split(opts.source, ".");
     String& ext = srcparts.back();
-    opts.sourceExt = ext.toLowerCase();
+	StringUtil::toLowerCase(ext);
+    opts.sourceExt = ext;
 
     if (!dest)
     {
@@ -202,9 +203,10 @@ XmlOptions parseArgs(int numArgs, char **args)
     {
         opts.dest = dest;
     }
-    std::vector<String> dstparts = opts.dest.split(".");
+	std::vector<String> dstparts = StringUtil::split(opts.dest, ".");
     ext = dstparts.back();
-    opts.destExt = ext.toLowerCase();
+	StringUtil::toLowerCase(ext);
+    opts.destExt = ext;
 
     cout << endl;
     cout << "-- OPTIONS --" << endl;
@@ -260,7 +262,7 @@ void meshToXML(XmlOptions opts)
         cout << "Unable to open file " << opts.source << " - fatal error." << endl;
         exit (1);
     }
-    stat( opts.source, &tagStat );
+    stat( opts.source.c_str(), &tagStat );
     chunk.allocate( tagStat.st_size );
     fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );
@@ -315,15 +317,16 @@ void XMLToBinary(XmlOptions opts)
                 while (response == "")
                 {
                     cin >> response;
-                    if (response.toLowerCase() == "u")
+					StringUtil::toLowerCase(response);
+                    if (response == "u")
                     {
                         // Do nothing
                     }
-                    else if (response.toLowerCase() == "d")
+                    else if (response == "d")
                     {
                         newMesh.removeLodLevels();
                     }
-                    else if (response.toLowerCase() == "r")
+                    else if (response == "r")
                     {
                         genLod = true;
                         askLodDtls = true;
@@ -341,11 +344,12 @@ void XMLToBinary(XmlOptions opts)
                 while (response == "")
                 {
                     cin >> response;
-                    if (response.toLowerCase() == "n")
+					StringUtil::toLowerCase(response);
+                    if (response == "n")
                     {
                         // Do nothing
                     }
-                    else if (response.toLowerCase() == "y")
+                    else if (response == "y")
                     {
                         genLod = true;
                         askLodDtls = true;
@@ -369,7 +373,8 @@ void XMLToBinary(XmlOptions opts)
                 cout << "\nWhat unit of reduction would you like to use:" <<
                     "\n(f)ixed or (p)roportional?";
                 cin >> response;
-                if (response.toLowerCase() == "f")
+				StringUtil::toLowerCase(response);
+                if (response == "f")
                 {
                     quota = ProgressiveMesh::VRQ_CONSTANT;
                     cout << "\nHow many vertices should be removed at each LOD?";
@@ -441,7 +446,7 @@ void skeletonToXML(XmlOptions opts)
     struct stat tagStat;
 
     SDDataChunk chunk;
-    stat( opts.source, &tagStat );
+    stat( opts.source.c_str(), &tagStat );
     chunk.allocate( tagStat.st_size );
     FILE* pFile = fopen( opts.source.c_str(), "rb" );
 	if (!pFile)

@@ -492,7 +492,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     // Export
     Ogre::String msg;
-    msg << "Exporting mesh data to file '" << szFile << "'";
+	msg  = "Exporting mesh data to file '" + Ogre::String(szFile) + "'";
     logMgr.logMessage(msg);
     serializer.exportMesh(ogreMesh, szFile);
     logMgr.logMessage("Export successful");
@@ -553,8 +553,7 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
     
     // Do the bones
     int numBones = msModel_GetBoneCount(pModel);
-    msg = "Number of bones: ";
-    msg << numBones;
+	msg = "Number of bones: " + Ogre::StringConverter::toString(numBones);
     logMgr.logMessage(msg);
 
     int i;
@@ -583,13 +582,13 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
         qfinal = qz * qy * qx;
         ogrebone->setOrientation(qfinal);
 
-        msg = "";
-        msg << "Bone #" << i << ": " <<
+		Ogre::StringUtil::StrStreamType msgStream;
+        msgStream << "Bone #" << i << ": " <<
             "Name='" << bone->szName << "' " <<
             "Position: " << bonePos << " " <<
             "Ms3d Rotation: {" << msBoneRot[0] << ", " << msBoneRot[1] << ", " << msBoneRot[2] << "} " <<
             "Orientation: " << qfinal;
-        logMgr.logMessage(msg);
+        logMgr.logMessage(msgStream.str());
 
         
     }
@@ -602,8 +601,8 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
         if (strlen(bone->szParentName) == 0)
         {
             // Root bone
-            msg = "Root bone detected: Name='";
-            msg << bone->szName << "' Index=" << i;
+            msg = "Root bone detected: Name='" + Ogre::String(bone->szName) + "' Index=" 
+				+ Ogre::StringConverter::toString(i);
             logMgr.logMessage(msg);
         }
         else
@@ -613,15 +612,15 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
 
             if (ogrechild == 0)
             {
-                msg = "Error: could not locate child bone '";
-                msg << bone->szName << "'";
+                msg = "Error: could not locate child bone '" +
+					Ogre::String(bone->szName) + "'";
                 logMgr.logMessage(msg);
                 continue;
             }
             if (ogreparent == 0)
             {
-                msg = "Error: could not locate parent bone '";
-                msg << bone->szParentName << "'";
+                msg = "Error: could not locate parent bone '"
+					+ Ogre::String(bone->szParentName) + "'";
                 logMgr.logMessage(msg);
                 continue;
             }
@@ -640,14 +639,13 @@ Ogre::Skeleton* MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* m
 
     // Create skeleton serializer & export
     Ogre::SkeletonSerializer serializer;
-    msg = "";
-    msg << "Exporting skeleton to " << szFile;
+    msg = "Exporting skeleton to " + Ogre::String(szFile);
     logMgr.logMessage(msg);
     serializer.exportSkeleton(ogreskel, szFile);
     logMgr.logMessage("Skeleton exported");
 
 
-    msg << "Linking mesh to skeleton file '" << skelName << "'";
+    msg = "Linking mesh to skeleton file '" + skelName + "'";
     Ogre::LogManager::getSingleton().logMessage(msg);
     
     mesh->_notifySkeleton(ogreskel);
@@ -689,8 +687,7 @@ bool MilkshapePlugin::locateSkeleton(Ogre::Mesh* mesh)
     size_t lastSlash = skelName.find_last_of("\\");
     skelName = skelName.substr(lastSlash+1);
 
-    Ogre::String msg;
-    msg << "Linking mesh to skeleton file '" << skelName << "'";
+    Ogre::String msg = "Linking mesh to skeleton file '" + skelName + "'";
     Ogre::LogManager::getSingleton().logMessage(msg);
     
     // Create a dummy skeleton for Mesh to link to (saves it trying to load it)
@@ -719,8 +716,7 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
     matMgrSgl.initialise();
 
 	int numMaterials = msModel_GetMaterialCount(pModel);
-	msg = "Number of materials: ";
-	msg << numMaterials;
+	msg = "Number of materials: " + Ogre::StringConverter::toString(numMaterials);
 	logMgr.logMessage(msg);
 
 	OPENFILENAME ofn;
@@ -760,8 +756,7 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
 	{
 		msMaterial *mat = msModel_GetMaterialAt(pModel, i);
 
-		msg = "Creating material ";
-		msg << mat->szName;
+		msg = "Creating material " + Ogre::String(mat->szName);
 		logMgr.logMessage(msg);
         Ogre::Material *ogremat = (Ogre::Material*)matMgrSgl.create(mat->szName);
 		logMgr.logMessage("Created.");
@@ -781,8 +776,7 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
 		matSer.queueForExport(ogremat);
 	}
 
-	msg = "Exporting materials to ";
-	msg << matName;
+	msg = "Exporting materials to " + matName;
 	logMgr.logMessage(msg);
 	matSer.exportQueued(matName);
 }
@@ -806,19 +800,19 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
     Ogre::String msg;
 
     int numFrames = msModel_GetTotalFrames(pModel);
-    msg = "Number of frames: ";
-    msg << numFrames;
+	msg = "Number of frames: " + Ogre::StringConverter::toString(numFrames);
     logMgr.logMessage(msg);
 
     if (splitAnimations)
     {
         // Explain
-        msg = "You have chosen to create multiple discrete animations by splitting up the frames in ";
-        msg << "the animation sequence. In order to do this, you must supply a simple text file "
-            << "describing the separate animations, which has a single line per animation in the format: \n\n" 
-            << "startFrame,endFrame,animationName\n\n" << "For example: \n\n"
-            << "1,20,Walk\n21,35,Run\n36,40,Shoot\n\n" 
-            << "..creates 3 separate animations (the frame numbers are inclusive). You must browse to this file in the next dialog.";
+        msg = "You have chosen to create multiple discrete animations by splitting up the frames in "
+			"the animation sequence. In order to do this, you must supply a simple text file "
+            "describing the separate animations, which has a single line per animation in the format: \n\n" 
+            "startFrame,endFrame,animationName\n\nFor example: \n\n"
+            "1,20,Walk\n21,35,Run\n36,40,Shoot\n\n" 
+            "..creates 3 separate animations (the frame numbers are inclusive)."
+			"You must browse to this file in the next dialog.";
         MessageBox(0,msg.c_str(), "Splitting Animations",MB_ICONINFORMATION | MB_OK);
         // Prompt for a file which contains animation splitting info
         OPENFILENAME ofn;
@@ -871,7 +865,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     continue;
 
                 // Split on ','
-                std::vector<Ogre::String> svec = sline.split(",\n");
+				std::vector<Ogre::String> svec = Ogre::StringUtil::split(line, ",\n");
 
                 // Basic validation on number of elements
                 if (svec.size() != 3)
@@ -881,9 +875,9 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     continue;
                 }
                 // Remove any embedded spaces
-                svec[0].trim();
-                svec[1].trim();
-                svec[2].trim();
+				Ogre::StringUtil::trim(svec[0]);
+                Ogre::StringUtil::trim(svec[1]);
+                Ogre::StringUtil::trim(svec[2]);
                 // Create split info
                 newSplit.start = atoi(svec[0].c_str());
                 newSplit.end = atoi(svec[1].c_str());
@@ -923,14 +917,15 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
         // Create animation
         frameTime = currSplit.end - currSplit.start;
         realTime = frameTime / fps;
-
-        msg = "Trying to create Animation object for animation ";
-        msg <<  currSplit.name << " For Frames " << currSplit.start << " to "
+		Ogre::StringUtil::StrStreamType msgStream;
+        msgStream << "Trying to create Animation object for animation "
+			<<  currSplit.name << " For Frames " << currSplit.start << " to "
             << currSplit.end << " inclusive. ";
-        logMgr.logMessage(msg);
+        logMgr.logMessage(msgStream.str());
 
-        msg = "Frame time = ";
-        msg << frameTime << ", Seconds = " << realTime;
+        msgStream.clear();
+		msgStream << "Frame time = "
+			<< frameTime << ", Seconds = " << realTime;
         logMgr.logMessage(msg);
 
         Ogre::Animation *ogreanim = 
@@ -946,8 +941,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
             Ogre::Bone* ogrebone = ogreskel->getBone(bone->szName);
 
             // Create animation tracks
-            msg = "";
-            msg << "Creating AnimationTrack for bone " << i;
+			msg = "Creating AnimationTrack for bone " + Ogre::StringConverter::toString(i);
             logMgr.logMessage(msg);
 
             Ogre::AnimationTrack *ogretrack = ogreanim->createTrack(i, ogrebone);
@@ -959,8 +953,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
 
             int numKeys = msBone_GetRotationKeyCount(bone);
 
-            msg = "";
-            msg << "Number of keyframes: " << numKeys;
+            msg = "Number of keyframes: " + Ogre::StringConverter::toString(numKeys);
             logMgr.logMessage(msg);
 
             int currKeyIdx;
@@ -975,9 +968,8 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                 if (currRotKey->fTime >= currSplit.start && currRotKey->fTime <= currSplit.end)
                 {
 
-                    msg = "";
-                    msg << "Creating KeyFrame #" << currKeyIdx <<
-                        " for bone #" << i;
+                    msg = "Creating KeyFrame #" + Ogre::StringConverter::toString(currKeyIdx)
+                        + " for bone #" + Ogre::StringConverter::toString(i);
                     logMgr.logMessage(msg);
                     // Create keyframe
                     // Adjust for start time, and for the fact that frames are numbered from 1
@@ -996,12 +988,13 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     kfQ = qz * qy * qx;
                     ogrekey->setRotation(kfQ);
 
-                    msg = "";
-                    msg << "KeyFrame details: Adjusted Frame Time=" << frameTime;
-                    msg << " Seconds: " << realTime << " Position=" << kfPos << " " <<
-                        "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] << "} " <<
-                        "Orientation=" << kfQ;
-                    logMgr.logMessage(msg);
+					Ogre::StringUtil::StrStreamType msgStream;
+                    msgStream << "KeyFrame details: Adjusted Frame Time=" << frameTime
+						<< " Seconds: " << realTime << " Position=" << kfPos << " " 
+						<< "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " 
+						<< currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] 
+						<< "} " << "Orientation=" << kfQ;
+                    logMgr.logMessage(msgStream.str());
                 } // keyframe creation
 
             } // keys

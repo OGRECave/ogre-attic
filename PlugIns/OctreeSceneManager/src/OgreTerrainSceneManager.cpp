@@ -90,25 +90,25 @@ namespace Ogre
         config.load( filename );
 
         val = config.getSetting( "DetailTile" );
-        if ( val != "" )
-            setDetailTextureRepeat(atoi(val));
+        if ( !val.empty() )
+            setDetailTextureRepeat(atoi(val.c_str()));
 
         val = config.getSetting( "MaxMipMapLevel" );
-        if ( val != "" )
-            setMaxGeoMipMapLevel(atoi( val ));
+        if ( !val.empty() )
+            setMaxGeoMipMapLevel(atoi( val.c_str() ));
 
 
         val = config.getSetting( "PageSize" );
-        if ( val != "" )
-            setPageSize(atoi( val ));
+        if ( !val.empty() )
+            setPageSize(atoi( val.c_str() ));
         else
             Except(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'PageSize'",
             "TerrainSceneManager::loadConfig");
 
 
         val = config.getSetting( "TileSize" );
-        if ( val != "" )
-            setTileSize(atoi( val ));
+        if ( !val.empty() )
+            setTileSize(atoi( val.c_str() ));
         else
             Except(Exception::ERR_ITEM_NOT_FOUND, "Missing option 'TileSize'",
             "TerrainSceneManager::loadConfig");
@@ -116,16 +116,16 @@ namespace Ogre
         Vector3 v = Vector3::UNIT_SCALE;
 
         val = config.getSetting( "PageWorldX" );
-        if ( val != "" )
-            v.x = atof( val );
+        if ( !val.empty() )
+            v.x = atof( val.c_str() );
 
         val = config.getSetting( "MaxHeight" );
-        if ( val != "" )
-            v.y = atof( val );
+        if ( !val.empty() )
+            v.y = atof( val.c_str() );
 
         val = config.getSetting( "PageWorldZ" );
-        if ( val != "" )
-            v.z = atof( val );
+        if ( !val.empty() )
+            v.z = atof( val.c_str() );
 
         // Scale x/z relative to pagesize
         v.x /= mOptions.pageSize;
@@ -133,8 +133,8 @@ namespace Ogre
         setScale(v);
 
         val = config.getSetting( "MaxPixelError" );
-        if ( val != "" )
-            setMaxPixelError(atoi( val ));
+        if ( !val.empty() )
+            setMaxPixelError(atoi( val.c_str() ));
 
         mDetailTextureName = config.getSetting( "DetailTexture" );
 
@@ -153,20 +153,20 @@ namespace Ogre
             setUseLODMorph(true);
 
         val = config.getSetting( "LODMorphStart");
-        if ( val != "" )
-            setLODMorphStart(atof(val));
+        if ( !val.empty() )
+            setLODMorphStart(atof(val.c_str()));
 
         val = config.getSetting( "CustomMaterialName" );
-        if ( val != "" )
+        if ( !val.empty() )
             setCustomMaterial(val);
 
         val = config.getSetting( "MorphLODFactorParamName" );
-        if ( val != "" )
+        if ( !val.empty() )
             setCustomMaterialMorphFactorParam(val);
 
         val = config.getSetting( "MorphLODFactorParamIndex" );
-        if ( val != "" )
-            setCustomMaterialMorphFactorParam(atoi(val));
+        if ( !val.empty() )
+            setCustomMaterialMorphFactorParam(atoi(val.c_str()));
 
         // Now scan through the remaining settings, looking for any PageSource
         // prefixed items
@@ -182,7 +182,7 @@ namespace Ogre
         {
             String name = setIt.peekNextKey();
             String value = setIt.getNext();
-            if (name.startsWith(pageSourceName, false))
+            if (StringUtil::startsWith(name, pageSourceName, false))
             {
                 optlist.push_back(TerrainPageSourceOption(name, value));
             }

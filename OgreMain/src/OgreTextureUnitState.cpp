@@ -71,7 +71,7 @@ namespace Ogre {
         mTextureType = TEX_TYPE_2D;
         mTextureCoordSetIndex = 0;
 
-        mFrames[0] = String::BLANK;
+        mFrames[0] = StringUtil::BLANK;
         mCurrentFrame = 0;
 
         mParent->_dirtyHash();

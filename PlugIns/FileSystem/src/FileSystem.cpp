@@ -358,7 +358,7 @@ namespace Ogre {
         struct _finddata_t tagData;
 
         setPath();
-        chdir(strStartPath);
+        chdir(strStartPath.c_str());
 
         lHandle = _findfirst(("*" + strPattern).c_str(), &tagData);
         res = 0;

@@ -657,16 +657,16 @@ namespace Ogre {
             *lineend = '\0';
             line = strEnt;
             strEnt = lineend+1;
-            line.trim();
+            StringUtil::trim(line);
             if (line.length() > 0)
             {
-                line = line.toLowerCase();
+                StringUtil::toLowerCase(line);
                 // Remove quotes
 				while( ( pos = line.find("\"",0) ) != String::npos )
                 {
                     line = line.substr(0,pos) + line.substr(pos+1,line.length()-(pos+1));
                 }
-                vecparams = line.split();
+                vecparams = StringUtil::split(line);
                 StringVector::iterator params = vecparams.begin();
 
                 if (params[0] == "origin")

@@ -56,7 +56,7 @@ namespace Ogre {
     void SkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, const String& filename)
     {
         String msg;
-        mpfFile = fopen(filename, "wb");
+        mpfFile = fopen(filename.c_str(), "wb");
 
         writeFileHeader();
 
@@ -68,13 +68,14 @@ namespace Ogre {
         // Write all animations
         unsigned short numAnims = pSkeleton->getNumAnimations();
         msg = "Exporting animations, count=";
-        msg << numAnims;
+		StringUtil::StrStreamType num;
+		num << numAnims;
+        msg += num.str();
         LogManager::getSingleton().logMessage(msg);
         for (unsigned short i = 0; i < numAnims; ++i)
         {
             Animation* pAnim = pSkeleton->getAnimation(i);
-            msg = "Exporting animation: ";
-            msg << pAnim->getName();
+            msg = "Exporting animation: " + pAnim->getName();
             LogManager::getSingleton().logMessage(msg);
             writeAnimation(pAnim);
             LogManager::getSingleton().logMessage("Animation exported.");

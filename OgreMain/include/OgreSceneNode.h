@@ -44,7 +44,7 @@ namespace Ogre {
     class _OgreExport SceneNode : public Node
     {
     public:
-        typedef HashMap<String, MovableObject*, _StringHash> ObjectMap;
+        typedef HashMap<String, MovableObject*> ObjectMap;
         typedef MapIterator<ObjectMap> ObjectIterator;
 
     protected:

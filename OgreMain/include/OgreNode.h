@@ -62,7 +62,7 @@ namespace Ogre {
             /// Transform is relative to world space
             TS_WORLD
         };
-        typedef HashMap<String, Node*, _StringHash> ChildNodeMap;
+        typedef HashMap<String, Node*> ChildNodeMap;
         typedef MapIterator<ChildNodeMap> ChildNodeIterator;
 
     protected:

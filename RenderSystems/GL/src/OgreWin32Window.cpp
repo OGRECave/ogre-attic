@@ -283,10 +283,6 @@ namespace Ogre {
 		SwapBuffers(mHDC);
     }
 
-    void Win32Window::outputText(int x, int y, const String& text)
-    {
-        //deprecated
-    }
 	void Win32Window::writeContentsToFile(const String& filename)
 	{
 		ImageCodec::ImageData imgData;

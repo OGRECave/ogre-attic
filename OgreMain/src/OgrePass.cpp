@@ -684,7 +684,7 @@ namespace Ogre {
 	const String& Pass::getVertexProgramName(void) const
 	{
         if (!mVertexProgramUsage)
-            return String::BLANK;
+            return StringUtil::BLANK;
         else
 		    return mVertexProgramUsage->getProgramName();
 	}
@@ -913,7 +913,7 @@ namespace Ogre {
     const String& Pass::getShadowCasterVertexProgramName(void) const
     {
         if (!mShadowCasterVertexProgramUsage)
-            return String::BLANK;
+            return StringUtil::BLANK;
         else
             return mShadowCasterVertexProgramUsage->getProgramName();
     }
@@ -968,7 +968,7 @@ namespace Ogre {
     const String& Pass::getShadowReceiverVertexProgramName(void) const
     {
         if (!mShadowReceiverVertexProgramUsage)
-            return String::BLANK;
+            return StringUtil::BLANK;
         else
             return mShadowReceiverVertexProgramUsage->getProgramName();
     }

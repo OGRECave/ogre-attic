@@ -140,10 +140,10 @@ namespace Ogre {
             MeshManager::getSingleton()._findResourceData(mName, chunk);
 
             // Determine file type
-            std::vector<String> extVec = mName.split(".");
+            std::vector<String> extVec = StringUtil::split(mName, ".");
 
             String& ext = extVec[extVec.size() - 1];
-            ext.toLowerCase();
+            StringUtil::toLowerCase(ext);
 
             if (ext == "mesh")
             {
@@ -358,8 +358,8 @@ namespace Ogre {
                 mSkeleton = 0;
                 // Log this error
                 String msg = "Unable to load skeleton ";
-                msg << skelName << " for Mesh " << mName
-                    << " This Mesh will not be animated. ";
+                msg += skelName + " for Mesh " + mName
+                    + " This Mesh will not be animated. ";
                 LogManager::getSingleton().logMessage(msg);
 
             }

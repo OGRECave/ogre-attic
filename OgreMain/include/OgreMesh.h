@@ -117,7 +117,7 @@ namespace Ogre {
 		/** A hashmap used to store optional SubMesh names.
 			Translates a name into SubMesh index
 		*/
-		typedef HashMap<String, ushort, _StringHash> SubMeshNameMap ;
+		typedef HashMap<String, ushort> SubMeshNameMap ;
     protected:
 		SubMeshNameMap mSubMeshNameMap ;
 

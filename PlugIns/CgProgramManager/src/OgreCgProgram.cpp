@@ -48,7 +48,7 @@ namespace Ogre {
             if (gpuMgr.isSyntaxSupported(*i))
             {
                 mSelectedProfile = *i;
-                mSelectedCgProfile = cgGetProfile(mSelectedProfile);
+                mSelectedCgProfile = cgGetProfile(mSelectedProfile.c_str());
                 // Check for errors
                 checkForCgError("CgProgram::selectProfile", 
                     "Unable to find CG profile enum for program " + mName + ": ", mCgContext);
@@ -61,7 +61,7 @@ namespace Ogre {
     {
         StringVector args;
         if (!mCompileArgs.empty())
-            args = mCompileArgs.split();
+            args = StringUtil::split(mCompileArgs);
 
         StringVector::const_iterator i;
         if (mSelectedCgProfile == CG_PROFILE_VS_1_1)
@@ -296,7 +296,7 @@ namespace Ogre {
     }
     void CgProgram::CmdProfiles::doSet(void *target, const String& val)
     {
-        static_cast<CgProgram*>(target)->setProfiles(val.split());
+        static_cast<CgProgram*>(target)->setProfiles(StringUtil::split(val));
     }
     //-----------------------------------------------------------------------
     String CgProgram::CmdArgs::doGet(const void *target) const
