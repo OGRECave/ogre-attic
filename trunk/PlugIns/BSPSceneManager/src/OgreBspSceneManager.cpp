@@ -219,6 +219,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     BspNode* BspSceneManager::walkTree(Camera* camera, bool onlyShadowCasters)
     {
+		if (mLevel.isNull()) return 0;
+
         // Locate the leaf node where the camera is located
         BspNode* cameraNode = mLevel->findLeaf(camera->getDerivedPosition());
 
