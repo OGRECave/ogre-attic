@@ -54,7 +54,7 @@ namespace Ogre {
         @param filename The name of the file to import, expected to be in XML format.
         @param pMesh The pre-created Mesh object to be populated.
         */
-        Mesh* importMesh(const String& filename, Mesh* pMesh);
+        void importMesh(const String& filename, Mesh* pMesh);
 
         /** Exports a mesh to the named XML file. */
         void exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
@@ -74,6 +74,12 @@ namespace Ogre {
         void writeSkeletonLink(TiXmlElement* mMeshNode, const String& skelName);
         void writeBoneAssignment(TiXmlElement* mBoneAssignNode, const VertexBoneAssignment* assign);
 
+        void readMaterials(TiXmlElement* mMaterialsNode);
+        void readSubMeshes(TiXmlElement* mSubmeshesNode);
+        void readGeometry(TiXmlElement* mGeometryNode, GeometryData* pGeom);
+        void readSkeletonLink(TiXmlElement* mSkelNode);
+        void readBoneAssignments(TiXmlElement* mBoneAssignmentsNode);
+        void readBoneAssignments(TiXmlElement* mBoneAssignmentsNode, SubMesh* sm);
 
     };
 
