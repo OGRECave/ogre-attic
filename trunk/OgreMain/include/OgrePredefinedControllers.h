@@ -49,9 +49,9 @@ namespace Ogre {
         FrameTimeControllerValue();
         bool frameEnded(const FrameEvent &evt);
         bool frameStarted(const FrameEvent &evt);
-        Real getValue(void);
+        Real getValue(void) const;
         void setValue(Real value);
-		Real getTimeFactor(void);
+		Real getTimeFactor(void) const;
 		void setTimeFactor(Real tf);
     };
 
@@ -67,7 +67,7 @@ namespace Ogre {
 
         /** Gets the frame number as a parametric value in the range [0,1]
         */
-        Real getValue(void);
+        Real getValue(void) const;
         /** Sets the frame number as a parametric value in the range [0,1]; the actual frame number is value * (numFrames-1).
         */
         void setValue(Real value);
@@ -107,7 +107,7 @@ namespace Ogre {
         TexCoordModifierControllerValue(Material::TextureLayer* t, bool translateU = false, bool translateV = false,
             bool scaleU = false, bool scaleV = false, bool rotate = false );
 
-        Real getValue(void);
+        Real getValue(void) const;
         void setValue(Real value);
 
     };

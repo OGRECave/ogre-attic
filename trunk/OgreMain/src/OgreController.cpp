@@ -1,5 +1,3 @@
-
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -32,11 +30,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
     //-----------------------------------------------------------------------
-    Controller::Controller(ControllerValue* src, ControllerValue* dest, ControllerFunction* func)
+    Controller::Controller(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func)
+		: mFunc(func), mSource(src), mDest(dest)
     {
-        mFunc = func;
-        mSource = src;
-        mDest = dest;
 		mEnabled = true;
     }
     //-----------------------------------------------------------------------
@@ -44,32 +40,32 @@ namespace Ogre
     {
     }
     //-----------------------------------------------------------------------
-    void Controller::setSource(ControllerValue* src)
+    void Controller::setSource(SharedPtr<ControllerValue> src)
     {
         mSource = src;
     }
     //-----------------------------------------------------------------------
-    ControllerValue* Controller::getSource(void)
+    SharedPtr<ControllerValue> Controller::getSource(void)
     {
         return mSource;
     }
     //-----------------------------------------------------------------------
-    void Controller::setDestination(ControllerValue* dest)
+    void Controller::setDestination(SharedPtr<ControllerValue> dest)
     {
         mDest = dest;
     }
     //-----------------------------------------------------------------------
-    ControllerValue* Controller::getDestination(void)
+    SharedPtr<ControllerValue> Controller::getDestination(void)
     {
         return mDest;
     }
     //-----------------------------------------------------------------------
-    void Controller::setFunction(ControllerFunction* func)
+    void Controller::setFunction(SharedPtr<ControllerFunction> func)
     {
         mFunc = func;
     }
     //-----------------------------------------------------------------------
-    ControllerFunction* Controller::getFunction(void)
+    SharedPtr<ControllerFunction> Controller::getFunction(void)
     {
         return mFunc;
     }

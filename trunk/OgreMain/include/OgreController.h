@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreFrameListener.h"
+#include "OgreSharedPtr.h"
 
 namespace Ogre {
 
@@ -88,7 +89,7 @@ namespace Ogre {
     {
 
     public:
-        virtual Real getValue(void) = 0;
+        virtual Real getValue(void) const = 0;
         virtual void setValue(Real value) = 0;
 
     };
@@ -117,11 +118,11 @@ namespace Ogre {
     {
     protected:
         /// Source value
-        ControllerValue *mSource;
+        SharedPtr<ControllerValue> mSource;
         /// Destination value
-        ControllerValue *mDest;
+        SharedPtr<ControllerValue> mDest;
         /// Function
-        ControllerFunction* mFunc;
+        SharedPtr<ControllerFunction> mFunc;
 		/// Controller is enabled or not
         bool mEnabled;
 
@@ -136,16 +137,16 @@ namespace Ogre {
                 Maybe for this and any other class that does not delete member data we should implement either a self-delete
                 feature that could be enabled as wished, or make a self-deleting subclass.
         */
-        Controller(ControllerValue* src, ControllerValue* dest, ControllerFunction* func);
+        Controller(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func);
 
         /** Default d-tor.
         */
         virtual ~Controller();
 
-        void setSource(ControllerValue* src);
-        ControllerValue* getSource(void);
-        void setDestination(ControllerValue* dest);
-        ControllerValue* getDestination(void);
+        void setSource(SharedPtr<ControllerValue> src);
+        SharedPtr<ControllerValue> getSource(void);
+        void setDestination(SharedPtr<ControllerValue> dest);
+        SharedPtr<ControllerValue> getDestination(void);
 
         /// Returns true if this controller is currently enabled
         bool getEnabled(void) const;
@@ -155,11 +156,11 @@ namespace Ogre {
 
         /** Sets the function object to be used by this controller.
         */
-        void setFunction(ControllerFunction* func);
+        void setFunction(SharedPtr<ControllerFunction> func);
 
         /** Returns a pointer to the function object used by this controller.
         */
-        ControllerFunction* getFunction(void);
+        SharedPtr<ControllerFunction> getFunction(void);
 
         void update(void);
     };

@@ -51,7 +51,7 @@ public:
 		mMaxColour = maxColour;
 	}
 
-	virtual Real  getValue (void)
+	virtual Real  getValue (void) const
 	{
 		return intensity;
 	}

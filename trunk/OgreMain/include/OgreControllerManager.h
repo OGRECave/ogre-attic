@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreController.h"
 #include "OgrePredefinedControllers.h"
 #include "OgreMaterial.h"
+#include "OgreSharedPtr.h"
 
 namespace Ogre {
 
@@ -49,7 +50,7 @@ namespace Ogre {
         ControllerList mControllers;
 
         /// Global predefined controller
-        FrameTimeControllerValue mFrameTimeController;
+        SharedPtr<ControllerValue> mFrameTimeController;
 
     public:
         ControllerManager();
@@ -57,7 +58,7 @@ namespace Ogre {
 
         /** Creates a new controller and registers it with the manager.
         */
-        Controller* createController(ControllerValue* src, ControllerValue* dest, ControllerFunction* func);
+        Controller* createController(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func);
 
         /** Destroys all the controllers in existence.
         */
@@ -77,7 +78,7 @@ namespace Ogre {
             @see
                 RenderSystem::beginFrame
         */
-        ControllerValue* getFrameTimeSource(void);
+        SharedPtr<ControllerValue> getFrameTimeSource(void);
 
         /** Creates a texture layer animator controller.
             @remarks
@@ -158,7 +159,7 @@ namespace Ogre {
         @remarks
             See setTimeFactor for full information on the meaning of this value.
 		*/
-		Real getTimeFactor(void);
+		Real getTimeFactor(void) const;
 
 		/** Set the relative speed to update frame time based controllers.
         @remarks
