@@ -44,6 +44,7 @@ namespace Ogre {
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
+        mFixedTextureCoords(true),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
@@ -61,6 +62,7 @@ namespace Ogre {
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
+        mFixedTextureCoords(true),
         mVertexData(0),
         mIndexData(0),
         mCullIndividual( false ),
@@ -331,8 +333,12 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vTexBuf = 
             mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
 
-		Real* pT = static_cast<Real*>( 
-            vTexBuf->lock(HardwareBuffer::HBL_DISCARD) );
+		Real* pT = 0;
+        if (!mFixedTextureCoords)
+        {
+            pT = static_cast<Real*>( 
+                vTexBuf->lock(HardwareBuffer::HBL_DISCARD) );
+        }
 
         if( mAllDefaultSize ) // If they're all the same size
         {
@@ -435,7 +441,8 @@ namespace Ogre {
 			}
         }
 
-		vTexBuf->unlock();
+		if (!mFixedTextureCoords)
+            vTexBuf->unlock();
         vColBuf->unlock();
         vPosBuf->unlock();
 
@@ -603,7 +610,7 @@ namespace Ogre {
                 HardwareBufferManager::getSingleton().createVertexBuffer(
                     decl->getVertexSize(POSITION_BINDING),
                     mVertexData->vertexCount, 
-                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
             // bind position and diffuses
             binding->setBinding(POSITION_BINDING, vbuf);
 
@@ -611,7 +618,7 @@ namespace Ogre {
                 HardwareBufferManager::getSingleton().createVertexBuffer(
                     decl->getVertexSize(COLOUR_BINDING),
                     mVertexData->vertexCount, 
-                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
             // bind position and diffuses
             binding->setBinding(COLOUR_BINDING, vbuf);
 
@@ -619,7 +626,7 @@ namespace Ogre {
                 HardwareBufferManager::getSingleton().createVertexBuffer(
                     decl->getVertexSize(TEXCOORD_BINDING),
                     mVertexData->vertexCount, 
-                    HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+                    HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY);
             // bind position
             binding->setBinding(TEXCOORD_BINDING, vbuf);
 
@@ -889,7 +896,7 @@ namespace Ogre {
     {
 		// Texcoords
 
-       	if (pBillboard->mRotation != 0)
+       	if (!mFixedTextureCoords)
 		{
 			// Create template texcoord data
 			Real texData[8] = {
