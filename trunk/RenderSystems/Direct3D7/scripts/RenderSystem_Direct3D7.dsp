@@ -38,7 +38,7 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\lib\Release"
+# PROP Output_Dir "..\bin\Release"
 # PROP Intermediate_Dir "..\obj\Release"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
@@ -54,8 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 dinput.lib ddraw.lib libpng.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib d3d8.lib d3dx.lib zlib.lib OgreMain.lib /nologo /dll /machine:I386 /nodefaultlib:"LIBC" /out:"../../../Samples/Common/bin/Release/RenderSystem_Direct3D7.dll" /libpath:"../../../OgreMain/Lib/Release" /libpath:"..\..\..\Dependencies\zlib\lib\Release" /libpath:"..\..\..\Dependencies\libpng\lib\Release" /libpath:"..\..\..\Dependencies\jpeglib\lib\Release"
+# ADD LINK32 dinput.lib ddraw.lib libpng.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib d3d8.lib d3dx.lib zlib.lib OgreMain.lib /nologo /dll /machine:I386 /nodefaultlib:"LIBC" /libpath:"../../../OgreMain/Lib/Release" /libpath:"..\..\..\Dependencies\zlib\lib\Release" /libpath:"..\..\..\Dependencies\libpng\lib\Release" /libpath:"..\..\..\Dependencies\jpeglib\lib\Release"
 # SUBTRACT LINK32 /profile /debug
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "RenderSystem_Direct3D7 - Win32 Debug"
 
@@ -66,7 +70,7 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\obj\Debug"
+# PROP Output_Dir "..\bin\Debug"
 # PROP Intermediate_Dir "..\obj\Debug"
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
@@ -82,8 +86,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ddraw.lib libpng.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib dxguid.lib zlib.lib OgreMain.lib libpng.lib jpegLib.lib ddraw.lib d3dx.lib /nologo /dll /debug /machine:I386 /nodefaultlib:"LIBCD" /nodefaultlib:"LIBCMT" /out:"../../../Samples/Common/bin/Debug/RenderSystem_Direct3D7.dll" /pdbtype:sept /libpath:"../../../OgreMain/Lib/Debug" /libpath:"..\..\..\Dependencies\zlib\lib\Debug" /libpath:"..\..\..\Dependencies\libpng\lib\Debug" /libpath:"..\..\..\Dependencies\jpeglib\lib\Debug"
+# ADD LINK32 ddraw.lib libpng.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib dxguid.lib zlib.lib OgreMain.lib libpng.lib jpegLib.lib ddraw.lib d3dx.lib /nologo /dll /debug /machine:I386 /nodefaultlib:"LIBCD" /nodefaultlib:"LIBCMT" /pdbtype:sept /libpath:"../../../OgreMain/Lib/Debug" /libpath:"..\..\..\Dependencies\zlib\lib\Debug" /libpath:"..\..\..\Dependencies\libpng\lib\Debug" /libpath:"..\..\..\Dependencies\jpeglib\lib\Debug"
 # SUBTRACT LINK32 /verbose
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy ..\bin\Debug\*.dll ..\..\..\Samples\Common\bin\Debug
+# End Special Build Tool
 
 !ENDIF 
 
