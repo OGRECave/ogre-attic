@@ -43,7 +43,7 @@ namespace Ogre {
     {
 	public:
 		virtual void setExternalWindowHandle(void *ptr){mExternalWindowHandle = ptr;};
-		virtual resizeRepositionWindow(void*);
+		virtual void resizeRepositionWindow(void*);
 
     private:
 		void* mExternalWindowHandle;
