@@ -365,7 +365,7 @@ function writeM exportUV exportColours material outName =
 			format("\t\t\t\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") v[1] v[2] v[3] to:outFile ;
 			format("\t\t\t\t\t\t<normal x=\"%\" y=\"%\" z=\"%\" />\n") v[4] v[5] v[6] to:outFile ;
 			if (exportUV) then
-				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] v[8] to:outFile ;		
+				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] (1 - v[8]) to:outFile ;		
 			if (exportColours) then
 				format("\t\t\t\t\t\t<colour_diffuse value=\"%%%%\" />\n") ((int)v[12]) ((int)v[11]) ((int)v[10]) ((int)v[9]) to:outFile ;
 			format("\t\t\t\t\t</vertex>\n") to:outFile ;

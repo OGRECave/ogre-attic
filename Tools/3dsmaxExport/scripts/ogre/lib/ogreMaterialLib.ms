@@ -10,23 +10,28 @@ function writeOgreMaterial material outFile =
 	if (mat != undefined) then 
 	(
 		matname = material.name ;	
-		format "%\n" matname to:outFile ;
+		format "material %\n" matname to:outFile ;
 		format "{\n" to:outFile ;
+		format "    technique\n" to:outFile ;
+		format "    {\n" to:outFile ;
+		format "        pass\n" to:outFile ;
+		format "        {\n" to:outFile ;
+		format("            ambient % % %\n") (mat.ambient.r/255.0) (mat.ambient.g/255.0) (mat.ambient.b/255.0) to:outFile ;
+	    format("            diffuse % % %\n") (mat.diffuse.r/255.0) (mat.diffuse.g/255.0) (mat.diffuse.b/255.0) to:outFile ;
+    	format("            specular % % % %\n") (mat.specular.r/255.0) (mat.specular.g/255.0) (mat.specular.b/255.0) (mat.specularLevel*100.0) to:outFile ;
+		format("            emissive % % %\n") (mat.selfIllumColor.r/255.0) (mat.selfIllumColor.g/255.0) (mat.selfIllumColor.b/255.0) to:outFile ;
+		)
 		if ((mat.diffusemap != undefined) and (iskindof mat.diffusemap Bitmaptexture)) then
 		(	
 			t = filterstring mat.diffusemap.filename "\\" ;
-			format "    {\n" to:outFile ; 
-			format "        texture % \n" t[arrayLength t] to:outFile ;
-			format "    }\n" to:outFile ;
+			format "            texture_unit\n" to:outFile ;
+			format "            {\n" to:outFile ;
+			format "                texture % \n" t[arrayLength t] to:outFile ;
+			format "            }\n" to:outFile ;
 		)
-		else (
-		format("    ambient % % %\n") (mat.ambient.r/255.0) (mat.ambient.g/255.0) (mat.ambient.b/255.0) to:outFile ;
-	    format("    diffuse % % %\n") (mat.diffuse.r/255.0) (mat.diffuse.g/255.0) (mat.diffuse.b/255.0) to:outFile ;
-    	format("    specular % % % %\n") (mat.specular.r/255.0) (mat.specular.g/255.0) (mat.specular.b/255.0) (mat.specularLevel*100.0) to:outFile ;
-		format("    emissive % % %\n") (mat.selfIllumColor.r/255.0) (mat.selfIllumColor.g/255.0) (mat.selfIllumColor.b/255.0) to:outFile ;
-		)
+		format "        }\n" to:outFile ;
+		format "    }\n" to:outFile ;
 		format "}\n" to:outFile ;
-	)
 )
 
 function exportOgreMaterial material outName =
@@ -55,24 +60,28 @@ function writeStandardMaterial material prefix outFile =
 	local t ;
 	matname = replaceSpaces material.name ;
 	-- writes header	
-	format "%\n" (prefix+matname) to:outFile ;
+	format "material %\n" (prefix+matname) to:outFile ;
 	format "{\n" to:outFile ;
+	format "    technique\n" to:outFile ;
+	format "    {\n" to:outFile ;
+	format "        pass\n" to:outFile ;
+	format "        {\n" to:outFile ;
 
+	format("            ambient % % %\n") (material.ambient.r/255.0) (material.ambient.g/255.0) (material.ambient.b/255.0) to:outFile ;
+    format("            diffuse % % %\n") (material.diffuse.r/255.0) (material.diffuse.g/255.0) (material.diffuse.b/255.0) to:outFile ;
+    format("            specular % % % %\n") (material.specular.r/255.0) (material.specular.g/255.0) (material.specular.b/255.0) (material.specularLevel*100.0) to:outFile ;
+	format("            emissive % % %\n") (material.selfIllumColor.r/255.0) (material.selfIllumColor.g/255.0) (material.selfIllumColor.b/255.0) to:outFile ;
 	-- tests if there is (or not) a diffuse map.
 	if ((material.diffusemap != undefined) and (iskindof material.diffusemap Bitmaptexture)) then
 	(	
 		t = filterstring material.diffusemap.filename "\\" ;
-		format "    {\n" to:outFile ; 
-		format "        texture % \n" t[arrayLength t] to:outFile ;
-		format "    }\n" to:outFile ;
+		format "            texture_unit\n" to:outFile ;
+		format "            {\n" to:outFile ;
+		format "                texture % \n" t[arrayLength t] to:outFile ;
+		format "            }\n" to:outFile ;
 	)
-	else (
-		format("    ambient % % %\n") (material.ambient.r/255.0) (material.ambient.g/255.0) (material.ambient.b/255.0) to:outFile ;
-	    format("    diffuse % % %\n") (material.diffuse.r/255.0) (material.diffuse.g/255.0) (material.diffuse.b/255.0) to:outFile ;
-    	format("    specular % % % %\n") (material.specular.r/255.0) (material.specular.g/255.0) (material.specular.b/255.0) (material.specularLevel*100.0) to:outFile ;
-		format("    emissive % % %\n") (material.selfIllumColor.r/255.0) (material.selfIllumColor.g/255.0) (material.selfIllumColor.b/255.0) to:outFile ;
-	)
-	-- writes footer
+	format "        }\n" to:outFile ;
+	format "    }\n" to:outFile ;
 	format "}\n" to:outFile ;
 
 )
