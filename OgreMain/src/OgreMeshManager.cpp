@@ -51,7 +51,8 @@ namespace Ogre
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
     //-----------------------------------------------------------------------
-    MeshManager::MeshManager()
+    MeshManager::MeshManager():
+    mBoundsPaddingFactor(0.01)
     {
         mPrepAllMeshesForShadowVolumes = false;
 
@@ -250,7 +251,7 @@ namespace Ogre
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, false, indexBufferUsage, indexShadowBuffer);
 
         //pMesh->_updateBounds();
-        pMesh->_setBounds(AxisAlignedBox(min, max));
+        pMesh->_setBounds(AxisAlignedBox(min, max), true);
         pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
         // load
         pMesh->load();
@@ -411,7 +412,7 @@ namespace Ogre
         tesselate2DMesh(pSub, xsegments + 1, ysegments + 1, 
 			false, indexBufferUsage, indexShadowBuffer);
 
-        pMesh->_setBounds(AxisAlignedBox(min, max));
+        pMesh->_setBounds(AxisAlignedBox(min, max), true);
 		pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSqLen));
 
         pMesh->load();
@@ -606,7 +607,7 @@ namespace Ogre
             indexBufferUsage, indexShadowBuffer);
 
         //pMesh->_updateBounds();
-        pMesh->_setBounds(AxisAlignedBox(min, max));
+        pMesh->_setBounds(AxisAlignedBox(min, max), true);
         pMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredLength));
         pMesh->load();
         pMesh->touch();
@@ -753,7 +754,7 @@ namespace Ogre
 		sub->indexData->indexStart =0;
         ibuf->writeData(0, ibuf->getSizeInBytes(), faces, true);
 
-        msh->_setBounds(AxisAlignedBox(-100,-100,0,100,100,0));
+        msh->_setBounds(AxisAlignedBox(-100,-100,0,100,100,0), true);
         msh->_setBoundingSphereRadius(Math::Sqrt(100*100+100*100));
 
         mResources[msh->getName()] = msh;
@@ -791,6 +792,16 @@ namespace Ogre
     bool MeshManager::getPrepareAllMeshesForShadowVolumes(void)
     {
         return mPrepAllMeshesForShadowVolumes;
+    }
+    //-----------------------------------------------------------------------
+    Real MeshManager::getBoundsPaddingFactor(void)
+    {
+        return mBoundsPaddingFactor;
+    }
+    //-----------------------------------------------------------------------
+    void MeshManager::setBoundsPaddingFactor(Real paddingFactor)
+    {
+        mBoundsPaddingFactor = paddingFactor;
     }
     //-----------------------------------------------------------------------
 

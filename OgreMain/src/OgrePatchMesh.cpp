@@ -93,7 +93,7 @@ namespace Ogre {
         mSurface.build(vbuf, 0, sm->indexData->indexBuffer, 0);
 
         // Set bounds
-        this->_setBounds(mSurface.getBounds());
+        this->_setBounds(mSurface.getBounds(), true);
         this->_setBoundingSphereRadius(mSurface.getBoundingSphereRadius());
         mIsLoaded = true;
 

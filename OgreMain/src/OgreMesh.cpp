@@ -48,7 +48,6 @@ namespace Ogre {
 
         // Default to load from file
         mManuallyDefined = false;
-        //mUpdateBounds = true;
         setSkeletonName("");
         mBoneAssignmentsOutOfDate = false;
 		mNumLods = 1;
@@ -279,66 +278,37 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    /*
-    void Mesh::_updateBounds(void)
-    {
-        Vector3 min, max;
-        bool first = true;
-        bool useShared = false;
-
-		Real maxSquaredLength = -1.0f;
-
-        // Loop through SubMeshes, find extents
-        SubMeshList::iterator i;
-        for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
-        {
-            if (!(*i)->useSharedVertices)
-            {
-				(*i)->vertexData->getBounds(&mAABB, &maxSquaredLength);
-            }
-        }
-
-        // Check shared
-        if (sharedVertexData)
-        {
-			sharedVertexData->getBounds(&mAABB, &maxSquaredLength);
-        }
-
-        // Pad out the AABB a little, helps with most bounds tests
-		mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE, 
-			mAABB.getMaximum() + Vector3::UNIT_SCALE);
-        // Pad out the sphere a little too
-		mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
-        mUpdateBounds = false;
-
-    }
-    */
-    //-----------------------------------------------------------------------
     const AxisAlignedBox& Mesh::getBounds(void) const
     {
-        /*
-        if (mUpdateBounds)
-            _updateBounds();
-        */
         return mAABB;
     }
     //-----------------------------------------------------------------------
-    void Mesh::_setBounds(const AxisAlignedBox& bounds)
+    void Mesh::_setBounds(const AxisAlignedBox& bounds, bool pad)
     {
         mAABB = bounds;
-        // Pad out the AABB a little, helps with most bounds tests
-        mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE,
-        mAABB.getMaximum() + Vector3::UNIT_SCALE);
+        Vector3 max = mAABB.getMaximum();
+        Vector3 min = mAABB.getMinimum();
 
-		// Set sphere bouds; not the tightest by since we're using
-		// manual AABB it is the only way
-		Real sqLen1 = mAABB.getMinimum().squaredLength();
-		Real sqLen2 = mAABB.getMaximum().squaredLength();
-		mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
-        // Pad out the sphere a little too
-        mBoundRadius = mBoundRadius + 1;
+        // Set sphere bounds; not the tightest by since we're using
+        // manual AABB it is the only way
+        Real sqLen1 = min.squaredLength();
+        Real sqLen2 = max.squaredLength();
+
+        mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
+        if (pad) 
+        {
+            // Pad out the AABB a little, helps with most bounds tests
+            Vector3 scaler = (max - min) * MeshManager::getSingleton().getBoundsPaddingFactor();
+            mAABB.setExtents(min  - scaler, max + scaler);
+            // Pad out the sphere a little too
+            mBoundRadius = mBoundRadius + (mBoundRadius * MeshManager::getSingleton().getBoundsPaddingFactor());
+        } 
+        else 
+        {
+            mAABB.setExtents(min, max);
+            mBoundRadius = mBoundRadius;
+        }
 		
-        //mUpdateBounds = false;
     }
     //-----------------------------------------------------------------------
     void Mesh::_setBoundingSphereRadius(Real radius)

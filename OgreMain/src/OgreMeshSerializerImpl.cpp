@@ -1141,7 +1141,7 @@ namespace Ogre {
         readReals(chunk, &max.y, 1);
         readReals(chunk, &max.z, 1);
         AxisAlignedBox box(min, max);
-        mpMesh->_setBounds(box);
+        mpMesh->_setBounds(box, true);
         // Real radius
         Real radius;
         readReals(chunk, &radius, 1);
