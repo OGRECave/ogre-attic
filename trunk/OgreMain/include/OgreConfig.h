@@ -77,7 +77,7 @@ http://www.gnu.org/copyleft/gpl.html.
 /** Set this to 0 if you want to use the standard memory manager in Debug builds
     Release builds always use the standard memory manager
 */
-#define OGRE_DEBUG_MEMORY_MANAGER 0
+#define OGRE_DEBUG_MEMORY_MANAGER 1
 
 // configure options
 #ifdef HAVE_CONFIG_H
