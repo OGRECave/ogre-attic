@@ -5,5 +5,5 @@ noinst_HEADERS = OgreSDLConfig_cli.h \
 				OgreSDLTimer.h
 
 all:
-	-rm -f OgreSDLConfig.h
-	$(LN_S) OgreSDLConfig_$(OGRE_CFGTK).h OgreSDLConfig.h
+	-rm -f $(srcdir)/OgreSDLConfig.h
+	$(LN_S) $(srcdir)/OgreSDLConfig_$(OGRE_CFGTK).h $(srcdir)/OgreSDLConfig.h

@@ -467,6 +467,10 @@ namespace Ogre {
     {
         return ChildObjectListIterator(mChildObjectList.begin(), mChildObjectList.end());
     }
-
+    //-----------------------------------------------------------------------
+	Real Entity::getBoundingRadius(void) const
+	{
+		return mMesh->getBoundingSphereRadius();
+	}
 
 }

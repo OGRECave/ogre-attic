@@ -64,7 +64,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #if OGRE_COMPILER == COMPILER_MSVC
     // Has to be nested because some compilers return strings for their version
-#   if OGRE_COMP_VER == 1300
+#   if OGRE_COMP_VER >= 1300
 #       define _STLP_LIB_BASENAME "stlport_vc7"
 #   endif
 #endif

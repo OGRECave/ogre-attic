@@ -60,6 +60,8 @@ namespace Ogre {
         */
 		void setupBoundingBoxVertices(AxisAlignedBox &aab);
 
+        Real mRadius;
+
 	public:
 			
 		WireBoundingBox();
@@ -72,6 +74,8 @@ namespace Ogre {
 		void setupBoundingBox(AxisAlignedBox aabb);
 
 		Real getSquaredViewDepth(const Camera* cam) const;
+
+        Real getBoundingRadius(void) const { return mRadius; }
 
 	};
 

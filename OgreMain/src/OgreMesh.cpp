@@ -440,6 +440,8 @@ namespace Ogre {
         bool useShared = false;
         int vert;
 
+		Real maxSquaredLength = -1.0f;
+
         // Loop through SubMeshes, find extents
         SubMeshList::iterator i;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
@@ -477,6 +479,11 @@ namespace Ogre {
                         max.z = (*i)->geometry.pVertices[vert+2];
                     }
                     first = false;
+
+					Real newSqlLen = (*i)->geometry.pVertices[vert] 
+						* (*i)->geometry.pVertices[vert+1]
+						* (*i)->geometry.pVertices[vert+2];
+					maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
                 }
             }
         }
@@ -511,10 +518,15 @@ namespace Ogre {
                     max.z = sharedGeometry.pVertices[vert+2];
                 }
                 first = false;
+				Real newSqlLen = sharedGeometry.pVertices[vert] 
+					* sharedGeometry.pVertices[vert+1]
+					* sharedGeometry.pVertices[vert+2];
+				maxSquaredLength = std::max(newSqlLen, maxSquaredLength);
             }
         }
 
         mAABB.setExtents(min,max);
+		mBoundRadius = Math::Sqrt(maxSquaredLength);
         mUpdateBounds = false;
 
     }
@@ -529,6 +541,12 @@ namespace Ogre {
     void Mesh::_setBounds(const AxisAlignedBox& bounds)
     {
         mAABB = bounds;
+		// Set sphere bouds; not the tightest by since we're using
+		// manual AABB it is the only way
+		Real sqLen1 = mAABB.getMinimum().squaredLength();
+		Real sqLen2 = mAABB.getMaximum().squaredLength();
+		mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
+		
         mUpdateBounds = false;
     }
     //-----------------------------------------------------------------------
@@ -892,6 +910,11 @@ namespace Ogre {
 		mIsLodManual = false;
 
 
+    }
+    //---------------------------------------------------------------------
+    Real Mesh::getBoundingSphereRadius(void)
+    {
+        return mBoundRadius;
     }
 	
 

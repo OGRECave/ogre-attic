@@ -277,6 +277,9 @@ public:
     /** Overridden, see Renderable */
     Real getSquaredViewDepth(const Camera* cam) const;
 
+    /** Overridden from MovableObject */
+    Real getBoundingRadius(void) const { return 0; /* not needed */ }
+
 
 protected:
 

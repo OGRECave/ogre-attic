@@ -415,9 +415,11 @@ namespace Ogre {
         {
             // No billboards, null bbox
             mAABB.setNull();
+			mBoundingRadius = 0.0f;
         }
         else
         {
+			Real maxSqLen = -1.0f;
         
             Vector3 min(Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY);
             Vector3 max(Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY);
@@ -429,6 +431,8 @@ namespace Ogre {
                 const Vector3& pos = (*i)->getPosition();
                 min.makeFloor(pos);
                 max.makeCeil(pos);
+
+				maxSqLen = std::max(maxSqLen, pos.squaredLength());
             }
             // Adjust for billboard size
             Real adjust = std::max(mDefaultWidth, mDefaultHeight);
@@ -437,6 +441,8 @@ namespace Ogre {
             max += vecAdjust;
 
             mAABB.setExtents(min, max);
+			mBoundingRadius = Math::Sqrt(maxSqLen);
+			
         }
 
         if (mParentNode)
@@ -846,5 +852,10 @@ namespace Ogre {
         assert(mParentNode);
         return mParentNode->getSquaredViewDepth(cam);
     }
+    //-----------------------------------------------------------------------
+	Real BillboardSet::getBoundingRadius(void) const
+	{
+		return mBoundingRadius;
+	}
 
 }

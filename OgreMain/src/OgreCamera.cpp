@@ -864,5 +864,8 @@ namespace Ogre {
 		return mSceneLodFactorInv;
 	}
     //-----------------------------------------------------------------------
-
+	Real Camera::getBoundingRadius(void) const
+	{
+		return mNearDist;
+	}
 } // namespace Ogre

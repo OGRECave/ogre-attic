@@ -283,7 +283,8 @@ namespace Ogre {
         */
         void setVisible(bool visible);
 
-
+        /** Overridden from MovableObject */
+        Real getBoundingRadius(void) const { return 0; /* not visible */ }
 
 
     private:
