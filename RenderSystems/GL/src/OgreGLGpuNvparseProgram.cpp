@@ -68,7 +68,7 @@ void GLGpuNvparseProgram::bindProgramParameters(GpuProgramParametersSharedPtr pa
             GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
             if (e->isSet)
             {
-                GLenum combinerStage = GL_COMBINER0_NV + unsigned int(index / 2);
+                GLenum combinerStage = GL_COMBINER0_NV + (unsigned int)(index / 2);
                 GLenum pname = GL_CONSTANT_COLOR0_NV + (index % 2);
                 glCombinerStageParameterfvNV_ptr(combinerStage, pname, e->val);
             }
