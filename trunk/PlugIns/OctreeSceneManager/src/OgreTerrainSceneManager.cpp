@@ -490,7 +490,11 @@ namespace Ogre
     //-------------------------------------------------------------------------
     TerrainRenderable * TerrainSceneManager::getTerrainTile( const Vector3 & pt )
     {
-        return getTerrainPage(pt)->getTerrainTile(pt);
+		TerrainPage* tp = getTerrainPage(pt);
+		if (!tp)
+			return NULL;
+		else
+        	return tp->getTerrainTile(pt);
     }
     //-------------------------------------------------------------------------
     bool TerrainSceneManager::intersectSegment( const Vector3 & start, 
@@ -741,6 +745,36 @@ namespace Ogre
         LogManager::getSingleton().logMessage(
             "TerrainSceneManager: Activated PageSource " + typeName);
 
+    }
+    //-------------------------------------------------------------------------
+    int TerrainSceneManager::setDetailTextureRepeat(void)
+    {
+        return mOptions.detailTile;
+    }
+    //-------------------------------------------------------------------------
+    int TerrainSceneManager::getTileSize(void)
+    {
+        return mOptions.tileSize;
+    }
+    //-------------------------------------------------------------------------
+    int TerrainSceneManager::getPageSize(void)
+    {
+        return mOptions.pageSize;
+    }
+    //-------------------------------------------------------------------------
+    int TerrainSceneManager::getMaxPixelError(void)
+    {
+        return mOptions.maxPixelError;
+    }
+    //-------------------------------------------------------------------------
+    const Vector3& TerrainSceneManager::getScale(void)
+    {
+        return mOptions.scale;
+    }
+    //-------------------------------------------------------------------------
+    int TerrainSceneManager::getMaxGeoMipMapLevel(void)
+    {
+        return mOptions.maxGeoMipMapLevel;
     }
     //-------------------------------------------------------------------------
     //-------------------------------------------------------------------------
