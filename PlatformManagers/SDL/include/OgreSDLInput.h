@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __SDLInputReader_H__
 
 #include "OgreInput.h"
+#include "OgreInputEvent.h"
 #include "OgreRenderWindow.h"
 
 #include <SDL.h>
@@ -50,7 +51,10 @@ namespace Ogre {
         int mMaxKey;
         int mMouseX, mMouseY;
         int mMouseCenterX, mMouseCenterY;
+        Real mScale;
         Uint8 mMouseKeys;
+
+        void processBufferedMouse();
     };
 }
 
