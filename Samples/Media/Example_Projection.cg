@@ -60,6 +60,7 @@ void distortion_fp(
 		out float4 col		: COLOR,
 		
 		uniform float distortionRange,
+		uniform float4 tintColour,
 		uniform sampler2D texMap,
 		uniform sampler3D noiseMap
 		)
@@ -77,7 +78,7 @@ void distortion_fp(
 	float2 final = projectionCoord.xy / projectionCoord.w;
 	final += distort;
 	
-	col = tex2D(texMap, final);
+	col = tex2D(texMap, final) + tintColour;
 
 
 }
