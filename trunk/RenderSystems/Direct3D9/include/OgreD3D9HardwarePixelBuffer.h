@@ -41,6 +41,9 @@ namespace Ogre {
 		/// Unlock a box
 		void unlockImpl(void);
 		
+		/// D3DDevice pointer
+		IDirect3DDevice9 *mpDev;
+		
 		/// Surface abstracted by this buffer
 		IDirect3DSurface9 *mSurface;
 		/// Volume abstracted by this buffer
@@ -58,8 +61,8 @@ namespace Ogre {
 		D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage);
 		
 		/// Call this to associate a D3D surface or volume with this pixel buffer
-		void bind(IDirect3DSurface9 *mSurface);
-		void bind(IDirect3DVolume9 *mVolume);
+		void bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *mSurface);
+		void bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *mVolume);
 		
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
