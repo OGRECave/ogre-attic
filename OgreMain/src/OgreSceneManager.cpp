@@ -2141,32 +2141,35 @@ namespace Ogre {
     bool SceneManager::ShadowCasterSceneQueryListener::queryResult(
         MovableObject* object)
     {
-        // If the object is in the frustum, we can always see the shadow
-        if (mCamera->isVisible(object->getWorldBoundingBox()))
+        if (object->getCastShadows() && object->isVisible())
         {
-            mCasterList->push_back(object);
-            return true;
-        }
-
-        // Otherwise, object can only be casting a shadow into our view if
-        // the light is outside the frustum, and the object is intersecting
-        // on of the volumes formed between the edges of the frustum and the
-        // light
-        if (!mIsLightInFrustum)
-        {
-            // Iterate over volumes
-            PlaneBoundedVolumeList::const_iterator i, iend;
-            iend = mLightClipVolumeList->end();
-            for (i = mLightClipVolumeList->begin(); i != iend; ++i)
+            // If the object is in the frustum, we can always see the shadow
+            if (mCamera->isVisible(object->getWorldBoundingBox()))
             {
-                if (i->intersects(object->getWorldBoundingBox()))
+                mCasterList->push_back(object);
+                return true;
+            }
+
+            // Otherwise, object can only be casting a shadow into our view if
+            // the light is outside the frustum, and the object is intersecting
+            // on of the volumes formed between the edges of the frustum and the
+            // light
+            if (!mIsLightInFrustum)
+            {
+                // Iterate over volumes
+                PlaneBoundedVolumeList::const_iterator i, iend;
+                iend = mLightClipVolumeList->end();
+                for (i = mLightClipVolumeList->begin(); i != iend; ++i)
                 {
-                    mCasterList->push_back(object);
-                    return true;
+                    if (i->intersects(object->getWorldBoundingBox()))
+                    {
+                        mCasterList->push_back(object);
+                        return true;
+                    }
+
                 }
 
             }
-
         }
     }
 	//---------------------------------------------------------------------
@@ -2338,8 +2341,7 @@ namespace Ogre {
         {
             ShadowCaster* caster = *si;
 
-            if (caster->getCastShadows() && 
-                nearClipVol.intersects(caster->getWorldBoundingBox()))
+            if (nearClipVol.intersects(caster->getWorldBoundingBox()))
             {
                 // We have a zfail case, we must use zfail for all objects
                 zfailAlgo = true;
@@ -2353,50 +2355,46 @@ namespace Ogre {
             ShadowCaster* caster = *si;
             flags = 0;
 
-            if (caster->getCastShadows())
+            if (zfailAlgo)
             {
-
-                if (zfailAlgo)
+                // We need to include the light and / or dark cap
+                // But only if they will be visible
+                if(camera->isVisible(caster->getLightCapBounds()))
                 {
-                    // We need to include the light and / or dark cap
-                    // But only if they will be visible
-                    if(camera->isVisible(caster->getLightCapBounds()))
-                    {
-                        flags |= SRF_INCLUDE_LIGHT_CAP;
-                    }
-                    // Dark caps are not needed for directional lights if
-                    // extrusion is done in hardware (since extruded to infinity)
-                    if((light->getType() != Light::LT_DIRECTIONAL || extrudeInSoftware)
-                        && camera->isVisible(caster->getDarkCapBounds(*light)))
-                    {
-                        flags |= SRF_INCLUDE_DARK_CAP;
-                    }
+                    flags |= SRF_INCLUDE_LIGHT_CAP;
                 }
-
-                // Get shadow renderables
-                ShadowCaster::ShadowRenderableListIterator iShadowRenderables =
-                    caster->getShadowVolumeRenderableIterator(mShadowTechnique,
-                    light, &mShadowIndexBuffer, extrudeInSoftware, flags);
-
-                while (iShadowRenderables.hasMoreElements())
+                // Dark caps are not needed for directional lights if
+                // extrusion is done in hardware (since extruded to infinity)
+                if((light->getType() != Light::LT_DIRECTIONAL || extrudeInSoftware)
+                    && camera->isVisible(caster->getDarkCapBounds(*light)))
                 {
-                    ShadowRenderable* sr = iShadowRenderables.getNext();
-                    // render volume, including dark and (maybe) light caps
-                    renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided);
+                    flags |= SRF_INCLUDE_DARK_CAP;
+                }
+            }
 
-                    // optionally render separate light cap
-                    if (sr->isLightCapSeparate() &&
-                        (flags & SRF_INCLUDE_LIGHT_CAP))
-                    {
-                        // must always fail depth check
-                        mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
-                        assert(sr->getLightCapRenderable() && "Shadow renderable is "
-                            "missing a separate light cap renderable!");
-                        renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(),
-                            zfailAlgo, stencil2sided);
-                        // reset depth function
-                        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
-                    }
+            // Get shadow renderables
+            ShadowCaster::ShadowRenderableListIterator iShadowRenderables =
+                caster->getShadowVolumeRenderableIterator(mShadowTechnique,
+                light, &mShadowIndexBuffer, extrudeInSoftware, flags);
+
+            while (iShadowRenderables.hasMoreElements())
+            {
+                ShadowRenderable* sr = iShadowRenderables.getNext();
+                // render volume, including dark and (maybe) light caps
+                renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided);
+
+                // optionally render separate light cap
+                if (sr->isLightCapSeparate() &&
+                    (flags & SRF_INCLUDE_LIGHT_CAP))
+                {
+                    // must always fail depth check
+                    mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
+                    assert(sr->getLightCapRenderable() && "Shadow renderable is "
+                        "missing a separate light cap renderable!");
+                    renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(),
+                        zfailAlgo, stencil2sided);
+                    // reset depth function
+                    mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
                 }
 
             }
