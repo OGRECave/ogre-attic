@@ -66,8 +66,11 @@ namespace Ogre {
             M_SUBMESH             = 0x4000, 
                 // char* materialName
                 // bool useSharedVertices
-                // unsigned int numFaces
-                // unsigned int* faceVertexIndices ((v1, v2, v3) * numFaces)
+                // unsigned int indexCount
+                // bool indexes32Bit
+                // unsigned int* faceVertexIndices (indexCount)
+                // OR
+                // unsigned short* faceVertexIndices (indexCount)
                 // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
                 M_SUBMESH_BONE_ASSIGNMENT = 0x4100,
                     // Optional bone weights (repeating section)
@@ -75,7 +78,7 @@ namespace Ogre {
                     // unsigned short boneIndex;
                     // Real weight;
             M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
-                // unsigned int numVertices
+                // unsigned int vertexCount
                 // Real* pVertices (x, y, z order x numVertices)
                 M_GEOMETRY_NORMALS = 0x5100,    //(Optional)
                     // Real* pNormals (x, y, z order x numVertices)
@@ -106,8 +109,8 @@ namespace Ogre {
                     M_MESH_LOD_GENERATED = 0x8120
                     // Required if M_MESH_LOD section manual = false
 					// Repeating section (1 per submesh)
-                    // unsigned int numFaces;
-                    // unsigned int* faceIndexes;  ((v1, v2, v3) * numFaces)
+                    // unsigned int indexCount;
+                    // unsigned int* faceIndexes;  (indexCount)
                     
                     
 

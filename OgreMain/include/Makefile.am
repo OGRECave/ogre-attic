@@ -79,6 +79,7 @@ OgreMesh.h \
 OgreMeshFileFormat.h \
 OgreMeshManager.h \
 OgreMeshSerializer.h \
+OgreMeshSerializerImpl.h \
 OgreMouseEvent.h \
 OgreMouseMotionTarget.h \
 OgreMouseTarget.h \

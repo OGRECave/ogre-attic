@@ -66,6 +66,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreMesh.cpp \
                          OgreMeshManager.cpp \
                          OgreMeshSerializer.cpp \
+						 OgreMeshSerializerImpl.cpp \
                          OgreMouseEvent.cpp \
                          OgreMouseMotionTarget.cpp \
                          OgreMouseTarget.cpp \

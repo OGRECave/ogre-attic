@@ -91,9 +91,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    ulong DataChunk::read(void* buffer, ulong size)
+    size_t DataChunk::read(void* buffer, size_t size)
     {
-        ulong cnt = size;
+        size_t cnt = size;
         // Read over end of memory?
         if (mPos + size > mEnd)
             cnt = mEnd - mPos;
@@ -124,7 +124,7 @@ namespace Ogre {
         return *this;
     }
     //-----------------------------------------------------------------------
-    ulong DataChunk::readUpTo( void* buffer, size_t size, const char *delim )
+    size_t DataChunk::readUpTo( void* buffer, size_t size, const char *delim )
     {
         size_t pos = strcspn((const char*)mPos, delim);
         if (pos > size)
@@ -139,10 +139,10 @@ namespace Ogre {
         }
         mPos += pos + 1;
 
-        return static_cast< ulong >( pos );
+        return pos;
     }
     //-----------------------------------------------------------------------
-    ulong DataChunk::skipUpTo( const char *delim )
+    size_t DataChunk::skipUpTo( const char *delim )
     {
 
         size_t pos = strcspn( (const char*)mPos, delim );
@@ -152,7 +152,7 @@ namespace Ogre {
 
         mPos += pos + 1;
 
-        return static_cast< ulong >( pos );
+        return pos;
     }
     //-----------------------------------------------------------------------
     bool DataChunk::isEOF(void)

@@ -333,6 +333,9 @@
 				RelativePath="..\src\OgreMeshSerializer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreMeshSerializerImpl.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreMouseEvent.cpp">
 			</File>
 			<File
@@ -782,6 +785,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreMeshSerializer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMeshSerializerImpl.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreMouseEvent.h">

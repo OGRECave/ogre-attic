@@ -53,10 +53,11 @@ namespace Ogre {
         virtual void writeFileHeader(void);
         virtual void writeChunkHeader(unsigned short id, unsigned long size);
         
-        void writeReals(const Real* pReal, unsigned short count);
-        void writeShorts(const unsigned short* pShort, unsigned short count);
-        void writeLongs(const unsigned long* pLong, unsigned short count); 
-        void writeBools(const bool* pLong, unsigned short count);
+        void writeReals(const Real* pReal, size_t count);
+        void writeShorts(const unsigned short* pShort, size_t count);
+        void writeInts(const unsigned int* pInt, size_t count); 
+        void writeLongs(const unsigned long* pLong, size_t count); 
+        void writeBools(const bool* pLong, size_t count);
         void writeObject(const Vector3& vec);
         void writeObject(const Quaternion& q);
         
@@ -66,19 +67,20 @@ namespace Ogre {
         virtual void readFileHeader(DataChunk& chunk);
         virtual unsigned short readChunk(DataChunk& chunk);
         
-        void readBools(DataChunk& chunk, bool* pDest, unsigned short count);
-        void readReals(DataChunk& chunk, Real* pDest, unsigned short count);
-        void readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count);
-        void readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count); 
+        void readBools(DataChunk& chunk, bool* pDest, size_t count);
+        void readReals(DataChunk& chunk, Real* pDest, size_t count);
+        void readShorts(DataChunk& chunk, unsigned short* pDest, size_t count);
+        void readInts(DataChunk& chunk, unsigned int* pDest, size_t count);
+        void readLongs(DataChunk& chunk, unsigned long* pDest, size_t count); 
         void readObject(DataChunk& chunk, Vector3* pDest);
         void readObject(DataChunk& chunk, Quaternion* pDest);
 
         String readString(DataChunk& chunk);
         
-        void flipToLittleEndian(void* pData, size_t size, unsigned short count = 1);
-        void flipFromLittleEndian(void* pData, size_t size, unsigned short count = 1);
+        void flipToLittleEndian(void* pData, size_t size, size_t count = 1);
+        void flipFromLittleEndian(void* pData, size_t size, size_t count = 1);
         
-        void flipEndian(void * pData, size_t size, unsigned short count);
+        void flipEndian(void * pData, size_t size, size_t count);
         void flipEndian(void * pData, size_t size);
     };
 

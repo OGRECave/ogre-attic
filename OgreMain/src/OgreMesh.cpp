@@ -206,6 +206,8 @@ namespace Ogre {
 
             // Copy index data
 			newSub->indexData = (*subi)->indexData->clone();
+            // Copy any bone assignments
+            newSub->mBoneAssignments = (*subi)->mBoneAssignments;
 
         }
 
@@ -217,6 +219,8 @@ namespace Ogre {
 
 		// Copy submesh names
 		newMesh->mSubMeshNameMap = mSubMeshNameMap ;
+        // Copy any bone assignments
+        newMesh->mBoneAssignments = mBoneAssignments;
 
         return newMesh;
 
