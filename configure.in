@@ -115,5 +115,8 @@ AC_OUTPUT(Makefile \
     Samples/BSP/include/Makefile \
     Samples/SkeletalAnimation/Makefile \
     Samples/SkeletalAnimation/src/Makefile \
-    Samples/SkeletalAnimation/include/Makefile
+    Samples/SkeletalAnimation/include/Makefile \
+    Samples/Terrain/Makefile \
+    Samples/Terrain/src/Makefile \
+    Samples/Terrain/include/Makefile
     )

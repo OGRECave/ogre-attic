@@ -6,7 +6,7 @@ Plugin_OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
                              OgreOctreeSceneManager.cpp \
                              OgreOctreeNode.cpp \
                              OgreOctreeCamera.cpp \
-                             OgreOctree.cpp 
+                             OgreOctree.cpp OgreTerrainRenderable.cpp OgreTerrainSceneManager.cpp 
 
 
 Plugin_OctreeSceneManager_so_LDFLAGS = -shared
