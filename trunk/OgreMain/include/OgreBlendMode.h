@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __BLENDMODE_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreVector3.h"
 #include "OgreColourValue.h"
 
 namespace Ogre {

@@ -41,8 +41,6 @@ email                : kenny@sparksuit.com
 #include "OgreSingleton.h"
 #include "OgreEventDispatcher.h"
 
-#include <queue>
-
 namespace Ogre {
 
 	/** This class holds InputEvents given to it by the EventProcessor in a FIFO queue. */

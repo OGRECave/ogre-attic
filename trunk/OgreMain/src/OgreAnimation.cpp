@@ -105,7 +105,7 @@ namespace Ogre {
         mTrackList.clear();
     }
     //---------------------------------------------------------------------
-    String Animation::getName(void) const
+    const String& Animation::getName(void) const
     {
         return mName;
     }

@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreBillboardSet.h"
 
+#include "OgreBillboard.h"
 #include "OgreMaterialManager.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreCamera.h"

@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // Precompiler options
 #include "OgrePrerequisites.h"
+#include "OgreString.h"
 
 namespace Ogre {
 

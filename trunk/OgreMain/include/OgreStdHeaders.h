@@ -20,6 +20,7 @@
 #include <set>
 #include <list>
 #include <deque>
+#include <queue>
 
 // Note - not in the original STL, but exists in SGI STL and STLport
 #ifdef EXT_HASH

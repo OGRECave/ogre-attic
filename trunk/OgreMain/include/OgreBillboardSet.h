@@ -30,9 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
-#include "OgreAxisAlignedBox.h"
-#include "OgreBillboard.h"
-#include "OgreString.h"
 #include "OgreColourValue.h"
 #include "OgreStringInterface.h"
 
