@@ -186,8 +186,8 @@ protected:
             SceneNode* camNode = 
                 mSceneMgr->getRootSceneNode()->createChildSceneNode("rttCamNode");
             camNode->attachObject(rttCam);
-            rttCam->setPosition(0,0,370);
-            rttCam->setVisible(true);
+            rttCam->setPosition(0,0,200);
+            //rttCam->setVisible(true);
 
             Viewport *v = rttTex->addViewport( rttCam );
             v->setOverlaysEnabled(false);
@@ -241,7 +241,9 @@ protected:
     {
         CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/Button")->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&GuiApplication::handleQuit, this));
 
+        /*
         CEGUI::WindowManager::getSingleton().getWindow((CEGUI::utf8*)"OgreGuiDemo/Window/Controls/Zoom")->subscribeEvent(CEGUI::Scrollbar::EventScrollPositionChanged, CEGUI::Event::Subscriber(&GuiApplication::handleScrollbar, this));
+        */
     }
 
     bool handleQuit(const CEGUI::EventArgs& e)
@@ -253,8 +255,8 @@ protected:
     bool handleScrollbar(const CEGUI::EventArgs& e)
     {
         Node* rttCamNode =  mSceneMgr->getRootSceneNode()->getChild("rttCamNode");
-        const CEGUI::WindowEventArgs& test = static_cast<const CEGUI::WindowEventArgs&>(e);
-        float position = static_cast<CEGUI::Scrollbar*>(test.window)->getScrollPosition();
+        const CEGUI::WindowEventArgs& windowEventArgs = static_cast<const CEGUI::WindowEventArgs&>(e);
+        float position = static_cast<CEGUI::Scrollbar*>(windowEventArgs.window)->getScrollPosition();
 
         rttCamNode->translate(0, 0, position);
         return true;
