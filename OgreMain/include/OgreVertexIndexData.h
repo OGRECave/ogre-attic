@@ -34,6 +34,11 @@ namespace Ogre {
 	/** Summary class collecting together vertex source information. */
 	class _OgreExport VertexData
 	{
+    private:
+        /// Protected copy constructor, to prevent misuse
+        VertexData(const VertexData& rhs) { /* do nothing, should not use */}
+        /// Protected operator=, to prevent misuse
+        VertexData& operator=(const VertexData& rhs) { return *this; /* do not use */}
     public:
         VertexData();
         ~VertexData();
@@ -98,6 +103,11 @@ namespace Ogre {
 	/** Summary class collecting together index data source information. */
 	class _OgreExport IndexData 
 	{
+    protected:
+        /// Protected copy constructor, to prevent misuse
+        IndexData(const IndexData& rhs) { /* do nothing, should not use */}
+        /// Protected operator=, to prevent misuse
+        IndexData& operator=(const IndexData& rhs) { return *this;/* do not use */}
     public:
         IndexData();
         ~IndexData();
