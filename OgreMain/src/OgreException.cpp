@@ -146,7 +146,8 @@ namespace Ogre {
     void Exception::_pushFunction( const String& strFuncName ) throw()
     {
         if( msStackDepth < OGRE_CALL_STACK_DEPTH )
-            strncpy( msFunctionStack[ msStackDepth++ ], strFuncName.c_str(), 255 );
+            strncpy( msFunctionStack[ msStackDepth ], strFuncName.c_str(), 255 );
+        msStackDepth++;
     }
 
     //-----------------------------------------------------------------------
