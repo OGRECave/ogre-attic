@@ -283,6 +283,13 @@ public:
         return bOK;
     }
 
+	virtual ~DynTexFrameListener(void)
+    {
+		delete [] chemical[0];
+        delete [] chemical[1];
+		delete [] delta[0];
+		delete [] delta[1];
+    }
 };
 
 float DynTexFrameListener::fDefDim = 25.0f;
