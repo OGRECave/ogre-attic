@@ -1,0 +1,212 @@
+<html>
+<STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+	<head>
+		<title> Setting up the compiler settings </title>
+	</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p>
+<p align="center" class="header"> Setting up the compiler settings</p>
+
+<p align="left" class="MainHeader">&nbsp;</p>
+<p>
+You only need to perform this step for the Visual C++ build, using gcc the values are derived 
+for you from the makefile listed previously.
+<UL>
+  <LI>
+    <A href="#vc6">Visual C++ 6</A>
+  </LI>
+  <LI>
+    <A href="#vc7">Visual C++.Net</A>
+  </LI>
+</p>
+<p align="left" class="MainHeader"><A NAME="vc6">Microsoft Visual C++ 6 (SP3+)</A></p>
+<p>
+If you are setting up you application the EASY WAY (i.e. in a subdirectory of Samples), then
+here's how you set up the compiler / linker settings from the Project | Settings menu item. 
+All of these are for the Debug configuration, to set up the Release configuration
+just change the directories from '\Debug\' to '\Release\'.
+<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="1">
+
+	<TR>
+		<TD>Debug : General : Executable</TD>
+		<TD>=</TD>
+		<TD>..\..\Common\Bin\Debug\[appname].exe</TD>
+	</TR>
+	<TR>
+		<TD>Debug : General : Working Directory</TD>
+		<TD>=</TD>
+		<TD>..\Common\Bin\Debug</TD>
+	</TR>
+	<TR>
+		<TD>C++ : Preprocessor : Additional Include Directories</TD>
+		<TD>=</TD>
+		<TD>..\Common\Include</TD>
+	</TR>
+
+	<TR>
+		<TD>Link : General : Output File</TD>
+		<TD>=</TD>
+		<TD>..\Common\Bin\Debug\[appname].exe</TD>
+	</TR>
+	<TR>
+		<TD>Link : Input: Additional Library Path</TD>
+		<TD>=</TD>
+		<TD>..\..\OgreMain\Lib\Debug</TD>
+	</TR>
+	<TR>
+		<TD>Link : Input : Object/library Modules</TD>
+		<TD>+=</TD>
+		<TD>OgreMain.lib</TD>
+	</TR>
+</TABLE>
+
+If you want to do it the ADVANCED way, you'll have to replace the relative paths here with the
+actual path to the root OGRE folder.
+
+</p>
+<p align="left" class="MainHeader"><A NAME="vc7">Microsoft Visual C++.Net</A></p>
+If you are setting up you application the EASY WAY (i.e. in a subdirectory of Samples), then
+here's how you set up the compiler / linker settings after right-clicking on the project
+and selecting 'Properties'. 
+All of these are for the Debug configuration, to set up the Release configuration
+just change the directories from '\Debug\' to '\Release\'.
+<p>
+<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="1">
+	<TR>
+		<TD>Debug : Working Directory</TD>
+		<TD>=</TD>
+		<TD>..\Common\Bin\Debug</TD>
+	</TR>
+	<TR>
+		<TD>C/C++ : Additional Include Directories</TD>
+		<TD>=</TD>
+		<TD>..\Common\Include</TD>
+	</TR>
+
+	<TR>
+		<TD>Linker : Output File</TD>
+		<TD>=</TD>
+		<TD>..\Common\Bin\Debug\APPNAME.EXE</TD>
+	</TR>
+	<TR>
+		<TD>Linker : Additional Library Directories</TD>
+		<TD>=</TD>
+		<TD>..\..\OgreMain\Lib\Debug</TD>
+	</TR>
+	<TR>
+		<TD>Linker : Additional Dependencies</TD>
+		<TD>+=</TD>
+		<TD>OgreMain.lib</TD>
+	</TR>
+</TABLE>
+</p>
+If you want to do it the ADVANCED way, you'll have to replace the relative paths here with the
+actual path to the root OGRE folder.
+
+<p align="left" class="MainHeader"><A NAME="gcc">Gnu Compiler Collection (gcc) v3.x</A></p>
+<p>
+Before you start, make sure you are using gcc 3.x. Many Linux distributions still come
+with gcc 2.95.x which does not have as good support for the ISO C++ standard and will probably
+cause you problems. Please install the latest stable version of gcc 3.x.
+</p>
+Create a file called 'Makefile' in your application folder, with the contents:
+<pre>
+  include [ogre_location]/platform-settings
+
+  all:
+	  $(CXX) $(DEFINES) $(CFLAGS) -o [appname] [yourSampleApp].cpp $(INCDIRS) -I$(TOPDIR)/Samples/Common/include -L$(TOPDIR)/OgreMain/lib -lOgreMain
+
+  clean:
+	  rm -f [appname]
+</pre>
+</p>
+<p>
+Obviously you need to replace [ogre_location], [appname] and [yourSampleApp] with the appropriate values.
+
+<P CLASS="MainHeader">&nbsp;</P>
+<TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0">
+	<TR>
+		<TD WIDTH="14%"><A HREF="index.html">Back to Index</A></TD>
+		<TD WIDTH="39%">&nbsp;</TD>
+		<TD WIDTH="22%"><a href="copysources.html">&lt;&lt; Previous section</a></TD>
+		<TD WIDTH="25%"><a href="compilersettings.html">Next section &gt;&gt;</a></TD>
+	</TR>
+</TABLE>
+
+<P CLASS="MainHeader">&nbsp;</P>
+	</body>
+</html>
