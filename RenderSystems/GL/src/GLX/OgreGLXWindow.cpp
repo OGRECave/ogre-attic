@@ -86,15 +86,46 @@ GLXWindow::~GLXWindow() {
 #endif
 }
 
-void GLXWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-                       bool fullScreen, int left, int top, bool depthBuffer,
-                       void* miscParam, ...) 
-                       {
+void GLXWindow::create(const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams)
+{
 	std::cerr << "GLXWindow::create" << std::endl;
 
 	// We will attempt to create new window on default screen op display 0
 	int screen = DefaultScreen(mDisplay);
 	int depth = DisplayPlanes(mDisplay, screen);
+	
+	// Make sure the window is centered if no left and top in parameters
+	size_t left = (int)DisplayWidth(mDisplay, screen)/2 - width/2; 
+	size_t top = (int)DisplayHeight(mDisplay, screen)/2 - height/2; 
+	String title = name;
+	if(miscParams)
+	{
+		// Parse miscellenous parameters
+		NameValuePairList::const_iterator opt;
+		// Full screen anti aliasing
+		opt = miscParams->find("FSAA");
+		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
+		{
+			// TODO
+			size_t fsaa_samples = StringConverter::parseUnsignedInt(opt->second);
+			LogManager::getSingleton().logMessage("GLXWindow::create -- Requested FSAA of "+
+				StringConverter::toString(fsaa_samples));
+		}
+		// left (x)
+		opt = miscParams->find("left");
+		if(opt != miscParams->end())
+			left = StringConverter::parseUnsignedInt(opt->second);
+		// top (y)
+		opt = miscParams->find("top");
+		if(opt != miscParams->end())
+			top = StringConverter::parseUnsignedInt(opt->second);
+		// Window title
+		opt = miscParams->find("title");
+		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
+			title = opt->second;
+	}   
+	
 	Window rootWindow = RootWindow(mDisplay,screen);
 #ifndef NO_XRANDR
 	// Attempt mode switch for fullscreen -- only if RANDR extension is there
@@ -204,7 +235,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 
 	// Make text property from title
 	XTextProperty titleprop;
-	char *lst = (char*)name.c_str();
+	char *lst = (char*)title.c_str();
 	XStringListToTextProperty((char **)&lst, 1, &titleprop);
 
 	XSetWMProperties(mDisplay, mWindow, &titleprop, NULL, NULL, 0, size_hints, wm_hints, NULL);

@@ -645,11 +645,9 @@ namespace Ogre {
         }
     }
 
-
-    RenderWindow* GLRenderSystem::createRenderWindow(
-            const String & name, unsigned int width, unsigned int height, 
-            unsigned int colourDepth, bool fullScreen, int left, int top, 
-            bool depthBuffer, RenderWindow* parentWindowHandle)
+	RenderWindow* GLRenderSystem::createRenderWindow(const String &name, 
+		unsigned int width, unsigned int height, bool fullScreen,
+		const NameValuePairList *miscParams)
     {
         if (mRenderTargets.find(name) != mRenderTargets.end())
         {
@@ -658,12 +656,28 @@ namespace Ogre {
                 "Window with name '" + name + "' already exists",
                 "GLRenderSystem::createRenderWindow" );
         }
+		// Log a message
+		std::stringstream ss;
+		ss << "GLRenderSystem::createRenderWindow \"" << name << "\", " <<
+			width << "x" << height << " ";
+		if(fullScreen)
+			ss << "fullscreen ";
+		else
+			ss << "windowed ";
+		if(miscParams)
+		{
+			ss << " miscParams: ";
+			NameValuePairList::const_iterator it;
+			for(it=miscParams->begin(); it!=miscParams->end(); ++it)
+			{
+				ss << it->first << "=" << it->second << " ";
+			}
+			LogManager::getSingleton().logMessage(ss.str());
+		}
 
-		mGLSupport->setExternalWindowHandle(mExternalWindowHandle);
         // Create the window
         RenderWindow* win = mGLSupport->newWindow(name, width, height, 
-            colourDepth, fullScreen, left, top, depthBuffer, parentWindowHandle,
-            mVSync);
+            fullScreen, miscParams);
 
         attachRenderTarget( *win );
 
@@ -689,9 +703,26 @@ namespace Ogre {
         return win;
     }
 
-    RenderTexture * GLRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType, PixelFormat format  )
+	RenderTexture * GLRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams ) 
     {
-        RenderTexture *rt = mGLSupport->createRenderTexture(name, width, height, texType, format);
+		// Log a message
+		std::stringstream ss;
+		ss << "GLRenderSystem::createRenderTexture \"" << name << "\", " <<
+			width << "x" << height << " texType=" << texType <<
+			" internalFormat=" << PixelUtil::getFormatName(internalFormat) << " ";
+		if(miscParams)
+		{
+			ss << "miscParams: ";
+			NameValuePairList::const_iterator it;
+			for(it=miscParams->begin(); it!=miscParams->end(); ++it)
+			{
+				ss << it->first << "=" << it->second << " ";
+			}
+			LogManager::getSingleton().logMessage(ss.str());
+		}
+		// Pass on the create call
+        RenderTexture *rt = mGLSupport->createRenderTexture(name, width, height, texType, internalFormat, miscParams);
         attachRenderTarget( *rt );
         return rt;
     }

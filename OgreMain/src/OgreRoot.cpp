@@ -720,9 +720,9 @@ namespace Ogre {
         return mAutoWindow;
     }
     //-----------------------------------------------------------------------
-    RenderWindow* Root::createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
-                bool fullScreen, int left, int top, bool depthBuffer,RenderWindow* parentWindowHandle)
-    {
+	RenderWindow* Root::createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+			bool fullScreen, const NameValuePairList *miscParams)
+	{
         if (!mActiveRenderer)
         {
             Except(Exception::ERR_NO_RENDERSYSTEM_SELECTED,
@@ -730,8 +730,7 @@ namespace Ogre {
             "system has been selected.", "Root::createRenderWindow");
         }
         RenderWindow* ret;
-        ret = mActiveRenderer->createRenderWindow(name, width, height, colourDepth, fullScreen, left, top,
-            depthBuffer, parentWindowHandle);
+        ret = mActiveRenderer->createRenderWindow(name, width, height, fullScreen, miscParams);
 
         // Initialisation for classes dependent on first window created
         oneTimePostWindowInit();

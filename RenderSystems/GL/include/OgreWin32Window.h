@@ -36,8 +36,8 @@ namespace Ogre {
         Win32Window(Win32GLSupport &glsupport);
         ~Win32Window();
 
-        void create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...);
+       void create(const String& name, unsigned int width, unsigned int height,
+	            bool fullScreen, const NameValuePairList *miscParams);
         void destroy(void);
         bool isActive(void) const;
         bool isClosed(void) const;
@@ -55,16 +55,12 @@ namespace Ogre {
 		
 		// Method for dealing with resize / move & 3d library
 		virtual void windowMovedOrResized(void);
-		// Method for passing a external window handle before creation ;)
-		void setExternalWindowHandle(HWND externalHandle) {mExternalHandle = externalHandle;};
-
 		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
 		void setActive(bool set) { mActive = set; }
 
 	protected:
 		Win32GLSupport &mGLSupport;
-		HWND	mExternalHandle;		// External Win32 window handle
 		HWND	mHWnd;					// Win32 Window handle
 		HDC		mHDC;
 		HGLRC	mGlrc;

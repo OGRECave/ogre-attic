@@ -252,27 +252,72 @@ namespace Ogre
             @param
                 height The height of the new window.
             @param
-                colourDepth The colour depth in bits per pixel.
-                Only applicable if fullScreen = true
-            @param
                 fullScreen Specify true to make the window full screen
                 without borders, title bar or menu bar.
             @param
-                left The x position of the new window. Only applicable
-                if fullScreen is false. Units are relative to the parent window
-                if applicable, otherwise they are in screen coordinates.
-            @param
-                top The y position of the new window.
-            @param
-                depthBuffer If true, a depth buffer will be assigned to this window.
-            @param
-                parentWindowHandle Should be null if this window is to be
-                stand-alone. Otherwise, specify a pointer to a RenderWindow
-                which represents the parent window.
+                miscParams A NameValuePairList describing the other parameters for the new rendering window. 
+					Options are case sensitive. Unrecognised parameters will be ignored silently.
+					These values might be platform dependent, but these are present for all platorms unless
+					indicated otherwise:
+				**
+				Key: "title"
+				Description: The title of the window that will appear in the title bar
+				Values: string
+				Default: RenderTarget name
+				**
+				Key: "colourDepth"
+				Description: Colour depth of the resulting rendering window; only applies if fullScreen
+					is set.
+				Values: 16 or 32
+				Default: desktop depth
+				Notes: [W32 specific]
+				**
+				Key: "left"
+				Description: screen x coordinate from left
+				Values: positive integers
+				Default: 'center window on screen'
+				Notes: Ignored in case of full screen
+				**
+				Key: "top"
+				Description: screen y coordinate from top
+				Values: positive integers
+				Default: 'center window on screen'
+				Notes: Ignored in case of full screen
+				**
+				Key: "depthBuffer" [DX9 specific]
+				Description: Use depth buffer
+				Values: false or true
+				Default: true
+				**
+				Key: "externalWindowHandle" [API specific]
+				Description: External window handle, for embedding the OGRE context
+				Values: positive integer for W32 (HWND handle)
+				        posint:posint:posint for GLX (display:screen:windowHandle)
+				Default: 0 (None)
+				**
+				Key: "parentWindowHandle" [API specific]
+				Description: Parent window handle, for embedding the OGRE context
+				Values: positive integer for W32 (HWND handle)
+				        posint:posint:posint for GLX (display:screen:windowHandle)
+				Default: 0 (None)
+				**
+				Key: "FSAA"
+				Description: Full screen antialiasing factor
+				Values: 0,2,4,6,...
+				Default: 0 
+				**
+				Key: "displayFrequency"
+				Description: Display frequency rate, for fullscreen mode
+				Values: 60...?
+				Default: Desktop vsync rate
+				**
+				Key: "vsync"
+				Description: Synchronize buffer swaps to vsync
+				Values: true, false
+				Default: 0
         */
-        virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
-            RenderWindow* parentWindowHandle = 0) = 0;
+		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
+			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
 
 		/** Creates and registers a render texture object.
 			@param name 
@@ -281,6 +326,23 @@ namespace Ogre
 				The requested width for the render texture. See Remarks for more info.
 			@param height
 				The requested width for the render texture. See Remarks for more info.
+			@param texType
+				The type of texture; defaults to TEX_TYPE_2D
+			@param internalFormat
+				The internal format of the texture; defaults to PF_X8R8G8B8
+			@param miscParams A NameValuePairList describing the other parameters for the new rendering window.
+					Unrecognised parameters will be ignored silently.
+					These values might be platform dependent, but these are present for all platorms unless
+					indicated otherwise:
+				**
+				Key: "FSAA"
+				Description: Full screen antialiasing factor
+				Values: 0,2,4,6,...
+				Default: 0
+				**
+				Key: "depth"
+				Description: Depth in case of render-to-texture TEX_3D
+				Values: positive integers
 			@returns
 				On succes, a pointer to a new platform-dependernt, RenderTexture-derived
 				class is returned. On failiure, NULL is returned.
@@ -288,9 +350,12 @@ namespace Ogre
 				Because a render texture is basically a wrapper around a texture object,
 				the width and height parameters of this method just hint the preferred
 				size for the texture. Depending on the hardware driver or the underlying
-				API, these values might change when the texture is created.
+				API, these values might change when the texture is created. The same applies
+				to the internalFormat parameter.
 		*/
-        virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType = TEX_TYPE_2D,  PixelFormat format = PF_R8G8B8 ) = 0;
+		virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
+			const NameValuePairList *miscParams = 0 ) = 0; 
 
         /** Destroys a render window */
         virtual void destroyRenderWindow(const String& name);

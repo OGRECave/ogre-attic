@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include "OgreRoot.h"
 
 #include "OgreGLXGLSupport.h"
 
@@ -89,7 +90,8 @@ String GLXGLSupport::validateConfig(void) {
 	return String("");
 }
 
-RenderWindow* GLXGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle) {
+RenderWindow* GLXGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle) 
+{
 	if (autoCreateWindow) {
 		ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
 		if (opt == mOptions.end())
@@ -108,31 +110,27 @@ RenderWindow* GLXGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
 		unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
         // Parse FSAA config
+		NameValuePairList winOptions;
+		winOptions["title"] = windowTitle;
         int fsaa_x_samples = 0;
         opt = mOptions.find("FSAA");
         if(opt != mOptions.end())
         {
-            fsaa_x_samples = StringConverter::parseInt(opt->second.currentValue);
+			winOptions["FSAA"] = opt->second.currentValue;
         }
 
-		// Make sure the window is centered
-		int screen = DefaultScreen(mDisplay);
-		int left = DisplayWidth(mDisplay, screen)/2 - w/2; 
-		int top = DisplayHeight(mDisplay, screen)/2 - h/2; 
-
-		return renderSystem->createRenderWindow(windowTitle, w, h, 32, fullscreen, left, top);
+		return renderSystem->createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
 	} else {
 		// XXX What is the else?
 		return NULL;
 	}
 }
 
-RenderWindow* GLXGLSupport::newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-                                      bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
-                                      bool vsync) {
+RenderWindow* GLXGLSupport::newWindow(const String &name, unsigned int width, unsigned int height, 
+	bool fullScreen, const NameValuePairList *miscParams)
+{
 	GLXWindow* window = new GLXWindow(mDisplay);
-	window->create(name, width, height, colourDepth, fullScreen, left, top, depthBuffer,
-	               parentWindowHandle);
+	window->create(name, width, height, fullScreen, miscParams);
 	return window;
 }
 
@@ -160,8 +158,12 @@ void GLXGLSupport::stop() {
 
 void GLXGLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) 
 {
-    // Always? 
-    caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
+    // Broken for ATI glx currently
+	if(getGLVendor() != "ATI")
+    	caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
+	// This does work for ATI, even under Linux
+	if(checkExtension("GL_SGIS_generate_mipmap"))
+		caps.setCapability(RSC_AUTOMIPMAP);
 }
 
 
@@ -173,9 +175,16 @@ void* GLXGLSupport::getProcAddress(const String& procname) {
 	return (void*)glXGetProcAddressARB((const GLubyte*)procname.c_str());
 }
 
-RenderTexture * GLXGLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
+
+
+RenderTexture * GLXGLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, 
+		const NameValuePairList *miscParams )
 {
-	return new GLXRenderTexture(name, width, height, texType, format);
+	if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
+		return new GLXRenderTexture(name, width, height, texType, internalFormat, miscParams);
+	else
+		return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);
 }  
 
 }

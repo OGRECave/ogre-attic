@@ -28,12 +28,14 @@ namespace Ogre
 
 		virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle = "OGRE Render Window");
 
-		/**
-		* Create a new specific render window
-		*/
-		virtual RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
-			bool vsync);
+		/// @copydoc RenderSystem::createRenderWindow
+		virtual RenderWindow* newWindow(const String &name, unsigned int width, unsigned int height, 
+			bool fullScreen, const NameValuePairList *miscParams = 0);
+
+		/// @copydoc RenderSystem::createRenderTexture
+		virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
+				TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
+				const NameValuePairList *miscParams = 0 ); 
 
 		/**
 		* Start anything special
@@ -49,12 +51,7 @@ namespace Ogre
 		*/
 		void* getProcAddress(const String& procname);
 
-		void setExternalWindowHandle(void* hwnd){
-			mExternalWindowHandle=(HWND) hwnd;
-		};
-
 		virtual void resizeReposition(void*);
-		virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format );
 
 		/**
 		 * Initialise extensions
@@ -69,8 +66,6 @@ namespace Ogre
 		std::vector<DEVMODE> mDevModes;
 
 		void refreshConfig();
-
-		HWND mExternalWindowHandle;
 	};
 
 }

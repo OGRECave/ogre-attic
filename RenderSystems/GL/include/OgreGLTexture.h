@@ -145,7 +145,8 @@ namespace Ogre {
     class GLRenderTexture : public RenderTexture
     {
     public:
-        GLRenderTexture(const String& name, uint width, uint height, TextureType texType,  PixelFormat format) 
+        GLRenderTexture(const String& name, uint width, uint height, TextureType texType, PixelFormat format,
+			const NameValuePairList *miscParams) 
             : RenderTexture(name, width, height, texType, format) 
         {
             mGLTexture = mTexture;

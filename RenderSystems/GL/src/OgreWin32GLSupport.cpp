@@ -18,8 +18,7 @@
 using namespace Ogre;
 
 namespace Ogre {
-    Win32GLSupport::Win32GLSupport():
-        mExternalWindowHandle(0)
+    Win32GLSupport::Win32GLSupport()
     {
     } 
 
@@ -185,18 +184,23 @@ namespace Ogre {
 			unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
             unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
+			// Parse optional parameters
+			NameValuePairList winOptions;
 			opt = mOptions.find("Colour Depth");
 			if (opt == mOptions.end())
 				Except(999, "Can't find Colour Depth options!", "Win32GLSupport::createWindow");
-			unsigned int colourDepth = StringConverter::parseUnsignedInt(opt->second.currentValue);
+			unsigned int colourDepth =
+				StringConverter::parseUnsignedInt(opt->second.currentValue);
+			winOptions["colourDepth"] = StringConverter::toString(colourDepth);
 
 			opt = mOptions.find("VSync");
 			if (opt == mOptions.end())
 				Except(999, "Can't find VSync options!", "Win32GLSupport::createWindow");
 			bool vsync = (opt->second.currentValue == "Yes");
+			winOptions["vsync"] = StringConverter::toString(vsync);
 			renderSystem->setWaitForVerticalBlank(vsync);
 
-            return renderSystem->createRenderWindow(windowTitle, w, h, colourDepth, fullscreen);
+            return renderSystem->createRenderWindow(windowTitle, w, h, fullscreen, &winOptions);
         }
         else
         {
@@ -205,9 +209,8 @@ namespace Ogre {
         }
 	}
 
-	RenderWindow* Win32GLSupport::newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
-			bool vsync)
+	RenderWindow* Win32GLSupport::newWindow(const String &name, unsigned int width, 
+		unsigned int height, bool fullScreen, const NameValuePairList *miscParams)
 	{
 		ConfigOptionMap::iterator opt = mOptions.find("Display Frequency");
 		if (opt == mOptions.end())
@@ -215,13 +218,7 @@ namespace Ogre {
 		unsigned int displayFrequency = StringConverter::parseUnsignedInt(opt->second.currentValue);
 
 		Win32Window* window = new Win32Window(*this);
-		if (!fullScreen && mExternalWindowHandle) // ADD CONTROL IF WE HAVE A WINDOW)
-		{
-			Win32Window *pWin32Window = (Win32Window *)window;
-	 		pWin32Window->setExternalWindowHandle(mExternalWindowHandle);
-		}
-		window->create(name, width, height, colourDepth, fullScreen, left, top, depthBuffer,
-			parentWindowHandle, vsync, displayFrequency);
+		window->create(name, width, height, fullScreen, miscParams);
 		return window;
 	}
 
@@ -285,13 +282,17 @@ namespace Ogre {
 
 	}
 
-	RenderTexture * Win32GLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format ) 
+	RenderTexture * Win32GLSupport::createRenderTexture( const String & name, 
+		unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, 
+		const NameValuePairList *miscParams ) 
 	{
 #ifdef HW_RTT
 		if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
-			return new Win32RenderTexture(*this, name, width, height, texType, format);
+			return new Win32RenderTexture(*this, name, width, height, texType, 
+				internalFormat, miscParams);
 		else
 #endif
-			return new GLRenderTexture(name, width, height, texType, format);
+			return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);
 	}
 }

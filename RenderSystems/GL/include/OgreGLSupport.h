@@ -33,20 +33,16 @@ public:
 
 	virtual ConfigOptionMap& getConfigOptions(void);
 
-    
 	virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem, const String& windowTitle) = 0;
 
-	/**
-    * Create a specific instance of a render window
-    */
-    virtual RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-            bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
-			bool vsync) = 0;
+	/// @copydoc RenderSystem::createRenderWindow
+	virtual RenderWindow* newWindow(const String &name, unsigned int width, unsigned int height, 
+		bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
 
-    /**
-     * Create a RenderTexture
-     */
-    virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height, TextureType texType,  PixelFormat format);
+	/// @copydoc RenderSystem::createRenderTexture
+	virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
+			const NameValuePairList *miscParams = 0 ); 
 
     /**
     * Start anything special
@@ -86,8 +82,6 @@ public:
     * Get the address of a function
     */
     virtual void* getProcAddress(const String& procname) = 0;
-
-    virtual void setExternalWindowHandle(void* hwnd) { }
 
     /** Intialises GL extensions, must be done AFTER the GL context has been
         established.
