@@ -88,17 +88,18 @@ written in C++ designed to make it easier and more intuitive for developers to
 produce games and demos utilising 3D hardware. The class library abstracts all 
 the details of using the underlying system libraries like Direct3D and OpenGL 
 and provides an interface based on world objects and other intuitive classes. 
-</p><p align="left" class="MainHeader">Index Of Contents</p><p class="NewsDate"><A HREF="ChangeLog.html">What's 
-New?</A></p><p>A summary of the new and altered features in this release. </p><p class="NewsDate"><a href="Docs/Readme_Features.html">Features</a></p><p class="MainContent">A 
-summary of OGRE's main features.</p><p class="NewsDate"><a href="Docs/ReadMe_Building.html">Building 
+</p><p align="left" class="MainHeader">Index Of Contents</p><p class="NewsDate"><a href="ChangeLog.html">What's 
+New?</a></p><p>A summary of the new and altered features in this release. </p><p class="NewsDate"><a href="Readme/Readme_Features.html">Features</a></p><p class="MainContent">A 
+summary of OGRE's main features.</p><p class="NewsDate"><a href="Readme/ReadMe_Building.html">Building 
 the core OGRE libraries</a></p><p class="MainContent">This section covers building 
-the libraries and plugins which make up the core OGRE system.</p><p class="NewsDate"><a href="Docs/Readme_Samples.html">The 
+the libraries and plugins which make up the core OGRE system.</p><p class="NewsDate"><a href="Readme/Readme_Samples.html">The 
 Samples</a></p><p class="MainContent">Summarises the purpose of each of the samples 
 provided with OGRE and the example application framework used to build them.</p><p class="NewsDate"><a href="Tutorials/index.html">Tutorials 
 </a> </p><p class="MainContent">A set of tutorials designed to help you write 
-your own OGRE applications.</p><p class="NewsDate"><a href="Docs/html/index.html">API 
-Reference</a></p><p class="MainContent">The full OGRE API documentation, as generated 
-from the (heavily!) commented source.</p><p class="NewsDate"><a href="Docs/Readme_Plugins.html">Building 
+your own OGRE applications.</p><p class="NewsDate"><A HREF="manual/index.html">The 
+OGRE Manual</A></p><P>A descriptive reference to the major parts of the engine 
+such as scripts. </P><p class="NewsDate"><a href="api/html/index.html">API Reference</a></p><p class="MainContent">The 
+full OGRE API documentation, as generated from the (heavily!) commented source.</p><p class="NewsDate"><a href="Readme/Readme_Plugins.html">Building 
 Your Own Plugins</a></p><p class="MainContent">Advice on how to extend the engine 
 by building plugins. </p><p class="NewsDate"><a href="FAQ.html">Frequently Asked 
 Questions</a></p><p class="MainContent">If you're having problems, please consult 
@@ -172,11 +173,10 @@ as Examples\Resources\ogrelogo.png.</p><p>Some textures distrubuted with Ogre
 are used with permission of <a
  href="http://www.The3dStudio.com">www.The3dStudio.com</a> and may not be re-distributed, 
 sold, or given away except in the form of rendered images, animations, or real 
-time 3D applications when credit is given to <a
- href="http://www.The3dStudio.com">www.The3dStudio.com</a>.</p><p>The 'Han Solo' 
-TrueType font is &copy; 2000 by Iconian Fonts - Daniel Zadorozny. This font may 
-be freely distributed and is free for all non-commercial uses. This font is e-mailware; 
-that is, if you like it, please e-mail the author at: <a href="mailto:iconian@aol.com">iconian@aol.com</a>.</p><p align="left" class="MainHeader">Acknowledgements</p><p>The 
+time 3D applications when credit is given to <a href="http://www.The3dStudio.com">www.The3dStudio.com</a>.</p><p>The 
+'Han Solo' TrueType font is &copy; 2000 by Iconian Fonts - Daniel Zadorozny. This 
+font may be freely distributed and is free for all non-commercial uses. This font 
+is e-mailware; that is, if you like it, please e-mail the author at: <a href="mailto:iconian@aol.com">iconian@aol.com</a>.</p><p align="left" class="MainHeader">Acknowledgements</p><p>The 
 authors wish to credit the following for their work which is used in whole or 
 in part in OGRE:</p><p>Artwork:</p><ul> <li>Matt Anderson at <a href="http://www.The3dStudio.com">www.The3dStudio.com</a> 
 who kindly gave permission for the use of some textures</li><li>Jonathan Clark 
@@ -186,11 +186,12 @@ Assault Gunboat' mesh &amp; texture are &copy; 2002 by Adrian 'cearny' Cearn&#25
 robot mesh and animation are by <a
  href="http://www.psionicdesign.com/">Psionic</a>, kindly made available from 
 the <a href="http://www.insanesoftware.de">CharacterFX</a> site</li><li>The 'Iron 
-Maiden' TrueType font is &copy; 1996 by Timour Jgenti.</li></ul><p>Included as 
-source (modified as appropriate), and credited appropriately in the source files 
-affected:</p><ul> <li>Many of the maths/spatial routines are inspired by Dr D.H. 
-Eberley, adapted from the 'free' parts of the Wild Magic engine 0.2 source provided 
-with his book "3D Engine Design" (<a
+Maiden' TrueType font is &copy; 1996 by Timour Jgenti.</li><li>Skyboxes are &copy;<A HREF="http://www.schlorb.com">Johannes 
+Schl&ouml;rb</A>, used with permission. <br> </li></ul><p>Included as source (modified 
+as appropriate), and credited appropriately in the source files affected:</p><ul> 
+<li>Many of the maths/spatial routines are inspired by Dr D.H. Eberley, adapted 
+from the 'free' parts of the Wild Magic engine 0.2 source provided with his book 
+"3D Engine Design" (<a
  href="http://www.wild-magic.com/">http://www.wild-magic.com/</a>)</li><li>Quake3 
 loading routines used a lot of information gleaned from <a
  href="http://www.planetquake.com/aftershock/">Aftershock</a> and <a
@@ -210,11 +211,10 @@ with the Python scripting language is provided by the <a href="http://boost.org"
 Python</a> library.</li><li>ZIP archive support is &copy; Gilles Vollant 1998 
 (<a
  href="http://www.winimage.com/zLibDll/unzip.htm">http://www.winimage.com/zLibDll/unzip.htm</a>)</li><li>SDL 
-is &copy; (too many to list!) (<a
- href="http://www.libsdl.org">http://www.libsdl.org</a>)</li><li>Freetype2 is 
-&copy; The Freetype Team (<a
+is &copy; (too many to list!) (<a href="http://www.libsdl.org">http://www.libsdl.org</a>)</li><li>Freetype2 
+is &copy; The Freetype Team (<a
  href="http://www.freetype.org">http://www.freetype.org</a>)</li><li>ODE is &copy; 
-Russel Smith (<A HREF="http://q12.org/ode/">http://q12.org/ode/</A>)</li></ul><p>Standalone 
+Russel Smith (<a href="http://q12.org/ode/">http://q12.org/ode/</a>)</li></ul><p>Standalone 
 tools used:</p><ul> <li>Document generation from C++ source code is by Doxygen 
 &copy; Dimitri van Heesch (<a href="http://www.doxygen.org">http://www.doxygen.org</a>)</li><li>Milkshape3D 
 for modelling &amp; exporting (<a

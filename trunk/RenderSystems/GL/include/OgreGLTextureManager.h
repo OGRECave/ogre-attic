@@ -42,9 +42,7 @@ namespace Ogre {
         /** Creates a SDLTexture resource. 
         */
         virtual Texture* create( const String& name, TextureType texType);
-        /** Note that this function is not yet implemented.
-            @todo
-                Implement correct surface creation in the texture source file.
+        /** Creates a render target surface.
         */
         virtual Texture * createAsRenderTarget( const String& name ) { return NULL; }
 

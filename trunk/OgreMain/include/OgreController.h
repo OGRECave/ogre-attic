@@ -133,9 +133,6 @@ namespace Ogre {
             @remarks
                 Requires source and destination values, and a function object. None of these are destroyed
                 with the Controller when it is deleted (they can be shared) so you must delete these as appropriate.
-            @todo
-                Maybe for this and any other class that does not delete member data we should implement either a self-delete
-                feature that could be enabled as wished, or make a self-deleting subclass.
         */
         Controller(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func);
 

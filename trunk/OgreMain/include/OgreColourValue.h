@@ -43,8 +43,6 @@ namespace Ogre {
 		    The forth component is the 'alpha' value, which represents
 		    transparency. In this case, 0.0 is completely transparent and 1.0 is
 		    fully opaque.
-	    @todo
-		    Add more formats e.g. 16-bit 5551 etc
     */
     class _OgreExport ColourValue
     {

@@ -39,8 +39,6 @@ namespace Ogre {
         @remarks
             Instances of this class are discrete, relatively small, movable objects
             which are attached to SceneNode objects to define their position.
-        @todo
-            Add local OBB / convex hull
     */
     class _OgreExport MovableObject
     {

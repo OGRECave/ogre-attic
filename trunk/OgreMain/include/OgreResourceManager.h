@@ -46,8 +46,6 @@ namespace Ogre {
             Resource managers use a priority system to determine what can
             be unloaded, and a Least Recently Used (LRU) policy within
             resources of the same priority.
-        @todo 
-            Implement priorities.
     */
     class _OgreExport ResourceManager
     {
