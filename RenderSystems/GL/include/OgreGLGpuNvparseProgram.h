@@ -36,8 +36,7 @@ class GLGpuNvparseProgram : public GLGpuProgram
 public:
     GLGpuNvparseProgram(ResourceManager* creator, 
         const String& name, ResourceHandle handle, 
-        const String& group, bool isManual, ManualResourceLoader* loader,
-        GpuProgramType gptype, const String& syntaxCode);
+        const String& group, bool isManual, ManualResourceLoader* loader);
     virtual ~GLGpuNvparseProgram() { }
 
 

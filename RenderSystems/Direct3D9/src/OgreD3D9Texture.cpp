@@ -195,7 +195,7 @@ namespace Ogre
 		SAFE_RELEASE(pSrcSurface);
 	}
 	/****************************************************************************************/
-	void D3D9Texture::copyToTexture(TexturePtr target)
+	void D3D9Texture::copyToTexture(TexturePtr& target)
 	{
         // check if this & target are the same format and type
 		// blitting from or to cube textures is not supported yet
@@ -392,7 +392,7 @@ namespace Ogre
             _constructCubeFaceNames(mName);
             // First create the base surface, for that we need to know the size
             Image img;
-            img.load(this->_getCubeFaceName(0));
+            img.load(this->_getCubeFaceName(0), mGroup);
             _setSrcAttributes(img.getWidth(), img.getHeight(), 1, img.getFormat());
             // now create the texture
             createInternalResources();

@@ -1164,7 +1164,7 @@ namespace Ogre
 	{
 		HRESULT hr;
 		D3D9TexturePtr dt = TextureManager::getSingleton().getByName(texname);
-		if (enabled && dt)
+		if (enabled && !dt.isNull())
 		{
 			IDirect3DBaseTexture9 *pTex = dt->getTexture();
 			if (mTexStageDesc[stage].pTex != pTex)

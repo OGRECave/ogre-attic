@@ -286,10 +286,11 @@ namespace Ogre {
         {
             const Image& img = images[i];
 
+            StringUtil::StrStreamType str;
+            str << "GLTexture: Loading " << mName << " with "
+                << mNumMipMaps << " mipmaps from Image.";
             LogManager::getSingleton().logMessage( 
-                LML_NORMAL,
-                "GLTexture: Loading %s with %d mipmaps from Image.", 
-                mName.c_str(), mNumMipMaps );        
+                LML_NORMAL, str.str());
 
             mFormat = img.getFormat();
 
@@ -359,7 +360,7 @@ namespace Ogre {
                 mTextureType == TEX_TYPE_3D)
             {
                 Image img;
-                img.load( mName );
+                img.load(mName, mGroup);
 
                 if (StringUtil::endsWith(getName(), "dds") && img.hasFlag(IF_CUBEMAP))
                 {
@@ -372,8 +373,9 @@ namespace Ogre {
                     uint offset = 0;
                     for(int i = 0; i < 6; i++)
                     {
-                        DataChunk chunk(img.getData() + offset, imageSize);
-                        newImage.loadRawData(chunk, img.getWidth(), 
+                        DataStreamPtr stream(
+                            new MemoryDataStream(img.getData() + offset, imageSize, false));
+                        newImage.loadRawData(stream, img.getWidth(), 
                             img.getHeight(), img.getFormat());
                         offset += imageSize;
                         images.push_back(newImage);
@@ -405,7 +407,7 @@ namespace Ogre {
                     ext = mName.substr(pos);
                     String fullName = baseName + suffixes[i] + ext;
 
-                    img.load( fullName );
+                    img.load(fullName, mGroup);
                     images.push_back(img);
                 }
 
@@ -513,14 +515,14 @@ namespace Ogre {
     
     void GLRenderTexture::writeContentsToFile( const String & filename ) 
     {
-        ImageCodec::ImageData imgData;
+        ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
         
-        imgData.width = mGLTexture->getWidth();
-        imgData.height = mGLTexture->getHeight();
-        imgData.format = PF_R8G8B8;
+        imgData->width = mGLTexture->getWidth();
+        imgData->height = mGLTexture->getHeight();
+        imgData->format = PF_R8G8B8;
 
         // Allocate buffer 
-        uchar* pBuffer = new uchar[imgData.width * imgData.height * 3];
+        uchar* pBuffer = new uchar[imgData->width * imgData->height * 3];
 
         // Read pixels
         // I love GL: it does all the locking & colour conversion for us
@@ -528,14 +530,16 @@ namespace Ogre {
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
         // Wrap buffer in a chunk
-        DataChunk chunk(pBuffer, imgData.width * imgData.height * 3);
+        DataStreamPtr stream(new MemoryDataStream(
+            pBuffer, imgData->width * imgData->height * 3, false));
 
         // Need to flip the read data over in Y though
         Image img;
-        img.loadRawData(chunk, imgData.width, imgData.height, imgData.format );
+        img.loadRawData(stream, imgData->width, imgData->height, imgData->format );
         img.flipAroundX();
 
-        DataChunk chunkFlipped(img.getData(), chunk.getSize());
+        MemoryDataStreamPtr streamFlipped(
+            new MemoryDataStream(img.getData(), stream->size(), false));
 
         // Get codec 
         size_t pos = filename.find_last_of(".");
@@ -553,7 +557,7 @@ namespace Ogre {
         Codec * pCodec = Codec::getCodec(extension);
 
         // Write out
-        pCodec->codeToFile(chunkFlipped, filename, &imgData);
+        pCodec->codeToFile(streamFlipped, filename, Codec::CodecDataPtr(imgData));
 
         delete [] pBuffer;
     }

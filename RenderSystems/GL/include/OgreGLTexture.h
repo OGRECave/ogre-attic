@@ -93,7 +93,7 @@ namespace Ogre {
     except to do so requires a form VC6 does not support i.e.
     ResourceSubclassPtr<T> : public SharedPtr<T>
     */
-    class _OgreExport GLTexturePtr : public SharedPtr<GLTexture> 
+    class GLTexturePtr : public SharedPtr<GLTexture> 
     {
     public:
         GLTexturePtr() : SharedPtr<GLTexture>() {}

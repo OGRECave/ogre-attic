@@ -163,7 +163,7 @@ namespace Ogre {
     except to do so requires a form VC6 does not support i.e.
     ResourceSubclassPtr<T> : public SharedPtr<T>
     */
-    class _OgreExport D3D9TexturePtr : public SharedPtr<D3D9Texture> 
+    class D3D9TexturePtr : public SharedPtr<D3D9Texture> 
     {
     public:
         D3D9TexturePtr() : SharedPtr<D3D9Texture>() {}
@@ -193,6 +193,20 @@ namespace Ogre {
             }
             return *this;
         }
+        /// Operator used to convert a TexturePtr to a D3D9TexturePtr
+        D3D9TexturePtr& operator=(const TexturePtr& r)
+        {
+            if (pRep == static_cast<D3D9Texture*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<D3D9Texture*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
     };
 
 
@@ -202,7 +216,9 @@ namespace Ogre {
     public:
         D3D9RenderTexture( const String & name, uint width, uint height, TextureType texType = TEX_TYPE_2D ) : RenderTexture( name, width, height, texType )
         {
-            mPrivateTex = TextureManager::getSingleton().createManual( mName + "_PRIVATE##", texType, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
+            mPrivateTex = TextureManager::getSingleton().createManual
+                (mName + "_PRIVATE##", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
+                texType, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
         }
 		
         ~D3D9RenderTexture()

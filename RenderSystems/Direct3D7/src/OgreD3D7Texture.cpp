@@ -668,10 +668,11 @@ HRESULT WINAPI testEnumAtt(
         if( mIsLoaded )
             unload();
 
+        StringUtil::StrStreamType str;
+        str << "D3DTexture: Loading " << mName << " with " 
+            << mNumMipMaps << " mipmaps from Image.";
         LogManager::getSingleton().logMessage( 
-            LML_TRIVIAL,
-            "D3DTexture: Loading %s with %d mipmaps from Image.", 
-            Texture::mName.c_str(), mNumMipMaps );
+            LML_TRIVIAL, str.str());
 
         /* Get parameters from the Image */
         mHasAlpha = img.getHasAlpha();
@@ -708,10 +709,11 @@ HRESULT WINAPI testEnumAtt(
         if( mIsLoaded )
             unload();
 
+        StringUtil::StrStreamType str;
+        str << "D3DTexture: Loading cubemap " << mName 
+            << " with " << mNumMipMaps << " mipmaps from Image.";
         LogManager::getSingleton().logMessage( 
-            LML_TRIVIAL,
-            "D3DTexture: Loading cubemap %s with %d mipmaps from Image.", 
-            Texture::mName.c_str(), mNumMipMaps );
+            LML_TRIVIAL, str.str());
 
         /* Get parameters from Image[0] (they are all the same) */
         mHasAlpha = imgs[0].getHasAlpha();
@@ -761,7 +763,7 @@ HRESULT WINAPI testEnumAtt(
 			Image imgs[6];
 			for (int face = 0; face < 6; ++face)
 			{
-				imgs[face].load(mCubeFaceNames[face]);
+				imgs[face].load(mCubeFaceNames[face], mGroup);
 			}
 			loadImage3D(imgs);
 
@@ -769,7 +771,7 @@ HRESULT WINAPI testEnumAtt(
 		else
 		{
 			Image img;
-			img.load( Texture::mName );
+			img.load(mName, mGroup);
 			
 			loadImage( img );
 		}

@@ -35,8 +35,7 @@ using namespace Ogre;
 
 GLGpuNvparseProgram::GLGpuNvparseProgram(ResourceManager* creator, 
         const String& name, ResourceHandle handle, 
-        const String& group, bool isManual, ManualResourceLoader* loader,
-        GpuProgramType gptype, const String& syntaxCode) 
+        const String& group, bool isManual, ManualResourceLoader* loader) 
         : GLGpuProgram(creator, name, handle, group, isManual, loader)
 {
     mProgramID = glGenLists(1);

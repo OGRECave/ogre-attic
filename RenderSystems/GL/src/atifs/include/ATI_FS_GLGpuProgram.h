@@ -37,8 +37,7 @@ namespace Ogre {
 	public:
         ATI_FS_GLGpuProgram(ResourceManager* creator, 
             const String& name, ResourceHandle handle, 
-            const String& group, bool isManual, ManualResourceLoader* loader,
-            GpuProgramType gptype, const String& syntaxCode);
+            const String& group, bool isManual, ManualResourceLoader* loader);
 		virtual ~ATI_FS_GLGpuProgram() { }
 
 

@@ -97,8 +97,11 @@ namespace Ogre {
         const String& group, bool isManual, ManualResourceLoader* loader,
         GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLArbGpuProgram(creator, name, handle, group, isManual, 
-            loader, gptype, syntaxCode);
+        GLArbGpuProgram* ret = new GLArbGpuProgram(
+            creator, name, handle, group, isManual, loader);
+        ret->setType(gptype);
+        ret->setSyntaxCode(syntaxCode);
+        return ret;
     }
 
     GpuProgram* createGLGpuNvparseProgram(ResourceManager* creator, 
@@ -106,8 +109,11 @@ namespace Ogre {
         const String& group, bool isManual, ManualResourceLoader* loader,
         GpuProgramType gptype, const String& syntaxCode)
     {
-        return new GLGpuNvparseProgram(creator, name, handle, group, isManual, 
-            loader, gptype, syntaxCode);
+        GLGpuNvparseProgram* ret = new GLGpuNvparseProgram(
+            creator, name, handle, group, isManual, loader);
+        ret->setType(gptype);
+        ret->setSyntaxCode(syntaxCode);
+        return ret;
     }
 
     GpuProgram* createGL_ATI_FS_GpuProgram(ResourceManager* creator, 
@@ -116,8 +122,11 @@ namespace Ogre {
         GpuProgramType gptype, const String& syntaxCode)
 	{
 
-        return new ATI_FS_GLGpuProgram(creator, name, handle, group, isManual, 
-            loader, gptype, syntaxCode);
+        ATI_FS_GLGpuProgram* ret = new ATI_FS_GLGpuProgram(
+            creator, name, handle, group, isManual, loader);
+        ret->setType(gptype);
+        ret->setSyntaxCode(syntaxCode);
+        return ret;
 	}
 
     GLRenderSystem::GLRenderSystem()
@@ -876,7 +885,7 @@ namespace Ogre {
             }
 
 			glEnable( mTextureTypes[stage] );
-			if(tex)
+			if(!tex.isNull())
 				glBindTexture( mTextureTypes[stage], tex->getGLID() );
         }
         else

@@ -437,11 +437,11 @@ namespace Ogre {
             // Log stencil buffer depth
             mStencilBufferDepth = ddsd.ddpfPixelFormat.dwStencilBitDepth;
 
+            StringUtil::StrStreamType str;
+            str << "Depth-Buffer created (" << ddsd.ddpfPixelFormat.dwZBufferBitDepth
+                << "-bit, " << mStencilBufferDepth << "-bit stencil)";
             LogManager::getSingleton().logMessage( 
-                LML_NORMAL, 
-                "Depth-Buffer created (%i-bit, %i-bit stencil)", 
-                ddsd.ddpfPixelFormat.dwZBufferBitDepth,
-                mStencilBufferDepth);
+                LML_NORMAL, str.str());
             if (mStencilBufferDepth == 0)
             {
                 LogManager::getSingleton().logMessage("Warning: software stencilling " 

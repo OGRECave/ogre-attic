@@ -37,8 +37,7 @@ using namespace Ogre;
 
 ATI_FS_GLGpuProgram::ATI_FS_GLGpuProgram(ResourceManager* creator, 
         const String& name, ResourceHandle handle, 
-        const String& group, bool isManual, ManualResourceLoader* loader,
-        GpuProgramType gptype, const String& syntaxCode) :
+        const String& group, bool isManual, ManualResourceLoader* loader) :
     GLGpuProgram(creator, name, handle, group, isManual, loader)
 {
 	mProgramType = GL_FRAGMENT_SHADER_ATI;

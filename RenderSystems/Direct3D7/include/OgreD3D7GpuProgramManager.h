@@ -42,6 +42,8 @@ namespace Ogre {
     protected:
         /** Overridden from GpuProgram, do nothing */
         void loadFromSource(void) {}
+        /** Overridden from GpuProgram, do nothing */
+        void unloadImpl(void) {}
     };
     /** Dummy implementation of GpuProgramManager - cannot do anything
         since D3D7 did not support vertex or fragment programs. */
