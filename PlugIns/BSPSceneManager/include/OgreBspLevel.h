@@ -82,6 +82,8 @@ namespace Ogre {
         BspNode* getLeafStart(void) {return &mRootNode[mLeafStart]; }
         /** Gets the number of leaf nodes */
         int getNumLeaves(void) { return mNumLeaves; }
+
+        /** Utility class just to enable queueing of patches */
     protected:
         /** Pointer to the root node of the BSP tree;
             This pointer actually has a dual purpose; to avoid allocating lots of small chunks of
@@ -133,8 +135,10 @@ namespace Ogre {
         int* mElements;
         int mNumElements;
         */
-        /// Index data for the whole level, again allowed to be used in subsets
-        IndexData* mIndexData;
+
+        /// indexes for the whole level, will be copied to the real indexdata per frame
+        size_t mNumIndexes;
+        unsigned int* mIndexes;
 
         /// Brushes as used for collision, main memory is here
         BspNode::Brush *mBrushes;

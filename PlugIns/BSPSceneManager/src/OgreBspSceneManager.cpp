@@ -95,7 +95,17 @@ namespace Ogre {
 
         // Init static render operation
         mRenderOp.vertexData = mLevel->mVertexData;
-        mRenderOp.indexData = mLevel->mIndexData;
+        // index data is per-frame
+        mRenderOp.indexData = new IndexData();
+        mRenderOp.indexData->indexStart = 0;
+        mRenderOp.indexData->indexCount = 0;
+        // Create enough index space to render whole level
+        mRenderOp.indexData->indexBuffer = HardwareBufferManager::getSingleton()
+            .createIndexBuffer(
+                HardwareIndexBuffer::IT_32BIT, // always 32-bit
+                mLevel->mNumIndexes, 
+                HardwareBuffer::HBU_DYNAMIC, false);
+
         mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
         mRenderOp.useIndexes = true;
 
@@ -127,10 +137,31 @@ namespace Ogre {
 
         // For each material in turn, cache rendering data & render
         MaterialFaceGroupMap::const_iterator mati;
+
         for (mati = mMatFaceGroupMap.begin(); mati != mMatFaceGroupMap.end(); ++mati)
         {
             // Get Material
             Material* thisMaterial = mati->first;
+
+            // Empty existing cache
+            mRenderOp.indexData->indexCount = 0;
+            // lock index buffer ready to receive data
+            unsigned int* pIdx = static_cast<unsigned int*>(
+                mRenderOp.indexData->indexBuffer->lock(HardwareBuffer::HBL_DISCARD));
+
+            for (faceGrpi = mati->second.begin(); faceGrpi != mati->second.end(); ++faceGrpi)
+            {
+                // Cache each
+                unsigned int numelems = cacheGeometry(pIdx, *faceGrpi);
+                mRenderOp.indexData->indexCount += numelems;
+                pIdx += numelems;
+            }
+            // Unlock the buffer
+            mRenderOp.indexData->indexBuffer->unlock();
+
+            // Skip if no faces to process (we're not doing flare types yet)
+            if (mRenderOp.indexData->indexCount == 0)
+                continue;
 
             int matLayersLeft = thisMaterial->getNumTextureLayers();
 
@@ -139,42 +170,7 @@ namespace Ogre {
                 // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
                 matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
 
-                for (faceGrpi = mati->second.begin(); faceGrpi != mati->second.end(); ++faceGrpi)
-                {
-                    StaticFaceGroup* faceGroup = *faceGrpi;
-
-                    // Skip sky always
-                    if (faceGroup->isSky)
-                        continue;
-                    if (faceGroup->fType == FGT_FACE_LIST)
-                    {
-                        // Render standard face group
-                        // Update vertex data to reflect buffer subset
-                        mRenderOp.vertexData->vertexStart = faceGroup->vertexStart;
-                        mRenderOp.vertexData->vertexCount = faceGroup->numVertices;
-
-                        // Update index data to reflect buffer subset
-                        mRenderOp.indexData->indexStart = faceGroup->elementStart;
-                        mRenderOp.indexData->indexCount = faceGroup->numElements;
-                        
-                        mDestRenderSystem->_render(mRenderOp);
-
-                    }
-                    else if (faceGroup->fType == FGT_PATCH)
-                    {
-                        // Get mesh data
-                        // NB for now, subdivision level is preset
-                        // TODO: maybe dynamic based on frame rate?
-                        Mesh* msh;
-                        SubMesh* smsh;
-                        msh = faceGroup->patchSurf->getMesh();
-                        smsh = msh->getSubMesh(0);
-                        smsh->_getRenderOperation(patchOp);
-                        mDestRenderSystem->_render(patchOp);
-
-                    }
-
-                }
+                mDestRenderSystem->_render(mRenderOp);
 
 
             } while (matLayersLeft > 0);
@@ -343,86 +339,61 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BspSceneManager::clearGeometryCaches(void)
+    unsigned int BspSceneManager::cacheGeometry(unsigned int* pIndexes, 
+        const StaticFaceGroup* faceGroup)
     {
-        /*
-        mPendingGeometry.numVertices = 0;
-        mPendingGeometry.numIndexes = 0;
-        */
-
-
-    }
-    //-----------------------------------------------------------------------
-    void BspSceneManager::cacheGeometry(const StaticFaceGroup* faceGroup)
-    {
-        /*
         // Skip sky always
         if (faceGroup->isSky)
-            return;
+            return 0;
 
         if (faceGroup->fType == FGT_FACE_LIST)
         {
 
-            // Copy vertex data
-            memcpy((BspLevel::BspVertex*)mPendingGeometry.pVertices + mPendingGeometry.numVertices,
-                mLevel->mVertices + faceGroup->vertexStart,
-                sizeof(BspLevel::BspVertex) * faceGroup->numVertices);
-
-            // Copy indexes
-            // NB indexes are 4-byte integers in source, must be 2-byte shorts in rendering op
-            // Also indexes have to be made relative to start of cache buffer
-            // So have to loop rather than memcpy
-            unsigned short* dest = mPendingGeometry.pIndexes + mPendingGeometry.numIndexes;
-            int* src = mLevel->mElements + faceGroup->elementStart;
-            int numElems = faceGroup->numElements;
-            while (numElems--)
+            // Copy index data
+            unsigned int* pSrc = mLevel->mIndexes + faceGroup->elementStart;
+            //memcpy(pIndexes, pSrc, sizeof(unsigned int) * faceGroup->numElements);
+            for (int elem = 0; elem < faceGroup->numElements; ++elem)
             {
-                // Is relative to elementStart in faceGroup
-                // Make relative to cache start, i.e. offset by vertices done already
-                *dest++ = (*src++) + mPendingGeometry.numVertices;
+                // Offset the indexes here
+                // we have to do this now rather than up-front because the 
+                // indexes are sometimes reused to address different vertex chunks
+                *pIndexes++ = *pSrc++ + faceGroup->vertexStart;
             }
 
-            mPendingGeometry.numVertices += faceGroup->numVertices;
-            mPendingGeometry.numIndexes += faceGroup->numElements;
+            // return number of elements
+            return faceGroup->numElements;
         }
         else if (faceGroup->fType == FGT_PATCH)
         {
-            // Get mesh data
-            // NB for now, subdivision level is preset
-            // TODO: maybe dynamic based on frame rate?
+            // Patch
+            // Just queue for rendering in normal pipeline rather than mess up the
+            // continuity of our main vertex data
+            /*
             Mesh* msh;
             SubMesh* smsh;
             msh = faceGroup->patchSurf->getMesh();
             smsh = msh->getSubMesh(0);
 
-            // Copy vertex data from mesh in patch
-            memcpy((BspLevel::BspVertex*)mPendingGeometry.pVertices + mPendingGeometry.numVertices,
-                msh->sharedGeometry.pVertices,
-                sizeof(BspLevel::BspVertex) * msh->sharedGeometry.numVertices);
+            //mRenderQueue.addRenderable(smsh);
 
-            // Copy indexes
-            unsigned short* dest = mPendingGeometry.pIndexes + mPendingGeometry.numIndexes;
-            unsigned short* src = smsh->faceVertexIndices;
-            int numElems = smsh->numFaces * 3;
-            while (numElems--)
-            {
-                // Is relative to start of mesh vertices
-                // Make relative to cache start, i.e. offset by vertices done already
-                *dest++ = (*src++) + mPendingGeometry.numVertices;
-            }
+            // no 'main' indexes used
+            */
+            return 0;
 
-            mPendingGeometry.numVertices += msh->sharedGeometry.numVertices;
-            mPendingGeometry.numIndexes += smsh->numFaces * 3;
 
 
         }
-        */
+
+        // to keep compiler happy
+        return 0;
 
     }
 
     //-----------------------------------------------------------------------
     void BspSceneManager::freeMemory(void)
     {
+        // no need to delete index buffer, will be handled by shared pointer
+        //delete mRenderOp.indexData; // causing an error right now?
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::showNodeBoxes(bool show)

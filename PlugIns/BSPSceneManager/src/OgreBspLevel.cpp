@@ -47,6 +47,7 @@ namespace Ogre {
         mName = name;
         mRootNode = 0;
         mBrushes = 0;
+        mIndexes = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -80,7 +81,7 @@ namespace Ogre {
     void BspLevel::unload()
     {
         delete mVertexData;
-        delete mIndexData;
+        delete [] mIndexes;
         delete [] mFaceGroups;
         delete [] mLeafFaceGroups;
         delete [] mRootNode;
@@ -157,9 +158,6 @@ namespace Ogre {
         // Setup binding
         mVertexData->vertexBufferBinding->setBinding(0, vbuf);
         // Set other data
-        // Note that vertexStart and vertexCount will both be overridden per 
-        // rendering subset when rendering for real
-        // Just initialised to the whole buffer for fun really :)
         mVertexData->vertexStart = 0;
         mVertexData->vertexCount = q3lvl.mNumVertices;
 
@@ -173,18 +171,10 @@ namespace Ogre {
         mFaceGroups = new StaticFaceGroup[mNumFaceGroups];
         // Set up index buffer
         // NB Quake3 indexes are 32-bit
-        mIndexData = new IndexData();
-        mIndexData->indexBuffer = HardwareBufferManager::getSingleton()
-            .createIndexBuffer(
-                HardwareIndexBuffer::IT_32BIT, 
-                q3lvl.mNumElements, 
-                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
-        mIndexData->indexBuffer->writeData(
-            0, mIndexData->indexBuffer->getSizeInBytes(), q3lvl.mElements, true);
-        // NB indexStart / indexCount will be overridden later based on rendering subsets
-        // Just initialised to the whole buffer for fun really :)
-        mIndexData->indexStart = 0;
-        mIndexData->indexCount = q3lvl.mNumElements;
+        // Copy the indexes into a software area for staging
+        mNumIndexes = q3lvl.mNumElements;
+        mIndexes = new unsigned int[mNumIndexes];
+        memcpy(mIndexes, q3lvl.mElements, sizeof(unsigned int) * mNumIndexes);
 
         //-----------------------------------------------------------------------
         // Create materials for shaders
@@ -302,6 +292,22 @@ namespace Ogre {
                 // Assign plane
                 dest->plane.normal = Vector3(src->normal);
                 dest->plane.d = -dest->plane.normal.dotProduct(Vector3(src->org));
+
+                /*
+                 Don't do this here - Quake3 re-uses some indexes for multiple vertex
+                 groups eg repeating small details have the same relative vertex data but
+                 use the same index data.
+
+                // Loop through all the indexes used by this face and rebase them so they
+                // are relative to the start of a shared vertex buffer, this is because we're
+                // going to use one buffer instead of copying vertex data per frame
+                unsigned int* pIdx = mIndexes + dest->elementStart;
+                for (int elem = 0; elem < dest->numElements; ++elem)
+                {
+                    *pIdx = *pIdx + dest->vertexStart;
+                    pIdx++;
+                }
+                */
             }
             else if (src->type == BSP_FACETYPE_PATCH)
             {
@@ -315,6 +321,7 @@ namespace Ogre {
 
                     // Set up patch surface
                     dest->fType = FGT_PATCH;
+                    /*
                     dest->patchSurf = new PatchSurface();
                     // Set up control points & format
                     // Same format as in BspSceneManager::mPendingGeometry - see that for details
@@ -331,6 +338,7 @@ namespace Ogre {
                         PatchSurface::PST_BEZIER);
                     // Build the patch
                     dest->patchSurf->build();
+                    */
                 }
 
 
