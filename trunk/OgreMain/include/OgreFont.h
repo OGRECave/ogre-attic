@@ -30,9 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreTextureManager.h"
 #include "OgreMaterial.h"
 #include "OgreMaterialManager.h"
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_GLYPH_H
 
 
 namespace Ogre
@@ -103,10 +100,6 @@ namespace Ogre
 
         /// for TRUE_TYPE font only
         bool mAntialiasColour;
-
-        /// Freetype link 
-        static FT_Library mLibrary;
-        static bool mFreetypeInitDone;
 
         /// Internal method for loading from ttf
         void createTextureFromFont(void);

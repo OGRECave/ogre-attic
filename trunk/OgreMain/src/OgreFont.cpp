@@ -30,14 +30,16 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreSDDataChunk.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
 
 
 
 namespace Ogre
 {
     //---------------------------------------------------------------------
-    FT_Library Font::mLibrary;
-    bool Font::mFreetypeInitDone = false;
+    
     //---------------------------------------------------------------------
     Font::Font( const String& name)
     {
@@ -49,20 +51,13 @@ namespace Ogre
         mTtfResolution = 0;
         mAntialiasColour = false;
 
-        if (!mFreetypeInitDone)
-        {
-            // Init freetype
-            if( FT_Init_FreeType( &mLibrary ) )
-                Except( Exception::ERR_INTERNAL_ERROR, "Could not init FreeType library!",
-                "Font::Font");
-            mFreetypeInitDone = true;
 
-        }
 
     }
     //---------------------------------------------------------------------
     Font::~Font()
     {
+
     }
     //---------------------------------------------------------------------
     void Font::setType(FontType ftype)
@@ -183,7 +178,13 @@ namespace Ogre
     //---------------------------------------------------------------------
     void Font::createTextureFromFont(void)
     {
-        uint i, l, m, n;
+		FT_Library ftLibrary;
+		// Init freetype
+        if( FT_Init_FreeType( &ftLibrary ) )
+            Except( Exception::ERR_INTERNAL_ERROR, "Could not init FreeType library!",
+            "Font::Font");
+
+		uint i, l, m, n;
         int j, k;
 
         FT_Face face;
@@ -200,7 +201,7 @@ namespace Ogre
         DataChunk ttfchunk;
         FontManager::getSingleton()._findResourceData(mSource, ttfchunk);
         // Load font
-        if( FT_New_Memory_Face( mLibrary, ttfchunk.getPtr(), (FT_Long)ttfchunk.getSize() , 0, &face ) )
+        if( FT_New_Memory_Face( ftLibrary, ttfchunk.getPtr(), (FT_Long)ttfchunk.getSize() , 0, &face ) )
             Except( Exception::ERR_INTERNAL_ERROR, 
             "Could not open font face!", "Font::createTextureFromFont" );
 
@@ -335,6 +336,8 @@ namespace Ogre
         mpMaterial->addTextureLayer( texName );
         
         // SDDatachunk will delete imageData
+
+		FT_Done_FreeType(ftLibrary);
     }
 
 

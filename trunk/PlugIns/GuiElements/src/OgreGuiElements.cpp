@@ -75,6 +75,7 @@ namespace Ogre {
         delete pBorderPanelFactory;
         delete pTextAreaFactory;
 		delete pButtonFactory;
+		delete pListFactory;
 		delete pCursorGui;
 
     }
