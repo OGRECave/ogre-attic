@@ -1002,7 +1002,7 @@ namespace Ogre {
 	    StringVector vecparams;
 
 	    // Split params on space
-	    vecparams = line.split(" ");
+	    vecparams = line.split(" \t");
 	    StringVector::iterator params = vecparams.begin();
 
 	    // Look up first param (command setting)
@@ -1030,7 +1030,7 @@ namespace Ogre {
 	    StringVector vecparams;
 
 	    // Split params on space
-	    vecparams = line.split(" ");
+	    vecparams = line.split(" \t");
 	    StringVector::iterator params = vecparams.begin();
 
 	    // Look up first param (command setting)

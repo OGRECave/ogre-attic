@@ -188,7 +188,7 @@ namespace Ogre {
     {
         StringVector vecparams;
 
-        vecparams = line.split(" ");
+        vecparams = line.split(" \t");
         StringVector::iterator params = vecparams.begin();
 
         if (params[0] == "skyparms")
@@ -241,7 +241,7 @@ namespace Ogre {
     {
         StringVector vecparams;
 
-        vecparams = line.split(" ");
+        vecparams = line.split(" \t");
         StringVector::iterator params = vecparams.begin();
 
         params[0] == params[0].toLowerCase();

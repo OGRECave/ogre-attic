@@ -425,7 +425,7 @@ namespace Ogre {
                 {
                     if (line.substr(0, 8) == "position")
                     {
-                        params = line.split(" ");
+                        params = line.split(" \t");
                         if (params.size() != 4)
                         {
                             LogManager::getSingleton().logMessage("Bad position attribute line: '"
@@ -439,7 +439,7 @@ namespace Ogre {
                     }
                     else if (line.substr(0, 8) == "rotation")
                     {
-                        params = line.split(" ");
+                        params = line.split(" \t");
                         if (params.size() != 5)
                         {
                             LogManager::getSingleton().logMessage("Bad rotation attribute line: '"
