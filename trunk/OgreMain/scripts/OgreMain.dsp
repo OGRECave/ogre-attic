@@ -304,7 +304,15 @@ SOURCE=..\src\OgreILImageCodec.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreILUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreImage.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreImageResampler.h
 # End Source File
 # Begin Source File
 
@@ -546,6 +554,10 @@ SOURCE=..\src\OgreRenderWindow.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreResource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreResourceBackgroundQueue.cpp
 # End Source File
 # Begin Source File
 
@@ -973,6 +985,10 @@ SOURCE=..\include\OgreILImageCodec.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreILUtil.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreImage.h
 # End Source File
 # Begin Source File
@@ -1282,6 +1298,10 @@ SOURCE=..\include\OgreRenderWindow.h
 # Begin Source File
 
 SOURCE=..\include\OgreResource.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreResourceBackgroundQueue.h
 # End Source File
 # Begin Source File
 

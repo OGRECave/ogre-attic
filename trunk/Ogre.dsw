@@ -252,6 +252,84 @@ Package=<4>
 
 ###############################################################################
 
+Project: "Demo_Grass"=.\Samples\Grass\scripts\Demo_Grass.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_CgProgramManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D9
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_GL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "Demo_Gui"=.\Samples\Gui\scripts\Demo_Gui.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name OgreMain
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name PlatformManager_Win32
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_BSPSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_CgProgramManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_OctreeSceneManager
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Plugin_ParticleFX
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D7
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_Direct3D9
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name RenderSystem_GL
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "Demo_Lighting"=.\Samples\Lighting\scripts\Demo_Lighting.dsp - Package Owner=<4>
 
 Package=<5>
