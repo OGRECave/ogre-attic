@@ -253,6 +253,7 @@ namespace Ogre {
         LightList mLightsAffectingFrustum;
         HardwareIndexBufferSharedPtr mShadowIndexBuffer;
         Rectangle2D* mFullScreenQuad;
+
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
             Custom scene managers are encouraged to override this method to make use of their
@@ -268,6 +269,12 @@ namespace Ogre {
         @param cam The camera being viewed from
         */
         virtual void renderShadowVolumesToStencil(const Light* light, const Camera* cam);
+        /** Internal utility method for setting stencil state for rendering shadow volumes. 
+        @param secondpass Is this the second pass?
+        @param zfail Should we be using the zfail method?
+        @param twosided Should we use a 2-sided stencil?
+        */
+        virtual void setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided);
 
         typedef std::vector<ShadowCaster*> ShadowCasterList;
         ShadowCasterList mShadowCasterList;
