@@ -113,8 +113,10 @@ namespace Ogre {
         PF_FLOAT32_RGBA = 25,
 		// Depth texture format
 		PF_DEPTH = 29,
+		// 64-bit pixel format, 16 bits for red, green, blue and alpha
+		PF_SHORT_RGBA = 30,
 		// Number of pixel formats currently defined
-        PF_COUNT = 30
+        PF_COUNT = 31
     };
 
     /**

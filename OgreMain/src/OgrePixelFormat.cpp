@@ -406,6 +406,17 @@ namespace Ogre {
         0, 0, 0, 0,
         /* Masks and shifts */
 		0, 0, 0, 0, 0, 0, 0, 0
+        },
+	//-----------------------------------------------------------------------
+		{"PF_SHORT_RGBA",
+		/* Bytes per element */ 
+        8,  
+        /* Flags */
+        PFF_HASALPHA,  
+        /* rbits, gbits, bbits, abits */
+        16, 16, 16, 16,
+        /* Masks and shifts */
+		0, 0, 0, 0, 0, 0, 0, 0
         }
     };
     //-----------------------------------------------------------------------
@@ -632,6 +643,12 @@ namespace Ogre {
                 ((uint16*)dest)[2] = Bitwise::floatToHalf(b);
                 ((uint16*)dest)[3] = Bitwise::floatToHalf(a);
                 break;
+			case PF_SHORT_RGBA:
+				((uint16*)dest)[0] = Bitwise::floatToFixed(r, 16);
+                ((uint16*)dest)[1] = Bitwise::floatToFixed(g, 16);
+                ((uint16*)dest)[2] = Bitwise::floatToFixed(b, 16);
+                ((uint16*)dest)[3] = Bitwise::floatToFixed(a, 16);
+				break;
             default:
                 // Not yet supported
                 Except(
@@ -739,6 +756,12 @@ namespace Ogre {
                 *b = Bitwise::halfToFloat(((uint16*)src)[2]);
                 *a = Bitwise::halfToFloat(((uint16*)src)[3]);
                 break;
+			case PF_SHORT_RGBA:
+				*r = Bitwise::fixedToFloat(((uint16*)src)[0], 16);
+                *g = Bitwise::fixedToFloat(((uint16*)src)[1], 16);
+				*b = Bitwise::fixedToFloat(((uint16*)src)[2], 16);
+				*a = Bitwise::fixedToFloat(((uint16*)src)[3], 16);
+				break;
             default:
                 // Not yet supported
                 Except(Exception::UNIMPLEMENTED_FEATURE, 
@@ -891,6 +914,8 @@ namespace Ogre {
 			switch(ImageType)
             {
 			case IL_FLOAT:  fmt = PF_FLOAT32_RGB; break;
+			case IL_UNSIGNED_SHORT: 
+			case IL_SHORT:  fmt = PF_SHORT_RGBA; break;
 			default:       	fmt = PF_BYTE_RGB; break;
 			}
             break;
@@ -898,6 +923,8 @@ namespace Ogre {
 			switch(ImageType)
             {
 			case IL_FLOAT:  fmt = PF_FLOAT32_RGB; break;
+			case IL_UNSIGNED_SHORT: 
+			case IL_SHORT:  fmt = PF_SHORT_RGBA; break;
 			default:       	fmt = PF_BYTE_BGR; break;
 			}
             break;            
@@ -905,6 +932,8 @@ namespace Ogre {
 			switch(ImageType)
             {
 			case IL_FLOAT:  fmt = PF_FLOAT32_RGBA; break;
+			case IL_UNSIGNED_SHORT: 
+			case IL_SHORT:  fmt = PF_SHORT_RGBA; break;
 			default:       	fmt = PF_BYTE_RGBA; break;
 			}
             break;
@@ -912,6 +941,8 @@ namespace Ogre {
 			switch(ImageType)
             {
 			case IL_FLOAT:  fmt = PF_FLOAT32_RGBA; break;
+			case IL_UNSIGNED_SHORT: 
+			case IL_SHORT:  fmt = PF_SHORT_RGBA; break;
 			default:       	fmt = PF_BYTE_BGRA; break;
 			}
             break;
@@ -927,7 +958,8 @@ namespace Ogre {
             }
             break;            
         case IL_LUMINANCE_ALPHA:
-            fmt = PF_A4L4;
+            //fmt = PF_A4L4;
+			fmt = PF_A8R8G8B8; // better to return this, as it is at least supported by all rendersystems, and has more precision
             break;
         }  
         return fmt;
@@ -945,6 +977,7 @@ namespace Ogre {
 			case PF_BYTE_RGBA: return ILFormat(4, IL_RGBA, IL_UNSIGNED_BYTE);
             case PF_BYTE_BGR: return ILFormat(3, IL_BGR, IL_UNSIGNED_BYTE);
             case PF_BYTE_BGRA: return ILFormat(4, IL_BGRA, IL_UNSIGNED_BYTE);
+			case PF_SHORT_RGBA: return ILFormat(4, IL_RGBA, IL_UNSIGNED_SHORT);
 			case PF_FLOAT32_RGB: return ILFormat(3, IL_RGB, IL_FLOAT);
 			case PF_FLOAT32_RGBA: return ILFormat(4, IL_RGBA, IL_FLOAT);
 			case PF_DXT1: return ILFormat(0, IL_DXT1);
@@ -957,6 +990,20 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
+	/// Helper functions for DevIL to Ogre conversion
+	inline void packI(uint8 r, uint8 g, uint8 b, uint8 a, PixelFormat pf,  void* dest)
+	{
+		PixelUtil::packColour(r, g, b, a, pf, dest);
+	}
+	inline void packI(uint16 r, uint16 g, uint16 b, uint16 a, PixelFormat pf,  void* dest)
+	{
+		PixelUtil::packColour((float)r/65535.0f, (float)g/65535.0f, 
+			(float)b/65535.0f, (float)a/65535.0f, pf, dest);
+	}
+	inline void packI(float r, float g, float b, float a, PixelFormat pf,  void* dest)
+	{
+		PixelUtil::packColour(r, g, b, a, pf, dest);
+	}
     template <typename T> void ilToOgreInternal(uint8 *tar, PixelFormat ogrefmt, 
         T r, T g, T b, T a)
     {
@@ -993,7 +1040,7 @@ namespace Ogre {
 			default:
 				return;
             }
-            PixelUtil::packColour(r, g, b, a, ogrefmt, tar);
+            packI(r, g, b, a, ogrefmt, tar);
             tar += elemSize;
         }
 
@@ -1029,9 +1076,7 @@ namespace Ogre {
 		// If yes, we can just copy it and save conversion
 		ILFormat ifmt = OgreFormat2ilFormat( dst.format );
 		if(ifmt.format == ilfmt && ILabs(ifmt.type) == ILabs(iltp)) {
-            std::copy(static_cast<uint8*>(ilGetData()), 
-                static_cast<uint8*>(ilGetData()) + ilGetInteger( IL_IMAGE_SIZE_OF_DATA ), 
-                static_cast<uint8*>(dst.data));
+            memcpy(dst.data, ilGetData(), ilGetInteger( IL_IMAGE_SIZE_OF_DATA )); 
             return;
         }
 		// Try if buffer is in a known OGRE format so we can use OGRE its
@@ -1055,6 +1100,11 @@ namespace Ogre {
         else if(iltp == IL_FLOAT)
         {
             ilToOgreInternal(static_cast<uint8*>(dst.data), dst.format, 0.0f,0.0f,0.0f,1.0f);          
+        }
+		else if(iltp == IL_SHORT || iltp == IL_UNSIGNED_SHORT)
+        {
+			ilToOgreInternal(static_cast<uint8*>(dst.data), dst.format, 
+				(uint16)0x0000,(uint16)0x0000,(uint16)0x0000,(uint16)0xFFFF); 
         }
         else 
         {
