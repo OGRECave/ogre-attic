@@ -101,7 +101,7 @@ namespace Ogre
         mTimePos = mTimePos + offset;
 
         // Wrap over upper bound
-        while (mTimePos > mLength)
+        while (mTimePos >= mLength)
         {
             mTimePos -= mLength;
         }

@@ -28,21 +28,25 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreNode.h"
 #include "OgreLogManager.h"
 
+// Debug
+#include "OgreRenderWindow.h"
+#include "OgreRoot.h"
+Ogre::RenderWindow* mMainWindow = 0;
+// End Debug
+
 namespace Ogre {
 
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent) : mParent(parent)
     {
-        // Create first keyframe
-        createKeyFrame(0.0);
         mTargetNode = 0;
+        mMaxKeyFrameTime = -1;
     }
     //---------------------------------------------------------------------
     AnimationTrack::AnimationTrack(Animation* parent, Node* targetNode) 
         : mTargetNode(targetNode)
     {
-        // Create first keyframe
-        createKeyFrame(0.0);
+        mMaxKeyFrameTime = -1;
     }
     //---------------------------------------------------------------------
     AnimationTrack::~AnimationTrack()
@@ -75,7 +79,7 @@ namespace Ogre {
 
         KeyFrameList::const_iterator i = mKeyFrames.begin();
         // Find last keyframe before or on current time
-        while (i != mKeyFrames.end() && (*i)->getTime() < timePos)
+        while (i != mKeyFrames.end() && (*i)->getTime() <= timePos)
         {
             *keyFrame1 = *i++;
         }
@@ -173,24 +177,6 @@ namespace Ogre {
 
         Real t = this->getKeyFramesAtTime(timeIndex, &k1, &k2);
 
-
-        // DEBUG
-        String msg;
-        msg = "Keyframe interpolation at time ";
-        msg << timeIndex << " : ";
-        if (t == 0.0)
-        {
-            msg << "(Single keyframe) time=" << k1->getTime();
-        }
-        else
-        {
-            msg << "k1 time=" << k1->getTime() << ";k2 time=" << k2->getTime();
-            msg << ";t=" << t;
-
-        }
-        LogManager::getSingleton().logMessage(msg);
-
-
         if (t == 0.0)
         {
             // Just use k1
@@ -206,14 +192,15 @@ namespace Ogre {
             kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), k2->getRotation()) );
 
             // Translation
-            kret.setTranslate( (k2->getTranslate() - k1->getTranslate()) * t );
+            Vector3 base = k1->getTranslate();
+            kret.setTranslate( base + ((k2->getTranslate() - base) * t) );
 
             // Scale
-            kret.setScale( (k2->getScale() - k1->getScale()) * t );
+            base = k1->getScale();
+            kret.setScale( base + ((k2->getScale() - base) * t) );
 
         }
         
-
         return kret;
         
     }
@@ -238,8 +225,20 @@ namespace Ogre {
     {
         KeyFrame kf = this->getInterpolatedKeyFrame(timePos);
 
-        node->rotate(kf.getRotation() * weight);
+        /*
+        // DEBUG
+        if (!mMainWindow)
+        {
+            mMainWindow = Root::getSingleton().getRenderWindow("OGRE Render Window");
+        }
+        String msg = "Time: ";
+        msg << timePos;
+        mMainWindow->setDebugText(msg);
+        */
+
+        node->rotate(kf.getRotation());
         node->translate(kf.getTranslate() * weight);
+
 
 
     }

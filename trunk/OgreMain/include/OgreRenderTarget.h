@@ -187,6 +187,9 @@ namespace Ogre {
         */
         virtual void getCustomAttribute(String name, void* pData);
 
+        /** Adds debug text to this window. */
+        virtual void setDebugText(const String& text);
+
     protected:
         /// The name of this target
         String mName;
@@ -203,6 +206,8 @@ namespace Ogre {
         float mBestFPS;
         float mWorstFPS;
         unsigned int mTris;
+        String mDebugText;
+
         void updateStats(void);
 
         typedef std::map<int, Viewport*, std::less<int> > ViewportList;

@@ -152,6 +152,7 @@ namespace Ogre
         */
         virtual void getMetrics(int &width, int &height, int &colourDepth, int &left, int &top);
 
+
     protected:
         bool mIsFullScreen;
         int mLeft;

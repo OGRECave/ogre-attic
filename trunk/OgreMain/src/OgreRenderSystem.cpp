@@ -145,7 +145,7 @@ namespace Ogre {
     {
         RenderWindowMap::iterator it = mRenderWindows.find(name);
 
-        if( it != mRenderWindows.end() )
+        if( it == mRenderWindows.end() )
             Except(
                 Exception::ERR_ITEM_NOT_FOUND,
                 "Cannot find window called '" + name + "'",

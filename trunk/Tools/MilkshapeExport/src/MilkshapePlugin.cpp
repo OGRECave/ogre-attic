@@ -714,7 +714,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
             << currSplit.end << " inclusive.";
         logMgr.logMessage(msg);
         Ogre::Animation *ogreanim = 
-            ogreskel->createAnimation(currSplit.name, (currSplit.end - currSplit.start) + 1);
+            ogreskel->createAnimation(currSplit.name, (currSplit.end - currSplit.start));
         logMgr.logMessage("Animation object created.");
 
         int i;
@@ -734,45 +734,34 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
             logMgr.logMessage("Animation track created.");
 
             // OGRE uses keyframes which are both position and rotation
-            // Milkshape separates them, so create merged OGRE keyframes
-            int numPosKeys = msBone_GetPositionKeyCount(bone);
-            int numRotKeys = msBone_GetRotationKeyCount(bone);
+            // Milkshape separates them, but never seems to use the ability to 
+            // have a different # of pos & rot keys
+
+            int numKeys = msBone_GetRotationKeyCount(bone);
 
             msg = "";
-            msg << "Number of keyframes: Pos: " << numPosKeys << " Rot: " << numRotKeys;
+            msg << "Number of keyframes: " << numKeys;
             logMgr.logMessage(msg);
 
-            int currPosIdx, currRotIdx;
+            int currKeyIdx;
             msPositionKey* currPosKey;
             msRotationKey* currRotKey;
-            currPosKey = msBone_GetPositionKeyAt(bone, 0);
-            currRotKey = msBone_GetRotationKeyAt(bone, 0);
-            int ogreKeyFrameCount = 0;
-            for (currPosIdx = 0, currRotIdx = 0; 
-                currPosIdx < numPosKeys && currRotIdx < numRotKeys;
-                ++ogreKeyFrameCount )
+            for (currKeyIdx = 0; currKeyIdx < numKeys; ++currKeyIdx )
             {
-                Ogre::Real time;
-                if (currPosKey->fTime > currRotKey->fTime)
-                {
-                    time = currPosKey->fTime;
-                }
-                else
-                {
-                    time = currRotKey->fTime;
-                }
+                currPosKey = msBone_GetPositionKeyAt(bone, currKeyIdx);
+                currRotKey = msBone_GetRotationKeyAt(bone, currKeyIdx);
 
                 // Make sure keyframe is in current time frame (for splitting)
-                if (time >= currSplit.start && time <= currSplit.end)
+                if (currRotKey->fTime >= currSplit.start && currRotKey->fTime <= currSplit.end)
                 {
 
                     msg = "";
-                    msg << "Creating combined (pos & rot) KeyFrame #" << ogreKeyFrameCount <<
+                    msg << "Creating KeyFrame #" << currKeyIdx <<
                         " for bone #" << i;
                     logMgr.logMessage(msg);
                     // Create keyframe
                     // Adjust for start time, and for the fact that frames are numbered from 1
-                    Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(time - currSplit.start);
+                    Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(currRotKey->fTime - currSplit.start);
                     logMgr.logMessage("KeyFrame created");
 
                     Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
@@ -786,52 +775,11 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     ogrekey->setRotation(kfQ);
 
                     msg = "";
-                    msg << "KeyFrame details: Time=" << time << " Position=" << kfPos << " " <<
+                    msg << "KeyFrame details: Time=" << currRotKey->fTime << " Position=" << kfPos << " " <<
                         "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] << "} " <<
                         "Orientation=" << kfQ;
                     logMgr.logMessage(msg);
                 } // keyframe creation
-
-                // Check to see which one is next
-                if (currPosIdx+1 == numPosKeys && currRotIdx+1 == numRotKeys)
-                    break; // were done
-
-                if (currPosIdx+1 == numPosKeys)
-                {
-                    // Use next rotation index since position indexes have run out
-                    currRotIdx++;
-                }
-                else if (currRotIdx+1 == numRotKeys)
-                {
-                    // Use next position index since rotation indexes have run out
-                    currPosIdx++;
-                }
-                else
-                {
-                    // Neither have run out, time to compare the times of the next of each
-                    // We want the lowest time of the next of each
-                    msPositionKey* possPosKey = msBone_GetPositionKeyAt(bone, currPosIdx+1);
-                    msRotationKey* possRotKey = msBone_GetRotationKeyAt(bone, currRotIdx+1);
-
-                    if (possPosKey->fTime == possRotKey->fTime)
-                    {
-                        // Increment both if equal
-                        currPosIdx++;
-                        currRotIdx++;
-                    }
-                    else if (possPosKey->fTime < possRotKey->fTime)
-                    {
-                        currPosIdx++;
-                    }
-                    else
-                    {
-                        currRotIdx++;
-                    }
-                }
-                
-                // Get the keys
-                currPosKey = msBone_GetPositionKeyAt(bone, currPosIdx);
-                currRotKey = msBone_GetRotationKeyAt(bone, currRotIdx);
 
             } // keys
         } //Bones
