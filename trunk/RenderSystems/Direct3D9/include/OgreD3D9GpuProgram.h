@@ -31,6 +31,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    /** Direct3D implementation of program parameters. */
+    class D3D9GpuProgramParameters : public GpuProgramParameters
+    {
+    public:
+        D3D9GpuProgramParameters() {}
+        /// @copydoc GpuProgram::setConstant
+		void setConstant(size_t index, const Matrix4& m);
+    };
+    
     /** Direct3D implementation of a few things common to low-level vertex & fragment programs. */
     class D3D9GpuProgram : public GpuProgram
     {
@@ -38,8 +47,6 @@ namespace Ogre {
         LPDIRECT3DDEVICE9 mpDevice;
     public:
         D3D9GpuProgram(GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev);
-        /// @copydoc GpuProgram::setConstant
-		void setConstant(size_t index, const Matrix4& m);
 
     };
 
@@ -49,11 +56,9 @@ namespace Ogre {
     protected:
         LPDIRECT3DVERTEXSHADER9 mpVertexShader;
     public:
-        D3D9GpuVertexProgram(GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuVertexProgram(LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
-        /// @copydoc GpuProgram::setConstant
-        void setConstant(size_t index, const Real *val, size_t count);
     protected:
         void loadFromSource(void);
     };
@@ -64,11 +69,9 @@ namespace Ogre {
     protected:
         LPDIRECT3DPIXELSHADER9 mpPixelShader;
     public:
-        D3D9GpuFragmentProgram(GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev);
+        D3D9GpuFragmentProgram(LPDIRECT3DDEVICE9 pDev);
         /// @copydoc Resource::unload
         void unload(void);
-        /// @copydoc GpuProgram::setConstant
-        void setConstant(size_t index, const Real *val, size_t count);
     protected:
         void loadFromSource(void);
     };

@@ -1829,4 +1829,19 @@ namespace Ogre
             (normalise || mForcedNormalisation) ? TRUE : FALSE);
     }
 	//---------------------------------------------------------------------
+    void D3D9RenderSystem::bindGpuProgram(GpuProgram* prg)
+    {
+        // TODO
+    }
+	//---------------------------------------------------------------------
+    void D3D9RenderSystem::unbindGpuProgram(GpuProgramType gptype)
+    {
+        // TODO
+    }
+	//---------------------------------------------------------------------
+    void D3D9RenderSystem::bindGpuProgramParameters(GpuProgramParameters* params)
+    {
+        // TODO
+    }
+
 }

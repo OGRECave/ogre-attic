@@ -406,6 +406,19 @@ namespace Ogre {
           RenderSystem
          */
         void setNormaliseNormals(bool normalise);
+        /** See
+          RenderSystem
+         */
+        void bindGpuProgram(GpuProgram* prg) { /* do nothing */}
+        /** See
+          RenderSystem
+         */
+        void unbindGpuProgram(GpuProgramType gptype){ /* do nothing */}
+        /** See
+          RenderSystem
+         */
+        void bindGpuProgramParameters(GpuProgramParameters* params) { /* do nothing */}
+
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

@@ -38,36 +38,7 @@ namespace Ogre
         mSource = source;
         mLoadFromFile = false;
 	}
-	//-----------------------------------------------------------------------------
-	void GpuProgram::setConstant(size_t index, Real val)
-	{
-		setConstant(index, &val, 1);
-	}
-	//-----------------------------------------------------------------------------
-	void GpuProgram::setConstant(size_t index, int val)
-	{
-		setConstant(index, &val, 1);
-	}
-	//-----------------------------------------------------------------------------
-	void GpuProgram::setConstant(size_t index, bool val)
-	{
-		setConstant(index, &val, 1);
-	}
-	//-----------------------------------------------------------------------------
-	void GpuProgram::setConstant(size_t index, const Vector4& vec)
-	{
-		setConstant(index++, &vec.x, 1);
-		setConstant(index++, &vec.y, 1);
-		setConstant(index++, &vec.z, 1);
-		setConstant(index++, &vec.w, 1);
-	}
-	//-----------------------------------------------------------------------------
-	void GpuProgram::setConstant(size_t index, const Vector3& vec)
-	{
-		setConstant(index++, &vec.x, 1);
-		setConstant(index++, &vec.y, 1);
-		setConstant(index++, &vec.z, 1);
-	}
+
 	//-----------------------------------------------------------------------------
 	void GpuProgram::load(void)
 	{
@@ -87,6 +58,51 @@ namespace Ogre
         loadFromSource();
 
         mIsLoaded = true;
+    }
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::setConstant(size_t index, Real val)
+	{
+		setConstant(index, &val, 1);
+	}
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::setConstant(size_t index, int val)
+	{
+		setConstant(index, &val, 1);
+	}
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
+	{
+		setConstant(index++, &vec.x, 1);
+		setConstant(index++, &vec.y, 1);
+		setConstant(index++, &vec.z, 1);
+		setConstant(index++, &vec.w, 1);
+	}
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::setConstant(size_t index, const Vector3& vec)
+	{
+		setConstant(index++, &vec.x, 1);
+		setConstant(index++, &vec.y, 1);
+		setConstant(index++, &vec.z, 1);
+	}
+    //-----------------------------------------------------------------------------
+    void GpuProgramParameters::setConstant(size_t index, const Real *val, size_t count)
+    {
+        // Expand if required
+        mRealConstants.reserve(index + count);
+
+        // Copy directly in since vector is a contiguous container
+        memcpy(&mRealConstants[index], val, sizeof(Real)*count);
+
+    }
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::setConstant(size_t index, const int *val, size_t count)
+    {
+        // Expand if required
+        mIntConstants.reserve(index + count);
+
+        // Copy directly in since vector is a contiguous container
+        memcpy(&mIntConstants[index], val, sizeof(int)*count);
+
     }
 
 

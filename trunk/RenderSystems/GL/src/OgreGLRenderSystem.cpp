@@ -1740,4 +1740,19 @@ namespace Ogre {
             glDisable(GL_NORMALIZE);
 
     }
+	//---------------------------------------------------------------------
+    void GLRenderSystem::bindGpuProgram(GpuProgram* prg)
+    {
+        // TODO
+    }
+	//---------------------------------------------------------------------
+    void GLRenderSystem::unbindGpuProgram(GpuProgramType gptype)
+    {
+        // TODO
+    }
+	//---------------------------------------------------------------------
+    void GLRenderSystem::bindGpuProgramParameters(GpuProgramParameters* params)
+    {
+        // TODO
+    }
 }
