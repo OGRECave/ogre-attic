@@ -183,7 +183,7 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
 		if(data.getHeight()*data.getWidth() != data.slicePitch)
 			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		
 		switch(mTarget)
 		{
@@ -227,7 +227,7 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 			glPixelStorei(GL_UNPACK_ROW_LENGTH, data.rowPitch);
 		if(data.getHeight()*data.getWidth() != data.slicePitch)
 			glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 0);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		switch(mTarget) {
 			case GL_TEXTURE_1D:
 				glTexSubImage1D(GL_TEXTURE_1D, mLevel, 
