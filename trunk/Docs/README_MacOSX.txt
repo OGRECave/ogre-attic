@@ -4,6 +4,7 @@
  See http://developer.apple.com/tools/ for more information.
 -You should download the latest 3rd party Frameworks from the 
 site. These frameworks go in ogrenew/Mac/Frameworks.
+-You will need the Cg Toolkit from http://developer.nvidia.com
 
 ***Building the Ogre Framework***
 Open OgreFramework.pbproj in the ogrenew/Mac/PB/OgreFramework 
