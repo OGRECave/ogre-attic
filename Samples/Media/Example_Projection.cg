@@ -1,0 +1,83 @@
+
+void generalPurposeProjection_vp(
+		float4 pos			: POSITION,
+		
+		out float4 oPos		: POSITION,
+		out float4 texCoord : TEXCOORD0,
+
+		uniform float4x4 worldViewProjMatrix,
+		uniform float4x4 worldMatrix,
+		uniform float4x4 texViewProjMatrix)
+{
+	oPos = mul(worldViewProjMatrix, pos);
+	// multiply position by world matrix, then by projective view/proj
+	float4 newpos = mul(worldMatrix, pos);
+	texCoord = mul(texViewProjMatrix, newpos);
+	
+}
+
+void generalPurposeProjection_fp(
+		float4 texCoord		: TEXCOORD0,
+		out float4 col		: COLOR,
+		uniform sampler2D texMap)
+{
+	col = tex2Dproj(texMap, texCoord);
+
+}
+		
+// Vertex program for projecting and distorting a texture
+void distortion_vp(
+		float4 pos			: POSITION,
+		float2 tex			: TEXCOORD0,
+		
+		out float4 oPos		: POSITION,
+		out float3 noiseCoord : TEXCOORD0,
+		out float4 projectionCoord : TEXCOORD1,
+
+		uniform float4x4 worldViewProjMatrix,
+		uniform float2   scroll, // the amount by which to scroll the noise
+		uniform float    noisePos // the stage of the noise
+		)
+{
+	oPos = mul(worldViewProjMatrix, pos);
+	// Projective texture coordinates, adjust for mapping
+	float4x4 scalemat = float4x4(0.5,   0,   0, 0.5, 
+	                               0,-0.5,   0, 0.5,
+								   0,   0, 0.5, 0.5,
+								   0,   0,   0,   1);
+	projectionCoord = mul(scalemat, oPos);
+	// Noise map coords
+	noiseCoord.xy = tex + scroll;
+	noiseCoord.z = noisePos;
+	
+}
+
+// Fragment program for distorting a texture using a 3D noise texture
+void distortion_fp(
+		float3 noiseCoord			: TEXCOORD0,
+		float4 projectionCoord		: TEXCOORD1,
+		
+		out float4 col		: COLOR,
+		
+		uniform float distortionRange,
+		uniform sampler2D texMap,
+		uniform sampler3D noiseMap
+		)
+{
+	// Randomly chosen offset for y noise sample
+	float3 yoffset = float3(0.31, 0.58, 0.23);
+	float2 distort;
+	// Sample the noise texture at 2 places
+	distort.x = tex3D(noiseMap, noiseCoord).x;
+	distort.y = tex3D(noiseMap, noiseCoord + yoffset).x;
+	// Scale the distortion from [0,1] to [-range,range]
+	distort = (distort * 2 - 1) * distortionRange;
+
+	// Do the tex projection manually so we can distort _after_
+	float2 final = projectionCoord.xy / projectionCoord.w;
+	final += distort;
+	
+	col = tex2D(texMap, final);
+
+
+}

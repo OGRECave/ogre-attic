@@ -622,3 +622,114 @@ material Examples/BumpMapping/MultiLightSpecular
 
 	}
 }
+
+//---------------------------
+// Projective texture section
+//---------------------------
+
+
+vertex_program Examples/TexProjectionVP cg
+{
+	source Example_Projection.cg
+	entry_point generalPurposeProjection_vp
+	profiles vs_1_1 arbvp1
+}
+
+fragment_program Examples/TexProjectionFP cg
+{
+	source Example_Projection.cg
+	entry_point generalPurposeProjection_fp
+	// sorry, ps_1_1 can't do this, fp20 can though
+	profiles ps_2_0 arbfp1 fp20
+}
+
+material Examples/GeneralTexProjection
+{
+	technique
+	{
+		pass 
+		{
+			
+			vertex_program_ref Examples/TexProjectionVP
+			{
+				param_named_auto worldViewProjMatrix worldviewproj_matrix
+				param_named_auto worldMatrix world_matrix
+				// You'll need to update the tex projection, I suggest using
+				// the Frustum class
+				//param_named_auto texWorldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/TexProjectionFP
+			{
+				// no params
+			}
+			texture_unit
+			{
+				// Project the OGRE logo
+				texture ogrelogo.jpg
+				tex_address_mode clamp
+			}
+		}
+		
+			
+	}
+    
+}
+
+//----------------------------
+// Distortion effects
+//----------------------------
+
+vertex_program Examples/DistortVP cg
+{
+	source Example_Projection.cg
+	entry_point distortion_vp
+	profiles vs_1_1 arbvp1
+}
+
+fragment_program Examples/DistortFP cg
+{
+	source Example_Projection.cg
+	entry_point distortion_fp
+	// sorry, ps_1_1 and fp20 can't do this
+	profiles ps_2_0 arbfp1
+}
+
+material Examples/Heatwave
+{
+	technique
+	{
+		pass 
+		{
+			
+			vertex_program_ref Examples/DistortVP
+			{
+				param_named_auto worldViewProjMatrix worldviewproj_matrix
+				param_named scroll float4 0 0 0 0
+				param_named noisePos float4 0 0 0 0
+				// scroll and noisePos will need updating per frame
+			}
+			fragment_program_ref Examples/DistortFP
+			{
+				param_named distortionRange float4 0.05 0 0 0
+			}
+			texture_unit
+			{
+				// Project the OGRE logo
+				texture ogrelogo.jpg
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				// Perlin noise volume
+				texture perlinvolume.dds 3d
+			}
+		}
+		
+			
+	}
+    
+}
+
+
+
+
