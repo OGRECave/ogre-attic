@@ -22,7 +22,7 @@
 				ImproveFloatingPointConsistency="FALSE"
 				OptimizeForProcessor="2"
 				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_USRDLL;_MT;_DLL;OGRE_NONCLIENT_BUILD;_STLP_DEBUG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_USRDLL;_MT;_DLL;OGRE_NONCLIENT_BUILD"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="TRUE"
