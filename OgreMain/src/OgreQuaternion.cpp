@@ -379,13 +379,20 @@ namespace Ogre {
         Real fSin = Math::Sin(fAngle);
         Real fInvSin = 1.0/fSin;
         Real fCoeff0 = Math::Sin((1.0-fT)*fAngle)*fInvSin;
+        Real fCoeff1 = Math::Sin(fT*fAngle)*fInvSin;
         // Do we need to invert rotation?
         if (fCos < 0.0f && shortestPath)
         {
             fCoeff0 = -fCoeff0;
+            // taking the complement requires renormalisation
+            Quaternion t(fCoeff0*rkP + fCoeff1*rkQ);
+            t.normalise();
+            return t;
         }
-        Real fCoeff1 = Math::Sin(fT*fAngle)*fInvSin;
-        return fCoeff0*rkP + fCoeff1*rkQ;
+        else
+        {
+            return fCoeff0*rkP + fCoeff1*rkQ;
+        }
     }
     //-----------------------------------------------------------------------
     Quaternion Quaternion::SlerpExtraSpins (Real fT,
@@ -436,6 +443,14 @@ namespace Ogre {
     {
         return (rhs.x == x) && (rhs.y == y) &&
             (rhs.z == z) && (rhs.w == w);
+    }
+    //-----------------------------------------------------------------------
+    Real Quaternion::normalise(void)
+    {
+        Real len = Norm();
+        Real factor = 1.0f / Math::Sqrt(len);
+        *this = *this * factor;
+        return len;
     }
 
 }
