@@ -48,7 +48,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #elif defined( __GNUC__ )
 #   define OGRE_COMPILER COMPILER_GNUC
-#   define OGRE_COMP_VER __VERSION__
+#   define OGRE_COMP_VER (__GNUC__ * 10000 \
+                          + __GNUC_MINOR__ * 100 \
+                          +__GNUC_PATCHLEVEL__)
 
 #elif defined( __BORLANDC__ )
 #   define OGRE_COMPILER COMPILER_BORL
