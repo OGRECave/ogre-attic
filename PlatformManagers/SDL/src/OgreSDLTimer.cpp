@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreSDLTimer.h"
+#include <sys/time.h>
 
 namespace Ogre {
     
