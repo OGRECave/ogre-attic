@@ -28,7 +28,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreArchiveEx.h"
-#include "unzip.h"
 
 namespace Ogre {
 
@@ -71,7 +70,7 @@ namespace Ogre {
         bool _allowFileCaching() const { return true; }
 
     private:
-        unzFile mArchive;
+        void* mArchive;
 
     };
 
