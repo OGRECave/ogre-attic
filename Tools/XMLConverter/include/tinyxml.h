@@ -43,6 +43,7 @@ distribution.
 #endif
 
 #if defined( DEBUG ) && defined( _MSC_VER )
+#define NOMINMAX
 #include <windows.h>
 #define TIXML_LOG OutputDebugString
 #else

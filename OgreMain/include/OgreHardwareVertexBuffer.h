@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreHardwareBuffer.h"
 #include "OgreSharedPtr.h"
+#include "OgreColourValue.h"
 
 namespace Ogre {
     /** Specialisation of HardwareBuffer for a vertex buffer. */
@@ -157,6 +158,36 @@ namespace Ogre {
             else
                 return true;
 
+        }
+        /** Adjusts a pointer to the base of a vertex to point at this element.
+        @remarks
+            This variant is for Real pointers, passed as a parameter because we can't
+            rely on covariant return types.
+        @param pBase Pointer to the start of a vertex in this buffer.
+        @param pElem Pointer to a pointer which will be set to the start of this element.
+        */
+        inline void baseVertexPointerToElement(void* pBase, Real** pElem) const
+        {
+            // The only way we can do this is to cast to char* in order to use byte offset
+            // then cast back to Real*. However we have to go via void* because casting  
+            // directly is not allowed
+            *pElem = static_cast<Real*>(
+                static_cast<void*>(
+                    static_cast<unsigned char*>(pBase) + mOffset));
+        }
+
+        /** Adjusts a pointer to the base of a vertex to point at this element.
+        @remarks
+            This variant is for RGBA pointers, passed as a parameter because we can't
+            rely on covariant return types.
+        @param pBase Pointer to the start of a vertex in this buffer.
+        @param pElem Pointer to a pointer which will be set to the start of this element.
+        */
+        inline void baseVertexPointerToElement(void* pBase, RGBA** pElem) const
+        {
+            *pElem = static_cast<RGBA*>(
+                static_cast<void*>(
+                    static_cast<unsigned char*>(pBase) + mOffset));
         }
 
 

@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreHardwareBufferManager.h"
 
-
 namespace Ogre {
 
     //---------------------------------------------------------------------
@@ -57,7 +56,10 @@ namespace Ogre {
         // shared geometry
         elem = rootElem->FirstChildElement("sharedgeometry");
         if (elem)
+        {
+            mpMesh->sharedVertexData = new VertexData();
             readGeometry(elem, mpMesh->sharedVertexData);
+        }
 
         // submeshes
         elem = rootElem->FirstChildElement("submeshes");
@@ -326,7 +328,7 @@ namespace Ogre {
 					switch(elem.getSemantic())
 					{
 					case VES_POSITION:
-						pReal = static_cast<Real*>(static_cast<void*>(pVert + elem.getOffset()));
+						elem.baseVertexPointerToElement(pVert, &pReal);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("position"))->ToElement();
 						dataNode->SetAttribute("x", StringConverter::toString(pReal[0]));
@@ -334,29 +336,29 @@ namespace Ogre {
 						dataNode->SetAttribute("z", StringConverter::toString(pReal[2]));
 						break;
 					case VES_NORMAL:
-						pReal = static_cast<Real*>(static_cast<void*>(pVert + elem.getOffset()));
+						elem.baseVertexPointerToElement(pVert, &pReal);
 						dataNode = 
-							vertexNode->InsertEndChild(TiXmlElement("position"))->ToElement();
+							vertexNode->InsertEndChild(TiXmlElement("normal"))->ToElement();
 						dataNode->SetAttribute("x", StringConverter::toString(pReal[0]));
 						dataNode->SetAttribute("y", StringConverter::toString(pReal[1]));
 						dataNode->SetAttribute("z", StringConverter::toString(pReal[2]));
 						break;
 					case VES_DIFFUSE:
-						pColour = static_cast<RGBA*>(static_cast<void*>(pVert + elem.getOffset()));
+						elem.baseVertexPointerToElement(pVert, &pColour);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("colour_diffuse"))->ToElement();
 						
 						dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
 						break;
 					case VES_SPECULAR:
-						pColour = static_cast<RGBA*>(static_cast<void*>(pVert + elem.getOffset()));
+						elem.baseVertexPointerToElement(pVert, &pColour);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("colour_specular"))->ToElement();
 						
 						dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
 						break;
 					case VES_TEXTURE_COORDINATES:
-						pReal = static_cast<Real*>(static_cast<void*>(pVert + elem.getOffset()));
+						elem.baseVertexPointerToElement(pVert, &pReal);
 						dataNode = 
 							vertexNode->InsertEndChild(TiXmlElement("texcoord"))->ToElement();
 
@@ -424,7 +426,7 @@ namespace Ogre {
             const char* mat = smElem->Attribute("material");
             if (mat)
                 sm->setMaterialName(mat);
-            sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("useSharedVertices"));
+            sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("usesharedvertices"));
             bool use32BitIndexes = StringConverter::parseBool(smElem->Attribute("use32bitindexes"));
             
             // Faces
@@ -438,6 +440,7 @@ namespace Ogre {
                     sm->indexData->indexCount, 
                     HardwareBuffer::HBU_DYNAMIC,
                     false);
+            sm->indexData->indexBuffer = ibuf;
             unsigned int *pInt;
             unsigned short *pShort;
             if (use32BitIndexes)
@@ -474,7 +477,10 @@ namespace Ogre {
             {
                 TiXmlElement* geomNode = smElem->FirstChildElement("geometry");
                 if (geomNode)
+                {
+                    sm->vertexData = new VertexData();
                     readGeometry(geomNode, sm->vertexData);
+                }
             }
 
             // Bone assignments
@@ -488,136 +494,247 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void XMLMeshSerializer::readGeometry(TiXmlElement* mGeometryNode, VertexData* vertexData)
     {
-        /* TODO
         LogManager::getSingleton().logMessage("Reading geometry...");
-        Real *pPos, *pNorm, *pTex[9];
-        RGBA* pCol;
+        unsigned char *pVert;
+        Real *pReal;
+        RGBA *pCol;
 
-        vertexData->vertexCount = StringConverter::parseInt(mGeometryNode->Attribute("count"));
+        vertexData->vertexCount = StringConverter::parseInt(mGeometryNode->Attribute("vertexcount"));
         // Skip empty 
         if (vertexData->vertexCount <= 0) return;
         
 
-        // Iterate over all children (vertexbuffer entries)
+        VertexDeclaration* decl = vertexData->vertexDeclaration;
+        VertexBufferBinding* bind = vertexData->vertexBufferBinding;
+        unsigned short bufCount = 0;
+        unsigned short totalTexCoords = 0; // across all buffers
+
+        // Information for calculating bounds
+        Vector3 min, max, pos;
+        Real maxSquaredRadius = -1;
+        bool first = true;
+
+        // Iterate over all children (vertexbuffer entries) 
         for (TiXmlElement* vbElem = mGeometryNode->FirstChildElement();
             vbElem != 0; vbElem = vbElem->NextSiblingElement())
         {
+            size_t offset = 0;
             // Skip non-vertexbuffer elems
             if (stricmp(vbElem->Value(), "vertexbuffer")) continue;
-
-            
+           
             const char* attrib = vbElem->Attribute("positions");
             if (attrib && StringConverter::parseBool(attrib))
             {
-                vertexData->pVertices = new Real[vertexData->numVertices * 3];
-                // TODO change when we do shared bufs
-                vertexData->vertexStride = 0;
-                pPos = vertexData->pVertices;
-
+                // Add element
+                decl->addElement(bufCount, offset, VET_FLOAT3, VES_POSITION);
+                offset += VertexElement::getTypeSize(VET_FLOAT3);
             }
             attrib = vbElem->Attribute("normals");
             if (attrib && StringConverter::parseBool(attrib))
             {
-                vertexData->hasNormals = true;
-                vertexData->pNormals = new Real[vertexData->numVertices * 3];
-                // TODO change when we do shared bufs
-                vertexData->normalStride = 0;
-                
-                pNorm = vertexData->pNormals;
+                // Add element
+                decl->addElement(bufCount, offset, VET_FLOAT3, VES_NORMAL);
+                offset += VertexElement::getTypeSize(VET_FLOAT3);
             }
-            attrib = vbElem->Attribute("colours");
+            attrib = vbElem->Attribute("colours_diffuse");
             if (attrib && StringConverter::parseBool(attrib))
             {
-                vertexData->hasColours = true;
-                vertexData->pColours = new RGBA[vertexData->numVertices];
-                // TODO change when we do shared bufs
-                vertexData->colourStride = 0;
-
-                pCol = vertexData->pColours;
-
+                // Add element
+                decl->addElement(bufCount, offset, VET_COLOUR, VES_DIFFUSE);
+                offset += VertexElement::getTypeSize(VET_COLOUR);
             }
-            attrib = vbElem->Attribute("numtexcoords");
+            attrib = vbElem->Attribute("colours_specular");
+            if (attrib && StringConverter::parseBool(attrib))
+            {
+                // Add element
+                decl->addElement(bufCount, offset, VET_COLOUR, VES_SPECULAR);
+                offset += VertexElement::getTypeSize(VET_COLOUR);
+            }
+            attrib = vbElem->Attribute("texture_coords");
             if (attrib && StringConverter::parseInt(attrib))
             {
-                vertexData->numTexCoords = StringConverter::parseInt(vbElem->Attribute("numtexcoords"));
-                String sets = vbElem->Attribute("texcoordsets");
-                String dims = vbElem->Attribute("texcoorddimensions");
-
-                std::vector<String> vecSets = sets.split(" ");
-                std::vector<String> vecDims = dims.split(" ");
-
-                for (size_t v = 0; v < vecSets.size(); ++v)
+                unsigned short numTexCoords = StringConverter::parseInt(vbElem->Attribute("texture_coords"));
+                for (unsigned short tx = 0; tx < numTexCoords; ++tx)
                 {
-                    int set = StringConverter::parseInt(vecSets[v]);
-                    int dim = StringConverter::parseInt(vecDims[v]);
-                    vertexData->numTexCoordDimensions[set] = dim;
-                    vertexData->pTexCoords[set] = new Real[vertexData->numVertices * dim];
-                    // TODO change when we do shared bufs
-                    vertexData->texCoordStride[set] = 0;
-
-                    pTex[set] = vertexData->pTexCoords[set];
-
+                    // NB set is local to this buffer, but will be translated into a 
+                    // global set number across all vertex buffers
+                    attrib = vbElem->Attribute("texture_coord_dimensions_" + StringConverter::toString(tx));
+                    unsigned short dims;
+                    if (attrib)
+                    {
+                        dims = StringConverter::parseInt(attrib);
+                    }
+                    else
+                    {
+                        // Default
+                        dims = 2;
+                    }
+                    // Add element
+                    VertexElementType vtype = VertexElement::multiplyTypeCount(VET_FLOAT1, dims);
+                    decl->addElement(bufCount, offset, vtype, 
+                        VES_TEXTURE_COORDINATES, totalTexCoords++);
+                    offset += VertexElement::getTypeSize(vtype);
                 }
             } 
+            // Now create the vertex buffer
+            HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton().
+                createVertexBuffer(offset, vertexData->vertexCount, 
+                    HardwareBuffer::HBU_STATIC_WRITE_ONLY, false);
+            // Bind it
+            bind->setBinding(bufCount, vbuf);
+            // Lock it
+            pVert = static_cast<unsigned char*>(
+                vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
 
-            // Now the buffers are set up, parse all the vertices
+            // Get the element list for this buffer alone
+            VertexDeclaration::VertexElementList elems = decl->findElementsBySource(bufCount);
+            // Now the buffer is set up, parse all the vertices
             for (TiXmlElement* vertexElem = vbElem->FirstChildElement();
             vertexElem != 0; vertexElem = vertexElem->NextSiblingElement())
             {
-                ushort currentSet = 0;
-                // Each vertex can have 1 or more components
-                for (TiXmlElement* cmpElem = vertexElem->FirstChildElement();
-                cmpElem != 0; cmpElem = cmpElem->NextSiblingElement())
+                // Now parse the elements, ensure they are all matched
+                VertexDeclaration::VertexElementList::const_iterator ielem, ielemend;
+                TiXmlElement* xmlElem;
+                TiXmlElement* texCoordElem = 0;
+                ielemend = elems.end();
+                for (ielem = elems.begin(); ielem != ielemend; ++ielem)
                 {
-                    if (!stricmp(cmpElem->Value(), "position"))
+                    const VertexElement& elem = *ielem;
+                    // Find child for this element
+                    switch(elem.getSemantic())
                     {
-                        *pPos++ = StringConverter::parseReal(
-                            cmpElem->Attribute("x"));
-                        *pPos++ = StringConverter::parseReal(
-                            cmpElem->Attribute("y"));
-                        *pPos++ = StringConverter::parseReal(
-                            cmpElem->Attribute("z"));
-
-                        pPos += vertexData->vertexStride;
-                    }
-                    else if (!stricmp(cmpElem->Value(), "normal"))
-                    {
-                        *pNorm++ = StringConverter::parseReal(
-                            cmpElem->Attribute("x"));
-                        *pNorm++ = StringConverter::parseReal(
-                            cmpElem->Attribute("y"));
-                        *pNorm++ = StringConverter::parseReal(
-                            cmpElem->Attribute("z"));
-
-                        pNorm += vertexData->normalStride;
-                    }
-                    else if (!stricmp(cmpElem->Value(), "texcoord"))
-                    {
-                        *pTex[currentSet]++ = StringConverter::parseReal(
-                            cmpElem->Attribute("u"));
-                        if (vertexData->numTexCoordDimensions[currentSet] > 1)
+                    case VES_POSITION:
+                        xmlElem = vertexElem->FirstChildElement("position");
+                        if (!xmlElem)
                         {
-                            *pTex[currentSet]++ = StringConverter::parseReal(
-                                cmpElem->Attribute("v"));
+                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <position> element.",
+                                "XMLSerializer::readGeometry");
                         }
-                        if (vertexData->numTexCoordDimensions[currentSet] > 2)
-                        {
-                            *pTex[currentSet]++ = StringConverter::parseReal(
-                                cmpElem->Attribute("w"));
-                        }
+                        elem.baseVertexPointerToElement(pVert, &pReal);
 
-                        pTex[currentSet] += vertexData->texCoordStride[currentSet];
-                        currentSet++;
-                    }
-                    else if (!stricmp(cmpElem->Value(), "colour"))
-                    {
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("x"));
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("y"));
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("z"));
+
+                        pos.x = StringConverter::parseReal(
+                            xmlElem->Attribute("x"));
+                        pos.y = StringConverter::parseReal(
+                            xmlElem->Attribute("y"));
+                        pos.z = StringConverter::parseReal(
+                            xmlElem->Attribute("y"));
+                        
+                        if (first)
+                        {
+                            min = max = pos;
+                            maxSquaredRadius = pos.squaredLength();
+                            first = false;
+                        }
+                        else
+                        {
+                            min.makeFloor(pos);
+                            max.makeCeil(pos);
+                            maxSquaredRadius = std::max(pos.squaredLength(), maxSquaredRadius);
+                        }
+                        break;
+                    case VES_NORMAL:
+                        xmlElem = vertexElem->FirstChildElement("normal");
+                        if (!xmlElem)
+                        {
+                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <normal> element.",
+                                "XMLSerializer::readGeometry");
+                        }
+                        elem.baseVertexPointerToElement(pVert, &pReal);
+
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("x"));
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("y"));
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("z"));
+                        break;
+                    case VES_DIFFUSE:
+                        xmlElem = vertexElem->FirstChildElement("colour_diffuse");
+                        if (!xmlElem)
+                        {
+                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <colour_diffuse> element.",
+                                "XMLSerializer::readGeometry");
+                        }
+                        elem.baseVertexPointerToElement(pVert, &pCol);
+
                         *pCol++ = StringConverter::parseLong(
-                            cmpElem->Attribute("value"));
+                            xmlElem->Attribute("value"));
+                        break;
+                    case VES_SPECULAR:
+                        xmlElem = vertexElem->FirstChildElement("colour_specular");
+                        if (!xmlElem)
+                        {
+                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <colour_specular> element.",
+                                "XMLSerializer::readGeometry");
+                        }
+                        elem.baseVertexPointerToElement(pVert, &pCol);
+
+                        *pCol++ = StringConverter::parseLong(
+                            xmlElem->Attribute("value"));
+                        break;
+                    case VES_TEXTURE_COORDINATES:
+                        if (!texCoordElem)
+                        {
+                            // Get first texcoord
+                            xmlElem = vertexElem->FirstChildElement("texcoord");
+                        }
+                        else
+                        {
+                            // Get next texcoord
+                            xmlElem = texCoordElem->NextSiblingElement("texcoord");
+                        }
+                        if (!xmlElem)
+                        {
+                            Except(Exception::ERR_ITEM_NOT_FOUND, "Missing <texcoord> element.",
+                                "XMLSerializer::readGeometry");
+                        }
+                        elem.baseVertexPointerToElement(pVert, &pReal);
+
+                        *pReal++ = StringConverter::parseReal(
+                            xmlElem->Attribute("u"));
+                        if (VertexElement::getTypeCount(elem.getType()) > 1)
+                        {
+                            *pReal++ = StringConverter::parseReal(
+                                xmlElem->Attribute("v"));
+                        }
+                        if (VertexElement::getTypeCount(elem.getType()) > 2)
+                        {
+                            *pReal++ = StringConverter::parseReal(
+                                xmlElem->Attribute("w"));
+                        }
+
+                        break;
                     }
-                }// position / normal / texcoord / colour 
+                } // semantic
+                pVert += vbuf->getVertexSize();
             } // vertex
+            bufCount++;
+            vbuf->unlock();
         } // vertexbuffer
-        */
+
+        // Set bounds
+        const AxisAlignedBox& currBox = mpMesh->getBounds();
+        Real currRadius = mpMesh->getBoundingSphereRadius();
+        if (currBox.isNull())
+        {
+            mpMesh->_setBounds(AxisAlignedBox(min, max));
+            mpMesh->_setBoundingSphereRadius(Math::Sqrt(maxSquaredRadius));
+        }
+        else
+        {
+            AxisAlignedBox newBox(min, max);
+            newBox.merge(currBox);
+            mpMesh->_setBounds(newBox);
+            mpMesh->_setBoundingSphereRadius(std::max(Math::Sqrt(maxSquaredRadius), currRadius));
+        }
+        
 
         LogManager::getSingleton().logMessage("Geometry done...");
     }
@@ -701,9 +818,9 @@ namespace Ogre {
 		TiXmlElement* manualNode = 
 			usageNode->InsertEndChild(TiXmlElement("lodmanual"))->ToElement();
 
-		manualNode->SetAttribute("fromDepthSquared", 
+		manualNode->SetAttribute("fromdepthsquared", 
 			StringConverter::toString(usage.fromDepthSquared));
-		manualNode->SetAttribute("meshName", usage.manualName);
+		manualNode->SetAttribute("meshname", usage.manualName);
 
 	}
     //---------------------------------------------------------------------
@@ -713,7 +830,7 @@ namespace Ogre {
 	{
 		TiXmlElement* generatedNode = 
 			usageNode->InsertEndChild(TiXmlElement("lodgenerated"))->ToElement();
-		generatedNode->SetAttribute("fromDepthSquared", 
+		generatedNode->SetAttribute("fromdepthsquared", 
 			StringConverter::toString(usage.fromDepthSquared));
 
 		// Iterate over submeshes at this level
@@ -820,18 +937,17 @@ namespace Ogre {
 	void XMLMeshSerializer::readLodUsageManual(TiXmlElement* manualNode, unsigned short index)
 	{
 		Mesh::MeshLodUsage usage;
-		const char* val = manualNode->Attribute("fromDepthSquared");
+		const char* val = manualNode->Attribute("fromdepthsquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
-		usage.manualName = manualNode->Attribute("meshName");
+		usage.manualName = manualNode->Attribute("meshname");
 
 		mpMesh->_setLodUsage(index, usage);
 	}
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::readLodUsageGenerated(TiXmlElement* genNode, unsigned short index)
 	{
-        /*  TODO
 		Mesh::MeshLodUsage usage;
-		const char* val = genNode->Attribute("fromDepthSquared");
+		const char* val = genNode->Attribute("fromdepthsquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
 		usage.manualMesh = NULL;
 		usage.manualName = "";
@@ -844,33 +960,64 @@ namespace Ogre {
 		{
 			val = faceListElem->Attribute("submeshindex");
 			unsigned short subidx = StringConverter::parseUnsignedInt(val);
-			val = faceListElem->Attribute("numFaces");
+			val = faceListElem->Attribute("numfaces");
 			unsigned short numFaces = StringConverter::parseUnsignedInt(val);
+            // use of 32bit indexes depends on submesh
+            HardwareIndexBuffer::IndexType itype = 
+                mpMesh->getSubMesh(subidx)->indexData->indexBuffer->getType();
+            bool use32bitindexes = (itype == HardwareIndexBuffer::IT_32BIT);
 
-			// Assign memory: this will be deleted by the submesh 
-			unsigned short* pIndexes = new unsigned short[numFaces * 3];
-			unsigned short* pCurr = pIndexes;
+            // Assign memory: this will be deleted by the submesh 
+            HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
+                createIndexBuffer(
+                    itype, numFaces * 3, HardwareBuffer::HBU_STATIC_WRITE_ONLY);
 
-			TiXmlElement* faceElem = faceListElem->FirstChildElement("face");
-			for (unsigned int face = 0; face < numFaces; ++face, faceElem->NextSiblingElement())
+            unsigned short *pShort;
+            unsigned int *pInt;
+            if (use32bitindexes)
+            {
+                pInt = static_cast<unsigned int*>(
+                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            }
+            else
+            {
+                pShort = static_cast<unsigned short*>(
+                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            }
+            TiXmlElement* faceElem = faceListElem->FirstChildElement("face");
+			for (unsigned int face = 0; face < numFaces; ++face, faceElem = faceElem->NextSiblingElement())
 			{
-				val = faceElem->Attribute("v1");
-				*pCurr++ = StringConverter::parseUnsignedInt(val);
-				val = faceElem->Attribute("v2");
-				*pCurr++ = StringConverter::parseUnsignedInt(val);
-				val = faceElem->Attribute("v3");
-				*pCurr++ = StringConverter::parseUnsignedInt(val);
+                if (use32bitindexes)
+                {
+                    val = faceElem->Attribute("v1");
+				    *pInt++ = StringConverter::parseUnsignedInt(val);
+				    val = faceElem->Attribute("v2");
+				    *pInt++ = StringConverter::parseUnsignedInt(val);
+				    val = faceElem->Attribute("v3");
+				    *pInt++ = StringConverter::parseUnsignedInt(val);
+                }
+                else
+                {
+                    val = faceElem->Attribute("v1");
+				    *pShort++ = StringConverter::parseUnsignedInt(val);
+				    val = faceElem->Attribute("v2");
+				    *pShort++ = StringConverter::parseUnsignedInt(val);
+				    val = faceElem->Attribute("v3");
+				    *pShort++ = StringConverter::parseUnsignedInt(val);
+                }
 
 			}
 
-			ProgressiveMesh::LODFaceData facedata;
-			facedata.numIndexes = numFaces * 3;
-			facedata.pIndexes = pIndexes;
+            ibuf->unlock();
+			IndexData* facedata = new IndexData(); // will be deleted by SubMesh
+			facedata->indexCount = numFaces * 3;
+            facedata->indexStart = 0;
+            facedata->indexBuffer = ibuf;
 			mpMesh->_setSubMeshLodFaceList(subidx, index, facedata);
 
 			faceListElem = faceListElem->NextSiblingElement();
 		}
-        */
+        
 	}
 
 }
