@@ -112,6 +112,10 @@ SOURCE=..\src\OgreSDLEngineDll.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreSDLExtensionManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSDLRenderSystem.cpp
 # End Source File
 # Begin Source File
@@ -130,6 +134,14 @@ SOURCE=..\src\OgreSDLWindow.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\include\OgreSDLExtensionManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreSDLPrerequisites.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\include\OgreSDLRenderSystem.h

@@ -3,6 +3,7 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/SDL/include -I$(top_s
 pkglib_PROGRAMS = RenderSystem_SDL.so
 
 RenderSystem_SDL_so_SOURCES = OgreSDLEngineDll.cpp \
+                           OgreSDLExtensionManager.cpp \
                            OgreSDLRenderSystem.cpp \
                            OgreSDLTexture.cpp \
                            OgreSDLTextureManager.cpp \

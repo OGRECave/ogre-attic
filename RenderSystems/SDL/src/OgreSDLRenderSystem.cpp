@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreCamera.h"
 #include "OgreSDLTextureManager.h"
 #include "OgreSDLWindow.h"
+#include "OgreSDLExtensionManager.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -76,6 +77,8 @@ namespace Ogre {
         mStencilRef = 0;
         mStencilMask = 0xffffffff;
 
+        mExtMgr = NULL;
+
 
         OgreUnguard();
     }
@@ -89,6 +92,12 @@ namespace Ogre {
             delete i->second;
         }
         mRenderTargets.clear();
+
+        if (mExtMgr)
+        {
+            delete mExtMgr;
+            mExtMgr = NULL;
+        }
 
         SDL_Quit();
 
@@ -218,6 +227,9 @@ namespace Ogre {
         }
         
         // XXX Investigate vSync
+
+        // Initialise extension manager
+        mExtMgr = new SDLExtensionManager();
         
         LogManager::getSingleton().logMessage(
             "*****************************\n"
