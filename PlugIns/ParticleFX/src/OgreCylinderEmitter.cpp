@@ -36,7 +36,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    CylinderEmitter::CylinderEmitter()
+    CylinderEmitter::CylinderEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         initDefaults("Cylinder");
     }

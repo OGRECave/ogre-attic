@@ -54,6 +54,8 @@ namespace Ogre {
     ParticleSystem::ParticleSystem() :
 		mSpeedFactor(1.0f),
         mBoundsUpdateTime(5.0f),
+        mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
+        mIsRendererConfigured(false),
         mPoolSize(0),
         mRenderer(0),
         mCullIndividual(false)
@@ -71,9 +73,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    ParticleSystem::ParticleSystem(const String& name):
+    ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup):
 		mSpeedFactor(1.0f),
         mBoundsUpdateTime(5.0f),
+        mResourceGroupName(resourceGroup),
+        mIsRendererConfigured(false),
         mPoolSize(0),
         mRenderer(0),
         mCullIndividual(false)
@@ -114,7 +118,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleEmitter* ParticleSystem::addEmitter(const String& emitterType)
     {
-        ParticleEmitter* em = ParticleSystemManager::getSingleton()._createEmitter(emitterType);
+        ParticleEmitter* em = 
+            ParticleSystemManager::getSingleton()._createEmitter(emitterType, this);
         mEmitters.push_back(em);
         return em;
     }
@@ -151,7 +156,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     ParticleAffector* ParticleSystem::addAffector(const String& affectorType)
     {
-        ParticleAffector* af = ParticleSystemManager::getSingleton()._createAffector(affectorType);
+        ParticleAffector* af = 
+            ParticleSystemManager::getSingleton()._createAffector(affectorType, this);
         mAffectors.push_back(af);
         return af;
     }
@@ -256,6 +262,9 @@ namespace Ogre {
     {
 		// Scale incoming speed
 		timeElapsed *= mSpeedFactor;
+
+        // Init renderer if not done already
+        configureRenderer();
 
 		// Only update if attached to a node
 		if (mParentNode)
@@ -654,11 +663,7 @@ namespace Ogre {
     void ParticleSystem::setMaterialName(const String& name)
     {
         mMaterialName = name;
-        if (mRenderer)
-        {
-            MaterialPtr mat = MaterialManager::getSingleton().getByName(name);
-            mRenderer->_setMaterial(mat);
-        }
+        mIsRendererConfigured = false;
     }
     //-----------------------------------------------------------------------
     const String& ParticleSystem::getMaterialName(void) const
@@ -689,12 +694,18 @@ namespace Ogre {
         if (!rendererName.empty())
         {
 			mRenderer = ParticleSystemManager::getSingleton()._createRenderer(rendererName);
-			if (!mMaterialName.empty() && mRenderer)
-			{
-				MaterialPtr mat = MaterialManager::getSingleton().getByName(mMaterialName);
-				mRenderer->_setMaterial(mat);
-			}
+            mIsRendererConfigured = false;
 			createVisualParticles(0, mParticlePool.size());
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ParticleSystem::configureRenderer(void)
+    {
+        if (mRenderer && !mIsRendererConfigured)
+        {
+            MaterialPtr mat = MaterialManager::getSingleton().load(
+                mMaterialName, mResourceGroupName);
+            mIsRendererConfigured = true;
         }
     }
     //-----------------------------------------------------------------------

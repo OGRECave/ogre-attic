@@ -45,7 +45,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    HollowEllipsoidEmitter::HollowEllipsoidEmitter()
+    HollowEllipsoidEmitter::HollowEllipsoidEmitter(ParticleSystem* psys)
+        : EllipsoidEmitter(psys)
     {
         if (initDefaults("HollowEllipsoid"))
         {

@@ -68,7 +68,7 @@ namespace Ogre {
         @remarks
             The subclass MUST add a pointer to the created instance to mAffectors.
         */
-        virtual ParticleAffector* createAffector(void) = 0;
+        virtual ParticleAffector* createAffector(ParticleSystem* psys) = 0;
 
         /** Destroys the affector pointed to by the parameter (for early clean up if reauired). */
         virtual void destroyAffector(ParticleAffector* e)

@@ -38,9 +38,9 @@ namespace Ogre {
         String getName() const { return "LinearForce"; }
 
         /** See ParticleAffectorFactory */
-        ParticleAffector* createAffector(void)
+        ParticleAffector* createAffector(ParticleSystem* psys)
         {
-            ParticleAffector* p = new LinearForceAffector();
+            ParticleAffector* p = new LinearForceAffector(psys);
             mAffectors.push_back(p);
             return p;
         }

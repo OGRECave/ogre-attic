@@ -33,7 +33,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    BoxEmitter::BoxEmitter()
+    BoxEmitter::BoxEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         initDefaults("Box");
     }

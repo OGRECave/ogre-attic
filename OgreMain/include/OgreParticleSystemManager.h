@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSingleton.h"
 #include "OgreIteratorWrappers.h"
 #include "OgreScriptLoader.h"
+#include "OgreResourceGroupManager.h"
 
 namespace Ogre {
 
@@ -176,9 +177,12 @@ namespace Ogre {
             to add as a template and just want to create a new template which you will build up in-place.
         @param
             name The name of the template. Must be unique across all templates.
+        @param
+            resourceGroup The name of the resource group which will be used to 
+                load any dependent resources.
             
         */
-        ParticleSystem* createTemplate(const String& name);
+        ParticleSystem* createTemplate(const String& name, const String& resourceGroup);
 
         /** Retrieves a particle system template for possible modification. 
         @remarks
@@ -203,8 +207,11 @@ namespace Ogre {
             name The name to give the ParticleSystem.
         @param 
             quota The maximum number of particles to allow in this system. 
+        @param
+            resourceGroup The resource group which will be used to load dependent resources
         */
-        ParticleSystem* createSystem(const String& name, size_t quota = 500);
+        ParticleSystem* createSystem(const String& name, size_t quota = 500, 
+            const String& resourceGroup = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
         /** Creates a particle system based on a template.
         @remarks
@@ -256,8 +263,10 @@ namespace Ogre {
             which calls this method to create an instance.
         @param
             emitterType String name of the emitter type to be created. A factory of this type must have been registered.
+        @param 
+            psys The particle system this is being created for
         */
-        ParticleEmitter* _createEmitter(const String& emitterType);
+        ParticleEmitter* _createEmitter(const String& emitterType, ParticleSystem* psys);
 
         /** Internal method for destroying an emitter.
         @remarks
@@ -276,8 +285,10 @@ namespace Ogre {
             which calls this method to create an instance.
         @param
             effectorType String name of the affector type to be created. A factory of this type must have been registered.
+        @param
+            psys The particle system it is being created for
         */
-        ParticleAffector* _createAffector(const String& affectorType);
+        ParticleAffector* _createAffector(const String& affectorType, ParticleSystem* psys);
 
         /** Internal method for destroying an affector.
         @remarks

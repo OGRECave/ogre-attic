@@ -103,7 +103,7 @@ namespace Ogre {
             You should use the ParticleSystemManager to create particle systems rather than creating
             them directly.
         */
-        ParticleSystem(const String& name);
+        ParticleSystem(const String& name, const String& resourceGroupName);
 
         virtual ~ParticleSystem();
 
@@ -397,6 +397,8 @@ namespace Ogre {
             as the whole set having to pass the coarse group bounding test.
         */
         virtual void setCullIndividually(bool cullIndividual);
+        /// Return the resource group to be used to load dependent resources
+        virtual const String& getResourceGroupName(void) const { return mResourceGroupName; }
 
     protected:
 
@@ -418,8 +420,12 @@ namespace Ogre {
 
         /// Name of the system; used for location in the scene.
         String mName;
+        /// Name of the resource group to use to load materials
+        String mResourceGroupName;
         /// Name of the material to use
         String mMaterialName;
+        /// Have we set the material etc on the renderer?
+        bool mIsRendererConfigured;
         /// Pointer to the material to use
         MaterialPtr mpMaterial;
         /// Default width of each particle
@@ -498,6 +504,9 @@ namespace Ogre {
 
         /** Internal method for initialising string interface. */
         void initParameters(void);
+
+        /** Internal method to configure the renderer. */
+        void configureRenderer(void);
 
 		/// Internal method for creating ParticleVisualData instances for the pool
 		void createVisualParticles(size_t poolstart, size_t poolend);

@@ -36,7 +36,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    LinearForceAffector::LinearForceAffector()
+    LinearForceAffector::LinearForceAffector(ParticleSystem* psys)
+        :ParticleAffector(psys)
     {
         mType = "LinearForce";
 

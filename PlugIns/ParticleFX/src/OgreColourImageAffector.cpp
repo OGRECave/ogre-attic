@@ -35,7 +35,8 @@ namespace Ogre {
 	ColourImageAffector::CmdImageAdjust		ColourImageAffector::msImageCmd;
 
     //-----------------------------------------------------------------------
-    ColourImageAffector::ColourImageAffector()
+    ColourImageAffector::ColourImageAffector(ParticleSystem* psys)
+        :ParticleAffector(psys)
     {
         mType = "ColourImage";
 
@@ -109,7 +110,7 @@ namespace Ogre {
     void ColourImageAffector::setImageAdjust(String name)
     {
 		mColourImageName = name;
-        mColourImage.load(name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+        mColourImage.load(name, mParent->getResourceGroupName());
 
 		PixelFormat	format = mColourImage.getFormat();
 

@@ -41,7 +41,8 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    EllipsoidEmitter::EllipsoidEmitter()
+    EllipsoidEmitter::EllipsoidEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         initDefaults("Ellipsoid");
     }

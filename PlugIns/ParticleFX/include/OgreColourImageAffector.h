@@ -46,7 +46,7 @@ namespace Ogre {
         };
 
         /** Default constructor. */
-        ColourImageAffector();
+        ColourImageAffector(ParticleSystem* psys);
 
         /** See ParticleAffector. */
 		void _initParticle(Particle* pParticle);

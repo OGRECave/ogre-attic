@@ -37,7 +37,8 @@ namespace Ogre {
     RingEmitter::CmdInnerY RingEmitter::msCmdInnerY;
 
     //-----------------------------------------------------------------------
-    RingEmitter::RingEmitter()
+    RingEmitter::RingEmitter(ParticleSystem* psys)
+        : AreaEmitter(psys)
     {
         if (initDefaults("Ring"))
         {

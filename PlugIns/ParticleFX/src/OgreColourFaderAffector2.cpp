@@ -47,7 +47,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    ColourFaderAffector2::ColourFaderAffector2()
+    ColourFaderAffector2::ColourFaderAffector2(ParticleSystem* psys) : ParticleAffector(psys)
     {
         mRedAdj1 = mGreenAdj1 = mBlueAdj1 = mAlphaAdj1 = 0;
 		mRedAdj2 = mGreenAdj2 = mBlueAdj2 = mAlphaAdj2 = 0;

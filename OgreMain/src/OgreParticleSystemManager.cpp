@@ -103,7 +103,7 @@ namespace Ogre {
                 {
                     // No current system
                     // So first valid data should be a system name
-                    pSys = createTemplate(line);
+                    pSys = createTemplate(line, groupName);
                     // Skip to and over next {
                     skipToNextOpenBrace(stream);
                 }
@@ -190,9 +190,10 @@ namespace Ogre {
         mSystemTemplates[name] = sysTemplate;
     }
     //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createTemplate(const String& name)
+    ParticleSystem* ParticleSystemManager::createTemplate(const String& name, 
+        const String& resourceGroup)
     {
-        addTemplate(name, ParticleSystem(name));
+        addTemplate(name, ParticleSystem(name, resourceGroup));
         return getTemplate(name);
 
     }
@@ -210,9 +211,10 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    ParticleSystem* ParticleSystemManager::createSystem(const String& name, size_t quota)
+    ParticleSystem* ParticleSystemManager::createSystem(const String& name, size_t quota, 
+        const String& resourceGroup)
     {
-        ParticleSystem* sys = new ParticleSystem(name);
+        ParticleSystem* sys = new ParticleSystem(name, resourceGroup);
         sys->setParticleQuota(quota);
         mSystems.insert( ParticleSystemMap::value_type( name, sys ) );
         return sys;
@@ -227,7 +229,8 @@ namespace Ogre {
             Except(Exception::ERR_INVALIDPARAMS, "Cannot find required template '" + templateName + "'", "ParticleSystemManager::createSystem");
         }
 
-        ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota());
+        ParticleSystem* sys = createSystem(name, pTemplate->getParticleQuota(), 
+            pTemplate->getResourceGroupName());
         // Copy template settings
         *sys = *pTemplate;
         return sys;
@@ -274,7 +277,8 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    ParticleEmitter* ParticleSystemManager::_createEmitter(const String& emitterType)
+    ParticleEmitter* ParticleSystemManager::_createEmitter(
+        const String& emitterType, ParticleSystem* psys)
     {
         // Locate emitter type
         ParticleEmitterFactoryMap::iterator pFact = mEmitterFactories.find(emitterType);
@@ -285,7 +289,7 @@ namespace Ogre {
                 "ParticleSystemManager::_createEmitter");
         }
 
-        return pFact->second->createEmitter();
+        return pFact->second->createEmitter(psys);
     }
     //-----------------------------------------------------------------------
     void ParticleSystemManager::_destroyEmitter(ParticleEmitter* emitter)
@@ -302,7 +306,8 @@ namespace Ogre {
         pFact->second->destroyEmitter(emitter);
     }
     //-----------------------------------------------------------------------
-    ParticleAffector* ParticleSystemManager::_createAffector(const String& affectorType)
+    ParticleAffector* ParticleSystemManager::_createAffector(
+        const String& affectorType, ParticleSystem* psys)
     {
         // Locate affector type
         ParticleAffectorFactoryMap::iterator pFact = mAffectorFactories.find(affectorType);
@@ -313,7 +318,7 @@ namespace Ogre {
                 "ParticleSystemManager::_createAffector");
         }
 
-        return pFact->second->createAffector();
+        return pFact->second->createAffector(psys);
 
     }
     //-----------------------------------------------------------------------

@@ -35,7 +35,8 @@ namespace Ogre {
     ColourInterpolatorAffector::CmdTimeAdjust		ColourInterpolatorAffector::msTimeCmd[MAX_STAGES];
 
     //-----------------------------------------------------------------------
-    ColourInterpolatorAffector::ColourInterpolatorAffector()
+    ColourInterpolatorAffector::ColourInterpolatorAffector(ParticleSystem* psys)
+        : ParticleAffector(psys)
     {
 		for (int i=0;i<MAX_STAGES;i++)
 		{

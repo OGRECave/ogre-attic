@@ -37,7 +37,8 @@ namespace Ogre {
     RotationAffector::CmdRotationRangeEnd			RotationAffector::msRotationRangeEndCmd;
     
     //-----------------------------------------------------------------------
-	RotationAffector::RotationAffector() :
+	RotationAffector::RotationAffector(ParticleSystem* psys) :
+        ParticleAffector(psys),
 		mRotationSpeedRangeStart(0),
 		mRotationSpeedRangeEnd(0),
 		mRotationRangeStart(0),

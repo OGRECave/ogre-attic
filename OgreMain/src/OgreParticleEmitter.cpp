@@ -51,8 +51,9 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    ParticleEmitter::ParticleEmitter()
-      : mStartTime(0),
+    ParticleEmitter::ParticleEmitter(ParticleSystem* psys)
+      : mParent(psys),
+        mStartTime(0),
         mDurationMin(0),
         mDurationMax(0),
         mDurationRemain(0),

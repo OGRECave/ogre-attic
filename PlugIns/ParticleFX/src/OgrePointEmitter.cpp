@@ -30,7 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    PointEmitter::PointEmitter()
+    PointEmitter::PointEmitter(ParticleSystem* psys)
+        :ParticleEmitter(psys)
     {
         mType = "Point";
         // Set up parameters
