@@ -139,9 +139,11 @@ namespace Ogre {
         /// Mapping from parameter names to indexes - high-level programs are expected to populate this
         typedef std::map<String, size_t> ParamNameMap;
         ParamNameMap mParamNameMap;
+        /// Do we need to transpose matrices?
+        bool mTransposeMatrices;
 
     public:
-		GpuProgramParameters() {}
+		GpuProgramParameters();
 		~GpuProgramParameters() {}
 
 		/** Sets a 4-element floating-point parameter to the program.
@@ -374,6 +376,18 @@ namespace Ogre {
 
         /** Gets the constant index associated with a named parameter. */
         size_t getParamIndex(const String& name);
+
+        /** Sets whether or not we need to transpose the matrices passed in from the rest of OGRE.
+        @remarks
+            D3D uses transposed matrices compared to GL and OGRE; this is not important when you
+            use programs which are written to process row-major matrices, such as those generated
+            by Cg, but if you use a program written to D3D's matrix layout you will need to enable
+            this flag.
+        */
+        void setTransposeMatrices(bool val) { mTransposeMatrices = val; } 
+        /// Gets whether or not matrices are to be transposed when set
+        bool getTransposeMatrices(void ) { return mTransposeMatrices; } 
+
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances

@@ -147,6 +147,12 @@
 				RelativePath="..\src\OgreD3D9GpuProgramManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreD3D9HLSLProgram.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreD3D9HLSLProgramFactory.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreD3D9HardwareBufferManager.cpp">
 			</File>
 			<File
@@ -194,6 +200,12 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9GpuProgramManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9HLSLProgram.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9HLSLProgramFactory.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9HardwareBufferManager.h">

@@ -58,6 +58,8 @@ namespace Ogre
 	class D3D9GpuProgramManager;
     class D3D9HardwareBufferManager;
     class D3D9HardwareIndexBuffer;
+    class D3D9HLSLProgramFactory;
+    class D3D9HLSLProgram;
     class D3D9VertexDeclaration;
 
 	//-------------------------------------------

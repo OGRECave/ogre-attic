@@ -85,7 +85,12 @@ namespace Ogre
         // Default implementation simply returns standard parameters.
         return GpuProgramManager::getSingleton().createParameters();
     }
-	//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+	GpuProgramParameters::GpuProgramParameters()
+        : mTransposeMatrices(false)
+    {
+    }
+    //-----------------------------------------------------------------------------
 	void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
 	{
 		setConstant(index, vec.val, 1);
@@ -99,12 +104,21 @@ namespace Ogre
 	void GpuProgramParameters::setConstant(size_t index, const Matrix4& m)
     {
         // set as 4x 4-element floats
-        // Turns out in vertex programs, D3D uses the 'right' matrix layout
-        // so no need to convert matrix, we can use the same for both
-        GpuProgramParameters::setConstant(index++, m[0], 1);
-        GpuProgramParameters::setConstant(index++, m[1], 1);
-        GpuProgramParameters::setConstant(index++, m[2], 1);
-        GpuProgramParameters::setConstant(index, m[3], 1);
+        if (mTransposeMatrices)
+        {
+            Matrix4 t = m.transpose();
+            GpuProgramParameters::setConstant(index++, t[0], 1);
+            GpuProgramParameters::setConstant(index++, t[1], 1);
+            GpuProgramParameters::setConstant(index++, t[2], 1);
+            GpuProgramParameters::setConstant(index, t[3], 1);
+        }
+        else
+        {
+            GpuProgramParameters::setConstant(index++, m[0], 1);
+            GpuProgramParameters::setConstant(index++, m[1], 1);
+            GpuProgramParameters::setConstant(index++, m[2], 1);
+            GpuProgramParameters::setConstant(index, m[3], 1);
+        }
     }
 	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)

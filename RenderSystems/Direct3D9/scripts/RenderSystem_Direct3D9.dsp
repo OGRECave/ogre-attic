@@ -160,6 +160,22 @@ SOURCE=..\include\OgreD3D9HardwareVertexBuffer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreD3D9HLSLProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9HLSLProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreD3D9HLSLProgramFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9HLSLProgramFactory.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreD3D9Mappings.cpp
 # End Source File
 # Begin Source File

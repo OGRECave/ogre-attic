@@ -36,8 +36,25 @@ namespace Ogre {
     {
     protected:
         LPDIRECT3DDEVICE9 mpDevice;
+        LPD3DXBUFFER mpExternalMicrocode; // microcode from elsewhere, we do NOT delete this ourselves
     public:
         D3D9GpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev);
+
+        /** Tells the program to load from some externally created microcode instead of a file or source. 
+        @remarks
+            It is the callers responsibility to delete the microcode buffer.
+        */ 
+        void setExternalMicrocode(LPD3DXBUFFER pMicrocode) { mpExternalMicrocode = pMicrocode; }
+        /** Gets the external microcode buffer, if any. */
+        LPD3DXBUFFER getExternalMicrocode(void) { return mpExternalMicrocode; }
+        /** Override load function to allow load direct from external microcode. */
+        void load(void);
+    protected:
+        /** Overridden from GpuProgram */
+        void loadFromSource(void);
+        /** Internal method to load from microcode, must be overridden by subclasses. */
+        virtual void loadFromMicrocode(LPD3DXBUFFER microcode) = 0;
+
 
     };
 
@@ -54,7 +71,7 @@ namespace Ogre {
         /// Gets the vertex shader
         LPDIRECT3DVERTEXSHADER9 getVertexShader(void) const { return mpVertexShader; }
     protected:
-        void loadFromSource(void);
+        void loadFromMicrocode(LPD3DXBUFFER microcode);
     };
 
     /** Direct3D implementation of low-level fragment programs. */
@@ -69,7 +86,7 @@ namespace Ogre {
         /// Gets the pixel shader
         LPDIRECT3DPIXELSHADER9 getPixelShader(void) const { return mpPixelShader; }
     protected:
-        void loadFromSource(void);
+        void loadFromMicrocode(LPD3DXBUFFER microcode);
     };
 
 }

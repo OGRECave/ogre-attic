@@ -40,7 +40,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9VertexDeclaration.h"
 #include "OgreD3D9GpuProgram.h"
 #include "OgreD3D9GpuProgramManager.h"
-
+#include "OgreD3D9HLSLProgramFactory.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 namespace Ogre 
 {
@@ -62,6 +63,7 @@ namespace Ogre
         mTextureManager = NULL;
         mHardwareBufferManager = NULL;
 		mGpuProgramManager = NULL;
+        mHLSLProgramFactory = NULL;
 
 		// init lights
 		for(int i = 0; i < MAX_LIGHTS; i++ )
@@ -110,6 +112,7 @@ namespace Ogre
 		SAFE_DELETE( mDriverList );
 		SAFE_DELETE( mTextureManager );
         SAFE_DELETE(mHardwareBufferManager);
+        SAFE_DELETE(mHLSLProgramFactory);
 		SAFE_DELETE(mGpuProgramManager);
 		SAFE_RELEASE( mpD3D );
 
@@ -586,6 +589,10 @@ namespace Ogre
 
 			// Create the GPU program manager
 			mGpuProgramManager = new D3D9GpuProgramManager(mpD3DDevice);
+            // create & register HLSL factory
+            mHLSLProgramFactory = new D3D9HLSLProgramFactory();
+            HighLevelGpuProgramManager::getSingleton().addFactory(mHLSLProgramFactory);
+
 
             // Initialise the capabilities structures
             initCapabilities();

@@ -117,6 +117,8 @@ namespace Ogre
 		
 		D3D9HardwareBufferManager* mHardwareBufferManager;
 		D3D9GpuProgramManager* mGpuProgramManager;
+        D3D9HLSLProgramFactory* mHLSLProgramFactory;
+
 		size_t mLastVertexSourceCount;
 
         /// Flag to indicate normal normalisation is forced
