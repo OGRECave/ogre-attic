@@ -162,7 +162,7 @@ namespace Ogre {
         /** Sets the initial background colour of the viewport (before
             rendering).
         */
-        void setBackgroundColour(ColourValue colour);
+        void setBackgroundColour(const ColourValue& colour);
 
         /** Gets the background colour.
         */

@@ -1265,7 +1265,7 @@ namespace Ogre {
 			i->second->_setDefTextureFiltering(mDefTextureFiltering);
 	}
     //-----------------------------------------------------------------------
-	TextureFilterOptions MaterialManager::getDefaultTextureFiltering()
+	TextureFilterOptions MaterialManager::getDefaultTextureFiltering() const
 	{
 		return mDefTextureFiltering;
 	}
@@ -1278,7 +1278,7 @@ namespace Ogre {
 			i->second->_setDefAnisotropy(mDefAniso);
 	}
     //-----------------------------------------------------------------------
-	int MaterialManager::getDefaultAnisotropy()
+	int MaterialManager::getDefaultAnisotropy() const
 	{
 		return mDefAniso;
 	}

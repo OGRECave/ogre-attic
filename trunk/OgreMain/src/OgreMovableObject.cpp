@@ -73,7 +73,7 @@ namespace Ogre {
         mRenderQueueID = queueID;
     }
     //-----------------------------------------------------------------------
-    RenderQueueGroupID MovableObject::getRenderQueueGroup(void)
+    RenderQueueGroupID MovableObject::getRenderQueueGroup(void) const
     {
         return mRenderQueueID;
     }

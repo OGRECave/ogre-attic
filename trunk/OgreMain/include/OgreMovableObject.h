@@ -148,7 +148,7 @@ namespace Ogre {
         virtual void setRenderQueueGroup(RenderQueueGroupID queueID);
 
         /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
-        virtual RenderQueueGroupID getRenderQueueGroup(void);
+        virtual RenderQueueGroupID getRenderQueueGroup(void) const;
 
 		/// return the full transformation of the parent sceneNode or the attachingPoint node
 		virtual Matrix4 _getParentNodeFullTransform(void) const;

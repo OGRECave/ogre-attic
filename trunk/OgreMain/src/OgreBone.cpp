@@ -83,11 +83,11 @@ namespace Ogre {
         this->mManuallyControlled = manuallyControlled;
     }
     //---------------------------------------------------------------------
-    bool Bone::isManuallyControlled() {
+    bool Bone::isManuallyControlled() const {
         return mManuallyControlled;
     }
     //---------------------------------------------------------------------
-    Matrix4 Bone::_getBindingPoseInverseTransform(void)
+    const Matrix4& Bone::_getBindingPoseInverseTransform(void) const
     {
         return mBindDerivedInverseTransform;
     }

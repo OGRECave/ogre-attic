@@ -130,7 +130,7 @@ namespace Ogre {
         /** Gets the current default queue group, which will be used for all renderable which do not
             specify which group they wish to be on.
         */
-        RenderQueueGroupID getDefaultQueueGroup(void);
+        RenderQueueGroupID getDefaultQueueGroup(void) const;
 
         /** Sets the current default queue group, which will be used for all renderable which do not
             specify which group they wish to be on.

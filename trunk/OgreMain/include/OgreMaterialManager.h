@@ -135,7 +135,7 @@ namespace Ogre {
         */
         virtual void setDefaultTextureFiltering(TextureFilterOptions fo);
 		/// get the default texture filtering
-        virtual TextureFilterOptions getDefaultTextureFiltering();
+        virtual TextureFilterOptions getDefaultTextureFiltering() const;
 
         /** Sets the default anisotropy level to be used for loaded textures, for when textures are
             loaded automatically (e.g. by Material class) or when 'load' is called with the default
@@ -145,7 +145,7 @@ namespace Ogre {
         */
 		void setDefaultAnisotropy(int maxAniso);
 		/// get the default maxAnisotropy
-		int getDefaultAnisotropy();
+		int getDefaultAnisotropy() const;
 
 		/** Override standard Singleton retrieval.
             @remarks

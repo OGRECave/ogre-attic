@@ -61,7 +61,7 @@ namespace Ogre {
         void setRadius(Real radius) { mRadius = radius; }
 
         /** Returns the center point of the sphere. */
-        Vector3 getCenter(void) const { return mCenter; }
+        const Vector3& getCenter(void) const { return mCenter; }
 
         /** Sets the center point of the sphere. */
         void setCenter(const Vector3& center) { mCenter = center; }
