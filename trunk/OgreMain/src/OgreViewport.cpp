@@ -97,7 +97,7 @@ namespace Ogre {
         // which can have their own dimensions and aspect ratios.
 
 
-        char msg[100];
+        char msg[256];
 
         sprintf(msg, "Viewport for camera '%s' - actual dimensions L:%d,T:%d,W:%d,H:%d",
             mCamera->getName().c_str(), mActLeft, mActTop, mActWidth, mActHeight);
