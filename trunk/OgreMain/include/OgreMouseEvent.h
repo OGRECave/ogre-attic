@@ -92,7 +92,6 @@ email                : kenny@sparksuit.com
 
 #include "OgrePrerequisites.h"
 #include "OgreInputEvent.h"
-#include "OgreMouseTarget.h"
 
 namespace Ogre {
 

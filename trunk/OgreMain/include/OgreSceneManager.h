@@ -35,9 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreColourValue.h"
 #include "OgreCommon.h"
 #include "OgreRenderQueue.h"
-#include "OgreRenderable.h"
 #include "OgreDataChunk.h"
-#include "OgreBillboardSet.h"
 #include "OgreAnimationState.h"
 #include "OgreSceneQuery.h"
 

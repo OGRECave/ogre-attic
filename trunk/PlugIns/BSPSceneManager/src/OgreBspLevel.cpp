@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreMaterial.h"
 #include "OgreMaterialManager.h"
+#include "OgreMovableObject.h"
 #include "OgreSceneManager.h"
 #include "OgrePatchSurface.h"
 #include "OgreQuake3ShaderManager.h"

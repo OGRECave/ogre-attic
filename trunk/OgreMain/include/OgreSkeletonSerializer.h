@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __SkeletonSerializer_H__
 
 #include "OgrePrerequisites.h"
-#include "OgreString.h"
 #include "OgreSkeleton.h"
 #include "OgreSerializer.h"
 

@@ -52,7 +52,6 @@ email                : kenny@sparksuit.com
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreInputEvent.h"
-#include "OgreScrollTarget.h"
 
 namespace Ogre {
 
