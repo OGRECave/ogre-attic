@@ -62,8 +62,10 @@ namespace Ogre {
 		typedef std::set<Node*> ChildUpdateSet;
         /// List of children which need updating, used if self is not out of date but children are
         mutable ChildUpdateSet mChildrenToUpdate;
-        /// Flag to indicate own transform is out of date
-        mutable bool mNeedUpdate;
+        /// Flag to indicate own transform from parent is out of date
+        mutable bool mNeedParentUpdate;
+		/// Flag indicating that all children need to be updated
+		mutable bool mNeedChildUpdate;
 
         /// Friendly name of this node, can be automatically generated if you don't care
         String mName;
