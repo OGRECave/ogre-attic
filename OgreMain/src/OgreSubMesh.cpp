@@ -178,7 +178,6 @@ namespace Ogre {
 		ushort currNumFaces;
 		ushort *currFaces;
 
-		ushort test = mLodFaceList.size();
 		if (lodIndex > 0 && lodIndex-1 < mLodFaceList.size())
 		{
 			// lodIndex - 1 because we don't store full detail version in mLodFaceList

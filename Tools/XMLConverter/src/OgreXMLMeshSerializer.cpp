@@ -80,6 +80,11 @@ namespace Ogre {
         if (elem)
             readBoneAssignments(elem);
 
+		//Lod
+		elem = rootElem->FirstChildElement("levelofdetail");
+		if (elem)
+			readLodInfo(elem);
+
         delete mXMLDoc;
 
         LogManager::getSingleton().logMessage("XMLMeshSerializer import successful.");
@@ -811,6 +816,95 @@ namespace Ogre {
 
 		}
 
+	}
+    //---------------------------------------------------------------------
+	void XMLMeshSerializer::readLodInfo(TiXmlElement*  lodNode)
+	{
+		const char* val = lodNode->Attribute("numLevels");
+		unsigned short numLevels = static_cast<unsigned short>(
+			StringConverter::parseUnsignedInt(val));
+
+		val = lodNode->Attribute("manual");
+		bool manual = StringConverter::parseBool(val);
+
+		// Set up the basic structures
+		mpMesh->_setLodInfo(numLevels, manual);
+
+		// Parse the detail, start from 1 (the first sub-level of detail)
+		unsigned short i = 1;
+		while (1)
+		{
+			TiXmlElement* usageElem;
+			if (manual)
+			{
+				usageElem = lodNode->FirstChildElement("lodmanual");
+				if (!usageElem) break;
+
+				readLodUsageManual(usageElem, i);
+			}
+			else
+			{
+				usageElem = lodNode->FirstChildElement("lodgenerated");
+				if (!usageElem) break;
+
+				readLodUsageGenerated(usageElem, i);
+			}
+			++i;
+		}
+		
+		
+	}
+    //---------------------------------------------------------------------
+	void XMLMeshSerializer::readLodUsageManual(TiXmlElement* manualNode, unsigned short index)
+	{
+		Mesh::MeshLodUsage usage;
+		const char* val = manualNode->Attribute("fromDepthSquared");
+		usage.fromDepthSquared = StringConverter::parseReal(val);
+		usage.manualName = manualNode->Attribute("meshName");
+
+		mpMesh->_setLodUsage(index, usage);
+	}
+    //---------------------------------------------------------------------
+	void XMLMeshSerializer::readLodUsageGenerated(TiXmlElement* genNode, unsigned short index)
+	{
+		Mesh::MeshLodUsage usage;
+		const char* val = genNode->Attribute("fromDepthSquared");
+		usage.fromDepthSquared = StringConverter::parseReal(val);
+
+		mpMesh->_setLodUsage(index, usage);
+
+		// Read submesh face lists
+		TiXmlElement* faceListElem = genNode->FirstChildElement("lodgenerated");
+		while (faceListElem)
+		{
+			val = faceListElem->Attribute("submeshindex");
+			unsigned short subidx = StringConverter::parseUnsignedInt(val);
+			val = faceListElem->Attribute("numFaces");
+			unsigned short numFaces = StringConverter::parseUnsignedInt(val);
+
+			// Assign memory: this will be deleted by the submesh 
+			unsigned short* pIndexes = new unsigned short[numFaces * 3];
+			unsigned short* pCurr = pIndexes;
+
+			TiXmlElement* faceElem = faceListElem->FirstChildElement("face");
+			for (unsigned int face = 0; face < numFaces; ++face, faceElem->NextSiblingElement())
+			{
+				val = faceElem->Attribute("v1");
+				*pCurr++ = StringConverter::parseUnsignedInt(val);
+				val = faceElem->Attribute("v2");
+				*pCurr++ = StringConverter::parseUnsignedInt(val);
+				val = faceElem->Attribute("v3");
+				*pCurr++ = StringConverter::parseUnsignedInt(val);
+
+			}
+
+			ProgressiveMesh::LODFaceData facedata;
+			facedata.numIndexes = numFaces * 3;
+			facedata.pIndexes = pIndexes;
+			mpMesh->_setSubMeshLodFaceList(subidx, index, facedata);
+
+			faceListElem = faceListElem->NextSiblingElement();
+		}
 	}
 
 }
