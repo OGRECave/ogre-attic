@@ -71,7 +71,7 @@ namespace Ogre {
         */
 		void setupBoundingBox(AxisAlignedBox aabb);
 
-		Real getViewDepth(const Camera* cam) const;
+		Real getSquaredViewDepth(const Camera* cam) const;
 
 	};
 

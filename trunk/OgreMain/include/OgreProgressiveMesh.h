@@ -87,10 +87,9 @@ namespace Ogre {
         virtual void addExtraVertexPositionBuffer(Real* buffer);
 
         /** Builds the progressive mesh with the specified number of levels.
-        @param numLevels The number of levels to include in the mesh including the full detail version.
+        @param numLevels The number of levels to include in the output excluding the full detail version.
         @param outList Pointer to a list of LOD geometry data which will be completed by the application.
-			The first entry in this list is the original geometry data, each entry after this is a
-			reduced form of the mesh, in decreasing order of detail.
+			Each entry is a reduced form of the mesh, in decreasing order of detail.
 		@param quota The way to derive the number of vertices removed at each LOD
 		@param reductionValue Either the proportion of vertices to remove at each level, or a fixed
 			number of vertices to remove at each level, depending on the value of quota

@@ -251,12 +251,14 @@ namespace Ogre {
 		/** A way of recording the way each LODs is recorded this Mesh. */
 		struct MeshLodUsage
 		{
-			/// Z value from which this LOD will apply
-			Real fromDepth;
+			/// squared Z value from which this LOD will apply
+			Real fromDepthSquared;
 			/// If true, this LOD is a link to another Mesh object; otherwise alternative index buffer assumed 
 			bool useManual;
 			/// Only relevant if useManual is true, the name of the alternative mesh to use
 			String manualName;
+			/// Hard link to mesh to avoid looking up each time
+			Mesh* manualMesh;
 		};
 
 		typedef std::vector<Real> LodDistanceList;
@@ -286,7 +288,10 @@ namespace Ogre {
 		void generateLodLevels(const LodDistanceList& lodDistances, 
 			ProgressiveMesh::VertexReductionQuota reductionMethod, Real reductionValue);
 
-		/** Returns the number of levels of detail that this mesh supports. */
+		/** Returns the number of levels of detail that this mesh supports. 
+		@remarks
+			This number includes the original model.
+		*/
 		ushort getNumLodLevels(void);
 		/** Gets details of the numbered level of detail entry. */
 		const MeshLodUsage& getLodLevel(ushort index);
@@ -304,6 +309,27 @@ namespace Ogre {
 		@param meshName The name of the mesh which will be the lower level detail version.
 		*/
 		void createManualLodLevel(Real fromDepth, const String& meshName);
+
+		/** Changes the alternate mesh to use as a manual LOD at the given index.
+		@remarks
+			Note that the index of a LOD may change if you insert other LODs. If in doubt,
+			use getLodIndex().
+		@param index The index of the level to be changed
+		@param meshName The name of the mesh which will be the lower level detail version.
+		*/
+		void updateManualLodLevel(ushort index, const String& meshName);
+
+		/** Retrieves the level of detail index for the given depth value. 
+		*/
+		ushort getLodIndex(Real depth);
+
+		/** Retrieves the level of detail index for the given squared depth value. 
+		@remarks
+			Internally the lods are stored at squared depths to avoid having to perform
+			square roots when determining the lod. This method allows you to provide a
+			squared length depth value to avoid having to do your own square roots.
+		*/
+		ushort getLodIndexSquaredDepth(Real squaredDepth);
 
     private:
         typedef std::vector<SubMesh*> SubMeshList;

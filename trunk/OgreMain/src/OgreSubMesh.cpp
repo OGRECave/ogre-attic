@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMesh.h"
 #include "OgreException.h"
+#include "OgreMeshManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -120,10 +121,10 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SubMesh::_getRenderOperation(RenderOperation& ro) 
+    void SubMesh::_getRenderOperation(RenderOperation& ro, ushort lodIndex) 
     {
-
-        // SubMeshes always use indexes
+        
+		// SubMeshes always use indexes
         ro.useIndexes = true;
         ro.vertexOptions = 0;
         GeometryData* geom;
@@ -135,7 +136,8 @@ namespace Ogre {
 
         if (useSharedVertices)
         {
-            geom = &(parent->sharedGeometry);
+			// Use primary mesh geom
+			geom = &(parent->sharedGeometry);
         }
         else
         {
@@ -173,12 +175,27 @@ namespace Ogre {
         ro.normalStride= geom->normalStride;
         ro.vertexStride = geom->vertexStride;
 
-        if (useTriStrips)
-            ro.numIndexes = numFaces + 2;
-        else
-            ro.numIndexes = numFaces * 3;
+		ushort currNumFaces;
+		ushort *currFaces;
 
-        ro.pIndexes = faceVertexIndices;
+		if (lodIndex > 0)
+		{
+			// lodIndex - 1 because we don't store full detail version in mLodFaceList
+			currNumFaces = mLodFaceList[lodIndex-1].numIndexes / 3;
+			currFaces = mLodFaceList[lodIndex-1].pIndexes;
+		}
+		else
+		{
+			// Full detail
+			currNumFaces = numFaces;
+			currFaces = faceVertexIndices;
+		}
+		if (useTriStrips)
+            ro.numIndexes = currNumFaces + 2;
+        else
+            ro.numIndexes = currNumFaces * 3;
+
+        ro.pIndexes = currFaces;
 
         if (geom->numBlendWeightsPerVertex > 0)
         {

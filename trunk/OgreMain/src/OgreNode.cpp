@@ -614,7 +614,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Real Node::getViewDepth(const Camera* cam) const
+    Real Node::getSquaredViewDepth(const Camera* cam) const
     {
         Vector3 diff = _getDerivedPosition() - cam->getDerivedPosition();
 

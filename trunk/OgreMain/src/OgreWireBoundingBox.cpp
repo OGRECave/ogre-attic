@@ -170,7 +170,7 @@ namespace Ogre {
 	}
 
 
-	Real WireBoundingBox::getViewDepth(const Camera* cam) const
+	Real WireBoundingBox::getSquaredViewDepth(const Camera* cam) const
 	{
 		Vector3 min, max, mid, dist;
 		min = mBox.getMinimum();
