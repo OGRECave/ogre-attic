@@ -299,6 +299,29 @@ namespace Ogre {
 	    {
 		    return mNull;
 	    }
+
+        /** Returns whether or not this box intersects another. */
+        inline bool intersects(const AxisAlignedBox& b2) const
+        {
+            // Use up to 6 separating planes
+            if (mMaximum.x < b2.mMinimum.x)
+                return false;
+            if (mMaximum.y < b2.mMinimum.y)
+                return false;
+            if (mMaximum.z < b2.mMinimum.z)
+                return false;
+
+            if (mMinimum.x > b2.mMaximum.x)
+                return false;
+            if (mMinimum.y > b2.mMaximum.y)
+                return false;
+            if (mMinimum.z > b2.mMaximum.z)
+                return false;
+
+            // otherwise, must be intersecting
+            return true;
+
+        }
     };
 
 } // namespace Ogre
