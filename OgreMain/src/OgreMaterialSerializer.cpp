@@ -261,6 +261,8 @@ namespace Ogre
                 stype = SBT_ADD;
             else if (vecparams[0] == "modulate")
                 stype = SBT_MODULATE;
+			else if (vecparams[0] == "colour_blend")
+				stype = SBT_TRANSPARENT_COLOUR;
             else if (vecparams[0] == "alpha_blend")
                 stype = SBT_TRANSPARENT_ALPHA;
             else

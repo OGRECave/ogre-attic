@@ -340,7 +340,7 @@ material Examples/TextureEffect4
 		pass
 		{
 			ambient 0.3 0.3 0.3
-			scene_blend modulate
+			scene_blend colour_blend
 			cull_hardware none
 			cull_software none
 
@@ -434,7 +434,7 @@ material Examples/Droplet
 	{
 		pass
 		{
-			scene_blend modulate
+			scene_blend colour_blend
 			depth_write off
 
 			texture_unit

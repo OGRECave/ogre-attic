@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 31 2005 by texi2html 1.64 -->
+<!-- Created on , 20 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -192,7 +192,7 @@ Default: emissive 0.0 0.0 0.0 0.0<BR><BR>
 Sets the kind of blending this pass has with the existing contents of the scene. Wheras the texture blending operations seen in the texture_unit entries are concerned with blending between texture layers, this blending is about combining the output of this pass as a whole with the existing contents of the rendering target. This blending therefore allows object transparency and other special effects. There are 2 formats, one using predefined blend types, the other allowing a roll-your-own approach using source and destination factors.<BR><BR>
 </P><P>
 
-Format1: scene_blend &#60;add|modulate|alpha_blend&#62;<BR><BR>
+Format1: scene_blend &#60;add|modulate|alpha_blend|colour_blend&#62;<BR><BR>
 </P><P>
 
 Example: scene_blend add<BR><BR>
@@ -203,7 +203,9 @@ This is the simpler form, where the most commonly used blending modes are enumer
 <DT>add
 <DD>The colour of the rendering output is added to the scene. Good for exposions, flares, lights, ghosts etc. Equivalent to 'scene_blend one one'.
 <DT>modulate
-<DD>The colour of the rendering output is multiplied with the scene contents. Generally colours and darkens the scene, good for smoked glass, semi-transparent objects etc. Equivalent to 'scene_blend src_colour one_minus_src_colour'
+<DD>The colour of the rendering output is multiplied with the scene contents. Generally colours and darkens the scene, good for smoked glass, semi-transparent objects etc. Equivalent to 'scene_blend dest_colour zero'.
+<DT>colour_blend
+<DD>Colour the scene based on the brightness of the input colours, but don't darken. Equivalent to 'scene_blend src_colour one_minus_src_colour'
 <DT>alpha_blend
 <DD>The alpha value of the rendering output is used as a mask. Equivalent to 'scene_blend src_alpha one_minus_src_alpha'
 </DL>
@@ -533,7 +535,7 @@ Default: iteration once
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 31 2005</I>
+by <I>Steve Streeting</I> on <I>, 20 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
