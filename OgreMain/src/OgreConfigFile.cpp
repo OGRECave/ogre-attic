@@ -127,7 +127,8 @@ namespace Ogre {
                         /* Find the first non-seperator character following the name */
                         int nonseparator_pos = line.find_first_not_of(separators, separator_pos);
                         /* ... and extract the value */
-                        optVal = line.substr(nonseparator_pos);
+                        /* Make sure we don't crash on an empty setting (it might be a valid value) */
+                        optVal = (nonseparator_pos == std::string::npos) ? "" : line.substr(nonseparator_pos);
                         if (trimWhitespace)
                         {
                             StringUtil::trim(optVal);
