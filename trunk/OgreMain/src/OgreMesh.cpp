@@ -530,7 +530,8 @@ namespace Ogre {
         min -= Vector3::UNIT_SCALE;
         max += Vector3::UNIT_SCALE;
         mAABB.setExtents(min, max);
-		mBoundRadius = Math::Sqrt(maxSquaredLength);
+        // Pad out the sphere a little too
+		mBoundRadius = Math::Sqrt(maxSquaredLength) * 1.25;
         mUpdateBounds = false;
 
     }
