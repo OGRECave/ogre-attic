@@ -47,7 +47,8 @@ namespace Ogre {
                 2. The load() and unload() methods - mSize must be set after load()
                 Each must check & update the mIsLoaded flag.
     */
-    class _OgreExport Resource {
+    class _OgreExport Resource : public IDestroyable 
+    {
     protected:
         String mName;
         bool   mIsLoaded;
@@ -71,7 +72,7 @@ namespace Ogre {
         */
         virtual ~Resource() 
         { 
-            if (mIsLoaded) 
+            if( mIsLoaded )
                 unload(); 
         }
 
