@@ -124,7 +124,7 @@ protected:
             v->setBackgroundColour( ColourValue::Black );
 
             Material* mat = mSceneMgr->createMaterial("RttMat");
-            mat->getTechnique(0)->getPass(0)->createTextureLayer("RttTex");
+            mat->getTechnique(0)->getPass(0)->createTextureUnitState("RttTex");
         }
 
         // Give the plane a texture
