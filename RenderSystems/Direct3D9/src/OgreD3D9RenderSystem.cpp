@@ -676,6 +676,17 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest)
 	{
+
+        D3DXMATRIX d3dMatrix;
+        D3DXMatrixPerspectiveFovLH(&d3dMatrix,
+          Math::AngleUnitsToRadians(fovy),
+          aspect,
+          nearPlane,
+          farPlane);
+
+        dest = convertD3DXMatrix(d3dMatrix);
+
+        /*
         Real theta = Math::AngleUnitsToRadians(fovy * 0.5);
 		Real h = 1 / Math::Tan(theta);
 		Real w = h / aspect;
@@ -687,6 +698,7 @@ namespace Ogre
 		dest[2][2] = Q;
 		dest[3][2] = 1.0f;
 		dest[2][3] = -Q * nearPlane;
+        */
 	}
 	//---------------------------------------------------------------------
 	bool D3D9RenderSystem::hasHardwareStencil(void)
