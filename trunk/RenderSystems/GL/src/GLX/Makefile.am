@@ -7,7 +7,7 @@ INCLUDES = $(STLPORT_CFLAGS) \
 noinst_LTLIBRARIES = libsupport.la
 
 libsupport_la_SOURCES = OgreGLXGLSupport.cpp \
-		OgreGLXWindow.cpp \ 
+		OgreGLXWindow.cpp \
 		OgreGLXRenderTexture.cpp \
 		OgreGLXContext.cpp \
 		OgreGLXUtils.cpp
