@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 
 #include <IL/il.h>
+#include <IL/ilu.h>
 
 namespace Ogre {
 
@@ -48,10 +49,12 @@ namespace Ogre {
     {
 		OgreGuard( "PNGCodec::decode" );
 
+		// DevIL variables
 		ILuint ImageName;
 		ILint ImageFormat, BytesPerPixel;
 		ImageData * ret_data = new ImageData;
 
+		// Ensure DevIL is started
 		if( !_is_initialized )
 		{
 			ilInit();
@@ -59,6 +62,7 @@ namespace Ogre {
 			_is_initialized = true;
 		}
 
+		// Load the image 
 		ilGenImages( 1, &ImageName );
 		ilBindImage( ImageName );
 
@@ -67,6 +71,16 @@ namespace Ogre {
 			( void * )const_cast< uchar * >( input.getPtr() ), 
 			static_cast< ILuint >( input.getSize() ) );
 
+		// Check if everything was ok
+		ILenum PossibleError = ilGetError() ;
+		if( PossibleError != IL_NO_ERROR )
+		{
+			Except( Exception::Exception::UNIMPLEMENTED_FEATURE, 
+					"IL Error", 
+					iluErrorString(PossibleError) ) ;
+		}
+
+		// Now sets some variables
 		ImageFormat = ilGetInteger( IL_IMAGE_FORMAT );
 		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
 
@@ -76,6 +90,7 @@ namespace Ogre {
 
 		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
 
+		// Move the image data to the output buffer
 		output->allocate( ImageSize );
 		memcpy( output->getPtr(), ilGetData(), ImageSize );
 
