@@ -2281,6 +2281,33 @@ namespace Ogre {
         dest[2][3] = -Q * nearPlane;
 
     }
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::_setRasterisationMode(SceneDetailLevel level)
+    {
+        D3DFILLMODE d3dmode;
 
+        switch(level)
+        {
+        case SDL_POINTS:
+            d3dmode = D3DFILL_POINT;
+            break;
+        case SDL_WIREFRAME:
+            d3dmode = D3DFILL_WIREFRAME;
+            break;
+        case SDL_SOLID:
+            d3dmode = D3DFILL_SOLID;
+            break;
+
+        }
+        
+        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_FILLMODE, d3dmode);
+        if (FAILED(hr))
+        {
+            Except(hr, "Error setting rasterisation mode.", 
+                "D3DRenderSystem::setRasterisationMode");
+        }
+
+
+    }
 
 }

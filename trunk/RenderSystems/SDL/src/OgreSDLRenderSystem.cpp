@@ -1372,4 +1372,25 @@ namespace Ogre {
         dest[3][2] = -1;
 
     }
+    
+    void SDLRenderSystem::_setRasterisationMode(SceneDetailLevel level)
+    {
+        GLenum glmode;
+        switch(level)
+        {
+        case SDL_POINTS:
+            glmode = GL_POINT;
+            break;
+        case SDL_WIREFRAME:
+            glmode = GL_LINE;
+            break;
+        case SDL_SOLID:
+            glmode = GL_FILL;
+            break;
+
+        }
+
+        glPolygonMode(GL_FRONT_AND_BACK, glmode);
+
+    }
 }

@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreVector3.h"
 #include "OgrePlane.h"
 #include "OgreQuaternion.h"
+#include "OgreCommon.h"
 
 
 namespace Ogre {
@@ -46,17 +47,6 @@ namespace Ogre {
     {
         PT_ORTHOGRAPHIC,
         PT_PERSPECTIVE
-    };
-
-    /** The broad type of detail this camera will render.
-    */
-    enum SceneDetailLevel
-    {
-        SDL_POINTSONLY,
-        SDL_WIREFRAME,
-        SDL_FLATSHADE,
-        SDL_SMOOTHSHADE,
-        SDL_TEXTURED
     };
 
     /** Worldspace clipping planes.
