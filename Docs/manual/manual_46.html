@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC158"></A>
+<A NAME="SEC159"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_45.html#SEC156"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_43.html#SEC154"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC161"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_45.html#SEC157"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_43.html#SEC155"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC162"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,11 +35,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 5.6.3 Vertex Buffer Bindings </H3>
-<!--docid::SEC158::-->
-Vertex buffer bindings are about associating a vertex buffer with a source index used in <A HREF="manual_45.html#SEC156">5.6.2 Vertex Declarations</A>. 
-<A NAME="SEC159"></A>
-<H3> Creating the Vertex Buffer </H3>
 <!--docid::SEC159::-->
+Vertex buffer bindings are about associating a vertex buffer with a source index used in <A HREF="manual_45.html#SEC157">5.6.2 Vertex Declarations</A>. 
+<A NAME="SEC160"></A>
+<H3> Creating the Vertex Buffer </H3>
+<!--docid::SEC160::-->
 Firstly, lets look at how you create a vertex buffer:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>HardwareVertexBufferSharedPtr vbuf = 
 	HardwareBufferManager::getSingleton().createVertexBuffer(
@@ -48,7 +48,7 @@ Firstly, lets look at how you create a vertex buffer:
 		HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
 		false); // no shadow buffer
 </pre></td></tr></table>
-Notice that we use <A HREF="manual_38.html#SEC148">5.1 The Hardware Buffer Manager</A> to create our vertex buffer, and that a class called HardwareVertexBufferSharedPtr is returned from the method, rather than a raw pointer. This is because vertex buffers are reference counted - you are able to use a single vertex buffer as a source for multiple pieces of geometry therefore a standard pointer would not be good enough, because you would not know when all the different users of it had finished with it. The HardwareVertexBufferSharedPtr class manages its own destruction by keeping a reference count of the number of times it is being used - when the last HardwareVertexBufferSharedPtr is destroyed, the buffer itself automatically destroys itself.<BR><BR>
+Notice that we use <A HREF="manual_38.html#SEC149">5.1 The Hardware Buffer Manager</A> to create our vertex buffer, and that a class called HardwareVertexBufferSharedPtr is returned from the method, rather than a raw pointer. This is because vertex buffers are reference counted - you are able to use a single vertex buffer as a source for multiple pieces of geometry therefore a standard pointer would not be good enough, because you would not know when all the different users of it had finished with it. The HardwareVertexBufferSharedPtr class manages its own destruction by keeping a reference count of the number of times it is being used - when the last HardwareVertexBufferSharedPtr is destroyed, the buffer itself automatically destroys itself.<BR><BR>
 
 The parameters to the creation of a vertex buffer are as follows:
 <DL COMPACT>
@@ -57,14 +57,14 @@ The parameters to the creation of a vertex buffer are as follows:
 <DT>numVertices
 <DD>The number of vertices in this buffer. Remember, not all the vertices have to be used at once - it can be beneficial to create large buffers which are shared between many chunks of geometry because changing vertex buffer bindings is a render state switch, and those are best minimised.
 <DT>usage
-<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_39.html#SEC149">5.2 Buffer Usage</A>
+<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_39.html#SEC150">5.2 Buffer Usage</A>
 <DT>useShadowBuffer
-<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_40.html#SEC150">5.3 Shadow Buffers</A>
+<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_40.html#SEC151">5.3 Shadow Buffers</A>
 </DL>
 
-<A NAME="SEC160"></A>
+<A NAME="SEC161"></A>
 <H3> Binding the Vertex Buffer </H3>
-<!--docid::SEC160::-->
+<!--docid::SEC161::-->
 The second part of the process is to bind this buffer which you have created to a source index. To do this, you call:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>vertexBufferBinding-&#62;setBinding(0, vbuf);
 </pre></td></tr></table>This results in the vertex buffer you created earlier being bound to source index 0, so any vertex element which is pulling its data from source index 0 will retrieve data from this buffer. <BR><BR>
@@ -73,9 +73,9 @@ There are also methods for retrieving buffers from the binding data - see the AP
 <A NAME="Updating Vertex Buffers"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_45.html#SEC156"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_43.html#SEC154"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC161"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_45.html#SEC157"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_43.html#SEC155"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC162"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>

@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC140"></A>
+<A NAME="SEC141"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC139"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC139"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC145"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC140"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC140"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC146"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,7 +35,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 4.1 Exporters </H2>
-<!--docid::SEC140::-->
+<!--docid::SEC141::-->
 
 Exporters are plugins to 3D modelling tools which write meshes and skeletal animation to file formats which OGRE can use for realtime rendering. The files the exporters write end in .mesh and .skeleton respectively.<BR><BR>
 
@@ -43,9 +43,9 @@ Each exporter has to be written specifically for the modeller in question, altho
 
 All the exporters here can be built from the source code, or you can download precompiled versions from the OGRE web site.<BR><BR>
 
-<A NAME="SEC141"></A>
+<A NAME="SEC142"></A>
 <H2> A Note About Modelling / Animation For OGRE </H2>
-<!--docid::SEC141::-->
+<!--docid::SEC142::-->
 There are a few rules when creating an animated model for OGRE:
 <UL>
 <LI>You must have no more than 4 weighted bone assignments per vertex. If you have more, OGRE will eliminate the lowest weighted assignments and renormalise the other weights. This limit is imposed by hardware blending limitations.
@@ -54,9 +54,9 @@ There are a few rules when creating an animated model for OGRE:
 </UL>
 If you're creating unanimated meshes, then you do not need to be concerned with the above.
 
-<A NAME="SEC142"></A>
+<A NAME="SEC143"></A>
 <H2> Milkshape3D </H2>
-<!--docid::SEC142::-->
+<!--docid::SEC143::-->
 
 Milkshape3D is a popular low-polygon editor, especially popular in the modding community because of it's low price and the fact that it supports many game file formats. Installation instructions are included with the exporter itself. The Milkshape exporter supports exporting of meshes and animations. An important tip: Make sure you are not in 'animation' mode when you do this, otherwise Milkshape gets confused as to what the 'reference' position of the mesh is. Just make sure the 'Anim' button in the bottom-right is NOT depressed.<BR><BR>
 
@@ -76,14 +76,14 @@ You then get a dialog box with several options:
 <DD>The Milkshape timeline is in frames, but OGRE likes to deal with animations in terms of seconds for simplicity. This value allows the exporter to do the conversion. Note there's nothing to stop you animating the mesh at a different frame rate in OGRE at runtime by scaling the amount you change the animation by each time, but this bakes a 'default animation speed' into the animation for simplicity.
 </DL>
 
-<A NAME="SEC143"></A>
-<H2> 3D Studio Max R4/5 </H2>
-<!--docid::SEC143::-->
-The 3D Studio exporter exports both mesh definitions and animations created with Biped and Physique. It requires no compilation because it is written in MaxScript, and exports data to XML before converting it using <A HREF="manual_35.html#SEC145">4.2 XmlConverter</A>. There are tutorials included with the exporter in it's Docs/ folder.
-
 <A NAME="SEC144"></A>
-<H2> Other exporters </H2>
+<H2> 3D Studio Max R4/5 </H2>
 <!--docid::SEC144::-->
+The 3D Studio exporter exports both mesh definitions and animations created with Biped and Physique. It requires no compilation because it is written in MaxScript, and exports data to XML before converting it using <A HREF="manual_35.html#SEC146">4.2 XmlConverter</A>. There are tutorials included with the exporter in it's Docs/ folder.
+
+<A NAME="SEC145"></A>
+<H2> Other exporters </H2>
+<!--docid::SEC145::-->
 These other exporters are provided with OGRE, but are either still under development or are supported externally:
 <UL>
 <LI>Wings3D
@@ -95,9 +95,9 @@ These other exporters are provided with OGRE, but are either still under develop
 <A NAME="XmlConverter"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC139"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC139"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC145"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC140"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_33.html#SEC140"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_35.html#SEC146"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
