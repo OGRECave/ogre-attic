@@ -277,11 +277,17 @@ namespace Ogre {
     void Mesh::_setBounds(const AxisAlignedBox& bounds)
     {
         mAABB = bounds;
+        // Pad out the AABB a little, helps with most bounds tests
+        mAABB.setExtents(mAABB.getMinimum() - Vector3::UNIT_SCALE,
+        mAABB.getMaximum() + Vector3::UNIT_SCALE);
+
 		// Set sphere bouds; not the tightest by since we're using
 		// manual AABB it is the only way
 		Real sqLen1 = mAABB.getMinimum().squaredLength();
 		Real sqLen2 = mAABB.getMaximum().squaredLength();
 		mBoundRadius = Math::Sqrt(std::max(sqLen1, sqLen2)); 
+        // Pad out the sphere a little too
+        mBoundRadius = mBoundRadius * 1.25;
 		
         //mUpdateBounds = false;
     }
