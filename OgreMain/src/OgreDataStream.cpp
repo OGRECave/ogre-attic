@@ -61,7 +61,7 @@ namespace Ogre {
         // Read the entire buffer
         char* pBuf = new char[mSize+1];
         read(pBuf, mSize);
-        pBuf[mSize+1] = '\0';
+        pBuf[mSize] = '\0';
         String str;
         str.insert(0, pBuf, mSize);
         delete [] pBuf;
