@@ -37,7 +37,7 @@ In the "Scripts Window" run "Scripts -> Update Menus".
 You will get a detailed log of the export process. Use the OgreXmlConverter to convert the generated XML files to binary .mesh and .skeleton files.
 <P>
 <DIV ID=exporter>
-<IMG SRC="images/exporter.png" WIDTH="473" HEIGHT="394" />
+<IMG SRC="images/exporter.png" WIDTH="473" HEIGHT="373" />
 <P>Screenshot of the exporter interface.</P>
 </DIV>
 <H3>Options</H3>
@@ -58,13 +58,6 @@ You will get a detailed log of the export process. Use the OgreXmlConverter to c
 <DD>Angle of an additional rotation around the y-axis. This rotation is applied second, after RotX.</DD>
 <DT>RotZ</DT>
 <DD>Angle of an additional rotation around the z-axis. This rotation is applied third, after RotY.</DD>
-<DT>Frs/Sec</DT>
-<DD>The default animation speed in the export in terms of frames per second.<br>
-From Blender version 2.33 on, this value is taken from the corresponding scene render buttons:
-<P>
-<IMG SRC="images/format.png" WIDTH="288" HEIGHT="203" />
-</P>
-Blender's format setting that affect the exported Ogre animation is marked green.</DD>
 <DT>Animation settings of</DT>
 <DD>Choose an object from the list of all objects selected for export. The animations that will be exported for that object are then displayed in the scroll area below. Each animation correspond to one line.</DD>
 <DL>
@@ -110,7 +103,7 @@ In contrast to Ogre, Blender treats material, uv texture and blend mode separate
 <TH>Ogre</TH>
 </TR>
 <TR>
-<TD>Amb*Col</TD>
+<TD>Amb*AmbR Amb*AmbG Amb*AmbB</TD>
 <TD>ambient R G B</TD>
 </TR>
 <TR>
@@ -151,6 +144,10 @@ In contrast to Ogre, Blender treats material, uv texture and blend mode separate
 <TD>depth_func always_fail</TD>
 </TR>
 </TABLE>
+<P>
+<IMG SRC="images/world.png" WIDTH="288" HEIGHT="203" />
+</P>
+Blender's world settings that affect the exported Ogre material are marked green.
 <P>
 <IMG SRC="images/material.png" WIDTH="288" HEIGHT="203" />
 </P>
@@ -197,11 +194,16 @@ Blender's face settings that affect the exported Ogre material are marked green.
 You must have no more than four weighted bone assignments per mesh vertex. If you have more, the script will eliminate the lowest weighted assignments and renormalise the other weights. All vertices must be assigned to at least one bone.
 </P>
 <P>
-Armature animations are exported based upon keyframe ranges and action names. Action ipos are associated with bones according to their names. Therefore make sure all bone names of all armature objects are unique. Also make sure that the name of an ipo of a bone contains the full bone name. You can choose any frame as start and end frame of an animation. The script will automatically insert keyframes at the start and end of the exported animation and reverse the exported animation if the end frame is lesser than the start frame. In order to export armature animations of a mesh you don't have to select the armature separately.
+Armature animations are exported based upon keyframe ranges and action names. Action ipos are associated with bones according to their names. Therefore make sure all bone names of all armature objects are unique. Actions need channels for all bones in order to get exported. You can choose any frame as start and end frame of an animation. The script will automatically insert keyframes at the start and end of the exported animation and reverse the exported animation if the end frame is lesser than the start frame. In order to export armature animations of a mesh you don't have to select the armature separately.
 </P>
 <P>
 The script does not evaluate action constraints. To export an action with constraints you have to convert the constraint effects into ipo keys ("Action Editor -> Bake") and choose the baked action in the animation settings.
 </P>
+The animation speed in the export in terms of frames per second is taken from the corresponding scene render button.
+<P>
+<IMG SRC="images/format.png" WIDTH="288" HEIGHT="203" />
+</P>
+Blender's format setting that affect the exported Ogre animation is marked green.
 </DIV>
 </BODY>
 </HTML>
