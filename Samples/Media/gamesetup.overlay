@@ -62,24 +62,46 @@ template container BorderButton(SS/Templates/BasicSmallButton) : SS/Templates/Ba
     border_size 0.02 0.02 0.02665 0.02665
 }
 
-template container BorderButton(SS/Templates/ScrollBar/UpButton) : SS/Templates/BasicSmallButton
+template container Panel(SS/Templates/BasicPanel)
 {
-	caption SS/Templates/BasicText UP
+	left 0 
+	top 0
+	width 1
+	height 1
+	material Core/StatsBlockCenter
 }
 
-template container BorderButton(SS/Templates/ScrollBar/DownButton) : SS/Templates/BasicSmallButton
+template container Button(SS/Templates/ScrollBar/UpButton) : SS/Templates/BasicPanel
 {
-	caption SS/Templates/BasicText DOWN
+	left 0 
+	top 0
+	width 1
+	height 1
+	material Examples/Scrollbar/Up
+	button_up_material Examples/Scrollbar/Up
+	button_down_material Examples/Scrollbar/Up/Pressed
 }
+
+template container Button(SS/Templates/ScrollBar/DownButton) : SS/Templates/BasicPanel
+{
+	left 0 
+	top 0
+	width 1
+	height 1
+	material Examples/Scrollbar/Down
+	button_up_material Examples/Scrollbar/Down
+	button_down_material Examples/Scrollbar/Down/Pressed
+}
+
 template container Panel(SS/Templates/ScrollBar/ScrollBit) 
 {
-	material Core/StatsBlockCenter
+	material Examples/Scrollbar/Thumb
 }
 
 template container ScrollBar(SS/Templates/ScrollBar)
 {
 	width 0.05
-	material Examples/RustySteel
+	material Examples/Scrollbar/Background
 	up_button SS/Templates/ScrollBar/UpButton
 	down_button SS/Templates/ScrollBar/DownButton
 	scroll_bit SS/Templates/ScrollBar/ScrollBit
@@ -114,7 +136,7 @@ SS/Setup/HostScreen/Overlay
 				top 0.1
 				width 0.4
 				height 0.6
-				item_material_selected Ogre/Eyes
+				item_material_selected Examples/Hilite/Yellow
 				material Core/StatsBlockCenter
 				scroll_bar SS/Templates/ScrollBar
 			}

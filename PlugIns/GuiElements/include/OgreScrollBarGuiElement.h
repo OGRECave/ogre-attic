@@ -27,7 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGuiElementPrerequisites.h"
 #include "OgrePanelGuiElement.h"
-#include "OgreBorderButtonGuiElement.h"
+#include "OgreButtonGuiElement.h"
 #include "OgreEventListeners.h"
 
 namespace Ogre {
@@ -118,7 +118,7 @@ namespace Ogre {
 
   		String mUpButtonName, mDownButtonName, mScrollBitName;
 
-		BorderButtonGuiElement *mUpButton, *mDownButton;
+		ButtonGuiElement *mUpButton, *mDownButton;
 		PanelGuiElement *mScrollBit;
 
 		int mTotalItems, mStartingItem, mVisibilityRange;

@@ -133,7 +133,7 @@ namespace Ogre {
 	{
 		mUpButtonName = val;
 		Real buttonSize = getWidth();
-		mUpButton = static_cast<BorderButtonGuiElement*> (
+		mUpButton = static_cast<ButtonGuiElement*> (
 			GuiManager::getSingleton().createGuiElementFromTemplate(mUpButtonName, "", mName + "/" + "UpButton"));
 
 
@@ -149,7 +149,7 @@ namespace Ogre {
 	{
 		Real buttonSize = getWidth();
 		mDownButtonName = val;
-		mDownButton = static_cast<BorderButtonGuiElement*> (
+		mDownButton = static_cast<ButtonGuiElement*> (
 			GuiManager::getSingleton().createGuiElementFromTemplate(mDownButtonName, "", mName + "/" + "DownButton"));
 
 		// do not make this cloneable, otherwise there will be 2 copies of it when it is cloned,
@@ -188,33 +188,36 @@ namespace Ogre {
 	}
 	void ScrollBarGuiElement::layoutItems()
 	{
-		Real buttonSize = getWidth();
+		Real buttonWidth = getWidth() - (mSpacing * 2);
+		Real buttonHeight = (buttonWidth * 4.0F) / 3.0F;	// adjust for screen ratio
+		Real horzSpacing = mSpacing;
+		Real vertSpacing = (mSpacing * 4.0F) / 3.0F;
 
-		mUpButton->setLeft(mSpacing);
-		mUpButton->setTop(mSpacing);
-		mUpButton->setWidth(buttonSize - mSpacing*2);
-		mUpButton->setHeight(buttonSize - mSpacing*2);	// buttons are square
+		mUpButton->setLeft(horzSpacing);
+		mUpButton->setTop(vertSpacing);
+		mUpButton->setWidth(buttonWidth);
+		mUpButton->setHeight(buttonHeight);	// buttons are square
 
-		mDownButton->setLeft(mSpacing);
-		mDownButton->setTop(getHeight() - buttonSize + mSpacing);
-		mDownButton->setWidth(buttonSize - mSpacing*2);
-		mDownButton->setHeight(buttonSize - mSpacing*2);	// buttons are square
+		mDownButton->setLeft(horzSpacing);
+		mDownButton->setTop(getHeight() - buttonHeight + vertSpacing);
+		mDownButton->setWidth(buttonWidth);
+		mDownButton->setHeight(buttonHeight);	// buttons are square
 
-		mScrollBit->setLeft(mSpacing );
-		mScrollBit->setTop(buttonSize + mSpacing);
-		mScrollBit->setWidth(buttonSize - mSpacing*2);
-		mScrollBit->setHeight(getHeight() - 2*buttonSize - mSpacing*2);	// buttons are square
+		mScrollBit->setLeft(horzSpacing);
+		mScrollBit->setTop(buttonHeight + vertSpacing);
+		mScrollBit->setWidth(buttonWidth);
+		mScrollBit->setHeight(getHeight() - 2*buttonHeight - vertSpacing*2);
 		if (mTotalItems == 0 )
 		{
 
-			mScrollBit->setTop(buttonSize + mSpacing );
-			mScrollBit->setHeight((getHeight() - 2*buttonSize - mSpacing*2) );			
+			mScrollBit->setTop(buttonHeight + vertSpacing );
+			mScrollBit->setHeight((getHeight() - 2*buttonHeight - vertSpacing*2));			
 
 		}
 		else
 		{
-			mScrollBit->setTop(buttonSize + mSpacing + (getHeight() - 2*buttonSize - mSpacing*2) * mStartingItem / mTotalItems );
-			mScrollBit->setHeight((getHeight() - 2*buttonSize - mSpacing*2) * mVisibilityRange / mTotalItems );			
+			mScrollBit->setTop(buttonHeight + vertSpacing + (getHeight() - 2*buttonHeight - vertSpacing*2) * mStartingItem / mTotalItems);
+			mScrollBit->setHeight((getHeight() - 2*buttonHeight - vertSpacing*2) * mVisibilityRange / mTotalItems);			
 		}
 	}
 
@@ -294,7 +297,9 @@ namespace Ogre {
 	}
 	void ScrollBarGuiElement::mousePressed(MouseEvent* e) 
 	{
-		Real buttonSize = getWidth();
+		Real buttonHeight = (getWidth() * 4.0F) / 3.0F;	// adjust for screen ratio
+		Real vertSpacing = (mSpacing * 4.0F) / 3.0F;
+
 		Real mouseY = e->getY() - mDerivedTop;
 		if ((MouseTarget*)e->getSource() == (GuiElement*)(mScrollBit))
 		{
@@ -310,7 +315,7 @@ namespace Ogre {
 
 			}
 
-			moveScrollBitTo(topToScroll - buttonSize + mSpacing);
+			moveScrollBitTo(topToScroll - buttonHeight + vertSpacing);
 
 			mouseHeldAtY = mouseY;
 
@@ -325,17 +330,19 @@ namespace Ogre {
 
 	void ScrollBarGuiElement::moveScrollBitTo(Real moveY)
 	{
-		Real buttonSize = getWidth();
+		Real buttonHeight = (getWidth() * 4.0F) / 3.0F;	// adjust for screen ratio
+		Real vertSpacing = (mSpacing * 4.0F) / 3.0F;
+
 		if (moveY <0)
 		{
 			moveY = 0;
 		}
-		if (moveY > getHeight() - 2*buttonSize - mSpacing*2 - mScrollBit->getHeight())
+		if (moveY > getHeight() - 2*buttonHeight - vertSpacing*2 - mScrollBit->getHeight())
 		{
-			moveY = getHeight() - 2*buttonSize - mSpacing*2 - mScrollBit->getHeight();
+			moveY = getHeight() - 2*buttonHeight - vertSpacing*2 - mScrollBit->getHeight();
 		}
-		mScrollBit->setTop(buttonSize + mSpacing + moveY);
-		mStartingItem = ((mScrollBit->getTop() - buttonSize - mSpacing) * mTotalItems) / (getHeight() - 2*buttonSize - mSpacing*2);
+		mScrollBit->setTop(buttonHeight + vertSpacing + moveY);
+		mStartingItem = ((mScrollBit->getTop() - buttonHeight - vertSpacing) * mTotalItems) / (getHeight() - 2*buttonHeight - vertSpacing*2);
 		fireScrollPerformed();
 	}
 }
