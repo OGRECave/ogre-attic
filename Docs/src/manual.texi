@@ -1384,6 +1384,8 @@ The current view and projection matrices concatenated.
 The current world, view and projection matrices concatenated.
 @item inverse_world_matrix
 The inverse of the current world matrix.
+@item inverse_view_matrix
+The inverse of the current view matrix.
 @item inverse_worldview_matrix
 The inverse of the current concatenated world and view matrices.
 @item inverse_transpose_world_matrix

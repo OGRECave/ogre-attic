@@ -331,6 +331,9 @@ namespace Ogre
             case ACT_INVERSE_WORLD_MATRIX:
                 setConstant(i->index, source.getInverseWorldMatrix());
                 break;
+			case ACT_INVERSE_VIEW_MATRIX:
+				setConstant(i->index, source.getInverseViewMatrix());
+				break;
             case ACT_INVERSE_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getInverseWorldViewMatrix());
                 break;

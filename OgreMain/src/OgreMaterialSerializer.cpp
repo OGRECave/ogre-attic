@@ -1381,6 +1381,10 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_INVERSE_WORLD_MATRIX;
         }
+		else if (vecparams[1] == "inverse_view_matrix")
+		{
+			acType = GpuProgramParameters::ACT_INVERSE_VIEW_MATRIX;
+		}
         else if (vecparams[1] == "inverse_worldview_matrix")
         {
             acType = GpuProgramParameters::ACT_INVERSE_WORLDVIEW_MATRIX;
