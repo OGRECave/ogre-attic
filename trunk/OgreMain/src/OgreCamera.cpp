@@ -69,6 +69,10 @@ namespace Ogre {
         mName = name;
         mSceneMgr = sm;
 
+        // Init no tracking
+        mAutoTrackTarget = 0;
+
+
         updateView();
 
     }
