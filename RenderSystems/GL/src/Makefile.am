@@ -1,7 +1,8 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/RenderSystems/GL/include \
            -I$(top_srcdir)/OgreMain/include $(GLSUPPORT_CFLAGS) \
            -I$(top_srcdir)/PlatformManagers/$(OGRE_PLATFORM)/include \
-           -I$(top_srcdir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT) -I./nvparse \
+           -I$(top_srcdir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT) \
+           -I$(top_srcdir)/RenderSystems/GL/src/nvparse \
            -I$(top_srcdir)/RenderSystems/GL/src/atifs/include
 
 DIST_SUBDIRS = gtk SDL win32
