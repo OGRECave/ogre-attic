@@ -12,6 +12,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreAxisAlignedBox.cpp \
                          OgreBillboard.cpp \
                          OgreBillboardSet.cpp \
+                         OgreBMPCodec.cpp \
                          OgreBone.cpp \
                          OgreBitwise.cpp \
                          OgreCamera.cpp \
