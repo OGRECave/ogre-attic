@@ -73,7 +73,7 @@ namespace Ogre
 		/// return a D3D9 equivalent for a Ogre LightTypes value
 		static D3DLIGHTTYPE get(Ogre::Light::LightTypes lightType);
 		/// return a D3D9 equivalent for a Ogre TexCoordCalsMethod value
-		static DWORD get(TexCoordCalcMethod m);
+		static DWORD get(TexCoordCalcMethod m, const D3DCAPS9& caps);
 		/// return a D3D9 equivalent for a Ogre TextureAddressingMode value
 		static D3DTEXTUREADDRESS get(Material::TextureLayer::TextureAddressingMode tam);
 		/// return a D3D9 equivalent for a Ogre LayerBlendType value
