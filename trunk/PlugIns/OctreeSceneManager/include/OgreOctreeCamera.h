@@ -40,7 +40,7 @@ for debuggin purposes. It also implements a visibility function that is more gra
 than the default.
 */
 
-class OctreeCamera : public Camera, public Renderable
+class OctreeCamera : public Camera
 {
 public:
 
