@@ -717,7 +717,7 @@ material Examples/FresnelReflectionRefraction
 			fragment_program_ref Examples/FresnelRefractReflectFP
 			{
 				param_named distortionRange float4 0.025 0 0 0
-				param_named tintColour float4 0 0 0.1 1
+				param_named tintColour float4 0 0 0 1
 			}
 			// Noise
 			texture_unit
