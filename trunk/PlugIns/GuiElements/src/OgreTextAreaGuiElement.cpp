@@ -290,7 +290,18 @@ namespace Ogre {
         }
         // Unlock vertex buffer
         vbuf->unlock();
-		setWidth(largestWidth);
+
+		if (mMetricsMode == GMM_PIXELS)
+		{
+            // Derive parametric version of dimensions
+            Real vpWidth;
+            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+
+			largestWidth *= vpWidth;
+		};
+
+		if (getWidth() < largestWidth)
+			setWidth(largestWidth);
         updateColours();
 
     }
@@ -341,10 +352,17 @@ namespace Ogre {
         }
         mGeomPositionsOutOfDate = true;
     }
-    Real TextAreaGuiElement::getCharHeight() const
-    {
-        return mCharHeight;
-    }
+	Real TextAreaGuiElement::getCharHeight() const
+	{
+		if (mMetricsMode == GMM_PIXELS)
+		{
+			return mPixelCharHeight;
+		}
+		else
+		{
+			return mCharHeight;
+		}
+	}
 
     void TextAreaGuiElement::setSpaceWidth( Real width )
     {
@@ -359,10 +377,17 @@ namespace Ogre {
 
         mGeomPositionsOutOfDate = true;
     }
-    Real TextAreaGuiElement::getSpaceWidth() const
-    {
-        return mSpaceWidth;
-    }
+	Real TextAreaGuiElement::getSpaceWidth() const
+	{
+		if (mMetricsMode == GMM_PIXELS)
+		{
+			return mPixelSpaceWidth;
+		}
+		else
+		{
+			return mSpaceWidth;
+		}
+	}
 
     //---------------------------------------------------------------------
     TextAreaGuiElement::~TextAreaGuiElement()
@@ -496,19 +521,15 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void TextAreaGuiElement::setMetricsMode(GuiMetricsMode gmm)
-    {
-        GuiElement::setMetricsMode(gmm);
-        if (gmm == GMM_PIXELS)
-        {
-            // Set pixel variables based on viewport multipliers
-            Real vpHeight;
-            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
-
-            mPixelCharHeight = mCharHeight * vpHeight;
-            mPixelSpaceWidth = mSpaceWidth * vpHeight;
-        }
-    }
+	void TextAreaGuiElement::setMetricsMode(GuiMetricsMode gmm)
+	{
+		GuiElement::setMetricsMode(gmm);
+		if (gmm == GMM_PIXELS)
+		{
+			mPixelCharHeight = mCharHeight;
+			mPixelSpaceWidth = mSpaceWidth;
+		}
+	}
     //-----------------------------------------------------------------------
     void TextAreaGuiElement::_update(void)
     {
@@ -524,8 +545,6 @@ namespace Ogre {
 			mGeomPositionsOutOfDate = true;
         }
         GuiElement::_update();
-		updateGeometry();
-
     }
     //---------------------------------------------------------------------------------------------
     // Char height command object

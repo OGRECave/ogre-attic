@@ -113,7 +113,10 @@ namespace Ogre {
 			ChildIterator it = getChildIterator();
 			while (it.hasMoreElements())
 			{
-				changeChild(it.getNext(), ((mButtonDown)?0.003:-0.003));
+				if (mMetricsMode == GMM_PIXELS)
+					changeChild(it.getNext(), ((mButtonDown)?1:-1));
+				else
+					changeChild(it.getNext(), ((mButtonDown)?0.003:-0.003));
 			}
 		}
 	}
