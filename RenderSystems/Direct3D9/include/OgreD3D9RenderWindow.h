@@ -66,6 +66,9 @@ namespace Ogre
 		bool isReady() const { return mReady; }
 		void setReady(bool set) { mReady = set; }
 		void setActive(bool set) { mActive = set; }
+		/// Get the presentation parameters used with this window
+		D3DPRESENT_PARAMETERS* getPresentationParameters(void) 
+		{ return &md3dpp; }
 
 	protected:
 		HWND	mExternalHandle;		// External Win32 window handle

@@ -56,6 +56,16 @@ namespace Ogre {
         VertexDeclaration* createVertexDeclaration(void);
         /// Destroys a vertex declaration, may be overridden by certain rendering APIs
         void destroyVertexDeclaration(VertexDeclaration* decl);
+		/** Release all buffers in the default memory pool. 
+		@remarks
+			Method for dealing with lost devices.
+		*/
+		void releaseDefaultPoolResources(void);
+		/** Recreate all buffers in the default memory pool. 
+		@remarks
+			Method for dealing with lost devices.
+		*/
+		void recreateDefaultPoolResources(void);
 
 
     };

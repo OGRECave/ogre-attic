@@ -51,5 +51,27 @@ namespace Ogre
         return new D3D9Texture(this, name, handle, group, isManual, loader, mpD3DDevice); 
     }
 
+	void D3D9TextureManager::releaseDefaultPoolResources(void)
+	{
+		ResourceMap::iterator r, rend;
+		rend = mResources.end();
+		for (r = mResources.begin(); r != rend; ++r)
+		{
+			D3D9TexturePtr t = r->second;
+			t->releaseIfDefaultPool();
+		}
+	}
+
+	void D3D9TextureManager::recreateDefaultPoolResources(void)
+	{
+		ResourceMap::iterator r, rend;
+		rend = mResources.end();
+		for (r = mResources.begin(); r != rend; ++r)
+		{
+			D3D9TexturePtr t = r->second;
+			t->recreateIfDefaultPool(mpD3DDevice);
+		}
+	}
+
 
 }

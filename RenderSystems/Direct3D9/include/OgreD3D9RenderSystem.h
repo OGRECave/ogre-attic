@@ -132,6 +132,9 @@ namespace Ogre
         /// Saved last view matrix
         Matrix4 mViewMatrix;
 
+		/// Primary window, the one used to create the device
+		D3D9RenderWindow* mPrimaryWindow;
+
 
 	public:
 		// constructor
@@ -230,6 +233,10 @@ namespace Ogre
         Real getVerticalTexelOffset(void);
         Real getMinimumDepthInputValue(void);
         Real getMaximumDepthInputValue(void);
+
+		/** D3D specific method to restore a lost device. */
+		void restoreLostDevice(void);
+
 
 	};
 }

@@ -35,18 +35,19 @@ namespace Ogre {
         : HardwareVertexBuffer(vertexSize, numVertices, usage, useSystemMemory, useShadowBuffer)
     {
         // Create the vertex buffer
+#if OGRE_D3D_MANAGE_BUFFERS
+		mD3DPool = useSystemMemory? D3DPOOL_SYSTEMMEM : 
+			// If not system mem, use managed pool UNLESS buffer is discardable
+			// if discardable, keeping the software backing is expensive
+			(usage & HardwareBuffer::HBU_DISCARDABLE)? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
+#else
+		mD3DPool = useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT;
+#endif
         HRESULT hr = pDev->CreateVertexBuffer(
             static_cast<UINT>(mSizeInBytes), 
             D3D9Mappings::get(usage), 
             0, // No FVF here, thankyou
-#if OGRE_D3D_MANAGE_BUFFERS
-			useSystemMemory? D3DPOOL_SYSTEMMEM : 
-            // If not system mem, use managed pool UNLESS buffer is discardable
-            // if discardable, keeping the software backing is expensive
-                (usage & HardwareBuffer::HBU_DISCARDABLE)? D3DPOOL_DEFAULT : D3DPOOL_MANAGED, 
-#else
-            useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT, 
-#endif
+			mD3DPool,
             &mlpD3DBuffer,
             NULL);
         if (FAILED(hr))
@@ -120,6 +121,34 @@ namespace Ogre {
         memcpy(pDst, pSource, length);
         this->unlock();
     }
+	//---------------------------------------------------------------------
+	void D3D9HardwareVertexBuffer::releaseIfDefaultPool(void)
+	{
+		if (mD3DPool == D3DPOOL_DEFAULT)
+		{
+			SAFE_RELEASE(mlpD3DBuffer);
+		}
+	}
+	//---------------------------------------------------------------------
+	void D3D9HardwareVertexBuffer::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
+	{
+		if (mD3DPool == D3DPOOL_DEFAULT)
+		{
+			HRESULT hr = pDev->CreateVertexBuffer(
+				static_cast<UINT>(mSizeInBytes), 
+				D3D9Mappings::get(mUsage), 
+				0, // No FVF here, thankyou
+				mD3DPool,
+				&mlpD3DBuffer,
+				NULL);
+			if (FAILED(hr))
+			{
+				String msg = DXGetErrorDescription9(hr);
+				Except(hr, "Cannot restore D3D9 vertex buffer: " + msg, 
+					"D3D9HardwareVertexBuffer::recreateIfDefaultPool");
+			}
+		}
+	}
 	//---------------------------------------------------------------------
 
 }
