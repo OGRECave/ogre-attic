@@ -75,10 +75,10 @@ namespace Ogre {
         /// Materials by handle.
         MaterialHandleList mHandles;
 
-		//default texture filtering
+		/// default texture filtering
 		TextureFilterOptions mDefTextureFiltering;
 
-		//default maxAnisotropy
+		/// default maxAnisotropy
 		int mDefAniso;
 
     public:
@@ -134,7 +134,7 @@ namespace Ogre {
                 The default value is TFO_BILINEAR.
         */
         virtual void setDefaultTextureFiltering(TextureFilterOptions fo);
-		// get the default texture filtering
+		/// get the default texture filtering
         virtual TextureFilterOptions getDefaultTextureFiltering();
 
         /** Sets the default anisotropy level to be used for loaded textures, for when textures are
@@ -144,7 +144,7 @@ namespace Ogre {
                 The default value is 1 (no anisotropy).
         */
 		void setDefaultAnisotropy(int maxAniso);
-		// get the default maxAnisotropy
+		/// get the default maxAnisotropy
 		int getDefaultAnisotropy();
 
 		/** Override standard Singleton retrieval.

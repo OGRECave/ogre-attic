@@ -213,11 +213,13 @@ namespace Ogre {
     }
 
     //---------------------------------------------------------------------------------------------
-    D3DTexture::D3DTexture(String name, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
+    D3DTexture::D3DTexture(String name, TextureType texType, LPDIRECT3DDEVICE7 lpDirect3dDevice, TextureUsage usage )
     {
-        mName = name;
         mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
-        mUsage = usage;
+
+		mName = name;
+		mTextureType = texType;
+		mUsage = usage;
 
         // Default to 16-bit texture
         enable32Bit( false );
@@ -225,6 +227,7 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     D3DTexture::D3DTexture( 
         String name, 
+		TextureType texType, 
         IDirect3DDevice7 * lpDirect3dDevice, 
         uint width, 
         uint height, 
@@ -232,10 +235,11 @@ namespace Ogre {
         PixelFormat format,
         TextureUsage usage )
     {
-        mName = name;
         mD3DDevice = lpDirect3dDevice; mD3DDevice->AddRef();
 
-        mSrcWidth = width;
+		mName = name;
+		mTextureType = texType;
+		mSrcWidth = width;
         mSrcHeight = height;
         mNumMipMaps = num_mips;
 
@@ -254,8 +258,7 @@ namespace Ogre {
 
         __safeRelease( &mD3DDevice );
     }
-
-    //---------------------------------------------------------------------------------------------
+	/****************************************************************************************/
     void D3DTexture::blitToTexture( 
         const Image &src, unsigned uStartX, unsigned uStartY )
     {

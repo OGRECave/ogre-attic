@@ -41,10 +41,11 @@ namespace Ogre {
     {
     public:
         // Constructor, called from D3DTextureManager
-        D3DTexture( String name, IDirect3DDevice7 * lpDirect3dDevice, TextureUsage usage );
+        D3DTexture( String name, TextureType texType, IDirect3DDevice7 * lpDirect3dDevice, TextureUsage usage );
 		/** Constructor that can be used to manually create a texture and set its parameters. */
 		D3DTexture( 
 			String name, 
+			TextureType texType, 
 			IDirect3DDevice7 * lpDirect3dDevice, 
 			uint width, 
 			uint height, 
@@ -79,7 +80,7 @@ namespace Ogre {
 			: RenderTexture( name, width, height )
         {
             mPrivateTex = TextureManager::getSingleton().createManual( mName + 
-                "_PRIVATE##", mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
+                "_PRIVATE##", TEX_TYPE_2D, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
         }
 
 		virtual ~D3D7RenderTexture()

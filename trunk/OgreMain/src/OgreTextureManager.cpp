@@ -31,13 +31,14 @@ namespace Ogre {
     TextureManager::~TextureManager(){}
     //-----------------------------------------------------------------------
     Texture * TextureManager::load(
-        const String &name, int numMipMaps, Real gamma, int priority )
+        const String &name, TextureType texType, int numMipMaps, 
+        Real gamma, int priority )
     {
         Texture* tex = (Texture*)getByName( name );
 
         if( tex == NULL )
         {
-            tex = (Texture*)create( name );
+            tex = (Texture*)create( name, texType );
 
             if (numMipMaps == -1)
                 tex->setNumMipMaps(mDefaultNumMipMaps);
@@ -55,10 +56,11 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     Texture * TextureManager::loadImage( 
-        const String &name, const Image &img, 
+        const String &name, const Image &img, TextureType texType,
         int iNumMipMaps /* = -1 */, Real gamma /* = 1.0f  */, int priority /* = 1 */ )
     {
-        Texture *tex = (Texture*)create( name );
+        Texture *tex = (Texture*)create( name, texType );
+
         if( iNumMipMaps == -1 )
             tex->setNumMipMaps( mDefaultNumMipMaps );
         else
@@ -98,6 +100,4 @@ namespace Ogre {
     {
         return Singleton<TextureManager>::getSingleton();
     }
-
-
 }

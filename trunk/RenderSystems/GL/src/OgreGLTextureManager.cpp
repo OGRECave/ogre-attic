@@ -37,21 +37,21 @@ namespace Ogre {
         this->unloadAndDestroyAll();
     }
     //-----------------------------------------------------------------------------
-    Resource* GLTextureManager::create( const String& name)
+    Texture* GLTextureManager::create( const String& name, TextureType texType)
     {
-        GLTexture* t = new GLTexture(name);
+        GLTexture* t = new GLTexture(name, texType);
         t->enable32Bit(mIs32Bit);
         return t;
     }
     //-----------------------------------------------------------------------------
-    Texture* GLTextureManager::createManual( const String& name, uint width,
-        uint height, uint num_mips, PixelFormat format, TextureUsage usage )
+    Texture* GLTextureManager::createManual( const String& name, 
+        TextureType texType, uint width, uint height, uint num_mips, 
+        PixelFormat format, TextureUsage usage )
     {
-        GLTexture* t = new GLTexture(name, TEX_TYPE_2D, width, height, num_mips, format, usage);
+        GLTexture* t = new GLTexture(name, texType, width, height, num_mips, format, usage);
         t->enable32Bit(mIs32Bit);
         return t;
     }
-
     //-----------------------------------------------------------------------------
     void GLTextureManager::unloadAndDestroyAll()
     {

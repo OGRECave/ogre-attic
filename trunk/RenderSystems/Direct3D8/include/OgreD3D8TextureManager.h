@@ -21,11 +21,12 @@ namespace Ogre {
 		~D3D8TextureManager();
 
 		/// Creates a D3D8Texture resource
-		virtual Resource * create( const String& name );
+		virtual Texture * create( const String& name, TextureType texType );
         virtual Texture * createAsRenderTarget( const String& name );
 
 		virtual Texture * createManual( 
 			const String & name,
+            TextureType texType,
 			uint width,
 			uint height,
 			uint num_mips,

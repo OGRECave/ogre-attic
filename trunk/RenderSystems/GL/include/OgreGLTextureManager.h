@@ -40,14 +40,16 @@ namespace Ogre {
 
         /** Creates a SDLTexture resource. 
         */
-        virtual Resource* create( const String& name);
+        virtual Texture* create( const String& name, TextureType texType);
         /** Note that this function is not yet implemented.
             @todo
                 Implement correct surface creation in the texture source file.
         */
         virtual Texture * createAsRenderTarget( const String& name ) { return NULL; }
 
-        virtual Texture * createManual( const String& name, uint width, uint height, uint num_mips, PixelFormat format, TextureUsage usage );
+        virtual Texture * createManual( const String& name, TextureType texType,
+            uint width, uint height, uint num_mips, PixelFormat format, 
+            TextureUsage usage );
 
         /** Unloads & destroys textures. */
         void unloadAndDestroyAll();
