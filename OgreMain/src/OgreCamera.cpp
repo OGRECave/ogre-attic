@@ -39,7 +39,8 @@ namespace Ogre {
 
     String Camera::msMovableType = "Camera";
     //-----------------------------------------------------------------------
-    Camera::Camera(String name, SceneManager* sm)
+    Camera::Camera( const String& name, SceneManager* sm)
+        : mName( name )
     {
         // Init camera location & direction
 
@@ -50,7 +51,7 @@ namespace Ogre {
 
 
         // Reasonable defaults to camera params
-       mFOVy = Math::RadiansToAngleUnits(Math::PI/4.0);
+        mFOVy = Math::RadiansToAngleUnits(Math::PI/4.0);
         mNearDist = 100.0f;
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
@@ -67,19 +68,17 @@ namespace Ogre {
 
         mParentNode = 0;
 
-        // Record name & SceneManager
-        mName = name;
+        // Record SceneManager
         mSceneMgr = sm;
 
         // Init no tracking
         mAutoTrackTarget = 0;
 
-		// Init lod
-		mSceneLodFactor = mSceneLodFactorInv =  1.0f;
+        // Init lod
+        mSceneLodFactor = mSceneLodFactorInv =  1.0f;
 
 
         updateView();
-
     }
 
     //-----------------------------------------------------------------------

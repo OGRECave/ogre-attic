@@ -173,7 +173,7 @@ namespace Ogre {
     public:
         /** Standard constructor.
         */
-        Camera(String name, SceneManager* sm);
+        Camera( const String& name, SceneManager* sm);
 
         /** Standard destructor.
         */
