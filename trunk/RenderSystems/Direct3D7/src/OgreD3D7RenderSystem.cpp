@@ -78,9 +78,16 @@ namespace Ogre {
         OgreGuard( "D3DRenderSystem::~D3DRenderSystem" );
 
         if (mTextureManager)
+		{
             delete mTextureManager;
+			mTextureManager = NULL;
+		}
+
         if (mDriverList)
+		{
             delete mDriverList;
+			mDriverList = NULL;
+		}
 
         D3DXUninitialize();
         LogManager::getSingleton().logMessage(getName() + " destroyed.");
