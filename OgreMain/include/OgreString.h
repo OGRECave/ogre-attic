@@ -95,7 +95,7 @@ namespace Ogre {
 
         /** Copy-constructor for C-style strings.
         */
-        String( const char* rhs ) : _StringBase( static_cast< const _StringBase& >( rhs ) ) {}
+        String( const char* rhs ) : _StringBase( rhs ) {}
 
         /** Used for interaction with functions that require the old C-style
             strings.
