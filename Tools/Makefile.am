@@ -3,4 +3,4 @@ PYSUBDIR=PythonInterface
 else
 PYSUBDIR=
 endif
-SUBDIRS=$(PYSUBDIR) XMLConverter MeshUpgrader
+SUBDIRS=$(PYSUBDIR) XMLConverter MeshUpgrader MaterialUpgrader
