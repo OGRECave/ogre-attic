@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreTextAreaGuiElement.h"
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
+#include "OgreOverlayManager.h"
 
 namespace Ogre {
 
@@ -267,8 +268,15 @@ namespace Ogre {
 
     void TextAreaGuiElement::setCharHeight( Real height )
     {
-        mCharHeight = height;
-        updateGeometry();
+        if (mMetricsMode == GMM_PIXELS)
+        {
+            mPixelCharHeight = height;
+        }
+        else
+        {
+            mCharHeight = height;
+        }
+        mGeomPositionsOutOfDate = true;
     }
     Real TextAreaGuiElement::getCharHeight() const
     {
@@ -388,6 +396,29 @@ namespace Ogre {
             *pDest++ = bottomColour;
             *pDest++ = bottomColour;
         }
+
+    }
+    //-----------------------------------------------------------------------
+    void TextAreaGuiElement::setMetricsMode(GuiMetricsMode gmm)
+    {
+        GuiElement::setMetricsMode(gmm);
+        if (gmm == GMM_PIXELS)
+        {
+            mPixelCharHeight = mCharHeight;
+        }
+    }
+    //-----------------------------------------------------------------------
+    void TextAreaGuiElement::_update(void)
+    {
+        if (mMetricsMode == GMM_PIXELS && OverlayManager::getSingleton().hasViewportChanged())
+        {
+            // Recalc character size
+            Real vpHeight;
+            vpHeight = (Real) (OverlayManager::getSingleton().getViewportHeight());
+
+            mCharHeight = (Real) mPixelCharHeight / vpHeight;
+        }
+        GuiElement::_update();
 
     }
     //---------------------------------------------------------------------------------------------

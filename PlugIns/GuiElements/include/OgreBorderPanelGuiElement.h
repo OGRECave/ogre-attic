@@ -152,6 +152,13 @@ namespace Ogre {
         /** Overridden from GuiContainer */
         void _updateRenderQueue(RenderQueue* queue);
 
+        /** Overridden from GuiElement */
+        void setMetricsMode(GuiMetricsMode gmm);
+
+        /** Overridden from GuiElement */
+        void _update(void);
+
+
         /** Command object for specifying border sizes (see ParamCommand).*/
         class CmdBorderSize : public ParamCommand
         {
@@ -227,6 +234,11 @@ namespace Ogre {
         Real mRightBorderSize;
         Real mTopBorderSize;
         Real mBottomBorderSize;
+
+        ushort mPixelLeftBorderSize;
+        ushort mPixelRightBorderSize;
+        ushort mPixelTopBorderSize;
+        ushort mPixelBottomBorderSize;
 
         String mBorderMaterialName;
         Material* mpBorderMaterial;

@@ -91,6 +91,101 @@ namespace Ogre {
             static_cast<GuiElement*>(target)->setCaption(val);
         }
         //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        String CmdMetricsMode::doGet(void* target)
+        {
+            GuiMetricsMode gmm = 
+                static_cast<GuiElement*>(target)->getMetricsMode();
+            if (gmm == GMM_PIXELS)
+            {
+                return "pixels";
+            }
+            else
+            {
+                return "relative";
+            }
+        }
+        void CmdMetricsMode::doSet(void* target, const String& val)
+        {
+            if (val == "pixels")
+            {
+                static_cast<GuiElement*>(target)->setMetricsMode(GMM_PIXELS);
+            }
+            else
+            {
+                static_cast<GuiElement*>(target)->setMetricsMode(GMM_RELATIVE);
+            }
+        }
+        //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        String CmdHorizontalAlign::doGet(void* target)
+        {
+            GuiHorizontalAlignment gha = 
+                static_cast<GuiElement*>(target)->getHorizontalAlignment();
+            switch(gha)
+            {
+            case GHA_LEFT:
+                return "left";
+            case GHA_RIGHT:
+                return "right";
+            case GHA_CENTER:
+                return "center";
+            }
+            // To keep compiler happy
+            return "center";
+        }
+        void CmdHorizontalAlign::doSet(void* target, const String& val)
+        {
+            if (val == "left")
+            {
+                static_cast<GuiElement*>(target)->setHorizontalAlignment(GHA_LEFT);
+            }
+            else if (val == "right")
+            {
+                static_cast<GuiElement*>(target)->setHorizontalAlignment(GHA_RIGHT);
+            }
+            else
+            {
+                static_cast<GuiElement*>(target)->setHorizontalAlignment(GHA_CENTER);
+            }
+        }
+        //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        //-----------------------------------------------------------------------
+        String CmdVerticalAlign::doGet(void* target)
+        {
+            GuiVerticalAlignment gva = 
+                static_cast<GuiElement*>(target)->getVerticalAlignment();
+            switch(gva)
+            {
+            case GVA_TOP:
+                return "top";
+            case GVA_BOTTOM:
+                return "bottom";
+            case GVA_CENTER:
+                return "center";
+            }
+            // To keep compiler happy
+            return "center";
+        }
+        void CmdVerticalAlign::doSet(void* target, const String& val)
+        {
+            if (val == "top")
+            {
+                static_cast<GuiElement*>(target)->setVerticalAlignment(GVA_TOP);
+            }
+            else if (val == "bottom")
+            {
+                static_cast<GuiElement*>(target)->setVerticalAlignment(GVA_BOTTOM);
+            }
+            else
+            {
+                static_cast<GuiElement*>(target)->setVerticalAlignment(GVA_CENTER);
+            }
+        }
+        //-----------------------------------------------------------------------
     }
 }
 
