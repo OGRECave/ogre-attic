@@ -196,8 +196,6 @@ namespace Ogre {
         /// Whether we need to load source from file or not
         bool mLoadFromFile;
 
-        /// The parameters being used by this program
-        GpuProgramParametersSharedPtr mParams;
 	public:
 		GpuProgram(const String& name, GpuProgramType gptype);
 		virtual ~GpuProgram() {}
@@ -212,12 +210,8 @@ namespace Ogre {
 
         /** Gets the assembler source for this program. */
         virtual const String& getSource(void) const { return mSource; }
-        /// Sets the parameters to be used for this program
-        virtual void setParameters(const GpuProgramParametersSharedPtr params) {mParams = params;}
         /// Get the program type
         virtual GpuProgramType getType(void) const { return mType; }
-        /// Gets the parameters to be used for this program
-        virtual GpuProgramParametersSharedPtr getParameters(void) {return mParams;}
 
         /// @copydoc Resource::load
         void load(void);
