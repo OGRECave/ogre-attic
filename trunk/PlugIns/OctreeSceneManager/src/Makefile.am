@@ -1,6 +1,6 @@
 INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlugIns/OctreeSceneManager/include -I$(top_srcdir)/OgreMain/include
 
-noinst_PROGRAMS = Plugin_OctreeSceneManager.so
+pkglib_PROGRAMS = Plugin_OctreeSceneManager.so
 
 Plugin_OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
                              OgreOctreeSceneManager.cpp \
@@ -9,8 +9,5 @@ Plugin_OctreeSceneManager_so_SOURCES = OgreOctreeSceneManagerDll.cpp \
                              OgreOctree.cpp OgreTerrainRenderable.cpp OgreTerrainSceneManager.cpp 
 
 
-Plugin_OctreeSceneManager_so_LDFLAGS = $(SHARED_FLAGS)
-
-install-exec-local:
-	mkdir -m 755 -p $(pkglibdir)
-	$(INSTALL_DATA) Plugin_OctreeSceneManager.so $(pkglibdir)/Plugin_OctreeSceneManager.so
+Plugin_OctreeSceneManager_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
+Plugin_OctreeSceneManager_so_LDADD = -lOgreMain

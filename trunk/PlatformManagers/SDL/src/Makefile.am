@@ -10,8 +10,8 @@ BUILT_SOURCES = OgreSDLConfig.cpp
 EXTRA_DIST = OgreSDLConfig_gtk.cpp OgreSDLConfig_cli.cpp
 
 
-OgrePlatform_so_LDFLAGS = $(SHARED_FLAGS)
-OgrePlatform_so_LDADD = $(SDL_LIBS) $(CFGTK_DEPS_LIBS) $(GL_LIBS) $(top_srcdir)/OgreMain/src/libOgreMain.la
+OgrePlatform_so_LDFLAGS = $(SHARED_FLAGS) -L$(top_srcdir)/OgreMain/src
+OgrePlatform_so_LDADD = $(SDL_LIBS) $(CFGTK_DEPS_LIBS) $(GL_LIBS) -lOgreMain
 
 pkgdata_DATA = ogre-config.glade
 
