@@ -128,16 +128,27 @@ public:
             vec.x = moveScale;
         }
 
-        if (mInputDevice->isKeyDown(KC_UP) || mInputDevice->isKeyDown(KC_W))
+        /* Move camera forward by keypress. */
+        if (mInputDevice->isKeyDown(KC_UP) || mInputDevice->isKeyDown(KC_W) )
         {
-            // Move camera forward
             vec.z = -moveScale;
         }
-
-        if (mInputDevice->isKeyDown(KC_DOWN) || mInputDevice->isKeyDown(KC_S))
+        /* Move camera forward by mousewheel. */
+        if( mInputDevice->getMouseRelativeZ() > 0 )
         {
-            // Move camera backward
+            vec.z = -moveScale * 8.0;
+        }
+
+        /* Move camera backward by keypress. */
+        if (mInputDevice->isKeyDown(KC_DOWN) || mInputDevice->isKeyDown(KC_S) )
+        {
             vec.z = moveScale;
+        }
+
+        /* Move camera backward by mouse wheel. */
+        if( mInputDevice->getMouseRelativeZ() < 0 )
+        {
+            vec.z = moveScale * 8.0;
         }
 
         if (mInputDevice->isKeyDown(KC_PGUP))
@@ -166,14 +177,24 @@ public:
             return false;
         }
 
-        // Rotate view by mouse relative position
-        float rotX, rotY;
-        rotX = -mInputDevice->getMouseRelativeX() * 0.13;
-        rotY = -mInputDevice->getMouseRelativeY() * 0.13;
+        /* Rotation factors, may not be used if the second mouse button is pressed. */
+        float rotX = 0, rotY = 0;
 
+        /* If the second mouse button is pressed, then the mouse movement results in 
+           sliding the camera, otherwise we rotate. */
+        if( mInputDevice->getMouseButton( 1 ) )
+        {
+            vec.x += mInputDevice->getMouseRelativeX() * 0.13;
+            vec.y -= mInputDevice->getMouseRelativeY() * 0.13;
+        }
+        else
+        {
+            rotX = -mInputDevice->getMouseRelativeX() * 0.13;
+            rotY = -mInputDevice->getMouseRelativeY() * 0.13;
+        }
 
         // Make all the changes to the camera
-        // Note that YAW direction is around a fixed axis (freelook stylee) rather than a natural YAW (e.g. airplane)
+        // Note that YAW direction is around a fixed axis (freelook style) rather than a natural YAW (e.g. airplane)
         mCamera->yaw(rotX);
         mCamera->pitch(rotY);
         mCamera->moveRelative(vec);
