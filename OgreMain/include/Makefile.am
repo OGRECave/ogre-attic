@@ -98,6 +98,7 @@ OgreParticleEmitterFactory.h \
 OgreParticleIterator.h \
 OgreParticleSystem.h \
 OgreParticleSystemManager.h \
+OgrePatchMesh.h \
 OgrePatchSurface.h \
 OgrePlane.h \
 OgrePlatform.h \
