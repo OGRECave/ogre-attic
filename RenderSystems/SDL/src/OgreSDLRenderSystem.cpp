@@ -874,8 +874,7 @@ namespace Ogre {
     void SDLRenderSystem::_setTextureMatrix(int stage, const Matrix4& xform)
     {
         GLfloat mat[16];
-        memcpy( mat, &xform, 16 * sizeof(GLfloat ) );        
-
+        makeGLMatrix(mat, xform);
         glMatrixMode(GL_TEXTURE);
         glLoadMatrixf(mat);
 
