@@ -199,17 +199,9 @@ namespace Ogre
         int j, k;
 
         FT_Face face;
-        uint tex_side = 1024;
-        uint data_width = tex_side * 4;
         // Add a gap between letters vert and horz
         // prevents nasty artefacts when letters are too close together
         uint char_spacer = 5;
-
-        uchar* imageData = new uchar[tex_side * tex_side * 4];
-		// Reset content
-		memset(imageData, 0, tex_side * tex_side * 4);
-
-
 
         // Locate ttf file
         SDDataChunk ttfchunk;
@@ -236,9 +228,7 @@ namespace Ogre
         // Calculate maximum width, height and bearing
         for( i = startGlyph, l = 0, m = 0, n = 0; i < endGlyph; i++ )
         {
-            FT_Int glyph_index = FT_Get_Char_Index( face, i );
-            FT_Load_Glyph( face, glyph_index, FT_LOAD_RENDER );
-            FT_Render_Glyph( face->glyph, ft_render_mode_normal );
+            FT_Load_Char( face, i, FT_LOAD_RENDER );
 
             if( ( 2 * ( face->glyph->bitmap.rows << 6 ) - face->glyph->metrics.horiBearingY ) > max_height )
                 max_height = ( 2 * ( face->glyph->bitmap.rows << 6 ) - face->glyph->metrics.horiBearingY );
@@ -249,38 +239,52 @@ namespace Ogre
                 max_width = (face->glyph->advance.x >> 6 ) + ( face->glyph->metrics.horiBearingX >> 6 );
         }
 
+		// Now work out how big our texture needs to be
+		size_t rawSize = (max_width + char_spacer) * 
+							((max_height >> 6) + char_spacer) * 
+							(endGlyph - startGlyph + 1);
+
+		size_t tex_side = Math::Sqrt(rawSize);
+		// just in case the size might chop a glyph in half, add another glyph width/height
+		tex_side += std::max(max_width, (max_height>>6));
+		// Now round up to nearest power of two, max out at 4096
+		size_t roundUpSize = 0;
+		for (i = 0; i < 12 && roundUpSize < tex_side; ++i)
+			roundUpSize = 1 << i;
+		
+		tex_side = roundUpSize;
+		size_t data_width = tex_side * 4;
+
+		LogManager::getSingleton().logMessage("Font " + mName + "using texture size " +
+			StringConverter::toString(tex_side) + "x" + StringConverter::toString(tex_side)); 
+
+        uchar* imageData = new uchar[tex_side * tex_side * 4];
+		// Reset content
+		memset(imageData, 0, tex_side * tex_side * 4);
+
         for( i = startGlyph, l = 0, m = 0, n = 0; i < endGlyph; i++ )
         {
             FT_Error ftResult;
 
-            FT_Int glyph_index = FT_Get_Char_Index( face, i );
-            // Load glyph
-            ftResult = FT_Load_Glyph( face, glyph_index, FT_LOAD_RENDER );
+            // Load & render glyph
+            ftResult = FT_Load_Char( face, i, FT_LOAD_RENDER );
             if (ftResult)
             {
                 // problem loading this glyph, continue
-                LogManager::getSingleton().logMessage("Info: cannot load glyph " +
-                    StringConverter::toString(glyph_index) + " in font " + mName);
-                continue;
-            }
-            ftResult = FT_Render_Glyph( face->glyph, ft_render_mode_normal );
-            if (ftResult)
-            {
-                // problem rendering this glyph, continue
-                LogManager::getSingleton().logMessage("Info: cannot render glyph " +
-                    StringConverter::toString(glyph_index) + " in font " + mName);
+                LogManager::getSingleton().logMessage("Info: cannot load character " +
+                    StringConverter::toString(i) + " in font " + mName);
                 continue;
             }
 
-            FT_Int advance = (face->glyph->advance.x >> 6 ) + ( face->glyph->metrics.horiBearingX >> 6 );
+			FT_Int advance = (face->glyph->advance.x >> 6 ) + ( face->glyph->metrics.horiBearingX >> 6 );
 
             unsigned char* buffer = face->glyph->bitmap.buffer;
 
             if (!buffer)
             {
                 // Yuck, FT didn't detect this but generated a null pointer!
-                LogManager::getSingleton().logMessage("Info: Freetype returned null for glyph " +
-                    StringConverter::toString(glyph_index) + " in font " + mName);
+                LogManager::getSingleton().logMessage("Info: Freetype returned null for character " +
+                    StringConverter::toString(i) + " in font " + mName);
                 continue;
             }
 
@@ -346,9 +350,11 @@ namespace Ogre
 
 
         String texName = mName + "Texture";
-        TextureManager::getSingleton().loadImage( texName , img );
-        mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( texName );
-        
+		// Load texture with no mipmaps
+        TextureManager::getSingleton().loadImage( texName , img, TEX_TYPE_2D, 0  );
+        TextureUnitState* t = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( texName );
+		// Allow min/mag filter, but no mip
+		t->setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_NONE);
         // SDDatachunk will delete imageData
 
 		FT_Done_FreeType(ftLibrary);
