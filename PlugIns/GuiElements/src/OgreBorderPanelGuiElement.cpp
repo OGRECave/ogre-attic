@@ -250,12 +250,15 @@ namespace Ogre {
             |/    |
             1-----3
         */
+      /* TODO
+       
         Real* pUV = BCELL_UV(idx);
 
         *pUV++ = u1; *pUV++ = v1;
         *pUV++ = u1; *pUV++ = v2;
         *pUV++ = u2; *pUV++ = v1;
         *pUV++ = u2; *pUV++ = v2;
+        */
     }
     //---------------------------------------------------------------------
     String BorderPanelGuiElement::getCellUVString(BorderCellIndex idx)
@@ -267,6 +270,8 @@ namespace Ogre {
             |/    |
             1-----3
         */
+
+      /* TODO
         Real* pUV = BCELL_UV(idx);
 
 	    return String(
@@ -274,6 +279,7 @@ namespace Ogre {
 		StringConverter::toString(pUV[1]) + " " +
 		StringConverter::toString(pUV[6]) + " " +
 		StringConverter::toString(pUV[7]));
+        */
     }
     //---------------------------------------------------------------------
     void BorderPanelGuiElement::setLeftBorderUV(Real u1, Real v1, Real u2, Real v2)
@@ -410,6 +416,8 @@ namespace Ogre {
         bottom[5] = bottom[6] = bottom[7] = top[0] -  (mHeight * 2);
         top[5] = top[6] = top[7] = bottom[3] = bottom[4] = bottom[5] + (mBottomBorderSize * 2);
 
+        // TODO
+        /*
         Real* pPos = mRenderOp2.pVertices;
         for (ushort cell = 0; cell < 8; ++cell)
         {
@@ -420,6 +428,7 @@ namespace Ogre {
                 |/    |
                 1-----3
             */
+        /*
             *pPos++ = left[cell];
             *pPos++ = top[cell];
             *pPos++ = -1;
@@ -438,8 +447,10 @@ namespace Ogre {
 
         }
 
+        */
         // Also update center geometry
         // NB don't use superclass because we need to make it smaller because of border
+        /* TODO
         pPos = mRenderOp.pVertices;
         // Use cell 1 and 3 to determine positions
         *pPos++ = left[1];
@@ -458,6 +469,7 @@ namespace Ogre {
         *pPos++ = bottom[3];
         *pPos++ = -1;
 
+        */
         
     }
     //---------------------------------------------------------------------

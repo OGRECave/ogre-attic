@@ -42,18 +42,26 @@ namespace Ogre {
         /** TODO
         mRenderOp.numTextureCoordSets = 1;
         mRenderOp.numTextureDimensions[0] = 2;
-        mRenderOp.numVertices = 4;
-        mRenderOp.operationType = LegacyRenderOperation::OT_TRIANGLE_STRIP;
+        */
+        mRenderOp.vertexData = new VertexData;
+        mRenderOp.vertexData->vertexStart = 0;
+        mRenderOp.vertexData->vertexCount = 4;
+
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             mTileX[i] = 1.0f;
             mTileY[i] = 1.0f;
+        /* TODO
             mRenderOp.pTexCoords[i] = 0;
             mRenderOp.texCoordStride[i] = 0;
             mRenderOp.numTextureDimensions[i] = 2;
+        */
         }
-        mRenderOp.pVertices = new Real[4*3];
+
         mRenderOp.useIndexes = false;
+        mRenderOp.indexData = 0;
+        /* TODO
         // No normals or colours
         mRenderOp.vertexOptions = LegacyRenderOperation::VO_TEXTURE_COORDS;
         mRenderOp.vertexStride = 0;
@@ -67,15 +75,16 @@ namespace Ogre {
     //---------------------------------------------------------------------
     PanelGuiElement::~PanelGuiElement()
     {
-        delete [] mRenderOp.pVertices;
+        delete mRenderOp.vertexData;
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; ++i)
         {
+       /* TODO
             if (mRenderOp.pTexCoords[i])
             {
                 delete [] mRenderOp.pTexCoords[i];
             }
+        */
         }
-
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setTiling(Real x, Real y, ushort layer)
@@ -117,9 +126,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelGuiElement::getRenderOperation(RenderOperation& op)
     {
-
-        return mRenderOp;
-
+        op = mRenderOp;
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::setMaterialName(const String& matName)
@@ -171,6 +178,7 @@ namespace Ogre {
         top = -((_getDerivedTop() * 2) - 1);
         bottom =  top -  (mHeight * 2);
 
+        /* TODO
         Real* pPos = mRenderOp.pVertices;
         
         // Use -1 for Z position, furthest forward in homogenous clip space
@@ -189,6 +197,7 @@ namespace Ogre {
         *pPos++ = right;
         *pPos++ = bottom;
         *pPos++ = -1;
+        */
     }
     //---------------------------------------------------------------------
     void PanelGuiElement::updateTextureGeometry(void)
@@ -197,6 +206,7 @@ namespace Ogre {
         if (mpMaterial)
         {
             ushort numLayers = mpMaterial->getNumTextureLayers();
+            /* TODO
             mRenderOp.numTextureCoordSets = numLayers;
             for (ushort i = 0; i < numLayers; ++i)
             {
@@ -208,6 +218,7 @@ namespace Ogre {
                 // Calc upper tex coords
                 Real upperX = 1.0f * mTileX[i];
                 Real upperY = 1.0f * mTileY[i];
+                */
                 /*
                     0-----2
                     |    /|
@@ -215,6 +226,7 @@ namespace Ogre {
                     |/    |
                     1-----3
                 */
+            /*
                 Real* pTex = mRenderOp.pTexCoords[i];
 
                 *pTex++ = 0.0f;
@@ -231,6 +243,7 @@ namespace Ogre {
 
 
             }
+        */
         }
     }
     //-----------------------------------------------------------------------

@@ -78,6 +78,7 @@ namespace Ogre {
     {
         if( mAllocSize < numChars)
         {
+          /* TODO
             if( mRenderOp.pVertices )
                 delete [] mRenderOp.pVertices;
             if (mRenderOp.pTexCoords[0])
@@ -91,6 +92,7 @@ namespace Ogre {
             mRenderOp.pDiffuseColour = new RGBA[numChars * 6];
 
             mAllocSize = numChars;
+            */
         }
 
     }
@@ -107,10 +109,12 @@ namespace Ogre {
         size_t charlen = mCaption.size();
         checkMemoryAllocation( charlen );
 
+        /* TODO
         mRenderOp.numVertices = charlen * 6;
 
         pVert = mRenderOp.pVertices;
         pTex = mRenderOp.pTexCoords[ 0 ];
+        */
 
 		float largestWidth = 0;
         float left = _getDerivedLeft() * 2.0 - 1.0;
@@ -164,7 +168,9 @@ namespace Ogre {
                 // Just leave a gap, no tris
                 left += mSpaceWidth;
                 // Also reduce tri count
+                /* TODO
                 mRenderOp.numVertices -= 6;
+                */
                 continue;
             }
 
@@ -172,6 +178,7 @@ namespace Ogre {
             Real u1, u2, v1, v2; 
             mpFont->getGlyphTexCoords( *i, u1, v1, u2, v2 );
 
+            /* TODO
             //-------------------------------------------------------------------------------------
             // First tri
             //
@@ -248,6 +255,7 @@ namespace Ogre {
             *pTex++ = u2;
             *pTex++ = v2;
             //---------------------------------------------------------------------------------
+            */
 
 			float currentWidth = (left + 1)/2 - _getDerivedLeft();
 			if (currentWidth > largestWidth)
@@ -333,6 +341,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     TextAreaGuiElement::~TextAreaGuiElement()
     {
+      /* TODO
         if( mRenderOp.pVertices )
             delete [] mRenderOp.pVertices;
 
@@ -341,7 +350,7 @@ namespace Ogre {
         
         if( mRenderOp.pDiffuseColour )
             delete [] mRenderOp.pDiffuseColour;
-
+            */
     }
     //---------------------------------------------------------------------
     const String& TextAreaGuiElement::getTypeName(void)
@@ -351,7 +360,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void TextAreaGuiElement::getRenderOperation(RenderOperation& op)
     {
-        rend = mRenderOp;
+        op = mRenderOp;
     }
     //---------------------------------------------------------------------
     void TextAreaGuiElement::setMaterialName(const String& matName)
@@ -436,6 +445,7 @@ namespace Ogre {
         RGBA topColour, bottomColour;
         Root::getSingleton().convertColourValue(mColourTop, &topColour);
         Root::getSingleton().convertColourValue(mColourBottom, &bottomColour);
+        /* TODO
         RGBA* pDest = mRenderOp.pDiffuseColour;
         for (uint i = 0; i < mAllocSize; ++i)
         {
@@ -448,6 +458,7 @@ namespace Ogre {
             *pDest++ = bottomColour;
             *pDest++ = bottomColour;
         }
+        */
 
     }
     //-----------------------------------------------------------------------

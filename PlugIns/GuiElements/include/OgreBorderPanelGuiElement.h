@@ -311,7 +311,7 @@ namespace Ogre {
         /** Constructed with pointers to parent. */
         BorderRenderable(BorderPanelGuiElement* parent) : mParent(parent) {}
         Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
-        void getRenderOperation(RenderOperation& op) { return mParent->mRenderOp2; }
+        void getRenderOperation(RenderOperation& op) { op = mParent->mRenderOp2; }
         void getWorldTransforms(Matrix4* xform) { mParent->getWorldTransforms(xform); }
         unsigned short getNumWorldTransforms(void) { return 1; }
         bool useIdentityProjection(void) { return true; }
