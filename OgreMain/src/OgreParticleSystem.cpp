@@ -387,7 +387,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void ParticleSystem::genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)    
+    void ParticleSystem::genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)    
     {
         // Orientation different from BillboardSet
         // Billboards are in world space (to decouple them from emitters in node space)
