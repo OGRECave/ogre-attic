@@ -1776,6 +1776,7 @@ namespace Ogre
     bool parseProgramSyntax(String& params, MaterialScriptContext& context)
     {
 		// Syntax code, make lower case
+        StringUtil::toLowerCase(params);
 		context.programDef->syntax = params;
 
 		return false;
