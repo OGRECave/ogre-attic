@@ -72,7 +72,93 @@ namespace Ogre {
     Image & Image::flipAroundY()
     {
         OgreGuard( "Image::flipAroundY" );
-        OgreUnguardRet( *this );
+
+        if( !m_pBuffer )
+        {
+            Except( 
+                Exception::ERR_INTERNAL_ERROR,
+                "Can not flip an unitialized texture",
+                "Image::flipAroundY" );
+        }
+        
+		uchar	*pTempBuffer1 = NULL;
+		ushort	*pTempBuffer2 = NULL;
+		uchar	*pTempBuffer3 = NULL;
+		uint	*pTempBuffer4 = NULL;
+
+		uchar	*src1 = m_pBuffer, *dst1 = NULL;
+		ushort	*src2 = (ushort *)m_pBuffer, *dst2 = NULL;
+		uchar	*src3 = m_pBuffer, *dst3 = NULL;
+		uint	*src4 = (uint *)m_pBuffer, *dst4 = NULL;
+
+		switch (m_ucPixelSize)
+		{
+		case 1:
+			pTempBuffer1 = new uchar[m_uWidth * m_uHeight];
+			for (ushort y = 0; y < m_uHeight; y++)
+			{
+				dst1 = (pTempBuffer1 + ((y * m_uWidth) + m_uWidth - 1));
+				for (ushort x = 0; x < m_uWidth; x++)
+					memcpy(dst1--, src1++, sizeof(uchar));
+			}
+
+			memcpy(m_pBuffer, pTempBuffer1, m_uWidth * m_uHeight * sizeof(uchar));
+			delete [] pTempBuffer1;
+			break;
+
+		case 2:
+			pTempBuffer2 = new ushort[m_uWidth * m_uHeight];
+			for (ushort y = 0; y < m_uHeight; y++)
+			{
+				dst2 = (pTempBuffer2 + ((y * m_uWidth) + m_uWidth - 1));
+				for (ushort x = 0; x < m_uWidth; x++)
+					memcpy(dst2--, src2++, sizeof(ushort));
+			}
+
+			memcpy(m_pBuffer, pTempBuffer2, m_uWidth * m_uHeight * sizeof(ushort));
+			delete [] pTempBuffer2;
+			break;
+
+		case 3:
+			pTempBuffer3 = new uchar[m_uWidth * m_uHeight * 3];
+			for (ushort y = 0; y < m_uHeight; y++)
+			{
+				uint offset = ((y * m_uWidth) + (m_uWidth - 1)) * 3;
+				dst3 = pTempBuffer3;
+				dst3 += offset;
+				for (ushort x = 0; x < m_uWidth; x++)
+				{
+					memcpy(dst3, src3, sizeof(uchar) * 3);
+					dst3 -= 3; src3 += 3;
+				}
+			}
+
+			memcpy(m_pBuffer, pTempBuffer3, m_uWidth * m_uHeight * sizeof(uchar) * 3);
+			delete [] pTempBuffer3;
+			break;
+
+		case 4:
+			pTempBuffer4 = new uint[m_uWidth * m_uHeight];
+			for (ushort y = 0; y < m_uHeight; y++)
+			{
+				dst4 = (pTempBuffer4 + ((y * m_uWidth) + m_uWidth - 1));
+				for (ushort x = 0; x < m_uWidth; x++)
+					memcpy(dst4--, src4++, sizeof(uint));
+			}
+
+			memcpy(m_pBuffer, pTempBuffer4, m_uWidth * m_uHeight * sizeof(uint));
+			delete [] pTempBuffer4;
+			break;
+
+		default:
+            Except( 
+                Exception::ERR_INTERNAL_ERROR,
+                "Unknown pixel depth",
+                "Image::flipAroundY" );
+			break;
+		}
+
+		OgreUnguardRet( *this );
     }
 
     //-----------------------------------------------------------------------------
