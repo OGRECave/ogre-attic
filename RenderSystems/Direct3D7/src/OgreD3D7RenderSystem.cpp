@@ -130,7 +130,7 @@ namespace Ogre {
         {
             dd = ddList->item(j);
             // Add to device option list
-            optDevice.possibleValues.push_back(dd->DriverDescription());
+            optDevice.possibleValues.push_back( dd->DriverName() + '(' + dd->DriverDescription() + ')' );
 
             // Make first one default
             if( j==0 )
@@ -639,13 +639,13 @@ namespace Ogre {
             Except(999,msg,"D3DRenderSystem::createRenderWindow");
         }
 
-        RenderWindow* win = new Win32Window();
+        RenderWindow* win = new D3D7RenderWindow();
         // Create window, supplying DD interface & hInstance
         win->create(name, width, height, colourDepth, fullScreen,
             left, top, depthBuffer, &mhInstance, mActiveDDDriver, parentWindowHandle);
 
         // Add window to render target list
-        mRenderWindows[name] = win;
+        mRenderWindows.insert( RenderWindowMap::value_type( name, win ) );
 
         // If this is the parent window, get the D3D device
         //  and create the texture manager

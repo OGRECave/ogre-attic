@@ -34,18 +34,18 @@ namespace Ogre {
 
     // Window procedure callback
     // This is a static member, so applies to all windows but we store the 
-    // Win32Window instance in the window data GetWindowLong/SetWindowLong.
-    LRESULT Win32Window::WndProc( 
+    // D3D7RenderWindow instance in the window data GetWindowLong/SetWindowLong.
+    LRESULT D3D7RenderWindow::WndProc( 
         HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
     {
         LPCREATESTRUCT lpcs;
-        Win32Window* win;
+        D3D7RenderWindow* win;
 
         // look up window instance
         if (uMsg != WM_CREATE)
         {
             // Get window pointer
-            win = (Win32Window*)GetWindowLong(hWnd, 0);
+            win = (D3D7RenderWindow*)GetWindowLong(hWnd, 0);
         }
 
         switch( uMsg )
@@ -61,7 +61,7 @@ namespace Ogre {
                 // Log the new window
                 // Get CREATESTRUCT
                 lpcs = (LPCREATESTRUCT)lParam;
-                win = (Win32Window*)(lpcs->lpCreateParams);
+                win = (D3D7RenderWindow*)(lpcs->lpCreateParams);
                 // Store pointer in window user data area
                 SetWindowLong(hWnd, 0, (long)win);
                 win->mActive = true;
@@ -146,9 +146,9 @@ namespace Ogre {
     }
 
     // -------------------------------------------
-    // Win32Window Implementation
+    // D3D7RenderWindow Implementation
     // -------------------------------------------
-    Win32Window::Win32Window()
+    D3D7RenderWindow::D3D7RenderWindow()
     {
         mIsUsingDirectDraw = false;
         mIsFullScreen = false;
@@ -159,14 +159,14 @@ namespace Ogre {
         mClosed = false;
     }
 
-    Win32Window::~Win32Window()
+    D3D7RenderWindow::~D3D7RenderWindow()
     {
     }
 
 
 
 
-    void Win32Window::create(String name, int width, int height, int colourDepth,
+    void D3D7RenderWindow::create(String name, int width, int height, int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...)
     {
 
@@ -190,7 +190,7 @@ namespace Ogre {
         drv = (DDDriver*)tempPtr;
 
         tempPtr = va_arg(marker, long);
-        Win32Window* parentRW = (Win32Window*)tempPtr;
+        D3D7RenderWindow* parentRW = (D3D7RenderWindow*)tempPtr;
         if (parentRW == 0)
         {
             parentHWnd = 0;
@@ -213,7 +213,7 @@ namespace Ogre {
 
 
         // Register the window class
-        // NB Allow 4 bytes of window data for Win32Window pointer
+        // NB Allow 4 bytes of window data for D3D7RenderWindow pointer
         WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
                               LoadIcon( NULL, "IDI_ICON1" ),
                               LoadCursor(NULL, IDC_ARROW),
@@ -287,7 +287,7 @@ namespace Ogre {
         mReady = true;
     }
 
-    void Win32Window::destroy(void)
+    void D3D7RenderWindow::destroy(void)
     {
         if (mIsUsingDirectDraw)
             releaseDDSurfaces();
@@ -296,22 +296,22 @@ namespace Ogre {
 
     }
 
-    bool Win32Window::isActive(void)
+    bool D3D7RenderWindow::isActive(void)
     {
         return mActive;
     }
 
-    bool Win32Window::isClosed(void)
+    bool D3D7RenderWindow::isClosed(void)
     {
         return mClosed;
     }
 
-    void Win32Window::reposition(int left, int top)
+    void D3D7RenderWindow::reposition(int left, int top)
     {
 
     }
 
-    void Win32Window::resize(int width, int height)
+    void D3D7RenderWindow::resize(int width, int height)
     {
         mWidth = width;
         mHeight = height;
@@ -325,7 +325,7 @@ namespace Ogre {
 
     }
 
-    void Win32Window::swapBuffers(bool waitForVSync)
+    void D3D7RenderWindow::swapBuffers(bool waitForVSync)
     {
         HRESULT hr;
         DWORD flags;
@@ -366,23 +366,23 @@ namespace Ogre {
                  Except( 
                      hr,
                      "Error flipping surfaces", 
-                     "Win32Window::swapBuffers" );
+                     "D3D7RenderWindow::swapBuffers" );
             }
         }
 
     }
 
-    HWND Win32Window::getWindowHandle(void)
+    HWND D3D7RenderWindow::getWindowHandle(void)
     {
         return mHWnd;
     }
 
-    HWND Win32Window::getParentWindowHandle(void)
+    HWND D3D7RenderWindow::getParentWindowHandle(void)
     {
         return mParentHWnd;
     }
 
-    bool Win32Window::isUsingDirectDraw(void)
+    bool D3D7RenderWindow::isUsingDirectDraw(void)
     {
         return mIsUsingDirectDraw;
     }
@@ -390,27 +390,27 @@ namespace Ogre {
     // -------------------------------------------------------
     //   DirectDraw specific methods
     // -------------------------------------------------------
-    DDDriver* Win32Window::getDirectDrawDriver(void)
+    DDDriver* D3D7RenderWindow::getDirectDrawDriver(void)
     {
         return mlpDDDriver;
     }
 
-    LPDIRECTDRAWSURFACE7 Win32Window::getDDFrontBuffer(void)
+    LPDIRECTDRAWSURFACE7 D3D7RenderWindow::getDDFrontBuffer(void)
     {
         return mlpDDSFront;
 
     }
 
-    LPDIRECTDRAWSURFACE7 Win32Window::getDDBackBuffer(void)
+    LPDIRECTDRAWSURFACE7 D3D7RenderWindow::getDDBackBuffer(void)
     {
         return mlpDDSBack;
     }
-    LPDIRECT3DDEVICE7 Win32Window::getD3DDevice(void)
+    LPDIRECT3DDEVICE7 D3D7RenderWindow::getD3DDevice(void)
     {
         return mlpD3DDevice;
     }
 
-    void Win32Window::createDDSurfaces(void)
+    void D3D7RenderWindow::createDDSurfaces(void)
     {
         // Use DirectDraw wrapper object to create surfaces
         if( !mlpDDDriver )
@@ -418,7 +418,7 @@ namespace Ogre {
             Except(
             Exception::ERR_INVALIDPARAMS, 
             "Cannot create surfaces because of no valid DirectDraw object",
-            "Win32Window::createDDSurfaces" );
+            "D3D7RenderWindow::createDDSurfaces" );
         }
 
         if( mIsFullScreen )
@@ -454,7 +454,7 @@ namespace Ogre {
         }
     }
 
-    void Win32Window::createDepthBuffer(void)
+    void D3D7RenderWindow::createDepthBuffer(void)
     {
         // Get best device based on render bit depth
         D3DDevice* dev = mlpDDDriver->get3DDeviceList()->getBest(mColourDepth);
@@ -466,7 +466,7 @@ namespace Ogre {
         }
     }
 
-    void Win32Window::releaseDDSurfaces(void)
+    void D3D7RenderWindow::releaseDDSurfaces(void)
     {
         // Release Z-buffer
         HRESULT hr;
@@ -490,7 +490,7 @@ namespace Ogre {
         mlpDDSBack = mlpDDSFront = 0;
     }
 
-    void Win32Window::restoreDDSurfaces(void)
+    void D3D7RenderWindow::restoreDDSurfaces(void)
     {
         HRESULT hr;
 
@@ -502,7 +502,7 @@ namespace Ogre {
                 Except( 
                     Exception::ERR_INTERNAL_ERROR, 
                     "Error restoring lost primary surface.", 
-                    "Win32Window - restoreDDSurfaces" );
+                    "D3D7RenderWindow - restoreDDSurfaces" );
         }
 
         if( mlpDDSBack->IsLost() )
@@ -513,11 +513,11 @@ namespace Ogre {
                 Except( 
                     Exception::ERR_INTERNAL_ERROR, 
                     "Error restoring lost back buffer surface.", 
-                    "Win32Window - restoreDDSurfaces" );
+                    "D3D7RenderWindow - restoreDDSurfaces" );
         }
     }
 
-    void Win32Window::windowMovedOrResized(void)
+    void D3D7RenderWindow::windowMovedOrResized(void)
     {
         // If windowed mode, check window size & position
         RECT rcCheck;
@@ -563,7 +563,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Win32Window::outputText( int x, int y, const String& text )
+    void D3D7RenderWindow::outputText( int x, int y, const String& text )
     {
         HDC hDC;
 
@@ -581,7 +581,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Win32Window::getCustomAttribute( String name, void* pData )
+    void D3D7RenderWindow::getCustomAttribute( String name, void* pData )
     {
         // Valid attributes and their equivalent native functions:
         // D3DDEVICE            : getD3DDeviceDriver
