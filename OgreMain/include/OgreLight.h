@@ -270,12 +270,18 @@ namespace Ogre {
         /** Overridden from MovableObject */
         String getMovableType(void);
 
+        /** Retrieves the position of the light including any transform from nodes it is attached to. */
+        const Vector3& getDerivedPosition(void);
+
+        /** Retrieves the direction of the light including any transform from nodes it is attached to. */
+        const Vector3& getDerivedDirection(void);
+
 
     private:
         String mName;
 
         LightTypes mLightType;
-        Vector3 mWorldPos;
+        Vector3 mPosition;
         ColourValue mDiffuse;
         ColourValue mSpecular;
 
@@ -290,6 +296,12 @@ namespace Ogre {
         Real mAttenuationQuad;
 
         bool mModified;
+
+        Vector3 mDerivedPosition;
+        Vector3 mDerivedDirection;
+        /// Stored versions of parent orientation / position
+        Quaternion mLastParentOrientation;
+        Vector3 mLastParentPosition;
 
         /// Shared class-level name for Movable type
         static String msMovableType;

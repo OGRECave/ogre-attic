@@ -43,7 +43,7 @@ namespace Ogre {
         mAttenuationQuad = 0.0f;
 
         // Center in world, direction irrelevant but set anyway
-        mWorldPos = Vector3::ZERO;
+        mPosition = Vector3::ZERO;
         mDirection = Vector3::UNIT_Z;
 
         // Deafult modified
@@ -64,7 +64,7 @@ namespace Ogre {
         mAttenuationQuad = 0.0f;
 
         // Center in world, direction irrelevant but set anyway
-        mWorldPos = Vector3::ZERO;
+        mPosition = Vector3::ZERO;
         mDirection = Vector3::UNIT_Z;
 
         // Deafult modified
@@ -94,22 +94,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Light::setPosition(Real x, Real y, Real z)
     {
-        mWorldPos.x = x;
-        mWorldPos.y = y;
-        mWorldPos.z = z;
+        mPosition.x = x;
+        mPosition.y = y;
+        mPosition.z = z;
         mModified = true;
 
     }
     //-----------------------------------------------------------------------
     void Light::setPosition(const Vector3& vec)
     {
-        mWorldPos = vec;
+        mPosition = vec;
         mModified = true;
     }
     //-----------------------------------------------------------------------
     Vector3 Light::getPosition(void)
     {
-        return mWorldPos;
+        return mPosition;
     }
     //-----------------------------------------------------------------------
     void Light::setDirection(Real x, Real y, Real z)
@@ -232,20 +232,28 @@ namespace Ogre {
     {
         if (mParentNode)
         {
-            Vector3 pos, direction;
-
-            pos = mParentNode->_getDerivedPosition();
-
-            direction = mParentNode->_getDerivedOrientation() * Vector3::UNIT_Z;
-
-            // Update if required - this will set modified flag
-            if (pos != mWorldPos)
-                setPosition(pos);
-            if (direction != mDirection)
-                setDirection(direction);
+            if (!mModified && mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
+                mParentNode->_getDerivedPosition() == mLastParentPosition)
+            {
+                return false;
+            }
+            else
+            {
+                // Ok, we're out of date with SceneNode we're attached to
+                mLastParentOrientation = mParentNode->_getDerivedOrientation();
+                mLastParentPosition = mParentNode->_getDerivedPosition();
+                mDerivedDirection = mLastParentOrientation * mDirection;
+                mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
+                return true;
+            }
+        }
+        else
+        {
+            mDerivedPosition = mPosition;
+            mDerivedDirection = mDirection;
+            return mModified;
         }
 
-        return mModified;
     }
     //-----------------------------------------------------------------------
     void Light::_clearModified(void)
@@ -275,6 +283,19 @@ namespace Ogre {
     {
         return msMovableType;
     }
+    //-----------------------------------------------------------------------
+    const Vector3& Light::getDerivedPosition(void)
+    {
+        isModified();
+        return mDerivedPosition;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& Light::getDerivedDirection(void)
+    {
+        isModified();
+        return mDerivedDirection;
+    }
+
 
 
 

@@ -510,7 +510,7 @@ namespace Ogre {
         Vector3 vec;
         if (lt->getType() != Light::LT_DIRECTIONAL)
         {
-            vec = lt->getPosition();
+            vec = lt->getDerivedPosition();
             f4vals[0] = vec.x;
             f4vals[1] = vec.y;
             f4vals[2] = vec.z;
@@ -520,7 +520,7 @@ namespace Ogre {
         // Direction (not needed for point lights)
         if (lt->getType() != Light::LT_POINT)
         {
-            vec = lt->getDirection();
+            vec = lt->getDerivedDirection();
             f4vals[0] = vec.x;
             f4vals[1] = vec.y;
             f4vals[2] = vec.z;
