@@ -42,6 +42,65 @@ Entity* mEntity;
 AnimationState* mAnimState = 0;
 Entity* pPlaneEnt;
 Light* mLight;
+SceneNode* mLightNode = 0;
+AnimationState* mLightAnimationState = 0;
+ColourValue mMinLightColour(0.3, 0.0, 0);
+ColourValue mMaxLightColour(0.4, 0.2, 0.0);
+Real mMinFlareSize = 20;
+Real mMaxFlareSize = 40;
+
+
+
+
+/** This class 'wibbles' the light and billboard */
+class LightWibbler : public ControllerValue<Real>
+{
+protected:
+    Light* mLight;
+    Billboard* mBillboard;
+    ColourValue mColourRange;
+    ColourValue mMinColour;
+    Real mMinSize;
+    Real mSizeRange;
+    Real intensity;
+public:
+    LightWibbler(Light* light, Billboard* billboard, const ColourValue& minColour, 
+        const ColourValue& maxColour, Real minSize, Real maxSize)
+    {
+        mLight = light;
+        mBillboard = billboard;
+        mMinColour = minColour;
+        mColourRange.r = maxColour.r - minColour.r;
+        mColourRange.g = maxColour.g - minColour.g;
+        mColourRange.b = maxColour.b - minColour.b;
+        mMinSize = minSize;
+        mSizeRange = maxSize - minSize;
+    }
+
+    virtual Real  getValue (void) const
+    {
+        return intensity;
+    }
+
+    virtual void  setValue (Real value)
+    {
+        intensity = value;
+
+        ColourValue newColour;
+
+        // Attenuate the brightness of the light
+        newColour.r = mMinColour.r + (mColourRange.r * intensity);
+        newColour.g = mMinColour.g + (mColourRange.g * intensity);
+        newColour.b = mMinColour.b + (mColourRange.b * intensity);
+
+        mLight->setDiffuseColour(newColour);
+        mBillboard->setColour(newColour);
+        // set billboard size
+        Real newSize = mMinSize + (intensity * mSizeRange);
+        mBillboard->setDimensions(newSize, newSize);
+
+    }
+};
 
 class ShadowsListener : public ExampleFrameListener
 {
@@ -119,47 +178,136 @@ protected:
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.0, 0.0, 0.0));
 
-        // Point light
-        mLight = mSceneMgr->createLight("MainLight");
-        mLight->setPosition(-400,400,-300);
-        mLight->setDiffuseColour(1.0, 0, 0);
+        // Fixed light, dim
+        mLight = mSceneMgr->createLight("SunLight");
+        mLight->setPosition(1000,1450,500);
+        mLight->setDiffuseColour(0.45, 0.45, 0.48);
         mLight->setSpecularColour(0.9, 0.9, 1);
-        mLight->setAttenuation(1000,1,0.001,0);
+        mLight->setAttenuation(10000,1,0.001,0);
 
-        // Directional light
+        // Point light, movable, reddish
         mLight = mSceneMgr->createLight("Light2");
-        Vector3 dir(-1,-1,0);
-        dir.normalise();
-        mLight->setType(Light::LT_DIRECTIONAL);
-        mLight->setDirection(dir);
-        mLight->setDiffuseColour(1, 1, 1);
+        mLight->setDiffuseColour(mMinLightColour);
         mLight->setSpecularColour(1, 1, 1);
+        mLight->setAttenuation(10000,1,0.001,0);
 
-        SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        // Create light node
+        mLightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
+            "MovingLightNode");
+        mLightNode->attachLight(mLight);
+        // create billboard set
+        BillboardSet* bbs = mSceneMgr->createBillboardSet("lightbbs", 1);
+        bbs->setMaterialName("Examples/Flare");
+        Billboard* bb = bbs->createBillboard(0,0,0,mMinLightColour);
+        // attach
+        mLightNode->attachObject(bbs);
+        
+        // create controller, after this is will get updated on its own
+        WaveformControllerFunction* func = new WaveformControllerFunction(Ogre::WFT_SINE, 0.75, 0.5);
+        ControllerManager& contMgr = ControllerManager::getSingleton();
+        LightWibbler* val = new LightWibbler(mLight, bb, mMinLightColour, mMaxLightColour, 
+            mMinFlareSize, mMaxFlareSize);
+        Controller<Real>* controller = contMgr.createController(
+            contMgr.getFrameTimeSource(), val, func);
+
+        //mLight->setPosition(Vector3(300,250,-300));
+        mLightNode->setPosition(Vector3(300,250,-300));
+
+
+        // Create a track for the light
+        Animation* anim = mSceneMgr->createAnimation("LightTrack", 42);
+        // Spline it for nice curves
+        anim->setInterpolationMode(Animation::IM_SPLINE);
+        // Create a track to animate the camera's node
+        AnimationTrack* track = anim->createTrack(0, mLightNode);
+        // Setup keyframes
+        KeyFrame* key = track->createKeyFrame(0); // startposition
+        key = track->createKeyFrame(2);//A
+        key->setTranslate(Vector3(300,250,-300));
+        key = track->createKeyFrame(4);//B
+        key->setTranslate(Vector3(150,300,-250));
+        key = track->createKeyFrame(6);//C
+        key->setTranslate(Vector3(-150,350,-100));
+        key = track->createKeyFrame(8);//D
+        key->setTranslate(Vector3(-400,200,-200));
+        key = track->createKeyFrame(10);//E
+        key->setTranslate(Vector3(-200,200,-400));
+        key = track->createKeyFrame(12);//F
+        key->setTranslate(Vector3(-100,150,-200));
+        key = track->createKeyFrame(14);//G
+        key->setTranslate(Vector3(-100,75,180));
+        key = track->createKeyFrame(16);//H
+        key->setTranslate(Vector3(0,250,300));
+        key = track->createKeyFrame(18);//I
+        key->setTranslate(Vector3(100,350,100));
+        key = track->createKeyFrame(20);//J
+        key->setTranslate(Vector3(250,300,0));
+        key = track->createKeyFrame(22);//K == A
+        key->setTranslate(Vector3(300,250,-300));
+        // Create a new animation state to track this
+        mAnimState = mSceneMgr->createAnimationState("LightTrack");
+        mAnimState->setEnabled(true);
+
+
+
+
+        // Prepare athene mesh
+        Mesh* pAthene = MeshManager::getSingleton().load("athene.mesh");
+        pAthene->buildTangentVectors(0,1);
 
         Entity* pEnt;
-        pEnt = mSceneMgr->createEntity( "1", "ninja.mesh" );
-        mAnimState = pEnt->getAnimationState("Walk");
-        mAnimState->setEnabled(true);
-        //pEnt->setMaterialName("Examples/Rocky");
+        SceneNode* node;
+        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        pEnt = mSceneMgr->createEntity( "1", "athene.mesh" );
+        //mAnimState = pEnt->getAnimationState("Walk");
+        //mAnimState->setEnabled(true);
+        pEnt->setMaterialName("Examples/Athene/NormalMapped");
         node->attachObject( pEnt );
+        node->translate(0,-20, 0);
+        node->yaw(90);
 
-        pEnt = mSceneMgr->createEntity( "3", "knot.mesh" );
-        pEnt->setMaterialName("Examples/EnvMappedRustySteel");
+        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        pEnt = mSceneMgr->createEntity( "col1", "column.mesh" );
+        //mAnimState = pEnt->getAnimationState("Walk");
+        //mAnimState->setEnabled(true);
+        pEnt->setMaterialName("Examples/Rockwall");
+        node->attachObject( pEnt );
+        node->translate(200,0, -200);
+
+        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        pEnt = mSceneMgr->createEntity( "col2", "column.mesh" );
+        //mAnimState = pEnt->getAnimationState("Walk");
+        //mAnimState->setEnabled(true);
+        pEnt->setMaterialName("Examples/Rockwall");
+        node->attachObject( pEnt );
+        node->translate(200,0, 200);
+
+        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        pEnt = mSceneMgr->createEntity( "col3", "column.mesh" );
+        //mAnimState = pEnt->getAnimationState("Walk");
+        //mAnimState->setEnabled(true);
+        pEnt->setMaterialName("Examples/Rockwall");
+        node->attachObject( pEnt );
+        node->translate(-200,0, -200);
+
+        node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        pEnt = mSceneMgr->createEntity( "col4", "column.mesh" );
+        //mAnimState = pEnt->getAnimationState("Walk");
+        //mAnimState->setEnabled(true);
+        pEnt->setMaterialName("Examples/Rockwall");
+        node->attachObject( pEnt );
+        node->translate(-200,0, 200);
+
+        /*
+        pEnt = mSceneMgr->createEntity( "3", "column.mesh" );
+        pEnt->setMaterialName("Examples/Rockwall");
         //Material* mat2 = (Material*)MaterialManager::getSingleton().getByName("Examples/EnvMappedRustySteel");
         //mat2->setReceiveShadows(false);
         node = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-200, 0, -200));
         node->attachObject( pEnt );
+        */
 
-        //Mesh* msh = MeshManager::getSingleton().load("knot.mesh");
-        //msh->buildTangentVectors();
-        pEnt = mSceneMgr->createEntity( "4", "knot.mesh" );
-        //pEnt->setMaterialName("Examples/BumpMapping/MultiLightSpecular");
-        node = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(100, 0, 200));
-        node->attachObject( pEnt );
-
-
-        mSceneMgr->setSkyBox(true, "Examples/CloudyNoonSkyBox");
+        mSceneMgr->setSkyBox(true, "Examples/StormySkyBox");
 
 
         Plane plane;
@@ -168,7 +316,7 @@ protected:
         MeshManager::getSingleton().createPlane("Myplane",plane,
             1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
         Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
-        pPlaneEnt->setMaterialName("2 - Default");
+        pPlaneEnt->setMaterialName("Examples/Rockwall");
         pPlaneEnt->setCastShadows(false);
         mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
