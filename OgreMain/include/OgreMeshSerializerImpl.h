@@ -77,6 +77,7 @@ namespace Ogre {
         virtual void writeTextureLayer(const Material::TextureLayer* pTex);
         virtual void writeMesh(const Mesh* pMesh);
         virtual void writeSubMesh(const SubMesh* s);
+        virtual void writeSubMeshOperation(const SubMesh* s);
         virtual void writeGeometry(const VertexData* pGeom);
         virtual void writeSkeletonLink(const String& skelName);
         virtual void writeMeshBoneAssignment(const VertexBoneAssignment* assign);
@@ -94,11 +95,13 @@ namespace Ogre {
         virtual unsigned long calcGeometrySize(const VertexData* pGeom);
         virtual unsigned long calcSkeletonLinkSize(const String& skelName);
         virtual unsigned long calcBoneAssignmentSize(void);
+        virtual unsigned long calcSubMeshOperationSize(const SubMesh* pSub);
 
         virtual void readMaterial(DataChunk& chunk);
         virtual void readTextureLayer(DataChunk& chunk, Material* pMat);
         virtual void readMesh(DataChunk& chunk);
         virtual void readSubMesh(DataChunk& chunk);
+        virtual void readSubMeshOperation(DataChunk& chunk, SubMesh* sub);
         virtual void readGeometry(DataChunk& chunk, VertexData* dest);
         virtual void readSkeletonLink(DataChunk &chunk);
         virtual void readMeshBoneAssignment(DataChunk& chunk);

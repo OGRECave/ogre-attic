@@ -37,6 +37,7 @@ namespace Ogre {
 		indexData = new IndexData();
         mMatInitialised = false;
         mBoneAssignmentsOutOfDate = false;
+        operationType = RenderOperation::OT_TRIANGLE_LIST;
 
     }
     //-----------------------------------------------------------------------
@@ -83,7 +84,7 @@ namespace Ogre {
         {
     		ro.indexData = indexData;
         }
-		ro.operationType = RenderOperation::OT_TRIANGLE_LIST;
+		ro.operationType = operationType;
 		ro.vertexData = useSharedVertices? parent->sharedVertexData : vertexData;
 
     }

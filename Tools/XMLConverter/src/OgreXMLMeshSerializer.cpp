@@ -188,10 +188,41 @@ namespace Ogre {
         subMeshNode->SetAttribute("use32bitindexes", 
             StringConverter::toString( use32BitIndexes ));
 
+        // Operation type
+        switch(s->operationType)
+        {
+        case RenderOperation::OT_LINE_LIST:
+        case RenderOperation::OT_LINE_STRIP:
+        case RenderOperation::OT_POINT_LIST:
+            Except(Exception::ERR_INTERNAL_ERROR, "Unsupported operation type, only "
+                "triangle types are allowed.", "XMLMeshSerializer::writeSubMesh");
+            break;
+        case RenderOperation::OT_TRIANGLE_FAN:
+            subMeshNode->SetAttribute("operationtype", "triangle_fan");
+            break;
+        case RenderOperation::OT_TRIANGLE_LIST:
+            subMeshNode->SetAttribute("operationtype", "triangle_list");
+            break;
+        case RenderOperation::OT_TRIANGLE_STRIP:
+            subMeshNode->SetAttribute("operationtype", "triangle_strip");
+            break;
+        }
+
         // Faces
         TiXmlElement* facesNode = 
             subMeshNode->InsertEndChild(TiXmlElement("faces"))->ToElement();
-        facesNode->SetAttribute("count", StringConverter::toString(s->indexData->indexCount / 3));
+        if (s->operationType == RenderOperation::OT_TRIANGLE_LIST)
+        {
+            // tri list
+            facesNode->SetAttribute("count", 
+                StringConverter::toString(s->indexData->indexCount / 3));
+        }
+        else
+        {
+            // triangle fan or triangle strip
+            facesNode->SetAttribute("count", 
+                StringConverter::toString(s->indexData->indexCount - 2));
+        }
         // Write each face in turn
         ushort i;
 		unsigned int* pInt;
@@ -214,14 +245,22 @@ namespace Ogre {
 			if (use32BitIndexes)
 			{
 				faceNode->SetAttribute("v1", StringConverter::toString(*pInt++));
-				faceNode->SetAttribute("v2", StringConverter::toString(*pInt++));
-				faceNode->SetAttribute("v3", StringConverter::toString(*pInt++));
+                /// Only need all 3 vertex indices if trilist or first face
+                if (s->operationType == RenderOperation::OT_TRIANGLE_LIST || i == 0)
+                {
+				    faceNode->SetAttribute("v2", StringConverter::toString(*pInt++));
+				    faceNode->SetAttribute("v3", StringConverter::toString(*pInt++));
+                }
 			}
 			else
 			{
 				faceNode->SetAttribute("v1", StringConverter::toString(*pShort++));
-				faceNode->SetAttribute("v2", StringConverter::toString(*pShort++));
-				faceNode->SetAttribute("v3", StringConverter::toString(*pShort++));
+                /// Only need all 3 vertex indices if trilist or first face
+                if (s->operationType == RenderOperation::OT_TRIANGLE_LIST || i == 0)
+                {
+				    faceNode->SetAttribute("v2", StringConverter::toString(*pShort++));
+				    faceNode->SetAttribute("v3", StringConverter::toString(*pShort++));
+                }
 			}
         }
 
@@ -426,12 +465,43 @@ namespace Ogre {
             const char* mat = smElem->Attribute("material");
             if (mat)
                 sm->setMaterialName(mat);
+
+            // Read operation type
+            const char* optype = smElem->Attribute("operationtype");
+            if (optype)
+            {
+                if (!strcmp(optype, "triangle_list"))
+                {
+                    sm->operationType = RenderOperation::OT_TRIANGLE_LIST;
+                }
+                else if (!strcmp(optype, "triangle_fan"))
+                {
+                    sm->operationType = RenderOperation::OT_TRIANGLE_FAN;
+                }
+                else if (!strcmp(optype, "triangle_strip"))
+                {
+                    sm->operationType = RenderOperation::OT_TRIANGLE_STRIP;
+                }
+
+            }
+
             sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("usesharedvertices"));
             bool use32BitIndexes = StringConverter::parseBool(smElem->Attribute("use32bitindexes"));
             
             // Faces
             TiXmlElement* faces = smElem->FirstChildElement("faces");
-            sm->indexData->indexCount = StringConverter::parseInt(faces->Attribute("count")) * 3;
+            if (sm->operationType == RenderOperation::OT_TRIANGLE_LIST)
+            {
+                // tri list
+                sm->indexData->indexCount = 
+                    StringConverter::parseInt(faces->Attribute("count")) * 3;
+            }
+            else
+            {
+                // tri strip or fan
+                sm->indexData->indexCount = 
+                    StringConverter::parseInt(faces->Attribute("count")) + 2;
+            }
 
             // Allocate space
             HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
@@ -454,21 +524,31 @@ namespace Ogre {
                     ibuf->lock(HardwareBuffer::HBL_DISCARD));
             }
             TiXmlElement* faceElem;
+            bool firstTri = true;
             for (faceElem = faces->FirstChildElement();
                 faceElem != 0; faceElem = faceElem->NextSiblingElement())
             {
                 if (use32BitIndexes)
                 {
                     *pInt++ = StringConverter::parseInt(faceElem->Attribute("v1"));
-                    *pInt++ = StringConverter::parseInt(faceElem->Attribute("v2"));
-                    *pInt++ = StringConverter::parseInt(faceElem->Attribute("v3"));
+                    // only need all 3 vertices if it's a trilist or first tri
+                    if (sm->operationType == RenderOperation::OT_TRIANGLE_LIST || firstTri)
+                    {
+                        *pInt++ = StringConverter::parseInt(faceElem->Attribute("v2"));
+                        *pInt++ = StringConverter::parseInt(faceElem->Attribute("v3"));
+                    }
                 }
                 else
                 {
                     *pShort++ = StringConverter::parseInt(faceElem->Attribute("v1"));
-                    *pShort++ = StringConverter::parseInt(faceElem->Attribute("v2"));
-                    *pShort++ = StringConverter::parseInt(faceElem->Attribute("v3"));
+                    // only need all 3 vertices if it's a trilist or first tri
+                    if (sm->operationType == RenderOperation::OT_TRIANGLE_LIST || firstTri)
+                    {
+                        *pShort++ = StringConverter::parseInt(faceElem->Attribute("v2"));
+                        *pShort++ = StringConverter::parseInt(faceElem->Attribute("v3"));
+                    }
                 }
+                firstTri = false;
             }
             ibuf->unlock();
 

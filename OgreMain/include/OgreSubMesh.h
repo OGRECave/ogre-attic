@@ -61,6 +61,9 @@ namespace Ogre {
         /// Indicates if this submesh shares vertex data with other meshes or whether it has it's own vertices.
         bool useSharedVertices;
 
+        /// The render operation type used to render this submesh
+        RenderOperation::OperationType operationType;
+
         /** Dedicated vertex data (only valid if useSharedVertices = false).
             @remarks
                 This data is completely owned by this submesh.

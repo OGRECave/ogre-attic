@@ -245,6 +245,9 @@ namespace Ogre {
         {
             writeGeometry(s->vertexData);
         }
+        
+        // Operation type
+        writeSubMeshOperation(s);
 
         // Bone assignments
         if (!s->mBoneAssignments.empty())
@@ -262,6 +265,16 @@ namespace Ogre {
         }
 
 
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::writeSubMeshOperation(const SubMesh* sm)
+    {
+        // Header
+        writeChunkHeader(M_SUBMESH_OPERATION, calcSubMeshOperationSize(sm));
+
+        // unsigned short operationType
+        unsigned short opType = static_cast<unsigned short>(sm->operationType);
+        writeShorts(&opType, 1);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeGeometry(const VertexData* vertexData)
@@ -420,6 +433,11 @@ namespace Ogre {
         }
 
         return size;
+    }
+    //---------------------------------------------------------------------
+    unsigned long MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
+    {
+        return CHUNK_OVERHEAD_SIZE + sizeof(unsigned short);
     }
     //---------------------------------------------------------------------
     unsigned long MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
@@ -613,10 +631,14 @@ namespace Ogre {
         {
             chunkID = readChunk(chunk);
             while(!chunk.isEOF() &&
-                (chunkID == M_SUBMESH_BONE_ASSIGNMENT))
+                (chunkID == M_SUBMESH_BONE_ASSIGNMENT ||
+                 chunkID == M_SUBMESH_OPERATION))
             {
                 switch(chunkID)
                 {
+                case M_SUBMESH_OPERATION:
+                    readSubMeshOperation(chunk, sm);
+                    break;
                 case M_SUBMESH_BONE_ASSIGNMENT:
                     readSubMeshBoneAssignment(chunk, sm);
                     break;
@@ -636,6 +658,14 @@ namespace Ogre {
         }
 	
 
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readSubMeshOperation(DataChunk& chunk, SubMesh* sm)
+    {
+        // unsigned short operationType
+        unsigned short opType;
+        readShorts(chunk, &opType, 1);
+        sm->operationType = static_cast<RenderOperation::OperationType>(opType);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readGeometry(DataChunk& chunk, VertexData* dest)

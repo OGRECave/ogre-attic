@@ -60,6 +60,8 @@ namespace Ogre {
                 // OR
                 // unsigned short* faceVertexIndices (indexCount)
                 // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+                M_SUBMESH_OPERATION = 0x4010, // optional, trilist assumed if missing
+                    // unsigned short operationType
                 M_SUBMESH_BONE_ASSIGNMENT = 0x4100,
                     // Optional bone weights (repeating section)
                     // unsigned int vertexIndex;
