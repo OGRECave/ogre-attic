@@ -63,7 +63,7 @@ namespace Ogre {
         /// Personal height if mOwnDimensions == true
         Real mHeight;
         /// Current rotation value
-        Radian mRotation;
+        Radian rotation;
         // Note the intentional public access to internal variables
         // Accessing via get/set would be too costly for 000's of particles
         /// World position
@@ -81,7 +81,7 @@ namespace Ogre {
 
 
         Particle()
-            : mParentSystem(0), mOwnDimensions(false), mRotation(0), 
+            : mParentSystem(0), mOwnDimensions(false), rotation(0), 
             position(Vector3::ZERO), direction(Vector3::ZERO), 
             colour(ColourValue::White), timeToLive(10), 
             totalTimeToLive(10), rotationSpeed(0)
