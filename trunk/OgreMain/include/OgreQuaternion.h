@@ -134,7 +134,13 @@ namespace Ogre {
         // rotation of a vector by a quaternion
         Vector3 operator* (const Vector3& rkVector) const;
 
-        // spherical linear interpolation
+   		/// Calculate the local roll element of this quaternion
+		Real getRoll(void) const;
+   		/// Calculate the local pitch element of this quaternion
+		Real getPitch(void) const;
+   		/// Calculate the local yaw element of this quaternion
+		Real getYaw(void) const;		
+	    // spherical linear interpolation
         static Quaternion Slerp (Real fT, const Quaternion& rkP,
             const Quaternion& rkQ, bool shortestPath = false);
 
