@@ -64,6 +64,9 @@ namespace Ogre {
 		/** Cursor position */
         Real mMouseX, mMouseY, mMouseZ;
 
+        /** relative cursor position */
+        Real mRelX, mRelY, mRelZ;
+
 		/** Cursor limits 0-1 */
 		Real mXLowLimit, mXHighLimit, mYLowLimit, mYHighLimit, mZLowLimit, mZHighLimit;
 
@@ -99,6 +102,16 @@ namespace Ogre {
 
 		/** get the current Z position of the cursor 0 none, 1 full */
 		Real getZ() const;
+
+        /** get relative X cursor movement */
+        Real getRelX() const {return mRelX;}
+
+        /** get relative Y cursor movement */
+        Real getRelY() const {return mRelY;}
+
+        /** get relative Z cursor movement */
+        Real getRelZ() const {return mRelZ;}
+
 
 
 	// PositionTarget methods
