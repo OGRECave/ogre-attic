@@ -2396,6 +2396,7 @@ namespace Ogre {
         __SetTextureStageState(unit,D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps));
         __SetTextureStageState(unit,D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps));
         __SetTextureStageState(unit,D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps));
+        // NB D3D7 doesn't allow mipmapping to be turned off by filter options like D3D9
     }
 
     void D3DRenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
