@@ -71,8 +71,11 @@ namespace Ogre {
 		/// Supports the VET_UBYTE4 vertex element type
 		RSC_VERTEX_FORMAT_UBYTE4	= 0x00080000,
 		/// Supports infinite far plane projection
-		RSC_INFINITE_FAR_PLANE      = 0x00100000
-
+		RSC_INFINITE_FAR_PLANE      = 0x00100000,
+        /// Supports rectangle textures
+        RSC_TEXTURE_RECTANGLE       = 0x00200000,
+        /// Supports float textures and render targets
+        RSC_TEXTURE_FLOAT           = 0x00400000
     };
 
     /** singleton class for storing the capabilities of the graphics card. 
