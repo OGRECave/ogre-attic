@@ -76,7 +76,10 @@ protected:
 
         mSceneMgr -> setWorldGeometry( "terrain.cfg" );
         // Infinite far plane
-        mCamera->setFarClipDistance(0);
+        if (mRoot->getRenderSystem()->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE))
+        {
+            mCamera->setFarClipDistance(0);
+        }
 
         // Define the required skyplane
         Plane plane;
