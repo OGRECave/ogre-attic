@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlatformManagers/GLX/include -I$(top_srcdir)/RenderSystems/GL/include -I$(top_srcdir)/OgreMain/include $(PLATFORM_CFLAGS) -DSHAREDIR=\"$(pkgdatadir)\" 
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/PlatformManagers/GLX/include -I$(top_srcdir)/RenderSystems/GL/include -I$(top_srcdir)/RenderSystems/GL/include/GLX -I$(top_srcdir)/OgreMain/include $(PLATFORM_CFLAGS) -DSHAREDIR=\"$(pkgdatadir)\" 
 
 platformdir = $(libdir)
 platform_LTLIBRARIES = libOgrePlatform.la
