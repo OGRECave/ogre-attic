@@ -315,8 +315,8 @@ namespace Ogre {
             }
             */
 
-            // Allocate whole at once
-            mMesh->sharedGeometry.pVertices = (Real*)malloc(vertSize *  mMeshWidth * mMeshHeight);
+			// We HAVE to use new[] since the de-allocator uses delete[]
+            mMesh->sharedGeometry.pVertices = reinterpret_cast<Real *>( new uchar[ vertSize *  mMeshWidth * mMeshHeight ] );
 
             // Set other pointers relative to this
             if (mCtlPointData.hasNormals)
