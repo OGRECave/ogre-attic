@@ -191,7 +191,7 @@ namespace Ogre {
     {
         ParticleSystem* sys = new ParticleSystem(name);
         sys->setParticleQuota(quota);
-        mSystems[name] = sys;
+        mSystems.insert( ParticleSystemMap::value_type( name, sys ) );
         return sys;
     }
     //-----------------------------------------------------------------------
@@ -263,7 +263,6 @@ namespace Ogre {
         }
 
         return pFact->second->createEmitter();
-
     }
     //-----------------------------------------------------------------------
     void ParticleSystemManager::_destroyEmitter(ParticleEmitter* emitter)
@@ -278,7 +277,6 @@ namespace Ogre {
         }
 
         pFact->second->destroyEmitter(emitter);
-
     }
     //-----------------------------------------------------------------------
     ParticleAffector* ParticleSystemManager::_createAffector(const String& affectorType)
