@@ -70,12 +70,14 @@ namespace Ogre {
 		    /// Locking options
 		    enum LockOptions
 		    {
-			    /** Discards the <em>entire</em> buffer while locking, this is implied whenever 
-			    you lock a buffer created with HBU_WRITE_ONLY. Not allowed on buffers 
-			    created without the HBU_DYNAMIC flag.
+			    /** Discards the <em>entire</em> buffer while locking; this allows optimisation to be 
+				performed because synchronisation issues are relaxed. Only allowed on buffers 
+			    created with the HBU_DYNAMIC flag. 
 			    */
 			    HBL_DISCARD,
-			    /// Lock the buffer for reading only. Not allowed in buffers which are created with HBU_WRITE_ONLY. 
+			    /** Lock the buffer for reading only. Not allowed in buffers which are created with HBU_WRITE_ONLY. 
+				Mandatory on statuc buffers, ie those created without the HBU_DYNAMIC flag. 
+				*/ 
 			    HBL_READ_ONLY,
     			
 		    };
@@ -120,8 +122,11 @@ namespace Ogre {
 		    @param offset The byte offset from the start of the buffer to start writing
 		    @param length The size of the data to write to, in bytes
             @param pSource The source of the data to be written
+			@param discardWholeBuffer If true, this allows the driver to discard the entire buffer when writing,
+				such that DMA stalls can be avoided; use if you can.
             */
-            virtual void writeData(size_t offset, size_t length, const unsigned char* pSource) = 0;
+            virtual void writeData(size_t offset, size_t length, const unsigned char* pSource,
+					bool discardWholeBuffer = false) = 0;
 
             /// Returns the size of this buffer in bytes
             size_t getSizeInBytes(void) { return mSizeInBytes; }
