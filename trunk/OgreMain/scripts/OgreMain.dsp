@@ -428,6 +428,10 @@ SOURCE=..\src\OgrePredefinedControllers.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreProfiler.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreProgressiveMesh.cpp
 # End Source File
 # Begin Source File
@@ -1057,6 +1061,10 @@ SOURCE=..\include\OgrePredefinedControllers.h
 # Begin Source File
 
 SOURCE=..\include\OgrePrerequisites.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreProfiler.h
 # End Source File
 # Begin Source File
 

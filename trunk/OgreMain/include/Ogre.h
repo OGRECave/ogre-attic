@@ -85,6 +85,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePatchMesh.h"
 #include "OgreString.h"
 #include "OgreStringConverter.h"
+#include "OgreProfiler.h"
 
 // .... more to come
 

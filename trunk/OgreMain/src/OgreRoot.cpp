@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGuiManager.h"
 #include "OgreOverlayManager.h"
 #include "OgreZipArchiveFactory.h"
+#include "OgreProfiler.h"
 
 #include "OgrePNGCodec.h"
 #include "OgreJPEGCodec.h"
@@ -144,6 +145,11 @@ namespace Ogre {
         // Font manager
         mFontManager = new FontManager();
 
+#if OGRE_PROFILING
+        // Profiler
+        mProfiler = new Profiler();
+		Profiler::getSingleton().setTimer(mTimer);
+#endif
         mZipArchiveFactory = new ZipArchiveFactory();
         ArchiveManager::getSingleton().addArchiveFactory( mZipArchiveFactory );
 
@@ -214,6 +220,9 @@ namespace Ogre {
         delete mJPEGCodec;
         delete mPNGCodec;
         delete mZipArchiveFactory;
+#if OGRE_PROFILING
+        delete mProfiler;
+#endif
         delete mGuiManager;
         delete mOverlayManager;
         delete mFontManager;

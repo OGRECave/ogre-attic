@@ -85,6 +85,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgrePlane.cpp \
                          OgrePlatformManager.cpp \
                          OgrePredefinedControllers.cpp \
+			 OgreProfiler.cpp \
                          OgreProgressiveMesh.cpp \
                          OgreQuaternion.cpp \
                          OgreRenderQueue.cpp \

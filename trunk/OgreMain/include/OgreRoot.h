@@ -91,6 +91,7 @@ namespace Ogre
         Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec;
         Timer* mTimer;
         RenderWindow* mAutoWindow;
+        Profiler* mProfiler;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all
