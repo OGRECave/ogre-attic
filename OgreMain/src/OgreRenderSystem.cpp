@@ -58,14 +58,13 @@ namespace Ogre {
         mTempVertexBlendBuffer.resize(5000 * 3);
         mTempNormalBlendBuffer.resize(5000 * 3);
 
-		// create a Timer
-		mTimer = PlatformManager::getSingleton().createTimer();
+		// get a Timer
+        mTimer = Timer::getSingletonPtr();
     }
 
     //-----------------------------------------------------------------------
     RenderSystem::~RenderSystem()
     {
-        PlatformManager::getSingleton().destroyTimer(mTimer);
         shutdown();
     }
     //-----------------------------------------------------------------------

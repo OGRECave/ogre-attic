@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRefAppApplicationObject.h"
 #include "OgreRefAppWorld.h"
 #include "ode/collision.h"
+#include "OgreControllerManager.h"
+#include "OgreStringConverter.h"
 
 namespace OgreRefApp
 {
@@ -36,12 +38,20 @@ namespace OgreRefApp
         mEntity = 0;
         mOdeBody = 0;
         mDynamicsEnabled = false;
+        mReenableIfInteractedWith = false;
         mCollisionEnabled = true;
 		mSoftness = 0.0;
 		mBounceCoeffRestitution = 0;
 		mBounceVelocityThreshold = 0.1;
         mFriction = Math::POS_INFINITY;
         dMassSetZero(&mMass);
+
+        mDisableTimeEnd = 0;
+        mDisableTime = 3000.0f; // millisenconds
+        mAngularVelDisableThreshold = 1.0f;
+        mLinearVelDisableThreshold = 1.0f;
+
+
 
     }
     //-------------------------------------------------------------------------
@@ -83,7 +93,7 @@ namespace OgreRefApp
     void ApplicationObject::setPosition(Real x, Real y, Real z)
     {
         mSceneNode->setPosition(x, y, z);
-        if (mDynamicsEnabled && mOdeBody)
+        if (isDynamicsEnabled() && mOdeBody)
             mOdeBody->setPosition(x, y, z);
         updateCollisionProxies();
     }
@@ -91,7 +101,7 @@ namespace OgreRefApp
     void ApplicationObject::setOrientation(const Quaternion& orientation)
     {
         mSceneNode->setOrientation(orientation);
-        if (mDynamicsEnabled && mOdeBody)
+        if (isDynamicsEnabled() && mOdeBody)
         {
             dReal dquat[4] = {orientation.w, orientation.x, orientation.y, orientation.z };
             mOdeBody->setQuaternion(dquat);
@@ -109,9 +119,27 @@ namespace OgreRefApp
         return mSceneNode->getOrientation();
     }
     //-------------------------------------------------------------------------
+    void ApplicationObject::setDynamicsDisableThreshold(Real linearSq, 
+        Real angularSq, Real overTime)
+    {
+        mLinearVelDisableThreshold = linearSq;
+        mAngularVelDisableThreshold = angularSq;
+        mDisableTime = overTime * 1000;
+    }
+    //-------------------------------------------------------------------------
     void ApplicationObject::_updateFromDynamics()
     {
-        if (mDynamicsEnabled && mOdeBody)
+        if (!mOdeBody)
+        {
+            return;
+        }
+        // Update dynamics enabled flag from dynamics (may have been reenabled)
+        if (mReenableIfInteractedWith)
+        {
+            mDynamicsEnabled = mOdeBody->isEnabled() == 0 ? false : true;
+        }
+
+        if (mDynamicsEnabled)
         {
             // Get position & rotation from ODE
             const dReal* pos = mOdeBody->getPosition();
@@ -122,6 +150,42 @@ namespace OgreRefApp
                 (Real)quat[2], (Real)quat[3]);
 
             updateCollisionProxies();
+
+            // Check to see if object has stabilised, if so turn off dynamics
+            // to save processor time
+            // NB will be reenabled if interacted with
+            
+            if (this->getLinearVelocity().squaredLength() <= mLinearVelDisableThreshold
+                && this->getAngularVelocity().squaredLength() <= mAngularVelDisableThreshold)
+            {
+                if (mDisableTimeEnd > 0.0f)
+                {
+                    // We're counting, check disable time
+                    if (Timer::getSingleton().getMilliseconds() > mDisableTimeEnd)
+                    {
+                        this->setDynamicsEnabled(false, true);
+                        LogManager::getSingleton().logMessage(mEntity->getName() + " disabled");
+                        mDisableTimeEnd = 0.0f;
+                    }
+
+                }
+                else 
+                {
+                    // We're not counting down yet, so start the count
+                    // NB is mDisableTime = 0 we never disable
+                    if (mDisableTime > 0)
+                    {
+                        mDisableTimeEnd = Timer::getSingleton().getMilliseconds() + mDisableTime;
+                        LogManager::getSingleton().logMessage("Starting countdown...");
+                    }
+                }
+            }
+            else
+            {
+                // We're still moving
+                mDisableTimeEnd = 0.0f;
+            }
+
         }
     }
     //-------------------------------------------------------------------------
@@ -132,7 +196,7 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     bool ApplicationObject::isDynamicsEnabled(void)
     {
-        return mDynamicsEnabled;
+        return (mDynamicsEnabled || mReenableIfInteractedWith);
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::setCollisionEnabled(bool enabled)
@@ -141,26 +205,33 @@ namespace OgreRefApp
         setEntityQueryFlags();
     }
     //-------------------------------------------------------------------------
-    void ApplicationObject::setDynamicsEnabled(bool enabled)
+    void ApplicationObject::setDynamicsEnabled(bool enabled, bool reEnableOnInteraction)
     {
-        if (mDynamicsEnabled != enabled)
-        {
-            World::getSingleton()._notifyDynamicsStateForObject(this, enabled);
-        }
+        
         mDynamicsEnabled = enabled;
-        if (enabled)
+        mReenableIfInteractedWith = reEnableOnInteraction;
+
+        // World must keep an eye on enabled or potentially reenabled objects
+        World::getSingleton()._notifyDynamicsStateForObject(this, 
+            mDynamicsEnabled || mReenableIfInteractedWith);
+        
+        if (mDynamicsEnabled)
         {
             // Ensure body is synced
             mOdeBody->enable();
+        }
+        else
+        {
+            mOdeBody->disable();
+        }
+        // Set properties
+        if (mDynamicsEnabled || mReenableIfInteractedWith)
+        {
             const Vector3& pos = getPosition();
             mOdeBody->setPosition(pos.x, pos.y, pos.z);
             const Quaternion& q = getOrientation();
             dReal dquat[4] = {q.w, q.x, q.y, q.z };
             mOdeBody->setQuaternion(dquat);
-        }
-        else
-        {
-            mOdeBody->disable();
         }
     }
     //-------------------------------------------------------------------------
@@ -227,7 +298,7 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     dBody* ApplicationObject::getOdeBody(void)
     {
-        if (mDynamicsEnabled)
+        if (isDynamicsEnabled())
         {
             return mOdeBody;
         }
@@ -379,8 +450,7 @@ namespace OgreRefApp
 
         for (proxy = mCollisionProxies.begin(); proxy != proxyend; ++proxy)
         {
-            // Hack, simply collide against the most distant plane which is facing towards
-            // the center
+            // Hack, simply collide against planes which is facing towards center
             // We can't do this properly without mesh collision
             obj = *proxy;
             Real maxdist = -1.0f;
@@ -389,69 +459,68 @@ namespace OgreRefApp
             {
                 const Plane *boundPlane = &(*pi);
                 Real dist = boundPlane->getDistance(this->getPosition());
-                if (dist >= 0.0f && dist > maxdist)
+                if (dist >= 0.0f)
                 {
-                    bestPlane = boundPlane;
-                }
+                    dPlane odePlane(0, boundPlane->normal.x, boundPlane->normal.y, boundPlane->normal.z, 
+                        -boundPlane->d);
 
-            }
-
-            if (bestPlane)
-            {
-                dPlane odePlane(0, bestPlane->normal.x, bestPlane->normal.y, bestPlane->normal.z, 
-                    -bestPlane->d);
-
-                int numc = dCollide(obj->id(), odePlane.id() , 0, &contactGeom, sizeof(dContactGeom));
-                if (numc)
-                {
-                    // Create contact joints if object is dynamics simulated
-                    if (this->isDynamicsEnabled())
+                    int numc = dCollide(obj->id(), odePlane.id() , 0, &contactGeom, sizeof(dContactGeom));
+                    if (numc)
                     {
-                        // TODO: combine object parameters with WorldFragment physical properties
-                        dContact contact;
-					    // Set flags
-					    contact.surface.mode = dContactBounce | dContactApprox1;
-					    contact.surface.bounce = this->getBounceRestitutionValue();
-					    contact.surface.bounce_vel = this->getBounceVelocityThreshold();
-					    Real softness = this->getSoftness();
-					    if (softness > 0)
-					    {
-                            contact.surface.mode |= dContactSoftCFM;
-						    contact.surface.soft_cfm = softness;
-					    }
-        				
-                        // Set friction 
-                        contact.surface.mu = this->getFriction();
-                        contact.surface.mu2 = 0;
-                        contact.geom = contactGeom;
-                        dContactJoint contactJoint(
-                            World::getSingleton().getOdeWorld()->id(), 
-                            World::getSingleton().getOdeContactJointGroup()->id(), 
-                            &contact);
+                        // Create contact joints if object is dynamics simulated
+                        if (this->isDynamicsEnabled())
+                        {
+                            // TODO: combine object parameters with WorldFragment physical properties
+                            dContact contact;
+					        // Set flags
+					        contact.surface.mode = dContactBounce | dContactApprox1;
+					        contact.surface.bounce = this->getBounceRestitutionValue();
+					        contact.surface.bounce_vel = this->getBounceVelocityThreshold();
+					        Real softness = this->getSoftness();
+					        if (softness > 0)
+					        {
+                                contact.surface.mode |= dContactSoftCFM;
+						        contact.surface.soft_cfm = softness;
+					        }
+            				
+                            // Set friction 
+                            contact.surface.mu = this->getFriction();
+                            contact.surface.mu2 = 0;
+                            contact.geom = contactGeom;
+                            dContactJoint contactJoint(
+                                World::getSingleton().getOdeWorld()->id(), 
+                                World::getSingleton().getOdeContactJointGroup()->id(), 
+                                &contact);
 
-                        // Get ODE body,world fragment body is 0 clearly (immovable)
-                        dBody* body = this->getOdeBody();
-                        dBodyID bid;
-                        bid = 0;
-                        if (body) bid = body->id();
-                        contactJoint.attach(bid, 0);
+                            // Get ODE body,world fragment body is 0 clearly (immovable)
+                            dBody* body = this->getOdeBody();
+                            dBodyID bid;
+                            bid = 0;
+                            if (body) bid = body->id();
+                            contactJoint.attach(bid, 0);
+                        }
+
+                        // Tell object about the collision
+                        collInfo.position.x = contactGeom.pos[0];
+                        collInfo.position.y = contactGeom.pos[1];
+                        collInfo.position.z = contactGeom.pos[2];
+                        collInfo.normal.x = contactGeom.normal[0];
+                        collInfo.normal.y = contactGeom.normal[1];
+                        collInfo.normal.z = contactGeom.normal[2];
+
+                        // NB clamp the depth to compensate for crazy results
+                        collInfo.penetrationDepth = contactGeom.depth;
+                        //collInfo.penetrationDepth = std::max(collInfo.penetrationDepth,
+                        //    this->getLinearVelocity().length());
+                        this->_notifyCollided(wf, collInfo);
+
+
+                        // set return 
+                        collided = true;
                     }
-
-                    // Tell object about the collision
-                    collInfo.position.x = contactGeom.pos[0];
-                    collInfo.position.y = contactGeom.pos[1];
-                    collInfo.position.z = contactGeom.pos[2];
-                    collInfo.normal.x = contactGeom.normal[0];
-                    collInfo.normal.y = contactGeom.normal[1];
-                    collInfo.normal.z = contactGeom.normal[2];
-                    collInfo.penetrationDepth = contactGeom.depth;
-                    this->_notifyCollided(wf, collInfo);
-
-
-                    // set return 
-                    collided = true;
                 }
-            }
+            } 
+            
         }
         return collided;
     }
@@ -568,15 +637,17 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::setLinearVelocity(Real x, Real y, Real z)
     {
-        assert(mOdeBody && mDynamicsEnabled &&
+        assert(mOdeBody && isDynamicsEnabled() &&
             "Cannot set velocity on an object unless dynamics are enabled and"
             " an ODE body exists");
         mOdeBody->setLinearVel(x, y, z);
+        // Reenable if on trigger
+        setDynamicsEnabled(true, true);
     }
     //-------------------------------------------------------------------------
     const Vector3& ApplicationObject::getLinearVelocity(void)
     {
-        assert(mOdeBody && mDynamicsEnabled &&
+        assert(mOdeBody && isDynamicsEnabled() &&
             "Cannot get velocity on an object unless dynamics are enabled and"
             " an ODE body exists");
         static Vector3 vel;
@@ -590,7 +661,7 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     const Vector3& ApplicationObject::getAngularVelocity(void)
     {
-        assert(mOdeBody && mDynamicsEnabled &&
+        assert(mOdeBody && isDynamicsEnabled() &&
             "Cannot get velocity on an object unless dynamics are enabled and"
             " an ODE body exists");
         static Vector3 vel;
@@ -608,10 +679,12 @@ namespace OgreRefApp
     //-------------------------------------------------------------------------
     void ApplicationObject::setAngularVelocity(Real x, Real y, Real z)
     {
-        assert(mOdeBody && mDynamicsEnabled &&
+        assert(mOdeBody && isDynamicsEnabled() &&
             "Cannot set velocity on an object unless dynamics are enabled and"
             " an ODE body exists");
         mOdeBody->setAngularVel(x, y, z);
+        // Reenable if on trigger
+        setDynamicsEnabled(true, true);
     }
     //-------------------------------------------------------------------------
     void ApplicationObject::translate(const Vector3& d)

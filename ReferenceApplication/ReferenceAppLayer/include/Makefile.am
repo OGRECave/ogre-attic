@@ -6,5 +6,6 @@ noinst_HEADERS = OgreRefAppApplicationObject.h \
 	OgreRefAppPrerequisites.h \
     OgreRefAppWorld.h \
 	OgreRefAppPlane.h \
+	OgreRefAppCollideCamera.h \
 	OgreReferenceAppLayer.h
 

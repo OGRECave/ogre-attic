@@ -31,24 +31,20 @@ Description: Somewhere to play in the sand...
 
 #include "OgreReferenceAppLayer.h"
 
-#include "ExampleApplication.h"
-#include <ode/collision.h>
+#include "ExampleRefAppApplication.h"
 #include "OgreStringConverter.h"
 
-using namespace OgreRefApp;
-
 // Hacky globals
-World* pWorld;
-ApplicationObject *head, *plane, *box, *ball;
+ApplicationObject *ball;
 
 
 // Event handler to add ability to alter curvature
-class BspCollisionListener : public ExampleFrameListener
+class BspCollisionListener : public ExampleRefAppFrameListener
 {
 protected:
 public:
-    BspCollisionListener(RenderWindow* win, Camera* cam)
-        : ExampleFrameListener(win, cam)
+    BspCollisionListener(RenderWindow* win, CollideCamera* cam)
+        : ExampleRefAppFrameListener(win, cam)
     {
     }
 
@@ -70,7 +66,7 @@ public:
             timeUntilNextToggle -= evt.timeSinceLastFrame;
 
         // Call superclass
-        bool ret = ExampleFrameListener::frameStarted(evt);        
+        bool ret = ExampleRefAppFrameListener::frameEnded(evt);        
 
         if (mInputDevice->isKeyDown(KC_SPACE) && timeUntilNextToggle <= 0)
         {
@@ -81,8 +77,6 @@ public:
         }
 
 
-        // Perform simulation step
-        pWorld->simulationStep(evt.timeSinceLastFrame);
 
 
         return ret;
@@ -90,18 +84,15 @@ public:
     }
 };
 
-class BspCollisionApplication : public ExampleApplication
+class BspCollisionApplication : public ExampleRefAppApplication
 {
 public:
     BspCollisionApplication() {
-    
-
     
     }
 
     ~BspCollisionApplication() 
     {  
-        delete pWorld;
     }
 
 protected:
@@ -110,35 +101,30 @@ protected:
     {
         mSceneMgr = mRoot->getSceneManager( ST_INTERIOR );
     }
-    // Just override the mandatory create scene method
+    void createWorld(void)
+    {
+        // Create BSP-specific world
+        mWorld = new World(mSceneMgr, World::WT_REFAPP_BSP);
+    }
     void createScene(void)
     {
-       // Load Quake3 locations from a file
-        ConfigFile cf;
-
-        cf.load("quake3settings.cfg");
-
-		ExampleApplication::setupResources();
-        ResourceManager::addCommonArchiveEx(cf.getSetting("Pak0Location"), "Zip");
+		ExampleRefAppApplication::setupResources();
+        ResourceManager::addCommonArchiveEx("../../../Media/ogretestmap.zip", "Zip");
 
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.6, 0.6, 0.6));
         // Create a point light
         Light* l = mSceneMgr->createLight("MainLight");
-        l->setPosition(20,80,50);
+        l->setPosition(-128,50,50);
 
-        // Cam setup
-        mCamera->setPosition(0,0,300);
-		mCamera->lookAt(0,0,0);
 
-        // Create World
-        pWorld = new World(mSceneMgr, World::WT_REFAPP_BSP);
-        pWorld->setGravity(Vector3(0, 0, -60));
-        pWorld->getSceneManager()->setWorldGeometry(cf.getSetting("Map"));
+        // Setup World
+        mWorld->setGravity(Vector3(0, 0, -60));
+        mWorld->getSceneManager()->setWorldGeometry("ogretestmap.bsp");
 
         // modify camera for close work
-        mCamera->setNearClipDistance(4);
-        mCamera->setFarClipDistance(4000);
+        mCamera->setNearClipDistance(10);
+        mCamera->setFarClipDistance(10000);
 
         // Also change position, and set Quake-type orientation
         // Get random player start point
@@ -148,16 +134,36 @@ protected:
         mCamera->rotate(vp.orientation);
         // Don't yaw along variable axis, causes leaning
         mCamera->setFixedYawAxis(true, Vector3::UNIT_Z);
+        // Look at the boxes
+		mCamera->lookAt(-150,40,30);
 
-        ball = pWorld->createBall("ball", 15, vp.position + Vector3(0,0,80));
+        ball = mWorld->createBall("ball", 7, vp.position + Vector3(0,0,80));
         ball->setDynamicsEnabled(true);
         ball->getEntity()->setMaterialName("Ogre/Eyes");
 
-        ball = pWorld->createBall("ball2", 10, vp.position + Vector3(50,0,80));
-        ball->setDynamicsEnabled(true);
-        ball->setLinearVelocity(-10, 0, 0);
-        ball->getEntity()->setMaterialName("Ogre/Eyes");
+        Box* box = mWorld->createBox("shelf", 75, 125, 5, Vector3(-150, 40, 30));
+        box->getEntity()->setMaterialName("Examples/Rocky");
 
+        static const Real BOX_SIZE = 15.0f;
+        static const int num_rows = 3;
+
+        for (int row = 0; row < num_rows; ++row)
+        {
+            for (int i = 0; i < (num_rows-row); ++i)
+            {
+                Real row_size = (num_rows - row) * BOX_SIZE * 1.25;
+                String name = "box";
+                name += StringConverter::toString((row*num_rows) + i);
+                box = mWorld->createBox(name, BOX_SIZE,BOX_SIZE,BOX_SIZE , 
+                    Vector3(-150, 
+                        40 - (row_size * 0.5) + (i * BOX_SIZE * 1.25) , 
+                        32.5 + (BOX_SIZE / 2) + (row * BOX_SIZE)));
+                box->setDynamicsEnabled(false, true);
+                box->getEntity()->setMaterialName("Examples/10PointBlock");
+            }
+        }
+
+        mWindow->setDebugText("Press SPACE to throw the ball");
     }
     // Create new frame listener
     void createFrameListener(void)

@@ -8,6 +8,7 @@ libOgreReferenceAppLayer_la_SOURCES = OgreRefAppApplicationObject.cpp \
 			OgreRefAppJoint.cpp \
 			OgreRefAppJointSubtypes.cpp \
 			OgreRefAppPlane.cpp \
+			OgreRefAppCollideCamera.cpp \
 			OgreRefAppWorld.cpp
 
 libOgreReferenceAppLayer_la_LIBADD= -lOgreMain -lode

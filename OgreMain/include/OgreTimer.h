@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Timer_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreSingleton.h"
 
 namespace Ogre
 {
@@ -33,7 +34,7 @@ namespace Ogre
     @remarks
         You should never create a Timer instance manually; instead, use PlatformManager::createTimer.
     */
-	class _OgreExport Timer
+    class _OgreExport Timer : public Singleton<Timer>
 	{
 	protected:	
 		clock_t zeroClock ;

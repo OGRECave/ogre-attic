@@ -72,10 +72,10 @@ namespace OgreRefApp {
     // Forward definitions of classes to reduce dependencies
     class ApplicationObject;
     class OgreHead;
-    class Player;
     class FinitePlane;
     class Ball;
     class Box;
+    class CollideCamera;
 
 }
 

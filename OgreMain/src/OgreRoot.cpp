@@ -136,6 +136,9 @@ namespace Ogre {
         // Platform manager
         mPlatformManager = new PlatformManager();
 
+        // Timer
+        mTimer = mPlatformManager->createTimer();
+
         // Overlay manager
         mOverlayManager = new OverlayManager();
         // Gui Manager
@@ -224,6 +227,7 @@ namespace Ogre {
 
         unloadPlugins();
 
+        mPlatformManager->destroyTimer(mTimer);
         delete mPlatformManager;
         delete mDynLibManager;
         delete mLogManager;

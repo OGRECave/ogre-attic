@@ -98,6 +98,11 @@ namespace OgreRefApp {
             const Vector3& pos = Vector3::ZERO, 
             const Quaternion& orientation = Quaternion::IDENTITY);
 
+        /** Create a camera which interacts with the world. */
+        CollideCamera* createCamera(const String& name, 
+            const Vector3& pos = Vector3::ZERO, 
+            const Quaternion& orientation = Quaternion::IDENTITY);
+
         /** Clears the scene. */
         void clear(void);
 

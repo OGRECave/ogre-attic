@@ -89,6 +89,7 @@ namespace Ogre
         FontManager* mFontManager;
         ArchiveFactory *mZipArchiveFactory;
         Codec* mPNGCodec, *mJPGCodec, *mJPEGCodec, *mTGACodec;
+        Timer* mTimer;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all

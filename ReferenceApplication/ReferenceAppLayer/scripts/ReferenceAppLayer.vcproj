@@ -139,6 +139,9 @@
 				RelativePath="..\src\OgreRefAppBox.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreRefAppCollideCamera.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreRefAppJoint.cpp">
 			</File>
 			<File
@@ -158,9 +161,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\include\OgreCollideCamera.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreRefAppApplicationObject.h">
 			</File>
 			<File
@@ -168,6 +168,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRefAppBox.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRefAppCollideCamera.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRefAppJoint.h">
