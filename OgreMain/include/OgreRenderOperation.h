@@ -286,14 +286,6 @@ namespace Ogre {
 
 		/// Index data - only valid if useIndexes is true
 		IndexData indexData;
-		/// pointer to the HardwareIndexBuffer to use, must be specified if useIndexes = true
-		HardwareIndexBuffer* indexBuffer;
-
-		/// index in the buffer to start from for this operation
-		size_t indexStart;
-
-		/// The number of indexes to use from the buffer
-		size_t indexCount;
 
 	};
 }
