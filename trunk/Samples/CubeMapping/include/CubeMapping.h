@@ -249,7 +249,7 @@ private:
 		// delete vertex buffers
 		for(m=0;m<numSubMeshes;m++) {
 			if (defaultVertices[m]) 
-				delete defaultVertices[m];
+				delete [] defaultVertices[m];
 		}
 		delete [] defaultVertices ;
 
