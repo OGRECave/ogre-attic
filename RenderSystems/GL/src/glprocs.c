@@ -8662,6 +8662,177 @@ static int WINAPI InitGetSwapIntervalEXT (void)
 
 #endif /* _WIN32 */
 
+// BEGIN OGRE CHANGES
+static void APIENTRY InitBindBufferARB (GLenum a, GLuint b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glBindBufferARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glBindBufferARB = extproc;
+
+	glBindBufferARB(a, b);
+}
+static void APIENTRY InitDeleteBuffersARB (GLsizei a, const GLuint * b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glDeleteBuffersARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glDeleteBuffersARB = extproc;
+
+	glDeleteBuffersARB(a, b);
+}
+static void APIENTRY InitGenBuffersARB (GLsizei a, GLuint * b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glGenBuffersARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glGenBuffersARB = extproc;
+
+	glGenBuffersARB(a, b);
+}
+static GLboolean APIENTRY InitIsBufferARB (GLuint a)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glIsBufferARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return GL_FALSE;
+	}
+
+	glIsBufferARB = extproc;
+
+	return glIsBufferARB(a);
+}
+static void APIENTRY InitBufferDataARB (GLenum a, GLsizeiptrARB b, const GLvoid *c, GLenum d)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glBufferDataARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glBufferDataARB = extproc;
+
+	glBufferDataARB(a, b, c, d);
+}
+	
+static void APIENTRY InitBufferSubDataARB (GLenum a, GLintptrARB b, GLsizeiptrARB c, const GLvoid *d)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glBufferSubDataARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glBufferSubDataARB = extproc;
+
+	glBufferSubDataARB(a, b, c, d);
+}
+	
+static void APIENTRY InitGetBufferSubDataARB (GLenum a, GLintptrARB b, GLsizeiptrARB c, const GLvoid *d)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glGetBufferSubDataARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glGetBufferSubDataARB = extproc;
+
+	glGetBufferSubDataARB(a, b, c, d);
+}
+static GLvoid* APIENTRY InitMapBufferARB (GLenum a, GLenum b)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glMapBufferARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return NULL;
+	}
+
+	glMapBufferARB = extproc;
+
+	return glMapBufferARB(a, b);
+}
+static GLboolean APIENTRY InitUnmapBufferARB (GLenum a)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glUnmapBufferARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return GL_FALSE;
+	}
+
+	glUnmapBufferARB = extproc;
+
+	return glUnmapBufferARB(a);
+}
+static void APIENTRY InitGetBufferParameterivARB (GLenum a, GLenum b, GLint *c)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glGetBufferParameterivARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glGetBufferParameterivARB = extproc;
+
+	glGetBufferParameterivARB(a, b, c);
+}
+
+static void APIENTRY InitGetBufferPointervARB (GLenum a, GLenum b, GLvoid* *c)
+{
+	void *extproc;
+
+	extproc = (void *) wglGetProcAddress("glGetBufferPointervARB");
+
+	if (extproc == NULL) {
+		_ASSERT(0);
+		return;
+	}
+
+	glGetBufferPointervARB = extproc;
+
+	glGetBufferPointervARB(a, b, c);
+}
+// END OGRE CHANGES
+
 _GLextensionProcs _extensionProcs = {
 	InitBlendColor,
 	InitBlendEquation,
@@ -9203,4 +9374,17 @@ _GLextensionProcs _extensionProcs = {
 	InitSwapIntervalEXT,
 	InitGetSwapIntervalEXT,
 #endif /* _WIN32 */
+	// BEGIN OGRE CHANGES
+	InitBindBufferARB,
+	InitDeleteBuffersARB,
+	InitGenBuffersARB,
+	InitIsBufferARB,
+	InitBufferDataARB,
+	InitBufferSubDataARB,
+	InitGetBufferSubDataARB,
+	InitMapBufferARB,
+	InitUnmapBufferARB,
+	InitGetBufferParameterivARB,
+	InitGetBufferPointervARB,
+	// END OGRE CHANGES
 };
