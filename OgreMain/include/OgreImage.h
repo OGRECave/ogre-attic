@@ -419,6 +419,19 @@ namespace Ogre {
 
         static bool formatHasAlpha(PixelFormat format);
 
+		enum Filter
+		{
+			FILTER_NEAREST,
+			FILTER_LINEAR,
+			FILTER_BILINEAR,
+			FILTER_BOX,
+			FILTER_TRIANGLE,
+			FILTER_BICUBIC
+		};
+		/** Resize a 2D image, applying the appropriate filter. */
+		void resize(ushort width, ushort height, Filter filter = FILTER_BILINEAR);
+		
+
     private:
         // The width of the image in pixels
         ushort m_uWidth;
