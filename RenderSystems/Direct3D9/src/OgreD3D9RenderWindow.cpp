@@ -382,6 +382,7 @@ namespace Ogre
 			// TODO: make this a bit better e.g. go from pure vertex processing to software
 			if( FAILED( hr ) )
             {
+                destroy();
                 Except( hr, "Failed to create Direct3D9 Device: " + 
                     Root::getSingleton().getErrorDescription(hr), 
                     "D3D9RenderWindow::create" );
