@@ -151,6 +151,10 @@ namespace Ogre {
 		virtual Resource* popFront() ;
 		virtual size_t getListSize() const;
 
+        /** See GuiElement. */
+        const String& getTypeName(void) const;
+
+
     protected:
 		virtual void setSelectedItem(GuiElement* item, bool on);
 		virtual void setSelectedItem(GuiElement* item);

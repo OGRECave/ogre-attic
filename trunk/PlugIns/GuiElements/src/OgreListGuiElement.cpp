@@ -620,6 +620,11 @@ namespace Ogre {
 		return mResourceList.size();
 	}
 
+    const String& ListGuiElement::getTypeName(void) const
+    {
+        return msTypeName;
+    }
+
 
 }
 
