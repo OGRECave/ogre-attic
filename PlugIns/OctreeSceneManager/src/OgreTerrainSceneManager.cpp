@@ -279,7 +279,8 @@ namespace Ogre
             mOptions.terrainMaterial -> setLightingEnabled( mOptions.lit );
 
             if (mOptions.lodMorph && 
-                mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+                mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM) &&
+				GpuProgramManager::getSingleton().getByName("Terrain/VertexMorph") == 0)
             {
                 // Create & assign LOD morphing vertex program
                 String syntax;
