@@ -1,0 +1,21 @@
+// ===== Initialization
+namespace -add "maya2ogre";
+namespace -set "maya2ogre";
+source maya2ogre_window;
+source maya2ogre_export;
+
+
+// ===== Create Ogre menu
+setParent "MayaWindow";
+menu -label "Ogre" -tearOff false;
+	menuItem -label "Export" -command "maya2ogre";
+
+
+// ===== Launch exporter UI
+global proc maya2ogre()
+{
+	defineUIView();
+	initUI();
+	loadFileInfo();
+	formatUI();
+}
