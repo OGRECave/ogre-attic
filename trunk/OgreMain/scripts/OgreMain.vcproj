@@ -456,6 +456,9 @@
 				RelativePath="..\src\OgreTextureManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreUserDefinedObject.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreVector3.cpp">
 			</File>
 			<File
@@ -917,6 +920,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTextureManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreUserDefinedObject.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreVector3.h">

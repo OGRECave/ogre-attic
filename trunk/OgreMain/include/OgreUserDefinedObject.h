@@ -53,14 +53,14 @@ namespace Ogre {
     {
     public:
         /** Standard constructor. */
-        UserDefinedObject() {}
+        UserDefinedObject();
         /** Return a number identifying the type of user dedined object.
         @remarks
             Can be used to differentiate between different types of object which you attach to
             OGRE MovableObject instances. Recommend you override this in your classes if you
             use more than one type of object.
         */
-        virtual long getTypeID(void) { return 0; }
+        virtual long getTypeID(void);
         
     };
     

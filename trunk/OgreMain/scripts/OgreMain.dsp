@@ -520,6 +520,10 @@ SOURCE=..\src\OgreTGACodec.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreUserDefinedObject.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreVector3.cpp
 # End Source File
 # Begin Source File
