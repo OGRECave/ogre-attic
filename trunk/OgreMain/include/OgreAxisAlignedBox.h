@@ -303,6 +303,10 @@ namespace Ogre {
         /** Returns whether or not this box intersects another. */
         inline bool intersects(const AxisAlignedBox& b2) const
         {
+            // Early-fail for nulls
+            if (this->isNull() || b2.isNull())
+                return false;
+
             // Use up to 6 separating planes
             if (mMaximum.x < b2.mMinimum.x)
                 return false;
