@@ -89,6 +89,14 @@ namespace Ogre
 		setConstant(index++, &vec.y, 1);
 		setConstant(index++, &vec.z, 1);
 	}
+	//-----------------------------------------------------------------------------
+    void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
+    {
+        setConstant(index++, &colour.r, 1);
+        setConstant(index++, &colour.g, 1);
+        setConstant(index++, &colour.b, 1);
+        setConstant(index++, &colour.a, 1);
+    }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const Real *val, size_t count)
     {
