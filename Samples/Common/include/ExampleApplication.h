@@ -126,9 +126,6 @@ protected:
         mCamera->lookAt(Vector3(0,0,-300));
         mCamera->setNearClipDistance(5);
 
-        // Alter the camera aspect ratio to match the viewport
-        mCamera->setAspectRatio(
-            Real(vp->getActualWidth()) / Real(vp->getActualHeight()));
 
     }
     virtual void createFrameListener(void)
@@ -145,6 +142,10 @@ protected:
         // Create one viewport, entire window
         Viewport* vp = mWindow->addViewport(mCamera);
         vp->setBackgroundColour(ColourValue(0,0,0));
+
+        // Alter the camera aspect ratio to match the viewport
+        mCamera->setAspectRatio(
+            Real(vp->getActualWidth()) / Real(vp->getActualHeight()));
     }
 
     /// Method which will define the source of resources (other than current folder)
