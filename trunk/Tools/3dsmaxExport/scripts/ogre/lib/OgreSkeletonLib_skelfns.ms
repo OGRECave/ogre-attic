@@ -7,19 +7,33 @@ function getTimeList obj firstframe lastframe =
 	list = #(firstframe) ;
 	list2 = #() ; -- this is the list which will be returned.
 	
-	rotContr = obj.rotation.controller ;
-	posContr = obj.pos.controller ;
+	-- Biped_Objects and Bones don't have the same properties
 	
-	for e in rotContr.keys do (
-		t = e.time ;
-		if (t>firstFrame and t<=lastFrame) then
-			append list t ;
+	-- Biped_Objets
+	if (isKindOf obj Biped_Object) then (
+		for e in obj.controller.keys do (
+			t =e.time ;
+			if (t>firstFrame and t<=lastFrame) then
+				append list t ;
+		)
 	)
-	for e in posContr.keys do (
-		t = e.time ;
-		if (t>firstFrame and t<=lastFrame) then
-			append list t ;
-	)	
+	-- Bones	
+	else (
+		rotContr = obj.rotation.controller ;
+		posContr = obj.pos.controller ;
+		
+		for e in rotContr.keys do (
+			t = e.time ;
+			if (t>firstFrame and t<=lastFrame) then
+				append list t ;
+		)
+		for e in posContr.keys do (
+			t = e.time ;
+			if (t>firstFrame and t<=lastFrame) then
+				append list t ;
+		)	
+	)
+	-- if several keyframes have the same value, we keep just one
 	keepLoneValues list list2 ;
 	list2 ;
 )
