@@ -91,6 +91,10 @@ SOURCE=..\src\maya2ogre.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\shared\src\OgreMayaMaterial.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\shared\src\OgreMayaMesh.cpp
 # End Source File
 # Begin Source File
@@ -112,6 +116,10 @@ SOURCE=..\..\shared\src\OgreMayaSkeleton.cpp
 # Begin Source File
 
 SOURCE=..\..\shared\include\OgreMayaCommon.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\shared\include\OgreMayaMaterial.h
 # End Source File
 # Begin Source File
 
