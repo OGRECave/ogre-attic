@@ -544,6 +544,7 @@ namespace Ogre
                 return Quaternion::IDENTITY;
             }
             Real s = Math::Sqrt( (1+d)*2 );
+            assert (s != 0 && "Divide by zero!");
             Real invs = 1 / s;
 
 

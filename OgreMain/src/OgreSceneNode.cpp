@@ -470,7 +470,7 @@ namespace Ogre {
             Vector3 axes[3];
             _getDerivedOrientation().ToAxes(axes);
             Quaternion rotQuat;
-            if (-zAdjustVec == axes[2])
+            if ( (axes[2]+zAdjustVec).squaredLength() <  0.00005f)
             {
                 // Oops, a 180 degree turn (infinite possible rotation axes)
                 // Default to yaw i.e. use current UP
