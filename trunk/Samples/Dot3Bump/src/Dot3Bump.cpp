@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
+#endif
 
 // 4 entities we'll use
 Entity *mEnt1, *mEnt2, *mEnt3, *mEnt4;
@@ -390,7 +391,7 @@ protected:
         // Create the mesh(es) wich will be bump mapped
 		mEnt1 = mSceneMgr->createEntity("knot", "knot.mesh");
 		mEnt2 = mSceneMgr->createEntity("cube", "cube.mesh");
-		mEnt3 = mSceneMgr->createEntity("head", "OgreHead.mesh");
+		mEnt3 = mSceneMgr->createEntity("head", "ogrehead.mesh");
 		mEnt4 = mSceneMgr->createEntity("ball", "ball.mesh");
         // Attach to child of root node
         mMainNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
@@ -414,6 +415,7 @@ protected:
     }
 };
 
+#if OGRE_PLATFORM == PLATFORM_WIN32
 INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #else
 int main(int argc, char **argv)
