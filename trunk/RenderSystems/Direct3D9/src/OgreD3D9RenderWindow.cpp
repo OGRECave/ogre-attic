@@ -153,6 +153,8 @@ namespace Ogre
 
 	D3D9RenderWindow::~D3D9RenderWindow()
 	{
+		SAFE_RELEASE( mpRenderSurface );
+		SAFE_RELEASE( mpRenderZBuffer );
 		SAFE_RELEASE( mpD3DDevice );
 	}
 
@@ -388,6 +390,8 @@ namespace Ogre
 
 	void D3D9RenderWindow::destroy()
 	{
+		SAFE_RELEASE( mpRenderSurface );
+		SAFE_RELEASE( mpRenderZBuffer );
 		SAFE_RELEASE( mpD3DDevice );
 		SAFE_RELEASE(mpRenderSurface);
 		SAFE_RELEASE(mpRenderZBuffer);
