@@ -852,9 +852,6 @@
 				RelativePath="..\include\OgreFrameListener.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreGeometryData.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreGpuProgram.h">
 			</File>
 			<File
