@@ -580,10 +580,6 @@ namespace Ogre
             {
                 tt = TEX_TYPE_CUBE_MAP;
             } 
-            else if (vecparams[1] == "rectangle")
-            {
-                tt = TEX_TYPE_RECTANGLE;
-            }
         }
         context.textureUnit->setTextureName(vecparams[0], tt);
         return false;

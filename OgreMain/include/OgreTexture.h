@@ -51,13 +51,7 @@ namespace Ogre {
         /// 3D volume texture, used in combination with 3D texture coordinates
         TEX_TYPE_3D = 3,
         /// 3D cube map, used in combination with 3D texture coordinates
-        TEX_TYPE_CUBE_MAP = 4,
-        /// Rectangle texture. This is a direct abstraction of a frame buffer:
-        //    Non mipmapped texture which can have any format,
-        ///   and is adressed by integer coordinates (0.0 .. w, 0.0 .. h). No tiling is
-        ///   possible, textures are always clamped. This should be a really fast format
-        ///   for render-to-texture and copy-to-texture (movies etc).
-        TEX_TYPE_RECTANGLE = 5
+        TEX_TYPE_CUBE_MAP = 4
     };
 
     /** Abstract class representing a Texture resource.
