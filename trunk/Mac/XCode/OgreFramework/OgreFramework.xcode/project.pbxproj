@@ -16,6 +16,7 @@
 				66B99E53045CB129000001C9,
 				66B99E86045CB22A000001C9,
 				66B99EB2045CB2E5000001C9,
+				8207A09006011E620045D784,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -64,6 +65,7 @@
 				66B99E85045CB22A000001C9,
 				66B99EB1045CB2E5000001C9,
 				66F4D6DF059DD1B600AD7366,
+				8207A08F06011E620045D784,
 			);
 		};
 		0867D691FE84028FC02AAC07 = {
@@ -83,6 +85,7 @@
 		};
 		0867D69AFE84028FC02AAC07 = {
 			children = (
+				8207A0BD06011EF70045D784,
 				8296D96E05BB329000DD3526,
 				08FB77AAFE841565C02AAC07,
 				66F0D749045B068C000001C9,
@@ -7523,6 +7526,7 @@
 		};
 		66CAE68D045A3E9A000001C9 = {
 			children = (
+				8207A08706011E0E0045D784,
 				66B99E7B045CB1F4000001C9,
 				66B99E7A045CB1DF000001C9,
 				66B99E4A045CB106000001C9,
@@ -9834,6 +9838,295 @@
 //822
 //823
 //824
+		8207A08706011E0E0045D784 = {
+			children = (
+				8207A09106011E620045D784,
+				8207A09206011EC20045D784,
+				8207A09706011EC20045D784,
+			);
+			isa = PBXGroup;
+			name = "CGProgram Manager";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A08A06011E620045D784 = {
+			buildActionMask = 2147483647;
+			files = (
+				8207A09D06011EC20045D784,
+				8207A09E06011EC20045D784,
+				8207A09F06011EC20045D784,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8207A08B06011E620045D784 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8207A08C06011E620045D784 = {
+			buildActionMask = 2147483647;
+			files = (
+				8207A0A106011EC20045D784,
+				8207A0A206011EC20045D784,
+				8207A0A306011EC20045D784,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8207A08D06011E620045D784 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8207A08E06011E620045D784 = {
+			buildActionMask = 2147483647;
+			files = (
+				8207A0FD0601253E0045D784,
+				8207A0EE060122590045D784,
+				8207A0EA06011FAD0045D784,
+				8207A0BE06011EF70045D784,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8207A08F06011E620045D784 = {
+			buildPhases = (
+				8207A08A06011E620045D784,
+				8207A08B06011E620045D784,
+				8207A08C06011E620045D784,
+				8207A08D06011E620045D784,
+				8207A08E06011E620045D784,
+				8207A0F2060122D50045D784,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "../../Frameworks /Users/temas/cvs/ogre/Mac/Frameworks";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
+				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				INFOPLIST_FILE = "CGProgramManager Plugin-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = Plugin_CgProgramManager;
+				REZ_EXECUTABLE = NO;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost";
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = "CgProgramManager Plugin";
+			productName = "CGPgroamManager Plugin";
+			productReference = 8207A09006011E620045D784;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>CGPgroamManager Plugin</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>com.MySoftwareCompany.CGPgroamManager_Plugin</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string></string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0d1</string>
+	<key>CSResourcesFileMapped</key>
+	<string>yes</string>
+</dict>
+</plist>
+";
+			productType = "com.apple.product-type.bundle";
+		};
+		8207A09006011E620045D784 = {
+			explicitFileType = wrapper.cfbundle;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = Plugin_CgProgramManager.bundle;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8207A09106011E620045D784 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			name = "CGProgramManager Plugin-Info.plist";
+			path = "/Users/temas/cvs/ogre/Mac/XCode/OgreFramework/CGProgramManager Plugin-Info.plist";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8207A09206011EC20045D784 = {
+			children = (
+				8207A09406011EC20045D784,
+				8207A09506011EC20045D784,
+				8207A09606011EC20045D784,
+			);
+			isa = PBXGroup;
+			name = Headers;
+			path = ../../../PlugIns/CgProgramManager/include;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8207A09406011EC20045D784 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = OgreCgPrerequisites.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A09506011EC20045D784 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = OgreCgProgram.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A09606011EC20045D784 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = OgreCgProgramFactory.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A09706011EC20045D784 = {
+			children = (
+				8207A09906011EC20045D784,
+				8207A09A06011EC20045D784,
+				8207A09B06011EC20045D784,
+			);
+			isa = PBXGroup;
+			name = Source;
+			path = ../../../PlugIns/CgProgramManager/src;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8207A09906011EC20045D784 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = OgreCgProgram.cpp;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A09A06011EC20045D784 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = OgreCgProgramFactory.cpp;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A09B06011EC20045D784 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			path = OgreCgProgramManagerDll.cpp;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		8207A09D06011EC20045D784 = {
+			fileRef = 8207A09406011EC20045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A09E06011EC20045D784 = {
+			fileRef = 8207A09506011EC20045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A09F06011EC20045D784 = {
+			fileRef = 8207A09606011EC20045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0A106011EC20045D784 = {
+			fileRef = 8207A09906011EC20045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0A206011EC20045D784 = {
+			fileRef = 8207A09A06011EC20045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0A306011EC20045D784 = {
+			fileRef = 8207A09B06011EC20045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0BD06011EF70045D784 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = Cg.framework;
+			path = /System/Library/Frameworks/Cg.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8207A0BE06011EF70045D784 = {
+			fileRef = 8207A0BD06011EF70045D784;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0EA06011FAD0045D784 = {
+			fileRef = 034768DEFF38A45A11DB9C8B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0EE060122590045D784 = {
+			fileRef = 669E89AF045B283C000001C9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8207A0F2060122D50045D784 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/sh\n\nmkdir -p ${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources/\ncp -R \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.bundle\" \"${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources/\"\ntouch ${BUILT_PRODUCTS_DIR}/Ogre.framework";
+		};
+		8207A0FD0601253E0045D784 = {
+			fileRef = 08FB77AAFE841565C02AAC07;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		820AF5F60531D8D5006AB97A = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
