@@ -80,6 +80,7 @@ namespace Ogre {
 
     public:
         SceneManagerEnumerator();
+        ~SceneManagerEnumerator();
 
         /** Sets a SceneManager implementation.
         */

@@ -52,6 +52,11 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    SceneManagerEnumerator::~SceneManagerEnumerator()
+    {
+        delete mDefaultManager;
+    }
+    //-----------------------------------------------------------------------
     SceneManager* SceneManagerEnumerator::getSceneManager(SceneType st)
     {
         SceneManagerList::iterator i = mSceneManagers.find(st);

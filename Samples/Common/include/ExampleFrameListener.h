@@ -57,7 +57,7 @@ public:
         mWindow = win;
         mStatsOn = false;
     }
-    ~ExampleFrameListener()
+    virtual ~ExampleFrameListener()
     {
         PlatformManager::getSingleton().destroyInputReader( mInputDevice );
     }

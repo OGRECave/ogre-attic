@@ -66,16 +66,7 @@ namespace Ogre
 
     D3DDeviceList::~D3DDeviceList()
     {
-        // Release each vector item
-        std::vector<D3DDevice>::iterator p = mDeviceList.begin();
-        while( p != mDeviceList.end() ) {
-            D3DDevice* pDev = &(*p);
-            delete pDev;
-            p++;
-        }
-
-        p = mDeviceList.begin();
-        mDeviceList.erase(p, p+mDeviceList.size()-1);
+        mDeviceList.clear();
 
     }
 
