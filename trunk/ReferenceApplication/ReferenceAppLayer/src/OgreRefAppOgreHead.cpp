@@ -59,8 +59,8 @@ namespace OgreRefApp
         mOdeBody->setMass(&mass);
 
         this->setBounceParameters(0.3, 0.1);
-        this->setSoftness(0.00);
-
+        this->setSoftness(0.0f);
+        this->setFriction(Math::POS_INFINITY);
 
         // Create collision proxy
         dSphere* odeSphere = new dSphere(0, 25);

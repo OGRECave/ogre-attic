@@ -40,6 +40,7 @@ namespace OgreRefApp
 		mSoftness = 0.0;
 		mBounceCoeffRestitution = 0;
 		mBounceVelocityThreshold = 0.1;
+        mFriction = Math::POS_INFINITY;
 
     }
     //-------------------------------------------------------------------------
@@ -280,8 +281,10 @@ namespace OgreRefApp
                         	contact.surface.mode |= dContactSoftCFM;
 							contact.surface.soft_cfm = softness;
 						}
-							
-						contact.surface.mu = 20;
+						
+                        // Set friction to min of 2 objects
+                        // Note that ODE dInfinity == Math::POS_INFINITY
+                        contact.surface.mu = std::min(this->getFriction(), otherObj->getFriction());
                         contact.surface.mu2 = 0;
                         contact.geom = contactGeom;
                         dContactJoint contactJoint(
@@ -354,6 +357,16 @@ namespace OgreRefApp
 	{
 		return mSoftness;
 	}
+    //-------------------------------------------------------------------------
+    void ApplicationObject::setFriction(Real friction)
+    {
+        mFriction = friction;
+    }
+    //-------------------------------------------------------------------------
+    Real ApplicationObject::getFriction(void)
+    {
+        return mFriction;
+    }
 
 
 

@@ -29,7 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace OgreRefApp {
 
-
     /** This object is the base class for all discrete objects in the application.
     @remarks
         This object holds a reference to the underlying OGRE entity / entities which 
@@ -61,6 +60,7 @@ namespace OgreRefApp {
 		Real mBounceCoeffRestitution;
 		Real mBounceVelocityThreshold;
 		Real mSoftness;
+        Real mFriction;
 
         // Set up method, must override
         virtual void setUp(const String& name) = 0;
@@ -83,9 +83,26 @@ namespace OgreRefApp {
         /// Updates the position of this game object from the simulation
         virtual void _updateFromDynamics(void);
 
+        /// Returns whether or not this object is considered for collision.
         virtual bool isCollisionEnabled(void);
+        /** Returns whether or not this object is physically simulated.
+        @remarks
+            Objects which are not physically simulated only move when their
+            SceneNode is manually altered.
+        */
         virtual bool isDynamicsEnabled(void);
+        /** Sets whether or not this object is considered for collision.
+        @remarks
+            Objects which have collision enabled must set up an ODE 
+            collision proxy as part of their setUp method.
+        */
         virtual void setCollisionEnabled(bool enabled);
+        /** Sets whether or not this object is physically simulated.
+        @remarks
+            Objects which are not physically simulated only move when their
+            SceneNode is manually altered. Objects which are physically 
+            simulated must set up an ODE body as part of their setUp method.
+        */
         virtual void setDynamicsEnabled(bool enabled);
 
 		/** Sets the 'bounciness' of this object.
@@ -117,9 +134,40 @@ namespace OgreRefApp {
 		/** Gets the softness factor of this object. */
 		virtual Real getSoftness(void);
 
+        /** Sets the Coulomb frictional coefficient for this object.
+        @remarks
+            This coefficient affects how much an object will slip when it comes
+            into contact with another object. 
+        @param friction The Coulomb friction coefficient, valid from 0 to Math::POS_INFINITY.
+            0 means no friction, Math::POS_INFINITY means infinite friction ie no slippage.
+            Note that friction between these 2 bounds is more CPU intensive so use with caution.
+        */
+        virtual void setFriction(Real friction);
+        /** Gets the Coulomb frictional coefficient for this object. */
+        virtual Real getFriction(void);
+        /** Adds a linear force to this object, in object space, at the position indicated. 
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param direction The force direction in object coordinates.
+        @param atPosition The position at which the force is to be applied, in object coordinates.
+        */
         virtual void addForce(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
+        /** Adds a linear force to this object, in world space, at the position indicated. 
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param direction The force direction in world coordinates.
+        @param atPosition The position at which the force is to be applied, in world coordinates.
+        */
         virtual void addForceWorldSpace(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
+        /** Adds rotational force to this object, in object space.
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param direction The direction of the torque to apply, in object space. */
         virtual void addTorque(const Vector3& direction);
+        /** Adds rotational force to this object, in world space.
+        @remarks
+            All forces are applied, then reset after World::applyDynamics is called. 
+        @param direction The direction of the torque to apply, in world space. */
         virtual void addTorqueWorldSpace(const Vector3& direction);
 
         /** Tests to see if there is a detailed collision between this object and the object passed in.
@@ -144,9 +192,12 @@ namespace OgreRefApp {
         /** This method is called automatically if testCollide indicates a real collision. 
         */
         virtual void _notifyCollided(ApplicationObject* otherObj, const CollisionInfo& info);
-
+        /** Gets the SceneNode which is being used to represent this object's position in 
+            the OGRE world. */
         SceneNode* getSceneNode(void);
+        /** Gets the Entity which is being used to represent this object in the OGRE world. */
         Entity* getEntity(void);
+        /** Gets the ODE body used to represent this object's mass and current velocity. */
         dBody* getOdeBody(void);
 
 
