@@ -414,22 +414,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Win32Input8::capture(void)
     {
-		if (mUseBufferedKeys )
+		if (mUseKeyboard)
 		{
-			readBufferedKeyboardData();
+			if (mUseBufferedKeys )
+			{
+				readBufferedKeyboardData();
+			}
+			else
+			{
+				mModifiers = getKeyModifiers();
+				captureKeyboard();
+			}
 		}
-		else
+		if (mUseMouse)
 		{
-		    mModifiers = getKeyModifiers();
-			captureKeyboard();
-		}
-		if (mUseBufferedMouse )
-		{
-			readBufferedMouseData();
-		}
-		else
-		{
-			captureMouse();
+			if (mUseBufferedMouse )
+			{
+				readBufferedMouseData();
+			}
+			else
+			{
+				captureMouse();
+			}
 		}
 
 	}
