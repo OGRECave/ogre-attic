@@ -1,48 +1,45 @@
 <?xml version="1.0"?>
-<!DOCTYPE mesh (materials?, sharedgeometry?, submeshes, 
+<!DOCTYPE mesh (sharedgeometry?, submeshes, 
 	skeletonlink?, boneassignments?, levelofdetail?) >
-<!ELEMENT materials (material+) >
-<!ELEMENT material (ambient, diffuse, specular, shininess, texturelayers) >
-<!ELEMENT ambient EMPTY>
-<!ATTLIST ambient 
-	red 	CDATA #REQUIRED 
-	green 	CDATA #REQUIRED 
-	blue 	CDATA #REQUIRED >
-<!ELEMENT diffuse EMPTY>
-<!ATTLIST diffuse 
-	red		CDATA #REQUIRED 
-	green	CDATA #REQUIRED 
-	blue	CDATA #REQUIRED >
-<!ELEMENT specular EMPTY>
-<!ATTLIST specular 
-	red		CDATA #REQUIRED 
-	green	CDATA #REQUIRED 
-	blue	CDATA #REQUIRED >
-<!ELEMENT shininess EMPTY>
-<!ATTLIST shininess
-	value 	CDATA #REQUIRED >
-<!ELEMENT texturelayers (texturelayer+)>
-<!ELEMENT texturelayer EMPTY>
-<!ATTLIST texturelayer
-	texture CDATA #REQUIRED>
 <!ELEMENT sharedgeometry (vertexbuffer+)>
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
+<!ELEMENT submeshes (submesh+)>
+<!ELEMENT submesh (faces,geometry?,boneassignments?)>
+<!ATTLIST submesh 
+	material 			CDATA 			#REQUIRED
+	usesharedvertices	(true|false)	"false"
+	use32bitindexes		(true|false)	"false">
+<!ELEMENT faces (face+)>
+<!ATTLIST faces 
+	count		CDATA	#REQUIRED>
+<!ELEMENT face EMPTY>
+<!ATTLIST face 
+	v1		CDATA	#REQUIRED
+	v2		CDATA	#REQUIRED
+	v3		CDATA	#REQUIRED>
+<!ELEMENT geometry (vertexbuffer+)>
+<!ELEMENT boneassignments (vertexboneassignement+)>
+<!ELEMENT vertexboneassignment EMPTY>
+<!ATTLIST vertexboneassignment 
+	vertexindex		CDATA	#REQUIRED
+	boneindex		CDATA	#REQUIRED
+	weight			CDATA	"1.0">
 <!ELEMENT vertexbuffer (vertex+)>
 <!ATTLIST vertexbuffer
-	positions 					CDATA 	"false"
-	normals 					CDATA 	"false"
-	colours_diffuse 			CDATA 	"false"
-	colours_specular 			CDATA 	"false"
-	texture_coords				CDATA 	"0"
-	texture_coord_dimensions_0 	CDATA 	"2"
-	texture_coord_dimensions_1 	CDATA 	"2"
-	texture_coord_dimensions_2 	CDATA 	"2"
-	texture_coord_dimensions_3 	CDATA 	"2"
-	texture_coord_dimensions_4 	CDATA 	"2"
-	texture_coord_dimensions_5 	CDATA 	"2"
-	texture_coord_dimensions_6 	CDATA 	"2"
-	texture_coord_dimensions_7 	CDATA 	"2" >
+	positions 					(true|false)	"false"
+	normals 					(true|false)	"false"
+	colours_diffuse 			(true|false)	"false"
+	colours_specular 			(true|false)	"false"
+	texture_coords				(0|1|2|3|4|5|6|7) 	"0"
+	texture_coord_dimensions_0 	(0|1|2)		 	"2"
+	texture_coord_dimensions_1 	(0|1|2)		 	"2"
+	texture_coord_dimensions_2 	(0|1|2)		 	"2"
+	texture_coord_dimensions_3 	(0|1|2)		 	"2"
+	texture_coord_dimensions_4 	(0|1|2)		 	"2"
+	texture_coord_dimensions_5 	(0|1|2)		 	"2"
+	texture_coord_dimensions_6 	(0|1|2)		 	"2"
+	texture_coord_dimensions_7 	(0|1|2)		 	"2">
 <!ELEMENT vertex (position?, normal?, colour_diffuse?, colour_specular?, 
 	texcoord*)>
 <!ELEMENT position EMPTY>
@@ -66,12 +63,8 @@
 	u	CDATA	#REQUIRED	
 	v	CDATA	"0"	
 	w	CDATA	"0" >
-<!ELEMENT submeshes (submesh+)>
-<!ELEMENT submesh (faces)>
-<!ATTLIST submesh 
-	material 			CDATA 	#REQUIRED
-	usesharedvertices	CDATA	"false"
-	use32bitindexes		CDATA	"false">
+
+	
 	
 				
 	
