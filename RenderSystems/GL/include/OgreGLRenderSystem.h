@@ -78,20 +78,8 @@ namespace Ogre {
         GLint mStencilFail, mStencilZFail, mStencilPass;
 
 		// internal method for anisotrophy validation
-		GLfloat _getCurrentAnisotrofy();
-		void _setTextureBlendMode_ARB(int stage, const LayerBlendModeEx& bm);
-		void _setTextureBlendMode_EXT(int stage, const LayerBlendModeEx& bm);
+		GLfloat _getCurrentAnisotropy();
 		
-		// structure to hold some OpenGL extension capabilities determined on window creation for later use
-		struct glCaps
-		{
-			bool aniso;			// GL_TEXTURE_MAX_ANISOTROPY_EXT
-			bool dp3ext;		// GL_DOT3_RGB_EXT/GL_DOT3_RGBA_EXT
-			bool dp3arb;		// GL_DOT3_RGB_ARB/GL_DOT3_RGBA_ARB
-			bool arbCombine;	// GL_COMBINE_ARB
-			bool extCombine;	// GL_COMBINE_ARB
-		} mGLCaps;
-
         /// GL support class, used for creating windows etc
         GLSupport* mGLSupport;
 
