@@ -60,6 +60,7 @@ email                : kenny@sparksuit.com
 #ifndef __EventProcessor_H__
 #define __EventProcessor_H__
 
+#include <list>
 #include "OgrePrerequisites.h"
 #include "OgreSingleton.h"
 #include "OgreFrameListener.h"
@@ -96,8 +97,10 @@ namespace Ogre {
 		 */
 		void cleanup();
 		InputReader* mInputDevice;
-		typedef std::vector<EventDispatcher*> DispatcherList;
+		typedef std::list<EventDispatcher*> DispatcherList;
+		typedef std::list<EventTarget*> EventTargetList;
 		DispatcherList mDispatcherList;
+        EventTargetList mEventTargetList;
         bool mRegisteredAsFrameListener;
 
     public:
@@ -146,6 +149,13 @@ namespace Ogre {
 		 */
 
 		void addTargetManager(TargetManager* targetManager);
+
+		/**
+		 * Creates a dispatcher object that dispatches to the targetManager.
+		 * Adds the new dispatcher object to the dispatcher list.
+		 */
+
+		void addEventTarget(EventTarget* eventTarget);
 
 		/**
 		 * Processes all events on the queue.

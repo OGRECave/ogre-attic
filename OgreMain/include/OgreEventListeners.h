@@ -99,6 +99,10 @@ namespace Ogre {
 		 */
 		virtual void mouseReleased(MouseEvent* e) = 0;
 
+        virtual void mouseDragEntered(MouseEvent* e) {};
+        virtual void mouseDragExited(MouseEvent* e) {};
+        virtual void mouseDragDropped(MouseEvent* e) {};
+
     };
 
 
@@ -119,6 +123,14 @@ namespace Ogre {
 		 * Invoked when a key button has been released on a component.
 		 */
 		virtual void keyReleased(KeyEvent* e) = 0;
+		/**
+		 * Invoked when the target receives the keyboard focus
+		 */
+        virtual void keyFocusIn(KeyEvent* e) {}
+		/**
+		 * Invoked when the target loses the keyboard focus
+		 */
+        virtual void keyFocusOut(KeyEvent* e) {}
 
     };
 
@@ -136,6 +148,10 @@ namespace Ogre {
 		 * Invoked when the mouse dragged
 		 */
 		virtual void mouseDragged(MouseEvent* e) = 0;
+        /**
+         * sent to target
+         */
+        virtual void mouseDragMoved(MouseEvent* e) {};
     };
 
 	/** Specialised EventListener for receiving component-specific ActionEvent events.*/

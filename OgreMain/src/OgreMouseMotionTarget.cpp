@@ -55,6 +55,9 @@ namespace Ogre {
 			case MouseEvent::ME_MOUSE_DRAGGED:
 				listener->mouseDragged(e);
 				break;
+			case MouseEvent::ME_MOUSE_DRAGMOVED:
+				listener->mouseDragMoved(e);
+				break;
 			}
 		}
 	}

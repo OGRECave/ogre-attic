@@ -25,8 +25,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __OverlayManager_H__
 #define __OverlayManager_H__
 
+#include <set>
 #include "OgrePrerequisites.h"
+#include "OgreEventDispatcher.h"
 #include "OgreEventListeners.h"
+#include "OgreEventTarget.h"
 #include "OgreResourceManager.h"
 #include "OgreSingleton.h"
 #include "OgreStringVector.h"
@@ -38,15 +41,16 @@ namespace Ogre {
     /** Manages Overlay objects, parsing them from .overlay files and
         storing a lookup library of them.
     */
-    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager, public MouseMotionListener
+    class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>, public TargetManager, public EventTarget
     {
     protected:
-		GuiContainer* mCursorGuiRegistered;
-		MouseMotionListener* mCursorListener;
+        typedef std::list<MouseMotionListener*> MouseMotionListenerList;
+        EventDispatcher mEventDispatcher;
 		Overlay* mCursorLevelOverlay;
         bool mCursorGuiInitialised;
-        Real mMouseX;
-        Real mMouseY;
+		GuiContainer* mCursorGuiRegistered;
+		MouseMotionListener* mCursorListener;
+        MouseMotionListenerList mMouseMotionListenerList;
 
         void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
             bool isContainer, Overlay* pOverlay, bool isTemplate, String templateName = String(""), GuiContainer* container = 0);
@@ -108,18 +112,20 @@ namespace Ogre {
 
 
         /** This returns a PositionTarget at position x,y. */
-		PositionTarget* getPositionTargetAt(Real x, Real y);
+        PositionTarget* getPositionTargetAt(Real x, Real y);
 
-		/** register the default cursor GUI implementation with the manager */
-		void setDefaultCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener);
-		/** register the cursor GUI implementation with the manager */
-		void setCursorGui(GuiContainer* cursor, MouseMotionListener* cursorListener);
-		void mouseMoved(MouseEvent* e);
-		void mouseDragged(MouseEvent* e);
-        Real getMouseX() const { return mMouseX; }
-        Real getMouseY() const { return mMouseY; }
+        void processEvent(InputEvent* e);
 
-		/** returns the registered cursor GUI */
+        /** register the default cursor GUI implementation with the manager */
+        void setDefaultCursorGui(GuiContainer* cursor, MouseMotionListener*);
+        /** register the cursor GUI implementation with the manager */
+        void setCursorGui(GuiContainer* cursor);
+        void addMouseMotionListener(MouseMotionListener* l);
+        void removeMouseMotionListener(MouseMotionListener* l);
+        Real getMouseX() { return mEventDispatcher.getMouseX(); }
+        Real getMouseY() { return mEventDispatcher.getMouseY(); }
+        void setDragDrop(bool dragDropOn) { mEventDispatcher.setDragDrop(dragDropOn); }
+        /** returns the registered cursor GUI */
 		GuiContainer* getCursorGui();
 
 		/** create the high cursor level overlay and add the registered Cursor GUI implementation to it */

@@ -68,6 +68,12 @@ namespace Ogre {
 		  case KE_KEY_CLICKED:
 			  typeStr = "KEY_CLICKED";
 			  break;
+		  case KE_KEY_FOCUSIN:
+			  typeStr = "KEY_FOCUSIN";
+			  break;
+		  case KE_KEY_FOCUSOUT:
+			  typeStr = "KEY_FOCUSOUT";
+			  break;
 		  default:
 			  typeStr = "unknown type";
 		}

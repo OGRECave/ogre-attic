@@ -68,6 +68,17 @@ namespace Ogre {
 				mMouseWithin = true;
 				listener->mouseEntered(e);
 				break;
+			case MouseEvent::ME_MOUSE_DRAGENTERED:
+				mMouseWithin = true;
+				listener->mouseDragEntered(e);
+				break;
+			case MouseEvent::ME_MOUSE_DRAGEXITED:
+				mMouseWithin = false;
+				listener->mouseDragExited(e);
+				break;
+			case MouseEvent::ME_MOUSE_DRAGDROPPED:
+				listener->mouseDragDropped(e);
+				break;
 			}
 		}
 	}

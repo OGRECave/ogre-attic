@@ -201,7 +201,7 @@ namespace Ogre {
 		enum
 		{
 			ME_FIRST_EVENT = 500,
-			ME_LAST_EVENT = 506
+			ME_LAST_EVENT = 510
 		};
 
 		enum 
@@ -212,7 +212,12 @@ namespace Ogre {
 			ME_MOUSE_MOVED,
 			ME_MOUSE_ENTERED,
 			ME_MOUSE_EXITED,
-			ME_MOUSE_DRAGGED
+			ME_MOUSE_DRAGGED,
+
+      ME_MOUSE_DRAGENTERED,
+      ME_MOUSE_DRAGEXITED,
+      ME_MOUSE_DRAGMOVED,
+      ME_MOUSE_DRAGDROPPED
 		};
 
 		/**

@@ -63,8 +63,18 @@ namespace Ogre {
             OverlayManager &om = OverlayManager::getSingleton();
        		setLeft(om.getMouseX() - mOffsetX);
 	    	setTop(om.getMouseY() - mOffsetY);
+            om.addMouseMotionListener(this);
         }
         PanelGuiElement::show();
+    }
+    //---------------------------------------------------------------------
+    void CursorGuiElement::hide(void)
+    {
+        if (mVisible) {
+            OverlayManager &om = OverlayManager::getSingleton();
+            om.removeMouseMotionListener(this);
+        }
+        PanelGuiElement::hide();
     }
     //---------------------------------------------------------------------
 	void CursorGuiElement::setOffsetX(Real x)
