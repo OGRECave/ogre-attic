@@ -235,6 +235,7 @@ namespace Ogre
         /// Colours to use for the vertices
         ColourValue mColourBottom;
         ColourValue mColourTop;
+        bool mColoursChanged;
 
 
         /// Internal method to update the geometry
