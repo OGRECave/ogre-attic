@@ -137,9 +137,6 @@
 				RelativePath="..\src\OgreBorderButtonGuiElement.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreBorderPanelGuiElement.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreButtonGuiElement.cpp">
 			</File>
 			<File
@@ -152,9 +149,6 @@
 				RelativePath="..\src\OgreListGuiElement.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePanelGuiElement.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgrePopupMenuGuiElement.cpp">
 			</File>
 			<File
@@ -162,9 +156,6 @@
 			</File>
 			<File
 				RelativePath="..\src\OgreTTYGuiElement.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreTextAreaGuiElement.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreTextBoxGuiElement.cpp">
@@ -175,9 +166,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\include\OgreBorderButtonGuiElement.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreBorderPanelGuiElement.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreButtonGuiElement.h">
@@ -195,9 +183,6 @@
 				RelativePath="..\include\OgreListGuiElement.h">
 			</File>
 			<File
-				RelativePath="..\include\OgrePanelGuiElement.h">
-			</File>
-			<File
 				RelativePath="..\include\OgrePopupMenuGuiElement.h">
 			</File>
 			<File
@@ -205,9 +190,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreTTYGuiElement.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreTextAreaGuiElement.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreTextBoxGuiElement.h">
