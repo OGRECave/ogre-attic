@@ -286,6 +286,10 @@ namespace Ogre {
           RenderSystem
          */
         void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
+        /** See
+          RenderSystem
+         */
+        void _setRasterisationMode(SceneDetailLevel level);
         // ----------------------------------
         // End Overridden members
         // ----------------------------------

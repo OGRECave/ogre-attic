@@ -619,6 +619,10 @@ namespace Ogre
         */
         virtual void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest) = 0;
 
+        /** Sets how to rasterise triangles, as points, wireframe or solid polys. */
+        virtual void _setRasterisationMode(SceneDetailLevel level) = 0;
+
+
     protected:
 
         /** Set of registered frame listeners */

@@ -111,6 +111,16 @@ namespace Ogre {
     };
 
 
+    /** The broad type of detail for rendering.
+    */
+    enum SceneDetailLevel
+    {
+        SDL_POINTS,
+        SDL_WIREFRAME,
+        SDL_SOLID
+    };
+
+
 
 
 }

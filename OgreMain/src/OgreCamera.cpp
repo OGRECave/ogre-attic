@@ -55,7 +55,7 @@ namespace Ogre {
         mFarDist = 100000.0f;
         mAspect = 1.33333333333333f;
         mProjType = PT_PERSPECTIVE;
-        mSceneDetail = SDL_TEXTURED;
+        mSceneDetail = SDL_SOLID;
         setFixedYawAxis(true);    // Default to fixed yaw, like freelook since most people expect this
 
         mRecalcFrustum = true;
