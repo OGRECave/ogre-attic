@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 
 namespace Ogre {
-    String rendererTypeName = "Billboard";
+    String rendererTypeName = "billboard";
 
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::CmdBillboardType BillboardParticleRenderer::msBillboardTypeCmd;
