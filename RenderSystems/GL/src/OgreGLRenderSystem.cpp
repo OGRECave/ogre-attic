@@ -173,6 +173,7 @@ namespace Ogre {
         // XXX Investigate vSync
 
 		//fill in the mGLCaps structure for later use
+        mGLSupport->initialiseExtensions();
 		mGLCaps.arbCombine = mGLSupport->checkExtension("GL_ARB_texture_env_combine");
 		mGLCaps.extCombine = mGLSupport->checkExtension("GL_EXT_texture_env_combine");
 		mGLCaps.dp3arb = mGLSupport->checkExtension("GL_ARB_texture_env_dot3");

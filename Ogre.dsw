@@ -30,9 +30,6 @@ Package=<4>
     Project_Dep_Name RenderSystem_Direct3D7
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
     Begin Project Dependency
@@ -73,9 +70,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -129,9 +123,6 @@ Package=<4>
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
@@ -163,9 +154,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -238,9 +226,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -327,9 +312,6 @@ Package=<4>
     Project_Dep_Name RenderSystem_Direct3D7
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
     Begin Project Dependency
@@ -370,9 +352,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -417,9 +396,6 @@ Package=<4>
     Project_Dep_Name RenderSystem_Direct3D7
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
     Begin Project Dependency
@@ -462,9 +438,6 @@ Package=<4>
     Project_Dep_Name RenderSystem_Direct3D7
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
     End Project Dependency
     Begin Project Dependency
@@ -505,9 +478,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -561,9 +531,6 @@ Package=<4>
     Project_Dep_Name RenderSystem_Direct3D8
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Plugin_NatureSceneManager
     End Project Dependency
 }}}
@@ -595,9 +562,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -640,9 +604,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name RenderSystem_Direct3D7
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name RenderSystem_SDL
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name Plugin_OctreeSceneManager
@@ -813,7 +774,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "RenderSystem_SDL"=.\RenderSystems\SDL\scripts\RenderSystem_SDL.dsp - Package Owner=<4>
+Project: "RenderSystem_GL"=.\RenderSystems\GL\scripts\RenderSystem_GL.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -821,9 +782,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name OgreMain
-    End Project Dependency
 }}}
 
 ###############################################################################

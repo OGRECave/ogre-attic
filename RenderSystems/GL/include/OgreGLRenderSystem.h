@@ -25,27 +25,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __GLRenderSystem_H__
 #define __GLRenderSystem_H__
 
+#include "OgreGLPrerequisites.h"
 #include "OgrePlatform.h"
 #include "OgreRenderSystem.h"
 
 #include "OgreGLSupport.h"
-
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#   include <windows.h>
-#   include <wingdi.h>
-#   include "gl.h"
-#   define GL_GLEXT_PROTOTYPES
-#   include "glprocs.h"
-#   include <GL/glu.h>
-#elif OGRE_PLATFORM == PLATFORM_LINUX
-#   include <GL/gl.h>
-#   include <GL/glu.h>
-#elif OGRE_PLATFORM == PLATFORM_APPLE
-#   include <OpenGL/gl.h>
-#   define GL_EXT_texture_env_combine 1
-#   include <OpenGL/glext.h>
-#   include <OpenGL/glu.h>
-#endif
 
 namespace Ogre {
     /**
@@ -108,6 +92,7 @@ namespace Ogre {
 			bool extCombine;	// GL_COMBINE_ARB
 		} mGLCaps;
 
+        /// GL support class, used for creating windows etc
         GLSupport* mGLSupport;
 
         /// Internal method to set pos / direction of a light

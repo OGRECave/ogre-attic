@@ -22,19 +22,40 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __SDLPrerequisites_H__
-#define __SDLPrerequisites_H__
+#ifndef __GLPrerequisites_H__
+#define __GLPrerequisites_H__
 
-#include <SDL.h>
+#include "OgrePrerequisites.h"
 
-#include <OgreGLPrerequisites.h>
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <wingdi.h>
+#   include "gl.h"
+#   define GL_GLEXT_PROTOTYPES
+#   include "glprocs.h"
+#   include <GL/glu.h>
+#elif OGRE_PLATFORM == PLATFORM_LINUX
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#elif OGRE_PLATFORM == PLATFORM_APPLE
+#   include <OpenGL/gl.h>
+#   define GL_EXT_texture_env_combine 1
+#   include <OpenGL/glext.h>
+#   include <OpenGL/glu.h>
+#endif
+// Deal with missing GL_DOT3_RGB_EXT
+// Extensions will be checked for anyway, this is just for compiler
+#   ifndef GL_DOT3_RGB_EXT
+#	   define GL_DOT3_RGB_EXT GL_DOT3_RGB_ARB
+#   endif
 
 
 namespace Ogre {
     // Forward declarations
-    class SDLGLSupport;
-    class SDLWindow;
-
+    class GLSupport;
+    class GLRenderSystem;
+    class GLTexture;
+    class GLTextureManager;
 
 }
 

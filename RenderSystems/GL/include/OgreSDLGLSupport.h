@@ -1,6 +1,7 @@
 #ifndef OGRE_SDLGLSUPPORT_H
 #define OGRE_SDLGLSUPPORT_H
 
+#include "OgreSDLPrerequisites.h"
 #include "OgreGLSupport.h"
 
 #include <SDL.h>
@@ -51,8 +52,6 @@ private:
     // Allowed video modes
     SDL_Rect** mVideoModes;
 
-    // This contains the complete list of supported extensions
-    std::set<String> extensionList;
 
 }; // class SDLGLSupport
 
