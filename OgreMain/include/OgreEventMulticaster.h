@@ -269,7 +269,7 @@ namespace Ogre {
 		 */
 		 EventListener* remove(EventListener* oldl, bool& deleteSelf) ;
 
-		virtual bool isMulticaster();
+		virtual bool isMulticaster() const;
 
 
     protected:

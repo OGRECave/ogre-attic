@@ -149,7 +149,7 @@ namespace Ogre {
 	    /** Returns true if the buffer pointer has reached the end of the
 		    buffer.
 	    */
-	    bool isEOF();
+	    bool isEOF() const;
 
 	    /** Returns a String containing the next line of data, optionally 
 		    trimmed for whitespace. 

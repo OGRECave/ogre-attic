@@ -389,11 +389,11 @@ namespace Ogre {
         /** See setDefaultDimensions - this sets 1 component individually. */
         virtual void setDefaultWidth(Real width);
         /** See setDefaultDimensions - this gets 1 component individually. */
-        virtual Real getDefaultWidth(void);
+        virtual Real getDefaultWidth(void) const;
         /** See setDefaultDimensions - this sets 1 component individually. */
         virtual void setDefaultHeight(Real height);
         /** See setDefaultDimensions - this gets 1 component individually. */
-        virtual Real getDefaultHeight(void);
+        virtual Real getDefaultHeight(void) const;
 
         /** Sets the name of the material to be used for this billboard set.
             @param
@@ -457,7 +457,7 @@ namespace Ogre {
             mFixedTextureCoords = false; }
 
         /** Returns whether or not billbards in this are tested individually for culling. */
-        virtual bool getCullIndividually(void);
+        virtual bool getCullIndividually(void) const;
         /** Sets whether culling tests billboards in this individually as well as in a group.
         @remarks
             Billboard sets are always culled as a whole group, based on a bounding box which 
@@ -493,7 +493,7 @@ namespace Ogre {
         virtual void setBillboardType(BillboardType bbt);
 
         /** Returns the billboard type in use. */
-        virtual BillboardType getBillboardType(void);
+        virtual BillboardType getBillboardType(void) const;
 
         /** Use this to specify the common direction given to billboards of type BBT_ORIENTED_COMMON.
         @remarks
@@ -505,7 +505,7 @@ namespace Ogre {
         virtual void setCommonDirection(const Vector3& vec);
 
         /** Gets the common direction for all billboards (BBT_ORIENTED_COMMON) */
-        virtual Vector3 getCommonDirection(void);
+        virtual const Vector3& getCommonDirection(void) const;
 
         /** Overridden from MovableObject */
         virtual const String& getName(void) const;

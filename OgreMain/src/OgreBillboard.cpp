@@ -1,4 +1,3 @@
-
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -111,12 +110,12 @@ namespace Ogre {
         return mColour;
     }
     //-----------------------------------------------------------------------
-    Real Billboard::getOwnWidth(void)
+    Real Billboard::getOwnWidth(void) const
     {
         return mWidth;
     }
     //-----------------------------------------------------------------------
-    Real Billboard::getOwnHeight(void)
+    Real Billboard::getOwnHeight(void) const
     {
         return mHeight;
     }

@@ -149,10 +149,10 @@ namespace Ogre {
         bool hasOwnDimensions(void) const;
 
         /** Retrieves the billboard's personal width, if hasOwnDimensions is true. */
-        Real getOwnWidth(void);
+        Real getOwnWidth(void) const;
 
         /** Retrieves the billboard's personal width, if hasOwnDimensions is true. */
-        Real getOwnHeight(void);
+        Real getOwnHeight(void) const;
 
         /** Internal method for notifying the billboard of it's owner.
         */
