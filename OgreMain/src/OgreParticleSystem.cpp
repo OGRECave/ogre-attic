@@ -492,6 +492,12 @@ namespace Ogre {
             _update(interval);
         }
     }
+    //-----------------------------------------------------------------------
+    const String& ParticleSystem::getMovableType(void) const
+    {
+        static String mType = "ParticleSystem";
+        return mType;
+    }
 
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdCull::doGet(void* target)
