@@ -319,10 +319,10 @@
 				RelativePath="..\src\OgreHighLevelGpuProgramManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreImage.cpp">
+				RelativePath="..\src\OgreILImageCodec.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreImageCodec.cpp">
+				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreInput.cpp">
@@ -901,6 +901,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreHighLevelGpuProgramManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreILImageCodec.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreImage.h">
