@@ -114,9 +114,9 @@ namespace Ogre {
 		mHasAlpha = PixelUtil::hasAlpha(mFormat);
 		
 		// The custom mipmaps in the image have priority over everything
-		bool doCustomMipmaps = images[0]->getNumMipmaps()>0;
-		
-		if(doCustomMipmaps) {
+        size_t imageMips = images[0]->getNumMipmaps();
+
+		if(imageMips > 0) {
 			mNumMipmaps = images[0]->getNumMipmaps();
 			// Disable flag for auto mip generation
 			mUsage &= ~TU_AUTOMIPMAP;
@@ -170,46 +170,49 @@ namespace Ogre {
 				LML_NORMAL, str.str());
 		
 		// Main loading loop
-        for(size_t i = 0; i < faces; i++)
+        // imageMips == 0 if the image has no custom mipmaps, otherwise contains the number of custom mips
+        for(size_t mip = 0; mip<=imageMips; ++mip)
         {
-			PixelBox src;
-			// TODO manual mips
-			if(multiImage)
-			{
-				// Load from multiple images
-				src = images[i]->getPixelBox();
-			}
-			else
-			{
-				// Load from faces of images[0]
-				src = images[0]->getPixelBox(i, 0);
-			}
-
-			if(mGamma != 1.0f) {
-				// Apply gamma correction
-				// Do not overwrite original image but do gamma correction in temporary buffer
-				MemoryDataStreamPtr buf; // for scoped deletion of conversion buffer
-				buf.bind(new MemoryDataStream(
-					PixelUtil::getMemorySize(
-						src.getWidth(), src.getHeight(), src.getDepth(), src.format)));
-				
-				PixelBox corrected = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), src.format, buf->getPtr());
-				PixelUtil::bulkPixelConversion(src, corrected);
-				
-				Image::applyGamma(static_cast<uint8*>(corrected.data), mGamma, corrected.getConsecutiveSize(), 
-					PixelUtil::getNumElemBits(src.format));
-
-				// Destination: entire texture. blitFromMemory does the scaling to
-				// a power of two for us when needed
-				getBuffer(i, 0)->blitFromMemory(corrected);
-			}
-			else 
-			{
-				// Destination: entire texture. blitFromMemory does the scaling to
-				// a power of two for us when needed
-            	getBuffer(i, 0)->blitFromMemory(src);
-			}
-			
+            for(size_t i = 0; i < faces; ++i)
+            {
+                PixelBox src;
+                if(multiImage)
+                {
+                    // Load from multiple images
+                    src = images[i]->getPixelBox(0, mip);
+                }
+                else
+                {
+                    // Load from faces of images[0]
+                    src = images[0]->getPixelBox(i, mip);
+                }
+    
+                if(mGamma != 1.0f) {
+                    // Apply gamma correction
+                    // Do not overwrite original image but do gamma correction in temporary buffer
+                    MemoryDataStreamPtr buf; // for scoped deletion of conversion buffer
+                    buf.bind(new MemoryDataStream(
+                        PixelUtil::getMemorySize(
+                            src.getWidth(), src.getHeight(), src.getDepth(), src.format)));
+                    
+                    PixelBox corrected = PixelBox(src.getWidth(), src.getHeight(), src.getDepth(), src.format, buf->getPtr());
+                    PixelUtil::bulkPixelConversion(src, corrected);
+                    
+                    Image::applyGamma(static_cast<uint8*>(corrected.data), mGamma, corrected.getConsecutiveSize(), 
+                        PixelUtil::getNumElemBits(src.format));
+    
+                    // Destination: entire texture. blitFromMemory does the scaling to
+                    // a power of two for us when needed
+                    getBuffer(i, mip)->blitFromMemory(corrected);
+                }
+                else 
+                {
+                    // Destination: entire texture. blitFromMemory does the scaling to
+                    // a power of two for us when needed
+                    getBuffer(i, mip)->blitFromMemory(src);
+                }
+                
+            }
         }
         // Update size (the final size, not including temp space)
         mSize = getNumFaces() * PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);

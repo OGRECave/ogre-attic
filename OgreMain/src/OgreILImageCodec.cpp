@@ -30,8 +30,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreILImageCodec.h"
 #include "OgreImage.h"
 #include "OgreException.h"
-
 #include "OgreILUtil.h"
+
+#include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 
 #include <IL/il.h>
 #include <IL/ilu.h>
@@ -148,11 +150,7 @@ namespace Ogre {
         imgData->width = ilGetInteger( IL_IMAGE_WIDTH );
         imgData->height = ilGetInteger( IL_IMAGE_HEIGHT );
         imgData->depth = ilGetInteger( IL_IMAGE_DEPTH );
-#if 0   
-        /// XXX reenable this as soon as we support custom mipmaps 
         imgData->num_mipmaps = ilGetInteger ( IL_NUM_MIPMAPS );
-#endif
-        imgData->num_mipmaps = 0;
         imgData->flags = 0;
 		
 		if(imgData->format == PF_UNKNOWN)
@@ -172,56 +170,83 @@ namespace Ogre {
 		size_t numFaces = ilGetInteger ( IL_NUM_IMAGES ) + 1;
         if(numFaces == 6) 
 			imgData->flags |= IF_CUBEMAP;
-
-        // Keep DXT data (if present at all)
+        else
+            numFaces = 1; // Support only 1 or 6 face images for now
+  
+        // Keep DXT data (if present at all and the GPU supports it)
         ILuint dxtFormat = ilGetInteger( IL_DXTC_DATA_FORMAT );
         if(dxtFormat != IL_DXT_NO_COMP && Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
         {
 			imgData->format = ILUtil::ilFormat2OgreFormat( dxtFormat, ImageType );
             imgData->flags |= IF_COMPRESSED;
-			// Compare DXT size returned by DevIL with our idea of the compressed size
-            ILuint dxtSize = ilGetDXTCData(NULL, 0, dxtFormat);
-			assert(dxtSize == PixelUtil::getMemorySize(
-				imgData->width, imgData->height, imgData->depth, imgData->format));
-			imgData->size = dxtSize * numFaces;
-			
-			// Bind output buffer and transfer data
-            output.bind(new MemoryDataStream(imgData->size));
-			
-			unsigned  offset = 0;
-            for(unsigned int i = 0; i < numFaces; i++)
+            
+            // Validate that this devil version saves DXT mipmaps
+            if(imgData->num_mipmaps>0)
             {
-                if(numFaces > 1)
+                ilBindImage(ImageName);
+                ilActiveMipmap(1);
+                if((size_t)ilGetInteger( IL_DXTC_DATA_FORMAT ) != dxtFormat)
                 {
-                    ilBindImage(ImageName);
-                    ilActiveImage(i);
+                    imgData->num_mipmaps=0;
+                    LogManager::getSingleton().logMessage(
+                    "Warning: Custom mipmaps for compressed image "+input->getName()+" were ignored because they are not loaded by this DevIL version");
                 }
-				ilGetDXTCData((unsigned char*)output->getPtr()+offset, dxtSize, dxtFormat);
-
-                offset += dxtSize;
             }
         }
-        else
-        {
-            uint imageSize = PixelUtil::getNumElemBytes(imgData->format) * ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_DEPTH );
-            output.bind(new MemoryDataStream(imageSize * numFaces));
+        
+        // Calculate total size from number of mipmaps, faces and size
+        imgData->size = Image::calculateSize(imgData->num_mipmaps, numFaces, 
+            imgData->width, imgData->height, imgData->depth, imgData->format);
 
-            unsigned  offset = 0;
-            for(unsigned int i = 0; i < numFaces; i++)
+        // Bind output buffer
+        output.bind(new MemoryDataStream(imgData->size));
+        size_t offset = 0;
+        
+        // Dimensions of current mipmap
+        size_t width = imgData->width;
+        size_t height = imgData->height;
+        size_t depth = imgData->depth;
+        
+        // Transfer data
+        for(size_t mip=0; mip<=imgData->num_mipmaps; ++mip)
+        {   
+            for(size_t i = 0; i < numFaces; ++i)
             {
+                ilBindImage(ImageName);
                 if(numFaces > 1)
-                {
-                    ilBindImage(ImageName);
                     ilActiveImage(i);
-                }
-				PixelBox dst(imgData->width, imgData->height, imgData->depth, 
-					imgData->format, (unsigned char*)output->getPtr()+offset);
-                ILUtil::toOgre(dst);
+                if(imgData->num_mipmaps > 0)
+                    ilActiveMipmap(mip);
+                /// Size of this face
+                size_t imageSize = PixelUtil::getMemorySize(
+                        width, height, depth, imgData->format);
+                if(imgData->flags & IF_COMPRESSED)
+                {
 
+                    // Compare DXT size returned by DevIL with our idea of the compressed size
+                    if(imageSize == ilGetDXTCData(NULL, 0, dxtFormat))
+                    {
+                        // Retrieve data from DevIL
+                        ilGetDXTCData((unsigned char*)output->getPtr()+offset, imageSize, dxtFormat);
+                    } else
+                    {
+                        LogManager::getSingleton().logMessage(
+                            "Warning: compressed image "+input->getName()+" size mismatch, devilsize="+StringConverter::toString(ilGetDXTCData(NULL, 0, dxtFormat))+" oursize="+
+                            StringConverter::toString(imageSize));
+                    }
+                }
+                else
+                {
+                    /// Retrieve data from DevIL
+                    PixelBox dst(width, height, depth, imgData->format, (unsigned char*)output->getPtr()+offset);
+                    ILUtil::toOgre(dst);
+                }
                 offset += imageSize;
             }
-
-            imgData->size = imageSize * numFaces;
+            /// Next mip
+            if(width!=1) width /= 2;
+            if(height!=1) height /= 2;
+            if(depth!=1) depth /= 2;
         }
 
         // Restore IL state

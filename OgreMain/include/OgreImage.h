@@ -318,7 +318,8 @@ namespace Ogre {
 		/** Resize a 2D image, applying the appropriate filter. */
 		void resize(ushort width, ushort height, Filter filter = FILTER_BILINEAR);
 		
-
+        // Static function to calculate size in bytes from the number of mipmaps, faces and the dimensions
+        static size_t calculateSize(size_t mipmaps, size_t faces, size_t width, size_t height, size_t depth, PixelFormat format);
     private:
         // The width of the image in pixels
         size_t m_uWidth;
