@@ -341,6 +341,7 @@ int main(int numargs, char** args)
     }
 
     logMgr = new LogManager();
+	logMgr->createLog("OgreMeshUpgrade.log", true);
     rgm = new ResourceGroupManager();
     mth = new Math();
     matMgr = new MaterialManager();
@@ -378,7 +379,7 @@ int main(int numargs, char** args)
     fread( (void*)memstream->getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );
 
-    Mesh mesh(meshMgr, "conversion", 0, "");
+	Mesh mesh(meshMgr, "conversion", 0, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
     DataStreamPtr stream(memstream);
     meshSerializer->importMesh(stream, &mesh);
