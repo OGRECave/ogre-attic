@@ -41,10 +41,7 @@ namespace Ogre {
         class CmdImageAdjust : public ParamCommand
         {
 		public:
-			int		mIndex;
-
-		public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -58,7 +55,7 @@ namespace Ogre {
         void _affectParticles(ParticleSystem* pSystem, Real timeElapsed);
 
 		void setImageAdjust(String name);
-		String getImageAdjust(void);
+		String getImageAdjust(void) const;
         
         
         static CmdImageAdjust	msImageCmd;

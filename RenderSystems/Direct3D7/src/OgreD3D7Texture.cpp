@@ -24,7 +24,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreD3D7Texture.h"
 #include "OgreException.h"
-#include "OgreBitwise.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
 
@@ -465,7 +464,7 @@ HRESULT WINAPI testEnumAtt(
         //mSurface->EnumAttachedSurfaces(NULL, testEnumAtt);
 
 
-        for (int face = 0; face < 6; ++face)
+        for (size_t face = 0; face < 6; ++face)
 		{
 			/* We need a temporary surface in which to load the image data. */
 			LPDIRECTDRAWSURFACE7 pddsTempSurface;
@@ -728,7 +727,7 @@ HRESULT WINAPI testEnumAtt(
             Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
             Image::Rect( 0, 0, Texture::mWidth, Texture::mHeight ) );
         
-        short bytesPerPixel = mFinalBpp >> 3;
+        unsigned short bytesPerPixel = mFinalBpp >> 3;
         if( !mHasAlpha && mFinalBpp == 32 )
         {
             bytesPerPixel--;
@@ -768,7 +767,7 @@ HRESULT WINAPI testEnumAtt(
             Image::Rect( 0, 0, mSrcWidth, mSrcHeight ),
             Image::Rect( 0, 0, Texture::mWidth, Texture::mHeight ) );
         
-        short bytesPerPixel = mFinalBpp >> 3;
+        unsigned short bytesPerPixel = mFinalBpp >> 3;
         if( !mHasAlpha && mFinalBpp == 32 )
         {
             bytesPerPixel--;
@@ -1191,7 +1190,7 @@ HRESULT WINAPI testEnumAtt(
 		ext = fakeName.substr(pos);
 
 		// construct the full 6 faces file names from the baseName, suffixes and extension
-		for (int i = 0; i < 6; ++i)
+		for (size_t i = 0; i < 6; ++i)
 			mCubeFaceNames[i] = baseName + suffixes[i] + ext;
 	}
 

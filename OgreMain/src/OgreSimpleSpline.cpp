@@ -160,10 +160,10 @@ namespace Ogre {
         //
         // Assume endpoint tangents are parallel with line with neighbour
 
-        unsigned int i, numPoints;
+        size_t i, numPoints;
         bool isClosed;
 
-        numPoints = (unsigned int)mPoints.size();
+        numPoints = mPoints.size();
         if (numPoints < 2)
         {
             // Can't do anything yet

@@ -36,70 +36,70 @@ namespace Ogre  {
         class _OgreExport CmdLeft : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdTop : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdWidth : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdHeight : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdCaption : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdMetricsMode : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdHorizontalAlign : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdVerticalAlign : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for GuiElement  - see ParamCommand 
         class _OgreExport CmdVisible : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 

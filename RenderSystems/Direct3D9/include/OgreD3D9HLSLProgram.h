@@ -44,14 +44,14 @@ namespace Ogre {
         class CmdEntryPoint : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for setting target assembler
         class CmdTarget : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -87,13 +87,13 @@ namespace Ogre {
         /** Sets the entry point for this program ie the first method called. */
         void setEntryPoint(const String& entryPoint) { mEntryPoint = entryPoint; }
         /** Gets the entry point defined for this program. */
-        const String& getEntryPoint(void) { return mEntryPoint; }
+        const String& getEntryPoint(void) const { return mEntryPoint; }
         /** Sets the shader target to compile down to, e.g. 'vs_1_1'. */
         void setTarget(const String& target);
         /** Gets the shader target to compile down to, e.g. 'vs_1_1'. */
-        const String& getTarget(void) { return mTarget; }
+        const String& getTarget(void) const { return mTarget; }
         /// Overridden from GpuProgram
-        bool isSupported(void);
+        bool isSupported(void) const;
         /// Overridden from GpuProgram
         GpuProgramParametersSharedPtr createParameters(void);
     };

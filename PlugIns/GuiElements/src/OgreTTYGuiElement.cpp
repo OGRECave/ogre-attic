@@ -781,10 +781,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Char height command object
     //
-    String TTYGuiElement::CmdCharHeight::doGet( void* target )
+    String TTYGuiElement::CmdCharHeight::doGet( const void* target ) const
     {
         return StringConverter::toString( 
-            static_cast< TTYGuiElement* >( target )->getCharHeight() );
+            static_cast< const TTYGuiElement* >( target )->getCharHeight() );
     }
     void TTYGuiElement::CmdCharHeight::doSet( void* target, const String& val )
     {
@@ -794,10 +794,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Space width command object
     //
-    String TTYGuiElement::CmdSpaceWidth::doGet( void* target )
+    String TTYGuiElement::CmdSpaceWidth::doGet( const void* target ) const
     {
         return StringConverter::toString( 
-            static_cast< TTYGuiElement* >( target )->getSpaceWidth() );
+            static_cast< const TTYGuiElement* >( target )->getSpaceWidth() );
     }
     void TTYGuiElement::CmdSpaceWidth::doSet( void* target, const String& val )
     {
@@ -809,9 +809,9 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Font name command object
     //
-    String TTYGuiElement::CmdFontName::doGet( void* target )
+    String TTYGuiElement::CmdFontName::doGet( const void* target ) const
     {
-        return static_cast< TTYGuiElement* >( target )->getFontName();
+        return static_cast< const TTYGuiElement* >( target )->getFontName();
     }
     void TTYGuiElement::CmdFontName::doSet( void* target, const String& val )
     {
@@ -821,10 +821,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Colour command object
     //
-    String TTYGuiElement::CmdColour::doGet( void* target )
+    String TTYGuiElement::CmdColour::doGet( const void* target ) const
     {
         return StringConverter::toString (
-            static_cast< TTYGuiElement* >( target )->getColour());
+            static_cast< const TTYGuiElement* >( target )->getColour());
     }
     void TTYGuiElement::CmdColour::doSet( void* target, const String& val )
     {
@@ -836,10 +836,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Top colour command object
     //
-    String TTYGuiElement::CmdColourTop::doGet( void* target )
+    String TTYGuiElement::CmdColourTop::doGet( const void* target ) const
     {
         return StringConverter::toString (
-            static_cast< TTYGuiElement* >( target )->getColourTop());
+            static_cast< const TTYGuiElement* >( target )->getColourTop());
     }
     void TTYGuiElement::CmdColourTop::doSet( void* target, const String& val )
     {
@@ -851,10 +851,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Bottom colour command object
     //
-    String TTYGuiElement::CmdColourBottom::doGet( void* target )
+    String TTYGuiElement::CmdColourBottom::doGet( const void* target ) const
     {
         return StringConverter::toString (
-            static_cast< TTYGuiElement* >( target )->getColourBottom());
+            static_cast< const TTYGuiElement* >( target )->getColourBottom());
     }
     void TTYGuiElement::CmdColourBottom::doSet( void* target, const String& val )
     {
@@ -865,10 +865,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Text limit command object
     //
-    String TTYGuiElement::CmdTextLimit::doGet( void* target )
+    String TTYGuiElement::CmdTextLimit::doGet( const void* target ) const
     {
          return StringConverter::toString( 
-            static_cast< TTYGuiElement* >( target )->getTextLimit() );
+            static_cast< const TTYGuiElement* >( target )->getTextLimit() );
 
     }
     void TTYGuiElement::CmdTextLimit::doSet( void* target, const String& val )
@@ -880,10 +880,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // ScrollBar command object
     //
-    String TTYGuiElement::CmdScrollBar::doGet( void* target )
+    String TTYGuiElement::CmdScrollBar::doGet( const void* target ) const
     {
-        ScrollBarGuiElement *scrollBar;
-        scrollBar = static_cast< TTYGuiElement* >( target )->getScrollBar();
+        const ScrollBarGuiElement *scrollBar = 
+			static_cast< const TTYGuiElement* >( target )->getScrollBar();
         return (scrollBar != NULL) ? scrollBar->getName() : "";
     }
     void TTYGuiElement::CmdScrollBar::doSet( void* target, const String& val )

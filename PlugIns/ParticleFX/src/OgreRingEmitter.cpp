@@ -115,12 +115,12 @@ namespace Ogre {
         mInnerSizey = y;
     }
     //-----------------------------------------------------------------------
-    Real RingEmitter::getInnerSizeX(void)
+    Real RingEmitter::getInnerSizeX(void) const
     {
         return mInnerSizex;
     }
     //-----------------------------------------------------------------------
-    Real RingEmitter::getInnerSizeY(void)
+    Real RingEmitter::getInnerSizeY(void) const
     {
         return mInnerSizey;
     }
@@ -129,20 +129,20 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String RingEmitter::CmdInnerX::doGet(void* target)
+    String RingEmitter::CmdInnerX::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<RingEmitter*>(target)->getInnerSizeX() );
+            static_cast<const RingEmitter*>(target)->getInnerSizeX() );
     }
     void RingEmitter::CmdInnerX::doSet(void* target, const String& val)
     {
         static_cast<RingEmitter*>(target)->setInnerSizeX(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String RingEmitter::CmdInnerY::doGet(void* target)
+    String RingEmitter::CmdInnerY::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<RingEmitter*>(target)->getInnerSizeY() );
+            static_cast<const RingEmitter*>(target)->getInnerSizeY() );
     }
     void RingEmitter::CmdInnerY::doSet(void* target, const String& val)
     {

@@ -481,13 +481,13 @@ namespace Ogre {
 		*/
 		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
         /** Gets the usage setting for this meshes vertex buffers. */
-        HardwareBuffer::Usage getVertexBufferUsage(void) { return mVertexBufferUsage; }
+        HardwareBuffer::Usage getVertexBufferUsage(void) const { return mVertexBufferUsage; }
         /** Gets the usage setting for this meshes index buffers. */
-        HardwareBuffer::Usage getIndexBufferUsage(void) { return mIndexBufferUsage; }
+        HardwareBuffer::Usage getIndexBufferUsage(void) const { return mIndexBufferUsage; }
         /** Gets whether or not this meshes vertex buffers are shadowed. */
-        bool isVertexBufferShadowed(void) { return mVertexBufferShadowBuffer; }
+        bool isVertexBufferShadowed(void) const { return mVertexBufferShadowBuffer; }
         /** Gets whether or not this meshes index buffers are shadowed. */
-        bool isIndexBufferShadowed(void) { return mIndexBufferShadowBuffer; }
+        bool isIndexBufferShadowed(void) const { return mIndexBufferShadowBuffer; }
        
 
         /** Rationalises the passed in bone assignment list.

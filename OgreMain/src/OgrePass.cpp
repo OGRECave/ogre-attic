@@ -727,7 +727,7 @@ namespace Ogre {
         }
     }
     // --------------------------------------------------------------------
-    void Pass::setTextureAnisotropy(int maxAniso)
+    void Pass::setTextureAnisotropy(unsigned int maxAniso)
     {
         TextureUnitStates::iterator i, iend;
         iend = mTextureUnitStates.end();

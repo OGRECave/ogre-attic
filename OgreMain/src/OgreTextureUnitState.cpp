@@ -81,7 +81,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    TextureUnitState::TextureUnitState( Pass* parent, const String& texName, int texCoordSet)
+    TextureUnitState::TextureUnitState( Pass* parent, const String& texName, unsigned int texCoordSet)
         :mParent(parent)
     {
         mIsBlank = true;
@@ -227,7 +227,7 @@ namespace Ogre {
         mCubic = true;
         mTextureType = forUVW ? TEX_TYPE_CUBE_MAP : TEX_TYPE_2D;
 
-        for (int i = 0; i < mNumFrames; ++i)
+        for (unsigned int i = 0; i < mNumFrames; ++i)
         {
             mFrames[i] = names[i];
         }
@@ -251,7 +251,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setAnimatedTextureName( const String& name, int numFrames, Real duration)
+    void TextureUnitState::setAnimatedTextureName( const String& name, unsigned int numFrames, Real duration)
     {
         String ext;
         String baseName;
@@ -271,7 +271,7 @@ namespace Ogre {
         mCurrentFrame = 0;
         mCubic = false;
 
-        for (int i = 0; i < mNumFrames; ++i)
+        for (unsigned int i = 0; i < mNumFrames; ++i)
         {
             char suffix[5];
             sprintf(suffix, "_%d", i);
@@ -289,7 +289,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setAnimatedTextureName(const String* const names, int numFrames, Real duration)
+    void TextureUnitState::setAnimatedTextureName(const String* const names, unsigned int numFrames, Real duration)
     {
         if (numFrames > MAX_FRAMES)
         {
@@ -302,7 +302,7 @@ namespace Ogre {
         mCurrentFrame = 0;
         mCubic = false;
 
-        for (int i = 0; i < mNumFrames; ++i)
+        for (unsigned int i = 0; i < mNumFrames; ++i)
         {
             mFrames[i] = names[i];
         }
@@ -316,7 +316,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    std::pair< uint, uint > TextureUnitState::getTextureDimensions( int frame ) const
+    std::pair< uint, uint > TextureUnitState::getTextureDimensions( unsigned int frame ) const
     {
         Texture *tex = (Texture *)TextureManager::getSingleton().getByName( mFrames[ frame ] );
 		if (!tex)
@@ -325,7 +325,7 @@ namespace Ogre {
         return std::pair< uint, uint >( tex->getWidth(), tex->getHeight() );
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setCurrentFrame(int frameNumber)
+    void TextureUnitState::setCurrentFrame(unsigned int frameNumber)
     {
         assert(frameNumber < mNumFrames);
         mCurrentFrame = frameNumber;
@@ -334,28 +334,28 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    int TextureUnitState::getCurrentFrame(void) const
+    unsigned int TextureUnitState::getCurrentFrame(void) const
     {
         return mCurrentFrame;
     }
     //-----------------------------------------------------------------------
-    int TextureUnitState::getNumFrames(void) const
+    unsigned int TextureUnitState::getNumFrames(void) const
     {
         return mNumFrames;
     }
     //-----------------------------------------------------------------------
-    const String& TextureUnitState::getFrameTextureName(int frameNumber) const
+    const String& TextureUnitState::getFrameTextureName(unsigned int frameNumber) const
     {
         assert(frameNumber < mNumFrames);
         return mFrames[frameNumber];
     }
     //-----------------------------------------------------------------------
-    int TextureUnitState::getTextureCoordSet(void) const
+    unsigned int TextureUnitState::getTextureCoordSet(void) const
     {
         return mTextureCoordSetIndex;
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::setTextureCoordSet(int set)
+    void TextureUnitState::setTextureCoordSet(unsigned int set)
     {
         mTextureCoordSetIndex = set;
     }
@@ -694,7 +694,7 @@ namespace Ogre {
     void TextureUnitState::_load(void)
     {
         // Load textures
-        for (int i = 0; i < mNumFrames; ++i)
+        for (unsigned int i = 0; i < mNumFrames; ++i)
         {
             if (mFrames[i] != "")
             {
@@ -859,13 +859,13 @@ namespace Ogre {
 	}
 
 	//-----------------------------------------------------------------------
-	void TextureUnitState::setTextureAnisotropy(int maxAniso)
+	void TextureUnitState::setTextureAnisotropy(unsigned int maxAniso)
 	{
 		mMaxAniso = maxAniso;
         mIsDefaultAniso = false;
 	}
 	//-----------------------------------------------------------------------
-	int TextureUnitState::getTextureAnisotropy() const
+	unsigned int TextureUnitState::getTextureAnisotropy() const
 	{
         return mIsDefaultAniso? MaterialManager::getSingleton().getDefaultAnisotropy() : mMaxAniso;
 	}

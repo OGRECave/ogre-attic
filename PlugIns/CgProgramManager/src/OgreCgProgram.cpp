@@ -98,7 +98,7 @@ namespace Ogre {
     {
         if (mCgArguments)
         {
-            int index = 0;
+            size_t index = 0;
             char* current = mCgArguments[index];
             while (current)
             {
@@ -241,9 +241,9 @@ namespace Ogre {
         // unload will be called by superclass
     }
     //-----------------------------------------------------------------------
-    bool CgProgram::isSupported(void)
+    bool CgProgram::isSupported(void) const
     {
-        StringVector::iterator i, iend;
+        StringVector::const_iterator i, iend;
         iend = mProfiles.end();
         // Check to see if any of the profiles are supported
         for (i = mProfiles.begin(); i != iend; ++i)
@@ -269,28 +269,28 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String CgProgram::CmdEntryPoint::doGet(void *target)
+    String CgProgram::CmdEntryPoint::doGet(const void *target) const
     {
-        return static_cast<CgProgram*>(target)->getEntryPoint();
+        return static_cast<const CgProgram*>(target)->getEntryPoint();
     }
     void CgProgram::CmdEntryPoint::doSet(void *target, const String& val)
     {
         static_cast<CgProgram*>(target)->setEntryPoint(val);
     }
     //-----------------------------------------------------------------------
-    String CgProgram::CmdProfiles::doGet(void *target)
+    String CgProgram::CmdProfiles::doGet(const void *target) const
     {
         return StringConverter::toString(
-            static_cast<CgProgram*>(target)->getProfiles() );
+            static_cast<const CgProgram*>(target)->getProfiles() );
     }
     void CgProgram::CmdProfiles::doSet(void *target, const String& val)
     {
         static_cast<CgProgram*>(target)->setProfiles(val.split());
     }
     //-----------------------------------------------------------------------
-    String CgProgram::CmdArgs::doGet(void *target)
+    String CgProgram::CmdArgs::doGet(const void *target) const
     {
-        return static_cast<CgProgram*>(target)->getCompileArguments();
+        return static_cast<const CgProgram*>(target)->getCompileArguments();
     }
     void CgProgram::CmdArgs::doSet(void *target, const String& val)
     {

@@ -167,7 +167,7 @@ namespace Ogre {
         newEnt = mCreatorSceneManager->createEntity( newName, getMesh()->getName() );
         // Copy material settings
         SubEntityList::iterator i;
-        int n = 0;
+        unsigned int n = 0;
         for (i = mSubEntityList.begin(); i != mSubEntityList.end(); ++i, ++n)
         {
             newEnt->getSubEntity(n)->setMaterialName((*i)->getMaterialName());
@@ -388,7 +388,7 @@ namespace Ogre {
 		
         // Apply our current world transform to these too, since these are used as
         // replacement world matrices
-		int i;
+		unsigned short i;
         Matrix4 worldXform = _getParentNodeFullTransform();
 		mNumBoneMatrices = theMesh->_getNumBoneMatrices();
 
@@ -425,7 +425,7 @@ namespace Ogre {
 	void Entity::buildSubEntityList(Mesh* mesh, SubEntityList* sublist)
 	{
         // Create SubEntities
-        int i, numSubMeshes;
+        unsigned short i, numSubMeshes;
         SubMesh* subMesh;
         SubEntity* subEnt;
 

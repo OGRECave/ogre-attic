@@ -244,7 +244,7 @@ namespace Ogre {
         /** Gets an iterator over the automatic constant bindings currently in place. */
         AutoConstantIterator getAutoConstantIterator(void);
         /** Returns true if this instance has any automatic constants. */
-        bool hasAutoConstants(void){ return !(mAutoConstants.empty()); }
+        bool hasAutoConstants(void) const { return !(mAutoConstants.empty()); }
         /** Updates the automatic parameters (except lights) based on the details provided. */
         void _updateAutoParamsNoLights(const AutoParamDataSource& source);
         /** Updates the automatic parameters for lights based on the details provided. */
@@ -390,7 +390,7 @@ namespace Ogre {
         void _mapParameterNameToIndex(const String& name, size_t index);
 
         /** Gets the constant index associated with a named parameter. */
-        size_t getParamIndex(const String& name);
+        size_t getParamIndex(const String& name) const;
 
         /** Sets whether or not we need to transpose the matrices passed in from the rest of OGRE.
         @remarks
@@ -401,7 +401,7 @@ namespace Ogre {
         */
         void setTransposeMatrices(bool val) { mTransposeMatrices = val; } 
         /// Gets whether or not matrices are to be transposed when set
-        bool getTransposeMatrices(void ) { return mTransposeMatrices; } 
+        bool getTransposeMatrices(void) const { return mTransposeMatrices; } 
 
     };
 
@@ -467,7 +467,7 @@ namespace Ogre {
         virtual GpuProgram* _getBindingDelegate(void) { return this; }
 
         /** Returns whether this program can be supported on the current renderer and hardware. */
-        virtual bool isSupported(void);
+        virtual bool isSupported(void) const;
 
         /** Creates a new parameters object compatible with this program definition. 
         @remarks

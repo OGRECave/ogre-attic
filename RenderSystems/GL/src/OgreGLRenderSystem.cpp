@@ -100,7 +100,7 @@ namespace Ogre {
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
     {
-        int i;
+        unsigned int i;
 
         OgreGuard( "GLRenderSystem::GLRenderSystem" );
 
@@ -500,7 +500,7 @@ namespace Ogre {
 
 
     RenderWindow* GLRenderSystem::createRenderWindow(
-            const String & name, int width, int height, int colourDepth,
+            const String & name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, 
             RenderWindow* parentWindowHandle)
     {
@@ -531,7 +531,7 @@ namespace Ogre {
         return win;
     }
 
-    RenderTexture * GLRenderSystem::createRenderTexture( const String & name, int width, int height )
+    RenderTexture * GLRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height )
     {
         RenderTexture* rt = new GLRenderTexture(name, width, height);
         attachRenderTarget(*rt);
@@ -576,9 +576,9 @@ namespace Ogre {
 
     }
 
-    void GLRenderSystem::setGLLight(int index, Light* lt)
+    void GLRenderSystem::setGLLight(size_t index, Light* lt)
     {
-        GLint gl_index = GL_LIGHT0 + index;
+        GLenum gl_index = GL_LIGHT0 + index;
 
         if (!lt)
         {
@@ -632,10 +632,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m)
     {
-        int x = 0;
-        for (int i=0; i < 4; i++)
+        size_t x = 0;
+        for (size_t i=0; i < 4; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (size_t j = 0; j < 4; j++)
             {
                 gl_matrix[x] = m[j][i];
                 x++;
@@ -981,7 +981,7 @@ namespace Ogre {
 
 	void GLRenderSystem::setLights()
 	{
-        for (int i = 0; i < MAX_LIGHTS; ++i)
+        for (size_t i = 0; i < MAX_LIGHTS; ++i)
         {
             if (mLights[i] != NULL)
             {
@@ -1484,7 +1484,7 @@ namespace Ogre {
 		return curAniso ? curAniso : 1;
 	}
 	//---------------------------------------------------------------------
-	void GLRenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
+	void GLRenderSystem::_setTextureLayerAnisotropy(size_t unit, unsigned int maxAnisotropy)
 	{
        if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
 			return;
@@ -1682,7 +1682,7 @@ namespace Ogre {
         glActiveTextureARB_ptr(GL_TEXTURE0);
 	}
     //---------------------------------------------------------------------
-    void GLRenderSystem::setGLLightPositionDirection(Light* lt, int lightindex)
+    void GLRenderSystem::setGLLightPositionDirection(Light* lt, size_t lightindex)
     {
         // Set position / direction
         Vector3 vec;
@@ -1762,7 +1762,7 @@ namespace Ogre {
                 pBufferData = static_cast<const GLDefaultHardwareVertexBuffer*>(vertexBuffer.get())->getDataPtr(elem->getOffset());
             }
 
-            int i = 0;
+            unsigned int i = 0;
 
             switch(elem->getSemantic())
             {

@@ -47,7 +47,7 @@ namespace Ogre {
 		destroy();
     }
 
-    void Win32Window::create(const String& name, int width, int height, int colourDepth,
+    void Win32Window::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
                            bool fullScreen, int left, int top, bool depthBuffer,
                            void* miscParam, ...)
     {
@@ -74,7 +74,7 @@ namespace Ogre {
 		bool vsync = (tempPtr != 0);
 
 		tempPtr = va_arg( marker, long );
-		int displayFrequency = static_cast<int>(tempPtr);
+		unsigned int displayFrequency = static_cast<unsigned int>(tempPtr);
 
 		va_end( marker );
 
@@ -97,7 +97,7 @@ namespace Ogre {
 			mHeight = height;
 			if (!fullScreen)
 			{
-				if (!left && GetSystemMetrics(SM_CXSCREEN) > mWidth)
+				if (!left && (unsigned)GetSystemMetrics(SM_CXSCREEN) > mWidth)
                 {
 					mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
                 }
@@ -105,7 +105,7 @@ namespace Ogre {
                 {
 					mLeft = left;
                 }
-				if (!top && GetSystemMetrics(SM_CYSCREEN) > mHeight)
+				if (!top && (unsigned)GetSystemMetrics(SM_CYSCREEN) > mHeight)
                 {
 					mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
                 }
@@ -236,12 +236,12 @@ namespace Ogre {
         mActive = false;
     }
 
-    bool Win32Window::isActive()
+    bool Win32Window::isActive() const
     {
         return mActive;
     }
 
-    bool Win32Window::isClosed()
+    bool Win32Window::isClosed() const
     {
         return mClosed;
     }
@@ -251,7 +251,7 @@ namespace Ogre {
         // XXX FIXME
     }
 
-    void Win32Window::resize(int width, int height)
+    void Win32Window::resize(unsigned int width, unsigned int height)
     {
 
 		mWidth = width;

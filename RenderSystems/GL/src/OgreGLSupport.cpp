@@ -80,7 +80,7 @@ namespace Ogre {
         ext.str("");
     }
 
-    bool GLSupport::checkMinGLVersion(const String& v)
+    bool GLSupport::checkMinGLVersion(const String& v) const
     {
         unsigned int first, second, third;
         unsigned int cardFirst, cardSecond, cardThird;
@@ -117,7 +117,7 @@ namespace Ogre {
         return false;
     }
 
-    bool GLSupport::checkExtension(const String& ext)
+    bool GLSupport::checkExtension(const String& ext) const
     {
         if(extensionList.find(ext) == extensionList.end())
             return false; 

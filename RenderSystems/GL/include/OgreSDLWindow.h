@@ -45,18 +45,18 @@ namespace Ogre {
         SDLWindow();
         ~SDLWindow();
 
-        void create(const String& name, int width, int height, int colourDepth,
+        void create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ...);
         /** Overridden - see RenderWindow */
         void destroy(void);
         /** Overridden - see RenderWindow */
-        bool isActive(void);
+        bool isActive(void) const;
         /** Overridden - see RenderWindow */
-        bool isClosed(void);
+        bool isClosed(void) const;
         /** Overridden - see RenderWindow */
         void reposition(int left, int top);
         /** Overridden - see RenderWindow */
-        void resize(int width, int height);
+        void resize(unsigned int width, unsigned int height);
         /** Overridden - see RenderWindow */
         void swapBuffers(bool waitForVSync);
 

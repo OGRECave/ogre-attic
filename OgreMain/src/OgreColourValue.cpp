@@ -25,8 +25,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreColourValue.h"
 
-#include "OgreBitwise.h"
-
 namespace Ogre {
 
     ColourValue ColourValue::Black = ColourValue(0.0,0.0,0.0);

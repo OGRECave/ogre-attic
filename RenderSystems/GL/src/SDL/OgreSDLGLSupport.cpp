@@ -1,5 +1,6 @@
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 
 #include "OgreSDLGLSupport.h"
 
@@ -40,7 +41,7 @@ void SDLGLSupport::addConfig(void)
     // Video mode possiblities
     optVideoMode.name = "Video Mode";
     optVideoMode.immutable = false;
-    for (int i = 0; mVideoModes[i]; i++)
+    for (size_t i = 0; mVideoModes[i]; i++)
     {
         char szBuf[16];
 		snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
@@ -78,8 +79,8 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
         if (pos == String::npos)
             Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
 
-        int w = atoi(val.substr(0, pos).c_str());
-        int h = atoi(val.substr(pos + 1).c_str());
+        unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
+        unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
 
         return renderSystem->createRenderWindow("OGRE Render Window", w, h, 32, fullscreen);
     }
@@ -90,7 +91,7 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
     }
 }
 
-RenderWindow* SDLGLSupport::newWindow(const String& name, int width, int height, int colourDepth,
+RenderWindow* SDLGLSupport::newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
         bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
 		bool vsync)
 {

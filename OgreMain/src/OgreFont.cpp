@@ -112,10 +112,11 @@ namespace Ogre
     {
         std::pair< uint, uint > ret( 0, 0 );
         Real vsX, vsY, veX, veY;
-        int w, h; 
+        unsigned int w, h; 
         
         // These are not used, but are required byt the function calls.
-        int cdepth, left, top;
+        unsigned int cdepth;
+		int left, top;
 
         window.getMetrics( w, h, cdepth, left, top );
 

@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D7Device.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
-#include "OgreBitwise.h"
 
 namespace Ogre {
     DDDriver DDDriver::operator=(const DDDriver &orig)
@@ -169,7 +168,7 @@ namespace Ogre {
 
     }
 
-    void DDDriver::createWindowSurfaces(HWND hWnd, int width, int height, int colourDepth, bool fullScreen,
+    void DDDriver::createWindowSurfaces(HWND hWnd, unsigned int width, unsigned int height, unsigned int colourDepth, bool fullScreen,
             LPDIRECTDRAWSURFACE7 *front, LPDIRECTDRAWSURFACE7 *back)
     {
 
@@ -299,12 +298,12 @@ namespace Ogre {
     }
 
 
-    String DDDriver::DriverName(void)
+    String DDDriver::DriverName(void) const
     {
         return mDriverName;
     }
 
-    String DDDriver::DriverDescription(void)
+    String DDDriver::DriverDescription(void) const
     {
         return mDriverDesc;
     }
@@ -510,30 +509,30 @@ namespace Ogre {
         }
     }
 
-    bool DDDriver::RunningFullScreen(void)
+    bool DDDriver::RunningFullScreen(void) const
     {
         return runningFullScreen;
     }
 
-    RECT DDDriver::ViewportRect(void)
+    RECT DDDriver::ViewportRect(void) const
     {
         return rcViewport;
     }
 
-    bool DDDriver::CanRenderWindowed(void)
+    bool DDDriver::CanRenderWindowed(void) const
     {
         return (mHWCaps.dwCaps2 & DDCAPS2_CANRENDERWINDOWED) > 0;
     }
 
 
-    bool DDDriver::Has3DAcceleration(void)
+    bool DDDriver::Has3DAcceleration(void) const
     {
         return (mHWCaps.dwCaps & DDCAPS_3D);
     }
 
 
 
-    void DDDriver::GetDisplayDetails(int& width, int& height, int& colourDepth)
+    void DDDriver::GetDisplayDetails(unsigned int& width, unsigned int& height, unsigned int& colourDepth)
     {
         // Get details from primary surface
         // This works for both windowed and fullscreen modes
@@ -553,7 +552,7 @@ namespace Ogre {
         }
     }
 
-    void DDDriver::logCaps(void)
+    void DDDriver::logCaps(void) const
     {
         // Sends capabilities of this driver to the log
         char msg[255];

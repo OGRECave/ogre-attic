@@ -61,7 +61,7 @@ namespace Ogre {
 
         DDCAPS mSWCaps; // Software capabilities
         DDCAPS mHWCaps; // Hardware capabilities
-        void logCaps(void);
+        void logCaps(void) const;
 
         LPDIRECTDRAWSURFACE7 lpDDSPrimary; // Pointer to primary surface
         LPDIRECTDRAWSURFACE7 lpDDSBack; // Pointer to back buffer
@@ -111,7 +111,7 @@ namespace Ogre {
 				Pointer to a pointer which will be filled with the interface to the back buffer on return.
 				Only relevant if fullScreen = false.
          */
-        void createWindowSurfaces(HWND hWnd, int width, int height, int colourDepth, bool fullScreen,
+        void createWindowSurfaces(HWND hWnd, unsigned int width, unsigned int height, unsigned int colourDepth, bool fullScreen,
             LPDIRECTDRAWSURFACE7 *front, LPDIRECTDRAWSURFACE7 *back);
 
         void Cleanup(void);
@@ -121,8 +121,8 @@ namespace Ogre {
         DDDriver operator=(const DDDriver &orig);
 
         // Information accessors
-        String DriverName(void);
-        String DriverDescription(void);
+        String DriverName(void) const;
+        String DriverDescription(void) const;
         LPDIRECTDRAW7 directDraw(); // Gets lpDD7 (instantiates if required)
 
         D3DDeviceList* get3DDeviceList(void);
@@ -134,15 +134,15 @@ namespace Ogre {
 
         void OutputText(int x, int y, char* text);
         void FlipBuffers(void);
-        bool RunningFullScreen(void);
-        RECT ViewportRect(void);
+        bool RunningFullScreen(void) const;
+        RECT ViewportRect(void) const;
 
         // Capabilities
-        bool Has3DAcceleration(void);
-        bool CanRenderWindowed(void);
+        bool Has3DAcceleration(void) const;
+        bool CanRenderWindowed(void) const;
 
         // Generalised info
-        void GetDisplayDetails(int& width, int& height, int& colourDepth);
+        void GetDisplayDetails(unsigned int& width, unsigned int& height, unsigned int& colourDepth);
     };
 }
 

@@ -58,8 +58,8 @@ namespace Ogre {
         BOOL enumerate(void); //Forces an enumeration / re-enumeration
 
         // List accessors
-        D3DDevice* item(int index);
-        unsigned int count(void);
+        D3DDevice* item(size_t index);
+        size_t count(void);
 
         /**
           Retrieves the 'best' 3D device type
@@ -71,7 +71,7 @@ namespace Ogre {
           mode so may be preferred. In addition some HALs don't support the full range of rendering bit depths
           (e.g. Matrox Millennium 1/2) so if a 32-bit colour depth is chosen, software mode must be used.
         */
-        D3DDevice* getBest(int minColourDepth);
+        D3DDevice* getBest(unsigned int minColourDepth);
 
 
         // Non-member callbacks

@@ -31,26 +31,51 @@ namespace Ogre {
 
     /** Class for manipulating bit patterns.
     */
-    class _OgreExport Bitwise {
+    class Bitwise {
     public:
-        typedef unsigned char BYTE;
-        typedef unsigned short WORD;
-        typedef unsigned long DWORD;
-
         /** Returns the number of bits a pattern must be shifted right by to
             remove right-hand zeroes.
         */
-        static int getBitShift(DWORD mask);
+		template<typename T>
+        static FORCEINLINE unsigned int getBitShift(T mask)
+		{
+			if (mask == 0)
+				return 0;
+
+			unsigned int result = 0;
+			while ((mask & 1) == 0) {
+				++result;
+				mask >>= 1;
+			}
+			return result;
+		}
 
         /** Takes a value with a given src bit mask, and produces another
             value with a desired bit mask.
             @remarks
-                For flexibility, values are passed in as void pointers and
-                the size of the bit patterns are determined by params.
                 This routine is useful for colour conversion.
         */
-        static void convertBitPattern(void* srcValue, void* srcBitMask, int srcBitCount,
-                       void* destValue, void* destBitMask, int destBitCount);
+		template<typename SrcT, typename DestT>
+        static inline DestT convertBitPattern(SrcT srcValue, SrcT srcBitMask, DestT destBitMask)
+		{
+			// Mask off irrelevant source value bits (if any)
+			srcValue = srcValue & srcBitMask;
+
+			// Shift source down to bottom of DWORD
+			const unsigned int srcBitShift = getBitShift(srcBitMask);
+			srcValue >>= srcBitShift;
+
+			// Get max value possible in source from srcMask
+			const SrcT srcMax = srcBitMask >> srcBitShift;
+
+			// Get max avaiable in dest
+			const unsigned int destBitShift = getBitShift(destBitMask);
+			const DestT destMax = destBitMask >> destBitShift;
+
+			// Scale source value into destination, and shift back
+			DestT destValue = (srcValue * destMax) / srcMax;
+			return (destValue << destBitShift);
+		}
     };
 }
 

@@ -67,28 +67,28 @@ namespace Ogre {
         class CmdItemTemplate : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdVSpacing : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdHSpacing : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdItemPanelMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -96,7 +96,7 @@ namespace Ogre {
         class CmdItemPanelMaterialSelected : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -104,7 +104,7 @@ namespace Ogre {
         class CmdScrollBar : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -113,9 +113,9 @@ namespace Ogre {
 		virtual void setItemTemplateName(const String& val);
 		virtual void addListItem(Resource* r);
 		virtual void removeListItem(Resource* r);
-		virtual String getItemTemplateName();
- 		virtual Real getVSpacing();
- 		virtual Real getHSpacing();
+		virtual String getItemTemplateName() const;
+ 		virtual Real getVSpacing() const;
+ 		virtual Real getHSpacing() const;
  		virtual void setVSpacing(Real val);
  		virtual void setHSpacing(Real val);
 
@@ -128,13 +128,13 @@ namespace Ogre {
 		void mouseMoved(MouseEvent* e) ;
 		void setSelectedIndex(size_t index);
 
-		virtual String getItemPanelMaterial();
-		virtual String getItemPanelMaterialSelected();
+		virtual String getItemPanelMaterial() const;
+		virtual String getItemPanelMaterialSelected() const;
 		virtual void setItemPanelMaterial(const String& val);
 		virtual void setItemPanelMaterialSelected(const String& val);
 
 		virtual void setScrollBarName(const String& val);
-		virtual String getScrollBarName();
+		virtual String getScrollBarName() const;
 
 		void scrollPerformed(ScrollEvent* se);
 
@@ -143,10 +143,10 @@ namespace Ogre {
 
 
 		virtual Resource* getSelectedItem();
-		virtual int getSelectedIndex();
+		virtual int getSelectedIndex() const;
 
-		virtual ResourceListConstIterator getConstIterator();
-		virtual ResourceListConstIterator getConstEndIterator();
+		virtual ResourceListConstIterator getConstIterator() const;
+		virtual ResourceListConstIterator getConstEndIterator() const;
 
 		virtual Resource* popFront() ;
 		virtual size_t getListSize() const;
@@ -160,8 +160,8 @@ namespace Ogre {
 		virtual void setSelectedItem(GuiElement* item);
 
 	    void addBaseParameters(void);
-		String getListItemName(Resource* r);
-		String getListItemPanelName(Resource* r);
+		String getListItemName(Resource* r) const;
+		String getListItemPanelName(Resource* r) const;
 
         static CmdItemTemplate msCmdItemTemplate;
         static CmdVSpacing msCmdVSpacing;

@@ -63,12 +63,12 @@ namespace Ogre
 		driverCount--;
 	}
 
-	String D3D9Driver::DriverName()
+	String D3D9Driver::DriverName() const
 	{
 		return String(mAdapterIdentifier.Driver);
 	}
 
-	String D3D9Driver::DriverDescription()
+	String D3D9Driver::DriverDescription() const
 	{
 		return String(mAdapterIdentifier.Description);
 	}

@@ -156,7 +156,7 @@ namespace Ogre
         class CmdCaption : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -166,7 +166,7 @@ namespace Ogre
         class CmdCharHeight : public ParamCommand
         {
         public:
-            String doGet( void* target);
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ namespace Ogre
         class CmdSpaceWidth : public ParamCommand
         {
         public:
-            String doGet( void* target);
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ namespace Ogre
         class CmdFontName : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ namespace Ogre
         class CmdColourTop : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -206,7 +206,7 @@ namespace Ogre
         class CmdColourBottom : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ namespace Ogre
         class CmdColour : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ namespace Ogre
         class CmdTextLimit : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
         //-----------------------------------------------------------------------------------------
@@ -236,7 +236,7 @@ namespace Ogre
         class CmdScrollBar : public ParamCommand
         {
         public:
-            String doGet( void* target );
+            String doGet( const void* target ) const;
             void doSet( void* target, const String& val );
         };
 

@@ -76,7 +76,7 @@ namespace Ogre
         mIsLoaded = true;
     }
 	//-----------------------------------------------------------------------------
-    bool GpuProgram::isSupported(void)
+    bool GpuProgram::isSupported(void) const
     {
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
@@ -267,9 +267,9 @@ namespace Ogre
         mParamNameMap[name] = index;
     }
     //---------------------------------------------------------------------------
-    size_t GpuProgramParameters::getParamIndex(const String& name)
+    size_t GpuProgramParameters::getParamIndex(const String& name) const
     {
-        ParamNameMap::iterator i = mParamNameMap.find(name);
+        ParamNameMap::const_iterator i = mParamNameMap.find(name);
         if (i == mParamNameMap.end())
         {
             Except(Exception::ERR_ITEM_NOT_FOUND, "Cannot find a parameter named " + name,

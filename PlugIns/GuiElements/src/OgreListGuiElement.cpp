@@ -108,9 +108,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
 
     //-----------------------------------------------------------------------
-    String ListGuiElement::CmdItemTemplate::doGet(void* target)
+    String ListGuiElement::CmdItemTemplate::doGet(const void* target) const
     {
-        return static_cast<ListGuiElement*>(target)->getItemTemplateName();
+        return static_cast<const ListGuiElement*>(target)->getItemTemplateName();
     }
     void ListGuiElement::CmdItemTemplate::doSet(void* target, const String& val)
     {
@@ -119,9 +119,9 @@ namespace Ogre {
         static_cast<ListGuiElement*>(target)->setItemTemplateName(val);
     }
     //-----------------------------------------------------------------------
-    String ListGuiElement::CmdVSpacing::doGet(void* target)
+    String ListGuiElement::CmdVSpacing::doGet(const void* target) const
     {
-		ListGuiElement *t = static_cast<ListGuiElement*>(target);
+		const ListGuiElement *t = static_cast<const ListGuiElement*>(target);
 		return StringConverter::toString(t->getVSpacing());
     }
     void ListGuiElement::CmdVSpacing::doSet(void* target, const String& val)
@@ -132,9 +132,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String ListGuiElement::CmdScrollBar::doGet(void* target)
+    String ListGuiElement::CmdScrollBar::doGet(const void* target) const
     {
-        return static_cast<ListGuiElement*>(target)->getScrollBarName();
+        return static_cast<const ListGuiElement*>(target)->getScrollBarName();
     }
     void ListGuiElement::CmdScrollBar::doSet(void* target, const String& val)
     {
@@ -145,9 +145,9 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-    String ListGuiElement::CmdHSpacing::doGet(void* target)
+    String ListGuiElement::CmdHSpacing::doGet(const void* target) const
     {
-		ListGuiElement *t = static_cast<ListGuiElement*>(target);
+		const ListGuiElement *t = static_cast<const ListGuiElement*>(target);
 		return StringConverter::toString(t->getHSpacing());
     }
     void ListGuiElement::CmdHSpacing::doSet(void* target, const String& val)
@@ -157,25 +157,25 @@ namespace Ogre {
         static_cast<ListGuiElement*>(target)->setHSpacing(StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String ListGuiElement::CmdItemPanelMaterialSelected::doGet(void* target)
+    String ListGuiElement::CmdItemPanelMaterialSelected::doGet(const void* target) const
     {
-        return static_cast<ListGuiElement*>(target)->getItemPanelMaterialSelected();
+        return static_cast<const ListGuiElement*>(target)->getItemPanelMaterialSelected();
     }
     void ListGuiElement::CmdItemPanelMaterialSelected::doSet(void* target, const String& val)
     {
         static_cast<ListGuiElement*>(target)->setItemPanelMaterialSelected(val);
     }
     //-----------------------------------------------------------------------
-    String ListGuiElement::CmdItemPanelMaterial::doGet(void* target)
+    String ListGuiElement::CmdItemPanelMaterial::doGet(const void* target) const
     {
-        return static_cast<ListGuiElement*>(target)->getItemPanelMaterial();
+        return static_cast<const ListGuiElement*>(target)->getItemPanelMaterial();
     }
     void ListGuiElement::CmdItemPanelMaterial::doSet(void* target, const String& val)
     {
         static_cast<ListGuiElement*>(target)->setItemPanelMaterial(val);
     }
     //-----------------------------------------------------------------------
-	String ListGuiElement::getItemTemplateName()
+	String ListGuiElement::getItemTemplateName() const
 	{
 		return mItemTemplateName;
 
@@ -191,7 +191,7 @@ namespace Ogre {
 	{
 		mHSpacing = val;
 	}
-	Real ListGuiElement::getHSpacing()
+	Real ListGuiElement::getHSpacing() const
 	{
 		return  mHSpacing;
 
@@ -204,13 +204,13 @@ namespace Ogre {
 		mVSpacing = val;
 	}
 
-	Real ListGuiElement::getVSpacing()
+	Real ListGuiElement::getVSpacing() const
 	{
 		return  mVSpacing;
 	}
 
 
-	String ListGuiElement::getScrollBarName()
+	String ListGuiElement::getScrollBarName() const
 	{
 		assert(mScrollBar);
 		return  mScrollBar->getName();
@@ -240,7 +240,7 @@ namespace Ogre {
 
 
     //-----------------------------------------------------------------------
-	String ListGuiElement::getItemPanelMaterial()
+	String ListGuiElement::getItemPanelMaterial() const
 	{
 		return mItemPanelMaterial;
 
@@ -251,7 +251,7 @@ namespace Ogre {
 
 	}
     //-----------------------------------------------------------------------
-	String ListGuiElement::getItemPanelMaterialSelected()
+	String ListGuiElement::getItemPanelMaterialSelected() const
 	{
 		return mItemPanelMaterialSelected;
 
@@ -346,13 +346,13 @@ namespace Ogre {
 
 	}
 
-	String ListGuiElement::getListItemName(Resource* r)
+	String ListGuiElement::getListItemName(Resource* r) const
 	{
 		return mName + "/" + r->getName();
 
 	}
 
-	String ListGuiElement::getListItemPanelName(Resource* r)
+	String ListGuiElement::getListItemPanelName(Resource* r) const
 	{
 		return getListItemName(r) + "/" + "BackPanel";
 
@@ -576,13 +576,12 @@ namespace Ogre {
         return selectedResource;
 	}
 
-	int ListGuiElement::getSelectedIndex()
+	int ListGuiElement::getSelectedIndex() const
 	{
 		int selectedIndex = -1;
-        ResourceList::iterator i;
 		if (mSelectedElement != NULL)
 		{
-
+			ResourceList::const_iterator i;
 			int currentIndex = 0;
 			for (i = mResourceList.begin(); i != mResourceList.end(); ++i, currentIndex++)
 			{
@@ -598,12 +597,12 @@ namespace Ogre {
 
 
 
-	ResourceListConstIterator ListGuiElement::getConstIterator()
+	ResourceListConstIterator ListGuiElement::getConstIterator() const
 	{
         return ResourceListConstIterator(mResourceList.begin());
 	}
 
-	ResourceListConstIterator ListGuiElement::getConstEndIterator()
+	ResourceListConstIterator ListGuiElement::getConstEndIterator() const
 	{
         return ResourceListConstIterator(mResourceList.end());
 	}

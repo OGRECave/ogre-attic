@@ -65,14 +65,14 @@ namespace Ogre {
         class CmdUpButton : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
         class CmdDownButton : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -80,16 +80,16 @@ namespace Ogre {
         class CmdScrollBit : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
 		virtual void setUpButtonName(const String& val);
 		virtual void setDownButtonName(const String& val);
 		virtual void setScrollBitName(const String& val);
-		virtual String getUpButtonName();
-		virtual String getDownButtonName();
-		virtual String getScrollBitName();
+		virtual String getUpButtonName() const;
+		virtual String getDownButtonName() const;
+		virtual String getScrollBitName() const;
 
 		virtual void setLimits(size_t first, size_t visibleRange, size_t total);
 		virtual void layoutItems();

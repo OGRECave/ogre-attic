@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre 
 {
-	String D3D9VideoMode::getDescription()
+	String D3D9VideoMode::getDescription() const
 	{
 		char tmp[128];
 		unsigned int colourDepth = 16;

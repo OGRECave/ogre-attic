@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreGTKGLSupport.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
+#include "OgreStringConverter.h"
 
 #include "GTKWindow.h"
 
@@ -83,8 +84,8 @@ RenderWindow* GTKGLSupport::createWindow(bool autoCreateWindow,
         if (pos == String::npos)
             Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
  
-        int w = atoi(val.substr(0, pos).c_str());
-        int h = atoi(val.substr(pos + 1).c_str());
+        unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
+        unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
  
         return renderSystem->createRenderWindow("OGRE Render Window", w, h, 32,
 fullscreen);
@@ -96,8 +97,8 @@ fullscreen);
     }
 }
 
-RenderWindow* GTKGLSupport::newWindow(const String& name, int width, 
-        int height, int colourDepth, bool fullScreen, int left, int top,
+RenderWindow* GTKGLSupport::newWindow(const String& name, unsigned int width, 
+        unsigned int height, unsigned int colourDepth, bool fullScreen, int left, int top,
         bool depthBuffer, RenderWindow* parentWindowHandle, bool vsync)
 {
     GTKWindow* window = new GTKWindow();
@@ -147,7 +148,7 @@ void GTKGLSupport::initialiseExtensions(void)
     // XXX anythign to actually do here?
 }
 
-bool GTKGLSupport::checkMinGLVersion(const String& v)
+bool GTKGLSupport::checkMinGLVersion(const String& v) const
 {
     int major, minor;
     Gdk::GL::query_version(major, minor);
@@ -159,7 +160,7 @@ bool GTKGLSupport::checkMinGLVersion(const String& v)
     return ( (major >= cmaj) && (minor >= cmin) );
 }
 
-bool GTKGLSupport::checkExtension(const String& ext)
+bool GTKGLSupport::checkExtension(const String& ext) const
 {
     return Gdk::GL::query_gl_extension(ext.c_str());
 }

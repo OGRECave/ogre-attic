@@ -87,27 +87,27 @@ namespace Ogre {
         /** Sets the name of the material to use for the button. */
         void setDownMaterialName(const String& name);
         /** Gets the name of the material to use for the button. */
-        const String& getDownMaterialName(void);
+        const String& getDownMaterialName(void) const;
 
         /** Sets the name of the material to use for the button. */
         void setUpMaterialName(const String& name);
         /** Gets the name of the material to use for the button. */
-        const String& getUpMaterialName(void);
+        const String& getUpMaterialName(void) const;
 
         /** Sets the name of the material to use for the hilited button. */
         void setHiliteDownMaterialName(const String& name);
         /** Gets the name of the material to use for the hilited button. */
-        const String& getHiliteDownMaterialName(void);
+        const String& getHiliteDownMaterialName(void) const;
 
         /** Sets the name of the material to use for the hilited button. */
         void setHiliteUpMaterialName(const String& name);
         /** Gets the name of the material to use for the hilited button. */
-        const String& getHiliteUpMaterialName(void);
+        const String& getHiliteUpMaterialName(void) const;
 
         /** Sets the name of the material to use for the disabled button. */
         void setDisabledMaterialName(const String& name);
         /** Gets the name of the material to use for the disabled button. */
-        const String& getDisabledMaterialName(void);
+        const String& getDisabledMaterialName(void) const;
 
         /** Sets the caption colour to use for the disabled button. */
         void setCaptionColour(const ColourValue& col);
@@ -120,13 +120,13 @@ namespace Ogre {
         ColourValue getCaptionDisabledColour(void) const;
 
 	    void setButtonCaption(const String& templateName, const String& name);
-	    String getButtonCaption();
+	    String getButtonCaption() const;
 
         /** Command object for specifying the Material for the button (see ParamCommand).*/
         class CmdButtonDownMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -134,7 +134,7 @@ namespace Ogre {
         class CmdButtonUpMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -142,7 +142,7 @@ namespace Ogre {
         class CmdButtonHiliteDownMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -150,7 +150,7 @@ namespace Ogre {
         class CmdButtonHiliteUpMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -158,29 +158,29 @@ namespace Ogre {
         class CmdButtonDisabledMaterial : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying the Caption color for the button (see ParamCommand).*/
         class CmdCaptionColour : public ParamCommand
         {
         public:
-            String doGet( void* target );
-            void doSet( void* target, const String& val );
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
         };
         /** Command object for specifying the disabled Caption color for the button (see ParamCommand).*/
         class CmdCaptionDisabledColour : public ParamCommand
         {
         public:
-            String doGet( void* target );
-            void doSet( void* target, const String& val );
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
         };
 
         /** Command object for specifying the Material for the button (see ParamCommand).*/
         class CmdButtonCaption : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 

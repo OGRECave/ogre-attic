@@ -188,17 +188,9 @@ namespace Ogre {
         // unload will be called by superclass
     }
     //-----------------------------------------------------------------------
-    bool D3D9HLSLProgram::isSupported(void)
+    bool D3D9HLSLProgram::isSupported(void) const
     {
-        if (GpuProgramManager::getSingleton().isSyntaxSupported(mTarget))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-
+        return GpuProgramManager::getSingleton().isSyntaxSupported(mTarget);
     }
     //-----------------------------------------------------------------------
     GpuProgramParametersSharedPtr D3D9HLSLProgram::createParameters(void)
@@ -218,18 +210,18 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String D3D9HLSLProgram::CmdEntryPoint::doGet(void *target)
+    String D3D9HLSLProgram::CmdEntryPoint::doGet(const void *target) const
     {
-        return static_cast<D3D9HLSLProgram*>(target)->getEntryPoint();
+        return static_cast<const D3D9HLSLProgram*>(target)->getEntryPoint();
     }
     void D3D9HLSLProgram::CmdEntryPoint::doSet(void *target, const String& val)
     {
         static_cast<D3D9HLSLProgram*>(target)->setEntryPoint(val);
     }
     //-----------------------------------------------------------------------
-    String D3D9HLSLProgram::CmdTarget::doGet(void *target)
+    String D3D9HLSLProgram::CmdTarget::doGet(const void *target) const
     {
-        return static_cast<D3D9HLSLProgram*>(target)->getTarget();
+        return static_cast<const D3D9HLSLProgram*>(target)->getTarget();
     }
     void D3D9HLSLProgram::CmdTarget::doSet(void *target, const String& val)
     {

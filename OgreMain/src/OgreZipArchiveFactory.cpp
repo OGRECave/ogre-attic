@@ -33,7 +33,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String ZipArchiveFactory::getArchiveType(void)
+    String ZipArchiveFactory::getArchiveType(void) const
     {
         return "Zip";
     }
@@ -45,7 +45,7 @@ namespace Ogre {
 
     }
 
-    String ZipArchiveFactory::getType()
+    String ZipArchiveFactory::getType() const
     {
         return "Zip";
     }

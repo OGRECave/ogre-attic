@@ -45,21 +45,21 @@ namespace Ogre {
         class CmdEntryPoint : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for setting profiles
         class CmdProfiles : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /// Command object for setting compilation arguments
         class CmdArgs : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -109,17 +109,17 @@ namespace Ogre {
         /** Sets the entry point for this program ie the first method called. */
         void setEntryPoint(const String& entryPoint) { mEntryPoint = entryPoint; }
         /** Gets the entry point defined for this program. */
-        const String& getEntryPoint(void) { return mEntryPoint; }
+        const String& getEntryPoint(void) const { return mEntryPoint; }
         /** Sets the Cg profiles which can be supported by the program. */
         void setProfiles(const StringVector& profiles);
         /** Gets the Cg profiles which can be supported by the program. */
-        const StringVector& getProfiles(void) { return mProfiles; }
+        const StringVector& getProfiles(void) const { return mProfiles; }
         /** Sets the compilation arguments for this program ie the first method called. */
         void setCompileArguments(const String& args) { mCompileArgs = args; }
         /** Gets the entry point defined for this program. */
-        const String& getCompileArguments(void) { return mCompileArgs; }
+        const String& getCompileArguments(void) const { return mCompileArgs; }
         /// Overridden from GpuProgram
-        bool isSupported(void);
+        bool isSupported(void) const;
     };
 }
 

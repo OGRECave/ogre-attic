@@ -46,21 +46,21 @@ namespace Ogre {
         class CmdInnerX : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for inner size (see ParamCommand).*/
         class CmdInnerY : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for inner size (see ParamCommand).*/
         class CmdInnerZ : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         // See AreaEmitter
@@ -96,11 +96,11 @@ namespace Ogre {
         */
         void setInnerSizeZ(Real z);
         /** Gets the x component of the area inside the ellipsoid which doesn't emit particles. */
-        Real getInnerSizeX(void);
+        Real getInnerSizeX(void) const;
         /** Gets the y component of the area inside the ellipsoid which doesn't emit particles. */
-        Real getInnerSizeY(void);
+        Real getInnerSizeY(void) const;
         /** Gets the z component of the area inside the ellipsoid which doesn't emit particles. */
-        Real getInnerSizeZ(void);
+        Real getInnerSizeZ(void) const;
 
     protected:
         // See ParticleEmitter

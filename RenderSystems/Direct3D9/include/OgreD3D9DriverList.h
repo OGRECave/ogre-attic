@@ -45,8 +45,8 @@ namespace Ogre
 		~D3D9DriverList();
 
 		BOOL enumerate();
-		unsigned int count() const;
-		D3D9Driver* item( int index );
+		size_t count() const;
+		D3D9Driver* item( size_t index );
 
 		D3D9Driver* item( const String &name );
 	};

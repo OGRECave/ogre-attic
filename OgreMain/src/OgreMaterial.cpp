@@ -150,12 +150,12 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    Material* Material::clone(const String& newName)
+    Material* Material::clone(const String& newName) const
     {
         Material* newMat = (Material*)MaterialManager::getSingleton().create(newName);
 
         // Keep handle (see below, copy overrides everything)
-        int newHandle = newMat->getHandle();
+        ResourceHandle newHandle = newMat->getHandle();
         // Assign values from this
         *newMat = *this;
 		newMat->mIsLoaded = this->mIsLoaded;
@@ -169,10 +169,10 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Material::copyDetailsTo(Material* mat)
+    void Material::copyDetailsTo(Material* mat) const
     {
         // Keep handle (see below, copy overrides everything)
-        int savedHandle = mat->mHandle;
+        ResourceHandle savedHandle = mat->mHandle;
         String savedName = mat->mName;
         // Assign values from this
         *mat = *this;
@@ -556,12 +556,12 @@ namespace Ogre {
 		
     }
     // --------------------------------------------------------------------
-    unsigned short Material::getLodIndex(Real d)
+    unsigned short Material::getLodIndex(Real d) const
     {
         return getLodIndexSquaredDepth(d * d);
     }
     // --------------------------------------------------------------------
-    unsigned short Material::getLodIndexSquaredDepth(Real squaredDistance)
+    unsigned short Material::getLodIndexSquaredDepth(Real squaredDistance) const
     {
 		LodDistanceList::const_iterator i, iend;
 		iend = mLodDistances.end();

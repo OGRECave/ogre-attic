@@ -42,8 +42,8 @@ namespace Ogre
 
 	BOOL D3D9DriverList::enumerate()
 	{
-		LogManager::getSingleton().logMessage( "D3D9 : Driver Detection Starts" );
-		for( UINT iAdapter=0; iAdapter < mpD3D->GetAdapterCount(); iAdapter++ )
+		LogManager::getSingleton().logMessage( "D3D9: Driver Detection Starts" );
+		for( UINT iAdapter=0; iAdapter < mpD3D->GetAdapterCount(); ++iAdapter )
 		{
 			D3DADAPTER_IDENTIFIER9 adapterIdentifier;
 			D3DDISPLAYMODE d3ddm;
@@ -53,17 +53,17 @@ namespace Ogre
 			mDriverList.push_back( D3D9Driver( mpD3D, iAdapter, adapterIdentifier, d3ddm ) );
 		}
 
-		LogManager::getSingleton().logMessage( "D3D9 : Driver Detection Ends" );
+		LogManager::getSingleton().logMessage( "D3D9: Driver Detection Ends" );
 
 		return TRUE;
 	}
 
-	unsigned int D3D9DriverList::count() const 
+	size_t D3D9DriverList::count() const 
 	{
-		return static_cast< unsigned int >( mDriverList.size() );
+		return mDriverList.size();
 	}
 
-	D3D9Driver* D3D9DriverList::item( int index )
+	D3D9Driver* D3D9DriverList::item( size_t index )
 	{
 		return &mDriverList.at( index );
 	}

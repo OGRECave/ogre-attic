@@ -79,9 +79,9 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Char height command object
     //
-    String TextBoxGuiElement::CmdBackPanel::doGet( void* target )
+    String TextBoxGuiElement::CmdBackPanel::doGet( const void* target ) const
     {
-        return static_cast< TextBoxGuiElement* >( target )->getBackPanelName();
+        return static_cast< const TextBoxGuiElement* >( target )->getBackPanelName();
     }
     void TextBoxGuiElement::CmdBackPanel::doSet( void* target, const String& val )
     {
@@ -98,9 +98,9 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------------------------------
-    String TextBoxGuiElement::CmdTextArea::doGet( void* target )
+    String TextBoxGuiElement::CmdTextArea::doGet( const void* target ) const
     {
-        return static_cast< TextBoxGuiElement* >( target )->getTextAreaName();
+        return static_cast< const TextBoxGuiElement* >( target )->getTextAreaName();
     }
 
     //-----------------------------------------------------------------------
@@ -120,12 +120,12 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String TextBoxGuiElement::getTextAreaName()
+    String TextBoxGuiElement::getTextAreaName() const
 	{
 		return mTextAreaTemplateName + " " + mCaption;
 	}
     //---------------------------------------------------------------------------------------------
-    String TextBoxGuiElement::getBackPanelName()
+    String TextBoxGuiElement::getBackPanelName() const
 	{
 		return mBackPanelTemplateName;
 	}

@@ -31,7 +31,7 @@ public:
 	/**
 	* Create a new specific render window
 	*/
-	virtual RenderWindow* newWindow(const String& name, int width, int height, int colourDepth,
+	virtual RenderWindow* newWindow(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
         bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
 		bool vsync);
 

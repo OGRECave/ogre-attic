@@ -538,10 +538,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdCull::doGet(void* target)
+    String ParticleSystem::CmdCull::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ParticleSystem*>(target)->getCullIndividually() );
+            static_cast<const ParticleSystem*>(target)->getCullIndividually() );
     }
     void ParticleSystem::CmdCull::doSet(void* target, const String& val)
     {
@@ -549,10 +549,10 @@ namespace Ogre {
             StringConverter::parseBool(val));
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdHeight::doGet(void* target)
+    String ParticleSystem::CmdHeight::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ParticleSystem*>(target)->getDefaultHeight() );
+            static_cast<const ParticleSystem*>(target)->getDefaultHeight() );
     }
     void ParticleSystem::CmdHeight::doSet(void* target, const String& val)
     {
@@ -560,10 +560,10 @@ namespace Ogre {
             StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdWidth::doGet(void* target)
+    String ParticleSystem::CmdWidth::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ParticleSystem*>(target)->getDefaultWidth() );
+            static_cast<const ParticleSystem*>(target)->getDefaultWidth() );
     }
     void ParticleSystem::CmdWidth::doSet(void* target, const String& val)
     {
@@ -571,19 +571,19 @@ namespace Ogre {
             StringConverter::parseReal(val));
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdMaterial::doGet(void* target)
+    String ParticleSystem::CmdMaterial::doGet(const void* target) const
     {
-        return static_cast<ParticleSystem*>(target)->getMaterialName();
+        return static_cast<const ParticleSystem*>(target)->getMaterialName();
     }
     void ParticleSystem::CmdMaterial::doSet(void* target, const String& val)
     {
         static_cast<ParticleSystem*>(target)->setMaterialName(val);
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdQuota::doGet(void* target)
+    String ParticleSystem::CmdQuota::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ParticleSystem*>(target)->getParticleQuota() );
+            static_cast<const ParticleSystem*>(target)->getParticleQuota() );
     }
     void ParticleSystem::CmdQuota::doSet(void* target, const String& val)
     {
@@ -591,9 +591,9 @@ namespace Ogre {
             StringConverter::parseUnsignedInt(val));
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdBillboardType::doGet(void* target)
+    String ParticleSystem::CmdBillboardType::doGet(const void* target) const
     {
-        BillboardType t = static_cast<ParticleSystem*>(target)->getBillboardType();
+        BillboardType t = static_cast<const ParticleSystem*>(target)->getBillboardType();
         switch(t)
         {
         case BBT_POINT:
@@ -627,10 +627,10 @@ namespace Ogre {
         static_cast<ParticleSystem*>(target)->setBillboardType(t);
     }
     //-----------------------------------------------------------------------
-    String ParticleSystem::CmdCommonDirection::doGet(void* target)
+    String ParticleSystem::CmdCommonDirection::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ParticleSystem*>(target)->getCommonDirection() );
+            static_cast<const ParticleSystem*>(target)->getCommonDirection() );
     }
     void ParticleSystem::CmdCommonDirection::doSet(void* target, const String& val)
     {

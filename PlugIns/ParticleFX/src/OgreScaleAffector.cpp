@@ -83,7 +83,7 @@ namespace Ogre {
         mScaleAdj = rate;
     }
     //-----------------------------------------------------------------------
-    Real ScaleAffector::getAdjust(void)
+    Real ScaleAffector::getAdjust(void) const
     {
         return mScaleAdj;
     }
@@ -94,10 +94,10 @@ namespace Ogre {
     // Command objects
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    String ScaleAffector::CmdScaleAdjust::doGet(void* target)
+    String ScaleAffector::CmdScaleAdjust::doGet(const void* target) const
     {
         return StringConverter::toString(
-            static_cast<ScaleAffector*>(target)->getAdjust() );
+            static_cast<const ScaleAffector*>(target)->getAdjust() );
     }
     void ScaleAffector::CmdScaleAdjust::doSet(void* target, const String& val)
     {

@@ -46,10 +46,10 @@ namespace Ogre {
         class CmdColourAdjust : public ParamCommand
         {
 		public:
-			int		mIndex;
+			size_t		mIndex;
 
 		public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
 
@@ -57,10 +57,10 @@ namespace Ogre {
 		class CmdTimeAdjust : public ParamCommand
         {
         public:
-			int		mIndex;
+			size_t		mIndex;
 
 		public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
 		};
 
@@ -70,11 +70,11 @@ namespace Ogre {
         /** See ParticleAffector. */
         void _affectParticles(ParticleSystem* pSystem, Real timeElapsed);
 
-		void setColourAdjust(int index, ColourValue colour);
-        ColourValue getColourAdjust(int index);
+		void setColourAdjust(size_t index, ColourValue colour);
+		ColourValue getColourAdjust(size_t index) const;
         
-		void setTimeAdjust(int index, Real time);
-        Real getTimeAdjust(int index);
+		void setTimeAdjust(size_t index, Real time);
+        Real getTimeAdjust(size_t index) const;
         
         
         static CmdColourAdjust	msColourCmd[MAX_STAGES];

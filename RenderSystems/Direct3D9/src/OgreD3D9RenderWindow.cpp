@@ -172,7 +172,7 @@ namespace Ogre
 			return false;
 	}
 
-	void D3D9RenderWindow::create( const String& name, int width, int height, int colourDepth, 
+	void D3D9RenderWindow::create( const String& name, unsigned int width, unsigned int height, unsigned int colourDepth, 
 		bool fullScreen, int left, int top, bool depthBuffer, void* miscParam, ... )
 	{
 		HWND parentHWnd;
@@ -230,11 +230,11 @@ namespace Ogre
 			mHeight = height;
 			if (!fullScreen)
 			{
-				if (!left && GetSystemMetrics(SM_CXSCREEN) > mWidth)
+				if (!left && (unsigned)GetSystemMetrics(SM_CXSCREEN) > mWidth)
 					mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
 				else
 					mLeft = left;
-				if (!top && GetSystemMetrics(SM_CYSCREEN) > mHeight)
+				if (!top && (unsigned)GetSystemMetrics(SM_CYSCREEN) > mHeight)
 					mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
 				else
 					mTop = top;
@@ -399,7 +399,7 @@ namespace Ogre
 		DestroyWindow( mHWnd );
 	}
 
-	void D3D9RenderWindow::resize( int width, int height )
+	void D3D9RenderWindow::resize( unsigned int width, unsigned int height )
 	{
 		mWidth = width;
 		mHeight = height;
@@ -580,23 +580,13 @@ namespace Ogre
 				{
 				case D3DFMT_R5G6B5:
 					WORD val;
-					BYTE result;
-					ushort srcMask;
-					BYTE destMask;
 
-					destMask = 0xFF;
 					val = *((WORD*)pRow);
 					pRow += 2;
 
-					srcMask = 0xF800;
-					Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
-					*pDest++ = result;
-					srcMask = 0x07E0;
-					Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
-					*pDest++ = result;
-					srcMask = 0x1F;
-					Bitwise::convertBitPattern(&val, &srcMask, 16, &result, &destMask, 8);
-					*pDest++ = result;
+					*pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0xF800, 0xFF);
+					*pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0x07E0, 0xFF);
+					*pDest++ = Bitwise::convertBitPattern<WORD, BYTE>(val, 0x001F, 0xFF);
 					break;
 				case D3DFMT_A8R8G8B8:
 				case D3DFMT_X8R8G8B8:

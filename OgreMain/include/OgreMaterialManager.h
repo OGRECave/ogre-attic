@@ -64,7 +64,7 @@ namespace Ogre {
         /// Default Texture filtering - mipmapping
         FilterOptions mDefaultMipFilter;
         /// Default Texture anisotropy
-        int mDefaultMaxAniso;
+        unsigned int mDefaultMaxAniso;
 
         /// Serializer
         MaterialSerializer mSerializer;
@@ -124,9 +124,9 @@ namespace Ogre {
             @note
                 The default value is 1 (no anisotropy).
         */
-		void setDefaultAnisotropy(int maxAniso);
+		void setDefaultAnisotropy(unsigned int maxAniso);
 		/// get the default maxAnisotropy
-		int getDefaultAnisotropy() const;
+		unsigned int getDefaultAnisotropy() const;
 
 		/** Override standard Singleton retrieval.
             @remarks

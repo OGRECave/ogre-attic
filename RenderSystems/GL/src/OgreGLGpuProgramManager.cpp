@@ -36,7 +36,7 @@ bool GLGpuProgramManager::registerProgramFactory(const String& syntaxCode, Creat
 
 bool GLGpuProgramManager::unregisterProgramFactory(const String& syntaxCode)
 {
-    return mProgramMap.erase(syntaxCode);
+    return mProgramMap.erase(syntaxCode) != 0;
 }
 
 GpuProgramParametersSharedPtr GLGpuProgramManager::createParameters(void)

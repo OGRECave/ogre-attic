@@ -42,18 +42,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    // Simple round up function
-    double round_up(double value) 
-    {
-        if (value - floor(value) > std::numeric_limits<double>::epsilon())
-        {
-            return floor(value) + 1;
-        }
-        else
-        {
-            return floor(value);
-        }
-    }
+    unsigned int mostSignificantBitSet(unsigned int value)
+	{
+		unsigned int result = 0;
+		while (value != 0) {
+			++result;
+			value >>= 1;
+		}
+		return result-1;
+	}
 
     GLTexture::GLTexture(const String& name, GLSupport& support, TextureType texType) :
         mGLSupport(support)
@@ -158,11 +155,13 @@ namespace Ogre {
     uchar* GLTexture::rescaleNPower2( const Image& src ) 
     {
         // Scale image to n^2 dimensions
-        unsigned int newWidth = 
-          (unsigned int)pow(2.0,round_up(log((double)mSrcWidth) / log(2.0)));
+		unsigned int newWidth = (1 << mostSignificantBitSet(mSrcWidth));
+		if (newWidth != mSrcWidth)
+			newWidth <<= 1;
 
-        unsigned int newHeight = 
-          (unsigned int)pow(2.0,round_up(log((double)mSrcHeight) / log(2.0)));
+		unsigned int newHeight = (1 << mostSignificantBitSet(mSrcHeight));
+		if (newHeight != mSrcHeight)
+			newHeight <<= 1;
 
         uchar *pTempData;
         if(newWidth != mSrcWidth || newHeight != mSrcHeight)
@@ -226,7 +225,7 @@ namespace Ogre {
             useSoftwareMipmaps = false;
         }
 
-        for(unsigned int i = 0; i < images.size(); i++)
+        for(size_t i = 0; i < images.size(); i++)
         {
             Image img = images[i];
 
@@ -262,7 +261,7 @@ namespace Ogre {
         mGLSupport.end_context();
 
         // Update size (the final size, not including temp space)
-        short bytesPerPixel = mFinalBpp >> 3;
+        unsigned short bytesPerPixel = mFinalBpp >> 3;
         if( !mHasAlpha && mFinalBpp == 32 )
         {
             bytesPerPixel--;
@@ -340,9 +339,9 @@ namespace Ogre {
                 Image img;
                 String baseName, ext;
                 std::vector<Image> images;
-                String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
+                static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
-                for(unsigned int i = 0; i < 6; i++)
+                for(size_t i = 0; i < 6; i++)
                 {
                     size_t pos = mName.find_last_of(".");
                     baseName = mName.substr(0, pos);
@@ -371,7 +370,7 @@ namespace Ogre {
     }
 
     void GLTexture::generateMipMaps( uchar *data, bool useSoftware, 
-        bool isCompressed, unsigned int faceNumber )
+        bool isCompressed, size_t faceNumber )
     {
         mGLSupport.begin_context();
         if(useSoftware && mNumMipMaps)

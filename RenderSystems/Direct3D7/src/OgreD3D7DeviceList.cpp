@@ -66,7 +66,7 @@ namespace Ogre
 
     D3DDeviceList::~D3DDeviceList()
     {
-		for(unsigned int i=0; i<count(); i++)
+		for(size_t i=0; i<count(); i++)
 		{
 			item(i)->Cleanup();
 		}
@@ -111,17 +111,17 @@ namespace Ogre
         delete newD3D;
     }
 
-    unsigned int D3DDeviceList::count(void)
+    size_t D3DDeviceList::count(void)
     {
-        return static_cast< unsigned int >( mDeviceList.size() );
+        return mDeviceList.size();
     }
 
-    D3DDevice* D3DDeviceList::item(int index)
+    D3DDevice* D3DDeviceList::item(size_t index)
     {
 		return &mDeviceList[index];
     }
 
-    D3DDevice* D3DDeviceList::getBest(int minColourDepth)
+    D3DDevice* D3DDeviceList::getBest(unsigned int minColourDepth)
     {
         char msg[255];
 

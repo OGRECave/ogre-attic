@@ -741,7 +741,7 @@ namespace Ogre {
             Pass and TextureUnitState instances and set the property there.
         @see TextureUnitState::setTextureAnisotropy
         */
-        void setTextureAnisotropy(int maxAniso);
+        void setTextureAnisotropy(unsigned int maxAniso);
         // --------------------------------------------------------------------
     };
 

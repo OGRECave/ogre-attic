@@ -479,7 +479,7 @@ namespace Ogre
                 stand-alone. Otherwise, specify a pointer to a RenderWindow
                 which represents the parent window.
         */
-        RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
+        RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, unsigned int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0);
 

@@ -65,12 +65,12 @@ namespace Ogre {
         */
         void setTiling(Real x, Real y, ushort layer = 0);
 
-        Real getTileX(ushort layer = 0);
+        Real getTileX(ushort layer = 0) const;
         /** Gets the number of times the texture should repeat vertically. 
         @param layer The texture layer to specify (only needs to be altered if 
             you're using a multi-texture layer material)
         */
-        Real getTileY(ushort layer = 0);
+        Real getTileY(ushort layer = 0) const;
 
         /** Sets whether this panel is transparent (used only as a grouping level), or 
             if it is actually renderred.
@@ -78,7 +78,7 @@ namespace Ogre {
         void setTransparent(bool isTransparent);
 
         /** Returns whether this panel is transparent. */
-        bool isTransparent(void);
+        bool isTransparent(void) const;
 
         /** See GuiElement. */
         virtual const String& getTypeName(void) const;
@@ -94,14 +94,14 @@ namespace Ogre {
         class CmdTiling : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying transparency (see ParamCommand).*/
         class CmdTransparent : public ParamCommand
         {
         public:
-            String doGet(void* target);
+            String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
     protected:

@@ -504,7 +504,7 @@ namespace Ogre {
         RGBA* pDest = static_cast<RGBA*>(
             vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
-        for (uint i = 0; i < mAllocSize; ++i)
+        for (size_t i = 0; i < mAllocSize; ++i)
         {
             // First tri (top, bottom, top)
             *pDest++ = topColour;
@@ -549,10 +549,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Char height command object
     //
-    String TextAreaGuiElement::CmdCharHeight::doGet( void* target )
+    String TextAreaGuiElement::CmdCharHeight::doGet( const void* target ) const
     {
         return StringConverter::toString( 
-            static_cast< TextAreaGuiElement* >( target )->getCharHeight() );
+            static_cast< const TextAreaGuiElement* >( target )->getCharHeight() );
     }
     void TextAreaGuiElement::CmdCharHeight::doSet( void* target, const String& val )
     {
@@ -562,10 +562,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Space width command object
     //
-    String TextAreaGuiElement::CmdSpaceWidth::doGet( void* target )
+    String TextAreaGuiElement::CmdSpaceWidth::doGet( const void* target ) const
     {
         return StringConverter::toString( 
-            static_cast< TextAreaGuiElement* >( target )->getSpaceWidth() );
+            static_cast< const TextAreaGuiElement* >( target )->getSpaceWidth() );
     }
     void TextAreaGuiElement::CmdSpaceWidth::doSet( void* target, const String& val )
     {
@@ -577,9 +577,9 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Font name command object
     //
-    String TextAreaGuiElement::CmdFontName::doGet( void* target )
+    String TextAreaGuiElement::CmdFontName::doGet( const void* target ) const
     {
-        return static_cast< TextAreaGuiElement* >( target )->getFontName();
+        return static_cast< const TextAreaGuiElement* >( target )->getFontName();
     }
     void TextAreaGuiElement::CmdFontName::doSet( void* target, const String& val )
     {
@@ -589,10 +589,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Colour command object
     //
-    String TextAreaGuiElement::CmdColour::doGet( void* target )
+    String TextAreaGuiElement::CmdColour::doGet( const void* target ) const
     {
         return StringConverter::toString (
-            static_cast< TextAreaGuiElement* >( target )->getColour());
+            static_cast< const TextAreaGuiElement* >( target )->getColour());
     }
     void TextAreaGuiElement::CmdColour::doSet( void* target, const String& val )
     {
@@ -604,10 +604,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Top colour command object
     //
-    String TextAreaGuiElement::CmdColourTop::doGet( void* target )
+    String TextAreaGuiElement::CmdColourTop::doGet( const void* target ) const
     {
         return StringConverter::toString (
-            static_cast< TextAreaGuiElement* >( target )->getColourTop());
+            static_cast< const TextAreaGuiElement* >( target )->getColourTop());
     }
     void TextAreaGuiElement::CmdColourTop::doSet( void* target, const String& val )
     {
@@ -619,10 +619,10 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Bottom colour command object
     //
-    String TextAreaGuiElement::CmdColourBottom::doGet( void* target )
+    String TextAreaGuiElement::CmdColourBottom::doGet( const void* target ) const
     {
         return StringConverter::toString (
-            static_cast< TextAreaGuiElement* >( target )->getColourBottom());
+            static_cast< const TextAreaGuiElement* >( target )->getColourBottom());
     }
     void TextAreaGuiElement::CmdColourBottom::doSet( void* target, const String& val )
     {
@@ -634,9 +634,9 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     // Alignment command object
     //
-    String TextAreaGuiElement::CmdAlignment::doGet( void* target )
+    String TextAreaGuiElement::CmdAlignment::doGet( const void* target ) const
     {
-        Alignment align = static_cast< TextAreaGuiElement* >( target )->getAlignment();
+        Alignment align = static_cast< const TextAreaGuiElement* >( target )->getAlignment();
         switch (align)
         {
             case Left:
