@@ -43,6 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSubMesh.h"
 #include "OgreMeshManager.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreMeshSerializer.h"
 
 using namespace XSI;
 
@@ -76,20 +77,21 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     XsiMeshExporter::XsiMeshExporter()
     {
-        // software buffer manager
-        mBufferManager = new DefaultHardwareBufferManager();
-        mMeshManager = new MeshManager();
     }
     //-----------------------------------------------------------------------
     XsiMeshExporter::~XsiMeshExporter()
     {
-        delete mMeshManager;
-        delete mBufferManager;
     }
     //-----------------------------------------------------------------------
     void XsiMeshExporter::exportMesh(const CString& fileName, 
         const CString& objectName, bool edgeLists, bool tangents)
     {
+        LogManager logMgr;
+        MeshManager *meshMgr = new MeshManager();
+        DefaultHardwareBufferManager *hardwareBufMgr = new DefaultHardwareBufferManager();
+
+        logMgr.createLog("OgreXSIExport.log", true);
+
         // Derive the scene root
         X3DObject sceneRoot(mXsiApp.GetActiveSceneRoot());
 
@@ -120,6 +122,33 @@ namespace Ogre {
             exportX3DObject(pMesh, obj);
 
         }
+
+        if(edgeLists)
+        {
+            mXsiApp.LogMessage(L"Calculating edge lists");
+            pMesh->buildEdgeList();
+        }
+
+        if(tangents)
+        {
+            mXsiApp.LogMessage(L"Calculating tangents");
+            unsigned short src, dest;
+            if (pMesh->suggestTangentVectorBuildParams(src, dest))
+            {
+                pMesh->buildTangentVectors(src, dest);
+            }
+            else
+            {
+                mXsiApp.LogMessage(L"Could not derive tangents parameters");
+            }
+
+        }
+
+        MeshSerializer serializer;
+        serializer.exportMesh(pMesh, XSItoOgre(fileName));
+
+        delete meshMgr;
+        delete hardwareBufMgr;
     }
     //-----------------------------------------------------------------------
     void XsiMeshExporter::exportX3DObject(Mesh* pMesh, X3DObject& x3dObj)
@@ -302,6 +331,7 @@ namespace Ogre {
         delete [] uvValueArray;
 
         // Now bake final geometry
+        sm->vertexData->vertexCount = mUniqueVertices.size();
         // Determine index size
         bool use32BitIndexes = false;
         if (mUniqueVertices.size() > 65536)
@@ -360,10 +390,38 @@ namespace Ogre {
         }
 
         // create & fill buffer(s)
-        for (unsigned short b = 0; b < sm->vertexData->vertexDeclaration->getMaxSource(); ++b)
+        for (unsigned short b = 0; b <= sm->vertexData->vertexDeclaration->getMaxSource(); ++b)
         {
             createVertexBuffer(sm->vertexData, b);
         }
+
+        // Bounds definitions
+        Real squaredRadius = 0.0f;
+        Vector3 min, max;
+        bool first = true;
+        for (i = 0; i < srcPosArray.GetCount(); ++i)
+        {
+            Vector3 pos = XSItoOgre(srcPosArray[i]);
+            if (first)
+            {
+                squaredRadius = pos.squaredLength();
+                min = max = pos;
+                first = false;
+            }
+            else
+            {
+                squaredRadius = std::max(squaredRadius, pos.squaredLength());
+                min.makeFloor(pos);
+                max.makeCeil(pos);
+            }
+
+        }
+        AxisAlignedBox box;
+        box.setExtents(min, max);
+        box.merge(pMesh->getBounds());
+        pMesh->_setBounds(box);
+        pMesh->_setBoundingSphereRadius(std::max(pMesh->getBoundingSphereRadius(), 
+            Math::Sqrt(squaredRadius)));
 
 
 
@@ -468,12 +526,15 @@ namespace Ogre {
             }
             else
             {
-                // create new
+                // get new index
+                size_t newindex = mUniqueVertices.size() - 1;
+                orig.nextIndex = newindex;
+                // create new (NB invalidates 'orig' reference)
                 mUniqueVertices.push_back(vertex);
-                orig.nextIndex = mUniqueVertices.size() - 1;
                 // set initialised
-                mUniqueVertices[orig.nextIndex].initialised = true;
-                return orig.nextIndex;
+                mUniqueVertices[newindex].initialised = true;
+
+                return newindex;
             }
         }
     }
