@@ -141,14 +141,14 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    extern "C" void dllStartPlugin(void) throw()
+    extern "C" void _OgreParticleFXExport dllStartPlugin(void) throw()
     {
         // Particle SFX
         registerParticleFactories();
     }
 
     //-----------------------------------------------------------------------
-    extern "C" void dllStopPlugin(void)
+    extern "C" void _OgreParticleFXExport dllStopPlugin(void)
     {
         // Particle SFX
         destroyParticleFactories();
