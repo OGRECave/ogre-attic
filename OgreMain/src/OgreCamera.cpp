@@ -179,26 +179,40 @@ namespace Ogre {
         Vector3 zAdjustVec = -vec;
         zAdjustVec.normalise();
 
-        // Get axes from current quaternion
-        Vector3 axes[3];
-        updateView();
-        mDerivedOrientation.ToAxes(axes);
 
-        Quaternion rotQuat;
-        if (-zAdjustVec == axes[2])
+        if( mYawFixed )
         {
-            // Oops, a 180 degree turn (infinite possible rotation axes)
-            // Default to yaw i.e. use current UP
-            rotQuat.FromAngleAxis(Math::PI, axes[1]);
+            Vector3 xVec = mYawFixedAxis.crossProduct( zAdjustVec );
+            xVec.normalise();
+
+            Vector3 yVec = zAdjustVec.crossProduct( xVec );
+            yVec.normalise();
+
+            mOrientation.FromAxes( xVec, yVec, zAdjustVec );
         }
         else
         {
-            // Derive shortest arc to new direction
-            rotQuat = axes[2].getRotationTo(zAdjustVec);
 
+            // Get axes from current quaternion
+            Vector3 axes[3];
+            updateView();
+            mDerivedOrientation.ToAxes(axes);
+            Quaternion rotQuat;
+            if (-zAdjustVec == axes[2])
+            {
+                // Oops, a 180 degree turn (infinite possible rotation axes)
+                // Default to yaw i.e. use current UP
+                rotQuat.FromAngleAxis(Math::PI, axes[1]);
+            }
+            else
+            {
+                // Derive shortest arc to new direction
+                rotQuat = axes[2].getRotationTo(zAdjustVec);
+
+            }
+            mOrientation = rotQuat * mOrientation;
         }
 
-        mOrientation = rotQuat * mOrientation;
 
         // TODO If we have a fixed yaw axis, we mustn't break it by using the
         // shortest arc because this will sometimes cause a relative yaw
