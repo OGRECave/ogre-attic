@@ -33,6 +33,7 @@ OgreFrameListener.h \
 OgreGeometryData.h \
 OgreGuiContainer.h \
 OgreGuiElement.h \
+OgreGuiElementCommands.h \
 OgreGuiElementFactory.h \
 OgreGuiManager.h \
 OgreImage.h \

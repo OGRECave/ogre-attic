@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreString.h"
 #include "OgreRenderable.h"
 #include "OgreStringInterface.h"
+#include "OgreGuiElementCommands.h"
+
 
 namespace Ogre {
 
@@ -60,6 +62,13 @@ namespace Ogre {
     public:
 
     protected:
+        // Command object for setting / getting parameters
+        static GuiElementCommands::CmdLeft msLeftCmd;
+        static GuiElementCommands::CmdTop msTopCmd;
+        static GuiElementCommands::CmdWidth msWidthCmd;
+        static GuiElementCommands::CmdHeight msHeightCmd;
+        static GuiElementCommands::CmdMaterial msMaterialCmd;
+
         String mName;
         bool mVisible;
         Real mLeft;
@@ -89,6 +98,15 @@ namespace Ogre {
         */
         virtual void updatePositionGeometry(void) = 0;
 
+        /** Internal method for setting up the basic parameter definitions for a subclass. 
+        @remarks
+            Because StringInterface holds a dictionary of parameters per class, subclasses need to
+            call this to ask the base class to add it's parameters to their dictionary as well.
+            Can't do this in the constructor because that runs in a non-virtual context.
+        @par
+            The subclass must have called it's own createParamDictionary before calling this method.
+        */
+        virtual void addBaseParameters(void);
 
     public:
         /// Constructor: do not call direct, use GuiManager::createElement

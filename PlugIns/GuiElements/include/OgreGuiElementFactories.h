@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lgpl.html.
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiElementFactory.h"
 #include "OgrePanelGuiElement.h"
-//#include "OgreBorderPanelGuiElement.h"
+#include "OgreBorderPanelGuiElement.h"
 //#include "OgreTextAreaGuiElement.h"
 
 
@@ -55,29 +55,29 @@ namespace Ogre {
         }
     };
 
-    ///** Factory for creating BorderPanelGuiElement instances. */
-    //class _OgreGuiElementExport BorderPanelGuiElementFactory: public GuiElementFactory
-    //{
-    //public:
-    //    /** See GuiElementFactory */
-    //    GuiElement* createGuiElement(const String& instanceName
-    //    {
-    //        return new BorderPanelGuiElement(instanceName);
-    //    }
-    //    /** See GuiElementFactory */
-    //    const String& getTypeName(void)
-    //    {
-    //        static String name = "BorderPanel";
-    //        return name;
-    //    }
-    //};
+    /** Factory for creating BorderPanelGuiElement instances. */
+    class _OgreGuiElementExport BorderPanelGuiElementFactory: public GuiElementFactory
+    {
+    public:
+        /** See GuiElementFactory */
+        GuiElement* createGuiElement(const String& instanceName)
+        {
+            return new BorderPanelGuiElement(instanceName);
+        }
+        /** See GuiElementFactory */
+        const String& getTypeName(void)
+        {
+            static String name = "BorderPanel";
+            return name;
+        }
+    };
 
     ///** Factory for creating TextAreaGuiElement instances. */
     //class _OgreGuiElementExport TextAreaGuiElementFactory: public GuiElementFactory
     //{
     //public:
     //    /** See GuiElementFactory */
-    //    GuiElement* createGuiElement(const String& instanceName
+    //    GuiElement* createGuiElement(const String& instanceName)
     //    {
     //        return new TextAreaGuiElement(instanceName);
     //    }

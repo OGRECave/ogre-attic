@@ -1,3 +1,4 @@
-noinst_HEADERS = OgreGuiElementFactories.h \
+noinst_HEADERS = OgreBorderPanelGuiElement.h \
+		 OgreGuiElementFactories.h \
 		 OgreGuiElementPrerequisites.h \
 		 OgrePanelGuiElement.h

@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 namespace Ogre {
 
+
     /** GuiElement representing a flat, single-material (or transparent) panel which can contain other elements.
     @remarks
         This class subclasses GuiContainer because it can contain other elements. Like other
@@ -62,6 +63,13 @@ namespace Ogre {
         */
         void setTiling(Real x, Real y, ushort layer = 0);
 
+        Real getTileX(ushort layer = 0);
+        /** Gets the number of times the texture should repeat vertically. 
+        @param layer The texture layer to specify (only needs to be altered if 
+            you're using a multi-texture layer material)
+        */
+        Real getTileY(ushort layer = 0);
+
         /** Sets whether this panel is transparent (used only as a grouping level), or 
             if it is actually renderred.
         */
@@ -80,6 +88,20 @@ namespace Ogre {
         void _updateRenderQueue(RenderQueue* queue);
 
 
+        /** Command object for specifying tiling (see ParamCommand).*/
+        class CmdTiling : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
+        /** Command object for specifying transparency (see ParamCommand).*/
+        class CmdTransparent : public ParamCommand
+        {
+        public:
+            String doGet(void* target);
+            void doSet(void* target, const String& val);
+        };
     protected:
         // Flag indicating if this panel should be visual or just group things
         bool mTransparent;
@@ -90,14 +112,21 @@ namespace Ogre {
         RenderOperation mRenderOp;
 
         /// internal method for setting up geometry, called by GuiElement::update
-        void updatePositionGeometry(void);
+        virtual void updatePositionGeometry(void);
 
         /// Called to update the texture coords when layers change
-        void updateTextureGeometry(void);
+        virtual void updateTextureGeometry(void);
+
+        /// Method for setting up base parameters for this class
+        void addBaseParameters(void);
+
 
         static String msTypeName;
 
 
+        // Command objects
+        static CmdTiling msCmdTiling;
+        static CmdTransparent msCmdTransparent;
 
         
 
