@@ -278,7 +278,7 @@ FORCEINLINE float asm_rand()
 
 #elif OGRE_COMPILER == COMPILER_GNUC
 
-	return float( rand() )
+	return float( rand() );
 
 #endif
 }
@@ -294,7 +294,7 @@ FORCEINLINE float asm_rand_max()
 
 #elif OGRE_COMPILER == COMPILER_GNUC
 
-	return float( RAND_MAX )
+	return float( RAND_MAX );
 
 #endif
 }
