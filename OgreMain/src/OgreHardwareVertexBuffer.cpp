@@ -35,7 +35,9 @@ namespace Ogre {
     HardwareVertexBuffer::HardwareVertexBuffer(size_t vertexSize,  
         size_t numVertices, HardwareBuffer::Usage usage, 
         bool useSystemMemory, bool useShadowBuffer) 
-        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer), mVertexSize(vertexSize), mNumVertices(numVertices)
+        : HardwareBuffer(usage, useSystemMemory, useShadowBuffer), 
+          mNumVertices(numVertices),
+          mVertexSize(vertexSize)
     {
         // Calculate the size of the vertices
         mSizeInBytes = mVertexSize * numVertices;
@@ -138,6 +140,8 @@ namespace Ogre {
 				return VET_FLOAT3;
 			case 4:
 				return VET_FLOAT4;
+            default:
+                break;
 			}
 			break;
 		case VET_SHORT1:
@@ -151,9 +155,12 @@ namespace Ogre {
 				return VET_SHORT3;
 			case 4:
 				return VET_SHORT4;
+            default:
+                break;
 			}
 			break;
-
+        default:
+            break;
 		}
 		Except(Exception::ERR_INVALIDPARAMS, "Invalid base type", 
 			"VertexElement::multiplyTypeCount");

@@ -46,8 +46,8 @@ namespace Ogre {
     template<> OverlayManager *Singleton<OverlayManager>::ms_Singleton = 0;
     //---------------------------------------------------------------------
     OverlayManager::OverlayManager() :
-        mLastViewportWidth(0), mLastViewportHeight(0), 
-        mViewportDimensionsChanged(false), mCursorGuiInitialised(false)
+        mCursorGuiInitialised(false), mLastViewportWidth(0), 
+        mLastViewportHeight(0), mViewportDimensionsChanged(false)
     {
 		mCursorGuiRegistered = 0;
 		mCursorLevelOverlay = 0;
