@@ -122,6 +122,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #   0.15.1: * Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - use Blender.World.GetCurrent() for Blender > 2.34
 #          - fixed calculation of initial bone rotation
+#          - preliminary bump map support
 #   0.15.1: * Sun Nov 27 2004 John Bartholomew <johnb213@users.sourceforge.net>
 #          - option to run OgreXMLConverter automatically on the exported files
 #
@@ -337,7 +338,7 @@ class ReplacementScrollbar:
 				Blender.Draw.Redraw(1)
 			# Mouse
 			elif (event == Blender.Draw.MOUSEX):
-				# check if mouse is inside postionRect
+				# check if mouse is inside positionRect
 				if (value >= (self.guiRect[0] + self.positionRect[0])) and (value <= (self.guiRect[0] + self.positionRect[2])):
 					# redraw if marker got focus
 					if (not self.mouseFocusX) and self.mouseFocusY:
@@ -1269,7 +1270,7 @@ class XMLVertex:
 	# getter and setter
 	def getElements(self):
 		return self.elementDict.keys()
-	def getPostion(self):
+	def getPosition(self):
 		return self.elementDict['position']
 	def getNormal(self):
 		return self.elementDict['normal']
@@ -1361,7 +1362,7 @@ class XMLVertexStringView:
 			keyList = [key for key in keyList if key in self.xmlVertex.getElements()]
 		s = self._indent(indent) + "<vertex>\n"
 		if keyList.count('position'):
-			position = self.xmlVertex.getPostion()
+			position = self.xmlVertex.getPosition()
 			s += self._indent(indent+1)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(position)
 		if keyList.count('normal'):
 			normal = self.xmlVertex.getNormal()
@@ -1944,10 +1945,22 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 				verticesDict[face.v[i].index] = vertex
 			# postcondition: vertex is current vertex
 			face_vertices[i] = vertex
-		# Split faces with more than 3 vertices
-		Face(submesh, face_vertices[0], face_vertices[1], face_vertices[2])
-		if len(face.v) == 4:
-			Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
+		
+		if len(face.v) == 3:
+			Face(submesh, face_vertices[0], face_vertices[1], face_vertices[2])
+		elif len(face.v) == 4:
+			# Split faces with 4 vertices on the shortest edge
+			differenceVectorList = [[0,0,0],[0,0,0]]
+			for indexOffset in range(2):
+				for coordinate in range(3):
+					differenceVectorList[indexOffset][coordinate] = face_vertices[indexOffset].xmlVertex.getPosition()[coordinate] \
+					                                              - face_vertices[indexOffset+2].xmlVertex.getPosition()[coordinate]
+			if Mathutils.Vector(differenceVectorList[0]).length < Mathutils.Vector(differenceVectorList[1]).length:
+				Face(submesh, face_vertices[0], face_vertices[1], face_vertices[2])
+				Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
+			else:
+				Face(submesh, face_vertices[0], face_vertices[1], face_vertices[3])
+				Face(submesh, face_vertices[3], face_vertices[1], face_vertices[2])
 	else:
 		exportLogger.logWarning("Ignored face with %d edges." % len(face.v))
 	return
@@ -2060,7 +2073,7 @@ def export_mesh(object):
 ## file output
 
 def tab(tabsize):
-    return "  " * tabsize
+    return "\t" * tabsize
     
 def clamp(val):
     if val < 0.0:
@@ -2239,6 +2252,126 @@ def write_mesh(name, submeshes, skeleton):
   convertXMLFile(os.path.join(pathString.val, file))
   return
 
+def writeBumpMapMaterial(file, colorImage, bumpImage):
+	file.write("""	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVPSpecular
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			fragment_program_ref Examples/BumpMapFPSpecular
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+				param_named_auto lightSpecular light_specular_colour 0
+			}
+			texture_unit
+			{
+				texture %s
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 2
+				tex_address_mode clamp
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture %s
+			}
+		}
+	}
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1
+			diffuse 0 0 0 
+			specular 0 0 0 0
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named_auto ambient ambient_light_colour
+			}
+		}
+		pass
+		{
+			ambient 0 0 0 
+			iteration once_per_light
+			scene_blend add
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+			texture_unit
+			{
+				texture %s
+				colour_op replace
+			}
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+		}
+		pass
+		{
+			lighting off
+			vertex_program_ref Ogre/BasicVertexPrograms/AmbientOneTexture
+			{
+				param_named_auto worldViewProj worldviewproj_matrix
+				param_named ambient float4 1 1 1 1
+			}
+			scene_blend dest_colour zero
+			texture_unit
+			{
+				texture %s
+			}
+		}
+	}
+}
+""" % (colorImage, bumpImage, colorImage, bumpImage))	
+	return
+
 def write_materials():
 	global pathString, materialString, exportLogger
 	global materialsDict
@@ -2256,82 +2389,98 @@ def write_materials():
 				f.write(tab(1)+"receive_shadows on\n")
 			else:
 				f.write(tab(1)+"receive_shadows off\n")
-		# technique
-		f.write(tab(1)+"technique\n")
-		f.write(tab(1)+"{\n")
-		# pass
-		f.write(tab(2)+"pass\n")
-		f.write(tab(2)+"{\n")
-		if material.mat:
-			# pass attributes
-			mat = material.mat
-			if (not(mat.mode & Blender.Material.Modes["TEXFACE"])):
-				# world = Blender.World.GetActive()
-				world = None
-				worldList = Blender.World.Get()
-				if (worldList):
-					if (Blender.Get("version") < 234):
-						# Blender.World.GetActive() not available
-						world = worldList[0]
-						exportLogger.logWarning("Can't get active world. Used ambient colour of world \"%s\"" % world.name)
-					elif (Blender.Get("version") == 234):
-						world = Blender.World.GetActive()
-					else:
-						world = Blender.World.GetCurrent() 
-				if (world):
-					ambientRGBList = world.getAmb()
-					# ambient <- amb * world ambient RGB
-					ambR = clamp(mat.amb * ambientRGBList[0])
-					ambG = clamp(mat.amb * ambientRGBList[1])
-					ambB = clamp(mat.amb * ambientRGBList[2])
-					f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
-				if (not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
-					# diffuse <- rgbCol
-					diffR = clamp(mat.rgbCol[0])
-					diffG = clamp(mat.rgbCol[1])
-					diffB = clamp(mat.rgbCol[2])
-					f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
-				# specular <- spec * specCol, hard
-				specR = clamp(mat.spec * mat.specCol[0])
-				specG = clamp(mat.spec * mat.specCol[1])
-				specB = clamp(mat.spec * mat.specCol[2])
-				specShine = mat.hard
-				f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
-				if(not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
-					# emissive <-emit * rgbCol
-					emR = clamp(mat.emit * mat.rgbCol[0])
-					emG = clamp(mat.emit * mat.rgbCol[1])
-					emB = clamp(mat.emit * mat.rgbCol[2])
-					f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
-			# depth_func  <- ZINVERT; ENV
-			if (mat.mode & Blender.Material.Modes["ENV"]):
-				f.write(tab(3)+"depth_func always_fail\n")
-			elif (mat.mode & Blender.Material.Modes["ZINVERT"]):
-				f.write(tab(3)+"depth_func greater_equal\n")
-			# lighting <- SHADELESS
-			if (mat.mode & Blender.Material.Modes["SHADELESS"]):
-				f.write(tab(3)+"lighting off\n")
-			# fog_override <- NOMIST
-			if (mat.mode & Blender.Material.Modes["NOMIST"]):
-				f.write(tab(3)+"fog_override true\n")
-		elif not(material.texture):
-			# default material
-			f.write(tab(3)+"ambient 0.5 0.22 0.5\n")
-			f.write(tab(3)+"diffuse 1.0 0.44 0.1\n")
-			f.write(tab(3)+"specular 0.5 0.22 0.5 50.0\n")
-			f.write(tab(3)+"emissive 0.0 0.0 0.0\n")
-		# scene_blend <- transp
-		if (material.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
-			f.write(tab(3)+"scene_blend alpha_blend \n")
-		elif (material.mode == Blender.NMesh.FaceTranspModes["ADD"]):
-			f.write(tab(3)+"scene_blend add\n")
-		if material.texture:
-			f.write(tab(3)+"texture_unit\n")
-			f.write(tab(3)+"{\n")
-			f.write(tab(4)+"texture %s\n" % os.path.basename(material.texture))
-			f.write(tab(3)+"}\n") # texture_unit
-		f.write(tab(2)+"}\n") # pass
-		f.write(tab(1)+"}\n") # technique
+		# check material texture maps
+		hasBumpMap = 0
+		iMaterialTexture = 0
+		if material.mat and material.texture:
+			while ((not hasBumpMap) and (iMaterialTexture < 8)):
+				materialTexture = material.mat.getTextures()[iMaterialTexture]
+				iMaterialTexture += 1
+				if ((materialTexture is not None) \
+					and (materialTexture.mapto & Blender.Texture.MapTo['NOR']) \
+					and (materialTexture.texco & Blender.Texture.TexCo['UV']) \
+					and (materialTexture.tex.type == Blender.Texture.Types.IMAGE)):
+						# face has uv texture and material has enabled image texture, map input uv, map to nor
+						writeBumpMapMaterial(f, os.path.basename(materialTexture.tex.image.filename), os.path.basename(material.texture))
+						hasBumpMap = 1
+		if not hasBumpMap:
+			# without material texture maps
+			# technique
+			f.write(tab(1)+"technique\n")
+			f.write(tab(1)+"{\n")
+			# pass
+			f.write(tab(2)+"pass\n")
+			f.write(tab(2)+"{\n")
+			if material.mat:
+				# pass attributes
+				mat = material.mat
+				if (not(mat.mode & Blender.Material.Modes["TEXFACE"])):
+					# world = Blender.World.GetActive()
+					world = None
+					worldList = Blender.World.Get()
+					if (worldList):
+						if (Blender.Get("version") < 234):
+							# Blender.World.GetActive() not available
+							world = worldList[0]
+							exportLogger.logWarning("Can't get active world. Used ambient colour of world \"%s\"" % world.name)
+						elif (Blender.Get("version") == 234):
+							world = Blender.World.GetActive()
+						else:
+							world = Blender.World.GetCurrent() 
+					if (world):
+						ambientRGBList = world.getAmb()
+						# ambient <- amb * world ambient RGB
+						ambR = clamp(mat.amb * ambientRGBList[0])
+						ambG = clamp(mat.amb * ambientRGBList[1])
+						ambB = clamp(mat.amb * ambientRGBList[2])
+						f.write(tab(3)+"ambient %f %f %f\n" % (ambR, ambG, ambB))
+					if (not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+						# diffuse <- rgbCol
+						diffR = clamp(mat.rgbCol[0])
+						diffG = clamp(mat.rgbCol[1])
+						diffB = clamp(mat.rgbCol[2])
+						f.write(tab(3)+"diffuse %f %f %f\n" % (diffR, diffG, diffB))
+					# specular <- spec * specCol, hard
+					specR = clamp(mat.spec * mat.specCol[0])
+					specG = clamp(mat.spec * mat.specCol[1])
+					specB = clamp(mat.spec * mat.specCol[2])
+					specShine = mat.hard
+					f.write(tab(3)+"specular %f %f %f %f\n" % (specR, specG, specB, specShine))
+					if(not(mat.mode & Blender.Material.Modes["VCOL_PAINT"])):
+						# emissive <-emit * rgbCol
+						emR = clamp(mat.emit * mat.rgbCol[0])
+						emG = clamp(mat.emit * mat.rgbCol[1])
+						emB = clamp(mat.emit * mat.rgbCol[2])
+						f.write(tab(3)+"emissive %f %f %f\n" % (emR, emG, emB))
+				# depth_func  <- ZINVERT; ENV
+				if (mat.mode & Blender.Material.Modes["ENV"]):
+					f.write(tab(3)+"depth_func always_fail\n")
+				elif (mat.mode & Blender.Material.Modes["ZINVERT"]):
+					f.write(tab(3)+"depth_func greater_equal\n")
+				# lighting <- SHADELESS
+				if (mat.mode & Blender.Material.Modes["SHADELESS"]):
+					f.write(tab(3)+"lighting off\n")
+				# fog_override <- NOMIST
+				if (mat.mode & Blender.Material.Modes["NOMIST"]):
+					f.write(tab(3)+"fog_override true\n")
+			elif not(material.texture):
+				# default material
+				f.write(tab(3)+"ambient 0.5 0.22 0.5\n")
+				f.write(tab(3)+"diffuse 1.0 0.44 0.1\n")
+				f.write(tab(3)+"specular 0.5 0.22 0.5 50.0\n")
+				f.write(tab(3)+"emissive 0.0 0.0 0.0\n")
+			# scene_blend <- transp
+			if (material.mode == Blender.NMesh.FaceTranspModes["ALPHA"]):
+				f.write(tab(3)+"scene_blend alpha_blend \n")
+			elif (material.mode == Blender.NMesh.FaceTranspModes["ADD"]):
+				f.write(tab(3)+"scene_blend add\n")
+			if material.texture:
+				f.write(tab(3)+"texture_unit\n")
+				f.write(tab(3)+"{\n")
+				f.write(tab(4)+"texture %s\n" % os.path.basename(material.texture))
+				f.write(tab(3)+"}\n") # texture_unit
+			f.write(tab(2)+"}\n") # pass
+			f.write(tab(1)+"}\n") # technique
 		f.write("}\n\n") # material
 	f.close()
 
