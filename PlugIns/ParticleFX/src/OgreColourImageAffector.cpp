@@ -66,10 +66,11 @@ namespace Ogre {
         Particle*			p;
 		ParticleIterator	pi				= pSystem->_getIterator();
 
-		Real				width			= mColourImage.getWidth()  - 1;
-		Real				height			= mColourImage.getHeight() - 1;
+		int				   width			= mColourImage.getWidth()  - 1;
+		int				   height			= mColourImage.getHeight() - 1;
 		const uchar*		data			= mColourImage.getData();
-
+        const Real      div_255         = 1.0f / 255.f;
+        
 		while (!pi.end())
 		{
 			p = pi.getNext();
@@ -83,25 +84,30 @@ namespace Ogre {
 
 			const Real		float_index		= particle_time * width;
 			const int		index			= (int)float_index;
-			const int		position		= index * 4;
-			const Real		div_255			= 1.0f / 255.f;
-				
-			if (index <= 0 || index >= width)
-			{
-				p->mColour.r = (data[position + 0] * div_255);
-				p->mColour.g = (data[position + 1] * div_255);
-				p->mColour.b = (data[position + 2] * div_255);
-				p->mColour.a = (data[position + 3] * div_255);
-			} else
-			{
-				const Real		fract		= float_index - (Real)index;
-				const Real		to_color	= fract * div_255;
-				const Real		from_color	= (div_255 - to_color);
 
-				p->mColour.r = (data[position + 0] * from_color) + (data[position + 4] * to_color);
-				p->mColour.g = (data[position + 1] * from_color) + (data[position + 5] * to_color);
-				p->mColour.b = (data[position + 2] * from_color) + (data[position + 6] * to_color);
-				p->mColour.a = (data[position + 3] * from_color) + (data[position + 7] * to_color);
+            if(index < 0)
+            {
+                mColourImage.getColourAt(&p->mColour, 0, 0, 0);
+            }
+            else if(index >= width) 
+            {
+                mColourImage.getColourAt(&p->mColour, width, 0, 0);
+            }
+            else
+            {
+                // Linear interpolation
+				const Real		fract		= float_index - (Real)index;
+				const Real		to_colour	= fract;
+				const Real		from_colour	= 1.0f - to_colour;
+             
+                ColourValue from,to;
+                mColourImage.getColourAt(&from, index, 0, 0);
+                mColourImage.getColourAt(&to, index+1, 0, 0);
+
+				p->mColour.r = from.r*from_colour + to.r*to_colour;
+                p->mColour.g = from.g*from_colour + to.g*to_colour;
+                p->mColour.b = from.b*from_colour + to.b*to_colour;
+                p->mColour.a = from.a*from_colour + to.a*to_colour;
 			}
 		}
     }
@@ -114,11 +120,12 @@ namespace Ogre {
 
 		PixelFormat	format = mColourImage.getFormat();
 
-		if ( format != PF_A8R8G8B8 )
+		if ( !PixelUtil::isAccessible(format) )
 		{
-			Except( Exception::ERR_INVALIDPARAMS, "Error: Image is not a rgba image.",
+			Except( Exception::ERR_INVALIDPARAMS, "Error: Image is not accessible (rgba) image.",
 					"ColourImageAffector::setImageAdjust" );
 		}
+
 	}
     //-----------------------------------------------------------------------
     String ColourImageAffector::getImageAdjust(void) const
