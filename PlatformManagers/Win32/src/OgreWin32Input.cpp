@@ -22,7 +22,10 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+
 #include "OgreWin32Input.h"
+#ifdef DX7INPUTONLY
+
 #include "OgreRenderWindow.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
@@ -33,7 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    Win32Input::Win32Input()
+    Win32Input::Win32Input() :
+		InputReader()
     {
         mlpDI = 0;
         mlpDIKeyboard = 0;
@@ -182,7 +186,7 @@ namespace Ogre {
         }
 
 
-        LogManager::getSingleton().logMessage("Win32Input: DirectInput OK.");
+        LogManager::getSingleton().logMessage("Win32Input: DirectInput OK.(**** YES !!!, the old version using DX7****)");
 
     }
 
@@ -289,7 +293,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    bool Win32Input::isKeyDown(KeyCode kc)
+    bool Win32Input::isKeyDown(KeyCode kc) const 
     {
         if (mKeyboardBuffer[kc] & 0x80)
         {
@@ -302,15 +306,16 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    int Win32Input::getMouseRelativeX(void)
+    long Win32Input::getMouseRelX(void) const 
     {
-        return mMouseX - mMouseCenterX;
+        return (long)(mMouseX - mMouseCenterX);
     }
     //-----------------------------------------------------------------------
-    int Win32Input::getMouseRelativeY(void)
+    long Win32Input::getMouseRelY(void) const 
     {
-        return mMouseY - mMouseCenterY;
+        return (long)(mMouseY - mMouseCenterY);
     }
 
 
 } // namespace
+#endif
