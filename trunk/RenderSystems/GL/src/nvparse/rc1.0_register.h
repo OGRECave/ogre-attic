@@ -8,7 +8,7 @@
 
 #ifdef MACOS
 #include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
+#include "GL/glext.h"
 #else
 #define GL_GLEXT_LEGACY
 #include <GL/gl.h>
