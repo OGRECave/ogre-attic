@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 #endif
 {
     // Create application object
-    LightsApplication app;
+    LightingApplication app;
 
     try {
         app.go();
