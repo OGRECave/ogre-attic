@@ -570,7 +570,6 @@ void XMLToBinary(XmlOptions opts)
 
 void skeletonToXML(XmlOptions opts)
 {
-    struct stat tagStat;
 
     std::ifstream ifs;
     ifs.open(opts.source.c_str(), std::ios_base::in | std::ios_base::binary);
