@@ -2,6 +2,9 @@
 #include "ogre.h"
 
 #pragma auto_inline( off ) 
+LogManager *pLogMgr;
+MaterialManager *pMatMgr;
+SkeletonManager *pSkelMgr;
 void Lwo2MeshWriter::createSingletons() 
 { 
    pLogMgr = new LogManager(); 

@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /W3 /Gi /GX /O2 /Ob2 /I "..\include" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /D "TIXML_USE_STL" /Fr /FD /c
+# ADD CPP /nologo /MD /W3 /Gi /GX /O2 /Ob2 /I "..\include" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "WIN32" /D "TIXML_USE_STL" /Fr /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x809 /d "NDEBUG"
 # ADD RSC /l 0x809 /d "NDEBUG"
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:console /machine:I386
-# ADD LINK32 ogremain.lib /nologo /subsystem:console /profile /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libcmt.lib" /nodefaultlib:"libcmtd.lib" /libpath:"\projects\stlport\lib" /libpath:"\cvs\ogre\ogrenew\OgreMain\lib\release" /libpath:"\cvs\ogre\ogrenew\Dependencies\lib\release"
+# ADD LINK32 ogremain.lib /nologo /subsystem:console /profile /machine:I386 /nodefaultlib:"libcd.lib" /nodefaultlib:"libcmt.lib" /nodefaultlib:"libcmtd.lib" /libpath:"..\..\..\OgreMain\lib\Release"
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "Lwo2Mesh - Win32 Debug"
@@ -76,7 +76,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ogremain.lib /nologo /subsystem:console /profile /debug /machine:I386 /nodefaultlib:"libc.lib" /nodefaultlib:"libcd.lib" /nodefaultlib:"libcmt.lib" /libpath:"\projects\stlport\lib" /libpath:"\cvs\ogre\ogrenew\ogreMain\lib\debug" /libpath:"\cvs\ogre\ogrenew\Dependencies\lib\debug"
+# ADD LINK32 ogremain.lib /nologo /subsystem:console /profile /debug /machine:I386 /nodefaultlib:"libc.lib" /nodefaultlib:"libcd.lib" /nodefaultlib:"libcmt.lib" /libpath:"..\..\..\OgreMain\lib\Debug"
 # SUBTRACT LINK32 /verbose
 
 !ENDIF 
