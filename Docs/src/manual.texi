@@ -940,9 +940,10 @@ Default: tex_coord_set 0@*@*
 
 @anchor{tex_address_mode}
 @subheading tex_address_mode
-Defines what happens when texture coordinates exceed 1.0 for this texture layer.@*@*
+Defines what happens when texture coordinates exceed 1.0 for this texture layer.You can use the simple format to specify the addressing mode for all 3 potential texture coordinates at once, or you can use the 2/3 parameter extended format to specify a different mode per texture coordinate. @*@*
 
-Format: tex_address_mode <wrap|clamp|mirror>
+Simple Format: tex_address_mode <uvw_mode> @*
+Extended Format: tex_address_mode <u_mode> <v_mode> [<w_mode>]
 @table @asis
 @item wrap
 	Any value beyond 1.0 wraps back to 0.0. Texture is repeated.

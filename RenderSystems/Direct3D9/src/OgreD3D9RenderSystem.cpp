@@ -1486,14 +1486,15 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureAddressingMode( size_t stage, TextureUnitState::TextureAddressingMode tam )
+	void D3D9RenderSystem::_setTextureAddressingMode( size_t stage, 
+		const TextureUnitState::UVWAddressingMode& uvw )
 	{
 		HRESULT hr;
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSU, D3D9Mappings::get(tam) ) ) )
+		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSU, D3D9Mappings::get(uvw.u) ) ) )
 			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for U", "D3D9RenderSystem::_setTextureAddressingMode" );
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSV, D3D9Mappings::get(tam) ) ) )
+		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSV, D3D9Mappings::get(uvw.v) ) ) )
 			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for V", "D3D9RenderSystem::_setTextureAddressingMode" );
-		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSW, D3D9Mappings::get(tam) ) ) )
+		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSW, D3D9Mappings::get(uvw.w) ) ) )
 			OGRE_EXCEPT( hr, "Failed to set texture addressing mode for W", "D3D9RenderSystem::_setTextureAddressingMode" );
 	}
 	//---------------------------------------------------------------------
