@@ -32,17 +32,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    typedef std::list<MovableObject*> SceneQueryResultMovableList;
-    //typedef std::list<WorldFragment*> SceneQueryResultWorldFragmentList;
-    /** Holds the results of a scene query. */
-    struct _OgreExport SceneQueryResult
-    {
-        /// List of movable objects in the query (entities, particle systems etc)
-        SceneQueryResultMovableList movables;
-        // TODO: add world geometry fragment list
-        //
-        
-    };
 
     /** This optional class allows you to receive per-result callbacks from
         SceneQuery executions instead of a single set of consolidated results.
@@ -92,7 +81,6 @@ namespace Ogre {
     class _OgreExport SceneQuery
     {
     protected:
-        SceneQueryResult* mLastResult;
         SceneManager* mParentSceneMgr;
         unsigned long mQueryMask;
     
@@ -100,6 +88,49 @@ namespace Ogre {
         /** Standard constructor, should be called by SceneManager. */
         SceneQuery(SceneManager* mgr);
         virtual ~SceneQuery();
+
+        /** Sets the mask for results of this query.
+        @remarks
+            This method allows you to set a 'mask' to limit the results of this
+            query to certain types of result. The actual meaning of this value is
+            up to the application; basically MovableObject instances will only be returned
+            from this query if a bitwise AND operation between this mask value and the
+            MovableObject::getQueryFlags value is non-zero. The application will
+            have to decide what each of the bits means.
+        */
+        virtual void setQueryMask(unsigned long mask);
+        /** Returns the current mask for this query. */
+        virtual unsigned long getQueryMask(void);
+
+        
+    };
+
+    typedef std::list<MovableObject*> SceneQueryResultMovableList;
+    //typedef std::list<WorldFragment*> SceneQueryResultWorldFragmentList;
+    /** Holds the results of a scene query. */
+    struct _OgreExport SceneQueryResult
+    {
+        /// List of movable objects in the query (entities, particle systems etc)
+        SceneQueryResultMovableList movables;
+        // TODO: add world geometry fragment list
+        //
+        
+    };
+
+    /** Abstract class defining a query which returns single results from a region. 
+    @remarks
+        This class is simply a generalisation of the subtypes of query that return 
+        a set of individual results in a region. See the SceneQuery class for abstract
+        information, and subclasses for the detail of each query type.
+    */
+    class _OgreExport RegionSceneQuery : public SceneQuery
+    {
+    protected:
+        SceneQueryResult* mLastResult;
+    public:
+        /** Standard constructor, should be called by SceneManager. */
+        RegionSceneQuery(SceneManager* mgr);
+        virtual ~RegionSceneQuery();
         /** Executes the query, returning the results back in one list.
         @remarks
             This method executes the scene query as configured, gathers the results
@@ -125,25 +156,10 @@ namespace Ogre {
             results itself when executing and when destroying itself.
         */
         virtual void clearResults(void);
-
-        /** Sets the mask for results of this query.
-        @remarks
-            This method allows you to set a 'mask' to limit the results of this
-            query to certain types of result. The actual meaning of this value is
-            up to the application; basically MovableObject instances will only be returned
-            from this query if a bitwise AND operation between this mask value and the
-            MovableObject::getQueryFlags value is non-zero. The application will
-            have to decide what each of the bits means.
-        */
-        virtual void setQueryMask(unsigned long mask);
-        /** Returns the current mask for this query. */
-        virtual unsigned long getQueryMask(void);
-
-        
     };
 
     /** Specialises the SceneQuery class for querying within an axis aligned box. */
-    class _OgreExport AxisAlignedBoxSceneQuery : public SceneQuery
+    class _OgreExport AxisAlignedBoxSceneQuery : public RegionSceneQuery
     {
     protected:
         AxisAlignedBox mAABB;
@@ -160,7 +176,7 @@ namespace Ogre {
     };
 
     /** Specialises the SceneQuery class for querying within a sphere. */
-    class _OgreExport SphereSceneQuery : public SceneQuery
+    class _OgreExport SphereSceneQuery : public RegionSceneQuery
     {
     protected:
         Sphere mSphere;
@@ -176,10 +192,12 @@ namespace Ogre {
     };
 
     /** Specialises the SceneQuery class for querying along a ray. */
-    class _OgreExport RaySceneQuery : public SceneQuery
+    class _OgreExport RaySceneQuery : public RegionSceneQuery
     {
     protected:
         Ray mRay;
+        bool mSortByDistance;
+        ushort mMaxResults;
     public:
         RaySceneQuery(SceneManager* mgr);
         virtual ~RaySceneQuery();
@@ -187,11 +205,38 @@ namespace Ogre {
         void setRay(const Ray& ray);
         /** Gets the ray which is to be used for this query. */
         const Ray& getRay(void);
+        /** Sets whether the results of this query will be sorted by distance along the ray.
+        @remarks
+            Often you want to know what was the first object a ray intersected with, and this 
+            method allows you to ask the query to sort the results so that the nearest results
+            are listed first.
+        @par
+            Note that because the query returns results based on bounding volumes, the ray may not
+            actually intersect the detail of the objects returned from the query, just their 
+            bounding volumes. For this reason the caller is advised to use more detailed 
+            intersection tests on the results if a more accurate result is required; OGRE uses 
+            bounds checking in order to give the most speedy results since not all applications 
+            need extreme accuracy.
+        @param sort If true, results will be sorted.
+        @param maxresults If sorting is enabled, this value can be used to constrain the maximum number
+            of results that are returned. Please note (as above) that the use of bounding volumes mean that
+            accuracy is not guaranteed; if in doubt, allow more results and filter them in more detail.
+            0 means unlimited results.
+        */
+        void setSortByDistance(bool sort, ushort maxresults = 0);
+        /** Gets whether the results are sorted by distance. */
+        bool getSortByDistance(void);
+        /** Gets the maximum number of results returned from the query (only relevant if 
+        results are being sorted) */
+        ushort getMaxResults(void);
+
+
+
 
     };
 
     /** Specialises the SceneQuery class for querying within a pyramid. */
-    class _OgreExport PyramidSceneQuery : public SceneQuery
+    class _OgreExport PyramidSceneQuery : public RegionSceneQuery
     {
     public:
         PyramidSceneQuery(SceneManager* mgr);
@@ -204,7 +249,7 @@ namespace Ogre {
         Because the IntersectionSceneQuery returns results in pairs, rather than singularly,
         the listener interface must be customised from the standard SceneQueryListener.
     */
-    class _OgreExport IntersectionSceneQueryListener
+    class _OgreExport IntersectionSceneQueryListener 
     {
     public:
         /** Called when 2 movable objects intersect one another.
@@ -213,7 +258,7 @@ namespace Ogre {
             if further results are required, or 'false' to abandon any further results from
             the current query.
         */
-        virtual bool queryResult(MovableObject* first, MovableObject* second);
+        virtual bool queryResult(MovableObject* first, MovableObject* second) = 0;
 
         /** Called when a movable intersects a world fragment. 
         @remarks
@@ -249,23 +294,15 @@ namespace Ogre {
     /** Separate SceneQuery class to query for pairs of objects which are
         possibly intersecting one another.
     @remarks
-        This SceneQuery subclass differs from all the others because instead of dealing 
-        with a region, it considers the whole world and returns pairs of objects
+        This SceneQuery subclass considers the whole world and returns pairs of objects
         which are close enough to each other that they may be intersecting. Because of
         this slightly different focus, the return types and listener interface are
         different for this class.
-    @par
-        NB this is not a subclass of SceneQuery because return types and listeners are
-        not polymorphic therefore inheritance for the sake of reusing a couple of utility
-        methods is not worth it. There is almost certainly a better design than this out there,
-        but it's probably overcomplex for this simple case.
     */
-    class _OgreExport IntersectionSceneQuery 
+    class _OgreExport IntersectionSceneQuery : public SceneQuery
     {
     protected:
         IntersectionSceneQueryResult* mLastResult;
-        SceneManager* mParentSceneMgr;
-        unsigned long mQueryMask;
     public:
         IntersectionSceneQuery(SceneManager* mgr);
         virtual ~IntersectionSceneQuery();
@@ -295,18 +332,6 @@ namespace Ogre {
             results itself when executing and when destroying itself.
         */
         virtual void clearResults(void);
-        /** Sets the mask for results of this query.
-        @remarks
-            This method allows you to set a 'mask' to limit the results of this
-            query to certain types of result. The actual meaning of this value is
-            up to the application; basically MovableObject instances will only be returned
-            from this query if a bitwise AND operation between this mask value and the
-            MovableObject::getQueryFlags value is non-zero. The application will
-            have to decide what each of the bits means.
-        */
-        virtual void setQueryMask(unsigned long mask);
-        /** Returns the current mask for this query. */
-        virtual unsigned long getQueryMask(void);
     };
     
 
