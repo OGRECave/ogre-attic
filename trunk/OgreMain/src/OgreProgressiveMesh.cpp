@@ -81,7 +81,7 @@ namespace Ogre {
                 idataend = mWorkingData.end();
                 for (idata = mWorkingData.begin(); idata != idataend; ++idata)
                 {
-                    PMVertex* collapser = idata->mVertList.begin() + nextIndex;
+                    PMVertex* collapser = &( idata->mVertList.at( /*begin() + */nextIndex ) );
                     // This will reduce mCurrNumIndexes and recalc costs as required
                     collapse(collapser);
                 }
@@ -275,7 +275,7 @@ namespace Ogre {
         Real cost;
         for(n = v->neighbor.begin(); n != nend; ++n) 
         {
-            cost = computeEdgeCollapseCost(v, *n);
+            cost = computeEdgeCollapseCost(&(*v), *n);
             if( (!v->collapseTo) || cost < v->collapseCost) 
             {
                 v->collapseTo = *n;  // candidate for edge collapse
