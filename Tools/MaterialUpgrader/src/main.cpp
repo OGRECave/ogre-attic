@@ -68,7 +68,8 @@ int main(int numargs, char** args)
 
     logMgr = new LogManager();
     mth = new Math();
-    matMgr = new MaterialManager();;
+    matMgr = new MaterialManager();
+    matMgr->initialise();
 
     String source(args[1]);
 
