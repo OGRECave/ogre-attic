@@ -272,7 +272,7 @@ namespace Ogre {
 
 	void* Win32GLSupport::getProcAddress(const String& procname)
 	{
-        return wglGetProcAddress( procname.c_str() );
+        	return (void*)wglGetProcAddress( procname.c_str() );
 	}
 
 	void Win32GLSupport::resizeReposition(void* renderTarget)

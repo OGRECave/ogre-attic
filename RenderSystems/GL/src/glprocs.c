@@ -1,3 +1,4 @@
+#ifdef _WIN32
 /*
 ** GLprocs utility for getting function addresses for OpenGL(R) 1.2, 
 ** OpenGL 1.3 and OpenGL extension functions.
@@ -9487,3 +9488,5 @@ _GLextensionProcs _extensionProcs = {
     InitGetProgramivARB
 	// END OGRE CHANGES
 };
+
+#endif
