@@ -48,7 +48,7 @@ protected:
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
         // Create a skybox
-        mSceneMgr->setSkyBox(true, "Examples/SceneSkyBox");
+        mSceneMgr->setSkyBox(true, "Examples/SceneSkyBox2");
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
@@ -60,7 +60,7 @@ protected:
         SceneNode* s = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
 
         Entity* ent = mSceneMgr->createEntity( "sphere", "sphere.mesh" );
-        ent->setMaterialName( "Examples/SceneCubeMap" );
+        ent->setMaterialName( "Examples/SceneCubeMap2" );
 
         s->attachObject( ent );
     }
