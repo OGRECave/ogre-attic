@@ -133,8 +133,21 @@ public:
             // Work out the direction
             Vector3 direction = fishLastPosition[fish] - newPos;
             direction.normalise();
-            Quaternion orientation = -Vector3::UNIT_X.getRotationTo(direction);
-            fishNodes[fish]->setOrientation(orientation);
+			// Test for opposite vectors
+			Real d = 1.0f + Vector3::UNIT_X.dotProduct(direction);
+			if (fabs(d) < 0.00001)
+			{
+				// Diametrically opposed vectors
+				Quaternion orientation;
+				orientation.FromAxes(Vector3::NEGATIVE_UNIT_X, 
+					Vector3::UNIT_Y, Vector3::NEGATIVE_UNIT_Z);
+				fishNodes[fish]->setOrientation(orientation);
+			}
+			else
+			{
+				fishNodes[fish]->setOrientation(
+					Vector3::UNIT_X.getRotationTo(direction));
+			}
             fishLastPosition[fish] = newPos;
 
         }
