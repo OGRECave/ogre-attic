@@ -1946,9 +1946,9 @@ def export_testskel(testskel):
       [ p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2] ],
       [ p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2] ]))
     
-    v1 = Vertex(submesh, p1, normal)
-    v2 = Vertex(submesh, p2, normal)
-    v3 = Vertex(submesh, p3, normal)
+    v1 = Vertex(submesh, XMLVertex(p1, normal))
+    v2 = Vertex(submesh, XMLVertex(p2, normal))
+    v3 = Vertex(submesh, XMLVertex(p3, normal))
 
     id = testskel.skeleton.bonesDict[name]
     v1.influences.append(Influence(id, 1.0))
@@ -2322,16 +2322,17 @@ def write_mesh(name, submeshes, skeleton):
       for v in submesh.vertices:
         f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['normal','position']))
       f.write(tab(4)+"</vertexbuffer>\n")
-      if submesh.material.texture or (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-        f.write(tab(4)+"<vertexbuffer")
-        if submesh.material.texture:
-            f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
-        if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
-            f.write(" colours_diffuse=\"true\"")
-        f.write(">\n")
-        for v in submesh.vertices:
-          f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
-        f.write(tab(4)+"</vertexbuffer>\n")
+      if submesh.material.mat:
+        if submesh.material.texture or (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+          f.write(tab(4)+"<vertexbuffer")
+          if submesh.material.texture:
+              f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+          if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+              f.write(" colours_diffuse=\"true\"")
+          f.write(">\n")
+          for v in submesh.vertices:
+            f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
+          f.write(tab(4)+"</vertexbuffer>\n")
     else:
       # use only one vertex buffer if mesh is not animated
       f.write(tab(4)+"<vertexbuffer ")
