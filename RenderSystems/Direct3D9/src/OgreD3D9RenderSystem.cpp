@@ -117,6 +117,7 @@ namespace Ogre
 	D3D9RenderSystem::~D3D9RenderSystem()
 	{
 		OgreGuard( "D3D9RenderSystem::~D3D9RenderSystem" );
+        shutdown();
 
 		// Unbind any vertex streams to avoid memory leaks
 		for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)

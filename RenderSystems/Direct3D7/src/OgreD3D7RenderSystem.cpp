@@ -96,6 +96,7 @@ namespace Ogre {
     D3DRenderSystem::~D3DRenderSystem()
     {
         OgreGuard( "D3DRenderSystem::~D3DRenderSystem" );
+        shutdown();
 
         SAFE_DELETE(mTextureManager);
         SAFE_DELETE(mDriverList);
