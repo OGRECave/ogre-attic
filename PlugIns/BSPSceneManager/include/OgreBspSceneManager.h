@@ -103,6 +103,9 @@ namespace Ogre {
         /** Renders the static level geometry tagged in walkTree. */
         void renderStaticGeometry(void);
 
+		/** @copydoc SceneManager::clearScene */
+		void clearScene(void);
+
 
         typedef std::set<const MovableObject*> MovablesForRendering;
         MovablesForRendering mMovablesForRendering;

@@ -76,7 +76,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::setWorldGeometry(const String& filename)
     {
-        // Check extension is .bsp
+        if (mLevel)
+		{
+			// destroy
+			BspResourceManager::getSingleton().unloadAndDestroyAll();
+			mLevel = 0;
+		}
+		// Check extension is .bsp
         char extension[6];
         size_t pos = filename.find_last_of(".");
 		if( pos == String::npos )
@@ -208,6 +214,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     BspNode* BspSceneManager::walkTree(Camera* camera, bool onlyShadowCasters)
     {
+		if (!mLevel) return 0;
+
         // Locate the leaf node where the camera is located
         BspNode* cameraNode = mLevel->findLeaf(camera->getDerivedPosition());
 
@@ -527,12 +535,26 @@ namespace Ogre {
     void BspSceneManager::_notifyObjectMoved(const MovableObject* mov, 
         const Vector3& pos)
     {
-        mLevel->_notifyObjectMoved(mov, pos);
+		if (mLevel)
+		{
+			mLevel->_notifyObjectMoved(mov, pos);
+		}
     }
     //-----------------------------------------------------------------------
 	void BspSceneManager::_notifyObjectDetached(const MovableObject* mov)
 	{
-		mLevel->_notifyObjectDetached(mov);
+		if (mLevel)
+		{
+			mLevel->_notifyObjectDetached(mov);
+		}
+	}
+	//-----------------------------------------------------------------------
+	void BspSceneManager::clearScene(void)
+	{
+		SceneManager::clearScene();
+		// Clear level
+		BspResourceManager::getSingleton().unloadAndDestroyAll();
+		mLevel = 0;
 	}
     //-----------------------------------------------------------------------
     /*
@@ -584,6 +606,8 @@ namespace Ogre {
         overlap 2 leaves?
         */
         BspLevel* lvl = ((BspSceneManager*)mParentSceneMgr)->getLevel();
+		if (!lvl) return;
+
         BspNode* leaf = lvl->getLeafStart();
         int numLeaves = lvl->getNumLeaves();
         
@@ -685,9 +709,13 @@ namespace Ogre {
     void BspRaySceneQuery::execute(RaySceneQueryListener* listener)
     {
         clearTemporaries();
-        processNode(
-            static_cast<BspSceneManager*>(mParentSceneMgr)->getLevel()->getRootNode(), 
-            mRay, listener);
+		BspLevel* lvl = static_cast<BspSceneManager*>(mParentSceneMgr)->getLevel();
+		if (lvl)
+		{
+			processNode(
+				lvl->getRootNode(), 
+				mRay, listener);
+		}
     }
     //-----------------------------------------------------------------------
     BspRaySceneQuery::~BspRaySceneQuery()
