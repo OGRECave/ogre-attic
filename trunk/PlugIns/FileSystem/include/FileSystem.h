@@ -46,6 +46,8 @@ public:
 
     bool _allowFileCaching() const { return true; }
 
+    const String& getBasePath(void) const { return mstrBasePath; }
+
 private:
     void setPath() const;
     void unsetPath() const;
