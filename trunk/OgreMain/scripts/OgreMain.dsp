@@ -360,6 +360,10 @@ SOURCE=..\src\OgreSDDataChunk.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreSerializer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSimpleRenderable.cpp
 # End Source File
 # Begin Source File
@@ -373,6 +377,10 @@ SOURCE=..\src\OgreSkeleton.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreSkeletonManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreSkeletonSerializer.cpp
 # End Source File
 # Begin Source File
 
@@ -808,6 +816,10 @@ SOURCE=..\include\OgreSDDataChunk.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreSerializer.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreSimpleRenderable.h
 # End Source File
 # Begin Source File
@@ -820,7 +832,15 @@ SOURCE=..\include\OgreSkeleton.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreSkeletonFileFormat.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreSkeletonManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreSkeletonSerializer.h
 # End Source File
 # Begin Source File
 

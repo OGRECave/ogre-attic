@@ -44,6 +44,9 @@ namespace Ogre {
         geometry.numVertices = 0;
         geometry.pColours = 0;
         geometry.pNormals = 0;
+        geometry.pBlendingWeights = 0;
+        geometry.numBlendWeightsPerVertex = 0;
+
         for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             geometry.pTexCoords[i] = 0;
@@ -115,6 +118,7 @@ namespace Ogre {
 
         // SubMeshes always use indexes
         ro.useIndexes = true;
+        ro.vertexOptions = 0;
         GeometryData* geom;
 
         if (useTriStrips)
@@ -133,7 +137,7 @@ namespace Ogre {
 
         if (geom->numTexCoords > 0)
         {
-            ro.vertexOptions = RenderOperation::VO_TEXTURE_COORDS;
+            ro.vertexOptions |= RenderOperation::VO_TEXTURE_COORDS;
             ro.numTextureCoordSets = geom->numTexCoords;
             for (int tex = 0; tex < ro.numTextureCoordSets; ++tex)
             {
@@ -152,7 +156,7 @@ namespace Ogre {
 
         if (geom->hasColours)
         {
-            ro.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
+            ro.vertexOptions |= RenderOperation::VO_DIFFUSE_COLOURS;
             ro.pDiffuseColour = geom->pColours;
         }
 
@@ -168,6 +172,13 @@ namespace Ogre {
             ro.numIndexes = numFaces * 3;
 
         ro.pIndexes = faceVertexIndices;
+
+        if (geom->numBlendWeightsPerVertex > 0)
+        {
+            ro.vertexOptions |= RenderOperation::VO_BLEND_WEIGHTS;
+            ro.numBlendWeightsPerVertex = geom->numBlendWeightsPerVertex;
+            ro.pBlendingWeights = geom->pBlendingWeights;
+        }
     }
 
 

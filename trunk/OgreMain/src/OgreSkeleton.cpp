@@ -27,6 +27,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAnimation.h"
 #include "OgreAnimationState.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
+#include "OgreSkeletonManager.h"
+#include "OgreSkeletonSerializer.h"
 
 
 namespace Ogre {
@@ -52,13 +55,45 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Skeleton::load(void)
     {
-        //TODO
+        // Load from specified 'name'
+        if (mIsLoaded)
+        {
+            unload();
+            mIsLoaded = false;
+        }
+
+        SkeletonSerializer serializer;
+        char msg[100];
+        sprintf(msg, "Skeleton: Loading %s .", mName.c_str());
+        LogManager::getSingleton().logMessage(msg);
+
+        DataChunk chunk;
+        SkeletonManager::getSingleton()._findResourceData(mName, chunk);
+
+        // Determine file type
+        std::vector<String> extVec = mName.split(".");
+
+        String& ext = extVec[extVec.size() - 1];
+        ext.toLowerCase();
+
+        if (ext == "skeleton")
+        {
+            serializer.importSkeleton(chunk, this);
+        }
+        else
+        {
+            // Unsupported format
+            chunk.clear();
+            Except(999, "Unsupported skeleton file format.",
+                "Skeleton::load");
+        }
+
+        chunk.clear();
+
     }
     //---------------------------------------------------------------------
     void Skeleton::unload(void)
     {
-        //TODO
-
         // destroy bones, except root
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)

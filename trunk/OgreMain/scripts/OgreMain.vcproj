@@ -332,6 +332,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreSceneNode.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreSerializer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreSimpleRenderable.cpp">
 			</File>
 			<File
@@ -342,6 +345,9 @@ makeall_vc7.bat
 			</File>
 			<File
 				RelativePath="..\src\OgreSkeletonManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreSkeletonSerializer.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreString.cpp">
@@ -666,6 +672,9 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreSceneNode.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreSerializer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreSimpleRenderable.h">
 			</File>
 			<File
@@ -675,7 +684,13 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreSkeleton.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreSkeletonFileFormat.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreSkeletonManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreSkeletonSerializer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSphere.h">

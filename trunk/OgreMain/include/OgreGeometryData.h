@@ -26,8 +26,11 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __GeometryData_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreRenderOperation.h"
+
 
 namespace Ogre {
+
     /** Common structure containing info about geometry.
     */
     struct GeometryData {
@@ -59,6 +62,18 @@ namespace Ogre {
         unsigned short texCoordStride[OGRE_MAX_TEXTURE_COORD_SETS];
         /// The 'Stride' between sets of diffuse colour data. 0 indicates data is packed with no gaps.
         unsigned short colourStride;
+
+        /// The number of vertex blending weights per vertex
+        unsigned short numBlendWeightsPerVertex;
+
+        /** Optional pointer to a list of vertex blending details, organised in vertex order. 
+            The number of weights per vertex is recorded in numBlendWeightsPerVertex - there must
+            be this many for every vertex: set the weight to 0 for those vertices that don't 
+            use all the entries (if some vertices have more than others)
+        */
+        RenderOperation::VertexBlendData* pBlendingWeights;
+
+
     };
 
     /** Helper struct when dealing with buffers.
