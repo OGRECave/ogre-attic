@@ -707,7 +707,7 @@ namespace Ogre {
         mBottomColour = mTopColour;
     }
     //---------------------------------------------------------------------
-    ColourValue TTYGuiElement::getColour(void) const
+    const ColourValue& TTYGuiElement::getColour(void) const
     {
         // Either one
         return mColourTop;
@@ -719,7 +719,7 @@ namespace Ogre {
         Root::getSingleton().convertColourValue(mColourBottom, &mBottomColour);
     }
     //---------------------------------------------------------------------
-    ColourValue TTYGuiElement::getColourBottom(void)
+    const ColourValue& TTYGuiElement::getColourBottom(void) const
     {
         return mColourBottom;
     }
@@ -730,7 +730,7 @@ namespace Ogre {
         Root::getSingleton().convertColourValue(mColourTop, &mTopColour);
     }
     //---------------------------------------------------------------------
-    ColourValue TTYGuiElement::getColourTop(void)
+    const ColourValue& TTYGuiElement::getColourTop(void) const
     {
         return mColourTop;
     }

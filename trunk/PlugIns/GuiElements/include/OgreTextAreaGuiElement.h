@@ -95,7 +95,7 @@ namespace Ogre
         void setColour(const ColourValue& col);
 
         /** Gets the colour of the text. */
-        ColourValue getColour(void) const;
+        const ColourValue& getColour(void) const;
         /** Sets the colour of the bottom of the letters.
         @remarks
             By setting a separate top and bottom colour, you
@@ -104,7 +104,7 @@ namespace Ogre
         */
         void setColourBottom(const ColourValue& col);
         /** Gets the colour of the bottom of the letters. */
-        ColourValue getColourBottom(void);
+        const ColourValue& getColourBottom(void) const;
         /** Sets the colour of the top of the letters.
         @remarks
             By setting a separate top and bottom colour, you
@@ -113,7 +113,7 @@ namespace Ogre
         */
         void setColourTop(const ColourValue& col);
         /** Gets the colour of the top of the letters. */
-        ColourValue getColourTop(void);
+        const ColourValue& getColourTop(void) const;
 
         inline void setAlignment( Alignment a )
         {

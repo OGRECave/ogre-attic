@@ -78,15 +78,15 @@ namespace Ogre {
         colourDepth = mColourDepth;
     }
 
-    int RenderTarget::getWidth(void)
+    int RenderTarget::getWidth(void) const
     {
         return mWidth;
     }
-    int RenderTarget::getHeight(void)
+    int RenderTarget::getHeight(void) const
     {
         return mHeight;
     }
-    int RenderTarget::getColourDepth(void)
+    int RenderTarget::getColourDepth(void) const
     {
         return mColourDepth;
     }
@@ -183,27 +183,27 @@ namespace Ogre {
 
     }
 
-    float RenderTarget::getLastFPS()
+    float RenderTarget::getLastFPS() const
     {
         return mLastFPS;
     }
-    float RenderTarget::getAverageFPS()
+    float RenderTarget::getAverageFPS() const
     {
         return mAvgFPS;
     }
-    float RenderTarget::getBestFPS()
+    float RenderTarget::getBestFPS() const
     {
         return mBestFPS;
     }
-    float RenderTarget::getWorstFPS()
+    float RenderTarget::getWorstFPS() const
     {
         return mWorstFPS;
     }
-    float RenderTarget::getBestFrameTime()
+    float RenderTarget::getBestFrameTime() const
     {
         return mBestFrameTime;
     }
-    float RenderTarget::getWorstFrameTime()
+    float RenderTarget::getWorstFrameTime() const
     {
         return mWorstFrameTime;
     }
@@ -375,7 +375,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    unsigned short RenderTarget::getNumViewports(void)
+    unsigned short RenderTarget::getNumViewports(void) const
     {
         return (unsigned short)mViewportList.size();
 

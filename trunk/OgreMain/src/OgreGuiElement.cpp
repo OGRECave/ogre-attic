@@ -478,7 +478,7 @@ namespace Ogre {
         mColour = col;
     }
     //-----------------------------------------------------------------------
-    ColourValue GuiElement::getColour(void) const
+    const ColourValue& GuiElement::getColour(void) const
     {
         return mColour;
     }

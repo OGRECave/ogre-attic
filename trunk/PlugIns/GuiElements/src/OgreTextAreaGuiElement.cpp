@@ -432,7 +432,7 @@ namespace Ogre {
         updateColours();
     }
     //---------------------------------------------------------------------
-    ColourValue TextAreaGuiElement::getColour(void) const
+    const ColourValue& TextAreaGuiElement::getColour(void) const
     {
         // Either one
         return mColourTop;
@@ -445,7 +445,7 @@ namespace Ogre {
         updateColours();
     }
     //---------------------------------------------------------------------
-    ColourValue TextAreaGuiElement::getColourBottom(void)
+    const ColourValue& TextAreaGuiElement::getColourBottom(void) const
     {
         return mColourBottom;
     }
@@ -457,7 +457,7 @@ namespace Ogre {
         updateColours();
     }
     //---------------------------------------------------------------------
-    ColourValue TextAreaGuiElement::getColourTop(void)
+    const ColourValue& TextAreaGuiElement::getColourTop(void) const
     {
         return mColourTop;
     }

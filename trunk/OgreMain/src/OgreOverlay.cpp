@@ -134,12 +134,12 @@ namespace Ogre {
         mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
-    Real Overlay::getScrollX(void)
+    Real Overlay::getScrollX(void) const
     {
         return mScrollX;
     }
     //---------------------------------------------------------------------
-    Real Overlay::getScrollY(void)
+    Real Overlay::getScrollY(void) const
     {
         return mScrollY;
     }
@@ -173,7 +173,7 @@ namespace Ogre {
         mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
-    Real Overlay::getRotate(void)
+    Real Overlay::getRotate(void) const
     {
         return mRotate;
     }
@@ -190,12 +190,12 @@ namespace Ogre {
         mTransformOutOfDate = true;
     }
     //---------------------------------------------------------------------
-    Real Overlay::getScaleX(void)
+    Real Overlay::getScaleX(void) const
     {
         return mScaleX;
     }
     //---------------------------------------------------------------------
-    Real Overlay::getScaleY(void)
+    Real Overlay::getScaleY(void) const
     {
         return mScaleY;
     }
