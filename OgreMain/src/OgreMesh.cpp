@@ -124,7 +124,7 @@ namespace Ogre {
             }
             else if (ext == "mesh")
             {
-                serializer.import(chunk, this);
+                serializer.importMesh(chunk, this);
             }
             else
             {

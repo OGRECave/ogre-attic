@@ -46,7 +46,7 @@ namespace Ogre {
         <LI>Use the MaterialManager methods to create any dependent Material objects, if you want
             to export them with the Mesh.</LI>
         <LI>Create a Mesh object and populate it using it's methods.</LI>
-        <LI>Call the export method</LI>
+        <LI>Call the exportMesh method</LI>
         </OL>
     @par
         It's important to realise that this exporter uses OGRE terminology. In this context,
@@ -70,7 +70,7 @@ namespace Ogre {
         @param filename The destination filename
         @param includeMaterials If true, Material data is also exported into the file.
         */
-        void export(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
+        void exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
 
         /** Imports Mesh and (optionally) Material data from a .mesh file DataChunk.
         @remarks
@@ -79,7 +79,7 @@ namespace Ogre {
         @param chunk The DataChunk holding the .mesh data. Must be initialised (pos at the start of the buffer).
         @param pDest Pointer to the Mesh object which will receive the data. Should be blank already.
         */
-        void import(DataChunk& chunk, Mesh* pDest);
+        void importMesh(DataChunk& chunk, Mesh* pDest);
 
         /** Imports Mesh and (optionally) Material data from legacy .oof file DataChunk.
         @remarks

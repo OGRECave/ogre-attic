@@ -50,7 +50,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::export(const Mesh* pMesh, const String& filename, bool includeMaterials)
+    void MeshSerializer::exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials)
     {
         MaterialManager& matMgr = MaterialManager::getSingleton();
         mpfFile = fopen(filename, "wb");
@@ -76,7 +76,7 @@ namespace Ogre {
         fclose(mpfFile);
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::import(DataChunk& chunk, Mesh* pDest)
+    void MeshSerializer::importMesh(DataChunk& chunk, Mesh* pDest)
     {
         mpMesh = pDest;
 
