@@ -221,10 +221,13 @@ void GLXInput::capture() {
 
 			XLookupString(&event.xkey,NULL,0,&key,NULL);
 			// Ctrl-Escape should free mouse ala Q****
-			if(event.xkey.state & ControlMask && key == XK_Escape) {
+			// Alt-TAB should free mouse ala SDL
+			if((event.xkey.state & ControlMask && key == XK_Escape)
+			||(event.xkey.state & Mod1Mask && key == XK_Tab)) {
 				GrabCursor(false);
 				break;
 			}
+			
 			ogrekey = _key_map[key]; // key
 
 			// Unbuffered input
