@@ -225,26 +225,10 @@ namespace Ogre {
     {
         bool foundHardware = false;
 
-        if(mNumMipMaps)
+        if(mNumMipMaps && GLSupport::getSingleton().hasHWMipmap())
         {
-#ifdef GL_VERSION_1_4 // GL 1.4 supports hardware mipmapping
-            String version = GLSupport::getSingleton().getGLVersion();
-              //(const char*)glGetString(GL_VERSION);
-            //if(version.substr(0, version.find(" ")) == "1.4.0")
-            if(version == "1.4.0")
-            {
-                glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
-                foundHardware = true;
-            }
-#endif
-#ifdef GL_SGIS_generate_mipmap // Otherwise try and use the SGI extension
-            if(GLSupport::getSingleton().checkExtension("GL_SGIS_generate_mipmap") && !foundHardware)
-            {
-                glTexParameteri( 
-                    GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE );
-                foundHardware = true;
-            }
-#endif
+            glTexParameteri( GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE );
+            foundHardware = true;
         }
 
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
