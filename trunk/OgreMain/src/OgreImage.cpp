@@ -29,7 +29,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreImageCodec.h"
 #include "OgreSDDataChunk.h"
-
+// Dependency on IL/ILU for resize
+#include <IL/il.h>
+#include <IL/ilu.h>
 namespace Ogre {
     ImageCodec::~ImageCodec() {
     }
@@ -492,7 +494,7 @@ namespace Ogre {
 			return false;
 		}
     }
-
+    //-----------------------------------------------------------------------------
     void Image::applyGamma( unsigned char *buffer, Real gamma, size_t size, uchar bpp )
     {
         if( gamma == 1.0f )
@@ -531,4 +533,58 @@ namespace Ogre {
             buffer[2] = (uchar)b;
         }
     }
+    //-----------------------------------------------------------------------------
+	// Local declaration of DevIL functions to prevent DevIL dependencies on header users
+	ILenum getILFilter(Image::Filter filter)
+	{
+		switch (filter)
+		{
+			case Image::FILTER_NEAREST:
+				return ILU_NEAREST;
+			case Image::FILTER_LINEAR:
+				return ILU_LINEAR;
+			case Image::FILTER_BILINEAR:
+				return ILU_BILINEAR;
+			case Image::FILTER_BOX:
+				return ILU_SCALE_BOX;
+			case Image::FILTER_TRIANGLE:
+				return ILU_SCALE_TRIANGLE;
+			case Image::FILTER_BICUBIC:
+				return ILU_SCALE_BSPLINE;
+		};
+        // keep compiler happy
+        return ILU_NEAREST;
+	}
+    //-----------------------------------------------------------------------------
+	void Image::resize(ushort width, ushort height, Filter filter)
+	{
+        ILuint ImageName;
+
+        ilGenImages( 1, &ImageName );
+        ilBindImage( ImageName );
+
+        std::pair< int, int > fmt_bpp = OgreFormat2ilFormat( m_eFormat );
+        ilTexImage( 
+            m_uWidth, m_uHeight, 1, fmt_bpp.second, fmt_bpp.first, IL_UNSIGNED_BYTE, 
+            static_cast< void * >( m_pBuffer ) );
+
+		// set filter
+		iluImageParameter(ILU_FILTER, getILFilter(filter));
+		
+		iluScale(width, height, 1);
+		
+		// delete existing buffer and recreate with new settings
+		delete [] m_pBuffer;
+		m_uWidth = width;
+		m_uHeight = height;
+		size_t dataSize = width * height * m_ucPixelSize;
+		m_pBuffer = new uchar[dataSize];
+		memcpy(m_pBuffer, ilGetData(), dataSize);
+
+        ilDeleteImages(1, &ImageName);
+
+		// return to default filter
+		iluImageParameter(ILU_FILTER, ILU_NEAREST);
+	}
+
 }
