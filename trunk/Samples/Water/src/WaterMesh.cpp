@@ -151,6 +151,15 @@ WaterMesh::WaterMesh(const String& meshName, Real planeSize, int complexity)
 		true); // discard?
 }
 /* ========================================================================= */
+WaterMesh::~WaterMesh ()
+{
+ 	delete[] vertexBuffers[0];
+ 	delete[] vertexBuffers[1];
+ 	delete[] vertexBuffers[2];
+
+	delete[] vNormals;
+}
+/* ========================================================================= */
 void WaterMesh::push(Real x, Real y, Real depth, bool absolute)
 {
 	Real *buf = vertexBuffers[currentBuffNumber]+1 ;

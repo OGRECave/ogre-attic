@@ -47,6 +47,9 @@ private:
 	void calculateNormals();
 public:
 	WaterMesh(const String& meshName, Real planeSize, int complexity) ;
+    
+    virtual ~WaterMesh ();
+
 
 	/** "pushes" a mesh at position [x,y]. Note, that x,y are float, hence 
 	*	4 vertices are actually pushed
