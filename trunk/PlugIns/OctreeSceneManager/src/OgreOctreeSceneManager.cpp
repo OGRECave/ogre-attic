@@ -28,14 +28,14 @@ extern "C"
 		       std::list < Ogre::SceneNode * > &list, 
 		       Ogre::SceneNode *exclude )
   {
-    dynamic_cast<Ogre::OctreeSceneManager*>( sm ) -> findNodesIn( box, list, exclude );
+    static_cast<Ogre::OctreeSceneManager*>( sm ) -> findNodesIn( box, list, exclude );
   }
   void findNodesInSphere( Ogre::SceneManager *sm, 
 			  const Ogre::Sphere &sphere, 
 			  std::list < Ogre::SceneNode * > &list, 
 			  Ogre::SceneNode *exclude )
   {
-    dynamic_cast<Ogre::OctreeSceneManager*>( sm ) -> findNodesIn( sphere, list, exclude );
+    static_cast<Ogre::OctreeSceneManager*>( sm ) -> findNodesIn( sphere, list, exclude );
   }
 }
 
