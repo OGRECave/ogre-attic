@@ -162,19 +162,10 @@ namespace Ogre
 	/****************************************************************************************/
 	void D3D9Texture::loadImage( const Image &img )
 	{
-		assert(this->getTextureType() == TEX_TYPE_1D || this->getTextureType() == TEX_TYPE_2D);
-
-		Image tImage(img); // our temp image
-		HRESULT hr = S_OK; // D3D9 methods result
-
-		// we need src image info
-		this->_setSrcAttributes(tImage.getWidth(), tImage.getHeight(), 1, tImage.getFormat());
-		// create a blank texture
-		createInternalResources();
-		// set gamma prior to blitting
-        Image::applyGamma(tImage.getData(), this->getGamma(), (uint)tImage.getSize(), tImage.getBPP());
-		this->_blitImageToNormTex(tImage);
-		mIsLoaded = true;
+		// Use OGRE its own codecs
+		std::vector<const Image*> imagePtrs;
+		imagePtrs.push_back(&img);
+		_loadImages( imagePtrs );
 	}
 	/****************************************************************************************/
 	void D3D9Texture::loadImpl()
@@ -194,7 +185,6 @@ namespace Ogre
 			break;
 		default:
 			Except( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::loadImpl" );
-			this->_freeResources();
 		}
 
 	}
@@ -248,168 +238,125 @@ namespace Ogre
             // set src and dest attributes to the same, we can't know
             _setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
             _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  _getPF(texDesc.Format));
-
-        	
+			mIsLoaded = true;
         }
         else
         {
+			// Load from 6 separate files
+			// Use OGRE its own codecs
+			String baseName, ext;
+			std::vector<Image> images(6);
+			std::vector<const Image*> imagePtrs;
+			static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
 
-            // Load from 6 separate files
-            _constructCubeFaceNames(mName);
-            // First create the base surface, for that we need to know the size
-            Image img;
-            img.load(this->_getCubeFaceName(0), mGroup);
-            _setSrcAttributes(img.getWidth(), img.getHeight(), 1, img.getFormat());
-            // now create the texture
-            createInternalResources();
+			for(size_t i = 0; i < 6; i++)
+			{
+				size_t pos = mName.find_last_of(".");
+				baseName = mName.substr(0, pos);
+				ext = mName.substr(pos);
+				String fullName = baseName + suffixes[i] + ext;
 
-		    HRESULT hr; // D3D9 methods result
+				images[i].load(fullName, mGroup);
+				imagePtrs.push_back(&images[i]);
+			}
 
-		    // load faces
-		    for (size_t face = 0; face < 6; face++)
-		    {
-				DataStreamPtr dstream = 
-					ResourceGroupManager::getSingleton().openResource(
-                        _getCubeFaceName(face), mGroup);
-                MemoryDataStream stream(dstream);
-                    
-                
-                LPDIRECT3DSURFACE9 pDstSurface;
-                hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
-                if (FAILED(hr))
-                {
-                    Except(Exception::ERR_INTERNAL_ERROR, "Cannot get cubemap surface", 
-                        "D3D9Texture::_loadCubeTex");
-                }
-
-                // Load directly using D3DX
-                hr = D3DXLoadSurfaceFromFileInMemory(
-                    pDstSurface,
-                    NULL,                       // no palette
-                    NULL,                       // entire surface
-                    stream.getPtr(),
-                    stream.size(),
-                    NULL,                       // entire source
-                    D3DX_DEFAULT,               // default filtering
-                    0,                          // No colour key
-                    NULL);                      // no src info
-                        
-                if (FAILED(hr))
-                {
-                    Except(Exception::ERR_INTERNAL_ERROR, "Cannot load cubemap surface", 
-                        "D3D9Texture::_loadCubeTex");
-                }
-
-		    }
-
-            // Mipmaps
-            if (mAutoGenMipmaps)
-            {
-                // use best filtering method supported by hardware
-                hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
-                if (FAILED(hr))
-                {
-                    this->_freeResources();
-                    Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToCubeTex" );
-                }
-                mpCubeTex->GenerateMipSubLevels();
-            }
-            else
-            {
-                // Software mipmaps
-                if( FAILED( hr = D3DXFilterTexture( mpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-                {
-                    this->_freeResources();
-                    Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToCubeTex" );
-                }
-
-            }
-
-            // Do final attributes
-            D3DSURFACE_DESC texDesc;
-            mpCubeTex->GetLevelDesc(0, &texDesc);
-            _setFinalAttributes(texDesc.Width, texDesc.Height, 1,  _getPF(texDesc.Format));
+            _loadImages( imagePtrs );
         }
-		mIsLoaded = true;
 	}
 	/****************************************************************************************/
 	void D3D9Texture::_loadVolumeTex()
 	{
 		assert(this->getTextureType() == TEX_TYPE_3D);
-
-        // find & load resource data
-		DataStreamPtr dstream = ResourceGroupManager::getSingleton().openResource(mName, mGroup);
-		MemoryDataStream stream(dstream);
-
-        HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
-            mpDev,
-            stream.getPtr(),
-            stream.size(),
-            &mpVolumeTex);
-
-        if (FAILED(hr))
-        {
-            Except(Exception::ERR_INTERNAL_ERROR, 
-                "Unable to load volume texture from " + this->getName(),
-                "D3D9Texture::_loadVolumeTex");
-        }
-
-        hr = mpVolumeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
-
-        if (FAILED(hr))
+		// DDS load?
+		if (StringUtil::endsWith(getName(), ".dds"))
 		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
-			this->_freeResources();
+			// find & load resource data
+			DataStreamPtr dstream = ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+			MemoryDataStream stream(dstream);
+	
+			HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
+				mpDev,
+				stream.getPtr(),
+				stream.size(),
+				&mpVolumeTex);
+	
+			if (FAILED(hr))
+			{
+				Except(Exception::ERR_INTERNAL_ERROR, 
+					"Unable to load volume texture from " + this->getName(),
+					"D3D9Texture::_loadVolumeTex");
+			}
+	
+			hr = mpVolumeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+	
+			if (FAILED(hr))
+			{
+				Except( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
+				this->_freeResources();
+			}
+	
+			D3DVOLUME_DESC texDesc;
+			hr = mpVolumeTex->GetLevelDesc(0, &texDesc);
+	
+			// set src and dest attributes to the same, we can't know
+			_setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
+			_setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
+			mIsLoaded = true;
+        }
+		else
+		{
+			Image img;
+			img.load(mName, mGroup);
+			loadImage(img);
 		}
-
-        D3DVOLUME_DESC texDesc;
-        hr = mpVolumeTex->GetLevelDesc(0, &texDesc);
-
-        // set src and dest attributes to the same, we can't know
-        _setSrcAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
-        _setFinalAttributes(texDesc.Width, texDesc.Height, texDesc.Depth, _getPF(texDesc.Format));
-        
-		mIsLoaded = true;
     }
 	/****************************************************************************************/
 	void D3D9Texture::_loadNormTex()
 	{
 		assert(this->getTextureType() == TEX_TYPE_1D || this->getTextureType() == TEX_TYPE_2D);
-
-		// Use D3DX
-        // find & load resource data
-		DataStreamPtr dstream = 
-			ResourceGroupManager::getSingleton().openResource(mName, mGroup);
-        MemoryDataStream stream(dstream);
-
-        HRESULT hr = D3DXCreateTextureFromFileInMemory(
-            mpDev,
-            stream.getPtr(),
-            stream.size(),
-            &mpNormTex);
-
-        if (FAILED(hr))
-        {
-            Except(Exception::ERR_INTERNAL_ERROR, 
-                "Unable to load texture from " + this->getName(),
-                "D3D9Texture::_loadNormTex");
-        }
-
-        hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
-
-        if (FAILED(hr))
+		// DDS load?
+		if (StringUtil::endsWith(getName(), ".dds"))
 		{
-			Except( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
-			this->_freeResources();
+			// Use D3DX
+			// find & load resource data
+			DataStreamPtr dstream = 
+				ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+			MemoryDataStream stream(dstream);
+	
+			HRESULT hr = D3DXCreateTextureFromFileInMemory(
+				mpDev,
+				stream.getPtr(),
+				stream.size(),
+				&mpNormTex);
+	
+			if (FAILED(hr))
+			{
+				Except(Exception::ERR_INTERNAL_ERROR, 
+					"Unable to load texture from " + this->getName(),
+					"D3D9Texture::_loadNormTex");
+			}
+	
+			hr = mpNormTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
+	
+			if (FAILED(hr))
+			{
+				Except( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
+				this->_freeResources();
+			}
+	
+			D3DSURFACE_DESC texDesc;
+			mpNormTex->GetLevelDesc(0, &texDesc);
+			// set src and dest attributes to the same, we can't know
+			_setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
+			_setFinalAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
+			mIsLoaded = true;
+        }
+		else
+		{
+			Image img;
+			img.load(mName, mGroup);
+			loadImage(img);
 		}
-
-        D3DSURFACE_DESC texDesc;
-        mpNormTex->GetLevelDesc(0, &texDesc);
-        // set src and dest attributes to the same, we can't know
-        _setSrcAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
-        _setFinalAttributes(texDesc.Width, texDesc.Height, 1, _getPF(texDesc.Format));
-        
-		mIsLoaded = true;
 	}
 	/****************************************************************************************/
     void D3D9Texture::createInternalResources(void)
@@ -723,32 +670,6 @@ namespace Ogre
 		SAFE_RELEASE(pSrf);
 	}
 	/****************************************************************************************/
-	void D3D9Texture::_constructCubeFaceNames(const String& name)
-	{
-		// the suffixes
-		static const String suffixes[6] = {"_rt", "_lf", "_up", "_dn", "_fr", "_bk"};
-		size_t pos = -1;
-
-		String ext; // the extension
-		String baseName; // the base name
-		String fakeName = name; // the 'fake' name, temp. holder
-
-		// first find the base name
-		pos = fakeName.find_last_of(".");
-		if (pos == -1)
-		{
-			Except( Exception::ERR_INTERNAL_ERROR, "Invalid cube texture base name", "D3D9Texture::_constructCubeFaceNames" );
-			this->_freeResources();
-		}
-
-		baseName = fakeName.substr(0, pos);
-		ext = fakeName.substr(pos);
-
-		// construct the full 6 faces file names from the baseName, suffixes and extension
-		for (size_t i = 0; i < 6; ++i)
-			mCubeFaceNames[i] = baseName + suffixes[i] + ext;
-	}
-	/****************************************************************************************/
 	void D3D9Texture::_setFinalAttributes(unsigned long width, unsigned long height, 
         unsigned long depth, PixelFormat format)
 	{ 
@@ -881,322 +802,6 @@ namespace Ogre
 		}
 		else
 			return false;
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_getColorMasks(D3DFORMAT format, DWORD *pdwRed, DWORD *pdwGreen, DWORD *pdwBlue, DWORD *pdwAlpha, DWORD *pdwRGBBitCount)
-	{
-		// we choose the format of the D3D texture so check only for our pf types...
-		switch (format)
-		{
-		case D3DFMT_X8R8G8B8:
-			*pdwRed = 0x00FF0000; *pdwGreen = 0x0000FF00; *pdwBlue = 0x000000FF; *pdwAlpha = 0x00000000;
-			*pdwRGBBitCount = 32;
-			break;
-		case D3DFMT_R8G8B8:
-			*pdwRed = 0x00FF0000; *pdwGreen = 0x0000FF00; *pdwBlue = 0x000000FF; *pdwAlpha = 0x00000000;
-			*pdwRGBBitCount = 24;
-			break;
-		case D3DFMT_A8R8G8B8:
-			*pdwRed = 0x00FF0000; *pdwGreen = 0x0000FF00; *pdwBlue = 0x000000FF; *pdwAlpha = 0xFF000000;
-			*pdwRGBBitCount = 32;
-			break;
-		case D3DFMT_X1R5G5B5:
-			*pdwRed = 0x00007C00; *pdwGreen = 0x000003E0; *pdwBlue = 0x0000001F; *pdwAlpha = 0x00000000;
-			*pdwRGBBitCount = 16;
-			break;
-		case D3DFMT_R5G6B5:
-			*pdwRed = 0x0000F800; *pdwGreen = 0x000007E0; *pdwBlue = 0x0000001F; *pdwAlpha = 0x00000000;
-			*pdwRGBBitCount = 16;
-			break;
-		case D3DFMT_A4R4G4B4:
-			*pdwRed = 0x00000F00; *pdwGreen = 0x000000F0; *pdwBlue = 0x0000000F; *pdwAlpha = 0x0000F000;
-			*pdwRGBBitCount = 16;
-			break;
-		default:
-			Except( Exception::ERR_INTERNAL_ERROR, "Unknown D3D pixel format, this should not happen !!!", "D3D9Texture::_getColorMasks" );
-		}
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_copyMemoryToSurface(const unsigned char *pBuffer, IDirect3DSurface9 *pSurface)
-	{
-		assert(pBuffer);
-		assert(pSurface);
-		// Copy the image from the buffer to the temporary surface.
-		// We have to do our own colour conversion here since we don't 
-		// have a DC to do it for us
-		// NOTE - only non-palettised surfaces supported for now
-		HRESULT hr;
-		D3DSURFACE_DESC desc;
-		D3DLOCKED_RECT rect;
-		BYTE *pSurf8;
-		BYTE *pBuf8;
-		DWORD data32;
-		DWORD out32;
-		unsigned iRow, iCol;
-		// NOTE - dimensions of surface may differ from buffer
-		// dimensions (e.g. power of 2 or square adjustments)
-		// Lock surface
-		pSurface->GetDesc(&desc);
-		DWORD aMask, rMask, gMask, bMask, rgbBitCount;
-		this->_getColorMasks(desc.Format, &rMask, &gMask, &bMask, &aMask, &rgbBitCount);
-		// lock our surface to acces raw memory
-		if( FAILED( hr = pSurface->LockRect(&rect, NULL, D3DLOCK_NOSYSLOCK) ) )
-		{
-			Except( hr, "Unable to lock temp texture surface", "D3D9Texture::_copyMemoryToSurface" );
-			this->_freeResources();
-			SAFE_RELEASE(pSurface);
-		}
-		else
-			pBuf8 = (BYTE*)pBuffer;
-		// loop through data and do conv.
-		for( iRow = 0; iRow < mSrcHeight; iRow++ )
-		{
-			pSurf8 = (BYTE*)rect.pBits + (iRow * rect.Pitch);
-			for( iCol = 0; iCol < mSrcWidth; iCol++ )
-			{
-				// Read RGBA values from buffer
-				data32 = 0;
-				if( mSrcBpp >= 24 )
-				{
-					// Data in buffer is in RGB(A) format
-					// Read into a 32-bit structure
-					// Uses bytes for 24-bit compatibility
-					// NOTE: buffer is big-endian
-					data32 |= *pBuf8++ << 24;
-					data32 |= *pBuf8++ << 16;
-					data32 |= *pBuf8++ << 8;
-				}
-				else if( mSrcBpp == 8 ) // Greyscale, not palettised (palettised NOT supported)
-				{
-					// Duplicate same greyscale value across R,G,B
-					data32 |= *pBuf8 << 24;
-					data32 |= *pBuf8 << 16;
-					data32 |= *pBuf8++ << 8;
-				}
-				// check for alpha
-				if( mHasAlpha )
-					data32 |= *pBuf8++;
-				else
-					data32 |= 0xFF;	// Set opaque
-				// Write RGBA values to surface
-				// Data in surface can be in varying formats
-				// Use bit concersion function
-				// NOTE: we use a 32-bit value to manipulate
-				// Will be reduced to size later
-
-				// Red
-				out32 = Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0xFF000000, (DWORD)rMask );
-				// Green
-				out32 |= Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0x00FF0000, (DWORD)gMask );
-				// Blue
-				out32 |= Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0x0000FF00, (DWORD)bMask );
-				// Alpha
-				if( aMask > 0 )
-				{
-					out32 |= Bitwise::convertBitPattern( (DWORD)data32, (DWORD)0x000000FF, (DWORD)aMask );
-				}
-				// Assign results to surface pixel
-				// Write up to 4 bytes
-				// Surfaces are little-endian (low byte first)
-				if( rgbBitCount >= 8 )
-					*pSurf8++ = (BYTE)out32;
-				if( rgbBitCount >= 16 )
-					*pSurf8++ = (BYTE)(out32 >> 8);
-				if( rgbBitCount >= 24 )
-					*pSurf8++ = (BYTE)(out32 >> 16);
-				if( rgbBitCount >= 32 )
-					*pSurf8++ = (BYTE)(out32 >> 24);
-			} // for( iCol...
-		} // for( iRow...
-		// unlock the surface
-		pSurface->UnlockRect();
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_blitImageToNormTex(const Image &srcImage)
-	{
-		HRESULT hr;
-		D3DFORMAT srcFormat = this->_getPF(srcImage.getFormat());
-		D3DFORMAT dstFormat = _chooseD3DFormat();
-		RECT tmpDataRect = {0, 0, srcImage.getWidth(), srcImage.getHeight()}; // the rectangle representing the src. image dim.
-
-		// this surface will hold our temp conversion image
-		// We need this in all cases because we can't lock 
-		// the main texture surfaces in all cards
-		// Also , this cannot be the temp texture because we'd like D3DX to resize it for us
-		// with the D3DxLoadSurfaceFromSurface
-		IDirect3DSurface9 *pSrcSurface = NULL;
-		hr = mpDev->CreateOffscreenPlainSurface( 
-						srcImage.getWidth(),
-						srcImage.getHeight(),
-						dstFormat, 
-						D3DPOOL_SCRATCH, 
-						&pSrcSurface, 
-						NULL);
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			this->_freeResources();
-			Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImageToTexture" );
-		}
-		
-		// copy the buffer to our surface, 
-		// _copyMemoryToSurface will do color conversion and flipping
-		this->_copyMemoryToSurface(srcImage.getData(), pSrcSurface);
-
-		// Now we need to copy the source surface (where our image is) to the texture
-		// This will perform any size conversion (inc stretching)
-		IDirect3DSurface9 *pDstSurface; 
-		hr = mpNormTex->GetSurfaceLevel(0, &pDstSurface);
-
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			SAFE_RELEASE(pSrcSurface);
-			this->_freeResources();
-			Except( hr, "Error getting level 0 surface from dest. texture", "D3D9Texture::_blitImageToTexture" );
-		}
-
-		// copy surfaces
-		hr = D3DXLoadSurfaceFromSurface(pDstSurface, NULL, NULL, pSrcSurface, NULL, NULL, D3DX_DEFAULT, 0);
-		// check result and except if failed
-		if (FAILED(hr))
-		{
-			SAFE_RELEASE(pSrcSurface);
-			SAFE_RELEASE(pDstSurface);
-			this->_freeResources();
-			Except( hr, "Error copying original surface to texture", "D3D9Texture::_blitImageToTexture" );
-		}
-
-        // Generate mipmaps
-        if (mAutoGenMipmaps)
-        {
-            // Hardware mipmapping
-			// use best filtering method supported by hardware
-			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
-			if (FAILED(hr))
-			{
-				SAFE_RELEASE(pSrcSurface);
-				SAFE_RELEASE(pDstSurface);
-				this->_freeResources();
-				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToNormTex" );
-			}
-            mpNormTex->GenerateMipSubLevels();
-        }
-        else
-        {
-            // Software mipmaps
-            if( FAILED( hr = D3DXFilterTexture( mpNormTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-            {
-                this->_freeResources();
-                Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToNormTex" );
-            }
-        }
-
-			
-		SAFE_RELEASE(pDstSurface);
-		SAFE_RELEASE(pSrcSurface);
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_blitImagesToCubeTex(const Image srcImages[])
-	{
-		HRESULT hr;
-		D3DFORMAT dstFormat = _chooseD3DFormat();
-
-		// we must loop through all 6 cube map faces :(
-		for (size_t face = 0; face < 6; face++)
-		{
-			D3DFORMAT srcFormat = this->_getPF(srcImages[face].getFormat());
-			RECT tmpDataRect = {0, 0, srcImages[face].getWidth(), srcImages[face].getHeight()}; // the rectangle representing the src. image dim.
-
-			// this surface will hold our temp conversion image
-			IDirect3DSurface9 *pSrcSurface = NULL;
-			// We need this in all cases because we can't lock 
-			// the main texture surfaces in all cards
-			// Also , this cannot be the temp texture because we'd like D3DX to resize it for us
-			// with the D3DxLoadSurfaceFromSurface
-			hr = mpDev->CreateOffscreenPlainSurface( 
-							srcImages[face].getWidth(), 
-							srcImages[face].getHeight(), 
-							dstFormat, 
-							D3DPOOL_SCRATCH, 
-							&pSrcSurface, 
-							NULL);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error loading surface from memory", "D3D9Texture::_blitImagesToCubeTex" );
-				this->_freeResources();
-			}
-
-			// don't know why but cube textures don't require fliping
-			// _copyMemoryToSurface flips all around x, so we'll flip the
-			// src.image first, then 'reflip' it :(, and we need a temp. image for this :(
-			Image tmpImg(srcImages[face]);
-			//tmpImg.flipAroundX();
-			// copy the buffer to our surface, 
-			// _copyMemoryToSurface will do color conversion and flipping
-			this->_copyMemoryToSurface(tmpImg.getData(), pSrcSurface);
-
-			// Now we need to copy the source surface (where our image is) to 
-			// either the the temp. texture level 0 surface (for s/w mipmaps)
-			// or the final texture (for h/w mipmaps)
-			IDirect3DSurface9 *pDstSurface; 
-            hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error getting level dest cube map surface", "D3D9Texture::_blitImagesToCubeTex" );
-				SAFE_RELEASE(pSrcSurface);
-				this->_freeResources();
-			}
-
-			// load the surface with an in memory buffer
-			hr = D3DXLoadSurfaceFromSurface(
-                pDstSurface, 
-                NULL, 
-                NULL, 
-                pSrcSurface, 
-                NULL, 
-                NULL, 
-                D3DX_DEFAULT, 
-                0);
-			// check result and except if failed
-			if (FAILED(hr))
-			{
-				Except( hr, "Error loading in temporary surface", "D3D9Texture::_blitImagesToCubeTex" );
-				SAFE_RELEASE(pSrcSurface);
-				SAFE_RELEASE(pDstSurface);
-				this->_freeResources();
-			}
-
-			SAFE_RELEASE(pDstSurface);
-			SAFE_RELEASE(pSrcSurface);
-		}
-
-        // Mipmaps
-        if (mAutoGenMipmaps)
-        {
-			// use best filtering method supported by hardware
-			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
-			if (FAILED(hr))
-			{
-				this->_freeResources();
-				Except( hr, "Error generating mip maps", "D3D9Texture::_blitImageToCubeTex" );
-			}
-            mpCubeTex->GenerateMipSubLevels();
-        }
-        else
-        {
-            // Software mipmaps
-            if( FAILED( hr = D3DXFilterTexture( mpCubeTex, NULL, D3DX_DEFAULT, D3DX_DEFAULT ) ) )
-            {
-                this->_freeResources();
-                Except( hr, "Failed to filter texture (generate mip maps)", "D3D9Texture::_blitImageToCubeTex" );
-            }
-
-        }
-
-
 	}
 	/****************************************************************************************/
 	D3DFORMAT D3D9Texture::_chooseD3DFormat()
