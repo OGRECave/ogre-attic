@@ -147,6 +147,16 @@ namespace Ogre {
 			AxisAlignedBox worldBounds;
 		};
 		typedef std::vector<QueuedSubMesh*> QueuedSubMeshList;
+		/// Structure recording a queued geometry for low level builds
+		struct QueuedGeometry
+		{
+			SubMeshLodGeometryLink* geometry;
+			Vector3 position;
+			Quaternion orientation;
+			Vector3 scale;
+		};
+		typedef std::vector<QueuedGeometry*> QueuedGeometryList;
+		
 		// forward declarations
 		class LODBucket;
 		class MaterialBucket;
@@ -159,20 +169,47 @@ namespace Ogre {
 		class _OgreExport GeometryBucket : public Renderable
 		{
 		protected:
-			/// Local list of queued meshes (not used for deallocation)
-			QueuedSubMeshList mQueuedSubMeshes;
+			/// Geometry which has been queued up pre-build (not for deallocation)
+			QueuedGeometryList mQueuedGeometry;
 			/// Pointer to parent bucket
 			MaterialBucket* mParent;
+			/// String identifying the vertex / index format
+			String mFormatString;
 			/// Vertex information, includes current number of vertices
 			/// committed to be a part of this bucket
 			VertexData* mVertexData;
 			/// Index information, includes index type which limits the max
 			/// number of vertices which are allowed in one bucket
 			IndexData* mIndexData;
+			/// Size of indexes
+			HardwareIndexBuffer::IndexType mIndexType;
+			/// Maximum number of vertices indexable
+			size_t mMaxVertices;
+
+			template<typename T>
+			void copyIndexes(const T* src, T* dst, size_t count, size_t indexOffset)
+			{
+				if (indexOffset == 0)
+				{
+					memcpy(dst, src, sizeof(T) * count);
+				}
+				else
+				{
+					while(count--)
+					{
+						*dst++ = static_cast<T>(*src++ + indexOffset);
+					}
+				}
+			}
 		public:
-			GeometryBucket(MaterialBucket* parent);
+			GeometryBucket(MaterialBucket* parent, const String& formatString, 
+				const VertexData* vData, const IndexData* iData);
 			virtual ~GeometryBucket();
 			MaterialBucket* getParent(void) { return mParent; }
+			/// Get the vertex data for this geometry 
+			const VertexData* getVertexData(void) const { return mVertexData; }
+			/// Get the index data for this geometry 
+			const IndexData* getIndexData(void) const { return mIndexData; }
 			/// @copydoc Renderable::getMaterial
 			const MaterialPtr& getMaterial(void) const;
 			Technique* getTechnique(void) const;
@@ -184,37 +221,63 @@ namespace Ogre {
 	        const LightList& getLights(void) const;
 			bool getCastsShadows(void) const;
 			
-			/// Assign a queued submesh to this bucket
-			void assign(QueuedSubMesh* qsm);
+			/** Try to assign geometry to this bucket.
+			@returns false if there is no room left in this bucket
+			*/
+			bool assign(QueuedGeometry* qsm);
 			/// Build
 			void build(void);
+			/// Dump contents for diagnostics
+			void dump(std::ofstream& of) const;
 		};
 		/** A MaterialBucket is a collection of smaller buckets with the same 
 			Material (and implicitly the same LOD). */
 		class _OgreExport MaterialBucket
 		{
+		public:
+			/// list of Geometry Buckets in this region
+			typedef std::vector<GeometryBucket*> GeometryBucketList;
 		protected:
-			/// Local list of queued meshes (not used for deallocation)
-			QueuedSubMeshList mQueuedSubMeshes;
-
 			/// Pointer to parent LODBucket
 			LODBucket* mParent;
 			/// Material being used
 			String mMaterialName;
 			/// Pointer to material being used
 			MaterialPtr mMaterial;
+			/// Active technique
+			Technique* mTechnique;
 
 			/// list of Geometry Buckets in this region
-			typedef std::vector<GeometryBucket*> GeometryBucketList;
 			GeometryBucketList mGeometryBucketList;
+			// index to current Geometry Buckets for a given geometry format
+			typedef std::map<String, GeometryBucket*> CurrentGeometryMap;
+			CurrentGeometryMap mCurrentGeometryMap;
+			/// Get a packed string identifying the geometry format
+			String getGeometryFormatString(SubMeshLodGeometryLink* geom);
+			
 		public:
 			MaterialBucket(LODBucket* parent, const String& materialName);
 			virtual ~MaterialBucket();
 			LODBucket* getParent(void) { return mParent; }
-			/// Assign a queued submesh to this bucket
-			void assign(QueuedSubMesh* qsm);
+			/// Get the material name
+			const String& getMaterialName(void) const { return mMaterialName; }
+			/// Assign geometry to this bucket
+			void assign(QueuedGeometry* qsm);
 			/// Build
 			void build(void);
+			/// Add children to the render queue
+			void addRenderables(RenderQueue* queue, RenderQueueGroupID group, 
+				Real camSquaredDist);
+			/// Get the material for this bucket
+			const MaterialPtr& getMaterial(void) const { return mMaterial; }
+			/// Iterator over geometry
+			typedef VectorIterator<GeometryBucketList> GeometryIterator;
+			/// Get an iterator over the contained geometry
+			GeometryIterator getGeometryIterator(void);
+			/// Get the current Technique
+			Technique* getCurrentTechnique(void) const { return mTechnique; }
+			/// Dump contents for diagnostics
+			void dump(std::ofstream& of) const;
 		};
 		/** A LODBucket is a collection of smaller buckets with the same LOD. 
 		@remarks
@@ -223,6 +286,9 @@ namespace Ogre {
 		*/
 		class _OgreExport LODBucket
 		{
+		public:
+			/// Lookup of Material Buckets in this region
+			typedef std::map<String, MaterialBucket*> MaterialBucketMap;
 		protected:
 			/// Pointer to parent region
 			Region* mParent;
@@ -231,18 +297,30 @@ namespace Ogre {
 			/// distance at which this LOD starts to apply (squared)
 			Real mSquaredDistance;
 			/// Lookup of Material Buckets in this region
-			typedef std::map<String, MaterialBucket*> MaterialBucketMap;
 			MaterialBucketMap mMaterialBucketMap;
-			/// Local list of queued meshes (not used for deallocation)
-			QueuedSubMeshList mQueuedSubMeshes;
+			/// Geometry queued for a single LOD (deallocated here)
+			QueuedGeometryList mQueuedGeometryList;
 		public:
 			LODBucket(Region* parent, unsigned short lod, Real lodDist);
 			virtual ~LODBucket();
 			Region* getParent(void) { return mParent; }
-			/// Assign a queued submesh to this bucket
-			void assign(QueuedSubMesh* qsm);
+			/// Get the lod index
+			ushort getLod(void) const { return mLod; }
+			/// Get the lod squared distance
+			Real getSquaredDistance(void) const { return mSquaredDistance; }
+			/// Assign a queued submesh to this bucket, using specified mesh LOD
+			void assign(QueuedSubMesh* qsm, ushort atLod);
 			/// Build
 			void build(void);
+			/// Add children to the render queue
+			void addRenderables(RenderQueue* queue, RenderQueueGroupID group, 
+				Real camSquaredDistance);
+			/// Iterator over the materials in this LOD
+			typedef MapIterator<MaterialBucketMap> MaterialIterator;
+			/// Get an iterator over the materials in this LOD
+			MaterialIterator getMaterialIterator(void);
+			/// Dump contents for diagnostics
+			void dump(std::ofstream& of) const;
 			
 		};
 		/** The details of a topological region which is the highest level of
@@ -255,9 +333,16 @@ namespace Ogre {
 		*/
 		class _OgreExport Region : public MovableObject
 		{
+		public:
+			/// list of LOD Buckets in this region
+			typedef std::vector<LODBucket*> LODBucketList;
 		protected:
 			/// Generated name
 			String mName;
+			/// Scene manager link
+			SceneManager* mSceneMgr;
+			/// Scene node
+			SceneNode* mNode;
 			/// Local list of queued meshes (not used for deallocation)
 			QueuedSubMeshList mQueuedSubMeshes;
 			/// Unique identifier for the region
@@ -270,13 +355,17 @@ namespace Ogre {
 			AxisAlignedBox mAABB;
 			/// Local bounding radius
 			Real mBoundingRadius;
-			
-			/// list of LOD Buckets in this region
-			typedef std::vector<LODBucket*> LODBucketList;
+			/// The current lod level, as determined from the last camera
+			ushort mCurrentLod;
+			/// Current camera distance, passed on to do material lod later
+			Real mCamDistanceSquared;
+			/// List of LOD buckets			
 			LODBucketList mLodBucketList;
 
+
 		public:
-			Region(const String& name, uint32 regionID, const Vector3& centre);
+			Region(const String& name, SceneManager* mgr, uint32 regionID, 
+				const Vector3& centre);
 			virtual ~Region();
 			// more fields can be added in subclasses
 			
@@ -284,6 +373,8 @@ namespace Ogre {
 			void assign(QueuedSubMesh* qmesh);
 			/// Build this region
 			void build(void);
+			/// Get the region ID of this region
+			uint32 getID(void) const { return mRegionID; }
 			/// Get the centre point of the region
 			const Vector3& getCentre(void) const { return mCentre; }
 			const String& getName(void) const;
@@ -292,8 +383,23 @@ namespace Ogre {
 			const AxisAlignedBox& getBoundingBox(void) const;
 			Real getBoundingRadius(void) const;
 			void _updateRenderQueue(RenderQueue* queue);
+
+			typedef VectorIterator<LODBucketList> LODIterator;
+			/// Get an iterator over the LODs in this region
+			LODIterator getLODIterator(void);
+
+			/// Dump contents for diagnostics
+			void dump(std::ofstream& of) const;
 			
 		};
+		/** Indexed region map based on packed x/y/z region index, 10 bits for
+			each axis.
+		@remarks
+			Regions are indexed 0-1023 in all axes, where for example region 
+			0 in the x axis begins at mOrigin.x + (mRegionDimensions.x * -512), 
+			and region 1023 ends at mOrigin + (mRegionDimensions.x * 512).
+		*/
+		typedef std::map<uint32, Region*> RegionMap;
 	protected:
 		// General state & settings
 		SceneManager* mOwner;
@@ -306,6 +412,10 @@ namespace Ogre {
 		Vector3 mHalfRegionDimensions;
 		Vector3 mOrigin;
 		bool mVisible;
+        /// The render queue to use when rendering this object
+        RenderQueueGroupID mRenderQueueID;
+		/// Flags whether the RenderQueue's default should be used.
+		bool mRenderQueueIDSet;
 
 		QueuedSubMeshList mQueuedSubMeshes;
 
@@ -319,14 +429,7 @@ namespace Ogre {
 		*/
 		SubMeshGeometryLookup mSubMeshGeometryLookup;
 			
-		/** Indexed region map based on packed x/y/z region index, 10 bits for
-			each axis.
-		@remarks
-			Regions are indexed 0-1023 in all axes, where for example region 
-			0 in the x axis begins at mOrigin.x + (mRegionDimensions.x * -512), 
-			and region 1023 ends at mOrigin + (mRegionDimensions.x * 512).
-		*/
-		typedef std::map<uint32, Region*> RegionMap;
+		/// Map of regions
 		RegionMap mRegionMap;
 
 		/** Virtual method for getting a region most suitable for the
@@ -406,7 +509,11 @@ namespace Ogre {
 		/** Adds an Entity to the static geometry.
 		@remarks
 			This method takes an existing Entity and adds its details to the 
-			list of	elements to include when building. Note that the Entity 
+			list of	elements to include when building. Note that the Entity         /// The render queue to use when rendering this object
+        RenderQueueGroupID mRenderQueueID;
+		/// Flags whether the RenderQueue's default should be used.
+		bool mRenderQueueIDSet;
+
 			itself is not copied or referenced in this method; an Entity is 
 			passed simply so that you can change the materials of attached 
 			SubEntity objects if you want. You can add the same Entity 
@@ -540,6 +647,32 @@ namespace Ogre {
 		virtual void setOrigin(const Vector3& origin) { mOrigin = origin; }
 		/** Gets the origin of this geometry. */
 		virtual const Vector3& getOrigin(void) const { return mOrigin; }
+
+        /** Sets the render queue group this object will be rendered through.
+        @remarks
+            Render queues are grouped to allow you to more tightly control the ordering
+            of rendered objects. If you do not call this method, all  objects default
+            to the default queue (RenderQueue::getDefaultQueueGroup), which is fine for 
+			most objects. You may want to alter this if you want to perform more complex
+			rendering.
+        @par
+            See RenderQueue for more details.
+        @param queueID Enumerated value of the queue group to use.
+        */
+        virtual void setRenderQueueGroup(RenderQueueGroupID queueID);
+
+        /** Gets the queue group for this entity, see setRenderQueueGroup for full details. */
+        virtual RenderQueueGroupID getRenderQueueGroup(void) const;
+		
+		/// Iterator for iterating over contained regions
+		typedef MapIterator<RegionMap> RegionIterator;
+		/// Get an iterator over the regions in this geometry
+		RegionIterator getRegionIterator(void);
+
+		/** Dump the contents of this StaticGeometry to a file for diagnostic
+		 	purposes.
+		*/
+		virtual void dump(const String& filename) const;
 
 
 	};
