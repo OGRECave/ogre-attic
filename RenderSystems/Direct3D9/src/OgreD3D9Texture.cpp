@@ -357,8 +357,8 @@ namespace Ogre
 		if (StringUtil::endsWith(getName(), ".dds"))
         {
             // find & load resource data
-            MemoryDataStream stream( 
-                ResourceGroupManager::getSingleton().openResource(mName, mGroup));
+			DataStreamPtr dstream = ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+            MemoryDataStream stream( dstream );
 
             HRESULT hr = D3DXCreateCubeTextureFromFileInMemory(
                 mpDev,
@@ -405,9 +405,11 @@ namespace Ogre
 		    // load faces
 		    for (size_t face = 0; face < 6; face++)
 		    {
-                MemoryDataStream stream(
-                    ResourceGroupManager::getSingleton().openResource(
-                        _getCubeFaceName(face), mGroup));
+				DataStreamPtr dstream = 
+					ResourceGroupManager::getSingleton().openResource(
+                        _getCubeFaceName(face), mGroup);
+                MemoryDataStream stream(dstream);
+                    
                 
                 LPDIRECT3DSURFACE9 pDstSurface;
                 hr = mpCubeTex->GetCubeMapSurface((D3DCUBEMAP_FACES)face, 0, &pDstSurface);
@@ -473,8 +475,8 @@ namespace Ogre
 		assert(this->getTextureType() == TEX_TYPE_3D);
 
         // find & load resource data
-        MemoryDataStream stream(
-            ResourceGroupManager::getSingleton().openResource(mName, mGroup));
+		DataStreamPtr dstream = ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+		MemoryDataStream stream(dstream);
 
         HRESULT hr = D3DXCreateVolumeTextureFromFileInMemory(
             mpDev,
@@ -513,8 +515,9 @@ namespace Ogre
 
 		// Use D3DX
         // find & load resource data
-        MemoryDataStream stream(
-            ResourceGroupManager::getSingleton().openResource(mName, mGroup));
+		DataStreamPtr dstream = 
+			ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+        MemoryDataStream stream(dstream);
 
         HRESULT hr = D3DXCreateTextureFromFileInMemory(
             mpDev,
