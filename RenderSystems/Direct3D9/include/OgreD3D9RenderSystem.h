@@ -98,9 +98,6 @@ namespace Ogre
 
 		inline bool compareDecls( D3DVERTEXELEMENT9* pDecl1, D3DVERTEXELEMENT9* pDecl2, int size );
 
-		// Matrix conversion
-		D3DXMATRIX makeD3DXMatrix( const Matrix4& mat );
-		Matrix4 convertD3DXMatrix( const D3DXMATRIX& mat );
 
 		void initInputDevices(void);
 		void processInputDevices(void);

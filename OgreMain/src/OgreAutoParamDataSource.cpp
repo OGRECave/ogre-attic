@@ -35,6 +35,7 @@ namespace Ogre {
         : mCurrentRenderable(NULL), mCurrentCamera(NULL), 
          mWorldMatrixDirty(true),
          mWorldViewMatrixDirty(true),
+         mWorldViewProjMatrixDirty(true),
          mInverseWorldMatrixDirty(true),
          mInverseWorldViewMatrixDirty(true),
          mInverseViewMatrixDirty(true),
@@ -57,6 +58,7 @@ namespace Ogre {
             mCurrentRenderable = rend;
             mWorldMatrixDirty = true;
             mWorldViewMatrixDirty = true;
+            mWorldViewProjMatrixDirty = true;
             mInverseWorldMatrixDirty = true;
             mInverseWorldViewMatrixDirty = true;
             mCameraPositionObjectSpaceDirty = true;
@@ -70,6 +72,7 @@ namespace Ogre {
         {
             mCurrentCamera = cam;
             mWorldViewMatrixDirty = true;
+            mWorldViewProjMatrixDirty = true;
             mInverseViewMatrixDirty = true;
             mInverseWorldViewMatrixDirty = true;
             mCameraPositionObjectSpaceDirty = true;
@@ -91,6 +94,11 @@ namespace Ogre {
         return mCurrentCamera->getViewMatrix();
     }
     //-----------------------------------------------------------------------------
+    const Matrix4& AutoParamDataSource::getProjectionMatrix(void) const
+    {
+        return mCurrentCamera->getProjectionMatrix();
+    }
+    //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldViewMatrix(void) const
     {
         if (mWorldViewMatrixDirty)
@@ -99,6 +107,16 @@ namespace Ogre {
             mWorldViewMatrixDirty = false;
         }
         return mWorldViewMatrix;
+    }
+    //-----------------------------------------------------------------------------
+    const Matrix4& AutoParamDataSource::getWorldViewProjMatrix(void) const
+    {
+        if (mWorldViewProjMatrixDirty)
+        {
+            mWorldViewProjMatrix = getProjectionMatrix() * getWorldViewMatrix();
+            mWorldViewProjMatrixDirty = false;
+        }
+        return mWorldViewProjMatrix;
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getInverseWorldMatrix(void) const

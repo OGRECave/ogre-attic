@@ -299,6 +299,8 @@ namespace Ogre {
 
         updateFrustum();
 
+        Root::getSingleton().getRenderSystem()->_makeProjectionMatrix(
+            mFOVy, mAspect, mNearDist, mFarDist, mProjMatrix);
 
         return mProjMatrix;
     }

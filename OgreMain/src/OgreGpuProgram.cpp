@@ -92,6 +92,17 @@ namespace Ogre
 		setConstant(index++, &vec.z, 1);
 	}
 	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::setConstant(size_t index, const Matrix4& m)
+    {
+        // set as 4x 4-element floats
+        // Turns out in vertex programs, D3D uses the 'right' matrix layout
+        // so no need to convert matrix, we can use the same for both
+        GpuProgramParameters::setConstant(index, m[0], 4);
+        GpuProgramParameters::setConstant(index+4, m[1], 4);
+        GpuProgramParameters::setConstant(index+8, m[2], 4);
+        GpuProgramParameters::setConstant(index+12, m[3], 4);
+    }
+	//-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
     {
         setConstant(index++, &colour.r, 1);
@@ -152,8 +163,17 @@ namespace Ogre
             case ACT_WORLD_MATRIX:
                 setConstant(i->index, source.getWorldMatrix());
                 break;
+            case ACT_VIEW_MATRIX:
+                setConstant(i->index, source.getViewMatrix());
+                break;
+            case ACT_PROJECTION_MATRIX:
+                setConstant(i->index, source.getProjectionMatrix());
+                break;
             case ACT_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getWorldViewMatrix());
+                break;
+            case ACT_WORLDVIEWPROJ_MATRIX:
+                setConstant(i->index, source.getWorldViewProjMatrix());
                 break;
             case ACT_INVERSE_WORLD_MATRIX:
                 setConstant(i->index, source.getInverseWorldMatrix());

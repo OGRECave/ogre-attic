@@ -31,15 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    /** Direct3D implementation of program parameters. */
-    class D3D9GpuProgramParameters : public GpuProgramParameters
-    {
-    public:
-        D3D9GpuProgramParameters() {}
-        /// @copydoc GpuProgram::setConstant
-		void setConstant(size_t index, const Matrix4& m);
-    };
-    
     /** Direct3D implementation of a few things common to low-level vertex & fragment programs. */
     class D3D9GpuProgram : public GpuProgram
     {

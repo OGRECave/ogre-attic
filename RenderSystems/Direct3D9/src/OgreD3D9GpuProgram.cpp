@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix4.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreD3D9Mappings.h"
+
 namespace Ogre {
 
     //-----------------------------------------------------------------------------
@@ -33,11 +35,6 @@ namespace Ogre {
         const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 
         : GpuProgram(name, gptype, syntaxCode), mpDevice(pDev)
     {
-    }
-	//-----------------------------------------------------------------------------
-	void D3D9GpuProgramParameters::setConstant(size_t index, const Matrix4& m)
-    {
-        // TODO
     }
 	//-----------------------------------------------------------------------------
     D3D9GpuVertexProgram::D3D9GpuVertexProgram(const String& name, const String& syntaxCode, LPDIRECT3DDEVICE9 pDev) 

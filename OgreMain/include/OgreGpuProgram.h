@@ -62,8 +62,14 @@ namespace Ogre {
         {
             /// The current world matrix
             ACT_WORLD_MATRIX,
+            /// The current view matrix
+            ACT_VIEW_MATRIX,
+            /// The current projection matrix
+            ACT_PROJECTION_MATRIX,
             /// The current world & view matrices concatenated
             ACT_WORLDVIEW_MATRIX,
+            /// The current world, view & projection matrices concatenated
+            ACT_WORLDVIEWPROJ_MATRIX,
             /// The current world matrix, inverted
             ACT_INVERSE_WORLD_MATRIX,
             /// The current world & view matrices concatenated, then inverted
@@ -167,7 +173,7 @@ namespace Ogre {
 			NB this index refers to the number of floats, so a Matrix4 is 16. 
 		@param m The value to set
 		*/
-		virtual void setConstant(size_t index, const Matrix4& m) = 0; // left to rendersystem since column / row vectors matter
+		virtual void setConstant(size_t index, const Matrix4& m);
 		/** Sets a multiple value constant floating-point parameter to the program.
         @remarks
             Different types of GPU programs support different types of constant parameters.
