@@ -375,7 +375,7 @@ namespace Ogre {
         // we do this at the very end of the function to get the most
         // accurate timing results
         p.name = profileName;
-        p.currTime = mTimer->getMilliseconds();
+        p.currTime = mTimer->getMicroseconds();
         p.accum = 0;
         p.hierarchicalLvl = (uint) mProfiles.size();
         mProfiles.push_back(p);
@@ -397,7 +397,7 @@ namespace Ogre {
         // get the end time of this profile
         // we do this as close the beginning of this function as possible
         // to get more accurate timing results
-        ulong endTime = mTimer->getMilliseconds();
+        ulong endTime = mTimer->getMicroseconds();
 
         // empty string is reserved for designating an empty parent
         assert ((profileName != "") && ("Profile name can't be an empty string"));

@@ -46,5 +46,20 @@ namespace Ogre {
         newTicks /= mFrequency.QuadPart;
 
         return (unsigned long)newTicks;
-    }
+	}
+    //-------------------------------------------------------------------------
+	unsigned long Win32Timer::getMicroseconds()
+	{
+		LARGE_INTEGER curTime;
+		LONGLONG newTicks;
+
+		QueryPerformanceCounter(&curTime);
+
+		newTicks = (curTime.QuadPart - mStartTime.QuadPart);
+		// Scale by 1000000 in order to get microsecond precision
+		newTicks *= (Real)1000000.0/(Real)mFrequency.QuadPart;
+
+		return (unsigned long)newTicks;
+	}
+
 } 
