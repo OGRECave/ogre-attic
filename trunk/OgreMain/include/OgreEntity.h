@@ -388,6 +388,11 @@ namespace Ogre {
 
 
 
+		/** Internal method for retrieving bone matrix information. */
+		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}
+		/** Internal method for retrieving bone matrix information. */
+        unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
+
 
     };
 
