@@ -34,6 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 	
     //-----------------------------------------------------------------------------
+	Pass::DirtyHashList Pass::msDirtyHashList;
+    //-----------------------------------------------------------------------------
 	Pass::Pass(Technique* parent, unsigned short index)
         : mParent(parent), mIndex(index)
     {
@@ -66,6 +68,8 @@ namespace Ogre {
 
 		mVertexProgramUsage = NULL;
 		mFragmentProgramUsage = NULL;
+
+        _dirtyHash();
    }
 	
     //-----------------------------------------------------------------------------
@@ -75,6 +79,7 @@ namespace Ogre {
         *this = oth;
         mParent = parent;
         mIndex = index;
+        _dirtyHash();
     }
     //-----------------------------------------------------------------------------
     Pass::~Pass()
@@ -90,6 +95,8 @@ namespace Ogre {
 			delete mFragmentProgramUsage;
 			mFragmentProgramUsage = 0;
 		}
+        // remove from dirty list, if there
+        msDirtyHashList.erase(this);
 
     }
     //-----------------------------------------------------------------------------
@@ -149,6 +156,7 @@ namespace Ogre {
 			mTextureUnitStates.push_back(t);
 		}
 
+        _dirtyHash();
 
 		return *this;
     }
@@ -239,6 +247,7 @@ namespace Ogre {
         mTextureUnitStates.push_back(t);
         // Needs recompilation
         mParent->_notifyNeedsRecompile();
+        _dirtyHash();
 	    return t;
     }
     //-----------------------------------------------------------------------
@@ -251,6 +260,7 @@ namespace Ogre {
         mTextureUnitStates.push_back(t);
         // Needs recompilation
         mParent->_notifyNeedsRecompile();
+        _dirtyHash();
 	    return t;
     }
     //-----------------------------------------------------------------------
@@ -259,6 +269,7 @@ namespace Ogre {
 		mTextureUnitStates.push_back(state);
         // Needs recompilation
         mParent->_notifyNeedsRecompile();
+        _dirtyHash();
 	}
     //-----------------------------------------------------------------------
     TextureUnitState* Pass::getTextureUnitState(unsigned short index) 
@@ -282,6 +293,7 @@ namespace Ogre {
 	    mTextureUnitStates.erase(i);
         // Needs recompilation
         mParent->_notifyNeedsRecompile();
+        _dirtyHash();
     }
     //-----------------------------------------------------------------------
     void Pass::removeAllTextureUnitStates(void)
@@ -295,6 +307,7 @@ namespace Ogre {
         mTextureUnitStates.clear();
         // Needs recompilation
         mParent->_notifyNeedsRecompile();
+        _dirtyHash();
     }
     //-----------------------------------------------------------------------
     void Pass::setSceneBlending(SceneBlendType sbt)
@@ -553,7 +566,7 @@ namespace Ogre {
 		}
 
         // Recalculate hash
-        _recalculateHash();
+        _dirtyHash();
 		
 	}
     //-----------------------------------------------------------------------
@@ -710,7 +723,12 @@ namespace Ogre {
         if (c > 1 && !mTextureUnitStates[1]->isBlank())
             mHash += (H(mTextureUnitStates[1]->getTextureName()) % (1 << 14));
     }
-
+    //-----------------------------------------------------------------------
+	void Pass::_dirtyHash(void)
+	{
+		// Mark this hash as for follow up
+		msDirtyHashList.insert(this);
+	}
     //-----------------------------------------------------------------------
     void Pass::_notifyNeedsRecompile(void)
     {

@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTechnique.h"
 #include "OgrePass.h"
 #include "OgreMaterialManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -183,9 +184,12 @@ namespace Ogre {
                 {
                     // Insert into solid list
                     Pass* p = pi.getNext();
+                    LogManager::getSingleton().logMessage("----- Try to add renderable using " + p->getParent()->getParent()->getName() + 
+                        " hash: " + StringConverter::toString(p->getHash()) + " ptr: " + StringConverter::toString((long)p));
                     SolidRenderablePassMap::iterator i = mSolidPasses.find(p);
                     if (i == mSolidPasses.end())
                     {
+                        LogManager::getSingleton().logMessage("----- Pass not found, adding " + p->getParent()->getParent()->getName());
                         std::pair<SolidRenderablePassMap::iterator, bool> retPair;
                         // Create new pass entry, build a new list
                         // Note that this pass and list are never destroyed until the engine
@@ -194,9 +198,12 @@ namespace Ogre {
                             SolidRenderablePassMap::value_type(p, new RenderableList() ) );
                         assert(retPair.second && "Error inserting new pass entry into SolidRenderablePassMap");
                         i = retPair.first;
+                        LogManager::getSingleton().logMessage("----- Pass added " + p->getParent()->getParent()->getName());
                     }
                     // Insert renderable
                     i->second->push_back(pRend);
+
+                    LogManager::getSingleton().logMessage("----- Add Renderable Ok");
 			    }
             }
 
@@ -219,15 +226,38 @@ namespace Ogre {
         */
         void clear(void)
         {
-            // NB we do not clear the solid pass map, only the contents of each list
-            // This is because we assume passes are reused a lot and it saves resorting
             SolidRenderablePassMap::iterator i, iend;
+
+            // First remove any dirty passes, these will have their hashes recalculated
+            // by the parent queue after all groups have been processed
+            // If we don't do this, the std::map will become inconsistent for new insterts
+            const Pass::DirtyHashList& dirtyList = Pass::getDirtyHashList();
+		    Pass::DirtyHashList::const_iterator di, diend;
+		    diend = dirtyList.end();
+		    for (di = dirtyList.begin(); di != diend; ++di)
+		    {
+			    Pass* p = *di;
+                i = mSolidPasses.find(p);
+                if (i != mSolidPasses.end())
+                {
+                    // free memory
+                    delete i->second;
+                    // erase from map
+                    mSolidPasses.erase(i);
+                }
+		    }
+            // NB we do NOT clear the dirty list here, because it needs to be acted on for 
+            // all groups, the parent queue takes care of this afterwards
+
+            // We do not clear the unchanged solid pass maps, only the contents of each list
+            // This is because we assume passes are reused a lot and it saves resorting
             iend = mSolidPasses.end();
             for (i = mSolidPasses.begin(); i != iend; ++i)
             {
                 // Clear the list associated with this pass, but leave the pass entry
                 i->second->clear();
             }
+            // Always empty the transparents list
             mTransparentPasses.clear();
 
         }

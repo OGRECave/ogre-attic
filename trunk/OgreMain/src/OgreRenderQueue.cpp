@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderable.h"
 #include "OgreMaterial.h"
 #include "OgreRenderQueueSortingGrouping.h"
+#include "OgrePass.h"
 
 namespace Ogre {
 
@@ -92,6 +93,19 @@ namespace Ogre {
         {
             i->second->clear();
         }
+
+        // Now trigger the recalculation of dirty pass hashes
+        // The dirty ones will have been removed from the groups above using the old hash now
+        const Pass::DirtyHashList& dirtyList = Pass::getDirtyHashList();
+		Pass::DirtyHashList::const_iterator di, diend;
+		diend = dirtyList.end();
+		for (di = dirtyList.begin(); di != diend; ++di)
+		{
+			Pass* p = *di;
+			p->_recalculateHash();
+		}
+		// Clear the dirty list
+		Pass::clearDirtyHashList();
 
         // NB this leaves the items present (but empty)
         // We're assuming that frame-by-frame, the same groups are likely to 

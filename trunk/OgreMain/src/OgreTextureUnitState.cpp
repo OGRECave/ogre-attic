@@ -71,13 +71,15 @@ namespace Ogre {
         mTextureType = TEX_TYPE_2D;
         mTextureCoordSetIndex = 0;
 
+        mParent->_dirtyHash();
+
     }
 
     //-----------------------------------------------------------------------
     TextureUnitState::TextureUnitState(Pass* parent, const TextureUnitState& oth )
     {
-        *this = oth;
         mParent = parent;
+        *this = oth;
     }
 
     //-----------------------------------------------------------------------
@@ -152,6 +154,8 @@ namespace Ogre {
 
         mEffects = oth.mEffects;
 
+        mParent->_dirtyHash();
+
         return *this;
     }
     //-----------------------------------------------------------------------
@@ -187,7 +191,7 @@ namespace Ogre {
             {
                 _load(); // reload
                 // Tell parent to recalculate hash
-                mParent->_recalculateHash();
+                mParent->_dirtyHash();
             }
         }
 
@@ -284,7 +288,7 @@ namespace Ogre {
         {
             _load();
             // Tell parent to recalculate hash
-            mParent->_recalculateHash();
+            mParent->_dirtyHash();
         }
 
     }
@@ -312,7 +316,7 @@ namespace Ogre {
         {
             _load();
             // Tell parent to recalculate hash
-            mParent->_recalculateHash();
+            mParent->_dirtyHash();
         }
     }
     //-----------------------------------------------------------------------
@@ -330,7 +334,7 @@ namespace Ogre {
         assert(frameNumber < mNumFrames);
         mCurrentFrame = frameNumber;
         // this will affect the hash
-        mParent->_recalculateHash();
+        mParent->_dirtyHash();
 
     }
     //-----------------------------------------------------------------------
