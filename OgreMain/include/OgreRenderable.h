@@ -131,6 +131,12 @@ namespace Ogre {
         /** Returns whether or not this Renderable wishes the hardware to normalise normals. */
         virtual bool getNormaliseNormals(void) const { return false; }
 
+        /** Gets a list of lights, ordered relative to how close they are to this renderable.
+        @remarks
+            Directional lights, which have no position, will always be first on this list.
+        */
+        virtual const LightList& getLights(void) = 0;
+
 
     };
 

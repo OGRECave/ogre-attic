@@ -90,6 +90,7 @@ namespace Ogre
 		mLastVertexSourceCount = 0;
 
         mForcedNormalisation = false;
+        mCurrentLights = 0;
 
 
 		OgreUnguard();
@@ -851,18 +852,6 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_pushRenderState()
-	{
-		Except( Exception::UNIMPLEMENTED_FEATURE, "Sorry, this feature is not yet available.",
-			"D3D9RenderSystem::_pushRenderState" );
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_popRenderState()
-	{
-		Except( Exception::UNIMPLEMENTED_FEATURE, "Sorry, this feature is not yet available.",
-			"D3D9RenderSystem::_popRenderState" );
-	}
-	//---------------------------------------------------------------------
 	String D3D9RenderSystem::getErrorDescription( long errorNumber )
 	{
 		String errMsg = DXGetErrorDescription9( errorNumber );
@@ -979,65 +968,23 @@ namespace Ogre
 			Except( hr, "Failed to set render stat D3DRS_AMBIENT", "D3D9RenderSystem::setAmbientLight" );
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_addLight( Light* lt )
-	{
-		// Find first free slot
-		int i;
-		for( i=0; i < MAX_LIGHTS; i++ )
-		{
-			if( !mLights[i] )
-			{
-				mLights[i] = lt;
-				break;
-			}
-		}
+    void D3D9RenderSystem::_useLights(const LightList& lights, unsigned short limit)
+    {
+        LightList::const_iterator i, iend;
+        iend = lights.end();
+        unsigned short num = 0;
+        for (i = lights.begin(); i != iend && num < limit; ++i, ++num)
+        {
+            setD3D9Light(num, *i);
+        }
+        // Disable extra lights
+        for (; num < mCurrentLights; ++num)
+        {
+            setD3D9Light(num, NULL);
+        }
+        mCurrentLights = std::min(limit, static_cast<unsigned short>(lights.size()));
 
-		// No space in array?
-		if( i == MAX_LIGHTS )
-			Except( Exception::ERR_INTERNAL_ERROR, "No free light slots - cannot add light.", "D3D9RenderSystem::_addLight" );
-
-		setD3D9Light( i, lt );
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_removeLight( Light* lt )
-	{
-		for( int i=0; i < MAX_LIGHTS; i++ )
-		{
-			if( mLights[i] == lt )
-			{
-				mpD3DDevice->LightEnable( i, FALSE );
-				mLights[0] = NULL;
-				break;
-			}
-		}
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_modifyLight( Light* lt )
-	{
-		int i;
-		for( i=0; i < MAX_LIGHTS; i++ )
-		{
-			if( mLights[i] == lt )
-				break;
-		}
-
-		if( i == MAX_LIGHTS )
-			Except( Exception::ERR_INVALIDPARAMS, "Cannot locate light to modify.", "D3D9RenderSystem::_modifyLight" );
-
-		setD3D9Light( i, lt );
-	}
-	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_removeAllLights()
-	{
-		for( int i=0; i < MAX_LIGHTS; i++ )
-		{
-			if( mLights[i] )
-			{
-				mpD3DDevice->LightEnable( i, FALSE );
-				mLights[i] = NULL;
-			}
-		}
-	}
+    }
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setShadingType( ShadeOptions so )
 	{
@@ -1060,8 +1007,13 @@ namespace Ogre
 		D3DLIGHT9 d3dLight;
 		ZeroMemory( &d3dLight, sizeof(d3dLight) );
 
-		if (lt->isVisible())
-		{
+        if (!lt)
+        {
+            if( FAILED( hr = mpD3DDevice->LightEnable( index, FALSE) ) )
+			    Except( hr, "Unable to disable light", "D3D9RenderSystem::setD3D9Light" );
+        }
+        else
+        {
 			switch( lt->getType() )
 			{
 			case Light::LT_POINT:
@@ -1106,12 +1058,12 @@ namespace Ogre
 
 			if( FAILED( hr = mpD3DDevice->SetLight( index, &d3dLight ) ) )
 				Except( hr, "Unable to set light details", "D3D9RenderSystem::setD3D9Light" );
-		}
 
-		if( FAILED( hr = mpD3DDevice->LightEnable( index, lt->isVisible() ) ) )
-			Except( hr, "Unable to enable/disable light", "D3D9RenderSystem::setD3D9Light" );
+            if( FAILED( hr = mpD3DDevice->LightEnable( index, TRUE ) ) )
+			    Except( hr, "Unable to enable light", "D3D9RenderSystem::setD3D9Light" );
+        }
 
-		lt->_clearModified();
+
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setViewMatrix( const Matrix4 &m )

@@ -60,6 +60,9 @@ namespace Ogre {
     class _OgreExport Light : public MovableObject
     {
     public:
+        /// Temp tag used for sorting
+        Real tempSquareDist;
+
         /// Defines the type of light
         enum LightTypes
         {
@@ -250,14 +253,6 @@ namespace Ogre {
         */
         Real getSpotlightFalloff(void) const;
 
-        /** Returns a true/false value indicating if this light has changed since it was last issued to the renderer.
-        */
-        bool isModified(void) const;
-
-        /** Clears the light's modified flag (should only be done by the engine itself).
-        */
-        void _clearModified(void);
-
         /** Overridden from MovableObject */
         void _notifyCurrentCamera(Camera* cam);
 
@@ -288,6 +283,8 @@ namespace Ogre {
 
 
     private:
+        /// internal method for synchronising with parent node (if any)
+        void update(void) const;
         String mName;
 
         LightTypes mLightType;
@@ -304,8 +301,6 @@ namespace Ogre {
         Real mAttenuationConst;
         Real mAttenuationLinear;
         Real mAttenuationQuad;
-
-        bool mModified;
 
         mutable Vector3 mDerivedPosition;
         mutable Vector3 mDerivedDirection;

@@ -261,6 +261,10 @@ public:
     /** Overridden from MovableObject */
     Real getBoundingRadius(void) const { return 0; /* not needed */ }
 
+    /** @copydoc Renderable::getLightList */
+    const LightList& getLights(void);
+
+
 
 protected:
 

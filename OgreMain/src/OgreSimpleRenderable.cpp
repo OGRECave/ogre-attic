@@ -132,5 +132,11 @@ namespace Ogre {
         static String movType = "SimpleRenderable";
         return movType;
     }
+    //-----------------------------------------------------------------------
+    const LightList& SimpleRenderable::getLights(void)
+    {
+        // Use parent node
+        return mParentNode->getLights();
+    }
 
 }

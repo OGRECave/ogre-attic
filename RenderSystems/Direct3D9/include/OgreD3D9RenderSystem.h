@@ -131,6 +131,8 @@ namespace Ogre
         void convertVertexShaderCaps(void);
         void convertPixelShaderCaps(void);
 
+        unsigned short mCurrentLights;
+
 
 	public:
 		// constructor
@@ -172,12 +174,7 @@ namespace Ogre
         void setNormaliseNormals(bool normalise);
 
 		// Low-level overridden members, mainly for internal use
-		void _addLight( Light* lt );
-		void _removeLight( Light* lt );
-		void _modifyLight( Light* lt );
-		void _removeAllLights(void);
-		void _pushRenderState(void);
-		void _popRenderState(void);
+        void _useLights(const LightList& lights, unsigned short limit);
 		void _setWorldMatrix( const Matrix4 &m );
 		void _setViewMatrix( const Matrix4 &m );
 		void _setProjectionMatrix( const Matrix4 &m );

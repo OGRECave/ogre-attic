@@ -42,8 +42,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D7RenderWindow.h"
 #include "OgreCamera.h"
 
-#include <d3dx.h>
-#include "d3dutil.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -60,10 +58,6 @@ namespace Ogre {
         mhInstance = hInstance;
         mHardwareBufferManager = NULL;
 
-        // Init light array
-        for (int i = 0; i < MAX_LIGHTS; ++i)
-            mLights[i] = 0;
-
         initConfigOptions();
 
         // Initialise D3DX library
@@ -79,6 +73,7 @@ namespace Ogre {
         }
 
         mForcedNormalisation = false;
+        mCurrentLights = 0;
 
         OgreUnguard();
     }
@@ -623,47 +618,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     // Low-level overridden members
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_addLight(Light *lt)
+	//---------------------------------------------------------------------
+    void D3DRenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
-
-        // Find first free slot
-        int i;
-        for (i =0; i < MAX_LIGHTS; ++i)
+        LightList::const_iterator i, iend;
+        iend = lights.end();
+        unsigned short num = 0;
+        for (i = lights.begin(); i != iend && num < limit; ++i, ++num)
         {
-            if (!mLights[i])
-            {
-                mLights[i] = lt;
-                break;
-            }
+            setD3DLight(num, *i);
         }
-        // No space in array?
-        if (i == MAX_LIGHTS)
-            Except(999, "No free light slots - cannot add light.", "D3DRenderSystem::addLight");
-
-        setD3DLight(i, lt);
-
-
-
-    }
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_modifyLight(Light* lt)
-    {
-        // Locate light in list
-        int lightIndex;
-        for (int i = 0; i < MAX_LIGHTS; ++i)
+        // Disable extra lights
+        for (; num < mCurrentLights; ++num)
         {
-            if (mLights[i] == lt)
-            {
-                lightIndex = i;
-                break;
-            }
+            setD3DLight(num, NULL);
         }
-
-        if (i == MAX_LIGHTS)
-            Except(Exception::ERR_INVALIDPARAMS, "Cannot locate light to modify.",
-            "D3DRenderSystem::_modifyLight");
-
-        setD3DLight(lightIndex, lt);
+        mCurrentLights = std::min(limit, static_cast<unsigned short>(lights.size()));
 
     }
     //-----------------------------------------------------------------------
@@ -673,7 +643,13 @@ namespace Ogre {
         HRESULT hr;
         D3DLIGHT7 d3dLight;
 
-        if (lt->isVisible())
+        if (!lt)
+        {
+            hr = mlpD3DDevice->LightEnable(index, FALSE);
+            if (FAILED(hr))
+                Except(hr, "Unable to disable light.", "D3DRenderSystem::setD3DLight");
+        }
+        else
         {
             switch (lt->getType())
             {
@@ -742,63 +718,14 @@ namespace Ogre {
 
             if (FAILED(hr))
                 Except(hr, "Unable to set light details", "D3DRenderSystem::setD3DLight");
+
+            hr = mlpD3DDevice->LightEnable(index, TRUE);
+            if (FAILED(hr))
+                Except(hr, "Unable to enable light.", "D3DRenderSystem::setD3DLight");
         }
 
-        hr = mlpD3DDevice->LightEnable(index, lt->isVisible());
-        if (FAILED(hr))
-            Except(hr, "Unable to enable light.", "D3DRenderSystem::setD3DLight");
-
-
-        lt->_clearModified();
 
     }
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_removeLight(Light *lt)
-    {
-        // Remove & disable light
-        for (int i = 0; i < MAX_LIGHTS; ++i)
-        {
-            if (mLights[i] == lt)
-            {
-                mlpD3DDevice->LightEnable(i, FALSE);
-                mLights[i] = 0;
-                break;
-            }
-        }
-
-    }
-
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_removeAllLights(void)
-    {
-        // Remove & disable all lights
-        for (int i = 0; i < MAX_LIGHTS; ++i)
-        {
-            if (mLights[i])
-            {
-                mlpD3DDevice->LightEnable(i, FALSE);
-                mLights[i] = 0;
-            }
-        }
-
-    }
-
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_pushRenderState(void)
-    {
-        Except(Exception::UNIMPLEMENTED_FEATURE,
-            "Sorry, this feature is not yet available.",
-            "D3DRenderSystem::_pushRenderState");
-    }
-
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::_popRenderState(void)
-    {
-        Except(Exception::UNIMPLEMENTED_FEATURE,
-            "Sorry, this feature is not yet available.",
-            "D3DRenderSystem::_popRenderState");
-    }
-
     //-----------------------------------------------------------------------
     D3DMATRIX D3DRenderSystem::makeD3DMatrix(const Matrix4& mat)
     {

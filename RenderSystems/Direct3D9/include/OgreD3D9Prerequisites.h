@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 
 #include "OgreNoMemoryMacros.h"
+#define NOMINMAX // required to stop windows.h screwing up std::min definition
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <dxerr9.h>

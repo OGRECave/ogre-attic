@@ -361,50 +361,10 @@ namespace Ogre
         // ------------------------------------------------------------------------
 
 
-        /**
-          Adds a light to the renderers list of active lights
-
-          This method should not be called directly by user
-          processes - this is adding a light at the rendering
-          level. User processes should add lights using the
-          SceneNode attachLight method
-         */
-        virtual void _addLight(Light *lt) = 0;
-        /**
-          Removes a light from the renderers list.
-
-          As with RenderSystem::_addLight
-          this method is for use internally, not by user processes.
-          See SceneNode for user-level light maintenance.
-         */
-        virtual void _removeLight(Light *lt) = 0;
-        /** Modifies a light in the renderer.
-            Modifies a light which has already been added using _addLight.
-        */
-        virtual void _modifyLight(Light* lt) = 0;
-        /**
-          Clears all the lights from the renderer
-
-          As with RenderSystem::_addLight
-          this method is for use internally, not by user processes.
-          See SceneManager for user-level light maintenance.
-         */
-        virtual void _removeAllLights(void) = 0;
-
-        /**
-          Saves the current rendering state
-
-          Stores the current rendering state on the
-          render state stack. The state may then be altered
-          and restored back to it's previous state using
-          RenderSystem::_popRenderState. Used internally by Ogre
-          to manage changes like model/view matrices, active
-          materials/textures without having to repecify them
-          every time.
-         */
-        virtual void _pushRenderState(void) = 0;
-        /** Restores the render state to a previous state. */
-        virtual void _popRenderState(void) = 0;
+        /** Tells the rendersystem to use the attached set of lights (and no others) 
+        up to the number specified (this allows the same list to be used with different
+        count limits) */
+        virtual void _useLights(const LightList& lights, unsigned short limit) = 0;
         /** Sets the world transform matrix. */
         virtual void _setWorldMatrix(const Matrix4 &m) = 0;
         /** Sets multiple world matrices (vertex blending). */

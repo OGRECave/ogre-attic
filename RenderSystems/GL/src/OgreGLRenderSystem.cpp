@@ -106,6 +106,8 @@ namespace Ogre {
         glBufferSubDataARB_ptr = 0;
         glGetBufferSubDataARB_ptr = 0;
 
+        mCurrentLights = 0;
+
         OgreUnguard();
     }
 
@@ -404,57 +406,35 @@ namespace Ogre {
         }
     }
 
-    void GLRenderSystem::_addLight(Light *lt)
+	//---------------------------------------------------------------------
+    void GLRenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
-        // Find first free slot
-        int i;
-        for (i =0; i < MAX_LIGHTS; ++i)
+        LightList::const_iterator i, iend;
+        iend = lights.end();
+        unsigned short num = 0;
+        for (i = lights.begin(); i != iend && num < limit; ++i, ++num)
         {
-            if (!mLights[i])
-            {
-                mLights[i] = lt;
-                break;
-            }
+            setGLLight(num, *i);
         }
-        // No space in array?
-
-        if (i == MAX_LIGHTS)
-            Except(
-                999, 
-                "No free light slots - cannot add light.", 
-                "GLRenderSystem::addLight" );
-
-        setGLLight(i, lt);
-    }
-
-    void GLRenderSystem::_modifyLight(Light *lt)
-    {
-        // Locate light in list
-        int lightIndex;
-        int i;
-        for (i = 0; i < MAX_LIGHTS; ++i)
+        // Disable extra lights
+        for (; num < mCurrentLights; ++num)
         {
-            if (mLights[i] == lt)
-            {
-                lightIndex = i;
-                break;
-            }
+            setGLLight(num, NULL);
         }
+        mCurrentLights = std::min(limit, static_cast<unsigned short>(lights.size()));
 
-        if (i == MAX_LIGHTS)
-            Except(
-                Exception::ERR_INVALIDPARAMS, 
-                "Cannot locate light to modify.",
-                "GLRenderSystem::_modifyLight" );
-
-        setGLLight(lightIndex, lt);
     }
 
     void GLRenderSystem::setGLLight(int index, Light* lt)
     {
         GLint gl_index = GL_LIGHT0 + index;
 
-        if (lt->isVisible())
+        if (!lt)
+        {
+            // Disable in the scene
+            glDisable(gl_index);
+        }
+        else
         {
             switch (lt->getType())
             {
@@ -495,57 +475,7 @@ namespace Ogre {
             glEnable(gl_index);
 
         }
-        else
-        {
-            // Disable in the scene
-            glDisable(gl_index);
-        }
 
-        lt->_clearModified();
-    }
-
-    void GLRenderSystem::_removeLight(Light *lt)
-    {
-        // Remove & disable light
-        for (int i = 0; i < MAX_LIGHTS; ++i)
-        {
-            if (mLights[i] == lt)
-            {
-                glDisable(GL_LIGHT0 + i);
-                mLights[i] = NULL;
-                return;
-            }
-        }
-    }
-
-    //-----------------------------------------------------------------------------
-    void GLRenderSystem::_removeAllLights(void)
-    {
-        // Remove & disable all lights
-        for (int i = 0; i < MAX_LIGHTS; ++i)
-        {
-            if (mLights[i])
-            {
-                glDisable(GL_LIGHT0 + i);
-                mLights[i] = NULL;
-            }
-        }
-    }
-
-    //-----------------------------------------------------------------------------
-    void GLRenderSystem::_pushRenderState(void)
-    {
-        Except(Exception::UNIMPLEMENTED_FEATURE,
-            "Sorry, this feature is not yet available.",
-            "GLRenderSystem::_pushRenderState");
-    }
-
-    //-----------------------------------------------------------------------------
-    void GLRenderSystem::_popRenderState(void)
-    {
-        Except(Exception::UNIMPLEMENTED_FEATURE,
-            "Sorry, this feature is not yet available.",
-            "GLRenderSystem::_popRenderState");
     }
 
     //-----------------------------------------------------------------------------

@@ -1011,5 +1011,12 @@ namespace Ogre {
 	{
 		return mBoundingRadius;
 	}
+    //-----------------------------------------------------------------------
+    const LightList& BillboardSet::getLights(void)
+    {
+        // It's actually quite unlikely that this will be called, 
+        // because most billboards are unlit, but here we go anyway
+        return mParentNode->getLights();
+    }
 
 }

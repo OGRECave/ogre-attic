@@ -58,6 +58,7 @@ namespace Ogre {
 	    mCullMode = CULL_CLOCKWISE;
 	    mManualCullMode = MANUAL_CULL_BACK;
 	    mLightingEnabled = true;
+        mMaxSimultaneousLights = OGRE_MAX_SIMULTANEOUS_LIGHTS;
 	    mShadeOptions = SO_GOURAUD;
 
 		mTextureFiltering = MaterialManager::getSingleton().getDefaultTextureFiltering();
@@ -106,6 +107,7 @@ namespace Ogre {
 	    mCullMode = oth.mCullMode;
 	    mManualCullMode = oth.mManualCullMode;
 	    mLightingEnabled = oth.mLightingEnabled;
+        mMaxSimultaneousLights = oth.mMaxSimultaneousLights;
 	    mShadeOptions = oth.mShadeOptions;
 
 		mTextureFiltering = oth.mTextureFiltering;
@@ -381,6 +383,16 @@ namespace Ogre {
     bool Pass::getLightingEnabled(void) const
     {
 	    return mLightingEnabled;
+    }
+    //-----------------------------------------------------------------------
+    void Pass::setMaxSimultaneousLights(unsigned short maxLights)
+    {
+        mMaxSimultaneousLights = maxLights;
+    }
+    //-----------------------------------------------------------------------
+    unsigned short Pass::getMaxSimultaneousLights(void)
+    {
+        return mMaxSimultaneousLights;
     }
     //-----------------------------------------------------------------------
     void Pass::setShadingMode(ShadeOptions mode)

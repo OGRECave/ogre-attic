@@ -30,8 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTarget.h"
 #include "OgreRenderTexture.h"
 #include "OgreRenderTargetListener.h"
-#include <ddraw.h>
-#include <d3d.h>
 
 namespace Ogre {
 

@@ -83,6 +83,11 @@ namespace Ogre {
         {
             _OgreExport bool operator()(const Material* x, const Material* y) const;
         };
+        /// Comparator for sorting lights relative to a point
+        struct lightLess
+        {
+            _OgreExport bool operator()(const Light* a, const Light* b) const;
+        };
 
     protected:
 
@@ -101,11 +106,11 @@ namespace Ogre {
         */
         CameraList mCameras;
 
-        typedef std::map<std::string, Light*, std::less<std::string> > LightList;
+        typedef std::map<std::string, Light*, std::less<std::string> > SceneLightList;
 
         /** Central list of lights - for easy memory management and lookup.
         */
-        LightList mLights;
+        SceneLightList mLights;
 
 
         typedef std::map<std::string, Entity*, std::less<std::string> > EntityList;
@@ -305,6 +310,26 @@ namespace Ogre {
         /** Removes and destroys all lights in the scene.
         */
         virtual void removeAllLights(void);
+
+        /** Populate a light list with an ordered set of the lights which are closest
+        to the position specified.
+        @remarks
+            Note that since directional lights have no position, they are always considered
+            closer than any point lights and as such will always take precedence. 
+        @par
+            Subclasses of the default SceneManager may wish to take into account other issues
+            such as possible visibility of the light if that information is included in their
+            data structures. This basic scenemanager simply orders by distance, eliminating 
+            those lights which are out of range.
+        @par
+            The number of items in the list max exceed the maximum number of lights supported
+            by the renderer, but the extraneous ones will never be used. In fact the limit will
+            be imposed by Pass::getMaxSimultaneousLights.
+        @param position The position at which to evaluate the list of lights
+        @param destList List to be populated with ordered set of lights; will be cleared by 
+            this method before population.
+        */
+        virtual void _populateLightList(const Vector3& position, LightList& destList);
 
         /** Creates a new material with default settings with the specified name.
         @see SceneManager::getDefaultMaterialSettings
@@ -655,10 +680,6 @@ namespace Ogre {
         virtual void _queueSkiesForRendering(Camera* cam);
 
 
-
-        /** Sends any updates to the dynamic lights in the world to the renderer.
-        */
-        virtual void _updateDynamicLights(void);
 
         /** Notifies the scene manager of its destination render system
             @remarks
@@ -1114,7 +1135,7 @@ namespace Ogre {
         /** Destroys a scene query of any type. */
         virtual void destroyQuery(SceneQuery* query);
 
-        typedef MapIterator<LightList> LightIterator;
+        typedef MapIterator<SceneLightList> LightIterator;
         typedef MapIterator<EntityList> EntityIterator;
         typedef MapIterator<CameraList> CameraIterator;
         typedef MapIterator<BillboardSetList> BillboardSetIterator;
