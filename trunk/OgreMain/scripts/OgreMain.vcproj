@@ -255,6 +255,12 @@
 				RelativePath="..\src\OgreGuiPressable.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreHardwareIndexBuffer.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreHardwareVertexBuffer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreImage.cpp">
 			</File>
 			<File
@@ -668,6 +674,18 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGuiPressable.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHardwareBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHardwareBufferManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHardwareIndexBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHardwareVertexBuffer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreImage.h">
