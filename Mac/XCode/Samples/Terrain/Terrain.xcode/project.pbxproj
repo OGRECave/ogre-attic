@@ -513,9 +513,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = image.jpeg;
 			name = terrain_texture.jpg;
-			path = ../../../../Samples/Media/terrain_texture.jpg;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
+			path = /Users/temas/cvs/ogre/Samples/Media/materials/textures/terrain_texture.jpg;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		3C0B6A3D046F68F700A801FE = {
 			fileRef = 3C0B6A3C046F68F700A801FE;
@@ -527,9 +527,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = image.jpeg;
 			name = terrain_detail.jpg;
-			path = ../../../../Samples/Media/terrain_detail.jpg;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
+			path = /Users/temas/cvs/ogre/Samples/Media/materials/textures/terrain_detail.jpg;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		3C0B6A3F046F691700A801FE = {
 			fileRef = 3C0B6A3E046F691700A801FE;
@@ -541,9 +541,9 @@
 			isa = PBXFileReference;
 			lastKnownFileType = image.png;
 			name = terrain.png;
-			path = ../../../../Samples/Media/terrain.png;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
+			path = /Users/temas/cvs/ogre/Samples/Media/materials/textures/terrain.png;
+			refType = 0;
+			sourceTree = "<absolute>";
 		};
 		3CD1150304708C1000A801FE = {
 			fileRef = 3CD1150204708C1000A801FE;

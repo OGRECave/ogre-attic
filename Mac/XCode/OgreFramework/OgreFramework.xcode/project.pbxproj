@@ -367,6 +367,10 @@
 				82FDCA7905F6FB7200FF744C,
 				827077C405FBE1C400A1CB6E,
 				827077C505FBE1C400A1CB6E,
+				8251E597061F5D6900827249,
+				8251E598061F5D6900827249,
+				8251E59E061F606000827249,
+				82D30CC9062F2F1C0069440B,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -382,6 +386,8 @@
 		0867D69FFE84028FC02AAC07 = {
 			buildActionMask = 2147483647;
 			files = (
+				8251E599061F5DC000827249,
+				8251E59A061F5DC000827249,
 				66CAE4BD045A3D4F000001C9,
 				66CAE49D045A3D4F000001C9,
 				66CAE49E045A3D4F000001C9,
@@ -527,6 +533,8 @@
 				82FDCA5705F6F85D00FF744C,
 				82FDCA5905F6FA2800FF744C,
 				827077B305FBCF7B00A1CB6E,
+				8251E59C061F604500827249,
+				82D30CC7062F2ED90069440B,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1121,12 +1129,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = ./copyPlugin;
-		};
-		66B99E48045CB0D1000001C9 = {
-			fileRef = 66CC9FB5045C6A32000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		66B99E49045CB0D1000001C9 = {
 			fileRef = 66CC9FB2045C69CE000001C9;
@@ -2401,6 +2403,7 @@
 				66B99ED4045CB38B000001C9,
 				66B99ED5045CB38C000001C9,
 				66B99ED7045CB394000001C9,
+				8251E690061FD07400827249,
 			);
 			isa = PBXAggregateTarget;
 			name = OgreFramework;
@@ -7073,6 +7076,10 @@
 		};
 		66CAE66E045A3DE2000001C9 = {
 			children = (
+				82D30CC8062F2F1C0069440B,
+				8251E59D061F606000827249,
+				8251E595061F5D6900827249,
+				8251E596061F5D6900827249,
 				827077C205FBE1C400A1CB6E,
 				827077C305FBE1C400A1CB6E,
 				82FDCA7805F6FB7200FF744C,
@@ -7282,6 +7289,10 @@
 		};
 		66CAE66F045A3DF3000001C9 = {
 			children = (
+				82D30CC6062F2ED90069440B,
+				8251E59B061F604500827249,
+				8251E591061F5D4600827249,
+				8251E592061F5D4600827249,
 				664E9964046D4A56000001C9,
 				66CAE424045A3D4F000001C9,
 				66CAE49C045A3D4F000001C9,
@@ -7795,8 +7806,8 @@
 		66CAE6C2045A402F000001C9 = {
 			buildActionMask = 2147483647;
 			files = (
-				66B99E48045CB0D1000001C9,
 				66B99E49045CB0D1000001C9,
+				8251E5A0061F613500827249,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8110,21 +8121,13 @@
 		};
 		66CC9FB4045C69D4000001C9 = {
 			children = (
-				66CC9FB5045C6A32000001C9,
+				8251E59F061F613500827249,
 				66CC9FB2045C69CE000001C9,
 			);
 			isa = PBXGroup;
 			name = Resources;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		66CC9FB5045C6A32000001C9 = {
-			isa = PBXFileReference;
-			lastKnownFileType = image.jpeg;
-			name = "ogrelogo-small.jpg";
-			path = "../../../Samples/Media/ogrelogo-small.jpg";
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
 		};
 		66DA0149045C64C1000001C9 = {
 			isa = PBXTargetDependency;
@@ -10535,6 +10538,131 @@
 				);
 			};
 		};
+		8251E591061F5D4600827249 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreExternalTextureSource.cpp;
+			path = ../../../OgreMain/src/OgreExternalTextureSource.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E592061F5D4600827249 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreExternalTextureSourceManager.cpp;
+			path = ../../../OgreMain/src/OgreExternalTextureSourceManager.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E595061F5D6900827249 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreExternalTextureSource.h;
+			path = ../../../OgreMain/include/OgreExternalTextureSource.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E596061F5D6900827249 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreExternalTextureSourceManager.h;
+			path = ../../../OgreMain/include/OgreExternalTextureSourceManager.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E597061F5D6900827249 = {
+			fileRef = 8251E595061F5D6900827249;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		8251E598061F5D6900827249 = {
+			fileRef = 8251E596061F5D6900827249;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		8251E599061F5DC000827249 = {
+			fileRef = 8251E591061F5D4600827249;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8251E59A061F5DC000827249 = {
+			fileRef = 8251E592061F5D4600827249;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8251E59B061F604500827249 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreRectangle2D.cpp;
+			path = ../../../OgreMain/src/OgreRectangle2D.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E59C061F604500827249 = {
+			fileRef = 8251E59B061F604500827249;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8251E59D061F606000827249 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreRectangle2D.h;
+			path = ../../../OgreMain/include/OgreRectangle2D.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E59E061F606000827249 = {
+			fileRef = 8251E59D061F606000827249;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		8251E59F061F613500827249 = {
+			isa = PBXFileReference;
+			lastKnownFileType = image.jpeg;
+			name = "ogrelogo-small.jpg";
+			path = "../../../Samples/Media/materials/textures/ogrelogo-small.jpg";
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8251E5A0061F613500827249 = {
+			fileRef = 8251E59F061F613500827249;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8251E68F061FD07400827249 = {
+			containerPortal = 0867D690FE84028FC02AAC07;
+			isa = PBXContainerItemProxy;
+			proxyType = 1;
+			remoteGlobalIDString = 8207A08F06011E620045D784;
+			remoteInfo = "CgProgramManager Plugin";
+		};
+		8251E690061FD07400827249 = {
+			isa = PBXTargetDependency;
+			target = 8207A08F06011E620045D784;
+			targetProxy = 8251E68F061FD07400827249;
+		};
 		8253225E052E565800711072 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -11149,6 +11277,39 @@
 			fileRef = 8296D9A105BB337E00DD3526;
 			isa = PBXBuildFile;
 			settings = {
+			};
+		};
+		82D30CC6062F2ED90069440B = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreRenderQueueSortingGrouping.cpp;
+			path = /Users/temas/cvs/ogre/OgreMain/src/OgreRenderQueueSortingGrouping.cpp;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		82D30CC7062F2ED90069440B = {
+			fileRef = 82D30CC6062F2ED90069440B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		82D30CC8062F2F1C0069440B = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreRenderQueueSortingGrouping.h;
+			path = ../../../OgreMain/include/OgreRenderQueueSortingGrouping.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82D30CC9062F2F1C0069440B = {
+			fileRef = 82D30CC8062F2F1C0069440B;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82E200A0054F19D00017F420 = {
