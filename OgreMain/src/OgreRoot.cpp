@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 
 #include "OgreRenderSystem.h"
+#include "OgreRenderWindow.h"
 #include "OgreException.h"
 #include "OgreControllerManager.h"
 #include "OgreLogManager.h"
@@ -453,9 +454,10 @@ namespace Ogre {
 
 		mResourceBackgroundQueue->initialise();
 
-        if (autoCreateWindow)
+        if (autoCreateWindow && !mFirstTimePostWindowInit)
         {
             oneTimePostWindowInit();
+            mAutoWindow->_setPrimary();
         }
 
         // Initialise timer
@@ -738,7 +740,11 @@ namespace Ogre {
         ret = mActiveRenderer->createRenderWindow(name, width, height, fullScreen, miscParams);
 
         // Initialisation for classes dependent on first window created
-        oneTimePostWindowInit();
+        if(!mFirstTimePostWindowInit)
+        {
+            oneTimePostWindowInit();
+            ret->_setPrimary();
+        }
 
         return ret;
 
