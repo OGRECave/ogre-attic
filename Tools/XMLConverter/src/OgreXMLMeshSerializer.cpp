@@ -834,9 +834,9 @@ namespace Ogre {
         {
             VertexBoneAssignment vba;
             vba.vertexIndex = StringConverter::parseInt(
-                elem->Attribute("vertexIndex"));
+                elem->Attribute("vertexindex"));
             vba.boneIndex = StringConverter::parseInt(
-                elem->Attribute("boneIndex"));
+                elem->Attribute("boneindex"));
             vba.weight= StringConverter::parseReal(
                 elem->Attribute("weight"));
 
@@ -855,9 +855,9 @@ namespace Ogre {
         {
             VertexBoneAssignment vba;
             vba.vertexIndex = StringConverter::parseInt(
-                elem->Attribute("vertexIndex"));
+                elem->Attribute("vertexindex"));
             vba.boneIndex = StringConverter::parseInt(
-                elem->Attribute("boneIndex"));
+                elem->Attribute("boneindex"));
             vba.weight= StringConverter::parseReal(
                 elem->Attribute("weight"));
 
@@ -873,7 +873,7 @@ namespace Ogre {
 
 		unsigned short numLvls = pMesh->getNumLodLevels();
 		bool manual = pMesh->isLodManual();
-		lodNode->SetAttribute("numLevels", StringConverter::toString(numLvls));
+		lodNode->SetAttribute("numlevels", StringConverter::toString(numLvls));
 		lodNode->SetAttribute("manual", StringConverter::toString(manual));
 
 		// Iterate from level 1, not 0 (full detail)
@@ -974,7 +974,7 @@ namespace Ogre {
 		
         LogManager::getSingleton().logMessage("Parsing LOD information...");
 
-		const char* val = lodNode->Attribute("numLevels");
+		const char* val = lodNode->Attribute("numlevels");
 		unsigned short numLevels = static_cast<unsigned short>(
 			StringConverter::parseUnsignedInt(val));
 
