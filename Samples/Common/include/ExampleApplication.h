@@ -76,7 +76,7 @@ protected:
     Root *mRoot;
     Camera* mCamera;
     SceneManager* mSceneMgr;
-    FrameListener* mFrameListener;
+    ExampleFrameListener* mFrameListener;
     RenderWindow* mWindow;
 
     // These internal methods package up the stages in the startup process
@@ -116,7 +116,6 @@ protected:
             // If returned true, user clicked OK so initialise
             // Here we choose to let the system create a default rendering window by passing 'true'
             mWindow = mRoot->initialise(true);
-            mRoot->showDebugOverlay(true);
             return true;
         }
         else
@@ -145,6 +144,7 @@ protected:
     virtual void createFrameListener(void)
     {
         mFrameListener= new ExampleFrameListener(mWindow, mCamera);
+        mFrameListener->showDebugOverlay(true);
         mRoot->addFrameListener(mFrameListener);
     }
 

@@ -480,8 +480,8 @@ namespace Ogre
             information. You can enable it or disable it using this method.
             Alternatively you could access the overlay directly using mSceneManager::getOverlay
             but this is simpler.
-        */
         void showDebugOverlay(bool show);
+        */
 
 		/** Manually load a plugin.
 		 @remarks

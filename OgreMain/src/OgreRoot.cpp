@@ -652,6 +652,7 @@ namespace Ogre {
         return mActiveRenderer->getRenderTarget(name);
     }
     //-----------------------------------------------------------------------
+    /*
     void Root::showDebugOverlay(bool show)
     {
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
@@ -666,9 +667,9 @@ namespace Ogre {
         {
             o->hide();
         }
-
         
     }
+    */
     //-----------------------------------------------------------------------
 	void Root::loadPlugin(String pluginName)
 	{

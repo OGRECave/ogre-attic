@@ -198,13 +198,20 @@ namespace Ogre {
     {
         return mWorstFPS;
     }
+    float RenderTarget::getBestFrameTime()
+    {
+        return mBestFrameTime;
+    }
+    float RenderTarget::getWorstFrameTime()
+    {
+        return mWorstFrameTime;
+    }
 
 
     void RenderTarget::resetStatistics(void)
     {
         mAvgFPS = 0.0;
         mBestFPS = 0.0;
-        mLastFPS = 0.0;
         mLastFPS = 0.0;
         mWorstFPS = 999.0;
 		mBestFrameTime = 999.0;
@@ -265,6 +272,7 @@ namespace Ogre {
 				worstFrameTime = 0 ;
 			}
 		}
+      /*
 
         static String currFps = "Current FPS: ";
         static String avgFps = "Average FPS: ";
@@ -293,6 +301,7 @@ namespace Ogre {
 
         GuiElement* guiDbg = GuiManager::getSingleton().getGuiElement("Core/DebugText");
         guiDbg->setCaption(mDebugText);
+        */
 
     }
 
