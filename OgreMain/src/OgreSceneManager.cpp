@@ -3215,7 +3215,7 @@ namespace Ogre {
             if (!light->getCastShadows())
                 continue;
 
-            // Directional lights only for now
+            // Directional lights 
             if (light->getType() == Light::LT_DIRECTIONAL)
             {
 
@@ -3285,10 +3285,30 @@ namespace Ogre {
                 pos.z -= fmod(pos.z, worldTexelSize);
                 // Finally set position
                 texCam->setPosition(pos);
-                // HACK
-                // Set position / orientation
-                //texCam->setPosition(800,600,0);
-                //texCam->lookAt(0,0,0);
+
+                if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
+                    shadowTex->getViewport(0)->setBackgroundColour(ColourValue::White);
+
+                // Update target
+                shadowTex->update();
+
+                ++si;
+            }
+            // Spotlight
+            else if (light->getType() == Light::LT_SPOTLIGHT)
+            {
+
+                // set up the shadow texture
+                Camera* texCam = shadowTex->getViewport(0)->getCamera();
+                // Set perspective projection
+                texCam->setProjectionType(PT_PERSPECTIVE);
+                // set easy FOV and near dist so that texture covers far dist
+                texCam->setFOVy(light->getSpotlightOuterAngle()*2);
+                texCam->setPosition(light->getDerivedPosition());
+                texCam->setDirection(light->getDerivedDirection());
+                // set near clip the same as main camera, since they are likely
+                // to both reflect the nature of the scene
+                texCam->setNearClipDistance(cam->getNearClipDistance());
 
                 if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
                     shadowTex->getViewport(0)->setBackgroundColour(ColourValue::White);
