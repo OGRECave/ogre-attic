@@ -70,7 +70,7 @@ protected:
         // NB it's VERY important to set this before calling setWorldGeometry 
         // because the vertex program picked will be different
         ColourValue fadeColour(0.93, 0.86, 0.76);
-        mSceneMgr->setFog( FOG_EXP, fadeColour, .001);
+        mSceneMgr->setFog( FOG_LINEAR, fadeColour, .001, 500, 1000);
         mWindow->getViewport(0)->setBackgroundColour(fadeColour);
 
 
