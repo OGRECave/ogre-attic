@@ -34,6 +34,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	/** The log listener is here to provide alternate means to write out 
+	    log data. This is helpful if you want to redirect the log output
+		for example to a gui window for an editing application.
+	*/
+	class _OgreExport LogListener
+	{
+	public:
+		/** Called by the log system whenever a message needs to be output.
+		*/
+		virtual void write( const String& name,
+							const String& message, 
+							LogMessageLevel lml = LML_NORMAL, 
+							bool maskDebug = false ) = 0;
+		virtual ~LogListener();
+	};
+
     /** The log manager handles the creation and retrieval of logs for the
         application.
         @remarks
@@ -45,8 +61,20 @@ namespace Ogre {
     */
     class _OgreExport LogManager : public Singleton<LogManager>
     {
-    protected:
-        typedef std::map<String, Log*, std::less<String> > LogList;
+		friend class Log;
+
+	protected:
+
+		/** Internal helper method to reroute logging messages to the 
+			new listener system, while maintaining full backward compatiblity.
+		*/
+		void _routeMessage(	const String& name,
+							const String& message, 
+							LogMessageLevel lml = LML_NORMAL, 
+							bool maskDebug = false );
+
+        typedef std::map<String, Log*, std::less<String> >	LogList;
+		typedef std::vector<LogListener*>					LogListenerList;
 
         /// A list of all the logs the manager can access
         LogList mLogs;
@@ -54,9 +82,24 @@ namespace Ogre {
         /// The default log to which output is done
         Log* mDefaultLog;
 
+		/// A list of all registered external log listeners.
+		LogListenerList mListeners;
+
     public:
         LogManager();
         ~LogManager();
+
+		/** Adds a new listener for the logging system.
+		    Ogre does not assume ownership and does not destroy the listener
+			at application shutdown.
+		*/
+		void addListener( LogListener * listener );
+		
+		/** Removes a previously registered listener again, and
+			returns ownership of the listener to the caller, who
+			is responsible for destroying the listener again.
+		*/
+		void removeListener( LogListener * listener );
 
         /** Creates a new log with the given name.
             @param
