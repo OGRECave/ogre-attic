@@ -151,6 +151,8 @@ namespace Ogre {
     class DataChunk;
     class DynLib;
     class DynLibManager;
+    class EdgeData;
+    class EdgeListBuilder;
     class Entity;
     class ErrorDialog;
 	class EventDispatcher;
@@ -252,6 +254,8 @@ namespace Ogre {
 	class ScrollTarget;
     class SDDataChunk;
     class Serializer;
+    class ShadowCaster;
+    class ShadowRenderable;
     class SimpleRenderable;
     class SimpleSpline;
     class Skeleton;
