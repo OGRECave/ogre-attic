@@ -154,6 +154,12 @@
 				RelativePath="..\src\OgreSDLWindow.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreWin32GLSupport.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreWin32Window.cpp">
+			</File>
+			<File
 				RelativePath="..\src\glprocs.c">
 			</File>
 		</Filter>
@@ -183,6 +189,15 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreSDLWindow.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWin32GLSupport.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWin32Prerequisites.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreWin32Window.h">
 			</File>
 			<File
 				RelativePath="..\include\wglext.h">

@@ -825,10 +825,7 @@ namespace Ogre
         */
         Real calculateEventTime(unsigned long now, FrameEventTimeType type);
 
-        // Stored options
-        ConfigOptionMap mOptions;
-
-		/** The render targets. */
+        /** The render targets. */
         RenderTargetMap mRenderTargets;
 		/** The render targets, ordered by priority. */
 		RenderTargetPriorityMap mPrioritisedRenderTargets;

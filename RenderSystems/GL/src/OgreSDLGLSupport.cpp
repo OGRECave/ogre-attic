@@ -46,7 +46,7 @@ void SDLGLSupport::addConfig(ConfigOptionMap& options)
     for (int i = 0; mVideoModes[i]; i++)
     {
         char szBuf[16];
-        snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
+		snprintf(szBuf, 16, "%d x %d", mVideoModes[i]->w, mVideoModes[i]->h);
         optVideoMode.possibleValues.push_back(szBuf);
         // Make the first one default
         if (i == 0)
@@ -59,15 +59,48 @@ void SDLGLSupport::addConfig(ConfigOptionMap& options)
     options[optVideoMode.name] = optVideoMode;
 }
 
-std::string SDLGLSupport::validateConfig(ConfigOptionMap& options)
+String SDLGLSupport::validateConfig(ConfigOptionMap& options)
 {
-    return std::string("");
+    return String("");
 }
 
-RenderWindow* SDLGLSupport::newWindow()
+RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem)
 {
-    return new SDLWindow();
+	if (autoCreateWindow)
+    {
+        ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
+        if (opt == mOptions.end())
+            Except(999, "Can't find full screen options!", "SDLGLSupport::createWindow");
+        bool fullscreen = (opt->second.currentValue == "Yes");
 
+        opt = mOptions.find("Video Mode");
+        if (opt == mOptions.end())
+            Except(999, "Can't find video mode options!", "SDLGLSupport::createWindow");
+        String val = opt->second.currentValue;
+        String::size_type pos = val.find('x');
+        if (pos == String::npos)
+            Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
+
+        int w = atoi(val.substr(0, pos).c_str());
+        int h = atoi(val.substr(pos + 1).c_str());
+
+        return renderSystem->createRenderWindow("OGRE Render Window", w, h, 32, fullscreen);
+    }
+    else
+    {
+        // XXX What is the else?
+		return NULL;
+    }
+}
+
+RenderWindow* SDLGLSupport::newWindow(const String& name, int width, int height, int colourDepth,
+        bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle,
+		bool vsync)
+{
+	SDLWindow* window = new SDLWindow();
+	window->create(name, width, height, colourDepth, fullScreen, left, top, depthBuffer,
+		parentWindowHandle);
+	return window;
 }
 
 void SDLGLSupport::start()
@@ -90,7 +123,7 @@ void SDLGLSupport::stop()
     SDL_Quit();
 }
 
-void* SDLGLSupport::getProcAddress(const std::string& procname)
+void* SDLGLSupport::getProcAddress(const String& procname)
 {
     // XXX IMPL
     return NULL;

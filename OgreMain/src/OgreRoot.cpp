@@ -506,7 +506,7 @@ namespace Ogre {
 		try {
         	cfg.load( pluginsfile );
 		}
-		catch (Exception& e)
+		catch (Exception)
 		{
 			LogManager::getSingleton().logMessage(pluginsfile + " not found, automatic plugin loading disabled.");
 			return;

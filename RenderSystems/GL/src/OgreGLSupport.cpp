@@ -31,6 +31,19 @@ namespace Ogre {
 
     template<> GLSupport* Singleton<GLSupport>::ms_Singleton = 0;
 
+	void GLSupport::setConfigOption(const String &name, const String &value)
+	{
+		ConfigOptionMap::iterator it = mOptions.find(name);
+
+        if (it != mOptions.end())
+            it->second.currentValue = value;
+	}
+
+	ConfigOptionMap& GLSupport::getConfigOptions(void)
+	{
+		return mOptions;
+	}
+
     void GLSupport::initialiseExtensions(void)
     {
         // Set version string
@@ -45,7 +58,7 @@ namespace Ogre {
         }
 
         // Set extension list
-        std::stringstream ext;
+		std::stringstream ext;
         String str;
 
         const GLubyte* pcExt = glGetString(GL_EXTENSIONS);
@@ -103,7 +116,7 @@ namespace Ogre {
         return false;
     }
 
-    bool GLSupport::checkExtension(const std::string& ext)
+    bool GLSupport::checkExtension(const String& ext)
     {
         if(extensionList.find(ext) == extensionList.end())
             return false; 

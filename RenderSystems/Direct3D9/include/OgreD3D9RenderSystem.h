@@ -42,8 +42,6 @@ namespace Ogre
 		LPDIRECT3D9			mpD3D;
 		LPDIRECT3DDEVICE9	mpD3DDevice;
 		
-		// wait for vsync
-		bool mVSync;
 		//full-screen multisampling, anti aliasing quality
 		DWORD mMultiSampleQuality;
 		//external window handle ;)
@@ -84,6 +82,9 @@ namespace Ogre
 
 		HINSTANCE mhInstance;
 
+		// Stored options
+		ConfigOptionMap mOptions;
+		
 		D3D9DriverList* getDirect3DDrivers(void);
 		void refreshD3DSettings(void);
 
