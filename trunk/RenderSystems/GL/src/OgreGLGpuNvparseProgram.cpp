@@ -34,7 +34,7 @@ http://www.gnu.org/copyleft/gpl.html.
 using namespace Ogre;
 
 GLGpuNvparseProgram::GLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
-    GpuProgram(name, gptype, syntaxCode)
+    GLGpuProgram(name, gptype, syntaxCode)
 {
     mProgramID = glGenLists(1);
 }
@@ -46,6 +46,38 @@ void GLGpuNvparseProgram::bindProgram(void)
      glEnable(GL_REGISTER_COMBINERS_NV);
 }
 
+void GLGpuNvparseProgram::unbindProgram(void)
+{
+    glDisable(GL_TEXTURE_SHADER_NV);
+    glDisable(GL_REGISTER_COMBINERS_NV);
+}
+
+void GLGpuNvparseProgram::bindProgramParameters(GpuProgramParametersSharedPtr params)
+{
+    // NB, register combiners uses 2 constants per texture stage (0 and 1)
+    // We have stored these as (stage * 2) + const_index
+
+    if (params->hasRealConstantParams())
+    {
+        // Iterate over params and set the relevant ones
+        GpuProgramParameters::RealConstantIterator realIt = 
+            params->getRealConstantIterator();
+        unsigned int index = 0;
+        while (realIt.hasMoreElements())
+        {
+            GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+            if (e->isSet)
+            {
+                GLenum combinerStage = GL_COMBINER0_NV + unsigned int(index / 2);
+                GLenum pname = GL_CONSTANT_COLOR0_NV + (index % 2);
+                glCombinerStageParameterfvNV_ptr(combinerStage, pname, e->val);
+            }
+            index++;
+            realIt.moveNext();
+        }
+    }
+
+}
 void GLGpuNvparseProgram::unload(void)
 {
     glDeleteLists(mProgramID,1);

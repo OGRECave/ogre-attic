@@ -110,6 +110,9 @@ namespace Ogre {
 
         GLuint getCombinedMinMipFilter(void);
 
+        GLGpuProgram* mCurrentVertexProgram;
+        GLGpuProgram* mCurrentFragmentProgram;
+
     public:
         // Default constructor / destructor
         GLRenderSystem();

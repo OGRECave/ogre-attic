@@ -36,15 +36,15 @@ public:
     typedef GpuProgram* (*CreateGpuProgramCallback)(const String&, GpuProgramType, const String&);
 
 private:
-    typedef std::map<GpuProgramType, CreateGpuProgramCallback> ProgramMap;
+    typedef std::map<String, CreateGpuProgramCallback> ProgramMap;
     ProgramMap mProgramMap;
 
 public:
     GLGpuProgramManager() {}
     ~GLGpuProgramManager() {}
     GpuProgramParametersSharedPtr createParameters(void);
-    bool registerProgram(GpuProgramType gptype, CreateGpuProgramCallback createFn);
-    bool unregisterProgram(GpuProgramType gptype);
+    bool registerProgramFactory(const String& syntaxCode, CreateGpuProgramCallback createFn);
+    bool unregisterProgramFactory(const String& syntaxCode);
     GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode);
 };
 

@@ -118,6 +118,11 @@ extern GL_ProgramStringARB_Func glProgramStringARB_ptr;
 // Pointer to glProgramLocalParameter4fvARB function
 typedef void (APIENTRY *GL_ProgramLocalParameter4fvARB_Func)(GLenum, GLuint, const GLfloat *);
 extern GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
+
+// Pointer to glCombinerStageParameterfvNV function
+typedef void (APIENTRY *GL_CombinerStageParameterfvNV_Func)(GLenum, GLenum, const GLfloat *);
+extern GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
+
 };
 
 namespace Ogre {
@@ -126,6 +131,7 @@ namespace Ogre {
     class GLRenderSystem;
     class GLTexture;
     class GLTextureManager;
+    class GLGpuProgram;
 
 }
 

@@ -31,22 +31,58 @@ using namespace Ogre;
 GLGpuProgram::GLGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
     GpuProgram(name, gptype, syntaxCode)
 {
+}
+
+GLArbGpuProgram::GLArbGpuProgram(const String& name, GpuProgramType gptype, const String& syntaxCode) :
+    GLGpuProgram(name, gptype, syntaxCode)
+{
     mProgramType = (gptype == GPT_VERTEX_PROGRAM) ? GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
     glGenProgramsARB_ptr(1, &mProgramID);
 }
 
-void GLGpuProgram::bindProgram(void)
+void GLArbGpuProgram::bindProgram(void)
 {
     glEnable(mProgramType);
     glBindProgramARB_ptr(mProgramType, mProgramID);
 }
 
-void GLGpuProgram::unload(void)
+void GLArbGpuProgram::unbindProgram(void)
+{
+    glBindProgramARB_ptr(mProgramType, 0);
+    glDisable(mProgramType);
+}
+
+void GLArbGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr params)
+{
+    GLenum type = (mType == GPT_VERTEX_PROGRAM) ? 
+        GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
+    
+    if (params->hasRealConstantParams())
+    {
+        // Iterate over params and set the relevant ones
+        GpuProgramParameters::RealConstantIterator realIt = 
+            params->getRealConstantIterator();
+        unsigned int index = 0;
+        while (realIt.hasMoreElements())
+        {
+            GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
+            if (e->isSet)
+            {
+                glProgramLocalParameter4fvARB_ptr(type, index, e->val);
+            }
+            index++;
+            realIt.moveNext();
+        }
+    }
+
+}
+
+void GLArbGpuProgram::unload(void)
 {
     glDeleteProgramsARB_ptr(1, &mProgramID);
 }
 
-void GLGpuProgram::loadFromSource(void)
+void GLArbGpuProgram::loadFromSource(void)
 {
     glBindProgramARB_ptr(mProgramType, mProgramID);
     glProgramStringARB_ptr(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, mSource.length(), mSource.c_str());
