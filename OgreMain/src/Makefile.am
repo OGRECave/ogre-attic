@@ -84,6 +84,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
 						 OgreOverlayElement.cpp \
                          OgreOverlayElementCommands.cpp \
                          OgreOverlayManager.cpp \
+                         OgrePixelFormat.cpp \
                          OgrePanelOverlayElement.cpp \
                          OgreParticle.cpp \
                          OgreParticleEmitter.cpp \
