@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="Plugin_OctreeSceneManager"
-	ProjectGUID="{80DECC17-BDDD-4412-8CF8-F7C1C17A7436}"
+	Name="Demo_Terrain"
+	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -14,18 +14,19 @@
 			Name="Debug|Win32"
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_OctreeSceneManager_EXPORTS"
+				ImproveFloatingPointConsistency="TRUE"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -33,24 +34,20 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/Plugin_OctreeSceneManager.dll"
-				Version="0.99"
+				OutputFile="$(OutDir)/Demo_Terrain.exe"
 				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="..\misc\OgreOctreeSceneManager.def"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/Plugin_OctreeSceneManager.pdb"
+				ProgramDatabaseFile="$(OutDir)/Demo_Terrain.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/Plugin_OctreeSceneManager.lib"
+				OptimizeForWindows98="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"/>
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Common\Bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -66,23 +63,22 @@
 			Name="Release|Win32"
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="2"
-			WholeProgramOptimization="TRUE">
+			ConfigurationType="1"
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="3"
+				Optimization="2"
 				GlobalOptimizations="TRUE"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="TRUE"
+				InlineFunctionExpansion="1"
 				ImproveFloatingPointConsistency="TRUE"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="TRUE"
-				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_OctreeSceneManager_EXPORTS"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
+				MinimalRebuild="TRUE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
 				EnableFunctionLevelLinking="TRUE"
@@ -94,25 +90,21 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="TRUE"
 				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/Plugin_OctreeSceneManager.dll"
-				Version="0.99"
+				OutputFile="$(OutDir)/Demo_Terrain.exe"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				ModuleDefinitionFile="..\misc\OgreOctreeSceneManager.def"
-				GenerateDebugInformation="TRUE"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;"
+				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/Plugin_OctreeSceneManager.lib"
+				OptimizeForWindows98="1"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"/>
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Common\Bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -130,47 +122,14 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\src\OgreOctree.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreOctreeCamera.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreOctreeNode.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreOctreeSceneManager.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreOctreeSceneManagerDll.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreTerrainRenderable.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreTerrainSceneManager.cpp">
+				RelativePath="..\src\Terrain.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\include\OgreOctree.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOctreeCamera.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOctreeNode.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreOctreeSceneManager.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreTerrainRenderable.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreTerrainSceneManager.h">
+				RelativePath="..\include\Terrain.h">
 			</File>
 		</Filter>
 		<Filter

@@ -122,6 +122,14 @@ SOURCE=..\misc\OgreOctreeSceneManager.def
 
 SOURCE=..\src\OgreOctreeSceneManagerDll.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTerrainRenderable.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTerrainSceneManager.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -141,6 +149,14 @@ SOURCE=..\include\OgreOctreeNode.h
 # Begin Source File
 
 SOURCE=..\include\OgreOctreeSceneManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTerrainRenderable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreTerrainSceneManager.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
