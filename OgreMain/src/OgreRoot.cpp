@@ -674,7 +674,7 @@ namespace Ogre {
         pluginList = cfg.getMultiSetting("Plugin");
 
         char last_char = pluginDir[pluginDir.length()-1];
-        if (last_char != '/' || last_char != '\\')
+        if (last_char != '/' && last_char != '\\')
         {
 #if OGRE_PLATFORM == PLATFORM_WIN32
             pluginDir += "\\";
