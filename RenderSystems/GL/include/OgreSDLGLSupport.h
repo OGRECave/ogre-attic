@@ -20,11 +20,11 @@ public:
     * Must have a "Full Screen" value that is a bool and a "Video Mode" value
     * that is a string in the form of wxh
     */
-    void addConfig(ConfigOptionMap& options);
+    void addConfig(void);
     /**
     * Make sure all the extra options are valid
     */
-    String validateConfig(ConfigOptionMap& options);
+    String validateConfig(void);
 
     virtual RenderWindow* createWindow(bool autoCreateWindow, GLRenderSystem* renderSystem);
 
