@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderSystem.h"
 #include "OgreImageCodec.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #   include <windows.h>
@@ -64,7 +65,7 @@ namespace Ogre {
                            bool fullScreen, int left, int top, bool depthBuffer,
                            void* miscParam, ...)
     {
-        fprintf(stderr, "SDLWindow::create\n");
+        LogManager::getSingleton().logMessage("SDLWindow::create", LML_TRIVIAL);
         SDL_Surface* screen;
         int flags = SDL_OPENGL | SDL_HWPALETTE;
 		
@@ -79,14 +80,14 @@ namespace Ogre {
         if (fullScreen)
             flags |= SDL_FULLSCREEN;
 
-        fprintf(stderr, "Create window\n");
+        LogManager::getSingleton().logMessage("Create window", LML_TRIVIAL);
         screen = SDL_SetVideoMode(width, height, colourDepth, flags);
         if (!screen)
         {
-            fprintf(stderr, "Could not make screen: %s.\n", SDL_GetError());
+            LogManager::getSingleton().logMessage(LML_CRITICAL, "Could not make screen: %s.", SDL_GetError());
             exit(1);
         }
-        fprintf(stderr, "screen is valid\n");
+        LogManager::getSingleton().logMessage("screen is valid", LML_TRIVIAL);
         mScreen = screen;
 
         mName = name;
