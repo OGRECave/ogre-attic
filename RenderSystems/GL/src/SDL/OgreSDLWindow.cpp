@@ -79,7 +79,7 @@ namespace Ogre {
         screen = SDL_SetVideoMode(width, height, colourDepth, flags);
         if (!screen)
         {
-            fprintf(stderr, "Could not make screen\n");
+            fprintf(stderr, "Could not make screen: %s.\n", SDL_GetError());
             exit(1);
         }
         fprintf(stderr, "screen is valid\n");
