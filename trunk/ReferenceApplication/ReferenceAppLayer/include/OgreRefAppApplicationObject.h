@@ -47,8 +47,13 @@ namespace OgreRefApp {
         SceneNode* mSceneNode;
         Entity* mEntity;
 
-        // Dynamics properties, must be set up by subclasses f dynamics enabled
+        // Dynamics properties, must be set up by subclasses if dynamics enabled
         dBody* mOdeBody;
+
+        // Collision proxies, must be set up if collision enabled
+        typedef std::list<dGeom*> CollisionProxyList;
+        CollisionProxyList mCollisionProxies;
+
 
         bool mDynamicsEnabled;
         bool mCollisionEnabled;
@@ -56,6 +61,8 @@ namespace OgreRefApp {
 
         // Set up method, must override
         virtual void setUp(const String& name) = 0;
+        /** Internal method for updating the state of the collision proxies. */
+        virtual void updateCollisionProxies(void);
 
     public:
         ApplicationObject(const String& name);
@@ -78,6 +85,8 @@ namespace OgreRefApp {
         virtual void addForceWorldSpace(const Vector3& direction, const Vector3& atPosition = Vector3::ZERO);
         virtual void addTorque(const Vector3& direction);
         virtual void addTorqueWorldSpace(const Vector3& direction);
+
+        virtual void testCollide(ApplicationObject* otherObj);
 
         SceneNode* getSceneNode(void);
         Entity* getEntity(void);

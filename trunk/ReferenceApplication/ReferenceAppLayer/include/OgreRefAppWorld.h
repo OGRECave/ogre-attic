@@ -47,6 +47,9 @@ namespace OgreRefApp {
         // ODE world object
         dWorld* mOdeWorld;
 
+        /// Contact joint group
+        dJointGroup* mOdeContactGroup;
+
         Vector3 mGravity;
 
 
@@ -69,6 +72,7 @@ namespace OgreRefApp {
         void clear(void);
 
         dWorld* getOdeWorld(void);
+        dJointGroup* getOdeContactJointGroup(void);
 
         /** Updates the world simulation. */
         void applyDynamics(Real timeElapsed);

@@ -60,6 +60,8 @@ namespace OgreRefApp
 
 
         // Create collision proxy
+        dSphere* odeSphere = new dSphere(0, 30);
+        mCollisionProxies.push_back(odeSphere);
 
 
     }

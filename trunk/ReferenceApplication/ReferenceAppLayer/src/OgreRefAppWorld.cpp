@@ -38,6 +38,7 @@ namespace OgreRefApp
 
         // Create the dynamics world
         mOdeWorld = new dWorld();
+        mOdeContactGroup = new dJointGroup();
 
     }
     //-------------------------------------------------------------------------
@@ -108,6 +109,9 @@ namespace OgreRefApp
         {
             (*i)->_updateFromDynamics();
         }
+        // Clear contacts
+        mOdeContactGroup->empty();
+
     }
     //-------------------------------------------------------------------------
     void World::_notifyDynamicsStateForObject(ApplicationObject* obj, bool dynamicsEnabled)
@@ -132,6 +136,11 @@ namespace OgreRefApp
     const Vector3& World::getGravity(void)
     {
         return mGravity;
+    }
+    //-------------------------------------------------------------------------
+    dJointGroup* World::getOdeContactJointGroup(void)
+    {
+        return mOdeContactGroup;
     }
 
 }

@@ -57,6 +57,13 @@ namespace OgreRefApp
         // No mass body (considered static)
 
         // Create collision proxy
+        // SpaceID is irrelevant, we're doing our own spacial partitioning
+
+        // WARNING: an ODE dPlane seems to barf badly when you setPosition on it! Use a box.
+        // The other benefit here is that it reflects the width / height of the plane, not infinite
+        dBox* odeBox = new dBox(0, mWidth*2, 1, mHeight*2); // ode == Y facing?
+        mCollisionProxies.push_back(odeBox);
+        updateCollisionProxies();
 
 
 
