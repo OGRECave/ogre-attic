@@ -40,7 +40,7 @@ namespace Ogre {
         This class implements the ControllerValue interface to enable automatic update of
         animation state through controllers.
     */
-    class _OgreExport AnimationState : public ControllerValue
+    class _OgreExport AnimationState : public ControllerValue<Real>
     {
     public:
         /// Default constructor for STL only

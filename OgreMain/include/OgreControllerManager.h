@@ -46,11 +46,11 @@ namespace Ogre {
     class _OgreExport ControllerManager : public Singleton<ControllerManager>
     {
     protected:
-        typedef std::set<Controller*> ControllerList;
+        typedef std::set<Controller<Real>*> ControllerList;
         ControllerList mControllers;
 
         /// Global predefined controller
-        SharedPtr<ControllerValue> mFrameTimeController;
+        SharedPtr< ControllerValue<Real> > mFrameTimeController;
 
     public:
         ControllerManager();
@@ -58,7 +58,8 @@ namespace Ogre {
 
         /** Creates a new controller and registers it with the manager.
         */
-        Controller* createController(SharedPtr<ControllerValue> src, SharedPtr<ControllerValue> dest, SharedPtr<ControllerFunction> func);
+        Controller<Real>* createController(SharedPtr< ControllerValue<Real> > src, 
+			SharedPtr< ControllerValue<Real> > dest, SharedPtr< ControllerFunction<Real> > func);
 
         /** Destroys all the controllers in existence.
         */
@@ -78,7 +79,7 @@ namespace Ogre {
             @see
                 RenderSystem::beginFrame
         */
-        SharedPtr<ControllerValue> getFrameTimeSource(void) const;
+        SharedPtr< ControllerValue<Real> > getFrameTimeSource(void) const;
 
         /** Creates a texture layer animator controller.
             @remarks
@@ -89,7 +90,7 @@ namespace Ogre {
             @param
                 sequenceTime The amount of time in seconds it will take to loop through all the frames.
         */
-        Controller* createTextureAnimator(TextureUnitState* layer, Real sequenceTime);
+        Controller<Real>* createTextureAnimator(TextureUnitState* layer, Real sequenceTime);
 
         /** Creates a basic time-based texture coordinate modifier designed for creating scrolling textures.
             @remarks
@@ -103,7 +104,7 @@ namespace Ogre {
             @param
                 vSpeed Speed of vertical (v-coord) scroll, in complete wraps per second
         */
-        Controller* createTextureScroller(TextureUnitState* layer, Real uSpeed, Real vSpeed);
+        Controller<Real>* createTextureScroller(TextureUnitState* layer, Real uSpeed, Real vSpeed);
 
         /** Creates a basic time-based texture coordinate modifier designed for creating rotating textures.
             @return
@@ -115,7 +116,7 @@ namespace Ogre {
             @param
                 vSpeed Speed of rotation, in complete anticlockwise revolutions per second
         */
-        Controller* createTextureRotater(TextureUnitState* layer, Real speed);
+        Controller<Real>* createTextureRotater(TextureUnitState* layer, Real speed);
 
         /** Creates a very flexible time-based texture transformation which can alter the scale, position or
             rotation of a texture based on a wave function.
@@ -134,7 +135,7 @@ namespace Ogre {
             @param
                 amplitude Scales the output so that instead of lying within 0..1 it lies within 0..1*amplitude for exaggerated effects
         */
-        Controller* createTextureWaveTransformer(TextureUnitState* layer, TextureUnitState::TextureTransformType ttype,
+        Controller<Real>* createTextureWaveTransformer(TextureUnitState* layer, TextureUnitState::TextureTransformType ttype,
             WaveformType waveType, Real base = 0, Real frequency = 1, Real phase = 0, Real amplitude = 1);
 
 
@@ -153,7 +154,7 @@ namespace Ogre {
 
         /** Removes & destroys the controller passed in as a pointer.
         */
-        void destroyController(Controller* controller);
+        void destroyController(Controller<Real>* controller);
 
 		/** Return relative speed of time as perceived by time based controllers.
         @remarks

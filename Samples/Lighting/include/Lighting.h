@@ -25,7 +25,7 @@ LGPL like the rest of the engine.
 
 
 /** This class turns lights & billboards linked to them on & off */
-class LightFlasher : public ControllerValue
+class LightFlasher : public ControllerValue<Real>
 {
 protected:
 	Light* mLight;
@@ -132,10 +132,10 @@ protected:
 	LightFlasherControllerFunction* mGreenLightControllerFunc;
 
 	// Light controllers
-	Controller* mRedLightController;
-	Controller* mBlueLightController;
-	Controller* mYellowLightController;
-	Controller* mGreenLightController;
+	Controller<Real>* mRedLightController;
+	Controller<Real>* mBlueLightController;
+	Controller<Real>* mYellowLightController;
+	Controller<Real>* mGreenLightController;
 
 	void createScene(void)
     {

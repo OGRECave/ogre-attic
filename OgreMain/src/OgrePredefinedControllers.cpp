@@ -171,9 +171,30 @@ namespace Ogre
         }
     }
     //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+	FloatGpuParameterControllerValue::FloatGpuParameterControllerValue(
+			GpuProgramParametersSharedPtr params, size_t index) :
+		mParams(params), mParamIndex(index)
+	{
+	}
+    //-----------------------------------------------------------------------
+	Real FloatGpuParameterControllerValue::getValue(void) const
+	{
+		// do nothing, reading from a set of params not supported
+		return 0.0f;
+	}
+    //-----------------------------------------------------------------------
+	void FloatGpuParameterControllerValue::setValue(Real val)
+	{
+		static Vector4 v4 = Vector4(0,0,0,0);
+		v4.x = val;
+		mParams->setConstant(mParamIndex, v4);
+	}
+    //-----------------------------------------------------------------------
     // AnimationControllerFunction
     //-----------------------------------------------------------------------
-    AnimationControllerFunction::AnimationControllerFunction(Real sequenceTime, Real timeOffset) : ControllerFunction(false)
+    AnimationControllerFunction::AnimationControllerFunction(Real sequenceTime, Real timeOffset) 
+		: ControllerFunction<Real>(false)
     {
         mSeqTime = sequenceTime;
         mTime = timeOffset;
@@ -192,7 +213,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     // ScaleControllerFunction
     //-----------------------------------------------------------------------
-    ScaleControllerFunction::ScaleControllerFunction(Real factor, bool delta) : ControllerFunction(delta)
+    ScaleControllerFunction::ScaleControllerFunction(Real factor, bool delta) : ControllerFunction<Real>(delta)
     {
         mScale = factor;
     }
@@ -206,7 +227,7 @@ namespace Ogre
     // WaveformControllerFunction
     //-----------------------------------------------------------------------
     WaveformControllerFunction::WaveformControllerFunction(WaveformType wType, Real base,  Real frequency, Real phase, Real amplitude, bool delta)
-        :ControllerFunction(delta)
+        :ControllerFunction<Real>(delta)
     {
         mWaveType = wType;
         mBase = base;
@@ -219,7 +240,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Real WaveformControllerFunction::getAdjustedInput(Real input)
     {
-        Real adjusted = ControllerFunction::getAdjustedInput(input);
+        Real adjusted = ControllerFunction<Real>::getAdjustedInput(input);
 
         // If not delta, adjust by phase here
         // (delta inputs have it adjusted at initialisation)

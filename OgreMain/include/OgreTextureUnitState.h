@@ -140,7 +140,7 @@ namespace Ogre {
             Real frequency;
             Real phase;
             Real amplitude;
-            Controller* controller;
+            Controller<Real>* controller;
         };
 
 
@@ -864,7 +864,7 @@ protected:
 
         /// Duration of animation in seconds
         Real mAnimDuration;            
-        Controller* mAnimController;
+        Controller<Real>* mAnimController;
         bool mCubic; // is this a series of 6 2D textures to make up a cube?
         TextureType mTextureType; 
 
