@@ -69,7 +69,14 @@ namespace Ogre {
         tex->setGamma( gamma );        
         tex->loadImage( img );
 
-        mResources[ tex->getName() ] = tex;
+		std::pair<ResourceMap::iterator, bool> res = mResources.insert(
+			ResourceMap::value_type( tex->getName(), tex));
+		if (!res.second)
+		{
+			// Key was already used
+			Except(Exception::ERR_DUPLICATE_ITEM, "A texture with the name " + tex->getName() + 
+				" was already loaded.", "TextureManager::loadImage");
+		}
 
         return tex;
     }
