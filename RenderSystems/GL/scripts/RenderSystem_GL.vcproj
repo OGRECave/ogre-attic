@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\glh;..\src\atifs\include;..\src\glsl\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGRE_GL_USE_MULTITEXTURING;_STLP_DEBUG"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGRE_GL_USE_MULTITEXTURING;"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

@@ -432,6 +432,8 @@ namespace Ogre
     {
         OctreeSceneManager::clearScene();
         mTerrainPages.clear();
+        // Octree has destroyed our root
+        mTerrainRoot = 0;
     }
     //-------------------------------------------------------------------------
     void TerrainSceneManager::_renderScene(Camera* cam, Viewport *vp, bool includeOverlays)

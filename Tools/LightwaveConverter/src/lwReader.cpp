@@ -859,7 +859,7 @@ lwClip *lwReader::lwGetClip()
 	sz = getU2();
 	if ( 0 > flen ) goto Fail;
 	
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -985,7 +985,7 @@ lwEnvelope *lwReader::lwGetEnvelope()
 	
 	/* process subchunks as they're encountered */
 	
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -1379,7 +1379,7 @@ int lwReader::lwGetTHeader( int hsz, lwTexture &tex )
 	
 	/* process subchunks as they're encountered */
 	
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -1460,7 +1460,7 @@ int lwReader::lwGetTMap( int tmapsz, lwTMap &tmap )
 	sz = getU2();
 	if ( 0 > flen ) return 0;
 	
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -1553,7 +1553,7 @@ lwImageMap *lwReader::lwGetImageMap( int rsz, lwTexture &tex )
 	lwImageMap *imap = new lwImageMap;
 	if (!imap) return NULL;
 
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -1671,7 +1671,7 @@ lwProcedural *lwReader::lwGetProcedural( int rsz, lwTexture &tex )
   	lwProcedural *proc = new lwProcedural;
 	if (!proc) return NULL;
 	
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -1761,7 +1761,7 @@ lwGradient *lwReader::lwGetGradient( int rsz, lwTexture &tex )
 	lwGradient *grad = new lwGradient;
 	if (!grad) return NULL;
 
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
@@ -1943,7 +1943,7 @@ lwPlugin *lwReader::lwGetShader( int bloksz )
 	sz = getU2();
 	if ( 0 > flen ) goto Fail;
 	
-	while ( 1 )
+	for (;;)
 	{
 		sz += sz & 1;
 		flen = 0;
@@ -2441,7 +2441,7 @@ lwSurface *lwReader::lwGetSurface()
 	
 	/* process subchunks as they're encountered */
 	
-	while ( 1 ) {
+	for (;;) {
 		sz += sz & 1;
 		flen = 0;
 		
