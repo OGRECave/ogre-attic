@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "msPlugIn.h"
 #include "windows.h"
+#include "Ogre.h"
 
 
 /** A plugin class for Milkshape3D to export to OGRE model formats. 
