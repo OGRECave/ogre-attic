@@ -106,6 +106,7 @@ namespace Ogre {
             delete *i;
         }
         mBoneList.clear();
+        mBoneListByName.clear();
 
 
         // Destroy animations
@@ -133,12 +134,21 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(unsigned short handle)
     {
-        if (mBoneList.size() == OGRE_MAX_NUM_BONES)
+        if (handle >= OGRE_MAX_NUM_BONES)
         {
             Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
                 "Skeleton::createBone");
         }
+        // Check handle not used
+        if (handle < mBoneList.size() && mBoneList[handle] != NULL)
+        {
+            Except(
+                Exception::ERR_DUPLICATE_ITEM,
+                "A bone with the handle " + StringConverter::toString(handle) + " already exists",
+                "Skeleton::createBone" );
+        }
         Bone* ret = new Bone(handle, this);
+        assert(mBoneListByName.find(ret->getName()) == mBoneListByName.end());
         if (mBoneList.size() <= handle)
         {
             mBoneList.resize(handle+1);
@@ -151,10 +161,26 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(const String& name, unsigned short handle)
     {
-        if (mBoneList.size() == OGRE_MAX_NUM_BONES)
+        if (handle >= OGRE_MAX_NUM_BONES)
         {
             Except(Exception::ERR_INVALIDPARAMS, "Exceeded the maximum number of bones per skeleton.",
                 "Skeleton::createBone");
+        }
+        // Check handle not used
+        if (handle < mBoneList.size() && mBoneList[handle] != NULL)
+        {
+            Except(
+                Exception::ERR_DUPLICATE_ITEM,
+                "A bone with the handle " + StringConverter::toString(handle) + " already exists",
+                "Skeleton::createBone" );
+        }
+        // Check name not used
+        if (mBoneListByName.find(name) != mBoneListByName.end())
+        {
+            Except(
+                Exception::ERR_DUPLICATE_ITEM,
+                "A bone with the name " + name + " already exists",
+                "Skeleton::createBone" );
         }
         Bone* ret = new Bone(name, handle, this);
         if (mBoneList.size() <= handle)
@@ -260,6 +286,15 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Animation* Skeleton::createAnimation(const String& name, Real length)
     {
+        // Check name not used
+        if (mAnimationsList.find(name) != mAnimationsList.end())
+        {
+            Except(
+                Exception::ERR_DUPLICATE_ITEM,
+                "An animation with the name " + name + " already exists",
+                "Skeleton::createAnimation");
+        }
+
         Animation* ret = new Animation(name, length);
 
         // Add to list
