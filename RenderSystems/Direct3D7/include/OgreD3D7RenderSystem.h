@@ -143,7 +143,7 @@ namespace Ogre {
 		DWORD _getMipFilter(const TextureFilterOptions fo);
 		DWORD _getMagFilter(const TextureFilterOptions fo);
 		DWORD _getMinFilter(const TextureFilterOptions fo);
-		DWORD _getCurrentAnisotropy(int unit);
+		DWORD _getCurrentAnisotropy(size_t unit);
 
         HardwareBufferManager* mHardwareBufferManager;
 
@@ -277,27 +277,27 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTexture(int unit, bool enabled, const String &texname);
+        void _setTexture(size_t unit, bool enabled, const String &texname);
         /** See
           RenderSystem
          */
-        void _setTextureBlendMode(int stage, const LayerBlendModeEx& bm);
+        void _setTextureBlendMode(size_t unit, const LayerBlendModeEx& bm);
         /** See
           RenderSystem
          */
-        void _setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam);
+        void _setTextureAddressingMode(size_t unit, TextureUnitState::TextureAddressingMode tam);
         /** See
           RenderSystem
          */
-        void _setTextureMatrix(int stage, const Matrix4& xform);
+        void _setTextureMatrix(size_t unit, const Matrix4& xform);
         /** See
           RenderSystem
          */
-        void _setTextureCoordSet( int stage, int index );
+        void _setTextureCoordSet( size_t unit, int index );
         /** See
           RenderSystem
          */
-        void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
+        void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m);
         /** See
           RenderSystem
          */
@@ -396,11 +396,11 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
+		void _setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps);
         /** See
           RenderSystem
          */
-		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
+		void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy);
         /** See
           RenderSystem
          */

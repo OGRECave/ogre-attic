@@ -946,7 +946,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTexture(int stage, bool enabled, const String &texname)
+    void D3DRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {
         HRESULT hr;
         D3DTexture* dt = static_cast< D3DTexture* >(TextureManager::getSingleton().getByName(texname));
@@ -981,7 +981,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
+    void D3DRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m)
     {
         HRESULT hr = S_OK;
         // record the stage state
@@ -1021,7 +1021,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureMatrix(int stage, const Matrix4& xForm)
+    void D3DRenderSystem::_setTextureMatrix(size_t stage, const Matrix4& xForm)
     {
 		HRESULT hr;
 		D3DMATRIX d3dMat; // the matrix we'll maybe apply
@@ -1135,7 +1135,7 @@ namespace Ogre {
 		}
     }
 	//---------------------------------------------------------------------
-	void D3DRenderSystem::_setTextureCoordSet( int stage, int index )
+	void D3DRenderSystem::_setTextureCoordSet( size_t stage, int index )
 	{
 		HRESULT hr;
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
@@ -1145,7 +1145,7 @@ namespace Ogre {
         mTexStageDesc[stage].coordIndex = index;
 	}
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
+    void D3DRenderSystem::_setTextureBlendMode(size_t stage, const LayerBlendModeEx& bm)
     {
         HRESULT hr;
         D3DTEXTURESTAGESTATETYPE tss;
@@ -1269,7 +1269,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam)
+    void D3DRenderSystem::_setTextureAddressingMode(size_t stage, TextureUnitState::TextureAddressingMode tam)
     {
         HRESULT hr;
         D3DTEXTUREADDRESS d3dType;
@@ -2458,21 +2458,21 @@ namespace Ogre {
         return D3DSTENCILOP_KEEP;
     }
 
-    DWORD D3DRenderSystem::_getCurrentAnisotropy(int unit)
+    DWORD D3DRenderSystem::_getCurrentAnisotropy(size_t unit)
     {
         DWORD oldVal;
         mlpD3DDevice->GetTextureStageState(unit, D3DTSS_MAXANISOTROPY, &oldVal);
         return oldVal;
     }
 
-    void D3DRenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+    void D3DRenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
     {
         __SetTextureStageState(unit,D3DTSS_MAGFILTER, _getMagFilter(texLayerFilterOps));
         __SetTextureStageState(unit,D3DTSS_MINFILTER, _getMinFilter(texLayerFilterOps));
         __SetTextureStageState(unit,D3DTSS_MIPFILTER, _getMipFilter(texLayerFilterOps));
     }
 
-    void D3DRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+    void D3DRenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
     {
         if ((DWORD)maxAnisotropy > mD3DDeviceDesc.dwMaxAnisotropy)
             maxAnisotropy = mD3DDeviceDesc.dwMaxAnisotropy;

@@ -1051,7 +1051,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTexture( int stage, bool enabled, const String &texname )
+	void D3D9RenderSystem::_setTexture( size_t stage, bool enabled, const String &texname )
 	{
 		HRESULT hr;
 		D3D9Texture *dt = (D3D9Texture *)TextureManager::getSingleton().getByName(texname);
@@ -1099,7 +1099,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureCoordSet( int stage, int index )
+	void D3D9RenderSystem::_setTextureCoordSet( size_t stage, int index )
 	{
 		HRESULT hr;
 		hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, index );
@@ -1109,7 +1109,7 @@ namespace Ogre
         mTexStageDesc[stage].coordIndex = index;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureCoordCalculation( int stage, TexCoordCalcMethod m)
+	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m)
 	{
 		HRESULT hr = S_OK;
 		// record the stage state
@@ -1139,7 +1139,7 @@ namespace Ogre
 		}
 	}
     //---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureMatrix( int stage, const Matrix4& xForm )
+	void D3D9RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
 	{
 		HRESULT hr;
 		D3DXMATRIX d3dMatId; // ident. matrix in D3DX format
@@ -1254,7 +1254,7 @@ namespace Ogre
 		}
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureAddressingMode( int stage, TextureUnitState::TextureAddressingMode tam )
+	void D3D9RenderSystem::_setTextureAddressingMode( size_t stage, TextureUnitState::TextureAddressingMode tam )
 	{
 		HRESULT hr;
 		if( FAILED( hr = __SetSamplerState( stage, D3DSAMP_ADDRESSU, D3D9Mappings::get(tam) ) ) )
@@ -1265,7 +1265,7 @@ namespace Ogre
 			Except( hr, "Failed to set texture addressing mode for W", "D3D9RenderSystem::_setTextureAddressingMode" );
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureBlendMode( int stage, const LayerBlendModeEx& bm )
+	void D3D9RenderSystem::_setTextureBlendMode( size_t stage, const LayerBlendModeEx& bm )
 	{
 		HRESULT hr = S_OK;
 		D3DTEXTURESTAGESTATETYPE tss;
@@ -1543,7 +1543,7 @@ namespace Ogre
 			"D3D9RenderSystem::setStencilBufferPassOperation");
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+	void D3D9RenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
 	{
 		HRESULT hr;
 		D3D9Mappings::eD3DTexType texType = mTexStageDesc[unit].texType;
@@ -1561,14 +1561,14 @@ namespace Ogre
 			Except(hr, "Failed to set MipFilter", "D3D9RenderSystem::_setTextureLayerFiltering");
 	}
     //---------------------------------------------------------------------
-	DWORD D3D9RenderSystem::_getCurrentAnisotropy(int unit)
+	DWORD D3D9RenderSystem::_getCurrentAnisotropy(size_t unit)
 	{
 		DWORD oldVal;
 		mpD3DDevice->GetSamplerState(unit, D3DSAMP_MAXANISOTROPY, &oldVal);
 			return oldVal;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+	void D3D9RenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
 	{
 		if ((DWORD)maxAnisotropy > mCaps.MaxAnisotropy)
 			maxAnisotropy = mCaps.MaxAnisotropy;

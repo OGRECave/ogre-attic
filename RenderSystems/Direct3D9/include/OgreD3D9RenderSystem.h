@@ -112,7 +112,7 @@ namespace Ogre
 		HRESULT __SetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value);
 
 		/// return anisotropy level
-		DWORD _getCurrentAnisotropy(int unit);
+		DWORD _getCurrentAnisotropy(size_t unit);
 		/// check if a FSAA is supported
 		bool _checkMultiSampleQuality(D3DMULTISAMPLE_TYPE type, DWORD *outQuality, D3DFORMAT format, UINT adapterNum, D3DDEVTYPE deviceType, BOOL fullScreen);
 		/// set FSAA
@@ -182,12 +182,12 @@ namespace Ogre
 		void _setViewMatrix( const Matrix4 &m );
 		void _setProjectionMatrix( const Matrix4 &m );
 		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular, const ColourValue &emissive, Real shininess );
-		void _setTexture( int unit, bool enabled, const String &texname );
-        void _setTextureCoordSet( int stage, int index );
-        void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
-		void _setTextureBlendMode( int stage, const LayerBlendModeEx& bm );
-		void _setTextureAddressingMode( int stage, TextureUnitState::TextureAddressingMode tam );
-		void _setTextureMatrix( int stage, const Matrix4 &xform );
+		void _setTexture( size_t unit, bool enabled, const String &texname );
+        void _setTextureCoordSet( size_t unit, int index );
+        void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m);
+		void _setTextureBlendMode( size_t unit, const LayerBlendModeEx& bm );
+		void _setTextureAddressingMode( size_t unit, TextureUnitState::TextureAddressingMode tam );
+		void _setTextureMatrix( size_t unit, const Matrix4 &xform );
 		void _setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor );
 		void _setAlphaRejectSettings( CompareFunction func, unsigned char value );
 		void _setViewport( Viewport *vp );
@@ -203,8 +203,8 @@ namespace Ogre
 		void _setFog( FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
 		void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
 		void _setRasterisationMode(SceneDetailLevel level);
-		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
-		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
+		void _setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps);
+		void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy);
 		void setVertexDeclaration(VertexDeclaration* decl);
 		void setVertexBufferBinding(VertexBufferBinding* binding);
         void _render(const RenderOperation& op);

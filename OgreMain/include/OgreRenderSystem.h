@@ -471,7 +471,7 @@ namespace Ogre
           @param texname The name of the texture to use - this should have
               already been loaded with TextureManager::load.
          */
-        virtual void _setTexture(int unit, bool enabled, const String &texname) = 0;
+        virtual void _setTexture(size_t unit, bool enabled, const String &texname) = 0;
 
         /**
           Sets the texture coordinate set to use for a texture unit.
@@ -482,7 +482,7 @@ namespace Ogre
           @param unit Texture unit as above
           @param index The index of the texture coordinate set to use.
          */
-        virtual void _setTextureCoordSet(int unit, int index) = 0;
+        virtual void _setTextureCoordSet(size_t unit, size_t index) = 0;
 
         /**
           Sets a method for automatically calculating texture coordinates for a stage.
@@ -490,7 +490,7 @@ namespace Ogre
           @param unit Texture unit as above
           @param m Calculation method to use
          */
-        virtual void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m) = 0;
+        virtual void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m) = 0;
 
         /** Sets the texture blend modes from a TextureUnitState record.
             Meant for use internally only - apps should use the Material
@@ -498,25 +498,25 @@ namespace Ogre
             @param unit Texture unit as above
             @param bm Details of the blending mode
         */
-        virtual void _setTextureBlendMode(int unit, const LayerBlendModeEx& bm) = 0;
+        virtual void _setTextureBlendMode(size_t unit, const LayerBlendModeEx& bm) = 0;
 
 		/** Sets the texture filtering type for a texture unit.*/
-		virtual void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps) = 0;
+		virtual void _setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps) = 0;
 
 		/** Sets the maximal anisotropy for the specified texture unit.*/
-		virtual void _setTextureLayerAnisotropy(int unit, int maxAnisotropy) = 0;
+		virtual void _setTextureLayerAnisotropy(size_t unit, int maxAnisotropy) = 0;
 
 		/** Sets the maximal anisotropy.*/
 		virtual void _setAnisotropy(int maxAnisotropy);
 
 		/** Sets the texture addressing mode for a texture unit.*/
-        virtual void _setTextureAddressingMode(int unit, TextureUnitState::TextureAddressingMode tam) = 0;
+        virtual void _setTextureAddressingMode(size_t unit, TextureUnitState::TextureAddressingMode tam) = 0;
 
         /** Sets the texture coordinate transformation matrix for a texture unit.
             @param unit Texture unit to affect
             @param xform The 4x4 matrix
         */
-        virtual void _setTextureMatrix(int unit, const Matrix4& xform) = 0;
+        virtual void _setTextureMatrix(size_t unit, const Matrix4& xform) = 0;
 
         /** Sets the global blending factors for combining subsequent renders with the existing frame contents.
             The result of the blending operation is:</p>
@@ -863,9 +863,6 @@ namespace Ogre
         CullingMode mCullingMode;
 
         bool mVSync;
-
-        // Store record of texture unit settings for efficient alterations
-        TextureUnitState mTextureUnits[OGRE_MAX_TEXTURE_LAYERS];
 
         size_t mFaceCount;
         size_t mVertexCount;

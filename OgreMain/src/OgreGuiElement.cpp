@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventListeners.h"
 #include "OgreOverlayManager.h"
 #include "OgreException.h"
+#include "OgreRenderQueue.h"
 
 namespace Ogre {
 

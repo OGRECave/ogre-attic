@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLHardwareIndexBuffer.h"
 #include "OgreGLDefaultHardwareBufferManager.h"
 #include "OgreGLUtil.h"
+#include "OgreException.h"
 
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
@@ -57,9 +58,7 @@ GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
-      : mDepthWrite(true), mColourWrite[0](true), mColourWrite[1](true),
-	  mColourWrite[2](true), mColourWrite[3](true)
-        mHardwareBufferManager(0)
+      : mDepthWrite(true), mHardwareBufferManager(0)
     {
         int i;
 
@@ -82,6 +81,8 @@ namespace Ogre {
         mStencilFunc = GL_ALWAYS;
         mStencilRef = 0;
         mStencilMask = 0xffffffff;
+
+        mColourWrite[0] = mColourWrite[1] = mColourWrite[2] = mColourWrite[3] = true;
 
         for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
         {
@@ -634,7 +635,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTexture(int stage, bool enabled, const String &texname)
+    void GLRenderSystem::_setTexture(size_t stage, bool enabled, const String &texname)
     {
         GLTexture* tex = static_cast<GLTexture*>(TextureManager::getSingleton().getByName(texname));
 
@@ -661,12 +662,12 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureCoordSet(int stage, int index)
+    void GLRenderSystem::_setTextureCoordSet(size_t stage, int index)
     {
         mTextureCoordIndex[stage] = index;
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
+    void GLRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m)
     {
         GLfloat M[16];
         // Default to no extra auto texture matrix
@@ -757,7 +758,7 @@ namespace Ogre {
         glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureAddressingMode(int stage, TextureUnitState::TextureAddressingMode tam)
+    void GLRenderSystem::_setTextureAddressingMode(size_t stage, TextureUnitState::TextureAddressingMode tam)
     {
         GLint type;
         switch(tam)
@@ -780,7 +781,7 @@ namespace Ogre {
         glActiveTextureARB_ptr( GL_TEXTURE0 );
     }
     //-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureMatrix(int stage, const Matrix4& xform)
+    void GLRenderSystem::_setTextureMatrix(size_t stage, const Matrix4& xform)
     {
         GLfloat mat[16];
         makeGLMatrix(mat, xform);
@@ -1269,7 +1270,7 @@ namespace Ogre {
         glStencilOp(mStencilFail, mStencilZFail, mStencilPass);
     }
 	//---------------------------------------------------------------------
-	void GLRenderSystem::_setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps)
+	void GLRenderSystem::_setTextureLayerFiltering(size_t unit, const TextureFilterOptions texLayerFilterOps)
 	{
         OgreGuard( "GLRenderSystem::_setTextureLayerFiltering" );        
 
@@ -1330,7 +1331,7 @@ namespace Ogre {
 		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
-	GLfloat GLRenderSystem::_getCurrentAnisotropy(int unit)
+	GLfloat GLRenderSystem::_getCurrentAnisotropy(size_t unit)
 	{
 		GLfloat curAniso = 0;
 		glGetTexParameterfv(mTextureTypes[unit], 
@@ -1338,7 +1339,7 @@ namespace Ogre {
 		return curAniso ? curAniso : 1;
 	}
 	//---------------------------------------------------------------------
-	void GLRenderSystem::_setTextureLayerAnisotropy(int unit, int maxAnisotropy)
+	void GLRenderSystem::_setTextureLayerAnisotropy(size_t unit, int maxAnisotropy)
 	{
        if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
 			return;
@@ -1356,11 +1357,11 @@ namespace Ogre {
         if (!mCapabilities->hasCapability(RSC_ANISOTROPY))
             return;
 
-        for (int n = 0; n < mCapabilities->numTextureUnits(); n++)
+        for (int n = 0; n < mCapabilities->getNumTextureUnits(); n++)
             _setTextureLayerAnisotropy(n, maxAnisotropy);
     }
 	//-----------------------------------------------------------------------------
-    void GLRenderSystem::_setTextureBlendMode(int stage, const LayerBlendModeEx& bm)
+    void GLRenderSystem::_setTextureBlendMode(size_t stage, const LayerBlendModeEx& bm)
     {       
         // Check to see if blending is supported
         if(!mCapabilities->hasCapability(RSC_BLENDING))
@@ -1660,7 +1661,7 @@ namespace Ogre {
                 break;
             case VES_TEXTURE_COORDINATES:
 
-                for (i = 0; i < mCapabilities->numTextureUnits(); i++)
+                for (i = 0; i < mCapabilities->getNumTextureUnits(); i++)
                 {
 					// Only set this texture unit's texcoord pointer if it
 					// is supposed to be using this element's index

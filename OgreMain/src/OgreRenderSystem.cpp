@@ -259,7 +259,7 @@ namespace Ogre {
         _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
 
         // Set texture layer filtering
-        _setTextureLayerFiltering(texUnit, tl.getTextureLayerFiltering());
+        _setTextureLayerFiltering(texUnit, tl.getTextureFiltering());
 
         // Set texture layer filtering
         _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
@@ -327,14 +327,13 @@ namespace Ogre {
     void RenderSystem::_disableTextureUnit(size_t texUnit)
     {
         _setTexture(texUnit, false, "");
-        mTextureUnits[texUnit].setBlank();
     }
     //---------------------------------------------------------------------
     void RenderSystem::_disableTextureUnitsFrom(size_t texUnit)
     {
-        for (size_t i = texUnit; i < mCapabilities.getNumTextureUnits(); ++i)
+        for (size_t i = texUnit; i < mCapabilities->getNumTextureUnits(); ++i)
         {
-            _disableTextureUnit(i)
+            _disableTextureUnit(i);
         }
     }
     //---------------------------------------------------------------------
@@ -351,40 +350,6 @@ namespace Ogre {
 			_setTextureLayerFiltering(i, fo);
     }
 
-    //-----------------------------------------------------------------------
-    /*
-    void RenderSystem::_setMaterial(Material &mat)
-    {
-
-        // Set surface properties
-        _setSurfaceParams(mat.ambient, mat.diffuse, mat.specular, mat.emmissive, mat.shininess);
-
-        // Set global blending
-        _setSceneBlending(mat.getSourceBlendFactor(), mat.getDestBlendFactor());
-
-        // Set textures
-        // Note that it is assumed caller has checked that there are
-        // enough texture units to support multitexturing all layers
-        // If not they should be calling _setTexture separately per multipass render
-        // If the texture layers exceed the number of supported texture
-        // units, the remaining textures will not be displayed
-        int matTexLayers = mat.getNumTextureLayers();
-        for (int texLayer = 0; texLayer < _getNumTextureUnits(); ++texLayer)
-        {
-            if (texLayer >= matTexLayers)
-            {
-                // Run out of material texture layers before h/w
-                // Turn off these units
-                _setTexture(texLayer, false, "");
-            }
-            else
-            {
-                TextureUnitState* tl = mat.getTextureLayer(texLayer);
-                _setTextureUnitSettings(texLayer, *tl);
-            }
-        }
-    }
-    */
     //-----------------------------------------------------------------------
     CullingMode RenderSystem::_getCullingMode(void)
     {
