@@ -93,7 +93,7 @@ namespace Ogre {
 
         /** Returns the light type.
         */
-        LightTypes getType(void);
+        LightTypes getType(void) const;
 
         /** Sets the colour of the diffuse light given off by this source.
             @remarks
@@ -119,7 +119,7 @@ namespace Ogre {
 
         /** Returns the colour of the diffuse light given off by this light source (see setDiffuseColour for more info).
         */
-        const ColourValue& getDiffuseColour(void);
+        const ColourValue& getDiffuseColour(void) const;
 
         /** Sets the colour of the specular light given off by this source.
             @remarks
@@ -145,7 +145,7 @@ namespace Ogre {
 
         /** Returns the colour of specular light given off by this light source.
         */
-        const ColourValue& getSpecularColour(void);
+        const ColourValue& getSpecularColour(void) const;
 
         /** Sets the attenuation parameters of the light source ie how it diminishes with distance.
             @remarks
@@ -170,19 +170,19 @@ namespace Ogre {
 
         /** Returns the absolute upper range of the light.
         */
-        Real getAttenuationRange(void);
+        Real getAttenuationRange(void) const;
 
         /** Returns the constant factor in the attenuation formula.
         */
-        Real getAttenuationConstant(void);
+        Real getAttenuationConstant(void) const;
 
         /** Returns the linear factor in the attenuation formula.
         */
-        Real getAttenuationLinear(void);
+        Real getAttenuationLinear(void) const;
 
         /** Returns the quadric factor in the attenuation formula.
         */
-        Real getAttenuationQuadric(void);
+        Real getAttenuationQuadric(void) const;
 
         /** Sets the position of the light.
             @remarks
@@ -204,7 +204,7 @@ namespace Ogre {
             @note
                 Applicable to point lights and spotlights only.
         */
-        Vector3 getPosition(void);
+        const Vector3& getPosition(void) const;
 
         /** Sets the direction in which a light points.
             @remarks
@@ -226,7 +226,7 @@ namespace Ogre {
             @remarks
                 Applicable only to the spotlight and directional light types.
         */
-        Vector3 getDirection(void);
+        const Vector3& getDirection(void) const;
 
         /** Sets the range of a spotlight, i.e. the angle of the inner and outer cones and the rate of falloff between them.
             @param
@@ -240,19 +240,19 @@ namespace Ogre {
 
         /** Returns the angle covered by the spotlights inner cone, in degrees.
         */
-        Real getSpotlightInnerAngle(void);
+        Real getSpotlightInnerAngle(void) const;
 
         /** Returns the angle covered by the spotlights outer cone, in degrees.
         */
-        Real getSpotlightOuterAngle(void);
+        Real getSpotlightOuterAngle(void) const;
 
         /** Returns the falloff between the inner and outer cones of the spotlight.
         */
-        Real getSpotlightFalloff(void);
+        Real getSpotlightFalloff(void) const;
 
         /** Returns a true/false value indicating if this light has changed since it was last issued to the renderer.
         */
-        bool isModified(void);
+        bool isModified(void) const;
 
         /** Clears the light's modified flag (should only be done by the engine itself).
         */
@@ -271,10 +271,10 @@ namespace Ogre {
         const String& getMovableType(void) const;
 
         /** Retrieves the position of the light including any transform from nodes it is attached to. */
-        const Vector3& getDerivedPosition(void);
+        const Vector3& getDerivedPosition(void) const;
 
         /** Retrieves the direction of the light including any transform from nodes it is attached to. */
-        const Vector3& getDerivedDirection(void);
+        const Vector3& getDerivedDirection(void) const;
 
         /** Overridden from MovableObject.
         @remarks
@@ -307,11 +307,11 @@ namespace Ogre {
 
         bool mModified;
 
-        Vector3 mDerivedPosition;
-        Vector3 mDerivedDirection;
+        mutable Vector3 mDerivedPosition;
+        mutable Vector3 mDerivedDirection;
         /// Stored versions of parent orientation / position
-        Quaternion mLastParentOrientation;
-        Vector3 mLastParentPosition;
+        mutable Quaternion mLastParentOrientation;
+        mutable Vector3 mLastParentPosition;
 
         /// Shared class-level name for Movable type
         static String msMovableType;

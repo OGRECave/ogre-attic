@@ -145,43 +145,43 @@ namespace Ogre {
 		/**
 		 * Returns the modifiers flag for this event.
 		 */
-		int getModifiers();
+		int getModifiers() const;
 		
 		/**
 		 * Returns the timestamp of when this event occurred. Not implemented yet
 		 */
-		Real getWhen();
+		Real getWhen() const;
 
 		/**
 		 * Returns whether or not the Alt modifier is down on this event.
 		 */
-		bool isAltDown();
+		bool isAltDown() const;
 
 		/**
 		 * Returns whether or not this event has been consumed.
 		 * @see #consume
 		 */
-		bool isConsumed();
+		bool isConsumed() const;
 
 		/**
 		 * Returns whether or not the Control modifier is down on this event.
 		 */
-		bool isControlDown();
+		bool isControlDown() const;
 
 		/**
 		 * Returns whether or not the Meta modifier is down on this event.
 		 */
-		bool isMetaDown();
+		bool isMetaDown() const;
 
 		/**
 		 * Returns whether or not the Shift modifier is down on this event.
 		 */
-		bool isShiftDown();
+		bool isShiftDown() const;
 
-		bool isEventBetween(int start, int end);
-		int getID();
+		bool isEventBetween(int start, int end) const;
+		int getID() const;
 
-		EventTarget* getSource();
+		EventTarget* getSource() const;
     };
 }
 

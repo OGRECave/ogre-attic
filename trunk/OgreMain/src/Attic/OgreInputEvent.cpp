@@ -45,54 +45,54 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	int InputEvent::getModifiers() {
+	int InputEvent::getModifiers() const {
 		return mModifiers;
 	}
 
     //-----------------------------------------------------------------------
-	Real InputEvent::getWhen() {
+	Real InputEvent::getWhen() const {
 		return mWhen;
 	}
 
     //-----------------------------------------------------------------------
-	bool InputEvent::isAltDown() {
+	bool InputEvent::isAltDown() const {
 		return (mModifiers & InputEvent::ALT_MASK) != 0;
 	}
 
     //-----------------------------------------------------------------------
-	bool InputEvent::isConsumed() {
+	bool InputEvent::isConsumed() const {
 		return mConsumed;
 	}
 
     //-----------------------------------------------------------------------
-	bool InputEvent::isControlDown() {
+	bool InputEvent::isControlDown() const {
 		return (mModifiers & InputEvent::CTRL_MASK) != 0;
 	}
 
     //-----------------------------------------------------------------------
-	bool InputEvent::isMetaDown() {
+	bool InputEvent::isMetaDown() const {
 		return (mModifiers & InputEvent::META_MASK) != 0;
 	}
 
     //-----------------------------------------------------------------------
-	bool InputEvent::isShiftDown() {
+	bool InputEvent::isShiftDown() const {
 		return (mModifiers & InputEvent::SHIFT_MASK) != 0;
 	}
 
     //-----------------------------------------------------------------------
-	bool InputEvent::isEventBetween(int start, int end)
+	bool InputEvent::isEventBetween(int start, int end) const
 	{
 		return (mId >= start) && (mId <= end);
 	}
 
     //-----------------------------------------------------------------------
-	int InputEvent::getID()
+	int InputEvent::getID() const
 	{
 		return mId;
 
 	}
 
-	EventTarget* InputEvent::getSource()
+	EventTarget* InputEvent::getSource() const
 	{
 		return mSource;
 

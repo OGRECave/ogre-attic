@@ -50,7 +50,7 @@ namespace Ogre {
         /** Destroys a GuiElement which this factory created previously. */
         virtual void destroyGuiElement(GuiElement* pElement) { delete pElement; };
         /** Gets the string uniquely identifying the type of element this factory creates. */
-        virtual const String& getTypeName(void) = 0;
+        virtual const String& getTypeName(void) const = 0;
     };
 
 }

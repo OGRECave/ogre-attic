@@ -94,7 +94,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    Light::LightTypes Light::getType(void)
+    Light::LightTypes Light::getType(void) const
     {
         return mLightType;
     }
@@ -114,7 +114,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    Vector3 Light::getPosition(void)
+    const Vector3& Light::getPosition(void) const
     {
         return mPosition;
     }
@@ -133,7 +133,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    Vector3 Light::getDirection(void)
+    const Vector3& Light::getDirection(void) const
     {
         return mDirection;
     }
@@ -152,17 +152,17 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    Real Light::getSpotlightInnerAngle(void)
+    Real Light::getSpotlightInnerAngle(void) const
     {
         return mSpotInner;
     }
     //-----------------------------------------------------------------------
-    Real Light::getSpotlightOuterAngle(void)
+    Real Light::getSpotlightOuterAngle(void) const
     {
         return mSpotOuter;
     }
     //-----------------------------------------------------------------------
-    Real Light::getSpotlightFalloff(void)
+    Real Light::getSpotlightFalloff(void) const
     {
         return mSpotFalloff;
     }
@@ -181,7 +181,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    const ColourValue& Light::getDiffuseColour(void)
+    const ColourValue& Light::getDiffuseColour(void) const
     {
         return mDiffuse;
     }
@@ -200,7 +200,7 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    const ColourValue& Light::getSpecularColour(void)
+    const ColourValue& Light::getSpecularColour(void) const
     {
         return mSpecular;
     }
@@ -215,27 +215,27 @@ namespace Ogre {
         mModified = true;
     }
     //-----------------------------------------------------------------------
-    Real Light::getAttenuationRange(void)
+    Real Light::getAttenuationRange(void) const
     {
         return mRange;
     }
     //-----------------------------------------------------------------------
-    Real Light::getAttenuationConstant(void)
+    Real Light::getAttenuationConstant(void) const
     {
         return mAttenuationConst;
     }
     //-----------------------------------------------------------------------
-    Real Light::getAttenuationLinear(void)
+    Real Light::getAttenuationLinear(void) const
     {
         return mAttenuationLinear;
     }
     //-----------------------------------------------------------------------
-    Real Light::getAttenuationQuadric(void)
+    Real Light::getAttenuationQuadric(void) const
     {
         return mAttenuationQuad;
     }
     //-----------------------------------------------------------------------
-    bool Light::isModified(void)
+    bool Light::isModified(void) const
     {
         if (mParentNode)
         {
@@ -291,13 +291,13 @@ namespace Ogre {
         return msMovableType;
     }
     //-----------------------------------------------------------------------
-    const Vector3& Light::getDerivedPosition(void)
+    const Vector3& Light::getDerivedPosition(void) const
     {
         isModified();
         return mDerivedPosition;
     }
     //-----------------------------------------------------------------------
-    const Vector3& Light::getDerivedDirection(void)
+    const Vector3& Light::getDerivedDirection(void) const
     {
         isModified();
         return mDerivedDirection;
