@@ -182,8 +182,8 @@ int main(int numargs, char** args)
         else
         {
             quota = ProgressiveMesh::VRQ_PROPORTIONAL;
-            cout << "\nWhat proportion of remaining vertices should be removed "
-                "\at each LOD (e.g. 0.5)?";
+            cout << "\nWhat proportion of remaining vertices should be removed " <<
+                "at each LOD (e.g. 0.5)?";
         }
         cin >> reduction;
 
