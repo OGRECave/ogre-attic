@@ -770,7 +770,7 @@ namespace Ogre {
         Vector3 vec;
         if (lt->getType() != Light::LT_DIRECTIONAL)
         {
-            vec = lt->getPosition();
+            vec = lt->getDerivedPosition();
 
             d3dLight.dvPosition.x = vec.x;
             d3dLight.dvPosition.y = vec.y;
@@ -779,7 +779,7 @@ namespace Ogre {
         // Direction (Irrelevant for point lights)
         if (lt->getType() != Light::LT_POINT)
         {
-            vec = lt->getDirection();
+            vec = lt->getDerivedDirection();
             d3dLight.dvDirection.x = vec.x;
             d3dLight.dvDirection.y = vec.y;
             d3dLight.dvDirection.z = vec.z;
