@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreTerrainSceneManager.h"
 #include "OgreResourceManager.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -47,6 +48,7 @@ namespace Ogre {
     {
         // Image / datachunk will destroy itself
         delete mPage;
+        mPage = 0;
     }
     //-------------------------------------------------------------------------
     void HeightmapTerrainPageSource::loadHeightmap(void)
@@ -59,6 +61,7 @@ namespace Ogre {
             imgSize = mRawSize;
             
             // Load data
+            mRawData.clear();
             ResourceManager::_findCommonResourceData(mSource, mRawData);
 
             // Validate size
@@ -102,6 +105,9 @@ namespace Ogre {
         ushort tileSize, ushort pageSize, bool asyncLoading, 
         TerrainPageSourceOptionList& optionList)
     {
+        // Shutdown to clear any previous data
+        shutdown();
+
         TerrainPageSource::initialise(tsm, tileSize, pageSize, asyncLoading, optionList);
 
         // Get source image
@@ -144,6 +150,11 @@ namespace Ogre {
             else if (val.startsWith("Heightmap.flip", false))
             {
                 mFlipTerrain = StringConverter::parseBool(ti->second);
+            }
+            else
+            {
+                LogManager::getSingleton().logMessage("Warning: ignoring unknown Heightmap option '"
+                    + val + "'");
             }
         }
         if (!imageFound)
