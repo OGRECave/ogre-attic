@@ -93,6 +93,7 @@ namespace Ogre {
         delete pTextBoxFactory;
 		delete pButtonFactory;
 		delete pScrollBarFactory;
+        delete pPopupMenuFactory;
 		delete pBorderButtonFactory;
 		delete pListFactory;
 		delete pCursorGui;
