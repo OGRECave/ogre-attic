@@ -46,7 +46,7 @@ namespace Ogre {
     */
     class RenderPriorityGroup
     {
-        friend SceneManager;
+        friend class Ogre::SceneManager;
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
         struct queueItemLess
