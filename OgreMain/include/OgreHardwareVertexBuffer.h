@@ -180,14 +180,24 @@ namespace Ogre {
         /** Remove the element at the given index from this declaration. */
         virtual void removeElement(unsigned short elem_index);
 
+        /** Remove the element with the given semantic and usage index. 
+        @remarks
+            In this case 'index' means the usage index for repeating elements such
+            as texture coordinates. For other elements this will always be 0 and does
+            not refer to the index in the vector.
+        */
+        virtual void removeElement(VertexElementSemantic semantic, unsigned short index = 0);
+
         /** Modify an element in-place, params as addElement. */
         virtual void modifyElement(unsigned short elem_index, unsigned short source, size_t offset, VertexElementType theType,
             VertexElementSemantic semantic, unsigned short index = 0);
 
 		/** Finds a VertexElement with the given semantic, and index if there is more than 
 			one element with the same semantic. 
+        @remarks
+            If the element is not found, this method returns null.
 		*/
-		virtual const VertexElement& findElementBySemantic(VertexElementSemantic sem, unsigned short index = 0);
+		virtual const VertexElement* findElementBySemantic(VertexElementSemantic sem, unsigned short index = 0);
 		/** Based on the current elements, gets the size of the vertex for a given buffer source. 
 		@param source The buffer binding index for which to get the vertex size.
 		*/
@@ -221,7 +231,9 @@ namespace Ogre {
 		virtual ~VertexBufferBinding();
 		/** Set a binding, associating a vertex buffer with a given index. 
 		@remarks
-			If the index is already associated with a vertex buffer, the association will be replaced.
+			If the index is already associated with a vertex buffer, 
+            the association will be replaced. This may cause the old buffer
+            to be destroyed if nothing else is referring to it.
 		*/
 		virtual void setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer);
 		/** Removes an existing binding. */

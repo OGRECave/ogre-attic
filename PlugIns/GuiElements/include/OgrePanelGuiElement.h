@@ -107,6 +107,7 @@ namespace Ogre {
         // Texture tiling
         Real mTileX[OGRE_MAX_TEXTURE_LAYERS];
         Real mTileY[OGRE_MAX_TEXTURE_LAYERS];
+        unsigned short mNumTexCoordsInBuffer;
 
         RenderOperation mRenderOp;
 

@@ -101,6 +101,20 @@ namespace Ogre {
         mElementList.erase(i);
     }
     //-----------------------------------------------------------------------------
+    void VertexDeclaration::removeElement(VertexElementSemantic semantic, unsigned short index)
+    {
+		VertexElementList::iterator ei, eiend;
+		eiend = mElementList.end();
+		for (ei = mElementList.begin(); ei != eiend; ++ei)
+		{
+			if (ei->getSemantic() == semantic && ei->getIndex() == index)
+			{
+				mElementList.erase(ei);
+                break;
+			}
+		}
+    }
+    //-----------------------------------------------------------------------------
     void VertexDeclaration::modifyElement(unsigned short elem_index, 
         unsigned short source, size_t offset, VertexElementType theType,
         VertexElementSemantic semantic, unsigned short index)
@@ -111,7 +125,7 @@ namespace Ogre {
         (*i) = VertexElement(source, offset, theType, semantic, index);
     }
     //-----------------------------------------------------------------------------
-	const VertexElement& VertexDeclaration::findElementBySemantic(
+	const VertexElement* VertexDeclaration::findElementBySemantic(
 		VertexElementSemantic sem, unsigned short index)
 	{
 		VertexElementList::const_iterator ei, eiend;
@@ -120,12 +134,11 @@ namespace Ogre {
 		{
 			if (ei->getSemantic() == sem && ei->getIndex() == index)
 			{
-				return *ei;
+				return &(*ei);
 			}
 		}
 
-		Except(Exception::ERR_ITEM_NOT_FOUND, "Unable to find a vertex element with "
-			" the requested semantic and index.", "VertexDeclaration::findElementBySemantic");
+		return NULL;
 
 
 	}
@@ -158,6 +171,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
 	void VertexBufferBinding::setBinding(unsigned short index, HardwareVertexBufferSharedPtr buffer)
 	{
+        // NB will replace any existing buffer ptr at this index, and will thus cause
+        // reference count to decrement on that buffer (possibly destroying it)
 		mBindingMap[index] = buffer;
 	}
     //-----------------------------------------------------------------------------

@@ -53,10 +53,12 @@ namespace Ogre {
 		    /// Enums describing buffer usage; not mutually exclusive
 		    enum Usage 
 		    {
-                /** Static buffer which the application can never modify once created. */
+                /** Static buffer which the application rarely modifies once created. Modifying 
+                the contents of this buffer will involve a performance hit.
+                */
                 HBU_STATIC,
 			    /** Indicates the application would like to modify this buffer with the CPU
-			    sometimes. 
+			    fairly often. 
 			    Buffers created with this flag will typically end up in AGP memory rather 
 			    than video memory.
 			    */

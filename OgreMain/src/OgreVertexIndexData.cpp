@@ -84,15 +84,15 @@ namespace Ogre {
 	void VertexData::getBounds(AxisAlignedBox *box, Real *maxSquaredRadius)
 	{
 		// Find the position semantic element(s)
-		const VertexElement& elem = 
+		const VertexElement* elem = 
 			vertexDeclaration->findElementBySemantic(VES_POSITION);
 		// Now find the buffer
 		HardwareVertexBufferSharedPtr pBuf = 
-			vertexBufferBinding->getBuffer(elem.getSource());
+			vertexBufferBinding->getBuffer(elem->getSource());
 		// Get the data
 		unsigned char* pRaw = (unsigned char*)pBuf->lock(0, pBuf->getSizeInBytes(), 
 			HardwareVertexBuffer::HBL_READ_ONLY);
-		pRaw += elem.getOffset();
+		pRaw += elem->getOffset();
 
 		AxisAlignedBox localBox;
 		Vector3 min, max;
