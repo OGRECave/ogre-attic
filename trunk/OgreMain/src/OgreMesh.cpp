@@ -697,6 +697,10 @@ namespace Ogre {
         mMeshLodUsageList.clear();
         mIsLodManual = false;
 
+        char msg[128];
+        sprintf(msg, "Generating %d lower LODs for mesh %s.", lodDistances.size(), mName);
+        LogManager::getSingleton().logMessage(msg);
+
         SubMeshList::iterator isub, isubend;
         isubend = mSubMeshList.end();
         for (isub = mSubMeshList.begin(); isub != isubend; ++isub)
