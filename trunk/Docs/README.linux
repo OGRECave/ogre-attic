@@ -1,9 +1,10 @@
 Title: Ogre in linux
 Author: Ben Woodhead
-Last Updated: 09/27/02
+Last Updated: 07/04/03
 License: LGPL
 
 Edited by Steve Streeting following configuration changes.
+Edited by James O'Sullivan following requirement changes.
 
 Downloading The Files
 =====================
@@ -36,6 +37,18 @@ SDL 1.2.x - To find out if you have it type sdl-config --version. This will tell
 
 FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
 
+DevIL 1.5.x or greater - If you don't have this on your system then you can get
+it from http://openil.sourceforge.net/.  
+
+*Important* 
+Do not install the binary version of DevIL as this has caused problems for some
+users, install the source distribution instead.  
+
+Also if you have libpng3 installed on your system look at the following link:
+http://ogre.sourceforge.net/modules.php?op=modload&name=FAQ&file=index&myfaq=yes&id_cat=1&categories=Building+OGRE&parent_id=0#20
+
+Optional Libraries
+==================
 For the samples gui you will need gnome2, if you don't have gnome2 on your system the you will have to use the command line interface. If you are running gnome 2 then you will need 2 additional libraries. 
 
 Gtkmm2 version 1.3.26 and Glademm2 version 1.3.4, both libraries can be found at http://gtkmm.sourceforge.net/. Gtkmm will also need libsigc (http://libsigc.sourceforge.net/). When configuring gtkmm and glademm insure that you use an appropriate prefix. (ie if gnome is found /usr then run ./configure --prefix=/usr). 
