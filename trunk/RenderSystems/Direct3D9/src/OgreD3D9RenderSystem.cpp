@@ -1693,16 +1693,8 @@ namespace Ogre
 		// Clear the viewport if required
 		if( mActiveViewport->getClearEveryFrame() )
 		{
-			if( FAILED( hr = mpD3DDevice->Clear( 
-				0, 
-				NULL, 
-				D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-				mActiveViewport->getBackgroundColour().getAsLongARGB(), 
-				1.0f, 0 ) ) )
-			{
-				String msg = DXGetErrorDescription9(hr);
-				Except( hr, "Error clearing viewport : " + msg, "D3D9RenderSystem::_beginFrame" );
-			}
+            clearFrameBuffer(FBT_COLOUR | FBT_DEPTH, 
+                mActiveViewport->getBackgroundColour());
 		}
 
 		if( FAILED( hr = mpD3DDevice->BeginScene() ) )
@@ -2137,6 +2129,37 @@ namespace Ogre
                 Except(hr, "Unable to disable scissor rendering state; " + getErrorDescription(hr), 
                     "D3D9RenderSystem::setScissorTest");
             }
+        }
+    }
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::clearFrameBuffer(unsigned int buffers, 
+        const ColourValue& colour, Real depth, unsigned short stencil)
+    {
+        DWORD flags = 0;
+        if (buffers & FBT_COLOUR)
+        {
+            flags |= D3DCLEAR_TARGET;
+        }
+        if (buffers & FBT_DEPTH)
+        {
+            flags |= D3DCLEAR_ZBUFFER;
+        }
+        if (buffers & FBT_STENCIL)
+        {
+            flags |= D3DCLEAR_STENCIL;
+        }
+        HRESULT hr;
+        if( FAILED( hr = mpD3DDevice->Clear( 
+            0, 
+            NULL, 
+            flags,
+            colour.getAsLongARGB(), 
+            depth, 
+            stencil ) ) )
+        {
+            String msg = DXGetErrorDescription9(hr);
+            Except( hr, "Error clearing frame buffer : " 
+                + msg, "D3D9RenderSystem::clearFrameBuffer" );
         }
     }
 

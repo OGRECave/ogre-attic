@@ -1315,12 +1315,8 @@ namespace Ogre {
         // Clear the viewport if required
         if (mActiveViewport->getClearEveryFrame())
         {
-            hr = mlpD3DDevice->Clear(0,0,D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER,
-                mActiveViewport->getBackgroundColour().getAsLongARGB(),
-                1.0f, 0);
-            if (FAILED(hr))
-                Except(hr, "Error clearing viewport.",
-                "D3DRenderSystem::_beginFrame");
+            clearFrameBuffer(FBT_COLOUR | FBT_DEPTH, 
+                mActiveViewport->getBackgroundColour());
         }
 
         hr = mlpD3DDevice->BeginScene();
@@ -2515,6 +2511,37 @@ namespace Ogre {
             return D3D_OK;
         else
             return mlpD3DDevice->SetTextureStageState(stage, type, value);
+    }
+    //---------------------------------------------------------------------
+    void D3DRenderSystem::clearFrameBuffer(unsigned int buffers, 
+        const ColourValue& colour, Real depth, unsigned short stencil)
+    {
+        DWORD flags = 0;
+        if (buffers & FBT_COLOUR)
+        {
+            flags |= D3DCLEAR_TARGET;
+        }
+        if (buffers & FBT_DEPTH)
+        {
+            flags |= D3DCLEAR_ZBUFFER;
+        }
+        if (buffers & FBT_STENCIL)
+        {
+            flags |= D3DCLEAR_STENCIL;
+        }
+        HRESULT hr;
+        if( FAILED( hr = mlpD3DDevice->Clear( 
+            0, 
+            NULL, 
+            flags,
+            colour.getAsLongARGB(), 
+            depth, 
+            stencil ) ) )
+        {
+            String msg = getErrorDescription(hr);
+            Except( hr, "Error clearing frame buffer : " 
+                + msg, "D3DRenderSystem::clearFrameBuffer" );
+        }
     }
 
 
