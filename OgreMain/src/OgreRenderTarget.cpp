@@ -121,12 +121,12 @@ namespace Ogre {
     Viewport* RenderTarget::addViewport(Camera* cam, int ZOrder, float left, float top ,
         float width , float height)
     {
-        char msg[100];
         // Check no existing viewport with this Z-order
         ViewportList::iterator it = mViewportList.find(ZOrder);
 
         if (it != mViewportList.end())
         {
+            char msg[256];
             sprintf(msg, "Can't create another viewport for %s with Z-Order %i "
                 " because a viewport exists with this Z-Order already.",
                 this->getName().c_str(), ZOrder);
