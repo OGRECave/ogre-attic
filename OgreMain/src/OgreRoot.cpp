@@ -278,6 +278,10 @@ namespace Ogre {
             {
                 return false;
             }
+            else
+            {
+                throw;
+            }
         }
 
         renderSystem = cfg.getSetting("Render System");
