@@ -676,11 +676,11 @@ void NaturePatchManager::getPatchRenderOpsInBox(const AxisAlignedBox& box, std::
 
     // Iterate over uniques
     std::set<NaturePatch*>::iterator i, iend;
+	RenderOperation op;
     for (i = uniqueSet.begin(); i != iend; ++i)
     {
-        opList.push_back(
-            (*i)->getRenderOperation()
-            );
+		(*i)->getRenderOperation(op);
+        opList.push_back(op);
     }
 
 
