@@ -1020,9 +1020,9 @@ namespace Ogre {
                     glLightfv(GL_LIGHT0 + i, GL_POSITION, f4vals);
 
                     vec = lt->getDerivedDirection();
-                    f4vals[0] = -vec.x; // GL light directions are in eye coords
+                    f4vals[0] = vec.x; 
                     f4vals[1] = vec.y;
-                    f4vals[2] = -vec.z; // GL light directions are in eye coords
+                    f4vals[2] = vec.z; 
                     f4vals[3] = 0.0; 
                     glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, f4vals);
                 }
