@@ -77,7 +77,7 @@ namespace Ogre {
         needUpdate();
     }
     //-----------------------------------------------------------------------
-    unsigned short SceneNode::numAttachedObjects(void)
+    unsigned short SceneNode::numAttachedObjects(void) const
     {
         return static_cast< unsigned short >( mObjectsByName.size() );
     }
@@ -268,7 +268,7 @@ namespace Ogre {
 		mShowBoundingBox = bShow;
 	}
 
-	bool SceneNode::getShowBoundingBox() {
+	bool SceneNode::getShowBoundingBox() const {
 		return mShowBoundingBox;
 	}
 
@@ -294,7 +294,7 @@ namespace Ogre {
         return ObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
     }
     //-----------------------------------------------------------------------
-    SceneManager* SceneNode::getCreator(void)
+    SceneManager* SceneNode::getCreator(void) const
     {
         return mCreator;
     }

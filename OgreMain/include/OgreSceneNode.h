@@ -92,7 +92,7 @@ namespace Ogre {
 
         /** Reports the number of objects attached to this node.
         */
-        virtual unsigned short numAttachedObjects(void);
+        virtual unsigned short numAttachedObjects(void) const;
 
         /** Retrieves a pointer to an attached object.
         @remarks Retrieves by index, see alternate version to retrieve by name. The index
@@ -189,7 +189,7 @@ namespace Ogre {
             This method returns the SceneManager which created this node.
             This can be useful for destroying this node.
         */
-        SceneManager* getCreator(void);
+        SceneManager* getCreator(void) const;
 
         /** This method removes and destroys the named child and all of its children.
         @remarks
@@ -240,7 +240,7 @@ namespace Ogre {
 			check this flag and then use _addBoundingBoxToQueue to add the bounding box
 			wireframe.
         */
-		virtual bool getShowBoundingBox();
+		virtual bool getShowBoundingBox() const;
 
         /** Creates an unnamed new SceneNode as a child of this node.
         @param
