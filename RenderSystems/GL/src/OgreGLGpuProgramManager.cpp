@@ -31,12 +31,6 @@ using namespace Ogre;
 
 GLGpuProgramManager::~GLGpuProgramManager()
 {
-    ProgramMap::iterator i, iend;
-    iend = mProgramMap.end();
-    for (i = mProgramMap.begin(); i != iend; ++i)
-    {
-        mProgramMap.erase(i);
-    }
 }
 
 bool GLGpuProgramManager::registerProgramFactory(const String& syntaxCode, CreateGpuProgramCallback createFn)
