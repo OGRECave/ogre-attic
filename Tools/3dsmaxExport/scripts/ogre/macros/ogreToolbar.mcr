@@ -105,7 +105,7 @@ macroScript showSkeletonTools
 		on exportButton pressed do
 		(
 			sliderTime = 0 ;
-			m = execute ("$" + objectNameET.text) ;
+			m = execute ("$" + (replaceSpaces objectNameET.text)) ;
 			if (filenameET.text == "" or m == undefined ) then
 				messageBox "You have to choose a filename and a valid object." ;
 			else
