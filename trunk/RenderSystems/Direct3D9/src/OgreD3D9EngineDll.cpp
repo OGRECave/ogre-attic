@@ -24,10 +24,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreD3D9RenderSystem.h"
 #include "OgreRoot.h"
+#include "OgreD3D9HLSLProgramFactory.h"
 
 namespace Ogre 
 {
 	D3D9RenderSystem* d3dRendPlugin;
+	D3D9HLSLProgramFactory* hlslProgramFactory;
 
 	extern "C" void dllStartPlugin(void) throw()
 	{
@@ -36,10 +38,16 @@ namespace Ogre
 		d3dRendPlugin = new D3D9RenderSystem( hInst );
 		// Register the render system
 		Root::getSingleton().addRenderSystem( d3dRendPlugin );
+
+        // create & register HLSL factory
+        hlslProgramFactory = new D3D9HLSLProgramFactory();
+        HighLevelGpuProgramManager::getSingleton().addFactory(hlslProgramFactory);
+
 	}
 
 	extern "C" void dllStopPlugin(void)
 	{
 		delete d3dRendPlugin;
+		delete hlslProgramFactory;
 	}
 }

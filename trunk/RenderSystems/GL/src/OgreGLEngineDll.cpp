@@ -25,9 +25,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLRenderSystem.h"
 #include "OgreRoot.h"
+#include "OgreGLSLProgramFactory.h"
+
 
 namespace Ogre {
 
+	GLSLProgramFactory* glslProgramFactory;
     GLRenderSystem* glRendPlugin;
 
     extern "C" void dllStartPlugin(void) throw()
@@ -35,10 +38,15 @@ namespace Ogre {
         glRendPlugin = new GLRenderSystem();
 
         Root::getSingleton().addRenderSystem(glRendPlugin);
+
+		glslProgramFactory = new GLSLProgramFactory();
+		HighLevelGpuProgramManager::getSingleton().addFactory(glslProgramFactory);
+
     }
 
     extern "C" void dllStopPlugin(void)
     {
         delete glRendPlugin;
+		delete glslProgramFactory;
     }
 }
