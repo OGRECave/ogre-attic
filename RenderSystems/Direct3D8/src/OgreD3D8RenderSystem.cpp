@@ -694,7 +694,7 @@ namespace Ogre {
 			if( mLights[i] == lt )
 			{
 				mpD3DDevice->LightEnable( i, FALSE );
-				mLights[0] = NULL;
+				mLights[i] = NULL;
 				break;
 			}
 		}
