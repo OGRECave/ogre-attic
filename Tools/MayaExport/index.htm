@@ -1,0 +1,278 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Fifty1 Software: Maya-to-OGRE</title>
+<meta name="Microsoft Border" content="none">
+</head>
+
+<body topmargin="0" leftmargin="0" stylesrc="../index.htm" bgcolor="#003300" text="#FFFF00" link="#FFFFFF" vlink="#FFFF00" alink="#FECB62">
+<!--webbot bot="Include" U-Include="../include/nav_ogre_top.htm" TAG="BODY" startspan -->
+              <div align="left">
+                <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" bgcolor="#006600">
+                  <tr>
+                    <td width="50%" valign="top"><font face="Arial" color="#FECB62">
+                    <a name="Top"></a>Fifty1 
+                    Software<br>
+                    <b>
+                    Maya-to-OGRE</b></font></td>
+                    <td width="50%" valign="top">
+                    <p align="right"><a href="http://ogre.sourceforge.net">
+      <img border="0" src="../images/ogrelinkbuttonsmall.gif" width="88" height="31"></a></td>
+                  </tr>
+                </table>
+              </div>
+
+<!--webbot bot="Include" i-checksum="54751" endspan --><div align="left">
+  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" width="830" bordercolor="#003300">
+    <tr>
+      <td bgcolor="#006600" align="center" valign="top" width="155">
+      <p align="left">
+      <b><font face="Arial">Links</font></b></p>
+      <p align="left">
+      <b><font face="Arial" size="2"><a href="http://www.fifty1.com">Fifty1 Home</a><br>
+      <a href="http://ogre.fifty1.com/">Fifty1 OGRE Stuff</a><br>
+      <a href="http://ogre.sourceforge.net">OGRE Home</a></font></b></p>
+      </td>
+      <td width="652" align="left" valign="top">
+              <i>
+              <font face="Times New Roman" size="2">(Developed with <b>macross</b> from
+              <b><a href="http://www.bytelords.de">bytelords.de</a></b>)</font></i><p>
+              <b><font face="Arial"><a name="Contents">Contents</a></font></b></p>
+              <blockquote>
+                <p><b><font face="Arial" size="2">
+                <a href="#Downloads">Downloads</a><br>
+                <a href="#Installation">Installation</a><br>
+                <a href="#Usage">Usage</a><br>
+                <a href="#Known Bugs">Known Bugs and Limitations</a><br>
+                <a href="#Features">Features</a></font></b></p>
+              </blockquote>
+              <hr noshade color="#FFFF00">
+              <p align="left" class="TopZ"><b><font face="Arial" size="2">
+              <a name="Downloads">Downloads</a></font></b></p>
+              <ul>
+                <li>
+              Source code is part of <a href="http://ogre.sourceforge.net">OGRE</a> 
+              (0.12.1 and above)
+                </li>
+                <li>
+              Pre-compiled exporters:<ul>
+                <li>Ogre 0.12 and older:<ul>
+                <li><a href="4.5/ogre_0.12/maya2ogre.exe">Windows Maya 4.5</a>
+                <font size="1">(2003-10-31)</font></li>
+                <li><a href="5.0/0.12/maya2ogre.exe">Windows Maya 5.0</a>
+                <font size="1">(2003-10-31)</font></li>
+              </ul>
+                </li>
+                <li>Ogre 0.13 and newer<ul>
+                <li><a href="4.5/ogre_0.13/maya2ogre.exe">Windows Maya 4.5</a>
+                <font size="1">(2004-01-07)</font></li>
+                <li><a href="5.0/0.13/maya2ogre.exe">Windows Maya 5.0</a>
+                <font size="1">(2004-01-04)</font></li>
+              </ul>
+                </li>
+              </ul>
+                </li>
+                <li>
+              <a href="mel.zip">Maya MEL scripts</a> (Windows .zip archive)
+              <font size="1">(2003-10-15)</font></li>
+                <li>
+              <a href="OgreXMLConverter.zip">Pre-compiled OgreXMLConverter</a> 
+              and support DLLs 
+              (Windows .zip archive) <font size="1">(2003-10-23)</font></li>
+              </ul>
+              <blockquote>
+                <p><a href="#Contents">Back to Top</a></p>
+              </blockquote>
+              <hr noshade color="#FFFF00">
+              <p align="left" class="TopZ"><b><font face="Arial" size="2">
+              <a name="Installation">Installation</a></font></b></p>
+              Installation instructions assume you are using the pre-compiled 
+              files above. 
+              <ol>
+                <li>Copy the following MEL scripts to your Maya scripts 
+                directory (typically &quot;My Documents/Maya/4.5/scripts&quot; 
+                or &quot;My Documents/Maya/5.0/scripts&quot; in 
+                Windows):<ul>
+                  <li>maya2ogre_setup.mel</li>
+                  <li>maya2ogre_window.mel</li>
+                  <li>maya2ogre_export.mel</li>
+                </ul>
+                </li>
+                <li>Update  userSetup.mel file in Maya scripts directory with 
+                contents of userSetup.mel for Maya exporter<ul>
+                  <li>If userSetup.mel does not exist in your scripts directory, 
+                  copy it there</li>
+                  <li>If userSetup.mel exists in your script directory, append 
+                  the contents of the new userSetup.mel to the end (using 
+                  Notepad)</li>
+                </ul>
+                </li>
+                <li>Copy the appropriate (Maya 4.5 or Maya 5.0) pre-compiled command-line exporter to a location in 
+                your path<ul>
+                  <li>Alternatively, copy to Maya scripts directory to use from 
+                  Maya UI only (will not be available from command-line)</li>
+                </ul>
+                </li>
+                <li>Copy the pre-compiled OgreXMLConverter and support DLLs to a 
+                location in your path<ul>
+                  <li>Required support DLLs are OgreMain.dll, devil.dll and 
+                  ilu.dll</li>
+                  <li>Alternatively, copy to Maya scripts directory to use from 
+                  Maya UI only (will not be available from command-line)</li>
+                </ul>
+                <p><a href="#Contents">Back to Top</a></li>
+              </ol>
+              <hr noshade color="#FFFF00">
+              <p align="left" class="TopZ"><b><font face="Arial" size="2">
+              <a name="Usage">Usage</a></font></b></p>
+              <ul>
+                <li>Maya usage:<ul>
+                  <li>Launch exporter UI from new 'Ogre' menu (Ogre | Export)</li>
+                  <li>Define export details<ul>
+                    <li>Should be self-explanatory</li>
+                    <li>Export details are saved with the Maya file after each 
+                    export</li>
+                  </ul>
+                  </li>
+                </ul>
+                </li>
+                <li>Command-line usage:<div align="left">
+                  <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse" width="100%" bgcolor="#FFFFFF" bordercolor="#FFFFFF">
+                    <tr>
+                      <td width="100%">
+                      <pre><font color="#000000">Version : Oct 15 2003 11:47:30
+Maya API: 450</font></pre>
+                      <pre><font color="#000000">Usage: maya2ogre -in FILE [-mesh [FILE]] [-vba] [-skel [FILE]]
+                 [-anim NAME START END STEP]
+                 [-mat [FILE]] [-mprefix PREFIX]
+                 [-n] [-c] [-t] [-v]</font></pre>
+                      <pre><font color="#000000"> -in      FILE   input mb File
+ -mesh    FILE   export mesh (FILE is optional)
+ -vba            export vertex bone assignments
+ -skel    FILE   export skeleton (FILE is optional)
+ -anim    NAME   export Animation beginning at START and ending
+          START  at END with fixed STEP
+          END
+          STEP
+ -mat     FILE   export material (FILE is optional)
+ -mprefix PREFIX material prefix
+ -n              export normals
+ -c              export diffuse colours
+ -t              export texture coords
+ -v              more output</font></pre>
+                      <pre><font color="#000000">Examples:
+ maya2ogre -in foo.mb -mesh -skel -mat
+     =&gt; exports skeleton, mesh and material using default file names,
+        in this case foo.mesh.xml, foo.skeleton.xml and foo.material</font></pre>
+                      <pre><font color="#000000"> maya2ogre -in foo.mb -mesh custom_name.mesh.xml -skel custom_name.skel.xml
+     =&gt; exports skeleton and mesh using user defined file names</font></pre>
+                      <pre><font color="#000000"> maya2ogre -in foo.mb -skel -anim Walk 1 30 2 -anim Die 50 60 2
+     =&gt; exports skeleton with animation tracks Walk and Die</font></pre>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                </li>
+              </ul>
+              <blockquote>
+                <p><a href="#Contents">Back to Top</a></p>
+              </blockquote>
+              <hr noshade color="#FFFF00">
+              <p align="left" class="TopZ"><b><font face="Arial" size="2">
+              <a name="Known Bugs">Known Bugs and Limitations</a></font></b></p>
+              <ol>
+                <li>Skeleton supports only one skin cluster per mesh<ul>
+                  <li>All vertices in mesh must be connected to skin cluster</li>
+                </ul>
+                </li>
+                <li>MEL scripts call command-line tool instead of a native Maya 
+                plug-in</li>
+                <li>MEL scripts do not work on Linux or Irix<ul>
+                  <li>Small additions required -- anyone willing to help?</li>
+                </ul>
+                </li>
+                <li>Exporter assigns the default material (lambert1) if the 
+                initialShadingGroup is connected to a Maya Mesh directly or 
+                indirectly.<ul>
+                  <li>Workaround is to remove all extra connections to the 
+                  initialShadingGroup using Hypershade</li>
+                </ul>
+                </li>
+              </ol>
+                <p><a href="#Contents">Back to Top</a><hr noshade color="#FFFF00">
+              <p align="left" class="TopZ">
+              <b><font face="Arial" size="2"><a name="Features">Features</a></font></b></p>
+              <blockquote>
+              <p align="left" class="TopZ">
+              <b><font face="Arial" size="2">Mesh Export</font></b></p>
+                <ul>
+                  <li>Exports everything related to a mesh<ul>
+                  <li>Vertices</li>
+                  <li>Normals</li>
+                  <li>Vertex colours</li>
+                  <li>Texture coordinates (all sets)</li>
+                  <li>Bone assignments and weights</li>
+                  <li>Include/exclude any of the above</li>
+                </ul>
+                  </li>
+                  <li>Vertex optimization removes duplicate vertices before 
+                  exporting<ul>
+                  <li>Based on position, normal, colour, 
+                  uvs</li>
+                </ul>
+                  </li>
+                  <li>Defaults to XML<ul>
+                  <li>Convert to binary with OgreXMLConverter</li>
+                  <li>Maya UI can automatically launch binary conversion </li>
+                </ul>
+                  </li>
+                </ul>
+                <p><font face="Arial" size="2"><b>Material Export</b></font></p>
+                <ul>
+                  <li>Colours (ambient, diffuse, specular, emissive)</li>
+                  <li>Shininess for specular colours (requires calibration)</li>
+                  <li>Texture names</li>
+                </ul>
+                <p><b><font size="2" face="Arial">Skeleton/Animation Export</font></b></p>
+                <ul>
+                  <li>Vertex bone assignments and weights</li>
+                  <li>Multiple named animations<ul>
+                  <li>Animation name</li>
+                  <li>Start frame</li>
+                  <li>End frame</li>
+                  <li>Number of frames to skip</li>
+                </ul>
+                  </li>
+                  <li>Up to 8 named animations preserved in Maya UI </li>
+                  <li>Default to XML<ul>
+                  <li>Convert to binary with OgreXMLConverter</li>
+                  <li>Maya UI can automatically launch binary conversion</li>
+                </ul>
+                  </li>
+                </ul>
+              <p><a href="#Contents">Back to Top</a></p>
+              </blockquote>
+            </td>
+    </tr>
+    </table>
+</div>
+
+<!--webbot bot="Include" U-Include="../include/nav_ogre_bottom.htm" TAG="BODY" startspan -->
+              <div align="left">
+                <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" bgcolor="#006600">
+                  <tr>
+                    <td width="100%">
+                    <p align="right">
+                    <font size="1" face="Arial" color="#FECB62">Contents 
+                    copyright </font><font size="1" color="#FECB62">©2003 Fifty1 
+                    Software Inc. Granite is a registered trademark of Fifty1 
+                    Software Inc.</font></td>
+                  </tr>
+                </table>
+              </div>
+
+<!--webbot bot="Include" i-checksum="3278" endspan --></body></html>

@@ -1,1 +1,0 @@
-See http://ogre.fifty1.com for installation and usage instructions.
