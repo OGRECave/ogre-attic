@@ -223,7 +223,11 @@ namespace Ogre
 		optAA.currentValue = "None";
 
 		optFPUMode.name = "Floating-point mode";
+#if OGRE_DOUBLE_PRECISION
+		optFPUMode.currentValue = "Consistent";
+#else
 		optFPUMode.currentValue = "Fastest";
+#endif
 		optFPUMode.possibleValues.clear();
 		optFPUMode.possibleValues.push_back("Fastest");
 		optFPUMode.possibleValues.push_back("Consistent");
