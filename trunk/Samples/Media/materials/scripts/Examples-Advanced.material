@@ -444,7 +444,7 @@ material Examples/BumpMapping/MultiLightSpecular
 			texture_unit
 			{
 				cubic_texture nm.png combinedUVW
-				tex_coord_set 1
+				tex_coord_set 2
 				tex_address_mode clamp
 			}
 		}
