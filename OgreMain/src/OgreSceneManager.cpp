@@ -2226,6 +2226,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void SceneManager::renderShadowVolumesToStencil(const Light* light, const Camera* camera)
     {
+
+        mDestRenderSystem->unbindGpuProgram(GPT_VERTEX_PROGRAM);
+        mDestRenderSystem->unbindGpuProgram(GPT_FRAGMENT_PROGRAM);
+
         // Can we do a 2-sided stencil?
         bool stencil2sided = false;
         if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_TWO_SIDED_STENCIL))
@@ -2284,41 +2288,13 @@ namespace Ogre {
                     // Render a shadow volume here
                     //  - if we have 2-sided stencil, one render with no culling
                     //  - otherwise, 2 renders, one with each culling method and invert the ops
-                    if (stencil2sided)
-                    {
-                        // Single pass
-                        mDestRenderSystem->_setCullingMode(CULL_NONE);
-                    }
-                    else
-                    {
-                        // First pass, do front faces (facing outside)
-                        mDestRenderSystem->_setCullingMode(CULL_CLOCKWISE);
-                    }
-                    // Do front faces (or both if 2-sided stencil)
-                    mDestRenderSystem->setStencilBufferParams(
-                        CMPF_ALWAYS_PASS, // always pass stencil check
-                        0, // no ref value (no compare)
-                        0xFFFFFFFF, // no mask
-                        SOP_KEEP, // stencil test will never fail
-                        zfailAlgo? SOP_DECREMENT : SOP_KEEP, // front face depth fail
-                        zfailAlgo? SOP_KEEP : SOP_INCREMENT, // front face pass
-                        stencil2sided
-                        );
+                    setShadowVolumeStencilState(false, zfailAlgo, stencil2sided);
                     renderSingleObject(sr, mShadowStencilPass, false);
                     
                     if (!stencil2sided)
                     {
-                        // Second pass, do back faces (facing inside)
-                        mDestRenderSystem->_setCullingMode(CULL_ANTICLOCKWISE);
-                        mDestRenderSystem->setStencilBufferParams(
-                            CMPF_ALWAYS_PASS, // always pass stencil check
-                            0, // no ref value (no compare)
-                            0xFFFFFFFF, // no mask
-                            SOP_KEEP, // stencil test will never fail
-                            zfailAlgo? SOP_INCREMENT : SOP_KEEP, // back face depth fail
-                            zfailAlgo? SOP_KEEP : SOP_DECREMENT, // back face pass
-                            stencil2sided
-                            );
+                        // Second pass
+                        setShadowVolumeStencilState(true, zfailAlgo, false);
                         renderSingleObject(sr, mShadowStencilPass, false);
                     }
 
@@ -2343,7 +2319,44 @@ namespace Ogre {
         mDestRenderSystem->setStencilCheckEnabled(false);
 
     }
-	//---------------------------------------------------------------------
+    //---------------------------------------------------------------------
+    void SceneManager::setShadowVolumeStencilState(bool secondpass, bool zfail, bool twosided)
+    {
+        // First pass, do front faces if zpass
+        // Second pass, do back faces if zpass
+        // Invert if zfail
+        // this is to ensure we always increment before decrement
+        if ( (secondpass || zfail) &&
+            !(secondpass && zfail) )
+        {
+            mDestRenderSystem->_setCullingMode(
+                twosided? CULL_NONE : CULL_ANTICLOCKWISE);
+            mDestRenderSystem->setStencilBufferParams(
+                CMPF_ALWAYS_PASS, // always pass stencil check
+                0, // no ref value (no compare)
+                0xFFFFFFFF, // no mask
+                SOP_KEEP, // stencil test will never fail
+                zfail? SOP_INCREMENT : SOP_KEEP, // back face depth fail
+                zfail? SOP_KEEP : SOP_DECREMENT, // back face pass
+                twosided
+                );
+        }
+        else
+        {
+            mDestRenderSystem->_setCullingMode(
+                twosided? CULL_NONE : CULL_CLOCKWISE);
+            mDestRenderSystem->setStencilBufferParams(
+                CMPF_ALWAYS_PASS, // always pass stencil check
+                0, // no ref value (no compare)
+                0xFFFFFFFF, // no mask
+                SOP_KEEP, // stencil test will never fail
+                zfail? SOP_DECREMENT : SOP_KEEP, // front face depth fail
+                zfail? SOP_KEEP : SOP_INCREMENT, // front face pass
+                twosided
+                );
+        }
+    }
+    //---------------------------------------------------------------------
     AxisAlignedBoxSceneQuery* 
     SceneManager::createAABBQuery(const AxisAlignedBox& box, unsigned long mask)
     {
