@@ -52,6 +52,8 @@ namespace Ogre {
     class _OgreExport UserDefinedObject
     {
     public:
+        /** Standard constructor. */
+        UserDefinedObject() {}
         /** Return a number identifying the type of user dedined object.
         @remarks
             Can be used to differentiate between different types of object which you attach to

@@ -78,6 +78,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEventProcessor.h"
 #include "OgreOverlayManager.h"
 #include "OgreRenderTexture.h"
+#include "OgreUserDefinedObject.h"
 // .... more to come
 
 #endif
