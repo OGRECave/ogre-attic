@@ -50,6 +50,7 @@ public:
     /** Default constructor.
     */
     OldMaterialReader();
+    ~OldMaterialReader();
 
     /** Parses a Material script file passed as a chunk.
     */
