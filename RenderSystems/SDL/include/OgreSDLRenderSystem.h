@@ -84,7 +84,8 @@ namespace Ogre {
 
         void setGLLight(int index, Light* lt);
         void makeGLMatrix(GLfloat gl_matrix[16], const Matrix4& m);
-
+ 
+        GLint getBlendMode(SceneBlendFactor ogreBlend);
 
         void setLights();
 

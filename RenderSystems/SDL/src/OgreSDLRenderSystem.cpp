@@ -720,16 +720,16 @@ namespace Ogre {
             break;
 
         case TEXCALC_ENVIRONMENT_MAP:
-            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
-            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_NORMAL_MAP );
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
 
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:            
             // XXX This doesn't seem right?!
-            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
-            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP );
+            glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+            glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
             break;
@@ -904,6 +904,30 @@ namespace Ogre {
         GLfloat mat[16];
         makeGLMatrix(mat, xform);
 
+        if (mat[8] != 0 || mat[9] != 0)
+        {
+            mat[12] = mat[8];
+            mat[13] = mat[9];
+            //mat[14] = mat[10];
+            //mat[15] = mat[11];
+
+//            mat[8] = 0;
+//            mat[9] = 0;
+//            mat[10] = 1;
+//            mat[11] = 0;
+        }
+
+//        for (int j=0; j< 4; j++)
+//        {
+//            int x = 0;
+//            for (x = 0; x < 4; x++)
+//            {
+//                printf("[%2d]=%0.2f\t", (x*4) + j, mat[(x*4) + j]);
+//            }
+//            printf("\n");
+//        }
+//        printf("\n");
+
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glMatrixMode(GL_TEXTURE);
         glLoadMatrixf(mat);
@@ -911,54 +935,38 @@ namespace Ogre {
         glActiveTextureARB(GL_TEXTURE0_ARB);
     }
     //-----------------------------------------------------------------------------
+    GLint SDLRenderSystem::getBlendMode(SceneBlendFactor ogreBlend)
+    {
+        switch(ogreBlend)
+        {
+        case SBF_ONE:
+            return GL_ONE;
+        case SBF_ZERO:
+            return GL_ZERO;
+        case SBF_DEST_COLOUR:
+            return GL_DST_COLOR;
+        case SBF_SOURCE_COLOUR:
+            return GL_SRC_COLOR;
+        case SBF_ONE_MINUS_DEST_COLOUR:
+            return GL_ONE_MINUS_DST_COLOR;
+        case SBF_ONE_MINUS_SOURCE_COLOUR:
+            return GL_ONE_MINUS_SRC_COLOR;
+        case SBF_DEST_ALPHA:
+            return GL_DST_ALPHA;
+        case SBF_SOURCE_ALPHA:
+            return GL_SRC_ALPHA;
+        case SBF_ONE_MINUS_DEST_ALPHA:
+            return GL_ONE_MINUS_DST_ALPHA;
+        case SBF_ONE_MINUS_SOURCE_ALPHA:
+            return GL_ONE_MINUS_SRC_ALPHA;
+        };
+    }
+
     void SDLRenderSystem::_setSceneBlending(SceneBlendFactor sourceFactor, SceneBlendFactor destFactor)
     {
-        GLint sourceBlend, destBlend;
-        GLint* pBlend = &sourceBlend;
+        GLint sourceBlend = getBlendMode(sourceFactor);
+        GLint destBlend = getBlendMode(destFactor);
         
-        SceneBlendFactor ogreBlend = sourceFactor;
-        
-        //std::cout << "Set scene blending to " << ogreBlend << std::endl;
-        for (int i = 0 ; i < 2; ++i)
-        {
-            switch(ogreBlend)
-            {
-            case SBF_ONE:
-                *pBlend = GL_ONE;
-                break;
-            case SBF_ZERO:
-                *pBlend = GL_ZERO;
-                break;
-            case SBF_DEST_COLOUR:
-                *pBlend = GL_DST_COLOR;
-                break;
-            case SBF_SOURCE_COLOUR:
-                *pBlend = GL_SRC_COLOR;
-                break;
-            case SBF_ONE_MINUS_DEST_COLOUR:
-                *pBlend = GL_ONE_MINUS_DST_COLOR;
-                break;
-            case SBF_ONE_MINUS_SOURCE_COLOUR:
-                *pBlend = GL_ONE_MINUS_SRC_COLOR;
-                break;
-            case SBF_DEST_ALPHA:
-                *pBlend = GL_DST_ALPHA;
-                break;
-            case SBF_SOURCE_ALPHA:
-                *pBlend = GL_SRC_ALPHA;
-                break;
-            case SBF_ONE_MINUS_DEST_ALPHA:
-                *pBlend = GL_ONE_MINUS_DST_ALPHA;
-                break;
-            case SBF_ONE_MINUS_SOURCE_ALPHA:
-                *pBlend = GL_ONE_MINUS_SRC_ALPHA;
-                break;
-            };
-            ogreBlend = destFactor;
-            pBlend = &destBlend;
-
-        }
-
         glEnable(GL_BLEND);
         glBlendFunc(sourceBlend, destBlend);
     }
@@ -966,7 +974,7 @@ namespace Ogre {
     void SDLRenderSystem::_setAlphaRejectSettings(CompareFunction func, unsigned char value)
     {
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(convertCompareFunction(func), value);
+        glAlphaFunc(convertCompareFunction(func), value / 128.0f);
     }
     //-----------------------------------------------------------------------------
     void SDLRenderSystem::_setViewport(Viewport *vp)
@@ -1110,7 +1118,7 @@ namespace Ogre {
         {
             glEnableClientState(GL_COLOR_ARRAY);
             stride = op.diffuseStride ?  
-                            op.diffuseStride + (sizeof(GL_UNSIGNED_BYTE) * 4) : 0;
+                            op.diffuseStride + (sizeof(unsigned char) * 4) : 0;
             glColorPointer( 4, GL_UNSIGNED_BYTE, stride, op.pDiffuseColour );
         }
         else
@@ -1129,6 +1137,7 @@ namespace Ogre {
                 if( i < op.numTextureCoordSets )
                 {                
                     glClientActiveTextureARB(index + i);
+                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                     stride = op.texCoordStride[mTextureCoordIndex[i]] ?  
                         op.texCoordStride[mTextureCoordIndex[i]] +
                         (sizeof(GL_FLOAT) * 
@@ -1138,7 +1147,6 @@ namespace Ogre {
                         op.numTextureDimensions[mTextureCoordIndex[i]],
                         GL_FLOAT, stride, 
                         op.pTexCoords[mTextureCoordIndex[i]] );
-                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
                 }
                 else
                 {
