@@ -25,11 +25,13 @@ http://www.gnu.org/copyleft/gpl.html.
 #ifndef _TGACodec_H__
 #define _TGACodec_H__
 
-#include "OgreCodec.h"
+#include "OgreImageCodec.h"
 #include "OgreSDDataChunk.h"
 
 BEGIN_OGRE_NAMESPACE
 
+/** ImageCodec specialized in Traga images.
+*/
 class _OgreExport TGACodec : public ImageCodec
 {
 protected:
@@ -50,7 +52,7 @@ protected:
 
 public:
     void code( const DataChunk& input, DataChunk* output, ... ) const;
-    CodecData * decode( const DataChunk& input, DataChunk* output ) const;
+    CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
     String getType() const { return "tga"; }
 };
