@@ -50,9 +50,8 @@ namespace Ogre {
         {
             delete i->second;
         }
+        
 
-        if( mDefaultLog )
-            delete mDefaultLog;
     }
     //-----------------------------------------------------------------------
     Log* LogManager::createLog( const String& name, bool defaultLog, bool debuggerOutput)
@@ -63,6 +62,8 @@ namespace Ogre {
         {
             mDefaultLog = newLog;
         }
+
+        mLogs[name] = newLog;
 
         return newLog;
 
