@@ -275,5 +275,42 @@ namespace Ogre {
             return false;
     }
 
-}
+    void Image::applyGamma( unsigned char *buffer, Real gamma, uint size, uchar bpp )
+    {
+        if( gamma == 1.0f )
+            return;
 
+        //NB only 24/32-bit supported
+        if( bpp != 24 && bpp != 32 ) return;
+
+        uint stride = bpp >> 3;
+
+        for( uint i = 0, j = size / stride; i < j; i++, buffer += stride )
+        {
+            float r, g, b;
+
+            r = (float)buffer[0];
+            g = (float)buffer[1];
+            b = (float)buffer[2];
+
+            r = r * gamma;
+            g = g * gamma;
+            b = b * gamma;
+
+            float scale = 1.0f, tmp;
+
+            if( r > 255.0f && (tmp=(255.0f/r)) < scale )
+                scale = tmp;
+            if( g > 255.0f && (tmp=(255.0f/g)) < scale )
+                scale = tmp;
+            if( b > 255.0f && (tmp=(255.0f/b)) < scale )
+                scale = tmp;
+
+            r *= scale; g *= scale; b *= scale;
+
+            buffer[0] = (uchar)r;
+            buffer[1] = (uchar)g;
+            buffer[2] = (uchar)b;
+        }
+    }
+}
