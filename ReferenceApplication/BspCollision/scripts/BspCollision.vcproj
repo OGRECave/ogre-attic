@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.00"
-	Name="BspCollision"
+	Name="Demo_BspCollision"
 	ProjectGUID="{EDD4B978-5ABA-448B-8DA7-A02F99714D66}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -35,11 +35,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain.lib ReferenceAppLayer.lib"
-				OutputFile="$(OutDir)/BspCollision.exe"
+				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/BspCollision.pdb"
+				ProgramDatabaseFile="$(OutDir)/Demo_BspCollision.pdb"
 				SubSystem="2"
 				OptimizeForWindows98="1"
 				TargetMachine="1"/>
@@ -90,7 +90,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain.lib ReferenceAppLayer.lib"
-				OutputFile="$(OutDir)/BspCollision.exe"
+				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="FALSE"
