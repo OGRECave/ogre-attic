@@ -1019,6 +1019,13 @@ namespace Ogre {
 
         mEdgeData = eb.build();
 
+#if OGRE_DEBUG_MODE
+        // Override default log
+        Log* log = LogManager::getSingleton().createLog(mName + "_prepshadow.log", false, false);
+        mEdgeData->log(log);
+#endif
+
+
     }
     //---------------------------------------------------------------------
     void Mesh::prepareForShadowVolume(void)
@@ -1027,7 +1034,6 @@ namespace Ogre {
         {
             sharedVertexData->prepareForShadowVolume();
         }
-
         SubMeshList::iterator i, iend;
         iend = mSubMeshList.end();
         for (i = mSubMeshList.begin(); i != iend; ++i)
@@ -1039,7 +1045,6 @@ namespace Ogre {
             }
         }
         mPreparedForShadowVolumes = true;
-
     }
     //---------------------------------------------------------------------
     EdgeData* Mesh::getEdgeList(void)

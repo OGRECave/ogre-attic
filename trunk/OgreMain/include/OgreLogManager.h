@@ -80,6 +80,11 @@ namespace Ogre {
         */
         Log* getDefaultLog();
 
+        /** Sets the passed in log as the default log.
+        @returns The previous default log.
+        */
+        Log* setDefaultLog(Log* newLog);
+
         /** Log a message to the default log.
         */
         void logMessage( const String& message, LogMessageLevel lml = LML_NORMAL);

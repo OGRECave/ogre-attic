@@ -101,7 +101,7 @@ namespace Ogre {
 
 
         // Debugging method
-        void log(void);
+        void log(Log* log);
         
     };
 
@@ -149,9 +149,13 @@ namespace Ogre {
         {
 		    _OgreExport bool operator()(const Vector3& v1, const Vector3& v2) const
             {
-			    if (v1.x < v2.x) return true;
-			    if (v1.x == v2.x && v1.y < v2.y) return true;
-			    if (v1.x == v2.x && v1.y == v2.y && v1.z < v2.z) return true;
+                // NB add a slight floating point inaccuracy tolerance
+                #define TOLERANCE 1e-04
+			    if (v1.x < (v2.x - TOLERANCE)) return true;
+                if (Math::RealEqual(v1.x, v2.x, TOLERANCE) && v1.y < (v2.y - TOLERANCE)) return true;
+                if (Math::RealEqual(v1.x, v2.x, TOLERANCE) && 
+                    Math::RealEqual(v1.y, v2.y, TOLERANCE) && 
+                    v1.z < (v2.z - TOLERANCE)) return true;
 
 			    return false;
 		    }
