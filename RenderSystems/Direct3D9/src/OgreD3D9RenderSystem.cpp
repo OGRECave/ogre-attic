@@ -893,7 +893,6 @@ namespace Ogre
 	void D3D9RenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
 	{
-
         Radian theta ( fovy * 0.5 );
 		Real h = 1 / Math::Tan(theta);
 		Real w = h / aspect;
@@ -2415,11 +2414,17 @@ namespace Ogre
         // transform it into camera space by multiplying it
         // by the inverse of the projection matrix
 
+        /* generalised version
+        Vector4 q = matrix.inverse() * 
+            Vector4(Math::Sign(plane.normal.x), Math::Sign(plane.normal.y), 1.0f, 1.0f);
+        */
         Vector4 q;
         q.x = Math::Sign(plane.normal.x) / matrix[0][0];
         q.y = Math::Sign(plane.normal.y) / matrix[1][1];
-        q.z = 1.0F;
-        q.w = (1.0F - matrix[2][2]) / matrix[2][3];
+        q.z = 1.0F; 
+        // flip the next bit from Lengyel since we're right-handed
+        //q.w = (1.0F - matrix[2][2]) / matrix[2][3];
+        q.w = (1.0F + matrix[2][2]) / matrix[2][3];
 
         // Calculate the scaled plane vector
         Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
@@ -2428,7 +2433,9 @@ namespace Ogre
         // Replace the third row of the projection matrix
         matrix[2][0] = c.x;
         matrix[2][1] = c.y;
-        matrix[2][2] = c.z;
+        // flip the next bit from Lengyel since we're right-handed
+        //matrix[2][2] = c.z; 
+        matrix[2][2] = -c.z; 
         matrix[2][3] = c.w;        
     }
 }
