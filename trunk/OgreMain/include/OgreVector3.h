@@ -290,7 +290,7 @@ namespace Ogre
                 This function will not crash for zero-sized vectors, but there
                 will be no changes made to their components.
         */
-        inline Vector3 & normalise()
+        inline void normalise()
         {
             Real fLength = Math::Sqrt( x * x + y * y + z * z );
 
@@ -302,8 +302,6 @@ namespace Ogre
                 y *= fInvLength;
                 z *= fInvLength;
             }
-
-            return *this;
         }
 
         /** Calculates the cross-product of 2 vectors, i.e. the vector that
@@ -410,9 +408,9 @@ namespace Ogre
                 method will guarantee to generate one of them. If you need more 
                 control you should use the Quaternion class.
         */
-        inline Vector3 perpendicular(void)
+        inline Vector3 perpendicular(void) const
         {
-            static Real fSquareZero = 1e-06 * 1e-06;
+            static const Real fSquareZero = 1e-06 * 1e-06;
 
             Vector3 perp = this->crossProduct( Vector3::UNIT_X );
 
@@ -448,7 +446,7 @@ namespace Ogre
         */
         inline Vector3 randomDeviant(
             Real angle, 
-            const Vector3& up = Vector3::ZERO )
+            const Vector3& up = Vector3::ZERO ) const
         {
             Vector3 newUp;
 

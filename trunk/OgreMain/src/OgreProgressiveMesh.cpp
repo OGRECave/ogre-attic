@@ -299,7 +299,8 @@ namespace Ogre {
 				PMVertex::NeighborList::iterator n, nend;
 				nend = src->neighbor.end();
 				maxKinkiness = 0.0f;
-				collapseEdge = edgeVector.normalise();
+				edgeVector.normalise();
+				collapseEdge = edgeVector;
 				for (n = src->neighbor.begin(); n != nend; ++n)
 				{
 					if (*n != dest && (*n)->isManifoldEdgeWith(src))

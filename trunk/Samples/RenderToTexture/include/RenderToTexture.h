@@ -59,7 +59,8 @@ public:
         SceneNode *head = static_cast<SceneNode*>(
             mCamera->getSceneManager()->getRootSceneNode()->getChild( "Head" ));
         head->setOrientation( q );
-        head->setPosition( vPos + vDir.normalise() * -250.0 );
+        vDir.normalise();
+        head->setPosition( vPos + vDir * -250.0 );
 
         return ExampleFrameListener::frameStarted( evt );
     }
