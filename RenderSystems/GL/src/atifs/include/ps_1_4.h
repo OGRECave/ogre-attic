@@ -252,7 +252,8 @@ private:
 	// vars used during pass 2
 	MachineInstID mOpType;
 	uint mOpInst;
-	int mNumArgs;
+	bool mDo_Alpha;
+	PhaseType mInstructionPhase;
 	int mArgCnt;
 	int mConstantsPos;
 
@@ -276,7 +277,7 @@ private:
 	uint mLastInstructionPos; // keep track of last phase 2 ALU instruction to check for R0 setting
 	uint mSecondLastInstructionPos;
 
-	// keep track of phase marker found: determines which phase ALU instructions go into
+	// keep track if phase marker found: determines which phase the ALU instructions go into
 	bool mPhaseMarkerFound; 
 
 #ifdef _DEBUG
@@ -287,40 +288,65 @@ private:
 #endif // _DEBUG
 
 
-	// attempt to build a machine instruction using current tokens
+	/** attempt to build a machine instruction using current tokens
+		determines what phase machine insturction should be in and if an Alpha Op is required
+		calls expandMachineInstruction() to expand the token into machine instructions
+	*/
 	bool BuildMachineInst();
 	
 	void clearMachineInstState();
 
-	bool setOpParram(SymbolDef* symboldef);
+	bool setOpParram(const SymbolDef* symboldef);
 
-	// optimizes machine instructions depending on pixel shader context
-	// only applies to ps.1.1 ps.1.2 and ps.1.3 since they use CISC instructions
-	// that must be transformed into RISC instructions
+	/** optimizes machine instructions depending on pixel shader context
+		only applies to ps.1.1 ps.1.2 and ps.1.3 since they use CISC instructions
+		that must be transformed into RISC instructions
+	*/
 	void optimize();
 
 	// the method is expected to be recursive to allow for inline expansion of instructions if required
-	bool Pass2scan(TokenInst * Tokens, uint size);
+	bool Pass2scan(const TokenInst * Tokens, const uint size);
 
 	// supply virtual functions for Compiler2Pass
+	/// Pass 1 is completed so now take tokens generated and build machine instructions
 	bool doPass2();
 
+	/** Build a machine instruction from token and ready it for expansion
+		will expand CISC tokens using macro database
+
+	*/
 	bool bindMachineInstInPassToFragmentShader(const MachineInstContainer & PassMachineInstructions);
 
-	bool expandMacro(MacroRegModify & MacroMod);
+	/** Expand CISC tokens into PS1_4 token equivalents
 
-	// mainly used by tests - to slow for use in binding
+	*/
+	bool expandMacro(const MacroRegModify & MacroMod);
+
+	/** Expand Machine instruction into operation type and arguments and put into proper machine
+		instruction container
+		also expands scaler alpha machine instructions if required
+
+	*/
+	bool expandMachineInstruction();
+
+	// mainly used by tests - too slow for use in binding
 	uint getMachineInst(uint Idx);
+
 	uint getMachineInstCount();
-	void addMachineInst(PhaseType phase, uint inst);
+
+	void addMachineInst(PhaseType phase, const uint inst);
+
 	void clearAllMachineInst();
-	void updateRegisterWriteState(PhaseType phase);
-	bool isRegisterReadValid(PhaseType phase, int param);
+
+	void updateRegisterWriteState(const PhaseType phase);
+
+	bool isRegisterReadValid(const PhaseType phase, const int param);
 
 public:
 
 	/// constructor
 	PS_1_4();
+
 	/// binds machine instructions generated in Pass 2 to the ATI GL fragment shader
 	bool bindAllMachineInstToFragmentShader();
 
