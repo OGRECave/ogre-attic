@@ -345,7 +345,7 @@ namespace Ogre {
                 }
                 else
                 {
-                    flags = DDFLIP_WAIT & DDFLIP_NOVSYNC;
+                    flags = DDFLIP_WAIT | DDFLIP_NOVSYNC;
                 }
 
                 hr = mlpDDSFront->Flip(NULL,flags);
