@@ -1,20 +1,65 @@
+
+----------------------------------------------------------------------------------------
+-- ----------------------------------- WRITE MESH ----------------------------------- --
+----------------------------------------------------------------------------------------
+-- NOTA
+-- 3dsmax starts ID from 1 although OGRE starts from 0.
+-- -> a vertex 0 and a bone 0 will be added
+
+-- flipNormal, scale, flipYZ, exportColours,exportUV : mesh parameters
+-- firstFrmae, lastFrame,length,animName : animation parameters.
+struct exportOptions (firstFrame, lastFrame, length, animName, scale, flipyz, flipNormal, exportColours, exportUV) ;
+
+
+
+-----------------------------------------------------------------
+-- Global 'variables'
+-- There is an array with vertices datas for each submesh
+-- There is also an array made up of faces.
+-----------------------------------------------------------------
+
+verticesArrays=#() ;
+facesArrays=#() ;
+boneAssignments=#() ;
+submeshesId=#() ;
+ogreVertIndex=#() ;
+materialName = "" ;
+
+-- verticesArrays[i] will describe the submesh number i and its elements will be ogreVertices where
+--	ogreVert = #(x,y,z,nx,ny,nz,u,v,r,g,b,a) 
+--   		     ----- -------- --- -------
+--          	 Pos     Nmal   U,V   RGBA
+
+-- facesArrays[i] consists in arrays like #(v1,v2,v3) which discribe submesh number i.
+
+-- boneAssignments is made up of arrays like #(vertex,bone,weight)
+
+-- In submeshesId, there are material Ids
+
+-- in ogreVertIndex, there are the current index for submeshes
+
+-- materialName is the name that Ogre will use
+
+	
 -----------------------------------------------------------------
 -- exploreMesh returns a string which is "OK" or an error message
 -- if there are warnings, it displays message boxes.
 -----------------------------------------------------------------
 
-function exploreMesh pmesh =
+function exploreMesh pmesh exportUV exportColours=
 (
 	local material, answer, m ;
 	
 	answer = "" ;
 	m = snapShotAsMesh pmesh ;
 	
+	-- first, is a material defined	?
 	material = pmesh.material ;
 	if (material == undefined) then
 		answer = "This mesh doesn't have any material, please apply one\n" ;
 	else
-		if (getnumtverts m == 0) then
+		-- then, are UVW coords set up ?
+		if (exportUV and getnumtverts m == 0) then
 			answer = "This mesh must have UVW coords in order to be exported" ;
 		
 	if (answer == "") then 
@@ -25,210 +70,337 @@ function exploreMesh pmesh =
 )
 
 
-----------------------------------------------------------------------------------------
--- ----------------------------------- WRITE MESH ----------------------------------- --
-----------------------------------------------------------------------------------------
--- Remarque !
--- 3dsmax starts ID from 1 although OGRE starts from 0.
--- -> a vertex 0 and a bone 0 will be added
-
 ----------------------------------------------------------------------------
--- write <mesh />
+-- Retrieves al the datas which wil be used
+-- flipyz = true if you want coords to fit in OGRE.
 -- flipNormal = true if you want to flip normals
+-- scale : the scale factor
+-- exportUV = true if you want to export texture
+-- exportColor = true if you want to export vertices colors
+-- sk : the skin modifier (may be undefined)
+--
+-- stores datas in verticesArrays and facesArrays.
 ----------------------------------------------------------------------------
 
-function writeM tmesh flipyz scale flipNormal outFile =
+function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk=
 (
-    local num_tverts, num_faces,v,f,face,nmal,vert,table,tvtable,vertTmp,tvertTmp,faceTmp,matTable,mat,currentMatId,matId ;
-	local couple,v1,v2,v3 ;
+    local num_tverts, num_faces,v,f,cf,face,nmal,vert,vertTmp,tvertTmp,faceTmp ;
+	local couple,searchTable,ogreface ;
+	local i,j,k,vwcount,bid,w,matId
 	
-	format "writing mesh: writing geometry ... \n" ;
+	searchTable=#() ;
+	-- In order to know if a #(vertex,tvertex) has already be found,
+	-- just read in the searchtable[vertex] in order to find (or not) an element such as #(tvertex,cvertex,ogreVertNum)
+	-- This algorithm was used because I think there is not lots of (tvertex,cvertex) linked to one vertex...
+	-- Maybe I'm wrong, but I don't find anything else to perform a quick search and to save memory...
+	searchTables=#() ;
+	-- It is a searchTable array. (one searchTable for each submesh)
 	
 	num_tverts = tmesh.numtverts ;
 	num_faces = tmesh.numfaces ;
-	matTable = getMaterialTable tmesh ;
-	currentMatId = matTable[1] ;
-	ogreVertexTable = getOgreVertexTable tmesh ;
-	
-	-- Vertices positions and normals
-	--	
-	format("\t\t\t<geometry count=\"%\">\n") ((arrayLength ogreVertexTable)+1) to:outFile; -- +1 cf remarque en haut.
-	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"1\" texcoordsets=\"0\" texcoorddimensions=\"2\">\n") to:outFile ;
-		
-		-- vertex number 0
-		format("\t\t\t\t\t<vertex>\n") to:outFile ;
-		format("\t\t\t\t\t\t<position x=\"0\" y=\"0\" z=\"0\" />\n") to:outFile ;
-		format("\t\t\t\t\t\t<normal x=\"1\" y=\"0\" z=\"0\" />\n") to:outFile ;
-		format("\t\t\t\t\t\t<texcoord u=\"0\" v=\"0\" />\n") to:outFile ;
-		format("\t\t\t\t\t</vertex>\n") to:outFile ;
- 
-	for couple in ogreVertexTable do 
-	( 
-        --   This doesn't work :(
-        --         
-		--if (currentMatId != matTable[v]) then
-		--(
-		--	currentMatId = matTable[v] ;
-		--	format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
-		--	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"1\" texcoordsets=\"%\" texcoorddimensions=\"2\">\n") currentMatId to:outFile ;
-		--)
 
-		tvert = getTvert tmesh couple[2] ; 
-		vert = getVert tmesh couple[1] ;
-		nmal = getNormal tmesh couple[1] ;
+	ogreFace=#(12,12,12) ;
+	cmpt = 1 ; -- vertex index.
+
+	-- Data arrays init.	
+	verticesArrays=#() ;
+	facesArrays=#() ;
+	boneAssignments = #() ;
+	submeshesId = #() ;
+	ogreVertIndex=#() ;
+	
+
+	-- For each face
+	for i = 1 to (getnumfaces tmesh) do -- For each face
+	(		
 		
-		-- change scale
-		vert = vert * scale ;
+		f = getface tmesh i ;
+		matId = getFaceMatId tmesh i ;		
 		
-		-- flip axes		
-		if (flipyz) then
-		(
-			vertTmp = copy vert ;
-			vert[2] = vertTmp[3] ;
-			vert[3] = -vertTmp[2] ;
+		-- we retrieve datas. it depends on options.
+		-- UV face
+		if (exportUV) then
+			tvf = gettvface tmesh i ;
+		else
+			tvf = point3 1 1 1 ;
+		
+		-- Color Face
+		if (exportColours) then
+			cf = getVCFace tmesh i ;
+		else
+			cf = point3 1 1 1 ;
+		
+		-- For each vertex whose face is made up of.
+		for j=1 to 3 do (			
+		    a = (int) (f[j]) ;
+			b = (int) (tvf[j]) ;
+			c = (int) (cf[j]) ;
+
+			-- we try to find the corresponding searchtable.											
+			if (searchTables[matId] == undefined ) then
+				searchTables[matId]=#() ;	
+			
+			searchTable = searchTables[matId] ;
+			
+			-- Maybe this triplet (vertex,tvertex,cvertex) has already been found.
+			-- So we use searchTable.
+			ogreVertNum = -1 ;
+			
+		    if (searchTable[a] == undefined ) then
+				searchTable[a]=#() ;
+			
+			tab = searchTable[a] ;
+			
+			-- Now we can search in the array searchTable[a]
+			for triplet in tab do
+			(
+				if (triplet[1] == b) then
+					if (triplet[2] == c) then
+						ogreVertNum = triplet[3] ;					
+			)
+
+			if (ogreVertNum == -1) then -- That is to say it has not been found. 
+			(
+				-- the vertex number for the current submesh must be updated
+				
+				-- if undefined, the array is created
+				if (ogreVertIndex[matId] == undefined ) then
+					ogreVertIndex[matId]=1 ;
+				
+				-- vertex number is increased.								
+				ogreVertNum = ogreVertIndex[matId] ;
+				ogreVertIndex[matId] = ogreVertIndex[matId] + 1 ;
+				
+				-- it is added to the search table.
+				append searchTable[a] #(b,c,ogreVertNum) ;      
+				
+				-- we retrieve data
+				vert = getVert tmesh f[j] ;
+				nmal = getNormal tmesh f[j] ;
+				
+				tvert = point3 0 0 0 ;
+				if (exportUV) then
+					tvert = getTvert tmesh tvf[j] ;   
+				cvert = color 0 0 0 1;
+				if (exportColours) then
+					cvert = getVertColor tmesh cf[j] ;
+				
+				-- change scale
+				vert = vert * scale ;
+		
+				-- flip axes		
+				if (flipyz) then
+				(
+					vertTmp = copy vert ;
+					vert[2] = vertTmp[3] ;
+					vert[3] = -vertTmp[2] ;
+				)
+				
+				-- Maybe the material found defines a new submesh...
+				if (verticesArrays[matId] == undefined) then
+				(
+					format "- Submesh detected: material ID = %\n" matId
+					verticesArrays[matId] = #() ;
+					boneAssignments[matId] = #() ;
+					append submeshesId matId ;
+					-- A new vertex is created because OGRE starts with 0 although 3dsmax starts with 1
+					append verticesArrays[matId] #(0,0,0,0,0,0,0,0,0,0,0,0) ;
+				)
+				append verticesArrays[matId] #(vert[1],vert[2],vert[3],nmal[1],nmal[2],nmal[3],tvert[1],tvert[2],cvert.r,cvert.g,cvert.b,cvert.a) ;   -- Vertex is added to datas
+
+				
+				-- And now, bone assignments. (if a skin modifier is present)
+				if (sk != undefined) then (
+					vwcount = skinOps.getVertexWeightCount sk a ;
+					for k=1 to vwcount do
+					(
+						bid = skinOps.getVertexWeightBoneID sk a k ;
+						w = skinOps.getVertexWeight sk a k ;
+						-- There will be a bone assignement if weight > 0.01 --> it could increase speed.
+						if w > 0.01 then (
+							append boneAssignments[matId] #(ogreVertNum,bid,w) ;
+						)
+					)
+				)			
+			)
+			
+			ogreFace[j] = ogreVertNum ;
+			
 		)
 		
-		format("\t\t\t\t\t<vertex>\n") to:outFile ;
-		format("\t\t\t\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") vert.x vert.y vert.z to:outFile ;
-		format("\t\t\t\t\t\t<normal x=\"%\" y=\"%\" z=\"%\" />\n") nmal.x nmal.y nmal.z to:outFile ;
-		format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") tvert.x tvert.y to:outFile ;		
-		format("\t\t\t\t\t</vertex>\n") to:outFile ;
-	)
-	format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
-
-	format("\t\t\t</geometry>\n") to:outFile ;
-
-	-- Faces
-	--
-	format("\t\t\t<faces count=\"%\">\n") num_faces to:outFile;
-	for f = 1 to num_faces do 
-	(
-		tvface = getTVFace tmesh f ;
-		face = getFace tmesh f ;
-		-- flipNormals
+		-- flip normal capability
 		if (flipNormal) then
 		(
 			faceTmp = copy face ;
-			face[1] = faceTmp[3] ;
-			face[3] = faceTmp[1] ;
+			face[2] = faceTmp[3] ;
+			face[3] = faceTmp[2] ;
 		)
-		
-		v1 = searchOgreVertexTable ogreVertexTable face.x tvface.x ;
-		v2 = searchOgreVertexTable ogreVertexTable face.y tvface.y ;
-		v3 = searchOgreVertexTable ogreVertexTable face.z tvface.z ;
 
-		
-		format("\t\t\t\t<face ") to:outFile ;
-		format("v1=\"%\" v2=\"%\" v3=\"%\"") (v1 as Integer) (v2 as Integer) (v3 as Integer) to:outFile ;
-		format(" />\n") to:outFile ;
-
+		if (facesArrays[matId] == undefined) then
+			facesArrays[matId] = #() ;		
+		append facesArrays[matId] #(ogreFace[1],ogreFace[2],ogreFace[3]) ;   -- Face is added to datas		
 	)
-	format("\t\t\t</faces>\n") to:outFile ;
 )
 
-----------------------------
--- write <boneassignement />
-----------------------------
+-------------------------------------------------
+-- writes in the mesh.xml file
+-- outName : filename
+-- exportUV = true if you want to export texture
+-- exportColor = true if you want to export vertices colors
+--
+-- Uses the arrays verticesArrays and facesArrays
+-------------------------------------------------
 
-function writeBoneAssignments tmesh sk outFile =
+function writeM exportUV exportColours outName =
 (
-	local i,vNum,bid,num_tverts,vwcount,num_bones,j,w,couple,ogreVertexTable ;
+	local a,v,f,matname,hasSkeleton,outFile,numTexCoord,hasColours,matId ;
 	
-	format "writing mesh: writing bone assignments ... \n" ;
+	hasSkeleton = false ;
+	texCoordString = "" ;
+	if (exportUV) then 
+		texCoordString = "numtexcoords=\"1\" texcoordsets=\"0\" texcoorddimensions=\"2\" "
+	hasColours = false ;	
+	if (exportColours) then
+		hasColours = true ;		
+	
 
-	num_bones = skinOps.GetNumberBones(sk) ;
-	ogreVertexTable = getOgreVertexTable tmesh ;
+	-- the final file is created
+	outFile = createfile (outName + ".mesh.xml") ;
 
-	format("\t\t\t<boneassignments>\n") to:outFile ;
-	i=0 ;
-	for couple in ogreVertexTable do
-	(
-	    i += 1 ;
-		vNum = couple[1] ; -- gets the assiocated vertex.
-		vwcount = skinOps.getVertexWeightCount sk vNum ;
-		for j=1 to vwcount do
-		(
-			bid = skinOps.getVertexWeightBoneID sk vNum j ;
-			w = skinOps.getVertexWeight sk vNum j ;
-			-- There will be a bone assignement if weight > 0.1 --> it could increase speed.
-			if w > 0.01 then
-	    		format("\t\t\t\t<vertexboneassignment vertexIndex=\"%\" boneIndex=\"%\" weight=\"%\" />\n") i bid w to:outFile ;
+	-- writes the header
+	format("<mesh>\n") to:outFile ;
+
+	-- submeshes start
+	format("\t<submeshes>\n") to:outFile ;
+	
+	-- for each submesh
+	for matId in submeshesId do (
+		format("\t\t<submesh material = \"%_sub%\" useSharedVertices=\"false\">\n") materialName matId to:outFile ;
+	
+		format "- writing vertices...\n"	
+		format("\t\t\t<geometry count=\"%\">\n") (arrayLength verticesArrays[matId] ) to:outFile;
+		format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"%\" %>\n") hasColours TexCoordString to:outFile ;		
+		
+		-- for each vertex
+		for v in verticesArrays[matId] do
+		(	
+			format("\t\t\t\t\t<vertex>\n") to:outFile ;
+			format("\t\t\t\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") v[1] v[2] v[3] to:outFile ;
+			format("\t\t\t\t\t\t<normal x=\"%\" y=\"%\" z=\"%\" />\n") v[4] v[5] v[6] to:outFile ;
+			if (exportUV) then
+				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] v[8] to:outFile ;		
+			if (exportColours) then
+				format("\t\t\t\t\t\t<colour value=\"%\" />\n") (v[12]+255*(v[11]+255*(v[10]+255*v[9]))) to:outFile ;
+			format("\t\t\t\t\t</vertex>\n") to:outFile ;
+		)	
+		format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
+		format("\t\t\t</geometry>\n") to:outFile ;
+					
+		format "- writing faces...\n"		
+		format("\t\t\t<faces count=\"%\">\n") (arraylength facesArrays[matId]) to:outFile;
+		
+		-- for each face
+		for f in facesArrays[matId] do (
+			format("\t\t\t\t<face ") to:outFile ;
+			format("v1=\"%\" v2=\"%\" v3=\"%\" />\n") f[1] f[2] f[3] to:outFile ;
 		)
+		format("\t\t\t</faces>\n") to:outFile ;
+		
+		
+		-- and now bone assignments (and skeleton), if there is at least one element in boneAssignments array.
+		if ((arrayLength boneAssignments[matId]) != 0) then 
+		(
+			hasSkeleton = true ;
+			format "- writing bone assignments...\n"	
+			format("\t\t\t<boneassignments>\n") to:outFile ;
+			for a in boneAssignments[matId] do
+				format("\t\t\t\t<vertexboneassignment vertexIndex=\"%\" boneIndex=\"%\" weight=\"%\" />\n") a[1] a[2] a[3] to:outFile ;
+			format("\t\t\t</boneassignments>\n") to:outFile ;		
+		)
+	
+	
+		-- submesh end
+		format("\t\t</submesh>\n") to:outFile ;
 	)
-	format("\t\t\t</boneassignments>\n") to:outFile ;
+	
+	-- submeshes end
+	format("\t</submeshes>\n") to:outFile ;
+
+	-- Skeleton link if there is at least one bone assignement.	
+	if (hasSkeleton) then 
+	(
+		t = filterstring outName "\\" ;
+		format ("\t<skeletonlink name=\"%\"/>\n") (t[arrayLength t] + ".skeleton") to:outFile ;				
+	)
+				
+	format("</mesh>\n") to: outFile ;
+	close outFile ;
 )
 
---------------------------------
--- write the mesh: main function
---------------------------------
+
+---------------------------------
+-- writes the mesh: main function
+---------------------------------
 
 function writeMesh pmesh exportOptions out_name =
 (
-	local m,sk,outFile,matname,message ;
-	
-	-- 3dsmax5: snapshotAsMesh
+	local m,sk,outFile,message ;
+
 	m = snapshotAsMesh pmesh ;
-	
-	
-	-- trying to find errors
-	message = exploreMesh pmesh ;
+		
+	-- tries to find errors
+	message = exploreMesh pmesh exportOptions.exportUV exportOptions.exportColours;
 	if (message != "OK") then
 	(
 		MessageBox ("\n There is a problem with your mesh:\n" + message + "\n\nOperation aborted") ;
+		delete m ;
 	)
 	else
-	(	
-		outFile = createfile (out_name + ".mesh.xml") ;
---		try 
+	(			
+		format "\n\n"
+		format "------------------------------------------\n"
+		format "-------   OGRE Mesh Exporter Log   -------\n"
+		format "-----                                -----\n"
+		
+		-- get the skin modifier ( may be undefined )
+		sk = getSkin pmesh;
+		if (sk != undefined) then
+			format "Skin modifier detected.\n"
+					
+		-- if undefined skin modifier is selected in modifier tab. Or there will be an error.
+		if (sk != undefined) then
 		(
-			-- comments:
-			--format("<!--\nMaterial Ids used in this file:\n") to:outFile ;
-			--materialIds = GetUsedMaterialIds m ;
-			--print materialIds to:outFile ;
-			--format("-->\n") to:outFile ;
-			
-			-- ecriture de l'entete
-			format("<mesh>\n") to:outFile ;
-	
-			format("\t<submeshes>\n") to:outFile ;
-			if (pmesh.material != undefined) then 
-				matname = pmesh.material.name ;
-			else matname = pmesh.name + "material" ;
-		
-			format("\t\t<submesh material = \"%\" useSharedVertices=\"false\">\n") matname to:outFile ;	
-	
-			writeM m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal outFile ;
-		
-			sk = getSkin pmesh;
-			if (sk != undefined) then
-			(
-				-- in order to perform, skin should be opened
-				max modify mode ;
-				modPanel.setCurrentObject pmesh.modifiers[#Skin] ;
-			
-				writeBoneAssignments m sk outFile ;
-			)
-
-			-- ecriture, fin des balises
-			format("\t\t</submesh>\n") to:outFile ;
-			format("\t</submeshes>\n") to:outFile ;
-	
-			-- <skeletonlink />	
-			if (sk != undefined) then
-			(
-				t = filterstring out_name "\\" ;
-				format ("\t<skeletonlink name=\"%\"/>\n") (t[arrayLength t] + ".skeleton") to:outFile ;
-			)
-			format("</mesh>\n") to: outFile ;
-			delete m ;
-			close outFile ;
-			messageBox "Exporting mesh successful !" ;
+			-- in order to perform, skin should be opened
+			max modify mode ;
+			modPanel.setCurrentObject pmesh.modifiers[#Skin] ;		
 		)
---		catch
---		(
---			messageBox "Error while exporting mesh: Sorry I can't tell you more...." ;
---			delete m ;
---			close outFile ;
---		)
+		
+		-- retieving material
+		if (pmesh.material != undefined) then 
+			materialName = pmesh.material.name ;
+		else materialName = pmesh.name + "material" ;
+
+		
+		-- retrieving all datas
+		format "Retrieving vertices and faces data : \n" ;
+		getDatas m exportOptions.flipyz exportOptions.scale exportOptions.flipNormal exportOptions.exportUV exportOptions.exportColours sk;
+		
+		-- writing in the file
+		format "Writing in file %.mesh.xml : \n" out_name ;
+		WriteM exportOptions.exportUV exportOptions.exportColours out_name ;
+		
+		format "Export successful.\n"		
+		
+		delete m ;		
+		
+		format "-----                                -----\n"
+		format "----------          END          ---------\n"
+		format "------------------------------------------\n"
+		
+		MessageBox ("Exporting mesh successful !") ;
+		
 	)
 )
+
+
+
