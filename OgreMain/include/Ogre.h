@@ -74,6 +74,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePass.h"
 #include "OgrePatchMesh.h"
 #include "OgrePatchSurface.h"
+#include "OgrePlatformManager.h"
 #include "OgreProfiler.h"
 #include "OgreRenderQueueListener.h"
 #include "OgreRenderSystem.h"
