@@ -344,8 +344,9 @@ namespace Ogre {
         inline void scale(const Vector3& s)
         {
             // NB assumes centered on origin
-            mMinimum = mMinimum * s;
-            mMaximum = mMaximum * s;
+            Vector3 min = mMinimum * s;
+            Vector3 max = mMaximum * s;
+            setExtents(min, max);
         }
 
 		/** Tests whether this box intersects a sphere. */
