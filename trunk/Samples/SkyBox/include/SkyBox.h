@@ -86,57 +86,6 @@ public:
 float SkyBoxFrameListener::fDefDim = 25.0f;
 float SkyBoxFrameListener::fDefVel = 50.0f;
 
-class Starfield : public SimpleRenderable
-{
-public:
-    Starfield()
-    {        
-        m_pVertexCache = new Real[ 300 * 3 ];
-        m_pDiffuseCache = new RGBA[ 300 ];
-        m_pSpecularCache = new RGBA[ 300 ];
-
-        Real *pVertices = (Real*)m_pVertexCache;
-        long *pDiffuses = (long*)m_pDiffuseCache;
-        long *pSpecular = (long*)m_pSpecularCache;
-
-        srand( (unsigned)time( NULL ) );
-
-        for( int i=0; i<900; i+=3 )
-        {
-            pVertices [i    ] = rand() % 600 - 300;
-            pVertices [i + 1] = rand() % 600 - 300;
-            pVertices [i + 2] = 300;
-
-            pDiffuses [i / 3] = 0xffffffff;
-            pSpecular [i / 3] = 0xffffffff;
-        }
-
-        mRendOp.numVertices = 300;
-        mRendOp.useIndexes = false;
-
-        mRendOp.pVertices = m_pVertexCache;
-        mRendOp.pDiffuseColour = m_pDiffuseCache;
-        mRendOp.pSpecularColour = m_pSpecularCache;
-
-        mRendOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS | RenderOperation::VO_SPECULAR_COLOURS;
-        mRendOp.operationType = RenderOperation::OT_POINT_LIST;
-
-        setMaterial( "Examples/OgreLogo" );
-
-        mBox.setExtents( -300, -300, -300, 300, 300, 300 );
-    }
-
-    void _update()
-    {
-    }
-
-    virtual ~Starfield()
-    {
-        delete[] m_pVertexCache;
-        delete[] m_pDiffuseCache;
-    }
-};
-
 class SkyBoxApplication : public ExampleApplication
 {
 public:
@@ -156,7 +105,7 @@ protected:
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
         // Create a skybox
-        mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
+        mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox", 50 );
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
