@@ -41,6 +41,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreRenderQueueSortingGrouping.h"
 #include "OgreOverlay.h"
 #include "OgreOverlayManager.h"
+#include "OgreStringConverter.h"
 
 // This class implements the most basic scene manager
 
@@ -58,6 +59,22 @@ namespace Ogre {
         mSkyPlaneEnabled = false;
         mSkyBoxEnabled = false;
         mSkyDomeEnabled = false;
+
+        // init sky
+        mSkyPlaneEntity = 0;
+        uint i;
+        for (i = 0; i < 6; ++i)
+        {
+            mSkyBoxEntity[i] = 0;
+        }
+        for (i = 0; i < 5; ++i)
+        {
+            mSkyDomeEntity[i] = 0;
+        }
+        mSkyPlaneNode = 0;
+        mSkyDomeNode = 0;
+        mSkyBoxNode = 0;
+
 
         // No fog
         mFogMode = FOG_NONE;
@@ -635,6 +652,10 @@ namespace Ogre {
         {
             OverlayManager::getSingleton()._queueOverlaysForRendering(camera, &mRenderQueue);
         }
+        // Queue skies
+        _queueSkiesForRendering(camera);
+
+
 
         // Set viewport
         mDestRenderSystem->_setViewport(vp);
@@ -653,24 +674,9 @@ namespace Ogre {
         // Update controllers (after begineFrame since some are frameTime dependent)
         ControllerManager::getSingleton().updateAllControllers();
 
-        // Render the sky (first)
-        if (mSkyPlaneEnabled && mSkyPlaneDrawFirst)
-            _renderSkyPlane(camera);
-        if (mSkyBoxEnabled && mSkyBoxDrawFirst)
-            _renderSkyBox(camera);
-        if (mSkyDomeEnabled && mSkyDomeDrawFirst)
-            _renderSkyDome(camera);
-
         // Render scene content (only entities in this SceneManager, no world geometry)
         _renderVisibleObjects();
 
-        // Render the sky (last)
-        if (mSkyPlaneEnabled && !mSkyPlaneDrawFirst)
-            _renderSkyPlane(camera);
-        if (mSkyBoxEnabled && !mSkyBoxDrawFirst)
-            _renderSkyBox(camera);
-        if (mSkyDomeEnabled && !mSkyDomeDrawFirst)
-            _renderSkyDome(camera);
 
         
         
@@ -737,7 +743,9 @@ namespace Ogre {
         mSkyPlaneEnabled = enable;
         if (enable)
         {
+            String meshName = "SkyPlane";
             mSkyPlane = plane;
+
             Material* m = getMaterial(materialName);
             if (!m)
             {
@@ -750,11 +758,10 @@ namespace Ogre {
             // Ensure loaded
             m->load();
 
-            mSkyPlaneMatHdl = m->getHandle();
             mSkyPlaneDrawFirst = drawFirst;
 
             // Set up the plane
-            Mesh* planeMesh = (Mesh*)MeshManager::getSingleton().getByName("SkyPlane");
+            Mesh* planeMesh = (Mesh*)MeshManager::getSingleton().getByName(meshName);
             if (planeMesh)
             {
                 // Destroy the old one
@@ -768,11 +775,29 @@ namespace Ogre {
                 up = plane.normal.crossProduct(-Vector3::UNIT_Z);
 
             // Create skybox based on new parameters
-            planeMesh = MeshManager::getSingleton().createPlane("SkyPlane", plane, gscale * 100, gscale * 100,
+            planeMesh = MeshManager::getSingleton().createPlane(meshName, plane, gscale * 100, gscale * 100,
                 1,1, false, 1, tiling, tiling, up);
 
-            //planeMesh->_dumpContents("skyplane.txt");
+            // Create entity 
+            if (mSkyPlaneEntity)
+            {
+                // destroy old one, do it by name for speed
+                removeEntity(meshName);
+            }
+            // Create, use the same name for mesh and entity
+            mSkyPlaneEntity = createEntity(meshName, meshName);
+            mSkyPlaneEntity->setMaterialName(materialName);
 
+            // Create node and attach
+            if (!mSkyPlaneNode)
+            {
+                mSkyPlaneNode = createSceneNode(meshName + "Node");
+            }
+            else
+            {
+                mSkyPlaneNode->detachAllObjects();
+            }
+            mSkyPlaneNode->attachObject(mSkyPlaneEntity);
 
         }
     }
@@ -787,7 +812,6 @@ namespace Ogre {
         mSkyBoxEnabled = enable;
         if (enable)
         {
-            mSkyBoxDist = distance;
             Material* m = getMaterial(materialName);
             if (!m)
             {
@@ -803,14 +827,67 @@ namespace Ogre {
             // Ensure loaded
             m->load();
 
-            mSkyBoxMatHdl = m->getHandle();
             mSkyBoxDrawFirst = drawFirst;
 
+            // Create node 
+            if (!mSkyBoxNode)
+            {
+                mSkyBoxNode = createSceneNode("SkyBoxNode");
+            }
+            else
+            {
+                mSkyBoxNode->detachAllObjects();
+            }
+
+            MaterialManager& matMgr = MaterialManager::getSingleton();
             // Set up the box (6 planes)
             for (int i = 0; i < 6; ++i)
             {
-                createSkyboxPlane((BoxPlane)i, distance, orientation);
-            }
+                Mesh* planeMesh = createSkyboxPlane((BoxPlane)i, distance, orientation);
+                String entName = "SkyBoxPlane" + StringConverter::toString(i);
+
+                // Create entity 
+                if (mSkyBoxEntity[i])
+                {
+                    // destroy old one, do it by name for speed
+                    removeEntity(entName);
+                }
+                mSkyBoxEntity[i] = createEntity(entName, planeMesh->getName());
+                // Have to create 6 materials, one for each frame
+                // Used to use combined material but now we're using queue we can't split to change frame
+                // This doesn't use much memory because textures aren't duplicated
+                Material* boxMat = (Material*)matMgr.getByName(entName);
+                if (!boxMat)
+                {
+                    // Create new by clone
+                    boxMat = m->clone(entName);
+                }
+                else
+                {
+                    // Copy over existing
+                    m->copyDetailsTo(boxMat);
+                }
+                // Set active frame
+                //??? Why is back/front BACKWARDS from 3D Studio???
+                // I thought LEFT was relative to looking FRONT, but appears not when you look at the output
+                // Quake3 images also have this
+                if ((BoxPlane)i == Material::TextureLayer::CUBE_BACK)
+                {
+                    boxMat->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_FRONT);
+                }
+                else if ((BoxPlane)i == Material::TextureLayer::CUBE_FRONT)
+                {
+                    boxMat->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_BACK);
+                }
+                else
+                {
+                    boxMat->getTextureLayer(0)->setCurrentFrame(i);
+                }
+                mSkyBoxEntity[i]->setMaterialName(boxMat->getName());
+
+                // Attach to node
+                mSkyBoxNode->attachObject(mSkyBoxEntity[i]);
+            } // for each plane
 
         }
 
@@ -828,7 +905,6 @@ namespace Ogre {
         mSkyDomeEnabled = enable;
         if (enable)
         {
-            mSkyDomeDist = distance;
             Material* m = getMaterial(materialName);
             if (!m)
             {
@@ -841,19 +917,42 @@ namespace Ogre {
             // Ensure loaded
             m->load();
 
-            mSkyDomeMatHdl = m->getHandle();
             mSkyDomeDrawFirst = drawFirst;
+
+            // Create node 
+            if (!mSkyDomeNode)
+            {
+                mSkyDomeNode = createSceneNode("SkyDomeNode");
+            }
+            else
+            {
+                mSkyDomeNode->detachAllObjects();
+            }
 
             // Set up the dome (5 planes)
             for (int i = 0; i < 5; ++i)
             {
-                createSkydomePlane((BoxPlane)i, curvature, tiling, distance, orientation);
-            }
+                Mesh* planeMesh = createSkydomePlane((BoxPlane)i, curvature, tiling, distance, orientation);
+
+                String entName = "SkyDomePlane" + StringConverter::toString(i);
+
+                // Create entity 
+                if (mSkyDomeEntity[i])
+                {
+                    // destroy old one, do it by name for speed
+                    removeEntity(entName);
+                }
+                mSkyDomeEntity[i] = createEntity(entName, planeMesh->getName());
+                mSkyDomeEntity[i]->setMaterialName(m->getName());
+
+                // Attach to node
+                mSkyDomeNode->attachObject(mSkyDomeEntity[i]);
+            } // for each plane
 
         }
     }
     //-----------------------------------------------------------------------
-    void SceneManager::createSkyboxPlane(
+    Mesh* SceneManager::createSkyboxPlane(
         BoxPlane bp,
         Real distance,
         const Quaternion& orientation )
@@ -919,9 +1018,11 @@ namespace Ogre {
 
         //planeMesh->_dumpContents(meshName);
 
+        return planeMesh;
+
     }
     //-----------------------------------------------------------------------
-    void SceneManager::createSkydomePlane(
+    Mesh* SceneManager::createSkydomePlane(
         BoxPlane bp,
         Real curvature,
         Real tiling,
@@ -964,7 +1065,7 @@ namespace Ogre {
             break;
         case BP_DOWN:
             // no down
-            return;
+            return 0;
         }
         // Modify by orientation
         plane.normal = orientation * plane.normal;
@@ -1031,162 +1132,8 @@ namespace Ogre {
             }
         }
 
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::_renderSkyPlane(Camera* cam)
-    {
-        int matLayers;
-        Material *m;
-        Mesh* planeMesh;
-        SubMesh* sm;
+        return planeMesh;
 
-        planeMesh = (Mesh*)MeshManager::getSingleton().getByName("SkyPlane");
-        sm = planeMesh->getSubMesh(0);
-
-        // Translate the plane by the camera position (constant distance)
-        // The plane position relative to the camera has already been set up
-        Matrix4 mat = Matrix4::IDENTITY;
-        mat.setTrans(cam->getDerivedPosition());
-        mDestRenderSystem->_setWorldMatrix(mat);
-        mDestRenderSystem->_setViewMatrix(cam->getViewMatrix());
-        mDestRenderSystem->_setProjectionMatrix(cam->getProjectionMatrix());
-
-        m = getMaterial(mSkyPlaneMatHdl);
-        // Set the material for the camera
-        matLayers = m->getNumTextureLayers();
-        do
-        {
-            matLayers = setMaterial(m, matLayers);
-            _renderSubMesh(sm);
-
-        } while (matLayers > 0);
-
-    }
-
-    //-----------------------------------------------------------------------
-    void SceneManager::_renderSkyBox(Camera* cam)
-    {
-        int matLayers;
-        Material *m;
-        Mesh* planeMesh;
-        SubMesh* sm;
-        String baseName, meshName;
-
-        baseName = "SkyBoxPlane_";
-
-        // Translate the box by the camera position (constant distance)
-        // The plane position relative to the camera has already been set up
-        Matrix4 mat = Matrix4::IDENTITY;
-        mat.setTrans(cam->getDerivedPosition());
-        mDestRenderSystem->_setWorldMatrix(mat);
-        mDestRenderSystem->_setViewMatrix(cam->getViewMatrix());
-        mDestRenderSystem->_setProjectionMatrix(cam->getProjectionMatrix());
-
-        m = getMaterial(mSkyBoxMatHdl);
-        for (int plane = 0; plane < 6; ++plane)
-        {
-            switch(plane)
-            {
-            case BP_FRONT:
-                //??? Why is back/front BACKWARDS from 3D Studio???
-                // I thought LEFT was relative to looking FRONT, but appears not when you look at the output
-                // Quake3 images also have this
-                m->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_BACK);
-                meshName = baseName + "Front";
-                break;
-            case BP_BACK:
-                //??? Why is back/front BACKWARDS from 3D Studio???
-                m->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_FRONT);
-                meshName = baseName + "Back";
-                break;
-            case BP_LEFT:
-                m->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_LEFT);
-                meshName = baseName + "Left";
-                break;
-            case BP_RIGHT:
-                m->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_RIGHT);
-                meshName = baseName + "Right";
-                break;
-            case BP_UP:
-                m->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_UP);
-                meshName = baseName + "Up";
-                break;
-            case BP_DOWN:
-                m->getTextureLayer(0)->setCurrentFrame(Material::TextureLayer::CUBE_DOWN);
-                meshName = baseName + "Down";
-                break;
-            }
-
-            planeMesh = (Mesh*)MeshManager::getSingleton().getByName(meshName);
-            sm = planeMesh->getSubMesh(0);
-
-
-            // Set the material for the camera
-            matLayers = m->getNumTextureLayers();
-            do
-            {
-                matLayers = setMaterial(m, matLayers);
-                _renderSubMesh(sm);
-
-            } while (matLayers > 0);
-        }
-
-
-    }
-    //-----------------------------------------------------------------------
-    void SceneManager::_renderSkyDome(Camera* cam)
-    {
-        int matLayers;
-        Material *m;
-        Mesh* planeMesh;
-        SubMesh* sm;
-        String baseName, meshName;
-
-        // Translate the box by the camera position (constant distance)
-        // The plane position relative to the camera has already been set up
-        Matrix4 mat = Matrix4::IDENTITY;
-        mat.setTrans(cam->getDerivedPosition());
-        mDestRenderSystem->_setWorldMatrix(mat);
-        mDestRenderSystem->_setViewMatrix(cam->getViewMatrix());
-        mDestRenderSystem->_setProjectionMatrix(cam->getProjectionMatrix());
-
-        baseName = "SkyDomePlane_";
-
-        m = getMaterial(mSkyDomeMatHdl);
-        // Set the material
-        matLayers = m->getNumTextureLayers();
-        do
-        {
-            matLayers = setMaterial(m, matLayers);
-
-            for (int plane = 0; plane < 5; ++plane)
-            {
-                switch(plane)
-                {
-                case BP_FRONT:
-                    meshName = baseName + "Front";
-                    break;
-                case BP_BACK:
-                    meshName = baseName + "Back";
-                    break;
-                case BP_LEFT:
-                    meshName = baseName + "Left";
-                    break;
-                case BP_RIGHT:
-                    meshName = baseName + "Right";
-                    break;
-                case BP_UP:
-                    meshName = baseName + "Up";
-                    break;
-                }
-
-                planeMesh = (Mesh*)MeshManager::getSingleton().getByName(meshName);
-                sm = planeMesh->getSubMesh(0);
-
-                _renderSubMesh(sm);
-            }
-
-        } while (matLayers > 0);
     }
     //-----------------------------------------------------------------------
     void SceneManager::_renderSubMesh(SubMesh* sm)
@@ -1804,6 +1751,57 @@ namespace Ogre {
 
         mCamChanged = false;
 
+    }
+
+    //---------------------------------------------------------------------
+    void SceneManager::_queueSkiesForRendering(Camera* cam)
+    {
+        // Update nodes
+        // Translate the box by the camera position (constant distance)
+        if (mSkyPlaneNode)
+        {
+            // The plane position relative to the camera has already been set up
+            mSkyPlaneNode->setPosition(cam->getDerivedPosition());
+        }
+
+        if (mSkyBoxNode)
+            mSkyBoxNode->setPosition(cam->getDerivedPosition());
+
+        if (mSkyDomeNode)
+            mSkyDomeNode->setPosition(cam->getDerivedPosition());
+
+        RenderQueueGroupID qid;
+        if (mSkyPlaneEnabled)
+        {
+            qid = mSkyPlaneDrawFirst? 
+                        RENDER_QUEUE_1 : RENDER_QUEUE_9;
+            mRenderQueue.addRenderable(mSkyPlaneEntity->getSubEntity(0), qid);
+        }
+
+        uint plane;
+        if (mSkyBoxEnabled)
+        {
+            qid = mSkyBoxDrawFirst? 
+                        RENDER_QUEUE_1 : RENDER_QUEUE_9;
+
+            for (plane = 0; plane < 6; ++plane)
+            {
+                mRenderQueue.addRenderable(
+                    mSkyBoxEntity[plane]->getSubEntity(0), qid);
+            }
+        }
+
+        if (mSkyDomeEnabled)
+        {
+            qid = mSkyDomeDrawFirst? 
+                        RENDER_QUEUE_1 : RENDER_QUEUE_9;
+
+            for (plane = 0; plane < 5; ++plane)
+            {
+                mRenderQueue.addRenderable(
+                    mSkyDomeEntity[plane]->getSubEntity(0), qid);
+            }
+        }
     }
 
 }
