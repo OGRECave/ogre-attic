@@ -1277,6 +1277,16 @@ namespace Ogre
             acType = GpuProgramParameters::ACT_LIGHT_ATTENUATION;
             extras = true;
         }
+        else if (vecparams[1] == "light_position")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_POSITION;
+            extras = true;
+        }
+        else if (vecparams[1] == "light_direction")
+        {
+            acType = GpuProgramParameters::ACT_LIGHT_DIRECTION;
+            extras = true;
+        }
         else if (vecparams[1] == "light_position_object_space")
         {
             acType = GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE;

@@ -2148,7 +2148,7 @@ namespace Ogre
             mask |= (1 << i);
         }
 
-        hr = mpD3DDevice->SetRenderState(D3DRS_CLIPPLANEENABLE, mask);
+        hr = __SetRenderState(D3DRS_CLIPPLANEENABLE, mask);
         if (FAILED(hr))
         {
             Except(hr, "Unable to set render state for clip planes", 

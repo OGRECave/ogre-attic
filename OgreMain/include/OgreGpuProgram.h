@@ -86,6 +86,10 @@ namespace Ogre {
             ACT_LIGHT_SPECULAR_COLOUR,
             /// Light attenuation parameters, Vector4(range, constant, linear, quadric)
             ACT_LIGHT_ATTENUATION,
+            /// A light position in world space (index determined by setAutoConstant call)
+            ACT_LIGHT_POSITION,
+            /// A light direction in world space (index determined by setAutoConstant call)
+            ACT_LIGHT_DIRECTION,
             /// A light position in object space (index determined by setAutoConstant call)
             ACT_LIGHT_POSITION_OBJECT_SPACE,
             /// A light direction in object space (index determined by setAutoConstant call)
