@@ -200,7 +200,7 @@ AC_DEFUN([OGRE_GET_PLATFORM],
   dnl Do the extra checks per type here
   case $OGRE_PLATFORM in 
     SDL)
-      AM_PATH_SDL(1.2.0,,[AC_MSG_ERROR("--with-platform: SDL > 1.2.0 not found")])
+      AM_PATH_SDL(1.2.6,,[AC_MSG_ERROR("--with-platform: SDL > 1.2.6 not found")])
       PLATFORM_CFLAGS=$SDL_CFLAGS
       PLATFORM_LIBS=$SDL_LIBS
       ;;
@@ -234,7 +234,7 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
 
   dnl Do the extra checks per type here
   case $OGRE_GLSUPPORT in 
-    SDL) AM_PATH_SDL(1.2.0,,[AC_MSG_ERROR("--with-gl-support: SDL > 1.2.0 not found")])
+    SDL) AM_PATH_SDL(1.2.6,,[AC_MSG_ERROR("--with-gl-support: SDL > 1.2.6 not found")])
       GLSUPPORT_CFLAGS=$SDL_CFLAGS
       GLSUPPORT_LIBS=$SDL_LIBS;;
     gtk) 
