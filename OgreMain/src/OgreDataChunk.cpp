@@ -29,31 +29,39 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     DataChunk::DataChunk()
-    : mData(0), mSize(0)
+        : mData( NULL ), mSize( 0 )
     {
     }
 
     DataChunk::DataChunk( void *pData, size_t size )
     {
-        mData = new unsigned char[ size ];
-        memcpy( mData, pData, size );
+        mData = reinterpret_cast< uchar* >( pData );
+        mEnd = mData + size;
+        mPos = mData;
+        mSize = size;
     }
 
     //-----------------------------------------------------------------------
-    unsigned char* DataChunk::allocate(unsigned long size)
+    uchar* DataChunk::allocate( size_t size, uchar * ptr )
     {
         assert (size > 0);
 
-        if (mData) clear();
-        mData = new unsigned char[size];
+        if( mData )
+            delete [] mData;
+
+        mData = new uchar[size];
         mSize = size;
         mPos = mData;
         mEnd = mData + size;
+
+        if( ptr )
+            memcpy( mData, ptr, mSize );
+
         return mData;
     }
 
     //-----------------------------------------------------------------------
-    void DataChunk::clear(void)
+    DataChunk & DataChunk::clear(void)
     {
         if (mData)
         {
@@ -61,23 +69,31 @@ namespace Ogre {
             mData = 0;
             mSize = 0;
         }
+
+        return *this;
     }
     //-----------------------------------------------------------------------
-    unsigned long DataChunk::getSize(void) const
+    size_t DataChunk::getSize(void) const
     {
         return mSize;
     }
 
     //-----------------------------------------------------------------------
-    const unsigned char* DataChunk::getPtr(void) const
+    uchar * DataChunk::getPtr(void)
     {
         return mData;
     }
 
     //-----------------------------------------------------------------------
-    unsigned long DataChunk::read(void* buffer, unsigned long size)
+    const uchar * DataChunk::getPtr() const
     {
-        unsigned long cnt = size;
+        return mData;
+    }
+
+    //-----------------------------------------------------------------------
+    ulong DataChunk::read(void* buffer, ulong size)
+    {
+        ulong cnt = size;
         // Read over end of memory?
         if (mPos + size > mEnd)
             cnt = mEnd - mPos;
@@ -90,26 +106,25 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void DataChunk::seek(unsigned long pos)
+    DataChunk & DataChunk::seek( size_t pos )
     {
-        if (pos <= mSize)
+        if( pos <= mSize )
             mPos = mData + pos;
 
+        return *this;
     }
     //-----------------------------------------------------------------------
-    void DataChunk::skip(long offset)
+    DataChunk & DataChunk::skip( long offset )
     {
-        long newpos = (mPos - mData) + offset;
-        if (newpos < 0 || newpos >= (long)mSize)
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Offset would result in out of range pointer.",
-            "DataChunk::skip");
-        }
+        size_t newpos = (size_t)( ( mPos - mData ) + offset );
+        assert( mData <= mData + newpos && mData + newpos <= mEnd );        
 
         mPos = mData + newpos;
+
+        return *this;
     }
     //-----------------------------------------------------------------------
-    unsigned long DataChunk::readUpTo(void* buffer, unsigned long size, const char* delim)
+    ulong DataChunk::readUpTo( void* buffer, size_t size, const char *delim )
     {
         size_t pos = strcspn((const char*)mPos, delim);
         if (pos > size)
@@ -121,7 +136,7 @@ namespace Ogre {
         }
         mPos += pos + 1;
 
-        return static_cast< unsigned long >( pos );
+        return static_cast< ulong >( pos );
     }
     //-----------------------------------------------------------------------
     bool DataChunk::isEOF(void)
