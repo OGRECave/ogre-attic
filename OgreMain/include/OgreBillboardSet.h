@@ -522,8 +522,8 @@ namespace Ogre {
 
         /** Update the bounds of the billboardset */
         virtual void _updateBounds(void);
-        /** @copydoc Renderable::getLightList */
-        const LightList& getLights(void);
+        /** @copydoc Renderable::getLights */
+        const LightList& getLights(void) const;
 
     };
 

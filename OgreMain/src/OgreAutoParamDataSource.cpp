@@ -38,8 +38,12 @@ namespace Ogre {
          mInverseWorldMatrixDirty(true),
          mInverseWorldViewMatrixDirty(true),
          mInverseViewMatrixDirty(true),
-         mCameraPositionObjectSpaceDirty(true)
+         mCameraPositionObjectSpaceDirty(true),
+         mLightListDirty(true)
     {
+        mBlankLight.setDiffuseColour(ColourValue::Black);
+        mBlankLight.setSpecularColour(ColourValue::Black);
+        mBlankLight.setAttenuation(0,0,0,0);
     }
     //-----------------------------------------------------------------------------
     AutoParamDataSource::~AutoParamDataSource()
@@ -48,21 +52,28 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentRenderable(const Renderable* rend)
     {
-        mCurrentRenderable = rend;
-        mWorldMatrixDirty = true;
-        mWorldViewMatrixDirty = true;
-        mInverseWorldMatrixDirty = true;
-        mInverseWorldViewMatrixDirty = true;
-        mCameraPositionObjectSpaceDirty = true;
+        if (rend != mCurrentRenderable)
+        {
+            mCurrentRenderable = rend;
+            mWorldMatrixDirty = true;
+            mWorldViewMatrixDirty = true;
+            mInverseWorldMatrixDirty = true;
+            mInverseWorldViewMatrixDirty = true;
+            mCameraPositionObjectSpaceDirty = true;
+            mLightListDirty = true;
+        }
     }
     //-----------------------------------------------------------------------------
     void AutoParamDataSource::setCurrentCamera(const Camera* cam)
     {
-        mCurrentCamera = cam;
-        mWorldViewMatrixDirty = true;
-        mInverseViewMatrixDirty = true;
-        mInverseWorldViewMatrixDirty = true;
-        mCameraPositionObjectSpaceDirty = true;
+        if (cam != mCurrentCamera)
+        {
+            mCurrentCamera = cam;
+            mWorldViewMatrixDirty = true;
+            mInverseViewMatrixDirty = true;
+            mInverseWorldViewMatrixDirty = true;
+            mCameraPositionObjectSpaceDirty = true;
+        }
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getWorldMatrix(void) const
@@ -129,6 +140,24 @@ namespace Ogre {
             mCameraPositionObjectSpaceDirty = false;
         }
         return mCameraPositionObjectSpace;
+    }
+    //-----------------------------------------------------------------------------
+    const Light& AutoParamDataSource::getLight(size_t index) const
+    {
+        if (mLightListDirty)
+        {
+            mpLightList = &(mCurrentRenderable->getLights());
+            mLightListDirty = false;
+        }
+        // If outside light range, return a blank light to ensure zeroised for program
+        if (mpLightList->size() < index)
+        {
+            return mBlankLight;
+        }
+        else
+        {
+            return *((*mpLightList)[index]);
+        }
     }
 
 }

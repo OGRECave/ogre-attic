@@ -132,7 +132,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------------
-    const LightList& TagPoint::getLights(void)
+    const LightList& TagPoint::getLights(void) const
     {
         return mParentEntity->getParentNode()->getLights();
     }

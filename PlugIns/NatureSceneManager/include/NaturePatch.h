@@ -229,8 +229,8 @@ namespace Ogre
 
         virtual void _notifyCurrentCamera(Camera *cam) = 0;
 
-        /** @copydoc Renderable::getLightList */
-        const LightList& getLights(void) { return mParentNode->getLights(); }
+        /** @copydoc Renderable::getLights */
+        const LightList& getLights(void) const { return mParentNode->getLights(); }
 
     protected:
         /// Pointers to neighboring patches

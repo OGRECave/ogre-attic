@@ -345,7 +345,7 @@ namespace Ogre {
 		return static_cast<SceneNode*>(this->createChild(name, translate, rotate));
 	}
     //-----------------------------------------------------------------------
-    const LightList& SceneNode::getLights(void)
+    const LightList& SceneNode::getLights(void) const
     {
         if (mLightListDirty)
         {

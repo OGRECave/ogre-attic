@@ -75,8 +75,8 @@ namespace Ogre	{
 
         /** Overridden from Node in order to include parent Entity transform. */
         void _updateFromParent(void) const;
-        /** @copydoc Renderable::getLightList */
-        const LightList& getLights(void);
+        /** @copydoc Renderable::getLights */
+        const LightList& getLights(void) const;
 
 
 	private:

@@ -49,8 +49,8 @@ namespace Ogre {
 
     protected:
         ObjectMap mObjectsByName;
-        LightList mLightList;
-        bool mLightListDirty;
+        mutable LightList mLightList;
+        mutable bool mLightListDirty;
 
 		/// Pointer to a Wire Bounding Box for this Node
 		WireBoundingBox *mWireBoundingBox;
@@ -270,9 +270,9 @@ namespace Ogre {
             This method allows a list of lights, ordered by proximity to the centre of
             this SceneNode, to be retrieved. Multiple access to this method when neither 
             the node nor the lights have moved will result in the same list being returned
-            without recalculation. Can be useful when implementing Renderable::getLightList.
+            without recalculation. Can be useful when implementing Renderable::getLights.
         */
-        const LightList& getLights(void);
+        const LightList& getLights(void) const;
 
     };
 
