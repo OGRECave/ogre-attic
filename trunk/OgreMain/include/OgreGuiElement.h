@@ -151,6 +151,8 @@ namespace Ogre {
         // is element enabled
         bool mEnabled;
 
+        // Used to see if this element is created from a Template
+        GuiElement* mSourceTemplate ;
 
         /** Internal method which is triggered when the positions of the element get updated,
         meaning the element should be rebuilding it's mesh positions. Abstract since
@@ -425,6 +427,10 @@ namespace Ogre {
 
         void copyFromTemplate(GuiElement* templateGui);
 
+        // Returns the SourceTemplate for this element
+        const GuiElement* getSourceTemplate () const {
+          return mSourceTemplate ;
+        }
     };
 
 

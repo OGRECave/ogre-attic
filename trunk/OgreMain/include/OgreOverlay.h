@@ -62,6 +62,8 @@ namespace Ogre {
     class _OgreExport Overlay : public Resource
     {
 
+    public:
+              typedef std::list<GuiContainer*> GuiContainerList;
     protected:
         ushort mZOrder;
         bool mVisible;
@@ -70,7 +72,6 @@ namespace Ogre {
         // 2D elements
         // GuiContainers, linked list for easy sorting by zorder later
         // Not a map because sort can be saved since changes infrequent (unlike render queue)
-        typedef std::list<GuiContainer*> GuiContainerList;
         GuiContainerList m2DElements;
 
         // Degrees of rotation around center
@@ -234,6 +235,15 @@ namespace Ogre {
         /** This returns a GuiElement at position x,y. */
 		virtual GuiElement* findElementAt(Real x, Real y);
 
+        /** Returns an iterator over all 2D elements in this manager.
+        @remarks
+            VectorIterator is actually a too generic name, since it also works for lists.
+        */
+        typedef VectorIterator<GuiContainerList> Overlay2DElementsIterator ;
+        Overlay2DElementsIterator get2DElementsIterator ()
+        {
+            return Overlay2DElementsIterator (m2DElements.begin(), m2DElements.end());
+        }
 
     };
 

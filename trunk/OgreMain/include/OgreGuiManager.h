@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreSingleton.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -100,11 +101,23 @@ namespace Ogre {
 	    GuiElement* createGuiElementFromTemplate(const String& templateName, const String& typeName, const String& instanceName, bool isTemplate = false);
 
         GuiElement* createGuiElementFromFactory(const String& typeName, const String& instanceName);
+
+        typedef std::map<String, GuiElement*> ElementMap;
+        typedef MapIterator<ElementMap> TemplateIterator;
+        /** Returns an iterator over all templates in this manager.*/
+        TemplateIterator getTemplateIterator ()
+        {
+          return TemplateIterator (mTemplates.begin (), mTemplates.end ()) ;
+        }
+        /* Returns whether the Element with the given name is a Template */
+        bool isTemplate (String strName) const {
+          return (mTemplates.find (strName) != mTemplates.end()) ;
+        }
+
 	protected:
         typedef std::map<String, GuiElementFactory*> FactoryMap;
         FactoryMap mFactories;
 
-        typedef std::map<String, GuiElement*> ElementMap;
         ElementMap mInstances;
         ElementMap mTemplates;
 
