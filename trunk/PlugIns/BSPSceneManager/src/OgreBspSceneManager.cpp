@@ -310,7 +310,7 @@ namespace Ogre {
             ManualCullingMode cullMode = pMat->getManualCullingMode();
             if (cullMode != MANUAL_CULL_NONE)
             {
-                Real dist = faceGroup->plane.getDistance(cam->getPosition());
+                Real dist = faceGroup->plane.getDistance(cam->getDerivedPosition());
                 if ( (dist < 0 && cullMode == MANUAL_CULL_BACK) ||
                      (dist > 0 && cullMode == MANUAL_CULL_FRONT) )
                     continue; // skip
