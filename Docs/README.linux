@@ -1,7 +1,7 @@
 Title: Ogre in linux
 Author: Ben Woodhead
 Last Updated: 09/27/02
-Licence: LGPL
+License: LGPL
 
 
 Downloading The Files
@@ -31,9 +31,13 @@ Dependencies
 
 So additional files that may not be found on your system that ogre will need.
 
-SDL 1.2.x - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org
+SDL 1.2.x - To find out if you have it type sdl-config --version. This will tell you the version, if its not found then you will have to get sdl. sdl can be found at www.libsdl.org. It would be best to insure that this installs into a standard directory. If you are installing from source run ./configure --prefix=/usr. 
 
-FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/, I have know idea how to tell you to check for this, but I am guessing the configure script will check.
+FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
+
+For the samples gui you will need gnome2, if you don't have gnome2 on your system the you will have to use the command line interface. If you are running gnome 2 then you will need 2 additional libraries. 
+
+Gtkmm2 version 1.3.26 and Glademm2 version 1.3.4, both libraries can be found at http://gtkmm.sourceforge.net/. Gtkmm will also need libsigc (http://libsigc.sourceforge.net/). When configuring gtkmm and glademm insure that you use an appropriate prefix. (ie if gnome is found /usr then run ./configure --prefix=/usr). 
 
 
 Compiling Ogre
@@ -68,10 +72,7 @@ ldconfig
 Compiling Ogre 
 cd ogrenew (where ever you put that).
 
-NOTE: if you are running the cvs version then you must run ./bootstrap first. It
-will setup the configure files for you.  If you have some of the dependent
-libraries installed in another directory (like /usr/local) you might need to set
-the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you.  If you have some of the dependent libraries installed in another directory (like /usr/local) you might need to set the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example
 is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal"; ./bootstrap
 
 ./configure --with-stlport=/usr/local/include/stlport (don't do any associating pathing, i.e. ../stlport or ~/stlport, it does not work.. I don't know why but it doesn't so save yourself sometime and don't do it).
@@ -89,35 +90,23 @@ Well the god news is that gcc 3.2 does not need STLport, making things a lot eas
 
 Compiling Ogre
 
-
-NOTE: if you are running the cvs version then you must run ./bootstrap first. It
-will setup the configure files for you.  If you have some of the dependent
-libraries installed in another directory (like /usr/local) you might need to set
-the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example
-is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal"; ./bootstrap
+NOTE: if you are running the cvs version then you must run ./bootstrap first. It will setup the configure files for you.  If you have some of the dependent libraries installed in another directory (like /usr/local) you might need to set the ACLOCAL_FLAGS variable to point at the extra aclocal directory.  An example is:  export ACLOCAL_FLAGS="-I /usr/local/share/aclocal"; ./bootstrap
 
 ./configure
 make 
 make install
 
-Well you must be thinking that was easy compared to 2.95.3 and you are right. That’s part of the reason I decided to upgrade (again changing compilers is a really good way to turn a linux box into a paper wait, if you can't compile what else are you going to do).
+Well you must be thinking that was easy compared to 2.95.3 and you are right. That's part of the reason I decided to upgrade (again changing compilers is a really good way to turn a linux box into a paper wait, if you can't compile what else are you going to do).
 
 
 Ogre Samples
 ============
 
-Alright on to the samples, if you have not used Visual C++ you may find this a little confusing when you start. The linux build tools are not far enough along to resolve this yet. So its going to take a bit of work.
+Alright on to the samples, if you have not used Visual C++ you may find this a little confusing when you start. 
 
-cd <ogrenew>/Samples/Common/bin/ - you will see 2 directories there one is Release and Debug. If you were running windows the files would already be in these directories but there not. 
+cd <ogrenew>/Samples/Common/bin/ - you will see 2 directories there one is Release and Debug. If you were running windows the files would already be in these directories but with Linux there are files only in the Debug directory. 
 
-So the first thing is getting all the plugins (this worked for me, but I don't know about you). 
-cd <ogrenew>
-
-NOTE: this must be done as root
-for plugin in `find . -name *.so* -print` ; do cp $plugin /usr/local/lib ; done
-
-Alright now :
-cd <ogrenew>/Samples/Common/bin/Release (To match the windows version)
+So the first thing is getting all the plugins (this worked for me, but I don't know about you). During the make install all the plugins were copied to /usr/local/lib/OGRE except for the OgrePlatform.so which is found in the <ogrenew>/Samples/Common/bin/Debug with the samples. This didn't work for me, so I made a few changes. I copied the OgrePlatform.so to /usr/local/lib and the plugins from /usr/local/lib/OGRE to /usr/local/lib and ran ldconfig. 
 
 Config File
 -----------
@@ -131,35 +120,18 @@ plugins.cfg:
 # Define plugin folder
 PluginFolder=/usr/local/lib
 
-# Define D3D rendering implementation plugin
+# Define OpenGl rendering implementation plugin
 Plugin=OgreSDLEngine.so
 Plugin=FileSystem.so
 Plugin=ParticleFX.so
 Plugin=BSPSceneManager.so
+Plugin=OctreeSceneManager.so
+Plugin=Plugin_GuiElements.so
 
-# Default scene manager ok, no plugin for that
-
-Next, in windows you have a nice little popup window that you can say the resolution in, linux is not that far along yet. Buts its coming. So for now, you need another config file
-
-ogre.cfg:
-Render System   OpenGL Rendering Subsystem
-Full Screen     Yes
-Video Mode      1024 x 768
+Next, in windows you have a nice little popup window that you can say the resolution in, Linux has 2 options, due to the fact that a lot of people are not running gnome2 yet, it has a gtk2 config or a cli (command line interface). CLI is the default and I have not figured out how to change that yet. 
 
 
-Ok so now we have everything in place. The next thing you are going to have to do is get all the Samples and move them to the Release directory.
-
-cd <ogrenew>/Samples/Common/bin/Release
-cp <ogrenew>/Samples/SkyBox/src/SkyBox .
-./SkyBox 
-
-
-SAMPLE PROBLEMS
-===============
-
-Well so far I have run into a few problems but nothing serious. 
-
-BSP for some reason or another can not find the BSPSceneManager.so plugin. For all the other plugins they will not be found (on my machine) unless they are in a library directory, but the BSPSceneManager.so file needs to be in the directory that you are running your app from.  
+Ok so now we have everything in place. The next thing you are going to have to do is try running some of the examples.  You may need to check the case of the textures found in the media directory. 
 
 COMMENTS
 ========
