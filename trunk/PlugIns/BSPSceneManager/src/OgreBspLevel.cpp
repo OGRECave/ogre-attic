@@ -218,6 +218,8 @@ namespace Ogre {
         int matHandle;
         String meshName;
 
+        String resourceGroup = ResourceGroupManager::getSingleton().getWorldResourceGroupName();
+
         while(face--)
         {
 
@@ -245,19 +247,25 @@ namespace Ogre {
                 else
                 {
                     // No shader script, try default type texture
-                    shadMat = mm.create(shaderName, ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+                    shadMat = mm.create(shaderName, resourceGroup);
                     Pass *shadPass = shadMat->getTechnique(0)->getPass(0);
                     // Try jpg
-                    TextureUnitState* tex = shadPass->createTextureUnitState(tryName + ".jpg");
-                    tex->_load();
-                    if (tex->isBlank())
+                    TextureUnitState* tex = 0;
+                    if (ResourceGroupManager::getSingleton().resourceExists(resourceGroup, tryName + ".jpg"))
                     {
-                        // Try tga
-                        tex->setTextureName(tryName + ".tga");
+                        tex = shadPass->createTextureUnitState(tryName + ".jpg");
                     }
-                    // Set replace on all first layer textures for now
-                    tex->setColourOperation(LBO_REPLACE);
-                    tex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+                    else if (ResourceGroupManager::getSingleton().resourceExists(resourceGroup, tryName + ".tga"))
+                    {
+                        tex = shadPass->createTextureUnitState(tryName + ".tga");
+                    }
+
+                    if (tex)
+                    {
+                        // Set replace on all first layer textures for now
+                        tex->setColourOperation(LBO_REPLACE);
+                        tex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
+                    }
 
                     if (q3lvl.mFaces[face].lm_texture != -1)
                     {

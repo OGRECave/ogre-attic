@@ -59,6 +59,7 @@ namespace Ogre {
     {
 		String matName;
 		StringUtil::StrStreamType str;
+        String resourceGroup = ResourceGroupManager::getSingleton().getWorldResourceGroupName();
 
         str << mName << "#" << lightmapNumber;
 		matName = str.str();
@@ -89,22 +90,16 @@ namespace Ogre {
                 */
                 for (unsigned int alt = 0; alt < pass[p].animNumFrames; ++alt)
                 {
-                    try {
-                        TextureManager::getSingleton().load(
-                            pass[p].frames[alt], 
-                            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
-                    }
-                    catch (...)
+                    if (!ResourceGroupManager::getSingleton().resourceExists(
+                        resourceGroup, pass[p].frames[alt]));
                     {
                         // Try alternate extension
                         pass[p].frames[alt] = getAlternateName(pass[p].frames[alt]);
-                        try {
-                            TextureManager::getSingleton().load(
-                                pass[p].frames[alt], 
-                                ResourceGroupManager::getSingleton().getWorldResourceGroupName());
-                        }
-                        catch (...)
-                        { // stuffed - no texture
+                        if (!ResourceGroupManager::getSingleton().resourceExists(
+                            resourceGroup, pass[p].frames[alt]));
+                        { 
+                            // stuffed - no texture
+                            continue;
                         }
                     }
 
@@ -118,22 +113,16 @@ namespace Ogre {
             {
                 // Quake3 can still include alternate extension filenames e.g. jpg instead of tga
                 // Pain in the arse - have to check for failure
-                try {
-                    TextureManager::getSingleton().load(
-                        pass[p].textureName, 
-                        ResourceGroupManager::getSingleton().getWorldResourceGroupName());
-                }
-                catch (...)
+                if (!ResourceGroupManager::getSingleton().resourceExists(
+                    resourceGroup, pass[p].textureName));
                 {
                     // Try alternate extension
                     pass[p].textureName = getAlternateName(pass[p].textureName);
-                    try {
-                        TextureManager::getSingleton().load(
-                            pass[p].textureName, 
-                            ResourceGroupManager::getSingleton().getWorldResourceGroupName());
-                    }
-                    catch (...)
-                    { // stuffed - no texture
+                    if (!ResourceGroupManager::getSingleton().resourceExists(
+                        resourceGroup, pass[p].textureName));
+                    { 
+                        // stuffed - no texture
+                        continue;
                     }
                 }
                 t = mat->getTechnique(0)->getPass(0)->createTextureUnitState(pass[p].textureName);
