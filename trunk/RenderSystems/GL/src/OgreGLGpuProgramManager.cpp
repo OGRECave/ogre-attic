@@ -35,7 +35,7 @@ GLGpuProgramManager::~GLGpuProgramManager()
     iend = mProgramMap.end();
     for (i = mProgramMap.begin(); i != iend; ++i)
     {
-        mProgramMap.erase(i++);
+        mProgramMap.erase(i);
     }
 }
 
