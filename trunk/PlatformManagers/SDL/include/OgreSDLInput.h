@@ -36,6 +36,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <SDL.h>
 
 namespace Ogre {
+	enum GrabMode
+	{
+		GRAB_NONE,
+		GRAB_MOUSE_OVER,
+		GRAB_MOUSE_CLICK   // this is the default
+	};
+
     class SDLInput : public InputReader
     {
     public:
@@ -45,6 +52,12 @@ namespace Ogre {
         void initialise( RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false );
         void capture();
 
+		/** Sets how to grab the mouse. Possible values for mode are GRAB_MOUSE_OVER
+			or GRAB_MOUSE_BUTTON. The first will grab the mouse if the pointer is over the
+			application window and the latter will wait for a mouse button click to aquire
+			the mouse. Default is GRAB_MOUSE_CLICK.
+		 */
+		void setGrabMode( GrabMode mode ) { mGrabMode = mode; }
 
         /*
          * Mouse getters
@@ -70,13 +83,30 @@ namespace Ogre {
         Real mScale;
         Uint8 mMouseKeys;
         bool _visible;
+		
+		bool mMouseGrabbed;  // true if Ogre has control over the mouse input
+		bool mUseMouse;   // true if initialise() is called with useMouse == true
+		bool mGrabMouse;  // grab the mouse input if the situation specified by mGrabMode arises
+		bool mMouseLeft;  // true if the mouse pointer has left the window after calling releaseMouse(). Needed for
+		                  // mGrabMode == GRAB_MOUSE_BUTTON.
+		int mGrabMode;    // when/how to grab the mouse
+
         typedef std::map<SDLKey, KeyCode> InputKeyMap;
         InputKeyMap _key_map;
         bool warpMouse;
 
+		// the value that is added to mMouseRelativeZ when the wheel
+		// is moved one step (this value is actually added
+		// twice per movement since a wheel movement triggers a
+		// MOUSEBUTTONUP and a MOUSEBUTTONDOWN event).
+		// The value is chosen according to the windoze value.
         static const unsigned int mWheelStep = 60;
+
         void processBufferedKeyboard();
         void processBufferedMouse();
+
+		void _grabMouse();
+		void _releaseMouse();
         bool isKeyDownImmediate( KeyCode kc ) const;
     };
 }

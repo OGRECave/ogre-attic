@@ -29,11 +29,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCursor.h"
 
 namespace Ogre {
-    
-    SDLInput::SDLInput() 
+
+    SDLInput::SDLInput()
         : InputReader(), mMouseX(0), mMouseY(0), mMouseRelativeX(0),
           mMouseRelativeY(0), mMouseRelativeZ(0), mScale(0.002), _visible(true)
     {
+		mMouseGrabbed = false;
+		mGrabMouse = false;
+		mMouseLeft = false;
+		mGrabMode = GRAB_NONE;
         mEventQueue = 0;
 
         _key_map.insert(InputKeyMap::value_type(SDLK_ESCAPE,KC_ESCAPE));
@@ -142,30 +146,69 @@ namespace Ogre {
 
     SDLInput::~SDLInput()
     {
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
-        SDL_ShowCursor(1);
+		if ( mUseMouse )
+		{
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+			SDL_ShowCursor(1);
+		}
     }
 
     void SDLInput::initialise(RenderWindow* pWindow, bool useKeyboard, bool useMouse, bool useGameController)
     {
-        if(useMouse) {
-          // Hide the cursor
-          SDL_ShowCursor(0);
-          SDL_WM_GrabInput(SDL_GRAB_ON);
-        }
+		mUseMouse = useMouse;
+		if ( useMouse )
+		{
+			mGrabMode = GRAB_MOUSE_CLICK;
 
-        // Get the center and put the mouse there
-        unsigned int width, height, depth;
-        int left, top;
-        pWindow->getMetrics(width, height, depth, left, top);
-
-        mMouseX = width / 2;
-        mMouseY = height / 2;
+			// is the mouse pointer over the app window?
+			if ( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
+			{
+				_grabMouse();
+			}
+			else
+			{
+				// no, so we have to wait until the app gets
+				// the mouse focus
+				mGrabMouse = true;
+				mMouseLeft = true;
+			}
+			// Get the center and put the mouse there
+			unsigned int width, height, depth;
+			int left, top;
+			pWindow->getMetrics(width, height, depth, left, top);
+	
+			mMouseX = width / 2;
+			mMouseY = height / 2;
+		}
+		else
+		{
+			mGrabMode = GRAB_NONE;
+		}
     }
+
+	void SDLInput::_releaseMouse()
+	{
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_ShowCursor(1);
+		mMouseGrabbed = false;
+		mMouseLeft = false;
+		mGrabMouse = true;
+	}
+
+	void SDLInput::_grabMouse()
+	{
+		SDL_ShowCursor(0);
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+		mMouseGrabbed = true;
+		mGrabMouse = false;
+	}
 
     void SDLInput::capture()
     {
+         SDL_Event event[16];
+        
         // Wait until we're visible again
+        // and throw away all SDL_Events
         if (!_visible)
         {
             SDL_Event event;
@@ -178,65 +221,109 @@ namespace Ogre {
             }
         }
 
-        if (mUseBufferedKeys)
+        SDL_PumpEvents();
+
+		// look for SDL "system" events
+		int count = SDL_PeepEvents( event, 16 , SDL_GETEVENT
+							, SDL_EVENTMASK(SDL_ACTIVEEVENT)
+							| SDL_EVENTMASK(SDL_VIDEORESIZE)
+							| SDL_EVENTMASK(SDL_VIDEOEXPOSE)
+							| SDL_EVENTMASK(SDL_SYSWMEVENT)
+						);
+		if ( count )
+		{
+			for (int i = 0; i < count; i++)
+			{
+				switch (event[i].type)
+				{
+				case SDL_ACTIVEEVENT:
+					if ( mGrabMouse && (mGrabMode == GRAB_MOUSE_OVER ) )
+					{
+						if ( event[i].active.gain )
+						{
+							if ( mMouseLeft )
+							{
+								// mouse is over the application window
+								_grabMouse();
+							}
+						}
+						else
+						{
+							mMouseLeft = true;
+						}
+					}
+					break;
+				case SDL_VIDEORESIZE:
+				case SDL_VIDEOEXPOSE:
+				case SDL_SYSWMEVENT:
+					break;
+				}
+			}
+		}
+        
+		// Keyboard input
+		if (mUseBufferedKeys)
         {
             processBufferedKeyboard();
         }
+		// check for ALT + TAB to mimic windoze behaviour (useful to get the mouse
+		// pointer back ;-)
+
+		// we have to call GetKeyState() even if buffered keyboard input is selected
+		mKeyboardBuffer = SDL_GetKeyState(NULL);
+		if ( mKeyboardBuffer[SDLK_LALT] && mKeyboardBuffer[SDLK_TAB] )
+		{
+			_releaseMouse();
+		}
+
 
         if (mUseBufferedMouse)
         {
             processBufferedMouse();
         }
-
-        SDL_PumpEvents();
-
-        if (!mUseBufferedKeys)
-        {
-            // Get Keyboard state
-            mKeyboardBuffer = SDL_GetKeyState(NULL);
-        }
-
-		// NB buffered keyboard not yet supported!
-		// TODO
-        if (!mUseBufferedMouse)
-        {
+		else
+		{
             mMouseKeys = 0;
-            mMouseRelativeX = 0, mMouseRelativeY = 0;
+            mMouseRelativeX = 0; mMouseRelativeY = 0; mMouseRelativeZ = 0;
 
             // Get mouse info
-            if( SDL_GetAppState() & SDL_APPMOUSEFOCUS )
+            if( 1 ) // SDL_GetAppState() & SDL_APPMOUSEFOCUS )
             {
                 mMouseKeys = SDL_GetMouseState( &mMouseX, &mMouseY );
                 SDL_GetRelativeMouseState( &mMouseRelativeX, &mMouseRelativeY );
 
-                // the value that is added to mMouseRelativeZ when the wheel
-                // is moved one step (this value is actually added
-                // twice per movement since a wheel movement triggers a
-                // MOUSEBUTTONUP and a MOUSEBUTTONDOWN event)
-                
+
                 // get mouse wheel movement
-                SDL_Event event[16];
-                // fetch all mouse related events
-                int count = SDL_PeepEvents( event, 16 , SDL_GETEVENT , (SDL_EVENTMASK(SDL_MOUSEMOTION) | SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN) | SDL_EVENTMASK(SDL_MOUSEBUTTONUP)));
+                // fetch all mouse wheel related events
+                int count = SDL_PeepEvents( event, 16 , SDL_GETEVENT
+						,(SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN)
+						| SDL_EVENTMASK(SDL_MOUSEBUTTONUP)
+						| SDL_EVENTMASK(SDL_MOUSEMOTION)
+					   ));
                 if ( count )
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        switch (event[i].type)
-                        {
-                        case SDL_MOUSEBUTTONDOWN:
-                        case SDL_MOUSEBUTTONUP:
-                            switch(event[i].button.button)
-                            {
-                            case SDL_BUTTON_WHEELUP:
-                                mMouseRelativeZ += mWheelStep;
-                                break;
-                            case SDL_BUTTON_WHEELDOWN:
-                                mMouseRelativeZ -= mWheelStep;
-                                break;
-                            }
-                            break;
-                        }
+						switch (event[i].type)
+						{
+						case SDL_MOUSEBUTTONDOWN:
+						case SDL_MOUSEBUTTONUP:
+							// grab the mouse if the user presses a mouse button
+							if ( !mMouseGrabbed && mGrabMouse && ( mGrabMode == GRAB_MOUSE_CLICK ) )
+							{
+								_grabMouse();
+							}
+							switch(event[i].button.button)
+							{
+							case SDL_BUTTON_WHEELUP:
+								mMouseRelativeZ += mWheelStep;
+								break;
+							case SDL_BUTTON_WHEELDOWN:
+								mMouseRelativeZ -= mWheelStep;
+								break;
+							}
+							break;
+						}
                     }
                 }
             }
@@ -251,11 +338,12 @@ namespace Ogre {
 
             mMouseState.Buttons =  (mMouseKeys & SDL_BUTTON_LMASK) ? 1 : 0; // left
             mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON_RMASK) ? 2 : 0; // right
-            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON_MMASK) ? 4 : 0; // middle 
+            mMouseState.Buttons |= (mMouseKeys & SDL_BUTTON_MMASK) ? 4 : 0; // middle
 
-            // XXX Fix me up
-            // Game controller state
         }
+
+		// XXX Fix me up
+		// Game controller state
     }
 
     bool SDLInput::isKeyDownImmediate(KeyCode kc) const
@@ -583,11 +671,6 @@ namespace Ogre {
         // XXX Arbitrarily picked 16 
         SDL_Event events[16];
 
-        // the value that is added to mMouseRelativeZ when the wheel
-        // is moved one step (this value is actually added
-        // twice per movement since a wheel movement triggers a
-        // MOUSEBUTTONUP and a MOUSEBUTTONDOWN event)
-
         int count = SDL_PeepEvents(events, 16, SDL_GETEVENT,
                 (SDL_MOUSEMOTIONMASK | SDL_MOUSEBUTTONDOWNMASK |
                  SDL_MOUSEBUTTONUPMASK | SDL_ACTIVEEVENTMASK));
@@ -630,6 +713,11 @@ namespace Ogre {
             case SDL_MOUSEBUTTONDOWN:
                 button_down = true;
             case SDL_MOUSEBUTTONUP:
+				// grab the mouse if the user presses a mouse button
+				if ( !mMouseGrabbed && mGrabMouse && ( mGrabMode == GRAB_MOUSE_CLICK ) )
+				{
+					_grabMouse();
+				}
                 switch(events[i].button.button)
                 {
                 case SDL_BUTTON_LEFT:
@@ -641,12 +729,6 @@ namespace Ogre {
                 case SDL_BUTTON_MIDDLE:
                     button_mask = InputEvent::BUTTON2_MASK;
                     break;
-                case SDL_BUTTON_WHEELUP:
-                    mMouseRelativeZ += mWheelStep;
-                    break;
-                case SDL_BUTTON_WHEELDOWN:
-                    mMouseRelativeZ -= mWheelStep;
-                    break; 
                 };
                 triggerMouseButton(button_mask, button_down);
                 break;
