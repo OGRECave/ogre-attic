@@ -132,7 +132,7 @@ namespace Ogre {
 			pos.y = StringConverter::parseReal(posElem->Attribute("y"));
 			pos.z = StringConverter::parseReal(posElem->Attribute("z"));
 			
-			angle = StringConverter::parseAngle(rotElem->Attribute("angle"));
+			angle = Radian(StringConverter::parseReal(rotElem->Attribute("angle")));
 
 			axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
 			axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
@@ -244,7 +244,7 @@ namespace Ogre {
                     Except(Exception::ERR_INTERNAL_ERROR, "Missing 'axis' element "
                     "expected under parent 'rotate'", "MXLSkeletonSerializer::readKeyFrames");
                 }
-			    angle = StringConverter::parseAngle(rotElem->Attribute("angle"));
+			    angle = Radian(StringConverter::parseReal(rotElem->Attribute("angle")));
 
 			    axis.x = StringConverter::parseReal(axisElem->Attribute("x"));
 			    axis.y = StringConverter::parseReal(axisElem->Attribute("y"));
