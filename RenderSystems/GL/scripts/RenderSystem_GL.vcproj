@@ -163,7 +163,13 @@
 				RelativePath="..\src\OgreGLHardwareOcclusionQuery.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLHardwarePixelBuffer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLHardwareVertexBuffer.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreGLPixelFormat.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreGLRenderSystem.cpp">
@@ -389,7 +395,13 @@
 				RelativePath="..\include\OgreGLHardwareOcclusionQuery.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreGLHardwarePixelBuffer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreGLHardwareVertexBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLPixelFormat.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGLPrerequisites.h">
