@@ -69,6 +69,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_OPERAND0_ALPHA GL_OPERAND0_ALPHA_ARB
 #       define GL_OPERAND1_ALPHA GL_OPERAND1_ALPHA_ARB
 #       define GL_OPERAND2_ALPHA GL_OPERAND2_ALPHA_ARB
+#       define GL_SUBTRACT GL_SUBTRACT_ARB
 #   elif GL_EXT_texture_env_combine
 #       define GL_COMBINE GL_COMBINE_EXT
 #       define GL_COMBINE_RGB GL_COMBINE_RGB_EXT
@@ -91,6 +92,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_OPERAND0_ALPHA GL_OPERAND0_ALPHA_EXT
 #       define GL_OPERAND1_ALPHA GL_OPERAND1_ALPHA_EXT
 #       define GL_OPERAND2_ALPHA GL_OPERAND2_ALPHA_EXT
+#       define GL_SUBTRACT GL_SUBTRACT_EXT
 #   endif
 // multitexture
 #   ifdef GL_ARB_multitexture

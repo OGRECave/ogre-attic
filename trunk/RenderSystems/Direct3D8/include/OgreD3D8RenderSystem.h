@@ -194,7 +194,6 @@ namespace Ogre {
 		void _setProjectionMatrix( const Matrix4 &m );
 		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular,
 			const ColourValue &emissive, Real shininess );
-		unsigned short _getNumTextureUnits(void);
 		void _setTexture( int unit, bool enabled, const String &texname );
         void _setTextureCoordCalculation(int unit, TexCoordCalcMethod m);
         void _setTextureCoordSet( int stage, int index );
@@ -223,14 +222,6 @@ namespace Ogre {
           RenderSystem
          */
         void setStencilCheckEnabled(bool enabled);
-        /** See
-          RenderSystem
-         */
-        bool hasHardwareStencil(void);
-        /** See
-          RenderSystem
-         */
-        ushort getStencilBufferBitDepth(void);
         /** See
           RenderSystem
          */

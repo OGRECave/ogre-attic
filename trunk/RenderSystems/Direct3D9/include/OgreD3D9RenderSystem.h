@@ -205,8 +205,6 @@ namespace Ogre
 		void setStencilBufferFailOperation(StencilOperation op);
 		void setStencilBufferDepthFailOperation(StencilOperation op);
 		void setStencilBufferPassOperation(StencilOperation op);
-		bool hasHardwareStencil(void);
-		ushort getStencilBufferBitDepth(void);
 
 		// Low-level overridden members, mainly for internal use
 		void _addLight( Light* lt );
@@ -242,7 +240,6 @@ namespace Ogre
 		void _setRasterisationMode(SceneDetailLevel level);
 		void _setTextureLayerFiltering(int unit, const TextureFilterOptions texLayerFilterOps);
 		void _setTextureLayerAnisotropy(int unit, int maxAnisotropy);
-		unsigned short _getNumTextureUnits(void);
 		void setVertexDeclaration(VertexDeclaration* decl);
 		void setVertexBufferBinding(VertexBufferBinding* binding);
         void _render(const RenderOperation& op);

@@ -185,6 +185,12 @@ namespace Ogre {
 			mDriverList = NULL;
 		}
 
+        if (mCapabilities)
+        {
+            delete mCapabilities;
+            mCapabilities = NULL;
+        }
+
         D3DXUninitialize();
         LogManager::getSingleton().logMessage(getName() + " destroyed.");
 
@@ -522,7 +528,20 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("*** Direct3D Subsystem Initialised Ok ***");
         LogManager::getSingleton().logMessage("*****************************************");
 
+        LogManager::getSingleton().logMessage(
+            "The following capabilities are available:");
 
+        // Check for hardware stencil support
+        ushort stencil =  mActiveDDDriver->get3DDevice()->StencilBufferBitDepth();
+        if(stencil > 0)
+        {
+            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+            mCapabilities->setCapability(RSC_HWSTENCIL);
+            mCapabilities->setStencilBufferBitDepth(stencil);
+        }
+
+        // Set the number of texture units based on details from current device
+        mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
 
         return autoWindow;
 
@@ -1016,13 +1035,6 @@ namespace Ogre {
                 Except(hr, "Error setting D3D material.", "D3DRenderSystem::_setSurfaceParams");
 
         }
-    }
-
-    //-----------------------------------------------------------------------
-    unsigned short D3DRenderSystem::_getNumTextureUnits(void)
-    {
-        // Get details from current device
-        return mD3DDeviceDesc.wMaxSimultaneousTextures;
     }
 
     //-----------------------------------------------------------------------
@@ -2307,16 +2319,6 @@ namespace Ogre {
             Except(hr, "Error enabling / disabling stencilling.",
                 "D3DRenderSystem::setStencilCheckEnabled");
         
-    }
-    //---------------------------------------------------------------------
-    bool D3DRenderSystem::hasHardwareStencil(void)
-    {
-        return mActiveDDDriver->get3DDevice()->StencilBufferBitDepth() > 0;
-    }
-    //---------------------------------------------------------------------
-    ushort D3DRenderSystem::getStencilBufferBitDepth(void)
-    {
-        return mActiveDDDriver->get3DDevice()->StencilBufferBitDepth();
     }
     //---------------------------------------------------------------------
     void D3DRenderSystem::setStencilBufferFunction(CompareFunction func)

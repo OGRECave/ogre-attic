@@ -103,6 +103,12 @@ namespace Ogre
 		if (mDIBMgr)
 			delete mDIBMgr;
 
+        if (mCapabilities)
+        {
+            delete mCapabilities;
+            mCapabilities = NULL;
+        }
+
 		LogManager::getSingleton().logMessage( "D3D9 : " + getName() + " destroyed." );
 		OgreUnguard();
 	}
@@ -452,7 +458,32 @@ namespace Ogre
 			autoWindow = this->createRenderWindow( "OGRE Render Window", width, height, colourDepth, fullScreen );
 		}
 
-		LogManager::getSingleton().logMessage( "D3D9 : Subsystem Initialised OK" );
+        LogManager::getSingleton().logMessage("***************************************");
+
+		LogManager::getSingleton().logMessage("*** D3D9 : Subsystem Initialised OK ***");
+        LogManager::getSingleton().logMessage("***************************************");
+
+        LogManager::getSingleton().logMessage(
+            "The following capabilities are available:");
+
+        // Check for hardware stencil support
+		LPDIRECT3DSURFACE9 pSurf;
+		D3DSURFACE_DESC surfDesc;
+		mpD3DDevice->GetDepthStencilSurface(&pSurf);
+		pSurf->GetDesc(&surfDesc);
+
+		if (surfDesc.Format == D3DFMT_D24S8)
+        {
+            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+            mCapabilities->setCapability(RSC_HWSTENCIL);
+		    // Actually, it's always 8-bit
+            mCapabilities->setStencilBufferBitDepth(8);
+
+        }
+
+        // Set number of texture units
+        mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+
 		return autoWindow;
 	}
 	//---------------------------------------------------------------------
@@ -660,11 +691,6 @@ namespace Ogre
 		return ogreMat;
 	}
 	//---------------------------------------------------------------------
-	unsigned short D3D9RenderSystem::_getNumTextureUnits()
-	{
-		return mCaps.MaxSimultaneousTextures;
-	}
-	//---------------------------------------------------------------------
 	void D3D9RenderSystem::convertColourValue( const ColourValue& colour, unsigned long* pDest )
 	{
 		*pDest = colour.getAsLongARGB();
@@ -695,25 +721,6 @@ namespace Ogre
 		dest[3][2] = 1.0f;
 		dest[2][3] = -Q * nearPlane;
         */
-	}
-	//---------------------------------------------------------------------
-	bool D3D9RenderSystem::hasHardwareStencil(void)
-	{
-		LPDIRECT3DSURFACE9 pSurf;
-		D3DSURFACE_DESC surfDesc;
-		mpD3DDevice->GetDepthStencilSurface(&pSurf);
-		pSurf->GetDesc(&surfDesc);
-
-		if (surfDesc.Format == D3DFMT_D24S8)
-			return true;
-		else
-			return false;
-	}
-	//---------------------------------------------------------------------
-	ushort D3D9RenderSystem::getStencilBufferBitDepth(void)
-	{
-		// Actually, it's always 8-bit
-		return 8;
 	}
 	//---------------------------------------------------------------------
 	D3D9RenderSystem::ResizeRepositionWindow(HWND wich)

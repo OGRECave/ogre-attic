@@ -33,7 +33,8 @@ namespace Ogre {
     template<> RenderSystemCapabilities* Singleton<RenderSystemCapabilities>::ms_Singleton = 0;
     //-----------------------------------------------------------------------
     RenderSystemCapabilities::RenderSystemCapabilities() 
-      : mNumWorldMatrices(0), mNumTextureUnits(0), mCapabilities(0)
+      : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
+        mNumVertexBlendMatrices(0), mCapabilities(0)
     {
     }
     //-----------------------------------------------------------------------
