@@ -80,6 +80,16 @@ namespace Ogre {
             delete *i;
         }
 
+        // Delete shared buffers
+        if (mpPositions)
+            delete [] mpPositions;
+        if (mpIndexes)
+            delete [] mpIndexes;
+        if (mpTexCoords)
+            delete [] mpTexCoords;
+        if (mpColours)
+            delete [] mpColours;
+
     }
     //-----------------------------------------------------------------------
     Billboard* BillboardSet::createBillboard(

@@ -83,7 +83,7 @@ namespace Ogre {
 
         // Instantiate BspResourceManager
         // Will be managed by singleton
-        BspResourceManager* r = new BspResourceManager();
+        mBspResMgr = new BspResourceManager();
 
         // No sky by default
         mSkyPlaneEnabled = false;
@@ -98,6 +98,7 @@ namespace Ogre {
     BspSceneManager::~BspSceneManager()
     {
         freeMemory();
+        delete mBspResMgr;
     }
 
     //-----------------------------------------------------------------------

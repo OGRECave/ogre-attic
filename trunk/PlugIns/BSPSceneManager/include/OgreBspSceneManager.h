@@ -60,6 +60,8 @@ namespace Ogre {
     {
     protected:
 
+        // Pointer to resource manager just for singleton management
+        BspResourceManager* mBspResMgr;
 
         // World geometry
         BspLevel* mLevel;

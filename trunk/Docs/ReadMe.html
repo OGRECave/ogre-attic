@@ -95,26 +95,19 @@ public contact for the project, at the above address. Steve is prone to ranting
 about why games should have the same coding and design standards as business software, 
 and is based in St Peter Port, Guernsey (a small British island off the French 
 coast).</P><P><B>Adrian 'cearny' Cearn&#x0103;u (<A HREF="mailto:cearny@cearny.ro">cearny@cearny.ro</A>)</B> 
-</P><P>Cearny joined the project in February 2002, although it seems longer because 
-he's contributed so much in a short space of time. Cearny supplied the impetus 
+</P><P>Cearny joined the project in February 2002. Cearny supplied the impetus 
 and much of the implementation for switching OGRE to a completely dynamically-loaded 
-library, and has done a fine job in challenging all my assumptions and generally 
-improving the quality of the project. Since then he has added a ROAM-based landscape 
-renderer and made significant progress in getting OGRE to compile on Linux. Cearny 
-is based in Bucharest, Romania.</P><P><B>Thomas 'temas' Muldowney (<A HREF="mailto:cearny@cearny.ro">temas@jabber.org</A>)</B></P><P>Temas 
-joined the project in April 2002 and has been working hard on Linux porting and 
+library, provided the debugging memory manager, rationalised the codec system 
+and has generally done a fine job of challenging my assumptions and generally 
+improving the quality of the project. Cearny is based in Bucharest, Romania.</P>
+<P><B>Thomas 'temas' Muldowney (<A HREF="mailto:cearny@cearny.ro">temas@jabber.org</A>)</B></P><P>Temas 
+joined the project in April 2002 and has been responsible for the Linux port and 
 also generally on ANSI C++ compliance. He comes from a background of open-source 
 development, and is currently a lead contributor to the Jabber open-source server 
 as well as working on OGRE. He's based in Texas, USA.</P><p align="left" class="MainHeader">Building 
-an Application Which Uses Ogre</p><p align="left">Currently because of limited 
-time and resources, OGRE is only fully configured to build/run on Windows platforms 
-using the DirectX SDK v7 or 8. However, I do stress that the architecture has 
-been designed so this doesn't have to be so - currently a Linux port is well under 
-way and I am confident that given the time to implement the specialisations the 
-same class interfaces will work just as well under OpenGL and on other platforms 
-- I just haven't had the time to implement them. A great deal of the system (the 
-OgreCore and OgreEngine modules below) are not tied to Windows or DirectX in any 
-way.</p><p align="left"><B>Core DLLs</B></p><p align="left">OGRE compiles into 
+an Application Which Uses Ogre</p><p align="left">OGRE will build under Windows using
+Microsoft VC++ (version 6 with SP3+ or .NET), and under Linux using gcc 3.x (or gcc 2.9x with STLport).</p>
+<p align="left"><B>Core DLLs</B></p><p align="left">OGRE compiles into 
 a number of DLLs for use by applications. Client applications simply have to link 
 to OgreMain.lib, which automatically starts up the core dll (OgreMain.dll). Both 
 this and OgrePlatform.dll must be on your Windows path or in the same folder as 
