@@ -46,18 +46,17 @@ namespace Ogre {
 
     protected:
 
-        unsigned long mCurrentstreamLen;
+        uint32 mCurrentstreamLen;
         FILE* mpfFile;
         String mVersion;
 
         // Internal methods
         virtual void writeFileHeader(void);
-        virtual void writeChunkHeader(unsigned short id, unsigned long size);
+        virtual void writeChunkHeader(uint16 id, uint32 size);
         
         void writeReals(const Real* const pReal, size_t count);
-        void writeShorts(const unsigned short* const pShort, size_t count);
-        void writeInts(const unsigned int* const pInt, size_t count); 
-        void writeLongs(const unsigned long* const pLong, size_t count); 
+        void writeShorts(const uint16* const pShort, size_t count);
+        void writeInts(const uint32* const pInt, size_t count); 
         void writeBools(const bool* const pLong, size_t count);
         void writeObject(const Vector3& vec);
         void writeObject(const Quaternion& q);
@@ -70,9 +69,8 @@ namespace Ogre {
         
         void readBools(DataStreamPtr& stream, bool* pDest, size_t count);
         void readReals(DataStreamPtr& stream, Real* pDest, size_t count);
-        void readShorts(DataStreamPtr& stream, unsigned short* pDest, size_t count);
-        void readInts(DataStreamPtr& stream, unsigned int* pDest, size_t count);
-        void readLongs(DataStreamPtr& stream, unsigned long* pDest, size_t count); 
+        void readShorts(DataStreamPtr& stream, uint16* pDest, size_t count);
+        void readInts(DataStreamPtr& stream, uint32* pDest, size_t count);
         void readObject(DataStreamPtr& stream, Vector3* pDest);
         void readObject(DataStreamPtr& stream, Quaternion* pDest);
 
