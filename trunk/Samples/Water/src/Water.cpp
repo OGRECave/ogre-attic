@@ -14,16 +14,13 @@ LGPL like the rest of the engine.
 /* Static water simulation by eru
  * Started 29.05.2003, 20:54:37
  */
-#include "Ogre.h"
-#include "OgreStringConverter.h"
-
+#if OGRE_PLATFORM == PLATFORM_APPLE
+#   include <Ogre/Ogre.h>
+#else
+#   include "Ogre.h"
+#endif
 #include "ExampleApplication.h"
 #include "WaterMesh.h"
-
-#include "OgreParticle.h"
-#include "OgreMaterial.h"
-#include "OgreTechnique.h"
-#include "OgrePass.h"
 
 #include <iostream>
 

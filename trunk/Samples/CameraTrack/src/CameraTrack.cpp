@@ -20,7 +20,11 @@ Description: An example of using AnimationTracks to smoothly make a node
 -----------------------------------------------------------------------------
 */
 
-#include "Ogre.h"
+#if OGRE_PLATFORM == PLATFORM_APPLE
+#   include <Ogre/Ogre.h>
+#else
+#   include "Ogre.h"
+#endif
 
 #include "ExampleApplication.h"
 

@@ -22,7 +22,11 @@ LGPL like the rest of the engine.
 */
 
 #include "ExampleApplication.h"
-#include "OgreStringConverter.h"
+#if OGRE_PLATFORM ==  PLATFORM_APPLE
+#   include <Ogre/OgreStringConverter.h>
+#else
+#   include "OgreStringConverter.h"
+#endif
 
 // Hack struct for test
 PatchMesh* patch;

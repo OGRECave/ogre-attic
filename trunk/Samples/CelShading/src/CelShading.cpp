@@ -18,10 +18,8 @@ Description: Demo of cel-shaded graphics using vertex & fragment programs
 -----------------------------------------------------------------------------
 */
 
-#include "Ogre.h"
 
 #include "ExampleApplication.h"
-#include "OgreStringConverter.h"
 
 SceneNode* rotNode;
 

@@ -27,9 +27,6 @@ LGPL like the rest of the engine.
 */
 
 #include "ExampleApplication.h"
-#include "OgreMaterial.h"
-#include "OgreTechnique.h"
-#include "OgrePass.h"
 
 class RttFrameListener : public ExampleFrameListener
 {

@@ -4,8 +4,6 @@
 #include "OgreSDLPrerequisites.h"
 #include "OgreGLSupport.h"
 
-#include <SDL.h>
-
 namespace Ogre
 {
     

@@ -19,11 +19,12 @@ LGPL like the rest of the engine.
         Shows a few ways to use Ogre's shadowing techniques
 */
 
-#include "Ogre.h"
+#if OGRE_PLATFORM == PLATFORM_APPLE
+#   include <Ogre/Ogre.h>
+#else
+#   include "Ogre.h"
+#endif
 #include "ExampleApplication.h"
-#include "OgreProgressiveMesh.h"
-#include "OgreStringConverter.h"
-#include "OgreEdgeListBuilder.h"
 
 /*
 #include "OgreNoMemoryMacros.h"

@@ -20,7 +20,11 @@ LGPL like the rest of the engine.
         skyplane is displayed in the background.
 */
 
-#include "Ogre.h"
+#if OGRE_PLATFORM == PLATFORM_APPLE
+#   include <Ogre/Ogre.h>
+#else
+#   include "Ogre.h"
+#endif
 #include "SkyPlane.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

@@ -25,8 +25,7 @@
 		};
 		034768DEFF38A45A11DB9C8B = {
 			explicitFileType = wrapper.framework;
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			path = Ogre.framework;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -70,13 +69,13 @@
 		};
 		0867D691FE84028FC02AAC07 = {
 			children = (
+				0867D69AFE84028FC02AAC07,
+				66CAE672045A3E33000001C9,
 				66CAE422045A3D17000001C9,
 				66CAE68D045A3E9A000001C9,
-				66CAE672045A3E33000001C9,
-				66CAE517045A3D6E000001C9,
-				089C1665FE841158C02AAC07,
-				0867D69AFE84028FC02AAC07,
 				034768DDFF38A45A11DB9C8B,
+				089C1665FE841158C02AAC07,
+				66CAE517045A3D6E000001C9,
 			);
 			isa = PBXGroup;
 			name = OgreFramework;
@@ -85,13 +84,12 @@
 		};
 		0867D69AFE84028FC02AAC07 = {
 			children = (
+				82F3493706DF9EB90079759E,
 				8207A0BD06011EF70045D784,
 				8296D96E05BB329000DD3526,
 				08FB77AAFE841565C02AAC07,
 				66F0D749045B068C000001C9,
-				66F0D75D045B16EE000001C9,
 				66F0D784045B17F1000001C9,
-				669E89AF045B283C000001C9,
 				66DDA50B045B963F000001C9,
 			);
 			isa = PBXGroup;
@@ -110,7 +108,7 @@
 			buildSettings = {
 				DYLIB_COMPATIBILITY_VERSION = 0.13.0;
 				DYLIB_CURRENT_VERSION = 0.13.0;
-				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "../../Frameworks /Users/temas/Library/Frameworks";
 				FRAMEWORK_VERSION = A;
 				HEADER_SEARCH_PATHS = ../../Frameworks/freetype.framework/Versions/A/Headers;
 				INSTALL_PATH = "@executable_path/../Frameworks";
@@ -534,8 +532,8 @@
 			files = (
 				66F0D738045AEFC5000001C9,
 				66F0D74A045B068C000001C9,
-				669E89B1045B283D000001C9,
 				8296D96F05BB329000DD3526,
+				82F3493806DF9EB90079759E,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -581,8 +579,7 @@
 			};
 		};
 		08FB77AAFE841565C02AAC07 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Carbon.framework;
 			path = /System/Library/Frameworks/Carbon.framework;
@@ -600,8 +597,6 @@
 //4F3
 //4F4
 		4F0BB7EC011F40E904CA0E50 = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -616,11 +611,11 @@
 			name = Development;
 		};
 		4F0BB7ED011F40E904CA0E50 = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 0.14.1;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
@@ -1048,33 +1043,6 @@
 			settings = {
 			};
 		};
-		66587A14045B3FC8000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		669E89AF045B283C000001C9 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
-			lastKnownFileType = wrapper.framework;
-			name = freetype.framework;
-			path = ../../Frameworks/freetype.framework;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		669E89B1045B283D000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		669E89B2045B2846000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		66B99C91045CA418000001C9 = {
 			buildActionMask = 2147483647;
 			files = (
@@ -1215,7 +1183,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66B99E77045CB180000001C9,
-				66B99E79045CB1D3000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1286,8 +1253,7 @@
 		};
 		66B99E53045CB129000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = Plugin_BSPSceneManager.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -1567,12 +1533,6 @@
 			target = 0867D69CFE84028FC02AAC07;
 			targetProxy = 82747C760549C16300FBDACA;
 		};
-		66B99E79045CB1D3000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		66B99E7A045CB1DF000001C9 = {
 			children = (
 				66B99E7F045CB20D000001C9,
@@ -1701,7 +1661,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66B99EA9045CB26C000001C9,
-				66B99EAA045CB26C000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1772,8 +1731,7 @@
 		};
 		66B99E86045CB22A000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = Plugin_NatureSceneManager.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -2018,12 +1976,6 @@
 			settings = {
 			};
 		};
-		66B99EAA045CB26C000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		66B99EAB045CB2D0000001C9 = {
 			isa = PBXTargetDependency;
 			target = 0867D69CFE84028FC02AAC07;
@@ -2075,7 +2027,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66B99ED2045CB37F000001C9,
-				66B99ED3045CB381000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2146,8 +2097,7 @@
 		};
 		66B99EB2045CB2E5000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = Plugin_OctreeSceneManager.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -2363,12 +2313,6 @@
 		};
 		66B99ED2045CB37F000001C9 = {
 			fileRef = 034768DEFF38A45A11DB9C8B;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		66B99ED3045CB381000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -7644,9 +7588,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				66CAE6C0045A4013000001C9,
-				66F0D75F045B16EE000001C9,
 				66F0D785045B17F1000001C9,
-				66587A14045B3FC8000001C9,
 				66F4D6DD059DD18500AD7366,
 			);
 			isa = PBXFrameworksBuildPhase;
@@ -7669,7 +7611,7 @@
 				66B99C91045CA418000001C9,
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "../../Frameworks /Users/temas/Library/Frameworks";
 				HEADER_SEARCH_PATHS = ../../Frameworks/SDL.framework/Versions/A/Headers;
 				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
 				OTHER_LDFLAGS = "";
@@ -7720,8 +7662,7 @@
 		};
 		66CAE6A3045A3FF8000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = RenderSystem_GL.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -7769,8 +7710,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66CAE6D1045A404E000001C9,
-				66F0D761045B16EE000001C9,
-				669E89B2045B2846000001C9,
 				66DDA50C045B963F000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
@@ -7793,7 +7732,7 @@
 				66B99C92045CA93C000001C9,
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "../../Frameworks /Users/temas/Library/Frameworks";
 				HEADER_SEARCH_PATHS = ../../Frameworks/SDL.framework/Versions/A/Headers;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -7847,8 +7786,7 @@
 		};
 		66CAE6C7045A402F000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = OgrePlatform.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -7932,7 +7870,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66F0D78A045B18AB000001C9,
-				66E5F506045C3672000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7954,7 +7891,7 @@
 				66B99C93045CA948000001C9,
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
+				FRAMEWORK_SEARCH_PATHS = "../../Frameworks /Users/temas/Library/Frameworks";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -8003,8 +7940,7 @@
 		};
 		66CAE6D8045A406F000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = Plugin_FileSystem.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -8235,8 +8171,7 @@
 			};
 		};
 		66DDA50B045B963F000001C9 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
@@ -8325,12 +8260,6 @@
 				ATTRIBUTES = (
 					Public,
 				);
-			};
-		};
-		66E5F506045C3672000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
 			};
 		};
 		66E5F507045C3683000001C9 = {
@@ -8722,7 +8651,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66E5F54B045C373A000001C9,
-				66E5F54C045C373B000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8793,8 +8721,7 @@
 		};
 		66E5F52C045C36FB000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = Plugin_ParticleFX.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -8973,12 +8900,6 @@
 			settings = {
 			};
 		};
-		66E5F54C045C373B000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		66E5F5A3045C37D3000001C9 = {
 			children = (
 				66E5F5A5045C37FA000001C9,
@@ -9080,7 +9001,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66E5F5AD045C3823000001C9,
-				66E5F5AE045C3824000001C9,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -9151,20 +9071,13 @@
 		};
 		66E5F5AC045C3811000001C9 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = Plugin_GuiElements.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		66E5F5AD045C3823000001C9 = {
 			fileRef = 034768DEFF38A45A11DB9C8B;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		66E5F5AE045C3824000001C9 = {
-			fileRef = 669E89AF045B283C000001C9;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -9615,30 +9528,8 @@
 				);
 			};
 		};
-		66F0D75D045B16EE000001C9 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
-			lastKnownFileType = wrapper.framework;
-			name = SDL.framework;
-			path = ../../Frameworks/SDL.framework;
-			refType = 2;
-			sourceTree = SOURCE_ROOT;
-		};
-		66F0D75F045B16EE000001C9 = {
-			fileRef = 66F0D75D045B16EE000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		66F0D761045B16EE000001C9 = {
-			fileRef = 66F0D75D045B16EE000001C9;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		66F0D784045B17F1000001C9 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = OpenGL.framework;
 			path = /System/Library/Frameworks/OpenGL.framework;
@@ -9832,7 +9723,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8207A0FD0601253E0045D784,
-				8207A0EE060122590045D784,
 				8207A0EA06011FAD0045D784,
 				8207A0BE06011EF70045D784,
 			);
@@ -9913,7 +9803,7 @@
 		};
 		8207A09106011E620045D784 = {
 			isa = PBXFileReference;
-			lastKnownFileType = text.plist.xml;
+			lastKnownFileType = text.xml;
 			path = "CGProgramManager_Plugin-Info.plist";
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
@@ -10042,12 +9932,6 @@
 		};
 		8207A0EA06011FAD0045D784 = {
 			fileRef = 034768DEFF38A45A11DB9C8B;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		8207A0EE060122590045D784 = {
-			fileRef = 669E89AF045B283C000001C9;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -11717,6 +11601,20 @@
 		};
 		82F09C1C052E2F970041B8B8 = {
 			fileRef = 82F09C1B052E2F970041B8B8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		82F3493706DF9EB90079759E = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = freetype.framework;
+			path = /Users/temas/Library/Frameworks/freetype.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		82F3493806DF9EB90079759E = {
+			fileRef = 82F3493706DF9EB90079759E;
 			isa = PBXBuildFile;
 			settings = {
 			};

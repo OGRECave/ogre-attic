@@ -2258,7 +2258,8 @@ namespace Ogre
 	bool MaterialSerializer::invokeParser(String& line, AttribParserList& parsers)
     {
         // First, split line on first divisor only
-        StringVector splitCmd = StringUtil::split(line, " \t", 1);
+        StringVector splitCmd(StringUtil::split(line, " \t", 1));
+
         // Find attribute parser
         AttribParserList::iterator iparser = parsers.find(splitCmd[0]);
         if (iparser == parsers.end())
@@ -2269,7 +2270,9 @@ namespace Ogre
         }
         else
         {
-            String cmd = splitCmd.size() >= 2 ? splitCmd[1] : StringUtil::BLANK;
+            String cmd;
+            if(splitCmd.size() >= 2)
+                cmd = splitCmd[1];
             // Use parser, make sure we have 2 params before using splitCmd[1]
             return iparser->second( cmd, mScriptContext );
         }
