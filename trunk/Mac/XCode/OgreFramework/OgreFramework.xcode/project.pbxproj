@@ -345,6 +345,9 @@
 				82EC487D0569CB2F003A8A6D,
 				82EC48AF0569CE53003A8A6D,
 				823D9610056A0B3A0056C354,
+				82457B84057D689A003BAF7F,
+				82457B85057D689A003BAF7F,
+				82457BAA057D7B3F003BAF7F,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -496,6 +499,8 @@
 				82EC48450569C9F0003A8A6D,
 				82EC48460569C9F0003A8A6D,
 				82EC48BF0569D3F1003A8A6D,
+				82457B7A057D6841003BAF7F,
+				82457B7B057D6841003BAF7F,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1275,7 +1280,7 @@
 ";
 		};
 		66B99E53045CB129000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_BSPSceneManager.bundle;
@@ -1753,7 +1758,7 @@
 ";
 		};
 		66B99E86045CB22A000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_NatureSceneManager.bundle;
@@ -2119,7 +2124,7 @@
 ";
 		};
 		66B99EB2045CB2E5000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_OctreeSceneManager.bundle;
@@ -7239,6 +7244,9 @@
 				82EC48770569CB2F003A8A6D,
 				82EC48AE0569CE53003A8A6D,
 				823D960F056A0B3A0056C354,
+				82457B82057D689A003BAF7F,
+				82457B83057D689A003BAF7F,
+				82457BA9057D7B3F003BAF7F,
 			);
 			isa = PBXGroup;
 			name = Headers;
@@ -7383,6 +7391,8 @@
 				82EC483E0569C9F0003A8A6D,
 				82EC483F0569C9F0003A8A6D,
 				82EC48400569C9F0003A8A6D,
+				82457B78057D6841003BAF7F,
+				82457B79057D6841003BAF7F,
 			);
 			isa = PBXGroup;
 			name = Source;
@@ -7696,7 +7706,7 @@
 ";
 		};
 		66CAE6A3045A3FF8000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = RenderSystem_GL.bundle;
@@ -7823,7 +7833,7 @@
 ";
 		};
 		66CAE6C7045A402F000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = OgrePlatform.bundle;
@@ -7979,7 +7989,7 @@
 ";
 		};
 		66CAE6D8045A406F000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_FileSystem.bundle;
@@ -8777,7 +8787,7 @@
 ";
 		};
 		66E5F52C045C36FB000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_ParticleFX.bundle;
@@ -9135,7 +9145,7 @@
 ";
 		};
 		66E5F5AC045C3811000001C9 = {
-			expectedFileType = wrapper.cfbundle;
+			expectedFileType = "wrapper.plug-in";
 			fallbackIsa = PBXFileReference;
 			isa = PBXBundleReference;
 			path = Plugin_GuiElements.bundle;
@@ -9960,6 +9970,90 @@
 		};
 		823D9610056A0B3A0056C354 = {
 			fileRef = 823D960F056A0B3A0056C354;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		82457B78057D6841003BAF7F = {
+			expectedFileType = sourcecode.cpp.cpp;
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = OgreHighLevelGpuProgram.cpp;
+			path = ../../../OgreMain/src/OgreHighLevelGpuProgram.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82457B79057D6841003BAF7F = {
+			expectedFileType = sourcecode.cpp.cpp;
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = OgreHighLevelGpuProgramManager.cpp;
+			path = ../../../OgreMain/src/OgreHighLevelGpuProgramManager.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82457B7A057D6841003BAF7F = {
+			fileRef = 82457B78057D6841003BAF7F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		82457B7B057D6841003BAF7F = {
+			fileRef = 82457B79057D6841003BAF7F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		82457B82057D689A003BAF7F = {
+			expectedFileType = sourcecode.c.h;
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = OgreHighLevelGpuProgram.h;
+			path = ../../../OgreMain/include/OgreHighLevelGpuProgram.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82457B83057D689A003BAF7F = {
+			expectedFileType = sourcecode.c.h;
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = OgreHighLevelGpuProgramManager.h;
+			path = ../../../OgreMain/include/OgreHighLevelGpuProgramManager.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82457B84057D689A003BAF7F = {
+			fileRef = 82457B82057D689A003BAF7F;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		82457B85057D689A003BAF7F = {
+			fileRef = 82457B83057D689A003BAF7F;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		82457BA9057D7B3F003BAF7F = {
+			expectedFileType = sourcecode.c.h;
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			name = OgreILImageCodec.h;
+			path = ../../../OgreMain/include/OgreILImageCodec.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82457BAA057D7B3F003BAF7F = {
+			fileRef = 82457BA9057D7B3F003BAF7F;
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (

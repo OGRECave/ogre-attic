@@ -39,9 +39,9 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					182,
+					172,
 					20,
-					38,
+					37,
 					43,
 					43,
 					20,
@@ -77,10 +77,10 @@
 				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
-					160,
-					40,
+					153,
+					38,
 					20,
-					40,
+					38,
 					43,
 					43,
 				);
@@ -94,7 +94,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 90872741;
+			PBXPerProjectTemplateStateSaveDate = 92864078;
 			PBXWorkspaceContents = (
 				{
 					PBXProjectWorkspaceModule_StateKey_Rev36 = {
@@ -102,9 +102,9 @@
 						PBXProjectWorkspaceModule_EmbeddedNavigatorGroup = {
 							SplitCount = 1;
 						};
-						PBXProjectWorkspaceModule_OldDetailFrame = "{{0, 0}, {409, 308}}";
+						PBXProjectWorkspaceModule_OldDetailFrame = "{{0, 0}, {398, 308}}";
 						PBXProjectWorkspaceModule_OldEditorFrame = "{{0, 0}, {750, 480}}";
-						PBXProjectWorkspaceModule_OldSuperviewFrame = "{{273, 0}, {409, 308}}";
+						PBXProjectWorkspaceModule_OldSuperviewFrame = "{{320, 0}, {398, 308}}";
 						PBXProjectWorkspaceModule_SGTM = {
 							PBXBottomSmartGroupGIDs = (
 								1C37FBAC04509CD000000102,
@@ -132,9 +132,9 @@
 			};
 			"PBXWorkspaceContents:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Split0 = {
-					bookmark = 82FC42D7056A159B001DC8F2;
+					bookmark = 82457C55057D8BC6003BAF7F;
 					history = (
-						82FC42D6056A159B001DC8F2,
+						82457C54057D8BC6003BAF7F,
 					);
 				};
 				SplitCount = 1;
@@ -145,9 +145,9 @@
 					PBXProjectWorkspaceModule_EmbeddedNavigatorGroup = {
 						SplitCount = 1;
 					};
-					PBXProjectWorkspaceModule_OldDetailFrame = "{{0, 0}, {409, 308}}";
+					PBXProjectWorkspaceModule_OldDetailFrame = "{{0, 0}, {398, 308}}";
 					PBXProjectWorkspaceModule_OldEditorFrame = "{{0, 0}, {750, 480}}";
-					PBXProjectWorkspaceModule_OldSuperviewFrame = "{{273, 0}, {409, 308}}";
+					PBXProjectWorkspaceModule_OldSuperviewFrame = "{{320, 0}, {398, 308}}";
 					PBXProjectWorkspaceModule_SGTM = {
 						PBXBottomSmartGroupGIDs = (
 							1C37FBAC04509CD000000102,
@@ -166,19 +166,19 @@
 			};
 			PBXWorkspaceGeometries = (
 				{
-					Frame = "{{0, 0}, {682, 328}}";
+					Frame = "{{0, 0}, {718, 328}}";
 					PBXProjectWorkspaceModule_GeometryKey_Rev11 = {
 						PBXProjectWorkspaceModule_SGTM_Geometry = {
-							_collapsingFrameDimension = 0;
-							_indexOfCollapsedView = 0;
-							_percentageOfCollapsedView = 0;
+							_collapsingFrameDimension = 395;
+							_indexOfCollapsedView = 1;
+							_percentageOfCollapsedView = 0.5791789;
 							sizes = (
-								"{{0, 0}, {273, 308}}",
-								"{{273, 0}, {409, 308}}",
+								"{{0, 0}, {320, 308}}",
+								"{{320, 0}, {398, 308}}",
 							);
 						};
 					};
-					WindowFrame = "{{346, 341}, {682, 390}}";
+					WindowFrame = "{{429, 362}, {718, 390}}";
 				},
 			);
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXBuildResultsModule" = {
@@ -203,24 +203,24 @@
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXNavigatorGroup" = {
 				Frame = "{{0, 0}, {750, 480}}";
-				WindowFrame = "{{37, 247}, {750, 558}}";
+				WindowFrame = "{{130, 164}, {750, 558}}";
 			};
 			"PBXWorkspaceGeometries:PBXConfiguration.PBXModule.PBXProjectWorkspaceModule" = {
-				Frame = "{{0, 0}, {682, 328}}";
+				Frame = "{{0, 0}, {718, 328}}";
 				PBXProjectWorkspaceModule_GeometryKey_Rev11 = {
 					PBXProjectWorkspaceModule_SGTM_Geometry = {
-						_collapsingFrameDimension = 0;
-						_indexOfCollapsedView = 0;
-						_percentageOfCollapsedView = 0;
+						_collapsingFrameDimension = 395;
+						_indexOfCollapsedView = 1;
+						_percentageOfCollapsedView = 0.5791789;
 						sizes = (
-							"{{0, 0}, {273, 308}}",
-							"{{273, 0}, {409, 308}}",
+							"{{0, 0}, {320, 308}}",
+							"{{320, 0}, {398, 308}}",
 						);
 					};
 				};
-				WindowFrame = "{{346, 341}, {682, 390}}";
+				WindowFrame = "{{429, 362}, {718, 390}}";
 			};
-			PBXWorkspaceStateSaveDate = 90872741;
+			PBXWorkspaceStateSaveDate = 92864078;
 		};
 		sourceControlManager = 82747CA80549C16900FBDACA;
 		userBuildSettings = {
@@ -239,9 +239,9 @@
 	};
 	662158C2045F5CF0000001C9 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {711, 741}}";
-			sepNavSelRange = "{1746, 0}";
-			sepNavVisRect = "{{0, 0}, {711, 428}}";
+			sepNavIntBoundsRect = "{{0, 0}, {711, 1133}}";
+			sepNavSelRange = "{2628, 0}";
+			sepNavVisRect = "{{0, 705}, {711, 428}}";
 			sepNavWindowFrame = "{{61, 226}, {750, 558}}";
 		};
 	};
@@ -259,9 +259,9 @@
 	};
 	66CAE45A045A3D4F000001C9 = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {776, 10359}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRect = "{{0, 0}, {711, 428}}";
+			sepNavIntBoundsRect = "{{0, 0}, {776, 10401}}";
+			sepNavSelRange = "{5884, 0}";
+			sepNavVisRect = "{{0, 2481}, {711, 428}}";
 			sepNavWindowFrame = "{{107, 185}, {750, 558}}";
 		};
 	};
@@ -279,6 +279,14 @@
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRect = "{{0, 873}, {711, 428}}";
 			sepNavWindowFrame = "{{130, 164}, {750, 558}}";
+		};
+	};
+	66CAE55F045A3DD9000001C9 = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 811}}";
+			sepNavSelRange = "{1623, 0}";
+			sepNavVisRect = "{{0, 383}, {711, 428}}";
+			sepNavWindowFrame = "{{15, 268}, {750, 558}}";
 		};
 	};
 	66CAE569045A3DD9000001C9 = {
@@ -320,6 +328,14 @@
 			sepNavWindowFrame = "{{130, 198}, {750, 558}}";
 		};
 	};
+	82457BA9057D7B3F003BAF7F = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 951}}";
+			sepNavSelRange = "{1773, 74}";
+			sepNavVisRect = "{{0, 128}, {711, 428}}";
+			sepNavWindowFrame = "{{287, 17}, {750, 558}}";
+		};
+	};
 	82747CA80549C16900FBDACA = {
 		isa = PBXSourceControlManager;
 		scmConfiguration = {
@@ -343,7 +359,7 @@
 	82EC48BE0569D3F1003A8A6D = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {711, 868}}";
-			sepNavSelRange = "{1897, 0}";
+			sepNavSelRange = "{2136, 0}";
 			sepNavVisRect = "{{0, 440}, {711, 428}}";
 			sepNavWindowFrame = "{{84, 206}, {750, 558}}";
 		};
