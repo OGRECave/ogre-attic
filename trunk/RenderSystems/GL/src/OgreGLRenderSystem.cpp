@@ -1382,27 +1382,30 @@ namespace Ogre {
     void GLRenderSystem::_makeOrthoMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
     {
-            Radian thetaY ( fovy / 2.0f );
-            Real sinThetaY = Math::Sin(thetaY);
-            Radian thetaX ( thetaY * aspect );
-            Real sinThetaX = Math::Sin(thetaX);
-            Real w = 1.0 / (sinThetaX * nearPlane);
-            Real h = 1.0 / (sinThetaY * nearPlane);
-            Real q;
-            if (farPlane == 0)
-            {
-                q = 0;
-            }
-            else
-            {
-                q = 1.0 / (farPlane - nearPlane);
-            }
-		
-            dest = Matrix4::ZERO;
-            dest[0][0] = w;
-            dest[1][1] = h;
-            dest[2][2] = -q;
-            dest[3][3] = 1;
+        Radian thetaY (fovy / 2.0f);
+        Real tanThetaY = Math::Tan(thetaY);
+
+        //Real thetaX = thetaY * aspect;
+        Real tanThetaX = tanThetaY * aspect; //Math::Tan(thetaX);
+        Real half_w = tanThetaX * nearPlane;
+        Real half_h = tanThetaY * nearPlane;
+        Real iw = 1.0 / half_w;
+        Real ih = 1.0 / half_h;
+        Real q;
+        if (farPlane == 0)
+        {
+            q = 0;
+        }
+        else
+        {
+            q = 2.0 / (farPlane - nearPlane);
+        }
+        dest = Matrix4::ZERO;
+        dest[0][0] = iw;
+        dest[1][1] = ih;
+        dest[2][2] = -q;
+        dest[2][3] = - (farPlane + nearPlane)/(farPlane - nearPlane);
+        dest[3][3] = 1;
 	}
 
     void GLRenderSystem::_setRasterisationMode(SceneDetailLevel level)
