@@ -44,30 +44,30 @@ GLHardwarePixelBuffer::GLHardwarePixelBuffer(GLenum target, GLuint id, GLint fac
 	glBindTexture( mTarget, mTextureID );
 	
 	// Get face identifier
-	GLuint faceTarget = mTarget;
+	mFaceTarget = mTarget;
 	if(mTarget == GL_TEXTURE_CUBE_MAP)
-		faceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
+		mFaceTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
 	
 	// Get width
-	glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_WIDTH, &value);
+	glGetTexLevelParameteriv(mFaceTarget, level, GL_TEXTURE_WIDTH, &value);
 	mWidth = value;
 	
 	// Get height
 	if(target == GL_TEXTURE_1D)
 		value = 1;	// Height always 1 for 1D textures
 	else
-		glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_HEIGHT, &value);
+		glGetTexLevelParameteriv(mFaceTarget, level, GL_TEXTURE_HEIGHT, &value);
 	mHeight = value;
 	
 	// Get depth
 	if(target != GL_TEXTURE_3D)
 		value = 1; // Depth always 1 for non-3D textures
 	else
-		glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_DEPTH, &value);
+		glGetTexLevelParameteriv(mFaceTarget, level, GL_TEXTURE_DEPTH, &value);
 	mDepth = value;
 	
 	// Get format
-	glGetTexLevelParameteriv(faceTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &value);
+	glGetTexLevelParameteriv(mFaceTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &value);
 	int mGLInternalFormat = value;
 	mFormat = GLPixelUtil::getClosestOGREFormat(value);
 	
@@ -98,16 +98,8 @@ GLHardwarePixelBuffer::GLHardwarePixelBuffer(GLenum target, GLuint id, GLint fac
 //-----------------------------------------------------------------------------  
 GLHardwarePixelBuffer::~GLHardwarePixelBuffer()
 {
-	freeBuffer();
-	// Emit message
-	/*
-	std::stringstream str;
-	str << "GLHardwarePixelBuffer destructed for texture " << mTextureID 
-		<< " face " << mFace << " level " << mLevel;
-	LogManager::getSingleton().logMessage( 
-                LML_NORMAL, str.str());
-	*/
-	
+	// Force free buffer
+	delete [] (uint8*)mBuffer.data;
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::allocateBuffer()
@@ -121,13 +113,21 @@ void GLHardwarePixelBuffer::allocateBuffer()
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::freeBuffer()
 {
-	delete [] (uint8*)mBuffer.data;
-	mBuffer.data = 0;
+	// Free buffer if we're STATIC to save memory
+	if(mUsage & HBU_STATIC)
+	{
+		delete [] (uint8*)mBuffer.data;
+		mBuffer.data = 0;
+	}
 }
 //-----------------------------------------------------------------------------  
 PixelBox GLHardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
 {
 	allocateBuffer();
+	//if(!(mUsage & HBU_WRITEONLY) && options!=HBU_DISCARD)
+	if(options == HBL_READ_ONLY)
+		// Download the old contents of the texture
+		download(mBuffer);
 	return mBuffer.getSubVolume(lockBox);
 }
 //-----------------------------------------------------------------------------  
@@ -136,16 +136,15 @@ void GLHardwarePixelBuffer::unlockImpl(void)
 	// From buffer to card
 	upload(mCurrentLock);
 	
-	// deallocate or keep buffer depending on usage
-	if(mUsage & HBU_STATIC)
-		freeBuffer();
+	freeBuffer();
 }
 //-----------------------------------------------------------------------------
-void GLHardwarePixelBuffer::upload(PixelBox &data)
+void GLHardwarePixelBuffer::upload(const PixelBox &data)
 {
 	glBindTexture( mTarget, mTextureID );
 	if(PixelUtil::isCompressed(mFormat))
 	{
+		assert(data.format == mFormat);
 		GLenum format = GLPixelUtil::getClosestGLInternalFormat(mFormat);
 		// Data must be consecutive and at beginning of buffer as PixelStorei not allowed
 		// for compressed formate
@@ -158,7 +157,8 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 					data.data);
 				break;
 			case GL_TEXTURE_2D:
-				glCompressedTexSubImage2DARB_ptr(GL_TEXTURE_2D, mLevel, 
+			case GL_TEXTURE_CUBE_MAP:
+				glCompressedTexSubImage2DARB_ptr(mFaceTarget, mLevel, 
 					data.left, data.top, 
 					data.getWidth(), data.getHeight(),
 					format, data.getConsecutiveSize(),
@@ -168,13 +168,6 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 				glCompressedTexSubImage3DARB_ptr(GL_TEXTURE_3D, mLevel, 
 					data.left, data.top, data.front,
 					data.getWidth(), data.getHeight(), data.getDepth(),
-					format, data.getConsecutiveSize(),
-					data.data);
-				break;
-			case GL_TEXTURE_CUBE_MAP:
-				glCompressedTexSubImage2DARB_ptr(GL_TEXTURE_CUBE_MAP_POSITIVE_X + mFace, mLevel, 
-					data.left, data.top, 
-					data.getWidth(), data.getHeight(),
 					format, data.getConsecutiveSize(),
 					data.data);
 				break;
@@ -200,6 +193,14 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 				GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 				data.data);
 			break;
+		case GL_TEXTURE_2D:
+		case GL_TEXTURE_CUBE_MAP:
+			gluBuild2DMipmaps(
+				mFaceTarget,
+				internalFormat, data.getWidth(), data.getHeight(), 
+				GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format), 
+				data.data);
+			break;		
 		case GL_TEXTURE_3D:
 			/* Requires GLU 1.3 which is harder to come by than cards doing hardware mipmapping
 				Most 3D textures don't need mipmaps?
@@ -214,16 +215,6 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 				data.getWidth(), data.getHeight(), data.getDepth(), 0, 
 				GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 				data.data );
-			break;
-		case GL_TEXTURE_2D:
-		case GL_TEXTURE_CUBE_MAP:
-			gluBuild2DMipmaps(
-				mTarget==GL_TEXTURE_CUBE_MAP? 
-					GL_TEXTURE_CUBE_MAP_POSITIVE_X + mFace : 
-					GL_TEXTURE_2D,
-				internalFormat, data.getWidth(), data.getHeight(), 
-				GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format), 
-				data.data);
 			break;
 		}
 	} 
@@ -246,7 +237,8 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 					data.data);
 				break;
 			case GL_TEXTURE_2D:
-				glTexSubImage2D(GL_TEXTURE_2D, mLevel, 
+			case GL_TEXTURE_CUBE_MAP:
+				glTexSubImage2D(mFaceTarget, mLevel, 
 					data.left, data.top, 
 					data.getWidth(), data.getHeight(),
 					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
@@ -265,13 +257,6 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
 					data.data);
 				break;
-			case GL_TEXTURE_CUBE_MAP:
-				glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + mFace, mLevel, 
-					data.left, data.top, 
-					data.getWidth(), data.getHeight(),
-					GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
-					data.data);
-				break;
 		}	
 	}
 	// Restore defaults
@@ -280,17 +265,46 @@ void GLHardwarePixelBuffer::upload(PixelBox &data)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 //-----------------------------------------------------------------------------  
-void GLHardwarePixelBuffer::download(PixelBox &data)
+void GLHardwarePixelBuffer::download(const PixelBox &data)
 {
-	// TODO
+	if(data.getWidth() != getWidth() ||
+		data.getHeight() != getHeight() ||
+		data.getDepth() != getDepth())
+		Except(Exception::ERR_INVALIDPARAMS, "only download of entire buffer is supported by GL",
+		 	"GLHardwarePixelBuffer::download");
+	glBindTexture( mTarget, mTextureID );
+	if(PixelUtil::isCompressed(mFormat))
+	{
+		assert(data.format == mFormat);
+		// Data must be consecutive and at beginning of buffer as PixelStorei not allowed
+		// for compressed formate
+		glGetCompressedTexImageARB_ptr(mFaceTarget, mLevel, data.data);
+	} 
+	else
+	{
+		if(data.getWidth() != data.rowPitch)
+			glPixelStorei(GL_PACK_ROW_LENGTH, data.rowPitch);
+		if(data.getHeight()*data.getWidth() != data.slicePitch)
+			glPixelStorei(GL_PACK_IMAGE_HEIGHT, (data.slicePitch/data.getWidth()));
+		if((data.getWidth()*PixelUtil::getNumElemBytes(data.format)) & 3) {
+			// Standard alignment of 4 is not right
+			glPixelStorei(GL_PACK_ALIGNMENT, 1);
+		}
+		// We can only get the entire texture
+		glGetTexImage(mFaceTarget, mLevel, 
+			GLPixelUtil::getGLOriginFormat(data.format), GLPixelUtil::getGLOriginDataType(data.format),
+			data.data);
+		// Restore defaults
+		glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+		glPixelStorei(GL_PACK_IMAGE_HEIGHT, 0);
+		glPixelStorei(GL_PACK_ALIGNMENT, 4);
+	}
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
 {
-	// TODO
-	// this can be speeded up with some copy pixels primitive, sometimes
+	// this can be sped up with some copy pixels primitive, sometimes, maybe
 	HardwarePixelBuffer::blit(src, srcBox, dstBox);
-
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
@@ -299,8 +313,6 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 		Except(Exception::ERR_INVALIDPARAMS, "destination box out of range",
 		 "GLHardwarePixelBuffer::blitFromMemory");
 	PixelBox scaled;
-	// for scoped deletion of conversion buffer
-	MemoryDataStreamPtr buf;
 	
 	if(src.getWidth() != dstBox.getWidth() ||
 		src.getHeight() != dstBox.getHeight() ||
@@ -309,22 +321,16 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 		// Scale to destination size. Use DevIL and not iluScale because ILU screws up for 
 		// floating point textures and cannot cope with 3D images.
 		// This also does pixel format conversion if needed
-		buf.bind(new MemoryDataStream(
-			PixelUtil::getMemorySize(dstBox.getWidth(), 
-				dstBox.getHeight(), dstBox.getDepth(),
-				mFormat)));
-		scaled = PixelBox(dstBox, mFormat, buf->getPtr());
+		allocateBuffer();
+		scaled = mBuffer.getSubVolume(dstBox);
 		Image::scale(src, scaled, Image::FILTER_BILINEAR);
 	}
 	else if(GLPixelUtil::getGLOriginFormat(src.format) == 0)
 	{
 		// Extents match, but format is not accepted as valid source format for GL
 		// do conversion in temporary buffer
-		buf.bind(new MemoryDataStream(
-			PixelUtil::getMemorySize(dstBox.getWidth(), 
-				dstBox.getHeight(), dstBox.getDepth(),
-				mFormat)));
-		scaled = PixelBox(dstBox, mFormat, buf->getPtr());
+		allocateBuffer();
+		scaled = mBuffer.getSubVolume(dstBox);
 		PixelUtil::bulkPixelConversion(src, scaled);
 	}
 	else
@@ -341,12 +347,44 @@ void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box
 	}
 	
 	upload(scaled);
+	freeBuffer();
 }
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::blitToMemory(const Image::Box &srcBox, const PixelBox &dst)
 {
-	// TODO
-	// glGetTexImageXD
+	if(!mBuffer.contains(srcBox))
+		Except(Exception::ERR_INVALIDPARAMS, "source box out of range",
+		 "GLHardwarePixelBuffer::blitToMemory");
+	if(srcBox.left == 0 && srcBox.right == getWidth() &&
+	   srcBox.top == 0 && srcBox.bottom == getHeight() &&
+	   srcBox.front == 0 && srcBox.back == getDepth() &&
+	   dst.getWidth() == getWidth() &&
+	   dst.getHeight() == getHeight() &&
+	   dst.getDepth() == getDepth())
+	{
+		// The direct case: the user wants the entire texture, so we don't need an intermediate buffer
+		download(dst);
+	}
+	else
+	{
+		// Use buffer for intermediate copy
+		allocateBuffer();
+		// Download entire buffer
+		download(mBuffer);
+		if(srcBox.getWidth() != dst.getWidth() ||
+			srcBox.getHeight() != dst.getHeight() ||
+			srcBox.getDepth() != dst.getDepth())
+		{
+			// We need scaling
+			Image::scale(mBuffer.getSubVolume(srcBox), dst, Image::FILTER_BILINEAR);
+		}
+		else
+		{
+			// Just copy the bit that we need
+			PixelUtil::bulkPixelConversion(mBuffer.getSubVolume(srcBox), dst);
+		}
+		freeBuffer();
+	}
 }
 
 
