@@ -598,6 +598,7 @@ namespace Ogre {
         mCameraInProgress = camera;
 
 
+        _applySceneAnimations();
         _updateSceneGraph(camera);
         _updateDynamicLights();
         _findVisibleObjects(camera);
