@@ -99,11 +99,7 @@ namespace Ogre {
             char szLine[20];
 
             desc += "\nLine: ";
-#ifdef OGRE_LINUX
             snprintf(szLine, 20, "%ld", line);
-#else
-            _snprintf(szLine, 20, "%d", line);
-#endif
 
             desc += szLine;
         }
