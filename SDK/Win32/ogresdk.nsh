@@ -239,34 +239,14 @@ FunctionEnd
 
 Section Uninstall
   !insertmacro MUI_STARTMENU_GETFOLDER "Application" $ICONS_GROUP
-  Delete "$INSTDIR\OgreWebSite.url"
-  Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\docs\api\*.*"
-  Delete "$INSTDIR\docs\manual\*.*"
-  Delete "$INSTDIR\docs\manual\images\*.*"
-  Delete "$SYSDIR\zlib1.dll"
-  Delete "$SYSDIR\cg.dll"
-  Delete "$SYSDIR\devil.dll"
-  Delete "$SYSDIR\ilu.dll"
-  Delete "$SYSDIR\ilut.dll"
-  Delete "$INSTDIR\redist\zlib1.dll"
-  Delete "$INSTDIR\redist\cg.dll"
-  Delete "$INSTDIR\redist\devil.dll"
-  Delete "$INSTDIR\redist\ilu.dll"
-  Delete "$INSTDIR\redist\ilut.dll"
+  RMDir /r "$INSTDIR"
 
   Delete "$SMPROGRAMS\$ICONS_GROUP\Uninstall.lnk"
   Delete "$SMPROGRAMS\$ICONS_GROUP\Website.lnk"
-  Delete "OGRE API Reference.lnk"
-  Delete "OGRE Manual.lnk"
+  Delete "$SMPROGRAMS\$ICONS_GROUP\OGRE API Reference.lnk"
+  Delete "$SMPROGRAMS\$ICONS_GROUP\OGRE Manual.lnk"
 
   RMDir "$SMPROGRAMS\$ICONS_GROUP"
-  RMDir "$INSTDIR\redist"
-  RMDir "$INSTDIR\docs\manual\images"
-  RMDir "$INSTDIR\docs\manual"
-  RMDir "$INSTDIR\docs\api\CVS"
-  RMDir "$INSTDIR\docs\api"
-  RMDir ""
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetAutoClose true
