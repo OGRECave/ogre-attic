@@ -37,6 +37,7 @@ namespace Ogre {
     SubEntity::SubEntity ()
     {
         mpMaterial = static_cast<Material*>(MaterialManager::getSingleton().getByName("BaseWhite"));
+        mMaterialLodIndex = 0;
         mRenderDetail = SDL_SOLID;
     }
     //-----------------------------------------------------------------------
@@ -76,6 +77,11 @@ namespace Ogre {
     Material* SubEntity::getMaterial(void) const
     {
         return mpMaterial;
+    }
+    //-----------------------------------------------------------------------
+    Technique* SubEntity::getTechnique(void) const
+    {
+        return mpMaterial->getBestTechnique(mMaterialLodIndex);
     }
     //-----------------------------------------------------------------------
     void SubEntity::getRenderOperation(RenderOperation& op)

@@ -190,17 +190,36 @@ namespace Ogre {
 		if (mParentNode)
 		{
 			Real squaredDepth = mParentNode->getSquaredViewDepth(cam);
+
+            // Do Mesh LOD
 			// Adjust this depth by the entity bias factor
-			squaredDepth = squaredDepth * mMeshLodFactorInv;
+			Real tmp = squaredDepth * mMeshLodFactorInv;
 			// Now adjust it by the camera bias
-			squaredDepth = squaredDepth * cam->_getLodBiasInverse();
+			tmp = tmp * cam->_getLodBiasInverse();
 			// Get the index at this biased depth
-			mMeshLodIndex = mMesh->getLodIndexSquaredDepth(squaredDepth);
+			mMeshLodIndex = mMesh->getLodIndexSquaredDepth(tmp);
 			// Apply maximum detail restriction (remember lower = higher detail)
 			mMeshLodIndex = std::max(mMaxMeshLodIndex, mMeshLodIndex);
 			// Apply minimum detail restriction (remember higher = lower detail)
 			mMeshLodIndex = std::min(mMinMeshLodIndex, mMeshLodIndex);
 			
+            // Now do material LOD
+			// Adjust this depth by the entity bias factor
+			tmp = squaredDepth * mMaterialLodFactorInv;
+			// Now adjust it by the camera bias
+			tmp = tmp * cam->_getLodBiasInverse();
+            SubEntityList::iterator i, iend;
+            iend = mSubEntityList.end();
+            for (i = mSubEntityList.begin(); i != iend; ++i)
+            {
+			    // Get the index at this biased depth
+                unsigned short idx = (*i)->mpMaterial->getLodIndexSquaredDepth(tmp);
+			    // Apply maximum detail restriction (remember lower = higher detail)
+			    idx = std::max(mMaxMaterialLodIndex, idx);
+			    // Apply minimum detail restriction (remember higher = lower detail)
+			    (*i)->mMaterialLodIndex = std::min(mMinMaterialLodIndex, idx);
+            }
+
 
 		}
         // Notify any child objects
@@ -272,7 +291,6 @@ namespace Ogre {
         iend = subEntList->end();
         for (i = subEntList->begin(); i != iend; ++i)
         {
-            (*i)->mpMaterial->touch();
             queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
         }
 
@@ -383,12 +401,21 @@ namespace Ogre {
         mDisplaySkeleton = display;
     }
     //-----------------------------------------------------------------------
-	void Entity::setLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
+	void Entity::setMeshLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
 	{
 		assert(factor > 0.0f && "Bias factor must be > 0!");
 		mMeshLodFactorInv = 1.0f / factor;
 		mMaxMeshLodIndex = maxDetailIndex;
 		mMinMeshLodIndex = minDetailIndex;
+
+	}
+    //-----------------------------------------------------------------------
+	void Entity::setMaterialLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
+	{
+		assert(factor > 0.0f && "Bias factor must be > 0!");
+		mMaterialLodFactorInv = 1.0f / factor;
+		mMaxMaterialLodIndex = maxDetailIndex;
+		mMinMaterialLodIndex = minDetailIndex;
 
 	}
     //-----------------------------------------------------------------------

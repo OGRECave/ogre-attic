@@ -77,6 +77,8 @@ namespace Ogre {
         }
 
         pGroup->addRenderable(pRend, priority);
+        // tell material it's been used
+        pRend->getMaterial()->touch();
 
     }
     //-----------------------------------------------------------------------

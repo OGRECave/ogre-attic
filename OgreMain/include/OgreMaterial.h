@@ -503,7 +503,7 @@ namespace Ogre {
         /** Gets the LOD index to use at the given distance. */
         unsigned short getLodIndex(Real d);
         /** Gets the LOD index to use at the given squared distance. */
-        unsigned short getLodIndexSquaredDistance(Real squaredDistance);
+        unsigned short getLodIndexSquaredDepth(Real squaredDepth);
 
 
     };

@@ -548,7 +548,6 @@ namespace Ogre {
         {
 
             // Add outer
-            mpBorderMaterial->touch();
             queue->addRenderable(mBorderRenderable, RENDER_QUEUE_OVERLAY, mZOrder);
 
 			// do inner last so the border artifacts don't overwrite the children

@@ -78,9 +78,14 @@ namespace Ogre {
             Technique* t = this->createTechnique();
             *t = *(*i);
             if ((*i)->isSupported())
+            {
                 mSupportedTechniques.push_back(t);
+				// NB this won't insert if the index is already there, which is what we want
+				mBestTechniqueList.insert(
+					BestTechniqueList::value_type(t->getLodIndex(), t));
+            }
         }
-        mCompilationRequired = rhs.mCompilationRequired;
+        mCompilationRequired = rhs.mCompilationRequired; 
         mIsLoaded = rhs.mIsLoaded;
 
 	    return *this;
@@ -195,7 +200,7 @@ namespace Ogre {
 			{
 				Except(Exception::ERR_ITEM_NOT_FOUND, 
 					"Lod index " + StringConverter::toString(lodIndex) + 
-					"not found for material " + mName,
+					" not found for material " + mName,
 					"Material::getBestTechnique");
 			}
             return i->second;
@@ -209,6 +214,7 @@ namespace Ogre {
         delete(*i);
         mTechniques.erase(i);
         mSupportedTechniques.clear();
+        mBestTechniqueList.clear();
         mCompilationRequired = true;
     }
     //-----------------------------------------------------------------------
@@ -222,6 +228,7 @@ namespace Ogre {
         }
         mTechniques.clear();
         mSupportedTechniques.clear();
+        mBestTechniqueList.clear();
         mCompilationRequired = true;
     }
     //-----------------------------------------------------------------------
@@ -528,10 +535,10 @@ namespace Ogre {
     // --------------------------------------------------------------------
     unsigned short Material::getLodIndex(Real d)
     {
-        return getLodIndexSquaredDistance(d * d);
+        return getLodIndexSquaredDepth(d * d);
     }
     // --------------------------------------------------------------------
-    unsigned short Material::getLodIndexSquaredDistance(Real squaredDistance)
+    unsigned short Material::getLodIndexSquaredDepth(Real squaredDistance)
     {
 		LodDistanceList::const_iterator i, iend;
 		iend = mLodDistances.end();

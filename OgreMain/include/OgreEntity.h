@@ -128,7 +128,14 @@ namespace Ogre {
 		/// Index of maximum detail LOD (NB lower index is higher detail)
 		ushort mMaxMeshLodIndex;
 
-		/// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
+		/// LOD bias factor, inverted for optimisation when calculating adjusted depth
+		Real mMaterialLodFactorInv;
+		/// Index of minimum detail LOD (NB higher index is lower detail)
+		ushort mMinMaterialLodIndex;
+		/// Index of maximum detail LOD (NB lower index is higher detail)
+		ushort mMaxMaterialLodIndex;
+
+        /// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
 		bool mUsingManualLOD;
 		/** List of SubEntity lists (for manual LODs).
 			We don't know when the mesh is using manual LODs whether one LOD to the next will have the
@@ -240,11 +247,11 @@ namespace Ogre {
         void setDisplaySkeleton(bool display);
 
 
-		/** Sets a level-of-detail bias on this entity.
+		/** Sets a level-of-detail bias for the mesh detail of this entity.
 		@remarks
 			Level of detail reduction is normally applied automatically based on the Mesh 
 			settings. However, it is possible to influence this behaviour for this entity
-			by adjusting the LOD bias. This 'nudges' the level of detail used for this 
+			by adjusting the LOD bias. This 'nudges' the mesh level of detail used for this 
 			entity up or down depending on your requirements. You might want to use this
 			if there was a particularly important entity in your scene which you wanted to
 			detail better than the others, such as a player model.
@@ -266,7 +273,35 @@ namespace Ogre {
 			indexes are lower detail. Use something like 99 if you want unlimited LODs (the actual
 			LOD will be limited by the number in the Mesh)
 		*/
-		void setLodBias(Real factor = 1.0, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
+		void setMeshLodBias(Real factor, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
+
+		/** Sets a level-of-detail bias for the material detail of this entity.
+		@remarks
+			Level of detail reduction is normally applied automatically based on the Material 
+			settings. However, it is possible to influence this behaviour for this entity
+			by adjusting the LOD bias. This 'nudges' the material level of detail used for this 
+			entity up or down depending on your requirements. You might want to use this
+			if there was a particularly important entity in your scene which you wanted to
+			detail better than the others, such as a player model.
+		@par
+			There are three parameters to this method; the first is a factor to apply; it 
+			defaults to 1.0 (no change), by increasing this to say 2.0, this entity would 
+			take twice as long to use a lower detail material, whilst at 0.5 this entity 
+            would use lower detail versions twice as quickly. The other 2 parameters are 
+            hard limits which let you set the maximum and minimum level-of-detail index 
+            to use, after all other calculations have been made. This lets you say that 
+            this entity should never be simplified, or that it can only use LODs below 
+            a certain level even when right next to the camera.
+		@param factor Proportional factor to apply to the distance at which LOD is changed. 
+			Higher values increase the distance at which higher LODs are displayed (2.0 is 
+			twice the normal distance, 0.5 is half).
+		@param maxDetailIndex The index of the maximum LOD this entity is allowed to use (lower
+			indexes are higher detail: index 0 is the original full detail model).
+		@param minDetailIndex The index of the minimum LOD this entity is allowed to use (higher
+			indexes are lower detail. Use something like 99 if you want unlimited LODs (the actual
+			LOD will be limited by the number of lod indexes used in the Material)
+		*/
+        void setMaterialLodBias(Real factor, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
 			
         /** Sets the rendering detail of this entire entity (solid, wireframe etc) */
         void setRenderDetail(SceneDetailLevel renderDetail);
