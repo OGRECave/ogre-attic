@@ -284,7 +284,8 @@ namespace Ogre {
         @remarks
         Animated textures are just a series of images making up the frames of the animation. All the images
         must be the same size, and their names must have a frame number appended before the extension, e.g.
-        if you specify a name of "wall.jpg" with 3 frames, the image names must be "wall_1.jpg" and "wall_2.jpg".
+        if you specify a name of "wall.jpg" with 3 frames, the image names must be "wall_0.jpg", "wall_1.jpg"
+        and "wall_2.jpg".
         @par
         You can change the active frame on a texture layer by calling the setCurrentFrame method.
         @note
