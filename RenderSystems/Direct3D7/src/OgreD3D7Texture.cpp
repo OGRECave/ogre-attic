@@ -614,18 +614,18 @@ namespace Ogre {
         {
             if( mHasAlpha )
             {
-                /* 8-8-8 RGB */
-                ddsd.ddpfPixelFormat.dwRBitMask        = 0xff0000;
-                ddsd.ddpfPixelFormat.dwGBitMask        = 0x00ff00;
-                ddsd.ddpfPixelFormat.dwBBitMask        = 0x0000ff;
-            }
-            else
-            {
                 /* 8-8-8-8 ARGB */
                 ddsd.ddpfPixelFormat.dwRGBAlphaBitMask = 0xff000000;
                 ddsd.ddpfPixelFormat.dwRBitMask        = 0x00ff0000;
                 ddsd.ddpfPixelFormat.dwGBitMask        = 0x0000ff00;
                 ddsd.ddpfPixelFormat.dwBBitMask        = 0x000000ff;
+            }
+            else
+            {
+                /* 8-8-8 RGB */
+                ddsd.ddpfPixelFormat.dwRBitMask        = 0xff0000;
+                ddsd.ddpfPixelFormat.dwGBitMask        = 0x00ff00;
+                ddsd.ddpfPixelFormat.dwBBitMask        = 0x0000ff;
             }
         }
 
@@ -676,7 +676,7 @@ namespace Ogre {
         if( FAILED( hr = pDD->CreateSurface( &ddsd, &mSurface, NULL ) ) )
         {
             pDD->Release();
-            Except( Exception::ERR_RENDERINGAPI_ERROR,
+            Except( hr,
                 "Could not create DirectDraw surface.",
                 "D3DTexture::createSurfaces" );
         }
