@@ -113,6 +113,8 @@ namespace Ogre
     {
         // Create manual mesh which calls back self to load
         MeshPtr pMesh = createManual(name, groupName, this);
+		// Planes can never be manifold
+		pMesh->setAutoBuildEdgeLists(false);
         // store parameters
         MeshBuildParams params;
         params.type = MBT_PLANE;
@@ -147,6 +149,8 @@ namespace Ogre
     {
         // Create manual mesh which calls back self to load
         MeshPtr pMesh = createManual(name, groupName, this);
+		// Planes can never be manifold
+		pMesh->setAutoBuildEdgeLists(false);
         // store parameters
         MeshBuildParams params;
         params.type = MBT_CURVED_PLANE;
@@ -188,6 +192,8 @@ namespace Ogre
 	{
         // Create manual mesh which calls back self to load
         MeshPtr pMesh = createManual(name, groupName, this);
+		// Planes can never be manifold
+		pMesh->setAutoBuildEdgeLists(false);
         // store parameters
         MeshBuildParams params;
         params.type = MBT_CURVED_ILLUSION_PLANE;
@@ -310,6 +316,8 @@ namespace Ogre
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
             true, // manually loaded
             this);
+		// Planes can never be manifold
+		msh->setAutoBuildEdgeLists(false);
         // to preserve previous behaviour, load immediately
         msh->load();
     }

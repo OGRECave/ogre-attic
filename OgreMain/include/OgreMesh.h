@@ -198,7 +198,10 @@ namespace Ogre {
             const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
         ~Mesh();
 
-        // NB All methods below are non-virtual since they will be
+		/// @copydoc Resource::load
+		void load(void);
+
+		// NB All methods below are non-virtual since they will be
         // called in the rendering loop - speed is of the essence.
 
         /** Creates a new SubMesh.

@@ -150,35 +150,37 @@ namespace Ogre {
         SubMeshList::const_iterator i = mSubMeshList.begin();
         return const_cast<SubMesh*>(i[index]);
     }
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	void Mesh::load(void)
+	{
+		// Overridden to ensure edge lists get built from manual or
+		// loaded meshes
+		Resource::load();
+
+		// Prepare for shadow volumes?
+		if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())
+		{
+			if (mEdgeListsBuilt || mAutoBuildEdgeLists)
+			{
+				prepareForShadowVolume();
+			}
+
+			if (!mEdgeListsBuilt && mAutoBuildEdgeLists)
+			{
+				buildEdgeList();
+			}
+		}
+	}
+	//-----------------------------------------------------------------------
     void Mesh::loadImpl()
     {
         // Load from specified 'name'
+        MeshSerializer serializer;
+        LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
-        if (!mIsManual)
-        {
-            MeshSerializer serializer;
-            LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
-
-            DataStreamPtr stream = 
-                ResourceGroupManager::getSingleton().openResource(mName, mGroup);
-            serializer.importMesh(stream, this);
-
-        }
-
-        // Prepare for shadow volumes?
-        if (MeshManager::getSingleton().getPrepareAllMeshesForShadowVolumes())
-        {
-            if (mEdgeListsBuilt || mAutoBuildEdgeLists)
-            {
-                prepareForShadowVolume();
-            }
-
-            if (!mEdgeListsBuilt && mAutoBuildEdgeLists)
-            {
-                buildEdgeList();
-            }
-        }
+        DataStreamPtr stream = 
+            ResourceGroupManager::getSingleton().openResource(mName, mGroup);
+        serializer.importMesh(stream, this);
 
     }
 
