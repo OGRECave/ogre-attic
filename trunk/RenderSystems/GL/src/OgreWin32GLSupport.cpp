@@ -258,11 +258,10 @@ namespace Ogre {
         }
 	}
 
-	void Win32GLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) {
-		
-
-		if(	checkExtension("WGL_ARB_pixel_format") &&
-			checkExtension("WGL_ARB_render_texture")) {
+	void Win32GLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) 
+	{
+		if(	checkExtension("WGL_ARB_pixel_format")) 
+		{
 			// If yes, add rendersystem flag RSC_HWRENDER_TO_TEXTURE	
 			caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
 		}
@@ -276,10 +275,10 @@ namespace Ogre {
 	void Win32GLSupport::resizeReposition(void* renderTarget)
 	{
 		Win32Window  *pWin32Window = (Win32Window *)renderTarget;
-		if (pWin32Window->getWindowHandle()== m_windowToResize){
-					pWin32Window->windowMovedOrResized();
+		if (pWin32Window->getWindowHandle()== m_windowToResize)
+		{
+			pWin32Window->windowMovedOrResized();
 		}
-
 	}
 
 	RenderTexture * Win32GLSupport::createRenderTexture( const String & name, 
@@ -288,9 +287,12 @@ namespace Ogre {
 		const NameValuePairList *miscParams ) 
 	{
 #ifdef HW_RTT
+		bool useBind = checkExtension("WGL_ARB_render_texture");
+		useBind = true;
+
 		if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
 			return new Win32RenderTexture(*this, name, width, height, texType, 
-				internalFormat, miscParams);
+				internalFormat, miscParams, useBind);
 		else
 #endif
 			return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);

@@ -37,7 +37,7 @@ namespace Ogre {
 		Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
 			unsigned int width, unsigned int height,
 			TextureType texType, PixelFormat internalFormat, 
-			const NameValuePairList *miscParams );
+			const NameValuePairList *miscParams, bool useBind );
         ~Win32RenderTexture();
     protected:
         virtual void _copyToTexture();
@@ -54,6 +54,7 @@ namespace Ogre {
 		HGLRC	mGlrc;
 		HPBUFFERARB mPBuffer;
         Win32Context *mContext;
+		bool mUseBind;
     };
 }
 

@@ -58,10 +58,10 @@ namespace Ogre {
 	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
 			unsigned int width, unsigned int height,
 			TextureType texType, PixelFormat internalFormat, 
-			const NameValuePairList *miscParams ):
+			const NameValuePairList *miscParams, bool useBind ):
 		GLRenderTexture(name, width, height, texType, internalFormat, miscParams),
 		mGLSupport(glsupport),
-        mContext(0)
+        mContext(0), mUseBind(useBind)
 	{
 		if(!_wglChoosePixelFormatARB) _wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 		if(!_wglCreatePbufferARB) _wglCreatePbufferARB = (PFNWGLCREATEPBUFFERARBPROC)wglGetProcAddress("wglCreatePbufferARB");
@@ -69,9 +69,12 @@ namespace Ogre {
 		if(!_wglReleasePbufferDCARB) _wglReleasePbufferDCARB = (PFNWGLRELEASEPBUFFERDCARBPROC)wglGetProcAddress("wglReleasePbufferDCARB");
 		if(!_wglDestroyPbufferARB) _wglDestroyPbufferARB = (PFNWGLDESTROYPBUFFERARBPROC)wglGetProcAddress("wglDestroyPbufferARB");
 		if(!_wglQueryPbufferARB) _wglQueryPbufferARB = (PFNWGLQUERYPBUFFERARBPROC)wglGetProcAddress("wglQueryPbufferARB");
-		if(!_wglBindTexImageARB) _wglBindTexImageARB = (PFNWGLBINDTEXIMAGEARBPROC)wglGetProcAddress("wglBindTexImageARB");
-		if(!_wglReleaseTexImageARB) _wglReleaseTexImageARB = (PFNWGLRELEASETEXIMAGEARBPROC)wglGetProcAddress("wglReleaseTexImageARB");
 		if(!_wglGetPixelFormatAttribivARB) _wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribivARB");
+		if(mUseBind)
+		{
+			if(!_wglBindTexImageARB) _wglBindTexImageARB = (PFNWGLBINDTEXIMAGEARBPROC)wglGetProcAddress("wglBindTexImageARB");
+			if(!_wglReleaseTexImageARB) _wglReleaseTexImageARB = (PFNWGLRELEASETEXIMAGEARBPROC)wglGetProcAddress("wglReleaseTexImageARB");
+		}
 	
 		createPBuffer();
 
@@ -81,18 +84,24 @@ namespace Ogre {
         GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
         rs->_registerContext(this, mContext);        
 
-		// Bind texture
-		glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
-		_wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+		if(mUseBind)
+		{
+			// Bind texture
+			glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
+			_wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+		}
 	}
 	Win32RenderTexture::~Win32RenderTexture() 
 	{
-		// Unbind texture
-		glBindTexture(GL_TEXTURE_2D,
-		    static_cast<GLTexture*>(mTexture.get())->getGLID());
-		glBindTexture(GL_TEXTURE_2D,
-			static_cast<GLTexture*>(mTexture.get())->getGLID());
-		_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+		if(mUseBind)
+		{
+			// Unbind texture
+			glBindTexture(GL_TEXTURE_2D,
+				static_cast<GLTexture*>(mTexture.get())->getGLID());
+			glBindTexture(GL_TEXTURE_2D,
+				static_cast<GLTexture*>(mTexture.get())->getGLID());
+			_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+		}
            
         // Unregister and destroy mContext
         GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
@@ -105,7 +114,11 @@ namespace Ogre {
 	
 	void Win32RenderTexture::_copyToTexture() 
 	{
-		// Not needed
+		if(!mUseBind)
+		{
+			// Use old fasioned copying
+			GLRenderTexture::_copyToTexture();
+		}
 	}
  /*
 	void Win32RenderTexture::firePreUpdate(void) 
@@ -158,7 +171,7 @@ namespace Ogre {
 			WGL_PIXEL_TYPE_ARB,pixeltype,
 			bttype,true,
 			//WGL_DOUBLE_BUFFER_ARB,true,
-			WGL_ACCELERATION_ARB,WGL_FULL_ACCELERATION_ARB, // Make sure it is accelerated
+			//WGL_ACCELERATION_ARB,WGL_FULL_ACCELERATION_ARB, // Make sure it is accelerated
 			0
 		};
 		int pattrib[] = { 
