@@ -1276,7 +1276,7 @@ namespace Ogre {
             glEnable(GL_POLYGON_OFFSET_POINT);
             glEnable(GL_POLYGON_OFFSET_LINE);
             // Bias is in {0, 16}, scale the unit addition appropriately
-            glPolygonOffset(1.0f, bias / 16);
+            glPolygonOffset(1.0f, bias);
         }
         else
         {
