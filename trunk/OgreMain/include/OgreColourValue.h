@@ -27,55 +27,57 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 
-namespace Ogre {
-    typedef unsigned long RGBA;
-    typedef unsigned long ARGB;
-    typedef unsigned long ABGR;
+BEGIN_OGRE_NAMESPACE
 
-    /** Class representing colour.
-        @remarks
-            Colour is represented as 4 components, each of which is a
-            floating-point value from 0.0 to 1.0.
-        @par
-            The 3 'normal' colour components are red, green and blue, a higher
-            number indicating greater amounts of that component in the colour.
-            The forth component is the 'alpha' value, which represents
-            transparency. In this case, 0.0 is completely transparent and 1.0 is
-            fully opaque.
-        @todo
-            Add more formats e.g. 16-bit 5551 etc
-    */
-    class _OgreExport ColourValue
-    {
-    public:
-        static ColourValue Black;
-        static ColourValue White;
-        static ColourValue Red;
-        static ColourValue Green;
-        static ColourValue Blue;
+typedef unsigned long RGBA;
+typedef unsigned long ARGB;
+typedef unsigned long ABGR;
 
-        ColourValue(Real red = 1.0f,
-                    Real green = 1.0f,
-                    Real blue = 1.0f,
-                    Real alpha = 1.0f);
+/** Class representing colour.
+	@remarks
+		Colour is represented as 4 components, each of which is a
+		floating-point value from 0.0 to 1.0.
+	@par
+		The 3 'normal' colour components are red, green and blue, a higher
+		number indicating greater amounts of that component in the colour.
+		The forth component is the 'alpha' value, which represents
+		transparency. In this case, 0.0 is completely transparent and 1.0 is
+		fully opaque.
+	@todo
+		Add more formats e.g. 16-bit 5551 etc
+*/
+class _OgreExport ColourValue
+{
+public:
+	static ColourValue Black;
+	static ColourValue White;
+	static ColourValue Red;
+	static ColourValue Green;
+	static ColourValue Blue;
 
-        bool operator==(const ColourValue& rhs) const;
-        bool operator!=(const ColourValue& rhs) const;
+	ColourValue( Real red = 1.0f,
+				 Real green = 1.0f,
+				 Real blue = 1.0f,
+				 Real alpha = 1.0f );
 
-        Real r,g,b,a;
+	bool operator==(const ColourValue& rhs) const;
+	bool operator!=(const ColourValue& rhs) const;
 
-        /** Retrieves colour as RGBA.
-        */
-        RGBA getAsLongRGBA(void) const;
+	Real r,g,b,a;
 
-        /** Retrieves colour as ARGB.
-        */
-        ARGB getAsLongARGB(void) const;
+	/** Retrieves colour as RGBA.
+	*/
+	RGBA getAsLongRGBA(void) const;
 
-        /** Retrieves colours as ABGR */
-        ABGR getAsLongABGR(void) const;
+	/** Retrieves colour as ARGB.
+	*/
+	ARGB getAsLongARGB(void) const;
 
-    };
-}
+	/** Retrieves colours as ABGR */
+	ABGR getAsLongABGR(void) const;
+
+};
+
+END_OGRE_NAMESPACE
 
 #endif
