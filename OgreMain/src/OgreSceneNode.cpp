@@ -215,7 +215,10 @@ namespace Ogre {
         ObjectMap::iterator iobjend = mObjectsByName.end();
         for (iobj = mObjectsByName.begin(); iobj != iobjend; ++iobj)
         {
-            iobj->second->_updateRenderQueue(queue);
+            if (iobj->second->isVisible())
+            {
+                iobj->second->_updateRenderQueue(queue);
+            }
         }
 
         if (includeChildren)

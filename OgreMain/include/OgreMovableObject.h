@@ -91,8 +91,15 @@ namespace Ogre {
         */
         virtual void _updateRenderQueue(RenderQueue* queue) = 0;
 
+        /** Tells this object whether to be visible or not, if it has a renderable component. */
+        virtual void setVisible(bool visible);
+
+        /** Returns whether or not this object is supposed to be visible or not. */
+        virtual bool isVisible(void) const;
+
     protected:
         SceneNode* mParentNode;
+        bool mVisible;
     };
 
 }
