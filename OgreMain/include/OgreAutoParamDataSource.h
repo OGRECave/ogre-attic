@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __AutoParamDataSource_H_
 
 #include "OgrePrerequisites.h"
+#include "OgreCommon.h"
 #include "OgreMatrix4.h"
 #include "OgreVector4.h"
 #include "OgreLight.h"
