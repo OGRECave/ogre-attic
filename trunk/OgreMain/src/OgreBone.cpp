@@ -31,7 +31,7 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     Bone::Bone(unsigned short handle, Skeleton* creator) 
-        : mCreator(creator), mHandle(handle)
+        : Node(), mCreator(creator), mHandle(handle)
     {
     }
     //---------------------------------------------------------------------

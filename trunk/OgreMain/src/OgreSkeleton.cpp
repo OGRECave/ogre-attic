@@ -38,19 +38,18 @@ namespace Ogre {
     Skeleton::Skeleton(String name) 
     {
         mName = name;
-        // Start auto handles high to avoid problems with combinations
-        mNextAutoHandle = 32768;
 
-        // Create root bone, handle 0
-        mRootBone = createBone(0);
+        // Start next handle
+        mNextAutoHandle = 0;
+
+        // Indicate root has not been derived yet
+        mRootBone = 0;
 
     }
     //---------------------------------------------------------------------
     Skeleton::~Skeleton()
     {
         unload();
-        // delete root bone
-        delete mRootBone;
     }
     //---------------------------------------------------------------------
     void Skeleton::load(void)
@@ -94,12 +93,11 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Skeleton::unload(void)
     {
-        // destroy bones, except root
+        // destroy bones
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {
-            if (i->second != mRootBone) // If not root
-                delete i->second;
+            delete i->second;
         }
         mBoneList.clear();
 
@@ -134,8 +132,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Bone* Skeleton::getRootBone(void) const
     {
-        return mRootBone;
+        if (mRootBone == 0)
+        {
+            deriveRootBone();
+        }
 
+        return mRootBone;
     }
     //---------------------------------------------------------------------
     void Skeleton::setAnimationState(const AnimationStateSet& animSet)
@@ -338,6 +340,29 @@ namespace Ogre {
 
         return i->second;
 
+    }
+    //---------------------------------------------------------------------
+    void Skeleton::deriveRootBone(void) const
+    {
+        // Start at the first bone and work up
+        if (mBoneList.empty())
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Cannot derive root bone as this "
+                "skeleton has no bones!", "Skeleton::deriveRootBone");
+        }
+
+        Bone* currentBone;
+        BoneList::const_iterator i = mBoneList.begin();
+
+        currentBone = i->second;
+        while (currentBone->getParent() != 0)
+        {
+            // Keep going up the tree
+            currentBone = (Bone*)currentBone->getParent();
+        }
+
+        // No more parents, this must be the root
+        mRootBone = currentBone;
     }
 
 

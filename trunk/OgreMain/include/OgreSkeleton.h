@@ -64,9 +64,9 @@ namespace Ogre {
     public:
         /** Constructor, don't call directly, use SkeletonManager.
         @remarks
-            On creation, a Skeleton has a single Bone, namely the 'root bone' which 
-            is the joint from which all other bones start (a common choice is the
-            pelvis, but it can be any bone).
+            On creation, a Skeleton has a no bones, you should create them and link
+            them together appropriately. Unless you state otherwise by attaching it to 
+            a higher bone, the first bone you create is deemed to be the root bone.
         */
         Skeleton(String name);
         ~Skeleton();
@@ -81,11 +81,11 @@ namespace Ogre {
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
-            This method creates an unattached new Bone for this skeleton. You must
-            attach it to another Bone in the skeleton for it to be any use. For this
-            reason you will likely be better off creating child bones using the
-            Bone::createChild method instead. You can start with the root bone (which 
-            is always created for you) by calling the getRootBone method.
+            This method creates an unattached new Bone for this skeleton. Unless this is to
+            be the root bone (there must only be one of these), you must
+            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            For this reason you will likely be better off creating child bones using the
+            Bone::createChild method instead, once you have created the root bone. 
         @par
             Note that this method automatically generates a handle for the bone, which you
             can retrieve using Bone::getHandle. If you wish the new Bone to have a specific
@@ -96,24 +96,34 @@ namespace Ogre {
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
-            This method creates an unattached new Bone for this skeleton and assigns it
-            the specified handle. You must attach it to another Bone in the skeleton 
-            for it to be any use. For this reason you will likely be better off creating 
-            child bones using the Bone::createChild method instead. You can start with 
-            the root bone (which is always created for you) by calling the getRootBone method.
-        @param handle The handle to give to this new bone - must be unique within this skeleton. Note
-            that the root bone of the skeleton (created for you when the Skeleton is created) always
-            has handle 0, so don't try to use this one.
-            You should also ensure that all bone handles are eventually contiguous. For this reason
+            This method creates an unattached new Bone for this skeleton and assigns it a 
+            specific handle. Unless this is to
+            be the root bone (there must only be one of these), you must
+            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            For this reason you will likely be better off creating child bones using the
+            Bone::createChild method instead, once you have created the root bone. 
+        @param handle The handle to give to this new bone - must be unique within this skeleton. 
+            You should also ensure that all bone handles are eventually contiguous (this is to simplify
+            their compilation into an indexed array of transformation matrices). For this reason
             it is advised that you use the simpler createBone method which automatically assigns a
-            handle.
+            sequential handle starting from 0.
         */
         Bone* createBone(unsigned short handle);
 
         /** Returns the number of bones in this skeleton. */
         unsigned short getNumBones(void) const;
 
-        /** Gets the root bone of the skeleton. */
+        /** Gets the root bone of the skeleton. 
+        @remarks
+            The system derives the root bone the first time you ask for it. The root bone is the
+            only bone in the skeleton which has no parent. The system locates it by taking the
+            first bone in the list and going up the bone tree until there are no more parents,
+            and saves this top bone as the root. If you are building the skeleton manually using
+            createBone then you must ensure there is only one bone which is not a child of 
+            another bone, otherwise your skeleton will not work properly. If you use createBone
+            only once, and then use Bone::createChild from then on, then inherently the first
+            bone you create will by default be the root.
+        */
         Bone* getRootBone(void) const;
 
         /** Gets a bone by it's handle. */
@@ -188,7 +198,7 @@ namespace Ogre {
         typedef std::map<unsigned short, Bone*> BoneList;
         BoneList mBoneList;
         /// Pointer to root bone (all others follow)
-        Bone *mRootBone;
+        mutable Bone *mRootBone;
         /// Automatic handles
         unsigned short mNextAutoHandle;
 
@@ -199,6 +209,13 @@ namespace Ogre {
 
         /// Saved version of last animation
         AnimationStateSet mLastAnimationState;
+
+        /** Internal method which parses the bones to derive the root bone. 
+        @remarks
+            Must be const because called in getRootBone but mRootBone is mutable
+            since lazy-updated.
+        */
+        void deriveRootBone(void) const;
 
 
     };
