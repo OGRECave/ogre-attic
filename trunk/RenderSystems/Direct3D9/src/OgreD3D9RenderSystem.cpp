@@ -80,6 +80,7 @@ namespace Ogre
         mTextureManager = NULL;
         mHardwareBufferManager = NULL;
 		mGpuProgramManager = NULL;
+		mPrimaryWindow = NULL;
         //mHLSLProgramFactory = NULL;
 
 		// init lights
@@ -568,6 +569,7 @@ namespace Ogre
 		// If this is the first window, get the D3D device and create the texture manager
 		if( firstWindow )
 		{
+			mPrimaryWindow = (D3D9RenderWindow *)win;
 			win->getCustomAttribute( "D3DDEVICE", &mpD3DDevice );
 
 			// Create the texture manager for use by others
@@ -2490,4 +2492,36 @@ namespace Ogre
         // D3D inverts even identity view matrices, so maximum INPUT is -1.0
         return -1.0f;
     }
+	//---------------------------------------------------------------------
+	void D3D9RenderSystem::restoreLostDevice(void)
+	{
+		// Release all non-managed resources
+
+		// We have to deal with non-managed textures and vertex buffers
+		// GPU programs don't have to be restored
+		static_cast<D3D9TextureManager*>(mTextureManager)->releaseDefaultPoolResources();
+		static_cast<D3D9HardwareBufferManager*>(mHardwareBufferManager)
+			->releaseDefaultPoolResources();
+
+		// TODO - release additional swap chains here
+
+		// Reset the device, using the primary window presentation params
+		HRESULT hr = mpD3DDevice->Reset(
+			mPrimaryWindow->getPresentationParameters());
+
+		if (FAILED(hr))
+		{
+			Except(Exception::ERR_RENDERINGAPI_ERROR, 
+				"Cannot reset device! " + getErrorDescription(hr), 
+				"D3D9RenderWindow::restoreLostDevice" );
+		}
+
+		// TODO - recreate additional swap chains here
+
+		// Recreate all non-managed resources
+		static_cast<D3D9TextureManager*>(mTextureManager)
+			->recreateDefaultPoolResources();
+		static_cast<D3D9HardwareBufferManager*>(mHardwareBufferManager)
+			->recreateDefaultPoolResources();
+	}
 }

@@ -63,6 +63,8 @@ namespace Ogre {
 		D3DDEVICE_CREATION_PARAMETERS	mDevCreParams;
 		/// back buffer pixel format
 		D3DFORMAT						mBBPixelFormat;
+		/// The memory pool being used
+		D3DPOOL							mD3DPool;
 		/// device capabilities pointer
 		D3DCAPS9						mDevCaps;
         // Auto-generated mipmaps?
@@ -153,6 +155,12 @@ namespace Ogre {
 		static D3DFORMAT _getPF(PixelFormat ogrePF);
 		/// utility method, find closest Ogre pixel format that D3D9 can support
 		static PixelFormat _getClosestSupportedPF(PixelFormat ogrePF);
+
+		/// For dealing with lost devices - release the resource if in the default pool
+		void releaseIfDefaultPool(void);
+		/// For dealing with lost devices - recreate the resource if in the default pool
+		void recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev);
+
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3D9TexturePtr 

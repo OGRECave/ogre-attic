@@ -34,19 +34,20 @@ namespace Ogre {
         bool useSystemMemory, bool useShadowBuffer)
         : HardwareIndexBuffer(idxType, numIndexes, usage, useSystemMemory, useShadowBuffer)
     {
+#if OGRE_D3D_MANAGE_BUFFERS
+		mD3DPool = useSystemMemory? D3DPOOL_SYSTEMMEM : 
+			// If not system mem, use managed pool UNLESS buffer is discardable
+			// if discardable, keeping the software backing is expensive
+			(usage & HardwareBuffer::HBU_DISCARDABLE)? D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
+#else
+		mD3DPool = useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT;
+#endif
         // Create the Index buffer
         HRESULT hr = pDev->CreateIndexBuffer(
             static_cast<UINT>(mSizeInBytes),
-            D3D9Mappings::get(usage),
-            D3D9Mappings::get(idxType),
-#if OGRE_D3D_MANAGE_BUFFERS
-            useSystemMemory? D3DPOOL_SYSTEMMEM : 
-            // If not system mem, use managed pool UNLESS buffer is discardable
-            // if discardable, keeping the software backing is expensive
-                (usage & HardwareBuffer::HBU_DISCARDABLE)? D3DPOOL_DEFAULT : D3DPOOL_MANAGED, 
-#else
-            useSystemMemory? D3DPOOL_SYSTEMMEM : D3DPOOL_DEFAULT, 
-#endif
+            D3D9Mappings::get(mUsage),
+            D3D9Mappings::get(mIndexType),
+			mD3DPool,
             &mlpD3DBuffer,
             NULL
             );
@@ -123,6 +124,38 @@ namespace Ogre {
             discardWholeBuffer ? HardwareBuffer::HBL_DISCARD : HardwareBuffer::HBL_NORMAL);
         memcpy(pDst, pSource, length);
         this->unlock();    }
+	//---------------------------------------------------------------------
+	void D3D9HardwareIndexBuffer::releaseIfDefaultPool(void)
+	{
+		if (mD3DPool == D3DPOOL_DEFAULT)
+		{
+			SAFE_RELEASE(mlpD3DBuffer);
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void D3D9HardwareIndexBuffer::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
+	{
+		if (mD3DPool == D3DPOOL_DEFAULT)
+		{
+			// Create the Index buffer
+			HRESULT hr = pDev->CreateIndexBuffer(
+				static_cast<UINT>(mSizeInBytes),
+				D3D9Mappings::get(mUsage),
+				D3D9Mappings::get(mIndexType),
+				mD3DPool,
+				&mlpD3DBuffer,
+				NULL
+				);
+
+			if (FAILED(hr))
+			{
+				String msg = DXGetErrorDescription9(hr);
+				Except(hr, "Cannot create D3D9 Index buffer: " + msg, 
+					"D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer");
+			}
+		}
+	}
 	//---------------------------------------------------------------------
 
 }

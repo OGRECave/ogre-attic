@@ -26,7 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreViewport.h"
 #include "OgreException.h"
-#include "OgreRenderSystem.h"
+#include "OgreD3D9RenderSystem.h"
 #include "OgreBitwise.h"
 #include "OgreImageCodec.h"
 
@@ -443,9 +443,12 @@ namespace Ogre
 		{
 			HRESULT hr = mpD3DDevice->Present( NULL, NULL, 0, NULL );
 			if( D3DERR_DEVICELOST == hr )
-				// TODO: Restore surfaces
-				// restoreD3DSurfaces();
-				Except( hr, "Device lost and not restored", "D3D9RenderWindow::swapBuffers" );
+			{
+				D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
+					Root::getSingleton().getRenderSystem());
+				rs->restoreLostDevice();
+
+			}
 			else if( FAILED(hr) )
 				Except( hr, "Error Presenting surfaces", "D3D9RenderWindow::swapBuffers" );
 		}

@@ -367,6 +367,12 @@ namespace Ogre
 			mSrcWidth = mWidth;
 			mSrcHeight = mHeight;
 		}
+		
+		// Determine D3D pool to use
+		// Use managed unless we're a render target or user has asked for 
+		// a discardable texture
+		mD3DPool = ((mUsage & TU_RENDERTARGET) | (mUsage & TU_DISCARDABLE)) ?
+			D3DPOOL_DEFAULT : D3DPOOL_MANAGED;
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -424,8 +430,7 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-                (mUsage & TU_RENDERTARGET)?
-                D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
+				mD3DPool,
 				&mpNormTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
@@ -505,8 +510,7 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-                (mUsage & TU_RENDERTARGET)?
-                D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
+				mD3DPool,
 				&mpCubeTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
@@ -588,8 +592,7 @@ namespace Ogre
 				numMips,							// number of mip map levels
 				usage,								// usage
 				d3dPF,								// pixel format
-                (mUsage & TU_RENDERTARGET)?
-                D3DPOOL_DEFAULT : D3DPOOL_MANAGED,	// memory pool
+				mD3DPool,
 				&mpVolumeTex);						// data pointer
 		// check result and except if failed
 		if (FAILED(hr))
@@ -1066,6 +1069,28 @@ namespace Ogre
 			return PF_A8R8G8B8;
 		}
 	}
+	/****************************************************************************************/
+	void D3D9Texture::releaseIfDefaultPool(void)
+	{
+		if(mD3DPool == D3DPOOL_DEFAULT)
+		{
+			SAFE_RELEASE(mpTex);
+			SAFE_RELEASE(mpNormTex);
+			SAFE_RELEASE(mpCubeTex);
+			SAFE_RELEASE(mpVolumeTex);
+			SAFE_RELEASE(mpZBuff);
+		}
+	}
+	/****************************************************************************************/
+	void D3D9Texture::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
+	{
+		if(mD3DPool == D3DPOOL_DEFAULT)
+		{
+			createInternalResources();
+			// NB this will also create depth / stencil for render targets
+		}
+	}
+
 
 	/****************************************************************************************/
 }

@@ -35,6 +35,7 @@ namespace Ogre {
     {
     protected:
         LPDIRECT3DINDEXBUFFER9 mlpD3DBuffer;
+		D3DPOOL mD3DPool;
         /** See HardwareBuffer. */
         void* lockImpl(size_t offset, size_t length, LockOptions options);
         /** See HardwareBuffer. */
@@ -49,7 +50,12 @@ namespace Ogre {
         void writeData(size_t offset, size_t length, const void* pSource,
 				bool discardWholeBuffer = false);
 
-        /// Get the D3D-specific index buffer
+		/// For dealing with lost devices - release the resource if in the default pool
+		void releaseIfDefaultPool(void);
+		/// For dealing with lost devices - recreate the resource if in the default pool
+		void recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev);
+
+		/// Get the D3D-specific index buffer
         LPDIRECT3DINDEXBUFFER9 getD3DIndexBuffer(void) { return mlpD3DBuffer; }
 
 
