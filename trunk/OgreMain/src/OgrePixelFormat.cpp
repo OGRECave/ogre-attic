@@ -386,7 +386,7 @@ namespace Ogre {
         return (PixelUtil::getFlags(format) & PFF_NATIVEENDIAN) > 0;
     }
     //-----------------------------------------------------------------------
-    bool PixelUtil::isLuminence(PixelFormat format)
+    bool PixelUtil::isLuminance(PixelFormat format)
     {
         return (PixelUtil::getFlags(format) & PFF_LUMINANCE) > 0;
     }
