@@ -23,6 +23,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA or go to
 http://www.gnu.org/copyleft/lesser.txt
 -------------------------------------------------------------------------*/
 
+#include "OgreGuiManager.h"
 #include "OgreTTYGuiElement.h"
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
@@ -39,6 +40,8 @@ namespace Ogre {
     TTYGuiElement::CmdColour TTYGuiElement::msCmdColour;
     TTYGuiElement::CmdColourBottom TTYGuiElement::msCmdColourBottom;
     TTYGuiElement::CmdColourTop TTYGuiElement::msCmdColourTop;
+    TTYGuiElement::CmdScrollBar TTYGuiElement::msCmdScrollBar;
+    TTYGuiElement::CmdTextLimit TTYGuiElement::msCmdTextLimit;
     //---------------------------------------------------------------------
     TTYGuiElement::TTYGuiElement(const String& name)
         : GuiElement(name)
@@ -55,15 +58,19 @@ namespace Ogre {
 
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;
+        Root::getSingleton().convertColourValue(mColourTop, &mTopColour);
+        Root::getSingleton().convertColourValue(mColourBottom, &mBottomColour);
 
         mUpdateGeometry = false;
         mUpdateGeometryNotVisible = false;
         mTtlFaces = 0;
         mTtlChars = 0;
-        mMaxChars = 1024;
+        mMaxChars = 2048;
         mTtlLines = 0;
         mTopLine = 0;
         mAutoScroll = true;
+
+        mScrollBar = NULL;
 
         mAllocSize = 0;
         checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
@@ -104,13 +111,13 @@ namespace Ogre {
     {
         mTextBlockQueue.push_back(TextBlock(text, tColour, bColour));
 
-        if (mUpdateGeometry)
+        if( mUpdateGeometry )
         {
             TextBlockQueue::reverse_iterator i, j;
 
             i = mTextBlockQueue.rbegin();
-            if ((j = (i + 1)) != mTextBlockQueue.rend())
-              updateTextGeometry(*i, j->width);
+            if( (j = (i + 1)) != mTextBlockQueue.rend() )
+              updateTextGeometry(*i, j->end);
             else
               updateTextGeometry(*i);
 
@@ -120,9 +127,10 @@ namespace Ogre {
 
             pruneText();
 
-            if (mAutoScroll && mTtlLines > mScrLines)
+            if( mAutoScroll && mTtlLines > mScrLines )
                 mTopLine = mTtlLines - mScrLines;
 
+            updateScrollBar();
             updateWindowGeometry();
         }
     }
@@ -136,8 +144,51 @@ namespace Ogre {
         mTopLine  = 0;
         mAutoScroll = true;
 
-        if (mUpdateGeometry)
+        if( mUpdateGeometry )
+        {
+            updateScrollBar();
+            updateWindowGeometry();
+        }
+    }
+
+    void TTYGuiElement::setTextLimit( uint maxChars )
+    {
+        mMaxChars = maxChars;
+
+        pruneText();
+        if ( mUpdateGeometry )
+        {
+            updateScrollBar();
+            updateWindowGeometry();
+        }
+    }
+
+    void TTYGuiElement::setScrollBar(ScrollBarGuiElement *scrollBar)
+    {
+      if( mScrollBar == scrollBar )
+        return;
+
+      if( mScrollBar != NULL )
+      {
+        mScrollBar->removeScrollListener(this);
+      }
+
+      mScrollBar = scrollBar;
+
+      if( mScrollBar != NULL )
+      {
+          mScrollBar->addScrollListener(this);
+          updateScrollBar();
+      }
+    }
+
+    void TTYGuiElement::scrollPerformed(ScrollEvent* e)
+    {
+        if( mUpdateGeometry )
+        {
+          mTopLine = e->getTopVisible();
           updateWindowGeometry();
+        }
     }
 
     void TTYGuiElement::checkMemoryAllocation( uint numFaces )
@@ -163,7 +214,7 @@ namespace Ogre {
 
     void TTYGuiElement::checkAndSetUpdateGeometry()
     {
-      if (mpFont != NULL && mHeight >= mCharHeight && mWidth >= mCharHeight)
+      if( mpFont != NULL && mHeight >= mCharHeight && mWidth >= mCharHeight )
       {
          //if (mVisible || mUpdateGeometryNotVisible)
             mUpdateGeometry = true;
@@ -179,14 +230,21 @@ namespace Ogre {
     {
         TextBlockQueue::iterator i;
 
-        if ((i = mTextBlockQueue.begin()) != mTextBlockQueue.end())
-            while ((mTtlChars - i->text.size()) >= mMaxChars)
+        if( (i = mTextBlockQueue.begin()) != mTextBlockQueue.end() )
+            while( (mTtlChars - i->text.size()) >= mMaxChars )
             {
                 mTtlChars -= (uint)i->text.size();
                 mTtlLines -= i->cntLines;
                 mTtlFaces -= i->cntFaces;
                 i = mTextBlockQueue.erase(i);
             }
+    }
+
+    void TTYGuiElement::updateScrollBar()
+    {
+        if( !mUpdateGeometry || mScrollBar == NULL )
+            return;
+        mScrollBar->setLimits(mTopLine, (mScrLines <= mTtlLines ? mScrLines : mTtlLines), mTtlLines);          
     }
 
     void TTYGuiElement::updateTextGeometry(TextBlock &textBlock, Real lineWidth)
@@ -197,7 +255,7 @@ namespace Ogre {
         uint cntLines;
         uint cntFaces;
 
-        if (!mUpdateGeometry)
+        if( !mUpdateGeometry )
           return;
 
         cntLines = 0;
@@ -205,7 +263,7 @@ namespace Ogre {
         lenLine  = lineWidth;
 
         iend = textBlock.text.end();
-        for ( i = textBlock.text.begin(); i != iend; ++i )
+        for( i = textBlock.text.begin(); i != iend; ++i )
         {
             switch (*i) {
             case '\n' :
@@ -235,7 +293,8 @@ namespace Ogre {
 
         textBlock.cntLines = cntLines;
         textBlock.cntFaces = cntFaces;
-        textBlock.width    = lenLine;
+        textBlock.begin    = lineWidth;
+        textBlock.end      = lenLine;
     }
 
     void TTYGuiElement::updateTextGeometry()
@@ -256,7 +315,7 @@ namespace Ogre {
         for ( i = mTextBlockQueue.begin(); i != iend; ++i )
         {
             updateTextGeometry(*i, lineWidth);
-            lineWidth = i->width;
+            lineWidth = i->end;
 
             mTtlChars += (uint)i->text.size();
             mTtlLines += i->cntLines;
@@ -309,6 +368,7 @@ namespace Ogre {
                 continue;
             }
 
+            left = farLeft + t->begin;
             iend = t->text.end();
             for( i = t->text.begin(); i != iend; )
             {
@@ -446,6 +506,7 @@ namespace Ogre {
         {
             mScrLines = mHeight / mCharHeight;
             updateTextGeometry();
+            updateScrollBar();
             updateWindowGeometry();
         }
     }
@@ -479,6 +540,7 @@ namespace Ogre {
 
         checkAndSetUpdateGeometry();
         updateTextGeometry();
+        updateScrollBar();
         updateWindowGeometry();
     }
 
@@ -527,6 +589,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     TTYGuiElement::~TTYGuiElement()
     {
+        //if( mScrollBar != NULL )
+        //    mScrollBar->removeScrollListener(this);
+
         if( mRenderOp.pVertices )
             delete [] mRenderOp.pVertices;
 
@@ -588,6 +653,16 @@ namespace Ogre {
             "Sets the colour of the font at the top (a gradient colour)."
             , PT_STRING),
             &msCmdColourTop);
+
+        dict->addParameter(ParameterDef("text_limit", 
+            "sets a soft limit on the number stored characters."
+            , PT_STRING),
+            &msCmdTextLimit);
+
+        dict->addParameter(ParameterDef("scroll_bar", 
+            "set the controlling scroll bar."
+            , PT_STRING),
+            &msCmdScrollBar);
     }
     //---------------------------------------------------------------------
     void TTYGuiElement::setColour(const ColourValue& col)
@@ -650,6 +725,7 @@ namespace Ogre {
 
             mCharHeight = (Real) mPixelCharHeight / vpHeight;
             mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
+            updateScrollBar();
             updateWindowGeometry();
         }
         GuiElement::_update();
@@ -737,6 +813,37 @@ namespace Ogre {
     {
         static_cast< TTYGuiElement* >( target )->setColourBottom( 
             StringConverter::parseColourValue(val) );
+    }
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    // Text limit command object
+    //
+    String TTYGuiElement::CmdTextLimit::doGet( void* target )
+    {
+         return StringConverter::toString( 
+            static_cast< TTYGuiElement* >( target )->getTextLimit() );
+
+    }
+    void TTYGuiElement::CmdTextLimit::doSet( void* target, const String& val )
+    {
+        static_cast< TTYGuiElement* >( target )->setTextLimit( 
+            StringConverter::parseInt( val ) );
+    }
+    //---------------------------------------------------------------------------------------------
+    //---------------------------------------------------------------------------------------------
+    // ScrollBar command object
+    //
+    String TTYGuiElement::CmdScrollBar::doGet( void* target )
+    {
+        ScrollBarGuiElement *scrollBar;
+        scrollBar = static_cast< TTYGuiElement* >( target )->getScrollBar();
+        return (scrollBar != NULL) ? scrollBar->getName() : "";
+    }
+    void TTYGuiElement::CmdScrollBar::doSet( void* target, const String& val )
+    {
+        ScrollBarGuiElement* scrollBar;
+        scrollBar = static_cast<ScrollBarGuiElement* >(GuiManager::getSingleton().getGuiElement(val));
+        static_cast< TTYGuiElement* >( target )->setScrollBar(scrollBar);
     }
     //---------------------------------------------------------------------------------------------
 }

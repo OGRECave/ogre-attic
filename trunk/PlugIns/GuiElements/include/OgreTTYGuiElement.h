@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #define _TTYGuiElement_H__
 
 #include <deque>
+#include "OgreEventListeners.h"
 #include "OgreGuiElementPrerequisites.h"
 #include "OgreGuiContainer.h"
 #include "OgreMaterial.h"
@@ -34,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt
 #include "OgreGuiElementFactory.h"
 #include "OgreFont.h"
 #include "OgreFontManager.h"
+#include "OgreScrollBarGuiElement.h"
 
 namespace Ogre
 {
@@ -45,7 +47,7 @@ namespace Ogre
     @par
     The setCaption method is depreciated in this class.
     */
-    class _OgreGuiElementExport TTYGuiElement : public GuiElement
+    class _OgreGuiElementExport TTYGuiElement : public GuiElement, private ScrollListener
     {
     public:
         /** Constructor. */
@@ -86,6 +88,12 @@ namespace Ogre
         void appendText(const RGBA& tColour, const RGBA& bColour, const String &text);
 
         void clearText();
+
+        void setScrollBar(ScrollBarGuiElement *scrollBar);
+        ScrollBarGuiElement* getScrollBar() const { return mScrollBar; }
+
+        void setTextLimit( uint maxChars );
+        uint getTextLimit() const { return mMaxChars; }
 
         void setCharHeight( Real height );
         Real getCharHeight() const;
@@ -208,6 +216,27 @@ namespace Ogre
             String doGet( void* target );
             void doSet( void* target, const String& val );
         };
+        //-----------------------------------------------------------------------------------------
+        /** Command object for setting the text limit.
+                @see ParamCommand
+        */
+        class CmdTextLimit : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
+        //-----------------------------------------------------------------------------------------
+        /** Command object for setting the scrollbar.
+                @see ParamCommand
+        */
+        class CmdScrollBar : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
+
 
     protected:
 
@@ -217,11 +246,12 @@ namespace Ogre
           RGBA   bottomColour;
           uint   cntLines; // how many screen "lines" this text covers (cached, update if mWidth changes)
           uint   cntFaces; // how many faces (triangles) this text requires (cached, update if text changes)
-          Real   width;    // screen width if not wrapped (cached, update if text changes)
+          Real   begin;    // window location (side to side) where this text begins
+          Real   end;      // window location (side to side) where this text ends
 
           TextBlock(const String &_text, const RGBA &_topColour, const RGBA &_bottomColour)
             :text(_text), topColour(_topColour), bottomColour(_bottomColour),
-             cntLines(0), cntFaces(0), width(0) {}
+             cntLines(0), cntFaces(0), begin(0), end(0) {}
         };
 
         typedef std::deque<TextBlock> TextBlockQueue;
@@ -241,6 +271,8 @@ namespace Ogre
         static CmdColour msCmdColour;
         static CmdColourTop msCmdColourTop;
         static CmdColourBottom msCmdColourBottom;
+        static CmdTextLimit msCmdTextLimit;
+        static CmdScrollBar msCmdScrollBar;
 
 
         Font *mpFont;
@@ -269,17 +301,22 @@ namespace Ogre
         uint mTopLine;                  // top line
         bool mAutoScroll;
 
+        ScrollBarGuiElement *mScrollBar;
 
-        /// Internal method to update text geometry
-        void pruneText();
+
+        /// Internal methods to update geometry
         void checkAndSetUpdateGeometry();
+        void pruneText();
+        void updateScrollBar();
         void updateTextGeometry(TextBlock &text, Real lineWidth = 0.0);
         void updateTextGeometry();
         void updateWindowGeometry();
+
         /// Internal method to allocate memory, only reallocates when necessary
         void checkMemoryAllocation( uint numChar );
 
         /// Inherited function
+    		virtual void scrollPerformed(ScrollEvent* e);
         virtual void updatePositionGeometry();
     };
 }

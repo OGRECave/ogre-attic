@@ -93,6 +93,7 @@ namespace Ogre {
 		void createElements();
 		void setLimits(int first, int visibleRange, int total);
 		void layoutItems();
+    void updateScrollBit();
 
         /** See GuiElement. */
         virtual const String& getTypeName(void);
