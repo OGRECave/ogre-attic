@@ -454,14 +454,15 @@ namespace Ogre {
 				case PF_DXT5:
 					assert((width&3)==0 && (height&3)==0 && depth==1);
 					return (width/4)*(height/4)*16;
+				default:
+				Except(Exception::ERR_INVALIDPARAMS, "Invalid compressed pixel format", 
+					"PixelUtil::getMemorySize");
 			}
 		} 
 		else 
 		{
 			return width*height*depth*getNumElemBytes(format); 
 		}
-		Except(Exception::ERR_INVALIDPARAMS, "Invalid compressed pixel format", 
-			"PixelUtil::getMemorySize");
 	}
     //-----------------------------------------------------------------------
     size_t PixelUtil::getNumElemBits( PixelFormat format )
@@ -976,9 +977,9 @@ namespace Ogre {
 			Except( Exception::UNIMPLEMENTED_FEATURE,
                 "Destination must currently be consecutive",
                 "ILUtil::ilToOgre" ) ;
-		if(dst.getWidth() != ilGetInteger( IL_IMAGE_WIDTH ) ||
-        	dst.getHeight() != ilGetInteger( IL_IMAGE_HEIGHT ) ||
-        	dst.getDepth() != ilGetInteger( IL_IMAGE_DEPTH ))
+		if(dst.getWidth() != static_cast<size_t>(ilGetInteger( IL_IMAGE_WIDTH )) ||
+        	dst.getHeight() != static_cast<size_t>(ilGetInteger( IL_IMAGE_HEIGHT )) ||
+        	dst.getDepth() != static_cast<size_t>(ilGetInteger( IL_IMAGE_DEPTH )))
 			Except( Exception::ERR_INVALIDPARAMS,
                 "Destination dimensions must equal IL dimension",
                 "ILUtil::ilToOgre" ) ;
