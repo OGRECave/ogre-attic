@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 		o << "\tsource\t" << imageName << "\n\n\n";
 
     int posx = 0;
-    int posy = size; // work backwards so same as uv
+    int posy = 0; 
     int colcount = 0;
     for (int c = 0; c < 256; c++, colcount++)
     {
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
         {
             colcount = 0;
             posx = 0;
-            posy -= charSize;
+            posy += charSize;
         }
 
         int width = fgetc(fp);
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
         u1 = thisx_start / (float)(size) ;
         u2 = thisx_end / (float)(size);
         v1 = (float)posy / (float)(size);
-        v2 = (float)(posy - charSize) / (float)(size);
+        v2 = (float)(posy + charSize) / (float)(size);
 
 				if((genGlyph.at(0) == 'N' || genGlyph.at(0) == 'n') && c >= '!' && c <= '~')
 				{
