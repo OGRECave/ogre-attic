@@ -33,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-
     //---------------------------------------------------------------------
     void PNGCodec::code( const DataChunk& input, DataChunk* output, ... ) const
     {        
@@ -44,52 +43,6 @@ namespace Ogre {
 
         OgreUnguard();
 
-    }
-    //---------------------------------------------------------------------
-    Codec::CodecData * PNGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
-    {
-		OgreGuard( "PNGCodec::decode" );
-
-		// DevIL variables
-		ILuint ImageName;
-		ILint ImageFormat, BytesPerPixel;
-		ImageData * ret_data = new ImageData;
-
-		// Load the image 
-		ilGenImages( 1, &ImageName );
-		ilBindImage( ImageName );
-
-		ilLoadL( 
-			getILType(), 
-			( void * )const_cast< uchar * >( input.getPtr() ), 
-			static_cast< ILuint >( input.getSize() ) );
-
-		// Check if everything was ok
-		ILenum PossibleError = ilGetError() ;
-		if( PossibleError != IL_NO_ERROR )
-		{
-			Except( Exception::UNIMPLEMENTED_FEATURE, 
-					"IL Error", 
-					iluErrorString(PossibleError) ) ;
-		}
-
-		// Now sets some variables
-		ImageFormat = ilGetInteger( IL_IMAGE_FORMAT );
-		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
-
-		ret_data->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
-		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
-		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-
-		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
-
-		// Move the image data to the output buffer
-		output->allocate( ImageSize );
-		memcpy( output->getPtr(), ilGetData(), ImageSize );
-
-		ilDeleteImages( 1, &ImageName );
-
-		OgreUnguardRet( ret_data );
     }
     //---------------------------------------------------------------------
     unsigned int PNGCodec::getILType(void) const

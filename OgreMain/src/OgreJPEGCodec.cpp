@@ -47,55 +47,6 @@ namespace Ogre {
         OgreUnguard();
     }
     //---------------------------------------------------------------------
-    Codec::CodecData * JPEGCodec::decode( const DataChunk& input, DataChunk* output, ... ) const
-    {
-		OgreGuard( "JPEGCodec::decode" );
-
-		// DevIL variables
-		ILuint ImageName;
-		ILint Imagformat, BytesPerPixel;
-		ImageData * ret_data = new ImageData;
-
-		// Load the image
-		ilGenImages( 1, &ImageName );
-		ilBindImage( ImageName );
-
-		ilLoadL( 
-			getILType(), 
-			( void * )const_cast< uchar * >( input.getPtr() ), 
-			static_cast< ILuint >( input.getSize() ) );
-
-                // Check if everything was ok
-                ILenum PossibleError = ilGetError() ;
-                if( PossibleError != IL_NO_ERROR )
-                {
-                        Except( Exception::UNIMPLEMENTED_FEATURE,
-                                        "IL Error",
-                                        iluErrorString(PossibleError) ) ;
-                }
-
-		// Now sets some variables
-		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
-		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-
-		Imagformat = ilGetInteger( IL_IMAGE_FORMAT );
-		BytesPerPixel = ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL ); 
-
-		ret_data->format = ilFormat2OgreFormat( Imagformat, BytesPerPixel );
-		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
-		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-
-		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
-
-		// Move the image data to the output buffer
-		output->allocate( ImageSize );
-		memcpy( output->getPtr(), ilGetData(), ImageSize );
-
-		ilDeleteImages( 1, &ImageName );
-
-		OgreUnguardRet( ret_data );
-    }
-    //---------------------------------------------------------------------
     unsigned int JPEGCodec::getILType(void) const
     { 
         return IL_JPG;
