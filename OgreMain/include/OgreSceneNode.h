@@ -359,8 +359,13 @@ namespace Ogre {
         void setAutoTracking(bool enabled, SceneNode* target = 0, 
             const Vector3& localDirectionVector = Vector3::NEGATIVE_UNIT_Z,
             const Vector3& offset = Vector3::ZERO);
-
-        /** Internal method used by OGRE to update auto-tracking cameras. */
+		/** Get the auto tracking target for this node, if any. */
+        SceneNode* getAutoTrackTarget(void) { return mAutoTrackTarget; }
+		/** Get the auto tracking offset for this node, if the node is auto tracking. */
+		const Vector3& getAutoTrackOffset(void) { return mAutoTrackOffset; }
+		/** Get the auto tracking local direction for this node, if it is auto tracking. */
+		const Vector3& getAutoTrackLocalDirection(void) { return mAutoTrackLocalDirection; }
+		/** Internal method used by OGRE to update auto-tracking cameras. */
         void _autoTrack(void);
 
 
