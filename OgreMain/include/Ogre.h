@@ -81,6 +81,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTargetListener.h"
 #include "OgreRenderTexture.h"
 #include "OgreRenderWindow.h"
+#include "OgreResourceGroupManager.h"
 #include "OgreRoot.h"
 #include "OgreSceneManager.h"
 #include "OgreSceneManagerEnumerator.h"
