@@ -329,6 +329,7 @@ namespace Ogre
 				break;
 			case ACT_SHADOW_EXTRUSION_DISTANCE:
 				setConstant(i->index, source.getShadowExtrusionDistance());
+                break;
             case ACT_LIGHT_ATTENUATION:
                 // range, const, linear, quad
                 const Light& l = source.getLight(i->data);

@@ -200,22 +200,22 @@ namespace Ogre {
 
 
         /// Get FINITE extruder program source for point lights, compatible with arbvp1
-        static const String& getPointLightExtruderArbvp1Finite(void) { return mPointArbvp1; }
+        static const String& getPointLightExtruderArbvp1Finite(void) { return mPointArbvp1Finite; }
         /// Get FINITE extruder program source for point lights, compatible with vs_1_1
-        static const String& getPointLightExtruderVs_1_1Finite(void) { return mPointVs_1_1; }
+        static const String& getPointLightExtruderVs_1_1Finite(void) { return mPointVs_1_1Finite; }
         /// Get FINITE extruder program source for directional lights, compatible with arbvp1
-        static const String& getDirectionalLightExtruderArbvp1Finite(void) { return mDirArbvp1; }
+        static const String& getDirectionalLightExtruderArbvp1Finite(void) { return mDirArbvp1Finite; }
         /// Get FINITE extruder program source for directional lights, compatible with vs_1_1
-        static const String& getDirectionalLightExtruderVs_1_1Finite(void) { return mDirVs_1_1; }
+        static const String& getDirectionalLightExtruderVs_1_1Finite(void) { return mDirVs_1_1Finite; }
 
         /// Get FINITE extruder program source for debug point lights, compatible with arbvp1
-        static const String& getPointLightExtruderArbvp1FiniteDebug(void) { return mPointArbvp1Debug; }
+        static const String& getPointLightExtruderArbvp1FiniteDebug(void) { return mPointArbvp1FiniteDebug; }
         /// Get extruder program source for debug point lights, compatible with vs_1_1
-        static const String& getPointLightExtruderVs_1_1FiniteDebug(void) { return mPointVs_1_1Debug; }
+        static const String& getPointLightExtruderVs_1_1FiniteDebug(void) { return mPointVs_1_1FiniteDebug; }
         /// Get FINITE extruder program source for debug directional lights, compatible with arbvp1
-        static const String& getDirectionalLightExtruderArbvp1FiniteDebug(void) { return mDirArbvp1Debug; }
+        static const String& getDirectionalLightExtruderArbvp1FiniteDebug(void) { return mDirArbvp1FiniteDebug; }
         /// Get FINITE extruder program source for debug directional lights, compatible with vs_1_1
-        static const String& getDirectionalLightExtruderVs_1_1FiniteDebug(void) { return mDirVs_1_1Debug; }
+        static const String& getDirectionalLightExtruderVs_1_1FiniteDebug(void) { return mDirVs_1_1FiniteDebug; }
 
 
 

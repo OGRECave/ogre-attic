@@ -379,6 +379,8 @@ namespace Ogre {
         Real mShadowTextureOffset; // proportion of texture offset in view direction e.g. 0.4
         Real mShadowTextureFadeStart; // as a proportion e.g. 0.6
         Real mShadowTextureFadeEnd; // as a proportion e.g. 0.9
+        GpuProgramParametersSharedPtr mInfiniteExtrusionParams;
+        GpuProgramParametersSharedPtr mFiniteExtrusionParams;
 
         /// Inner class to use as callback for shadow caster scene query
         class _OgreExport ShadowCasterSceneQueryListener : public SceneQueryListener

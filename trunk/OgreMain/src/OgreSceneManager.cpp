@@ -2790,29 +2790,27 @@ namespace Ogre {
             ShadowVolumeExtrudeProgram::initialise();
 
             
-            // Enable the point light extruder for now, just to get some params
+            // Enable the (infinite) point light extruder for now, just to get some params
             mShadowDebugPass->setVertexProgram(
-                ShadowVolumeExtrudeProgram::programNames[0]);
-            GpuProgramParametersSharedPtr extrusionParams = 
+                ShadowVolumeExtrudeProgram::programNames[ShadowVolumeExtrudeProgram::POINT_LIGHT]);
+            mInfiniteExtrusionParams = 
                 mShadowDebugPass->getVertexProgramParameters();
-            extrusionParams->setAutoConstant(0, 
+            mInfiniteExtrusionParams->setAutoConstant(0, 
                 GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-            extrusionParams->setAutoConstant(4, 
+            mInfiniteExtrusionParams->setAutoConstant(4, 
                 GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
-            extrusionParams->setAutoConstant(5, 
-                GpuProgramParameters::ACT_SHADOW_EXTRUSION_DISTANCE);
 
-
-            // Enable the point light extruder for now, just to get some params
+            // Enable the finite point light extruder for now, just to get some params
             mShadowStencilPass->setVertexProgram(
-                ShadowVolumeExtrudeProgram::programNames[0]);
-            extrusionParams = 
+                ShadowVolumeExtrudeProgram::programNames[ShadowVolumeExtrudeProgram::POINT_LIGHT_FINITE]);
+            mFiniteExtrusionParams = 
                 mShadowStencilPass->getVertexProgramParameters();
-            extrusionParams->setAutoConstant(0, 
+            mFiniteExtrusionParams->setAutoConstant(0, 
                 GpuProgramParameters::ACT_WORLDVIEWPROJ_MATRIX);
-            extrusionParams->setAutoConstant(4, 
+            mFiniteExtrusionParams->setAutoConstant(4, 
                 GpuProgramParameters::ACT_LIGHT_POSITION_OBJECT_SPACE);
-            extrusionParams->setAutoConstant(5, 
+            // Note extra parameter
+            mFiniteExtrusionParams->setAutoConstant(5, 
                 GpuProgramParameters::ACT_SHADOW_EXTRUSION_DISTANCE);
 
         }
@@ -3039,21 +3037,39 @@ namespace Ogre {
 
         // Do we have access to vertex programs?
         bool extrudeInSoftware = true;
+        bool finiteExtrude = !mShadowUseInfiniteFarPlane || 
+            !mDestRenderSystem->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE);
         if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
         {
-            bool finiteExtrude = !mShadowUseInfiniteFarPlane || 
-                !mDestRenderSystem->getCapabilities()->hasCapability(RSC_INFINITE_FAR_PLANE);
             extrudeInSoftware = false;
             // attach the appropriate extrusion vertex program
             // Note we never unset it because support for vertex programs is constant
             mShadowStencilPass->setVertexProgram(
                 ShadowVolumeExtrudeProgram::getProgramName(light->getType(), finiteExtrude, false)
                 , false);
+            // Set params
+            if (finiteExtrude)
+            {
+                mShadowStencilPass->setVertexProgramParameters(mFiniteExtrusionParams);
+            }
+            else
+            {
+                mShadowStencilPass->setVertexProgramParameters(mInfiniteExtrusionParams);
+            }
             if (mDebugShadows)
             {
                 mShadowDebugPass->setVertexProgram(
                     ShadowVolumeExtrudeProgram::getProgramName(light->getType(), finiteExtrude, true)
                     , false);
+                // Set params
+                if (finiteExtrude)
+                {
+                    mShadowDebugPass->setVertexProgramParameters(mFiniteExtrusionParams);
+                }
+                else
+                {
+                    mShadowDebugPass->setVertexProgramParameters(mInfiniteExtrusionParams);
+                }
             }
 
             mDestRenderSystem->bindGpuProgram(mShadowStencilPass->getVertexProgram()->_getBindingDelegate());
@@ -3120,7 +3136,7 @@ namespace Ogre {
                 extrudeDist = caster->getPointExtrusionDistance(light); 
             }
 
-            if (!extrudeInSoftware)
+            if (!extrudeInSoftware && !finiteExtrude)
             {
                 // hardware extrusion, to infinity (and beyond!)
                 flags |= SRF_EXTRUDE_TO_INFINITY;
@@ -3135,8 +3151,10 @@ namespace Ogre {
                     flags |= SRF_INCLUDE_LIGHT_CAP;
                 }
             }
-            // Dark cap (no dark cap for directional lights using hardware extrusion)
-            if(!(!extrudeInSoftware && light->getType() == Light::LT_DIRECTIONAL) &&
+            // Dark cap (no dark cap for directional lights using 
+            // hardware extrusion to infinity)
+            if(!(!(flags & SRF_EXTRUDE_TO_INFINITY) && 
+                light->getType() == Light::LT_DIRECTIONAL) &&
                 camera->isVisible(caster->getDarkCapBounds(*light, extrudeDist)))
             {
                 flags |= SRF_INCLUDE_DARK_CAP;
