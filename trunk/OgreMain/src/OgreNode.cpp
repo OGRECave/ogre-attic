@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMovableObject.h"
 
 namespace Ogre {
+
     //-----------------------------------------------------------------------
     Node::Node()
     {
@@ -46,12 +47,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node::~Node()
     {
-    }
+    }    
+
     //-----------------------------------------------------------------------
     Node* Node::getParent(void)
     {
         return mParent;
     }
+
     //-----------------------------------------------------------------------
     void Node::setParent(Node* parent)
     {
@@ -63,7 +66,8 @@ namespace Ogre {
     {
         // Use derived values 
         Matrix4 result;
-        makeTransform(_getDerivedPosition(), _getDerivedScale(), 
+        makeTransform( 
+            _getDerivedPosition(), _getDerivedScale(), 
             _getDerivedOrientation(), result);
         return result;
     }
@@ -125,8 +129,6 @@ namespace Ogre {
         }
 
         mDerivedOutOfDate = false;
-
-
     }
     //-----------------------------------------------------------------------
     Node* Node::createChild(const Vector3& translate, const Quaternion& rotate)
@@ -147,8 +149,6 @@ namespace Ogre {
         child->setParent(this);
         // Make sure child is up to date first, incase child asks for derived transform
         child->_updateFromParent();
-
-
     }
     //-----------------------------------------------------------------------
     unsigned short Node::numChildren(void)
@@ -158,16 +158,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node* Node::getChild(unsigned short index)
     {
-        if (index < mChildren.size())
-        {
-            std::vector<Node*>::iterator i = mChildren.begin();
-            return i[index];
-        }
+        if( index < mChildren.size() )
+            return mChildren[index];
         else
-        {
-            Except(Exception::ERR_INVALIDPARAMS, "Child index out of bounds.", "Node::getChild");
-        }
-        return 0;
+            return NULL;
     }
     //-----------------------------------------------------------------------
     Node* Node::removeChild(unsigned short index)
@@ -178,28 +172,25 @@ namespace Ogre {
             std::vector<Node*>::iterator i = mChildren.begin() + index;
             ret = *i;
             mChildren.erase(i);
-            return ret;
-            /* XXX temas: This is the original
-            std::vector<Node*>::iterator i = mChildren.begin();
-            ret =  i[index];
-            mChildren.erase(&i[index]);
-            return ret;
-            */
+            return ret;            
         }
         else
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Child index out of bounds.", "Node::getChild");
+            Except(
+                Exception::ERR_INVALIDPARAMS, 
+                "Child index out of bounds.", 
+                "Node::getChild" );
         }
         return 0;
     }
     //-----------------------------------------------------------------------
-    Quaternion Node::getOrientation()
+    const Quaternion& Node::getOrientation()
     {
         return mOrientation;
     }
 
     //-----------------------------------------------------------------------
-    void Node::setOrientation(Quaternion q)
+    void Node::setOrientation( const Quaternion & q )
     {
         mOrientation = q;
         mDerivedOutOfDate = true;
@@ -228,7 +219,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Vector3 Node::getPosition(void)
+    const Vector3 & Node::getPosition(void)
     {
         return mPosition;
     }
@@ -246,8 +237,6 @@ namespace Ogre {
         return Matrix3(axisX.x, axisY.x, axisZ.x,
                        axisX.y, axisY.y, axisZ.y,
                        axisX.z, axisY.z, axisZ.z);
-
-
     }
 
     //-----------------------------------------------------------------------
@@ -313,7 +302,7 @@ namespace Ogre {
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
-    Quaternion Node::_getDerivedOrientation(void)
+    const Quaternion & Node::_getDerivedOrientation(void)
     {
         if (mDerivedOutOfDate)
         {
@@ -322,7 +311,7 @@ namespace Ogre {
         return mDerivedOrientation;
     }
     //-----------------------------------------------------------------------
-    Vector3 Node::_getDerivedPosition(void)
+    const Vector3 & Node::_getDerivedPosition(void)
     {
         if (mDerivedOutOfDate)
         {
@@ -331,7 +320,7 @@ namespace Ogre {
         return mDerivedPosition;
     }
     //-----------------------------------------------------------------------
-    Vector3 Node::_getDerivedScale(void)
+    const Vector3 & Node::_getDerivedScale(void)
     {
         if (mDerivedOutOfDate)
         {
@@ -359,7 +348,7 @@ namespace Ogre {
         mDerivedOutOfDate = true;
     }
     //-----------------------------------------------------------------------
-    Vector3 Node::getScale(void)
+    const Vector3 & Node::getScale(void)
     {
         return mScale;
     }
@@ -408,8 +397,4 @@ namespace Ogre {
         destMatrix = rot_scale;
         destMatrix.setTrans(position);
     }
-
-
-
-
 }

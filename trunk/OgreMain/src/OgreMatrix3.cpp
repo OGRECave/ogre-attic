@@ -69,12 +69,12 @@ namespace Ogre
     //-----------------------------------------------------------------------
     Real* Matrix3::operator[] (int iRow) const
     {
-        return (Real*)&m[iRow][0];
+        return (Real*)m[iRow];
     }
     //-----------------------------------------------------------------------
     Matrix3::operator Real* ()
     {
-        return &m[0][0];
+        return (Real*)m[0];
     }
     //-----------------------------------------------------------------------
     Vector3 Matrix3::GetColumn (int iCol) const
