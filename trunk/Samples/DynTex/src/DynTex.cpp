@@ -19,12 +19,35 @@ TexturePtr ptex;
 HardwarePixelBufferSharedPtr buffer;
 Overlay* overlay;
 static const int reactorExtent = 258;
-
+uint32 clut[1024];
+AnimationState *swim;
 // Nano fixed point library
 #define FROMFLOAT(X) ((int)((X)*((float)(1<<16))))
 #define TOFLOAT(X) ((float)((X)/((float)(1<<16))))
 #define MULT(X,Y) (((X)*(Y))>>16)
-
+ColourValue HSVtoRGB( float h, float s, float v )
+{
+	int i;
+	ColourValue rv(0.0f, 0.0f, 0.0f, 1.0f);
+	float f, p, q, t;
+	h = fmodf(h, 360.0f);
+	h /= 60.0f;			// sector 0 to 5
+	i = (int)floor( h );
+	f = h - i;			// factorial part of h
+	p = v * ( 1.0f - s );
+	q = v * ( 1.0f - s * f );
+	t = v * ( 1.0f - s * ( 1.0f - f ) );
+	
+	switch( i ) {
+		case 0:	rv.r = v;	rv.g = t;	rv.b = p;	break;
+		case 1:	rv.r = q;	rv.g = v;	rv.b = p;	break;
+		case 2:	rv.r = p;	rv.g = v;	rv.b = t;	break;
+		case 3:	rv.r = p;	rv.g = q;	rv.b = v;	break;
+		case 4:	rv.r = t;	rv.g = p;	rv.b = v;	break;
+		default:	rv.r = v;	rv.g = p;	rv.b = q;	break;
+	}
+	return rv;
+}
 class DynTexFrameListener : public ExampleFrameListener
 {
 private:
@@ -44,8 +67,15 @@ public:
     {
 		tim = 0;
 		rpressed = false;
-		
-		// Setupr
+		// Create  colour lookup
+		for(unsigned int col=0; col<1024; col++) 
+		{
+			ColourValue c;
+			c = HSVtoRGB((1.0f-col/1024.0f)*90.0f+225.0f, 0.9f, 0.75f+0.25f*(1.0f-col/1024.0f));
+			c.a = 1.0f - col/1024.0f;
+			PixelUtil::packColour(c, PF_A8R8G8B8, &clut[col]);
+		}
+		// Setup
 		LogManager::getSingleton().logMessage("Creating chemical containment");
 		mSize = reactorExtent*reactorExtent;
 		chemical[0] = new int [mSize];
@@ -157,20 +187,19 @@ public:
 			chemical[1][x] += MULT(delta[1][x], dt);
 		}
 	}
-	
+
 	void buildTexture()
 	{
 		buffer->lock(HardwareBuffer::HBL_NORMAL);
 		const PixelBox &pb = buffer->getCurrentLock();
 		unsigned int idx = reactorExtent+1;
 		for(unsigned int y=0; y<256; y++) {
-			unsigned int fun = abs(((int)y)-128)*2;
+			uint32 *data = static_cast<uint32*>(pb.data) + y*pb.rowPitch;
+			int *chem = &chemical[0][idx];
 			for(unsigned int x=0; x<256; x++) {
-				reinterpret_cast<uint32*>(static_cast<uint8*>(pb.data)+y*pb.rowPitch)[x] = 
-					0xFF003400 | (fun<<16) | ((chemical[0][idx]>>8)&0xFF);
-				idx++;
+				data[x] = clut[(chem[x]>>6)&1023];
 			}
-			idx += 2;
+			idx += reactorExtent;
 		}
 		buffer->unlock();
 	}
@@ -252,6 +281,7 @@ public:
 			tim -= (1.0f/rate);
 		}
 		buildTexture();
+		swim->addTime(evt.timeSinceLastFrame);
 
         return bOK;
     }
@@ -293,11 +323,11 @@ protected:
     {
         // Create dynamic texture
 		ptex = TextureManager::getSingleton().createManual(
-			"DynaTex","General", TEX_TYPE_2D, 256, 256, 1, PF_A8R8G8B8);
+			"DynaTex","General", TEX_TYPE_2D, reactorExtent-2, reactorExtent-2, 1, PF_A8R8G8B8);
 		buffer = ptex->getBuffer(0, 0);
 
-		// Set ambient light to low
-        mSceneMgr->setAmbientLight(ColourValue(0.3, 0.3, 0.3));
+		// Set ambient light
+        mSceneMgr->setAmbientLight(ColourValue(0.6, 0.6, 0.6));
 		mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox", 50 );
 
         //mRoot->getRenderSystem()->clearFrameBuffer(FBT_COLOUR, ColourValue(255,255,255,0));
@@ -329,8 +359,12 @@ protected:
 		ent2->setMaterialName("Examples/DynaTest2");
         blaNode->attachObject( ent2 );
         blaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(-110,200,50));
+		
+		// Cloaked fish
         ent2 = mSceneMgr->createEntity( "knot3", "fish.mesh" );
 		ent2->setMaterialName("Examples/DynaTest3");
+		swim = ent2->getAnimationState("swim");
+		swim->setEnabled(true);
         blaNode->attachObject( ent2 );
 		blaNode->setScale(50.0f, 50.0f, 50.0f);
 		
@@ -347,12 +381,6 @@ protected:
 		d.str("");
 		d << "PixelBox " << pb.width << " " << pb.height << " " << pb.depth << " " << pb.rowPitch << " " << pb.slicePitch << " " << pb.data << " " << PixelUtil::getFormatName(pb.format);
 		LogManager::getSingleton().logMessage(d.str());
-		for(unsigned int y=0; y<256; y++) {
-			for(unsigned int x=0; x<256; x++) {
-				reinterpret_cast<uint32*>(static_cast<uint8*>(pb.data)+y*pb.rowPitch)[x] = 
-					0xFF340000 | (y<<8) | x;
-			}
-		}
 		buffer->unlock();
 		
 		// show GUI
