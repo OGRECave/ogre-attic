@@ -167,6 +167,143 @@ namespace Ogre {
 
 
     };
+    /** Wraps iteration over a const vector.
+    @remarks
+    This class is here just to allow clients to iterate over an internal
+    vector of a class without having to have access to the vector itself
+    (typically to iterate you need both the iterator and the end() iterator
+    to test for the end condition, which is messy).
+    No updates are allowed through this interface, it is purely for 
+    iterating and reading.
+    @par
+    Note that like STL iterators, these iterators are only valid whilst no 
+    updates are made to the underlying collection. You should not attempt to
+    use this iterator if a change is made to the collection. In fact, treat this
+    iterator as a transient object, do NOT store it and try to use it repeatedly.
+    */
+    template <class T>
+    class ConstVectorIterator
+    {
+    private:
+        typename T::const_iterator mCurrent;
+        typename T::const_iterator mEnd;
+        /// Private constructor since only the parameterised constructor should be used
+        ConstVectorIterator() {};
+    public:
+        /** Constructor.
+        @remarks
+        Provide a start and end iterator to initialise.
+        */
+        ConstVectorIterator(typename T::const_iterator start, typename T::const_iterator end)
+            : mCurrent(start), mEnd(end)
+        {
+        }
 
+        /** Returns true if there are more items in the collection. */
+        bool hasMoreElements(void) const
+        {
+            return mCurrent != mEnd;
+        }
+
+        /** Returns the next element in the collection, and advances to the next. */
+        typename T::value_type getNext(void)
+        {
+            return *mCurrent++;
+        }
+        /** Returns the next element in the collection, without advancing to the next. */
+        typename T::value_type peekNext(void)
+        {
+            return *mCurrent;
+        }
+        /** Returns a pointer to the next element in the collection, without advancing to the next afterwards. */
+        typename T::pointer peekNextPtr(void)
+        {
+            return &(*mCurrent);
+        }
+        /** Moves the iterator on one element. */
+        void moveNext(void)
+        {
+            mCurrent++;
+        }
+
+
+
+    };
+
+    /** Wraps iteration over a const map.
+    @remarks
+    This class is here just to allow clients to iterate over an internal
+    map of a class without having to have access to the map itself
+    (typically to iterate you need both the iterator and the end() iterator
+    to test for the end condition, which is messy).
+    No updates are allowed through this interface, it is purely for 
+    iterating and reading.
+    @par
+    Note that like STL iterators, these iterators are only valid whilst no 
+    updates are made to the underlying collection. You should not attempt to
+    use this iterator if a change is made to the collection. In fact, treat this
+    iterator as a transient object, do NOT store it and try to use it repeatedly.
+    */
+    template <class T>
+    class ConstMapIterator
+    {
+    private:
+        typename T::const_iterator mCurrent;
+        typename T::const_iterator mEnd;
+        /// Private constructor since only the parameterised constructor should be used
+        ConstMapIterator() {};
+    public:
+        /** Constructor.
+        @remarks
+        Provide a start and end iterator to initialise.
+        */
+        ConstMapIterator(typename T::const_iterator start, typename T::const_iterator end)
+            : mCurrent(start), mEnd(end)
+        {
+        }
+
+        /** Returns true if there are more items in the collection. */
+        bool hasMoreElements(void) const
+        {
+            return mCurrent != mEnd;
+        }
+
+        /** Returns the next value element in the collection, and advances to the next. */
+        typename T::mapped_type getNext(void)
+        {
+            return (mCurrent++)->second;
+        }
+        /** Returns the next value element in the collection, without advancing to the next. */
+        typename T::mapped_type peekNextValue(void)
+        {
+            return mCurrent->second;
+        }
+        /** Returns the next key element in the collection, without advancing to the next. */
+        typename T::key_type peekNextKey(void)
+        {
+            return mCurrent->first;
+        }
+        /** Required to overcome intermittent bug */
+        MapIterator<T> & operator=( MapIterator<T> &rhs )
+        {
+            mCurrent = rhs.mCurrent;
+            mEnd = rhs.mEnd;
+            return *this;
+        }
+        /** Returns a pointer to the next value element in the collection, without 
+        advancing to the next afterwards. */
+        typename T::pointer peekNextValuePtr(void)
+        {
+            return &(mCurrent->second);
+        }
+        /** Moves the iterator on one element. */
+        void moveNext(void)
+        {
+            mCurrent++;
+        }
+
+
+
+    };
 }
 #endif
