@@ -75,7 +75,7 @@ The behaviour of methods changes depending on the type of object you are using, 
 @c -------------------------------------------
 @node Multi-everything
 @section Multi-everything
-I wanted to do more than create a 3D engine that ran on one 3D API, on one platform, with one type of scene (indoor levels are most popular). I wanted OGRE to be able to extend to any kind of scene (buy yet still imlement scene-specific optimisations under the surface), any platform and any 3D API.@*@*
+I wanted to do more than create a 3D engine that ran on one 3D API, on one platform, with one type of scene (indoor levels are most popular). I wanted OGRE to be able to extend to any kind of scene (but yet still implement scene-specific optimisations under the surface), any platform and any 3D API.@*@*
 
 Therefore all the 'visible' parts of OGRE are completely independent of platform, 3D API and scene type. There are no dependencies on Windows types, no assumptions about the type of scene you are creating, and the principles of the 3D aspects are based on core maths texts rather than one particular API implementation.@*@*
 
