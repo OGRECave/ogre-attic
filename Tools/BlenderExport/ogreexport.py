@@ -109,7 +109,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #   0.14.2: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - location key frame values fixed
 #          - fixed redraw if action is changed
-#   0.15.0: * Michael Reimpell <M.Reimpell@tu-bs.de>
+#   0.15.0: * Sun Oct 24 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - scalar product range correction in calc_rootaxis
 #          - made ArmatureAction.createArmatureActionDict a static method
 #          - renamed private methods to begin with an underscore
@@ -119,6 +119,9 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - importing pickle module now optional
 #          - support for non-uniform keyframe scaling
 #          - export vertex colours
+#   0.15.1: * Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - use Blender.World.GetCurrent() for Blender > 2.34
+#          - fixed calculation of initial bone rotation
 #
 # TODO:
 #          - vertex colours
@@ -173,6 +176,7 @@ if KEEP_SETTINGS:
 # namespaces
 ######
 from Blender import Draw
+from Blender import Mathutils
 from Blender.BGL import *
 
 ######
@@ -1034,22 +1038,6 @@ def quaternion2matrix(q):
           [      2.0 * (xz + wy),       2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy), 0.0],
           [0.0                  , 0.0                  , 0.0                  , 1.0]]
 
-def matrix2quaternion(m):
-  s = math.sqrt(abs(m[0][0] + m[1][1] + m[2][2] + m[3][3]))
-  if s == 0.0:
-    x = abs(m[2][1] - m[1][2])
-    y = abs(m[0][2] - m[2][0])
-    z = abs(m[1][0] - m[0][1])
-    if   (x >= y) and (x >= z): return 1.0, 0.0, 0.0, 0.0
-    elif (y >= x) and (y >= z): return 0.0, 1.0, 0.0, 0.0
-    else:                       return 0.0, 0.0, 1.0, 0.0
-  return quaternion_normalize([
-    -(m[2][1] - m[1][2]) / (2.0 * s),
-    -(m[0][2] - m[2][0]) / (2.0 * s),
-    -(m[1][0] - m[0][1]) / (2.0 * s),
-    0.5 * s,
-    ])
-
 def quaternion_normalize(q):
   l = math.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3])
   return q[0] / l, q[1] / l, q[2] / l, q[3] / l
@@ -1606,51 +1594,12 @@ def blender_bone2matrix(head, tail, roll):
   rMatrix = matrix_rotate(nor, roll)
   return matrix_multiply(rMatrix, bMatrix)
 
-def calc_rootaxis(pos, pos2, tmp_mat):
-  # get root axis:
-  # there is probably an easier way than this crap...
-  
-  # (pos2 - pos) is the y-axis (bone-axis) we want
-  nor = vector_normalize([ pos2[0] - pos[0],
-                           pos2[1] - pos[1],
-                           pos2[2] - pos[2] ])
-      
-  pz = point_by_matrix([0, 0, 1], tmp_mat)
-  pz = vector_normalize([ pz[0] - pos[0],
-                          pz[1] - pos[1],
-                          pz[2] - pos[2] ])
-
-  px = point_by_matrix([1, 0, 0], tmp_mat)
-  px = vector_normalize([ px[0] - pos[0],
-                          px[1] - pos[1],
-                          px[2] - pos[2] ])
-
-  # px1 is px perpendicular to the y-axis
-  px1 = vector_crossproduct(nor, pz)
-  if vector_dotproduct(px1, px) < 0.0:
-    px1 = vector_crossproduct(pz, nor)
-  px1 = vector_normalize(px1)
-
-  # get new axis (in correct y-direction, but wrong roll)
-  axis_rot = blender_bone2matrix(pos, pos2, 0)
-  
-  # correct the roll
-  px2 = vector_normalize(point_by_matrix([1, 0, 0], axis_rot))
-  cosAngle = vector_dotproduct(px1, px2)
-  # restrict the output to the domain of acos
-  cosAngle = ((cosAngle+1.0)%2)-1.0
-  roll = math.acos(cosAngle)
-
-  rMatrix = matrix_rotate(nor, roll)
-  axis_rot = matrix_multiply(rMatrix, axis_rot) 
-  return axis_rot
-
 def convert_armature(skeleton, obj, debugskel):
   global scaleNumber
 
   stack = []
   matrix = None
-  if (Blender.Get("version") == 234):
+  if (Blender.Get("version") >= 234):
     matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix("worldspace"))
   else:
     matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix())
@@ -1717,15 +1666,12 @@ def convert_armature(skeleton, obj, debugskel):
 
     # local rotation and distance from parent bone
     if parent:
-      # difference is 1*10^(-6)
-      rot = matrix2quaternion(R_bmat)
+      rotQuat = bbone.getRestMatrix('bonespace').toQuat()
+
     else:
-      # difference is 1*10^(-6)
-      axis_rot = calc_rootaxis(pos, pos2, tmp_mat)
-      # tmp_mat includes scaling
-      # matrix2quaternion(tmp_mat) is inaccurate
-      rot = matrix2quaternion(axis_rot)
-     
+      rotQuat = bbone.getRestMatrix('worldspace').toQuat()
+
+    rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
     x, y, z = pos
     # pos = loc * M_{Ogre}
     loc = point_by_matrix([x, y, z], invertedOgreTransformation)
@@ -2106,6 +2052,7 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 def export_mesh(object):
 	global uvToggle, armatureToggle
 	global verticesDict
+	global skeletonsDict
 	global materialsDict
 	global exportLogger
 	
@@ -2114,18 +2061,17 @@ def export_mesh(object):
 		skeleton = None
 		if armatureToggle.val:
 			parent = object.getParent()
-			if parent and parent.getType() == "Armature":
+			if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
 				export_skeleton(parent)
-				skeleton = skeletonsDict[parent.name]
+				skeleton = skeletonsDict[parent.getName()]
 
 		#NMesh of the object
 		data = object.getData()
 		matrix = None
-		if (Blender.Get("version") == 234):
+		if (Blender.Get("version") >= 234):
 			matrix = matrix_multiply(BASE_MATRIX, object.getMatrix("worldspace"))
 		else:
 			matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
-
 		# materials of the object
 		# note: ogre assigns different textures and different facemodes
 		#       to different materials
@@ -2404,8 +2350,10 @@ def write_materials():
 						# Blender.World.GetActive() not available
 						world = worldList[0]
 						exportLogger.logWarning("Can't get active world. Used ambient colour of world \"%s\"" % world.name)
-					else:
+					elif (Blender.Get("version") == 234):
 						world = Blender.World.GetActive()
+					else:
+						world = Blender.World.GetCurrent() 
 				if (world):
 					ambientRGBList = world.getAmb()
 					# ambient <- amb * world ambient RGB
