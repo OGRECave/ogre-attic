@@ -128,6 +128,8 @@ namespace Ogre {
         */
         BoneAssignmentIterator getBoneAssignmentIterator(void);
 
+        /** Must be called once to compile bone assignments into geometry buffer. */
+        void _compileBoneAssignments(void);
     protected:
 
         /// Name of the material this SubMesh uses.
@@ -141,8 +143,6 @@ namespace Ogre {
 
         /// Flag indicating that bone assignments need to be recompiled
         bool mBoneAssignmentsOutOfDate;
-        /** Must be called once to compile bone assignments into geometry buffer. */
-        void compileBoneAssignments(void);
 
         /// Internal method for removing LOD data
         void removeLodLevels(void);

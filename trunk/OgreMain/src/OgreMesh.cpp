@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeleton.h"
 #include <algorithm>
 #include "OgreHardwareBufferManager.h"
+#include "OgreStringConverter.h"
 
 
 namespace Ogre {
@@ -363,14 +364,14 @@ namespace Ogre {
 
         // Take the opportunity to update the compiled bone assignments
         if (mBoneAssignmentsOutOfDate)
-            compileBoneAssignments();
+            _compileBoneAssignments();
 
         SubMeshList::iterator i;
         for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
         {
             if ((*i)->mBoneAssignmentsOutOfDate)
             {
-                (*i)->compileBoneAssignments();
+                (*i)->_compileBoneAssignments();
             }
         }
     }
@@ -393,41 +394,100 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Mesh::compileBoneAssignments(void)
+    typedef std::multimap<Real, Mesh::VertexBoneAssignmentList::iterator> WeightIteratorMap;
+    unsigned short Mesh::_rationaliseBoneAssignments(size_t vertexCount, Mesh::VertexBoneAssignmentList& assignments)
     {
-
         // Iterate through, finding the largest # bones per vertex
         unsigned short maxBones = 0;
-        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort >::max();
-        VertexBoneAssignmentList::iterator i, iend;
-        i = mBoneAssignments.begin();
-        iend = mBoneAssignments.end();
+        unsigned short currBones;
         currBones = 0;
-        for (; i != iend; ++i)
+        VertexBoneAssignmentList::iterator i;
+
+        for (size_t v = 0; v < vertexCount; ++v)
         {
-            if (lastVertIdx != i->second.vertexIndex)
+            // Get number of entries for this vertex
+            currBones = static_cast<unsigned short>(assignments.count(v));
+
+            // Deal with max bones update 
+            // (note this will record maxBones even if they exceed limit)
+            if (maxBones < currBones)
+                maxBones = currBones;
+            // does the number of bone assignments exceed limit?
+            if (currBones > OGRE_MAX_BLEND_WEIGHTS)
             {
-                // change in vertex
-                if (maxBones < currBones)
-                    maxBones = currBones;
-                currBones = 0;
+                // To many bone assignments on this vertex
+                // Find the start & end (end is in iterator terms ie exclusive)
+                std::pair<VertexBoneAssignmentList::iterator, VertexBoneAssignmentList::iterator> range;
+                // map to sort by weight
+                WeightIteratorMap weightToAssignmentMap;
+                range = assignments.equal_range(v);
+                // Add all the assignments to map
+                for (i = range.first; i != range.second; ++i)
+                {
+                    // insert value weight->iterator
+                    weightToAssignmentMap.insert(
+                        WeightIteratorMap::value_type(i->second.weight, i));
+                }
+                // Reverse iterate over weight map, remove lowest n
+                unsigned short numToRemove = currBones - OGRE_MAX_BLEND_WEIGHTS;
+                WeightIteratorMap::iterator remIt = weightToAssignmentMap.begin();
+
+                while (numToRemove--)
+                {
+                    // Erase this one
+                    assignments.erase(remIt->second);
+                    ++remIt;
+                }
+                // Now, rebalance the remaining assignments
+                range = assignments.equal_range(v);
+            } // if (currBones > OGRE_MAX_BLEND_WEIGHTS)
+
+            // Make sure the weights are normalised
+            // Do this irrespective of whether we had to remove assignments or not
+            //   since it gives us a guarantee that weights are normalised
+            //  We assume this, so it's a good idea since some modellers may not
+            std::pair<VertexBoneAssignmentList::iterator, VertexBoneAssignmentList::iterator> normalise_range = assignments.equal_range(v);
+            Real totalWeight = 0;
+            // Find total first
+            for (i = normalise_range.first; i != normalise_range.second; ++i)
+            {
+                totalWeight += i->second.weight;
             }
-
-            currBones++;
-
-            lastVertIdx = i->second.vertexIndex;
+            // Now normalise if total weight is outside tolerance
+            if (Math::RealEqual(totalWeight, 1.0f))
+            {
+                for (i = normalise_range.first; i != normalise_range.second; ++i)
+                {
+                    i->second.weight = i->second.weight / totalWeight;
+                }
+            }
 
         }
 
 		if (maxBones > OGRE_MAX_BLEND_WEIGHTS)
 		{
-			Except(Exception::ERR_INVALIDPARAMS, "Too many bone assignments per vertex on "
-				"mesh " + mName, "Mesh::compileBoneAssignments");
-		}
+            // Warn that we've reduced bone assignments
+            LogManager::getSingleton().logMessage("WARNING: the mesh '" + mName + "' "
+                "includes vertices with more than " + 
+                StringConverter::toString(OGRE_MAX_BLEND_WEIGHTS) + " bone assignments. "
+                "The lowest weighted assignments beyond this limit have been removed, so "
+                "your animation may look slightly different. To eliminate this, reduce "
+                "the number of bone assignments per vertex on your mesh to " + 
+                StringConverter::toString(OGRE_MAX_BLEND_WEIGHTS) + ".");
+            // we've adjusted them down to the max
+            maxBones = OGRE_MAX_BLEND_WEIGHTS;
 
-		mNumBlendWeightsPerVertex = maxBones;
+        }
 
-        if (mNumBlendWeightsPerVertex == 0)
+        return maxBones;
+    }
+    //-----------------------------------------------------------------------
+    void  Mesh::_compileBoneAssignments(void)
+    {
+        unsigned short maxBones = 
+            _rationaliseBoneAssignments(sharedVertexData->vertexCount, mBoneAssignments);
+
+        if (maxBones == 0)
         {
             // No bone assignments
             return;
@@ -435,11 +495,11 @@ namespace Ogre {
 
         if (mUseSoftwareBlending)
         {
-            compileBoneAssignmentsSoftware(mBoneAssignments, mNumBlendWeightsPerVertex, sharedVertexData);
+            compileBoneAssignmentsSoftware(mBoneAssignments, maxBones, sharedVertexData);
         }
         else
         {
-            compileBoneAssignmentsHardware(mBoneAssignments, mNumBlendWeightsPerVertex, sharedVertexData);
+            compileBoneAssignmentsHardware(mBoneAssignments, maxBones, sharedVertexData);
         }
 
         mBoneAssignmentsOutOfDate = false;

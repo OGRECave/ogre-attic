@@ -418,6 +418,29 @@ namespace Ogre {
 		*/
 		void setIndexBufferPolicy(HardwareBuffer::Usage usage, bool shadowBuffer = false);
 
+        /** Rationalises the passed in bone assignment list.
+        @remarks
+            OGRE supports up to 4 bone assignments per vertex. The reason for this limit
+            is that this is the maximum number of assignments that can be passed into
+            a hardware-assisted blending algorithm. This method identifies where there are
+            more than 4 bone assignments for a given vertex, and eliminates the bone
+            assignments with the lowest weights to reduce to this limit. The remaining
+            weights are then re-balanced to ensure that they sum to 1.0.
+        @param vertexCount The number of vertices.
+        @param assignments The bone assignment list to rationalise. This list will be modified and
+            entries will be removed where the limits are exceeded.
+        @returns The maximum number of bone assignments per vertex found, clamped to [1-4]
+        */
+        unsigned short _rationaliseBoneAssignments(size_t vertexCount, VertexBoneAssignmentList& assignments);
+
+        /** Internal method, be called once to compile bone assignments into geometry buffer. 
+        @remarks
+            The OGRE engine calls this method automatically. It compiles the information 
+            submitted as bone assignments into a format usable in realtime. It also 
+            eliminates excessive bone assignments (max is OGRE_MAX_BLEND_WEIGHTS)
+            and re-normalises the remaining assignments.
+        */
+        void _compileBoneAssignments(void);
     protected:
         typedef std::vector<SubMesh*> SubMeshList;
         /** A list of submeshes which make up this mesh.
@@ -454,8 +477,6 @@ namespace Ogre {
 
         /// Flag indicating that bone assignments need to be recompiled
         bool mBoneAssignmentsOutOfDate;
-        /** Must be called once to compile bone assignments into geometry buffer. */
-        void compileBoneAssignments(void);
 
         /** Software blending oriented bone assignment compilation */
         void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
@@ -465,7 +486,6 @@ namespace Ogre {
             unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
 
         HardwareVertexBufferSharedPtr mBlendingVB;
-		unsigned short mNumBlendWeightsPerVertex;
         /// Option whether to use software or hardware blending, there are tradeoffs to both
         bool mUseSoftwareBlending;
 

@@ -108,36 +108,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void SubMesh::compileBoneAssignments(void)
+    void SubMesh::_compileBoneAssignments(void)
     {
-        // Iterate through, finding the largest # bones per vertex
-        unsigned short maxBones = 0;
-        unsigned short currBones, lastVertIdx = std::numeric_limits< ushort >::max();
-        VertexBoneAssignmentList::iterator i, iend;
-        i = mBoneAssignments.begin();
-        iend = mBoneAssignments.end();
-        currBones = 0;
-        for (; i != iend; ++i)
-        {
-            if (lastVertIdx != i->second.vertexIndex)
-            {
-                // change in vertex
-                if (maxBones < currBones)
-                    maxBones = currBones;
-                currBones = 0;
-            }
-
-            currBones++;
-
-            lastVertIdx = i->second.vertexIndex;
-
-        }
-
-		if (maxBones > OGRE_MAX_BLEND_WEIGHTS)
-		{
-			Except(Exception::ERR_INVALIDPARAMS, "Too many bone assignments per vertex.",
-				"SubMesh::compileBoneAssignments");
-		}
+        unsigned short maxBones = 
+            parent->_rationaliseBoneAssignments(vertexData->vertexCount, mBoneAssignments);
 
         if (maxBones == 0)
         {
