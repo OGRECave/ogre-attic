@@ -103,7 +103,7 @@ namespace Ogre {
     #   define HashMap ::__gnu_cxx::hash_map
     #else
     #   if OGRE_COMPILER == COMPILER_MSVC
-    #       if OGRE_COMP_VER > 1300
+    #       if OGRE_COMP_VER > 1300 && !defined(_STLP_MSVC)
     #           define HashMap ::stdext::hash_map
     #       else
     #           define HashMap ::std::hash_map
