@@ -26,11 +26,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreXMLMeshSerializer.h"
 #include "OgreSubMesh.h"
-#include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
 #include "OgreSkeleton.h"
 #include "OgreStringConverter.h"
-
+#include "OgreHardwareBufferManager.h"
 
 
 namespace Ogre {
@@ -55,15 +54,10 @@ namespace Ogre {
 
         TiXmlElement* rootElem = mXMLDoc->RootElement();
 
-        // materials
-        elem = rootElem->FirstChildElement("materials");
-        if (elem)
-            readMaterials(elem);
-
         // shared geometry
         elem = rootElem->FirstChildElement("sharedgeometry");
         if (elem)
-            readGeometry(elem, &mpMesh->sharedGeometry);
+            readGeometry(elem, mpMesh->sharedVertexData);
 
         // submeshes
         elem = rootElem->FirstChildElement("submeshes");
@@ -91,7 +85,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::exportMesh(const Mesh* pMesh, const String& filename, bool includeMaterials)
+    void XMLMeshSerializer::exportMesh(const Mesh* pMesh, const String& filename)
     {
         LogManager::getSingleton().logMessage("XMLMeshSerializer writing mesh data to " + filename + "...");
         
@@ -104,28 +98,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Populating DOM...");
 
             
-        // Write materials if required
-        if (includeMaterials)
-        {
-            MaterialManager& matMgr = MaterialManager::getSingleton();
-            LogManager::getSingleton().logMessage("Writing Materials...");
-            // Insert a 'Materials' node to contain
-            TiXmlElement* matsNode = 
-                rootNode->InsertEndChild(TiXmlElement("materials"))->ToElement();
-            
-            for (int i = 0; i < pMesh->getNumSubMeshes(); ++i)
-            {
-                SubMesh* sm = pMesh->getSubMesh(i);
-                Material* pMat = (Material*)matMgr.getByName(sm->getMaterialName());
-                if (pMat)
-                {
-                    LogManager::getSingleton().logMessage("Exporting Material '" + pMat->getName() + "'...");
-                    writeMaterial(matsNode, pMat);
-                    LogManager::getSingleton().logMessage("Material '" + pMat->getName() + "' exported.");
-                }
-            }
-        }
-            
+           
         // Write to DOM
         writeMesh(pMesh);
         LogManager::getSingleton().logMessage("DOM populated, writing XML file..");
@@ -144,9 +117,12 @@ namespace Ogre {
     {
         TiXmlElement* rootNode = mXMLDoc->RootElement();
         // Write geometry
-        TiXmlElement* geomNode = 
-            rootNode->InsertEndChild(TiXmlElement("sharedgeometry"))->ToElement();
-        writeGeometry(geomNode, &pMesh->sharedGeometry);
+		if (pMesh->sharedVertexData)
+		{
+			TiXmlElement* geomNode = 
+				rootNode->InsertEndChild(TiXmlElement("sharedgeometry"))->ToElement();
+			writeGeometry(geomNode, pMesh->sharedVertexData);
+		}
 
         // Write Submeshes
         TiXmlElement* subMeshesNode = 
@@ -195,63 +171,6 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeMaterial(TiXmlElement* mMaterialsNode, const Material* m)
-    {
-        // Create Node
-        TiXmlElement* matNode = 
-            mMaterialsNode->InsertEndChild(TiXmlElement("material"))->ToElement();
-
-        // Name
-        matNode->SetAttribute("name", m->getName());
-
-        // Ambient
-        TiXmlElement* subNode = 
-            matNode->InsertEndChild(TiXmlElement("ambient"))->ToElement();
-        const ColourValue& ambient = m->getAmbient();
-        subNode->SetAttribute("red", StringConverter::toString(ambient.r));
-        subNode->SetAttribute("green", StringConverter::toString(ambient.g));
-        subNode->SetAttribute("blue", StringConverter::toString(ambient.b));
-        subNode->SetAttribute("alpha", StringConverter::toString(ambient.a));
-
-        // Diffuse
-        subNode = 
-            matNode->InsertEndChild(TiXmlElement("diffuse"))->ToElement();
-        const ColourValue& diffuse = m->getDiffuse();
-        subNode->SetAttribute("red", StringConverter::toString(diffuse.r));
-        subNode->SetAttribute("green", StringConverter::toString(diffuse.g));
-        subNode->SetAttribute("blue", StringConverter::toString(diffuse.b));
-        subNode->SetAttribute("alpha", StringConverter::toString(diffuse.a));
-
-        // Specular
-        subNode = 
-            matNode->InsertEndChild(TiXmlElement("specular"))->ToElement();
-        const ColourValue& specular = m->getSpecular();
-        subNode->SetAttribute("red", StringConverter::toString(specular.r));
-        subNode->SetAttribute("green", StringConverter::toString(specular.g));
-        subNode->SetAttribute("blue", StringConverter::toString(specular.b));
-        subNode->SetAttribute("alpha", StringConverter::toString(specular.a));
-
-        // Shininess
-        subNode = matNode->InsertEndChild(TiXmlElement("shininess"))->ToElement();
-        subNode->SetAttribute("value", StringConverter::toString(m->getShininess()));
-
-        // Nested texture layers
-        TiXmlElement* mLayersNode = 
-             matNode->InsertEndChild(TiXmlElement("texturelayers"))->ToElement();
-        for (int i = 0; i < m->getNumTextureLayers(); ++i)
-        {
-            writeTextureLayer(mLayersNode, m->getTextureLayer(i));
-        }
-    }
-    //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeTextureLayer(TiXmlElement* mLayersNode, const Material::TextureLayer* pTex)
-    {
-        TiXmlElement* texNode = 
-            mLayersNode->InsertEndChild(TiXmlElement("texturelayer"))->ToElement();
-
-        texNode->SetAttribute("texture", pTex->getTextureName());
-    }
-    //---------------------------------------------------------------------
     void XMLMeshSerializer::writeSubMesh(TiXmlElement* mSubMeshesNode, const SubMesh* s)
     {
         TiXmlElement* subMeshNode = 
@@ -260,23 +179,48 @@ namespace Ogre {
         // Material name
         subMeshNode->SetAttribute("material", s->getMaterialName());
         // bool useSharedVertices
-        subMeshNode->SetAttribute("useSharedVertices", 
+        subMeshNode->SetAttribute("usesharedvertices", 
             StringConverter::toString(s->useSharedVertices) );
+        // bool use32BitIndexes
+		bool use32BitIndexes = (s->indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
+        subMeshNode->SetAttribute("use32bitindexes", 
+            StringConverter::toString( use32BitIndexes ));
 
         // Faces
         TiXmlElement* facesNode = 
             subMeshNode->InsertEndChild(TiXmlElement("faces"))->ToElement();
-        facesNode->SetAttribute("count", StringConverter::toString(s->numFaces));
+        facesNode->SetAttribute("count", StringConverter::toString(s->indexData->indexCount / 3));
         // Write each face in turn
         ushort i;
-        ushort* pFace = s->faceVertexIndices;
-        for (i = 0; i < s->numFaces * 3; i += 3)
+		unsigned int* pInt;
+		unsigned short* pShort;
+		HardwareIndexBufferSharedPtr ibuf = s->indexData->indexBuffer;
+		if (use32BitIndexes)
+		{
+			pInt = static_cast<unsigned int*>(
+				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+		}
+		else
+		{
+			pShort = static_cast<unsigned short*>(
+				ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+		}
+        for (i = 0; i < s->indexData->indexCount; i += 3)
         {
             TiXmlElement* faceNode = 
                 facesNode->InsertEndChild(TiXmlElement("face"))->ToElement();
-            faceNode->SetAttribute("v1", StringConverter::toString(*pFace++));
-            faceNode->SetAttribute("v2", StringConverter::toString(*pFace++));
-            faceNode->SetAttribute("v3", StringConverter::toString(*pFace++));
+			if (use32BitIndexes)
+			{
+				faceNode->SetAttribute("v1", StringConverter::toString(*pInt++));
+				faceNode->SetAttribute("v2", StringConverter::toString(*pInt++));
+				faceNode->SetAttribute("v3", StringConverter::toString(*pInt++));
+			}
+			else
+			{
+				faceNode->SetAttribute("v1", StringConverter::toString(*pShort++));
+				faceNode->SetAttribute("v2", StringConverter::toString(*pShort++));
+				faceNode->SetAttribute("v3", StringConverter::toString(*pShort++));
+			}
         }
 
         // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
@@ -284,7 +228,7 @@ namespace Ogre {
         {
             TiXmlElement* geomNode = 
                 subMeshNode->InsertEndChild(TiXmlElement("geometry"))->ToElement();
-            writeGeometry(geomNode, &s->geometry);
+            writeGeometry(geomNode, s->vertexData);
         }
 
         // Bone assignments
@@ -304,106 +248,138 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::writeGeometry(TiXmlElement* mParentNode, const GeometryData* pGeom)
+    void XMLMeshSerializer::writeGeometry(TiXmlElement* mParentNode, const VertexData* vertexData)
     {
         // Write a vertex buffer per element
-        // TODO when we do VBs properly, we probably want to create some 
-        //   shared buffers
 
         TiXmlElement *vbNode, *vertexNode, *dataNode;
-        Real* pReal;
-        ushort i;
 
         // Set num verts on parent
-        mParentNode->SetAttribute("count", StringConverter::toString(pGeom->numVertices));
+        mParentNode->SetAttribute("vertexcount", StringConverter::toString(vertexData->vertexCount));
 
-        vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-        vbNode->SetAttribute("positions","true");
-        vbNode->SetAttribute("normals","false");
-        vbNode->SetAttribute("colours","false");
-        vbNode->SetAttribute("numtexcoords","0");
-        pReal = pGeom->pVertices;
-        for (i = 0; i < pGeom->numVertices; ++i)
-        {
-            vertexNode = 
-                vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
-            dataNode = 
-                vertexNode->InsertEndChild(TiXmlElement("position"))->ToElement();
-            dataNode->SetAttribute("x", StringConverter::toString(*pReal++));
-            dataNode->SetAttribute("y", StringConverter::toString(*pReal++));
-            dataNode->SetAttribute("z", StringConverter::toString(*pReal++));
-        }
+		VertexDeclaration* decl = vertexData->vertexDeclaration;
+		VertexBufferBinding* bind = vertexData->vertexBufferBinding;
 
-        if (pGeom->hasNormals)
-        {
-            vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-            vbNode->SetAttribute("positions","false");
-            vbNode->SetAttribute("normals","true");
-            vbNode->SetAttribute("colours","false");
-            vbNode->SetAttribute("numtexcoords","0");
-            pReal = pGeom->pNormals;
-            for (i = 0; i < pGeom->numVertices; ++i)
-            {
-                vertexNode = 
-                    vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
-                dataNode = 
-                    vertexNode->InsertEndChild(TiXmlElement("normal"))->ToElement();
-                dataNode->SetAttribute("x", StringConverter::toString(*pReal++));
-                dataNode->SetAttribute("y", StringConverter::toString(*pReal++));
-                dataNode->SetAttribute("z", StringConverter::toString(*pReal++));
-            }
-        }
+		VertexBufferBinding::VertexBufferBindingMap::const_iterator b, bend;
+		bend = bind->getBindings().end();
+		// Iterate over buffers
+		for(b = bind->getBindings().begin(); b != bend; ++b)
+		{
+			vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
+			const HardwareVertexBufferSharedPtr vbuf = b->second;
+			unsigned short bufferIdx = b->first;
+			// Get all the elements that relate to this buffer			
+			VertexDeclaration::VertexElementList elems = decl->findElementsBySource(bufferIdx);
+			VertexDeclaration::VertexElementList::iterator i, iend;
+			iend = elems.end();
 
-        if (pGeom->hasColours)
-        {
-            vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-            vbNode->SetAttribute("positions","false");
-            vbNode->SetAttribute("normals","false");
-            vbNode->SetAttribute("colours","true");
-            vbNode->SetAttribute("numtexcoords","0");
-            RGBA* pColour = pGeom->pColours;
-            for (i = 0; i < pGeom->numVertices; ++i)
-            {
-                vertexNode = 
-                    vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
-                dataNode = 
-                    vertexNode->InsertEndChild(TiXmlElement("colour"))->ToElement();
+			// Set up the data access for this buffer (lock read-only)
+			unsigned char* pVert;
+			Real* pReal;
+			RGBA* pColour;
 
-                dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
-            }
-        }
+			pVert = static_cast<unsigned char*>(
+				vbuf->lock(0, vbuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY));
 
-        for (int t = 0; t < pGeom->numTexCoords; ++t)
-        {
-            vbNode = mParentNode->InsertEndChild(TiXmlElement("vertexbuffer"))->ToElement();
-            vbNode->SetAttribute("positions","false");
-            vbNode->SetAttribute("normals","false");
-            vbNode->SetAttribute("colours","false");
-            vbNode->SetAttribute("numtexcoords","1");
-            // NB if later we do shared buffers this will be space-separated per set
-            vbNode->SetAttribute("texcoordsets", StringConverter::toString(t));
-            // NB if later we do shared buffers this will be space-separated per set
-            vbNode->SetAttribute("texcoorddimensions", 
-                StringConverter::toString(pGeom->numTexCoordDimensions[t]));
-            pReal = pGeom->pTexCoords[t];
-            for (i = 0; i < pGeom->numVertices; ++i)
-            {
-                vertexNode = 
-                    vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
-                dataNode = 
-                    vertexNode->InsertEndChild(TiXmlElement("texcoord"))->ToElement();
-
-                dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
-                if (pGeom->numTexCoordDimensions[t] > 1)
-                {
-                    dataNode->SetAttribute("v", StringConverter::toString(*pReal++));
-                }
-                if (pGeom->numTexCoordDimensions[t] > 2)
-                {
-                    dataNode->SetAttribute("w", StringConverter::toString(*pReal++));
+            // Skim over the elements to set up the general data
+            unsigned short numTextureCoords = 0;
+			for (i = elems.begin(); i != iend; ++i)
+			{
+				VertexElement& elem = *i;
+				switch(elem.getSemantic())
+				{
+				case VES_POSITION:
+					vbNode->SetAttribute("positions","true");
+                    break;
+				case VES_NORMAL:
+					vbNode->SetAttribute("normals","true");
+                    break;
+				case VES_DIFFUSE:
+					vbNode->SetAttribute("colours_diffuse","true");
+                    break;
+				case VES_SPECULAR:
+					vbNode->SetAttribute("colours_specular","true");
+                    break;
+                case VES_TEXTURE_COORDINATES:
+                    vbNode->SetAttribute(
+                        "texture_coord_dimensions_" + StringConverter::toString(numTextureCoords), 
+                        StringConverter::toString(VertexElement::getTypeCount(elem.getType())));
+                    ++numTextureCoords;
+                    break;
                 }
             }
-        }
+            vbNode->SetAttribute("texture_coords", StringConverter::toString(numTextureCoords));
+
+			// For each vertex
+			for (size_t v = 0; v < vertexData->vertexCount; ++v)
+			{
+				// Iterate over the elements
+				for (i = elems.begin(); i != iend; ++i)
+				{
+					VertexElement& elem = *i;
+					vertexNode = 
+						vbNode->InsertEndChild(TiXmlElement("vertex"))->ToElement();
+					switch(elem.getSemantic())
+					{
+					case VES_POSITION:
+						pReal = static_cast<Real*>(static_cast<void*>(pVert + elem.getOffset()));
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("position"))->ToElement();
+						dataNode->SetAttribute("x", StringConverter::toString(pReal[0]));
+						dataNode->SetAttribute("y", StringConverter::toString(pReal[1]));
+						dataNode->SetAttribute("z", StringConverter::toString(pReal[2]));
+						break;
+					case VES_NORMAL:
+						pReal = static_cast<Real*>(static_cast<void*>(pVert + elem.getOffset()));
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("position"))->ToElement();
+						dataNode->SetAttribute("x", StringConverter::toString(pReal[0]));
+						dataNode->SetAttribute("y", StringConverter::toString(pReal[1]));
+						dataNode->SetAttribute("z", StringConverter::toString(pReal[2]));
+						break;
+					case VES_DIFFUSE:
+						pColour = static_cast<RGBA*>(static_cast<void*>(pVert + elem.getOffset()));
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("colour_diffuse"))->ToElement();
+						
+						dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
+						break;
+					case VES_SPECULAR:
+						pColour = static_cast<RGBA*>(static_cast<void*>(pVert + elem.getOffset()));
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("colour_specular"))->ToElement();
+						
+						dataNode->SetAttribute("value", StringConverter::toString(*pColour++));
+						break;
+					case VES_TEXTURE_COORDINATES:
+						pReal = static_cast<Real*>(static_cast<void*>(pVert + elem.getOffset()));
+						dataNode = 
+							vertexNode->InsertEndChild(TiXmlElement("texcoord"))->ToElement();
+
+						switch(elem.getType())
+                        {
+                        case VET_FLOAT1:
+    						dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
+                            break;
+                        case VET_FLOAT2:
+    						dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
+    						dataNode->SetAttribute("v", StringConverter::toString(*pReal++));
+                            break;
+                        case VET_FLOAT3:
+    						dataNode->SetAttribute("u", StringConverter::toString(*pReal++));
+    						dataNode->SetAttribute("v", StringConverter::toString(*pReal++));
+    						dataNode->SetAttribute("w", StringConverter::toString(*pReal++));
+                            break;
+                        }
+						break;
+
+
+					}
+				}
+				pVert += vbuf->getVertexSize();
+			}
+			vbuf->unlock();
+		}
 
     }
     //---------------------------------------------------------------------
@@ -431,85 +407,6 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::readMaterials(TiXmlElement* mMaterialsNode)
-    {
-        LogManager::getSingleton().logMessage("Reading material data...");
-
-        MaterialManager& matMgr = MaterialManager::getSingleton();
-
-        // All children will be materials
-        for (TiXmlElement* matElem = mMaterialsNode->FirstChildElement();
-            matElem != 0; matElem = matElem->NextSiblingElement())
-        {
-            Material* newMat = NULL;
-            String name = matElem->Attribute("name");
-            try
-            {
-                std::cout << "Creating material: " << name << std::endl;
-                newMat = (Material*)matMgr.createDeferred(name);
-            }
-            catch( Exception& )
-            {
-                continue;
-            }
-
-            ColourValue col;
-            TiXmlElement* colElem;
-            // Ambient
-            colElem = matElem->FirstChildElement("ambient");
-            if (colElem)
-            {
-                col.r = StringConverter::parseReal(colElem->Attribute("red"));
-                col.g = StringConverter::parseReal(colElem->Attribute("green"));
-                col.b = StringConverter::parseReal(colElem->Attribute("blue"));
-                col.a = StringConverter::parseReal(colElem->Attribute("alpha"));
-                newMat->setAmbient(col);
-            }
-            // Diffuse
-            colElem = matElem->FirstChildElement("diffuse");
-            if (colElem)
-            {
-                col.r = StringConverter::parseReal(colElem->Attribute("red"));
-                col.g = StringConverter::parseReal(colElem->Attribute("green"));
-                col.b = StringConverter::parseReal(colElem->Attribute("blue"));
-                col.a = StringConverter::parseReal(colElem->Attribute("alpha"));
-                newMat->setDiffuse(col);
-            }
-            // Specular
-            colElem = matElem->FirstChildElement("specular");
-            if (colElem)
-            {
-                col.r = StringConverter::parseReal(colElem->Attribute("red"));
-                col.g = StringConverter::parseReal(colElem->Attribute("green"));
-                col.b = StringConverter::parseReal(colElem->Attribute("blue"));
-                col.a = StringConverter::parseReal(colElem->Attribute("alpha"));
-                newMat->setSpecular(col);
-            }
-            // Shininess
-            colElem = matElem->FirstChildElement("shininess");
-            if (colElem)
-            {
-                newMat->setShininess(StringConverter::parseReal(colElem->Attribute("value")));
-            }
-
-            // Texture layers
-            TiXmlElement* texLayersElem = matElem->FirstChildElement("texturelayers");
-            if (texLayersElem)
-            {
-                for (TiXmlElement* texElem = texLayersElem->FirstChildElement();
-                    texElem != 0; texElem = texElem->NextSiblingElement())
-                {
-                    newMat->addTextureLayer(texElem->Attribute("texture"));
-                }
-
-            } // texture layers
-
-        } // material
-
-        LogManager::getSingleton().logMessage("Material data done.");
-
-    }
-    //---------------------------------------------------------------------
     void XMLMeshSerializer::readSubMeshes(TiXmlElement* mSubmeshesNode)
     {
         LogManager::getSingleton().logMessage("Reading submeshes...");
@@ -524,28 +421,56 @@ namespace Ogre {
             if (mat)
                 sm->setMaterialName(mat);
             sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("useSharedVertices"));
-
+            bool use32BitIndexes = StringConverter::parseBool(smElem->Attribute("use32bitindexes"));
+            
             // Faces
             TiXmlElement* faces = smElem->FirstChildElement("faces");
-            sm->numFaces = StringConverter::parseInt(faces->Attribute("count"));
+            sm->indexData->indexCount = StringConverter::parseInt(faces->Attribute("count")) * 3;
+
             // Allocate space
-            sm->faceVertexIndices = new unsigned short[sm->numFaces * 3];
-            int faceIdx;
-            TiXmlElement* faceElem;
-            for (faceElem = faces->FirstChildElement(), faceIdx = 0;
-                faceElem != 0; faceElem = faceElem->NextSiblingElement(), faceIdx += 3)
+            HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
+                createIndexBuffer(
+                    use32BitIndexes? HardwareIndexBuffer::IT_32BIT : HardwareIndexBuffer::IT_16BIT, 
+                    sm->indexData->indexCount, 
+                    HardwareBuffer::HBU_DYNAMIC,
+                    false);
+            unsigned int *pInt;
+            unsigned short *pShort;
+            if (use32BitIndexes)
             {
-                sm->faceVertexIndices[faceIdx] = StringConverter::parseInt(faceElem->Attribute("v1"));
-                sm->faceVertexIndices[faceIdx+1] = StringConverter::parseInt(faceElem->Attribute("v2"));
-                sm->faceVertexIndices[faceIdx+2] = StringConverter::parseInt(faceElem->Attribute("v3"));
+                pInt = static_cast<unsigned int*>(
+                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
             }
+            else
+            {
+                pShort = static_cast<unsigned short*>(
+                    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD));
+            }
+            TiXmlElement* faceElem;
+            for (faceElem = faces->FirstChildElement();
+                faceElem != 0; faceElem = faceElem->NextSiblingElement())
+            {
+                if (use32BitIndexes)
+                {
+                    *pInt++ = StringConverter::parseInt(faceElem->Attribute("v1"));
+                    *pInt++ = StringConverter::parseInt(faceElem->Attribute("v2"));
+                    *pInt++ = StringConverter::parseInt(faceElem->Attribute("v3"));
+                }
+                else
+                {
+                    *pShort++ = StringConverter::parseInt(faceElem->Attribute("v1"));
+                    *pShort++ = StringConverter::parseInt(faceElem->Attribute("v2"));
+                    *pShort++ = StringConverter::parseInt(faceElem->Attribute("v3"));
+                }
+            }
+            ibuf->unlock();
 
             // Geometry
             if (!sm->useSharedVertices)
             {
                 TiXmlElement* geomNode = smElem->FirstChildElement("geometry");
                 if (geomNode)
-                    readGeometry(geomNode, &sm->geometry);
+                    readGeometry(geomNode, sm->vertexData);
             }
 
             // Bone assignments
@@ -557,19 +482,17 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("Submeshes done.");
     }
     //---------------------------------------------------------------------
-    void XMLMeshSerializer::readGeometry(TiXmlElement* mGeometryNode, GeometryData* pGeom)
+    void XMLMeshSerializer::readGeometry(TiXmlElement* mGeometryNode, VertexData* vertexData)
     {
+        /* TODO
         LogManager::getSingleton().logMessage("Reading geometry...");
         Real *pPos, *pNorm, *pTex[9];
         RGBA* pCol;
 
-        pGeom->numVertices = StringConverter::parseInt(mGeometryNode->Attribute("count"));
+        vertexData->vertexCount = StringConverter::parseInt(mGeometryNode->Attribute("count"));
         // Skip empty 
-        if (pGeom->numVertices <= 0) return;
-
-        // Determine type(s) present per vertex
-        pGeom->hasNormals = pGeom->hasColours = false;
-        pGeom->numTexCoords = 0;
+        if (vertexData->vertexCount <= 0) return;
+        
 
         // Iterate over all children (vertexbuffer entries)
         for (TiXmlElement* vbElem = mGeometryNode->FirstChildElement();
@@ -578,41 +501,41 @@ namespace Ogre {
             // Skip non-vertexbuffer elems
             if (stricmp(vbElem->Value(), "vertexbuffer")) continue;
 
-
+            
             const char* attrib = vbElem->Attribute("positions");
             if (attrib && StringConverter::parseBool(attrib))
             {
-                pGeom->pVertices = new Real[pGeom->numVertices * 3];
+                vertexData->pVertices = new Real[vertexData->numVertices * 3];
                 // TODO change when we do shared bufs
-                pGeom->vertexStride = 0;
-                pPos = pGeom->pVertices;
+                vertexData->vertexStride = 0;
+                pPos = vertexData->pVertices;
 
             }
             attrib = vbElem->Attribute("normals");
             if (attrib && StringConverter::parseBool(attrib))
             {
-                pGeom->hasNormals = true;
-                pGeom->pNormals = new Real[pGeom->numVertices * 3];
+                vertexData->hasNormals = true;
+                vertexData->pNormals = new Real[vertexData->numVertices * 3];
                 // TODO change when we do shared bufs
-                pGeom->normalStride = 0;
+                vertexData->normalStride = 0;
                 
-                pNorm = pGeom->pNormals;
+                pNorm = vertexData->pNormals;
             }
             attrib = vbElem->Attribute("colours");
             if (attrib && StringConverter::parseBool(attrib))
             {
-                pGeom->hasColours = true;
-                pGeom->pColours = new RGBA[pGeom->numVertices];
+                vertexData->hasColours = true;
+                vertexData->pColours = new RGBA[vertexData->numVertices];
                 // TODO change when we do shared bufs
-                pGeom->colourStride = 0;
+                vertexData->colourStride = 0;
 
-                pCol = pGeom->pColours;
+                pCol = vertexData->pColours;
 
             }
             attrib = vbElem->Attribute("numtexcoords");
             if (attrib && StringConverter::parseInt(attrib))
             {
-                pGeom->numTexCoords = StringConverter::parseInt(vbElem->Attribute("numtexcoords"));
+                vertexData->numTexCoords = StringConverter::parseInt(vbElem->Attribute("numtexcoords"));
                 String sets = vbElem->Attribute("texcoordsets");
                 String dims = vbElem->Attribute("texcoorddimensions");
 
@@ -623,12 +546,12 @@ namespace Ogre {
                 {
                     int set = StringConverter::parseInt(vecSets[v]);
                     int dim = StringConverter::parseInt(vecDims[v]);
-                    pGeom->numTexCoordDimensions[set] = dim;
-                    pGeom->pTexCoords[set] = new Real[pGeom->numVertices * dim];
+                    vertexData->numTexCoordDimensions[set] = dim;
+                    vertexData->pTexCoords[set] = new Real[vertexData->numVertices * dim];
                     // TODO change when we do shared bufs
-                    pGeom->texCoordStride[set] = 0;
+                    vertexData->texCoordStride[set] = 0;
 
-                    pTex[set] = pGeom->pTexCoords[set];
+                    pTex[set] = vertexData->pTexCoords[set];
 
                 }
             } 
@@ -651,7 +574,7 @@ namespace Ogre {
                         *pPos++ = StringConverter::parseReal(
                             cmpElem->Attribute("z"));
 
-                        pPos += pGeom->vertexStride;
+                        pPos += vertexData->vertexStride;
                     }
                     else if (!stricmp(cmpElem->Value(), "normal"))
                     {
@@ -662,24 +585,24 @@ namespace Ogre {
                         *pNorm++ = StringConverter::parseReal(
                             cmpElem->Attribute("z"));
 
-                        pNorm += pGeom->normalStride;
+                        pNorm += vertexData->normalStride;
                     }
                     else if (!stricmp(cmpElem->Value(), "texcoord"))
                     {
                         *pTex[currentSet]++ = StringConverter::parseReal(
                             cmpElem->Attribute("u"));
-                        if (pGeom->numTexCoordDimensions[currentSet] > 1)
+                        if (vertexData->numTexCoordDimensions[currentSet] > 1)
                         {
                             *pTex[currentSet]++ = StringConverter::parseReal(
                                 cmpElem->Attribute("v"));
                         }
-                        if (pGeom->numTexCoordDimensions[currentSet] > 2)
+                        if (vertexData->numTexCoordDimensions[currentSet] > 2)
                         {
                             *pTex[currentSet]++ = StringConverter::parseReal(
                                 cmpElem->Attribute("w"));
                         }
 
-                        pTex[currentSet] += pGeom->texCoordStride[currentSet];
+                        pTex[currentSet] += vertexData->texCoordStride[currentSet];
                         currentSet++;
                     }
                     else if (!stricmp(cmpElem->Value(), "colour"))
@@ -690,6 +613,7 @@ namespace Ogre {
                 }// position / normal / texcoord / colour 
             } // vertex
         } // vertexbuffer
+        */
 
         LogManager::getSingleton().logMessage("Geometry done...");
     }
@@ -798,19 +722,44 @@ namespace Ogre {
 			SubMesh* sub = pMesh->getSubMesh(subi);
 			subNode->SetAttribute("submeshindex", StringConverter::toString(subi));
 			// NB level - 1 because SubMeshes don't store the first index in geometry
-			ProgressiveMesh::LODFaceData& facedata = sub->mLodFaceList[levelNum - 1];
-			subNode->SetAttribute("numFaces", StringConverter::toString(facedata.numIndexes / 3));
+		    IndexData* facedata = sub->mLodFaceList[levelNum - 1];
+			subNode->SetAttribute("numfaces", StringConverter::toString(facedata->indexCount / 3));
 
 			// Write each face in turn
-			unsigned short f;
-			unsigned short* pFace = facedata.pIndexes;
-			for (f = 0; f < facedata.numIndexes; f += 3)
+		    bool use32BitIndexes = (facedata->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
+
+            // Write each face in turn
+		    unsigned int* pInt;
+		    unsigned short* pShort;
+		    HardwareIndexBufferSharedPtr ibuf = facedata->indexBuffer;
+		    if (use32BitIndexes)
+		    {
+			    pInt = static_cast<unsigned int*>(
+				    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+		    }
+		    else
+		    {
+			    pShort = static_cast<unsigned short*>(
+				    ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_READ_ONLY)); 
+		    }
+			
+			for (size_t f = 0; f < facedata->indexCount; f += 3)
 			{
 				TiXmlElement* faceNode = 
 					subNode->InsertEndChild(TiXmlElement("face"))->ToElement();
-				faceNode->SetAttribute("v1", StringConverter::toString(*pFace++));
-				faceNode->SetAttribute("v2", StringConverter::toString(*pFace++));
-				faceNode->SetAttribute("v3", StringConverter::toString(*pFace++));
+                if (use32BitIndexes)
+                {
+				    faceNode->SetAttribute("v1", StringConverter::toString(*pInt++));
+				    faceNode->SetAttribute("v2", StringConverter::toString(*pInt++));
+				    faceNode->SetAttribute("v3", StringConverter::toString(*pInt++));
+                }
+                else
+                {
+				    faceNode->SetAttribute("v1", StringConverter::toString(*pShort++));
+				    faceNode->SetAttribute("v2", StringConverter::toString(*pShort++));
+				    faceNode->SetAttribute("v3", StringConverter::toString(*pShort++));
+                }
+
 			}
 
 
@@ -876,6 +825,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::readLodUsageGenerated(TiXmlElement* genNode, unsigned short index)
 	{
+        /*  TODO
 		Mesh::MeshLodUsage usage;
 		const char* val = genNode->Attribute("fromDepthSquared");
 		usage.fromDepthSquared = StringConverter::parseReal(val);
@@ -916,6 +866,7 @@ namespace Ogre {
 
 			faceListElem = faceListElem->NextSiblingElement();
 		}
+        */
 	}
 
 }
