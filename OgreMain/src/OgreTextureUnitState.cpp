@@ -834,7 +834,7 @@ namespace Ogre {
             mMagFilter = fo;
             break;
         case FT_MIP:
-            mMagFilter = fo;
+            mMipFilter = fo;
             break;
         }
         mIsDefaultFiltering = false;
