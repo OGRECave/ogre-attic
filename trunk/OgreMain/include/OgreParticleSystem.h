@@ -405,6 +405,15 @@ namespace Ogre {
         virtual void setCullIndividually(bool cullIndividual);
         /// Return the resource group to be used to load dependent resources
         virtual const String& getResourceGroupName(void) const { return mResourceGroupName; }
+		/** Get the origin of this particle system, e.g. a script file name.
+		@remarks
+			This property will only contain something if the creator of
+			this particle system chose to populate it. Script loaders are advised
+			to populate it.
+		*/
+		const String& getOrigin(void) const { return mOrigin; }
+		/// Notify this particle system of it's origin
+		void _notifyOrigin(const String& origin) { mOrigin = origin; }
 
     protected:
 
@@ -492,6 +501,9 @@ namespace Ogre {
         
         /// The number of particles in the pool.
         size_t mPoolSize;
+
+		/// Optional origin of this particle system (eg script name)
+		String mOrigin;
 
 
         /** Internal method used to expire dead particles. */

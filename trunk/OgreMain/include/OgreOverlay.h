@@ -85,6 +85,7 @@ namespace Ogre {
         ulong mZOrder;
         bool mVisible;
 		bool mInitialised;
+		String mOrigin;
         /** Internal lazy update method. */
         void updateTransform(void) const;
 		/** Internal method for initialising an overlay */
@@ -256,6 +257,16 @@ namespace Ogre {
         {
             return Overlay2DElementsIterator (m2DElements.begin(), m2DElements.end());
         }
+		/** Get the origin of this overlay, e.g. a script file name.
+		@remarks
+			This property will only contain something if the creator of
+			this overlay chose to populate it. Script loaders are advised
+			to populate it.
+		*/
+		const String& getOrigin(void) const { return mOrigin; }
+		/// Notify this overlay of it's origin
+		void _notifyOrigin(const String& origin) { mOrigin = origin; }
+
 
     };
 

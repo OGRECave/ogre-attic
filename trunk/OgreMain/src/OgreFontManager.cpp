@@ -98,6 +98,7 @@ namespace Ogre
 				    // No current font
 				    // So first valid data should be font name
 				    pFont = create(line, groupName);
+					pFont->_notifyOrigin(stream->getName());
 				    // Skip to and over next {
                     stream->skipLine("{");
 			    }
