@@ -156,6 +156,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     FileSystemArchive::~FileSystemArchive()
     {
+        unload();
     }
     //-----------------------------------------------------------------------
     void FileSystemArchive::load()

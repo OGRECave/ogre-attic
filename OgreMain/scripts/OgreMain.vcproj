@@ -39,7 +39,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT) zziplibd.lib"
 				OutputFile="$(OutDir)/OgreMain_d.dll"
 				Version="0.99"
 				LinkIncremental="2"
@@ -106,7 +106,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib zlib.lib freetype.lib user32.lib $(NOINHERIT) zziplib.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"

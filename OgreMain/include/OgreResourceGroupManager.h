@@ -491,7 +491,7 @@ namespace Ogre {
 		/** Internal method for getting a registered ResourceManager.
 		@param resourceType String identifying the resource type.
 		*/
-		ResourceManager* _getResourceManager(const String& resourceType) const;
+		ResourceManager* _getResourceManager(const String& resourceType);
 
 		/** Internal method called by ResourceManager when a resource is created.
 		@param res Weak reference to resource

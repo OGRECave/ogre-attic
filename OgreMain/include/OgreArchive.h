@@ -86,7 +86,7 @@ namespace Ogre {
 
         /** Default destructor.
         */
-            virtual ~Archive() { unload(); }
+        virtual ~Archive() {}
 
 		/// Get the name of this archive
 		const String& getName(void) const { return mName; }

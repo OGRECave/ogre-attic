@@ -162,7 +162,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MemoryDataStream::~MemoryDataStream()
     {
-        // deallocation is done on close
+        close();
     }
     //-----------------------------------------------------------------------
     size_t MemoryDataStream::read(void* buf, size_t count)
@@ -274,6 +274,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     FileStreamDataStream::~FileStreamDataStream()
     {
+        close();
     }
     //-----------------------------------------------------------------------
     size_t FileStreamDataStream::read(void* buf, size_t count)
@@ -349,6 +350,11 @@ namespace Ogre {
     FileHandleDataStream::FileHandleDataStream(const String& name, FILE* handle)
         : DataStream(name), mFileHandle(handle)
     {
+    }
+    //-----------------------------------------------------------------------
+    FileHandleDataStream::~FileHandleDataStream()
+    {
+        close();
     }
     //-----------------------------------------------------------------------
     size_t FileHandleDataStream::read(void* buf, size_t count)

@@ -702,6 +702,19 @@ namespace Ogre {
 		return 0;
 
 	}
+    //-----------------------------------------------------------------------
+    ResourceManager* ResourceGroupManager::_getResourceManager(const String& resourceType) 
+    {
+        ResourceManagerMap::iterator i = mResourceManagerMap.find(resourceType);
+        if (i == mResourceManagerMap.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate resource manager for resource type '" +
+                resourceType + "'", "ResourceGroupManager::_getResourceManager");
+        }
+        return i->second;
+
+    }
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::dropGroupContents(ResourceGroup* grp)
 	{

@@ -68,7 +68,7 @@ namespace Ogre {
 		DataStream(const String& name) : mName(name) {}
 		/// Returns the name of the stream, if it has one.
 		const String& getName(void) { return mName; }
-		virtual ~DataStream() { close(); }
+        virtual ~DataStream() {}
 		// Streaming operators
         template<typename T> DataStream& operator>>(T& val);
 		/** Read the requisite number of bytes from the stream, 
@@ -391,7 +391,8 @@ namespace Ogre {
 		FileHandleDataStream(FILE* handle);
 		/// Create named stream from a C file handle
 		FileHandleDataStream(const String& name, FILE* handle);
-	
+        ~FileHandleDataStream();
+
 		/** @copydoc DataStream::read
 		*/
 		size_t read(void* buf, size_t count);
