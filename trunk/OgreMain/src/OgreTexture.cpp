@@ -107,7 +107,7 @@ namespace Ogre {
 
 		// Set desired texture size and properties from images[0]
 		mSrcWidth = mWidth = images[0]->getWidth();
-		mSrcWidth = mHeight = images[0]->getHeight();
+		mSrcHeight = mHeight = images[0]->getHeight();
 		mDepth = images[0]->getDepth();
 		mFormat = images[0]->getFormat();
 		mSrcBpp = PixelUtil::getNumElemBits(mFormat);
@@ -159,6 +159,7 @@ namespace Ogre {
 			str << " from multiple Images.";
 		else
 			str << " from Image.";
+		str << " Internal format is " << PixelUtil::getFormatName(mFormat) << ".";
 		LogManager::getSingleton().logMessage( 
 				LML_NORMAL, str.str());
 
