@@ -62,7 +62,7 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     TerrainRenderable::TerrainRenderable(const String& name)
-        : mName(name), mTerrain(0), mPositionBuffer(0), mDeltaBuffers(0)
+        : mTerrain(0), mName(name),  mDeltaBuffers(0), mPositionBuffer(0)
     {
         mForcedRenderLevel = -1;
         mLastNextLevel = -1;
@@ -296,9 +296,9 @@ namespace Ogre
         unsigned char* pBase = static_cast<unsigned char*>( vbuf->lock(HardwareBuffer::HBL_DISCARD) );
         Real* pNorm;
 
-        for ( int j = 0; j < msOptions->tileSize; j++ )
+        for ( size_t j = 0; j < msOptions->tileSize; j++ )
         {
-            for ( int i = 0; i < msOptions->tileSize; i++ )
+            for ( size_t i = 0; i < msOptions->tileSize; i++ )
             {
 
                 _getNormalAt( _vertex( i, j, 0 ), _vertex( i, j, 2 ), &norm );
@@ -874,9 +874,9 @@ namespace Ogre
             mTerrain->vertexBufferBinding->getBuffer(MAIN_BINDING);
         const VertexElement* elem = mTerrain->vertexDeclaration->findElementBySemantic(VES_DIFFUSE);
         //for each point in the terrain, see if it's in the line of sight for the sun.
-        for ( int i = 0; i < msOptions->tileSize; i++ )
+        for ( size_t i = 0; i < msOptions->tileSize; i++ )
         {
-            for ( int j = 0; j < msOptions->tileSize; j++ )
+            for ( size_t j = 0; j < msOptions->tileSize; j++ )
             {
                 //  printf( "Checking %f,%f,%f ", pt.x, pt.y, pt.z );
                 pt.x = _vertex( i, j, 0 );
