@@ -4,7 +4,7 @@ This source file is part of OGRE
 (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
-Copyright © 2000-2002 The OGRE Team
+Copyright © 2000-2003 The OGRE Team
 Also see acknowledgements in Readme.html
 
 This program is free software; you can redistribute it and/or modify it under
@@ -77,30 +77,6 @@ namespace Ogre {
 		ret_data->format = ilFormat2OgreFormat( ImageFormat, BytesPerPixel );
 		ret_data->width = ilGetInteger( IL_IMAGE_WIDTH );
 		ret_data->height = ilGetInteger( IL_IMAGE_HEIGHT );
-
-        /*
-        switch(ilGetInteger(IL_DXTC_DATA_FORMAT))
-        {
-          case IL_DXT1:
-            std::cerr << "Loading DXT1 image\n";
-            break;
-          case IL_DXT2:
-            std::cerr << "Loading DXT2 image\n";
-            break;
-          case IL_DXT3:
-            std::cerr << "Loading DXT3 image\n";
-            break;
-          case IL_DXT4:
-            std::cerr << "Loading DXT4 image\n";
-            break;
-          case IL_DXT5:
-            std::cerr << "Loading DXT5 image\n";
-            break;
-          default:
-            break;
-        }
-        */
-
 
 		uint ImageSize = ilGetInteger( IL_IMAGE_WIDTH ) * ilGetInteger( IL_IMAGE_HEIGHT ) * ilGetInteger( IL_IMAGE_BYTES_PER_PIXEL );
 
