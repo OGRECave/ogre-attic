@@ -328,7 +328,7 @@ namespace Ogre
         SDDataChunk imgchunk(imageData, tex_side * tex_side * 4);
 
         Image img; 
-        img.loadRawData( imgchunk, tex_side, tex_side, Image::FMT_RGB_ALPHA );
+		img.loadRawData( imgchunk, tex_side, tex_side, PF_A8R8G8B8 );
 
 
         String texName = mName + "Texture";
