@@ -85,6 +85,11 @@ namespace Ogre {
             const String& name, 
             int numMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
 
+        virtual void load( Resource *res, int priority = 1 )
+        {
+            ResourceManager::load( res, priority );
+        }
+
         virtual Texture * loadImage( 
             const String &name, const Image &img, 
             int iNumMipMaps = -1, Real gamma = 1.0f, int priority = 1 );
