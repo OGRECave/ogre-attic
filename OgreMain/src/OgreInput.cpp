@@ -90,6 +90,19 @@ namespace Ogre {
 		{
 			mModifiers |= nMouseCode;
 			createMouseEvent(MouseEvent::ME_MOUSE_PRESSED, nMouseCode);
+            // Update immediate-mode mouse button state
+            switch(nMouseCode)
+            {
+            case InputEvent::BUTTON0_MASK:
+                mMouseState.Buttons |= 0x1;
+                break;
+            case InputEvent::BUTTON1_MASK:
+                mMouseState.Buttons |= 0x2;
+                break;
+            case InputEvent::BUTTON2_MASK:
+                mMouseState.Buttons |= 0x4;
+                break;
+            }
 
 		}
 		else
@@ -97,7 +110,21 @@ namespace Ogre {
 			mModifiers &= !nMouseCode;
 			createMouseEvent(MouseEvent::ME_MOUSE_RELEASED, nMouseCode);
 			//createMouseEvent(MouseEvent::ME_MOUSE_CLICKED, nMouseCode);	JCA - moved to EventDispatcher
+            // Update immediate-mode mouse button state
+            switch(nMouseCode)
+            {
+            case InputEvent::BUTTON0_MASK:
+                mMouseState.Buttons &= 0xFE;
+                break;
+            case InputEvent::BUTTON1_MASK:
+                mMouseState.Buttons &= 0xFD;
+                break;
+            case InputEvent::BUTTON2_MASK:
+                mMouseState.Buttons &= 0xFB;
+                break;
+            }
 		}
+
 	}
 
     //-----------------------------------------------------------------------
@@ -114,6 +141,17 @@ namespace Ogre {
 
 		mCursor->processEvent(me);
 		mEventQueue->push(me);
+
+        // Now update immediate-mode emulation state
+        /* Set the new absolute position. */
+        mMouseState.Xabs += mCursor->getX();
+        mMouseState.Yabs += mCursor->getY();
+        mMouseState.Zabs += mCursor->getZ();            
+
+        /* Compute the new relative position. */
+        mMouseState.Xrel = mCursor->getRelX();
+        mMouseState.Yrel = mCursor->getRelY();
+        mMouseState.Zrel = mCursor->getRelZ();
 
 	}
 
@@ -140,7 +178,6 @@ namespace Ogre {
 		{
 			createMouseEvent(MouseEvent::ME_MOUSE_MOVED, 0);
 		}
-
 	}
     //-----------------------------------------------------------------------
 	void InputReader::addCursorMoveListener(MouseMotionListener* c)
