@@ -363,15 +363,12 @@ namespace Ogre {
 	}
 	
 	//---------------------------------------------------------------------------------------------
-	HardwarePixelBufferSharedPtr GLTexture::getBuffer(int face, int mipmap)
+	HardwarePixelBufferSharedPtr GLTexture::getBuffer(size_t face, size_t mipmap)
 	{
-		if(getTextureType() != TEX_TYPE_CUBE_MAP && face != 0)
-			Except(Exception::ERR_INVALIDPARAMS, "Normal textures have only face 0",
-					"GLTexture::getBuffer");
-		if(face < 0 || face >= getNumFaces())
+		if(face >= getNumFaces())
 			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
 					"GLTexture::getBuffer");
-		if(mipmap < 0 || mipmap > mNumMipmaps)
+		if(mipmap > mNumMipmaps)
 			Except(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"GLTexture::getBuffer");
 		unsigned int idx = face*(mNumMipmaps+1) + mipmap;

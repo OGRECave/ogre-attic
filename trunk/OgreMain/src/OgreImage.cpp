@@ -613,13 +613,13 @@ namespace Ogre {
     
     //-----------------------------------------------------------------------------    
 
-    PixelBox Image::getPixelBox(int face, int mipmap) const
+    PixelBox Image::getPixelBox(size_t face, size_t mipmap) const
     {
 		if(mipmap != 0)
             Except( Exception::UNIMPLEMENTED_FEATURE,
                 "Custom mipmaps not yet supported",
                 "Image::getPixelBox" ) ;
-		if(face < 0 || face >= getNumFaces())
+		if(face >= getNumFaces())
 			Except(Exception::ERR_INVALIDPARAMS, "Face index out of range",
 					"Image::getPixelBox");
 		// Size of one face

@@ -240,7 +240,7 @@ namespace Ogre {
         /**
          * Get a PixelBox encapsulating the image data of a mipmap
          */
-        PixelBox getPixelBox(int face = 0, int mipmap = 0) const;
+        PixelBox getPixelBox(size_t face = 0, size_t mipmap = 0) const;
 
 		enum Filter
 		{

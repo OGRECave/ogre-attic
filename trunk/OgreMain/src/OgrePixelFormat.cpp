@@ -569,6 +569,15 @@ namespace Ogre {
         rgba[2] = des.bbits;
         rgba[3] = des.abits;
     }
+	//-----------------------------------------------------------------------
+	void PixelUtil::getBitMasks(PixelFormat format, uint32 rgba[4])
+    {
+        const PixelFormatDescription &des = getDescriptionFor(format);
+        rgba[0] = des.rmask;
+        rgba[1] = des.gmask;
+        rgba[2] = des.bmask;
+        rgba[3] = des.amask;
+    }
     //-----------------------------------------------------------------------
     String PixelUtil::getFormatName(PixelFormat srcformat)
     {

@@ -45,7 +45,7 @@ namespace Ogre {
         // Extents
         size_t mWidth, mHeight, mDepth;
         // Pitches (offsets between rows and slices)
-        int mRowPitch, mSlicePitch;
+        size_t mRowPitch, mSlicePitch;
         // Internal format
         PixelFormat mFormat;
         // Currently locked region
@@ -105,6 +105,19 @@ namespace Ogre {
 			@note Only call this function when both  buffers are unlocked. 
          */        
         virtual void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
+
+		/** Convience function that blits the entire source pixel buffer to this buffer. 
+			If source and destination dimensions don't match, scaling is done.
+			@param src		PixelBox containing the source pixels and format in memory
+			@note Only call this function when the buffer is unlocked. 
+		*/
+		void blit(HardwarePixelBuffer *src)
+		{
+			blit(src, 
+				Box(0,0,0,src->getWidth(),src->getHeight(),src->getDepth()), 
+				Box(0,0,0,mWidth,mHeight,mDepth)
+			);
+		}
 		
 		/** Copies a region from normal memory to a region of this pixelbuffer. The source
 			image can be in any pixel format supported by OGRE, and in any size. 
