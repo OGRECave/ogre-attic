@@ -110,4 +110,18 @@ material Examples/OffsetMapping/Specular
          } 
       } 
    } 
+   
+   // Simple no-shader fallback
+   technique 
+   { 
+      pass 
+      { 
+         // Base diffuse texture map 
+         texture_unit 
+         { 
+            texture rockwall.tga
+         } 
+	  }
+   }
+
 }
