@@ -23,6 +23,7 @@ http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
 #include "OgreDataChunk.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -89,7 +90,18 @@ namespace Ogre {
             mPos = mData + pos;
 
     }
+    //-----------------------------------------------------------------------
+    void DataChunk::skip(long offset)
+    {
+        long newpos = (mPos - mData) + offset;
+        if (newpos < 0 || newpos >= (long)mSize)
+        {
+            Except(Exception::ERR_INVALIDPARAMS, "Offset would result in out of range pointer.",
+            "DataChunk::skip");
+        }
 
+        mPos = mData + newpos;
+    }
     //-----------------------------------------------------------------------
     unsigned long DataChunk::readUpTo(void* buffer, unsigned long size, const char* delim)
     {

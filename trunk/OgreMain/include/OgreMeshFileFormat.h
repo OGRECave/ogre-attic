@@ -35,7 +35,7 @@ namespace Ogre {
     of data, very like 3D Studio's format.
     A chunk always consists of:
         unsigned short CHUNK_ID        : one of the following chunk ids identifying the chunk
-        unsigned long  DATA_LENGTH     : length of the contained data in bytes
+        unsigned long  LENGTH          : length of the chunk in bytes, including this header
         void*          DATA            : the data, which may contain other sub-chunks (various data types)
     
     A .mesh file can contain both the definition of the Mesh itself, and optionally the definitions
@@ -45,7 +45,7 @@ namespace Ogre {
     A .mesh file only contains a single mesh, which can itself have multiple submeshes.
 
 */
-    enum MeshChunkIDs {
+    enum MeshChunkID {
         M_HEADER                = 0x1000,
             // char*          version           : Version number check
         M_MATERIAL            = 0x2000,

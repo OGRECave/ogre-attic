@@ -101,6 +101,12 @@ namespace Ogre {
         */
         void seek(unsigned long pos);
 
+        /** Moves the internal read pointer backwards or forwards by the number of bytes specified. 
+        @remarks The sign of the parameter determines the direction of the skip.
+        */
+        void skip(long offset);
+
+
         /** Reads data into the provided buffer until hitting the specified
             character or reaching the upper limit provided.
             @remarks

@@ -92,6 +92,7 @@ namespace Ogre {
         typedef std::map<String, Material*> MaterialMap;
         MaterialMap mMaterialList;
         Mesh* mpMesh;
+        unsigned long mCurrentChunkLen;
         FILE* mpfFile;
         String mVersion;
 
@@ -117,7 +118,7 @@ namespace Ogre {
         void writeString(const String& string);
 
         void readFileHeader(DataChunk& chunk);
-        void readChunk(DataChunk& chunk);
+        unsigned short readChunk(DataChunk& chunk);
         void readMaterial(DataChunk& chunk);
         void readTextureLayer(DataChunk& chunk, Material* pMat);
         void readMesh(DataChunk& chunk);
@@ -127,8 +128,9 @@ namespace Ogre {
         void readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count);
         void readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count); 
 
-        void readData(DataChunk& chunk, void* buf, size_t size, size_t count);
         String readString(DataChunk& chunk);
+
+
 
     };
 

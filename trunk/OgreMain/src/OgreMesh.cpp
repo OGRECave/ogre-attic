@@ -236,7 +236,7 @@ namespace Ogre {
         // Write out vertices
         of << "Vertex Position Data:" << std::endl;
         Real* pReal = g.pVertices;
-        int* pInt;
+        unsigned long* pULong;
         for (i = 0; i < g.numVertices; ++i)
         {
             of << *pReal++ << ", " <<
@@ -248,11 +248,11 @@ namespace Ogre {
         {
             // Write out colours
             of << "Vertex Colour Data:" << std::endl;
-            pInt = g.pColours;
+            pULong = g.pColours;
             for (int i = 0; i < g.numVertices; ++i)
             {
-                of << *pInt++ << std::endl;
-                pInt = (int*)((char*)pInt + g.colourStride);
+                of << *pULong++ << std::endl;
+                pULong = (unsigned long*)((char*)pULong + g.colourStride);
             }
         }
         if (g.hasNormals)
@@ -381,7 +381,7 @@ namespace Ogre {
 
         if (source.hasColours)
         {
-            dest.pColours = new int[source.numVertices];
+            dest.pColours = new unsigned long[source.numVertices];
             memcpy(dest.pColours, source.pColours, sizeof(int) * source.numVertices);
         }
         if (source.hasNormals)

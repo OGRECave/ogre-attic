@@ -43,7 +43,7 @@ namespace Ogre {
         mpMesh = 0;
 
         // Version number
-        mVersion = "[MeshSerializer v1.00]";
+        mVersion = "[MeshSerializer_v1.00]";
     }
     //---------------------------------------------------------------------
     MeshSerializer::~MeshSerializer()
@@ -83,9 +83,19 @@ namespace Ogre {
         // Check header
         readFileHeader(chunk);
 
+        unsigned short chunkID;
         while(!chunk.isEOF())
         {
-            readChunk(chunk);
+            chunkID = readChunk(chunk);
+            switch (chunkID)
+            {
+            case M_MATERIAL:
+                readMaterial(chunk);
+                break;
+            case M_MESH:
+                readMesh(chunk);
+                break;
+            }
         }
     }
     //---------------------------------------------------------------------
@@ -435,49 +445,269 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void MeshSerializer::readFileHeader(DataChunk& chunk)
     {
+        unsigned short headerID;
+        
+        // Read header ID
+        chunk.read(&headerID, sizeof(headerID));
+        if (headerID == M_HEADER)
+        {
+            // Read version
+            String ver = readString(chunk);
+            if (ver != mVersion)
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, 
+                    "Invalid .mesh file: version incompatible, file reports " + String(ver) +
+                    " MeshSerializer is version " + mVersion,
+                    "MeshSerializer::readFileHeader");
+            }
+        }
+        else
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, "Invalid .mesh file: no header", 
+                "MeshSerializer::readFileHeader");
+        }
+
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::readChunk(DataChunk& chunk)
+    unsigned short MeshSerializer::readChunk(DataChunk& chunk)
     {
+        unsigned short id;
+        chunk.read(&id, sizeof(id));
+        chunk.read(&mCurrentChunkLen, sizeof(mCurrentChunkLen));
+        return id;
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readMaterial(DataChunk& chunk)
     {
+        ColourValue col;
+        Real rVal;
+
+        // char* name 
+        String name = readString(chunk);
+
+        // Create a new material
+        Material* pMat;
+        try 
+        {
+            pMat = (Material*)MaterialManager::getSingleton().create(name);
+        }
+        catch (Exception& e)
+        {
+            if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
+            {
+                // Material already exists
+                char msg[256];
+                sprintf(msg, "Material '%s' in model '%s' has been ignored "
+                    "because a material with the same name has already "
+                    "been registered.", name.c_str(),
+                    mpMesh->getName().c_str());
+                LogManager::getSingleton().logMessage(msg);
+                // Skip the rest of this material
+                chunk.skip(mCurrentChunkLen - name.length() - 1 - CHUNK_OVERHEAD_SIZE);
+                return;
+
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // AMBIENT
+        // Real r, g, b
+        chunk.read(&col.r, sizeof(Real));
+        chunk.read(&col.g, sizeof(Real));
+        chunk.read(&col.b, sizeof(Real));
+        pMat->setAmbient(col);
+
+        // DIFFUSE
+        // Real r, g, b
+        chunk.read(&col.r, sizeof(Real));
+        chunk.read(&col.g, sizeof(Real));
+        chunk.read(&col.b, sizeof(Real));
+        pMat->setDiffuse(col);
+
+        // SPECULAR
+        // Real r, g, b
+        chunk.read(&col.r, sizeof(Real));
+        chunk.read(&col.g, sizeof(Real));
+        chunk.read(&col.b, sizeof(Real));
+        pMat->setSpecular(col);
+
+        // SHININESS
+        // Real val;
+        chunk.read(&rVal, sizeof(Real));
+        pMat->setShininess(rVal);
+
+        // Read any texture layers
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(chunkID == M_TEXTURE_LAYER && !chunk.isEOF())
+            {
+                readTextureLayer(chunk, pMat);
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            // Get next chunk
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-texture layer chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+        }
+
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readTextureLayer(DataChunk& chunk, Material* pMat)
     {
+        // Just name for now
+        String name = readString(chunk);
+
+        pMat->addTextureLayer(name);
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readMesh(DataChunk& chunk)
     {
+        unsigned short chunkID;
+        // M_GEOMETRY chunk
+        chunkID = readChunk(chunk);
+        if (chunkID != M_GEOMETRY)
+        {
+            Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
+                "MeshSerializer::readMesh");
+        }
+        readGeometry(chunk, &mpMesh->sharedGeometry);
+
+        // Find all submeshes
+        chunkID = readChunk(chunk);
+        while(chunkID == M_SUBMESH && !chunk.isEOF())
+        {
+            readSubMesh(chunk);
+            if (!chunk.isEOF())
+            {
+                chunkID = readChunk(chunk);
+            }
+        }
+        // Get next chunk
+        if (!chunk.isEOF())
+        {
+            // Backpedal back to start of non-submesh chunk
+            chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+        }
+
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readSubMesh(DataChunk& chunk)
     {
+        unsigned short chunkID;
+
+        SubMesh* sm = mpMesh->createSubMesh();
+        // char* materialName
+        String materialName = readString(chunk);
+        sm->setMaterialName(materialName);
+
+        // bool useSharedVertices
+        chunk.read(&sm->useSharedVertices, sizeof(bool));
+
+        // unsigned short numFaces
+        chunk.read(&sm->numFaces, sizeof(unsigned short));
+
+        // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
+        sm->faceVertexIndices = new unsigned short[sm->numFaces * 3];
+        readShorts(chunk, sm->faceVertexIndices, sm->numFaces * 3);
+
+        // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+        if (!sm->useSharedVertices)
+        {
+            chunkID = readChunk(chunk);
+            if (chunkID != M_GEOMETRY)
+            {
+                Except(Exception::ERR_INTERNAL_ERROR, "Missing geometry data in mesh file", 
+                    "MeshSerializer::readSubMesh");
+            }
+            readGeometry(chunk, &sm->geometry);
+        }
+
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readGeometry(DataChunk& chunk, GeometryData* dest)
     {
+        unsigned short texCoordSet = 0;
+
+        // unsigned short numVertices
+        chunk.read(&dest->numVertices, sizeof(unsigned short));
+
+        // Real* pVertices (x, y, z order x numVertices)
+        dest->pVertices = new Real[dest->numVertices * 3];
+        readReals(chunk, dest->pVertices, dest->numVertices * 3);
+
+        // Find optional geometry chunks
+        if (!chunk.isEOF())
+        {
+            unsigned short chunkID = readChunk(chunk);
+            while(!chunk.isEOF() && 
+                (chunkID == M_GEOMETRY_NORMALS || 
+                 chunkID == M_GEOMETRY_COLOURS ||
+                 chunkID == M_GEOMETRY_TEXCOORDS ))
+            {
+                switch (chunkID)
+                {
+                case M_GEOMETRY_NORMALS:
+                    // Real* pNormals (x, y, z order x numVertices)
+                    dest->pNormals = new Real[dest->numVertices * 3];
+                    readReals(chunk, dest->pNormals, dest->numVertices * 3);
+                    break;
+                case M_GEOMETRY_COLOURS:
+                    // unsigned long* pColours (RGBA 8888 format x numVertices)
+                    dest->pColours = new unsigned long[dest->numVertices];
+                    readLongs(chunk, dest->pColours, dest->numVertices);
+                    break;
+                case M_GEOMETRY_TEXCOORDS:
+                    // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+                    chunk.read(&dest->numTexCoordDimensions[texCoordSet], sizeof(unsigned short));
+                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+                    dest->pTexCoords[texCoordSet] = 
+                        new Real[dest->numVertices * dest->numTexCoordDimensions[texCoordSet]];
+                    readReals(chunk, dest->pTexCoords[texCoordSet],
+                        dest->numVertices * dest->numTexCoordDimensions[texCoordSet]);
+                    ++texCoordSet;
+                    break;
+                }
+                // Get next chunk
+                if (!chunk.isEOF())
+                {
+                    chunkID = readChunk(chunk);
+                }
+            }
+            if (!chunk.isEOF())
+            {
+                // Backpedal back to start of non-submesh chunk
+                chunk.skip(-(long)CHUNK_OVERHEAD_SIZE);
+            }
+            // Store number of texture coordinate sets found
+            dest->numTexCoords = texCoordSet;
+        }
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readReals(DataChunk& chunk, Real* pDest, unsigned short count)
     {
+        chunk.read(pDest, sizeof(Real) * count);
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count)
     {
+        chunk.read(pDest, sizeof(unsigned short) * count);
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count) 
     {
+        chunk.read(pDest, sizeof(unsigned long) * count);
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::readData(DataChunk& chunk, void* buf, size_t size, size_t count)
-    {
-    }
-    //---------------------------------------------------------------------
-    String readString(DataChunk& chunk)
+    String MeshSerializer::readString(DataChunk& chunk)
     {
         char str[255];
         int readcount;
