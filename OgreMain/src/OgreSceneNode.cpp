@@ -162,6 +162,25 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    void SceneNode::detachObject(MovableObject* obj)
+    {
+        ObjectMap::iterator i, iend;
+        iend = mObjectsByName.end();
+        for (i = mObjectsByName.begin(); i != iend; ++i)
+        {
+            if (i->second == obj)
+            {
+                mObjectsByName.erase(i);
+                break;
+            }
+        }
+        obj->_notifyAttached((SceneNode*)0);
+
+        // Make sure bounds get updated (must go right to the top)
+        needUpdate();
+
+    }
+    //-----------------------------------------------------------------------
     void SceneNode::attachCamera(Camera* cam)
     {
         attachObject(cam);

@@ -454,7 +454,7 @@ namespace Ogre {
 	void Entity::attachObjectImpl(MovableObject *pObject, TagPoint *pAttachingPoint)
 	{
 		mChildObjectList[pObject->getName()] = pObject;
-		pObject->_notifyAttached(pAttachingPoint);
+		pObject->_notifyAttached(pAttachingPoint, true);
 	}
 
     //-----------------------------------------------------------------------

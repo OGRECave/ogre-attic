@@ -113,6 +113,8 @@ namespace Ogre {
             may change as other objects are added / removed.
         */
         virtual MovableObject* detachObject(unsigned short index);
+        /** Detaches an object by pointer. */
+        virtual void detachObject(MovableObject* obj);
 
         /** Detaches the named object from this node and returns a pointer to it. */
         virtual MovableObject* detachObject(const String& name);

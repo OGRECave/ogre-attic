@@ -437,7 +437,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Material* SceneManager::getMaterial(int handle)
     {
-        return MaterialManager::getSingleton().getByHandle(handle);
+        return static_cast<Material*>(
+            MaterialManager::getSingleton().getByHandle(handle));
     }
     //-----------------------------------------------------------------------
     SceneNode* SceneManager::createSceneNode(void)
