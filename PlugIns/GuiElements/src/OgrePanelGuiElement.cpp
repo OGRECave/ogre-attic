@@ -66,12 +66,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
     PanelGuiElement::~PanelGuiElement()
     {
-        delete mRenderOp.pVertices;
+        delete [] mRenderOp.pVertices;
         for (ushort i = 0; i < OGRE_MAX_TEXTURE_LAYERS; ++i)
         {
             if (mRenderOp.pTexCoords[i])
             {
-                delete mRenderOp.pTexCoords[i];
+                delete [] mRenderOp.pTexCoords[i];
             }
         }
 

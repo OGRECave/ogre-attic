@@ -101,9 +101,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     BorderPanelGuiElement::~BorderPanelGuiElement()
     {
-        delete mRenderOp2.pTexCoords[0];
-        delete mRenderOp2.pVertices;
-        delete mRenderOp2.pIndexes;
+        delete [] mRenderOp2.pTexCoords[0];
+        delete [] mRenderOp2.pVertices;
+        delete [] mRenderOp2.pIndexes;
         delete mBorderRenderable;
     }
     //---------------------------------------------------------------------

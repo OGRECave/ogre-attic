@@ -207,6 +207,7 @@ namespace Ogre {
         delete mPNGCodec;
         delete mZipArchiveFactory;
         delete mGuiManager;
+        delete mFontManager;
         delete mArchiveManager;
         delete mSkeletonManager;
         delete mMeshManager;
