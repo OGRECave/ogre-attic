@@ -92,7 +92,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #       define GL_OPERAND0_ALPHA GL_OPERAND0_ALPHA_EXT
 #       define GL_OPERAND1_ALPHA GL_OPERAND1_ALPHA_EXT
 #       define GL_OPERAND2_ALPHA GL_OPERAND2_ALPHA_EXT
-#       define GL_SUBTRACT GL_SUBTRACT_EXT
+#       ifndef GL_SUBTRACT
+#           define GL_SUBTRACT 0x84E7
+#       endif
 #   endif
 // multitexture
 #   ifdef GL_ARB_multitexture
