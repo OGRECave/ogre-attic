@@ -118,6 +118,7 @@ Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
 #          - settings are now stored inside the .blend file
 #          - importing pickle module now optional
 #          - support for non-uniform keyframe scaling
+#          - export vertex colours
 #
 # TODO:
 #          - vertex colours
@@ -173,8 +174,6 @@ if KEEP_SETTINGS:
 ######
 from Blender import Draw
 from Blender.BGL import *
-####from Blender import Mathutils
-####from Blender.Mathutils import *
 
 ######
 # Classes
@@ -1275,12 +1274,221 @@ class SubMesh:
     for i in range(len(new_vertices)): new_vertices[i].id = i
     self.vertices = new_vertices
 
+class XMLVertex:
+	"""Vertex in Ogre.
+	
+	   @cvar threshold Floating point precicsion.
+	"""
+	threshold = 1e-6
+	def __init__(self, position=None, normal=None, colourDiffuse=None, colourSpecular=None, texcoordList=None):
+		"""Constructor.
+		
+		   @param position       list with x, y and z coordinate of the position
+		   @param normal         list with x, y and z coordinate of the normal vector
+		   @param colourDiffuse  list with RGBA floats
+		   @param colourSpecular list with RGBA floats
+		   @param texcoordList   list of list with u and v texture coordinates.
+		"""
+		self.elementDict = {}
+		if position:
+			self.elementDict['position'] = position
+		if normal:
+			self.elementDict['normal'] = normal
+		if colourDiffuse:
+			self.elementDict['colourDiffuse'] = colourDiffuse
+		if colourSpecular:
+			self.elementDict['colourSpecular'] = colourSpecular
+		if texcoordList:
+			self.elementDict['texcoordList'] = texcoordList
+		return
+	def hasPosition(self):
+		return self.elementDict.has_key('position')
+	def hasNormal(self):
+		return self.elementDict.has_key('normal')
+	def hasVertexColour(self):
+		return self.elementDict.has_key('colourDiffuse') or self.elementDict.has_key('colourSpecular')
+	def hasDiffuseColour(self):
+		return self.elementDict.has_key('colourDiffuse')
+	def hasSpecularColour(self):
+		return self.elementDict.has_key('colourSpecular')
+	def nTextureCoordinates(self):
+		nTextureCoordinates = 0
+		if self.elementDict.has_key('texcoordList'):
+			nTextureCoordinates = len(self.elementDict['texcoordList'])
+		return nTextureCoordinates
+	def __getitem__(self, key):
+		return self.elementDict[key]
+	def __ne__(self, other):
+		"""Tests if it differs from another Vertex.
+		   
+		   @param other the XMLVertex to compare with
+		   @return <code>true</code> if they differ, else <code>false</code>
+		"""
+		return not self.__eq__(other)
+	def __eq__(self, other):
+		"""Tests if it is equal to another Vertex.
+		
+		   @param other the XMLVertex to compare with
+		   @return <code>true</code> if they are equal, else <code>false</code>
+		"""
+		areEqual = 0
+		if (self.getElements() == other.getElements()):
+			compared = 0
+			itemIterator = self.elementDict.iteritems()
+			while (not compared):
+				try:
+					(element, value) = itemIterator.next()
+					if element == 'position' or element == 'normal':
+						otherValue = other[element]
+						if ((math.fabs(value[0] - otherValue[0]) > XMLVertex.threshold) or
+							(math.fabs(value[1] - otherValue[1]) > XMLVertex.threshold) or
+							(math.fabs(value[2] - otherValue[2]) > XMLVertex.threshold)):
+							# test fails
+							compared = 1
+					elif element == 'colourDiffuse' or element == 'colourSpecular':
+						otherValue = other[element]
+						if ((math.fabs(value[0] - otherValue[0]) > XMLVertex.threshold) or
+							(math.fabs(value[1] - otherValue[1]) > XMLVertex.threshold) or
+							(math.fabs(value[2] - otherValue[2]) > XMLVertex.threshold) or
+							(math.fabs(value[3] - otherValue[3]) > XMLVertex.threshold)):
+							# test fails
+							compared = 1
+					elif element == 'texcoordList':
+						otherValue = other[element]
+						if len(value) == len(otherValue):
+							for uv, otherUV in zip(value, otherValue):
+								if ((math.fabs(uv[0] - otherUV[0]) > XMLVertex.threshold) or
+									(math.fabs(uv[1] - otherUV[1]) > XMLVertex.threshold)):
+									# test fails
+									compared = 1
+						else:
+							# test fails
+							compared = 1
+					else:
+						# test fails, unknown element
+						compared = 1
+				except StopIteration:
+					# objects are equal
+					areEqual = 1
+					compared = 1
+		return areEqual
+	# getter and setter
+	def getElements(self):
+		return self.elementDict.keys()
+	def getPostion(self):
+		return self.elementDict['position']
+	def getNormal(self):
+		return self.elementDict['normal']
+	def getColourDiffuse(self):
+		return self.elementDict['colourDiffuse']
+	def getColourSpecular(self):
+		return self.elementDict['colourSpecular']
+	def getTextureCoordinatesList(self):
+		return self.elementDict['texcoordList']
+	def setPosition(self, position):
+		if position:
+			self.elementDict['position'] = position
+		else:
+			del self.elementDict['position']
+		return
+	def setNormal(self, normal):
+		if normal:
+			self.elementDict['normal'] = normal
+		else:
+			del self.elementDict['normal']
+		return
+	def setColourDiffuse(self, colourDiffuse):
+		if colourDiffuse:
+			self.elementDict['colourDiffuse'] = colourDiffuse
+		else:
+			del self.colourDiffuse
+		return
+	def setColourSpecular(self, colourSpecular):
+		if colourSpecular:
+			self.elementDict['colourSpecular'] = colourSpecular
+		else:
+			del self.elementDict['colourSpecular']
+		return
+	# special getter and setter
+	def appendTextureCoordinates(self, uvList):
+		"""Appends new texture coordinate.
+		
+		   @param uvList list with u and v coordinate
+		   @return list index
+		"""
+		if self.elementDict.has_key('texcoordList'):
+			self.elementDict['texcoordList'].append(uvList)
+		else:
+			self.elementDict['texcoordList'] = [uvList]
+		return (len(self.elementDict['texcoordList']) -1 )
+	def setTextureCorrdinates(self, index, uvList):
+		self.elementDict['texcoordList'][index] = uvList
+		return
+	def getTextureCoordinates(self, index=None):
+		return self.elementDict['texcoordList'][index]
+	def deleteTextureCoordinates(self, index=None):
+		"""Delete texture coordinates.
+		
+		   Delete a pair or all texture coordinates of the vertex.
+		   
+		   @param index the index of the texture coordinates in the vertex's list of
+		                texture coordinates. If <code>None</code> the complete list
+		                is deleted.
+		"""
+		if (index != None):
+			del self.elementDict['texcoordList'][index]
+		else:
+			del self.elementDict['texcoordList']
+		return
+
+class XMLVertexStringView:
+	"""Viewer class for textual representation of a XMLVertex. 
+	
+	   @see XMLVertex
+	"""
+	def __init__(self, xmlVertex):
+		if isinstance(xmlVertex, XMLVertex):
+			self.xmlVertex = xmlVertex
+		return
+	def __str__(self):
+		return self.toString()
+	def toString(self, indent=0, keyList=None):
+		"""Returns textual representations of its XMLVertex.
+		
+		   @param indent Indentation level of the string.
+		   @param keyList List of keys of elements to represent in the string.
+		   @return string String representation of the XMLVertex.
+		   @see XMLVertex#__init__
+		"""
+		if not keyList:
+			keyList = self.xmlVertex.getElements()
+		else:
+			# remove unavailable elements
+			keyList = [key for key in keyList if key in self.xmlVertex.getElements()]
+		s = self._indent(indent) + "<vertex>\n"
+		if keyList.count('position'):
+			position = self.xmlVertex.getPostion()
+			s += self._indent(indent+1)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(position)
+		if keyList.count('normal'):
+			normal = self.xmlVertex.getNormal()
+			s += self._indent(indent+1)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(normal)
+		if keyList.count('colourDiffuse'):
+			colourDiffuse = self.xmlVertex.getColourDiffuse()
+			s += self._indent(indent+1)+"<colour_diffuse value=\"%.6f %.6f %.6f %.6f\"/>\n" % tuple(colourDiffuse)
+		if keyList.count('colourSpecular'):
+			colourSpecular = self.xmlVertex.getColourSpecular()
+			s += self._indent(indent+1)+"<colour_specular value=\"%.6f %.6f %.6f %.6f\"/>\n" % tuple(colourSpecular)
+		if keyList.count('texcoordList'):
+			for uv in self.xmlVertex.getTextureCoordinatesList():
+				s+=self._indent(indent+1)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n" % tuple(uv)
+		s += self._indent(indent) + "</vertex>\n"
+		return s
+	def _indent(self, indent):
+		return "  "*indent
+
 class Vertex:
-  def __init__(self, submesh, loc, normal):
-    self.loc    = loc
-    self.normal = normal
-    self.colourDiffuse = None
-    self.uvmaps = []
+  def __init__(self, submesh, xmlVertex):
+    self.xmlVertex = xmlVertex
     self.influences = []
     
     self.cloned_from = None
@@ -1288,11 +1496,6 @@ class Vertex:
     self.submesh = submesh
     self.id = len(submesh.vertices)
     submesh.vertices.append(self)
-
-class UVMap:
-  def __init__(self, u=None, v=None):
-    self.u = u
-    self.v = v
 
 class Influence:
   def __init__(self, bone, weight):
@@ -1789,15 +1992,14 @@ def export_testskel(testskel):
 ## Mesh stuff
 
 # remap vertices for faces
-def process_face(face, submesh, mesh, matrix, skeleton):
-	"""Process a face of a mesh
+def process_face(face, submesh, mesh, matrix, skeleton=None):
+	"""Process a face of a mesh.
 	
-	   Parameters:
-	   	face - Blender.NMesh.NMFace
-	   	submesh - SubMesh the face belongs to
-	   	mesh - Blender.NMesh.NMesh the face belongs to
-	   	matrix - export translation
-	   	skeleton - skeleton of the mesh (if any)
+	   @param face Blender.NMesh.NMFace.
+	   @param submesh SubMesh the face belongs to.
+	   @param mesh Blender.NMesh.NMesh the face belongs to.
+	   @param matrix Export translation.
+	   @param skeleton Skeleton of the mesh (if any).
 	"""
 	global verticesDict
 	global exportLogger
@@ -1817,117 +2019,61 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 
 		face_vertices = [ 0, 0, 0, 0]
 		for i in range(len(face.v)):
+			# position
+			position  = point_by_matrix (face.v[i].co, matrix)
+			# Blender separates normal, uv coordinates and colour from vertice coordinates.
 			# normal
 			if face.smooth:
 				normal = normal_by_matrix(face.v[i].no, matrix)
 			else:
 				normal = faceNormal
+			xmlVertex = XMLVertex(position, normal)
+			# uv coordinates
+			if submesh.material.texture:
+				uv = [0,0]
+				if mesh.hasVertexUV():
+					# mesh has sticky/per vertex uv coordinates
+					uv[0] = face.v[i].uvco[0]
+					# origin is now in the top-left (Ogre v0.13.0)
+					uv[1] = 1 - face.v[i].uvco[1]
+				else:
+					# mesh has per face vertex uv coordinates
+					uv[0] = face.uv[i][0]
+					# origin is now in the top-left (Ogre v0.13.0)
+					uv[1] = 1 - face.uv[i][1]
+				xmlVertex.appendTextureCoordinates(uv)
+			# vertex colour
+			if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+				colour = face.col[i]
+				xmlVertex.setColourDiffuse([colour.r/255.0, colour.g/255.0, colour.b/255.0, colour.a/255.0])
+			# check if an equal xmlVertex already exist
 			# get vertex 
 			if verticesDict.has_key(face.v[i].index):
 				# vertex already exists
 				vertex = verticesDict[face.v[i].index]
-				# uv
-				if submesh.material.texture:
-					# compare uv and normal
-					uv = UVMap()
-					if mesh.hasVertexUV():
-						# mesh has sticky/per vertex uv coordinates
-						uv.u = face.v[i].uvco[0]
-						# origin is now in the top-left (Ogre v0.13.0)
-						uv.v = 1 - face.v[i].uvco[1]
-					else:
-						# mesh has per face vertex uv coordinates
-						uv.u = face.uv[i][0]
-						# origin is now in the top-left (Ogre v0.13.0)
-						uv.v = 1 - face.uv[i][1]
+				# compare xmlVertex to vertex and its clones
+				if (vertex.xmlVertex != xmlVertex):
 					vertexFound = 0
-					# check if it has uv
-					if (len(vertex.uvmaps) > 0):
-						# check if same uv and normal
-						if ((math.fabs(vertex.normal[0] - normal[0]) > threshold) or
-						    (math.fabs(vertex.normal[1] - normal[1]) > threshold) or
-						    (math.fabs(vertex.normal[2] - normal[2]) > threshold) or
-						    (math.fabs(vertex.uvmaps[0].u - uv.u) > threshold) or
-						    (math.fabs(vertex.uvmaps[0].v - uv.v) > threshold)):
-							# check clones
-							iClone = 0
-							while ((iClone < len(vertex.clones)) and (not vertexFound)):
-								# check clone uv and normal
-								clone = vertex.clones[iClone]
-								if ((math.fabs(clone.normal[0] - normal[0]) < threshold) and
-								    (math.fabs(clone.normal[1] - normal[1]) < threshold) and
-								    (math.fabs(clone.normal[2] - normal[2]) < threshold) and
-								    (math.fabs(clone.uvmaps[0].u - uv.u) < threshold) and
-								    (math.fabs(clone.uvmaps[0].v - uv.v) < threshold)):
-									vertexFound = 1
-									vertex = clone
-								iClone += 1
-						else:
-							# same vertex
+					iClone = 0
+					while ((iClone < len(vertex.clones)) and (not vertexFound)):
+						clone = vertex.clones[iClone]
+						if (clone.xmlVertex == xmlVertex):
 							vertexFound = 1
-							# vertex = vertex
+							vertex = clone
+						iClone += 1
 					if not vertexFound:
 						# create new clone
-						clone = Vertex(submesh, vertex.loc, normal)
-						clone.cloned_from = vertex
-						clone.influences = vertex.influences
-						clone.uvmaps.append(uv)
-						vertex.clones.append(clone)
-						# write back to dictionary
-						verticesDict[face.v[i].index] = vertex
-						vertex = clone
-
-				else:
-					# compare normal (no uv coordinates)
-					vertexFound = 0
-					# check if same normal
-					if ((math.fabs(vertex.normal[0] - normal[0]) > threshold) or
-					    (math.fabs(vertex.normal[1] - normal[1]) > threshold) or
-					    (math.fabs(vertex.normal[2] - normal[2]) > threshold)):
-						# check clones
-						iClone = 0
-						while ((iClone < len(vertex.clones)) and (not vertexFound)):
-							# check clone normal
-							clone = vertex.clones[iClone]
-							if ((math.fabs(clone.normal[0] - normal[0]) < threshold) and
-							    (math.fabs(clone.normal[1] - normal[1]) < threshold) and
-							    (math.fabs(clone.normal[2] - normal[2]) < threshold)):
-								vertexFound = 1
-								vertex = clone
-							iClone += 1
-					else:
-						# same vertex
-						vertexFound = 1
-						# vertex = vertex
-					if not vertexFound:
-						# create new clone
-						clone = Vertex(submesh, vertex.loc, normal)
+						clone = Vertex(submesh, xmlVertex)
 						clone.cloned_from = vertex
 						clone.influences = vertex.influences
 						vertex.clones.append(clone)
 						# write back to dictionary
 						verticesDict[face.v[i].index] = vertex
 						vertex = clone
-
 			else:
 				# vertex does not exist yet
-				# coordinates
-				coord  = point_by_matrix (face.v[i].co, matrix)
 				# create vertex
-				vertex = Vertex(submesh, coord, normal)
-				if submesh.material.texture:
-					uv = UVMap()
-					if mesh.hasVertexUV():
-						# mesh has sticky/per vertex uv coordinates
-						uv.u = face.v[i].uvco[0]
-						# origin is now in the top-left (Ogre v0.13.0)
-						uv.v = 1 - face.v[i].uvco[1]
-					else:
-						# mesh has per face vertex uv coordinates
-						uv.u = face.uv[i][0]
-						# origin is now in the top-left (Ogre v0.13.0)
-						uv.v = 1 - face.uv[i][1]
-					vertex.uvmaps.append(uv)
+				vertex = Vertex(submesh, xmlVertex)
 				# set bone influences
 				if skeleton:
 					influences = mesh.getVertexInfluences(face.v[i].index)
@@ -1944,7 +2090,6 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 					total = 0.0
 					for name, weight in influences:
 						total += weight
-
 					for name, weight in influences:
 						vertex.influences.append(Influence(skeleton.bonesDict[name], weight/total))
 				verticesDict[face.v[i].index] = vertex
@@ -1966,7 +2111,7 @@ def export_mesh(object):
 	
 	if (object.getType() == "Mesh"):
 		# is this mesh attached to an armature?
-		skeleton = 0
+		skeleton = None
 		if armatureToggle.val:
 			parent = object.getParent()
 			if parent and parent.getType() == "Armature":
@@ -2107,9 +2252,6 @@ def write_skeleton(skeleton):
   f.write(tab(1)+"<animations>\n")
 
   for animation in skeleton.animationsDict.values():
-    #if not animation.duration:
-    #  continue
-
     name = animation.name
 
     f.write(tab(2)+"<animation")
@@ -2178,17 +2320,17 @@ def write_mesh(name, submeshes, skeleton):
       # use seperate vertexbuffer for position and normals when animated
       f.write(tab(4)+"<vertexbuffer positions=\"true\" normals=\"true\">\n")
       for v in submesh.vertices:
-        f.write(tab(5)+"<vertex>\n")
-        f.write(tab(6)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.loc[0], v.loc[1], v.loc[2]))
-        f.write(tab(6)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.normal[0], v.normal[1], v.normal[2]))
-        f.write(tab(5)+"</vertex>\n")
+        f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['normal','position']))
       f.write(tab(4)+"</vertexbuffer>\n")
-      if submesh.material.texture:
-        f.write(tab(4)+"<vertexbuffer texture_coord_dimensions_0=\"2\" texture_coords=\"1\">\n")
+      if submesh.material.texture or (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+        f.write(tab(4)+"<vertexbuffer")
+        if submesh.material.texture:
+            f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+        if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+            f.write(" colours_diffuse=\"true\"")
+        f.write(">\n")
         for v in submesh.vertices:
-          f.write(tab(5)+"<vertex>\n")
-          f.write(tab(6)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n" % (v.uvmaps[0].u, v.uvmaps[0].v))
-          f.write(tab(5)+"</vertex>\n")
+          f.write(XMLVertexStringView(v.xmlVertex).toString(5, ['texcoordList','colourDiffuse']))
         f.write(tab(4)+"</vertexbuffer>\n")
     else:
       # use only one vertex buffer if mesh is not animated
@@ -2197,15 +2339,11 @@ def write_mesh(name, submeshes, skeleton):
       f.write("normals=\"true\"")
       if submesh.material.texture:
         f.write(" texture_coord_dimensions_0=\"2\" texture_coords=\"1\"")
+      if (submesh.material.mat.mode & Blender.Material.Modes["VCOL_PAINT"]):
+        f.write(" colours_diffuse=\"true\"")
       f.write(">\n")
-        
       for v in submesh.vertices:
-        f.write(tab(5)+"<vertex>\n")
-        f.write(tab(6)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.loc[0], v.loc[1], v.loc[2]))
-        f.write(tab(6)+"<normal x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (v.normal[0], v.normal[1], v.normal[2]))
-        if submesh.material.texture:
-          f.write(tab(6)+"<texcoord u=\"%.6f\" v=\"%.6f\"/>\n" % (v.uvmaps[0].u, v.uvmaps[0].v))
-        f.write(tab(5)+"</vertex>\n")
+        f.write(XMLVertexStringView(v.xmlVertex).toString(5))
       f.write(tab(4)+"</vertexbuffer>\n")
 
     f.write(tab(3)+"</geometry>\n")
