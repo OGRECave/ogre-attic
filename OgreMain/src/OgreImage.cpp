@@ -309,8 +309,6 @@ namespace Ogre {
         m_ucPixelSize = PF2PS( m_eFormat );
         m_uFlags = pData->flags;
 
-        delete pData;
-
 		// re-use the decoded buffer
         m_pBuffer = res.first->getPtr();
 		// ensure we don't delete when stream is closed
