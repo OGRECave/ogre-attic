@@ -201,9 +201,10 @@ namespace Ogre {
             // Iterate over the vertices
             for (size_t v = 0; v < oldVertexCount; ++v)
             {
+                unsigned short e;
                 // Copy position, twice
                 posElem->baseVertexPointerToElement(pBaseSrc, &pSrc);
-                for (unsigned short e = 0; e < oldPosDimensions; ++e)
+                for (e = 0; e < oldPosDimensions; ++e)
                     *pDest++ = *pDest2++ = *pSrc++;
                 // Fill in any missing y or z (e < 3)
                 for (; e < 3; ++e)
@@ -255,7 +256,8 @@ namespace Ogre {
             // Find index of position element first
             VertexDeclaration::VertexElementList::const_iterator elemi = 
                 vertexDeclaration->getElements().begin();
-            for(unsigned short idx = 0; &(*elemi) != posElem; ++elemi) 
+            unsigned short idx;
+            for(idx = 0; &(*elemi) != posElem; ++elemi) 
                 ++idx;
 
             vertexDeclaration->modifyElement(
