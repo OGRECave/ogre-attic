@@ -48,4 +48,9 @@ namespace Ogre {
         // Fallback
         return false;
     }
+
+    //-----------------------------------------------------------------------
+    void StringInterface::cleanupDictionary () {
+      msDictionary.clear();
+    }
 }

@@ -111,6 +111,7 @@ namespace Ogre {
         handleTerminate();
     }
 
+
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
     {
@@ -198,6 +199,7 @@ namespace Ogre {
         // Seed random number generator for future use
         srand((unsigned)time(0));
 
+        mFirstTimePostWindowInit = false;
 
     }
 
@@ -238,6 +240,10 @@ namespace Ogre {
         delete mPlatformManager;
         delete mDynLibManager;
         delete mLogManager;
+
+        ResourceManager::cleanupCommonArchive () ;
+
+        StringInterface::cleanupDictionary ();
     }
 
     //-----------------------------------------------------------------------
@@ -821,8 +827,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Root::oneTimePostWindowInit(void)
     {
-        static bool firsttime = true;
-        if (firsttime)
+        if (!mFirstTimePostWindowInit)
         {
 			// Initialise material manager
 			mMaterialManager->initialise();
@@ -834,9 +839,9 @@ namespace Ogre {
             mOverlayManager->parseAllSources();
 			// Init mesh manager
 			MeshManager::getSingleton()._initialise();
+            mFirstTimePostWindowInit = true;
         }
 
-        firsttime = false;
     }
     //-----------------------------------------------------------------------
     void Root::_updateAllRenderTargets(void)
