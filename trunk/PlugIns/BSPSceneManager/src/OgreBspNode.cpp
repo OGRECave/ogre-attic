@@ -157,6 +157,27 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    void BspNode::_addMovable(const MovableObject* mov)
+    {
+        mMovables.insert(mov);
+    }
+    //-----------------------------------------------------------------------
+    void BspNode::_removeMovable(const MovableObject* mov)
+    {
+        mMovables.erase(mov);
+    }
+    //-----------------------------------------------------------------------
+    Real BspNode::getDistance(const Vector3& pos)
+    {
+        if (mIsLeaf)
+            throw Exception(Exception::ERR_INVALIDPARAMS,
+                "This method is not valid on a leaf node.",
+                "BspNode::getSide");
+
+        return mSplitPlane.getDistance(pos);
+
+    }
+    //-----------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, BspNode& n)
     {
         o << "BspNode(";

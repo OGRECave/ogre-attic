@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMath.h"
 #include "OgreControllerManager.h"
 #include "OgreLogManager.h"
+#include "OgreBspSceneNode.h"
 
 #include <fstream>
 
@@ -143,13 +144,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::_findVisibleObjects(Camera* cam)
     {
-        // Call superclass to find movables
-        // NB we could make this a bit smarter using bsp/pvs if we wanted, not done for now
-        SceneManager::_findVisibleObjects(cam);
-
-        // Now deal with static level geometry
-        // Walk the tree, tag any geometry, return camera's node (for info only)
+        // Clear unique list of movables for this frame
+        mMovablesForRendering.clear();
+        // Walk the tree, tag static geometry, return camera's node (for info only)
+        // Movables are now added to the render queue in processVisibleLeaf
         BspNode* cameraNode = walkTree(cam);
+
 
     }
     //-----------------------------------------------------------------------
@@ -333,6 +333,26 @@ namespace Ogre {
             //{
             //    of << "  Emitting faceGroup: index=" << realIndex << ", " << *faceGroup << std::endl;
             //}
+        }
+
+        // Add movables to render queue, provided it hasn't been seen already
+        const BspNode::IntersectingObjectSet& objects = leaf->getObjects();
+        BspNode::IntersectingObjectSet::const_iterator oi, oiend;
+        oiend = objects.end();
+        for (oi = objects.begin(); oi != oiend; ++oi)
+        {
+            if (mMovablesForRendering.find(*oi) == mMovablesForRendering.end())
+            {
+                // It hasn't been seen yet
+                MovableObject *mov = const_cast<MovableObject*>(*oi); // hacky
+                if (cam->isVisible(mov->getWorldBoundingBox()))
+                {
+                    mov->_notifyCurrentCamera(cam);
+                    mov->_updateRenderQueue(&mRenderQueue);
+                    mMovablesForRendering.insert(*oi);
+                }
+
+            }
         }
 
 
@@ -531,7 +551,24 @@ namespace Ogre {
         }
 
     }
-
-
-
+    //-----------------------------------------------------------------------
+    SceneNode * BspSceneManager::createSceneNode( void )
+    {
+        BspSceneNode * sn = new BspSceneNode( this );
+        mSceneNodes[ sn->getName() ] = sn;
+        return sn;
+    }
+    //-----------------------------------------------------------------------
+    SceneNode * BspSceneManager::createSceneNode( const String &name )
+    {
+        BspSceneNode * sn = new BspSceneNode( this, name );
+        mSceneNodes[ sn->getName() ] = sn;
+        return sn;
+    }
+    //-----------------------------------------------------------------------
+    void BspSceneManager::_notifyObjectMoved(const MovableObject* mov, 
+        const Vector3& pos)
+    {
+        mLevel->_notifyObjectMoved(mov, pos);
+    }
 }

@@ -148,6 +148,9 @@
 				RelativePath="..\src\OgreBspSceneManagerDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreBspSceneNode.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreQuake3Level.cpp">
 			</File>
 			<File
@@ -174,6 +177,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreBspSceneManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBspSceneNode.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreQuake3Level.h">
