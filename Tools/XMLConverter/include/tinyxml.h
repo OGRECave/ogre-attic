@@ -644,24 +644,13 @@ public:
 #endif
 // OGRE CHANGE
     #ifdef TIXML_USE_STL
-	const char* Attribute( const std::string& name ) const				{ return Attribute( name.c_str() ); }
-	const char* Attribute( const std::string& name, int* i ) const		{ return Attribute( name.c_str(), i ); }
+	const char* Attribute( const std::string& name ) const;
+	const char* Attribute( const std::string& name, int* i ) const;
 
 	/// STL std::string form.
-	void SetAttribute( const std::string& name, const std::string& value )	
-	{	
-		StringToBuffer n( name );
-		StringToBuffer v( value );
-		if ( n.buffer && v.buffer )
-			SetAttribute (n.buffer, v.buffer );	
-	}	
+	void SetAttribute( const std::string& name, const std::string& value );
 	///< STL std::string form.
-	void SetAttribute( const std::string& name, int value )	
-	{	
-		StringToBuffer n( name );
-		if ( n.buffer )
-			SetAttribute (n.buffer, value);	
-	}	
+	void SetAttribute( const std::string& name, int value );
 	#endif
 
 	/** Sets an attribute of name to a given value. The attribute

@@ -50,8 +50,46 @@ void help(void)
 
 using namespace Ogre;
 
-// Dummy chunk
+// Crappy globals
+// NB some of these are not directly used, but are required to
+//   instantiate the singletons used in the dlls
+LogManager logMgr;
+MaterialManager matMgr;
+SkeletonManager skelMgr;
+MeshSerializer meshSerializer;
+XMLMeshSerializer xmlMeshSerializer;
 
+
+void meshToXML(String source, String dest)
+{
+    struct stat tagStat;
+
+    SDDataChunk chunk;
+    stat( source, &tagStat );
+    chunk.allocate( tagStat.st_size );
+    FILE* pFile = fopen( source.c_str(), "rb" );
+    fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
+    fclose( pFile );
+
+    Mesh mesh("conversion");
+
+    meshSerializer.importMesh(chunk, &mesh);
+   
+    xmlMeshSerializer.exportMesh(&mesh, dest, true);
+
+}
+
+void XMLToBinary(String source)
+{
+    // TODO
+    // Read root element and decide from there what type
+    
+}
+
+void skeletonToXML(String source, String dest)
+{
+    // TODO
+}
 
 int main(int numargs, char** args)
 {
@@ -61,36 +99,29 @@ int main(int numargs, char** args)
         return -1;
     }
 
-    char* source = args[1];
-
-
-
-    LogManager logMgr;
-    MaterialManager matMgr;
-    MeshSerializer meshSerializer;
-    XMLMeshSerializer xmlMeshSerializer;
-    ArchiveManager archMgr;
-
+    String source(args[1]);
 
     logMgr.createLog("XMLConverter.log");
 
-    struct stat tagStat;
+    std::vector<String> parts = source.split(".");
+    String& ext = parts.back();
 
-    DataChunk chunk;
-    stat( source, &tagStat );
-    chunk.allocate( tagStat.st_size );
-    FILE* pFile = fopen( source, "rb" );
-    fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
-    fclose( pFile );
-
-    Mesh mesh("test");
-
-    meshSerializer.importMesh(chunk, &mesh);
-
-   
-    xmlMeshSerializer.exportMesh(&mesh, "ogrehead.xml", true);
+    ext.toLowerCase();
+    if (ext == "mesh")
+    {
+        meshToXML(source, source + ".xml");
+    }
+    else if (ext == "skeleton")
+    {
+        skeletonToXML(source, source + ".xml");
+    }
+    else if (ext == "xml")
+    {
+        XMLToBinary(source);
+    }
 
     
+
 
     return 0;
 

@@ -462,9 +462,9 @@ TiXmlElement::~TiXmlElement()
 	}
 }
 
-// OGRE CHANGE
+// BEGIN OGRE CHANGES
+// USE STL ALONE
 #ifndef TIXML_USE_STL
-// OGRE CHANGE
 const char * TiXmlElement::Attribute( const char * name ) const
 {
 	TiXmlAttribute* node = attributeSet.Find( name );
@@ -519,10 +519,66 @@ void TiXmlElement::SetAttribute( const char * name, const char * value )
 	}
 }
 
-// OGRE CHANGE
 #endif
-// OGRE CHANGE
 
+#ifdef TIXML_USE_STL
+
+const char * TiXmlElement::Attribute( const std::string& name ) const
+{
+	TiXmlAttribute* node = attributeSet.Find( name.c_str() );
+
+	if ( node )
+		return node->Value();
+
+	return 0;
+}
+
+
+const char * TiXmlElement::Attribute( const std::string& name, int* i ) const
+{
+	const char * s = Attribute( name );
+	if ( i )
+	{
+		if ( s )
+			*i = atoi( s );
+		else
+			*i = 0;
+	}
+	return s;
+}
+
+
+void TiXmlElement::SetAttribute( const std::string& name, int val )
+{	
+	char buf[64];
+	sprintf( buf, "%d", val );
+	SetAttribute( name, buf );
+}
+
+
+void TiXmlElement::SetAttribute( const std::string& name, const std::string& value )
+{
+	TiXmlAttribute* node = attributeSet.Find( name.c_str() );
+	if ( node )
+	{
+		node->SetValue( value );
+		return;
+	}
+
+	TiXmlAttribute* attrib = new TiXmlAttribute( name, value );
+	if ( attrib )
+	{
+		attributeSet.Add( attrib );
+	}
+	else
+	{
+		TiXmlDocument* document = GetDocument();
+		if ( document ) document->SetError( TIXML_ERROR_OUT_OF_MEMORY );
+	}
+}
+
+#endif
+// END OGRE CHANGES
 void TiXmlElement::Print( FILE* cfile, int depth ) const
 {
 	int i;
