@@ -309,7 +309,11 @@ namespace Ogre {
 
 
         }
-            
+
+        /** Cleans up the static 'msDictionary' required to reset Ogre,
+        otherwise the containers are left with invalid pointers, which will lead to a crash
+        as soon as one of the ResourceManager implementers (e.g. MaterialManager) initializes.*/
+        static void cleanupDictionary () ;
 
     };
 

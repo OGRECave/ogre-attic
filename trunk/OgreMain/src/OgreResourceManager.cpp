@@ -322,6 +322,11 @@ namespace Ogre {
         return false;
     }
 
+    //-----------------------------------------------------------------------
+    void ResourceManager::cleanupCommonArchive () {
+      mCommonVFS.clear();
+      mCommonArchiveFiles.clear();
+    }
 }
 
 

@@ -187,6 +187,11 @@ namespace Ogre {
         */
         static bool _findCommonResourceData( const String& filename, DataChunk& refChunk );
 
+        /** Cleans up the statics 'mCommonVFS' and 'mCommonArchiveFiles'. Required to reset Ogre,
+        otherwise the containers are left with invalid pointers, which will lead to a crash
+        as soon as one of the ResourceManager implementers (e.g. MaterialManager) initializes.*/
+        static void cleanupCommonArchive () ;
+
     protected:
 
         /** Allocates the next handle. */
