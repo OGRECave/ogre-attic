@@ -75,6 +75,9 @@ namespace Ogre {
         /** Gets the named child of this container. */
         virtual OverlayElement* getChild(const String& name);
 
+		/** @copydoc OverlayElement::initialise */
+		void initialise(void);
+
         void _addChild(OverlayElement* elem);
         void _removeChild(OverlayElement* elem) { _removeChild(elem->getName()); }
         void _removeChild(const String& name);

@@ -73,29 +73,37 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelOverlayElement::initialise(void)
     {
-        // Setup render op in advance
-        mRenderOp.vertexData = new VertexData();
-        // Vertex declaration: 1 position, add texcoords later depending on #layers
-        // Create as separate buffers so we can lock & discard separately
-        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
-        decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
+		bool init = !mInitialised;
 
-        // Basic vertex data
-        mRenderOp.vertexData->vertexStart = 0;
-        mRenderOp.vertexData->vertexCount = 4;
+		OverlayContainer::initialise();
+		if (init)
+		{
+			// Setup render op in advance
+			mRenderOp.vertexData = new VertexData();
+			// Vertex declaration: 1 position, add texcoords later depending on #layers
+			// Create as separate buffers so we can lock & discard separately
+			VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+			decl->addElement(POSITION_BINDING, 0, VET_FLOAT3, VES_POSITION);
 
-        // Vertex buffer #1
-        HardwareVertexBufferSharedPtr vbuf = 
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-            decl->getVertexSize(POSITION_BINDING), mRenderOp.vertexData->vertexCount, 
-            HardwareBuffer::HBU_STATIC_WRITE_ONLY// mostly static except during resizing
-            );
-        // Bind buffer
-        mRenderOp.vertexData->vertexBufferBinding->setBinding(POSITION_BINDING, vbuf);
+			// Basic vertex data
+			mRenderOp.vertexData->vertexStart = 0;
+			mRenderOp.vertexData->vertexCount = 4;
 
-        // No indexes & issue as a strip
-        mRenderOp.useIndexes = false;
-        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
+			// Vertex buffer #1
+			HardwareVertexBufferSharedPtr vbuf = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+				decl->getVertexSize(POSITION_BINDING), mRenderOp.vertexData->vertexCount, 
+				HardwareBuffer::HBU_STATIC_WRITE_ONLY// mostly static except during resizing
+				);
+			// Bind buffer
+			mRenderOp.vertexData->vertexBufferBinding->setBinding(POSITION_BINDING, vbuf);
+
+			// No indexes & issue as a strip
+			mRenderOp.useIndexes = false;
+			mRenderOp.operationType = RenderOperation::OT_TRIANGLE_STRIP;
+
+			mInitialised = true;
+		}
     }
     //---------------------------------------------------------------------
     void PanelOverlayElement::setTiling(Real x, Real y, ushort layer)
@@ -106,7 +114,7 @@ namespace Ogre {
         mTileX[layer] = x;
         mTileY[layer] = y;
 
-        updateTextureGeometry();
+        mGeomUVsOutOfDate = true;
 
     }
     //---------------------------------------------------------------------
@@ -143,7 +151,6 @@ namespace Ogre {
     void PanelOverlayElement::setMaterialName(const String& matName)
     {
         OverlayContainer::setMaterialName(matName);
-        updateTextureGeometry();
     }
     //---------------------------------------------------------------------
     void PanelOverlayElement::_updateRenderQueue(RenderQueue* queue)
@@ -168,58 +175,58 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void PanelOverlayElement::updatePositionGeometry(void)
     {
-        /*
-            0-----2
-            |    /|
-            |  /  |
-            |/    |
-            1-----3
-        */
-        Real left, right, top, bottom;
+		/*
+			0-----2
+			|    /|
+			|  /  |
+			|/    |
+			1-----3
+		*/
+		Real left, right, top, bottom;
 
-        /* Convert positions into -1, 1 coordinate space (homogenous clip space).
-            - Left / right is simple range conversion
-            - Top / bottom also need inverting since y is upside down - this means
-              that top will end up greater than bottom and when computing texture
-              coordinates, we have to flip the v-axis (ie. subtract the value from
-              1.0 to get the actual correct value).
-        */
-        left = _getDerivedLeft() * 2 - 1;
-        right = left + (mWidth * 2);
-        top = -((_getDerivedTop() * 2) - 1);
-        bottom =  top -  (mHeight * 2);
+		/* Convert positions into -1, 1 coordinate space (homogenous clip space).
+			- Left / right is simple range conversion
+			- Top / bottom also need inverting since y is upside down - this means
+			that top will end up greater than bottom and when computing texture
+			coordinates, we have to flip the v-axis (ie. subtract the value from
+			1.0 to get the actual correct value).
+		*/
+		left = _getDerivedLeft() * 2 - 1;
+		right = left + (mWidth * 2);
+		top = -((_getDerivedTop() * 2) - 1);
+		bottom =  top -  (mHeight * 2);
 
-        HardwareVertexBufferSharedPtr vbuf = 
-            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
-        Real* pPos = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
-        
-        // Use the furthest away depth value, since materials should have depth-check off
-        // This initialised the depth buffer for any 3D objects in front
-        Real zValue = Root::getSingleton().getRenderSystem()->getMaximumDepthInputValue();
-        *pPos++ = left;
-        *pPos++ = top;
-        *pPos++ = zValue;
+		HardwareVertexBufferSharedPtr vbuf = 
+			mRenderOp.vertexData->vertexBufferBinding->getBuffer(POSITION_BINDING);
+		Real* pPos = static_cast<Real*>(
+			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+	    
+		// Use the furthest away depth value, since materials should have depth-check off
+		// This initialised the depth buffer for any 3D objects in front
+		Real zValue = Root::getSingleton().getRenderSystem()->getMaximumDepthInputValue();
+		*pPos++ = left;
+		*pPos++ = top;
+		*pPos++ = zValue;
 
-        *pPos++ = left;
-        *pPos++ = bottom;
-        *pPos++ = zValue;
+		*pPos++ = left;
+		*pPos++ = bottom;
+		*pPos++ = zValue;
 
-        *pPos++ = right;
-        *pPos++ = top;
-        *pPos++ = zValue;
+		*pPos++ = right;
+		*pPos++ = top;
+		*pPos++ = zValue;
 
-        *pPos++ = right;
-        *pPos++ = bottom;
-        *pPos++ = zValue;
-        
-        vbuf->unlock();
+		*pPos++ = right;
+		*pPos++ = bottom;
+		*pPos++ = zValue;
+	    
+		vbuf->unlock();
     }
     //---------------------------------------------------------------------
     void PanelOverlayElement::updateTextureGeometry(void)
     {
         // Generate for as many texture layers as there are in material
-        if (!mpMaterial.isNull())
+        if (!mpMaterial.isNull() && mInitialised)
         {
             // Assume one technique and pass for the moment
             size_t numLayers = mpMaterial->getTechnique(0)->getPass(0)->getNumTextureUnitStates();

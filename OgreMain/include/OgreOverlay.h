@@ -84,8 +84,11 @@ namespace Ogre {
         bool mTransformUpdated;
         ulong mZOrder;
         bool mVisible;
+		bool mInitialised;
         /** Internal lazy update method. */
         void updateTransform(void) const;
+		/** Internal method for initialising an overlay */
+		void initialise(void);
 
     public:
         /// Constructor: do not call direct, use OverlayManager::create

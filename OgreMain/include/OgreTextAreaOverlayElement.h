@@ -113,7 +113,7 @@ namespace Ogre
         inline void setAlignment( Alignment a )
         {
             mAlignment = a;
-            updateGeometry();
+			mGeomPositionsOutOfDate = true;
         }
         inline Alignment getAlignment() const
         {
@@ -246,12 +246,12 @@ namespace Ogre
         bool mColoursChanged;
 
 
-        /// Internal method to update the geometry
-        virtual void updateGeometry();
         /// Internal method to allocate memory, only reallocates when necessary
         void checkMemoryAllocation( size_t numChars );
         /// Inherited function
         virtual void updatePositionGeometry();
+		/// Inherited function
+		virtual void updateTextureGeometry();
         /// Updates vertex colours
         virtual void updateColours(void);
     };

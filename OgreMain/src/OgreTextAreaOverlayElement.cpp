@@ -77,27 +77,32 @@ namespace Ogre {
 
     void TextAreaOverlayElement::initialise(void)
     {
-        // Set up the render op
-        // Combine positions and texture coords since they tend to change together
-        // since character sizes are different
-        mRenderOp.vertexData = new VertexData();
-        VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
-        size_t offset = 0;
-        // Positions
-        decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT3, VES_POSITION);
-        offset += VertexElement::getTypeSize(VET_FLOAT3);
-        // Texcoords
-        decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
-        offset += VertexElement::getTypeSize(VET_FLOAT2);
-        // Colours - store these in a separate buffer because they change less often
-        decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
+		if (!mInitialised)
+		{
+			// Set up the render op
+			// Combine positions and texture coords since they tend to change together
+			// since character sizes are different
+			mRenderOp.vertexData = new VertexData();
+			VertexDeclaration* decl = mRenderOp.vertexData->vertexDeclaration;
+			size_t offset = 0;
+			// Positions
+			decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT3, VES_POSITION);
+			offset += VertexElement::getTypeSize(VET_FLOAT3);
+			// Texcoords
+			decl->addElement(POS_TEX_BINDING, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+			offset += VertexElement::getTypeSize(VET_FLOAT2);
+			// Colours - store these in a separate buffer because they change less often
+			decl->addElement(COLOUR_BINDING, 0, VET_COLOUR, VES_DIFFUSE);
 
-        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
-        mRenderOp.useIndexes = false;
-        mRenderOp.vertexData->vertexStart = 0;
-        // Vertex buffer will be created in checkMemoryAllocation
+			mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
+			mRenderOp.useIndexes = false;
+			mRenderOp.vertexData->vertexStart = 0;
+			// Vertex buffer will be created in checkMemoryAllocation
 
-        checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
+			checkMemoryAllocation( DEFAULT_INITIAL_CHARS );
+
+			mInitialised = true;
+		}
 
     }
 
@@ -139,9 +144,9 @@ namespace Ogre {
 
     }
 
-    void TextAreaOverlayElement::updateGeometry()
+    void TextAreaOverlayElement::updatePositionGeometry()
     {
-        Real *pVert;
+		Real *pVert;
 
 		if (mpFont.isNull())
 		{
@@ -149,141 +154,141 @@ namespace Ogre {
 			return;
 		}
 
-        size_t charlen = mCaption.size();
-        checkMemoryAllocation( charlen );
+		size_t charlen = mCaption.size();
+		checkMemoryAllocation( charlen );
 
-        mRenderOp.vertexData->vertexCount = charlen * 6;
-        // Get position / texcoord buffer
-        HardwareVertexBufferSharedPtr vbuf = 
-            mRenderOp.vertexData->vertexBufferBinding->getBuffer(POS_TEX_BINDING);
-        pVert = static_cast<Real*>(
-            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+		mRenderOp.vertexData->vertexCount = charlen * 6;
+		// Get position / texcoord buffer
+		HardwareVertexBufferSharedPtr vbuf = 
+			mRenderOp.vertexData->vertexBufferBinding->getBuffer(POS_TEX_BINDING);
+		pVert = static_cast<Real*>(
+			vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
 		float largestWidth = 0;
-        float left = _getDerivedLeft() * 2.0 - 1.0;
-        float top = -( (_getDerivedTop() * 2.0 ) - 1.0 );
+		float left = _getDerivedLeft() * 2.0 - 1.0;
+		float top = -( (_getDerivedTop() * 2.0 ) - 1.0 );
 
-        // Derive space with from a capital A
+		// Derive space with from a capital A
 		if (mSpaceWidth == 0)
 		{
 			mSpaceWidth = mpFont->getGlyphAspectRatio( 'A' ) * mCharHeight * 2.0 * mViewportAspectCoef;
 		}
 
-        // Use iterator
-        String::iterator i, iend;
-        iend = mCaption.end();
-        bool newLine = true;
-        for( i = mCaption.begin(); i != iend; ++i )
-        {
-            if( newLine )
-            {
-                Real len = 0.0f;
-                for( String::iterator j = i; j != iend && *j != '\n'; j++ )
-                {
-                    if (*j == ' ')
-                    {
-                        len += mSpaceWidth;
-                    }
-                    else 
-                    {
-                        len += mpFont->getGlyphAspectRatio( *j ) * mCharHeight * 2.0 * mViewportAspectCoef;
-                    }
-                }
+		// Use iterator
+		String::iterator i, iend;
+		iend = mCaption.end();
+		bool newLine = true;
+		for( i = mCaption.begin(); i != iend; ++i )
+		{
+			if( newLine )
+			{
+				Real len = 0.0f;
+				for( String::iterator j = i; j != iend && *j != '\n'; j++ )
+				{
+					if (*j == ' ')
+					{
+						len += mSpaceWidth;
+					}
+					else 
+					{
+						len += mpFont->getGlyphAspectRatio( *j ) * mCharHeight * 2.0 * mViewportAspectCoef;
+					}
+				}
 
-                if( mAlignment == Right )
-                    left -= len;
-                else if( mAlignment == Center )
-                    left -= len * 0.5;
-                
-                newLine = false;
-            }
+				if( mAlignment == Right )
+					left -= len;
+				else if( mAlignment == Center )
+					left -= len * 0.5;
 
-            if( *i == '\n' )
-            {
-                left = _getDerivedLeft() * 2.0 - 1.0;
-                top -= mCharHeight * 2.0;
-                newLine = true;
-                // Also reduce tri count
-                mRenderOp.vertexData->vertexCount -= 6;
-                continue;
-            }
+				newLine = false;
+			}
 
-            if ( *i == ' ')
-            {
-                // Just leave a gap, no tris
-                left += mSpaceWidth;
-                // Also reduce tri count
-                mRenderOp.vertexData->vertexCount -= 6;
-                continue;
-            }
+			if( *i == '\n' )
+			{
+				left = _getDerivedLeft() * 2.0 - 1.0;
+				top -= mCharHeight * 2.0;
+				newLine = true;
+				// Also reduce tri count
+				mRenderOp.vertexData->vertexCount -= 6;
+				continue;
+			}
 
-            Real horiz_height = mpFont->getGlyphAspectRatio( *i ) * mViewportAspectCoef ;
-            Real u1, u2, v1, v2; 
-            mpFont->getGlyphTexCoords( *i, u1, v1, u2, v2 );
+			if ( *i == ' ')
+			{
+				// Just leave a gap, no tris
+				left += mSpaceWidth;
+				// Also reduce tri count
+				mRenderOp.vertexData->vertexCount -= 6;
+				continue;
+			}
 
-            // each vert is (x, y, z, u, v)
-            //-------------------------------------------------------------------------------------
-            // First tri
-            //
-            // Upper left
-            *pVert++ = left;
-            *pVert++ = top;
-            *pVert++ = -1.0;
-            *pVert++ = u1;
-            *pVert++ = v1;
+			Real horiz_height = mpFont->getGlyphAspectRatio( *i ) * mViewportAspectCoef ;
+			Real u1, u2, v1, v2; 
+			mpFont->getGlyphTexCoords( *i, u1, v1, u2, v2 );
 
-            top -= mCharHeight * 2.0;
+			// each vert is (x, y, z, u, v)
+			//-------------------------------------------------------------------------------------
+			// First tri
+			//
+			// Upper left
+			*pVert++ = left;
+			*pVert++ = top;
+			*pVert++ = -1.0;
+			*pVert++ = u1;
+			*pVert++ = v1;
 
-            // Bottom left
-            *pVert++ = left;
-            *pVert++ = top;
-            *pVert++ = -1.0;
-            *pVert++ = u1;
-            *pVert++ = v2;
+			top -= mCharHeight * 2.0;
 
-            top += mCharHeight * 2.0;
-            left += horiz_height * mCharHeight * 2.0;
+			// Bottom left
+			*pVert++ = left;
+			*pVert++ = top;
+			*pVert++ = -1.0;
+			*pVert++ = u1;
+			*pVert++ = v2;
 
-            // Top right
-            *pVert++ = left;
-            *pVert++ = top;
-            *pVert++ = -1.0;
-            *pVert++ = u2;
-            *pVert++ = v1;
-            //-------------------------------------------------------------------------------------
+			top += mCharHeight * 2.0;
+			left += horiz_height * mCharHeight * 2.0;
 
-            //-------------------------------------------------------------------------------------
-            // Second tri
-            //
-            // Top right (again)
-            *pVert++ = left;
-            *pVert++ = top;
-            *pVert++ = -1.0;
-            *pVert++ = u2;
-            *pVert++ = v1;
+			// Top right
+			*pVert++ = left;
+			*pVert++ = top;
+			*pVert++ = -1.0;
+			*pVert++ = u2;
+			*pVert++ = v1;
+			//-------------------------------------------------------------------------------------
 
-            top -= mCharHeight * 2.0;
-            left -= horiz_height  * mCharHeight * 2.0;
+			//-------------------------------------------------------------------------------------
+			// Second tri
+			//
+			// Top right (again)
+			*pVert++ = left;
+			*pVert++ = top;
+			*pVert++ = -1.0;
+			*pVert++ = u2;
+			*pVert++ = v1;
 
-            // Bottom left (again)
-            *pVert++ = left;
-            *pVert++ = top;
-            *pVert++ = -1.0;
-            *pVert++ = u1;
-            *pVert++ = v2;
+			top -= mCharHeight * 2.0;
+			left -= horiz_height  * mCharHeight * 2.0;
 
-            left += horiz_height  * mCharHeight * 2.0;
+			// Bottom left (again)
+			*pVert++ = left;
+			*pVert++ = top;
+			*pVert++ = -1.0;
+			*pVert++ = u1;
+			*pVert++ = v2;
 
-            // Bottom right
-            *pVert++ = left;
-            *pVert++ = top;
-            *pVert++ = -1.0;
-            *pVert++ = u2;
-            *pVert++ = v2;
-            //-------------------------------------------------------------------------------------
+			left += horiz_height  * mCharHeight * 2.0;
 
-            // Go back up with top
-            top += mCharHeight * 2.0;
+			// Bottom right
+			*pVert++ = left;
+			*pVert++ = top;
+			*pVert++ = -1.0;
+			*pVert++ = u2;
+			*pVert++ = v2;
+			//-------------------------------------------------------------------------------------
+
+			// Go back up with top
+			top += mCharHeight * 2.0;
 
 			float currentWidth = (left + 1)/2 - _getDerivedLeft();
 			if (currentWidth > largestWidth)
@@ -291,35 +296,33 @@ namespace Ogre {
 				largestWidth = currentWidth;
 
 			}
-        }
-        // Unlock vertex buffer
-        vbuf->unlock();
+		}
+		// Unlock vertex buffer
+		vbuf->unlock();
 
 		if (mMetricsMode == GMM_PIXELS)
 		{
-            // Derive parametric version of dimensions
-            Real vpWidth;
-            vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
+			// Derive parametric version of dimensions
+			Real vpWidth;
+			vpWidth = (Real) (OverlayManager::getSingleton().getViewportWidth());
 
 			largestWidth *= vpWidth;
 		};
 
 		if (getWidth() < largestWidth)
 			setWidth(largestWidth);
-        updateColours();
-
     }
 
-    void TextAreaOverlayElement::updatePositionGeometry()
-    {
-        updateGeometry();
-    }
+	void TextAreaOverlayElement::updateTextureGeometry()
+	{
+		// Nothing to do, we combine positions and textures
+	}
 
     void TextAreaOverlayElement::setCaption( const String& caption )
     {
         mCaption = caption;
-        updateGeometry();
-
+		mGeomPositionsOutOfDate = true;
+		mGeomUVsOutOfDate = true;
     }
     const String& TextAreaOverlayElement::getCaption() const
     {
@@ -336,8 +339,9 @@ namespace Ogre {
         mpMaterial = mpFont->getMaterial();
         mpMaterial->setDepthCheckEnabled(false);
         mpMaterial->setLightingEnabled(false);
-
-        updateGeometry();
+		
+		mGeomPositionsOutOfDate = true;
+		mGeomUVsOutOfDate = true;
     }
     const String& TextAreaOverlayElement::getFontName() const
     {
@@ -412,7 +416,6 @@ namespace Ogre {
     void TextAreaOverlayElement::setMaterialName(const String& matName)
     {
         OverlayElement::setMaterialName(matName);
-        updateGeometry();
     }
     //---------------------------------------------------------------------
     void TextAreaOverlayElement::addBaseParameters(void)
@@ -460,7 +463,6 @@ namespace Ogre {
     {
         mColourBottom = mColourTop = col;
         mColoursChanged = true;
-        updateColours();
     }
     //---------------------------------------------------------------------
     const ColourValue& TextAreaOverlayElement::getColour(void) const
@@ -473,7 +475,6 @@ namespace Ogre {
     {
         mColourBottom = col;
         mColoursChanged = true;
-        updateColours();
     }
     //---------------------------------------------------------------------
     const ColourValue& TextAreaOverlayElement::getColourBottom(void) const
@@ -485,7 +486,6 @@ namespace Ogre {
     {
         mColourTop = col;
         mColoursChanged = true;
-        updateColours();
     }
     //---------------------------------------------------------------------
     const ColourValue& TextAreaOverlayElement::getColourTop(void) const
@@ -495,8 +495,6 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void TextAreaOverlayElement::updateColours(void)
     {
-        if (!mColoursChanged) return; // do nothing if colours haven't changed
-
         // Convert to system-specific
         RGBA topColour, bottomColour;
         Root::getSingleton().convertColourValue(mColourTop, &topColour);
@@ -520,8 +518,6 @@ namespace Ogre {
             *pDest++ = bottomColour;
         }
         vbuf->unlock();
-
-        mColoursChanged = false;
 
     }
     //-----------------------------------------------------------------------
@@ -561,6 +557,12 @@ namespace Ogre {
 			mGeomPositionsOutOfDate = true;
         }
         OverlayElement::_update();
+
+		if (mColoursChanged && mInitialised)
+		{
+			updateColours();
+			mColoursChanged = false;
+		}
     }
     //---------------------------------------------------------------------------------------------
     // Char height command object
