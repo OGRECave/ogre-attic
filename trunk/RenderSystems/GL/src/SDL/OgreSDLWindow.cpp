@@ -197,7 +197,7 @@ namespace Ogre {
 		size_t pos = filename.find_last_of(".");
 		String extension;
 		if( pos == String::npos )
-			Except(
+			OGRE_EXCEPT(
 			Exception::ERR_INVALIDPARAMS, 
 			"Unable to determine image type for '" + filename + "' - invalid extension.",
 			"SDLWindow::writeContentsToFile" );

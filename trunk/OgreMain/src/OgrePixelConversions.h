@@ -277,7 +277,7 @@ template <int id, unsigned int xshift, unsigned int yshift, unsigned int zshift,
 {
     inline static uint32 pixelConvert(const Col3b &inp)
     {
-#if OGRE_ENDIAN == ENDIAN_BIG
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
         return (0xFF<<ashift) | (((unsigned int)inp.x)<<xshift) | (((unsigned int)inp.y)<<yshift) | (((unsigned int)inp.z)<<zshift);
 #else
         return (0xFF<<ashift) | (((unsigned int)inp.x)<<zshift) | (((unsigned int)inp.y)<<yshift) | (((unsigned int)inp.z)<<xshift);

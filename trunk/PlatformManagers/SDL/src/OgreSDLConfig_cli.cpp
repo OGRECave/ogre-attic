@@ -47,7 +47,7 @@ bool SDLConfig::display(void)
     std::cin >> choice;
 	
 	if (choice<=0 || choice>=x) {
-		Except(Exception::ERR_INVALIDPARAMS,
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
 			"Invalid RenderSystem number",
 			"SDLConfig::display");
 	}
@@ -76,7 +76,7 @@ bool SDLConfig::display(void)
         choice = 0;
 		std::cin >> choice;
 		if (choice<=0 || choice>=x) {
-			Except(Exception::ERR_INVALIDPARAMS,
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
 				"Invalid number chosen for '"+it->second.name+"' option",
 				"SDLConfig::display");
 		}

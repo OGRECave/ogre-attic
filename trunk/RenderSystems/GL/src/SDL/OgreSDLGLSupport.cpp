@@ -24,7 +24,7 @@ void SDLGLSupport::addConfig(void)
     
     if (mVideoModes == (SDL_Rect **)0)
     {
-        Except(999, "Unable to load video modes",
+        OGRE_EXCEPT(999, "Unable to load video modes",
                 "SDLRenderSystem::initConfigOptions");
     }
 
@@ -79,16 +79,16 @@ RenderWindow* SDLGLSupport::createWindow(bool autoCreateWindow, GLRenderSystem* 
     {
         ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
         if (opt == mOptions.end())
-            Except(999, "Can't find full screen options!", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Can't find full screen options!", "SDLGLSupport::createWindow");
         bool fullscreen = (opt->second.currentValue == "Yes");
 
         opt = mOptions.find("Video Mode");
         if (opt == mOptions.end())
-            Except(999, "Can't find video mode options!", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Can't find video mode options!", "SDLGLSupport::createWindow");
         String val = opt->second.currentValue;
         String::size_type pos = val.find('x');
         if (pos == String::npos)
-            Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
 
 		// Parse FSAA config
 		NameValuePairList winOptions;

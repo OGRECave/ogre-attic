@@ -197,7 +197,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	templ.visualid = best_visual;
 	XVisualInfo *visualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
 	if(visualInfo==0 || nmatch==0) {
-		Except(999, "GLXWindow: error choosing visual", "GLXWindow::create");
+		OGRE_EXCEPT(999, "GLXWindow: error choosing visual", "GLXWindow::create");
 	}
 
 	XSetWindowAttributes attr;
@@ -219,7 +219,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	// Create window on server
 	mWindow = XCreateWindow(mDisplay,rootWindow,left,top,width,height,0,visualInfo->depth,InputOutput,visualInfo->visual,mask,&attr);
 	if(!mWindow) {
-		Except(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
+		OGRE_EXCEPT(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
 	}
 
 	// Make sure the window is in normal state
@@ -270,7 +270,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	// Finally, create a GL context
 	mGlxContext = glXCreateContext(mDisplay,visualInfo,NULL,True);
 	if(!mGlxContext) {
-		Except(999, "glXCreateContext failed", "GLXWindow::create");
+		OGRE_EXCEPT(999, "glXCreateContext failed", "GLXWindow::create");
 	}
 	glXMakeCurrent(mDisplay,mWindow,mGlxContext);
 
@@ -425,7 +425,7 @@ void GLXWindow::writeContentsToFile(const String& filename)
       size_t pos = filename.find_last_of(".");
        String extension;
       if( pos == String::npos )
-          Except(
+          OGRE_EXCEPT(
             Exception::ERR_INVALIDPARAMS, 
          "Unable to determine image type for '" + filename + "' - invalid extension.",
           "SDLWindow::writeContentsToFile" );

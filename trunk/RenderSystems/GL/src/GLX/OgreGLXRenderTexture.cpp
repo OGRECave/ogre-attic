@@ -138,11 +138,11 @@ namespace Ogre
 
         _hPBuffer = glXCreatePbuffer(_pDpy, config, attribs);
         if (!_hPBuffer) 
-            Except(Exception::UNIMPLEMENTED_FEATURE, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
+            OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
 
         _hGLContext = glXCreateNewContext(_pDpy, config, GLX_RGBA_TYPE, context, True);
         if (!_hGLContext) 
-            Except(Exception::UNIMPLEMENTED_FEATURE, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
+            OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
 
         // Query real width and height
         GLuint iWidth, iHeight;

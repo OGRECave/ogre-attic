@@ -94,16 +94,16 @@ RenderWindow* GTKGLSupport::createWindow(bool autoCreateWindow,
     {
         ConfigOptionMap::iterator opt = mOptions.find("Full Screen");
         if (opt == mOptions.end())
-            Except(999, "Can't find full screen options!", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Can't find full screen options!", "SDLGLSupport::createWindow");
         bool fullscreen = (opt->second.currentValue == "Yes");
  
         opt = mOptions.find("Video Mode");
         if (opt == mOptions.end())
-            Except(999, "Can't find video mode options!", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Can't find video mode options!", "SDLGLSupport::createWindow");
         String val = opt->second.currentValue;
         String::size_type pos = val.find('x');
         if (pos == String::npos)
-            Except(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
+            OGRE_EXCEPT(999, "Invalid Video Mode provided", "SDLGLSupport::createWindow");
  
         unsigned int w = StringConverter::parseUnsignedInt(val.substr(0, pos));
         unsigned int h = StringConverter::parseUnsignedInt(val.substr(pos + 1));
@@ -177,7 +177,7 @@ void GTKGLSupport::end_context()
 {
     	--_context_ref;
     	if(_context_ref < 0)
-        	Except(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
+        	OGRE_EXCEPT(999, "Too many contexts destroyed!", "GTKGLSupport::end_context");
     	if (_context_ref == 0)
     	{
 		// XX is this enough? (_main_window might not be the current window,
