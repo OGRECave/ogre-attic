@@ -228,7 +228,7 @@ function getDatas tmesh flipyz scale flipNormal exportUV exportColours sk phy =
 					boneAssignments[matId] = #() ;
 					append submeshesId matId ;
 					-- A new vertex is created because OGRE starts with 0 although 3dsmax starts with 1
-					append verticesArrays[matId] #(0,0,0,0,0,0,0,0,0,0,0,0) ;
+					append verticesArrays[matId] #(vert[1],vert[2],vert[3],nmal[1],nmal[2],nmal[3],tvert[1],tvert[2],cvert.r,cvert.g,cvert.b,cvert.a) ;   -- Vertex is added to datas
 				)
 				append verticesArrays[matId] #(vert[1],vert[2],vert[3],nmal[1],nmal[2],nmal[3],tvert[1],tvert[2],cvert.r,cvert.g,cvert.b,cvert.a) ;   -- Vertex is added to datas
 
@@ -338,9 +338,16 @@ function writeM exportUV exportColours material outName =
 			use32bitindexes = "true";
 		
 		-- get the name of the sub material if needed.
-		submatname = material.name ;
+		submatname = replacespaces material.name ;
+		
 		if (classof material == MultiMaterial) then
-		   submatname  += "/" + material.materiallist[matId].name ;
+		    submatname  += "/" + replacespaces material.materiallist[matId].name ;
+			
+									-- HELLO ! --
+			---------------------------------------------------------------------------------
+			-- IF YOU COME HERE BECAUSE YOUR OBJECT FAILED EXPORTING, MAYBE THAT'S BECAUSE --
+			-- YOU USE MATERIAL ID IN YOUR MESH THAT DOESN'T EXIST  IN YOUR MULTIMATERIAL  --
+			---------------------------------------------------------------------------------
 		
 		format("\t\t<submesh material = \"%\" usesharedvertices=\"false\" use32bitindexes=\"%\">\n") submatname use32bitindexes to:outFile ;
 	
@@ -366,8 +373,15 @@ function writeM exportUV exportColours material outName =
 			format("\t\t\t\t\t\t<normal x=\"%\" y=\"%\" z=\"%\" />\n") v[4] v[5] v[6] to:outFile ;
 			if (exportUV) then
 				format("\t\t\t\t\t\t<texcoord u=\"%\" v=\"%\" />\n") v[7] (1 - v[8]) to:outFile ;		
-			if (exportColours) then
-				format("\t\t\t\t\t\t<colour_diffuse value=\"%%%%\" />\n") ((int)v[12]) ((int)v[11]) ((int)v[10]) ((int)v[9]) to:outFile ;
+			if (exportColours) then (
+				cv = (float) 255*(int)v[12] ;   -- a
+				cv = 255*(cv + (int)v[11]) ; -- b
+				cv = 255*(cv + (int)v[10]) ; -- g
+				cv = cv+ (int)v[12] ;        -- r
+				cv_part2 = (int) (mod cv 1000000) ;
+				cv_part1 = (int) (cv/1000000);
+				format("\t\t\t\t\t\t<colour_diffuse value=\"%\" />\n") cv_part1 cv_part2 to:outFile ;
+			)
 			format("\t\t\t\t\t</vertex>\n") to:outFile ;
 		)	
 		format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
