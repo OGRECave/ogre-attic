@@ -234,6 +234,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Root::~Root()
     {
+		shutdownPlugins();
         shutdown();
         delete mSceneManagerEnum;
 
@@ -704,7 +705,24 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Root::unloadPlugins(void)
+	void Root::shutdownPlugins(void)
+	{
+		std::vector<DynLib*>::reverse_iterator i;
+
+		// NB Shutdown plugins in reverse order to enforce dependencies
+		for (i = mPluginLibs.rbegin(); i != mPluginLibs.rend(); ++i)
+		{
+			// Call plugin shutdown (optional)
+			DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllShutdownPlugin");
+			if (pFunc)
+			{
+				pFunc();
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------
+	void Root::unloadPlugins(void)
     {
         std::vector<DynLib*>::reverse_iterator i;
 

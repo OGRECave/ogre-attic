@@ -109,7 +109,12 @@ namespace Ogre
                 Defaults to "plugins.cfg".
         */
         void loadPlugins( const String& pluginsfile = "plugins.cfg" );
-        /** Unloads all loaded plugins.
+		/** Shuts down all loaded plugins - allows things to be tidied up whilst
+			all plugins are still loaded.
+		*/
+		void shutdownPlugins();
+
+		/** Unloads all loaded plugins.
         */
         void unloadPlugins();
 
