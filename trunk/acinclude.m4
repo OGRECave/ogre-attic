@@ -234,10 +234,10 @@ AC_ARG_WITH(python-version, AC_HELP_STRING([--with-python-version=VER],
             pyversion=$withval)
 AC_ARG_WITH(python-libs, AC_HELP_STRING([--with-python-libs=PATH],
                             [Directory that has the python library]),
-            pyincdir=$withval)
+            pylibdir=$withval)
 AC_ARG_WITH(python-includes, AC_HELP_STRING([--with-python-includes=PATH],
                             [Directory that has the python headers]),
-            pylibdir=$withval)
+            pyincdir=$withval)
 
 PYTHON_CFLAGS="-I/usr/include/python$pyversion"
 PYTHON_LIBS="-lpython$pyversion"
