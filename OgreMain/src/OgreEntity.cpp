@@ -163,7 +163,7 @@ namespace Ogre {
         iend = mSubEntityList.end();
         for (i = mSubEntityList.begin(); i != iend; ++i)
         {
-            queue->addRenderable(*i, mRenderQueueID);
+            queue->addRenderable(*i, mRenderQueueID, RENDERABLE_DEFAULT_PRIORITY);
         }
 
         // Since we know we're going to be rendered, take this opportunity to 
