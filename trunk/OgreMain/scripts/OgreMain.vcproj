@@ -372,9 +372,6 @@
 				RelativePath="..\src\OgreRenderWindow.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreRenderWindowMap.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreResourceManager.cpp">
 			</File>
 			<File
@@ -797,9 +794,6 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderWindow.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreRenderWindowMap.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderable.h">
