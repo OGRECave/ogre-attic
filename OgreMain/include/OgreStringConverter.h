@@ -53,16 +53,21 @@ namespace Ogre {
     {
     public:
 
-        /** Converts a Real to a String. Trivial format, full precision.*/
-        static String toString(Real val);
+        /** Converts a Real to a String. */
+        static String toString(Real val, unsigned short precision = 6, 
+            unsigned short width = 0, char fill = ' ', std::ios::fmtflags flags = 0 );
         /** Converts an int to a String. */
-        static String toString(int val);
+        static String toString(int val, unsigned short width = 0, char fill = ' ', 
+            std::ios::fmtflags flags = 0 );
         /** Converts an int to a String. */
-        static String toString(unsigned int val);
+        static String toString(unsigned int val, 
+            unsigned short width = 0, char fill = ' ', std::ios::fmtflags flags = 0 );
         /** Converts a long to a String. */
-        static String toString(long val);
+        static String toString(long val, 
+            unsigned short width = 0, char fill = ' ', std::ios::fmtflags flags = 0 );
         /** Converts a long to a String. */
-        static String toString(unsigned long val);
+        static String toString(unsigned long val, 
+            unsigned short width = 0, char fill = ' ', std::ios::fmtflags flags = 0 );
         /** Converts a boolean to a String. 
         @param yesNo If set to true, result is 'yes' or 'no' instead of 'true' or 'false'
         */
