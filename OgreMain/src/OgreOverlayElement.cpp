@@ -312,8 +312,8 @@ namespace Ogre {
     void OverlayElement::setMaterialName(const String& matName)
     {
         mMaterialName = matName;
-        mpMaterial = (Material*)MaterialManager::getSingleton().getByName(matName);
-		if (!mpMaterial)
+        mpMaterial = MaterialManager::getSingleton().getByName(matName);
+		if (mpMaterial.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + matName,
 				"OverlayElement::setMaterialName" );
         mpMaterial->load();
@@ -323,7 +323,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Material* OverlayElement::getMaterial(void) const
+    MaterialPtr& OverlayElement::getMaterial(void) const
     {
         return mpMaterial;
     }

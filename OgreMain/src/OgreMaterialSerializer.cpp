@@ -2320,7 +2320,7 @@ namespace Ogre
         }
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::exportMaterial(const Material *pMat, const String &fileName, bool exportDefaults)
+    void MaterialSerializer::exportMaterial(const MaterialPtr& pMat, const String &fileName, bool exportDefaults)
     {
         clearQueue();
         mDefaults = exportDefaults;
@@ -2346,7 +2346,7 @@ namespace Ogre
         clearQueue();
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::queueForExport(const Material *pMat, bool clearQueued, bool exportDefaults)
+    void MaterialSerializer::queueForExport(const MaterialPtr& pMat, bool clearQueued, bool exportDefaults)
     {
         if (clearQueued)
             clearQueue();
@@ -2365,7 +2365,7 @@ namespace Ogre
         return mBuffer;
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::writeMaterial(const Material *pMat)
+    void MaterialSerializer::writeMaterial(const MaterialPtr& pMat)
     {
         LogManager::getSingleton().logMessage("MaterialSerializer : writing material " + pMat->getName() + " to queue.", LML_CRITICAL);
         // Material name
@@ -2409,8 +2409,7 @@ namespace Ogre
 			}
 
             // Iterate over techniques
-            Material::TechniqueIterator it = 
-                const_cast<Material*>(pMat)->getTechniqueIterator();
+            Material::TechniqueIterator it = pMat->getTechniqueIterator();
             while (it.hasMoreElements())
             {
                 writeTechnique(it.getNext());

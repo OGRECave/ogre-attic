@@ -46,7 +46,7 @@ namespace Ogre {
         Passes mPasses;
         /// List of derived passes, categorised into IlluminationStage (ordered)
         IlluminationPassList mIlluminationPasses;
-        Material* mParent;
+        Material* mParent; // raw pointer since we don't want child to stop parent's destruction
         bool mIsSupported;
         unsigned short mLodIndex;
 

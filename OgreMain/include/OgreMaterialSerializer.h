@@ -121,7 +121,7 @@ namespace Ogre {
         /// Parsers for the program definition section of a script
         AttribParserList mProgramDefaultParamAttribParsers;
 
-        void writeMaterial(const Material *pMat);
+        void writeMaterial(const MaterialPtr& pMat);
         void writeTechnique(const Technique* pTech);
         void writePass(const Pass* pPass);
 		void writeTextureUnit(const TextureUnitState *pTex);
@@ -148,11 +148,11 @@ namespace Ogre {
 		virtual ~MaterialSerializer() {};
 
 		/** Queue an in-memory Material to the internal buffer for export.*/
-        void queueForExport(const Material *pMat, bool clearQueued = false, bool exportDefaults = false);
+        void queueForExport(const MaterialPtr& pMat, bool clearQueued = false, bool exportDefaults = false);
         /** Exports queued material(s) to a named material script file. */
 		void exportQueued(const String& filename);
         /** Exports an in-memory Material to the named material script file. */
-        void exportMaterial(const Material *pMat, const String& filename, bool exportDefaults = false);
+        void exportMaterial(const MaterialPtr& pMat, const String& filename, bool exportDefaults = false);
 		/** Returns a string representing the parsed material(s) */
 		const String &getQueuedAsString() const;
 		/** Clears the internal buffer */

@@ -919,8 +919,8 @@ void SceneManager::setSkyPlane(
         String meshName = "SkyPlane";
         mSkyPlane = plane;
 
-        Material* m = getMaterial(materialName);
-        if (!m)
+        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+        if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
                 "Sky plane material '" + materialName + "' not found.",
@@ -997,8 +997,8 @@ void SceneManager::setSkyBox(
     mSkyBoxEnabled = enable;
     if (enable)
     {
-        Material* m = getMaterial(materialName);
-        if (!m)
+        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+        if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
                 "Sky box material '" + materialName + " not found.",
@@ -1042,8 +1042,8 @@ void SceneManager::setSkyBox(
             // Have to create 6 materials, one for each frame
             // Used to use combined material but now we're using queue we can't split to change frame
             // This doesn't use much memory because textures aren't duplicated
-            Material* boxMat = (Material*)matMgr.getByName(entName);
-            if (!boxMat)
+            MaterialPtr& boxMat = matMgr.getByName(entName);
+            if (boxMat.isNull())
             {
                 // Create new by clone
                 boxMat = m->clone(entName);
@@ -1082,8 +1082,8 @@ void SceneManager::setSkyDome(
     mSkyDomeEnabled = enable;
     if (enable)
     {
-        Material* m = getMaterial(materialName);
-        if (!m)
+        MaterialPtr m = MaterialManager::getSingleton().getByName(materialName);
+        if (m.isNull())
         {
             Except(Exception::ERR_INVALIDPARAMS, 
                 "Sky dome material '" + materialName + " not found.",
@@ -2821,14 +2821,14 @@ void SceneManager::initShadowVolumeMaterials(void)
 
     if (!mShadowDebugPass)
     {
-        Material* matDebug = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/Debug/ShadowVolumes"));
-        if (!matDebug)
+        MaterialPtr matDebug = 
+            MaterialManager::getSingleton().getByName("Ogre/Debug/ShadowVolumes");
+        if (matDebug.isNull())
         {
             // Create
-            matDebug = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/Debug/ShadowVolumes"));
+            matDebug = MaterialManager::getSingleton().create(
+                "Ogre/Debug/ShadowVolumes", 
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
             mShadowDebugPass->setSceneBlending(SBT_ADD); 
             mShadowDebugPass->setLightingEnabled(false);
@@ -2865,15 +2865,14 @@ void SceneManager::initShadowVolumeMaterials(void)
     if (!mShadowStencilPass)
     {
 
-        Material* matStencil = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/StencilShadowVolumes"));
-        if (!matStencil)
+        MaterialPtr matStencil = MaterialManager::getSingleton().getByName(
+            "Ogre/StencilShadowVolumes");
+        if (matStencil.isNull())
         {
             // Init
-            matStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().create(
-                "Ogre/StencilShadowVolumes"));
+            matStencil = MaterialManager::getSingleton().create(
+                "Ogre/StencilShadowVolumes",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
 
             if (mDestRenderSystem->getCapabilities()->hasCapability(
@@ -2909,15 +2908,14 @@ void SceneManager::initShadowVolumeMaterials(void)
     if (!mShadowModulativePass)
     {
 
-        Material* matModStencil = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/StencilShadowModulationPass"));
-        if (!matModStencil)
+        MaterialPtr matModStencil = MaterialManager::getSingleton().getByName(
+            "Ogre/StencilShadowModulationPass");
+        if (matModStencil.isNull())
         {
             // Init
-            matModStencil = static_cast<Material*>(
-                MaterialManager::getSingleton().create(
-                "Ogre/StencilShadowModulationPass"));
+            matModStencil = MaterialManager::getSingleton().create(
+                "Ogre/StencilShadowModulationPass",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowModulativePass = matModStencil->getTechnique(0)->getPass(0);
             mShadowModulativePass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO); 
             mShadowModulativePass->setLightingEnabled(false);
@@ -2942,16 +2940,15 @@ void SceneManager::initShadowVolumeMaterials(void)
     }
 
     // Also init shadow caster material for texture shadows
-    if (!mShadowCasterPlainBlackPass)
+    if (mShadowCasterPlainBlackPass)
     {
-        Material* matPlainBlack = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/TextureShadowCaster"));
-        if (!matPlainBlack)
+        MaterialPtr matPlainBlack = MaterialManager::getSingleton().getByName(
+            "Ogre/TextureShadowCaster");
+        if (matPlainBlack.isNull())
         {
-            matPlainBlack = static_cast<Material*>(
-                MaterialManager::getSingleton().create(
-                "Ogre/TextureShadowCaster"));
+            matPlainBlack = MaterialManager::getSingleton().create(
+                "Ogre/TextureShadowCaster",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowCasterPlainBlackPass = matPlainBlack->getTechnique(0)->getPass(0);
             // Lighting has to be on, because we need shadow coloured objects
             // Note that because we can't predict vertex programs, we'll have to
@@ -2972,13 +2969,13 @@ void SceneManager::initShadowVolumeMaterials(void)
 
     if (!mShadowReceiverPass)
     {
-        Material* matShadRec = static_cast<Material*>(
-            MaterialManager::getSingleton().getByName(
-            "Ogre/TextureShadowReceiver"));
-        if (!matShadRec)			
+        MaterialPtr matShadRec = MaterialManager::getSingleton().getByName(
+            "Ogre/TextureShadowReceiver");
+        if (matShadRec.isNull())			
         {
-            matShadRec = static_cast<Material*>(
-                MaterialManager::getSingleton().create("Ogre/TextureShadowReceiver"));
+            matShadRec = MaterialManager::getSingleton().create(
+                "Ogre/TextureShadowReceiver",
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
             mShadowReceiverPass = matShadRec->getTechnique(0)->getPass(0);
             mShadowReceiverPass->setSceneBlending(SBF_DEST_COLOUR, SBF_ZERO);
             // No lighting, one texture unit 
@@ -3512,10 +3509,11 @@ void SceneManager::createShadowTextures(unsigned short size, unsigned short coun
         mShadowTextures.push_back(shadowTex);
 
         // Also create corresponding Material used for rendering this shadow
-        Material* mat = (Material*)MaterialManager::getSingleton().getByName(matName);
-        if (!mat)
+        MaterialPtr mat = (Material*)MaterialManager::getSingleton().getByName(matName);
+        if (mat.isNull())
         {
-            mat = (Material*)MaterialManager::getSingleton().create(matName);
+            mat = MaterialManager::getSingleton().create(
+                matName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         }
         else
         {

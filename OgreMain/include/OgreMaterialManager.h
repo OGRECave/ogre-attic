@@ -55,8 +55,6 @@ namespace Ogre {
     {
     protected:
 
-        typedef HashMap<int, Material*> MaterialHandleList;
-
         /// Default Texture filtering - minification
         FilterOptions mDefaultMinFilter;
         /// Default Texture filtering - magnification

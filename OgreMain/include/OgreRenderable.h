@@ -54,12 +54,12 @@ namespace Ogre {
     public:
         /** Virtual destructor needed as class has virtual methods. */
         virtual ~Renderable() { }
-        /** Retrieves a pointer to the material this renderable object uses.
+        /** Retrieves a weak reference to the material this renderable object uses.
         @remarks
             Note that the Renderable also has the option to override the getTechnique method
             to specify a particular Technique to use instead of the best one available.
         */
-        virtual Material* getMaterial(void) const = 0;
+        virtual MaterialPtr& getMaterial(void) const = 0;
         /** Retrieves a pointer to the Material Technique this renderable object uses.
         @remarks
             This is to allow Renderables to use a chosen Technique if they wish, otherwise

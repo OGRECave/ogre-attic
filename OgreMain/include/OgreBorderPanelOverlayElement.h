@@ -255,7 +255,7 @@ namespace Ogre {
         ushort mPixelBottomBorderSize;
 
         String mBorderMaterialName;
-        Material* mpBorderMaterial;
+        MaterialPtr mpBorderMaterial;
 
         // Render operation for the border area
         RenderOperation mRenderOp2;
@@ -309,7 +309,7 @@ namespace Ogre {
     public:
         /** Constructed with pointers to parent. */
         BorderRenderable(BorderPanelOverlayElement* parent) : mParent(parent) {}
-        Material* getMaterial(void) const { return mParent->mpBorderMaterial; }
+        MaterialPtr& getMaterial(void) const { return mParent->mpBorderMaterial; }
         void getRenderOperation(RenderOperation& op) { op = mParent->mRenderOp2; }
         void getWorldTransforms(Matrix4* xform) const { mParent->getWorldTransforms(xform); }
         const Quaternion& getWorldOrientation(void) const { return Quaternion::IDENTITY; }

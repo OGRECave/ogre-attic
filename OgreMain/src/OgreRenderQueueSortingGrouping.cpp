@@ -100,8 +100,8 @@ namespace Ogre {
         if(!rend->getMaterial() || !rend->getTechnique())
         {
             // Use default base white
-            pTech = static_cast<Material*>(
-                MaterialManager::getSingleton().getByName("BaseWhite"))->getTechnique(0);
+            pTech = MaterialManager::getSingleton().getByName("BaseWhite")
+                ->getTechnique(0);
         }
         else
         {

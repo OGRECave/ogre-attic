@@ -255,10 +255,9 @@ namespace Ogre {
     {
         mMaterialName = name;
 
-        mpMaterial = static_cast<Material *>(
-            MaterialManager::getSingleton().getByName(name) );
+        mpMaterial = MaterialManager::getSingleton().getByName(name);
 
-		if (!mpMaterial)
+		if (mpMaterial.isNull())
 			Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material " + name,
 				"BillboardSet::setMaterialName" );
 
@@ -489,7 +488,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    Material* BillboardSet::getMaterial(void) const
+    MaterialPtr& BillboardSet::getMaterial(void) const
     {
         return mpMaterial;
     }

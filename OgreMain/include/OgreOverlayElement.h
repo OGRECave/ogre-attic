@@ -119,7 +119,7 @@ namespace Ogre {
         Real mWidth;
         Real mHeight;
         String mMaterialName;
-        Material* mpMaterial;
+        MaterialPtr mpMaterial;
         String mCaption;
         ColourValue mColour;
         Rectangle mClippingRegion;
@@ -269,7 +269,7 @@ namespace Ogre {
 
         // --- Renderable Overrides ---
         /** See Renderable */
-        Material* getMaterial(void) const;
+        MaterialPtr getMaterial(void) const;
 
         // NB getRenderOperation not implemented, still abstract here
 

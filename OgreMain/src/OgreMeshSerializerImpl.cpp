@@ -866,7 +866,7 @@ namespace Ogre {
         mpMesh->setSkeletonName(skelName);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readTextureLayer(DataChunk& chunk, Material* pMat)
+    void MeshSerializerImpl::readTextureLayer(DataChunk& chunk, MaterialPtr& pMat)
     {
         // Material definition section phased out of 1.1
     }

@@ -68,8 +68,6 @@ namespace Ogre {
 
     protected:
 
-        typedef std::map<String, Material*> MaterialMap;
-        MaterialMap mMaterialList;
         Mesh* mpMesh;
         bool mIsSkeletallyAnimated;
 
@@ -100,7 +98,7 @@ namespace Ogre {
         virtual unsigned long calcEdgeListLodSize(const EdgeData* data, bool isManual);
         virtual unsigned long calcEdgeGroupSize(const EdgeData::EdgeGroup& group);
 
-        virtual void readTextureLayer(DataChunk& chunk, Material* pMat);
+        virtual void readTextureLayer(DataChunk& chunk, MaterialPtr& pMat);
         virtual void readSubMeshNameTable(DataChunk& chunk);
         virtual void readMesh(DataChunk& chunk);
         virtual void readSubMesh(DataChunk& chunk);

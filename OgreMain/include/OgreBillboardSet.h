@@ -103,7 +103,7 @@ namespace Ogre {
         /// Name of the material to use
         String mMaterialName;
         /// Pointer to the material to use
-        Material* mpMaterial;
+        MaterialPtr mpMaterial;
 
         /// True if no billboards in this set have been resized - greater efficiency.
         bool mAllDefaultSize;
@@ -442,7 +442,7 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual Material* getMaterial(void) const;
+        virtual MaterialPtr& getMaterial(void) const;
 
         /** Overridden from MovableObject
             @see
