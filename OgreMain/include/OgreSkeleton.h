@@ -182,8 +182,11 @@ namespace Ogre {
             A skeleton is bound to a mesh in a binding pose. Bone positions are then modified from this
             position during animation. This method returns all the bones to their original position and
             orientation.
+        @param resetManualBones If set to true, causes the state of manual bones to be reset
+            too, which is normally not done to allow the manual state to persist even 
+            when keyframe animation is applied.
         */
-        virtual void reset(void);
+        virtual void reset(bool resetManualBones = false);
 
         /** Creates a new Animation object for animating this skeleton. 
         @param name The name of this animation

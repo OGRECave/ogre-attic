@@ -250,12 +250,12 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void Skeleton::reset(void)
+    void Skeleton::reset(bool resetManualBones)
     {
         BoneList::iterator i;
         for (i = mBoneList.begin(); i != mBoneList.end(); ++i)
         {
-            if(!(*i)->isManuallyControlled())
+            if(!(*i)->isManuallyControlled() || resetManualBones)
                 (*i)->reset();
         }
     }
