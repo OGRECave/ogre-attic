@@ -1277,6 +1277,31 @@ namespace Ogre {
 			mMaxVertices = 1 << 16;
 		}
 
+		// Check to see if we have blend indices / blend weights
+		// remove them if so, they can try to blend non-existent bones!
+		const VertexElement* blendIndices = 
+			mVertexData->vertexDeclaration->findElementBySemantic(VES_BLEND_INDICES);
+		const VertexElement* blendWeights =
+			mVertexData->vertexDeclaration->findElementBySemantic(VES_BLEND_WEIGHTS);
+		if (blendIndices && blendWeights)
+		{
+			assert(blendIndices->getSource() == blendWeights->getSource()
+				&& "Blend indices and weights should be in the same buffer"); 
+			// Get the source
+			ushort source = blendIndices->getSource();
+			assert(blendIndices->getSize() + blendWeights->getSize() ==
+				mVertexData->vertexBufferBinding->getBuffer(source)->getVertexSize()
+				&& "Blend indices and blend buffers should have buffer to themselves!");
+			// Unset the buffer
+			mVertexData->vertexBufferBinding->unsetBinding(source);
+			// Remove the elements
+			mVertexData->vertexDeclaration->removeElement(VES_BLEND_INDICES);
+			mVertexData->vertexDeclaration->removeElement(VES_BLEND_WEIGHTS);
+
+
+		}
+
+
 	}
 	//--------------------------------------------------------------------------
 	StaticGeometry::GeometryBucket::~GeometryBucket()
