@@ -102,8 +102,10 @@ namespace Ogre {
         ViewportList::iterator it = mViewportList.begin();
         while (it != mViewportList.end())
         {
+            fireViewportPreUpdate((*it).second);
             (*it).second->update();
             mTris += (*it++).second->_getNumRenderedFaces();
+            fireViewportPostUpdate((*it).second);
 
         }
 
@@ -380,14 +382,42 @@ namespace Ogre {
             ++i;
         return i->second;
     }
-
+    //-----------------------------------------------------------------------
     bool RenderTarget::isActive() const
     {
         return mActive;
     }
-    
+    //-----------------------------------------------------------------------
     void RenderTarget::setActive( bool state )
     {
         mActive = state;
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::fireViewportPreUpdate(Viewport* vp)
+    {
+        RenderTargetViewportEvent evt;
+        evt.source = vp;
+
+        RenderTargetListenerList::iterator i, iend;
+        i = mListeners.begin();
+        iend = mListeners.end();
+        for(; i != iend; ++i)
+        {
+            (*i)->preViewportUpdate(evt);
+        }
+    }
+    //-----------------------------------------------------------------------
+    void RenderTarget::fireViewportPostUpdate(Viewport* vp)
+    {
+        RenderTargetViewportEvent evt;
+        evt.source = vp;
+
+        RenderTargetListenerList::iterator i, iend;
+        i = mListeners.begin();
+        iend = mListeners.end();
+        for(; i != iend; ++i)
+        {
+            (*i)->postViewportUpdate(evt);
+        }
     }
 }        
