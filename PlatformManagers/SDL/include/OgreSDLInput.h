@@ -45,7 +45,6 @@ namespace Ogre {
         void initialise( RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false );
         void capture();
 
-        bool isKeyDown( KeyCode kc ) const;
 
         /*
          * Mouse getters
@@ -78,6 +77,7 @@ namespace Ogre {
         static const unsigned int mWheelStep = 60;
         void processBufferedKeyboard();
         void processBufferedMouse();
+        bool isKeyDownImmediate( KeyCode kc ) const;
     };
 }
 

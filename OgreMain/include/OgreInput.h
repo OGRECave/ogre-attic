@@ -262,10 +262,10 @@ namespace Ogre {
         virtual void capture() = 0;
 
         /** Determines if the specified key is currently depressed.
-            @note This enquiry method uses the state of the keyboard at the
-                last 'capture' call.
+            @note In immediate mode, this enquiry method uses the state of the 
+                keyboard at the last 'capture' call.
         */
-        virtual bool isKeyDown( KeyCode kc ) const = 0;
+        virtual bool isKeyDown( KeyCode kc ) const;
 
         /** Retrieves the relative position of the mouse when capture was
             called relative to the last time. */
@@ -340,8 +340,11 @@ namespace Ogre {
 
         /** The mouse state in immediate mode. */
         MouseState mMouseState;
-		
-    protected:
+
+        /// Set of all the keys currently depressed based on buffered input events
+        typedef std::set<KeyCode> BufferedKeysDownSet;
+        BufferedKeysDownSet mBufferedKeysDown;
+
 		/** Creates mouse moved or dragged events depending if any button is pressed. */
 		void mouseMoved();
 
@@ -355,6 +358,8 @@ namespace Ogre {
 		void createKeyEvent(int id, int key);
 		void keyChanged(int key, bool down);
 		void setupKeyChars();
+        /** Return whether a key is down in immediate mode. */
+        virtual bool isKeyDownImmediate( KeyCode kc ) const = 0;
     };
 
 

@@ -293,7 +293,7 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    bool Win32Input::isKeyDown(KeyCode kc) const 
+    bool Win32Input::isKeyDownImmediate(KeyCode kc) const 
     {
         if (mKeyboardBuffer[kc] & 0x80)
         {

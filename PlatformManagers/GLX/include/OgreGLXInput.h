@@ -46,7 +46,6 @@ public:
 	void initialise( RenderWindow* pWindow, bool useKeyboard = true, bool useMouse = true, bool useGameController = false );
 	void capture();
 
-	bool isKeyDown( KeyCode kc ) const;
 
 	/*
 	 * Mouse getters
@@ -90,6 +89,8 @@ private:
 	static const unsigned int mWheelStep = 100;
 
 	void GrabCursor(bool grab);
+
+    bool isKeyDownImmediate( KeyCode kc ) const;
 };
 
 }; // Namespace

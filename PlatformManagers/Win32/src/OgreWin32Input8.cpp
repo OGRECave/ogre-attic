@@ -760,7 +760,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-    bool Win32Input8::isKeyDown(KeyCode kc) const
+    bool Win32Input8::isKeyDownImmediate(KeyCode kc) const
     {
         return ( mKeyboardBuffer[ kc ] & 0x80 ) != 0;
     }

@@ -326,7 +326,7 @@ void GLXInput::capture() {
 
 }
 
-bool GLXInput::isKeyDown(KeyCode kc) const {
+bool GLXInput::isKeyDownImmediate(KeyCode kc) const {
 	return _key_pressed_set.count(kc);
 }
 

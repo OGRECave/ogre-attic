@@ -176,6 +176,9 @@ namespace Ogre {
             }
 
 			createKeyEvent(KeyEvent::KE_KEY_PRESSED, key);
+
+            // Update keydown map
+            mBufferedKeysDown.insert(static_cast<KeyCode>(key));
 		}
 		else
 		{
@@ -198,6 +201,8 @@ namespace Ogre {
 
 			createKeyEvent(KeyEvent::KE_KEY_RELEASED, key);
 			createKeyEvent(KeyEvent::KE_KEY_CLICKED, key);
+            // Update keydown map
+            mBufferedKeysDown.erase(static_cast<KeyCode>(key));
 		}
 	}
 
@@ -332,5 +337,17 @@ namespace Ogre {
         sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SLASH,        InputEvent::SHIFT_MASK), '?') );  /* '/' on main keyboard */
         sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_MULTIPLY,     InputEvent::SHIFT_MASK), '*') );  /* * on numeric keypad */
         sKeyChars.insert( KeyChars::value_type( KEYCODE(KC_SPACE,        InputEvent::SHIFT_MASK), ' ') );
+    }
+    //-----------------------------------------------------------------------
+    bool InputReader::isKeyDown( KeyCode kc ) const
+    {
+        if (mUseBufferedKeys)
+        {
+            return mBufferedKeysDown.find(kc) != mBufferedKeysDown.end();
+        }
+        else
+        {
+            return isKeyDownImmediate(kc);
+        }
     }
 }
