@@ -48,6 +48,7 @@ namespace Ogre {
     GuiElementCommands::CmdMetricsMode GuiElement::msMetricsModeCmd;
     GuiElementCommands::CmdHorizontalAlign GuiElement::msHorizontalAlignCmd;
     GuiElementCommands::CmdVerticalAlign GuiElement::msVerticalAlignCmd;
+    GuiElementCommands::CmdVisible GuiElement::msVisibleCmd;
     //---------------------------------------------------------------------
     GuiElement::GuiElement(const String& name)
         : MouseTarget(),
@@ -442,6 +443,10 @@ namespace Ogre {
             "The vertical alignment, 'top', 'bottom' or 'center'."
             , PT_STRING),
             &msVerticalAlignCmd);
+        dict->addParameter(ParameterDef("visible", 
+            "Initial visibility of element, either 'true' or 'false' (default true)."
+            , PT_STRING),
+            &msVisibleCmd);
     }
     //-----------------------------------------------------------------------
     void GuiElement::setCaption( const String& caption )
