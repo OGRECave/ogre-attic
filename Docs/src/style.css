@@ -34,12 +34,13 @@ A.qindex {}
 A.qindexRef {} 	 
 A.el { text-decoration: none; font-weight: bold } 	 
 A.elRef { font-weight: bold } 	 
-A.code { text-decoration: none; font-weight: normal; color: #4444ee } 	 
+A.code { text-decoration: none; font-weight: normal; color: Blue } 	 
+A:visited.code { text-decoration: none; font-weight: normal; color: Navy } 	 
+A:hover.code { text-decoration: underline; font-weight: normal; color: Blue } 	 
 A.codeRef { font-weight: normal; color: #4444ee } 	 
 DL.el { margin-left: -1cm } 	 
 DIV.fragment { width: 100%; border: none; background-color: #003300 } 	 
 DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 } 	 
-TD.md { background-color: #006600 } 	 
 DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold } 	 
 DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller } 	 
 FONT.keyword       { color: #008000 } 	 
@@ -82,16 +83,23 @@ CODE.str {
 }
 /* Used for rendering members in API specification */
 
+.mdTable
+{
+	background-color: #006600;
+	width: 100%;
+}
+
 .md
 {
-   font-size: medium;
+   font-size: 12pt;
    font-weight: bold;
 }
 
 .mdname1, .mdname
 {
-   font-size: medium;
+   font-size: 12pt;
    font-weight: normal;
    font-style: italic;
 }
 
+HR { height: 1px; }
