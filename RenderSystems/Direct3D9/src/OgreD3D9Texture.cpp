@@ -1274,6 +1274,8 @@ namespace Ogre
 			return PF_A8R8G8B8;
 		case D3DFMT_A2R10G10B10:
 			return PF_A2R10G10B10;
+        case D3DFMT_A2B10G10R10:
+           return PF_A2B10G10R10;
 		case D3DFMT_L8:
 			return PF_L8;
 		case D3DFMT_X1R5G5B5:
