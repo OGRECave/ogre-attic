@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreRenderWindow.h"
 #include "OgreGLXContext.h"
-
+#include "OgreGLXWindowInterface.h"
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <X11/extensions/xf86vmode.h>
@@ -36,7 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <GL/glxext.h>
 
 namespace Ogre {
-class GLXWindow : public RenderWindow {
+
+class GLXWindow : public RenderWindow,GLXWindowInterface {
 private:
 	::Display *mDisplay;
 	::Window mWindow;
@@ -77,6 +78,9 @@ public:
 	 * Get custom attribute; the following attributes are valid:
 	 * GLXWINDOW	The X Window associated with this
 	 * GLXDISPLAY	The X Display associated with this
+     * GLXWINDOWINTERFACE    An interface that can be used to notify this window of events, in case you do the   
+                     X event handling yourself. Use if this is mandatory when you provide your own input system
+                     instead of the Ogre input system. (at least call exposed with true to see something)
 	 */
 	void getCustomAttribute(const String& name, void* pData);
 
@@ -89,6 +93,10 @@ public:
 	bool requiresTextureFlipping() const {
 		return false;
 	}
+    
+    /// Application interface
+    void exposed(bool active);
+    void resized(size_t width, size_t height);
 };
 }
 
