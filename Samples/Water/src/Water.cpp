@@ -82,9 +82,11 @@ void prepareCircleMaterial()
 	}
 	
 	SDDataChunk imgchunk(bmap, 256 * 256 * 4);
-	Image img; 
-	img.loadRawData( imgchunk, 256, 256, PF_A8R8G8B8 );
-	TextureManager::getSingleton().loadImage( CIRCLES_MATERIAL , img );
+	//~ Image img; 
+	//~ img.loadRawData( imgchunk, 256, 256, PF_A8R8G8B8 );
+	//~ TextureManager::getSingleton().loadImage( CIRCLES_MATERIAL , img );
+	TextureManager::getSingleton().loadRawData(CIRCLES_MATERIAL,
+		imgchunk, 256, 256, PF_A8R8G8B8);
 	Material *material = (Material*) 
 		MaterialManager::getSingleton().create( CIRCLES_MATERIAL );
 	Material::TextureLayer *texLayer = material->addTextureLayer( CIRCLES_MATERIAL );
