@@ -18,6 +18,7 @@
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 
+#include <OgreGLPrerequisites.h>
 
 const int instListInc = 4;
 
@@ -54,14 +55,14 @@ void InstList::Invoke()
         int i;
 	for (i = 0; i < size; i++) {
 		// set active texture
-		glActiveTextureARB(GL_TEXTURE0_ARB + i);
+		glActiveTextureARB_ptr(GL_TEXTURE0_ARB + i);
 		list[i].Invoke();
 	}
 	// Reset active texture to unit 0
 	// Could do a glGet to figure out what the initial active texunit was,
 	// and reset to that, but the glGet would not behave well within
 	// a display list...
-	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glActiveTextureARB_ptr(GL_TEXTURE0_ARB);
 }
 
 void InstList::Validate()

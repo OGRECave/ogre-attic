@@ -12,7 +12,10 @@ endif
 
 MAIN=../libnvparse.a
 CC=g++
-CFLAGS= -DYY_NO_UNPUT -Wall -g
+CFLAGS= -DYY_NO_UNPUT -Wall -g \
+		-I../../../../OgreMain/include \
+		-I../../include \
+		-DEXT_HASH -DGCC_3_1
 
 SRCS = nvparse.cpp nvparse_errors.cpp rc1.0_combiners.cpp rc1.0_final.cpp rc1.0_general.cpp ts1.0_inst.cpp ts1.0_inst_list.cpp _ts1.0_parser.cpp _ts1.0_lexer.cpp _rc1.0_lexer.cpp _rc1.0_parser.cpp avp1.0_impl.cpp
 

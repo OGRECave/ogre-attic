@@ -65,6 +65,7 @@ GL_BindProgramARB_Func glBindProgramARB_ptr;
 GL_ProgramStringARB_Func glProgramStringARB_ptr;
 GL_ProgramLocalParameter4fvARB_Func glProgramLocalParameter4fvARB_ptr;
 GL_CombinerStageParameterfvNV_Func glCombinerStageParameterfvNV_ptr;
+GL_GetProgramivARB_Func glGetProgramivARB_ptr;
 
 namespace Ogre {
 
@@ -134,6 +135,7 @@ namespace Ogre {
         glProgramStringARB_ptr = 0;
         glProgramLocalParameter4fvARB_ptr = 0;
         glCombinerStageParameterfvNV_ptr = 0;
+        glGetProgramivARB_ptr = 0;
 
         mCurrentLights = 0;
         mMinFilter = FO_LINEAR;
@@ -369,6 +371,8 @@ namespace Ogre {
             (GL_ProgramLocalParameter4fvARB_Func)mGLSupport->getProcAddress("glProgramLocalParameter4fvARB");
         glCombinerStageParameterfvNV_ptr =
             (GL_CombinerStageParameterfvNV_Func)mGLSupport->getProcAddress("glCombinerStageParameterfvNV");
+        glGetProgramivARB_ptr = 
+            (GL_GetProgramivARB_Func)mGLSupport->getProcAddress("glGetProgramivARB");
 
 
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
