@@ -103,6 +103,8 @@ namespace Ogre {
 		mCurrentGroup = grp;
 		parseResourceGroupScripts(grp);
 		createDeclaredResources(grp);
+		grp->initialised = true;
+
 		// Reset current group
 		mCurrentGroup = 0;
 	}
