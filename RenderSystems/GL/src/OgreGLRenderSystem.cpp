@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreLight.h"
 #include "OgreCamera.h"
 #include "OgreGLTextureManager.h"
+#include "OgreGLHardwareVertexBuffer.h"
+#include "OgreGLHardwareIndexBuffer.h"
 #include "OgreGLUtil.h"
 
 #ifdef HAVE_CONFIG_H
@@ -1498,18 +1500,74 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void GLRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
 	{
-		// TODO
+        // TODO
 	}
     //---------------------------------------------------------------------
 	void GLRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
 	{
-		// TODO
+        // Guard
+        OgreGuard ("GLRenderSystem::setVertexBufferBinding");
+
+        const VertexBufferBinding::VertexBufferBindingMap& binds = binding->getBindings();
+        VertexBufferBinding::VertexBufferBindingMap::const_iterator i, iend;
+        iend = binds.end();
+
+        for (i = binds.begin(); i != iend; ++i)
+        {
+            const GLHardwareVertexBuffer* vertexBuffer =
+                static_cast<const GLHardwareVertexBuffer*>(i->second.get());
+
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertexBuffer->getGLBufferId());
+
+        }
+        
+        // UnGuard
+        OgreUnguard();
 	}
     //---------------------------------------------------------------------
     void GLRenderSystem::_render(const RenderOperation& op)
 	{
-		// TODO
+        // Guard
+        OgreGuard ("GLRenderSystem::_render");
+        // Call super class
+        RenderSystem::_render(op);
+        
+        setVertexDeclaration(op.vertexData->vertexDeclaration);
+        setVertexBufferBinding(op.vertexData->vertexBufferBinding);
+
+        // Find the correct type to render
+        GLint primType;
+        switch (op.operationType)
+        {
+        case RenderOperation::OT_POINT_LIST:
+            primType = GL_POINTS;
+            break;
+        case RenderOperation::OT_LINE_LIST:
+            primType = GL_LINES;
+            break;
+        case RenderOperation::OT_LINE_STRIP:
+            primType = GL_LINE_STRIP;
+            break;
+        case RenderOperation::OT_TRIANGLE_LIST:
+            primType = GL_TRIANGLES;
+            break;
+        case RenderOperation::OT_TRIANGLE_STRIP:
+            primType = GL_TRIANGLE_STRIP;
+            break;
+        case RenderOperation::OT_TRIANGLE_FAN:
+            primType = GL_TRIANGLE_FAN;
+            break;
+        }
+
+        if (op.useIndexes)
+        {
+            GLHardwareIndexBuffer* indexBuffer = 
+                static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get());
+
+            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexBuffer->getGLBufferId());
+        }
+
+        // UnGuard
+        OgreUnguard();
 	}
-
-
 }

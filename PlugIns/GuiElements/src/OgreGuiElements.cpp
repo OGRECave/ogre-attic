@@ -80,8 +80,10 @@ namespace Ogre {
 		pPopupMenuFactory = new PopupMenuGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pPopupMenuFactory);
 
+        /* TODO
 		pCursorGui = new CursorGuiElement("Cursor default");
 		OverlayManager::getSingleton().setCursorGui(pCursorGui, pCursorGui);
+        */
         
         pTTYFactory = new TTYGuiElementFactory();
         GuiManager::getSingleton().addGuiElementFactory(pTTYFactory);

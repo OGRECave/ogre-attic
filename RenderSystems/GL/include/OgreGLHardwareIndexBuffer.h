@@ -50,6 +50,7 @@ namespace Ogre {
         void writeData(size_t offset, size_t length, 
             const void* pSource, bool discardWholeBuffer = false);
 
+        GLuint getGLBufferId(void) const { return mBufferId; }
     };
 
 }
