@@ -96,10 +96,6 @@ namespace Ogre {
 
         chunk.clear();
 
-#if OGRE_DEBUG_MODE
-        _dumpContents(mName + ".log");
-#endif
-
     }
     //---------------------------------------------------------------------
     void Skeleton::unload(void)
