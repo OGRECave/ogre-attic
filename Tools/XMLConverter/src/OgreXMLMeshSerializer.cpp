@@ -517,8 +517,13 @@ namespace Ogre {
 
             }
 
-            sm->useSharedVertices = StringConverter::parseBool(smElem->Attribute("usesharedvertices"));
-            bool use32BitIndexes = StringConverter::parseBool(smElem->Attribute("use32bitindexes"));
+            const char* tmp = smElem->Attribute("material");
+            if (tmp)
+                sm->useSharedVertices = StringConverter::parseBool(tmp);
+            tmp = smElem->Attribute("use32bitindexes");
+            bool use32BitIndexes = false;
+            if (tmp)
+                bool use32BitIndexes = StringConverter::parseBool(tmp);
             
             // Faces
             TiXmlElement* faces = smElem->FirstChildElement("faces");
