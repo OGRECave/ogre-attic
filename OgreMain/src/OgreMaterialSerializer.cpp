@@ -2296,8 +2296,11 @@ namespace Ogre
             }
             catch (Exception& e)
             {
-                LogManager::getSingleton().logMessage("Could not create GPU program '"
-                    + def->name + "', error reported was: " + e.getFullDescription());
+                logParseError("Could not create GPU program '"
+                    + def->name + "', error reported was: " + e.getFullDescription(), mScriptContext);
+				mScriptContext.program = 0;
+            	mScriptContext.programParams.setNull();
+				return;
             }
         }
         // Set skeletal animation option
