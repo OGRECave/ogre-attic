@@ -9,17 +9,6 @@ using namespace Ogre;
 
 SDLGLSupport::SDLGLSupport()
 {
-    std::stringstream ext;
-    String str;
-    
-    ext << glGetString(GL_EXTENSIONS);
-
-    while(ext >> str)
-    {
-        extensionList.insert(str);
-    }
-
-    ext.str("");
 
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -81,6 +70,7 @@ std::string SDLGLSupport::validateConfig(ConfigOptionMap& options)
 RenderWindow* SDLGLSupport::newWindow()
 {
     return new SDLWindow();
+
 }
 
 void SDLGLSupport::start()

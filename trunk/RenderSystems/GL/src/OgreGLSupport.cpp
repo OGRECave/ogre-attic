@@ -1,3 +1,4 @@
+
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
@@ -22,22 +23,33 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#ifndef __SDLPrerequisites_H__
-#define __SDLPrerequisites_H__
 
-#include <SDL.h>
 
-#include <OgreGLPrerequisites.h>
-
+#include "OgreGLSupport.h"
 
 namespace Ogre {
-    // Forward declarations
-    class SDLGLSupport;
-    class SDLWindow;
 
+    void GLSupport::initialiseExtensions(void)
+    {
 
+        std::stringstream ext;
+        String str;
+
+        const GLubyte* pcExt = glGetString(GL_EXTENSIONS);
+
+        assert(pcExt && "Problems getting GL extension string using glGetString");
+
+        if (pcExt)
+        {
+            
+            ext << pcExt;
+
+            while(ext >> str)
+            {
+                extensionList.insert(str);
+            }
+        }
+
+        ext.str("");
+    }
 }
-
-
-#endif
-

@@ -1,25 +1,11 @@
 #ifndef OGRE_GLSUPPORT_H
 #define OGRE_GLSUPPORT_H
 
+#include "OgreGLPrerequisites.h"
+
 #include "OgreRenderWindow.h"
 #include "OgreConfigOptionMap.h"
 
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#   include <windows.h>
-#   include <wingdi.h>
-#   include "gl.h"
-#   define GL_GLEXT_PROTOTYPES
-#   include "glprocs.h"
-#   include <GL/glu.h>
-#elif OGRE_PLATFORM == PLATFORM_LINUX
-#   include <GL/gl.h>
-#   include <GL/glu.h>
-#elif OGRE_PLATFORM == PLATFORM_APPLE
-#   include <OpenGL/gl.h>
-#   define GL_EXT_texture_env_combine 1
-#   include <OpenGL/glext.h>
-#   include <OpenGL/glu.h>
-#endif
 
 #include <string>
 
@@ -65,6 +51,17 @@ public:
     * Get the address of a function
     */
     virtual void* getProcAddress(const std::string& procname) = 0;
+    /** Intialises GL extensions, must be done AFTER the GL context has been
+        established.
+    */
+    virtual void initialiseExtensions(void);
+
+
+protected:
+
+    // This contains the complete list of supported extensions
+    std::set<String> extensionList;
+
 }; // class GLSupport
 
 }; // namespace Ogre

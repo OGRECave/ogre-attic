@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __SDLWindow_H__
 #define __SDLWindow_H__
 
+#include "OgreSDLPrerequisites.h"
 #include "OgreRenderWindow.h"
 
 #include <SDL.h>

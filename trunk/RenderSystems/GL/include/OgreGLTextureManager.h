@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __SDLTextureManager_H__
 #define __SDLTextureManager_H__
 
+#include "OgreGLPrerequisites.h"
 #include "OgreTextureManager.h"
 #include "OgreGLTexture.h"
 
