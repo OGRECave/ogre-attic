@@ -50,6 +50,9 @@ namespace Ogre {
         sharedGeometry.numVertices = 0;
         sharedGeometry.pColours = 0;
         sharedGeometry.pNormals = 0;
+        sharedGeometry.pBlendingWeights = 0;
+        sharedGeometry.numBlendWeightsPerVertex = 0;
+
         for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; ++i)
         {
             sharedGeometry.pTexCoords[i] = 0;
@@ -60,6 +63,7 @@ namespace Ogre {
         mManuallyDefined = false;
         mUpdateBounds = true;
         mSkeleton = 0;
+        mBoneAssignmentsOutOfDate = false;
 
     }
 
@@ -527,8 +531,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::addBoneAssignment(const VertexBoneAssignment& vertBoneAssign)
     {
-        mBoneAssignments.push_back(vertBoneAssign);
-        // TODO - build a rendersystem-specific format buffer for hardware vertex blending?
+        mBoneAssignments.insert(
+            VertexBoneAssignmentList::value_type(vertBoneAssign.vertexIndex, vertBoneAssign));
+        mBoneAssignmentsOutOfDate = true;
     }
     //-----------------------------------------------------------------------
     void Mesh::clearBoneAssignments(void)
@@ -541,6 +546,10 @@ namespace Ogre {
         // Delegate to Skeleton
         assert(mSkeleton && "Skeleton not present");
         mSkeleton->_initAnimationState(animSet);
+
+        // Take the opportunity to update the compiled bone assignments
+        if (mBoneAssignmentsOutOfDate)
+            compileBoneAssignments();
     }
     //-----------------------------------------------------------------------
     unsigned short Mesh::_getNumBoneMatrices(void)
@@ -558,6 +567,71 @@ namespace Ogre {
 
         mSkeleton->setAnimationState(animSet);
         mSkeleton->_getBoneMatrices(pMatrices);
+
+    }
+    //-----------------------------------------------------------------------
+    void Mesh::compileBoneAssignments(void)
+    {
+        // Deallocate
+        if (sharedGeometry.pBlendingWeights)
+            delete [] sharedGeometry.pBlendingWeights;
+
+        // Iterate through, finding the largest # bones per vertex
+        unsigned short maxBones = 0;
+        unsigned short currBones, lastVertIdx = -1;
+        VertexBoneAssignmentList::iterator i, iend;
+        i = mBoneAssignments.begin();
+        iend = mBoneAssignments.end();
+        for (; i != iend; ++i)
+        {
+            if (lastVertIdx != i->second.vertexIndex)
+            {
+                // change in vertex
+                if (maxBones < currBones)
+                    maxBones = currBones;
+                currBones = 0;
+            }
+
+            currBones++;
+
+            lastVertIdx = i->second.vertexIndex;
+
+        }
+
+        // Allocate a buffer for bone weights
+        sharedGeometry.numBlendWeightsPerVertex = maxBones;
+        sharedGeometry.pBlendingWeights = 
+            new RenderOperation::VertexBlendData[sharedGeometry.numVertices * maxBones];
+
+        // Assign data
+        unsigned short v;
+        i = mBoneAssignments.begin();
+        RenderOperation::VertexBlendData *pBlend = sharedGeometry.pBlendingWeights;
+        // Iterate by vertex
+        for (v = 0; v < sharedGeometry.numVertices; ++v)
+        {
+            for (unsigned short bone = 0; bone < maxBones; ++bone)
+            {
+                // Do we still have data for this vertex?
+                if (i->second.vertexIndex == v)
+                {
+                    // If so, assign
+                    pBlend->matrixIndex = i->second.boneIndex;
+                    pBlend->blendWeight = i->second.weight;
+                    ++i;
+                }
+                else
+                {
+                    // Ran out of assignments for this vertex, use weight 0 to indicate empty
+                    pBlend->blendWeight = 0;
+                    pBlend->matrixIndex = 0;
+                }
+                ++pBlend;
+            }
+        }
+
+        mBoneAssignmentsOutOfDate = false;
+
 
     }
 

@@ -33,7 +33,9 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreVertexBoneAssignment.h"
 #include "OgreAnimationState.h"
 
+
 namespace Ogre {
+
 
 
     /** Resource holding data about 3D mesh.
@@ -242,9 +244,16 @@ namespace Ogre {
         /// Optional linked skeleton
         Skeleton* mSkeleton;
 
-        typedef std::vector<VertexBoneAssignment> VertexBoneAssignmentList;
-
+        /// Multimap of verex bone assignments (orders by vertex index)
+        typedef std::multimap<unsigned short, VertexBoneAssignment> VertexBoneAssignmentList;
+       
         VertexBoneAssignmentList mBoneAssignments;
+
+        /// Flag indicating that bone assignments need to be recompiled
+        bool mBoneAssignmentsOutOfDate;
+        /** Must be called once to compile bone assignments into geometry buffer. */
+        void compileBoneAssignments(void);
+
 
     };
 

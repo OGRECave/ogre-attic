@@ -158,22 +158,6 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::writeFileHeader(unsigned short numMaterials)
-    {
-       
-        unsigned short val = M_HEADER;
-        writeData(&val, sizeof(unsigned short), 1);
-
-        writeString(mVersion);
-
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::writeChunkHeader(unsigned short id, unsigned long size)
-    {
-        writeData(&id, sizeof(unsigned short), 1);
-        writeData(&size, sizeof(unsigned long), 1);
-    }
-    //---------------------------------------------------------------------
     void MeshSerializer::writeMaterial(const Material* m)
     {
         // Header
@@ -304,21 +288,6 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::writeReals(const Real* pReal, unsigned short count)
-    {
-        writeData(pReal, sizeof(Real), count);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::writeShorts(const unsigned short* pShort, unsigned short count)
-    {
-        writeData(pShort, sizeof(unsigned short), count);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::writeLongs(const unsigned long* pLong, unsigned short count)
-    {
-        writeData(pLong, sizeof(unsigned long), count);
-    }
-    //---------------------------------------------------------------------
     unsigned long MeshSerializer::calcMaterialSize(const Material* pMat)
     {
         unsigned long size = CHUNK_OVERHEAD_SIZE;
@@ -429,52 +398,6 @@ namespace Ogre {
         }
 
         return size;
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::writeData(const void* buf, size_t size, size_t count)
-    {
-        fwrite((void* const)buf, size, count, mpfFile);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::writeString(const String& string)
-    {
-        fputs(string.c_str(), mpfFile);
-        // Write terminating newline char
-        fputc('\n', mpfFile);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::readFileHeader(DataChunk& chunk)
-    {
-        unsigned short headerID;
-        
-        // Read header ID
-        chunk.read(&headerID, sizeof(headerID));
-        if (headerID == M_HEADER)
-        {
-            // Read version
-            String ver = readString(chunk);
-            if (ver != mVersion)
-            {
-                Except(Exception::ERR_INTERNAL_ERROR, 
-                    "Invalid .mesh file: version incompatible, file reports " + String(ver) +
-                    " MeshSerializer is version " + mVersion,
-                    "MeshSerializer::readFileHeader");
-            }
-        }
-        else
-        {
-            Except(Exception::ERR_INTERNAL_ERROR, "Invalid .mesh file: no header", 
-                "MeshSerializer::readFileHeader");
-        }
-
-    }
-    //---------------------------------------------------------------------
-    unsigned short MeshSerializer::readChunk(DataChunk& chunk)
-    {
-        unsigned short id;
-        chunk.read(&id, sizeof(id));
-        chunk.read(&mCurrentChunkLen, sizeof(mCurrentChunkLen));
-        return id;
     }
     //---------------------------------------------------------------------
     void MeshSerializer::readMaterial(DataChunk& chunk)
@@ -696,31 +619,6 @@ namespace Ogre {
             // Store number of texture coordinate sets found
             dest->numTexCoords = texCoordSet;
         }
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::readReals(DataChunk& chunk, Real* pDest, unsigned short count)
-    {
-        chunk.read(pDest, sizeof(Real) * count);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count)
-    {
-        chunk.read(pDest, sizeof(unsigned short) * count);
-    }
-    //---------------------------------------------------------------------
-    void MeshSerializer::readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count) 
-    {
-        chunk.read(pDest, sizeof(unsigned long) * count);
-    }
-    //---------------------------------------------------------------------
-    String MeshSerializer::readString(DataChunk& chunk)
-    {
-        char str[255];
-        int readcount;
-        readcount = chunk.readUpTo(str, 255);
-        str[readcount] = '\0';
-        return str;
-
     }
     //---------------------------------------------------------------------
 

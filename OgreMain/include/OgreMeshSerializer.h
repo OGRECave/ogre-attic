@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #define __MeshSerializer_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreSerializer.h"
 #include "OgreMaterial.h"
 #include "OgreString.h"
 #include "OgreMesh.h"
@@ -56,7 +57,7 @@ namespace Ogre {
         example in Milkshape, it says 'Model' instead of 'Mesh' and 'Mesh' instead of 'SubMesh', 
         but the theory is the same.
     */
-    class _OgreExport MeshSerializer
+    class _OgreExport MeshSerializer : public Serializer
     {
     public:
         MeshSerializer();
@@ -93,21 +94,13 @@ namespace Ogre {
         typedef std::map<String, Material*> MaterialMap;
         MaterialMap mMaterialList;
         Mesh* mpMesh;
-        unsigned long mCurrentChunkLen;
-        FILE* mpfFile;
-        String mVersion;
 
         // Internal methods
-        void writeFileHeader(unsigned short numMaterials);
-        void writeChunkHeader(unsigned short id, unsigned long size);
         void writeMaterial(const Material* m);
         void writeTextureLayer(const Material::TextureLayer* pTex);
         void writeMesh(const Mesh* pMesh);
         void writeSubMesh(const SubMesh* s);
         void writeGeometry(const GeometryData* pGeom);
-        void writeReals(const Real* pReal, unsigned short count);
-        void writeShorts(const unsigned short* pShort, unsigned short count);
-        void writeLongs(const unsigned long* pLong, unsigned short count); 
 
         unsigned long calcMaterialSize(const Material* pMat);
         unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
@@ -115,21 +108,11 @@ namespace Ogre {
         unsigned long calcSubMeshSize(const SubMesh* pSub);
         unsigned long calcGeometrySize(const GeometryData* pGeom);
 
-        void writeData(const void* buf, size_t size, size_t count);
-        void writeString(const String& string);
-
-        void readFileHeader(DataChunk& chunk);
-        unsigned short readChunk(DataChunk& chunk);
         void readMaterial(DataChunk& chunk);
         void readTextureLayer(DataChunk& chunk, Material* pMat);
         void readMesh(DataChunk& chunk);
         void readSubMesh(DataChunk& chunk);
         void readGeometry(DataChunk& chunk, GeometryData* dest);
-        void readReals(DataChunk& chunk, Real* pDest, unsigned short count);
-        void readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count);
-        void readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count); 
-
-        String readString(DataChunk& chunk);
 
 
 
