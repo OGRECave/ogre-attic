@@ -136,6 +136,9 @@
 			<File
 				RelativePath="..\..\Common\include\ExampleFrameListener.h">
 			</File>
+			<File
+				RelativePath="..\..\Common\include\ExampleLoadingBar.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
