@@ -303,7 +303,9 @@ namespace Ogre {
         Real mShadowDirLightExtrudeDist;
         IlluminationRenderStage mIlluminationStage;
         unsigned short mShadowTextureSize;
-        RenderTexture* mShadowTexture;
+        unsigned short mShadowTextureCount;
+        typedef std::vector<RenderTexture*> ShadowTextureList;
+        ShadowTextureList mShadowTextures;
 
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
@@ -314,8 +316,11 @@ namespace Ogre {
         virtual void findLightsAffectingFrustum(const Camera* camera);
         /// Internal method for setting up materials for shadows
         virtual void initShadowVolumeMaterials(void);
-        /// Internal method for creating a shadow texture (texture-based shadows)
-        virtual void createShadowTexture(unsigned short size);
+        /// Internal method for creating shadow textures (texture-based shadows)
+        virtual void createShadowTextures(unsigned short size, unsigned short count);
+        /// Internal method for preparing shadow textures ready for use in a regular render
+        virtual void prepareShadowTextures(Camera* cam, Viewport* vp);
+
         /** Internal method for rendering all the objects for a given light into the 
             stencil buffer.
         @param light The light source
@@ -1497,6 +1502,23 @@ namespace Ogre {
         virtual void setShadowTextureSize(unsigned short size);
         /// Get the size of the texture used for texture based shadows
         unsigned short getShadowTextureSize(void) {return mShadowTextureSize; }
+        /** Set the number of textures allocated for texture-based shadows.
+        @remarks
+            The default number of textures assigned to deal with texture based
+            shadows is 1; however this means you can only have one light casting
+            shadows at the same time. You can increase this number in order to 
+            make this more flexible, but be aware of the texture memory it will use.
+        */
+        virtual void setShadowTextureCount(unsigned short count);
+        /// Get the number of the textures allocated for texture based shadows
+        unsigned short getShadowTextureCount(void) {return mShadowTextureCount; }
+        /** Sets the size and count of textures used in texture-based shadows. 
+        @remarks
+            @see setShadowTextureSize and setShadowTextureCount for details, this
+            method just allows you to change both at once, which can save on 
+            reallocation if the textures have already been created.
+        */
+        virtual void setShadowTextureSettings(unsigned short size, unsigned short count);
     };
 
     /** Default implementation of IntersectionSceneQuery. */
