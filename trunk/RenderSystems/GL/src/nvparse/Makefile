@@ -65,3 +65,5 @@ compile: $(OBJS)
 
 clean:
 	rm -f *.o *~ $(MAIN)
+
+install:

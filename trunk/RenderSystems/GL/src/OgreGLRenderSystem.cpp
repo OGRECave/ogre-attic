@@ -71,6 +71,11 @@ namespace Ogre {
         return new GLGpuProgram(name, gptype, syntaxCode);
     }
 
+    GpuProgram* createGLGpuNvparseProgram(const String& name, GpuProgramType gptype, const String& syntaxCode)
+    {
+        return new GLGpuNvparseProgram(name, gptype, syntaxCode);
+    }
+
 
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
@@ -309,10 +314,10 @@ namespace Ogre {
             mCapabilities->setFragmentProgramConstantFloatCount(
                 GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 
+            //mGpuProgramManager->registerProgram(GPT_VERTEX_PROGRAM, createProgram<GLGpuProgram>);
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createGLGpuProgram);
         }
-        /*
         else if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
             mGLSupport->checkExtension("GL_NV_texture_shader"))
         {
@@ -320,9 +325,8 @@ namespace Ogre {
             mCapabilities->setMaxFragmentProgramVersion("fp20");
 
             mGpuProgramManager->_pushSyntaxCode("fp20");
-            mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createProgram<GLGpuNvparseProgram>);
+            mGpuProgramManager->registerProgram(GPT_FRAGMENT_PROGRAM, createGLGpuNvparseProgram);
         }
-        */
 
         // Get extension function pointers
         glActiveTextureARB_ptr = 
@@ -1804,7 +1808,6 @@ namespace Ogre {
     {
         GLuint glProgType = (gptype == GPT_VERTEX_PROGRAM) ? 
             GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
-
         if(gptype == GPT_FRAGMENT_PROGRAM && 
             mCapabilities->getMaxFragmentProgramVersion() == "fp20")
         {
