@@ -24,6 +24,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreStableHeaders.h"
 #include "OgreZip.h"
+#include "unzip.h"
 
 #include "OgreArchiveManager.h"
 #include "OgreLogManager.h"
