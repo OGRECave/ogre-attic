@@ -541,12 +541,17 @@ namespace Ogre {
             bindIndex = bind->getNextIndex();
         }
 
+        /* Fix: This should really use HBU_STATIC_WRITE_ONLY and a shadow buffer
+         * but can't using the current NVidia drivers without causing major 
+         * slowdowns with hardware skinning.  
+         *
+         * Affected driver version: 53.36
+         */
         HardwareVertexBufferSharedPtr vbuf = 
             HardwareBufferManager::getSingleton().createVertexBuffer(
                 sizeof(unsigned char)*4 + sizeof(Real)*numBlendWeightsPerVertex,
                 targetVertexData->vertexCount, 
-                HardwareBuffer::HBU_STATIC_WRITE_ONLY,
-                true // use shadow buffer
+                HardwareBuffer::HBU_DYNAMIC
                 );
         // bind new buffer
         bind->setBinding(bindIndex, vbuf);
