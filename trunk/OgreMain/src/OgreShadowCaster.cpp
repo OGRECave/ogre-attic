@@ -156,8 +156,8 @@ namespace Ogre {
             {
                 // Point light, adjust extrusionDir
                 extrusionDir.x = pSrc[0] - light.x;
-                extrusionDir.y = pSrc[0] - light.y;
-                extrusionDir.z = pSrc[0] - light.z;
+                extrusionDir.y = pSrc[1] - light.y;
+                extrusionDir.z = pSrc[2] - light.z;
                 extrusionDir.normalise();
                 extrusionDir *= EXTRUSION_DISTANCE;
             }
