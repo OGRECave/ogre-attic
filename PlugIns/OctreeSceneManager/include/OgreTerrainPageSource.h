@@ -40,11 +40,12 @@ namespace Ogre {
     {
     public:
         /** Listener method called when a new page is about to be constructed. 
+        @param pagex, pagez The index of the page being constructed
         @param heightData Array of normalised height data (0..1). The size of
             this buffer will conform to the scene manager page size. The listener
             may modify the data if it wishes.
         */
-        virtual void pageConstructed(Real* heightData) = 0;
+        virtual void pageConstructed(size_t pagex, size_t pagez, Real* heightData) = 0;
     };
 
 
@@ -104,7 +105,7 @@ namespace Ogre {
         typedef std::vector<TerrainPageSourceListener*> PageSourceListenerList;
         static PageSourceListenerList mPageSourceListeners;
         /// Internal method for firing pageContructed events
-        static void firePageConstructed(Real* heightData);
+        static void firePageConstructed(size_t pagex, size_t pagez, Real* heightData);
 
         /** Utility method for building a page of tiles based on some source
         data, wherever that may have come from.
