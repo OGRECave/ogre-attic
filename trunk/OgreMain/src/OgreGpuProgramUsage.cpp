@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreGpuProgramUsage.h"
 #include "OgreGpuProgramManager.h"
+#include "OgreException.h"
 
 namespace Ogre
 {
@@ -82,6 +83,14 @@ namespace Ogre
 	{
 		mProgram = static_cast<GpuProgram*>(
 			GpuProgramManager::getSingleton().getByName(mProgramName));
+
+        if (!mProgram)
+        {
+            String progType = (mType == GPT_VERTEX_PROGRAM ? "vertex" : "fragment");
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Unable to locate " + progType + " program called " + mProgramName + ".",
+                "GpuProgramUsage::validateName");
+        }
 	}
     //-----------------------------------------------------------------------------
 	void GpuProgramUsage::validateNamedParameters(void)
@@ -91,7 +100,23 @@ namespace Ogre
     //-----------------------------------------------------------------------------
 	GpuProgram* GpuProgramUsage::getProgram(void)
 	{
-		assert(mProgram && "Usage not yet validated!");
+		if(!mProgram)
+        {
+            // Need to validate to connect with program
+            enableValidation();
+        }
 		return mProgram;
 	}
+    //-----------------------------------------------------------------------------
+    void GpuProgramUsage::_load(void)
+    {
+        enableValidation();
+        mProgram->load();
+    }
+    //-----------------------------------------------------------------------------
+    void GpuProgramUsage::_unload(void)
+    {
+        // TODO?
+    }
+
 }

@@ -164,7 +164,10 @@ namespace Ogre {
         if (isLoaded())
         {
             _load(); // reload
+            // Tell parent to recalculate hash
+            mParent->_recalculateHash();
         }
+
 
     }
     //-----------------------------------------------------------------------
@@ -210,6 +213,8 @@ namespace Ogre {
         {
             // Load immediately if parent is loaded
             _load();
+            // Tell parent to recalculate hash
+            mParent->_recalculateHash();
         }
     }
     //-----------------------------------------------------------------------
@@ -256,6 +261,8 @@ namespace Ogre {
         if (isLoaded())
         {
             _load();
+            // Tell parent to recalculate hash
+            mParent->_recalculateHash();
         }
 
     }
@@ -282,6 +289,8 @@ namespace Ogre {
         if (isLoaded())
         {
             _load();
+            // Tell parent to recalculate hash
+            mParent->_recalculateHash();
         }
     }
     //-----------------------------------------------------------------------

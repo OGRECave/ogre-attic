@@ -121,6 +121,12 @@ namespace Ogre
 			validated either via enableValidation or by enabling validation on construction. */
 		GpuProgram* getProgram(void);
 
+        /// Load this usage (and ensure program is loaded)
+        void _load(void);
+        /// Unload this usage 
+        void _unload(void);
+
+
         /* TODO - high-level params */
 
 	protected:
