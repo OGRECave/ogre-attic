@@ -34,6 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   define GL_GLEXT_PROTOTYPES
 #   include "glprocs.h"
 #   include <GL/glu.h>
+// Windows library does not include glSecondaryColorPointer even though it's standard now
+#   define glSecondaryColorPointer glSecondaryColorPointerEXT
 #elif OGRE_PLATFORM == PLATFORM_LINUX
 #   include <GL/gl.h>
 #   include <GL/glu.h>
