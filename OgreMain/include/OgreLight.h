@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreColourValue.h"
 #include "OgreVector3.h"
+#include "OgreVector4.h"
 #include "OgreString.h"
 #include "OgreMovableObject.h"
 
@@ -280,6 +281,16 @@ namespace Ogre {
 
         /** Overridden from MovableObject */
         Real getBoundingRadius(void) const { return 0; /* not visible */ }
+
+		/** Gets the details of this light as a 4D vector.
+		@remarks
+			Getting details of a light as a 4D vector can be useful for
+			doing general calculations between different light types; for
+			example the vector can represent both position lights (w=1.0f)
+			and directional lights (w=0.0f) and be used in the same 
+			calculations.
+		*/
+		Vector4 getAs4DVector(void) const;
 
 
     private:

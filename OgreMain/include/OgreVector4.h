@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 #include "OgreVector3.h"
-#include "OgreMatrix4.h"
 
 namespace Ogre
 {
@@ -133,15 +132,6 @@ namespace Ogre
             return *this;
         }
 
-        inline Vector4 operator * (const Matrix4& mat) const
-        {
-            return Vector4(
-                x*mat[0][0] + y*mat[1][0] + z*mat[2][0] + w*mat[3][0],
-                x*mat[0][1] + y*mat[1][1] + z*mat[2][1] + w*mat[3][1],
-                x*mat[0][2] + y*mat[1][2] + z*mat[2][2] + w*mat[3][2],
-                x*mat[0][3] + y*mat[1][3] + z*mat[2][3] + w*mat[3][3]
-                );
-        }
 
 
         /** Calculates the dot (scalar) product of this vector with another.

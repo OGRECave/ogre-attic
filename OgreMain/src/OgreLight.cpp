@@ -282,8 +282,22 @@ namespace Ogre {
     {
         MovableObject::setVisible(visible);
     }
-
-
+    //-----------------------------------------------------------------------
+	Vector4 Light::getAs4DVector(void) const
+	{
+		Vector4 ret;
+        if (mLightType == Light::LT_DIRECTIONAL)
+        {
+            ret = -(getDerivedDirection()); // negate direction as 'position'
+            ret.w = 0.0; // infinite distance
+        }	
+		else
+        {
+            ret = getDerivedPosition();
+            ret.w = 1.0;
+        }
+		return ret;
+	}
 
 
 
