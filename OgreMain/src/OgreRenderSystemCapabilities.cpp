@@ -120,6 +120,12 @@ namespace Ogre {
         pLog->logMessage(
             " * User clip planes: " 
             + StringConverter::toString(hasCapability(RSC_USER_CLIP_PLANES), true));
+        pLog->logMessage(
+            " * VET_UBYTE4 vertex element type: " 
+            + StringConverter::toString(hasCapability(RSC_VERTEX_FORMAT_UBYTE4), true));
+        pLog->logMessage(
+            " * Infinite far plane projection: " 
+            + StringConverter::toString(hasCapability(RSC_INFINITE_FAR_PLANE), true));
 
 
     }

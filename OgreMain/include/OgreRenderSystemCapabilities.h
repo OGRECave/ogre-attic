@@ -48,8 +48,6 @@ namespace Ogre {
         RSC_HWSTENCIL               = 0x00000040,
         /// Supports hardware vertex and index buffers
         RSC_VBO                     = 0x00000080,
-        /// Supports fixed function hardware vertex blending
-        RSC_VERTEXBLENDING          = 0x00000100,
         /// Supports vertex programs (vertex shaders)
 		RSC_VERTEX_PROGRAM          = 0x00000200,
         /// Supports fragment programs (pixel shaders)
