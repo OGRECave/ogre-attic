@@ -182,9 +182,7 @@ namespace Ogre {
                 postPosVertexSize = vbuf->getVertexSize() - postPosVertexOffset;
                 // the 2 separate bits together should be the same size as the remainder buffer vertex
                 assert (newRemainderBuffer->getVertexSize() == prePosVertexSize + postPosVertexSize);
-            }
-            if (wasSharedBuffer)
-            {
+
                 // Iterate over the vertices
                 for (v = 0; v < oldVertexCount; ++v)
                 {
@@ -218,6 +216,10 @@ namespace Ogre {
             newPosBuffer->unlock();
             if (wasSharedBuffer)
                 newRemainderBuffer->unlock();
+
+            // At this stage, he original vertex buffer is going to be destroyed
+            // So we should force the deallocation of any temporary copies
+            HardwareBufferManager::getSingleton()._forceReleaseBufferCopies(vbuf);
 
             if (useVertexPrograms)
             {

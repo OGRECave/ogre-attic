@@ -112,6 +112,10 @@ namespace Ogre {
         /// Temp blend buffer details for shared geometry
         VertexData* mSharedBlendedVertexData;
 
+        /** Internal method - given vertex data which could be from the Mesh or 
+            any submesh, finds the temporary blend copy. */
+        const VertexData* findBlendedVertexData(const VertexData* orig);
+
         /** Internal method for extracting metadata out of source vertex data
             for fast assignment of temporary buffers later. */
         void extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info);

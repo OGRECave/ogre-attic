@@ -742,7 +742,11 @@ namespace Ogre {
             mMesh->prepareForShadowVolume();
 
 
-        // TODO: for skeletal animation, use an intermediate buffer or some such
+        // Update any animation 
+        if (hasSkeleton())
+        {
+            updateAnimation();
+        }
 
         // Calculate the object space light details
         Vector4 lightPos = light->getAs4DVector();
@@ -762,14 +766,24 @@ namespace Ogre {
             egi = edgeList->edgeGroups.begin();
             for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi)
             {
+                const VertexData *pVertData = 0;
+                if (hasSkeleton())
+                {
+                    // Use temp buffers
+                    pVertData = findBlendedVertexData(egi->vertexData);
+                }
+                else
+                {
+                    pVertData = egi->vertexData;
+                }
                 EntityShadowRenderable* esr = 
-                    new EntityShadowRenderable(this, indexBuffer, egi->vertexData);
+                    new EntityShadowRenderable(this, indexBuffer, pVertData);
                 *si = esr;
                 // Extrude vertices in software if required
                 if (extrude)
                 {
                     extrudeVertices(esr->getPositionBuffer(), 
-                        egi->vertexData->vertexCount, lightPos);
+                        pVertData->vertexCount, lightPos);
 
                 }
 
@@ -785,6 +799,28 @@ namespace Ogre {
 
         return ShadowRenderableListIterator(mShadowRenderables.begin(), 
             mShadowRenderables.end());
+    }
+    //-----------------------------------------------------------------------
+    const VertexData* Entity::findBlendedVertexData(const VertexData* orig)
+    {
+        if (orig == mMesh->sharedVertexData)
+        {
+            return mSharedBlendedVertexData;
+        }
+        SubEntityList::iterator i, iend;
+        iend = mSubEntityList.end();
+        for (i = mSubEntityList.begin(); i != iend; ++i)
+        {
+            SubEntity* se = *i;
+            if (orig == se->getSubMesh()->vertexData)
+            {
+                return se->getBlendedVertexData();
+            }
+        }
+        // None found
+        Except(Exception::ERR_ITEM_NOT_FOUND, 
+            "Cannot find blended version of the vertex data specified.",
+            "Entity::findBlendedVertexData");
     }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
