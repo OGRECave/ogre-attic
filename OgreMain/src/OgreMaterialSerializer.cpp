@@ -1436,6 +1436,10 @@ namespace Ogre
         {
             acType = GpuProgramParameters::ACT_AMBIENT_LIGHT_COLOUR;
         }
+        else if (vecparams[1] == "camera_position")
+        {
+            acType = GpuProgramParameters::ACT_CAMERA_POSITION;
+        }
         else if (vecparams[1] == "camera_position_object_space")
         {
             acType = GpuProgramParameters::ACT_CAMERA_POSITION_OBJECT_SPACE;

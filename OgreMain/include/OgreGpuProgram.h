@@ -116,7 +116,9 @@ namespace Ogre {
             /// The view/projection matrix of the assigned texture projection frustum
             ACT_TEXTURE_VIEWPROJ_MATRIX,
             /// A custom parameter which will come from the renderable, using 'data' as the identifier
-            ACT_CUSTOM
+            ACT_CUSTOM,
+            /// The current camera's position in world space
+            ACT_CAMERA_POSITION
         };
         /** Structure recording the use of an automatic parameter. */
         class AutoConstantEntry
