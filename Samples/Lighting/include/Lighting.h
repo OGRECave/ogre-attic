@@ -163,8 +163,8 @@ protected:
 		mSceneMgr->getRootSceneNode()->attachObject(head);
 
 		// Create nodes for the lights to be rotated with
-        mRedYellowLightsNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
-        mGreenBlueLightsNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        mRedYellowLightsNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+        mGreenBlueLightsNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
 
         // First create the BillboardSets. This will define the materials for the billboards

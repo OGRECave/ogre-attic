@@ -264,8 +264,8 @@ protected:
         waterEntity = mSceneMgr->createEntity("water", "WaterPlane"); 
         waterEntity->setMaterialName("Examples/TextureEffect4"); 
 
-        SceneNode *waterNode = static_cast<SceneNode*>(
-            mSceneMgr->getRootSceneNode()->createChild("WaterNode")); 
+        SceneNode *waterNode = 
+            mSceneMgr->getRootSceneNode()->createChildSceneNode("WaterNode"); 
         waterNode->attachObject(waterEntity); 
         waterNode->translate(1000, 0, 1000);
 

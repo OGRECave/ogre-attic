@@ -47,7 +47,7 @@ namespace OgreRefApp
         // Create visual presence
         SceneManager* sm = World::getSingleton().getSceneManager();
         mEntity = sm->createEntity(name, "cube.mesh");
-        mSceneNode = static_cast<SceneNode*>(sm->getRootSceneNode()->createChild(name));
+        mSceneNode = sm->getRootSceneNode()->createChildSceneNode(name);
         // Scale down, default size is 100x100x100
         mSceneNode->scale(mDimensions.x / 100.f, 
             mDimensions.y / 100.f, mDimensions.z / 100.f);

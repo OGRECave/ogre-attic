@@ -331,6 +331,18 @@ namespace Ogre {
 	    mChildren.clear();
         needUpdate();
     }
+    //-----------------------------------------------------------------------
+	SceneNode* SceneNode::createChildSceneNode(const Vector3& translate, 
+        const Quaternion& rotate)
+	{
+		return static_cast<SceneNode*>(this->createChild(translate, rotate));
+	}
+    //-----------------------------------------------------------------------
+    SceneNode* SceneNode::createChildSceneNode(const String& name, const Vector3& translate, 
+		const Quaternion& rotate)
+	{
+		return static_cast<SceneNode*>(this->createChild(name, translate, rotate));
+	}
 
 
 }

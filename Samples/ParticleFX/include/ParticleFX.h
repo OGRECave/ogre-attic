@@ -79,23 +79,23 @@ protected:
         Entity *ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
 
         // Add entity to the root scene node
-        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild())->attachObject(ent);
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
 
 
         // Green nimbus around Ogre
         ParticleSystem* pSys1 = ParticleSystemManager::getSingleton().createSystem("Nimbus", 
             "Examples/GreenyNimbus");
-        static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild())->attachObject(pSys1);
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys1);
 
 
         // Create shared node for 2 fountains
-        mFountainNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        mFountainNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
         // fountain 1
         ParticleSystem* pSys2 = ParticleSystemManager::getSingleton().createSystem("fountain1", 
             "Examples/PurpleFountain");
         // Point the fountain at an angle
-        SceneNode* fNode = static_cast<SceneNode*>(mFountainNode->createChild());
+        SceneNode* fNode = mFountainNode->createChildSceneNode();
         fNode->translate(200,-100,0);
         fNode->rotate(Vector3::UNIT_Z, 20);
         fNode->attachObject(pSys2);
@@ -104,7 +104,7 @@ protected:
         ParticleSystem* pSys3 = ParticleSystemManager::getSingleton().createSystem("fountain2", 
             "Examples/PurpleFountain");
         // Point the fountain at an angle
-        fNode = static_cast<SceneNode*>(mFountainNode->createChild());
+        fNode = mFountainNode->createChildSceneNode();
         fNode->translate(-200,-100,0);
         fNode->rotate(Vector3::UNIT_Z, -20);
         fNode->attachObject(pSys3);
@@ -115,7 +115,7 @@ protected:
         // Create a rainstorm 
         ParticleSystem* pSys4 = ParticleSystemManager::getSingleton().createSystem("rain", 
             "Examples/Rain");
-        SceneNode* rNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         rNode->translate(0,1000,0);
         rNode->attachObject(pSys4);
         // Fast-forward the rain so it looks more natural

@@ -109,7 +109,7 @@ protected:
         SceneNode* rootNode = mSceneMgr->getRootSceneNode();
         rootNode->attachObject(planeEnt);
 
-        static_cast<SceneNode*>(rootNode->createChild( "Head" ))->attachObject( ogreHead );
+        rootNode->createChildSceneNode( "Head" )->attachObject( ogreHead );
 
         Camera *rttCam = mSceneMgr->createCamera( "rttCam" );
         rootNode->attachCamera( rttCam ); rttCam->setPosition( 0.0, 0.0, -0.1 ); rttCam->setDirection( 0.0, 0.0, -100.0 );

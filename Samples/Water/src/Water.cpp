@@ -554,11 +554,11 @@ protected:
 		waterEntity = mSceneMgr->createEntity(ENTITY_NAME, 
 			MESH_NAME);
 		//~ waterEntity->setMaterialName(MATERIAL_NAME);
-		SceneNode *waterNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+		SceneNode *waterNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		waterNode->attachObject(waterEntity);
 
         // Add a head, give it it's own node
-        headNode = static_cast<SceneNode*>(waterNode->createChild());
+        headNode = waterNode->createChildSceneNode();
         Entity *ent = mSceneMgr->createEntity("head", "ogrehead.mesh");
         headNode->attachObject(ent);
 
@@ -566,13 +566,13 @@ protected:
         //~ mCamera->setAutoTracking(true, headNode);
 
 		// Create the camera node, set its position & attach camera
-        SceneNode* camNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        SceneNode* camNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		camNode->translate(0, 500, PLANE_SIZE);
 		camNode->yaw(-45);
         camNode->attachObject(mCamera);
 		
 		// Create light node
-        SceneNode* lightNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        SceneNode* lightNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		lightNode->attachLight(l);
 
         // set up spline animation of light node
@@ -608,7 +608,7 @@ protected:
         particleSystem = ParticleSystemManager::getSingleton().createSystem("rain", 
             "Examples/Water/Rain");
 		particleEmitter = particleSystem->getEmitter(0);
-        SceneNode* rNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        SceneNode* rNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
         rNode->translate(PLANE_SIZE/2.0f, 3000, PLANE_SIZE/2.0f);
         rNode->attachObject(particleSystem);
         // Fast-forward the rain so it looks more natural

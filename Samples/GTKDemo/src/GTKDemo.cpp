@@ -118,7 +118,7 @@ protected:
         l->setPosition(0, 100, 500);
 
 		Entity* head = mSceneMgr->createEntity("head", "ogrehead.mesh");
-        headNode = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
+        headNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 		headNode->attachObject(head);
 
         mCamera->setAutoTracking(true, headNode);
