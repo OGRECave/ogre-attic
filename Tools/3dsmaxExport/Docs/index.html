@@ -33,7 +33,8 @@ an eror message, but don't care: it works well when an OGRE application uses it.
 <UL>
   <LI> exports meshes.</LI>
   <LI> exports bones, vertex assignements and bones animation, using the skin modifier.</LI>
-  <LI> exports multi-sub object materials.</LI>
+  <LI> deals with Physique modifier and Biped.</LI>
+  <LI> exports multi-sub object and Standard materials.</LI>
 </UL>
 
 <H3>How to use the script</H3>
@@ -46,8 +47,6 @@ an eror message, but don't care: it works well when an OGRE application uses it.
              are just RGBA (25500255 = 255 0 0 255)</LI>
       <LI> You are able to export meshes which are made up of several submeshes. Behaviour is unknown if different submeshes
            are linked to a skeleton (it has not been tested but should works). </LI>
-      <LI> <B> About material names: </B> because there could be several submeshes and one Multi/Sub-Object assigned, 
-           each submeshes will be assigned the materialName_Subi material, where i is the submesh number.</LI>
     </UL>
 
   <LI> <U>Exporting skeletons:</U>
@@ -56,6 +55,9 @@ an eror message, but don't care: it works well when an OGRE application uses it.
       <LI> <B>CAUTION:</B> Always create new bones as children of another AND don't unlink and re-link a bone. For example, if you have 
            created a leg, copy all the bones and then use position controller in a track view to move it and so get the other leg.
       <LI> <B>AND</B> : Don't use mirror when you create your bones because results are strange. </LI>
+      <LI> <B>Biped</B> If you move or rotate the biped rootObject during your animation, add keys to the pelvis too at
+            the same frames</LI>
+      
     </UL>
   </LI>
   <LI> <U>Exporting materials:</U>
