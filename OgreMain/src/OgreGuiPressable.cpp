@@ -1,0 +1,101 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://ogre.sourceforge.net/
+
+Copyright © 2000-2002 The OGRE Team
+Also see acknowledgements in Readme.html
+
+This program is free software you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+-----------------------------------------------------------------------------
+*/
+
+#include "OgreGuiPressable.h"	
+#include "OgreActionEvent.h"
+#include "OgreGuiElement.h"
+#include "OgreMouseEvent.h"
+
+namespace Ogre {
+
+    //-----------------------------------------------------------------------
+	GuiPressable::GuiPressable(String name)
+	{
+		mPressed = false;
+		mActionCommand = name;
+	}
+	void GuiPressable::setSource(GuiElement* source)
+	{
+		mSource = source;
+		mSource->addMouseListener(this);
+
+
+	}
+
+    //-----------------------------------------------------------------------
+	String GuiPressable::getActionCommand()
+	{ 
+		return mActionCommand;
+	}
+
+    //-----------------------------------------------------------------------
+	void GuiPressable::setActionCommand(const String& action)
+	{ 
+		mActionCommand = action;
+	}
+
+    //-----------------------------------------------------------------------
+	bool GuiPressable::isPressed()
+	{ 
+		return mPressed;
+	}
+
+    //-----------------------------------------------------------------------
+	void GuiPressable::setPressed(bool b) 
+	{
+		mPressed = b;
+	}
+
+    //-----------------------------------------------------------------------
+	void GuiPressable::fireActionPerformed()
+	{
+		ActionEvent* ae = new ActionEvent(mSource, ActionEvent::AE_ACTION_PERFORMED, 0, 0, getActionCommand());
+		mSource->processEvent(ae);
+		delete ae;
+	}
+
+
+	void GuiPressable::mouseClicked(MouseEvent* e) 
+	{
+		fireActionPerformed();
+	}
+	void GuiPressable::mouseEntered(MouseEvent* e) 
+	{
+	}
+	void GuiPressable::mouseExited(MouseEvent* e) 
+	{
+	}
+	void GuiPressable::mousePressed(MouseEvent* e) 
+	{
+		setPressed(true);
+	}
+	void GuiPressable::mouseReleased(MouseEvent* e) 
+	{
+		setPressed(false);
+	}
+
+
+}
+

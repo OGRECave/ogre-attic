@@ -249,7 +249,7 @@ namespace Ogre {
                 "Win32Input8 - initialise");
 
         // Set data format
-        hr = mlpDIMouse->SetDataFormat(&c_dfDIMouse);
+        hr = mlpDIMouse->SetDataFormat(&c_dfDIMouse2);
         if (FAILED(hr))
             throw Exception(hr, "Unable to set DirectInput mouse device data format.",
                 "Win32Input8 - initialise");
@@ -299,6 +299,8 @@ namespace Ogre {
     {
         HRESULT hr;
 
+		mUseKeyboard = useKeyboard;
+		mUseMouse = useMouse;
         LogManager::getSingleton().logMessage("Win32Input8: DirectInput Activation Starts");
 
         // Get HINST
@@ -320,51 +322,113 @@ namespace Ogre {
             throw Exception(hr, "Unable to initialise DirectInput.",
                 "Win32Input8 - initialise");
 
-
-		// If a queue exists, then use buffered mode, not immediate
-
-		if (mUseBuffered)
+		if (useKeyboard)
 		{
-			if (useKeyboard)
+			if (mUseBufferedKeys)
 			{
 				initialiseBufferedKeyboard();
 			}
-			if (useMouse)
-			{
-				initialiseBufferedMouse();
-			}
-		}
-		else
-		{
-			if (useKeyboard)
+			else
 			{
 				initialiseImmediateKeyboard();
 			}
-			if (useMouse)
+		}
+
+		if (useMouse)
+		{
+			if (mUseBufferedMouse)
+			{
+				initialiseBufferedMouse();
+			}
+			else
 			{
 				initialiseImmediateMouse();
 			}
-
 		}
-
  
 
         LogManager::getSingleton().logMessage("Win32Input8: DirectInput OK.");
 
     }
 
+/*	  void Win32Input8::setBufferedInput(bool keys, bool mouse) 
+    {
+		  flushAllBuffers();
+		  InputReader::setBufferedInput(keys, mouse);
+	}
+*/
+	void Win32Input8::flushAllBuffers() 
+	{
+
+		DWORD dwItems = INFINITE; 
+		HRESULT hr = mlpDIKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
+										 NULL, &dwItems, 0 );
+		hr = mlpDIMouse->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
+										 NULL, &dwItems, 0 );
+	}
+
+    //-----------------------------------------------------------------------
+  
+	// this function is not needed at the moment because we are making everything buffered
+	  void Win32Input8::setBufferedInput(bool keys, bool mouse) 
+    {
+		if (mUseKeyboard && mUseBufferedKeys != keys)
+		{
+			if (mlpDIKeyboard)
+			{
+			    mlpDIKeyboard->Unacquire();
+			    mlpDIKeyboard->Release();
+				mlpDIKeyboard = 0;
+			}
+			if (keys)
+			{
+				initialiseBufferedKeyboard();
+			}
+			else
+			{
+				initialiseImmediateKeyboard();
+			}
+
+		}
+		if (mUseMouse && mUseBufferedMouse != mouse)
+		{
+			if (mlpDIMouse)
+			{
+			    mlpDIMouse->Unacquire();
+			    mlpDIMouse->Release();
+				mlpDIMouse= 0;
+			}
+			if (mouse)
+			{
+				initialiseBufferedMouse();
+			}
+			else
+			{
+				initialiseImmediateMouse();
+			}
+
+		}
+		InputReader::setBufferedInput(keys,mouse);
+    }
+
     //-----------------------------------------------------------------------
     void Win32Input8::capture(void)
     {
-		if (mUseBuffered)
+		mModifiers = getKeyModifiers();
+		if (mUseBufferedKeys )
 		{
-			mModifiers = getKeyModifiers();
 			readBufferedKeyboardData();
-			readBufferedMouseData();
 		}
 		else
 		{
 			captureKeyboard();
+		}
+		if (mUseBufferedMouse )
+		{
+			readBufferedMouseData();
+		}
+		else
+		{
 			captureMouse();
 		}
 

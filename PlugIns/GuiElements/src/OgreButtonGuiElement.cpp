@@ -43,9 +43,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	ButtonGuiElement::ButtonGuiElement(const String& name) :
 		PanelGuiElement(name),
-		GuiControl(name)
+		GuiPressable(name)
 	{
 		mButtonDown = false;
+		mChildrenProcessEvents = false;
 
 		mDownMaterialName = "";
 		mUpMaterialName = "";
@@ -62,12 +63,13 @@ namespace Ogre {
         {
             addBaseParameters();
         }
+		setSource(this);
 	}
 
     //-----------------------------------------------------------------------
 	void ButtonGuiElement::processEvent(InputEvent* e) 
 	{
-		GuiControl::processEvent(e);
+		PanelGuiElement::processEvent(e);
 
 		updateMaterials();
 	}
@@ -195,38 +197,6 @@ namespace Ogre {
             "The text in the middle of the button."
             , PT_STRING),
             &ButtonGuiElement::msCmdButtonCaption);
-	}
-
-    //-----------------------------------------------------------------------
-	GuiElement* ButtonGuiElement::findElementAt(Real x, Real y) 		// relative to parent
-		// don't look in children (ie text)
-	{
-
-		GuiElement* ret = NULL;
-
-		if (mVisible)
-		{
-			ret = GuiElement::findElementAt(x,y);	//default to the current container if no others are found
-		}
-		return ret;
-	}
-
-	void ButtonGuiElement::setPressed(bool b)
-	{
-		GuiControl::setPressed(b);
-		updateMaterials();
-	}
-
-	void ButtonGuiElement::setEnabled(bool b)
-	{
-		GuiControl::setEnabled(b);
-		updateMaterials();
-	}
-
-	void ButtonGuiElement::setMouseWithin(bool b)
-	{
-		GuiControl::setMouseWithin(b);
-		updateMaterials();
 	}
 
     //-----------------------------------------------------------------------

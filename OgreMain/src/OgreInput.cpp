@@ -37,7 +37,8 @@ namespace Ogre {
     {
 		mCursor = 0;
 		mEventQueue = 0;
-		mUseBuffered = false;
+		mUseBufferedKeys = false;
+		mUseBufferedMouse = false;
 		if (!sKeysInitialised)
 		{
 			setupKeyChars();
@@ -46,7 +47,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void InputReader::useBufferedInput(EventQueue* pEventQueue) 
+    void InputReader::useBufferedInput(EventQueue* pEventQueue, bool keys, bool mouse) 
     {
 		mEventQueue = pEventQueue;
 
@@ -54,8 +55,21 @@ namespace Ogre {
 			delete mCursor;
 
 		mCursor = new Cursor();
-		mUseBuffered = true;
+
+		// initial states of buffered don't call setBufferedInput 
+		// because that can be overriden (in the future) to save releasing and acquiring unchanged inputs
+		// if we ever decide to release and acquire devices
+		mUseBufferedKeys = keys;
+		mUseBufferedMouse = mouse;
     }
+
+    //-----------------------------------------------------------------------
+    void InputReader::setBufferedInput(bool keys, bool mouse) 
+    {
+		mUseBufferedKeys = keys;
+		mUseBufferedMouse = mouse;
+    }
+
 
     //-----------------------------------------------------------------------
     InputReader::~InputReader()

@@ -68,6 +68,7 @@ namespace Ogre {
         mHorzAlign = GHA_LEFT;
         mVertAlign = GVA_TOP;
         mGeomPositionsOutOfDate = true;       
+		mEnabled = true;
     }
     //---------------------------------------------------------------------
     GuiElement::~GuiElement()
@@ -499,8 +500,15 @@ namespace Ogre {
 	void GuiElement::processEvent(InputEvent* e) 
 	{
 
+		if (!mEnabled || e->isConsumed())
+		{
+			return;
+		}
 		switch(e->getID()) 
 		{
+		case ActionEvent::AE_ACTION_PERFORMED:
+			processActionEvent(static_cast<ActionEvent*>(e));
+			break;
 		case MouseEvent::ME_MOUSE_PRESSED:
 		case MouseEvent::ME_MOUSE_RELEASED:
 		case MouseEvent::ME_MOUSE_CLICKED:
@@ -531,6 +539,19 @@ namespace Ogre {
 		templateGui->copyParametersTo(this);
 		return;
 	}
+
+    //-----------------------------------------------------------------------
+	bool GuiElement::isEnabled()
+	{ 
+		return mEnabled;
+	}
+
+    //-----------------------------------------------------------------------
+	void GuiElement::setEnabled(bool b) 
+	{
+		mEnabled = b;
+	}
+
 
 }
 

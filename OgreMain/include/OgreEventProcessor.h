@@ -191,6 +191,9 @@ namespace Ogre {
 		bool isKeyEnabled() 
 		{ return true; }
 
+		inline InputReader* getInputReader()
+		{ return mInputDevice; }
+
     };
 
 

@@ -42,12 +42,13 @@ namespace Ogre {
 
 	PopupMenuGuiElement::PopupMenuGuiElement(const String& name) :
 		PanelGuiElement(name),
-		GuiControl(name)
+		GuiPressable(name)
 	{
         if (createParamDictionary("PopupMenuGuiElement"))
         {
             addBaseParameters();
         }
+		mChildrenProcessEvents = false;
 
 		mSelectedElement = 0;
 		mVSpacing = 0;
@@ -59,6 +60,7 @@ namespace Ogre {
 
 		mSelectedMenuItem = new StringResource("");
 		mSeparatormenuItem = new StringResource("-----------------------");
+		setSource(this);
 	}
 
     //---------------------------------------------------------------------
@@ -293,19 +295,6 @@ namespace Ogre {
 	}
 
 
-    //-----------------------------------------------------------------------
-	// don't look in children (ie text)
-	GuiElement* PopupMenuGuiElement::findElementAt(Real x, Real y)
-	{
-		GuiElement* ret = NULL;
-
-		if (mVisible)
-		{
-			ret = GuiElement::findElementAt(x,y);	//default to the current container if no others are found
-		}
-		return ret;
-	}
-
 	void PopupMenuGuiElement::mouseMoved(InputEvent* e) 
 	{
 		MouseEvent* me = static_cast<MouseEvent*>(e);
@@ -392,42 +381,6 @@ namespace Ogre {
 		}
 	}
 
-    //-----------------------------------------------------------------------
-	void PopupMenuGuiElement::processEvent(InputEvent* e) 
-	{
-		GuiControl::processEvent(e);
-
-		if (!isEnabled() || e->isConsumed())
-			return;
-
-		switch(e->getID()) 
-		{
-		case MouseEvent::ME_MOUSE_PRESSED:
-			mousePressed();
-			
-		case MouseEvent::ME_MOUSE_MOVED:
-			mouseMoved(e);
-			break;
-
-		case MouseEvent::ME_MOUSE_RELEASED:
-			mouseReleased();
-			break;
-
-		case MouseEvent::ME_MOUSE_ENTERED:
-			break;
-
-		case MouseEvent::ME_MOUSE_EXITED:
-			mouseExited();
-			break;
-
-		case MouseEvent::ME_MOUSE_CLICKED:
-			break;
-
-		default:
-			break;
-		}
-	}
-
 	Resource* PopupMenuGuiElement::getSelectedItem()
 	{
 		Resource* selectedResource = NULL;
@@ -456,6 +409,28 @@ namespace Ogre {
 				item->getParent()->setMaterialName(mItemPanelMaterial);
 			}
 		}
+	}
+	ResourceListConstIterator PopupMenuGuiElement::getConstIterator()
+	{
+        return ResourceListConstIterator(mResourceList.begin());
+	}
+
+	ResourceListConstIterator PopupMenuGuiElement::getConstEndIterator()
+	{
+        return ResourceListConstIterator(mResourceList.end());
+	}
+
+	Resource* PopupMenuGuiElement::popFront()
+	{
+		Resource* r = mResourceList.front();
+		mResourceList.pop_front();
+
+        return r;
+	}
+	
+	int PopupMenuGuiElement::getListSize() 
+	{
+		return mResourceList.size();
 	}
 
 }

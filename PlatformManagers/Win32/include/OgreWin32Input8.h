@@ -71,6 +71,8 @@ namespace Ogre {
 
 	    virtual bool getMouseButton( uchar button ) const;
 
+		void setBufferedInput(bool keys, bool mouse) ;
+		void flushAllBuffers() ;
     private:
         // Input device details
         IDirectInput8* mlpDI;
@@ -101,6 +103,7 @@ namespace Ogre {
         /* For mouse immediate mode. Note that the space origin in DX is (0,0,0), here we
            only hold the 'last' center for relative input. */
         long mMouseCenterX, mMouseCenterY, mMouseCenterZ;
+		bool mUseKeyboard, mUseMouse;
 
 		/* For mouse buffered mode. */
 		Real mScale;

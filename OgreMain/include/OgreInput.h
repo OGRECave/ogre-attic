@@ -225,8 +225,11 @@ namespace Ogre {
             current state of the mouse / keyboard on demand. An alternative is to use 
             buffered input where all events are registered on a queue.
         */
-        void useBufferedInput( EventQueue* pEventQueue );
-        
+	    void useBufferedInput(EventQueue* pEventQueue, bool keys = true, bool mouse = true) ;
+
+	    virtual void setBufferedInput(bool keys, bool mouse) ;
+			
+
 		/** Initialise the input system.
             @note
                 Only keyboard and mouse currently implemented.
@@ -331,7 +334,7 @@ namespace Ogre {
 		/** Wether to use buffering input support - buffering support relies on using 
             an EventQueue. 
             @see class EventQueue */
-		bool mUseBuffered;
+		bool mUseBufferedKeys, mUseBufferedMouse;
 
         /** The mouse state in immediate mode. */
         MouseState mMouseState;

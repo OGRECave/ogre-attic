@@ -36,6 +36,16 @@ template element TextArea(SS/Templates/BasicText)
 	height 0.09
 }
 
+template container TextBox(SS/Templates/BasicTextBox) 
+{ 
+   left 0.02 
+   top 0.01 
+   width 0.3 
+   height 0.1 
+   text_area SS/Templates/BasicText test 
+   back_panel SS/Templates/BasicSmallBorderPanel 
+}
+
 template container BorderButton(SS/Templates/BasicButton) : SS/Templates/BasicBorderPanel
 {
 	left 0.82
@@ -74,6 +84,8 @@ template container ScrollBar(SS/Templates/ScrollBar)
 	down_button SS/Templates/ScrollBar/DownButton
 	scroll_bit SS/Templates/ScrollBar/ScrollBit
 }
+
+
 
 SS/Setup/HostScreen/Overlay
 {
@@ -132,7 +144,7 @@ SS/Setup/HostScreen/Overlay
 		}
 				
 
-		container TextBox(SS/Setup/HostScreen/Text) : SS/Templates/BasicText
+		container TextBox(SS/Setup/HostScreen/Text) : SS/Templates/BasicTextBox
 		{
 		}
 
