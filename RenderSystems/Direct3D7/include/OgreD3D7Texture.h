@@ -107,7 +107,7 @@ namespace Ogre {
 			delete mPrivateTex;
 		}
 
-		bool requiresTextureFlipping() const { return true; }
+		bool requiresTextureFlipping() const { return false; }
 
         virtual void getCustomAttribute( const String& name, void* pData )
         {

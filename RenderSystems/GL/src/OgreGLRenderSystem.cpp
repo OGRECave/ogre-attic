@@ -118,6 +118,8 @@ namespace Ogre {
             mTextureTypes[i] = 0;
         }
 
+        mActiveRenderTarget = NULL;
+
         glActiveTextureARB_ptr = 0;
         glClientActiveTextureARB_ptr = 0;
         glSecondaryColorPointerEXT_ptr = 0;
@@ -620,6 +622,11 @@ namespace Ogre {
     {
         GLfloat mat[16];
         makeGLMatrix(mat, m);
+        if (mActiveRenderTarget->requiresTextureFlipping())
+        {
+            // Invert y
+            mat[5] = -mat[5];
+        }
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(mat);
         glMatrixMode(GL_MODELVIEW);
@@ -890,7 +897,7 @@ namespace Ogre {
         if (vp != mActiveViewport || vp->_isUpdated())
         {
               mActiveViewport = vp;
-  
+              mActiveRenderTarget = vp->getTarget();
               // XXX Rendering target stuff?
               GLsizei x, y, w, h;
   
@@ -991,10 +998,24 @@ namespace Ogre {
             glDisable( GL_CULL_FACE );
             return;
         case CULL_CLOCKWISE:
-            cullMode = GL_CCW;
+            if (mActiveRenderTarget && mActiveRenderTarget->requiresTextureFlipping())
+            {
+                cullMode = GL_CW;
+            }
+            else
+            {
+                cullMode = GL_CCW;
+            }
             break;
         case CULL_ANTICLOCKWISE:
-            cullMode = GL_CW;
+            if (mActiveRenderTarget && mActiveRenderTarget->requiresTextureFlipping())
+            {
+                cullMode = GL_CCW;
+            }
+            else
+            {
+                cullMode = GL_CW;
+            }
             break;
         }
 
