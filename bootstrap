@@ -9,12 +9,12 @@
 ## Using prereq in autoconf rather than here, mostly for the debian systems at
 ## this point
 if test -z "`autoconf --version 2>&1|head -n 1|egrep '2.5'`"; then
-	echo "Autoconf 2.50+ is required. Aborting build...";
+	echo "Autoconf 2.50 or above is required. Aborting build...";
     exit 1;
 fi
 
-if test -z "`automake --version 2>&1|head -n 1|egrep '1.[4-7]'`"; then
-	echo "Automake 1.4 or above is required. Aborting build...";
+if test -z "`automake --version 2>&1|head -n 1|egrep '1.[6-7]'`"; then
+	echo "Automake 1.6 or above is required. Aborting build...";
 	exit 1;
 fi
 
