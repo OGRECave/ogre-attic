@@ -55,11 +55,6 @@ namespace Ogre {
         Quake3Shader(const String& name);
         ~Quake3Shader();
 
-        /** Generic load - called by Quake3ShaderManager. */
-        virtual void load(void);
-        /** Generic unload - called by Quake3ShaderManager. */
-        virtual void unload(void);
-
         /** Creates this shader as an OGRE material.
             Creates a new material based on this shaders settings. Registers it with the
             SceneManager passed in. Material name shader#lightmap.

@@ -54,16 +54,6 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    void Quake3Shader::load(void)
-    {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
-    void Quake3Shader::unload(void)
-    {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
     MaterialPtr Quake3Shader::createAsMaterial(SceneManager* sm, int lightmapNumber)
     {
 		String matName;

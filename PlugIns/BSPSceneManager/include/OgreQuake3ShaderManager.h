@@ -45,10 +45,10 @@ namespace Ogre {
         I choose not to set up Material instances for shaders found since they may or may not be used by a level,
         so it would be very wasteful to set up Materials since they load texture images for each layer (apart from the
         lightmap). Once the usage of a shader is confirmed, a full Material instance can be set up from it.</p>
-        Because this is a subclass of ResourceManager, any files mentioned will be searched for in any path or
-        archive added to the resource paths/archives. See ResourceManager for details.
+        Because this is a subclass of ScriptLoader, any files mentioned will be searched for in any path or
+        archive added to the ResourceGroupManager::WORLD_GROUP_NAME group. See ResourceGroupManager for details.
     */
-    class Quake3ShaderManager : public ResourceManager, public Singleton<Quake3ShaderManager>
+    class Quake3ShaderManager : public ScriptLoader, public Singleton<Quake3ShaderManager>
     {
     protected:
         void parseNewShaderPass(DataStreamPtr& stream, Quake3Shader* pShader);
@@ -56,17 +56,28 @@ namespace Ogre {
         void parseShaderPassAttrib( const String& line, Quake3Shader* pShader, Quake3Shader::Pass* pPass);
         SceneBlendFactor convertBlendFunc( const String& q3func);
 
+        typedef std::map<String, Quake3Shader*> Quake3ShaderMap;
+        Quake3ShaderMap mShaderMap;
+        StringVector mScriptPatterns;
+
+
     public:
         Quake3ShaderManager();
         virtual ~Quake3ShaderManager();
 
-        /** Parses a shader file passed as a stream. */
-        void parseShaderFile(DataStreamPtr& stream);
-        /** Parses all shader files in resource folders & archives. */
-        void parseAllSources(const String& extension = ".shader");
+        /** @copydoc ScriptLoader::getScriptPatterns */
+        const StringVector& getScriptPatterns(void) const;
 
-        /** Create implementation required by ResourceManager. */
-        virtual Resource* create( const String& name);
+        /** @copydoc ScriptLoader::parseScript */
+        void parseScript(DataStreamPtr& stream, const String& groupName) = 0;
+
+        /** @copydoc ScriptLoader::parseScript */
+        Real getLoadingOrder(void) const  = 0;
+
+        /** Create implementation. */
+        Quake3Shader* create(const String& name);
+        /** Clear all the current shaders */
+        void clear(void);
 
         /** Override standard Singleton retrieval.
         @remarks
