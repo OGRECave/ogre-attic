@@ -4,6 +4,8 @@ from __future__ import nested_scopes
 from vector import Vector
 import pgon
 
+import pprint
+
 def sum(seq):
 	return reduce(lambda a, b: a + b, seq)
 
@@ -128,6 +130,7 @@ class Mesh:
 	def __init__(self):
 		self.verts = []
 		self.faces = []
+		self.edges = []
 		self.hard_edges = []
 		self.face_materials = []
 
@@ -148,22 +151,62 @@ class Mesh:
 		return filter(lambda face: vertex in self.faces[face],
 				range(len(self.faces)))
 
-	def faces_same_smoothing(self, face1, face2, vertex):
-
-		# check if the edge is hard between the faces
-		return (face1, face2) not in self.hard_edges \
-				and (face2, face1) not in self.hard_edges
-
 	def face_material(self):
 		return None
 
 	def make_face_normals(self):
+		"Calculate face normals"
+
 		self.face_normals = []
 		for face in self.faces:
 			n = pgon.pgon_normal(map(lambda v: self.verts[v], face))
 			self.face_normals.append(n)
 
+	def face_vert_shareable(self, face1, face2, vertex):
+
+		# returns true if the vertex has the same gl data for the two vertices
+		glvert1 = self.make_gl_vert(face1, vertex)
+		glvert2 = self.make_gl_vert(face2, vertex)
+
+		return glvert1 == glvert2
+
+	def faces_same_smoothing_simple(self, face1, face2, vertex):
+
+		minf, maxf = min(face1, face2), max(face1, face2)
+
+		# check if the edge is hard between the faces
+		return (minf, maxf) not in self.hard_edges
+
+	def faces_same_smoothing_full(self, face1, face2, vertex):
+
+		myedges = []
+		for e in self.edges:
+			f1, f2, v1, v2 = e
+			if vertex in [v1, v2]:
+				myedges.append(e)
+
+		same_smooth = []
+		buf = [face1]
+		while len(buf) > 0:
+			face = buf.pop()
+			same_smooth.append(face)
+			for e in myedges:
+				f1, f2, v1, v2 = e
+				if face in [f1, f2] and vertex in [v1, v2]:
+					if face == f1:
+						otherface = f2
+					else:
+						otherface = f1
+					if otherface not in same_smooth:
+						if (f1, f2) not in self.hard_edges:
+							buf.append(otherface)
+		#print same_smooth
+
+		return face2 in same_smooth
+
 	def partition_verts(self, pred):
+		"Partition vertices using the given predicate"
+
 		result = []
 		for vertex in range(len(self.verts)):
 			buckets = []
@@ -190,10 +233,20 @@ class Mesh:
 		return result
 
 
-	def make_vert_normals(self):
+	def make_vert_normals(self, full_test):
+
+		print "smoothing..."
+		if full_test:
+			self.faces_same_smoothing = self.faces_same_smoothing_full
+		else:
+			self.faces_same_smoothing = self.faces_same_smoothing_simple
 
 		# find faces which are compatible with current
 		all_buckets = self.partition_verts(self.faces_same_smoothing)
+
+		#pp = pprint.PrettyPrinter(indent=4,width=78)
+		#pp.pprint(self.hard_edges)
+		#pp.pprint(all_buckets)
 
 		self.face_vert_normals = {}
 		for vertex in range(len(self.verts)):
@@ -209,14 +262,6 @@ class Mesh:
 					print bucket_normals
 					raise x
 	
-	def face_vert_shareable(self, face1, face2, vertex):
-
-		# returns true if the vertex has the same gl data for the two vertices
-		glvert1 = self.make_gl_vert(face1, vertex)
-		glvert2 = self.make_gl_vert(face2, vertex)
-
-		return glvert1 == glvert2
-
 	def make_gl_vert(self, face, vertex):
 
 		glvert = GLVertex()
@@ -345,6 +390,10 @@ class Mesh:
 			face, vert = fv
 			value = other.face_vert_colors[fv]
 			self.face_vert_colors[(face + nf, vert + nv)] = value
+
+		for e in other.edges:
+			f1, f2, v1, v2 = e
+			self.edges.append((f1 + nf, f2 + nf, v1 + nv, v2 + nv))
 
 	def scale(self, value):
 		for v in self.glverts:
