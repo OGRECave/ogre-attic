@@ -220,7 +220,7 @@ namespace Ogre {
         writeObject(key->getScale());
     }
     //---------------------------------------------------------------------
-    uint32 SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
+    size_t SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
         const Bone* pBone)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
@@ -237,7 +237,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    uint32 SkeletonSerializer::calcBoneParentSize(const Skeleton* pSkel)
+    size_t SkeletonSerializer::calcBoneParentSize(const Skeleton* pSkel)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -248,10 +248,9 @@ namespace Ogre {
         size += sizeof(unsigned short);
 
         return size;
-
     }
     //---------------------------------------------------------------------
-    uint32 SkeletonSerializer::calcAnimationSize(const Skeleton* pSkel, 
+    size_t SkeletonSerializer::calcAnimationSize(const Skeleton* pSkel, 
         const Animation* pAnim)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
@@ -270,7 +269,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    uint32 SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
+    size_t SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
         const AnimationTrack* pTrack)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
@@ -284,11 +283,10 @@ namespace Ogre {
             size += calcKeyFrameSize(pSkel, pTrack->getKeyFrame(i));
         }
 
-
         return size;
     }
     //---------------------------------------------------------------------
-    uint32 SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
+    size_t SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
         const KeyFrame* pKey)
     {
         size_t size = STREAM_OVERHEAD_SIZE;

@@ -87,11 +87,11 @@ namespace Ogre {
         void readAnimationTrack(DataStreamPtr& stream, Animation* anim, Skeleton* pSkel);
         void readKeyFrame(DataStreamPtr& stream, AnimationTrack* track, Skeleton* pSkel);
 
-        uint32 calcBoneSize(const Skeleton* pSkel, const Bone* pBone);
-        uint32 calcBoneParentSize(const Skeleton* pSkel);
-        uint32 calcAnimationSize(const Skeleton* pSkel, const Animation* pAnim);
-        uint32 calcAnimationTrackSize(const Skeleton* pSkel, const AnimationTrack* pTrack);
-        uint32 calcKeyFrameSize(const Skeleton* pSkel, const KeyFrame* pKey);
+        size_t calcBoneSize(const Skeleton* pSkel, const Bone* pBone);
+        size_t calcBoneParentSize(const Skeleton* pSkel);
+        size_t calcAnimationSize(const Skeleton* pSkel, const Animation* pAnim);
+        size_t calcAnimationTrackSize(const Skeleton* pSkel, const AnimationTrack* pTrack);
+        size_t calcKeyFrameSize(const Skeleton* pSkel, const KeyFrame* pKey);
 
 
 

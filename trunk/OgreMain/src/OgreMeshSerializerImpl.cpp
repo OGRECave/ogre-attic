@@ -136,7 +136,7 @@ namespace Ogre {
                 for (vi = pMesh->mBoneAssignments.begin(); 
                 vi != pMesh->mBoneAssignments.end(); ++vi)
                 {
-                    writeMeshBoneAssignment(&(vi->second));
+                    writeMeshBoneAssignment(vi->second);
                 }
 
                 LogManager::getSingleton().logMessage("Shared geometry bone assignments exported.");
@@ -246,7 +246,7 @@ namespace Ogre {
             for (vi = s->mBoneAssignments.begin(); 
             vi != s->mBoneAssignments.end(); ++vi)
             {
-                writeSubMeshBoneAssignment(&(vi->second));
+                writeSubMeshBoneAssignment(vi->second);
             }
 
             LogManager::getSingleton().logMessage("Dedicated geometry bone assignments exported.");
@@ -357,7 +357,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-	uint32 MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh* pMesh)
+	size_t MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh* pMesh)
 	{
 		size_t size = STREAM_OVERHEAD_SIZE;
 		// Figure out the size of the Name table.
@@ -374,10 +374,10 @@ namespace Ogre {
 		}        		
 
 		// size of the sub-mesh name table.
-		return static_cast<uint32>(size);
+		return size;
 	}
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
+    size_t MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -411,15 +411,15 @@ namespace Ogre {
 			size += calcEdgeListSize(pMesh);
 		}
 		
-		return static_cast<uint32>(size);
+		return size;
     }
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcSubMeshSize(const SubMesh* pSub)
+    size_t MeshSerializerImpl::calcSubMeshSize(const SubMesh* pSub)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
         // Material name
-        size += static_cast<uint32>(pSub->getMaterialName().length()) + 1;
+        size += pSub->getMaterialName().length() + 1;
 
         // bool useSharedVertices
         size += sizeof(bool);
@@ -436,15 +436,15 @@ namespace Ogre {
             size += calcGeometrySize(pSub->vertexData);
         }
 
-        return static_cast<uint32>(size);
+        return size;
     }
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
+    size_t MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
     {
         return STREAM_OVERHEAD_SIZE + sizeof(uint16);
     }
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
+    size_t MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -462,7 +462,7 @@ namespace Ogre {
             // Vertex element
             size += VertexElement::getTypeSize(elem.getType()) * vertexData->vertexCount;
         }
-        return static_cast<uint32>(size);
+        return size;
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readGeometry(DataStreamPtr& stream, Mesh* pMesh, 
@@ -876,38 +876,38 @@ namespace Ogre {
         // Material definition section phased out of 1.1
     }
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcSkeletonLinkSize(const String& skelName)
+    size_t MeshSerializerImpl::calcSkeletonLinkSize(const String& skelName)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
-        size += static_cast<uint32>(skelName.length()) + 1;
+        size += skelName.length() + 1;
 
         return size;
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeMeshBoneAssignment(const VertexBoneAssignment* assign)
+    void MeshSerializerImpl::writeMeshBoneAssignment(const VertexBoneAssignment& assign)
     {
         writeChunkHeader(M_MESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
 
         // unsigned int vertexIndex;
-        writeInts(&(assign->vertexIndex), 1);
+        writeInts(&(assign.vertexIndex), 1);
         // unsigned short boneIndex;
-        writeShorts(&(assign->boneIndex), 1);
+        writeShorts(&(assign.boneIndex), 1);
         // Real weight;
-        writeReals(&(assign->weight), 1);
+        writeReals(&(assign.weight), 1);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeSubMeshBoneAssignment(const VertexBoneAssignment* assign)
+    void MeshSerializerImpl::writeSubMeshBoneAssignment(const VertexBoneAssignment& assign)
     {
         writeChunkHeader(M_SUBMESH_BONE_ASSIGNMENT, calcBoneAssignmentSize());
 
         // unsigned int vertexIndex;
-        writeInts(&(assign->vertexIndex), 1);
+        writeInts(&(assign.vertexIndex), 1);
         // unsigned short boneIndex;
-        writeShorts(&(assign->boneIndex), 1);
+        writeShorts(&(assign.boneIndex), 1);
         // Real weight;
-        writeReals(&(assign->weight), 1);
+        writeReals(&(assign.weight), 1);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::readMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh)
@@ -941,7 +941,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcBoneAssignmentSize(void)
+    size_t MeshSerializerImpl::calcBoneAssignmentSize(void)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -1345,7 +1345,7 @@ namespace Ogre {
 		}
 	}
     //---------------------------------------------------------------------
-	uint32 MeshSerializerImpl::calcEdgeListSize(const Mesh* pMesh)
+	size_t MeshSerializerImpl::calcEdgeListSize(const Mesh* pMesh)
 	{
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -1362,7 +1362,7 @@ namespace Ogre {
         return size;
 	}
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcEdgeListLodSize(const EdgeData* edgeData, bool isManual)
+    size_t MeshSerializerImpl::calcEdgeListLodSize(const EdgeData* edgeData, bool isManual)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -1401,7 +1401,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    uint32 MeshSerializerImpl::calcEdgeGroupSize(const EdgeData::EdgeGroup& group)
+    size_t MeshSerializerImpl::calcEdgeGroupSize(const EdgeData::EdgeGroup& group)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
