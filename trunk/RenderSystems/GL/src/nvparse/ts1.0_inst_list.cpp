@@ -9,7 +9,9 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 #else
+#define GL_GLEXT_LEGACY
 #include <GL/gl.h>
+#define GL_GLEXT_PROTOTYPES
 #include <GL/glext.h>
 #endif
 
