@@ -51,8 +51,9 @@ namespace Ogre {
 			}
             uint height;
             uint width;
+			uint depth;
             uint size;
-            uint depth;
+            
             ushort num_mipmaps;
             uint flags;
 
