@@ -356,7 +356,7 @@ namespace Ogre {
             uint maxProfiles;
 
             /// The overlay which contains our profiler results display
-            Overlay* mOverlay;
+            OverlayPtr mOverlay;
 
             /// The window that displays the profiler results
             GuiContainer* mProfileGui;

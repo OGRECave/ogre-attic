@@ -87,7 +87,7 @@ protected:
 
 
         // A bit of a hacky test
-        Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("SS/Setup/HostScreen/Overlay");
+        OverlayPtr o = OverlayManager::getSingleton().getByName("SS/Setup/HostScreen/Overlay");
 		ActionTarget* at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getOverlayElement("SS/Setup/HostScreen/Join"));
 		at->addActionListener(this);
 		at = static_cast<BorderButtonGuiElement*>(GuiManager::getSingleton().getOverlayElement("SS/Setup/HostScreen/Exit"));

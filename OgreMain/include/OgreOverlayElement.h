@@ -138,7 +138,7 @@ namespace Ogre {
 
         // Parent pointer
         GuiContainer* mParent;
-        // Overlay attached to
+        // Overlay attached to (raw pointer so as not to preserve)
         Overlay* mOverlay;
 
         // Derived positions from parent

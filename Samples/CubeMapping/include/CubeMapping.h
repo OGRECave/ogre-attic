@@ -709,7 +709,7 @@ protected:
         objectNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 
 		// show overlay
-		Overlay *overlay = (Overlay*)OverlayManager::getSingleton().getByName("Example/CubeMappingOverlay");    
+		OverlayPtr overlay = OverlayManager::getSingleton().getByName("Example/CubeMappingOverlay");    
 		overlay->show();
 	}
 

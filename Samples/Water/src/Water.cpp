@@ -32,7 +32,7 @@ AnimationState* mAnimState;
 
 /* Some global variables */
 SceneNode *headNode ;
-Overlay *waterOverlay ;
+OverlayPtr waterOverlay ;
 ParticleSystem *particleSystem ;
 ParticleEmitter *particleEmitter ;
 SceneManager *sceneMgr ;
@@ -604,7 +604,7 @@ protected:
         //mSceneMgr->setFog(FOG_EXP, ColourValue::White, 0.0002);
 
 		// show overlay
-		waterOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Example/WaterOverlay");    
+		waterOverlay = OverlayManager::getSingleton().getByName("Example/WaterOverlay");    
 		waterOverlay->show();
 		
         // Let there be rain

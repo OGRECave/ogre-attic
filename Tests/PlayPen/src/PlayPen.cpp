@@ -55,7 +55,7 @@ Entity* mEntity;
 Real animTime = 0;
 Animation* mAnim = 0;
 AnimationState* mAnimState = 0;
-Overlay* mpOverlay;
+OverlayPtr mpOverlay;
 Entity* pPlaneEnt;
 Camera* testCam = 0;
 SceneNode* camPlaneNode[6];
@@ -1877,7 +1877,7 @@ protected:
         debugPanel->_setPosition(0.8, 0);
         debugPanel->_setDimensions(0.2, 0.3);
         debugPanel->setMaterialName("Ogre/DebugShadowMap");
-        Overlay* debugOverlay = (Overlay*)OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+        OverlayPtr debugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
         debugOverlay->add2D(debugPanel);
 
 
@@ -1892,11 +1892,11 @@ protected:
 
     void testOverlayZOrder(void)
     {
-        Overlay* o = (Overlay*)(OverlayManager::getSingleton().getByName("Test/Overlay3"));
+        OverlayPtr o = OverlayManager::getSingleton().getByName("Test/Overlay3");
         o->show();
-        o = (Overlay*)(OverlayManager::getSingleton().getByName("Test/Overlay2"));
+        o = OverlayManager::getSingleton().getByName("Test/Overlay2");
         o->show();
-        o = (Overlay*)(OverlayManager::getSingleton().getByName("Test/Overlay1"));
+        o = OverlayManager::getSingleton().getByName("Test/Overlay1");
         o->show();
     }
 

@@ -279,7 +279,7 @@ protected:
 		mCamera->moveRelative(Vector3(50, 0, 20));
 		mCamera->lookAt(0, 0, 0);
 		// show overlay
-		Overlay *pOver = (Overlay *)OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
+		OverlayPtr pOver = OverlayManager::getSingleton().getByName("Example/DP3Overlay");    
         mObjectInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/ObjectInfo");
         mMaterialInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/MaterialInfo");
         mInfo = GuiManager::getSingleton().getOverlayElement("Example/DP3/Info");
