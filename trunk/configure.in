@@ -80,6 +80,9 @@ OGRE_DETECT_ENDIAN
 dnl Check to see if -fPIC is required.
 OGRE_CHECK_PIC
 
+dnl Check to see if CEGUI is installed.
+OGRE_CHECK_CEGUI
+
 CFLAGS="$CFLAGS $SDL_CFLAGS"
 CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
@@ -194,9 +197,6 @@ AC_CONFIG_FILES([Makefile \
     Samples/Terrain/Makefile \
     Samples/Terrain/src/Makefile \
     Samples/Terrain/include/Makefile \
-    Samples/Gui/Makefile \
-    Samples/Gui/src/Makefile \
-    Samples/Gui/include/Makefile \
     Samples/Water/Makefile \
     Samples/Water/src/Makefile \
     Samples/Water/include/Makefile \

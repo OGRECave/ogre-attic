@@ -3,3 +3,8 @@ ParticleFX TextureFX SkyDome BSP Common SkyPlane SkyBox CameraTrack Terrain \
 RenderToTexture Water CubeMapping Dot3Bump Smoke CelShading Fresnel Shadows \
 DynTex VolumeTex
 
+if BUILD_CEGUI_SAMPLE
+SUBDIRS += Gui
+endif
+
+
