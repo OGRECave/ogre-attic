@@ -91,37 +91,50 @@ http://www.gnu.org/copyleft/gpl.html.
 #define QUOTE(x) _QUOTE_INPLACE_(x)
 #define warn( x )  message( __FILE__ "(" QUOTE( __LINE__ ) ") : " x "\n" )
 
-// ----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 // Windows Settings
-// ----------------------------------------------------------------------------
 #if OGRE_PLATFORM == PLATFORM_WIN32
-#   if OGRE_DYNAMIC_LINKAGE == 0
-#       define _OgreExport
-#   elif defined( OGREMAIN_EXPORTS )
-#       define _OgreExport __declspec(dllexport)
+
+// If we're not including this from a client build, specify that the stuff
+// should get exported. Otherwise, import it.
+#   if defined( OGRE_NONCLIENT_BUILD )
+#       define _OgreExport __declspec( dllexport )
 #   else
-#       define _OgreExport __declspec(dllimport)
+#       define _OgreExport __declspec( dllimport )
 #   endif
+
+// Win32 compilers use _DEBUG for specifying debug builds.
 #   ifdef _DEBUG
 #       define OGRE_DEBUG_MODE 1
 #   else
 #       define OGRE_DEBUG_MODE 0
-#   endif 
-#	define snprintf _snprintf
-#endif // OGRE_WIN32
+#   endif
 
-//-----------------------------------------------------------------------
+// A quick define to overcome different names for the same function
+#	define snprintf _snprintf
+
+#endif
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 // Linux Settings
-//-----------------------------------------------------------------------
 #if OGRE_PLATFORM == PLATFORM_LINUX
+
+// Linux compilers don't have symbol import/export directives.
 #   define _OgreExport
+
+// A quick define to overcome different names for the same function
 #   define stricmp strcasecmp
+
+// Unlike the Win32 compilers, Linux compilers seem to use DEBUG for when
+// specifying a debug build.
 #   ifdef DEBUG
 #       define OGRE_DEBUG_MODE 1
 #   else
 #       define OGRE_DEBUG_MODE 0
 #   endif
-#endif // OGRE_LINUX
 
+#endif
+//----------------------------------------------------------------------------
 
 #endif
