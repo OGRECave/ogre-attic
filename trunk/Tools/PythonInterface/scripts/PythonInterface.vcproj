@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "windows-1250"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.0"
 	Name="PythonInterface"
 	ProjectGUID="{C07D6B31-0328-43D2-AC8B-ACE45CDB713A}"
 	SccProjectName=""
@@ -43,12 +43,12 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib OgreMain.lib bppl_static.lib"
-				OutputFile="../bin/Release/OgrePython.dll"
+				AdditionalDependencies="OgreMain.lib boost_python.lib"
+				OutputFile="../bin/Release/Ogre.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\Dependencies\boost\libs\python\build\Release;..\..\..\OgreMain\lib\Release"
-				IgnoreDefaultLibraryNames="LIBC.LIB"
+				IgnoreDefaultLibraryNames=""
 				ProgramDatabaseFile=".\Release/OgrePython.pdb"
 				ImportLibrary=".\Release/OgrePython.lib"/>
 			<Tool
@@ -59,7 +59,8 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Release/PythonInterface.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -71,7 +72,13 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
@@ -105,8 +112,8 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="TRUE"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="odbc32.lib odbccp32.lib OgreMain.lib bpl_static.lib"
-				OutputFile="../bin/Debug/OgrePython.dll"
+				AdditionalDependencies="OgreMain.lib boost_python_debug.lib"
+				OutputFile="../bin/Debug/Ogre.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\..\Dependencies\boost\libs\python\build\Debug;..\..\..\OgreMain\lib\Debug"
@@ -122,7 +129,8 @@
 				TargetEnvironment="1"
 				TypeLibraryName=".\Debug/PythonInterface.tlb"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -134,21 +142,149 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath="..\src\AxisAlignedBox.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Camera.cpp">
+			</File>
+			<File
+				RelativePath="..\src\ColourValue.cpp">
+			</File>
+			<File
+				RelativePath="..\src\ConfigDialog.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Entity.cpp">
+			</File>
+			<File
+				RelativePath="..\src\ErrorDialog.cpp">
+			</File>
+			<File
+				RelativePath="..\src\EventQueue.cpp">
+			</File>
+			<File
+				RelativePath="..\src\EventTarget.cpp">
+			</File>
+			<File
+				RelativePath="..\src\FrameListener.cpp">
+			</File>
+			<File
+				RelativePath="..\src\general.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Input.cpp">
+			</File>
+			<File
+				RelativePath="..\src\InputEvent.cpp">
+			</File>
+			<File
+				RelativePath="..\src\KeyEvent.cpp">
+			</File>
+			<File
+				RelativePath="..\src\KeyListener.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Light.cpp">
+			</File>
+			<File
 				RelativePath="..\src\LinkerFudge.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePythonInit.cpp">
+				RelativePath="..\src\main.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePythonLink.cpp">
+				RelativePath="..\src\Material.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Matrix3.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Matrix4.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Mesh.cpp">
+			</File>
+			<File
+				RelativePath="..\src\MeshManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\MouseMotionListener.cpp">
+			</File>
+			<File
+				RelativePath="..\src\MovableObject.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Node.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Plane.cpp">
+			</File>
+			<File
+				RelativePath="..\src\PlatformManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\PositionTarget.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Quaternion.cpp">
+			</File>
+			<File
+				RelativePath="..\src\RenderSystem.cpp">
+			</File>
+			<File
+				RelativePath="..\src\RenderTarget.cpp">
+			</File>
+			<File
+				RelativePath="..\src\RenderWindow.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Resource.cpp">
+			</File>
+			<File
+				RelativePath="..\src\ResourceManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Root.cpp">
+			</File>
+			<File
+				RelativePath="..\src\SceneManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\SceneNode.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Sphere.cpp">
+			</File>
+			<File
+				RelativePath="..\src\SubMesh.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Texture.cpp">
+			</File>
+			<File
+				RelativePath="..\src\TextureManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Vector3.cpp">
+			</File>
+			<File
+				RelativePath="..\src\Viewport.cpp">
 			</File>
 		</Filter>
 		<Filter
