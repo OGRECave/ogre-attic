@@ -545,12 +545,18 @@ namespace Ogre {
             mTextureManager = new D3DTextureManager(mlpD3DDevice);
 
             // Check for hardware stencil support
+            // Get render target, then depth buffer and check format
             LPDIRECTDRAWSURFACE7 lpTarget;
-            mlpD3DDevice->GetRenderTarget(&lpTarget);
-            lpTarget->Release(); // decrement ref count
-            DDPIXELFORMAT pf;
-            lpTarget->GetPixelFormat(&pf);
-            DWORD stencil =  pf.dwStencilBitDepth;
+            win->getCustomAttribute("DDBACKBUFFER", &lpTarget);
+            DDSCAPS2 ddscaps;
+            ZeroMemory(&ddscaps, sizeof(DDSCAPS2));
+            ddscaps.dwCaps = DDSCAPS_ZBUFFER;
+            lpTarget->GetAttachedSurface(&ddscaps, &lpTarget);
+            lpTarget->Release();
+            DDSURFACEDESC2 ddsd;
+            ddsd.dwSize = sizeof(DDSURFACEDESC2);
+            lpTarget->GetSurfaceDesc(&ddsd);
+            DWORD stencil =  ddsd.ddpfPixelFormat.dwStencilBitDepth;
             if(stencil > 0)
             {
                 mCapabilities->setCapability(RSC_HWSTENCIL);
@@ -1315,7 +1321,7 @@ namespace Ogre {
         // Clear the viewport if required
         if (mActiveViewport->getClearEveryFrame())
         {
-            clearFrameBuffer(FBT_COLOUR | FBT_DEPTH, 
+            clearFrameBuffer(FBT_COLOUR | FBT_DEPTH | FBT_STENCIL, 
                 mActiveViewport->getBackgroundColour());
         }
 
@@ -2525,7 +2531,8 @@ namespace Ogre {
         {
             flags |= D3DCLEAR_ZBUFFER;
         }
-        if (buffers & FBT_STENCIL)
+        // Only try to clear the stencil if supported, otherwise it will fail
+        if (buffers & FBT_STENCIL && mCapabilities->hasCapability(RSC_HWSTENCIL))
         {
             flags |= D3DCLEAR_STENCIL;
         }

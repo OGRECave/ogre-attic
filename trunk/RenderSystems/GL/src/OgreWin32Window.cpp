@@ -180,7 +180,8 @@ namespace Ogre {
 			LML_NORMAL, "Created Win32Window '%s' : %ix%i, %ibpp",
 			mName.c_str(), mWidth, mHeight, mColourDepth );
 
-		PIXELFORMATDESCRIPTOR pfd = {
+		
+        PIXELFORMATDESCRIPTOR pfd = {
 			sizeof(PIXELFORMATDESCRIPTOR),
 			1,
 			PFD_DRAW_TO_WINDOW |
@@ -193,8 +194,8 @@ namespace Ogre {
 			0,
 			0,
 			0, 0, 0, 0,
-			32, 			     // 32-bit z-buffer
-			0,				     // no stencil buffer
+			32, 			     // 32-bit depth-buffer (will be emulated in 16-bit colour mode)
+			8,				     // 8-bit stencil buffer
 			0,
 			PFD_MAIN_PLANE,
 			0,
