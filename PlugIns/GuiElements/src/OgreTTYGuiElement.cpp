@@ -760,6 +760,7 @@ namespace Ogre {
 
             mCharHeight = (Real) mPixelCharHeight / vpHeight;
             mSpaceWidth = (Real) mPixelSpaceWidth / vpHeight;
+			mGeomPositionsOutOfDate = true;
             updateScrollBar();
             updateWindowGeometry();
         }
