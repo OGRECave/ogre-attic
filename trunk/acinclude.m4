@@ -206,6 +206,9 @@ AC_DEFUN([OGRE_GET_PLATFORM],
       ;;
     gtk)
       PKG_CHECK_MODULES(PLATFORM, gtkglextmm-1.0 libglademm-2.0);;
+    GLX)
+      PLATFORM_CFLAGS="-I/usr/X11R6/include"
+      PLATFORM_LIBS="-L/usr/X11R6/lib -lX11 -lXaw"
   esac
 
   AC_SUBST(PLATFORM_CFLAGS)
