@@ -113,6 +113,30 @@ namespace Ogre {
             value of 0.0 if conversion is not possible.
         */
         Real toReal(void);
+
+        /** Template operator for appending another type into the string. 
+        @remarks
+            Because this operator is templated, you can append any value into a string as
+            long as there is an operator<<(std::basic_iostream, type) or similar method defined somewhere.
+            All the primitive types have this already, and many of the Ogre types do too (see Vector3
+            for an example).
+        */
+        template<typename T> String& operator << (T value)
+        {
+            // Create stringstream based on *this contents
+            std::stringstream sstr;
+            sstr.str(*this);
+            // Seek to end
+            sstr.seekp(0, std::ios_base::end);
+            // Write
+            sstr << value;
+            // Assign back
+            *this = sstr.str();
+            return *this;
+        }
+
+
+
     };
 
 } // namespace Ogre
