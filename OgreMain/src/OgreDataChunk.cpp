@@ -29,7 +29,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     DataChunk::DataChunk()
-        : mData( NULL ), mSize( 0 )
+        : mData(NULL), mPos(NULL), mEnd(NULL), mSize(0)
     {
     }
 

@@ -57,7 +57,8 @@ GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
-      : mHardwareBufferManager(0)
+      : mDepthWrite(false), 
+        mHardwareBufferManager(0)
     {
         int i;
 
@@ -80,6 +81,11 @@ namespace Ogre {
         mStencilFunc = GL_ALWAYS;
         mStencilRef = 0;
         mStencilMask = 0xffffffff;
+
+        for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
+        {
+            mTextureCoordIndex[i] = 0;
+        }
 
         for (i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
         {

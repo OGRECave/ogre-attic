@@ -114,6 +114,10 @@ public:
         mStatsOn = true;
 		mNumScreenShots = 0;
 		mTimeUntilNextToggle = 0;
+        mSceneDetailIndex = 0;
+        mMoveScale = 0.0f;
+        mRotScale = 0.0f;
+	    mTranslateVector = Vector3::ZERO;
 
         showDebugOverlay(true);
     }
