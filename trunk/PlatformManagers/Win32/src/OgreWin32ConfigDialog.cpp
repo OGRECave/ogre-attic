@@ -236,6 +236,21 @@ namespace Ogre
                 err = dlg->mSelectedRenderSystem->validateConfigOptions();
                 if (err.length() > 0)
                 {
+                    // refresh options incase updated by validation
+                    // Get options from render system
+                    opts = dlg->mSelectedRenderSystem->getConfigOptions();
+                    // Reset list box
+                    hwndDlgItem = GetDlgItem(hDlg, IDC_LST_OPTIONS);
+                    SendMessage(hwndDlgItem, LB_RESETCONTENT, 0, 0);
+                    // Iterate through options
+                    ConfigOptionMap::iterator pOpt = opts.begin();
+                    String strLine;
+                    while (pOpt!=opts.end())
+                    {
+                        strLine = pOpt->second.name + ": " + pOpt->second.currentValue;
+                        SendMessage(hwndDlgItem, LB_ADDSTRING, 0, (LPARAM)strLine.c_str());
+                        ++pOpt;
+                    }
                     MessageBox(NULL, err.c_str(), "OGRE", MB_OK | MB_ICONEXCLAMATION);
                     return TRUE;
                 }

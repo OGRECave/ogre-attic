@@ -279,6 +279,26 @@ namespace Ogre {
 			}
 		}
 
+        it = mOptions.find( "Rendering Device" );
+        bool foundDriver = false;
+        D3D8DriverList* driverList = getDirect3DDrivers();
+		for( ushort j=0; j < driverList->count(); j++ )
+		{
+			if( driverList->item(j)->DriverDescription() == it->second.currentValue )
+			{
+				foundDriver = true;
+				break;
+			}
+		}
+        if (!foundDriver)
+        {
+            // Just pick the first driver
+            setConfigOption("Rendering Device", driverList->item(0)->DriverDescription());
+            return "Your DirectX driver name has changed since the last time you ran OGRE; "
+                "the 'Rendering Device' has been changed.";
+        }
+
+
 		return "";
 	}
 
