@@ -916,7 +916,11 @@ namespace Ogre {
 		if (enabled)
         {
             if (!tex.isNull())
+            {
+                // note used
+                tex->touch();
                 mTextureTypes[stage] = tex->getGLTextureTarget();
+            }
             else
                 // assume 2D
                 mTextureTypes[stage] = GL_TEXTURE_2D;
