@@ -98,7 +98,9 @@ namespace Ogre
         */
         inline Vector3& operator = ( const Vector3& rkVector )
         {
-            memcpy( &x, &rkVector.x, 3 * sizeof( Real ) );
+            x = rkVector.x;
+            y = rkVector.y;
+            z = rkVector.z;            
 
             return *this;
         }
