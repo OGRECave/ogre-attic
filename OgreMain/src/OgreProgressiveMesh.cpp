@@ -94,57 +94,63 @@ namespace Ogre {
         // Init
         mCurrNumIndexes = mpIndexData->indexCount;
         size_t numVerts, numCollapses;
-        numVerts = mpVertexData->vertexCount;
+        // Use COMMON vert count, not original vert count
+        // Since collapsing 1 common vert position is equivalent to collapsing them all
+        numVerts = mNumCommonVertices;
 		
-		PMVertex* test = &(mWorkingData[0].mVertList[347]);
-
 #if OGRE_DEBUG_MODE 
 		ofdebug.open("progressivemesh.log");
 #endif
 		numCollapses = 0;
 		bool abandon = false;
-		while (numLevels-- && !abandon)
+		while (numLevels--)
         {
-			if (quota == VRQ_PROPORTIONAL)
-			{
-				numCollapses = numVerts * reductionValue;
-			}
-			else 
-			{
-				numCollapses = reductionValue;
-			}
-            // Minimum 3 verts!
-            if ( (numVerts - numCollapses) < 3) 
-                numCollapses = numVerts - 3;
-			// Store new number of verts
-			numVerts = numVerts - numCollapses;
-
-			while(numCollapses-- && !abandon)
+            // NB idf 'abandon' is set, we stop reducing 
+            // However, we still bake the number of LODs requested, even if it 
+            // means they are the same
+            if (!abandon)
             {
-                size_t nextIndex = getNextCollapser();
-                // Collapse on every buffer
-                WorkingDataList::iterator idata, idataend;
-                idataend = mWorkingData.end();
-                for (idata = mWorkingData.begin(); idata != idataend; ++idata)
+			    if (quota == VRQ_PROPORTIONAL)
+			    {
+				    numCollapses = numVerts * reductionValue;
+			    }
+			    else 
+			    {
+				    numCollapses = reductionValue;
+			    }
+                // Minimum 3 verts!
+                if ( (numVerts - numCollapses) < 3) 
+                    numCollapses = numVerts - 3;
+			    // Store new number of verts
+			    numVerts = numVerts - numCollapses;
+
+			    while(numCollapses-- && !abandon)
                 {
-                    PMVertex* collapser = &( idata->mVertList.at( nextIndex ) );
-                    // This will reduce mCurrNumIndexes and recalc costs as required
-					if (collapser->collapseTo == NULL)
-					{
-						// Must have run out of valid collapsables
-						abandon = true;
-						break;
-					}
+                    size_t nextIndex = getNextCollapser();
+                    // Collapse on every buffer
+                    WorkingDataList::iterator idata, idataend;
+                    idataend = mWorkingData.end();
+                    for (idata = mWorkingData.begin(); idata != idataend; ++idata)
+                    {
+                        PMVertex* collapser = &( idata->mVertList.at( nextIndex ) );
+                        // This will reduce mCurrNumIndexes and recalc costs as required
+					    if (collapser->collapseTo == NULL)
+					    {
+						    // Must have run out of valid collapsables
+						    abandon = true;
+						    break;
+					    }
 #if OGRE_DEBUG_MODE 
-					ofdebug << "Collapsing index " << (unsigned int)collapser->index << "(border: "<< collapser->isBorder() <<
-						") to " << (unsigned int)collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
-						")" << std::endl;
+					    ofdebug << "Collapsing index " << (unsigned int)collapser->index << "(border: "<< collapser->isBorder() <<
+						    ") to " << (unsigned int)collapser->collapseTo->index << "(border: "<< collapser->collapseTo->isBorder() <<
+						    ")" << std::endl;
 #endif
-					assert(collapser->collapseTo->removed == false);
+					    assert(collapser->collapseTo->removed == false);
 
-                    collapse(collapser);
+                        collapse(collapser);
+                    }
+
                 }
-
             }
 #if OGRE_DEBUG_MODE
 			char logname[20];
@@ -379,6 +385,13 @@ namespace Ogre {
 			cost = 1.0f;
 		}
 
+        // Check for singular triangle destruction
+        // If src and dest both only have 1 triangle (and it must be a shared one)
+        // then this would destroy the shape, so don't do this
+        if (src->face.size() == 1 && dest->face.size() == 1)
+        {
+            cost = NEVER_COLLAPSE_COST;
+        }
 
 
 		/*
@@ -642,6 +655,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void ProgressiveMesh::bakeNewLOD(IndexData* pData)
     {
+        assert(mCurrNumIndexes > 0 && "No triangles to bake!");
         // Zip through the tri list of any working data copy and bake
         pData->indexCount = mCurrNumIndexes;
 		pData->indexStart = 0;
