@@ -50,10 +50,6 @@ protected:
         // Create a skybox
         mSceneMgr->setSkyBox(true, "Examples/SceneSkyBox");
 
-        // Set direction of camera
-        mCamera->setDirection(Vector3::UNIT_Z);
-        mCamera->setPosition(0,0,0);
-
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
         // Accept default settings: point light, white diffuse, just set position
@@ -62,7 +58,6 @@ protected:
         l->setPosition(20,80,50);
 
         SceneNode* s = static_cast<SceneNode*>(mSceneMgr->getRootSceneNode()->createChild());
-        s->setPosition(20,20,600);
 
         Entity* ent = mSceneMgr->createEntity( "sphere", "sphere.mesh" );
         ent->setMaterialName( "Examples/SceneCubeMap" );

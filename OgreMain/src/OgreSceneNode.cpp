@@ -36,13 +36,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator) 
-    : Node(), mCreator(creator), mWireBoundingBox(0), mShowBoundingBox(false)
+    : Node(), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
     {
         needUpdate();
     }
     //-----------------------------------------------------------------------
     SceneNode::SceneNode(SceneManager* creator, const String& name) 
-    : Node(name), mCreator(creator), mWireBoundingBox(0), mShowBoundingBox(false)
+    : Node(name), mWireBoundingBox(0), mShowBoundingBox(false), mCreator(creator)
     {
         needUpdate();
     }

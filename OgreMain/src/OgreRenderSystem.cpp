@@ -266,24 +266,25 @@ namespace Ogre {
 
         // Set texture coordinate set
         int coordSet = tl.getTextureCoordSet();
-        if (currIsBlank || curr.getTextureCoordSet() != coordSet)
-        {
+        //if (currIsBlank || curr.getTextureCoordSet() != coordSet)
+        //{
             _setTextureCoordSet(texUnit, coordSet);
-        }
+        //}
 
         // Set texture layer filtering
+        // Fix: GL requires filtering to be set in ALL cases
         TextureFilterOptions texLayerFilterOps = tl.getTextureLayerFiltering();
-        if (currIsBlank || curr.getTextureLayerFiltering() != texLayerFilterOps)
-        {
+        //if (currIsBlank || curr.getTextureLayerFiltering() != texLayerFilterOps)
+        //{
             _setTextureLayerFiltering(texUnit, texLayerFilterOps);
-        }
+        //}
 
         // Set texture layer filtering
 		int tMaxAniso = tl.getTextureAnisotropy();
-        if (currIsBlank || curr.getTextureAnisotropy() != tMaxAniso)
-        {
+        //if (currIsBlank || curr.getTextureAnisotropy() != tMaxAniso)
+        //{
             _setTextureLayerAnisotropy(texUnit, tMaxAniso);
-        }
+        //}
 
 		// Set blend modes
         LayerBlendModeEx newBlend = tl.getColourBlendMode();
@@ -298,6 +299,15 @@ namespace Ogre {
         }
 
         Material::TextureLayer::TextureAddressingMode addr = tl.getTextureAddressingMode();
+
+        // Change tetxure matrix if required
+        // NB concatenate with any existing texture matrix created for generate
+        const Matrix4& xform = tl.getTextureTransform();
+        //if( !(curr.getTextureTransform() == xform ))
+        //{
+            _setTextureMatrix(texUnit, xform);
+        //}
+
         // Fix: GL requires addressing mode to be set in ALL cases
         // If the extra state changes in D3D become problematic, refactor this
         //if (currIsBlank || curr.getTextureAddressingMode() != addr)
@@ -395,15 +405,6 @@ namespace Ogre {
         {
             _setTextureCoordCalculation(texUnit, TEXCALC_NONE);
             _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
-        }
-
-
-        // Change tetxure matrix if required
-        // NB concatenate with any existing texture matrix created for generate
-        const Matrix4& xform = tl.getTextureTransform();
-        if( !(curr.getTextureTransform() == xform ))
-        {
-            _setTextureMatrix(texUnit, xform);
         }
 
         // Set alpha rejection

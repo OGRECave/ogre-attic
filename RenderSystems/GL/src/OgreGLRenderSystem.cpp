@@ -428,7 +428,7 @@ namespace Ogre {
             }
         }
     }
-
+    //-----------------------------------------------------------------------------
     void GLRenderSystem::_setWorldMatrix( const Matrix4 &m )
     {
         GLfloat mat[16];
@@ -541,6 +541,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
     {
+        GLfloat M[16];
+        GLfloat T[16];
+        Ogre::Matrix3 U, UInverse;
+
         glActiveTextureARB( GL_TEXTURE0 + stage );
 
         switch( m )
@@ -584,9 +588,29 @@ namespace Ogre {
 #endif
             break;
         case TEXCALC_ENVIRONMENT_MAP_REFLECTION:
+            
+            glMatrixMode( GL_TEXTURE );
+            glGetFloatv( GL_TEXTURE_MATRIX, T );
+            glMatrixMode( GL_MODELVIEW );
+            glGetFloatv( GL_MODELVIEW_MATRIX, M );
+
+            U[0][0] = M[0]; U[1][0] = M[1]; U[2][0] = M[2];
+            U[0][1] = M[4]; U[1][1] = M[5]; U[2][1] = M[6];
+            U[0][2] = M[8]; U[1][2] = M[9]; U[2][2] = M[10];
+
+            U.Inverse(UInverse);
+
+            T[0] = UInverse[0][0]; T[1] = UInverse[1][0]; T[2] = UInverse[2][0];
+            T[4] = UInverse[0][1]; T[5] = UInverse[1][1]; T[6] = UInverse[2][1];
+            T[8] = UInverse[0][2]; T[9] = UInverse[1][2]; T[10] = UInverse[2][2];
+
             glTexGeni( GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
             glTexGeni( GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP );
+
+            glMatrixMode(GL_TEXTURE);
+            glLoadMatrixf( T );
+            glMatrixMode(GL_MODELVIEW);
 
             glEnable( GL_TEXTURE_GEN_S );
             glEnable( GL_TEXTURE_GEN_T );
@@ -867,25 +891,21 @@ namespace Ogre {
                 glClientActiveTextureARB(index + i);
 				if (glIsEnabled(GL_TEXTURE_2D))
 				{
-                    //int coordI = mTextureCoordIndex[i];
-                    //if(coordI >= op.numTextureCoordSets) coordI = 0;
-					int texCoordSet = (i < op.numTextureCoordSets) ? i : 0;
+					int texCoordIndex = 
+                        (mTextureCoordIndex[i] < op.numTextureCoordSets) ? 
+                        mTextureCoordIndex[i] : 0;
+
 					glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 					stride = 
-						//op.texCoordStride[coordI] ?  
-						//op.texCoordStride[coordI] + 
-						op.texCoordStride[mTextureCoordIndex[texCoordSet]] ?  
-						op.texCoordStride[mTextureCoordIndex[texCoordSet]] + 
+						op.texCoordStride[texCoordIndex] ?  
+						op.texCoordStride[texCoordIndex] + 
 						((unsigned short)sizeof(GL_FLOAT) * 
-						//op.numTextureDimensions[coordI])
-						op.numTextureDimensions[mTextureCoordIndex[texCoordSet]])
+						op.numTextureDimensions[texCoordIndex])
 						: 0;
 					glTexCoordPointer(
-						//op.numTextureDimensions[coordI],
-						op.numTextureDimensions[mTextureCoordIndex[texCoordSet]],
+						op.numTextureDimensions[texCoordIndex],
 						GL_FLOAT, stride, 
-						//op.pTexCoords[coordI] );
-						op.pTexCoords[mTextureCoordIndex[texCoordSet]] );
+						op.pTexCoords[texCoordIndex] );
 				}
             }
             else
