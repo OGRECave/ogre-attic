@@ -120,7 +120,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     int BillboardSet::getNumBillboards(void) const
     {
-        return mActiveBillboards.size();
+        return static_cast< int >( mActiveBillboards.size() );
     }
 
     //-----------------------------------------------------------------------
@@ -453,13 +453,13 @@ namespace Ogre {
     void BillboardSet::setPoolSize( unsigned int size )
     {
         // Never shrink below size()
-        unsigned int currSize = mBillboardPool.size();
+        size_t currSize = mBillboardPool.size();
 
         if( currSize < size )
         {
             this->increasePool(size);
 
-            for( unsigned int i = currSize; i < size; ++i )
+            for( size_t i = currSize; i < size; ++i )
             {
                 // Add new items to the queue
                 mFreeBillboards.push_back( mBillboardPool[i] );
@@ -532,7 +532,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned int BillboardSet::getPoolSize(void) const
     {
-        return mBillboardPool.size();
+        return static_cast< unsigned int >( mBillboardPool.size() );
     }
 
     //-----------------------------------------------------------------------
@@ -650,14 +650,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::increasePool(unsigned int size)
     {
-        unsigned int oldSize = mBillboardPool.size();
+        size_t oldSize = mBillboardPool.size();
 
         // Increase size
         mBillboardPool.reserve(size);
         mBillboardPool.resize(size);
 
         // Create new billboards
-        for (unsigned int i = oldSize; i < size; ++i)
+        for( size_t i = oldSize; i < size; ++i )
             mBillboardPool[i] = new Billboard();
 
     }
