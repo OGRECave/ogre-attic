@@ -415,7 +415,7 @@ namespace Ogre {
             }
             else if (mTextureType == TEX_TYPE_3D)
             {
-                glTexImage3DEXT(
+                glTexImage3D(
                     getGLTextureType(), 0, mHasAlpha ? GL_RGBA8 : GL_RGB8, 
                     mSrcWidth, mSrcHeight, mDepth, 0, getGLTextureFormat(), 
                     GL_UNSIGNED_BYTE, data );
