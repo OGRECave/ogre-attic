@@ -1,0 +1,130 @@
+<html>
+<head>
+<title>OGRE Features</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><STYLE TYPE="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</STYLE> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Features</p><p align="center" class="header"><A HREF="http://ogre.sourceforge.net">http://ogre.sourceforge.net</A></p><TABLE WIDTH="100%" BORDER="0" CELLPADDING="2"><TR> 
+<TD CLASS="MainHeader">OGRE Features</TD></TR><TR> <TD> <P>&nbsp;</P><P CLASS="NewsDate">Productivity 
+features </P><UL> <LI>Simple, easy to use OO interface designed to minimise the 
+effort required to render 3D scenes, and to be independent of 3D implementation 
+e.g. Direct3D/OpenGL/Glide etc.</LI><LI>Extensible example framework makes getting 
+your application running is quick and simple</LI><LI>Common requirements like 
+render state management, hierarchical culling, dealing with transparency are done 
+for you automatically saving you valuable time</LI><LI>Clean, uncluttered design 
+and full documentation of all engine classes </LI></UL><P CLASS="NewsDate">Platform 
+&amp; 3D API support</P><UL><LI>Direct3D and OpenGL support</LI><LI>Builds on 
+Visual C++ 6 and Visual C++.Net on Windows (with STLport)</LI><LI>Builds on gcc 
+3+ on Linux (or gcc 2.9x with STLport)</LI></UL><P CLASS="NewsDate">Material / 
+Shader support</P><UL><LI>Load textures from PNG, JPEG or TGA files, MipMaps generated 
+automatically, resizes maps to align with hardware requirements</LI><LI>Procedural 
+texture coordinate generation (e.g. environment mapping) and modification (scrolls, 
+warps, rotations)</LI><LI>Unbounded number of texture layers with many texture 
+blending effects, animated textures</LI><LI>Multitexturing hardware used to best 
+effect automatically, combined with automatic fallback to mulitpass rendering</LI><LI>Object 
+transparency and other scene-level blending effects</LI><LI>All defineable through 
+text scripts to allow you to set up &amp; tweak advanced materials without recompiling</LI></UL><P CLASS="NewsDate">Meshes</P><UL><LI>Flexible 
+mesh data formats accepted</LI><LI>Export from Milkshape3D direct to OGRE .mesh 
+and .skeleton format</LI><LI>Skeletal animation (including blending of multiple 
+animations)</LI><LI>Biquadric Bezier patches for curved surfaces</LI></UL><P CLASS="NewsDate">Scene 
+Features</P><UL><LI>Highly customisable, flexible scene management, not tied to 
+any single scene type. Use predefined classes for scene organisation if they suit 
+or plug in your own subclass to gain full control over the scene organisation</LI><LI>Generic 
+SceneManager hierarchically culls by bounding volumes</LI><LI>Example plugin (BspSceneManager) 
+specialises to allow fast indoor renders, loading Quake3 levels inc. shader script 
+parsing support</LI><LI>Hierarchical scene graph; nodes allow objects to be attached 
+to each other and follow each others movements, articulated structures etc</LI></UL><P CLASS="NewsDate">Special 
+Effects</P><UL><LI>Particle Systems, including easily extensible emitters and 
+affectors (customisable through plugins). Systems can be defined in text scripts 
+for easy tweaking. Automatic use of particle pooling for maximum performance</LI><LI>Support 
+for skyboxes, skyplanes and skydomes, very easy to use</LI><LI>Billboarding for 
+sprite graphics</LI><LI>Transparent objects automatically managed (rendering order 
+&amp; depth buffer settings all set up for you)</LI></UL><P CLASS="NewsDate">Misc 
+features</P><UL><LI>Common resource infrastructure for memory management and loading 
+from archives (ZIP, PK3) </LI><LI>Flexible plugin architecture allows engine to 
+be extended without recompilation</LI><LI>'Controllers' allow you to easily organise 
+derived values between objects e.g. changing the colour of a ship based on shields 
+left</LI><LI>Debugging memory manager for identifying memory leaks</LI></UL></TD></TR> 
+</TABLE><p align="CENTER" class="MainContent"><A HREF="../ReadMe.html">Back to 
+Readme.html</A></p><p align="left" class="MainHeader">&nbsp;</p><p> Copyright &copy; 
+2002 by The OGRE Team<br /> <script type="text/javascript">
+<!--//hide script from old browsers
+document.write( "Last modified "+ document.lastModified );
+//end hiding contents -->
+</script> </p>
+</body>
+</html>
