@@ -122,6 +122,7 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreSceneQuery.cpp \
                          OgreSerializer.cpp \
 						 OgreShadowCaster.cpp \
+						 OgreShadowVolumeExtrudeProgram.cpp \
                          OgreSimpleRenderable.cpp \
                          OgreSimpleSpline.cpp \
                          OgreSingleton.cpp \

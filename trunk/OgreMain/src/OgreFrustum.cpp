@@ -42,6 +42,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     String Frustum::msMovableType = "Frustum";
+    const Real Frustum::INFINITE_FAR_PLANE_ADJUST = 0.00001;
     //-----------------------------------------------------------------------
     Frustum::Frustum()
     {
@@ -184,6 +185,10 @@ namespace Ogre {
         // If so, object is not visible
         for (int plane = 0; plane < 6; ++plane)
         {
+            // Skip far plane if infinite view frustum
+            if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
+                continue;
+
             if (mFrustumPlanes[plane].getSide(pCorners[0]) == Plane::NEGATIVE_SIDE &&
                 mFrustumPlanes[plane].getSide(pCorners[1]) == Plane::NEGATIVE_SIDE &&
                 mFrustumPlanes[plane].getSide(pCorners[2]) == Plane::NEGATIVE_SIDE &&
@@ -214,6 +219,10 @@ namespace Ogre {
         // If so, object is not visible
         for (int plane = 0; plane < 6; ++plane)
         {
+            // Skip far plane if infinite view frustum
+            if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
+                continue;
+
             if (mFrustumPlanes[plane].getSide(vert) == Plane::NEGATIVE_SIDE)
             {
                 // ALL corners on negative side therefore out of view
@@ -237,6 +246,10 @@ namespace Ogre {
         // If so, object is not visible
         for (int plane = 0; plane < 6; ++plane)
         {
+            // Skip far plane if infinite view frustum
+            if (mFarDist == 0 && plane == FRUSTUM_PLANE_FAR)
+                continue;
+
             // If the distance from sphere center to plane is negative, and 'more negative' 
             // than the radius of the sphere, sphere is outside frustum
             if (mFrustumPlanes[plane].getDistance(sphere.getCenter()) < -sphere.getRadius())
@@ -339,12 +352,14 @@ namespace Ogre {
             
             // Calculate bounding box (local)
             // Box is from 0, down -Z, max dimensions as determined from far plane
-            Real farTop = tanThetaY * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
-            Real farRight = tanThetaX * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
+            // If infinite view frustum just pick a far value
+            Real farDist = (mFarDist == 0) ? 100000 : mFarDist;
+            Real farTop = tanThetaY * (mProjType == PT_ORTHOGRAPHIC? mNearDist : farDist);
+            Real farRight = tanThetaX * (mProjType == PT_ORTHOGRAPHIC? mNearDist : farDist);
             Real farBottom = -farTop;
             Real farLeft = -farRight;
             Vector3 min(-farRight, -farTop, 0);
-            Vector3 max(farRight, farTop, -mFarDist);
+            Vector3 max(farRight, farTop, -farDist);
             mBoundingBox.setExtents(min, max);
 
             // Calculate vertex positions (local)
@@ -368,17 +383,17 @@ namespace Ogre {
             *pReal++ = vpLeft;  *pReal++ = vpTop;    *pReal++ = -mNearDist;
 
             // far plane (remember frustum is going in -Z direction)
-            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -mFarDist;
-            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
+            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -farDist;
+            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -farDist;
 
-            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
-            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
+            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -farDist;
+            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -farDist;
 
-            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
-            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
+            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -farDist;
+            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -farDist;
 
-            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
-            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -mFarDist;
+            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -farDist;
+            *pReal++ = farLeft;  *pReal++ = farTop;    *pReal++ = -farDist;
 
             // Sides of the pyramid
             *pReal++ = 0.0f;    *pReal++ = 0.0f;   *pReal++ = 0.0f;
@@ -396,16 +411,16 @@ namespace Ogre {
             // Sides of the box
 
             *pReal++ = vpLeft;  *pReal++ = vpTop;  *pReal++ = -mNearDist;
-            *pReal++ = farLeft;  *pReal++ = farTop;  *pReal++ = -mFarDist;
+            *pReal++ = farLeft;  *pReal++ = farTop;  *pReal++ = -farDist;
 
             *pReal++ = vpRight; *pReal++ = vpTop;    *pReal++ = -mNearDist;
-            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -mFarDist;
+            *pReal++ = farRight; *pReal++ = farTop;    *pReal++ = -farDist;
 
             *pReal++ = vpRight; *pReal++ = vpBottom; *pReal++ = -mNearDist;
-            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -mFarDist;
+            *pReal++ = farRight; *pReal++ = farBottom; *pReal++ = -farDist;
 
             *pReal++ = vpLeft;  *pReal++ = vpBottom; *pReal++ = -mNearDist;
-            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -mFarDist;
+            *pReal++ = farLeft;  *pReal++ = farBottom; *pReal++ = -farDist;
 
 
             vbuf->unlock();
@@ -535,22 +550,24 @@ namespace Ogre {
             // Update worldspace corners
             Matrix4 eyeToWorld = mViewMatrix.inverse();
             // Get worldspace frustum corners
+            // Treat infinite fardist as some arbitrary far value
+            Real farDist = (mFarDist == 0)? 100000 : mFarDist;
             Real y = Math::Tan(mFOVy * 0.5);
             Real x = mAspect * y;
             Real neary = y * mNearDist;
-            Real fary = y * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
+            Real fary = y * (mProjType == PT_ORTHOGRAPHIC? mNearDist : farDist);
             Real nearx = x * mNearDist;
-            Real farx = x * (mProjType == PT_ORTHOGRAPHIC? mNearDist : mFarDist);
+            Real farx = x * (mProjType == PT_ORTHOGRAPHIC? mNearDist : farDist);
             // near
             mWorldSpaceCorners[0] = eyeToWorld * Vector3( nearx,  neary, -mNearDist);
             mWorldSpaceCorners[1] = eyeToWorld * Vector3(-nearx,  neary, -mNearDist);
             mWorldSpaceCorners[2] = eyeToWorld * Vector3(-nearx, -neary, -mNearDist);
             mWorldSpaceCorners[3] = eyeToWorld * Vector3( nearx, -neary, -mNearDist);
             // far
-            mWorldSpaceCorners[4] = eyeToWorld * Vector3( farx,  fary, -mFarDist);
-            mWorldSpaceCorners[5] = eyeToWorld * Vector3(-farx,  fary, -mFarDist);
-            mWorldSpaceCorners[6] = eyeToWorld * Vector3(-farx, -fary, -mFarDist);
-            mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -mFarDist);
+            mWorldSpaceCorners[4] = eyeToWorld * Vector3( farx,  fary, -farDist);
+            mWorldSpaceCorners[5] = eyeToWorld * Vector3(-farx,  fary, -farDist);
+            mWorldSpaceCorners[6] = eyeToWorld * Vector3(-farx, -fary, -farDist);
+            mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -farDist);
 
             // Deal with reflection on frustum planes
             if (mReflect)
@@ -620,7 +637,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	Real Frustum::getBoundingRadius(void) const
 	{
-		return mFarDist;
+        return (mFarDist == 0)? 100000 : mFarDist;
 	}
     //-----------------------------------------------------------------------
     Material* Frustum::getMaterial(void) const

@@ -58,6 +58,7 @@ namespace Ogre {
         for (egi = edgeData->edgeGroups.begin(); egi != egiend; ++egi, ++si)
         {
             EdgeData::EdgeGroup& eg = *egi;
+            RenderOperation* lightShadOp = 0;
             // Initialise the index bounds for this shadow renderable
             RenderOperation* shadOp = (*si)->getRenderOperationForUpdate();
             shadOp->indexData->indexCount = 0;
@@ -173,7 +174,6 @@ namespace Ogre {
             if (flags & SRF_INCLUDE_LIGHT_CAP) 
             {
                 ShadowRenderable* lightCapRend = 0;
-                RenderOperation* lightShadOp = 0;
 
                 if ((*si)->isLightCapSeparate())
                 {
@@ -212,6 +212,9 @@ namespace Ogre {
             }
             // update next indexStart (all renderables sharing the buffer)
             indexStart += shadOp->indexData->indexCount;
+            // Add on the light cap too
+            if (lightShadOp)
+                indexStart += lightShadOp->indexData->indexCount;
 
 
         }

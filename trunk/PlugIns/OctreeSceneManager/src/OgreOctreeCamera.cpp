@@ -61,6 +61,10 @@ OctreeCamera::Visibility OctreeCamera::getVisibility( const AxisAlignedBox &boun
     for ( int plane = 0; plane < 6; ++plane )
     {
 
+        // Skip far plane if infinite view frustum
+        if (mFarDist == 0 && planes[ plane ] == FRUSTUM_PLANE_FAR)
+            continue;
+
         bool all_outside = true;
 
         float distance = 0;

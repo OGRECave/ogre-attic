@@ -61,17 +61,6 @@ public:
     */
     OctreeCamera::Visibility getVisibility( const AxisAlignedBox &bound );
 
-protected:
-    /** Internal method used to find corners of the view frustum
-    */
-    void _getCorner( Real *r, FrustumPlane p1, FrustumPlane p2, FrustumPlane p3 );
-
-    Real mCorners[ 24 ];
-    ///Shared list of indexes used to render
-    static unsigned short mIndexes[ 24 ];
-    ///Shared list of colors used to render
-    static unsigned long mColors[ 8 ];
-
 };
 
 }

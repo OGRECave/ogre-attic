@@ -409,9 +409,15 @@ namespace Ogre {
         // Get worldspace frustum corners
         const Vector3* corners = cam->getWorldSpaceCorners();
 
+        bool infiniteViewDistance = (cam->getFarClipDistance() == 0);
+
         mFrustumClipVolumes.clear();
         for (unsigned short n = 0; n < 6; ++n)
         {
+            // Skip far plane if infinite view frustum
+            if (infiniteViewDistance && n == FRUSTUM_PLANE_FAR)
+                continue;
+
             const Plane& plane = cam->getFrustumPlane(n);
             Vector4 planeVec(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
             // planes face inwards, we need to know if light is on negative side

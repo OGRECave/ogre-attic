@@ -83,12 +83,16 @@ namespace Ogre
         GpuProgramType getType(void) const { return mType; }
 
 		/** Sets the name of the program to use. 
-        @remarks
-            Note that this will create a fresh set of parameters from the
+        @param name The name of the program to use
+        @param resetParams
+            If true, this will create a fresh set of parameters from the
             new program being linked, so if you had previously set parameters
-            you will have to set them again.
+            you will have to set them again. If you set this to false, you must
+            be absolutely sure that the parameters match perfectly, and in the
+            case of named parameters refers to the indexes underlying them, 
+            not just the names.
         */
-		void setProgramName(const String& name);
+		void setProgramName(const String& name, bool resetParams = true);
 		/** Sets the program to use.
         @remarks
             Note that this will create a fresh set of parameters from the

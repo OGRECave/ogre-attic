@@ -43,7 +43,7 @@ namespace Ogre
 		mParameters =  oth.mParameters;
 	}
 	//-----------------------------------------------------------------------------
-	void GpuProgramUsage::setProgramName(const String& name)
+	void GpuProgramUsage::setProgramName(const String& name, bool resetParams)
 	{
 		mProgram = static_cast<GpuProgram*>(
 			GpuProgramManager::getSingleton().getByName(name));
@@ -56,7 +56,8 @@ namespace Ogre
                 "GpuProgramUsage::setProgramName");
         }
         // Reset parameters 
-        mParameters = mProgram->createParameters();
+        if (resetParams || mParameters.isNull())
+            mParameters = mProgram->createParameters();
 
 	}
     //-----------------------------------------------------------------------------

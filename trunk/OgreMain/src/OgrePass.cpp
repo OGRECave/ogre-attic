@@ -617,7 +617,7 @@ namespace Ogre {
         }
 	}
     //-----------------------------------------------------------------------
-	void Pass::setVertexProgram(const String& name)
+	void Pass::setVertexProgram(const String& name, bool resetParams)
 	{
         // Turn off vertex program if name blank
         if (name.empty())
@@ -631,7 +631,7 @@ namespace Ogre {
             {
                 mVertexProgramUsage = new GpuProgramUsage(GPT_VERTEX_PROGRAM);
             }
-		    mVertexProgramUsage->setProgramName(name);
+		    mVertexProgramUsage->setProgramName(name, resetParams);
         }
         // Needs recompilation
         mParent->_notifyNeedsRecompile();
@@ -648,7 +648,7 @@ namespace Ogre {
 		mVertexProgramUsage->setParameters(params);
 	}
     //-----------------------------------------------------------------------
-	void Pass::setFragmentProgram(const String& name)
+	void Pass::setFragmentProgram(const String& name, bool resetParams)
 	{
         // Turn off fragment program if name blank
         if (name.empty())
@@ -662,7 +662,7 @@ namespace Ogre {
             {
                 mFragmentProgramUsage = new GpuProgramUsage(GPT_FRAGMENT_PROGRAM);
             }
-		    mFragmentProgramUsage->setProgramName(name);
+		    mFragmentProgramUsage->setProgramName(name, resetParams);
         }
         // Needs recompilation
         mParent->_notifyNeedsRecompile();

@@ -39,12 +39,14 @@ namespace Ogre {
         virtual ~GLGpuProgram() { }
 
         /// Execute the binding functions for this program
-        virtual void bindProgram(void) = 0;
+        virtual void bindProgram(void) {}
         /// Execute the binding functions for this program
-        virtual void unbindProgram(void) = 0;
+        virtual void unbindProgram(void) {}
+        /** Overridden from GpuProgram, do nothing */
+        void loadFromSource(void) {}
 
         /// Execute the param binding functions for this program
-        virtual void bindProgramParameters(GpuProgramParametersSharedPtr params) = 0;
+        virtual void bindProgramParameters(GpuProgramParametersSharedPtr params) {}
 
         /// Get the assigned GL program id
         const GLuint getProgramID(void) const

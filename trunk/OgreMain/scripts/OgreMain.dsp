@@ -581,6 +581,10 @@ SOURCE=..\src\OgreShadowCaster.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreShadowVolumeExtrudeProgram.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreSimpleRenderable.cpp
 # End Source File
 # Begin Source File
@@ -1318,6 +1322,10 @@ SOURCE=..\include\OgreShadowCaster.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OgreShadowVolumeExtrudeProgram.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OgreSharedPtr.h
 # End Source File
 # Begin Source File
@@ -1355,6 +1363,10 @@ SOURCE=..\include\OgreSkeletonSerializer.h
 # Begin Source File
 
 SOURCE=..\include\OgreSphere.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreSpotShadowFadePng.h
 # End Source File
 # Begin Source File
 
