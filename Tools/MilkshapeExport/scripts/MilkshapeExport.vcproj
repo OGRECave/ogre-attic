@@ -144,6 +144,9 @@
 				RelativePath="..\include\msPlugIn.h">
 			</File>
 			<File
+				RelativePath="..\misc\resource.h">
+			</File>
+			<File
 				RelativePath="..\include\resource.h">
 			</File>
 		</Filter>

@@ -108,11 +108,27 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
         hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
         SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
 
+        // Set default FPS
+        hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
+        SetWindowText(hwndDlgItem, "24");
+
+
         return TRUE;
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
             case IDOK:
+                // Validate
+                char fps[5];
+                hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
+                GetWindowText(hwndDlgItem, fps, 5);
+                plugin->fps = atof(fps);
+                if (!plugin->fps)
+                {
+                    MessageBox(hDlg, "Invalid frame rate specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                    return TRUE;
+                }
+
                 // Set options
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MESH);
                 plugin->exportMesh = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
@@ -702,6 +718,8 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
 
 
     int numBones = msModel_GetBoneCount(pModel);
+    unsigned int frameTime;
+    float realTime;
 
     std::vector<SplitAnimationStruct>::iterator animsIt;
     for (animsIt = splitInfo.begin(); animsIt != splitInfo.end(); ++animsIt)
@@ -709,12 +727,20 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
         SplitAnimationStruct& currSplit = *animsIt;
 
         // Create animation
+        frameTime = currSplit.end - currSplit.start;
+        realTime = frameTime / fps;
+
         msg = "Trying to create Animation object for animation ";
         msg <<  currSplit.name << " For Frames " << currSplit.start << " to "
-            << currSplit.end << " inclusive.";
+            << currSplit.end << " inclusive. ";
         logMgr.logMessage(msg);
+
+        msg = "Frame time = ";
+        msg << frameTime << ", Seconds = " << realTime;
+        logMgr.logMessage(msg);
+
         Ogre::Animation *ogreanim = 
-            ogreskel->createAnimation(currSplit.name, (currSplit.end - currSplit.start));
+            ogreskel->createAnimation(currSplit.name, realTime);
         logMgr.logMessage("Animation object created.");
 
         int i;
@@ -761,7 +787,9 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     logMgr.logMessage(msg);
                     // Create keyframe
                     // Adjust for start time, and for the fact that frames are numbered from 1
-                    Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(currRotKey->fTime - currSplit.start);
+                    frameTime = currRotKey->fTime - currSplit.start;
+                    realTime = frameTime / fps;
+                    Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(realTime);
                     logMgr.logMessage("KeyFrame created");
 
                     Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);
@@ -775,7 +803,8 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::Skeleton* ogresk
                     ogrekey->setRotation(kfQ);
 
                     msg = "";
-                    msg << "KeyFrame details: Time=" << currRotKey->fTime << " Position=" << kfPos << " " <<
+                    msg << "KeyFrame details: Adjusted Frame Time=" << frameTime;
+                    msg << " Seconds: " << realTime << " Position=" << kfPos << " " <<
                         "Ms3d Rotation= {" << currRotKey->Rotation[0] << ", " << currRotKey->Rotation[1] << ", " << currRotKey->Rotation[2] << "} " <<
                         "Orientation=" << kfQ;
                     logMgr.logMessage(msg);
