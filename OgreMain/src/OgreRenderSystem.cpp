@@ -22,6 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include "OgreStableHeaders.h"
 // RenderSystem implementation
 // Note that most of this class is abstract since
 //  we cannot know how to implement the behaviour without

@@ -31,13 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreString.h"
 
 #if defined( _MSC_VER )
-#   pragma warning( push )
 #   pragma warning( disable : 4172 )
 #endif
 namespace Ogre {
     typedef HashMap< String, Resource*, _StringHash > ResourceMap;
 }
-#endif
-#if defined( _MSC_VER )
-#   pragma warning( pop )
 #endif

@@ -53,7 +53,7 @@ namespace Ogre {
             @see
                 Root::Root
         */
-        DynLibManager() {}
+        DynLibManager();
 
         /** Default destructor.
             @see
