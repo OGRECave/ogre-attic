@@ -115,5 +115,10 @@ namespace Ogre {
         assert(n);
         return n->getSquaredViewDepth(cam);
     }
+    //-----------------------------------------------------------------------
+    bool SubEntity::getNormaliseNormals(void) 
+    {
+        return mParentEntity->mNormaliseNormals;
+    }
 
 }
