@@ -622,6 +622,13 @@ namespace Ogre {
             *pHwnd = getWindowHandle();
             return;
         }
+        else if( name == "isTexture" )
+        {
+            bool *b = reinterpret_cast< bool * >( pData );
+            *b = false;
+
+            return;
+        }
     }
 
 
@@ -650,9 +657,9 @@ namespace Ogre {
  
  
          ImageCodec::ImageData imgData;
-         imgData.ulWidth = desc.dwWidth;
-         imgData.ulHeight = desc.dwHeight;
-         imgData.eFormat = Image::FMT_RGB;
+         imgData.width = desc.dwWidth;
+         imgData.height = desc.dwHeight;
+         imgData.format = PF_R8G8B8;
  
          // Allocate contiguous buffer (surfaces aren't necessarily contiguous)
          uchar* pBuffer = new uchar[desc.dwWidth * desc.dwHeight * 3];

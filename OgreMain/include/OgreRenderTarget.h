@@ -28,7 +28,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 
 #include "OgreString.h"
+#include "OgreTextureManager.h"
 #include "OgreViewport.h"
+
+/* Define the number of priority groups for the render system's render targets. */
+#ifndef OGRE_NUM_RENDERTARGET_GROUPS
+	#define OGRE_NUM_RENDERTARGET_GROUPS 10
+	#define OGRE_DEFAULT_RT_GROUP 4
+	#define OGRE_REND_TO_TEX_RT_GROUP 2
+#endif
 
 namespace Ogre {
 
@@ -48,11 +56,11 @@ namespace Ogre {
     public:
         enum StatFlags
         {
-            SF_NONE            = 0,
+            SF_NONE           = 0,
             SF_FPS            = 1,
             SF_AVG_FPS        = 2,
-            SF_BEST_FPS        = 4,
-            SF_WORST_FPS    = 8,
+            SF_BEST_FPS       = 4,
+            SF_WORST_FPS      = 8,
             SF_TRIANGLE_COUNT = 16,
             SF_ALL            = 0xFFFF
         };
@@ -197,6 +205,9 @@ namespace Ogre {
         /** Adds debug text to this window. */
         virtual void setDebugText(const String& text);
 
+		/** Returns the debug text. */
+		const String& RenderTarget::getDebugText() const;
+
         /** Add a listener to this RenderTarget which will be called back before & after rendering.
         @remarks
             If you want notifications before and after a target is updated by the system, use
@@ -211,6 +222,9 @@ namespace Ogre {
         /** Removes all listeners from this instance. */
         virtual void removeAllListeners(void);
 
+		void setPriority( uchar priority ) { };
+		uchar getPriority() const { return mPriority; };
+
         /** Used to retrieve or set the active state of the render target.
         */
         virtual bool isActive() const;
@@ -222,9 +236,13 @@ namespace Ogre {
         /** Writes the current contents of the render target to the named file. */
         virtual void writeContentsToFile(const String& filename) = 0;
 
+		virtual bool requiresTextureFlipping() const = 0;
+
     protected:
-        /// The name of this target
+        /// The name of this target.
         String mName;
+		/// The priority of the render target.
+		uchar mPriority;
 
         int mWidth;
         int mHeight;
@@ -252,11 +270,11 @@ namespace Ogre {
         RenderTargetListenerList mListeners;
 
         /// internal method for firing events
-        void firePreUpdate(void);
+        virtual void firePreUpdate(void);
         /// internal method for firing events
-        void firePostUpdate(void);
-
+        virtual void firePostUpdate(void);
     };
 
 } // Namespace
+
 #endif

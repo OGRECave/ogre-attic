@@ -40,6 +40,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix4.h"
 #include "OgreMath.h"
 #include "OgreD3D7RenderWindow.h"
+#include "OgreCamera.h"
 
 #include <d3dx.h>
 #include "d3dutil.h"
@@ -124,13 +125,13 @@ namespace Ogre {
         optFullScreen.currentValue = "Yes";
 
 
-
+        unsigned k = ddList->count();
         // First, get DirectDraw driver options
         for( unsigned j = 0; j < ddList->count(); j++ )
         {
             dd = ddList->item(j);
             // Add to device option list
-            optDevice.possibleValues.push_back( dd->DriverName() + '(' + dd->DriverDescription() + ')' );
+            optDevice.possibleValues.push_back( dd->DriverDescription() );
 
             // Make first one default
             if( j==0 )
@@ -499,11 +500,49 @@ namespace Ogre {
                 lastStartTime = fTime;
 
                 // Render a frame during idle time (no messages are waiting)
-                for( RenderTargetMap::iterator i = mRenderTargets.begin(); i != mRenderTargets.end(); ++i )
-                {
-                    if( i->second->isActive() )
-                        i->second->update();
-                }
+				for( uchar i = 0; i < 10; i++ )
+					for( RenderTargetList::iterator j = mPrioritisedRenderTargets[ i ].begin(); j != mPrioritisedRenderTargets[ i ].end(); j++ )
+						if( (*j)->isActive() )
+						{
+							bool isTexture; (*j)->getCustomAttribute( "isTexture", &isTexture );
+							/*
+							if( isTexture )
+							{
+							*/
+								/*
+								Matrix4 m4 = Matrix4::IDENTITY; m4[2][0] = -1.0; m4[2][1] = -1.0;
+								D3DMATRIX d3dm = makeD3DMatrix( m4 );
+								mlpD3DDevice->SetTransform( D3DTRANSFORMSTATE_TEXTURE0, &d3dm );
+								*/
+							
+							Matrix4 matTrans = Matrix4::ZERO; 
+							//matTrans[1][2] = 0.5;
+							//matTrans[0][2] = 0.5;
+							//matTrans[2][0] = 0.5;
+							//matTrans[2][1] = 0.5;
+							_setTextureMatrix( 0, matTrans );
+								
+							/*
+							}
+							*/
+
+							(*j)->update();
+
+							/*
+							if( isTexture )
+							{
+							*/
+								/*
+								Matrix4 m4 = Matrix4::IDENTITY;
+								D3DMATRIX d3dm = makeD3DMatrix( m4 );
+								mlpD3DDevice->SetTransform( D3DTRANSFORMSTATE_TEXTURE0, &d3dm );
+								*/
+								/*
+								mlpD3DDevice->SetTextureStageState( 0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
+								mlpD3DDevice->SetTextureStageState( 1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
+								*/
+							//}
+						}
 
                 // Do frame ended event
                 fTime = clock(); // Get current time
@@ -617,8 +656,7 @@ namespace Ogre {
         win->create(name, width, height, colourDepth, fullScreen,
             left, top, depthBuffer, &mhInstance, mActiveDDDriver, parentWindowHandle);
 
-        // Add window to render target list
-        mRenderTargets.insert( RenderTargetMap::value_type( name, win ) );
+        attachRenderTarget( *win );
 
         // If this is the parent window, get the D3D device
         //  and create the texture manager
@@ -634,23 +672,14 @@ namespace Ogre {
 
         OgreUnguardRet( win );
     }
-    //-----------------------------------------------------------------------
-    void D3DRenderSystem::destroyRenderWindow(RenderWindow* pWin)
+
+    RenderTexture * D3DRenderSystem::createRenderTexture( const String & name, int width, int height )
     {
-        // Find it to remove from list
-        RenderTargetMap::iterator i = mRenderTargets.begin();
-
-        while (i != mRenderTargets.end())
-        {
-            if (i->second == pWin)
-            {
-                mRenderTargets.erase(i);
-                delete pWin;
-                break;
-            }
-        }
-
+        RenderTexture * rt = new D3D7RenderTexture( name, width, height );
+        attachRenderTarget( *rt );
+        return rt;
     }
+
     //-----------------------------------------------------------------------
     // Low-level overridden members
     //-----------------------------------------------------------------------
@@ -858,15 +887,7 @@ namespace Ogre {
         d3dMat.m[3][2] = mat[2][3];
         d3dMat.m[3][3] = mat[3][3];
 
-        /*
-        for (int row = 0; row < 4; ++row)
-            for (int col = 0; col < 4; ++col)
-                d3dMat.m[col][row] = mat[row][col];
-        */
-
         return d3dMat;
-
-
     }
 
     Matrix4 D3DRenderSystem::convertD3DMatrix(const D3DMATRIX& d3dmat)
@@ -887,14 +908,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setWorldMatrix(const Matrix4 &m)
     {
-        D3DMATRIX d3dmat = makeD3DMatrix(m);
+		D3DMATRIX d3dmat;
+
+		d3dmat = makeD3DMatrix(m);
 
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &d3dmat);
 
         if (FAILED(hr))
             Except(hr, "Cannot set D3D world matrix",
                 "D3DRenderSystem::_setWorldMatrix");
-
     }
 
     //-----------------------------------------------------------------------
@@ -908,7 +930,6 @@ namespace Ogre {
         d3dmat.m[2][2] = -d3dmat.m[2][2];
         d3dmat.m[3][2] = -d3dmat.m[3][2];
 
-
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &d3dmat);
 
         if (FAILED(hr))
@@ -919,15 +940,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setProjectionMatrix(const Matrix4 &m)
     {
-
         D3DMATRIX d3dmat = makeD3DMatrix(m);
+
+		if( mActiveRenderTarget->requiresTextureFlipping() )
+		{
+			d3dmat._22 = - d3dmat._22;
+		}
+        
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_PROJECTION, &d3dmat);
 
         if (FAILED(hr))
             Except(hr, "Cannot set D3D projection matrix",
                 "D3DRenderSystem::_setProjectionMatrix");
-
-
     }
 
 
@@ -994,10 +1018,10 @@ namespace Ogre {
     {
         HRESULT hr;
 
-        D3DTexture* dt = (D3DTexture*)TextureManager::getSingleton().getByName(texname);
+        D3DTexture* dt = static_cast< D3DTexture* >(TextureManager::getSingleton().getByName(texname));
         if (enabled && dt)
         {
-            hr = mlpD3DDevice->SetTexture(stage, dt->getDDSurface());
+            hr = mlpD3DDevice->SetTexture(stage, dt->getDDSurface() );
         }
         else
         {
@@ -1020,40 +1044,13 @@ namespace Ogre {
     {
         HRESULT hr;
         // Turn stage number into D3D constant (WHY Microsoft??!)
-        D3DTRANSFORMSTATETYPE tst;
-        switch(stage)
-        {
-        case 0:
-            tst = D3DTRANSFORMSTATE_TEXTURE0;
-            break;
-        case 1:
-            tst = D3DTRANSFORMSTATE_TEXTURE1;
-            break;
-        case 2:
-            tst = D3DTRANSFORMSTATE_TEXTURE2;
-            break;
-        case 3:
-            tst = D3DTRANSFORMSTATE_TEXTURE3;
-            break;
-        case 4:
-            tst = D3DTRANSFORMSTATE_TEXTURE4;
-            break;
-        case 5:
-            tst = D3DTRANSFORMSTATE_TEXTURE5;
-            break;
-        case 6:
-            tst = D3DTRANSFORMSTATE_TEXTURE6;
-            break;
-        case 7:
-            tst = D3DTRANSFORMSTATE_TEXTURE7;
-            break;
-        }
+        D3DTRANSFORMSTATETYPE tst = (D3DTRANSFORMSTATETYPE)( D3DTRANSFORMSTATE_TEXTURE0 + stage );
 
         D3DMATRIX matTrans;
         switch(m)
         {
         case TEXCALC_NONE:
-            hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE);
+			hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE );
             // Also set identity incase texture mods come later
             D3DUtil_SetIdentityMatrix(matTrans);
             hr = mlpD3DDevice->SetTransform(tst, &matTrans);
@@ -1250,6 +1247,10 @@ namespace Ogre {
             // TODO: deal with 3D coordinates when cubic environment mapping supported
             hr = mlpD3DDevice->SetTextureStageState(stage, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
 
+			if (FAILED(hr))
+                Except(Exception::ERR_RENDERINGAPI_ERROR, "Unable to set texture transform.",
+                    "D3DRenderSystem::_setTextureMatrix");
+
             // Set texture stage xform
             d3dType = (D3DTRANSFORMSTATETYPE)(D3DTRANSFORMSTATE_TEXTURE0 + stage);
             d3dMat = makeD3DMatrix(xform);
@@ -1334,6 +1335,7 @@ namespace Ogre {
         if (vp != mActiveViewport || vp->_isUpdated())
         {
             mActiveViewport = vp;
+			mActiveRenderTarget = vp->getTarget();
             // Ok, it's different. Time to set render target (maybe)
             //  and viewport params.
             D3DVIEWPORT7 d3dvp;
@@ -1341,13 +1343,15 @@ namespace Ogre {
 
             // Set render target
             // TODO - maybe only set when required?
-            // TODO - deal with rendering to textures
             RenderTarget* target;
             target = vp->getTarget();
             // Get DD Back buffer
             LPDIRECTDRAWSURFACE7 pBack;
             target->getCustomAttribute("DDBACKBUFFER", &pBack);
-            hr = mlpD3DDevice->SetRenderTarget(pBack,0);
+
+            hr = mlpD3DDevice->SetRenderTarget( pBack, 0 );
+
+			_setCullingMode( mCullingMode );
 
             // Set viewport dimensions
             d3dvp.dwX = vp->getActualLeft();
@@ -1581,6 +1585,7 @@ namespace Ogre {
 
         HRESULT hr;
         hr = mlpD3DDevice->EndScene();
+
         if (FAILED(hr))
             Except(hr, "Error ending frame.",
                 "D3DRenderSystem::_endFrame");
@@ -1594,17 +1599,25 @@ namespace Ogre {
         HRESULT hr;
         DWORD d3dMode;
 
+		mCullingMode = mode;
+
         if (mode == CULL_NONE)
         {
             d3dMode = D3DCULL_NONE;
         }
-        else if (mode == CULL_CLOCKWISE)
+        else if( mode == CULL_CLOCKWISE )
         {
-            d3dMode = D3DCULL_CW;
+			if( mActiveRenderTarget->requiresTextureFlipping() )
+				d3dMode = D3DCULL_CCW;
+			else
+				d3dMode = D3DCULL_CW;
         }
         else if (mode == CULL_ANTICLOCKWISE)
         {
-            d3dMode = D3DCULL_CCW;
+            if( mActiveRenderTarget->requiresTextureFlipping() )
+				d3dMode = D3DCULL_CW;
+			else
+				d3dMode = D3DCULL_CCW;
         }
 
         hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_CULLMODE, d3dMode);

@@ -54,16 +54,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Resource* D3DTextureManager::create( const String& name)
     {
-        D3DTexture* t = new D3DTexture(name, mlpD3DDevice);
+        D3DTexture* t = new D3DTexture( name, mlpD3DDevice, TU_DEFAULT );
         t->enable32Bit(mIs32Bit);
         return t;
     }
     //-----------------------------------------------------------------------
     Texture * D3DTextureManager::createAsRenderTarget( const String& name )
     {
-        Texture *t = new D3D7RenderTargetTexture( name, mlpD3DDevice );
+        D3DTexture* t = new D3DTexture( name, mlpD3DDevice, TU_RENDERTARGET );
         t->enable32Bit( mIs32Bit );
-
+        t->load();
         return t;
     }
 }

@@ -34,14 +34,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCommon.h"
 
 #include "OgreRenderOperation.h"
+#include "OgreRenderTarget.h"
+#include "OgreRenderTexture.h"
 #include "OgreFrameListener.h"
 #include "OgreConfigOptionMap.h"
 
 namespace Ogre
 {
-
-    typedef std::map< String, RenderWindow * > RenderWindowMap;
     typedef std::map< String, RenderTarget * > RenderTargetMap;
+	typedef std::list< RenderTarget * > RenderTargetList;
 
     class TextureManager;
     /// Enum describing the ways to generate texture coordinates
@@ -292,9 +293,24 @@ namespace Ogre
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0) = 0;
 
-        /** Destroys a rendering window.
-        */
-        virtual void destroyRenderWindow(RenderWindow* pWin) = 0;
+		/** Creates and registers a render texture object.
+			@param name 
+				The name for the new render texture. Note that names must be unique.
+			@param width
+				The requested width for the render texture. See Remarks for more info.
+			@param height
+				The requested width for the render texture. See Remarks for more info.
+			@returns
+				On succes, a pointer to a new platform-dependernt, RenderTexture-derived
+				class is returned. On failiure, NULL is returned.
+			@remarks
+				Because a render texture is basically a wrapper around a texture object,
+				the width and height parameters of this method just hint the preferred
+				size for the texture. Depending on the hardware driver or the underlying
+				API, these values might change when the texture is created.
+		*/
+        virtual RenderTexture * createRenderTexture( const String & name, int width, int height ) = 0;
+
         /** Attaches the passed render target to the render system.
         */
         virtual void attachRenderTarget( RenderTarget &target );
@@ -308,14 +324,6 @@ namespace Ogre
                 If the render target cannot be found, NULL is returned.
         */
         virtual RenderTarget * detachRenderTarget( const String &name );
-
-        /** Destroys a named rendering window.
-        */
-        virtual void destroyRenderWindow(const String &name);
-
-        /** Retrieves a pointer to the a named render window.
-        */
-        virtual RenderWindow* getRenderWindow(const String &name);
 
         /** Returns a description of an error code.
         */
@@ -790,10 +798,12 @@ namespace Ogre
         // Stored options
         ConfigOptionMap mOptions;
 
-        // Available rendering targets
-        RenderWindowMap mRenderWindows;
-        ///
+		/** The render targets. */
         RenderTargetMap mRenderTargets;
+		/** The render targets, grouped by priority. */
+		RenderTargetList mPrioritisedRenderTargets[ OGRE_NUM_RENDERTARGET_GROUPS ];
+		/** The Active render target. */
+		RenderTarget * mActiveRenderTarget;
 
         // Texture manager
         // A concrete class of this will be created and

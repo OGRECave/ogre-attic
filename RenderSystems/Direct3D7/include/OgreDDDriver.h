@@ -90,25 +90,31 @@ namespace Ogre {
         // Destructor
         ~DDDriver();
 
-        /**
-          Creates DirectDraw surfaces appropriate for a render window.
+        /** Creates DirectDraw surfaces appropriate for a render window.
 
-          This method creates double-buffered surfaces for a window. Note that in this case the
-          metrics supplied (width, height) must be of the CLIENT area of a window only
-          if fullScreen = false; i.e. the metrics must be ignoring title bar, menu bar etc.
+			@remarks
+				This method creates double-buffered surfaces for a window. Note that in this case the
+				metrics supplied (width, height) must be of the CLIENT area of a window only
+				if fullScreen = false; i.e. the metrics must be ignoring title bar, menu bar etc.
 
-          @param hWnd Window handle to the window for which the surfaces are created.
-          @param width The width of the surfaces required (see note above).
-          @param height The height of the surfaces required (see note above).
-          @param colourDepth The colour depth in bits per pixel. Only relevant if fullScreen = true.
-          @param fullScreen Specify true to make these surfaces full screen exclusive.
-          @param front Pointer to a pointer which will be filled with the interface to the front buffer on return.
-          @param back Pointer to a pointer which will be filled with the interface to the back buffer on return.
-           Only relevant if fullScreen = false.
+			@param hWnd 
+				Window handle to the window for which the surfaces are created.
+			@param width 
+				The width of the surfaces required (see note above).
+			@param height 
+				The height of the surfaces required (see note above).
+			@param colourDepth 
+				The colour depth in bits per pixel. Only relevant if fullScreen = true.
+			@param fullScreen 
+				Specify true to make these surfaces full screen exclusive.
+			@param front 
+				Pointer to a pointer which will be filled with the interface to the front buffer on return.
+			@param back 
+				Pointer to a pointer which will be filled with the interface to the back buffer on return.
+				Only relevant if fullScreen = false.
          */
         void createWindowSurfaces(HWND hWnd, int width, int height, int colourDepth, bool fullScreen,
             LPDIRECTDRAWSURFACE7 *front, LPDIRECTDRAWSURFACE7 *back);
-
 
         void Cleanup(void);
         void CheckWindow(void);
@@ -121,14 +127,12 @@ namespace Ogre {
         String DriverDescription(void);
         LPDIRECTDRAW7 directDraw(); // Gets lpDD7 (instantiates if required)
 
-
         D3DDeviceList* get3DDeviceList(void);
         DDVideoModeList* getVideoModeList(void);
         DDVideoMode* getActiveVideoMode(void);
 
         // Retrieval of other objects
         D3DDevice* get3DDevice(void);
-
 
         void OutputText(int x, int y, char* text);
         void FlipBuffers(void);
@@ -139,16 +143,9 @@ namespace Ogre {
         bool Has3DAcceleration(void);
         bool CanRenderWindowed(void);
 
-
         // Generalised info
         void GetDisplayDetails(int& width, int& height, int& colourDepth);
-
-        void takeScreenShot(void);
-
-
-
-
     };
+}
 
-}// Namespace Ogre
 #endif

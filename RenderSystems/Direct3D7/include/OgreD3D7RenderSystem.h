@@ -89,9 +89,6 @@ namespace Ogre {
 
         D3DCMPFUNC convertCompareFunction(CompareFunction func);
         D3DSTENCILOP convertStencilOp(StencilOperation op);
-
-        
-
     public:
         // Default constructor / destructor
         D3DRenderSystem(HINSTANCE hInstance);
@@ -157,6 +154,9 @@ namespace Ogre {
         RenderWindow* createRenderWindow(const String &name, int width, int height, int colourDepth,
             bool fullScreen, int left = 0, int top = 0, bool depthBuffer = true,
             RenderWindow* parentWindowHandle = 0);
+
+        RenderTexture * createRenderTexture( const String & name, int width, int height );
+
         /** See
           RenderSystem
          */
