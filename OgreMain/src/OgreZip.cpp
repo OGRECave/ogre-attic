@@ -31,17 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
 
-#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
-static void strlwr(char* x)
-{
-    while (*x)
-    {
-        *x = tolower(*x);
-        x++;
-    }
-}
-#endif
-
 namespace Ogre {
 
     //-----------------------------------------------------------------------
@@ -179,13 +168,14 @@ namespace Ogre {
     {
         StringVector retVec;
         unz_file_info info;
-        char filename[260];
+        String filename;
+        String szPattern;
+        char tmpFilename[260];
         char extraField[260];
         char comment[260];
-        char szPattern[260];
 
-        strncpy( szPattern, strPattern.c_str(), 259 );
-        strlwr( szPattern );
+        szPattern = strPattern;
+        szPattern.toLowerCase();
 
         int iRes = unzGoToFirstFile(mArchive);
         while( iRes == UNZ_OK )
@@ -193,16 +183,19 @@ namespace Ogre {
 
             unzGetCurrentFileInfo( mArchive,
                          &info,
-                         filename, 259,
+                         tmpFilename, 259,
                          extraField, 259,
                          comment, 259 );
 
+            filename = tmpFilename;
+
             if( info.uncompressed_size > 0 )
             {
-                strlwr( filename );
-                if( strstr( filename, szPattern ) )
+                filename.toLowerCase();
+			
+                if( static_cast<int>(filename.find(szPattern)) >= 0 )
                 {
-                    retVec.push_back(String( filename) );
+                    retVec.push_back( filename );
                 }
             }
 
