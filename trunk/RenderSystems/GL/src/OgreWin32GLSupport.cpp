@@ -18,7 +18,8 @@
 using namespace Ogre;
 
 namespace Ogre {
-    Win32GLSupport::Win32GLSupport()
+	Win32GLSupport::Win32GLSupport():
+		mInitialWindow(0)
     {
     } 
 
@@ -219,6 +220,9 @@ namespace Ogre {
 
 		Win32Window* window = new Win32Window(*this);
 		window->create(name, width, height, fullScreen, miscParams);
+
+		if(!mInitialWindow)
+			mInitialWindow = window;
 		return window;
 	}
 
@@ -233,22 +237,20 @@ namespace Ogre {
 	}
 
 	void Win32GLSupport::initialiseExtensions() {
+		assert(mInitialWindow);
 		// First, initialise the normal extensions
 		GLSupport::initialiseExtensions();
-		// Welcome to the crazy world of W32 extension handling!
-		if(	!checkExtension("WGL_EXT_extensions_string") )
-			return;
 		// Check for W32 specific extensions probe function
-		PFNWGLGETEXTENSIONSSTRINGEXTPROC _wglGetExtensionsStringEXT = 
-			(PFNWGLGETEXTENSIONSSTRINGEXTPROC)wglGetProcAddress("wglGetExtensionsStringEXT");
-		if(!_wglGetExtensionsStringEXT)
+		PFNWGLGETEXTENSIONSSTRINGARBPROC _wglGetExtensionsStringARB = 
+			(PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+		if(!_wglGetExtensionsStringARB)
 			return;
-		const char *wgl_extensions = _wglGetExtensionsStringEXT();
+		const char *wgl_extensions = _wglGetExtensionsStringARB(mInitialWindow->getHDC());
         StringUtil::StrStreamType str;
         str << "Supported WGL extensions: " << wgl_extensions;
 		LogManager::getSingleton().logMessage(
 			LML_NORMAL, str.str());
-		// Parse the, and add them to the main list
+		// Parse them, and add them to the main list
 		std::stringstream ext;
         String instr;
 		ext << wgl_extensions;

@@ -52,6 +52,7 @@ namespace Ogre {
 		bool requiresTextureFlipping() const { return false; }
 
 		HWND getWindowHandle() const { return mHWnd; }
+		HDC getHDC() const { return mHDC; }
 		
 		// Method for dealing with resize / move & 3d library
 		virtual void windowMovedOrResized(void);

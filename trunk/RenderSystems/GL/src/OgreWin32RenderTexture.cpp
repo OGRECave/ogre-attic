@@ -147,8 +147,13 @@ namespace Ogre {
 		HGLRC old_context = wglGetCurrentContext();
 
 		// Bind to RGB or RGBA texture
-		int bttype = PixelUtil::hasAlpha(mInternalFormat)?
-			WGL_BIND_TO_TEXTURE_RGBA_ARB : WGL_BIND_TO_TEXTURE_RGB_ARB;
+		int bttype = 0;
+		if(mUseBind)
+		{
+			// Only provide bind type when actually binding
+			bttype = PixelUtil::hasAlpha(mInternalFormat)?
+				WGL_BIND_TO_TEXTURE_RGBA_ARB : WGL_BIND_TO_TEXTURE_RGB_ARB;
+		}
 		int texformat = PixelUtil::hasAlpha(mInternalFormat)?
 			WGL_TEXTURE_RGBA_ARB : WGL_TEXTURE_RGB_ARB;
 		// Make a float buffer?
@@ -158,20 +163,19 @@ namespace Ogre {
 		int depths[4];
 		PixelUtil::getBitDepths(mInternalFormat, depths);
 
-
 		int attrib[] = {
 			WGL_RED_BITS_ARB,depths[0],
 			WGL_GREEN_BITS_ARB,depths[1],
 			WGL_BLUE_BITS_ARB,depths[2],
 			WGL_ALPHA_BITS_ARB,depths[3],
-			WGL_STENCIL_BITS_ARB,8,
-			WGL_DEPTH_BITS_ARB,24,
+			WGL_STENCIL_BITS_ARB,1,
+			WGL_DEPTH_BITS_ARB,15,
 			WGL_DRAW_TO_PBUFFER_ARB,true,
 			WGL_SUPPORT_OPENGL_ARB,true,
 			WGL_PIXEL_TYPE_ARB,pixeltype,
-			bttype,true,
 			//WGL_DOUBLE_BUFFER_ARB,true,
 			//WGL_ACCELERATION_ARB,WGL_FULL_ACCELERATION_ARB, // Make sure it is accelerated
+			bttype,true, // must be last, as bttype can be zero
 			0
 		};
 		int pattrib[] = { 

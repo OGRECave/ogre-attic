@@ -64,6 +64,7 @@ namespace Ogre
 	private:
 		// Allowed video modes
 		std::vector<DEVMODE> mDevModes;
+		Win32Window *mInitialWindow;
 
 		void refreshConfig();
 	};
