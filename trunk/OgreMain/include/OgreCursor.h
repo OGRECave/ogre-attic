@@ -49,9 +49,15 @@ email                : kenny@sparksuit.com
 #include "OgreMouseTarget.h"
 
 namespace Ogre {
+	/** The Cursor is an non-visual object that contains a the XYZ values that 
+		are modified by a InputReader.
+	@remarks
+		An InputReader creates and contains a Cursor object that it uses when it 
+		is set to buffered input (using the EventQueue).
 
-    
-
+		To get a graphical representation of the cursor, a CursorGuiElement is
+		used, which is a MouseMotionListener to the Cursor.
+	*/
 	class _OgreExport Cursor : public MouseMotionTarget, public MouseTarget
     {
     protected:

@@ -70,6 +70,14 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
+	/** This class implements efficient and thread-safe multi-cast event 
+	  dispatching.
+	@remarks
+	  It manages an immutable structure consisting of a binary chain of 
+	  event listeners and will dispatch events to those listeners.  Because
+	  the structure is immutable, it is safe to use this API to add/remove
+	  listeners during the process of an event dispatch operation.
+	*/
     class _OgreExport EventMulticaster :  public MouseListener, public ActionListener
     {
     public:

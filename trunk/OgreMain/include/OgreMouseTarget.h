@@ -45,7 +45,16 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
-    class _OgreExport MouseTarget : public PositionTarget
+	
+	/** Handles the adding and removing of MouseListeners.
+	@remarks
+		This is implemented through the use of a binary multicaster.
+		See EventMulticaster.
+
+		GuiElements (or other components) that process the Mouse Event should subclass this class 
+		and call processMouseEvent when that event is identified.
+	*/
+	class _OgreExport MouseTarget : public PositionTarget
     {
     protected:
 		MouseListener* mMouseListener;

@@ -68,7 +68,24 @@ email                : kenny@sparksuit.com
 #include "OgreMouseMotionTarget.h"
 
 namespace Ogre {
-
+	/** The EventProcessor controls getting events, storing them in a queue, and 
+		dispatching events.
+	@remarks
+		An application can create an instance of this class to receive buffered input, as opposed
+		to creating an InputReader directly and retrieving snapshot state only. This class
+		contains an InputReader which it uses to create InputEvents which are then
+		stored FIFO in the EventQueue. 
+	@par
+		The EventProcessor is a frame listener, so each frame, it empties the entire
+		queue to the list of dispatchers. Each dispatcher corresponds to a registered TargetManager.
+		The TargetManagers need to be registered with the Processor before initialise is called.
+		After intialise is called, the Processor will start processing events once 
+		startProcessingEvents is called.
+	@par
+		The Processor acts like a default EventTarget, so it can process events that no dispatcher consumes.
+		You can listen default actions to the processor by e.g.
+			mProcessor->addMouseListener(defaultMouseMovement);
+	*/
     class _OgreExport EventProcessor : public FrameListener, public MouseTarget, public MouseMotionTarget, public Singleton<EventProcessor>
     {
     protected:

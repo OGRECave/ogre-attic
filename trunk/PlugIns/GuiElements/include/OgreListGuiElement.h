@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+
+	typedef std::list<Resource*> ResourceList;
     
 	/**
 	 * The listener interface for receiving "interesting" mouse events 
@@ -53,8 +55,6 @@ namespace Ogre {
 	 * the <code>MouseEvent</code> is passed to it.
 	 *
 	 */
-
-	typedef std::list<Resource*> ResourceList;
 	class ListGuiElement : public PanelGuiElement, public ListSelectionTarget, public ListChanger, public MouseListener
     {
 	public :

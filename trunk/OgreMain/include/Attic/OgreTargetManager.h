@@ -47,7 +47,13 @@ email                : kenny@sparksuit.com
 
 namespace Ogre {
 
-    class _OgreExport TargetManager 
+	/** An abstract interface, implemented by OverlayManager, to return a GuiElement at a given x,y 
+		position. 
+	@remarks
+		Custom TargetManagers can be written to get a 3D element from an x,y 
+		position so you can write mouse listeners for your 3D objects.
+	*/
+	class _OgreExport TargetManager 
     {
 	public:
 		virtual PositionTarget* getPositionTargetAt(Real x, Real y) = 0;
