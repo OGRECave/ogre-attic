@@ -80,6 +80,8 @@ namespace Ogre {
         /** Cache of data about to go to the renderer. */
         RenderOperation mPendingGeometry;
 
+        RenderOperation mRenderOp;
+
         // Debugging features
         bool mShowNodeAABs;
         RenderOperation mAABGeometry;

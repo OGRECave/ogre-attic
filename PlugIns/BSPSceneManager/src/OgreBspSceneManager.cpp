@@ -51,43 +51,6 @@ namespace Ogre {
         // Set features for debugging render
         mShowNodeAABs = false;
 
-        /* TODO
-        mAABGeometry.useIndexes = true;
-        mAABGeometry.numTextureCoordSets = 0; // no textures
-        mAABGeometry.vertexOptions = LegacyRenderOperation::VO_DIFFUSE_COLOURS;
-        mAABGeometry.operationType = LegacyRenderOperation::OT_LINE_LIST;
-        mAABGeometry.numVertices = 0;
-        mAABGeometry.numIndexes = 0;
-
-
-        // Set up some basics on cached geometry format
-        mPendingGeometry.useIndexes = true;
-        mPendingGeometry.numTextureCoordSets = 2; // texture + lightmap
-        mPendingGeometry.numTextureDimensions[0] = 2; // 2D coords
-        mPendingGeometry.numTextureDimensions[1] = 2; // 2D coords
-        mPendingGeometry.vertexOptions = LegacyRenderOperation::VO_NORMALS | LegacyRenderOperation::VO_TEXTURE_COORDS;
-        mPendingGeometry.operationType = LegacyRenderOperation::OT_TRIANGLE_LIST;
-        // Strides
-        // Format is:
-        //   vertex       3 x float
-        //   texCoord1    2 x float
-        //   texCoord2    2 x float
-        //   normal       3 x float
-        //   colour       1 x  int (not used except in models)
-        mPendingGeometry.vertexStride = sizeof(float) * 7 + sizeof(int);
-        mPendingGeometry.texCoordStride[0] = sizeof(float) * 8 + sizeof(int);
-        mPendingGeometry.texCoordStride[1] = sizeof(float) * 8 + sizeof(int);
-        mPendingGeometry.normalStride = sizeof(float) * 7 + sizeof(int);
-
-        mPendingGeometry.numVertices = 0;
-        mPendingGeometry.numIndexes = 0;
-        mPendingGeometry.pVertices = 0;
-        mPendingGeometry.pTexCoords[0] = 0;
-        mPendingGeometry.pTexCoords[1] = 0;
-        mPendingGeometry.pNormals = 0;
-        mPendingGeometry.pIndexes = 0;
-        */
-
         // Instantiate BspResourceManager
         // Will be managed by singleton
         mBspResMgr = new BspResourceManager();
@@ -130,22 +93,13 @@ namespace Ogre {
         // Load using resource manager
         mLevel = BspResourceManager::getSingleton().load(filename);
 
-        // Deallocate any previous pending geometry
-        freeMemory();
-        // Pre-allocate buffers for pending geometry
-        // Make them as big as they could ever need to be
-        // Vertex, texture coords and normals use same buffer
-        mPendingGeometry.pVertices = (Real *)( new BspLevel::BspVertex[mLevel->mNumVertices] );
-        mPendingGeometry.pTexCoords[0] = ((float*)mPendingGeometry.pVertices + 3);
-        mPendingGeometry.pTexCoords[1] = ((float*)mPendingGeometry.pVertices + 5);
-        mPendingGeometry.pNormals = ((float*)mPendingGeometry.pVertices + 7);
-        // Indexes use separate buffer
-        mPendingGeometry.pIndexes = new unsigned short[mLevel->mNumElements];
+        // Init static render operation
+        mRenderOp.vertexData = mLevel->mVertexData;
+        mRenderOp.indexData = mLevel->mIndexData;
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        mRenderOp.useIndexes = true;
 
-        // Also allocate memory for drawing bounding boxes
-        mAABGeometry.pVertices = new Real[8*3*mLevel->mNumLeaves];
-        mAABGeometry.pIndexes = new unsigned short[24*mLevel->mNumLeaves];
-        mAABGeometry.pDiffuseColour = new RGBA[8*mLevel->mNumLeaves];
+
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::_findVisibleObjects(Camera* cam)
@@ -161,6 +115,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::renderStaticGeometry(void)
     {
+        // Cache vertex/face data first
+        std::vector<StaticFaceGroup*>::const_iterator faceGrpi;
+        static RenderOperation patchOp;
+        
         // no world transform required
         mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
         // Set view / proj
@@ -174,20 +132,6 @@ namespace Ogre {
             // Get Material
             Material* thisMaterial = mati->first;
 
-
-            // Cache vertex/face data first
-            std::vector<StaticFaceGroup*>::const_iterator faceGrpi;
-
-            clearGeometryCaches();
-            for (faceGrpi = mati->second.begin(); faceGrpi != mati->second.end(); ++faceGrpi)
-            {
-                // Cache each
-                cacheGeometry(*faceGrpi);
-            }
-
-            // Skip if no faces to process (we're not doing flare types yet)
-            if (mPendingGeometry.numIndexes == 0)
-                continue;
             int matLayersLeft = thisMaterial->getNumTextureLayers();
 
             do
@@ -195,8 +139,42 @@ namespace Ogre {
                 // Set material - will return non-zero if multipass required so loop will continue, 0 otherwise
                 matLayersLeft = setMaterial(thisMaterial, matLayersLeft);
 
-                // Send rendering operation
-                mDestRenderSystem->_render(mPendingGeometry);
+                for (faceGrpi = mati->second.begin(); faceGrpi != mati->second.end(); ++faceGrpi)
+                {
+                    StaticFaceGroup* faceGroup = *faceGrpi;
+
+                    // Skip sky always
+                    if (faceGroup->isSky)
+                        continue;
+                    if (faceGroup->fType == FGT_FACE_LIST)
+                    {
+                        // Render standard face group
+                        // Update vertex data to reflect buffer subset
+                        mRenderOp.vertexData->vertexStart = faceGroup->vertexStart;
+                        mRenderOp.vertexData->vertexCount = faceGroup->numVertices;
+
+                        // Update index data to reflect buffer subset
+                        mRenderOp.indexData->indexStart = faceGroup->elementStart;
+                        mRenderOp.indexData->indexCount = faceGroup->numElements;
+                        
+                        mDestRenderSystem->_render(mRenderOp);
+
+                    }
+                    else if (faceGroup->fType == FGT_PATCH)
+                    {
+                        // Get mesh data
+                        // NB for now, subdivision level is preset
+                        // TODO: maybe dynamic based on frame rate?
+                        Mesh* msh;
+                        SubMesh* smsh;
+                        msh = faceGroup->patchSurf->getMesh();
+                        smsh = msh->getSubMesh(0);
+                        smsh->_getRenderOperation(patchOp);
+                        mDestRenderSystem->_render(patchOp);
+
+                    }
+
+                }
 
 
             } while (matLayersLeft > 0);
@@ -204,10 +182,12 @@ namespace Ogre {
 
         } // for each material
 
+        /*
         if (mShowNodeAABs)
         {
             mDestRenderSystem->_render(mAABGeometry);
         }
+        */
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::_renderVisibleObjects(void)
@@ -236,8 +216,6 @@ namespace Ogre {
 
         mMatFaceGroupMap.clear();
         mFaceGroupSet.clear();
-        mAABGeometry.numIndexes = 0;
-        mAABGeometry.numVertices = 0;
 
         // Scan through all the other leaf nodes looking for visibles
         int i = mLevel->mNumNodes - mLevel->mLeafStart;
@@ -367,14 +345,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::clearGeometryCaches(void)
     {
+        /*
         mPendingGeometry.numVertices = 0;
         mPendingGeometry.numIndexes = 0;
+        */
 
 
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::cacheGeometry(const StaticFaceGroup* faceGroup)
     {
+        /*
         // Skip sky always
         if (faceGroup->isSky)
             return;
@@ -435,28 +416,13 @@ namespace Ogre {
 
 
         }
-
+        */
 
     }
 
     //-----------------------------------------------------------------------
     void BspSceneManager::freeMemory(void)
     {
-        if (mPendingGeometry.pVertices)
-        {
-            delete [] mPendingGeometry.pVertices;
-            delete [] mPendingGeometry.pIndexes;
-            delete [] mAABGeometry.pVertices;
-            delete [] mAABGeometry.pIndexes;
-            delete [] mAABGeometry.pDiffuseColour;
-
-            mPendingGeometry.pVertices = 0;
-            mPendingGeometry.pIndexes = 0;
-            mAABGeometry.pVertices = 0;
-            mAABGeometry.pIndexes = 0;
-            mAABGeometry.pDiffuseColour;
-
-        }
     }
     //-----------------------------------------------------------------------
     void BspSceneManager::showNodeBoxes(bool show)
@@ -466,6 +432,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspSceneManager::addBoundingBox(AxisAlignedBox& aab, bool visible)
     {
+        /*
         unsigned long visibleColour;
         unsigned long nonVisibleColour;
         Root& r = Root::getSingleton();
@@ -531,7 +498,7 @@ namespace Ogre {
 
 
         }
-
+        */
 
     }
     //-----------------------------------------------------------------------

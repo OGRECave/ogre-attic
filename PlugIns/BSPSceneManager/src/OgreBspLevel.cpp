@@ -46,7 +46,6 @@ namespace Ogre {
     {
         mName = name;
         mRootNode = 0;
-        mVertices = 0;
         mBrushes = 0;
     }
 
@@ -80,19 +79,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BspLevel::unload()
     {
-        delete [] mVertices;
-        delete [] mElements;
+        delete mVertexData;
+        delete mIndexData;
         delete [] mFaceGroups;
         delete [] mLeafFaceGroups;
         delete [] mRootNode;
         delete [] mVisData.tableData;
         delete [] mBrushes;
 
-        mVertices = 0;
         mRootNode = 0;
         mFaceGroups = 0;
         mLeafFaceGroups = 0;
-        mElements = 0;
         mBrushes = 0;
     }
 
@@ -112,18 +109,59 @@ namespace Ogre {
         // Vertices
         //-----------------------------------------------------------------------
         // Allocate memory for vertices & copy
-        mNumVertices = q3lvl.mNumVertices;
-        mVertices = new BspVertex[mNumVertices];
-        memcpy(mVertices, q3lvl.mVertices, sizeof(BspVertex)*q3lvl.mNumVertices);
+        mVertexData = new VertexData();
 
-        // Correct texture coords
-        // Coords are flipped in Y axis!
-        // ---WHY???---
-        for (int verti = 0; verti < mNumVertices; ++verti)
+        /// Create vertex declaration
+        VertexDeclaration* decl = mVertexData->vertexDeclaration;
+        size_t offset = 0;
+        decl->addElement(0, offset, VET_FLOAT3, VES_POSITION);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        decl->addElement(0, offset, VET_FLOAT3, VES_NORMAL);
+        offset += VertexElement::getTypeSize(VET_FLOAT3);
+        decl->addElement(0, offset, VET_COLOUR, VES_DIFFUSE);
+        offset += VertexElement::getTypeSize(VET_COLOUR);
+        decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 0);
+        offset += VertexElement::getTypeSize(VET_FLOAT2);
+        decl->addElement(0, offset, VET_FLOAT2, VES_TEXTURE_COORDINATES, 1);
+        /// Create the vertex buffer
+        HardwareVertexBufferSharedPtr vbuf = HardwareBufferManager::getSingleton()
+            .createVertexBuffer(
+                sizeof(BspVertex), 
+                q3lvl.mNumVertices, 
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        /* COPY - Note that we can't just block-copy the vertex data because we have to reorder
+            our vertex elements; this is to ensure compatibility with older cards when using
+            hardware vertex buffers - Direct3D requires that the buffer format maps onto a
+            FVF in those older drivers. 
+        */
+        BspVertex* pVert = static_cast<BspVertex*>(
+            vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+        // Keep another base pointer for use later in patch building
+        BspVertex* pBaseVert = pVert;
+        for (int v = 0; v < q3lvl.mNumVertices; ++v)
         {
-            mVertices[verti].texcoords[1]  = 1 - mVertices[verti].texcoords[1];
-            mVertices[verti].lightmap[1]  = 1 - mVertices[verti].lightmap[1];
+            memcpy(pVert[v].position, q3lvl.mVertices[v].point, sizeof(Real) * 3);
+            memcpy(pVert[v].normal, q3lvl.mVertices[v].normal,  sizeof(Real) * 3);
+            pVert[v].colour = q3lvl.mVertices[v].color;
+            // Correct texture coords
+            // Coords are flipped in Y axis!
+            // ---WHY???---
+            pVert[v].texcoords[0]  = q3lvl.mVertices[v].texture[0];
+            pVert[v].texcoords[1]  = 1 - q3lvl.mVertices[v].texture[1];
+            pVert[v].lightmap[0]  = q3lvl.mVertices[v].lightmap[0];
+            pVert[v].lightmap[1]  = 1 - q3lvl.mVertices[v].lightmap[1];
         }
+        // IMPORTANT: leave the buffer locked for the moment since we use it
+        // later on in patch building
+        //vbuf->unlock();
+        // Setup binding
+        mVertexData->vertexBufferBinding->setBinding(0, vbuf);
+        // Set other data
+        // Note that vertexStart and vertexCount will both be overridden per 
+        // rendering subset when rendering for real
+        // Just initialised to the whole buffer for fun really :)
+        mVertexData->vertexStart = 0;
+        mVertexData->vertexCount = q3lvl.mNumVertices;
 
         //-----------------------------------------------------------------------
         // Faces
@@ -133,10 +171,21 @@ namespace Ogre {
         memcpy(mLeafFaceGroups, q3lvl.mLeafFaces, sizeof(int)*mNumLeafFaceGroups);
         mNumFaceGroups = q3lvl.mNumFaces;
         mFaceGroups = new StaticFaceGroup[mNumFaceGroups];
-        // Contents of faces are dealt with below along with materials
-        mNumElements = q3lvl.mNumElements;
-        mElements = new int[mNumElements];
-        memcpy(mElements, q3lvl.mElements, sizeof(int)*mNumElements);
+        // Set up index buffer
+        // NB Quake3 indexes are 32-bit
+        mIndexData = new IndexData();
+        mIndexData->indexBuffer = HardwareBufferManager::getSingleton()
+            .createIndexBuffer(
+                HardwareIndexBuffer::IT_32BIT, 
+                q3lvl.mNumElements, 
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+        mIndexData->indexBuffer->writeData(
+            0, mIndexData->indexBuffer->getSizeInBytes(), q3lvl.mElements, true);
+        // NB indexStart / indexCount will be overridden later based on rendering subsets
+        // Just initialised to the whole buffer for fun really :)
+        mIndexData->indexStart = 0;
+        mIndexData->indexCount = q3lvl.mNumElements;
+
         //-----------------------------------------------------------------------
         // Create materials for shaders
         //-----------------------------------------------------------------------
@@ -157,8 +206,7 @@ namespace Ogre {
         int face;
         face = q3lvl.mNumFaces;
         int matHandle;
-        char meshName[32];
-        GeometryData ctl;
+        String meshName;
 
         while(face--)
         {
@@ -270,24 +318,18 @@ namespace Ogre {
                     dest->patchSurf = new PatchSurface();
                     // Set up control points & format
                     // Same format as in BspSceneManager::mPendingGeometry - see that for details
-                    ctl.hasColours = false; // In vertex format, but not used
-                    ctl.hasNormals = true;
-                    ctl.numTexCoords = 2;
-                    ctl.numTexCoordDimensions[0] = 2;
-                    ctl.numTexCoordDimensions[1] = 2;
-                    ctl.numVertices = dest->numVertices;
-                    ctl.vertexStride = sizeof(float) * 7 + sizeof(int);
-                    ctl.texCoordStride[0] = sizeof(Real) * 8 + sizeof(int);
-                    ctl.texCoordStride[1] = sizeof(Real) * 8 + sizeof(int);
-                    ctl.normalStride = sizeof(Real) * 7 + sizeof(int);
-                    ctl.pVertices = (Real*)(mVertices + dest->vertexStart);
-                    ctl.pTexCoords[0] = ctl.pVertices + 3;
-                    ctl.pTexCoords[1] = ctl.pVertices + 5;
-                    ctl.pNormals = ctl.pVertices + 7;
-
-                    sprintf(meshName, "BezierPatch%d", face);
-                    dest->patchSurf->defineSurface(meshName, ctl, src->mesh_cp[0], PatchSurface::PST_BEZIER);
-
+                    // Reuse the declaration from mVertexData
+                    BspVertex* pPatchVertex = pBaseVert + dest->vertexStart;
+                    meshName = "BspBezierPatch" + StringConverter::toString(face);
+                    // For the moment, just define 1 level of subdivision ie AUTO_LEVEL
+                    dest->patchSurf->defineSurface(
+                        meshName, 
+                        pPatchVertex, 
+                        mVertexData->vertexDeclaration, 
+                        src->mesh_cp[0],
+                        src->mesh_cp[1],
+                        PatchSurface::PST_BEZIER);
+                    // Build the patch
                     dest->patchSurf->build();
                 }
 
@@ -296,6 +338,9 @@ namespace Ogre {
 
 
         }
+
+        // unlock vertex buffer
+        vbuf->unlock();
 
         //-----------------------------------------------------------------------
         // Nodes
