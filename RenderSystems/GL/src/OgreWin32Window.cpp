@@ -52,8 +52,7 @@ namespace Ogre {
     }
 
     void Win32Window::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
-                           bool fullScreen, int left, int top, bool depthBuffer,
-                           void* miscParam, ...)
+                           bool fullScreen, int left, int top, bool depthBuffer, void *miscParam, ...)
     {
         HWND parentHWnd;
 		HINSTANCE hInst = GetModuleHandle("RenderSystem_GL.dll");
@@ -64,15 +63,14 @@ namespace Ogre {
 		// miscParam[1] = bool vsync
 		// miscParam[2] = int displayFrequency
 
-		va_list marker;
-		va_start( marker, depthBuffer );
-
-		tempPtr = va_arg( marker, long );
-		Win32Window* parentRW = reinterpret_cast<Win32Window*>(tempPtr);
+		Win32Window* parentRW = reinterpret_cast<Win32Window*>(miscParam);
 		if( parentRW == NULL )
 			parentHWnd = 0;
 		else
 			parentHWnd = parentRW->getWindowHandle();
+
+		va_list marker;
+		va_start( marker, miscParam );
 
 		tempPtr = va_arg( marker, long );
 		bool vsync = (tempPtr != 0);
@@ -340,7 +338,8 @@ namespace Ogre {
 		Codec * pCodec = Codec::getCodec(extension);
 
 		// Write out
-        pCodec->codeToFile(streamFlipped, filename, Codec::CodecDataPtr(imgData));
+		Codec::CodecDataPtr ptr(imgData);
+        pCodec->codeToFile(streamFlipped, filename, ptr);
 
 		delete [] pBuffer;
 	}
