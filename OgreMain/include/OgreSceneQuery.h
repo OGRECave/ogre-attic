@@ -32,27 +32,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-
-    /** This optional class allows you to receive per-result callbacks from
-        SceneQuery executions instead of a single set of consolidated results.
-    @remarks
-        You should override this with your own subclass. Note that certain query
-        classes may refine this listener interface.
-    */
-    class _OgreExport SceneQueryListener
-    {
-    public:
-        /** Called when a MovableObject is returned by a query.
-        @remarks
-            The implementor should return 'true' to continue returning objects,
-            or 'false' to abandon any further results from this query.
-        */
-        virtual bool queryResult(MovableObject* object) = 0;
-        // TODO: world geometry callback
-        //virtual bool queryResult(WorldFragment* fragment);
-        
-    };
-
+    // forward declaration
+    class SceneQueryListener;
     /** A class for performing queries on a scene.
     @remarks
         This is an abstract class for performing a query on a scene, i.e. to retrieve
@@ -90,20 +71,41 @@ namespace Ogre {
         enum WorldFragmentType {
             /// Return no world geometry hits at all
             WFT_NONE,
-            /// Return pointers to the renderable geometry
-            WFT_NORMAL,
-            /// Return pointers to simplified geometry, the exact nature of which is up to the SceneManager
-            WFT_SIMPLIFIED,
-            /// Custom type, placeholder for possible extensions
-            WFT_CUSTOM_1,
-            /// Custom type, placeholder for possible extensions
-            WFT_CUSTOM_2,
-            /// Custom type, placeholder for possible extensions
-            WFT_CUSTOM_3
+            /// Return pointers to convex plane-bounded regions
+            WFT_PLANE_BOUNDED_REGION,
+            /// Return a single intersection point (typically RaySceneQuery only)
+            WFT_SINGLE_INTERSECTION,
+            /// Custom geometry as defined by the SceneManager
+            WFT_CUSTOM_GEOMETRY
+        };
+
+        /** Represents part of the world geometry that is a result of a SceneQuery. 
+        @remarks
+            Since world geometry is normally vast and sprawling, we need a way of
+            retrieving parts of it based on a query. That is what this struct is for;
+            note there are potentially as many data structures for world geometry as there
+            are SceneManagers, however this structure includes a few common abstractions as 
+            well as a more general format.
+        @par
+            The type of world fragment that is returned from a query depends on the
+            SceneManager, and the option set using SceneQuery::setWorldFragmentType. 
+            You can see what fragment types are supported on the query in question by
+            calling SceneQuery::getSupportedWorldFragmentTypes().
+        */
+        struct WorldFragment {
+            /// The type of this world fragment
+            WorldFragmentType fragmentType;
+            /// Single intersection point, only applicable for WFT_SINGLE_INTERSECTION
+            Vector3 singleIntersection;
+            /// Planes bounding a convex region, only applicable for WFT_PLANE_BOUNDED_REGION
+            std::list<Plane>* planes;
+            // Raw geometry, only applicable for WFT_CUSTOM_GEOMETRY
+            GeometryData* geometry;
         };
     protected:
         SceneManager* mParentSceneMgr;
         unsigned long mQueryMask;
+        std::set<WorldFragmentType> mSupportedWorldFragments;
         WorldFragmentType mWorldFragmentType;
     
     public:
@@ -139,6 +141,34 @@ namespace Ogre {
         /** Gets the current world fragment types to be returned from the query. */
         virtual WorldFragmentType getWorldFragmentType(void);
 
+        /** Returns the types of world fragments this query supports. */
+        virtual const std::set<WorldFragmentType>* getSupportedWorldFragmentTypes(void) 
+            {return &mSupportedWorldFragments;}
+
+        
+    };
+
+    /** This optional class allows you to receive per-result callbacks from
+        SceneQuery executions instead of a single set of consolidated results.
+    @remarks
+        You should override this with your own subclass. Note that certain query
+        classes may refine this listener interface.
+    */
+    class _OgreExport SceneQueryListener
+    {
+    public:
+        /** Called when a MovableObject is returned by a query.
+        @remarks
+            The implementor should return 'true' to continue returning objects,
+            or 'false' to abandon any further results from this query.
+        */
+        virtual bool queryResult(MovableObject* object) = 0;
+        /** Called when a WorldFragment is returned by a query.
+        @remarks
+            The implementor should return 'true' to continue returning objects,
+            or 'false' to abandon any further results from this query.
+        */
+        virtual bool queryResult(SceneQuery::WorldFragment* fragment) = 0;
         
     };
 
@@ -308,7 +338,7 @@ namespace Ogre {
             if further results are required, or 'false' to abandon any further results from
             the current query.
         */
-        //virtual bool queryResult(MovableObject* movable, WorldFragment* fragment);
+        virtual bool queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment) = 0;
 
         /* NB there are no results for world fragments intersecting other world fragments;
            it is assumed that world geometry is either static or at least that self-intersections
@@ -318,16 +348,16 @@ namespace Ogre {
     };
         
     typedef std::pair<MovableObject*, MovableObject*> SceneQueryMovableObjectPair;
-    //typedef std::pair<MovableObject*, WorldFragment*> SceneQueryMovableObjectWorldFragmentPair;
+    typedef std::pair<MovableObject*, SceneQuery::WorldFragment*> SceneQueryMovableObjectWorldFragmentPair;
     typedef std::list<SceneQueryMovableObjectPair> SceneQueryMovableIntersectionList;
-    //typedef std::list<MovableObjectWorldFragmentPair> SceneQueryMovableWorldFragmentIntersectionList;
+    typedef std::list<SceneQueryMovableObjectWorldFragmentPair> SceneQueryMovableWorldFragmentIntersectionList;
     /** Holds the results of an intersection scene query (pair values). */
     struct _OgreExport IntersectionSceneQueryResult
     {
         /// List of movable objects in the query (entities, particle systems etc)
         SceneQueryMovableIntersectionList movables2movables;
         // TODO: add world geometry fragment list
-        //SceneQueryMovableWorldFragmentIntersectionList movables2world;
+        SceneQueryMovableWorldFragmentIntersectionList movables2world;
         
         
 

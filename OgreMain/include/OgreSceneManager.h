@@ -1155,8 +1155,8 @@ namespace Ogre {
         void execute(IntersectionSceneQueryListener* listener);
         /** Self-callback in order to deal with execute which returns collection. */
         bool queryResult(MovableObject* first, MovableObject* second);
-
-
+        /** Self-callback in order to deal with execute which returns collection. */
+        bool queryResult(MovableObject* movable, SceneQuery::WorldFragment* fragment);
     };
 
 
