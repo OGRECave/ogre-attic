@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /Ob0 /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /I "..\src\atifs\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob0 /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /I "..\src\atifs\include" /I "..\src\glsl\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "NDEBUG"
@@ -73,7 +73,7 @@ PostBuild_Cmds=copy ..\bin\Release\*.dll ..\..\..\Samples\Common\bin\Release
 # PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /I "..\src\atifs\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\src\win32" /I "..\..\..\OgreMain\include" /I "..\..\..\Dependencies\include" /I "..\src\nvparse" /I "..\src\atifs\include" /I "..\src\glsl\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "RENDERSYSTEM_GL_EXPORTS" /D "OGRE_GL_USE_MULTITEXTURING" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x418 /d "_DEBUG"
@@ -437,6 +437,58 @@ SOURCE=..\src\atifs\src\ps_1_4.cpp
 # Begin Source File
 
 SOURCE=..\src\atifs\include\ps_1_4.h
+# End Source File
+# End Group
+# Begin Group "glsl"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\src\GLSL\src\OgreGLSLExtSupport.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\include\OgreGLSLExtSupport.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\src\OgreGLSLGpuProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\include\OgreGLSLGpuProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\src\OgreGLSLLinkProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\include\OgreGLSLLinkProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\src\OgreGLSLLinkProgramManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\include\OgreGLSLLinkProgramManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\src\OgreGLSLProgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\include\OgreGLSLProgram.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\src\OgreGLSLProgramFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\GLSL\include\OgreGLSLProgramFactory.h
 # End Source File
 # End Group
 # End Target
