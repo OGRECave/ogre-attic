@@ -128,7 +128,7 @@ macroScript showOgreExportTools
 			SPscale.value = lastScale as Float;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				editObject.text = select[1].name ;
 				OgreExportMesh.CBexportMesh.enabled = true;
@@ -149,7 +149,7 @@ macroScript showOgreExportTools
 		(
 			max tool hlist ;
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				editObject.text = select[1].name ;
 			
@@ -233,7 +233,7 @@ macroScript showOgreExportTools
 				if (OgreExportMaterial.CBexportmaterial.enabled and OgreExportMaterial.CBexportmaterial.checked) then
 				(
 					select = getCurrentSelection() ;
-					if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+					if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 					(
 						mat = select[1].material
 						if (exportSomeMaterial!=undefined) then		-- export with Octopus functions
@@ -335,17 +335,24 @@ macroScript showOgreExportTools
 			OgreExportMesh.SPchannels.enabled = false ;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				OgreExportMesh.CBexportMesh.enabled = true;
 				OgreExportMesh.CBexportMesh.checked = true;
 				OgreExportMesh.CBflipnormals.enabled = true ;
 				OgreExportMesh.CBexportColor.enabled = true ;
 				OgreExportMesh.CBexportUV.enabled = true ;
-				if (getNumTVerts select[1] == 0) then
-					OgreExportMesh.CBexportUV.checked = false ;
+				if (classof select[1] == Editable_Mesh) then
+				(
+					if (getNumTVerts select[1] == 0) then
+						OgreExportMesh.CBexportUV.checked = false ;
+					else
+						OgreExportMesh.CBexportUV.checked = true ;
+				)
 				else
-					OgreExportMesh.CBexportUV.checked = true ;
+				(
+					OgreExportMesh.CBexportUV.checked = false ;
+				)
 				OgreExportMesh.SPchannels.enabled = true ;
 			)
 		)
@@ -410,7 +417,7 @@ macroScript showOgreExportTools
 			OgreExportAnimation.SPanimlength.enabled = false;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				OgreExportAnimation.CBexportSkeleton.enabled = (getSkin(select[1]) != undefined) or (getPhysique(select[1]) != undefined) ;
 				if (OgreExportAnimation.CBexportSkeleton.enabled and OgreExportAnimation.CBexportSkeleton.checked) then
@@ -437,7 +444,7 @@ macroScript showOgreExportTools
 		on CBexportSkeleton changed state do
 		(
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				--OgreExportAnimation.CBbiped.enabled = state;
 				--OgreExportAnimation.CBbiped.checked = (getPhysique(select[1]) != undefined);
@@ -459,7 +466,7 @@ macroScript showOgreExportTools
 		on getFromModifier pressed  do
 		(
 			select = getCurrentSelection()
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				max modify mode ;
 				--if (select[1].modifiers["OctopusExport"]!=undefined) then
@@ -570,7 +577,7 @@ macroScript showOgreExportTools
 			CBexportmaterial.enabled = false;
 
 			select = getCurrentSelection() ;
-			if ((select[1]!=undefined) and (classof select[1]==Editable_mesh)) then
+			if ((select[1]!=undefined) and (iskindof select[1] GeometryClass)) then
 			(
 				CBexportmaterial.enabled = true;
 			)		
