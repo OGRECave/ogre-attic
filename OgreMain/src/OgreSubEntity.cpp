@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTagPoint.h"
 #include "OgreLogManager.h"
 #include "OgreMesh.h"
+#include "OgreException.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
