@@ -69,7 +69,10 @@ namespace Ogre {
         Real getWeight(void) const;
         /// Sets the weight (influence) of this animation
         void setWeight(Real weight);
-        /// Modifies the time position, adjusting for animation length
+        /** Modifies the time position, adjusting for animation length
+        @remarks
+            This method loops at the edges if animation looping is enabled.
+        */
         void addTime(Real offset);
 
         /// Returns true if this animation is currently enabled
@@ -87,7 +90,12 @@ namespace Ogre {
 
         /** ControllerValue implementation. */
         void setValue(Real value);
-
+        /** Sets whether or not an animation loops at the start and end of
+            the animation if the time continues to be altered.
+        */
+        void setLoop(bool loop) { mLoop = loop; }
+        /// Gets whether or not this animation loops            
+        bool getLoop(void) { return mLoop; }
      
     protected:
         String mAnimationName;
@@ -96,6 +104,7 @@ namespace Ogre {
         Real mInvLength;
         Real mWeight;
         bool mEnabled;
+        bool mLoop;
 
     };
 
