@@ -205,6 +205,15 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+		// Check capabilities
+		const RenderSystemCapabilities* caps = Root::getSingleton().getRenderSystem()->getCapabilities();
+        if (!caps->hasCapability(RSC_TEXTURE_3D))
+        {
+            OGRE_EXCEPT(1, "Your card does not support 3D textures (or you selected D3D7), so cannot "
+                "run this demo. Sorry!", 
+                "VolTex::createScene");
+        }
+		
         // Create dynamic texture
 		ptex = TextureManager::getSingleton().createManual(
 			"DynaTex","General", TEX_TYPE_3D, 64, 64, 64, 0, PF_A8R8G8B8);

@@ -737,6 +737,13 @@ namespace Ogre
 			}
 			
 		}
+		
+		// 3D textures?
+		if (mCaps.TextureCaps & D3DPTEXTURECAPS_VOLUMEMAP)
+		{
+			mCapabilities->setCapability(RSC_TEXTURE_3D);
+		}
+		
         // non-power-of-two texturs always supported
         mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
 
