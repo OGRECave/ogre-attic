@@ -46,16 +46,13 @@ namespace Ogre {
     protected:
         Material* mMaterial;
         RenderOperation mRenderOp;
-        ShadowRenderable* mLightCap;
     public:
-        ShadowRenderable() : mMaterial(0), mLightCap(0) {}
-        virtual ~ShadowRenderable() { delete mLightCap; }
+        ShadowRenderable() : mMaterial(0) {}
+        virtual ~ShadowRenderable() { }
         /** Set the material to be used by the shadow, should be set by the caller 
           before adding to a render queue
         */
         void setMaterial(Material* mat) { mMaterial = mat; }
-        /// Get the light cap version of this renderable
-        ShadowRenderable* getLightCapRenderable(void) { return mLightCap; }
         /// Overridden from Renderable
         Material* getMaterial(void) const { return mMaterial; }
         /// Overridden from Renderable
