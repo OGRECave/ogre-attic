@@ -43,9 +43,10 @@ namespace Ogre {
         in your modeller).
     @par
         To export a Mesh:<OL>
-        <LI>call createMesh and populate the returned Mesh object</LI>
-        <LI>optionally call createMaterial 1 or more times to create the material definitions</LI>
-        <LI>call export</LI>
+        <LI>Use the MaterialManager methods to create any dependent Material objects, if you want
+            to export them with the Mesh.</LI>
+        <LI>Create a Mesh object and populate it using it's methods.</LI>
+        <LI>Call the export method</LI>
         </OL>
     @par
         It's important to realise that this exporter uses OGRE terminology. In this context,
@@ -60,46 +61,8 @@ namespace Ogre {
         MeshSerializer();
         virtual ~MeshSerializer();
 
-        /** Tells this class whether it should automatically free the Mesh memory it creates.
-        @remarks
-            This parameter determines whether the internal Mesh object that this class holds should 
-            be deleted by this class. The default is 'true' which is
-            probably what you want for exporters. However when importing you may wish to just
-            transfer the Mesh object over to another class rather than destroy this one
-            and create a copy. So internally OGRE uses this to minimise memory thrashing.
-        @param shouldDelete If true, the internal Mesh will be deleted by this class. If false, 
-            it expects other classes to take responsibility.
-        */
-        void setAutoDeleteMeshes(bool shouldDelete);
 
-        /** Creates a new Mesh ready to be exported.
-        @remarks
-            Exporters can call this to create a new Mesh ready to be exported.
-            It can then call all the usual Mesh methods like createSubMesh etc to build up the
-            required data. Once happy with the Mesh, and after creating any Materials you
-            may want to include in the .mesh file, call exportToFile.
-        @par If a Mesh had previously been created (and probably exported) it will be deleted if the
-            setAutoDeleteMeshes option is true (the default). Materials will also be deleted.
-        */
-        Mesh* createMesh(void);
-
-        /** Creates a new material as used by the mesh you are exporting. 
-        @remarks
-            Once created, you can modify the properties of this Material exactly as
-            per the standard Material obejcts in OGRE.
-        */
-        Material* createMaterial(const String& name);
-
-
-        /** Exports the stored mesh data to the file specified. 
-        @remarks
-            This method exports the Mesh and Material data held in this class to the specified
-            file.
-        @param filename The destination filename
-        */
-        void export(const String& filename);
-
-        /** Exports an externally stored mesh to the file specified. 
+        /** Exports a mesh to the file specified. 
         @remarks
             This method takes an externally created Mesh object, and exports both it
             and optionally the Materials it uses to a .mesh file.
@@ -107,40 +70,25 @@ namespace Ogre {
         @param filename The destination filename
         @param includeMaterials If true, Material data is also exported into the file.
         */
-        void exportOther(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
+        void export(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
 
-        /** Imports Mesh and (optionally) Material data from a DataChunk.
+        /** Imports Mesh and (optionally) Material data from a .mesh file DataChunk.
         @remarks
-            After calling this method, you can call getMesh and getMaterial to retrieve the
-            data imported from the chunk. 
+            This method imports data from a DataChunk opened from a .mesh file and places it's
+            contents into the Mesh object which is passed in. 
+        @param chunk The DataChunk holding the .mesh data. Must be initialised (pos at the start of the buffer).
+        @param pDest Pointer to the Mesh object which will receive the data. Should be blank already.
         */
-        void import(DataChunk& chunk);
+        void import(DataChunk& chunk, Mesh* pDest);
 
-        /** Returns a pointer to an imported Mesh.
+        /** Imports Mesh and (optionally) Material data from legacy .oof file DataChunk.
         @remarks
-            If you intend to use this Mesh object as-is and not copy it, ensure you call
-            setAutoDeleteMeshes(false) otherwise the Mesh will be freed later on.
+            <b>Deprecated</b>. This method is provided for backwards-compatibility only. 
+            It imports data from a .oof file which was OGRE's previous mesh data format.
         */
-        Mesh* getMesh(void);
-
-        /** Gets an imported Material by index. 
-        @remarks
-            You should copy this Material and not assume the object will remain in existence.
-        */
-        Material* getMaterial(size_t index);
-
-        /** Gets an imported Material by it's name. 
-        @remarks
-            You should copy this Material and not assume the object will remain in existence.
-        */
-        Material* getMaterial(const String& name);
-
-        /** Returns the number of imported Material objects. */
-        size_t getNumMaterials(void);
-
+        void importLegacyOof(DataChunk& chunk, Mesh* pDest);
 
     private:
-        bool mShouldDelete;
         typedef std::map<String, Material*> MaterialMap;
         MaterialMap mMaterialList;
         Mesh* mpMesh;
@@ -148,8 +96,6 @@ namespace Ogre {
         String mVersion;
 
         // Internal methods
-        void freeMemory(void);
-
         void writeFileHeader(unsigned short numMaterials);
         void writeChunkHeader(unsigned short id, unsigned long size);
         void writeMaterial(const Material* m);

@@ -54,7 +54,7 @@ namespace Ogre {
             subEnt->mParentEntity = this;
             subEnt->mSubMesh = subMesh;
             if (subMesh->isMatInitialised())
-                subEnt->setMaterialName(subMesh->getMaterial()->getName());
+                subEnt->setMaterialName(subMesh->getMaterialName());
             mSubEntityList.push_back(subEnt);
         }
 

@@ -24,11 +24,11 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreMesh.h"
 
-#include "OgreOofModelFile.h"
 #include "OgreSubMesh.h"
 #include "OgreMaterialManager.h"
 #include "OgreLogManager.h"
 #include "OgreDataChunk.h"
+#include "OgreMeshSerializer.h"
 
 
 
@@ -104,7 +104,7 @@ namespace Ogre {
 
         if (!mManuallyDefined)
         {
-
+            MeshSerializer serializer;
             char msg[100];
             sprintf(msg, "Mesh: Loading %s .", mName.c_str());
             LogManager::getSingleton().logMessage(msg);
@@ -113,50 +113,18 @@ namespace Ogre {
             MeshManager::getSingleton()._findResourceData(mName, chunk);
 
             // Determine file type
-            // Manipulate using C-strings as case-insensitive compare is hard in STL?
-            char extension[4];
+            std::vector<String> extVec = mName.split(".");
 
-            int pos = mName.find_last_of(".");
-            if (pos == -1)
-                Except(999, "Unable to load mesh - invalid extension.",
-                    "Mesh::load");
+            String& ext = extVec[extVec.size() - 1];
+            ext.toLowerCase();
 
-            strcpy(extension, mName.substr(pos + 1, 3).c_str());
-
-            if (!stricmp(extension, "oof"))
+            if (ext == "oof")
             {
-                // Load from OOF (Ogre Object File)
-                OofModelFile oofModel;
-                oofModel.load(chunk);
-
-                // Set memory deallocation off (allows us to use pointers)
-                oofModel.autoDeallocateMemory = false;
-                // Copy root-level geometry, including pointers
-                // We've told the OofModel not to deallocate
-                this->sharedGeometry = oofModel.sharedGeometry;
-
-                // Create sub-meshes from the loaded model
-                for (unsigned int meshNo = 0; meshNo < oofModel.materials.size(); ++meshNo)
-                {
-                    SubMesh* sub = new SubMesh();
-                    sub->parent = this;
-                    // Copy submesh geometry if present
-                    sub->useSharedVertices = oofModel.materials[meshNo].useSharedVertices;
-                    if (!sub->useSharedVertices)
-                    {
-                        sub->geometry = oofModel.materials[meshNo].materialGeometry;
-                    }
-
-                    sub->setMaterial(oofModel.materials[meshNo].material);
-
-                    sub->numFaces = oofModel.materials[meshNo].numFaces;
-                    sub->faceVertexIndices = oofModel.materials[meshNo].pIndexes;
-
-                    mSubMeshList.push_back(sub);
-                }
-
-
-
+                serializer.importLegacyOof(chunk, this);
+            }
+            else if (ext == "mesh")
+            {
+                serializer.import(chunk, this);
             }
             else
             {
@@ -169,7 +137,6 @@ namespace Ogre {
             chunk.free();
         }
 
-        _registerMaterials();
         _updateBounds();
 
     }
@@ -217,39 +184,6 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Mesh::_registerMaterials(void)
-    {
-        // Register each of submeshes materials with MaterialManager
-        SubMeshList::iterator i;
-        for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
-        {
-            if ((*i)->isMatInitialised())
-            {
-                try {
-                    MaterialManager::getSingleton().add(*(*i)->getMaterial());
-                }
-                catch (Exception& e)
-                {
-                    if(e.getNumber() == Exception::ERR_DUPLICATE_ITEM)
-                    {
-                        // Material already exists
-                        char msg[256];
-                        sprintf(msg, "Material '%s' in model '%s' has been ignored "
-                            "because a material with the same name has already "
-                            "been registered.", (*i)->getMaterial()->getName().c_str(),
-                            mName.c_str());
-                        LogManager::getSingleton().logMessage(msg);
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-
-        }
-    }
-    //-----------------------------------------------------------------------
     void Mesh::_dumpContents(String filename)
     {
         std::ofstream of;
@@ -266,7 +200,7 @@ namespace Ogre {
         for (SubMeshList::iterator i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
         {
             of << "-= SubMesh Entry =-" << std::endl;
-            of << "Material Name = " << (*i)->getMaterial()->getName() << std::endl;
+            of << "Material Name = " << (*i)->getMaterialName() << std::endl;
             of << "numFaces = " << (*i)->numFaces << std::endl;
             of << "useSharedVertices = " << (*i)->useSharedVertices << std::endl;
             if (!(*i)->useSharedVertices)
@@ -380,7 +314,7 @@ namespace Ogre {
         for (subi = mSubMeshList.begin(); subi != mSubMeshList.end(); ++subi)
         {
             newSub = newMesh->createSubMesh();
-            newSub->mMaterial = (*subi)->mMaterial;
+            newSub->mMaterialName = (*subi)->mMaterialName;
             newSub->mMatInitialised = (*subi)->mMatInitialised;
             newSub->numFaces = (*subi)->numFaces;
             newSub->parent = newMesh;

@@ -93,15 +93,15 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void SubMesh::setMaterial(const Material& mat)
+    void SubMesh::setMaterialName(const String& name)
     {
-        mMaterial = mat;
+        mMaterialName = name;
         mMatInitialised = true;
     }
     //-----------------------------------------------------------------------
-    const Material* SubMesh::getMaterial() const
+    const String& SubMesh::getMaterialName() const
     {
-        return &mMaterial;
+        return mMaterialName;
     }
     //-----------------------------------------------------------------------
     bool SubMesh::isMatInitialised(void) const
