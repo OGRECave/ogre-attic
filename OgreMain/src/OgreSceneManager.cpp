@@ -149,6 +149,15 @@ void SceneManager::initRenderQueue(void)
 //-----------------------------------------------------------------------
 Camera* SceneManager::createCamera(const String& name)
 {
+    // Check name not used
+    if (mCameras.find(name) != mCameras.end())
+    {
+        Except(
+            Exception::ERR_DUPLICATE_ITEM,
+            "A camera with the name " + name + " already exists",
+            "SceneManager::createCamera" );
+    }
+
     Camera *c = new Camera(name, this);
     mCameras.insert(CameraList::value_type(name, c));
 
@@ -221,6 +230,15 @@ void SceneManager::removeAllCameras(void)
 //-----------------------------------------------------------------------
 Light* SceneManager::createLight(const String& name)
 {
+    // Check name not used
+    if (mLights.find(name) != mLights.end())
+    {
+        Except(
+            Exception::ERR_DUPLICATE_ITEM,
+            "A light with the name " + name + " already exists",
+            "SceneManager::createLight" );
+    }
+
     Light *l = new Light(name);
     mLights.insert(SceneLightList::value_type(name, l));
     return l;
@@ -494,12 +512,22 @@ Material* SceneManager::getMaterial(int handle)
 SceneNode* SceneManager::createSceneNode(void)
 {
     SceneNode* sn = new SceneNode(this);
+    assert(mSceneNodes.find(sn->getName()) == mSceneNodes.end());
     mSceneNodes[sn->getName()] = sn;
     return sn;
 }
 //-----------------------------------------------------------------------
 SceneNode* SceneManager::createSceneNode(const String& name)
 {
+    // Check name not used
+    if (mSceneNodes.find(name) != mSceneNodes.end())
+    {
+        Except(
+            Exception::ERR_DUPLICATE_ITEM,
+            "A scene node with the name " + name + " already exists",
+            "SceneManager::createSceneNode" );
+    }
+
     SceneNode* sn = new SceneNode(this, name);
     mSceneNodes[sn->getName()] = sn;
     return sn;
@@ -2071,6 +2099,15 @@ Real SceneManager::getFogDensity(void) const
 //-----------------------------------------------------------------------
 BillboardSet* SceneManager::createBillboardSet(const String& name, unsigned int poolSize)
 {
+    // Check name not used
+    if (mBillboardSets.find(name) != mBillboardSets.end())
+    {
+        Except(
+            Exception::ERR_DUPLICATE_ITEM,
+            "A billboard set with the name " + name + " already exists",
+            "SceneManager::createBillboardSet" );
+    }
+
     BillboardSet* set = new BillboardSet( name, poolSize );
     mBillboardSets[name] = set;//.insert(BillboardSetList::value_type(name, set));
 
@@ -2124,6 +2161,15 @@ void SceneManager::setDisplaySceneNodes(bool display)
 //-----------------------------------------------------------------------
 Animation* SceneManager::createAnimation(const String& name, Real length)
 {
+    // Check name not used
+    if (mAnimationsList.find(name) != mAnimationsList.end())
+    {
+        Except(
+            Exception::ERR_DUPLICATE_ITEM,
+            "An animation with the name " + name + " already exists",
+            "SceneManager::createAnimation" );
+    }
+
     Animation* pAnim = new Animation(name, length);
     mAnimationsList[name] = pAnim;
     return pAnim;
