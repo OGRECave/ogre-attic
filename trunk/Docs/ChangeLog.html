@@ -84,6 +84,102 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.14.0 (12 May 2004) - Major
+Release<br>
+</p>
+<p align="left">Enhancements:<br>
+</p>
+<ul>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">Shadows</span></li>
+  <ul>
+    <li>3 different techniques:</li>
+    <ul>
+      <li>Modulative stencil shadows (simple extra pass darkens the
+shadowed areas)</li>
+      <li>Additive stencil shadows (masking of light contribution, aka
+Doom3-style, including a smart pass categoriser / splitter which means
+you don't need to rewrite your materials)</li>
+      <li>Modulative projective texture shadows</li>
+    </ul>
+    <li>Multiple stencil shadow optimisations, including vertex program
+extrusion, smart light and shadow caster culling, integration with mesh
+LOD, zpass and zfail methods, 2-sided stencilling, scissor region
+clipping</li>
+    <li>Texture shadows fade out at the far distance and around the
+edges of spotlight, hiding the finite edges of these shadow types<br>
+    </li>
+    <li>Important: Those writing custom SceneManager implementations
+will
+have to review the changes to the render queues and render sequence
+when shadows are enabled,
+since supporting several types of shadows has required these processes
+to be significantly enhanced and decomposed into multiple parts (which
+should lend themselves to customisation in your SMs if you need them).
+In particular, note that the signature of
+SceneManager::_findVisibleObjects has changed so if you override this
+you will need to alter yours too - the compiler will not tell you about
+this!<br>
+    </li>
+  </ul>
+</ul>
+<ul>
+  <li style="font-weight: bold; color: rgb(51, 204, 0);"><span
+ style="color: rgb(255, 255, 51);">Hardware Skinning</span></li>
+  <ul>
+    <li>Skeletal animation can now be driven using vertex programs</li>
+    <li>Number of bones limited only by your target vertex program
+version<br>
+    </li>
+  </ul>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">General
+purpose projective texturing</span>. Projective texturing was possible
+in Ogre before, but it required you to manually set up the texture
+matrices. Now there is a simple 1-method call which allows you to link
+a texture unit to a Frustum instance, and it will automatically sync
+the projection of the texture with changes to the frustum.</li>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">Node/SceneNode
+enhancements</span>. You can now make a node automatically track
+(constantly look at) another node, and all transforms now take a
+'transform space' parameter to make it easier to perform
+transformations relative to any space.</li>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">Skeleton
+instances</span>. The sharing of skeletons between multiple animated
+objects has been made more flexible so that you can now more easily
+hook up external effects on the bones on particular instances of that
+skeleton (in entities); applications such as manually controlling bones
+or ragdoll simulations benefit from these enhancements.</li>
+  <li><span style="font-weight: bold; color: rgb(255, 255, 51);">External
+Texture Sources</span>. You can now register external texture sources
+in order to feed texture data in from another source; this has been
+used to render video through a texture for example, although the
+technique can be used for many other things.<br>
+  </li>
+  <li>Updated GTK demo showing you how to embed an Ogre window in a GTK
+application.<br>
+  </li>
+  <li>Added an offset (parallax) mapping example to the Dot3Bump demo,
+along with a normal mapped statue<br>
+  </li>
+  <li>Mac OSX now supports Cg so the plugin has been enabled<br>
+  </li>
+  <li>Introduced the Frustum class as a superclass of Camera,
+abstracting many of the features so they can be reused in other
+situations like texture projection.</li>
+  <li>Updated Blender and Lightwave exporters</li>
+  <li>SubEntities can now have their visibility toggled individually</li>
+  <li>Hardware occlusion query support<br>
+  </li>
+  <li>Animation looping can now be disabled on AnimationState<br>
+  </li>
+</ul>
+<p align="left">Bugfixes:<br>
+</p>
+<ul>
+  <li>Too many to list individually; please read the CVS log for a full
+account.<br>
+  </li>
+</ul>
+<p align="left"></p>
 <p align="left" class="MainHeader">v0.13.1 (1 March 2004) - Maintenance
 Release<br>
 </p>
