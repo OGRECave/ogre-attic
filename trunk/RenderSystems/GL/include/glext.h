@@ -2022,6 +2022,10 @@ typedef void (APIENTRY * PFNGLMATRIXINDEXUIVARBPROC) (GLint size, const GLuint *
 typedef void (APIENTRY * PFNGLMATRIXINDEXPOINTERARBPROC) (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 #endif
 
+#ifndef GL_ARB_texture_env_dot3
+#define GL_ARB_texture_env_dot3 1
+#endif
+
 #ifndef GL_EXT_abgr
 #define GL_EXT_abgr 1
 #endif
