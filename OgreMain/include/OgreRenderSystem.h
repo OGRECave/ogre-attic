@@ -636,9 +636,6 @@ namespace Ogre
         // Active viewport (dest for future rendering operations)
         Viewport* mActiveViewport;
 
-        // Resource managers
-        MeshManager* mMeshMgr;
-
         CullingMode mCullingMode;
 
         bool mVSync;

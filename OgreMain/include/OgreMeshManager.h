@@ -45,6 +45,9 @@ namespace Ogre {
     public:
         MeshManager();
 
+        /** Initialises the manager, only to be called by OGRE internally. */
+        void _initialise(void);
+
         /** Loads a mesh from a file, making it available for use.
             @note
                 If the model has already been loaded, the existing instance

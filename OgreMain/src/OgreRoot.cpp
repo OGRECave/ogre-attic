@@ -38,6 +38,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMeshManager.h"
 #include "OgreTextureManager.h"
 #include "OgreParticleSystemManager.h"
+#include "OgreSkeletonManager.h"
 #include "OgreZipArchiveFactory.h"
 
 #include "OgrePNGCodec.h"
@@ -109,6 +110,12 @@ namespace Ogre {
         // ..material manager
         mMaterialManager = new MaterialManager();
 
+        // Mesh manager
+        mMeshManager = new MeshManager();
+
+        // Skeleton manager
+        mSkeletonManager = new SkeletonManager();
+
         // ..particle system manager
         mParticleManager = new ParticleSystemManager();
 
@@ -157,9 +164,13 @@ namespace Ogre {
         delete mSceneManagerEnum;
 
         delete mArchiveManager;
+        // TODO: work out why this barfs deep in std::vector
+        //delete mParticleManager;
 
         unloadPlugins();
 
+        delete mSkeletonManager;
+        delete mMeshManager;
         delete mMaterialManager;
         if (mControllerManager)
             delete mControllerManager;

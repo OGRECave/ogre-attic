@@ -92,7 +92,9 @@ namespace Ogre
         PlatformManager* mPlatformManager;
         ArchiveManager* mArchiveManager;
         MaterialManager* mMaterialManager;
+        MeshManager* mMeshManager;
         ParticleSystemManager* mParticleManager;
+        SkeletonManager* mSkeletonManager;
 
         std::vector<DynLib*> mPluginLibs;
         /** Method reads a plugins configuration file and instantiates all

@@ -44,7 +44,6 @@ namespace Ogre {
         mActiveViewport = 0;
         mTextureManager = 0;
         mVSync = true;
-        mMeshMgr = 0;
 
 
         // This means CULL clockwise vertices, i.e. front of poly is counter-clockwise
@@ -69,8 +68,6 @@ namespace Ogre {
         }
         */
 
-        if (mMeshMgr)
-            delete mMeshMgr;
     }
     //-----------------------------------------------------------------------
     void RenderSystem::addFrameListener(FrameListener* newListener)
@@ -133,8 +130,8 @@ namespace Ogre {
             // Register self - library user has come to me direct
             Root::getSingleton().setRenderSystem(this);
 
-        // Create mesh manager
-        mMeshMgr = new MeshManager();
+        // Init mesh manager
+        MeshManager::getSingleton()._initialise();
 
         // Subclasses should take it from here
         // They should ALL call this superclass method from
