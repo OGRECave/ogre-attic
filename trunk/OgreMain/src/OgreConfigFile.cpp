@@ -106,9 +106,16 @@ namespace Ogre {
                 {
                     // Section
                     currentSection = line.substr(1, line.length() - 2);
-                    currentSettings = new SettingsMultiMap();
-                    mSettings[currentSection] = currentSettings;
-
+					SettingsBySection::const_iterator seci = mSettings.find(currentSection);
+					if (seci == mSettings.end())
+					{
+						currentSettings = new SettingsMultiMap();
+						mSettings[currentSection] = currentSettings;
+					}
+					else
+					{
+						currentSettings = seci->second;
+					} 
                 }
                 else
                 {
