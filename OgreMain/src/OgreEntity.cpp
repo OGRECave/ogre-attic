@@ -254,7 +254,7 @@ namespace Ogre {
 		if (mMeshLodIndex > 0 && mMesh->isLodManual())
 		{
 			// Use alternate subentities
-			assert((mMeshLodIndex-1) < mLodSubEntityList.size() && 
+			assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodSubEntityList.size() && 
 				"No LOD SubEntityList - did you build the manual LODs after creating the entity?");
 			// index - 1 as we skip index 0 (original lod)
 			subEntList = mLodSubEntityList[mMeshLodIndex - 1];
