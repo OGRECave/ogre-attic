@@ -458,25 +458,28 @@ namespace Ogre {
         // Call superclass
         BillboardSet::_updateBounds();
 
-        // Have to override because bounds are supposed to be in local node space
-        // but we've already put particles in world space to decouple them from the
-        // node transform, so reverse transform back
-
-        Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
-        Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
-        Vector3 temp;
-        const Vector3 *corner = mAABB.getAllCorners();
-        Quaternion invQ = mParentNode->_getDerivedOrientation().Inverse();
-        Vector3 t = mParentNode->_getDerivedPosition();
-
-        for (int i = 0; i < 8; ++i)
+        if (mParentNode)
         {
-            // Reverse transform corner
-            temp = invQ * (corner[i] - t);
-            min.makeFloor(temp);
-            max.makeCeil(temp);
+            // Have to override because bounds are supposed to be in local node space
+            // but we've already put particles in world space to decouple them from the
+            // node transform, so reverse transform back
+
+            Vector3 min( Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY );
+            Vector3 max( Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY );
+            Vector3 temp;
+            const Vector3 *corner = mAABB.getAllCorners();
+            Quaternion invQ = mParentNode->_getDerivedOrientation().Inverse();
+            Vector3 t = mParentNode->_getDerivedPosition();
+
+            for (int i = 0; i < 8; ++i)
+            {
+                // Reverse transform corner
+                temp = invQ * (corner[i] - t);
+                min.makeFloor(temp);
+                max.makeCeil(temp);
+            }
+            mAABB.setExtents(min, max);
         }
-        mAABB.setExtents(min, max);
     }
     //-----------------------------------------------------------------------
 
