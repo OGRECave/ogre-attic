@@ -276,11 +276,15 @@ namespace Ogre {
     void Win32Window::destroy(void)
     {
         // Unregister and destroy OGRE GLContext
-        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-        rs->_unregisterContext(this);
-        delete mContext;    
+        if (mContext)
+        {
+            GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+            rs->_unregisterContext(this);
+            delete mContext;
+            mContext = NULL;
 
-        wglSwapIntervalEXT(mOldSwapIntervall);
+            wglSwapIntervalEXT(mOldSwapIntervall);
+        }
 		if (mGlrc) {
 			wglMakeCurrent(NULL, NULL);
 			wglDeleteContext(mGlrc);
@@ -294,7 +298,11 @@ namespace Ogre {
 		{
 			ChangeDisplaySettings(NULL, 0);
 		}
-	DestroyWindow(mHWnd);
+        if (mHWnd)
+        {
+	        DestroyWindow(mHWnd);
+            mHWnd = 0;
+        }
         mActive = false;
     }
 
