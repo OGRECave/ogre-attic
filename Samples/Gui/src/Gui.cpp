@@ -291,14 +291,6 @@ protected:
         mRoot->addFrameListener(mFrameListener);
     }
 
-    bool setup()
-    {
-        ExampleApplication::setup();
-        LogManager::getSingleton().setLogDetail( LL_BOREME );
-
-        return true;
-    }
-
     void setupEventHandlers(void)
     {
 		CEGUI::WindowManager& wmgr = CEGUI::WindowManager::getSingleton();
