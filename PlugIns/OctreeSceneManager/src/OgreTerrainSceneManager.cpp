@@ -83,6 +83,9 @@ namespace Ogre
         // and not when statics are destroyed (may be too late)
         TerrainRenderable::_getIndexCache().shutdown();
 
+		// Make sure we free up material (static)
+		mOptions.terrainMaterial.setNull();
+
 		// destroy listener manager
 		delete TerrainPageSourceListenerManager::getSingletonPtr();
     }
