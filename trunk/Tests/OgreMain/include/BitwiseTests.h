@@ -33,10 +33,11 @@ class BitwiseTests : public CppUnit::TestFixture
     // CppUnit macros for setting up the test suite
     CPPUNIT_TEST_SUITE( BitwiseTests );
     CPPUNIT_TEST(testFixedPointConversion);
+    CPPUNIT_TEST(testIntReadWrite);
     CPPUNIT_TEST_SUITE_END();
 public:
     void setUp();
     void tearDown();
     void testFixedPointConversion();
-
+    void testIntReadWrite();
 };
