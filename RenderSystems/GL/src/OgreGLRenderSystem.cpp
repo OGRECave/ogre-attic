@@ -533,7 +533,6 @@ namespace Ogre {
     void GLRenderSystem::_setTextureCoordCalculation(int stage, TexCoordCalcMethod m)
     {
         GLfloat M[16];
-        GLfloat T[16];
         // Default to no extra auto texture matrix
         mUseAutoTextureMatrix = false;
 
