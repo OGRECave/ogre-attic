@@ -36,11 +36,11 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> ArchiveManager* Singleton<ArchiveManager>::ms_Singleton = 0;
-    template<> ArchiveManager* Singleton<ArchiveManager>::getSingletonPtr(void)
+    ArchiveManager* ArchiveManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> ArchiveManager& Singleton<ArchiveManager>::getSingleton(void)
+    ArchiveManager& ArchiveManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

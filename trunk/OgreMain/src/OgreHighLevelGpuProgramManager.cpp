@@ -30,11 +30,11 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	template<> HighLevelGpuProgramManager* 
 	Singleton<HighLevelGpuProgramManager>::ms_Singleton = 0;
-    template<> HighLevelGpuProgramManager* Singleton<HighLevelGpuProgramManager>::getSingletonPtr(void)
+    HighLevelGpuProgramManager* HighLevelGpuProgramManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> HighLevelGpuProgramManager& Singleton<HighLevelGpuProgramManager>::getSingleton(void)
+    HighLevelGpuProgramManager& HighLevelGpuProgramManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

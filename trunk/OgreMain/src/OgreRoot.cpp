@@ -75,11 +75,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {    
     //-----------------------------------------------------------------------
     template<> Root* Singleton<Root>::ms_Singleton = 0;
-    template<> Root* Singleton<Root>::getSingletonPtr(void)
+    Root* Root::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> Root& Singleton<Root>::getSingleton(void)
+    Root& Root::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

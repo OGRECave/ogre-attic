@@ -32,11 +32,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 //-------------------------------------------------------------------------
 template<> OgreRefApp::World* Ogre::Singleton<OgreRefApp::World>::ms_Singleton = 0;
-template<> OgreRefApp::World* Singleton<OgreRefApp::World>::getSingletonPtr(void)
+OgreRefApp::World* OgreRefApp::World::getSingletonPtr(void)
 {
     return ms_Singleton;
 }
-template<> OgreRefApp::World& Singleton<OgreRefApp::World>::getSingleton(void)
+OgreRefApp::World& OgreRefApp::World::getSingleton(void)
 {  
     assert( ms_Singleton );  return ( *ms_Singleton );  
 }

@@ -32,11 +32,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> ControllerManager* Singleton<ControllerManager>::ms_Singleton = 0;
-    template<> ControllerManager* Singleton<ControllerManager>::getSingletonPtr(void)
+    ControllerManager* ControllerManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> ControllerManager& Singleton<ControllerManager>::getSingleton(void)
+    ControllerManager& ControllerManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

@@ -38,11 +38,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     template<> EventProcessor* Singleton<EventProcessor>::ms_Singleton = 0;
-    template<> EventProcessor* Singleton<EventProcessor>::getSingletonPtr(void)
+    EventProcessor* EventProcessor::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> EventProcessor& Singleton<EventProcessor>::getSingleton(void)
+    EventProcessor& EventProcessor::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }

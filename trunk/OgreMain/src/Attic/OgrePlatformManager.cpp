@@ -32,11 +32,11 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     template<> PlatformManager* Singleton<PlatformManager>::ms_Singleton = 0;
-    template<> PlatformManager* Singleton<PlatformManager>::getSingletonPtr(void)
+    PlatformManager* PlatformManager::getSingletonPtr(void)
     {
         return ms_Singleton;
     }
-    template<> PlatformManager& Singleton<PlatformManager>::getSingleton(void)
+    PlatformManager& PlatformManager::getSingleton(void)
     {  
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
