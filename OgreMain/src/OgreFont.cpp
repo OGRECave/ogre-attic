@@ -216,7 +216,7 @@ namespace Ogre
 		mTexture = TextureManager::getSingleton().create( 
 			texName, mGroup, true, this);
 		mTexture->setTextureType(TEX_TYPE_2D);
-		mTexture->setNumMipMaps(0);
+		mTexture->setNumMipmaps(0);
 		mTexture->load();
 
 		TextureUnitState* t = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState( texName );

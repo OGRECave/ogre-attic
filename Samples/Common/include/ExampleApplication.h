@@ -84,7 +84,7 @@ protected:
         createViewports();
 
         // Set default mipmap level (NB some APIs ignore this)
-        TextureManager::getSingleton().setDefaultNumMipMaps(5);
+        TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
         // Create the scene
         createScene();

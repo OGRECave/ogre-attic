@@ -702,7 +702,7 @@ namespace Ogre {
         {
             if (mFrames[i] != "")
             {
-                // Ensure texture is loaded, default MipMaps and priority
+                // Ensure texture is loaded, default Mipmaps and priority
                 try {
 
                     TextureManager::getSingleton().load(mFrames[i], 

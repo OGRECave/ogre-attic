@@ -88,7 +88,7 @@ namespace Ogre
 
 
         // Capability access
-        bool CanMipMap(void) const;
+        bool CanMipmap(void) const;
         bool CanBilinearFilter(void) const;
         bool CanTrilinearFilter(void) const;
         unsigned int RenderBitDepth(void) const;

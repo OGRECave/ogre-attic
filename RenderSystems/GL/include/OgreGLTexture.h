@@ -82,7 +82,7 @@ namespace Ogre {
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void);
 
-        void generateMipMaps( const uchar *data, bool useSoftware, bool isCompressed,
+        void generateMipmaps( const uchar *data, bool useSoftware, bool isCompressed,
             size_t faceNumber );
         uchar* rescaleNPower2( const Image& src );
     private:

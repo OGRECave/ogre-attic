@@ -36,7 +36,7 @@ namespace Ogre {
             mHeight(512),
             mWidth(512),
             mDepth(1),
-            mNumMipMaps(0),
+            mNumMipmaps(0),
             mGamma(1.0f),
             mTextureType(TEX_TYPE_2D),            
             mFormat(PF_A8R8G8B8),
@@ -82,6 +82,11 @@ namespace Ogre {
 	{
 		// TODO - how do we calculate real DDS texture size?
 		return mWidth * mHeight * mDepth * mFinalBpp;
+	}
+	//--------------------------------------------------------------------------
+	int Texture::getNumFaces(void) const
+	{
+		return getTextureType() == TEX_TYPE_CUBE_MAP ? 6 : 1;
 	}
   
 }

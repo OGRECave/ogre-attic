@@ -19,8 +19,8 @@ void exportTextureManager()
         .def("load", (void (TextureManager::*)(Resource*, int))
             &TextureManager::load, rir())
         .def("unload", &TextureManager::unload)
-        .def("setDefaultNumMipMaps", &TextureManager::setDefaultNumMipMaps)
-        .def("getDefaultNumMipMaps", &TextureManager::getDefaultNumMipMaps)
+        .def("setDefaultNumMipmaps", &TextureManager::setDefaultNumMipmaps)
+        .def("getDefaultNumMipmaps", &TextureManager::getDefaultNumMipmaps)
         .def("enable32BitTextures", &TextureManager::enable32BitTextures)
     ;
 }

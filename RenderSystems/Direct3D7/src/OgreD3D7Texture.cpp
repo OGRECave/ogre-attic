@@ -648,7 +648,7 @@ HRESULT WINAPI testEnumAtt(
 
         StringUtil::StrStreamType str;
         str << "D3DTexture: Loading " << mName << " with " 
-            << mNumMipMaps << " mipmaps from Image.";
+            << mNumMipmaps << " mipmaps from Image.";
         LogManager::getSingleton().logMessage( 
             LML_TRIVIAL, str.str());
 
@@ -689,7 +689,7 @@ HRESULT WINAPI testEnumAtt(
 
         StringUtil::StrStreamType str;
         str << "D3DTexture: Loading cubemap " << mName 
-            << " with " << mNumMipMaps << " mipmaps from Image.";
+            << " with " << mNumMipmaps << " mipmaps from Image.";
         LogManager::getSingleton().logMessage( 
             LML_TRIVIAL, str.str());
 
@@ -838,7 +838,7 @@ HRESULT WINAPI testEnumAtt(
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
             ddsd.ddsCaps.dwCaps2 = 0;
-            mNumMipMaps = 0;
+            mNumMipmaps = 0;
         }
         else
         {
@@ -848,10 +848,10 @@ HRESULT WINAPI testEnumAtt(
         /* If we want to have mip-maps, set the flags. Note that if the
            texture is the render target type mip-maps are automatically 
            disabled. */
-        if( mNumMipMaps )
+        if( mNumMipmaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.dwMipMapCount = mNumMipMaps;
+            ddsd.dwMipmapCount = mNumMipmaps;
 
             ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;            
         }
@@ -975,7 +975,7 @@ HRESULT WINAPI testEnumAtt(
         if( mUsage == TU_RENDERTARGET )
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
-            mNumMipMaps = 0;
+            mNumMipmaps = 0;
         }
         else
         {
@@ -985,10 +985,10 @@ HRESULT WINAPI testEnumAtt(
         /* If we want to have mip-maps, set the flags. Note that if the
            texture is the render target type mip-maps are automatically 
            disabled. */
-        if( mNumMipMaps )
+        if( mNumMipmaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.dwMipMapCount = mNumMipMaps;
+            ddsd.dwMipmapCount = mNumMipmaps;
 
             ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP;            
         }

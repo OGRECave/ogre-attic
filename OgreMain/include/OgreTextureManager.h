@@ -63,14 +63,14 @@ namespace Ogre {
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
-                numMipMaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
-                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipMaps())
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
         */
         virtual TexturePtr load( 
             const String& name, const String& group, 
-            TextureType texType = TEX_TYPE_2D, int numMipMaps = -1, 
+            TextureType texType = TEX_TYPE_2D, int numMipmaps = -1, 
             Real gamma = 1.0f);
 
         /** Loads a texture from an Image object.
@@ -83,15 +83,15 @@ namespace Ogre {
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
-                numMipMaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
-                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipMaps())
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
         */
         virtual TexturePtr loadImage( 
             const String &name, const String& group, const Image &img, 
             TextureType texType = TEX_TYPE_2D,
-            int iNumMipMaps = -1, Real gamma = 1.0f);
+            int iNumMipmaps = -1, Real gamma = 1.0f);
 			
         /** Loads a texture from a raw data stream.
             @param
@@ -109,15 +109,15 @@ namespace Ogre {
             @param
                 texType The type of texture to load/create, defaults to normal 2D textures
             @param
-                numMipMaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
-                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipMaps())
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
             @param
                 gamma The gamma adjustment factor to apply to this texture (brightening/darkening)
         */
         virtual TexturePtr loadRawData(const String &name, const String& group,
             DataStreamPtr& stream, ushort uWidth, ushort uHeight, 
             PixelFormat format, TextureType texType = TEX_TYPE_2D, 
-            int iNumMipMaps = -1, Real gamma = 1.0f);
+            int iNumMipmaps = -1, Real gamma = 1.0f);
 
         /** Create a manual texture (not loaded from a file).
             @param
@@ -131,8 +131,8 @@ namespace Ogre {
             @param
                 width, height The dimensions of the texture
             @param
-                numMipMaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
-                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipMaps())
+                numMipmaps The number of pre-filtered mipmaps to generate. If left to default (-1) then
+                the TextureManager's default number of mipmaps will be used (see setDefaultNumMipmaps())
             @param
                 format The internal format you wish to request; the manager reserves
                 the right to create a different format if the one you select is
@@ -163,13 +163,13 @@ namespace Ogre {
             @note
                 The default value is 0.
         */
-        virtual void setDefaultNumMipMaps(int num);
+        virtual void setDefaultNumMipmaps(int num);
 
         /** Sets the default number of mipmaps to be used for loaded textures.
         */
-        virtual int getDefaultNumMipMaps()
+        virtual int getDefaultNumMipmaps()
         {
-            return mDefaultNumMipMaps;
+            return mDefaultNumMipmaps;
         }
 
         /** Override standard Singleton retrieval.
@@ -208,7 +208,7 @@ namespace Ogre {
     protected:
 
         bool mIs32Bit;
-        int mDefaultNumMipMaps;
+        int mDefaultNumMipmaps;
     };
 }// Namespace
 
