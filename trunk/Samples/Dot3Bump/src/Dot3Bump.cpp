@@ -25,11 +25,6 @@ LGPL like the rest of the engine.
 		author : paul.baker@univ.ox.ac.uk
 **/
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
 #include "ExampleApplication.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

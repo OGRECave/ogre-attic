@@ -19,11 +19,6 @@ LGPL like the rest of the engine.
         Shows a few ways to use Ogre's shadowing techniques
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
 #include "ExampleApplication.h"
 
 /*

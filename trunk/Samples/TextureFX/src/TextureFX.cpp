@@ -19,11 +19,7 @@ LGPL like the rest of the engine.
         Shows OGRE's ability to handle different types of texture effects.
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 #include "TextureFX.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32

@@ -26,7 +26,6 @@ LGPL like the rest of the engine.
 */
 
 #include "ExampleApplication.h"
-#include "OgreConfigFile.h"
 
 class BspApplication : public ExampleApplication
 {

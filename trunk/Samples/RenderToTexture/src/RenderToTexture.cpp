@@ -25,11 +25,7 @@ LGPL like the rest of the engine.
         manager so this scene is kept deliberately simple.
 */
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#else
-#   include "Ogre.h"
-#endif
+#include "Ogre.h"
 #include "RenderToTexture.h"
 
 int main(int argc, char ** argv)
