@@ -44,7 +44,7 @@ public:
         mReflectCam->setPosition(mCamera->getPosition());
 
         // Rotate plane
-        //mPlaneNode->yaw(Degree(30 * evt.timeSinceLastFrame), Node::TS_PARENT);
+        mPlaneNode->yaw(Degree(30 * evt.timeSinceLastFrame), Node::TS_PARENT);
 
         return result;        
     }
@@ -121,7 +121,7 @@ protected:
         mPlaneNode->attachObject(mPlane);
         mPlaneNode->translate(0, -10, 0);
         // Tilt it a little to make it interesting
-        //mPlaneNode->roll(Degree(5));
+        mPlaneNode->roll(Degree(5));
 
         rootNode->createChildSceneNode( "Head" )->attachObject( ogreHead );
 
