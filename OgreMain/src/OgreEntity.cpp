@@ -456,7 +456,11 @@ namespace Ogre {
 		mChildObjectList.erase(i);
         return i->second;
 	}
-
+    //-----------------------------------------------------------------------
+    Entity::ChildObjectListIterator Entity::getAttachedObjectIterator()
+    {
+        return ChildObjectListIterator(mChildObjectList.begin(), mChildObjectList.end());
+    }
 
 
 }

@@ -143,8 +143,10 @@ namespace Ogre {
 		/// internal implementation of attaching a 'child' object to this entity and assign the parent node to the child entity
 		void attachObjectImpl(MovableObject *pMovable, TagPoint *pAttachingPoint);
 
-		/// Contains the child objects (attached to bones) indexed by name
+    public:
+        /// Contains the child objects (attached to bones) indexed by name
         typedef std::map<String, MovableObject*> ChildObjectList;
+    protected:
         ChildObjectList mChildObjectList;
 
 
@@ -276,6 +278,11 @@ namespace Ogre {
 
 		/// detach a MovableObject previously attached using attachObjectToBone
 		MovableObject* detachObjectFromBone(const String &movableName);
+
+        typedef MapIterator<ChildObjectList> ChildObjectListIterator;
+        /** Gets an iterator to the list of objects attached to bones on this entity. */
+        ChildObjectListIterator getAttachedObjectIterator(void);
+        
 
 
     };
