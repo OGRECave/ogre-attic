@@ -1455,6 +1455,13 @@ namespace Ogre
             acType = GpuProgramParameters::ACT_CUSTOM;
             extras = true;
         }
+		else
+		{
+			logParseError("Invalid " + commandname + " attribute - "
+				+ vecparams[1], context);
+			return;
+
+		}
 
         // Do we need any extra parameters?
         size_t extraParam = 0;
