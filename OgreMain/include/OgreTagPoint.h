@@ -71,6 +71,8 @@ namespace Ogre	{
 
 		Matrix4 _getNodeFullTransform(void);
 
+        void needUpdate();
+
 	private:
 		Entity *mParentEntity;
 		MovableObject *mChildObject;

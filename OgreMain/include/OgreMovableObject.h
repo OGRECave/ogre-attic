@@ -43,10 +43,8 @@ namespace Ogre {
     class _OgreExport MovableObject
     {
     protected:
-        /// scene node to which this object is attached
-        SceneNode* mParentNode;
-		/// tag point to which the object is attached (alternative to scene node)
-		TagPoint *mAttachingPoint;
+        /// node to which this object is attached
+        Node* mParentNode;
         /// Is this object visible?
         bool mVisible;
         /// User defined object which is linked to this object
@@ -73,20 +71,13 @@ namespace Ogre {
             @par
                 Attaching an object is done via the SceneNode::attachObject method.
         */
-        virtual SceneNode* getParentNode(void);
+        virtual Node* getParentNode(void);
 
         /** Internal method called to notify the object that it has been attached to a node.
         */
-        virtual void _notifyAttached(SceneNode* parent);
+        virtual void _notifyAttached(Node* parent);
 
-        /** Internal method called to notify the object that it has been attached to a bone.
-        */
-        virtual void _notifyAttached(TagPoint* parent);
-
-        /** Returns whether this object is attached to a node. */
-        virtual bool isAttached(void);
-
-        /** Returns true if this object is attached to a SceneNode. */
+        /** Returns true if this object is attached to a SceneNode or TagPoint. */
         virtual bool isAttached(void) const;
 
         /** Internal method to notify the object of the camera to be used for the next rendering operation.
@@ -147,8 +138,6 @@ namespace Ogre {
 		/// return the full transformation of the parent sceneNode or the attachingPoint node
 		virtual Matrix4 _getParentNodeFullTransform(void);
 
-        /// Returns the attachment point if this object has been attached to an entity bone
-        virtual TagPoint* getAttachmentPoint(void);
 
 
     };

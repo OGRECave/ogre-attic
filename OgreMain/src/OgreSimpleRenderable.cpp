@@ -127,16 +127,6 @@ namespace Ogre {
         *xform = m_matWorldTransform * mParentNode->_getFullTransform();
     }
 
-    SceneNode* SimpleRenderable::getParentNode(void)
-    {
-        return mParentNode;
-    }
-
-    void SimpleRenderable::_notifyAttached( SceneNode* parent )
-    {
-        mParentNode = parent;
-    }
-
     void SimpleRenderable::_notifyCurrentCamera(Camera* cam)
     {
         m_pCamera = cam;

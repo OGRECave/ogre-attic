@@ -63,6 +63,21 @@ void TagPoint::_update(bool updateChildren, bool parentHasChanged)
 	}
 }
 
+void TagPoint::needUpdate()
+{
+    // We need to tell parent entities node
+    if (mParentEntity)
+    {
+        Node* n = mParentEntity->getParentNode();
+        if (n)
+        {
+            n->needUpdate();
+        }
+
+    }
+
+}
+
 
 
 

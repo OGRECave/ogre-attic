@@ -195,6 +195,15 @@ namespace Ogre {
 			
 
 		}
+        // Notify any child objects
+		ChildObjectList::iterator child_itr = mChildObjectList.begin();
+		ChildObjectList::iterator child_itr_end = mChildObjectList.end();
+		for( ; child_itr != child_itr_end; child_itr++)
+		{
+			(*child_itr).second->_notifyCurrentCamera(cam);
+		}
+
+
     }
     //-----------------------------------------------------------------------
     const AxisAlignedBox& Entity::getBoundingBox(void) const
@@ -217,7 +226,8 @@ namespace Ogre {
 		for( ; child_itr != child_itr_end; child_itr++)
 		{
 			aa_box = child_itr->second->getBoundingBox();
-			aa_box.transform(child_itr->second->getAttachmentPoint()->_getNodeFullTransform());
+            TagPoint* tp = (TagPoint*)child_itr->second->getParentNode();
+			aa_box.transform(tp->_getNodeFullTransform());
 			
 			full_aa_box.merge(aa_box);
 		}

@@ -83,9 +83,7 @@ namespace Ogre {
         void setWorldTransform( const Matrix4& xform );
         virtual void getWorldTransforms( Matrix4* xform );
 
-        virtual SceneNode* getParentNode(void);
 
-        virtual void _notifyAttached( SceneNode* parent );
         virtual void _notifyCurrentCamera(Camera* cam);
 
         void setBoundingBox( const AxisAlignedBox& box );
