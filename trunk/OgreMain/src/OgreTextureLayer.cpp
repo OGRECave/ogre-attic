@@ -777,4 +777,45 @@ namespace Ogre {
         mDeferLoad = defer;
     }
 
+    //-----------------------------------------------------------------------
+	Real Material::TextureLayer::getTextureUScroll(void) const
+    {
+		return mUMod;
+    }
+
+	//-----------------------------------------------------------------------
+	Real Material::TextureLayer::getTextureVScroll(void) const
+    {
+		return mVMod;
+    }
+
+	//-----------------------------------------------------------------------
+	Real Material::TextureLayer::getTextureUScale(void) const
+    {
+		return mUScale;
+    }
+
+	//-----------------------------------------------------------------------
+	Real Material::TextureLayer::getTextureVScale(void) const
+    {
+		return mVScale;
+    }
+
+	//-----------------------------------------------------------------------
+	Real Material::TextureLayer::getTextureRotate(void) const
+    {
+		return mRotate;
+    }
+	
+	//-----------------------------------------------------------------------
+	Real Material::TextureLayer::getAnimationDuration(void) const
+	{
+		return mAnimDuration;
+	}
+
+	//-----------------------------------------------------------------------
+	std::multimap<Material::TextureLayer::TextureEffectType, Material::TextureLayer::TextureEffect> Material::TextureLayer::getEffects(void) const
+	{
+		return mEffects;
+	}
 }

@@ -285,6 +285,9 @@
 				RelativePath="..\src\OgreMaterialManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreMaterialSerializer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreMath.cpp">
 			</File>
 			<File
@@ -683,6 +686,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreMaterialManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMaterialSerializer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreMath.h">

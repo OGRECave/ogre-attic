@@ -265,62 +265,50 @@ namespace Ogre {
         // Returns true if a valid saved configuration is
         //   available, and false if no saved config is
         //   stored, or if there has been a problem
-        ::FILE *fp;
-        char rec[100], *ret;
-        String optName, optVal;
+        ConfigFile cfg;
+        String renderSystem;
         RenderSystemList::iterator pRend;
 
-        fp = fopen("ogre.cfg", "r");
-        if (!fp)
-            // no config file
-            return false;
+        cfg.load("ogre.cfg");
 
-        // Get render system
-        ret = fgets(rec, 100, fp);
-        // Tokenise on tab
-        optName = strtok(rec, "\t");
-        optVal = strtok(NULL, "\n");
-
-        if (optName == "Render System")
+        renderSystem = cfg.getSetting("Render System");
+        if(!renderSystem)
         {
-            pRend = getAvailableRenderers()->begin();
-            while (pRend != getAvailableRenderers()->end())
-            {
-                String rName = (*pRend)->getName();
-                if (rName == optVal)
-                    break;
-                pRend++;
-            }
+            // No render system entry - error
+            return false;
+        }
+		
+        pRend = getAvailableRenderers()->begin();
+        while (pRend != getAvailableRenderers()->end())
+        {
+            String rName = (*pRend)->getName();
+            if (rName == renderSystem)
+                break;
+            pRend++;
+        }
 
-            if (pRend == getAvailableRenderers()->end())
-            {
-                // Unrecognised render system
-                fclose(fp);
-                return false;
-            }
+        if (pRend == getAvailableRenderers()->end())
+        {
+            // Unrecognised render system
+            return false;
+        }
 
-            setRenderSystem(*pRend);
+        setRenderSystem(*pRend);
 
-            // Load render system options
-            ret = fgets(rec, 100, fp);
-            while (ret != NULL)
+        ConfigFile::SettingsIterator i = cfg.getSettingsIterator();
+
+        String optName, optVal;
+        while (i.hasMoreElements())
+        {
+            optName = i.peekNextKey();
+            optVal = i.getNext();
+            if(optName != "Render System")
             {
-                // Tokenise on tab
-                optName = strtok(rec, "\t");
-                optVal = strtok(NULL, "\n");
                 mActiveRenderer->setConfigOption(optName, optVal);
-                ret = fgets(rec, 100, fp);
             }
         }
-        else
-        {
-            // Render system should be first entry - error
-            fclose(fp);
-            return false;
 
-        }
         // Successful load
-        fclose(fp);
         return true;
 
     }

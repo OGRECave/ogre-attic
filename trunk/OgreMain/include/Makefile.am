@@ -61,6 +61,7 @@ OgreLog.h \
 OgreLogManager.h \
 OgreMaterial.h \
 OgreMaterialManager.h \
+OgreMaterialSerializer.h \
 OgreMath.h \
 OgreMatrix3.h \
 OgreMatrix4.h \

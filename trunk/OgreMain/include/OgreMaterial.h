@@ -404,22 +404,30 @@ namespace Ogre {
             */
             void setTextureScroll(Real u, Real v);
 
-            /** As setTextureScroll, but sets only U value.
+			/** As setTextureScroll, but sets only U value.
             */
 
             void setTextureUScroll(Real value);
+            // get texture uscroll value
+			Real getTextureUScroll(void) const;
 
             /** As setTextureScroll, but sets only V value.
             */
             void setTextureVScroll(Real value);
+            // get texture vscroll value
+            Real getTextureVScroll(void) const;
 
             /** As setTextureScale, but sets only U value.
             */
             void setTextureUScale(Real value);
+            // get texture uscale value
+            Real getTextureUScale(void) const;
 
             /** As setTextureScale, but sets only V value.
             */
             void setTextureVScale(Real value);
+            // get texture vscale value
+            Real getTextureVScale(void) const;
 
             /** Sets the scaling factor applied to texture coordinates.
                 @remarks
@@ -442,6 +450,8 @@ namespace Ogre {
                     degrees The angle of rotation in degrees (anticlockwise).
             */
             void setTextureRotate(Real degrees);
+            // get texture rotation effects degree value
+            Real getTextureRotate(void) const;
 
             /** Gets the texture addressing mode, i.e. what happens at uv values above 1.0.
                 @note
@@ -684,7 +694,7 @@ namespace Ogre {
             */
             void setTransformAnimation( const TextureTransformType ttype,
                 const WaveformType waveType, Real base = 0, Real frequency = 1, Real phase = 0, Real amplitude = 1 );
-
+			
             /** Sets the way the layer will have use alpha to totally reject pixels from the pipeline.
                 @note
                     The default is CMPF_ALWAYS_PASS i.e. alpha is not used to reject pixels.
@@ -729,7 +739,12 @@ namespace Ogre {
             */
             void _load(void);
 
-            protected:
+            // get texture effects in a multimap paired array
+            std::multimap<TextureEffectType, TextureEffect> getEffects(void) const;
+            // get the animated-texture animation duration
+            Real getAnimationDuration(void) const;
+
+			protected:
                 // State
                 #define MAX_FRAMES 32
 
@@ -1356,7 +1371,7 @@ namespace Ogre {
         void setDepthBias(ushort bias);
 
         /** Retrieves the depth bias value as set by setDepthValue. */
-        ushort getDepthBias(void);
+        ushort getDepthBias(void) const;
     };
 
 } //namespace 
