@@ -399,11 +399,11 @@ namespace Ogre {
     void parseAnimTexture(StringVector::iterator& params, int numParams, Material* pMat, Material::TextureLayer* pTex)
     {
 	    // Determine which form it is
-	    // Must have at least 4 params though
-	    if (numParams < 5)
+	    // Must have at least 3 params though
+	    if (numParams < 4)
 	    {
 		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
-			    + pMat->getName() + ", wrong number of parameters (expected at least 4)");
+			    + pMat->getName() + ", wrong number of parameters (expected at least 3)");
 		    return;
 	    }
 	    if (numParams == 4 && atoi(params[2].c_str()) != 0 )
