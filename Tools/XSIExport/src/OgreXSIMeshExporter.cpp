@@ -80,11 +80,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     XsiMeshExporter::~XsiMeshExporter()
     {
+		/// Tidy up
+		cleanupDeformerList();
     }
     //-----------------------------------------------------------------------
-	void XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
+	const XsiMeshExporter::DeformerList& 
+	XsiMeshExporter::exportMesh(const XSI::CString& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
-		bool edgeLists, bool tangents, LodData* lod)
+		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
     {
         LogManager logMgr;
 		logMgr.createLog("OgreXSIExporter.log", true);
@@ -101,11 +104,13 @@ namespace Ogre {
         MeshPtr pMesh = MeshManager::getSingleton().createManual("XSIExport", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
+		cleanupDeformerList();
+
 		// Find all PolygonMesh objects
 		buildPolygonMeshList(exportChildren);
 
 		// write the data into a mesh
-		buildMesh(pMesh.getPointer(), mergeSubMeshes);
+		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty());
 
 
 		if (lod)
@@ -134,15 +139,22 @@ namespace Ogre {
 
         }
 
+		if (!skeletonName.empty())
+		{
+			pMesh->setSkeletonName(skeletonName);
+		}
+
         MeshSerializer serializer;
         serializer.exportMesh(pMesh.getPointer(), XSItoOgre(fileName));
 
 		cleanupPolygonMeshList();
 		delete meshMgr;
         delete hardwareBufMgr;
+
+		return mXsiDeformerList;
     }
 	//-----------------------------------------------------------------------
-	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes)
+	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments)
 	{
 		/* Iterate over the list of polygon meshes that we've already located.
 			For each one:
@@ -162,7 +174,7 @@ namespace Ogre {
 			pm != mXsiPolygonMeshList.end(); ++pm)
 		{
 			// build contents of this polymesh into ProtoSubMesh(es)
-			processPolygonMesh(pMesh, *pm);
+			processPolygonMesh(pMesh, *pm, lookForBoneAssignments);
 
 			if (!mergeSubmeshes)
 			{
@@ -237,7 +249,8 @@ namespace Ogre {
 		
 	}
 	//-----------------------------------------------------------------------
-	void XsiMeshExporter::processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* xsiMesh)
+	void XsiMeshExporter::processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* xsiMesh, 
+		bool lookForBoneAssignments)
 	{
 		// Pre-process the mesh
 		if (!preprocessPolygonMesh(xsiMesh))
@@ -291,12 +304,33 @@ namespace Ogre {
 			{
 				currentProto = polyi->second;
 			}
+			// has this mesh been used in this proto before? if not set offset
+			size_t positionIndexOffset;
+			ProtoSubMesh::PolygonMeshOffsetMap::iterator pomi = 
+				currentProto->polygonMeshOffsetMap.find(xsiMesh);
+			if (pomi == currentProto->polygonMeshOffsetMap.end())
+			{
+				// not found, this must be the first time we've found this PM on this Proto
+				// set offset to current index list size (will be 0 if we're not merging)
+				positionIndexOffset = currentProto->indices.size();
+				currentProto->polygonMeshOffsetMap[xsiMesh] = positionIndexOffset;
+			}
+			else
+			{
+				positionIndexOffset = pomi->second;
+			}
+
+
 			
             CTriangleVertexRefArray points = tri.GetPoints();
             for (long p = 0; p < 3; ++p)
             {
                 TriangleVertex point(points[p]);
                 long posIndex = point.GetIndex(); // unique position index
+				// adjust index per offset, this makes position indices unique
+				// per polymesh in teh same protosubmesh
+				posIndex += positionIndexOffset;
+
                 UniqueVertex vertex;
 				// Get position
 				MATH::CVector3 xsipos = point.GetPosition();
@@ -349,6 +383,12 @@ namespace Ogre {
 			std::max(
 				pMesh->getBoundingSphereRadius(), 
 				Math::Sqrt(squaredRadius)));
+
+		// Deal with any bone assignments
+		if (lookForBoneAssignments)
+		{
+			processBoneAssignments(pMesh, xsiMesh);
+		}
 
 
 		// Post-process the mesh
@@ -509,6 +549,11 @@ namespace Ogre {
 		mCurrentSamplerSets.clear();
 		mCurrentTextureCoordDimensions.clear();
 		
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm)
+	{
+
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::exportProtoSubMeshes(Mesh* pMesh)
@@ -703,6 +748,16 @@ namespace Ogre {
 			delete *pm;
 		}
 		mXsiPolygonMeshList.clear();
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::cleanupDeformerList(void)
+	{
+		for (DeformerList::iterator d = mXsiDeformerList.begin();
+			d != mXsiDeformerList.end(); ++d)
+		{
+			delete *d;
+		}
+		mXsiDeformerList.clear();
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::deriveSamplerIndices(const Triangle& tri, 

@@ -58,7 +58,34 @@ namespace Ogre {
 			ProgressiveMesh::VertexReductionQuota quota;
 			Real reductionValue;
 		};
-        /** Perform an export of the selection to Ogre .mesh.
+
+		
+		/** An entry for a Deformer - need original index because this will be boneID */
+		class DeformerEntry
+		{
+		public:
+			unsigned short boneID;
+			XSI::X3DObject obj;
+
+			DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
+				:boneID(theboneID), obj(theobj)
+			{
+			}
+
+		};
+		/// ordering function, required for set 
+		struct DeformerEntryLess
+		{
+			bool operator()(DeformerEntry* lhs, DeformerEntry* rhs)
+			{
+				// can't name objects the same in XSI, so use that
+				return XSItoOgre(lhs->obj.GetName()) < XSItoOgre(rhs->obj.GetName());
+			}
+		};
+		typedef std::set<DeformerEntry*,DeformerEntryLess> DeformerList;
+
+		
+		/** Perform an export of the selection to Ogre .mesh.
         @remarks
             Every PolygonMesh object is exported as a different SubMesh. Other
             object types are ignored.
@@ -68,10 +95,14 @@ namespace Ogre {
         @param edgeLists Whether to calculate edge lists
         @param tangents Whether to calculate tangents
 		@param lod LOD generation parameters (if required)
+		@param skeletonName Name of the skeleton to link to if animated
+		@returns List of deformers (bones) which were found whilst exporting (if
+			skeletonName was provided) which can be used to determine the skeleton.
         */
-        void exportMesh(const XSI::CString& fileName, 
+        const DeformerList& exportMesh(const XSI::CString& fileName, 
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
-			bool tangents, LodData* lod = 0);
+			bool tangents, LodData* lod = 0, const String& skeletonName = "");
+
 
     protected:
 
@@ -99,7 +130,7 @@ namespace Ogre {
 		// dynamic index list; 32-bit until we know the max vertex index
 		typedef std::vector<uint32> IndexList;
 
-
+		/** An entry for a PolygonMesh - need the parent X3DObject too */
 		class PolygonMeshEntry
 		{
 		public:
@@ -129,6 +160,11 @@ namespace Ogre {
 		typedef std::set<PolygonMeshEntry*,PolygonMeshEntryLess> PolygonMeshList;
 		PolygonMeshList mXsiPolygonMeshList;
 
+
+	
+		/// List of deformers we've found whilst parsing the objects
+		DeformerList mXsiDeformerList;
+
 		/// Build a list of PolygonMesh instances from selection
 		void buildPolygonMeshList(bool includeChildren);
 		/// Tidy up
@@ -136,10 +172,14 @@ namespace Ogre {
 		/// Recursive method to locate PolygonMeshes
 		void findPolygonMeshes(XSI::X3DObject& x3dObj, bool recurse);
 		/// Build the mesh
-		void buildMesh(Mesh* pMesh, bool mergeSubmeshes);
+		void buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments);
 		/// Process a single PolygonMesh into one or more ProtoSubMeshes
-		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm);
+		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments);
+		/// Find deformers and bone assignments
+		void processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm);
 		
+		/// Tidy up
+		void cleanupDeformerList(void);
 
 		typedef std::map<size_t, size_t> IndexRemap;
 		/** Working area which will become a submesh once we've finished figuring
@@ -159,7 +199,10 @@ namespace Ogre {
 			bool hasVertexColours;
 			// index list
 			IndexList indices;
-			// map original position index -> first real instance in this one
+			// map of polygon mesh -> position index offset (only > 0 when submeshes merged)
+			typedef std::map<PolygonMeshEntry*, size_t> PolygonMeshOffsetMap;
+			PolygonMeshOffsetMap polygonMeshOffsetMap;
+			// map original position index (+any PM offset) -> first real instance in this one
 			IndexRemap posIndexRemap;
 			
 		};
@@ -181,6 +224,7 @@ namespace Ogre {
 		SamplerSetList mCurrentSamplerSets;
 		// Current PolygonMesh has Vertex colours?
 		bool mCurrentHasVertexColours;
+		// Current list of deformers as we discover them (will become bones)
 
 		/// Export the current list of proto submeshes, and clear list
 		void exportProtoSubMeshes(Mesh* pMesh);
