@@ -221,16 +221,15 @@ namespace Ogre {
 		delete mExternalTextureSourceManager;
 
         ILCodecs::deleteCodecs();
-        delete mZipArchiveFactory;
-        delete mFileSystemArchiveFactory;
 #if OGRE_PROFILING
         delete mProfiler;
 #endif
         delete mGuiManager;
         delete mOverlayManager;
         delete mFontManager;
-		delete mResourceGroupManager;
         delete mArchiveManager;
+        delete mZipArchiveFactory;
+        delete mFileSystemArchiveFactory;
         delete mSkeletonManager;
         delete mMeshManager;
         delete mMaterialManager;        
@@ -244,6 +243,7 @@ namespace Ogre {
 
 
         unloadPlugins();
+        delete mResourceGroupManager;
 
 
 
