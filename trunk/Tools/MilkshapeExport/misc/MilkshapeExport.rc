@@ -1,4 +1,4 @@
-// Microsoft Visual C++ generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
 
@@ -27,18 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "\r\n"
     "\0"
@@ -64,28 +64,43 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 // Dialog
 //
 
-IDD_OPTIONS DIALOGEX 0, 0, 323, 138
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
+IDD_OPTIONS DIALOG DISCARDABLE  0, 0, 393, 182
+STYLE DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "OGRE Export Options"
-FONT 8, "MS Shell Dlg", 0, 0, 0x0
+FONT 8, "MS Shell Dlg"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,211,117,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,266,117,50,14
+    DEFPUSHBUTTON   "OK",IDOK,283,161,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,336,161,50,14
     CONTROL         "Export Material Definitions",IDC_EXPORT_MATERIALS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,72,119,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,92,119,10
     CONTROL         "Export Mesh",IDC_EXPORT_MESH,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,14,56,10
+                    WS_TABSTOP,13,16,56,10
     CONTROL         "Export Skeleton && Animation",IDC_EXPORT_SKEL,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,28,107,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,201,17,107,10
     LTEXT           "Note: OGRE supports more advanced materials than Milkshape. You can get better effects if you just name the material in Milkshape, but then define the material in an OGRE .material script. You don't have to export the material definitions in this case.",
-                    IDC_STATIC,27,86,271,27
+                    IDC_STATIC,20,105,153,50
     CONTROL         "Split keyframe sequence into multiple animations",
                     IDC_SPLIT_ANIMATION,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,30,58,263,10
-    EDITTEXT        IDC_FPS,74,41,23,13,ES_AUTOHSCROLL
-    LTEXT           "Frame Rate:",IDC_STATIC,29,43,41,10
-    LTEXT           "(frames per second)",IDC_STATIC,102,43,75,10
+                    WS_TABSTOP,201,53,165,10
+    EDITTEXT        IDC_FPS,265,30,23,13,ES_AUTOHSCROLL
+    LTEXT           "Frame Rate:",IDC_STATIC,219,33,41,10
+    LTEXT           "(frames per second)",IDC_STATIC,293,33,75,10
+    GROUPBOX        "Mesh Export",IDC_GRP_MESH,7,7,180,152
+    CONTROL         "Generate Automatic Level Of Detail (LOD)",
+                    IDC_GENERATE_LOD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    13,32,164,10
+    EDITTEXT        IDC_LOD_DEPTH,99,57,30,13,ES_AUTOHSCROLL
+    RTEXT           "Depth between LODs:",IDC_STATIC,25,59,72,10
+    RTEXT           "Reduce each level by:",IDC_STATIC,25,74,72,10
+    EDITTEXT        IDC_LOD_VRQ,99,72,30,13,ES_AUTOHSCROLL
+    COMBOBOX        IDC_CBO_LOD_STYLE,132,72,45,13,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Skeleton / Animation Export",IDC_GRP_SKELETON,195,7,191,
+                    152
+    LTEXT           "To use the 'split' feature you have to supply a simple comma-separated text file to record which frames are for which animation, which you will be prompted for the location of. See Readme.html for more info.",
+                    IDC_STATIC,209,66,165,44
+    EDITTEXT        IDC_NUM_LODS,99,42,30,13,ES_AUTOHSCROLL
+    RTEXT           "Number of lower LODs:",IDC_STATIC,16,44,81,10
 END
 
 
@@ -95,17 +110,30 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO MOVEABLE PURE 
 BEGIN
     IDD_OPTIONS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 316
+        RIGHTMARGIN, 386
         TOPMARGIN, 7
-        BOTTOMMARGIN, 131
+        BOTTOMMARGIN, 175
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_OPTIONS DLGINIT
+BEGIN
+    IDC_CBO_LOD_STYLE, 0x403, 1, 0
+"\000" 
+    0
+END
 
 #endif    // English (U.K.) resources
 /////////////////////////////////////////////////////////////////////////////

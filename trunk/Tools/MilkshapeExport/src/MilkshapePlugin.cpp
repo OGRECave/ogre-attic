@@ -66,7 +66,7 @@ int MilkshapePlugin::Execute (msModel* pModel)
         return 0;
     }
 
-    showOptions();
+    if (!showOptions()) return 0;
 
     if (exportMesh)
     {
@@ -104,6 +104,19 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
         hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MESH);
         SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
 
+        // Set default LOD options
+        hwndDlgItem = GetDlgItem(hDlg, IDC_NUM_LODS);
+        SetWindowText(hwndDlgItem, "5");
+        hwndDlgItem = GetDlgItem(hDlg, IDC_LOD_DEPTH);
+        SetWindowText(hwndDlgItem, "500");
+        hwndDlgItem = GetDlgItem(hDlg, IDC_LOD_VRQ);
+        SetWindowText(hwndDlgItem, "25");
+        hwndDlgItem = GetDlgItem(hDlg, IDC_CBO_LOD_STYLE);
+        SendMessage(hwndDlgItem, CB_ADDSTRING, 0, (LPARAM)"percent");
+        SendMessage(hwndDlgItem, CB_ADDSTRING, 0, (LPARAM)"vertices");
+        SendMessage(hwndDlgItem, CB_SETCURSEL, 0, 0);
+
+
         // Check skeleton export
         hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
         SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
@@ -118,20 +131,61 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
         switch (LOWORD(wParam))
         {
             case IDOK:
-                // Validate
-                char fps[5];
-                hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
-                GetWindowText(hwndDlgItem, fps, 5);
-                plugin->fps = atof(fps);
-                if (!plugin->fps)
-                {
-                    MessageBox(hDlg, "Invalid frame rate specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
-                    return TRUE;
-                }
+                char val[20];
 
                 // Set options
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MESH);
                 plugin->exportMesh = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+
+                hwndDlgItem = GetDlgItem(hDlg, IDC_GENERATE_LOD);
+                plugin->generateLods = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+                if (plugin->generateLods)
+                {
+                    hwndDlgItem = GetDlgItem(hDlg, IDC_NUM_LODS);
+                    GetWindowText(hwndDlgItem, val, 20);
+                    plugin->numLods = atoi(val);
+                    if (!plugin->numLods)
+                    {
+                        MessageBox(hDlg, "Invalid number of LODs specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                        return TRUE;
+                    }
+                    hwndDlgItem = GetDlgItem(hDlg, IDC_LOD_DEPTH);
+                    GetWindowText(hwndDlgItem, val, 20);
+                    plugin->lodDepthIncrement = atof(val);
+                    if (!plugin->lodDepthIncrement)
+                    {
+                        MessageBox(hDlg, "Invalid LOD depth increment specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                        return TRUE;
+                    }
+                    hwndDlgItem = GetDlgItem(hDlg, IDC_LOD_VRQ);
+                    GetWindowText(hwndDlgItem, val, 20);
+                    plugin->lodReductionAmount = atof(val);
+                    if (!plugin->lodReductionAmount)
+                    {
+                        MessageBox(hDlg, "Invalid LOD reduction amount specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                        return TRUE;
+                    }
+                    hwndDlgItem = GetDlgItem(hDlg, IDC_CBO_LOD_STYLE);
+                    int sel = SendMessage(hwndDlgItem, CB_GETCURSEL,0,0);
+                    if (sel == 0)
+                    {
+                        // percent
+                        plugin->lodReductionMethod = Ogre::ProgressiveMesh::VRQ_PROPORTIONAL;
+                        // adjust percent to parametric
+                        plugin->lodReductionAmount *= 0.01;
+                    }
+                    else if (sel == 1)
+                    {
+                        // absolute
+                        plugin->lodReductionMethod = Ogre::ProgressiveMesh::VRQ_CONSTANT;
+                    }
+                    else
+                    {
+                        MessageBox(hDlg, "Invalid LOD reduction method specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                        return TRUE;
+                    }
+
+                }
 
                 hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
                 plugin->exportSkeleton = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
@@ -141,12 +195,23 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
                 
                 hwndDlgItem = GetDlgItem(hDlg, IDC_SPLIT_ANIMATION);
                 plugin->splitAnimations = (SendMessage(hwndDlgItem, BM_GETCHECK, 0, 0) == BST_CHECKED) ? true : false;
+                if (plugin->splitAnimations)
+                {
+                    hwndDlgItem = GetDlgItem(hDlg, IDC_FPS);
+                    GetWindowText(hwndDlgItem, val, 20);
+                    plugin->fps = atof(val);
+                    if (!plugin->fps)
+                    {
+                        MessageBox(hDlg, "Invalid frame rate specified", "Validation error", MB_OK | MB_ICONEXCLAMATION);
+                        return TRUE;
+                    }
+                }
 
                 EndDialog(hDlg, TRUE);
                 return TRUE;
             case IDCANCEL:
                 EndDialog(hDlg, FALSE);
-                return TRUE;
+                return FALSE;
         }
     }
 
@@ -155,15 +220,17 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
 }
 
 //---------------------------------------------------------------------
-void MilkshapePlugin::showOptions(void)
+bool MilkshapePlugin::showOptions(void)
 {
-    int i;
     HINSTANCE hInst = GetModuleHandle("msOGREExporter.dll");
     plugin = this;
     exportMesh = true;
     exportSkeleton = false;
     exportMaterials = false;
-    i = DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc);
+    
+	return DialogBox(hInst, MAKEINTRESOURCE(IDD_OPTIONS), NULL, DlgProc);
+
+
 
 
     
@@ -359,11 +426,27 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     Ogre::MeshSerializer serializer;
     logMgr.logMessage("MeshSerializer created.");
 
-    // Export, no materials for now
+    // Generate LODs if required
+    if (generateLods)
+    {
+        // Build LOD depth list
+        Ogre::Mesh::LodDistanceList distList;
+        float depth = 0;
+        for (unsigned short depth = 0; depth < numLods; ++depth)
+        {
+            depth += lodDepthIncrement;
+            distList.push_back(depth);
+        }
+
+        ogreMesh->generateLodLevels(distList, lodReductionMethod, lodReductionAmount);
+    }
+
+
+    // Export
     Ogre::String msg;
     msg << "Exporting mesh data to file '" << szFile << "'";
     logMgr.logMessage(msg);
-    serializer.exportMesh(ogreMesh, szFile, false);
+    serializer.exportMesh(ogreMesh, szFile, exportMaterials);
     logMgr.logMessage("Export successful");
 
     delete ogreMesh;
