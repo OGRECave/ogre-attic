@@ -229,7 +229,8 @@ namespace Ogre {
         /** See
           RenderSystem
          */
-        void _setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m);
+        void _setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m, 
+            const Frustum* frustum = 0);
         /** See
           RenderSystem
          */

@@ -402,6 +402,9 @@ namespace Ogre
 
         static const Matrix4 ZERO;
         static const Matrix4 IDENTITY;
+        /** Useful little matrix which takes 2D clipspace {-1, 1} to {0,1}
+            and inverts the Y. */
+        static const Matrix4 CLIPSPACE2DTOIMAGESPACE;
 
         inline Matrix4 operator*(Real scalar)
         {

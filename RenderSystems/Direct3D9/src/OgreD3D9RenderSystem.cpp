@@ -43,6 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9HLSLProgramFactory.h"
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreD3D9HardwareOcclusionQuery.h"
+#include "OgreFrustum.h"
 
 
 namespace Ogre 
@@ -1027,11 +1028,14 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setViewMatrix( const Matrix4 &m )
 	{
-        D3DXMATRIX d3dmat = D3D9Mappings::makeD3DXMatrix( m );
-		d3dmat.m[0][2] = -d3dmat.m[0][2];
-		d3dmat.m[1][2] = -d3dmat.m[1][2];
-		d3dmat.m[2][2] = -d3dmat.m[2][2];
-		d3dmat.m[3][2] = -d3dmat.m[3][2];
+        // save latest view matrix
+        mViewMatrix = m;
+        mViewMatrix[2][0] = -mViewMatrix[2][0];
+        mViewMatrix[2][1] = -mViewMatrix[2][1];
+        mViewMatrix[2][2] = -mViewMatrix[2][2];
+        mViewMatrix[2][3] = -mViewMatrix[2][3];
+
+        D3DXMATRIX d3dmat = D3D9Mappings::makeD3DXMatrix( mViewMatrix );
 
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_VIEW, &d3dmat ) ) )
@@ -1152,11 +1156,13 @@ namespace Ogre
         mTexStageDesc[stage].coordIndex = index;
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m)
+	void D3D9RenderSystem::_setTextureCoordCalculation( size_t stage, TexCoordCalcMethod m,
+        const Frustum* frustum)
 	{
 		HRESULT hr = S_OK;
 		// record the stage state
 		mTexStageDesc[stage].autoTexCoordType = m;
+        mTexStageDesc[stage].frustum = frustum;
 
 		// set aut.tex.coord.gen.mode if present
 		// if not present we'v already set it through D3D9RenderSystem::_setTextureCoordSet
@@ -1195,14 +1201,8 @@ namespace Ogre
 		        reference the envmap properly. This isn't exactly the same as spheremap
 		        (it looks nasty on flat areas because the camera space normals are the same)
 		        but it's the best approximation we have in the absence of a proper spheremap */
-                Matrix4 ogreMatEnvMap = Matrix4::IDENTITY;
-			    // set env_map values
-			    ogreMatEnvMap[0][0] = 0.5f;
-			    ogreMatEnvMap[0][3] = 0.5f;
-			    ogreMatEnvMap[1][1] = -0.5f;
-			    ogreMatEnvMap[1][3] = 0.5f;
 			    // concatenate with the xForm
-			    newMat = newMat.concatenate(ogreMatEnvMap);
+                newMat = newMat.concatenate(Matrix4::CLIPSPACE2DTOIMAGESPACE);
             }
 		}
 
@@ -1239,7 +1239,19 @@ namespace Ogre
             newMat = newMat.concatenate(ogreViewTransposed);
         }
 
-		// convert our matrix to D3D format
+        if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+        {
+            // Derive camera space to projector space transform
+            // To do this, we need to undo the camera view matrix, then 
+            // apply the projector view & projection matrices
+            newMat = mViewMatrix.inverse() * newMat;
+            newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
+            newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
+            newMat = Matrix4::CLIPSPACE2DTOIMAGESPACE * newMat;
+
+        }
+
+        // convert our matrix to D3D format
 		d3dMat = D3D9Mappings::makeD3DXMatrix(newMat);
 
 		// need this if texture is a cube map, to invert D3D's z coord
@@ -1256,15 +1268,22 @@ namespace Ogre
 		{
 			// tell D3D the dimension of tex. coord.
 			int texCoordDim;
-			switch (mTexStageDesc[stage].texType)
-			{
-			case D3D9Mappings::D3D_TEX_TYPE_NORMAL:
-				texCoordDim = 2;
-				break;
-			case D3D9Mappings::D3D_TEX_TYPE_CUBE:
-			case D3D9Mappings::D3D_TEX_TYPE_VOLUME:
-				texCoordDim = 3;
-			}
+            if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+            {
+                texCoordDim = D3DTTFF_PROJECTED | D3DTTFF_COUNT3;
+            }
+            else
+            {
+			    switch (mTexStageDesc[stage].texType)
+			    {
+			    case D3D9Mappings::D3D_TEX_TYPE_NORMAL:
+				    texCoordDim = D3DTTFF_COUNT2;
+				    break;
+			    case D3D9Mappings::D3D_TEX_TYPE_CUBE:
+			    case D3D9Mappings::D3D_TEX_TYPE_VOLUME:
+				    texCoordDim = D3DTTFF_COUNT3;
+			    }
+            }
 
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
 			if (FAILED(hr))

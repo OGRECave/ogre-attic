@@ -58,7 +58,9 @@ namespace Ogre
         /// Environment map based on vertex positions
         TEXCALC_ENVIRONMENT_MAP_PLANAR,
         TEXCALC_ENVIRONMENT_MAP_REFLECTION,
-        TEXCALC_ENVIRONMENT_MAP_NORMAL
+        TEXCALC_ENVIRONMENT_MAP_NORMAL,
+        /// Projective texture
+        TEXCALC_PROJECTIVE_TEXTURE
     };
     /// Enum describing the various actions which can be taken onthe stencil buffer
     enum StencilOperation
@@ -409,8 +411,10 @@ namespace Ogre
           Should not be used by apps - for use by Ogre only.
           @param unit Texture unit as above
           @param m Calculation method to use
+          @param frustum Optional Frustum param, only used for projective effects
          */
-        virtual void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m) = 0;
+        virtual void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
+            const Frustum* frustum = 0) = 0;
 
         /** Sets the texture blend modes from a TextureUnitState record.
             Meant for use internally only - apps should use the Material

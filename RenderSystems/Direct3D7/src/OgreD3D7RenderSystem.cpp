@@ -41,7 +41,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMatrix4.h"
 #include "OgreMath.h"
 #include "OgreD3D7RenderWindow.h"
-#include "OgreCamera.h"
+#include "OgreFrustum.h"
 #include "OgreD3D7GpuProgramManager.h"
 
 
@@ -772,13 +772,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setViewMatrix(const Matrix4 &m)
     {
-        D3DMATRIX d3dmat = makeD3DMatrix(m);
+        // save latest view matrix
+        mViewMatrix = m;
+        mViewMatrix[2][0] = -mViewMatrix[2][0];
+        mViewMatrix[2][1] = -mViewMatrix[2][1];
+        mViewMatrix[2][2] = -mViewMatrix[2][2];
+        mViewMatrix[2][3] = -mViewMatrix[2][3];
 
-        // Flip the Z to compensate for D3D's left-handed co-ordinate system
-        d3dmat.m[0][2] = -d3dmat.m[0][2];
-        d3dmat.m[1][2] = -d3dmat.m[1][2];
-        d3dmat.m[2][2] = -d3dmat.m[2][2];
-        d3dmat.m[3][2] = -d3dmat.m[3][2];
+        D3DMATRIX d3dmat = makeD3DMatrix(mViewMatrix);
 
         HRESULT hr = mlpD3DDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &d3dmat);
 
@@ -890,11 +891,13 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    void D3DRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m)
+    void D3DRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m, 
+        const Frustum* frustum)
     {
         HRESULT hr = S_OK;
         // record the stage state
         mTexStageDesc[stage].autoTexCoordType = m;
+        mTexStageDesc[stage].frustum = frustum;
 
         switch( m )
         {
@@ -909,6 +912,7 @@ namespace Ogre {
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEREFLECTIONVECTOR );
             break;
         case TEXCALC_ENVIRONMENT_MAP_PLANAR:
+        case TEXCALC_PROJECTIVE_TEXTURE:
             hr = __SetTextureStageState( stage, D3DTSS_TEXCOORDINDEX, D3DTSS_TCI_CAMERASPACEPOSITION );
             break;
         case TEXCALC_ENVIRONMENT_MAP_NORMAL:
@@ -934,14 +938,8 @@ namespace Ogre {
 		but it's the best approximation we have in the absence of a proper spheremap */
 		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
 		{
-            Matrix4 ogreMatEnvMap = Matrix4::IDENTITY;
-			// set env_map values
-			ogreMatEnvMap[0][0] = 0.5f;
-			ogreMatEnvMap[0][3] = 0.5f;
-			ogreMatEnvMap[1][1] = -0.5f;
-			ogreMatEnvMap[1][3] = 0.5f;
 			// concatenate with the xForm
-			newMat = newMat.concatenate(ogreMatEnvMap);
+            newMat = newMat.concatenate(Matrix4::CLIPSPACE2DTOIMAGESPACE);
 		}
 
         // If this is a cubic reflection, we need to modify using the view matrix
@@ -977,6 +975,18 @@ namespace Ogre {
             newMat = newMat.concatenate(ogreViewTransposed);
         }
 
+        if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+        {
+            // Derive camera space to projector space transform
+            // To do this, we need to undo the camera view matrix, then 
+            // apply the projector view & projection matrices
+            newMat = mViewMatrix.inverse() * newMat;
+            newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
+            newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
+            newMat = Matrix4::CLIPSPACE2DTOIMAGESPACE * newMat;
+
+        }
+
 		// convert our matrix to D3D format
 		d3dMat = makeD3DMatrix(newMat);
 
@@ -994,15 +1004,22 @@ namespace Ogre {
 		{
 			// tell D3D the dimension of tex. coord.
 			int texCoordDim;
-			switch (mTexStageDesc[stage].texType)
-			{
-			case D3D_TEX_TYPE_NORMAL:
-				texCoordDim = 2;
-				break;
-			case D3D_TEX_TYPE_CUBE:
-			case D3D_TEX_TYPE_VOLUME:
-				texCoordDim = 3;
-			}
+            if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+            {
+                texCoordDim = D3DTTFF_PROJECTED | D3DTTFF_COUNT3;
+            }
+            else
+            {
+			    switch (mTexStageDesc[stage].texType)
+			    {
+			    case D3D_TEX_TYPE_NORMAL:
+				    texCoordDim = D3DTTFF_COUNT2;
+				    break;
+			    case D3D_TEX_TYPE_CUBE:
+			    case D3D_TEX_TYPE_VOLUME:
+				    texCoordDim = D3DTTFF_COUNT3;
+			    }
+            }
 
 			hr = __SetTextureStageState( stage, D3DTSS_TEXTURETRANSFORMFLAGS, texCoordDim );
 			if (FAILED(hr))

@@ -170,6 +170,7 @@ namespace Ogre {
     class FontManager;
     struct FrameEvent;
     class FrameListener;
+    class Frustum;
     class GuiContainer;
     class GpuProgram;
     class GpuProgramManager;

@@ -85,6 +85,8 @@ namespace Ogre
 			size_t coordIndex;
 			/// type of auto tex. calc. used
 			TexCoordCalcMethod autoTexCoordType;
+            /// Frustum, used if the above is projection
+            const Frustum *frustum;
 			/// texture 
 			IDirect3DBaseTexture9 *pTex;
 		} mTexStageDesc[OGRE_MAX_TEXTURE_LAYERS];
@@ -129,6 +131,8 @@ namespace Ogre
         void convertPixelShaderCaps(void);
 
         unsigned short mCurrentLights;
+        /// Saved last view matrix
+        Matrix4 mViewMatrix;
 
 
 	public:
@@ -177,7 +181,8 @@ namespace Ogre
 		void _setSurfaceParams( const ColourValue &ambient, const ColourValue &diffuse, const ColourValue &specular, const ColourValue &emissive, Real shininess );
 		void _setTexture( size_t unit, bool enabled, const String &texname );
         void _setTextureCoordSet( size_t unit, size_t index );
-        void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m);
+        void _setTextureCoordCalculation(size_t unit, TexCoordCalcMethod m, 
+            const Frustum* frustum = 0);
 		void _setTextureBlendMode( size_t unit, const LayerBlendModeEx& bm );
 		void _setTextureAddressingMode( size_t unit, TextureUnitState::TextureAddressingMode tam );
 		void _setTextureMatrix( size_t unit, const Matrix4 &xform );
