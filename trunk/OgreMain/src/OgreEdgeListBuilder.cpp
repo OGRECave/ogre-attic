@@ -200,6 +200,10 @@ namespace Ogre {
                         indexSet = 0;
                         buildTrianglesEdges(indexSet, *mapi);
                     }
+                    else
+                    {
+                        throw;
+                    }
                 }
                 else
                 {
