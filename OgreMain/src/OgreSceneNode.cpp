@@ -50,8 +50,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SceneNode::~SceneNode()
     {
-		detachAllObjects();
-		if (mWireBoundingBox) {
+        // Detach all objects, do this manually to avoid needUpdate() call 
+        // which can fail because of deleted items
+		ObjectMap::iterator itr;
+		MovableObject* ret;
+		for ( itr = mObjectsByName.begin(); itr != mObjectsByName.end(); itr++ )
+		{
+		  ret = itr->second;
+		  ret->_notifyAttached((SceneNode*)0);
+		}
+        mObjectsByName.clear();
+
+        if (mWireBoundingBox) {
 			delete mWireBoundingBox;
 		}
     }
