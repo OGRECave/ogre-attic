@@ -41,8 +41,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 
-    // Forward declaration
-    class MeshPtr;
+    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to MeshPtr 
+    @note Has to be a subclass since we need operator=.
+    We could templatise this instead of repeating per Resource subclass, 
+    except to do so requires a form VC6 does not support i.e.
+    ResourceSubclassPtr<T> : public SharedPtr<T>
+    */
+    class _OgreExport MeshPtr : public SharedPtr<Mesh> 
+    {
+    public:
+        MeshPtr() : SharedPtr<Mesh>() {}
+        MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
+        MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
+        MeshPtr(const ResourcePtr& r);
+        /// Operator used to convert a ResourcePtr to a MeshPtr
+        MeshPtr& operator=(const ResourcePtr& r);
+    };
 
     /** Resource holding data about 3D mesh.
         @remarks
@@ -81,9 +95,6 @@ namespace Ogre {
 
     class _OgreExport Mesh: public Resource
     {
-        friend class MeshSerializerImpl;
-        friend class MeshSerializerImpl_v1_1;
-        friend class MeshSerializerImpl_v1_2;
         friend class SubMesh;
     public:
 		/** A way of recording the way each LODs is recorded this Mesh. */
@@ -286,7 +297,7 @@ namespace Ogre {
         /** Gets a pointer to any linked Skeleton. 
         @returns Weak reference to the skeleton - copy this if you want to hold a strong pointer.
         */
-        SkeletonPtr& getSkeleton(void) const;
+        const SkeletonPtr& getSkeleton(void) const;
 
         /** Gets the name of any linked Skeleton */
         const String& getSkeletonName(void) const;
@@ -623,43 +634,6 @@ namespace Ogre {
 
     };
 
-    /** Specialisation of SharedPtr to allow SharedPtr to be assigned to MeshPtr 
-    @note Has to be a subclass since we need operator=.
-    We could templatise this instead of repeating per Resource subclass, 
-    except to do so requires a form VC6 does not support i.e.
-    ResourceSubclassPtr<T> : public SharedPtr<T>
-    */
-    class _OgreExport MeshPtr : public SharedPtr<Mesh> 
-    {
-    public:
-        MeshPtr() : SharedPtr<Mesh>() {}
-        MeshPtr(Mesh* rep) : SharedPtr<Mesh>(rep) {}
-        MeshPtr(const MeshPtr& r) : SharedPtr<Mesh>(r) {} 
-        MeshPtr(const ResourcePtr& r) : SharedPtr<Mesh>()
-        {
-            pRep = static_cast<Mesh*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
-            {
-                ++(*pUseCount);
-            }
-        }
-
-        /// Operator used to convert a ResourcePtr to a MeshPtr
-        MeshPtr& operator=(const ResourcePtr& r)
-        {
-            if (pRep == static_cast<Mesh*>(r.getPointer()))
-                return *this;
-            release();
-            pRep = static_cast<Mesh*>(r.getPointer());
-            pUseCount = r.useCountPointer();
-            if (pUseCount)
-            {
-                ++(*pUseCount);
-            }
-            return *this;
-        }
-    };
 
 
 } // namespace

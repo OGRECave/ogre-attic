@@ -767,10 +767,11 @@ namespace Ogre
             Except(Exception::ERR_DUPLICATE_ITEM, "A mesh called " + name + 
                 " already exists!", "MeshManager::createBezierPatch");
         }
-        ResourcePtr res = ResourcePtr(
-            new PatchMesh(name, groupName, controlPointBuffer, declaration, width, height,
+        PatchMesh* pm = new PatchMesh(this, name, getNextHandle(), groupName);
+        pm->define(controlPointBuffer, declaration, width, height,
             uMaxSubdivisionLevel, vMaxSubdivisionLevel, visibleSide, vbUsage, ibUsage,
-            vbUseShadow, ibUseShadow));
+            vbUseShadow, ibUseShadow);
+        ResourcePtr res(pm);
         addImpl(res);
 
         return res;

@@ -43,9 +43,12 @@ namespace Ogre {
         /// Vertex declaration, cloned from the input
         VertexDeclaration* mDeclaration;
     public:
-        /// Constructor, as defined in MeshManager::createBezierPatch
-        PatchMesh(const String& name, 
-            void* controlPointBuffer, 
+        /// Constructor
+        PatchMesh(ResourceManager* creator, const String& name, ResourceHandle handle,
+            const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
+
+        /// Define the patch, as defined in MeshManager::createBezierPatch
+        void define(void* controlPointBuffer, 
             VertexDeclaration *declaration, size_t width, size_t height,
             size_t uMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL, 
             size_t vMaxSubdivisionLevel = PatchSurface::AUTO_LEVEL,
@@ -58,9 +61,9 @@ namespace Ogre {
         @param factor Subdivision factor as a value from 0 (control points only) to 1 (maximum
             subdivision). */
         void setSubdivision(Real factor);
-
+    protected:
         /// Overridden from Resource
-        void load(void);
+        void loadImpl(void);
 
     };
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to PatchMeshPtr 
@@ -87,6 +90,20 @@ namespace Ogre {
 
         /// Operator used to convert a ResourcePtr to a PatchMeshPtr
         PatchMeshPtr& operator=(const ResourcePtr& r)
+        {
+            if (pRep == static_cast<PatchMesh*>(r.getPointer()))
+                return *this;
+            release();
+            pRep = static_cast<PatchMesh*>(r.getPointer());
+            pUseCount = r.useCountPointer();
+            if (pUseCount)
+            {
+                ++(*pUseCount);
+            }
+            return *this;
+        }
+        /// Operator used to convert a MeshPtr to a PatchMeshPtr
+        PatchMeshPtr& operator=(const MeshPtr& r)
         {
             if (pRep == static_cast<PatchMesh*>(r.getPointer()))
                 return *this;

@@ -38,10 +38,35 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
-
+    //-----------------------------------------------------------------------
+    MeshPtr::MeshPtr(const ResourcePtr& r) : SharedPtr<Mesh>()
+    {
+        pRep = static_cast<Mesh*>(r.getPointer());
+        pUseCount = r.useCountPointer();
+        if (pUseCount)
+        {
+            ++(*pUseCount);
+        }
+    }
+    //-----------------------------------------------------------------------
+    MeshPtr& MeshPtr::operator=(const ResourcePtr& r)
+    {
+        if (pRep == static_cast<Mesh*>(r.getPointer()))
+            return *this;
+        release();
+        pRep = static_cast<Mesh*>(r.getPointer());
+        pUseCount = r.useCountPointer();
+        if (pUseCount)
+        {
+            ++(*pUseCount);
+        }
+        return *this;
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     Mesh::Mesh(ResourceManager* creator, const String& name, ResourceHandle handle,
-        const String& group, bool isManual = false, ManualResourceLoader* loader)
+        const String& group, bool isManual, ManualResourceLoader* loader)
         : Resource(creator, name, handle, group, isManual, loader),
         mBoundRadius(0.0f), 
         mBoneAssignmentsOutOfDate(false),
@@ -62,7 +87,7 @@ namespace Ogre {
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
         lod.edgeData = NULL;
-        lod.manualMesh = NULL;
+        lod.manualMesh.setNull();
 		mMeshLodUsageList.push_back(lod);
 
     }
@@ -121,7 +146,7 @@ namespace Ogre {
             MeshSerializer serializer;
             LogManager::getSingleton().logMessage("Mesh: Loading " + mName + ".");
 
-            DataStream stream = 
+            DataStreamPtr stream = 
                 ResourceGroupManager::getSingleton()._findResource(mName, mGroup);
             serializer.importMesh(stream, this);
 
@@ -305,17 +330,17 @@ namespace Ogre {
         if (skelName == "")
         {
             // No skeleton
-            mSkeleton = 0;
+            mSkeleton.setNull();
         }
         else
         {
             // Load skeleton
             try {
-                mSkeleton = SkeletonManager::getSingleton().load(skelName);
+                mSkeleton = SkeletonManager::getSingleton().load(skelName, mGroup);
             }
             catch (...)
             {
-                mSkeleton = 0;
+                mSkeleton.setNull();
                 // Log this error
                 String msg = "Unable to load skeleton ";
                 msg += skelName + " for Mesh " + mName
@@ -334,7 +359,7 @@ namespace Ogre {
         return !(mSkeletonName.empty());
     }
     //-----------------------------------------------------------------------
-    SkeletonPtr& Mesh::getSkeleton(void) const
+    const SkeletonPtr& Mesh::getSkeleton(void) const
     {
         return mSkeleton;
     }
@@ -652,8 +677,8 @@ namespace Ogre {
             // Record usage
             MeshLodUsage& lod = *++ilod;
             lod.fromDepthSquared = (*idist) * (*idist);
-            lod.edgeData = NULL;
-            lod.manualMesh = NULL;
+            lod.edgeData = 0;
+            lod.manualMesh.setNull();
         }
         mNumLods = static_cast<ushort>(lodDistances.size() + 1);
     }
@@ -666,11 +691,13 @@ namespace Ogre {
     const Mesh::MeshLodUsage& Mesh::getLodLevel(ushort index) const
     {
         assert(index < mMeshLodUsageList.size());
-        if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh == NULL)
+        if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh.isNull())
         {
             // Load the mesh now
             mMeshLodUsageList[index].manualMesh = 
-                MeshManager::getSingleton().load(mMeshLodUsageList[index].manualName);
+                MeshManager::getSingleton().load(
+                    mMeshLodUsageList[index].manualName,
+                    mGroup);
             // get the edge data, if required
             if (!mAutoBuildEdgeLists)
             {
@@ -703,8 +730,8 @@ namespace Ogre {
 		MeshLodUsage lod;
 		lod.fromDepthSquared = fromDepth * fromDepth;
 		lod.manualName = meshName;
-		lod.manualMesh = NULL;
-        lod.edgeData = NULL;
+		lod.manualMesh.setNull();
+        lod.edgeData = 0;
 		mMeshLodUsageList.push_back(lod);
 		++mNumLods;
 
@@ -723,9 +750,9 @@ namespace Ogre {
 		MeshLodUsage* lod = &(mMeshLodUsageList[index]);
 
 		lod->manualName = meshName;
-		lod->manualMesh = NULL;
+		lod->manualMesh.setNull();
         if (lod->edgeData) delete lod->edgeData;
-        lod->edgeData = NULL;
+        lod->edgeData = 0;
 	}
     //---------------------------------------------------------------------
 	ushort Mesh::getLodIndex(Real depth) const
@@ -827,8 +854,8 @@ namespace Ogre {
 		// Init first (manual) lod
 		MeshLodUsage lod;
 		lod.fromDepthSquared = 0.0f;
-        lod.edgeData = NULL;
-        lod.manualMesh = NULL;
+        lod.edgeData = 0;
+        lod.manualMesh.setNull();
 		mMeshLodUsageList.push_back(lod);
 		mIsLodManual = false;
 

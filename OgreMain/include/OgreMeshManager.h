@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSingleton.h"
 #include "OgreVector3.h"
 #include "OgreHardwareBuffer.h"
+#include "OgreMesh.h"
 #include "OgrePatchMesh.h"
 
 namespace Ogre {
