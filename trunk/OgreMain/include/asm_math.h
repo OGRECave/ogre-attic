@@ -1,6 +1,8 @@
 #ifndef __asm_math_H__
 #define __asm_math_H__
 
+#include "OgrePrerequisites.h"
+
 /*=============================================================================
  ASM math routines posted by davepermen et al on flipcode forums
 =============================================================================*/
@@ -251,6 +253,51 @@ __declspec(naked) float __fastcall InvSqrt(float fValue)
 }
 
 #endif
+
+// returns a random number
+FORCEINLINE float asm_rand()
+{
+
+#if OGRE_COMPILER == COMPILER_MSVC
+
+	static unsigned __int64 q = time( NULL );
+
+	_asm {
+		movq mm0, q
+
+		// do the magic MMX thing
+		pshufw mm1, mm0, 0x1E
+		paddd mm0, mm1
+
+		// move to integer memory location and free MMX
+		movq q, mm0
+		emms
+	}
+
+	return float( q );
+
+#elif OGRE_COMPILER == COMPILER_GNUC
+
+	return float( rand() )
+
+#endif
+}
+
+// returns the maximum random number
+FORCEINLINE float asm_rand_max()
+{
+
+#if OGRE_COMPILER == COMPILER_MSVC
+
+	return std::numeric_limits< unsigned __int64 >::max();
+	return 9223372036854775807.0f;
+
+#elif OGRE_COMPILER == COMPILER_GNUC
+
+	return float( RAND_MAX )
+
+#endif
+}
 
 // returns log2( r ) / log2( e )
 float asm_ln( float r ) {    
