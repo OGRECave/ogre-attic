@@ -30,8 +30,10 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreXMLSkeletonSerializer.h"
 #include "OgreSkeletonSerializer.h"
 #include "OgreDataChunk.h"
-#include <iostream.h>
+#include <iostream>
 #include <sys/stat.h>
+
+using namespace std;
 
 void help(void)
 {
@@ -41,7 +43,7 @@ void help(void)
     cout << "Usage: OgreXMLConvert sourcefile [destfile] " << endl;
     cout << "sourcefile = name of file to convert" << endl;
     cout << "destfile   = optional name of file to write to. If you don't" << endl;
-    cout << "            specify this OGRE works it out through the extension " << endl;
+    cout << "             specify this OGRE works it out through the extension " << endl;
     cout << "             and the XML contents if the source is XML. For example" << endl;
     cout << "             test.mesh becomes test.xml, test.xml becomes test.mesh " << endl;
     cout << "             if the XML document root is <mesh> etc."  << endl;
