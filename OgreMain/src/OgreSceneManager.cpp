@@ -1934,7 +1934,7 @@ namespace Ogre {
                 sphere.setRadius(l->getAttenuationRange());
                 if (camera->isVisible(sphere))
                 {
-                    mLightsAffectingFrustum.push_back();
+                    mLightsAffectingFrustum.push_back(l);
                 }
                 
             }
