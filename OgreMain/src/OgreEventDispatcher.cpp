@@ -84,7 +84,7 @@ namespace Ogre {
 
 			if (targetOver && targetOver != mMousePositionTarget)
 			{
-				mMousePositionTarget->processEvent(e);
+				targetOver->processEvent(e);
 				retargetMouseEvent(targetOver, MouseEvent::ME_MOUSE_ENTERED, e);
 				setMouseTarget(targetOver, e);
 
