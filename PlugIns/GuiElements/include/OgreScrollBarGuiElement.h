@@ -54,7 +54,7 @@ namespace Ogre {
 	 *
 	 */
 
-	class ScrollBarGuiElement : public PanelGuiElement, ActionListener, public ScrollTarget, public MouseMotionListener, public MouseListener
+	class _OgreGuiElementExport ScrollBarGuiElement : public PanelGuiElement, ActionListener, public ScrollTarget, public MouseMotionListener, public MouseListener
     {
 	public :
 //	    void addBaseParameters(void);

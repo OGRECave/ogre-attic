@@ -47,7 +47,7 @@ namespace Ogre
     layers, scrolling / animated textures etc. For multiple texture layers, you have to set 
     the tiling level for each layer.
     */
-    class TextBoxGuiElement : public PanelGuiElement
+    class _OgreGuiElementExport TextBoxGuiElement : public PanelGuiElement
     {
     public:
         /** Constructor. */
