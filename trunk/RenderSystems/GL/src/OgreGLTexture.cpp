@@ -91,24 +91,6 @@ namespace Ogre {
         };
     }
 
-
-
-    void GLTexture::blitToTexture( 
-        const Image& src, 
-        unsigned uStartX, unsigned uStartY )
-    {
-		if (this->getTextureType() != TEX_TYPE_2D)
-          Except( Exception::UNIMPLEMENTED_FEATURE, "**** Blit to texture implemented only for 2D textures!!! ****", "GLTexture::blitToTexture" );
-
-        glBindTexture( GL_TEXTURE_2D, mTextureID );
-        glTexSubImage2D( 
-            GL_TEXTURE_2D, 0, 
-            uStartX, uStartY,
-            src.getWidth(), src.getHeight(),
-            GLPixelUtil::getGLOriginFormat(mFormat),
-            GLPixelUtil::getGLOriginDataType(mFormat), src.getData() );
-    }
-
 	void GLTexture::generateMipmaps( const uchar *data, bool useSoftware, 
         bool isCompressed, size_t faceNumber )
     {

@@ -168,28 +168,6 @@ namespace Ogre {
         */
         virtual void createInternalResources(void) = 0;
 
-        /** Blits the contents of src on the texture.
-            @deprecated
-                This feature is superseded by the blitImage function.
-            @param
-                src the image with the source data
-        */
-        virtual void blitToTexture( 
-            const Image &src, unsigned uStartX, unsigned uStartY ) = 0;
-
-        /** Blits a rect from an image to the texture.
-            @param
-                src The image with the source data.
-            @param
-                imgRect The data rect to be copied from the image.
-            @param
-                texRect The rect in which to copy the data in the texture.
-        */
-        virtual void blitImage(
-            const Image& src, const Image::Rect imgRect, const Image::Rect texRect )
-        {
-        }
-
 		/** Copies (and maybe scales to fit) the contents of this texture to
 			another texture. */
 		virtual void copyToTexture( TexturePtr& target ) {}

@@ -52,9 +52,6 @@ namespace Ogre {
         void loadImages( const std::vector<Image>& images );
 
         void createRenderTexture();
-
-        void blitToTexture( const Image& src, 
-            unsigned uStartX, unsigned uStartY );
 			
 		/// @copydoc Texture::getBuffer
 		HardwarePixelBufferSharedPtr getBuffer(int face, int mipmap);
