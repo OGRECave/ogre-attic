@@ -1408,6 +1408,8 @@ The position of a given light in object space (ie when the object is at (0,0,0))
 The direction of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  DEPRECATED - this property only works on directional lights, and we recommend that you use light_position_object_space instead since that returns a generic 4D vector.
 @item ambient_light_colour
 The colour of the ambient light currently set in the scene.
+@item camera_position
+The current cameras position in world space.
 @item camera_position_object_space
 The current cameras position in object space (ie when the object is at (0,0,0)).
 @item time
