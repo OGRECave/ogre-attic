@@ -584,17 +584,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const MaterialPtr& Node::getMaterial(void) const
     {
-        static MaterialPtr pMaterial;
-
-        if (pMaterial.isNull())
+        if (mpMaterial.isNull())
         {
-            pMaterial = MaterialManager::getSingleton().getByName("Core/NodeMaterial");
-			if (pMaterial.isNull())
+            mpMaterial = MaterialManager::getSingleton().getByName("Core/NodeMaterial");
+			if (mpMaterial.isNull())
 				Except( Exception::ERR_ITEM_NOT_FOUND, "Could not find material Core/NodeMaterial",
 					"Node::getMaterial" );
-            pMaterial->load();
+            mpMaterial->load();
         }
-        return pMaterial;
+        return mpMaterial;
 
     }
     //-----------------------------------------------------------------------
