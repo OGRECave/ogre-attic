@@ -151,10 +151,24 @@ namespace Ogre {
 	
     void ILCodecs::registerCodecs(void) {
 		const char *il_version = ilGetString ( IL_VERSION_NUM );
+		if( ilGetError() != IL_NO_ERROR )
+		{
+			// IL defined the version number as IL_VERSION in older versions, so we have to scan for it
+			for(int ver=150; ver<170; ver++)
+			{
+				il_version = ilGetString ( ver ); 
+				if(ilGetError() == IL_NO_ERROR)
+					break;
+				else
+					il_version = "Unknown";
+			}
+		}
 		LogManager::getSingleton().logMessage(
          LML_NORMAL,
-            "DevIL version: " + (il_version?String(il_version):String("(null)")));
+            "DevIL version: " + String(il_version));
         const char *il_extensions = ilGetString ( IL_LOAD_EXT );
+		if( ilGetError() != IL_NO_ERROR )
+			il_extensions = "";
         
         std::stringstream ext;
         String str, all;
