@@ -56,8 +56,6 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib libpng.lib jpeglib.lib freetype.lib /nologo /dll /machine:I386 /libpath:"..\..\Dependencies\lib\Release"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PreLink_Desc=Building dependencies
-PreLink_Cmds=cd ..\..\Dependencies 	makeall_vc6.bat
 PostBuild_Cmds=copy ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release
 # End Special Build Tool
 
@@ -88,8 +86,6 @@ LINK32=link.exe
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zlib.lib libpng.lib jpeglib.lib freetype.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /libpath:"..\..\Dependencies\lib\Debug"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PreLink_Desc=Building dependencies
-PreLink_Cmds=cd ..\..\Dependencies 	makeall_vc6.bat
 PostBuild_Cmds=copy ..\lib\Debug\OgreMain.dll ..\..\Samples\Common\bin\Debug
 # End Special Build Tool
 
