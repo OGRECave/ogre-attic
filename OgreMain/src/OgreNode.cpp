@@ -175,8 +175,6 @@ namespace Ogre {
             {
                 // Scale own position by parent scale
                 Vector3 parentScale = mParent->_getDerivedScale();
-                mDerivedPosition = mDerivedPosition * parentScale;
-
                 // Set own scale, NB just combine as equivalent axes, no shearing
                 mDerivedScale = mScale * parentScale;
 
