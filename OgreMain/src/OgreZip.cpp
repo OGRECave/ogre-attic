@@ -23,231 +23,284 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreStableHeaders.h"
-#include "OgreZip.h"
-#include "unzip.h"
 
-#include "OgreArchiveManager.h"
+#include "OgreZip.h"
+
 #include "OgreLogManager.h"
 #include "OgreException.h"
-#include "OgreZipArchiveFactory.h"
 #include "OgreStringVector.h"
 #include "OgreRoot.h"
+
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    bool Zip::fileOpen( const String& strFile, FILE** ppFile ) const
+    ZipArchive::ZipArchive(const String& name, const String& archType )
+        : Archive(name, archType), mZzipDir(0)
     {
-        unz_file_info tagUFI;
-        FILE *pFile;
-
-        if( unzLocateFile( mArchive, strFile.c_str(), 2 ) == UNZ_OK ) {
-            //*ppFile = tmpfile();
-            pFile = *ppFile;
-
-            unzGetCurrentFileInfo( mArchive, &tagUFI, NULL, 0, NULL, 0, NULL, 0 );
-            unsigned char* pBuffer = new unsigned char[tagUFI.uncompressed_size];
-            unzOpenCurrentFile( mArchive );
-            unzReadCurrentFile( mArchive, (void*)pBuffer, tagUFI.uncompressed_size );
-            unzCloseCurrentFile( mArchive );
-            fwrite( (void*) pBuffer, 1, tagUFI.uncompressed_size, pFile );
-            delete[] pBuffer;
-
-            fseek( pFile, 0, SEEK_SET );
-            return true;
-        }
-
-        return false;
     }
-
     //-----------------------------------------------------------------------
-    bool Zip::fileRead( const String& strFile, DataChunk** ppChunk ) const
+    ZipArchive::~ZipArchive()
     {
-        DataChunk* pChunk = *ppChunk;
-        unz_file_info tagUFI;
-
-        if( unzLocateFile( mArchive, strFile.c_str(), 2 ) == UNZ_OK ) {
-            unzGetCurrentFileInfo( mArchive, &tagUFI, NULL, 0, NULL, 0, NULL, 0 );
-            pChunk->allocate(tagUFI.uncompressed_size);
-            unzOpenCurrentFile( mArchive );
-            unzReadCurrentFile( mArchive, (void*)pChunk->getPtr(), tagUFI.uncompressed_size );
-            unzCloseCurrentFile( mArchive );
-
-            return true;
-        }
-
-        return false;
+        unload();
     }
-
     //-----------------------------------------------------------------------
-    bool Zip::fileSave( ::FILE* pFile, const String& strPath, bool bOverwrite /* = false */ )
+    void ZipArchive::load()
     {
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::fileWrite( const DataChunk& refChunk, const String& strPath, bool bOverwrite /* = false */ )
-    {
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::fileTest( const String& strFile ) const
-    {
-        if( unzLocateFile( mArchive, strFile.c_str(), 2 ) == UNZ_OK )
-            return true;
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::fileCopy( const String& strSrc, const String& strDest, bool bOverwrite )
-    {
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::fileMove( const String& strSrc, const String& strDest, bool bOverwrite )
-    {
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::fileDele( const String& strFile )
-    {
-        return false;
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::fileInfo( const String& strFile, FileInfo** ppInfo ) const
-    {
-        return true;
-    }
-
-    //-----------------------------------------------------------------------
-    std::vector<String> Zip::dirGetFiles( const String& strDir ) const
-    {
-        return const_cast<Zip *>(this)->getAllNamesLike( strDir, "", false );
-    }
-
-    //-----------------------------------------------------------------------
-    std::vector<String> Zip::dirGetSubs( const String& strDir ) const
-    {
-        return std::vector<String>();
-    }
-
-    //-----------------------------------------------------------------------
-    bool Zip::dirDele( const String& strDir, bool bRecursive )
-    {
-        return false;
-    };
-
-    //-----------------------------------------------------------------------
-    bool Zip::dirMove( const String& strSrc, const String& strDest, bool bOverwrite )
-    {
-        return false;
-    };
-
-    //-----------------------------------------------------------------------
-    bool Zip::dirInfo( const String& strDir, FileInfo** ppInfo ) const
-    {
-        return false;
-    };
-
-    //-----------------------------------------------------------------------
-    bool Zip::dirCopy( const String& strSrc, const String& strDest, bool bOverwrite )
-    {
-        return false;
-    };
-
-    //-----------------------------------------------------------------------
-    bool Zip::dirTest( const String& strDir ) const
-    {
-        return false;
-    };
-
-    //-----------------------------------------------------------------------
-    StringVector Zip::getAllNamesLike( const String& strStartPath, const String& strPattern, bool bRecursive /* = true */ )
-    {
-        StringVector retVec;
-        unz_file_info info;
-        String filename;
-        String szPattern;
-        char tmpFilename[260];
-        char extraField[260];
-        char comment[260];
-
-        szPattern = strPattern;
-        StringUtil::toLowerCase(szPattern);
-
-        int iRes = unzGoToFirstFile(mArchive);
-        while( iRes == UNZ_OK )
+        if (!mZzipDir)
         {
+            zzip_error_t zzipError;
+            mZzipDir = zzip_dir_open(mName.c_str(), &zzipError);
+            checkZzipError(zzipError, "opening archive");
+        }
+    }
+    //-----------------------------------------------------------------------
+    void ZipArchive::unload()
+    {
+        if (mZzipDir)
+        {
+            zzip_dir_close(mZzipDir);
+            mZzipDir = 0;
+        }
+    
+    }
+    //-----------------------------------------------------------------------
+	DataStreamPtr ZipArchive::open(const String& filename) const
+    {
+        // Format not used here (always binary)
+        ZZIP_FILE* zzipFile = 
+            zzip_file_open(mZzipDir, filename.c_str(), ZZIP_ONLYZIP);
+        if (zzip_error(mZzipDir) != ZZIP_NO_ERROR)
+		{
+			// return null pointer
+			return DataStreamPtr();
+		}
 
-            unzGetCurrentFileInfo( mArchive,
-                         &info,
-                         tmpFilename, 259,
-                         extraField, 259,
-                         comment, 259 );
+		// Get uncompressed size too
+		ZZIP_STAT zstat;
+		zzip_dir_stat(mZzipDir, filename.c_str(), &zstat, 0);
 
-            filename = tmpFilename;
+        // Construct & return stream
+        return DataStreamPtr(new ZipDataStream(filename, zzipFile, static_cast<size_t>(zstat.d_csize)));
 
-            if( info.uncompressed_size > 0 )
+    }
+    //-----------------------------------------------------------------------
+    void ZipArchive::kill(const String& filename)
+    {
+        // Not supported
+        Except(Exception::ERR_CANNOT_WRITE_TO_FILE, 
+            "Writing to zip archives is not currently supported", 
+            "ZipArchive::kill");
+    }
+    //-----------------------------------------------------------------------
+    StringVectorPtr ZipArchive::list(bool recursive)
+    {
+        ZZIP_DIRENT zzipEntry;
+        StringVectorPtr ret = StringVectorPtr(new StringVector());
+
+        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        {
+            String name(zzipEntry.d_name);
+			if (recursive || name.find_first_of("/") == String::npos)
             {
-                StringUtil::toLowerCase(filename);
-			
-                if( static_cast<int>(filename.find(szPattern)) >= 0 )
+                ret->push_back(name);
+            }
+        }
+        return ret;
+
+    }
+    //-----------------------------------------------------------------------
+    Archive::FileInfoListPtr ZipArchive::listFileInfo(bool recursive)
+    {
+        ZZIP_DIRENT zzipEntry;
+        FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());
+
+        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        {
+            String name(zzipEntry.d_name);
+            // Assume that the presence of '/' means file is in a subdir of the zip
+			if (recursive || name.find_first_of("/") == String::npos)
+            {
+                FileInfo info;
+                // Get basename / path
+                StringUtil::splitFilename(name, info.basename, info.path);
+                // Get sizes
+                info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
+                info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
+
+                ret->push_back(info);
+            }
+        }
+        return ret;
+    }
+    //-----------------------------------------------------------------------
+    StringVectorPtr ZipArchive::find(const String& pattern, bool recursive, 
+        bool caseSensitive)
+    {
+        ZZIP_DIRENT zzipEntry;
+        StringVectorPtr ret = StringVectorPtr(new StringVector());
+
+        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        {
+            String name(zzipEntry.d_name);
+			if (recursive || name.find_first_of("/") == String::npos)
+            {
+                // Get basename / path
+                String basename, path;
+                StringUtil::splitFilename(name, basename, path);
+                // Check name matches pattern
+                if (StringUtil::match(basename, pattern, caseSensitive))
                 {
-                    if (strStartPath.length() > 0 && strStartPath != "./")
-					{
-						if (static_cast<int>(filename.find(strStartPath)) >= 0)
-							retVec.push_back( filename );
-					}
-					else
-						retVec.push_back( filename );
+                    ret->push_back(name);
                 }
             }
-
-            iRes = unzGoToNextFile( mArchive );
         }
-
-        return retVec;
-    };
-
-    //-----------------------------------------------------------------------
-    void Zip::load() {
-        struct stat tagStat;
-        stat( mName.c_str(), &tagStat );
-
-        if( ( tagStat.st_mode & S_IFDIR ) )
-            Except( Exception::ERR_FILE_NOT_FOUND, "Zip archive " + mName + " not found.",
-                "Zip::load" );
-        else
-            mArchive = unzOpen( mName.c_str() );
-
-        LogManager::getSingleton().logMessage( "Zip Archive codec for " + mName + " created.");
-        mIsLoaded = true;
-    };
-
-    //-----------------------------------------------------------------------
-    void Zip::unload() {
-        if( mArchive )
-            unzClose( mArchive );
-
-        LogManager::getSingleton().logMessage( "Zip Archive Codec for " + mName + " unloaded." );
-
-        delete this;
-    };
-
-    //-----------------------------------------------------------------------
-    Zip::Zip() {}
-
-    //-----------------------------------------------------------------------
-    Zip::Zip( const String& name )
-    {
-        mName = name;
+        return ret;
     }
-
     //-----------------------------------------------------------------------
-    Zip::~Zip() {}
+	Archive::FileInfoListPtr ZipArchive::findFileInfo(const String& pattern, 
+        bool recursive, bool caseSensitive)
+    {
+        ZZIP_DIRENT zzipEntry;
+        FileInfoListPtr ret = FileInfoListPtr(new FileInfoList());
+
+        while (zzip_dir_read(mZzipDir, &zzipEntry))
+        {
+            String name(zzipEntry.d_name);
+            // Assume that the presence of '/' means file is in a subdir of the zip
+			if (recursive || name.find_first_of("/") == String::npos)
+            {
+                FileInfo info;
+                // Get basename / path
+                StringUtil::splitFilename(name, info.basename, info.path);
+                // Check name matches pattern
+                if (StringUtil::match(info.basename, pattern, caseSensitive))
+                {
+                    // Get sizes
+                    info.compressedSize = static_cast<size_t>(zzipEntry.d_csize);
+                    info.uncompressedSize = static_cast<size_t>(zzipEntry.st_size);
+
+                    ret->push_back(info);
+                }
+            }
+        }
+        return ret;
+    }
+    //-----------------------------------------------------------------------
+    void ZipArchive::checkZzipError(const zzip_error_t& zzipError, const String& operation) const
+    {
+        if (zzipError != ZZIP_NO_ERROR)
+        {
+            String errorMsg;
+            switch (zzipError)
+            {
+            case ZZIP_OUTOFMEM:
+                errorMsg = "Out of memory.";
+                break;            
+            case ZZIP_DIR_OPEN:
+            case ZZIP_DIR_STAT: 
+            case ZZIP_DIR_SEEK:
+            case ZZIP_DIR_READ:
+                errorMsg = "Unable to read zip file.";
+                break;            
+            case ZZIP_UNSUPP_COMPR:
+                errorMsg = "Unsupported compression format.";
+                break;            
+            case ZZIP_CORRUPTED:
+                errorMsg = "Corrupted archive.";
+                break;            
+            default:
+                errorMsg = "Unknown error.";
+                break;            
+            };
+
+            Except(Exception::ERR_INTERNAL_ERROR, 
+                mName + " - error whilst " + operation + ": " + errorMsg,
+                "ZipArchive::checkZzipError");
+        }
+    }
+    //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
+#define DECOMPRESS_CHUNK_SIZE 128
+    //-----------------------------------------------------------------------
+    ZipDataStream::ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize)
+        : mZzipFile(zzipFile), mUncompressedSize(uncompressedSize)
+    {
+    }
+    //-----------------------------------------------------------------------
+    ZipDataStream::ZipDataStream(const String& name, ZZIP_FILE* zzipFile, size_t uncompressedSize)
+        :DataStream(name), mZzipFile(zzipFile), mUncompressedSize(uncompressedSize)
+    {
+    }
+    //-----------------------------------------------------------------------
+    size_t ZipDataStream::read(unsigned char*& buf, size_t count)
+    {
+        return zzip_file_read(mZzipFile, (char*)buf, count);
+    }
+    //-----------------------------------------------------------------------
+    size_t ZipDataStream::readLine(unsigned char*&buf, size_t maxCount, const String& delim)
+    {
+        // read in chunks
+		static char tmpChunk[DECOMPRESS_CHUNK_SIZE+1];
+		size_t chunkSize = std::min(maxCount, (size_t)DECOMPRESS_CHUNK_SIZE);
+		size_t totalCount = 0;
+		size_t readCount; 
+		while (chunkSize && (readCount = zzip_file_read(mZzipFile, tmpChunk, chunkSize)))
+		{
+			// Terminate
+			tmpChunk[chunkSize] = '\0';
+			// Find first delimiter
+			size_t pos = strcspn(tmpChunk, delim.c_str());
+
+			if (pos > 0)
+			{
+				// Are we genuinely copying?
+				if (buf)
+				{
+					memcpy(buf, (const void*)tmpChunk, pos);
+				}
+				totalCount += pos;
+			}
+
+			if (pos < chunkSize)
+			{
+				// found terminator, break out
+				break;
+			}
+			// Adjust chunkSize for next time
+			chunkSize = std::min(maxCount-totalCount, (size_t)DECOMPRESS_CHUNK_SIZE);
+			
+		}
+		return totalCount;
+    }
+    //-----------------------------------------------------------------------
+    size_t ZipDataStream::skipLine(const String& delim)
+    {
+		// Re-use readLine, but don't copy data
+		unsigned char* nullBuf = 0;
+        readLine(nullBuf, 1024, delim);
+    }
+    //-----------------------------------------------------------------------
+    void ZipDataStream::skip(size_t count)
+    {
+        zzip_seek(mZzipFile, count, SEEK_CUR);
+    }
+    //-----------------------------------------------------------------------
+    void ZipDataStream::seek( size_t pos )
+    {
+		zzip_seek(mZzipFile, pos, SEEK_SET);
+    }
+    //-----------------------------------------------------------------------
+    bool ZipDataStream::eof(void) const
+    {
+        return (zzip_tell(mZzipFile) > mUncompressedSize);
+    }
+    //-----------------------------------------------------------------------
+    void ZipDataStream::close(void)
+    {
+        zzip_file_close(mZzipFile);
+    }
+    //-----------------------------------------------------------------------
+
 
 }

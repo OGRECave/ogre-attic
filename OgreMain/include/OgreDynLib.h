@@ -27,8 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreResource.h"
-
 #if OGRE_PLATFORM == PLATFORM_WIN32
 #    define DYNLIB_HANDLE hInstance
 #    define DYNLIB_LOAD( a ) LoadLibrary( a )
@@ -67,8 +65,10 @@ namespace Ogre {
         @see
             Resource
     */
-    class _OgreExport DynLib : public Resource
+    class _OgreExport DynLib
     {
+	protected:
+		String mName;
     public:
         /** Default constructor - used by DynLibManager.
             @warning
@@ -80,19 +80,15 @@ namespace Ogre {
         */
         ~DynLib();
 
-        /** Generic load - called by DynLibManager.
-            @see
-                Resource::load
+        /** Load the library
         */
         virtual void load();
-        /** Generic unload - called by DynLibManager.
-            @see
-                Resource::unload
+        /** Unload the library
         */
         virtual void unload();
 
         /**
-            Returns the adress of the given symbol from the loaded library.
+            Returns the address of the given symbol from the loaded library.
             @param
                 strName The name of the symbol to search for
             @returns

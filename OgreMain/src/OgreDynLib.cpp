@@ -52,7 +52,6 @@ namespace Ogre {
         if (mName.substr(mName.length() - 3, 3) != ".so")
             mName += ".so";
 #endif
-        mIsLoaded = false;
         m_hInst = NULL;
 
         OgreUnguard();
@@ -61,8 +60,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     DynLib::~DynLib()
     {
-        if( mIsLoaded )
-            unload();
+        unload();
     }
 
     //-----------------------------------------------------------------------
@@ -82,8 +80,6 @@ namespace Ogre {
                 ".  System Error: " + DYNLIB_ERROR(),
                 "DynLib::load" );
 
-        mIsLoaded = true;
-
         OgreUnguard();
     }
 
@@ -93,18 +89,16 @@ namespace Ogre {
         OgreGuard("DynLib::unload");
 
         // Log library unload
-        if (mIsLoaded)
-        {
-            LogManager::getSingleton().logMessage("Unloading library " + mName);
+        LogManager::getSingleton().logMessage("Unloading library " + mName);
 
-            if( DYNLIB_UNLOAD( m_hInst ) )
-                Except(
-                    Exception::ERR_INTERNAL_ERROR, 
-                    "Could not unload dynamic library " + mName +
-                    ".  System Error: " + DYNLIB_ERROR(),
-                    "DynLib::unload");
-        }
-        mIsLoaded = false;
+        if( DYNLIB_UNLOAD( m_hInst ) )
+		{
+            Except(
+                Exception::ERR_INTERNAL_ERROR, 
+                "Could not unload dynamic library " + mName +
+                ".  System Error: " + DYNLIB_ERROR(),
+                "DynLib::unload");
+		}
 
         OgreUnguard();
     }

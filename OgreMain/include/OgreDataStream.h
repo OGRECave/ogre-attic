@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreSharedPtr.h"
+#include <istream>
 
 namespace Ogre {
 
@@ -43,7 +44,7 @@ namespace Ogre {
 	@par
 		Generally, if a plugin or application provides an ArchiveFactory, 
 		it should also provide a DataStream subclass which will be used
-		to stream data out of that ArchiveEx implementation, unless it can 
+		to stream data out of that Archive implementation, unless it can 
 		use one of the common implementations included.
 	@note
 		Ogre makes no guarantees about thread safety, for performance reasons.
@@ -64,7 +65,7 @@ namespace Ogre {
 		DataStream(const String& name) : mName(name) {}
 		/// Returns the name of the stream, if it has one.
 		const String& getName(void) { return mName; }
-		virtual ~DataStream() {}
+		virtual ~DataStream() { close(); }
 		// Streaming operators
 		virtual DataStream& operator>>(char& val);
 		virtual DataStream& operator>>(unsigned char& val);
@@ -88,15 +89,18 @@ namespace Ogre {
 		virtual size_t read(unsigned char*& buf, size_t count) = 0;
 		/** Get a single line from the stream.
 		@remarks
-			The terminating character is not included in the data
+			The delimiter character is not included in the data
 			returned, and it is skipped over so the next read will occur
-			after it.
+			after it. Similarly, the buffer contents do not include any
+			terminating character, so you must add one if that's what you 
+			need (e.g. turning this into a String, although if that's what
+			you want you'd be best to use the alternative method getLine)
 		@param buf Reference to a buffer pointer
 		@param maxCount The maximum length of data to be read
 		@param delim The delimiter to stop at
 		@returns The number of bytes read
 		*/
-		virtual size_t readLine(unsigned char*&buf, size_t maxCount, char delim = '\n') = 0;
+		virtual size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n") = 0;
 		
 	    /** Returns a String containing the next line of data, optionally 
 		    trimmed for whitespace. 
@@ -111,11 +115,18 @@ namespace Ogre {
 	    */
 	    virtual String getLine( bool trimAfter = true );
 
+	    /** Returns a String containing the entire stream. 
+	    @remarks
+		    This is a convenience method for text streams only, allowing you to 
+		    retrieve a String object containing all the data in the stream.
+	    */
+	    virtual String getAsString(void);
+
 		/** Skip a single line from the stream.
-		@param delim The delimiter to stop at
+		@param delim The delimiter(s) to stop at
 		@returns The number of bytes skipped
 		*/
-		virtual size_t skipLine(char delim = '\n') = 0;
+		virtual size_t skipLine(const String& delim = "\n") = 0;
 
 		/** Skip a defined number of bytes. */
 		virtual void skip(size_t count) = 0;
@@ -192,6 +203,19 @@ namespace Ogre {
 		MemoryDataStream(DataStream& sourceStream, 
 				bool freeOnDestroy = true);
 		
+		/** Create a stream which pre-buffers the contents of another stream.
+		@remarks
+			This constructor can be used to intentionally read in the entire
+			contents of another stream, copying them to the internal buffer
+			and thus making them available in memory as a single unit.
+		@param sourceStream Weak reference to another DataStream which will provide the source
+			of data
+		@param freeOnDestroy If true, the memory associated will be destroyed
+			when the stream is destroyed.
+		*/
+		MemoryDataStream(DataStreamPtr& sourceStream, 
+				bool freeOnDestroy = true);
+
 		/** Create a named stream which pre-buffers the contents of 
 			another stream.
 		@remarks
@@ -235,11 +259,11 @@ namespace Ogre {
 		size_t read(unsigned char*& buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char*&buf, size_t maxCount, char delim = '\n');
+		size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
-		size_t skipLine(char delim = '\n');
+		size_t skipLine(const String& delim = "\n");
 
 		/** @copydoc DataStream::skip
 		*/
@@ -264,12 +288,13 @@ namespace Ogre {
 	class _OgreExport BasicIstreamDataStream : public DataStream
 	{
 	protected:
-		std::basic_istream mStream;
+		/// Reference to source stream
+		const std::basic_istream<unsigned char*>& mStream;
 	public:
 		/// Construct stream from an STL stream
-		BasicIstreamDataStream(std::basic_istream& istream);
+		BasicIstreamDataStream(const std::basic_istream<unsigned char*>& istream);
 		/// Construct named stream from an STL stream
-		BasicIstreamDataStream(const String& name, std::basic_istream& istream);
+		BasicIstreamDataStream(const String& name, const std::basic_istream<unsigned char*>& istream);
 
 		~BasicIstreamDataStream();
 
@@ -278,11 +303,11 @@ namespace Ogre {
 		size_t read(unsigned char*& buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char*&buf, size_t maxCount, char delim = '\n');
+	  size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
-		size_t skipLine(char delim = '\n');
+		size_t skipLine(const String& delim = "\n");
 
 		/** @copydoc DataStream::skip
 		*/
@@ -321,11 +346,11 @@ namespace Ogre {
 		size_t read(unsigned char*& buf, size_t count);
 		/** @copydoc DataStream::readLine
 		*/
-		size_t readLine(unsigned char*&buf, size_t maxCount, char delim = '\n');
+		size_t readLine(unsigned char*&buf, size_t maxCount, const String& delim = "\n");
 		
 		/** @copydoc DataStream::skipLine
 		*/
-		size_t skipLine(char delim = '\n');
+		size_t skipLine(const String& delim = "\n");
 
 		/** @copydoc DataStream::skip
 		*/

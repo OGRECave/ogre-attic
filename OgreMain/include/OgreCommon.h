@@ -30,15 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-	enum ResourceType
-    {
-        /// All resource types
-        RESTYPE_ALL,
-        /// Textures
-        RESTYPE_TEXTURES,
-        /// Models
-        RESTYPE_MODELS
-    };
 
     /** Comparison functions used for the depth/stencil buffer operations and 
 		others. */
@@ -262,7 +253,13 @@ namespace Ogre {
 
     typedef std::map<String, bool> UnaryOptionList;
     typedef std::map<String, String> BinaryOptionList;
-    /** Locate command-line options of the unary form '-blah' and of the
+
+	/// Name / value parameter pair (first = name, second = value)
+	typedef std::pair<String, String> NameValuePair;
+	typedef std::list<NameValuePair> NameValuePairList;
+
+	
+	/** Locate command-line options of the unary form '-blah' and of the
         binary form '-blah foo', passing back the index of the next non-option.
     @param numargs, argv The standard parameters passed to the main method
     @param unaryOptList Map of unary options (ie those that do not require a parameter).

@@ -156,5 +156,78 @@ namespace Ogre {
         return (endOfThis == pattern);
     }
     //-----------------------------------------------------------------------
+    String StringUtil::standardisePath(const String& init)
+    {
+        String path = init;
+
+        std::replace( path.begin(), path.end(), '\\', '/' );
+        if( path[path.length() - 1] != '/' )
+            path += '/';
+
+        return path;
+    }
+    //-----------------------------------------------------------------------
+    void StringUtil::splitFilename(const String& qualifiedName, 
+        String& outBasename, String& outPath)
+    {
+        String path = qualifiedName;
+        // Replace \ with / first
+        std::replace( path.begin(), path.end(), '\\', '/' );
+        // split based on final /
+        size_t i = path.find_last_of('/');
+
+        if (i == String::npos)
+        {
+            outPath = "";
+        }
+        else
+        {
+            outBasename = path.substr(i+1, path.size() - i - 1);
+            outPath = path.substr(0, i+1);
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    bool StringUtil::match(const String& str, const String& pattern, bool caseSensitive)
+    {
+        String tmpStr = str;
+		String tmpPattern = pattern;
+        if (caseSensitive)
+        {
+            StringUtil::toLowerCase(tmpStr);
+            StringUtil::toLowerCase(tmpPattern);
+        }
+
+        String::const_iterator strIt = tmpStr.begin();
+        String::const_iterator patIt = tmpPattern.begin();
+        while (strIt != tmpStr.end() && patIt != tmpPattern.end())
+        {
+            if (*patIt == '*')
+            {
+                // Skip over looking for next character
+                ++patIt;
+                if (patIt != tmpPattern.end())
+                {
+                    while(strIt != tmpStr.end() && *strIt != *patIt)
+                        ++strIt;
+                }
+            }
+            else
+            {
+                if (*patIt != *strIt)
+                {
+                    return false;
+                }
+                else
+                {
+                    ++patIt;
+                    ++strIt;
+                }
+            }
+
+        }
+        return true;
+
+    }
 
 }
