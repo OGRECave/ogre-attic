@@ -32,7 +32,8 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreMovableObject.h"
 
 namespace Ogre {
-
+    
+    unsigned long Node::msNextGeneratedNameExt = 1;
     //-----------------------------------------------------------------------
     Node::Node()
     {
@@ -43,7 +44,24 @@ namespace Ogre {
         mInheritScale = true;
         mDerivedOutOfDate = true;
 
+        // Generate a name
+        static char temp[64];
+        sprintf(temp, "Unnamed_%d", msNextGeneratedNameExt++);
+        mName = temp;
+
     }
+    //-----------------------------------------------------------------------
+    Node::Node(const String& name)
+    {
+        mName = name;
+        mParent = 0;
+        mOrientation = mDerivedOrientation = Quaternion::IDENTITY;
+        mPosition = mDerivedPosition = Vector3::ZERO;
+        mScale = Vector3::UNIT_SCALE;
+        mInheritScale = true;
+        mDerivedOutOfDate = true;
+    }
+
     //-----------------------------------------------------------------------
     Node::~Node()
     {
@@ -138,9 +156,17 @@ namespace Ogre {
         newNode->rotate(rotate);
         this->addChild(newNode);
 
+        return newNode;
+    }
+    //-----------------------------------------------------------------------
+    Node* Node::createChild(const String& name, const Vector3& translate, const Quaternion& rotate)
+    {
+        Node* newNode = createChildImpl(name);
+        newNode->translate(translate);
+        newNode->rotate(rotate);
+        this->addChild(newNode);
 
         return newNode;
-
     }
     //-----------------------------------------------------------------------
     void Node::addChild(Node* child)
@@ -396,5 +422,10 @@ namespace Ogre {
 
         destMatrix = rot_scale;
         destMatrix.setTrans(position);
+    }
+    //-----------------------------------------------------------------------
+    const String& Node::getName(void)
+    {
+        return mName;
     }
 }

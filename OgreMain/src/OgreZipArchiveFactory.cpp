@@ -25,38 +25,38 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgreZipArchiveFactory.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-ZipArchiveFactory::~ZipArchiveFactory()
-{
+    ZipArchiveFactory::~ZipArchiveFactory()
+    {
+    }
+
+    //-----------------------------------------------------------------------
+    String ZipArchiveFactory::getArchiveType(void)
+    {
+        return "Zip";
+    }
+
+    //-----------------------------------------------------------------------
+    ArchiveEx* ZipArchiveFactory::createArchive(const String& name)
+    {
+        return new Zip(name);
+    }
+
+    ArchiveEx *ZipArchiveFactory::createObj( int nA, ... )
+    {
+        va_list lst;
+        va_start( lst, nA );
+
+        String &name = va_arg( lst, String );
+        return new Zip( name );
+
+        va_end( lst );
+    }
+
+    String ZipArchiveFactory::getType()
+    {
+        return "Zip";
+    }
+
 }
-
-//-----------------------------------------------------------------------
-String ZipArchiveFactory::getArchiveType(void)
-{
-    return "Zip";
-}
-
-//-----------------------------------------------------------------------
-ArchiveEx* ZipArchiveFactory::createArchive(const String& name)
-{
-    return new Zip(name);
-}
-
-ArchiveEx *ZipArchiveFactory::createObj( int nA, ... )
-{
-    va_list lst;
-    va_start( lst, nA );
-
-    String &name = va_arg( lst, String );
-    return new Zip( name );
-
-    va_end( lst );
-}
-
-String ZipArchiveFactory::getType()
-{
-    return "Zip";
-}
-
-END_OGRE_NAMESPACE

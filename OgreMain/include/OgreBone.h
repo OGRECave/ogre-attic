@@ -43,6 +43,8 @@ namespace Ogre
     public:
         /** Constructor, not to be used directly (use Bone::createChild or Skeleton::createBone) */
         Bone(unsigned short handle, Skeleton* creator);
+        /** Constructor, not to be used directly (use Bone::createChild or Skeleton::createBone) */
+        Bone(const String& name, unsigned short handle, Skeleton* creator);
         ~Bone();
 
         /** Creates a new Bone as a child of this bone.
@@ -70,6 +72,20 @@ namespace Ogre
                 rotate Initial rotation relative to parent
         */
         Bone* createChild(unsigned short handle, 
+            const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
+        /** Creates a new Bone as a child of this bone.
+        @remarks
+            This method creates a new bone which will inherit the transforms of this
+            bone, and also gives it the name specified. This bone can then be looked up in 
+            the Skeleton using it's name if required.
+            @param 
+                handle The numeric handle to give the new bone; must be unique within the Skeleton.
+            @param
+                translate Initial translation offset of child relative to parent
+            @param
+                rotate Initial rotation relative to parent
+        */
+        Bone* createChild(const String& name , 
             const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
         /** Gets a pointer to a child node.*/
@@ -109,6 +125,8 @@ namespace Ogre
 
         /** See Node. */
         Node* createChildImpl(void);
+        /** See Node. */
+        Node* createChildImpl(const String& name);
 
         /// Pointer back to creator, for child creation (central memory allocation)
         Skeleton* mCreator;

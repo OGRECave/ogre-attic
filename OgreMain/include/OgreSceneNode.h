@@ -60,19 +60,43 @@ namespace Ogre {
         /** See Node. */
         Node* createChildImpl(void);
 
+        /** See Node. */
+        Node* createChildImpl(const String& name);
     public:
         /** Constructor, only to be called by the creator SceneManager.
+        @remarks
+            Creates a node with a generated name.
         */
         SceneNode(SceneManager* creator);
+        /** Constructor, only to be called by the creator SceneManager.
+        @remarks
+            Creates a node with a specified name.
+        */
+        SceneNode(SceneManager* creator, const String& name);
         ~SceneNode();
 
-        /** Creates a new Node as a child of this node.
+        /** Creates a new unnamed Node as a child of this node.
+        @remarks
+            This creates a node with no name (or rather, a generated name). If you want
+            to give the node a specific name, use the alternate form which takes a name
+            as the first parameter, which allows you to look the node up from SceneManager::getSceneNode.
             @param
                 translate Initial translation offset of child relative to parent
             @param
                 rotate Initial rotation relative to parent
         */
         SceneNode* createChild(const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
+
+        /** Creates a new named Node as a child of this node.
+        @remarks
+            This creates a child node with a given name, which allows you to look the node up from 
+            SceneManager::getSceneNode.
+            @param
+                translate Initial translation offset of child relative to parent
+            @param
+                rotate Initial rotation relative to parent
+        */
+        SceneNode* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
         /** Gets a pointer to a child node.*/
         SceneNode* getChild(unsigned short index);

@@ -30,23 +30,23 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "png.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-/** ImageCodec specialized in Portable Network Graphics images.
-*/
-class _OgreExport PNGCodec : public ImageCodec
-{
-protected:    
-    static void
-    pngChunkRead(png_structp png_ptr, png_bytep data, png_size_t length);
+    /** ImageCodec specialized in Portable Network Graphics images.
+    */
+    class _OgreExport PNGCodec : public ImageCodec
+    {
+    protected:    
+        static void
+        pngChunkRead(png_structp png_ptr, png_bytep data, png_size_t length);
 
-public:
-    void code( const DataChunk& input, DataChunk* output, ... ) const;
-    CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
+    public:
+        void code( const DataChunk& input, DataChunk* output, ... ) const;
+        CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const;
 
-    String getType() const { return "png"; }
-};
+        String getType() const { return "png"; }
+    };
 
-END_OGRE_NAMESPACE
+} // namespace
 
 #endif

@@ -27,34 +27,34 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-/** Abstract factory class. Does nothing by itself, but derived classes can add
-    functionality.
-*/
-template< typename T > class FactoryObj
-{
-public:
-    virtual ~FactoryObj() {};
-
-    /** Returns the factory type.
-        @return
-            The factory type.
+    /** Abstract factory class. Does nothing by itself, but derived classes can add
+        functionality.
     */
-    virtual String getType() = 0;
+    template< typename T > class FactoryObj
+    {
+    public:
+        virtual ~FactoryObj() {};
 
-    /** 'Produces' a new object.
-        @param
-            nA First required parameter. It exists because the implementations
-            of createObj may need to get a pointer to the optional parameters
-            list.
-        @return
-            An object created by the factory. The type of the object depends on
-            the factory.
-    */
-    virtual T* createObj( int nA, ... ) = 0;    
-};
+        /** Returns the factory type.
+            @return
+                The factory type.
+        */
+        virtual String getType() = 0;
 
-END_OGRE_NAMESPACE
+        /** 'Produces' a new object.
+            @param
+                nA First required parameter. It exists because the implementations
+                of createObj may need to get a pointer to the optional parameters
+                list.
+            @return
+                An object created by the factory. The type of the object depends on
+                the factory.
+        */
+        virtual T* createObj( int nA, ... ) = 0;    
+    };
+
+} // namespace
 
 #endif

@@ -35,6 +35,11 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
+    Bone::Bone(const String& name, unsigned short handle, Skeleton* creator) 
+        : Node(name), mCreator(creator), mHandle(handle)
+    {
+    }
+    //---------------------------------------------------------------------
     Bone::~Bone()
     {
     }
@@ -49,6 +54,16 @@ namespace Ogre {
         const Quaternion& rotate)
     {
         Bone* retBone = mCreator->createBone(handle);
+        retBone->translate(translate);
+        retBone->rotate(rotate);
+        this->addChild(retBone);
+        return retBone;
+    }
+    //---------------------------------------------------------------------
+    Bone* Bone::createChild(const String& name, const Vector3& translate, 
+        const Quaternion& rotate)
+    {
+        Bone* retBone = mCreator->createBone(name);
         retBone->translate(translate);
         retBone->rotate(rotate);
         this->addChild(retBone);
@@ -70,6 +85,11 @@ namespace Ogre {
     Node* Bone::createChildImpl(void)
     {
         return mCreator->createBone();
+    }
+    //---------------------------------------------------------------------
+    Node* Bone::createChildImpl(const String& name)
+    {
+        return mCreator->createBone(name);
     }
     //---------------------------------------------------------------------
     void Bone::setBindingPose(void)

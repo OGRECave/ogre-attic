@@ -110,12 +110,13 @@ namespace Ogre {
         */
         BillboardSetList mBillboardSets;
 
-        typedef std::vector<SceneNode*> SceneNodeList;
+        typedef std::map<String, SceneNode*> SceneNodeList;
 
         /** Central list of SceneNodes - for easy memory management.
             @note
                 Note that this list is used only for memory management; the structure of the scene
-                is held using the hierarchy of SceneNodes starting with the root node.
+                is held using the hierarchy of SceneNodes starting with the root node. However you
+                can look up nodes this way.
         */
         SceneNodeList mSceneNodes;
 
@@ -333,8 +334,29 @@ namespace Ogre {
             @par
                 To include the returned SceneNode in the scene, use the addChild
                 method of the SceneNode which is to be it's parent.
+            @par
+                Note that this method takes no parameters, and the node created is unnamed (it is
+                actually given a generated name, which you can retrieve if you want).
+                If you wish to create a node with a specific name, call the alternative method
+                which takes a name parameter.
         */
         virtual SceneNode* createSceneNode(void);
+
+        /** Creates an instance of a SceneNode with a given name.
+            @remarks
+                Note that this does not add the SceneNode to the scene hierarchy.
+                This method is for convenience, since it allows an instance to
+                be created for which the SceneManager is responsible for
+                allocating and releasing memory, which is convenient in complex
+                scenes.
+            @par
+                To include the returned SceneNode in the scene, use the addChild
+                method of the SceneNode which is to be it's parent.
+            @par
+                Note that this method takes a name parameter, which makes the node easier to
+                retrieve directly again later.
+        */
+        virtual SceneNode* createSceneNode(const String& name);
 
         /** Gets the SceneNode at the root of the scene hierarchy.
             @remarks
@@ -351,7 +373,15 @@ namespace Ogre {
                 However, in all cases there is only ever one root node of
                 the hierarchy, and this method returns a pointer to it.
         */
-        virtual SceneNode* getRootSceneNode(void);
+        virtual SceneNode* getRootSceneNode(void) const;
+
+        /** Retrieves a named SceneNode from the scene graph.
+        @remarks
+            If you chose to name a SceneNode as you created it, or if you
+            happened to make a note of the generated name, you can look it
+            up wherever it is in the scene graph using this method.
+        */
+        virtual SceneNode* getSceneNode(const String& name) const;
 
         /** Create an Entity (instance of a discrete mesh).
             @param

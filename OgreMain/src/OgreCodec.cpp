@@ -24,8 +24,8 @@ http://www.gnu.org/copyleft/gpl.html.
 */
 #include "OgreCodec.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-std::map< String, Codec * > Codec::ms_mapCodecs;
+    std::map< String, Codec * > Codec::ms_mapCodecs;
 
-END_OGRE_NAMESPACE
+}

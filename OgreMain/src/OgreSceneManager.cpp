@@ -301,7 +301,7 @@ namespace Ogre {
         for (SceneNodeList::iterator i = mSceneNodes.begin();
             i != mSceneNodes.end(); ++i)
         {
-            delete *i;
+            delete i->second;
         }
         mSceneNodes.clear();
 
@@ -375,16 +375,35 @@ namespace Ogre {
     SceneNode* SceneManager::createSceneNode(void)
     {
         SceneNode* sn = new SceneNode(this);
-        mSceneNodes.push_back(sn);
+        mSceneNodes[sn->getName()] = sn;
         return sn;
     }
-
     //-----------------------------------------------------------------------
-    SceneNode* SceneManager::getRootSceneNode(void)
+    SceneNode* SceneManager::createSceneNode(const String& name)
+    {
+        SceneNode* sn = new SceneNode(this, name);
+        mSceneNodes[sn->getName()] = sn;
+        return sn;
+    }
+    //-----------------------------------------------------------------------
+    SceneNode* SceneManager::getRootSceneNode(void) const
     {
         return mSceneRoot;
     }
+    //-----------------------------------------------------------------------
+    SceneNode* SceneManager::getSceneNode(const String& name) const
+    {
+        SceneNodeList::const_iterator i = mSceneNodes.find(name);
 
+        if (i == mSceneNodes.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "SceneNode '" + name + "' not found.",
+                "SceneManager::getSceneNode");
+        }
+
+        return i->second;
+        
+    }
     //-----------------------------------------------------------------------
     int SceneManager::setMaterial(Material* mat, int numLayersLeft)
     {

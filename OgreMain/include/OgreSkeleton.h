@@ -110,6 +110,22 @@ namespace Ogre {
         */
         Bone* createBone(unsigned short handle);
 
+        /** Creates a brand new Bone owned by this Skeleton. 
+        @remarks
+            This method creates an unattached new Bone for this skeleton and assigns it a 
+            specific name. Unless this is to
+            be the root bone (there must only be one of these), you must
+            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            For this reason you will likely be better off creating child bones using the
+            Bone::createChild method instead, once you have created the root bone. 
+        @param name The name to give to this new bone - must be unique within this skeleton. 
+            Note that the way OGRE looks up bones is via a numeric handle, so if you name a
+            Bone this way it will be given an automatic sequential handle. The name is just
+            for your convenience, although it is recommended that you only use the handle to 
+            retrieve the bone in performance-critical code.
+        */
+        Bone* createBone(const String& name);
+
         /** Returns the number of bones in this skeleton. */
         unsigned short getNumBones(void) const;
 
@@ -128,6 +144,9 @@ namespace Ogre {
 
         /** Gets a bone by it's handle. */
         Bone* getBone(unsigned short handle) const;
+
+        /** Gets a bone by it's name. */
+        Bone* getBone(const String& name) const;
 
         /** Sets the current position / orientation to be the 'binding pose' ie the layout in which 
             bones were originally bound to a mesh.
@@ -197,6 +216,10 @@ namespace Ogre {
         /// Storage of bones, lookup by bone handle
         typedef std::map<unsigned short, Bone*> BoneList;
         BoneList mBoneList;
+        /// Lookup by bone name
+        typedef std::map<String, Bone*> BoneListByName;
+        BoneListByName mBoneListByName;
+
         /// Pointer to root bone (all others follow)
         mutable Bone *mRootBone;
         /// Automatic handles

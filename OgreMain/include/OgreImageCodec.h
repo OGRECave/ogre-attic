@@ -28,41 +28,41 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreCodec.h"
 #include "OgreImage.h"
 
-BEGIN_OGRE_NAMESPACE
+namespace Ogre {
 
-/** Codec specialized in images.
-    @remarks
-        The users implementing subclasses of ImageCodec are required to return
-        a valid pointer to a ImageData class from the decode(...) function.
-*/
-class _OgreExport ImageCodec : public Codec
-{
-public:
-    /** Codec return class for images. Has imformation about the size and the
-        pixel format of the image.
+    /** Codec specialized in images.
+        @remarks
+            The users implementing subclasses of ImageCodec are required to return
+            a valid pointer to a ImageData class from the decode(...) function.
     */
-    class ImageData : public Codec::CodecData
+    class _OgreExport ImageCodec : public Codec
     {
     public:
-        UInt32 ulHeight;
-        UInt32 ulWidth;
+        /** Codec return class for images. Has imformation about the size and the
+            pixel format of the image.
+        */
+        class ImageData : public Codec::CodecData
+        {
+        public:
+            UInt32 ulHeight;
+            UInt32 ulWidth;
 
-        Image::PixelFormat eFormat;
+            Image::PixelFormat eFormat;
+
+        public:
+            String dataType()
+            {
+                return "ImageData";
+            }
+        };
 
     public:
-        String dataType()
-        {
-            return "ImageData";
-        }
+        virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
+        virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const = 0;
+
+        virtual String getType() const = 0;
     };
 
-public:
-    virtual void code( const DataChunk& input, DataChunk* output, ... ) const = 0;
-    virtual CodecData * decode( const DataChunk& input, DataChunk* output, ... ) const = 0;
-
-    virtual String getType() const = 0;
-};
-
-END_OGRE_NAMESPACE
+} // namespace
 
 #endif
