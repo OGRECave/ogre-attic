@@ -177,8 +177,8 @@ namespace Ogre
         else
         {
 			// Manually load since we need to load to get alpha
-			TexturePtr tex = TextureManager::getSingleton().load(mSource, mGroup, TEX_TYPE_2D, 0);
-            blendByAlpha = tex->hasAlpha();
+			mTexture = TextureManager::getSingleton().load(mSource, mGroup, TEX_TYPE_2D, 0);
+            blendByAlpha = mTexture->hasAlpha();
             texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
         }
         // Clamp to avoid fuzzy edges
