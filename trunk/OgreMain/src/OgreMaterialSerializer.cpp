@@ -2028,7 +2028,7 @@ namespace Ogre
                 pPass->getMaxSimultaneousLights() != OGRE_MAX_SIMULTANEOUS_LIGHTS)
             {
                 writeAttribute(3, "max_lights");
-                writeValue(StringConverter::toString(pPass->getMaxSimultaneousLights));
+                writeValue(StringConverter::toString(pPass->getMaxSimultaneousLights()));
             }
 			// iteration
             if (mDefaults || 
@@ -2289,6 +2289,8 @@ namespace Ogre
                     break;
                 case TEX_TYPE_CUBE_MAP:
                     // nothing, deal with this as cubic_texture since it copes with all variants
+                    break;
+                default:
                     break;
                 };
             }
