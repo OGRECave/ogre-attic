@@ -89,6 +89,9 @@ namespace Ogre {
         /// Internal method to set pos / direction of a light
         void setGLLightPositionDirection(Light* lt, int lightindex);
 
+        bool mUseAutoTextureMatrix;
+        GLfloat mAutoTextureMatrix[16];
+
     public:
         // Default constructor / destructor
         GLRenderSystem();

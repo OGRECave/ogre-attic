@@ -254,96 +254,27 @@ namespace Ogre {
         // This method is only ever called to set a texture unit to valid details
         // The method _disableTextureUnit is called to turn a unit off
 
-        Material::TextureLayer& curr = mTextureUnits[texUnit];
-        bool currIsBlank = curr.isBlank();
-
         // Texture name
-        String texName = tl.getTextureName();
-        //if (currIsBlank || curr.getTextureName() != texName)
-        //{
-            _setTexture(texUnit, true, texName);
-        //}
+        _setTexture(texUnit, true, tl.getTextureName());
 
         // Set texture coordinate set
-        int coordSet = tl.getTextureCoordSet();
-        //if (currIsBlank || curr.getTextureCoordSet() != coordSet)
-        //{
-            _setTextureCoordSet(texUnit, coordSet);
-        //}
+        _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
 
         // Set texture layer filtering
-        // Fix: GL requires filtering to be set in ALL cases
-        TextureFilterOptions texLayerFilterOps = tl.getTextureLayerFiltering();
-        //if (currIsBlank || curr.getTextureLayerFiltering() != texLayerFilterOps)
-        //{
-            _setTextureLayerFiltering(texUnit, texLayerFilterOps);
-        //}
+        _setTextureLayerFiltering(texUnit, tl.getTextureLayerFiltering());
 
         // Set texture layer filtering
-		int tMaxAniso = tl.getTextureAnisotropy();
-        //if (currIsBlank || curr.getTextureAnisotropy() != tMaxAniso)
-        //{
-            _setTextureLayerAnisotropy(texUnit, tMaxAniso);
-        //}
+        _setTextureLayerAnisotropy(texUnit, tl.getTextureAnisotropy());
 
 		// Set blend modes
-        LayerBlendModeEx newBlend = tl.getColourBlendMode();
-        //if (currIsBlank || curr.getColourBlendMode() != newBlend)
-        //{
-            _setTextureBlendMode(texUnit, newBlend);
-        //}
-        newBlend = tl.getAlphaBlendMode();
-        //if (currIsBlank || curr.getAlphaBlendMode() != newBlend)
-        //{
-            _setTextureBlendMode(texUnit, newBlend);
-        //}
+        _setTextureBlendMode(texUnit, tl.getColourBlendMode());
+        _setTextureBlendMode(texUnit, tl.getAlphaBlendMode());
 
-        Material::TextureLayer::TextureAddressingMode addr = tl.getTextureAddressingMode();
-
-        // Fix: GL requires addressing mode to be set in ALL cases
-        // If the extra state changes in D3D become problematic, refactor this
-        //if (currIsBlank || curr.getTextureAddressingMode() != addr)
-        //{
-            _setTextureAddressingMode(texUnit, addr );
-        //}
+        // Texture addressing mode
+        _setTextureAddressingMode(texUnit, tl.getTextureAddressingMode() );
 
         // Set texture effects
         Material::TextureLayer::EffectMap::iterator effi;
-        bool currEnv = false;
-        bool currEnvPlanar = false;
-        bool currEnvReflection = false;
-        bool currEnvNormal = false;
-        // bool currTexMod = false;
-        // Iterate over current effects
-        for (effi = curr.mEffects.begin(); effi != curr.mEffects.end(); ++effi)
-        {
-            switch (effi->second.type)
-            {
-            case Material::TextureLayer::ET_ENVIRONMENT_MAP:
-                if (effi->second.subtype == Material::TextureLayer::ENV_CURVED)
-                {
-                    currEnv = true;
-                }
-                else if (effi->second.subtype == Material::TextureLayer::ENV_PLANAR)
-                {
-                    currEnvPlanar = true;
-                }
-                else if (effi->second.subtype == Material::TextureLayer::ENV_REFLECTION)
-                {
-                    currEnvReflection = true;
-                }
-                else if (effi->second.subtype == Material::TextureLayer::ENV_NORMAL)
-                {
-                    currEnvNormal = true;
-                }
-                break;
-	    case Material::TextureLayer::ET_BUMP_MAP:
-	    case Material::TextureLayer::ET_SCROLL:
-	    case Material::TextureLayer::ET_ROTATE:
-	    case Material::TextureLayer::ET_TRANSFORM:
-	      break;
-            }
-        }
         // Iterate over new effects
         bool anyCalcs = false;
         for (effi = tl.mEffects.begin(); effi != tl.mEffects.end(); ++effi)
@@ -353,34 +284,22 @@ namespace Ogre {
             case Material::TextureLayer::ET_ENVIRONMENT_MAP:
                 if (effi->second.subtype == Material::TextureLayer::ENV_CURVED)
                 {
-                    if (currIsBlank || !currEnv)
-                    {
-                        _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP);
-                    }
+                    _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP);
                     anyCalcs = true;
                 }
                 else if (effi->second.subtype == Material::TextureLayer::ENV_PLANAR)
                 {
-                    if (currIsBlank || !currEnvPlanar)
-                    {
-                        _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_PLANAR);
-                    }
+                    _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_PLANAR);
                     anyCalcs = true;
                 }
                 else if (effi->second.subtype == Material::TextureLayer::ENV_REFLECTION)
                 {
-                    if (currIsBlank || !currEnvReflection)
-                    {
-                        _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_REFLECTION);
-                    }
+                    _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_REFLECTION);
                     anyCalcs = true;
                 }
                 else if (effi->second.subtype == Material::TextureLayer::ENV_NORMAL)
                 {
-                    if (currIsBlank || !currEnvNormal)
-                    {
-                        _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_NORMAL);
-                    }
+                    _setTextureCoordCalculation(texUnit, TEXCALC_ENVIRONMENT_MAP_NORMAL);
                     anyCalcs = true;
                 }
                 break;
@@ -392,34 +311,18 @@ namespace Ogre {
             }
         }
         // Ensure any previous texcoord calc settings are reset if there are now none
-        if ((!anyCalcs) && 
-            (currEnv || currEnvPlanar || currEnvReflection || currEnvNormal))
+        if (!anyCalcs)
         {
             _setTextureCoordCalculation(texUnit, TEXCALC_NONE);
             _setTextureCoordSet(texUnit, tl.getTextureCoordSet());
         }
 
-        // Change tetxure matrix if required
-        // NB concatenate with any existing texture matrix created for generate
-        const Matrix4& xform = tl.getTextureTransform();
-        //if( !(curr.getTextureTransform() == xform ))
-        //{
-            _setTextureMatrix(texUnit, xform);
-        //}
-
+        // Change tetxure matrix 
+        _setTextureMatrix(texUnit, tl.getTextureTransform());
 
         // Set alpha rejection
-        unsigned char alphaVal = tl.getAlphaRejectValue();
-        CompareFunction alphaFunc = tl.getAlphaRejectFunction();
-        if (currIsBlank ||
-            (curr.getAlphaRejectFunction() != alphaFunc) ||
-            (curr.getAlphaRejectValue() != alphaVal))
-        {
-            _setAlphaRejectSettings(alphaFunc, alphaVal);
-        }
-
-        // Now that the changes have been made, update the record of current texture unit settings
-        curr = tl;
+        _setAlphaRejectSettings(tl.getAlphaRejectFunction(), 
+            tl.getAlphaRejectValue());
 
     }
     //-----------------------------------------------------------------------
