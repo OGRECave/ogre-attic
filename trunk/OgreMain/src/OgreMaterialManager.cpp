@@ -932,7 +932,7 @@ namespace Ogre {
 			    + pMat->getName() + ", wrong number of parameters (expected 2)");
 		    return;
 	    }
-	    pTex->setTextureAnisotropy(atof(params[1].c_str()));
+	    pTex->setTextureAnisotropy(atoi(params[1].c_str()));
     }
     //-----------------------------------------------------------------------
     template<> MaterialManager* Singleton<MaterialManager>::ms_Singleton = 0;
