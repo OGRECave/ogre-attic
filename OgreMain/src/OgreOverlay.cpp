@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreRoot.h"
 #include "OgreSceneManager.h"
 #include "OgreGuiContainer.h"
+#include "OgreCamera.h"
 
 
 namespace Ogre {
@@ -197,8 +198,15 @@ namespace Ogre {
             return;
 
         // Add 3D elements
+        mRootNode->setPosition(cam->getDerivedPosition());
+        mRootNode->setOrientation(cam->getDerivedOrientation());
         mRootNode->_update(cam);
+        // Set up the default queue group for the objects about to be added
+        RenderQueueGroupID oldgrp = queue->getDefaultQueueGroup();
+        queue->setDefaultQueueGroup(RENDER_QUEUE_OVERLAY);
         mRootNode->_findVisibleObjects(cam, queue, true, false);
+        // Reset the group
+        queue->setDefaultQueueGroup(oldgrp);
 
 
         // Add 2D elements
