@@ -583,10 +583,12 @@ namespace Ogre {
 					DeformerList::iterator di = 
 						mXsiDeformerList.find(deformerName);
 					DeformerEntry* deformerEntry;
+					bool newDeformerEntry = false;
+					bool atLeastOneAssignment = false;
 					if (di == mXsiDeformerList.end())
 					{
 						deformerEntry = new DeformerEntry(mXsiDeformerList.size(), deformer);
-						mXsiDeformerList[deformerName] = deformerEntry;
+						newDeformerEntry = true;
 					}
 					else
 					{
@@ -633,6 +635,7 @@ namespace Ogre {
 									vba.weight = weight;
 									ps->boneAssignments.insert(
 										Mesh::VertexBoneAssignmentList::value_type(vertIndex, vba));
+									atLeastOneAssignment = true;
 
 									if (vertex.nextIndex == 0)
 									{
@@ -650,6 +653,12 @@ namespace Ogre {
 
 
 
+					}
+
+					// Only add new deformer if we actually had any assignments
+					if (newDeformerEntry && atLeastOneAssignment)
+					{
+						mXsiDeformerList[deformerName] = deformerEntry;
 					}
 
 
