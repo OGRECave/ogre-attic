@@ -94,7 +94,7 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 90863033;
+			PBXPerProjectTemplateStateSaveDate = 90872741;
 			PBXWorkspaceContents = (
 				{
 					PBXProjectWorkspaceModule_StateKey_Rev36 = {
@@ -220,7 +220,7 @@
 				};
 				WindowFrame = "{{346, 341}, {682, 390}}";
 			};
-			PBXWorkspaceStateSaveDate = 90863033;
+			PBXWorkspaceStateSaveDate = 90872741;
 		};
 		sourceControlManager = 82747CA80549C16900FBDACA;
 		userBuildSettings = {
