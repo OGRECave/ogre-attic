@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\glh"
+				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\glh;..\src\atifs\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGRE_GL_USE_MULTITEXTURING"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -80,7 +80,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse"
+				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\atifs\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RenderSystem_GL_EXPORTS;OGRE_GL_USE_MULTITEXTURING"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -129,6 +129,9 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			<File
+				RelativePath="..\src\OgreGLATIFSInit.cpp">
+			</File>
 			<File
 				RelativePath="..\src\OgreGLDefaultHardwareBufferManager.cpp">
 			</File>
@@ -299,6 +302,28 @@
 				</File>
 				<File
 					RelativePath="..\src\nvparse\vsp1.0_impl.cpp">
+				</File>
+			</Filter>
+			<Filter
+				Name="atifs"
+				Filter="">
+				<File
+					RelativePath="..\src\atifs\src\ATI_FS_GLGpuProgram.cpp">
+				</File>
+				<File
+					RelativePath="..\src\atifs\include\ATI_FS_GLGpuProgram.h">
+				</File>
+				<File
+					RelativePath="..\src\atifs\src\Compiler2Pass.cpp">
+				</File>
+				<File
+					RelativePath="..\src\atifs\include\Compiler2Pass.h">
+				</File>
+				<File
+					RelativePath="..\src\atifs\src\ps_1_4.cpp">
+				</File>
+				<File
+					RelativePath="..\src\atifs\include\ps_1_4.h">
 				</File>
 			</Filter>
 		</Filter>
