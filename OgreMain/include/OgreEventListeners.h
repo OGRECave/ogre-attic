@@ -47,8 +47,6 @@ email                : kenny@sparksuit.com
 
 #include "OgrePrerequisites.h"
 #include "OgreMouseEvent.h"
-#include "OgreActionEvent.h"
-#include "OgreScrollEvent.h"
 
 namespace Ogre {
 
@@ -141,30 +139,6 @@ namespace Ogre {
         virtual void mouseDragMoved(MouseEvent* e) {};
     };
 
-	/** Specialised EventListener for receiving component-specific ActionEvent events.*/
-	class _OgreExport ActionListener : public EventListener
-    {
-    protected:
-
-	public :
-
-		/**
-		 * Invoked when an action occurs.
-		 */
-		virtual void actionPerformed(ActionEvent* e) = 0;
-	};
-
-	class _OgreExport ScrollListener : public EventListener
-    {
-    protected:
-
-	public :
-
-		/**
-		 * Invoked when an action occurs.
-		 */
-		virtual void scrollPerformed(ScrollEvent* e) = 0;
-	};
 
 
 }

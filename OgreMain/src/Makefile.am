@@ -2,9 +2,7 @@ INCLUDES = $(STLPORT_CFLAGS) $(FT2_CFLAGS) -I$(top_srcdir)/OgreMain/include -DOG
 
 lib_LTLIBRARIES=libOgreMain.la
 
-libOgreMain_la_SOURCES = OgreActionEvent.cpp \
-                         OgreActionTarget.cpp \
-                         OgreAnimation.cpp \
+libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreAnimationState.cpp \
                          OgreAnimationTrack.cpp \
                          OgreArchiveManager.cpp \
@@ -113,8 +111,6 @@ libOgreMain_la_SOURCES = OgreActionEvent.cpp \
                          OgreResourceManager.cpp \
                          OgreRoot.cpp \
                          OgreRotationSpline.cpp \
-						 OgreScrollEvent.cpp \
-						 OgreScrollTarget.cpp \
                          OgreSceneManager.cpp \
                          OgreSceneManagerEnumerator.cpp \
                          OgreSceneNode.cpp \

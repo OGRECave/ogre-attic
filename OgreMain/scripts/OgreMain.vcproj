@@ -145,12 +145,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
-				RelativePath="..\src\OgreActionEvent.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreActionTarget.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreAnimation.cpp">
 			</File>
 			<File
@@ -541,12 +535,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreSceneQuery.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreScrollEvent.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgreScrollTarget.cpp">
-			</File>
-			<File
 				RelativePath="..\src\OgreSerializer.cpp">
 			</File>
 			<File
@@ -651,12 +639,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\include\Ogre.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreActionEvent.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreActionTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreAnimation.h">
@@ -1107,12 +1089,6 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreScriptLoader.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreScrollEvent.h">
-			</File>
-			<File
-				RelativePath="..\include\OgreScrollTarget.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreSerializer.h">

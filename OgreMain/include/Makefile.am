@@ -1,7 +1,5 @@
 pkginclude_HEADERS = Ogre.h \
 OgreArchive.h \
-OgreActionEvent.h \
-OgreActionTarget.h \
 OgreAnimation.h \
 OgreAnimationState.h \
 OgreAnimationTrack.h \
@@ -148,8 +146,6 @@ OgreSceneManagerEnumerator.h \
 OgreSceneNode.h \
 OgreSceneQuery.h \
 OgreScriptLoader.h \
-OgreScrollEvent.h \
-OgreScrollTarget.h \
 OgreSearchOps.h \
 OgreSerializer.h \
 OgreShadowCaster.h \

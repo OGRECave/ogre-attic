@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreMouseEvent.h"
 #include "OgreKeyEvent.h"
-#include "OgreActionEvent.h"
 #include "OgreInput.h"
 #include "OgreCursor.h"
 #include "OgrePlatformManager.h"
