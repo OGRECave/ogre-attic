@@ -56,13 +56,9 @@ namespace Ogre
 		mpD3DDevice = NULL;
 		mDriverList = NULL;
 		mActiveD3DDriver = NULL;
-		mpCurrentVertexDecl = NULL;
 		mExternalHandle = NULL;
         mTextureManager = NULL;
         mHardwareBufferManager = NULL;
-
-		// zero our declarations
-		ZeroMemory( mCurrentDecl, sizeof(D3DVERTEXELEMENT9) * D3D_MAX_DECLSIZE );
 
 		// init lights
 		for(int i = 0; i < MAX_LIGHTS; i++ )
@@ -88,6 +84,8 @@ namespace Ogre
 			mTexStageDesc[n].pTex = 0;
 		}
 
+		mLastVertexSourceCount = 0;
+
 		OgreUnguard();
 	}
 	//---------------------------------------------------------------------
@@ -95,7 +93,13 @@ namespace Ogre
 	{
 		OgreGuard( "D3D9RenderSystem::~D3D9RenderSystem" );
 
-		SAFE_RELEASE( mpCurrentVertexDecl );
+		// Unbind any vertex streams to avoid memory leaks
+		for (unsigned int i = 0; i < mLastVertexSourceCount; ++i)
+		{
+            HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
+		}
+		
+		
 		SAFE_DELETE( mDriverList );
 		SAFE_DELETE( mTextureManager );
         SAFE_DELETE(mHardwareBufferManager);
@@ -1671,6 +1675,21 @@ namespace Ogre
 
 
         }
+
+		// Unbind any unused sources
+		for (size_t unused = binds.size(); unused < mLastVertexSourceCount; ++unused)
+		{
+			
+            hr = mpD3DDevice->SetStreamSource(unused, NULL, 0, 0);
+            if (FAILED(hr))
+            {
+                Except(hr, "Unable to reset unused D3D9 stream source", 
+                    "D3D9RenderSystem::setVertexBufferBinding");
+            }
+			
+		}
+		mLastVertexSourceCount = binds.size();
+		
 
 		
         // UnGuard
