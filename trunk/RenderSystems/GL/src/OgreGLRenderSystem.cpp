@@ -454,6 +454,20 @@ namespace Ogre {
         {
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
+
+        // Check for FSAA
+        // Enable the extension if it was enabled by the GLSupport
+        if (mGLSupport->checkExtension("GL_ARB_multisample"))
+        {
+            int fsaa_active = false;
+            glGetIntegerv(GL_SAMPLE_BUFFERS_ARB,(GLint*)&fsaa_active);
+            if(fsaa_active)
+            {
+                glEnable(GL_MULTISAMPLE_ARB);
+                LogManager::getSingleton().logMessage("Using FSAA from GL_ARB_multisample extension.");
+            }            
+        }
+
 		// UBYTE4 always supported
 		mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
 
