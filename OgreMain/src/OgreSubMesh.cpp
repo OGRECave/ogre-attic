@@ -74,7 +74,15 @@ namespace Ogre {
         
 		// SubMeshes always use indexes
         ro.useIndexes = true;
-		ro.indexData = indexData;
+		if (lodIndex > 0 && static_cast< size_t >( lodIndex - 1 ) < mLodFaceList.size())
+		{
+			// lodIndex - 1 because we don't store full detail version in mLodFaceList
+			ro.indexData = mLodFaceList[lodIndex-1];
+        }
+        else
+        {
+    		ro.indexData = indexData;
+        }
 		ro.operationType = RenderOperation::OT_TRIANGLE_LIST;
 		ro.vertexData = useSharedVertices? parent->sharedVertexData : vertexData;
 

@@ -545,7 +545,24 @@ namespace Ogre {
         if (chunkID == M_GEOMETRY)
         {
 			mpMesh->sharedVertexData = new VertexData();
-			readGeometry(chunk, mpMesh->sharedVertexData);
+            try {
+			    readGeometry(chunk, mpMesh->sharedVertexData);
+            }
+            catch (Exception& e)
+            {
+                if (e.getNumber() == Exception::ERR_ITEM_NOT_FOUND)
+                {
+                    // duff geometry data entry with 0 vertices
+                    delete mpMesh->sharedVertexData;
+                    mpMesh->sharedVertexData = 0;
+                    // Skip this chunk (pointer will have been returned to just after header)
+                    chunk.skip(mCurrentChunkLen - CHUNK_OVERHEAD_SIZE);
+                }
+                else
+                {
+                    throw;
+                }
+            }
         }
 
         // Find all subchunks 
@@ -638,6 +655,7 @@ namespace Ogre {
             readShorts(chunk, pIdx, sm->indexData->indexCount);
             ibuf->unlock();
         }
+        sm->indexData->indexBuffer = ibuf;
 
         // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
         if (!sm->useSharedVertices)
@@ -1116,6 +1134,7 @@ namespace Ogre {
 
 			SubMesh* sm = mpMesh->getSubMesh(i);
 			// lodNum - 1 because SubMesh doesn't store full detail LOD
+            sm->mLodFaceList[lodNum - 1] = new IndexData();
 			IndexData* indexData = sm->mLodFaceList[lodNum - 1];
             // unsigned int numIndexes
             unsigned int numIndexes;
@@ -1177,11 +1196,11 @@ namespace Ogre {
         // bool useSharedVertices
         readBools(chunk,&sm->useSharedVertices, 1);
 
-        // unsigned short indexCount
+        // unsigned short faceCount
         sm->indexData->indexStart = 0;
-        unsigned short idxCount;
-        readShorts(chunk, &idxCount, 1);
-        sm->indexData->indexCount = idxCount;
+        unsigned short faceCount;
+        readShorts(chunk, &faceCount, 1);
+        sm->indexData->indexCount = faceCount * 3;
 
         // Indexes always 16-bit in this version
         HardwareIndexBufferSharedPtr ibuf;
@@ -1190,6 +1209,7 @@ namespace Ogre {
                 HardwareIndexBuffer::IT_16BIT, 
                 sm->indexData->indexCount, 
                 HardwareBuffer::HBU_STATIC);
+        sm->indexData->indexBuffer = ibuf;
         // unsigned short* faceVertexIndices 
         unsigned short* pIdx = static_cast<unsigned short*>(
             ibuf->lock(0, ibuf->getSizeInBytes(), HardwareBuffer::HBL_DISCARD)
@@ -1253,6 +1273,16 @@ namespace Ogre {
         unsigned short numVerts;
         readShorts(chunk, &numVerts, 1);
         dest->vertexCount = numVerts;
+
+        if (dest->vertexCount == 0)
+        {
+            // Empty positions
+            // skip back to where we were
+            chunk.skip(-sizeof(unsigned short));
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Geometry section found but no "
+                "positions defined - you should upgrade this .mesh to the latest version "
+                "to eliminate this problem.", "MeshSerializerImpl::readGeometry");
+        }
 
         // Vertex buffers
         // TODO: consider redesigning this so vertex buffers can be combined
@@ -1401,11 +1431,12 @@ namespace Ogre {
 
 			SubMesh* sm = mpMesh->getSubMesh(i);
 			// lodNum - 1 because SubMesh doesn't store full detail LOD
+            sm->mLodFaceList[lodNum - 1] = new IndexData();
 			IndexData* indexData = sm->mLodFaceList[lodNum - 1];
-            // unsigned short numIndexes
-            unsigned short numIndexes;
-			readShorts(chunk, &numIndexes, 1);
-            indexData->indexCount = static_cast<size_t>(numIndexes);
+            // unsigned short numFaces
+            unsigned short numFaces;
+			readShorts(chunk, &numFaces, 1);
+            indexData->indexCount = static_cast<size_t>(numFaces * 3);
             // unsigned short*/int* faceIndexes;  ((v1, v2, v3) * numFaces)
             // Always 16-bit in 1.0
             indexData->indexBuffer = HardwareBufferManager::getSingleton().
