@@ -74,6 +74,9 @@ namespace Ogre {
         // Pointer to the SubMesh defining geometry.
         SubMesh* mSubMesh;
 
+        /// Is this SubEntity visible?
+        bool mVisible;
+
         SceneDetailLevel mRenderDetail;
 		/// The LOD number of the material to use, calculated by Entity::_notifyCurrentCamera
 		unsigned short mMaterialLodIndex;
@@ -89,6 +92,12 @@ namespace Ogre {
                 for this instance.
         */
         void setMaterialName( const String& name );
+
+        /** Tells this SubEntity whether to be visible or not. */
+        virtual void setVisible(bool visible);
+
+        /** Returns whether or not this SubEntity is supposed to be visible. */
+        virtual bool isVisible(void) const;
 
         /** Accessor method to read mesh data.
         */
