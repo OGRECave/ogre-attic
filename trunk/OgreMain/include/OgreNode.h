@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreAxisAlignedBox.h"
 #include "OgreString.h"
 #include "OgreRenderable.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -48,12 +49,15 @@ namespace Ogre {
     */
     class _OgreExport Node : public Renderable
     {
+    public:
+        typedef HashMap<String, Node*, _StringHash> ChildNodeMap;
+        typedef MapIterator<ChildNodeMap> ChildNodeIterator;
 
     protected:
         /// Pointer to parent node
         Node* mParent;
-        /// Vector of pointers to direct children
-        std::vector<Node*> mChildren;
+        /// Collection of pointers to direct children; hashmap for efficiency
+        ChildNodeMap mChildren;
 
         /// Friendly name of this node, can be automatically generated if you don't care
         String mName;
@@ -390,6 +394,8 @@ namespace Ogre {
 
         /** Gets a pointer to a child node.
         @remarks
+            There is an alternate getChild method which returns a named child.
+        @par
             NOTE NON-VIRTUAL!
             This is actually in order to maintain the previous interfaces of the subclass
             SceneNode which must return a SceneNode pointer instead. Because of lack of
@@ -398,7 +404,44 @@ namespace Ogre {
         */
         Node* getChild(unsigned short index) const;    
 
+        /** Gets a pointer to a named child node.
+        @par
+            NOTE NON-VIRTUAL!
+            This is actually in order to maintain the previous interfaces of the subclass
+            SceneNode which must return a SceneNode pointer instead. Because of lack of
+            support for covariant return types in some compilers (inc VC6) methods which
+            differ only by return type cannot be virtual.
+        */
+        Node* getChild(const String& name) const;
+
+        /** Retrieves an iterator for efficiently looping through all children of this node.
+        @remarks
+            Using this is faster than repeatedly calling getChild if you want to go through
+            all (or most of) the children of this node.
+            Note that the returned iterator is only valid whilst no children are added or
+            removed from this node. Thus you should not store this returned iterator for
+            later use, nor should you add / remove children whilst iterating through it;
+            store up changes for later. Note that calling methods on returned items in 
+            the iterator IS allowed and does not invalidate the iterator.
+        */
+        ChildNodeIterator getChildIterator(void);
+
         /** Drops the specified child from this node. 
+        @remarks
+            Does not delete the node, just detaches it from
+            this parent, potentially to be reattached elsewhere. 
+            There is also an alternate version which drops a named
+            child from this node.
+        @par
+            NOTE NON-VIRTUAL!
+            This is actually in order to maintain the previous interfaces of the subclass
+            SceneNode which must return a SceneNode pointer instead. Because of lack of
+            support for covariant return types in some compilers (inc VC6) methods which
+            differ only by return type cannot be virtual.
+        */
+        Node* removeChild(unsigned short index);
+
+        /** Drops the named child from this node. 
         @remarks
             Does not delete the node, just detaches it from
             this parent, potentially to be reattached elsewhere.
@@ -409,8 +452,7 @@ namespace Ogre {
             support for covariant return types in some compilers (inc VC6) methods which
             differ only by return type cannot be virtual.
         */
-        Node* removeChild(unsigned short index);
-
+        Node* removeChild(const String& name);
         /** Removes all child Nodes attached to this node. Does not delete the nodes, just detaches them from
             this parent, potentially to be reattached elsewhere.
         */

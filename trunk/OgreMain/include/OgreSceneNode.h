@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgrePrerequisites.h"
 
 #include "OgreNode.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre {
 
@@ -42,10 +43,12 @@ namespace Ogre {
     */
     class _OgreExport SceneNode : public Node
     {
+    public:
+        typedef HashMap<String, MovableObject*, _StringHash> ObjectMap;
+        typedef MapIterator<ObjectMap> ObjectIterator;
 
     protected:
-        std::vector<MovableObject*> mObjects;
-        std::map<String, MovableObject*> mObjectsByName;
+        ObjectMap mObjectsByName;
 
         /// SceneManager which created this node
         SceneManager* mCreator;
@@ -98,13 +101,26 @@ namespace Ogre {
         */
         SceneNode* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
-        /** Gets a pointer to a child node.*/
-        SceneNode* getChild(unsigned short index);
+        /** Gets a pointer to a child node.
+        @remarks
+            Also available is version which retrieves by name.
+        */
+        SceneNode* getChild(unsigned short index) const;
+
+        /** Gets a named child node. */
+        SceneNode* getChild(const String& name) const;
 
         /** Drops the specified child from this node. Does not delete the node, just detaches it from
             this parent, potentially to be reattached elsewhere.
+        @remarks
+            There is also a version which removes a node by name.
         */
         SceneNode* removeChild(unsigned short index);
+
+        /** Drops the named child from this node. Does not delete the node, just detaches it from
+            this parent, potentially to be reattached elsewhere.
+        */
+        SceneNode* removeChild(const String& name);
 
         /** Adds an instance of a scene object to this node.
         @remarks
@@ -118,7 +134,8 @@ namespace Ogre {
         unsigned short numAttachedObjects(void);
 
         /** Retrieves a pointer to an attached object.
-        @remarks Retrieves by index, see alternate version to retrieve by name.
+        @remarks Retrieves by index, see alternate version to retrieve by name. The index
+        of an object may change as other objects are added / removed.
         */
         MovableObject* getAttachedObject(unsigned short index);
 
@@ -127,9 +144,15 @@ namespace Ogre {
         */
         MovableObject* getAttachedObject(const String& name);
 
-        /** Detaches the indexed Entity from this scene node.
+        /** Detaches the indexed object from this scene node.
+        @remarks
+            Detaches by index, see the alternate version to detach by name. Object indexes
+            may change as other objects are added / removed.
         */
         MovableObject* detachObject(unsigned short index);
+
+        /** Detaches the named object from this node and returns a pointer to it. */
+        MovableObject* detachObject(const String& name);
 
         /** Detaches all objects attached to this node.
         */
@@ -184,6 +207,18 @@ namespace Ogre {
             from this method is only up to date after the SceneManager has called _update.
         */
         AxisAlignedBox _getWorldAABB(void) const;
+
+        /** Retrieves an iterator which can be used to efficiently step through the objects 
+            attached to this node.
+        @remarks
+            This is a much faster way to go through <B>all</B> the objects attached to the node
+            than using getAttachedObject. But the iterator returned is only valid until a change
+            is made to the collection (ie an addition or removal) so treat the returned iterator
+            as transient, and don't add / remove items as you go through the iterator, save changes
+            until the end, or retrieve a new iterator after making the change. Making changes to
+            the object returned through the iterator is OK though.
+        */
+        ObjectIterator getAttachedObjectIterator(void);
     };
 
 

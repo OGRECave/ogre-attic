@@ -520,6 +520,9 @@
 				RelativePath="..\include\OgreInput.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreIteratorWrappers.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreJPEGCodec.h">
 			</File>
 			<File
@@ -644,6 +647,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderTarget.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRenderTargetListener.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRenderWindow.h">

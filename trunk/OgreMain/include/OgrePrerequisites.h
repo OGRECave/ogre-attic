@@ -71,20 +71,26 @@ http://www.gnu.org/copyleft/gpl.html.
 // default to use 'float' unless precompiler option set
 namespace Ogre {
 
-#if OGRE_DOUBLE_PRECISION == 1
-    typedef double Real;
-#else
-    typedef float Real;
-#endif
+    #if OGRE_DOUBLE_PRECISION == 1
+        typedef double Real;
+    #else
+        typedef float Real;
+    #endif
 
-// define the Char type as either char or wchar_t
-#if OGRE_WCHAR_T_STRINGS == 1
-#   define OgreChar wchar_t
-#	define _T( x ) L##x
-#else
-#   define OgreChar char
-#	define _T( x ) x
-#endif
+    // define the Char type as either char or wchar_t
+    #if OGRE_WCHAR_T_STRINGS == 1
+    #   define OgreChar wchar_t
+    #	define _T( x ) L##x
+    #else
+    #   define OgreChar char
+    #	define _T( x ) x
+    #endif
+
+    #ifdef GCC_3_1
+    #   define HashMap ::__gnu_cxx::hash_map
+    #else
+    #   define HashMap ::std::hash_map
+    #endif
 
     /** In order to avoid finger-aches :)
     */

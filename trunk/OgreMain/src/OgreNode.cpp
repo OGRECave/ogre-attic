@@ -104,10 +104,10 @@ namespace Ogre {
 
         if (updateChildren)
         {
-            std::vector<Node*>::iterator i;
+            ChildNodeMap::iterator i;
             for (i = mChildren.begin(); i != mChildren.end(); ++i)
             {
-                (*i)->_update(updateChildren);
+                i->second->_update(updateChildren);
             }
         }
 
@@ -178,7 +178,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::addChild(Node* child)
     {
-        mChildren.push_back(child);
+        mChildren.insert(ChildNodeMap::value_type(child->getName(), child));
         child->setParent(this);
         // Make sure child is up to date first, incase child asks for derived transform
         child->_updateFromParent();
@@ -192,7 +192,11 @@ namespace Ogre {
     Node* Node::getChild(unsigned short index) const
     {
         if( index < mChildren.size() )
-            return mChildren[index];
+        {
+            ChildNodeMap::const_iterator i = mChildren.begin();
+            while (index--) ++i;
+            return i->second;
+        }
         else
             return NULL;
     }
@@ -202,8 +206,9 @@ namespace Ogre {
         Node* ret;
         if (index < mChildren.size())
         {
-            std::vector<Node*>::iterator i = mChildren.begin() + index;
-            ret = *i;
+            ChildNodeMap::iterator i = mChildren.begin();
+            while (index--) ++i;
+            ret = i->second;
             mChildren.erase(i);
             return ret;            
         }
@@ -535,5 +540,43 @@ namespace Ogre {
     {
         return mInitialScale;
     }
+    //-----------------------------------------------------------------------
+    Node* Node::getChild(const String& name) const
+    {
+        ChildNodeMap::const_iterator i = mChildren.find(name);
+
+        if (i == mChildren.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name +
+                " does not exist.", "Node::getChild");
+        }
+        return i->second;
+
+    }
+    //-----------------------------------------------------------------------
+    Node* Node::removeChild(const String& name)
+    {
+        ChildNodeMap::iterator i = mChildren.find(name);
+
+        if (i == mChildren.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Child node named " + name +
+                " does not exist.", "Node::removeChild");
+        }
+
+        Node* ret = i->second;
+        mChildren.erase(i);
+
+        return ret;
+
+
+    }
+    //-----------------------------------------------------------------------
+    Node::ChildNodeIterator Node::getChildIterator(void)
+    {
+        return ChildNodeIterator(mChildren.begin(), mChildren.end());
+    }
+    //-----------------------------------------------------------------------
+
 }
 

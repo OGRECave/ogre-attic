@@ -54,18 +54,18 @@ namespace Ogre {
         _updateFromParent();
 
         // Tell attached objects about camera position (incase any extra processing they want to do)
-        std::vector<MovableObject*>::iterator i;
-        for (i = mObjects.begin(); i != mObjects.end(); ++i)
+        ObjectMap::iterator i;
+        for (i = mObjectsByName.begin(); i != mObjectsByName.end(); ++i)
         {
-            (*i)->_notifyCurrentCamera(cam);
+            i->second->_notifyCurrentCamera(cam);
         }
 
         if (updateChildren)
         {
-            std::vector<Node*>::iterator i;
+            ChildNodeMap::iterator i;
             for (i = mChildren.begin(); i != mChildren.end(); ++i)
             {
-                SceneNode* sceneChild = static_cast<SceneNode*>(*i);
+                SceneNode* sceneChild = static_cast<SceneNode*>(i->second);
                 sceneChild->_update(cam, updateChildren);
             }
         }
@@ -77,28 +77,30 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneNode::attachObject(MovableObject* obj)
     {
-        mObjects.push_back(obj);
         obj->_notifyAttached(this);
 
         // Also add to name index
-        mObjectsByName[obj->getName()] = obj;
+        mObjectsByName.insert(ObjectMap::value_type(obj->getName(), obj));
     }
     //-----------------------------------------------------------------------
     unsigned short SceneNode::numAttachedObjects(void)
     {
-        return static_cast< unsigned short >( mObjects.size() );
+        return static_cast< unsigned short >( mObjectsByName.size() );
     }
     //-----------------------------------------------------------------------
     MovableObject* SceneNode::getAttachedObject(unsigned short index)
     {
-        if (index < mObjects.size())
+        if (index < mObjectsByName.size())
         {
-            std::vector<MovableObject*>::iterator i = mObjects.begin();
-            return i[index];
+            ObjectMap::iterator i = mObjectsByName.begin();
+            // Increment (must do this one at a time)            
+            while (index--)++i;
+
+            return i->second;
         }
         else
         {
-            Except(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttchedEntity");
+            Except(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttachedObject");
         }
         return 0;
     }
@@ -106,7 +108,7 @@ namespace Ogre {
     MovableObject* SceneNode::getAttachedObject(const String& name)
     {
         // Look up 
-        std::map<String, MovableObject*>::iterator i = mObjectsByName.find(name);
+        ObjectMap::iterator i = mObjectsByName.find(name);
 
         if (i == mObjectsByName.end())
         {
@@ -121,35 +123,41 @@ namespace Ogre {
     MovableObject* SceneNode::detachObject(unsigned short index)
     {
         MovableObject* ret;
-        if (index < mObjects.size())
+        if (index < mObjectsByName.size())
         {
 
-            std::vector<MovableObject*>::iterator i = mObjects.begin() + index;
-            ret = *i;
-            mObjects.erase(i);
+            ObjectMap::iterator i = mObjectsByName.begin();
+            // Increment (must do this one at a time)            
+            while (index--)++i;
+
+            ret = i->second;
+            mObjectsByName.erase(i);
             ret->_notifyAttached(0);
-
-            // Also remove from name index
-            std::map<String, MovableObject*>::iterator idxi = 
-                mObjectsByName.find(ret->getName());
-            mObjectsByName.erase(idxi);
-
 
             return ret;
 
-            /* XXX temas: Original code
-            std::vector<MovableObject*>::iterator i = mObjects.begin();
-            ret = i[index];
-            mObjects.erase(&i[index]);
-            ret->_notifyAttached(0);
-            return ret;
-            */
         }
         else
         {
             Except(Exception::ERR_INVALIDPARAMS, "Object index out of bounds.", "SceneNode::getAttchedEntity");
         }
         return 0;
+
+    }
+    //-----------------------------------------------------------------------
+    MovableObject* SceneNode::detachObject(const String& name)
+    {
+        ObjectMap::iterator it = mObjectsByName.find(name);
+        if (it == mObjectsByName.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, "Object " + name + " is not attached "
+                "to this node.", "SceneNode::detachObject");
+        }
+        MovableObject* ret = it->second;
+        mObjectsByName.erase(it);
+        ret->_notifyAttached(0);
+        
+        return ret;
 
     }
     //-----------------------------------------------------------------------
@@ -165,7 +173,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SceneNode::detachAllObjects(void)
     {
-        mObjects.clear();
+        mObjectsByName.clear();
     }
     //-----------------------------------------------------------------------
     void SceneNode::_updateBounds(void)
@@ -174,12 +182,12 @@ namespace Ogre {
         mWorldAABB.setNull();
 
         // Update bounds from own attached objects
-        std::vector<MovableObject*>::iterator i;
+        ObjectMap::iterator i;
         AxisAlignedBox bx;
-        for (i = mObjects.begin(); i != mObjects.end(); ++i)
+        for (i = mObjectsByName.begin(); i != mObjectsByName.end(); ++i)
         {
             // Get local bounds of object
-            bx = (*i)->getBoundingBox();
+            bx = i->second->getBoundingBox();
             // Transform by aggregated transform
             bx.transform(_getFullTransform());
 
@@ -187,10 +195,10 @@ namespace Ogre {
         }
 
         // Merge with children
-        std::vector<Node*>::iterator child;
+        ChildNodeMap::iterator child;
         for (child = mChildren.begin(); child != mChildren.end(); ++child)
         {
-            SceneNode* sceneChild = static_cast<SceneNode*>(*child);
+            SceneNode* sceneChild = static_cast<SceneNode*>(child->second);
             mWorldAABB.merge(sceneChild->mWorldAABB);
         }
 
@@ -203,20 +211,20 @@ namespace Ogre {
             return;
 
         // Add all entities
-        std::vector<MovableObject*>::iterator iobj;
-        std::vector<MovableObject*>::iterator iobjend = mObjects.end();
-        for (iobj = mObjects.begin(); iobj != iobjend; ++iobj)
+        ObjectMap::iterator iobj;
+        ObjectMap::iterator iobjend = mObjectsByName.end();
+        for (iobj = mObjectsByName.begin(); iobj != iobjend; ++iobj)
         {
-            (*iobj)->_updateRenderQueue(queue);
+            iobj->second->_updateRenderQueue(queue);
         }
 
         if (includeChildren)
         {
-            std::vector<Node*>::iterator child, childend;
+            ChildNodeMap::iterator child, childend;
             childend = mChildren.end();
             for (child = mChildren.begin(); child != childend; ++child)
             {
-                SceneNode* sceneChild = static_cast<SceneNode*>(*child);
+                SceneNode* sceneChild = static_cast<SceneNode*>(child->second);
                 sceneChild->_findVisibleObjects(cam, queue, includeChildren, displayNodes);
             }
         }
@@ -254,7 +262,7 @@ namespace Ogre {
         return static_cast<SceneNode*>(Node::createChild(name, translate, rotate));
     }
     //-----------------------------------------------------------------------
-    SceneNode* SceneNode::getChild(unsigned short index)
+    SceneNode* SceneNode::getChild(unsigned short index) const
     {
         // Provided as a passthrough to superclass just for compatibility with 
         // the previous version of the SceneNode interface (before I abstracted to Node)
@@ -272,6 +280,28 @@ namespace Ogre {
     {
         return mWorldAABB;
     }
+    //-----------------------------------------------------------------------
+    SceneNode::ObjectIterator SceneNode::getAttachedObjectIterator(void)
+    {
+        return ObjectIterator(mObjectsByName.begin(), mObjectsByName.end());
+    }
+    //-----------------------------------------------------------------------
+    SceneNode* SceneNode::getChild(const String& name) const
+    {
+        // Provided as a passthrough to superclass just for compatibility with 
+        // the previous version of the SceneNode interface (before I abstracted to Node)
+        return static_cast<SceneNode*>(Node::getChild(name));
+
+    }
+    //-----------------------------------------------------------------------
+    SceneNode* SceneNode::removeChild(const String& name)
+    {
+        // Provided as a passthrough to superclass just for compatibility with 
+        // the previous version of the SceneNode interface (before I abstracted to Node)
+        return static_cast<SceneNode*>(Node::removeChild(name));
+
+    }
+    //-----------------------------------------------------------------------
 
 
 }

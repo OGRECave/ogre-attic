@@ -34,6 +34,7 @@ OgreGeometryData.h \
 OgreImage.h \
 OgreImageCodec.h \
 OgreInput.h \
+OgreIteratorWrappers.h \
 OgreJPEGCodec.h \
 OgreKeyFrame.h \
 OgreLight.h \
