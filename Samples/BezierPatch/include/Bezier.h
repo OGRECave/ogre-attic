@@ -61,14 +61,14 @@ protected:
     void createScene(void)
     {
         // Set ambient light
-        mSceneMgr->setAmbientLight(ColourValue(0.9, 0.9, 0.9));
+        mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
         // Create a point light
         Light* l = mSceneMgr->createLight("MainLight");
         // Accept default settings: point light, white diffuse, just set position
         // NB I could attach the light to a SceneNode if I wanted it to move automatically with
         //  other objects, but I don't
-        l->setPosition(20,80,50);
+        l->setPosition(200,80,50);
 
         // Create patch
         // NB really sloppy with memory here - it's just a test
@@ -123,7 +123,7 @@ protected:
         pVert->nx = 0.0; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 0.5; pVert->v = 1.0;
         pVert++;
-        pVert->x = 500.0; pVert->y = 0.0; pVert->z = 500.0;
+        pVert->x = 500.0; pVert->y = 200.0; pVert->z = 500.0;
         pVert->nx = 0.5; pVert->ny = 0.5; pVert->nz = 0.0;
         pVert->u = 1.0; pVert->v = 1.0;
         pVert++;
@@ -134,6 +134,7 @@ protected:
 
         TextureFont *pFont;
 
+        /*
         // This is hard-coded and should really get changed
         try {        
 		    pFont = new TextureFont( "../../../Media/starjedi.ttf" );
@@ -166,10 +167,13 @@ protected:
         pMat->addTextureLayer( "TextTexture" );
         pMat->setSceneBlending( SBT_TRANSPARENT_ALPHA );
         pMat->setDepthWriteEnabled( false );
+        */
 
         // Create entity based on patch
         Entity* ent = mSceneMgr->createEntity("Entity1", "Bezier1");
 
+        Material *pMat = (Material*)MaterialManager::getSingleton().create( "TextMat" );
+        pMat->addTextureLayer( "BumpyMetal.jpg" );
         ent->setMaterialName("TextMat");
 
         // Attach the entity to the root of the scene
