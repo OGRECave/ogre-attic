@@ -1,0 +1,12 @@
+To install the Maya Plugin:
+---------------------------
+
+1. Copy OgreMayaExport.mll to Maya\bin\plugins
+2. Copy OgreMain.dll, and all the supporting dlls in the folder above this one into Maya\bin
+3. Start Maya
+4. Go to Window->Settings/Preferences->Plugin Manager
+5. Tick both boxes next to OgreMayaExport.mll
+
+You can now export static meshes using File->Export Selection and selecting 'OgreGeometry' as the file type.
+
+The OGRE team would like to thank Marc Hernandez for developing this exporter.

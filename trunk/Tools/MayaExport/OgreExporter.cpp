@@ -5,7 +5,7 @@
 
 //#include <crtdbg.h>
 
-#include <Tools/CRC32.h>
+#include <zlib.h>
 
 /*
 #include <maya/MFnDagNode.h>
@@ -134,10 +134,7 @@ public:
 	m_uv0Index    ( -1 ),
 	m_colorIndex  ( -1 )
 	{
-		m_hash.AddL( m_posIndex    );
-		m_hash.AddL( m_normalIndex );
-		m_hash.AddL( m_uv0Index    );
-		m_hash.AddL( m_colorIndex  );
+        calcHash();
 	}
 
 
@@ -148,13 +145,27 @@ public:
 	m_uv0Index    ( uv0Index     ),
 	m_colorIndex  ( colorIndex   )
 	{
-		m_hash.AddL( m_posIndex    );
-		m_hash.AddL( m_normalIndex );
-		m_hash.AddL( m_uv0Index    );
-		m_hash.AddL( m_colorIndex  );
+        calcHash();
 	}
 
-	const CRC32 hash( void ) const
+    void calcHash(void)
+    {
+        unsigned char* buf = new unsigned char[sizeof(int) * 4];
+        unsigned char* pBuf = buf;
+        memcpy(pBuf, &m_posIndex, sizeof(int));
+        pBuf += sizeof(int);
+        memcpy(pBuf, &m_normalIndex, sizeof(int));
+        pBuf += sizeof(int);
+        memcpy(pBuf, &m_uv0Index, sizeof(int));
+        pBuf += sizeof(int);
+        memcpy(pBuf, &m_colorIndex, sizeof(int));
+
+        // Use zlib crc32
+        unsigned long crc = crc32(0L, Z_NULL, 0);
+        m_hash = crc32(crc, buf, sizeof(int) * 4);
+    }
+
+	const unsigned long hash( void ) const
 	{
 		return m_hash;
 	}
@@ -189,7 +200,7 @@ public:
 
 private:
 
-	CRC32 m_hash;
+	unsigned long m_hash;
 
 };
 
@@ -199,7 +210,7 @@ struct std::hash<IndirectVert>
 {
 	size_t operator ()( const IndirectVert &vert ) const
 	{
-		return vert.hash().value();
+		return vert.hash();
 	}
 };
 
@@ -749,7 +760,7 @@ MString OgreExporter::defaultExtension() const
 	return MString("mesh");
 }
 
-MPxFileTranslator::MFileKind OgreExporter::identifyFile( const MFileObject &file, const char * const buffer, short size ) const
+MPxFileTranslator::MFileKind OgreExporter::identifyFile( const MFileObject &file, const char * buffer, short size ) const
 {
 	//We do not load .mesh files yet.
 	return kNotMyFileType;
