@@ -92,5 +92,15 @@ namespace Ogre {
                 + getMaxFragmentProgramVersion());
         }
 
+        pLog->logMessage(
+            " * Texture Compression: " 
+            + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION), true));
+        if (hasCapability(RSC_TEXTURE_COMPRESSION))
+        {
+            pLog->logMessage(
+                "   - DXT: " 
+                + StringConverter::toString(hasCapability(RSC_TEXTURE_COMPRESSION_DXT), true));
+        }
+
     }
 };

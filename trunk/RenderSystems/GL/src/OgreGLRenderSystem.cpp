@@ -354,6 +354,19 @@ namespace Ogre {
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
         }
 
+        // Check for texture compression
+        if(mGLSupport->checkMinGLVersion("1.3.0") ||
+            mGLSupport->checkExtension("GL_ARB_texture_compression"))
+        {   
+            mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
+         
+            // Check for dxt compression
+            if(mGLSupport->checkExtension("GL_EXT_texture_compression_s3tc"))
+            {
+                mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
+            }
+        }
+
         // Get extension function pointers
         glActiveTextureARB_ptr = 
             (GL_ActiveTextureARB_Func)mGLSupport->getProcAddress("glActiveTextureARB");

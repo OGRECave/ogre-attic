@@ -34,18 +34,19 @@ namespace Ogre {
     /// Enum describing the different hardware capabilities we want to check for
     enum Capabilities
     {
-        //RSC_MULTITEXTURE   = 0x00000001,
-        RSC_AUTOMIPMAP       = 0x00000002,
-        RSC_BLENDING         = 0x00000004,
-        RSC_ANISOTROPY       = 0x00000008,
-        RSC_DOT3             = 0x00000010,
-        RSC_CUBEMAPPING      = 0x00000020,
-        RSC_HWSTENCIL        = 0x00000040,
-        RSC_VBO              = 0x00000080,
-        RSC_VERTEXBLENDING   = 0x00000100,
-		RSC_VERTEX_PROGRAM   = 0x00000200,
-		RSC_FRAGMENT_PROGRAM = 0x00000400,
-		RSC_COMPRESSED_TEX   = 0x00000800
+        //RSC_MULTITEXTURE          = 0x00000001,
+        RSC_AUTOMIPMAP              = 0x00000002,
+        RSC_BLENDING                = 0x00000004,
+        RSC_ANISOTROPY              = 0x00000008,
+        RSC_DOT3                    = 0x00000010,
+        RSC_CUBEMAPPING             = 0x00000020,
+        RSC_HWSTENCIL               = 0x00000040,
+        RSC_VBO                     = 0x00000080,
+        RSC_VERTEXBLENDING          = 0x00000100,
+		RSC_VERTEX_PROGRAM          = 0x00000200,
+		RSC_FRAGMENT_PROGRAM        = 0x00000400,
+		RSC_TEXTURE_COMPRESSION     = 0x00000800,
+		RSC_TEXTURE_COMPRESSION_DXT = 0x00001000
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

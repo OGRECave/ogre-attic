@@ -198,7 +198,17 @@ namespace Ogre {
 		/// 32-bit pixel format, 2 bits for alpha, 10 bits for red, green and blue.
 		PF_A2R10G10B10,
 		/// 32-bit pixel format, 10 bits for blue, green and red, 2 bits for alpha.
-		PF_B10G10R10A2
+		PF_B10G10R10A2,
+        /// DDS (DirectDraw Surface) DXT1 format
+        PF_DXT1,
+        /// DDS (DirectDraw Surface) DXT2 format
+        PF_DXT2,
+        /// DDS (DirectDraw Surface) DXT3 format
+        PF_DXT3,
+        /// DDS (DirectDraw Surface) DXT4 format
+        PF_DXT4,
+        /// DDS (DirectDraw Surface) DXT5 format
+        PF_DXT5
 	};
 
 	PixelFormat ilFormat2OgreFormat( int ImageFormat, int BytesPerPixel );
