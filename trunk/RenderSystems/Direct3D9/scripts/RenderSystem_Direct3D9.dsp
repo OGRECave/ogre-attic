@@ -152,6 +152,14 @@ SOURCE=..\include\OgreD3D9HardwareIndexBuffer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreD3D9HardwareOcclusionQuery.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreD3D9HardwareOcclusionQuery.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreD3D9HardwareVertexBuffer.cpp
 # End Source File
 # Begin Source File

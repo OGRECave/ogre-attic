@@ -65,7 +65,10 @@ namespace Ogre {
         /// Supports separate stencil updates for both front and back faces
         RSC_TWO_SIDED_STENCIL       = 0x00008000,
         /// Supports wrapping the stencil value at the range extremeties
-        RSC_STENCIL_WRAP            = 0x00010000
+        RSC_STENCIL_WRAP            = 0x00010000,
+        /// Supports hardware occlusion queries
+        RSC_HWOCCLUSION				= 0x00020000
+
     };
 
     /** singleton class for storing the capabilities of the graphics card. 

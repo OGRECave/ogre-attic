@@ -114,6 +114,9 @@ namespace Ogre {
         pLog->logMessage(
             " * Scissor Rectangle Support: " 
             + StringConverter::toString(hasCapability(RSC_SCISSOR_TEST), true));
+        pLog->logMessage(
+            " * Hardware Occlusion Query Support: " 
+            + StringConverter::toString(hasCapability(RSC_HWOCCLUSION), true));
 
 
     }

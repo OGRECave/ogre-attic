@@ -95,6 +95,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreHighLevelGpuProgram.h"
 #include "OgreFrustum.h"
+#include "OgreHardwareOcclusionQuery.h"
 
 // .... more to come
 

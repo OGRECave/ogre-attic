@@ -292,6 +292,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreHardwareIndexBuffer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreHardwareOcclusionQuery.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreHardwareVertexBuffer.cpp">
 			</File>
 			<File
@@ -796,6 +799,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreHardwareIndexBuffer.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreHardwareOcclusionQuery.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreHardwareVertexBuffer.h">

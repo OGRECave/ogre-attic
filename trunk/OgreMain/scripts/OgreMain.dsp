@@ -292,6 +292,10 @@ SOURCE=..\src\OgreHardwareIndexBuffer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreHardwareOcclusionQuery.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreHardwareVertexBuffer.cpp
 # End Source File
 # Begin Source File
@@ -923,6 +927,10 @@ SOURCE=..\include\OgreHardwareBufferManager.h
 # Begin Source File
 
 SOURCE=..\include\OgreHardwareIndexBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreHardwareOcclusionQuery.h
 # End Source File
 # Begin Source File
 

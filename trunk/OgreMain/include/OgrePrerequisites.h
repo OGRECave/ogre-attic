@@ -177,6 +177,7 @@ namespace Ogre {
     class GuiElementFactory;
     class GuiManager;
     class HardwareIndexBuffer;
+    class HardwareOcclusionQuery;
     class HardwareVertexBuffer;
 	class HighLevelGpuProgram;
 	class HighLevelGpuProgramManager;
