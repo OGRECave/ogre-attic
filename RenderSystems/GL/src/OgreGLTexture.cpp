@@ -52,7 +52,8 @@ namespace Ogre {
         }
     }
 
-    GLTexture::GLTexture(String name, TextureType texType) 
+    GLTexture::GLTexture(String name, GLSupport& support, TextureType texType) :
+        mGLSupport(support)
     {
         mName = name;
         mTextureType = texType;
@@ -62,8 +63,9 @@ namespace Ogre {
     }
 
     // XXX init rather than assign
-    GLTexture::GLTexture(String name, TextureType texType, uint width, 
-        uint height, uint num_mips, PixelFormat format, TextureUsage usage)
+    GLTexture::GLTexture(String name, GLSupport& support, TextureType texType, 
+        uint width, uint height, uint num_mips, PixelFormat format, 
+        TextureUsage usage) : mGLSupport(support)
     {
         mName = name;
         mTextureType = texType;
@@ -114,6 +116,7 @@ namespace Ogre {
         Image img = src;
         img.flipAroundX();
 
+        mGLSupport.begin_context();
         glBindTexture( GL_TEXTURE_2D, mTextureID );
         Image::applyGamma( img.getData(), mGamma, img.getSize(), img.getBPP() );
         glTexSubImage2D( 
@@ -122,6 +125,7 @@ namespace Ogre {
             img.getWidth(), img.getHeight(),
             img.getHasAlpha() ? GL_RGBA : GL_RGB, 
             GL_UNSIGNED_BYTE, img.getData() );
+        mGLSupport.end_context();
     }
 
     uchar* GLTexture::rescaleNPower2( const Image& src ) 
@@ -140,6 +144,7 @@ namespace Ogre {
             (mHasAlpha ? 4 : 3);
 
           pTempData = new uchar[ newImageSize ];
+          mGLSupport.begin_context();
           if(gluScaleImage(mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight,
                 GL_UNSIGNED_BYTE, src.getData(), newWidth, newHeight, 
                 GL_UNSIGNED_BYTE, pTempData) != 0)
@@ -147,6 +152,7 @@ namespace Ogre {
             Except(Exception::ERR_INTERNAL_ERROR, 
                 "Error while rescaling image!", "GLTexture::rescaleNPower2");
           }
+          mGLSupport.end_context();
 
           Image::applyGamma( pTempData, mGamma, newImageSize, mSrcBpp );
 
@@ -183,6 +189,7 @@ namespace Ogre {
         }
 
         // Create the GL texture
+        mGLSupport.begin_context();
         glGenTextures( 1, &mTextureID );
         glBindTexture( getGLTextureType(), mTextureID );
 
@@ -193,6 +200,7 @@ namespace Ogre {
         }
 
         glTexParameteri(getGLTextureType(), GL_TEXTURE_MAX_LEVEL, mNumMipMaps);
+        mGLSupport.end_context();
 
         for(unsigned int i = 0; i < images.size(); i++)
         {
@@ -240,6 +248,7 @@ namespace Ogre {
             Except( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
 
         // Create the GL texture
+        mGLSupport.begin_context();
         glGenTextures( 1, &mTextureID );
         glBindTexture( GL_TEXTURE_2D, mTextureID );
 
@@ -249,6 +258,7 @@ namespace Ogre {
 
         // This needs to be set otherwise the texture doesn't get rendered
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mNumMipMaps );
+        mGLSupport.end_context();
     }
 
     void GLTexture::load()
@@ -305,6 +315,7 @@ namespace Ogre {
     void GLTexture::generateMipMaps( uchar *data, bool useSoftware, 
         unsigned int faceNumber )
     {
+        mGLSupport.begin_context();
         if(useSoftware && mNumMipMaps)
         {
             gluBuild2DMipmaps(
@@ -323,6 +334,7 @@ namespace Ogre {
                 mHasAlpha ? GL_RGBA : GL_RGB, mSrcWidth, mSrcHeight, 0, 
                 mHasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, data );
         }
+        mGLSupport.end_context();
     }
 
     void GLRenderTexture::_copyToTexture(void)

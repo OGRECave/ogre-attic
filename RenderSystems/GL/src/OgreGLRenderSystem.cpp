@@ -29,12 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreLight.h"
 #include "OgreCamera.h"
 #include "OgreGLTextureManager.h"
-
-#if OGRE_PLATFORM != PLATFORM_WIN32
-#	include "OgreSDLGLSupport.h"
-#else
-#	include "OgreWin32GLSupport.h"
-#endif
+#include "OgreGLUtil.h"
 
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
@@ -51,11 +46,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage(getName() + " created.");
 
         // Get our GLSupport
-#if OGRE_PLATFORM != PLATFORM_WIN32
-        mGLSupport = new SDLGLSupport();
-#else
-		mGLSupport = new Win32GLSupport();
-#endif
+        mGLSupport = getGLSupport();
         
         for( i=0; i<MAX_LIGHTS; i++ )
             mLights[i] = NULL;
@@ -239,7 +230,7 @@ namespace Ogre {
 
         if (parentWindowHandle == NULL)
         {
-            mTextureManager = new GLTextureManager();
+            mTextureManager = new GLTextureManager(*mGLSupport);
         }
 
         // XXX Do more?
