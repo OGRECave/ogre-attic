@@ -42,7 +42,7 @@ namespace Ogre {
             mIndexSize = sizeof(unsigned short);
             break;
         case IT_32BIT:
-            mIndexSize = sizeof(unsigned long);
+            mIndexSize = sizeof(unsigned int);
             break;
         }
         mSizeInBytes = mIndexSize * mNumIndexes;
