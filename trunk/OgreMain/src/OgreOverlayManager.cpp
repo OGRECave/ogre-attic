@@ -26,7 +26,10 @@ http://www.gnu.org/copyleft/gpl.html.
 #include "OgreOverlayManager.h"
 #include "OgreStringVector.h"
 #include "OgreOverlay.h"
-
+#include "OgreGuiManager.h"
+#include "OgreGuiContainer.h"
+#include "OgreStringConverter.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
 
@@ -43,7 +46,65 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void OverlayManager::parseOverlayFile(DataChunk& chunk)
     {
-        // TODO
+	    String line;
+	    Overlay* pOverlay;
+
+	    pOverlay = 0;
+
+	    while(!chunk.isEOF())
+	    {
+		    line = chunk.getLine();
+		    // Ignore comments & blanks
+		    if (!(line.length() == 0 || line.substr(0,2) == "//"))
+		    {
+			    if (pOverlay == 0)
+			    {
+				    // No current overlay
+				    // So first valid data should be overlay name
+				    pOverlay = (Overlay*)create(line);
+				    // Skip to and over next {
+				    skipToNextOpenBrace(chunk);
+			    }
+			    else
+			    {
+				    // Already in overlay
+				    if (line == "}")
+				    {
+					    // Finished overlay
+					    pOverlay = 0;
+				    }
+				    else if (line.substr(0,9) == "container")
+				    {
+					    // new 2D element
+                        std::vector<String> params = line.split("\t\n ()");
+                        if (params.size() != 3)
+                        {
+		                    LogManager::getSingleton().logMessage( 
+			                    "Bad container line: '"
+			                    + line + "' in " + pOverlay->getName() + 
+			                    ", expecting 'container type(name)'");
+                                skipToNextCloseBrace(chunk);
+                        }
+                        else
+                        {
+                            skipToNextOpenBrace(chunk);
+					        parseNewElement(chunk, params[1], params[2], true, pOverlay);
+                        }
+
+				    }
+				    else
+				    {
+					    // Attribute
+					    parseAttrib(line, pOverlay);
+				    }
+
+			    }
+
+		    }
+
+
+	    }
+
     }
     //---------------------------------------------------------------------
     void OverlayManager::parseAllSources(const String& extension)
@@ -100,6 +161,157 @@ namespace Ogre {
     {
         return Singleton<OverlayManager>::getSingleton();
     }
+    //---------------------------------------------------------------------
+    void OverlayManager::parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
+            bool isContainer, Overlay* pOverlay, GuiContainer* container)
+    {
+        String line;
+        std::vector<String> params;
+        GuiElement* newElement = 
+            GuiManager::getSingleton().createGuiElement(elemType, elemName);
+
+        // add new element to parent
+        if (container)
+        {
+            // Attach to container
+            if (isContainer)
+            {
+                container->addChild((GuiContainer*)newElement);
+            }
+            else
+            {
+                container->addChild((GuiContainer*)newElement);
+            }
+        }
+        else
+        {
+            pOverlay->add2D((GuiContainer*)newElement);
+        }
+
+
+
+        while(!chunk.isEOF())
+        {
+            line = chunk.getLine();
+            // Ignore comments & blanks
+            if (!(line.length() == 0 || line.substr(0,2) == "//"))
+            {
+                if (line == "}")
+                {
+                    // Finished element
+                    break;
+                }
+                else
+                {
+                    if (line.substr(0,9) == "container" && isContainer)
+                    {
+					    // nested container
+                        params = line.split("\t\n ()");
+                        if (params.size() != 3)
+                        {
+		                    LogManager::getSingleton().logMessage( 
+			                    "Bad container line: '"
+			                    + line + "' in " + elemType + " " + elemName +
+                                ", expecting 'container type(name)'");
+                            skipToNextCloseBrace(chunk);
+                            return;
+                        }
+                       
+                        skipToNextOpenBrace(chunk);
+					    parseNewElement(chunk, params[1], params[2], true, pOverlay, (GuiContainer*)newElement);
+
+                    }
+                    else if (line.substr(0,7) == "element" && isContainer)
+                    {
+					    // nested element
+                        params = line.split("\t\n ()");
+                        if (params.size() != 3)
+                        {
+		                    LogManager::getSingleton().logMessage( 
+			                    "Bad element line: '"
+			                    + line + "' in " + elemType + " " + elemName +
+                                ", expecting 'container type(name)'");
+                            skipToNextCloseBrace(chunk);
+                            return;
+                        }
+                       
+                        skipToNextOpenBrace(chunk);
+					    parseNewElement(chunk, params[1], params[2], false, pOverlay, (GuiContainer*)newElement);
+                    }
+                    else
+                    {
+                        // Attribute
+                        parseElementAttrib(line, pOverlay, newElement);
+                    }
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::parseAttrib( const String& line, Overlay* pOverlay)
+    {
+        std::vector<String> vecparams;
+
+        // Split params on first space
+        vecparams = line.split("\t ", 1);
+
+        // Look up first param (command setting)
+        if (vecparams[0].toLowerCase() == "zorder")
+        {
+            pOverlay->setZOrder(StringConverter::parseUnsignedInt(vecparams[1]));
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("Bad overlay attribute line: '"
+                + line + "' for overlay " + pOverlay->getName());
+        }
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::parseElementAttrib( const String& line, Overlay* pOverlay, GuiElement* pElement )
+    {
+        std::vector<String> vecparams;
+
+        // Split params on first space
+        vecparams = line.split("\t ", 1);
+
+        // Look up first param (command setting)
+        if (!pElement->setParameter(vecparams[0].toLowerCase(), vecparams[1]))
+        {
+            // BAD command. BAD!
+            LogManager::getSingleton().logMessage("Bad element attribute line: '"
+                + line + "' for element " + pElement->getName() + " in overlay " + 
+                pOverlay->getName());
+        }
+    }
+    //-----------------------------------------------------------------------
+    void OverlayManager::skipToNextCloseBrace(DataChunk& chunk)
+    {
+        String line = "";
+        while (!chunk.isEOF() && line != "}")
+        {
+            line = chunk.getLine();
+        }
+
+    }
+    //-----------------------------------------------------------------------
+    void OverlayManager::skipToNextOpenBrace(DataChunk& chunk)
+    {
+        String line = "";
+        while (!chunk.isEOF() && line != "{")
+        {
+            line = chunk.getLine();
+        }
+
+    }
+
 
 
 

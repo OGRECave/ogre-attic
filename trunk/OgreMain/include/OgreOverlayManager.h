@@ -36,6 +36,15 @@ namespace Ogre {
     */
     class _OgreExport OverlayManager : public ResourceManager, public Singleton<OverlayManager>
     {
+    protected:
+        void parseNewElement( DataChunk& chunk, String& elemType, String& elemName, 
+            bool isContainer, Overlay* pOverlay, GuiContainer* container = 0);
+        void parseAttrib( const String& line, Overlay* pOverlay);
+        void parseElementAttrib( const String& line, Overlay* pOverlay, GuiElement* pElement );
+        void skipToNextCloseBrace(DataChunk& chunk);
+        void skipToNextOpenBrace(DataChunk& chunk);
+
+
     public:
         OverlayManager();
         virtual ~OverlayManager();

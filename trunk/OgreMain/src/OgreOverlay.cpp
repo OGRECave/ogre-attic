@@ -33,8 +33,8 @@ namespace Ogre {
 
     //---------------------------------------------------------------------
     Overlay::Overlay(const String& name)
-        : mName(name)
     {
+        mName = name;
         mRotate = 0.0f;
         mScaleX = 1.0f;
         mScaleY = 1.0f;
@@ -193,6 +193,9 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Overlay::_findVisibleObjects(Camera* cam, RenderQueue* queue)
     {
+        if (!mVisible)
+            return;
+
         // Add 3D elements
         mRootNode->_update(cam);
         mRootNode->_findVisibleObjects(cam, queue, true, false);
