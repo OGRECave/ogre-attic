@@ -22,6 +22,8 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
+#include "OgreStableHeaders.h"
+
 #include "OgreMath.h"
 #include "asm_math.h"
 #include "OgreVector3.h"
@@ -33,7 +35,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-    template<> Math* Singleton<Math>::ms_Singleton = 0;
 
     const Real Math::POS_INFINITY = std::numeric_limits<Real>::infinity();
     const Real Math::NEG_INFINITY = -std::numeric_limits<Real>::infinity();
@@ -259,11 +260,6 @@ namespace Ogre
             return false;
     }
 
-    //-----------------------------------------------------------------------
-    Math& Math::getSingleton(void)
-    {
-        return Singleton<Math>::getSingleton();
-    }
     //-----------------------------------------------------------------------
     std::pair<bool, Real> Math::intersects(const Ray& ray, const Plane& plane)
     {

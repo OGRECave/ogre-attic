@@ -23,6 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 // Ogre includes
+#include "OgreStableHeaders.h"
+
 #include "OgreRoot.h"
 
 #include "OgreRenderSystem.h"
@@ -187,9 +189,6 @@ namespace Ogre {
         msg = "*-*-* Version " + mVersion;
         mLogManager->logMessage(msg);
 
-        // Create new Math object (will be managed by singleton)
-        mMath = new Math();
-
         // Can't create managers until initialised
         mControllerManager = 0;
 
@@ -247,7 +246,6 @@ namespace Ogre {
         delete mSkeletonManager;
         delete mMeshManager;
         delete mMaterialManager;        
-        delete mMath;
         delete mParticleManager;
         if (mHighLevelGpuProgramManager)
             delete mHighLevelGpuProgramManager;

@@ -125,7 +125,6 @@ SOURCE=..\src\OgreArchiveEx.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreArchiveManager.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -210,7 +209,6 @@ SOURCE=..\src\OgreDynLib.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreDynLibManager.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -359,7 +357,6 @@ SOURCE=..\src\OgreMaterialSerializer.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreMath.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -380,7 +377,6 @@ SOURCE=..\src\OgreMesh.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreMeshManager.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -457,7 +453,6 @@ SOURCE=..\src\OgrePlane.cpp
 # Begin Source File
 
 SOURCE=..\src\OgrePlatformManager.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -515,7 +510,6 @@ SOURCE=..\src\OgreResourceManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreRoot.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -528,7 +522,6 @@ SOURCE=..\src\OgreSceneManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreSceneManagerEnumerator.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
@@ -617,7 +610,6 @@ SOURCE=..\src\OgreTexture.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreTextureManager.cpp
-# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # Begin Source File
 
