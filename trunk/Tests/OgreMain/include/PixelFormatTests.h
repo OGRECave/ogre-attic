@@ -28,18 +28,28 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace Ogre;
 
-class BitwiseTests : public CppUnit::TestFixture
+class PixelFormatTests : public CppUnit::TestFixture
 {
     // CppUnit macros for setting up the test suite
-    CPPUNIT_TEST_SUITE( BitwiseTests );
-    CPPUNIT_TEST(testFixedPointConversion);
-    CPPUNIT_TEST(testIntReadWrite);
-    CPPUNIT_TEST(testHalf);
+    CPPUNIT_TEST_SUITE( PixelFormatTests );
+    CPPUNIT_TEST( testIntegerPackUnpack );
+    CPPUNIT_TEST( testFloatPackUnpack );    
+    CPPUNIT_TEST( testBulkConversion );
     CPPUNIT_TEST_SUITE_END();
 public:
     void setUp();
     void tearDown();
-    void testFixedPointConversion();
-    void testIntReadWrite();
-    void testHalf();
+    
+    void testIntegerPackUnpack();
+    void testFloatPackUnpack();    
+    void testBulkConversion();
+
+    // Utils
+    void setupBoxes(PixelFormat srcFormat, PixelFormat dstFormat);
+    void testCase(PixelFormat srcFormat, PixelFormat dstFormat);    
+private:
+    int size;
+    uint8 *randomData;
+    uint8 *temp, *temp2;
+    PixelBox src, dst1, dst2;
 };

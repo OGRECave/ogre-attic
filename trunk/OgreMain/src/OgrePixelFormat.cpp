@@ -29,6 +29,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include <IL/il.h>
 
+namespace {
+    #include "OgrePixelConversions.h"
+};
 
 namespace Ogre {
    
@@ -419,8 +422,35 @@ namespace Ogre {
             // And write to memory
             Bitwise::intWrite(dest, des.elemBytes, value);                                
         } else {
-            // TODO
-            // switch(pf)
+            switch(pf)
+            {
+            case PF_FP_R32G32B32:
+                ((float*)dest)[0] = r;
+                ((float*)dest)[1] = g;
+                ((float*)dest)[2] = b;
+                break;
+            case PF_FP_R32G32B32A32:
+                ((float*)dest)[0] = r;
+                ((float*)dest)[1] = g;
+                ((float*)dest)[2] = b;
+                ((float*)dest)[3] = a;
+                break;
+            case PF_FP_R16G16B16:
+                ((uint16*)dest)[0] = Bitwise::floatToHalf(r);
+                ((uint16*)dest)[1] = Bitwise::floatToHalf(g);
+                ((uint16*)dest)[2] = Bitwise::floatToHalf(b);
+                break;
+            case PF_FP_R16G16B16A16:
+                ((uint16*)dest)[0] = Bitwise::floatToHalf(r);
+                ((uint16*)dest)[1] = Bitwise::floatToHalf(g);
+                ((uint16*)dest)[2] = Bitwise::floatToHalf(b);
+                ((uint16*)dest)[3] = Bitwise::floatToHalf(a);
+                break;
+            default:
+                // Not yet supported
+                Except(Exception::UNIMPLEMENTED_FEATURE, "pack to "+getFormatName(pf)+" not implemented", "PixelUtil::packColour");
+                break;
+            }
         }
     }
 
@@ -434,10 +464,25 @@ namespace Ogre {
         if(des.flags & PFF_NATIVEENDIAN) {
             // Shortcut for integer formats unpacking
             unsigned int value = Bitwise::intRead(src, des.elemBytes);
-            *r = Bitwise::fixedToFixed((value & des.rmask)>>des.rshift, des.rbits, 8);
-            *g = Bitwise::fixedToFixed((value & des.gmask)>>des.gshift, des.gbits, 8);
-            *b = Bitwise::fixedToFixed((value & des.bmask)>>des.bshift, des.bbits, 8);
-            *a = Bitwise::fixedToFixed((value & des.amask)>>des.ashift, des.abits, 8);
+            if(des.flags & PFF_LUMINANCE) 
+            {
+                // Luminance format -- only rbits used
+                *r = *g = *b = Bitwise::fixedToFixed((value & des.rmask)>>des.rshift, des.rbits, 8);
+            } 
+            else 
+            {
+                *r = Bitwise::fixedToFixed((value & des.rmask)>>des.rshift, des.rbits, 8);
+                *g = Bitwise::fixedToFixed((value & des.gmask)>>des.gshift, des.gbits, 8);
+                *b = Bitwise::fixedToFixed((value & des.bmask)>>des.bshift, des.bbits, 8);
+            }
+            if(des.flags & PFF_HASALPHA)
+            {
+                *a = Bitwise::fixedToFixed((value & des.amask)>>des.ashift, des.abits, 8);
+            }
+            else
+            {
+                *a = 255; // No alpha, default a component to full
+            }
         } else {
             // Do the operation with the more generic floating point
             float rr, gg, bb, aa;
@@ -454,41 +499,154 @@ namespace Ogre {
         if(des.flags & PFF_NATIVEENDIAN) {
             // Shortcut for integer formats unpacking
             unsigned int value = Bitwise::intRead(src, des.elemBytes);
-            *r = Bitwise::fixedToFloat((value & des.rmask)>>des.rshift, des.rbits);
-            *g = Bitwise::fixedToFloat((value & des.gmask)>>des.gshift, des.gbits);
-            *b = Bitwise::fixedToFloat((value & des.bmask)>>des.bshift, des.bbits);
-            *a = Bitwise::fixedToFloat((value & des.amask)>>des.ashift, des.abits);
+            if(des.flags & PFF_LUMINANCE) 
+            {
+                // Luminance format -- only rbits used
+                *r = *g = *b = Bitwise::fixedToFloat((value & des.rmask)>>des.rshift, des.rbits);
+            } 
+            else
+            { 
+                *r = Bitwise::fixedToFloat((value & des.rmask)>>des.rshift, des.rbits);
+                *g = Bitwise::fixedToFloat((value & des.gmask)>>des.gshift, des.gbits);
+                *b = Bitwise::fixedToFloat((value & des.bmask)>>des.bshift, des.bbits);
+            }
+            if(des.flags & PFF_HASALPHA)
+            {
+                *a = Bitwise::fixedToFloat((value & des.amask)>>des.ashift, des.abits);
+            }
+            else
+            {
+                *a = 1.0f; // No alpha, default a component to full
+            }
         } else {
-            // Support misc formats heres
+            switch(pf)
+            {
+            case PF_FP_R32G32B32:
+                *r = ((float*)src)[0];
+                *g = ((float*)src)[1];
+                *b = ((float*)src)[2];
+                *a = 1.0f;
+                break;
+            case PF_FP_R32G32B32A32:
+                *r = ((float*)src)[0];
+                *g = ((float*)src)[1];
+                *b = ((float*)src)[2];
+                *a = ((float*)src)[3];
+                break;
+            case PF_FP_R16G16B16:
+                *r = Bitwise::halfToFloat(((uint16*)src)[0]);
+                *g = Bitwise::halfToFloat(((uint16*)src)[1]);
+                *b = Bitwise::halfToFloat(((uint16*)src)[2]);
+                *a = 1.0f;
+                break;
+            case PF_FP_R16G16B16A16:
+                *r = Bitwise::halfToFloat(((uint16*)src)[0]);
+                *g = Bitwise::halfToFloat(((uint16*)src)[1]);
+                *b = Bitwise::halfToFloat(((uint16*)src)[2]);
+                *a = Bitwise::halfToFloat(((uint16*)src)[3]);
+                break;
+            default:
+                // Not yet supported
+                Except(Exception::UNIMPLEMENTED_FEATURE, "unpack from "+getFormatName(pf)+" not implemented", "PixelUtil::unpackColour");
+                break;
+            }
         }    
     }
 
     /* Convert pixels from one format to another */
-    void PixelUtil::bulkPixelConversion(void *src, PixelFormat srcFormat, void *dest, PixelFormat dstFormat, unsigned int count)
+    void PixelUtil::bulkPixelConversion(void *srcp, PixelFormat srcFormat, void *destp, PixelFormat dstFormat, unsigned int count)
     {
-        // TODO optimize common conversions
-        uint8 *srcptr = static_cast<uint8*>(src);
-        uint8 *dstptr = static_cast<uint8*>(dest);
-        unsigned int srcPixelSize = PixelUtil::getNumElemBytes(srcFormat);
-        unsigned int dstPixelSize = PixelUtil::getNumElemBytes(dstFormat);
+        PixelBox src, dst;
+        src.data = srcp;
+        src.format = srcFormat;
+        src.width = count;
+        src.height = 1;
+        src.depth = 1;
+        src.setConsecutive();
+
+        dst.data = destp;
+        dst.format = dstFormat;
+        dst.width = count;
+        dst.height = 1;
+        dst.depth = 1;
+        dst.rowPitch = 0;
+        dst.slicePitch = 0;
+        dst.setConsecutive();
+        
+        bulkPixelConversion(src, dst);
+    }
+    
+    void PixelUtil::bulkPixelConversion(const PixelBox &src, const PixelBox &dst)
+    {
+        assert(src.width == dst.width && src.height==dst.height && src.depth==dst.depth);
+        
+        uint8 *srcptr = static_cast<uint8*>(src.data);
+        uint8 *dstptr = static_cast<uint8*>(dst.data);
+        unsigned int srcPixelSize = PixelUtil::getNumElemBytes(src.format);
+        unsigned int dstPixelSize = PixelUtil::getNumElemBytes(dst.format);
+
+        // Calculate pitches+skips in bytes
+        int srcRowPitchBytes = src.rowPitch*srcPixelSize;
+        int srcRowSkipBytes = src.getRowSkip()*srcPixelSize;
+        int srcSliceSkipBytes = src.getSliceSkip()*srcPixelSize;
+
+        int dstRowPitchBytes = dst.rowPitch*dstPixelSize;
+        int dstRowSkipBytes = dst.getRowSkip()*dstPixelSize;
+        int dstSliceSkipBytes = dst.getSliceSkip()*dstPixelSize;
         
         // The easy case
-        if(srcFormat == dstFormat) {
-            std::copy(srcptr, srcptr+count, dstptr);
+        if(src.format == dst.format) {
+            // Everything consecutive?
+            if(src.isConsecutive() && dst.isConsecutive()) 
+            {
+                std::copy(srcptr, srcptr+(src.width*src.height*src.depth*srcPixelSize), dstptr);
+                return;
+            }
+            
+            // Otherwise, copy per row
+            unsigned int rowSize = src.width*srcPixelSize;
+            for(unsigned int z=0; z<src.depth; z++) 
+            {
+                for(unsigned int y=0; y<src.height; y++)
+                {
+                    std::copy(srcptr, srcptr+rowSize, dstptr);
+                    srcptr += srcRowPitchBytes;
+                    dstptr += dstRowPitchBytes;
+                }
+                srcptr += srcSliceSkipBytes;
+                dstptr += dstSliceSkipBytes;
+            }
             return;
         }
         
-        // The brute force case
-        float r,g,b,a;
-        for(unsigned int idx=0; idx<count; idx++)
+        // Is there a specialized, inlined, conversion?
+        if(doOptimizedConversion(src, dst))
         {
-            unpackColour(&r, &g, &b, &a, srcFormat, srcptr);
-            packColour(r, g, b, a, dstFormat, dstptr);
-            srcptr += srcPixelSize;
-            dstptr += dstPixelSize;
+            // If so, good
+            return;
+        }
+        
+        // The brute force fallback
+        float r,g,b,a;
+        for(unsigned int z=0; z<src.depth; z++) 
+        {
+            for(unsigned int y=0; y<src.height; y++)
+            {
+                for(unsigned int x=0; x<src.width; x++)
+                {
+                    unpackColour(&r, &g, &b, &a, src.format, srcptr);
+                    packColour(r, g, b, a, dst.format, dstptr);
+                    srcptr += srcPixelSize; 
+                    dstptr += dstPixelSize;
+                }
+                srcptr += srcRowSkipBytes;
+                dstptr += dstRowSkipBytes;
+            }
+            srcptr += srcSliceSkipBytes;
+            dstptr += dstSliceSkipBytes;
         }
     }
-
+    
     /*************************************************************************
      * IL specific functions
      */

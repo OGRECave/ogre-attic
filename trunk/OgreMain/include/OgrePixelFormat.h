@@ -107,6 +107,61 @@ namespace Ogre {
         // replaces R,G and B. (but not A)
         PFF_LUMINANCE       = 0x00000020
     };
+    
+    /**
+     * A primitive describing a box (3D), rectangle (2D) or line (1D) of pixels in memory.
+     * In case of a rectangle, depth must be 1. 
+     * Pixels are stored as a succession of "depth" slices, each containing "height" rows of 
+     * "width" pixels.
+     */
+    class _OgreExport PixelBox {
+    public:
+        /** The data pointer */
+        void *data;
+        /** The pixel format */
+        PixelFormat format;
+        /** Dimensions */
+        unsigned int width, height, depth;
+        /** 
+         * Number of elements between the leftmost pixel of one row and the left
+         * pixel of the next. This can be a negative value.
+         **/
+        int rowPitch;
+        /** 
+         * Number of elements between the top left pixel of one (depth) slice and 
+         * the top left pixel of the next. This can be a negative value. Must be a multiple of
+         * rowPitch.
+         **/
+        int slicePitch;
+        
+        /**
+         * Set the rowPitch and slicePitch so that the buffer is laid out consecutive 
+         * in memory.
+         */        
+        void setConsecutive()
+        {
+            rowPitch = width;
+            slicePitch = width*height;
+        }
+        /**
+         * Get the number of elements between one past the rightmost pixel of 
+         * one row and the leftmost pixel of the next row. (IE this is zero if rows
+         * are consecutive). This can be a negative value.
+         */
+        int getRowSkip() const { return rowPitch - width; }
+        /**
+         * Get the number of elements between one past the right bottom pixel of
+         * one slice and the left top pixel of the next slice. (IE this is zero if slices
+         * are consecutive). This can be a negative value.
+         */
+        int getSliceSkip() const { return slicePitch - (height * rowPitch); }
+
+        /**
+         * Return wether this buffer is laid uit consecutive in memory (ie the pitches
+         * are equal to the dimensions)
+         */        
+        bool isConsecutive() const { return rowPitch == width && slicePitch == (width*height); }
+    };
 
     /**
      * Some utility functions for packing and unpacking pixel data
@@ -169,8 +224,19 @@ namespace Ogre {
         static void unpackColour(uint8 *r, uint8 *g, uint8 *b, uint8 *a, PixelFormat pf,  const void* src);
         static void unpackColour(float *r, float *g, float *b, float *a, PixelFormat pf,  const void* src); 
         
-        /* Convert pixels from one format to another */
+        /**
+         * Convert consecutive pixels from one format to another. No dithering or filtering is being done. 
+         * Converting from RGB to luminance takes the R channel.  In case the source and destination format match,
+         * just a copy is done.
+         */
         static void bulkPixelConversion(void *src, PixelFormat srcFormat, void *dest, PixelFormat dstFormat, unsigned int count);
+
+        /**
+         * Convert pixels from one format to another. No dithering or filtering is being done. Converting
+         * from RGB to luminance takes the R channel. The source and destination boxes must have the same
+         * dimensions. In case the source and destination format match, just a copy is done.
+         */
+        static void bulkPixelConversion(const PixelBox &src, const PixelBox &dst);
     };
 
     /* 
