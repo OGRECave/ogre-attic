@@ -320,7 +320,7 @@ namespace Ogre
         void _notifyCurrentCamera(Camera* cam);
 
         /** Overridden from Renderable */
-        MaterialPtr& getMaterial(void) const;
+        const MaterialPtr& getMaterial(void) const;
 
         /** Overridden from Renderable */
         void getRenderOperation(RenderOperation& op);

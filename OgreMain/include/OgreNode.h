@@ -544,7 +544,7 @@ namespace Ogre {
             for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 
             models using Entity::setDisplayBones()
         */
-        MaterialPtr& getMaterial(void) const;
+        const MaterialPtr& getMaterial(void) const;
         /** Overridden from Renderable.
         @remarks
             This is only used if the SceneManager chooses to render the node. This option can be set

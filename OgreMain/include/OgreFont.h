@@ -269,7 +269,7 @@ namespace Ogre
         @remarks
             This will only be valid after the Font has been loaded. 
         */
-        inline MaterialPtr& getMaterial()
+        inline const MaterialPtr& getMaterial()
         {
             return mpMaterial;
         }

@@ -213,7 +213,7 @@ namespace Ogre
         */
         virtual void getRenderOperation( RenderOperation& rend );
 
-        virtual MaterialPtr& getMaterial( void ) const
+        virtual const MaterialPtr& getMaterial( void ) const
         {
             return mMaterial;
         };

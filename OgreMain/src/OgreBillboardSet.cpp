@@ -488,7 +488,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    MaterialPtr& BillboardSet::getMaterial(void) const
+    const MaterialPtr& BillboardSet::getMaterial(void) const
     {
         return mpMaterial;
     }

@@ -114,7 +114,7 @@ namespace Ogre {
 
         /** Overridden - see Renderable.
         */
-        MaterialPtr getMaterial(void) const;
+        const MaterialPtr& getMaterial(void) const;
 
         /** Overridden - see Renderable.
         */

@@ -605,7 +605,7 @@ namespace Ogre {
         return (mFarDist == 0)? 100000 : mFarDist;
 	}
     //-----------------------------------------------------------------------
-    MaterialPtr& Frustum::getMaterial(void) const
+    const MaterialPtr& Frustum::getMaterial(void) const
     {
         return mMaterial;
     }

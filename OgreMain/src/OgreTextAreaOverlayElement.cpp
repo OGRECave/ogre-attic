@@ -53,7 +53,6 @@ namespace Ogre {
     {
         mTransparent = false;
         mAlignment = Left;
-		mpFont = 0;
 
         mColourTop = ColourValue::White;
         mColourBottom = ColourValue::White;

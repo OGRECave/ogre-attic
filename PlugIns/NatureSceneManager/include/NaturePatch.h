@@ -190,7 +190,7 @@ namespace Ogre
         }
 
         /// Returns the material
-        virtual MaterialPtr& getMaterial(void) const
+        virtual const MaterialPtr& getMaterial(void) const
         {
             return mMaterial;
         }

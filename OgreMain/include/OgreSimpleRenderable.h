@@ -61,7 +61,7 @@ namespace Ogre {
         SimpleRenderable();
 
         void setMaterial( const String& matName );
-        virtual MaterialPtr& getMaterial(void) const;
+        virtual const MaterialPtr& getMaterial(void) const;
 
         virtual void setRenderOperation( const RenderOperation& rend );
         virtual void getRenderOperation(RenderOperation& op);

@@ -582,7 +582,7 @@ namespace Ogre {
         return mName;
     }
     //-----------------------------------------------------------------------
-    MaterialPtr& Node::getMaterial(void) const
+    const MaterialPtr& Node::getMaterial(void) const
     {
         static MaterialPtr pMaterial;
 

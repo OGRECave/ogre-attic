@@ -309,7 +309,7 @@ namespace Ogre {
     public:
         /** Constructed with pointers to parent. */
         BorderRenderable(BorderPanelOverlayElement* parent) : mParent(parent) {}
-        MaterialPtr& getMaterial(void) const { return mParent->mpBorderMaterial; }
+        const MaterialPtr& getMaterial(void) const { return mParent->mpBorderMaterial; }
         void getRenderOperation(RenderOperation& op) { op = mParent->mRenderOp2; }
         void getWorldTransforms(Matrix4* xform) const { mParent->getWorldTransforms(xform); }
         const Quaternion& getWorldOrientation(void) const { return Quaternion::IDENTITY; }

@@ -59,7 +59,7 @@ namespace Ogre {
             Note that the Renderable also has the option to override the getTechnique method
             to specify a particular Technique to use instead of the best one available.
         */
-        virtual MaterialPtr& getMaterial(void) const = 0;
+        virtual const MaterialPtr& getMaterial(void) const = 0;
         /** Retrieves a pointer to the Material Technique this renderable object uses.
         @remarks
             This is to allow Renderables to use a chosen Technique if they wish, otherwise

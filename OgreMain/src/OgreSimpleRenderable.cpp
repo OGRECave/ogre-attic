@@ -63,7 +63,7 @@ namespace Ogre {
         m_pMaterial->load();
     }
 
-    MaterialPtr& SimpleRenderable::getMaterial(void) const
+    const MaterialPtr& SimpleRenderable::getMaterial(void) const
     {
         return m_pMaterial;
     }

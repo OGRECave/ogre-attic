@@ -269,7 +269,7 @@ namespace Ogre {
 
         // --- Renderable Overrides ---
         /** See Renderable */
-        MaterialPtr getMaterial(void) const;
+        const MaterialPtr& getMaterial(void) const;
 
         // NB getRenderOperation not implemented, still abstract here
 

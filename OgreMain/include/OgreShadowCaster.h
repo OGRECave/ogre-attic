@@ -54,7 +54,7 @@ namespace Ogre {
         */
         void setMaterial(MaterialPtr& mat) { mMaterial = mat; }
         /// Overridden from Renderable
-        MaterialPtr& getMaterial(void) const { return mMaterial; }
+        const MaterialPtr& getMaterial(void) const { return mMaterial; }
         /// Overridden from Renderable
         void getRenderOperation(RenderOperation& op) { op = mRenderOp; }
         /// Get the internal render operation for set up

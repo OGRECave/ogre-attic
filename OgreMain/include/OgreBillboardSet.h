@@ -442,7 +442,7 @@ namespace Ogre {
             @see
                 MovableObject
         */
-        virtual MaterialPtr& getMaterial(void) const;
+        virtual const MaterialPtr& getMaterial(void) const;
 
         /** Overridden from MovableObject
             @see

@@ -860,7 +860,7 @@ namespace Ogre {
         iend = mSubEntityList.end();
         for (i = mSubEntityList.begin(); i != iend; ++i, firstPass = false)
         {
-            MaterialPtr& m = (*i)->getMaterial();
+            const MaterialPtr& m = (*i)->getMaterial();
             // Make sure it's loaded
             m->load();
             Technique* t = m->getBestTechnique();

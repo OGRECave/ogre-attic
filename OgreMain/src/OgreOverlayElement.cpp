@@ -323,7 +323,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    MaterialPtr& OverlayElement::getMaterial(void) const
+    const MaterialPtr& OverlayElement::getMaterial(void) const
     {
         return mpMaterial;
     }
