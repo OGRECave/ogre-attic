@@ -38,7 +38,7 @@ SDL 1.2.x - To find out if you have it type sdl-config --version. This will tell
 FreeType2 2.1.x - If you don't have this on your system then you can get it http://www.freetype.org/. Run freetype-config --version, if you have a version lower then 9.1.x, you will have to upgrade. 
 
 DevIL 1.5.x or greater - If you don't have this on your system then you can get
-it from http://openil.sourceforge.net/.  
+it from http://openil.sourceforge.net/.  UPDATE: DevIL 1.6.6 seems to introduce some problems, stick to 1.6.5 for the moment.
 
 *Important* 
 Do not install the binary version of DevIL as this has caused problems for some
