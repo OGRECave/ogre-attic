@@ -34,14 +34,12 @@ LGPL like the rest of the engine.
 #endif
 
 // entities we'll use
-#define NUM_ENTITIES 4
+#define NUM_ENTITIES 2
 Entity* mEntities[NUM_ENTITIES];
 String mEntityMeshes[NUM_ENTITIES] = 
 {
     "knot.mesh",
-    "ogrehead.mesh",
-    "razor.mesh",
-    "robot.mesh"
+    "ogrehead.mesh"
 };
 size_t mCurrentEntity = 0;
 
