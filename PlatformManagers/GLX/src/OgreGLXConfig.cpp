@@ -140,6 +140,10 @@ public:
 		Widget optionmenu;
 	};
 	std::list<ConfigCallbackData> mConfigCallbackData;
+
+	void SetRenderSystem(RenderSystem *sys) {
+		mRenderer = sys;
+	}
 private:
 	/* Callbacks that terminate modal dialog loop */ 
 	static void acceptHandler(Widget w, GLXConfigurator *obj, XtPointer callData) {
@@ -248,8 +252,10 @@ bool GLXConfigurator::CreateWindow() {
 		XtNvertDistance, cury,
 		XtNjustify, XtJustifyLeft,
 		NULL);
-	
-	Widget mb1 = XtVaCreateManagedWidget("Menu", menuButtonWidgetClass, box, XtNlabel," Select One ", 
+	const char *curRenderName = " Select One "; // Name of current renderer, or hint to select one
+	if(mRenderer)
+		curRenderName = mRenderer->getName().c_str();
+	Widget mb1 = XtVaCreateManagedWidget("Menu", menuButtonWidgetClass, box, XtNlabel,curRenderName, 
 		XtNresize, false,
 		XtNresizable, false,
 		XtNwidth, col2w, 	// Fixed width
@@ -296,6 +302,10 @@ bool GLXConfigurator::CreateWindow() {
  	XtAddCallback(exitButton, XtNcallback, (XtCallbackProc)&GLXConfigurator::acceptHandler, this); 
 
 	XtRealizeWidget(toplevel); 
+
+	if(mRenderer)
+		/* There was already a renderer selected; display its options */
+		SetRenderer(mRenderer);
 
 	return true;
 }
@@ -364,6 +374,8 @@ Pixmap GLXConfigurator::CreateBackdrop(Window rootWindow, int depth) {
 		}
 	} catch(Exception &e) {
 		// Could not find image; never mind
+		LogManager::getSingleton().logMessage("GLX backdrop image not found: Warning");
+		return 0;
 	}
 	
 	GC context = XCreateGC (mDisplay, rootWindow, 0, NULL);
@@ -472,19 +484,25 @@ void GLXConfigurator::SetConfigOption(const std::string &optionName, const std::
 
 bool GLXConfig::display(void) {
 	GLXConfigurator test;
-
+	/* Should this be called here? */
+	Root::getSingleton().restoreConfig();
+	/* Select previously selected rendersystem */
+	if(Root::getSingleton().getRenderSystem())
+		test.SetRenderSystem(Root::getSingleton().getRenderSystem());
+	/* Attempt to create the window */
 	if(!test.CreateWindow()) {
 		Except(Exception::ERR_INTERNAL_ERROR,
 		       "Could not create configuration dialog",
 		       "GLXConfig::display");
 	}
+	/* Modal loop */
 	test.Main();
 	if(!test.accept) {
-		// User did not accept
+		/* User did not accept */
 		return false;
 	}
 
-	// All done
+	/* All done */
 	Root::getSingleton().setRenderSystem(test.mRenderer);
 	Root::getSingleton().saveConfig();
 
