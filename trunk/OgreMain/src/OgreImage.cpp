@@ -71,7 +71,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Image & Image::flipAroundY()
     {
-        OgreGuard( "Image::flipAroundX" );
+        OgreGuard( "Image::flipAroundY" );
         OgreUnguardRet( *this );
     }
 
