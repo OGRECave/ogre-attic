@@ -83,7 +83,10 @@ namespace Ogre {
 
         // Colour buffer settings
         bool mColourWrite;
-
+		
+		// Alpha reject settings
+		CompareFunction mAlphaRejectFunc;
+		unsigned char mAlphaRejectVal;
         //-------------------------------------------------------------------------    
 
         //-------------------------------------------------------------------------
@@ -614,6 +617,31 @@ namespace Ogre {
         /** Retrieves the depth bias value as set by setDepthValue. */
         ushort getDepthBias(void) const;
 
+        /** Sets the way the pass will have use alpha to totally reject pixels from the pipeline.
+        @remarks
+			The default is CMPF_ALWAYS_PASS i.e. alpha is not used to reject pixels.
+        @param func The comparison which must pass for the pixel to be written.
+        @param value 1 byte value against which alpha values will be tested(0-255)
+        @note
+			This option applies in both the fixed function and the programmable pipeline.
+        */
+        void setAlphaRejectSettings(CompareFunction func, unsigned char value);
+
+		/** Sets the alpha reject function. See setAlphaRejectSettings for more information.
+		*/
+		void setAlphaRejectFunction(CompareFunction func);
+
+		/** Gets the alpha reject value. See setAlphaRejectSettings for more information.
+		*/
+		void setAlphaRejectValue(unsigned char val);
+
+		/** Gets the alpha reject function. See setAlphaRejectSettings for more information.
+        */
+		CompareFunction getAlphaRejectFunction(void) const { return mAlphaRejectFunc; }
+
+        /** Gets the alpha reject value. See setAlphaRejectSettings for more information.
+        */
+		unsigned char getAlphaRejectValue(void) const { return mAlphaRejectVal; }
         /** Sets whether or not this pass should be run once per light which
 		    can affect the object being rendered.
 		@remarks

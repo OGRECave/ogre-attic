@@ -706,6 +706,9 @@ Pass* SceneManager::setPass(Pass* pass)
     mDestRenderSystem->_setDepthBufferCheckEnabled(pass->getDepthCheckEnabled());
     mDestRenderSystem->_setDepthBufferWriteEnabled(pass->getDepthWriteEnabled());
     mDestRenderSystem->_setDepthBias(pass->getDepthBias());
+	// Alpha-reject settings
+	mDestRenderSystem->_setAlphaRejectSettings(
+		pass->getAlphaRejectFunction(), pass->getAlphaRejectValue());
     // Set colour write mode
     // Right now we only use on/off, not per-channel
     bool colWrite = pass->getColourWriteEnabled();

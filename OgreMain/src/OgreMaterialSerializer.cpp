@@ -767,7 +767,7 @@ namespace Ogre
             return false;
         }
 
-        context.textureUnit->setAlphaRejectSettings(cmp, StringConverter::parseInt(vecparams[1]));
+        context.pass->setAlphaRejectSettings(cmp, StringConverter::parseInt(vecparams[1]));
 
         return false;
     }
@@ -1951,6 +1951,7 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("depth_check", (ATTRIBUTE_PARSER)parseDepthCheck));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_write", (ATTRIBUTE_PARSER)parseDepthWrite));
         mPassAttribParsers.insert(AttribParserList::value_type("depth_func", (ATTRIBUTE_PARSER)parseDepthFunc));
+		mPassAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
         mPassAttribParsers.insert(AttribParserList::value_type("colour_write", (ATTRIBUTE_PARSER)parseColourWrite));
         mPassAttribParsers.insert(AttribParserList::value_type("cull_hardware", (ATTRIBUTE_PARSER)parseCullHardware));
         mPassAttribParsers.insert(AttribParserList::value_type("cull_software", (ATTRIBUTE_PARSER)parseCullSoftware));
@@ -1974,7 +1975,6 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_coord_set", (ATTRIBUTE_PARSER)parseTexCoord));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("tex_address_mode", (ATTRIBUTE_PARSER)parseTexAddressMode));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op", (ATTRIBUTE_PARSER)parseColourOp));
-        mTextureUnitAttribParsers.insert(AttribParserList::value_type("alpha_rejection", (ATTRIBUTE_PARSER)parseAlphaRejection));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op_ex", (ATTRIBUTE_PARSER)parseColourOpEx));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("colour_op_multipass_fallback", (ATTRIBUTE_PARSER)parseColourOpFallback));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("alpha_op_ex", (ATTRIBUTE_PARSER)parseAlphaOpEx));
@@ -2590,6 +2590,16 @@ namespace Ogre
                 writeAttribute(3, "depth_check");
                 writeValue(pPass->getDepthCheckEnabled() ? "on" : "off");
             }
+			// alpha_rejection
+			if (mDefaults || 
+				pPass->getAlphaRejectFunction() != CMPF_ALWAYS_PASS ||
+				pPass->getAlphaRejectValue() != 0)
+			{
+				writeAttribute(3, "alpha_rejection");
+				writeCompareFunction(pPass->getAlphaRejectFunction());
+				writeValue(StringConverter::toString(pPass->getAlphaRejectValue()));
+			}
+
 
             //depth write
             if (mDefaults || 
@@ -2839,16 +2849,6 @@ namespace Ogre
                     + convertFiltering(pTex->getTextureFiltering(FT_MAG))
                     + " "
                     + convertFiltering(pTex->getTextureFiltering(FT_MIP)));
-            }
-
-            // alpha_rejection
-            if (mDefaults || 
-                pTex->getAlphaRejectFunction() != CMPF_ALWAYS_PASS ||
-                pTex->getAlphaRejectValue() != 0)
-            {
-                writeAttribute(4, "alpha_rejection");
-                writeCompareFunction(pTex->getAlphaRejectFunction());
-                writeValue(StringConverter::toString(pTex->getAlphaRejectValue()));
             }
 
             // colour_op_ex
