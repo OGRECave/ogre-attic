@@ -170,8 +170,11 @@ namespace Ogre {
         /// This is set to true when deinitialization takes place.
         bool m_bDeinitTime;
 
-    
+#ifndef __BORLANDC__
     private:
+#else
+    public:
+#endif
         //-------------------------------------------------------------------------
         // Wrappers for the new/delete functions        
         void *op_new_sc( size_t reportedSize, unsigned processID );

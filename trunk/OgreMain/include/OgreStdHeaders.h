@@ -1,6 +1,10 @@
 #ifndef __StdHeaders_H__
 #define __StdHeaders_H__
 
+#ifdef __BORLANDC__
+    #define __STD_ALGORITHM
+#endif
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -36,6 +40,13 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+
+#ifdef __BORLANDC__
+namespace Ogre
+{
+    using namespace std;
+}
+#endif
 
 extern "C" {
 

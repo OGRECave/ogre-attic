@@ -42,6 +42,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 //#define HAVE_BOOLEAN
 
 extern "C" {
+
+#ifdef __BORLANDC__
+struct jpeg_common_struct;
+struct jpeg_compress_struct;
+struct jpeg_decompress_struct;
+
+typedef struct jpeg_common_struct * j_common_ptr;
+typedef struct jpeg_compress_struct * j_compress_ptr;
+typedef struct jpeg_decompress_struct * j_decompress_ptr;
+#endif
+
 #include "jpeglib.h"
 }
 
