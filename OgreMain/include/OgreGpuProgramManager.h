@@ -145,6 +145,9 @@ namespace Ogre {
 		*/
 		virtual GpuProgram* createProgram(const String& name, const String& code, 
             GpuProgramType gptype, const String& syntaxCode, int priority = 1);
+
+        /** Internal method for populating the supported syntax codes, called by RenderSystem. */
+        virtual void _pushSyntaxCode(const String& syntaxCode) { mSyntaxCodes.insert(syntaxCode); }
     protected:
 		/** Create a new GpuProgram. */
         virtual GpuProgram* create(const String& name, GpuProgramType gptype, const String& syntaxCode) = 0;

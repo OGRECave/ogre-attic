@@ -327,6 +327,8 @@ namespace Ogre {
             {
                 mFragmentProgramConstantBoolBoundary = b;
             }
+            /** Write the capabilities to the pass in Log */
+            void log(Log* pLog);
 
 
 

@@ -62,8 +62,10 @@ namespace Ogre {
         static String toString(long val);
         /** Converts a long to a String. */
         static String toString(unsigned long val);
-        /** Converts a boolean to a String. */
-        static String toString(bool val);
+        /** Converts a boolean to a String. 
+        @param yesNo If set to true, result is 'yes' or 'no' instead of 'true' or 'false'
+        */
+        static String toString(bool val, bool yesNo = false);
         /** Converts a Vector3 to a String. 
         @remarks
             Format is "x y z" (i.e. 3x Real values, space delimited)

@@ -90,13 +90,28 @@ namespace Ogre {
         return stream.str();
     }
     //-----------------------------------------------------------------------
-    String StringConverter::toString(bool val)
+    String StringConverter::toString(bool val, bool yesNo)
     {
         if (val)
-            return "true";
+        {
+            if (yesNo)
+            {
+                return "yes";
+            }
+            else
+            {
+                return "true";
+            }
+        }
         else
-            return "false";
-
+            if (yesNo)
+            {
+                return "no";
+            }
+            else
+            {
+                return "false";
+            }
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(const Matrix4& val)

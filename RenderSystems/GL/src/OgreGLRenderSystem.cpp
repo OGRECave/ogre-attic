@@ -178,8 +178,6 @@ namespace Ogre {
             "*** GL Renderer Started ***\n"
             "***************************");
 
-		LogManager::getSingleton().logMessage(
-            "The following extensions are available:");
 
         // Check for hardware mipmapping support.
         // Note: This is disabled for ATI cards until they fix their drivers
@@ -187,7 +185,6 @@ namespace Ogre {
             (mGLSupport->checkMinGLVersion("1.4.0") || 
              mGLSupport->checkExtension("GL_SGIS_generate_mipmap")))
         {
-            LogManager::getSingleton().logMessage("- Hardware Mipmapping");
             mCapabilities->setCapability(RSC_AUTOMIPMAP);
         }
 
@@ -196,7 +193,6 @@ namespace Ogre {
             mGLSupport->checkExtension("GL_ARB_texture_env_combine") || 
             mGLSupport->checkExtension("GL_EXT_texture_env_combine"))
         {
-            LogManager::getSingleton().logMessage("- Blending");
             mCapabilities->setCapability(RSC_BLENDING);
         }
 
@@ -207,7 +203,6 @@ namespace Ogre {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
 
-            LogManager::getSingleton().logMessage("- Multitexturing");
             mCapabilities->setNumTextureUnits(units);
         }
         else
@@ -219,7 +214,6 @@ namespace Ogre {
         // Check for Anisotropy support
         if(mGLSupport->checkExtension("GL_EXT_texture_filter_anisotropic"))
         {
-            LogManager::getSingleton().logMessage("- Texture Anisotropy");
             mCapabilities->setCapability(RSC_ANISOTROPY);
         }
 
@@ -228,7 +222,6 @@ namespace Ogre {
             mGLSupport->checkExtension("GL_ARB_texture_env_dot3") ||
             mGLSupport->checkExtension("GL_EXT_texture_env_dot3"))
         {
-            LogManager::getSingleton().logMessage("- DOT3");
             mCapabilities->setCapability(RSC_DOT3);
         }
 
@@ -237,7 +230,6 @@ namespace Ogre {
             mGLSupport->checkExtension("GL_ARB_texture_cube_map") || 
             mGLSupport->checkExtension("GL_EXT_texture_cube_map"))
         {
-            LogManager::getSingleton().logMessage("- Cube Mapping");
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
         
@@ -247,7 +239,6 @@ namespace Ogre {
 
         if(stencil)
         {
-            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
             mCapabilities->setCapability(RSC_HWSTENCIL);
             mCapabilities->setStencilBufferBitDepth(stencil);
         }
@@ -255,7 +246,6 @@ namespace Ogre {
         // Check for VBO support
         if(mGLSupport->checkExtension("GL_ARB_vertex_buffer_object"))
         {
-            LogManager::getSingleton().logMessage("- Vertex Buffer Object");
             mCapabilities->setCapability(RSC_VBO);
 
             mHardwareBufferManager = new GLHardwareBufferManager;
@@ -288,6 +278,8 @@ namespace Ogre {
             (GL_BufferSubDataARB_Func)mGLSupport->getProcAddress("glBufferSubDataARB");
         glGetBufferSubDataARB_ptr = 
             (GL_GetBufferSubDataARB_Func)mGLSupport->getProcAddress("glGetBufferSubDataARB");
+
+        mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
 
     void GLRenderSystem::reinitialise(void)
