@@ -1693,6 +1693,15 @@ namespace Ogre {
                 "D3DRenderSystem::_setDepthBufferFunction");
     }
     //-----------------------------------------------------------------------
+    void D3DRenderSystem::_setDepthBias(ushort bias)
+    {
+        HRESULT hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_ZBIAS, 
+            bias);
+        if (FAILED(hr))
+            Except(hr, "Error setting depth bias.",
+                "D3DRenderSystem::_setDepthBias");
+    }
+    //-----------------------------------------------------------------------
     String D3DRenderSystem::getErrorDescription(long errCode)
     {
         char* errDesc;

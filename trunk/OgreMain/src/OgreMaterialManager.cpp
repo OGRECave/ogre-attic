@@ -752,6 +752,17 @@ namespace Ogre {
 		    atof(params[5].c_str()), atof(params[6].c_str()) );
 
     }
+    //-----------------------------------------------------------------------
+    void parseDepthBias(StringVector::iterator& params, int numParams, Material* pMat)
+    {
+	    if (numParams != 2)
+	    {
+		    LogManager::getSingleton().logMessage("Bad " + params[0] + " attribute line in "
+			    + pMat->getName() + ", wrong number of parameters (expected 2)");
+		    return;
+	    }
+	    pMat->setDepthBias(atof(params[1].c_str()));
+    }
 
     //-----------------------------------------------------------------------
     template<> MaterialManager* Singleton<MaterialManager>::ms_Singleton = 0;
@@ -779,6 +790,7 @@ namespace Ogre {
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("lighting", (MATERIAL_ATTRIB_PARSER)parseLighting));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("shading", (MATERIAL_ATTRIB_PARSER)parseShading));
 	    mMatAttribParsers.insert(MatAttribParserList::value_type("filtering", (MATERIAL_ATTRIB_PARSER)parseFiltering));
+	    mMatAttribParsers.insert(MatAttribParserList::value_type("depth_bias", (MATERIAL_ATTRIB_PARSER)parseDepthBias));
 	    // Set up layer attribute parsers
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("texture", (TEXLAYER_ATTRIB_PARSER)parseTexture));
 	    mLayerAttribParsers.insert(LayerAttribParserList::value_type("anim_texture", (TEXLAYER_ATTRIB_PARSER)parseAnimTexture));

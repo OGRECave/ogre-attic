@@ -598,6 +598,12 @@ namespace Ogre {
         {
             mDestRenderSystem->_setDepthBufferWriteEnabled(mat->getDepthWriteEnabled());
         }
+        if (firstTime || lastMat.getDepthBias() != mat->getDepthBias())
+        {
+            mDestRenderSystem->_setDepthBias(mat->getDepthBias());
+        }
+
+
         // Culling mode
         if (firstTime || lastMat.getCullingMode() != mat->getCullingMode())
         {
