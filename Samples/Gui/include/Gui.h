@@ -81,6 +81,8 @@ protected:
         Overlay* o = (Overlay*)OverlayManager::getSingleton().getByName("SS/Setup/HostScreen/Overlay");
 		ActionTarget* at = static_cast<ButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Join"));
 		at->addActionListener(this);
+		at = static_cast<ButtonGuiElement*>(GuiManager::getSingleton().getGuiElement("SS/Setup/HostScreen/Exit"));
+		at->addActionListener(this);
 		o->show();
 		//mRoot->showDebugOverlay(false);
 
@@ -98,7 +100,11 @@ protected:
 	void actionPerformed(ActionEvent* e) 
 	{
         // Think about doing something here
+        std::string action = e->getActionCommand();
+        LogManager::getSingleton().logMessage("Got event: " + action);
 
+        if (action == "SS/Setup/HostScreen/Exit")
+            Root::getSingleton().getRenderSystem()->shutdown();
 	}
 
 
