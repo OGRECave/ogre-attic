@@ -562,4 +562,12 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
+    Matrix4 Math::buildReflectionMatrix(const Plane& p)
+    {
+        return Matrix4(
+            -2 * p.normal.x * p.normal.x + 1,   -2 * p.normal.x * p.normal.y,       -2 * p.normal.x * p.normal.z,       -2 * p.normal.x * p.d, 
+            -2 * p.normal.y * p.normal.x,       -2 * p.normal.y * p.normal.y + 1,   -2 * p.normal.y * p.normal.z,       -2 * p.normal.y * p.d, 
+            -2 * p.normal.z * p.normal.x,       -2 * p.normal.z * p.normal.y,       -2 * p.normal.z * p.normal.z + 1,   -2 * p.normal.z * p.d, 
+            0,                                  0,                                  0,                                  1);
+    }
 }

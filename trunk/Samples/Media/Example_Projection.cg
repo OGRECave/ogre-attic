@@ -28,13 +28,19 @@ void generalPurposeProjection_fp(
 // Vertex program for projecting and distorting a texture
 void distortion_vp(
 		float4 pos			: POSITION,
+		float4 normal		: NORMAL,
 		float2 tex			: TEXCOORD0,
 		
 		out float4 oPos		: POSITION,
+		out float fresnel   : COLOR,
 		out float3 noiseCoord : TEXCOORD0,
 		out float4 projectionCoord : TEXCOORD1,
 
 		uniform float4x4 worldViewProjMatrix,
+		uniform float3 eyePosition, // object space
+		uniform float fresnelBias,
+		uniform float fresnelScale,
+		uniform float fresnelPower,
 		uniform float2   scroll, // the amount by which to scroll the noise
 		uniform float    noisePos // the stage of the noise
 		)
@@ -49,11 +55,16 @@ void distortion_vp(
 	// Noise map coords
 	noiseCoord.xy = tex + scroll;
 	noiseCoord.z = noisePos;
+
+	// calc fresnel factor (reflection coefficient)
+	float3 eyeDir = normalize(pos.xyz - eyePosition);
+	fresnel = fresnelBias + fresnelScale * pow(1 + dot(eyeDir, normal), fresnelPower);
 	
 }
 
 // Fragment program for distorting a texture using a 3D noise texture
 void distortion_fp(
+		float fresnel				: COLOR,
 		float3 noiseCoord			: TEXCOORD0,
 		float4 projectionCoord		: TEXCOORD1,
 		
@@ -61,8 +72,9 @@ void distortion_fp(
 		
 		uniform float distortionRange,
 		uniform float4 tintColour,
-		uniform sampler2D texMap,
-		uniform sampler3D noiseMap
+		uniform sampler3D noiseMap,
+		uniform sampler2D reflectMap,
+		uniform sampler2D refractMap
 		)
 {
 	// Randomly chosen offset for y noise sample
@@ -78,7 +90,9 @@ void distortion_fp(
 	float2 final = projectionCoord.xy / projectionCoord.w;
 	final += distort;
 	
-	col = tex2D(texMap, final) + tintColour;
+	float4 reflectionColour = tex2D(reflectMap, final);
+	float4 refractionColour = tex2D(refractMap, final) + tintColour;
+	col = lerp(refractionColour, reflectionColour, fresnel);
 
 
 }

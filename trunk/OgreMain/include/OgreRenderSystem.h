@@ -738,6 +738,9 @@ namespace Ogre
 
         /** Internal method for updating all render targets attached to this rendering system. */
         virtual void _updateAllRenderTargets(void);
+        /** Sets whether or not vertex windings set should be inverted; this can be important
+            for rendering reflections. */
+        virtual void setInvertVertexWinding(bool invert);
     protected:
 
 
@@ -769,6 +772,8 @@ namespace Ogre
 
         /// Saved set of world matrices
         Matrix4 mWorldMatrices[256];
+
+        bool mInvertVertexWinding;
 
     };
 }

@@ -1058,7 +1058,9 @@ namespace Ogre {
             glDisable( GL_CULL_FACE );
             return;
         case CULL_CLOCKWISE:
-            if (mActiveRenderTarget && mActiveRenderTarget->requiresTextureFlipping())
+            if (mActiveRenderTarget && 
+                (mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
+                (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding))
             {
                 cullMode = GL_CW;
             }
@@ -1068,7 +1070,9 @@ namespace Ogre {
             }
             break;
         case CULL_ANTICLOCKWISE:
-            if (mActiveRenderTarget && mActiveRenderTarget->requiresTextureFlipping())
+            if (mActiveRenderTarget && 
+                (mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
+                (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding))
             {
                 cullMode = GL_CCW;
             }

@@ -1592,14 +1592,16 @@ namespace Ogre {
         }
         else if( mode == CULL_CLOCKWISE )
         {
-            if( mActiveRenderTarget->requiresTextureFlipping() )
+            if( (mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
+                (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding))
                 d3dMode = D3DCULL_CCW;
             else
                 d3dMode = D3DCULL_CW;
         }
         else if (mode == CULL_ANTICLOCKWISE)
         {
-            if( mActiveRenderTarget->requiresTextureFlipping() )
+            if( (mActiveRenderTarget->requiresTextureFlipping() && !mInvertVertexWinding) ||
+                (!mActiveRenderTarget->requiresTextureFlipping() && mInvertVertexWinding))
                 d3dMode = D3DCULL_CW;
             else
                 d3dMode = D3DCULL_CCW;

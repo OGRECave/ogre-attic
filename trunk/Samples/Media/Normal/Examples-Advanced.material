@@ -704,6 +704,10 @@ material Examples/Heatwave
 			vertex_program_ref Examples/DistortVP
 			{
 				param_named_auto worldViewProjMatrix worldviewproj_matrix
+				param_named_auto eyePosition camera_position_object_space
+				param_named fresnelBias float4 0 0 0 0
+				param_named fresnelScale float4 1.4 0 0 0
+				param_named fresnelPower float4 3 0 0 0
 				param_named scroll float4 0 0 0 0
 				param_named noisePos float4 0 0 0 0
 				// scroll and noisePos will need updating per frame
@@ -713,18 +717,27 @@ material Examples/Heatwave
 				param_named distortionRange float4 0.025 0 0 0
 				param_named tintColour float4 0 0 0.3 1
 			}
-			texture_unit
-			{
-				// Project the OGRE logo
-				texture ogrelogo.jpg
-				tex_address_mode clamp
-			}
+			// Noise
 			texture_unit
 			{
 				// Perlin noise volume
 				texture perlinvolume.dds 3d
 				// min / mag filtering, no mip
 				filtering linear linear none
+			}
+			// Reflection
+			texture_unit
+			{
+				// Project the OGRE logo
+				texture Reflection
+				tex_address_mode clamp
+			}
+			// Refraction
+			texture_unit
+			{
+				// Will be filled in at runtime
+				texture Refraction
+				tex_address_mode clamp
 			}
 		}
 		

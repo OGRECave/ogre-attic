@@ -54,6 +54,7 @@ namespace Ogre {
         // This means CULL clockwise vertices, i.e. front of poly is counter-clockwise
         // This makes it the same as OpenGL and other right-handed systems
         mCullingMode = CULL_CLOCKWISE;
+        mInvertVertexWinding = false;
 
         // instanciate RenderSystemCapabilities
         mCapabilities = new RenderSystemCapabilities();
@@ -510,6 +511,11 @@ namespace Ogre {
             // Software Blend
             softwareVertexBlend(const_cast<VertexData*>(op.vertexData), mWorldMatrices);
         }
+    }
+    //-----------------------------------------------------------------------
+    void RenderSystem::setInvertVertexWinding(bool invert)
+    {
+        mInvertVertexWinding = invert;
     }
 
 }
