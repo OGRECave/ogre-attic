@@ -139,7 +139,7 @@ namespace Ogre {
 			return;
 
 		}
-		int x = e->getX(), y = e->getY();
+		Real x = e->getX(), y = e->getY();
 		PositionTarget* positionTarget;
 
 		for(positionTarget = target;
