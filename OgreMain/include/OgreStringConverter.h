@@ -76,16 +76,27 @@ namespace Ogre {
         static String toString(int val, unsigned short width = 0, 
             char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
+#if OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_32
         /** Converts a size_t to a String. */
         static String toString(size_t val, 
             unsigned short width = 0, char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
-        /** Converts a long to a String. */
-        static String toString(long val, 
+        /** Converts an unsigned long to a String. */
+        static String toString(unsigned long val, 
             unsigned short width = 0, char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
+#else
+        /** Converts an unsigned int to a String. */
+        static String toString(unsigned int val, 
+            unsigned short width = 0, char fill = ' ', 
+            std::ios::fmtflags flags = std::ios::fmtflags(0) );
+        /** Converts a size_t to a String. */
+        static String toString(size_t val, 
+            unsigned short width = 0, char fill = ' ', 
+            std::ios::fmtflags flags = std::ios::fmtflags(0) );
+#endif
         /** Converts a long to a String. */
-        static String toString(unsigned long val, 
+        static String toString(long val, 
             unsigned short width = 0, char fill = ' ', 
             std::ios::fmtflags flags = std::ios::fmtflags(0) );
         /** Converts a boolean to a String. 

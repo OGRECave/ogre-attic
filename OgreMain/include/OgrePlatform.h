@@ -41,6 +41,9 @@ namespace Ogre {
 #define OGRE_ENDIAN_LITTLE 1
 #define OGRE_ENDIAN_BIG 2
 
+#define OGRE_ARCHITECTURE_32 1
+#define OGRE_ARCHITECTURE_64 2
+
 /* Finds the compiler type and version.
 */
 #if defined( _MSC_VER )
@@ -81,6 +84,12 @@ namespace Ogre {
 #   define OGRE_PLATFORM OGRE_PLATFORM_LINUX
 #endif
 
+/* Find the arch type */
+#if defined(__x86_64__)
+#   define OGRE_ARCH_TYPE OGRE_ARCHITECTURE_64
+#else
+#   define OGRE_ARCH_TYPE OGRE_ARCHITECTURE_32
+#endif
 // For generating compiler warnings - should work on any compiler
 // As a side note, if you start your message with 'Warning: ', the MSVC
 // IDE actually does catch a warning :)
