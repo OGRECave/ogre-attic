@@ -996,6 +996,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreQuaternion.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreRay.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreRectangle2D.h">
 			</File>
 			<File
