@@ -99,19 +99,9 @@ namespace Ogre
     //---------------------------------------------------------------------
     void AnimationState::addTime(Real offset)
     {
-        mTimePos = mTimePos + offset;
-
-        // Wrap over upper bound
-        while (mTimePos >= mLength)
-        {
-            mTimePos -= mLength;
-        }
-
-        // Wrap over lower bound
-        while (mTimePos < 0)
-        {
-            mTimePos += mLength;
-        }
+        mTimePos = fmod(mTimePos + offset, mLength);
+        if(mTimePos < 0)
+            mTimePos += mLength;     
     }
     //---------------------------------------------------------------------
     bool AnimationState::getEnabled(void) const
