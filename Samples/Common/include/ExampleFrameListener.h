@@ -31,13 +31,11 @@ Description: Defines an example frame listener which responds to frame events.
              Mouse:    Freelook
              W or Up:  Forward
              S or Down:Backward
-             A:           Step left
+             A:        Step left
              D:        Step right
              PgUp:     Move upwards
              PgDown:   Move downwards
-             O/P:       Yaw the root scene node (and it's children)
-             I/K:       Pitch the root scene node (and it's children)
-             F:           Toggle frame rate stats on/off
+             F:        Toggle frame rate stats on/off
 			 R:        Render mode
              T:        Cycle texture filtering
                        Bilinear, Trilinear, Anisotropic(8)
