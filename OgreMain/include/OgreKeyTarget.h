@@ -64,3 +64,4 @@ namespace Ogre {
 
 
 #endif //__KeyTarget_H__
+
