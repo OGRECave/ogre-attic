@@ -82,6 +82,35 @@ namespace Ogre
         /** Overridden from GuiElement */
         void setMaterialName(const String& matName);
 
+        /** Sets the colour of the text. 
+        @remarks
+            This method establishes a constant colour for 
+            the entire text. Also see setColourBottom and 
+            setColourTop which allow you to set a colour gradient.
+        */
+        void setColour(const ColourValue& col);
+
+        /** Gets the colour of the text. */
+        ColourValue getColour(void) const;
+        /** Sets the colour of the bottom of the letters.
+        @remarks
+            By setting a separate top and bottom colour, you
+            can create a text area which has a graduated colour
+            effect to it.
+        */
+        void setColourBottom(const ColourValue& col);
+        /** Gets the colour of the bottom of the letters. */
+        ColourValue getColourBottom(void);
+        /** Sets the colour of the top of the letters.
+        @remarks
+            By setting a separate top and bottom colour, you
+            can create a text area which has a graduated colour
+            effect to it.
+        */
+        void setColourTop(const ColourValue& col);
+        /** Gets the colour of the top of the letters. */
+        ColourValue getColourTop(void);
+
         inline void setAlignment( Alignment a )
         {
             mAlignment = a;
@@ -122,6 +151,36 @@ namespace Ogre
             String doGet( void* target );
             void doSet( void* target, const String& val );
         };
+        //-----------------------------------------------------------------------------------------
+        /** Command object for setting the top colour.
+                @see ParamCommand
+        */
+        class CmdColourTop : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
+        //-----------------------------------------------------------------------------------------
+        /** Command object for setting the bottom colour.
+                @see ParamCommand
+        */
+        class CmdColourBottom : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
+        //-----------------------------------------------------------------------------------------
+        /** Command object for setting the constant colour.
+                @see ParamCommand
+        */
+        class CmdColour : public ParamCommand
+        {
+        public:
+            String doGet( void* target );
+            void doSet( void* target, const String& val );
+        };
 
     protected:
         /// The text alignment
@@ -141,11 +200,19 @@ namespace Ogre
         // Command objects
         static CmdCharHeight msCmdCharHeight;
         static CmdFontName msCmdFontName;
+        static CmdColour msCmdColour;
+        static CmdColourTop msCmdColourTop;
+        static CmdColourBottom msCmdColourBottom;
+
 
         Font *mpFont;
         Real mCharHeight;
         uint mAllocSize;
-        bool mAllocTex;
+
+        /// Colours to use for the vertices
+        ColourValue mColourBottom;
+        ColourValue mColourTop;
+
 
         /// Internal method to update the geometry
         void updateGeometry();
@@ -153,6 +220,8 @@ namespace Ogre
         void checkMemoryAllocation( uint numChars );
         /// Inherited function
         virtual void updatePositionGeometry();
+        /// Updates vertex colours
+        virtual void updateColours(void);
     };
 }
 
