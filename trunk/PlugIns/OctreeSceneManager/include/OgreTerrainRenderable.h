@@ -124,7 +124,7 @@ class TerrainRenderable : public Renderable, public MovableObject
 {
 public:
 
-    TerrainRenderable();
+    TerrainRenderable(const String& name);
     ~TerrainRenderable();
 
     void deleteGeometry();

@@ -171,7 +171,7 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
             sprintf( name, "tile[%d,%d]", p, q );
 
             SceneNode *c = mTerrainRoot -> createChildSceneNode( name );
-            TerrainRenderable *tile = new TerrainRenderable();
+            TerrainRenderable *tile = new TerrainRenderable(name);
 
             tile -> setMaterial( mTerrainMaterial );
             tile -> init( mOptions );
@@ -238,17 +238,6 @@ void TerrainSceneManager::setWorldGeometry( const String& filename )
 
 }
 
-
-void TerrainSceneManager::_updateSceneGraph( Camera * cam )
-
-{
-
-    //Vector3 c = cam -> getPosition();
-    //c.y = getHeightAt(c.x, c.z ) + 2;
-    //cam -> setPosition( c );
-
-    OctreeSceneManager::_updateSceneGraph( cam );
-}
 
 void TerrainSceneManager::_renderVisibleObjects( void )
 {

@@ -46,9 +46,6 @@ public:
 
     void setWorldGeometry( const String& filename );
 
-    /** Updates all the TerrainRenderables LOD. */
-    virtual void _updateSceneGraph( Camera * cam );
-
     /** Aligns TerrainRenderable neighbors, and renders them. */
     virtual void _renderVisibleObjects( void );
 
