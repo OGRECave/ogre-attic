@@ -60,7 +60,6 @@ class Lwo2MeshWriter
 public:	
 	bool writeLwo2Mesh(lwObject *nobject, char *ndest);
 private:
-	void countPointsPolys(void);
 	void prepLwObject(void);
 
 	void doExportMaterials(void);
