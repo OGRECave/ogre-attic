@@ -927,6 +927,592 @@ class Logger:
 		"""
 		return self.messageList
 
+class ExportOptions:
+	"""Encapsulates export options common to all objects.
+	"""
+	# TODO: Model for GUI
+	def __init__(self, rotXAngle, rotYAngle, rotZAngle, scale, useWorldCoordinates, exportPath, materialFilename):
+		"""Constructor.
+		"""
+		# floating point accuracy
+		self.accuracy = 1e-6
+		# export transformation
+		self.rotXAngle = rotXAngle
+		self.rotYAngle = rotYAngle
+		self.rotZAngle = rotZAngle
+		self.scale = scale
+		self.useWorldCoordinates = useWorldCoordinates
+		# file settings
+		self.exportPath = exportPath
+		self.materialFilename = materialFilename
+		return
+	
+	def transformationMatrix(self):
+		"""Returns the matrix representation for the additional transformation on export.
+		"""
+		rotationMatrix = Mathutils.RotationMatrix(self.rotXAngle,4,'x')
+		rotationMatrix *= Mathutils.RotationMatrix(self.rotYAngle,4,'y')
+		rotationMatrix *= Mathutils.RotationMatrix(self.rotZAngle,4,'z')
+		scaleMatrix = Mathutils.Matrix([self.scale,0,0],[0,self.scale,0],[0,0,self.scale])
+		scaleMatrix.resize4x4()
+		return rotationMatrix*scaleMatrix
+
+class ObjectExporter:
+	"""Interface. Exports a Blender object to Ogre.
+	"""
+	def __init__(self, object):
+		"""Constructor.
+		   
+		   @param object Blender object to export.
+		"""
+		self.object = object
+		return
+	
+	def getName(self):
+		"""Returns the name of the object.
+		"""
+		return self.object.getName()
+	
+	def getObjectMatrix(self):
+		"""Returns the object matrix in worldspace.
+		"""
+		return self.object.getMatrix('worldspace') 
+	
+class ArmatureExporter:
+	"""Exports an armature of a mesh.
+	"""
+	# TODO: Provide bone ids for vertex influences.
+	def __init__(self, meshObject, armatureObject):
+		"""Constructor.
+		
+		  @param meshObject ObjectExporter.
+		  @param armatureObject Blender armature object.
+		"""
+		self.meshObject = meshObject
+		self.armatureObject = armatureObject
+		self.skeleton = None
+		return
+	
+	def export(self, actionActuatorList, exportOptions, logger):
+		"""Exports the armature.
+		
+		   @param actionActuatorList list of animations to export.
+		   @param exportOptions global export options.
+		   @param logger Logger Logger for log messages. 		   
+		"""
+		# convert Armature into Skeleton
+		name = None
+		if exportOptions.useWorldCoordinates:
+			name = self.armatureObject.name
+		else:
+			name = self.meshObject.getName() + "-" + self.armatureObject.name
+		skeleton = Skeleton(name)
+		skeleton = self._convertRestpose(skeleton, exportOptions, logger)
+		
+		# convert ActionActuators into Animations
+		self._convertAnimations(skeleton, actionActuatorList, exportOptions, exportLogger)
+		
+		# write to file
+		self._toFile(skeleton, exportOptions, exportLogger)
+		
+		self.skeleton = skeleton
+		return
+	
+	def _convertAnimations(self, skeleton, armatureActionActuatorList, exportOptions, exportLogger):
+		"""Converts ActionActuators to Ogre animations.
+		"""
+		# frames per second
+		fps = Blender.Scene.GetCurrent().getRenderingContext().framesPerSec()
+		# map armatureActionActuatorList to skeleton.animationsDict
+		for armatureActionActuator in armatureActionActuatorList:
+			# map armatureActionActuator to animation
+			if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
+				# create animation
+				animation = Animation(armatureActionActuator.name)
+				# map bones to tracks
+				for boneName in armatureActionActuator.armatureAction.ipoDict.keys():
+					if (not(animation.tracksDict.has_key(boneName))):
+						# get bone object
+						if skeleton.bonesDict.has_key(boneName):
+							# create track
+							track = Track(animation, skeleton.bonesDict[boneName])
+							# map ipocurves to keyframes
+							# get ipo for that bone
+							ipo = armatureActionActuator.armatureAction.ipoDict[boneName]
+							# map curve names to curvepos
+							curveId = {}
+							index = 0
+							have_quat = 0
+							for curve in ipo.getCurves():
+								try:
+									name = curve.getName()
+									if (name == "LocX" or name == "LocY" or name == "LocZ" or \
+									name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
+									name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
+										curveId[name] = index
+										index += 1
+									else:
+									# bug: 2.28 does not return "Quat*"...
+										if not have_quat:
+											curveId["QuatX"] = index
+											curveId["QuatY"] = index+1
+											curveId["QuatZ"] = index+2
+											curveId["QuatW"] = index+3
+											index += 4
+											have_quat = 1
+								except TypeError:
+									# blender 2.32 does not implement IpoCurve.getName() for action Ipos
+									if not have_quat:
+										# no automatic assignments so far
+										# guess Ipo Names       
+										nIpoCurves = ipo.getNcurves()
+										if nIpoCurves in [4,7,10]:
+											exportLogger.logWarning("IpoCurve.getName() not available!")
+											exportLogger.logWarning("The exporter tries to guess the IpoCurve names.")
+											if (nIpoCurves >= 7):
+												# not only Quats
+												# guess: Quats and Locs
+												curveId["LocX"] = index
+												curveId["LocY"] = index+1
+												curveId["LocZ"] = index+2
+												index += 3      
+											if (nIpoCurves == 10):
+												# all possible Action IpoCurves
+												curveId["SizeX"] = index
+												curveId["SizeY"] = index+1
+												curveId["SizeZ"] = index+2
+												index += 3
+											if (nIpoCurves >= 4):
+												# at least 4 IpoCurves
+												# guess: 4 Quats
+												curveId["QuatX"] = index
+												curveId["QuatY"] = index+1
+												curveId["QuatZ"] = index+2
+												curveId["QuatW"] = index+3
+												index += 4
+											have_quat = 1
+										else:
+											exportLogger.logError("IpoCurve.getName() not available!")
+											exportLogger.logError("Could not guess the IpoCurve names. Other Blender versions may work.")
+							# get all frame numbers between startFrame and endFrame where this ipo has a point in one of its curves
+							frameNumberDict = {}
+							for curveIndex in range(ipo.getNcurves()):
+								for bez in range(ipo.getNBezPoints(curveIndex)):
+									frame = int(ipo.getCurveBeztriple(curveIndex, bez)[3])
+									frameNumberDict[frame] = frame
+							frameNumberDict[armatureActionActuator.startFrame] = armatureActionActuator.startFrame
+							frameNumberDict[armatureActionActuator.endFrame] = armatureActionActuator.endFrame
+							# remove frame numbers not in the startFrame endFrame range
+							if (armatureActionActuator.startFrame > armatureActionActuator.endFrame):
+								minFrame = armatureActionActuator.endFrame
+								maxFrame = armatureActionActuator.startFrame
+							else:
+								minFrame = armatureActionActuator.startFrame
+								maxFrame = armatureActionActuator.endFrame
+							for frameNumber in frameNumberDict.keys()[:]:
+								if ((frameNumber < minFrame) or (frameNumber > maxFrame)):
+									del frameNumberDict[frameNumber]
+							frameNumberList = frameNumberDict.keys()
+							# convert frame numbers to seconds
+							# frameNumberDict: key = export time, value = frame number
+							frameNumberDict = {}
+							for frameNumber in frameNumberList:
+								if  (armatureActionActuator.startFrame <= armatureActionActuator.endFrame):
+									# forward animation
+									time = float(frameNumber-armatureActionActuator.startFrame)/fps
+								else:
+									# backward animation
+									time = float(armatureActionActuator.endFrame-frameNumber)/fps
+								# update animation duration
+								if animation.duration < time:
+									animation.duration = time
+								frameNumberDict[time] = frameNumber
+							# create key frames
+							timeList = frameNumberDict.keys()
+							timeList.sort()
+							for time in timeList:
+								# Blender's ordering of transformation is deltaR*deltaS*deltaT
+								# in the bones coordinate system.
+								frame = frameNumberDict[time]
+								loc = ( 0.0, 0.0, 0.0 )
+								rotQuat = Mathutils.Quaternion([1.0, 0.0, 0.0, 0.0])
+								sizeX = 1.0
+								sizeY = 1.0
+								sizeZ = 1.0
+								blenderLoc = [0, 0, 0]
+								hasLocKey = 0 #false
+								if curveId.has_key("LocX"):
+									blenderLoc[0] = ipo.EvaluateCurveOn(curveId["LocX"], frame)
+									hasLocKey = 1 #true
+								if curveId.has_key("LocY"):
+									blenderLoc[1] = ipo.EvaluateCurveOn(curveId["LocY"], frame)
+									hasLocKey = 1 #true
+								if curveId.has_key("LocZ"):
+									blenderLoc[2] = ipo.EvaluateCurveOn(curveId["LocZ"], frame)
+									hasLocKey = 1 #true
+								if hasLocKey:
+									# Ogre's deltaT is in the bone's parent coordinate system
+									loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
+								if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
+									if not (Blender.Get("version") == 234):
+										rot = [ ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatZ"], frame) ]
+										rotQuat = Mathutils.Quaternion(rot)
+									else:
+										# Blender 2.34 quaternion naming bug
+										rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+												ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
+										rotQuat = Mathutils.Quaternion(rot)
+								if curveId.has_key("SizeX"):
+									sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
+								if curveId.has_key("SizeY"):
+									sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
+								if curveId.has_key("SizeZ"):
+									sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+								size = (sizeX, sizeY, sizeZ)
+								KeyFrame(track, time, loc, rotQuat, size)
+							# append track
+							animation.tracksDict[boneName] = track
+						else:
+							# ipo name contains bone but armature doesn't
+							exportLogger.logWarning("Unused action channel \"%s\" in action \"%s\" for skeleton \"%s\"." \
+											 % (boneName, armatureActionActuator.armatureAction.name, skeleton.name))
+					else:
+						# track for that bone already exists
+						exportLogger.logError("Ambiguous bone name \"%s\", track already exists." % boneName)
+				# append animation
+				skeleton.animationsDict[armatureActionActuator.name] = animation
+			else:
+				# animation export name already exists
+				exportLogger.logError("Ambiguous animation name \"%s\"." % armatureActionActuator.name)
+		return
+	
+	def _convertRestpose(self, skeleton, exportOptions, logger):
+		"""Calculate inital bone positions and rotations.
+		"""
+		obj = self.armatureObject
+		stack = []
+		matrix = None
+		if exportOptions.useWorldCoordinates:
+			# world coordinates
+			matrix = obj.getMatrix("worldspace")
+		else:
+			# local mesh coordinates
+			armatureMatrix = obj.getMatrix("worldspace")
+			inverseMeshMatrix = self.meshObject.getObjectMatrix()
+			inverseMeshMatrix.invert()
+			matrix = armatureMatrix*inverseMeshMatrix
+		# apply additional export transformation
+		matrix = matrix*exportOptions.transformationMatrix()
+		loc = [ 0.0, 0, 0 ]
+		matrix_one = Mathutils.Matrix([1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1])
+		parent = None
+		
+		# get parent bones
+		boneList = obj.getData().getBones()
+		boneDict = {} 
+		for bone in boneList:
+			if not bone.hasParent():
+				boneDict[bone.getName()] = bone
+		for bbone in boneDict.values():  
+			stack.append([bbone, parent, matrix, loc, 0, matrix_one])
+		
+		while len(stack):
+			bbone, parent, accu_mat, parent_pos, parent_ds, invertedOgreTransformation = stack.pop()
+			# preconditions: (R : rotation, T : translation, S : scale, M: general transformation matrix)
+			#   accu_mat
+			#     points to the tail of the parents bone, i.e. for root bones
+			#     accu_mat = M_{object}*R_{additional on export}
+			#     and for child bones
+			#     accu_mat = T_{length of parent}*R_{parent}*T_{to head of parent}*M_{parent's parent}
+			#  invertedOgreTransformation
+			#    inverse of transformation done in Ogre so far, i.e. identity for root bones,
+			#    M^{-1}_{Ogre, parent's parent}*T^{-1}_{Ogre, parent}*R^{-1}_{Ogre, parent} for child bones.
+			
+			head = bbone.getHead()
+			tail = bbone.getTail()
+			
+			# get the restmat 
+			R_bmat = bbone.getRestMatrix('bonespace').rotationPart()
+			R_bmat.resize4x4()
+			
+			# get the bone's root offset (in the parent's coordinate system)
+			T_root = [ [       1,       0,       0,      0 ],
+			[       0,       1,       0,      0 ],
+			[       0,       0,       1,      0 ],
+			[ head[0], head[1], head[2],      1 ] ]
+			
+			# get the bone length translation (length along y axis)
+			dx, dy, dz = tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]
+			ds = math.sqrt(dx*dx + dy*dy + dz*dz)
+			T_len = [ [ 1,  0,  0,  0 ],
+				[ 0,  1,  0,  0 ],
+				[ 0,  0,  1,  0 ],
+				[ 0, ds,  0,  1 ] ]
+			
+			# calculate bone points in world coordinates
+			accu_mat = matrix_multiply(accu_mat, T_root)
+			pos = point_by_matrix([ 0, 0, 0 ], accu_mat)
+			
+			accu_mat = tmp_mat = matrix_multiply(accu_mat, R_bmat)
+			# tmp_mat = R_{bone}*T_{to head}*M_{parent}
+			accu_mat = matrix_multiply(accu_mat, T_len)
+			
+			# local rotation and distance from parent bone
+			if parent:
+				rotQuat = bbone.getRestMatrix('bonespace').toQuat()
+			
+			else:
+				rotQuat = (bbone.getRestMatrix('bonespace')*matrix).toQuat()
+			
+			x, y, z = pos
+			# pos = loc * M_{Ogre}
+			loc = point_by_matrix([x, y, z], invertedOgreTransformation)
+			x, y, z = loc
+			ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
+			
+			# R_{Ogre} is either
+			# the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
+			# the rotation part of R_{bone}*T_{to_head} of child bones
+			ogreRotationMatrix = rotQuat.toMatrix()
+			ogreRotationMatrix.resize4x4()
+			invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
+			parent = Bone(skeleton, parent, bbone.getName(), loc, rotQuat, matrix_multiply(invertedOgreTransformation, tmp_mat))
+			# matrix_multiply(invertedOgreTransformation, tmp_mat) is R*T*M_{parent} M^{-1}_{Ogre}T^{-1}_{Ogre}.
+			# Necessary, since Ogre's delta location is in the Bone's parent coordinate system, i.e.
+			# delatT_{Blender}*R*T*M = deltaT_{Ogre}*T_{Ogre}*M_{Ogre}
+			invertedOgreTransformation = matrix_multiply(matrix_invert(ogreRotationMatrix), invertedOgreTransformation)
+			for child in bbone.getChildren():
+				stack.append([child, parent, accu_mat, pos, ds, invertedOgreTransformation])
+		return skeleton
+		
+	def _toFile(self, skeleton, exportOptions, exportLogger):
+		"""Writes converted skeleton to file.
+		"""
+		file = skeleton.name+".skeleton.xml"
+		exportLogger.logInfo("Skeleton \"%s\"" % file)
+		f = open(os.path.join(exportOptions.exportPath, file), "w")
+		f.write(tab(0)+"<skeleton>\n")
+		f.write(tab(1)+"<bones>\n")
+		for bone in skeleton.bones:
+			f.write(tab(2)+"<bone id=\"%d\" name=\"%s\">\n" % (bone.id, bone.name))
+
+			x, y, z = bone.loc
+			f.write(tab(3)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
+
+			f.write(tab(3)+"<rotation angle=\"%.6f\">\n" % (bone.rotQuat.angle/360*2*math.pi))
+			f.write(tab(4)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(bone.rotQuat.axis))
+			f.write(tab(3)+"</rotation>\n")
+			f.write(tab(2)+"</bone>\n")
+		f.write(tab(1)+"</bones>\n")
+		
+		f.write(tab(1)+"<bonehierarchy>\n")
+		for bone in skeleton.bones:
+			parent = bone.parent
+			if parent:
+				f.write(tab(2)+"<boneparent bone=\"%s\" parent=\"%s\"/>\n" % (bone.name, parent.name))
+		f.write(tab(1)+"</bonehierarchy>\n")
+
+		f.write(tab(1)+"<animations>\n")
+
+		for animation in skeleton.animationsDict.values():
+			name = animation.name
+			
+			f.write(tab(2)+"<animation")
+			f.write(" name=\"%s\"" % name)
+			f.write(" length=\"%f\">\n" % animation.duration )
+			
+			f.write(tab(3)+"<tracks>\n")
+			for track in animation.tracksDict.values():
+				f.write(tab(4)+"<track bone=\"%s\">\n" % track.bone.name)
+				f.write(tab(5)+"<keyframes>\n")
+				
+				for keyframe in track.keyframes:
+					f.write(tab(6)+"<keyframe time=\"%f\">\n" % keyframe.time)
+					x, y, z = keyframe.loc
+					f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
+					
+					f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/360*2*math.pi))
+					f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
+					f.write(tab(7)+"</rotate>\n")
+					
+					f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
+					
+					f.write(tab(6)+"</keyframe>\n")
+				
+				f.write(tab(5)+"</keyframes>\n")
+				f.write(tab(4)+"</track>\n");
+			
+			f.write(tab(3)+"</tracks>\n");
+			f.write(tab(2)+"</animation>\n")
+			
+		f.write(tab(1)+"</animations>\n")
+		f.write(tab(0)+"</skeleton>\n")
+		f.close()
+		convertXMLFile(os.path.join(exportOptions.exportPath, file))
+		return
+		
+class ArmatureMeshExporter(ObjectExporter):
+	"""Exports an armature object as mesh.
+	
+	   Converts a Blender armature into an animated Ogre mesh.
+	"""
+	# TODO:	Use observer pattern for progress bar.
+	# TODO: Get bone ids from skeletonExporter class.
+	def __init__(self, armatureObject):
+		"""Constructor.
+		
+		   @param armatureObject armature object to export.
+		"""
+		# call base class constructor
+		ObjectExporter.__init__(self, armatureObject)
+		self.skeleton = None
+		return
+	
+	def export(self, materialsDict, actionActuatorList, exportOptions, logger):
+		"""Exports the mesh object.
+		   
+		   @param materialsDict dictionary that contains already existing materials.
+		   @param actionActuatorList list of animations to export.
+		   @param exportOptions global export options.
+		   @param logger Logger for log messages.
+		   @return materialsDict with the new materials added.
+		"""
+		# export skeleton
+		armatureExporter = ArmatureExporter(self, self.object)
+		armatureExporter.export(actionActuatorList, exportOptions, logger)
+		self.skeleton = armatureExporter.skeleton
+		self._convertToMesh(materialsDict, exportOptions, logger)
+		return materialsDict
+	
+	def _convertToMesh(self, materialsDict, exportOptions, logger):
+		"""Creates meshes in form of the armature bones.
+		"""
+		obj = self.object
+		stack = []
+		# list of bone data (boneName, startPosition, endPosition)
+		boneMeshList = []		
+		matrix = None
+		if exportOptions.useWorldCoordinates:
+			# world coordinates
+			matrix = obj.getMatrix("worldspace")
+		else:
+			# local mesh coordinates
+			armatureMatrix = obj.getMatrix("worldspace")
+			inverseMeshMatrix = self.getObjectMatrix()
+			inverseMeshMatrix.invert()
+			matrix = armatureMatrix*inverseMeshMatrix
+		# apply additional export transformation
+		matrix = matrix*exportOptions.transformationMatrix()
+		loc = [ 0.0, 0, 0 ]
+		parent = None
+		
+		# get parent bones
+		boneList = obj.getData().getBones()
+		boneDict = {} 
+		for bone in boneList:
+			if not bone.hasParent():
+				boneDict[bone.getName()] = bone
+		for bbone in boneDict.values():  
+			stack.append([bbone, parent, matrix, loc, 0])
+		
+		while len(stack):
+			bbone, parent, accu_mat, parent_pos, parent_ds = stack.pop()
+			# preconditions: (R : rotation, T : translation, S : scale, M: general transformation matrix)
+			#   accu_mat
+			#     points to the tail of the parents bone, i.e. for root bones
+			#     accu_mat = M_{object}*R_{additional on export}
+			#     and for child bones
+			#     accu_mat = T_{length of parent}*R_{parent}*T_{to head of parent}*M_{parent's parent}
+			#  invertedOgreTransformation
+			#    inverse of transformation done in Ogre so far, i.e. identity for root bones,
+			#    M^{-1}_{Ogre, parent's parent}*T^{-1}_{Ogre, parent}*R^{-1}_{Ogre, parent} for child bones.
+			
+			head = bbone.getHead()
+			tail = bbone.getTail()
+			
+			# get the restmat 
+			R_bmat = bbone.getRestMatrix('bonespace').rotationPart()
+			R_bmat.resize4x4()
+			
+			# get the bone's root offset (in the parent's coordinate system)
+			T_root = [ [       1,       0,       0,      0 ],
+			[       0,       1,       0,      0 ],
+			[       0,       0,       1,      0 ],
+			[ head[0], head[1], head[2],      1 ] ]
+			
+			# get the bone length translation (length along y axis)
+			dx, dy, dz = tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]
+			ds = math.sqrt(dx*dx + dy*dy + dz*dz)
+			T_len = [ [ 1,  0,  0,  0 ],
+				[ 0,  1,  0,  0 ],
+				[ 0,  0,  1,  0 ],
+				[ 0, ds,  0,  1 ] ]
+			
+			# calculate bone points in world coordinates
+			accu_mat = matrix_multiply(accu_mat, T_root)
+			pos = point_by_matrix([ 0, 0, 0 ], accu_mat)
+			
+			accu_mat = tmp_mat = matrix_multiply(accu_mat, R_bmat)
+			# tmp_mat = R_{bone}*T_{to head}*M_{parent}
+			accu_mat = matrix_multiply(accu_mat, T_len)
+			pos2 = point_by_matrix([ 0, 0, 0 ], accu_mat)
+			boneMeshList.append([bbone.getName(), pos, pos2])
+			for child in bbone.getChildren():
+				stack.append([child, parent, accu_mat, pos, ds])
+		self._createMeshFromBoneList(materialsDict, boneMeshList)
+		return
+
+	def _makeFace(self, submesh, name, p1, p2, p3):
+		normal = vector_normalize(vector_crossproduct(
+				[ p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2] ],
+				[ p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2] ]))
+		v1 = Vertex(submesh, XMLVertex(p1, normal))
+		v2 = Vertex(submesh, XMLVertex(p2, normal))
+		v3 = Vertex(submesh, XMLVertex(p3, normal))
+
+		id = self.skeleton.bonesDict[name]
+		v1.influences.append(Influence(id, 1.0))
+		v2.influences.append(Influence(id, 1.0))
+		v3.influences.append(Influence(id, 1.0))
+
+		Face(submesh, v1, v2, v3)
+		return
+	
+	def _createMeshFromBoneList(self, materialsDict, boneMeshList):
+		matName = "SkeletonMaterial"
+		material = materialsDict.get(matName)
+		if not material:
+			material = Material(matName, None, None)
+			materialsDict[matName] = material
+
+		submesh = SubMesh(material)
+		for name, p1, p2 in boneMeshList:
+			print name
+			axis = blender_bone2matrix(p1, p2, 0)
+			axis = matrix_translate(axis, p1)
+			dx, dy, dz = p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]
+			ds = math.sqrt(dx*dx + dy*dy + dz*dz)
+			d = 0.1 + 0.2 * (ds / 10.0)
+			c1 = point_by_matrix([-d, 0,-d], axis)
+			c2 = point_by_matrix([-d, 0, d], axis)
+			c3 = point_by_matrix([ d, 0, d], axis)
+			c4 = point_by_matrix([ d, 0,-d], axis)
+			
+			self._makeFace(submesh, name, p2, c1, c2)
+			self._makeFace(submesh, name, p2, c2, c3)
+			self._makeFace(submesh, name, p2, c3, c4)
+			self._makeFace(submesh, name, p2, c4, c1)
+			self._makeFace(submesh, name, c3, c2, c1)
+			self._makeFace(submesh, name, c1, c4, c3)
+		file = self.getName()
+		write_mesh(file, [submesh], self.skeleton)
+		return
+	
 ######
 # global variables
 ######
@@ -1453,16 +2039,6 @@ class KeyFrame:
     self.track = track
     track.keyframes.append(self)
 
-class TestSkel:
-  def __init__(self, skeleton):
-    self.skeleton = skeleton
-    self.bones = []
-    
-  def addBone(self, name, p1, p2):
-    self.bones.append([name, p1, p2])
-
-
-
 #######################################################################################
 ## Armature stuff
 
@@ -1501,358 +2077,6 @@ def blender_bone2matrix(head, tail, roll):
 
   rMatrix = matrix_rotate(nor, roll)
   return matrix_multiply(rMatrix, bMatrix)
-
-def convert_armature(skeleton, obj, debugskel, meshObject):
-  """Calculate inital bone positions and rotations.
-  """
-  stack = []
-  matrix = None
-  if worldCoordinatesToggle.val:
-    # world coordinates
-    matrix = obj.getMatrix("worldspace")
-  else:
-    # local mesh coordinates
-    armatureMatrix = obj.getMatrix("worldspace")
-    inverseMeshMatrix = meshObject.getMatrix("worldspace")
-    inverseMeshMatrix.invert()
-    matrix = armatureMatrix*inverseMeshMatrix
-  # apply additional export transformation
-  matrix = matrix*BASE_MATRIX
-  loc = [ 0.0, 0, 0 ]
-  matrix_one = [[1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-  parent = None
-  
-  # get parent bones
-  boneList = obj.getData().getBones()
-  boneDict = {} 
-  for bone in boneList:
-    if not bone.hasParent():
-      boneDict[bone.getName()] = bone
-  for bbone in boneDict.values():  
-    stack.append([bbone, parent, matrix, loc, 0, matrix_one])
-
-  while len(stack):
-    bbone, parent, accu_mat, parent_pos, parent_ds, invertedOgreTransformation = stack.pop()
-    # preconditions: (R : rotation, T : translation, S : scale, M: general transformation matrix)
-    #   accu_mat
-    #     points to the tail of the parents bone, i.e. for root bones
-    #     accu_mat = M_{object}*R_{additional on export}
-    #     and for child bones
-    #     accu_mat = T_{length of parent}*R_{parent}*T_{to head of parent}*M_{parent's parent}
-    #  invertedOgreTransformation
-    #    inverse of transformation done in Ogre so far, i.e. identity for root bones,
-    #    M^{-1}_{Ogre, parent's parent}*T^{-1}_{Ogre, parent}*R^{-1}_{Ogre, parent} for child bones.
-    
-    head = bbone.getHead()
-    tail = bbone.getTail()
-    roll = bbone.getRoll()
-
-    # get the restmat 
-    R_bmat = bbone.getRestMatrix('bonespace').rotationPart()
-    R_bmat.resize4x4()
-
-    # get the bone's root offset (in the parent's coordinate system)
-    T_root = [ [       1,       0,       0,      0 ],
-               [       0,       1,       0,      0 ],
-               [       0,       0,       1,      0 ],
-               [ head[0], head[1], head[2],      1 ] ]
-
-    # get the bone length translation (length along y axis)
-    dx, dy, dz = tail[0] - head[0], tail[1] - head[1], tail[2] - head[2]
-    ds = math.sqrt(dx*dx + dy*dy + dz*dz)
-    T_len = [ [ 1,  0,  0,  0 ],
-              [ 0,  1,  0,  0 ],
-              [ 0,  0,  1,  0 ],
-              [ 0, ds,  0,  1 ] ]
-
-    # calculate bone points in world coordinates
-    accu_mat = matrix_multiply(accu_mat, T_root)
-    pos = point_by_matrix([ 0, 0, 0 ], accu_mat)
-
-    accu_mat = tmp_mat = matrix_multiply(accu_mat, R_bmat)
-    # tmp_mat = R_{bone}*T_{to head}*M_{parent}
-    accu_mat = matrix_multiply(accu_mat, T_len)
-    pos2 = point_by_matrix([ 0, 0, 0 ], accu_mat)
-    
-    if debugskel:
-      debugskel.addBone(bbone.getName(), pos, pos2)
-
-    # local rotation and distance from parent bone
-    if parent:
-      rotQuat = bbone.getRestMatrix('bonespace').toQuat()
-
-    else:
-      rotQuat = (bbone.getRestMatrix('bonespace')*matrix).toQuat()
-
-    x, y, z = pos
-    # pos = loc * M_{Ogre}
-    loc = point_by_matrix([x, y, z], invertedOgreTransformation)
-    x, y, z = loc
-    ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
-
-    # R_{Ogre} is either
-    # the rotation part of R_{bone}*T_{to_head}*M_{parent} for root bones or
-    # the rotation part of R_{bone}*T_{to_head} of child bones
-    ogreRotationMatrix = rotQuat.toMatrix()
-    ogreRotationMatrix.resize4x4()
-    invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
-    parent = Bone(skeleton, parent, bbone.getName(), loc, rotQuat, matrix_multiply(invertedOgreTransformation, tmp_mat))
-    # matrix_multiply(invertedOgreTransformation, tmp_mat) is R*T*M_{parent} M^{-1}_{Ogre}T^{-1}_{Ogre}.
-    # Necessary, since Ogre's delta location is in the Bone's parent coordinate system, i.e.
-    # delatT_{Blender}*R*T*M = deltaT_{Ogre}*T_{Ogre}*M_{Ogre}
-    invertedOgreTransformation = matrix_multiply(matrix_invert(ogreRotationMatrix), invertedOgreTransformation)
-    for child in bbone.getChildren():
-      stack.append([child, parent, accu_mat, pos, ds, invertedOgreTransformation])
-
-def export_skeleton(object, meshObject):
-	global armatureToggle, fpsNumber, armatureActionActuatorListViewDict
-	global skeletonsDict
-	global exportLogger
-	
-	# threshold to compare floats
-	threshold = 1e-6
-	
-	if ((armatureToggle.val == 1) and (not skeletonsDict.has_key(object.getName())) and (object.getType() == "Armature")):
-		name = None
-		if worldCoordinatesToggle.val:
-			name = object.name
-		else:
-			name = meshObject.name+"-"+object.name
-		skeleton = Skeleton(name)
-		skeletonsDict[object.name] = skeleton
-		
-		testskel = None
-		#if armatureMeshToggle.val:
-		#	testskel = TestSkel(skeleton)
-		
-		convert_armature(skeleton, object, testskel, meshObject)
-		
-		#if testskel:
-		#	export_testskel(testskel)
-		
-		# export animations
-		if armatureActionActuatorListViewDict.has_key(object.getName()):
-			armatureActionActuatorList = armatureActionActuatorListViewDict[object.getName()].armatureActionActuatorList
-			# map armatureActionActuatorList to skeleton.animationsDict
-			for armatureActionActuator in armatureActionActuatorList:
-				# map armatureActionActuator to animation
-				if (not skeleton.animationsDict.has_key(armatureActionActuator.name)):
-					# create animation
-					animation = Animation(armatureActionActuator.name)
-					# map bones to tracks
-					for boneName in armatureActionActuator.armatureAction.ipoDict.keys():
-						if (not(animation.tracksDict.has_key(boneName))):
-							# get bone object
-							if skeleton.bonesDict.has_key(boneName):
-								# create track
-								track = Track(animation, skeleton.bonesDict[boneName])
-								# map ipocurves to keyframes
-								# get ipo for that bone
-								ipo = armatureActionActuator.armatureAction.ipoDict[boneName]
-								# map curve names to curvepos
-								curveId = {}
-								index = 0
-								have_quat = 0
-								for curve in ipo.getCurves():
-									try:
-										name = curve.getName()
-										if (name == "LocX" or name == "LocY" or name == "LocZ" or \
-										name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
-										name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
-											curveId[name] = index
-											index += 1
-										else:
-										# bug: 2.28 does not return "Quat*"...
-											if not have_quat:
-												curveId["QuatX"] = index
-												curveId["QuatY"] = index+1
-												curveId["QuatZ"] = index+2
-												curveId["QuatW"] = index+3
-												index += 4
-												have_quat = 1
-									except TypeError:
-										# blender 2.32 does not implement IpoCurve.getName() for action Ipos
-										if not have_quat:
-											# no automatic assignments so far
-											# guess Ipo Names       
-											nIpoCurves = ipo.getNcurves()
-											if nIpoCurves in [4,7,10]:
-												exportLogger.logWarning("IpoCurve.getName() not available!")
-												exportLogger.logWarning("The exporter tries to guess the IpoCurve names.")
-												if (nIpoCurves >= 7):
-													# not only Quats
-													# guess: Quats and Locs
-													curveId["LocX"] = index
-													curveId["LocY"] = index+1
-													curveId["LocZ"] = index+2
-													index += 3      
-												if (nIpoCurves == 10):
-													# all possible Action IpoCurves
-													curveId["SizeX"] = index
-													curveId["SizeY"] = index+1
-													curveId["SizeZ"] = index+2
-													index += 3
-												if (nIpoCurves >= 4):
-													# at least 4 IpoCurves
-													# guess: 4 Quats
-													curveId["QuatX"] = index
-													curveId["QuatY"] = index+1
-													curveId["QuatZ"] = index+2
-													curveId["QuatW"] = index+3
-													index += 4
-												have_quat = 1
-											else:
-												exportLogger.logError("IpoCurve.getName() not available!")
-												exportLogger.logError("Could not guess the IpoCurve names. Other Blender versions may work.")
-								# get all frame numbers between startFrame and endFrame where this ipo has a point in one of its curves
-								frameNumberDict = {}
-								for curveIndex in range(ipo.getNcurves()):
-									for bez in range(ipo.getNBezPoints(curveIndex)):
-										frame = int(ipo.getCurveBeztriple(curveIndex, bez)[3])
-										frameNumberDict[frame] = frame
-								frameNumberDict[armatureActionActuator.startFrame] = armatureActionActuator.startFrame
-								frameNumberDict[armatureActionActuator.endFrame] = armatureActionActuator.endFrame
-								# remove frame numbers not in the startFrame endFrame range
-								if (armatureActionActuator.startFrame > armatureActionActuator.endFrame):
-									minFrame = armatureActionActuator.endFrame
-									maxFrame = armatureActionActuator.startFrame
-								else:
-									minFrame = armatureActionActuator.startFrame
-									maxFrame = armatureActionActuator.endFrame
-								for frameNumber in frameNumberDict.keys()[:]:
-									if ((frameNumber < minFrame) or (frameNumber > maxFrame)):
-										del frameNumberDict[frameNumber]
-								frameNumberList = frameNumberDict.keys()
-								# convert frame numbers to seconds
-								# frameNumberDict: key = export time, value = frame number
-								frameNumberDict = {}
-								for frameNumber in frameNumberList:
-									if  (armatureActionActuator.startFrame <= armatureActionActuator.endFrame):
-										# forward animation
-										time = float(frameNumber-armatureActionActuator.startFrame)/fpsNumber.val
-									else:
-										# backward animation
-										time = float(armatureActionActuator.endFrame-frameNumber)/fpsNumber.val
-									# update animation duration
-									if animation.duration < time:
-										animation.duration = time
-									frameNumberDict[time] = frameNumber
-								# create key frames
-								timeList = frameNumberDict.keys()
-								timeList.sort()
-								for time in timeList:
-									# Blender's ordering of transformation is deltaR*deltaS*deltaT
-									# in the bones coordinate system.
-									frame = frameNumberDict[time]
-									loc = ( 0.0, 0.0, 0.0 )
-									rotQuat = Mathutils.Quaternion([1.0, 0.0, 0.0, 0.0])
-									sizeX = 1.0
-									sizeY = 1.0
-									sizeZ = 1.0
-									blenderLoc = [0, 0, 0]
-									hasLocKey = 0 #false
-									if curveId.has_key("LocX"):
-										blenderLoc[0] = ipo.EvaluateCurveOn(curveId["LocX"], frame)
-										hasLocKey = 1 #true
-									if curveId.has_key("LocY"):
-										blenderLoc[1] = ipo.EvaluateCurveOn(curveId["LocY"], frame)
-										hasLocKey = 1 #true
-									if curveId.has_key("LocZ"):
-										blenderLoc[2] = ipo.EvaluateCurveOn(curveId["LocZ"], frame)
-										hasLocKey = 1 #true
-									if hasLocKey:
-										# Ogre's deltaT is in the bone's parent coordinate system
-										loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
-									if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
-										if not (Blender.Get("version") == 234):
-											rot = [ ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame) ]
-											rotQuat = Mathutils.Quaternion(rot)
-										else:
-											# Blender 2.34 quaternion naming bug
-											rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
-											        ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
-											rotQuat = Mathutils.Quaternion(rot)
-									if curveId.has_key("SizeX"):
-										sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
-									if curveId.has_key("SizeY"):
-										sizeY = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
-									if curveId.has_key("SizeZ"):
-										sizeZ = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
-									size = (sizeX, sizeY, sizeZ)
-									KeyFrame(track, time, loc, rotQuat, size)
-								# append track
-								animation.tracksDict[boneName] = track
-							else:
-								# ipo name contains bone but armature doesn't
-								exportLogger.logWarning("Unused action channel \"%s\" in action \"%s\" for skeleton \"%s\"." \
-								                 % (boneName, armatureActionActuator.armatureAction.name, skeleton.name))
-						else:
-							# track for that bone already exists
-							exportLogger.logError("Ambiguous bone name \"%s\", track already exists." % boneName)
-					# append animation
-					skeleton.animationsDict[armatureActionActuator.name] = animation
-				else:
-					# animation export name already exists
-					exportLogger.logError("Ambiguous animation name \"%s\"." % armatureActionActuator.name)
-		else:
-			# armature has no armatureActionActuatorListView
-			exportLogger.logError("No animation settings for armature \"%s\"." % object.getName())
-		write_skeleton(skeleton)
-	return
-
-def export_testskel(testskel):
-
-  def make_face(name, p1, p2, p3):
-    normal = vector_normalize(vector_crossproduct(
-      [ p3[0] - p2[0], p3[1] - p2[1], p3[2] - p2[2] ],
-      [ p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2] ]))
-    
-    v1 = Vertex(submesh, XMLVertex(p1, normal))
-    v2 = Vertex(submesh, XMLVertex(p2, normal))
-    v3 = Vertex(submesh, XMLVertex(p3, normal))
-
-    id = testskel.skeleton.bonesDict[name]
-    v1.influences.append(Influence(id, 1.0))
-    v2.influences.append(Influence(id, 1.0))
-    v3.influences.append(Influence(id, 1.0))
-
-    Face(submesh, v1, v2, v3)
-
-  matName = "SkeletonMaterial"
-  material = materialsDict.get(matName)
-  if not material:
-    material = Material(matName, None, None)
-    materialsDict[matName] = material
-
-  submesh = SubMesh(material)
-  for name, p1, p2 in testskel.bones:
-    axis = blender_bone2matrix(p1, p2, 0)
-    axis = matrix_translate(axis, p1)
-
-    dx, dy, dz = p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]
-    ds = math.sqrt(dx*dx + dy*dy + dz*dz)
-    d = 0.1 + 0.2 * (ds / 10.0)
-    
-    c1 = point_by_matrix([-d, 0,-d], axis)
-    c2 = point_by_matrix([-d, 0, d], axis)
-    c3 = point_by_matrix([ d, 0, d], axis)
-    c4 = point_by_matrix([ d, 0,-d], axis)
-
-    make_face(name, p2, c1, c2)
-    make_face(name, p2, c2, c3)
-    make_face(name, p2, c3, c4)
-    make_face(name, p2, c4, c1)
-    make_face(name, c3, c2, c1)
-    make_face(name, c1, c4, c3)
-
-  file = "debug"+testskel.skeleton.name
-  write_mesh(file, [submesh], testskel.skeleton)
-
 
 #######################################################################################
 ## Mesh stuff
@@ -1981,7 +2205,7 @@ def process_face(face, submesh, mesh, matrix, skeleton=None):
 		exportLogger.logWarning("Ignored face with %d edges." % len(face.v))
 	return
 
-def export_mesh(object):
+def export_mesh(object, exportOptions):
 	global uvToggle, armatureToggle
 	global verticesDict
 	global skeletonsDict
@@ -1995,8 +2219,13 @@ def export_mesh(object):
 			parent = object.getParent()
 			#if parent and parent.getType() == "Armature" and (not skeletonsDict.has_key(parent.getName())):
 			if (parent and (parent.getType() == "Armature")):
-				export_skeleton(parent, object)
-				skeleton = skeletonsDict[parent.getName()]
+				if armatureActionActuatorListViewDict.has_key(parent.getName()):
+					actionActuatorList = armatureActionActuatorListViewDict[parent.getName()].armatureActionActuatorList
+					armatureExporter = ArmatureExporter(ObjectExporter(object), parent)
+					armatureExporter.export(actionActuatorList, exportOptions, exportLogger)
+					skeleton = armatureExporter.skeleton
+					#export_skeleton(parent, object)
+					#skeleton = skeletonsDict[parent.getName()]
 
 		#NMesh of the object
 		data = object.getData()
@@ -2131,76 +2360,6 @@ def convertXMLFile(filename):
 				exportLogger.logInfo("OgreXMLConverter: " + line)
 			xmlConverter.close()
 	return
-
-def write_skeleton(skeleton):
-  global pathString, exportLogger
-  file = skeleton.name+".skeleton.xml"
-  exportLogger.logInfo("Skeleton \"%s\"" % file)
-
-  f = open(os.path.join(pathString.val, file), "w")
-  f.write(tab(0)+"<skeleton>\n")
-
-  f.write(tab(1)+"<bones>\n")
-  for bone in skeleton.bones:
-    f.write(tab(2)+"<bone id=\"%d\" name=\"%s\">\n" % (bone.id, bone.name))
-
-    x, y, z = bone.loc
-    f.write(tab(3)+"<position x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
-
-    f.write(tab(3)+"<rotation angle=\"%.6f\">\n" % (bone.rotQuat.angle/360*2*math.pi))
-    f.write(tab(4)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(bone.rotQuat.axis))
-    f.write(tab(3)+"</rotation>\n")
-    f.write(tab(2)+"</bone>\n")
-  f.write(tab(1)+"</bones>\n")
-  
-  f.write(tab(1)+"<bonehierarchy>\n")
-  for bone in skeleton.bones:
-    parent = bone.parent
-    if parent:
-      f.write(tab(2)+"<boneparent bone=\"%s\" parent=\"%s\"/>\n" % (bone.name, parent.name))
-  f.write(tab(1)+"</bonehierarchy>\n")
-
-  f.write(tab(1)+"<animations>\n")
-
-  for animation in skeleton.animationsDict.values():
-    name = animation.name
-
-    f.write(tab(2)+"<animation")
-    f.write(" name=\"%s\"" % name)
-    f.write(" length=\"%f\">\n" % animation.duration )
-
-    f.write(tab(3)+"<tracks>\n")
-
-    for track in animation.tracksDict.values():
-      f.write(tab(4)+"<track bone=\"%s\">\n" % track.bone.name)
-
-      f.write(tab(5)+"<keyframes>\n")
-
-      for keyframe in track.keyframes:
-        f.write(tab(6)+"<keyframe time=\"%f\">\n" % keyframe.time)
-
-        x, y, z = keyframe.loc
-        f.write(tab(7)+"<translate x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % (x, y, z))
-        
-        f.write(tab(7)+"<rotate angle=\"%.6f\">\n" % (keyframe.rotQuat.angle/360*2*math.pi))
-        f.write(tab(8)+"<axis x=\"%.6f\" y=\"%.6f\" z=\"%.6f\"/>\n" % tuple(keyframe.rotQuat.axis))
-        f.write(tab(7)+"</rotate>\n")
-
-        f.write(tab(7)+"<scale x=\"%f\" y=\"%f\" z=\"%f\"/>\n" % keyframe.scale)
-
-        f.write(tab(6)+"</keyframe>\n")
-
-      f.write(tab(5)+"</keyframes>\n")
-      f.write(tab(4)+"</track>\n");
-
-    f.write(tab(3)+"</tracks>\n");
-    f.write(tab(2)+"</animation>\n")
-
-  f.write(tab(1)+"</animations>\n")
-  f.write(tab(0)+"</skeleton>\n")
-  f.close()
-  convertXMLFile(os.path.join(pathString.val, file))
-  return
 
 def write_mesh(name, submeshes, skeleton):
   global pathString, exportLogger
@@ -2535,7 +2694,10 @@ def export(selectedObjectsList):
     scaleMatrix = Mathutils.Matrix([scaleNumber.val,0,0],[0,scaleNumber.val,0],[0,0,scaleNumber.val])
     scaleMatrix.resize4x4()
     BASE_MATRIX = rotationMatrix*scaleMatrix
-    
+
+    exportOptions = ExportOptions(rotXNumber.val, rotYNumber.val, rotZNumber.val, scaleNumber.val,
+    								worldCoordinatesToggle.val, pathString.val, materialString.val)
+
     if not os.path.exists(pathString.val):
       exportLogger.logError("Invalid path: "+pathString.val)
     else:
@@ -2544,12 +2706,12 @@ def export(selectedObjectsList):
       for obj in selectedObjectsList:
           if obj:
               if obj.getType() == "Mesh":
-                  export_mesh(obj)
+                  export_mesh(obj, exportOptions)
                   n = 1
               elif obj.getType() == "Armature":
-                  # TODO export debug armature
-                  pass
-                  #export_skeleton(obj)
+                  actionActuatorList = armatureActionActuatorListViewDict[obj.getName()].armatureActionActuatorList
+                  armatureMeshExporter = ArmatureMeshExporter(obj)
+                  armatureMeshExporter.export(materialsDict, actionActuatorList, exportOptions, exportLogger)
       if n == 0:
           exportLogger.logWarning("No mesh objects selected!")
       elif len(materialsDict) == 0:
