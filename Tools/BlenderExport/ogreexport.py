@@ -7,7 +7,7 @@ Group: 'Export'
 Tooltip: 'Export Mesh and Armature to Ogre'
 """
 
-# Blender to Ogre Mesh and Skeleton Exporter v0.14.0
+# Blender to Ogre Mesh and Skeleton Exporter v0.14.2
 # url: http://www.ogre3d.org
 
 # Ogre exporter written by Jens Hoffmann and Michael Reimpell
@@ -94,15 +94,30 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #            where World is the first world returned by Blender.World.Get()
 #          - selected objects menu visible even if "Export Armature" option disabled
 #          - use Blender.Armature.NLA submodule to access Action objects (Blender 2.33)
-#  
+#   0.14.1: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - additional changes due to new Armature.getBones() behaviour (Blender 2.33)
+#          - ordering of the additional rotation on export changed
+#          - allow actions with less channels than bones
+#          - support for dotted parenting in armature edit mode
+#          - workaround for quaternion naming bug in Blender 2.34
+#          - support for single loc ipo curves
+#          - use Blender.World.GetActive() to get the ambient colour of the current world (Blender 2.34)
+#          - added mousewheel support to the scrollbar (Blender 2.34)
+#          - change keyframes and name of animation according to selected action
+#          - use Object.getMatrix("worldspace") (Blender 2.34)
+#          - smoothed scrollbar movement and removed flicker
+#   0.14.2: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - location key frame values fixed
+#          - fixed redraw if action is changed
+#
 # TODO:
+#          - support for nonuniform armature scaling
 #          - vertex colours
 #          - code cleanup
 #          - use Blender.Text to store settings
 #          - noninteractive mode when called from command line
 #          - TWOSIDE face mode, TWOSIDED mesh mode
 #          - SUBSURF mesh mode
-#          - allow armature actions with less Ipos than bones of the armature
 #          - assign unskinned vertices to a static bone
 #          - help button
 #
@@ -143,6 +158,8 @@ import Blender, sys, os, math, string, pickle
 ######
 from Blender import Draw
 from Blender.BGL import *
+####from Blender import Mathutils
+####from Blender.Mathutils import *
 
 ######
 # Classes
@@ -180,7 +197,8 @@ class ReplacementScrollbar:
 		self.mousePressed = 0
 		self.mouseFocusX = 0
 		self.mouseFocusY = 0
-		self.mousePositionY = 0		
+		self.markerFocusY = 0
+		self.mousePositionY = 0
 		return
 	
 	def getCurrentValue(self):
@@ -295,8 +313,14 @@ class ReplacementScrollbar:
 			elif (event == Blender.Draw.MOUSEX):
 				# check if mouse is inside postionRect
 				if (value >= (self.guiRect[0] + self.positionRect[0])) and (value <= (self.guiRect[0] + self.positionRect[2])):
+					# redraw if marker got focus
+					if (not self.mouseFocusX) and self.mouseFocusY:
+						Blender.Draw.Redraw(1)
 					self.mouseFocusX = 1
 				else:
+					# redraw if marker lost focus
+					if self.mouseFocusX and self.mouseFocusY:
+						Blender.Draw.Redraw(1)
 					self.mouseFocusX = 0
 			elif (event == Blender.Draw.MOUSEY):
 				# check if mouse is inside positionRect
@@ -304,17 +328,35 @@ class ReplacementScrollbar:
 					self.mouseFocusY = 1
 					# relative mouse position
 					self.mousePositionY = value - self.guiRect[1]
+					if ((self.mousePositionY > self.markerRect[1]) and (self.mousePositionY < self.markerRect[3])):
+						# redraw if marker got focus
+						if self.mouseFocusX and (not self.markerFocusY):
+							Blender.Draw.Redraw(1)
+						self.markerFocusY = 1
+					else:
+						# redraw if marker lost focus
+						if self.mouseFocusX and self.markerFocusY:
+							Blender.Draw.Redraw(1)
+						self.markerFocusY = 0
 					# move marker
 					if (self.mousePressed == 1):
 						# calculate step from distance to marker
 						if (self.mousePositionY > self.markerRect[3]):
 							# up
 							self.up(1)
+							Blender.Draw.Draw()
 						elif (self.mousePositionY < self.markerRect[1]):
 							# down
 							self.down(1)
-					Blender.Draw.Redraw(1)
+							Blender.Draw.Draw()
+						# redraw if marker lost focus
+						if self.mouseFocusX and self.mouseFocusY:
+							Blender.Draw.Redraw(1)
 				else:
+					# redraw if marker lost focus
+					if self.mouseFocusX and self.markerFocusY:
+						Blender.Draw.Redraw(1)
+					self.markerFocusY = 0
 					self.mouseFocusY = 0
 			elif ((event == Blender.Draw.LEFTMOUSE) and (self.mouseFocusX == 1) and (self.mouseFocusY == 1)):
 				self.mousePressed = 1
@@ -325,6 +367,13 @@ class ReplacementScrollbar:
 					Blender.Draw.Redraw(1)
 				elif (self.mousePositionY < self.markerRect[1]):
 					# down
+					self.down(1)
+					Blender.Draw.Redraw(1)
+			elif (Blender.Get("version") >= 234):
+				if (event == Blender.Draw.WHEELUPMOUSE):
+					self.up(1)
+					Blender.Draw.Redraw(1)
+				elif (event == Blender.Draw.WHEELDOWNMOUSE):
 					self.down(1)
 					Blender.Draw.Redraw(1)
 		else: # released keys and buttons
@@ -419,14 +468,14 @@ class ArmatureAction:
 		if linkedAction is not None:
 			# check all bones
 			linkedActionIpoDict = linkedAction.getAllChannelIpos()
-			hasAllBones = 1 # true
+			hasValidChannel = 0 # false
 			iBone = 0
-			while ((hasAllBones) and (iBone < len(boneNameList))):
-				if not(linkedActionIpoDict.keys().count(boneNameList[iBone]) == 1):
-					hasAllBones = 0 # false
+			while ((not hasValidChannel) and (iBone < len(boneNameList))):
+				if (linkedActionIpoDict.keys().count(boneNameList[iBone]) == 1):
+					hasValidChannel = 1 # true
 				else:
 					iBone += 1
-			if hasAllBones:
+			if hasValidChannel:
 				# add action
 				armatureActionDict[linkedAction.getName()] = ArmatureAction(linkedAction.getName(), linkedActionIpoDict)
 		## get other actions != linked action
@@ -436,14 +485,14 @@ class ArmatureAction:
 			if actionDict[actionName] is not linkedAction:
 				# check all bones
 				actionIpoDict = actionDict[actionName].getAllChannelIpos()
-				hasAllBones = 1 # true
+				hasValidChannel = 0 # false
 				iBone = 0
-				while ((hasAllBones) and (iBone < len(boneNameList))):
-					if not(actionIpoDict.keys().count(boneNameList[iBone]) == 1):
-						hasAllBones = 0 # false
+				while ((not hasValidChannel) and (iBone < len(boneNameList))):
+					if (actionIpoDict.keys().count(boneNameList[iBone]) == 1):
+						hasValidChannel = 1 # true
 					else:
 						iBone += 1
-				if hasAllBones:
+				if hasValidChannel:
 					# add action
 					armatureActionDict[actionName] = ArmatureAction(actionName, actionIpoDict)
 		return armatureActionDict
@@ -657,7 +706,11 @@ class ArmatureActionActuatorListView:
 			keyIndex = self.armatureActionMenuList[listIndex].val
 			key = self.armatureActionDict.keys()[keyIndex]
 			armatureActionActuator.armatureAction = self.armatureActionDict[key]
+			armatureActionActuator.startFrame = self.armatureActionDict[key].firstKeyFrame
+			armatureActionActuator.endFrame = self.armatureActionDict[key].lastKeyFrame
+			armatureActionActuator.name = self.armatureActionDict[key].name
 			self.armatureActionActuatorList[listIndex] = armatureActionActuator
+			Blender.Draw.Redraw(1)
 		elif (((3 + self.maxActuators) <= relativeEvent) and (relativeEvent < (3 + 2*self.maxActuators))):
 			# startFrameNumberButton
 			listIndex = relativeEvent - (3 + self.maxActuators)
@@ -1188,12 +1241,13 @@ class Skeleton:
     self.animationsDict = {}
 
 class Bone:
-  def __init__(self, skeleton, parent, name, loc, rot):
+  def __init__(self, skeleton, parent, name, loc, rot, conversionMatrix):
     self.parent = parent
     self.name   = name
     self.loc = loc # offset from parent bone
     self.rot = rot # axis as quaternion
     self.children = []
+    self.conversionMatrix = conversionMatrix # converts Blender's local bone coordinates into Ogre's local bone coordinates
 
     if parent:
       parent.children.append(self)
@@ -1275,7 +1329,6 @@ def blender_bone2matrix(head, tail, roll):
   rMatrix = matrix_rotate(nor, roll)
   return matrix_multiply(rMatrix, bMatrix)
 
-
 def calc_rootaxis(pos, pos2, tmp_mat):
   # get root axis:
   # there is probably an easier way than this crap...
@@ -1310,37 +1363,38 @@ def calc_rootaxis(pos, pos2, tmp_mat):
   roll = math.acos(vector_dotproduct(px1, px2))
 
   rMatrix = matrix_rotate(nor, roll)
-  axis_rot = matrix_multiply(rMatrix, axis_rot)
-
-  #print "angle before: ", roll * 180/math.pi
-  #px2 = point_by_matrix([1, 0, 0], axis_rot)
-  #py = vector_normalize(nor)
-  #roll = math.acos(vector_dotproduct(px1, px2))
-  #print "new angle   : ", roll * 180/math.pi
-  #print "px-px1:", vector_dotproduct(px, px1)
-  #print "px-px2:", vector_dotproduct(px1, px2)
-  #print "py-px2:", vector_dotproduct(py, px2)
-  #print "pz-px2:", vector_dotproduct(pz, px2)
-  
+  axis_rot = matrix_multiply(rMatrix, axis_rot) 
   return axis_rot
 
-
 def convert_armature(skeleton, obj, debugskel):
+  global scaleNumber
 
   stack = []
-  matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix())
-
+  matrix = None
+  if (Blender.Get("version") == 234):
+    matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix("worldspace"))
+  else:
+    matrix = matrix_multiply(BASE_MATRIX, obj.getMatrix())
   # make a new root bone
-  loc = [ 0, 0, 0 ]
-  rot = [ 0, 0, 0, 1 ]
+  loc = [ 0.0, 0, 0 ]
+  rot = [ 0.0, 0, 0, 1 ]
+  matrix_one = [[1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+  ####id = Matrix()
+  ####id.identity()  
   parent = None #Bone(skeleton, None, "__root", loc, rot)
   #parent.pos = loc
   
-  for bbone in obj.getData().getBones():
-    stack.append([bbone, parent, matrix, loc])
+  # get parent bones
+  boneList = obj.getData().getBones()
+  boneDict = {} 
+  for bone in boneList:
+    if not bone.hasParent():
+      boneDict[bone.getName()] = bone
+  for bbone in boneDict.values():  
+    stack.append([bbone, parent, matrix, loc, 0, matrix_one])
 
   while len(stack):
-    bbone, parent, accu_mat, parent_pos = stack.pop()
+    bbone, parent, accu_mat, parent_pos, parent_ds, invertedOgreTransformation = stack.pop()
 
     head = bbone.getHead()
     tail = bbone.getTail()
@@ -1376,28 +1430,53 @@ def convert_armature(skeleton, obj, debugskel):
 
     # local rotation and distance from parent bone
     if parent:
-      dx = pos[0] - parent_pos[0]
-      dy = pos[1] - parent_pos[1]
-      dz = pos[2] - parent_pos[2]
-      loc = [ 0, math.sqrt(dx*dx + dy*dy + dz*dz), 0]
-
+      # difference is 1*10^(-6)
       rot = matrix2quaternion(R_bmat)
-
-    else:
-      loc = pos
+      ####rotMatrix = Matrix(R_bmat[0], R_bmat[1], R_bmat[2], R_bmat[3])
+      ####rotQuat = rotMatrix.toQuat()
+      ####rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
       
+    else:
+      # difference is 1*10^(-6)
       axis_rot = calc_rootaxis(pos, pos2, tmp_mat)
+      # tmp_mat includes scaling
+      # matrix2quaternion(tmp_mat) is inaccurate
       rot = matrix2quaternion(axis_rot)
-
-    parent = Bone(skeleton, parent, bbone.getName(), loc, rot)
+      ####rotMatrix = Matrix(tmp_mat[0], tmp_mat[1], tmp_mat[2], tmp_mat[3])
+      ####rotQuat = rotMatrix.toQuat()
+      ####rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
+     
+    x, y, z = pos
+    loc = point_by_matrix([x, y, z], invertedOgreTransformation)
+    ####x, y, z = pos
+    ####tmp_transform = CopyMat(parent_transform)
+    ####tmp_transform.invert()
+    ####locVector = VecMultMat(Vector([x, y, z, 1]), tmp_transform)
+    ####loc = (locVector.x, locVector.y, locVector.z)
+    x, y, z = loc
+    ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
+    ####x, y, z = loc
+    ####ogreTranslationMatrix = TranslationMatrix(Vector([x, y, z]))
+    x, y, z, w = rot
+    ogreRotationMatrix = quaternion2matrix(quaternion_normalize([x, y, z, w]))
+    ####x, y, z, w = rot
+    ####ogreRotationMatrix = Quaternion([w, x, y, z]).toMatrix()
+    ####ogreRotationMatrix.resize4x4()   
+    ####ogreTransformation = ogreRotationMatrix * ogreTranslationMatrix * parent_transform
+    #invertedOgreTransformation = matrix_multiply(matrix_invert(matrix_multiply(ogreTranslationMatrix, ogreRotationMatrix)), invertedOgreTransformation)
+    invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
+    parent = Bone(skeleton, parent, bbone.getName(), loc, rot, matrix_multiply(invertedOgreTransformation, tmp_mat))
+    invertedOgreTransformation = matrix_multiply(matrix_invert(ogreRotationMatrix), invertedOgreTransformation)
     for child in bbone.getChildren():
-      stack.append([child, parent, accu_mat, pos])
-
+      stack.append([child, parent, accu_mat, pos, ds, invertedOgreTransformation])
 
 def export_skeleton(object):
 	global armatureToggle, fpsNumber, armatureMeshToggle, armatureActionActuatorListViewDict
 	global skeletonsDict
 	global exportStatus, exportLog
+	
+	# threshold to compare floats
+	threshold = 1e-6
 	
 	if ((armatureToggle.val == 1) and (not skeletonsDict.has_key(object.getName())) and (object.getType() == "Armature")):
 		skeleton = Skeleton(object.name)
@@ -1412,33 +1491,6 @@ def export_skeleton(object):
 		if testskel:
 			export_testskel(testskel)
 
-		# get scale from obj matrix (for loc keys)
-		matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
-		pz = point_by_matrix([0, 0, 0], matrix)
-
-		p = point_by_matrix([1, 0, 0], matrix)
-		dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
-		scale_x = math.sqrt(dx*dx + dy*dy + dz*dz)
-
-		p = point_by_matrix([0, 1, 0], matrix)
-		dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
-		scale_y = math.sqrt(dx*dx + dy*dy + dz*dz)
-
-		p = point_by_matrix([0, 0, 1], matrix)
-		dx, dy, dz = p[0] - pz[0], p[1] - pz[1], p[2] - pz[2], 
-		scale_z = math.sqrt(dx*dx + dy*dy + dz*dz)
-
-		# create bone dict
-		boneQueue = object.getData().getBones()
-		boneDict = {}
-		while (len(boneQueue) > 0):
-			# get all bones of the armature
-			currentBone = boneQueue.pop(0)
-			boneDict[currentBone.getName()] = currentBone
-			children = currentBone.getChildren()
-			if (len(children) > 0):
-				for child in children:
-					boneQueue.append(child)
 		# export animations
 		if armatureActionActuatorListViewDict.has_key(object.getName()):
 			armatureActionActuatorList = armatureActionActuatorListViewDict[object.getName()].armatureActionActuatorList
@@ -1452,15 +1504,15 @@ def export_skeleton(object):
 					for boneName in armatureActionActuator.armatureAction.ipoDict.keys():
 						if (not(animation.tracksDict.has_key(boneName))):
 							# get bone object
-							if boneDict.has_key(boneName):
+							if skeleton.bonesDict.has_key(boneName):
 								# create track
-								track = Track(animation, boneDict[boneName])
+								track = Track(animation, skeleton.bonesDict[boneName])
 								# map ipocurves to keyframes
 								# get ipo for that bone
 								ipo = armatureActionActuator.armatureAction.ipoDict[boneName]
 								# map curve names to curvepos
 								curveId = {}
-								id = 0
+								index = 0
 								have_quat = 0
 								for curve in ipo.getCurves():
 									try:
@@ -1468,16 +1520,16 @@ def export_skeleton(object):
 										if (name == "LocX" or name == "LocY" or name == "LocZ" or \
 										name == "SizeX" or name == "SizeY" or name == "SizeZ" or \
 										name == "QuatX" or name == "QuatY" or name == "QuatZ" or name == "QuatW"):
-											curveId[name] = id
-											id += 1
+											curveId[name] = index
+											index += 1
 										else:
 										# bug: 2.28 does not return "Quat*"...
 											if not have_quat:
-												curveId["QuatX"] = id
-												curveId["QuatY"] = id+1
-												curveId["QuatZ"] = id+2
-												curveId["QuatW"] = id+3
-												id += 4
+												curveId["QuatX"] = index
+												curveId["QuatY"] = index+1
+												curveId["QuatZ"] = index+2
+												curveId["QuatW"] = index+3
+												index += 4
 												have_quat = 1
 									except TypeError:
 										# blender 2.32 does not implement IpoCurve.getName() for action Ipos
@@ -1488,28 +1540,29 @@ def export_skeleton(object):
 											if nIpoCurves in [4,7,10]:
 												exportLog.append("Warning: IpoCurve.getName() not available!")
 												exportLog.append("         The exporter tries to guess the IpoCurve names.")
-												exportStatus = EXPORT_WARNING
+												if not exportStatus == EXPORT_ERROR:
+													exportStatus = EXPORT_WARNING
 												if (nIpoCurves >= 7):
 													# not only Quats
 													# guess: Quats and Locs
-													curveId["LocX"] = id
-													curveId["LocY"] = id+1
-													curveId["LocZ"] = id+2
-													id += 3      
+													curveId["LocX"] = index
+													curveId["LocY"] = index+1
+													curveId["LocZ"] = index+2
+													index += 3      
 												if (nIpoCurves == 10):
 													# all possible Action IpoCurves
-													curveId["SizeX"] = id
-													curveId["SizeY"] = id+1
-													curveId["SizeZ"] = id+2
-													id += 3
+													curveId["SizeX"] = index
+													curveId["SizeY"] = index+1
+													curveId["SizeZ"] = index+2
+													index += 3
 												if (nIpoCurves >= 4):
 													# at least 4 IpoCurves
 													# guess: 4 Quats
-													curveId["QuatX"] = id
-													curveId["QuatY"] = id+1
-													curveId["QuatZ"] = id+2
-													curveId["QuatW"] = id+3
-													id += 4
+													curveId["QuatX"] = index
+													curveId["QuatY"] = index+1
+													curveId["QuatZ"] = index+2
+													curveId["QuatW"] = index+3
+													index += 4
 												have_quat = 1
 											else:
 												exportLog.append("Error: IpoCurve.getName() not available!")
@@ -1553,22 +1606,47 @@ def export_skeleton(object):
 								timeList.sort()
 								for time in timeList:
 									frame = frameNumberDict[time]
-									loc = [ 0.0, 0.0, 0.0 ]
+									loc = ( 0.0, 0.0, 0.0 )
 									rot = [ 0.0, 0.0, 0.0, 1.0 ]
 									size = 1.0
+									blenderLoc = [0, 0, 0]
+									hasLocKey = 0 #false
 									if curveId.has_key("LocX"):
-										loc = [ ipo.EvaluateCurveOn(curveId["LocX"], frame) * -1.0 * scale_x, \
-											ipo.EvaluateCurveOn(curveId["LocY"], frame) * -1.0 * scale_y, \
-											ipo.EvaluateCurveOn(curveId["LocZ"], frame) *  1.0 * scale_z ]
-									if curveId.has_key("QuatX"):
-										rot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
-											ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
-											ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
-											ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
+										blenderLoc[0] = ipo.EvaluateCurveOn(curveId["LocX"], frame)
+										hasLocKey = 1 #true
+									if curveId.has_key("LocY"):
+										blenderLoc[1] = ipo.EvaluateCurveOn(curveId["LocY"], frame)
+										hasLocKey = 1 #true
+									if curveId.has_key("LocZ"):
+										blenderLoc[2] = ipo.EvaluateCurveOn(curveId["LocZ"], frame)
+										hasLocKey = 1 #true
+									if hasLocKey:
+										loc = point_by_matrix(blenderLoc, skeleton.bonesDict[boneName].conversionMatrix)
+									if curveId.has_key("QuatX") and curveId.has_key("QuatY") and curveId.has_key("QuatZ") and curveId.has_key("QuatW"):
+										blenderRot = rot
+										if not (Blender.Get("version") == 234):
+											blenderRot = [ ipo.EvaluateCurveOn(curveId["QuatX"], frame), \
+											               ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+											               ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+											               ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
+										else:
+											# Blender 2.34 quaternion naming bug
+											blenderRot = [ ipo.EvaluateCurveOn(curveId["QuatY"], frame), \
+											               ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
+											               ipo.EvaluateCurveOn(curveId["QuatW"], frame), \
+											               ipo.EvaluateCurveOn(curveId["QuatX"], frame) ]
+										x, y, z, w = matrix2quaternion( \
+										             matrix_multiply(skeleton.bonesDict[boneName].conversionMatrix, \
+										             quaternion2matrix(quaternion_normalize(blenderRot))))
+										rot = [x, y, z, w]
+										rot = blenderRot
 									if curveId.has_key("SizeX"):
 										sx = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
 										sy = ipo.EvaluateCurveOn(curveId["SizeY"], frame)
 										sz = ipo.EvaluateCurveOn(curveId["SizeZ"], frame)
+										if ((math.fabs(sx-sy) > threshold) or (math.fabs(sx-sz) > threshold)):
+											exportLog.append("Error: Ogre does not support nonuniform keyframe scaling.")
+											exportStatus = EXPORT_ERROR
 										size = sx
 										size = max(size, sy)
 										size = max(size, sz)
@@ -1577,21 +1655,23 @@ def export_skeleton(object):
 								animation.tracksDict[boneName] = track
 							else:
 								# ipo name contains bone but armature doesn't
-								exportLog.append("error: ambiguous bone name \"%s\"." % boneName)
-								exportStatus = EXPORT_ERROR
+								exportLog.append("Warning: Unused action channel \"%s\" in action \"%s\" for skeleton \"%s\"." \
+								                 % (boneName, armatureActionActuator.armatureAction.name, skeleton.name))
+								if not exportStatus == EXPORT_ERROR:
+									exportStatus = EXPORT_WARNING
 						else:
 							# track for that bone already exists
-							exportLog.append("error: ambiguous bone name \"%s\", track already exists." % boneName)
+							exportLog.append("Error: Ambiguous bone name \"%s\", track already exists." % boneName)
 							exportStatus = EXPORT_ERROR
 					# append animation
 					skeleton.animationsDict[armatureActionActuator.name] = animation
 				else:
 					# animation export name already exists
-					exportLog.append("error: ambiguous animation name \"%s\"." % armatureActionActuator.name)
+					exportLog.append("Error: Ambiguous animation name \"%s\"." % armatureActionActuator.name)
 					exportStatus = EXPORT_ERROR
 		else:
 			# armature has no armatureActionActuatorListView
-			exportLog.append("error: No animation settings for armature \"%s\"." % object.getName())
+			exportLog.append("Error: No animation settings for armature \"%s\"." % object.getName())
 			exportStatus = EXPORT_ERROR
 
 		write_skeleton(skeleton)
@@ -1803,7 +1883,6 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 						return cmp(yweight, xweight)
 					influences.sort(cmpfunc)
 					influences = influences[0:4]
-					
 					# and make sure the sum is 1.0
 					total = 0.0
 					for name, weight in influences:
@@ -1820,7 +1899,8 @@ def process_face(face, submesh, mesh, matrix, skeleton):
 			Face(submesh, face_vertices[2], face_vertices[3], face_vertices[0])
 	else:
 		exportLog.append("ignored face with %d edges" % len(face.v))
-		exportStatus = EXPORT_WARNING
+		if not exportStatus == EXPORT_ERROR:
+			exportStatus = EXPORT_WARNING
 	return
 
 def export_mesh(object):
@@ -1840,7 +1920,11 @@ def export_mesh(object):
 
 		#NMesh of the object
 		data = object.getData()
-		matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
+		matrix = None
+		if (Blender.Get("version") == 234):
+			matrix = matrix_multiply(BASE_MATRIX, object.getMatrix("worldspace"))
+		else:
+			matrix = matrix_multiply(BASE_MATRIX, object.getMatrix())
 
 		# materials of the object
 		# note: ogre assigns different textures and different facemodes
@@ -1919,7 +2003,8 @@ def export_mesh(object):
 		if len(submeshes) == 0:
 			# no submeshes
 			exportLog.append("%s has no visible faces!" % data.name)
-			exportStatus = EXPORT_WARNING
+			if not exportStatus == EXPORT_ERROR:
+				exportStatus = EXPORT_WARNING
 		else:
 			# write mesh
 			write_mesh(object.getName(), submeshes, skeleton)
@@ -2085,6 +2170,7 @@ def write_mesh(name, submeshes, skeleton):
 def write_materials():
 	global pathString, materialString, exportLog
 	global materialsDict
+	global exportStatus, exportLog
 	file = materialString.val
 	exportLog.append("materials \"%s\"" % file)
 
@@ -2113,11 +2199,16 @@ def write_materials():
 				world = None
 				worldList = Blender.World.Get()
 				if (worldList):
-					# Blender.World.GetActive() does no longer exist
-					world = worldList[0]
+					if (Blender.Get("version") < 234):
+						# Blender.World.GetActive() not available
+						world = worldList[0]
+						exportLog.append("Warning: Can't get active world. Used ambient colour of world \"%s\"" % world.name)
+						if not exportStatus == EXPORT_ERROR:
+							exportStatus = EXPORT_WARNING
+					else:
+						world = Blender.World.GetActive()
 				if (world):
 					ambientRGBList = world.getAmb()
-					exportLog.append("used ambient colour of world \"%s\"" % world.name)
 					# ambient <- amb * world ambient RGB
 					ambR = clamp(mat.amb * ambientRGBList[0])
 					ambG = clamp(mat.amb * ambientRGBList[1])
@@ -2188,10 +2279,10 @@ def export(selectedObjectsList):
 
     # default: set matrix to 90 degree rotation around x-axis and scale
     # multiply rotations Z*Y*X
-    rot_mat = matrix_multiply(matrix_multiply( \
-              matrix_rotate_x(2.0*math.pi/360.0*rotXNumber.val), \
-              matrix_rotate_y(2.0*math.pi/360.0*rotYNumber.val)), \
-              matrix_rotate_z(2.0*math.pi/360.0*rotZNumber.val))
+    # WARNING: here: left multiplication
+    rot_mat = matrix_multiply( matrix_rotate_z(2.0*math.pi/360.0*rotZNumber.val),
+              matrix_multiply( matrix_rotate_y(2.0*math.pi/360.0*rotYNumber.val),
+                               matrix_rotate_x(2.0*math.pi/360.0*rotXNumber.val) ))
     scale_mat = matrix_scale(scaleNumber.val, scaleNumber.val, scaleNumber.val)
     BASE_MATRIX = matrix_multiply(scale_mat, rot_mat)
     
@@ -2215,10 +2306,12 @@ def export(selectedObjectsList):
 
     if n == 0:
       exportLog.append("no mesh objects selected!")
-      exportStatus = EXPORT_WARNING
+      if not exportStatus == EXPORT_ERROR:
+        exportStatus = EXPORT_WARNING
     elif len(materialsDict) == 0:
       exportLog.append("no materials or textures defined!")
-      exportStatus = EXPORT_WARNING
+      if not exportStatus == EXPORT_ERROR:
+        exportStatus = EXPORT_WARNING
     else:
       write_materials()
 
@@ -2571,7 +2664,7 @@ def gui():
 	remainRect[3] -= 36
 	glColor3f(1.0,1.0,0)
 	glRasterPos2i(remainRect[0]+77+8, remainRect[3]+6)
-	Draw.Text("OGRE Exporter 0.14.0", "normal")
+	Draw.Text("OGRE Exporter 0.14.2", "normal")
 	glColor3f(0,0,0)	
 	remainRect[3] -= 14
 		
@@ -2686,7 +2779,7 @@ def exportMessageBox():
 	remainRect[3] -= 36
 	glColor3f(1.0,1.0,0)
 	glRasterPos2i(remainRect[0]+77+8, remainRect[3]+6)
-	Draw.Text("OGRE Exporter 0.14.0", "normal")
+	Draw.Text("OGRE Exporter 0.14.2", "normal")
 	glColor3f(0,0,0)	
 	remainRect[3] -= 14
 	
@@ -2732,7 +2825,7 @@ def doneMessageBox():
 	remainRect[3] -= 36
 	glColor3f(1.0,1.0,0)
 	glRasterPos2i(remainRect[0]+77+8, remainRect[3]+6)
-	Draw.Text("OGRE Exporter 0.14.0", "normal")
+	Draw.Text("OGRE Exporter 0.14.2", "normal")
 	glColor3f(0,0,0)	
 	remainRect[3] -= 14
 	
