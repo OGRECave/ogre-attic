@@ -596,7 +596,7 @@ HRESULT WINAPI testEnumAtt(
                 // The below hack to get around it for now but leaves surface blank
                 //continue;
                 //
-				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP_POSITIVEX;
+				cubeCaps.dwCaps2 = DDSCAPS2_CUBEMAP | DDSCAPS2_CUBEMAP_POSITIVEX;
 				break;
 			case 1:
 				// right
