@@ -102,16 +102,7 @@ namespace Ogre {
             mesh->_initAnimationState(&mAnimationState);
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
-            if (mesh->sharedVertexData)
-            {
-                // Create temporary vertex blend info
-                // Prepare temp vertex data if needed
-                // Clone without copying data, remove blending info
-                // (since blend is performed in software)
-                mSharedBlendedVertexData = 
-                    cloneVertexDataRemoveBlendInfo(mesh->sharedVertexData);
-                extractTempBufferInfo(mSharedBlendedVertexData, &mTempBlendedBuffer);
-            }
+            prepareTempBlendBuffers();
         }
         else
         {
@@ -622,6 +613,41 @@ namespace Ogre {
         return rad;
 	}
     //-----------------------------------------------------------------------
+    void Entity::prepareTempBlendBuffers(void)
+    {
+        if (mSharedBlendedVertexData) 
+        {
+            delete mSharedBlendedVertexData;
+            mSharedBlendedVertexData = 0;
+        }
+
+        if (hasSkeleton())
+        {
+            // Shared data
+            if (mMesh->sharedVertexData)
+            {
+                // Create temporary vertex blend info
+                // Prepare temp vertex data if needed
+                // Clone without copying data, remove blending info
+                // (since blend is performed in software)
+                mSharedBlendedVertexData = 
+                    cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
+                extractTempBufferInfo(mSharedBlendedVertexData, &mTempBlendedBuffer);
+            }
+
+            SubEntityList::iterator i, iend;
+            iend = mSubEntityList.end();
+            for (i = mSubEntityList.begin(); i != iend; ++i)
+            {
+                SubEntity* s = *i;
+                s->prepareTempBlendBuffers();
+            }
+
+
+        }
+
+    }
+    //-----------------------------------------------------------------------
     void Entity::extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info)
     {
         VertexDeclaration* decl = sourceData->vertexDeclaration;
@@ -738,8 +764,17 @@ namespace Ogre {
 
 
         // Prep mesh if required
+        // NB This seems to result in memory corruptions, having problems
+        // tracking them down. For now, ensure that shadows are enabled
+        // before any entities are created
         if(!mMesh->isPreparedForShadowVolumes())
+        {
             mMesh->prepareForShadowVolume();
+            // reset frame last updated to force update of buffers
+            mFrameAnimationLastUpdated = 0;
+            // re-prepare buffers
+            prepareTempBlendBuffers();
+        }
 
 
         // Update any animation 
@@ -750,8 +785,14 @@ namespace Ogre {
 
         // Calculate the object space light details
         Vector4 lightPos = light->getAs4DVector();
-        Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
-        lightPos =  world2Obj * lightPos; 
+        // Only use object-space light if we're not doing transforms
+        // Since when animating the positions are already transformed into 
+        // world space so we need world space light position
+        if (!hasSkeleton())
+        {
+            Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+            lightPos =  world2Obj * lightPos; 
+        }
 
         // We need to search the edge list for silhouette edges
         EdgeData* edgeList = getEdgeList();
@@ -882,14 +923,8 @@ namespace Ogre {
         }
         else
         {
-            // Bones, use cached matrices built when Entity::_updateRenderQueue was called
-			const Matrix4* bones = mParent->_getBoneMatrices();
-            int i;
-            for (i = 0; i < numBones; ++i)
-            {
-                *xform = bones[i];
-                ++xform;
-            }
+            // pretransformed
+            *xform = Matrix4::IDENTITY;
         }
     }
     //-----------------------------------------------------------------------

@@ -54,7 +54,7 @@ namespace Ogre {
         // Note no virtual functions for efficiency
         friend class Entity;
         friend class SceneManager;
-    private:
+    protected:
         /** Private constructor - don't allow creation by anybody else.
         */
         SubEntity(Entity* parent, SubMesh* subMeshBasis);
@@ -86,6 +86,8 @@ namespace Ogre {
         VertexData* mBlendedVertexData;
         /// Quick lookup of buffers
         TempBlendedBufferInfo mTempBlendedBuffer;
+        /** Internal method for preparing this Entity for use in animation. */
+        void prepareTempBlendBuffers(void);
 
     public:
         /** Gets the name of the Material in use by this instance.

@@ -46,15 +46,6 @@ namespace Ogre {
         mBlendedVertexData = NULL;
 
 
-        // Prepare temp vertex data if needed
-        if (mParentEntity->hasSkeleton() && !mSubMesh->useSharedVertices)
-        {
-            // Clone without copying data
-            mBlendedVertexData = 
-                mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-            mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
-
-        }
 
     }
     //-----------------------------------------------------------------------
@@ -190,6 +181,19 @@ namespace Ogre {
     {
         return mVisible;
 
+    }
+    //-----------------------------------------------------------------------
+    void SubEntity::prepareTempBlendBuffers(void)
+    {
+        if (mBlendedVertexData) 
+        {
+            delete mBlendedVertexData;
+            mBlendedVertexData = 0;
+        }
+        // Clone without copying data
+        mBlendedVertexData = 
+            mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+        mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
     }
 
 }

@@ -121,6 +121,8 @@ namespace Ogre {
         void extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info);
         /** Internal method to clone vertex data definitions but to remove blend buffers. */
         VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
+        /** Internal method for preparing this Entity for use in animation. */
+        void prepareTempBlendBuffers(void);
 
         /// Cached bone matrices, including any world transform
         Matrix4 *mBoneMatrices;
