@@ -88,6 +88,8 @@ namespace Ogre {
 
         /// Get the light cap version of this renderable
         ShadowRenderable* getLightCapRenderable(void) { return mLightCap; }
+        /// Should this ShadowRenderable be treated as visible?
+        virtual bool isVisible(void) const { return true; }
 
     };
 

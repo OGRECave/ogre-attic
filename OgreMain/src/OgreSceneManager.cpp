@@ -3214,23 +3214,26 @@ namespace Ogre {
             while (iShadowRenderables.hasMoreElements())
             {
                 ShadowRenderable* sr = iShadowRenderables.getNext();
-                // render volume, including dark and (maybe) light caps
-                renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided, &lightList);
-
-                // optionally render separate light cap
-                if (sr->isLightCapSeparate() &&
-                    (flags & SRF_INCLUDE_LIGHT_CAP))
+                // omit hidden renderables
+                if (sr->isVisible())
                 {
-                    // must always fail depth check
-                    mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
-                    assert(sr->getLightCapRenderable() && "Shadow renderable is "
-                        "missing a separate light cap renderable!");
-                    renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(),
-                        zfailAlgo, stencil2sided, &lightList);
-                    // reset depth function
-                    mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
-                }
+                    // render volume, including dark and (maybe) light caps
+                    renderSingleShadowVolumeToStencil(sr, zfailAlgo, stencil2sided, &lightList);
 
+                    // optionally render separate light cap
+                    if (sr->isLightCapSeparate() &&
+                        (flags & SRF_INCLUDE_LIGHT_CAP))
+                    {
+                        // must always fail depth check
+                        mDestRenderSystem->_setDepthBufferFunction(CMPF_ALWAYS_FAIL);
+                        assert(sr->getLightCapRenderable() && "Shadow renderable is "
+                            "missing a separate light cap renderable!");
+                        renderSingleShadowVolumeToStencil(sr->getLightCapRenderable(),
+                            zfailAlgo, stencil2sided, &lightList);
+                        // reset depth function
+                        mDestRenderSystem->_setDepthBufferFunction(CMPF_LESS);
+                    }
+                }
             }
         }
 		// revert colour write state

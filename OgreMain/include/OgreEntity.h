@@ -115,6 +115,9 @@ namespace Ogre {
         /** Internal method - given vertex data which could be from the Mesh or 
             any submesh, finds the temporary blend copy. */
         const VertexData* findBlendedVertexData(const VertexData* orig);
+        /** Internal method - given vertex data which could be from the Mesh or 
+        any SubMesh, finds the corresponding SubEntity. */
+        SubEntity* findSubEntityForVertexData(const VertexData* orig);
 
         /** Internal method for extracting metadata out of source vertex data
             for fast assignment of temporary buffers later. */
@@ -211,12 +214,14 @@ namespace Ogre {
             const VertexData* mOriginalVertexData;
             // Original position buffer source binding
             unsigned short mOriginalPosBufferBinding;
+            /// Link to SubEntity, only present if SubEntity has it's own geometry
+            SubEntity* mSubEntity;
 
 
         public:
             EntityShadowRenderable(Entity* parent, 
                 HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
-                bool createSeparateLightCap, bool isLightCap = false);
+                bool createSeparateLightCap, SubEntity* subent, bool isLightCap = false);
             ~EntityShadowRenderable();
             /// Overridden from ShadowRenderable
             void getWorldTransforms(Matrix4* xform) const;
@@ -228,6 +233,8 @@ namespace Ogre {
             HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
             /// Rebind the source positions (for temp buffer users)
             void rebindPositionBuffer(void);
+            /// Overridden from ShadowRenderable
+            bool isVisible(void) const;
 
         };
     public:
@@ -435,7 +442,7 @@ namespace Ogre {
         */
         bool isHardwareSkinningEnabled(void) { return mHardwareSkinning; }
 
-        /** Overridden from MOvableObject */
+        /** Overridden from MovableObject */
         void _notifyAttached(Node* parent, bool isTagPoint = false);
 
 
