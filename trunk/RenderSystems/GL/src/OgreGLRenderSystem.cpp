@@ -615,6 +615,15 @@ namespace Ogre {
 	//---------------------------------------------------------------------
     void GLRenderSystem::_useLights(const LightList& lights, unsigned short limit)
     {
+
+        // Save previous modelview
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        // just load view matrix (identity world)
+        GLfloat mat[16];
+        makeGLMatrix(mat, mViewMatrix);
+        glLoadMatrixf(mat);
+
         LightList::const_iterator i, iend;
         iend = lights.end();
         unsigned short num = 0;
@@ -630,6 +639,11 @@ namespace Ogre {
             mLights[num] = NULL;
         }
         mCurrentLights = std::min(limit, static_cast<unsigned short>(lights.size()));
+
+        setLights();
+
+        // restore previous
+        glPopMatrix();
 
     }
 
@@ -719,11 +733,6 @@ namespace Ogre {
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(mat);
 
-        /* Set the lights here everytime the view
-         * matrix changes.
-         */
-        setLights();
-         
         makeGLMatrix(mat, mWorldMatrix);
         glMultMatrixf(mat);
 
@@ -1069,8 +1078,6 @@ namespace Ogre {
                 mActiveViewport->getBackgroundColour());
         }        
 
-        // Update light positions / directions because GL modifies them
-        setLights();
         OgreUnguard();
     }
    
