@@ -197,7 +197,7 @@ namespace Ogre {
         images.clear();
     }
 
-    void GLTexture::loadImages( const std::vector<Image> images )
+    void GLTexture::loadImages( const std::vector<Image>& images )
     {
         bool useSoftwareMipmaps = true;
 

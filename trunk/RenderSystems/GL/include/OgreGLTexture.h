@@ -48,7 +48,7 @@ namespace Ogre {
         
         void load();
         void loadImage( const Image &img );
-        void loadImages( const std::vector<Image> images );
+        void loadImages( const std::vector<Image>& images );
 
         void unload();
 
