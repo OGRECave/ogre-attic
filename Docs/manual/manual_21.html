@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 29 2004 by texi2html 1.64 -->
+<!-- Created on , 6 2004 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -129,6 +129,8 @@ example: param_indexed_auto 0 WORLDVIEWPROJ_MATRIX<BR><BR>
 <DD>The current time, factored by the optional parameter (or 1.0f if not supplied).
 <DT>texture_viewproj_matrix
 <DD>Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
+<DT>custom
+<DD>This allows you to map a custom parameter on an individual Renderable (see Renderable::setCustomParameter) to a parameter on a GPU program. It requires that you complete the 'extra_params' field with the index that was used in the Renderable::setCustomParameter call, and this will ensure that whenever this Renderable is used, it will have it's custom parameter mapped in. It's very important that this parameter has been defined on all Renderables that are assigned the material that contains this automatic mapping, otherwise the process will fail.
 </DL>
 
 <A NAME="param_named"></A>
@@ -194,7 +196,7 @@ For the purposes of writing this alternate program, there is an automatic parame
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 29 2004</I>
+by <I>Steve Streeting</I> on <I>, 6 2004</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

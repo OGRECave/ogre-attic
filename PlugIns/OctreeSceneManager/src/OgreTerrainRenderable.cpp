@@ -1296,7 +1296,7 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
-    void TerrainRenderable::updateCustomGpuParameter(
+    void TerrainRenderable::_updateCustomGpuParameter(
         const GpuProgramParameters::AutoConstantEntry& constantEntry, 
         GpuProgramParameters* params) const
     {
@@ -1304,6 +1304,10 @@ namespace Ogre
         {
             // Update morph LOD factor
             params->setConstant(constantEntry.index, mLODMorphFactor);
+        }
+        else
+        {
+            Renderable::_updateCustomGpuParameter(constantEntry, params);
         }
 
     }

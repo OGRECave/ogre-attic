@@ -1361,6 +1361,11 @@ namespace Ogre
             context.programParams->setConstantFromTime(index, factor);
             return;
         }
+        else if (vecparams[1] == "custom")
+        {
+            acType = GpuProgramParameters::ACT_CUSTOM;
+            extras = true;
+        }
 
         // Do we need any extra parameters?
         size_t extraParam = 0;

@@ -24,7 +24,7 @@ fragment_program Ogre/CelShadingFP cg
 }
 
 
-material Examples/OgreCelShading/Eyes
+material Examples/CelShading
 {
 	technique
 	{
@@ -32,12 +32,15 @@ material Examples/OgreCelShading/Eyes
 		{
 			vertex_program_ref Ogre/CelShadingVP
 			{
-				param_named shininess float 35 
+				// map shininess from custom renderable param 1
+				param_named_auto shininess custom 1
 			}
 			fragment_program_ref Ogre/CelShadingFP
 			{
-				param_named diffuse float4 1 0.3 0.3 1
-				param_named specular float4 1 0.6 0.6 1
+				// map diffuse from custom renderable param 2
+				param_named_auto diffuse custom 2
+				// map specular from custom renderable param 2
+				param_named_auto specular custom 3
 			}
 			texture_unit
 			{
@@ -64,125 +67,7 @@ material Examples/OgreCelShading/Eyes
 	
 }
 
-material Examples/OgreCelShading/Skin
-{
-	technique
-	{
-		pass
-		{
-			vertex_program_ref Ogre/CelShadingVP
-			{
-				param_named shininess float 10 
-			}
-			fragment_program_ref Ogre/CelShadingFP
-			{
-				param_named diffuse float4 0 0.5 0 1
-				param_named specular float4 0.3 0.5 0.3 1
-			}
-			texture_unit
-			{
-				texture cel_shading_diffuse.png 1d
-				tex_address_mode clamp
-				filtering none
-			}
-			texture_unit
-			{
-				texture cel_shading_specular.png 1d
-				tex_address_mode clamp
-				filtering none
-				tex_coord_set 1
-			}
-			texture_unit
-			{
-				texture cel_shading_edge.png 1d
-				tex_address_mode clamp
-				filtering none
-				tex_coord_set 2
-			}
-			
-		}
-	}
-}
 
-material Examples/OgreCelShading/Teeth
-{
-	technique
-	{
-		pass
-		{
-			vertex_program_ref Ogre/CelShadingVP
-			{
-				param_named shininess float 20
-			}
-			fragment_program_ref Ogre/CelShadingFP
-			{
-				param_named diffuse float4 1 1 0.7 1
-				param_named specular float4 1 1 1 1
-			}
-			texture_unit
-			{
-				texture cel_shading_diffuse.png 1d
-				tex_address_mode clamp
-				filtering none
-			}
-			texture_unit
-			{
-				texture cel_shading_specular.png 1d
-				tex_address_mode clamp
-				filtering none
-				tex_coord_set 1
-			}
-			texture_unit
-			{
-				texture cel_shading_edge.png 1d
-				tex_address_mode clamp
-				filtering none
-				tex_coord_set 2
-			}
-			
-		}
-	}
-}
-
-material Examples/OgreCelShading/Earring
-{
-	technique
-	{
-		pass
-		{
-			vertex_program_ref Ogre/CelShadingVP
-			{
-				param_named shininess float 25 
-			}
-			fragment_program_ref Ogre/CelShadingFP
-			{
-				param_named diffuse float4 1 1 0 1
-				param_named specular float4 1 1 0.7 1
-			}
-
-			texture_unit
-			{
-				texture cel_shading_diffuse.png 1d
-				tex_address_mode clamp
-				filtering none
-			}
-			texture_unit
-			{
-				texture cel_shading_specular.png 1d
-				tex_address_mode clamp
-				filtering none
-				tex_coord_set 1
-			}
-			texture_unit
-			{
-				texture cel_shading_edge.png 1d
-				tex_address_mode clamp
-				filtering none
-				tex_coord_set 2
-			}
-		}
-	}
-}
 
 //------------------------
 // Bump mapping section
