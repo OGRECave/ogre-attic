@@ -1,4 +1,4 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/Transpacency/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/RenderToTexture/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
 
 noinst_PROGRAMS = RenderToTexture
 RenderToTexture_SOURCES = RenderToTexture.cpp

@@ -44,6 +44,15 @@ namespace Ogre {
         return t;
     }
     //-----------------------------------------------------------------------------
+    Texture* SDLTextureManager::createManual( const String& name, uint width,
+        uint height, uint num_mips, PixelFormat format, TextureUsage usage )
+    {
+        SDLTexture* t = new SDLTexture(name, width, height, num_mips, format, usage);
+        t->enable32Bit(mIs32Bit);
+        return t;
+    }
+
+    //-----------------------------------------------------------------------------
     void SDLTextureManager::unloadAndDestroyAll()
     {
         // Unload & delete resources in turn

@@ -94,7 +94,7 @@ protected:
         // Create a prefab plane
         Entity *planeEnt = mSceneMgr->createEntity( "Plane", SceneManager::PT_PLANE );
         // Give the plane a texture
-        planeEnt->setMaterialName("Examples/BumpyMetal");
+        //planeEnt->setMaterialName("Examples/BumpyMetal");
 
         // Create an entity from a model (will be loaded automatically)
         Entity* knotEnt = mSceneMgr->createEntity("Knot", "knot.mesh");
@@ -113,15 +113,20 @@ protected:
         Camera *rttCam = mSceneMgr->createCamera( "rttCam" );
         rootNode->attachCamera( rttCam ); rttCam->setPosition( 0.0, 0.0, -0.1 ); rttCam->setDirection( 0.0, 0.0, -100.0 );
 
-        RenderTexture * rttTex = Root::getSingleton().getRenderSystem()->createRenderTexture( "RttTex", 512, 512 );
-
+        RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "RttTex", 512, 512 );
         {
             Viewport *v = rttTex->addViewport( rttCam );
             v->setClearEveryFrame( true );
             v->setBackgroundColour( ColourValue::Black );
+
+            Material* mat = mSceneMgr->createMaterial("RttMat");
+            mat->addTextureLayer("RttTex");
         }
 
-        static_cast< Material * >( MaterialManager::getSingleton().getByName( "Examples/BumpyMetal" ) )->getTextureLayer( 0 )->setTextureName( "RttTex" );
+        // Give the plane a texture
+        planeEnt->setMaterialName("RttMat");
+
+        //static_cast< Material * >( MaterialManager::getSingleton().getByName( "Examples/BumpyMetal" ) )->getTextureLayer( 0 )->setTextureName( "RttTex" );
 
         // Add a whole bunch of extra transparent entities
         Entity *cloneEnt;

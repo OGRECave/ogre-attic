@@ -36,15 +36,12 @@ namespace Ogre
 
         mTexture = TextureManager::getSingleton().createManual( mName, mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
 		TextureManager::getSingleton().load( static_cast< Resource * >( mTexture ) );
-
-        mPrivateTex = TextureManager::getSingleton().createManual( mName + "_PRIVATE##", mWidth, mHeight, 0, PF_R8G8B8, TU_RENDERTARGET );
     }
 
 	void RenderTexture::firePostUpdate()
 	{
 		RenderTarget::firePostUpdate();
 
-		// Copy the newly-rendered data to the public texture surface.
-		mPrivateTex->copyToTexture( mTexture );
+		_copyToTexture();
 	}
 }
