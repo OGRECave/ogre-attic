@@ -3,7 +3,7 @@
 -- 
 -- Copyright © 2002 John Martin
 --
--- $Id: ogreToolbar.mcr,v 1.1 2002-11-06 21:10:41 sinbad Exp $
+-- $Id: ogreToolbar.mcr,v 1.2 2003-02-18 22:08:54 sinbad Exp $
 --
 -- Macroscript for the Ogre Toolbar.
 
@@ -11,7 +11,7 @@
 -- library functions
 include "ogre/lib/ogreExportLib.ms"
 include "ogre/lib/ogreToolsLib.ms"
-
+include "ogre/lib/ogreSkeletonLib.ms"
 
 -- Show an about box.
 macroScript showAbout
@@ -240,4 +240,139 @@ macroScript setOptions
 	Icon:#("OgreTools",5)
 (
 	messageBox "General options dialog is not yet implemented." title:"Ogre Tools"
+)
+
+
+macroScript showSkeletonTools
+	category:"Ogre Tools"
+	internalCategory:"Ogre Tools"
+	buttonText:"Skeleton"
+	tooltip:"Skeleton Tools"
+	-- Icon:#("OgreTools",1)
+(
+
+	-- create a floater
+	SkeletonExportFloater = newRolloutFloater "SkeletonTools" 305 425 ; 
+	
+	rollout skeletonExportRollout "Export Mesh and Skeleton"
+	(
+		-- Elements
+		-----------
+		
+		button chooseMeshButton "Select a mesh..." align:#right width:88 height:24 ;
+		editText objectNameET "Selected object: " align:#left ;
+		
+		checkBox exportMeshCB "export Mesh" align:#left ;
+		checkBox exportSkeletonCB "export Skeleton" align:#left ;
+		
+		editText animNameET "Animation name:" align:#left ;
+ 	 	spinner firstFrameSP "First frame of animation:" range:[0,1000,0] type:#Integer ;
+		spinner lastFrameSP "Last frame of animation:" range:[0,1000,100] type:#Integer ;		
+		spinner animLengthSP "Real length in seconds:" range:[0,1000,10] type:#Float scale:0.1;
+		
+		-- info label
+		label infoLabel "Note:\nIf you choose aaa for example, exported filenames will be aaa.mesh.xml and aaa.skeleton.xml" align:#left width:248 height:40
+		-- export button
+	
+		-- filename text box
+		editText filenameET "File:" align:#left ;
+		
+		-- file choose button
+		button chooseFileButton "Choose File..." align:#right width:88 height:24 ;
+
+
+		button exportButton "Export" align:#right width:48 height:24 ;
+
+		-- Events
+		---------
+		
+		-- Press of the choose file button.
+		on chooseFileButton pressed do
+		(
+			filename = getSaveFileName types:"All Files(*.*)|*.*|" ;			
+			if (filename != undefined) then
+			(
+				filenameET.text = filename ;
+			)
+		)
+		
+		-- Press of the chooseMesh button
+		on chooseMeshButton pressed do
+		(
+			max tool hlist ;
+			if (selection[1] != undefined) then
+				objectNameET.text = selection[1].name ;
+			
+			-- options accessible ou non
+			exportMeshCB.enabled = true ;
+			exportSkeletonCB.enabled = (getSkin(selection[1]) != undefined) ;						
+		)
+		
+		-- Press of the export button.
+		on exportButton pressed do
+		(
+			m = execute ("$" + objectNameET.text) ;
+			if (filenameET.text == "" or m == undefined ) then
+				messageBox "You have to choose a filename and an valid object." ;
+			else
+			(
+				if (exportMeshCB.enabled and exportMeshCB.checked) then
+					writeMesh m (filenameET.text) ;
+			
+				if (exportSkeletonCB.enabled and exportSkeletonCB.checked) then
+					writeSkeleton 	m \
+									(firstFrameSP.value) \
+									(lastFrameSP.value) \
+									(animLengthSP.value) \
+									(animNameET.text) \
+									(filenameET.text) ;
+			)
+		)
+		
+		-- Press of exportSkeletonCheckBox
+		on exportSkeletonCB changed true do
+		(
+			firstFrameSP.enabled = true ;
+			lastFrameSP.enabled = true ;
+			animNameET.enabled = true ;
+			animLengthSP.enabled = true ;
+		)
+		
+		-- Press of exportSkeletonCheckBox
+		on exportSkeletonCB changed false do
+		(
+			firstFrameSP.enabled = false ;
+			lastFrameSP.enabled = false ;
+			animNameET.enabled = false ;
+			animLengthSP.enabled = false ;
+		)
+
+		
+		-- When the rollout is opened
+		on skeletonExportRollout open do
+		(
+			exportMeshCB.enabled = false ;
+			exportSkeletonCB.enabled = false ;
+			firstFrameSP.enabled = false ;
+			lastFrameSP.enabled = false ;
+			animNameET.enabled = false ;
+			animLengthSP.enabled = false ;
+		)
+		
+
+	)
+	
+	rollout aboutBoxRollout "About"
+	(
+		label label1 "For use with the Ogre graphics engine." align:#left;
+		label label2 "See website for details: http://ogre.sourceforge.net" align:#left;
+		label label3 "This software is distributed under the terms of the LGPL." align:#left ;
+	)
+
+
+	-- add the rollout, which contains the dialog
+	
+	addRollout skeletonExportRollout skeletonExportFloater ;
+	addRollout aboutBoxRollout skeletonExportFloater ;
+
 )

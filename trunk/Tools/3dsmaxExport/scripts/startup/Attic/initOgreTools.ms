@@ -3,7 +3,7 @@
 --
 -- Copyright © 2002 John Martin
 --
--- $Id: initOgreTools.ms,v 1.1 2002-11-06 21:10:42 sinbad Exp $
+-- $Id: initOgreTools.ms,v 1.2 2003-02-18 22:08:54 sinbad Exp $
 --
 -- Initializes the ogre 3dsmax tools. Just place in scripts/startup
 -- folder and ogre tools will be loaded with max.
