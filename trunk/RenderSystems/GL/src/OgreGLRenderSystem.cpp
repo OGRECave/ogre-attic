@@ -60,7 +60,7 @@ GL_GetBufferSubDataARB_Func glGetBufferSubDataARB_ptr;
 namespace Ogre {
 
     GLRenderSystem::GLRenderSystem()
-      : mDepthWrite(true), mHardwareBufferManager(0)
+      : mDepthWrite(true), mHardwareBufferManager(0), mGpuProgramManager(0)
     {
         int i;
 
@@ -128,8 +128,8 @@ namespace Ogre {
 
         if (mHardwareBufferManager)
             delete mHardwareBufferManager;
-
-        delete mGpuProgramManager;
+		if (mGpuProgramManager)
+        	delete mGpuProgramManager;
         delete mCapabilities;
         delete mGLSupport;
     }
