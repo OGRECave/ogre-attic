@@ -111,6 +111,9 @@ namespace Ogre {
 	    mManualCullMode = oth.mManualCullMode;
 	    mLightingEnabled = oth.mLightingEnabled;
         mMaxSimultaneousLights = oth.mMaxSimultaneousLights;
+		mRunOncePerLight = oth.mRunOncePerLight;
+        mRunOnlyForOneLightType = oth.mRunOnlyForOneLightType;
+        mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
 
 		mTextureFiltering = oth.mTextureFiltering;
