@@ -84,7 +84,7 @@ namespace Ogre {
 		{ assert(face < 6); return mCubeFaceNames[face]; }
 		/// internal method, return the BPP for the specified format
 		static unsigned short _getPFBpp(PixelFormat ogrePF)
-		{ return Image::getNumElemBits(ogrePF); }
+        { return PixelUtil::getNumElemBits(ogrePF); }
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to D3DTexturePtr 
