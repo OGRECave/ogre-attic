@@ -109,6 +109,8 @@ Tooltip: 'Export Mesh and Armature to Ogre'
 #   0.14.2: * Fri Aug 13 2004 Michael Reimpell <M.Reimpell@tu-bs.de>
 #          - location key frame values fixed
 #          - fixed redraw if action is changed
+#   0.14.3: * Michael Reimpell <M.Reimpell@tu-bs.de>
+#          - scalar product range correction in calc_rootaxis
 #
 # TODO:
 #          - support for nonuniform armature scaling
@@ -1359,8 +1361,11 @@ def calc_rootaxis(pos, pos2, tmp_mat):
   axis_rot = blender_bone2matrix(pos, pos2, 0)
   
   # correct the roll
-  px2 = point_by_matrix([1, 0, 0], axis_rot)
-  roll = math.acos(vector_dotproduct(px1, px2))
+  px2 = vector_normalize(point_by_matrix([1, 0, 0], axis_rot))
+  cosAngle = vector_dotproduct(px1, px2)
+  # restrict the output to the domain of acos
+  cosAngle = ((cosAngle+1.0)%2)-1.0
+  roll = math.acos(cosAngle)
 
   rMatrix = matrix_rotate(nor, roll)
   axis_rot = matrix_multiply(rMatrix, axis_rot) 
@@ -1379,8 +1384,6 @@ def convert_armature(skeleton, obj, debugskel):
   loc = [ 0.0, 0, 0 ]
   rot = [ 0.0, 0, 0, 1 ]
   matrix_one = [[1.0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
-  ####id = Matrix()
-  ####id.identity()  
   parent = None #Bone(skeleton, None, "__root", loc, rot)
   #parent.pos = loc
   
@@ -1432,38 +1435,19 @@ def convert_armature(skeleton, obj, debugskel):
     if parent:
       # difference is 1*10^(-6)
       rot = matrix2quaternion(R_bmat)
-      ####rotMatrix = Matrix(R_bmat[0], R_bmat[1], R_bmat[2], R_bmat[3])
-      ####rotQuat = rotMatrix.toQuat()
-      ####rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
-      
     else:
       # difference is 1*10^(-6)
       axis_rot = calc_rootaxis(pos, pos2, tmp_mat)
       # tmp_mat includes scaling
       # matrix2quaternion(tmp_mat) is inaccurate
       rot = matrix2quaternion(axis_rot)
-      ####rotMatrix = Matrix(tmp_mat[0], tmp_mat[1], tmp_mat[2], tmp_mat[3])
-      ####rotQuat = rotMatrix.toQuat()
-      ####rot = (rotQuat.x, rotQuat.y, rotQuat.z, rotQuat.w)
      
     x, y, z = pos
     loc = point_by_matrix([x, y, z], invertedOgreTransformation)
-    ####x, y, z = pos
-    ####tmp_transform = CopyMat(parent_transform)
-    ####tmp_transform.invert()
-    ####locVector = VecMultMat(Vector([x, y, z, 1]), tmp_transform)
-    ####loc = (locVector.x, locVector.y, locVector.z)
     x, y, z = loc
     ogreTranslationMatrix = [[ 1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [x, y, z, 1]]
-    ####x, y, z = loc
-    ####ogreTranslationMatrix = TranslationMatrix(Vector([x, y, z]))
     x, y, z, w = rot
     ogreRotationMatrix = quaternion2matrix(quaternion_normalize([x, y, z, w]))
-    ####x, y, z, w = rot
-    ####ogreRotationMatrix = Quaternion([w, x, y, z]).toMatrix()
-    ####ogreRotationMatrix.resize4x4()   
-    ####ogreTransformation = ogreRotationMatrix * ogreTranslationMatrix * parent_transform
-    #invertedOgreTransformation = matrix_multiply(matrix_invert(matrix_multiply(ogreTranslationMatrix, ogreRotationMatrix)), invertedOgreTransformation)
     invertedOgreTransformation = matrix_multiply(matrix_invert(ogreTranslationMatrix), invertedOgreTransformation)
     parent = Bone(skeleton, parent, bbone.getName(), loc, rot, matrix_multiply(invertedOgreTransformation, tmp_mat))
     invertedOgreTransformation = matrix_multiply(matrix_invert(ogreRotationMatrix), invertedOgreTransformation)
