@@ -97,6 +97,12 @@ namespace Ogre {
         /// Gets whether or not this animation loops            
         bool getLoop(void) const { return mLoop; }
      
+        /** Copies the states from another animation state, preserving the animation name
+        (unlike operator=) but copying everything else.
+        @param animState Reference to animation state which will use as source.
+        */
+        void copyStateFrom(const AnimationState& animState);
+
     protected:
         String mAnimationName;
         Real mTimePos;
@@ -112,6 +118,14 @@ namespace Ogre {
     typedef std::map<String, AnimationState> AnimationStateSet;
     typedef MapIterator<AnimationStateSet> AnimationStateIterator;
 
+    /** Copies a subset animation states from source to target.
+    @remarks
+        This routine assume target is a subset of source, it will copy all animation state
+        of the target with the settings from source.
+    @param target Reference to animation state set which will receive the states.
+    @param source Reference to animation state set which will use as source.
+    */
+    _OgreExport void CopyAnimationStateSubset(AnimationStateSet& target, const AnimationStateSet& source);
 
 }
 

@@ -346,6 +346,12 @@ namespace Ogre {
             assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() && 
                 "No LOD EntityList - did you build the manual LODs after creating the entity?");
             // index - 1 as we skip index 0 (original lod)
+            if (hasSkeleton() && mLodEntityList[mMeshLodIndex - 1]->hasSkeleton())
+            {
+                // Copy the animation state set to lod entity, we assume the lod
+                // entity only has a subset animation states
+                CopyAnimationStateSubset(*mLodEntityList[mMeshLodIndex - 1]->mAnimationState, *mAnimationState);
+            }
             mLodEntityList[mMeshLodIndex - 1]->_updateRenderQueue(queue);
             return;
         }
@@ -629,11 +635,16 @@ namespace Ogre {
         tp->setChildObject(pMovable);
 
         attachObjectImpl(pMovable, tp);
+
+        // Trigger update of bounding box if necessary
+        if (mParentNode)
+            mParentNode->needUpdate();
     }
 
     //-----------------------------------------------------------------------
     void Entity::attachObjectImpl(MovableObject *pObject, TagPoint *pAttachingPoint)
     {
+        assert(mChildObjectList.find(pObject->getName()) == mChildObjectList.end());
         mChildObjectList[pObject->getName()] = pObject;
         pObject->_notifyAttached(pAttachingPoint, true);
     }
@@ -893,7 +904,16 @@ namespace Ogre {
         // Potentially delegate to LOD entity
         if (mMesh->isLodManual() && mMeshLodIndex > 0)
         {
+            // Use alternate entity
+            assert( static_cast< size_t >( mMeshLodIndex - 1 ) < mLodEntityList.size() && 
+                "No LOD EntityList - did you build the manual LODs after creating the entity?");
             // delegate, we're using manual LOD and not the top lod index
+            if (hasSkeleton() && mLodEntityList[mMeshLodIndex - 1]->hasSkeleton())
+            {
+                // Copy the animation state set to lod entity, we assume the lod
+                // entity only has a subset animation states
+                CopyAnimationStateSubset(*mLodEntityList[mMeshLodIndex - 1]->mAnimationState, *mAnimationState);
+            }
             return mLodEntityList[mMeshLodIndex-1]->getShadowVolumeRenderableIterator(
                 shadowTechnique, light, indexBuffer, extrude, 
                 extrusionDistance, flags);
