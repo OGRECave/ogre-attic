@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLTextureManager.h"
 #include "OgreGLHardwareVertexBuffer.h"
 #include "OgreGLHardwareIndexBuffer.h"
+#include "OgreGLHardwareBufferManager.h"
 #include "OgreGLUtil.h"
 
 #ifdef HAVE_CONFIG_H
@@ -1500,29 +1501,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void GLRenderSystem::setVertexDeclaration(VertexDeclaration* decl)
 	{
-        // TODO
 	}
     //---------------------------------------------------------------------
 	void GLRenderSystem::setVertexBufferBinding(VertexBufferBinding* binding)
 	{
-        // Guard
-        OgreGuard ("GLRenderSystem::setVertexBufferBinding");
-
-        const VertexBufferBinding::VertexBufferBindingMap& binds = binding->getBindings();
-        VertexBufferBinding::VertexBufferBindingMap::const_iterator i, iend;
-        iend = binds.end();
-
-        for (i = binds.begin(); i != iend; ++i)
-        {
-            const GLHardwareVertexBuffer* vertexBuffer =
-                static_cast<const GLHardwareVertexBuffer*>(i->second.get());
-
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vertexBuffer->getGLBufferId());
-
-        }
-        
-        // UnGuard
-        OgreUnguard();
 	}
     //---------------------------------------------------------------------
     void GLRenderSystem::_render(const RenderOperation& op)
@@ -1532,8 +1514,71 @@ namespace Ogre {
         // Call super class
         RenderSystem::_render(op);
         
-        setVertexDeclaration(op.vertexData->vertexDeclaration);
-        setVertexBufferBinding(op.vertexData->vertexBufferBinding);
+        const VertexBufferBinding::VertexBufferBindingMap& binds = 
+            op.vertexData->vertexBufferBinding->getBindings();
+
+        const VertexDeclaration::VertexElementList& decl = 
+            op.vertexData->vertexDeclaration->getElements();
+        VertexDeclaration::VertexElementList::const_iterator i, iend;
+        iend = decl.end();
+        
+        for (i = decl.begin(); i != iend; ++i)
+        {
+            VertexBufferBinding::VertexBufferBindingMap::const_iterator binding
+                = binds.find(i->getSource());
+
+            if(binding == binds.end())
+            {
+                 Except(Exception::ERR_INTERNAL_ERROR, 
+                     "Can't find binding associated with vertex element",
+                     "GLRenderSystem::_render");
+            }
+
+            GLuint vtxBufferId = static_cast<const GLHardwareVertexBuffer*>(binding->second.get())->getGLBufferId();
+
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vtxBufferId);
+
+            GLint sz = 0;
+            GLenum type = 0;
+            switch(i->getType())
+            {
+            case VET_FLOAT1:
+                sz = 1;
+                type = GL_FLOAT;
+                break;
+            case VET_FLOAT2:
+                sz = 2;
+                type = GL_FLOAT;
+                break;
+            case VET_FLOAT3:
+                sz = 3;
+                type = GL_FLOAT;
+                break;
+            case VET_FLOAT4:
+                sz = 4;
+                type = GL_FLOAT;
+                break;
+            case VET_COLOUR:
+                sz = 4;
+                break;
+            };
+
+            switch(i->getSemantic())
+            {
+            case VES_POSITION:
+                glVertexPointer(sz, type, 0, 0); 
+                break;
+            default:
+                break;
+            };
+        }
+
+        if (op.useIndexes)
+        {
+            GLuint idxBufferId = static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get())->getGLBufferId();
+
+            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, idxBufferId); 
+        }
 
         // Find the correct type to render
         GLint primType;
@@ -1559,13 +1604,19 @@ namespace Ogre {
             break;
         }
 
+        glEnableClientState(GL_VERTEX_ARRAY);
+
         if (op.useIndexes)
         {
-            GLHardwareIndexBuffer* indexBuffer = 
-                static_cast<GLHardwareIndexBuffer*>(op.indexData->indexBuffer.get());
-
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, indexBuffer->getGLBufferId());
+            glDrawElements( primType, op.indexData->indexCount, 
+                GL_UNSIGNED_SHORT, 0);
         }
+        else
+        {
+            glDrawArrays(primType, 0, op.vertexData->vertexCount);
+        }
+
+        glDisableClientState(GL_VERTEX_ARRAY);
 
         // UnGuard
         OgreUnguard();

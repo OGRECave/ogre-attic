@@ -40,6 +40,8 @@ namespace Ogre {
                 "Cannot create GL vertex buffer", 
                 "GLHardwareVertexBuffer::GLHardwareVertexBuffer");
         }
+
+        std::cerr << "creating vertex buffer = " << mBufferId << std::endl;
     }
 	//---------------------------------------------------------------------
     GLHardwareVertexBuffer::~GLHardwareVertexBuffer()
@@ -91,6 +93,8 @@ namespace Ogre {
         else if(options == HBL_NORMAL)
         {
             access = (mUsage == HBU_WRITE_ONLY) ? GL_WRITE_ONLY_ARB : GL_READ_WRITE_ARB;
+            glBufferDataARB(GL_ARRAY_BUFFER_ARB, length, NULL, 
+                mUsage == HBU_STATIC ? GL_STATIC_DRAW_ARB : GL_STREAM_DRAW_ARB);
         }
         else
         {
