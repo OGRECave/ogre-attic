@@ -376,6 +376,24 @@ namespace Ogre
         static const Matrix4 ZERO;
         static const Matrix4 IDENTITY;
 
+        /** Function for writing to a stream.
+        */
+        inline _OgreExport friend std::ostream& operator <<
+            ( std::ostream& o, Matrix4& m )
+        {
+            o << "Matrix4(";
+            for (int i = 0; i < 4; ++i)
+            {
+                o << " row" << i << "{";
+                for(int j = 0; j < 4; ++j)
+                {
+                    o << m[i][j] << " ";
+                }
+                o << "}";
+            }
+            o << ")";
+            return o;
+        }
     };
 }
 #endif
