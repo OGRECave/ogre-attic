@@ -23,7 +23,7 @@ Examples/OgreLogo
 	diffuse 1.0 1.0 1.0
 	// Texture layer 0
 	{
-		texture ogrelogo.png
+		texture ogrelogo.jpg
 	}
 }
 
