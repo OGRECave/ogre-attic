@@ -21,15 +21,8 @@ Description: Base class for all the OGRE examples
 #ifndef __ExampleApplication_H__
 #define __ExampleApplication_H__
 
-#include "OgrePlatform.h"
-
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#   include <Ogre/OgreConfigFile.h>
-#else
-#   include "Ogre.h"
-#   include "OgreConfigFile.h"
-#endif
+#include "Ogre.h"
+#include "OgreConfigFile.h"
 #include "ExampleFrameListener.h"
 
 

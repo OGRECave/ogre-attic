@@ -35,19 +35,11 @@ D:        Step right
 #ifndef __ExampleFrameListener_H__
 #define __ExampleFrameListener_H__
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#   include <Ogre/Ogre.h>
-#   include <Ogre/OgreKeyEvent.h>
-#   include <Ogre/OgreEventListeners.h>
-#   include <Ogre/OgreStringConverter.h>
-#   include <Ogre/OgreException.h>
-#else
-#   include "Ogre.h"
-#   include "OgreKeyEvent.h"
-#   include "OgreEventListeners.h"
-#   include "OgreStringConverter.h"
-#   include "OgreException.h"
-#endif
+#include "Ogre.h"
+#include "OgreKeyEvent.h"
+#include "OgreEventListeners.h"
+#include "OgreStringConverter.h"
+#include "OgreException.h"
 
 using namespace Ogre;
 
