@@ -33,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreSkeleton.h"
 
-
 namespace Ogre {
 
     String MeshSerializer::msCurrentVersion = "[MeshSerializer_v1.20]";
@@ -53,7 +52,7 @@ namespace Ogre {
         // Format has not changed, but we need to tag because 'v' texture coordinate
         // has been inverted
         mImplementations.insert(
-            MeshSerializerImplMap::value_type("[MeshSerializer_v1.20]", 
+            MeshSerializerImplMap::value_type(msCurrentVersion, 
             new MeshSerializerImpl() ) );
     }
     //---------------------------------------------------------------------
@@ -106,8 +105,16 @@ namespace Ogre {
             Except(Exception::ERR_INTERNAL_ERROR, "Cannot find serializer implementation for "
                 "current version " + ver, "MeshSerializer::importMesh");
         }
+
         // Call implementation
         impl->second->importMesh(chunk, pDest);
+        // Warn on old version of mesh
+        if (ver != msCurrentVersion)
+        {
+            LogManager::getSingleton().logMessage("WARNING: " + pDest->getName() + 
+                " is an older format (" + ver + "); you should upgrade it as soon as possible" +
+                " using the OgreMeshUpgrade tool.");
+        }
 
     }
     //---------------------------------------------------------------------
