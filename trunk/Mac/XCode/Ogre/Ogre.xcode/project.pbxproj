@@ -16,7 +16,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Ogre_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = "OGRE_NONCLIENT_BUILD DEBUG";
-				INSTALL_PATH = "@executable_path/../Frameworks";
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_CPLUSPLUSFLAGS = "-DDEBUG";
 				ZERO_LINK = YES;
@@ -201,6 +200,9 @@
 			fileRef = 8215212A07B184A80049D4A1;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		8215212C07B184BE0049D4A1 = {
@@ -216,6 +218,9 @@
 			fileRef = 8215212C07B184BE0049D4A1;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		8215212E07B184D00049D4A1 = {
@@ -261,6 +266,9 @@
 			fileRef = 8226948907AC7A730091B11A;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		8227011B0700F51F00E6B1F9 = {
@@ -5842,6 +5850,7 @@
 		822708BA070105CD00E6B1F9 = {
 			buildActionMask = 2147483647;
 			files = (
+				8232607E07C5A6B900667287,
 				822709F707010BFB00E6B1F9,
 				8227095607010AC300E6B1F9,
 				8227095A07010AE300E6B1F9,
@@ -5859,7 +5868,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = "\"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode/build";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "GL Render System-Info.plist";
@@ -6847,6 +6856,7 @@
 		82270ADB07010C8100E6B1F9 = {
 			buildActionMask = 2147483647;
 			files = (
+				8232607F07C5A84200667287,
 				82270B200701109900E6B1F9,
 				82270B1607010F2200E6B1F9,
 			);
@@ -6863,7 +6873,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = "\"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode/build";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				INFOPLIST_FILE = "SDL Platform Manager-Info.plist";
@@ -9184,6 +9194,18 @@
 			settings = {
 			};
 		};
+		8232607E07C5A6B900667287 = {
+			fileRef = 82A3A35207A1ABBD001CBF8B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8232607F07C5A84200667287 = {
+			fileRef = 82A3A35207A1ABBD001CBF8B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		823CF8330729B51A0048D983 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -9256,6 +9278,9 @@
 			fileRef = 82A04DE1072F4A9900D7C2E8;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A28207A1A8AE001CBF8B = {
@@ -9940,6 +9965,9 @@
 			fileRef = 82A3A2C507A1AA56001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2D807A1AA56001CBF8B = {
@@ -10159,24 +10187,36 @@
 			fileRef = 82A3A2DF07A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2F307A1AA74001CBF8B = {
 			fileRef = 82A3A2E007A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2F407A1AA74001CBF8B = {
 			fileRef = 82A3A2E107A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2F507A1AA74001CBF8B = {
 			fileRef = 82A3A2E207A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2F607A1AA74001CBF8B = {
@@ -10189,66 +10229,99 @@
 			fileRef = 82A3A2E407A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2F807A1AA74001CBF8B = {
 			fileRef = 82A3A2E507A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2F907A1AA74001CBF8B = {
 			fileRef = 82A3A2E607A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2FA07A1AA74001CBF8B = {
 			fileRef = 82A3A2E707A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2FB07A1AA74001CBF8B = {
 			fileRef = 82A3A2E807A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2FC07A1AA74001CBF8B = {
 			fileRef = 82A3A2E907A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2FD07A1AA74001CBF8B = {
 			fileRef = 82A3A2EA07A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2FE07A1AA74001CBF8B = {
 			fileRef = 82A3A2EB07A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A2FF07A1AA74001CBF8B = {
 			fileRef = 82A3A2EC07A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A30007A1AA74001CBF8B = {
 			fileRef = 82A3A2ED07A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A30107A1AA74001CBF8B = {
 			fileRef = 82A3A2EE07A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A30207A1AA74001CBF8B = {
@@ -10261,12 +10334,18 @@
 			fileRef = 82A3A2F007A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A30407A1AA74001CBF8B = {
 			fileRef = 82A3A2F107A1AA73001CBF8B;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		82A3A30507A1AA89001CBF8B = {
@@ -10473,7 +10552,7 @@
 		};
 		82A3A34F07A1AB50001CBF8B = {
 			buildActionMask = 2147483647;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82A3A35007A1AB7B001CBF8B,
@@ -10655,7 +10734,7 @@
 		};
 		82D48EA007012EEB003974B9 = {
 			buildActionMask = 12;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82D48EBA07012F57003974B9,
@@ -10779,7 +10858,7 @@
 		};
 		82D48EF70701377C003974B9 = {
 			buildActionMask = 2147483647;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82D48EFA0701379C003974B9,
@@ -10795,7 +10874,7 @@
 		};
 		82D48F1B070137BF003974B9 = {
 			buildActionMask = 2147483647;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82D48F1D070137C8003974B9,
@@ -10811,7 +10890,7 @@
 		};
 		82D48F57070137E4003974B9 = {
 			buildActionMask = 2147483647;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82D48F58070137EB003974B9,
@@ -10827,7 +10906,7 @@
 		};
 		82D48F7B07013807003974B9 = {
 			buildActionMask = 2147483647;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82D48F7C0701380D003974B9,
@@ -10843,7 +10922,7 @@
 		};
 		82D48F8F07013814003974B9 = {
 			buildActionMask = 2147483647;
-			dstPath = build/Ogre.framework/Resources;
+			dstPath = "${BUILT_PRODUCTS_DIR}/Ogre.framework/Resources";
 			dstSubfolderSpec = 0;
 			files = (
 				82D48F9007013819003974B9,
