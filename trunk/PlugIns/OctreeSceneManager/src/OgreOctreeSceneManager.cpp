@@ -23,228 +23,229 @@ email                : janders@users.sf.net
 namespace Ogre
 {
 
-    int OctreeSceneManager::intersect_call = 0;
+int OctreeSceneManager::intersect_call = 0;
 
-    enum Intersection
-    {
-        OUTSIDE,
-        INSIDE,
-        INTERSECT
-    };
+enum Intersection
+{
+    OUTSIDE,
+    INSIDE,
+    INTERSECT
+};
 
-    /** Checks how the second box intersects with the first.
-    */
-    Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
-    {
-        OctreeSceneManager::intersect_call++;
-        const Vector3 * outside = one.getAllCorners();
-        const Vector3 *inside = two.getAllCorners();
+/** Checks how the second box intersects with the first.
+*/
+Intersection intersect( const AxisAlignedBox &one, const AxisAlignedBox &two )
+{
+    OctreeSceneManager::intersect_call++;
+    const Vector3 * outside = one.getAllCorners();
+    const Vector3 *inside = two.getAllCorners();
 
-        if ( inside[ 4 ].x < outside[ 0 ].x ||
+    if ( inside[ 4 ].x < outside[ 0 ].x ||
             inside[ 4 ].y < outside[ 0 ].y ||
             inside[ 4 ].z < outside[ 0 ].z ||
             inside[ 0 ].x > outside[ 4 ].x ||
             inside[ 0 ].y > outside[ 4 ].y ||
             inside[ 0 ].z > outside[ 4 ].z )
-        {
-            return OUTSIDE;
-        }
-
-        bool full = ( inside[ 0 ].x > outside[ 0 ].x &&
-            inside[ 0 ].y > outside[ 0 ].y &&
-            inside[ 0 ].z > outside[ 0 ].z &&
-            inside[ 4 ].x < outside[ 4 ].x &&
-            inside[ 4 ].x < outside[ 4 ].x &&
-            inside[ 4 ].x < outside[ 4 ].x );
-
-        if ( full )
-            return INSIDE;
-        else
-            return INTERSECT;
-
+    {
+        return OUTSIDE;
     }
 
-    /** Checks how the box intersects with the sphere.
-    */
-    Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
-    {
-        OctreeSceneManager::intersect_call++;
-        float sradius = one.getRadius();
+    bool full = ( inside[ 0 ].x > outside[ 0 ].x &&
+                  inside[ 0 ].y > outside[ 0 ].y &&
+                  inside[ 0 ].z > outside[ 0 ].z &&
+                  inside[ 4 ].x < outside[ 4 ].x &&
+                  inside[ 4 ].x < outside[ 4 ].x &&
+                  inside[ 4 ].x < outside[ 4 ].x );
 
-        sradius *= sradius;
+    if ( full )
+        return INSIDE;
+    else
+        return INTERSECT;
 
-        Vector3 scenter = one.getCenter();
+}
 
-        const Vector3 *corners = two.getAllCorners();
+/** Checks how the box intersects with the sphere.
+*/
+Intersection intersect( const Sphere &one, const AxisAlignedBox &two )
+{
+    OctreeSceneManager::intersect_call++;
+    float sradius = one.getRadius();
 
-        float s, d = 0;
+    sradius *= sradius;
 
-        Vector3 mndistance = ( corners[ 0 ] - scenter );
-        Vector3 mxdistance = ( corners[ 4 ] - scenter );
+    Vector3 scenter = one.getCenter();
 
-        if ( mndistance.squaredLength() < sradius &&
+    const Vector3 *corners = two.getAllCorners();
+
+    float s, d = 0;
+
+    Vector3 mndistance = ( corners[ 0 ] - scenter );
+    Vector3 mxdistance = ( corners[ 4 ] - scenter );
+
+    if ( mndistance.squaredLength() < sradius &&
             mxdistance.squaredLength() < sradius )
+    {
+        return INSIDE;
+    }
+
+    //find the square of the distance
+    //from the sphere to the box
+    for ( int i = 0 ; i < 3 ; i++ )
+    {
+        if ( scenter[ i ] < corners[ 0 ][ i ] )
         {
-            return INSIDE;
+            s = scenter[ i ] - corners[ 0 ][ i ];
+            d += s * s;
         }
 
-        //find the square of the distance
-        //from the sphere to the box
-        for ( int i = 0 ; i < 3 ; i++ )
+        else if ( scenter[ i ] > corners[ 4 ][ i ] )
         {
-            if ( scenter[ i ] < corners[ 0 ][ i ] )
-            {
-                s = scenter[ i ] - corners[ 0 ][ i ];
-                d += s * s;
-            }
-
-            else if ( scenter[ i ] > corners[ 4 ][ i ] )
-            {
-                s = scenter[ i ] - corners[ 4 ][ i ];
-                d += s * s;
-            }
-
+            s = scenter[ i ] - corners[ 4 ][ i ];
+            d += s * s;
         }
-
-        bool partial = ( d <= sradius );
-
-        if ( !partial )
-        {
-            return OUTSIDE;
-        }
-
-        else
-        {
-            return INTERSECT;
-        }
-
 
     }
 
+    bool partial = ( d <= sradius );
 
-    unsigned long white = 0xFFFFFFFF;
+    if ( !partial )
+    {
+        return OUTSIDE;
+    }
 
-    unsigned short OctreeSceneManager::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,    //back
-        0, 6, 6, 5, 5, 1,          //left
-        3, 7, 7, 4, 4, 2,          //right
+    else
+    {
+        return INTERSECT;
+    }
+
+
+}
+
+
+unsigned long white = 0xFFFFFFFF;
+
+unsigned short OctreeSceneManager::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,     //back
+        0, 6, 6, 5, 5, 1,           //left
+        3, 7, 7, 4, 4, 2,           //right
         6, 7, 5, 4 };          //front
-    unsigned long OctreeSceneManager::mColors[ 8 ] = {white, white, white, white, white, white, white, white };
+unsigned long OctreeSceneManager::mColors[ 8 ] = {white, white, white, white, white, white, white, white };
 
 
-    OctreeSceneManager::OctreeSceneManager( ) : SceneManager()
-    {
-        AxisAlignedBox b( -500, -500, -500, 500, 500, 500 );
-        int depth = 5; //infinite depth
-        mOctree = 0;
-        init( b, depth );
-    }
+OctreeSceneManager::OctreeSceneManager( ) : SceneManager()
+{
+    AxisAlignedBox b( -500, -500, -500, 500, 500, 500 );
+    int depth = 5; //infinite depth
+    mOctree = 0;
+    init( b, depth );
+}
 
-    OctreeSceneManager::OctreeSceneManager( AxisAlignedBox &box, int max_depth ) : SceneManager()
-    {
-        mOctree = 0;
-        init( box, max_depth );
-    }
+OctreeSceneManager::OctreeSceneManager( AxisAlignedBox &box, int max_depth ) : SceneManager()
+{
+    mOctree = 0;
+    init( box, max_depth );
+}
 
-    void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
-    {
-        delete mSceneRoot; //get rid of old root.
+void OctreeSceneManager::init( AxisAlignedBox &box, int depth )
+{
+    delete mSceneRoot; //get rid of old root.
 
-        // -- Changes by Steve
-        // Don't do it this way, it will add it to the mSceneNodes which we don't want
-        //mSceneRoot = createSceneNode( "SceneRoot" );
-        mSceneRoot = new OctreeNode( this, "SceneRoot" );
-        // -- End changes by Steve
+    // -- Changes by Steve
+    // Don't do it this way, it will add it to the mSceneNodes which we don't want
+    //mSceneRoot = createSceneNode( "SceneRoot" );
+    mSceneRoot = new OctreeNode( this, "SceneRoot" );
+    // -- End changes by Steve
 
-        if ( mOctree != 0 )
-            delete mOctree;
+    if ( mOctree != 0 )
+        delete mOctree;
 
-        mOctree = new Octree( 0 );
+    mOctree = new Octree( 0 );
 
-        mMaxDepth = depth;
+    mMaxDepth = depth;
 
-        mOctree -> mBox = box;
+    mOctree -> mBox = box;
 
-        Vector3 min = box.getMinimum();
+    Vector3 min = box.getMinimum();
 
-        Vector3 max = box.getMaximum();
+    Vector3 max = box.getMaximum();
 
-        mOctree -> mHalfSize = ( max - min ) / 2;
+    mOctree -> mHalfSize = ( max - min ) / 2;
 
 
-        mRenderOp.useIndexes = true;
+    mRenderOp.useIndexes = true;
 
-        mRenderOp.numTextureCoordSets = 0; // no textures
+    mRenderOp.numTextureCoordSets = 0; // no textures
 
-        mRenderOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
+    mRenderOp.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
 
-        mRenderOp.operationType = RenderOperation::OT_LINE_LIST;
+    mRenderOp.operationType = RenderOperation::OT_LINE_LIST;
 
-        mRenderOp.numVertices = 8;
+    mRenderOp.numVertices = 8;
 
-        mRenderOp.numIndexes = 24;
+    mRenderOp.numIndexes = 24;
 
-        mRenderOp.pVertices = mCorners;
+    mRenderOp.pVertices = mCorners;
 
-        mRenderOp.pIndexes = mIndexes;
+    mRenderOp.pIndexes = mIndexes;
 
-        mRenderOp.pDiffuseColour = mColors;
+    mRenderOp.pDiffuseColour = mColors;
 
-        mShowBoxes = false;
+    mShowBoxes = false;
 
-        mCullCamera = false;
+    mCullCamera = false;
 
-        mNumObjects = 0;
+    mNumObjects = 0;
 
-        Vector3 v( 1.5, 1.5, 1.5 );
+    Vector3 v( 1.5, 1.5, 1.5 );
 
-        mScaleFactor.setScale( v );
+    mScaleFactor.setScale( v );
 
-        // setDisplaySceneNodes( true );
-        // setShowBoxes( true );
+    // setDisplaySceneNodes( true );
+    // setShowBoxes( true );
 
-        //
-        //setUseCullCamera( true );
-        //mSceneRoot isn't put into the octree since it has no volume.
+    //
+    //setUseCullCamera( true );
+    //mSceneRoot isn't put into the octree since it has no volume.
 
-    }
+}
 
-    OctreeSceneManager::~OctreeSceneManager()
-    {
-        // -- Changed by Steve
-        // Don't do this here, SceneManager will do it
-        /*
-        if( mSceneRoot )
-        delete mSceneRoot;
-        */
-        // --End Changes by Steve
+OctreeSceneManager::~OctreeSceneManager()
+{
+    // -- Changed by Steve
+    // Don't do this here, SceneManager will do it
+    /*
+    if( mSceneRoot )
+    delete mSceneRoot;
+    */ 
+    // --End Changes by Steve
 
-        if( mOctree )
-            delete mOctree;
-    }
+    if ( mOctree )
+        delete mOctree;
+}
 
-    Camera * OctreeSceneManager::createCamera( const String &name )
-    {
-        Camera * c = new OctreeCamera( name, this );
-        mCameras.insert( CameraList::value_type( name, c ) );
-        return c;
-    }
+Camera * OctreeSceneManager::createCamera( const String &name )
+{
+    Camera * c = new OctreeCamera( name, this );
+    mCameras.insert( CameraList::value_type( name, c ) );
+    return c;
+}
 
-  void OctreeSceneManager::destroySceneNode( const String &name )
-  {
-    OctreeNode * on = static_cast<OctreeNode*>( getSceneNode( name ) );
-    if( on != 0 )
-      _removeOctreeNode( on );
+void OctreeSceneManager::destroySceneNode( const String &name )
+{
+    OctreeNode * on = static_cast < OctreeNode* > ( getSceneNode( name ) );
+
+    if ( on != 0 )
+        _removeOctreeNode( on );
 
     SceneManager::destroySceneNode( name );
-  }
-  
-  bool OctreeSceneManager::getOptionValues( const String & key, std::list<SDDataChunk>&refValueList )
-  {
-    return SceneManager::getOptionValues( key, refValueList );
-  }
+}
 
-  bool OctreeSceneManager::getOptionKeys( std::list< String > & refKeys)
-  {
+bool OctreeSceneManager::getOptionValues( const String & key, std::list < SDDataChunk > &refValueList )
+{
+    return SceneManager::getOptionValues( key, refValueList );
+}
+
+bool OctreeSceneManager::getOptionKeys( std::list < String > & refKeys )
+{
     SceneManager::getOptionKeys( refKeys );
     refKeys.push_back( "CullCamera" );
     refKeys.push_back( "Size" );
@@ -252,492 +253,504 @@ namespace Ogre
     refKeys.push_back( "Depth" );
 
     return true;
-  }
+}
 
 
-    void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
+void OctreeSceneManager::_updateOctreeNode( OctreeNode * onode )
+{
+    AxisAlignedBox box = onode -> _getWorldAABB();
+
+    if ( box.isNull() )
+        return ;
+
+
+    if ( onode -> getOctant() == 0 )
     {
-        AxisAlignedBox box = onode -> _getWorldAABB();
+        _addOctreeNode( onode, mOctree );
+        return ;
+    }
 
-        if ( box.isNull() )
-            return ;
+    if ( ! onode -> _isIn( onode -> getOctant() -> mBox ) )
+    {
+        _removeOctreeNode( onode );
 
-
-        if ( onode -> getOctant() == 0 )
-        {
+        if ( ! onode -> _isIn( mOctree -> mBox ) )
+            mOctree->_addNode( onode );
+        else
             _addOctreeNode( onode, mOctree );
-            return ;
-        }
-
-        if ( ! onode -> _isIn( onode -> getOctant() -> mBox ) )
-        {
-            _removeOctreeNode( onode );
-            if( ! onode -> _isIn( mOctree -> mBox ) )
-                mOctree->_addNode( onode );
-            else
-                _addOctreeNode( onode, mOctree );
-        }
     }
+}
 
-    /** Only removes the node from the octree.  It leaves the octree, even if it's empty.
-    */
-    void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
+/** Only removes the node from the octree.  It leaves the octree, even if it's empty.
+*/
+void OctreeSceneManager::_removeOctreeNode( OctreeNode * n )
+{
+    n -> getOctant() -> _removeNode( n );
+}
+
+
+void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int depth )
+{
+
+    AxisAlignedBox bx = n -> _getWorldAABB();
+
+
+    //if the octree is twice as big as the scene node,
+    //we will add it to a child.
+    if ( ( depth < mMaxDepth ) && octant -> _isTwiceSize( bx ) )
     {
-        n -> getOctant() -> _removeNode( n );
-    }
+        int x, y, z;
+        octant -> _getChildIndexes( bx, &x, &y, &z );
 
-
-    void OctreeSceneManager::_addOctreeNode( OctreeNode * n, Octree *octant, int depth )
-    {
-
-        AxisAlignedBox bx = n -> _getWorldAABB();
-
-
-        //if the octree is twice as big as the scene node,
-        //we will add it to a child.
-        if ( ( depth < mMaxDepth ) && octant -> _isTwiceSize( bx ) )
+        if ( octant -> mChildren[ x ][ y ][ z ] == 0 )
         {
-            int x, y, z;
-            octant -> _getChildIndexes( bx, &x, &y, &z );
+            octant -> mChildren[ x ][ y ][ z ] = new Octree( octant );
 
-            if ( octant -> mChildren[ x ][ y ][ z ] == 0 )
+            const Vector3 *corners = octant -> mBox.getAllCorners();
+            Vector3 min, max;
+
+            if ( x == 0 )
             {
-                octant -> mChildren[ x ][ y ][ z ] = new Octree( octant );
-
-                const Vector3 *corners = octant -> mBox.getAllCorners();
-                Vector3 min, max;
-
-                if ( x == 0 )
-                {
-                    min.x = corners[ 0 ].x;
-                    max.x = ( corners[ 0 ].x + corners[ 4 ].x ) / 2;
-                }
-
-                else
-                {
-                    min.x = ( corners[ 0 ].x + corners[ 4 ].x ) / 2;
-                    max.x = corners[ 4 ].x;
-                }
-
-                if ( y == 0 )
-                {
-                    min.y = corners[ 0 ].y;
-                    max.y = ( corners[ 0 ].y + corners[ 4 ].y ) / 2;
-                }
-
-                else
-                {
-                    min.y = ( corners[ 0 ].y + corners[ 4 ].y ) / 2;
-                    max.y = corners[ 4 ].y;
-                }
-
-                if ( z == 0 )
-                {
-                    min.z = corners[ 0 ].z;
-                    max.z = ( corners[ 0 ].z + corners[ 4 ].z ) / 2;
-                }
-
-                else
-                {
-                    min.z = ( corners[ 0 ].z + corners[ 4 ].z ) / 2;
-                    max.z = corners[ 4 ].z;
-                }
-
-                octant -> mChildren[ x ][ y ][ z ] -> mBox.setExtents( min, max );
-                octant -> mChildren[ x ][ y ][ z ] -> mHalfSize = ( max - min ) / 2;
+                min.x = corners[ 0 ].x;
+                max.x = ( corners[ 0 ].x + corners[ 4 ].x ) / 2;
             }
 
-            _addOctreeNode( n, octant -> mChildren[ x ][ y ][ z ], depth++ );
+            else
+            {
+                min.x = ( corners[ 0 ].x + corners[ 4 ].x ) / 2;
+                max.x = corners[ 4 ].x;
+            }
 
+            if ( y == 0 )
+            {
+                min.y = corners[ 0 ].y;
+                max.y = ( corners[ 0 ].y + corners[ 4 ].y ) / 2;
+            }
+
+            else
+            {
+                min.y = ( corners[ 0 ].y + corners[ 4 ].y ) / 2;
+                max.y = corners[ 4 ].y;
+            }
+
+            if ( z == 0 )
+            {
+                min.z = corners[ 0 ].z;
+                max.z = ( corners[ 0 ].z + corners[ 4 ].z ) / 2;
+            }
+
+            else
+            {
+                min.z = ( corners[ 0 ].z + corners[ 4 ].z ) / 2;
+                max.z = corners[ 4 ].z;
+            }
+
+            octant -> mChildren[ x ][ y ][ z ] -> mBox.setExtents( min, max );
+            octant -> mChildren[ x ][ y ][ z ] -> mHalfSize = ( max - min ) / 2;
         }
 
-        else
+        _addOctreeNode( n, octant -> mChildren[ x ][ y ][ z ], depth++ );
+
+    }
+
+    else
+    {
+        octant -> _addNode( n );
+    }
+}
+
+
+SceneNode * OctreeSceneManager::createSceneNode( void )
+{
+    OctreeNode * on = new OctreeNode( this );
+    mSceneNodes[ on->getName() ] = on;
+    return on;
+}
+
+SceneNode * OctreeSceneManager::createSceneNode( const String &name )
+{
+    OctreeNode * on = new OctreeNode( this, name );
+    mSceneNodes[ on->getName() ] = on;
+    return on;
+}
+
+void OctreeSceneManager::_updateSceneGraph( Camera * cam )
+{
+    SceneManager::_updateSceneGraph( cam );
+}
+
+void OctreeSceneManager::_renderVisibleObjects( void )
+{
+
+    if ( mShowBoxes )
+    {
+        mDestRenderSystem->_setWorldMatrix( Matrix4::IDENTITY );
+
+        BoxList::iterator it = mBoxes.begin();
+
+        while ( it != mBoxes.end() )
         {
-            octant -> _addNode( n );
+            getBoxVerts( *( *it ), mRenderOp.pVertices );
+            mDestRenderSystem->_render( mRenderOp );
+            ++it;
         }
     }
 
-
-    SceneNode * OctreeSceneManager::createSceneNode( void )
+    if ( mCullCamera )
     {
-        OctreeNode * on = new OctreeNode( this );
-        mSceneNodes[ on->getName() ] = on;
-        return on;
+        Camera * c = getCamera( "CullCamera" );
+
+        if ( c != 0 )
+        {
+            RenderOperation r;
+            static_cast < OctreeCamera* > ( c ) -> getRenderOperation( r );
+            mDestRenderSystem -> _render( r );
+        }
     }
 
-    SceneNode * OctreeSceneManager::createSceneNode( const String &name )
+    SceneManager::_renderVisibleObjects( );
+
+
+
+}
+
+void OctreeSceneManager::getBoxVerts( AxisAlignedBox &box, Real *r )
+{
+    const Vector3 * corners = box.getAllCorners();
+
+    for ( int i = 0; i < 8; i++ )
     {
-        OctreeNode * on = new OctreeNode( this, name );
-        mSceneNodes[ on->getName() ] = on;
-        return on;
+        *r = corners[ i ].x; r++;
+        *r = corners[ i ].y; r++;
+        *r = corners[ i ].z; r++;
+    }
+}
+
+void OctreeSceneManager::_findVisibleObjects( Camera * cam )
+{
+
+    mRenderQueue.clear();
+    mBoxes.clear();
+
+    if ( mCullCamera )
+    {
+        Camera * c = getCamera( "CullCamera" );
+
+        if ( c != 0 )
+            cam = getCamera( "CullCamera" );
     }
 
-    void OctreeSceneManager::_updateSceneGraph( Camera * cam )
+    mNumObjects = 0;
+
+    //walk the octree, adding all visible Octreenodes nodes to the render queue.
+    walkOctree( static_cast < OctreeCamera * > ( cam ), &mRenderQueue, mOctree, false );
+
+}
+
+void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, Octree *octant, bool foundvisible )
+{
+
+    //return immediately if nothing is in the node.
+    if ( octant -> numNodes() == 0 )
+        return ;
+
+    OctreeCamera::Visibility v = OctreeCamera::NONE;
+
+    if ( foundvisible )
     {
-        SceneManager::_updateSceneGraph( cam );
+        v = OctreeCamera::FULL;
     }
 
-    void OctreeSceneManager::_renderVisibleObjects( void )
+    else if ( octant == mOctree )
     {
+        v = OctreeCamera::PARTIAL;
+    }
+
+    else
+    {
+        AxisAlignedBox box;
+        octant -> _getCullBounds( &box );
+        v = camera -> getVisibility( box );
+    }
+
+
+    // if the octant is visible, or if it's the root node...
+    if ( v != OctreeCamera::NONE )
+    {
+
+        //Add stuff to be rendered;
+        NodeList::iterator it = octant -> mNodes.begin();
 
         if ( mShowBoxes )
+            mBoxes.push_back( &( octant -> mBox ) );
+
+        bool vis = true;
+
+        while ( it != octant -> mNodes.end() )
         {
-            mDestRenderSystem->_setWorldMatrix( Matrix4::IDENTITY );
+            OctreeNode * sn = *it;
 
-            BoxList::iterator it = mBoxes.begin();
+            // if this octree is partially visible, manually cull all
+            // scene nodes attached directly to this level.
 
-            while ( it != mBoxes.end() )
+            if ( v == OctreeCamera::PARTIAL )
+                vis = camera -> isVisible( sn -> _getWorldAABB() );
+
+            if ( vis )
             {
-                getBoxVerts( *( *it ), mRenderOp.pVertices );
-                mDestRenderSystem->_render( mRenderOp );
-                ++it;
+
+                mNumObjects++;
+                sn -> _addToRenderQueue( queue );
+
+                if ( mDisplayNodes )
+                    queue -> addRenderable( sn );
+
             }
+
+            ++it;
         }
 
-        if ( mCullCamera )
-        {
-            Camera * c = getCamera( "CullCamera" );
+        if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ) );
 
-            if ( c != 0 )
-            {
-                RenderOperation r;
-                static_cast < OctreeCamera* > ( c ) -> getRenderOperation( r );
-                mDestRenderSystem -> _render( r );
-            }
-        }
+        if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ) );
 
-        SceneManager::_renderVisibleObjects( );
+        if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ) );
 
+        if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ) );
 
+        if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ) );
+
+        if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ) );
+
+        if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ) );
+
+        if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ) );
 
     }
 
-    void OctreeSceneManager::getBoxVerts( AxisAlignedBox &box, Real *r )
-    {
-        const Vector3 * corners = box.getAllCorners();
+}
 
-        for ( int i = 0; i < 8; i++ )
-        {
-            *r = corners[ i ].x; r++;
-            *r = corners[ i ].y; r++;
-            *r = corners[ i ].z; r++;
-        }
+void OctreeSceneManager::findNodesIn( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+{
+    if ( octant == 0 )
+    {
+        octant = mOctree;
     }
 
-    void OctreeSceneManager::_findVisibleObjects( Camera * cam )
+    if ( !full )
     {
+        AxisAlignedBox obox;
+        octant -> _getCullBounds( &obox );
 
-        mRenderQueue.clear();
-        mBoxes.clear();
+        Intersection isect = intersect( box, obox );
 
-        if ( mCullCamera )
-        {
-            Camera * c = getCamera( "CullCamera" );
-
-            if ( c != 0 )
-                cam = getCamera( "CullCamera" );
-        }
-
-        mNumObjects = 0;
-
-        //walk the octree, adding all visible Octreenodes nodes to the render queue.
-        walkOctree( static_cast < OctreeCamera * > ( cam ), &mRenderQueue, mOctree, false );
-
-    }
-
-    void OctreeSceneManager::walkOctree( OctreeCamera *camera, RenderQueue *queue, Octree *octant, bool foundvisible )
-    {
-
-        //return immediately if nothing is in the node.
-        if ( octant -> numNodes() == 0 )
+        if ( isect == OUTSIDE )
             return ;
 
-        OctreeCamera::Visibility v = OctreeCamera::NONE;
-
-        if ( foundvisible )
-        {
-            v = OctreeCamera::FULL;
-        }
-        else if ( octant == mOctree )
-        { 
-            v = OctreeCamera::PARTIAL;
-        }
-        else
-        {
-            AxisAlignedBox box;
-            octant -> _getCullBounds( &box );
-            v = camera -> getVisibility( box );
-        }
-
-
-        // if the octant is visible, or if it's the root node...
-        if ( v != OctreeCamera::NONE )
-        {
-
-            //Add stuff to be rendered;
-            NodeList::iterator it = octant -> mNodes.begin();
-
-            if ( mShowBoxes )
-                mBoxes.push_back( &( octant -> mBox ) );
-
-            bool vis = true;
-
-            while ( it != octant -> mNodes.end() )
-            {
-                OctreeNode * sn = *it;
-
-                // if this octree is partially visible, manually cull all
-                // scene nodes attached directly to this level.
-
-                if ( v == OctreeCamera::PARTIAL )
-                    vis = camera -> isVisible( sn -> _getWorldAABB() );
-
-                if ( vis )
-                {
-
-                    mNumObjects++;
-                    sn -> _addToRenderQueue( queue );
-
-                    if ( mDisplayNodes )
-                        queue -> addRenderable( sn );
-
-                }
-
-                ++it;
-            }
-
-            if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 0 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 0 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 0 ][ 1 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 0 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ) );
-
-            if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) walkOctree( camera, queue, octant -> mChildren[ 1 ][ 1 ][ 1 ], ( v == OctreeCamera::FULL ) );
-
-        }
-
+        full = ( isect == INSIDE );
     }
 
-    void OctreeSceneManager::findNodesIn( const AxisAlignedBox &box, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+
+    NodeList::iterator it = octant -> mNodes.begin();
+
+    while ( it != octant -> mNodes.end() )
     {
-        if ( octant == 0 )
+        OctreeNode * on = ( *it );
+
+        if ( on != exclude )
         {
-            octant = mOctree;
-        }
-
-        if ( !full )
-        {
-            AxisAlignedBox obox;
-            octant -> _getCullBounds( &obox );
-
-            Intersection isect = intersect( box, obox );
-
-            if ( isect == OUTSIDE )
-                return ;
-
-            full = ( isect == INSIDE );
-        }
-
-
-        NodeList::iterator it = octant -> mNodes.begin();
-
-        while ( it != octant -> mNodes.end() )
-        {
-            OctreeNode * on = ( *it );
-
-            if ( on != exclude )
+            if ( full )
             {
-                if ( full )
+                list.push_back( on );
+            }
+
+            else
+            {
+                Intersection nsect = intersect( box, on -> _getWorldAABB() );
+
+                if ( nsect != OUTSIDE )
                 {
                     list.push_back( on );
                 }
-
-                else
-                {
-                    Intersection nsect = intersect( box, on -> _getWorldAABB() );
-
-                    if ( nsect != OUTSIDE )
-                    {
-                        list.push_back( on );
-                    }
-                }
-
             }
 
-            ++it;
         }
 
-
-
-        if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
-
-        if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
-
-        if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
-
-        if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
-
-        if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
-
-        if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
-
-        if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
-
-        if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
-
+        ++it;
     }
 
-    void OctreeSceneManager::findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+
+
+    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( box, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+}
+
+void OctreeSceneManager::findNodesIn( const Sphere &sphere, std::list < SceneNode * > &list, SceneNode *exclude, bool full, Octree *octant )
+{
+    if ( octant == 0 )
     {
-        if ( octant == 0 )
+        octant = mOctree;
+    }
+
+    if ( !full )
+    {
+        AxisAlignedBox obox;
+        octant -> _getCullBounds( &obox );
+
+        Intersection isect = intersect( sphere, obox );
+
+        if ( isect == OUTSIDE )
+            return ;
+
+        full = ( isect == INSIDE );
+    }
+
+    NodeList::iterator it = octant -> mNodes.begin();
+
+    while ( it != octant -> mNodes.end() )
+    {
+        OctreeNode * on = ( *it );
+
+        if ( on != exclude )
         {
-            octant = mOctree;
-        }
-
-        if ( !full )
-        {
-            AxisAlignedBox obox;
-            octant -> _getCullBounds( &obox );
-
-            Intersection isect = intersect( sphere, obox );
-
-            if ( isect == OUTSIDE )
-                return ;
-
-            full = ( isect == INSIDE );
-        }
-
-        NodeList::iterator it = octant -> mNodes.begin();
-
-        while ( it != octant -> mNodes.end() )
-        {
-            OctreeNode * on = ( *it );
-
-            if ( on != exclude )
+            if ( full )
             {
-                if ( full )
+                list.push_back( on );
+            }
+
+            else
+            {
+                Intersection nsect = intersect( sphere, on -> _getWorldAABB() );
+
+                if ( nsect != OUTSIDE )
                 {
                     list.push_back( on );
                 }
-
-                else
-                {
-                    Intersection nsect = intersect( sphere, on -> _getWorldAABB() );
-
-                    if ( nsect != OUTSIDE )
-                    {
-                        list.push_back( on );
-                    }
-                }
             }
-
-            ++it;
         }
 
-
-
-        if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
-
-        if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
-
-        if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
-
-        if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
-
-        if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
-
-        if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
-
-        if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
-
-        if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
-
+        ++it;
     }
-    void OctreeSceneManager::resize( const AxisAlignedBox &box )
+
+
+
+    if ( octant -> mChildren[ 0 ][ 0 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 0 ] );
+
+    if ( octant -> mChildren[ 1 ][ 0 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 0 ] );
+
+    if ( octant -> mChildren[ 0 ][ 1 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 0 ] );
+
+    if ( octant -> mChildren[ 1 ][ 1 ][ 0 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 0 ] );
+
+    if ( octant -> mChildren[ 0 ][ 0 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 0 ][ 1 ] );
+
+    if ( octant -> mChildren[ 1 ][ 0 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 0 ][ 1 ] );
+
+    if ( octant -> mChildren[ 0 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 0 ][ 1 ][ 1 ] );
+
+    if ( octant -> mChildren[ 1 ][ 1 ][ 1 ] != 0 ) findNodesIn( sphere, list, exclude, full, octant -> mChildren[ 1 ][ 1 ][ 1 ] );
+
+}
+
+void OctreeSceneManager::resize( const AxisAlignedBox &box )
+{
+    std::list < SceneNode * > nodes;
+    std::list < SceneNode * > ::iterator it;
+
+    findNodesIn( mOctree->mBox, nodes, 0, true, mOctree );
+
+    delete mOctree;
+
+    mOctree = new Octree( 0 );
+    mOctree->mBox = box;
+
+    it = nodes.begin();
+
+    while ( it != nodes.end() )
     {
-        std::list<SceneNode *> nodes;
-        std::list<SceneNode *>::iterator it;
-
-        findNodesIn( mOctree->mBox, nodes, 0, true, mOctree );
-
-        delete mOctree;
-
-        mOctree = new Octree( 0 );
-        mOctree->mBox = box;
-
-        it = nodes.begin();
-        while( it != nodes.end() )
-        {
-            OctreeNode *on = static_cast<OctreeNode *>( *it );
-            on -> setOctant( 0 );
-            _updateOctreeNode( on );
-            ++it;
-        }
-
+        OctreeNode * on = static_cast < OctreeNode * > ( *it );
+        on -> setOctant( 0 );
+        _updateOctreeNode( on );
+        ++it;
     }
 
-    bool OctreeSceneManager::setOption( const String & key, const void * val )
+}
+
+bool OctreeSceneManager::setOption( const String & key, const void * val )
+{
+    if ( key == "Size" )
     {
-        if( key == "Size" )
-        {
-            resize( * static_cast<const AxisAlignedBox *>( val ) );
-            return true;
-        }
-        else if ( key == "Depth" )
-        {
-            mMaxDepth = * static_cast<const int *>( val );
-            resize( mOctree->mBox );
-            return true;
-        }
-        else if ( key == "ShowOctree" )
-        {
-            mShowBoxes = * static_cast<const bool *>( val );
-            return true;
-        }
-        else if ( key == "CullCamera" )
-        { 
-            mCullCamera = * static_cast<const bool *>( val );
-            return true;
-        }
-
-        return SceneManager::setOption( key, val );
-
-
+        resize( * static_cast < const AxisAlignedBox * > ( val ) );
+        return true;
     }
-    bool OctreeSceneManager::getOption( const String & key, void *val )
+
+    else if ( key == "Depth" )
     {
-        if( key == "Size" )
-        {
-            AxisAlignedBox *b = static_cast<AxisAlignedBox *>( val );
-            b -> setExtents( mOctree->mBox.getMinimum(), mOctree->mBox.getMaximum() );
-            return true;
-        }
-        else if ( key == "Depth" )
-        {
-            * static_cast<int *>(val) = mMaxDepth;
-            return true;
-        }
-        else if ( key == "ShowOctree" )
-        {
-
-            * static_cast<bool *>( val ) = mShowBoxes;
-            return true;
-        }
-        else if ( key == "CullCamera" )
-        { 
-            * static_cast<bool *>( val ) = mCullCamera;
-            return true;
-        }
-
-        return SceneManager::getOption( key, val );
-
+        mMaxDepth = * static_cast < const int * > ( val );
+        resize( mOctree->mBox );
+        return true;
     }
+
+    else if ( key == "ShowOctree" )
+    {
+        mShowBoxes = * static_cast < const bool * > ( val );
+        return true;
+    }
+
+    else if ( key == "CullCamera" )
+    {
+        mCullCamera = * static_cast < const bool * > ( val );
+        return true;
+    }
+
+    return SceneManager::setOption( key, val );
+
+
+}
+
+bool OctreeSceneManager::getOption( const String & key, void *val )
+{
+    if ( key == "Size" )
+    {
+        AxisAlignedBox * b = static_cast < AxisAlignedBox * > ( val );
+        b -> setExtents( mOctree->mBox.getMinimum(), mOctree->mBox.getMaximum() );
+        return true;
+    }
+
+    else if ( key == "Depth" )
+    {
+        * static_cast < int * > ( val ) = mMaxDepth;
+        return true;
+    }
+
+    else if ( key == "ShowOctree" )
+    {
+
+        * static_cast < bool * > ( val ) = mShowBoxes;
+        return true;
+    }
+
+    else if ( key == "CullCamera" )
+    {
+        * static_cast < bool * > ( val ) = mCullCamera;
+        return true;
+    }
+
+    return SceneManager::getOption( key, val );
+
+}
 }

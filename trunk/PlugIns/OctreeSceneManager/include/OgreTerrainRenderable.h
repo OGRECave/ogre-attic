@@ -1,10 +1,10 @@
 /***************************************************************************
-                          terrainrenderable.h  -  description
-                             -------------------
-    begin                : Sat Oct 5 2002
-    copyright            : (C) 2002 by Jon Anderson
-    email                : janders@users.sf.net
- ***************************************************************************/
+                         terrainrenderable.h  -  description
+                            -------------------
+   begin                : Sat Oct 5 2002
+   copyright            : (C) 2002 by Jon Anderson
+   email                : janders@users.sf.net
+***************************************************************************/
 
 /***************************************************************************
  *                                                                         *
@@ -26,61 +26,70 @@
 
 #include <vector>
 
-namespace Ogre {
-
-typedef struct 
+namespace Ogre
 {
-  unsigned short * indexes;
-  int length;
-} IndexBuffer;
+
+typedef struct
+{
+    unsigned short * indexes;
+    int length;
+}
+
+IndexBuffer;
 
 
-typedef std::vector< IndexBuffer * > IndexArray;
-typedef std::vector< IndexArray > LevelArray;
+typedef std::vector < IndexBuffer * > IndexArray;
+typedef std::vector < IndexArray > LevelArray;
 
 
 inline Real _max( Real x, Real y )
 {
-  return ( x > y ) ? x : y;
+    return ( x > y ) ? x : y;
 }
 
 /**
   * A simple class for encapsulating parameters passed in when initializing a TerrainRenderable
   */
+
 class TerrainOptions
 {
 public:
-  TerrainOptions()
-  {
-    data = 0;
-    size = 0;
-    world_size=0;
-    startx = 0;
-    startz = 0;
-    max_mipmap = 0;
-    scalex = 1;
-    scaley = 1;
-    scalez = 1;
-    max_pixel_error = 4;
-    vert_res = 768;
-    top_coord = 1;
-    near_plane = 1;
-    detail_tile = 1;
-  };
+    TerrainOptions()
+    {
+        data = 0;
+        size = 0;
+        world_size = 0;
+        startx = 0;
+        startz = 0;
+        max_mipmap = 0;
+        scalex = 1;
+        scaley = 1;
+        scalez = 1;
+        max_pixel_error = 4;
+        vert_res = 768;
+        top_coord = 1;
+        near_plane = 1;
+        detail_tile = 1;
+        lit = false;
+        colored = false;
+    };
 
-  const uchar * data;     //pointer to the world 2D data.
-  int size;         //size of this square block
-  int world_size;   //size of the world.
-  int startx;
-  int startz; //starting coords of this block.
-  int max_mipmap;  //max mip_map level
-  float scalex, scaley, scalez;
+    const uchar * data;     //pointer to the world 2D data.
+    int size;         //size of this square block
+    int world_size;   //size of the world.
+    int startx;
+    int startz; //starting coords of this block.
+    int max_mipmap;  //max mip_map level
+    float scalex, scaley, scalez;
 
-  int max_pixel_error;
-  int near_plane;
-  int vert_res;
-  int detail_tile;
-  float top_coord;
+    int max_pixel_error;
+    int near_plane;
+    int vert_res;
+    int detail_tile;
+    float top_coord;
+
+    bool lit;
+    bool colored;
 
 };
 
@@ -101,149 +110,191 @@ class TerrainRenderable : public Renderable, public MovableObject
 {
 public:
 
-  TerrainRenderable();
-  ~TerrainRenderable();
+    TerrainRenderable();
+    ~TerrainRenderable();
 
-  enum Neighbor
-  {
-    NORTH=0,
-    SOUTH=1,
-    EAST=2,
-    WEST=3,
-    HERE=4
-  };
+    enum Neighbor
+    {
+        NORTH = 0,
+        SOUTH = 1,
+        EAST = 2,
+        WEST = 3,
+        HERE = 4
+    };
 
-  /**
-    Initializes the TerrainRenderable with the given options.
-   */
-  void init( TerrainOptions &options );
+    /**
+      Initializes the TerrainRenderable with the given options.
+     */
+    void init( TerrainOptions &options );
 
-  //movable object methods
-  /** Returns the name of the TerrainRenderable */
-  virtual const String& getName(void) const { return mName; };
-  /** Returns the type of the movable. */
-  virtual const String getMovableType(void) const { return mType; };
+    //movable object methods
+    /** Returns the name of the TerrainRenderable */
+    virtual const String& getName( void ) const
+    {
+        return mName;
+    };
 
-  /** Returns the bounding box of this TerrainRenderable */
-  const AxisAlignedBox& getBoundingBox(void) const { return mBounds; };
+    /** Returns the type of the movable. */
+    virtual const String getMovableType( void ) const
+    {
+        return mType;
+    };
 
-  /** Updates the level of detail to be used for rendering this TerrainRenderable based on the passed in Camera */
-  virtual void _notifyCurrentCamera(Camera* cam);
+    /** Returns the bounding box of this TerrainRenderable */
+    const AxisAlignedBox& getBoundingBox( void ) const
+    {
+        return mBounds;
+    };
 
-  virtual void _updateRenderQueue(RenderQueue* queue);
+    /** Updates the level of detail to be used for rendering this TerrainRenderable based on the passed in Camera */
+    virtual void _notifyCurrentCamera( Camera* cam );
 
-  /**
-    Constructs a RenderOperation to render the TerrainRenderable.
-    @remarks
-      Each TerrainRenderable has a block of vertices that represent the terrain.  Index arrays are dynamically
-      created for mipmap level, and then cached.
-   */
-  virtual void getRenderOperation(RenderOperation& rend);
+    virtual void _updateRenderQueue( RenderQueue* queue );
 
-  virtual Material* getMaterial(void) const { return mMaterial; };
-  virtual void getWorldTransforms(Matrix4* xform);
+    /**
+      Constructs a RenderOperation to render the TerrainRenderable.
+      @remarks
+        Each TerrainRenderable has a block of vertices that represent the terrain.  Index arrays are dynamically
+        created for mipmap level, and then cached.
+     */
+    virtual void getRenderOperation( RenderOperation& rend );
 
-  /** Returns the size of the TerrainRenderable */
-  inline int getSize() { return mSize; };
-  /** Returns the mipmap level that will be rendered for this frame. */
-  inline int getRenderLevel() { return mRenderLevel; };
-  /** Returns the maximum number of mipmaps used for LOD. */
-  inline int getNumMipMaps() { return mNumMipMaps; };
+    virtual Material* getMaterial( void ) const
+    {
+        return mMaterial;
+    };
 
-  /** Returns the terrain height at the given coordinates */
-  float getHeightAt( float x, float y );
+    virtual void getWorldTransforms( Matrix4* xform );
 
-  /** Sets the appropriate neighbor for this TerrainRenderable.  Neighbors are necessary
-      to know when to bridge between LODs.
-  */
-  void _setNeighbor( Neighbor n, TerrainRenderable *t ) { mNeighbors[n] = t; };
+    /** Returns the size of the TerrainRenderable */
+    inline int getSize()
+    {
+        return mSize;
+    };
 
-  void setMaterial( Material *m ) { mMaterial = m; };
+    /** Returns the mipmap level that will be rendered for this frame. */
+    inline int getRenderLevel()
+    {
+        return mRenderLevel;
+    };
 
-  /** Aligns mipmap levels between neighbors so that only 1 LOD level separates neighbors. */
-  void _alignNeighbors();
-  /** Calculates static normals for lighting the terrain. */
-  void _calculateNormals();
+    /** Returns the maximum number of mipmaps used for LOD. */
+    inline int getNumMipMaps()
+    {
+        return mNumMipMaps;
+    };
+
+    /** Returns the terrain height at the given coordinates */
+    float getHeightAt( float x, float y );
+
+    /** Sets the appropriate neighbor for this TerrainRenderable.  Neighbors are necessary
+        to know when to bridge between LODs.
+    */
+    void _setNeighbor( Neighbor n, TerrainRenderable *t )
+    {
+        mNeighbors[ n ] = t;
+    };
+
+    void setMaterial( Material *m )
+    {
+        mMaterial = m;
+    };
+
+    /** Aligns mipmap levels between neighbors so that only 1 LOD level separates neighbors. */
+    void _alignNeighbors();
+    /** Calculates static normals for lighting the terrain. */
+    void _calculateNormals();
 
 
- static int mRenderedTris;
+    static int mRenderedTris;
 
 protected:
 
-  /** Returns the index into the height array for the given coords. */
-  inline int _index(int x, int z) { return ( x + z * mSize ); };
-  /** Returns the  vertex coord for the given coordinates */
-  inline float _vertex( int x, int z, int n ) { return mTerrain.pVertices[ x*3 + z*mSize*3 + n]; };
-
-
-  inline int _numNeighbors()
-  {
-    int n=0;
-    for(int i=0; i<4; i++ )
+    /** Returns the index into the height array for the given coords. */
+    inline int _index( int x, int z )
     {
-      if( mNeighbors[i] != 0 )
-        n++;
+        return ( x + z * mSize );
+    };
+
+    /** Returns the  vertex coord for the given coordinates */
+    inline float _vertex( int x, int z, int n )
+    {
+        return mTerrain.pVertices[ x * 3 + z * mSize * 3 + n ];
+    };
+
+
+    inline int _numNeighbors()
+    {
+        int n = 0;
+
+        for ( int i = 0; i < 4; i++ )
+        {
+            if ( mNeighbors[ i ] != 0 )
+                n++;
+        }
+
+        return n;
     }
 
-    return n;
-  }
-
-  inline bool _hasNeighborRenderLevel( int i )
-  {
-    for(int j=0; j<4; j++ )
+    inline bool _hasNeighborRenderLevel( int i )
     {
-      if( mNeighbors[j] != 0 && mNeighbors[j]->mRenderLevel == i)
-        return true;;
+        for ( int j = 0; j < 4; j++ )
+        {
+            if ( mNeighbors[ j ] != 0 && mNeighbors[ j ] ->mRenderLevel == i )
+                return true;;
+        }
+
+        return false;
+
     }
 
-    return false;
+    void _initLevelIndexes();
 
-  }
+    bool _checkSize( int n );
 
-  void _initLevelIndexes();
+    void _calculateMinLevelDist2( Real C );
 
-  bool _checkSize( int n );
+    Real _calculateCFactor();
 
-  void _calculateMinLevelDist2( Real C );
+    GeometryData mTerrain;
 
-   Real _calculateCFactor();
+    int mNumMipMaps;
+    int mRenderLevel;
 
-  GeometryData mTerrain;
+    Real *mMinLevelDistSqr;
 
-  int mNumMipMaps;
-  int mRenderLevel;
+    TerrainRenderable *mNeighbors [ 4 ];
 
-  Real *mMinLevelDistSqr;
+    AxisAlignedBox mBounds;
+    Vector3 mCenter;
 
-  TerrainRenderable *mNeighbors [4];
+    int mSize;
+    int mWorldSize;
 
-  AxisAlignedBox mBounds;
-  Vector3 mCenter;
+    String mName;
+    static String mType;
 
-  int mSize;
-  int mWorldSize;
+    Material *mMaterial;
 
-  String mName;
-  static String mType;
+    bool mRenderLevelChanged;
+    bool mInit;
 
-  Material *mMaterial;
+    unsigned long * mColors;
 
-  bool mRenderLevelChanged;
-  bool mInit;
+    static LevelArray mLevelIndex;
+    static bool mLevelInit;
 
-  unsigned long * mColors;
+    int mNearPlane;
+    int mMaxPixelError;
+    int mVertResolution;
+    Real mTopCoord;
 
-  static LevelArray mLevelIndex;
-  static bool mLevelInit;
+    Real old_L;
 
-  int mNearPlane;
-  int mMaxPixelError;
-  int mVertResolution;
-  Real mTopCoord;
+    Real current_L;
 
-  Real old_L;
-
-  Real current_L;
+    bool mColored;
+    bool mLit;
 
 };
 

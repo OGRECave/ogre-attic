@@ -28,53 +28,53 @@ email                : janders@users.sf.net
 namespace Ogre
 {
 
-    class Octree;
+class Octree;
 
 
-    /** Specialized viewpoint from which an Octree can be rendered.
-    @remarks
-    This class contains several speciliazations of the Ogre::Camera class. It
-    implements the getRenderOperation method inorder to return displayable geometry
-    for debuggin purposes. It also implements a visibility function that is more granular
-    than the default.
-    */
+/** Specialized viewpoint from which an Octree can be rendered.
+@remarks
+This class contains several speciliazations of the Ogre::Camera class. It
+implements the getRenderOperation method inorder to return displayable geometry
+for debuggin purposes. It also implements a visibility function that is more granular
+than the default.
+*/
 
-    class OctreeCamera : public Camera
+class OctreeCamera : public Camera
+{
+public:
+
+    /** Visibility types */
+    enum Visibility
     {
-    public:
-
-        /** Visibility types */
-        enum Visibility
-        {
-            NONE,
-            PARTIAL,
-            FULL
-        };
-
-        /* Standard Constructor */
-        OctreeCamera( String name, SceneManager* sm );
-        /* Standard destructor */
-        ~OctreeCamera();
-
-        /** Returns the visiblity of the box
-        */
-        OctreeCamera::Visibility getVisibility( const AxisAlignedBox &bound );
-
-        /** Sets up the render operation to render the view frustum of the camera
-        */
-        virtual void getRenderOperation( RenderOperation& rend );
-
-    protected:
-        /** Internal method used to find corners of the view frustum
-        */
-        void _getCorner( Real *r, FrustumPlane p1, FrustumPlane p2, FrustumPlane p3 );
-
-        Real mCorners[ 24 ];
-        ///Shared list of indexes used to render
-        static unsigned short mIndexes[ 24 ];
-        ///Shared list of colors used to render
-        static unsigned long mColors[ 8 ];
+        NONE,
+        PARTIAL,
+        FULL
     };
+
+    /* Standard Constructor */
+    OctreeCamera( String name, SceneManager* sm );
+    /* Standard destructor */
+    ~OctreeCamera();
+
+    /** Returns the visiblity of the box
+    */
+    OctreeCamera::Visibility getVisibility( const AxisAlignedBox &bound );
+
+    /** Sets up the render operation to render the view frustum of the camera
+    */
+    virtual void getRenderOperation( RenderOperation& rend );
+
+protected:
+    /** Internal method used to find corners of the view frustum
+    */
+    void _getCorner( Real *r, FrustumPlane p1, FrustumPlane p2, FrustumPlane p3 );
+
+    Real mCorners[ 24 ];
+    ///Shared list of indexes used to render
+    static unsigned short mIndexes[ 24 ];
+    ///Shared list of colors used to render
+    static unsigned long mColors[ 8 ];
+};
 
 }
 

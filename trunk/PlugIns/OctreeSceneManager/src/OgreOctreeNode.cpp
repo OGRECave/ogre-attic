@@ -22,152 +22,155 @@ email                : janders@users.sf.net
 
 namespace Ogre
 {
-    unsigned long green = 0xFFFFFFFF;
+unsigned long green = 0xFFFFFFFF;
 
-    unsigned short OctreeNode::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,    //back
-        0, 6, 6, 5, 5, 1,          //left
-        3, 7, 7, 4, 4, 2,          //right
+unsigned short OctreeNode::mIndexes[ 24 ] = {0, 1, 1, 2, 2, 3, 3, 0,     //back
+        0, 6, 6, 5, 5, 1,           //left
+        3, 7, 7, 4, 4, 2,           //right
         6, 7, 5, 4 };          //front
-    unsigned long OctreeNode::mColors[ 8 ] = {green, green, green, green, green, green, green, green };
+unsigned long OctreeNode::mColors[ 8 ] = {green, green, green, green, green, green, green, green };
 
-    OctreeNode::OctreeNode( SceneManager* creator ) : SceneNode( creator )
+OctreeNode::OctreeNode( SceneManager* creator ) : SceneNode( creator )
+{
+    mOctant = 0;
+}
+
+OctreeNode::OctreeNode( SceneManager* creator, const String& name ) : SceneNode( creator, name )
+{
+    mOctant = 0;
+}
+
+OctreeNode::~OctreeNode()
+{}
+
+void OctreeNode::_update( Camera* cam, bool updateChildren )
+{
+    _updateFromParent();
+
+    // Tell attached objects about camera position (incase any extra processing they want to do)
+
+    ObjectMap::iterator i = mObjectsByName.begin();
+
+    while ( i != mObjectsByName.end() )
     {
-        mOctant = 0;
+        i -> second ->_notifyCurrentCamera( cam );
+        ++i;
     }
 
-    OctreeNode::OctreeNode( SceneManager* creator, const String& name ) : SceneNode( creator, name )
+    if ( updateChildren )
     {
-        mOctant = 0;
-    }
+        ChildNodeMap::iterator i = mChildren.begin();
 
-    OctreeNode::~OctreeNode()
-    {
-    }
-
-    void OctreeNode::_update( Camera* cam, bool updateChildren )
-    {
-        _updateFromParent();
-
-        // Tell attached objects about camera position (incase any extra processing they want to do)
-
-        ObjectMap::iterator i = mObjectsByName.begin();
-        while( i != mObjectsByName.end() )
+        while ( i != mChildren.end() )
         {
-            i -> second ->_notifyCurrentCamera( cam );
+            SceneNode * sceneChild = static_cast < SceneNode* > ( i->second );
+            sceneChild->_update( cam, updateChildren );
             ++i;
         }
-
-        if ( updateChildren )
-        {
-            ChildNodeMap::iterator i = mChildren.begin();
-            while( i != mChildren.end() )
-            {
-                SceneNode* sceneChild = static_cast < SceneNode* > ( i->second );
-                sceneChild->_update( cam, updateChildren );
-                ++i;
-            }
-        }
-
-        _updateOctreeBounds();
-
     }
 
-    //same as SceneNode, only it doesn't care about children...
-    void OctreeNode::_updateOctreeBounds( void )
-    {
-        mWorldAABB.setNull();
-        mLocalAABB.setNull();
+    _updateOctreeBounds();
 
-        // Update bounds from own attached objects
-        ObjectMap::iterator i = mObjectsByName.begin();
-        AxisAlignedBox bx;
+}
 
-        while( i != mObjectsByName.end() )
-        {
+//same as SceneNode, only it doesn't care about children...
+void OctreeNode::_updateOctreeBounds( void )
+{
+    mWorldAABB.setNull();
+    mLocalAABB.setNull();
 
-            // Get local bounds of object
-            bx = i->second ->getBoundingBox();
+    // Update bounds from own attached objects
+    ObjectMap::iterator i = mObjectsByName.begin();
+    AxisAlignedBox bx;
 
-            mLocalAABB.merge( bx );
-
-            // Transform by aggregated transform
-            bx.transform( _getFullTransform() );
-
-            mWorldAABB.merge( bx );
-            ++i;
-        }
-
-
-        //update the OctreeSceneManager that things might have moved.
-        // if it hasn't been added to the octree, add it, and if has moved
-        // enough to leave it's current node, we'll update it.
-        if ( ! mWorldAABB.isNull() )
-        {
-            static_cast < OctreeSceneManager * > ( mCreator ) -> _updateOctreeNode( this );
-        }
-
-    }
-
-    /** Since we are loose, only check the center.
-    */
-    bool OctreeNode::_isIn( AxisAlignedBox &box )
+    while ( i != mObjectsByName.end() )
     {
 
-        Vector3 center = mWorldAABB.getMaximum().midPoint( mWorldAABB.getMinimum() );
+        // Get local bounds of object
+        bx = i->second ->getBoundingBox();
 
-        Vector3 bmin = box.getMinimum();
-        Vector3 bmax = box.getMaximum();
+        mLocalAABB.merge( bx );
 
-        return ( bmax > center && bmin < center );
+        // Transform by aggregated transform
+        bx.transform( _getFullTransform() );
 
+        mWorldAABB.merge( bx );
+        ++i;
     }
 
-    /** Addes the attached objects of this OctreeScene node into the queue. */
-    void OctreeNode::_addToRenderQueue( RenderQueue *queue )
-    {
-        ObjectMap::iterator mit = mObjectsByName.begin();
 
-        while ( mit != mObjectsByName.end() )
+    //update the OctreeSceneManager that things might have moved.
+    // if it hasn't been added to the octree, add it, and if has moved
+    // enough to leave it's current node, we'll update it.
+    if ( ! mWorldAABB.isNull() )
+    {
+        static_cast < OctreeSceneManager * > ( mCreator ) -> _updateOctreeNode( this );
+    }
+
+}
+
+/** Since we are loose, only check the center.
+*/
+bool OctreeNode::_isIn( AxisAlignedBox &box )
+{
+
+    Vector3 center = mWorldAABB.getMaximum().midPoint( mWorldAABB.getMinimum() );
+
+    Vector3 bmin = box.getMinimum();
+    Vector3 bmax = box.getMaximum();
+
+    return ( bmax > center && bmin < center );
+
+}
+
+/** Addes the attached objects of this OctreeScene node into the queue. */
+void OctreeNode::_addToRenderQueue( RenderQueue *queue )
+{
+    ObjectMap::iterator mit = mObjectsByName.begin();
+
+    while ( mit != mObjectsByName.end() )
+    {
+        MovableObject * mo = mit->second;
+
+        if ( mo->isVisible() )
         {
-            MovableObject * mo = mit->second;
-            if (mo->isVisible()) 
-            { 
-                mo -> _updateRenderQueue( queue );
-            }
-            ++mit;
+            mo -> _updateRenderQueue( queue );
         }
 
+        ++mit;
     }
 
+}
 
-    void OctreeNode::getRenderOperation( RenderOperation& rend )
+
+void OctreeNode::getRenderOperation( RenderOperation& rend )
+{
+
+    rend.useIndexes = true;
+    rend.numTextureCoordSets = 0; // no textures
+    rend.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
+    rend.operationType = RenderOperation::OT_LINE_LIST;
+    rend.numVertices = 8;
+    rend.numIndexes = 24;
+
+    rend.pVertices = mCorners;
+    rend.pIndexes = mIndexes;
+    rend.pDiffuseColour = mColors;
+
+    const Vector3 * corners = _getLocalAABB().getAllCorners();
+
+    int index = 0;
+
+    for ( int i = 0; i < 8; i++ )
     {
-
-        rend.useIndexes = true;
-        rend.numTextureCoordSets = 0; // no textures
-        rend.vertexOptions = RenderOperation::VO_DIFFUSE_COLOURS;
-        rend.operationType = RenderOperation::OT_LINE_LIST;
-        rend.numVertices = 8;
-        rend.numIndexes = 24;
-
-        rend.pVertices = mCorners;
-        rend.pIndexes = mIndexes;
-        rend.pDiffuseColour = mColors;
-
-        const Vector3 * corners = _getLocalAABB().getAllCorners();
-
-        int index = 0;
-
-        for ( int i = 0; i < 8; i++ )
-        {
-            rend.pVertices[ index ] = corners[ i ].x;
-            index++;
-            rend.pVertices[ index ] = corners[ i ].y;
-            index++;
-            rend.pVertices[ index ] = corners[ i ].z;
-            index++;
-        }
-
-
+        rend.pVertices[ index ] = corners[ i ].x;
+        index++;
+        rend.pVertices[ index ] = corners[ i ].y;
+        index++;
+        rend.pVertices[ index ] = corners[ i ].z;
+        index++;
     }
+
+
+}
 }
