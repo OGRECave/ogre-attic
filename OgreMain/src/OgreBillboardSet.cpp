@@ -327,69 +327,115 @@ namespace Ogre {
 
         RGBA* pC = static_cast<RGBA*>( 
             vColBuf->lock(HardwareBuffer::HBL_DISCARD) );
-        
+
+        HardwareVertexBufferSharedPtr vTexBuf = 
+            mVertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+
+		Real* pT = static_cast<Real*>( 
+            vTexBuf->lock(HardwareBuffer::HBL_DISCARD) );
+
         if( mAllDefaultSize ) // If they're all the same size
         {
             /* No per-billboard checking, just blast through.
                Saves us an if clause every billboard which may
                make a difference.
             */
-            for( it = mActiveBillboards.begin();
-                 it != mActiveBillboards.end();
-                 ++it )
-            {
-                // Skip if not visible (NB always true if not bounds checking individual billboards)
-                if (!billboardVisible(cam, it)) continue;
 
-                if (mBillboardType == BBT_ORIENTED_SELF)
-                {
-                    // Have to generate axes & offsets per billboard
-                    genBillboardAxes(*cam, &camX, &camY, *it);
-                    genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
-                        mDefaultWidth, mDefaultHeight, camX, camY, vOffset);
-                }
+			if (mBillboardType == BBT_ORIENTED_SELF)
+			{
+				for( it = mActiveBillboards.begin();
+					it != mActiveBillboards.end();
+					++it )
+				{
+					// Skip if not visible (NB always true if not bounds checking individual billboards)
+					if (!billboardVisible(cam, it)) continue;
 
+					// Have to generate axes & offsets per billboard
+					genBillboardAxes(*cam, &camX, &camY, *it);
+					genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
+						mDefaultWidth, mDefaultHeight, camX, camY, vOffset);
 
-                genVertices(&pV, &pC, vOffset, *it);
+					genVertices(&pV, &pC, &pT, vOffset, *it);
 
-                // Increment visibles
-                mNumVisibleBillboards++;
-            }
+					// Increment visibles
+					mNumVisibleBillboards++;
+				}
+			} else
+			{
+				for( it = mActiveBillboards.begin();
+					it != mActiveBillboards.end();
+					++it )
+				{
+					// Skip if not visible (NB always true if not bounds checking individual billboards)
+					if (!billboardVisible(cam, it)) continue;
+
+					genVertices(&pV, &pC, &pT, vOffset, *it);
+
+					// Increment visibles
+					mNumVisibleBillboards++;
+				}
+			}
         }
         else // not all default size
         {
             Vector3 vOwnOffset[4];
-            for( it = mActiveBillboards.begin(); it != mActiveBillboards.end(); ++it )
-            {
-                // Skip if not visible (NB always true if not bounds checking individual billboards)
-                if (!billboardVisible(cam, it)) continue;
+            if (mBillboardType == BBT_ORIENTED_SELF)
+			{
+				for( it = mActiveBillboards.begin(); it != mActiveBillboards.end(); ++it )
+				{
+					// Skip if not visible (NB always true if not bounds checking individual billboards)
+					if (!billboardVisible(cam, it)) continue;
 
-                if (mBillboardType == BBT_ORIENTED_SELF)
-                {
-                    // Have to generate axes & offsets per billboard
-                    genBillboardAxes(*cam, &camX, &camY, *it);
-                }
+					// Have to generate axes & offsets per billboard
+					genBillboardAxes(*cam, &camX, &camY, *it);
+			
+					// If it has own dimensions, or self-oriented, gen offsets
+					if( (*it)->mOwnDimensions) 
+					{
+						// Generate using own dimensions
+						genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
+							(*it)->mWidth, (*it)->mHeight, camX, camY, vOwnOffset);
+						// Create vertex data            
+						genVertices(&pV, &pC, &pT, vOwnOffset, *it);
+					}
+					else // Use default dimension, already computed before the loop, for faster creation
+					{
+						genVertices(&pV, &pC, &pT, vOffset, *it);
+					}
 
-                // If it has own dimensions, or self-oriented, gen offsets
-                if( (*it)->mOwnDimensions || mBillboardType == BBT_ORIENTED_SELF ) 
-                {
-                    // Generate using own dimensions
-                    genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
-                        (*it)->mWidth, (*it)->mHeight, camX, camY, vOwnOffset);
-                    // Create vertex data            
-                    genVertices(&pV, &pC, vOwnOffset, *it);
-                }
-                else // Use default dimension, already computed before the loop, for faster creation
-                {
-                    genVertices(&pV, &pC, vOffset, *it);
-                }
+					// Increment visibles
+					mNumVisibleBillboards++;
 
-                // Increment visibles
-                mNumVisibleBillboards++;
+				}
+			} else
+			{
+				for( it = mActiveBillboards.begin(); it != mActiveBillboards.end(); ++it )
+				{
+					// Skip if not visible (NB always true if not bounds checking individual billboards)
+					if (!billboardVisible(cam, it)) continue;
 
-            }
+					// If it has own dimensions, or self-oriented, gen offsets
+					if( (*it)->mOwnDimensions) 
+					{
+						// Generate using own dimensions
+						genVertOffsets(leftOff, rightOff, topOff, bottomOff, 
+							(*it)->mWidth, (*it)->mHeight, camX, camY, vOwnOffset);
+						// Create vertex data            
+						genVertices(&pV, &pC, &pT, vOwnOffset, *it);
+					}
+					else // Use default dimension, already computed before the loop, for faster creation
+					{
+						genVertices(&pV, &pC, &pT, vOffset, *it);
+					}
+
+					// Increment visibles
+					mNumVisibleBillboards++;
+
+				}
+			}
         }
 
+		vTexBuf->unlock();
         vColBuf->unlock();
         vPosBuf->unlock();
 
@@ -839,8 +885,36 @@ namespace Ogre {
         return mCommonDirection;
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::genVertices(Real **pPos, RGBA** pCol, const Vector3* offsets, const Billboard* pBillboard)
+    void BillboardSet::genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* offsets, const Billboard* pBillboard)
     {
+		// Texcoords
+
+       	if (pBillboard->mRotation != 0)
+		{
+			// Create template texcoord data
+			Real texData[8] = {
+				-0.5,-0.5,
+				 0.5,-0.5,
+				-0.5, 0.5,
+				 0.5, 0.5 };
+
+			const Real		rotation = pBillboard->mRotation;
+			const Real		cos_rot	 = Math::Cos(rotation);
+			const Real		sin_rot	 = Math::Sin(rotation);
+		
+			*(*pTex)++ = (cos_rot * texData[0]) + (sin_rot * texData[1]) + 0.5;
+			*(*pTex)++ = (sin_rot * texData[0]) - (cos_rot * texData[1]) + 0.5;
+
+			*(*pTex)++ = (cos_rot * texData[2]) + (sin_rot * texData[3]) + 0.5;
+			*(*pTex)++ = (sin_rot * texData[2]) - (cos_rot * texData[3]) + 0.5;
+	        
+			*(*pTex)++ = (cos_rot * texData[4]) + (sin_rot * texData[5]) + 0.5;
+			*(*pTex)++ = (sin_rot * texData[4]) - (cos_rot * texData[5]) + 0.5;
+	        
+			*(*pTex)++ = (cos_rot * texData[6]) + (sin_rot * texData[7]) + 0.5;
+			*(*pTex)++ = (sin_rot * texData[6]) - (cos_rot * texData[7]) + 0.5;
+		}
+
         // Positions
 
         // Left-top

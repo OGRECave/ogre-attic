@@ -22,47 +22,32 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
-#include "OgreBoxEmitter.h"
-#include "OgreParticle.h"
-#include "OgreException.h"
-#include "OgreStringConverter.h"
+#ifndef __ColourInterpolatorAffectorFactory_H__
+#define __ColourInterpolatorAffectorFactory_H__
 
-
+#include "OgreParticleFXPrerequisites.h"
+#include "OgreParticleAffectorFactory.h"
+#include "OgreColourInterpolatorAffector.h"
 
 namespace Ogre {
 
-
-    //-----------------------------------------------------------------------
-    BoxEmitter::BoxEmitter()
+    /** Factory class for ColourInterpolatorAffector. */
+    class _OgreParticleFXExport ColourInterpolatorAffectorFactory : public ParticleAffectorFactory
     {
-        initDefaults("Box");
-    }
-    //-----------------------------------------------------------------------
-    void BoxEmitter::_initParticle(Particle* pParticle)
-    {
-        Vector3 xOff, yOff, zOff;
+        /** See ParticleAffectorFactory */
+        String getName() { return "ColourInterpolator"; }
 
-        // Call superclass
-        ParticleEmitter::_initParticle(pParticle);
-
-        xOff = Math::SymmetricRandom() * mXRange;
-        yOff = Math::SymmetricRandom() * mYRange;
-        zOff = Math::SymmetricRandom() * mZRange;
-
-        pParticle->mPosition = mPosition + xOff + yOff + zOff;
-        
-
-        // Generate complex data by reference
-        genEmissionColour(pParticle->mColour);
-        genEmissionDirection(pParticle->mDirection);
-        genEmissionVelocity(pParticle->mDirection);
-
-        // Generate simpler data
-        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
-        
-    }
+        /** See ParticleAffectorFactory */
+        ParticleAffector* createAffector(void)
+        {
+            ParticleAffector* p = new ColourInterpolatorAffector();
+            mAffectors.push_back(p);
+            return p;
+        }
+    };
 
 
 }
 
+#endif
 

@@ -149,6 +149,9 @@ AC_CONFIG_FILES([Makefile \
     Samples/SkyPlane/Makefile \
     Samples/SkyPlane/src/Makefile \
     Samples/SkyPlane/include/Makefile \
+    Samples/Smoke/Makefile \
+    Samples/Smoke/src/Makefile \
+    Samples/Smoke/include/Makefile \
     Samples/BSP/Makefile \
     Samples/BSP/src/Makefile \
     Samples/BSP/include/Makefile \

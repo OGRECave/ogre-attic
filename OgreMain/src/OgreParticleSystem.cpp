@@ -264,17 +264,18 @@ namespace Ogre {
             requested.resize( mEmitters.size() );
 
         size_t totalRequested, emitterCount, i, emissionAllowed;
-        ParticleEmitterList::iterator it, iEmitEnd;
-        
+        ParticleEmitterList::iterator	itEmit, iEmitEnd;
+        ParticleAffectorList::iterator	itAff, itAffEnd;
+			    
         iEmitEnd = mEmitters.end();
         emitterCount = mEmitters.size();
         emissionAllowed = getParticleQuota() - mActiveBillboards.size();
         totalRequested = 0;
 
         // Count up total requested emissions
-        for (it = mEmitters.begin(), i = 0; it != iEmitEnd; ++it, ++i)
+        for (itEmit = mEmitters.begin(), i = 0; itEmit != iEmitEnd; ++itEmit, ++i)
         {
-            requested[i] = (*it)->_getEmissionCount(timeElapsed);
+            requested[i] = (*itEmit)->_getEmissionCount(timeElapsed);
             totalRequested += requested[i];
         }
 
@@ -294,7 +295,7 @@ namespace Ogre {
 		// For each emission, apply a subset of the motion for the frame
 		// this ensures an even distribution of particles when many are
 		// emitted in a single frame
-        for (it = mEmitters.begin(), i = 0; it != iEmitEnd; ++it, ++i)
+        for (itEmit = mEmitters.begin(), i = 0; itEmit != iEmitEnd; ++itEmit, ++i)
         {
 			Real timePoint = 0.0f;
 			Real timeInc = timeElapsed / requested[i];
@@ -302,18 +303,23 @@ namespace Ogre {
             {
                 // Create a new particle & init using emitter
                 Particle* p = addParticle();
-                (*it)->_initParticle(p);
-                // Translate position & direction into world space
+                (*itEmit)->_initParticle(p);
+
+				// Translate position & direction into world space
                 // Maybe make emitter do this?
-                p->mPosition =  (mParentNode->_getDerivedOrientation() * p->mPosition) + mParentNode->_getDerivedPosition();
-                p->mDirection = mParentNode->_getDerivedOrientation() * p->mDirection;
+                p->mPosition  = (mParentNode->_getDerivedOrientation() * p->mPosition) + mParentNode->_getDerivedPosition();
+                p->mDirection = (mParentNode->_getDerivedOrientation() * p->mDirection);
 
 				// apply partial frame motion to this particle
             	p->mPosition += (p->mDirection * timePoint);
 
+				// apply particle initialization by the affectors
+				itAffEnd = mAffectors.end();
+				for (itAff = mAffectors.begin(); itAff != itAffEnd; ++itAff)
+					(*itAff)->_initParticle(p);
+
 				// Increment time fragment
 				timePoint += timeInc;
-
             }
         }
 

@@ -86,7 +86,7 @@ namespace Ogre {
         genEmissionVelocity(pParticle->mDirection);
 
         // Generate simpler data
-        pParticle->mTimeToLive = genEmissionTTL();
+        pParticle->mTimeToLive = pParticle->mTotalTimeToLive = genEmissionTTL();
         
     }
 
