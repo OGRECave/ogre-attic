@@ -122,10 +122,15 @@ namespace Ogre {
 		GpuProgramUsage *mVertexProgramUsage;
 		// Fragment program details
 		GpuProgramUsage *mFragmentProgramUsage;
+        // Is this pass queued for deletion?
+        bool mQueuedForDeletion;
 	public:
-		typedef std::set<Pass*> DirtyHashList;
+		typedef std::set<Pass*> PassSet;
+    protected:
 		/// List of Passes whose hashes need recalculating
-		static DirtyHashList msDirtyHashList;
+		static PassSet msDirtyHashList;
+        /// The place where passes go to die
+        static PassSet msPassGraveyard;
     public:
         /// Default constructor
 		Pass(Technique* parent, unsigned short index);
@@ -755,8 +760,12 @@ namespace Ogre {
 		/** Static method to retrieve all the Passes which need their
 		    hash values recalculated. 
 		*/
-		static const DirtyHashList& getDirtyHashList(void) 
+		static const PassSet& getDirtyHashList(void) 
 		{ return msDirtyHashList; }
+        /** Static method to retrieve all the Passes which are pending deletion.
+        */
+        static const PassSet& getPassGraveyard(void) 
+        { return msPassGraveyard; }
 		/** Static method to reset the list of passes which need their hash 
 		    values recalculated. 
 		@remarks
@@ -765,6 +774,13 @@ namespace Ogre {
 			dirty hash list to clear the list when they are done.
 		*/
 		static void clearDirtyHashList(void) { msDirtyHashList.clear(); }
+
+        /** Process all dirty and pending deletion passes. */
+        static void processPendingPassUpdates(void);
+
+        /** Queue this pass for deletion when appropriate. */
+        void queueForDeletion(void);
+        
     };
 
 

@@ -34,7 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 	
     //-----------------------------------------------------------------------------
-	Pass::DirtyHashList Pass::msDirtyHashList;
+	Pass::PassSet Pass::msDirtyHashList;
+    Pass::PassSet Pass::msPassGraveyard;
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique* parent, unsigned short index)
         : mParent(parent), mIndex(index)
@@ -69,6 +70,8 @@ namespace Ogre {
 		mVertexProgramUsage = NULL;
 		mFragmentProgramUsage = NULL;
 
+        mQueuedForDeletion = false;
+
         _dirtyHash();
    }
 	
@@ -79,6 +82,7 @@ namespace Ogre {
         *this = oth;
         mParent = parent;
         mIndex = index;
+        mQueuedForDeletion = false;
         _dirtyHash();
     }
     //-----------------------------------------------------------------------------
@@ -291,8 +295,11 @@ namespace Ogre {
         TextureUnitStates::iterator i = mTextureUnitStates.begin() + index;
         delete *i;
 	    mTextureUnitStates.erase(i);
-        // Needs recompilation
-        mParent->_notifyNeedsRecompile();
+        if (!mQueuedForDeletion)
+        {
+            // Needs recompilation
+            mParent->_notifyNeedsRecompile();
+        }
         _dirtyHash();
     }
     //-----------------------------------------------------------------------
@@ -305,8 +312,11 @@ namespace Ogre {
             delete *i;
         }
         mTextureUnitStates.clear();
-        // Needs recompilation
-        mParent->_notifyNeedsRecompile();
+        if (!mQueuedForDeletion)
+        {        
+            // Needs recompilation
+            mParent->_notifyNeedsRecompile();
+        }
         _dirtyHash();
     }
     //-----------------------------------------------------------------------
@@ -783,6 +793,34 @@ namespace Ogre {
             // Update fragment program auto params
             mFragmentProgramUsage->getParameters()->_updateAutoParamsLightsOnly(source);
         }
+    }
+    //-----------------------------------------------------------------------
+    void Pass::processPendingPassUpdates(void)
+    {
+        // Delete items in the graveyard
+        PassSet::iterator i, iend;
+        iend = msPassGraveyard.end();
+        for (i = msPassGraveyard.begin(); i != iend; ++i)
+        {
+            delete *i;
+        }
+        msPassGraveyard.clear();
+
+        // The dirty ones will have been removed from the groups above using the old hash now
+        iend = msDirtyHashList.end();
+        for (i = msDirtyHashList.begin(); i != iend; ++i)
+        {
+            Pass* p = *i;
+            p->_recalculateHash();
+        }
+        // Clear the dirty list
+        msDirtyHashList.clear();
+    }
+    //-----------------------------------------------------------------------
+    void Pass::queueForDeletion(void)
+    {
+        mQueuedForDeletion = true;
+        msPassGraveyard.insert(this);
     }
 
 }
