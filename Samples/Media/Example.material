@@ -151,6 +151,21 @@ Examples/TextureEffect3
 	}
 }
 
+//Watery effect 
+Examples/TextureEffect4
+{ 
+   ambient 0.3 0.3 0.3 
+   scene_blend add 
+   // double-sided 
+   cull_hardware none 
+   cull_software none 
+
+   { 
+      texture Water02.jpg 
+      scroll_anim .01 .01
+   } 
+} 
+
 // Plain metal (2-sided)
 Examples/BumpyMetal
 {

@@ -34,6 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "ExampleApplication.h"
 #include "OgreStringConverter.h"
 
+#define FLOW_SPEED 0.2
+#define FLOW_HEIGHT 0.8
+
 class TerrainListener : public ExampleFrameListener
 {
   public:
@@ -44,6 +47,10 @@ class TerrainListener : public ExampleFrameListener
     {
         float moveScale;
         float rotScale;
+        float waterFlow;
+        static float flowAmount = 0.0f;
+        static bool flowUp = true;
+
         // local just to stop toggles flipping too fast
         static Real timeUntilNextToggle = 0;
 
@@ -55,6 +62,7 @@ class TerrainListener : public ExampleFrameListener
         {
             moveScale = 1;
             rotScale = 0.1;
+            waterFlow = 0.0f;
         }
         // Otherwise scale movement units by time passed since last frame
         else
@@ -63,10 +71,29 @@ class TerrainListener : public ExampleFrameListener
             moveScale = 10.0 * evt.timeSinceLastFrame;
             // Take about 10 seconds for full rotation
             rotScale = 36 * evt.timeSinceLastFrame;
+            
+            // set a nice waterflow rate
+            waterFlow = FLOW_SPEED * evt.timeSinceLastFrame;            
         }
 
         // Grab input device state
         mInputDevice->capture();
+
+        SceneNode *waterNode = mCamera->getSceneManager()->getRootSceneNode()->getChild("WaterNode");
+        if(waterNode)
+        {
+            if(flowUp)
+                flowAmount += waterFlow;
+            else
+                flowAmount -= waterFlow;
+
+            if(flowAmount >= FLOW_HEIGHT)
+                flowUp = false;
+            else if(flowAmount <= 0.0f)
+                flowUp = true;
+
+            waterNode->translate(0, (flowUp ? waterFlow : -waterFlow), 0);
+        }
 
         static Vector3 vec;
 
@@ -175,7 +202,6 @@ public:
     TerrainApplication() {}
 
 protected:
-
     virtual void createFrameListener(void)
     {
         mFrameListener= new TerrainListener(mWindow, mCamera);
@@ -213,9 +239,31 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+        Entity *waterEntity;
+        Plane waterPlane;
+
         // Set ambient light
         mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+      
+        // create a water plane/scene node
+        waterPlane.normal = Vector3::UNIT_Y; 
+        waterPlane.d = -1.5; 
+        MeshManager::getSingleton().createPlane(
+            "WaterPlane",
+            waterPlane,
+            2800, 2800,
+            20, 20,
+            true, 1, 
+            10, 10,
+            Vector3::UNIT_Z
+        );
 
+        waterEntity = mSceneMgr->createEntity("water", "WaterPlane"); 
+        waterEntity->setMaterialName("Examples/TextureEffect4"); 
+
+        SceneNode *waterNode = mSceneMgr->getRootSceneNode()->createChild("WaterNode"); 
+        waterNode->attachObject(waterEntity); 
+        waterNode->translate(1000, 0, 1000);
 
         // Create a light
         Light* l = mSceneMgr->createLight("MainLight");
