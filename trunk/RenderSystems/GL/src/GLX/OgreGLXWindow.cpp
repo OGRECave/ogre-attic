@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreStringConverter.h"
+#include "OgreGLXUtils.h"
 
 #include <iostream>
 #include <algorithm>
@@ -85,262 +86,10 @@ GLXWindow::~GLXWindow() {
 #endif
 }
 
-namespace {
-
-/**
- * Loads an icon from an Ogre resource into the X Server. This currently only
- * works for 24 and 32 bit displays. The image must be findable by the Ogre
- * resource system, and of format PF_A8R8G8B8.
- *
- * @param mDisplay,rootWindow	X resources to use
- * @param name			Name of image to load
- * @param pix			Receiver for the output pixmap
- * @param mask			Receiver for the output mask (alpha bitmap)
- * @returns true on success
- */
-bool LoadIcon(Display *mDisplay, Window rootWindow, const std::string &name, Pixmap *pix, Pixmap *mask) {
-	Image img;
-	int mWidth, mHeight;
-	char *data, *bitmap;
-	try {
-		// Try to load image
-		img.load(name);
-		mWidth = img.getWidth();
-		mHeight = img.getHeight();
-		if(img.getFormat() != PF_A8R8G8B8)
-			// Image format must be RGBA
-			return 0;
-	} catch(Exception &e) {
-		// Could not find image; never mind
-		return false;
-	}
-
-	// Allocate space for image data
-	data = (char*)malloc(mWidth * mHeight * 4); // Must be allocated with malloc
-	// Allocate space for transparency bitmap
-	int wbits = (mWidth+7)/8;
-	bitmap = (char*)malloc(wbits * mHeight);
-
-	// Convert and copy image
-	const char *imgdata = (const char*)img.getData();
-	int sptr = 0, dptr = 0;
-	for(int y=0; y<mHeight; y++) {
-		for(int x=0; x<mWidth; x++) {
-			data[dptr + 0] = 0;
-			data[dptr + 1] = imgdata[sptr + 0];
-			data[dptr + 2] = imgdata[sptr + 1];
-			data[dptr + 3] = imgdata[sptr + 2];
-			// Alpha threshold
-			if(((unsigned char)imgdata[sptr + 3])<128) {
-				bitmap[y*wbits+(x>>3)] &= ~(1<<(x&7));
-			} else {
-				bitmap[y*wbits+(x>>3)] |= 1<<(x&7);
-			}
-			sptr += 4;
-			dptr += 4;
-		}
-	}
-
-	/* put my pixmap data into the client side X image data structure */
-	XImage *image = XCreateImage (mDisplay, NULL, 24, ZPixmap, 0,
-	                              data,
-	                              mWidth, mHeight, 8,
-	                              mWidth*4);
-	image->byte_order = MSBFirst; // 0RGB format
-
-	/* tell server to start managing my pixmap */
-	Pixmap retval = XCreatePixmap(mDisplay, rootWindow, mWidth,
-	                              mHeight, 24);
-
-	/* copy from client to server */
-	GC context = XCreateGC (mDisplay, rootWindow, 0, NULL);
-	XPutImage(mDisplay, retval, context, image, 0, 0, 0, 0,
-	          mWidth, mHeight);
-
-	/* free up the client side pixmap data area */
-	XDestroyImage(image); // also cleans data
-	XFreeGC(mDisplay, context);
-
-	*pix = retval;
-	*mask = XCreateBitmapFromData(mDisplay, rootWindow, bitmap, mWidth, mHeight);
-	free(bitmap);
-	return true;
-}
-
-struct visual_attribs
-{
-   /* X visual attribs */
-   int id;
-   int klass;
-   int depth;
-   int redMask, greenMask, blueMask;
-   int colormapSize;
-   int bitsPerRGB;
-
-   /* GL visual attribs */
-   int supportsGL;
-   int transparentType;
-   int transparentRedValue;
-   int transparentGreenValue;
-   int transparentBlueValue;
-   int transparentAlphaValue;
-   int transparentIndexValue;
-   int bufferSize;
-   int level;
-   int rgba;
-   int doubleBuffer;
-   int stereo;
-   int auxBuffers;
-   int redSize, greenSize, blueSize, alphaSize;
-   int depthSize;
-   int stencilSize;
-   int accumRedSize, accumGreenSize, accumBlueSize, accumAlphaSize;
-   int numSamples, numMultisample;
-   int visualCaveat;
-};
-
-
-static void
-get_visual_attribs(Display *dpy, XVisualInfo *vInfo,
-                   struct visual_attribs *attribs) {
-	const char *ext = glXQueryExtensionsString(dpy, vInfo->screen);
-
-	memset(attribs, 0, sizeof(struct visual_attribs));
-
-	attribs->id = vInfo->visualid;
-#if defined(__cplusplus) || defined(c_plusplus)
-
-	attribs->klass = vInfo->c_class;
-#else
-
-	attribs->klass = vInfo->class;
-#endif
-
-	attribs->depth = vInfo->depth;
-	attribs->redMask = vInfo->red_mask;
-	attribs->greenMask = vInfo->green_mask;
-	attribs->blueMask = vInfo->blue_mask;
-	attribs->colormapSize = vInfo->colormap_size;
-	attribs->bitsPerRGB = vInfo->bits_per_rgb;
-
-	if (glXGetConfig(dpy, vInfo, GLX_USE_GL, &attribs->supportsGL) != 0)
-		return;
-	glXGetConfig(dpy, vInfo, GLX_BUFFER_SIZE, &attribs->bufferSize);
-	glXGetConfig(dpy, vInfo, GLX_LEVEL, &attribs->level);
-	glXGetConfig(dpy, vInfo, GLX_RGBA, &attribs->rgba);
-	glXGetConfig(dpy, vInfo, GLX_DOUBLEBUFFER, &attribs->doubleBuffer);
-	glXGetConfig(dpy, vInfo, GLX_STEREO, &attribs->stereo);
-	glXGetConfig(dpy, vInfo, GLX_AUX_BUFFERS, &attribs->auxBuffers);
-	glXGetConfig(dpy, vInfo, GLX_RED_SIZE, &attribs->redSize);
-	glXGetConfig(dpy, vInfo, GLX_GREEN_SIZE, &attribs->greenSize);
-	glXGetConfig(dpy, vInfo, GLX_BLUE_SIZE, &attribs->blueSize);
-	glXGetConfig(dpy, vInfo, GLX_ALPHA_SIZE, &attribs->alphaSize);
-	glXGetConfig(dpy, vInfo, GLX_DEPTH_SIZE, &attribs->depthSize);
-	glXGetConfig(dpy, vInfo, GLX_STENCIL_SIZE, &attribs->stencilSize);
-	glXGetConfig(dpy, vInfo, GLX_ACCUM_RED_SIZE, &attribs->accumRedSize);
-	glXGetConfig(dpy, vInfo, GLX_ACCUM_GREEN_SIZE, &attribs->accumGreenSize);
-	glXGetConfig(dpy, vInfo, GLX_ACCUM_BLUE_SIZE, &attribs->accumBlueSize);
-	glXGetConfig(dpy, vInfo, GLX_ACCUM_ALPHA_SIZE, &attribs->accumAlphaSize);
-
-	/* get transparent pixel stuff */
-	glXGetConfig(dpy, vInfo,GLX_TRANSPARENT_TYPE, &attribs->transparentType);
-	if (attribs->transparentType == GLX_TRANSPARENT_RGB) {
-		glXGetConfig(dpy, vInfo, GLX_TRANSPARENT_RED_VALUE, &attribs->transparentRedValue);
-		glXGetConfig(dpy, vInfo, GLX_TRANSPARENT_GREEN_VALUE, &attribs->transparentGreenValue);
-		glXGetConfig(dpy, vInfo, GLX_TRANSPARENT_BLUE_VALUE, &attribs->transparentBlueValue);
-		glXGetConfig(dpy, vInfo, GLX_TRANSPARENT_ALPHA_VALUE, &attribs->transparentAlphaValue);
-	} else if (attribs->transparentType == GLX_TRANSPARENT_INDEX) {
-		glXGetConfig(dpy, vInfo, GLX_TRANSPARENT_INDEX_VALUE, &attribs->transparentIndexValue);
-	}
-
-	/* multisample attribs */
-#ifdef GLX_ARB_multisample
-	if (ext && strstr("GLX_ARB_multisample", ext) == 0) {
-		glXGetConfig(dpy, vInfo, GLX_SAMPLE_BUFFERS_ARB, &attribs->numMultisample);
-		glXGetConfig(dpy, vInfo, GLX_SAMPLES_ARB, &attribs->numSamples);
-	}
-#endif
-	else {
-		attribs->numSamples = 0;
-		attribs->numMultisample = 0;
-	}
-
-#if defined(GLX_EXT_visual_rating)
-	if (ext && strstr(ext, "GLX_EXT_visual_rating")) {
-		glXGetConfig(dpy, vInfo, GLX_VISUAL_CAVEAT_EXT, &attribs->visualCaveat);
-	} else {
-		attribs->visualCaveat = GLX_NONE_EXT;
-	}
-#else
-	attribs->visualCaveat = 0;
-#endif
-}
-
-/*
- * Examine all visuals to find the so-called best one.
- * We prefer deepest RGBA buffer with depth, stencil and accum
- * that has no caveats.
- * @author Brian Paul (from the glxinfo source)
- */
-int find_best_visual(Display *dpy, int scrnum) {
-	XVisualInfo theTemplate;
-	XVisualInfo *visuals;
-	int numVisuals;
-	long mask;
-	int i;
-	struct visual_attribs bestVis;
-
-	/* get list of all visuals on this screen */
-	theTemplate.screen = scrnum;
-	mask = VisualScreenMask;
-	visuals = XGetVisualInfo(dpy, mask, &theTemplate, &numVisuals);
-	if(numVisuals == 0 || visuals == 0) {
-		/* something went wrong */
-		if(visuals)
-			XFree(visuals);
-		return -1;
-	}
-
-	/* init bestVis with first visual info */
-	get_visual_attribs(dpy, &visuals[0], &bestVis);
-
-	/* try to find a "better" visual */
-	for (i = 1; i < numVisuals; i++) {
-		struct visual_attribs vis;
-
-		get_visual_attribs(dpy, &visuals[i], &vis);
-
-		/* always skip visuals with caveats */
-		if (vis.visualCaveat != GLX_NONE_EXT)
-			continue;
-
-		/* see if this vis is better than bestVis */
-		if ((!bestVis.supportsGL && vis.supportsGL) ||
-		                (bestVis.visualCaveat != GLX_NONE_EXT) ||
-		                (!bestVis.rgba && vis.rgba) ||
-		                (!bestVis.doubleBuffer && vis.doubleBuffer) ||
-		                (bestVis.redSize < vis.redSize) ||
-		                (bestVis.greenSize < vis.greenSize) ||
-		                (bestVis.blueSize < vis.blueSize) ||
-		                (bestVis.alphaSize < vis.alphaSize) ||
-		                (bestVis.depthSize < vis.depthSize) ||
-		                (bestVis.stencilSize < vis.stencilSize) ||
-		                (bestVis.accumRedSize < vis.accumRedSize)) {
-			/* found a better visual */
-			bestVis = vis;
-		}
-	}
-
-	XFree(visuals);
-
-	return bestVis.id;
-}
-
-};
-
 void GLXWindow::create(const String& name, unsigned int width, unsigned int height, unsigned int colourDepth,
                        bool fullScreen, int left, int top, bool depthBuffer,
-                       void* miscParam, ...) {
+                       void* miscParam, ...) 
+                       {
 	std::cerr << "GLXWindow::create" << std::endl;
 
 	// We will attempt to create new window on default screen op display 0
@@ -397,7 +146,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	}
 #endif
 	// Apply some magic algorithm to get the best visual
-	int best_visual = find_best_visual(mDisplay, screen);
+	int best_visual = GLXUtils::findBestVisual(mDisplay, screen);
 	LogManager::getSingleton().logMessage("GLXWindow::create -- Best visual is "+StringConverter::toString(best_visual));
 
 	// Get information about this so-called-best visual
@@ -441,7 +190,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		// Check if we can give it an icon
 		if(depth == 24 || depth == 32) {
 			// Woot! The right bit depth, we can load an icon
-			if(LoadIcon(mDisplay, rootWindow, "GLX_icon.png", &wm_hints->icon_pixmap, &wm_hints->icon_mask))
+			if(GLXUtils::LoadIcon(mDisplay, rootWindow, "GLX_icon.png", &wm_hints->icon_pixmap, &wm_hints->icon_mask))
 				wm_hints->flags |= IconPixmapHint | IconMaskHint;
 		}
 	}
@@ -498,7 +247,8 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
     rs->_registerContext(this, mContext);
 }
 
-void GLXWindow::destroy(void) {
+void GLXWindow::destroy(void) 
+{
     // Unregister and destroy OGRE GLContext
     GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
     rs->_unregisterContext(this);
@@ -516,27 +266,33 @@ void GLXWindow::destroy(void) {
 	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
 }
 
-bool GLXWindow::isActive() const {
+bool GLXWindow::isActive() const 
+{
 	return mActive;
 }
 
-bool GLXWindow::isClosed() const {
+bool GLXWindow::isClosed() const 
+{
 	return mClosed;
 }
 
-void GLXWindow::reposition(int left, int top) {
+void GLXWindow::reposition(int left, int top) 
+{
 	XMoveWindow(mDisplay,mWindow,left,top);
 }
 
-void GLXWindow::resize(unsigned int width, unsigned int height) {
+void GLXWindow::resize(unsigned int width, unsigned int height) 
+{
 	XResizeWindow(mDisplay,mWindow,width,height);
 }
 
-void GLXWindow::swapBuffers(bool waitForVSync) {
+void GLXWindow::swapBuffers(bool waitForVSync) 
+{
 	glXSwapBuffers(mDisplay,mWindow);
 }
 
-void GLXWindow::processEvent(const XEvent &event) {
+void GLXWindow::processEvent(const XEvent &event) 
+{
 	// Process only events for this window
 	switch(event.type) {
 	case ClientMessage:
@@ -585,7 +341,8 @@ void GLXWindow::processEvent(const XEvent &event) {
 }
 
 
-void GLXWindow::getCustomAttribute( const String& name, void* pData ) {
+void GLXWindow::getCustomAttribute( const String& name, void* pData ) 
+{
 	if( name == "GLXWINDOW" ) {
 		*static_cast<Window*>(pData) = mWindow;
 		return;
@@ -598,50 +355,50 @@ void GLXWindow::getCustomAttribute( const String& name, void* pData ) {
 
 
 
-void GLXWindow::writeContentsToFile(const String& filename) {
+void GLXWindow::writeContentsToFile(const String& filename) 
+{
+        ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
+        imgData->width = mWidth;
+       imgData->height = mHeight;
+     imgData->format = PF_R8G8B8;
 
-	ImageCodec::ImageData imgData;
-	imgData.width = mWidth;
-	imgData.height = mHeight;
-	imgData.format = PF_R8G8B8;
+      // Allocate buffer 
+        uchar* pBuffer = new uchar[mWidth * mHeight * 3];
 
-	// Allocate buffer
-	uchar* pBuffer = new uchar[mWidth * mHeight * 3];
+     // Read pixels
+     // I love GL: it does all the locking & colour conversion for us
+       glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
 
-	// Read pixels
-	// I love GL: it does all the locking & colour conversion for us
-	glReadPixels(0,0, mWidth-1, mHeight-1, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
+        // Wrap buffer in a memory stream
+        DataStreamPtr stream(new MemoryDataStream(pBuffer, mWidth * mHeight * 3, false));
 
-	// Wrap buffer in a chunk
-	DataChunk chunk(pBuffer, mWidth * mHeight * 3);
+       // Need to flip the read data over in Y though
+     Image img;
+     img.loadRawData(stream, mWidth, mHeight, PF_R8G8B8 );
+      img.flipAroundX();
 
-	// Need to flip the read data over in Y though
-	Image img;
-	img.loadRawData(chunk, mWidth, mHeight, PF_R8G8B8 );
-	img.flipAroundX();
+        MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));
 
-	DataChunk chunkFlipped(img.getData(), chunk.getSize());
+        // Get codec 
+      size_t pos = filename.find_last_of(".");
+       String extension;
+      if( pos == String::npos )
+          Except(
+            Exception::ERR_INVALIDPARAMS, 
+         "Unable to determine image type for '" + filename + "' - invalid extension.",
+          "SDLWindow::writeContentsToFile" );
 
-	// Get codec
-	size_t pos = filename.find_last_of(".");
-	String extension;
-	if( pos == String::npos )
-		Except(
-		        Exception::ERR_INVALIDPARAMS,
-		        "Unable to determine image type for '" + filename + "' - invalid extension.",
-		        "GLXWindow::writeContentsToFile" );
+       while( pos != filename.length() - 1 )
+          extension += filename[++pos];
 
-	while( pos != filename.length() - 1 )
-		extension += filename[++pos];
+     // Get the codec
+       Codec * pCodec = Codec::getCodec(extension);
 
-	// Get the codec
-	Codec * pCodec = Codec::getCodec(extension);
+      // Write out
+       Codec::CodecDataPtr codecDataPtr(imgData);
+     pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
 
-	// Write out
-	pCodec->codeToFile(chunkFlipped, filename, &imgData);
-
-	delete [] pBuffer;
-
-
+        delete [] pBuffer;
 }
+
 }

@@ -27,12 +27,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreLogManager.h"
 #include "OgreRoot.h"
+#include "OgreStringConverter.h"
 
 #include "OgreGLRenderSystem.h"
 
 #include "OgreGLXRenderTexture.h"
 #include "OgreGLXContext.h"
-
+#include "OgreGLXUtils.h"
 
 #include <iostream>
 
@@ -67,81 +68,80 @@ namespace Ogre
         _pDpy = glXGetCurrentDisplay();
         ::GLXContext context = glXGetCurrentContext();
         int screen = DefaultScreen(_pDpy);
-        XVisualInfo * visInfo = 0;
         int iFormat = 0;
         int iNumFormats;
-        int attribs[50];
-        int attrib = 0;
+        int attribs[50], ideal[50];
+        int attrib;
         // Attribs for glXChooseFBConfig
         // Get R,G,B,A depths
         int depths[4];
         Image::formatGetDepths(mInternalFormat, depths);
-
-        attribs[attrib++] = GLX_RENDER_TYPE;
+        int renderType;
         if(Image::formatIsFloat(mInternalFormat))
-            attribs[attrib++] = GLX_RGBA_FLOAT_ATI_BIT; // GLX_RGBA_FLOAT_BIT
+            renderType = GLX_RGBA_FLOAT_ATI_BIT; // GLX_RGBA_FLOAT_BIT
         else
-            attribs[attrib++] = GLX_RGBA_BIT;
-        
-        attribs[attrib++] = GLX_RED_SIZE;
-        attribs[attrib++] = depths[0];
-        attribs[attrib++] = GLX_GREEN_SIZE;
-        attribs[attrib++] = depths[1];
-        attribs[attrib++] = GLX_BLUE_SIZE;
-        attribs[attrib++] = depths[2];
-        attribs[attrib++] = GLX_ALPHA_SIZE;
-        attribs[attrib++] = depths[3];
+            renderType = GLX_RGBA_BIT;
 
+        // Create base required format description
+        attrib = 0;
+        attribs[attrib++] = GLX_RENDER_TYPE;
+        attribs[attrib++] = renderType;        
         attribs[attrib++] = GLX_DRAWABLE_TYPE;
         attribs[attrib++] = GLX_PBUFFER_BIT;
-        attribs[attrib++] = GLX_STENCIL_SIZE;
-        attribs[attrib++] = 8;
-        attribs[attrib++] = GLX_DEPTH_SIZE;
-        attribs[attrib++] = 16;             // at least 16
         attribs[attrib++] = GLX_DOUBLEBUFFER;
         attribs[attrib++] = 0;
         attribs[attrib++] = None;
-        GLXFBConfig * fbConfigs;
-        int nConfigs;
-        fbConfigs =
-            glXChooseFBConfig(_pDpy, screen, attribs, &nConfigs);
-        if (nConfigs == 0 || !fbConfigs) 
-            Except(Exception::UNIMPLEMENTED_FEATURE, "glXChooseFBConfig() failed: Couldn't find a suitable pixel format", "GLRenderTexture::createPBuffer");
-        // Attribs for CreatePbuffer
+        
+        // Create "ideal" format description
+        attrib = 0;
+        ideal[attrib++] = GLX_RED_SIZE;
+        ideal[attrib++] = depths[0];        
+        ideal[attrib++] = GLX_GREEN_SIZE;
+        ideal[attrib++] = depths[1];
+        ideal[attrib++] = GLX_BLUE_SIZE;
+        ideal[attrib++] = depths[2];        
+        ideal[attrib++] = GLX_ALPHA_SIZE;
+        ideal[attrib++] = depths[3];
+        ideal[attrib++] = GLX_DEPTH_SIZE;
+        ideal[attrib++] = 24;
+        ideal[attrib++] = GLX_STENCIL_SIZE;
+        ideal[attrib++] = 8;
+        ideal[attrib++] = GLX_ACCUM_RED_SIZE;
+        ideal[attrib++] = 0;    // Accumulation buffer not used
+        ideal[attrib++] = GLX_ACCUM_GREEN_SIZE;
+        ideal[attrib++] = 0;    // Accumulation buffer not used
+        ideal[attrib++] = GLX_ACCUM_BLUE_SIZE;
+        ideal[attrib++] = 0;    // Accumulation buffer not used
+        ideal[attrib++] = GLX_ACCUM_ALPHA_SIZE;
+        ideal[attrib++] = 0;    // Accumulation buffer not used
+        ideal[attrib++] = None;
+
+        // Create vector of existing config data formats        
+        GLXFBConfig config = GLXUtils::findBestMatch(_pDpy, screen, attribs, ideal);
+
+        // Create the pbuffer in the best matching format
         attrib = 0;
         attribs[attrib++] = GLX_PBUFFER_WIDTH;
-        attribs[attrib++] = mWidth;
+        attribs[attrib++] = mWidth; // Get from texture?
         attribs[attrib++] = GLX_PBUFFER_HEIGHT;
-        attribs[attrib++] = mHeight;
+        attribs[attrib++] = mHeight; // Get from texture?
         attribs[attrib++] = GLX_PRESERVED_CONTENTS;
         attribs[attrib++] = 1;
         attribs[attrib++] = None;
-        // Pick the first returned format that will return a pbuffer
-        for (int i = 0; i < nConfigs; i++) {
-            _hPBuffer =
-                glXCreatePbuffer(_pDpy, fbConfigs[i], attribs);
-    
-            if (_hPBuffer) {
-                visInfo = glXGetVisualFromFBConfig(_pDpy, fbConfigs[0]);
-                if (!visInfo) 
-                   Except(Exception::UNIMPLEMENTED_FEATURE, "glXGetVisualFromFBConfig() failed: couldn't get an RGBA, double-buffered visual", "GLRenderTexture::createPBuffer");
-            
-                _hGLContext =
-                    glXCreateContext(_pDpy, visInfo, context, True);
-                break;
-            }
-    
-        }
+
+        FBConfigData configData(_pDpy, config);
+        LogManager::getSingleton().logMessage(
+                LML_NORMAL,
+                "GLXRenderTexture::PBuffer chose format "+configData.toString());                   
+
+        _hPBuffer = glXCreatePbuffer(_pDpy, config, attribs);
         if (!_hPBuffer) 
             Except(Exception::UNIMPLEMENTED_FEATURE, "glXCreatePbuffer() failed", "GLRenderTexture::createPBuffer");
+
+        _hGLContext = glXCreateNewContext(_pDpy, config, GLX_RGBA_TYPE, context, True);
         if (!_hGLContext) 
             Except(Exception::UNIMPLEMENTED_FEATURE, "glXCreateContext() failed", "GLRenderTexture::createPBuffer");        
 
-        if(fbConfigs)
-            XFree(fbConfigs);
-        if(visInfo)
-            XFree(visInfo);
-      
         // Query real width and height
         GLuint iWidth, iHeight;
         glXQueryDrawable(_pDpy, _hPBuffer, GLX_WIDTH, &iWidth);
@@ -149,7 +149,8 @@ namespace Ogre
 
         LogManager::getSingleton().logMessage(
              LML_NORMAL,
-                "GLXRenderTexture::PBuffer created -- Real dimensions %ix%i",iWidth,iHeight
+                "GLXRenderTexture::PBuffer created -- Real dimensions "+
+                StringConverter::toString(iWidth)+"x"+StringConverter::toString(iHeight)
         );
         mWidth = iWidth;  
         mHeight = iHeight;
