@@ -108,6 +108,10 @@ SOURCE=..\src\OgreAnimation.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreAnimationState.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreAnimationTrack.cpp
 # End Source File
 # Begin Source File
