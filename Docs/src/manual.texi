@@ -429,7 +429,7 @@ By setting this attribute, you indicate that you want this material to alter the
 
 Format: lod_distances <distance_1> [<distance_2> ... <distance_n>]@*
 
-Example: lod_distance 300 600 1200@*@*
+Example: lod_distances 300 600 1200@*@*
 
 The above example would cause the material to use the best Technique at lod_index 0 up to a distance of 300 world units, the best from lod_index 1 from 300 up to 600, lod_index 2 from 600 to 1200, and lod_index 3 from 1200 upwards.@*@*
 
