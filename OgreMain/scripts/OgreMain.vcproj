@@ -179,6 +179,9 @@
 				RelativePath="..\src\OgreAxisAlignedBox.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreBMPCodec.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreBillboard.cpp">
 			</File>
 			<File
@@ -721,6 +724,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreAxisAlignedBox.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreBMPCodec.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreBillboard.h">

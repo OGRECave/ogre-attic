@@ -146,6 +146,10 @@ SOURCE=..\src\OgreBitwise.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreBMPCodec.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreBone.cpp
 # End Source File
 # Begin Source File
@@ -712,6 +716,10 @@ SOURCE=..\include\OgreBitwise.h
 # Begin Source File
 
 SOURCE=..\include\OgreBlendMode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\OgreBMPCodec.h
 # End Source File
 # Begin Source File
 
