@@ -25,9 +25,9 @@
 			sourceTree = "<group>";
 		};
 		089C165DFE840E0CC02AAC07 = {
-			expectedFileType = text.plist.strings;
 			fileEncoding = 10;
 			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
 			name = English;
 			path = English.lproj/InfoPlist.strings;
 			refType = 4;
@@ -62,9 +62,9 @@
 			sourceTree = "<group>";
 		};
 		1058C7A1FEA54F0111CA2CBB = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
 			refType = 0;
@@ -97,7 +97,7 @@
 //173
 //174
 		17587328FF379C6511CA2CBB = {
-			expectedFileType = wrapper.application;
+			explicitFileType = wrapper.application;
 			fallbackIsa = PBXFileReference;
 			isa = PBXApplicationReference;
 			path = CameraTrack.app;
@@ -198,18 +198,18 @@
 			sourceTree = "<group>";
 		};
 		29B97324FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = AppKit.framework;
 			path = /System/Library/Frameworks/AppKit.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
 		29B97325FDCFA39411CA2CEA = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Foundation.framework;
 			path = /System/Library/Frameworks/Foundation.framework;
 			refType = 0;
@@ -397,27 +397,27 @@
 //663
 //664
 		663BAD31045B3DD9000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = Ogre.framework;
 			path = ../../OgreFramework/build/Ogre.framework;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		669E8989045B26E7000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = SDL.framework;
 			path = ../../../Frameworks/SDL.framework;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		669E899D045B26FA000001C9 = {
-			expectedFileType = wrapper.framework;
 			fallbackIsa = PBXFileReference;
 			isa = PBXFrameworkReference;
+			lastKnownFileType = wrapper.framework;
 			name = freetype.framework;
 			path = ../../../Frameworks/freetype.framework;
 			refType = 2;
@@ -430,18 +430,18 @@
 			};
 		};
 		669E899F045B2708000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = ExampleApplication.h;
 			path = ../../../../Samples/Common/include/ExampleApplication.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		669E89A0045B2708000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = ExampleFrameListener.h;
 			path = ../../../../Samples/Common/include/ExampleFrameListener.h;
 			refType = 2;
@@ -460,9 +460,9 @@
 			};
 		};
 		669E89A3045B2711000001C9 = {
-			expectedFileType = sourcecode.cpp.cpp;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
 			name = CameraTrack.cpp;
 			path = ../../../../Samples/CameraTrack/src/CameraTrack.cpp;
 			refType = 2;
@@ -487,18 +487,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		66B9A06D045CBAEF000001C9 = {
-			expectedFileType = sourcecode.c.h;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
 			name = SDLMain.h;
 			path = ../../Classes/SDLMain.h;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66B9A06E045CBAEF000001C9 = {
-			expectedFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.objc;
 			name = SDLMain.m;
 			path = ../../Classes/SDLMain.m;
 			refType = 2;
@@ -517,18 +517,18 @@
 			};
 		};
 		66CD7C8004A11A5B000001C9 = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = plugins.cfg;
 			path = ../plugins.cfg;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
 		66CD7C8104A11A5B000001C9 = {
-			expectedFileType = text;
 			fileEncoding = 30;
 			isa = PBXFileReference;
+			lastKnownFileType = text;
 			name = resources.cfg;
 			path = ../resources.cfg;
 			refType = 2;
