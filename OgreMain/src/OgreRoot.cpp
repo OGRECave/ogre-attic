@@ -164,18 +164,17 @@ namespace Ogre {
         delete mSceneManagerEnum;
 
         delete mArchiveManager;
-        // TODO: work out why this barfs deep in std::vector
-        //delete mParticleManager;
+        delete mSkeletonManager;
+        delete mMeshManager;
+        delete mMaterialManager;        
+        delete mMath;
+        delete mParticleManager;
+        if( mControllerManager )
+            delete mControllerManager;
+        delete mPlatformManager;
 
         unloadPlugins();
 
-        delete mSkeletonManager;
-        delete mMeshManager;
-        delete mMaterialManager;
-        if (mControllerManager)
-            delete mControllerManager;
-        delete mMath;
-        delete mPlatformManager;
         delete mDynLibManager;
         delete mLogManager;
     }
