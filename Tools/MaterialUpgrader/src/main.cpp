@@ -79,7 +79,6 @@ int main(int numargs, char** args)
     // Load the material
     struct stat tagStat;
 
-    SDDataChunk chunk;
     FILE* pFile = fopen( source.c_str(), "r" );
     if (!pFile)
     {
@@ -87,14 +86,15 @@ int main(int numargs, char** args)
             "File " + source + " not found.", "OgreMaterialUpgrade");
     }
     stat( source.c_str(), &tagStat );
-    chunk.allocate( tagStat.st_size );
-    fread( (void*)chunk.getPtr(), tagStat.st_size, 1, pFile );
+    MemoryDataStream* memStream = new MemoryDataStream(source, tagStat.st_size, true);
+    fread( (void*)memStream->getPtr(), tagStat.st_size, 1, pFile );
     fclose( pFile );
 
     // Read script, note this will create potentially many Materials and load them
     // into the MaterialManager
     OldMaterialReader reader;
-    reader.parseScript(chunk);
+    DataStreamPtr stream(memStream);
+    reader.parseScript(stream);
 
     // Write out the converted mesh
     String dest;
