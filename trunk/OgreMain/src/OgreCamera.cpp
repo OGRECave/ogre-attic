@@ -442,13 +442,13 @@ namespace Ogre {
         invalidateView();
     }
     //-----------------------------------------------------------------------
-    Quaternion Camera::getDerivedOrientation(void) const
+    const Quaternion& Camera::getDerivedOrientation(void) const
     {
         updateView();
         return mDerivedOrientation;
     }
     //-----------------------------------------------------------------------
-    Vector3 Camera::getDerivedPosition(void) const
+    const Vector3& Camera::getDerivedPosition(void) const
     {
         updateView();
         return mDerivedPosition;
@@ -507,7 +507,7 @@ namespace Ogre {
 		return mSceneLodFactorInv;
 	}
     //-----------------------------------------------------------------------
-    Ray Camera::getCameraToViewportRay(Real screenX, Real screenY)
+    Ray Camera::getCameraToViewportRay(Real screenX, Real screenY) const
     {
         Real centeredScreenX = (screenX - 0.5f);
         Real centeredScreenY = (0.5f - screenY);

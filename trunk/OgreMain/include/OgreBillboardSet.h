@@ -186,7 +186,7 @@ namespace Ogre {
         @remarks
             Optional parameter pBill is only present for type BBT_ORIENTED_SELF
         */
-        virtual void genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
+        virtual void genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
 
         /** Internal method, generates parametric offsets based on origin.
         */
@@ -199,7 +199,7 @@ namespace Ogre {
         @param pBillboard Pointer to billboard
         @returns new vertex index
         */
-        void genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* offsets, const Billboard* pBillboard);
+        void genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* const offsets, const Billboard* const pBillboard);
 
         /** Internal method generates vertex offsets.
         @remarks
@@ -527,7 +527,7 @@ namespace Ogre {
         virtual const String& getMovableType(void) const;
 
         /** Overridden, see Renderable */
-        Real getSquaredViewDepth(const Camera* cam) const;
+        Real getSquaredViewDepth(const Camera* const cam) const;
 
         /** Update the bounds of the billboardset */
         virtual void _updateBounds(void);

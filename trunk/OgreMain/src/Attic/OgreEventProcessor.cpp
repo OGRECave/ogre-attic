@@ -223,7 +223,7 @@ namespace Ogre {
 	}
 	
 //-----------------------------------------------------------------------------
-	PositionTarget* EventProcessor::getPositionTargetParent() 
+	PositionTarget* EventProcessor::getPositionTargetParent() const 
 	{
 		return NULL;
 	}

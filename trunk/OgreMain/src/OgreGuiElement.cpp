@@ -804,7 +804,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	PositionTarget* GuiElement::getPositionTargetParent() 
+	PositionTarget* GuiElement::getPositionTargetParent() const 
 	{ 
 		return static_cast<MouseTarget*> (mParent);		// need to choose 1 parent of the EventTarget
 	}

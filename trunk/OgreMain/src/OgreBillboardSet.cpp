@@ -815,7 +815,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BillboardSet:: genBillboardAxes(Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)
+    void BillboardSet:: genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)
     {
         // Default behaviour is that billboards are in local node space
         // so orientation of camera (in world space) must be reverse-transformed 
@@ -876,7 +876,7 @@ namespace Ogre {
         return mCommonDirection;
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* offsets, const Billboard* pBillboard)
+    void BillboardSet::genVertices(Real **pPos, RGBA** pCol, Real **pTex, const Vector3* const offsets, const Billboard* const pBillboard)
     {
 		// Texcoords
 
@@ -968,7 +968,7 @@ namespace Ogre {
         return msMovableType;
     }
     //-----------------------------------------------------------------------
-    Real BillboardSet::getSquaredViewDepth(const Camera* cam) const
+    Real BillboardSet::getSquaredViewDepth(const Camera* const cam) const
     {
         assert(mParentNode);
         return mParentNode->getSquaredViewDepth(cam);

@@ -138,7 +138,7 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-	PositionTarget* Cursor::getPositionTargetParent()
+	PositionTarget* Cursor::getPositionTargetParent() const
 	{
 		return NULL;
 	}

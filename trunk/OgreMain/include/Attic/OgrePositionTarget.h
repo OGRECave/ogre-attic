@@ -53,7 +53,7 @@ namespace Ogre {
         /** Gets the top of this element in relation to the screen (where 0 = top, 1.0 = bottom)  */
         virtual Real getTop(void) const = 0;
 
-		virtual PositionTarget* getPositionTargetParent() = 0;
+		virtual PositionTarget* getPositionTargetParent() const = 0;
 
 		virtual bool isKeyEnabled() const = 0;
 
