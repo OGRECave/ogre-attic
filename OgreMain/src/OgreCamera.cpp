@@ -650,6 +650,7 @@ namespace Ogre {
             updateFrustum();
             // Use camera view direction for frustum, which is -Z not Z as for matrix calc
             Vector3 camDirection = mDerivedOrientation* -Vector3::UNIT_Z;
+            // Calc distance along direction to position
             Real fDdE = camDirection.dotProduct(mDerivedPosition);
 
             // left plane
@@ -678,11 +679,12 @@ namespace Ogre {
 
             // far plane
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal = -camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = (fDdE + mFarDist);
+            // d is distance along normal to origin
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = fDdE + mFarDist;
 
             // near plane
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal = camDirection;
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -fDdE + mNearDist;
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = -(fDdE + mNearDist);
 
 
 
