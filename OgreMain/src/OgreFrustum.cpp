@@ -151,7 +151,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    const Plane& Frustum::getFrustumPlane(FrustumPlane plane)
+    const Plane& Frustum::getFrustumPlane(FrustumPlane plane) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
@@ -161,7 +161,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Frustum::isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy)
+    bool Frustum::isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy) const
     {
         // Null boxes always invisible
         if (bound.isNull()) return false;
@@ -198,7 +198,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Frustum::isVisible(const Vector3& vert, FrustumPlane* culledBy)
+    bool Frustum::isVisible(const Vector3& vert, FrustumPlane* culledBy) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
@@ -221,7 +221,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    bool Frustum::isVisible(const Sphere& sphere, FrustumPlane* culledBy)
+    bool Frustum::isVisible(const Sphere& sphere, FrustumPlane* culledBy) const
     {
         // Make any pending updates to the calculated frustum
         updateView();
