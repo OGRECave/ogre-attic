@@ -69,6 +69,7 @@ namespace Ogre {
         mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
         mInheritScale = true;
         mAccumAnimWeight = 0.0f;
+        mCachedTransformOutOfDate = true;
 
         needUpdate();
 
