@@ -139,6 +139,9 @@ namespace Ogre {
         HardwareVertexBufferSharedPtr vertexBuffer, 
         size_t originalVertexCount, const Vector4& light)
     {
+        assert (vertexBuffer->getVertexSize() == sizeof(Real) * 3
+            && "Position buffer should contain only positions!");
+
         #define EXTRUSION_DISTANCE 10000000;
         // Extrude the first area of the buffer into the second area
         // Lock the entire buffer for writing, even though we'll only be

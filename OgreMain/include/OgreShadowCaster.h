@@ -170,6 +170,7 @@ namespace Ogre {
             HardwareIndexBufferSharedPtr indexBuffer, const Light* light,
             ShadowRenderableList& shadowRenderables, unsigned long flags);
 
+
     };
 }
 

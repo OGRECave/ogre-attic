@@ -247,12 +247,7 @@ namespace Ogre {
             }
             // Calculate triangle normal (NB will require recalculation for 
             // skeletally animated meshes)
-            // The cross product sets up the xyz
-            Vector3 normal = (v[1] - v[0]).crossProduct(v[2] - v[0]);
-            normal.normalise();
-            tri.normal = normal;
-            // Now set up the w (distance of tri from origin
-            tri.normal.w = -(normal.dotProduct(v[0]));
+            tri.normal = Math::calculateFaceNormal(v[0], v[1], v[2]);
             // Add triangle to list
             mEdgeData->triangles.push_back(tri);
             // Create edges from common list
@@ -380,10 +375,47 @@ namespace Ogre {
             // Get pointer to positions, and reference the first position
 
             Real dp = t.normal.dotProduct(lightPos);
-            t.lightFacing = dp > 0? true : false;
+            t.lightFacing = (dp > 0);
 
         }
 
+    }
+    //---------------------------------------------------------------------
+    void EdgeData::updateFaceNormals(size_t vertexSet, 
+        HardwareVertexBufferSharedPtr positionBuffer)
+    {
+        assert (positionBuffer->getVertexSize() == sizeof(Real) * 3
+            && "Position buffer should contain only positions!");
+
+        // Lock buffer for reading
+        Real* pVert = static_cast<Real*>(
+            positionBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+
+        // Iterate over the triangles
+        EdgeData::TriangleList::iterator i, iend;
+        iend = triangles.end();
+        for (i = triangles.begin(); i != iend; ++i)
+        {
+            Triangle& t = *i;
+            // Only update tris which are using this vertex set
+            if (t.vertexSet == vertexSet)
+            {
+                size_t offset = t.vertIndex[0]*3;
+                Vector3 v1(pVert + offset);
+
+                offset = t.vertIndex[1]*3;
+                Vector3 v2(pVert + offset);
+
+                offset = t.vertIndex[2]*3;
+                Vector3 v3(pVert + offset);
+
+                t.normal = Math::calculateFaceNormal(v1, v2, v3);
+            }
+        }
+
+
+        // unlock the buffer
+        positionBuffer->unlock();
     }
 
 
