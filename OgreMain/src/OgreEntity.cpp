@@ -225,7 +225,6 @@ namespace Ogre {
 
         // Since we know we're going to be rendered, take this opportunity to 
         // cache bone matrices & apply world matrix to them
-		// TODO: deal with LOD skeleton
         if (mMesh->hasSkeleton())
         {
             cacheBoneMatrices();
@@ -275,13 +274,37 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::cacheBoneMatrices(void)
     {
-        mMesh->_getBoneMatrices(mAnimationState, mBoneMatrices);
+		// Get the appropriate meshes skeleton here
+		// Can use lower LOD mesh skeleton if mesh LOD is manual
+		// We make the assumption that lower LOD meshes will have
+		//   fewer bones than the full LOD, therefore marix stack will be
+		//   big enough.
+		Mesh* theMesh;
+		if (mMesh->isLodManual() && mMeshLodIndex > 1)
+		{
+			// Use lower detail skeleton
+			theMesh = mMesh->getLodLevel(mMeshLodIndex).manualMesh;
+			// Lower detail may not have skeleton
+			if (!theMesh->hasSkeleton())
+			{
+				mNumBoneMatrices = 0;
+				return;
+			}
+		}
+		else
+		{
+			// Use normal mesh
+			theMesh = mMesh;
+		}
+
+        theMesh->_getBoneMatrices(mAnimationState, mBoneMatrices);
         // Apply our current world transform to these too, since these are used as
         // replacement world matrices
         int i;
         Matrix4 worldXform = mParentNode->_getFullTransform();
+		mNumBoneMatrices = theMesh->_getNumBoneMatrices();
 
-        for (i = 0; i < mMesh->_getNumBoneMatrices(); ++i)
+        for (i = 0; i < mNumBoneMatrices; ++i)
         {
             mBoneMatrices[i] = worldXform * mBoneMatrices[i];
         }
