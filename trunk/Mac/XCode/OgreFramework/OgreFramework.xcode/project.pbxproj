@@ -371,6 +371,8 @@
 				8251E598061F5D6900827249,
 				8251E59E061F606000827249,
 				82D30CC9062F2F1C0069440B,
+				82536622065139FF00F6F431,
+				82536623065139FF00F6F431,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -535,6 +537,7 @@
 				827077B305FBCF7B00A1CB6E,
 				8251E59C061F604500827249,
 				82D30CC7062F2ED90069440B,
+				8253662506513A7800F6F431,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7076,6 +7079,8 @@
 		};
 		66CAE66E045A3DE2000001C9 = {
 			children = (
+				82536620065139FE00F6F431,
+				82536621065139FE00F6F431,
 				82D30CC8062F2F1C0069440B,
 				8251E59D061F606000827249,
 				8251E595061F5D6900827249,
@@ -7289,6 +7294,7 @@
 		};
 		66CAE66F045A3DF3000001C9 = {
 			children = (
+				8253662406513A7800F6F431,
 				82D30CC6062F2ED90069440B,
 				8251E59B061F604500827249,
 				8251E591061F5D4600827249,
@@ -9909,7 +9915,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../../Frameworks /Users/temas/cvs/ogre/Mac/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = ../../Frameworks;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
@@ -9972,10 +9978,9 @@
 		8207A09106011E620045D784 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.plist.xml;
-			name = "CGProgramManager_Plugin-Info.plist";
-			path = "/Users/temas/cvs/ogre/Mac/XCode/OgreFramework/CGProgramManager_Plugin-Info.plist";
-			refType = 0;
-			sourceTree = "<absolute>";
+			path = "CGProgramManager_Plugin-Info.plist";
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
 		};
 		8207A09206011EC20045D784 = {
 			children = (
@@ -10696,6 +10701,57 @@
 				);
 			};
 		};
+		82536620065139FE00F6F431 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreShadowVolumeExtrudeProgram.h;
+			path = ../../../OgreMain/include/OgreShadowVolumeExtrudeProgram.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82536621065139FE00F6F431 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			name = OgreSpotShadowFadePng.h;
+			path = ../../../OgreMain/include/OgreSpotShadowFadePng.h;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		82536622065139FF00F6F431 = {
+			fileRef = 82536620065139FE00F6F431;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		82536623065139FF00F6F431 = {
+			fileRef = 82536621065139FE00F6F431;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
+			};
+		};
+		8253662406513A7800F6F431 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.cpp.cpp;
+			name = OgreShadowVolumeExtrudeProgram.cpp;
+			path = ../../../OgreMain/src/OgreShadowVolumeExtrudeProgram.cpp;
+			refType = 2;
+			sourceTree = SOURCE_ROOT;
+		};
+		8253662506513A7800F6F431 = {
+			fileRef = 8253662406513A7800F6F431;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		827077B205FBCF7B00A1CB6E = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -11188,6 +11244,9 @@
 			fileRef = 8296D96505BB2F7D00DD3526;
 			isa = PBXBuildFile;
 			settings = {
+				ATTRIBUTES = (
+					Public,
+				);
 			};
 		};
 		8296D96B05BB2F7D00DD3526 = {
