@@ -73,6 +73,12 @@ namespace Ogre {
         void FromAxes (const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis);
         void ToAxes (Vector3* akAxis) const;
         void ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis) const;
+        /// Get the local x-axis
+        Vector3 xAxis(void);
+        /// Get the local y-axis
+        Vector3 yAxis(void);
+        /// Get the local z-axis
+        Vector3 zAxis(void);
 
         inline Quaternion& operator= (const Quaternion& rkQ)
 		{

@@ -204,6 +204,51 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+    Vector3 Quaternion::xAxis(void)
+    {
+        Real fTx  = 2.0*x;
+        Real fTy  = 2.0*y;
+        Real fTz  = 2.0*z;
+        Real fTwy = fTy*w;
+        Real fTwz = fTz*w;
+        Real fTxy = fTy*x;
+        Real fTxz = fTz*x;
+        Real fTyy = fTy*y;
+        Real fTzz = fTz*z;
+
+        return Vector3(1.0-(fTyy+fTzz), fTxy+fTwz, fTxz-fTwy);
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Quaternion::yAxis(void)
+    {
+        Real fTx  = 2.0*x;
+        Real fTy  = 2.0*y;
+        Real fTz  = 2.0*z;
+        Real fTwx = fTx*w;
+        Real fTwz = fTz*w;
+        Real fTxx = fTx*x;
+        Real fTxy = fTy*x;
+        Real fTyz = fTz*y;
+        Real fTzz = fTz*z;
+
+        return Vector3(fTxy-fTwz, 1.0-(fTxx+fTzz), fTyz+fTwx);
+    }
+    //-----------------------------------------------------------------------
+    Vector3 Quaternion::zAxis(void)
+    {
+        Real fTx  = 2.0*x;
+        Real fTy  = 2.0*y;
+        Real fTz  = 2.0*z;
+        Real fTwx = fTx*w;
+        Real fTwy = fTy*w;
+        Real fTxx = fTx*x;
+        Real fTxz = fTz*x;
+        Real fTyy = fTy*y;
+        Real fTyz = fTz*y;
+
+        return Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
+    }
+    //-----------------------------------------------------------------------
     void Quaternion::ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis) const
     {
         Matrix3 kRot;
