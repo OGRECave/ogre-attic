@@ -74,16 +74,23 @@ namespace Ogre {
             {
                 EdgeData::Edge& edge = *i;
 
+                // Silhouette edge, when two tris has opposite light facing, or
+                // degenerate edge where only tri 1 is valid and the tri light facing
                 EdgeData::Triangle &t1 = edgeData->triangles[edge.triIndex[0]];
-                EdgeData::Triangle &t2 = 
-                    edge.degenerate? edgeData->triangles[edge.triIndex[0]] : edgeData->triangles[edge.triIndex[1]];
-                if (t1.lightFacing && (edge.degenerate || !t2.lightFacing))
+                if ((edge.degenerate && t1.lightFacing) ||
+                    (!edge.degenerate && (t1.lightFacing ^ edgeData->triangles[edge.triIndex[1]].lightFacing)))
                 {
-                    /* Silhouette edge, first tri facing the light
-                    Also covers degenerate tris where only tri 1 is valid
-                    Remember verts run anticlockwise along the edge from 
-                    tri 0 so to point shadow volume tris outward, light cap 
-                    indexes have to be backwards
+                    size_t v0 = edge.vertIndex[0];
+                    size_t v1 = edge.vertIndex[1];
+                    if (!t1.lightFacing)
+                    {
+                        // Inverse edge indexes when t1 is light away
+                        std::swap(v0, v1);
+                    }
+
+                    /* Note edge(v0, v1) run anticlockwise along the edge from
+                    the light facing tri so to point shadow volume tris outward,
+                    light cap indexes have to be backwards
 
                     We emit 2 tris if light is a point light, 1 if light 
                     is directional, because directional lights cause all
@@ -96,9 +103,9 @@ namespace Ogre {
                     because 'far' verts are in the second half of the 
                     buffer
                     */
-                    *pIdx++ = edge.vertIndex[1];
-                    *pIdx++ = edge.vertIndex[0];
-                    *pIdx++ = edge.vertIndex[0] + originalVertexCount;
+                    *pIdx++ = v1;
+                    *pIdx++ = v0;
+                    *pIdx++ = v0 + originalVertexCount;
                     shadOp->indexData->indexCount += 3;
 
                     // Are we extruding to infinity?
@@ -106,9 +113,9 @@ namespace Ogre {
                         flags & SRF_EXTRUDE_TO_INFINITY))
                     {
                         // additional tri to make quad
-                        *pIdx++ = edge.vertIndex[0] + originalVertexCount;
-                        *pIdx++ = edge.vertIndex[1] + originalVertexCount;
-                        *pIdx++ = edge.vertIndex[1];
+                        *pIdx++ = v0 + originalVertexCount;
+                        *pIdx++ = v1 + originalVertexCount;
+                        *pIdx++ = v1;
                         shadOp->indexData->indexCount += 3;
                     }
                     // Do dark cap tri
@@ -118,53 +125,14 @@ namespace Ogre {
                     {
                         if (firstDarkCapTri)
                         {
-                            darkCapStart = edge.vertIndex[0] + originalVertexCount;
+                            darkCapStart = v0 + originalVertexCount;
                             firstDarkCapTri = false;
                         }
                         else
                         {
                             *pIdx++ = darkCapStart;
-                            *pIdx++ = edge.vertIndex[1] + originalVertexCount;
-                            *pIdx++ = edge.vertIndex[0] + originalVertexCount;
-                            shadOp->indexData->indexCount += 3;
-                        }
-
-                    }
-                }
-                else if (!t1.lightFacing && (edge.degenerate || t2.lightFacing))
-                {
-                    // Silhouette edge, second tri facing the light
-                    // Note edge indexes inverse of when t1 is light facing 
-                    *pIdx++ = edge.vertIndex[0];
-                    *pIdx++ = edge.vertIndex[1];
-                    *pIdx++ = edge.vertIndex[1] + originalVertexCount;
-                    shadOp->indexData->indexCount += 3;
-
-                    // Are we extruding to infinity?
-                    if (!(lightType == Light::LT_DIRECTIONAL &&
-                        flags & SRF_EXTRUDE_TO_INFINITY))
-                    {
-                        // additional tri to make quad
-                        *pIdx++ = edge.vertIndex[1] + originalVertexCount;
-                        *pIdx++ = edge.vertIndex[0] + originalVertexCount;
-                        *pIdx++ = edge.vertIndex[0];
-                        shadOp->indexData->indexCount += 3;
-                    }
-                    // Do dark cap tri
-                    // Use McGuire et al method, a triangle fan covering all silhouette
-                    // edges and one point (taken from the initial tri)
-                    if (flags & SRF_INCLUDE_DARK_CAP)
-                    {
-                        if (firstDarkCapTri)
-                        {
-                            darkCapStart = edge.vertIndex[1] + originalVertexCount;
-                            firstDarkCapTri = false;
-                        }
-                        else
-                        {
-                            *pIdx++ = darkCapStart;
-                            *pIdx++ = edge.vertIndex[0] + originalVertexCount;
-                            *pIdx++ = edge.vertIndex[1] + originalVertexCount;
+                            *pIdx++ = v1 + originalVertexCount;
+                            *pIdx++ = v0 + originalVertexCount;
                             shadOp->indexData->indexCount += 3;
                         }
 
