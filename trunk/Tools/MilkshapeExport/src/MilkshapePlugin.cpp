@@ -62,7 +62,13 @@ int MilkshapePlugin::Execute (msModel* pModel)
     if (!pModel)
         return -1;
 
-    //
+	Ogre::LogManager logMgr;
+	logMgr.createLog("msOgreExporter.log", true);
+	logMgr.logMessage("OGRE Milkshape Exporter Log");
+	logMgr.logMessage("---------------------------");
+	Ogre::ResourceGroupManager resGrpMgr;
+
+	//
     // check, if we have something to export
     //
     if (msModel_GetMeshCount (pModel) == 0)
@@ -254,13 +260,11 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
 
     // Create singletons
     Ogre::SkeletonManager skelMgr;
-    Ogre::LogManager logMgr;
     Ogre::DefaultHardwareBufferManager defHWBufMgr;
+	Ogre::LogManager& logMgr = Ogre::LogManager::getSingleton();
+	Ogre::MeshManager meshMgr;
 
 
-    logMgr.createLog("msOgreExporter.log");
-    logMgr.logMessage("OGRE Milkshape Exporter Log");
-    logMgr.logMessage("---------------------------");
     //
     // choose filename
     //
@@ -744,7 +748,6 @@ struct SplitAnimationStruct
 void MilkshapePlugin::doExportMaterials(msModel* pModel)
 {
 	Ogre::LogManager& logMgr = Ogre::LogManager::getSingleton();
-    Ogre::ResourceGroupManager resGrpMgrSgl;
 	Ogre::MaterialManager matMgrSgl;
 	Ogre::String msg;
 
