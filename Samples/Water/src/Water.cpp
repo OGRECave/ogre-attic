@@ -15,6 +15,7 @@ LGPL like the rest of the engine.
  * Started 29.05.2003, 20:54:37
  */
 #include "ExampleApplication.h"
+#include "OgreBillboardParticleRenderer.h"
 #include "WaterMesh.h"
 
 #include <iostream>
@@ -63,12 +64,13 @@ void prepareCircleMaterial()
 		}
 	}
 	
-	SDDataChunk imgchunk(bmap, 256 * 256 * 4);
+	DataStreamPtr imgstream(new MemoryDataStream(bmap, 256 * 256 * 4));
 	//~ Image img; 
-	//~ img.loadRawData( imgchunk, 256, 256, PF_A8R8G8B8 );
+	//~ img.loadRawData( imgstream, 256, 256, PF_A8R8G8B8 );
 	//~ TextureManager::getSingleton().loadImage( CIRCLES_MATERIAL , img );
 	TextureManager::getSingleton().loadRawData(CIRCLES_MATERIAL,
-		imgchunk, 256, 256, PF_A8R8G8B8);
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+		imgstream, 256, 256, PF_A8R8G8B8);
 	MaterialPtr material = 
 		MaterialManager::getSingleton().create( CIRCLES_MATERIAL, 
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -90,7 +92,7 @@ class WaterCircle
 private:
 	String name ;
 	SceneNode *node ;
-	Mesh *mesh ;
+	MeshPtr mesh ;
 	SubMesh *subMesh ;
 	Entity *entity ;
 	Real tm ;
@@ -105,7 +107,8 @@ private:
 	{
 		int i,lvl ;
 		
-		mesh= (Mesh*) MeshManager::getSingleton().createManual(name) ;
+		mesh = MeshManager::getSingleton().createManual(name, 
+            ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME) ;
 		subMesh = mesh->createSubMesh();
 		subMesh->useSharedVertices=false;
 
@@ -217,8 +220,7 @@ public:
 	}
 	~WaterCircle()
 	{
-		MeshManager::getSingleton().unload(mesh);
-		delete mesh ; // nice, I think I don't have to delete any buffers here ;)
+		MeshManager::getSingleton().remove(mesh->getHandle());
 		sceneMgr->removeEntity(entity->getName());
 		static_cast<SceneNode*> (sceneMgr->getRootSceneNode())->removeChild(node->getName());
 	}
@@ -617,7 +619,7 @@ protected:
         // Fast-forward the rain so it looks more natural
         particleSystem->fastForward(20);
 		// It can't be set in .particle file, and we need it ;)
-		particleSystem->setBillboardOrigin(BBO_BOTTOM_CENTER);
+		static_cast<BillboardParticleRenderer*>(particleSystem->getRenderer())->setBillboardOrigin(BBO_BOTTOM_CENTER);
 		
 		prepareCircleMaterial();
 	}
