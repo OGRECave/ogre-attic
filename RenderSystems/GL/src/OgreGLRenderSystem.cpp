@@ -205,6 +205,8 @@ namespace Ogre {
         {
             LogManager::getSingleton().logMessage("- Cube Mapping");
             mCapabilities->setCapability(RSC_CUBEMAPPING);
+            glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
+
         }
         
         // Check for hardware stencil support and set bit depth
@@ -225,10 +227,7 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_VBO);
         }
 
-         glBindBufferARB_ptr = (GL_BindBufferARB_Func)mGLSupport->getProcAddress("glBindBufferARB");
-
         _setCullingMode( mCullingMode );
-        
 
 		return autoWindow;
     }
@@ -1526,70 +1525,68 @@ namespace Ogre {
         
         const VertexDeclaration::VertexElementList& decl = 
             op.vertexData->vertexDeclaration->getElements();
-        VertexDeclaration::VertexElementList::const_iterator i, iend;
-        iend = decl.end();
+        VertexDeclaration::VertexElementList::const_iterator elem, elemEnd;
+        elemEnd = decl.end();
 
-        for (i = decl.begin(); i != iend; ++i)
+        for (elem = decl.begin(); elem != elemEnd; ++elem)
         {
-            const GLHardwareVertexBuffer* vertexBuffer = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(i->getSource()).get());
+            const GLHardwareVertexBuffer* vertexBuffer = static_cast<const GLHardwareVertexBuffer*>(op.vertexData->vertexBufferBinding->getBuffer(elem->getSource()).get());
             glBindBufferARB_ptr(GL_ARRAY_BUFFER_ARB, vertexBuffer->getGLBufferId());
 
-            GLenum type = 0;
-            switch(i->getType())
-            {
-            case VET_FLOAT1:
-            case VET_FLOAT2:
-            case VET_FLOAT3:
-            case VET_FLOAT4:
-                type = GL_FLOAT;
-                break;
-            case VET_SHORT1:
-            case VET_SHORT2:
-            case VET_SHORT3:
-            case VET_SHORT4:
-                type = GL_SHORT;
-                break;
-            case VET_COLOUR:
-                type = GL_UNSIGNED_BYTE;
-                break;
-            default:
-                break;
-            };
-
-            switch(i->getSemantic())
+            switch(elem->getSemantic())
             {
             case VES_POSITION:
-                glVertexPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, vertexBuffer->getVertexSize(),
-                    BUFFER_OFFSET(i->getOffset()));
+                glVertexPointer(VertexElement::getTypeCount(elem->getType()), 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(),
+                    BUFFER_OFFSET(elem->getOffset()));
                 glEnableClientState( GL_VERTEX_ARRAY );
                 break;
             case VES_NORMAL:
-                glNormalPointer(type, vertexBuffer->getVertexSize(), 
-                    BUFFER_OFFSET(i->getOffset()));
+                glNormalPointer(
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), 
+                    BUFFER_OFFSET(elem->getOffset()));
                 glEnableClientState( GL_NORMAL_ARRAY );
                 break;
             case VES_DIFFUSE:
-                glColorPointer(4, type, vertexBuffer->getVertexSize(), 
-                    BUFFER_OFFSET(i->getOffset()));
+                glColorPointer(4, 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), 
+                    BUFFER_OFFSET(elem->getOffset()));
                 glEnableClientState( GL_COLOR_ARRAY );
                 break;
             case VES_SPECULAR:
-                glSecondaryColorPointer(4, type, vertexBuffer->getVertexSize(), 
-                    BUFFER_OFFSET(i->getOffset()));
+                glSecondaryColorPointer(4, 
+                    GLHardwareBufferManager::getGLType(elem->getType()), 
+                    vertexBuffer->getVertexSize(), 
+                    BUFFER_OFFSET(elem->getOffset()));
                 glEnableClientState( GL_SECONDARY_COLOR_ARRAY );
                 break;
             case VES_TEXTURE_COORDINATES:
-                glClientActiveTextureARB_ptr(GL_TEXTURE0 + i->getIndex());
-                glTexCoordPointer(VertexElement::getTypeCount(i->getType()), 
-                    type, vertexBuffer->getVertexSize(),
-                    BUFFER_OFFSET(i->getOffset()));
-                glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                for (int i = 0; i < mCapabilities->numTextureUnits(); i++)
+                {
+                    glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
+                    if (glIsEnabled(GL_TEXTURE_2D))
+                    {
+                        //int texCoordIndex =
+                        //    (mTextureCoordIndex[i] < op.numTextureCoordSets) ?
+                        //    mTextureCoordIndex[i] : 0;
+                        glTexCoordPointer(
+                            VertexElement::getTypeCount(elem->getType()), 
+                            GLHardwareBufferManager::getGLType(elem->getType()),
+                            vertexBuffer->getVertexSize(),
+                            BUFFER_OFFSET(elem->getOffset()));
+                    }
+                    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+                }
                 break;
             default:
                 break;
             };
         }
+
+        glClientActiveTextureARB_ptr(GL_TEXTURE0);
 
         // Find the correct type to render
         GLint primType;
@@ -1626,7 +1623,8 @@ namespace Ogre {
         }
         else
         {
-            glDrawArrays(primType, 0, op.vertexData->vertexCount);
+            glDrawArrays(primType, op.vertexData->vertexStart,
+                op.vertexData->vertexCount);
         }
 
         glDisableClientState( GL_VERTEX_ARRAY );

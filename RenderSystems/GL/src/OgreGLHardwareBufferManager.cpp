@@ -88,4 +88,25 @@ namespace Ogre {
             return GL_DYNAMIC_DRAW_ARB;
         };
     }
+    //---------------------------------------------------------------------
+    GLenum GLHardwareBufferManager::getGLType(unsigned int type)
+    {
+        switch(type)
+        {
+            case VET_FLOAT1:
+            case VET_FLOAT2:
+            case VET_FLOAT3:
+            case VET_FLOAT4:
+                return GL_FLOAT;
+            case VET_SHORT1:
+            case VET_SHORT2:
+            case VET_SHORT3:
+            case VET_SHORT4:
+                return GL_SHORT;
+            case VET_COLOUR:
+                return GL_UNSIGNED_BYTE;
+            default:
+                return 0;
+        };
+    }
 }

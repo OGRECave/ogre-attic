@@ -56,6 +56,9 @@ namespace Ogre {
 
         /// Utility function to get the correct GL usage based on HBU's
         static GLenum getGLUsage(unsigned int usage);
+
+        /// Utility function to get the correct GL type based on VET's
+        static GLenum getGLType(unsigned int type);
     };
 
 }
