@@ -364,7 +364,7 @@ int make_filespec( char *spec, char *subdir, char *fullname )
 
 void help( char *filename )
 {
-	cout << "lwo2mesh v0.88 (2003.09.21) by Dennis Verbeek." << nl
+	cout << "lwo2mesh v0.89 (2004.05.09) by Dennis Verbeek." << nl
 		<< "Converts a Lightwave object to an Ogre mesh." << nl
 		<< "Please send any feedback to: dennis.verbeek@chello.nl" << nl << nl
 		<< "Usage: " << filename << " [options] source [dest]" << nl

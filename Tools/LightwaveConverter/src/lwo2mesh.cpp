@@ -31,7 +31,7 @@ void Lwo2MeshWriter::doExportMaterials()
 		
 		if (!ogreMat)
 		{
-			ogreMat = (Material*)MaterialManager::getSingleton().createDeferred(surface->name);
+			ogreMat = (Material*)MaterialManager::getSingleton().create(surface->name);
 			
 			ogreMat->setAmbient
 			(
@@ -72,12 +72,11 @@ void Lwo2MeshWriter::doExportMaterials()
 				if (clip)
 				{
 					_splitpath( clip->source.still->name, drive, dir, node, ext );
-					_makepath( texname, 0, 0, node, ext );
-					
-					ogreMat->addTextureLayer(texname);
+					_makepath( texname, 0, 0, node, ext );					
+					ogreMat->getTechnique(0)->getPass(0)->createTextureUnitState(texname);
 				}
 			}			
-		materialSerializer->queueForExport(ogreMat);
+			materialSerializer->queueForExport(ogreMat);
 		}
 	}
 }
@@ -245,8 +244,7 @@ VertexData *Lwo2MeshWriter::setupVertexData(unsigned short vertexCount, VertexDa
 		decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
 		HardwareVertexBufferSharedPtr tbuf = HardwareBufferManager::getSingleton().createVertexBuffer(decl->getVertexSize(TEXCOORD_BINDING), vertexData->vertexCount, HardwareBuffer::HBU_DYNAMIC, false);
 		bind->setBinding(TEXCOORD_BINDING, tbuf);
-	}
-	
+	}	
 	return vertexData;
 }
 
@@ -338,7 +336,7 @@ void Lwo2MeshWriter::copyDataToVertexData(vpoints &points,
 						int n = point->vmaps[v].index;
 						
 						pTex[ni] = vmap->val[n][0];
-						pTex[ni + 1] = vmap->val[n][1];
+						pTex[ni + 1] = 1.0f - vmap->val[n][1];
 						found = true;
 						break;
 					}
@@ -369,12 +367,16 @@ void Lwo2MeshWriter::prepLwObject(void)
 		cout << ", Polygons after: " << layer->polygons.size() << endl;
 #endif
 		
-		// mirror x-coord for Ogre;
+		// Mirror x-coord for Ogre;
 		for (p = 0; p < layer->points.size(); p++)
 		{
 			layer->points[p]->x *= -1.0f;
 			layer->points[p]->polygons.clear();
 		}
+		// Unscrew the bounding box
+		float x = layer->bboxmin.x * -1.0f;
+		layer->bboxmin.x = layer->bboxmax.x * -1.0f;
+		layer->bboxmax.x = x;
 		
 		for ( p = 0; p < layer->polygons.size(); p++ )
 		{
@@ -504,14 +506,32 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest)
 
 	if (!SeparateLayers) ogreMesh = new Mesh(ndest);
 
+	Ogre::Vector3 boundingBoxMin(FLT_MAX, FLT_MAX, FLT_MAX);
+	Ogre::Vector3 boundingBoxMax(FLT_MIN, FLT_MIN, FLT_MIN);
+
+
 	for( unsigned int ol = 0; ol < ml; ++ol )
 	{
+		if (!object->layers[ol]->polygons.size())
+			continue;
+
+		Ogre::Vector3 currentMin(object->layers[ol]->bboxmin.x,
+								 object->layers[ol]->bboxmin.y,
+								 object->layers[ol]->bboxmin.z);
+		Ogre::Vector3 currentMax(object->layers[ol]->bboxmax.x,
+								 object->layers[ol]->bboxmax.y,
+								 object->layers[ol]->bboxmax.z);
+
 		if (SeparateLayers)
+		{	
+			ogreMesh = new Mesh(ndest);
+			ogreMesh->_setBounds(Ogre::AxisAlignedBox(currentMin, currentMax));
+			ogreMesh->_setBoundingSphereRadius(Ogre::Math::Sqrt(std::max(currentMin.squaredLength(), currentMax.squaredLength())));
+		}
+		else
 		{
-			if (!object->layers[ol]->polygons.size())
-				continue;
-			else
-				ogreMesh = new Mesh(ndest);
+			boundingBoxMin.makeFloor(currentMin);
+			boundingBoxMax.makeCeil(currentMax);
 		}
 		
 		for (unsigned int s = 0; s < object->surfaces.size(); s++)
@@ -557,6 +577,12 @@ bool Lwo2MeshWriter::writeLwo2Mesh(lwObject *nobject, char *ndest)
 				ogreSubMesh->vertexData = setupVertexData(points.size());
 				copyDataToVertexData(points, polygons, vmaps, ogreSubMesh->indexData, ogreSubMesh->vertexData);
 			}
+		}
+
+		if (!SeparateLayers)
+		{	
+			ogreMesh->_setBounds(Ogre::AxisAlignedBox(boundingBoxMin, boundingBoxMax));
+			ogreMesh->_setBoundingSphereRadius(Ogre::Math::Sqrt(std::max(boundingBoxMin.squaredLength(), boundingBoxMax.squaredLength())));
 		}
 		
 		String fname = SeparateLayers ? makeLayerFileName(dest, ol, object->layers[ol]->name) : dest;
