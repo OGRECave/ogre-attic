@@ -63,6 +63,9 @@ public:
     /** Overridden from Node to remove any reference to octants */
     Node * removeChild( const String & name );
 
+    /** Overridden from Node to remove any reference to octants */
+    Node * removeChild( Node* child);
+
     /** Returns the Octree in which this OctreeNode resides
     */
     Octree * getOctant()

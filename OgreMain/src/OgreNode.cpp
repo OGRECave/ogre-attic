@@ -267,8 +267,26 @@ namespace Ogre {
                 "Child index out of bounds.", 
                 "Node::getChild" );
         }
-        needUpdate();
         return 0;
+    }
+    //-----------------------------------------------------------------------
+    Node* Node::removeChild(Node* child)
+    {
+        ChildNodeMap::iterator i, iend;
+        iend = mChildren.end();
+        for (i = mChildren.begin(); i != iend; ++i)
+        {
+            if (i->second == child)
+            {
+                // cancel any pending update
+                cancelUpdate(child);
+
+                mChildren.erase(i);
+                child->setParent(NULL);
+                break;
+            }
+        }
+        return child;
     }
     //-----------------------------------------------------------------------
     const Quaternion& Node::getOrientation() const
