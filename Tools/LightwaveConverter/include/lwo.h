@@ -9,7 +9,9 @@ These files were originally coded by Ernie Wright and were included in the
 Lightwave SDK.
 */
 
-#pragma once
+#ifndef _LWO_H_
+#define _LWO_H_
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -722,8 +724,11 @@ inline bool operator < (const lwTexture &t1, const lwTexture &t2 )
 	return strcmp( t1.ord, t2.ord ) < 0;
 }
 
-#ifdef _WIN32
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_WIN32
 void revbytes( void *bp, int elsize, int elcount );
 #else
 #define revbytes( b, s, c )
 #endif
+
+#endif // _LWO_H_
+

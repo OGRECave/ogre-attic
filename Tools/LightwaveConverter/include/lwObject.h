@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef _LWOBJECT_H_
+#define _LWOBJECT_H_
+
 #include "lwo.h"
 #include "lwEnvelope.h"
 #include "lwClip.h"
@@ -57,3 +60,6 @@ public:
 };
 
 typedef vector<lwObject*> vobjects;
+
+#endif // _LWOBJECT_H_
+

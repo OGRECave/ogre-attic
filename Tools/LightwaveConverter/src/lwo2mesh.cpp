@@ -1,9 +1,17 @@
-#include "vector3.h"
+#include "Vector3.h"
 #include "lwo2mesh.h"
 #include "Ogre.h"
 #include "OgreMesh.h"
 #include "OgreStringConverter.h"
 #include "OgreDefaultHardwareBufferManager.h"
+
+#if OGRE_PLATFORM == PLATFORM_LINUX
+#include <math.h>
+#include <float.h>  // FLT_MIN, FLT_MAX
+#include <libgen.h> // dirname(), basename().
+#include <string.h> // strtok();
+#include <string>   // string class
+#endif
 
 #define POLYLIMIT 0x5555
 #define POINTLIMIT 0x5555
@@ -15,6 +23,72 @@ extern MaterialSerializer* materialSerializer;
 extern char *matPrefix;
 
 extern ostream& nl(ostream& os);
+
+#if OGRE_PLATFORM == PLATFORM_LINUX
+
+/* We expect the caller to provide an arrays of chars for the output. */
+void _splitpath( const char *_fn, char *_drive, char *_dir, char *_node, char *_ext ) {
+       
+   /* A crazy mix of both c and c++.. */
+       
+   const char *delimiters = ".";
+   char buf[ _MAX_DRIVE+_MAX_DIR+_MAX_FNAME+_MAX_EXT + 5 ];
+   char *exte, *ddir, *fnam, *_ext_tmp;
+
+   strcpy( buf, _fn );
+   strcpy( _drive, "" ); // _drive is always empth on linux.
+
+   if ( String( buf ).empty() ) {
+       strcpy( _node, "" );
+       strcpy( _dir, "" );
+       strcpy( _ext, "" );
+       return;
+   } 
+   
+   fnam = basename( buf );
+   strcpy( _node, fnam );
+   ddir = dirname( buf );
+   strcpy( _dir, ddir );
+   
+   _ext_tmp = strtok( fnam, delimiters );
+   while ( ( _ext_tmp = strtok( NULL, delimiters ) ) != NULL ) exte = _ext_tmp;
+   strcpy( _ext, exte );
+
+   _node[ strlen(_node) - strlen(_ext) - 1 ] = '\0';
+
+}
+
+/* We expect the caller to provide an array of chars for the output. */
+void _makepath( char *_fn, const char *_drive, const char *_dir,
+       const char *_node, const char *_ext ) {
+   
+   /* A crazy mix of both c and c++.. */
+
+   std::string buf("");
+
+   if ( _drive != NULL ) // On Linux, this is usually empty.
+       buf += _drive;
+       
+   if ( _dir != NULL ) { // The directory part.
+       if ( std::string(_dir).empty() )
+           buf += ".";
+       buf += _dir;
+       buf += "/";
+   }
+   
+   if ( _node != NULL ) // The filename without the extension.
+       buf += _node;
+   
+   if ( _ext != NULL ) { // The extension.
+       if ( std::string( _ext ).compare( 0, 1, "." ) != 0 )
+           buf += ".";
+       buf += _ext;
+   }
+
+   strcpy( _fn, buf.c_str() );
+}
+
+#endif
 
 void Lwo2MeshWriter::doExportMaterials()
 {
@@ -445,29 +519,25 @@ inline String Lwo2MeshWriter::makeLayerFileName(char* dest, unsigned int l, char
 		drive[ _MAX_DRIVE ],
 		dir[ _MAX_DIR ],
 		node[ _MAX_FNAME ],
-		ext[ _MAX_EXT ];
+		ext[ _MAX_EXT ],
+		buf[ _MAX_DRIVE + _MAX_DIR + _MAX_FNAME + _MAX_EXT + 5 ];
+
+	String LayerFileName;
+	String TempName;
 
 	_splitpath( dest, drive, dir, node, ext );
 
-	String LayerFileName;
-
-	LayerFileName += drive;
-	LayerFileName += dir;
-	LayerFileName += node;
-
-	if (layername)
-	{
-		LayerFileName += ".";
-		LayerFileName += layername;
-	}
-	else
-	{
-		LayerFileName += ".layer" + StringConverter::toString(l);
+	TempName = String( node );
+   
+	if (layername) {
+		TempName += ".";
+		TempName += layername;
+	} else {
+		TempName += ".layer" + StringConverter::toString(l);
 	}
 
-	LayerFileName += ext;
-
-	const char *test = LayerFileName.c_str();
+	_makepath( buf, drive, dir, TempName.c_str(), ext );
+	LayerFileName = String( buf );
 
 	return LayerFileName;
 }
@@ -478,18 +548,16 @@ inline String Lwo2MeshWriter::makeMaterialFileName(char* dest)
 		drive[ _MAX_DRIVE ],
 		dir[ _MAX_DIR ],
 		node[ _MAX_FNAME ],
-		ext[ _MAX_EXT ];
-
-	_splitpath( dest, drive, dir, node, ext );
+		ext[ _MAX_EXT ],
+		buf[ _MAX_DRIVE + _MAX_DIR + _MAX_FNAME + _MAX_EXT + 5 ];
 
 	String MaterialFileName;
 
-	MaterialFileName += drive;
-	MaterialFileName += dir;
-	MaterialFileName += node;
-	MaterialFileName += ".material";
-
+	_splitpath( dest, drive, dir, node, ext );
+	_makepath( buf, drive, dir, node, ".material" );
+ 
 	const char *test = MaterialFileName.c_str();
+	MaterialFileName = String( buf );
 
 	return MaterialFileName;
 }

@@ -8,7 +8,11 @@
 #include "OgreDataChunk.h"
 #include "OgreDefaultHardwareBufferManager.h"
 
+#if OGRE_PLATFORM == PLATFORM_LINUX
+#include "asm/io.h"
+#else
 #include "io.h"
+#endif
 #include "time.h"
 
 LogManager* logMgr;
@@ -372,6 +376,11 @@ void help( char *filename )
 	cout << "lwo2mesh v0.89a (2004.10.05) by Dennis Verbeek." << nl
 		<< "Converts a Lightwave object to an Ogre mesh." << nl
 		<< "Please send any feedback to: dennis.verbeek@chello.nl" << nl << nl
+#if OGRE_PLATFORM == PLATFORM_LINUX
+		<< "Linux Port (2004.10.16) by Magnus Møller Petersen." << nl
+		<< "Still converts a Lightwave object to an Ogre mesh." << nl
+		<< "Please send feedback concerning Linux to: magnus@moaner.dk" << nl << nl
+#endif
 		<< "Usage: " << filename << " [options] source [dest]" << nl
 		<< "options:" << nl
 		<< "-g do not use shared geometry" << nl
@@ -446,6 +455,7 @@ void info(lwObject *object, char *filename)
 		print_vmaps( object );
 }
 
+#if OGRE_PLATFORM == PLATFORM_WIN32
 int readFiles( char *source, char *dest)
 {
 	long h, err;
@@ -503,8 +513,15 @@ int readFiles( char *source, char *dest)
 	free (filename);
 	return 1;
 }
+#elif OGRE_PLATFORM == PLATFORM_LINUX
+int readFiles( char *source, char *dest ) {
+	return 1;
+}
+#else
+#define readFiles( a, b )
+#endif
 
-void main( int argc, char *argv[] )
+int main( int argc, char *argv[] )
 {
 	int i = 1;
 	unsigned int ndistances = 0;
@@ -643,7 +660,11 @@ void main( int argc, char *argv[] )
 		bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
 	}
 
-	if ( strchr(source, '*') )
+	if ( strchr(source, '*') ) 
+		// On Linux this will only be called if you pass the source argument in
+		// quotation marks (e.g. as LightwaveConverter "abc..*" ). Otherwise the
+		// shell will expand the arguments. At least, this is how it works with
+		// bash.
 		readFiles( source, dest );
 	else
 	{
@@ -656,7 +677,7 @@ void main( int argc, char *argv[] )
 			else
 			{
 				char *destname = (char *)malloc(512);
-				if ( !destname ) return;
+				if ( !destname ) return 1;
 
 				if (strlen(dest))
 					make_destname(dest, dest, destname);
@@ -696,4 +717,7 @@ void main( int argc, char *argv[] )
 		delete mth;
 		delete logMgr;
 	}
+
+	return 0;
+	
 }

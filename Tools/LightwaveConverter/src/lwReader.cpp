@@ -321,7 +321,7 @@ Fail:
 
 #define FLEN_ERROR INT_MIN
 
-#ifdef _WIN32
+#if OGRE_PLATFORM == PLATFORM_WIN32 || OGRE_PLATFORM == PLATFORM_LINUX
 /*
 =====================================================================
 revbytes()
@@ -1059,7 +1059,7 @@ lwEnvelope *lwReader::lwGetEnvelope()
 		/* skip unread parts of the current subchunk */
 		
 		if ( rlen < sz )
-			is->seekg(sz - rlen, SEEK_CUR );
+			is->seekg(sz - rlen, ios_base::cur );
 		
 		/* end of the ENVL chunk? */
 		
@@ -2190,7 +2190,7 @@ lwSurface *lwReader::lwGetLWOBSurface( lwObject *obj )
 			break;
 
 		case ID_GLOS:
-			surf->glossiness.val = ( float ) log( getU2()) / 20.7944f;
+			surf->glossiness.val = ( float ) log( (double)getU2()) / 20.7944f;
 			break;
 
 		case ID_SMAN:
