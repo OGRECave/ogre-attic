@@ -393,6 +393,15 @@ namespace Ogre
         static const Matrix4 ZERO;
         static const Matrix4 IDENTITY;
 
+        inline Matrix4 operator*(Real scalar)
+        {
+            return Matrix4(
+                scalar*m[0][0], scalar*m[0][1], scalar*m[0][2], scalar*m[0][3],
+                scalar*m[1][0], scalar*m[1][1], scalar*m[1][2], scalar*m[1][3],
+                scalar*m[2][0], scalar*m[2][1], scalar*m[2][2], scalar*m[2][3],
+                scalar*m[3][0], scalar*m[3][1], scalar*m[3][2], scalar*m[3][3]);
+        }
+
         /** Function for writing to a stream.
         */
         inline _OgreExport friend std::ostream& operator <<
@@ -411,6 +420,11 @@ namespace Ogre
             o << ")";
             return o;
         }
+		
+		Matrix4 adjoint() const;
+		Real determinant() const;
+		Matrix4 inverse() const;
+
     };
 }
 #endif

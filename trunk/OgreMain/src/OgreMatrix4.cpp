@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
 Copyright © 2000-2002 The OGRE Team
@@ -42,5 +42,51 @@ namespace Ogre
         0, 0, 1, 0,
         0, 0, 0, 1 );
 
-}
 
+    inline Real
+        MINOR(const Matrix4& m, const int r0, const int r1, const int r2, const int c0, const int c1, const int c2)
+    {
+        return m[r0][c0] * (m[r1][c1] * m[r2][c2] - m[r2][c1] * m[r1][c2]) -
+            m[r0][c1] * (m[r1][c0] * m[r2][c2] - m[r2][c0] * m[r1][c2]) +
+            m[r0][c2] * (m[r1][c0] * m[r2][c1] - m[r2][c0] * m[r1][c1]);
+    }
+
+
+    Matrix4 Matrix4::adjoint() const
+    {
+        return Matrix4( MINOR(*this, 1, 2, 3, 1, 2, 3),
+            -MINOR(*this, 0, 2, 3, 1, 2, 3),
+            MINOR(*this, 0, 1, 3, 1, 2, 3),
+            -MINOR(*this, 0, 1, 2, 1, 2, 3),
+
+            -MINOR(*this, 1, 2, 3, 0, 2, 3),
+            MINOR(*this, 0, 2, 3, 0, 2, 3),
+            -MINOR(*this, 0, 1, 3, 0, 2, 3),
+            MINOR(*this, 0, 1, 2, 0, 2, 3),
+
+            MINOR(*this, 1, 2, 3, 0, 1, 3),
+            -MINOR(*this, 0, 2, 3, 0, 1, 3),
+            MINOR(*this, 0, 1, 3, 0, 1, 3),
+            -MINOR(*this, 0, 1, 2, 0, 1, 3),
+
+            -MINOR(*this, 1, 2, 3, 0, 1, 2),
+            MINOR(*this, 0, 2, 3, 0, 1, 2),
+            -MINOR(*this, 0, 1, 3, 0, 1, 2),
+            MINOR(*this, 0, 1, 2, 0, 1, 2));
+    }
+
+
+    Real Matrix4::determinant() const
+    {
+        return m[0][0] * MINOR(*this, 1, 2, 3, 1, 2, 3) -
+            m[0][1] * MINOR(*this, 1, 2, 3, 0, 2, 3) +
+            m[0][2] * MINOR(*this, 1, 2, 3, 0, 1, 3) -
+            m[0][3] * MINOR(*this, 1, 2, 3, 0, 1, 2);
+    }
+
+    Matrix4 Matrix4::inverse() const
+    {
+        return adjoint() * (1.0f / determinant());
+    }
+
+}
