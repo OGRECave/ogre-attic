@@ -134,30 +134,33 @@ namespace Ogre {
         /// The rendering system to send the scene to
         RenderSystem *mDestRenderSystem;
 
-        typedef std::map<std::string, Camera*, std::less<std::string> > CameraList;
+        typedef std::map<String, Camera* > CameraList;
 
         /** Central list of cameras - for easy memory management and lookup.
         */
         CameraList mCameras;
 
-        typedef std::map<std::string, Light*, std::less<std::string> > SceneLightList;
+        typedef std::map<String, Light* > SceneLightList;
 
         /** Central list of lights - for easy memory management and lookup.
         */
         SceneLightList mLights;
 
 
-        typedef std::map<std::string, Entity*, std::less<std::string> > EntityList;
+        typedef std::map<String, Entity* > EntityList;
 
         /** Central list of entities - for easy memory management and lookup.
         */
         EntityList mEntities;
 
-        typedef std::map<std::string, BillboardSet*, std::less<std::string> > BillboardSetList;
+        typedef std::map<String, BillboardSet* > BillboardSetList;
 
         /** Central list of billboard sets - for easy memory management and lookup.
         */
         BillboardSetList mBillboardSets;
+
+		typedef std::map<String, StaticGeometry* > StaticGeometryList;
+		StaticGeometryList mStaticGeometryList;
 
         typedef std::map<String, SceneNode*> SceneNodeList;
 
@@ -1686,6 +1689,26 @@ namespace Ogre {
 		*/
         virtual void setShadowUseInfiniteFarPlane(bool enable) {
             mShadowUseInfiniteFarPlane = enable; }
+
+		/** Creates a StaticGeometry instance suitable for use with this
+			SceneManager.
+		@remarks
+			StaticGeometry is a way of batching up geometry into a more 
+			efficient form at the expense of being able to move it. Please 
+			read the StaticGeometry class documentation for full information.
+		@param name The name to give the new object
+		@returns The new StaticGeometry instance
+		*/
+		virtual StaticGeometry* createStaticGeometry(const String& name);
+		/** Retrieve a previously created StaticGeometry instance. */
+		virtual StaticGeometry* getStaticGeometry(const String& name) const;
+		/** Remove & destroy a StaticGeometry instance. */
+		virtual void removeStaticGeometry(StaticGeometry* geom);
+		/** Remove & destroy a StaticGeometry instance. */
+		virtual void removeStaticGeometry(const String& name);
+		/** Remove & destroy all StaticGeometry instances. */
+		virtual void removeAllStaticGeometry(void);
+
 		
     };
 

@@ -574,6 +574,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreSkeletonSerializer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreStaticGeometry.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreString.cpp">
 			</File>
 			<File
@@ -1146,6 +1149,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreStaticFaceGroup.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreStaticGeometry.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreStdHeaders.h">

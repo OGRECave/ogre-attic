@@ -167,6 +167,7 @@ OgreSphere.h \
 OgreSpotShadowFadePng.h \
 OgreStableHeaders.h \
 OgreStaticFaceGroup.h \
+OgreStaticGeometry.h \
 OgreStdHeaders.h \
 OgreString.h \
 OgreStringConverter.h \
