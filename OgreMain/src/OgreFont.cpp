@@ -176,17 +176,16 @@ namespace Ogre
         }
         else
         {
-            texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
-			if (!texLayer)
-				OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, "Could not find texture " + mSource,
-					"Font::load" );
 			// Manually load since we need to load to get alpha
-			TexturePtr tex = TextureManager::getSingleton().getByName(mSource);
-			tex->load();
+			TexturePtr tex = TextureManager::getSingleton().load(mSource, mGroup, TEX_TYPE_2D, 0);
             blendByAlpha = tex->hasAlpha();
+            texLayer = mpMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(mSource);
         }
         // Clamp to avoid fuzzy edges
         texLayer->setTextureAddressingMode( TextureUnitState::TAM_CLAMP );
+		// Allow min/mag filter, but no mip
+		texLayer->setTextureFiltering(FO_LINEAR, FO_LINEAR, FO_NONE);
+		
 
         // Set up blending
         if (blendByAlpha)
