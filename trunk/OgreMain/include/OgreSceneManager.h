@@ -1152,7 +1152,7 @@ namespace Ogre {
         CameraIterator getCameraIterator(void) {
             return CameraIterator(mCameras.begin(), mCameras.end());
         }
-        /** Returns a specialised MapIterator over all cameras in the scene. */
+        /** Returns a specialised MapIterator over all BillboardSets in the scene. */
         BillboardSetIterator getBillboardSetIterator(void) {
             return BillboardSetIterator(mBillboardSets.begin(), mBillboardSets.end());
         }
