@@ -1620,7 +1620,8 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------------
-    void * MemoryManager::allocMem( const char *szFile, size_t uLine, size_t count )
+    void * MemoryManager::allocMem( const char *szFile, size_t uLine, 
+            size_t count ) throw()
     {
         void *ptr = malloc( count );
         return ptr;
@@ -1628,7 +1629,7 @@ namespace Ogre
 
     //-----------------------------------------------------------------------------
     void * MemoryManager::rllocMem( 
-        const char *szFile, size_t uLine, void *ptr , size_t count )
+        const char *szFile, size_t uLine, void *ptr , size_t count ) throw()
     {
         void *nptr = realloc( ptr, count );
         return nptr;
@@ -1636,7 +1637,7 @@ namespace Ogre
 
     //-----------------------------------------------------------------------------
     void * MemoryManager::cllocMem( 
-        const char *szFile, size_t uLine, size_t num, size_t size )
+        const char *szFile, size_t uLine, size_t num, size_t size ) throw()
     {
         void *ptr = malloc( num * size );
 
@@ -1648,7 +1649,8 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------------
-    void MemoryManager::dllocMem( const char *szFile, size_t uLine, void *ptr )
+    void MemoryManager::dllocMem( const char *szFile, size_t uLine, 
+            void *ptr) throw()
     {
         free( ptr );
     }

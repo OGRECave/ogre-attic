@@ -1,0 +1,95 @@
+AC_PREREQ(2.50)
+
+AC_DEFUN([AC_USE_STLPORT],
+[AC_ARG_WITH(stlport, 
+             AC_HELP_STRING([--with-stlport=PATH],
+                           [the path to STLPort.]),
+             ac_cv_use_stlport=$withval,
+             ac_cv_use_stlport=no)
+ AC_CACHE_CHECK([whether to use STLPort], ac_cv_use_stlport,
+                ac_cv_use_stlport=no)
+ if test x$ac_cv_use_stlport != xno; then
+     STLPORT_CFLAGS="-I$ac_cv_use_stlport/stlport"
+     STLPORT_LIBS="-L$ac_cv_use_stlport/lib -lstlport"
+ fi
+ AC_SUBST(STLPORT_CFLAGS)
+ AC_SUBST(STLPORT_LIBS)
+ ])
+
+AC_INIT(OgreMain/include/Ogre.h)
+AM_INIT_AUTOMAKE(OGRE,0.99c)
+AM_CONFIG_HEADER(OgreMain/include/config.h)
+
+AC_CANONICAL_TARGET
+
+dnl Check for programs
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+AM_PROG_LIBTOOL
+
+dnl Other stuff we need
+AC_USE_STLPORT
+AM_PATH_SDL(1.2.0)
+AC_CHECK_FT2(9.1.0)
+
+AC_CHECK_LIB(jpeg, jpeg_start_decompress)
+AC_CHECK_LIB(dl, dlopen)
+AC_CHECK_LIB(png, png_create_read_struct)
+AC_CHECK_LIB(z, gzopen)
+
+AC_CHECK_FUNC(snprintf, AC_DEFINE(HAVE_SNPRINTF,,snprintf))
+AC_CHECK_FUNC(vsnprintf, AC_DEFINE(HAVE_VSNPRINTF,,vsnprintf))
+
+dnl Version checks
+if test x$GCC = xyes; then
+    AC_MSG_CHECKING([version 3.x of gcc])
+    if test -n "`$CC --version 2>&1|grep '3.'`"; then
+        AC_DEFINE(EXT_HASH,, Use old STL hash options)
+        AC_DEFINE(GCC_3_1,, 3.x GCC version)
+        AC_MSG_RESULT(yes);
+    else
+        AC_MSG_RESULT(no)
+    fi
+fi
+
+dnl This needs to be figured out later (MingW)
+AC_DEFINE(OGRE_LINUX,,Linux Build of OGRE)
+
+dnl Create the makefiles
+AC_OUTPUT(Makefile \
+    OgreMain/Makefile \
+    OgreMain/src/Makefile \
+    PlatformManagers/Makefile \
+    PlatformManagers/SDL/Makefile \
+    PlatformManagers/SDL/src/Makefile
+    PlugIns/Makefile \
+    PlugIns/BSPSceneManager/Makefile \
+    PlugIns/BSPSceneManager/src/Makefile \
+    PlugIns/FileSystem/Makefile \
+    PlugIns/FileSystem/src/Makefile \
+    PlugIns/ParticleFX/Makefile \
+    PlugIns/ParticleFX/src/Makefile
+    RenderSystems/Makefile \
+    RenderSystems/SDL/Makefile \
+    RenderSystems/SDL/src/Makefile \
+    Samples/Makefile \
+    Samples/BezierPatch/Makefile \
+    Samples/BezierPatch/src/Makefile \
+    Samples/EnvMapping/Makefile \
+    Samples/EnvMapping/src/Makefile \
+    Samples/Transpacency/Makefile \
+    Samples/Transpacency/src/Makefile \
+    Samples/Lighting/Makefile \
+    Samples/Lighting/src/Makefile \
+    Samples/ParticleFX/Makefile \
+    Samples/ParticleFX/src/Makefile \
+    Samples/TextureFX/Makefile \
+    Samples/TextureFX/src/Makefile \
+    Samples/SkyDome/Makefile \
+    Samples/SkyDome/src/Makefile \
+    Samples/BSP/Makefile \
+    Samples/BSP/src/Makefile
+    )

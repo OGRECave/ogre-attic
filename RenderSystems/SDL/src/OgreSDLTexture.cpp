@@ -22,16 +22,17 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
-#if OGRE_PLATFORM == PLATFORM_WIN32
-#   include <windows.h>
-#   include <wingdi.h>
-#endif
 
 #include "OgreSDLTexture.h"
 #include "OgreTextureManager.h"
 #include "OgreDataChunk.h"
 #include "OgreImage.h"
 #include "OgreLogManager.h"
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <wingdi.h>
+#endif
 
 namespace Ogre {
 

@@ -75,6 +75,8 @@ namespace Ogre {
 
     bool SDLInput::isKeyDown(KeyCode kc)
     {
+        switch(kc)
+        {
         case KC_ESCAPE:
             return mKeyboardBuffer[SDLK_ESCAPE];
         case KC_1:
@@ -327,6 +329,7 @@ namespace Ogre {
             break;
         default:
             break;
+        };
     }
 
     int SDLInput::getMouseRelativeX()
