@@ -73,6 +73,12 @@ namespace Ogre {
 		    // Ignore comments & blanks
 		    if (!(line.length() == 0 || line.substr(0,2) == "//"))
 		    {
+				if (line.substr(0,8) == "#include")
+				{
+                    std::vector<String> params = line.split("\t\n ()<>");
+					loadAndParseOverlayFile(params[1]);
+					continue;
+				}
 			    if (pOverlay == 0)
 			    {
 				    // No current overlay
@@ -150,7 +156,6 @@ namespace Ogre {
     void OverlayManager::parseAllSources(const String& extension)
     {
         StringVector overlayFiles;
-        DataChunk* pChunk;
 
         std::vector<ArchiveEx*>::iterator i = mVFS.begin();
 
@@ -160,9 +165,7 @@ namespace Ogre {
             overlayFiles = (*i)->getAllNamesLike( "./", extension);
             for (StringVector::iterator si = overlayFiles.begin(); si!=overlayFiles.end(); ++si)
             {
-                SDDataChunk dat; pChunk = &dat;
-                (*i)->fileRead(si[0], &pChunk );
-                parseOverlayFile(dat);
+                parseOverlayFile(*i,si[0]);
             }
 
         }
@@ -172,12 +175,62 @@ namespace Ogre {
             overlayFiles = (*i)->getAllNamesLike( "./", extension);
             for (StringVector::iterator si = overlayFiles.begin(); si!=overlayFiles.end(); ++si)
             {
-                SDDataChunk dat; pChunk = &dat;
-                (*i)->fileRead(si[0], &pChunk );
-                parseOverlayFile(dat);
+                parseOverlayFile(*i,si[0]);
             }
         }
     }
+    //---------------------------------------------------------------------
+    void OverlayManager::loadAndParseOverlayFile(const String& filename)
+    {
+		bool isLoaded = false;
+        for (StringVector::iterator i = mLoadedOverlays.begin(); i != mLoadedOverlays.end(); ++i)
+        {
+			if (*i == filename)
+			{
+				LogManager::getSingleton().logMessage( 
+					"Skipping loading overlay include: '"
+					+ filename+ " as it is already loaded.");
+				isLoaded = true;
+				break;
+
+			}
+        }
+		if (!isLoaded)
+		{
+
+			std::vector<ArchiveEx*>::iterator i = mVFS.begin();
+
+			// Specific archives
+			for (; i != mVFS.end(); ++i)
+			{
+				if ((*i)->fileTest(filename))
+				{
+					parseOverlayFile(*i,filename);
+				}
+
+			}
+			// search common archives
+			for (i = mCommonVFS.begin(); i != mCommonVFS.end(); ++i)
+			{
+				if ((*i)->fileTest(filename))
+				{
+					parseOverlayFile(*i,filename);
+				}
+			}
+		}
+    }
+    //---------------------------------------------------------------------
+    void OverlayManager::parseOverlayFile(ArchiveEx* pArchiveEx, const String& name)
+	{
+        DataChunk* pChunk;
+        SDDataChunk dat; 
+		pChunk = &dat;
+        pArchiveEx->fileRead(name, &pChunk );
+        parseOverlayFile(dat);
+		mLoadedOverlays.push_back(name);
+	}
+
+
     //---------------------------------------------------------------------
     Resource* OverlayManager::create( const String& name)
     {
