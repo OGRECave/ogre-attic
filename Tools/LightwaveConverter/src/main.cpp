@@ -19,6 +19,7 @@ LogManager* logMgr;
 Math* mth;
 MaterialManager* matMgr;
 SkeletonManager* skelMgr;
+MeshManager* meshMgr;
 MeshSerializer* meshSerializer;
 MaterialSerializer* materialSerializer;
 SkeletonSerializer* skeletonSerializer;
@@ -378,7 +379,6 @@ void help( char *filename )
 		<< "Please send any feedback to: dennis.verbeek@chello.nl" << nl << nl
 #if OGRE_PLATFORM == PLATFORM_LINUX
 		<< "Linux Port (2004.10.16) by Magnus Møller Petersen." << nl
-		<< "Still converts a Lightwave object to an Ogre mesh." << nl
 		<< "Please send feedback concerning Linux to: magnus@moaner.dk" << nl << nl
 #endif
 		<< "Usage: " << filename << " [options] source [dest]" << nl
@@ -651,8 +651,9 @@ int main( int argc, char *argv[] )
 	{
 		logMgr = new LogManager();
 		mth = new Math();
-		matMgr = new MaterialManager();;
-        matMgr->initialise();
+		matMgr = new MaterialManager();
+		matMgr->initialise();
+		meshMgr  = new MeshManager();
 		skelMgr = new SkeletonManager();
 		meshSerializer = new MeshSerializer();
 		materialSerializer = new MaterialSerializer();
@@ -709,9 +710,10 @@ int main( int argc, char *argv[] )
 	else
 	{
 		delete bufferManager;
-	    delete skeletonSerializer;
+		delete skeletonSerializer;
 		delete materialSerializer;
 		delete meshSerializer;
+		delete meshMgr;
 		delete skelMgr;
 		delete matMgr;
 		delete mth;
