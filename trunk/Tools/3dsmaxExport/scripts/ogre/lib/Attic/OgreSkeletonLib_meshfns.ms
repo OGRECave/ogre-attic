@@ -29,31 +29,31 @@ function exploreMesh pmesh =
 -- ----------------------------------- WRITE MESH ----------------------------------- --
 ----------------------------------------------------------------------------------------
 -- Remarque !
--- 3dsmax commence tous ses ID a 1 alors que Ogre commence à 0.
--- -> on va rajouter un vertex 0 et un bone 0 pour assurer la compatibilté.
+-- 3dsmax starts ID from 1 although OGRE starts from 0.
+-- -> a vertex 0 and a bone 0 will be added
 
 ----------------------------------------------------------------------------
 -- write <mesh />
--- about axis: if xAxis = 1 and yAxis = 2 and zAxis = 3, nothing happens
---             but yAxis = 3 and zAxis = 2 will flip Y and Z
 -- flipNormal = true if you want to flip normals
 ----------------------------------------------------------------------------
 
 function writeM tmesh flipyz scale flipNormal outFile =
 (
-    local num_tverts, num_faces,v,f,face,nmal,vert,table,tvtable,vertTmp,tvertTmp,faceTmp ;
+    local num_tverts, num_faces,v,f,face,nmal,vert,table,tvtable,vertTmp,tvertTmp,faceTmp,matTable,mat,currentMatId,matId ;
+	local couple,v1,v2,v3 ;
 	
 	format "writing mesh: writing geometry ... \n" ;
 	
-	table = getVertTable tmesh ;
-	tvtable = getTVertTable tmesh ;
 	num_tverts = tmesh.numtverts ;
 	num_faces = tmesh.numfaces ;
+	matTable = getMaterialTable tmesh ;
+	currentMatId = matTable[1] ;
+	ogreVertexTable = getOgreVertexTable tmesh ;
 	
 	-- Vertices positions and normals
 	--	
-	format("\t\t\t<geometry count=\"%\">\n") (num_tverts+1) to:outFile; -- +1 cf remarque en haut.
-	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"1\" texcoordsets=\"0\" texcoorddimensions=\"2\">\n") to:outFile --> TODO, tounderstand :) !!!!              
+	format("\t\t\t<geometry count=\"%\">\n") ((arrayLength ogreVertexTable)+1) to:outFile; -- +1 cf remarque en haut.
+	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"%\" texcoordsets=\"0\" texcoorddimensions=\"2\">\n") currentMatId to:outFile ;
 		
 		-- vertex number 0
 		format("\t\t\t\t\t<vertex>\n") to:outFile ;
@@ -61,12 +61,21 @@ function writeM tmesh flipyz scale flipNormal outFile =
 		format("\t\t\t\t\t\t<normal x=\"1\" y=\"0\" z=\"0\" />\n") to:outFile ;
 		format("\t\t\t\t\t\t<texcoord u=\"0\" v=\"0\" />\n") to:outFile ;
 		format("\t\t\t\t\t</vertex>\n") to:outFile ;
-
-	for v = 1 to num_tverts do 
+ 
+	for couple in ogreVertexTable do 
 	( 
-		tvert = getTvert tmesh v ; 
-		vert = getVert tmesh (tvtable[v]) ;
-		nmal = getNormal tmesh (tvtable[v]) ;
+        --   This doesn't work :(
+        --         
+		--if (currentMatId != matTable[v]) then
+		--(
+		--	currentMatId = matTable[v] ;
+		--	format("\t\t\t\t</vertexbuffer>\n") to:outFile ;
+		--	format("\t\t\t\t<vertexbuffer positions=\"true\" normals=\"true\" colours=\"false\" numtexcoords=\"1\" texcoordsets=\"%\" texcoorddimensions=\"2\">\n") currentMatId to:outFile ;
+		--)
+
+		tvert = getTvert tmesh couple[2] ; 
+		vert = getVert tmesh couple[1] ;
+		nmal = getNormal tmesh couple[1] ;
 		
 		-- change scale
 		vert = vert * scale ;
@@ -94,7 +103,8 @@ function writeM tmesh flipyz scale flipNormal outFile =
 	format("\t\t\t<faces count=\"%\">\n") num_faces to:outFile;
 	for f = 1 to num_faces do 
 	(
-		face = getTVFace tmesh f ;
+		tvface = getTVFace tmesh f ;
+		face = getFace tmesh f ;
 		-- flipNormals
 		if (flipNormal) then
 		(
@@ -103,8 +113,13 @@ function writeM tmesh flipyz scale flipNormal outFile =
 			face[3] = faceTmp[1] ;
 		)
 		
+		v1 = searchOgreVertexTable ogreVertexTable face.x tvface.x ;
+		v2 = searchOgreVertexTable ogreVertexTable face.y tvface.y ;
+		v3 = searchOgreVertexTable ogreVertexTable face.z tvface.z ;
+
+		
 		format("\t\t\t\t<face ") to:outFile ;
-		format("v1=\"%\" v2=\"%\" v3=\"%\"") (face.x as Integer) (face.y as Integer) (face.z as Integer) to:outFile ;
+		format("v1=\"%\" v2=\"%\" v3=\"%\"") (v1 as Integer) (v2 as Integer) (v3 as Integer) to:outFile ;
 		format(" />\n") to:outFile ;
 
 	)
@@ -117,18 +132,19 @@ function writeM tmesh flipyz scale flipNormal outFile =
 
 function writeBoneAssignments tmesh sk outFile =
 (
-	local i,bid,num_tverts,vwcount,num_bones,j,w,table,vNum ;
+	local i,vNum,bid,num_tverts,vwcount,num_bones,j,w,couple,ogreVertexTable ;
 	
 	format "writing mesh: writing bone assignments ... \n" ;
-	
-	num_tverts = tmesh.numtverts ;
-	table = getTVertTable tmesh ;
+
 	num_bones = skinOps.GetNumberBones(sk) ;
-	
+	ogreVertexTable = getOgreVertexTable tmesh ;
+
 	format("\t\t\t<boneassignments>\n") to:outFile ;
-	for i=1 to num_tverts do
+	i=0 ;
+	for couple in ogreVertexTable do
 	(
-		vNum = table[i] ; -- get the assiocated vertex.
+	    i += 1 ;
+		vNum = couple[1] ; -- gets the assiocated vertex.
 		vwcount = skinOps.getVertexWeightCount sk vNum ;
 		for j=1 to vwcount do
 		(
@@ -140,57 +156,6 @@ function writeBoneAssignments tmesh sk outFile =
 		)
 	)
 	format("\t\t\t</boneassignments>\n") to:outFile ;
-)
-
----------------------------------
--- write <materials />
--- try to export only diffuse map
----------------------------------
-
-function writeMaterial pmesh outFile =
-(
-	local t, matname, mat;
-
-	mat = pmesh.material ;
-	
-	if (pmesh.material != undefined) then 
-		matname = pmesh.material.name ;
-	else matname = pmesh.name + "material" ;	
-	
-	format "writing mesh: writing material ... \n" ;
-	format("\t<materials>\n") to:outFile ;
-	format("\t\t<material name=\"%\">\n") matname to:outFile ;
-    format("\t\t\t<ambient red=\"%\" green=\"%\" blue=\"%\" alpha=\"%\" />\n") (mat.ambient.r/255.0) (mat.ambient.g/255.0) (mat.ambient.b/255.0) (mat.ambient.alpha/255.0) to:outFile ;
-    format("\t\t\t<diffuse red=\"%\" green=\"%\" blue=\"%\" alpha=\"%\" />\n") (mat.diffuse.r/255.0) (mat.diffuse.g/255.0) (mat.diffuse.b/255.0) (mat.diffuse.alpha/255.0) to:outFile ;
-    format("\t\t\t<specular red=\"%\" green=\"%\" blue=\"%\" alpha=\"%\" />\n") (mat.specular.b/255.0) (mat.specular.g/255.0) (mat.specular.b/255.0) (mat.specular.alpha/255.0) to:outFile ;
-    format("\t\t\t<shininess value=\"0\" />\n") to:outFile ;
-    
-	format("\t\t\t<texturelayers>\n") to:outFile ;
-    -- if mesh has a material: reading the diffuse map:
-		if (pmesh.material != undefined) then
-			if ((pmesh.material.diffusemap != undefined) and (iskindof pmesh.material.diffusemap Bitmaptexture)) then
-			(	
-				t = filterstring pmesh.material.diffusemap.filename "\\" ;
-				format("\t\t\t\t<texturelayer texture=\""+ t[arrayLength t] +"\" />\n") to:outFile ;
-			)
-	format("\t\t\t</texturelayers>\n") to:outFile ;
-	
-	format("\t\t</material>\n") to:outFile ;
-    format("\t</materials>\n") to:outFile ;
-)
-
----------------------------
--- write <sharedGeometry />
----------------------------
-
-function writeSharedGeometry outFile =
-(
-	format "writing mesh: writing shared geometry ... \n" ;
-
-	format("\t<sharedgeometry count=\"0\">\n") to:outFile ;
-    format("\t\t<vertexbuffer positions=\"true\" normals=\"false\" colours=\"false\" numtexcoords=\"0\" />\n") to:outFile ;
-    format("\t\t<vertexbuffer positions=\"false\" normals=\"false\" colours=\"false\" numtexcoords=\"1\" texcoordsets=\"0\" texcoorddimensions=\"2\" />\n") to:outFile ;
-    format("\t</sharedgeometry>\n") to:outFile ;
 )
 
 --------------------------------
@@ -216,13 +181,14 @@ function writeMesh pmesh exportOptions out_name =
 		outFile = createfile (out_name + ".mesh.xml") ;
 --		try 
 		(
+			-- comments:
+			--format("<!--\nMaterial Ids used in this file:\n") to:outFile ;
+			--materialIds = GetUsedMaterialIds m ;
+			--print materialIds to:outFile ;
+			--format("-->\n") to:outFile ;
+			
 			-- ecriture de l'entete
 			format("<mesh>\n") to:outFile ;
-
-			writeMaterial pmesh outFile ;
-			-- TODO shared Geometry
-			writeSharedGeometry outFile ;
-	
 	
 			format("\t<submeshes>\n") to:outFile ;
 			if (pmesh.material != undefined) then 
