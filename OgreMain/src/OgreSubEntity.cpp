@@ -34,6 +34,7 @@ namespace Ogre {
     SubEntity::SubEntity ()
     {
         mpMaterial = 0;
+        mRenderDetail = SDL_SOLID;
     }
     //-----------------------------------------------------------------------
     SubMesh* SubEntity::getSubMesh(void)

@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Entity_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreCommon.h"
 
 #include "OgreString.h"
 #include "OgreMovableObject.h"
@@ -259,8 +260,8 @@ namespace Ogre {
 		*/
 		void setLodBias(Real factor = 1.0, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
 			
-
-
+        /** Sets the rendering detail of this entire entity (solid, wireframe etc) */
+        void setRenderDetail(SceneDetailLevel renderDetail);
 
     };
 

@@ -74,6 +74,8 @@ namespace Ogre {
         // Pointer to the SubMesh defining geometry.
         SubMesh* mSubMesh;
 
+        SceneDetailLevel mRenderDetail;
+
     public:
         /** Gets the name of the Material in use by this instance.
         */
@@ -108,7 +110,10 @@ namespace Ogre {
         unsigned short getNumWorldTransforms(void);
         /** Overridden, see Renderable */
         Real getSquaredViewDepth(const Camera* cam) const;
-
+        /** Sets the rendering level (solid, wireframe) of this SubEntity. */
+        void setRenderDetail(SceneDetailLevel renderDetail) { mRenderDetail = renderDetail; } 
+        /** Overridden, see Renderable */
+        SceneDetailLevel getRenderDetail(){return mRenderDetail;}
     };
 
 }

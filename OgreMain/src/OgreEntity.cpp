@@ -354,4 +354,15 @@ namespace Ogre {
             sublist->push_back(subEnt);
         }
 	}
+    //-----------------------------------------------------------------------
+    void Entity::setRenderDetail(SceneDetailLevel renderDetail) 
+    {
+        SubEntityList::iterator i, iend;
+        iend = mSubEntityList.end();
+
+        for( i = mSubEntityList.begin(); i != iend; ++i ) 
+        { 
+            (*i)->setRenderDetail(renderDetail); 
+        } 
+    }
 }

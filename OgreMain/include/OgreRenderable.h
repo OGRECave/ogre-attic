@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Renderable_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreCommon.h"
 
 #include "OgreRenderOperation.h"
 #include "OgreMatrix4.h"
@@ -102,6 +103,10 @@ namespace Ogre {
 			actual depth to avoid having to perform a square root on the result.
 		*/
 		virtual Real getSquaredViewDepth(const Camera* cam) const = 0;
+
+        /** Returns the preferred rasterisation mode of this renderable.
+        */
+        virtual SceneDetailLevel getRenderDetail(){return SDL_SOLID;} 
 
     };
 
