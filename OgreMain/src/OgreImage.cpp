@@ -469,32 +469,6 @@ namespace Ogre {
         return Image::formatHasAlpha(m_eFormat);
     }
     //-----------------------------------------------------------------------------
-    bool Image::formatHasAlpha(PixelFormat format)
-    {
-        switch( format )
-		{
-		case PF_A8:
-		case PF_A4L4:
-		case PF_L4A4:
-		case PF_A4R4G4B4:
-		case PF_B4G4R4A4:
-		case PF_A8R8G8B8:
-		case PF_B8G8R8A8:
-		case PF_A2R10G10B10:
-		case PF_B10G10R10A2:
-			return true;
-
-		case PF_UNKNOWN:
-		case PF_L8:
-		case PF_R5G6B5:
-		case PF_B5G6R5:
-		case PF_R8G8B8:
-		case PF_B8G8R8:
-		default:
-			return false;
-		}
-    }
-    //-----------------------------------------------------------------------------
     void Image::applyGamma( unsigned char *buffer, Real gamma, size_t size, uchar bpp )
     {
         if( gamma == 1.0f )
