@@ -849,7 +849,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void Camera::setLodBias(Real factor)
 	{
-		assert(factor <= 0.0f && "Bias factor must be > 0!");
+		assert(factor > 0.0f && "Bias factor must be > 0!");
 		mSceneLodFactor = factor;
 		mSceneLodFactorInv = 1.0f / factor;
 	}
