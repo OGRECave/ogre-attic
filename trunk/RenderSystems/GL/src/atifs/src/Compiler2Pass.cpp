@@ -22,7 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
-
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,6 +49,8 @@ void Compiler2Pass::InitSymbolTypeLib()
 	// scan through all the rules and initialize TypeLib with index to text and index to rules for non-terminal tokens
 	for(int i = 0; i < mRulePathLibCnt; i++) {
 		token_ID = mRootRulePath[i].mTokenID;
+		// make sure SymbolTypeLib holds valid token
+		assert(mSymbolTypeLib[token_ID].mID == token_ID);
 		switch(mRootRulePath[i].mOperation) {
 			case otRULE:
 				// if operation is a rule then update typelib
@@ -101,7 +103,7 @@ bool Compiler2Pass::doPass1()
 	// assume RootRulePath has pointer to rules so start at index + 1 for first rule path
 	// first rule token would be a rule definition so skip over it
 	bool passed = processRulePath(0);
-	// if a symbol in source still exists then the end of source was not reached andthere was a problem some where
+	// if a symbol in source still exists then the end of source was not reached and there was a problem some where
 	if (positionToNextSymbol()) passed = false;
 	return passed;
 
@@ -205,7 +207,7 @@ bool Compiler2Pass::processRulePath( uint rulepathIDX)
 }
 
 
-bool Compiler2Pass::ValidateToken(uint rulepathIDX, uint activeRuleID)
+bool Compiler2Pass::ValidateToken(const uint rulepathIDX, const uint activeRuleID)
 {
 	int tokenlength = 0;
 	// assume the test is going to fail
@@ -265,7 +267,7 @@ bool Compiler2Pass::ValidateToken(uint rulepathIDX, uint activeRuleID)
 }
 
 
-char* Compiler2Pass::getTypeDefText(uint sid)
+char* Compiler2Pass::getTypeDefText(const uint sid)
 {
 	return mRootRulePath[mSymbolTypeLib[sid].mDefTextID].mSymbol;
 }
@@ -293,7 +295,7 @@ bool Compiler2Pass::isFloatValue(float& fvalue, int& charsize)
 }
 
 
-bool Compiler2Pass::isSymbol(char* symbol, int& symbolsize)
+bool Compiler2Pass::isSymbol(const char* symbol, int& symbolsize)
 {
 	// compare text at source+charpos with the symbol : limit testing to symbolsize
 	bool symbolfound = false;
@@ -312,16 +314,14 @@ bool Compiler2Pass::positionToNextSymbol()
 	bool endofsource = false;
 	while(!validsymbolfound && !endofsource) {
 		skipWhiteSpace();
-		// skip newline and return character 10,13
-		// keep track of which line we are on
 		skipEOL();
 		skipComments();
 		// have we reached the end of the string?
 		if (mCharPos == mEndOfSource) endofsource = true;
-		else
+		else {
 			// if ASCII > space then assume valid character is found
 			if (mSource[mCharPos] > ' ') validsymbolfound = true;
-			else mCharPos++;
+		}
 	}// end of while
 
 	return validsymbolfound;
@@ -346,7 +346,6 @@ void Compiler2Pass::findEOL()
 	char* newpos = strchr(&mSource[mCharPos], '\n');
 	if(newpos) {
 		mCharPos += newpos - &mSource[mCharPos];
-		mCurrentLine++;
 	}
 	// couldn't find end of line so skip to the end
 	else mCharPos = mEndOfSource - 1;
@@ -360,7 +359,7 @@ void Compiler2Pass::skipEOL()
 		mCurrentLine++;
 		mCharPos++;
 		if ((mSource[mCharPos] == '\n') || (mSource[mCharPos] == '\r')) {
-		  mCharPos++;
+			mCharPos++;
 		}
 	}
 }

@@ -425,9 +425,13 @@ PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 	_rule_ sid_TEXSWIZZLE, "<TexSwizzle>"
 
 		_is_ sid_STQDQ,	"_dw.xyw"
+		_or_ sid_STQDQ,	"_dw"
 		_or_ sid_STQDQ,	"_da.rga"
+		_or_ sid_STQDQ,	"_da"
 		_or_ sid_STRDR,	"_dz.xyz"
+		_or_ sid_STRDR,	"_dz"
 		_or_ sid_STRDR,	"_db.rgb"
+		_or_ sid_STRDR,	"_db"
 		_or_ sid_STR,	".xyz"
 		_or_ sid_STR,	".rgb"
 		_or_ sid_STQ,	".xyw"
@@ -1133,7 +1137,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 }
 
 
-uint PS_1_4::getMachineInst(uint Idx)
+uint PS_1_4::getMachineInst( uint Idx)
 {
 	if (Idx < mPhase1TEX_mi.size()) {
 		return mPhase1TEX_mi[Idx];
@@ -1165,7 +1169,7 @@ uint PS_1_4::getMachineInst(uint Idx)
 }
 
 
-void PS_1_4::addMachineInst(PhaseType phase, uint inst)
+void PS_1_4::addMachineInst(const PhaseType phase, const uint inst)
 {
 	switch(phase) {
 
@@ -1212,7 +1216,7 @@ bool PS_1_4::bindAllMachineInstToFragmentShader()
 }
 
 
-bool PS_1_4::expandMacro(MacroRegModify & MacroMod)
+bool PS_1_4::expandMacro(const MacroRegModify & MacroMod)
 {
 
 	RegModOffset * regmod;
@@ -1237,17 +1241,13 @@ bool PS_1_4::expandMacro(MacroRegModify & MacroMod)
 
 bool PS_1_4::BuildMachineInst()
 {
-	bool passed = false;
 
 	// check the states to see if a machine instruction can be assembled
 
 	// assume all arguments have been set up
+	bool passed = false;
 
-	bool doalpha = false;
-	PhaseType instruction_phase;
-	MachineInstID alphaoptype;
-	GLuint glopinst;
-	int srccnt = mArgCnt - 1;
+	
 
 	passed = true; // assume everything will go okay untill proven otherwise
 
@@ -1269,68 +1269,66 @@ bool PS_1_4::BuildMachineInst()
 		case sid_DP2ADD:
 		case sid_DP3:
 		case sid_DP4:
-			glopinst = mSymbolTypeLib[mOpInst].mPass2Data;
-			mOpType = (MachineInstID)(mi_COLOROP1 + srccnt);
+			mOpType = (MachineInstID)(mi_COLOROP1 + mArgCnt - 1);
 
 			// if context is ps.1.x and Macro not on or a phase marker was found then put all ALU ops in phase 2 ALU container
-			if (((mActiveContexts & ckp_PS_1_1) && !mMacroOn) || mPhaseMarkerFound) instruction_phase = ptPHASE2ALU;
-			else instruction_phase = ptPHASE1ALU;
+			if (((mActiveContexts & ckp_PS_1_1) && !mMacroOn) || mPhaseMarkerFound) mInstructionPhase = ptPHASE2ALU;
+			else mInstructionPhase = ptPHASE1ALU;
 			// check for alpha op in destination register which is OpParrams[0]
 			// if no Mask for destination then make it .rgba
 			if(mOpParrams[0].MaskRep == 0) mOpParrams[0].MaskRep =
 			GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT;
 			if (mOpParrams[0].MaskRep & ALPHA_BIT) {
-				doalpha = true;
+				mDo_Alpha = true;
 				mOpParrams[0].MaskRep -= ALPHA_BIT;
 				if(mOpParrams[0].MaskRep == 0) mOpType = mi_NOP; // only do alpha op
-				alphaoptype = (MachineInstID)(mi_ALPHAOP1 + srccnt);
 			}
 			break;
 
 		case sid_TEXCRD:
 			mOpType = mi_PASSTEXCOORD;
-			if (mPhaseMarkerFound) instruction_phase = ptPHASE2TEX;
-			else instruction_phase = ptPHASE1TEX;
+			if (mPhaseMarkerFound) mInstructionPhase = ptPHASE2TEX;
+			else mInstructionPhase = ptPHASE1TEX;
 			break;
 
 		case sid_TEXLD:
 			mOpType = mi_SAMPLEMAP;
-			if (mPhaseMarkerFound) instruction_phase = ptPHASE2TEX;
-			else instruction_phase = ptPHASE1TEX;
+			if (mPhaseMarkerFound) mInstructionPhase = ptPHASE2TEX;
+			else mInstructionPhase = ptPHASE1TEX;
 			break;
 
 		case sid_TEX: // PS_1_1 emulation
 			mOpType = mi_TEX;
-			instruction_phase = ptPHASE1TEX;
+			mInstructionPhase = ptPHASE1TEX;
 			break;
 
 		case sid_TEXCOORD: // PS_1_1 emulation
 			mOpType = mi_TEXCOORD;
-			instruction_phase = ptPHASE1TEX;
+			mInstructionPhase = ptPHASE1TEX;
 			break;
 
 		case sid_TEXREG2AR:
-			expandMacro(texreg2ar_MacroMods);
+			passed = expandMacro(texreg2ar_MacroMods);
 			break;
 
 		case sid_TEXREG2GB:
-			expandMacro(texreg2gb_MacroMods);
+			passed = expandMacro(texreg2gb_MacroMods);
 			break;
 
 		case sid_TEXDP3:
-			expandMacro(texdp3_MacroMods);
+			passed = expandMacro(texdp3_MacroMods);
 			break;
 
 		case sid_TEXDP3TEX:
-			expandMacro(texdp3tex_MacroMods);
+			passed = expandMacro(texdp3tex_MacroMods);
 			break;
 
 		case sid_TEXM3X2PAD:
-			expandMacro(texm3x2pad_MacroMods);
+			passed = expandMacro(texm3x2pad_MacroMods);
 			break;
 
 		case sid_TEXM3X2TEX:
-			expandMacro(texm3x2tex_MacroMods);
+			passed = expandMacro(texm3x2tex_MacroMods);
 			break;
 
 		case sid_TEXM3X3PAD:
@@ -1339,7 +1337,7 @@ bool PS_1_4::BuildMachineInst()
 			if(mTexm3x3padCount<2) {
 				texm3x3pad[4].mID = sid_R + mTexm3x3padCount;
 				mTexm3x3padCount++;
-				expandMacro(texm3x3pad_MacroMods);
+				passed = expandMacro(texm3x3pad_MacroMods);
 
 			}
 			else passed = false;
@@ -1347,12 +1345,12 @@ bool PS_1_4::BuildMachineInst()
 			break;
 
 		case sid_TEXM3X3TEX:
-			expandMacro(texm3x3tex_MacroMods);
+			passed = expandMacro(texm3x3tex_MacroMods);
 			break;
 
 		case sid_DEF:
 			mOpType = mi_SETCONSTANTS;
-			instruction_phase = ptPHASE1TEX;
+			mInstructionPhase = ptPHASE1TEX;
 			break;
 
 		case sid_PHASE: // PS_1_4 only
@@ -1361,13 +1359,23 @@ bool PS_1_4::BuildMachineInst()
 
 	} // end of switch
 
+	if(passed) passed = expandMachineInstruction();
+
+	return passed;
+}
+
+
+bool PS_1_4::expandMachineInstruction()
+{
 	// now push instructions onto MachineInstructions container
-	// assume that an instruction will be built
+	// assume that an instruction will be expanded
+	bool passed = true;
+
 	if (mOpType != mi_NOP) {
 
 		// a machine instruction will be built
 		// this is currently the last one being built so keep track of it
-		if (instruction_phase == ptPHASE2ALU) { 
+		if (mInstructionPhase == ptPHASE2ALU) { 
 			mSecondLastInstructionPos = mLastInstructionPos;
 			mLastInstructionPos = mPhase2ALU_mi.size();
 		}
@@ -1378,68 +1386,68 @@ bool PS_1_4::BuildMachineInst()
 			case mi_COLOROP2:
 			case mi_COLOROP3:
 				{
-					addMachineInst(instruction_phase, mOpType);
-					addMachineInst(instruction_phase, glopinst);
+					addMachineInst(mInstructionPhase, mOpType);
+					addMachineInst(mInstructionPhase, mSymbolTypeLib[mOpInst].mPass2Data);
 					// send all parameters to machine inst container
 					for(int i=0; i<=mArgCnt; i++) {
-						addMachineInst(instruction_phase, mOpParrams[i].Arg);
-						addMachineInst(instruction_phase, mOpParrams[i].MaskRep);
-						addMachineInst(instruction_phase, mOpParrams[i].Mod);
+						addMachineInst(mInstructionPhase, mOpParrams[i].Arg);
+						addMachineInst(mInstructionPhase, mOpParrams[i].MaskRep);
+						addMachineInst(mInstructionPhase, mOpParrams[i].Mod);
 						// check if source register read is valid in this phase
-						passed &= isRegisterReadValid(instruction_phase, i);
+						passed &= isRegisterReadValid(mInstructionPhase, i);
 					}
 
 					// record which registers were written to and in which phase
 					// mOpParrams[0].Arg is always the destination register r0 -> r5
-					updateRegisterWriteState(instruction_phase);
+					updateRegisterWriteState(mInstructionPhase);
 
 				}
 				break;
 
 			case mi_SETCONSTANTS:
-				addMachineInst(instruction_phase, mOpType);
-				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
-				addMachineInst(instruction_phase, mConstantsPos); // index into constants array
+				addMachineInst(mInstructionPhase, mOpType);
+				addMachineInst(mInstructionPhase, mOpParrams[0].Arg); // dst
+				addMachineInst(mInstructionPhase, mConstantsPos); // index into constants array
 				break;
 
 			case mi_PASSTEXCOORD:
 			case mi_SAMPLEMAP:
 				// if source is a temp register than place instruction in phase 2 Texture ops
 				if ((mOpParrams[1].Arg >= GL_REG_0_ATI) && (mOpParrams[1].Arg <= GL_REG_5_ATI)) {
-					instruction_phase = ptPHASE2TEX;
+					mInstructionPhase = ptPHASE2TEX;
 				}
 
-				addMachineInst(instruction_phase, mOpType);
-				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
-				addMachineInst(instruction_phase, mOpParrams[1].Arg); // coord
-				addMachineInst(instruction_phase, mOpParrams[1].MaskRep + GL_SWIZZLE_STR_ATI); // swizzle
+				addMachineInst(mInstructionPhase, mOpType);
+				addMachineInst(mInstructionPhase, mOpParrams[0].Arg); // dst
+				addMachineInst(mInstructionPhase, mOpParrams[1].Arg); // coord
+				addMachineInst(mInstructionPhase, mOpParrams[1].MaskRep + GL_SWIZZLE_STR_ATI); // swizzle
 				// record which registers were written to and in which phase
 				// mOpParrams[0].Arg is always the destination register r0 -> r5
-				updateRegisterWriteState(instruction_phase);
+				updateRegisterWriteState(mInstructionPhase);
 				break;
 
 			case mi_TEX: // PS_1_1 emulation - turn CISC into RISC - phase 1
-				addMachineInst(instruction_phase, mi_SAMPLEMAP);
-				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
+				addMachineInst(mInstructionPhase, mi_SAMPLEMAP);
+				addMachineInst(mInstructionPhase, mOpParrams[0].Arg); // dst
 				// tex tx becomes texld rx, tx with x: 0 - 3
-				addMachineInst(instruction_phase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
+				addMachineInst(mInstructionPhase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
 				// default to str which fills rgb of destination register
-				addMachineInst(instruction_phase, GL_SWIZZLE_STR_ATI); // swizzle
+				addMachineInst(mInstructionPhase, GL_SWIZZLE_STR_ATI); // swizzle
 				// record which registers were written to and in which phase
 				// mOpParrams[0].Arg is always the destination register r0 -> r5
-				updateRegisterWriteState(instruction_phase);
+				updateRegisterWriteState(mInstructionPhase);
 				break;
 
 			case mi_TEXCOORD: // PS_1_1 emulation - turn CISC into RISC - phase 1
-				addMachineInst(instruction_phase, mi_PASSTEXCOORD);
-				addMachineInst(instruction_phase, mOpParrams[0].Arg); // dst
+				addMachineInst(mInstructionPhase, mi_PASSTEXCOORD);
+				addMachineInst(mInstructionPhase, mOpParrams[0].Arg); // dst
 				// texcoord tx becomes texcrd rx, tx with x: 0 - 3
-				addMachineInst(instruction_phase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
+				addMachineInst(mInstructionPhase, mOpParrams[0].Arg - GL_REG_0_ATI + GL_TEXTURE0_ARB); // interp
 				// default to str which fills rgb of destination register
-				addMachineInst(instruction_phase, GL_SWIZZLE_STR_ATI); // swizzle
+				addMachineInst(mInstructionPhase, GL_SWIZZLE_STR_ATI); // swizzle
 				// record which registers were written to and in which phase
 				// mOpParrams[0].Arg is always the destination register r0 -> r5
-				updateRegisterWriteState(instruction_phase);
+				updateRegisterWriteState(mInstructionPhase);
 				break;
 
 	
@@ -1448,39 +1456,42 @@ bool PS_1_4::BuildMachineInst()
 		} // end of switch (mOpType)
 	} // end of if (mOpType != mi_NOP)
 
-	if(doalpha) { // process alpha channel
+	if(mDo_Alpha) {
+		// process alpha channel
 		//
 		// a scaler machine instruction will be built
 		// this is currently the last one being built so keep track of it
-		if (instruction_phase == ptPHASE2ALU) { 
+		if (mInstructionPhase == ptPHASE2ALU) { 
 			mSecondLastInstructionPos = mLastInstructionPos;
 			mLastInstructionPos = mPhase2ALU_mi.size();
 		}
 
-		addMachineInst(instruction_phase, alphaoptype);
-		addMachineInst(instruction_phase, glopinst);
+		MachineInstID alphaoptype = (MachineInstID)(mi_ALPHAOP1 + mArgCnt - 1);
+		addMachineInst(mInstructionPhase, alphaoptype);
+		addMachineInst(mInstructionPhase, mSymbolTypeLib[mOpInst].mPass2Data);
 		// put all parameters in instruction que
 		for(int i=0; i<=mArgCnt; i++) {
-			addMachineInst(instruction_phase, mOpParrams[i].Arg);
+			addMachineInst(mInstructionPhase, mOpParrams[i].Arg);
 			// destination parameter has no mask since it is the alpha channel
 			// don't push mask for parrameter 0 (dst)
-			if(i>0) addMachineInst(instruction_phase, mOpParrams[i].MaskRep);
-			addMachineInst(instruction_phase, mOpParrams[i].Mod);
+			if(i>0) addMachineInst(mInstructionPhase, mOpParrams[i].MaskRep);
+			addMachineInst(mInstructionPhase, mOpParrams[i].Mod);
 			// check if source register read is valid in this phase
-			passed &= isRegisterReadValid(instruction_phase, i);
+			passed &= isRegisterReadValid(mInstructionPhase, i);
 		}
 
-		updateRegisterWriteState(instruction_phase);
+		updateRegisterWriteState(mInstructionPhase);
 	}
 
 	// instruction passed on to machine instruction so clear the pipe
 	clearMachineInstState();
 
-
 	return passed;
+
 }
 
-void PS_1_4::updateRegisterWriteState(PhaseType phase)
+
+void PS_1_4::updateRegisterWriteState(const PhaseType phase)
 {
 	int reg_offset = mOpParrams[0].Arg - GL_REG_0_ATI;
 
@@ -1501,7 +1512,7 @@ void PS_1_4::updateRegisterWriteState(PhaseType phase)
 }
 
 
-bool PS_1_4::isRegisterReadValid(PhaseType phase, int param)
+bool PS_1_4::isRegisterReadValid(const PhaseType phase, const int param)
 {
 	bool passed = true; // assume everything will go alright
 	// if in phase 2 ALU and argument is a source
@@ -1568,7 +1579,7 @@ void PS_1_4::clearMachineInstState()
 	// set current Machine Instruction State to baseline
 	mOpType = mi_NOP;
 	mOpInst = sid_INVALID;
-	mNumArgs = 0;
+	mDo_Alpha = false;
 	mArgCnt = 0;
 
 	for(int i=0; i<MAXOPPARRAMS; i++) {
@@ -1620,7 +1631,7 @@ bool PS_1_4::doPass2()
 }
 
 
-bool PS_1_4::Pass2scan(TokenInst * Tokens, uint size)
+bool PS_1_4::Pass2scan(const TokenInst * Tokens, const uint size)
 {
 
 	// execute TokenInstructions to build MachineInstructions
@@ -1715,7 +1726,7 @@ bool PS_1_4::Pass2scan(TokenInst * Tokens, uint size)
 
 
 
-bool PS_1_4::setOpParram(SymbolDef* symboldef)
+bool PS_1_4::setOpParram(const SymbolDef* symboldef)
 {
   bool success = true;
   if(mArgCnt<MAXOPPARRAMS) {

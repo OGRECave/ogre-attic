@@ -165,7 +165,7 @@ protected:
 	@param sid is the token ID
 	@return a pointer to the string text
 	*/
-	char* getTypeDefText(uint sid);
+	char* getTypeDefText(const uint sid);
 
 	/** check to see if the text at the present position in the source is a numerical constant
 	@param fvalue is a reference that will receive the float value that is in the source
@@ -183,7 +183,7 @@ protected:
 		true if a matching token could be found in the token type library
 		false if could not be tokenized
 	*/
-	bool isSymbol(char* symbol, int & symbolsize);
+	bool isSymbol(const char* symbol, int & symbolsize);
 
 
 	/// position to the next possible valid sysmbol
@@ -212,7 +212,7 @@ protected:
 
 	
 	// setup ActiveContexts - should be called by subclass to setup initial language contexts
-	void setActiveContexts(uint contexts){ mActiveContexts = contexts; }
+	void setActiveContexts(const uint contexts){ mActiveContexts = contexts; }
 
 
 	/// comment specifiers are hard coded
@@ -233,7 +233,7 @@ protected:
 		false if token symbol text does not match the source text
 		if token is non-terminal then processRulePath is called 
 	*/
-	bool ValidateToken(uint rulepathIDX, uint activeRuleID); 
+	bool ValidateToken(const uint rulepathIDX, const uint activeRuleID); 
 
 
 public:
