@@ -93,7 +93,7 @@ namespace Ogre {
     Because this class is designed to be extensible, it subclasses from StringInterface
     so its parameters can be set in a generic way.
     */
-    class _OgreExport OverlayElement : public StringInterface, public Renderable, public MouseTarget, public MouseMotionTarget, public ActionTarget
+    class _OgreExport OverlayElement : public StringInterface, public Renderable
     {
     public:
 
@@ -416,12 +416,6 @@ namespace Ogre {
         virtual OverlayElement* findElementAt(Real x, Real y);		// relative to parent
 
         /**
-        * Processes events occurring on this component. By default this
-        * method calls the appropriate process event method
-        */
-        virtual void processEvent(InputEvent* e);
-
-        /**
         * returns false as this class is not a container type 
         */
         inline virtual bool isContainer() const
@@ -435,11 +429,6 @@ namespace Ogre {
 
         inline virtual void setCloneable(bool c)
         { mCloneable = c; }
-
-        /**
-        * Returns the parent container.
-        */
-        PositionTarget* getPositionTargetParent() const;
 
         /**
         * Returns the parent container.
