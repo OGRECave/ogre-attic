@@ -99,14 +99,17 @@ namespace Ogre {
 		}
 		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
 
-		// Set current group
-		mCurrentGroup = grp;
-		parseResourceGroupScripts(grp);
-		createDeclaredResources(grp);
-		grp->initialised = true;
+		if (!grp->initialised)
+		{
+			// Set current group
+			mCurrentGroup = grp;
+			parseResourceGroupScripts(grp);
+			createDeclaredResources(grp);
+			grp->initialised = true;
 
-		// Reset current group
-		mCurrentGroup = 0;
+			// Reset current group
+			mCurrentGroup = 0;
+		}
 	}
 	//-----------------------------------------------------------------------
 	void ResourceGroupManager::initialiseAllResourceGroups(void)
