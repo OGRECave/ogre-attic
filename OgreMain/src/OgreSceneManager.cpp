@@ -172,7 +172,9 @@ Camera* SceneManager::getCamera(const String& name)
     CameraList::iterator i = mCameras.find(name);
     if (i == mCameras.end())
     {
-        return 0;
+        Except( Exception::ERR_ITEM_NOT_FOUND, 
+            "Cannot find Camera with name " + name,
+            "SceneManager::getCamera");
     }
     else
     {
@@ -251,7 +253,9 @@ Light* SceneManager::getLight(const String& name)
     SceneLightList::iterator i = mLights.find(name);
     if (i == mLights.end())
     {
-        return 0;
+        Except( Exception::ERR_ITEM_NOT_FOUND, 
+            "Cannot find Light with name " + name,
+            "SceneManager::getLight");
     }
     else
     {
@@ -357,7 +361,9 @@ Entity* SceneManager::createEntity(const String& entityName, PrefabType ptype)
         break;
     }
 
-    return 0;
+    Except( Exception::ERR_ITEM_NOT_FOUND, 
+        "Unknown prefab type for entity " + entityName,
+        "SceneManager::createEntity");
 }
 
 //-----------------------------------------------------------------------
@@ -396,7 +402,9 @@ Entity* SceneManager::getEntity(const String& name)
     EntityList::iterator i = mEntities.find(name);
     if (i == mEntities.end())
     {
-        return 0;
+        Except( Exception::ERR_ITEM_NOT_FOUND, 
+            "Cannot find Entity with name " + name,
+            "SceneManager::getEntity");
     }
     else
     {
@@ -2102,7 +2110,9 @@ BillboardSet* SceneManager::getBillboardSet(const String& name)
     BillboardSetList::iterator i = mBillboardSets.find(name);
     if (i == mBillboardSets.end())
     {
-        return 0;
+        Except( Exception::ERR_ITEM_NOT_FOUND, 
+            "Cannot find BillboardSet with name " + name,
+            "SceneManager::getBillboardSet");
     }
     else
     {
