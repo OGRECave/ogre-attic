@@ -511,7 +511,16 @@ namespace Ogre {
     Quaternion Quaternion::nlerp(Real fT, const Quaternion& rkP, 
         const Quaternion& rkQ, bool shortestPath)
     {
-        Quaternion result = rkP + fT * (rkQ - rkP);
+		Quaternion result;
+        Real fCos = rkP.Dot(rkQ);
+		if (fCos < 0.0f && shortestPath)
+		{
+			result = rkP + fT * ((-rkQ) - rkP);
+		}
+		else
+		{
+			result = rkP + fT * (rkQ - rkP);
+		}
         result.normalise();
         return result;
     }
