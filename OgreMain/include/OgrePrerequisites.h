@@ -246,6 +246,7 @@ namespace Ogre {
     class Light;
     class Log;
     class LogManager;
+	class ManualResourceLoader;
     class Material;
     class MaterialPtr;
     class MaterialManager;
