@@ -25,6 +25,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCgProgram.h"
 #include "OgreGpuProgramManager.h"
 #include "OgreStringConverter.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include "OgreRenderSystemCapabilities.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -243,7 +246,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool CgProgram::isSupported(void) const
     {
-        StringVector::const_iterator i, iend;
+		// If skeletal animation is being done, we need support for UBYTE4
+		if (isSkeletalAnimationIncluded() && 
+			!Root::getSingleton().getRenderSystem()->getCapabilities()
+				->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
+		{
+			return false;
+		}
+
+		StringVector::const_iterator i, iend;
         iend = mProfiles.end();
         // Check to see if any of the profiles are supported
         for (i = mProfiles.begin(); i != iend; ++i)

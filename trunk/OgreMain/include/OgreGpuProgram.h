@@ -517,7 +517,7 @@ namespace Ogre {
             If this returns true, OGRE will not blend the geometry according to 
             skeletal animation, it will expect the vertex program to do it.
         */
-        virtual bool isSkeletalAnimationIncluded(void) { return mSkeletalAnimation; }
+        virtual bool isSkeletalAnimationIncluded(void) const { return mSkeletalAnimation; }
 
 
     protected:

@@ -637,6 +637,12 @@ namespace Ogre
 			mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
 		}
 
+		// UBYTE4 type?
+		if (mCaps.DeclTypes & D3DDTCAPS_UBYTE4)
+		{
+			mCapabilities->setCapability(RSC_VERTEX_FORMAT_UBYTE4);
+		}
+
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
     //---------------------------------------------------------------------

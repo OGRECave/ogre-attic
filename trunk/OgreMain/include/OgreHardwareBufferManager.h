@@ -211,6 +211,15 @@ namespace Ogre {
 		/** Destroys a VertexBufferBinding. */
 		virtual void destroyVertexBufferBinding(VertexBufferBinding* binding);
 
+		/** Registers a vertex buffer as a copy of another.
+		@remarks
+			This is useful for registering an existing buffer as a temporary buffer
+			which can be allocated just like a copy.
+		*/
+		virtual void registerVertexBufferSourceAndCopy(
+			const HardwareVertexBufferSharedPtr& sourceBuffer,
+			const HardwareVertexBufferSharedPtr& copy);
+
         /** Allocates a copy of a given vertex buffer.
         @remarks
             This method allocates a temporary copy of an existing vertex buffer.

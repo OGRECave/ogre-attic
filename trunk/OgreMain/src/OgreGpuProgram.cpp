@@ -31,6 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAutoParamDataSource.h"
 #include "OgreLight.h"
 #include "OgreControllerManager.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include "OgreRenderSystemCapabilities.h"
 
 namespace Ogre
 {
@@ -78,6 +81,13 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
     bool GpuProgram::isSupported(void) const
     {
+		// If skeletal animation is being done, we need support for UBYTE4
+		if (isSkeletalAnimationIncluded() && 
+			!Root::getSingleton().getRenderSystem()->getCapabilities()
+				->hasCapability(RSC_VERTEX_FORMAT_UBYTE4))
+		{
+			return false;
+		}
         return GpuProgramManager::getSingleton().isSyntaxSupported(mSyntaxCode);
     }
 	//-----------------------------------------------------------------------------
