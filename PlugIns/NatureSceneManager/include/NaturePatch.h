@@ -15,6 +15,7 @@ Author: Martin Persson
 #include <OgreRenderOperation.h>
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
+#include "OgreMaterial.h"
 
 namespace Ogre
 {
@@ -71,13 +72,10 @@ namespace Ogre
 
         struct NaturePatchData
         {
-            union
-            {
-                PatchType type;
+            PatchType type;
 
-                TerrainData terrain;
-                CustomData  custom;
-            };
+            TerrainData terrain;
+            CustomData  custom;
         };
 
         NaturePatch()

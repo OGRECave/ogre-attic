@@ -95,7 +95,7 @@ bool HeightmapLoader::initialise(const String& filename)
     String heightmap = config.getSetting("HeightMap");
 
     mHeightMap = new Image();
-    mHeightMap->load(heightmap);
+    mHeightMap->load(heightmap, ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 
     mScale.x = atof(config.getSetting("Scale.x").c_str());
     mScale.y = atof(config.getSetting("Scale.y").c_str());
@@ -136,11 +136,12 @@ bool HeightmapLoader::initialise(const String& filename)
     String texture = config.getSetting("WorldTexture");
     if (texture != "")
     {
-		// get material
-		mMaterial = mSceneRoot->getCreator()->getMaterial("NaturePatchMaterial");
-		if (mMaterial != 0) MaterialManager::getSingleton().unload(mMaterial);
+		// remove existing material
+        mMaterial.setNull();
+		MaterialManager::getSingleton().remove("NaturePatchMaterial");
 
-		mMaterial = mSceneRoot->getCreator()->createMaterial("NaturePatchMaterial");
+        mMaterial = MaterialManager::getSingleton().create("NaturePatchMaterial", 
+            ResourceGroupManager::WORLD_RESOURCE_GROUP_NAME);
 	    
 		TextureUnitState *layer;
 		layer = mMaterial->getTechnique(0)->getPass(0)->createTextureUnitState(texture, 1);
