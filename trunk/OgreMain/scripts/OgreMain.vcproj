@@ -502,9 +502,6 @@
 				RelativePath="..\include\OgreControllerManager.h">
 			</File>
 			<File
-				RelativePath="..\include\OgreCustomizable.h">
-			</File>
-			<File
 				RelativePath="..\include\OgreDataChunk.h">
 			</File>
 			<File
