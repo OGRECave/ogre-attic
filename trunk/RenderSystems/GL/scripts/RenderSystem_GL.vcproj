@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\glh;..\src\atifs\include;..\src\glsl\include"
+				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\winheaders;..\src\atifs\include;..\src\glsl\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;OGRE_GL_USE_MULTITEXTURING;"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -80,7 +80,7 @@
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\atifs\include;..\src\glsl\include"
+				AdditionalIncludeDirectories="..\include;..\src\win32;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\src\nvparse;..\src\nvparse\winheaders;..\src\atifs\include;..\src\glsl\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RenderSystem_GL_EXPORTS;OGRE_GL_USE_MULTITEXTURING"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -178,10 +178,10 @@
 				RelativePath="..\src\OgreGLTextureManager.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgreWin32GLSupport.cpp">
+				RelativePath="..\src\win32\OgreWin32Context.cpp">
 			</File>
 			<File
-				RelativePath="..\src\win32\OgreWin32Context.cpp">
+				RelativePath="..\src\OgreWin32GLSupport.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreWin32RenderTexture.cpp">
