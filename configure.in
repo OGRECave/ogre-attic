@@ -134,7 +134,8 @@ AC_CONFIG_FILES([Makefile \
     Samples/Terrain/include/Makefile \
     Samples/Gui/Makefile \
     Samples/Gui/src/Makefile \
-    Samples/Gui/include/Makefile
+    Samples/Gui/include/Makefile \
+    OGRE.pc
     ])
 
 AC_OUTPUT
