@@ -31,8 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 #define POSITION_BINDING 0
+#define TEXCOORD_BINDING 1
 
-    Rectangle2D::Rectangle2D() 
+    Rectangle2D::Rectangle2D(bool includeTextureCoords) 
     {
         mRenderOp.vertexData = new VertexData();
 
@@ -56,6 +57,34 @@ namespace Ogre {
 
         // Bind buffer
         bind->setBinding(POSITION_BINDING, vbuf);
+
+        if (includeTextureCoords)
+        {
+            decl->addElement(TEXCOORD_BINDING, 0, VET_FLOAT2, VES_TEXTURE_COORDINATES);
+
+
+            HardwareVertexBufferSharedPtr tvbuf = 
+                HardwareBufferManager::getSingleton().createVertexBuffer(
+                decl->getVertexSize(TEXCOORD_BINDING),
+                mRenderOp.vertexData->vertexCount,
+                HardwareBuffer::HBU_STATIC_WRITE_ONLY);
+
+            // Bind buffer
+            bind->setBinding(TEXCOORD_BINDING, tvbuf);
+
+            // Set up basic tex coordinates
+            Real* pTex = static_cast<Real*>(
+                tvbuf->lock(HardwareBuffer::HBL_DISCARD));
+            *pTex++ = 0.0f;
+            *pTex++ = 0.0f;
+            *pTex++ = 0.0f;
+            *pTex++ = 1.0f;
+            *pTex++ = 1.0f;
+            *pTex++ = 0.0f;
+            *pTex++ = 1.0f;
+            *pTex++ = 1.0f;
+            tvbuf->unlock();
+        }
 
         // set basic white material
         this->setMaterial("BaseWhiteNoLighting");

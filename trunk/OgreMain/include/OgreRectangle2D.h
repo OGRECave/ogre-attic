@@ -50,7 +50,7 @@ namespace Ogre {
 
     public:
 
-        Rectangle2D();
+        Rectangle2D(bool includeTextureCoordinates = false);
         ~Rectangle2D();
 
         /** Sets the corners of the rectangle, in relative coordinates.
