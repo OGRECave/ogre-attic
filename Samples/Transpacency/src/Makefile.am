@@ -6,4 +6,4 @@ Transparency_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 Transparency_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) Transparency $(top_builddir)/Samples/Common/bin/Transparency
+	$(INSTALL_PROGRAM) .libs/Transparency $(top_builddir)/Samples/Common/bin/Transparency

@@ -7,4 +7,4 @@ SkeletalAnimation_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 SkeletalAnimation_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) SkeletalAnimation $(top_builddir)/Samples/Common/bin/SkeletalAnimation
+	$(INSTALL_PROGRAM) .libs/SkeletalAnimation $(top_builddir)/Samples/Common/bin/SkeletalAnimation

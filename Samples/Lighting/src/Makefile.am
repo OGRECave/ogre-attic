@@ -7,4 +7,4 @@ Lighting_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 Lighting_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) Lighting $(top_builddir)/Samples/Common/bin/Lighting
+	$(INSTALL_PROGRAM) .libs/Lighting $(top_builddir)/Samples/Common/bin/Lighting

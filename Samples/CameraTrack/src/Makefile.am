@@ -7,4 +7,4 @@ CameraTrack_LDFLAGS = -L$(top_srcdir)/OgreMain/src
 CameraTrack_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) CameraTrack $(top_builddir)/Samples/Common/bin/CameraTrack
+	$(INSTALL_PROGRAM) .libs/CameraTrack $(top_builddir)/Samples/Common/bin/CameraTrack
