@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>Tutorial: Overlay Scripts</title> <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"> 
+<style type="text/css">
+<!--
+.MainHeader {  font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+.BorderHeader {  background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+.BorderContent {  font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+a:link {  color: #FFFF00; text-decoration: underline}
+a:hover {  color: #FFFFFF; text-decoration: underline}
+a:visited {  color: #FFCC66; text-decoration: underline}
+li {  color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip:    rect(   )}
+.NewsDate {  color: #CCFFCC; font-weight: bold}
+td {  font-size: 10pt}
+th {  font-size: 10pt}
+.Annotation {  font-size: 10px}
+
+H1 { text-align: center; }
+A.qindex {}
+A.qindexRef {}
+A.el { text-decoration: none; font-weight: bold }
+A.elRef { font-weight: bold }
+A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+A.codeRef { font-weight: normal; color: #4444ee }
+DL.el { margin-left: -1cm }
+DIV.fragment { width: 100%; border: none; background-color: #003300 }
+DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+TD.md { background-color: #006600 }
+DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+FONT.keyword       { color: #008000 }
+FONT.keywordtype   { color: #999920 }
+FONT.keywordflow   { color: #e0FF00 }
+FONT.comment       { color: #009900 }
+FONT.preprocessor  { color: #809020 }
+FONT.stringliteral { color: #002080 }
+FONT.charliteral   { color: #008080 }
+
+H3 {
+    FONT-FAMILY: trebuchet ms,helvetica,arial
+}
+
+.ex {
+    FONT-SIZE: 8pt; FONT-FAMILY: tahoma
+}
+CODE.keywordtype {
+    COLOR: #00ccff
+}
+CODE.keyword {
+    FONT-WEIGHT: bold; COLOR: #00ccff
+}
+CODE.fn {
+    COLOR: white;
+    FONT-WEIGHT: bold;
+}
+CODE.var {
+    COLOR: #dcdcdc;
+}
+CODE.macro {
+    COLOR: #809020;
+    FONT-WEIGHT: bold;
+}
+CODE.comm {
+    COLOR: lime
+}
+CODE.num {
+    COLOR: purple
+}
+CODE.str {
+    COLOR: #ffcc33;
+    font-style: italic
+}
+.SectionHeader {  font-size: 14px; color: #FFFFCC; font-weight: bold}
+.header {  font-size: 16px; font-weight: bold; color: #FFFFCC}
+-->
+</style> 
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<p align="center" class="header">OGRE (Object-Oriented Graphics Rendering Engine)</p><p align="center" class="header">Material 
+Scripts</p><p align="left" class="MainHeader">&nbsp;</p><P ALIGN="LEFT" CLASS="header">GuiElement 
+Attributes </P><P ALIGN="LEFT">These attributes are valid within the braces of 
+a 'conatiner' or 'element' block in an overlay script. They must each be on their 
+own line. Ordering is unimportant.</P><P><A NAME="left"></A><SPAN CLASS="SectionHeader">left</SPAN></P><P>Sets 
+the horizontal position of the element relative to it's parent.</P><P>Format: 
+left &lt;value&gt;<BR>Example: left 0.5</P><P>Positions are relative to the parent 
+(the top-left of the screen if the parent is an overlay, the top-left of the parent 
+otherwise) and are expressed in terms of a proportion of screen size. Therefore 
+0.5 is half-way across the screen.</P><P>Default: left 0<BR></P><P CLASS="SectionHeader"><A NAME="top"></A>top</P><P>Sets 
+the vertical position of the element relative to it's parent.</P><P>Format: top 
+&lt;value&gt;<BR>Example: top 0.5</P><P>Positions are relative to the parent (the 
+top-left of the screen if the parent is an overlay, the top-left of the parent 
+otherwise) and are expressed in terms of a proportion of screen size. Therefore 
+0.5 is half-way down the screen.</P><P>Default: top 0<BR></P><P CLASS="SectionHeader"><A NAME="width"></A>width</P><P>Sets 
+the width of the element as a proportion of the size of the screen.</P><P>Format: 
+width &lt;value&gt;<BR>Example: width 0.25</P><P>Sizes are relative to the size 
+of the screen, so 0.25 is a quarter of the screen. Sizes are not relative to the 
+parent; this is common in windowing systems where the top and left are relative 
+but the size is absolute.</P><P>Default: width 1<BR></P><P CLASS="SectionHeader"><A NAME="height"></A>height</P><P>Sets 
+the height of the element as a proportion of the size of the screen.</P><P>Format: 
+height &lt;value&gt;<BR>Example: height 0.25</P><P>Sizes are relative to the size 
+of the screen, so 0.25 is a quarter of the screen. Sizes are not relative to the 
+parent; this is common in windowing systems where the top and left are relative 
+but the size is absolute.</P><P>Default: height 1</P><P CLASS="SectionHeader"><A NAME="material"></A>material</P><P>Sets 
+the name of the material to use for this element.</P><P>Format: material &lt;name&gt;<BR>Example: 
+material Examples/TestMaterial</P><P>This sets the base material which this element 
+will use. Each type of element may interpret this differently; for example the 
+OGRE element 'Panel' treats this as the background of the panel, whilst 'BorderPanel' 
+interprets this as the material for the center area only. Materials should be 
+defined in <A HREF="MaterialScript.html">.material scripts</A>.</P><P>Default: 
+none</P><P>&nbsp;</P><P CLASS="SectionHeader"><A NAME="caption"></A>caption</P><P>Sets 
+a text caption for the element.</P><P>Format: caption &lt;string&gt;<BR>Example: 
+caption This is a caption</P><P>Not all elements support captions, so each element 
+is free to disregard this if it wants. However, a general text caption is so common 
+to many elements that it is included in the generic interface to make it simpler 
+to use. This is a common feature in GUI systems.</P><P>Default: blank</P><P></P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P><TABLE WIDTH="100%" BORDER="0" CELLSPACING="2" CELLPADDING="0"><TR><TD WIDTH="14%"><A HREF="../index.html">Back 
+to Index</A></TD><TD WIDTH="39%">&nbsp;</TD><TD WIDTH="22%"><A HREF="MaterialScript.html">&lt;&lt; 
+Previous section</A></TD><TD WIDTH="25%"><A HREF="ParticleScript.html">Next section 
+&gt;&gt;</A></TD></TR></TABLE><P>&nbsp;</P><P>&nbsp;</P><P>&nbsp;</P><P CLASS="SectionHeader">&nbsp;</P>
+</body>
+</html>
