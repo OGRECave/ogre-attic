@@ -26,6 +26,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGpuProgramManager.h"
 
 namespace Ogre {
+    //-----------------------------------------------------------------------
+    template<> GpuProgramManager* Singleton<GpuProgramManager>::ms_Singleton = 0;
     //---------------------------------------------------------------------------
     GpuProgram* GpuProgramManager::load(const String& filename, GpuProgramType gptype, int priority)
     {
