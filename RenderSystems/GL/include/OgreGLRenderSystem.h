@@ -365,6 +365,18 @@ namespace Ogre {
           RenderSystem
          */
         void _render(const RenderOperation& op);
+        /** See
+          RenderSystem
+         */
+        void bindGpuProgram(GpuProgram* prg);
+        /** See
+          RenderSystem
+         */
+        void unbindGpuProgram(GpuProgramType gptype);
+        /** See
+          RenderSystem
+         */
+        void bindGpuProgramParameters(GpuProgramParameters* params);
 
         // ----------------------------------
         // End Overridden members

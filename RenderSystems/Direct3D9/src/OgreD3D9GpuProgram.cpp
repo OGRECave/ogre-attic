@@ -34,12 +34,13 @@ namespace Ogre {
     {
     }
 	//-----------------------------------------------------------------------------
-	void D3D9GpuProgram::setConstant(size_t index, const Matrix4& m)
+	void D3D9GpuProgramParameters::setConstant(size_t index, const Matrix4& m)
     {
+        // TODO
     }
 	//-----------------------------------------------------------------------------
-    D3D9GpuVertexProgram::D3D9GpuVertexProgram(GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(gptype, pDev), mpVertexShader(NULL)
+    D3D9GpuVertexProgram::D3D9GpuVertexProgram(LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(GPT_VERTEX_PROGRAM, pDev), mpVertexShader(NULL)
     {
         // do nothing here, all is done in load()
     }
@@ -87,13 +88,9 @@ namespace Ogre {
         SAFE_RELEASE(mpVertexShader);
     }
 	//-----------------------------------------------------------------------------
-    void D3D9GpuVertexProgram::setConstant(size_t index, const Real *val, size_t count)
-    {
-    }
 	//-----------------------------------------------------------------------------
-	//-----------------------------------------------------------------------------
-    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(GpuProgramType gptype, LPDIRECT3DDEVICE9 pDev) 
-        : D3D9GpuProgram(gptype, pDev), mpPixelShader(NULL)
+    D3D9GpuFragmentProgram::D3D9GpuFragmentProgram(LPDIRECT3DDEVICE9 pDev) 
+        : D3D9GpuProgram(GPT_FRAGMENT_PROGRAM, pDev), mpPixelShader(NULL)
     {
         // do nothing here, all is done in load()
     }
@@ -137,10 +134,6 @@ namespace Ogre {
     void D3D9GpuFragmentProgram::unload(void)
     {
         SAFE_RELEASE(mpPixelShader);
-    }
-	//-----------------------------------------------------------------------------
-    void D3D9GpuFragmentProgram::setConstant(size_t index, const Real *val, size_t count)
-    {
     }
 	//-----------------------------------------------------------------------------
 

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreResourceManager.h"
 #include "OgreException.h"
 #include "OgreGpuProgram.h"
+#include "OgreSingleton.h"
 
 namespace Ogre {
 
@@ -84,7 +85,14 @@ namespace Ogre {
 		/** Returns the syntaxes that this manager supports. */
 		virtual const SyntaxCodes& getSupportedSyntax(void) { return mSyntaxCodes; };
 		
-		/** Override standard Singleton retrieval.
+		/** Creates a new GpuProgramParameters instance which can be used to bind
+            parameters to your programs.
+        @remarks
+            Program parameters can be shared between multiple programs if you wish.
+        */
+        virtual GpuProgramParametersSharedPtr createParameters(void) = 0;
+        
+        /** Override standard Singleton retrieval.
             @remarks
                 Why do we do this? Well, it's because the Singleton implementation is in a .h file,
                 which means it gets compiled into anybody who includes it. This is needed for the Singleton

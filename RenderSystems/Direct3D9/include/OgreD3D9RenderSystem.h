@@ -199,6 +199,9 @@ namespace Ogre
 		void setVertexDeclaration(VertexDeclaration* decl);
 		void setVertexBufferBinding(VertexBufferBinding* binding);
         void _render(const RenderOperation& op);
+        void bindGpuProgram(GpuProgram* prg);
+        void unbindGpuProgram(GpuProgramType gptype);
+        void bindGpuProgramParameters(GpuProgramParameters* params);
 
 	};
 }

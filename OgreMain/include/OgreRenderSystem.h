@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTexture.h"
 #include "OgreFrameListener.h"
 #include "OgreConfigOptionMap.h"
+#include "OgreGpuProgram.h"
 
 namespace Ogre
 {
@@ -789,6 +790,19 @@ namespace Ogre
 		/** Gets the capabilities of the render system. */
 		const RenderSystemCapabilities* getCapabilities(void) { return mCapabilities; }
 
+        /** Binds a given GpuProgram and it's associated parameters. 
+        @remarks Only one GpuProgram of each type can be bound at once, binding another
+        one will simply replace the exsiting one.
+        */
+        virtual void bindGpuProgram(GpuProgram* prg) = 0;
+
+        /** Bind Gpu program parameters. */
+        virtual void bindGpuProgramParameters(GpuProgramParameters* params) = 0;
+        /** Unbinds GpuPrograms of a given GpuProgramType.
+        @remarks
+            This returns the pipeline to fixed-function processing for this type.
+        */
+        virtual void unbindGpuProgram(GpuProgramType gptype) = 0;
     protected:
 
         /** Set of registered frame listeners */
