@@ -406,24 +406,33 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::_updateBounds(void)
     {
-        Vector3 min(Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY);
-        Vector3 max(Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY);
-        ActiveBillboardList::iterator i, iend;
-
-        iend = mActiveBillboards.end();
-        for (i = mActiveBillboards.begin(); i != iend; ++i)
+        if (mActiveBillboards.empty())
         {
-            const Vector3& pos = (*i)->getPosition();
-            min.makeFloor(pos);
-            max.makeCeil(pos);
+            // No billboards, null bbox
+            mAABB.setNull();
         }
-        // Adjust for billboard size
-        Real adjust = std::max(mDefaultWidth, mDefaultHeight);
-        Vector3 vecAdjust(adjust, adjust, adjust);
-        min -= vecAdjust;
-        max += vecAdjust;
+        else
+        {
+        
+            Vector3 min(Math::POS_INFINITY, Math::POS_INFINITY, Math::POS_INFINITY);
+            Vector3 max(Math::NEG_INFINITY, Math::NEG_INFINITY, Math::NEG_INFINITY);
+            ActiveBillboardList::iterator i, iend;
 
-        mAABB.setExtents(min, max);
+            iend = mActiveBillboards.end();
+            for (i = mActiveBillboards.begin(); i != iend; ++i)
+            {
+                const Vector3& pos = (*i)->getPosition();
+                min.makeFloor(pos);
+                max.makeCeil(pos);
+            }
+            // Adjust for billboard size
+            Real adjust = std::max(mDefaultWidth, mDefaultHeight);
+            Vector3 vecAdjust(adjust, adjust, adjust);
+            min -= vecAdjust;
+            max += vecAdjust;
+
+            mAABB.setExtents(min, max);
+        }
 
         if (mParentNode)
             mParentNode->needUpdate();
