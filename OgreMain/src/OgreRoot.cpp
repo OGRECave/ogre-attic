@@ -267,12 +267,12 @@ namespace Ogre {
 
         if (mActiveRenderer)
         {
-			of << "Render System\t " << mActiveRenderer->getName() << "\n";
+            of << "Render System\t " << mActiveRenderer->getName() << std::endl;;
 
             ConfigOptionMap& opts = mActiveRenderer->getConfigOptions();
             for(  ConfigOptionMap::iterator pOpt = opts.begin(); pOpt != opts.end(); ++pOpt )
             {
-				of << pOpt->first << "\t" << pOpt->second.currentValue;
+				of << pOpt->first << "\t" << pOpt->second.currentValue << std::endl;;
             }
         }
         else
