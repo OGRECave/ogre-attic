@@ -36,9 +36,6 @@ Description: Base class for all the OGRE examples
 #include "OgreConfigFile.h"
 #include "ExampleFrameListener.h"
 
-#if OGRE_PLATFORM == PLATFORM_APPLE
-#    include <SDL.h>
-#endif
 
 using namespace Ogre;
 

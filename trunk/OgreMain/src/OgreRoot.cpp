@@ -162,12 +162,14 @@ namespace Ogre {
         Codec::registerCodec( mPNGCodec );
         mJPEGCodec = new JPEGCodec;
         Codec::registerCodec( mJPEGCodec );
+#if OGRE_PLATFORM != PLATFORM_APPLE
         mTGACodec = new TGACodec;
         Codec::registerCodec( mTGACodec );
-        mJPGCodec = new JPGCodec;
-        Codec::registerCodec( mJPGCodec );
         mDDSCodec = new DDSCodec;
         Codec::registerCodec( mDDSCodec );
+#endif
+        mJPGCodec = new JPGCodec;
+        Codec::registerCodec( mJPGCodec );
         mBMPCodec = new BMPCodec;
         Codec::registerCodec( mBMPCodec );
 
@@ -184,7 +186,6 @@ namespace Ogre {
 
         // Create new Math object (will be managed by singleton)
         mMath = new Math();
-
 
         // Can't create controller manager until initialised
         mControllerManager = 0;
@@ -222,9 +223,12 @@ namespace Ogre {
         shutdown();
         delete mSceneManagerEnum;
 
-		delete mBMPCodec;
+
+#if OGRE_PLATFORM != PLATFORM_APPLE
+        delete mBMPCodec;
         delete mDDSCodec;
         delete mTGACodec;
+#endif
         delete mJPGCodec;
         delete mJPEGCodec;
         delete mPNGCodec;
@@ -530,7 +534,7 @@ namespace Ogre {
 			return;
 		}
 
-        pluginDir = cfg.getSetting("PluginFolder");
+        pluginDir = cfg.getSetting("PluginFolder"); // Ignored on Mac OS X, uses Resources/ directory
         pluginList = cfg.getMultiSetting("Plugin");
 
         char last_char = pluginDir[pluginDir.length()-1];
@@ -538,7 +542,7 @@ namespace Ogre {
         {
 #if OGRE_PLATFORM == PLATFORM_WIN32
             pluginDir += "\\";
-#else
+#elif OGRE_PLATFORM == PLATFORM_LINUX
             pluginDir += "/";
 #endif
         }

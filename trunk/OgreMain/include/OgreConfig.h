@@ -82,7 +82,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 // configure options
 #ifdef HAVE_CONFIG_H
-#include <config.h>
+#include "config.h"
 #endif
 
 #endif

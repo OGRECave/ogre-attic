@@ -4,6 +4,18 @@
 #include "OgrePrerequisites.h"
 #include "OgreArchiveEx.h"
 
+#if OGRE_PLATFORM == PLATFORM_LINUX || OGRE_PLATFORM == PLATFORM_APPLE
+#   include <sys/param.h>
+#   define MAX_PATH MAXPATHLEN
+#endif
+
+#if OGRE_PLATFORM == PLATFORM_WIN32
+#   include <windows.h>
+#   include <direct.h>
+#   include <io.h>
+#endif
+
+
 namespace Ogre {
 
 #define OGRE_MAX_PATH 256

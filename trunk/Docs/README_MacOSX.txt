@@ -1,43 +1,86 @@
-                    Instructions for building OGRE under Mac OSX
-                    ============================================
-                       Contributed by tcleu, mattias and jder
+***Prerequisites***
+-Mac OS 10.2
+-You will need to have the Mac OS X Developer Tools installed.
+ See http://developer.apple.com/tools/ for more information.
+-You should download the latest 3rd party Frameworks from the 
+site. These frameworks go in ogrenew/Mac/Frameworks.
 
+***Building the Ogre Framework***
+Open OgreFramework.pbproj in the ogrenew/Mac/PB/OgreFramework 
+directory. Choose Build from the Build menu.
 
-1) Install dlcompat (http://www.opendarwin.org/projects/dlcompat/). 
-<./configure>, <make> then <make install> (as root)) 
+***Building the Samples***
+You may build the individual samples in ogrenew/Mac/PB/Samples by
+opening them and choosing build. You can batch-build the samples
+by running the buildSamples script from the command line in that
+directory. There is also a cleanSamples to batch clean them all.
 
-The version of dlcompat from fink does not work. 
+***Using the Ogre Framework in your applications***
+To create an application that uses the Ogre framework:
+1) Build the Ogre frameworks as above.
+2) Create a new project, using the Cocoa Application template
+3) Delete the files main.m, MainMenu.nib and MyApp_Prefix.h.
+4) Add SDLMain.m and SDLMain.h to your project. These are in the
+ogrenew/Mac/PB/Classes folder. You probably want to copy these
+items so you may change them without affecting the originals.
+5) Add the freetype, SDL and Ogre frameworks to your project. The
+first two are in the ogrenew/Mac/Frameworks folder, and the Ogre
+framework will be in ogrenew/Mac/PB/OgreFramework/build after you
+build it as above.
 
-2) Install freetype2 (freetype.sourceforge.net) v. 2.1.4 rc2 
-<./configure>, <make>, then <make install> (as root)
+You may either place these in a standard location for frameworks
+(eg /Library/Frameworks or ~/Library/Frameworks) or copy them into
+your executable. To copy them into your executable, choose 'Edit
+Active Target' from the project menu, control-click on the last
+in the list of build phases and create a new Copy Files build 
+phase. Choose 'Frameworks' from the 'Where' pop-up menu, and 
+drag the Ogre, SDL and freetype frameworks to the 'Files' area.
 
-The version of freetype from fink does not work. 
+If you copy them into the application, then users do not need
+to install the Ogre, SDL or freetype frameworks before using
+your application. On the other hand, the application is larger.
 
-3) Install fink 0.5.1 (http://fink.sourceforge.net/download/index.php) 
+6) Create the required plugins.cfg and resources.cfg files. You 
+may start from the examples of these files in ogrenew/Mac/PB/Samples.
+The plugins.cfg can probably be left as is, but you will want to
+remove the entries from resources.cfg, as they refer to the Sample
+resources. The entries in resources.cfg are relative to the
+'Resources' group in your application. By default, it and all of
+its sub-directories are searched by Ogre.
 
-4) add "source /sw/bin/init.csh" in your ~/.tcshrc file (neccessary step to complete fink installation) 
+7) There are some target settings to be changed. Choose
+'Edit Current Target' from the 'Project' menu. Under 'GCC Compiler
+Settings', clear the box that reads MyApp_Prefix.h. Under 'Search
+Paths', you may wish to add the 'Headers' folder from the Ogre
+framework to the 'Headers' section, so that you can refer to Ogre
+headers as, eg, "OgreCamera.h" instead of <Ogre/OgreCamera.h>.
 
-5) Use fink to install the following packages 
-<fink install libjpeg libpng pkgconfig sdl libtool14> 
+8) If you have built the Ogre framework with the Development build
+style (the default), you will have to edit the Development build 
+style of your Application to use the Ogre debug headers. To do this,
+select 'Edit Current Build Style' from the 'Project' menu. Click the
+add button, and fill in 'OTHER_CFLAGS' for the name and '-DDEBUG' for
+the value, without the quotes.
 
-6) run the following: 
-"ln -s /sw/bin/glibtool /sw/bin/libtool" 
+9) Ogre requires a few resources for the debug overlays, so these 
+should be added to the project, under Resources. The 
+required files are all found in ogrenew/Samples/Media. They are:
 
-7) Install DevIL from http://homepage.mac.com/jrusak/DevIL.sit 
-<./configure>, <make>, then <make install> (as root)
+New_Ogre_Border_Break.png
+New_Ogre_Border_Center.png
+New_Ogre_Border.png
+New_Ogre_Logo.png
+Ogre.material
+Ogre.overlay
+ogrelogo-small.jpg
+sample.fontdef
+trebucbd.ttf
 
-8) Get the latest cvs version of OGRE (see http://ogre.sourceforge.net ) 
+10) You are now ready to add your own resources and source files.
+Take a look at the Samples and the documentation on the ogre
+website for guidance. You should be able to replicate the Samples
+by adding all of the source files from the Sample to your application,
+and adding the files from Media that it uses to your Resources.
 
-9) set the following using the setenv command: 
-setenv ACLOCAL_FLAGS "-I /sw/share/aclocal" 
-setenv CPPFLAGS "-I/usr/local/include -I/sw/include" 
-setenv LDFLAGS "-L/usr/local/lib -L/sw/lib" 
-setenv FT2_CONFIG "/usr/local/bin/freetype-config" 
-
-10) run the following in the "ogrenew" dirctory: 
-"./bootstrap" 
-"./configure" 
-"make" 
-"make install" 
-
-To run the samples, in the terminal, cd into ogrenew/Samples/Common/bin then run e.g "./CameraTrack"
+*NB* The header Ogre.h must be included in the file that defines
+your main method for SDL to work properly.
