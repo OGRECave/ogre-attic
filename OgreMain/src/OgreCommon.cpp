@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgrePrerequisites.h"
 #include "OgreCommon.h"
+#include "OgreString.h"
 
 #include <IL/il.h>
 
