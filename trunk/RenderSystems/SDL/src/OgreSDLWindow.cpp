@@ -90,7 +90,7 @@ namespace Ogre {
         mActive = true;
 
         if (!fullScreen)
-            SDL_WM_SetCaption("OGRE Render Window", 0);
+            SDL_WM_SetCaption(name.c_str(), 0);
 
     }
 
