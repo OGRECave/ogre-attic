@@ -823,17 +823,18 @@ namespace Ogre {
             // Y-axis is direction
             // X-axis is cross with camera direction 
             // Scale direction first
-            *pY = (bb->mDirection * 0.01);
+            *pY = bb->mDirection;
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
                 *pX = invTransform * cam->getDerivedDirection().crossProduct(*pY);
+				pX->normalise();
             }
             else
             {
+				*pY *= 0.01f;
                 *pX = cam->getDerivedDirection().crossProduct(*pY);
             }
-            pX->normalise();
 
             break;
         }
