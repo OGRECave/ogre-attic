@@ -230,6 +230,8 @@ namespace Ogre {
 				The height of the area
 			@param depth
 				The depth of the area
+			@param format
+				The format of the area
 		  	@returns
 		  		The size in bytes
 			@remarks
@@ -260,6 +262,20 @@ namespace Ogre {
         static bool isNativeEndian(PixelFormat format);
         /** Shortcut method to determine if the format is a luminance format. */
         static bool isLuminance(PixelFormat format);
+		
+		/** Return wether a certain image extent is valid for this image format.
+			@param width
+				The width of the area
+			@param height
+				The height of the area
+			@param depth
+				The depth of the area
+			@param format
+				The format of the area
+			@remarks For non-compressed formats, this is always true. For DXT formats,
+			only sizes with a width and height multiple of 4 and depth 1 are allowed.
+		*/
+		static bool isValidExtent(size_t width, size_t height, size_t depth, PixelFormat format);
 
         /** Gives the number of bits (RGBA) for a format. See remarks.          
           @remarks      For non-colour formats (dxt, depth) this returns [0,0,0,0].
@@ -386,7 +402,7 @@ namespace Ogre {
          	@param tar       Target pointer
          	@param ogrefmt   Ogre pixel format to employ
         */
-        static void toOgre(uint8 *tar, PixelFormat ogrefmt);
+        static void toOgre(const PixelBox &dst);
 
         /** Convert an OGRE format image to current IL image.
          	@param src       Pixelbox; encapsulates source pointer, width, height, 

@@ -172,8 +172,9 @@ namespace Ogre {
                     ilBindImage(ImageName);
                     ilActiveImage(i);
                 }
-
-                ILUtil::toOgre((unsigned char*)output->getPtr()+offset, imgData->format);
+				PixelBox dst(imgData->width, imgData->height, imgData->depth, 
+					imgData->format, (unsigned char*)output->getPtr()+offset);
+                ILUtil::toOgre(dst);
 
                 offset += imageSize;
             }

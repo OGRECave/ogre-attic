@@ -217,14 +217,14 @@ namespace Ogre {
         /** Returns true if the image has an alpha component.
         */
         bool getHasAlpha() const;
-
-        /** Does gamma adjustment.
+		
+		/** Does gamma adjustment.
             @note
                 Basic algo taken from Titan Engine, copyright (c) 2000 Ignacio 
                 Castano Iguado
         */
         static void applyGamma( uchar *buffer, Real gamma, size_t size, uchar bpp );
-        
+
         /**
          * Get colour value from a certain location in the image. The z coordinate
          * is only valid for cubemaps and volume textures. This uses the first (largest)
@@ -235,7 +235,7 @@ namespace Ogre {
         /**
          * Get a PixelBox encapsulating the image data of a mipmap
          */
-        PixelBox getPixelBox(int cubeface, int mipmap);
+        PixelBox getPixelBox(int cubeface, int mipmap) const;
 
 		enum Filter
 		{
@@ -246,6 +246,15 @@ namespace Ogre {
 			FILTER_TRIANGLE,
 			FILTER_BICUBIC
 		};
+		/** Scale a 1D, 2D or 3D image volume. 
+			@param 	src			PixelBox containing the source pointer, dimensions and format
+			@param 	dst			PixelBox containing the destination pointer, dimensions and format
+			@param 	filter		Which filter to use
+			@remarks 	This function can do pixel format conversion in the process.
+			@note	dst and src can point to the same PixelBox object without any problem
+		*/
+		static void scale(const PixelBox &src, const PixelBox &dst, Filter filter = FILTER_BILINEAR);
+		
 		/** Resize a 2D image, applying the appropriate filter. */
 		void resize(ushort width, ushort height, Filter filter = FILTER_BILINEAR);
 		
