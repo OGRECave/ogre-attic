@@ -90,6 +90,9 @@ namespace Ogre {
         typedef std::vector<Technique*> Techniques;
         Techniques mTechniques;
         Techniques mSupportedTechniques;
+        typedef std::map<unsigned short, Technique*> BestTechniqueList;
+        BestTechniqueList mBestTechniqueList;
+
         /// Does this material require compilation?
         bool mCompilationRequired;
 
@@ -145,13 +148,22 @@ namespace Ogre {
         typedef VectorIterator<Techniques> TechniqueIterator;
         /** Get an iterator over the Techniques in this Material. */
         TechniqueIterator getTechniqueIterator(void);
-        /** Gets an iterator over the Techniques which are supported by the current card. 
+        /** Gets an iterator over all the Techniques which are supported by the current card. 
         @remarks
             The supported technique list is only available after this material has been compiled,
             which typically happens on loading the material. Therefore, if this method returns
             an empty list, try calling Material::load.
         */
         TechniqueIterator getSupportedTechniqueIterator(void);
+
+        /** Gets the number of levels-of-detail this material has, based on 
+            Technique::setLodIndex. 
+        @remarks
+            Note that this will not be up to date until the material has been compiled.
+        */
+        unsigned short getNumLodLevels(void) { 
+            return static_cast<unsigned short>(mBestTechniqueList.size()); }
+
         /** Gets the best supported technique. 
         @remarks
             This method returns the lowest-index supported Technique in this material
@@ -161,8 +173,9 @@ namespace Ogre {
             The best supported technique is only available after this material has been compiled,
             which typically happens on loading the material. Therefore, if this method returns
             NULL, try calling Material::load.
+		@param lodIndex The material lod index to use
         */
-        Technique* getBestTechnique(void);
+        Technique* getBestTechnique(unsigned short lodIndex = 0);
 
         /** Overridden from Resource.
         @remarks
@@ -468,6 +481,7 @@ namespace Ogre {
 
         /** Tells the material that it needs recompilation. */
         void _notifyNeedsRecompile(void);
+
 
 
 

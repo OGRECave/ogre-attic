@@ -44,6 +44,7 @@ namespace Ogre {
         Passes mPasses;
         Material* mParent;
         bool mIsSupported;
+        unsigned short mLodIndex;
     public:
         /// Constructor
         Technique(Material* parent);
@@ -346,6 +347,26 @@ namespace Ogre {
         @see Pass::setSceneBlending
         */
         void setSceneBlending( const SceneBlendFactor sourceFactor, const SceneBlendFactor destFactor);
+
+        /** Assigns a level-of-detail (LOD) index to this Technique.
+        @remarks
+            As noted previously, as well as providing fallback support for various
+            graphics cards, multiple Technique objects can also be used to implement
+            material LOD, where the detail of the material diminishes with distance to 
+            save rendering power.
+        @par
+            By default, all Techniques have a LOD index of 0, which means they are the highest
+            level of detail. Increasing LOD indexes are lower levels of detail. You can 
+            assign more than one Technique to the same LOD index, meaning that the best 
+            Technique that is supported at that LOD index is used. 
+        @par
+            You should not leave gaps in the LOD sequence; Ogre will allow you to do this
+            and will continue to function as if the LODs were sequential, but it will 
+            confuse matters.
+        */
+        void setLodIndex(unsigned short index);
+        /** Gets the level-of-detail index assigned to this Technique. */
+        unsigned short getLodIndex(void) const { return mLodIndex; }
 
 
     };

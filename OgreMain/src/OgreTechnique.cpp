@@ -455,6 +455,12 @@ namespace Ogre {
     {
         mParent->_notifyNeedsRecompile();
     }
+    //-----------------------------------------------------------------------
+    void Technique::setLodIndex(unsigned short index)
+    {
+        mLodIndex = index;
+        _notifyNeedsRecompile();
+    }
 
 
 
