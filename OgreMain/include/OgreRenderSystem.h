@@ -588,6 +588,19 @@ namespace Ogre
              for the new pixel to be written.
         */
         virtual void _setDepthBufferFunction(CompareFunction func = CMPF_LESS_EQUAL) = 0;
+        /** Sets the depth bias, NB you should use the Material version of this. 
+        @remarks
+            When polygons are coplanar, you can get problems with 'depth fighting' where
+            the pixels from the two polys compete for the same screen pixel. This is particularly
+            a problem for decals (polys attached to another surface to represent details such as
+            bulletholes etc.).
+        @par
+            A way to combat this problem is to use a depth bias to adjust the depth buffer value
+            used for the decal such that it is slightly higher than the true value, ensuring that
+            the decal appears on top.
+        @param bias The bias value, should be between 0 and 16.
+        */
+        virtual void _setDepthBias(ushort bias) = 0;
         /** Sets the fogging mode for future geometry.
             @param mode Set up the mode of fog as described in the FogMode enum, or set to FOG_NONE to turn off.
             @param colour The colour of the fog. Either set this to the same as your viewport background colour,
@@ -735,8 +748,6 @@ namespace Ogre
         /** Sets the action to perform if both the stencil test and the depth buffer 
             test passes. */
         virtual void setStencilBufferPassOperation(StencilOperation op) = 0;
-
-
 
 
 

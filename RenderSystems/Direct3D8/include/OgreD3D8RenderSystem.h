@@ -157,6 +157,10 @@ namespace Ogre {
 		void _setDepthBufferCheckEnabled( bool enabled = true );
 		void _setDepthBufferWriteEnabled(bool enabled = true);
 		void _setDepthBufferFunction( CompareFunction func = CMPF_LESS_EQUAL );
+        /** See
+          RenderSystem
+         */
+        void _setDepthBias(ushort bias);
 		void _setFog( FogMode mode = FOG_NONE, ColourValue colour = ColourValue::White, Real expDensity = 1.0, Real linearStart = 0.0, Real linearEnd = 1.0 );
         void _makeProjectionMatrix(Real fovy, Real aspect, Real nearPlane, Real farPlane, Matrix4& dest);
         void _setRasterisationMode(SceneDetailLevel level);

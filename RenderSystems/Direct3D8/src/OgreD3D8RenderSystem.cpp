@@ -1817,6 +1817,15 @@ namespace Ogre {
 		if( FAILED( hr = mpD3DDevice->SetRenderState( D3DRS_ZFUNC, convertCompareFunction(func) ) ) )
 			Except( hr, "Error setting depth buffer test function", "D3D8RenderSystem::_setDepthBufferFunction" );
 	}
+    //-----------------------------------------------------------------------
+    void D3D8RenderSystem::_setDepthBias(ushort bias)
+    {
+        HRESULT hr = mpD3DDevice->SetRenderState(D3DRS_ZBIAS, 
+            bias);
+        if (FAILED(hr))
+            Except(hr, "Error setting depth bias.",
+                "D3D8RenderSystem::_setDepthBias");
+    }
 
 	void D3D8RenderSystem::_setFog( FogMode mode, ColourValue colour, Real densitiy, Real start, Real end )
 	{

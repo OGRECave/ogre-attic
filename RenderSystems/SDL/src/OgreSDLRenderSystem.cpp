@@ -1278,6 +1278,24 @@ namespace Ogre {
         glDepthFunc(convertCompareFunction(func));
     }
     //-----------------------------------------------------------------------------
+    void SDLRenderSystem::_setDepthBias(ushort bias)
+    {
+        if (bias > 0)
+        {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glEnable(GL_POLYGON_OFFSET_POINT);
+            glEnable(GL_POLYGON_OFFSET_LINE);
+            // Bias is in {0, 16}, scale the unit addition appropriately
+            glPolygonOffset(1.0f, bias / 16);
+        }
+        else
+        {
+            glDisable(GL_POLYGON_OFFSET_FILL);
+            glDisable(GL_POLYGON_OFFSET_POINT);
+            glDisable(GL_POLYGON_OFFSET_LINE);
+        }
+    }
+    //-----------------------------------------------------------------------------
     String SDLRenderSystem::getErrorDescription(long errCode)
     {
         // XXX FIXME

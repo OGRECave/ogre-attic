@@ -65,6 +65,7 @@ namespace Ogre {
 	    mDepthCheck = true;
 	    mDepthWrite = true;
 	    mDepthFunc = CMPF_LESS_EQUAL;
+        mDepthBias = 0;
 	    mCullMode = CULL_CLOCKWISE;
 	    mManualCullMode = MANUAL_CULL_BACK;
 	    mLightingEnabled = true;
@@ -505,6 +506,17 @@ namespace Ogre {
         mat->mName = savedName;
         mat->mHandle = savedHandle;
 
+    }
+    //-----------------------------------------------------------------------
+    void Material::setDepthBias(ushort bias)
+    {
+        assert(bias >= 0 && bias <= 16 && "Depth bias must be between 0 and 16");
+        mDepthBias = bias;
+    }
+    //-----------------------------------------------------------------------
+    ushort Material::getDepthBias(void)
+    {
+        return mDepthBias;
     }
 
 }

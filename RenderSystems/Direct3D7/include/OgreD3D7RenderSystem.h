@@ -292,6 +292,10 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+        void _setDepthBias(ushort bias);
+        /** See
+          RenderSystem
+         */
         void _setFog(FogMode mode, ColourValue colour, Real density, Real start, Real end);
         /** See
           RenderSystem

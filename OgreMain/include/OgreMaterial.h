@@ -763,6 +763,7 @@ namespace Ogre {
                 Real mUScrollAnim, mVScrollAnim;
                 Real mRotateAnim;
 
+
     //-----------------------------------------------------------------------------
     // Complex members (those that can't be copied using memcpy) are at the end to 
     // allow for fast copying of the basic members.
@@ -824,6 +825,8 @@ namespace Ogre {
         bool mDepthCheck;
         bool mDepthWrite;
         CompareFunction mDepthFunc;
+        ushort mDepthBias;
+
         //-------------------------------------------------------------------------    
 
         //-------------------------------------------------------------------------
@@ -1333,6 +1336,23 @@ namespace Ogre {
             @param mat Pointer to material which will receive this material's settings.
         */
         void copyDetailsTo(Material* mat);
+
+        /** Sets the depth bias to be used for this material.
+        @remarks
+            When polygons are coplanar, you can get problems with 'depth fighting' where
+            the pixels from the two polys compete for the same screen pixel. This is particularly
+            a problem for decals (polys attached to another surface to represent details such as
+            bulletholes etc.).
+        @par
+            A way to combat this problem is to use a depth bias to adjust the depth buffer value
+            used for the decal such that it is slightly higher than the true value, ensuring that
+            the decal appears on top.
+        @param bias The bias value, should be between 0 and 16.
+        */
+        void setDepthBias(ushort bias);
+
+        /** Retrieves the depth bias value as set by setDepthValue. */
+        ushort getDepthBias(void);
     };
 
 } //namespace 

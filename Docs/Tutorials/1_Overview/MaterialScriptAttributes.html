@@ -187,7 +187,11 @@ if (new_Z &lt;= existing_Z)</TD></TR><TR><TD WIDTH="10%" HEIGHT="19"><DIV ALIGN=
 if (new_Z == existing_Z)</TD></TR><TR><TD WIDTH="10%" HEIGHT="19"><DIV ALIGN="CENTER">not_equal</DIV></TD><TD WIDTH="90%" HEIGHT="19">Write 
 if (new_Z != existing_Z)</TD></TR><TR><TD WIDTH="10%" HEIGHT="19"><DIV ALIGN="CENTER">greater_equal</DIV></TD><TD WIDTH="90%" HEIGHT="19">Write 
 if (new_Z &gt;= existing_Z)</TD></TR><TR><TD WIDTH="10%" HEIGHT="19"><DIV ALIGN="CENTER">greater</DIV></TD><TD WIDTH="90%" HEIGHT="19">Write 
-if (new_Z &gt;existing_Z)</TD></TR></TABLE><P>Default: depth_func less_equal<BR></P><P CLASS="SectionHeader"><A NAME="cull_hardware"></A>cull_hardware</P><P>Sets 
+if (new_Z &gt;existing_Z)</TD></TR></TABLE><P>Default: depth_func less_equal</P><P CLASS="SectionHeader"><A NAME="depth_func"></A>depth_bias</P><P>Sets 
+the bias applied to the depth value of this material. Can be used to make coplanar 
+polygons appear on top of others e.g. for decals</P><P>Format: depth_bias &lt;value&gt;</P><P>Where 
+&lt;value&gt; is between 0 and 16, the default being 0. The higher the value, 
+the greater the offset (for if you want to do multiple overlapping decals).</P><P><BR></P><P CLASS="SectionHeader"><A NAME="cull_hardware"></A>cull_hardware</P><P>Sets 
 the hardware culling mode for this material. </P><P>Format: cull_hardware &lt;clockwise|anitclockwise|none&gt;</P><P>A 
 typical way for the hardware rendering engine to cull triangles is based on the 
 'vertex winding' of triangles. Vertex winding refers to the direction in which 
