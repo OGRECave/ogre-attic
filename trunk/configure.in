@@ -21,6 +21,7 @@ AC_CHECK_FT2(9.1.0)
 
 AC_CHECK_LIB(jpeg, jpeg_start_decompress)
 AC_CHECK_LIB(dl, dlopen)
+AC_CHECK_LIB(m, pow)
 AC_CHECK_LIB(png, png_create_read_struct)
 AC_CHECK_LIB(z, gzopen)
 
@@ -79,7 +80,6 @@ AC_OUTPUT(Makefile \
     Samples/BezierPatch/include/Makefile \
     Samples/CameraTrack/Makefile \
     Samples/CameraTrack/src/Makefile \
-    Samples/CameraTrack/include/Makefile \
     Samples/EnvMapping/Makefile \
     Samples/EnvMapping/src/Makefile \
     Samples/EnvMapping/include/Makefile \
