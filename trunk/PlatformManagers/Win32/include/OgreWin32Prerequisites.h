@@ -27,14 +27,28 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
+
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
 
+
+/* If you don't whant your build to request dxinput8, 
+    for example in case u whant to run on a DirectX7 machine.
+	This is stil request  DirectX 8 sdk for building, but the binary requires
+    only DirectX 7
+*/
+//#define DX7INPUTONLY 
+
+
+#ifdef DX7INPUTONLY 
+#define DIRECTINPUT_VERSION 0x0700
+
+#else 
 /**
     This has to be done in order to make sure the file compiles correctly under DirectX 8
 */
 #define DIRECTINPUT_VERSION 0x0800
-
+#endif 
 namespace Ogre {
 
     // Predeclare classes 

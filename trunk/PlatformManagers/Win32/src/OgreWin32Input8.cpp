@@ -23,6 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreWin32Input8.h"
+#ifndef DX7INPUTONLY 
+
 #include "OgreRenderWindow.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
@@ -850,3 +852,4 @@ namespace Ogre {
 	}
 
 } // namespace
+#endif
