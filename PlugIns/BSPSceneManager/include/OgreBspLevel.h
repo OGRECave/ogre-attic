@@ -31,6 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreBspNode.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreDefaultHardwareBufferManager.h"
+#include "OgreQuake3Level.h"
+
 
 namespace Ogre {
 
@@ -138,7 +141,8 @@ namespace Ogre {
 
         /// indexes for the whole level, will be copied to the real indexdata per frame
         size_t mNumIndexes;
-        unsigned int* mIndexes;
+        // system-memory buffer
+        DefaultHardwareIndexBuffer* mIndexes;
 
         /// Brushes as used for collision, main memory is here
         BspNode::Brush *mBrushes;
@@ -181,6 +185,21 @@ namespace Ogre {
         MovableToNodeMap mMovableToNodeMap;
 
         void tagNodesWithMovable(BspNode* node, const MovableObject* mov, const Vector3& pos);
+
+        // Storage of patches 
+        typedef std::map<int, PatchSurface*> PatchMap;
+        PatchMap mPatches;
+        // Total number of vertices required for all patches
+        size_t mPatchVertexCount;
+        // Total number of indexes required for all patches
+        size_t mPatchIndexCount;
+
+        void initQuake3Patches(const Quake3Level & q3lvl, VertexDeclaration* decl);
+        void buildQuake3Patches(size_t vertOffset, size_t indexOffset);
+
+        void quakeVertexToBspVertex(const bsp_vertex_t* src, BspVertex* dest);
+
+
 
 
 

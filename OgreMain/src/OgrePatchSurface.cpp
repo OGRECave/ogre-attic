@@ -172,7 +172,7 @@ namespace Ogre {
 
         // Lock just the region we are interested in 
         void* lockedBuffer = mVertexBuffer->lock(
-            mVertexOffset, 
+            mVertexOffset * mDeclaration->getVertexSize(0), 
             mRequiredVertexCount * mDeclaration->getVertexSize(0),
             HardwareBuffer::HBL_NO_OVERWRITE);
 
@@ -503,6 +503,7 @@ namespace Ogre {
         int currWidth = (LEVEL_WIDTH(mULevel)-1) * ((mCtlWidth-1)/2) + 1;
         int currHeight = (LEVEL_WIDTH(mVLevel)-1) * ((mCtlHeight-1)/2) + 1;
 
+        bool use32bitindexes = (mIndexBuffer->getType() == HardwareIndexBuffer::IT_32BIT);
 
         // The mesh is built, just make a list of indexes to spit out the triangles
         int vInc, uInc;
@@ -535,11 +536,24 @@ namespace Ogre {
 
         size_t v1, v2, v3;
         // Lock just the section of the buffer we need
-        unsigned short* pIndexes = static_cast<unsigned short*>(
-            mIndexBuffer->lock(
-                mIndexOffset, 
-                mRequiredIndexCount * sizeof(unsigned short), 
-                HardwareBuffer::HBL_NO_OVERWRITE));
+        unsigned short* p16;
+        unsigned int* p32;
+        if (use32bitindexes)
+        {
+            p32 = static_cast<unsigned int*>(
+                mIndexBuffer->lock(
+                    mIndexOffset * sizeof(unsigned int), 
+                    mRequiredIndexCount * sizeof(unsigned int), 
+                    HardwareBuffer::HBL_NO_OVERWRITE));
+        }
+        else
+        {
+            p16 = static_cast<unsigned short*>(
+                mIndexBuffer->lock(
+                    mIndexOffset * sizeof(unsigned short), 
+                    mRequiredIndexCount * sizeof(unsigned short), 
+                    HardwareBuffer::HBL_NO_OVERWRITE));
+        }
 
         while (iterations--)
         {
@@ -559,18 +573,36 @@ namespace Ogre {
                     v2 = (v * mMeshWidth) + u;
                     v3 = ((v + vInc) * mMeshWidth) + (u + uInc);
                     // Output indexes
-                    *pIndexes++ = v1;
-                    *pIndexes++ = v2;
-                    *pIndexes++ = v3;
+                    if (use32bitindexes)
+                    {
+                        *p32++ = v1;
+                        *p32++ = v2;
+                        *p32++ = v3;
+                    }
+                    else
+                    {
+                        *p16++ = v1;
+                        *p16++ = v2;
+                        *p16++ = v3;
+                    }
                     // Second Tri in cell
                     // ------------------
                     v1 = ((v + vInc) * mMeshWidth) + (u + uInc);
                     v2 = (v * mMeshWidth) + u;
                     v3 = (v * mMeshWidth) + (u + uInc);
                     // Output indexes
-                    *pIndexes++ = v1;
-                    *pIndexes++ = v2;
-                    *pIndexes++ = v3;
+                    if (use32bitindexes)
+                    {
+                        *p32++ = v1;
+                        *p32++ = v2;
+                        *p32++ = v3;
+                    }
+                    else
+                    {
+                        *p16++ = v1;
+                        *p16++ = v2;
+                        *p16++ = v3;
+                    }
 
                     // Next column
                     u += uInc;

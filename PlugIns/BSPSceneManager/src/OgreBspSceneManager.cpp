@@ -346,46 +346,41 @@ namespace Ogre {
         if (faceGroup->isSky)
             return 0;
 
+        size_t idxStart, numIdx, vertexStart;
+
         if (faceGroup->fType == FGT_FACE_LIST)
         {
-
-            // Copy index data
-            unsigned int* pSrc = mLevel->mIndexes + faceGroup->elementStart;
-            //memcpy(pIndexes, pSrc, sizeof(unsigned int) * faceGroup->numElements);
-            for (int elem = 0; elem < faceGroup->numElements; ++elem)
-            {
-                // Offset the indexes here
-                // we have to do this now rather than up-front because the 
-                // indexes are sometimes reused to address different vertex chunks
-                *pIndexes++ = *pSrc++ + faceGroup->vertexStart;
-            }
-
-            // return number of elements
-            return faceGroup->numElements;
+            idxStart = faceGroup->elementStart;
+            numIdx = faceGroup->numElements;
+            vertexStart = faceGroup->vertexStart;
         }
         else if (faceGroup->fType == FGT_PATCH)
         {
-            // Patch
-            // Just queue for rendering in normal pipeline rather than mess up the
-            // continuity of our main vertex data
-            /*
-            Mesh* msh;
-            SubMesh* smsh;
-            msh = faceGroup->patchSurf->getMesh();
-            smsh = msh->getSubMesh(0);
 
-            //mRenderQueue.addRenderable(smsh);
-
-            // no 'main' indexes used
-            */
-            return 0;
-
-
-
+            idxStart = faceGroup->patchSurf->getIndexOffset();
+            numIdx = faceGroup->patchSurf->getCurrentIndexCount();
+            vertexStart = faceGroup->patchSurf->getVertexOffset();
         }
 
-        // to keep compiler happy
-        return 0;
+
+        // Copy index data
+        unsigned int* pSrc = static_cast<unsigned int*>(
+            mLevel->mIndexes->lock(
+                idxStart * sizeof(unsigned int),
+                numIdx * sizeof(unsigned int), 
+                HardwareBuffer::HBL_READ_ONLY));
+        // Offset the indexes here
+        // we have to do this now rather than up-front because the 
+        // indexes are sometimes reused to address different vertex chunks
+        for (int elem = 0; elem < numIdx; ++elem)
+        {
+            *pIndexes++ = *pSrc++ + vertexStart;
+        }
+        mLevel->mIndexes->unlock();
+
+        // return number of elements
+        return numIdx;
+
 
     }
 

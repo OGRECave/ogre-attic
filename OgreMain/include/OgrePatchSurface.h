@@ -114,6 +114,11 @@ namespace Ogre {
 
         /** Gets the current index count based on the current subdivision level. */
         size_t getCurrentIndexCount(void);
+        /// Returns the index offset used by this buffer to write data into the buffer
+        size_t getIndexOffset(void) { return mIndexOffset; }
+        /// Returns the vertex offset used by this buffer to write data into the buffer
+        size_t getVertexOffset(void) { return mVertexOffset; }
+
 
         /** Gets the bounds of this patch, only valid after calling defineSurface. */
         const AxisAlignedBox& getBounds(void);
@@ -150,6 +155,16 @@ namespace Ogre {
 
         /** Gets the current level of subdivision. */
         Real getSubdivisionFactor(void);
+
+        /** Convenience method for freeing the control point buffer; is not done by default
+            since the memory may be controlled outside. */
+        void freeControlPointBuffer(void) { 
+            if (mControlPointBuffer) 
+            {
+                delete [] mControlPointBuffer;
+                mControlPointBuffer = 0;
+            }
+        }
     protected:
         /// Vertex declaration describing the control point buffer
         VertexDeclaration* mDeclaration;
