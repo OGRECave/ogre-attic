@@ -35,7 +35,7 @@ namespace Ogre {
     class _OgreParticleFXExport RotationAffectorFactory : public ParticleAffectorFactory
     {
         /** See ParticleAffectorFactory */
-        String getName() { return "Rotator"; }
+        String getName() const { return "Rotator"; }
 
         /** See ParticleAffectorFactory */
         ParticleAffector* createAffector(void)

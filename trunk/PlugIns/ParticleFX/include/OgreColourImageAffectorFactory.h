@@ -35,7 +35,7 @@ namespace Ogre {
     class _OgreParticleFXExport ColourImageAffectorFactory : public ParticleAffectorFactory
     {
         /** See ParticleAffectorFactory */
-        String getName() { return "ColourImage"; }
+        String getName() const { return "ColourImage"; }
 
         /** See ParticleAffectorFactory */
         ParticleAffector* createAffector(void)

@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 
 #include "OgreRenderTexture.h"
+#include "OgreException.h"
 
 namespace Ogre
 {

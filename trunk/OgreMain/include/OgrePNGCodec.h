@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define _PNGCodec_H__
 
 #include "OgreImageCodec.h"
-#include "OgreSDDataChunk.h"
 
 namespace Ogre {
 
