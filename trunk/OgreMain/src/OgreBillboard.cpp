@@ -61,6 +61,8 @@ namespace Ogre {
     void Billboard::setRotation(Real rotation)
     {
 		mRotation = rotation * Math::fDeg2Rad;
+        if (mRotation != 0)
+            mParentSet->_notifyBillboardTextureCoordsModified();
     }
 	//-----------------------------------------------------------------------
     void Billboard::setPosition(const Vector3& position)

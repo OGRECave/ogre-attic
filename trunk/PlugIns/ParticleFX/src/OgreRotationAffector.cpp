@@ -71,8 +71,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void RotationAffector::_initParticle(Particle* pParticle)
 	{
-		pParticle->mRotation		= mRotationRangeStart + (Math::UnitRandom() * (mRotationRangeEnd - mRotationRangeStart));
-        pParticle->mRotationSpeed	= mRotationSpeedRangeStart + (Math::UnitRandom() * (mRotationSpeedRangeEnd - mRotationSpeedRangeStart));
+		pParticle->setRotation(
+            mRotationRangeStart + 
+            (Math::UnitRandom() * 
+                (mRotationRangeEnd - mRotationRangeStart)));
+        pParticle->setRotationSpeed(
+            mRotationSpeedRangeStart + 
+            (Math::UnitRandom() * 
+                (mRotationSpeedRangeEnd - mRotationSpeedRangeStart)));
         
 	}
 	//-----------------------------------------------------------------------

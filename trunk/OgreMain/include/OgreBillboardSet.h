@@ -116,6 +116,8 @@ namespace Ogre {
         /// Flag indicating whether to autoextend pool
         bool mAutoExtendPool;
 
+        bool mFixedTextureCoords;
+
         typedef std::list<Billboard*> ActiveBillboardList;
         typedef std::deque<Billboard*> FreeBillboardQueue;
         typedef std::vector<Billboard*> BillboardPool;
@@ -452,6 +454,11 @@ namespace Ogre {
         /** Internal callback used by Billboards to notify their parent that they have been resized.
         */
         virtual void _notifyBillboardResized(void);
+
+        /** Notifies the billboardset that texture coordinates will be modified
+            for this set. */
+        virtual void _notifyBillboardTextureCoordsModified(void) {
+            mFixedTextureCoords = false; }
 
         /** Returns whether or not billbards in this are tested individually for culling. */
         virtual bool getCullIndividually(void);
