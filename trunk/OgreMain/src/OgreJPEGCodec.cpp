@@ -148,7 +148,7 @@ namespace Ogre {
         * loop counter, so that we don't have to keep track ourselves.
         */
         // Create array of row pointers for lib
-        uchar **rowPtr = new byte * [height];
+        uchar **rowPtr = new uchar * [height];
         for( unsigned i = 0; i < height; i++ )
             rowPtr[i] = &buffer[ i * rowspan ];
         unsigned rowsRead = 0;
