@@ -200,6 +200,10 @@ SOURCE=..\src\OgreInput.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\OgreJPEGCodec.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\OgreKeyFrame.cpp
 # End Source File
 # Begin Source File
@@ -233,6 +237,10 @@ SOURCE=..\src\OgreMatrix3.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreMatrix4.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreMemoryManager.cpp
 # End Source File
 # Begin Source File
 
@@ -289,6 +297,10 @@ SOURCE=..\src\OgrePlane.cpp
 # Begin Source File
 
 SOURCE=..\src\OgrePlatformManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgrePNGCodec.cpp
 # End Source File
 # Begin Source File
 
@@ -397,6 +409,10 @@ SOURCE=..\src\OgreTextureLayer.cpp
 # Begin Source File
 
 SOURCE=..\src\OgreTextureManager.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\OgreTGACodec.cpp
 # End Source File
 # Begin Source File
 
