@@ -133,7 +133,6 @@ namespace Ogre {
         vertex buffer which this index set uses.
         */
 
-        mVertexLookup.clear();
         mEdgeData = new EdgeData();
         // resize the edge group list to equal the number of vertex sets
         mEdgeData->edgeGroups.resize(mVertexDataList.size());
@@ -157,6 +156,9 @@ namespace Ogre {
         }
         // Stage 2, link edges
         connectEdges();
+
+        // Log
+        //log(LogManager::getSingleton().createLog("EdgeListBuilder.log"));
 
         return mEdgeData;
 
@@ -196,8 +198,11 @@ namespace Ogre {
 
         // Iterate over all the groups of 3 indexes
         Real* pReal;
+        // Get the triangle start, if we have more than one index set then this
+        // will not be zero
+        size_t triStart = mEdgeData->triangles.size();
         // Pre-reserve memory for less thrashing
-        mEdgeData->triangles.reserve(mEdgeData->triangles.size() + iterations);
+        mEdgeData->triangles.reserve(triStart + iterations);
         for (size_t t = 0; t < iterations; ++t)
         {
             EdgeData::Triangle tri;
@@ -226,25 +231,8 @@ namespace Ogre {
                 v[i].x = *pReal++;
                 v[i].y = *pReal++;
                 v[i].z = *pReal++;
-                // Try to find this vertex in the existing vertex map
-                CommonVertexMap::iterator iCommon;
-                iCommon = mVertexLookup.find(v[i]);
-                if (iCommon == mVertexLookup.end())
-                {
-                    // Not found, insert position, use current size as index, into lookup
-                    tri.sharedVertIndex[i] = mVertexLookup.size();
-                    mVertexLookup.insert(CommonVertexMap::value_type(v[i], tri.sharedVertIndex[i]));
-                    // Insert into common data list
-                    CommonVertex cv;
-                    cv.index = index[i];
-                    cv.position = v[i];
-                    cv.vertexSet = vertexSet;
-                    mVertices.push_back(cv);
-                }
-                else
-                {
-                    tri.sharedVertIndex[i] = iCommon->second;
-                }
+                // find this vertex in the existing vertex map, or create it
+                tri.sharedVertIndex[i] = findOrCreateCommonVertex(v[i], vertexSet);
             }
             // Calculate triangle normal (NB will require recalculation for 
             // skeletally animated meshes)
@@ -257,7 +245,7 @@ namespace Ogre {
             if (tri.sharedVertIndex[0] < tri.sharedVertIndex[1])
             {
                 // Set only first tri, the other will be completed in connectEdges
-                e.triIndex[0] = t;
+                e.triIndex[0] = triStart + t;
                 e.sharedVertIndex[0] = tri.sharedVertIndex[0];
                 e.sharedVertIndex[1] = tri.sharedVertIndex[1];
                 e.vertIndex[0] = tri.vertIndex[0];
@@ -267,7 +255,7 @@ namespace Ogre {
             if (tri.sharedVertIndex[1] < tri.sharedVertIndex[2])
             {
                 // Set only first tri, the other will be completed in connectEdges
-                e.triIndex[0] = t;
+                e.triIndex[0] = triStart + t;
                 e.sharedVertIndex[0] = tri.sharedVertIndex[1];
                 e.sharedVertIndex[1] = tri.sharedVertIndex[2];
                 e.vertIndex[0] = tri.vertIndex[1];
@@ -277,7 +265,7 @@ namespace Ogre {
             if (tri.sharedVertIndex[2] < tri.sharedVertIndex[0])
             {
                 // Set only first tri, the other will be completed in connectEdges
-                e.triIndex[0] = t;
+                e.triIndex[0] = triStart + t;
                 e.sharedVertIndex[0] = tri.sharedVertIndex[2];
                 e.sharedVertIndex[1] = tri.sharedVertIndex[0];
                 e.vertIndex[0] = tri.vertIndex[2];
@@ -292,6 +280,33 @@ namespace Ogre {
 
 
 
+    }
+    //---------------------------------------------------------------------
+    size_t EdgeListBuilder::findOrCreateCommonVertex(const Vector3& vec, size_t vertexSet)
+    {
+        // Iterate over existing list
+        CommonVertexList::iterator i, iend;
+        iend = mVertices.end();
+        size_t index = 0;
+        for (i = mVertices.begin(); i != iend; ++i, ++index)
+        {
+            const CommonVertex& commonVec = *i;
+
+            if (Math::RealEqual(vec.x, commonVec.position.x, 1e-04) && 
+                Math::RealEqual(vec.y, commonVec.position.y, 1e-04) && 
+                Math::RealEqual(vec.z, commonVec.position.z, 1e-04))
+            {
+                return index;
+            }
+
+        }
+        // Not found, insert
+        CommonVertex newCommon;
+        newCommon.index = mVertices.size();
+        newCommon.position = vec;
+        newCommon.vertexSet = vertexSet;
+        mVertices.push_back(newCommon);
+        return newCommon.index;
     }
     //---------------------------------------------------------------------
     void EdgeListBuilder::connectEdges(void)
@@ -417,6 +432,104 @@ namespace Ogre {
 
         // unlock the buffer
         positionBuffer->unlock();
+    }
+    //---------------------------------------------------------------------
+    void EdgeListBuilder::log(Log* l)
+    {
+        l->logMessage("EdgeListBuilder Log");
+        l->logMessage("-------------------");
+        l->logMessage("Number of vertex sets: " + StringConverter::toString(mVertexDataList.size()));
+        l->logMessage("Number of index sets: " + StringConverter::toString(mIndexDataList.size()));
+        
+        size_t i, j;
+        // Log original vertex data
+        for(i = 0; i < mVertexDataList.size(); ++i)
+        {
+            const VertexData* vData = mVertexDataList[i];
+            l->logMessage(".");
+            l->logMessage("Original vertex set " + 
+                StringConverter::toString(i) + " - vertex count " + 
+                StringConverter::toString(vData->vertexCount));
+            const VertexElement* posElem = vData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+            HardwareVertexBufferSharedPtr vbuf = 
+                vData->vertexBufferBinding->getBuffer(posElem->getSource());
+            // lock the buffer for reading
+            unsigned char* pBaseVertex = static_cast<unsigned char*>(
+                vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
+            Real* pReal;
+            for (j = 0; j < vData->vertexCount; ++j)
+            {
+                posElem->baseVertexPointerToElement(pBaseVertex, &pReal);
+                l->logMessage("Vertex " + StringConverter::toString(j) + 
+                    ": (" + StringConverter::toString(pReal[0]) + 
+                    ", " + StringConverter::toString(pReal[1]) + 
+                    ", " + StringConverter::toString(pReal[2]) + ")");
+                pBaseVertex += vbuf->getVertexSize();
+            }
+            vbuf->unlock();
+        }
+
+        // Log original index data
+        for(i = 0; i < mIndexDataList.size(); ++i)
+        {
+            const IndexData* iData = mIndexDataList[i];
+            l->logMessage(".");
+            l->logMessage("Original index set " + 
+                StringConverter::toString(i) + " - index count " + 
+                StringConverter::toString(iData->indexCount) + " - " + 
+            "vertex set " + StringConverter::toString(mIndexDataVertexDataSetList[i]));
+            // Get the indexes ready for reading
+            unsigned short* p16Idx;
+            unsigned int* p32Idx;
+
+            if (iData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+            {
+                p32Idx = static_cast<unsigned int*>(
+                    iData->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+            }
+            else
+            {
+                p16Idx = static_cast<unsigned short*>(
+                    iData->indexBuffer->lock(HardwareBuffer::HBL_READ_ONLY));
+            }
+
+            for (j = 0; j < iData->indexCount; ++j)
+            {
+                if (iData->indexBuffer->getType() == HardwareIndexBuffer::IT_32BIT)
+                {
+                    l->logMessage("Index " + StringConverter::toString(j) + 
+                        ": (" + StringConverter::toString(*p32Idx++) + 
+                        ", " + StringConverter::toString(*p32Idx++) + 
+                        ", " + StringConverter::toString(*p32Idx++) + ")");
+                }
+                else
+                {
+                    l->logMessage("Index " + StringConverter::toString(j) + 
+                        ": (" + StringConverter::toString(*p16Idx++) + 
+                        ", " + StringConverter::toString(*p16Idx++) + 
+                        ", " + StringConverter::toString(*p16Idx++) + ")");
+                }
+
+
+            }
+
+            iData->indexBuffer->unlock();
+
+
+            // Log common vertex list
+            l->logMessage(".");
+            l->logMessage("Common vertex list - vertex count " + 
+                StringConverter::toString(mVertices.size()));
+            for (i = 0; i < mVertices.size(); ++i)
+            {
+                CommonVertex& c = mVertices[i];
+                l->logMessage("Common vertex " + StringConverter::toString(i) + 
+                    ": (vertexSet=" + StringConverter::toString(c.vertexSet) + 
+                    ", originalIndex=" + StringConverter::toString(c.index) + 
+                    ", position=" + StringConverter::toString(c.position));
+            }
+        }
+
     }
 
 
