@@ -720,8 +720,8 @@ namespace Ogre {
         ProfileHistoryList::iterator iter;
         for (iter = mProfileHistory.begin(); iter != mProfileHistory.end(); ++iter) {
         
-            (*iter).currentTime = (*iter).maxTime = (*iter).numCallsThisFrame =
-                (*iter).totalTime = (*iter).totalCalls = 0;
+            (*iter).currentTime = (*iter).maxTime = (*iter).totalTime = 0;
+            (*iter).numCallsThisFrame = (*iter).totalCalls = 0;
 
             (*iter).minTime = 1;
 

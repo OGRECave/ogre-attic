@@ -32,15 +32,16 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------------
     AutoParamDataSource::AutoParamDataSource()
-        : mCurrentRenderable(NULL), mCurrentCamera(NULL), 
-         mWorldMatrixDirty(true),
+        : mWorldMatrixDirty(true),
          mWorldViewMatrixDirty(true),
          mWorldViewProjMatrixDirty(true),
          mInverseWorldMatrixDirty(true),
          mInverseWorldViewMatrixDirty(true),
          mInverseViewMatrixDirty(true),
          mCameraPositionObjectSpaceDirty(true),
-         mLightListDirty(true)
+         mLightListDirty(true),
+         mCurrentRenderable(NULL),
+         mCurrentCamera(NULL)
     {
         mBlankLight.setDiffuseColour(ColourValue::Black);
         mBlankLight.setSpecularColour(ColourValue::Black);
