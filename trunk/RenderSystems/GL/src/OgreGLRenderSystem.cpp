@@ -506,6 +506,13 @@ namespace Ogre {
         {
             mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
         }
+		
+		// Check for 3D textures
+		if(mGLSupport->checkExtension("GL_EXT_texture3D"))
+        {
+            mCapabilities->setCapability(RSC_TEXTURE_3D);
+        }
+		
 
 		// Check for GLSupport specific extensions
 		mGLSupport->initialiseCapabilities(*mCapabilities);

@@ -135,6 +135,9 @@ namespace Ogre {
         pLog->logMessage(
             " * Non-power-of-two textures: " 
             + StringConverter::toString(hasCapability(RSC_NON_POWER_OF_2_TEXTURES), true));
+		pLog->logMessage(
+            " * Volume textures: " 
+            + StringConverter::toString(hasCapability(RSC_TEXTURE_3D), true));
 
 
     }
