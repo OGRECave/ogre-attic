@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __SceneQuery_H__
 #define __SceneQuery_H__
 
+#include "OgrePrerequisites.h"
+
 namespace Ogre {
 
     typedef std::list<MovableObject*> SceneQueryResultMovableList;
@@ -78,8 +80,9 @@ namespace Ogre {
     class _OgreExport SceneQuery
     {
     protected:
-        SceneQueryResults* mLastResult;
+        SceneQueryResult* mLastResult;
         SceneManager* mParentSceneMgr;
+        unsigned long mQueryMask;
     
     public:
         /** Standard constructor, should be called by SceneManager. */
@@ -110,6 +113,19 @@ namespace Ogre {
             results itself when executing and when destroying itself.
         */
         virtual void clearResults(void);
+
+        /** Sets the mask for results of this query.
+        @remarks
+            This method allows you to set a 'mask' to limit the results of this
+            query to certain types of result. The actual meaning of this value is
+            up to the application; basically MovableObject instances will only be returned
+            from this query if a bitwise AND operation between this mask value and the
+            MovableObject::getQueryFlags value is non-zero. The application will
+            have to decide what each of the bits means.
+        */
+        virtual void setQueryMask(unsigned long mask);
+        /** Returns the current mask for this query. */
+        virtual unsigned long getQueryMask(void);
 
         
     };

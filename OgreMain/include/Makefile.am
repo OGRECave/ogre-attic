@@ -119,6 +119,7 @@ OgreSDDataChunk.h \
 OgreSceneManager.h \
 OgreSceneManagerEnumerator.h \
 OgreSceneNode.h \
+OgreSceneQuery.h \
 OgreSerializer.h \
 OgreSimpleRenderable.h \
 OgreSimpleSpline.h \
