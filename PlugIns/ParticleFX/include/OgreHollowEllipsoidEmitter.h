@@ -39,7 +39,7 @@ namespace Ogre {
         is the angle across which to scatter the particles either side of the
         base direction of the emitter. 
     */
-    class HollowEllipsoidEmitter : public EllipsoidEmitter
+    class _OgreParticleFXExport HollowEllipsoidEmitter : public EllipsoidEmitter
     {
     public:
         /** Command object for inner size (see ParamCommand).*/

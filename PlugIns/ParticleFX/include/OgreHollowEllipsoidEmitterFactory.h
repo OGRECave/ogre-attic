@@ -36,7 +36,7 @@ namespace Ogre {
     @remarks
         Creates instances of HollowEllipsoidEmitter to be used in particle systems. 
     */
-    class HollowEllipsoidEmitterFactory : public ParticleEmitterFactory
+    class _OgreParticleFXExport HollowEllipsoidEmitterFactory : public ParticleEmitterFactory
     {
     protected:
 

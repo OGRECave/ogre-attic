@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     /** Factory class for ColourFaderAffector. */
-    class ColourFaderAffectorFactory : public ParticleAffectorFactory
+    class _OgreParticleFXExport ColourFaderAffectorFactory : public ParticleAffectorFactory
     {
         /** See ParticleAffectorFactory */
         String getName() { return "ColourFader"; }
