@@ -51,6 +51,7 @@ void exportSceneManager()
         .def("setSkyPlane", &SceneManager::setSkyPlane)
         .def("setSkyDome", &SceneManager::setSkyDome)
         .def("setWorldGeometry", &SceneManager::setWorldGeometry)
+        .def("setFog", &SceneManager::setFog)
     ;
 }
 

@@ -12,6 +12,13 @@ void exportEnums()
         .value("ST_INTERIOR", ST_INTERIOR)
     ;
 
+    enum_<FogMode>("FogMode")
+        .value("FOG_NONE", FOG_NONE)
+        .value("FOG_EXP", FOG_EXP)
+        .value("FOG_EXP2", FOG_EXP2)
+        .value("FOG_LINEAR", FOG_LINEAR)
+    ;
+
     enum_<LayerBlendOperation>("LayerBlendOperation")
         .value("LBO_REPLACE", LBO_REPLACE)
         .value("LBO_ADD", LBO_ADD)
