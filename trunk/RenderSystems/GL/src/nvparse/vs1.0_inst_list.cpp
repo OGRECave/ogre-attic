@@ -7,6 +7,7 @@
 #include "nvparse_externs.h"
 #include <string.h>
 #include <GL/glu.h>
+#include <OgreGLPrerequisites.h>
 
 using namespace std;
 
@@ -169,7 +170,7 @@ namespace
 		const GLubyte *errString;
 		
 		int len = strlen(instring);
-		glLoadProgramNV( target, id, len, (const GLubyte *) instring );
+		glLoadProgramNV_ptr( target, id, len, (const GLubyte *) instring );
 		if ( (errCode = glGetError()) != GL_NO_ERROR )
 		{
 			errString = gluErrorString( errCode );
