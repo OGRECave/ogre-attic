@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonSerializer.h"
 #include "OgreDataChunk.h"
 #include "OgreXMLPrerequisites.h"
+#include "OgreDefaultHardwareBufferManager.h"
 #include <iostream>
 #include <sys/stat.h>
 
@@ -66,6 +67,7 @@ MeshSerializer* meshSerializer;
 XMLMeshSerializer* xmlMeshSerializer;
 SkeletonSerializer* skeletonSerializer;
 XMLSkeletonSerializer* xmlSkeletonSerializer;
+DefaultHardwareBufferManager *bufferManager;
 
 
 void meshToXML(String source, String dest)
@@ -236,6 +238,7 @@ int main(int numargs, char** args)
     xmlMeshSerializer = new XMLMeshSerializer();
     skeletonSerializer = new SkeletonSerializer();
     xmlSkeletonSerializer = new XMLSkeletonSerializer();
+    bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
 
 
 
@@ -262,6 +265,7 @@ int main(int numargs, char** args)
 
     
 
+    delete bufferManager;
     delete xmlSkeletonSerializer;
     delete skeletonSerializer;
     delete xmlMeshSerializer;
