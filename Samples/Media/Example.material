@@ -383,3 +383,41 @@ Examples/10PointBlock
 	}
 
 }
+
+// -- This section deals with materials for really old meshes
+// -- Embedded material definitions has been removed from 1.1 mesh format
+
+// Razor
+Material__25
+{
+	{
+		texture texmap2.jpg
+	}
+}
+// Knot
+2 - Default
+{
+	{
+		texture MTLPLAT2.JPG
+	}
+}
+// Dragon
+Material #8
+{
+	{
+		texture BODY.jpg
+	}
+}
+Material #3
+{
+	{
+		texture HEAD4.jpg
+	}
+}
+Material #9
+{
+	{
+		texture LEGS.jpg
+	}
+}
+
