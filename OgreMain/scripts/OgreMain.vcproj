@@ -36,12 +36,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libz.lib libpng.lib libjpeg.lib libfreetype.lib"
+				AdditionalDependencies="zlib.lib libpng.lib jpeglib.lib freetype.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\Dependencies\lib"
+				AdditionalLibraryDirectories="..\..\Dependencies\lib\Debug"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/OgreMain.pdb"
 				SubSystem="2"
@@ -57,10 +57,7 @@
 				Name="VCPreBuildEventTool"/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				Description="Building external libraries"
-				CommandLine="cd ..\..\Dependencies
-makeall_vc7.bat
-"/>
+				Description="Building external libraries"/>
 			<Tool
 				Name="VCResourceCompilerTool"/>
 			<Tool
@@ -86,7 +83,7 @@ makeall_vc7.bat
 				OmitFramePointers="TRUE"
 				EnableFiberSafeOptimizations="TRUE"
 				OptimizeForProcessor="2"
-				AdditionalIncludeDirectories="..\include;..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Dependencies\zlib\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OGREMAIN_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -101,12 +98,12 @@ makeall_vc7.bat
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libz.lib libpng.lib libjpeg.lib libfreetype.lib"
+				AdditionalDependencies="zlib.lib libpng.lib jpeglib.lib freetype.lib"
 				OutputFile="$(OutDir)/OgreMain.dll"
 				Version="0.99"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\Dependencies\lib"
+				AdditionalLibraryDirectories="..\..\Dependencies\lib\Release"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -122,11 +119,7 @@ makeall_vc7.bat
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCPreLinkEventTool"
-				Description="Building external libraries"
-				CommandLine="cd ..\..\Dependencies
-makeall_vc7.bat
-"/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"/>
 			<Tool
