@@ -1,26 +1,6 @@
 include "ogre/lib/ogreSkeletonLib_usefulfns.ms"
 
 -----------------------------------------------------------------------------
--- check if the bone is the root object of the biped
------------------------------------------------------------------------------
-function isPelvis bipObj =
-(
-	if (bipObj == undefined) then return false ;
-	if (classof bipObj != Biped_Object) then return false;
-	return ((biped.getNode bipObj 13) == bipObj) ;
-)
-
------------------------------------------------------------------------------
--- check if the bone is the footstep object of the biped
------------------------------------------------------------------------------
-function isFootStep bipObj =
-(
-	if (bipObj == undefined) then return false ;
-	if (classof bipObj != Biped_Object) then return false;
-	return ((biped.getNode bipObj 16) == bipObj) ;
-)
-
------------------------------------------------------------------------------
 -- gets  keyframes from the controllers animation
 -----------------------------------------------------------------------------
 function getTimeList obj firstframe lastframe samplerate IKsamplerate =
@@ -150,7 +130,7 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 	-- gets initial transform at frame 0f
 	at time 0f (
 		initTform = d.transform ;
-		if (not isRootUniversal d) then (
+		if (not isRootUniversal2 d) then (
 			mparent = d.parent.transform ;
 			initTform = initTform*inverse(mparent) ;
 		)
@@ -173,7 +153,7 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 		-- First, rotation which depends on initial transformation
 			Tform = d.transform ;
 			-- if this is the pelvis
-			if (isRootUniversal d) then (
+			if (isRootUniversal2 d) then (
 				mparent = matrix3 1 ;
 				-- if flipYZ == true
 				if (flipYZ) then
@@ -196,7 +176,7 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 			Tform=Tform*inverse(mparent) ;
 			
 			-- if this is the root bone and flipYZ == true
-			if (isRootUniversal d and flipYZ) then (
+			if (isRootUniversal2 d and flipYZ) then (
 				Tform = flipYZTransform Tform ;
 			)
 			
@@ -236,6 +216,7 @@ function writeTrack bone_name boneId firstframe lastframe samplerate IKsamplerat
 -- List of bones in the hierarchy
 -------------------------------------
 global BonesList=#()
+global RootsList=#()
 
 -------------------------------------
 -- helper functions to build skeleton
@@ -244,18 +225,18 @@ global BonesList=#()
 -----------------------------------------------------------------
 -- recursive function to build the list of bones for the skeleton
 -----------------------------------------------------------------
-function computeBList b =
+function computeBList b sk phy exportHelpers =
 (
 	bname = b ;
 	bone = execute ("$" + bname) ;
 	if (findItem BonesList bname == 0) then
-		if (isKindOf bone BoneGeometry or iskindOf bone Biped_Object) then
+		if (isKindOf bone BoneGeometry or iskindOf bone Biped_Object or (exportHelpers and (isPartOfModifier bone sk phy)) ) then
 			append BonesList bname ;
 	childrenArray = bone.children ;
 	for i=1 to childrenArray.count do
 	(
-        if (isKindOf bone BoneGeometry or iskindOf bone Biped_Object) then
-			computeBList (replaceSpaces childrenArray[i].name);
+        if (isKindOf bone BoneGeometry or iskindOf bone Biped_Object or (exportHelpers and (isPartOfModifier bone sk phy))) then
+			computeBList (replaceSpaces childrenArray[i].name) sk phy exportHelpers;
 	)
 )
 
@@ -290,7 +271,7 @@ function addHelpersToHierarchy phy sk =
 -----------------------------------------------------------------
 -- find the root(s) of the rhierarchy
 -----------------------------------------------------------------
-function getHierarchyRoots phy sk =
+function getHierarchyRoots phy sk exportHelpers =
 (
 	local rootstab=#();
 	
@@ -302,7 +283,7 @@ function getHierarchyRoots phy sk =
 			replaceSpaces bname ;
 			d = execute ("$" + bname) ;
 		
-			while (d.parent!=undefined and (iskindof d.parent BoneGeometry or iskindOf d.parent Biped_Object)) do
+			while (d.parent!=undefined and (iskindof d.parent BoneGeometry or iskindOf d.parent Biped_Object or (exportHelpers and (isPartOfModifier d.parent sk phy)) )) do
 			(
 				d = d.parent
 			)
@@ -318,7 +299,7 @@ function getHierarchyRoots phy sk =
 			)
 			if trouve==0 then
 			(
-				if (iskindof d BoneGeometry or iskindOf d Biped_Object) then
+				if (iskindof d BoneGeometry or iskindOf d Biped_Object or (exportHelpers and (isPartOfModifier d sk phy)) ) then
 				(
 					if (not g_MAX) then
 						format("new root bone \"%\"\n") (replaceSpaces d.name) ;
@@ -335,7 +316,7 @@ function getHierarchyRoots phy sk =
 			replaceSpaces bname ;
 			d = execute ("$" + bname) ;
 		
-			while (d.parent!=undefined and (iskindof d.parent BoneGeometry or iskindOf d.parent Biped_Object)) do
+			while (d.parent!=undefined and (iskindof d.parent BoneGeometry or iskindOf d.parent Biped_Object  or (exportHelpers and (isPartOfModifier d.parent sk phy)) )) do
 			(
 				d = d.parent
 			)
@@ -351,7 +332,7 @@ function getHierarchyRoots phy sk =
 			)
 			if trouve==0 then
 			(
-				if (iskindof d BoneGeometry or iskindOf d Biped_Object) then
+				if (iskindof d BoneGeometry or iskindOf d Biped_Object or (exportHelpers and (isPartOfModifier d sk phy))) then
 				(
 					if (not g_MAX) then
 						format("new root bone \"%\"\n") (replaceSpaces d.name) ;
@@ -367,18 +348,18 @@ function getHierarchyRoots phy sk =
 -----------------------------------------------------------------
 -- function to build the list of bones for the skeleton
 -----------------------------------------------------------------
-function computeBonesList phy sk =
+function computeBonesList phy sk exportHelpers =
 (
-	rootnodes = getHierarchyRoots phy sk ;	-- find the roots of the current hierarchy
-	print rootsnode
-	for b in rootnodes do
+	RootsList = getHierarchyRoots phy sk exportHelpers;	-- find the roots of the current hierarchy
+	print RootsList;
+	for b in RootsList do
 	(
-		computeBList b;
+		computeBList b sk phy exportHelpers;
 	)
 	
 	-- add the nodes that are parts of the skin (or physique) modifier but are neither biped_object nor standard bones
 	-- only helpers (Point, Dummy) at the moment...
-	addHelpersToHierarchy phy sk ;
+	-- addHelpersToHierarchy phy sk ;
 )
 
 ------------------
@@ -396,14 +377,14 @@ function writeB bone_name id scale flipYZ outFile =
 
 	slidertime = 0f ;
 	Tform = d.transform ;
-	if (not isRootUniversal d) then (
+	if (not isRootUniversal2 d) then (
 		mparent = d.parent.transform ;
 		Tform = Tform*inverse(mparent) ;
 	)
 	
 	Tform.pos = Tform.pos * scale ;
 		
-	if ((isRootUniversal d) and flipYZ) then (
+	if ((isRootUniversal2 d) and flipYZ) then (
 		if (not g_MAX) then
 			format "- Flipping root... \n" ;
 		Tform = flipYZTransform Tform ;
@@ -429,12 +410,14 @@ function writeB bone_name id scale flipYZ outFile =
 -----------------------------
 -- write Bones (using writeB)
 -----------------------------
-function writeBones phy sk scale flipYZ outFile =
+function writeBones phy sk scale flipYZ exportHelpers outFile =
 (
 	local i ;
 	
+	OgreExportObject.exportProgress.value = 0;
+
 	if (BonesList.count == 0) then
-		computeBonesList phy sk ;
+		computeBonesList phy sk exportHelpers;
 	
 	format("\t<bones>\n") to:outFile;
 	
@@ -442,10 +425,14 @@ function writeBones phy sk scale flipYZ outFile =
 	
 	for i=1 to BonesList.count do
 	(
+		OgreExportObject.exportProgress.value = (100.0*i/BonesList.count);
+
 		writeB BonesList[i] i scale flipYZ outFile ;
 	)	
 	
 	format("\t</bones>\n") to:outFile;
+	
+	OgreExportObject.exportProgress.value = 100;
 )
 
 --------------------------
@@ -453,7 +440,7 @@ function writeBones phy sk scale flipYZ outFile =
 --------------------------
 function writeH b outFile =
 (
-	if (not isRootUniversal b) then
+	if (not isRootUniversal2 b) then
 	(
 		p = b.parent ;
 		format("\t\t<boneparent bone=\"%\" parent=\"%\" />\n") (replaceSpaces b.name) (replaceSpaces p.name) to:outFile ;
@@ -462,16 +449,22 @@ function writeH b outFile =
 
 function writeHierarchy outFile =
 (
+	OgreExportObject.exportProgress.value = 0;
+
 	local bname,pelvis
 	format("\t<bonehierarchy>\n") to:outFile ;
 
 	for i=1 to BonesList.count do
 	(
+		OgreExportObject.exportProgress.value = (100.0*i/BonesList.count);
+
 		b = execute ("$" + (replaceSpaces BonesList[i])) ;
 		writeH b outFile ;	
 	)
 
 	format("\t</bonehierarchy>\n") to:outFile ;
+	
+	OgreExportObject.exportProgress.value = 100;
 )
 
 -----------------------
@@ -480,6 +473,8 @@ function writeHierarchy outFile =
 function writeAnim Anims samplerate IKsamplerate scale flipYZ outFile =
 (
 	local i,n ;
+	
+	OgreExportObject.exportProgress.value = 0;
 	
 	format("\t<animations>\n") to: outFile ;
 	
@@ -490,13 +485,19 @@ function writeAnim Anims samplerate IKsamplerate scale flipYZ outFile =
 		
 		n = BonesList.count ;
 		for i = 1 to n do
+		(
+			OgreExportObject.exportProgress.value = (100.0*i/BonesList.count)/Anims.names.count;
+
 			writeTrack BonesList[i] i Anims.startframes[anm] Anims.endframes[anm] samplerate IKsamplerate Anims.lengths[anm] scale flipYZ outFile ;
+		)
 	
 		format("\t\t\t</tracks>\n") to:outFile					
 		format("\t\t</animation>\n") to: outFile ;
 	)
 	
 	format("\t</animations>\n") to: outFile ;
+
+	OgreExportObject.exportProgress.value = 100;
 )
 
 -------------------------------------------------------------
@@ -551,7 +552,7 @@ function writeSkeleton pmesh exportOptions Anims out_name =
 	
 		if (not g_MAX) then
 			format "Writing bones :\n" ;
-		writeBones phy sk exportOptions.scale exportOptions.flipYZ outFile ;
+		writeBones phy sk exportOptions.scale exportOptions.flipYZ exportOptions.exportHelpers outFile ;
 
 		if (not g_MAX) then
 			format "Writing bone hierarchy.\n" ;
