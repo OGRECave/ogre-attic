@@ -198,7 +198,7 @@ namespace Ogre
 
 
         // Locate ttf file
-        DataChunk ttfchunk;
+        SDDataChunk ttfchunk;
         FontManager::getSingleton()._findResourceData(mSource, ttfchunk);
         // Load font
         if( FT_New_Memory_Face( ftLibrary, ttfchunk.getPtr(), (FT_Long)ttfchunk.getSize() , 0, &face ) )

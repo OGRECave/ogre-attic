@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
 #include "OgreString.h"
+#include "OgreSDDataChunk.h"
 
 
 namespace Ogre {
@@ -139,9 +140,9 @@ namespace Ogre {
 
         // Iterate through returned files
         std::set<String>::iterator i;
-        DataChunk chunk;
         for (i = particleFiles.begin(); i != particleFiles.end(); ++i)
         {
+            SDDataChunk chunk;
             LogManager::getSingleton().logMessage("Parsing particle script " + *i);
             ResourceManager::_findCommonResourceData(*i, chunk);
             parseScript(chunk);
