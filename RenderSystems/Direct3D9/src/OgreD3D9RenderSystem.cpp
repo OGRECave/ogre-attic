@@ -466,26 +466,6 @@ namespace Ogre
 		// call superclass method
 		RenderSystem::initialise( autoCreateWindow );
 
-		LogManager::getSingleton().logMessage(
-            "The following capabilities are available:");
-
-        // Check for hardware stencil support
-		LPDIRECT3DSURFACE9 pSurf;
-		D3DSURFACE_DESC surfDesc;
-		mpD3DDevice->GetDepthStencilSurface(&pSurf);
-		pSurf->GetDesc(&surfDesc);
-
-		if (surfDesc.Format == D3DFMT_D24S8)
-        {
-            LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
-            mCapabilities->setCapability(RSC_HWSTENCIL);
-		    // Actually, it's always 8-bit
-            mCapabilities->setStencilBufferBitDepth(8);
-
-        }
-
-        // Set number of texture units
-        mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
 
 
 		return autoWindow;
@@ -558,6 +538,8 @@ namespace Ogre
 	RenderWindow* D3D9RenderSystem::createRenderWindow( const String &name, int width, int height, int colourDepth,
 		bool fullScreen, int left, int top, bool depthBuffer, RenderWindow* parentWindowHandle)
 	{
+		static bool firstWindow = true;
+		
 		OgreGuard( "D3D9RenderSystem::createRenderWindow" );
 
 		String msg;
@@ -584,8 +566,8 @@ namespace Ogre
 
 		attachRenderTarget( *win );
 
-		// If this is the parent window, get the D3D device and create the texture manager
-		if( NULL == parentWindowHandle )
+		// If this is the first window, get the D3D device and create the texture manager
+		if( firstWindow )
 		{
 			win->getCustomAttribute( "D3DDEVICE", &mpD3DDevice );
 			// get caps
@@ -595,6 +577,30 @@ namespace Ogre
 			mTextureManager = new D3D9TextureManager( mpD3DDevice );
             // Also create hardware buffer manager
             mHardwareBufferManager = new D3D9HardwareBufferManager(mpD3DDevice);
+
+			LogManager::getSingleton().logMessage(
+				"The following capabilities are available:");
+
+			// Check for hardware stencil support
+			LPDIRECT3DSURFACE9 pSurf;
+			D3DSURFACE_DESC surfDesc;
+			mpD3DDevice->GetDepthStencilSurface(&pSurf);
+			pSurf->GetDesc(&surfDesc);
+
+			if (surfDesc.Format == D3DFMT_D24S8)
+			{
+				LogManager::getSingleton().logMessage("- Hardware Stencil Buffer");
+				mCapabilities->setCapability(RSC_HWSTENCIL);
+				// Actually, it's always 8-bit
+				mCapabilities->setStencilBufferBitDepth(8);
+
+			}
+
+			// Set number of texture units
+			mCapabilities->setNumTextureUnits(mCaps.MaxSimultaneousTextures);
+
+			firstWindow = false;
+			
 		}
 
 		OgreUnguardRet( win );

@@ -183,8 +183,6 @@ namespace Ogre {
             Root::getSingleton().setRenderSystem(this);
 		*/
 
-        // Init mesh manager
-        MeshManager::getSingleton()._initialise();
 
         // Subclasses should take it from here
         // They should ALL call this superclass method from

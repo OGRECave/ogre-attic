@@ -609,6 +609,9 @@ namespace Ogre {
             mFontManager->parseAllSources();
             // init overlays
             mOverlayManager->parseAllSources();
+			// Init mesh manager
+			MeshManager::getSingleton()._initialise();
+
             firstOne = false;
         }
 
