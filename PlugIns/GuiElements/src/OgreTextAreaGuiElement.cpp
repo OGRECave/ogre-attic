@@ -94,13 +94,6 @@ namespace Ogre {
 
         mRenderOp.numVertices = charlen * 6;
 
-        if (mCaption.substr(0,3) == "#TR")
-        {
-            char msg[30];
-            sprintf(msg, "%u", charlen);
-            LogManager::getSingleton().logMessage(msg);
-        }
-
         pVert = mRenderOp.pVertices;
         pTex = mRenderOp.pTexCoords[ 0 ];
 
