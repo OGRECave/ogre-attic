@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __XSIHELPER_H__
 
 #include <xsi_string.h>
+#include <xsi_vertexcolor.h>
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
 
@@ -71,5 +72,23 @@ inline XSI::CString OgretoXSI(const Ogre::String& str)
 
     return ret;
 }
+
+inline Ogre::Vector3 XSItoOgre(const XSI::MATH::CVector3& xsiVec)
+{
+    return Ogre::Vector3(xsiVec.GetX(), xsiVec.GetY(), xsiVec.GetZ());
+}
+
+inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
+{
+    Ogre::uint32 ret = 0;
+    ret += xsiColour.a << 24;
+    ret += xsiColour.r << 16;
+    ret += xsiColour.g << 8;
+    ret += xsiColour.b;
+
+    return ret;
+
+}
+
 #endif
 

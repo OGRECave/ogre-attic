@@ -26,6 +26,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __XSIMESHEXPORTER_H__
 
 #include "OgrePrerequisites.h"
+#include "OgreVector2.h"
+#include "OgreVector3.h"
+#include "OgreColourValue.h"
 #include "OgreMesh.h"
 #include "OgreHardwareBufferManager.h"
 #include <xsi_x3dobject.h>
@@ -70,6 +73,74 @@ namespace Ogre {
 
         // XSI Objects
         XSI::Application mXsiApp;
+        /** This struct represents a unique vertex, identified from a unique 
+        combination of components.
+        */
+        class UniqueVertex
+        {
+        public:
+            bool initialised;
+            Vector3 position;
+            Vector3 normal;
+            Vector2 uv[OGRE_MAX_TEXTURE_COORD_SETS];
+            RGBA colour;
+            // The index of the next component with the same base details
+            // but with some variation
+            size_t nextIndex;
+
+            UniqueVertex();
+            bool operator==(const UniqueVertex& rhs) const;
+
+        };
+        typedef std::vector<UniqueVertex> UniqueVertexList;
+        // unique vertex list
+        UniqueVertexList mUniqueVertices;
+        // dynamic index list; 32-bit until we know the max vertex index
+        typedef std::vector<size_t> IndexList;
+        IndexList mIndices;
+
+
+        /** Starts processing of a polygon mesh. 
+        @remarks
+            This clears the mUniqueVertices and mIndices collections and re-populates 
+            mUniqueVertices with as many initialised entries as are contained 
+            in the original position list. There must be at least this many vertices in the
+            mesh, or more if there are discontinuities in the normal or UV
+            data etc.
+        @note must be called before first createOrRetrieveUniqueVertex for 
+            each PolygonMesh
+        */
+        void startPolygonMesh(size_t origPositionCount, size_t indexCount);
+
+
+        /** Try to look up an existing vertex with the same information, or
+            create a new one.
+        @remarks
+            The routine is mastered on the original position index, since positions
+            are the most basic variant data in a vertex. If the vertex at that
+            index is uninitialised, then the data is simply populated. If it is
+            initialised, then the values are compared. If any of the components
+            disagree, then the value of nextIndex is examined. If zero, then 
+            a new vertex is created at the end of the list, and the nextIndex
+            value set. If it's non-zero, then that indexed vertex is looked up
+            and compared again. This continues until a matching vertex is found
+            or nextIndex is zero, in which case a new vertex is created.
+        @par
+            Note that this re-uses as many vertices as possible, and also places
+            every unique vertex in it's final index in one pass, so the return value
+            from this method can be used as an adjusted vertex index.
+        @returns The index of the unique vertex
+        */
+        size_t createOrRetrieveUniqueVertex(size_t originalPositionIndex, 
+            const UniqueVertex& vertex);
+
+        /** Templatised method for writing indexes */
+        template <typename T> void writeIndexes(T* buf);
+
+        /** Create and fill a vertex buffer */
+        void createVertexBuffer(VertexData* vd, unsigned short bufIdx);
+
+
 
 
     };
