@@ -38,6 +38,12 @@ namespace Ogre
     //-----------------------------------------------------------------------
     MeshManager::MeshManager()
     {
+
+
+    }
+    //-----------------------------------------------------------------------
+    void MeshManager::_initialise(void)
+    {
         // Create prefab objects
         // PLANE
         Mesh* msh = (Mesh*)create("Prefab_Plane");
@@ -111,8 +117,6 @@ namespace Ogre
         sub->numFaces = 2;
 
         mResources[msh->getName()] = msh;
-
-
 
     }
     //-----------------------------------------------------------------------
