@@ -2,7 +2,6 @@
 ===============================================================================
 This source file is part of the Ogre-Maya Tools.
 Distributed as part of Ogre (Object-oriented Graphics Rendering Engine).
-Copyright © 2003 Fifty1 Software Inc. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -35,7 +34,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <maya/MItDependencyGraph.h>
 #include <maya/MItDag.h>
 
+#include <iostream>
+
 namespace OgreMaya {
+
+	using namespace std;
 
 	//	--------------------------------------------------------------------------
 	/** Standard constructor. Creates Ogre MaterialManger and defines known options.
@@ -67,7 +70,7 @@ namespace OgreMaya {
         {            
             // export
             
-            ofstream out(OPTIONS.outMatFile.c_str());
+			ofstream out(OPTIONS.outMatFile.c_str());
 
             out.precision(5);
             out.setf(ios::fixed);

@@ -2,7 +2,6 @@
 ===============================================================================
 This source file is part of the Ogre-Maya Tools.
 Distributed as part of Ogre (Object-oriented Graphics Rendering Engine).
-Copyright © 2003 Fifty1 Software Inc. 
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
@@ -34,9 +33,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <maya/MItDependencyGraph.h>
 #include <maya/MItDag.h>
 
+#include <iostream>
+
 void showHelp();
 
 using namespace OgreMaya;
+using namespace std;
 
 int main(int argc, char *argv[]) {
 
@@ -97,14 +99,17 @@ int main(int argc, char *argv[]) {
 
 	    
 	    // --- Mesh	    
-		cout << "Exporting mesh...\n";	
-		bStatus = meshGen.exportAll();
-		if (!bStatus) {
-			cout << "\tMeshGenerator::exportAll() failed!\n";
-			return -4;
+	    if (OPTIONS.exportMesh) {
+			cout << "Exporting mesh...\n";	
+			bStatus = meshGen.exportAll();
+			if (!bStatus) {
+				cout << "\tMeshGenerator::exportAll() failed!\n";
+				return -4;
+			}
 		}
 
-        // --- Material		
+
+		// --- Material		
 
         if(OPTIONS.exportMaterial) {
             cout << "Exporting material...\n";	
@@ -129,7 +134,7 @@ void showHelp()
     cout << "                 [-mat FILE] [-mprefix PREFIX] [-m]\n";
     cout << "                 [-n] [-c] [-t]\n\n";
 	cout << " -in      FILE   input mb File\n";
-    cout << " -mesh    FILE   userdefined mesh file name\n";
+    cout << " -mesh    FILE   export mesh using user defined file name\n";
     cout << " -skel    FILE   export skeleton using user defined file name\n";
     cout << " -s              export skeleton using default file name\n";
     cout << " -anim    NAME   export Animation beginning at START and ending\n";
@@ -142,4 +147,6 @@ void showHelp()
     cout << " -n              export normals\n";
     cout << " -c              export diffuse colours\n";
     cout << " -t              export texture coords\n";    
+    cout << " -vba            export vertex bone assignments\n";    
+
 }
