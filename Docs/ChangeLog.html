@@ -84,6 +84,67 @@ CODE.str {
 <p align="center" class="header">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p align="center" class="header">Change Log</p>
+<p align="left" class="MainHeader">v0.15.1 [Hastur] (28 November 2004)
+-
+Maintenance Release<br>
+</p>
+<p align="left">Bugfixes:<br>
+</p>
+<ul>
+  <li>Particle system performance improved</li>
+  <li>Blender exporter fixes &amp; enhancements:</li>
+  <ul>
+    <li>vertex colours supported</li>
+    <li>initial bone rotation bug fixed</li>
+    <li>location keyframe export bug fixed<br>
+    </li>
+  </ul>
+  <li>3DS Max exporter fixes and enhancements<br>
+(Note you must completely delete your existing exporter files and add
+the new 'Ogre Exporter' button to your interface)<br>
+  </li>
+  <ul>
+    <li>Smoothing groups now work correctly</li>
+    <li>Bones without any vertices assignements will be exported
+correctly</li>
+    <li>Biped export is now automatic and is fixed up<br>
+    </li>
+    <li>Specify edge list precalculation, tangent vector precalculation
+(normal mapping) and LOD generation</li>
+    <li>Multiple UV channels supported</li>
+    <li>Multiple animation support</li>
+    <li>IK sampling (experimental)</li>
+  </ul>
+  <li>Lightwave exporter now compatible with 0.15<br>
+  </li>
+  <li>Removing texture effects did not remove properly controllers<br>
+  </li>
+  <li>MipFilter now set correctly when using
+TextureUnitState::setTextureFiltering<br>
+  </li>
+  <li>Mesh fix: allow manual LOD to be created even after edge lists
+have been built</li>
+  <li>Fixed handling of overlays with 3D elements</li>
+  <li>Octree scene queries now deal with null AABBs correctly</li>
+  <li>Prevent a memory leak when closing a D3D7 or D3D9 window using
+WM_CLOSE (e.g. the 'X')</li>
+  <li>Added missing toLowerCase call in MaterialSerializer</li>
+  <li>Particle System: fix parameter types and descriptions</li>
+  <li>Fixed missing _dirtyHash in TextureUnitState constructor <br>
+  </li>
+  <li>Fixed a couple of typos in the manual <br>
+  </li>
+  <li>Fixed errors when undefining OGRE_FORCE_ANGLE_TYPES</li>
+  <li>Fixed bug with aspect ratio of text in relative metrics mode</li>
+  <li>Set Terrain query flags so it can be excluded / included
+specifically in scene queries</li>
+  <li>Added stl_user_config.h to ensure use of _STLP_DEBUG is consistent</li>
+  <li>BillboardSet did not add billboards back to the free list on
+clear()</li>
+  <li>TerrainSceneManager fix when calling clearScene()<br>
+  </li>
+</ul>
+<p align="left"></p>
 <p align="left" class="MainHeader">v0.15.0 [Hastur] (23 October 2004) -
 Major Release<br>
 </p>
