@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreRoot.h"
 #include "OgreCodec.h"
+#include "OgreImageCodec.h"
 #include "OgreSDDataChunk.h"
 
 #if OGRE_PLATFORM == PLATFORM_WIN32
@@ -442,6 +443,54 @@ namespace Ogre {
         glCopyTexSubImage2D(GL_TEXTURE_2D, mTexture->getNumMipMaps(), 0, 0,
             0, 0, mWidth, mHeight);
 
+    }
+    
+    void GLRenderTexture::writeContentsToFile( const String & filename ) 
+    {
+        ImageCodec::ImageData imgData;
+        
+        imgData.width = mTexture->getWidth();
+        imgData.height = mTexture->getHeight();
+        imgData.format = PF_R8G8B8;
+
+        // Allocate buffer 
+        uchar* pBuffer = new uchar[imgData.width * imgData.height * 3];
+
+        // Read pixels
+        // I love GL: it does all the locking & colour conversion for us
+        glBindTexture(GL_TEXTURE_2D,
+            static_cast<GLTexture*>(mTexture)->getGLID());
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
+
+        // Wrap buffer in a chunk
+        DataChunk chunk(pBuffer, imgData.width * imgData.height * 3);
+
+        // Need to flip the read data over in Y though
+        Image img;
+        img.loadRawData(chunk, imgData.width, imgData.height, imgData.format );
+        img.flipAroundX();
+
+        DataChunk chunkFlipped(img.getData(), chunk.getSize());
+
+        // Get codec 
+        size_t pos = filename.find_last_of(".");
+            String extension;
+        if( pos == String::npos )
+            Except(
+                Exception::ERR_INVALIDPARAMS, 
+            "Unable to determine image type for '" + filename + "' - invalid extension.",
+                "GLRenderTexture::writeContentsToFile" );
+
+        while( pos != filename.length() - 1 )
+            extension += filename[++pos];
+
+        // Get the codec
+        Codec * pCodec = Codec::getCodec(extension);
+
+        // Write out
+        pCodec->codeToFile(chunkFlipped, filename, &imgData);
+
+        delete [] pBuffer;
     }
 }
 

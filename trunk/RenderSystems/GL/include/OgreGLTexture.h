@@ -86,7 +86,7 @@ namespace Ogre {
         void _copyToTexture(void);
 
         bool requiresTextureFlipping() const { return true; }
-        virtual void writeContentsToFile( const String & filename ) {}
+        virtual void writeContentsToFile( const String & filename );
     };
 }
 
