@@ -200,11 +200,93 @@ fragment_program Examples/BumpMapFP cg
 	profiles ps_1_1 arbfp1 fp20
 }
 
-material Examples/BumpMapping/1
+// Single light material, less passes (one pass on a 4-unit card)
+material Examples/BumpMapping/SingleLight
+{
+	// Preferred technique, uses vertex and fragment programs
+	// to support a single coloured light
+	technique
+	{
+		pass
+		{
+			// Vertex program reference
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+
+			// Fragment program
+			fragment_program_ref Examples/BumpMapFP
+			{
+				param_named_auto lightDiffuse light_diffuse_colour 0 
+			}
+			
+			// Base bump map
+			texture_unit
+			{
+				texture NMBumpsOut.png
+				colour_op replace
+			}
+			// Normalisation cube map
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+			}
+			// Decal
+			texture_unit
+			{
+				texture RustySteel.jpg
+			}
+		}
+	}
+	// Fallback technique, uses vertex program but only fixed-function
+	// fragment shading, which does not support coloured light
+	technique
+	{
+		pass
+		{
+			// Vertex program reference
+			vertex_program_ref Examples/BumpMapVP
+			{
+				param_named_auto lightPosition light_position_object_space 0
+				param_named_auto eyePosition camera_position_object_space
+				param_named_auto worldViewProj worldviewproj_matrix
+			}
+
+			// Base bump map
+			texture_unit
+			{
+				texture NMBumpsOut.png
+				colour_op replace
+			}
+			// Normalisation cube map
+			texture_unit
+			{
+				cubic_texture nm.png combinedUVW
+				tex_coord_set 1
+				tex_address_mode clamp
+				colour_op_ex dotproduct src_texture src_current
+				colour_op_multipass_fallback dest_colour zero
+			}
+			// Decal
+			texture_unit
+			{
+				texture RustySteel.jpg
+			}
+		}
+	}
+}
+
+// Any number of lights, diffuse
+material Examples/BumpMapping/MultiLight
 {
 
 	// This is the preferred technique which uses both vertex and
-	// fragment programs
+	// fragment programs, supports coloured lights
 	technique
 	{
 		// Base ambient pass
