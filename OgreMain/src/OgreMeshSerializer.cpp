@@ -66,7 +66,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::exportMesh(const MeshPtr& pMesh, const String& filename)
+    void MeshSerializer::exportMesh(const Mesh* pMesh, const String& filename)
     {
         MeshSerializerImplMap::iterator impl = mImplementations.find(msCurrentVersion);
         if (impl == mImplementations.end())
@@ -78,7 +78,7 @@ namespace Ogre {
         impl->second->exportMesh(pMesh, filename);
     }
     //---------------------------------------------------------------------
-    void MeshSerializer::importMesh(DataStream& stream, MeshPtr& pDest)
+    void MeshSerializer::importMesh(DataStreamPtr& stream, Mesh* pDest)
     {
         // Read header and determine the version
         unsigned short headerID;
@@ -94,7 +94,7 @@ namespace Ogre {
         // Read version
         String ver = readString(stream);
         // Jump back to start
-        stream.seek(0);
+        stream->seek(0);
 
         // Find the implementation to use
         MeshSerializerImplMap::iterator impl = mImplementations.find(ver);

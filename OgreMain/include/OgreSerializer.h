@@ -64,19 +64,19 @@ namespace Ogre {
         void writeString(const String& string);
         void writeData(const void* buf, size_t size, size_t count);
         
-        virtual void readFileHeader(DataStream& stream);
-        virtual unsigned short readChunk(DataStream& stream);
+        virtual void readFileHeader(DataStreamPtr& stream);
+        virtual unsigned short readChunk(DataStreamPtr& stream);
         
-        void readBools(DataStream& stream, bool* pDest, size_t count);
-        void readReals(DataStream& stream, Real* pDest, size_t count);
-        void readShorts(DataStream& stream, unsigned short* pDest, size_t count);
-        void readInts(DataStream& stream, unsigned int* pDest, size_t count);
-        void readLongs(DataStream& stream, unsigned long* pDest, size_t count); 
-        void readObject(DataStream& stream, Vector3* pDest);
-        void readObject(DataStream& stream, Quaternion* pDest);
+        void readBools(DataStreamPtr& stream, bool* pDest, size_t count);
+        void readReals(DataStreamPtr& stream, Real* pDest, size_t count);
+        void readShorts(DataStreamPtr& stream, unsigned short* pDest, size_t count);
+        void readInts(DataStreamPtr& stream, unsigned int* pDest, size_t count);
+        void readLongs(DataStreamPtr& stream, unsigned long* pDest, size_t count); 
+        void readObject(DataStreamPtr& stream, Vector3* pDest);
+        void readObject(DataStreamPtr& stream, Quaternion* pDest);
 
-        String readString(DataStream& stream);
-        String readString(DataStream& stream, size_t numChars);
+        String readString(DataStreamPtr& stream);
+        String readString(DataStreamPtr& stream, size_t numChars);
         
         virtual void flipToLittleEndian(void* pData, size_t size, size_t count = 1);
         virtual void flipFromLittleEndian(void* pData, size_t size, size_t count = 1);

@@ -53,7 +53,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::exportMesh(const MeshPtr& pMesh, const String& filename)
+    void MeshSerializerImpl::exportMesh(const Mesh* pMesh, const String& filename)
     {
         LogManager::getSingleton().logMessage("MeshSerializer writing mesh data to " + filename + "...");
 
@@ -78,7 +78,7 @@ namespace Ogre {
         LogManager::getSingleton().logMessage("MeshSerializer export successful.");
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::importMesh(DataStream& stream, MeshPtr& pMesh)
+    void MeshSerializerImpl::importMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
 
         // Check header
@@ -98,7 +98,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeMesh(const MeshPtr& pMesh)
+    void MeshSerializerImpl::writeMesh(const Mesh* pMesh)
     {
         // Header
         writeChunkHeader(M_MESH, calcMeshSize(pMesh));
@@ -172,7 +172,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
 	// Added by DrEvil
-	void MeshSerializerImpl::writeSubMeshNameTable(const MeshPtr& pMesh)
+	void MeshSerializerImpl::writeSubMeshNameTable(const Mesh* pMesh)
 	{
 		// Header
 		writeChunkHeader(M_SUBMESH_NAME_TABLE, calcSubMeshNameTableSize(pMesh));
@@ -357,7 +357,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-	unsigned long MeshSerializerImpl::calcSubMeshNameTableSize(const MeshPtr& pMesh)
+	unsigned long MeshSerializerImpl::calcSubMeshNameTableSize(const Mesh* pMesh)
 	{
 		size_t size = stream_OVERHEAD_SIZE;
 		// Figure out the size of the Name table.
@@ -377,7 +377,7 @@ namespace Ogre {
 		return (unsigned long)size;
 	}
     //---------------------------------------------------------------------
-    unsigned long MeshSerializerImpl::calcMeshSize(const MeshPtr& pMesh)
+    unsigned long MeshSerializerImpl::calcMeshSize(const Mesh* pMesh)
     {
         unsigned long size = stream_OVERHEAD_SIZE;
 
@@ -466,7 +466,7 @@ namespace Ogre {
         return static_cast<unsigned long>(size);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometry(DataStream& stream, MeshPtr& pMesh, 
+    void MeshSerializerImpl::readGeometry(DataStreamPtr& stream, Mesh* pMesh, 
         VertexData* dest)
     {
 
@@ -506,8 +506,8 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryVertexDeclaration(DataStream& stream, 
-        MeshPtr& pMesh, VertexData* dest)
+    void MeshSerializerImpl::readGeometryVertexDeclaration(DataStreamPtr& stream, 
+        Mesh* pMesh, VertexData* dest)
     {
         // Find optional geometry streams
         if (!stream.eof())
@@ -537,8 +537,8 @@ namespace Ogre {
 		
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryVertexElement(DataStream& stream, 
-        MeshPtr& pMesh, VertexData* dest)
+    void MeshSerializerImpl::readGeometryVertexElement(DataStreamPtr& stream, 
+        Mesh* pMesh, VertexData* dest)
     {
 		unsigned short source, offset, index, tmp;
 		VertexElementType vType;
@@ -560,8 +560,8 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readGeometryVertexBuffer(DataStream& stream, 
-        MeshPtr& pMesh, VertexData* dest)
+    void MeshSerializerImpl::readGeometryVertexBuffer(DataStreamPtr& stream, 
+        Mesh* pMesh, VertexData* dest)
     {
 		unsigned short bindIndex, vertexSize;
 		// unsigned short bindIndex;	// Index to bind this buffer to
@@ -607,7 +607,7 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readSubMeshNameTable(DataStream& stream, MeshPtr& pMesh)
+	void MeshSerializerImpl::readSubMeshNameTable(DataStreamPtr& stream, Mesh* pMesh)
 	{
 		// The map for
 		std::map<unsigned short, String> subMeshNames;
@@ -658,7 +658,7 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readMesh(DataStream& stream, MeshPtr& pMesh)
+    void MeshSerializerImpl::readMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
         unsigned short streamID;
 
@@ -745,7 +745,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMesh(DataStream& stream, MeshPtr& pMesh)
+    void MeshSerializerImpl::readSubMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
         unsigned short streamID;
 
@@ -846,8 +846,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMeshOperation(DataStream& stream, 
-        MeshPtr& pMesh, SubMesh* sm)
+    void MeshSerializerImpl::readSubMeshOperation(DataStreamPtr& stream, 
+        Mesh* pMesh, SubMesh* sm)
     {
         // unsigned short operationType
         unsigned short opType;
@@ -863,13 +863,13 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSkeletonLink(DataStream &stream, MeshPtr& pMesh)
+    void MeshSerializerImpl::readSkeletonLink(DataStream &stream, Mesh* pMesh)
     {
         String skelName = readString(stream);
         pMesh->setSkeletonName(skelName);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readTextureLayer(DataStream& stream, MeshPtr& pMesh,
+    void MeshSerializerImpl::readTextureLayer(DataStreamPtr& stream, Mesh* pMesh,
         MaterialPtr& pMat)
     {
         // Material definition section phased out of 1.1
@@ -909,7 +909,7 @@ namespace Ogre {
         writeReals(&(assign->weight), 1);
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readMeshBoneAssignment(DataStream& stream, MeshPtr& pMesh)
+    void MeshSerializerImpl::readMeshBoneAssignment(DataStreamPtr& stream, Mesh* pMesh)
     {
         VertexBoneAssignment assign;
 
@@ -924,8 +924,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readSubMeshBoneAssignment(DataStream& stream, 
-        MeshPtr& pMesh, SubMesh* sub)
+    void MeshSerializerImpl::readSubMeshBoneAssignment(DataStreamPtr& stream, 
+        Mesh* pMesh, SubMesh* sub)
     {
         VertexBoneAssignment assign;
 
@@ -956,7 +956,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeLodInfo(const MeshPtr& pMesh)
+    void MeshSerializerImpl::writeLodInfo(const Mesh* pMesh)
     {
         unsigned short numLods = pMesh->getNumLodLevels();
         bool manual = pMesh->isLodManual();
@@ -1022,7 +1022,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeLodUsageGenerated(const MeshPtr& pMesh, const Mesh::MeshLodUsage& usage,
+    void MeshSerializerImpl::writeLodUsageGenerated(const Mesh* pMesh, const Mesh::MeshLodUsage& usage,
 		unsigned short lodNum)
     {
 		// Usage Header
@@ -1111,7 +1111,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::writeBoundsInfo(const MeshPtr& pMesh)
+    void MeshSerializerImpl::writeBoundsInfo(const Mesh* pMesh)
     {
 		// Usage Header
         unsigned long size = stream_OVERHEAD_SIZE;
@@ -1134,7 +1134,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl::readBoundsInfo(DataStream& stream, MeshPtr& pMesh)
+    void MeshSerializerImpl::readBoundsInfo(DataStreamPtr& stream, Mesh* pMesh)
     {
         Vector3 min, max;
         // Real minx, miny, minz
@@ -1156,7 +1156,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readMeshLodInfo(DataStream& stream, MeshPtr& pMesh)
+	void MeshSerializerImpl::readMeshLodInfo(DataStreamPtr& stream, Mesh* pMesh)
 	{
 		unsigned short streamID, i;
 
@@ -1207,8 +1207,8 @@ namespace Ogre {
 
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readMeshLodUsageManual(DataStream& stream, 
-        MeshPtr& pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
+	void MeshSerializerImpl::readMeshLodUsageManual(DataStreamPtr& stream, 
+        Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
 		unsigned long streamID;
 		// Read detail stream
@@ -1224,8 +1224,8 @@ namespace Ogre {
 		usage.manualMesh = NULL; // will trigger load later
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readMeshLodUsageGenerated(DataStream& stream, 
-        MeshPtr& pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
+	void MeshSerializerImpl::readMeshLodUsageGenerated(DataStreamPtr& stream, 
+        Mesh* pMesh, unsigned short lodNum, Mesh::MeshLodUsage& usage)
 	{
 		usage.manualName = "";
 		usage.manualMesh = 0;
@@ -1346,7 +1346,7 @@ namespace Ogre {
 		}
 	}
     //---------------------------------------------------------------------
-	unsigned long MeshSerializerImpl::calcEdgeListSize(const MeshPtr& pMesh)
+	unsigned long MeshSerializerImpl::calcEdgeListSize(const Mesh* pMesh)
 	{
         size_t size = stream_OVERHEAD_SIZE;
 
@@ -1422,7 +1422,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::writeEdgeList(const MeshPtr& pMesh)
+	void MeshSerializerImpl::writeEdgeList(const Mesh* pMesh)
 	{
         writeChunkHeader(M_EDGE_LISTS, calcEdgeListSize(pMesh));
 
@@ -1514,7 +1514,7 @@ namespace Ogre {
         }
 	}
     //---------------------------------------------------------------------
-	void MeshSerializerImpl::readEdgeList(DataStream& stream, MeshPtr& pMesh)
+	void MeshSerializerImpl::readEdgeList(DataStreamPtr& stream, Mesh* pMesh)
 	{
         unsigned short streamID;
 
@@ -1666,7 +1666,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1_2::readMesh(DataStream& stream, MeshPtr& pMesh)
+    void MeshSerializerImpl_v1_2::readMesh(DataStreamPtr& stream, Mesh* pMesh)
     {
         MeshSerializerImpl::readMesh(stream, pMesh);
         // Always automatically build edge lists for this version
@@ -1674,7 +1674,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    void MeshSerializerImpl_v1_2::readGeometry(DataStream& stream, MeshPtr& pMesh, 
+    void MeshSerializerImpl_v1_2::readGeometry(DataStreamPtr& stream, Mesh* pMesh, 
         VertexData* dest)
     {
         unsigned short texCoordSet = 0;
@@ -1727,7 +1727,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryPositions(unsigned short bindIdx, 
-        DataStream& stream, MeshPtr& pMesh, VertexData* dest)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1746,7 +1746,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryNormals(unsigned short bindIdx, 
-        DataStream& stream, MeshPtr& pMesh, VertexData* dest)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1765,7 +1765,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryColours(unsigned short bindIdx, 
-        DataStream& stream, MeshPtr& pMesh, VertexData* dest)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest)
     {
         RGBA* pRGBA = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1784,7 +1784,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_2::readGeometryTexCoords(unsigned short bindIdx, 
-        DataStream& stream, MeshPtr& pMesh, VertexData* dest, unsigned short texCoordSet)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest, unsigned short texCoordSet)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;
@@ -1823,7 +1823,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl_v1_1::readGeometryTexCoords(unsigned short bindIdx, 
-        DataStream& stream, MeshPtr& pMesh, VertexData* dest, unsigned short texCoordSet)
+        DataStreamPtr& stream, Mesh* pMesh, VertexData* dest, unsigned short texCoordSet)
     {
         Real *pReal = 0;
         HardwareVertexBufferSharedPtr vbuf;

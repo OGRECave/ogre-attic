@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreKeyFrame.h"
 #include "OgreBone.h"
 #include "OgreString.h"
-#include "OgreDataStream.h"
+#include "OgreDatastream.h"
 #include "OgreLogManager.h"
 
 
@@ -53,7 +53,7 @@ namespace Ogre {
     {
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::exportSkeleton(const SkeletonPtr& pSkeleton, const String& filename)
+    void SkeletonSerializer::exportSkeleton(const Skeleton* pSkeleton, const String& filename)
     {
         String msg;
         mpfFile = fopen(filename.c_str(), "wb");
@@ -85,14 +85,14 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::importSkeleton(DataStream& stream, SkeletonPtr& pSkel)
+    void SkeletonSerializer::importSkeleton(DataStreamPtr& stream, Skeleton* pSkel)
     {
 
         // Check header
         readFileHeader(stream);
 
         unsigned short streamID;
-        while(!stream.eof())
+        while(!stream->eof())
         {
             streamID = readChunk(stream);
             switch (streamID)
@@ -114,7 +114,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::writeSkeleton(const SkeletonPtr& pSkel)
+    void SkeletonSerializer::writeSkeleton(const Skeleton* pSkel)
     {
         // Write each bone
         unsigned short numBones = pSkel->getNumBones();
@@ -137,7 +137,7 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::writeBone(const SkeletonPtr& pSkel, const Bone* pBone)
+    void SkeletonSerializer::writeBone(const Skeleton* pSkel, const Bone* pBone)
     {
         writeChunkHeader(SKELETON_BONE, calcBoneSize(pSkel, pBone));
 
@@ -152,7 +152,7 @@ namespace Ogre {
         writeObject(pBone->getOrientation());
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::writeBoneParent(const SkeletonPtr& pSkel, 
+    void SkeletonSerializer::writeBoneParent(const Skeleton* pSkel, 
         unsigned short boneId, unsigned short parentId)
     {
         writeChunkHeader(SKELETON_BONE_PARENT, calcBoneParentSize(pSkel));
@@ -164,7 +164,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::writeAnimation(const SkeletonPtr& pSkel, 
+    void SkeletonSerializer::writeAnimation(const Skeleton* pSkel, 
         const Animation* anim)
     {
         writeChunkHeader(SKELETON_ANIMATION, calcAnimationSize(pSkel, anim));
@@ -184,7 +184,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::writeAnimationTrack(const SkeletonPtr& pSkel, 
+    void SkeletonSerializer::writeAnimationTrack(const Skeleton* pSkel, 
         const AnimationTrack* track)
     {
         writeChunkHeader(SKELETON_ANIMATION_TRACK, calcAnimationTrackSize(pSkel, track));
@@ -202,7 +202,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::writeKeyFrame(const SkeletonPtr& pSkel, 
+    void SkeletonSerializer::writeKeyFrame(const Skeleton* pSkel, 
         const KeyFrame* key)
     {
 
@@ -220,7 +220,7 @@ namespace Ogre {
         writeObject(key->getScale());
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcBoneSize(const SkeletonPtr& pSkel, 
+    unsigned long SkeletonSerializer::calcBoneSize(const Skeleton* pSkel, 
         const Bone* pBone)
     {
         unsigned long size = stream_OVERHEAD_SIZE;
@@ -238,7 +238,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcBoneParentSize(const SkeletonPtr& pSkel)
+    unsigned long SkeletonSerializer::calcBoneParentSize(const Skeleton* pSkel)
     {
         unsigned long size = stream_OVERHEAD_SIZE;
 
@@ -252,7 +252,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcAnimationSize(const SkeletonPtr& pSkel, 
+    unsigned long SkeletonSerializer::calcAnimationSize(const Skeleton* pSkel, 
         const Animation* pAnim)
     {
         unsigned long size = stream_OVERHEAD_SIZE;
@@ -273,7 +273,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcAnimationTrackSize(const SkeletonPtr& pSkel, 
+    unsigned long SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
         const AnimationTrack* pTrack)
     {
         unsigned long size = stream_OVERHEAD_SIZE;
@@ -291,7 +291,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    unsigned long SkeletonSerializer::calcKeyFrameSize(const SkeletonPtr& pSkel, 
+    unsigned long SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
         const KeyFrame* pKey)
     {
         unsigned long size = stream_OVERHEAD_SIZE;
@@ -308,7 +308,7 @@ namespace Ogre {
         return size;
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::readBone(DataStream &stream, SkeletonPtr& pSkel)
+    void SkeletonSerializer::readBone(DataStreamPtr& stream, Skeleton* pSkel)
     {
         // char* name
         String name = readString(stream);
@@ -329,7 +329,7 @@ namespace Ogre {
         pBone->setOrientation(q);
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::readBoneParent(DataStream &stream, SkeletonPtr& pSkel)
+    void SkeletonSerializer::readBoneParent(DataStreamPtr& stream, Skeleton* pSkel)
     {
         // All bones have been created by this point
         Bone *child, *parent;
@@ -349,7 +349,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::readAnimation(DataStream &stream, SkeletonPtr& pSkel)
+    void SkeletonSerializer::readAnimation(DataStreamPtr& stream, Skeleton* pSkel)
     {
         // char* name                       : Name of the animation
         String name;
@@ -361,23 +361,23 @@ namespace Ogre {
         Animation *pAnim = pSkel->createAnimation(name, len);
 
         // Read all tracks
-        if (!stream.eof())
+        if (!stream->eof())
         {
             unsigned short streamID = readChunk(stream);
-            while(streamID == SKELETON_ANIMATION_TRACK && !stream.eof())
+            while(streamID == SKELETON_ANIMATION_TRACK && !stream->eof())
             {
                 readAnimationTrack(stream, pAnim, pSkel);
 
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     // Get next stream
                     streamID = readChunk(stream);
                 }
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-track
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
 
         }
@@ -386,8 +386,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::readAnimationTrack(DataStream &stream, Animation* anim, 
-        SkeletonPtr& pSkel)
+    void SkeletonSerializer::readAnimationTrack(DataStreamPtr& stream, Animation* anim, 
+        Skeleton* pSkel)
     {
         // unsigned short boneIndex     : Index of bone to apply to
         unsigned short boneHandle;
@@ -400,23 +400,23 @@ namespace Ogre {
         AnimationTrack* pTrack = anim->createTrack(boneHandle, targetBone);
 
         // Keep looking for nested keyframes
-        if (!stream.eof())
+        if (!stream->eof())
         {
             unsigned short streamID = readChunk(stream);
-            while(streamID == SKELETON_ANIMATION_TRACK_KEYFRAME && !stream.eof())
+            while(streamID == SKELETON_ANIMATION_TRACK_KEYFRAME && !stream->eof())
             {
                 readKeyFrame(stream, pTrack, pSkel);
 
-                if (!stream.eof())
+                if (!stream->eof())
                 {
                     // Get next stream
                     streamID = readChunk(stream);
                 }
             }
-            if (!stream.eof())
+            if (!stream->eof())
             {
                 // Backpedal back to start of this stream if we've found a non-keyframe
-                stream.skip(-(long)stream_OVERHEAD_SIZE);
+                stream->skip(-(long)stream_OVERHEAD_SIZE);
             }
 
         }
@@ -424,8 +424,8 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::readKeyFrame(DataStream &stream, AnimationTrack* track, 
-        SkeletonPtr& pSkel)
+    void SkeletonSerializer::readKeyFrame(DataStreamPtr& stream, AnimationTrack* track, 
+        Skeleton* pSkel)
     {
         // Real time                    : The time position (seconds)
         Real time;
