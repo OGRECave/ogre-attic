@@ -27,7 +27,6 @@ using namespace Ogre;
 
 #define FMTCONVERTERID(from,to) (((from)<<8)|(to))
 
-
 /**
  * Convert a box of pixel from one type to another. Who needs automatic code 
  * generation when we have C++ templates and the policy design pattern.
@@ -37,6 +36,7 @@ using namespace Ogre;
  *    dstType is the destination element type. It also has a static method, pixelConvert, that
  *    converts a srcType into a dstType.
  */
+
 template <class U> struct PixelBoxConverter 
 {
     static const int ID = U::ID;
@@ -69,6 +69,14 @@ template <typename T, typename U, int id> struct PixelConverter {
     typedef U DstType;    
     
     inline static DstType pixelConvert(SrcType inp);
+};
+
+
+/** Type for PF_R8G8B8/PF_B8G8R8 */
+struct Col3b {
+    Col3b(unsigned int a, unsigned int b, unsigned int c): 
+        x((uint8)a), y((uint8)b), z((uint8)c) { }
+    uint8 x,y,z;
 };
 
 struct A8R8G8B8toA8B8G8R8: public PixelConverter <uint32, uint32, FMTCONVERTERID(PF_A8R8G8B8, PF_A8B8G8R8)>
@@ -167,6 +175,43 @@ struct L16toL8: public PixelConverter <uint16, uint8, FMTCONVERTERID(PF_L16, PF_
     }
 };
 
+struct R8G8B8toB8G8R8: public PixelConverter <Col3b, Col3b, FMTCONVERTERID(PF_R8G8B8, PF_B8G8R8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return Col3b(inp.z, inp.y, inp.x);
+    }  
+};
+
+struct B8G8R8toR8G8B8: public PixelConverter <Col3b, Col3b, FMTCONVERTERID(PF_B8G8R8, PF_R8G8B8)>
+{
+    inline static DstType pixelConvert(SrcType inp)
+    {
+        return Col3b(inp.z, inp.y, inp.x);
+    }  
+};
+
+// X8Y8Z8 ->  X8<<xshift Y8<<yshift Z8<<zshift A8<<ashift
+template <int id, unsigned int xshift, unsigned int yshift, unsigned int zshift, unsigned int ashift> struct Col3btoUint32swizzler:
+    public PixelConverter <Col3b, uint32, id>
+{
+    inline static uint32 pixelConvert(Col3b inp)
+    {
+#if OGRE_ENDIAN == ENDIAN_BIG
+        return (0xFF<<ashift) | (((unsigned int)inp.x)<<xshift) | (((unsigned int)inp.y)<<yshift) | (((unsigned int)inp.z)<<zshift);
+#else
+        return (0xFF<<ashift) | (((unsigned int)inp.x)<<zshift) | (((unsigned int)inp.y)<<yshift) | (((unsigned int)inp.z)<<xshift);
+#endif
+    }
+};
+
+struct R8G8B8toA8R8G8B8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_R8G8B8, PF_A8R8G8B8), 16, 8, 0, 24> { };
+struct B8G8R8toA8R8G8B8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_B8G8R8, PF_A8R8G8B8), 0, 8, 16, 24> { };
+struct R8G8B8toA8B8G8R8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_R8G8B8, PF_A8B8G8R8), 0, 8, 16, 24> { };
+struct B8G8R8toA8B8G8R8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_B8G8R8, PF_A8B8G8R8), 16, 8, 0, 24> { };
+struct R8G8B8toB8G8R8A8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_R8G8B8, PF_B8G8R8A8), 8, 16, 24, 0> { };
+struct B8G8R8toB8G8R8A8: public Col3btoUint32swizzler<FMTCONVERTERID(PF_B8G8R8, PF_B8G8R8A8), 24, 16, 8, 0> { };
+
 #define CASECONVERTER(type) case type::ID : PixelBoxConverter<type>::conversion(src, dst); return 1;
 
 inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
@@ -186,6 +231,15 @@ inline int doOptimizedConversion(const PixelBox &src, const PixelBox &dst)
         CASECONVERTER(L8toB8G8R8A8);
         CASECONVERTER(L8toL16);
         CASECONVERTER(L16toL8);
+        CASECONVERTER(B8G8R8toR8G8B8);
+        CASECONVERTER(R8G8B8toB8G8R8);
+        CASECONVERTER(R8G8B8toA8R8G8B8);
+        CASECONVERTER(B8G8R8toA8R8G8B8);
+        CASECONVERTER(R8G8B8toA8B8G8R8);
+        CASECONVERTER(B8G8R8toA8B8G8R8);
+        CASECONVERTER(R8G8B8toB8G8R8A8);
+        CASECONVERTER(B8G8R8toB8G8R8A8);
+
         default:
             return 0;
     }
