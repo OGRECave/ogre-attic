@@ -32,6 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+    enum TextureUsage
+    {
+        TU_DEFAULT = 0x0,
+        TU_RENDERTARGET = 0x1
+    };
+
     /** Abstract class representing a Texture resource.
         @remarks
             The actual concrete subclass which will exist for a texture
@@ -77,6 +83,11 @@ namespace Ogre {
         */
         std::pair< uint, uint > getDimensions() { return std::pair< uint, uint >( mWidth, mHeight ); }
 
+        TextureUsage getUsage() const
+        {
+            return mUsage;
+        }
+
         /** Blits the contents of src on the texture.
             @deprecated
                 This feature is superseded by the blitImage function.
@@ -99,6 +110,10 @@ namespace Ogre {
         {
         }
 
+		/** Copies (and maybe scales to fit) the contents of this texture to
+			another texture. */
+		virtual void copyToTexture( Texture * target ) {};
+
         /** Loads the data from an image.
         */
         virtual void loadImage( const Image &img ) = 0;
@@ -115,13 +130,6 @@ namespace Ogre {
             return mHasAlpha;
         }
 
-        /** Returns true if the texture can be used as a render target.
-        */
-        virtual bool isRenderTarget() 
-        { 
-            return false; 
-        }
-
     protected:
         // NB: No indexed colour support - deliberately
         unsigned long mHeight;
@@ -129,6 +137,8 @@ namespace Ogre {
 
         unsigned short mNumMipMaps;
         float mGamma;
+
+        TextureUsage mUsage;
 
         unsigned short mSrcBpp;
         unsigned long mSrcWidth, mSrcHeight;
