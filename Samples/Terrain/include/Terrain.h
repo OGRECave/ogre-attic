@@ -81,8 +81,9 @@ protected:
 
         mSceneMgr->setFog( FOG_EXP2, fadeColour, .001);
         mWindow->getViewport(0)->setBackgroundColour(fadeColour);
-        mCamera->setPosition(100,100,100);
-        mCamera->lookAt(512,100,512);
+        // Set a nice viewpoint
+        mCamera->setPosition(707,52,528);
+        mCamera->setOrientation(Quaternion(-0.3486, 0.0122, 0.9365, 0.0329));
         //mRoot -> showDebugOverlay( true );
 
     }
