@@ -41,12 +41,156 @@ void showHelp();
 using namespace OgreMaya;
 using namespace std;
 
+// ------------------------------------------------------------
+
+class CommandLineParser {
+public:
+    CommandLineParser() {
+        argv           = 0;
+        argc           = 0;
+        currentArg     = 0;
+
+
+        // init parameter map (for command line args)
+        builderMap["-in"     ] = &CommandLineParser::parseIn;
+        builderMap["-mesh"   ] = &CommandLineParser::parseMeshOut;
+        builderMap["-vba"    ] = &CommandLineParser::parseVBA;
+        builderMap["-skel"   ] = &CommandLineParser::parseSkelOut;
+        builderMap["-mat"    ] = &CommandLineParser::parseMatOut;
+        builderMap["-mprefix"] = &CommandLineParser::parseMatPrefix;
+        builderMap["-anim"   ] = &CommandLineParser::parseAnimation;
+        builderMap["-n"      ] = &CommandLineParser::parseN;
+        builderMap["-c"      ] = &CommandLineParser::parseC;
+        builderMap["-t"      ] = &CommandLineParser::parseT;
+        builderMap["-v"      ] = &CommandLineParser::parseV;
+    }
+
+    void parse(int argc, char** argv) {
+        this->argv = argv;
+        this->argc = argc;
+        for(currentArg=1; currentArg<argc; currentArg++) {
+            string arg = argv[currentArg];
+            void (CommandLineParser::*p)(void) = builderMap[arg];
+
+            if(p) {
+                (this->*p)();
+            }
+        }
+    }
+
+    bool isNextTokenOption() {
+        bool res = false;
+        if(currentArg+1 < argc) {
+            res = argv[currentArg+1][0] == '-';
+        }
+
+        return res;
+    }
+
+    void parseIn() {
+        if(++currentArg < argc) {            
+            OPTIONS.inFile = argv[currentArg];
+            int i = OPTIONS.inFile.find_first_of('.');
+
+            if(i>=0) {
+                OPTIONS.outMeshFile = OPTIONS.inFile.substr(0, i) + ".mesh.xml";
+                OPTIONS.outSkelFile = OPTIONS.inFile.substr(0, i) + ".skeleton.xml";
+                OPTIONS.outMatFile  = OPTIONS.inFile.substr(0, i) + ".material";
+            }
+            else {
+                OPTIONS.outMeshFile = OPTIONS.inFile + ".mesh.xml";
+                OPTIONS.outSkelFile = OPTIONS.inFile + ".skeleton.xml";
+                OPTIONS.outMatFile  = OPTIONS.inFile + ".material";
+            }
+
+            OPTIONS.valid = true;
+        }
+    }
+
+    void parseMeshOut() {
+        OPTIONS.exportMesh = true;
+        if(!isNextTokenOption() && currentArg+1<argc) {
+            OPTIONS.outMeshFile = argv[currentArg+1];
+            currentArg++;
+        }
+    }
+
+    void parseSkelOut() {
+        OPTIONS.exportSkeleton = true;
+        if(!isNextTokenOption() && currentArg+1<argc) {
+            OPTIONS.outSkelFile = argv[currentArg+1];
+            currentArg++;
+        }
+    }
+
+    void parseMatOut() {
+        OPTIONS.exportMaterial = true;
+        if(!isNextTokenOption() && currentArg+1<argc) {
+            OPTIONS.outMatFile = argv[currentArg+1];
+            currentArg++;
+        }
+    }
+
+    void parseMatPrefix() {
+        if(++currentArg < argc) {
+            OPTIONS.matPrefix = argv[currentArg];
+        }
+    }
+
+    void parseAnimation() {
+        if(currentArg+4 < argc) {
+            string name = argv[currentArg+1];
+            int from    = atoi(argv[currentArg+2]);
+            int to      = atoi(argv[currentArg+3]);
+            int step    = atoi(argv[currentArg+4]);
+
+            OPTIONS.animations[name].from = from;
+            OPTIONS.animations[name].to   = to;
+            OPTIONS.animations[name].step = step;
+
+            currentArg += 5;
+        }
+    }
+    
+    void parseVBA() {
+        OPTIONS.exportVBA = true;
+    }
+
+    void parseN() {
+        OPTIONS.exportNormals = true;
+    }
+
+    void parseC() {
+        OPTIONS.exportColours = true;
+    }
+
+    void parseT() {
+        OPTIONS.exportUVs = true;
+    }
+    
+    void parseV() {
+        OPTIONS.verboseMode = true;
+    }
+
+private:
+	typedef map<string, void (CommandLineParser::*)(void)> BuilderMap;
+
+	char** argv;
+    int argc;
+    int currentArg;
+
+    BuilderMap builderMap;
+};
+
+// ------------------------------------------------------------
+
 int main(int argc, char *argv[]) {
 
 	// ===== Parse command line options
-    OPTIONS.init(argc, argv);
+	CommandLineParser argParser;
+	argParser.parse(argc, argv);
     
-    if(!OPTIONS.isValid()) {
+    if(!OPTIONS.valid) {
         showHelp();
         return -1;
     }
@@ -123,9 +267,9 @@ int main(int argc, char *argv[]) {
     return 1;
 }
 
+// ------------------------------------------------------------
 
-void showHelp()
-{
+void showHelp() {
     cout << "Version : "<<__DATE__<<" "<<__TIME__<<"\n";
     cout << "Maya API: "<<MAYA_API_VERSION<<"\n\n";
 	cout << "Usage: maya2ogre -in FILE [-mesh [FILE]] [-vba] [-skel [FILE]]\n";
@@ -154,5 +298,4 @@ void showHelp()
     cout << "     => exports skeleton and mesh using user defined file names\n\n";
     cout << " maya2ogre -in foo.mb -skel -anim Walk 1 30 2 -anim Die 50 60 2\n";
     cout << "     => exports skeleton with animation tracks Walk and Die\n";
-
 }

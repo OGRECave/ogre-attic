@@ -89,31 +89,37 @@ namespace OgreMaya {
                 list<TextureUnitState>::iterator tlIt  = mat.textureLayers.begin();
                 list<TextureUnitState>::iterator tlEnd = mat.textureLayers.end();
                 
-                out << mat.name << '\n';
-                out << "{\n";                
+                out << "material " << mat.name << '\n';
+                out << "{\n";   
 
-                out << "\tshading " << mat.shadingMode << "\n\n";
+				out << "\ttechnique\n";
+				out << "\t{\n";
 
-                out << "\tambient "
+				out << "\t\tpass\n";
+				out << "\t\t{\n";
+
+                out << "\t\t\tshading " << mat.shadingMode << "\n\n";
+
+                out << "\t\t\tambient "
                     << mat.ambient.r << ' '
                     << mat.ambient.g << ' '
                     << mat.ambient.b << ' '
                     << mat.ambient.a << '\n';
 
-                out << "\tdiffuse "
+                out << "\t\t\tdiffuse "
                     << mat.diffuse.r << ' '
                     << mat.diffuse.g << ' '
                     << mat.diffuse.b << ' '
                     << mat.diffuse.a << '\n';
 
-                out << "\tspecular "
+                out << "\t\t\tspecular "
                     << mat.specular.r << ' '
                     << mat.specular.g << ' '
                     << mat.specular.b << ' '
                     << mat.specular.a << ' '
 					<< mat.shininess  << '\n';
 
-                out << "\temissive "
+                out << "\t\t\temissive "
                     << mat.selfIllumination.r << ' '
                     << mat.selfIllumination.g << ' '
                     << mat.selfIllumination.b << ' '
@@ -121,14 +127,16 @@ namespace OgreMaya {
 
                 for(;tlIt!=tlEnd; ++tlIt) {
                     TextureUnitState& layer = *tlIt;
-                    out << "\t{\n";
-                    out << "\t\ttexture " << layer.textureName << '\n';
-                    out << "\t\ttex_coord_set " << layer.uvSet << '\n';
-                    out << "\t}\n\n";
+                    out << "\t\t\ttexture_unit\n";
+					out << "\t\t\t{\n";
+                    out << "\t\t\t\ttexture " << layer.textureName << '\n';
+                    out << "\t\t\t\ttex_coord_set " << layer.uvSet << '\n';
+                    out << "\t\t\t}\n\n";
                 }
 
+				out << "\t\t}\n";
+				out << "\t}\n";
                 out << "}\n\n";
-
             }                        
 
             out.close();            

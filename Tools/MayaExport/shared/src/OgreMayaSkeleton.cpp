@@ -117,6 +117,7 @@ namespace OgreMaya {
         MGlobal::selectByName(root->name.c_str());
         MGlobal::executeCommand("dagPose -r -g -bp");
         MGlobal::executeCommand("dagPose -r -g -bp");
+		//MGlobal::executeCommand("currentTime -edit 0");
         
         
 /*        
@@ -393,11 +394,11 @@ namespace OgreMaya {
 				        break;
                     }
             }
-                                    
+
             if(j->hasParent)
                 j->localMatrix = j->worldMatrix * j->parent->invWorldMatrix;
             else
-                j->localMatrix = j->worldMatrix;            
+                j->localMatrix = j->worldMatrix;
 
             j->invLocalMatrix = j->localMatrix.inverse();
 
@@ -405,7 +406,7 @@ namespace OgreMaya {
             j->relPos.y = j->localMatrix(3,1);
             j->relPos.z = j->localMatrix(3,2);
             
-            j->relRot = j->localMatrix;
+            j->relRot = j->localMatrix;        
         }
 
 		
@@ -446,7 +447,7 @@ namespace OgreMaya {
             int from    = (*it).second.from;
             int to      = (*it).second.to;
             int step    = (*it).second.step;
-            int frameCount = to-from+1;
+            int frameCount = to - from + 1;
             
             if(from < iTimeMin || to > iTimeMax || !(frameCount>0)) {
                 cout << "\t[ERROR] Illegal Animation Range\n";
@@ -460,27 +461,38 @@ namespace OgreMaya {
             SkeletonJointList::iterator ppkJoint = jointList.begin();
             SkeletonJointList::iterator ppkJointEnd = jointList.end();		    
                 
-		    for( ; ppkJoint != ppkJointEnd; ++ppkJoint ) {			    
-
-                MTime kFrame = kTimeMin + from;
+			for( ; ppkJoint != ppkJointEnd; ++ppkJoint ) {				
+                MTime kFrame = kTimeMin + (from - 1);
 
 	            for(int iFrame=0; iFrame<frameCount; iFrame+=step, kFrame+=step) {
 		            kAnimControl.setCurrentTime( kFrame );
 
                     MVector kTranslation;
 			        MQuaternion kRotation;
-			        MMatrix kIncMat    = (*ppkJoint)->dagPath.inclusiveMatrix();
-			        MMatrix kExcInvMat = (*ppkJoint)->dagPath.exclusiveMatrixInverse();                    			                            
+					
+					MMatrix kIncMat    = (*ppkJoint)->dagPath.inclusiveMatrix();
+					MMatrix kExcMat    = (*ppkJoint)->dagPath.exclusiveMatrix();
+					MMatrix kExcInvMat = (*ppkJoint)->dagPath.exclusiveMatrixInverse();                    			                            										
+					
+					if((*ppkJoint)->hasParent) {
+						MMatrix kLocalMat = kIncMat * kExcInvMat * (*ppkJoint)->invLocalMatrix;
 
-				    MMatrix kLocalMat = kIncMat * kExcInvMat;
+						kRotation = kLocalMat;
 
-                    kLocalMat = kLocalMat * ((*ppkJoint)->invLocalMatrix);
+						kTranslation.x = (float)kLocalMat(3, 0);
+						kTranslation.y = (float)kLocalMat(3, 1);
+						kTranslation.z = (float)kLocalMat(3, 2);
+					}
+					else {
+						// root has to be handled differently
+						// cause when exporting root bone to ogre
+						// we remove all maya parents
+						kRotation = kIncMat * (*ppkJoint)->invLocalMatrix;
 
-			        kTranslation.x = (float)kLocalMat(3, 0);
-			        kTranslation.y = (float)kLocalMat(3, 1);
-			        kTranslation.z = (float)kLocalMat(3, 2);
-
-			        kRotation = kLocalMat;
+						kTranslation.x = (float)(kIncMat(3, 0) - kExcMat(3, 0));
+						kTranslation.y = (float)(kIncMat(3, 1) - kExcMat(3, 1));
+						kTranslation.z = (float)(kIncMat(3, 2) - kExcMat(3, 2));
+					}
 
                     float timePos = 
                         (float)iFrame * secondsPerFrame;

@@ -27,6 +27,7 @@ or go to http://www.gnu.org/licenses/gpl.txt
 #include <maya/MFnMesh.h>
 #include <maya/MDagPath.h>
 #include <maya/MDagPathArray.h>
+#include <maya/MSelectionList.h>
 #include <maya/MGlobal.h>
 #include <maya/MPlug.h>
 #include <maya/MFnLambertShader.h>
@@ -98,6 +99,9 @@ namespace OgreMaya {
             out << "<mesh>\n";
             out << "\t<submeshes>\n";
 
+			MSelectionList list;
+			MGlobal::getActiveSelectionList(list);
+
 		    // --- Iterate
 		    for(; !iterDag.isDone(); iterDag.next()) {
 		    
@@ -111,11 +115,14 @@ namespace OgreMaya {
 			    }
 
 			    // Process this node?
-			    if ( dagPath.hasFn(MFn::kTransform)) continue;
-			    if (!dagPath.hasFn(MFn::kMesh))      continue;
-			    MFnDagNode dagNode(dagPath);
-			    if (dagNode.isIntermediateObject())  continue;
+				//if(OPTIONS.exportSelected && !list.hasItem(dagPath.node())) continue;
 			    
+				if( dagPath.hasFn(MFn::kTransform)) continue;
+			    if(!dagPath.hasFn(MFn::kMesh))      continue;
+			    
+				MFnDagNode dagNode(dagPath);
+			    if(dagNode.isIntermediateObject())  continue;
+
 			    // Process node if visible
 			    bool bVisible;
 			    bVisible = _isVisible(dagNode, status);
@@ -140,7 +147,9 @@ namespace OgreMaya {
             out << "</mesh>\n";
         }
 
-		
+		// reactivate IK Solver
+		MGlobal::executeCommand("ikSystem -e -sol 1;");
+
 		// ===== Done
 		return (status == MStatus::kSuccess);
 	}
