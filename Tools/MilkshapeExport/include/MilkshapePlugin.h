@@ -65,6 +65,7 @@ protected:
     void showOptions(void);
     void doExportMesh(msModel* pModel);
     void doExportMaterials(msModel* pModel);
+    void doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh);
 
 };
 

@@ -105,6 +105,10 @@ BOOL MilkshapePlugin::DlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam
         hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_MESH);
         SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
 
+        // Check skeleton export
+        hwndDlgItem = GetDlgItem(hDlg, IDC_EXPORT_SKEL);
+        SendMessage(hwndDlgItem, BM_SETCHECK, BST_CHECKED,0);
+
         return TRUE;
     case WM_COMMAND:
         switch (LOWORD(wParam))
@@ -268,6 +272,12 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
     {
         doExportMaterials(pModel);
     }
+
+    if (exportSkeleton)
+    {
+        // export skeleton, also update mesh to point to it
+        doExportSkeleton(pModel, ogreMesh);
+    }
     
     // Export
     Ogre::MeshSerializer serializer;
@@ -307,4 +317,52 @@ void MilkshapePlugin::doExportMaterials(msModel* pModel)
         }
 
     }
+}
+
+void MilkshapePlugin::doExportSkeleton(msModel* pModel, Ogre::Mesh* mesh)
+{
+
+    //
+    // choose filename
+    //
+    OPENFILENAME ofn;
+    memset (&ofn, 0, sizeof (OPENFILENAME));
+    
+    char szFile[MS_MAX_PATH];
+    char szFileTitle[MS_MAX_PATH];
+    char szDefExt[32] = "skeleton";
+    char szFilter[128] = "OGRE .skeleton Files (*.skeleton)\0*.skeleton\0All Files (*.*)\0*.*\0\0";
+    szFile[0] = '\0';
+    szFileTitle[0] = '\0';
+
+    ofn.lStructSize = sizeof (OPENFILENAME);
+    ofn.lpstrDefExt = szDefExt;
+    ofn.lpstrFilter = szFilter;
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = MS_MAX_PATH;
+    ofn.lpstrFileTitle = szFileTitle;
+    ofn.nMaxFileTitle = MS_MAX_PATH;
+    ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
+    ofn.lpstrTitle = "Export to OGRE Skeleton";
+
+    if (!::GetSaveFileName (&ofn))
+        return /*0*/;
+
+
+    // Set up
+    Ogre::Skeleton *ogreskel = new Ogre::Skeleton("export");
+
+    // Complete the details
+    // TODO
+
+
+
+
+    // Create skeleton serializer & export
+    Ogre::SkeletonSerializer serializer;
+
+    serializer.exportSkeleton(ogreskel, szFile);
+
+    delete ogreskel;
+
 }
