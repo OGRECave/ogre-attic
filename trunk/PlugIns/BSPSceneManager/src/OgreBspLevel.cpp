@@ -47,6 +47,7 @@ namespace Ogre {
         mName = name;
         mRootNode = 0;
         mVertices = 0;
+        mBrushes = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -85,12 +86,14 @@ namespace Ogre {
         delete [] mLeafFaceGroups;
         delete [] mRootNode;
         delete [] mVisData.tableData;
+        delete [] mBrushes;
 
         mVertices = 0;
         mRootNode = 0;
         mFaceGroups = 0;
         mLeafFaceGroups = 0;
         mElements = 0;
+        mBrushes = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -349,7 +352,43 @@ namespace Ogre {
 
 
         }
-        // Convert Leaves
+        //-----------------------------------------------------------------------
+        // Brushes
+        //-----------------------------------------------------------------------
+        // Reserve enough memory for all brushes, solid or not (need to maintain indexes)
+        mBrushes = new BspNode::Brush[q3lvl.mNumBrushes];
+        for (i = 0; i < q3lvl.mNumBrushes; ++i)
+        {
+            int realBrushIdx = q3lvl.mLeafBrushes[i];
+            bsp_brush_t* q3brush = &q3lvl.mBrushes[realBrushIdx];
+
+            // Create a new OGRE brush
+            BspNode::Brush *pBrush = &(mBrushes[realBrushIdx]);
+            int brushSideIdx, numBrushSides;
+            numBrushSides = q3brush->numsides;
+            brushSideIdx = q3brush->firstside;
+            // Iterate over the sides and create plane for each
+            while (numBrushSides--)
+            {
+                bsp_brushside_t* q3brushside = &q3lvl.mBrushSides[brushSideIdx];
+                bsp_plane_t* q3brushplane = &q3lvl.mPlanes[q3brushside->planenum];
+                // Notice how we normally invert Q3A plane distances, but here we do not
+                // Because we want plane normals pointing out of solid brushes, not in
+                Plane brushSide(Vector3(q3brushplane->normal), q3brushplane->dist);
+                pBrush->planes.push_back(brushSide);
+                ++brushSideIdx;
+            }
+            // Build world fragment
+            pBrush->fragment.fragmentType = SceneQuery::WFT_PLANE_BOUNDED_REGION;
+            pBrush->fragment.planes = &(pBrush->planes);
+
+        }
+
+
+
+        //-----------------------------------------------------------------------
+        // Leaves
+        //-----------------------------------------------------------------------
         for (i = 0; i < q3lvl.mNumLeaves; ++i)
         {
             BspNode* node = &mRootNode[i + mLeafStart];
@@ -369,46 +408,23 @@ namespace Ogre {
             node->mVisCluster = q3leaf->cluster;
 
             // Load Brushes for this leaf
-            int brushIdx, brushCount;
+            int brushIdx, brushCount, realBrushIdx;
             brushCount = q3leaf->brush_count;
             brushIdx = q3leaf->brush_start;
+
             while(brushCount--)
             {
-                bsp_brush_t* q3brush = &q3lvl.mBrushes[q3lvl.mLeafBrushes[brushIdx]];
+                realBrushIdx = q3lvl.mLeafBrushes[brushIdx];
+                bsp_brush_t* q3brush = &q3lvl.mBrushes[realBrushIdx];
                 // Only load solid ones, we don't care about any other types
-                if (q3brush->contents == CONTENTS_SOLID)
+                // Shader determines this
+                bsp_shader_t* brushShader = &q3lvl.mShaders[q3brush->shaderIndex];
+                if (brushShader->content_flags & CONTENTS_SOLID)
                 {
-                    // DEBUG
-                    String msg = "Brush " + StringConverter::toString(brushCount);
-                    LogManager::getSingleton().logMessage(msg);
-                    // DEBUG
-
-                    // Create a new brush for this leaf
-                    BspNode::Brush brush;
-                    int brushSideIdx, numBrushSides;
-                    numBrushSides = q3brush->numsides;
-                    brushSideIdx = q3brush->firstside;
-                    // Iterate over the sides and create plane for each
-                    while (numBrushSides--)
-                    {
-                        bsp_brushside_t* q3brushside = &q3lvl.mBrushSides[brushSideIdx];
-                        bsp_plane_t* q3brushplane = &q3lvl.mPlanes[q3brushside->planenum];
-                        Plane brushSide(Vector3(q3brushplane->normal), -q3brushplane->dist);
-                        // DEBUG
-                        msg = "";
-                        msg << brushSide;
-                        LogManager::getSingleton().logMessage(msg);
-                        // DEBUG
-                        brush.planes.push_back(brushSide);
-                        ++brushSideIdx;
-                    }
-                    // Build world fragment
-                    brush.fragment.fragmentType = SceneQuery::WFT_PLANE_BOUNDED_REGION;
-                    node->mSolidBrushes.push_back(brush);
-                    // Pull back the last entry (copied) so we can assign WF pointer
-                    BspNode::Brush& addedBrush = node->mSolidBrushes.back();
-                    addedBrush.fragment.planes = &(addedBrush.planes);
-
+                    // Get brush 
+                    BspNode::Brush *pBrush = &(mBrushes[realBrushIdx]);
+                    // Assign node pointer
+                    node->mSolidBrushes.push_back(pBrush);
                 }
                 ++brushIdx;
             }

@@ -637,65 +637,59 @@ namespace Ogre {
             BspNode::IntersectingObjectSet::const_iterator a, b, theEnd;
             theEnd = objects.end();
             a = objects.begin();
-            for (int oi = 0; oi < (numObjects - 1); ++oi, ++a)
+            for (int oi = 0; oi < numObjects; ++oi, ++a)
             {
-                // Check object against others in this node
-                b = a;
                 const MovableObject* aObj = *a;
-                for (++b; b != theEnd; ++b)
+                if (oi < (numObjects-1))
                 {
-                    const MovableObject* bObj = *b;
-                    // Apply mask (both must pass)
-                    if ( (aObj->getQueryFlags() & mQueryMask) && 
-                        (bObj->getQueryFlags() & mQueryMask))
+                    // Check object against others in this node
+                    b = a;
+                    for (++b; b != theEnd; ++b)
                     {
-                        const AxisAlignedBox& box1 = aObj->getWorldBoundingBox();
-                        const AxisAlignedBox& box2 = bObj->getWorldBoundingBox();
-
-                        if (box1.intersects(box2))
+                        const MovableObject* bObj = *b;
+                        // Apply mask (both must pass)
+                        if ( (aObj->getQueryFlags() & mQueryMask) && 
+                            (bObj->getQueryFlags() & mQueryMask))
                         {
-                            listener->queryResult(const_cast<MovableObject*>(aObj), 
-                                const_cast<MovableObject*>(bObj)); // hacky
+                            const AxisAlignedBox& box1 = aObj->getWorldBoundingBox();
+                            const AxisAlignedBox& box2 = bObj->getWorldBoundingBox();
+
+                            if (box1.intersects(box2))
+                            {
+                                listener->queryResult(const_cast<MovableObject*>(aObj), 
+                                    const_cast<MovableObject*>(bObj)); // hacky
+                            }
                         }
                     }
-
-
                 }
                 // Check object against brushes
-                const BspNode::BrushList& brushes = leaf->getSolidBrushes();
-                BspNode::BrushList::const_iterator bi, biend;
+                const BspNode::NodeBrushList& brushes = leaf->getSolidBrushes();
+                BspNode::NodeBrushList::const_iterator bi, biend;
                 biend = brushes.end();
                 Real radius = aObj->getBoundingRadius();
                 const Vector3& pos = aObj->getParentNode()->_getDerivedPosition();
-                String msg = "Radius: " + StringConverter::toString(radius) + " Position: " +
-                    StringConverter::toString(pos);
-                LogManager::getSingleton().logMessage(msg);
 
                 for (bi = brushes.begin(); bi != biend; ++bi)
                 {
                     std::list<Plane>::const_iterator planeit, planeitend;
-                    planeitend = bi->planes.end();
+                    planeitend = (*bi)->planes.end();
                     bool brushIntersect = true; // Assume intersecting for now
 
-                    for (planeit = bi->planes.begin(); planeit != planeitend; ++planeit)
+                    for (planeit = (*bi)->planes.begin(); planeit != planeitend; ++planeit)
                     {
                         Real dist = planeit->getDistance(pos);
-                        msg = "Versus plane ";
-                        msg << *planeit;
-                        msg += " dist = " + StringConverter::toString(dist) + "  \n";
-                        LogManager::getSingleton().logMessage(msg);
-                        if ( dist > radius)
+                        if (dist > radius)
                         {
                             // Definitely excluded
                             brushIntersect = false;
-                            //break;
+                            break;
                         }
                     }
                     if (brushIntersect)
                     {
                         // report this brush as it's WorldFragment
                         listener->queryResult(const_cast<MovableObject*>(aObj), // hacky
-                                const_cast<WorldFragment*>(&(bi->fragment))); 
+                                const_cast<WorldFragment*>(&((*bi)->fragment))); 
                     }
 
                 }

@@ -178,7 +178,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    const BspNode::BrushList& BspNode::getSolidBrushes(void)
+    const BspNode::NodeBrushList& BspNode::getSolidBrushes(void)
     {
         return mSolidBrushes;
     }
