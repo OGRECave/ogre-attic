@@ -694,10 +694,10 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Camera::_renderScene(Viewport *vp, bool includeHUD)
+    void Camera::_renderScene(Viewport *vp, bool includeOverlays)
     {
 
-        mSceneMgr->_renderScene(this, vp, includeHUD);
+        mSceneMgr->_renderScene(this, vp, includeOverlays);
     }
 
     //-----------------------------------------------------------------------

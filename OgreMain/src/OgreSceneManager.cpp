@@ -594,7 +594,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeHUD)
+    void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverlays)
     {
         mCameraInProgress = camera;
 
@@ -1690,7 +1690,7 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    void SceneManager::_queueHUDObjects(void)
+    void SceneManager::_queueOverlays(void)
     {
         // TODO
     }

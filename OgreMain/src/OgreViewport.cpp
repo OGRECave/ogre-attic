@@ -58,7 +58,7 @@ namespace Ogre {
         _updateDimensions();
 
         mUpdated = true;
-        mShowHUD = true;
+        mShowOverlays = true;
     }
     //---------------------------------------------------------------------
     Viewport::~Viewport()
@@ -168,7 +168,7 @@ namespace Ogre {
     void Viewport::update(void)
     {
         // Tell Camera to render into me
-        mCamera->_renderScene(this, mShowHUD);
+        mCamera->_renderScene(this, mShowOverlays);
     }
     //---------------------------------------------------------------------
     void Viewport::setBackgroundColour(ColourValue colour)
@@ -211,13 +211,13 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void Viewport::setHUDEnabled(bool enabled)
+    void Viewport::setOverlaysEnabled(bool enabled)
     {
-        mShowHUD = enabled;
+        mShowOverlays = enabled;
     }
     //---------------------------------------------------------------------
-    bool Viewport::getHUDEnabled(void)
+    bool Viewport::setOverlaysEnabled(void)
     {
-        return mShowHUD;
+        return mShowOverlays;
     }
 }
