@@ -70,42 +70,42 @@ namespace Ogre
             This method is used to append text to the end of the
             screen buffer using the default colours.
         */
-        void appendText(const String &text) { appendText(mTopColour, mBottomColour, text); }
+        virtual void appendText(const String &text) { appendText(mTopColour, mBottomColour, text); }
         /** Appends specified text to end of screen buffer. 
         @remarks
             This method is used to append text to the end of the
             screen buffer using the specified color for both the top and bottom colors.
         */
-        void appendText(const ColourValue& colour, const String &text);
+        virtual void appendText(const ColourValue& colour, const String &text);
         /** Appends specified text to end of screen buffer. 
         @remarks
             This method is used to append text to the end of the
             screen buffer using the specified colors.
         */
-        void appendText(const ColourValue& tColour, const ColourValue& bColour, const String &text);
+        virtual void appendText(const ColourValue& tColour, const ColourValue& bColour, const String &text);
         /** Appends specified text to end of screen buffer. 
         @remarks
             This method is used to append text to the end of the
             screen buffer using the specified colors.
         */
-        void appendText(const RGBA& tColour, const RGBA& bColour, const String &text);
+        virtual void appendText(const RGBA& tColour, const RGBA& bColour, const String &text);
 
-        void clearText();
+        virtual void clearText();
 
-        void setScrollBar(ScrollBarGuiElement *scrollBar);
-        ScrollBarGuiElement* getScrollBar() const { return mScrollBar; }
+        virtual void setScrollBar(ScrollBarGuiElement *scrollBar);
+        virtual ScrollBarGuiElement* getScrollBar() const { return mScrollBar; }
 
-        void setTextLimit( uint maxChars );
-        uint getTextLimit() const { return mMaxChars; }
+        virtual void setTextLimit( uint maxChars );
+        virtual uint getTextLimit() const { return mMaxChars; }
 
-        void setCharHeight( Real height );
-        Real getCharHeight() const;
+        virtual void setCharHeight( Real height );
+        virtual Real getCharHeight() const;
 
-        void setSpaceWidth( Real width );
-        Real getSpaceWidth() const;
+        virtual void setSpaceWidth( Real width );
+        virtual Real getSpaceWidth() const;
 
-        void setFontName( const String& font );
-        const String& getFontName() const;
+        virtual void setFontName( const String& font );
+        virtual const String& getFontName() const;
 
         /** See GuiElement. */
         virtual const String& getTypeName(void) const;
@@ -120,28 +120,28 @@ namespace Ogre
             the entire text. Also see setColourBottom and 
             setColourTop which allow you to set a colour gradient.
         */
-        void setColour(const ColourValue& col);
+        virtual void setColour(const ColourValue& col);
 
         /** Gets the colour of the text. */
-        const ColourValue& getColour(void) const;
+        virtual const ColourValue& getColour(void) const;
         /** Sets the colour of the bottom of the letters.
         @remarks
             By setting a separate top and bottom colour, you
             can create a text area which has a graduated colour
             effect to it.
         */
-        void setColourBottom(const ColourValue& col);
+        virtual void setColourBottom(const ColourValue& col);
         /** Gets the colour of the bottom of the letters. */
-        const ColourValue& getColourBottom(void) const;
+        virtual const ColourValue& getColourBottom(void) const;
         /** Sets the colour of the top of the letters.
         @remarks
             By setting a separate top and bottom colour, you
             can create a text area which has a graduated colour
             effect to it.
         */
-        void setColourTop(const ColourValue& col);
+        virtual void setColourTop(const ColourValue& col);
         /** Gets the colour of the top of the letters. */
-        const ColourValue& getColourTop(void) const;
+        virtual const ColourValue& getColourTop(void) const;
 
         /** Overridden from GuiElement */
         void setMetricsMode(GuiMetricsMode gmm);

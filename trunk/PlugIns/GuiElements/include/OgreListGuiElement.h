@@ -110,14 +110,14 @@ namespace Ogre {
 
 
 
-		void setItemTemplateName(const String& val);
-		void addListItem(Resource* r);
-		void removeListItem(Resource* r);
-		String getItemTemplateName();
-		String getVSpacing();
-		String getHSpacing();
-		void setVSpacing(const String& val);
-		void setHSpacing(const String& val);
+		virtual void setItemTemplateName(const String& val);
+		virtual void addListItem(Resource* r);
+		virtual void removeListItem(Resource* r);
+		virtual String getItemTemplateName();
+		virtual String getVSpacing();
+		virtual String getHSpacing();
+		virtual void setVSpacing(const String& val);
+		virtual void setHSpacing(const String& val);
 
 		void mouseClicked(MouseEvent* e) {};
 		void mouseEntered(MouseEvent* e)  {};
@@ -128,32 +128,32 @@ namespace Ogre {
 		void mouseMoved(MouseEvent* e) ;
 		void setSelectedIndex(size_t index);
 
-		String getItemPanelMaterial();
-		String getItemPanelMaterialSelected();
-		void setItemPanelMaterial(const String& val);
-		void setItemPanelMaterialSelected(const String& val);
+		virtual String getItemPanelMaterial();
+		virtual String getItemPanelMaterialSelected();
+		virtual void setItemPanelMaterial(const String& val);
+		virtual void setItemPanelMaterialSelected(const String& val);
 
-		void setScrollBarName(const String& val);
-		String getScrollBarName();
+		virtual void setScrollBarName(const String& val);
+		virtual String getScrollBarName();
 
 		void scrollPerformed(ScrollEvent* se);
 
-		void setSelectedItem(Resource* r, bool on);
-		void setSelectedItem(Resource* r);
+		virtual void setSelectedItem(Resource* r, bool on);
+		virtual void setSelectedItem(Resource* r);
 
 
-		Resource* getSelectedItem();
-		int getSelectedIndex();
+		virtual Resource* getSelectedItem();
+		virtual int getSelectedIndex();
 
-		ResourceListConstIterator getConstIterator();
-		ResourceListConstIterator getConstEndIterator();
+		virtual ResourceListConstIterator getConstIterator();
+		virtual ResourceListConstIterator getConstEndIterator();
 
-		Resource* popFront() ;
-		size_t getListSize() const;
+		virtual Resource* popFront() ;
+		virtual size_t getListSize() const;
 
     protected:
-		void setSelectedItem(GuiElement* item, bool on);
-		void setSelectedItem(GuiElement* item);
+		virtual void setSelectedItem(GuiElement* item, bool on);
+		virtual void setSelectedItem(GuiElement* item);
 
 	    void addBaseParameters(void);
 		String getListItemName(Resource* r);
@@ -167,7 +167,7 @@ namespace Ogre {
         static CmdItemPanelMaterialSelected msCmdItemPanelMaterialSelected;
         static String msTypeName;
 
-		void layoutItems();
+		virtual void layoutItems();
 		size_t mFirstVisibleItem, mVisibleRange;
 		Real mVSpacing;
 		Real mHSpacing;
