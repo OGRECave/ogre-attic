@@ -49,7 +49,7 @@ namespace Ogre {
         /// Vertex normal components of shared vertices.
         Real* pNormals;
         /// Vertex colour components of shared vertices - RGBA packed.
-        int* pColours;
+        unsigned long* pColours;
 
         /// The 'Stride' between sets of vertex data. 0 indicates data is packed with no gaps.
         unsigned short vertexStride;

@@ -323,7 +323,7 @@ namespace Ogre {
                 mMesh->sharedGeometry.pNormals = mMesh->sharedGeometry.pVertices +
                     (mCtlPointData.pNormals - mCtlPointData.pVertices);
             if (mCtlPointData.hasColours)
-                mMesh->sharedGeometry.pColours = (int*)((char*)mMesh->sharedGeometry.pVertices +
+                mMesh->sharedGeometry.pColours = (unsigned long*)((char*)mMesh->sharedGeometry.pVertices +
                     ((char*)mCtlPointData.pColours - (char*)mCtlPointData.pVertices));
             for (tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
             {
@@ -340,7 +340,7 @@ namespace Ogre {
             if (mCtlPointData.hasNormals)
                 mMesh->sharedGeometry.pNormals = new Real[3 * mMeshWidth * mMeshHeight];
             if (mCtlPointData.hasColours)
-                mMesh->sharedGeometry.pColours = new int[mMeshWidth * mMeshHeight];
+                mMesh->sharedGeometry.pColours = new unsigned long[mMeshWidth * mMeshHeight];
             for (tex = 0; tex < mCtlPointData.numTexCoords; ++tex)
             {
                 mMesh->sharedGeometry.pTexCoords[tex] = new Real[mCtlPointData.numTexCoordDimensions[tex] * mMeshWidth * mMeshHeight];
