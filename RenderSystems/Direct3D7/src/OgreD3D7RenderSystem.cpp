@@ -293,6 +293,13 @@ namespace Ogre {
                 it->second.immutable = false;
             }
         }
+		if( name == "VSync" )
+		{
+			if (value == "Yes")
+				mVSync = true;
+			else
+				mVSync = false;
+		}
 
         OgreUnguard();
     }
@@ -417,6 +424,7 @@ namespace Ogre {
             // Create myself a window
 			NameValuePairList params;
 			params["colourDepth"] = StringConverter::toString(colourDepth);
+			params["vsync"] = StringConverter::toString(mVSync);
             autoWindow = this->createRenderWindow(windowTitle, width, height, fullScreen, &params);
 
             // If we have 16bit depth buffer enable w-buffering.

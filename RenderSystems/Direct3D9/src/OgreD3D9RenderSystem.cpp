@@ -497,6 +497,7 @@ namespace Ogre
 			miscParams["colourDepth"] = StringConverter::toString(videoMode->getColourDepth());
 			miscParams["FSAA"] = StringConverter::toString(mFSAAType);
 			miscParams["FSAAQuality"] = StringConverter::toString(mFSAAQuality);
+			miscParams["vsync"] = StringConverter::toString(mVSync);
 
 			autoWindow = this->createRenderWindow( windowTitle, width, height, 
 				fullScreen, &miscParams );
