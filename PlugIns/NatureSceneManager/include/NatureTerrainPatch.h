@@ -14,6 +14,7 @@
 #include <OgrePrerequisites.h>
 #include <OgreSimpleRenderable.h>
 #include <OgreMaterialManager.h>
+#include <OgreHardwareBufferManager.h>
 
 #include "NatureConfig.h"
 #include "NaturePatch.h"
@@ -214,11 +215,9 @@ private:
 
 #if USE_TEXTURES
 	// calculate texture coordinates
-	Real *coordBuffer = &mManager->mCoordBuffer[0][v * 2];
+	Real *coordBuffer = &mManager->mCoordBuffer[v * 4];
 	*coordBuffer++ = 1.0 - (static_cast<Real>(x) / EDGE_LENGTH);
-	*coordBuffer   = (static_cast<Real>(z) / EDGE_LENGTH);
-
-	coordBuffer = &mManager->mCoordBuffer[1][v * 2];
+	*coordBuffer++ = (static_cast<Real>(z) / EDGE_LENGTH);
 	*coordBuffer++ = (x + mZone.x) / mManager->mZoneSize;
 	*coordBuffer   = 1.0 - ((z + mZone.z) / mManager->mZoneSize);
 #endif
@@ -239,11 +238,10 @@ private:
     /// Distance to camera when last rendered
     float mDistance;
 
+    VertexData* mVertexData;
+    IndexData* mIndexData;
+
     /// Local caches
-    ushort *mIndexCache;
-    Real   *mVertexCache;
-    Real   *mNormalCache;
-    Real   *mCoordCache[2];
     ulong  *mColourCache;
 
     // Number of indexes / vertices in the cache

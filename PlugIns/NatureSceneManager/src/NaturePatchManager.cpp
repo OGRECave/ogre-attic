@@ -22,6 +22,7 @@ template<> NaturePatchManager* Singleton<NaturePatchManager>::ms_Singleton = 0;
 //----------------------------------------------------------------------------
 
 NaturePatchManager::NaturePatchManager()
+    : mCoordBuffer(0)
 {
     mInited = false;
 
@@ -30,7 +31,7 @@ NaturePatchManager::NaturePatchManager()
     mNorthNeighbor = mSouthNeighbor = mWestNeighbor = mEastNeighbor = 0;
     mNorthEdgeQuad = mSouthEdgeQuad = mWestEdgeQuad = mEastEdgeQuad = 0;
 
-    mVertexBuffer = mCoordBuffer[0] = mCoordBuffer[1] = 0;
+    mVertexBuffer = 0;
     mIndexBuffer  = mVertexLookup   = 0;
     mNormalBuffer = 0;
 
@@ -38,7 +39,7 @@ NaturePatchManager::NaturePatchManager()
     mTargetQuality  = 5.0f;
 
     for (int i = 0; i < 324; i++)
-	mPatches[i] = 0;
+        mPatches[i] = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -228,25 +229,22 @@ void NaturePatchManager::freeSharedBuffers()
 {
     // delete shared buffers
     if (mVertexBuffer != 0)
-	delete[] mVertexBuffer;
+        delete[] mVertexBuffer;
     
     if (mIndexBuffer != 0)
-	delete[] mIndexBuffer;
+        delete[] mIndexBuffer;
     
     if (mVertexLookup != 0)
-	delete[] mVertexLookup;
-
-    if (mCoordBuffer[0] != 0)
-	delete[] mCoordBuffer[0];
-
-    if (mCoordBuffer[1] != 0)
-	delete[] mCoordBuffer[1];
+        delete[] mVertexLookup;
 
     if (mNormalBuffer != 0)
-	delete[] mNormalBuffer;
+        delete[] mNormalBuffer;
+
+    if (mCoordBuffer != 0)
+        delete[] mCoordBuffer;
 
     // clear the pointers
-    mVertexBuffer = mCoordBuffer[0] = mCoordBuffer[1] = 0;
+    mVertexBuffer = mCoordBuffer = 0;
     mIndexBuffer  = mVertexLookup   = 0;
 }
 
@@ -257,15 +255,14 @@ bool NaturePatchManager::initSharedBuffers()
     // allocate new memory for shared buffers
     mVertexBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 3];
     mNormalBuffer   = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 3];
-    mCoordBuffer[0] = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 2];
-    mCoordBuffer[1] = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 2];
+    mCoordBuffer = new Real[QUADTREE_SIZE * QUADTREE_SIZE * 2 * 2];
 
     mIndexBuffer    = new ushort[EDGE_LENGTH * EDGE_LENGTH * 2 * 3];
     mVertexLookup   = new ushort[QUADTREE_SIZE * QUADTREE_SIZE];
 
     // return false if allocation failed
-    if (mVertexBuffer   == 0 || mIndexBuffer  == 0 || mCoordBuffer[0] == 0 ||
-	mCoordBuffer[1] == 0 || mVertexLookup == 0)
+    if (mVertexBuffer == 0 || mIndexBuffer == 0 || mCoordBuffer == 0 || 
+        mVertexLookup == 0)
     {
 	freeSharedBuffers();
 	return false;
@@ -468,25 +465,25 @@ bool NaturePatchManager::loadPatch(int x, int y, int edge)
 
     if (mPatches[idx] == 0)
     {
-	NaturePatch::NaturePatchData *data;
-	Vector3 world, zone, scale;
+        NaturePatch::NaturePatchData *data;
+        Vector3 world, zone, scale;
 
-	// request data for this patch from the loader
-	data = mMapLoader->requestData(x, y, &world, &zone, &scale);
+        // request data for this patch from the loader
+        data = mMapLoader->requestData(x, y, &world, &zone, &scale);
 
-	if (data != 0)
-	{
-	    switch (data->type)
-	    {
-	    case NaturePatch::TYPE_TERRAIN:
-		mPatches[idx] = new NatureTerrainPatch();
-		break;
+        if (data != 0)
+        {
+            switch (data->type)
+            {
+            case NaturePatch::TYPE_TERRAIN:
+                mPatches[idx] = new NatureTerrainPatch();
+                break;
 	    
-	    // INFO: ADD MORE PATCH TYPES HERE
+            // INFO: ADD MORE PATCH TYPES HERE
 
-	    default:
-		std::cout << "ERROR: Unsupported patch type!!!\n";
-	    }
+            default:
+                std::cout << "ERROR: Unsupported patch type!!!\n";
+            }
 
 	    if (mPatches[idx] != 0)
 	    {
@@ -501,7 +498,7 @@ bool NaturePatchManager::loadPatch(int x, int y, int edge)
 //		std::cout << "ADDING: " << name << std::endl;
 
 		// setup neighbor pointers
-	        NaturePatch *n = 0, *s = 0, *w = 0, *e = 0;
+	    NaturePatch *n = 0, *s = 0, *w = 0, *e = 0;
 		int maxIdx = mPageSize * mPageSize;
 
 	        if ((edge & 0x01) == 0)

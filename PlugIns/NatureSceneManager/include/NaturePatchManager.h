@@ -121,8 +121,8 @@ private:
 
     // Shared buffers used when rendering NatureTerrainPatches
     Real   *mVertexBuffer;
-    Real   *mCoordBuffer[2];
     Real   *mNormalBuffer;
+    Real   *mCoordBuffer;
     ushort *mIndexBuffer;
     ushort *mVertexLookup;
 
