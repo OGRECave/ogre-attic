@@ -99,14 +99,15 @@ namespace Ogre {
                     *pIdx++ = edge.vertIndex[0] + originalVertexCount;
                     shadOp->indexData->indexCount += 3;
 
-                    if (lightType != Light::LT_DIRECTIONAL)
-                    {
+                    // We're not extruding to infinity
+                    //if (lightType != Light::LT_DIRECTIONAL)
+                    //{
                         // additional tri to make quad
                         *pIdx++ = edge.vertIndex[0] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[1] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[1];
                         shadOp->indexData->indexCount += 3;
-                    }
+                    //}
                     // Do dark cap tri
                     // Use McGuire et al method, a triangle fan covering all silhouette
                     // edges and one point (taken from the initial tri)
@@ -136,14 +137,15 @@ namespace Ogre {
                     *pIdx++ = edge.vertIndex[1] + originalVertexCount;
                     shadOp->indexData->indexCount += 3;
 
-                    if (lightType != Light::LT_DIRECTIONAL)
-                    {
+                    // We're not extruding to infinity
+                    //if (lightType != Light::LT_DIRECTIONAL)
+                    //{
                         // additional tri to make quad
                         *pIdx++ = edge.vertIndex[1] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[0] + originalVertexCount;
                         *pIdx++ = edge.vertIndex[0];
                         shadOp->indexData->indexCount += 3;
-                    }
+                    //}
                     // Do dark cap tri
                     // Use McGuire et al method, a triangle fan covering all silhouette
                     // edges and one point (taken from the initial tri)
@@ -236,7 +238,7 @@ namespace Ogre {
 
         Real* pDest = pSrc + originalVertexCount * 3;
         // Assume directional light, extrusion is along light direction
-        Vector3 extrusionDir(light.x, light.y, light.z);
+        Vector3 extrusionDir(-light.x, -light.y, -light.z);
         extrusionDir.normalise();
         extrusionDir *= extrudeDist;
         for (size_t vert = 0; vert < originalVertexCount; ++vert)

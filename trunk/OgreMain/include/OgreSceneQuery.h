@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSphere.h"
 #include "OgreRay.h"
 #include "OgreRenderOperation.h"
+#include "OgrePlaneBoundedVolume.h"
 
 namespace Ogre {
 
@@ -273,6 +274,24 @@ namespace Ogre {
         const Sphere& getSphere() const;
 
     };
+
+    /** Specialises the SceneQuery class for querying within a plane-bounded volume. 
+    */
+    class _OgreExport PlaneBoundedVolumeListSceneQuery : public RegionSceneQuery
+    {
+    protected:
+        PlaneBoundedVolumeList mVolumes;
+    public:
+        PlaneBoundedVolumeListSceneQuery(SceneManager* mgr);
+        virtual ~PlaneBoundedVolumeListSceneQuery();
+        /** Sets the volume which is to be used for this query. */
+        void setVolumes(const PlaneBoundedVolumeList& volumes);
+
+        /** Gets the volume which is being used for this query. */
+        const PlaneBoundedVolumeList& getVolumes() const;
+
+    };
+
 
     /*
     /// Specialises the SceneQuery class for querying within a pyramid. 
