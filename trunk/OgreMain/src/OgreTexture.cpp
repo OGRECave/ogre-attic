@@ -27,6 +27,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreImage.h"
 #include "OgreTexture.h"
+#include "OgreException.h"
 
 namespace Ogre {
 	//--------------------------------------------------------------------------

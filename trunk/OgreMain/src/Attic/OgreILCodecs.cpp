@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCodec.h"
 #include "OgreException.h"
 #include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 #include "OgreILImageCodec.h"
 #include "OgreILCodecs.h"
 
