@@ -36,10 +36,25 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
+    void ConfigFile::clear(void)
+    {
+        for (SettingsBySection::iterator seci = mSettings.begin(); 
+            seci != mSettings.end(); ++seci)
+        {
+            delete seci->second;
+        }
+        mSettings.clear();
+    }
+    //-----------------------------------------------------------------------
     void ConfigFile::load(const String& filename, const String& separators, bool trimWhitespace)
     {
         /* Clear current settings map */
-        mSettings.clear();
+        clear();
+
+        String currentSection = StringUtil::BLANK;
+        SettingsMultiMap* currentSettings = new SettingsMultiMap();
+        mSettings[currentSection] = currentSettings;
+
         
         /* Open the configuration file */
         std::ifstream fp(filename.c_str());
@@ -55,65 +70,101 @@ namespace Ogre {
             /* Ignore comments & blanks */
             if (line.length() > 0 && line.at(0) != '#' && line.at(0) != '@')
             {
-                /* Find the first seperator character and split the string there */
-                int separator_pos = line.find_first_of(separators, 0);
-                if (separator_pos != std::string::npos)
+                if (line.at(0) == '[' && line.at(line.length()-1) == ']')
                 {
-                    optName = line.substr(0, separator_pos);
-                    /* Find the first non-seperator character following the name */
-                    int nonseparator_pos = line.find_first_not_of(separators, separator_pos);
-                    /* ... and extract the value */
-                    optVal = line.substr(nonseparator_pos);
-                    if (trimWhitespace)
+                    // Section
+                    currentSection = line.substr(1, line.length() - 2);
+                    currentSettings = new SettingsMultiMap();
+                    mSettings[currentSection] = currentSettings;
+
+                }
+                else
+                {
+                    /* Find the first seperator character and split the string there */
+                    int separator_pos = line.find_first_of(separators, 0);
+                    if (separator_pos != std::string::npos)
                     {
-                        StringUtil::trim(optVal);
-                        StringUtil::trim(optName);
+                        optName = line.substr(0, separator_pos);
+                        /* Find the first non-seperator character following the name */
+                        int nonseparator_pos = line.find_first_not_of(separators, separator_pos);
+                        /* ... and extract the value */
+                        optVal = line.substr(nonseparator_pos);
+                        if (trimWhitespace)
+                        {
+                            StringUtil::trim(optVal);
+                            StringUtil::trim(optName);
+                        }
+                        currentSettings->insert(std::multimap<String, String>::value_type(optName, optVal));
                     }
-                    mSettings.insert(std::multimap<String, String>::value_type(optName, optVal));
                 }
             }
         }
 
     }
     //-----------------------------------------------------------------------
-    String ConfigFile::getSetting(const String& key) const
+    String ConfigFile::getSetting(const String& key, const String& section) const
     {
-        std::multimap<String, String>::const_iterator i;
-
-        i = mSettings.find(key);
-        if (i == mSettings.end())
+        
+        SettingsBySection::const_iterator seci = mSettings.find(section);
+        if (seci == mSettings.end())
         {
-            return "";
+            return StringUtil::BLANK;
         }
         else
         {
-            return i->second;
+            SettingsMultiMap::const_iterator i = seci->second->find(key);
+            if (i == seci->second->end())
+            {
+                return StringUtil::BLANK;
+            }
+            else
+            {
+                return i->second;
+            }
         }
     }
     //-----------------------------------------------------------------------
-    StringVector ConfigFile::getMultiSetting(const String& key) const
+    StringVector ConfigFile::getMultiSetting(const String& key, const String& section) const
     {
         StringVector ret;
 
 
-        std::multimap<String, String>::const_iterator i;
-
-        i = mSettings.find(key);
-        // Iterate over matches
-        while (i != mSettings.end() && i->first == key)
+        SettingsBySection::const_iterator seci = mSettings.find(section);
+        if (seci != mSettings.end())
         {
-            ret.push_back(i->second);
-            ++i;
-        }
+            SettingsMultiMap::const_iterator i;
 
+            i = seci->second->find(key);
+            // Iterate over matches
+            while (i != seci->second->end() && i->first == key)
+            {
+                ret.push_back(i->second);
+                ++i;
+            }
+        }
         return ret;
 
 
     }
     //-----------------------------------------------------------------------
-    ConfigFile::SettingsIterator ConfigFile::getSettingsIterator(void)
+    ConfigFile::SettingsIterator ConfigFile::getSettingsIterator(const String& section)
     {
-        return SettingsIterator(mSettings.begin(), mSettings.end());
+        SettingsBySection::const_iterator seci = mSettings.find(section);
+        if (seci == mSettings.end())
+        {
+            Except(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot find section " + section, 
+                "ConfigFile::getSettingsIterator");
+        }
+        else
+        {
+            return SettingsIterator(seci->second->begin(), seci->second->end());
+        }
+    }
+    //-----------------------------------------------------------------------
+    ConfigFile::SectionIterator ConfigFile::getSectionIterator(void)
+    {
+        return SectionIterator(mSettings.begin(), mSettings.end());
     }
 
 }

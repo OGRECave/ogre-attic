@@ -44,6 +44,9 @@ namespace Ogre {
             By default the key/values pairs are tokenised based on a
             separator of Tab, the colon (:) or equals (=) character. Each
             key - value pair must end in a carriage return.
+        @par
+            Settings can be optionally grouped in sections, using a header
+            beforehand of the form [SectionName]. 
     */
     class _OgreExport ConfigFile
     {
@@ -52,17 +55,30 @@ namespace Ogre {
         ConfigFile();
         void load(const String& filename, const String& separators = "\t:=", bool trimWhitespace = true);
 
-        /** Gets the first setting from the file with the named key. */
-        String getSetting(const String& key) const;
+        /** Gets the first setting from the file with the named key. 
+        @param key The name of the setting
+        @param section The name of the section it must be in (if any)
+        */
+        String getSetting(const String& key, const String& section = StringUtil::BLANK) const;
         /** Gets all settings from the file with the named key. */
-        StringVector getMultiSetting(const String& key) const;
+        StringVector getMultiSetting(const String& key, const String& section = StringUtil::BLANK) const;
 
-        typedef MapIterator< std::multimap<String, String> > SettingsIterator;
+        typedef std::multimap<String, String> SettingsMultiMap;
+        typedef MapIterator<SettingsMultiMap> SettingsIterator;
         /** Gets an iterator for stepping through all the keys / values in the file. */
-        SettingsIterator getSettingsIterator(void);
+        typedef std::map<String, SettingsMultiMap*> SettingsBySection;
+        typedef MapIterator<SettingsBySection> SectionIterator;
+        /** Get an iterator over all the available sections in the config file */
+        SectionIterator getSectionIterator(void);
+        /** Get an iterator over all the available settings in a section */
+        SettingsIterator getSettingsIterator(const String& section = StringUtil::BLANK);
 
+
+        
+        /** Clear the settings */
+        void clear(void);
     protected:
-        std::multimap<String, String> mSettings;
+        SettingsBySection mSettings;
     };
 
 }
