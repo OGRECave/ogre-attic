@@ -61,7 +61,8 @@ public:
         if (mInputDevice->isKeyDown(KC_SPACE) && timeUntilNextToggle <= 0)
         {
             timeUntilNextToggle = 2;
-            ball->setPosition(mCamera->getPosition());
+            ball->setPosition(mCamera->getPosition() + 
+                mCamera->getDirection() * mCamera->getNearClipDistance() * 2);
             ball->setLinearVelocity(mCamera->getDirection() * 200);
             ball->setAngularVelocity(Vector3::ZERO);
         }
