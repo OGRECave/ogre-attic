@@ -227,6 +227,9 @@ makeall_vc7.bat
 				RelativePath="..\src\OgreMeshManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreMeshSerializer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreMovableObject.cpp">
 			</File>
 			<File
@@ -462,7 +465,13 @@ makeall_vc7.bat
 				RelativePath="..\include\OgreMesh.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreMeshFileFormat.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreMeshManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreMeshSerializer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreMovableObject.h">

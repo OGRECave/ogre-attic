@@ -233,9 +233,9 @@ namespace Ogre {
         return &mTextureLayers[mNumTextureLayers++];
     }
     //-----------------------------------------------------------------------
-    Material::TextureLayer* Material::getTextureLayer(int index)
+    Material::TextureLayer* Material::getTextureLayer(int index) const
     {
-        return &mTextureLayers[index];
+        return const_cast<Material::TextureLayer*>(&mTextureLayers[index]);
     }
     //-----------------------------------------------------------------------
     void Material::removeTextureLayer()

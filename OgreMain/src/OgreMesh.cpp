@@ -80,16 +80,16 @@ namespace Ogre {
         return sub;
     }
     //-----------------------------------------------------------------------
-    unsigned short Mesh::getNumSubMeshes()
+    unsigned short Mesh::getNumSubMeshes() const
     {
         return mSubMeshList.size();
     }
 
     //-----------------------------------------------------------------------
-    SubMesh* Mesh::getSubMesh(unsigned short index)
+    SubMesh* Mesh::getSubMesh(unsigned short index) const
     {
-        SubMeshList::iterator i = mSubMeshList.begin();
-        return i[index];
+        SubMeshList::const_iterator i = mSubMeshList.begin();
+        return const_cast<SubMesh*>(i[index]);
     }
 
     //-----------------------------------------------------------------------

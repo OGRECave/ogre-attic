@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/gpl.html.
 
 #include "OgrePrerequisites.h"
 #include "OgreMaterial.h"
+#include "OgreString.h"
 
 namespace Ogre {
 
@@ -94,8 +95,19 @@ namespace Ogre {
         @remarks
             This method exports the Mesh and Material data held in this class to the specified
             file.
+        @param filename The destination filename
         */
         void export(const String& filename);
+
+        /** Exports an externally stored mesh to the file specified. 
+        @remarks
+            This method takes an externally created Mesh object, and exports both it
+            and optionally the Materials it uses to a .mesh file.
+        @param pMesh Pointer to the Mesh to export
+        @param filename The destination filename
+        @param includeMaterials If true, Material data is also exported into the file.
+        */
+        void exportOther(const Mesh* pMesh, const String& filename, bool includeMaterials = false);
 
         /** Imports Mesh and (optionally) Material data from a DataChunk.
         @remarks
@@ -132,7 +144,8 @@ namespace Ogre {
         typedef std::map<String, Material*> MaterialMap;
         MaterialMap mMaterialList;
         Mesh* mpMesh;
-        std::ostream* mOStream;
+        FILE* mpfFile;
+        String mVersion;
 
         // Internal methods
         void freeMemory(void);
@@ -145,8 +158,31 @@ namespace Ogre {
         void writeSubMesh(const SubMesh* s);
         void writeGeometry(const GeometryData* pGeom);
         void writeReals(const Real* pReal, unsigned short count);
-        void writeShorts(const short* pShort, unsigned short count);
+        void writeShorts(const unsigned short* pShort, unsigned short count);
+        void writeLongs(const unsigned long* pLong, unsigned short count); 
 
+        unsigned long calcMaterialSize(const Material* pMat);
+        unsigned long calcTextureLayerSize(const Material::TextureLayer* pTex);
+        unsigned long calcMeshSize(const Mesh* pMesh);
+        unsigned long calcSubMeshSize(const SubMesh* pSub);
+        unsigned long calcGeometrySize(const GeometryData* pGeom);
+
+        void writeData(const void* buf, size_t size, size_t count);
+        void writeString(const String& string);
+
+        void readFileHeader(DataChunk& chunk);
+        void readChunk(DataChunk& chunk);
+        void readMaterial(DataChunk& chunk);
+        void readTextureLayer(DataChunk& chunk, Material* pMat);
+        void readMesh(DataChunk& chunk);
+        void readSubMesh(DataChunk& chunk);
+        void readGeometry(DataChunk& chunk, GeometryData* dest);
+        void readReals(DataChunk& chunk, Real* pDest, unsigned short count);
+        void readShorts(DataChunk& chunk, unsigned short* pDest, unsigned short count);
+        void readLongs(DataChunk& chunk, unsigned long* pDest, unsigned short count); 
+
+        void readData(DataChunk& chunk, void* buf, size_t size, size_t count);
+        String readString(DataChunk& chunk);
 
     };
 

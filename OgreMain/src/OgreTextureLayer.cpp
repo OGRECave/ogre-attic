@@ -151,7 +151,7 @@ namespace Ogre {
         String fullNames[6];
 
 
-        int pos = name.find_last_of(".");
+        size_t pos = name.find_last_of(".");
         baseName = name.substr(0, pos);
         ext = name.substr(pos);
 
@@ -216,7 +216,7 @@ namespace Ogre {
         String ext;
         String baseName;
 
-        int pos = name.find_last_of(".");
+        size_t pos = name.find_last_of(".");
         baseName = name.substr(0, pos);
         ext = name.substr(pos);
 

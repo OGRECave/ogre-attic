@@ -100,11 +100,11 @@ namespace Ogre {
 
         /** Gets the number of sub meshes which comprise this mesh.
         */
-        unsigned short getNumSubMeshes(void);
+        unsigned short getNumSubMeshes(void) const;
 
         /** Gets a pointer to the submesh indicated by the index.
         */
-        SubMesh* getSubMesh(unsigned short index);
+        SubMesh* getSubMesh(unsigned short index) const;
 
         /** Shared geometry data.
             @remarks

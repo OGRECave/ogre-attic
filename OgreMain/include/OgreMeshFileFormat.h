@@ -48,43 +48,39 @@ namespace Ogre {
     enum MeshChunkIDs {
         M_HEADER                = 0x1000,
             // char*          version           : Version number check
-            // unsigned short numMaterials      : Number of materials 
         M_MATERIAL            = 0x2000,
             // char* name 
             // AMBIENT
-            // float r, g, b
+            // Real r, g, b
             // DIFFUSE
-            // float r, g, b
+            // Real r, g, b
             // SPECULAR
-            // float r, g, b
+            // Real r, g, b
             // SHININESS
-            // float val;
-            OOF_TEXTURE_LAYER    = 0x2200, // optional, repeat per layer
+            // Real val;
+            M_TEXTURE_LAYER    = 0x2200, // optional, repeat per layer
                 // char* name 
                 // TODO - scale, offset, effects
         M_MESH                = 0x3000,
-            // unsigned short numSharedVertices
-            M_SHAREDPOSITIONS        = 0x3100, // present only if numSharedVertices > 0
-                // float* (x,y,z) * numVertices
-            M_SHAREDNORMALS        = 0x3200, // optional, present only if numSharedVertices > 0
-                // float* (x,y,z) * numVertices
-            M_SHAREDTEXCOORDS        = 0x3300, // optional, present only if numSharedVertices > 0
-                // float* (u,v) * numVertices
-            M_SHAREDCOLOURS        = 0x3400, // optional, present only if numSharedVertices > 0
-                // float* (r,g,b) * numVertices
-        M_SUBMESH = 0x4000, 
-            // char* materialName
-            // unsigned short numFaces
-            // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
-            // unsigned short numOwnVertices
-            OOF_VPOSITIONS        = 0x4100, //present only if numOwnVertices > 0
-                // float* (x,y,z) * numVertices
-            OOF_VNORMALS        = 0x4200, // optional, present only if numOwnVertices > 0
-                // float* (x,y,z) * numVertices
-            OOF_VTEXCOORDS        = 0x4300, // optional, present only if numOwnVertices > 0
-                // float* (u,v) * numVertices
-            OOF_VCOLOURS        = 0x4400, // optional, present only if numOwnVertices > 0
-                // float* (r,g,b) * numVertices
+            // M_GEOMETRY chunk
+            M_SUBMESH             = 0x4000, 
+                // char* materialName
+                // bool useSharedVertices
+                // unsigned short numFaces
+                // unsigned short* faceVertexIndices ((v1, v2, v3) * numFaces)
+                // M_GEOMETRY chunk (Optional: present only if useSharedVertices = false)
+
+            M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
+                // unsigned short numVertices
+                // Real* pVertices (x, y, z order x numVertices)
+                M_GEOMETRY_NORMALS = 0x5100,    //(Optional)
+                    // Real* pNormals (x, y, z order x numVertices)
+                M_GEOMETRY_COLOURS = 0x5200,    //(Optional)
+                    // unsigned long* pColours (RGBA 8888 format x numVertices)
+                M_GEOMETRY_TEXCOORDS = 0x5300,    //(Optional, REPEATABLE, each one adds an extra set)
+                    // unsigned short dimensions    (1 for 1D, 2 for 2D, 3 for 3D)
+                    // Real* pTexCoords  (u [v] [w] order, dimensions x numVertices)
+
     };
 
 } // namespace

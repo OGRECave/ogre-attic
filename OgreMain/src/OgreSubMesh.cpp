@@ -99,18 +99,18 @@ namespace Ogre {
         mMatInitialised = true;
     }
     //-----------------------------------------------------------------------
-    Material* SubMesh::getMaterial()
+    const Material* SubMesh::getMaterial() const
     {
         return &mMaterial;
     }
     //-----------------------------------------------------------------------
-    bool SubMesh::isMatInitialised(void)
+    bool SubMesh::isMatInitialised(void) const
     {
         return mMatInitialised;
 
     }
     //-----------------------------------------------------------------------
-    void SubMesh::_getRenderOperation(RenderOperation& ro)
+    void SubMesh::_getRenderOperation(RenderOperation& ro) 
     {
 
         // SubMeshes always use indexes

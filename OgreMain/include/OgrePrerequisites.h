@@ -126,11 +126,14 @@ namespace Ogre {
     class SDDataChunk;
     class SimpleRenderable;
     class Sphere;
+    class String;
     class StringInterface;
     class SubEntity;
     class SubMesh;
     class Vector3;
-    class Viewport;    
+    class Viewport;   
+
+    struct GeometryData;
 }
 
 #endif // __OgrePrerequisites_H__

@@ -95,11 +95,11 @@ namespace Ogre {
         Mesh* parent;
 
         void setMaterial(const Material& mat);
-        Material* getMaterial(void);
+        const Material* getMaterial(void) const;
 
         /** Returns true if a material has been assigned to the submesh, otherwise returns false.
         */
-        bool isMatInitialised(void);
+        bool isMatInitialised(void) const;
 
         /** Returns a RenderOperation structure required to render this mesh.
             @param 
