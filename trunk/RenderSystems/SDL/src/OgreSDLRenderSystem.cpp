@@ -501,14 +501,6 @@ namespace Ogre {
         // Disable ambient light for movables
         glLighti(gl_index, GL_AMBIENT, 0);
 
-        // Setup matrices for the light position/direction
-#if 0
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glMultMatrixf(mWorldMatrix);
-        glMultMatrixf(mViewMatrix);
-#endif
-
         // Position (don't set for directional)
         Vector3 vec;
         if (lt->getType() != Light::LT_DIRECTIONAL)
@@ -530,7 +522,7 @@ namespace Ogre {
             f4vals[3] = 0.0;
             glLightfv(gl_index, GL_SPOT_DIRECTION, f4vals);
         }
-        
+
         // Attenuation
         glLightf(gl_index, GL_CONSTANT_ATTENUATION, lt->getAttenuationConstant());
         glLightf(gl_index, GL_LINEAR_ATTENUATION, lt->getAttenuationLinear());
@@ -725,26 +717,13 @@ namespace Ogre {
         glActiveTextureARB(GL_TEXTURE0_ARB + stage);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_EXT);
 //
-//        if (bm.blendType == LBT_COLOUR)
-//        {
-//            std::cout << "Colour blend ops" << std::endl;
-//            glTexEnvi(GL_TEXTURE_ENV, (GLenum)GL_COMBINE_RGB_EXT, op2gl(gs,color_op.op));
-//            
-//        }
-//        else
-//        {
-//            // XXX Do alpha stuff here
-//            std::cout << "Alpha blend op!" << std::endl;
-//        }
-
 //        std::cout << "Need to do blend op: " << bm.operation << std::endl;
+//        std::cout << "Type: " << bm.blendType << std::endl;
 //        std::cout << "Src1: " << bm.source1 << std::endl;
 //        std::cout << "Src2: " << bm.source2 << std::endl;
 
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_ALPHA);
 
-        GLenum type, src1, src2, src1op, src2op;
+        GLenum type, src1, src2, src1op, src2op, cmd;
         if (bm.blendType == LBT_COLOUR)
         {
             type = GL_COMBINE_RGB_EXT;
@@ -758,6 +737,13 @@ namespace Ogre {
             src2 = GL_SOURCE1_ALPHA_EXT;
         }
 
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_SRC_ALPHA);
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_SRC_COLOR); 
+        glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA); 
+
         switch (bm.source1)
         {
         case LBS_CURRENT:
@@ -766,7 +752,7 @@ namespace Ogre {
         case LBS_TEXTURE:
             src1op = GL_TEXTURE;
             break;
-        // XXX ?
+        // XXX
         case LBS_DIFFUSE:
             src1op = 0;
             break;
@@ -785,7 +771,7 @@ namespace Ogre {
         case LBS_TEXTURE:
             src2op = GL_TEXTURE;
             break;
-        // XXX ?
+        // XXX
         case LBS_DIFFUSE:
             src2op = 0;
             break;
@@ -799,37 +785,29 @@ namespace Ogre {
         switch (bm.operation)
         {
         case LBX_SOURCE1:
-            glTexEnvi(GL_TEXTURE_ENV, type, GL_REPLACE);
-            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
+            cmd = GL_REPLACE;
             break;
         case LBX_SOURCE2:
-            glTexEnvi(GL_TEXTURE_ENV, type, GL_REPLACE);
-            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
+            cmd = GL_REPLACE;
             break;
         case LBX_MODULATE:
-            glTexEnvi(GL_TEXTURE_ENV, type, GL_MODULATE);
-            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
+            cmd = GL_MODULATE;
             break;
-#if 0
         case LBX_MODULATE_X2:
-            value = D3DTOP_MODULATE2X;
+            cmd = GL_MODULATE;
+            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ?
+                    GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 2);
             break;
         case LBX_MODULATE_X4:
-            value = D3DTOP_MODULATE4X;
+            cmd = GL_MODULATE;
+            glTexEnvi(GL_TEXTURE_ENV, bm.blendType == LBT_COLOUR ?
+                    GL_RGB_SCALE_EXT : GL_ALPHA_SCALE, 4);
             break;
-#endif
         case LBX_ADD:
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD);
-            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
+            cmd = GL_ADD;
             break;
         case LBX_ADD_SIGNED:
-            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD_SIGNED_EXT);
-            glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
-            glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
+            cmd = GL_ADD_SIGNED_EXT;
             break;
 #if 0
         case LBX_ADD_SMOOTH:
@@ -841,88 +819,33 @@ namespace Ogre {
         case LBX_BLEND_DIFFUSE_ALPHA:
             value = D3DTOP_BLENDDIFFUSEALPHA;
             break;
+#endif
         case LBX_BLEND_TEXTURE_ALPHA:
-            value = D3DTOP_BLENDTEXTUREALPHA;
+            cmd = GL_INTERPOLATE_EXT;
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_TEXTURE);
             break;
         case LBX_BLEND_CURRENT_ALPHA:
-            value = D3DTOP_BLENDCURRENTALPHA;
+            cmd = GL_INTERPOLATE_EXT;
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_PREVIOUS_EXT);
+            glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
             break;
+#if 0
         case LBX_BLEND_MANUAL:
             value = D3DTOP_BLENDFACTORALPHA;
             // Set factor in render state
             hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
                 D3DRGBA(0,0,0,bm.factor));
             break;
+        default:
+            printf("Unhandled type %d\n", bm.operation);
 #endif
         }
 
-#if 0
-        if (bm.blendType == LBT_COLOUR)
-        {
-            glTexEnvf
-        }
-        else if (bm.blendType == LBT_ALPHA)
-        {
-            tss= D3DTSS_ALPHAOP;
-        }
+        glTexEnvi(GL_TEXTURE_ENV, type, cmd);
+        glTexEnvi(GL_TEXTURE_ENV, src1, src1op);
+        glTexEnvi(GL_TEXTURE_ENV, src2, src2op);
 
-        // Make call to set operation
-        hr = mlpD3DDevice->SetTextureStageState(stage, tss, value);
-
-        // Now set up sources
-        D3DCOLOR manualD3D;
-        if (bm.blendType == LBT_COLOUR)
-        {
-            tss = D3DTSS_COLORARG1;
-            manualD3D = D3DRGBA(bm.colourArg1.r,bm.colourArg1.g,bm.colourArg1.b,1.0);
-        }
-        else if (bm.blendType == LBT_ALPHA)
-        {
-            tss = D3DTSS_ALPHAARG1;
-            manualD3D = D3DRGBA(0,0,0,bm.alphaArg1);
-        }
-        LayerBlendSource bs = bm.source1;
-        for (int i = 0; i < 2; ++i)
-        {
-            switch (bs)
-            {
-            case LBS_CURRENT:
-                value = D3DTA_CURRENT;
-                break;
-            case LBS_TEXTURE:
-                value = D3DTA_TEXTURE;
-                break;
-            case LBS_DIFFUSE:
-                value = D3DTA_DIFFUSE;
-                break;
-            case LBS_SPECULAR:
-                value = D3DTA_SPECULAR;
-                break;
-            case LBS_MANUAL:
-                value = D3DTA_TFACTOR;
-                // Set factor in render state
-                hr = mlpD3DDevice->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,    manualD3D);
-                break;
-
-            }
-
-            // Set source
-            hr = mlpD3DDevice->SetTextureStageState(stage,tss,value);
-
-            // Source2
-            bs = bm.source2;
-            if (bm.blendType == LBT_COLOUR)
-            {
-                tss = D3DTSS_COLORARG2;
-                manualD3D = D3DRGBA(bm.colourArg2.r,bm.colourArg2.g,bm.colourArg2.b,1.0);
-            }
-            else if (bm.blendType == LBT_ALPHA)
-            {
-                tss = D3DTSS_ALPHAARG2;
-                manualD3D = D3DRGBA(0,0,0,bm.alphaArg2);
-            }
-        }
-#endif
         glActiveTextureARB(GL_TEXTURE0_ARB);
     }
     //-----------------------------------------------------------------------------
@@ -1096,6 +1019,37 @@ namespace Ogre {
             }
 
         }        
+
+        GLfloat f4vals[4];
+        for (int i = 0; i < MAX_LIGHTS; ++i)
+        {
+            if (mLights[i] != NULL)
+            {
+                Light* lt = mLights[i];
+                // Position (don't set for directional)
+                Vector3 vec;
+                if (lt->getType() != Light::LT_DIRECTIONAL)
+                {
+                    vec = lt->getDerivedPosition();
+                    f4vals[0] = vec.x;
+                    f4vals[1] = vec.y;
+                    f4vals[2] = vec.z;
+                    f4vals[3] = 1.0;
+                    glLightfv(GL_LIGHT0 + i, GL_POSITION, f4vals);
+                }
+                // Direction (not needed for point lights)
+                if (lt->getType() != Light::LT_POINT)
+                {
+                    vec = lt->getDerivedDirection();
+                    f4vals[0] = vec.x;
+                    f4vals[1] = vec.y;
+                    f4vals[2] = vec.z;
+                    f4vals[3] = 0.0;
+                    glLightfv(GL_LIGHT0 + i, GL_SPOT_DIRECTION, f4vals);
+                }
+            }
+        }
+
 
         OgreUnguard();
     }
