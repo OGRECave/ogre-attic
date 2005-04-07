@@ -42,6 +42,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_fcurve.h>
 #include <xsi_fcurvekey.h>
 #include <xsi_time.h>
+#include <xsi_chaineffector.h>
+#include <xsi_chainroot.h>
+#include <xsi_chainbone.h>
 
 using namespace XSI;
 
@@ -155,11 +158,21 @@ namespace Ogre
 	{
 		X3DObject parent(child->obj.GetParent());
 		String childName = XSItoOgre(child->obj.GetName());
-		String parentName = XSItoOgre(parent.GetName());
 
 		if (child->obj == mXsiSceneRoot /* safety check for start node */)
 			return;
 
+		// Check for parenting by a chain end effector
+		// These are sneaky little buggers - we actually want to attach the
+		// child to the end of the final bone in the chain
+		if (parent.IsA(XSI::siChainEffectorID))
+		{
+			ChainEffector effector(parent);
+			CRefArray chainBones = effector.GetRoot().GetBones();
+			// get the last
+			parent = chainBones[chainBones.GetCount()-1];
+			
+		}
 		// is the parent the scene root?
 		if (parent == mXsiSceneRoot)
 		{
@@ -168,6 +181,7 @@ namespace Ogre
 		else
 		{
 
+			String parentName = XSItoOgre(parent.GetName());
 			// Otherwise, check to see if the parent is in the deformer list
 			DeformerMap::iterator i = deformers.find(parentName);
 			DeformerEntry* parentDeformer = 0;
