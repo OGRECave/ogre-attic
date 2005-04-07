@@ -477,24 +477,26 @@ namespace Ogre
 				Quaternion combinedRot = rotQX * rotQY * rotQZ;
 
 				// make relative to bindpos
-				/*
-				Vector3 invScale = deformer->pBone->getScale();
-				invScale.x = 1.0f / invScale.x;
-				invScale.y = 1.0f / invScale.y;
-				invScale.z = 1.0f / invScale.z;
-				Quaternion invRot = deformer->pBone->getOrientation().Inverse();
+				// Only seems necessary for non-root bones?
+				if (deformer->pBone->getParent() != 0)
+				{
+					Vector3 invScale = deformer->pBone->getScale();
+					invScale.x = 1.0f / invScale.x;
+					invScale.y = 1.0f / invScale.y;
+					invScale.z = 1.0f / invScale.z;
+					Quaternion invRot = deformer->pBone->getOrientation().Inverse();
 
-				// Inverse SRT on position
-				pos = pos - deformer->pBone->getPosition();
-				pos = invRot * pos;
-				pos = pos * invScale;
+					// Inverse SRT on position
+					pos = pos - deformer->pBone->getPosition();
+					pos = invRot * pos;
+					pos = pos * invScale;
 
-				// Inverse rotation
-				combinedRot = invRot * combinedRot;
+					// Inverse rotation
+					combinedRot = invRot * combinedRot;
 
-				// Inverse scale
-				scl = invScale * scl;
-				*/
+					// Inverse scale
+					scl = invScale * scl;
+				}
 
 				// create keyframe
 				KeyFrame* kf = track->createKeyFrame((float)(*fi - 1) / fps);
