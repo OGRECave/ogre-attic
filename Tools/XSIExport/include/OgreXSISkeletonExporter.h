@@ -90,7 +90,7 @@ namespace Ogre {
 		/// Pre-parse the deformers animation to find the keyframe numbers
 		void buildKeyframeList(DeformerMap& deformers, AnimationEntry& animEntry);		
 		/// Derive a keyframe value from XSI's tracks
-		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame);
+		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame, double defaultVal);
 		
 
 	};

@@ -467,20 +467,44 @@ namespace Ogre
 			// create track
 			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
 
+			XSI::MATH::CTransformation initialTransformation;
+			if (deformer->pBone->getParent() == 0)
+			{
+				// Based on global
+				initialTransformation = 
+					deformer->obj.GetKinematics().GetGlobal().GetTransform();
+			}
+			else
+			{
+				// Based on local
+				initialTransformation = 
+					deformer->obj.GetKinematics().GetLocal().GetTransform();
+			}
+			XSI::MATH::CMatrix4 invTrans = initialTransformation.GetMatrix4();
+			invTrans.InvertInPlace();
+
+			double initposx, initposy, initposz;
+			initialTransformation.GetTranslationValues(initposx, initposy, initposz);
+			double initrotx, initroty, initrotz;
+			initialTransformation.GetRotation().GetXYZAngles(initrotx, initroty, initrotz);
+			double initsclx, initscly, initsclz;
+			initialTransformation.GetScalingValues(initsclx, initscly, initsclz);
+
+
 			// Iterate over the frames and pull out the values we need
 			// bake keyframe for all
 			for (std::set<long>::iterator fi = animEntry.frames.begin(); 
 				fi != animEntry.frames.end(); ++fi)
 			{
-				double posx = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_X], *fi);
-				double posy = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Y], *fi);
-				double posz = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Z], *fi);
-				double rotx = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_X], *fi);
-				double roty = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Y], *fi);
-				double rotz = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Z], *fi);
-				double sclx = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_X], *fi);
-				double scly = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Y], *fi);
-				double sclz = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Z], *fi);
+				double posx = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_X], *fi, initposx);
+				double posy = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Y], *fi, initposy);
+				double posz = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Z], *fi, initposz);
+				double rotx = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_X], *fi, initrotx);
+				double roty = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Y], *fi, initroty);
+				double rotz = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Z], *fi, initrotz);
+				double sclx = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_X], *fi, initsclx);
+				double scly = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Y], *fi, initscly);
+				double sclz = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Z], *fi, initsclz);
 
 
 
@@ -499,23 +523,8 @@ namespace Ogre
 					// HACK - XSI seems to be reporting 0 all the time for scale??
 					//transformation.SetScaling(CVector3(sclx, scly, sclz));
 
-					XSI::MATH::CTransformation initialTransformation;
-					if (deformer->pBone->getParent() == 0)
-					{
-						// Based on global
-						initialTransformation = 
-							deformer->obj.GetKinematics().GetGlobal().GetTransform();
-					}
-					else
-					{
-						// Based on local
-						initialTransformation = 
-							deformer->obj.GetKinematics().GetLocal().GetTransform();
-					}
 
 					XSI::MATH::CMatrix4 transformationMatrix = transformation.GetMatrix4();
-					XSI::MATH::CMatrix4 invTrans = initialTransformation.GetMatrix4();
-					invTrans.InvertInPlace();
 					transformationMatrix.MulInPlace(invTrans);
 					transformation.SetMatrix4(transformationMatrix);
 				}
@@ -534,10 +543,17 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	double XsiSkeletonExporter::deriveKeyFrameValue(
-		XSI::AnimationSourceItem item, long frame)
+		XSI::AnimationSourceItem item, long frame, double defaultVal)
 	{
-		FCurve curve(item.GetSource());
-		// let fcurve evaluate
-		return curve.Eval(CTime(frame));
+		if (item.IsValid())
+		{
+			FCurve curve(item.GetSource());
+			// let fcurve evaluate
+			return curve.Eval(CTime(frame));
+		}
+		else
+		{
+			return defaultVal;
+		}
 	}
 }
