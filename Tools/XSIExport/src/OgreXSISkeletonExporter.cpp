@@ -173,6 +173,7 @@ namespace Ogre
 			CRefArray chainBones = effector.GetRoot().GetBones();
 			// get the last
 			parent = chainBones[chainBones.GetCount()-1];
+			child->parentIsChainEndEffector = true;
 			
 		}
 		// is the parent the scene root?
@@ -249,10 +250,9 @@ namespace Ogre
 			deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
 
 			// special case a bone which is parented by a chain end
-			X3DObject parent(deformer->obj.GetParent());
-			if (parent.IsA(XSI::siChainEffectorID))
+			if (deformer->parentIsChainEndEffector)
 			{
-				ChainEffector effector(parent);
+				ChainEffector effector(deformer->obj.GetParent());
 				CRefArray chainBones = effector.GetRoot().GetBones();
 				// get the last
 				X3DObject endBone = chainBones[chainBones.GetCount()-1];
@@ -487,7 +487,7 @@ namespace Ogre
 
 				XSI::MATH::CTransformation transformation;
 
-				if (deformer->pBone->getParent() != 0)
+				if (deformer->pBone->getParent() != 0 && !deformer->parentIsChainEndEffector)
 				{
 					transformation.SetTranslationFromValues(posx, posy, posz);
 					transformation.SetRotationFromXYZAnglesValues(
