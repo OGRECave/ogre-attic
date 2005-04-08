@@ -148,12 +148,14 @@ namespace Ogre {
 		String parentName;
 		StringVector childNames;
 		bool hasVertexAssignments;
+		bool parentIsChainEndEffector;
 		Bone* pBone;
 		// lists of action source items (probably only one per param?)
 		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 
 		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
-			:boneID(theboneID), obj(theobj), hasVertexAssignments(false), pBone(0)
+			:boneID(theboneID), obj(theobj), hasVertexAssignments(false), 
+			parentIsChainEndEffector(false), pBone(0)
 		{
 		}
 
