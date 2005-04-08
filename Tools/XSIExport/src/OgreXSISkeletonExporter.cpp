@@ -45,6 +45,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_chaineffector.h>
 #include <xsi_chainroot.h>
 #include <xsi_chainbone.h>
+#include <xsi_matrix4.h>
+#include <xsi_transformation.h>
 
 using namespace XSI;
 
@@ -245,6 +247,21 @@ namespace Ogre
 			deformer->pBone->setPosition(XSItoOgre(trans.GetTranslation()));
 			deformer->pBone->setOrientation(XSItoOgre(trans.GetRotation().GetQuaternion()));
 			deformer->pBone->setScale(XSItoOgre(trans.GetScaling()));
+
+			// special case a bone which is parented by a chain end
+			X3DObject parent(deformer->obj.GetParent());
+			if (parent.IsA(XSI::siChainEffectorID))
+			{
+				ChainEffector effector(parent);
+				CRefArray chainBones = effector.GetRoot().GetBones();
+				// get the last
+				X3DObject endBone = chainBones[chainBones.GetCount()-1];
+				// offset along X the length of the bone
+				double boneLen = endBone.GetParameterValue(L"Length");
+				deformer->pBone->setPosition(
+					deformer->pBone->getPosition() + Vector3::UNIT_X * boneLen);
+			}
+
 		}
 
 
@@ -455,54 +472,59 @@ namespace Ogre
 			for (std::set<long>::iterator fi = animEntry.frames.begin(); 
 				fi != animEntry.frames.end(); ++fi)
 			{
-				Vector3 pos, rot, scl;
-				pos.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_X], *fi);
-				pos.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Y], *fi);
-				pos.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Z], *fi);
-				rot.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_X], *fi);
-				rot.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Y], *fi);
-				rot.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Z], *fi);
-				scl.x = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_X], *fi);
-				scl.y = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Y], *fi);
-				scl.z = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Z], *fi);
+				double posx = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_X], *fi);
+				double posy = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Y], *fi);
+				double posz = deriveKeyFrameValue(deformer->xsiTrack[XTT_POS_Z], *fi);
+				double rotx = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_X], *fi);
+				double roty = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Y], *fi);
+				double rotz = deriveKeyFrameValue(deformer->xsiTrack[XTT_ROT_Z], *fi);
+				double sclx = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_X], *fi);
+				double scly = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Y], *fi);
+				double sclz = deriveKeyFrameValue(deformer->xsiTrack[XTT_SCL_Z], *fi);
 
-				// HACK - XSI seems to be reporting 0 all the time for scale??
-				// TODO
-				scl = Vector3::UNIT_SCALE;
 
-				// Build combined rotation (assume rotation ordering)
-				Quaternion rotQX(Degree(rot.x), Vector3::UNIT_X);
-				Quaternion rotQY(Degree(rot.y), Vector3::UNIT_Y);
-				Quaternion rotQZ(Degree(rot.z), Vector3::UNIT_Z);
-				Quaternion combinedRot = rotQX * rotQY * rotQZ;
 
-				// make relative to bindpos
-				// Only seems necessary for non-root bones?
+
+				XSI::MATH::CTransformation transformation;
+
 				if (deformer->pBone->getParent() != 0)
 				{
-					Vector3 invScale = deformer->pBone->getScale();
-					invScale.x = 1.0f / invScale.x;
-					invScale.y = 1.0f / invScale.y;
-					invScale.z = 1.0f / invScale.z;
-					Quaternion invRot = deformer->pBone->getOrientation().Inverse();
+					transformation.SetTranslationFromValues(posx, posy, posz);
+					transformation.SetRotationFromXYZAnglesValues(
+						XSI::MATH::DegreesToRadians(rotx),
+						XSI::MATH::DegreesToRadians(roty),
+						XSI::MATH::DegreesToRadians(rotz),
+						XSI::MATH::CRotation::RotationOrder::siXYZ);
+					
+					// HACK - XSI seems to be reporting 0 all the time for scale??
+					//transformation.SetScaling(CVector3(sclx, scly, sclz));
 
-					// Inverse SRT on position
-					pos = pos - deformer->pBone->getPosition();
-					pos = invRot * pos;
-					pos = pos * invScale;
+					XSI::MATH::CTransformation initialTransformation;
+					if (deformer->pBone->getParent() == 0)
+					{
+						// Based on global
+						initialTransformation = 
+							deformer->obj.GetKinematics().GetGlobal().GetTransform();
+					}
+					else
+					{
+						// Based on local
+						initialTransformation = 
+							deformer->obj.GetKinematics().GetLocal().GetTransform();
+					}
 
-					// Inverse rotation
-					combinedRot = invRot * combinedRot;
-
-					// Inverse scale
-					scl = invScale * scl;
+					XSI::MATH::CMatrix4 transformationMatrix = transformation.GetMatrix4();
+					XSI::MATH::CMatrix4 invTrans = initialTransformation.GetMatrix4();
+					invTrans.InvertInPlace();
+					transformationMatrix.MulInPlace(invTrans);
+					transformation.SetMatrix4(transformationMatrix);
 				}
 
 				// create keyframe
 				KeyFrame* kf = track->createKeyFrame((float)(*fi - 1) / fps);
-				kf->setTranslate(pos);
-				kf->setRotation(combinedRot);
-				kf->setScale(scl);
+				kf->setTranslate(XSItoOgre(transformation.GetTranslation()));
+				kf->setRotation(XSItoOgre(transformation.GetRotationQuaternion()));
+				kf->setScale(XSItoOgre(transformation.GetScaling()));
 
 
 			}
@@ -511,11 +533,11 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------------
-	float XsiSkeletonExporter::deriveKeyFrameValue(
+	double XsiSkeletonExporter::deriveKeyFrameValue(
 		XSI::AnimationSourceItem item, long frame)
 	{
 		FCurve curve(item.GetSource());
 		// let fcurve evaluate
-		return static_cast<float>(curve.Eval(CTime(frame)));
+		return curve.Eval(CTime(frame));
 	}
 }
