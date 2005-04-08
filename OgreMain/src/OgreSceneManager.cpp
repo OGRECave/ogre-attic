@@ -2653,23 +2653,26 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
     for (i = mLights.begin(); i != iend; ++i)
     {
         Light* l = i->second;
-        if (l->getType() == Light::LT_DIRECTIONAL)
-        {
-            // Always visible
-            mLightsAffectingFrustum.push_back(l);
-        }
-        else
-        {
-            // NB treating spotlight as point for simplicity
-            // Just see if the lights attenuation range is within the frustum
-            sphere.setCenter(l->getDerivedPosition());
-            sphere.setRadius(l->getAttenuationRange());
-            if (camera->isVisible(sphere))
-            {
-                mLightsAffectingFrustum.push_back(l);
-            }
+		if (l->isVisible())
+		{
+			if (l->getType() == Light::LT_DIRECTIONAL)
+			{
+				// Always visible
+				mLightsAffectingFrustum.push_back(l);
+			}
+			else
+			{
+				// NB treating spotlight as point for simplicity
+				// Just see if the lights attenuation range is within the frustum
+				sphere.setCenter(l->getDerivedPosition());
+				sphere.setRadius(l->getAttenuationRange());
+				if (camera->isVisible(sphere))
+				{
+					mLightsAffectingFrustum.push_back(l);
+				}
 
-        }
+			}
+		}
     }
 
 }
