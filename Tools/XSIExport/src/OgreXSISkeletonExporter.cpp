@@ -511,7 +511,7 @@ namespace Ogre
 
 				XSI::MATH::CTransformation transformation;
 
-				if (deformer->pBone->getParent() != 0 && !deformer->parentIsChainEndEffector)
+				if (deformer->pBone->getParent() != 0)
 				{
 					transformation.SetTranslationFromValues(posx, posy, posz);
 					transformation.SetRotationFromXYZAnglesValues(
