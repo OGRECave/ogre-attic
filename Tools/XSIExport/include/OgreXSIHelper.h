@@ -58,6 +58,7 @@ inline Ogre::String XSItoOgre(const XSI::CString& xsistr)
     char* tmp = new char[c+1];
     // do the real conversion
     ::wcstombs(tmp, xsistr.GetWideString(), c);
+	tmp[c] = '\0';
     Ogre::String ret(tmp);
     delete [] tmp;
 
@@ -79,6 +80,8 @@ inline XSI::CString OgretoXSI(const Ogre::String& str)
     wchar_t* tmp = new wchar_t[c+1];
     // do the real conversion
     ::mbstowcs(tmp, str.c_str(), c);
+	tmp[c] = '\0';
+
     XSI::CString ret(tmp);
     delete [] tmp;
 
