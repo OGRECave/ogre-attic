@@ -470,7 +470,7 @@ namespace Ogre {
 				CDoubleArray curUVW(uvElements.GetItem(j));
 				size_t samplerIndex = derefArray[j];
 				samplerUVs[samplerIndex].x = curUVW[0];//u
-				samplerUVs[samplerIndex].y = curUVW[1];//v
+				samplerUVs[samplerIndex].y = 1.0f - curUVW[1];//v (invert)
 				samplerUVs[samplerIndex].z = curUVW[2];//w
 
 				if (!hasU && curUVW[0] > 0)
