@@ -81,13 +81,19 @@ namespace Ogre
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		// construct the hierarchy
 		buildBoneHierarchy(skeleton.get(), deformers, animList);
+		// progress report
+		ProgressManager::getSingleton().progress();
 
 		// create animations 
 		createAnimations(skeleton.get(), deformers, framesPerSecond, animList);
+		// progress report
+		ProgressManager::getSingleton().progress();
 
 
 		SkeletonSerializer ser;
 		ser.exportSkeleton(skeleton.get(), skeletonFileName);
+		// progress report
+		ProgressManager::getSingleton().progress();
 
 		LogOgreAndXSI(L"** OGRE Skeleton Export Complete **");
 
@@ -323,6 +329,10 @@ namespace Ogre
 			determineAnimationLength(animEntry);
 
 			float animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
+			StringUtil::StrStreamType str;
+			str << "Creating animation " << animEntry.animationName << 
+				" with length " << animLength << " seconds";
+			LogOgreAndXSI(str.str());
 			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
 
 			createAnimationTracks(anim, animEntry, deformers, fps);
@@ -435,6 +445,10 @@ namespace Ogre
 			if (!deformer->hasAnyTracks)
 				continue;
 
+			StringUtil::StrStreamType str;
+			str << "Creating track for bone " << deformer->pBone->getName() << 
+				"(" << deformer->boneID << ")";
+			LogOgreAndXSI(str.str());
 			// create track
 			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
 
