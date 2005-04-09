@@ -73,12 +73,6 @@ namespace Ogre {
 		void validateAsBone(Skeleton* pSkeleton, DeformerEntry* deformer, 
 			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList, 
 			AnimationList& animList);
-		/*
-		/// Find all the action sources in the scene for the list of deformers
-		void findActionSources(DeformerMap& deformers);
-		/// Find all the action sources against the given model for the list of deformers
-		void findActionSources(const XSI::Model& obj, DeformerMap& deformers);
-		*/
 		/// Process an action source
 		void processActionSource(const XSI::ActionSource& source, DeformerMap& deformers);
 		/// Bake animations
@@ -87,8 +81,10 @@ namespace Ogre {
 		/// Bake animation tracks, and return the time length found
 		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
 			DeformerMap& deformers, float fps);
+		/// Get the length of an animation
+		void determineAnimationLength(AnimationEntry& animEntry);		
 		/// Pre-parse the deformers animation to find the keyframe numbers
-		void buildKeyframeList(DeformerMap& deformers, AnimationEntry& animEntry);		
+		void buildKeyframeList(DeformerEntry* deformer, AnimationEntry& animEntry);		
 		/// Derive a keyframe value from XSI's tracks
 		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame, double defaultVal);
 		

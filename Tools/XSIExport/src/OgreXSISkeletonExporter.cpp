@@ -265,79 +265,7 @@ namespace Ogre
 
 		}
 
-
-
 	}
-	//-----------------------------------------------------------------------------
-	/*
-	void XsiSkeletonExporter::findActionSources(DeformerMap& deformers)
-	{
-		// We're interested in the ActionSourceItem instances which have a
-		// target string which begins with a deformer name. XSI has ActionSources,
-		// which have ActionSourceItems, which have target strings of the form
-		// '[objectname].kine.local.[pos|rot|scl][x|y|z]' - so each ASI points
-		// at a 'track' which is one element of the transform. 
-		// We can ignore ASIs with a target which begins with anything other than 
-		// the name of a valid deformer, but once we find one we'll hook up the 
-		// ASI into the DeformerEntry so that, by the time we're finished, we should
-		// have the full complement of transform tracks. 
-		// Note also that XSI stores action sources against the scene model, and
-		// potentially child models. It can also sometimes store them directly 
-		// against the object itself, although this seems more unusual. So we look
-		// in all places.
-		// 
-
-		// Look in model and all children
-		Model root = mXsiApp.GetActiveSceneRoot();
-		findActionSources(root, deformers);
-
-		// Find all children (recursively)
-		CRefArray children = root.FindChildren(L"", siModelType, CStringArray());
-		for (int c = 0; c < children.GetCount(); ++c)
-		{
-			Model child(children[c]);
-			findActionSources(child, deformers);
-		}
-
-		// look against deformers themselves; look for all parameter sources
-		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
-		{
-			CRefArray paramList = di->second->obj.GetParameters();
-			for (int p = 0; p < paramList.GetCount(); ++p)
-			{
-				Parameter param(paramList[p]);
-				Source src(param.GetSource());
-				if (src.IsValid() && src.IsA(siActionSourceID))
-				{
-					ActionSource actSource(src);
-					processActionSource(actSource, deformers); 
-					
-				}
-			}
-		}
-
-		
-	}
-	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::findActionSources(const XSI::Model& obj, 
-		DeformerMap& deformers)
-	{			if (
-
-		CRefArray sources = obj.GetSources();
-		for (int s = 0; s < sources.GetCount(); ++s)
-		{
-			XSI::Source src(sources[s]);
-			if (src.IsA(siActionSourceID))
-			{
-				ActionSource actSource(src);
-				processActionSource(actSource, deformers);
-
-			}
-			
-		}
-		
-	}
-	*/
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::processActionSource(const XSI::ActionSource& actSource,
 		DeformerMap& deformers)
@@ -375,6 +303,7 @@ namespace Ogre
 					if (pi != mXSITrackTypeNames.end())
 					{
 						deformer->xsiTrack[pi->second] = item;
+						deformer->hasAnyTracks = true;
 					}
 				}
 			}
@@ -391,9 +320,7 @@ namespace Ogre
 			// tease out all the animation source items
 			processActionSource(animEntry.source, deformers);
 
-			// Get the keyframe numbers from all XSI tracks
-			// XSI tracks might be sparse
-			buildKeyframeList(deformers, animEntry);
+			determineAnimationLength(animEntry);
 
 			float animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
 			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
@@ -403,45 +330,84 @@ namespace Ogre
 		}
 	}
 	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::buildKeyframeList(DeformerMap& deformers, 
+	void XsiSkeletonExporter::determineAnimationLength(AnimationEntry& animEntry)
+	{
+		bool first = true;
+		CRefArray items = animEntry.source.GetItems();
+		for (int i = 0; i < items.GetCount(); ++i)
+		{
+			XSI::AnimationSourceItem item = items[i];
+
+			// skip invalid or non-FCurve items
+			if (!item.IsValid() || !item.GetSource().IsA(XSI::siFCurveID))
+				continue;
+
+			FCurve fcurve = item.GetSource();
+			CRefArray keys = fcurve.GetKeys();
+			for (int k = 0; k < keys.GetCount(); ++k)
+			{
+				long currFrame = fcurve.GetKeyTime(k).GetTime();
+				if (first)
+				{
+					animEntry.startFrame = currFrame;
+					animEntry.endFrame = currFrame;
+					first = false;
+				}
+				else 
+				{
+					if (currFrame < animEntry.startFrame)
+					{
+						animEntry.startFrame = currFrame;
+					}
+					if (currFrame > animEntry.endFrame)
+					{
+						animEntry.endFrame = currFrame;
+					}
+				}
+
+			}
+		}
+
+
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::buildKeyframeList(DeformerEntry* deformer, 
 		AnimationEntry& animEntry)
 	{
 		bool first = true;
-		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		animEntry.frames.clear();
+		for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
 		{
-			DeformerEntry* deformer = di->second;
-			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
+			AnimationSourceItem item = deformer->xsiTrack[tt];
+			// skip invalid or non-FCurve items
+			if (!item.IsValid() || !item.GetSource().IsA(XSI::siFCurveID))
+				continue;
+			
+			FCurve fcurve = item.GetSource();
+			CRefArray keys = fcurve.GetKeys();
+			for (int k = 0; k < keys.GetCount(); ++k)
 			{
-				AnimationSourceItem item = deformer->xsiTrack[tt];
-				// skip invalid or non-FCurve items
-				if (!item.IsValid() || !item.GetSource().IsA(XSI::siFCurveID))
-					continue;
-				
-				FCurve fcurve = item.GetSource();
-				CRefArray keys = fcurve.GetKeys();
-				for (int k = 0; k < keys.GetCount(); ++k)
+				long currFrame = fcurve.GetKeyTime(k).GetTime();
+				if (first)
 				{
-					long currFrame = fcurve.GetKeyTime(k).GetTime();
-					if (first)
+					animEntry.startFrame = currFrame;
+					animEntry.endFrame = currFrame;
+					first = false;
+				}
+				else 
+				{
+					if (currFrame < animEntry.startFrame)
 					{
 						animEntry.startFrame = currFrame;
-						animEntry.endFrame = currFrame;
-						first = false;
 					}
-					else 
+					if (currFrame > animEntry.endFrame)
 					{
-						if (currFrame < animEntry.startFrame)
-						{
-							animEntry.startFrame = currFrame;
-						}
-						if (currFrame > animEntry.endFrame)
-						{
-							animEntry.endFrame = currFrame;
-						}
+						animEntry.endFrame = currFrame;
 					}
-					
-					animEntry.frames.insert(currFrame);
 				}
+				
+				animEntry.frames.insert(currFrame);
 			}
 		}
 	
@@ -464,6 +430,10 @@ namespace Ogre
 		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			DeformerEntry* deformer = di->second;
+
+			// Skip deformers which have no animated parameters
+			if (!deformer->hasAnyTracks)
+				continue;
 
 			// create track
 			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
@@ -491,6 +461,10 @@ namespace Ogre
 			double initsclx, initscly, initsclz;
 			initialTransformation.GetScalingValues(initsclx, initscly, initsclz);
 
+
+			// Get the keyframe numbers from all XSI tracks
+			// XSI tracks might be sparse
+			buildKeyframeList(deformer, animEntry);
 
 			// Iterate over the frames and pull out the values we need
 			// bake keyframe for all
