@@ -125,6 +125,9 @@
 				RelativePath="..\misc\OgreXSIExport.def">
 			</File>
 			<File
+				RelativePath="..\src\OgreXSIHelper.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreXSIMeshExporter.cpp">
 			</File>
 			<File

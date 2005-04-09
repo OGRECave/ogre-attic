@@ -317,6 +317,19 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			Ogre::DefaultHardwareBufferManager hardwareBufMgr;
 
 			
+			// determine number of exportsteps
+			size_t numSteps = 3;
+			if (numlods > 0)
+				numSteps++;
+			if (edgeLists)
+				numSteps++;
+			if (tangents)
+				numSteps++;
+			if (exportSkeleton)
+				numSteps += 3;
+
+			Ogre::ProgressManager progressMgr(numSteps);
+
 			if (exportSkeleton)
 			{
 				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
@@ -367,6 +380,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				{
 					skelName = skelName.substr(pos+1, skelName.size() - pos - 1);
 				}
+
 
 				// Do the mesh
 				Ogre::DeformerMap& deformers = 

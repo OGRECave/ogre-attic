@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_ref.h>
 #include <xsi_actionsource.h>
 #include <xsi_animationsourceitem.h>
+#include <xsi_progressbar.h>
+#include <xsi_uitoolkit.h>
 
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
@@ -40,6 +42,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreColourValue.h"
 #include "OgreLogManager.h"
 #include "OgreStringVector.h"
+#include "OgreSingleton.h"
+#include "OgreVector3.h"
+#include "OgreQuaternion.h"
 
 
 /// Useful function to convert an XSI CString to an Ogre String
@@ -126,8 +131,25 @@ inline void LogOgreAndXSI(const XSI::CString& msg)
 }
 
 
-
 namespace Ogre {
+
+	class ProgressManager : public Singleton<ProgressManager>
+	{
+	protected:
+		XSI::ProgressBar mProgressBar;
+		size_t mNumberOfStages;
+		size_t mProgress;
+
+	public:
+		ProgressManager(size_t numberOfStages);
+		virtual ~ProgressManager();
+			
+		void progress(void);
+
+		static ProgressManager& getSingleton(void);
+		static ProgressManager* getSingletonPtr(void);
+
+	};
 
 	enum XSITrackType
 	{

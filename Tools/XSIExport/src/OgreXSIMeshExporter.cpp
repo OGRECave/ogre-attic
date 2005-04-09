@@ -104,20 +104,28 @@ namespace Ogre {
 
 		// Find all PolygonMesh objects
 		buildPolygonMeshList(exportChildren);
+		// progress report
+		ProgressManager::getSingleton().progress();
 
 		// write the data into a mesh
 		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty());
 
+		// progress report
+		ProgressManager::getSingleton().progress();
 
 		if (lod)
 		{
 			pMesh->generateLodLevels(lod->distances, lod->quota, lod->reductionValue);
+			// progress report
+			ProgressManager::getSingleton().progress();
 		}
 
         if(edgeLists)
         {
             LogOgreAndXSI(L"Calculating edge lists");
             pMesh->buildEdgeList();
+			// progress report
+			ProgressManager::getSingleton().progress();
         }
 
         if(tangents)
@@ -132,6 +140,8 @@ namespace Ogre {
             {
                 LogOgreAndXSI(L"Could not derive tangents parameters");
             }
+			// progress report
+			ProgressManager::getSingleton().progress();
 
         }
 
@@ -142,6 +152,9 @@ namespace Ogre {
 
         MeshSerializer serializer;
         serializer.exportMesh(pMesh.getPointer(), fileName);
+
+		// progress report
+		ProgressManager::getSingleton().progress();
 
 		cleanupPolygonMeshList();
 
