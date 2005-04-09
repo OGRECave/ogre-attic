@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>OGRE XSI Exporter Readme</title>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <style type="text/css"> .MainHeader { font-weight: bold; color: #FFFF33; background-color: #006600; font-size: 10pt}
+	body { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC; background-color: #003300}
+	.BorderHeader { background-color: #999900; font-size: 8pt; font-weight: bold; color: #333300; text-align: center}
+	.MainContent { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: #CCFFCC }
+	.BorderContent { font-size: 8pt; color: #66CC33; border-color: black #666600 #666600; padding-top: 2px; padding-right: 2px; padding-bottom: 10px; padding-left: 2px; margin-bottom: 2px; border-style: solid; border-top-width: 0px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px}
+	a:link { color: #FFFF00; text-decoration: underline}
+	a:hover { color: #FFFFFF; text-decoration: underline}
+	a:visited { color: #FFCC66; text-decoration: underline}
+	li { color: #66CC33; list-style-type: circle; position: relative; left: -15px; clip: rect( )}
+	.NewsDate { color: #CCFFCC; font-weight: bold}
+	td { font-size: 10pt}
+	th { font-size: 10pt}
+	.Annotation { font-size: 10px}
+	H1 { text-align: center; }
+	A.qindex {}
+	A.qindexRef {}
+	A.el { text-decoration: none; font-weight: bold }
+	A.elRef { font-weight: bold }
+	A.code { text-decoration: none; font-weight: normal; color: #4444ee }
+	A.codeRef { font-weight: normal; color: #4444ee }
+	DL.el { margin-left: -1cm }
+	DIV.fragment { width: 100%; border: none; background-color: #003300 }
+	DIV.ah { background-color: black; margin-bottom: 3; margin-top: 3 }
+	TD.md { background-color: #006600 }
+	DIV.groupHeader { margin-left: 16; margin-top: 12; margin-bottom: 6; font-weight: bold }
+	DIV.groupText { margin-left: 16; font-style: italic; font-size: smaller }
+	FONT.keyword { color: #008000 }
+	FONT.keywordtype { color: #999920 }
+	FONT.keywordflow { color: #e0FF00 }
+	FONT.comment { color: #009900 }
+	FONT.preprocessor { color: #809020 }
+	FONT.stringliteral { color: #002080 }
+	FONT.charliteral { color: #008080 }
+	H3 { FONT-FAMILY: trebuchet ms,helvetica,arial }
+	.ex { FONT-SIZE: 8pt; FONT-FAMILY: tahoma }
+	CODE.keywordtype { COLOR: #00ccff }
+	CODE.keyword { FONT-WEIGHT: bold; COLOR: #00ccff }
+	CODE.fn { COLOR: white; FONT-WEIGHT: bold; }
+	CODE.var { COLOR: #dcdcdc; }
+	CODE.macro { COLOR: #809020; FONT-WEIGHT: bold; }
+	CODE.comm { COLOR: lime }
+	CODE.num { COLOR: purple }
+	CODE.str { COLOR: #ffcc33; font-style: italic }
+	.SectionHeader { font-size: 14px; color: #FFFFCC; font-weight: bold}
+	.header { font-size: 16px; font-weight: bold; color: #FFFFCC}
+	</style>
+</head>
+<body>
+<p class="header" align="center">OGRE (Object-Oriented Graphics
+Rendering Engine)</p>
+<p class="header" align="center">XSI Exporter README file</p>
+<p class="header" align="center"><a href="http://www.ogre3d.org">http://www.ogre3d.org</a></p>
+<p class="MainHeader" align="left">Summary</p>
+<p>OGRE (Object-Oriented Graphics Rendering Engine) is a
+scene-oriented, flexible 3D engine written in C++ designed to make it
+easier and more intuitive for developers to produce games and demos
+utilising 3D hardware. The class library abstracts all the details of
+using the underlying system libraries like Direct3D and OpenGL and
+provides an interface based on world objects and other intuitive
+classes. </p>
+<p>This distribution contains the bare files required to export OGRE
+.mesh files from <a href="http://www.softimage.com">SoftImage|XSI 4.2</a>.</p>
+<p class="MainHeader" align="left">How to Install</p>
+<p>If you are using the installer, you don't need to do anything except
+to run it and point it at your XSI folder. If you're installing from
+source, you need to do the following:<br>
+</p>
+<ul>
+  <li>copy devil.dll, ilu.dll, ilut.dll and zlib1.dll into
+$(XSI_ROOT)\Application\bin, or make sure they are somewhere on your
+path</li>
+  <li>copy OgreMain.dll (and OgreMain_d.dll if you wish to use the
+debug version anytime) into $(XSI_ROOT)\Application\bin</li>
+  <li>copy OgreXSIExporter.dll into $(XSI_ROOT)\Application\plugins</li>
+</ul>
+<p class="MainHeader" align="left">How to Use</p>
+<p>It's a simple case of selecting the objects you wish to export, and
+clicking File &gt; Export &gt; OGRE Mesh / Skeleton... to bring up the
+OGRE export dialog.<br>
+</p>
+<p>The following features are supported:<br>
+</p>
+<ol>
+  <li>Exporting selected PolygonMesh objects direct to the OGRE binary
+.mesh format</li>
+  <li>Exports vertex position, normals, multiple UV sets and vertex
+colours<br>
+  </li>
+  <li>Polygon clusters used to change materials in a single PolygonMes
+are exported as separate SubMeshes</li>
+  <li>By default, separate PolygonMesh objects which use the same
+material are merged for efficiency</li>
+  <li>Mesh vertices are index-organised for efficiency</li>
+  <li>Exporting of up to 4 weighted bone assignments per vertex <br>
+  </li>
+  <li>Generation of edge lists, tangent vectors, and LOD levels during
+export (optional)<br>
+  </li>
+  <li>Exporting of deformers (bone chains, nulls used as deformers)
+direct to binary .skeleton format<br>
+  </li>
+  <li>Exporting of one or more ActionSources as animations <br>
+  </li>
+</ol>
+<p>Important modelling / animating considerations:<br>
+</p>
+<ol>
+  <li>The exporter only exports PolygonMesh objects, so if you work
+with higher-order surfaces like NURBS you must create a PolygonMesh
+object from these surfaces before exporting</li>
+  <li>The exporter writes a single .mesh at a time and combines all the
+objects selected (and their children, if you select that option)</li>
+  <li>All global modelling coordinates are preserved, so the origin of
+your resulting .mesh will be where the world origin is in XSI<br>
+  </li>
+  <li>Animations must be stored in ActionSource instances (Animate &gt;
+Actions &gt; Store) to be exported. Any work-in-progress animation will
+not be picked up<br>
+  </li>
+  <li>OGRE supports forward kinematics (FK) animation only; thus, if
+you use inverse kinematics (IK) to define your animations you must
+define separate FK ActionSources for each one:</li>
+  <ol>
+    <li>Make sure your IK animations are stored in ActionSources</li>
+    <li>Drag an IK Action from the explorer (8) to the animation mixer
+(ALT-0) at frame 1</li>
+    <li>Select all your bones and define a marking set (probably just
+the rotation elements)</li>
+    <li>Move the timeline along from frame 1 to the end of your
+animation, keyframing the marking set at a frequency which reflects the
+needs of the animation; you will probably need more keyframes for FK
+than IK.</li>
+    <li>If you like, you can keyframe different sets of bones at
+different frequencies, if you need to tweak things</li>
+    <li>Store these new keyframes in a new ActionSource, e.g.
+FK&lt;animation&gt;<br>
+    </li>
+    <li>When you export, choose to export just the FK version of the
+animation, not your original IK animation</li>
+  </ol>
+</ol>
+<br>
+<p class="MainHeader" align="left">Reporting Issues<br>
+</p>
+<p>Please report any issues with the exporter in the <a
+ href="http://www.ogre3d.org/phpBB2">OGRE Forums</a>.</p>
+<p>&nbsp;</p>
+</body>
+</html>
