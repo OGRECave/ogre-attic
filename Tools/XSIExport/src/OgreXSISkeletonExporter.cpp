@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_chainbone.h>
 #include <xsi_matrix4.h>
 #include <xsi_transformation.h>
+#include <xsi_vector3.h>
 
 using namespace XSI;
 
@@ -519,9 +520,8 @@ namespace Ogre
 						XSI::MATH::DegreesToRadians(roty),
 						XSI::MATH::DegreesToRadians(rotz),
 						XSI::MATH::CRotation::RotationOrder::siXYZ);
-					
-					// HACK - XSI seems to be reporting 0 all the time for scale??
-					//transformation.SetScaling(CVector3(sclx, scly, sclz));
+					XSI::MATH::CVector3 scaling(sclx, scly, sclz);
+					transformation.SetScaling(scaling);
 
 
 					XSI::MATH::CMatrix4 transformationMatrix = transformation.GetMatrix4();
