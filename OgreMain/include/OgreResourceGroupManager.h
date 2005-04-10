@@ -162,6 +162,8 @@ namespace Ogre {
 		OGRE_AUTO_MUTEX // public to allow external locking
 		/// Default resource group name
 		static String DEFAULT_RESOURCE_GROUP_NAME;
+		/// Bootstrap resource group name (min OGRE resources)
+		static String BOOTSTRAP_RESOURCE_GROUP_NAME;
         /// Nested struct defining a resource declaration
         struct ResourceDeclaration
         {

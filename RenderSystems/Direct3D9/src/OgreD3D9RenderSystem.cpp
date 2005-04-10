@@ -76,12 +76,12 @@ namespace Ogre
 		mpD3DDevice = NULL;
 		mDriverList = NULL;
 		mActiveD3DDriver = NULL;
-		mExternalHandle = NULL;
         mTextureManager = NULL;
         mHardwareBufferManager = NULL;
 		mGpuProgramManager = NULL;
 		mPrimaryWindow = NULL;
 		mDeviceLost = false;
+		mBasicStatesInitialised = false;
         //mHLSLProgramFactory = NULL;
 
 		// init lights
@@ -555,6 +555,7 @@ namespace Ogre
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
 		mpD3DDevice = NULL;
+		mBasicStatesInitialised = false;
 		LogManager::getSingleton().logMessage("D3D9 : Shutting down cleanly.");
 	}
 	//---------------------------------------------------------------------
@@ -1579,10 +1580,20 @@ namespace Ogre
 	void D3D9RenderSystem::_setSceneBlending( SceneBlendFactor sourceFactor, SceneBlendFactor destFactor )
 	{
 		HRESULT hr;
-		if( FAILED( hr = __SetRenderState( D3DRS_SRCBLEND, D3D9Mappings::get(sourceFactor) ) ) )
-			OGRE_EXCEPT( hr, "Failed to set source blend", "D3D9RenderSystem::_setSceneBlending" );
-		if( FAILED( hr = __SetRenderState( D3DRS_DESTBLEND, D3D9Mappings::get(destFactor) ) ) )
-			OGRE_EXCEPT( hr, "Failed to set destination blend", "D3D9RenderSystem::_setSceneBlending" );
+		if( sourceFactor == SBF_ONE && destFactor == SBF_ZERO)
+		{
+			if (FAILED(hr = __SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE)))
+				OGRE_EXCEPT( hr, "Failed to set alpha blending option", "D3D9RenderSystem::_setSceneBlending" );
+		}
+		else
+		{
+			if (FAILED(hr = __SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE)))
+				OGRE_EXCEPT( hr, "Failed to set alpha blending option", "D3D9RenderSystem::_setSceneBlending" );
+			if( FAILED( hr = __SetRenderState( D3DRS_SRCBLEND, D3D9Mappings::get(sourceFactor) ) ) )
+				OGRE_EXCEPT( hr, "Failed to set source blend", "D3D9RenderSystem::_setSceneBlending" );
+			if( FAILED( hr = __SetRenderState( D3DRS_DESTBLEND, D3D9Mappings::get(destFactor) ) ) )
+				OGRE_EXCEPT( hr, "Failed to set destination blend", "D3D9RenderSystem::_setSceneBlending" );
+		}
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_setAlphaRejectSettings( CompareFunction func, unsigned char value )
@@ -1974,18 +1985,10 @@ namespace Ogre
 			OGRE_EXCEPT( hr, "Error beginning frame :" + msg, "D3D9RenderSystem::_beginFrame" );
 		}
 
-		static bool firstTime = true;
-		if( firstTime )
+		if(!mBasicStatesInitialised)
 		{
 			// First-time 
 			// setup some defaults
-			// Allow alpha blending
-			hr = __SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-			if (FAILED(hr))
-			{
-				String msg = DXGetErrorDescription9(hr);
-				OGRE_EXCEPT(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
-			}
 			// Allow specular
 			hr = __SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 			if (FAILED(hr))
@@ -1993,7 +1996,7 @@ namespace Ogre
 				String msg = DXGetErrorDescription9(hr);
 				OGRE_EXCEPT(hr, "Error enabling alpha blending option : " + msg, "D3D9RenderSystem::_beginFrame");
 			}
-			firstTime = false;
+			mBasicStatesInitialised = true;
 		}
 
 		OgreUnguard();
@@ -2647,6 +2650,8 @@ namespace Ogre
 	void D3D9RenderSystem::_notifyDeviceLost(void)
 	{
 		mDeviceLost = true;
+		// will have lost basic states
+		mBasicStatesInitialised = false;
 	}
 
 }

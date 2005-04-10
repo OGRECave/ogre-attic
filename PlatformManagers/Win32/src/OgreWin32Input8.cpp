@@ -681,6 +681,11 @@ namespace Ogre {
 		bool xSet = false;
 		bool ySet = false;
 		bool zSet = false;
+/// Redefine FIELD_OFFSET in case of GCC
+#ifdef __GNUC__
+    #undef FIELD_OFFSET
+    #define FIELD_OFFSET offsetof
+#endif // __GNUC__
 
 		for(unsigned int i = 0; i < dwElements; i++ ) 
 		{

@@ -61,12 +61,19 @@ namespace Ogre
 		 * Initialise support specific capabilities
 		 */
 		virtual void initialiseCapabilities(RenderSystemCapabilities &caps);
+
+		bool selectPixelFormat(HDC hdc, int colourDepth, int multisample = 0);
+
 	private:
 		// Allowed video modes
 		std::vector<DEVMODE> mDevModes;
 		Win32Window *mInitialWindow;
+		std::vector<int> mFSAALevels;
+		bool mHasPixelFormatARB;
 
 		void refreshConfig();
+		void initialiseWGL();
+		static LRESULT CALLBACK dummyWndProc(HWND hwnd, UINT umsg, WPARAM wp, LPARAM lp);
 	};
 
 }

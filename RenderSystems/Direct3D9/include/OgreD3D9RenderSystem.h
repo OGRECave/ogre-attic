@@ -62,8 +62,6 @@ namespace Ogre
 		/// full-screen multisampling antialiasing level
 		DWORD mFSAAQuality;
 
-		/// external window handle ;)
-		HWND mExternalHandle;
 		/// instance
 		HINSTANCE mhInstance;
 
@@ -143,6 +141,7 @@ namespace Ogre
 		SecondaryWindowList mSecondaryWindows;
 
 		bool mDeviceLost;
+		bool mBasicStatesInitialised;
 
 	public:
 		// constructor
@@ -153,8 +152,6 @@ namespace Ogre
 		virtual void initConfigOptions(void);
 		// method for resizing/repositing the render window
  		virtual void ResizeRepositionWindow(HWND wich);
-		// method for setting external window hwnd
-		void SetExternalWindowHandle(HWND externalHandle){mExternalHandle = externalHandle;};
 
 		// Overridden RenderSystem functions
 		ConfigOptionMap& getConfigOptions(void);

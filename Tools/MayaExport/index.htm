@@ -199,7 +199,10 @@ Maya API: 450</font></pre>
                 initialShadingGroup is connected to a Maya Mesh directly or 
                 indirectly.<ul>
                   <li>Workaround is to remove all extra connections to the 
-                  initialShadingGroup using Hypershade</li>
+				  initialShadingGroup using Hypershade</li>
+				  <li>When creating Maya models as you are skinning the mesh to the joints you have the 
+				  option of smooth binding or rigid binding. We have found that with rigid binding you don't 
+				  get any bone assignments, but when the using smooth binding the exporter works perfectly fine. 
                 </ul>
                 </li>
               </ol>

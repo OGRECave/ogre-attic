@@ -28,6 +28,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderable.h"
 #include "OgreCamera.h"
 #include "OgreRenderTarget.h"
+#include "OgreRoot.h"
+#include "OgreMath.h"
 
 namespace Ogre {
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
@@ -333,5 +335,204 @@ namespace Ogre {
     {
         return mCurrentRenderable;
     }
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseViewProjMatrix(void) const
+	{
+		return this->getViewProjectionMatrix().inverse();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseTransposeViewProjMatrix(void) const
+	{
+		return this->getInverseViewProjMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getTransposeViewProjMatrix(void) const
+	{
+		return this->getViewProjectionMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getTransposeViewMatrix(void) const
+	{
+		return this->getViewMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getTransposeProjectionMatrix(void) const
+	{
+		return this->getProjectionMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseProjectionMatrix(void) const 
+	{
+		return this->getProjectionMatrix().inverse();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseTransposeProjectionMatrix(void) const
+	{
+		return this->getInverseProjectionMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getTransposeWorldViewProjMatrix(void) const
+	{
+		return this->getWorldViewProjMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseWorldViewProjMatrix(void) const
+	{
+		return this->getWorldViewProjMatrix().inverse();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getInverseTransposeWorldViewProjMatrix(void) const
+	{
+		return this->getInverseWorldViewProjMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getTransposeWorldViewMatrix(void) const
+	{
+		return this->getWorldViewMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Matrix4 AutoParamDataSource::getTransposeWorldMatrix(void) const
+	{
+		return this->getWorldMatrix().transpose();
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getTime_0_X(Real x) const
+	{
+		return fmod(Root::getSingleton().getTimer()->getMilliseconds() / 1000.0f
+			, x);
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getCosTime_0_X(Real x) const
+	{ 
+		return cos(this->getTime_0_X(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getSinTime_0_X(Real x) const
+	{ 
+		return sin(this->getTime_0_X(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getTanTime_0_X(Real x) const
+	{ 
+		return tan(this->getTime_0_X(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Vector4 AutoParamDataSource::getTime_0_X_packed(Real x) const
+	{
+		Real t = this->getTime_0_X(x);
+		return Vector4(t, sin(t), cos(t), tan(t));
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getTime_0_1(Real x) const
+	{ 
+		return this->getTime_0_X(x)/x; 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getCosTime_0_1(Real x) const
+	{ 
+		return cos(this->getTime_0_1(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getSinTime_0_1(Real x) const
+	{ 
+		return sin(this->getTime_0_1(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getTanTime_0_1(Real x) const
+	{ 
+		return tan(this->getTime_0_1(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Vector4 AutoParamDataSource::getTime_0_1_packed(Real x) const
+	{
+		Real t = this->getTime_0_1(x);
+		return Vector4(t, sin(t), cos(t), tan(t));
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getTime_0_2Pi(Real x) const
+	{ 
+		return this->getTime_0_X(x)/x*2*Math::PI; 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getCosTime_0_2Pi(Real x) const
+	{ 
+		return cos(this->getTime_0_2Pi(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getSinTime_0_2Pi(Real x) const
+	{ 
+		return sin(this->getTime_0_2Pi(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getTanTime_0_2Pi(Real x) const
+	{ 
+		return tan(this->getTime_0_2Pi(x)); 
+	}
+	//-----------------------------------------------------------------------------
+	Vector4 AutoParamDataSource::getTime_0_2Pi_packed(Real x) const
+	{
+		Real t = this->getTime_0_2Pi(x);
+		return Vector4(t, sin(t), cos(t), tan(t));
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getFPS() const
+	{
+		return mCurrentRenderTarget->getLastFPS();
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getViewportWidth() const
+	{ 
+		return mCurrentRenderTarget->getWidth(); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getViewportHeight() const
+	{ 
+		return mCurrentRenderTarget->getHeight(); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getInverseViewportWidth() const
+	{ 
+		return 1.0f/mCurrentRenderTarget->getWidth(); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getInverseViewportHeight() const
+	{ 
+		return 1.0f/mCurrentRenderTarget->getHeight(); 
+	}
+	//-----------------------------------------------------------------------------
+	Vector3 AutoParamDataSource::getViewDirection() const
+	{
+		Vector3 dir = mCurrentCamera->getDerivedDirection();
+		Matrix3 rs;
+		getInverseWorldMatrix().extract3x3Matrix(rs);
+		return rs*dir;
+	}
+	//-----------------------------------------------------------------------------
+	Vector3 AutoParamDataSource::getViewSideVector() const
+	{ 
+		return mCurrentCamera->getRight(); 
+	}
+	//-----------------------------------------------------------------------------
+	Vector3 AutoParamDataSource::getViewUpVector() const
+	{ 
+		return mCurrentCamera->getUp(); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getFOV() const
+	{ 
+		return mCurrentCamera->getFOVy().valueRadians(); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getNearClipDistance() const
+	{ 
+		return mCurrentCamera->getNearClipDistance(); 
+	}
+	//-----------------------------------------------------------------------------
+	Real AutoParamDataSource::getFarClipDistance() const
+	{ 
+		return mCurrentCamera->getFarClipDistance(); 
+	}
+	//-----------------------------------------------------------------------------
+	
 }
 

@@ -121,7 +121,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
-      : mCurrentFrame(0)
+      : mLogManager(0), mCurrentFrame(0)
     {
         // First create new exception handler
         SET_TERM_HANDLER;

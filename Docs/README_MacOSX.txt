@@ -35,30 +35,45 @@ Using the Ogre.framework in Your Applications
 ---------------------------------------------
 1)  Build the Ogre.framework
 2)  Create a new project, using the Cocoa Application template
-3)  Delete the generated files.
-4)  Add SDLMain.m and SDLMain.h to your project. These are in the
+3)  Delete ALL the generated files from within XCode. Delete *.m, *.pch, *.nib
+4)  In you build target's Info screen (cmd+i while the target is highlighed),
+    remove the Prefix Header
+5)  Add SDLMain.m and SDLMain.h to your project. These are in the
     ogrenew/Mac/XCode/Classes folder. You will  probably want to copy 
     these items so you may change them without affecting the originals.
-5)  Add the SDL and Ogre frameworks to your project. 
+6)  Wrap your main function with:
+    
+    #ifdef __cplusplus
+    extern "C"
+    {
+    #endif
+
+    int main (...)
+    
+    #ifdef __cplusplus
+    }
+    #endif
+
+7)  Add the SDL and Ogre frameworks to your project in "Linked Frameworks".  
     You can have these copied into your application when it is built, and then
     not have your users install these themselves.  For information on how to do
     this refer to the XCode documentation.
-6)  Create the required plugins.cfg and resources.cfg files. 
+8)  Create the required plugins.cfg and resources.cfg files. 
     You may start from the examples of these files in 
     ogrenew/Mac/XCode/Samples.  The plugins.cfg can probably be left as is,
     but you will want to remove the entries from resources.cfg, as they refer
     to the Sample resources. The entries in resources.cfg are relative to the
     'Resources' group in your application. By default, it and all of its 
     sub-directories are searched by Ogre.
-7)  If you have built the Ogre framework with the Development build
+9)  If you have built the Ogre framework with the Development build
     style (the default), you will have to edit the Development build 
     style of your Application to use the Ogre debug headers. To do this,
     set your 'OTHER_CFLAGS' and 'OTHER_CXXFLAGS' to '-DDEBUG'.
-8)  You are now ready to add your own resources and source files.
+10) You are now ready to add your own resources and source files.
     Take a look at the Samples and the documentation on the ogre
     website for guidance. You should be able to replicate the Samples
     by adding all of the source files from the Sample to your application,
     and adding the files from Media that it uses to your Resources.
-9)  When shipping your newly built .app You should be able to put the OGRE and
+11) When shipping your newly built .app You should be able to put the OGRE and
     other frameworks in .app/Contents/Frameworks and they will be found and
     used at runtime.

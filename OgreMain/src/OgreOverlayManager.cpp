@@ -322,7 +322,7 @@ namespace Ogre {
 			container->addChild(newElement);
 		}
 		// do not add a template to the overlay. For templates overlay = 0
-		else if (!!pOverlay)	
+		else if (pOverlay)	
 		{
 			pOverlay->add2D((OverlayContainer*)newElement);
 		}

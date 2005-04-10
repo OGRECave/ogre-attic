@@ -52,11 +52,11 @@
 	</style>
 </head>
 <body>
-<p align="center" class="header">OGRE (Object-Oriented Graphics
+<p class="header" align="center">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
-<p align="center" class="header">XSI Exporter README file</p>
-<p align="center" class="header"><a href="http://www.ogre3d.org">http://www.ogre3d.org</a></p>
-<p align="left" class="MainHeader">Summary</p>
+<p class="header" align="center">XSI Exporter README file</p>
+<p class="header" align="center"><a href="http://www.ogre3d.org">http://www.ogre3d.org</a></p>
+<p class="MainHeader" align="left">Summary</p>
 <p>OGRE (Object-Oriented Graphics Rendering Engine) is a
 scene-oriented, flexible 3D engine written in C++ designed to make it
 easier and more intuitive for developers to produce games and demos
@@ -65,12 +65,11 @@ using the underlying system libraries like Direct3D and OpenGL and
 provides an interface based on world objects and other intuitive
 classes. </p>
 <p>This distribution contains the bare files required to export OGRE
-.mesh files from <a href="http://www.softimage.com">SoftImage|XSI 4.0</a>.</p>
-<p align="left" class="MainHeader">How to Install</p>
-<p>If you are using the prebuilt archive, just extract it into the
-folder you installed XSI into (e.g. C:\Program
-Files\SoftImage\XSI_4.0). If you are building the exporter yourself, do
-the following:<br>
+.mesh files from <a href="http://www.softimage.com">SoftImage|XSI 4.2</a>.</p>
+<p class="MainHeader" align="left">How to Install</p>
+<p>If you are using the installer, you don't need to do anything except
+to run it and point it at your XSI folder. If you're installing from
+source, you need to do the following:<br>
 </p>
 <ul>
   <li>copy devil.dll, ilu.dll, ilut.dll and zlib1.dll into
@@ -80,15 +79,77 @@ path</li>
 debug version anytime) into $(XSI_ROOT)\Application\bin</li>
   <li>copy OgreXSIExporter.dll into $(XSI_ROOT)\Application\plugins</li>
 </ul>
-<p align="left" class="MainHeader">How to Use</p>
-<p>The exporter will pick up all PolygonMesh children of either the
-selected scene object, or the entire scene if nothing is currently
-selected. Click File &gt; Export &gt; OGRE Mesh / Skeleton...<br>
+<p class="MainHeader" align="left">How to Use</p>
+<p>It's a simple case of selecting the objects you wish to export, and
+clicking File &gt; Export &gt; OGRE Mesh / Skeleton... to bring up the
+OGRE export dialog.<br>
 </p>
-<p>MORE DETAILS TO COME&nbsp;</p>
-<p align="left" class="MainHeader">To get more information </p>
-<p>To obtain more information and to download the OGRE source code, go
-to <a href="http://www.ogre3d.org"> http://www.ogre3d.org</a>.</p>
+<p>The following features are supported:<br>
+</p>
+<ol>
+  <li>Exporting selected PolygonMesh objects direct to the OGRE binary
+.mesh format</li>
+  <li>Exports vertex position, normals, multiple UV sets and vertex
+colours<br>
+  </li>
+  <li>Polygon clusters used to change materials in a single PolygonMes
+are exported as separate SubMeshes</li>
+  <li>By default, separate PolygonMesh objects which use the same
+material are merged for efficiency</li>
+  <li>Mesh vertices are index-organised for efficiency</li>
+  <li>Exporting of up to 4 weighted bone assignments per vertex <br>
+  </li>
+  <li>Generation of edge lists, tangent vectors, and LOD levels during
+export (optional)<br>
+  </li>
+  <li>Exporting of deformers (bone chains, nulls used as deformers)
+direct to binary .skeleton format<br>
+  </li>
+  <li>Exporting of one or more ActionSources as animations <br>
+  </li>
+</ol>
+<p>Important modelling / animating considerations:<br>
+</p>
+<ol>
+  <li>The exporter only exports PolygonMesh objects, so if you work
+with higher-order surfaces like NURBS you must create a PolygonMesh
+object from these surfaces before exporting</li>
+  <li>The exporter writes a single .mesh at a time and combines all the
+objects selected (and their children, if you select that option)</li>
+  <li>All global modelling coordinates are preserved, so the origin of
+your resulting .mesh will be where the world origin is in XSI<br>
+  </li>
+  <li>Animations must be stored in ActionSource instances (Animate &gt;
+Actions &gt; Store) to be exported. Any work-in-progress animation will
+not be picked up<br>
+  </li>
+  <li>OGRE supports forward kinematics (FK) animation only; thus, if
+you use inverse kinematics (IK) to define your animations you must
+define separate FK ActionSources for each one:</li>
+  <ol>
+    <li>Make sure your IK animations are stored in ActionSources</li>
+    <li>Drag an IK Action from the explorer (8) to the animation mixer
+(ALT-0) at frame 1</li>
+    <li>Select all your bones and define a marking set (probably just
+the rotation elements)</li>
+    <li>Move the timeline along from frame 1 to the end of your
+animation, keyframing the marking set at a frequency which reflects the
+needs of the animation; you will probably need more keyframes for FK
+than IK.</li>
+    <li>If you like, you can keyframe different sets of bones at
+different frequencies, if you need to tweak things</li>
+    <li>Store these new keyframes in a new ActionSource, e.g.
+FK&lt;animation&gt;<br>
+    </li>
+    <li>When you export, choose to export just the FK version of the
+animation, not your original IK animation</li>
+  </ol>
+</ol>
+<br>
+<p class="MainHeader" align="left">Reporting Issues<br>
+</p>
+<p>Please report any issues with the exporter in the <a
+ href="http://www.ogre3d.org/phpBB2">OGRE Forums</a>.</p>
 <p>&nbsp;</p>
 </body>
 </html>
