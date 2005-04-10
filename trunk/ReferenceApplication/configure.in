@@ -18,7 +18,6 @@ if test x$GCC = xyes; then
     AC_MSG_CHECKING([version 3.x of gcc])
     if test -n "`$CC --version 2>&1|grep '3.'`"; then
         AC_DEFINE(EXT_HASH,, Use old STL hash options)
-        AC_DEFINE(GCC_3_1,, 3.x GCC version)
         AC_MSG_RESULT(yes);
     else
         AC_MSG_RESULT(no)!

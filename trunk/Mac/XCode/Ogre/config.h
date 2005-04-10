@@ -9,9 +9,6 @@
 /* Use old STL hash options */
 #define EXT_HASH 
 
-/* 3.x GCC version */
-#define GCC_3_1 
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
 

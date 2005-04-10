@@ -120,7 +120,7 @@ namespace Ogre {
     #	define _TO_CHAR( x ) x
     #endif
 
-    #ifdef GCC_3_1
+    #if OGRE_COMPILER == OGRE_COMPILER_GNUC
     #   define HashMap ::__gnu_cxx::hash_map
     #else
     #   if OGRE_COMPILER == OGRE_COMPILER_MSVC
