@@ -69,6 +69,10 @@ extern GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
 typedef void (APIENTRY *GL_SecondaryColorPointerEXT_Func)(GLint, GLenum, GLsizei, const GLvoid*);
 extern GL_SecondaryColorPointerEXT_Func glSecondaryColorPointerEXT_ptr;
 
+// Pointer to glSecondaryColor3fEXT function
+typedef void (APIENTRY *GL_SecondaryColor3fEXT_Func)(GLfloat, GLfloat, GLfloat);
+extern GL_SecondaryColor3fEXT_Func glSecondaryColor3fEXT_ptr;
+
 // Pointer to glGenBuffersARB function
 typedef void (APIENTRY *GL_GenBuffersARB_Func)(GLsizei, GLuint*);
 extern GL_GenBuffersARB_Func glGenBuffersARB_ptr;
