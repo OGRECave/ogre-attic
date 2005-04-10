@@ -167,7 +167,7 @@
 		};
 		29B97323FDCFA39411CA2CEA = {
 			children = (
-				82CCC93D07CA58A5006813FB,
+				8269489C0805E3E30056DC45,
 				82D576A607AD71CC0026BE0D,
 				82AFC8D10705F55E00CF9DB7,
 				1058C7A1FEA54F0111CA2CBB,
@@ -410,7 +410,7 @@
 			files = (
 				821FCA8507B28AD6000BFD07,
 				821FCA8607B28AD6000BFD07,
-				82CCC95207CA58A5006813FB,
+				826948B10805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -424,7 +424,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "/Users/temas/cvs/ogre/Mac/XCode/Ogre/build /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				INFOPLIST_FILE = "DynTex-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				OTHER_CFLAGS = "";
@@ -560,7 +560,7 @@
 			files = (
 				821FCAA307B28C99000BFD07,
 				821FCAA407B28C99000BFD07,
-				82CCC95307CA58A5006813FB,
+				826948B20805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -574,7 +574,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "/Users/temas/cvs/ogre/Mac/XCode/Ogre/build /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				INFOPLIST_FILE = "Grass-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				OTHER_CFLAGS = "";
@@ -739,7 +739,7 @@
 			files = (
 				821FCAB307B28D9E000BFD07,
 				821FCAB407B28D9E000BFD07,
-				82CCC95407CA58A5006813FB,
+				826948B30805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -753,7 +753,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "/Users/temas/cvs/ogre/Mac/XCode/Ogre/build /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				INFOPLIST_FILE = "VolumeTex-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				OTHER_CFLAGS = "";
@@ -958,6 +958,152 @@
 			target = 821FCAAD07B28D7A000BFD07;
 			targetProxy = 821FCAC307B28E31000BFD07;
 		};
+		8269489C0805E3E30056DC45 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = zzip.framework;
+			path = /Library/Frameworks/zzip.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		8269489D0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8269489E0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8269489F0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A00805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A10805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A20805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A30805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A40805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A50805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A60805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A70805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A80805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948A90805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948AA0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948AB0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948AC0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948AD0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948AE0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948AF0805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948B00805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948B10805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948B20805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		826948B30805E3E30056DC45 = {
+			fileRef = 8269489C0805E3E30056DC45;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		82AFC3520705ED7E00CF9DB7 = {
 			buildActionMask = 2147483647;
 			files = (
@@ -989,7 +1135,7 @@
 				82151DAA07B1673E0049D4A1,
 				82AFC8D30705F55E00CF9DB7,
 				82D576A707AD71CC0026BE0D,
-				82CCC93E07CA58A5006813FB,
+				8269489D0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1003,7 +1149,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "BezierPatch-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1157,7 +1303,7 @@
 			files = (
 				82AFC8D50705F55E00CF9DB7,
 				82D576A807AD71CC0026BE0D,
-				82CCC93F07CA58A5006813FB,
+				8269489E0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1171,7 +1317,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "CameraTrack-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1272,7 +1418,7 @@
 			files = (
 				82AFC8D70705F55E00CF9DB7,
 				82D576A907AD71CC0026BE0D,
-				82CCC94007CA58A5006813FB,
+				8269489F0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1286,7 +1432,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "CelShading-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1400,7 +1546,7 @@
 			files = (
 				82AFC8D90705F55E00CF9DB7,
 				82D576AA07AD71CC0026BE0D,
-				82CCC94107CA58A5006813FB,
+				826948A00805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1414,7 +1560,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "CubeMapping-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1543,7 +1689,7 @@
 			files = (
 				82AFC8DB0705F55E00CF9DB7,
 				82D576AB07AD71CC0026BE0D,
-				82CCC94207CA58A5006813FB,
+				826948A10805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1557,7 +1703,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Dot3Bump-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1711,7 +1857,7 @@
 			files = (
 				82AFC8DD0705F55E00CF9DB7,
 				82D576AC07AD71CC0026BE0D,
-				82CCC94307CA58A5006813FB,
+				826948A20805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1725,7 +1871,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "EnvMapping-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1841,7 +1987,7 @@
 			files = (
 				82AFC8DF0705F55F00CF9DB7,
 				82D576AD07AD71CC0026BE0D,
-				82CCC94407CA58A5006813FB,
+				826948A30805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1855,7 +2001,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Fresnel-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -1967,7 +2113,7 @@
 			files = (
 				82AFC8E30705F55F00CF9DB7,
 				82D576AE07AD71CC0026BE0D,
-				82CCC94507CA58A5006813FB,
+				826948A40805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1981,7 +2127,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Lighting-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2109,7 +2255,7 @@
 			files = (
 				82AFC8E70705F55F00CF9DB7,
 				82D576AF07AD71CC0026BE0D,
-				82CCC94607CA58A5006813FB,
+				826948A50805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2123,7 +2269,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "ParticleFX-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2250,7 +2396,7 @@
 			files = (
 				82AFC8E90705F55F00CF9DB7,
 				82D576B007AD71CC0026BE0D,
-				82CCC94707CA58A5006813FB,
+				826948A60805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2264,7 +2410,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "RenderToTexture-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2375,7 +2521,7 @@
 			files = (
 				82AFC8EB0705F55F00CF9DB7,
 				82D576B107AD71CC0026BE0D,
-				82CCC94807CA58A5006813FB,
+				826948A70805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2389,7 +2535,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Shadows-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2501,7 +2647,7 @@
 			files = (
 				82AFC8ED0705F55F00CF9DB7,
 				82D576B207AD71CC0026BE0D,
-				82CCC94907CA58A5006813FB,
+				826948A80805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2515,7 +2661,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "SkeletalAnimation-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2643,7 +2789,7 @@
 			files = (
 				82AFC8EF0705F55F00CF9DB7,
 				82D576B307AD71CC0026BE0D,
-				82CCC94A07CA58A5006813FB,
+				826948A90805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2657,7 +2803,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "SkyBox-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2785,7 +2931,7 @@
 			files = (
 				82AFC8F10705F55F00CF9DB7,
 				82D576B407AD71CC0026BE0D,
-				82CCC94B07CA58A5006813FB,
+				826948AA0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2799,7 +2945,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "SkyDome-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2927,7 +3073,7 @@
 			files = (
 				82AFC8F30705F55F00CF9DB7,
 				82D576B507AD71CC0026BE0D,
-				82CCC94C07CA58A5006813FB,
+				826948AB0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2941,7 +3087,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "SkyPlane-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -3069,7 +3215,7 @@
 			files = (
 				82AFC8F50705F55F00CF9DB7,
 				82D576B607AD71CC0026BE0D,
-				82CCC94D07CA58A5006813FB,
+				826948AC0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3083,7 +3229,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Smoke-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -3212,7 +3358,7 @@
 			files = (
 				82AFC8F70705F55F00CF9DB7,
 				82D576B707AD71CC0026BE0D,
-				82CCC94E07CA58A5006813FB,
+				826948AD0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3226,7 +3372,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Terrain-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -3355,7 +3501,7 @@
 			files = (
 				82AFC8F90705F55F00CF9DB7,
 				82D576B807AD71CC0026BE0D,
-				82CCC94F07CA58A5006813FB,
+				826948AE0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3369,7 +3515,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "TextureFX-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -3497,7 +3643,7 @@
 			files = (
 				82AFC8FB0705F55F00CF9DB7,
 				82D576B907AD71CC0026BE0D,
-				82CCC95007CA58A5006813FB,
+				826948AF0805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3511,7 +3657,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Transparency-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -3640,7 +3786,7 @@
 			files = (
 				82AFC8FD0705F55F00CF9DB7,
 				82D576BA07AD71CC0026BE0D,
-				82CCC95107CA58A5006813FB,
+				826948B00805E3E30056DC45,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3654,7 +3800,7 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Users/temas/work/zziplib-0.10.82/Xcode-orig/build";
+				FRAMEWORK_SEARCH_PATHS = "../Ogre/build \"$(HOME)/Library/Frameworks\" /Library/Frameworks";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "Water-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -4841,7 +4987,7 @@
 			isa = PBXFileReference;
 			lastKnownFileType = text;
 			name = media.cfg;
-			path = ../../../../ogre/Samples/Common/bin/media.cfg;
+			path = ../../../Samples/Common/bin/media.cfg;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -4975,152 +5121,6 @@
 		};
 		82C985DD07074B2D0061A825 = {
 			fileRef = 82C985C807074B2D0061A825;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC93D07CA58A5006813FB = {
-			isa = PBXFileReference;
-			lastKnownFileType = wrapper.framework;
-			name = zzip.framework;
-			path = /Users/temas/Library/Frameworks/zzip.framework;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
-		82CCC93E07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC93F07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94007CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94107CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94207CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94307CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94407CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94507CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94607CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94707CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94807CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94907CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94A07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94B07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94C07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94D07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94E07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC94F07CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC95007CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC95107CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC95207CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC95307CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		82CCC95407CA58A5006813FB = {
-			fileRef = 82CCC93D07CA58A5006813FB;
 			isa = PBXBuildFile;
 			settings = {
 			};

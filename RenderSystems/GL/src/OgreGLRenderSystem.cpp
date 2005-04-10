@@ -2516,7 +2516,9 @@ namespace Ogre {
         // Set nicer lighting model -- d3d9 has this by default
         glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
         glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);        
+#if OGRE_PLATFORM != OGRE_PLATFORM_APPLE
         glEnable(GL_COLOR_SUM);
+#endif
         // Check for FSAA
         // Enable the extension if it was enabled by the GLSupport
         if (mGLSupport->checkExtension("GL_ARB_multisample"))

@@ -10570,7 +10570,7 @@
 			explicitFileType = wrapper.framework;
 			isa = PBXFileReference;
 			name = zzip.framework;
-			path = "/Users/temas/work/zziplib-0.10.82/Xcode-orig/build/zzip.framework";
+			path = /Library/Frameworks/zzip.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
