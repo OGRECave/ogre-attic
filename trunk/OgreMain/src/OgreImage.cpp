@@ -123,6 +123,8 @@ namespace Ogre {
 				"Can not flip an unitialized texture",
 				"Image::flipAroundY" );
 		}
+        
+         m_uNumMipmaps = 0; // Image operations lose precomputed mipmaps
 
 		uchar	*pTempBuffer1 = NULL;
 		ushort	*pTempBuffer2 = NULL;
@@ -217,6 +219,8 @@ namespace Ogre {
 				"Can not flip an unitialized texture",
 				"Image::flipAroundX" );
 		}
+        
+        m_uNumMipmaps = 0; // Image operations lose precomputed mipmaps
 
 		size_t rowSpan = m_uWidth * m_ucPixelSize;
 
@@ -242,10 +246,6 @@ namespace Ogre {
 		PixelFormat eFormat, bool autoDelete, 
 		size_t numFaces, size_t numMipMaps)
 	{
-		if(numMipMaps != 0)
-			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
-			"Custom mipmaps not yet supported in Image class",
-			"Image::loadDynamicImage" ) ;
 		OgreGuard( "Image::loadDynamicImage" );
 
 		if( m_pBuffer && m_bAutoDelete )
@@ -273,7 +273,7 @@ namespace Ogre {
 			"Number of faces currently must be 6 or 1.", 
 			"Image::loadDynamicImage");
 
-		m_uSize = numFaces * PixelUtil::getMemorySize(m_uWidth, m_uHeight, m_uDepth, m_eFormat);
+		m_uSize = calculateSize(numMipMaps, numFaces, uWidth, uHeight, depth, eFormat);
 		m_pBuffer = pData;
 		m_bAutoDelete = autoDelete;
 
@@ -287,13 +287,9 @@ namespace Ogre {
 		PixelFormat eFormat,
 		size_t numFaces, size_t numMipMaps)
 	{
-		if(numMipMaps != 0)
-			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
-			"Custom mipmaps not yet supported in Image class",
-			"Image::loadRawData" ) ;
 		OgreGuard( "Image::loadRawData" );
 
-		size_t size = numFaces * PixelUtil::getMemorySize(uWidth, uHeight, uDepth, eFormat);
+		size_t size = calculateSize(numMipMaps, numFaces, uWidth, uHeight, uDepth, eFormat);
 		if (size != stream->size())
 		{
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
@@ -611,6 +607,7 @@ namespace Ogre {
 		m_uHeight = height;
 		m_uSize = PixelUtil::getMemorySize(m_uWidth, m_uHeight, 1, m_eFormat);
 		m_pBuffer = new uchar[m_uSize];
+        m_uNumMipmaps = 0; // Loses precomputed mipmaps
 
 		// scale the image from temp into our resized buffer
 		Image::scale(temp.getPixelBox(), getPixelBox(), filter);
@@ -755,18 +752,47 @@ namespace Ogre {
 
 	PixelBox Image::getPixelBox(size_t face, size_t mipmap) const
 	{
-		if(mipmap != 0)
+		if(mipmap > getNumMipmaps())
 			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
-			"Custom mipmaps not yet supported in Image class",
+			"Mipmap index out of range",
 			"Image::getPixelBox" ) ;
 		if(face >= getNumFaces())
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Face index out of range",
 			"Image::getPixelBox");
-		// Size of one face
-		size_t imageSize = PixelUtil::getMemorySize(getWidth(), getHeight(), getDepth(), getFormat());
+        // Calculate mipmap offset and size
+        uint8 *offset = const_cast<uint8*>(getData());
+        size_t width = getWidth(), height=getHeight(), depth=getDepth();
+        size_t faceSize; // Size of one face of the image
+        for(size_t mip=0; mip<mipmap; ++mip)
+        {
+            faceSize = PixelUtil::getMemorySize(width, height, depth, getFormat());
+            /// Skip all faces of this mipmap
+            offset += faceSize*getNumFaces(); 
+            /// Half size in each dimension
+            if(width!=1) width /= 2;
+            if(height!=1) height /= 2;
+            if(depth!=1) depth /= 2;
+        }
+		// We have advanced to the desired mipmap, offset to right face
+        faceSize = PixelUtil::getMemorySize(width, height, depth, getFormat());
+        offset += faceSize*face;
 		// Return subface as pixelbox
-		PixelBox src(getWidth(), getHeight(), getDepth(), getFormat(), const_cast<uint8*>(getData())+imageSize*face);
+		PixelBox src(width, height, depth, getFormat(), offset);
 		return src;
 	}
-
+    //-----------------------------------------------------------------------------    
+    size_t Image::calculateSize(size_t mipmaps, size_t faces, size_t width, size_t height, size_t depth, 
+        PixelFormat format)
+    {
+        size_t size = 0;
+        for(size_t mip=0; mip<=mipmaps; ++mip)
+        {
+            size += PixelUtil::getMemorySize(width, height, depth, format)*faces; 
+            if(width!=1) width /= 2;
+            if(height!=1) height /= 2;
+            if(depth!=1) depth /= 2;
+        }
+        return size;
+    }
+    
 }

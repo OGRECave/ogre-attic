@@ -25,14 +25,26 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __XSIHELPER_H__
 #define __XSIHELPER_H__
 
+#include <xsi_application.h>
 #include <xsi_string.h>
 #include <xsi_x3dobject.h>
 #include <xsi_vertexcolor.h>
 #include <xsi_math.h>
+#include <xsi_ref.h>
+#include <xsi_actionsource.h>
+#include <xsi_animationsourceitem.h>
+#include <xsi_progressbar.h>
+#include <xsi_uitoolkit.h>
+
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
 #include "OgreString.h"
 #include "OgreColourValue.h"
+#include "OgreLogManager.h"
+#include "OgreStringVector.h"
+#include "OgreSingleton.h"
+#include "OgreVector3.h"
+#include "OgreQuaternion.h"
 
 
 /// Useful function to convert an XSI CString to an Ogre String
@@ -51,6 +63,7 @@ inline Ogre::String XSItoOgre(const XSI::CString& xsistr)
     char* tmp = new char[c+1];
     // do the real conversion
     ::wcstombs(tmp, xsistr.GetWideString(), c);
+	tmp[c] = '\0';
     Ogre::String ret(tmp);
     delete [] tmp;
 
@@ -72,6 +85,8 @@ inline XSI::CString OgretoXSI(const Ogre::String& str)
     wchar_t* tmp = new wchar_t[c+1];
     // do the real conversion
     ::mbstowcs(tmp, str.c_str(), c);
+	tmp[c] = '\0';
+
     XSI::CString ret(tmp);
     delete [] tmp;
 
@@ -81,6 +96,10 @@ inline XSI::CString OgretoXSI(const Ogre::String& str)
 inline Ogre::Vector3 XSItoOgre(const XSI::MATH::CVector3& xsiVec)
 {
     return Ogre::Vector3(xsiVec.GetX(), xsiVec.GetY(), xsiVec.GetZ());
+}
+inline Ogre::Quaternion XSItoOgre(const XSI::MATH::CQuaternion& xsiQuat)
+{
+	return Ogre::Quaternion(xsiQuat.GetW(), xsiQuat.GetX(), xsiQuat.GetY(), xsiQuat.GetZ());
 }
 
 inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
@@ -95,7 +114,56 @@ inline Ogre::RGBA XSItoOgre(const XSI::CVertexColor& xsiColour)
 
 }
 
+inline void LogOgreAndXSI(const Ogre::String& msg)
+{
+	static XSI::Application app;
+	Ogre::LogManager::getSingleton().logMessage(msg);
+	app.LogMessage(OgretoXSI(msg));
+
+}
+
+inline void LogOgreAndXSI(const XSI::CString& msg)
+{
+	static XSI::Application app;
+	Ogre::LogManager::getSingleton().logMessage(XSItoOgre(msg));
+	app.LogMessage(msg);
+
+}
+
+
 namespace Ogre {
+
+	class ProgressManager : public Singleton<ProgressManager>
+	{
+	protected:
+		XSI::ProgressBar mProgressBar;
+		size_t mNumberOfStages;
+		size_t mProgress;
+
+	public:
+		ProgressManager(size_t numberOfStages);
+		virtual ~ProgressManager();
+			
+		void progress(void);
+
+		static ProgressManager& getSingleton(void);
+		static ProgressManager* getSingletonPtr(void);
+
+	};
+
+	enum XSITrackType
+	{
+		XTT_POS_X = 0,
+		XTT_POS_Y = 1,
+		XTT_POS_Z = 2,
+		XTT_ROT_X = 3,
+		XTT_ROT_Y = 4,
+		XTT_ROT_Z = 5,
+		XTT_SCL_X = 6,
+		XTT_SCL_Y = 7,
+		XTT_SCL_Z = 8,
+		XTT_COUNT = 9
+	};
 	/** An entry for a Deformer - need original index because this will be boneID */
 	class DeformerEntry
 	{
@@ -103,16 +171,38 @@ namespace Ogre {
 		unsigned short boneID;
 		XSI::X3DObject obj;
 		String parentName;
+		StringVector childNames;
+		bool hasVertexAssignments;
+		bool parentIsChainEndEffector;
+		bool hasAnyTracks;
 		Bone* pBone;
+		// lists of action source items (probably only one per param?)
+		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 
 		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
-			:boneID(theboneID), obj(theobj), pBone(0)
+			:boneID(theboneID), obj(theobj), hasVertexAssignments(false), 
+			parentIsChainEndEffector(false), hasAnyTracks(false), pBone(0)
 		{
 		}
 
 	};
 	/// Map from deformer name to deformer entry
-	typedef std::map<String,DeformerEntry*> DeformerList;
+	typedef std::map<String,DeformerEntry*> DeformerMap;
+
+
+	/** An entry for an animation; allows the userto split the timeline into 
+		multiple separate animations. 
+	*/
+	struct AnimationEntry
+	{
+		String animationName;
+		long startFrame; // -1 if 'from start'
+		long endFrame; // -1 if 'to end'
+		XSI::ActionSource source;
+		std::set<long> frames;
+	};
+	/// Map from deformer name to deformer entry
+	typedef std::vector<AnimationEntry> AnimationList;
 
 }
 #endif

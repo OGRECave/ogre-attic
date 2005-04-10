@@ -44,6 +44,7 @@ namespace Ogre {
         assert( ms_Singleton );  return ( *ms_Singleton );  
     }
 	String ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME = "General";
+	String ResourceGroupManager::BOOTSTRAP_RESOURCE_GROUP_NAME = "Bootstrap";
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     ResourceGroupManager::ResourceGroupManager()

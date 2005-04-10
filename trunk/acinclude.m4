@@ -228,7 +228,7 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
 [OGRE_GLSUPPORT=none
  AC_ARG_WITH(gl-support, 
              AC_HELP_STRING([--with-gl-support=PLATFORM],
-                            [the platform to build, currently SDL, GLX, Win32 or gtk]),
+                            [ The GLsupport to build (SDL, GLX, Win32 or gtk). Defaults to the platform. Only set this if you know what you are doing. Use --with-platform otherwise.]),
              OGRE_GLSUPPORT=$withval,
              OGRE_GLSUPPORT=none)
 

@@ -57,6 +57,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 GL_ActiveTextureARB_Func glActiveTextureARB_ptr;
 GL_ClientActiveTextureARB_Func glClientActiveTextureARB_ptr;
 GL_SecondaryColorPointerEXT_Func glSecondaryColorPointerEXT_ptr;
+GL_SecondaryColor3fEXT_Func glSecondaryColor3fEXT_ptr;
 GL_GenBuffersARB_Func glGenBuffersARB_ptr;
 GL_BindBufferARB_Func glBindBufferARB_ptr;
 GL_DeleteBuffersARB_Func glDeleteBuffersARB_ptr;
@@ -184,6 +185,7 @@ namespace Ogre {
         glActiveTextureARB_ptr = 0;
         glClientActiveTextureARB_ptr = 0;
         glSecondaryColorPointerEXT_ptr = 0;
+        glSecondaryColor3fEXT_ptr = 0;
         glGenBuffersARB_ptr = 0;
         glBindBufferARB_ptr = 0;
         glDeleteBuffersARB_ptr = 0;
@@ -530,6 +532,8 @@ namespace Ogre {
             (GL_ClientActiveTextureARB_Func)mGLSupport->getProcAddress("glClientActiveTextureARB");
         glSecondaryColorPointerEXT_ptr = 
             (GL_SecondaryColorPointerEXT_Func)mGLSupport->getProcAddress("glSecondaryColorPointerEXT");
+        glSecondaryColor3fEXT_ptr = 
+            (GL_SecondaryColor3fEXT_Func)mGLSupport->getProcAddress("glSecondaryColor3fEXT");
         glGenBuffersARB_ptr = 
             (GL_GenBuffersARB_Func)mGLSupport->getProcAddress("glGenBuffersARB");
         glBindBufferARB_ptr = 
@@ -2232,6 +2236,7 @@ namespace Ogre {
             glDisableVertexAttribArrayARB_ptr(1); // disable weights
         }
         glColor4f(1,1,1,1);
+        glSecondaryColor3fEXT_ptr(0.0f, 0.0f, 0.0f);
 
         // UnGuard
         OgreUnguard();
@@ -2520,6 +2525,8 @@ namespace Ogre {
         // Set nicer lighting model -- d3d9 has this by default
         glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
         glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);        
+        glEnable(GL_COLOR_SUM);
+
         // Check for FSAA
         // Enable the extension if it was enabled by the GLSupport
         if (mGLSupport->checkExtension("GL_ARB_multisample"))

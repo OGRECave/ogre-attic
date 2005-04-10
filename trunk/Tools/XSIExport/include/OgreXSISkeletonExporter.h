@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_x3dobject.h>
 #include <xsi_string.h>
 #include <xsi_application.h>
+#include <xsi_actionsource.h>
 
 namespace Ogre {
 
@@ -47,19 +48,46 @@ namespace Ogre {
 		/** Export a skeleton to the provided filename.
 		@param skeletonFileName The file name to export to
 		@param deformers The list of deformers (bones) found during mesh traversal
+		@param framesPerSecond The number of frames per second
+		@param animList List of animation splits
 		*/
-		void exportSkeleton(const String& skeletonFileName, DeformerList& deformers);
+		void exportSkeleton(const String& skeletonFileName, 
+			DeformerMap& deformers, float framesPerSecond, 
+			AnimationList& animList);
 	protected:
 		// XSI Objects
 		XSI::Application mXsiApp;
 		XSI::X3DObject mXsiSceneRoot;
+		std::map<String, int> mXSITrackTypeNames; 
 
 		/// Build the bone hierarchy from a simple list of bones
-		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerList& deformers);
+		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerMap& deformers, 
+			AnimationList& animList);
 		/** Link the current bone with it's parent
-		@returns True if it linked, false otherwise
 		*/
-		bool linkBoneWithParent(Skeleton* pSkeleton, XSI::X3DObject& child, DeformerList& deformers);
+		void linkBoneWithParent(DeformerEntry* deformer, 
+			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList);
+		/** Validate and create a bone, or eliminate the current bone if it 
+			has no animated parameters
+		*/
+		void validateAsBone(Skeleton* pSkeleton, DeformerEntry* deformer, 
+			DeformerMap& deformers, std::list<DeformerEntry*>& deformerList, 
+			AnimationList& animList);
+		/// Process an action source
+		void processActionSource(const XSI::ActionSource& source, DeformerMap& deformers);
+		/// Bake animations
+		void createAnimations(Skeleton* pSkel, DeformerMap& deformers, 
+			float framesPerSecond, AnimationList& animList);
+		/// Bake animation tracks, and return the time length found
+		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
+			DeformerMap& deformers, float fps);
+		/// Get the length of an animation
+		void determineAnimationLength(AnimationEntry& animEntry);		
+		/// Pre-parse the deformers animation to find the keyframe numbers
+		void buildKeyframeList(DeformerEntry* deformer, AnimationEntry& animEntry);		
+		/// Derive a keyframe value from XSI's tracks
+		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame, double defaultVal);
+		
 
 	};
 

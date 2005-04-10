@@ -118,7 +118,164 @@ namespace Ogre {
             /// A custom parameter which will come from the renderable, using 'data' as the identifier
             ACT_CUSTOM,
             /// The current camera's position in world space
-            ACT_CAMERA_POSITION
+            ACT_CAMERA_POSITION,
+			/** Single float value, which repeats itself based on given as
+			parameter "cycle time". Equivalent to RenderMonkey's "Time0_X".
+			*/
+			ACT_TIME_0_X,
+			/// Cosine of "Time0_X". Equivalent to RenderMonkey's "CosTime0_X".
+			ACT_COSTIME_0_X,
+			/// Sine of "Time0_X". Equivalent to RenderMonkey's "SinTime0_X".
+			ACT_SINTIME_0_X,
+			/// Tangent of "Time0_X". Equivalent to RenderMonkey's "TanTime0_X".
+			ACT_TANTIME_0_X,
+			/** Vector of "Time0_X", "SinTime0_X", "CosTime0_X", 
+			"TanTime0_X". Equivalent to RenderMonkey's "Time0_X_Packed".
+			*/
+			ACT_TIME_0_X_PACKED,
+			/** Single float value, which represents scaled time value [0..1],
+			which repeats itself based on given as parameter "cycle time".
+			Equivalent to RenderMonkey's "Time0_1".
+			*/
+			ACT_TIME_0_1,
+			/// Cosine of "Time0_1". Equivalent to RenderMonkey's "CosTime0_1".
+			ACT_COSTIME_0_1,
+			/// Sine of "Time0_1". Equivalent to RenderMonkey's "SinTime0_1".
+			ACT_SINTIME_0_1,
+			/// Tangent of "Time0_1". Equivalent to RenderMonkey's "TanTime0_1".
+			ACT_TANTIME_0_1,
+			/** Vector of "Time0_1", "SinTime0_1", "CosTime0_1",
+			"TanTime0_1". Equivalent to RenderMonkey's "Time0_1_Packed".
+			*/
+			ACT_TIME_0_1_PACKED,
+			/**	Single float value, which represents scaled time value [0..2*Pi],
+			which repeats itself based on given as parameter "cycle time".
+			Equivalent to RenderMonkey's "Time0_2PI".
+			*/
+			ACT_TIME_0_2PI,
+			/// Cosine of "Time0_2PI". Equivalent to RenderMonkey's "CosTime0_2PI".
+			ACT_COSTIME_0_2PI,
+			/// Sine of "Time0_2PI". Equivalent to RenderMonkey's "SinTime0_2PI".
+			ACT_SINTIME_0_2PI,
+			/// Tangent of "Time0_2PI". Equivalent to RenderMonkey's "TanTime0_2PI".
+			ACT_TANTIME_0_2PI,
+			/** Vector of "Time0_2PI", "SinTime0_2PI", "CosTime0_2PI",
+			"TanTime0_2PI". Equivalent to RenderMonkey's "Time0_2PI_Packed".
+			*/
+			ACT_TIME_0_2PI_PACKED,
+			/// provides the calculated frames per second, returned as a floating point value.
+			ACT_FPS,
+			/// viewport-related values
+			/** Current viewport width (in pixels) as floating point value.
+			Equivalent to RenderMonkey's "ViewportWidth".
+			*/
+			ACT_VIEWPORT_WIDTH,
+			/** Current viewport height (in pixels) as floating point value.
+			Equivalent to RenderMonkey's "ViewportHeight".
+			*/
+			ACT_VIEWPORT_HEIGHT,
+			/** This variable represents 1.0/ViewportWidth. 
+			Equivalent to RenderMonkey's "ViewportWidthInverse".
+			*/
+			ACT_INVERSE_VIEWPORT_WIDTH,
+			/** This variable represents 1.0/ViewportHeight.
+			Equivalent to RenderMonkey's "ViewportHeightInverse".
+			*/
+			ACT_INVERSE_VIEWPORT_HEIGHT,
+
+			/// view parameters
+			/** This variable provides the view direction vector (world space).
+			Equivalent to RenderMonkey's "ViewDirection".
+			*/
+			ACT_VIEW_DIRECTION,
+			/** This variable provides the view size vector (world space).
+			Equivalent to RenderMonkey's "ViewSideVector".
+			*/
+			ACT_VIEW_SIDE_VECTOR,
+			/** This variable provides the view up vector (world space).
+			Equivalent to RenderMonkey's "ViewUpVector".
+			*/
+			ACT_VIEW_UP_VECTOR,
+			/** This variable provides the field of view as a floating point value.
+			Equivalent to RenderMonkey's "FOV".
+			*/
+			ACT_FOV,
+			/**	This variable provides the near clip distance as a floating point value.
+			Equivalent to RenderMonkey's "NearClipPlane".
+			*/
+			ACT_NEAR_CLIP_DISTANCE,
+			/**	This variable provides the far clip distance as a floating point value.
+			Equivalent to RenderMonkey's "FarClipPlane".
+			*/
+			ACT_FAR_CLIP_DISTANCE,
+
+			/// view matrices.
+			/** Provides inverse of concatenated view and projection matrices.
+			Equivalent to RenderMonkey's "ViewProjectionInverse".
+			*/
+			ACT_INVERSE_VIEWPROJ_MATRIX,
+			/** Provides inverse transpose of concatenated view and projection matrices.
+			Equivalent to RenderMonkey's "ViewProjectionInverseTranspose".
+			*/
+			ACT_INVERSETRANSPOSE_VIEWPROJ_MATRIX,
+			/** Provides transpose of concatenated view and projection matrices.
+			Equivalent to RenderMonkey's "ViewProjectionTranspose".
+			*/
+			ACT_TRANSPOSE_VIEWPROJ_MATRIX,
+
+			/** Provides transpose of view matrix.
+			Equivalent to RenderMonkey's "ViewTranspose".
+			*/
+			ACT_TRANSPOSE_VIEW_MATRIX,
+			/** Provides inverse transpose of view matrix.
+			Equivalent to RenderMonkey's "ViewInverseTranspose".
+			*/
+			ACT_INVERSETRANSPOSE_VIEW_MATRIX,
+
+			/** Provides transpose of projection matrix.
+			Equivalent to RenderMonkey's "ProjectionTranspose".
+			*/
+			ACT_TRANSPOSE_PROJECTION_MATRIX,
+			/** Provides inverse of projection matrix.
+			Equivalent to RenderMonkey's "ProjectionInverse".
+			*/
+			ACT_INVERSE_PROJECTION_MATRIX,
+			/** Provides inverse transpose of projection matrix.
+			Equivalent to RenderMonkey's "ProjectionInverseTranspose".
+			*/
+			ACT_INVERSETRANSPOSE_PROJECTION_MATRIX,
+
+			/** Provides transpose of concatenated world, view and projection matrices.
+			Equivalent to RenderMonkey's "WorldViewProjectionTranspose".
+			*/
+			ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,
+			/** Provides inverse of concatenated world, view and projection matrices.
+			Equivalent to RenderMonkey's "WorldViewProjectionInverse".
+			*/
+			ACT_INVERSE_WORLDVIEWPROJ_MATRIX,
+			/** Provides inverse transpose of concatenated world, view and projection
+			matrices. Equivalent to RenderMonkey's "WorldViewProjectionInverseTranspose".
+ 			*/
+			ACT_INVERSETRANSPOSE_WORLDVIEWPROJ_MATRIX,
+ 			
+ 			/** Provides transpose of concatenated world and view matrices.
+ 				Equivalent to RenderMonkey's "WorldViewTranspose".
+ 			*/
+ 			ACT_TRANSPOSE_WORLDVIEW_MATRIX,
+ 			/** Provides inverse transpose of concatenate world and view matrices.
+				Equivalent to RenderMonkey's "WorldViewInverseTranspose".
+ 			*/
+ 			ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX,
+ 
+ 			/** Provides transpose of world matrix.
+ 			Equivalent to RenderMonkey's "WorldTranspose".
+ 			*/
+ 			ACT_TRANSPOSE_WORLD_MATRIX,
+ 			/** Provides inverse transpose of world matrix.
+ 			Equivalent to RenderMonkey's "WorldInverseTranspose".
+ 			*/
+ 			ACT_INVERSE_TRANSPOSE_WORLD_MATRIX
+ 
         };
         /** Structure recording the use of an automatic parameter. */
         class AutoConstantEntry
@@ -129,10 +286,16 @@ namespace Ogre {
             /// The target constant index
             size_t index;
             /// Additional information to go with the parameter
-            size_t data;
+			union{
+				size_t data;
+				Real fData;
+			};
 
             AutoConstantEntry(AutoConstantType theType, size_t theIndex, size_t theData)
                 : paramType(theType), index(theIndex), data(theData) {}
+
+			AutoConstantEntry(AutoConstantType theType, size_t theIndex, Real theData)
+				: paramType(theType), index(theIndex), fData(theData) {}
 
         };
         /** Real parameter entry; contains both a group of 4 values and 
@@ -299,6 +462,7 @@ namespace Ogre {
         @param extraInfo If the constant type needs more information (like a light index) put it here.
         */
         void setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo = 0);
+		void setAutoConstantReal(size_t index, AutoConstantType acType, Real rData);
         /** Sets a named parameter up to track a derivation of the current time.
         @param index The index of the parameter
         @param factor The amount by which to scale the time value

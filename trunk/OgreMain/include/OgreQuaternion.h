@@ -142,7 +142,10 @@ namespace Ogre {
 			return (rhs.x == x) && (rhs.y == y) &&
 				(rhs.z == z) && (rhs.w == w);
 		}
-
+        inline bool operator!= (const Quaternion& rhs) const
+		{
+			return !operator==(rhs);
+		}
         // functions of a quaternion
         Real Dot (const Quaternion& rkQ) const;  // dot product
         Real Norm () const;  // squared-length

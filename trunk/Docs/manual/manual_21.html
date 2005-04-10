@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 26 2005 by texi2html 1.64 -->
+<!-- Created on , 29 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -113,6 +113,36 @@ example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
 <DD>The inverse transpose of the current world matrix.
 <DT>inverse_transpose_worldview_matrix
 <DD>The inverse transpose of the current concatenated world and view matrices.
+<DT>inverse_viewproj_matrix
+<DD>The inverse of the view &#38; projection matrices
+<DT>inverse_transpose_viewproj_matrix
+<DD>The inverse transpose of the view &#38; projection matrices
+<DT>transpose_viewproj_matrix
+<DD>The transpose of the view &#38; projection matrices
+<DT>transpose_view_matrix
+<DD>The transpose of the view matrix
+<DT>inverse_transpose_view_matrix
+<DD>The inverse transpose of the view matrix
+<DT>transpose_projection_matrix
+<DD>The transpose of the projection matrix
+<DT>inverse_projection_matrix
+<DD>The inverse of the projection matrix
+<DT>inverse_transpose_projection_matrix
+<DD>The inverse transpose of the projection matrix
+<DT>transpose_worldviewproj_matrix
+<DD>The transpose of the world, view and projection matrices
+<DT>inverse_worldviewproj_matrix
+<DD>The inverse of the world, view and projection matrices
+<DT>inverse_transpose_worldviewproj_matrix
+<DD>The inverse transpose of the world, view and projection matrices
+<DT>transpose_worldview_matrix
+<DD>The transpose of the world and view matrices
+<DT>inverse_transpose_worldview_matrix
+<DD>The inverse transpose of the world and view matrices
+<DT>transpose_world_matrix
+<DD>The transpose of the world matrix
+<DT>inverse_transpose_world_matrix
+<DD>The inverse transpose of the world matrix
 <DT>light_diffuse_colour
 <DD>The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light - note that directional lights are always first in the list and always present). NB if there are no lights this close, then the parameter will be set to black.
 <DT>light_specular_colour
@@ -135,6 +165,58 @@ example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
 <DD>The current cameras position in object space (ie when the object is at (0,0,0)).
 <DT>time
 <DD>The current time, factored by the optional parameter (or 1.0f if not supplied).
+<DT>time_0_x
+<DD>Single float time value, which repeats itself based on "cycle time" given as an 'extra_params' field
+<DT>costime_0_x
+<DD>Cosine of time_0_x
+<DT>sintime_0_x
+<DD>Sine of time_0_x
+<DT>tantime_0_x
+<DD>Tangent of time_0_x
+<DT>time_0_x_packed
+<DD>4-element vector of time0_x, sintime0_x, costime0_x, tantime0_x
+<DT>time_0_1
+<DD>As time0_x but scaled to [0..1]
+<DT>costime_0_1
+<DD>As costime0_x but scaled to [0..1]
+<DT>sintime_0_1
+<DD>As sintime0_x but scaled to [0..1]
+<DT>tantime_0_1
+<DD>As tantime0_x but scaled to [0..1]
+<DT>time_0_1_packed
+<DD>As time0_x_packed but all values scaled to [0..1]
+<DT>time_0_2pi
+<DD>As time0_x but scaled to [0..2*Pi]
+<DT>costime_0_2pi
+<DD>As costime0_x but scaled to [0..2*Pi]
+<DT>sintime_0_2pi
+<DD>As sintime0_x but scaled to [0..2*Pi]
+<DT>tantime_0_2pi
+<DD>As tantime0_x but scaled to [0..2*Pi]
+<DT>time_0_2pi_packed
+<DD>As time0_x_packed but scaled to [0..2*Pi]
+<DT>fps
+<DD>The current frames per second
+<DT>viewport_width
+<DD>The current viewport width in pixels
+<DT>viewport_height
+<DD>The current viewport height in pixels
+<DT>inverse_viewport_width
+<DD>1.0/the current viewport width in pixels
+<DT>inverse_viewport_height
+<DD>1.0/the current viewport height in pixels
+<DT>view_direction
+<DD>View direction vector
+<DT>view_side_vector
+<DD>View local X axis
+<DT>view_up_vector
+<DD>View local Y axis
+<DT>fov
+<DD>Vertical field of view, in radians
+<DT>near_clip_distance
+<DD>Near clip distance, in world units
+<DT>far_clip_distance
+<DD>Far clip distance, in world units (may be 0 for infinite view projection)
 <DT>texture_viewproj_matrix
 <DD>Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
 <DT>custom
@@ -204,7 +286,7 @@ For the purposes of writing this alternate program, there is an automatic parame
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 26 2005</I>
+by <I>Steve Streeting</I> on <I>, 29 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -41,6 +41,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_selection.h>
 #include <xsi_comapihandler.h>
 #include <xsi_uitoolkit.h>
+#include <xsi_time.h>
+#include <xsi_griddata.h>
+#include <xsi_gridwidget.h>
+#include <xsi_mixer.h>
+#include <xsi_source.h>
 
 #include "OgreXSIMeshExporter.h"
 #include "OgreXSISkeletonExporter.h"
@@ -55,6 +60,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDefaultHardwareBufferManager.h"
 
 using namespace XSI;
+
+#define OGRE_XSI_EXPORTER_VERSION L"1.0.1"
 
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
@@ -94,6 +101,8 @@ OgreMeshExportOptions_PPGEvent
 CString GetUserSelectedObject();
 CStatus Popup( const CString& in_inputobjs, const CString& in_keywords, const CString& in_title, const CValue& in_mode, bool in_throw );
 void DeleteObj( const CValue& in_inputobj );
+
+Ogre::AnimationList animList;
 
 
 #ifdef unix
@@ -158,11 +167,10 @@ XSI::CStatus OgreMeshExportCommand_Init( const XSI::CRef& context )
 	args.Add( L"targetMeshFileName", L"c:/default.mesh" );
 	args.Add( L"calculateEdgeLists", L"true" );
     args.Add( L"calculateTangents", L"false" );
-    args.Add( L"lodGeneration", L"" ); // complete if LOD generation required
     args.Add( L"exportSkeleton", L"true" );
     args.Add( L"targetSkeletonFileName", L"c:/default.skeleton" );
     args.Add( L"fps", L"24" );
-    args.Add( L"animationSplit", L"" ); // complete if animation splitting required
+    args.Add( L"animationList", L"" ); 
 	return XSI::CStatus::OK;
 
 }
@@ -216,6 +224,8 @@ XSI::CStatus OgreMeshExportMenu_Init( XSI::CRef& in_ref )
 	return CStatus::OK;	
 }
 
+CString exportPropertyDialogName = L"OgreMeshExportOptions";
+
 #ifdef unix
 extern "C" 
 #endif
@@ -227,83 +237,137 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
 	Application app;
 	CStatus st(CStatus::OK);
-	Property prop = app.GetActiveSceneRoot().AddProperty( L"OgreMeshExportOptions" ) ;
-	
-	// Popup Returns true if the command was cancelled otherwise it returns false. 
-	CStatus ret = Popup(L"OgreMeshExportOptions",CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
-    if (ret == CStatus::OK)
+	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
+	if (!prop.IsValid())
 	{
-        Ogre::XsiMeshExporter meshExporter;
-		Ogre::XsiSkeletonExporter skelExporter;
-
-        // retrieve the parameters
-        Parameter param = prop.GetParameters().GetItem(L"objectName");
-        CString objectName = param.GetValue();
-        param = prop.GetParameters().GetItem( L"targetMeshFileName" );
-        CString meshFileName = param.GetValue();
-		param = prop.GetParameters().GetItem( L"mergeSubmeshes" );
-		bool mergeSubmeshes = param.GetValue();
-		param = prop.GetParameters().GetItem( L"exportChildren" );
-		bool exportChildren = param.GetValue();
-        param = prop.GetParameters().GetItem( L"calculateEdgeLists" );
-        bool edgeLists = param.GetValue();
-        param = prop.GetParameters().GetItem( L"calculateTangents" );
-        bool tangents = param.GetValue();
-		param = prop.GetParameters().GetItem( L"numLodLevels" );
-		long numlods = param.GetValue();
-		Ogre::XsiMeshExporter::LodData* lodData = 0;
-		if (numlods > 0)
+		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
+		prop.PutParameterValue(L"version", OGRE_XSI_EXPORTER_VERSION);
+	}
+	Ogre::LogManager logMgr;
+	logMgr.createLog("OgreXSIExporter.log", true);
+	CString msg(L"OGRE Exporter Version ");
+	msg += OGRE_XSI_EXPORTER_VERSION;
+	LogOgreAndXSI(msg);
+	
+	try
+	{
+		// Popup Returns true if the command was cancelled otherwise it returns false. 
+		CStatus ret = Popup(exportPropertyDialogName,CValue(),L"OGRE Mesh / Skeleton Export",(long)siModal,true);
+		if (ret == CStatus::OK)
 		{
-			param = prop.GetParameters().GetItem( L"lodDistanceIncrement" );
-			float distanceInc = param.GetValue();
+			Ogre::XsiMeshExporter meshExporter;
+			Ogre::XsiSkeletonExporter skelExporter;
 
-			param = prop.GetParameters().GetItem(L"lodQuota");
-			CString quota = param.GetValue();
-
-			param = prop.GetParameters().GetItem(L"lodReduction");
-			float reduction = param.GetValue();
-
-			lodData = new Ogre::XsiMeshExporter::LodData;
-			float currentInc = distanceInc;
-			for (int l = 0; l < numlods; ++l)
+			// retrieve the parameters
+			Parameter param = prop.GetParameters().GetItem(L"objectName");
+			CString objectName = param.GetValue();
+			param = prop.GetParameters().GetItem( L"targetMeshFileName" );
+			Ogre::String meshFileName = XSItoOgre(param.GetValue());
+			if (meshFileName.empty())
 			{
-				lodData->distances.push_back(currentInc);
-				currentInc += distanceInc;
+				OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
+					"You must supply a mesh file name", 
+					"OGRE Exporter");
 			}
-			lodData->quota = (quota == L"p") ?
-				Ogre::ProgressiveMesh::VRQ_PROPORTIONAL : Ogre::ProgressiveMesh::VRQ_CONSTANT;
-			if (lodData->quota == Ogre::ProgressiveMesh::VRQ_PROPORTIONAL)
-				lodData->reductionValue = reduction * 0.01;
-			else
-				lodData->reductionValue = reduction;
+			param = prop.GetParameters().GetItem( L"mergeSubmeshes" );
+			bool mergeSubmeshes = param.GetValue();
+			param = prop.GetParameters().GetItem( L"exportChildren" );
+			bool exportChildren = param.GetValue();
+			param = prop.GetParameters().GetItem( L"calculateEdgeLists" );
+			bool edgeLists = param.GetValue();
+			param = prop.GetParameters().GetItem( L"calculateTangents" );
+			bool tangents = param.GetValue();
+			param = prop.GetParameters().GetItem( L"numLodLevels" );
+			long numlods = param.GetValue();
+			Ogre::XsiMeshExporter::LodData* lodData = 0;
+			if (numlods > 0)
+			{
+				param = prop.GetParameters().GetItem( L"lodDistanceIncrement" );
+				float distanceInc = param.GetValue();
 
-		}
+				param = prop.GetParameters().GetItem(L"lodQuota");
+				CString quota = param.GetValue();
 
-		param = prop.GetParameters().GetItem( L"exportSkeleton" );
-		bool exportSkeleton = param.GetValue();
+				param = prop.GetParameters().GetItem(L"lodReduction");
+				float reduction = param.GetValue();
+
+				lodData = new Ogre::XsiMeshExporter::LodData;
+				float currentInc = distanceInc;
+				for (int l = 0; l < numlods; ++l)
+				{
+					lodData->distances.push_back(currentInc);
+					currentInc += distanceInc;
+				}
+				lodData->quota = (quota == L"p") ?
+					Ogre::ProgressiveMesh::VRQ_PROPORTIONAL : Ogre::ProgressiveMesh::VRQ_CONSTANT;
+				if (lodData->quota == Ogre::ProgressiveMesh::VRQ_PROPORTIONAL)
+					lodData->reductionValue = reduction * 0.01;
+				else
+					lodData->reductionValue = reduction;
+
+			}
+
+			param = prop.GetParameters().GetItem( L"exportSkeleton" );
+			bool exportSkeleton = param.GetValue();
 
 
-		try 
-		{
-			Ogre::LogManager logMgr;
-			logMgr.createLog("OgreXSIExporter.log", true);
 			Ogre::ResourceGroupManager rgm;
 			Ogre::MeshManager meshMgr;
 			Ogre::SkeletonManager skelMgr;;
 			Ogre::DefaultHardwareBufferManager hardwareBufMgr;
 
-			logMgr.createLog("OgreXSIExport.log", true);
 			
+			// determine number of exportsteps
+			size_t numSteps = 3;
+			if (numlods > 0)
+				numSteps++;
+			if (edgeLists)
+				numSteps++;
+			if (tangents)
+				numSteps++;
+			if (exportSkeleton)
+				numSteps += 3;
+
+			Ogre::ProgressManager progressMgr(numSteps);
+
 			if (exportSkeleton)
 			{
 				param = prop.GetParameters().GetItem( L"targetSkeletonFileName" );
 				Ogre::String skeletonFileName = XSItoOgre(param.GetValue());
+				if (skeletonFileName.empty())
+				{
+					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
+						"You must supply a skeleton file name", 
+						"OGRE Exporter");
+				}
+				param = prop.GetParameters().GetItem( L"fps" );
+				float fps = param.GetValue();
+				if (fps == 0.0f)
+				{
+					OGRE_EXCEPT(Ogre::Exception::ERR_INVALIDPARAMS, 
+						"You must supply a valid value for 'FPS'", 
+						"OGRE Export");
+				}
 
-				/* TODO
-				"targetSkeletonFileName"
-				"fps"
-				"animationSplit"
-				*/
+				param = prop.GetParameters().GetItem( L"animationList" );
+				GridData gd = param.GetValue();
+				Ogre::AnimationList selAnimList;
+				for (int a = 0; a < gd.GetRowCount(); ++a)
+				{
+					if (gd.GetCell(1, a) == true)
+					{
+						Ogre::String name = XSItoOgre(gd.GetCell(0, a));
+
+						for (Ogre::AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
+						{
+							if (ai->animationName == name)
+							{
+								selAnimList.push_back(*ai);
+								break;
+							}
+						}
+					}
+				}
 
 				// Truncate the skeleton filename to just the name (no path)
 				Ogre::String skelName = skeletonFileName;
@@ -317,12 +381,13 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 					skelName = skelName.substr(pos+1, skelName.size() - pos - 1);
 				}
 
+
 				// Do the mesh
-				Ogre::DeformerList& deformers = 
+				Ogre::DeformerMap& deformers = 
 					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
 						exportChildren, edgeLists, tangents, lodData, skelName);
 				// do the skeleton
-				skelExporter.exportSkeleton(skeletonFileName, deformers);
+				skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
 
 
 
@@ -333,20 +398,22 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
 					exportChildren, edgeLists, tangents, lodData);
 			}
-		}
-		catch (Ogre::Exception& e)
-		{
-			// Will already have been logged to the Ogre log manager
-			// Tell XSI
-			app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siErrorMsg);
-		}
 
-		
-		delete lodData;
+			
+			delete lodData;
 
+		}
 
 	}
-	DeleteObj( L"OgreMeshExportOptions" );
+	catch (Ogre::Exception& e)
+	{
+		// Will already have been logged to the Ogre log manager
+		// Tell XSI
+		app.LogMessage(OgretoXSI(e.getDescription()), XSI::siFatalMsg);
+		app.LogMessage(OgretoXSI(e.getFullDescription()), XSI::siInfoMsg);
+	}
+
+	//DeleteObj( L"OgreMeshExportOptions" );
 	return st;	
 }
 
@@ -370,9 +437,13 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 	int caps = siPersistable  ;
 	CValue nullValue;	// Used for arguments we don't want to set
 
+	prop.AddParameter(	
+		L"version",CValue::siString, caps, 
+		L"Version", L"", 
+		nullValue, param) ;	
     prop.AddParameter(	
         L"objectName",CValue::siString, caps, 
-        L"Export Mesh", L"", 
+        L"Object Name", L"", 
         nullValue, param) ;	
 	prop.AddParameter(	
 		L"objects",CValue::siRefArray, caps, 
@@ -414,7 +485,12 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 	prop.AddParameter(	
 		L"lodDistanceIncrement",CValue::siFloat, caps, 
 		L"Distance Increment", L"", 
-		CValue(2000L), param) ;	
+		CValue(2000L), //default
+		CValue(1L), // hard min
+		CValue(1000000L), // hard max
+		CValue(50L), // suggested min
+		CValue(10000L), // suggested max
+		param) ;	
 	prop.AddParameter(	
 		L"lodQuota",CValue::siString, caps, 
 		L"Reduction Style", L"", 
@@ -422,11 +498,7 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 	prop.AddParameter(	
 		L"lodReduction",CValue::siFloat, caps, 
 		L"Reduction Value", L"", 
-		CValue(20.0f), param) ;	
-    prop.AddParameter(	// TODO, review this
-        L"lodGeneration",CValue::siString, caps, 
-        L"LOD Generation", L"", 
-        nullValue, param) ;	
+		CValue(50.0f), param) ;	
     prop.AddParameter(	
         L"exportSkeleton",CValue::siBool, caps, 
         L"Export Skeleton", L"", 
@@ -435,14 +507,11 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"targetSkeletonFileName",CValue::siString, caps, 
         L"Skeleton Filename", L"", 
         nullValue, param) ;	
-    prop.AddParameter(	
+    prop.AddParameter(
         L"fps",CValue::siInt2, caps, 
         L"Frames per second", L"", 
         CValue(24l), param) ;	
-    prop.AddParameter(	// TODO, review this
-        L"animationSplit",CValue::siString, caps, 
-        L"Split animations", L"", 
-        nullValue, param) ;	
+	prop.AddGridParameter(L"animationList");	
 
 
 	return CStatus::OK;	
@@ -496,7 +565,9 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item.PutAttribute( siUINoLabel, true );
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
-	item = oLayout.AddItem(L"animationSplit");
+	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60");
+	item.PutAttribute(siUIGridHideRowHeader, true);
 
 	oLayout.EndGroup();
 
@@ -564,6 +635,57 @@ bool hasSkeleton(Selection& sel, bool recurse)
 	return false;
 }
 
+
+void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
+{
+	XSI::CRefArray sources = model.GetSources();
+	for (int s = 0; s < sources.GetCount(); ++s)
+	{
+		XSI::Source src(sources[s]);
+		if (src.IsA(siActionSourceID))
+		{
+			bool add = true;
+			Ogre::String name = XSItoOgre(src.GetName());
+			for (Ogre::AnimationList::iterator e = animList.begin(); e != animList.end(); ++e)
+			{
+				if (e->animationName == name)
+				{
+					add = false;
+					break;
+				}
+			}
+			if (add)
+			{
+				Ogre::AnimationEntry anim;
+				anim.animationName = name;
+				anim.startFrame = -1;
+				anim.endFrame = -1;
+				anim.source = ActionSource(src);
+				animList.push_back(anim);
+			}
+		}
+
+	}
+
+}
+
+void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
+{
+	animList.clear();
+
+	findAnimations(root, animList);
+
+	// Find all children (recursively)
+	XSI::CRefArray children = root.FindChildren(L"", siModelType, XSI::CStringArray());
+	for (int c = 0; c < children.GetCount(); ++c)
+	{
+		XSI::Model child(children[c]);
+		findAnimations(child, animList);
+	}
+
+}
+
+
 #ifdef unix
 extern "C" 
 #endif
@@ -616,7 +738,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, true);
 			param = prop.GetParameters().GetItem(L"fps");
 			param.PutCapabilityFlag(siReadOnly, true);
-			param = prop.GetParameters().GetItem(L"animationSplit");
+			param = prop.GetParameters().GetItem(L"animationList");
 			param.PutCapabilityFlag(siReadOnly, true);
 			hasSkel = false;
 		}
@@ -629,8 +751,29 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, false);
 			param = prop.GetParameters().GetItem(L"fps");
 			param.PutCapabilityFlag(siReadOnly, false);
-			param = prop.GetParameters().GetItem(L"animationSplit");
+			// default the frame rate to that selected in animation panel
+			prop.PutParameterValue(L"fps", CTime().GetFrameRate());
+			param = prop.GetParameters().GetItem(L"animationList");
 			param.PutCapabilityFlag(siReadOnly, false);
+			// value of param is a griddata object
+			// initialise it with all animations
+			GridData gd = param.GetValue();
+			gd.PutColumnType(1, siColumnBool);
+
+			gd.PutColumnCount(2);
+			gd.PutColumnLabel(0, L"Name");
+			gd.PutColumnLabel(1, L"Export?");
+
+
+			getAnimations(app.GetActiveSceneRoot(), animList);
+			gd.PutRowCount(animList.size());
+			int row = 0;
+			for (Ogre::AnimationList::iterator a = animList.begin(); a != animList.end(); ++a, ++row)
+			{
+				gd.PutCell(0, row, OgretoXSI(a->animationName));
+				gd.PutCell(1, row, true);
+			}
+			
 			hasSkel = true;
 		}
 	}

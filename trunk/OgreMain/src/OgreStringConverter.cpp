@@ -58,6 +58,19 @@ namespace Ogre {
         return stream.str();
     }
     //-----------------------------------------------------------------------
+#if OGRE_ARCH_TYPE == OGRE_ARCHITECTURE_64 || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    String StringConverter::toString(unsigned int val, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
+    {
+        StringUtil::StrStreamType stream;
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
+        stream << val;
+        return stream.str();
+    }
+    //-----------------------------------------------------------------------
     String StringConverter::toString(size_t val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
@@ -70,7 +83,8 @@ namespace Ogre {
         return stream.str();
     }
     //-----------------------------------------------------------------------
-    String StringConverter::toString(long val, 
+#else
+    String StringConverter::toString(size_t val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;
@@ -83,6 +97,19 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     String StringConverter::toString(unsigned long val, 
+        unsigned short width, char fill, std::ios::fmtflags flags)
+    {
+        StringUtil::StrStreamType stream;
+        stream.width(width);
+        stream.fill(fill);
+        if (flags)
+            stream.setf(flags);
+        stream << val;
+        return stream.str();
+    }
+    //-----------------------------------------------------------------------
+#endif
+    String StringConverter::toString(long val, 
         unsigned short width, char fill, std::ios::fmtflags flags)
     {
         StringUtil::StrStreamType stream;

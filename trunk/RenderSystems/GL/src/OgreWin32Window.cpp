@@ -57,7 +57,6 @@ namespace Ogre {
         HWND parentHWnd = 0;
 		HWND externalHandle = 0;
 		HINSTANCE hInst = GetModuleHandle("RenderSystem_GL.dll");
-		long tempPtr;
 		bool vsync = false;
 		unsigned int displayFrequency = 0;
 		String title = name;
@@ -65,6 +64,7 @@ namespace Ogre {
 		unsigned int left = 0; // Defaults to screen center
 		unsigned int top = 0; // Defaults to screen center
 		bool depthBuffer = true;
+		int multisample = 0;
 
 		if(miscParams)
 		{
@@ -106,6 +106,10 @@ namespace Ogre {
 			opt = miscParams->find("depthBuffer");
 			if(opt != miscParams->end())
 				depthBuffer = StringConverter::parseBool(opt->second);
+			// FSAA
+			opt = miscParams->find("FSAA");
+			if(opt != miscParams->end())
+				multisample = StringConverter::parseUnsignedInt(opt->second);
 		}
 		
 		// Destroy current window if any
@@ -167,7 +171,8 @@ namespace Ogre {
 
 			// Register the window class
 
-			WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
+			WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW | CS_OWNDC,
+				WndProc, 0, 4, hInst,
 				LoadIcon( NULL, IDI_APPLICATION ),
 				LoadCursor( NULL, IDC_ARROW ),
 				(HBRUSH)GetStockObject( BLACK_BRUSH ), NULL,
@@ -195,7 +200,6 @@ namespace Ogre {
 			    if (ChangeDisplaySettings(&DevMode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 				    LogManager::getSingleton().logMessage(LML_CRITICAL, "ChangeDisplaySettingsEx");
 
-				
 		    }
 
 		}
@@ -223,31 +227,15 @@ namespace Ogre {
             << ", " << mColourDepth << "bpp";
         LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
 
-		
-        PIXELFORMATDESCRIPTOR pfd = {
-			sizeof(PIXELFORMATDESCRIPTOR),
-			1,
-			PFD_DRAW_TO_WINDOW |
-			PFD_SUPPORT_OPENGL |
-			PFD_DOUBLEBUFFER,
-			PFD_TYPE_RGBA,
-			mColourDepth,
-			0, 0, 0, 0, 0, 0,
-			0,
-			0,
-			0,
-			0, 0, 0, 0,
-			32, 			     // 32-bit depth-buffer (will be emulated in 16-bit colour mode)
-			8,				     // 8-bit stencil buffer
-			0,
-			PFD_MAIN_PLANE,
-			0,
-			0, 0, 0};
-		int iPixelFormat = ChoosePixelFormat(hdc, &pfd);
-		if (!iPixelFormat)
-			OGRE_EXCEPT(0, "ChoosePixelFormat failed", "Win32Window::create");
-		if (!SetPixelFormat(hdc, iPixelFormat, &pfd))
-			OGRE_EXCEPT(0, "SetPixelFormat failed", "Win32Window::create");
+		if (!mGLSupport.selectPixelFormat(hdc, mColourDepth, multisample))
+		{
+			if (multisample == 0)
+				OGRE_EXCEPT(0, "selectPixelFormat failed", "Win32Window::create");
+
+			LogManager::getSingleton().logMessage(LML_NORMAL, "FSAA level not supported, falling back");
+			if (!mGLSupport.selectPixelFormat(hdc, mColourDepth, 0))
+				OGRE_EXCEPT(0, "selectPixelFormat failed", "Win32Window::create");
+		}
 
 		HGLRC glrc = wglCreateContext(hdc);
 		if (!glrc)
