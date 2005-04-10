@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!DOCTYPE Code::Blocks_project_file>
+<Code::Blocks_project_file>
+	<FileVersion major="1" minor="1"/>
+	<Project>
+		<Option title="XMLConverter"/>
+		<Option makefile="Makefile"/>
+		<Option makefile_is_custom="0"/>
+		<Option compiler="0"/>
+		<Build>
+			<Target title="Debug">
+				<Option output="..\bin\debug\ogrexmlconverter.exe"/>
+				<Option object_output="..\obj\debug"/>
+				<Option deps_output=".deps"/>
+				<Option external_deps=""/>
+				<Option type="1"/>
+				<Option compiler="0"/>
+				<Option includeInTargetAll="0"/>
+				<Compiler>
+					<Add option="-DTIXML_USE_STL"/>
+					<Add option="-W"/>
+					<Add option="-g"/>
+					<Add directory="..\include"/>
+					<Add directory="..\..\..\OgreMain\include"/>
+					<Add directory="..\..\..\Dependencies\include"/>
+				</Compiler>
+				<Linker>
+					<Add library="OgreMain_d"/>
+					<Add directory="..\..\..\OgreMain\lib\Debug"/>
+					<Add directory="..\..\..\Dependencies\lib\Debug"/>
+				</Linker>
+				<ExtraCommands>
+					<Add after="copy ..\bin\Debug\OgreXMLConverter.exe ..\..\Common\bin\Debug"/>
+				</ExtraCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="..\bin\Release\OgreXMLConverter.exe"/>
+				<Option object_output="..\obj\Release"/>
+				<Option deps_output="C:\Downloads\Ogre\build\ogrenew\Tools\XMLConverter\scripts\.deps"/>
+				<Option external_deps=""/>
+				<Option type="1"/>
+				<Option compiler="0"/>
+				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
+					<Add option="-DTIXML_USE_STL"/>
+					<Add directory="..\include"/>
+					<Add directory="..\..\..\OgreMain\include"/>
+					<Add directory="..\..\..\Dependencies\include"/>
+				</Compiler>
+				<Linker>
+					<Add library="OgreMain"/>
+					<Add directory="..\..\..\OgreMain\lib\Release"/>
+					<Add directory="..\..\..\Dependencies\lib\Release"/>
+				</Linker>
+				<ExtraCommands>
+					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Release\OgreXMLConverter.exe ..\..\Common\bin\Release"/>
+					<Add after="strip ..\..\Common\bin\Release\OgreXMLConverter.exe"/>
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-g"/>
+		</Compiler>
+		<Linker>
+			<Add option="-Wl,--enable-runtime-pseudo-reloc"/>
+		</Linker>
+		<Unit filename="..\include\OgreXMLMeshSerializer.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\OgreXMLPrerequisites.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\OgreXMLSkeletonSerializer.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\tinystr.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\tinyxml.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\OgreXMLMeshSerializer.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\OgreXMLSkeletonSerializer.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\main.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\tinystr.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\tinyxml.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\tinyxmlerror.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\tinyxmlparser.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+	</Project>
+</Code::Blocks_project_file>
