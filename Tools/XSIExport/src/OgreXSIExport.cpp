@@ -49,6 +49,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreXSIMeshExporter.h"
 #include "OgreXSISkeletonExporter.h"
+#include "OgreXSIMaterialExporter.h"
 #include "OgreLogManager.h"
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -58,6 +59,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshManager.h"
 #include "OgreSkeletonManager.h"
 #include "OgreDefaultHardwareBufferManager.h"
+#include "OgreMaterialManager.h"
 
 using namespace XSI;
 
@@ -235,9 +237,16 @@ extern "C"
 */
 XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
+	static firstTime = true;
 	Application app;
 	CStatus st(CStatus::OK);
 	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
+	if (firstTime && prop.IsValid())
+	{
+		DeleteObj(exportPropertyDialogName);
+		firstTime = false;
+		prop.ResetObject();
+	}
 	if (!prop.IsValid())
 	{
 		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
@@ -309,11 +318,16 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			param = prop.GetParameters().GetItem( L"exportSkeleton" );
 			bool exportSkeleton = param.GetValue();
+			param = prop.GetParameters().GetItem( L"exportMaterials" );
+			bool exportMaterials = param.GetValue();
+			param = prop.GetParameters().GetItem( L"copyTextures" );
+			bool copyTextures = param.GetValue();
 
-
+			// create singletons
 			Ogre::ResourceGroupManager rgm;
 			Ogre::MeshManager meshMgr;
-			Ogre::SkeletonManager skelMgr;;
+			Ogre::SkeletonManager skelMgr;
+			Ogre::MaterialManager matMgr;
 			Ogre::DefaultHardwareBufferManager hardwareBufMgr;
 
 			
@@ -401,6 +415,24 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			
 			delete lodData;
+
+			// Do we want to export materials too?
+			if (exportMaterials)
+			{
+				param = prop.GetParameters().GetItem( L"targetMaterialFileName" );
+				Ogre::String materialFileName = XSItoOgre(param.GetValue());
+				
+				Ogre::XsiMaterialExporter matExporter;
+				try 
+				{
+					matExporter.exportMaterials(meshExporter.getMaterials(), 
+						materialFileName, copyTextures);
+				}
+				catch (Ogre::Exception& e)
+				{
+					// ignore, non-fatal and will be in log
+				}
+			}
 
 		}
 
@@ -512,6 +544,19 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"Frames per second", L"", 
         CValue(24l), param) ;	
 	prop.AddGridParameter(L"animationList");	
+	prop.AddParameter(
+		L"exportMaterials", CValue::siBool, caps, 
+		L"Export Materials", L"", 
+		CValue(true), param);
+	prop.AddParameter(
+		L"copyTextures", CValue::siBool, caps, 
+		L"Copy Textures To Folder", L"", 
+		CValue(true), param);
+    prop.AddParameter(	
+        L"targetMaterialFileName",CValue::siString, caps, 
+        L"Material Filename", L"", 
+        nullValue, param) ;	
+		
 
 
 	return CStatus::OK;	
@@ -533,22 +578,22 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 
 	oLayout.Clear() ;
 
-    // Object 
+	// Mesh tab
 	oLayout.AddTab(L"Basic");
-    oLayout.AddGroup(L"Object(s) to Export");
+    // Object 
 
-    item = oLayout.AddItem(L"objectName");
+	oLayout.AddGroup(L"Object(s) to export");
+	item = oLayout.AddItem(L"objectName");
     item.PutAttribute( siUINoLabel, true );
+	oLayout.EndGroup();
+	
 	/*
     item.PutWidthPercentage(80);
     item = oLayout.AddButton(L"Refresh", L"Refresh");
     item.PutWidthPercentage(1) ;
 	*/
 
-    oLayout.EndGroup();
-
-	// Mesh group
-    item = oLayout.AddGroup(L"Mesh");
+	oLayout.AddGroup(L"Mesh");
     item = oLayout.AddItem(L"exportMesh") ;
     item = oLayout.AddItem(L"targetMeshFileName", L"Target", siControlFilePath);
 	item.PutAttribute( siUINoLabel, true );
@@ -556,25 +601,7 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item = oLayout.AddItem(L"mergeSubmeshes") ;
 	item = oLayout.AddItem(L"exportChildren") ;
 
-	oLayout.EndGroup();
-	// Skeleton Group
-	item = oLayout.AddGroup(L"Skeleton");
 
-	item = oLayout.AddItem(L"exportSkeleton");
-	item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
-	item.PutAttribute( siUINoLabel, true );
-	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
-	item = oLayout.AddItem(L"fps");
-	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:60");
-	item.PutAttribute(siUIGridHideRowHeader, true);
-
-	oLayout.EndGroup();
-
-
-	oLayout.AddTab(L"Advanced");
-
-	oLayout.AddGroup(L"Mesh options");
     item = oLayout.AddItem(L"calculateEdgeLists");
     item = oLayout.AddItem(L"calculateTangents");
 	oLayout.AddGroup(L"Level of Detail Reduction");
@@ -588,6 +615,31 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item = oLayout.AddEnumControl(L"lodQuota", vals, L"Quota", XSI::siControlCombo);
 	item = oLayout.AddItem(L"lodReduction");
 	oLayout.EndGroup();
+	oLayout.EndGroup();
+
+	oLayout.AddTab(L"Materials");
+	// Material Tab
+    item = oLayout.AddItem(L"exportMaterials") ;
+    item = oLayout.AddItem(L"targetMaterialFileName", L"Target", siControlFilePath) ;
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute( siUIFileFilter, L"OGRE Material script (*.material)|*.material|All Files (*.*)|*.*||" );
+    item = oLayout.AddItem(L"copyTextures");
+	
+	
+	// Skeleton Tab
+	oLayout.AddTab(L"Animation");
+
+	item = oLayout.AddItem(L"exportSkeleton");
+	item = oLayout.AddItem(L"targetSkeletonFileName", L"Target", siControlFilePath);
+	item.PutAttribute( siUINoLabel, true );
+	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
+	item = oLayout.AddItem(L"fps");
+	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60");
+	item.PutAttribute(siUIGridHideRowHeader, true);
+
+
+
 
 
 
@@ -756,8 +808,18 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param = prop.GetParameters().GetItem(L"animationList");
 			param.PutCapabilityFlag(siReadOnly, false);
 			// value of param is a griddata object
-			// initialise it with all animations
+			// initialise it with all animations but try to remember previous values
 			GridData gd = param.GetValue();
+			// Store the existing settings
+			std::map<Ogre::String,bool> rememberedAnimations;
+			int row;
+			for (row = 0; row < gd.GetRowCount(); ++row)
+			{
+				Ogre::String animName = XSItoOgre(gd.GetCell(0, row));
+				rememberedAnimations[animName] = gd.GetCell(1, row);
+			}
+
+			// Second column is check box			
 			gd.PutColumnType(1, siColumnBool);
 
 			gd.PutColumnCount(2);
@@ -767,11 +829,22 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 
 			getAnimations(app.GetActiveSceneRoot(), animList);
 			gd.PutRowCount(animList.size());
-			int row = 0;
+			row = 0;
 			for (Ogre::AnimationList::iterator a = animList.begin(); a != animList.end(); ++a, ++row)
 			{
 				gd.PutCell(0, row, OgretoXSI(a->animationName));
-				gd.PutCell(1, row, true);
+				// do we have a setting for this already?
+				std::map<Ogre::String, bool>::iterator ra = 
+					rememberedAnimations.find(a->animationName);
+				if (ra != rememberedAnimations.end())
+				{
+					gd.PutCell(1, row, ra->second);
+				}
+				else
+				{
+					// default to true
+					gd.PutCell(1, row, true);
+				}
 			}
 			
 			hasSkel = true;
@@ -812,13 +885,25 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
         // Check paramName against parameter names, perform custom onChanged event
 		if (paramName == L"targetMeshFileName")
 		{
+			// Default skeleton name if blank
 			Ogre::String meshName = XSItoOgre(changed.GetValue());
-			if (hasSkel && Ogre::StringUtil::endsWith(meshName, "mesh"))
+			if (hasSkel && Ogre::StringUtil::endsWith(meshName, "mesh") && 
+				prop.GetParameterValue(L"targetSkeletonFileName") == L"")
 			{
 				Ogre::String skelName = meshName.substr(0, meshName.size() - 4) + "skeleton";
 				CString xsiSkelName = OgretoXSI(skelName);
 				prop.PutParameterValue(L"targetSkeletonFileName", xsiSkelName);
 			}
+			if (Ogre::StringUtil::endsWith(meshName, "mesh") && 
+				prop.GetParameterValue(L"targetMaterialFileName") == L"")
+			{
+				// default material script name if blank
+				Ogre::String matName = meshName.substr(0, meshName.size() - 4) + "material";
+				CString xsiMatName = OgretoXSI(matName);
+				prop.PutParameterValue(L"targetMaterialFileName", xsiMatName);
+			}
+
+			
 		}
 	}
 
