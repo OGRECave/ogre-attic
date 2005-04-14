@@ -30,6 +30,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTextureUnitState.h"
 
 #include <xsi_shader.h>
+#include <xsi_imageclip.h>
+#include <xsi_image.h>
+
 
 namespace Ogre {
 
@@ -41,19 +44,34 @@ namespace Ogre {
 	//-------------------------------------------------------------------------
 	XsiMaterialExporter::~XsiMaterialExporter()
 	{
-
+		clearPassQueue();
 	}
 	//-------------------------------------------------------------------------
 	void XsiMaterialExporter::exportMaterials(MaterialMap& materials, 
 		const String& filename, bool copyTextures)
 	{
 		LogOgreAndXSI("** Begin OGRE Material Export **");
-
+		
+		String texturePath;
+		if (copyTextures)
+		{
+			// derive the texture path
+			String::size_type pos = filename.find_last_of("\\");
+			if (pos == String::npos)
+			{
+				pos = filename.find_last_of("/");			
+			}
+			if (pos != String::npos)
+			{
+				texturePath = filename.substr(0, pos + 1);
+			}
+		}
+		
 		mMatSerializer.clearQueue();
 
 		for (MaterialMap::iterator m = materials.begin(); m != materials.end(); ++m)
 		{
-			exportMaterial(m->second, copyTextures);
+			exportMaterial(m->second, copyTextures, texturePath);
 		}
 
 		mMatSerializer.exportQueued(filename);
@@ -61,39 +79,86 @@ namespace Ogre {
 		LogOgreAndXSI("** OGRE Material Export Complete **");
 	}
 	//-------------------------------------------------------------------------
-	void XsiMaterialExporter::exportMaterial(MaterialEntry* matEntry, bool copyTextures)
+	void XsiMaterialExporter::exportMaterial(MaterialEntry* matEntry, 
+		bool copyTextures, const String& texturePath)
 	{
 		LogOgreAndXSI("Exporting " + matEntry->name);
 
 		MaterialPtr mat = MaterialManager::getSingleton().create(matEntry->name,
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		Technique* t = mat->createTechnique();
-		Pass* firstPass = t->createPass();
-		populatePass(firstPass, matEntry->xsiShader, copyTextures);
 
+		// collect the passes into our queue
+		// XSI stores passes in reverse order, so invert them
+		clearPassQueue();
 		XSI::Shader shader(matEntry->xsiShader);
+		PassEntry* passEntry = new PassEntry();
+		mPassQueue.push_front(passEntry);
 		while (1)
 		{
+			passEntry->shaders.Add(shader);
+
 			XSI::CRef source = shader.GetParameter(L"previous").GetSource();
 			if(!source.IsValid() || !source.IsA(XSI::siShaderID))
 			{
 				// finish
 				break;
 			}
-			
+
 			shader = XSI::Shader(source);
-			Pass* newPass = t->createPass();
-			populatePass(newPass, shader, copyTextures);
+			// If we find a 'blending' parameter, we're on a new pass
+			if (shader.GetParameter(L"blending").IsValid())
+			{
+				passEntry = new PassEntry();
+				mPassQueue.push_front(passEntry); // push front to invert order
+			}
 		}
-		
+
+
+		// Now go through each pass and create OGRE version
+		for (PassQueue::iterator p = mPassQueue.begin(); p != mPassQueue.end(); ++p)
+		{
+			PassEntry* passEntry = *p;
+			Pass* pass = t->createPass();
+			LogOgreAndXSI("Added Pass");
+
+			// Need to pre-populate pass textures to match up transforms
+			populatePassTextures(pass, passEntry, copyTextures, texturePath);
+			// Do the rest
+			for (int s = 0; s < passEntry->shaders.GetCount(); ++s)
+			{
+				XSI::Shader shader(passEntry->shaders[s]);
+				populatePass(pass, shader);
+			}
+
+		}
+
 
 		mMatSerializer.queueForExport(mat);
 		
 
 	}
 	//-------------------------------------------------------------------------
-	void XsiMaterialExporter::populatePass(Pass* pass, XSI::Shader& xsishader, 
-		bool copyTextures)
+	void XsiMaterialExporter::clearPassQueue(void)
+	{
+		for (PassQueue::iterator i = mPassQueue.begin(); i != mPassQueue.end(); ++i)
+		{
+			delete *i;
+		}
+		mPassQueue.clear();
+
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::populatePass(Pass* pass, XSI::Shader& xsishader)
+	{
+		populatePassDepthCull(pass, xsishader);
+		populatePassSceneBlend(pass, xsishader);
+		populatePassLighting(pass, xsishader);
+		populatePassTextureTransforms(pass, xsishader);
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::populatePassDepthCull(Pass* pass, 
+		XSI::Shader& xsishader)
 	{
 		XSI::Parameter param = xsishader.GetParameter(L"cullingmode");
 		if (param.IsValid())
@@ -129,8 +194,12 @@ namespace Ogre {
 			bool depthWrite = param.GetValue();
 			pass->setDepthWriteEnabled(depthWrite);
 		}
-
-		param = xsishader.GetParameter(L"blending");
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::populatePassSceneBlend(Pass* pass, 
+		XSI::Shader& xsishader)
+	{
+		XSI::Parameter param = xsishader.GetParameter(L"blending");
 		if (param.IsValid() && (bool)param.GetValue())
 		{
 			SceneBlendFactor src = SBF_ONE;
@@ -149,26 +218,109 @@ namespace Ogre {
 
 			pass->setSceneBlending(src, dst);
 		}
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::populatePassLighting(Pass* pass, 
+		XSI::Shader& xsishader)
+	{
+		XSI::Parameter param = xsishader.GetParameter(L"Enable_Lighting").GetValue();
+		if (param.IsValid())
+		{
+			pass->setLightingEnabled(param.GetValue());
 
-		ColourValue tmpColour;
-		xsishader.GetColorParameterValue(L"Ambient", tmpColour.r, tmpColour.g, 
-			tmpColour.b, tmpColour.a);
-		pass->setAmbient(tmpColour);
-		xsishader.GetColorParameterValue(L"Diffuse", tmpColour.r, tmpColour.g, 
-			tmpColour.b, tmpColour.a);
-		pass->setDiffuse(tmpColour);
-		xsishader.GetColorParameterValue(L"Emissive", tmpColour.r, tmpColour.g, 
-			tmpColour.b, tmpColour.a);
-		pass->setSelfIllumination(tmpColour);
-		xsishader.GetColorParameterValue(L"Specular", tmpColour.r, tmpColour.g, 
-			tmpColour.b, tmpColour.a);
-		pass->setSpecular(tmpColour);
-		
-		pass->setShininess(xsishader.GetParameter(L"Shininess").GetValue());
+			ColourValue tmpColour;
+			xsishader.GetColorParameterValue(L"Ambient", tmpColour.r, tmpColour.g, 
+				tmpColour.b, tmpColour.a);
+			pass->setAmbient(tmpColour);
+			xsishader.GetColorParameterValue(L"Diffuse", tmpColour.r, tmpColour.g, 
+				tmpColour.b, tmpColour.a);
+			pass->setDiffuse(tmpColour);
+			xsishader.GetColorParameterValue(L"Emissive", tmpColour.r, tmpColour.g, 
+				tmpColour.b, tmpColour.a);
+			pass->setSelfIllumination(tmpColour);
+			xsishader.GetColorParameterValue(L"Specular", tmpColour.r, tmpColour.g, 
+				tmpColour.b, tmpColour.a);
+			pass->setSpecular(tmpColour);
+			
+			pass->setShininess(xsishader.GetParameter(L"Shininess").GetValue());
+		}
 
-		pass->setLightingEnabled(
-			xsishader.GetParameter(L"Enable_Lighting").GetValue());
 		
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::populatePassTextures(Pass* pass, 
+		PassEntry* passEntry, bool copyTextures, const String& targetFolder)
+	{
+		// We need to search all shaders back to the point we would change
+		// passes, and add all the textures. This is because we don't know
+		// where in the shaders the texture transforms might be, since they
+		// are linked via 'target' not by being on the same object.
+		mTextureUnitTargetMap.clear();
+
+		for (int s = 0; s < passEntry->shaders.GetCount(); ++s)
+		{
+			XSI::Shader shader(passEntry->shaders[s]);
+
+			if (shader.GetParameter(L"target").IsValid() && 
+				!shader.GetParameter(L"bottom").IsValid())
+			{
+				add2DTexture(pass, shader, copyTextures, targetFolder);
+			}
+			else if (shader.GetParameter(L"bottom").IsValid())
+			{
+				addCubicTexture(pass, shader, copyTextures, targetFolder);
+			}
+
+			
+		}
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::add2DTexture(Pass* pass, XSI::Shader& shader, 
+		bool copyTextures, const String& targetFolder)
+	{
+		// create texture unit state and map from target incase future xforms
+		TextureUnitState* tex = pass->createTextureUnitState();
+
+		long target = shader.GetParameter(L"target").GetValue();
+		mTextureUnitTargetMap[target] = tex;
+
+		// Get image
+		XSI::CRef src = shader.GetParameter(L"Texture").GetSource();
+		if (src.IsValid() && src.IsA(XSI::siImageClipID))
+		{
+			XSI::ImageClip imgClip(src);
+			String srcTextureName = 
+				XSItoOgre(imgClip.GetParameter(L"SourceFileName").GetValue());
+
+			String::size_type pos = srcTextureName.find_last_of("\\");
+			if (pos == String::npos)
+			{
+				pos = srcTextureName.find_last_of("/");
+			}
+			String textureName = 
+				srcTextureName.substr(pos+1, srcTextureName.size() - pos - 1);
+			String destTextureName = targetFolder + textureName;
+
+			// TODO - copy texture if required
+
+			LogOgreAndXSI("Adding texture " + textureName);
+			tex->setTextureName(textureName);
+		}
+
+
+
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::addCubicTexture(Pass* pass, XSI::Shader& shader, 
+		bool copyTextures, const String& targetFolder)
+	{
+		// TODO
+	}
+	//-------------------------------------------------------------------------
+	void XsiMaterialExporter::populatePassTextureTransforms(Pass* pass, 
+		XSI::Shader& xsishader)
+	{
+		// TODO
 	}
 	//-------------------------------------------------------------------------
 	SceneBlendFactor XsiMaterialExporter::convertSceneBlend(short xsiVal)
@@ -192,6 +344,8 @@ namespace Ogre {
 		case 7:
 			return SBF_ONE_MINUS_DEST_ALPHA;
 		};
+
+		return SBF_ZERO;
 		
 	}
 

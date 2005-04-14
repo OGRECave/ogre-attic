@@ -47,11 +47,38 @@ namespace Ogre {
 			bool copyTextures);
 	protected:	
 		MaterialSerializer mMatSerializer;
+		
+		typedef std::map<long,TextureUnitState*> TextureUnitTargetMap;
+		/// Map of target id -> texture unit to match up tex transforms
+		TextureUnitTargetMap mTextureUnitTargetMap;
+		/// Pass queue, used to invert ordering
+		PassQueue mPassQueue;
 
-		void exportMaterial(MaterialEntry* matEntry, bool copyTextures);
+		
+		// Export a single material
+		void exportMaterial(MaterialEntry* matEntry, bool copyTextures, 
+			const String& texturePath);
+		/// Fill in all the details of a pass
+		void populatePass(Pass* pass, XSI::Shader& xsishader);
+		/// Fill in the texture units - note this won't pick up transforms yet
+		void populatePassTextures(Pass* pass, PassEntry* passEntry, 
+			bool copyTextures, const String& texturePath);
+		/// Find any texture transforms and hook them up via 'target'
+		void populatePassTextureTransforms(Pass* pass, XSI::Shader& xsishader);
+		/// Populate basic rejection parameters for the pass
+		void populatePassDepthCull(Pass* pass, XSI::Shader& xsishader);
+		/// Populate lighting parameters for the pass
+		void populatePassLighting(Pass* pass, XSI::Shader& xsishader);
+		/// Populate scene blending parameters for the pass
+		void populatePassSceneBlend(Pass* pass, XSI::Shader& xsishader);
+		/// Add a 2D texture from a shader
+		void add2DTexture(Pass* pass, XSI::Shader& shader, 
+			bool copyTextures, const String& targetFolder);
+		/// Add a cubic texture from a shader
+		void addCubicTexture(Pass* pass, XSI::Shader& shader, 
+			bool copyTextures, const String& targetFolder);
 
-		void populatePass(Pass* pass, XSI::Shader& xsishader, 
-			bool copyTextures);
+		void clearPassQueue(void);
 
 		SceneBlendFactor convertSceneBlend(short xsiVal);
 		
