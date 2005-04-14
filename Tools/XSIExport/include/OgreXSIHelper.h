@@ -214,6 +214,13 @@ namespace Ogre {
 	/// Map from material name to material entry
 	typedef std::map<String, MaterialEntry*> MaterialMap;
 
+	/** Record of XSI details that are to become a pass */
+	struct PassEntry
+	{
+		XSI::CRefArray shaders;
+	};
+	typedef std::deque<PassEntry*> PassQueue;
+
 
 }
 #endif
