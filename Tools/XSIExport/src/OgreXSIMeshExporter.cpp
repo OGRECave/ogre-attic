@@ -110,6 +110,12 @@ namespace Ogre {
 		// progress report
 		ProgressManager::getSingleton().progress();
 
+		// notify of skeleton beforehand
+		if (!skeletonName.empty())
+		{
+			pMesh->setSkeletonName(skeletonName);
+		}
+
 		// write the data into a mesh
 		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty());
 
@@ -147,11 +153,6 @@ namespace Ogre {
 			ProgressManager::getSingleton().progress();
 
         }
-
-		if (!skeletonName.empty())
-		{
-			pMesh->setSkeletonName(skeletonName);
-		}
 
         MeshSerializer serializer;
         serializer.exportMesh(pMesh.getPointer(), fileName);
@@ -776,14 +777,12 @@ namespace Ogre {
         offset += VertexElement::getTypeSize(VET_FLOAT3);
         sm->vertexData->vertexDeclaration->addElement(buf, offset, VET_FLOAT3, VES_NORMAL);
         offset += VertexElement::getTypeSize(VET_FLOAT3);
-        // TODO - split vertex data here if animated
-        /*
+        // split vertex data here if animated
         if (pMesh->hasSkeleton())
         {
-            buf = 0;
+            buf++;
             offset = 0;
         }
-        */
 		// Optional vertex colour
         if(proto->hasVertexColours)
         {
