@@ -23,9 +23,35 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 #include "OgreXSIHelper.h"
+#include <fstream>
 
 namespace Ogre {
 
+	//-----------------------------------------------------------------------
+	void copyFile(const String& src, const String& dst)
+	{
+		std::ifstream in(src.c_str(), std::ios::in | std::ios::binary);
+		std::ofstream out(dst.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+
+
+		char tmpBuf[2048];
+
+		while (!in.eof())
+		{
+			in.read(tmpBuf, 2048);
+
+			std::streamsize c = in.gcount();
+
+			out.write(tmpBuf, c);
+
+		}
+
+		in.close();
+		out.close();
+
+
+
+	}
 	//-----------------------------------------------------------------------
 	template<> ProgressManager* Singleton<ProgressManager>::ms_Singleton = 0;
 	ProgressManager* ProgressManager::getSingletonPtr(void)

@@ -48,7 +48,7 @@ namespace Ogre {
 	protected:	
 		MaterialSerializer mMatSerializer;
 		
-		typedef std::map<long,TextureUnitState*> TextureUnitTargetMap;
+		typedef std::multimap<long,TextureUnitState*> TextureUnitTargetMap;
 		/// Map of target id -> texture unit to match up tex transforms
 		TextureUnitTargetMap mTextureUnitTargetMap;
 		/// Pass queue, used to invert ordering
@@ -71,17 +71,30 @@ namespace Ogre {
 		void populatePassLighting(Pass* pass, XSI::Shader& xsishader);
 		/// Populate scene blending parameters for the pass
 		void populatePassSceneBlend(Pass* pass, XSI::Shader& xsishader);
+		void populatePassCgPrograms(Pass* pass, XSI::Shader& xsishader);
+		void populatePassHLSLPrograms(Pass* pass, XSI::Shader& xsishader);
+		void populatePassD3DAssemblerPrograms(Pass* pass, XSI::Shader& xsishader);
+		void populateOGLFiltering(TextureUnitState* tex, XSI::Shader& xsishader);
+		void populateDXFiltering(TextureUnitState* tex, XSI::Shader& xsishader);
+
+
+		// Utility method to get texture coord set from tspace_id name
+		unsigned short getTextureCoordIndex(const String& tspace);
+
 		/// Add a 2D texture from a shader
-		void add2DTexture(Pass* pass, XSI::Shader& shader, 
+		TextureUnitState* add2DTexture(Pass* pass, XSI::Shader& shader, 
 			bool copyTextures, const String& targetFolder);
 		/// Add a cubic texture from a shader
-		void addCubicTexture(Pass* pass, XSI::Shader& shader, 
+		TextureUnitState* addCubicTexture(Pass* pass, XSI::Shader& shader, 
 			bool copyTextures, const String& targetFolder);
+
 
 		void clearPassQueue(void);
 
 		SceneBlendFactor convertSceneBlend(short xsiVal);
-		
+		TextureUnitState::TextureAddressingMode convertAddressingMode(short xsiVal);
+		void convertTexGenOGL(TextureUnitState* tex, long xsiVal, XSI::Shader& shader);
+		void convertTexGenDX(TextureUnitState* tex, long xsiVal, XSI::Shader& shader);
 	};
 }
 
