@@ -44,7 +44,7 @@ namespace Ogre {
 			folder as the material script.
 		*/
 		void exportMaterials(MaterialMap& materials, const String& filename, 
-			bool copyTextures);
+			bool copyTextures, const String& materialPrefix);
 	protected:	
 		MaterialSerializer mMatSerializer;
 		
@@ -57,7 +57,7 @@ namespace Ogre {
 		
 		// Export a single material
 		void exportMaterial(MaterialEntry* matEntry, bool copyTextures, 
-			const String& texturePath);
+			const String& texturePath, const String& materialPrefix);
 		/// Fill in all the details of a pass
 		void populatePass(Pass* pass, XSI::Shader& xsishader);
 		/// Fill in the texture units - note this won't pick up transforms yet
