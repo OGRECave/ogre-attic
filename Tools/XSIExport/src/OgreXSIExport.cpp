@@ -250,7 +250,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 	if (!prop.IsValid())
 	{
 		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
-		prop.PutParameterValue(L"version", OGRE_XSI_EXPORTER_VERSION);
+		prop.PutParameterValue(L"version", CString(OGRE_XSI_EXPORTER_VERSION));
 	}
 	Ogre::LogManager logMgr;
 	logMgr.createLog("OgreXSIExporter.log", true);
@@ -422,11 +422,14 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				param = prop.GetParameters().GetItem( L"targetMaterialFileName" );
 				Ogre::String materialFileName = XSItoOgre(param.GetValue());
 				
+				param = prop.GetParameters().GetItem( L"materialPrefix" );
+				Ogre::String materialPrefix = XSItoOgre(param.GetValue());
+
 				Ogre::XsiMaterialExporter matExporter;
 				try 
 				{
 					matExporter.exportMaterials(meshExporter.getMaterials(), 
-						materialFileName, copyTextures);
+						materialFileName, copyTextures, materialPrefix);
 				}
 				catch (Ogre::Exception& e)
 				{
@@ -556,6 +559,10 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
         L"targetMaterialFileName",CValue::siString, caps, 
         L"Material Filename", L"", 
         nullValue, param) ;	
+	prop.AddParameter(	
+		L"materialPrefix",CValue::siString, caps, 
+		L"Material Prefix", L"", 
+		nullValue, param) ;	
 		
 
 
@@ -623,6 +630,7 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
     item = oLayout.AddItem(L"targetMaterialFileName", L"Target", siControlFilePath) ;
 	item.PutAttribute( siUINoLabel, true );
 	item.PutAttribute( siUIFileFilter, L"OGRE Material script (*.material)|*.material|All Files (*.*)|*.*||" );
+	item = oLayout.AddItem(L"materialPrefix");
     item = oLayout.AddItem(L"copyTextures");
 	
 	
