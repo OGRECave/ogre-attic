@@ -221,6 +221,10 @@ namespace Ogre {
 	};
 	typedef std::deque<PassEntry*> PassQueue;
 
+	/** Platform-independent file copy (destination folder must exist)
+		Maybe use Boost::filesystem if this gets out of hand
+	*/
+	void copyFile(const String& src, const String& dest);
 
 }
 #endif
