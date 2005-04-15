@@ -301,8 +301,8 @@ namespace Ogre {
 			TextureUnitState* tex = 0;
 
 			String progID = XSItoOgre(shader.GetProgID());
-			if (progID.find_first_of("OGLTexture") != String::npos ||
-				progID.find_first_of("DXTexture") != String::npos)
+			if (progID.find("OGL13Texture") != String::npos ||
+				progID.find("DXTexture") != String::npos)
 			{
 				if (!shader.GetParameter(L"bottom").IsValid())
 				{
@@ -330,11 +330,11 @@ namespace Ogre {
 
 			// filtering & anisotropy
 			// DX and GL shaders deal differently
-			if (progID.find_first_of("OGL") != String::npos)
+			if (progID.find("OGL") != String::npos)
 			{
 				populateOGLFiltering(tex, shader);
 			}
-			else if (progID.find_first_of("DX") != String::npos)
+			else if (progID.find("DX") != String::npos)
 			{
 				populateDXFiltering(tex, shader);
 			}
@@ -680,7 +680,7 @@ namespace Ogre {
 					{
 						// Not Explicit
 						// details differ per DX/OGL
-						if (XSItoOgre(shader.GetProgID()).find_first_of("DX") != String::npos)
+						if (XSItoOgre(shader.GetProgID()).find("DX") != String::npos)
 						{
 							convertTexGenDX(tex, e, shader);
 						}
