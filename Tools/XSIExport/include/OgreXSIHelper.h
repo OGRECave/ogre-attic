@@ -221,6 +221,9 @@ namespace Ogre {
 	};
 	typedef std::deque<PassEntry*> PassQueue;
 
+	/// Map from texture projection name to index
+	typedef std::map<String, int> TextureProjectionMap;
+
 	/** Platform-independent file copy (destination folder must exist)
 		Maybe use Boost::filesystem if this gets out of hand
 	*/

@@ -429,6 +429,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				try 
 				{
 					matExporter.exportMaterials(meshExporter.getMaterials(), 
+						meshExporter.getTextureProjectionMap(), 
 						materialFileName, copyTextures, materialPrefix);
 				}
 				catch (Ogre::Exception& e)

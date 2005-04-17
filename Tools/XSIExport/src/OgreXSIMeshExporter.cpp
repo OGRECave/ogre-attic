@@ -172,6 +172,11 @@ namespace Ogre {
 		return mXsiMaterialMap;
 	}
 	//-----------------------------------------------------------------------
+	TextureProjectionMap& XsiMeshExporter::getTextureProjectionMap(void)
+	{
+		return mTextureProjectionMap;
+	}
+	//-----------------------------------------------------------------------
 	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments)
 	{
 		/* Iterate over the list of polygon meshes that we've already located.
@@ -462,6 +467,10 @@ namespace Ogre {
 			// get Elements from uvspace Property
             ClusterProperty uvProp(uvClusterPropertiesRefArray[i]);
 			CClusterPropertyElementArray uvElements = uvProp.GetElements();
+
+			// Add this to an map from uv set name to index
+			String textureProjectionName = XSItoOgre(uvProp.GetName());
+			mTextureProjectionMap[textureProjectionName] = i;
 
 			// Now, each Element here is actually a CDoubleArray of the u,v,w values
 			// However it's not in order of samplers, we need to use the Array
