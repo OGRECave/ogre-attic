@@ -48,10 +48,13 @@ namespace Ogre {
 	}
 	//-------------------------------------------------------------------------
 	void XsiMaterialExporter::exportMaterials(MaterialMap& materials, 
-		const String& filename, bool copyTextures, const String& materialPrefix)
+		TextureProjectionMap& texProjMap, const String& filename, 
+		bool copyTextures, const String& materialPrefix)
 	{
 		LogOgreAndXSI("** Begin OGRE Material Export **");
 		
+		mTextureProjectionMap = texProjMap;
+
 		String texturePath;
 		if (copyTextures)
 		{
@@ -303,7 +306,8 @@ namespace Ogre {
 
 			String progID = XSItoOgre(shader.GetProgID());
 			if (progID.find("OGL13Texture") != String::npos ||
-				progID.find("DXTexture") != String::npos)
+				progID.find("DXTexture") != String::npos ||
+				progID.find("OGLCom") != String::npos)
 			{
 				if (!shader.GetParameter(L"bottom").IsValid())
 				{
@@ -598,8 +602,16 @@ namespace Ogre {
 	//-------------------------------------------------------------------------
 	unsigned short XsiMaterialExporter::getTextureCoordIndex(const String& tspace)
 	{
-		// TODO
-		return 0;
+		TextureProjectionMap::iterator i = mTextureProjectionMap.find(tspace);
+		if (i != mTextureProjectionMap.end())
+		{
+			return i->second;
+		}
+		else
+		{
+			// default
+			return 0;
+		}
 	}
 	//-------------------------------------------------------------------------
 	void XsiMaterialExporter::populatePassTextureTransforms(Pass* pass, 
