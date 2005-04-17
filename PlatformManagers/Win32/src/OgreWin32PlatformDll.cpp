@@ -24,11 +24,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #include "OgreWin32ConfigDialog.h"
 #include "OgreWin32ErrorDialog.h"
+
+#ifndef OGRE_NO_DX_INPUT
 #ifdef DX7INPUTONLY
 #include "OgreWin32Input.h"
 #else
 #include "OgreWin32Input8.h"
 #endif 
+#endif
+
 #include "OgreWin32Timer.h"
 #include "OgreRoot.h"
 #include "OgreLogManager.h"
@@ -80,10 +84,12 @@ namespace Ogre {
     /// Retrieves an instance of an input reader for this platform
     extern "C" void createPlatformInputReader(InputReader** ppReader)
     {
+#ifndef OGRE_NO_DX_INPUT
 #ifdef DX7INPUTONLY
 		*ppReader = new Win32Input();
 #else
         *ppReader = new Win32Input8();
+#endif
 #endif
 
 #ifdef DEBUG
