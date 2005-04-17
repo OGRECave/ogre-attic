@@ -1271,15 +1271,28 @@ namespace Ogre {
     {
         GLint sourceBlend = getBlendMode(sourceFactor);
         GLint destBlend = getBlendMode(destFactor);
-        
-        glEnable(GL_BLEND);
-        glBlendFunc(sourceBlend, destBlend);
+        if(sourceFactor == SBF_ONE && destFactor == SBF_ZERO)
+        {
+            glDisable(GL_BLEND);
+        }
+        else
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(sourceBlend, destBlend);
+        }
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setAlphaRejectSettings(CompareFunction func, unsigned char value)
     {
-        glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(convertCompareFunction(func), value / 255.0f);
+        if(func == CMPF_ALWAYS_PASS)
+        {
+            glDisable(GL_ALPHA_TEST);
+        }
+        else
+        {
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(convertCompareFunction(func), value / 255.0f);
+        }
     }
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setViewport(Viewport *vp)
@@ -1330,12 +1343,11 @@ namespace Ogre {
             OGRE_EXCEPT(999, "Cannot begin frame - no viewport selected.",
                 "GLRenderSystem::_beginFrame");
 
+        // Activate the viewport clipping
+        glEnable(GL_SCISSOR_TEST);
         // Clear the viewport if required
         if (mActiveViewport->getClearEveryFrame())
         {
-            // Activate the viewport clipping
-            glEnable(GL_SCISSOR_TEST);
-
             clearFrameBuffer(FBT_COLOUR | FBT_DEPTH, 
                 mActiveViewport->getBackgroundColour());
         }        
@@ -2522,6 +2534,7 @@ namespace Ogre {
         glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
         glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);        
         glEnable(GL_COLOR_SUM);
+        glDisable(GL_DITHER);
 
         // Check for FSAA
         // Enable the extension if it was enabled by the GLSupport
