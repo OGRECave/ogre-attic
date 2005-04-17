@@ -65,7 +65,7 @@ GLHardwarePixelBuffer::GLHardwarePixelBuffer(GLenum target, GLuint id, GLint fac
 	else
 		glGetTexLevelParameteriv(mFaceTarget, level, GL_TEXTURE_DEPTH, &value);
 	mDepth = value;
-	
+
 	// Get format
 	glGetTexLevelParameteriv(mFaceTarget, level, GL_TEXTURE_INTERNAL_FORMAT, &value);
 	int mGLInternalFormat = value;
@@ -89,7 +89,10 @@ GLHardwarePixelBuffer::GLHardwarePixelBuffer(GLenum target, GLuint id, GLint fac
 	*/
 	// Set up pixel box
 	mBuffer = PixelBox(mWidth, mHeight, mDepth, mFormat);
-				
+	
+    if(mWidth==0 || mHeight==0 || mDepth==0)
+        /// We are invalid, do not allocate a buffer
+        return;
 	// Allocate buffer
 	if(mUsage & HBU_STATIC)
 		allocateBuffer();

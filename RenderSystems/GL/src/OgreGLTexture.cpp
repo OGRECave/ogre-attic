@@ -36,7 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreCodec.h"
 #include "OgreImageCodec.h"
-
+#include "OgreStringConverter.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #   include <windows.h>
@@ -354,10 +354,21 @@ namespace Ogre {
 		{
 			for(int mip=0; mip<=getNumMipmaps(); mip++)
 			{
-				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(
-					new GLHardwarePixelBuffer(getGLTextureTarget(), mTextureID, face, mip,
-						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0)
-				));
+                GLHardwarePixelBuffer *buf = new GLHardwarePixelBuffer(getGLTextureTarget(), mTextureID, face, mip,
+						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0);
+				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buf));
+                
+                /// Check for error
+                if(buf->getWidth()==0 || buf->getHeight()==0 || buf->getDepth()==0)
+                {
+                    OGRE_EXCEPT(
+                        Exception::ERR_RENDERINGAPI_ERROR, 
+                        "Zero sized texture surface on texture "+getName()+
+                            " face "+StringConverter::toString(face)+
+                            " mipmap "+StringConverter::toString(mip)+
+                            ". Probably, the GL driver refused to create the texture.", 
+                            "GLTexture::_createSurfaceList");
+                }
 			}
 		}
 	}
