@@ -185,12 +185,13 @@ namespace Ogre
         inline Plane operator * (const Plane& p) const
         {
             Plane ret;
+			Matrix4 invTrans = inverse().transpose();
             ret.normal.x =
-                m[0][0] * p.normal.x + m[0][1] * p.normal.y + m[0][2] * p.normal.z;
+                invTrans[0][0] * p.normal.x + invTrans[0][1] * p.normal.y + invTrans[0][2] * p.normal.z;
             ret.normal.y = 
-                m[1][0] * p.normal.x + m[1][1] * p.normal.y + m[1][2] * p.normal.z;
+                invTrans[1][0] * p.normal.x + invTrans[1][1] * p.normal.y + invTrans[1][2] * p.normal.z;
             ret.normal.z = 
-                m[2][0] * p.normal.x + m[2][1] * p.normal.y + m[2][2] * p.normal.z;
+                invTrans[2][0] * p.normal.x + invTrans[2][1] * p.normal.y + invTrans[2][2] * p.normal.z;
             Vector3 pt = p.normal * -p.d;
             pt = *this * pt;
             ret.d = - pt.dotProduct(ret.normal);
