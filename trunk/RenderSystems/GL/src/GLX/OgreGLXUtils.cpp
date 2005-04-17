@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLXUtils.h"
 
+#include <GL/glxext.h>
+
 namespace Ogre {
     struct visual_attribs
     {
@@ -263,26 +265,20 @@ namespace Ogre {
         }
     
      /* multisample attribs */
-    #ifdef GLX_ARB_multisample
        if (ext && strstr("GLX_ARB_multisample", ext) == 0) {
           	glXGetConfig(dpy, vInfo, GLX_SAMPLE_BUFFERS_ARB, &attribs->numMultisample);
             glXGetConfig(dpy, vInfo, GLX_SAMPLES_ARB, &attribs->numSamples);
        }
-    #endif
        else {
          attribs->numSamples = 0;
            attribs->numMultisample = 0;
        }
     
-    #if defined(GLX_EXT_visual_rating)
       if (ext && strstr(ext, "GLX_EXT_visual_rating")) {
          glXGetConfig(dpy, vInfo, GLX_VISUAL_CAVEAT_EXT, &attribs->visualCaveat);
        } else {
            attribs->visualCaveat = GLX_NONE_EXT;
       }
-    #else
-        attribs->visualCaveat = 0;
-    #endif
     }
     
     /*

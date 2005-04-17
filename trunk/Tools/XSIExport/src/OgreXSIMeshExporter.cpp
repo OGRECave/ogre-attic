@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_selection.h>
 #include <xsi_envelope.h>
 #include <xsi_time.h>
+#include <xsi_source.h>
 
 #include "OgreException.h"
 #include "OgreXSIHelper.h"
@@ -85,6 +86,7 @@ namespace Ogre {
     {
 		/// Tidy up
 		cleanupDeformerMap();
+		cleanupMaterialMap();
     }
     //-----------------------------------------------------------------------
 	DeformerMap& XsiMeshExporter::exportMesh(const String& fileName, 
@@ -101,11 +103,18 @@ namespace Ogre {
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		cleanupDeformerMap();
+		cleanupMaterialMap();
 
 		// Find all PolygonMesh objects
 		buildPolygonMeshList(exportChildren);
 		// progress report
 		ProgressManager::getSingleton().progress();
+
+		// notify of skeleton beforehand
+		if (!skeletonName.empty())
+		{
+			pMesh->setSkeletonName(skeletonName);
+		}
 
 		// write the data into a mesh
 		buildMesh(pMesh.getPointer(), mergeSubMeshes, !skeletonName.empty());
@@ -145,11 +154,6 @@ namespace Ogre {
 
         }
 
-		if (!skeletonName.empty())
-		{
-			pMesh->setSkeletonName(skeletonName);
-		}
-
         MeshSerializer serializer;
         serializer.exportMesh(pMesh.getPointer(), fileName);
 
@@ -162,6 +166,11 @@ namespace Ogre {
 
 		return mXsiDeformerMap;
     }
+	//-----------------------------------------------------------------------
+	MaterialMap& XsiMeshExporter::getMaterials(void)
+	{
+		return mXsiMaterialMap;
+	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments)
 	{
@@ -501,8 +510,11 @@ namespace Ogre {
 		 * materials in question, and define the PolygonCluster map
 		 */
 		// Main material (will never exist if not merging submeshes)
+		String materialName = XSItoOgre(xsiMesh->obj.GetMaterial().GetName());
+		registerMaterial(materialName, xsiMesh->obj.GetMaterial());
+		
 		mMainProtoMesh = createOrRetrieveProtoSubMesh(
-			XSItoOgre(xsiMesh->obj.GetMaterial().GetName()), 
+			materialName, 
 			XSItoOgre(xsiMesh->obj.GetName()),
 			mCurrentTextureCoordDimensions, 
 			mCurrentHasVertexColours);
@@ -519,8 +531,10 @@ namespace Ogre {
 			// Is the material different for this poly cluster?
 			if (cluster.GetMaterial() != xsiMesh->obj.GetMaterial())
 			{
+				String submatName = XSItoOgre(cluster.GetMaterial().GetName());
+				registerMaterial(submatName, cluster.GetMaterial());
 				ProtoSubMesh* ps = createOrRetrieveProtoSubMesh(
-					XSItoOgre(cluster.GetMaterial().GetName()),
+					submatName,
 					XSItoOgre(cluster.GetName()),
 					mCurrentTextureCoordDimensions, 
 					mCurrentHasVertexColours);
@@ -763,14 +777,12 @@ namespace Ogre {
         offset += VertexElement::getTypeSize(VET_FLOAT3);
         sm->vertexData->vertexDeclaration->addElement(buf, offset, VET_FLOAT3, VES_NORMAL);
         offset += VertexElement::getTypeSize(VET_FLOAT3);
-        // TODO - split vertex data here if animated
-        /*
+        // split vertex data here if animated
         if (pMesh->hasSkeleton())
         {
-            buf = 0;
+            buf++;
             offset = 0;
         }
-        */
 		// Optional vertex colour
         if(proto->hasVertexColours)
         {
@@ -900,6 +912,16 @@ namespace Ogre {
 			delete d->second;
 		}
 		mXsiDeformerMap.clear();
+	}
+	//-----------------------------------------------------------------------
+	void XsiMeshExporter::cleanupMaterialMap(void)
+	{
+		for (MaterialMap::iterator d = mXsiMaterialMap.begin();
+			d != mXsiMaterialMap.end(); ++d)
+		{
+			delete d->second;
+		}
+		mXsiMaterialMap.clear();
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::deriveSamplerIndices(const Triangle& tri, 
@@ -1116,4 +1138,25 @@ namespace Ogre {
 			}
 		}
     }
+    //-----------------------------------------------------------------------
+	void XsiMeshExporter::registerMaterial(const String& name, 
+		XSI::Material mat)
+	{
+		// Check we have a real-time shader based material first
+		XSI::Parameter rtParam = mat.GetParameter(L"RealTime");
+		
+		if(rtParam.GetSource().IsValid() && 
+			rtParam.GetSource().IsA(XSI::siShaderID))
+		{
+			MaterialMap::iterator i = mXsiMaterialMap.find(name);
+			if (i == mXsiMaterialMap.end())
+			{
+				// Add this one to the list
+				MaterialEntry* matEntry = new MaterialEntry();
+				matEntry->name = name;
+				matEntry->xsiShader = XSI::Shader(rtParam.GetSource());
+				mXsiMaterialMap[name] = matEntry;
+			}
+		}
+	}
 }

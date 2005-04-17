@@ -590,6 +590,11 @@ namespace Ogre {
         mDisplaySkeleton = display;
     }
     //-----------------------------------------------------------------------
+    bool Entity::getDisplaySkeleton(void) const
+    {
+        return mDisplaySkeleton;
+    }
+    //-----------------------------------------------------------------------
     void Entity::setMeshLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
     {
         assert(factor > 0.0f && "Bias factor must be > 0!");

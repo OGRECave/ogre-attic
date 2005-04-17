@@ -98,15 +98,23 @@ namespace Ogre
         */
         virtual void reposition(int left, int top) = 0;
 
+        /** Indicates whether the window is visible (not minimized or obscured)
+        */
+        virtual bool isVisible(void) const { return true; }
+
+        /** Overridden from RenderTarget, flags invisible windows as inactive
+        */
+        virtual bool isActive(void) const { return mActive && isVisible(); }
+
         /** Indicates whether the window has been closed by the user.
         */
         virtual bool isClosed(void) const = 0;
-		
-		/** Indicates wether the window is the primary window. The
-			primary window is special in that it is destroyed when 
-			ogre is shut down, and cannot be destroyed directly.
-			This is the case because it holds the context for vertex,
-			index buffers and textures.
+        
+        /** Indicates wether the window is the primary window. The
+        	primary window is special in that it is destroyed when 
+        	ogre is shut down, and cannot be destroyed directly.
+        	This is the case because it holds the context for vertex,
+        	index buffers and textures.
         */
         virtual bool isPrimary(void) const;
 

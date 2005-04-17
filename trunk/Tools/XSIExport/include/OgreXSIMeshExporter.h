@@ -80,7 +80,10 @@ namespace Ogre {
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
 			bool tangents, LodData* lod = 0, const String& skeletonName = "");
 
-
+		/** Get a list of materials which were located during the last call
+		 *  to exportMesh. 
+		 */
+		MaterialMap& getMaterials(void);
     protected:
 
         // XSI Objects
@@ -141,6 +144,8 @@ namespace Ogre {
 	
 		/// List of deformers we've found whilst parsing the objects
 		DeformerMap mXsiDeformerMap;
+		/// LIst of materials we've found whilst parsing the objects
+		MaterialMap mXsiMaterialMap;
 
 		/// Build a list of PolygonMesh instances from selection
 		void buildPolygonMeshList(bool includeChildren);
@@ -157,6 +162,7 @@ namespace Ogre {
 		
 		/// Tidy up
 		void cleanupDeformerMap(void);
+		void cleanupMaterialMap(void);
 
 		typedef std::map<size_t, size_t> IndexRemap;
 		/** Working area which will become a submesh once we've finished figuring
@@ -256,6 +262,8 @@ namespace Ogre {
 		/** Get a single sampler index */
 		size_t getSamplerIndex(const XSI::Facet &f, const XSI::Point &p);
 
+		/** Register the use of a given XSI material. */
+		void registerMaterial(const String& name, XSI::Material mat);
 
 
 

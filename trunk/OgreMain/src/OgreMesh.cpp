@@ -987,7 +987,7 @@ namespace Ogre {
         }
 
 	    // our temp. buffers
-	    unsigned short	vertInd[3];
+	    uint32			vertInd[3];
 	    Vector3         vertPos[3];
         Real            u[3], v[3];
 	    // setup a new 3D texture coord-set buffer for every sub mesh
@@ -996,7 +996,8 @@ namespace Ogre {
 	    for (int sm = 0; sm < nSubMesh; sm++)
 	    {
 		    // retrieve buffer pointers
-		    unsigned short	*pVIndices;	// the face indices buffer, read only
+		    uint16			*pVIndices16;	// the face indices buffer, read only
+		    uint32			*pVIndices32;	// the face indices buffer, read only
 		    float			*p2DTC;		// pointer to 2D tex.coords, read only
 		    float			*p3DTC;		// pointer to 3D tex.coords, write/read (discard)
 		    float			*pVPos;		// vertex position buffer, read only
@@ -1006,8 +1007,19 @@ namespace Ogre {
 		    // retrieve buffer pointers
 		    // first, indices
 		    IndexData *indexData = pSubMesh->indexData;
-		    HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer ;
-		    pVIndices = (unsigned short*) buffIndex->lock(HardwareBuffer::HBL_READ_ONLY); 
+		    HardwareIndexBufferSharedPtr buffIndex = indexData->indexBuffer;
+			bool use32bit = false;
+			if (buffIndex->getType() == HardwareIndexBuffer::IT_32BIT)
+			{
+		    	pVIndices32 = static_cast<uint32*>(
+					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY)); 
+				use32bit = true;
+			}
+			else
+			{
+		    	pVIndices16 = static_cast<uint16*>(
+					buffIndex->lock(HardwareBuffer::HBL_READ_ONLY)); 
+			}
 		    // then, vertices
 		    VertexData *usedVertexData ;
 		    if (pSubMesh->useSharedVertices) {
@@ -1095,7 +1107,14 @@ namespace Ogre {
 			    for (i = 0; i < 3; ++i)
 			    {
 				    // get indexes of vertices that form a polygon in the position buffer
-				    vertInd[i] = *pVIndices++;
+				    if (use32bit)
+					{
+						vertInd[i] = *pVIndices32++;
+					}
+					else
+					{
+						vertInd[i] = *pVIndices16++;
+					}
 				    // get the vertices positions from the position buffer
                     unsigned char* vBase = pPosBase + (posInc * vertInd[i]);
                     elemVPos->baseVertexPointerToElement(vBase, &pVPos);

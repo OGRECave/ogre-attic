@@ -394,7 +394,6 @@ namespace Ogre {
         }
 
 
-		/*
 		// Degenerate case check
 		// Are we going to invert a face normal of one of the neighbouring faces?
 		// Can occur when we have a very small remaining edge and collapse crosses it
@@ -430,7 +429,6 @@ namespace Ogre {
 
 			}
 		}
-		*/
 		
 
 		assert (cost >= 0);

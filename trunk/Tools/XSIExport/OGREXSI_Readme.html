@@ -107,6 +107,8 @@ direct to binary .skeleton format<br>
   </li>
   <li>Exporting of one or more ActionSources as animations <br>
   </li>
+  <li>Exporting of RealTime shaders on materials (OpenGL and DirectX)<br>
+  </li>
 </ol>
 <p>Important modelling / animating considerations:<br>
 </p>
@@ -145,7 +147,22 @@ FK&lt;animation&gt;<br>
 animation, not your original IK animation</li>
   </ol>
 </ol>
-<br>
+Important material considerations:<br>
+<ul>
+  <li>The defaults that XSI gives to some real time material components
+are not normally what you'd want (and not the OGRE default). For
+example:</li>
+  <ul>
+    <li>OGLDraw and DXDraw objects have a default culling mode of
+'None', meaning all materials are double-sided by default, you will
+probably want to change that for efficiency</li>
+    <li>OGLTexture and DXTexture both default to no mip mapping. You
+will probably want to alter the defaults so that you have at least
+sampled point mipmapping (in DXTexture this is a separate setting, in
+OGLTexture it's combined with the minification filter)<br>
+    </li>
+  </ul>
+</ul>
 <p class="MainHeader" align="left">Reporting Issues<br>
 </p>
 <p>Please report any issues with the exporter in the <a
