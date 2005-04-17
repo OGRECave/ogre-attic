@@ -64,9 +64,6 @@ namespace Ogre
         mTanTable = new Real[mTrigTableSize];
 
         buildTrigTables();
-
-        // Init random number generator
-        srand( (unsigned)time(0) );
     }
 
     //-----------------------------------------------------------------------

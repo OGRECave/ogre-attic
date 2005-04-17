@@ -223,10 +223,6 @@ namespace Ogre {
         // Can't create managers until initialised
         mControllerManager = 0;
 
-
-        // Seed random number generator for future use
-        srand((unsigned)time(0));
-
         mFirstTimePostWindowInit = false;
 
     }
