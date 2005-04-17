@@ -32,6 +32,12 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "windows.h"
 
 
+/* If you don't want any DirectX dependency at all
+ */
+
+//#define OGRE_NO_DX_INPUT
+
+
 /* If you don't whant your build to request dxinput8, 
     for example in case u whant to run on a DirectX7 machine.
 	This is stil request  DirectX 8 sdk for building, but the binary requires
@@ -39,6 +45,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 //#define DX7INPUTONLY 
 
+#ifndef OGRE_NO_DX_INPUT
 
 #ifdef DX7INPUTONLY 
 #define DIRECTINPUT_VERSION 0x0700
@@ -49,6 +56,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define DIRECTINPUT_VERSION 0x0800
 #endif 
+
+#endif // OGRE_NO_DX_INPUT
+
 namespace Ogre {
 
     // Predeclare classes 

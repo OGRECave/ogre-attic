@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_animationsourceitem.h>
 #include <xsi_progressbar.h>
 #include <xsi_uitoolkit.h>
+#include <xsi_shader.h>
 
 #include <stdlib.h>
 #include "OgrePrerequisites.h"
@@ -203,6 +204,27 @@ namespace Ogre {
 	};
 	/// Map from deformer name to deformer entry
 	typedef std::vector<AnimationEntry> AnimationList;
+
+	/** Record of an XSI GL shader material. */
+	struct MaterialEntry
+	{
+		String name;
+		XSI::Shader xsiShader;
+	};
+	/// Map from material name to material entry
+	typedef std::map<String, MaterialEntry*> MaterialMap;
+
+	/** Record of XSI details that are to become a pass */
+	struct PassEntry
+	{
+		XSI::CRefArray shaders;
+	};
+	typedef std::deque<PassEntry*> PassQueue;
+
+	/** Platform-independent file copy (destination folder must exist)
+		Maybe use Boost::filesystem if this gets out of hand
+	*/
+	void copyFile(const String& src, const String& dest);
 
 }
 #endif

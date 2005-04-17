@@ -888,8 +888,6 @@ namespace Ogre {
 
 	
 protected:
-        Pass* mParent;
-
         // State
 #define OGRE_MAX_TEXTURE_FRAMES 32
 
@@ -901,7 +899,6 @@ protected:
 
         /// Duration of animation in seconds
         Real mAnimDuration;            
-        Controller<Real>* mAnimController;
         bool mCubic; // is this a series of 6 2D textures to make up a cube?
 		
         TextureType mTextureType; 
@@ -950,6 +947,13 @@ protected:
         EffectMap mEffects;
         //-----------------------------------------------------------------------------
 
+        //-----------------------------------------------------------------------------
+        // Pointer members (those that can't be copied using memcpy), and MUST
+        // preserving even if assign from others
+        //
+        Pass* mParent;
+        Controller<Real>* mAnimController;
+        //-----------------------------------------------------------------------------
 
 
         /** Internal method for calculating texture matrix.

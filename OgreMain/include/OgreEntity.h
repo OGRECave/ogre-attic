@@ -345,6 +345,10 @@ namespace Ogre {
         */
         void setDisplaySkeleton(bool display);
 
+        /** Returns whether or not the entity is currently displaying its skeleton.
+         */
+        bool getDisplaySkeleton(void) const;
+
 
 		/** Sets a level-of-detail bias for the mesh detail of this entity.
 		@remarks
@@ -475,7 +479,7 @@ namespace Ogre {
             assigned to this entity have vertex programs assigned, and all those
             vertex programs must support 'include_skeletal_animation true'.
         */
-        bool isHardwareSkinningEnabled(void) { return mHardwareSkinning; }
+        bool isHardwareSkinningEnabled(void) const { return mHardwareSkinning; }
 
         /** Overridden from MovableObject */
         void _notifyAttached(Node* parent, bool isTagPoint = false);

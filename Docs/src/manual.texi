@@ -1616,7 +1616,7 @@ For a detailed description of the core particle system attributes, see the list 
 @item
 @ref{quota}
 @item
-@ref{material}
+@ref{particle_material, material}
 @item
 @ref{particle_width}
 @item
@@ -1643,7 +1643,7 @@ format: quota <max_particles>@*
 example: quota 10000@*
 default: 10@*
 
-@anchor{material}
+@anchor{particle_material}
 @subheading material
 
 Sets the name of the material which all particles in this system will use. All paticles in a system use the same material, although each particle can tint this material through the use of it's colour property.@*@*
@@ -2223,34 +2223,34 @@ Similar to the ColourFader and ColourFader2 Affector?s, this affector modifies t
 @table @asis
 @item time0
 The point in time of stage 0.@*
-@ @ @ @ format: time0 <seconds>@*
-example: time0 0.5@*
+@ @ @ @ format: time0 <0-1 based on lifetime>@*
+example: time0 0@*
 default: 1@*
 @item colour0
 The colour at stage 0.@*
 @ @ @ @ format: colour0 <r> <g> <b> [<a>]@*
 example: colour0 1 0 0 1@*
-default: 0.5 0.5 0.5 0.5@*
+default: 0.5 0.5 0.5 0.0@*
 @item time1
 The point in time of stage 1.@*
-@ @ @ @ format: time1 <seconds>@*
-example: time1 1@*
+@ @ @ @ format: time1 <0-1 based on lifetime>@*
+example: time1 0.5@*
 default: 1@*
 @item colour1
 The colour at stage 1.@*
 @ @ @ @ format: colour1 <r> <g> <b> [<a>]@*
 example: colour1 0 1 0 1@*
-default: 0.5 0.5 0.5 0.5@*
+default: 0.5 0.5 0.5 0.0@*
 @item time2
 The point in time of stage 2.@*
-@ @ @ @ format: time2 <seconds>@*
-example: time2 2@*
+@ @ @ @ format: time2 <0-1 based on lifetime>@*
+example: time2 1@*
 default: 1@*
 @item colour2
 The colour at stage 2.@*
 @ @ @ @ format: colour2 <r> <g> <b> [<a>]@*
 example: colour2 0 0 1 1@*
-default: 0.5 0.5 0.5 0.5@*
+default: 0.5 0.5 0.5 0.0@*
 @item [...]
 @end table
 The number of stages is variable. The maximal number of stages is 6; where time5 and colour5 are the last possible parameters.
@@ -2373,7 +2373,7 @@ The properties which can be included within the braces depend on the custom type
 @item 
 @ref{height}
 @item 
-@ref{material}
+@ref{overlay_material, material}
 @item
 @ref{caption}
 @end itemize
@@ -2575,7 +2575,7 @@ Sizes are relative to the size of the screen, so 0.25 is a quarter of the screen
 
 Default: height 1@*
 
-@anchor{material}
+@anchor{overlay_material}
 @subheading material
 
 Sets the name of the material to use for this element.@*@*
