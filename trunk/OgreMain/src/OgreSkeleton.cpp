@@ -500,7 +500,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-	SkeletonAnimationBlendMode Skeleton::getBlendMode() 
+	SkeletonAnimationBlendMode Skeleton::getBlendMode() const
     {
 		return mBlendState;
 	}
