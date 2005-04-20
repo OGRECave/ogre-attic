@@ -237,26 +237,30 @@ extern "C"
 */
 XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
-	static firstTime = true;
+	Ogre::LogManager logMgr;
+	logMgr.createLog("OgreXSIExporter.log", true);
+	CString msg(L"OGRE Exporter Version ");
+	msg += OGRE_XSI_EXPORTER_VERSION;
+	LogOgreAndXSI(msg);
+
 	Application app;
 	CStatus st(CStatus::OK);
 	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
-	if (firstTime && prop.IsValid())
+	if (prop.IsValid())
 	{
-		DeleteObj(exportPropertyDialogName);
-		firstTime = false;
-		prop.ResetObject();
+		// Check version number
+		CString currVersion(prop.GetParameterValue(L"version"));
+		if (!currVersion.IsEqualNoCase(OGRE_XSI_EXPORTER_VERSION))
+		{
+			DeleteObj(exportPropertyDialogName);
+			prop.ResetObject();
+		}
 	}
 	if (!prop.IsValid())
 	{
 		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
 		prop.PutParameterValue(L"version", CString(OGRE_XSI_EXPORTER_VERSION));
 	}
-	Ogre::LogManager logMgr;
-	logMgr.createLog("OgreXSIExporter.log", true);
-	CString msg(L"OGRE Exporter Version ");
-	msg += OGRE_XSI_EXPORTER_VERSION;
-	LogOgreAndXSI(msg);
 	
 	try
 	{
