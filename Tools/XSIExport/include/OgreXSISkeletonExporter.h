@@ -59,6 +59,8 @@ namespace Ogre {
 		XSI::Application mXsiApp;
 		XSI::X3DObject mXsiSceneRoot;
 		std::map<String, int> mXSITrackTypeNames; 
+		// Constrainers of deformers
+		DeformerMap mConstrainerMap;
 
 		/// Build the bone hierarchy from a simple list of bones
 		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerMap& deformers, 
@@ -87,6 +89,8 @@ namespace Ogre {
 		void buildKeyframeList(DeformerEntry* deformer, AnimationEntry& animEntry);		
 		/// Derive a keyframe value from XSI's tracks
 		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame, double defaultVal);
+
+		void cleanupConstrainerMap(void);
 		
 
 	};

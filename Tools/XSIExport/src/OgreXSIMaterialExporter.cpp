@@ -29,6 +29,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePass.h"
 #include "OgreTextureUnitState.h"
 
+#include <IL/il.h>
+
+
 #include <xsi_shader.h>
 #include <xsi_imageclip.h>
 #include <xsi_image.h>
@@ -417,7 +420,7 @@ namespace Ogre {
 				srcTextureName.substr(pos+1, srcTextureName.size() - pos - 1);
 			String destTextureName = targetFolder + textureName;
 
-			// TODO - copy texture if required
+			// copy texture if required
 			if (copyTextures)
 			{
 				copyFile(srcTextureName, destTextureName);
@@ -595,9 +598,60 @@ namespace Ogre {
 	TextureUnitState* XsiMaterialExporter::addCubicTexture(Pass* pass, XSI::Shader& shader, 
 		bool copyTextures, const String& targetFolder)
 	{
-		// TODO
-		// Use DevIL to combine images into cubemap?
-		return 0;
+		// create texture unit state and map from target incase future xforms
+		TextureUnitState* tex = pass->createTextureUnitState();
+
+		XSI::Parameter param = shader.GetParameter(L"target"); // OGL
+		if (!param.IsValid())
+			param = shader.GetParameter(L"Texture_Target"); // DX
+
+		long target = param.GetValue();
+		mTextureUnitTargetMap.insert(
+			TextureUnitTargetMap::value_type(target, tex));
+
+		// Get images
+		wchar_t* cubeFaceName[6] = {
+			L"front", L"back", L"top", L"bottom", L"left", L"right" };
+
+		String finalNames[6];
+
+
+		for (int face = 0; face < 6; ++face)
+		{
+			XSI::CRef src = shader.GetParameter(cubeFaceName[face]).GetSource();
+			if (src.IsValid() && src.IsA(XSI::siImageClipID))
+			{
+				XSI::ImageClip imgClip(src);
+				String srcTextureName = 
+					XSItoOgre(imgClip.GetParameter(L"SourceFileName").GetValue());
+
+				String::size_type pos = srcTextureName.find_last_of("\\");
+				if (pos == String::npos)
+				{
+					pos = srcTextureName.find_last_of("/");
+				}
+				finalNames[face] = 
+					srcTextureName.substr(pos+1, srcTextureName.size() - pos - 1);
+				String destTextureName = targetFolder + finalNames[face];
+
+				// copy texture if required
+				if (copyTextures)
+				{
+					copyFile(srcTextureName, destTextureName);
+				}
+
+
+				LogOgreAndXSI("Cubemap face: " + srcTextureName);
+			}
+		}
+
+		LogOgreAndXSI("Adding cubic texture");
+		// Cannot do combinedUVW for now, DevIL can't write DDS cubemap so 
+		// go for separates (user can modify)
+		tex->setCubicTextureName(finalNames, false);
+
+		return tex;
+		
 	}
 	//-------------------------------------------------------------------------
 	unsigned short XsiMaterialExporter::getTextureCoordIndex(const String& tspace)
