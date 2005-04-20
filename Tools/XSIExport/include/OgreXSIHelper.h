@@ -177,12 +177,14 @@ namespace Ogre {
 		bool parentIsChainEndEffector;
 		bool hasAnyTracks;
 		Bone* pBone;
+		DeformerEntry* constrainer;
 		// lists of action source items (probably only one per param?)
 		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 
 		DeformerEntry(unsigned short theboneID, XSI::X3DObject& theobj)
 			:boneID(theboneID), obj(theobj), hasVertexAssignments(false), 
-			parentIsChainEndEffector(false), hasAnyTracks(false), pBone(0)
+			parentIsChainEndEffector(false), hasAnyTracks(false), pBone(0), 
+			constrainer(0)
 		{
 		}
 
