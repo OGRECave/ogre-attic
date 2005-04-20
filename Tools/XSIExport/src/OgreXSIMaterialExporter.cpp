@@ -29,9 +29,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePass.h"
 #include "OgreTextureUnitState.h"
 
-#include <IL/il.h>
-
-
 #include <xsi_shader.h>
 #include <xsi_imageclip.h>
 #include <xsi_image.h>
