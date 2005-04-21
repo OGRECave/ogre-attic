@@ -216,7 +216,7 @@ namespace Ogre {
 		Vector3 min, max, mid, dist;
 		min = mBox.getMinimum();
 		max = mBox.getMaximum();
-		mid = ((min - max) * 0.5) + min;
+		mid = ((max - min) * 0.5) + min;
 		dist = cam->getDerivedPosition() - mid;
 
 
