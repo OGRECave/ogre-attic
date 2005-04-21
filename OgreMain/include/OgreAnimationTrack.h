@@ -149,6 +149,14 @@ namespace Ogre
             changed, which may cause it to rebuild some internal data. */
         void _keyFrameDataChanged(void) const;
 
+		/** Method to determine if this track has any KeyFrames which are
+			doing anything useful - can be used to determine if this track
+			can be optimised out.
+		*/
+		bool hasNonZeroKeyFrames(void) const;
+
+		/** Optimise the current track by removing any duplicate keyframes. */
+		void optimise(void);
     protected:
         typedef std::vector<KeyFrame*> KeyFrameList;
         KeyFrameList mKeyFrames;

@@ -184,6 +184,35 @@ namespace Ogre {
     {
         return msDefaultRotationInterpolationMode;
     }
+    //---------------------------------------------------------------------
+	void Animation::optimise(void)
+	{
+		// Iterate over the tracks and identify those with no useful keyframes
+		std::list<unsigned short> tracksToDestroy;
+        TrackList::iterator i;
+        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        {
+			AnimationTrack* track = i->second;
+			if (!track->hasNonZeroKeyFrames())
+			{
+				// mark the entire track for destruction
+				tracksToDestroy.push_back(i->first);
+			}
+			else
+			{
+				track->optimise();
+			}
+			
+		}
+		
+		// Now destroy the tracks we marked for death
+		for(std::list<unsigned short>::iterator h = tracksToDestroy.begin();
+			h != tracksToDestroy.end(); ++h)
+		{
+			destroyTrack(*h);
+		}
+		
+	}
 
 }
 

@@ -533,5 +533,14 @@ namespace Ogre {
             (*i)->_update(true, false);
         }
     }
+    //---------------------------------------------------------------------
+	void Skeleton::optimiseAllAnimations(void)
+	{
+        AnimationList::iterator ai;
+        for (ai = mAnimationsList.begin(); ai != mAnimationsList.end(); ++ai)
+        {
+			ai->second->optimise();
+		}
+	}
 }
 

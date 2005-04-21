@@ -390,6 +390,78 @@ namespace Ogre {
     {
         mSplineBuildNeeded = true;
     }
+    //---------------------------------------------------------------------
+	bool AnimationTrack::hasNonZeroKeyFrames(void) const
+	{
+        KeyFrameList::const_iterator i = mKeyFrames.begin();
+        for (; i != mKeyFrames.end(); ++i)
+        {
+			// look for keyframes which have any component which is non-zero
+			// Since exporters can be a little inaccurate sometimes we use a
+			// tolerance value rather than looking for nothing
+			KeyFrame* kf = *i;
+			Vector3 trans = kf->getTranslate();
+			Vector3 scale = kf->getScale();
+			Vector3 axis;
+			Radian angle;
+			kf->getRotation().ToAngleAxis(angle, axis);
+			Real tolerance = 1e-3f;
+			if (!trans.positionEquals(Vector3::ZERO, tolerance) ||
+				!scale.positionEquals(Vector3::UNIT_SCALE, tolerance) ||
+				!Math::RealEqual(angle.valueRadians(), 0.0f, tolerance))
+			{
+				return true;
+			}
+			
+		}
+
+		return false;
+	}
+    //---------------------------------------------------------------------
+	void AnimationTrack::optimise(void)
+	{
+		// Iterate from 2nd to penultimate keyframe eliminating duplicates
+		Vector3 lasttrans;
+		Vector3 lastscale;
+		Quaternion lastorientation;
+        KeyFrameList::iterator i = mKeyFrames.begin();
+		Radian quatTolerance(1e-3f);
+		std::list<unsigned short> removeList;
+		unsigned short k = 0;
+        for (; i != mKeyFrames.end(); ++i, ++k)
+        {
+			KeyFrame* kf = *i;
+			Vector3 newtrans = kf->getTranslate();
+			Vector3 newscale = kf->getScale();
+			Quaternion neworientation = kf->getRotation();
+			// Don't consider 1st and last keyframe for elimination
+			KeyFrameList::iterator next = i + 1;
+			if (i != mKeyFrames.begin() && next != mKeyFrames.end())
+			{
+				if (newtrans.positionEquals(lasttrans) &&
+					newscale.positionEquals(lastscale) && 
+					neworientation.equals(lastorientation, quatTolerance))
+				{
+					// mark this keyframe as removable
+					removeList.push_back(k);			
+				}
+					
+			}
+
+			lasttrans = newtrans;
+			lastscale = newscale;
+			lastorientation = neworientation;
+		}
+
+		// Now remove keyframes, in reverse order to avoid index revocation
+		std::list<unsigned short>::reverse_iterator r = removeList.rbegin();
+		for (; r!= removeList.rend(); ++r)
+		{
+			removeKeyFrame(*r);
+		}
+			
+			
+	}
 	
 }
 
