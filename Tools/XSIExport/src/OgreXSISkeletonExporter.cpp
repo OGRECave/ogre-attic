@@ -93,6 +93,8 @@ namespace Ogre
 		// progress report
 		ProgressManager::getSingleton().progress();
 
+		// Optimise
+		skeleton->optimiseAllAnimations();
 
 		SkeletonSerializer ser;
 		ser.exportSkeleton(skeleton.get(), skeletonFileName);
