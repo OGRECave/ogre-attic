@@ -639,7 +639,7 @@ namespace Ogre
 
 
 				// create keyframe
-				KeyFrame* kf = track->createKeyFrame((float)(*fi - 1) / fps);
+				KeyFrame* kf = track->createKeyFrame((float)(*fi - animEntry.startFrame) / fps);
 				// not sure why inverted transform doesn't work for position, but it doesn't
 				// I thought XSI used same transform order as OGRE
 				//kf->setTranslate(XSItoOgre(transformation.GetTranslation()));
