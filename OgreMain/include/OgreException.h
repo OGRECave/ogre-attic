@@ -167,13 +167,17 @@ namespace Ogre {
         */
         int getNumber(void) const throw();
 
+        /** Gets the source function.
+        */
+        const String &getSource() const { return source; }
+
         /** Gets source file name.
         */
-        String getFile() {return file; }
+        const String &getFile() const { return file; }
 
         /** Gets line number.
         */
-        long getLine() {return line; }
+        long getLine() const { return line; }
 
 		/** Returns a string with only the 'description' field of this exception. Use 
 			getFullDescriptionto get a full description of the error including line number,
