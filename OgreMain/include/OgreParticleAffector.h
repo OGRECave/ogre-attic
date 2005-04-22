@@ -101,7 +101,7 @@ namespace Ogre {
             This property is useful for determining the type of affector procedurally so another
             can be created.
         */
-        String getType(void) const { return mType; }
+        const String &getType(void) const { return mType; }
 
     };
 
