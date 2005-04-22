@@ -327,6 +327,10 @@ namespace Ogre {
             static LightList ll;
             return ll;
         }
+		bool getRenderDetailOverrideable(void) const
+		{
+			return mParent->getRenderDetailOverrideable();
+		}
     };
 
 }

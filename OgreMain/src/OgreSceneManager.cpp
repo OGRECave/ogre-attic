@@ -1926,7 +1926,7 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
     static Matrix4 xform[256];
     unsigned short numMatrices;
     static bool normalisedNormals = false;
-    static SceneDetailLevel camDetailLevel = mCameraInProgress->getDetailLevel();
+    SceneDetailLevel camDetailLevel = mCameraInProgress->getDetailLevel();
     static SceneDetailLevel lastDetailLevel = camDetailLevel;
     static RenderOperation ro;
     static LightList localLightList;
@@ -1977,13 +1977,17 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
 
     // Set up the solid / wireframe override
     SceneDetailLevel reqDetail = rend->getRenderDetail();
-    if (reqDetail != lastDetailLevel || reqDetail != camDetailLevel)
+    if (rend->getRenderDetailOverrideable())
     {
+        // check camera detial only when render detail is overridable
         if (reqDetail > camDetailLevel)
         {
             // only downgrade detail; if cam says wireframe we don't go up to solid
             reqDetail = camDetailLevel;
         }
+    }
+    if (reqDetail != lastDetailLevel)
+    {
         mDestRenderSystem->_setRasterisationMode(reqDetail);
         lastDetailLevel = reqDetail;
 

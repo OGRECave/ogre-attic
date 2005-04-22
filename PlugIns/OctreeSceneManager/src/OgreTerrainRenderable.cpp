@@ -62,7 +62,7 @@ namespace Ogre
 
     //-----------------------------------------------------------------------
     TerrainRenderable::TerrainRenderable(const String& name)
-        : mTerrain(0), mName(name),  mDeltaBuffers(0), mPositionBuffer(0)
+        : Renderable(), mTerrain(0), mName(name),  mDeltaBuffers(0), mPositionBuffer(0)
     {
         mForcedRenderLevel = -1;
         mLastNextLevel = -1;
