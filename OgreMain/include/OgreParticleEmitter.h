@@ -368,7 +368,7 @@ namespace Ogre {
             This property is useful for determining the type of emitter procedurally so another
             can be created.
         */
-        const String &getType(void) { return mType; }
+        const String &getType(void) const { return mType; }
 
         /** Sets whether or not the emitter is enabled.
         @remarks
