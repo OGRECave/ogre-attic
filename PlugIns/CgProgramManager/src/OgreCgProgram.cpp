@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreRenderSystemCapabilities.h"
+#include "OgreLogManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -118,6 +119,13 @@ namespace Ogre {
     {
         // Create Cg Program
         selectProfile();
+		if (mSelectedCgProfile == CG_PROFILE_UNKNOWN)
+		{
+			LogManager::getSingleton().logMessage(
+				"Attempted to load Cg program '" + mName + "', but no suported "
+				"profile was found. ");
+			return;
+		}
         buildArgs();
         mCgProgram = cgCreateProgram(mCgContext, CG_SOURCE, mSource.c_str(), 
             mSelectedCgProfile, mEntryPoint.c_str(), const_cast<const char**>(mCgArguments));
@@ -133,15 +141,19 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void CgProgram::createLowLevelImpl(void)
     {
-        // Create a low-level program, give it the same name as us
-        mAssemblerProgram = 
-            GpuProgramManager::getSingleton().createProgramFromString(
-                mName, 
-                mGroup,
-                cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM),
-                mType, 
-                mSelectedProfile);
+		// ignore any previous error
+		if (mSelectedCgProfile != CG_PROFILE_UNKNOWN)
+		{
 
+			// Create a low-level program, give it the same name as us
+			mAssemblerProgram = 
+				GpuProgramManager::getSingleton().createProgramFromString(
+					mName, 
+					mGroup,
+					cgGetProgramString(mCgProgram, CG_COMPILED_PROGRAM),
+					mType, 
+					mSelectedProfile);
+		}
     }
     //-----------------------------------------------------------------------
     void CgProgram::unloadHighLevelImpl(void)
