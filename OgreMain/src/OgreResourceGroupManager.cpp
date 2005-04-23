@@ -189,9 +189,14 @@ namespace Ogre {
 				for (LoadUnloadResourceList::iterator l = oi->second->begin();
 					l != oi->second->end(); ++l)
 				{
-					fireResourceStarted(*l);
-					(*l)->load();
-					fireResourceEnded();
+					// If loading one of these resources cascade-loads another resource, 
+					// the list will get longer! But these should be loaded immediately
+					if (!(*l)->isLoaded())
+					{
+						fireResourceStarted(*l);
+						(*l)->load();
+						fireResourceEnded();
+					}
 				}
 			}
 		}
