@@ -63,7 +63,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
-#define OGRE_XSI_EXPORTER_VERSION L"1.0.2"
+#define OGRE_XSI_EXPORTER_VERSION L"1.0.1c"
 
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
@@ -648,8 +648,10 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
 	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:60");
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:60:60");
 	item.PutAttribute(siUIGridHideRowHeader, true);
+	// Make animatino name read-only
+	item.PutAttribute(siUIGridReadOnlyColumns, L"1:0:0:0");
 
 
 
@@ -700,6 +702,37 @@ bool hasSkeleton(Selection& sel, bool recurse)
 	return false;
 }
 
+bool isAnimationIK(XSI::ActionSource& source)
+{
+	// Iterate over the animation items, and return true if any of them
+	// are effectors. 
+	Application app;
+	CRefArray items = source.GetItems();
+	for (int i = 0; i < items.GetCount(); ++i)
+	{
+		XSI::AnimationSourceItem item = items[i];
+
+		// Check the target
+		Ogre::String target = XSItoOgre(item.GetTarget());
+		size_t firstDotPos = target.find_first_of(".");
+		if (firstDotPos != Ogre::String::npos)
+		{
+			Ogre::String targetName = target.substr(0, firstDotPos);
+			// Find object
+			X3DObject targObj = app.GetActiveSceneRoot().FindChild(
+				OgretoXSI(targetName), L"", CStringArray());
+			if (targObj.IsValid())
+			{
+				if (targObj.IsA(siChainEffectorID))
+					return true;
+			}
+		}
+	}
+
+	return false;
+
+
+}
 
 void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 {
@@ -726,6 +759,15 @@ void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 				anim.startFrame = -1;
 				anim.endFrame = -1;
 				anim.source = ActionSource(src);
+				anim.ikSample = isAnimationIK(anim.source);
+				if (anim.ikSample)
+				{
+					anim.ikSampleRate = 6.0f;
+				}
+				else
+				{
+					anim.ikSampleRate = 0.0f;
+				}
 				animList.push_back(anim);
 			}
 		}
@@ -750,6 +792,13 @@ void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
 
 }
 
+
+struct AnimSetting
+{
+	bool export;
+	bool ik;
+	double ikSampleRate;
+};
 
 #ifdef unix
 extern "C" 
@@ -824,20 +873,29 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			// initialise it with all animations but try to remember previous values
 			GridData gd = param.GetValue();
 			// Store the existing settings
-			std::map<Ogre::String,bool> rememberedAnimations;
+			std::map<Ogre::String,AnimSetting> rememberedAnimations;
 			int row;
 			for (row = 0; row < gd.GetRowCount(); ++row)
 			{
+				AnimSetting s;
+				s.export = gd.GetCell(1, row);
+				s.ik = gd.GetCell(2, row);
+				s.ikSampleRate = gd.GetCell(3, row);
 				Ogre::String animName = XSItoOgre(gd.GetCell(0, row));
-				rememberedAnimations[animName] = gd.GetCell(1, row);
+				rememberedAnimations[animName] = s;
 			}
 
-			// Second column is check box			
+			// Second & third column is check box			
 			gd.PutColumnType(1, siColumnBool);
+			gd.PutColumnType(2, siColumnBool);
+			// Name is not adjustable
 
-			gd.PutColumnCount(2);
+
+			gd.PutColumnCount(4);
 			gd.PutColumnLabel(0, L"Name");
 			gd.PutColumnLabel(1, L"Export?");
+			gd.PutColumnLabel(2, L"IK?");
+			gd.PutColumnLabel(3, L"Sample Rate");
 
 
 			getAnimations(app.GetActiveSceneRoot(), animList);
@@ -847,16 +905,23 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			{
 				gd.PutCell(0, row, OgretoXSI(a->animationName));
 				// do we have a setting for this already?
-				std::map<Ogre::String, bool>::iterator ra = 
+				std::map<Ogre::String, AnimSetting>::iterator ra = 
 					rememberedAnimations.find(a->animationName);
+
 				if (ra != rememberedAnimations.end())
 				{
-					gd.PutCell(1, row, ra->second);
+					AnimSetting& s = ra->second;
+
+					gd.PutCell(1, row, s.export);
+					gd.PutCell(2, row, s.ik);
+					gd.PutCell(3, row, s.ikSampleRate);
 				}
 				else
 				{
 					// default to true
 					gd.PutCell(1, row, true);
+					gd.PutCell(2, row, a->ikSample);
+					gd.PutCell(3, row, a->ikSampleRate);
 				}
 			}
 			
