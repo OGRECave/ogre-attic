@@ -71,7 +71,7 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	XsiSkeletonExporter::~XsiSkeletonExporter()
 	{
-		cleanupConstrainerMap();
+		cleanup();
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
@@ -79,7 +79,9 @@ namespace Ogre
 	{
 		LogOgreAndXSI(L"** Begin OGRE Skeleton Export **");
 
-		cleanupConstrainerMap();
+		cleanup();
+
+		copyDeformerMap(deformers);
 
 		SkeletonPtr skeleton = SkeletonManager::getSingleton().create("export",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -104,6 +106,19 @@ namespace Ogre
 		LogOgreAndXSI(L"** OGRE Skeleton Export Complete **");
 
 
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::copyDeformerMap(DeformerMap& deformers)
+	{
+		// Make lower-case version
+		// some XSI animations appear to like to use case insensitive references :(
+		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
+		{
+			DeformerEntry* deformer = i->second;
+			String name = XSItoOgre(deformer->obj.GetName());
+			StringUtil::toLowerCase(name);
+			mLowerCaseDeformerMap[name] = deformer;
+		}
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::buildBoneHierarchy(Skeleton* pSkeleton, 
@@ -156,14 +171,39 @@ namespace Ogre
 			// link to parent
 			if (!deformer->parentName.empty())
 			{
-				DeformerMap::iterator p = deformers.find(deformer->parentName);
-				assert (p != deformers.end() && "Parent not found");
+				DeformerEntry* parent = getDeformer(deformer->parentName, deformers);
+				assert (parent && "Parent not found");
 				assert (deformer->pBone && "Child bone not created");
-				assert(p->second->pBone && "Parent bone not created");
-				DeformerEntry* parent = p->second;
+				assert(parent->pBone && "Parent bone not created");
 				parent->pBone->addChild(deformer->pBone);
 
 			}
+		}
+
+	}
+	//-----------------------------------------------------------------------------
+	DeformerEntry* XsiSkeletonExporter::getDeformer(const String& name, 
+		DeformerMap& deformers)
+	{
+		// Look in case sensitive list first
+		DeformerMap::iterator i = deformers.find(name);
+		if (i == deformers.end())
+		{
+			String lcaseName = name;
+			StringUtil::toLowerCase(lcaseName);
+			i = mLowerCaseDeformerMap.find(lcaseName);
+			if (i == mLowerCaseDeformerMap.end())
+			{
+				return 0;
+			}
+			else
+			{
+				return i->second;
+			}
+		}
+		else
+		{
+			return i->second;
 		}
 
 	}
@@ -199,9 +239,8 @@ namespace Ogre
 
 			String parentName = XSItoOgre(parent.GetName());
 			// Otherwise, check to see if the parent is in the deformer list
-			DeformerMap::iterator i = deformers.find(parentName);
-			DeformerEntry* parentDeformer = 0;
-			if (i == deformers.end())
+			DeformerEntry* parentDeformer = getDeformer(parentName, deformers);
+			if (!parentDeformer)
 			{
 				// not found, create entry for parent 
 				parentDeformer = new DeformerEntry(deformers.size(), parent);
@@ -210,28 +249,12 @@ namespace Ogre
 				LogOgreAndXSI(CString(L"Added ") + parent.GetName() + 
 					CString(L" as a parent of ") + child->obj.GetName() );
 			}
-			else
-			{
-				parentDeformer = i->second;
-			}
 
 			// Link child entry with parent (not bone yet)
 			// link child to parent by name
 			child->parentName = parentName;
 			parentDeformer->childNames.push_back(childName);
 
-			// Check for constrainers
-			CRefArray constraints = child->obj.GetKinematics().GetConstraints();
-			if (constraints.GetCount() > 0)
-			{
-				// only support the first constraint for now (this is a nightmare)
-				// and assume all constrained
-				Constraint constraint = constraints[0];
-				X3DObject constrainer = constraint.GetConstraining()[0];
-				DeformerEntry* centry = new DeformerEntry(0, constrainer);
-				mConstrainerMap[XSItoOgre(constrainer.GetName())] = centry;
-				child->constrainer = centry;
-			}
 
 
 
@@ -304,13 +327,6 @@ namespace Ogre
 				di->second->xsiTrack[tt].ResetObject();
 			}
 		}
-		for(DeformerMap::iterator di = mConstrainerMap.begin(); di != mConstrainerMap.end(); ++di)
-		{
-			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
-			{
-				di->second->xsiTrack[tt].ResetObject();
-			}
-		}
 		// Get all the items
 		CRefArray items = actSource.GetItems();
 		for (int i = 0; i < items.GetCount(); ++i)
@@ -327,33 +343,15 @@ namespace Ogre
 				String paramName = target.substr(lastDotPos+1, 
 					target.size() - lastDotPos - 1);
 				// locate deformer
-				DeformerMap::iterator di = deformers.find(targetName);
-				if (di != deformers.end())
+				DeformerEntry* deformer = getDeformer(targetName, deformers);
+				if (deformer)
 				{
-					DeformerEntry* deformer = di->second;
 					// determine parameter
 					std::map<String, int>::iterator pi = mXSITrackTypeNames.find(paramName);
 					if (pi != mXSITrackTypeNames.end())
 					{
 						deformer->xsiTrack[pi->second] = item;
 						deformer->hasAnyTracks = true;
-					}
-				}
-				else
-				{
-					// Check constrainers
-					di = mConstrainerMap.find(targetName);
-					if (di != mConstrainerMap.end())
-					{
-						DeformerEntry* deformer = di->second;
-						// determine parameter
-						std::map<String, int>::iterator pi = mXSITrackTypeNames.find(paramName);
-						if (pi != mXSITrackTypeNames.end())
-						{
-							deformer->xsiTrack[pi->second] = item;
-							deformer->hasAnyTracks = true;
-						}
-
 					}
 				}
 			}
@@ -465,34 +463,6 @@ namespace Ogre
 			}
 		}
 
-		if (deformer->constrainer)
-		{
-			for (int tt = XTT_POS_X; tt < XTT_COUNT; ++tt)
-			{
-				AnimationSourceItem item = deformer->xsiTrack[tt];
-				// skip invalid or non-FCurve items
-				if (!item.IsValid() || !item.GetSource().IsA(XSI::siFCurveID))
-					continue;
-
-				FCurve fcurve = item.GetSource();
-				CRefArray keys = fcurve.GetKeys();
-				for (int k = 0; k < keys.GetCount(); ++k)
-				{
-					long currFrame = fcurve.GetKeyTime(k).GetTime();
-					if (currFrame < animEntry.startFrame)
-					{
-						animEntry.startFrame = currFrame;
-					}
-					if (currFrame > animEntry.endFrame)
-					{
-						animEntry.endFrame = currFrame;
-					}
-
-					animEntry.frames.insert(currFrame);
-				}
-			}
-
-		}
 	
 
 
@@ -586,57 +556,6 @@ namespace Ogre
 				transformationMatrix.MulInPlace(invTrans);
 				transformation.SetMatrix4(transformationMatrix);
 
-				/* Hmm, don't need this after all since constrined bones do 
-				   seem to pick up animation if keyed directly. Had some problems
-				   making them part of the marking set originally is all.
-
-				if (deformer->constrainer)
-				{
-					// Add on constrainer contribution?
-					// This is one hell of a simplification but I don't really
-					// understand how constrainers work exactly
-					// Seems to work with the few COG constraints I've seen
-
-					initialTransformation = 
-						deformer->obj.GetKinematics().GetLocal().GetTransform();
-
-					invTrans = initialTransformation.GetMatrix4();
-					invTrans.InvertInPlace();
-					initialTransformation.GetTranslationValues(initposx, initposy, initposz);
-					initialTransformation.GetRotation().GetXYZAngles(initrotx, initroty, initrotz);
-					initialTransformation.GetScalingValues(initsclx, initscly, initsclz);
-
-					posx = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_POS_X], *fi, initposx);
-					posy = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_POS_Y], *fi, initposy);
-					posz = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_POS_Z], *fi, initposz);
-					rotx = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_ROT_X], *fi, initrotx);
-					roty = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_ROT_Y], *fi, initroty);
-					rotz = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_ROT_Z], *fi, initrotz);
-					sclx = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_SCL_X], *fi, initsclx);
-					scly = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_SCL_Y], *fi, initscly);
-					sclz = deriveKeyFrameValue(deformer->constrainer->xsiTrack[XTT_SCL_Z], *fi, initsclz);
-
-					XSI::MATH::CTransformation transConstrainer;
-					transConstrainer.SetTranslationFromValues(posx, posy, posz);
-					transConstrainer.SetRotationFromXYZAnglesValues(
-						XSI::MATH::DegreesToRadians(rotx),
-						XSI::MATH::DegreesToRadians(roty),
-						XSI::MATH::DegreesToRadians(rotz),
-						XSI::MATH::CRotation::RotationOrder::siXYZ);
-					XSI::MATH::CVector3 scaling(sclx, scly, sclz);
-					transConstrainer.SetScaling(scaling);
-
-
-					XSI::MATH::CMatrix4 transContainerMatrix = transConstrainer.GetMatrix4();
-					transContainerMatrix.MulInPlace(invTrans);
-					// multiply extra matrix by original
-					transformationMatrix.MulInPlace(transContainerMatrix);
-					transformation.SetMatrix4(transformationMatrix);
-				}
-				*/
-
-
-
 
 				// create keyframe
 				KeyFrame* kf = track->createKeyFrame((float)(*fi - animEntry.startFrame) / fps);
@@ -669,14 +588,10 @@ namespace Ogre
 		}
 	}
 	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::cleanupConstrainerMap(void)
+	void XsiSkeletonExporter::cleanup(void)
 	{
-		for (DeformerMap::iterator i = mConstrainerMap.begin();
-			i != mConstrainerMap.end(); ++i)
-		{
-			delete i->second;
-		}
-		mConstrainerMap.clear();
+
+		mLowerCaseDeformerMap.clear();
 
 	}
 }

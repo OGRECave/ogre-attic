@@ -59,8 +59,9 @@ namespace Ogre {
 		XSI::Application mXsiApp;
 		XSI::X3DObject mXsiSceneRoot;
 		std::map<String, int> mXSITrackTypeNames; 
-		// Constrainers of deformers
-		DeformerMap mConstrainerMap;
+		// Lower-case version of deformer map (XSI seems to be case insensitive and
+		// some animations rely on that!)
+		DeformerMap mLowerCaseDeformerMap;
 
 		/// Build the bone hierarchy from a simple list of bones
 		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerMap& deformers, 
@@ -90,8 +91,10 @@ namespace Ogre {
 		/// Derive a keyframe value from XSI's tracks
 		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame, double defaultVal);
 
-		void cleanupConstrainerMap(void);
-		
+		void cleanup(void);
+		void copyDeformerMap(DeformerMap& deformers);
+		/// Get deformer from passed in map or lower case version
+		DeformerEntry* getDeformer(const String& name, DeformerMap& deformers);
 
 	};
 
