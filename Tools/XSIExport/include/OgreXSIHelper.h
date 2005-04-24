@@ -177,6 +177,8 @@ namespace Ogre {
 		bool parentIsChainEndEffector;
 		bool hasAnyTracks;
 		Bone* pBone;
+		bool ikSample;
+		double ikSampleInterval;
 		// lists of action source items (probably only one per param?)
 		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 
@@ -203,7 +205,7 @@ namespace Ogre {
 		XSI::ActionSource source;
 		std::set<long> frames;
 		bool ikSample;
-		double ikSampleRate;
+		double ikSampleInterval;
 	};
 	/// Map from deformer name to deformer entry
 	typedef std::vector<AnimationEntry> AnimationList;

@@ -380,6 +380,17 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 						{
 							if (ai->animationName == name)
 							{
+								if (gd.GetCell(2, a))
+								{
+									// IK sample
+									ai->ikSample = true;
+									ai->ikSampleInterval = gd.GetCell(3, a);
+
+								}
+								else
+								{
+									ai->ikSample = false;
+								}
 								selAnimList.push_back(*ai);
 								break;
 							}
@@ -648,7 +659,7 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
 	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:60:60");
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:60:90");
 	item.PutAttribute(siUIGridHideRowHeader, true);
 	// Make animatino name read-only
 	item.PutAttribute(siUIGridReadOnlyColumns, L"1:0:0:0");
@@ -762,11 +773,11 @@ void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 				anim.ikSample = isAnimationIK(anim.source);
 				if (anim.ikSample)
 				{
-					anim.ikSampleRate = 6.0f;
+					anim.ikSampleInterval = 5.0f;
 				}
 				else
 				{
-					anim.ikSampleRate = 0.0f;
+					anim.ikSampleInterval = 0.0f;
 				}
 				animList.push_back(anim);
 			}
@@ -797,7 +808,7 @@ struct AnimSetting
 {
 	bool export;
 	bool ik;
-	double ikSampleRate;
+	double ikSampleInterval;
 };
 
 #ifdef unix
@@ -880,7 +891,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 				AnimSetting s;
 				s.export = gd.GetCell(1, row);
 				s.ik = gd.GetCell(2, row);
-				s.ikSampleRate = gd.GetCell(3, row);
+				s.ikSampleInterval = gd.GetCell(3, row);
 				Ogre::String animName = XSItoOgre(gd.GetCell(0, row));
 				rememberedAnimations[animName] = s;
 			}
@@ -895,7 +906,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			gd.PutColumnLabel(0, L"Name");
 			gd.PutColumnLabel(1, L"Export?");
 			gd.PutColumnLabel(2, L"IK?");
-			gd.PutColumnLabel(3, L"Sample Rate");
+			gd.PutColumnLabel(3, L"Sample Interval");
 
 
 			getAnimations(app.GetActiveSceneRoot(), animList);
@@ -914,14 +925,14 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 
 					gd.PutCell(1, row, s.export);
 					gd.PutCell(2, row, s.ik);
-					gd.PutCell(3, row, s.ikSampleRate);
+					gd.PutCell(3, row, s.ikSampleInterval);
 				}
 				else
 				{
 					// default to true
 					gd.PutCell(1, row, true);
 					gd.PutCell(2, row, a->ikSample);
-					gd.PutCell(3, row, a->ikSampleRate);
+					gd.PutCell(3, row, a->ikSampleInterval);
 				}
 			}
 			
