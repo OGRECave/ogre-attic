@@ -49,6 +49,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_transformation.h>
 #include <xsi_vector3.h>
 #include <xsi_constraint.h>
+#include <xsi_track.h>
+#include <xsi_clip.h>
+#include <xsi_selection.h>
 
 using namespace XSI;
 
@@ -71,7 +74,6 @@ namespace Ogre
 	//-----------------------------------------------------------------------------
 	XsiSkeletonExporter::~XsiSkeletonExporter()
 	{
-		cleanup();
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::exportSkeleton(const String& skeletonFileName, 
@@ -79,14 +81,19 @@ namespace Ogre
 	{
 		LogOgreAndXSI(L"** Begin OGRE Skeleton Export **");
 
-		cleanup();
-
 		copyDeformerMap(deformers);
 
 		SkeletonPtr skeleton = SkeletonManager::getSingleton().create("export",
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 		// construct the hierarchy
 		buildBoneHierarchy(skeleton.get(), deformers, animList);
+
+		// pre-parse all animations for lengths
+		determineAnimationLengths(animList);
+
+		// Any IK should be converted to FK
+		convertIKtoFK(deformers, animList);
+
 		// progress report
 		ProgressManager::getSingleton().progress();
 
@@ -105,6 +112,7 @@ namespace Ogre
 
 		LogOgreAndXSI(L"** OGRE Skeleton Export Complete **");
 
+		cleanup();
 
 	}
 	//-----------------------------------------------------------------------------
@@ -368,8 +376,6 @@ namespace Ogre
 			// tease out all the animation source items
 			processActionSource(animEntry.source, deformers);
 
-			determineAnimationLength(animEntry);
-
 			float animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
 			StringUtil::StrStreamType str;
 			str << "Creating animation " << animEntry.animationName << 
@@ -379,6 +385,15 @@ namespace Ogre
 
 			createAnimationTracks(anim, animEntry, deformers, fps);
 			
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::determineAnimationLengths(AnimationList& animList)
+	{
+		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
+		{
+			AnimationEntry& animEntry = *ai;
+			determineAnimationLength(animEntry);
 		}
 	}
 	//-----------------------------------------------------------------------------
@@ -593,5 +608,218 @@ namespace Ogre
 
 		mLowerCaseDeformerMap.clear();
 
+		CValueArray args;
+		CValue dummy;
+		args.Resize(1);
+
+		/*
+		for (int i = 0; i < mIKSampledAnimations.GetCount(); ++i)
+		{
+			args[0] = mIKSampledAnimations[i];
+			mXsiApp.ExecuteCommand(L"DeleteObj", args, dummy);
+		}
+		mIKSampledAnimations.Clear();
+		*/
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::convertIKtoFK(DeformerMap& deformers, AnimationList& animList)
+	{
+		// Save the current selection
+		CString seltext(mXsiApp.GetSelection().GetAsText());
+
+		// Clear current animation
+		CValueArray args;
+		CValue dummy;
+		mXsiApp.ExecuteCommand(L"SelectAll", args, dummy);
+		mXsiApp.ExecuteCommand(L"RemoveAllAnimation", args, dummy);
+
+		// Bake each animation into FK
+		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
+		{
+			if (ai->ikSample)
+			{
+				convertIKtoFK(deformers, *ai);
+			}
+		}
+
+		// Reset selection
+		mXsiApp.GetSelection().SetAsText(seltext);
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::convertIKtoFK(DeformerMap& deformers, AnimationEntry& anim)
+	{
+		Model model = placeAnimationInMixer(anim);
+
+		CString boneSelection;
+		buildBoneSelectionString(deformers, boneSelection);
+
+		// Set up marking
+		CValueArray args;
+		CValue dummy;
+		mXsiApp.ExecuteCommand(L"ClearMarking", args, dummy);
+		args.Resize(1);
+
+		args[0] = L"kine.local.pos.posx";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[1] = L"kine.local.pos.posy";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.pos.posz";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.ori.euler.rotx";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.ori.euler.roty";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.ori.euler.rotz";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.scl.sclx";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.scl.scly";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+		args[0] = L"kine.local.scl.sclz";
+		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
+
+		// Select all bones
+		args[0] = boneSelection;
+		mXsiApp.ExecuteCommand(L"SelectObj", args, dummy);
+
+		// Iterate over frames, keying as we go
+		int numFrames = anim.endFrame - anim.startFrame;
+		if (anim.ikSampleInterval == 0)
+		{
+			// Don't allow zero samplign frequency - infinite loop!
+			anim.ikSampleInterval = 5.0f;
+		}
+		args.Resize(2);
+		for (int frame = 0; frame < numFrames; frame += anim.ikSampleInterval)
+		{
+			args[1] = (double)frame;
+			args[0] = L"PlayControl.Key";
+			mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+			args[0] = L"PlayControl.Current";
+			mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+			
+			mXsiApp.ExecuteCommand(L"SaveKey", CValueArray(), dummy);
+
+		}
+		// do end frame
+		args[1] = (double)numFrames;
+		args[0] = L"PlayControl.Key";
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+		args[0] = L"PlayControl.Current";
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+
+		mXsiApp.ExecuteCommand(L"SaveKey", CValueArray(), dummy);
+
+		// Push current animation into a new action source
+		CString newActionName = anim.source.GetName() + L"_FK";
+		mIKSampledAnimations.Add(newActionName);
+
+		args.Resize(4);
+		args[0] = model.GetFullName();
+		args[1].Detach(); // use default (selection)
+		args[2] = (long)2; // put fcurves (allows us to resample in between if required)
+		args[3] = newActionName;
+		CValue retSource;
+		mXsiApp.ExecuteCommand(L"StoreAction", args, retSource);
+
+		// remove the clip we added
+		Mixer mixer(model.GetMixer());
+		removeAllFromMixer(mixer);
+
+		// Now update the animation reference
+		ActionSource newActionSource(retSource);
+		if (!newActionSource.IsValid())
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				"Unable to retrieve the new FK action '" + XSItoOgre(newActionName) + "'", 
+				"OGRE XSI Exporter");
+		}
+		anim.source = newActionSource;
+
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::removeAllFromMixer(Mixer& mixer)
+	{
+		CRefArray tracks(mixer.GetTracks());
+		for (int t = 0; t < tracks.GetCount(); ++t)
+		{
+			Track track(tracks[t]);
+			CRefArray clips(track.GetClips());
+			for (int c = 0; c < clips.GetCount(); ++c)
+			{
+				Clip clip(clips[c]);
+				CValueArray args;
+				CValue dummy;
+				args.Add(clip.GetFullName());
+				mXsiApp.ExecuteCommand(L"DeleteObj", args, dummy);
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------------
+	XSI::Mixer XsiSkeletonExporter::getMixer(AnimationEntry& anim)
+	{
+		Model model(anim.source.GetModel());
+		if (!model.HasMixer())
+		{
+			model = mXsiApp.GetActiveSceneRoot();
+		}
+		return model.GetMixer();
+	}
+	//-----------------------------------------------------------------------------
+	XSI::Model XsiSkeletonExporter::placeAnimationInMixer(AnimationEntry& anim)
+	{
+		Mixer mixer(getMixer(anim));
+		Model model(mixer.GetModel()) ;
+
+		removeAllFromMixer(mixer);
+
+		// Clear all clips from the mixer
+
+		CValueArray args;
+		CValue dummy;
+
+		// Add the new clip to the mixer
+		CRefArray tracks(mixer.GetTracks());
+		if (tracks.GetCount() == 0)
+		{
+			// Must be at least one track
+			args.Resize(3);
+			args[0] = model.GetFullName();
+			args[1] = mixer.GetFullName();
+			args[2] = 0.0f;
+			mXsiApp.ExecuteCommand(L"AddTrack", args, dummy);
+			tracks = mixer.GetTracks();
+		}
+		Track instrack(tracks[0]);
+		args.Resize(5);
+		args[0] = model.GetFullName(); // target model
+		args[1] = anim.source.GetFullName(); // source
+		args[2] = L""; // compound clip
+		args[3] = instrack.GetFullName();
+		args[4] = 0.0f; // start frame
+		mXsiApp.ExecuteCommand(L"AddClip", args, dummy);
+
+		return model;
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::buildBoneSelectionString(DeformerMap& deformers, 
+		XSI::CString& str)
+	{
+		bool first = true;
+		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
+		{
+			if (!first)
+			{
+				str += L",";
+			}
+			DeformerEntry* deformer = i->second;
+			str += deformer->obj.GetFullName();
+			first = false;
+		}
 	}
 }
