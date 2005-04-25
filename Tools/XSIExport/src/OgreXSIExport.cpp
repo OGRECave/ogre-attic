@@ -165,7 +165,6 @@ XSI::CStatus OgreMeshExportCommand_Init( const XSI::CRef& context )
 	ArgumentArray args = cmd.GetArguments();
 
     args.Add( L"objectName", L"" );
-    args.Add( L"exportMesh", L"true" );
 	args.Add( L"targetMeshFileName", L"c:/default.mesh" );
 	args.Add( L"calculateEdgeLists", L"true" );
     args.Add( L"calculateTangents", L"false" );
@@ -336,7 +335,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			
 			// determine number of exportsteps
-			size_t numSteps = 3;
+			size_t numSteps = 3 + 20;
 			if (numlods > 0)
 				numSteps++;
 			if (edgeLists)
@@ -370,6 +369,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				param = prop.GetParameters().GetItem( L"animationList" );
 				GridData gd = param.GetValue();
 				Ogre::AnimationList selAnimList;
+				bool anyIKSample = false;
 				for (int a = 0; a < gd.GetRowCount(); ++a)
 				{
 					if (gd.GetCell(1, a) == true)
@@ -385,6 +385,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 									// IK sample
 									ai->ikSample = true;
 									ai->ikSampleInterval = gd.GetCell(3, a);
+									anyIKSample = true;
 
 								}
 								else
@@ -396,6 +397,25 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 							}
 						}
 					}
+				}
+
+				// Warn about effect of IK sampling
+				if (anyIKSample)
+				{
+					long btn;
+					CStatus ret = app.GetUIToolkit().MsgBox(
+						L"You have chosen to sample one or more of your "
+						L"animations (in order to convert IK or other "
+						L"constraint-based animation). \n\n This will require "
+						L"all animation which has not yet been stored in an "
+						L"action to be removed, and the mixer to be cleared. "
+						L"Is this OK?", 
+						siMsgYesNo,
+						L"Animation sampling required",
+						btn);
+					if (btn != 6)
+						return CStatus::Fail;
+					
 				}
 
 				// Truncate the skeleton filename to just the name (no path)
@@ -500,10 +520,6 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 		L"objects",CValue::siRefArray, caps, 
 		L"Collection of selected objects", L"", 
 		nullValue, param) ;	
-	prop.AddParameter(	
-        L"exportMesh",CValue::siBool, caps, 
-		L"Export Mesh", L"", 
-		CValue(true), param) ;	
 	prop.AddParameter(	
         L"targetMeshFileName",CValue::siString, caps, 
 		L"Mesh Filename", L"", 
@@ -617,7 +633,6 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	*/
 
 	oLayout.AddGroup(L"Mesh");
-    item = oLayout.AddItem(L"exportMesh") ;
     item = oLayout.AddItem(L"targetMeshFileName", L"Target", siControlFilePath);
 	item.PutAttribute( siUINoLabel, true );
 	item.PutAttribute( siUIFileFilter, L"OGRE Mesh format (*.mesh)|*.mesh|All Files (*.*)|*.*||" );

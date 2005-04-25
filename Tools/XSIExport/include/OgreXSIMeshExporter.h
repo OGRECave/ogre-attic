@@ -162,7 +162,7 @@ namespace Ogre {
 		/// Build the mesh
 		void buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments);
 		/// Process a single PolygonMesh into one or more ProtoSubMeshes
-		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments);
+		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments, unsigned short progressUpdates);
 		/// Find deformers and bone assignments
 		void processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm);
 		
