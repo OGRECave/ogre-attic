@@ -612,14 +612,12 @@ namespace Ogre
 		CValue dummy;
 		args.Resize(1);
 
-		/*
 		for (int i = 0; i < mIKSampledAnimations.GetCount(); ++i)
 		{
 			args[0] = mIKSampledAnimations[i];
 			mXsiApp.ExecuteCommand(L"DeleteObj", args, dummy);
 		}
 		mIKSampledAnimations.Clear();
-		*/
 
 	}
 	//-----------------------------------------------------------------------------
@@ -663,7 +661,7 @@ namespace Ogre
 
 		args[0] = L"kine.local.pos.posx";
 		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[1] = L"kine.local.pos.posy";
+		args[0] = L"kine.local.pos.posy";
 		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
 		args[0] = L"kine.local.pos.posz";
 		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
