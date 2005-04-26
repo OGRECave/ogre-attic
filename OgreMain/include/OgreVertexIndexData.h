@@ -165,9 +165,59 @@ namespace Ogre {
 		@remarks The caller is expected to delete the returned pointer when finished
 		*/
 		IndexData* clone(bool copyData = true) const;
+
+		/** Re-order the indexes in this index data structure to be more
+			vertex cache friendly; that is to re-use the same vertices as close
+			together as possible. 
+		@remarks
+			Can only be used for index data which consists of triangle lists.
+			It would in fact be pointless to use it on triangle strips or fans
+			in any case.
+		*/
+		void optimiseVertexCacheTriList(void);
+	
 	};
 
+	/** Vertex cache profiler.
+	@remarks
+		Utility class for evaluating the effectiveness of the use of the vertex
+		cache by a given index buffer.
+	*/
+	class _OgreExport VertexCacheProfiler
+    {
+		public:
+			enum CacheType {
+				FIFO, LRU
+			};
 
+			VertexCacheProfiler(unsigned int cachesize = 16, CacheType cachetype = FIFO )
+				: size ( cachesize ), type ( cachetype ), hit (0), miss (0), tail (0), buffersize (0)
+			{
+				cache = new uint32[size];
+			};
+
+			~VertexCacheProfiler()
+			{
+				delete[] cache;
+			}
+
+			void profile(const HardwareIndexBufferSharedPtr indexBuffer);
+			void reset() { hit = 0; miss = 0; tail = 0; buffersize = 0; };
+			void flush() { tail = 0; buffersize = 0; };
+
+			unsigned int getHits() { return hit; };
+			unsigned int getMisses() { return miss; };
+			unsigned int getSize() { return size; };
+		private:
+			unsigned int size;
+			uint32 *cache;
+			CacheType type;
+
+			unsigned int tail, buffersize;
+			unsigned int hit, miss;
+
+			bool inCache(unsigned int index);
+	};
 }
 #endif
 
