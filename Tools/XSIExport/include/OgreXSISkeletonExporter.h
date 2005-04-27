@@ -108,6 +108,7 @@ namespace Ogre {
 		XSI::Mixer getMixer(AnimationEntry& anim);
 		void removeAllFromMixer(XSI::Mixer& mixer);
 		void buildBoneSelectionString(DeformerMap& deformers, XSI::CString& str);
+		void keyAllBones(DeformerMap& deformers, double frame);
 
 	};
 

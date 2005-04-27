@@ -656,8 +656,9 @@ namespace Ogre
 		// Set up marking
 		CValueArray args;
 		CValue dummy;
-		mXsiApp.ExecuteCommand(L"ClearMarking", args, dummy);
 		args.Resize(1);
+
+		mXsiApp.ExecuteCommand(L"ClearMarking", args, dummy);
 
 		args[0] = L"kine.local.pos.posx";
 		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
@@ -678,37 +679,29 @@ namespace Ogre
 		args[0] = L"kine.local.scl.sclz";
 		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
 
-		// Select all bones
+		// Set marking set, and select all bones
 		args[0] = boneSelection;
+		mXsiApp.ExecuteCommand(L"CreateMarkingSet", args, dummy);
 		mXsiApp.ExecuteCommand(L"SelectObj", args, dummy);
 
+		// Activate marking set
+		args[0] = L"MarkingSet";
+		mXsiApp.ExecuteCommand(L"SetMarking", args, dummy);
+
 		// Iterate over frames, keying as we go
-		int numFrames = anim.endFrame - anim.startFrame;
+		double numFrames = anim.endFrame - anim.startFrame;
 		if (anim.ikSampleInterval == 0)
 		{
 			// Don't allow zero samplign frequency - infinite loop!
 			anim.ikSampleInterval = 5.0f;
 		}
 		args.Resize(2);
-		for (int frame = 0; frame < numFrames; frame += anim.ikSampleInterval)
+		for (double frame = 0; frame < numFrames; frame += anim.ikSampleInterval)
 		{
-			args[1] = (double)frame;
-			args[0] = L"PlayControl.Key";
-			mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
-			args[0] = L"PlayControl.Current";
-			mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
-			
-			mXsiApp.ExecuteCommand(L"SaveKey", CValueArray(), dummy);
-
+			keyAllBones(deformers, frame);
 		}
 		// do end frame
-		args[1] = (double)numFrames;
-		args[0] = L"PlayControl.Key";
-		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
-		args[0] = L"PlayControl.Current";
-		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
-
-		mXsiApp.ExecuteCommand(L"SaveKey", CValueArray(), dummy);
+		keyAllBones(deformers, numFrames);
 
 		// Push current animation into a new action source
 		CString newActionName = anim.source.GetName() + L"_FK";
@@ -819,5 +812,52 @@ namespace Ogre
 			str += deformer->obj.GetFullName();
 			first = false;
 		}
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::keyAllBones(DeformerMap& deformers, double frame)
+	{
+		CValueArray args;
+		CValue dummy;
+
+		args.Resize(2);
+		args[0] = L"PlayControl.Key";
+		args[1] = frame;
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+		args[0] = L"PlayControl.Current";
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+
+		args.Resize(1);
+
+		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
+		{
+			DeformerEntry* deformer = i->second;
+			CString str;
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.posx,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.posy,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.posz,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.rotx,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.roty,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.rotz,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.sclx,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.scly,";
+			str += deformer->obj.GetFullName();
+			str += L".kine.local.sclz";
+
+			// Ensure kinematics up to date!
+			deformer->obj.GetKinematics().GetLocal().GetTransform();
+			deformer->obj.GetKinematics().GetGlobal().GetTransform();
+
+			args[0] = str;
+			mXsiApp.ExecuteCommand(L"SaveKey", args, dummy);
+		}
+
 	}
 }
