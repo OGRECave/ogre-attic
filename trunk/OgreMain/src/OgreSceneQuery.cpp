@@ -180,12 +180,10 @@ namespace Ogre {
     {
         mSortByDistance = false;
         mMaxResults = 0;
-        mLastResult = NULL;
     }
     //-----------------------------------------------------------------------
     RaySceneQuery::~RaySceneQuery()
     {
-        clearResults();
     }
     //-----------------------------------------------------------------------
     void RaySceneQuery::setRay(const Ray& ray)
@@ -216,48 +214,39 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RaySceneQueryResult& RaySceneQuery::execute(void)
     {
-        clearResults();
-        mLastResult = new RaySceneQueryResult();
+        // Clear without freeing the vector buffer
+        mResult.clear();
+        
         // Call callback version with self as listener
         this->execute(this);
 
         if (mSortByDistance)
         {
-            // Perform sort
-            mLastResult->sort();
-
-            if (mMaxResults && mLastResult->size() > mMaxResults)
+            if (mMaxResults != 0 && mMaxResults < mResult.size())
             {
-                // Constrain to maxresults
-                RaySceneQueryResult::iterator start;
-                int x = 0;
-                for(start = mLastResult->begin(); x < mMaxResults; ++x)
-                {
-                    // Increment deletion start point
-                    ++start;
-                }
-                // erase
-                mLastResult->erase(start, mLastResult->end());
+                // Partially sort the N smallest elements, discard others
+                std::partial_sort(mResult.begin(), mResult.begin()+mMaxResults, mResult.end());
+                mResult.resize(mMaxResults);
+            }
+            else
+            {
+                // Sort entire result array
+                std::sort(mResult.begin(), mResult.end());
             }
         }
 
-        return *mLastResult;
-
+        return mResult;
     }
     //-----------------------------------------------------------------------
-    RaySceneQueryResult& RaySceneQuery::getLastResults(void) const
+    RaySceneQueryResult& RaySceneQuery::getLastResults(void)
     {
-        assert (mLastResult);
-        return *mLastResult;
+        return mResult;
     }
     //-----------------------------------------------------------------------
     void RaySceneQuery::clearResults(void)
     {
-        if (mLastResult)
-        {
-            delete mLastResult;
-        }
-        mLastResult = NULL;
+        // C++ idiom to free vector buffer: swap with empty vector
+        RaySceneQueryResult().swap(mResult);
     }
     //-----------------------------------------------------------------------
     bool RaySceneQuery::queryResult(MovableObject* obj, Real distance)
@@ -267,7 +256,7 @@ namespace Ogre {
         dets.distance = distance;
         dets.movable = obj;
         dets.worldFragment = NULL;
-        mLastResult->push_back(dets);
+        mResult.push_back(dets);
         // Continue
         return true;
     }
@@ -279,7 +268,7 @@ namespace Ogre {
         dets.distance = distance;
         dets.movable = NULL;
         dets.worldFragment = fragment;
-        mLastResult->push_back(dets);
+        mResult.push_back(dets);
         // Continue
         return true;
     }

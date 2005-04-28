@@ -345,7 +345,7 @@ namespace Ogre {
         }
 
     };
-    typedef std::list<RaySceneQueryResultEntry> RaySceneQueryResult;
+    typedef std::vector<RaySceneQueryResultEntry> RaySceneQueryResult;
 
     /** Specialises the SceneQuery class for querying along a ray. */
     class _OgreExport RaySceneQuery : public SceneQuery, public RaySceneQueryListener
@@ -354,7 +354,7 @@ namespace Ogre {
         Ray mRay;
         bool mSortByDistance;
         ushort mMaxResults;
-        RaySceneQueryResult* mLastResult;
+        RaySceneQueryResult mResult;
 
     public:
         RaySceneQuery(SceneManager* mgr);
@@ -409,7 +409,7 @@ namespace Ogre {
         /** Gets the results of the last query that was run using this object, provided
             the query was executed using the collection-returning version of execute. 
         */
-        virtual RaySceneQueryResult& getLastResults(void) const;
+        virtual RaySceneQueryResult& getLastResults(void);
         /** Clears the results of the last query execution.
         @remarks
             You only need to call this if you specifically want to free up the memory
