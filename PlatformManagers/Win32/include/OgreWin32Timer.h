@@ -33,6 +33,7 @@ namespace Ogre {
     class Win32Timer : public Timer
     {
     private:
+        DWORD mStartTick;
         LARGE_INTEGER mStartTime;
         LARGE_INTEGER mFrequency;
 
