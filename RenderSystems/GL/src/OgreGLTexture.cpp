@@ -199,7 +199,7 @@ namespace Ogre {
 				if(height>1)	height = height/2;
 				if(depth>1)		depth = depth/2;
 			}
-			delete tmpdata;
+			delete [] tmpdata;
 		}
 		else
 		{
