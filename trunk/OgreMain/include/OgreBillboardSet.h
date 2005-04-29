@@ -167,6 +167,9 @@ namespace Ogre {
         /// Flag indicating whether each billboard should be culled separately (default: false)
         bool mCullIndividual;
 
+        typedef std::vector< Ogre::FloatRect > TextureCoordSets;
+        TextureCoordSets mTextureCoords;
+
         /// The type of billboard to render
         BillboardType mBillboardType;
 
@@ -566,6 +569,57 @@ namespace Ogre {
         */
         virtual void setBillboardsInWorldSpace(bool ws) { mWorldSpace = ws; }
 
+        /** BillboardSet can use custom texture coordinates for various billboards. 
+            This is useful for selecting one of many particle images out of a tiled 
+            texture sheet, or doing flipbook animation within a single texture.
+          @par
+            The generic functionality is setTextureCoords(), which will copy the 
+            texture coordinate rects you supply into internal storage for the 
+            billboard set. If your texture sheet is a square grid, you can also 
+            use setTextureStacksAndSlices() for more convenience, which will construct 
+            the set of texture coordinates for you.
+          @par
+            When a Billboard is created, it can be assigned a texture coordinate 
+            set from within the sets you specify (that set can also be re-specified 
+            later). When drawn, the billboard will use those texture coordinates, 
+            rather than the full 0-1 range.
+          @par
+          @param coords is a vector of texture coordinates (in UV space) to choose 
+            from for each billboard created in the set.
+          @param numCoords is how many such coordinate rectangles there are to 
+            choose from.
+          @remarks
+            Set 'coords' to 0 and/or 'numCoords' to 0 to reset the texture coord 
+            rects to the initial set of a single rectangle spanning 0 through 1 in 
+            both U and V (i e, the entire texture).
+          @see
+            BillboardSet::setTextureStacksAndSlices()
+            Billboard::setTexCoords()
+          */
+        virtual void setTextureCoords( Ogre::FloatRect const * coords, uint16 numCoords );
+
+        /** setTextureStacksAndSlices() will generate texture coordinate rects as if the 
+            texture for the billboard set contained 'stacks' rows of 'slices' 
+            images each, all equal size. Thus, if the texture size is 512x512 
+            and 'stacks' is 4 and 'slices' is 8, each sub-rectangle of the texture 
+            would be 128 texels tall and 64 texels wide.
+          @remarks
+            This function is short-hand for creating a regular set and calling 
+            setTextureCoords() yourself. The numbering used for Billboard::setTexCoords() 
+            counts first across, then down, so top-left is 0, the one to the right 
+            of that is 1, and the lower-right is stacks*slices-1.
+          @see
+            BillboardSet::setTextureCoords()
+          */
+        virtual void setTextureStacksAndSlices( uchar stacks, uchar slices );
+
+        /** getTextureCoords() returns the current texture coordinate rects in 
+            effect. By default, there is only one texture coordinate rect in the 
+            set, spanning the entire texture from 0 through 1 in each direction.
+          @see
+            BillboardSet::setTextureCoords()
+          */
+        virtual Ogre::FloatRect const * getTextureCoords( uint16 * oNumCoords );
     };
 
 }
