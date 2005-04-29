@@ -144,6 +144,7 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Debug\plugins.cfg"
   File "..\..\Samples\Common\bin\Debug\terrain.cfg"
   File "..\..\Samples\Common\bin\Debug\media.cfg"
+  File "..\..\Samples\Common\bin\Debug\quake3settings.cfg"
   ; Binaries - release
   SetOutPath "$INSTDIR\bin\release"
   SetOverwrite ifnewer

@@ -79,6 +79,8 @@ namespace Ogre {
         mPixelScaleY = 1.0;
         mSourceTemplate = NULL;
 		mInitialised = false;
+		// default overlays to preserve their own detail level
+		mRenderDetailOverrideable = false;
     }
     //---------------------------------------------------------------------
     OverlayElement::~OverlayElement()

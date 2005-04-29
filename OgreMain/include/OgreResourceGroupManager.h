@@ -661,6 +661,20 @@ namespace Ogre {
         */
         void _notifyWorldGeometryStageEnded(void);
 
+		/** Get a list of the currently defined resource groups. 
+		@note This method intentionally returns a copy rather than a reference in
+			order to avoid any contention issues in multithreaded applications.
+		@returns A copy of list of currently defined groups.
+		*/
+		StringVector getResourceGroups(void);
+		/** Get the list of resource declarations for the specified group name. 
+		@note This method intentionally returns a copy rather than a reference in
+			order to avoid any contention issues in multithreaded applications.
+		@param groupName The name of the group
+		@returns A copy of list of currently defined resources.
+		*/
+		ResourceDeclarationList getResourceDeclarationList(const String& groupName);
+
 		/** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton

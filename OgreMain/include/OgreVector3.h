@@ -580,6 +580,35 @@ namespace Ogre
             return Vector3( *this - ( 2 * this->dotProduct(normal) * normal ) );
         }
 
+		/** Returns whether this vector is within a positional tolerance
+			of another vector.
+		@param rhs The vector to compare with
+		@param tolerance The amount that each element of the vector may vary by 
+			and still be considered equal
+		*/
+		inline bool positionEquals(const Vector3& rhs, Real tolerance = 1e-03)
+		{
+			return Math::RealEqual(x, rhs.x, tolerance) &&
+				Math::RealEqual(y, rhs.y, tolerance) &&
+				Math::RealEqual(z, rhs.z, tolerance);
+			
+		}
+		/** Returns whether this vector is within a directional tolerance
+			of another vector.
+		@param rhs The vector to compare with
+		@param tolerance The maximum angle by which the vectors may vary and
+			still be considered equal
+		*/
+		inline bool directionEquals(const Vector3& rhs, 
+			const Radian& tolerance)
+		{
+			Real dot = dotProduct(rhs);
+			Radian angle = Math::ACos(dot);
+
+			return Math::Abs(angle.valueRadians()) <= tolerance.valueRadians();
+			
+		}
+
         // special points
         static const Vector3 ZERO;
         static const Vector3 UNIT_X;

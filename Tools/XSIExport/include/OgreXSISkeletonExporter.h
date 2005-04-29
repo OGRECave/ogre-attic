@@ -33,6 +33,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_string.h>
 #include <xsi_application.h>
 #include <xsi_actionsource.h>
+#include <xsi_mixer.h>
+
 
 namespace Ogre {
 
@@ -59,6 +61,11 @@ namespace Ogre {
 		XSI::Application mXsiApp;
 		XSI::X3DObject mXsiSceneRoot;
 		std::map<String, int> mXSITrackTypeNames; 
+		// Lower-case version of deformer map (XSI seems to be case insensitive and
+		// some animations rely on that!)
+		DeformerMap mLowerCaseDeformerMap;
+		// Actions created as part of IK sampling, will be deleted afterward
+		XSI::CStringArray mIKSampledAnimations;
 
 		/// Build the bone hierarchy from a simple list of bones
 		void buildBoneHierarchy(Skeleton* pSkeleton, DeformerMap& deformers, 
@@ -81,13 +88,27 @@ namespace Ogre {
 		/// Bake animation tracks, and return the time length found
 		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
 			DeformerMap& deformers, float fps);
+		/// Get the length of all animations
+		void determineAnimationLengths(AnimationList& animList);		
 		/// Get the length of an animation
 		void determineAnimationLength(AnimationEntry& animEntry);		
 		/// Pre-parse the deformers animation to find the keyframe numbers
 		void buildKeyframeList(DeformerEntry* deformer, AnimationEntry& animEntry);		
 		/// Derive a keyframe value from XSI's tracks
 		double deriveKeyFrameValue(XSI::AnimationSourceItem item, long frame, double defaultVal);
-		
+
+		void cleanup(void);
+		void copyDeformerMap(DeformerMap& deformers);
+		/// Get deformer from passed in map or lower case version
+		DeformerEntry* getDeformer(const String& name, DeformerMap& deformers);
+		/// Sample IK animation into FK
+		void convertIKtoFK(DeformerMap& deformers, AnimationList& animList);
+		void convertIKtoFK(DeformerMap& deformers, AnimationEntry& anim);
+		XSI::Model placeAnimationInMixer(AnimationEntry& anim);
+		XSI::Mixer getMixer(AnimationEntry& anim);
+		void removeAllFromMixer(XSI::Mixer& mixer);
+		void buildBoneSelectionString(DeformerMap& deformers, XSI::CString& str);
+		void keyAllBones(DeformerMap& deformers, double frame);
 
 	};
 

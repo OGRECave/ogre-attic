@@ -105,17 +105,25 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
     void D3D9GpuVertexProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
     {
-        // Create the shader
-        HRESULT hr = mpDevice->CreateVertexShader( 
-            static_cast<DWORD*>(microcode->GetBufferPointer()), 
-            &mpVertexShader);
+		if (isSupported())
+		{
+			// Create the shader
+			HRESULT hr = mpDevice->CreateVertexShader( 
+				static_cast<DWORD*>(microcode->GetBufferPointer()), 
+				&mpVertexShader);
 
-        if (FAILED(hr))
-        {
-            OGRE_EXCEPT(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
-                "D3D9GpuVertexProgram::loadFromMicrocode");
-            
-        }
+			if (FAILED(hr))
+			{
+				OGRE_EXCEPT(hr, "Cannot create D3D9 vertex shader " + mName + " from microcode.",
+					"D3D9GpuVertexProgram::loadFromMicrocode");
+	            
+			}
+		}
+		else
+		{
+			LogManager::getSingleton().logMessage(
+				"Unsupported D3D9 vertex shader '" + mName + "' was not loaded.");
+		}
     }
 	//-----------------------------------------------------------------------------
     void D3D9GpuVertexProgram::unloadImpl(void)
@@ -135,17 +143,25 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
     void D3D9GpuFragmentProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
     {
-        // Create the shader
-        HRESULT hr = mpDevice->CreatePixelShader(
-            static_cast<DWORD*>(microcode->GetBufferPointer()), 
-            &mpPixelShader);
+		if (isSupported())
+		{
+			// Create the shader
+			HRESULT hr = mpDevice->CreatePixelShader(
+				static_cast<DWORD*>(microcode->GetBufferPointer()), 
+				&mpPixelShader);
 
-        if (FAILED(hr))
-        {
-            OGRE_EXCEPT(hr, "Cannot create D3D9 pixel shader " + mName + " from microcode.",
-                "D3D9GpuFragmentProgram::loadFromMicrocode");
-            
-        }
+			if (FAILED(hr))
+			{
+				OGRE_EXCEPT(hr, "Cannot create D3D9 pixel shader " + mName + " from microcode.",
+					"D3D9GpuFragmentProgram::loadFromMicrocode");
+	            
+			}
+		}
+		else
+		{
+			LogManager::getSingleton().logMessage(
+				"Unsupported D3D9 pixel shader '" + mName + "' was not loaded.");
+		}
     }
 	//-----------------------------------------------------------------------------
     void D3D9GpuFragmentProgram::unloadImpl(void)

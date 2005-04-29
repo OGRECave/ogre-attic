@@ -1301,7 +1301,7 @@ namespace Ogre {
 	StaticGeometry::GeometryBucket::GeometryBucket(MaterialBucket* parent,
 		const String& formatString, const VertexData* vData, 
 		const IndexData* iData)
-		: mParent(parent), mFormatString(formatString)
+		: Renderable(), mParent(parent), mFormatString(formatString)
 	{
 		// Clone the structure from the example
 		mVertexData = vData->clone(false);

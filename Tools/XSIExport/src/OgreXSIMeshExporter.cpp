@@ -172,6 +172,11 @@ namespace Ogre {
 		return mXsiMaterialMap;
 	}
 	//-----------------------------------------------------------------------
+	TextureProjectionMap& XsiMeshExporter::getTextureProjectionMap(void)
+	{
+		return mTextureProjectionMap;
+	}
+	//-----------------------------------------------------------------------
 	void XsiMeshExporter::buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments)
 	{
 		/* Iterate over the list of polygon meshes that we've already located.
@@ -188,11 +193,17 @@ namespace Ogre {
 		    
 			Finally, we bake any remaining protosubmeshes into submeshes.
 		*/
+		// Calculate the number of progress updates each mesh must raise
+		float progPerMesh = 20.0f / (float)(mXsiPolygonMeshList.size());
+		float currProg = 0.0f;
 		for (PolygonMeshList::iterator pm = mXsiPolygonMeshList.begin();
 			pm != mXsiPolygonMeshList.end(); ++pm)
 		{
+			currProg += progPerMesh;
+			unsigned short progUpdates = (unsigned short)currProg;
+			currProg -= progUpdates;
 			// build contents of this polymesh into ProtoSubMesh(es)
-			processPolygonMesh(pMesh, *pm, lookForBoneAssignments);
+			processPolygonMesh(pMesh, *pm, lookForBoneAssignments, progUpdates);
 
 			if (!mergeSubmeshes)
 			{
@@ -268,11 +279,16 @@ namespace Ogre {
 	}
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* xsiMesh, 
-		bool lookForBoneAssignments)
+		bool lookForBoneAssignments, unsigned short progressUpdates)
 	{
 		// Pre-process the mesh
 		if (!preprocessPolygonMesh(xsiMesh))
+		{
+			while(progressUpdates--)
+				ProgressManager::getSingleton().progress();
+
 			return;
+		}
 		
         // Retrieve all the XSI relevant summary info
         CPointRefArray pointArray(xsiMesh->mesh.GetPoints());
@@ -301,7 +317,9 @@ namespace Ogre {
         Vector3 min, max;
         bool first = true;
 
-        // Iterate through all the triangles
+		float progPerTri = (float)progressUpdates / triArray.GetCount();
+		float prog = 0.0f;
+		// Iterate through all the triangles
         // There will often be less positions than normals and UVs
         // But TrianglePoint
         for (long t = 0; t < triArray.GetCount(); ++t)
@@ -390,7 +408,16 @@ namespace Ogre {
 					max.makeCeil(vertex.position);
 				}
             }
-        }
+		
+			// Progress
+			prog += progPerTri;
+			while (prog >= 1.0f)
+			{
+				ProgressManager::getSingleton().progress();
+				prog -= 1.0f;
+			}
+
+		}
 
 		// Merge bounds
 		AxisAlignedBox box;
@@ -462,6 +489,10 @@ namespace Ogre {
 			// get Elements from uvspace Property
             ClusterProperty uvProp(uvClusterPropertiesRefArray[i]);
 			CClusterPropertyElementArray uvElements = uvProp.GetElements();
+
+			// Add this to an map from uv set name to index
+			String textureProjectionName = XSItoOgre(uvProp.GetName());
+			mTextureProjectionMap[textureProjectionName] = i;
 
 			// Now, each Element here is actually a CDoubleArray of the u,v,w values
 			// However it's not in order of samplers, we need to use the Array

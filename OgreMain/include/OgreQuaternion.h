@@ -165,6 +165,9 @@ namespace Ogre {
 		Radian getPitch(void) const;
    		/// Calculate the local yaw element of this quaternion
 		Radian getYaw(void) const;		
+		/// Equality with tolerance (tolerance is max angle difference)
+		bool equals(const Quaternion& rhs, const Radian& tolerance);
+		
 	    // spherical linear interpolation
         static Quaternion Slerp (Real fT, const Quaternion& rkP,
             const Quaternion& rkQ, bool shortestPath = false);

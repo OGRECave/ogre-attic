@@ -251,7 +251,11 @@ namespace Ogre {
         /// Updates all the derived transforms in the skeleton
         virtual void _updateTransforms(void);
 
-
+		/** Optimise all of this skeleton's animations.
+		@see Animation::optimise
+		*/
+		virtual void optimiseAllAnimations(void);
+		
     protected:
 		SkeletonAnimationBlendMode mBlendState;
         /// Storage of bones, indexed by bone handle

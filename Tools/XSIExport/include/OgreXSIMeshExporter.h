@@ -84,6 +84,9 @@ namespace Ogre {
 		 *  to exportMesh. 
 		 */
 		MaterialMap& getMaterials(void);
+
+		/** Get the map from texture projection names to uv indexes. */
+		TextureProjectionMap& getTextureProjectionMap(void);
     protected:
 
         // XSI Objects
@@ -146,6 +149,9 @@ namespace Ogre {
 		DeformerMap mXsiDeformerMap;
 		/// LIst of materials we've found whilst parsing the objects
 		MaterialMap mXsiMaterialMap;
+		/// Map from texture projection names to uv index
+		TextureProjectionMap mTextureProjectionMap;
+
 
 		/// Build a list of PolygonMesh instances from selection
 		void buildPolygonMeshList(bool includeChildren);
@@ -156,7 +162,7 @@ namespace Ogre {
 		/// Build the mesh
 		void buildMesh(Mesh* pMesh, bool mergeSubmeshes, bool lookForBoneAssignments);
 		/// Process a single PolygonMesh into one or more ProtoSubMeshes
-		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments);
+		void processPolygonMesh(Mesh* pMesh, PolygonMeshEntry* pm, bool lookForBoneAssignments, unsigned short progressUpdates);
 		/// Find deformers and bone assignments
 		void processBoneAssignments(Mesh* pMesh, PolygonMeshEntry* pm);
 		

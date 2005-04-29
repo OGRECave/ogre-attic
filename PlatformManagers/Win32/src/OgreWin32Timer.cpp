@@ -31,35 +31,53 @@ namespace Ogre {
         Timer::reset();
         QueryPerformanceFrequency(&mFrequency);
         QueryPerformanceCounter(&mStartTime);
+        mStartTick = GetTickCount();
     }
     //-------------------------------------------------------------------------
     unsigned long Win32Timer::getMilliseconds()
     {
         LARGE_INTEGER curTime;
-        LONGLONG newTicks;
-
         QueryPerformanceCounter(&curTime);
+        
+        // scale by 1000 for milliseconds
+        unsigned long newTicks = (unsigned long)
+            (1000*(curTime.QuadPart-mStartTime.QuadPart)/mFrequency.QuadPart);
 
-        newTicks = (curTime.QuadPart - mStartTime.QuadPart);
-        // Scale by 1000 in order to get millisecond precision
-        newTicks *= 1000;
-        newTicks /= mFrequency.QuadPart;
+        // detect and compensate for performance counter leaps
+        // (surprisingly common, see Microsoft KB: Q274323)
+        unsigned long check = GetTickCount() - mStartTick;
+        signed long msecOff = (signed long)(newTicks - check);
+        if (msecOff < -100 || msecOff > 100)
+        {
+            mStartTime.QuadPart += msecOff * mFrequency.QuadPart / 1000;
+            newTicks = check;
+        }
 
-        return (unsigned long)newTicks;
+        return newTicks;
 	}
     //-------------------------------------------------------------------------
 	unsigned long Win32Timer::getMicroseconds()
 	{
-		LARGE_INTEGER curTime;
-		LONGLONG newTicks;
+        LARGE_INTEGER curTime;
+        QueryPerformanceCounter(&curTime);
+        
+        // scale by 1000000 for microseconds;
+        // also get milliseconds to check against GetTickCount
+        unsigned long newMicro = (unsigned long)
+            (1000000*(curTime.QuadPart-mStartTime.QuadPart)/mFrequency.QuadPart);
+        unsigned long newTicks = newMicro / 1000;
+        
+        // detect and compensate for performance counter leaps
+        // (surprisingly common, see Microsoft KB: Q274323)
+        unsigned long check = GetTickCount() - mStartTick;
+        signed long msecOff = (signed long)(newTicks - check);
+        if (msecOff < -100 || msecOff > 100)
+        {
+            mStartTime.QuadPart += msecOff * mFrequency.QuadPart / 1000;
+            newMicro -= msecOff * 1000;
+        }
 
-		QueryPerformanceCounter(&curTime);
-
-		newTicks = (curTime.QuadPart - mStartTime.QuadPart);
-		// Scale by 1000000 in order to get microsecond precision
-		newTicks *= (Real)1000000.0/(Real)mFrequency.QuadPart;
-
-		return (unsigned long)newTicks;
+        return newMicro;
 	}
 
 }

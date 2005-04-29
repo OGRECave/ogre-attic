@@ -409,6 +409,10 @@ namespace Ogre {
         /** Sets the rendering detail of this entire entity (solid, wireframe etc) */
         void setRenderDetail(SceneDetailLevel renderDetail);
 
+		/** Sets whether the rendering detail of this entire entity may be 
+			overridden by the camera detail settings. 
+		*/
+		void setRenderDetailOverrideable(bool renderDetailOverrideable);
 		/** Attaches another object to a certain bone of the skeleton which this entity uses.
         @remarks
             This method can be used to attach another object to an animated part of this entity,

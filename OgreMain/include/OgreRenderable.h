@@ -52,6 +52,7 @@ namespace Ogre {
     class _OgreExport Renderable
     {
     public:
+		Renderable() : mRenderDetailOverrideable(true) {}
         /** Virtual destructor needed as class has virtual methods. */
         virtual ~Renderable() { }
         /** Retrieves a weak reference to the material this renderable object uses.
@@ -226,11 +227,30 @@ namespace Ogre {
             }
         }
 
+		/** Sets whether this renderable's chosen detail level can be
+			overridden (downgraded) by the camera setting. 
+		@param override true means that a lower camera detail will override this
+			renderables detail level, false means it won't.
+		*/
+		virtual void setRenderDetailOverrideable(bool override)
+		{
+			mRenderDetailOverrideable = override;
+		}
+
+		/** Gets whether this renderable's chosen detail level can be
+			overridden (downgraded) by the camera setting. 
+		*/
+		virtual bool getRenderDetailOverrideable(void) const
+		{
+			return mRenderDetailOverrideable;
+		}
+
 
     protected:
         static const PlaneList msDummyPlaneList;
         typedef std::map<size_t, Vector4> CustomParameterMap;
         CustomParameterMap mCustomParameters;
+		bool mRenderDetailOverrideable;
     };
 
 

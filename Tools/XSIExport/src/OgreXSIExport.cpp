@@ -63,7 +63,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 using namespace XSI;
 
-#define OGRE_XSI_EXPORTER_VERSION L"1.0.2"
+#define OGRE_XSI_EXPORTER_VERSION L"1.0.1c"
 
 /** This is the main file for the OGRE XSI plugin.
 The purpose of the methods in this file are as follows:
@@ -165,7 +165,6 @@ XSI::CStatus OgreMeshExportCommand_Init( const XSI::CRef& context )
 	ArgumentArray args = cmd.GetArguments();
 
     args.Add( L"objectName", L"" );
-    args.Add( L"exportMesh", L"true" );
 	args.Add( L"targetMeshFileName", L"c:/default.mesh" );
 	args.Add( L"calculateEdgeLists", L"true" );
     args.Add( L"calculateTangents", L"false" );
@@ -237,26 +236,30 @@ extern "C"
 */
 XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 {	
-	static firstTime = true;
+	Ogre::LogManager logMgr;
+	logMgr.createLog("OgreXSIExporter.log", true);
+	CString msg(L"OGRE Exporter Version ");
+	msg += OGRE_XSI_EXPORTER_VERSION;
+	LogOgreAndXSI(msg);
+
 	Application app;
 	CStatus st(CStatus::OK);
 	Property prop = app.GetActiveSceneRoot().GetProperties().GetItem(exportPropertyDialogName);
-	if (firstTime && prop.IsValid())
+	if (prop.IsValid())
 	{
-		DeleteObj(exportPropertyDialogName);
-		firstTime = false;
-		prop.ResetObject();
+		// Check version number
+		CString currVersion(prop.GetParameterValue(L"version"));
+		if (!currVersion.IsEqualNoCase(OGRE_XSI_EXPORTER_VERSION))
+		{
+			DeleteObj(exportPropertyDialogName);
+			prop.ResetObject();
+		}
 	}
 	if (!prop.IsValid())
 	{
 		prop = app.GetActiveSceneRoot().AddProperty(exportPropertyDialogName);
 		prop.PutParameterValue(L"version", CString(OGRE_XSI_EXPORTER_VERSION));
 	}
-	Ogre::LogManager logMgr;
-	logMgr.createLog("OgreXSIExporter.log", true);
-	CString msg(L"OGRE Exporter Version ");
-	msg += OGRE_XSI_EXPORTER_VERSION;
-	LogOgreAndXSI(msg);
 	
 	try
 	{
@@ -332,7 +335,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 
 			
 			// determine number of exportsteps
-			size_t numSteps = 3;
+			size_t numSteps = 3 + 20;
 			if (numlods > 0)
 				numSteps++;
 			if (edgeLists)
@@ -366,6 +369,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				param = prop.GetParameters().GetItem( L"animationList" );
 				GridData gd = param.GetValue();
 				Ogre::AnimationList selAnimList;
+				bool anyIKSample = false;
 				for (int a = 0; a < gd.GetRowCount(); ++a)
 				{
 					if (gd.GetCell(1, a) == true)
@@ -376,11 +380,42 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 						{
 							if (ai->animationName == name)
 							{
+								if (gd.GetCell(2, a))
+								{
+									// IK sample
+									ai->ikSample = true;
+									ai->ikSampleInterval = gd.GetCell(3, a);
+									anyIKSample = true;
+
+								}
+								else
+								{
+									ai->ikSample = false;
+								}
 								selAnimList.push_back(*ai);
 								break;
 							}
 						}
 					}
+				}
+
+				// Warn about effect of IK sampling
+				if (anyIKSample)
+				{
+					long btn;
+					CStatus ret = app.GetUIToolkit().MsgBox(
+						L"You have chosen to sample one or more of your "
+						L"animations (in order to convert IK or other "
+						L"constraint-based animation). \n\n This will require "
+						L"all animation which has not yet been stored in an "
+						L"action to be removed, and the mixer to be cleared. "
+						L"Is this OK?", 
+						siMsgYesNo,
+						L"Animation sampling required",
+						btn);
+					if (btn != 6)
+						return CStatus::Fail;
+					
 				}
 
 				// Truncate the skeleton filename to just the name (no path)
@@ -429,6 +464,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				try 
 				{
 					matExporter.exportMaterials(meshExporter.getMaterials(), 
+						meshExporter.getTextureProjectionMap(), 
 						materialFileName, copyTextures, materialPrefix);
 				}
 				catch (Ogre::Exception& e)
@@ -484,10 +520,6 @@ CStatus OgreMeshExportOptions_Define( const CRef & in_Ctx )
 		L"objects",CValue::siRefArray, caps, 
 		L"Collection of selected objects", L"", 
 		nullValue, param) ;	
-	prop.AddParameter(	
-        L"exportMesh",CValue::siBool, caps, 
-		L"Export Mesh", L"", 
-		CValue(true), param) ;	
 	prop.AddParameter(	
         L"targetMeshFileName",CValue::siString, caps, 
 		L"Mesh Filename", L"", 
@@ -601,7 +633,6 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	*/
 
 	oLayout.AddGroup(L"Mesh");
-    item = oLayout.AddItem(L"exportMesh") ;
     item = oLayout.AddItem(L"targetMeshFileName", L"Target", siControlFilePath);
 	item.PutAttribute( siUINoLabel, true );
 	item.PutAttribute( siUIFileFilter, L"OGRE Mesh format (*.mesh)|*.mesh|All Files (*.*)|*.*||" );
@@ -643,8 +674,10 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
 	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:60");
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:60:90");
 	item.PutAttribute(siUIGridHideRowHeader, true);
+	// Make animatino name read-only
+	item.PutAttribute(siUIGridReadOnlyColumns, L"1:0:0:0");
 
 
 
@@ -695,6 +728,37 @@ bool hasSkeleton(Selection& sel, bool recurse)
 	return false;
 }
 
+bool isAnimationIK(XSI::ActionSource& source)
+{
+	// Iterate over the animation items, and return true if any of them
+	// are effectors. 
+	Application app;
+	CRefArray items = source.GetItems();
+	for (int i = 0; i < items.GetCount(); ++i)
+	{
+		XSI::AnimationSourceItem item = items[i];
+
+		// Check the target
+		Ogre::String target = XSItoOgre(item.GetTarget());
+		size_t firstDotPos = target.find_first_of(".");
+		if (firstDotPos != Ogre::String::npos)
+		{
+			Ogre::String targetName = target.substr(0, firstDotPos);
+			// Find object
+			X3DObject targObj = app.GetActiveSceneRoot().FindChild(
+				OgretoXSI(targetName), L"", CStringArray());
+			if (targObj.IsValid())
+			{
+				if (targObj.IsA(siChainEffectorID))
+					return true;
+			}
+		}
+	}
+
+	return false;
+
+
+}
 
 void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 {
@@ -721,6 +785,15 @@ void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 				anim.startFrame = -1;
 				anim.endFrame = -1;
 				anim.source = ActionSource(src);
+				anim.ikSample = isAnimationIK(anim.source);
+				if (anim.ikSample)
+				{
+					anim.ikSampleInterval = 5.0f;
+				}
+				else
+				{
+					anim.ikSampleInterval = 0.0f;
+				}
 				animList.push_back(anim);
 			}
 		}
@@ -745,6 +818,13 @@ void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
 
 }
 
+
+struct AnimSetting
+{
+	bool export;
+	bool ik;
+	double ikSampleInterval;
+};
 
 #ifdef unix
 extern "C" 
@@ -819,20 +899,29 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			// initialise it with all animations but try to remember previous values
 			GridData gd = param.GetValue();
 			// Store the existing settings
-			std::map<Ogre::String,bool> rememberedAnimations;
+			std::map<Ogre::String,AnimSetting> rememberedAnimations;
 			int row;
 			for (row = 0; row < gd.GetRowCount(); ++row)
 			{
+				AnimSetting s;
+				s.export = gd.GetCell(1, row);
+				s.ik = gd.GetCell(2, row);
+				s.ikSampleInterval = gd.GetCell(3, row);
 				Ogre::String animName = XSItoOgre(gd.GetCell(0, row));
-				rememberedAnimations[animName] = gd.GetCell(1, row);
+				rememberedAnimations[animName] = s;
 			}
 
-			// Second column is check box			
+			// Second & third column is check box			
 			gd.PutColumnType(1, siColumnBool);
+			gd.PutColumnType(2, siColumnBool);
+			// Name is not adjustable
 
-			gd.PutColumnCount(2);
+
+			gd.PutColumnCount(4);
 			gd.PutColumnLabel(0, L"Name");
 			gd.PutColumnLabel(1, L"Export?");
+			gd.PutColumnLabel(2, L"IK?");
+			gd.PutColumnLabel(3, L"Sample Interval");
 
 
 			getAnimations(app.GetActiveSceneRoot(), animList);
@@ -842,16 +931,23 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			{
 				gd.PutCell(0, row, OgretoXSI(a->animationName));
 				// do we have a setting for this already?
-				std::map<Ogre::String, bool>::iterator ra = 
+				std::map<Ogre::String, AnimSetting>::iterator ra = 
 					rememberedAnimations.find(a->animationName);
+
 				if (ra != rememberedAnimations.end())
 				{
-					gd.PutCell(1, row, ra->second);
+					AnimSetting& s = ra->second;
+
+					gd.PutCell(1, row, s.export);
+					gd.PutCell(2, row, s.ik);
+					gd.PutCell(3, row, s.ikSampleInterval);
 				}
 				else
 				{
 					// default to true
 					gd.PutCell(1, row, true);
+					gd.PutCell(2, row, a->ikSample);
+					gd.PutCell(3, row, a->ikSampleInterval);
 				}
 			}
 			

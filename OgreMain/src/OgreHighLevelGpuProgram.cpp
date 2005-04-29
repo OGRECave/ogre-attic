@@ -45,10 +45,12 @@ namespace Ogre
 
         // create low-level implementation
         createLowLevelImpl();
-        // load constructed assembler program
-        assert(!mAssemblerProgram.isNull() && "Subclass did not initialise mAssemblerProgram!");
-        mAssemblerProgram->load();
-        mIsLoaded = true;
+        // load constructed assembler program (if it exists)
+		if (!mAssemblerProgram.isNull())
+		{
+			mAssemblerProgram->load();
+			mIsLoaded = true;
+		}
     }
     //---------------------------------------------------------------------------
     void HighLevelGpuProgram::unloadImpl()
