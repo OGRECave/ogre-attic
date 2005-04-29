@@ -641,6 +641,17 @@ namespace Ogre {
             (*i)->setRenderDetail(renderDetail); 
         } 
     }
+    //-----------------------------------------------------------------------
+    void Entity::setRenderDetailOverrideable(bool renderDetailOverrideable) 
+    {
+        SubEntityList::iterator i, iend;
+        iend = mSubEntityList.end();
+
+        for( i = mSubEntityList.begin(); i != iend; ++i ) 
+        { 
+            (*i)->setRenderDetailOverrideable(renderDetailOverrideable);
+        } 
+    }
 
     //-----------------------------------------------------------------------
     void Entity::attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation, const Vector3 &offsetPosition)

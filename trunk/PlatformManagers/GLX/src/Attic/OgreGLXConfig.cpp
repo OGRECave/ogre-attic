@@ -50,6 +50,27 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <X11/Xaw/SmeBSB.h>
 
 #include <list>
+
+namespace {
+/**
+Backdrop image. This must be sized mWidth by mHeight, and produce a
+RGB pixel format when loaded with Image::load .
+ 
+You can easily generate your own backdrop with the following python script:
+
+#!/usr/bin/python
+import sys
+pngstring=open(sys.argv[2], "rb").read()
+print "char %s[%i]={%s};" % (sys.argv[1],len(pngstring), ",".join([str(ord(x)) for x in pngstring]))
+
+Call this with
+$ bintoheader.py GLX_backdrop GLX_backdrop.png > GLX_backdrop.h
+
+*/
+#include "GLX_backdrop.h"
+
+};
+
 namespace Ogre {
 
 /**
@@ -71,7 +92,6 @@ class GLXConfigurator {
 	static const int col2w = 200;		// Width of column 2 (options)
 	static const int ystart = 105;		// Starting y of option table rows
 	static const int rowh = 20;		// Height of one row in the option table
-	static const std::string GLXConfigurator::backdrop;	// Background image, defined below
 
 public:
 	GLXConfigurator();
@@ -174,11 +194,6 @@ private:
 	void SetRenderer(RenderSystem *);
 	void SetConfigOption(const std::string &optionName, const std::string &valueName);
 };
-/* 
- * Backdrop image. This must be sized mWidth by mHeight, and produce a
- * RGB pixel format when loaded with Image::load .
- */
-const std::string GLXConfigurator::backdrop = "GLX_backdrop.png";
 
 GLXConfigurator::GLXConfigurator():
 	mDisplay(0), mWindow(0), mBackDrop(0),
@@ -329,16 +344,16 @@ Pixmap GLXConfigurator::CreateBackdrop(Window rootWindow, int depth) {
 	unsigned char *data = 0; // Must be allocated with malloc
 
 	try {
-		Image img;
-		// Load backdrop image using OGRE
-		img.load(backdrop, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-
-        if(img.getWidth() != mWidth || img.getHeight() != mHeight || img.getDepth() != 1) {
-            // Invalid image format or size
-            LogManager::getSingleton().logMessage("GLX backdrop: Invalid image "+backdrop+", size must be 400x300");
-            return 0;
-        }
-
+        String imgType = "png";
+        Image img;
+        MemoryDataStream *imgStream;
+        DataStreamPtr imgStreamPtr;
+ 
+        // Load backdrop image using OGRE
+        imgStream = new MemoryDataStream((void*)GLX_backdrop_data, sizeof(GLX_backdrop_data), false);
+        imgStreamPtr = DataStreamPtr(imgStream);
+		img.load(imgStreamPtr, imgType);
+        
         PixelBox src = img.getPixelBox(0, 0);
 
 		// Convert and copy image

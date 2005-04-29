@@ -351,6 +351,8 @@ int main(int numargs, char** args)
     skeletonSerializer = new SkeletonSerializer();
     bufferManager = new DefaultHardwareBufferManager(); // needed because we don't have a rendersystem
     meshMgr = new MeshManager();
+	// don't pad during upgrade
+	meshMgr->setBoundsPaddingFactor(0.0f);
 
     
     UnaryOptionList unOptList;

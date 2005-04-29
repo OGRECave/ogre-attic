@@ -261,7 +261,7 @@ namespace Ogre {
     GLenum errCode = glGetError(); \
     if (errCode != GL_NO_ERROR) {  \
     errString = gluErrorString (errCode);  \
-    LogManager::getSingleton().logMessage  ("[GL] :" + ERROR_MSG +  \
+    LogManager::getSingleton().logMessage  ("[GL] :" + Ogre::String(ERROR_MSG) +  \
     " : " + Ogre::String( (const char*) errString)); \
         } \
     }
@@ -273,7 +273,7 @@ namespace Ogre {
     if (errCode != GL_NO_ERROR) {  \
     errString = gluErrorString (errCode);  \
     OGRE_EXCEPT (Exception::ERR_INTERNAL_ERROR,  \
-    ERROR_MSG +  \
+    Ogre::String(ERROR_MSG) +  \
     " : " + Ogre::String( (const char*) errString), String("")); \
         } \
     }

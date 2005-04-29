@@ -52,6 +52,7 @@ struct XmlOptions
     bool generateEdgeLists;
     bool generateTangents;
     bool reorganiseBuffers;
+	bool optimiseAnimations;
 };
 
 void help(void)
@@ -59,8 +60,8 @@ void help(void)
     // Print help message
     cout << endl << "OgreXMLConvert: Converts data between XML and OGRE binary formats." << endl;
     cout << "Provided for OGRE by Steve Streeting 2002" << endl << endl;
-    cout << "Usage: OgreXMLConverter [-i] [-e] [-l lodlevels] [-d loddist] " << endl;
-    cout << "                [[-p lodpercent][-f lodnumtris]] sourcefile [destfile] " << endl;
+    cout << "Usage: OgreXMLConverter [options] sourcefile [destfile] " << endl;
+	cout << endl << "Available options:" << endl;
     cout << "-i             = interactive mode - prompt for options" << endl;
     cout << "(The next 4 options are only applicable when converting XML to Mesh)" << endl;
     cout << "-l lodlevels   = number of LOD levels" << endl;
@@ -70,6 +71,7 @@ void help(void)
     cout << "-e             = DON'T generate edge lists (for stencil shadows)" << endl;
     cout << "-r             = DON'T reorganise vertex buffers to OGRE recommended format." << endl;
     cout << "-t             = Generate tangents (for normal mapping)" << endl;
+    cout << "-o             = DON'T optimise out redundant tracks & keyframes" << endl;
     cout << "sourcefile     = name of file to convert" << endl;
     cout << "destfile       = optional name of file to write to. If you don't" << endl;
     cout << "                 specify this OGRE works it out through the extension " << endl;
@@ -94,6 +96,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     opts.generateEdgeLists = true;
     opts.generateTangents = false;
     opts.reorganiseBuffers = true;
+	opts.optimiseAnimations = true;
 
     // ignore program name
     char* source = 0;
@@ -107,6 +110,7 @@ XmlOptions parseArgs(int numArgs, char **args)
     unOpt["-e"] = false;
     unOpt["-r"] = false;
     unOpt["-t"] = false;
+    unOpt["-o"] = false;
     binOpt["-l"] = "";
     binOpt["-d"] = "";
     binOpt["-p"] = "";
@@ -141,7 +145,13 @@ XmlOptions parseArgs(int numArgs, char **args)
             opts.generateTangents = true;
         }
 
-        bi = binOpt.find("-l");
+        ui = unOpt.find("-o");
+        if (ui->second)
+        {
+            opts.optimiseAnimations = false;
+        }
+
+		bi = binOpt.find("-l");
         if (!bi->second.empty())
         {
             opts.numLods = StringConverter::parseInt(bi->second);
@@ -233,6 +243,11 @@ XmlOptions parseArgs(int numArgs, char **args)
             cout << "lod reduction    = " << opts.lodFixed << " verts" << endl;
         }
     }
+    cout << "Generate edge lists  = " << opts.generateEdgeLists << endl;
+    cout << "Generate tangents = " << opts.generateTangents << endl;
+    cout << "Reorganise vertex buffers = " << opts.reorganiseBuffers << endl;
+	cout << "Optimise animations = " << opts.optimiseAnimations << endl;
+	
     cout << "-- END OPTIONS --" << endl;
     cout << endl;
 
@@ -562,6 +577,10 @@ void XMLToBinary(XmlOptions opts)
         SkeletonPtr newSkel = SkeletonManager::getSingleton().create("conversion", 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
         xmlSkeletonSerializer->importSkeleton(opts.source, newSkel.getPointer());
+		if (opts.optimiseAnimations)
+		{
+			newSkel->optimiseAllAnimations();
+		}
         skeletonSerializer->exportSkeleton(newSkel.getPointer(), opts.dest);
     }
 

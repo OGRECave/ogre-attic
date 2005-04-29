@@ -261,9 +261,10 @@ namespace Ogre {
         size += sizeof(float);
 
         // Nested animation tracks
-        for (unsigned short i = 0; i < pAnim->getNumTracks(); ++i)
-        {
-            size += calcAnimationTrackSize(pSkel, pAnim->getTrack(i));
+		Animation::TrackIterator trackIt = pAnim->getTrackIterator();
+		while(trackIt.hasMoreElements())
+		{
+            size += calcAnimationTrackSize(pSkel, trackIt.getNext());
         }
 
         return size;

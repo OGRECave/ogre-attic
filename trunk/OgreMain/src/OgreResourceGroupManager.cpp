@@ -189,9 +189,14 @@ namespace Ogre {
 				for (LoadUnloadResourceList::iterator l = oi->second->begin();
 					l != oi->second->end(); ++l)
 				{
-					fireResourceStarted(*l);
-					(*l)->load();
-					fireResourceEnded();
+					// If loading one of these resources cascade-loads another resource, 
+					// the list will get longer! But these should be loaded immediately
+					if (!(*l)->isLoaded())
+					{
+						fireResourceStarted(*l);
+						(*l)->load();
+						fireResourceEnded();
+					}
 				}
 			}
 		}
@@ -1209,6 +1214,34 @@ namespace Ogre {
         grp->worldGeometry = StringUtil::BLANK;
         grp->worldGeometrySceneManager = 0;
     }
+    //-----------------------------------------------------------------------
+	StringVector ResourceGroupManager::getResourceGroups(void)
+	{
+        OGRE_LOCK_AUTO_MUTEX
+		StringVector vec;
+		for (ResourceGroupMap::iterator i = mResourceGroupMap.begin();
+			i != mResourceGroupMap.end(); ++i)
+		{
+			vec.push_back(i->second->name);
+		}
+		return vec;
+	}
+    //-----------------------------------------------------------------------
+	ResourceGroupManager::ResourceDeclarationList 
+	ResourceGroupManager::getResourceDeclarationList(const String& group)
+	{
+        OGRE_LOCK_AUTO_MUTEX
+        ResourceGroup* grp = getResourceGroup(group);
+        if (!grp)
+        {
+            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+                "Cannot locate a resource group called '" + group + "'", 
+                "ResourceGroupManager::unlinkWorldGeometryFromResourceGroup");
+        }
+
+		OGRE_LOCK_MUTEX(grp->OGRE_AUTO_MUTEX_NAME) // lock group mutex
+		return grp->resourceDeclarations;
+	}
     //-----------------------------------------------------------------------
 	ScriptLoader::~ScriptLoader()
 	{

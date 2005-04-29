@@ -58,7 +58,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Node::Node(const String& name)
+	Node::Node(const String& name) : Renderable()
     {
         mName = name;
         mParent = 0;

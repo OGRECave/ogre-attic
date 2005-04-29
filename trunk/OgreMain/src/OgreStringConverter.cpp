@@ -231,25 +231,22 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     unsigned int StringConverter::parseUnsignedInt(const String& val)
     {
-        return atoi(val.c_str());
+        return static_cast<unsigned int>(strtoul(val.c_str(), 0, 10));
     }
     //-----------------------------------------------------------------------
     long StringConverter::parseLong(const String& val)
     {
-        return atol(val.c_str());
+        return strtol(val.c_str(), 0, 10);
     }
     //-----------------------------------------------------------------------
     unsigned long StringConverter::parseUnsignedLong(const String& val)
     {
-        return atol(val.c_str());
+        return strtoul(val.c_str(), 0, 10);
     }
     //-----------------------------------------------------------------------
     bool StringConverter::parseBool(const String& val)
     {
-        if (val == "true")
-            return true;
-        else
-            return false;
+        return (val == "true" || val == "yes");
     }
     //-----------------------------------------------------------------------
     Vector3 StringConverter::parseVector3(const String& val)

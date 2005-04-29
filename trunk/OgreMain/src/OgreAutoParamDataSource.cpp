@@ -398,7 +398,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getTime_0_X(Real x) const
 	{
-		return fmod(Root::getSingleton().getTimer()->getMilliseconds() / 1000.0f
+		return fmod(
+			static_cast<Real>(Root::getSingleton().getTimer()->getMilliseconds()) / 1000.0f
 			, x);
 	}
 	//-----------------------------------------------------------------------------

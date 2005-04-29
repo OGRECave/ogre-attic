@@ -43,8 +43,8 @@ namespace Ogre {
 		@param copyTextures Whether to copy any textures used into the same
 			folder as the material script.
 		*/
-		void exportMaterials(MaterialMap& materials, const String& filename, 
-			bool copyTextures, const String& materialPrefix);
+		void exportMaterials(MaterialMap& materials, TextureProjectionMap& texProjMap, 
+			const String& filename, bool copyTextures, const String& materialPrefix);
 	protected:	
 		MaterialSerializer mMatSerializer;
 		
@@ -53,6 +53,8 @@ namespace Ogre {
 		TextureUnitTargetMap mTextureUnitTargetMap;
 		/// Pass queue, used to invert ordering
 		PassQueue mPassQueue;
+		/// Texture projection map
+		TextureProjectionMap mTextureProjectionMap;
 
 		
 		// Export a single material
