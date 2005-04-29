@@ -60,6 +60,7 @@ namespace Ogre {
         friend class BillboardParticleRenderer;
     protected:
         bool mOwnDimensions;
+        uint16 mTexCoords;      //  index into the BillboardSet array of texture coordinates
         Real mWidth;
         Real mHeight;
     public:
@@ -157,6 +158,18 @@ namespace Ogre {
         */
         void _notifyOwner(BillboardSet* owner);
 
+        /** setTexCoords() sets which texture coordinate rect this billboard will use 
+            when rendering. The parent billboard set may contain more than one, in which 
+            case a billboard can be textured with different pieces of a larger texture 
+            sheet very efficiently.
+          @see
+            BillboardSet::setTextureCoords()
+          */
+        void setTexCoords( uint16 tc ) { mTexCoords = tc; }
+        /** getTexCoords() returns the previous value set by setTexCoords(). 
+            The default value is 0, which is always a valid texture coordinate set.
+          */
+        uint16 getTexCoords() const { return mTexCoords; }
     };
 
 }

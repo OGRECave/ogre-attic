@@ -33,6 +33,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Billboard::Billboard():
         mOwnDimensions(false),
+        mTexCoords(0),
 		mPosition(Vector3::ZERO),
         mDirection(Vector3::ZERO),        
         mParentSet(0),
@@ -49,6 +50,7 @@ namespace Ogre {
     {
         mPosition = position;
         mOwnDimensions = false;
+        mTexCoords = 0;
         mParentSet = owner;
         mColour = colour;
     }

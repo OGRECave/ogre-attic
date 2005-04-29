@@ -200,32 +200,43 @@ namespace Ogre {
 	/// Name / value parameter pair (first = name, second = value)
 	typedef std::map<String, String> NameValuePairList;
 
+        template< typename T > struct TRect
+        {
+          T left, top, right, bottom;
+          TRect() {}
+          TRect( T const & l, T const & t, T const & r, T const & b )
+            : left( l ), top( t ), right( r ), bottom( b )
+          {
+          }
+          TRect( TRect const & o )
+            : left( o.left ), top( o.top ), right( o.right ), bottom( o.bottom )
+          {
+          }
+          TRect & operator=( TRect const & o )
+          {
+            left = o.left;
+            top = o.top;
+            right = o.right;
+            bottom = o.bottom;
+            return *this;
+          }
+          T width() const
+          {
+            return right - left;
+          }
+          T height() const
+          {
+            return bottom - top;
+          }
+        };
+
+        /** Structure used to define a rectangle in a 2-D floating point space.
+        */
+        typedef TRect<float> FloatRect;
+
         /** Structure used to define a rectangle in a 2-D integer space.
         */
-        struct Rect
-        {
-            long left, top, right, bottom;
-
-            Rect()
-            {
-            }
-            Rect( long l, long t, long r, long b )
-            {
-                left = l;
-                top = t;   
-                right = r;
-                bottom = b;                
-            }
-            Rect& operator = ( const Rect& other )
-            {
-                left = other.left;
-                top = other.top;
-                right = other.right;
-                bottom = other.bottom;       
-
-                return *this;
-            }
-        };
+        typedef TRect< long > Rect;
 
         /** Structure used to define a box in a 3-D integer space.
          	Note that the left, top, and front edges are included but the right, 

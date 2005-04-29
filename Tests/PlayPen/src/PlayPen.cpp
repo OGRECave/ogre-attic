@@ -2346,6 +2346,39 @@ protected:
 
 	}
 
+	void testBillboardTextureCoords()
+	{
+		mSceneMgr->setAmbientLight(ColourValue::White);
+
+		BillboardSet* bbs = mSceneMgr->createBillboardSet("test");
+		float xsegs = 3;
+		float ysegs = 3;
+		float width = 300;
+		float height = 300;
+		float gap = 30;
+
+		// set up texture coords
+		bbs->setTextureStacksAndSlices(ysegs, xsegs);
+		bbs->setDefaultDimensions(width/xsegs, height/xsegs);
+
+		for (float y = 0; y < ysegs; ++y)
+		{
+			for (float x = 0; x < xsegs; ++x)
+			{
+				Vector3 midPoint;
+				midPoint.x = (x * width / xsegs) + ((x-1) * gap);
+				midPoint.y = (y * height / xsegs) + ((y-1) * gap);
+				midPoint.z = 0;
+				Billboard* bb = bbs->createBillboard(midPoint);
+				bb->setTexCoords((ysegs - y - 1)*ysegs + x);
+			}
+		}
+
+		bbs->setMaterialName("Examples/OgreLogo");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(bbs);
+
+	}
+
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2385,7 +2418,7 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		testBug();
+		testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
     }
