@@ -504,17 +504,17 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	Radian Quaternion::getRoll(void) const
 	{
-		return Radian(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
+		return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
 	}
     //-----------------------------------------------------------------------
 	Radian Quaternion::getPitch(void) const
 	{
-		return Radian(Math::ASin(-2*(x*z - w*y)));
+		return Radian(Math::ATan2(2*(y*z + w*x), w*w - x*x - y*y + z*z));
 	}
     //-----------------------------------------------------------------------
 	Radian Quaternion::getYaw(void) const
 	{
-		return Radian(Math::ATan2(2*(x*y + w*z), w*w + x*x - y*y - z*z));
+		return Radian(Math::ASin(-2*(x*z - w*y)));
 	}
     //-----------------------------------------------------------------------
     Quaternion Quaternion::nlerp(Real fT, const Quaternion& rkP, 
