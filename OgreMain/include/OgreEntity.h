@@ -334,6 +334,9 @@ namespace Ogre {
         */
         AnimationState* getAnimationState(const String& name);
         /** For entities based on animated meshes, gets the AnimationState objects for all animations.
+        @returns
+            In case the entity is animated, this functions returns the pointer to a AnimationStateSet 
+            containing all animations of the entries. If the entity is not animated, it returns 0.
         @remarks
             You animate an entity by updating the animation state objects. Each of these represents the
             current state of each animation available to the entity. The AnimationState objects are
