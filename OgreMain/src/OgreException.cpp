@@ -62,8 +62,9 @@ namespace Ogre {
         stackDepth( msStackDepth )
     {
         // Log this error, mask it from debug though since it may be caught and ignored
-        LogManager::getSingleton().logMessage(this->getFullDescription(), 
-            LML_CRITICAL, true);
+        if(LogManager::getSingletonPtr())
+            LogManager::getSingleton().logMessage(this->getFullDescription(), 
+                LML_CRITICAL, true);
 
         // Set last
         last = this;
