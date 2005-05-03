@@ -2379,6 +2379,50 @@ protected:
 
 	}
 
+	class SortFunctor
+	{
+	public:
+		float operator()(const float& p) const
+		{
+			return p;
+		}
+
+	};
+	void testRadixSort()
+	{
+		RadixSort<std::list<float>, float, float> rs;
+		SortFunctor f;
+
+		std::list<float> particles;
+		for (int r = 0; r < 20; ++r)
+		{
+			particles.push_back((float)Math::RangeRandom(-1e3f, 1e3f));
+		}
+
+		std::list<float>::iterator i;
+		LogManager::getSingleton().logMessage("BEFORE");
+		for (i = particles.begin(); i != particles.end(); ++i)
+		{
+			StringUtil::StrStreamType str;
+			str << *i;
+			LogManager::getSingleton().logMessage(str.str());
+		}
+
+		rs.sort(particles, f);
+
+
+		LogManager::getSingleton().logMessage("AFTER");
+		for (i = particles.begin(); i != particles.end(); ++i)
+		{
+			StringUtil::StrStreamType str;
+			str << *i;
+			LogManager::getSingleton().logMessage(str.str());
+		}
+
+
+
+	}
+
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2418,9 +2462,10 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		testBillboardTextureCoords();
+		//testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
+		testRadixSort();
     }
     // Create new frame listener
     void createFrameListener(void)
