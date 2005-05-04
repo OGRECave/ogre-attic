@@ -142,7 +142,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	const String& D3D9RenderSystem::getName() const
 	{
-		static String strName( "Direct3D9 Rendering SubSystem");
+		static String strName( "Direct3D9 Rendering Subsystem");
 		return strName;
 	}
 	//---------------------------------------------------------------------
