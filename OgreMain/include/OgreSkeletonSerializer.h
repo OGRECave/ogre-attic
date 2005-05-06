@@ -79,6 +79,8 @@ namespace Ogre {
         void writeAnimation(const Skeleton* pSkel, const Animation* anim);
         void writeAnimationTrack(const Skeleton* pSkel, const AnimationTrack* track);
         void writeKeyFrame(const Skeleton* pSkel, const KeyFrame* key);
+		void writeSkeletonAnimationLink(const Skeleton* pSkel, 
+			const LinkedSkeletonAnimationSource& link);
 
         // Internal import methods
         void readBone(DataStreamPtr& stream, Skeleton* pSkel);
@@ -86,12 +88,15 @@ namespace Ogre {
         void readAnimation(DataStreamPtr& stream, Skeleton* pSkel);
         void readAnimationTrack(DataStreamPtr& stream, Animation* anim, Skeleton* pSkel);
         void readKeyFrame(DataStreamPtr& stream, AnimationTrack* track, Skeleton* pSkel);
+		void readSkeletonAnimationLink(DataStreamPtr& stream, Skeleton* pSkel);
 
         size_t calcBoneSize(const Skeleton* pSkel, const Bone* pBone);
         size_t calcBoneParentSize(const Skeleton* pSkel);
         size_t calcAnimationSize(const Skeleton* pSkel, const Animation* pAnim);
         size_t calcAnimationTrackSize(const Skeleton* pSkel, const AnimationTrack* pTrack);
         size_t calcKeyFrameSize(const Skeleton* pSkel, const KeyFrame* pKey);
+		size_t calcSkeletonAnimationLinkSize(const Skeleton* pSkel, 
+			const LinkedSkeletonAnimationSource& link);
 
 
 

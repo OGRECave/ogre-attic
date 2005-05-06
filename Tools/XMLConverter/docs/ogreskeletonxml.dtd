@@ -1,4 +1,4 @@
-<!ELEMENT skeleton (bones, bonehierarchy, animations?) >
+<!ELEMENT skeleton (bones, bonehierarchy, animations?, animationlinks?) >
 <!ELEMENT bones (bone+) >
 <!ELEMENT bone (position, rotation) >
 <!ATTLIST bone
@@ -51,3 +51,9 @@
 	x		CDATA	#IMPLIED
 	y		CDATA	#IMPLIED
 	z		CDATA	#IMPLIED>
+<!ELEMENT animationlinks (animationlink+)>
+<!ELEMENT animationlink EMPTY>
+<!ATTLIST animationlink
+	skeletonName	CDATA	#REQUIRED
+	scale			CDATA	"1.0">
+

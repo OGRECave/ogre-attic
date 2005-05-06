@@ -75,7 +75,7 @@ namespace Ogre {
                 
                 // unsigned short boneIndex     : Index of bone to apply to
 
-                SKELETON_ANIMATION_TRACK_KEYFRAME = 0x4110
+                SKELETON_ANIMATION_TRACK_KEYFRAME = 0x4110,
                 // A single keyframe within the track
                 // Repeating section
 
@@ -83,6 +83,12 @@ namespace Ogre {
                     // Quaternion rotate            : Rotation to apply at this keyframe
                     // Vector3 translate            : Translation to apply at this keyframe
                     // Vector3 scale                : Scale to apply at this keyframe
+		SKELETON_ANIMATION_LINK         = 0x5000
+		// Link to another skeleton, to re-use its animations
+
+			// char* skeletonName					: name of skeleton to get animations from
+			// float scale							: scale to apply to trans/scale keys
+
     };
 
 } // namespace
