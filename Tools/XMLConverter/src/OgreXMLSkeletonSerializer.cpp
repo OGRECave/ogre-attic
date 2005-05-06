@@ -570,7 +570,17 @@ namespace Ogre {
 			linkElem != 0; linkElem = linkElem->NextSiblingElement())
 		{
 			String skelName = linkElem->Attribute("skeletonName");
-			Real scale = StringConverter::parseReal(linkElem->Attribute("scale"));
+			const char* strScale = linkElem->Attribute("scale");
+			Real scale;
+			// Scale optional
+			if (strScale == 0)
+			{
+				scale = 1.0f;
+			}
+			else
+			{
+				scale = StringConverter::parseReal(strScale);
+			}
 			skel->addLinkedSkeletonAnimationSource(skelName, scale);
 
 		}
