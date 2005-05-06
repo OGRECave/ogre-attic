@@ -520,10 +520,12 @@ namespace Ogre
         /** Gets the shortest arc quaternion to rotate this vector to the destination
             vector. 
         @remarks
-            Don't call this if you think the dest vector can be close to the inverse
-            of this vector, since then ANY axis of rotation is ok. 
+            If you call this with a dest vector that is close to the inverse
+            of this vector, we will rotate 180 degrees around the 'fallbackAxis'
+			since in this case ANY axis of rotation is valid. 
         */
-        Quaternion getRotationTo(const Vector3& dest) const
+        Quaternion getRotationTo(const Vector3& dest, 
+			const Vector3& fallbackAxis = Vector3::UNIT_Y) const
         {
             // Based on Stan Melax's article in Game Programming Gems
             Quaternion q;
@@ -535,7 +537,8 @@ namespace Ogre
 
             Vector3 c = v0.crossProduct(v1);
 
-            // NB if the crossProduct approaches zero, we get unstable because ANY axis will do
+            // NB if the crossProduct approaches zero, we get unstable because 
+			// ANY axis will do
             // when v0 == -v1
             Real d = v0.dotProduct(v1);
             // If dot == 1, vectors are the same
@@ -544,14 +547,20 @@ namespace Ogre
                 return Quaternion::IDENTITY;
             }
             Real s = Math::Sqrt( (1+d)*2 );
-            assert (s != 0 && "Divide by zero!");
-            Real invs = 1 / s;
+			if (s < 1e-6f)
+			{
+				// rotate 180 degrees about the fallback axis
+				q.FromAngleAxis(Radian(Math::PI), fallbackAxis);
+			}
+			else
+			{
+	            Real invs = 1 / s;
 
-
-            q.x = c.x * invs;
-            q.y = c.y * invs;
-            q.z = c.z * invs;
-            q.w = s * 0.5;
+    	        q.x = c.x * invs;
+        	    q.y = c.y * invs;
+            	q.z = c.z * invs;
+            	q.w = s * 0.5;
+			}
             return q;
         }
 
