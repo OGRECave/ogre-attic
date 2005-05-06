@@ -128,7 +128,7 @@ namespace Ogre {
 		void finalPass(int byteIndex, T val)
 		{
 			// default is to do normal pass
-			sortPass(p)
+			sortPass(byteIndex);
 		}
 		
 		// special case signed int
@@ -167,6 +167,9 @@ namespace Ogre {
 		// special case float
 		void finalPass(int byteIndex, float val)
 		{
+			// floats need to be special cased since negative numbers will come
+			// after positives (high bit = sign) and will be in reverse order
+			// (no ones-complement of the +ve value)
 			int numNeg = 0;
 			// all negative values are in entries 128+ in most significant byte
 			for (int i = 128; i < 256; ++i)
@@ -174,7 +177,7 @@ namespace Ogre {
 				numNeg += mCounters[byteIndex][i];
 			}
 			// Calculate offsets - positive ones start at the number of negatives
-			// do positive numbers
+			// do positive numbers normally
 			mOffsets[0] = numNeg;
 			for (int i = 1; i < 128; ++i)
 			{
@@ -182,17 +185,29 @@ namespace Ogre {
 			}
 			// Do negative numbers (must start at zero)
 			// Also need to invert ordering
-			mOffsets[255] = 0;
+			// In order to preserve the stability of the sort (essential since
+			// we rely on previous bytes already being sorted) we have to count
+			// backwards in our offsets from 
+			mOffsets[255] = mCounters[byteIndex][255];
 			for (int i = 254; i > 127; --i)
 			{
-				mOffsets[i] = mOffsets[i+1] + mCounters[byteIndex][i+1];
+				mOffsets[i] = mOffsets[i+1] + mCounters[byteIndex][i];
 			}
 
 			// Sort pass
 			for (int i = 0; i < mSortSize; ++i)
 			{
 				unsigned char byteVal = getByte(byteIndex, (*mSrc)[i].key);
-				(*mDest)[mOffsets[byteVal]++] = (*mSrc)[i];
+				if (byteVal > 127)
+				{
+					// -ve; pre-decrement since offsets set to count
+					(*mDest)[--mOffsets[byteVal]] = (*mSrc)[i];
+				}
+				else
+				{
+					// +ve
+					(*mDest)[mOffsets[byteVal]++] = (*mSrc)[i];
+				}
 			}
 		}
 
