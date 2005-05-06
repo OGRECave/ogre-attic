@@ -127,8 +127,11 @@ namespace Ogre
         @param timePos The time position in the animation to apply.
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
           other animations.
+	    @param scale The scale to apply to translations and scalings, useful for 
+			adapting an animation to a different size target.
         */
-        void apply(Real timePos, Real weight = 1.0, bool accumulate = false);
+        void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
+			Real scale = 1.0f);
 
         /** Returns a pointer to the associated Node object (if any). */
         Node* getAssociatedNode(void) const;
@@ -137,7 +140,8 @@ namespace Ogre
         void setAssociatedNode(Node* node);
 
         /** As the 'apply' method but applies to a specified Node instead of associated node. */
-        void applyToNode(Node* node, Real timePos, Real weight = 1.0, bool accumulate = false);
+        void applyToNode(Node* node, Real timePos, Real weight = 1.0, 
+			bool accumulate = false, Real scale = 1.0f);
 		
 		/** Sets the method of rotation calculation */
 		void setUseShortestRotationPath(bool useShortestPath);

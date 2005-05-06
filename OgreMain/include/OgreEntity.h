@@ -514,6 +514,18 @@ namespace Ogre {
         */
         inline const EntitySet* getSkeletonInstanceSharingSet() const { return mSharedSkeletonEntities; }
 
+		/** Updates the internal animation state set to include the latest 
+			available animations from the attached skeleton.
+		@remarks
+			Use this method if you manually add animations to a skeleton, or have
+			linked the skeleton to another for animation purposes since creating 
+			this entity.
+		@note
+			If you have called getAnimationState prior to calling this method, 
+			the pointers will still remain valid.
+		*/
+		void refreshAvailableAnimationState(void);
+
 		/** Advanced method to perform all the updates required for an animated entity.
 		@remarks
 			You don't normally need to call this, but it's here incase you wish

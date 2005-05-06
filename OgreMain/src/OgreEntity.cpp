@@ -101,7 +101,6 @@ namespace Ogre {
 
 
         // Initialise the AnimationState, if Mesh has animation
-
         if (hasSkeleton())
         {
             mAnimationState = new AnimationStateSet();
@@ -1388,5 +1387,12 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
+	void Entity::refreshAvailableAnimationState(void)
+	{
+		if (hasSkeleton())
+		{
+			mSkeletonInstance->_refreshAnimationState(mAnimationState);
+		}
+	}
 
 }

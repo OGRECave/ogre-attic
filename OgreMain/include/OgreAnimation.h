@@ -116,8 +116,11 @@ namespace Ogre {
         @param timePos The time position in the animation to apply.
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
           other animations.
+	    @param scale The scale to apply to translations and scalings, useful for 
+			adapting an animation to a different size target.
         */
-        void apply(Real timePos, Real weight = 1.0, bool accumulate = false);
+        void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
+			Real scale = 1.0f);
 
         /** Applies an animation given a specific time point and weight to a given skeleton.
         @remarks
@@ -126,8 +129,11 @@ namespace Ogre {
         @param timePos The time position in the animation to apply.
         @param weight The influence to give to this track, 1.0 for full influence, less to blend with
         other animations.
+	    @param scale The scale to apply to translations and scalings, useful for 
+			adapting an animation to a different size target.
         */
-        void apply(Skeleton* skeleton, Real timePos, Real weight = 1.0, bool accumulate = false);
+        void apply(Skeleton* skeleton, Real timePos, Real weight = 1.0, 
+			bool accumulate = false, Real scale = 1.0f);
 
         /** Tells the animation how to interpolate between keyframes.
         @remarks
