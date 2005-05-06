@@ -1,0 +1,11 @@
+This is the plugin for exporting from Maya 6.5 to OGRE mesh and skeleton formats.
+
+Copy ogreExporter.mll to your maya plug-ins directory (I.E.: C:\Program Files\Alias\Maya6.5\bin\plug-ins)
+
+Copy all files from the scripts directory to your maya scripts directory 
+(I.E.: C:\Documents and Settings\user\My Documents\maya\6.5\scripts)
+
+If you already have a userSetup.mel in your scripts folder, then copy and paste to append content from this userSetup.mel
+to the existing one.
+
+For any help or comments check the OGRE forum or e-mail to fra.giordana@tiscali.it
