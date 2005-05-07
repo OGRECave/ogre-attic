@@ -5,7 +5,9 @@ Copy ogreExporter.mll to your maya plug-ins directory (I.E.: C:\Program Files\Al
 Copy all files from the scripts directory to your maya scripts directory 
 (I.E.: C:\Documents and Settings\user\My Documents\maya\6.5\scripts)
 
-If you already have a userSetup.mel in your scripts folder, then copy and paste to append content from this userSetup.mel
-to the existing one.
+Copy OgreXMLConverter.exe and related dlls to your maya scripts directory (same as above)
+
+If you already have a userSetup.mel in your scripts folder, then copy and paste to append content from this 
+userSetup.mel to the existing one.
 
 For any help or comments check the OGRE forum or e-mail to fra.giordana@tiscali.it
