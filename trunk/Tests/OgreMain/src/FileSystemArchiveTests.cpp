@@ -42,13 +42,19 @@ void FileSystemArchiveTests::tearDown()
 
 void FileSystemArchiveTests::testListNonRecursive()
 {
-    FileSystemArchive arch(testPath, "FileSystem");
-    arch.load();
-    StringVectorPtr vec = arch.list(false);
+	try {
+		FileSystemArchive arch(testPath, "FileSystem");
+		arch.load();
+		StringVectorPtr vec = arch.list(false);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)2, vec->size());
-    CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), vec->at(0));
-    CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), vec->at(1));
+		CPPUNIT_ASSERT_EQUAL((unsigned int)2, (unsigned int)vec->size());
+		CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), vec->at(0));
+		CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), vec->at(1));
+	}
+	catch (Exception& e)
+	{
+		std::cout << e.getFullDescription();
+	}
 
 }
 void FileSystemArchiveTests::testListRecursive()
@@ -57,13 +63,13 @@ void FileSystemArchiveTests::testListRecursive()
     arch.load();
     StringVectorPtr vec = arch.list(true);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)41, vec->size()); // 41 including CVS folders!
+    CPPUNIT_ASSERT_EQUAL((size_t)48, vec->size()); // 48 including CVS folders!
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), vec->at(0));
     CPPUNIT_ASSERT_EQUAL(String("rootfile2.txt"), vec->at(1));
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file.material"), vec->at(2));
     CPPUNIT_ASSERT_EQUAL(String("level1/materials/scripts/file2.material"), vec->at(3));
-    CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), vec->at(19));
-    CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file4.material"), vec->at(20));
+    CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), vec->at(22));
+    CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file4.material"), vec->at(23));
 }
 void FileSystemArchiveTests::testListFileInfoNonRecursive()
 {
@@ -92,7 +98,7 @@ void FileSystemArchiveTests::testListFileInfoRecursive()
     arch.load();
     FileInfoListPtr vec = arch.listFileInfo(true);
 
-    CPPUNIT_ASSERT_EQUAL((size_t)41, vec->size()); // 41 including CVS folders!
+    CPPUNIT_ASSERT_EQUAL((size_t)48, vec->size()); // 48 including CVS folders!
     FileInfo& fi1 = vec->at(0);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.filename);
     CPPUNIT_ASSERT_EQUAL(String("rootfile.txt"), fi1.basename);
@@ -122,14 +128,14 @@ void FileSystemArchiveTests::testListFileInfoRecursive()
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi4.uncompressedSize);
 
 
-    FileInfo& fi5 = vec->at(19);
+    FileInfo& fi5 = vec->at(22);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file3.material"), fi5.filename);
     CPPUNIT_ASSERT_EQUAL(String("file3.material"), fi5.basename);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/"), fi5.path);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi5.compressedSize);
     CPPUNIT_ASSERT_EQUAL((size_t)0, fi5.uncompressedSize);
 
-    FileInfo& fi6 = vec->at(20);
+    FileInfo& fi6 = vec->at(23);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/file4.material"), fi6.filename);
     CPPUNIT_ASSERT_EQUAL(String("file4.material"), fi6.basename);
     CPPUNIT_ASSERT_EQUAL(String("level2/materials/scripts/"), fi6.path);
