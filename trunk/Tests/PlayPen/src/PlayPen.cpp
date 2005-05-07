@@ -2382,7 +2382,7 @@ protected:
 	class SortFunctor
 	{
 	public:
-		float operator()(const float& p) const
+		int operator()(const int& p) const
 		{
 			return p;
 		}
@@ -2390,16 +2390,16 @@ protected:
 	};
 	void testRadixSort()
 	{
-		RadixSort<std::list<float>, float, float> rs;
+		RadixSort<std::list<int>, int, int> rs;
 		SortFunctor f;
 
-		std::list<float> particles;
+		std::list<int> particles;
 		for (int r = 0; r < 20; ++r)
 		{
-			particles.push_back((float)Math::RangeRandom(-1e3f, 1e3f));
+			particles.push_back((int)Math::RangeRandom(-1e3f, 1e3f));
 		}
 
-		std::list<float>::iterator i;
+		std::list<int>::iterator i;
 		LogManager::getSingleton().logMessage("BEFORE");
 		for (i = particles.begin(); i != particles.end(); ++i)
 		{
