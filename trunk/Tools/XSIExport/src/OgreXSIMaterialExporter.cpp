@@ -265,7 +265,7 @@ namespace Ogre {
 	void XsiMaterialExporter::populatePassLighting(Pass* pass, 
 		XSI::Shader& xsishader)
 	{
-		XSI::Parameter param = xsishader.GetParameter(L"Enable_Lighting").GetValue();
+		XSI::Parameter param = xsishader.GetParameter(L"Enable_Lighting");
 		if (param.IsValid())
 		{
 			pass->setLightingEnabled(param.GetValue());
