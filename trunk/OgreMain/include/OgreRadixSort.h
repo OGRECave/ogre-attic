@@ -159,7 +159,7 @@ namespace Ogre {
 			for (int i = 0; i < mSortSize; ++i)
 			{
 				unsigned char byteVal = getByte(byteIndex, (*mSrc)[i].key);
-				(*mDest)[mOffsets[byteVal]] = (*mSrc)[i];
+				(*mDest)[mOffsets[byteVal]++] = (*mSrc)[i];
 			}
 		}
 		
