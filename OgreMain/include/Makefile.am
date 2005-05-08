@@ -121,6 +121,7 @@ OgrePrerequisites.h \
 OgreProfiler.h \
 OgreProgressiveMesh.h \
 OgreQuaternion.h \
+OgreRadixSort.h \
 OgreRay.h \
 OgreRectangle.h \
 OgreRectangle2D.h \
