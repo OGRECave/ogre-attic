@@ -127,9 +127,8 @@ namespace Ogre {
 
         // Get a new billboard
         Billboard* newBill = mFreeBillboards.front();
-        mFreeBillboards.pop_front();
-        mActiveBillboards.push_back(newBill);
-
+		mActiveBillboards.splice(
+			mActiveBillboards.end(), mFreeBillboards, mFreeBillboards.begin()); 
         newBill->setPosition(position);
         newBill->setColour(colour);
         newBill->_notifyOwner(this);
@@ -285,6 +284,23 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
+	void BillboardSet::_sortBillboards( Camera* cam)
+	{
+        Quaternion invTransform = mParentNode->_getDerivedOrientation().Inverse();
+        Quaternion camQ = cam->getDerivedOrientation();
+
+		// Get camera world axes for X and Y (depth is irrelevant)
+		// Convert into billboard local space
+		camQ = invTransform * camQ;
+		mSortFunctor.sortDir = camQ * Vector3::UNIT_Z;
+
+		mRadixSorter.sort(mActiveBillboards, mSortFunctor);
+	}
+	float BillboardSet::SortFunctor::operator()(Billboard* bill) const
+	{
+		return sortDir.dotProduct(bill->getPosition());
+	}
+    //-----------------------------------------------------------------------
     void BillboardSet::_notifyCurrentCamera( Camera* cam )
     {
         mCurrentCamera = cam;
@@ -336,6 +352,11 @@ namespace Ogre {
         // If we're driving this from our own data, go ahead
         if (!mExternalData)
         {
+			if (mSortingEnabled) 
+			{
+				_sortBillboards(cam);
+			}
+
             beginBillboards();
             ActiveBillboardList::iterator it;
             for(it = mActiveBillboards.begin();
@@ -505,16 +526,19 @@ namespace Ogre {
             *xform = _getParentNodeFullTransform(); 
         }
     }
+
     //-----------------------------------------------------------------------
     const Quaternion& BillboardSet::getWorldOrientation(void) const
     {
         return mParentNode->_getDerivedOrientation();
     }
+
     //-----------------------------------------------------------------------
     const Vector3& BillboardSet::getWorldPosition(void) const
     {
         return mParentNode->_getDerivedPosition();
     }
+
     //-----------------------------------------------------------------------
     void BillboardSet::setAutoextend( bool autoextend )
     {
@@ -525,6 +549,18 @@ namespace Ogre {
     bool BillboardSet::getAutoextend(void) const
     {
         return mAutoExtendPool;
+    }
+
+    //-----------------------------------------------------------------------
+    void BillboardSet::setSortingEnabled( bool sortenable )
+    {
+        mSortingEnabled = sortenable;
+    }
+
+    //-----------------------------------------------------------------------
+    bool BillboardSet::getSortingEnabled(void) const
+    {
+        return mSortingEnabled;
     }
 
     //-----------------------------------------------------------------------
