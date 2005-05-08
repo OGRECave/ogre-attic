@@ -367,7 +367,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				}
 
 				param = prop.GetParameters().GetItem( L"animationList" );
-				GridData gd = param.GetValue();
+				GridData gd(param.GetValue());
 				Ogre::AnimationList selAnimList;
 				bool anyIKSample = false;
 				for (int a = 0; a < gd.GetRowCount(); ++a)
@@ -821,7 +821,7 @@ void getAnimations(XSI::Model& root, Ogre::AnimationList& animList)
 
 struct AnimSetting
 {
-	bool export;
+	bool toexport;
 	bool ik;
 	double ikSampleInterval;
 };
@@ -897,14 +897,14 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			param.PutCapabilityFlag(siReadOnly, false);
 			// value of param is a griddata object
 			// initialise it with all animations but try to remember previous values
-			GridData gd = param.GetValue();
+			GridData gd(param.GetValue());
 			// Store the existing settings
 			std::map<Ogre::String,AnimSetting> rememberedAnimations;
 			int row;
 			for (row = 0; row < gd.GetRowCount(); ++row)
 			{
 				AnimSetting s;
-				s.export = gd.GetCell(1, row);
+				s.toexport = gd.GetCell(1, row);
 				s.ik = gd.GetCell(2, row);
 				s.ikSampleInterval = gd.GetCell(3, row);
 				Ogre::String animName = XSItoOgre(gd.GetCell(0, row));
@@ -924,7 +924,8 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			gd.PutColumnLabel(3, L"Sample Interval");
 
 
-			getAnimations(app.GetActiveSceneRoot(), animList);
+			XSI::Model appRoot(app.GetActiveSceneRoot());
+			getAnimations(appRoot, animList);
 			gd.PutRowCount(animList.size());
 			row = 0;
 			for (Ogre::AnimationList::iterator a = animList.begin(); a != animList.end(); ++a, ++row)
@@ -938,7 +939,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 				{
 					AnimSetting& s = ra->second;
 
-					gd.PutCell(1, row, s.export);
+					gd.PutCell(1, row, s.toexport);
 					gd.PutCell(2, row, s.ik);
 					gd.PutCell(3, row, s.ikSampleInterval);
 				}
