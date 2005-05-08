@@ -78,6 +78,8 @@ namespace Ogre {
 	template <class TContainer, class TContainerValueType, typename TCompValueType>
 	class RadixSort
 	{
+	public:
+		typedef typename TContainer::iterator ContainerIter;
 	protected:
 		/// Alpha-pass counters of values (histogram)
 		/// 4 of them so we can radix sort a maximum of a 32bit value
@@ -92,9 +94,9 @@ namespace Ogre {
 		struct SortEntry
 		{
 			TCompValueType key;
-			TContainer::iterator iter;
+			ContainerIter iter;
 			SortEntry() {}
-			SortEntry(TCompValueType k, TContainer::iterator it)
+			SortEntry(TCompValueType k, ContainerIter it)
 				: key(k), iter(it) {}
 
 		};
@@ -245,11 +247,12 @@ namespace Ogre {
 
 			// Counter pass
 			// Initialise the counts
-			for (int p = 0; p < mNumPasses; ++p)
+			int p;
+			for (p = 0; p < mNumPasses; ++p)
 				memset(mCounters[p], 0, sizeof(int) * 256);
 
 			// Perform alpha pass to count
-			TContainer::iterator i = mTmpContainer.begin();
+			ContainerIter i = mTmpContainer.begin();
 			TCompValueType prevValue = func.operator()(*i); 
 			bool needsSorting = false;
 			for (int u = 0; i != mTmpContainer.end(); ++i, ++u)
@@ -284,7 +287,7 @@ namespace Ogre {
 			mSrc = &mSortArea1;
 			mDest = &mSortArea2;
 
-			for (int p = 0; p < mNumPasses - 1; ++p)
+			for (p = 0; p < mNumPasses - 1; ++p)
 			{
 				sortPass(p);
 				// flip src/dst
@@ -297,7 +300,7 @@ namespace Ogre {
 
 			// Copy everything back
 			int c = 0;
-			for (TContainer::iterator i = container.begin(); 
+			for (ContainerIter i = container.begin(); 
 				i != container.end(); ++i, ++c)
 			{
 				*i = *((*mDest)[c].iter);
