@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
+#include "OgreRadixSort.h"
 
 namespace Ogre {
 
@@ -110,11 +111,14 @@ namespace Ogre {
         /// Flag indicating whether to autoextend pool
         bool mAutoExtendPool;
 
+		/// Flag indicating whether the billboards has to be sorted
+		bool mSortingEnabled;
+
         bool mFixedTextureCoords;
         bool mWorldSpace;
 
         typedef std::list<Billboard*> ActiveBillboardList;
-        typedef std::deque<Billboard*> FreeBillboardQueue;
+        typedef std::list<Billboard*> FreeBillboardList;
         typedef std::vector<Billboard*> BillboardPool;
 
         /** Active billboard list.
@@ -134,14 +138,13 @@ namespace Ogre {
                 mBillboardPool vector and are referenced on this deque at startup. As they get used this deque
                 reduces, as they get released back to to the set they get added back to the deque.
         */
-        FreeBillboardQueue mFreeBillboards;
+        FreeBillboardList mFreeBillboards;
 
         /** Pool of billboard instances for use and reuse in the active billboard list.
             @remarks
                 This vector will be preallocated with the estimated size of the set,and will extend as required.
         */
         BillboardPool mBillboardPool;
-
 
         /// The vertex position data for all billboards in this set.
         VertexData* mVertexData;
@@ -218,6 +221,18 @@ namespace Ogre {
         void genVertOffsets(Real inleft, Real inright, Real intop, Real inbottom,
             Real width, Real height,
             const Vector3& x, const Vector3& y, Vector3* pDestVec);
+
+
+		/** Sort functor */
+		struct SortFunctor
+		{
+			/// Direction to sort in
+			Vector3 sortDir;
+			float operator()(Billboard* bill) const;
+		};
+		SortFunctor mSortFunctor;
+		RadixSort<ActiveBillboardList, Billboard*, float> mRadixSorter;
+
 
         /// Shared class-level name for Movable type
         static String msMovableType;
@@ -331,6 +346,17 @@ namespace Ogre {
                 BillboardSet::setAutoextend
         */
         virtual bool getAutoextend(void) const;
+
+		/** Enables sorting for this BillboardSet. (default: off)
+			@param sortenable true to sort the billboards according to their distance to the camera
+		*/
+		virtual void setSortingEnabled(bool sortenable);
+
+		/** Returns true if sorting of billboards is enabled based on their distance from the camera
+		    @see
+				BillboardSet::setSortingEnabled
+		*/
+		virtual bool getSortingEnabled(void) const;
 
         /** Adjusts the size of the pool of billboards available in this set.
             @remarks
@@ -561,6 +587,9 @@ namespace Ogre {
         virtual void _updateBounds(void);
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
+
+        /** Sort the billboard set. Only called when enabled via setSortingEnabled */
+		virtual void _sortBillboards( Camera* cam);
 
         /** Sets whether billboards should be treated as being in world space. 
         @remarks

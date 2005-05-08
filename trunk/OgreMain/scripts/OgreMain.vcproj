@@ -114,7 +114,7 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				AdditionalLibraryDirectories="..\..\Dependencies\lib\$(ConfigurationName)"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="FALSE"
+				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -1017,6 +1017,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreQuaternion.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreRadixSort.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreRay.h">

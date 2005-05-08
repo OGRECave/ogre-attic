@@ -1627,6 +1627,10 @@ For a detailed description of the core particle system attributes, see the list 
 @ref{billboard_type}
 @item
 @ref{common_direction}
+@item
+@ref{particle_renderer, renderer}
+@item
+@ref{particle_sorted, sorted}
 @end itemize
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 
@@ -1679,10 +1683,28 @@ format: cull_each <true|false>@*
 example: cull_each true@*
 default: false@*
 
+@anchor{particle_renderer}
+@subheading renderer
+
+Particle systems do not render themselves, they do it through ParticleRenderer classes. Those classes are registered with a manager in order to provide particle systems with a particular 'look'. OGRE comes configured with a default billboard-based renderer, but more can be added through plugins. Particle renders are registered with a unique name, and you can use that name in this attribute to determine the renderer to use. The default is 'billboard'.@*@*
+
+Particle renderers can have attributes, which can be passed by setting them on the root particle system.
+
+format: renderer <renderer_name>@*
+default: billboard@*
+
+@anchor{particle_sorted}
+@subheading sorted
+
+By default, particles are not sorted. By setting this attribute to 'true', theparticles will be sorted with respect to the camera, furthest first. This can make certain rendering effects look better at a small sorting expense.
+
+format: sorted <true|false>@*
+default: false@*
+
 @anchor{billboard_type}
 @subheading billboard_type
 
-Particles are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the camera. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.@*@*
+This is actually an attribute of the 'billboard' particle renderer (the default), and is an example of passing attributes to a particle renderer by declaring them directly within the system declaration. Particles using the default renderer are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the camera. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.@*@*
 
 format: billboard_type <point|oriented_common|oriented_self>@*
 example: billboard_type oriented_self@*

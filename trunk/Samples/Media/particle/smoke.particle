@@ -9,6 +9,7 @@ Examples/Smoke
     	cull_each       	true
     	quota           	500
     	billboard_type  	point
+		sorted				true
     
     	// Area emitter
     	emitter Point
