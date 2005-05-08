@@ -413,7 +413,7 @@ namespace Ogre
 			CRefArray keys = fcurve.GetKeys();
 			for (int k = 0; k < keys.GetCount(); ++k)
 			{
-				long currFrame = fcurve.GetKeyTime(k).GetTime();
+				long currFrame = (long)(fcurve.GetKeyTime(k).GetTime());
 				if (first)
 				{
 					animEntry.startFrame = currFrame;
@@ -455,7 +455,7 @@ namespace Ogre
 			CRefArray keys = fcurve.GetKeys();
 			for (int k = 0; k < keys.GetCount(); ++k)
 			{
-				long currFrame = fcurve.GetKeyTime(k).GetTime();
+				long currFrame = (long)(fcurve.GetKeyTime(k).GetTime());
 				if (first)
 				{
 					animEntry.startFrame = currFrame;
@@ -563,7 +563,7 @@ namespace Ogre
 					XSI::MATH::DegreesToRadians(rotx),
 					XSI::MATH::DegreesToRadians(roty),
 					XSI::MATH::DegreesToRadians(rotz),
-					XSI::MATH::CRotation::RotationOrder::siXYZ);
+					XSI::MATH::CRotation::siXYZ);
 				transformation.SetTranslationFromValues(posx, posy, posz);
 
 
@@ -825,6 +825,9 @@ namespace Ogre
 		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
 		args[0] = L"PlayControl.Current";
 		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+
+		// Refresh
+		mXsiApp.ExecuteCommand(L"Refresh", CValueArray(), dummy);
 
 		args.Resize(1);
 
