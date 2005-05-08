@@ -235,6 +235,9 @@ namespace Ogre {
 		template <class TFunction>
 		void sort(TContainer& container, TFunction func)
 		{
+			if (container.empty())
+				return;
+
 			// Set up the sort areas
 			mSortSize = static_cast<int>(container.size());
 			mSortArea1.resize(container.size());
