@@ -674,7 +674,7 @@ CStatus OgreMeshExportOptions_DefineLayout( const CRef & in_Ctx )
 	item.PutAttribute( siUIFileFilter, L"OGRE Skeleton format (*.skeleton)|*.skeleton|All Files (*.*)|*.*||" );
 	item = oLayout.AddItem(L"fps");
 	item = oLayout.AddItem(L"animationList", L"Animations", siControlGrid);
-	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:60:90");
+	item.PutAttribute(siUIGridColumnWidths, L"0:120:60:90:130");
 	item.PutAttribute(siUIGridHideRowHeader, true);
 	// Make animatino name read-only
 	item.PutAttribute(siUIGridReadOnlyColumns, L"1:0:0:0");
@@ -785,15 +785,9 @@ void findAnimations(XSI::Model& model, Ogre::AnimationList& animList)
 				anim.startFrame = -1;
 				anim.endFrame = -1;
 				anim.source = ActionSource(src);
-				anim.ikSample = isAnimationIK(anim.source);
-				if (anim.ikSample)
-				{
-					anim.ikSampleInterval = 5.0f;
-				}
-				else
-				{
-					anim.ikSampleInterval = 0.0f;
-				}
+				// default to sampling
+				anim.ikSample = true;
+				anim.ikSampleInterval = 5.0f;
 				animList.push_back(anim);
 			}
 		}
@@ -920,7 +914,7 @@ CStatus OgreMeshExportOptions_PPGEvent( const CRef& io_Ctx )
 			gd.PutColumnCount(4);
 			gd.PutColumnLabel(0, L"Name");
 			gd.PutColumnLabel(1, L"Export?");
-			gd.PutColumnLabel(2, L"IK?");
+			gd.PutColumnLabel(2, L"Sample?");
 			gd.PutColumnLabel(3, L"Sample Interval");
 
 
