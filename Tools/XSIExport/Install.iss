@@ -1,7 +1,7 @@
 
 [Setup]
 AppName=OGRE XSI Exporter
-AppVerName=OGRE XSI Exporter 1.0.0
+AppVerName=OGRE XSI Exporter 1.0.1c
 DefaultDirName=c:\SoftImage\XSI_4.2
 DefaultGroupName=OGRE XSI Exporter
 Compression=lzma
@@ -20,6 +20,9 @@ Source: "extras\msvcp70.DLL"; DestDir: "{sys}"
 Source: "extras\msvcr70.DLL"; DestDir: "{sys}"
 
 Source: "OGREXSI_Readme.html"; DestDir: "{app}"; Flags: isreadme
+Source: "OGRE_XSI_page1.gif"; DestDir: "{app}"
+Source: "OGRE_XSI_page2.gif"; DestDir: "{app}"
+Source: "OGRE_XSI_page3.gif"; DestDir: "{app}"
 
 [Icons]
 Name: "{group}\README"; Filename: "{app}\OGREXSI_Readme.html"

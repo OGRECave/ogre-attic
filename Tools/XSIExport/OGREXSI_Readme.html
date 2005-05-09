@@ -56,7 +56,7 @@
 Rendering Engine)</p>
 <p class="header" align="center">XSI Exporter README file</p>
 <p class="header" align="center"><a href="http://www.ogre3d.org">http://www.ogre3d.org</a></p>
-<p class="MainHeader" align="left">Summary</p>
+<p class="MainHeader" align="left"><a name="top"></a>Summary</p>
 <p>OGRE (Object-Oriented Graphics Rendering Engine) is a
 scene-oriented, flexible 3D engine written in C++ designed to make it
 easier and more intuitive for developers to produce games and demos
@@ -64,9 +64,22 @@ utilising 3D hardware. The class library abstracts all the details of
 using the underlying system libraries like Direct3D and OpenGL and
 provides an interface based on world objects and other intuitive
 classes. </p>
-<p>This distribution contains the bare files required to export OGRE
-.mesh files from <a href="http://www.softimage.com">SoftImage|XSI 4.2</a>.</p>
-<p class="MainHeader" align="left">How to Install</p>
+<p>This distribution contains the files required to export OGRE
+.mesh, .skeleton and .material files from <a
+ href="http://www.softimage.com">SoftImage|XSI 4.2</a>. <br>
+</p>
+<p><span style="font-weight: bold;">IMPORTANT</span>: This exporter
+only works with a <span style="font-weight: bold;">full version</span>
+of XSI (Foundation or better). It will not work with the trial version.<br>
+</p>
+<a href="#install">How To Install</a><br>
+<a href="#features">Features</a><br>
+<a href="#using">How To Use</a><br>
+<a href="#tips">Tips</a><br>
+<a href="#changelog">Change Log</a><br>
+<p><br>
+</p>
+<p class="MainHeader" align="left"><a name="install"></a>How to Install</p>
 <p>If you are using the installer, you don't need to do anything except
 to run it and point it at your XSI folder. If you're installing from
 source, you need to do the following:<br>
@@ -79,11 +92,8 @@ path</li>
 debug version anytime) into $(XSI_ROOT)\Application\bin</li>
   <li>copy OgreXSIExporter.dll into $(XSI_ROOT)\Application\plugins</li>
 </ul>
-<p class="MainHeader" align="left">How to Use</p>
-<p>It's a simple case of selecting the objects you wish to export, and
-clicking File &gt; Export &gt; OGRE Mesh / Skeleton... to bring up the
-OGRE export dialog.<br>
-</p>
+<a href="#top">Back To Top</a><br>
+<p class="MainHeader" align="left"><a name="features"></a>Features</p>
 <p>The following features are supported:<br>
 </p>
 <ol>
@@ -92,7 +102,7 @@ OGRE export dialog.<br>
   <li>Exports vertex position, normals, multiple UV sets and vertex
 colours<br>
   </li>
-  <li>Polygon clusters used to change materials in a single PolygonMes
+  <li>Polygon clusters used to change materials in a single PolygonMesh
 are exported as separate SubMeshes</li>
   <li>By default, separate PolygonMesh objects which use the same
 material are merged for efficiency</li>
@@ -105,14 +115,119 @@ export (optional)<br>
   <li>Exporting of deformers (bone chains, nulls used as deformers)
 direct to binary .skeleton format<br>
   </li>
-  <li>Exporting of one or more ActionSources as animations <br>
+  <li>Exporting of one or more ActionSources directly as animations ,
+or sampled (IK conversion)<br>
   </li>
-  <li>Exporting of RealTime shaders on materials (OpenGL and DirectX)<br>
-  </li>
+  <li>Exporting of RealTime shaders on materials (OpenGL and DirectX)</li>
 </ol>
+<a href="OGREXSI_Readme.html#top">Back To Top</a>
+<p class="MainHeader" align="left"><a name="using"></a>How To Use<br>
+</p>
+It's a simple case of selecting the objects you wish to export, and
+clicking File &gt; Export &gt; OGRE Mesh / Skeleton... to bring up the
+OGRE export dialog.<br>
+<img alt="page1" src="OGRE_XSI_page1.gif"
+ style="width: 464px; height: 477px;"><br>
+<br>
+The first page of the exporter is concerned with the basic mesh export
+settings. <br>
+<span style="font-weight: bold;"><br>
+<span style="color: rgb(255, 255, 0);">Object(s) to export:</span> </span>This
+is pre-populated with your current selection<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Mesh:</span>
+</span>This is the .mesh file to export - you must complete this. Once
+you have selected a file, by default the other file-related fields in
+the exporter will be completed for you based on the same filename
+pattern.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Merge
+objects with the same material?:</span> </span>If this is checked, all
+polygon mesh objects with the same material will be merged into one for
+efficiency. Most of the time you want this; but if you want more
+control over the splitting of your SubMesh objects, deselect it.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Calculate
+Edge Lists:</span> </span>Select this if you want your mesh to support
+stencil shadows. This increases the size of the resulting .mesh object.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Calculate
+Tangents:</span> </span>Select this if you wish to use normal mapping
+or some other technique which requires tangents vectors.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Levels
+of Detail:</span> </span>Increase this value above 0 if you want lower
+LODs to be generated for this mesh. The rest of the parameters control
+how the mesh is reduced.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><img
+ alt="page2" src="OGRE_XSI_page2.gif"
+ style="width: 464px; height: 477px;"><br>
+<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Export
+Materials:</span> </span>Whether to export a .material script or not.
+The field underneath contains the name of the script to export, and is
+pre-populated based on the .mesh selection on the first page.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Material
+Prefix:</span> </span>Optional prefix to give the name of each
+material.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Copy
+Textures To Folder:</span> </span>If selected, any textures referenced
+in your materials will be copied into the same folder as the .material
+script.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><img
+ alt="page3" src="OGRE_XSI_page3.gif"
+ style="width: 464px; height: 477px;"><br>
+<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Export
+Skeleton:</span> </span>If checked, skeleton and animation will be
+exported. Cannot be selected if no skeleton is referenced by this mesh.
+The field underneath determines the target.skeleton file (pre-populated
+based on the mesh name).<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Frames
+per second:</span> </span>How to translate XSI frames into time
+values. Will be populated based on XSI's playback speed, but you can
+alter it if you wish.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Animations:</span>
+</span>This is a list of Actions which you've already saved. The fields
+are as follows:<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;"><span
+ style="color: rgb(255, 255, 0);">Name:</span> </span>The name of the
+Action, which will become the name of the animation<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Export?:</span>
+</span>Whether to export this animation (checked by default)<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Sample?:</span>
+</span>Animation which is based on Inverse Kinematics (IK) or other
+constraints needs to be 'sampled' to turn it into Forward Kinematics
+(FK) in OGRE. If your animation includes IK or other constraints you <span
+ style="font-weight: bold;">must</span> leave this option enabled. Only
+if you are certain your Action is comprised entirely of FK, with no
+other constraints in force, should you disable this option. If in
+doubt, leave it enabled.<br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);">Sample
+Interval:</span> </span>The number of frames between each sample, if
+sampling is enabled. <br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span></div>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><a
+ href="OGREXSI_Readme.html#top">Back To Top</a><br>
+<span style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><span
+ style="font-weight: bold;"><span style="color: rgb(255, 255, 0);"></span></span><br>
+<p class="MainHeader" align="left"><a name="tips"></a>Tips<br>
+</p>
 <p>Important modelling / animating considerations:<br>
 </p>
 <ol>
+  <li>The exporter writes one SubMesh per material if 'Merge objects
+with the same material' is selected. If unselected, you get one SubMesh
+per PolygonMesh (or clusters with differing materials within them)<br>
+  </li>
+  <li>The exporter writes all your export settings into a custom
+property in your scene, meaning that all your preferences are
+remembered for this scene, even between loads.<br>
+  </li>
   <li>The exporter only exports PolygonMesh objects, so if you work
 with higher-order surfaces like NURBS you must create a PolygonMesh
 object from these surfaces before exporting</li>
@@ -125,27 +240,12 @@ your resulting .mesh will be where the world origin is in XSI<br>
 Actions &gt; Store) to be exported. Any work-in-progress animation will
 not be picked up<br>
   </li>
-  <li>OGRE supports forward kinematics (FK) animation only; thus, if
-you use inverse kinematics (IK) to define your animations you must
-define separate FK ActionSources for each one:</li>
-  <ol>
-    <li>Make sure your IK animations are stored in ActionSources</li>
-    <li>Drag an IK Action from the explorer (8) to the animation mixer
-(ALT-0) at frame 1</li>
-    <li>Select all your bones and define a marking set (probably just
-the rotation elements)</li>
-    <li>Move the timeline along from frame 1 to the end of your
-animation, keyframing the marking set at a frequency which reflects the
-needs of the animation; you will probably need more keyframes for FK
-than IK.</li>
-    <li>If you like, you can keyframe different sets of bones at
-different frequencies, if you need to tweak things</li>
-    <li>Store these new keyframes in a new ActionSource, e.g.
-FK&lt;animation&gt;<br>
-    </li>
-    <li>When you export, choose to export just the FK version of the
-animation, not your original IK animation</li>
-  </ol>
+  <li>You can make your animations smaller by turning them into FK
+beforehand, and thus avoid fixed-rate sampling. This is somewhat tricky
+to do properly, and you can't typically have IK and FK actions
+functioning on the same model. If you're not sure, keep the 'Sample?'
+option checked for your animations, since it's the simplest way to make
+sure the animations look right in OGRE.</li>
 </ol>
 Important material considerations:<br>
 <ul>
@@ -159,14 +259,32 @@ probably want to change that for efficiency</li>
     <li>OGLTexture and DXTexture both default to no mip mapping. You
 will probably want to alter the defaults so that you have at least
 sampled point mipmapping (in DXTexture this is a separate setting, in
-OGLTexture it's combined with the minification filter)<br>
-    </li>
+OGLTexture it's combined with the minification filter)</li>
   </ul>
 </ul>
+<a href="OGREXSI_Readme.html#top">Back To Top</a>
+<p class="MainHeader" align="left"><a name="changelog"></a>Change Log<br>
+</p>
+<p style="font-weight: bold;">1.0.1c<br>
+</p>
+<ul>
+  <li>Added material exporting</li>
+  <li>Added animation sampling (handle IK, other constraints seamlessly)</li>
+  <li>Fixed vertex output format for software skinning</li>
+  <li>Fixed a problem with translation keyframes</li>
+  <li>Added optimisation of resulting animations (eliminate identity
+tracks, collapse identical keyframes)</li>
+  <li>Fixed frame -&gt; time conversion with varying Action bases</li>
+  <li>Reorganised GUI a little</li>
+  <li>Deal with case-insensitive fcurve references</li>
+  <li>Linux build fixes<br>
+  </li>
+</ul>
+<p><a href="OGREXSI_Readme.html#top">Back To Top</a></p>
 <p class="MainHeader" align="left">Reporting Issues<br>
 </p>
 <p>Please report any issues with the exporter in the <a
  href="http://www.ogre3d.org/phpBB2">OGRE Forums</a>.</p>
-<p>&nbsp;</p>
+<p>&nbsp;<a href="OGREXSI_Readme.html#top">Back To Top</a></p>
 </body>
 </html>
