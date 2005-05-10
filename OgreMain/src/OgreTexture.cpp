@@ -112,6 +112,30 @@ namespace Ogre {
 		mFormat = images[0]->getFormat();
 		mSrcBpp = PixelUtil::getNumElemBits(mFormat);
 		mHasAlpha = PixelUtil::hasAlpha(mFormat);
+
+		if (mFinalBpp == 16) 
+		{
+			// Drop down texture internal format
+			switch (mFormat) 
+			{
+			case PF_R8G8B8:
+			case PF_X8R8G8B8:
+				mFormat = PF_R5G6B5;
+				break;
+			
+			case PF_B8G8R8:
+			case PF_X8B8G8R8:
+				mFormat = PF_B5G6R5;
+				break;
+				
+			case PF_A8R8G8B8:
+			case PF_R8G8B8A8:
+    			case PF_A8B8G8R8:
+			case PF_B8G8R8A8:
+				mFormat = PF_A4R4G4B4;
+				break;
+			}
+		}
 		
 		// The custom mipmaps in the image have priority over everything
         size_t imageMips = images[0]->getNumMipmaps();
