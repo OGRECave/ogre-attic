@@ -206,6 +206,7 @@ namespace Ogre {
             - frequency - the speed of the wave in cycles per second
             - phase - the offset of the start of the wave, e.g. 0.5 to start half-way through the wave
             - amplitude - scales the output so that instead of lying within [0,1] it lies within [0,1] * amplitude
+			- duty cycle - the active width of a PWM signal
         @par
             Note that for simplicity of integration with the rest of the controller insfrastructure, the output of
             the wave is parametric i.e. 0..1, rather than the typical wave output of [-1,1]. To compensate for this, the
@@ -223,6 +224,7 @@ namespace Ogre {
         Real mFrequency;
         Real mPhase;
         Real mAmplitude;
+		Real mDutyCycle;
 
         /** Overridden from ControllerFunction. */
         Real getAdjustedInput(Real input);
@@ -232,8 +234,10 @@ namespace Ogre {
             @param
                 deltaInput If true, signifies that the input will be a delta value such that the function should
                 add it to an internal counter before calculating the output.
+			@param
+				dutyCycle Used in PWM mode to specify the pulse width.
         */
-        WaveformControllerFunction(WaveformType wType, Real base = 0, Real frequency = 1, Real phase = 0, Real amplitude = 1, bool deltaInput = true);
+        WaveformControllerFunction(WaveformType wType, Real base = 0, Real frequency = 1, Real phase = 0, Real amplitude = 1, bool deltaInput = true, Real dutyCycle = 0.5);
 
         /** Overriden function.
         */

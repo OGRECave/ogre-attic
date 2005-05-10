@@ -141,7 +141,10 @@ namespace Ogre {
         /// Gradual steady increase from min to max over the period with an instant return to min at the end.
         WFT_SAWTOOTH,
         /// Gradual steady decrease from max to min over the period, with an instant return to max at the end.
-        WFT_INVERSE_SAWTOOTH
+        WFT_INVERSE_SAWTOOTH,
+		/// Pulse Width Modulation. Works like WFT_SQUARE, except the high to low transition is controlled by duty cycle. 
+		/// With a duty cycle of 50% (0.5) will give the same output as WFT_SQUARE.
+		WFT_PWM
     };
 
     /** The broad type of detail for rendering. */

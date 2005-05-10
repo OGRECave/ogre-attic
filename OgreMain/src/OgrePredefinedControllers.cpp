@@ -226,7 +226,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     // WaveformControllerFunction
     //-----------------------------------------------------------------------
-    WaveformControllerFunction::WaveformControllerFunction(WaveformType wType, Real base,  Real frequency, Real phase, Real amplitude, bool delta)
+    WaveformControllerFunction::WaveformControllerFunction(WaveformType wType, Real base,  Real frequency, Real phase, Real amplitude, bool delta, Real dutyCycle)
         :ControllerFunction<Real>(delta)
     {
         mWaveType = wType;
@@ -235,7 +235,7 @@ namespace Ogre
         mPhase = phase;
         mAmplitude = amplitude;
         mDeltaCount = phase;
-
+		mDutyCycle = dutyCycle;
     }
     //-----------------------------------------------------------------------
     Real WaveformControllerFunction::getAdjustedInput(Real input)
@@ -288,6 +288,12 @@ namespace Ogre
         case WFT_INVERSE_SAWTOOTH:
             output = -((input * 2) - 1);
             break;
+		case WFT_PWM:
+			if( input <= mDutyCycle )
+				output = 1.0;
+			else
+				output = -1.0;
+			break;
         }
 
         // Scale output into 0..1 range and then by base + amplitude
