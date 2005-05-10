@@ -85,8 +85,11 @@ namespace Ogre {
 		/// Bake animations
 		void createAnimations(Skeleton* pSkel, DeformerMap& deformers, 
 			float framesPerSecond, AnimationList& animList);
-		/// Bake animation tracks, and return the time length found
-		void createAnimationTracks(Animation* pAnim, AnimationEntry& animEntry, 
+		/// Bake animation tracks from ActionSource
+		void createAnimationTracksDirect(Animation* pAnim, AnimationEntry& animEntry, 
+			DeformerMap& deformers, float fps);
+		/// Bake animation tracks by sampling
+		void createAnimationTracksSampled(Animation* pAnim, AnimationEntry& animEntry, 
 			DeformerMap& deformers, float fps);
 		/// Get the length of all animations
 		void determineAnimationLengths(AnimationList& animList);		
@@ -101,14 +104,11 @@ namespace Ogre {
 		void copyDeformerMap(DeformerMap& deformers);
 		/// Get deformer from passed in map or lower case version
 		DeformerEntry* getDeformer(const String& name, DeformerMap& deformers);
-		/// Sample IK animation into FK
-		void convertIKtoFK(DeformerMap& deformers, AnimationList& animList);
-		void convertIKtoFK(DeformerMap& deformers, AnimationEntry& anim);
 		XSI::Model placeAnimationInMixer(AnimationEntry& anim);
 		XSI::Mixer getMixer(AnimationEntry& anim);
 		void removeAllFromMixer(XSI::Mixer& mixer);
-		void buildBoneSelectionString(DeformerMap& deformers, XSI::CString& str);
-		void keyAllBones(DeformerMap& deformers, double frame);
+		void sampleAllBones(DeformerMap& deformers, 
+			std::vector<AnimationTrack*> deformerTracks, double frame, float fps);
 
 	};
 

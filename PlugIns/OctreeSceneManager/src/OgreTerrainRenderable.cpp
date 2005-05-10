@@ -208,11 +208,11 @@ namespace Ogre
                 *pSysPos++ = *pPos++ = height; // y
                 *pSysPos++ = *pPos++ = ( float ) j * msOptions->scale.z; //z
 
-                *pTex0++ = ( float ) i / ( float ) msOptions->pageSize;
-                *pTex0++ = ( float ) ( float ) j / ( float ) msOptions->pageSize;
+                *pTex0++ = ( float ) i / ( float ) ( msOptions->pageSize - 1 );
+                *pTex0++ = ( float ) j / ( float ) ( msOptions->pageSize - 1 );
 
-                *pTex1++ = ( ( float ) i / ( float ) msOptions->tileSize ) * msOptions->detailTile;
-                *pTex1++ = ( ( float ) ( float ) j / ( float ) msOptions->tileSize ) * msOptions->detailTile;
+                *pTex1++ = ( ( float ) i / ( float ) ( msOptions->tileSize - 1 ) ) * msOptions->detailTile;
+                *pTex1++ = ( ( float ) j / ( float ) ( msOptions->tileSize - 1 ) ) * msOptions->detailTile;
 
                 if ( height < min )
                     min = ( Real ) height;

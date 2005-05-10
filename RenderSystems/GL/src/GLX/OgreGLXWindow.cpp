@@ -3,19 +3,19 @@
 This source file is part of OGRE
     (Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
- 
+
 Copyright (c) 2000-2005 The OGRE Team
 Also see acknowledgements in Readme.html
- 
+
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU Lesser General Public License as published by the Free Software
 Foundation; either version 2 of the License, or (at your option) any later
 version.
- 
+
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
- 
+
 You should have received a copy of the GNU Lesser General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 Place - Suite 330, Boston, MA 02111-1307, USA, or go to
@@ -91,26 +91,29 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 {
 	std::cerr << "GLXWindow::create" << std::endl;
 
-	// We will attempt to create new window on default screen op display 0
-	int screen = DefaultScreen(mDisplay);
-	int depth = DisplayPlanes(mDisplay, screen);
-	
-	// Make sure the window is centered if no left and top in parameters
-	size_t left = (int)DisplayWidth(mDisplay, screen)/2 - width/2; 
-	size_t top = (int)DisplayHeight(mDisplay, screen)/2 - height/2; 
 	String title = name;
 	size_t fsaa_samples = 0;
+
+	// We will attempt to create new window on default screen op display 0
+	// unless external window handle passed below
+	int screen = DefaultScreen(mDisplay);
+	int depth = DisplayPlanes(mDisplay, screen);
+	Window rootWindow = RootWindow(mDisplay,screen);
+	Window parentWindow = rootWindow;
+
+	// Make sure the window is centered if no left and top in parameters
+	size_t left = (int)DisplayWidth(mDisplay, screen)/2 - width/2;
+	size_t top = (int)DisplayHeight(mDisplay, screen)/2 - height/2;
+
+	std::cerr << "Parsing miscParams" << std::endl;
 	if(miscParams)
 	{
 		// Parse miscellenous parameters
 		NameValuePairList::const_iterator opt;
 		// Full screen anti aliasing
 		opt = miscParams->find("FSAA");
-		
 		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
-		{
 			fsaa_samples = StringConverter::parseUnsignedInt(opt->second);
-		}
 		// left (x)
 		opt = miscParams->find("left");
 		if(opt != miscParams->end())
@@ -123,21 +126,41 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		opt = miscParams->find("title");
 		if(opt != miscParams->end()) //check for FSAA parameter, if not ignore it...
 			title = opt->second;
-	}  
-	
+		opt = miscParams->find("parentWindowHandle");
+		if(opt != miscParams->end()) {  // embedding OGRE
+			std::vector<String> tokens = StringUtil::split(opt->second, " :");
+			String new_display = tokens[0];
+			String new_screen = tokens[1];
+			String wid = tokens[2];
+
+			// Now set things to their correct values
+			// This must be the ugliest line of code I have ever written :P
+			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedLong(new_display));
+			screen = StringConverter::parseUnsignedInt(new_screen);
+			parentWindow = StringConverter::parseUnsignedInt(wid);
+
+			depth = DisplayPlanes(mDisplay, screen);
+			rootWindow = RootWindow(mDisplay, screen);
+
+			left = top = 0;
+			fullScreen = false; // Can't be full screen if embedded in an app!
+		}
+	}
+
 	// Check for full screen mode if FSAA was asked for
 	if(!fullScreen && fsaa_samples>0)
 	{
 		LogManager::getSingleton().logMessage("GLXWindow::create -- FSAA only supported in fullscreen mode");
 		fsaa_samples = 0;
-	} 
-	
-	Window rootWindow = RootWindow(mDisplay,screen);
+	}
+    // Disable FSAA for now -- it doesn't work on NVIDIA
+    fsaa_samples = 0;
+
 #ifndef NO_XRANDR
 	// Attempt mode switch for fullscreen -- only if RANDR extension is there
 	int dummy;
 	if(fullScreen && ! XQueryExtension(mDisplay, "RANDR", &dummy, &dummy, &dummy)) {
-			LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No XRANDR extension found");		
+			LogManager::getSingleton().logMessage("GLXWindow::create -- Could not switch to full screen mode: No XRANDR extension found");
 	} else if(fullScreen) {
 		// Use Xrandr extension to switch video modes. This is much better than
 		// XVidMode as you can't scroll away from the full-screen applications.
@@ -217,7 +240,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
 
 	// Create window on server
-	mWindow = XCreateWindow(mDisplay,rootWindow,left,top,width,height,0,visualInfo->depth,InputOutput,visualInfo->visual,mask,&attr);
+	mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,visualInfo->depth,InputOutput,visualInfo->visual,mask,&attr);
 	if(!mWindow) {
 		OGRE_EXCEPT(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
 	}
@@ -289,14 +312,14 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
     rs->_registerContext(this, mContext);
 }
 
-void GLXWindow::destroy(void) 
+void GLXWindow::destroy(void)
 {
     // Unregister and destroy OGRE GLContext
     GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
     rs->_unregisterContext(this);
-    delete mContext;    
+    delete mContext;
 
-    // Destroy GL context    
+    // Destroy GL context
 	if(mGlxContext)
 		glXDestroyContext(mDisplay, mGlxContext);
 	if(mWindow)
@@ -308,32 +331,32 @@ void GLXWindow::destroy(void)
 	Root::getSingleton().getRenderSystem()->detachRenderTarget( this->getName() );
 }
 
-bool GLXWindow::isActive() const 
+bool GLXWindow::isActive() const
 {
 	return mActive;
 }
 
-bool GLXWindow::isClosed() const 
+bool GLXWindow::isClosed() const
 {
 	return mClosed;
 }
 
-void GLXWindow::reposition(int left, int top) 
+void GLXWindow::reposition(int left, int top)
 {
 	XMoveWindow(mDisplay,mWindow,left,top);
 }
 
-void GLXWindow::resize(unsigned int width, unsigned int height) 
+void GLXWindow::resize(unsigned int width, unsigned int height)
 {
 	XResizeWindow(mDisplay,mWindow,width,height);
 }
 
-void GLXWindow::swapBuffers(bool waitForVSync) 
+void GLXWindow::swapBuffers(bool waitForVSync)
 {
 	glXSwapBuffers(mDisplay,mWindow);
 }
 
-void GLXWindow::processEvent(const XEvent &event) 
+void GLXWindow::processEvent(const XEvent &event)
 {
 	// Process only events for this window
 	switch(event.type) {
@@ -394,7 +417,7 @@ GLXWindowInterface::~GLXWindowInterface()
 {
 }
 
-void GLXWindow::getCustomAttribute( const String& name, void* pData ) 
+void GLXWindow::getCustomAttribute( const String& name, void* pData )
 {
 	if( name == "GLXWINDOW" ) {
 		*static_cast<Window*>(pData) = mWindow;
@@ -411,14 +434,14 @@ void GLXWindow::getCustomAttribute( const String& name, void* pData )
 
 
 
-void GLXWindow::writeContentsToFile(const String& filename) 
+void GLXWindow::writeContentsToFile(const String& filename)
 {
         ImageCodec::ImageData* imgData = new ImageCodec::ImageData;
         imgData->width = mWidth;
        imgData->height = mHeight;
      imgData->format = PF_BYTE_RGB;
 
-      // Allocate buffer 
+      // Allocate buffer
         uchar* pBuffer = new uchar[mWidth * mHeight * 3];
 
      // Read pixels
@@ -435,12 +458,12 @@ void GLXWindow::writeContentsToFile(const String& filename)
 
         MemoryDataStreamPtr streamFlipped(new MemoryDataStream(img.getData(), stream->size(), false));
 
-        // Get codec 
+        // Get codec
       size_t pos = filename.find_last_of(".");
        String extension;
       if( pos == String::npos )
           OGRE_EXCEPT(
-            Exception::ERR_INVALIDPARAMS, 
+            Exception::ERR_INVALIDPARAMS,
          "Unable to determine image type for '" + filename + "' - invalid extension.",
           "SDLWindow::writeContentsToFile" );
 

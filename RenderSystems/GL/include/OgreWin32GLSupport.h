@@ -51,8 +51,6 @@ namespace Ogre
 		*/
 		void* getProcAddress(const String& procname);
 
-		virtual void resizeReposition(void*);
-
 		/**
 		 * Initialise extensions
 		 */

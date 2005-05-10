@@ -44,7 +44,7 @@ namespace Ogre {
         components attached to it do not have to. An overlay has no visual element
         in itself, it it merely a container for visual elements.
     @par
-        Overlays are created by calling SceneManager::createOverlay, or by defining them
+        Overlays are created by calling OverlayManager::create, or by defining them
         in special text scripts (.overlay files). As many overlays
         as you like can be defined; after creation an overlay is hidden i.e. not
         visible until you specifically enable it by calling 'show'. This allows you to have multiple

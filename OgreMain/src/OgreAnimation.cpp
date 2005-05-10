@@ -115,25 +115,26 @@ namespace Ogre {
         return mName;
     }
     //---------------------------------------------------------------------
-	void Animation::apply(Real timePos, Real weight, bool accumulate)
+	void Animation::apply(Real timePos, Real weight, bool accumulate, Real scale)
     {
         TrackList::iterator i;
         for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
         {
-            i->second->apply(timePos, weight, accumulate);
+            i->second->apply(timePos, weight, accumulate, scale);
         }
 
 
     }
     //---------------------------------------------------------------------
-    void Animation::apply(Skeleton* skel, Real timePos, Real weight, bool accumulate)
+    void Animation::apply(Skeleton* skel, Real timePos, Real weight, 
+		bool accumulate, Real scale)
     {
         TrackList::iterator i;
         for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
         {
             // get bone to apply to 
             Bone* b = skel->getBone(i->first);
-            i->second->applyToNode(b, timePos, weight, accumulate);
+            i->second->applyToNode(b, timePos, weight, accumulate, scale);
         }
 
 

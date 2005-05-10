@@ -150,8 +150,6 @@ namespace Ogre
 		~D3D9RenderSystem();
 
 		virtual void initConfigOptions(void);
-		// method for resizing/repositing the render window
- 		virtual void ResizeRepositionWindow(HWND wich);
 
 		// Overridden RenderSystem functions
 		ConfigOptionMap& getConfigOptions(void);

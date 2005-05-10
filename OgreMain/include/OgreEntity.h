@@ -334,6 +334,9 @@ namespace Ogre {
         */
         AnimationState* getAnimationState(const String& name);
         /** For entities based on animated meshes, gets the AnimationState objects for all animations.
+        @returns
+            In case the entity is animated, this functions returns the pointer to a AnimationStateSet 
+            containing all animations of the entries. If the entity is not animated, it returns 0.
         @remarks
             You animate an entity by updating the animation state objects. Each of these represents the
             current state of each animation available to the entity. The AnimationState objects are
@@ -510,6 +513,18 @@ namespace Ogre {
         * If this instance does not share it's SkeletonInstance with other instances NULL will be returned
         */
         inline const EntitySet* getSkeletonInstanceSharingSet() const { return mSharedSkeletonEntities; }
+
+		/** Updates the internal animation state set to include the latest 
+			available animations from the attached skeleton.
+		@remarks
+			Use this method if you manually add animations to a skeleton, or have
+			linked the skeleton to another for animation purposes since creating 
+			this entity.
+		@note
+			If you have called getAnimationState prior to calling this method, 
+			the pointers will still remain valid.
+		*/
+		void refreshAvailableAnimationState(void);
 
 		/** Advanced method to perform all the updates required for an animated entity.
 		@remarks

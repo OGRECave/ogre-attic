@@ -79,6 +79,11 @@ namespace Ogre {
 					{
 						readAnimations(pSkeleton, elem);
 					}
+					elem = rootElem->FirstChildElement("animationlinks");
+					if (elem)
+					{
+						readSkeletonAnimationLinks(pSkeleton, elem);
+					}
 				}
 			}
 		}
@@ -339,6 +344,21 @@ namespace Ogre {
 
         }
 
+		// Write links
+		Skeleton::LinkedSkeletonAnimSourceIterator linkIt = 
+			pSkeleton->getLinkedSkeletonAnimationSourceIterator();
+		if (linkIt.hasMoreElements())
+		{
+			LogManager::getSingleton().logMessage("Exporting animation links.");
+			TiXmlElement* linksNode = 
+				rootNode->InsertEndChild(TiXmlElement("animationlinks"))->ToElement();
+			while(linkIt.hasMoreElements())
+			{
+				const LinkedSkeletonAnimationSource& link = linkIt.getNext();
+				writeSkeletonAnimationLink(linksNode, link);
+			}
+		}
+
         LogManager::getSingleton().logMessage("DOM populated, writing XML file..");
 
         // Write out to a file
@@ -531,6 +551,40 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+	void XMLSkeletonSerializer::writeSkeletonAnimationLink(TiXmlElement* linksNode, 
+		const LinkedSkeletonAnimationSource& link)
+	{
+		TiXmlElement* linkNode = 
+			linksNode->InsertEndChild(TiXmlElement("animationlink"))->ToElement();
+		linkNode->SetAttribute("skeletonName", link.skeletonName);
+		linkNode->SetAttribute("scale", StringConverter::toString(link.scale));
+
+	}
+	//---------------------------------------------------------------------
+	void XMLSkeletonSerializer::readSkeletonAnimationLinks(Skeleton* skel, 
+		TiXmlElement* linksNode)
+	{
+		LogManager::getSingleton().logMessage("XMLSkeletonSerializer: Reading Animations links...");
+
+		for (TiXmlElement* linkElem = linksNode->FirstChildElement("animationlink"); 
+			linkElem != 0; linkElem = linkElem->NextSiblingElement())
+		{
+			String skelName = linkElem->Attribute("skeletonName");
+			const char* strScale = linkElem->Attribute("scale");
+			Real scale;
+			// Scale optional
+			if (strScale == 0)
+			{
+				scale = 1.0f;
+			}
+			else
+			{
+				scale = StringConverter::parseReal(strScale);
+			}
+			skel->addLinkedSkeletonAnimationSource(skelName, scale);
+
+		}
+	}
 }
 
 

@@ -179,6 +179,7 @@ namespace Ogre {
 		Bone* pBone;
 		bool ikSample;
 		double ikSampleInterval;
+		XSI::MATH::CTransformation initialXform;
 		// lists of action source items (probably only one per param?)
 		XSI::AnimationSourceItem xsiTrack[XTT_COUNT];
 

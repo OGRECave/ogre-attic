@@ -78,6 +78,16 @@ namespace Ogre {
 
         serializer.importSkeleton(stream, this);
 
+		// Load any linked skeletons
+		LinkedSkeletonAnimSourceList::iterator i;
+		for (i = mLinkedSkeletonAnimSourceList.begin(); 
+			i != mLinkedSkeletonAnimSourceList.end(); ++i)
+		{
+			i->pSkeleton = SkeletonManager::getSingleton().load(
+				i->skeletonName, mGroup);
+		}
+
+
     }
     //---------------------------------------------------------------------
     void Skeleton::unloadImpl(void)
@@ -101,6 +111,12 @@ namespace Ogre {
         }
         mAnimationsList.clear();
 
+		LinkedSkeletonAnimSourceList::iterator li;
+		for (li = mLinkedSkeletonAnimSourceList.begin(); 
+			li != mLinkedSkeletonAnimSourceList.end(); ++li)
+		{
+			li->pSkeleton.setNull();
+		}
     }
     //---------------------------------------------------------------------
     Bone* Skeleton::createBone(void)
@@ -233,8 +249,18 @@ namespace Ogre {
             const AnimationState& animState = istate->second;
             if (animState.getEnabled())
             {
-                Animation* anim = getAnimation(animState.getAnimationName());
-				anim->apply(this, animState.getTimePosition(), animState.getWeight(), mBlendState == ANIMBLEND_CUMULATIVE);
+				const LinkedSkeletonAnimationSource* linked = 0;
+				Animation* anim = getAnimation(animState.getAnimationName(), &linked);
+				if (linked)
+				{
+					anim->apply(this, animState.getTimePosition(), animState.getWeight(), 
+						mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
+				}
+				else
+				{
+					anim->apply(this, animState.getTimePosition(), animState.getWeight(), 
+						mBlendState == ANIMBLEND_CUMULATIVE);
+				}
             }
         }
 
@@ -289,17 +315,45 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    Animation* Skeleton::getAnimation(const String& name) const
+    Animation* Skeleton::getAnimation(const String& name, 
+		const LinkedSkeletonAnimationSource** linker) const
     {
         AnimationList::const_iterator i = mAnimationsList.find(name);
 
         if (i == mAnimationsList.end())
         {
+			LinkedSkeletonAnimSourceList::const_iterator i;
+			for (i = mLinkedSkeletonAnimSourceList.begin(); 
+				i != mLinkedSkeletonAnimSourceList.end(); ++i)
+			{
+				try 
+				{
+					if (!i->pSkeleton.isNull())
+					{
+						if (linker)
+						{
+							*linker = &(*i);
+						}
+
+						return i->pSkeleton->getAnimation(name);
+					}
+				}
+				catch(Exception&)
+				{
+					// Ignore, keep looking - if we run out, we'll except below
+				}
+			}
+
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
             "Skeleton::getAnimation");
         }
+		else
+		{
+			if (linker)
+				*linker = 0;
+			return i->second;
+		}
 
-        return i->second;
     }
     //---------------------------------------------------------------------
     void Skeleton::removeAnimation(const String& name)
@@ -335,7 +389,45 @@ namespace Ogre {
             String animName = anim->getName();
             (*animSet)[animName] = AnimationState(animName, 0.0, anim->getLength());
         }
+
+		// Also iterate over linked animation
+		LinkedSkeletonAnimSourceList::iterator li;
+		for (li = mLinkedSkeletonAnimSourceList.begin(); 
+			li != mLinkedSkeletonAnimSourceList.end(); ++li)
+		{
+			if (!li->pSkeleton.isNull())
+			{
+				li->pSkeleton->_refreshAnimationState(animSet);
+			}
+		}
+
     }
+	//-----------------------------------------------------------------------
+	void Skeleton::_refreshAnimationState(AnimationStateSet* animSet)
+	{
+		// Merge in any new animations
+		AnimationList::iterator i;
+		for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
+		{
+			Animation* anim = i->second;
+			// Create animation at time index 0, default params mean this has weight 1 and is disabled
+			String animName = anim->getName();
+			if (animSet->find(animName) == animSet->end())
+			{
+				(*animSet)[animName] = AnimationState(animName, 0.0, anim->getLength());
+			}
+		}
+		// Also iterate over linked animation
+		LinkedSkeletonAnimSourceList::iterator li;
+		for (li = mLinkedSkeletonAnimSourceList.begin(); 
+			li != mLinkedSkeletonAnimSourceList.end(); ++li)
+		{
+			if (!li->pSkeleton.isNull())
+			{
+				li->pSkeleton->_refreshAnimationState(animSet);
+			}
+		}
+	}
     //-----------------------------------------------------------------------
     unsigned short Skeleton::getNumBones(void) const
     {
@@ -382,8 +474,7 @@ namespace Ogre {
 
         AnimationList::const_iterator i = mAnimationsList.begin();
 
-        while (index--)
-            ++i;
+		std::advance(i, index);
 
         return i->second;
     }
@@ -542,5 +633,50 @@ namespace Ogre {
 			ai->second->optimise();
 		}
 	}
+	//---------------------------------------------------------------------
+	void Skeleton::addLinkedSkeletonAnimationSource(const String& skelName, 
+		Real scale)
+	{
+		// Check not already linked
+		LinkedSkeletonAnimSourceList::iterator i;
+		for (i = mLinkedSkeletonAnimSourceList.begin(); 
+			i != mLinkedSkeletonAnimSourceList.end(); ++i)
+		{
+			if (skelName == i->skeletonName)
+				return; // don't bother
+		}
+
+		if (mIsLoaded)
+		{
+			// Load immediately
+			SkeletonPtr skelPtr = 
+				SkeletonManager::getSingleton().load(skelName, mGroup);
+			mLinkedSkeletonAnimSourceList.push_back(
+				LinkedSkeletonAnimationSource(skelName, scale, skelPtr));
+
+		}
+		else
+		{
+			// Load later
+			mLinkedSkeletonAnimSourceList.push_back(
+				LinkedSkeletonAnimationSource(skelName, scale));
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void Skeleton::removeAllLinkedSkeletonAnimationSources(void)
+	{
+		mLinkedSkeletonAnimSourceList.clear();
+	}
+	//---------------------------------------------------------------------
+	Skeleton::LinkedSkeletonAnimSourceIterator 
+	Skeleton::getLinkedSkeletonAnimationSourceIterator(void) const
+	{
+		return LinkedSkeletonAnimSourceIterator(
+			mLinkedSkeletonAnimSourceList.begin(), 
+			mLinkedSkeletonAnimSourceList.end());
+	}
+	//---------------------------------------------------------------------
+
 }
 

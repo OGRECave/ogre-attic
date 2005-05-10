@@ -276,9 +276,10 @@ namespace Ogre {
         
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::apply(Real timePos, Real weight, bool accumulate)
+    void AnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
+		Real scale)
     {
-        applyToNode(mTargetNode, timePos, weight, accumulate);
+        applyToNode(mTargetNode, timePos, weight, accumulate, scale);
         
     }
     //---------------------------------------------------------------------
@@ -292,13 +293,14 @@ namespace Ogre {
         mTargetNode = node;
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::applyToNode(Node* node, Real timePos, Real weight, bool accumulate)
+    void AnimationTrack::applyToNode(Node* node, Real timePos, Real weight, 
+		bool accumulate, Real scl)
     {
         KeyFrame kf = this->getInterpolatedKeyFrame(timePos);
 		if (accumulate) 
         {
             // add to existing. Weights are not relative, but treated as absolute multipliers for the animation
-            Vector3 translate = kf.getTranslate() * weight;
+            Vector3 translate = kf.getTranslate() * weight * scl;
 			node->translate(translate);
 
 			// interpolate between no-rotation and full rotation, to point 'weight', so 0 = no rotate, 1 = full
@@ -318,13 +320,22 @@ namespace Ogre {
 			Vector3 scale = kf.getScale();
 			// Not sure how to modify scale for cumulative anims... leave it alone
 			//scale = ((Vector3::UNIT_SCALE - kf.getScale()) * weight) + Vector3::UNIT_SCALE;
+			if (scl != 1.0f && scale != Vector3::UNIT_SCALE)
+			{
+				scale = Vector3::UNIT_SCALE + (scale - Vector3::UNIT_SCALE) * scl;
+			}
 			node->scale(scale);
 		} 
         else 
         {
 			// apply using weighted transform method
-			node->_weightedTransform(weight, kf.getTranslate(), kf.getRotation(),
-				kf.getScale());
+			Vector3 scale = kf.getScale();
+			if (scl != 1.0f && scale != Vector3::UNIT_SCALE)
+			{
+				scale = Vector3::UNIT_SCALE + (scale - Vector3::UNIT_SCALE) * scl;
+			}
+			node->_weightedTransform(weight, kf.getTranslate() * scl, kf.getRotation(),
+				scale);
 		}
 
         /*

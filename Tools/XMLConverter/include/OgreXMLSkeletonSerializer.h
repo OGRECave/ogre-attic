@@ -71,12 +71,15 @@ namespace Ogre {
         void writeAnimation(TiXmlElement* animsNode, const Animation* anim);
         void writeAnimationTrack(TiXmlElement* tracksNode, const AnimationTrack* track);
         void writeKeyFrame(TiXmlElement* keysNode, const KeyFrame* key);
+		void writeSkeletonAnimationLink(TiXmlElement* linksNode, 
+			const LinkedSkeletonAnimationSource& link);
 		
-		void XMLSkeletonSerializer::readBones(Skeleton* skel, TiXmlElement* mBonesNode);
-		void XMLSkeletonSerializer::readBones2(Skeleton* skel, TiXmlElement* mBonesNode);
+		void readBones(Skeleton* skel, TiXmlElement* mBonesNode);
+		void readBones2(Skeleton* skel, TiXmlElement* mBonesNode);
 		void createHierarchy(Skeleton* skel, TiXmlElement* mHierNode);
-		void XMLSkeletonSerializer::readKeyFrames(AnimationTrack* track, TiXmlElement* mKeyfNode);
-		void XMLSkeletonSerializer::readAnimations(Skeleton* skel, TiXmlElement* mAnimNode) ;
+		void readKeyFrames(AnimationTrack* track, TiXmlElement* mKeyfNode);
+		void readAnimations(Skeleton* skel, TiXmlElement* mAnimNode) ;
+		void readSkeletonAnimationLinks(Skeleton* skel, TiXmlElement* linksNode);
 
     };
 

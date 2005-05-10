@@ -45,10 +45,10 @@ namespace Ogre
 		void create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams);
 		void destroy(void);
-		bool isActive() const { return mActive; }
+		bool isVisible() const;
 		bool isClosed() const { return mClosed; }
-		void reposition( int left, int top ) {}
-		void resize( unsigned int width, unsigned int height );
+		void reposition(int left, int top);
+		void resize(unsigned int width, unsigned int height);
 		void swapBuffers( bool waitForVSync = true );
 		HWND getWindowHandle() const { return mHWnd; }
 
@@ -63,27 +63,29 @@ namespace Ogre
 		bool requiresTextureFlipping() const { return false; }
 
 		// Method for dealing with resize / move & 3d library
-		virtual void WindowMovedOrResized(void);
+		void windowMovedOrResized();
 
-		bool isReady() const { return mReady; }
-		void setReady(bool set) { mReady = set; }
-		void setActive(bool set) { mActive = set; }
 		/// Get the presentation parameters used with this window
 		D3DPRESENT_PARAMETERS* getPresentationParameters(void) 
 		{ return &md3dpp; }
+
 		/// @copydoc RenderTarget::update
-		void update(void);
+		void update();
 
 		/** Create (or recreate) the D3D device or SwapChain for this window.
 		*/
-		void createD3DResources(void);
+		void createD3DResources();
+	
+		/** Destroy the D3D device or SwapChain for this window.
+		*/
+		void destroyD3DResources();
 	
 	protected:
 		HINSTANCE mInstance;			// Process instance
 		D3D9Driver *mDriver;			// D3D9 driver
 		HWND	mHWnd;					// Win32 Window handle
-		bool	mActive;				// Is active i.e. visible
-		bool	mReady;					// Is ready i.e. available for update
+		bool	mIsExternal;			// window not created by Ogre
+		bool	mSizing;
 		bool	mClosed;
 		bool	mIsSwapChain;			// Is this a secondary window?
 
