@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://www.ogre3d.org/
 
 Copyright (c) 2000-2005 The OGRE Team
@@ -44,86 +44,39 @@ namespace Ogre
 	// D3D9RenderWindow instance in the window data GetWindowLog/SetWindowLog
 	LRESULT D3D9RenderWindow::WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	{
-		LPCREATESTRUCT lpcs;
-		D3D9RenderWindow* win;
+		if (uMsg == WM_CREATE)
+		{
+			// copy D3D9RenderWindow* from createwindow param to userdata slot
+			SetWindowLong(hWnd, GWL_USERDATA,
+				(LONG)(((LPCREATESTRUCT)lParam)->lpCreateParams));
+			return 0;
+		}
 
-		// look up window instance
-		if( WM_CREATE != uMsg )
-			// Get window pointer
-			win = (D3D9RenderWindow*)GetWindowLong( hWnd, 0 );
+		D3D9RenderWindow* win =
+			(D3D9RenderWindow*)GetWindowLong(hWnd, GWL_USERDATA);
+
+		if (!win)
+			return DefWindowProc(hWnd, uMsg, wParam, lParam);
 
 		switch( uMsg )
 		{
 		case WM_ACTIVATE:
-			if( WA_INACTIVE == LOWORD( wParam ) )
-				win->mActive = false;
-			else
-				win->mActive = true;
-			break;
-
-		case WM_CREATE:
-			// Log the new window
-			// Get CREATESTRUCT
-			lpcs = (LPCREATESTRUCT)lParam;
-			win = (D3D9RenderWindow*)(lpcs->lpCreateParams);
-			// Store pointer in window user data area
-			SetWindowLong( hWnd, 0, (long)win );
-			win->mActive = true;
-
-			return 0;
-			break;
-
-		case WM_KEYDOWN:
-			// TEMPORARY CODE
-			// TODO - queue up keydown / keyup events with
-			//  window name and timestamp to be processed
-			//  by main loop
-
-			// ESCAPE closes window
-			/*
-			if (wParam == VK_ESCAPE)
-			{
-			win->mClosed = true;
-			return 0L;
-			}
-			*/
-			break;
-
-		case WM_PAINT:
-			// If we get WM_PAINT messges, it usually means our window was
-			// comvered up, so we need to refresh it by re-showing the contents
-			// of the current frame.
-			if( win->mActive && win->mReady )
-				win->update();
-			break;
-
-		case WM_MOVE:
-			// Move messages need to be tracked to update the screen rects
-			// used for blitting the backbuffer to the primary
-			// *** This doesn't need to be used to Direct3D9 ***
+			win->mActive = (LOWORD(wParam) != WA_INACTIVE);
 			break;
 
 		case WM_ENTERSIZEMOVE:
-			// Previent rendering while moving / sizing
-			win->mReady = false;
+			win->mSizing = true;
 			break;
 
 		case WM_EXITSIZEMOVE:
-			win->WindowMovedOrResized();
-			win->mReady = true;
+			win->windowMovedOrResized();
+			win->mSizing = false;
 			break;
 
+		case WM_MOVE:
 		case WM_SIZE:
-			// Check to see if we are losing or gaining our window.  Set the 
-			// active flag to match
-			if( SIZE_MAXHIDE == wParam || SIZE_MINIMIZED == wParam )
-				win->mActive = false;
-			else
-			{
-				win->mActive = true;
-				if( win->mReady )
-					win->WindowMovedOrResized();
-			}
+			if (!win->mSizing)
+				win->windowMovedOrResized();
 			break;
 
 		case WM_GETMINMAXINFO:
@@ -133,7 +86,7 @@ namespace Ogre
 			break;
 
 		case WM_CLOSE:
-			DestroyWindow( win->mHWnd );
+			win->destroy(); // cleanup and call DestroyWindow
 			win->mClosed = true;
 			return 0;
 		}
@@ -142,14 +95,15 @@ namespace Ogre
 	}
 
 	D3D9RenderWindow::D3D9RenderWindow(HINSTANCE instance, D3D9Driver *driver, LPDIRECT3DDEVICE9 deviceIfSwapChain):
-		mInstance(instance),
+	mInstance(instance),
 		mDriver(driver)
 	{
 		mIsFullScreen = false;
-		mIsSwapChain = deviceIfSwapChain != NULL;
+		mIsSwapChain = (deviceIfSwapChain != NULL);
+		mIsExternal = false;
 		mHWnd = 0;
 		mActive = false;
-		mReady = false;
+		mSizing = false;
 		mClosed = false;
 	}
 
@@ -160,7 +114,7 @@ namespace Ogre
 		{
 			LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
 			SAFE_RELEASE( mpD3DDevice );
-			mDriver->setD3DDevice( mpD3DDevice );
+			mDriver->setD3DDevice( NULL );
 		}
 	}
 
@@ -169,20 +123,20 @@ namespace Ogre
 		LPDIRECT3D9 pD3D = mDriver->getD3D();
 
 		if (SUCCEEDED(pD3D->CheckDeviceMultiSampleType(
-				adapterNum, 
-				deviceType, format, 
-				fullScreen, type, outQuality)))
+			adapterNum, 
+			deviceType, format, 
+			fullScreen, type, outQuality)))
 			return true;
 		else
 			return false;
 	}
 
 	void D3D9RenderWindow::create(const String& name, unsigned int width, unsigned int height,
-	            bool fullScreen, const NameValuePairList *miscParams)
+		bool fullScreen, const NameValuePairList *miscParams)
 	{
 		HINSTANCE hInst = mInstance;
 		D3D9Driver* driver = mDriver;
-		
+
 		HWND parentHWnd = 0;
 		HWND externalHandle = 0;
 		mFSAAType = D3DMULTISAMPLE_NONE;
@@ -191,10 +145,12 @@ namespace Ogre
 		unsigned int displayFrequency = 0;
 		String title = name;
 		unsigned int colourDepth = 32;
-		unsigned int left = 0; // Defaults to screen center
-		unsigned int top = 0; // Defaults to screen center
+		int left = -1; // Defaults to screen center
+		int top = -1; // Defaults to screen center
 		bool depthBuffer = true;
-		
+		String border = "";
+		bool outerSize = false;
+
 		if(miscParams)
 		{
 			// Get variable-length params
@@ -202,15 +158,19 @@ namespace Ogre
 			// left (x)
 			opt = miscParams->find("left");
 			if(opt != miscParams->end())
-				left = StringConverter::parseUnsignedInt(opt->second);
+				left = StringConverter::parseInt(opt->second);
 			// top (y)
 			opt = miscParams->find("top");
 			if(opt != miscParams->end())
-				top = StringConverter::parseUnsignedInt(opt->second);
+				top = StringConverter::parseInt(opt->second);
 			// Window title
 			opt = miscParams->find("title");
 			if(opt != miscParams->end())
 				title = opt->second;
+			// parentWindowHandle		-> parentHWnd
+			opt = miscParams->find("parentWindowHandle");
+			if(opt != miscParams->end())
+				parentHWnd = (HWND)StringConverter::parseUnsignedInt(opt->second);
 			// externalWindowHandle		-> externalHandle
 			opt = miscParams->find("externalWindowHandle");
 			if(opt != miscParams->end())
@@ -239,8 +199,16 @@ namespace Ogre
 			opt = miscParams->find("FSAAQuality");
 			if(opt != miscParams->end())
 				mFSAAQuality = StringConverter::parseUnsignedInt(opt->second);
+			// window border style
+			opt = miscParams->find("border");
+			if(opt != miscParams->end())
+				border = opt->second;
+			// set outer dimensions?
+			opt = miscParams->find("outerDimensions");
+			if(opt != miscParams->end())
+				outerSize = StringConverter::parseBool(opt->second);
 		}
-		
+
 		// Destroy current window if any
 		if( mHWnd )
 			destroy();
@@ -248,95 +216,103 @@ namespace Ogre
 
 		if (!externalHandle)
 		{
-			DWORD dwStyle = (fullScreen ? WS_POPUP : WS_OVERLAPPEDWINDOW) | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+			DWORD dwStyle = WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 			RECT rc;
 
 			mWidth = width;
 			mHeight = height;
+			mTop = top;
+			mLeft = left;
 
 			if (!fullScreen)
 			{
-				// Calculate window dimensions required to get the requested client area
-				SetRect(&rc, 0, 0, mWidth, mHeight);
-				AdjustWindowRect(&rc, dwStyle, false);
-				mWidth = rc.right - rc.left;
-				mHeight = rc.bottom - rc.top;
-
-				// Clamp width and height to the desktop dimensions
-				if (mWidth > (unsigned)GetSystemMetrics(SM_CXSCREEN))
-					mWidth = (unsigned)GetSystemMetrics(SM_CXSCREEN);
-				if (mHeight > (unsigned)GetSystemMetrics(SM_CYSCREEN))
-					mHeight = (unsigned)GetSystemMetrics(SM_CYSCREEN);
-
-				if (!left)
-					mLeft = (GetSystemMetrics(SM_CXSCREEN) / 2) - (mWidth / 2);
+				if (parentHWnd)
+				{
+					dwStyle |= WS_CHILD;
+				}
 				else
-					mLeft = left;
-				if (!top)
-					mTop = (GetSystemMetrics(SM_CYSCREEN) / 2) - (mHeight / 2);
-				else
-					mTop = top;
+				{
+					if (border == "none")
+						dwStyle |= WS_POPUP;
+					else if (border == "fixed")
+						dwStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION |
+						WS_SYSMENU | WS_MINIMIZEBOX;
+					else
+						dwStyle |= WS_OVERLAPPEDWINDOW;
+				}
+
+				if (!outerSize)
+				{
+					// Calculate window dimensions required
+					// to get the requested client area
+					SetRect(&rc, 0, 0, mWidth, mHeight);
+					AdjustWindowRect(&rc, dwStyle, false);
+					mWidth = rc.right - rc.left;
+					mHeight = rc.bottom - rc.top;
+
+					// Clamp width and height to the desktop dimensions
+					int screenw = GetSystemMetrics(SM_CXSCREEN);
+					int screenh = GetSystemMetrics(SM_CYSCREEN);
+					if ((int)mWidth > screenw)
+						mWidth = screenw;
+					if ((int)mHeight > screenh)
+						mHeight = screenh;
+					if (mLeft < 0)
+						mLeft = (screenw - mWidth) / 2;
+					if (mTop < 0)
+						mTop = (screenh - mHeight) / 2;
+				}
 			}
 			else
+			{
+				dwStyle |= WS_POPUP;
 				mTop = mLeft = 0;
+			}
 
 			// Register the window class
 			// NB allow 4 bytes of window data for D3D9RenderWindow pointer
-            WNDCLASS wndClass = { CS_HREDRAW | CS_VREDRAW, WndProc, 0, 4, hInst,
-				LoadIcon( NULL, IDI_APPLICATION ),
-				LoadCursor( NULL, IDC_ARROW ),
-				(HBRUSH)GetStockObject( BLACK_BRUSH ), NULL,
-				TEXT(title.c_str()) };
-			RegisterClass( &wndClass );
+			WNDCLASS wc = { 0, WndProc, 0, 0, hInst,
+				LoadIcon(0, IDI_APPLICATION), LoadCursor(NULL, IDC_ARROW),
+				(HBRUSH)GetStockObject(BLACK_BRUSH), 0, "OgreD3D9Wnd" };
+			RegisterClass(&wc);
 
 			// Create our main window
 			// Pass pointer to self
-			HWND hWnd = CreateWindow(TEXT(title.c_str()),
-									 TEXT(title.c_str()),
-									 dwStyle, mLeft, mTop,
-									 mWidth, mHeight, 0L, 0L, hInst, this);
-			GetClientRect(hWnd,&rc);
-			mWidth = rc.right;
-			mHeight = rc.bottom;
-
-			ShowWindow(hWnd, SW_SHOWNORMAL);
-			UpdateWindow(hWnd);
-
-			mHWnd = hWnd;
-			// Store info
-			mName = name;
-			mIsDepthBuffered = depthBuffer;
-			mIsFullScreen = fullScreen;
+			mIsExternal = false;
+			mHWnd = CreateWindow("OgreD3D9Wnd", title.c_str(), dwStyle,
+				mLeft, mTop, mWidth, mHeight, parentHWnd, 0, hInst, this);
 		}
 		else
 		{
 			mHWnd = externalHandle;
-			ShowWindow(mHWnd, SW_SHOWNORMAL);
-			UpdateWindow(mHWnd);
-			RECT rc;
-			GetClientRect(mHWnd,&rc);
-			mWidth = rc.right;
-			mHeight = rc.bottom;
-			mLeft = rc.left;
-			mTop = rc.top;
-			mName = name;
-			mIsDepthBuffered = depthBuffer;
-			mIsFullScreen = fullScreen;
+			mIsExternal = true;
 		}
 
-		// track colour depth
+		RECT rc;
+		// top and left represent outer window coordinates
+		GetWindowRect(mHWnd, &rc);
+		mTop = rc.top;
+		mLeft = rc.left;
+		// width and height represent interior drawable area
+		GetClientRect(mHWnd, &rc);
+		mWidth = rc.right;
+		mHeight = rc.bottom;
+
+		mName = name;
+		mIsDepthBuffered = depthBuffer;
+		mIsFullScreen = fullScreen;
 		mColourDepth = colourDepth;
 
-        StringUtil::StrStreamType str;
-        str << "D3D9 : Created D3D9 Rendering Window '"
-            << mName << "' : " << mWidth << "x" << mHeight 
-       		<< ", " << mColourDepth << "bpp";
+		StringUtil::StrStreamType str;
+		str << "D3D9 : Created D3D9 Rendering Window '"
+			<< mName << "' : " << mWidth << "x" << mHeight 
+			<< ", " << mColourDepth << "bpp";
 		LogManager::getSingleton().logMessage(
 			LML_NORMAL, str.str());
 
 		createD3DResources();
 
-		mReady = true;
+		mActive = true;
 	}
 
 	void D3D9RenderWindow::createD3DResources(void)
@@ -501,8 +477,7 @@ namespace Ogre
 
 	}
 
-	
-	void D3D9RenderWindow::destroy()
+	void D3D9RenderWindow::destroyD3DResources()
 	{
 		mpRenderSurface = 0;
 		if (mIsSwapChain)
@@ -512,19 +487,57 @@ namespace Ogre
 		}
 		else
 		{
-			// ignore deptzh buffer, access device through driver
+			// ignore depth buffer, access device through driver
 			mpRenderZBuffer = 0;
 			LPDIRECT3DDEVICE9 mpD3DDevice = mDriver->getD3DDevice();
 			SAFE_RELEASE(mpD3DDevice);
-			mDriver->setD3DDevice( mpD3DDevice );
-			DestroyWindow( mHWnd );
+			mDriver->setD3DDevice(NULL);
 		}
-		mHWnd = 0;
 	}
 
-	void D3D9RenderWindow::resize( unsigned int width, unsigned int height )
+	void D3D9RenderWindow::destroy()
 	{
-		
+		if (mHWnd && !mIsExternal)
+			DestroyWindow(mHWnd);
+		mHWnd = 0;
+		mActive = false;
+	}
+
+	bool D3D9RenderWindow::isVisible() const
+	{
+		return (mHWnd && !IsIconic(mHWnd));
+	}
+
+	void D3D9RenderWindow::reposition(int top, int left)
+	{
+		if (mHWnd && !mIsFullScreen)
+		{
+			SetWindowPos(mHWnd, 0, top, left, 0, 0,
+				SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+		}
+	}
+
+	void D3D9RenderWindow::resize(unsigned int width, unsigned int height)
+	{
+		if (mHWnd && !mIsFullScreen)
+		{
+			SetWindowPos(mHWnd, 0, 0, 0, width, height,
+				SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+		}
+	}
+
+	void D3D9RenderWindow::windowMovedOrResized()
+	{
+		if (!mHWnd || IsIconic(mHWnd))
+			return;
+
+		RECT rc;
+		GetClientRect(mHWnd, &rc);
+		unsigned int width = rc.right;
+		unsigned int height = rc.bottom;
+		if (mWidth == width && mHeight == height)
+			return;
+
 		if (mIsSwapChain) 
 		{
 
@@ -565,13 +578,13 @@ namespace Ogre
 
 				hr = mpSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &mpRenderSurface);
 				hr = mDriver->getD3DDevice()->CreateDepthStencilSurface(
-						mWidth, mHeight,
-						md3dpp.AutoDepthStencilFormat,
-						md3dpp.MultiSampleType,
-						md3dpp.MultiSampleQuality, 
-						(md3dpp.Flags & D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL),
-						&mpRenderZBuffer, NULL
-						);
+					mWidth, mHeight,
+					md3dpp.AutoDepthStencilFormat,
+					md3dpp.MultiSampleType,
+					md3dpp.MultiSampleQuality, 
+					(md3dpp.Flags & D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL),
+					&mpRenderZBuffer, NULL
+					);
 
 				if (FAILED(hr)) 
 				{
@@ -581,18 +594,19 @@ namespace Ogre
 				mpRenderSurface->Release();
 			}
 		}
-		// primary windows would reset the device - not implemented yet.
+		// primary windows must reset the device
 		else 
 		{
-			mWidth = width;
-			mHeight = height;
+			md3dpp.BackBufferWidth = mWidth = width;
+			md3dpp.BackBufferHeight = mHeight = height;
+			static_cast<D3D9RenderSystem*>(
+				Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
 		}
 
 		// Notify viewports of resize
 		ViewportList::iterator it = mViewportList.begin();
 		while( it != mViewportList.end() )
 			(*it++).second->_updateDimensions();
-		// TODO - resize window
 	}
 
 	void D3D9RenderWindow::swapBuffers( bool waitForVSync )
@@ -614,8 +628,6 @@ namespace Ogre
 			{
 				static_cast<D3D9RenderSystem*>(
 					Root::getSingleton().getRenderSystem())->_notifyDeviceLost();
-				Sleep(500);
-
 			}
 			else if( FAILED(hr) )
 				OGRE_EXCEPT( hr, "Error Presenting surfaces", "D3D9RenderWindow::swapBuffers" );
@@ -667,11 +679,6 @@ namespace Ogre
 		}
 	}
 
-	void D3D9RenderWindow::WindowMovedOrResized()
-	{
-		// TODO
-	}
-
 	void D3D9RenderWindow::writeContentsToFile(const String& filename)
 	{
 		HRESULT hr;
@@ -691,12 +698,12 @@ namespace Ogre
 		desc.Height = dm.Height;
 		desc.Format = D3DFMT_A8R8G8B8;
 		if (FAILED(hr = mpD3DDevice->CreateOffscreenPlainSurface(
-						desc.Width, 
-						desc.Height, 
-						desc.Format, 
-						D3DPOOL_SYSTEMMEM, 
-						&pTempSurf, 
-						NULL)))
+			desc.Width, 
+			desc.Height, 
+			desc.Format, 
+			D3DPOOL_SYSTEMMEM, 
+			&pTempSurf, 
+			NULL)))
 		{
 			OGRE_EXCEPT(hr, "Cannot create offscreen buffer 1!", "D3D9RenderWindow::writeContentsToFile");
 		}
@@ -721,12 +728,12 @@ namespace Ogre
 			// and to do so hits performance, so copy to another surface
 			// Must be the same format as the source surface
 			if (FAILED(hr = mpD3DDevice->CreateOffscreenPlainSurface(
-							desc.Width, 
-							desc.Height, 
-							desc.Format, 
-							D3DPOOL_DEFAULT, 
-							&pSurf,
-							NULL)))
+				desc.Width, 
+				desc.Height, 
+				desc.Format, 
+				D3DPOOL_DEFAULT, 
+				&pSurf,
+				NULL)))
 			{
 				SAFE_RELEASE(pSurf);
 				OGRE_EXCEPT(hr, "Cannot create offscreen buffer 2!", "D3D9RenderWindow::writeContentsToFile");
@@ -752,10 +759,10 @@ namespace Ogre
 			OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
 		} 
 
-        ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
-        imgData->width = desc.Width;
-        imgData->height = desc.Height;
-        imgData->format = PF_BYTE_RGB;
+		ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
+		imgData->width = desc.Width;
+		imgData->height = desc.Height;
+		imgData->format = PF_BYTE_RGB;
 
 		// Allocate contiguous buffer (surfaces aren't necessarily contiguous)
 		uchar* pBuffer = new uchar[desc.Width * desc.Height * 3];
@@ -827,7 +834,7 @@ namespace Ogre
 		// Write out
 		{
 			Codec::CodecDataPtr ptr(imgData);
-        	pCodec->codeToFile(stream, filename, ptr);
+			pCodec->codeToFile(stream, filename, ptr);
 		}
 
 		delete [] pBuffer;
@@ -860,10 +867,10 @@ namespace Ogre
 					mpRenderZBuffer = 0;
 				else
 					SAFE_RELEASE (mpRenderZBuffer);
-				Sleep(500);
+				Sleep(50);
 				return;
 			}
-			else if (hr == D3DERR_DEVICENOTRESET)
+			else
 			{
 				// device lost, and we can reset
 				rs->restoreLostDevice();
@@ -872,10 +879,10 @@ namespace Ogre
 				if (rs->isDeviceLost())
 				{
 					// Wait a while
-					Sleep(500);
+					Sleep(50);
 					return;
 				}
-			
+
 				// fixed: this only works for not swap chained
 				if (!mIsSwapChain) 
 				{

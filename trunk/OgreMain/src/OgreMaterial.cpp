@@ -176,12 +176,16 @@ namespace Ogre {
         ResourceHandle savedHandle = mat->mHandle;
         String savedName = mat->mName;
         String savedGroup = mat->mGroup;
+		ManualResourceLoader* savedLoader = mat->mLoader;
+		bool savedManual = mat->mIsManual;
         // Assign values from this
         *mat = *this;
         // Correct the name & handle, they get copied too
         mat->mName = savedName;
         mat->mHandle = savedHandle;
         mat->mGroup = savedGroup;
+		mat->mIsManual = savedManual;
+		mat->mLoader = savedLoader;
 
     }
     //-----------------------------------------------------------------------

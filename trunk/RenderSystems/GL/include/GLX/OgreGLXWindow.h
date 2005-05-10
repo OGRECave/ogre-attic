@@ -48,8 +48,8 @@ private:
 	bool mClosed;
 	bool mFullScreen;
 	int mOldMode;	// Mode before switching to fullscreen
-  
-    GLXContext   *mContext;    
+
+	GLXContext   *mContext;
 public:
 	// Pass X display to create this window on
 	GLXWindow(Display *display);

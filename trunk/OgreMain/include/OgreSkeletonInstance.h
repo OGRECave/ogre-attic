@@ -64,7 +64,8 @@ namespace Ogre {
         Animation* createAnimation(const String& name, Real length);
 
         /** Returns the named Animation object. */
-        Animation* getAnimation(const String& name) const;
+        Animation* getAnimation(const String& name, 
+			const LinkedSkeletonAnimationSource** linker = 0) const;
 
         /** Removes an Animation from this skeleton. 
         @remarks
@@ -81,6 +82,20 @@ namespace Ogre {
         /** Frees a TagPoint that already attached to a bone */
         void freeTagPoint(TagPoint* tagPoint);
 
+		/// @copydoc Skeleton::addLinkedSkeletonAnimationSource
+		void addLinkedSkeletonAnimationSource(const String& skelName, 
+			Real scale = 1.0f);
+		/// @copydoc Skeleton::removeAllLinkedSkeletonAnimationSources
+		void removeAllLinkedSkeletonAnimationSources(void);
+		/// @copydoc Skeleton::getLinkedSkeletonAnimationSourceIterator
+		LinkedSkeletonAnimSourceIterator 
+			getLinkedSkeletonAnimationSourceIterator(void) const;
+
+		/// @copydoc Skeleton::_initAnimationState
+		void _initAnimationState(AnimationStateSet* animSet);
+
+		/// @copydoc Skeleton::_refreshAnimationState
+		void _refreshAnimationState(AnimationStateSet* animSet);
     protected:
         /// Pointer back to master Skeleton
         SkeletonPtr mSkeleton;

@@ -44,6 +44,9 @@ namespace Ogre {
 
 #define OGRE_MAX_NUM_BONES 256
 
+	
+	struct LinkedSkeletonAnimationSource;
+
     /** A collection of Bone objects used to animate a skinned mesh.
     @remarks
         Skeletal animation works by having a collection of 'bones' which are 
@@ -199,8 +202,16 @@ namespace Ogre {
         */
         virtual Animation* createAnimation(const String& name, Real length);
 
-        /** Returns the named Animation object. */
-        virtual Animation* getAnimation(const String& name) const;
+        /** Returns the named Animation object. 
+		@remarks
+			Will pick up animations in linked skeletons 
+			(@see addLinkedSkeletonAnimationSource). 
+		@param name The name of the animation
+		@param linker Optional pointer to a pointer to the linked skeleton animation
+			where this is coming from.
+		*/
+        virtual Animation* getAnimation(const String& name, 
+			const LinkedSkeletonAnimationSource** linker = 0) const;
 
         /** Removes an Animation from this skeleton. */
         virtual void removeAnimation(const String& name);
@@ -222,13 +233,19 @@ namespace Ogre {
         virtual const AnimationStateSet& getAnimationState(void) const;
         
 
-        /** Initialise an animation set suitable for use with this mesh. 
+        /** Initialise an animation set suitable for use with this skeleton. 
         @remarks
             Only recommended for use inside the engine, not by applications.
         */
         virtual void _initAnimationState(AnimationStateSet* animSet);
 
-        /** Populates the passed in array with the bone matrices based on the current position.
+		/** Refresh an animation set suitable for use with this skeleton. 
+		@remarks
+			Only recommended for use inside the engine, not by applications.
+		*/
+		virtual void _refreshAnimationState(AnimationStateSet* animSet);
+
+		/** Populates the passed in array with the bone matrices based on the current position.
         @remarks
             Internal use only. The array pointed to by the passed in pointer must
             be at least as large as the number of bones.
@@ -239,7 +256,11 @@ namespace Ogre {
         /** Gets the number of animations on this skeleton. */
         virtual unsigned short getNumAnimations(void) const;
 
-        /** Gets a single animation by index. */
+        /** Gets a single animation by index. 
+		@remarks
+			Will NOT pick up animations in linked skeletons 
+			(@see addLinkedSkeletonAnimationSource).
+		*/
         virtual Animation* getAnimation(unsigned short index) const;
 
 
@@ -255,8 +276,54 @@ namespace Ogre {
 		@see Animation::optimise
 		*/
 		virtual void optimiseAllAnimations(void);
+
+		/** Allows you to use the animations from another Skeleton object to animate
+			this skeleton.
+		@remarks
+			If you have skeletons of identical structure (that means identically
+			named bones with identical handles, and with the same hierarchy), but
+			slightly different proportions or binding poses, you can re-use animations
+			from one in the other. Because animations are actually stored as
+			changes to bones from their bind positions, it's possible to use the
+			same animation data for different skeletons, provided the skeletal
+			structure matches and the 'deltas' stored in the keyframes apply
+			equally well to the other skeletons bind position (so they must be
+			roughly similar, but don't have to be identical). You can use the 
+			'scale' option to adjust the translation and scale keyframes where
+			there are large differences in size between the skeletons.
+		@note
+			This method takes a skeleton name, rather than a more specific 
+			animation name, for two reasons; firstly it allows some validation 
+			of compatibility of skeletal structure, and secondly skeletons are
+			the unit of loading. Linking a skeleton to another in this way means
+			that the linkee will be prevented from being destroyed until the 
+			linker is destroyed.
+
+			You cannot set up cyclic relationships, e.g. SkeletonA uses SkeletonB's
+			animations, and SkeletonB uses SkeletonA's animations. This is because
+			it would set up a circular dependency which would prevent proper 
+			unloading - make one of the skeletons the 'master' in this case.
+		@param skelName Name of the skeleton to link animations from. This 
+			skeleton will be loaded immediately if this skeleton is already 
+			loaded, otherwise it will be loaded when this skeleton is.
+		@param scale A scale factor to apply to translation and scaling elements
+			of the keyframes in the other skeleton when applying the animations
+			to this one. Compensates for skeleton size differences.
+		*/
+		virtual void addLinkedSkeletonAnimationSource(const String& skelName, 
+			Real scale = 1.0f);
+		/// Remove all links to other skeletons for the purposes of sharing animation
+		virtual void removeAllLinkedSkeletonAnimationSources(void);
 		
-    protected:
+		typedef std::vector<LinkedSkeletonAnimationSource> 
+			LinkedSkeletonAnimSourceList;
+		typedef ConstVectorIterator<LinkedSkeletonAnimSourceList> 
+			LinkedSkeletonAnimSourceIterator;
+		/// Get an iterator over the linked skeletons used as animation sources
+		virtual LinkedSkeletonAnimSourceIterator 
+			getLinkedSkeletonAnimationSourceIterator(void) const;
+
+	protected:
 		SkeletonAnimationBlendMode mBlendState;
         /// Storage of bones, indexed by bone handle
         BoneList mBoneList;
@@ -275,9 +342,11 @@ namespace Ogre {
         typedef std::map<String, Animation*> AnimationList;
         AnimationList mAnimationsList;
 
-
         /// Saved version of last animation
         AnimationStateSet mLastAnimationState;
+
+		/// List of references to other skeletons to use animations from 
+		mutable LinkedSkeletonAnimSourceList mLinkedSkeletonAnimSourceList;
 
         /** Internal method which parses the bones to derive the root bone. 
         @remarks
@@ -345,6 +414,18 @@ namespace Ogre {
         }
     };
 
+	/// Link to another skeleton to share animations
+	struct LinkedSkeletonAnimationSource
+	{
+		String skeletonName;
+		SkeletonPtr pSkeleton;
+		Real scale;
+		LinkedSkeletonAnimationSource(const String& skelName, Real scl)
+			: skeletonName(skelName), scale(scl) {}
+			LinkedSkeletonAnimationSource(const String& skelName, Real scl, 
+				SkeletonPtr skelPtr)
+				: skeletonName(skelName), pSkeleton(skelPtr), scale(scl) {}
+	};
 }
 
 

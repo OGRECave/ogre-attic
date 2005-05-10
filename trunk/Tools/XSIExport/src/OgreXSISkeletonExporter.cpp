@@ -91,9 +91,6 @@ namespace Ogre
 		// pre-parse all animations for lengths
 		determineAnimationLengths(animList);
 
-		// Any IK should be converted to FK
-		convertIKtoFK(deformers, animList);
-
 		// progress report
 		ProgressManager::getSingleton().progress();
 
@@ -373,8 +370,6 @@ namespace Ogre
 		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
 		{
 			AnimationEntry& animEntry = *ai;
-			// tease out all the animation source items
-			processActionSource(animEntry.source, deformers);
 
 			float animLength = (float)(animEntry.endFrame - animEntry.startFrame) / fps;
 			StringUtil::StrStreamType str;
@@ -383,7 +378,14 @@ namespace Ogre
 			LogOgreAndXSI(str.str());
 			Animation* anim = pSkel->createAnimation(animEntry.animationName, animLength);
 
-			createAnimationTracks(anim, animEntry, deformers, fps);
+			if (animEntry.ikSample)
+			{
+				createAnimationTracksSampled(anim, animEntry, deformers, fps);
+			}
+			else
+			{
+				createAnimationTracksDirect(anim, animEntry, deformers, fps);
+			}
 			
 		}
 	}
@@ -413,7 +415,7 @@ namespace Ogre
 			CRefArray keys = fcurve.GetKeys();
 			for (int k = 0; k < keys.GetCount(); ++k)
 			{
-				long currFrame = fcurve.GetKeyTime(k).GetTime();
+				long currFrame = (long)(fcurve.GetKeyTime(k).GetTime());
 				if (first)
 				{
 					animEntry.startFrame = currFrame;
@@ -455,7 +457,7 @@ namespace Ogre
 			CRefArray keys = fcurve.GetKeys();
 			for (int k = 0; k < keys.GetCount(); ++k)
 			{
-				long currFrame = fcurve.GetKeyTime(k).GetTime();
+				long currFrame = (long)(fcurve.GetKeyTime(k).GetTime());
 				if (first)
 				{
 					animEntry.startFrame = currFrame;
@@ -483,9 +485,142 @@ namespace Ogre
 
 	}
 	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::createAnimationTracks(Animation* pAnim, 
+	void XsiSkeletonExporter::createAnimationTracksSampled(Animation* pAnim, 
 		AnimationEntry& animEntry, DeformerMap& deformers, float fps)
 	{
+		// Save the current selection
+		CString seltext(mXsiApp.GetSelection().GetAsText());
+
+		// Clear current animation
+		CValueArray args;
+		CValue dummy;
+		mXsiApp.ExecuteCommand(L"SelectAll", args, dummy);
+		mXsiApp.ExecuteCommand(L"RemoveAllAnimation", args, dummy);
+
+		// Reset selection
+		mXsiApp.GetSelection().SetAsText(seltext);
+
+
+		// Create all tracks first
+		std::vector<AnimationTrack*> deformerTracks;
+		deformerTracks.resize(deformers.size());
+		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		{
+			DeformerEntry* deformer = di->second;
+			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
+			deformerTracks[deformer->boneID] = track;
+			if (deformer->pBone->getParent() == 0)
+			{
+				// Based on global
+				deformer->initialXform = 
+					deformer->obj.GetKinematics().GetGlobal().GetTransform();
+			}
+			else
+			{
+				// Based on local
+				deformer->initialXform = 
+					deformer->obj.GetKinematics().GetLocal().GetTransform();
+			}
+
+		}
+
+		Model model = placeAnimationInMixer(animEntry);
+
+		// Iterate over frames, keying as we go
+		long numFrames = animEntry.endFrame - animEntry.startFrame;
+		if (animEntry.ikSampleInterval == 0)
+		{
+			// Don't allow zero samplign frequency - infinite loop!
+			animEntry.ikSampleInterval = 5.0f;
+		}
+
+		for (long frame = 0; frame < numFrames; frame += animEntry.ikSampleInterval)
+		{
+			sampleAllBones(deformers, deformerTracks, frame, fps);
+
+		}
+		// sample final frame
+		sampleAllBones(deformers, deformerTracks, 
+			animEntry.endFrame - animEntry.startFrame, fps);
+
+		// remove the clip we added
+		Mixer mixer(model.GetMixer());
+		removeAllFromMixer(mixer);
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::sampleAllBones(DeformerMap& deformers, 
+		std::vector<AnimationTrack*> deformerTracks, double frame, float fps)
+	{
+		CValueArray args;
+		CValue dummy;
+		args.Resize(2);
+		// set the playcontrol 
+		args[0] = L"PlayControl.Key";
+		args[1] = frame;
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+		args[0] = L"PlayControl.Current";
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+
+		// Refresh
+		mXsiApp.ExecuteCommand(L"Refresh", CValueArray(), dummy);
+		// Sample all bones
+		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		{
+			DeformerEntry* deformer = di->second;
+			AnimationTrack* track = deformerTracks[deformer->boneID];
+
+			double initposx, initposy, initposz;
+			deformer->initialXform.GetTranslationValues(initposx, initposy, initposz);
+			double initrotx, initroty, initrotz;
+			deformer->initialXform.GetRotation().GetXYZAngles(initrotx, initroty, initrotz);
+			double initsclx, initscly, initsclz;
+			deformer->initialXform.GetScalingValues(initsclx, initscly, initsclz);
+			XSI::MATH::CMatrix4 invTrans = deformer->initialXform.GetMatrix4();
+			invTrans.InvertInPlace();
+
+			XSI::MATH::CTransformation transformation;
+			if (deformer->pBone->getParent() == 0)
+			{
+				// Based on global
+				transformation = 
+					deformer->obj.GetKinematics().GetGlobal().GetTransform();
+			}
+			else
+			{
+				// Based on local
+				transformation = 
+					deformer->obj.GetKinematics().GetLocal().GetTransform();
+			}
+
+			// Make relative to initial
+			XSI::MATH::CMatrix4 transformationMatrix = transformation.GetMatrix4();
+			transformationMatrix.MulInPlace(invTrans);
+			transformation.SetMatrix4(transformationMatrix);
+
+			double posx, posy, posz;
+			transformation.GetTranslationValues(posx, posy, posz);
+
+			// create keyframe
+			KeyFrame* kf = track->createKeyFrame((float)frame / fps);
+			// not sure why inverted transform doesn't work for position, but it doesn't
+			// I thought XSI used same transform order as OGRE
+			kf->setTranslate(XSItoOgre(transformation.GetTranslation()));
+			//kf->setTranslate(Vector3(posx - initposx, posy - initposy, posz - initposz));
+			kf->setRotation(XSItoOgre(transformation.GetRotationQuaternion()));
+			kf->setScale(XSItoOgre(transformation.GetScaling()));
+
+		}
+
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::createAnimationTracksDirect(Animation* pAnim, 
+		AnimationEntry& animEntry, DeformerMap& deformers, float fps)
+	{
+
+		// tease out all the animation source items
+		processActionSource(animEntry.source, deformers);
+
 		/* We have to iterate over the list of deformers, and create a track
 		 * for each one. Since XSI stores keys for all 9 components separately,
 		 * we need to bake OGRE keyframes (which include position, rotation and 
@@ -563,7 +698,7 @@ namespace Ogre
 					XSI::MATH::DegreesToRadians(rotx),
 					XSI::MATH::DegreesToRadians(roty),
 					XSI::MATH::DegreesToRadians(rotz),
-					XSI::MATH::CRotation::RotationOrder::siXYZ);
+					XSI::MATH::CRotation::siXYZ);
 				transformation.SetTranslationFromValues(posx, posy, posz);
 
 
@@ -618,117 +753,6 @@ namespace Ogre
 			mXsiApp.ExecuteCommand(L"DeleteObj", args, dummy);
 		}
 		mIKSampledAnimations.Clear();
-
-	}
-	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::convertIKtoFK(DeformerMap& deformers, AnimationList& animList)
-	{
-		// Save the current selection
-		CString seltext(mXsiApp.GetSelection().GetAsText());
-
-		// Clear current animation
-		CValueArray args;
-		CValue dummy;
-		mXsiApp.ExecuteCommand(L"SelectAll", args, dummy);
-		mXsiApp.ExecuteCommand(L"RemoveAllAnimation", args, dummy);
-
-		// Bake each animation into FK
-		for (AnimationList::iterator ai = animList.begin(); ai != animList.end(); ++ai)
-		{
-			if (ai->ikSample)
-			{
-				convertIKtoFK(deformers, *ai);
-			}
-		}
-
-		// Reset selection
-		mXsiApp.GetSelection().SetAsText(seltext);
-
-	}
-	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::convertIKtoFK(DeformerMap& deformers, AnimationEntry& anim)
-	{
-		Model model = placeAnimationInMixer(anim);
-
-		CString boneSelection;
-		buildBoneSelectionString(deformers, boneSelection);
-
-		// Set up marking
-		CValueArray args;
-		CValue dummy;
-		args.Resize(1);
-
-		mXsiApp.ExecuteCommand(L"ClearMarking", args, dummy);
-
-		args[0] = L"kine.local.pos.posx";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.pos.posy";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.pos.posz";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.ori.euler.rotx";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.ori.euler.roty";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.ori.euler.rotz";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.scl.sclx";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.scl.scly";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-		args[0] = L"kine.local.scl.sclz";
-		mXsiApp.ExecuteCommand(L"AddToMarking", args, dummy);
-
-		// Set marking set, and select all bones
-		args[0] = boneSelection;
-		mXsiApp.ExecuteCommand(L"CreateMarkingSet", args, dummy);
-		mXsiApp.ExecuteCommand(L"SelectObj", args, dummy);
-
-		// Activate marking set
-		args[0] = L"MarkingSet";
-		mXsiApp.ExecuteCommand(L"SetMarking", args, dummy);
-
-		// Iterate over frames, keying as we go
-		double numFrames = anim.endFrame - anim.startFrame;
-		if (anim.ikSampleInterval == 0)
-		{
-			// Don't allow zero samplign frequency - infinite loop!
-			anim.ikSampleInterval = 5.0f;
-		}
-		args.Resize(2);
-		for (double frame = 0; frame < numFrames; frame += anim.ikSampleInterval)
-		{
-			keyAllBones(deformers, frame);
-		}
-		// do end frame
-		keyAllBones(deformers, numFrames);
-
-		// Push current animation into a new action source
-		CString newActionName = anim.source.GetName() + L"_FK";
-		mIKSampledAnimations.Add(newActionName);
-
-		args.Resize(4);
-		args[0] = model.GetFullName();
-		args[1].Detach(); // use default (selection)
-		args[2] = (long)2; // put fcurves (allows us to resample in between if required)
-		args[3] = newActionName;
-		CValue retSource;
-		mXsiApp.ExecuteCommand(L"StoreAction", args, retSource);
-
-		// remove the clip we added
-		Mixer mixer(model.GetMixer());
-		removeAllFromMixer(mixer);
-
-		// Now update the animation reference
-		ActionSource newActionSource(retSource);
-		if (!newActionSource.IsValid())
-		{
-			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-				"Unable to retrieve the new FK action '" + XSItoOgre(newActionName) + "'", 
-				"OGRE XSI Exporter");
-		}
-		anim.source = newActionSource;
-
 
 	}
 	//-----------------------------------------------------------------------------
@@ -795,69 +819,6 @@ namespace Ogre
 		mXsiApp.ExecuteCommand(L"AddClip", args, dummy);
 
 		return model;
-
-	}
-	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::buildBoneSelectionString(DeformerMap& deformers, 
-		XSI::CString& str)
-	{
-		bool first = true;
-		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
-		{
-			if (!first)
-			{
-				str += L",";
-			}
-			DeformerEntry* deformer = i->second;
-			str += deformer->obj.GetFullName();
-			first = false;
-		}
-	}
-	//-----------------------------------------------------------------------------
-	void XsiSkeletonExporter::keyAllBones(DeformerMap& deformers, double frame)
-	{
-		CValueArray args;
-		CValue dummy;
-
-		args.Resize(2);
-		args[0] = L"PlayControl.Key";
-		args[1] = frame;
-		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
-		args[0] = L"PlayControl.Current";
-		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
-
-		args.Resize(1);
-
-		for (DeformerMap::iterator i = deformers.begin(); i != deformers.end(); ++i)
-		{
-			DeformerEntry* deformer = i->second;
-			CString str;
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.posx,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.posy,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.posz,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.rotx,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.roty,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.rotz,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.sclx,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.scly,";
-			str += deformer->obj.GetFullName();
-			str += L".kine.local.sclz";
-
-			// Ensure kinematics up to date!
-			deformer->obj.GetKinematics().GetLocal().GetTransform();
-			deformer->obj.GetKinematics().GetGlobal().GetTransform();
-
-			args[0] = str;
-			mXsiApp.ExecuteCommand(L"SaveKey", args, dummy);
-		}
 
 	}
 }

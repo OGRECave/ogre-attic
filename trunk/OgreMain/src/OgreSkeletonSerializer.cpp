@@ -81,6 +81,16 @@ namespace Ogre {
             LogManager::getSingleton().logMessage("Animation exported.");
 
         }
+
+		// Write links
+		Skeleton::LinkedSkeletonAnimSourceIterator linkIt = 
+			pSkeleton->getLinkedSkeletonAnimationSourceIterator();
+		while(linkIt.hasMoreElements())
+		{
+			const LinkedSkeletonAnimationSource& link = linkIt.getNext();
+			writeSkeletonAnimationLink(pSkeleton, link);
+		}
+
         fclose(mpfFile);
 
     }
@@ -105,6 +115,10 @@ namespace Ogre {
                 break;
             case SKELETON_ANIMATION:
                 readAnimation(stream, pSkel);
+				break;
+			case SKELETON_ANIMATION_LINK:
+				readSkeletonAnimationLink(stream, pSkel);
+				break;
             }
         }
 
@@ -445,7 +459,46 @@ namespace Ogre {
             kf->setScale(scale);
         }
     }
+	//---------------------------------------------------------------------
+	void SkeletonSerializer::writeSkeletonAnimationLink(const Skeleton* pSkel, 
+		const LinkedSkeletonAnimationSource& link)
+	{
+		writeChunkHeader(SKELETON_ANIMATION_LINK, 
+			calcSkeletonAnimationLinkSize(pSkel, link));
+
+		// char* skeletonName
+		writeString(link.skeletonName);
+		// float scale
+		writeFloats(&(link.scale), 1);
+
+	}
     //---------------------------------------------------------------------
+	size_t SkeletonSerializer::calcSkeletonAnimationLinkSize(const Skeleton* pSkel, 
+		const LinkedSkeletonAnimationSource& link)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+
+		// char* skeletonName
+		size += link.skeletonName.length() + 1;
+		// float scale
+		size += sizeof(float);
+
+		return size;
+
+	}
+	//---------------------------------------------------------------------
+	void SkeletonSerializer::readSkeletonAnimationLink(DataStreamPtr& stream, 
+		Skeleton* pSkel)
+	{
+		// char* skeletonName
+		String skelName = readString(stream);
+		// float scale
+		float scale;
+		readFloats(stream, &scale, 1);
+
+		pSkel->addLinkedSkeletonAnimationSource(skelName, scale);
+
+	}
 
 
 

@@ -171,6 +171,8 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// TODO
+			// XSI can't reference external files which makes it v.difficult to 
+			// re-use shaders - mod XSI plugin?
 		}
 	}
 	//-------------------------------------------------------------------------
@@ -181,6 +183,8 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// TODO
+			// XSI can't reference external files which makes it v.difficult to 
+			// re-use shaders - mod XSI plugin?
 		}
 	}
 	//-------------------------------------------------------------------------
@@ -191,11 +195,15 @@ namespace Ogre {
 		if (param.IsValid())
 		{
 			// TODO
+			// XSI can't reference external files which makes it v.difficult to 
+			// re-use shaders - mod XSI plugin?
 		}
 		param = xsishader.GetParameter(L"Pixel_Shader");
 		if (param.IsValid())
 		{
 			// TODO
+			// XSI can't reference external files which makes it v.difficult to 
+			// re-use shaders - mod XSI plugin?
 		}
 	}
 	//-------------------------------------------------------------------------
@@ -761,6 +769,100 @@ namespace Ogre {
 
 
 
+
+		}
+		param = shader.GetParameter(L"Additive_Transform");
+		if (param.IsValid())
+		{
+			unsigned short target = shader.GetParameter(L"Texture_Coord_ID").GetValue();
+			if (pass->getNumTextureUnitStates() > target)
+			{
+				TextureUnitState* tex = pass->getTextureUnitState(target);
+
+				long uvType = shader.GetParameter(L"UV_Type").GetValue();
+				if (uvType != 0)
+				{
+					double val1 = shader.GetParameter(L"Val1").GetValue();
+					double val2 = shader.GetParameter(L"Val2").GetValue();
+					long wave = shader.GetParameter(L"Wave").GetValue();
+					WaveformType wft;
+					switch (wave)
+					{
+					case 1:
+						wft = WFT_SINE;
+						break;
+					case 2:
+						wft = WFT_TRIANGLE;
+						break;
+					case 3:
+						wft = WFT_SQUARE;
+						break;
+					case 4:
+						wft = WFT_SAWTOOTH;
+						break;
+					case 5:
+						wft = WFT_INVERSE_SAWTOOTH;
+						break;
+					}
+					double base = shader.GetParameter(L"Base").GetValue();
+					double amp = shader.GetParameter(L"Amplitude").GetValue();
+					double phase = shader.GetParameter(L"Phase").GetValue();
+					double freq = shader.GetParameter(L"Frequency").GetValue();
+
+					switch(uvType)
+					{
+					case 1: 
+						// translate
+						tex->setTextureScroll(val1, val2);
+						break;
+					case 2: 
+						// rotate
+						tex->setTextureRotate(Degree(val1));
+						break;
+					case 3: 
+						// scale
+						tex->setTextureScale(val1, val2);
+						break;
+					case 4: 
+						// scroll
+						if (wave != 0)
+						{
+							tex->setTransformAnimation(TextureUnitState::TT_TRANSLATE_U, 
+								wft, base, freq, phase, amp);
+							tex->setTransformAnimation(TextureUnitState::TT_TRANSLATE_V, 
+								wft, base, freq, phase, amp);
+						}
+						else
+						{
+							tex->setScrollAnimation(val1, val2);
+						}
+						break;
+					case 5: 
+						// turn
+						if (wave != 0)
+						{
+							tex->setTransformAnimation(TextureUnitState::TT_ROTATE, 
+								wft, base, freq, phase, amp);
+						}
+						else
+						{
+							tex->setRotateAnimation(val1 / 360.0f);
+						}
+						break;
+					case 6: 
+						// stretch (only wave)
+						if (wave != 0)
+						{
+							tex->setTransformAnimation(TextureUnitState::TT_SCALE_U, 
+								wft, base, freq, phase, amp);
+							tex->setTransformAnimation(TextureUnitState::TT_SCALE_V, 
+								wft, base, freq, phase, amp);
+						}
+						break;
+
+					}
+				}
+			}
 
 		}
 
