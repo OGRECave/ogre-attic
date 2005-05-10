@@ -1059,22 +1059,6 @@ namespace Ogre
         }
 	}
 	//---------------------------------------------------------------------
-	void D3D9RenderSystem::ResizeRepositionWindow(HWND wich)
-	{
-		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)
-		{
-			if (it->second->isActive())
-			{
-				D3D9RenderWindow *pWin32Window = (D3D9RenderWindow *)it->second;
-				if (pWin32Window->getWindowHandle() == wich)
-				{
-					pWin32Window->WindowMovedOrResized();
-					break;
-				}
-			}
-		}
-	}
-	//---------------------------------------------------------------------
 	void D3D9RenderSystem::setAmbientLight( float r, float g, float b )
 	{
 		HRESULT hr = __SetRenderState( D3DRS_AMBIENT, D3DCOLOR_COLORVALUE( r, g, b, 1.0f ) );
@@ -2607,7 +2591,7 @@ namespace Ogre
 		SecondaryWindowList::iterator sw;
 		for (sw = mSecondaryWindows.begin(); sw != mSecondaryWindows.end(); ++sw)
 		{
-			(*sw)->destroy();
+			(*sw)->destroyD3DResources();
 		}
 
 		// Reset the device, using the primary window presentation params

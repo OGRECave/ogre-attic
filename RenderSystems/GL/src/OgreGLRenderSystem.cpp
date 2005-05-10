@@ -144,7 +144,7 @@ namespace Ogre {
 	}
 
     GLRenderSystem::GLRenderSystem()
-      : mExternalWindowHandle(0), mDepthWrite(true), mHardwareBufferManager(0),
+      : mDepthWrite(true), mHardwareBufferManager(0),
         mGpuProgramManager(0)
     {
         size_t i;
@@ -2489,18 +2489,6 @@ namespace Ogre {
         return 0.0f;
     }
  	//---------------------------------------------------------------------
- 	void GLRenderSystem::resizeRepositionWindow(void* wich)
- 	{
- 		mGLSupport->resizeRepositionWindow(wich);
- 		for (RenderTargetMap::iterator it = mRenderTargets.begin(); it != mRenderTargets.end(); ++it)		
- 		{
- 			if (it->second->isActive())
- 			{
- 				mGLSupport->resizeReposition(it->second);
- 			}
- 		}
- 	}
-    //---------------------------------------------------------------------
     void GLRenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, const Plane& plane, 
         bool forGpuProgram)
     {

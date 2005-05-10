@@ -317,6 +317,17 @@ namespace Ogre
 				Description: Synchronize buffer swaps to vsync
 				Values: true, false
 				Default: 0
+				** 
+				Key: "border" 
+				Description: The type of window border (in windowed mode)
+				Values: none, fixed, resize
+				Default: resize
+				**
+				Key: "outerDimensions" 
+				Description: Whether the width/height is expressed as the size of the 
+				outer window, rather than the content area
+				Values: true, false
+				Default: false 
         */
 		virtual RenderWindow* createRenderWindow(const String &name, unsigned int width, unsigned int height, 
 			bool fullScreen, const NameValuePairList *miscParams = 0) = 0;

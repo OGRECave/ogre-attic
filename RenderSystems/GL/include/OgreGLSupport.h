@@ -93,14 +93,9 @@ public:
 	*/
 	virtual void initialiseCapabilities(RenderSystemCapabilities &caps);
 
-	virtual void resizeRepositionWindow(void * window){m_windowToResize = window;};
-	virtual void resizeReposition(void*){;};  // should change to pure when it is implemented for all cases
-
 protected:
 	// Stored options
     ConfigOptionMap mOptions;
-
-	void *m_windowToResize;
 
 	// This contains the complete list of supported extensions
     std::set<String> extensionList;

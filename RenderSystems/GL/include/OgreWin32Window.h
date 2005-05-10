@@ -39,7 +39,7 @@ namespace Ogre {
        void create(const String& name, unsigned int width, unsigned int height,
 	            bool fullScreen, const NameValuePairList *miscParams);
         void destroy(void);
-        bool isActive(void) const;
+        bool isVisible() const;
         bool isClosed(void) const;
         void reposition(int left, int top);
         void resize(unsigned int width, unsigned int height);
@@ -56,9 +56,6 @@ namespace Ogre {
 		
 		// Method for dealing with resize / move & 3d library
 		virtual void windowMovedOrResized(void);
-		bool isReady() const { return mReady; }
-		void setReady(bool set) { mReady = set; }
-		void setActive(bool set) { mActive = set; }
 		
 		void getCustomAttribute( const String& name, void* pData );
 
@@ -67,10 +64,10 @@ namespace Ogre {
 		HWND	mHWnd;					// Win32 Window handle
 		HDC		mHDC;
 		HGLRC	mGlrc;
-		int		mOldSwapIntervall;
-		bool	mActive;				// Is active i.e. visible
-		bool	mReady;					// Is ready i.e. available for update
+        bool    mIsExternal;
+        bool    mSizing;
 		bool	mClosed;
+        int     mDisplayFrequency;      // fullscreen only, to restore display
         Win32Context *mContext;
 
 		static LRESULT CALLBACK WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

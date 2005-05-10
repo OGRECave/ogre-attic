@@ -292,15 +292,6 @@ namespace Ogre {
         	return (void*)wglGetProcAddress( procname.c_str() );
 	}
 
-	void Win32GLSupport::resizeReposition(void* renderTarget)
-	{
-		Win32Window  *pWin32Window = (Win32Window *)renderTarget;
-		if (pWin32Window->getWindowHandle()== m_windowToResize)
-		{
-			pWin32Window->windowMovedOrResized();
-		}
-	}
-
 	RenderTexture * Win32GLSupport::createRenderTexture( const String & name, 
 		unsigned int width, unsigned int height,
 		TextureType texType, PixelFormat internalFormat, 
