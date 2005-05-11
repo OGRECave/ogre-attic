@@ -626,7 +626,7 @@ namespace Ogre {
 		Triangle* triangles;
 		uint32 *dest;
 
-		size_t nIndexes = indexBuffer->getNumIndexes();
+		size_t nIndexes = indexCount;
 		size_t nTriangles = nIndexes / 3;
 		size_t i, j;
 		uint16 *source;
