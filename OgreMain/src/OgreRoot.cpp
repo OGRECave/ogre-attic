@@ -847,9 +847,8 @@ namespace Ogre {
 				// Call plugin shutdown
 				DLL_STOP_PLUGIN pFunc = (DLL_STOP_PLUGIN)(*i)->getSymbol("dllStopPlugin");
 				pFunc();
-				// Unload library & destroy
+				// Unload library (destroyed by DynLibManager)
 				DynLibManager::getSingleton().unload(*i);
-				delete *i;
 				mPluginLibs.erase(i);
 				return;
 			}
