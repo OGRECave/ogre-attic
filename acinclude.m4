@@ -419,10 +419,10 @@ AC_MSG_CHECKING([whether -fPIC is needed])
     case $build in
         x86_64-*)
             CXXFLAGS="$CXXFLAGS -fPIC"
-            echo "yes"
+            AC_MSG_RESULT(yes)
         ;;
         *)
-            echo "no"
+            AC_MSG_RESULT(no)
         ;;
     esac
 ])
@@ -457,11 +457,11 @@ AC_MSG_CHECKING([whether to use double floating point precision])
 	case $build_double in
         yes)
 			AC_DEFINE([OGRE_DOUBLE_PRECISION], [1], [Build with double precision])
-            echo "yes"
+			AC_MSG_RESULT(yes)
         ;;
         *)
 			AC_DEFINE([OGRE_DOUBLE_PRECISION], [0], [Build with double precision])
-            echo "no"
+            AC_MSG_RESULT(no)
         ;;
     esac
 ])
@@ -477,11 +477,11 @@ AC_MSG_CHECKING([whether to use threaded resource loading])
 	case $build_threads in
         yes)
 			AC_DEFINE([OGRE_THREAD_SUPPORT], [1], [Build with thread support])
-            echo "yes"
+            AC_MSG_RESULT(yes)
         ;;
         *)
 			AC_DEFINE([OGRE_THREAD_SUPPORT], [0], [Build with thread support])
-            echo "no"
+            AC_MSG_RESULT(no)
         ;;
     esac
 ])
