@@ -25,7 +25,7 @@ public:
 	// class members
 	bool exportMesh, exportMaterial, exportAnimCurves, exportCameras, exportAll, exportVBA,
 		exportVertNorm, exportVertCol, exportVertColWhite, exportTexCoord, exportCamerasAnim,
-		exportSkeleton, exportAnims, exportMeshBin, exportSkelBin;
+		exportSkeleton, exportAnims, exportMeshBin, exportSkelBin, exportWorldCoords;
 
 	MString meshFilename, skeletonFilename, materialFilename, animFilename, camerasFilename;
 
@@ -46,6 +46,7 @@ public:
 		exportMeshBin = false;
 		exportSkelBin = false;
 		exportAll = false;
+		exportWorldCoords = false;
 		exportVBA = false;
 		exportVertNorm = false;
 		exportVertCol = false;
@@ -68,6 +69,7 @@ public:
 		exportAnimCurves = source.exportAnimCurves;
 		exportCameras = source.exportCameras;
 		exportAll = source.exportAll;
+		exportWorldCoords = source.exportWorldCoords;
 		exportVBA = source.exportVBA;
 		exportVertNorm = source.exportVertNorm;
 		exportVertCol = source.exportVertCol;

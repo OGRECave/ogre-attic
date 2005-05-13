@@ -50,7 +50,7 @@ MStatus TransferSkeleton::load(MDagPath& meshDag,ParamList& params)
 		{
 			if (influenceDags[i].hasFn(MFn::kJoint))
 			{
-				stat = loadSkeleton(influenceDags[i],params.exportAnims);
+				stat = loadSkeleton(influenceDags[i]);
 				if (MS::kSuccess != stat)
 				{
 					MGlobal::displayInfo("Error reading skeleton data\n");
@@ -65,7 +65,7 @@ MStatus TransferSkeleton::load(MDagPath& meshDag,ParamList& params)
 
 // Load skeleton data
 // param joint is a joint of requested skeleton
-MStatus TransferSkeleton::loadSkeleton(MDagPath& jointDag,bool exportAnims)
+MStatus TransferSkeleton::loadSkeleton(MDagPath& jointDag)
 {
 	MFnIkJoint jointFn(jointDag);
 	MString msg = "Loading skeleton data, root joint: ";
@@ -100,12 +100,12 @@ MStatus TransferSkeleton::loadSkeleton(MDagPath& jointDag,bool exportAnims)
 	MObject charObj;
 	MPlug rootTXplug = rootFn.findPlug("tx");
 	// Load joints starting from root
-	return loadJoint(rootDag,NULL,exportAnims);
+	return loadJoint(rootDag,NULL);
 }
 
 
 // Load a single joint data and iterate through it's children
-MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent,bool exportAnims)
+MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent)
 {
 	int i;
 	joint newJoint;
@@ -169,8 +169,13 @@ MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent,bool export
 	if (parent)
 		localMatrix = bindMatrix * parent->worldMatrix.inverse();
 	else
-		localMatrix = bindMatrix;
-				
+	{	// root node of skeleton
+		if (m_params.exportWorldCoords)
+			localMatrix = bindMatrix;
+		else
+			localMatrix = bindMatrix * jointDag.exclusiveMatrix().inverse();
+	}
+
 	// Calculate rotation data
 	double qx,qy,qz,qw;
 	((MTransformationMatrix)localMatrix).getRotationQuaternion(qx,qy,qz,qw);
@@ -203,7 +208,7 @@ MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent,bool export
 	joints.push_back(newJoint);
 
 	// Load joint animations
-	if (exportAnims)
+	if (m_params.exportAnims)
 		loadAnims(jointDag,joints.size()-1);
 
 	// Load children joints
@@ -215,7 +220,7 @@ MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent,bool export
 		{
 			MDagPath childDag = jointDag;
 			childDag.push(child);
-			loadJoint(childDag,&newJoint,exportAnims);
+			loadJoint(childDag,&newJoint);
 		}
 	}
 
@@ -239,7 +244,7 @@ MStatus TransferSkeleton::loadAnims(MDagPath& jointDag,int jointId)
 	for (i=0; i<m_params.clipList.size(); i++)
 	{
 		stat = loadClip(jointDag,jointId,m_params.clipList[i].name,m_params.clipList[i].start,
-						m_params.clipList[i].stop,m_params.clipList[i].rate);
+			m_params.clipList[i].stop,m_params.clipList[i].rate);
 		if (stat == MS::kSuccess)
 			MGlobal::displayInfo("Clip successfully loaded");
 		else
@@ -375,7 +380,14 @@ MStatus TransferSkeleton::loadClip(MDagPath& jointDag,int jointId,MString clipNa
 			//calculate inherited scale factor
 			((MTransformationMatrix)jointDag.exclusiveMatrix()).getScale(scale,MSpace::kWorld);
 			//calculate relative matrix
-			matrix = matrix.asMatrix() * jointDag.exclusiveMatrixInverse();
+			matrix = jointDag.inclusiveMatrix() * jointDag.exclusiveMatrixInverse();
+		}
+		else
+		{	// root joint
+			if (m_params.exportWorldCoords)
+				matrix = jointDag.inclusiveMatrix();
+			else
+				matrix = jointDag.inclusiveMatrix() * jointDag.exclusiveMatrixInverse();
 		}
 		//calculate position of joint at given time
 		position.x = matrix.asMatrix()(3,0) * scale[0];

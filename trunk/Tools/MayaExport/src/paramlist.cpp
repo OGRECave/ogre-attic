@@ -11,6 +11,8 @@ void ParamList::parseArgs(const MArgList &args)
 	{
         if ((MString("-all") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			exportAll = true;
+		else if ((MString("-world") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			exportWorldCoords = true;
         else if ((MString("-mesh") == args.asString(i,&stat)) && (MS::kSuccess == stat))
         {
             exportMesh = true;

@@ -3,6 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="MayaExport_fg"
+	ProjectGUID="{B8E79576-F7E4-4E50-97DB-08FF62F206AD}"
 	SccProjectName=""
 	SccLocalPath=""
 	Keyword="MFCProj">
