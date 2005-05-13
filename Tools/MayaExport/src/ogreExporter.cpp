@@ -173,16 +173,6 @@ MStatus OgreExporter::doIt(const MArgList& args)
 		}
 	}
 
-	// Create mesh binary file if required
-	if (params.exportMeshBin)
-	{
-	}
-
-	// Create skeleton binary file if required
-	if (params.exportSkelBin)
-	{
-	}
-
 	return MS::kSuccess;
 }
 
@@ -224,19 +214,23 @@ MStatus OgreExporter::translateNode(MDagPath& dagPath)
 			}
 		}
 	}
-	if (dagPath.hasFn(MFn::kMesh)&&(params.exportMesh||params.exportMaterial||params.exportSkeleton))
+	if (dagPath.hasFn(MFn::kMesh)&&(params.exportMesh||params.exportMaterial||params.exportSkeleton)
+		&& (dagPath.childCount() == 0))
 	{	// we have found a mesh shape node, it can't have any children, and it contains
 		// all the mesh geometry data
-		MFnMesh meshFn(dagPath);
+		MDagPath meshDag = dagPath;
+	//	meshDag.pop(1);
+		MFnMesh meshFn(meshDag);
 		if (!meshFn.isIntermediateObject())
 		{
 			MString msg = "Found mesh node: ";
-			msg += dagPath.fullPathName();
+			msg += meshDag.fullPathName();
 			MGlobal::displayInfo(msg);
 			if (params.exportSkeleton||params.exportVBA)
 			{
 				MGlobal::displayInfo("Loading skeleton info...");
-				stat = skeleton.load(dagPath,params);
+				// get parent transform to translate
+				stat = skeleton.load(meshDag,params);
 				if (MS::kSuccess == stat)
 					MGlobal::displayInfo("OK");
 				else
@@ -248,11 +242,11 @@ MStatus OgreExporter::translateNode(MDagPath& dagPath)
 			if (params.exportMesh||params.exportMaterial)
 			{
 				MString msg = "Translating mesh node ";
-				msg += dagPath.fullPathName();
+				msg += meshDag.fullPathName();
 				msg += "...";
 				MGlobal::displayInfo(msg);
 				TransferMesh mesh;
-				mesh.load(dagPath,params,&skeleton);
+				mesh.load(meshDag,params,&skeleton);
 				stat = mesh.writeToXML(params);
 				if (MS::kSuccess == stat)
 					MGlobal::displayInfo("OK");
@@ -264,7 +258,7 @@ MStatus OgreExporter::translateNode(MDagPath& dagPath)
 			}
 		}
 	}
-	else if (dagPath.hasFn(MFn::kCamera)&&(params.exportCameras))
+	else if (dagPath.hasFn(MFn::kCamera)&&(params.exportCameras) && (!dagPath.hasFn(MFn::kShape)))
 	{	// we have found a camera shape node, it can't have any children, and it contains
 		// all information about the camera
 		MFnCamera cameraFn(dagPath);
@@ -287,27 +281,24 @@ MStatus OgreExporter::translateNode(MDagPath& dagPath)
 			}
 		}
 	}
-	else
-	{	// we have found neither a mesh shape nor a camera shape node, so we check if we can
-		// find any node of those types within it's children
-		for (unsigned int i=0; i<dagPath.childCount(); i++)
+	// look for meshes and cameras within the node's children
+	for (unsigned int i=0; i<dagPath.childCount(); i++)
+	{
+		MObject child = dagPath.child(i);
+		MDagPath childPath;
+		stat = MDagPath::getAPathTo(child,childPath);
+		if (MS::kSuccess != stat)
 		{
-			MObject child = dagPath.child(i);
-			MDagPath childPath;
-			stat = MDagPath::getAPathTo(child,childPath);
-			if (MS::kSuccess != stat)
-			{
-				MString msg = "Error retrieving path to child ";
-				msg += (int)i;
-				msg += " of: ";
-				msg += dagPath.fullPathName();
-				MGlobal::displayInfo(msg);
-				return MS::kFailure;
-			}
-			stat = translateNode(childPath);
-			if (MS::kSuccess != stat)
-				return MS::kFailure;
+			MString msg = "Error retrieving path to child ";
+			msg += (int)i;
+			msg += " of: ";
+			msg += dagPath.fullPathName();
+			MGlobal::displayInfo(msg);
+			return MS::kFailure;
 		}
+		stat = translateNode(childPath);
+		if (MS::kSuccess != stat)
+			return MS::kFailure;
 	}
 	return MS::kSuccess;
 }

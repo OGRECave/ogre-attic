@@ -46,6 +46,16 @@ global proc runOgreExport()
 	{
 		$options += " -all";
 	}
+	string $selectedCoordsTypeButton = `radioCollection -query -select CoordsTypeCollection`;
+	if ($selectedCoordsTypeButton == "RadioButtonWorld")
+	{
+		$options += " -world";
+	}
+	else
+	{
+		$options += " -obj";
+	}
+
 	
 	// --- Mesh export
 	int $exportMesh = `checkBox -query -value ExportMesh`;
@@ -204,6 +214,9 @@ global proc formatUI()
 	if (!$exportMaterial)
 		checkBox -edit -value false CopyTextures;
 	checkBox -edit -enable $exportMaterial CopyTextures;
+	if (!$exportMaterial)
+		checkBox -edit -value false MatLightingOff;
+	checkBox -edit -enable $exportMaterial MatLightingOff;
 
 	// --- Skeleton Export
 	int $exportSkeleton = `checkBox -query -value ExportSkeleton`;
@@ -355,6 +368,18 @@ global proc defineUIView()
 					radioButton -label "all" -select RadioButtonAll;
 					radioButton -label "selected" RadioButtonSelected;
 
+				rowColumnLayout
+					-parent CommonLayout
+					-numberOfColumns 3
+				CoordsType;
+
+					text -label "Coordinate space:";
+				//	string $radioButtonWorld, $radioButtonObject;
+					radioCollection CoordsTypeCollection;
+					radioButton -label "world" -select RadioButtonWorld;
+					radioButton -label "object" RadioButtonObject;
+
+
 		// --- Mesh
 		frameLayout
 			-parent OgreExportLayout 
@@ -493,6 +518,12 @@ global proc defineUIView()
 					-value false
 					-label "Copy texture files to output dir"
 				CopyTextures;
+
+				checkBox
+					-parent MaterialLayout
+					-value false
+					-label "Export with \"ligthing off\" option"
+				MatLightingOff;
 
 		// --- Skeleton
 		frameLayout

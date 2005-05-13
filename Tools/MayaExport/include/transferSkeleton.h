@@ -87,8 +87,8 @@ public:
 	ParamList m_params;
 private:
 	// internal methods
-	MStatus loadSkeleton(MDagPath& jointDag,bool exportAnims = false);
-	MStatus loadJoint(MDagPath& jointDag,joint* parent = NULL, bool exportAnims = false);
+	MStatus loadSkeleton(MDagPath& jointDag);
+	MStatus loadJoint(MDagPath& jointDag,joint* parent);
 	MStatus loadAnims(MDagPath& jointDag,int jointId);
 	MStatus loadClip(MDagPath& jointDag,int jointId,MString clipName,double start,double stop,double rate);
 	MTransformationMatrix getJointMatrix(MDagPath& jointDag,joint* parent,double time = 0);

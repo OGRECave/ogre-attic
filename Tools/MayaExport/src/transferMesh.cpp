@@ -115,9 +115,15 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 	for (i=0; i<vertices.size(); i++)
 		vertices[i].next = -2;
 	//get vertex positions from mesh data
-	mesh.getPoints(points,MSpace::kWorld);
+	if (params.exportWorldCoords)
+		mesh.getPoints(points,MSpace::kWorld);
+	else
+		mesh.getPoints(points,MSpace::kTransform);
 	//get list of normals from mesh data
-	mesh.getNormals(normals,MSpace::kWorld);
+	if (params.exportWorldCoords)
+		mesh.getNormals(normals,MSpace::kWorld);
+	else
+		mesh.getNormals(normals,MSpace::kTransform);
 	//get list of vertex weights
 	//1st: get the associated skin cluster (if present)
 	plug = mesh.findPlug("inMesh");
@@ -497,6 +503,7 @@ MStatus TransferMesh::writeMaterial(ParamList &params)
 		bool hasTexture = false;
 		bool multiTextured = false;
 		bool isTransparent = false;
+		int lightingOff = 0;
 		MPlugArray colorSrcPlugs;
 		MPlugArray texSrcPlugs;
 		MPlugArray placetexSrcPlugs;
@@ -506,7 +513,7 @@ MStatus TransferMesh::writeMaterial(ParamList &params)
 		MColor emissiveColor;
 
 		// GET MATERIAL DATA
-		
+
 		// Check material type
 		if (pMaterial->object().hasFn(MFn::kPhong))
 			type = MT_PHONG;
@@ -565,7 +572,8 @@ MStatus TransferMesh::writeMaterial(ParamList &params)
 		default:
 			specularColor = MColor(0.0,0.0,0.0,0.0);
 		}
-		
+		// Check if we have to export with lighting off option
+		MGlobal::executeCommand("checkBox -query -value MatLightingOff",lightingOff);
 		// Start material description
 		MString matPrefix;
 		MGlobal::executeCommand("textField -query -text ExportMaterialPrefix",matPrefix);
@@ -581,6 +589,9 @@ MStatus TransferMesh::writeMaterial(ParamList &params)
 		// Start rendering pass description
 		params.outMaterial << "\t\tpass\n";
 		params.outMaterial << "\t\t{\n";
+		//set lighting off option if requested
+		if (lightingOff)
+			params.outMaterial << "\t\t\tlighting off\n\n";
 		//ambient colour
 		params.outMaterial << "\t\t\tambient " << ambientColor.r << " " << ambientColor.g << " " << ambientColor.b
 			<< " " << ambientColor.a << "\n";
