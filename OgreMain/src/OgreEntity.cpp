@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreEntity.h"
 
+#include "OgreMeshManager.h"
 #include "OgreSubMesh.h"
 #include "OgreSubEntity.h"
 #include "OgreException.h"
@@ -58,10 +59,9 @@ namespace Ogre {
         mSkeletonInstance = 0;
     }
     //-----------------------------------------------------------------------
-    Entity::Entity( const String& name, MeshPtr& mesh, SceneManager* creator) :
-    mName(name),
+    Entity::Entity( const String& name, MeshPtr& mesh) :
+		MovableObject(name),
         mMesh(mesh),
-        mCreatorSceneManager(creator),
         mSharedSkeletonEntities(NULL)
     {
         mFullBoundingBox = new AxisAlignedBox;
@@ -93,7 +93,7 @@ namespace Ogre {
                 const MeshLodUsage& usage = mesh->getLodLevel(i);
                 // Manually create entity
                 Entity* lodEnt = new Entity(name + "Lod" + StringConverter::toString(i), 
-                    usage.manualMesh, mCreatorSceneManager);
+                    usage.manualMesh);
                 mLodEntityList.push_back(lodEnt);
             }
 
@@ -200,11 +200,6 @@ namespace Ogre {
         return mMesh;
     }
     //-----------------------------------------------------------------------
-    const String& Entity::getName(void) const
-    {
-        return mName;
-    }
-    //-----------------------------------------------------------------------
     SubEntity* Entity::getSubEntity(unsigned int index)
     {
         if (index >= mSubEntityList.size())
@@ -228,7 +223,8 @@ namespace Ogre {
     Entity* Entity::clone( const String& newName)
     {
         Entity* newEnt;
-        newEnt = mCreatorSceneManager->createEntity( newName, getMesh()->getName() );
+		newEnt = Root::getSingleton()._getCurrentSceneManager()->createEntity( 
+			newName, getMesh()->getName() );
         // Copy material settings
         SubEntityList::iterator i;
         unsigned int n = 0;
@@ -1394,5 +1390,49 @@ namespace Ogre {
 			mSkeletonInstance->_refreshAnimationState(mAnimationState);
 		}
 	}
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String EntityFactory::FACTORY_TYPE_NAME = "Entity";
+	//-----------------------------------------------------------------------
+	const String& EntityFactory::getType(void) const
+	{
+		return FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
+	MovableObject* EntityFactory::createInstance( const String& name, 
+		const NameValuePairList* params)
+	{
+		// must have mesh parameter
+		MeshPtr pMesh;
+		SceneManager* creator = 0;
+		if (params != 0)
+		{
+			NameValuePairList::const_iterator ni = params->find("mesh");
+			if (ni != params->end())
+			{
+				// Get mesh (load if required)
+				pMesh = MeshManager::getSingleton().load( 
+					ni->second, 
+					// note that you can change the group by pre-loading the mesh 
+					ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
+			}
+
+		}
+		if (pMesh.isNull())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"'mesh' parameter required when constructing an Entity.", 
+				"EntityFactory::createInstance");
+		}
+		
+		return new Entity(name, pMesh);
+
+	}
+	//-----------------------------------------------------------------------
+	void EntityFactory::destroyInstance( MovableObject* obj)
+	{
+		delete obj;
+	}
+
 
 }

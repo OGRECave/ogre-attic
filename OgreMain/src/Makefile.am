@@ -25,6 +25,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreCursor.cpp \
                          OgreDataStream.cpp \
                          OgreDefaultHardwareBufferManager.cpp \
+						 OgreDefaultSceneQueries.cpp \
                          OgreDynLib.cpp \
                          OgreDynLibManager.cpp \
                          OgreEdgeListBuilder.cpp \

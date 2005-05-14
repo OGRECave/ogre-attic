@@ -31,8 +31,7 @@ namespace Ogre {
     String MovablePlane::msMovableType = "MovablePlane";
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
-    MovablePlane::MovablePlane(const String& name) : Plane(),
-        mName(name),
+    MovablePlane::MovablePlane(const String& name) : Plane(), MovableObject(name),
         mLastTranslate(Vector3::ZERO), 
         mLastRotate(Quaternion::IDENTITY),
         mDirty(true)
@@ -91,11 +90,6 @@ namespace Ogre {
         }
 
         return mDerivedPlane;
-    }
-    //-----------------------------------------------------------------------
-    const String& MovablePlane::getName(void) const
-    {
-        return mName;
     }
     //-----------------------------------------------------------------------
     const String& MovablePlane::getMovableType(void) const

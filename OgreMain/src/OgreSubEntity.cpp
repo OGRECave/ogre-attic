@@ -71,8 +71,6 @@ namespace Ogre {
 
         //String oldName = mMaterialName;
         mMaterialName = name;
-        // Update SceneManager re material change
-        //mParentEntity->mCreatorSceneManager->_notifyMaterialUsage(oldName, mMaterialName, this);
         mpMaterial = MaterialManager::getSingleton().getByName(mMaterialName);
 
         if (mpMaterial.isNull())

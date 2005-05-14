@@ -325,9 +325,6 @@ namespace Ogre {
         */
         virtual void _updateRenderQueue(RenderQueue* queue);
 
-        /** Overridden from MovableObject */
-        const String& getName(void) const { return mName; }
-
         /** Fast-forwards this system by the required number of seconds.
         @remarks
             This method allows you to fast-forward a system so that it effectively looks like
@@ -457,8 +454,6 @@ namespace Ogre {
         /// World AABB, only used to compare world-space positions to calc bounds
         AxisAlignedBox mWorldAABB;
 
-        /// Name of the system; used for location in the scene.
-        String mName;
         /// Name of the resource group to use to load materials
         String mResourceGroupName;
         /// Name of the material to use

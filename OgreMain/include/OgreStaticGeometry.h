@@ -372,8 +372,6 @@ namespace Ogre {
 			};
 			/// Parent static geometry
 			StaticGeometry* mParent;
-			/// Generated name
-			String mName;
 			/// Scene manager link
 			SceneManager* mSceneMgr;
 			/// Scene node
@@ -425,7 +423,6 @@ namespace Ogre {
 			uint32 getID(void) const { return mRegionID; }
 			/// Get the centre point of the region
 			const Vector3& getCentre(void) const { return mCentre; }
-			const String& getName(void) const;
 			const String& getMovableType(void) const;
 			void _notifyCurrentCamera(Camera* cam);
 			const AxisAlignedBox& getBoundingBox(void) const;

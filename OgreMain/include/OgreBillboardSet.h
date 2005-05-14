@@ -84,9 +84,6 @@ namespace Ogre {
         */
         BillboardSet();
 
-        /// Name of the entity; used for location in the scene.
-        String mName;
-
         /// Bounds of all billboards in this set
         AxisAlignedBox mAABB;
 		/// Bounding radius
@@ -573,9 +570,6 @@ namespace Ogre {
 
         /** Gets the common direction for all billboards (BBT_ORIENTED_COMMON) */
         virtual const Vector3& getCommonDirection(void) const;
-
-        /** Overridden from MovableObject */
-        virtual const String& getName(void) const;
 
         /** Overridden from MovableObject */
         virtual const String& getMovableType(void) const;

@@ -58,40 +58,48 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
 
     MovableSet set;
 
-    SceneManager::EntityIterator it = mParentSceneMgr->getEntityIterator();
-    while( it.hasMoreElements() )
-    {
+	// Iterate over all movable types
+	SceneManager::MovableObjectFactoryIterator factIt = 
+		mParentSceneMgr->getMovableObjectFactoryIterator();
+	while(factIt.hasMoreElements())
+	{
+		SceneManager::MovableObjectIterator it = 
+			mParentSceneMgr->getMovableObjectIterator(
+			factIt.getNext()->getType());
+		while( it.hasMoreElements() )
+		{
 
-        Entity * e = it.getNext();
+			MovableObject * e = it.getNext();
 
-        std::list < SceneNode * > list;
-        //find the nodes that intersect the AAB
-        static_cast<OctreeSceneManager*>( mParentSceneMgr ) -> findNodesIn( e->getWorldBoundingBox(), list, 0 );
-        //grab all moveables from the node that intersect...
-        std::list < SceneNode * >::iterator it = list.begin();
-        while( it != list.end() )
-        {
-            SceneNode::ObjectIterator oit = (*it) -> getAttachedObjectIterator();
-            while( oit.hasMoreElements() )
-            {
-                MovableObject * m = oit.getNext();
+			std::list < SceneNode * > list;
+			//find the nodes that intersect the AAB
+			static_cast<OctreeSceneManager*>( mParentSceneMgr ) -> findNodesIn( e->getWorldBoundingBox(), list, 0 );
+			//grab all moveables from the node that intersect...
+			std::list < SceneNode * >::iterator it = list.begin();
+			while( it != list.end() )
+			{
+				SceneNode::ObjectIterator oit = (*it) -> getAttachedObjectIterator();
+				while( oit.hasMoreElements() )
+				{
+					MovableObject * m = oit.getNext();
 
-                if( m != e &&
-                        set.find( MovablePair(e,m)) == set.end() &&
-                        set.find( MovablePair(m,e)) == set.end() &&
-                        (m->getQueryFlags() & mQueryMask) &&
-						m->isInScene() && 
-						e->getWorldBoundingBox().intersects( m->getWorldBoundingBox() ) )
-                {
-                    listener -> queryResult( e, m );
-                }
-                set.insert( MovablePair(e,m) );
+					if( m != e &&
+							set.find( MovablePair(e,m)) == set.end() &&
+							set.find( MovablePair(m,e)) == set.end() &&
+							(m->getQueryFlags() & mQueryMask) &&
+							m->isInScene() && 
+							e->getWorldBoundingBox().intersects( m->getWorldBoundingBox() ) )
+					{
+						listener -> queryResult( e, m );
+					}
+					set.insert( MovablePair(e,m) );
 
-            }
-            ++it;
-        }
+				}
+				++it;
+			}
 
-    }
+		}
+	}
 }
 /** Creates a custom Octree AAB query */
 OctreeAxisAlignedBoxSceneQuery::OctreeAxisAlignedBoxSceneQuery(SceneManager* creator)

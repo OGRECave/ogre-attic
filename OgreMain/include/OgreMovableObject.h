@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreAxisAlignedBox.h"
 #include "OgreSphere.h"
 #include "OgreShadowCaster.h"
+#include "OgreFactoryObj.h"
 
 namespace Ogre {
 
@@ -44,6 +45,8 @@ namespace Ogre {
     class _OgreExport MovableObject : public ShadowCaster
     {
     protected:
+		/// Name of this object
+		String mName;
         /// node to which this object is attached
         Node* mParentNode;
         bool mParentIsTagPoint;
@@ -71,12 +74,14 @@ namespace Ogre {
         /// Constructor
         MovableObject();
 
+		/// Named constructor
+		MovableObject(const String& name);
         /** Virtual destructor - read Scott Meyers if you don't know why this is needed.
         */
         virtual ~MovableObject();
 
         /** Returns the name of this object. */
-        virtual const String& getName(void) const = 0;
+		virtual const String& getName(void) const { return mName; }
 
         /** Returns the type name of this object. */
         virtual const String& getMovableType(void) const = 0;
@@ -231,6 +236,31 @@ namespace Ogre {
 
 
     };
+
+	/** Interface definition for a factory class which produces a certain
+		kind of MovableObject, and can be registered with SceneManager in order
+		to allow all clients to produce new instances of this object, integrated
+		with the standard Ogre processing.
+	*/
+	class _OgreExport MovableObjectFactory 
+	{
+	public:
+		MovableObjectFactory() {}
+		virtual ~MovableObjectFactory() {}
+		/// Get the type of the object to be created
+		virtual const String& getType(void) const = 0;
+
+		/** Create a new instance of the object.
+		@param name The name of the new object
+		@param params Name/value pair list of additional parameters required to 
+			construct the object (defined per subtype). Optional.
+		*/
+		virtual MovableObject* createInstance(
+			const String& name, const NameValuePairList* params = 0) = 0;
+		/** Destroy an instance of the object */
+		virtual void destroyInstance(MovableObject* obj) = 0;
+
+	};
 
 }
 #endif

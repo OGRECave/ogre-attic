@@ -65,7 +65,7 @@ namespace Ogre {
         const String& name,
         unsigned int poolSize, 
         bool externalData) :
-        mName( name ),
+        MovableObject(name),
         mOriginType( BBO_CENTER ),
         mAllDefaultSize( true ),
         mAutoExtendPool( true ),
@@ -1037,11 +1037,6 @@ namespace Ogre {
         pDestVec[2] = vLeftOff  + vBottomOff;
         pDestVec[3] = vRightOff + vBottomOff;
 
-    }
-    //-----------------------------------------------------------------------
-    const String& BillboardSet::getName(void) const
-    {
-        return mName;
     }
     //-----------------------------------------------------------------------
     const String& BillboardSet::getMovableType(void) const

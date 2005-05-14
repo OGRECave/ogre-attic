@@ -57,6 +57,7 @@ namespace Ogre {
 	class DefaultRaySceneQuery;
 	class DefaultSphereSceneQuery;
 	class DefaultAxisAlignedBoxSceneQuery;
+	class EntityFactory;
 
     /** Manages the rendering of a 'scene' i.e. a collection of primitives.
         @remarks
@@ -75,11 +76,6 @@ namespace Ogre {
      */
     class _OgreExport SceneManager
     {
-		friend class DefaultIntersectionSceneQuery; 
-	    friend class DefaultRaySceneQuery;
-	    friend class DefaultSphereSceneQuery;
-	    friend class DefaultAxisAlignedBoxSceneQuery;
-        friend class DefaultPlaneBoundedVolumeListSceneQuery;
     public:
         /// Query mask which will be used for world geometry @see SceneQuery
         static unsigned long WORLD_GEOMETRY_QUERY_MASK;
@@ -145,13 +141,6 @@ namespace Ogre {
         /** Central list of lights - for easy memory management and lookup.
         */
         SceneLightList mLights;
-
-
-        typedef std::map<String, Entity* > EntityList;
-
-        /** Central list of entities - for easy memory management and lookup.
-        */
-        EntityList mEntities;
 
         typedef std::map<String, BillboardSet* > BillboardSetList;
 
@@ -453,6 +442,14 @@ namespace Ogre {
         };
 
         ShadowCasterSceneQueryListener* mShadowCasterQueryListener;
+
+		typedef std::map<String, MovableObjectFactory*> MovableObjectFactoryMap;
+		MovableObjectFactoryMap mMovableObjectFactoryMap;
+		typedef std::map<String, MovableObject*> MovableObjectMap;
+		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
+		MovableObjectCollectionMap mMovableObjectCollectionMap;
+		// stock factories
+		EntityFactory* mEntityFactory;
 
         /** Internal method for locating a list of shadow casters which 
             could be affecting the frustum for a given light. 
@@ -1452,7 +1449,6 @@ namespace Ogre {
         virtual void destroyQuery(SceneQuery* query);
 
         typedef MapIterator<SceneLightList> LightIterator;
-        typedef MapIterator<EntityList> EntityIterator;
         typedef MapIterator<CameraList> CameraIterator;
         typedef MapIterator<BillboardSetList> BillboardSetIterator;
         typedef MapIterator<AnimationList> AnimationIterator;
@@ -1460,10 +1456,6 @@ namespace Ogre {
         /** Returns a specialised MapIterator over all lights in the scene. */
         LightIterator getLightIterator(void) {
             return LightIterator(mLights.begin(), mLights.end());
-        }
-        /** Returns a specialised MapIterator over all entities in the scene. */
-        EntityIterator getEntityIterator(void) {
-            return EntityIterator(mEntities.begin(), mEntities.end());
         }
         /** Returns a specialised MapIterator over all cameras in the scene. */
         CameraIterator getCameraIterator(void) {
@@ -1796,6 +1788,58 @@ namespace Ogre {
 		/** Remove & destroy all StaticGeometry instances. */
 		virtual void removeAllStaticGeometry(void);
 
+
+		/** Register a new MovableObjectFactory which will create new MovableObject
+			instances of a particular type, as identified by the getType() method.
+		@remarks
+			Plugin creators can create subclasses of MovableObjectFactory which 
+			construct custom subclasses of MovableObject for insertion in the 
+			scene. This is the primary way that plugins can make custom objects
+			available.
+		*/
+		virtual void addMovableObjectFactory(MovableObjectFactory* fact);
+		/** Removes a previously registered MovableObjectFactory.
+		@remarks
+			All instances of objects created by this factory will be destroyed
+			before removing the factory (by calling back the factories 
+			'destroyInstance' method). The plugin writer is responsible for actually
+			destroying the factory.
+		*/
+		virtual void removeMovableObjectFactory(MovableObjectFactory* fact);
+
+		typedef ConstMapIterator<MovableObjectFactoryMap> MovableObjectFactoryIterator;
+		/** Return an iterator over all the MovableObjectFactory instances currently
+			registered.
+		*/
+		virtual MovableObjectFactoryIterator getMovableObjectFactoryIterator(void) const;
+
+		/** Create a movable object of the type specified.
+		@remarks
+			This is the generalised form of MovableObject creation where you can
+			create a MovableObject of any specialised type generically, including
+			any new types registered using plugins.
+		@param name The name to give the object. Must be unique within type.
+		@param typeName The type of object to create
+		@param params Optional name/value pair list to give extra parameters to
+			the created object.
+		*/
+		virtual MovableObject* createMovableObject(const String& name, 
+			const String& typeName, const NameValuePairList* params = 0);
+		/** Destroys a MovableObject with the name specified, of the type specified.
+		@remarks
+			The MovableObject will automatically detach itself from any nodes
+			on destruction.
+		*/
+		virtual void destroyMovableObject(const String& name, const String& typeName);
+		/** Destroy all MovableObjects of a given type. */
+		virtual void destroyAllMovableObjectsByType(const String& typeName);
+		/** Destroy all MovableObjects. */
+		virtual void destroyAllMovableObjects(void);
+		/** Get a reference to a previously created MovableObject. */
+		virtual MovableObject* getMovableObject(const String& name, const String& typeName);
+		typedef MapIterator<MovableObjectMap> MovableObjectIterator;
+		/** Get an iterator over all MovableObect instances of a given type. */
+		MovableObjectIterator getMovableObjectIterator(const String& typeName);
 		
     };
 

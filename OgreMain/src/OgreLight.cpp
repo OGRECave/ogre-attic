@@ -54,9 +54,8 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    Light::Light(const String& name)
+	Light::Light(const String& name) : MovableObject(name)
     {
-        mName = name;
 
         // Default to point light, white diffuse light, linear attenuation, fair range
         mLightType = LT_POINT;
@@ -82,12 +81,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Light::~Light()
     {
-    }
-    //-----------------------------------------------------------------------
-    const String& Light::getName(void) const
-    {
-        return mName;
-
     }
     //-----------------------------------------------------------------------
     void Light::setType(LightTypes type)

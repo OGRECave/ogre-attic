@@ -48,7 +48,7 @@ namespace Ogre {
         // Generate name
 		StringUtil::StrStreamType name;
 		name << _TO_CHAR("SimpleRenderable") << ms_uGenNameCount++;
-		m_strName = name.str();
+		mName = name.str();
     }
 
     void SimpleRenderable::setMaterial( const String& matName )
@@ -120,11 +120,6 @@ namespace Ogre {
 
     SimpleRenderable::~SimpleRenderable()
     {
-    }
-    //-----------------------------------------------------------------------
-    const String& SimpleRenderable::getName(void) const
-    {
-        return m_strName;
     }
     //-----------------------------------------------------------------------
     const String& SimpleRenderable::getMovableType(void) const

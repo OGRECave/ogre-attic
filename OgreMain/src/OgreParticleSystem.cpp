@@ -71,11 +71,10 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup)
-      : mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
+      : MovableObject(name), mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
         mResourceGroupName(resourceGroup), mIsRendererConfigured(false),
 		mSpeedFactor(1.0f), mRenderer(0), mCullIndividual(false), mPoolSize(0)
     {
-        mName = name;
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
         // Default to 10 particles, expect app to specify (will only be increased, not decreased)

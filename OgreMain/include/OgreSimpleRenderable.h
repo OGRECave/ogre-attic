@@ -51,9 +51,6 @@ namespace Ogre {
         /// The camera for the current frame.
         Camera *m_pCamera;
 
-        /// The name of the object.
-        String m_strName;
-
         /// Static member used to automatically generate names for SimpleRendaerable objects.
         static uint ms_uGenNameCount;
 
@@ -83,8 +80,6 @@ namespace Ogre {
 
         virtual ~SimpleRenderable();
 
-        /** Overridden from MovableObject */
-        virtual const String& getName(void) const;
 
         /** Overridden from MovableObject */
         virtual const String& getMovableType(void) const;
