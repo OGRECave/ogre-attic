@@ -5,9 +5,10 @@
 <META NAME="keywords" CONTENT="Ogre, Blender, Export">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
+<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1" >
 <LINK TYPE="text/css" rel="stylesheet" href="style.css">
 </HEAD>
-<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 <DIV>
 <H1>Blender to Ogre Exporter</H1>
 Blender is an open source 3D content creation suite for modeling, animation, rendering and video post production. The Blender to Ogre Exporter is a python script to run directly within Blender. Currently it supports the export of 
@@ -34,18 +35,19 @@ In the "Scripts Window" run "Scripts -> Update Menus".
 <LI>Choose your export options.</LI>
 <LI>Press the "Export" button.</LI>
 </UL>
-You will get a detailed log of the export process. Use the OgreXmlConverter to convert the generated XML files to binary .mesh and .skeleton files.
+You will get a detailed log of the export process. Use the OgreXmlConverter of your Ogre installation to convert the generated XML files to binary .mesh and .skeleton files.
 <P>
 <DIV ID=exporter>
-<IMG SRC="images/exporter.png" WIDTH="473" HEIGHT="397" />
+<IMG SRC="images/exporter.png" WIDTH="473" HEIGHT="397" ALT="exporter screenshot" />
 <P>Screenshot of the exporter interface.</P>
 </DIV>
 <H3>Options</H3>
 <DL COMPACT>
 <DT>Material File</DT>
 <DD>The name of the material script file that will be generated.</DD>
-<DT>Export Textures</DT>
-<DD>Export uv texture coordinates and texture names.</DD>
+<DT>Game Engine Materials</DT>
+<DD>Export materials as diplayed in the game engine. Materials are exported
+as displayed in the rendered results on default.</DD>
 <DT>Export Armature</DT>
 <DD>Export armatures and armature animations.</DD>
 <DT>World Coordinates</DT>
@@ -56,13 +58,13 @@ This does only work for materials for which TexFace is not set.</DD>
 <DT>Mesh Scale Factor</DT>
 <DD>All meshs and bones are scaled on export by this factor.</DD>
 <DT>RotX</DT>
-<DD>Angle of an additional rotation around the x-axis of all objects on export. This rotation is applied first. The default value is -90 degrees. This maps Blender's default up-vector (z-direction) to Ogre's default up-vector (y-direction).</DD>
+<DD>Angle of an additional rotation around the x-axis of all objects on export. This rotation is applied first. Set it to -90 degrees to map Blender's up-vector (z-direction) to Ogre's default up-vector (y-direction).</DD>
 <DT>RotY</DT>
 <DD>Angle of an additional rotation around the y-axis. This rotation is applied second, after RotX.</DD>
 <DT>RotZ</DT>
 <DD>Angle of an additional rotation around the z-axis. This rotation is applied third, after RotY.</DD>
 <DT>Animation settings of</DT>
-<DD>Choose an object from the list of all objects selected for export. The animations that will be exported for that object are then displayed in the scroll area below. Each animation correspond to one line.</DD>
+<DD>Choose an object from the list of all objects selected for export. The animations that will be exported for that object are then displayed in the scroll area below. Each animation correspond to one line.
 <DL>
 <DT>Action name</DT>
 <DD>The name of the Blender action.</DD>
@@ -76,7 +78,7 @@ This does only work for materials for which TexFace is not set.</DD>
 <DD>Removes the animation from export.</DD>
 <DT>Add</DT>
 <DD>Add another animation to be exported.</DD>
-</DL>
+</DL></DD>
 <DT>Update</DT>
 <DD>Updates the list of all objects selected for export from the currently selected objects in the "3D View". Also updates the list of possible actions, deletes animations for removed actions and sets default animations for new actions.</DD>
 <DT>Path</DT>
@@ -92,109 +94,71 @@ The script loads and saves its options to a text buffer "ogreexport.cfg" inside 
 <P>
 If the OGRE_XML_CONVERTER script variable is set to the OgreXMLConverter executable, the converter is called on the exported XML files.
 </P>
-</P>
 <H2>Specifics</H2>
 <H3>Mesh</H3>
 <P>The script supports sticky and per face vertex uv coordinates, smoothed and non-smoothed normals, vertex colours. Each rectangle face is automatically converted into two triangle faces in the exported mesh.</P>
 <P>The script does not support subdivision surface (SubSurf) options. To export a SubSurf object, you have to convert it into a Mesh object, "Object -> Convert Object Type... -> Mesh (keep original)".</P>
-<P> The script does not support double sided faces (Double Sided/Two Sided). To make a face double sided, select the face in the "Edit Mode", duplicate it ("Mesh -> Duplicate", RMB) and flip the normals ("Mesh -> Normals -> Flip").</P>
+<P>The script does not support double sided faces (Double Sided/Two Sided). To make a face double sided, select the face in the "Edit Mode", duplicate it ("Mesh -> Duplicate", RMB) and flip the normals ("Mesh -> Normals -> Flip").</P>
 <H3>Material</H3>
 <P>
-In contrast to Ogre, Blender treats material, uv texture and blend mode separately. Therefore, the name of the exported material consists of Blender's material name (if any), the blend mode and the name of the texture file (if any). The parts of the name are separated with slashs. Only textures assigned in the "UV/Image Editor" will be exported. You don't need to assign a material to a mesh in order to export uv textures. The following mapping is done on export:
+In contrast to Ogre, Blender treats material, uv texture and blend mode separately. Also Blender distinguishs between material appearance in the game engine and material appearance in the rendered results.
 </P>
-<H4>Material Specific</H4>
-<TABLE>
-<TR>
-<TH>Blender</TH>
-<TH>Ogre</TH>
-</TR>
-<TR>
-<TD>Amb or Amb*Col</TD>
-<TD>ambient R G B</TD>
-</TR>
-<TR>
-<TD>Col</TD>
-<TD>diffuse R G B</TD>
-</TR>
-<TR>
-<TD>Spec*Spe, Hard</TD>
-<TD>specular R G B, Shininess
-</TD>
-</TR>
-<TR>
-<TD>Emit*Col</TD>
-<TD>emissive R G B</TD>
-</TR>
-<TR>
-<TD>VCol Paint</TD>
-<TD>vertex colours</TD>
-</TR>
-<TR>
-<TD>TexFace</TD>
-<TD>disable ambient, diffuse, specular and emissive</TD>
-</TR>
-<TR>
-<TD>Shadeless</TD>
-<TD>lighting off</TD>
-</TR>
-<TR>
-<TD>ZInvert</TD>
-<TD>depth_func greater_equal</TD>
-</TR>
-<TR>
-<TD>Shadow</TD>
-<TD>receive_shadows on/off</TD>
-</TR>
-<TR>
-<TD>No Mist</TD>
-<TD>fog_override true</TD>
-</TR>
-<TR>
-<TD>Env</TD>
-<TD>depth_func always_fail</TD>
-</TR>
-</TABLE>
+<H4>Game Engine Materials</H4>
+The material name has to be unique. Therefore, the name of the exported material consists of Blender's material name (if any), the face blend mode and texture file name (if any). If vertex colours are defined, a postfix "/VertCol" is appended. Also, if the two-sided face option is set, "/TWOSIDE" is appended.
 <P>
-<IMG SRC="images/material.png" WIDTH="288" HEIGHT="203" />
+If a material is assigned to face, only the properties that affect the appearance in the game engine are exported. These are the "Col" and "Spe" colours, the "Amb", "Spec" and "Hard" factors and the "VCol Paint" and "TexFace" options.
+</P>
+Textures assigned with the UV/Image Editor are exported. Note that material image textures, which can be exported as rendering engine materials, give you more control over filtering and texture address modes.
+<P>
+<IMG SRC="images/face.png" WIDTH="398" HEIGHT="310" ALT="face options" />
+</P>
+Blender's face settings affect the mesh appearance only in the game engine. The properties exported by the script are marked green.
+<H4>Rendering Engine Materials</H4>
+<P>The name of the exported material is the same as in Blender. If the "Two Sided" face option is set, the suffix "/TWOSIDE" is appended. If the "TexFace" material option is set, the suffix "/TEXFACE" and the name of the texture image that is assigned with the UV/Image Editor is appended. The "Two Sided" face option has no effect in Blender's rendering results and is evaluated on export for convenience only.
 </P>
 <P>
-<IMG SRC="images/shaders.png" WIDTH="288" HEIGHT="203" />
+<IMG SRC="images/material.png" WIDTH="288" HEIGHT="203" ALT="material panel" />
 </P>
 <P>
-<IMG SRC="images/mirrortransp.png" WIDTH="288" HEIGHT="203" />
+<IMG SRC="images/shaders.png" WIDTH="288" HEIGHT="203" ALT="shaders panel" />
+</P>
+<P>
+<IMG SRC="images/mirrortransp.png" WIDTH="288" HEIGHT="203" ALT="mirrortransp panel" />
 </P>
 Blender's material settings that affect the exported Ogre material are marked green.
-<H4>Face Specific</H4>
-<TABLE> 
-<TR>
-<TH>Blender</TH>
-<TH>Ogre</TH>
-</TR>
-<TR>
-<TD>Textured</TD>
-<TD>texture_unit { texture (image filename without path) }</TD>
-</TR>
-<TR>
-<TD>Invisible</TD>
-<TD>no export</TD>
-</TR>
-<TR>
-<TD>Opaque Blend Mode</TD>
-<TD>scene_blend one zero (Ogre default)</TD>
-</TR>
-<TR>
-<TD>Additive Blend Mode</TD>
-<TD>scene_blend add</TD>
-</TR>
-<TR>
-<TD>Alpha Blend Mode</TD>
-<TD>scene_blend alpha_blend</TD>
-</TR>
-</TABLE>
 <P>
-<IMG SRC="images/face.png" WIDTH="398" HEIGHT="310" />
+<IMG SRC="images/image.png" WIDTH="288" HEIGHT="203" ALT="image panel" />
 </P>
-Blender's face settings that affect the exported Ogre material are marked green.
+<P>
+The script exports image textures with "Map Input" set to "UV" and "Map To" set to "Col" and optional "Alpha". The supported image options are marked green.
+</P>
+<TABLE>
+  <TR>
+    <TH>InterPol</TH>
+    <TH>MidMap</TH>
+    <TH>resulting filtering</TH>
+  </TR>
+  <TR>
+    <TD>yes</TD>
+    <TD>yes</TD>
+    <TD>trilinear</TD>
+  </TR>
+  <TR>
+    <TD>yes</TD>
+    <TD>no</TD>
+    <TD>linear linear none</TD>
+  </TR>
+  <TR>
+    <TD>no</TD>
+    <TD>yes</TD>
+    <TD>bilinear</TD>
+  </TR>
+  <TR>
+    <TD>no</TD>
+    <TD>no</TD>
+    <TD>none</TD>
+  </TR>
+</TABLE>
 <H3>Armature</H3>
 <P>
 You must have no more than four weighted bone assignments per mesh vertex. If you have more, the script will eliminate the lowest weighted assignments and renormalise the other weights. All vertices must be assigned to at least one bone.
@@ -210,7 +174,7 @@ Ogre does not inherit parent bone scaling by default.
 </P>
 The animation speed in the export in terms of frames per second is taken from the corresponding scene render button.
 <P>
-<IMG SRC="images/format.png" WIDTH="288" HEIGHT="203" />
+<IMG SRC="images/format.png" WIDTH="288" HEIGHT="203" ALT="format panel" />
 </P>
 Blender's format setting that affect the exported Ogre animation is marked green.
 </DIV>
