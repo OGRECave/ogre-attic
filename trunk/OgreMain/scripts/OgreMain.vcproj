@@ -214,6 +214,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreDefaultHardwareBufferManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreDefaultSceneQueries.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreDynLib.cpp">
 			</File>
 			<File

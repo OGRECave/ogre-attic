@@ -70,8 +70,8 @@ namespace Ogre {
     */
     class _OgreExport Entity: public MovableObject
     {
-        // Allow SceneManager full access
-        friend class SceneManager;
+        // Allow EntityFactory full access
+        friend class EntityFactory;
         friend class SubEntity;
     public:
 	typedef std::set<Entity*> EntitySet;
@@ -83,11 +83,7 @@ namespace Ogre {
         Entity();
         /** Private constructor - specify name (the usual constructor used).
         */
-        Entity( const String& name, MeshPtr& mesh, SceneManager* creator);
-
-        /** Name of the entity; used for location in the scene.
-        */
-        String mName;
+        Entity( const String& name, MeshPtr& mesh);
 
         /** The Mesh that this Entity is based on.
         */
@@ -97,11 +93,6 @@ namespace Ogre {
         */
         typedef std::vector<SubEntity*> SubEntityList;
         SubEntityList mSubEntityList;
-
-        /** Pointer back to the SceneManager that created this instance, for
-            notification purposes.
-        */
-        SceneManager* mCreatorSceneManager;
 
 
         /// State of animation for animable meshes
@@ -319,9 +310,6 @@ namespace Ogre {
         /** Overridden - see MovableObject.
         */
         void _updateRenderQueue(RenderQueue* queue);
-
-        /** Overridden from MovableObject */
-        const String& getName(void) const;
 
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;
@@ -543,6 +531,21 @@ namespace Ogre {
 
 
     };
+
+	/** Factory object for creating Entity instances */
+	class _OgreExport EntityFactory : public MovableObjectFactory
+	{
+	public:
+		EntityFactory() {}
+		~EntityFactory() {}
+		
+		static String FACTORY_TYPE_NAME;
+
+		const String& getType(void) const;
+		MovableObject* createInstance( const String& name, const NameValuePairList* params);
+		void destroyInstance( MovableObject* obj);    
+
+	};
 
 } // namespace
 

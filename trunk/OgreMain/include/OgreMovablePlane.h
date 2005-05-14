@@ -49,7 +49,6 @@ namespace Ogre {
     class _OgreExport MovablePlane : public Plane, public MovableObject
     {
     protected:
-        String mName;
         mutable Plane mDerivedPlane;
         mutable Vector3 mLastTranslate;
         mutable Quaternion mLastRotate;
@@ -74,8 +73,6 @@ namespace Ogre {
         Real getBoundingRadius(void) const { return Math::POS_INFINITY; }
         /// Overridden from MovableObject
         void _updateRenderQueue(RenderQueue* queue) { /* do nothing */}
-        /// Overridden from MovableObject
-        const String& getName(void) const;
         /// Overridden from MovableObject
         const String& getMovableType(void) const;
         /// Get the derived plane as transformed by its parent node. 

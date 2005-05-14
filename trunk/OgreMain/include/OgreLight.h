@@ -88,10 +88,6 @@ namespace Ogre {
         */
         ~Light();
 
-        /** Returns the name of this light (cannot be modified).
-        */
-        const String& getName(void) const;
-
         /** Sets the type of light - see LightTypes for more info.
         */
         void setType(LightTypes type);
@@ -322,7 +318,6 @@ namespace Ogre {
     private:
         /// internal method for synchronising with parent node (if any)
         void update(void) const;
-        String mName;
 
         LightTypes mLightType;
         Vector3 mPosition;

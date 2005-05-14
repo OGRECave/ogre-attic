@@ -182,11 +182,6 @@ namespace Ogre
         void initialise(int startx, int startz, Real* pageHeightData);
 
         //movable object methods
-        /** Returns the name of the TerrainRenderable */
-        virtual const String& getName( void ) const
-        {
-            return mName;
-        };
 
         /** Returns the type of the movable. */
         virtual const String& getMovableType( void ) const
@@ -363,8 +358,6 @@ namespace Ogre
         AxisAlignedBox mBounds;
         /// The center point of this tile
         Vector3 mCenter;
-        /// Name of this renderable
-        String mName;
         /// The MovableObject type
         static String mType;
         /// Current material used by this tile

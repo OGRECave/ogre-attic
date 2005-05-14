@@ -45,7 +45,21 @@ namespace Ogre {
         mParentIsTagPoint = false;
         mCastShadows = true;
     }
-    //-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	MovableObject::MovableObject(const String& name) 
+		: mName(name)
+	{
+		mParentNode = 0;
+		mVisible = true;
+		mUserObject = 0;
+		mRenderQueueID = RENDER_QUEUE_MAIN;
+		mRenderQueueIDSet = false;
+		mQueryFlags = 0xFFFFFFFF;
+		mWorldAABB.setNull();
+		mParentIsTagPoint = false;
+		mCastShadows = true;
+	}
+	//-----------------------------------------------------------------------
     MovableObject::~MovableObject()
     {
         if (mParentNode)

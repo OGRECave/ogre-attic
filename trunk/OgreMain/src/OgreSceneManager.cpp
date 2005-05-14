@@ -129,6 +129,11 @@ mShadowTextureReceiverVPDirty(false)
 
 	mShadowCasterQueryListener = new ShadowCasterSceneQueryListener(this);
 
+	// instantiate and register base movable factories
+	mEntityFactory = new EntityFactory();
+	addMovableObjectFactory(mEntityFactory);
+
+
 
 }
 //-----------------------------------------------------------------------
@@ -142,6 +147,7 @@ SceneManager::~SceneManager()
     delete mShadowCasterSphereQuery;
     delete mShadowCasterAABBQuery;
     delete mRenderQueue;
+	delete mEntityFactory;
 }
 //-----------------------------------------------------------------------
 RenderQueue* SceneManager::getRenderQueue(void)
@@ -428,74 +434,32 @@ Entity* SceneManager::createEntity(
                                    const String& entityName,
                                    const String& meshName )
 {
-    // Check name not used
-    EntityList::iterator it = mEntities.find( entityName );
-    if( it != mEntities.end() )
-    {
-        OGRE_EXCEPT(
-            Exception::ERR_DUPLICATE_ITEM,
-            "An entity with the name " + entityName + " already exists",
-            "SceneManager::createEntity" );
-    }
+	// delegate to factory implementation
+	NameValuePairList params;
+	params["mesh"] = meshName;
+	return static_cast<Entity*>(
+		createMovableObject(entityName, EntityFactory::FACTORY_TYPE_NAME, 
+			&params));
 
-    // Get mesh (load if required)
-    MeshPtr pMesh = MeshManager::getSingleton().load( 
-        meshName, 
-        // note that you can change the group by pre-loading the mesh 
-        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME );
-
-    // Create entity
-    Entity* e = new Entity( entityName, pMesh, this );
-
-    // Add to internal list
-    mEntities[entityName] = e; //.insert(EntityList::value_type(entityName, e));
-
-    return e;
 }
 
 //-----------------------------------------------------------------------
 Entity* SceneManager::getEntity(const String& name)
 {
-    EntityList::iterator i = mEntities.find(name);
-    if (i == mEntities.end())
-    {
-        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
-            "Cannot find Entity with name " + name,
-            "SceneManager::getEntity");
-    }
-    else
-    {
-        return i->second;
-    }
+	return static_cast<Entity*>(
+		getMovableObject(name, EntityFactory::FACTORY_TYPE_NAME));
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeEntity(Entity *cam)
+void SceneManager::removeEntity(Entity *e)
 {
-    // Find in list
-    EntityList::iterator i = mEntities.begin();
-    for (; i != mEntities.end(); ++i)
-    {
-        if (i->second == cam)
-        {
-            mEntities.erase(i);
-            delete cam;
-            break;
-        }
-    }
-
+	destroyMovableObject(e->getName(), EntityFactory::FACTORY_TYPE_NAME);
 }
 
 //-----------------------------------------------------------------------
 void SceneManager::removeEntity(const String& name)
 {
-    // Find in list
-    EntityList::iterator i = mEntities.find(name);
-    if (i != mEntities.end())
-    {
-        delete i->second;
-        mEntities.erase(i);
-    }
+	destroyMovableObject(name, EntityFactory::FACTORY_TYPE_NAME);
 
 }
 
@@ -503,12 +467,7 @@ void SceneManager::removeEntity(const String& name)
 void SceneManager::removeAllEntities(void)
 {
 
-    EntityList::iterator i = mEntities.begin();
-    for (; i != mEntities.end(); ++i)
-    {
-        delete i->second;
-    }
-    mEntities.clear();
+	destroyAllMovableObjectsByType(EntityFactory::FACTORY_TYPE_NAME);
 }
 
 //-----------------------------------------------------------------------
@@ -3993,192 +3952,153 @@ void SceneManager::destroyQuery(SceneQuery* query)
     delete query;
 }
 //---------------------------------------------------------------------
-DefaultIntersectionSceneQuery::DefaultIntersectionSceneQuery(SceneManager* creator)
-: IntersectionSceneQuery(creator)
+void SceneManager::addMovableObjectFactory(MovableObjectFactory* fact)
 {
-    // No world geometry results supported
-    mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
-}
-//---------------------------------------------------------------------
-DefaultIntersectionSceneQuery::~DefaultIntersectionSceneQuery()
-{
-}
-//---------------------------------------------------------------------
-void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
-{
-    // Entities only for now
-    SceneManager::EntityList::const_iterator a, b, theEnd;
-    theEnd = mParentSceneMgr->mEntities.end();
-    int numEntities;
-    // Loop a from first to last-1
-    a = mParentSceneMgr->mEntities.begin();
-    numEntities = (uint)mParentSceneMgr->mEntities.size();
-    for (int i = 0; i < (numEntities - 1); ++i, ++a)
-    {
-        // Skip if a does not pass the mask
-        if (!(a->second->getQueryFlags() & mQueryMask) ||
-			!a->second->isInScene())
-            continue;
+	if (mMovableObjectFactoryMap.find(fact->getType()) != mMovableObjectFactoryMap.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+			"A factory of type '" + fact->getType() + "' already exists.", 
+			"SceneManager::addMovableObjectFactory");
+	}
+	mMovableObjectFactoryMap[fact->getType()] = fact;
 
-        // Loop b from a+1 to last
-        b = a;
-        for (++b; b != theEnd; ++b)
-        {
-            // Apply mask to b (both must pass)
-            if ((b->second->getQueryFlags() & mQueryMask) && b->second->isInScene())
-            {
-                const AxisAlignedBox& box1 = a->second->getWorldBoundingBox();
-                const AxisAlignedBox& box2 = b->second->getWorldBoundingBox();
-
-                if (box1.intersects(box2))
-                {
-                    if (!listener->queryResult(a->second, b->second)) return;
-                }
-            }
-
-        }
-    }
+	// create colleciton for instances
+	mMovableObjectCollectionMap[fact->getType()] = new MovableObjectMap();
 }
 //---------------------------------------------------------------------
-DefaultAxisAlignedBoxSceneQuery::
-DefaultAxisAlignedBoxSceneQuery(SceneManager* creator)
-: AxisAlignedBoxSceneQuery(creator)
+void SceneManager::removeMovableObjectFactory(MovableObjectFactory* fact)
 {
-    // No world geometry results supported
-    mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
-}
-//---------------------------------------------------------------------
-DefaultAxisAlignedBoxSceneQuery::~DefaultAxisAlignedBoxSceneQuery()
-{
-}
-//---------------------------------------------------------------------
-void DefaultAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
-{
-    // Entities only for now
-    SceneManager::EntityList::const_iterator i, iEnd;
-    iEnd = mParentSceneMgr->mEntities.end();
-    for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
-    {
-        if ((i->second->getQueryFlags() & mQueryMask) && 
-			i->second->isInScene() &&
-			mAABB.intersects(i->second->getWorldBoundingBox()))
-        {
-            if (!listener->queryResult(i->second)) return;
-        }
-    }
-}
-//---------------------------------------------------------------------
-DefaultRaySceneQuery::
-DefaultRaySceneQuery(SceneManager* creator) : RaySceneQuery(creator)
-{
-    // No world geometry results supported
-    mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
-}
-//---------------------------------------------------------------------
-DefaultRaySceneQuery::~DefaultRaySceneQuery()
-{
-}
-//---------------------------------------------------------------------
-void DefaultRaySceneQuery::execute(RaySceneQueryListener* listener)
-{
-    // Note that becuase we have no scene partitioning, we actually
-    // perform a complete scene search even if restricted results are
-    // requested; smarter scene manager queries can utilise the paritioning 
-    // of the scene in order to reduce the number of intersection tests 
-    // required to fulfil the query
-
-    // TODO: BillboardSets? Will need per-billboard collision most likely
-    // Entities only for now
-    SceneManager::EntityList::const_iterator i, iEnd;
-    iEnd = mParentSceneMgr->mEntities.end();
-    for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
-    {
-        if( (i->second->getQueryFlags() & mQueryMask) &&
-			i->second->isInScene())
-        {
-            // Do ray / box test
-            std::pair<bool, Real> result =
-                mRay.intersects(i->second->getWorldBoundingBox());
-
-            if (result.first)
-            {
-                if (!listener->queryResult(i->second, result.second)) return;
-            }
-        }
-    }
+	MovableObjectFactoryMap::iterator i = mMovableObjectFactoryMap.find(
+		fact->getType());
+	if (i != mMovableObjectFactoryMap.end())
+	{
+		destroyAllMovableObjectsByType(fact->getType());
+		mMovableObjectFactoryMap.erase(i);
+		mMovableObjectCollectionMap.erase(
+			mMovableObjectCollectionMap.find(fact->getType()));
+	}
 
 }
 //---------------------------------------------------------------------
-DefaultSphereSceneQuery::
-DefaultSphereSceneQuery(SceneManager* creator) : SphereSceneQuery(creator)
+SceneManager::MovableObjectFactoryIterator 
+SceneManager::getMovableObjectFactoryIterator(void) const
 {
-    // No world geometry results supported
-    mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
-}
-//---------------------------------------------------------------------
-DefaultSphereSceneQuery::~DefaultSphereSceneQuery()
-{
-}
-//---------------------------------------------------------------------
-void DefaultSphereSceneQuery::execute(SceneQueryListener* listener)
-{
-    // TODO: BillboardSets? Will need per-billboard collision most likely
-    // Entities only for now
-    SceneManager::EntityList::const_iterator i, iEnd;
-    iEnd = mParentSceneMgr->mEntities.end();
-    Sphere testSphere;
-    for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
-    {
-        // Skip unattached
-        if (!i->second->isInScene() || 
-			!(i->second->getQueryFlags() & mQueryMask))
-            continue;
+	return MovableObjectFactoryIterator(mMovableObjectFactoryMap.begin(),
+		mMovableObjectFactoryMap.end());
 
-        // Do sphere / sphere test
-        testSphere.setCenter(i->second->getParentNode()->_getDerivedPosition());
-        testSphere.setRadius(i->second->getBoundingRadius());
-        if (mSphere.intersects(testSphere))
-        {
-            if (!listener->queryResult(i->second)) return;
-        }
-    }
 }
 //---------------------------------------------------------------------
-DefaultPlaneBoundedVolumeListSceneQuery::
-DefaultPlaneBoundedVolumeListSceneQuery(SceneManager* creator) 
-: PlaneBoundedVolumeListSceneQuery(creator)
+MovableObject* SceneManager::createMovableObject(const String& name, 
+	const String& typeName, const NameValuePairList* params)
 {
-    // No world geometry results supported
-    mSupportedWorldFragments.insert(SceneQuery::WFT_NONE);
+	MovableObjectFactoryMap::iterator i = mMovableObjectFactoryMap.find(typeName);
+	if (i == mMovableObjectFactoryMap.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Factory of type '" + typeName + "' does not exist.", 
+			"SceneManager::createMovableObject");
+	}
+	// Check for duplicate names
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	assert(ci != mMovableObjectCollectionMap.end());
+	if (ci->second->find(name) != ci->second->end())
+	{
+		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+			"An object of type '" + typeName + "' with name '" + name
+			+ "' already exists.", 
+			"SceneManager::createMovableObject");
+	}
+
+	MovableObject* newObj = i->second->createInstance(name, params);
+	(*ci->second)[name] = newObj;
+
+	return newObj;
+
 }
 //---------------------------------------------------------------------
-DefaultPlaneBoundedVolumeListSceneQuery::~DefaultPlaneBoundedVolumeListSceneQuery()
+void SceneManager::destroyMovableObject(const String& name, const String& typeName)
 {
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	if(ci != mMovableObjectCollectionMap.end())
+	{
+		MovableObjectMap::iterator mi = ci->second->find(name);
+		if (mi != ci->second->end())
+		{
+			delete mi->second;
+			ci->second->erase(mi);
+		}
+	}
+
 }
 //---------------------------------------------------------------------
-void DefaultPlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listener)
+void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 {
-    // Entities only for now
-    SceneManager::EntityList::const_iterator i, iEnd;
-    iEnd = mParentSceneMgr->mEntities.end();
-    Sphere testSphere;
-    for (i = mParentSceneMgr->mEntities.begin(); i != iEnd; ++i)
-    {
-        PlaneBoundedVolumeList::iterator pi, piend;
-        piend = mVolumes.end();
-        for (pi = mVolumes.begin(); pi != piend; ++pi)
-        {
-            PlaneBoundedVolume& vol = *pi;
-            // Do AABB / plane volume test
-            if ((i->second->getQueryFlags() & mQueryMask) && 
-				i->second->isInScene() && 
-				vol.intersects(i->second->getWorldBoundingBox()))
-            {
-                if (!listener->queryResult(i->second)) return;
-                break;
-            }
-        }
-    }
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	if(ci != mMovableObjectCollectionMap.end())
+	{
+		MovableObjectMap::iterator i = ci->second->begin();
+		for (; i != ci->second->end(); ++i)
+		{
+			delete i->second;
+		}
+		ci->second->clear();
+	}
+
+}
+//---------------------------------------------------------------------
+void SceneManager::destroyAllMovableObjects(void)
+{
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.begin();
+
+	for(;ci != mMovableObjectCollectionMap.end(); ++ci)
+	{
+		MovableObjectMap::iterator i = ci->second->begin();
+		for (; i != ci->second->end(); ++i)
+		{
+			delete i->second;
+		}
+		ci->second->clear();
+	}
+
+}
+//---------------------------------------------------------------------
+MovableObject* SceneManager::getMovableObject(const String& name, const String& typeName)
+{
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	if (ci == mMovableObjectCollectionMap.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Factory of type '" + typeName + "' does not exist.", 
+			"SceneManager::getMovableObject");
+	}
+	MovableObjectMap::iterator mi = ci->second->find(name);
+	if (mi == ci->second->end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Object named '" + name + "' does not exist.", 
+			"SceneManager::getMovableObject");
+	}
+	return mi->second;
+	
+}
+//---------------------------------------------------------------------
+SceneManager::MovableObjectIterator 
+SceneManager::getMovableObjectIterator(const String& typeName)
+{
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	if (ci == mMovableObjectCollectionMap.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Factory of type '" + typeName + "' does not exist.", 
+			"SceneManager::getMovableObject");
+	}
+
+	return MovableObjectIterator(ci->second->begin(), ci->second->end());
 }
 
 }

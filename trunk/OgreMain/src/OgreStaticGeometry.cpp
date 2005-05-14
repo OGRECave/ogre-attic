@@ -657,7 +657,7 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	StaticGeometry::Region::Region(StaticGeometry* parent, const String& name, 
 		SceneManager* mgr, uint32 regionID, const Vector3& centre) 
-		: mParent(parent), mName(name), mSceneMgr(mgr), mNode(0), 
+		: MovableObject(name), mParent(parent), mSceneMgr(mgr), mNode(0), 
 		mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f), 
 		mCurrentLod(0), mLightListUpdated(0), mBeyondFarDistance(false),
 		mEdgeList(0), mVertexProgramInUse(false)
@@ -792,11 +792,6 @@ namespace Ogre {
 		}
 
 
-	}
-	//--------------------------------------------------------------------------
-	const String& StaticGeometry::Region::getName(void) const
-	{
-		return mName;
 	}
 	//--------------------------------------------------------------------------
 	const String& StaticGeometry::Region::getMovableType(void) const

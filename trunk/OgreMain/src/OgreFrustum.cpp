@@ -650,12 +650,6 @@ namespace Ogre {
         return ll;
     }
     //-----------------------------------------------------------------------
-    const String& Frustum::getName(void) const
-    {
-        // NA
-        return msMovableType;
-    }
-    //-----------------------------------------------------------------------
     void Frustum::_notifyCurrentCamera(Camera* cam)
     {
         // NA
