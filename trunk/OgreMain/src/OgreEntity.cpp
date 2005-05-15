@@ -1408,7 +1408,6 @@ namespace Ogre {
 	{
 		// must have mesh parameter
 		MeshPtr pMesh;
-		SceneManager* creator = 0;
 		if (params != 0)
 		{
 			NameValuePairList::const_iterator ni = params->find("mesh");
