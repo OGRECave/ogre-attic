@@ -140,6 +140,8 @@ mNextMovableObjectTypeFlag(1)
 	addMovableObjectFactory(mEntityFactory);
 	mLightFactory = new LightFactory();
 	addMovableObjectFactory(mLightFactory);
+	mBillboardSetFactory = new BillboardSetFactory();
+	addMovableObjectFactory(mBillboardSetFactory);
 
 
 
@@ -166,6 +168,7 @@ SceneManager::~SceneManager()
     delete mRenderQueue;
 	delete mEntityFactory;
 	delete mLightFactory;
+	delete mBillboardSetFactory;
 }
 //-----------------------------------------------------------------------
 RenderQueue* SceneManager::getRenderQueue(void)
@@ -445,13 +448,7 @@ void SceneManager::removeAllEntities(void)
 //-----------------------------------------------------------------------
 void SceneManager::removeAllBillboardSets(void)
 {
-    // Delete all BillboardSets
-    for (BillboardSetList::iterator bi = mBillboardSets.begin();
-        bi != mBillboardSets.end(); ++bi)
-    {
-        delete bi->second;
-    }
-    mBillboardSets.clear();
+	destroyAllMovableObjectsByType(BillboardSetFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
 void SceneManager::clearScene(void)
@@ -2089,61 +2086,26 @@ Real SceneManager::getFogDensity(void) const
 //-----------------------------------------------------------------------
 BillboardSet* SceneManager::createBillboardSet(const String& name, unsigned int poolSize)
 {
-    // Check name not used
-    if (mBillboardSets.find(name) != mBillboardSets.end())
-    {
-        OGRE_EXCEPT(
-            Exception::ERR_DUPLICATE_ITEM,
-            "A billboard set with the name " + name + " already exists",
-            "SceneManager::createBillboardSet" );
-    }
-
-    BillboardSet* set = new BillboardSet( name, poolSize );
-    mBillboardSets[name] = set;//.insert(BillboardSetList::value_type(name, set));
-
-    return set;
+	NameValuePairList params;
+	params["poolSize"] = StringConverter::toString(poolSize);
+	return static_cast<BillboardSet*>(
+		createMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME, &params));
 }
 //-----------------------------------------------------------------------
 BillboardSet* SceneManager::getBillboardSet(const String& name)
 {
-    BillboardSetList::iterator i = mBillboardSets.find(name);
-    if (i == mBillboardSets.end())
-    {
-        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
-            "Cannot find BillboardSet with name " + name,
-            "SceneManager::getBillboardSet");
-    }
-    else
-    {
-        return i->second;
-    }
+	return static_cast<BillboardSet*>(
+		getMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
 void SceneManager::removeBillboardSet(BillboardSet* set)
 {
-    // Find in list
-    BillboardSetList::iterator i = mBillboardSets.begin();
-    for (; i != mBillboardSets.end(); ++i)
-    {
-        if (i->second == set)
-        {
-            mBillboardSets.erase(i);
-            delete set;
-            break;
-        }
-    }
-
+	destroyMovableObject(set);
 }
 //-----------------------------------------------------------------------
 void SceneManager::removeBillboardSet(const String& name)
 {
-    // Find in list
-    BillboardSetList::iterator i = mBillboardSets.find(name);
-    if (i != mBillboardSets.end())
-    {
-        delete i->second;
-        mBillboardSets.erase(i);
-    }
+	destroyMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
 void SceneManager::setDisplaySceneNodes(bool display)

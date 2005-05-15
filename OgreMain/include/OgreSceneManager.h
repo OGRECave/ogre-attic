@@ -58,6 +58,8 @@ namespace Ogre {
 	class DefaultSphereSceneQuery;
 	class DefaultAxisAlignedBoxSceneQuery;
 	class EntityFactory;
+	class LightFactory;
+	class BillboardSetFactory;
 
     /** Manages the rendering of a 'scene' i.e. a collection of primitives.
         @remarks
@@ -143,12 +145,6 @@ namespace Ogre {
         /** Central list of cameras - for easy memory management and lookup.
         */
         CameraList mCameras;
-
-        typedef std::map<String, BillboardSet* > BillboardSetList;
-
-        /** Central list of billboard sets - for easy memory management and lookup.
-        */
-        BillboardSetList mBillboardSets;
 
 		typedef std::map<String, StaticGeometry* > StaticGeometryList;
 		StaticGeometryList mStaticGeometryList;
@@ -454,6 +450,7 @@ namespace Ogre {
 		// stock factories
 		EntityFactory* mEntityFactory;
 		LightFactory* mLightFactory;
+		BillboardSetFactory* mBillboardSetFactory;
 
         /** Internal method for locating a list of shadow casters which 
             could be affecting the frustum for a given light. 
@@ -1453,16 +1450,11 @@ namespace Ogre {
         virtual void destroyQuery(SceneQuery* query);
 
         typedef MapIterator<CameraList> CameraIterator;
-        typedef MapIterator<BillboardSetList> BillboardSetIterator;
         typedef MapIterator<AnimationList> AnimationIterator;
 
         /** Returns a specialised MapIterator over all cameras in the scene. */
         CameraIterator getCameraIterator(void) {
             return CameraIterator(mCameras.begin(), mCameras.end());
-        }
-        /** Returns a specialised MapIterator over all BillboardSets in the scene. */
-        BillboardSetIterator getBillboardSetIterator(void) {
-            return BillboardSetIterator(mBillboardSets.begin(), mBillboardSets.end());
         }
         /** Returns a specialised MapIterator over all animations in the scene. */
         AnimationIterator getAnimationIterator(void) {

@@ -38,7 +38,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    String BillboardSet::msMovableType = "BillboardSet";
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet() :
         mOriginType( BBO_CENTER ),
@@ -1046,7 +1045,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const String& BillboardSet::getMovableType(void) const
     {
-        return msMovableType;
+		return BillboardSetFactory::FACTORY_TYPE_NAME;
     }
     //-----------------------------------------------------------------------
     Real BillboardSet::getSquaredViewDepth(const Camera* const cam) const
@@ -1113,5 +1112,52 @@ namespace Ogre {
       //  std::vector<> is guaranteed to be contiguous
       return &mTextureCoords.front();
     }
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String BillboardSetFactory::FACTORY_TYPE_NAME = "BillboardSet";
+	//-----------------------------------------------------------------------
+	const String& BillboardSetFactory::getType(void) const
+	{
+		return FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
+	MovableObject* BillboardSetFactory::createInstanceImpl( const String& name, 
+		const NameValuePairList* params)
+	{
+		// may have parameters
+		bool externalData = false;
+		unsigned int poolSize = 0;
+		
+		if (params != 0)
+		{
+			NameValuePairList::const_iterator ni = params->find("poolSize");
+			if (ni != params->end())
+			{
+				poolSize = StringConverter::parseUnsignedInt(ni->second);
+			}
+			ni = params->find("externalData");
+			if (ni != params->end())
+			{
+				externalData = StringConverter::parseBool(ni->second);
+			}
+
+		}
+
+		if (poolSize > 0)
+		{
+			return new BillboardSet(name, poolSize, externalData);
+		}
+		else
+		{
+			return new BillboardSet(name);
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void BillboardSetFactory::destroyInstance( MovableObject* obj)
+	{
+		delete obj;
+	}
+
 
 }

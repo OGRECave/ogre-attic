@@ -231,8 +231,6 @@ namespace Ogre {
 		RadixSort<ActiveBillboardList, Billboard*, float> mRadixSorter;
 
 
-        /// Shared class-level name for Movable type
-        static String msMovableType;
 
     private:
         /// Flag indicating whether the HW buffers have been created.
@@ -648,6 +646,23 @@ namespace Ogre {
 		uint32 getTypeFlags(void) const;
 
     };
+
+	/** Factory object for creating BillboardSet instances */
+	class _OgreExport BillboardSetFactory : public MovableObjectFactory
+	{
+	protected:
+		MovableObject* createInstanceImpl( const String& name, const NameValuePairList* params);
+	public:
+		BillboardSetFactory() {}
+		~BillboardSetFactory() {}
+
+		static String FACTORY_TYPE_NAME;
+
+		const String& getType(void) const;
+		void destroyInstance( MovableObject* obj);  
+
+	};
+
 
 }
 
