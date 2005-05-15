@@ -1391,6 +1391,11 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
+	uint32 Entity::getTypeFlags(void) const
+	{
+		return SceneManager::ENTITY_TYPE_MASK;
+	}
+	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	String EntityFactory::FACTORY_TYPE_NAME = "Entity";
 	//-----------------------------------------------------------------------
@@ -1399,7 +1404,7 @@ namespace Ogre {
 		return FACTORY_TYPE_NAME;
 	}
 	//-----------------------------------------------------------------------
-	MovableObject* EntityFactory::createInstance( const String& name, 
+	MovableObject* EntityFactory::createInstanceImpl( const String& name, 
 		const NameValuePairList* params)
 	{
 		// must have mesh parameter

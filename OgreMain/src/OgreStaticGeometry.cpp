@@ -163,6 +163,7 @@ namespace Ogre {
 			// Calculate the region centre
 			Vector3 centre = getRegionCentre(x, y, z);
 			ret = new Region(this, str.str(), mOwner, index, centre);
+			mOwner->injectMovableObject(ret);
 			ret->setVisible(mVisible);
 			ret->setCastShadows(mCastShadows);
 			if (mRenderQueueIDSet)
@@ -558,6 +559,7 @@ namespace Ogre {
 		for (RegionMap::iterator i = mRegionMap.begin(); 
 			i != mRegionMap.end(); ++i)
 		{
+			mOwner->extractMovableObject(i->second);
 			delete i->second;
 		}
 		mRegionMap.clear();
@@ -684,6 +686,11 @@ namespace Ogre {
 
 		// no need to delete queued meshes, these are managed in StaticGeometry
 
+	}
+	//--------------------------------------------------------------------------
+	uint32 StaticGeometry::Region::getTypeFlags(void) const
+	{
+		return SceneManager::STATICGEOMETRY_TYPE_MASK;
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::assign(QueuedSubMesh* qmesh)

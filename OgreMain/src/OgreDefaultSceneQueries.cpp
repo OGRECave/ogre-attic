@@ -52,6 +52,10 @@ namespace Ogre {
 			while (objItA.hasMoreElements())
 			{
 				MovableObject* a = objItA.getNext();
+				// skip entire section if type doesn't match
+				if (!(a->getTypeFlags() & mQueryTypeMask))
+					break;
+
 				// Skip if a does not pass the mask
 				if (!(a->getQueryFlags() & mQueryMask) ||
 					!a->isInScene())
@@ -62,8 +66,10 @@ namespace Ogre {
 				while (objItB.hasMoreElements())
 				{
 					MovableObject* b = objItB.getNext();
+
 					// Apply mask to b (both must pass)
-					if ((b->getQueryFlags() & mQueryMask) && b->isInScene())
+					if ((b->getQueryFlags() & mQueryMask) && 
+						b->isInScene())
 					{
 						const AxisAlignedBox& box1 = a->getWorldBoundingBox();
 						const AxisAlignedBox& box2 = b->getWorldBoundingBox();
@@ -84,8 +90,13 @@ namespace Ogre {
 					while (objItC.hasMoreElements())
 					{
 						MovableObject* c = objItC.getNext();
+						// skip entire section if type doesn't match
+						if (!(c->getTypeFlags() & mQueryTypeMask))
+							break;
+
 						// Apply mask to c (both must pass)
-						if ((c->getQueryFlags() & mQueryMask) && c->isInScene())
+						if ((c->getQueryFlags() & mQueryMask) &&
+							c->isInScene())
 						{
 							const AxisAlignedBox& box1 = a->getWorldBoundingBox();
 							const AxisAlignedBox& box2 = c->getWorldBoundingBox();
@@ -131,6 +142,10 @@ namespace Ogre {
 			while (objItA.hasMoreElements())
 			{
 				MovableObject* a = objItA.getNext();
+				// skip whole group if type doesn't match
+				if (!(a->getTypeFlags() & mQueryTypeMask))
+					break;
+
 				if ((a->getQueryFlags() & mQueryMask) && 
 					a->isInScene() &&
 					mAABB.intersects(a->getWorldBoundingBox()))
@@ -171,6 +186,10 @@ namespace Ogre {
 			while (objItA.hasMoreElements())
 			{
 				MovableObject* a = objItA.getNext();
+				// skip whole group if type doesn't match
+				if (!(a->getTypeFlags() & mQueryTypeMask))
+					break;
+
 				if( (a->getQueryFlags() & mQueryMask) &&
 					a->isInScene())
 				{
@@ -214,6 +233,9 @@ namespace Ogre {
 			while (objItA.hasMoreElements())
 			{
 				MovableObject* a = objItA.getNext();
+				// skip whole group if type doesn't match
+				if (!(a->getTypeFlags() & mQueryTypeMask))
+					break;
 				// Skip unattached
 				if (!a->isInScene() || 
 					!(a->getQueryFlags() & mQueryMask))
@@ -255,6 +277,10 @@ namespace Ogre {
 			while (objItA.hasMoreElements())
 			{
 				MovableObject* a = objItA.getNext();
+				// skip whole group if type doesn't match
+				if (!(a->getTypeFlags() & mQueryTypeMask))
+					break;
+
 				PlaneBoundedVolumeList::iterator pi, piend;
 				piend = mVolumes.end();
 				for (pi = mVolumes.begin(); pi != piend; ++pi)

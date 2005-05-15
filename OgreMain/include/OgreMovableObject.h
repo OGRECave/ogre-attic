@@ -36,6 +36,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	// Forward declaration
+	class MovableObjectFactory;
 
     /** Abstract class definining a movable object in a scene.
         @remarks
@@ -47,6 +49,8 @@ namespace Ogre {
     protected:
 		/// Name of this object
 		String mName;
+		/// Creator of this object (if created by a factory)
+		MovableObjectFactory* mCreator;
         /// node to which this object is attached
         Node* mParentNode;
         bool mParentIsTagPoint;
@@ -59,7 +63,7 @@ namespace Ogre {
 		/// Flags whether the RenderQueue's default should be used.
 		bool mRenderQueueIDSet;
         /// Flags determining whether this object is included / excluded from scene queries
-        unsigned long mQueryFlags;
+        uint32 mQueryFlags;
         /// Cached world AABB of this object
         mutable AxisAlignedBox mWorldAABB;
 		// Cached world bounding sphere
@@ -79,6 +83,9 @@ namespace Ogre {
         /** Virtual destructor - read Scott Meyers if you don't know why this is needed.
         */
         virtual ~MovableObject();
+
+		/** Notify the object of it's creator (internal use only) */
+		virtual void _notifyCreator(MovableObjectFactory* fact) { mCreator = fact; }
 
         /** Returns the name of this object. */
 		virtual const String& getName(void) const { return mName; }
@@ -230,6 +237,17 @@ namespace Ogre {
         bool getCastShadows(void) const { return mCastShadows; }
         /** Get the distance to extrude for a point/spot light */
         Real getPointExtrusionDistance(const Light* l) const;
+		/** Get the 'type flags' for this MovableObject.
+		@remarks
+			A type flag identifies the type of the MovableObject as a bitpattern. 
+			This is used for categorical inclusion / exclusion in SceneQuery
+			objects. By default, this method returns all ones for objects not 
+			created by a MovableObjectFactory (hence always including them); 
+			otherwise it returns the value assigned to the MovableObjectFactory.
+			Custom objects which don't use MovableObjectFactory will need to 
+			override this if they want to be included in queries.
+		*/
+		virtual uint32 getTypeFlags(void) const;
 
 
 
@@ -244,8 +262,15 @@ namespace Ogre {
 	*/
 	class _OgreExport MovableObjectFactory 
 	{
+	protected:
+		/// Type flag, allocated if requested
+		unsigned long mTypeFlag;
+
+		/// Internal implementation of create method - must be overridden
+		virtual MovableObject* createInstanceImpl(
+			const String& name, const NameValuePairList* params = 0) = 0;
 	public:
-		MovableObjectFactory() {}
+		MovableObjectFactory() : mTypeFlag(0xFFFFFFFF) {}
 		virtual ~MovableObjectFactory() {}
 		/// Get the type of the object to be created
 		virtual const String& getType(void) const = 0;
@@ -256,9 +281,40 @@ namespace Ogre {
 			construct the object (defined per subtype). Optional.
 		*/
 		virtual MovableObject* createInstance(
-			const String& name, const NameValuePairList* params = 0) = 0;
+			const String& name, const NameValuePairList* params = 0);
 		/** Destroy an instance of the object */
 		virtual void destroyInstance(MovableObject* obj) = 0;
+
+		/** Does this factory require the allocation of a 'type flag', used to 
+			selectively include / exclude this type from scene queries?
+		@remarks
+			The default implementation here is to return 'false', ie not to 
+			request a unique type mask from the SceneManager. For objects that
+			never need to be excluded in SceneQuery results, that's fine, since
+			the default implementation of MovableObject::getTypeFlags is to return
+			all ones, hence matching any query type mask. However, if you want the
+			objects created by this factory to be filterable by queries using a 
+			broad type, you have to give them a (preferably unique) type mask - 
+			and given that you don't know what other MovableObject types are 
+			registered, the SceneManager will allocate you one. 
+		*/
+		virtual bool requestTypeFlags(void) const { return false; }
+		/** Notify this factory of the type mask to apply. 
+		@remarks
+			This should normally only be called by SceneManager in response to
+			a 'true' result from requestTypeMask. However, you can actually use
+			it yourself if you're careful; for example to assign the same mask
+			to a number of different types of object, should you always wish them
+			to be treated the same in queries.
+		*/
+		void _notifyTypeFlags(unsigned long flag) { mTypeFlag = flag; }
+
+		/** Gets the type flag for this factory.
+		@remarks
+			A type flag is like a query flag, except that it applies to all instances
+			of a certain type of object.
+		*/
+		unsigned long getTypeFlags(void) const { return mTypeFlag; }
 
 	};
 

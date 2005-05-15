@@ -609,6 +609,10 @@ namespace Ogre {
         */
         void _updateBounds(void);
 
+		/// Override to return specific type flag
+		uint32 getTypeFlags(void) const;
+
+
     };
 
 }

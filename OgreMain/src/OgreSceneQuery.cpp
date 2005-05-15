@@ -30,7 +30,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     SceneQuery::SceneQuery(SceneManager* mgr)
-        : mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF), mWorldFragmentType(SceneQuery::WFT_NONE)
+        : mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF), 
+		mQueryTypeMask(0xFFFFFFFF), mWorldFragmentType(SceneQuery::WFT_NONE)
     {
     }
     //-----------------------------------------------------------------------
@@ -38,15 +39,25 @@ namespace Ogre {
     {
     }
     //-----------------------------------------------------------------------
-    void SceneQuery::setQueryMask(unsigned long mask)
+    void SceneQuery::setQueryMask(uint32 mask)
     {
         mQueryMask = mask;
     }
     //-----------------------------------------------------------------------
-    unsigned long SceneQuery::getQueryMask(void) const
+    uint32 SceneQuery::getQueryMask(void) const
     {
         return mQueryMask;
     }
+	//-----------------------------------------------------------------------
+	void SceneQuery::setQueryTypeMask(uint32 mask)
+	{
+		mQueryTypeMask = mask;
+	}
+	//-----------------------------------------------------------------------
+	uint32 SceneQuery::getQueryTypeMask(void) const
+	{
+		return mQueryTypeMask;
+	}
     //-----------------------------------------------------------------------
     void SceneQuery::setWorldFragmentType(enum SceneQuery::WorldFragmentType wft)
     {

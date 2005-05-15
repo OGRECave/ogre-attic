@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreParticleAffectorFactory.h"
 #include "OgreParticleSystemRenderer.h"
 #include "OgreMaterialManager.h"
+#include "OgreSceneManager.h"
 
 namespace Ogre {
     // Init statics
@@ -875,6 +876,11 @@ namespace Ogre {
 	float ParticleSystem::SortFunctor::operator()(Particle* p) const
 	{
 		return sortDir.dotProduct(p->position);
+	}
+	//-----------------------------------------------------------------------
+	uint32 ParticleSystem::getTypeFlags(void) const
+	{
+		return SceneManager::FX_TYPE_MASK;
 	}
     //-----------------------------------------------------------------------
     String ParticleSystem::CmdCull::doGet(const void* target) const

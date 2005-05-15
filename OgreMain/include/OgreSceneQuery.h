@@ -111,7 +111,8 @@ namespace Ogre {
         };
     protected:
         SceneManager* mParentSceneMgr;
-        unsigned long mQueryMask;
+        uint32 mQueryMask;
+		uint32 mQueryTypeMask;
         std::set<WorldFragmentType> mSupportedWorldFragments;
         WorldFragmentType mWorldFragmentType;
     
@@ -129,11 +130,23 @@ namespace Ogre {
             MovableObject::getQueryFlags value is non-zero. The application will
             have to decide what each of the bits means.
         */
-        virtual void setQueryMask(unsigned long mask);
+        virtual void setQueryMask(uint32 mask);
         /** Returns the current mask for this query. */
-        virtual unsigned long getQueryMask(void) const;
+        virtual uint32 getQueryMask(void) const;
 
-        /** Tells the query what kind of world geometry to return from queries;
+        /** Sets the type mask for results of this query.
+        @remarks
+            This method allows you to set a 'type mask' to limit the results of this
+            query to certain types of objects. Whilst setQueryMask deals with flags
+			set per instance of object, this method deals with setting a mask on 
+			flags set per type of object. Both may exclude an object from query
+			results.
+        */
+        virtual void setQueryTypeMask(uint32 mask);
+        /** Returns the current mask for this query. */
+        virtual uint32 getQueryTypeMask(void) const;
+
+		/** Tells the query what kind of world geometry to return from queries;
             often the full renderable geometry is not what is needed. 
         @remarks
             The application receiving the world geometry is expected to know 

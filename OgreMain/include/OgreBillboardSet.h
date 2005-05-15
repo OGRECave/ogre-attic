@@ -643,6 +643,10 @@ namespace Ogre {
             BillboardSet::setTextureCoords()
           */
         virtual Ogre::FloatRect const * getTextureCoords( uint16 * oNumCoords );
+
+		/// Override to return specific type flag
+		uint32 getTypeFlags(void) const;
+
     };
 
 }

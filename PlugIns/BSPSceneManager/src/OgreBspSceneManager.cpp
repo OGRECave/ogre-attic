@@ -631,6 +631,7 @@ namespace Ogre {
                 const MovableObject* aObj = *a;
                 // Skip this object if collision not enabled
                 if (!(aObj->getQueryFlags() & mQueryMask) ||
+					!(aObj->getTypeFlags() & mQueryTypeMask) ||
 					!aObj->isInScene())
                     continue;
 
@@ -643,6 +644,7 @@ namespace Ogre {
                         const MovableObject* bObj = *b;
                         // Apply mask to b (both must pass)
                         if ((bObj->getQueryFlags() & mQueryMask) && 
+							(bObj->getTypeFlags() & mQueryTypeMask) && 
 							bObj->isInScene())
                         {
                             const AxisAlignedBox& box1 = aObj->getWorldBoundingBox();
@@ -658,7 +660,7 @@ namespace Ogre {
                     }
                 }
                 // Check object against brushes
-                if (mQueryMask & SceneManager::WORLD_GEOMETRY_QUERY_MASK)
+                if (mQueryTypeMask & SceneManager::WORLD_GEOMETRY_TYPE_MASK)
                 {
                     const BspNode::NodeBrushList& brushes = leaf->getSolidBrushes();
                     BspNode::NodeBrushList::const_iterator bi, biend;
@@ -805,7 +807,8 @@ namespace Ogre {
             // cast away constness, constness of node is nothing to do with objects
             MovableObject* obj = const_cast<MovableObject*>(*i);
             // Skip this object if not enabled
-            if((obj->getQueryFlags() & mQueryMask) == 0)
+            if(!(obj->getQueryFlags() & mQueryMask) ||
+				!((obj->getTypeFlags() & mQueryTypeMask)))
                 continue;
 
             // check we haven't reported this one already
@@ -827,7 +830,7 @@ namespace Ogre {
 
 
         // Check ray against brushes
-        if (mQueryMask & SceneManager::WORLD_GEOMETRY_QUERY_MASK)
+        if (mQueryTypeMask & SceneManager::WORLD_GEOMETRY_TYPE_MASK)
         {
             const BspNode::NodeBrushList& brushList = leaf->getSolidBrushes();
             BspNode::NodeBrushList::const_iterator bi, biend;
