@@ -46,7 +46,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 
 namespace Ogre {
-    String Entity::msMovableType = "Entity";
     //-----------------------------------------------------------------------
     Entity::Entity () 
     {
@@ -432,7 +431,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const String& Entity::getMovableType(void) const
     {
-        return msMovableType;
+		return EntityFactory::FACTORY_TYPE_NAME;
     }
     //-----------------------------------------------------------------------
     void Entity::updateAnimation(void)

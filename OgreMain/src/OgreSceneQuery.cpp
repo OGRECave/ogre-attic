@@ -25,14 +25,19 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreSceneQuery.h"
 #include "OgreException.h"
+#include "OgreSceneManager.h"
 
 namespace Ogre {
 
     //-----------------------------------------------------------------------
     SceneQuery::SceneQuery(SceneManager* mgr)
         : mParentSceneMgr(mgr), mQueryMask(0xFFFFFFFF), 
-		mQueryTypeMask(0xFFFFFFFF), mWorldFragmentType(SceneQuery::WFT_NONE)
+		mWorldFragmentType(SceneQuery::WFT_NONE)
     {
+		// default type mask to everything except lights & fx (previous behaviour)
+		mQueryTypeMask = (0xFFFFFFFF & ~SceneManager::FX_TYPE_MASK) 
+			& ~SceneManager::LIGHT_TYPE_MASK;
+
     }
     //-----------------------------------------------------------------------
     SceneQuery::~SceneQuery()

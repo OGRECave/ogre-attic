@@ -98,9 +98,6 @@ namespace Ogre {
         /// State of animation for animable meshes
         AnimationStateSet* mAnimationState;
 
-        /// Shared class-level name for Movable type
-        static String msMovableType;
-
 
         /// Temp blend buffer details for shared geometry
         TempBlendedBufferInfo mTempBlendedBuffer;

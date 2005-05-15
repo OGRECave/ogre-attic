@@ -85,6 +85,8 @@ namespace Ogre {
 		static uint32 FX_TYPE_MASK;
 		/// Query type mask which will be used for StaticGeometry  @see SceneQuery
 		static uint32 STATICGEOMETRY_TYPE_MASK;
+		/// Query type mask which will be used for lights  @see SceneQuery
+		static uint32 LIGHT_TYPE_MASK;
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
         struct materialLess
@@ -141,12 +143,6 @@ namespace Ogre {
         /** Central list of cameras - for easy memory management and lookup.
         */
         CameraList mCameras;
-
-        typedef std::map<String, Light* > SceneLightList;
-
-        /** Central list of lights - for easy memory management and lookup.
-        */
-        SceneLightList mLights;
 
         typedef std::map<String, BillboardSet* > BillboardSetList;
 
@@ -457,6 +453,7 @@ namespace Ogre {
 		uint32 mNextMovableObjectTypeFlag;
 		// stock factories
 		EntityFactory* mEntityFactory;
+		LightFactory* mLightFactory;
 
         /** Internal method for locating a list of shadow casters which 
             could be affecting the frustum for a given light. 
@@ -1455,15 +1452,10 @@ namespace Ogre {
         /** Destroys a scene query of any type. */
         virtual void destroyQuery(SceneQuery* query);
 
-        typedef MapIterator<SceneLightList> LightIterator;
         typedef MapIterator<CameraList> CameraIterator;
         typedef MapIterator<BillboardSetList> BillboardSetIterator;
         typedef MapIterator<AnimationList> AnimationIterator;
 
-        /** Returns a specialised MapIterator over all lights in the scene. */
-        LightIterator getLightIterator(void) {
-            return LightIterator(mLights.begin(), mLights.end());
-        }
         /** Returns a specialised MapIterator over all cameras in the scene. */
         CameraIterator getCameraIterator(void) {
             return CameraIterator(mCameras.begin(), mCameras.end());
