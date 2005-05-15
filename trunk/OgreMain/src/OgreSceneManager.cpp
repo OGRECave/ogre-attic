@@ -66,7 +66,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 //-----------------------------------------------------------------------
-unsigned long SceneManager::WORLD_GEOMETRY_QUERY_MASK = 0x80000000;
+uint32 SceneManager::WORLD_GEOMETRY_TYPE_MASK	= 0x80000000;
+uint32 SceneManager::ENTITY_TYPE_MASK			= 0x40000000;
+uint32 SceneManager::FX_TYPE_MASK				= 0x20000000;
+uint32 SceneManager::STATICGEOMETRY_TYPE_MASK   = 0x10000000;
+#define MAX_USER_TYPE_MASK SceneManager::STATICGEOMETRY_TYPE_MASK
 //-----------------------------------------------------------------------
 SceneManager::SceneManager() :
 mRenderQueue(0),
@@ -110,7 +114,8 @@ mShadowTextureSelfShadow(false),
 mShadowTextureCustomCasterPass(0),
 mShadowTextureCustomReceiverPass(0),
 mShadowTextureCasterVPDirty(false),
-mShadowTextureReceiverVPDirty(false)
+mShadowTextureReceiverVPDirty(false),
+mNextMovableObjectTypeFlag(1)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
@@ -3964,6 +3969,27 @@ void SceneManager::addMovableObjectFactory(MovableObjectFactory* fact)
 
 	// create colleciton for instances
 	mMovableObjectCollectionMap[fact->getType()] = new MovableObjectMap();
+
+	if (fact->requestTypeFlags())
+	{
+		fact->_notifyTypeFlags(_allocateNextMovableObjectTypeFlag());
+	}
+}
+//---------------------------------------------------------------------
+uint32 SceneManager::_allocateNextMovableObjectTypeFlag(void)
+{
+	if (mNextMovableObjectTypeFlag == MAX_USER_TYPE_MASK)
+	{
+		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+			"Cannot allocate a type flag since "
+			"all the available flags have been used.", 
+			"SceneManager::_allocateNextMovableObjectTypeFlag");
+
+	}
+	uint32 ret = mNextMovableObjectTypeFlag;
+	mNextMovableObjectTypeFlag <<= 1;
+	return ret;
+
 }
 //---------------------------------------------------------------------
 void SceneManager::removeMovableObjectFactory(MovableObjectFactory* fact)
@@ -4023,10 +4049,17 @@ void SceneManager::destroyMovableObject(const String& name, const String& typeNa
 		typeName);
 	if(ci != mMovableObjectCollectionMap.end())
 	{
+		MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(typeName);
+		if (facti == mMovableObjectFactoryMap.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Factory of type '" + typeName + "' does not exist.", 
+				"SceneManager::destroyMovableObject");
+		}
 		MovableObjectMap::iterator mi = ci->second->find(name);
 		if (mi != ci->second->end())
 		{
-			delete mi->second;
+			facti->second->destroyInstance(mi->second);
 			ci->second->erase(mi);
 		}
 	}
@@ -4035,6 +4068,13 @@ void SceneManager::destroyMovableObject(const String& name, const String& typeNa
 //---------------------------------------------------------------------
 void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 {
+	MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(typeName);
+	if (facti == mMovableObjectFactoryMap.end())
+	{
+		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+			"Factory of type '" + typeName + "' does not exist.", 
+			"SceneManager::destroyAllMovableObjectsByType");
+	}
 	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
 		typeName);
 	if(ci != mMovableObjectCollectionMap.end())
@@ -4042,7 +4082,7 @@ void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 		MovableObjectMap::iterator i = ci->second->begin();
 		for (; i != ci->second->end(); ++i)
 		{
-			delete i->second;
+			facti->second->destroyInstance(i->second);
 		}
 		ci->second->clear();
 	}
@@ -4055,10 +4095,16 @@ void SceneManager::destroyAllMovableObjects(void)
 
 	for(;ci != mMovableObjectCollectionMap.end(); ++ci)
 	{
-		MovableObjectMap::iterator i = ci->second->begin();
-		for (; i != ci->second->end(); ++i)
+		MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(
+			ci->first);
+		if (facti != mMovableObjectFactoryMap.end())
 		{
-			delete i->second;
+			// Only destroy if we have a factory instance; otherwise must be injected
+			MovableObjectMap::iterator i = ci->second->begin();
+			for (; i != ci->second->end(); ++i)
+			{
+				facti->second->destroyInstance(i->second);
+			}
 		}
 		ci->second->clear();
 	}
@@ -4100,5 +4146,64 @@ SceneManager::getMovableObjectIterator(const String& typeName)
 
 	return MovableObjectIterator(ci->second->begin(), ci->second->end());
 }
+//---------------------------------------------------------------------
+void SceneManager::destroyMovableObject(MovableObject* m)
+{
+	destroyMovableObject(m->getName(), m->getMovableType());
+}
+//---------------------------------------------------------------------
+void SceneManager::injectMovableObject(MovableObject* m)
+{
+	// Do we have a collection already?
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		m->getMovableType());
+	if (ci == mMovableObjectCollectionMap.end())
+	{
+		// create
+		std::pair<MovableObjectCollectionMap::iterator, bool> retpair = 
+			mMovableObjectCollectionMap.insert(
+			MovableObjectCollectionMap::value_type(
+				m->getMovableType(), new MovableObjectMap()));
+		ci = retpair.first;
+	}
+	(*ci->second)[m->getName()] = m;
+
+
+}
+//---------------------------------------------------------------------
+void SceneManager::extractMovableObject(const String& name, const String& typeName)
+{
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	if (ci == mMovableObjectCollectionMap.end())
+	{
+		MovableObjectMap::iterator mi = ci->second->find(name);
+		if (mi != ci->second->end())
+		{
+			// no delete
+			ci->second->erase(mi);
+		}
+	}
+
+}
+//---------------------------------------------------------------------
+void SceneManager::extractMovableObject(MovableObject* m)
+{
+	extractMovableObject(m->getName(), m->getMovableType());
+}
+//---------------------------------------------------------------------
+void SceneManager::extractAllMovableObjectsByType(const String& typeName)
+{
+	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
+		typeName);
+	if (ci == mMovableObjectCollectionMap.end())
+	{
+		// no deletion
+		ci->second->clear();
+	}
+
+}
+//---------------------------------------------------------------------
+
 
 }

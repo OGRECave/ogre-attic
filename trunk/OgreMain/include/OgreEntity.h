@@ -527,6 +527,9 @@ namespace Ogre {
 			for entities which are software skinned. 
 		*/
 		const VertexData* _getSharedBlendedVertexData(void) const;
+		/// Override to return specific type flag
+		uint32 getTypeFlags(void) const;
+
 
 
 
@@ -535,6 +538,8 @@ namespace Ogre {
 	/** Factory object for creating Entity instances */
 	class _OgreExport EntityFactory : public MovableObjectFactory
 	{
+	protected:
+		MovableObject* createInstanceImpl( const String& name, const NameValuePairList* params);
 	public:
 		EntityFactory() {}
 		~EntityFactory() {}
@@ -542,8 +547,7 @@ namespace Ogre {
 		static String FACTORY_TYPE_NAME;
 
 		const String& getType(void) const;
-		MovableObject* createInstance( const String& name, const NameValuePairList* params);
-		void destroyInstance( MovableObject* obj);    
+		void destroyInstance( MovableObject* obj);  
 
 	};
 

@@ -429,6 +429,7 @@ namespace Ogre {
 			Real getBoundingRadius(void) const;
 			void _updateRenderQueue(RenderQueue* queue);
 			bool isVisible(void) const;
+			uint32 getTypeFlags(void) const;
 
 			typedef VectorIterator<LODBucketList> LODIterator;
 			/// Get an iterator over the LODs in this region

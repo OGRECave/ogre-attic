@@ -87,6 +87,7 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
 							set.find( MovablePair(e,m)) == set.end() &&
 							set.find( MovablePair(m,e)) == set.end() &&
 							(m->getQueryFlags() & mQueryMask) &&
+							(m->getTypeFlags() & mQueryTypeMask) &&
 							m->isInScene() && 
 							e->getWorldBoundingBox().intersects( m->getWorldBoundingBox() ) )
 					{
@@ -126,6 +127,7 @@ void OctreeAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
         {
             MovableObject * m = oit.getNext();
             if( (m->getQueryFlags() & mQueryMask) && 
+				(m->getTypeFlags() & mQueryTypeMask) && 
 				m->isInScene() &&
 				mAABB.intersects( m->getWorldBoundingBox() ) )
             {
@@ -160,7 +162,8 @@ void OctreeRaySceneQuery::execute(RaySceneQueryListener* listener)
         while( oit.hasMoreElements() )
         {
             MovableObject * m = oit.getNext();
-            if( (m->getQueryFlags() & mQueryMask) && m->isInScene() )
+            if( (m->getQueryFlags() & mQueryMask) && 
+				(m->getTypeFlags() & mQueryTypeMask) && m->isInScene() )
             {
                 std::pair<bool, Real> result = mRay.intersects(m->getWorldBoundingBox());
 
@@ -201,6 +204,7 @@ void OctreeSphereSceneQuery::execute(SceneQueryListener* listener)
         {
             MovableObject * m = oit.getNext();
             if( (m->getQueryFlags() & mQueryMask) && 
+				(m->getTypeFlags() & mQueryTypeMask) && 
 				m->isInScene() && 
 				mSphere.intersects( m->getWorldBoundingBox() ) )
             {
@@ -241,6 +245,7 @@ void OctreePlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listene
             {
                 MovableObject * m = oit.getNext();
                 if( (m->getQueryFlags() & mQueryMask) && 
+					(m->getTypeFlags() & mQueryTypeMask) && 
 					m->isInScene() &&
 					(*pi).intersects( m->getWorldBoundingBox() ) )
                 {

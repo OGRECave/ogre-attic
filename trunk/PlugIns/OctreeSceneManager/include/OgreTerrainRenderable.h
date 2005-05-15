@@ -287,6 +287,8 @@ namespace Ogre
             GpuProgramParameters* params) const;
         /// Get the static list of indexes cached (internal use only)
         static TerrainBufferCache& _getIndexCache(void) {return msIndexCache;}
+		/// @see MovableObject
+		uint32 getTypeFlags(void) const;
     protected:
         /// Static list of index buffers
         static TerrainBufferCache msIndexCache;

@@ -34,30 +34,22 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     MovableObject::MovableObject()
+		: mCreator(0), mParentNode(0), mParentIsTagPoint(false), mVisible(true), 
+         mUserObject(0), mRenderQueueID(RENDER_QUEUE_MAIN),
+         mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
+         mCastShadows (true)
     {
-        mParentNode = 0;
-        mVisible = true;
-        mUserObject = 0;
-        mRenderQueueID = RENDER_QUEUE_MAIN;
-        mRenderQueueIDSet = false;
-        mQueryFlags = 0xFFFFFFFF;
-        mWorldAABB.setNull();
-        mParentIsTagPoint = false;
-        mCastShadows = true;
+		mWorldAABB.setNull();
+        
     }
 	//-----------------------------------------------------------------------
 	MovableObject::MovableObject(const String& name) 
-		: mName(name)
+		: mName(name), mCreator(0), mParentNode(0), mParentIsTagPoint(false), 
+		mVisible(true), mUserObject(0), mRenderQueueID(RENDER_QUEUE_MAIN),
+		mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
+		mCastShadows (true)
 	{
-		mParentNode = 0;
-		mVisible = true;
-		mUserObject = 0;
-		mRenderQueueID = RENDER_QUEUE_MAIN;
-		mRenderQueueIDSet = false;
-		mQueryFlags = 0xFFFFFFFF;
 		mWorldAABB.setNull();
-		mParentIsTagPoint = false;
-		mCastShadows = true;
 	}
 	//-----------------------------------------------------------------------
     MovableObject::~MovableObject()
@@ -224,6 +216,27 @@ namespace Ogre {
             return 0;
         }
     }
+	//-----------------------------------------------------------------------
+	uint32 MovableObject::getTypeFlags(void) const
+	{
+		if (mCreator)
+		{
+			return mCreator->getTypeFlags();
+		}
+		else
+		{
+			return 0xFFFFFFFF;
+		}
+	}
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	MovableObject* MovableObjectFactory::createInstance(
+		const String& name, const NameValuePairList* params)
+	{
+		MovableObject* m = createInstanceImpl(name, params);
+		m->_notifyCreator(this);
+		return m;
+	}
 
 
 }

@@ -898,6 +898,11 @@ namespace Ogre {
     {
         return mCommonDirection;
     }
+	//-----------------------------------------------------------------------
+	uint32 BillboardSet::getTypeFlags(void) const
+	{
+		return SceneManager::FX_TYPE_MASK;
+	}
     //-----------------------------------------------------------------------
     void BillboardSet::genVertices( 
         const Vector3* const offsets, const Billboard& bb)

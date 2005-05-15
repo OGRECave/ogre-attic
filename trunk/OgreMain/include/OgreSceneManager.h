@@ -77,8 +77,14 @@ namespace Ogre {
     class _OgreExport SceneManager
     {
     public:
-        /// Query mask which will be used for world geometry @see SceneQuery
-        static unsigned long WORLD_GEOMETRY_QUERY_MASK;
+        /// Query type mask which will be used for world geometry @see SceneQuery
+        static uint32 WORLD_GEOMETRY_TYPE_MASK;
+		/// Query type mask which will be used for entities @see SceneQuery
+		static uint32 ENTITY_TYPE_MASK;
+		/// Query type mask which will be used for effects like billboardsets / particle systems @see SceneQuery
+		static uint32 FX_TYPE_MASK;
+		/// Query type mask which will be used for StaticGeometry  @see SceneQuery
+		static uint32 STATICGEOMETRY_TYPE_MASK;
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
         struct materialLess
@@ -448,6 +454,7 @@ namespace Ogre {
 		typedef std::map<String, MovableObject*> MovableObjectMap;
 		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
 		MovableObjectCollectionMap mMovableObjectCollectionMap;
+		uint32 mNextMovableObjectTypeFlag;
 		// stock factories
 		EntityFactory* mEntityFactory;
 
@@ -1806,6 +1813,12 @@ namespace Ogre {
 			destroying the factory.
 		*/
 		virtual void removeMovableObjectFactory(MovableObjectFactory* fact);
+		/** Allocate the next MovableObject type flag.
+		@remarks
+			This is done automatically if MovableObjectFactory::requestTypeFlags
+			returns true; don't call this manually unless you're sure you need to.
+		*/
+		uint32 _allocateNextMovableObjectTypeFlag(void);
 
 		typedef ConstMapIterator<MovableObjectFactoryMap> MovableObjectFactoryIterator;
 		/** Return an iterator over all the MovableObjectFactory instances currently
@@ -1831,6 +1844,12 @@ namespace Ogre {
 			on destruction.
 		*/
 		virtual void destroyMovableObject(const String& name, const String& typeName);
+		/** Destroys a MovableObject.
+		@remarks
+			The MovableObject will automatically detach itself from any nodes
+			on destruction.
+		*/
+		virtual void destroyMovableObject(MovableObject* m);
 		/** Destroy all MovableObjects of a given type. */
 		virtual void destroyAllMovableObjectsByType(const String& typeName);
 		/** Destroy all MovableObjects. */
@@ -1839,7 +1858,41 @@ namespace Ogre {
 		virtual MovableObject* getMovableObject(const String& name, const String& typeName);
 		typedef MapIterator<MovableObjectMap> MovableObjectIterator;
 		/** Get an iterator over all MovableObect instances of a given type. */
-		MovableObjectIterator getMovableObjectIterator(const String& typeName);
+		virtual MovableObjectIterator getMovableObjectIterator(const String& typeName);
+		/** Inject a MovableObject instance created externally.
+		@remarks
+			This method 'injects' a MovableObject instance created externally into
+			the MovableObject instance registry held in the SceneManager. You
+			might want to use this if you have a MovableObject which you don't
+			want to register a factory for; for example a MovableObject which 
+			cannot be generally constructed by clients. 
+		@note
+			It is important that the MovableObject has a unique name for the type,
+			and that its getMovableType() method returns a proper type name.
+		*/
+		virtual void injectMovableObject(MovableObject* m);
+		/** Extract a previously injected MovableObject.
+		@remarks
+			Essentially this does the same as destroyMovableObject, but only
+			removes the instance from the internal lists, it does not attempt
+			to destroy it.
+		*/
+		virtual void extractMovableObject(const String& name, const String& typeName);
+		/** Extract a previously injected MovableObject.
+		@remarks
+			Essentially this does the same as destroyMovableObject, but only
+			removes the instance from the internal lists, it does not attempt
+			to destroy it.
+		*/
+		virtual void extractMovableObject(MovableObject* m);
+		/** Extract all injected MovableObjects of a given type.
+		@remarks
+			Essentially this does the same as destroyAllMovableObjectsByType, 
+			but only removes the instances from the internal lists, it does not 
+			attempt to destroy them.
+		*/
+		virtual void extractAllMovableObjectsByType(const String& typeName);
+
 		
     };
 
