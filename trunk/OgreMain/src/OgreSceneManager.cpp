@@ -70,7 +70,8 @@ uint32 SceneManager::WORLD_GEOMETRY_TYPE_MASK	= 0x80000000;
 uint32 SceneManager::ENTITY_TYPE_MASK			= 0x40000000;
 uint32 SceneManager::FX_TYPE_MASK				= 0x20000000;
 uint32 SceneManager::STATICGEOMETRY_TYPE_MASK   = 0x10000000;
-#define MAX_USER_TYPE_MASK SceneManager::STATICGEOMETRY_TYPE_MASK
+uint32 SceneManager::LIGHT_TYPE_MASK			= 0x08000000;
+#define MAX_USER_TYPE_MASK SceneManager::LIGHT_TYPE_MASK
 //-----------------------------------------------------------------------
 SceneManager::SceneManager() :
 mRenderQueue(0),
@@ -137,6 +138,8 @@ mNextMovableObjectTypeFlag(1)
 	// instantiate and register base movable factories
 	mEntityFactory = new EntityFactory();
 	addMovableObjectFactory(mEntityFactory);
+	mLightFactory = new LightFactory();
+	addMovableObjectFactory(mLightFactory);
 
 
 
@@ -146,6 +149,15 @@ SceneManager::~SceneManager()
 {
     clearScene();
     removeAllCameras();
+
+	// clear down movable object collection map
+	for (MovableObjectCollectionMap::iterator i = mMovableObjectCollectionMap.begin();
+		i != mMovableObjectCollectionMap.end(); ++i)
+	{
+		delete i->second;
+	}
+	mMovableObjectCollectionMap.clear();
+
 	delete mShadowCasterQueryListener;
     delete mSceneRoot;
     delete mFullScreenQuad;
@@ -153,6 +165,7 @@ SceneManager::~SceneManager()
     delete mShadowCasterAABBQuery;
     delete mRenderQueue;
 	delete mEntityFactory;
+	delete mLightFactory;
 }
 //-----------------------------------------------------------------------
 RenderQueue* SceneManager::getRenderQueue(void)
@@ -297,80 +310,32 @@ void SceneManager::removeAllCameras(void)
     }
     mCameras.clear();
 }
-
 //-----------------------------------------------------------------------
 Light* SceneManager::createLight(const String& name)
 {
-    // Check name not used
-    if (mLights.find(name) != mLights.end())
-    {
-        OGRE_EXCEPT(
-            Exception::ERR_DUPLICATE_ITEM,
-            "A light with the name " + name + " already exists",
-            "SceneManager::createLight" );
-    }
-
-    Light *l = new Light(name);
-    mLights.insert(SceneLightList::value_type(name, l));
-    return l;
+	return static_cast<Light*>(
+		createMovableObject(name, LightFactory::FACTORY_TYPE_NAME));
 }
-
 //-----------------------------------------------------------------------
 Light* SceneManager::getLight(const String& name)
 {
-    SceneLightList::iterator i = mLights.find(name);
-    if (i == mLights.end())
-    {
-        OGRE_EXCEPT( Exception::ERR_ITEM_NOT_FOUND, 
-            "Cannot find Light with name " + name,
-            "SceneManager::getLight");
-    }
-    else
-    {
-        return i->second;
-    }
+	return static_cast<Light*>(
+		getMovableObject(name, LightFactory::FACTORY_TYPE_NAME));
 }
-
 //-----------------------------------------------------------------------
 void SceneManager::removeLight(Light *l)
 {
-    // Find in list
-    SceneLightList::iterator i = mLights.begin();
-    for (; i != mLights.end(); ++i)
-    {
-        if (i->second == l)
-        {
-            mLights.erase(i);
-            delete l;
-            break;
-        }
-    }
-
+	destroyMovableObject(l);
 }
-
 //-----------------------------------------------------------------------
 void SceneManager::removeLight(const String& name)
 {
-    // Find in list
-    SceneLightList::iterator i = mLights.find(name);
-    if (i != mLights.end())
-    {
-        delete i->second;
-        mLights.erase(i);
-    }
-
+	destroyMovableObject(name, LightFactory::FACTORY_TYPE_NAME);
 }
-
 //-----------------------------------------------------------------------
 void SceneManager::removeAllLights(void)
 {
-
-    SceneLightList::iterator i = mLights.begin();
-    for (; i != mLights.end(); ++i)
-    {
-        delete i->second;
-    }
-    mLights.clear();
+	destroyAllMovableObjectsByType(LightFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
 bool SceneManager::lightLess::operator()(const Light* a, const Light* b) const
@@ -378,18 +343,20 @@ bool SceneManager::lightLess::operator()(const Light* a, const Light* b) const
     return a->tempSquareDist < b->tempSquareDist;
 }
 //-----------------------------------------------------------------------
-void SceneManager::_populateLightList(const Vector3& position, Real radius, LightList& destList)
+void SceneManager::_populateLightList(const Vector3& position, Real radius, 
+									  LightList& destList)
 {
     // Really basic trawl of the lights, then sort
     // Subclasses could do something smarter
     destList.clear();
     Real squaredRadius = radius * radius;
 
-    SceneLightList::iterator i, iend;
-    iend = mLights.end();
-    for (i = mLights.begin(); i != iend; ++i)
+	MovableObjectIterator it = 
+		getMovableObjectIterator(LightFactory::FACTORY_TYPE_NAME);
+
+    while(it.hasMoreElements())
     {
-        Light* lt = i->second;
+        Light* lt = static_cast<Light*>(it.getNext());
         if (lt->isVisible())
         {
             if (lt->getType() == Light::LT_DIRECTIONAL)
@@ -458,7 +425,7 @@ Entity* SceneManager::getEntity(const String& name)
 //-----------------------------------------------------------------------
 void SceneManager::removeEntity(Entity *e)
 {
-	destroyMovableObject(e->getName(), EntityFactory::FACTORY_TYPE_NAME);
+	destroyMovableObject(e);
 }
 
 //-----------------------------------------------------------------------
@@ -2615,12 +2582,12 @@ void SceneManager::findLightsAffectingFrustum(const Camera* camera)
 {
     // Basic iteration for this SM
     mLightsAffectingFrustum.clear();
-    SceneLightList::iterator i, iend;
-    iend = mLights.end();
     Sphere sphere;
-    for (i = mLights.begin(); i != iend; ++i)
+	MovableObjectIterator it = 
+		getMovableObjectIterator(LightFactory::FACTORY_TYPE_NAME);
+    while(it.hasMoreElements())
     {
-        Light* l = i->second;
+        Light* l = static_cast<Light*>(it.getNext());
 		if (l->isVisible())
 		{
 			if (l->getType() == Light::LT_DIRECTIONAL)
@@ -3967,7 +3934,7 @@ void SceneManager::addMovableObjectFactory(MovableObjectFactory* fact)
 	}
 	mMovableObjectFactoryMap[fact->getType()] = fact;
 
-	// create colleciton for instances
+	// create collection for instances
 	mMovableObjectCollectionMap[fact->getType()] = new MovableObjectMap();
 
 	if (fact->requestTypeFlags())

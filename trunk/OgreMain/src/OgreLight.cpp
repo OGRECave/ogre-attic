@@ -28,11 +28,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreSceneNode.h"
 #include "OgreCamera.h"
-
+#include "OgreSceneManager.h"
 
 namespace Ogre {
-    String Light::msMovableType = "Light";
-
     //-----------------------------------------------------------------------
     Light::Light()
     {
@@ -267,7 +265,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const String& Light::getMovableType(void) const
     {
-        return msMovableType;
+		return LightFactory::FACTORY_TYPE_NAME;
     }
     //-----------------------------------------------------------------------
     const Vector3& Light::getDerivedPosition(void) const
@@ -489,6 +487,32 @@ namespace Ogre {
 
         return mFrustumClipVolumes;
     }
+	//-----------------------------------------------------------------------
+	uint32 Light::getTypeFlags(void) const
+	{
+		return SceneManager::LIGHT_TYPE_MASK;
+	}
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	String LightFactory::FACTORY_TYPE_NAME = "Light";
+	//-----------------------------------------------------------------------
+	const String& LightFactory::getType(void) const
+	{
+		return FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
+	MovableObject* LightFactory::createInstanceImpl( const String& name, 
+		const NameValuePairList* params)
+	{
+
+		return new Light(name);
+
+	}
+	//-----------------------------------------------------------------------
+	void LightFactory::destroyInstance( MovableObject* obj)
+	{
+		delete obj;
+	}
 
 
 

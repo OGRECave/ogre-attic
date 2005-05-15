@@ -313,6 +313,8 @@ namespace Ogre {
         */
         const PlaneBoundedVolumeList& _getFrustumClipVolumes(const Camera* const cam) const;
 
+		/// Override to return specific type flag
+		uint32 getTypeFlags(void) const;
 
 
     private:
@@ -351,5 +353,22 @@ namespace Ogre {
 
 
     };
+
+	/** Factory object for creating Light instances */
+	class _OgreExport LightFactory : public MovableObjectFactory
+	{
+	protected:
+		MovableObject* createInstanceImpl( const String& name, const NameValuePairList* params);
+	public:
+		LightFactory() {}
+		~LightFactory() {}
+
+		static String FACTORY_TYPE_NAME;
+
+		const String& getType(void) const;
+		void destroyInstance( MovableObject* obj);  
+
+	};
+
 } // Namespace
 #endif
