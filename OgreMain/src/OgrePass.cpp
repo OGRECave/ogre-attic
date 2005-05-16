@@ -87,7 +87,7 @@ namespace Ogre {
 	
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique *parent, unsigned short index, const Pass& oth)
-        :mParent(parent), mIndex(index)
+        :mParent(parent), mIndex(index), mQueuedForDeletion(false)
     {
         *this = oth;
         mParent = parent;

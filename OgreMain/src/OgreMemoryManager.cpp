@@ -86,7 +86,11 @@ namespace Ogre
     // The BEOS assert added by Arvid Norberg <arvid@iname.com>.    
     #ifdef    WIN32
         #ifdef    _DEBUG
-            #define m_assert(x) { if( (x) == false ) __asm { int 3 } }
+            #if defined(_MSC_VER)
+                #define m_assert(x)  if( (x) == false ) __asm { int 3 } 
+            #elif defined(__GNUC__)
+                #define m_assert(x)  if( (x) == false ) __asm ("int $3");  
+            #endif
         #else
             #define    m_assert(x)
         #endif

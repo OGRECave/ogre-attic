@@ -383,7 +383,7 @@ protected:
     CEGUI::Window* createRttGuiObject(void)
     {
         static unsigned int rttCounter = 0;
-        String guiObjectName = "NewRttImage" + rttCounter;
+		String guiObjectName = "NewRttImage" + StringConverter::toString(rttCounter);
 
         CEGUI::Imageset* rttImageSet = 
             CEGUI::ImagesetManager::getSingleton().getImageset(
@@ -400,7 +400,7 @@ protected:
     CEGUI::Window* createStaticImageObject(void)
     {
         static unsigned int siCounter = 0;
-        String guiObjectName = "NewStaticImage" + siCounter;
+        String guiObjectName = "NewStaticImage" + StringConverter::toString(siCounter);
 
         CEGUI::Imageset* imageSet = 
             CEGUI::ImagesetManager::getSingleton().getImageset(
@@ -472,26 +472,26 @@ protected:
         switch(item->getID())
         {
         case 0:
-            guiObjectName = "NewWindow" + windowNumber;
+            guiObjectName = "NewWindow" + StringConverter::toString(windowNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/FrameWindow", (CEGUI::utf8*)guiObjectName.c_str());
             window->setSize(CEGUI::Size(0.3f, 0.3f));
             window->setText((CEGUI::utf8*)"New Window");
             windowNumber++;
             break;
         case 1:
-            guiObjectName = "NewHorizScroll" + horizScrollNumber;
+            guiObjectName = "NewHorizScroll" + StringConverter::toString(horizScrollNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/HorizontalScrollbar", (CEGUI::utf8*)guiObjectName.c_str());
             window->setSize(CEGUI::Size(0.75f, 0.03f));
             horizScrollNumber++;
             break;
         case 2:
-            guiObjectName = "NewVertScroll" + vertScrollNumber;
+            guiObjectName = "NewVertScroll" + StringConverter::toString(vertScrollNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/VerticalScrollbar", (CEGUI::utf8*)guiObjectName.c_str());
             window->setSize(CEGUI::Size(0.03f, 0.75f));
             vertScrollNumber++;
             break;
         case 3:
-            guiObjectName = "NewStaticText" + textScrollNumber;
+            guiObjectName = "NewStaticText" + StringConverter::toString(textScrollNumber);
             window = CEGUI::WindowManager::getSingleton().createWindow((CEGUI::utf8*)"TaharezLook/StaticText", (CEGUI::utf8*)guiObjectName.c_str());
             window->setSize(CEGUI::Size(0.25f, 0.1f));
             window->setText((CEGUI::utf8*)"Example static text");
