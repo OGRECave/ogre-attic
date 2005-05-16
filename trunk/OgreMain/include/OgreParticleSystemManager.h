@@ -57,6 +57,7 @@ namespace Ogre {
     class _OgreExport ParticleSystemManager: public Singleton<ParticleSystemManager>, 
         public FrameListener, public ScriptLoader
     {
+		friend class ParticleSystemFactory;
 	public:
         typedef std::map<String, ParticleSystem*> ParticleTemplateMap;
 		typedef std::map<String, ParticleAffectorFactory*> ParticleAffectorFactoryMap;
@@ -98,6 +99,19 @@ namespace Ogre {
         void skipToNextCloseBrace(DataStreamPtr& chunk);
         /** Internal script parsing method. */
         void skipToNextOpenBrace(DataStreamPtr& chunk);
+
+		/// Internal implementation of createSystem
+        ParticleSystem* createSystemImpl(const String& name, size_t quota, 
+			const String& resourceGroup, bool notifySceneMgr);
+		/// Internal implementation of createSystem
+        ParticleSystem* createSystemImpl(const String& name, const String& templateName, 
+			bool notifySceneMgr);
+		/// Internal implementation of destroySystem
+        void destroySystemImpl(const String& name, bool notifySceneMgr);
+		/// Internal implementation of destroySystem
+        void destroySystemImpl(ParticleSystem* sys, bool notifySceneMgr);
+		
+		
     public:
 
         ParticleSystemManager();
@@ -250,6 +264,7 @@ namespace Ogre {
             sys Pointer to the ParticleSystem to be destroyed.
         */
         void destroySystem(ParticleSystem* sys);
+
 
         /** Retrieves a pointer to a system already created. */
         ParticleSystem* getSystem(const String& name);
@@ -409,6 +424,22 @@ namespace Ogre {
 
     };
 
+	/** Factory object for creating ParticleSystem instances */
+	class _OgreExport ParticleSystemFactory : public MovableObjectFactory
+	{
+	protected:
+		MovableObject* createInstanceImpl( const String& name, const NameValuePairList* params);
+	public:
+		ParticleSystemFactory() {}
+		~ParticleSystemFactory() {}
+		
+		static String FACTORY_TYPE_NAME;
+
+		const String& getType(void) const;
+		void destroyInstance( MovableObject* obj);  
+
+	};
+	
 }
 
 #endif

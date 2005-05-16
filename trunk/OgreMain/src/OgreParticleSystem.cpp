@@ -645,8 +645,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const String& ParticleSystem::getMovableType(void) const
     {
-        static String mType = "ParticleSystem";
-        return mType;
+        return ParticleSystemFactory::FACTORY_TYPE_NAME;
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::_notifyParticleResized(void)

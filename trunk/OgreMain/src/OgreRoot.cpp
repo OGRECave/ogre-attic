@@ -477,7 +477,13 @@ namespace Ogre {
     SceneManager* Root::getSceneManager(SceneType sceneType)
     {
         // Delegate
-        return mSceneManagerEnum->getSceneManager(sceneType);
+		SceneManager* sm = mSceneManagerEnum->getSceneManager(sceneType);
+		if (!mCurrentSceneManager)
+		{
+			// Make sure we've got one
+			mCurrentSceneManager = sm;
+		}
+		return sm;
     }
     //-----------------------------------------------------------------------
     TextureManager* Root::getTextureManager(void)
