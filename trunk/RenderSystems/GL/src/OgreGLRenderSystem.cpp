@@ -896,12 +896,9 @@ namespace Ogre {
         mViewMatrix = m;
 
         GLfloat mat[16];
-        makeGLMatrix(mat, mViewMatrix);
+		makeGLMatrix( mat, mViewMatrix * mWorldMatrix );
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(mat);
-
-        makeGLMatrix(mat, mWorldMatrix);
-        glMultMatrixf(mat);
 
         setGLClipPlanes();
     }
