@@ -36,6 +36,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	// Forward decl
+	class ParticleSystemFactory;
+	
     /** Manages particle systems, particle system scripts (templates) and the available emitter & affector factories.
     @remarks
         This singleton class is responsible for creating and managing particle systems. All particle
@@ -84,6 +87,9 @@ namespace Ogre {
 
 		/// Controls time
 		Real mTimeFactor;
+
+		// Factory instance
+		ParticleSystemFactory* mFactory;
 
         /** Internal script parsing method. */
         void parseNewEmitter(const String& type, DataStreamPtr& chunk, ParticleSystem* sys);
@@ -389,7 +395,10 @@ namespace Ogre {
                 mSystemTemplates.begin(), mSystemTemplates.end());
         } 
 
-        /** Override standard Singleton retrieval.
+        /** Get an instance of ParticleSystemFactory (internal use). */
+		ParticleSystemFactory* _getFactory(void) { return mFactory; }
+		
+		/** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton
         implementation is in a .h file, which means it gets compiled

@@ -3886,23 +3886,49 @@ void SceneManager::destroyQuery(SceneQuery* query)
     delete query;
 }
 //---------------------------------------------------------------------
-void SceneManager::addMovableObjectFactory(MovableObjectFactory* fact)
+void SceneManager::addMovableObjectFactory(MovableObjectFactory* fact, 
+	bool overrideExisting)
 {
-	if (mMovableObjectFactoryMap.find(fact->getType()) != mMovableObjectFactoryMap.end())
+	MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(
+		fact->getType());
+	if (!overrideExisting && facti != mMovableObjectFactoryMap.end())
 	{
 		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
 			"A factory of type '" + fact->getType() + "' already exists.", 
 			"SceneManager::addMovableObjectFactory");
 	}
-	mMovableObjectFactoryMap[fact->getType()] = fact;
-
-	// create collection for instances
-	mMovableObjectCollectionMap[fact->getType()] = new MovableObjectMap();
 
 	if (fact->requestTypeFlags())
 	{
-		fact->_notifyTypeFlags(_allocateNextMovableObjectTypeFlag());
+		if (facti != mMovableObjectFactoryMap.end() && facti->second->requestTypeFlags())
+		{
+			// Copy type flags from the factory we're replacing
+			fact->_notifyTypeFlags(facti->second->getTypeFlags());
+		}
+		else
+		{
+			// Allocate new
+			fact->_notifyTypeFlags(_allocateNextMovableObjectTypeFlag());
+		}
 	}
+
+	// create collection for instances
+	if (facti == mMovableObjectFactoryMap.end())
+	{
+		mMovableObjectCollectionMap[fact->getType()] = new MovableObjectMap();
+	}
+
+	// Save
+	mMovableObjectFactoryMap[fact->getType()] = fact;
+
+	LogManager::getSingleton().logMessage("MovableObjectFactory for type '" + 
+		fact->getType() + "' registered.");
+
+}
+//---------------------------------------------------------------------
+bool SceneManager::hasMovableObjectFactory(const String& typeName) const
+{
+	return !(mMovableObjectFactoryMap.find(typeName) == mMovableObjectFactoryMap.end());
 }
 //---------------------------------------------------------------------
 uint32 SceneManager::_allocateNextMovableObjectTypeFlag(void)

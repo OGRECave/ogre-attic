@@ -428,7 +428,16 @@ namespace Ogre {
     {
         SceneManagerEnumerator::getSingleton().setSceneManager(sType, sm);
     }
-
+    //-----------------------------------------------------------------------
+	void Root::_setCurrentSceneManager(SceneManager* sm)
+	{
+		mCurrentSceneManager = sm;
+		// propagate particle system factory
+		if (!sm->hasMovableObjectFactory(ParticleSystemFactory::FACTORY_TYPE_NAME))
+		{
+			sm->addMovableObjectFactory(mParticleManager->_getFactory(), true);
+		}
+	}
     //-----------------------------------------------------------------------
     RenderSystem* Root::getRenderSystem(void)
     {
@@ -481,7 +490,7 @@ namespace Ogre {
 		if (!mCurrentSceneManager)
 		{
 			// Make sure we've got one
-			mCurrentSceneManager = sm;
+			_setCurrentSceneManager(sm);
 		}
 		return sm;
     }
