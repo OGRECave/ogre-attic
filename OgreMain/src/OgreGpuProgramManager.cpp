@@ -57,7 +57,11 @@ namespace Ogre {
 		const String& groupName, const String& filename, 
 		GpuProgramType gptype, const String& syntaxCode)
     {
-        GpuProgramPtr prg = createProgram(name, groupName, filename, gptype, syntaxCode);
+        GpuProgramPtr prg = getByName(name);
+        if (prg.isNull())
+        {
+	        GpuProgramPtr prg = createProgram(name, groupName, filename, gptype, syntaxCode);
+		}
         prg->load();
         return prg;
     }
@@ -66,7 +70,11 @@ namespace Ogre {
 		const String& groupName, const String& code, 
         GpuProgramType gptype, const String& syntaxCode)
     {
-        GpuProgramPtr prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
+        GpuProgramPtr prg = getByName(name);
+        if (prg.isNull())
+		{
+			GpuProgramPtr prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
+		}
         prg->load();
         return prg;
     }

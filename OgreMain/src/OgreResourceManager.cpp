@@ -71,8 +71,9 @@ namespace Ogre {
         if (ret.isNull())
         {
             ret = create(name, group, isManual, loader, loadParams);
-            ret->load();
         }
+		// ensure loaded
+        ret->load();
         return ret;
     }
     //-----------------------------------------------------------------------
