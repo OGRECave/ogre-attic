@@ -1787,8 +1787,13 @@ namespace Ogre {
 			construct custom subclasses of MovableObject for insertion in the 
 			scene. This is the primary way that plugins can make custom objects
 			available.
+		@param fact Pointer to the factory instance
+		@param overrideExisting Set this to true to override any existing 
+			factories which are registered for the same type. You should only
+			change this if you are very sure you know what you're doing. 
 		*/
-		virtual void addMovableObjectFactory(MovableObjectFactory* fact);
+		virtual void addMovableObjectFactory(MovableObjectFactory* fact, 
+			bool overrideExisting = false);
 		/** Removes a previously registered MovableObjectFactory.
 		@remarks
 			All instances of objects created by this factory will be destroyed
@@ -1797,6 +1802,8 @@ namespace Ogre {
 			destroying the factory.
 		*/
 		virtual void removeMovableObjectFactory(MovableObjectFactory* fact);
+		/// Checks whether a factory is registered for a given MovableObject type
+		virtual bool hasMovableObjectFactory(const String& typeName) const;
 		/** Allocate the next MovableObject type flag.
 		@remarks
 			This is done automatically if MovableObjectFactory::requestTypeFlags

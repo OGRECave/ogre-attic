@@ -54,6 +54,7 @@ namespace Ogre {
 		mTimeFactor = 1;
         mScriptPatterns.push_back("*.particle");
         ResourceGroupManager::getSingleton()._registerScriptLoader(this);
+		mFactory = new ParticleSystemFactory();
     }
     //-----------------------------------------------------------------------
     ParticleSystemManager::~ParticleSystemManager()
@@ -76,6 +77,8 @@ namespace Ogre {
         // delete billboard factory
         if (mBillboardRendererFactory)
             delete mBillboardRendererFactory;
+		// delete particle system factory
+		delete mFactory;
 
     }
     //-----------------------------------------------------------------------
@@ -239,8 +242,10 @@ namespace Ogre {
         mSystems.insert( ParticleSystemMap::value_type( name, sys ) );
 		if (notifySM)
 		{
-			// notify current scene manager
-			Root::getSingleton()._getCurrentSceneManager()->injectMovableObject(sys);
+			// notify current scene manager, if any
+			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
+			if (sm)
+				sm->injectMovableObject(sys);
 		}
         return sys;
     }
@@ -262,7 +267,9 @@ namespace Ogre {
 		if (notifySM)
 		{
 			// notify current scene manager
-			Root::getSingleton()._getCurrentSceneManager()->injectMovableObject(sys);
+			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
+			if (sm)
+				sm->injectMovableObject(sys);
 		}
         return sys;
         
@@ -274,8 +281,10 @@ namespace Ogre {
 		if (notifySceneMgr)
 		{
 			// notify scene manager
-			Root::getSingleton()._getCurrentSceneManager()->extractMovableObject(name, 
-				ParticleSystemFactory::FACTORY_TYPE_NAME);
+			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
+			if (sm)
+				sm->extractMovableObject(name, 
+					ParticleSystemFactory::FACTORY_TYPE_NAME);
 		}
         ParticleSystemMap::iterator i = mSystems.find(name);
         if (i != mSystems.end())
@@ -291,7 +300,9 @@ namespace Ogre {
 		if (notifySceneMgr)
 		{
 			// notify scene manager
-			Root::getSingleton()._getCurrentSceneManager()->extractMovableObject(sys);
+			SceneManager* sm = Root::getSingleton()._getCurrentSceneManager();
+			if (sm)
+				sm->extractMovableObject(sys);
 		}
 		
         ParticleSystemMap::iterator i;

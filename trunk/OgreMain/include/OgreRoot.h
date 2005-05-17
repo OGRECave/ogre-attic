@@ -604,7 +604,7 @@ namespace Ogre
         @remarks
             This is only intended for internal use.
         */
-        void _setCurrentSceneManager(SceneManager* sm) { mCurrentSceneManager = sm; }
+        void _setCurrentSceneManager(SceneManager* sm);
 
         /** Internal method used for updating all RenderTarget objects (windows, 
             renderable textures etc) which are set to auto-update.
