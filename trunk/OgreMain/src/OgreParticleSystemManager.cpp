@@ -238,6 +238,13 @@ namespace Ogre {
     ParticleSystem* ParticleSystemManager::createSystemImpl(const String& name, size_t quota, 
         const String& resourceGroup, bool notifySM)
     {
+		// check name
+		if (mSystems.find(name) != mSystems.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"ParticleSystem with name '" + name + "' already exists.", 
+				"ParticleSystemManager::createSystemImpl");
+		}
         ParticleSystem* sys = new ParticleSystem(name, resourceGroup);
         sys->setParticleQuota(quota);
         mSystems.insert( ParticleSystemMap::value_type( name, sys ) );
@@ -254,6 +261,13 @@ namespace Ogre {
     ParticleSystem* ParticleSystemManager::createSystemImpl(const String& name, 
 		const String& templateName, bool notifySM)
     {
+		// check name
+		if (mSystems.find(name) != mSystems.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"ParticleSystem with name '" + name + "' already exists.", 
+				"ParticleSystemManager::createSystem");
+		}
         // Look up template
         ParticleSystem* pTemplate = getTemplate(templateName);
         if (!pTemplate)
