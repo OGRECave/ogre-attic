@@ -229,12 +229,45 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderPriorityGroup::sort(const Camera* cam)
     {
-        TransparentQueueItemLess transFunctor;
-        transFunctor.camera = cam;
-
-        std::stable_sort(mTransparentPasses.begin(), mTransparentPasses.end(), 
-            transFunctor);
+		// We can either use a stable_sort and the 'less' implementation,
+		// or a 2-pass radix sort (once by pass, then by distance, since
+		// radix sorting is inherently stable this will work)
+		// We use stable_sort if the number of items is 512 or less, since
+		// the complexity of the radix sort is approximately O(10N), since 
+		// each sort is O(5N) (1 pass histograms, 4 passes sort)
+		// Since stable_sort has a worst-case performance of O(N(logN)^2)
+		// the performance tipping point is from about 1500 items, but in
+		// stable_sorts best-case scenario O(NlogN) it would be much higher.
+		// Take a stab at 2000 items.
+		
+		if (mTransparentPasses.size() > 2000)
+		{
+			// sort by pass
+			mRadixSorter1.sort(mTransparentPasses, mTransparentSortFunctor1);
+			// sort by depth
+			mTransparentSortFunctor2.camera = cam;
+			mRadixSorter2.sort(mTransparentPasses, mTransparentSortFunctor2);
+		}
+		else
+		{
+        	mTransparentLess.camera = cam;
+	        std::stable_sort(
+				mTransparentPasses.begin(), mTransparentPasses.end(), 
+            	mTransparentLess);
+		}
     }
+    //-----------------------------------------------------------------------
+	uint32 RenderPriorityGroup::TransparentSortFunctor1::operator()(
+		const RenderablePass& p) const
+	{
+		return p.pass->getHash();
+	}
+    //-----------------------------------------------------------------------
+	float RenderPriorityGroup::TransparentSortFunctor2::operator()(
+		const RenderablePass& p) const
+	{
+		return static_cast<float>(p.renderable->getSquaredViewDepth(camera));
+	}
     //-----------------------------------------------------------------------
     void RenderPriorityGroup::clear(void)
     {
