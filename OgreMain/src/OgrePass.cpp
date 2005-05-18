@@ -770,7 +770,7 @@ namespace Ogre {
         return mParent->isLoaded();
     }
 	//-----------------------------------------------------------------------
-    unsigned long Pass::getHash(void) const
+    uint32 Pass::getHash(void) const
     {
         return mHash;
     }

@@ -57,7 +57,7 @@ namespace Ogre {
     protected:
         Technique* mParent;
         unsigned short mIndex; // pass index
-        unsigned long mHash; // pass hash
+        uint32 mHash; // pass hash
         //-------------------------------------------------------------------------
         // Colour properties, only applicable in fixed-function passes
         ColourValue mAmbient;
@@ -868,7 +868,7 @@ namespace Ogre {
             using firstly its index (so that all passes are rendered in order), then
             by the textures which it's TextureUnitState instances are using.
         */
-        unsigned long getHash(void) const;
+        uint32 getHash(void) const;
 		/// Mark the hash as dirty
 		void _dirtyHash(void);
         /** Internal method for recalculating the hash.
