@@ -3,6 +3,7 @@
 #define TRANSFER_SKELETON_H
 
 #include <maya/MDagPathArray.h>
+#include <maya/MItDependencyNodes.h>
 #include <maya/MFnIkJoint.h>
 #include <maya/MQuaternion.h>
 #include <maya/MEulerRotation.h>
