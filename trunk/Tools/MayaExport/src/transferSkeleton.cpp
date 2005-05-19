@@ -25,6 +25,7 @@ MStatus TransferSkeleton::load(MDagPath& meshDag,ParamList& params)
 	MPlugArray srcplugarray;
 	MFnSkinCluster* pSkinCluster;
 	MDagPathArray influenceDags;
+	MObject	kOutputObject,kObject;
 	unsigned int numInfluenceObjs;
 	bool foundSkinCluster = false;
 	int i;
@@ -32,16 +33,26 @@ MStatus TransferSkeleton::load(MDagPath& meshDag,ParamList& params)
 	m_params = params;
 	MFnMesh mesh(meshDag);
 	// Get the skin cluster associated to given mesh(if present)
-	plug = mesh.findPlug("inMesh");
-	plug.connectedTo(srcplugarray,true,false,&stat);
-	for (i=0; i<srcplugarray.length() && !foundSkinCluster; i++)
-	{
-		if (srcplugarray[i].node().hasFn(MFn::kSkinClusterFilter))
+    MItDependencyNodes kDepNodeIt( MFn::kSkinClusterFilter );            
+    for( ;!kDepNodeIt.isDone() && !foundSkinCluster; kDepNodeIt.next()) 
+	{            
+		kObject = kDepNodeIt.item();
+		pSkinCluster = new MFnSkinCluster(kObject);
+		unsigned int uiNumGeometries = pSkinCluster->numOutputConnections();
+		for(unsigned int uiGeometry = 0; uiGeometry < uiNumGeometries; ++uiGeometry ) 
 		{
-			pSkinCluster = new MFnSkinCluster(srcplugarray[i].node());
-			foundSkinCluster = true;
+			unsigned int uiIndex = pSkinCluster->indexForOutputConnection(uiGeometry);
+			kOutputObject = pSkinCluster->outputShapeAtIndex(uiIndex);
+			if(kOutputObject == mesh.object()) 
+			{
+				MString msg = "Skin cluster found for mesh ";
+				msg += mesh.name();
+				MGlobal::displayInfo(msg);
+				foundSkinCluster = true;
+			}
 		}
 	}
+
 	// Get the list of joints affecting this skin cluster
 	if (foundSkinCluster && pSkinCluster)
 	{
@@ -50,6 +61,9 @@ MStatus TransferSkeleton::load(MDagPath& meshDag,ParamList& params)
 		{
 			if (influenceDags[i].hasFn(MFn::kJoint))
 			{
+				MString msg = "joint ";
+				msg += influenceDags[i].partialPathName();
+				MGlobal::displayInfo(msg);
 				stat = loadSkeleton(influenceDags[i]);
 				if (MS::kSuccess != stat)
 				{
