@@ -61,9 +61,6 @@ MStatus TransferSkeleton::load(MDagPath& meshDag,ParamList& params)
 		{
 			if (influenceDags[i].hasFn(MFn::kJoint))
 			{
-				MString msg = "joint ";
-				msg += influenceDags[i].partialPathName();
-				MGlobal::displayInfo(msg);
 				stat = loadSkeleton(influenceDags[i]);
 				if (MS::kSuccess != stat)
 				{
@@ -96,13 +93,6 @@ MStatus TransferSkeleton::loadSkeleton(MDagPath& jointDag)
 	}
 	MFnIkJoint rootFn(rootDag);
 
-	// Restore skeleton to bind pose
-	MSelectionList selectionList;
-	MGlobal::getActiveSelectionList(selectionList);
-	MGlobal::selectByName(rootDag.fullPathName(),MGlobal::kReplaceList);
-	MGlobal::executeCommand("dagPose -r -g -bp");
-	MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
-
 	// Check if skeleton has already been loaded
 	for (i=0; i<joints.size(); i++)
 	{
@@ -110,9 +100,6 @@ MStatus TransferSkeleton::loadSkeleton(MDagPath& jointDag)
 		if (rootFn.partialPathName() == joints[i].name)
 			return MS::kSuccess;
 	}
-	// Check if root joint is associated to any character
-	MObject charObj;
-	MPlug rootTXplug = rootFn.findPlug("tx");
 	// Load joints starting from root
 	return loadJoint(rootDag,NULL);
 }
@@ -148,7 +135,9 @@ MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent)
 	}
 
 	// Get Bind Pose Matrix
-	MPlug bindMatrixPlug = jointFn.findPlug("bindPose");
+	// Note: we reset to the bind pose, then get current matrix
+	// if bind pose could not be restored we use the current pose as a bind pose
+/*	MPlug bindMatrixPlug = jointFn.findPlug("bindPose");
 	MObject bindMatrixObject;
 	MStatus stat = bindMatrixPlug.getValue(bindMatrixObject);
 	if(stat != MStatus::kSuccess)
@@ -162,7 +151,15 @@ MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent)
 	{
 		MGlobal::displayInfo("Error trying to get bind matrix data from plug object");
 		return MS::kFailure;
-	}
+	}*/
+	// Restore skeleton to bind pose
+	MSelectionList selectionList;
+	MGlobal::getActiveSelectionList(selectionList);
+	MGlobal::selectByName(jointDag.fullPathName(),MGlobal::kReplaceList);
+	MGlobal::executeCommand("dagPose -r -g -bp");
+	MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
+	// Get joint matrix
+	MMatrix bindMatrix = jointDag.inclusiveMatrix();
 
 	// Calculate scaling factor inherited by parent
 	double scale[3];
@@ -224,6 +221,13 @@ MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent)
 	// Load joint animations
 	if (m_params.exportAnims)
 		loadAnims(jointDag,joints.size()-1);
+
+	// Restore joint to bind pose
+	selectionList;
+	MGlobal::getActiveSelectionList(selectionList);
+	MGlobal::selectByName(jointDag.fullPathName(),MGlobal::kReplaceList);
+	MGlobal::executeCommand("dagPose -r -g -bp");
+	MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
 
 	// Load children joints
 	for (i=0; i<jointDag.childCount();i++)
