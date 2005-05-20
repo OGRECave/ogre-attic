@@ -107,7 +107,7 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 	weights.resize(mesh.numVertices());
 	jointIds.resize(mesh.numVertices());
 	//set flag for use of 32 bit indexes
-	if (numFaces < 65000 && vertices.size() < 65000)
+	if (numFaces < 65536 && vertices.size() < 65536)
 		mUse32bitIndexes = false;
 	else
 		mUse32bitIndexes = true;
@@ -126,14 +126,23 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 		mesh.getNormals(normals,MSpace::kTransform);
 	//get list of vertex weights
 	//1st: get the associated skin cluster (if present)
-	plug = mesh.findPlug("inMesh");
-	plug.connectedTo(srcplugarray,true,false,&stat);
-	for (i=0; i<srcplugarray.length() && !foundSkinCluster; i++)
-	{
-		if (srcplugarray[i].node().hasFn(MFn::kSkinClusterFilter))
+    MItDependencyNodes kDepNodeIt( MFn::kSkinClusterFilter );            
+    for( ;!kDepNodeIt.isDone() && !foundSkinCluster; kDepNodeIt.next()) 
+	{            
+		MObject kObject = kDepNodeIt.item();
+		pSkinCluster = new MFnSkinCluster(kObject);
+		unsigned int uiNumGeometries = pSkinCluster->numOutputConnections();
+		for(unsigned int uiGeometry = 0; uiGeometry < uiNumGeometries; ++uiGeometry ) 
 		{
-			pSkinCluster = new MFnSkinCluster(srcplugarray[i].node());
-			foundSkinCluster = true;
+			unsigned int uiIndex = pSkinCluster->indexForOutputConnection(uiGeometry);
+			MObject kOutputObject = pSkinCluster->outputShapeAtIndex(uiIndex);
+			if(kOutputObject == mesh.object()) 
+			{
+				MString msg = "Skin cluster found for mesh ";
+				msg += mesh.name();
+				MGlobal::displayInfo(msg);
+				foundSkinCluster = true;
+			}
 		}
 	}
 	//2nd get the weights
