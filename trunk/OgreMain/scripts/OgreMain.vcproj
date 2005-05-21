@@ -145,6 +145,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath="..\src\OgreAnimable.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreAnimation.cpp">
 			</File>
 			<File
@@ -642,6 +645,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="..\include\Ogre.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreAnimable.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreAnimation.h">
