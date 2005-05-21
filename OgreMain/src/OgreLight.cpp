@@ -74,7 +74,6 @@ namespace Ogre {
         mSpotFalloff = 1.0f;
         mParentNode = NULL;
 
-
     }
     //-----------------------------------------------------------------------
     Light::~Light()
@@ -142,6 +141,21 @@ namespace Ogre {
         mSpotOuter = outerAngle;
         mSpotFalloff = falloff;
     }
+	//-----------------------------------------------------------------------
+	void Light::setSpotlightInnerAngle(const Radian& val)
+	{
+		mSpotInner = val;
+	}
+	//-----------------------------------------------------------------------
+	void Light::setSpotlightOuterAngle(const Radian& val)
+	{
+		mSpotOuter = val;
+	}
+	//-----------------------------------------------------------------------
+	void Light::setSpotlightFalloff(Real val)
+	{
+		mSpotFalloff = val;
+	}
     //-----------------------------------------------------------------------
     const Radian& Light::getSpotlightInnerAngle(void) const
     {
@@ -491,6 +505,192 @@ namespace Ogre {
 	uint32 Light::getTypeFlags(void) const
 	{
 		return SceneManager::LIGHT_TYPE_MASK;
+	}
+	//-----------------------------------------------------------------------
+	const String& Light::getAnimableDictionaryName(void) const
+	{
+		return LightFactory::FACTORY_TYPE_NAME;
+	}
+	//-----------------------------------------------------------------------
+	void Light::initialiseAnimableDictionary(StringVector& vec) const
+	{
+		vec.push_back("diffuseColour");
+		vec.push_back("specularColour");
+		vec.push_back("attenuationRange");
+		vec.push_back("spotlightInner");
+		vec.push_back("spotlightOuter");
+		vec.push_back("spotlightFalloff");
+
+	}
+	//-----------------------------------------------------------------------
+	class LightDiffuseColourValue : public AnimableValue
+	{
+	protected:
+		Light* mLight;
+	public:
+		LightDiffuseColourValue(Light* l) :AnimableValue(COLOUR) 
+		{ mLight = l; }
+		void setValue(const ColourValue& val)
+		{
+			mLight->setDiffuseColour(val);
+		}
+		void applyDeltaValue(const ColourValue& val)
+		{
+			setValue(mLight->getDiffuseColour() + val);
+		}
+		void setCurrentStateAsBaseValue(void)
+		{
+			setAsBaseValue(mLight->getDiffuseColour());
+		}
+
+	};
+	//-----------------------------------------------------------------------
+	class LightSpecularColourValue : public AnimableValue
+	{
+	protected:
+		Light* mLight;
+	public:
+		LightSpecularColourValue(Light* l) :AnimableValue(COLOUR) 
+		{ mLight = l; }
+		void setValue(const ColourValue& val)
+		{
+			mLight->setSpecularColour(val);
+		}
+		void applyDeltaValue(const ColourValue& val)
+		{
+			setValue(mLight->getSpecularColour() + val);
+		}
+		void setCurrentStateAsBaseValue(void)
+		{
+			setAsBaseValue(mLight->getSpecularColour());
+		}
+
+	};
+	//-----------------------------------------------------------------------
+	class LightAttenuationRangeValue : public AnimableValue
+	{
+	protected:
+		Light* mLight;
+	public:
+		LightAttenuationRangeValue(Light* l) :AnimableValue(VECTOR4) 
+		{ mLight = l; }
+		void setValue(const Vector4& val)
+		{
+			mLight->setAttenuation(val.x, val.y, val.z, val.w);
+		}
+		void applyDeltaValue(const Vector4& val)
+		{
+			setValue(mLight->getAs4DVector() + val);
+		}
+		void setCurrentStateAsBaseValue(void)
+		{
+			setAsBaseValue(mLight->getAs4DVector());
+		}
+
+	};
+	//-----------------------------------------------------------------------
+	class LightSpotlightInnerValue : public AnimableValue
+	{
+	protected:
+		Light* mLight;
+	public:
+		LightSpotlightInnerValue(Light* l) :AnimableValue(REAL) 
+		{ mLight = l; }
+		void setValue(Real val)
+		{
+			mLight->setSpotlightInnerAngle(Radian(val));
+		}
+		void applyDeltaValue(const Real& val)
+		{
+			setValue(mLight->getSpotlightInnerAngle().valueRadians() + val);
+		}
+		void setCurrentStateAsBaseValue(void)
+		{
+			setAsBaseValue(mLight->getSpotlightInnerAngle().valueRadians());
+		}
+
+	};
+	//-----------------------------------------------------------------------
+	class LightSpotlightOuterValue : public AnimableValue
+	{
+	protected:
+		Light* mLight;
+	public:
+		LightSpotlightOuterValue(Light* l) :AnimableValue(REAL) 
+		{ mLight = l; }
+		void setValue(Real val)
+		{
+			mLight->setSpotlightOuterAngle(Radian(val));
+		}
+		void applyDeltaValue(const Real& val)
+		{
+			setValue(mLight->getSpotlightOuterAngle().valueRadians() + val);
+		}
+		void setCurrentStateAsBaseValue(void)
+		{
+			setAsBaseValue(mLight->getSpotlightOuterAngle().valueRadians());
+		}
+
+	};
+	//-----------------------------------------------------------------------
+	class LightSpotlightFalloffValue : public AnimableValue
+	{
+	protected:
+		Light* mLight;
+	public:
+		LightSpotlightFalloffValue(Light* l) :AnimableValue(REAL) 
+		{ mLight = l; }
+		void setValue(Real val)
+		{
+			mLight->setSpotlightFalloff(val);
+		}
+		void applyDeltaValue(const Real& val)
+		{
+			setValue(mLight->getSpotlightFalloff() + val);
+		}
+		void setCurrentStateAsBaseValue(void)
+		{
+			setAsBaseValue(mLight->getSpotlightFalloff());
+		}
+
+	};
+	//-----------------------------------------------------------------------
+	AnimableValuePtr Light::createAnimableValue(const String& valueName)
+	{
+		if (valueName == "diffuseColour")
+		{
+			return AnimableValuePtr(
+				new LightDiffuseColourValue(this));
+		}
+		else if(valueName == "specularColour")
+		{
+			return AnimableValuePtr(
+				new LightSpecularColourValue(this));
+		}
+		else if (valueName == "attenuationRange")
+		{
+			return AnimableValuePtr(
+				new LightAttenuationRangeValue(this));
+		}
+		else if (valueName == "spotlightInner")
+		{
+			return AnimableValuePtr(
+				new LightSpotlightInnerValue(this));
+		}
+		else if (valueName == "spotlightOuter")
+		{
+			return AnimableValuePtr(
+				new LightSpotlightOuterValue(this));
+		}
+		else if (valueName == "spotlightFalloff")
+		{
+			return AnimableValuePtr(
+				new LightSpotlightFalloffValue(this));
+		}
+		else
+		{
+			return MovableObject::createAnimableValue(valueName);
+		}
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

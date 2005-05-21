@@ -1,5 +1,6 @@
 pkginclude_HEADERS = Ogre.h \
 OgreArchive.h \
+OgreAnimable.h \
 OgreAnimation.h \
 OgreAnimationState.h \
 OgreAnimationTrack.h \

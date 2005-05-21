@@ -91,6 +91,11 @@ namespace Ogre {
         {
             this->FromAxes(akAxis);
         }
+		/// Construct a quaternion from 4 manual w/x/y/z values
+		inline Quaternion(Real* valptr)
+		{
+			memcpy(val, valptr, sizeof(Real)*4);
+		}
 
         void FromRotationMatrix (const Matrix3& kRot);
         void ToRotationMatrix (Matrix3& kRot) const;
@@ -197,7 +202,13 @@ namespace Ogre {
         static const Quaternion ZERO;
         static const Quaternion IDENTITY;
 
-        Real w, x, y, z;
+        union
+		{
+			struct {
+				Real w, x, y, z;
+			};
+			Real val[4];
+		};
 
         /** Function for writing to a stream.
         */

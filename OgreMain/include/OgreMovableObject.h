@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSphere.h"
 #include "OgreShadowCaster.h"
 #include "OgreFactoryObj.h"
+#include "OgreAnimable.h"
 
 namespace Ogre {
 
@@ -44,7 +45,7 @@ namespace Ogre {
             Instances of this class are discrete, relatively small, movable objects
             which are attached to SceneNode objects to define their position.
     */
-    class _OgreExport MovableObject : public ShadowCaster
+    class _OgreExport MovableObject : public ShadowCaster, public AnimableObject
     {
     protected:
 		/// Name of this object

@@ -256,6 +256,18 @@ namespace Ogre {
         */
         Real getSpotlightFalloff(void) const;
 
+		/** Sets the angle covered by the spotlights inner cone.
+		*/
+		void setSpotlightInnerAngle(const Radian& val);
+
+		/** Sets the angle covered by the spotlights outer cone.
+		*/
+		void setSpotlightOuterAngle(const Radian& val);
+
+		/** Sets the falloff between the inner and outer cones of the spotlight.
+		*/
+		void setSpotlightFalloff(Real val);
+
         /** Overridden from MovableObject */
         void _notifyCurrentCamera(Camera* cam);
 
@@ -303,7 +315,7 @@ namespace Ogre {
             the reference returned is to a shared volume which will be 
             reused across calls to this method.
         */
-        const PlaneBoundedVolume& _getNearClipVolume(const Camera* const cam) const;
+        virtual const PlaneBoundedVolume& _getNearClipVolume(const Camera* const cam) const;
 
         /** Internal method for calculating the clip volumes outside of the 
             frustum which can be used to determine which objects are casting
@@ -311,17 +323,24 @@ namespace Ogre {
         @remarks Each of the volumes is a pyramid for a point/spot light and
             a cuboid for a directional light. 
         */
-        const PlaneBoundedVolumeList& _getFrustumClipVolumes(const Camera* const cam) const;
+        virtual const PlaneBoundedVolumeList& _getFrustumClipVolumes(const Camera* const cam) const;
 
 		/// Override to return specific type flag
 		uint32 getTypeFlags(void) const;
 
+		/// @copydoc AnimableObject::createAnimableValue
+		AnimableValuePtr createAnimableValue(const String& valueName);
 
-    private:
+    protected:
         /// internal method for synchronising with parent node (if any)
-        void update(void) const;
+        virtual void update(void) const;
 
-        LightTypes mLightType;
+		/// @copydoc AnimableObject::getAnimableDictionaryName
+		const String& getAnimableDictionaryName(void) const;
+		/// @copydoc AnimableObject::initialiseAnimableDictionary
+		void initialiseAnimableDictionary(StringVector& vec) const;
+
+		LightTypes mLightType;
         Vector3 mPosition;
         ColourValue mDiffuse;
         ColourValue mSpecular;
