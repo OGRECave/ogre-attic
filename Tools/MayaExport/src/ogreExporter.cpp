@@ -49,8 +49,8 @@ MStatus OgreExporter::doIt(const MArgList& args)
 			}
 			else
 			{	//range specified by time slider
-				MTime t1 = MAnimControl::animationStartTime();
-				MTime t2 = MAnimControl::animationEndTime();
+				MTime t1 = MAnimControl::minTime();
+				MTime t2 = MAnimControl::maxTime();
 				startTime = t1.as(MTime::kSeconds);
 				stopTime = t2.as(MTime::kSeconds);
 			}

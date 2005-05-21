@@ -364,9 +364,8 @@ MStatus TransferSkeleton::loadClip(MDagPath& jointDag,int jointId,MString clipNa
 	// calculate times from parameters
 	else
 	{
-		for (double t=start; t<stop; t+=rate)
+		for (double t=start; t<=stop; t+=rate)
 			times.push_back(t);
-		times.push_back(stop);
 	}
 
 	// get animation length
