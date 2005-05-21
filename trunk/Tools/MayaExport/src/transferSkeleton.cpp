@@ -106,140 +106,120 @@ MStatus TransferSkeleton::loadSkeleton(MDagPath& jointDag)
 
 
 // Load a single joint data and iterate through it's children
-MStatus TransferSkeleton::loadJoint(MDagPath& jointDag,joint* parent)
+MStatus TransferSkeleton::loadJoint(MDagPath& nodeDag,joint* parent)
 {
 	int i;
 	joint newJoint;
-	MFnIkJoint jointFn(jointDag);
-
-	// Display info
-	MString msg = "Loading joint: ";
-	msg += jointFn.partialPathName();
-	if (parent)
+	joint* parentJoint = parent;
+	// if it is a joint node translate it and then proceed to child nodes, otherwise skip it
+	// and proceed directly to child nodes
+	if (nodeDag.hasFn(MFn::kJoint))
 	{
-		msg += " (parent: ";
-		msg += parent->name;
-		msg += ")";
-	}
-	MGlobal::displayInfo(msg);
-
-	// Get parent index
-	int idx=-1;
-	if (parent)
-	{
-		for (i=0; i<joints.size() && idx<0; i++)
+		MFnIkJoint jointFn(nodeDag);
+		// Display info
+		MString msg = "Loading joint: ";
+		msg += jointFn.partialPathName();
+		if (parent)
 		{
-			if (joints[i].name == parent->name)
-				idx=i;
+			msg += " (parent: ";
+			msg += parent->name;
+			msg += ")";
 		}
-	}
-
-	// Get Bind Pose Matrix
-	// Note: we reset to the bind pose, then get current matrix
-	// if bind pose could not be restored we use the current pose as a bind pose
-/*	MPlug bindMatrixPlug = jointFn.findPlug("bindPose");
-	MObject bindMatrixObject;
-	MStatus stat = bindMatrixPlug.getValue(bindMatrixObject);
-	if(stat != MStatus::kSuccess)
-	{
-		MGlobal::displayInfo("Error trying to get bind matrix plug object");
-		return MS::kFailure;
-	} 
-	MFnMatrixData matrixDataFn(bindMatrixObject);
-	MMatrix bindMatrix = matrixDataFn.matrix(&stat);
-	if(stat != MStatus::kSuccess)
-	{
-		MGlobal::displayInfo("Error trying to get bind matrix data from plug object");
-		return MS::kFailure;
-	}*/
-	// Restore skeleton to bind pose
-	MSelectionList selectionList;
-	MGlobal::getActiveSelectionList(selectionList);
-	MGlobal::selectByName(jointDag.fullPathName(),MGlobal::kReplaceList);
-	MGlobal::executeCommand("dagPose -r -g -bp");
-	MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
-	// Get joint matrix
-	MMatrix bindMatrix = jointDag.inclusiveMatrix();
-
-	// Calculate scaling factor inherited by parent
-	double scale[3];
-	if (parent)
-	{
-		MTransformationMatrix M(parent->worldMatrix);
-		M.getScale(scale,MSpace::kWorld);
-	}
-	else
-	{
-		scale[0] = 1;
-		scale[1] = 1;
-		scale[2] = 1;
-	}
-
-	// Calculate Local Matrix
-	MMatrix localMatrix;
-	if (parent)
-		localMatrix = bindMatrix * parent->worldMatrix.inverse();
-	else
-	{	// root node of skeleton
-		if (m_params.exportWorldCoords)
-			localMatrix = bindMatrix;
+		MGlobal::displayInfo(msg);
+		// Get parent index
+		int idx=-1;
+		if (parent)
+		{
+			for (i=0; i<joints.size() && idx<0; i++)
+			{
+				if (joints[i].name == parent->name)
+					idx=i;
+			}
+		}
+		// Get Bind Pose Matrix
+		// Note: we reset to the bind pose, then get current matrix
+		// if bind pose could not be restored we use the current pose as a bind pose
+		MSelectionList selectionList;
+		MGlobal::getActiveSelectionList(selectionList);
+		MGlobal::selectByName(nodeDag.fullPathName(),MGlobal::kReplaceList);
+		MGlobal::executeCommand("dagPose -r -g -bp");
+		MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
+		// Get joint matrix
+		MMatrix bindMatrix = nodeDag.inclusiveMatrix();
+		// Calculate scaling factor inherited by parent
+		double scale[3];
+		if (parent)
+		{
+			MTransformationMatrix M(parent->worldMatrix);
+			M.getScale(scale,MSpace::kWorld);
+		}
 		else
-			localMatrix = bindMatrix * jointDag.exclusiveMatrix().inverse();
+		{
+			scale[0] = 1;
+			scale[1] = 1;
+			scale[2] = 1;
+		}
+		// Calculate Local Matrix
+		MMatrix localMatrix;
+		if (parent)
+			localMatrix = bindMatrix * parent->worldMatrix.inverse();
+		else
+		{	// root node of skeleton
+			if (m_params.exportWorldCoords)
+				localMatrix = bindMatrix;
+			else
+				localMatrix = bindMatrix * nodeDag.exclusiveMatrix().inverse();
+		}
+		// Calculate rotation data
+		double qx,qy,qz,qw;
+		((MTransformationMatrix)localMatrix).getRotationQuaternion(qx,qy,qz,qw);
+		MQuaternion rotation(qx,qy,qz,qw);
+		MVector axis;
+		double theta;
+		rotation.getAxisAngle(axis,theta);
+		axis.normalize();
+		if (axis.length() < 0.5)
+		{
+			axis.x = 0;
+			axis.y = 1;
+			axis.z = 0;
+			theta = 0;
+		}
+		// Set joint info
+		newJoint.name = jointFn.partialPathName();
+		newJoint.id = joints.size();
+		newJoint.parentIndex = idx;
+		newJoint.worldMatrix = bindMatrix;
+		newJoint.localMatrix = localMatrix;
+		newJoint.posx = localMatrix(3,0) * scale[0];
+		newJoint.posy = localMatrix(3,1) * scale[1];
+		newJoint.posz = localMatrix(3,2) * scale[2];
+		newJoint.angle = theta;
+		newJoint.axisx = axis.x;
+		newJoint.axisy = axis.y;
+		newJoint.axisz = axis.z;
+		joints.push_back(newJoint);
+		// Load joint animations
+		if (m_params.exportAnims)
+			loadAnims(nodeDag,joints.size()-1);
+		// Restore joint to bind pose
+		selectionList;
+		MGlobal::getActiveSelectionList(selectionList);
+		MGlobal::selectByName(nodeDag.fullPathName(),MGlobal::kReplaceList);
+		MGlobal::executeCommand("dagPose -r -g -bp");
+		MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
+		// Get pointer to newly created joint
+		parentJoint = &newJoint;
 	}
-
-	// Calculate rotation data
-	double qx,qy,qz,qw;
-	((MTransformationMatrix)localMatrix).getRotationQuaternion(qx,qy,qz,qw);
-	MQuaternion rotation(qx,qy,qz,qw);
-	MVector axis;
-	double theta;
-	rotation.getAxisAngle(axis,theta);
-	axis.normalize();
-	if (axis.length() < 0.5)
-	{
-		axis.x = 0;
-		axis.y = 1;
-		axis.z = 0;
-		theta = 0;
-	}
-
-	// Set joint info
-	newJoint.name = jointFn.partialPathName();
-	newJoint.id = joints.size();
-	newJoint.parentIndex = idx;
-	newJoint.worldMatrix = bindMatrix;
-	newJoint.localMatrix = localMatrix;
-	newJoint.posx = localMatrix(3,0) * scale[0];
-	newJoint.posy = localMatrix(3,1) * scale[1];
-	newJoint.posz = localMatrix(3,2) * scale[2];
-	newJoint.angle = theta;
-	newJoint.axisx = axis.x;
-	newJoint.axisy = axis.y;
-	newJoint.axisz = axis.z;
-	joints.push_back(newJoint);
-
-	// Load joint animations
-	if (m_params.exportAnims)
-		loadAnims(jointDag,joints.size()-1);
-
-	// Restore joint to bind pose
-	selectionList;
-	MGlobal::getActiveSelectionList(selectionList);
-	MGlobal::selectByName(jointDag.fullPathName(),MGlobal::kReplaceList);
-	MGlobal::executeCommand("dagPose -r -g -bp");
-	MGlobal::setActiveSelectionList(selectionList,MGlobal::kReplaceList);
 
 	// Load children joints
-	for (i=0; i<jointDag.childCount();i++)
+	for (i=0; i<nodeDag.childCount();i++)
 	{
 		MObject child;
-		child = jointDag.child(i);
-		if (child.hasFn(MFn::kJoint))
-		{
-			MDagPath childDag = jointDag;
-			childDag.push(child);
-			loadJoint(childDag,&newJoint);
-		}
+		child = nodeDag.child(i);
+		MDagPath childDag = nodeDag;
+		childDag.push(child);
+		loadJoint(childDag,parentJoint);
 	}
 
 	return MS::kSuccess;
