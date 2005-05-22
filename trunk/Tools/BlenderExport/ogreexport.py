@@ -4,16 +4,17 @@
 Name: 'Ogre XML'
 Blender: 234
 Group: 'Export'
-Tooltip: 'Exports selected meshs with armature animations to Ogre3D'
+Tooltip: 'Exports selected meshes with armature animations to Ogre3D'
 """
 
 __author__ = ['Michael Reimpell', 'Jens Hoffmann', 'et al.']
 __version__ = ''
 __url__ = ['OGRE website, http://www.ogre3d.org',
-	'Script manual, http://www.ogre3d.org/docs/Tutorials/blender/index.html',
 	'OGRE forum, http://www.ogre3d.org/phpBB2/']
 __bpydoc__ = """\
-Exports selected meshs with armature animations to Ogre3D.
+Exports selected meshes with armature animations to Ogre3D.
+
+Read the script manual for further information.
 """
 
 # Blender to Ogre Mesh and Skeleton Exporter
@@ -1487,7 +1488,7 @@ materialString = Draw.Create(Blender.Scene.GetCurrent().getName()+".material")
 scaleNumber = Draw.Create(1.0)
 fpsNumber = Draw.Create(25)
 # first rotation, around X-axis
-rotXNumber = Draw.Create(-90.0)
+rotXNumber = Draw.Create(0.0)
 # second rotation, around Y-axis
 rotYNumber = Draw.Create(0.0)
 # third rotation, around Z-axis
@@ -3767,5 +3768,12 @@ def doneMessageBox():
 ######
 # Main
 ######
-initGUI()
-Draw.Register(gui, eventCallback, buttonCallback)
+isImported = 0
+try:
+	if ((__script__['name'] != 'Ogre XML') and (__script__['name'] != 'ogreexport.py')):
+		isImported = 1
+except NameError:
+	isImported = 1
+if not isImported:
+	initGUI()
+	Draw.Register(gui, eventCallback, buttonCallback)
