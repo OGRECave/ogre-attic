@@ -276,7 +276,7 @@ AC_DEFUN([OGRE_GET_GLSUPPORT],
 ])
 
 AC_DEFUN([OGRE_SETUP_FOR_TARGET],
-[case $target in
+[case $host in
 *-*-cygwin* | *-*-mingw* | *-*-pw32*)
 	AC_SUBST(SHARED_FLAGS, "-shared -no-undefined -Xlinker --export-all-symbols")
 	AC_SUBST(PLUGIN_FLAGS, "-shared -no-undefined -avoid-version")
@@ -416,7 +416,7 @@ fi
 AC_DEFUN([OGRE_CHECK_PIC],
 [
 AC_MSG_CHECKING([whether -fPIC is needed])
-    case $build in
+    case $host in
         x86_64-*)
             CXXFLAGS="$CXXFLAGS -fPIC"
             AC_MSG_RESULT(yes)
