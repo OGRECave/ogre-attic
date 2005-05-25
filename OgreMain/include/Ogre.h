@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreAnimation.h"
 #include "OgreAnimationTrack.h"
+#include "OgreAny.h"
 #include "OgreArchive.h"
 #include "OgreArchiveManager.h"
 #include "OgreAxisAlignedBox.h"
