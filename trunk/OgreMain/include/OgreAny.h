@@ -64,7 +64,7 @@ namespace Ogre
         {
         }
 
-        ~Any()
+        virtual ~Any()
         {
             delete mContent;
         }
@@ -102,7 +102,16 @@ namespace Ogre
             return mContent ? mContent->getType() : typeid(void);
         }
 
-    private: // types
+		inline friend std::ostream& operator <<
+			( std::ostream& o, const Any& v )
+		{
+			if (v.mContent)
+				v.mContent->writeToStream(o);
+			return o;
+		}
+
+
+    protected: // types
 
         class placeholder
         {
@@ -116,13 +125,10 @@ namespace Ogre
 
             virtual const std::type_info& getType() const = 0;
 
-			virtual placeholder* add(placeholder* rhs) = 0;
-			virtual placeholder* subtract(placeholder* rhs) = 0;
-			virtual placeholder* multiply(placeholder* rhs) = 0;
-			virtual placeholder* divide(placeholder* rhs) = 0;
-
             virtual placeholder * clone() const = 0;
     
+			virtual void writeToStream(std::ostream& o) = 0;
+
         };
 
         template<typename ValueType>
@@ -147,22 +153,11 @@ namespace Ogre
                 return new holder(held);
             }
 
-			virtual placeholder* add(placeholder* rhs)
+			virtual void writeToStream(std::ostream& o)
 			{
-				return new holder(held + static_cast<holder*>(rhs)->held);
+				o << held;
 			}
-			virtual placeholder* subtract(placeholder* rhs)
-			{
-				return new holder(held - static_cast<holder*>(rhs)->held);
-			}
-			virtual placeholder* multiply(placeholder* rhs)
-			{
-				return new holder(held * static_cast<holder*>(rhs)->held);
-			}
-			virtual placeholder* divide(placeholder* rhs)
-			{
-				return new holder(held / static_cast<holder*>(rhs)->held);
-			}
+
 
         public: // representation
 
@@ -170,89 +165,16 @@ namespace Ogre
 
         };
 
-		/// Special-case String since not all operators supported
-        template<>
-        class holder<String> : public placeholder
-        {
-        public: // structors
-
-            holder(const String & value)
-              : held(value)
-            {
-            }
-
-        public: // queries
-
-            virtual const std::type_info & getType() const
-            {
-                return typeid(String);
-            }
-
-            virtual placeholder * clone() const
-            {
-                return new holder(held);
-            }
-
-			virtual placeholder* add(placeholder* rhs)
-			{
-				return new holder(held + static_cast<holder*>(rhs)->held);
-			}
-			virtual placeholder* subtract(placeholder* rhs)
-			{
-				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-					"Operator not supported on String", 
-					"Any::operator-()");
-			}
-			virtual placeholder* multiply(placeholder* rhs)
-			{
-				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-					"Operator not supported on String", 
-					"Any::operator*()");
-			}
-			virtual placeholder* divide(placeholder* rhs)
-			{
-				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-					"Operator not supported on String", 
-					"Any::operator/()");
-			}
-
-        public: // representation
-
-            String held;
-
-        };
 
 
-    private: // representation
+    protected: // representation
         placeholder * mContent;
 
         template<typename ValueType>
         friend ValueType * any_cast(Any *);
 
-		/// Construct from holder
-		Any(placeholder* holder)
-			: mContent(holder)
-		{
-		}
 
     public: 
-
-		Any operator+(const Any& rhs)
-		{
-			return Any(mContent->add(rhs.mContent));
-		}
-		Any operator-(const Any& rhs)
-		{
-			return Any(mContent->subtract(rhs.mContent));
-		}
-		Any operator*(const Any& rhs)
-		{
-			return Any(mContent->multiply(rhs.mContent));
-		}
-		Any operator/(const Any& rhs)
-		{
-			return Any(mContent->divide(rhs.mContent));
-		}
 
 	    template<typename ValueType>
     	ValueType operator()() const
@@ -279,6 +201,150 @@ namespace Ogre
 		
 
     };
+
+
+	/** Specialised Any class which has built in arithmetic operators, but can 
+		hold only types which support operator +,-,* and / .
+	*/
+	class AnyNumeric : public Any
+	{
+	public:
+		AnyNumeric()
+		: Any()
+		{
+		}
+
+		template<typename ValueType>
+		AnyNumeric(const ValueType & value)
+			
+		{
+			mContent = new numholder<ValueType>(value);
+		}
+
+		AnyNumeric(const AnyNumeric & other)
+			: Any(other)
+		{
+		}
+	protected:
+		class numplaceholder : public Any::placeholder
+		{
+		public: // structors
+
+			~numplaceholder()
+			{
+			}
+			virtual placeholder* add(placeholder* rhs) = 0;
+			virtual placeholder* subtract(placeholder* rhs) = 0;
+			virtual placeholder* multiply(placeholder* rhs) = 0;
+			virtual placeholder* divide(placeholder* rhs) = 0;
+		};
+
+		template<typename ValueType>
+		class numholder : public numplaceholder
+		{
+		public: // structors
+
+			numholder(const ValueType & value)
+				: held(value)
+			{
+			}
+
+		public: // queries
+
+			virtual const std::type_info & getType() const
+			{
+				return typeid(ValueType);
+			}
+
+			virtual placeholder * clone() const
+			{
+				return new numholder(held);
+			}
+
+			virtual placeholder* add(placeholder* rhs)
+			{
+				return new numholder(held + static_cast<numholder*>(rhs)->held);
+			}
+			virtual placeholder* subtract(placeholder* rhs)
+			{
+				return new numholder(held - static_cast<numholder*>(rhs)->held);
+			}
+			virtual placeholder* multiply(placeholder* rhs)
+			{
+				return new numholder(held * static_cast<numholder*>(rhs)->held);
+			}
+			virtual placeholder* divide(placeholder* rhs)
+			{
+				return new numholder(held / static_cast<numholder*>(rhs)->held);
+			}
+			virtual void writeToStream(std::ostream& o)
+			{
+				o << held;
+			}
+
+		public: // representation
+
+			ValueType held;
+
+		};
+
+		/// Construct from holder
+		AnyNumeric(placeholder* holder)
+		{
+			mContent = holder;
+		}
+
+	public:
+		AnyNumeric operator+(const AnyNumeric& rhs)
+		{
+			return AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->add(rhs.mContent));
+		}
+		AnyNumeric operator-(const AnyNumeric& rhs)
+		{
+			return AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->subtract(rhs.mContent));
+		}
+		AnyNumeric operator*(const AnyNumeric& rhs)
+		{
+			return AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->multiply(rhs.mContent));
+		}
+		AnyNumeric operator/(const AnyNumeric& rhs)
+		{
+			return AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->divide(rhs.mContent));
+		}
+		AnyNumeric& operator+=(const AnyNumeric& rhs)
+		{
+			*this = AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->add(rhs.mContent));
+			return *this;
+		}
+		AnyNumeric& operator-=(const AnyNumeric& rhs)
+		{
+			*this = AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->subtract(rhs.mContent));
+			return *this;
+		}
+		AnyNumeric& operator*=(const AnyNumeric& rhs)
+		{
+			*this = AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->multiply(rhs.mContent));
+			return *this;
+		}
+		AnyNumeric& operator/=(const AnyNumeric& rhs)
+		{
+			*this = AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->divide(rhs.mContent));
+			return *this;
+		}
+
+
+
+
+	};
+
 
     template<typename ValueType>
     ValueType * any_cast(Any * operand)
