@@ -476,12 +476,17 @@ AC_ARG_ENABLE(threading,
 AC_MSG_CHECKING([whether to use threaded resource loading])
 	case $build_threads in
         yes)
+            CXXFLAGS="$CXXFLAGS -pthread"
+            OGRE_THREAD_LIBS="-lboost_thread-mt"
 			AC_DEFINE([OGRE_THREAD_SUPPORT], [1], [Build with thread support])
+            AC_CHECK_LIB([boost_thread-mt], [main],, AC_MSG_ERROR([cannot find boost_thread-mt library]))
             AC_MSG_RESULT(yes)
         ;;
         *)
+            OGRE_THREAD_LIBS=""
 			AC_DEFINE([OGRE_THREAD_SUPPORT], [0], [Build with thread support])
             AC_MSG_RESULT(no)
         ;;
     esac
+    AC_SUBST(OGRE_THREAD_LIBS)
 ])
