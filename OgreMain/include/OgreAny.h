@@ -289,9 +289,9 @@ namespace Ogre
 		};
 
 		/// Construct from holder
-		AnyNumeric(placeholder* holder)
+		AnyNumeric(placeholder* pholder)
 		{
-			mContent = holder;
+			mContent = pholder;
 		}
 
 	public:
