@@ -57,10 +57,11 @@ namespace Ogre
     {   
         if (!mAssemblerProgram.isNull())
         {
-            mAssemblerProgram->unload();
+            mAssemblerProgram->getCreator()->remove(mAssemblerProgram->getHandle());
             mAssemblerProgram.setNull();
         }
         unloadHighLevelImpl();
+        mHighLevelLoaded = false;
     }
     //---------------------------------------------------------------------------
     HighLevelGpuProgram::~HighLevelGpuProgram()
