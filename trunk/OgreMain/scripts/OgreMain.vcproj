@@ -659,6 +659,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\include\OgreAnimationTrack.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreAny.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreArchive.h">
 			</File>
 			<File

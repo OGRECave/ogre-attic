@@ -11,6 +11,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\lib\Debug\ogremain_d.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -48,6 +49,7 @@
 			</Target>
 			<Target title="Release">
 				<Option output="..\lib\Release\ogremain.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -105,6 +107,13 @@
 			<Option target="Release"/>
 		</Unit>
 		<Unit filename="..\include\OgreAnimationTrack.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\OgreAny.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
 			<Option link="0"/>
@@ -1441,6 +1450,11 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
+		<Unit filename="..\src\OgreAnimable.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
 		<Unit filename="..\src\OgreAnimation.cpp">
 			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
@@ -1552,6 +1566,11 @@
 			<Option target="Release"/>
 		</Unit>
 		<Unit filename="..\src\OgreDefaultHardwareBufferManager.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\OgreDefaultSceneQueries.cpp">
 			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
 			<Option target="Release"/>

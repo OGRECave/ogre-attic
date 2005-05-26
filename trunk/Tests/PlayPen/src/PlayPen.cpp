@@ -2427,6 +2427,14 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+
+		AnyNumeric anyInt1(43);
+		AnyNumeric anyInt2(5);
+		AnyNumeric anyInt3 = anyInt1 + anyInt2;
+
+		std::cout << anyInt3;
+		//Any anyString("test");
+
         //testMatrices();
         //testBsp();
         //testAlpha();

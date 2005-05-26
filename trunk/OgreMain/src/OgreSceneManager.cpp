@@ -372,10 +372,9 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
             {
                 // Calc squared distance
                 lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
-                lt->tempSquareDist -= squaredRadius;
                 // only add in-range lights
                 Real range = lt->getAttenuationRange();
-                if (lt->tempSquareDist <= (range * range))
+                if ((lt->tempSquareDist - squaredRadius) <= (range * range))
                 {
                     destList.push_back(lt);
                 }
@@ -383,8 +382,8 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius,
         }
     }
 
-    // Sort
-    std::sort(destList.begin(), destList.end(), lightLess());
+    // Sort (stable to guarantee ordering on directional lights)
+    std::stable_sort(destList.begin(), destList.end(), lightLess());
 
 
 }
