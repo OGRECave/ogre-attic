@@ -65,8 +65,8 @@ namespace Ogre {
 				static_cast<size_t>(numMipmaps));
             tex->setGamma(gamma);
             tex->enable32Bit(mIs32Bit);
-            tex->load();
         }
+        tex->load();
 
         return tex;
     }

@@ -87,8 +87,8 @@ namespace Ogre
             pMesh = this->create(filename, groupName);
 			pMesh->setVertexBufferPolicy(vertexBufferUsage, vertexBufferShadowed);
 			pMesh->setIndexBufferPolicy(indexBufferUsage, indexBufferShadowed);
-            pMesh->load();
         }
+        pMesh->load();
         return pMesh;
 
     }
