@@ -52,6 +52,10 @@ namespace Ogre {
             const String& group, bool isManual = false, 
             ManualResourceLoader* loader = 0, const NameValuePairList* loadParams = 0);
 
+        /** Loads a BSP-based level from a stream.
+            Currently only supports loading of Quake3 .bsp files.
+        */
+        ResourcePtr load(DataStreamPtr& stream, const String& group);
 
         /** Override standard Singleton retrieval.
         @remarks

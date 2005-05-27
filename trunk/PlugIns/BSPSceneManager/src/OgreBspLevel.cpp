@@ -93,6 +93,16 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
+    void BspLevel::load(DataStreamPtr& stream)
+    {
+        // Use Quake3 file loader
+        Quake3Level q3;
+        q3.loadFromStream(stream);
+
+        loadQuake3Level(q3);
+
+    }
+    //-----------------------------------------------------------------------
     void BspLevel::unloadImpl()
     {
         if (mVertexData)
@@ -124,10 +134,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     size_t BspLevel::calculateLoadingStages(const String& levelName)
     {
-        Quake3Level q3;
         DataStreamPtr stream = 
             ResourceGroupManager::getSingleton().openResource(levelName, 
             ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+		return calculateLoadingStages(stream);
+	}
+    //-----------------------------------------------------------------------
+    size_t BspLevel::calculateLoadingStages(DataStreamPtr& stream)
+    {
+        Quake3Level q3;
 
         // Load header only
         q3.loadHeaderFromStream(stream);

@@ -48,6 +48,8 @@ Enhancements 2003 - 2004 (C) The OGRE Team
 #include "OgreTerrainVertexProgram.h"
 #include "OgreTerrainPage.h"
 #include "OgreLogManager.h"
+#include "OgreResourceGroupManager.h"
+#include <fstream>
 
 #define TERRAIN_MATERIAL_NAME "TerrainSceneManager/Terrain"
 
@@ -94,13 +96,13 @@ namespace Ogre
     {
     }
     //-------------------------------------------------------------------------
-    void TerrainSceneManager::loadConfig(const String& filename)
+    void TerrainSceneManager::loadConfig(DataStreamPtr& stream)
     {
         /* Set up the options */
         ConfigFile config;
         String val;
 
-        config.load( filename );
+        config.load( stream );
 
         val = config.getSetting( "DetailTile" );
         if ( !val.empty() )
@@ -442,6 +444,28 @@ namespace Ogre
     //-------------------------------------------------------------------------
     void TerrainSceneManager::setWorldGeometry( const String& filename )
     {
+		// try to open in the current folder first
+		std::ifstream fs;
+		fs.open(filename.c_str());
+		if (fs)
+		{
+			// Wrap as a stream
+			DataStreamPtr stream(
+				new FileStreamDataStream(filename, &fs, false));
+			setWorldGeometry(stream);
+		}
+		else
+		{
+			// otherwise try resource system
+			DataStreamPtr stream = 
+				ResourceGroupManager::getSingleton().openResource(filename);
+				
+			setWorldGeometry(stream);
+		}
+	}
+    //-------------------------------------------------------------------------
+    void TerrainSceneManager::setWorldGeometry(DataStreamPtr& stream, const String& typeName )
+    {
         // Clear out any existing world resources (if not default)
         if (ResourceGroupManager::getSingleton().getWorldResourceGroupName() != 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME)
@@ -451,7 +475,7 @@ namespace Ogre
         }
         mTerrainPages.clear();
         // Load the configuration
-        loadConfig(filename);
+        loadConfig(stream);
 
         // Resize the octree, allow for 1 page for now
         float max_x = mOptions.scale.x * mOptions.pageSize;

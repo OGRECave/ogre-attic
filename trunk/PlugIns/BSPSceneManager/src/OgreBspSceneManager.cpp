@@ -79,6 +79,13 @@ namespace Ogre {
         
     }
     //-----------------------------------------------------------------------
+    size_t BspSceneManager::estimateWorldGeometry(DataStreamPtr& stream, 
+		const String& typeName)
+    {
+        return BspLevel::calculateLoadingStages(stream);
+        
+    }
+    //-----------------------------------------------------------------------
     void BspSceneManager::setWorldGeometry(const String& filename)
     {
         mLevel.setNull();
@@ -101,6 +108,34 @@ namespace Ogre {
         // Load using resource manager
         mLevel = BspResourceManager::getSingleton().load(filename, 
             ResourceGroupManager::getSingleton().getWorldResourceGroupName());
+
+        // Init static render operation
+        mRenderOp.vertexData = mLevel->mVertexData;
+        // index data is per-frame
+        mRenderOp.indexData = new IndexData();
+        mRenderOp.indexData->indexStart = 0;
+        mRenderOp.indexData->indexCount = 0;
+        // Create enough index space to render whole level
+        mRenderOp.indexData->indexBuffer = HardwareBufferManager::getSingleton()
+            .createIndexBuffer(
+                HardwareIndexBuffer::IT_32BIT, // always 32-bit
+                mLevel->mNumIndexes, 
+                HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY_DISCARDABLE, false);
+
+        mRenderOp.operationType = RenderOperation::OT_TRIANGLE_LIST;
+        mRenderOp.useIndexes = true;
+
+
+    }
+    //-----------------------------------------------------------------------
+    void BspSceneManager::setWorldGeometry(DataStreamPtr& stream, 
+		const String& typeName)
+    {
+        mLevel.setNull();
+
+        // Load using resource manager
+        mLevel = BspResourceManager::getSingleton().load(stream, 
+			ResourceGroupManager::getSingleton().getWorldResourceGroupName());
 
         // Init static render operation
         mRenderOp.vertexData = mLevel->mVertexData;

@@ -84,6 +84,11 @@ namespace Ogre {
 
         /** Calculate the number of loading stages required for a given level */
         static size_t calculateLoadingStages(const String& levelName);
+        /** Calculate the number of loading stages required for a given level */
+        static size_t calculateLoadingStages(DataStreamPtr& stream);
+
+		/** Load direct from stream */
+		void load(DataStreamPtr& stream);
 
         /** Utility class just to enable queueing of patches */
     protected:
