@@ -878,6 +878,15 @@ void SceneManager::setWorldGeometry(const String& filename)
         "World geometry is not supported by the generic SceneManager.",
         "SceneManager::setWorldGeometry");
 }
+//-----------------------------------------------------------------------
+void SceneManager::setWorldGeometry(DataStreamPtr& stream, 
+	const String& typeName)
+{
+    // This default implementation cannot handle world geometry
+    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+        "World geometry is not supported by the generic SceneManager.",
+        "SceneManager::setWorldGeometry");
+}
 
 //-----------------------------------------------------------------------
 bool SceneManager::materialLess::operator() (const Material* x, const Material* y) const

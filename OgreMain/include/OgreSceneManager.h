@@ -748,11 +748,26 @@ namespace Ogre {
                 SceneManager cannot handle any sort of world geometry and so will always
                 throw an exception. However subclasses like BspSceneManager can load
                 particular types of world geometry e.g. "q3dm1.bsp".
-            @par
-                World geometry will be loaded via the 'common' resource paths and archives set in the
-                ResourceManager class.
         */
         virtual void setWorldGeometry(const String& filename);
+
+        /** Sets the source of the 'world' geometry, i.e. the large, mainly 
+			static geometry making up the world e.g. rooms, landscape etc.
+            @remarks
+                Depending on the type of SceneManager (subclasses will be 
+				specialised for particular world geometry types) you have 
+				requested via the Root or SceneManagerEnumerator classes, you 
+				can pass a stream to this method and it will attempt to load 
+				the world-level geometry for use. If the manager can only 
+				handle one input format the typeName parameter is not required.
+				The stream passed will be read (and it's state updated). 
+			@param stream Data stream containing data to load
+			@param typeName String identifying the type of world geometry
+				contained in the stream - not required if this manager only 
+				supports one type of world geometry.
+        */
+		virtual void setWorldGeometry(DataStreamPtr& stream, 
+			const String& typeName = StringUtil::BLANK);
 
         /** Estimate the number of loading stages required to load the named
             world geometry. 
@@ -768,6 +783,20 @@ namespace Ogre {
         */
         virtual size_t estimateWorldGeometry(const String& filename) { return 0; }
 
+        /** Estimate the number of loading stages required to load the named
+            world geometry. 
+        @remarks
+			Operates just like the version of this method which takes a
+			filename, but operates on a stream instead. Note that since the
+			stream is updated, you'll need to reset the stream or reopen it
+			when it comes to loading it for real.
+		@param stream Data stream containing data to load
+		@param typeName String identifying the type of world geometry
+			contained in the stream - not required if this manager only 
+			supports one type of world geometry.
+		*/		
+        virtual size_t estimateWorldGeometry(DataStreamPtr& stream, 
+			const String& typeName = StringUtil::BLANK) { return 0; }
         /** Asks the SceneManager to provide a suggested viewpoint from which the scene should be viewed.
             @remarks
                 Typically this method returns the origin unless a) world geometry has been loaded using

@@ -68,6 +68,20 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
+    ResourcePtr BspResourceManager::load(DataStreamPtr& stream, 
+		const String& group)
+    {
+        // Only 1 BSP level allowed loaded at once
+        removeAll();
+
+		ResourcePtr ret = create("bsplevel", group, true, 0);
+		BspLevelPtr bspLevel = ret;
+		bspLevel->load(stream);
+		
+        return ret;
+
+    }
+    //-----------------------------------------------------------------------
     Resource* BspResourceManager::createImpl(const String& name, ResourceHandle handle, 
         const String& group, bool isManual, ManualResourceLoader* loader, 
         const NameValuePairList* createParams)
