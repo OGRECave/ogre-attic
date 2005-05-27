@@ -28,11 +28,6 @@
 #include <CEGUI/CEGUIExceptions.h>
 #include <OgreArchiveManager.h>
 
-#include <OgreNoMemoryMacros.h>
-#include <xercesc/framework/MemBufInputSource.hpp>
-#include <xercesc/framework/MemoryManager.hpp>
-#include <memory.h>
-#include <OgreMemoryMacros.h>
 
 // Start of CEGUI namespace section
 namespace CEGUI
@@ -77,16 +72,25 @@ namespace CEGUI
 		if (input.isNull())
 		{
             throw InvalidRequestException((utf8*)
-                "Scheme::Scheme - Filename supplied for Scheme loading must be valid");
+                "OgreCEGUIResourceProvider::loadRawDataContainer - Unable to open resource file '" + filename + (utf8*)"' in resource group '" + orpGroup + (utf8*)"'.");
         }
 
 		Ogre::String buf = input->getAsString();
 		size_t buffsz = buf.length();
-        unsigned char* mem = reinterpret_cast<unsigned char*>
-			(XERCES_CPP_NAMESPACE::XMLPlatformUtils::fgArrayMemoryManager->allocate(buffsz));
+        unsigned char* mem = new unsigned char[buffsz];
         memcpy(mem, buf.c_str(), buffsz);
 
         output.setData(mem);
         output.setSize(buffsz);
     }
+	
+	void OgreCEGUIResourceProvider::unloadRawDataContainer(RawDataContainer& data)
+	{
+		if (data.getDataPtr())
+		{
+			delete[] data.getDataPtr();
+			data.setData(0);
+			data.setSize(0);
+		}
+	}
 } // End of  CEGUI namespace section
