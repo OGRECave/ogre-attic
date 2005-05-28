@@ -13,5 +13,5 @@ Plugin_BSPSceneManager_la_SOURCES = OgreBspLevel.cpp \
                              OgreQuake3Level.cpp
 
 
-Plugin_BSPSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+Plugin_BSPSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 Plugin_BSPSceneManager_la_LIBADD = -lOgreMain

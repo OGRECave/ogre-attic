@@ -18,5 +18,5 @@ Plugin_ParticleFX_la_SOURCES = OgreAreaEmitter.cpp \
 						OgreRotationAffector.cpp \
 						OgreScaleAffector.cpp 
 
-Plugin_ParticleFX_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+Plugin_ParticleFX_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 Plugin_ParticleFX_la_LIBADD = -lOgreMain

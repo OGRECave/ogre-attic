@@ -79,6 +79,9 @@ CFLAGS="$CFLAGS $SDL_CFLAGS"
 CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
+# disable RTTI
+CXXFLAGS="$CXXFLAGS -fno-rtti"
+
 dnl versioning info for libtool
 dnl Note this is the ABI version which is not the same as our actual library version
 OGREMAIN_CURRENT=6
