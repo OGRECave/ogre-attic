@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreShadowCaster.h"
 #include "OgreFactoryObj.h"
 #include "OgreAnimable.h"
+#include "OgreAny.h"
 
 namespace Ogre {
 
@@ -57,8 +58,8 @@ namespace Ogre {
         bool mParentIsTagPoint;
         /// Is this object visible?
         bool mVisible;
-        /// User defined object which is linked to this object
-        UserDefinedObject *mUserObject;
+		/// User defined link to another object / value / whatever
+		Any mUserAny;
         /// The render queue to use when rendering this object
         RenderQueueGroupID mRenderQueueID;
 		/// Flags whether the RenderQueue's default should be used.
@@ -164,11 +165,27 @@ namespace Ogre {
             can establish a link between an OGRE instance of MovableObject and your own application
             classes. Call this method to establish the link.
         */
-        virtual void setUserObject(UserDefinedObject* obj) { mUserObject = obj; }
+        virtual void setUserObject(UserDefinedObject* obj) { mUserAny = Any(obj); }
         /** Retrieves a pointer to a custom application object associated with this movable by an earlier
             call to setUserObject.
         */
-        virtual UserDefinedObject* getUserObject(void) { return mUserObject; }
+        virtual UserDefinedObject* getUserObject(void) 
+		{ 
+			return any_cast<UserDefinedObject*>(mUserAny); 
+		}
+
+		/** Sets any kind of user value on this object.
+		@remarks
+			This method allows you to associate any user value you like with 
+			this MovableObject. This can be a pointer back to one of your own
+			classes for instance.
+		@note This value is shared with setUserObject so don't use both!
+		*/
+		virtual void setUserAny(const Any& anything) { mUserAny = anything; }
+
+		/** Retrieves the custom user value associated with this object.
+		*/
+		virtual const Any& getUserAny(void) const { return mUserAny; }
 
         /** Sets the render queue group this entity will be rendered through.
         @remarks

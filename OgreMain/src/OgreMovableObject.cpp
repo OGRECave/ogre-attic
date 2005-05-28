@@ -35,7 +35,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MovableObject::MovableObject()
 		: mCreator(0), mParentNode(0), mParentIsTagPoint(false), mVisible(true), 
-         mUserObject(0), mRenderQueueID(RENDER_QUEUE_MAIN),
+         mRenderQueueID(RENDER_QUEUE_MAIN),
          mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
          mCastShadows (true)
     {
@@ -45,7 +45,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	MovableObject::MovableObject(const String& name) 
 		: mName(name), mCreator(0), mParentNode(0), mParentIsTagPoint(false), 
-		mVisible(true), mUserObject(0), mRenderQueueID(RENDER_QUEUE_MAIN),
+		mVisible(true), mRenderQueueID(RENDER_QUEUE_MAIN),
 		mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
 		mCastShadows (true)
 	{
