@@ -222,6 +222,14 @@ namespace Ogre {
                     break;
                 };
                 params->_mapParameterNameToIndex(paramName, index);
+                // setup constant definition
+                // is it float or int
+                GpuProgramParameters::ElementType elementType = GpuProgramParameters::ET_INT;
+                // NOTE: all float enums are grouped together and occur before CG_INT which is the first of the int enums
+                // CG_FIXED1 is the last float type
+                if (paramType <= CG_FIXED1)
+                    elementType = GpuProgramParameters::ET_REAL;
+                params->addConstantDefinition(paramName, index, 0, elementType);
             }
             // Get next
             parameter = cgGetNextLeafParameter(parameter);
@@ -298,6 +306,16 @@ namespace Ogre {
             mProfiles.push_back(*i);
         }
     }
+
+    //-----------------------------------------------------------------------
+    const String& CgProgram::getLanguage(void) const
+    {
+        static const String language = "cg";
+
+        return language;
+    }
+
+
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     String CgProgram::CmdEntryPoint::doGet(const void *target) const

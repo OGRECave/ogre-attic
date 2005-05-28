@@ -75,6 +75,11 @@ namespace Ogre
 	extern PFNGLUNIFORM3IVARBPROC glUniform3ivARB_ptr;
 	extern PFNGLUNIFORM4IVARBPROC glUniform4ivARB_ptr;
 
+    extern PFNGLUNIFORMMATRIX2FVARBPROC glUniformMatrix2fvARB_ptr;
+    extern PFNGLUNIFORMMATRIX3FVARBPROC glUniformMatrix3fvARB_ptr;
+    extern PFNGLUNIFORMMATRIX4FVARBPROC glUniformMatrix4fvARB_ptr;
+
+
 	extern PFNGLVERTEXATTRIB4FVARBPROC glVertexAttrib4fvARB_ptr;
 	extern PFNGLVERTEXATTRIB3FVARBPROC glVertexAttrib3fvARB_ptr;
 	extern PFNGLVERTEXATTRIB2FVARBPROC glVertexAttrib2fvARB_ptr;

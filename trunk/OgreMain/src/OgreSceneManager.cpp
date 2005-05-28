@@ -700,6 +700,9 @@ Pass* SceneManager::setPass(Pass* pass)
     // Shading
     mDestRenderSystem->setShadingType(pass->getShadingMode());
 
+    // set pass number
+    mAutoParamDataSource.setPassNumber( pass->getIndex() );
+
     return pass;
 }
 //-----------------------------------------------------------------------
@@ -1867,11 +1870,17 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
     static RenderOperation ro;
     static LightList localLightList;
 
+    bool passSurfaceAndLightParams = true;
+
     if (pass->isProgrammable())
     {
         // Tell auto params object about the renderable change
         mAutoParamDataSource.setCurrentRenderable(rend);
         pass->_updateAutoParamsNoLights(mAutoParamDataSource);
+        if (pass->hasVertexProgram())
+        {
+            passSurfaceAndLightParams = pass->getVertexProgram()->getPassSurfaceAndLightStates();
+        }
     }
 
     // Set world transformation
@@ -1935,6 +1944,7 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
     rend->getRenderOperation(ro);
     ro.srcRenderable = rend;
 
+
     if (doLightIteration)
     {
         // Here's where we issue the rendering operation to the render system
@@ -1970,6 +1980,7 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
                 pLightListToUse = &rendLightList;
             }
 
+
             // Do we need to update GPU program parameters?
             if (pass->isProgrammable())
             {
@@ -1992,12 +2003,12 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
             }
             // Do we need to update light states? 
             // Only do this if fixed-function vertex lighting applies
-            if (pass->getLightingEnabled() &&
-                (!pass->hasVertexProgram() || pass->getVertexProgram()->getPassSurfaceAndLightStates()))
+            if (pass->getLightingEnabled() && passSurfaceAndLightParams)
             {
                 mDestRenderSystem->_useLights(*pLightListToUse, pass->getMaxSimultaneousLights());
             }
             // issue the render op		
+            // nfz: check for gpu_multipass
             mDestRenderSystem->_render(ro);
         } // possibly iterate per light
     }
@@ -2026,14 +2037,14 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
             }
         }
 
-        // Use manual lights if present, and fixed-function vertex lighting applies
+        // Use manual lights if present, and not using vertex programs that don't use fixed pipeline
         if (manualLightList && 
-            pass->getLightingEnabled() &&
-            (!pass->hasVertexProgram() || pass->getVertexProgram()->getPassSurfaceAndLightStates()))
+            pass->getLightingEnabled() && passSurfaceAndLightParams)
         {
             mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
         }
         // issue the render op		
+        // nfz: check for gpu_multipass
         mDestRenderSystem->_render(ro);
     }
 }

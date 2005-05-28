@@ -160,8 +160,14 @@ namespace Ogre {
                     // If this is an array, need to append element index
                     if (desc.Elements > 1)
                         name += "[" + StringConverter::toString(e) + "]";
-
+                    
                     params->_mapParameterNameToIndex(name, paramIndex);
+                    // setup constant definition
+                    // is it float or int
+                    GpuProgramParameters::ElementType elementType = GpuProgramParameters::ET_INT;
+                    if (desc.Type == D3DXPT_FLOAT)
+                        elementType = GpuProgramParameters::ET_REAL;
+                    params->addConstantDefinition(name, paramIndex, 0, elementType);
                 }
             }
         }
@@ -224,6 +230,15 @@ namespace Ogre {
     {
         mTarget = target;
     }
+
+    //-----------------------------------------------------------------------
+    const String& D3D9HLSLProgram::getLanguage(void) const
+    {
+        static const String language = "hlsl";
+
+        return language;
+    }
+
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     String D3D9HLSLProgram::CmdEntryPoint::doGet(const void *target) const

@@ -77,6 +77,7 @@ namespace Ogre {
         mutable bool mCameraPositionDirty;
         mutable bool mTextureViewProjMatrixDirty;
 		mutable ColourValue mAmbientLight;
+        mutable int mPassNumber;
 
         const Renderable* mCurrentRenderable;
         const Camera* mCurrentCamera;
@@ -162,6 +163,9 @@ namespace Ogre {
 		Real getFOV() const;
 		Real getNearClipDistance() const;
 		Real getFarClipDistance() const;
+        int getPassNumber(void) const;
+        void setPassNumber(const int passNumber);
+        void incPassNumber(void);
     };
 }
 

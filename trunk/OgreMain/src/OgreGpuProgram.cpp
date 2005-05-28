@@ -43,6 +43,82 @@ namespace Ogre
     GpuProgram::CmdSyntax GpuProgram::msSyntaxCmd;
     GpuProgram::CmdSkeletal GpuProgram::msSkeletalCmd;
 
+
+    GpuProgramParameters::AutoConstantDefinition GpuProgramParameters::AutoConstantDictionary[] = {
+        {AutoConstantDefinition(ACT_WORLD_MATRIX,                  "world_matrix",                16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_WORLD_MATRIX_ARRAY_3x4,        "world_matrix_array_3x4",      12, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_WORLD_MATRIX_ARRAY,            "world_matrix_array",          16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEW_MATRIX,                   "view_matrix",                 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_PROJECTION_MATRIX,             "projection_matrix",           16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEWPROJ_MATRIX,               "viewproj_matrix",             16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_WORLDVIEW_MATRIX,              "worldview_matrix",            16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_WORLDVIEWPROJ_MATRIX,          "worldviewproj_matrix",        16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_WORLD_MATRIX,          "inverse_world_matrix",        16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_VIEW_MATRIX,           "inverse_view_matrix",         16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_WORLDVIEW_MATRIX,      "inverse_worldview_matrix",    16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSETRANSPOSE_WORLD_MATRIX, "inverse_transpose_world_matrix", 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_ATTENUATION,             "light_attenuation",            4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_POSITION,                "light_position",               4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_DIRECTION,               "light_direction",              4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_POSITION_OBJECT_SPACE,   "light_position_object_space",  4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_DIRECTION_OBJECT_SPACE,  "light_direction_object_space", 4, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT)},
+        {AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX,       "texture_viewproj_matrix",     16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_CUSTOM,                        "custom",                       4, ET_REAL, ACDT_INT)},  // *** needs to be tested
+        {AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TIME_0_X,                      "time_0_x",                     4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_COSTIME_0_X,                   "costime_0_x",                  4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_SINTIME_0_X,                   "sintime_0_x",                  4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TANTIME_0_X,                   "tantime_0_x",                  4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TIME_0_X_PACKED,               "time_0_x_packed",              4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TIME_0_1,                      "time_0_1",                     4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_COSTIME_0_1,                   "costime_0_1",                  4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_SINTIME_0_1,                   "sintime_0_1",                  4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TANTIME_0_1,                   "tantime_0_1",                  4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TIME_0_1_PACKED,               "time_0_1_packed",              4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TIME_0_2PI,                    "time_0_2pi",                   4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_COSTIME_0_2PI,                 "costime_0_2pi",                4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_SINTIME_0_2PI,                 "sintime_0_2pi",                4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TANTIME_0_2PI,                 "tantime_0_2pi",                4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_TIME_0_2PI_PACKED,             "time_0_2pi_packed",            4, ET_REAL, ACDT_REAL)},
+        {AutoConstantDefinition(ACT_FPS,                           "fps",                          1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEWPORT_WIDTH,                "viewport_width",               1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEWPORT_HEIGHT,               "viewport_height",              1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_VIEWPORT_WIDTH,        "inverse_viewport_width",       1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_VIEWPORT_HEIGHT,       "inverse_viewport_height",      1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEW_DIRECTION,                "view_direction",               3, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEW_SIDE_VECTOR,              "view_side_vector",             3, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_VIEW_UP_VECTOR,                "view_up_vector",               3, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_FOV,                           "fov",                          1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_NEAR_CLIP_DISTANCE,            "near_clip_distance",           1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_FAR_CLIP_DISTANCE,             "far_clip_distance",            1, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_VIEWPROJ_MATRIX,       "inverse_viewproj_matrix",     16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSETRANSPOSE_VIEWPROJ_MATRIX,   "inverse_transpose_viewproj_matrix", 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TRANSPOSE_VIEWPROJ_MATRIX,          "transpose_viewproj_matrix",         16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TRANSPOSE_VIEW_MATRIX,              "transpose_view_matrix",             16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSETRANSPOSE_VIEW_MATRIX,       "inverse_transpose_view_matrix",     16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TRANSPOSE_PROJECTION_MATRIX,        "transpose_projection_matrix",       16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_PROJECTION_MATRIX,          "inverse_projection_matrix",         16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSETRANSPOSE_PROJECTION_MATRIX, "inverse_transpose_projection_matrix", 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,     "transpose_worldviewproj_matrix",    16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_WORLDVIEWPROJ_MATRIX,       "inverse_worldviewproj_matrix",      16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSETRANSPOSE_WORLDVIEWPROJ_MATRIX, "inverse_transpose_worldviewproj_matrix", 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEW_MATRIX,         "transpose_worldview_matrix",        16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TRANSPOSE_WORLD_MATRIX,             "transpose_world_matrix",            16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,     "inverse_transpose_world_matrix",    16, ET_REAL, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_INT, ACDT_NONE)},
+        {AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL)}
+    };
+
+    
+
     //-----------------------------------------------------------------------------
     GpuProgram::GpuProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
         const String& group, bool isManual, ManualResourceLoader* loader) 
@@ -140,6 +216,16 @@ namespace Ogre
             &msSkeletalCmd);
     }
 
+    //-----------------------------------------------------------------------
+    const String& GpuProgram::getLanguage(void) const
+    {
+        static const String language = "asm";
+
+        return language;
+    }
+
+
+
     //-----------------------------------------------------------------------------
     //-----------------------------------------------------------------------------
     //-----------------------------------------------------------------------------
@@ -148,6 +234,30 @@ namespace Ogre
     {
     }
     //-----------------------------------------------------------------------------
+
+    GpuProgramParameters::GpuProgramParameters(const GpuProgramParameters& oth)
+    {
+        *this = oth;
+    }
+
+    //-----------------------------------------------------------------------------
+    GpuProgramParameters& GpuProgramParameters::operator=(const GpuProgramParameters& oth)
+    {
+        // nfz: perform copy of all containers
+        // let compiler perform shallow copies of structures 
+        // AutoConstantEntry, RealConstantEntry, IntConstantEntry
+        mRealConstants = oth.mRealConstants;
+        mIntConstants  = oth.mIntConstants;
+        mAutoConstants = oth.mAutoConstants;
+        mParamNameMap  = oth.mParamNameMap;
+
+        mTransposeMatrices = oth.mTransposeMatrices;
+        mAutoAddParamName  = oth.mAutoAddParamName;
+        mConstantDefinitions = oth.mConstantDefinitions;
+
+		return *this;
+    }
+
     void GpuProgramParameters::setConstant(size_t index, const Vector4& vec)
     {
         setConstant(index, vec.val, 1);
@@ -176,6 +286,7 @@ namespace Ogre
             GpuProgramParameters::setConstant(index++, m[2], 1);
             GpuProgramParameters::setConstant(index, m[3], 1);
         }
+
     }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const Matrix4* pMatrix, 
@@ -201,6 +312,7 @@ namespace Ogre
                 GpuProgramParameters::setConstant(index++, m[3], 1);
             }
         }
+
     }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const ColourValue& colour)
@@ -259,6 +371,7 @@ namespace Ogre
             memcpy(e->val, val, sizeof(int) * 4);
             val += 4;
         }
+
     }
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setAutoConstant(size_t index, AutoConstantType acType, size_t extraInfo)
@@ -480,6 +593,9 @@ namespace Ogre
             case ACT_TEXTURE_VIEWPROJ_MATRIX:
                 setConstant(i->index, source.getTextureViewProjMatrix());
                 break;
+            case ACT_PASS_NUMBER:
+                setConstant(i->index, source.getPassNumber());
+                break;
             case ACT_CUSTOM:
                 source.getCurrentRenderable()->_updateCustomGpuParameter(*i, this);
                 break;
@@ -548,8 +664,7 @@ namespace Ogre
         }
     }
     //---------------------------------------------------------------------------
-    void GpuProgramParameters::_mapParameterNameToIndex(const String& name, 
-        size_t index)
+    void GpuProgramParameters::_mapParameterNameToIndex(const String& name, const size_t index)
     {
         mParamNameMap[name] = index;
     }
@@ -564,12 +679,10 @@ namespace Ogre
             {
                 // determine index
                 // don't know which Constants list the name is for
-                // so pick the largest index
+                // so pick the largest index - a waste
                 size_t index = (mRealConstants.size() > mIntConstants.size()) ?
                     mRealConstants.size() : mIntConstants.size();
-                // allow for at least one Vector4
-                mRealConstants.resize(index + 1);
-                mIntConstants.resize(index + 1);
+
                 _mapParameterNameToIndex(name, index);
                 return index;
             }
@@ -687,6 +800,19 @@ namespace Ogre
     }
 
     //---------------------------------------------------------------------------
+    GpuProgramParameters::AutoConstantEntry* GpuProgramParameters::getAutoConstantEntry(const size_t index)
+    {
+        if (index < mAutoConstants.size())
+        {
+            return &(mAutoConstants[index]);
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    //---------------------------------------------------------------------------
     GpuProgramParameters::RealConstantEntry* GpuProgramParameters::getNamedRealConstantEntry(const String& name)
     {
         // check if name is found
@@ -764,8 +890,204 @@ namespace Ogre
 
         // need to copy Parameter names from the source
         mParamNameMap = source.mParamNameMap;
+        // copy constant definitions
+        mConstantDefinitions = source.mConstantDefinitions;
+
         
     }
+
+    //-----------------------------------------------------------------------
+    size_t GpuProgramParameters::addConstantDefinition(const String& name, 
+		const size_t index, const size_t elementCount, 
+		const ElementType elementType)
+    {
+        size_t idx;
+
+        // check if definition already exists
+        const ConstantDefinition* foundDef = 
+			findMatchingConstantDefinition(name, index, elementType);
+
+        // add the definition if it doesn't exist
+        if(!foundDef)
+        {
+            ConstantDefinition def;
+            def.elementType = elementType;
+            def.entryIndex = index;
+            def.elementCount = elementCount;
+            def.name = name;
+
+            mConstantDefinitions.push_back( def );
+            idx = mConstantDefinitions.size() - 1;
+        }
+        else
+        {
+            // calc the index of the found constant definition
+            idx = foundDef - &(*mConstantDefinitions.begin());
+            // update element count if it was 0 before
+            if (foundDef->elementCount == 0)
+                mConstantDefinitions[idx].elementCount = elementCount;
+        }
+
+        return idx;
+    }
+
+    //-----------------------------------------------------------------------
+    const GpuProgramParameters::ConstantDefinition* 
+	GpuProgramParameters::getConstantDefinition(const String& name) const
+    {
+        // find a constant definition that matches name by iterating through 
+		// the constant definition array
+        ConstantDefinitionContainer::const_iterator currentConstDef 
+			= mConstantDefinitions.begin();
+        ConstantDefinitionContainer::const_iterator endConstDef 
+			= mConstantDefinitions.end();
+        while (currentConstDef != endConstDef)
+        {
+            if (name == (*currentConstDef).name)
+                break;
+            ++currentConstDef;
+        }
+
+        if (currentConstDef != endConstDef)
+            return &(*currentConstDef);
+        else
+            return 0;
+    }
+
+    //-----------------------------------------------------------------------
+    const GpuProgramParameters::ConstantDefinition* 
+		GpuProgramParameters::getConstantDefinition(const size_t idx) const
+    {
+        if (idx < mConstantDefinitions.size())
+            return &mConstantDefinitions[idx];
+        else
+            return 0;
+    }
+
+    //-----------------------------------------------------------------------
+    const GpuProgramParameters::ConstantDefinition* 
+	GpuProgramParameters::findMatchingConstantDefinition(const String& name, 
+            const size_t entryIndex, const ElementType elementType) const
+    {
+        ConstantDefinitionContainer::const_iterator currentConstDef 
+			= mConstantDefinitions.begin();
+        ConstantDefinitionContainer::const_iterator endConstDef 
+			= mConstantDefinitions.end();
+
+        while (currentConstDef != endConstDef)
+        {
+            if ((name == (*currentConstDef).name)
+                && (entryIndex == (*currentConstDef).entryIndex)
+                && (elementType == (*currentConstDef).elementType))
+                break;
+
+            ++currentConstDef;
+        }
+
+        if (currentConstDef != endConstDef)
+            return &(*currentConstDef);
+        else
+            return 0;
+
+    }
+
+    //-----------------------------------------------------------------------
+    void GpuProgramParameters::setConstantDefinitionAutoState(
+		const size_t index, const bool isAuto, const size_t autoIndex )
+    {
+        if (index < mConstantDefinitions.size())
+        {
+            ConstantDefinition* cDef = &mConstantDefinitions[index];
+            cDef->isAuto = isAuto;
+            // if auto then check to make sure enough storage is allocated and 
+			// update element count
+            if (isAuto)
+            {
+                // get the auto constant entry associated with this constant definition
+                const GpuProgramParameters::AutoConstantEntry* autoEntry = 
+					getAutoConstantEntry(autoIndex);
+
+                if (autoEntry)
+                {
+                    // get auto constant defintion
+                    const AutoConstantDefinition* autoCDef = 
+						getAutoConstantDefinition(autoEntry->paramType);
+
+                    // if auto constant exists then its definition will override 
+					// constant definition attributes
+                    if (autoCDef)
+                    {
+                        cDef->autoIndex = autoIndex;
+                        cDef->elementType = autoCDef->elementType;
+
+                        if (cDef->elementCount < autoCDef->elementCount)
+                        {
+                            cDef->elementCount = autoCDef->elementCount;
+                            // check constant entry list for proper size
+                            const size_t endPos = cDef->entryIndex + 
+								(cDef->elementCount - 1) / 4 + 1;
+                            switch(cDef->elementType)
+                            {
+                            case ET_INT:
+                                if (mIntConstants.size() < endPos)
+                                    mIntConstants.resize(endPos);
+                                break;
+
+                            case ET_REAL:
+                                if (mRealConstants.size() < endPos)
+                                    mRealConstants.resize(endPos);
+                                break;
+                            } // end switch
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    const GpuProgramParameters::AutoConstantDefinition* 
+	GpuProgramParameters::getAutoConstantDefinition(const String& name)
+    {
+        // find a constant definition that matches name by iterating through the 
+		// constant definition array
+        bool nameFound = false;
+        size_t i = 0;
+        const size_t numDefs = getNumAutoConstantDefinitions();
+        while (!nameFound && (i < numDefs))
+        {
+            if (name == AutoConstantDictionary[i].name) 
+                nameFound = true;
+            else
+                ++i;
+        }
+
+        if (nameFound)
+            return &AutoConstantDictionary[i];
+        else
+            return 0;
+    }
+
+    //-----------------------------------------------------------------------
+    const GpuProgramParameters::AutoConstantDefinition* 
+	GpuProgramParameters::getAutoConstantDefinition(const  size_t idx) 
+    {
+
+        if (idx < getNumAutoConstantDefinitions())
+        {
+            assert(idx == AutoConstantDictionary[idx].acType);
+            return &AutoConstantDictionary[idx];
+        }
+        else
+            return 0;
+    }
+    //-----------------------------------------------------------------------
+    size_t GpuProgramParameters::getNumAutoConstantDefinitions(void)
+    {
+        return sizeof(AutoConstantDictionary)/sizeof(AutoConstantDefinition);
+    }
+
+
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     String GpuProgram::CmdType::doGet(const void* target) const

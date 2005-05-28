@@ -72,6 +72,11 @@ namespace Ogre
 	PFNGLUNIFORM3IVARBPROC glUniform3ivARB_ptr = NULL;
 	PFNGLUNIFORM4IVARBPROC glUniform4ivARB_ptr = NULL;
 
+    PFNGLUNIFORMMATRIX2FVARBPROC glUniformMatrix2fvARB_ptr = NULL;
+    PFNGLUNIFORMMATRIX3FVARBPROC glUniformMatrix3fvARB_ptr = NULL;
+    PFNGLUNIFORMMATRIX4FVARBPROC glUniformMatrix4fvARB_ptr = NULL;
+
+
 	PFNGLVERTEXATTRIB4FVARBPROC glVertexAttrib4fvARB_ptr = NULL;
 	PFNGLVERTEXATTRIB3FVARBPROC glVertexAttrib3fvARB_ptr = NULL;
 	PFNGLVERTEXATTRIB2FVARBPROC glVertexAttrib2fvARB_ptr = NULL;
@@ -124,6 +129,11 @@ namespace Ogre
 			glUniform2ivARB_ptr			  = (PFNGLUNIFORM2IVARBPROC) glSupport.getProcAddress( "glUniform2ivARB" );
 			glUniform3ivARB_ptr			  = (PFNGLUNIFORM3IVARBPROC) glSupport.getProcAddress( "glUniform3ivARB" );
 			glUniform4ivARB_ptr			  = (PFNGLUNIFORM4IVARBPROC) glSupport.getProcAddress( "glUniform4ivARB" );
+
+            glUniformMatrix2fvARB_ptr     = (PFNGLUNIFORMMATRIX2FVARBPROC) glSupport.getProcAddress( "glUniformMatrix2fvARB");
+            glUniformMatrix3fvARB_ptr     = (PFNGLUNIFORMMATRIX3FVARBPROC) glSupport.getProcAddress( "glUniformMatrix3fvARB");
+            glUniformMatrix4fvARB_ptr     = (PFNGLUNIFORMMATRIX4FVARBPROC) glSupport.getProcAddress( "glUniformMatrix4fvARB");
+ 
 
 			glVertexAttrib4fvARB_ptr	  = (PFNGLVERTEXATTRIB4FVARBPROC) glSupport.getProcAddress( "glVertexAttrib4fvARB" );
 			glVertexAttrib3fvARB_ptr	  = (PFNGLVERTEXATTRIB3FVARBPROC) glSupport.getProcAddress( "glVertexAttrib3fvARB" );
