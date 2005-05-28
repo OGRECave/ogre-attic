@@ -1216,6 +1216,8 @@ namespace Ogre {
             the orientation of the nodes.
         */
         virtual void setDisplaySceneNodes(bool display);
+        /** Returns true if all scene nodes axis are to be displayed */
+        virtual bool getDisplaySceneNodes(void) const {return mDisplayNodes;}
 
         /** Creates an animation which can be used to animate scene nodes.
         @remarks

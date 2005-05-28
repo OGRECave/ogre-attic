@@ -49,6 +49,7 @@ namespace Ogre {
         Material* mParent; // raw pointer since we don't want child to stop parent's destruction
         bool mIsSupported;
         unsigned short mLodIndex;
+        String mName; // optional name for the technique
 
         /// Internal method for clearing illumination pass list
         void clearIlluminationPasses(void);
@@ -83,12 +84,20 @@ namespace Ogre {
         Pass* createPass(void);
         /** Retrieves the Pass with the given index. */
         Pass* getPass(unsigned short index);
+        /** Retrieves the Pass matching name.
+            Returns 0 if name match is not found.
+        */
+        Pass* getPass(const String& name);
         /** Retrieves the number of passes. */
         unsigned short getNumPasses(void) const;
         /** Removes the Pass with the given index. */
         void removePass(unsigned short index);
         /** Removes all Passes from this Technique. */
         void removeAllPasses(void);
+        /** Move a pass from source index to destination index.
+            If successful then returns true.
+        */
+        bool movePass(const unsigned short sourceIndex, const unsigned short destinationIndex);
         typedef VectorIterator<Passes> PassIterator;
         /** Gets an iterator over the passes in this Technique. */
         const PassIterator getPassIterator(void);
@@ -389,6 +398,15 @@ namespace Ogre {
 
         /** Is depth checking going to occur on this technique? */
         bool isDepthCheckEnabled(void) const;
+
+        /** Set the name of the technique.
+        @remarks
+        The use of technique name is optional.  Its usefull in material scripts where a material could inherit
+        from another material and only want to modify a particalar technique.
+        */
+        void setName(const String& name);
+        /// Gets the name of the technique
+        const String& getName(void) const { return mName; }
 
     };
 

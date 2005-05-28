@@ -122,6 +122,9 @@ namespace Ogre {
         const String& getCompileArguments(void) const { return mCompileArgs; }
         /// Overridden from GpuProgram
         bool isSupported(void) const;
+        /// Overridden from GpuProgram
+        const String& getLanguage(void) const;
+
     };
 }
 

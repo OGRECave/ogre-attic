@@ -156,6 +156,24 @@ namespace Ogre {
 		return mPasses[index];
     }
     //-----------------------------------------------------------------------------
+    Pass* Technique::getPass(const String& name)
+    {
+        Passes::iterator i    = mPasses.begin();
+        Passes::iterator iend = mPasses.end();
+        // iterate through techniques to find a match
+        while (i != iend)
+        {
+            if ( (*i)->getName() == name )
+                break;
+            ++i;
+        }
+
+        if (i != iend)
+            return (*i);
+        else
+            return 0;
+    }
+    //-----------------------------------------------------------------------------
     unsigned short Technique::getNumPasses(void) const
     {
 		return static_cast<unsigned short>(mPasses.size());
@@ -179,6 +197,35 @@ namespace Ogre {
         }
         mPasses.clear();
     }
+
+    //-----------------------------------------------------------------------------
+    bool Technique::movePass(const unsigned short sourceIndex, const unsigned short destinationIndex)
+    {
+        bool moveSuccessful = false;
+
+        // don't move the pass if source == destination
+        if (sourceIndex == destinationIndex) return true;
+
+        if( (sourceIndex < mPasses.size()) && (destinationIndex < mPasses.size()))
+        {
+            Passes::iterator i = mPasses.begin() + sourceIndex;
+            //Passes::iterator DestinationIterator = mPasses.begin() + destinationIndex;
+
+            Pass* pass = (*i);
+            mPasses.erase(i);
+
+            i = mPasses.begin() + destinationIndex;
+
+            // compensate for source erase if destination is greater than source
+            if (destinationIndex > sourceIndex) --i;
+
+            mPasses.insert(i, pass);
+            moveSuccessful = true;
+        }
+
+        return moveSuccessful;
+    }
+
     //-----------------------------------------------------------------------------
     const Technique::PassIterator Technique::getPassIterator(void)
     {
@@ -187,6 +234,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Technique& Technique::operator=(const Technique& rhs)
     {
+        mName = rhs.mName;
 		this->mIsSupported = rhs.mIsSupported;
         this->mLodIndex = rhs.mLodIndex;
 		// copy passes
@@ -490,6 +538,13 @@ namespace Ogre {
             (*i)->setSceneBlending(sourceFactor, destFactor);
         }
     }
+
+    // --------------------------------------------------------------------
+    void Technique::setName(const String& name)
+    {
+        mName = name;
+    }
+
 
     //-----------------------------------------------------------------------
     void Technique::_notifyNeedsRecompile(void)

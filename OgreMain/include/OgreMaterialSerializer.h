@@ -124,6 +124,13 @@ namespace Ogre {
         void writeMaterial(const MaterialPtr& pMat);
         void writeTechnique(const Technique* pTech);
         void writePass(const Pass* pPass);
+        void writeVertexProgramRef(const Pass* pPass);
+        void writeShadowCasterVertexProgramRef(const Pass* pPass);
+        void writeShadowReceiverVertexProgramRef(const Pass* pPass);
+        void writeFragmentProgramRef(const Pass* pPass);
+        void writeGpuPrograms(void);
+        void writeGPUProgramParameters(const GpuProgramParametersSharedPtr& params, GpuProgramParameters* defaultParams,
+            const int level = 4, const bool useMainBuffer = true);
 		void writeTextureUnit(const TextureUnitState *pTex);
 
 		void writeSceneBlendFactor(const SceneBlendFactor sbf_src, const SceneBlendFactor sbf_dest);
@@ -147,12 +154,29 @@ namespace Ogre {
 		/** default destructor*/
 		virtual ~MaterialSerializer() {};
 
-		/** Queue an in-memory Material to the internal buffer for export.*/
-        void queueForExport(const MaterialPtr& pMat, bool clearQueued = false, bool exportDefaults = false);
-        /** Exports queued material(s) to a named material script file. */
-		void exportQueued(const String& filename);
-        /** Exports an in-memory Material to the named material script file. */
-        void exportMaterial(const MaterialPtr& pMat, const String& filename, bool exportDefaults = false);
+		/** Queue an in-memory Material to the internal buffer for export.
+		@param pMat Material pointer
+		@param clearQueued If true, any materials already queued will be removed
+		@param exportDefaults If true, attributes which are defaulted will be
+			included in the script exported, otherwise they will be omitted
+		@param includeProgDef If true, vertex program and fragment program 
+			definitions will be written at the top of the material script
+		*/
+        void queueForExport(const MaterialPtr& pMat, bool clearQueued = false, 
+			bool exportDefaults = false, const bool includeProgDef = true);
+        /** Exports queued material(s) to a named material script file.
+        @param filename the file name of the material script to be exported
+        @param programFilename the file name of the vertex / fragment program 
+			script to be exported. This is only used if includeProgDef was false 
+			when calling queueForExport.
+        */
+		void exportQueued(const String& filename, const String& programFilename = "");
+        /** Exports an in-memory Material to the named material script file.
+        @param exportDefaults if true then exports all values including defaults
+        @param includeProgDef include Gpu shader program definitions in the export material script
+        */
+        void exportMaterial(const MaterialPtr& pMat, const String& filename, bool exportDefaults = false,
+            const bool includeProgDef = true);
 		/** Returns a string representing the parsed material(s) */
 		const String &getQueuedAsString() const;
 		/** Clears the internal buffer */
@@ -166,50 +190,60 @@ namespace Ogre {
 
 	private:
 		String mBuffer;
+        String mGpuProgramBuffer;
+        typedef std::set<String> GpuProgramDefinitionContainer;
+        typedef GpuProgramDefinitionContainer::iterator GpuProgramDefIterator;
+        GpuProgramDefinitionContainer mGpuProgramDefinitionContainer;
 		bool mDefaults;
+        bool mIncludeProgramDefinition;
 
-		void beginSection(unsigned short level)
+        void beginSection(unsigned short level, const bool useMainBuffer = true)
 		{
-			mBuffer += "\n";
+            String& buffer = (useMainBuffer ? mBuffer : mGpuProgramBuffer);
+			buffer += "\n";
             for (unsigned short i = 0; i < level; ++i)
             {
-                mBuffer += "\t";
+                buffer += "\t";
             }
-            mBuffer += "{";
+            buffer += "{";
 		}
-		void endSection(unsigned short level)
+		void endSection(unsigned short level, const bool useMainBuffer = true)
 		{
-			mBuffer += "\n";
+            String& buffer = (useMainBuffer ? mBuffer : mGpuProgramBuffer);
+			buffer += "\n";
             for (unsigned short i = 0; i < level; ++i)
             {
-                mBuffer += "\t";
+                buffer += "\t";
             }
-            mBuffer += "}";
+            buffer += "}";
 		}
 
-		void writeAttribute(unsigned short level, const String& att)
+		void writeAttribute(unsigned short level, const String& att, const bool useMainBuffer = true)
 		{
-			mBuffer += "\n";
+            String& buffer = (useMainBuffer ? mBuffer : mGpuProgramBuffer);
+			buffer += "\n";
             for (unsigned short i = 0; i < level; ++i)
             {
-                mBuffer += "\t";
+                buffer += "\t";
             }
-            mBuffer += att;
+            buffer += att;
 		}
 
-		void writeValue(const String& val)
+		void writeValue(const String& val, const bool useMainBuffer = true)
 		{
-			mBuffer += (" " + val);
+            String& buffer = (useMainBuffer ? mBuffer : mGpuProgramBuffer);
+			buffer += (" " + val);
 		}
 
-		void writeComment(unsigned short level, const String& comment)
+		void writeComment(unsigned short level, const String& comment, const bool useMainBuffer = true)
 		{
-			mBuffer += "\n";
+            String& buffer = (useMainBuffer ? mBuffer : mGpuProgramBuffer);
+			buffer += "\n";
             for (unsigned short i = 0; i < level; ++i)
             {
-                mBuffer += "\t";
+                buffer += "\t";
             }
-            mBuffer += "// " + comment;
+            buffer += "// " + comment;
 		}
 
     };

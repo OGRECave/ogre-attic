@@ -82,6 +82,9 @@ namespace Ogre {
 
         mQueuedForDeletion = false;
 
+        // default name to index
+        mName = StringConverter::toString(mIndex);
+
         _dirtyHash();
    }
 	
@@ -103,12 +106,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     Pass& Pass::operator=(const Pass& oth)
     {
+        mName = oth.mName;
 	    mAmbient = oth.mAmbient;
         mDiffuse = oth.mDiffuse;
 	    mSpecular = oth.mSpecular;
         mEmissive = oth.mEmissive;
 	    mShininess = oth.mShininess;
-       mTracking = oth.mTracking;
+        mTracking = oth.mTracking;
 
         // Copy fog parameters
         mFogOverride = oth.mFogOverride;
@@ -184,6 +188,11 @@ namespace Ogre {
         _dirtyHash();
 
 		return *this;
+    }
+    //-----------------------------------------------------------------------
+    void Pass::setName(const String& name)
+    {
+        mName = name;
     }
     //-----------------------------------------------------------------------
     void Pass::setAmbient(Real red, Real green, Real blue)
@@ -734,7 +743,7 @@ namespace Ogre {
 		    return mVertexProgramUsage->getProgramName();
 	}
 	//-----------------------------------------------------------------------
-	GpuProgramParametersSharedPtr Pass::getVertexProgramParameters(void)
+	GpuProgramParametersSharedPtr Pass::getVertexProgramParameters(void) const
 	{
 		if (!mVertexProgramUsage)
         {
@@ -745,22 +754,25 @@ namespace Ogre {
 		return mVertexProgramUsage->getParameters();
 	}
 	//-----------------------------------------------------------------------
-	const GpuProgramPtr& Pass::getVertexProgram(void)
+	const GpuProgramPtr& Pass::getVertexProgram(void) const
 	{
 		return mVertexProgramUsage->getProgram();
 	}
 	//-----------------------------------------------------------------------
 	const String& Pass::getFragmentProgramName(void) const
 	{
-		return mFragmentProgramUsage->getProgramName();
+        if (!mFragmentProgramUsage)
+            return StringUtil::BLANK;
+        else
+    		return mFragmentProgramUsage->getProgramName();
 	}
 	//-----------------------------------------------------------------------
-	GpuProgramParametersSharedPtr Pass::getFragmentProgramParameters(void)
+	GpuProgramParametersSharedPtr Pass::getFragmentProgramParameters(void) const
 	{
 		return mFragmentProgramUsage->getParameters();
 	}
 	//-----------------------------------------------------------------------
-	const GpuProgramPtr& Pass::getFragmentProgram(void)
+	const GpuProgramPtr& Pass::getFragmentProgram(void) const
 	{
 		return mFragmentProgramUsage->getProgram();
 	}
@@ -963,7 +975,7 @@ namespace Ogre {
             return mShadowCasterVertexProgramUsage->getProgramName();
     }
     //-----------------------------------------------------------------------
-    GpuProgramParametersSharedPtr Pass::getShadowCasterVertexProgramParameters(void)
+    GpuProgramParametersSharedPtr Pass::getShadowCasterVertexProgramParameters(void) const
     {
         if (!mShadowCasterVertexProgramUsage)
         {
@@ -974,7 +986,7 @@ namespace Ogre {
         return mShadowCasterVertexProgramUsage->getParameters();
     }
     //-----------------------------------------------------------------------
-    const GpuProgramPtr& Pass::getShadowCasterVertexProgram(void)
+    const GpuProgramPtr& Pass::getShadowCasterVertexProgram(void) const
     {
         return mShadowCasterVertexProgramUsage->getProgram();
     }
@@ -1018,7 +1030,7 @@ namespace Ogre {
             return mShadowReceiverVertexProgramUsage->getProgramName();
     }
     //-----------------------------------------------------------------------
-    GpuProgramParametersSharedPtr Pass::getShadowReceiverVertexProgramParameters(void)
+    GpuProgramParametersSharedPtr Pass::getShadowReceiverVertexProgramParameters(void) const
     {
         if (!mShadowReceiverVertexProgramUsage)
         {
@@ -1029,7 +1041,7 @@ namespace Ogre {
         return mShadowReceiverVertexProgramUsage->getParameters();
     }
     //-----------------------------------------------------------------------
-    const GpuProgramPtr& Pass::getShadowReceiverVertexProgram(void)
+    const GpuProgramPtr& Pass::getShadowReceiverVertexProgram(void) const
     {
         return mShadowReceiverVertexProgramUsage->getProgram();
     }
