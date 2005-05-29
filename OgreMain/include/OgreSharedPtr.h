@@ -114,11 +114,14 @@ namespace Ogre {
 		inline bool isNull(void) const { return pRep == 0; }
 
         inline void setNull(void) { 
-			// can't scope lock mutex before release incase deleted
-            release();
-            pRep = 0;
-            pUseCount = 0;
-			OGRE_COPY_AUTO_SHARED_MUTEX(0)
+			if (pRep)
+			{
+				// can't scope lock mutex before release incase deleted
+				release();
+				pRep = 0;
+				pUseCount = 0;
+				OGRE_COPY_AUTO_SHARED_MUTEX(0)
+			}
         }
 
     protected:
