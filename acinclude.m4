@@ -322,13 +322,13 @@ AC_DEFUN([OGRE_CHECK_OPENEXR],
 [AC_ARG_ENABLE(openexr,
               AC_HELP_STRING([--enable-openexr],
                              [Build the OpenEXR plugin]),
-              [build_exr=true],
-              [build_exr=false])
+              [build_exr=$enableval],
+              [build_exr=no])
 
-if test "x$build_exr" = "xtrue" ; then
-	PKG_CHECK_MODULES(OPENEXR, OpenEXR, [build_exr=true], [build_exr=false])
+if test "x$build_exr" = "xno" ; then
+	PKG_CHECK_MODULES(OPENEXR, OpenEXR, [build_exr=yes], [build_exr=no])
 
-	if test "x$build_exr" = "xtrue" ; then
+	if test "x$build_exr" = "xno" ; then
 	   	AC_CONFIG_FILES([ PlugIns/EXRCodec/Makefile \
     					 PlugIns/EXRCodec/src/Makefile \
     					 PlugIns/EXRCodec/include/Makefile])
@@ -339,7 +339,7 @@ if test "x$build_exr" = "xtrue" ; then
 
 fi
 
-AM_CONDITIONAL(BUILD_EXRPLUGIN, test x$build_exr = xtrue)
+AM_CONDITIONAL(BUILD_EXRPLUGIN, test x$build_exr = xyes)
 
 ])
 
@@ -378,10 +378,10 @@ AC_DEFUN([OGRE_CHECK_DX9],
 [AC_ARG_ENABLE(direct3d,
               AC_HELP_STRING([--enable-direct3d],
                              [Build the DirectX 9 Render System]),
-              [build_dx9=true],
-              [build_dx9=false])
+              [build_dx9=$enableval],
+              [build_dx9=no])
 
-AM_CONDITIONAL(BUILD_DX9RENDERSYSTEM, test x$build_dx9 = xtrue)
+AM_CONDITIONAL(BUILD_DX9RENDERSYSTEM, test x$build_dx9 = xyes)
 
 ])
 
@@ -389,12 +389,12 @@ AC_DEFUN([OGRE_CHECK_DEVIL],
 [AC_ARG_ENABLE(devil,
               AC_HELP_STRING([--disable-devil],
                              [Don't use DevIL for image loading. This is not recommended unless you provide your own image loading codecs.]),
-              [build_il=false],
-              [build_il=true])
+              [build_il=$enableval],
+              [build_il=yes])
 
-AM_CONDITIONAL(USE_DEVIL, test x$build_il = xtrue)
+AM_CONDITIONAL(USE_DEVIL, test x$build_il = xyes)
 
-if [ test x$build_il = xtrue ]; then
+if test "x$build_il" = "xyes" ; then
 	AC_CHECK_LIB(IL, ilInit,,AC_MSG_ERROR([
 ****************************************************************
 * You do not have DevIL installed.  This is required to build. *
