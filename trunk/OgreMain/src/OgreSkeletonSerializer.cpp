@@ -190,7 +190,7 @@ namespace Ogre {
         writeFloats(&len, 1);
 
         // Write all tracks
-        Animation::TrackIterator trackIt = anim->getTrackIterator();
+        Animation::NodeTrackIterator trackIt = anim->getNodeTrackIterator();
         while(trackIt.hasMoreElements())
         {
             writeAnimationTrack(pSkel, trackIt.getNext());
@@ -199,7 +199,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     void SkeletonSerializer::writeAnimationTrack(const Skeleton* pSkel, 
-        const AnimationTrack* track)
+        const NodeAnimationTrack* track)
     {
         writeChunkHeader(SKELETON_ANIMATION_TRACK, calcAnimationTrackSize(pSkel, track));
 
@@ -211,13 +211,13 @@ namespace Ogre {
         // Write all keyframes
         for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
         {
-            writeKeyFrame(pSkel, track->getKeyFrame(i));
+            writeKeyFrame(pSkel, track->getNodeKeyFrame(i));
         }
 
     }
     //---------------------------------------------------------------------
     void SkeletonSerializer::writeKeyFrame(const Skeleton* pSkel, 
-        const KeyFrame* key)
+        const TransformKeyFrame* key)
     {
 
         writeChunkHeader(SKELETON_ANIMATION_TRACK_KEYFRAME, 
@@ -275,7 +275,7 @@ namespace Ogre {
         size += sizeof(float);
 
         // Nested animation tracks
-		Animation::TrackIterator trackIt = pAnim->getTrackIterator();
+		Animation::NodeTrackIterator trackIt = pAnim->getNodeTrackIterator();
 		while(trackIt.hasMoreElements())
 		{
             size += calcAnimationTrackSize(pSkel, trackIt.getNext());
@@ -285,7 +285,7 @@ namespace Ogre {
     }
     //---------------------------------------------------------------------
     size_t SkeletonSerializer::calcAnimationTrackSize(const Skeleton* pSkel, 
-        const AnimationTrack* pTrack)
+        const NodeAnimationTrack* pTrack)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -295,14 +295,14 @@ namespace Ogre {
         // Nested keyframes
         for (unsigned short i = 0; i < pTrack->getNumKeyFrames(); ++i)
         {
-            size += calcKeyFrameSize(pSkel, pTrack->getKeyFrame(i));
+            size += calcKeyFrameSize(pSkel, pTrack->getNodeKeyFrame(i));
         }
 
         return size;
     }
     //---------------------------------------------------------------------
     size_t SkeletonSerializer::calcKeyFrameSize(const Skeleton* pSkel, 
-        const KeyFrame* pKey)
+        const TransformKeyFrame* pKey)
     {
         size_t size = STREAM_OVERHEAD_SIZE;
 
@@ -407,7 +407,7 @@ namespace Ogre {
         Bone *targetBone = pSkel->getBone(boneHandle);
 
         // Create track
-        AnimationTrack* pTrack = anim->createTrack(boneHandle, targetBone);
+        NodeAnimationTrack* pTrack = anim->createNodeTrack(boneHandle, targetBone);
 
         // Keep looking for nested keyframes
         if (!stream->eof())
@@ -434,14 +434,14 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void SkeletonSerializer::readKeyFrame(DataStreamPtr& stream, AnimationTrack* track, 
+    void SkeletonSerializer::readKeyFrame(DataStreamPtr& stream, NodeAnimationTrack* track, 
         Skeleton* pSkel)
     {
         // float time                    : The time position (seconds)
         float time;
         readFloats(stream, &time, 1);
 
-        KeyFrame *kf = track->createKeyFrame(time);
+        TransformKeyFrame *kf = track->createNodeKeyFrame(time);
 
         // Quaternion rotate            : Rotation to apply at this keyframe
         Quaternion rot;

@@ -268,6 +268,9 @@ namespace Ogre {
 	class MouseMotionListener;
 	class MouseTarget;
     class Node;
+	class NodeAnimationTrack;
+	class NumericAnimationTrack;
+	class NumericKeyFrame;
     class Overlay;
     class OverlayContainer;
     class OverlayElement;
@@ -346,6 +349,7 @@ namespace Ogre {
     class TexturePtr;
 	class TextureFont;
     class TextureManager;
+	class TransformKeyFrame;
 	class Timer;
     class UserDefinedObject;
     class Vector2;

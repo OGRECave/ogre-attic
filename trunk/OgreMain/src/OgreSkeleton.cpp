@@ -559,12 +559,12 @@ namespace Ogre {
             Animation* anim = ai->second;
 
             of << "-- Animation '" << anim->getName() << "' (length " << anim->getLength() << ") --" << std::endl;
-            of << "Number of tracks: " << anim->getNumTracks() << std::endl;
+            of << "Number of tracks: " << anim->getNumNodeTracks() << std::endl;
 
             int ti;
-            for (ti = 0; ti < anim->getNumTracks(); ++ti)
+            for (ti = 0; ti < anim->getNumNodeTracks(); ++ti)
             {
-                AnimationTrack* track = anim->getTrack(ti);
+                NodeAnimationTrack* track = anim->getNodeTrack(ti);
                 of << "  -- AnimationTrack " << ti << " --" << std::endl;
                 of << "  Affects bone: " << ((Bone*)track->getAssociatedNode())->getHandle() << std::endl;
                 of << "  Number of keyframes: " << track->getNumKeyFrames() << std::endl;
@@ -573,7 +573,7 @@ namespace Ogre {
                 
                 for (ki = 0; ki < track->getNumKeyFrames(); ++ki)
                 {
-                    KeyFrame* key = track->getKeyFrame(ki);
+                    TransformKeyFrame* key = track->getNodeKeyFrame(ki);
                     of << "    -- KeyFrame " << ki << " --" << std::endl;
                     of << "    Time index: " << key->getTime(); 
                     of << "    Translation: " << key->getTranslate() << std::endl;

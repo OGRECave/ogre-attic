@@ -77,8 +77,8 @@ namespace Ogre {
         void writeBone(const Skeleton* pSkel, const Bone* pBone);
         void writeBoneParent(const Skeleton* pSkel, unsigned short boneId, unsigned short parentId);
         void writeAnimation(const Skeleton* pSkel, const Animation* anim);
-        void writeAnimationTrack(const Skeleton* pSkel, const AnimationTrack* track);
-        void writeKeyFrame(const Skeleton* pSkel, const KeyFrame* key);
+        void writeAnimationTrack(const Skeleton* pSkel, const NodeAnimationTrack* track);
+        void writeKeyFrame(const Skeleton* pSkel, const TransformKeyFrame* key);
 		void writeSkeletonAnimationLink(const Skeleton* pSkel, 
 			const LinkedSkeletonAnimationSource& link);
 
@@ -87,14 +87,14 @@ namespace Ogre {
         void readBoneParent(DataStreamPtr& stream, Skeleton* pSkel);
         void readAnimation(DataStreamPtr& stream, Skeleton* pSkel);
         void readAnimationTrack(DataStreamPtr& stream, Animation* anim, Skeleton* pSkel);
-        void readKeyFrame(DataStreamPtr& stream, AnimationTrack* track, Skeleton* pSkel);
+        void readKeyFrame(DataStreamPtr& stream, NodeAnimationTrack* track, Skeleton* pSkel);
 		void readSkeletonAnimationLink(DataStreamPtr& stream, Skeleton* pSkel);
 
         size_t calcBoneSize(const Skeleton* pSkel, const Bone* pBone);
         size_t calcBoneParentSize(const Skeleton* pSkel);
         size_t calcAnimationSize(const Skeleton* pSkel, const Animation* pAnim);
-        size_t calcAnimationTrackSize(const Skeleton* pSkel, const AnimationTrack* pTrack);
-        size_t calcKeyFrameSize(const Skeleton* pSkel, const KeyFrame* pKey);
+        size_t calcAnimationTrackSize(const Skeleton* pSkel, const NodeAnimationTrack* pTrack);
+        size_t calcKeyFrameSize(const Skeleton* pSkel, const TransformKeyFrame* pKey);
 		size_t calcSkeletonAnimationLinkSize(const Skeleton* pSkel, 
 			const LinkedSkeletonAnimationSource& link);
 

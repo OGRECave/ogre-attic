@@ -260,13 +260,13 @@ protected:
         // Spline it for nice curves
         anim->setInterpolationMode(Animation::IM_SPLINE);
         // Create a track to animate the camera's node
-        AnimationTrack* track = anim->createTrack(0, fnode);
+        NodeAnimationTrack* track = anim->createNodeTrack(0, fnode);
         // Setup keyframes
-        KeyFrame* key = track->createKeyFrame(0); // A startposition
+        TransformKeyFrame* key = track->createNodeKeyFrame(0); // A startposition
         key->setTranslate(Vector3(0.0f, -15.0f, 0.0f));
-        key = track->createKeyFrame(5);//B
+        key = track->createNodeKeyFrame(5);//B
         key->setTranslate(Vector3(0.0f, 15.0f, 0.0f));
-        key = track->createKeyFrame(10);//C
+        key = track->createNodeKeyFrame(10);//C
         key->setTranslate(Vector3(0.0f, -15.0f, 0.0f));
         // Create a new animation state to track this
         mOgreAnimState = mSceneMgr->createAnimationState("OgreTrack");

@@ -33,48 +33,66 @@ namespace Ogre
     KeyFrame::KeyFrame(const AnimationTrack* parent, Real time) 
         : mTime(time), mParentTrack(parent)
     {
-        mTranslate = Vector3::ZERO;
-        mScale.x = mScale.y = mScale.z = 1.0;
-        mRotate = Quaternion::IDENTITY;
     }
     //---------------------------------------------------------------------
     Real KeyFrame::getTime(void) const
     {
         return mTime;
     }
+	//---------------------------------------------------------------------
+	NumericKeyFrame::NumericKeyFrame(const AnimationTrack* parent, Real time)
+		:KeyFrame(parent, time)
+	{
+	}
+	//---------------------------------------------------------------------
+	const AnyNumeric& NumericKeyFrame::getValue(void) const
+	{
+		return mValue;
+	}
+	//---------------------------------------------------------------------
+	void NumericKeyFrame::setValue(const AnyNumeric& val)
+	{
+		mValue = val;
+	}
     //---------------------------------------------------------------------
-    void KeyFrame::setTranslate(const Vector3& trans)
+	TransformKeyFrame::TransformKeyFrame(const AnimationTrack* parent, Real time)
+		:KeyFrame(parent, time), mTranslate(Vector3::ZERO), 
+		mScale(Vector3::UNIT_SCALE), mRotate(Quaternion::IDENTITY) 
+	{
+	}
+	//---------------------------------------------------------------------
+    void TransformKeyFrame::setTranslate(const Vector3& trans)
     {
         mTranslate = trans;
         if (mParentTrack)
             mParentTrack->_keyFrameDataChanged();
     }
     //---------------------------------------------------------------------
-    const Vector3& KeyFrame::getTranslate(void) const
+    const Vector3& TransformKeyFrame::getTranslate(void) const
     {
         return mTranslate;
     }
     //---------------------------------------------------------------------
-    void KeyFrame::setScale(const Vector3& scale)
+    void TransformKeyFrame::setScale(const Vector3& scale)
     {
         mScale = scale;
         if (mParentTrack)
             mParentTrack->_keyFrameDataChanged();
     }
     //---------------------------------------------------------------------
-    const Vector3& KeyFrame::getScale(void) const
+    const Vector3& TransformKeyFrame::getScale(void) const
     {
         return mScale;
     }
     //---------------------------------------------------------------------
-    void KeyFrame::setRotation(const Quaternion& rot)
+    void TransformKeyFrame::setRotation(const Quaternion& rot)
     {
         mRotate = rot;
         if (mParentTrack)
             mParentTrack->_keyFrameDataChanged();
     }
     //---------------------------------------------------------------------
-    const Quaternion& KeyFrame::getRotation(void) const
+    const Quaternion& TransformKeyFrame::getRotation(void) const
     {
         return mRotate;
     }

@@ -34,6 +34,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSharedPtr.h"
 #include "OgreStringVector.h"
 #include "OgreException.h"
+#include "OgreAny.h"
 
 namespace Ogre {
 
@@ -99,6 +100,8 @@ namespace Ogre {
 		virtual void setAsBaseValue(const Quaternion& val) 
 		{ memcpy(mBaseValueReal, val.val, sizeof(Real)*4); }
 		/// Internal method to set a value as base
+		virtual void setAsBaseValue(const Any& val);
+		/// Internal method to set a value as base
 		virtual void setAsBaseValue(const ColourValue& val)
 		{ 
 			mBaseValueReal[0] = val.r;
@@ -146,6 +149,8 @@ namespace Ogre {
 		virtual void setValue(const ColourValue& val) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
+		/// Set value 
+		virtual void setValue(const Any& val);
 
 		// reset to base value
 		virtual void resetToBaseValue(void);
@@ -178,6 +183,8 @@ namespace Ogre {
 		virtual void applyDeltaValue(const ColourValue& val) {
 			OGRE_EXCEPT(Exception::ERR_NOT_IMPLEMENTED, "", "");
 		}
+		/// Apply delta value 
+		virtual void applyDeltaValue(const Any& val);
 
 
 	};

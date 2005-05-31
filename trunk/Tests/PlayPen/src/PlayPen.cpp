@@ -1218,28 +1218,28 @@ protected:
         // Spline it for nice curves
         anim->setInterpolationMode(Animation::IM_SPLINE);
         // Create a track to animate the head's node
-        AnimationTrack* track = anim->createTrack(0, headNode);
+        NodeAnimationTrack* track = anim->createNodeTrack(0, headNode);
         // Setup keyframes
-        KeyFrame* key = track->createKeyFrame(0); // startposition
-        key = track->createKeyFrame(2.5);
+        TransformKeyFrame* key = track->createNodeKeyFrame(0); // startposition
+        key = track->createNodeKeyFrame(2.5);
         key->setTranslate(Vector3(500,500,-1000));
-        key = track->createKeyFrame(5);
+        key = track->createNodeKeyFrame(5);
         key->setTranslate(Vector3(-1500,1000,-600));
-        key = track->createKeyFrame(7.5);
+        key = track->createNodeKeyFrame(7.5);
         key->setTranslate(Vector3(0,-100,0));
-        key = track->createKeyFrame(10);
+        key = track->createNodeKeyFrame(10);
         key->setTranslate(Vector3(0,0,0));
         // Create a track to animate the second head's node
-        track = anim->createTrack(1, headNode2);
+        track = anim->createNodeTrack(1, headNode2);
         // Setup keyframes
-        key = track->createKeyFrame(0); // startposition
-        key = track->createKeyFrame(2.5);
+        key = track->createNodeKeyFrame(0); // startposition
+        key = track->createNodeKeyFrame(2.5);
         key->setTranslate(Vector3(-500,600,-100));
-        key = track->createKeyFrame(5);
+        key = track->createNodeKeyFrame(5);
         key->setTranslate(Vector3(800,200,-600));
-        key = track->createKeyFrame(7.5);
+        key = track->createNodeKeyFrame(7.5);
         key->setTranslate(Vector3(200,-1000,0));
-        key = track->createKeyFrame(10);
+        key = track->createNodeKeyFrame(10);
         key->setTranslate(Vector3(30,70,110));
         // Create a new animation state to track this
         mAnimState = mSceneMgr->createAnimationState("CameraTrack");
@@ -1807,28 +1807,28 @@ protected:
         // Spline it for nice curves
         anim->setInterpolationMode(Animation::IM_SPLINE);
         // Create a track to animate the head's node
-        AnimationTrack* track = anim->createTrack(0, headNode);
+        NodeAnimationTrack* track = anim->createNodeTrack(0, headNode);
         // Setup keyframes
-        KeyFrame* key = track->createKeyFrame(0); // startposition
-        key = track->createKeyFrame(2.5);
+        TransformKeyFrame* key = track->createNodeKeyFrame(0); // startposition
+        key = track->createNodeKeyFrame(2.5);
         key->setTranslate(Vector3(500,500,-1000));
-        key = track->createKeyFrame(5);
+        key = track->createNodeKeyFrame(5);
         key->setTranslate(Vector3(-1500,1000,-600));
-        key = track->createKeyFrame(7.5);
+        key = track->createNodeKeyFrame(7.5);
         key->setTranslate(Vector3(0,-100,0));
-        key = track->createKeyFrame(10);
+        key = track->createNodeKeyFrame(10);
         key->setTranslate(Vector3(0,0,0));
         // Create a track to animate the second head's node
-        track = anim->createTrack(1, headNode2);
+        track = anim->createNodeTrack(1, headNode2);
         // Setup keyframes
-        key = track->createKeyFrame(0); // startposition
-        key = track->createKeyFrame(2.5);
+        key = track->createNodeKeyFrame(0); // startposition
+        key = track->createNodeKeyFrame(2.5);
         key->setTranslate(Vector3(-500,600,-100));
-        key = track->createKeyFrame(5);
+        key = track->createNodeKeyFrame(5);
         key->setTranslate(Vector3(800,200,-600));
-        key = track->createKeyFrame(7.5);
+        key = track->createNodeKeyFrame(7.5);
         key->setTranslate(Vector3(200,-1000,0));
-        key = track->createKeyFrame(10);
+        key = track->createNodeKeyFrame(10);
         key->setTranslate(Vector3(30,70,110));
         // Create a new animation state to track this
         mAnimState = mSceneMgr->createAnimationState("CameraTrack");

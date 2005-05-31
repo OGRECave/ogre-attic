@@ -648,7 +648,7 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Entity::attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation, const Vector3 &offsetPosition)
+    TagPoint* Entity::attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation, const Vector3 &offsetPosition)
     {
         if (mChildObjectList.find(pMovable->getName()) != mChildObjectList.end())
         {
@@ -683,6 +683,8 @@ namespace Ogre {
         // Trigger update of bounding box if necessary
         if (mParentNode)
             mParentNode->needUpdate();
+
+		return tp;
     }
 
     //-----------------------------------------------------------------------
