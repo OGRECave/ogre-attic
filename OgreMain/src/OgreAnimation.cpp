@@ -52,63 +52,128 @@ namespace Ogre {
         return mLength;
     }
     //---------------------------------------------------------------------
-    AnimationTrack* Animation::createTrack(unsigned short handle)
+    NodeAnimationTrack* Animation::createNodeTrack(unsigned short handle)
     {
-        AnimationTrack* ret;
+        NodeAnimationTrack* ret = new NodeAnimationTrack(this);
 
-        ret = new AnimationTrack(this);
-
-        mTrackList[handle] = ret;
+        mNodeTrackList[handle] = ret;
         return ret;
     }
     //---------------------------------------------------------------------
-    AnimationTrack* Animation::createTrack(unsigned short handle, Node* node)
+    NodeAnimationTrack* Animation::createNodeTrack(unsigned short handle, Node* node)
     {
-        AnimationTrack* ret = createTrack(handle);
+        NodeAnimationTrack* ret = createNodeTrack(handle);
 
         ret->setAssociatedNode(node);
 
         return ret;
     }
     //---------------------------------------------------------------------
-    unsigned short Animation::getNumTracks(void) const
+    unsigned short Animation::getNumNodeTracks(void) const
     {
-        return (unsigned short)mTrackList.size();
+        return (unsigned short)mNodeTrackList.size();
     }
     //---------------------------------------------------------------------
-    AnimationTrack* Animation::getTrack(unsigned short handle) const
+    NodeAnimationTrack* Animation::getNodeTrack(unsigned short handle) const
     {
-        TrackList::const_iterator i = mTrackList.find(handle);
+        NodeTrackList::const_iterator i = mNodeTrackList.find(handle);
 
-        if (i == mTrackList.end())
+        if (i == mNodeTrackList.end())
         {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-                "Cannot find track with the specified handle", 
-                "Animation::getTrackByHandle");
+                "Cannot find node track with the specified handle", 
+                "Animation::getNodeTrack");
         }
 
         return i->second;
 
     }
     //---------------------------------------------------------------------
-    void Animation::destroyTrack(unsigned short handle)
+    void Animation::destroyNodeTrack(unsigned short handle)
     {
-        TrackList::iterator i = mTrackList.find(handle);
+        NodeTrackList::iterator i = mNodeTrackList.find(handle);
 
-        delete i->second;
-
-        mTrackList.erase(i);
+		if (i != mNodeTrackList.end())
+		{
+			delete i->second;
+			mNodeTrackList.erase(i);
+		}
     }
     //---------------------------------------------------------------------
-    void Animation::destroyAllTracks(void)
+    void Animation::destroyAllNodeTracks(void)
     {
-        TrackList::iterator i;
-        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        NodeTrackList::iterator i;
+        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
             delete i->second;
         }
-        mTrackList.clear();
+        mNodeTrackList.clear();
     }
+	//---------------------------------------------------------------------
+	NumericAnimationTrack* Animation::createNumericTrack(unsigned short handle)
+	{
+		NumericAnimationTrack* ret = new NumericAnimationTrack(this);
+
+		mNumericTrackList[handle] = ret;
+		return ret;
+	}
+	//---------------------------------------------------------------------
+	NumericAnimationTrack* Animation::createNumericTrack(unsigned short handle, 
+		const AnimableValuePtr& anim)
+	{
+		NumericAnimationTrack* ret = createNumericTrack(handle);
+
+		ret->setAssociatedAnimable(anim);
+
+		return ret;
+	}
+	//---------------------------------------------------------------------
+	unsigned short Animation::getNumNumericTracks(void) const
+	{
+		return (unsigned short)mNumericTrackList.size();
+	}
+	//---------------------------------------------------------------------
+	NumericAnimationTrack* Animation::getNumericTrack(unsigned short handle) const
+	{
+		NumericTrackList::const_iterator i = mNumericTrackList.find(handle);
+
+		if (i == mNumericTrackList.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find Numeric track with the specified handle", 
+				"Animation::getNumericTrack");
+		}
+
+		return i->second;
+
+	}
+	//---------------------------------------------------------------------
+	void Animation::destroyNumericTrack(unsigned short handle)
+	{
+		NumericTrackList::iterator i = mNumericTrackList.find(handle);
+
+		if (i != mNumericTrackList.end())
+		{
+			delete i->second;
+			mNumericTrackList.erase(i);
+		}
+	}
+	//---------------------------------------------------------------------
+	void Animation::destroyAllNumericTracks(void)
+	{
+		NumericTrackList::iterator i;
+		for (i = mNumericTrackList.begin(); i != mNumericTrackList.end(); ++i)
+		{
+			delete i->second;
+		}
+		mNumericTrackList.clear();
+	}
+	//---------------------------------------------------------------------
+	void Animation::destroyAllTracks(void)
+	{
+		destroyAllNodeTracks();
+		destroyAllNumericTracks();
+	}
     //---------------------------------------------------------------------
     const String& Animation::getName(void) const
     {
@@ -117,20 +182,24 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Animation::apply(Real timePos, Real weight, bool accumulate, Real scale)
     {
-        TrackList::iterator i;
-        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        NodeTrackList::iterator i;
+        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
             i->second->apply(timePos, weight, accumulate, scale);
         }
-
+		NumericTrackList::iterator j;
+		for (j = mNumericTrackList.begin(); j != mNumericTrackList.end(); ++j)
+		{
+			j->second->apply(timePos, weight, accumulate, scale);
+		}
 
     }
     //---------------------------------------------------------------------
     void Animation::apply(Skeleton* skel, Real timePos, Real weight, 
 		bool accumulate, Real scale)
     {
-        TrackList::iterator i;
-        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        NodeTrackList::iterator i;
+        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
             // get bone to apply to 
             Bone* b = skel->getBone(i->first);
@@ -160,11 +229,16 @@ namespace Ogre {
         return msDefaultInterpolationMode;
     }
     //---------------------------------------------------------------------
-    const Animation::TrackList& Animation::_getTrackList(void) const
+    const Animation::NodeTrackList& Animation::_getNodeTrackList(void) const
     {
-        return mTrackList;
+        return mNodeTrackList;
 
     }
+	//---------------------------------------------------------------------
+	const Animation::NumericTrackList& Animation::_getNumericTrackList(void) const
+	{
+		return mNumericTrackList;
+	}
     //---------------------------------------------------------------------
     void Animation::setRotationInterpolationMode(RotationInterpolationMode im)
     {
@@ -188,12 +262,12 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void Animation::optimise(void)
 	{
-		// Iterate over the tracks and identify those with no useful keyframes
+		// Iterate over the node tracks and identify those with no useful keyframes
 		std::list<unsigned short> tracksToDestroy;
-        TrackList::iterator i;
-        for (i = mTrackList.begin(); i != mTrackList.end(); ++i)
+        NodeTrackList::iterator i;
+        for (i = mNodeTrackList.begin(); i != mNodeTrackList.end(); ++i)
         {
-			AnimationTrack* track = i->second;
+			NodeAnimationTrack* track = i->second;
 			if (!track->hasNonZeroKeyFrames())
 			{
 				// mark the entire track for destruction
@@ -210,7 +284,7 @@ namespace Ogre {
 		for(std::list<unsigned short>::iterator h = tracksToDestroy.begin();
 			h != tracksToDestroy.end(); ++h)
 		{
-			destroyTrack(*h);
+			destroyNodeTrack(*h);
 		}
 		
 	}

@@ -983,7 +983,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::SkeletonPtr& ogr
 			msg = "Creating AnimationTrack for bone " + Ogre::StringConverter::toString(i);
             logMgr.logMessage(msg);
 
-            Ogre::AnimationTrack *ogretrack = ogreanim->createTrack(i, ogrebone);
+            Ogre::NodeAnimationTrack *ogretrack = ogreanim->createNodeTrack(i, ogrebone);
             logMgr.logMessage("Animation track created.");
 
             // OGRE uses keyframes which are both position and rotation
@@ -1014,7 +1014,7 @@ void MilkshapePlugin::doExportAnimations(msModel* pModel, Ogre::SkeletonPtr& ogr
                     // Adjust for start time, and for the fact that frames are numbered from 1
                     frameTime = currRotKey->fTime - currSplit.start;
                     realTime = frameTime / fps;
-                    Ogre::KeyFrame *ogrekey = ogretrack->createKeyFrame(realTime);
+                    Ogre::TransformKeyFrame *ogrekey = ogretrack->createNodeKeyFrame(realTime);
                     logMgr.logMessage("KeyFrame created");
 
                     Ogre::Vector3 kfPos(currPosKey->Position[0], currPosKey->Position[1], currPosKey->Position[2]);

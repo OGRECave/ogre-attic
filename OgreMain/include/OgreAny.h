@@ -236,6 +236,7 @@ namespace Ogre
 			virtual placeholder* add(placeholder* rhs) = 0;
 			virtual placeholder* subtract(placeholder* rhs) = 0;
 			virtual placeholder* multiply(placeholder* rhs) = 0;
+			virtual placeholder* multiply(Real factor) = 0;
 			virtual placeholder* divide(placeholder* rhs) = 0;
 		};
 
@@ -273,6 +274,10 @@ namespace Ogre
 			{
 				return new numholder(held * static_cast<numholder*>(rhs)->held);
 			}
+			virtual placeholder* multiply(Real factor)
+			{
+				return new numholder(held * factor);
+			}
 			virtual placeholder* divide(placeholder* rhs)
 			{
 				return new numholder(held / static_cast<numholder*>(rhs)->held);
@@ -295,22 +300,27 @@ namespace Ogre
 		}
 
 	public:
-		AnyNumeric operator+(const AnyNumeric& rhs)
+		AnyNumeric operator+(const AnyNumeric& rhs) const
 		{
 			return AnyNumeric(
 				static_cast<numplaceholder*>(mContent)->add(rhs.mContent));
 		}
-		AnyNumeric operator-(const AnyNumeric& rhs)
+		AnyNumeric operator-(const AnyNumeric& rhs) const
 		{
 			return AnyNumeric(
 				static_cast<numplaceholder*>(mContent)->subtract(rhs.mContent));
 		}
-		AnyNumeric operator*(const AnyNumeric& rhs)
+		AnyNumeric operator*(const AnyNumeric& rhs) const
 		{
 			return AnyNumeric(
 				static_cast<numplaceholder*>(mContent)->multiply(rhs.mContent));
 		}
-		AnyNumeric operator/(const AnyNumeric& rhs)
+		AnyNumeric operator*(Real factor) const
+		{
+			return AnyNumeric(
+				static_cast<numplaceholder*>(mContent)->multiply(factor));
+		}
+		AnyNumeric operator/(const AnyNumeric& rhs) const
 		{
 			return AnyNumeric(
 				static_cast<numplaceholder*>(mContent)->divide(rhs.mContent));

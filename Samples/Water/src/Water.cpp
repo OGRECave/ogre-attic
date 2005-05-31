@@ -582,13 +582,13 @@ protected:
 
         // set up spline animation of light node
         Animation* anim = mSceneMgr->createAnimation("WaterLight", 20);
-		AnimationTrack *track ;
-        KeyFrame *key ;
+		NodeAnimationTrack *track ;
+        TransformKeyFrame *key ;
 		// create a random spline for light
-		track = anim->createTrack(0, lightNode);
-		key = track->createKeyFrame(0);
+		track = anim->createNodeTrack(0, lightNode);
+		key = track->createNodeKeyFrame(0);
 		for(int ff=1;ff<=19;ff++) {
-			key = track->createKeyFrame(ff);
+			key = track->createNodeKeyFrame(ff);
 			Vector3 lpos (
 				rand()%(int)PLANE_SIZE , //- PLANE_SIZE/2,
 				rand()%300+100,
@@ -596,7 +596,7 @@ protected:
 				);
 			key->setTranslate(lpos);
 		}
-		key = track->createKeyFrame(20);
+		key = track->createNodeKeyFrame(20);
 		
         // Create a new animation state to track this
         mAnimState = mSceneMgr->createAnimationState("WaterLight");

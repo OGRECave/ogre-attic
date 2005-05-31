@@ -2296,16 +2296,18 @@ void SceneManager::_applySceneAnimations(void)
 
             // Reset any nodes involved
             // NB this excludes blended animations
-            const Animation::TrackList& trackList = anim->_getTrackList();
-            Animation::TrackList::const_iterator ti, tend;
-            ti = trackList.begin();
-            tend = trackList.end();
-            for (;ti != tend; ++ti)
+            Animation::NodeTrackIterator nodeTrackIt = anim->getNodeTrackIterator();
+            while(nodeTrackIt.hasMoreElements())
             {
-                Node* nd = ti->second->getAssociatedNode();
+                Node* nd = nodeTrackIt.getNext()->getAssociatedNode();
                 nd->resetToInitialState();
             }
 
+			Animation::NumericTrackIterator numTrackIt = anim->getNumericTrackIterator();
+			while(numTrackIt.hasMoreElements())
+			{
+				numTrackIt.getNext()->getAssociatedAnimable()->resetToBaseValue();
+			}
 
             // Apply the animation
             anim->apply(i->second.getTimePosition(), i->second.getWeight());

@@ -38,7 +38,7 @@ namespace Ogre
         This class can be used as a basis for all kinds of key frames. 
         The unifying principle is that multiple KeyFrames define an 
         animation sequence, with the exact state of the animation being an 
-        interpolation between these key frames.
+        interpolation between these key frames. 
     */
     class _OgreExport KeyFrame
     {
@@ -47,46 +47,83 @@ namespace Ogre
         /** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
         KeyFrame(const AnimationTrack* parent, Real time);
 
+		virtual ~KeyFrame() {}
+
         /** Gets the time of this keyframe in the animation sequence. */
-        Real getTime(void) const;
-        /** Sets the translation associated with this keyframe. 
-        @remarks    
-            The translation factor affects how much the keyframe translates (moves) it's animable
-            object at it's time index.
-        @param trans The vector to translate by
-        */
-        void setTranslate(const Vector3& trans);
-
-        /** Gets the translation applied by this keyframe. */
-        const Vector3& getTranslate(void) const;
-
-        /** Sets the scaling factor applied by this keyframe to the animable
-        object at it's time index.
-        @param scale The vector to scale by (beware of supplying zero values for any component of this
-            vector, it will scale the object to zero dimensions)
-        */
-        void setScale(const Vector3& scale);
-
-        /** Gets the scaling factor applied by this keyframe. */
-        const Vector3& getScale(void) const;
-
-        /** Sets the rotation applied by this keyframe.
-        @param rot The rotation applied; use Quaternion methods to convert from angle/axis or Matrix3 if
-            you don't like using Quaternions directly.
-        */
-        void setRotation(const Quaternion& rot);
-
-        /** Gets the rotation applied by this keyframe. */
-        const Quaternion& getRotation(void) const;
+        virtual Real getTime(void) const;
 
 
     protected:
         Real mTime;
-        Vector3 mTranslate;
-        Vector3 mScale;
-        Quaternion mRotate;
         const AnimationTrack* mParentTrack;
     };
+
+
+	/** Specialised KeyFrame which stores any numeric value.
+	*/
+	class _OgreExport NumericKeyFrame : public KeyFrame
+	{
+	public:
+		/** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
+		NumericKeyFrame(const AnimationTrack* parent, Real time);
+		~NumericKeyFrame() {}
+
+		/** Get the value at this keyframe. */
+		virtual const AnyNumeric& getValue(void) const;
+		/** Set the value at this keyframe.
+		@remarks
+			All keyframe values must have a consistent type. 
+		*/
+		virtual void setValue(const AnyNumeric& val);
+
+	protected:
+		AnyNumeric mValue;
+	};
+
+
+	/** Specialised KeyFrams which stores a full transform. */
+	class _OgreExport TransformKeyFrame : public KeyFrame
+	{
+	public:
+		/** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
+		TransformKeyFrame(const AnimationTrack* parent, Real time);
+		~TransformKeyFrame() {}
+		/** Sets the translation associated with this keyframe. 
+		@remarks    
+		The translation factor affects how much the keyframe translates (moves) it's animable
+		object at it's time index.
+		@param trans The vector to translate by
+		*/
+		virtual void setTranslate(const Vector3& trans);
+
+		/** Gets the translation applied by this keyframe. */
+		const Vector3& getTranslate(void) const;
+
+		/** Sets the scaling factor applied by this keyframe to the animable
+		object at it's time index.
+		@param scale The vector to scale by (beware of supplying zero values for any component of this
+		vector, it will scale the object to zero dimensions)
+		*/
+		virtual void setScale(const Vector3& scale);
+
+		/** Gets the scaling factor applied by this keyframe. */
+		virtual const Vector3& getScale(void) const;
+
+		/** Sets the rotation applied by this keyframe.
+		@param rot The rotation applied; use Quaternion methods to convert from angle/axis or Matrix3 if
+		you don't like using Quaternions directly.
+		*/
+		virtual void setRotation(const Quaternion& rot);
+
+		/** Gets the rotation applied by this keyframe. */
+		virtual const Quaternion& getRotation(void) const;
+	protected:
+		Vector3 mTranslate;
+		Vector3 mScale;
+		Quaternion mRotate;
+
+
+	};
 
 }
 

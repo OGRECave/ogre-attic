@@ -502,12 +502,12 @@ namespace Ogre
 
 
 		// Create all tracks first
-		std::vector<AnimationTrack*> deformerTracks;
+		std::vector<NodeAnimationTrack*> deformerTracks;
 		deformerTracks.resize(deformers.size());
 		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			DeformerEntry* deformer = di->second;
-			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
+			NodeAnimationTrack* track = pAnim->createNodeTrack(deformer->boneID, deformer->pBone);
 			deformerTracks[deformer->boneID] = track;
 			if (deformer->pBone->getParent() == 0)
 			{
@@ -550,7 +550,7 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::sampleAllBones(DeformerMap& deformers, 
-		std::vector<AnimationTrack*> deformerTracks, double frame, float fps)
+		std::vector<NodeAnimationTrack*> deformerTracks, double frame, float fps)
 	{
 		CValueArray args;
 		CValue dummy;
@@ -568,7 +568,7 @@ namespace Ogre
 		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
 		{
 			DeformerEntry* deformer = di->second;
-			AnimationTrack* track = deformerTracks[deformer->boneID];
+			NodeAnimationTrack* track = deformerTracks[deformer->boneID];
 
 			double initposx, initposy, initposz;
 			deformer->initialXform.GetTranslationValues(initposx, initposy, initposz);
@@ -602,7 +602,7 @@ namespace Ogre
 			transformation.GetTranslationValues(posx, posy, posz);
 
 			// create keyframe
-			KeyFrame* kf = track->createKeyFrame((float)frame / fps);
+			TransformKeyFrame* kf = track->createNodeKeyFrame((float)frame / fps);
 			// not sure why inverted transform doesn't work for position, but it doesn't
 			// I thought XSI used same transform order as OGRE
 			kf->setTranslate(XSItoOgre(transformation.GetTranslation()));
@@ -643,7 +643,7 @@ namespace Ogre
 				"(" << deformer->boneID << ")";
 			LogOgreAndXSI(str.str());
 			// create track
-			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
+			NodeAnimationTrack* track = pAnim->createNodeTrack(deformer->boneID, deformer->pBone);
 
 			XSI::MATH::CTransformation initialTransformation;
 			if (deformer->pBone->getParent() == 0)
@@ -708,7 +708,7 @@ namespace Ogre
 
 
 				// create keyframe
-				KeyFrame* kf = track->createKeyFrame((float)(*fi - animEntry.startFrame) / fps);
+				TransformKeyFrame* kf = track->createNodeKeyFrame((float)(*fi - animEntry.startFrame) / fps);
 				// not sure why inverted transform doesn't work for position, but it doesn't
 				// I thought XSI used same transform order as OGRE
 				//kf->setTranslate(XSItoOgre(transformation.GetTranslation()));

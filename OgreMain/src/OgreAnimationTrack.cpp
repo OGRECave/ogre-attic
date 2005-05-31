@@ -38,20 +38,9 @@ Ogre::RenderWindow* mMainWindow = 0;
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    AnimationTrack::AnimationTrack(Animation* parent) : mParent(parent)
+    AnimationTrack::AnimationTrack(Animation* parent) : 
+		mParent(parent), mMaxKeyFrameTime(-1)
     {
-        mTargetNode = 0;
-        mMaxKeyFrameTime = -1;
-        mSplineBuildNeeded = false;
-		mUseShortestRotationPath = true ;
-    }
-    //---------------------------------------------------------------------
-    AnimationTrack::AnimationTrack(Animation* parent, Node* targetNode) 
-        : mParent(parent), mTargetNode(targetNode)
-    {
-        mMaxKeyFrameTime = -1;
-        mSplineBuildNeeded = false;
-		mUseShortestRotationPath = true ;
     }
     //---------------------------------------------------------------------
     AnimationTrack::~AnimationTrack()
@@ -138,7 +127,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     KeyFrame* AnimationTrack::createKeyFrame(Real timePos)
     {
-        KeyFrame* kf = new KeyFrame(this, timePos);
+        KeyFrame* kf = createKeyFrameImpl(timePos);
 
         // Insert at correct location
         if (timePos > mMaxKeyFrameTime || (timePos == 0 && mKeyFrames.empty()))
@@ -196,24 +185,126 @@ namespace Ogre {
         mKeyFrames.clear();
 
     }
-    //---------------------------------------------------------------------
-    KeyFrame AnimationTrack::getInterpolatedKeyFrame(Real timeIndex) const
-    {
-        // Return value (note unattached)
-        KeyFrame kret(0, timeIndex);
+	//---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	// Numeric specialisations
+	//---------------------------------------------------------------------
+	NumericAnimationTrack::NumericAnimationTrack(Animation* parent)
+		: AnimationTrack(parent)
+	{
+	}
+	//---------------------------------------------------------------------
+	NumericAnimationTrack::NumericAnimationTrack(Animation* parent, 
+		AnimableValuePtr& target)
+		:AnimationTrack(parent), mTargetAnim(target)
+	{
+	}
+	//---------------------------------------------------------------------
+	const AnimableValuePtr& NumericAnimationTrack::getAssociatedAnimable(void) const
+	{
+		return mTargetAnim;
+	}
+	//---------------------------------------------------------------------
+	void NumericAnimationTrack::setAssociatedAnimable(const AnimableValuePtr& val)
+	{
+		mTargetAnim = val;
+	}
+	//---------------------------------------------------------------------
+	KeyFrame* NumericAnimationTrack::createKeyFrameImpl(Real time)
+	{
+		return new NumericKeyFrame(this, time);
+	}
+	//---------------------------------------------------------------------
+	void NumericAnimationTrack::getInterpolatedKeyFrame(Real timeIndex, 
+		KeyFrame* kf) const
+	{
+		NumericKeyFrame* kret = static_cast<NumericKeyFrame*>(kf);
         
         // Keyframe pointers
-        KeyFrame *k1, *k2;
+		KeyFrame *kBase1, *kBase2;
+        NumericKeyFrame *k1, *k2;
         unsigned short firstKeyIndex;
 
-        Real t = this->getKeyFramesAtTime(timeIndex, &k1, &k2, &firstKeyIndex);
+        Real t = this->getKeyFramesAtTime(timeIndex, &kBase1, &kBase2, &firstKeyIndex);
+		k1 = static_cast<NumericKeyFrame*>(kBase1);
+		k2 = static_cast<NumericKeyFrame*>(kBase2);
 
         if (t == 0.0)
         {
             // Just use k1
-            kret.setRotation(k1->getRotation());
-            kret.setTranslate(k1->getTranslate());
-            kret.setScale(k1->getScale());
+            kret->setValue(k1->getValue());
+        }
+        else
+        {
+            // Interpolate by t
+			AnyNumeric diff = k2->getValue() - k1->getValue();
+			kret->setValue(k1->getValue() + diff * t);
+        }
+	}
+	//---------------------------------------------------------------------
+	void NumericAnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
+		Real scale)
+	{
+		applyToAnimable(mTargetAnim, timePos, weight, scale);
+	}
+	//---------------------------------------------------------------------
+	void NumericAnimationTrack::applyToAnimable(const AnimableValuePtr& anim, Real timePos, 
+		Real weight, Real scale)
+	{
+		NumericKeyFrame kf(0, timePos);
+		getInterpolatedKeyFrame(timePos, &kf);
+		// add to existing. Weights are not relative, but treated as 
+		// absolute multipliers for the animation
+		AnyNumeric val = kf.getValue() * weight * scale;
+
+		anim->applyDeltaValue(val);
+
+	}
+	//--------------------------------------------------------------------------
+	NumericKeyFrame* NumericAnimationTrack::createNumericKeyFrame(Real timePos)
+	{
+		return static_cast<NumericKeyFrame*>(createKeyFrame(timePos));
+	}
+	//--------------------------------------------------------------------------
+	NumericKeyFrame* NumericAnimationTrack::getNumericKeyFrame(unsigned short index) const
+	{
+		return static_cast<NumericKeyFrame*>(getKeyFrame(index));
+	}
+    //---------------------------------------------------------------------
+	//---------------------------------------------------------------------
+	// Node specialisations
+	//---------------------------------------------------------------------
+	NodeAnimationTrack::NodeAnimationTrack(Animation* parent)
+		: AnimationTrack(parent), mTargetNode(0), mSplineBuildNeeded(false), 
+		mUseShortestRotationPath(true)
+	{
+	}
+	//---------------------------------------------------------------------
+	NodeAnimationTrack::NodeAnimationTrack(Animation* parent, Node* targetNode)
+		: AnimationTrack(parent), mTargetNode(targetNode), 
+		mSplineBuildNeeded(false), mUseShortestRotationPath(true)
+	{
+	}
+	//---------------------------------------------------------------------
+    void NodeAnimationTrack::getInterpolatedKeyFrame(Real timeIndex, KeyFrame* kf) const
+    {
+		TransformKeyFrame* kret = static_cast<TransformKeyFrame*>(kf);
+        
+        // Keyframe pointers
+		KeyFrame *kBase1, *kBase2;
+        TransformKeyFrame *k1, *k2;
+        unsigned short firstKeyIndex;
+
+        Real t = this->getKeyFramesAtTime(timeIndex, &kBase1, &kBase2, &firstKeyIndex);
+		k1 = static_cast<TransformKeyFrame*>(kBase1);
+		k2 = static_cast<TransformKeyFrame*>(kBase2);
+
+        if (t == 0.0)
+        {
+            // Just use k1
+            kret->setRotation(k1->getRotation());
+            kret->setTranslate(k1->getTranslate());
+            kret->setScale(k1->getScale());
         }
         else
         {
@@ -230,22 +321,22 @@ namespace Ogre {
                 // Interpolate to nearest rotation if mUseShortestRotationPath set
                 if (rim == Animation::RIM_LINEAR)
                 {
-                    kret.setRotation( Quaternion::nlerp(t, k1->getRotation(), 
+                    kret->setRotation( Quaternion::nlerp(t, k1->getRotation(), 
                         k2->getRotation(), mUseShortestRotationPath) );
                 }
                 else //if (rim == Animation::RIM_SPHERICAL)
                 {
-                    kret.setRotation( Quaternion::Slerp(t, k1->getRotation(), 
+                    kret->setRotation( Quaternion::Slerp(t, k1->getRotation(), 
 					    k2->getRotation(), mUseShortestRotationPath) );
                 }
 
                 // Translation
                 base = k1->getTranslate();
-                kret.setTranslate( base + ((k2->getTranslate() - base) * t) );
+                kret->setTranslate( base + ((k2->getTranslate() - base) * t) );
 
                 // Scale
                 base = k1->getScale();
-                kret.setScale( base + ((k2->getScale() - base) * t) );
+                kret->setScale( base + ((k2->getScale() - base) * t) );
                 break;
 
             case Animation::IM_SPLINE:
@@ -258,45 +349,44 @@ namespace Ogre {
                 }
 
                 // Rotation, take mUseShortestRotationPath into account
-                kret.setRotation( mRotationSpline.interpolate(firstKeyIndex, t, 
+                kret->setRotation( mRotationSpline.interpolate(firstKeyIndex, t, 
 					mUseShortestRotationPath) );
 
                 // Translation
-                kret.setTranslate( mPositionSpline.interpolate(firstKeyIndex, t) );
+                kret->setTranslate( mPositionSpline.interpolate(firstKeyIndex, t) );
 
                 // Scale
-                kret.setScale( mScaleSpline.interpolate(firstKeyIndex, t) );
+                kret->setScale( mScaleSpline.interpolate(firstKeyIndex, t) );
 
                 break;
             }
 
         }
         
-        return kret;
-        
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
+    void NodeAnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
 		Real scale)
     {
         applyToNode(mTargetNode, timePos, weight, accumulate, scale);
         
     }
     //---------------------------------------------------------------------
-    Node* AnimationTrack::getAssociatedNode(void) const
+    Node* NodeAnimationTrack::getAssociatedNode(void) const
     {
         return mTargetNode;
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::setAssociatedNode(Node* node)
+    void NodeAnimationTrack::setAssociatedNode(Node* node)
     {
         mTargetNode = node;
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::applyToNode(Node* node, Real timePos, Real weight, 
+    void NodeAnimationTrack::applyToNode(Node* node, Real timePos, Real weight, 
 		bool accumulate, Real scl)
     {
-        KeyFrame kf = this->getInterpolatedKeyFrame(timePos);
+        TransformKeyFrame kf(0, timePos);
+		getInterpolatedKeyFrame(timePos, &kf);
 		if (accumulate) 
         {
             // add to existing. Weights are not relative, but treated as absolute multipliers for the animation
@@ -357,7 +447,7 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
-    void AnimationTrack::buildInterpolationSplines(void) const
+    void NodeAnimationTrack::buildInterpolationSplines(void) const
     {
         // Don't calc automatically, do it on request at the end
         mPositionSpline.setAutoCalculate(false);
@@ -372,9 +462,10 @@ namespace Ogre {
         iend = mKeyFrames.end(); // precall to avoid overhead
         for (i = mKeyFrames.begin(); i != iend; ++i)
         {
-            mPositionSpline.addPoint((*i)->getTranslate());
-            mRotationSpline.addPoint((*i)->getRotation());
-            mScaleSpline.addPoint((*i)->getScale());
+			TransformKeyFrame* kf = static_cast<TransformKeyFrame*>(*i);
+            mPositionSpline.addPoint(kf->getTranslate());
+            mRotationSpline.addPoint(kf->getRotation());
+            mScaleSpline.addPoint(kf->getScale());
         }
 
         mPositionSpline.recalcTangents();
@@ -386,23 +477,23 @@ namespace Ogre {
     }
 	
     //---------------------------------------------------------------------
-	void AnimationTrack::setUseShortestRotationPath(bool useShortestPath)
+	void NodeAnimationTrack::setUseShortestRotationPath(bool useShortestPath)
 	{
 		mUseShortestRotationPath = useShortestPath ;
 	}
 	
     //---------------------------------------------------------------------
-	bool AnimationTrack::getUseShortestRotationPath() const
+	bool NodeAnimationTrack::getUseShortestRotationPath() const
 	{
 		return mUseShortestRotationPath ;
 	}
     //---------------------------------------------------------------------
-    void AnimationTrack::_keyFrameDataChanged(void) const
+    void NodeAnimationTrack::_keyFrameDataChanged(void) const
     {
         mSplineBuildNeeded = true;
     }
     //---------------------------------------------------------------------
-	bool AnimationTrack::hasNonZeroKeyFrames(void) const
+	bool NodeAnimationTrack::hasNonZeroKeyFrames(void) const
 	{
         KeyFrameList::const_iterator i = mKeyFrames.begin();
         for (; i != mKeyFrames.end(); ++i)
@@ -410,7 +501,7 @@ namespace Ogre {
 			// look for keyframes which have any component which is non-zero
 			// Since exporters can be a little inaccurate sometimes we use a
 			// tolerance value rather than looking for nothing
-			KeyFrame* kf = *i;
+			TransformKeyFrame* kf = static_cast<TransformKeyFrame*>(*i);
 			Vector3 trans = kf->getTranslate();
 			Vector3 scale = kf->getScale();
 			Vector3 axis;
@@ -429,7 +520,7 @@ namespace Ogre {
 		return false;
 	}
     //---------------------------------------------------------------------
-	void AnimationTrack::optimise(void)
+	void NodeAnimationTrack::optimise(void)
 	{
 		// Iterate from 2nd to penultimate keyframe eliminating duplicates
 		Vector3 lasttrans;
@@ -441,7 +532,7 @@ namespace Ogre {
 		unsigned short k = 0;
         for (; i != mKeyFrames.end(); ++i, ++k)
         {
-			KeyFrame* kf = *i;
+			TransformKeyFrame* kf = static_cast<TransformKeyFrame*>(*i);
 			Vector3 newtrans = kf->getTranslate();
 			Vector3 newscale = kf->getScale();
 			Quaternion neworientation = kf->getRotation();
@@ -472,6 +563,21 @@ namespace Ogre {
 		}
 			
 			
+	}
+	//--------------------------------------------------------------------------
+	KeyFrame* NodeAnimationTrack::createKeyFrameImpl(Real time)
+	{
+		return new TransformKeyFrame(this, time);
+	}
+	//--------------------------------------------------------------------------
+	TransformKeyFrame* NodeAnimationTrack::createNodeKeyFrame(Real timePos)
+	{
+		return static_cast<TransformKeyFrame*>(createKeyFrame(timePos));
+	}
+	//--------------------------------------------------------------------------
+	TransformKeyFrame* NodeAnimationTrack::getNodeKeyFrame(unsigned short index) const
+	{
+		return static_cast<TransformKeyFrame*>(getKeyFrame(index));
 	}
 	
 }

@@ -410,8 +410,12 @@ namespace Ogre {
         @param pMovable Pointer to the object to attach
         @param offsetOrientation An adjustment to the orientation of the attached object, relative to the bone.
         @param offsetPosition An adjustment to the position of the attached object, relative to the bone.
+		@returns The TagPoint to which the object has been attached
         */
-		void attachObjectToBone(const String &boneName, MovableObject *pMovable, const Quaternion &offsetOrientation = Quaternion::IDENTITY, const Vector3 &offsetPosition = Vector3::ZERO);
+		TagPoint* attachObjectToBone(const String &boneName, 
+			MovableObject *pMovable, 
+			const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
+			const Vector3 &offsetPosition = Vector3::ZERO);
 
 		/// detach a MovableObject previously attached using attachObjectToBone
 		MovableObject* detachObjectFromBone(const String &movableName);
