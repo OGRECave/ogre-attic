@@ -685,6 +685,9 @@ namespace Ogre {
 			// addressing mode
 			TextureUnitState::UVWAddressingMode uvwadd;
 			uvwadd.u = convertAddressingMode(param.GetValue());
+			// default other dimensions incase not supplied
+			uvwadd.v = uvwadd.u;
+			uvwadd.w = uvwadd.u;
 
 			param = shader.GetParameter(L"wrap_v");
 			if (param.IsValid())
