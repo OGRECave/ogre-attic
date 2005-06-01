@@ -1,6 +1,8 @@
 
 #include "transferMesh.h"
 #include <maya/MRenderUtil.h>
+#include <maya/MPointArray.h>
+#include <maya/MIntArray.h>
 #include <process.h>
 
 /***** Class TransferMesh *****/
@@ -45,8 +47,10 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 	int vtxIdx;
 	int nrmIdx;
 	int idx;
-	int numFaces;
+	int numPolys;
 	int i,j,k;
+	MPointArray triPoints;
+	MIntArray tempTriVertexIdx,triVertexIdx;
 
 	// GATHER MESH DATA
 	MFnMesh mesh(meshDag);
@@ -93,7 +97,7 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 	}
 
 	// Get number of polygons
-	numFaces = mesh.numPolygons(&stat);
+	numPolys = mesh.numPolygons(&stat);
 	if (MS::kSuccess != stat)
 	{
 		MGlobal::displayInfo("Error retrieving number of polygons\n");
@@ -102,15 +106,9 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 	
 	// Get faces data
 	//initialise variables
-	faces.resize(numFaces);
 	vertices.resize(mesh.numVertices());
 	weights.resize(mesh.numVertices());
 	jointIds.resize(mesh.numVertices());
-	//set flag for use of 32 bit indexes
-	if (numFaces < 65536 && vertices.size() < 65536)
-		mUse32bitIndexes = false;
-	else
-		mUse32bitIndexes = true;
 	// prepare vertex table
 	for (i=0; i<vertices.size(); i++)
 		vertices[i].next = -2;
@@ -190,143 +188,83 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 		MGlobal::displayInfo("Error accessing mesh polygons");
 		return MS::kFailure;
 	}
-	// iterate over mesh polygons (we suppose the mesh has been triangulated)
+	// iterate over mesh polygons
 	for (; !faceIter.isDone(); faceIter.next())
 	{
-		for (i=0; i<3; i++)
+		int numTris=0;
+		faceIter.numTriangles(numTris);
+		// for every triangle composing current polygon extract triangle info
+		for (int iTris=0; iTris<numTris; iTris++)
 		{
-			different = true;
-			vtxIdx = faceIter.vertexIndex(i);
-			nrmIdx = faceIter.normalIndex(i);
-			
-			// get vertex colour
-			stat = faceIter.getColor(color,i);
-			if (MS::kSuccess != stat)
+			triVertexIdx.clear();
+			tempTriVertexIdx.clear();
+			// create a new face to store triangle info
+			face newFace;
+			// extract triangle vertex indices
+			faceIter.getTriangle(iTris,triPoints,tempTriVertexIdx);
+			// convert indices to face-relative indices
+			MIntArray polyIndices;
+			faceIter.getVertices(polyIndices);
+			unsigned int iPoly, iObj;
+			for (iObj=0; iObj < tempTriVertexIdx.length(); ++iObj)
 			{
-				MGlobal::displayInfo("Error retrieving vertex colour");
-				return MS::kFailure;
+				// iPoly is face-relative vertex index
+				for (iPoly=0; iPoly < polyIndices.length(); ++iPoly)
+				{
+					if (tempTriVertexIdx[iObj] == polyIndices[iPoly]) 
+					{
+						triVertexIdx.append(iPoly);
+						break;
+					}
+				}
 			}
-			
-			if (vertices[vtxIdx].next == -2)	// first time we encounter a vertex in this position
+			// iterate over triangle's vertices
+			for (int i=0; i<3; i++)
 			{
-				// save vertex position
-				points[vtxIdx].cartesianize();
-				vertices[vtxIdx].pointIdx = vtxIdx;
-				// save vertex normal
-				vertices[vtxIdx].normalIdx = nrmIdx;
-				// save vertex colour
-				vertices[vtxIdx].r = color.r;
-				vertices[vtxIdx].g = color.g;
-				vertices[vtxIdx].b = color.b;
-				vertices[vtxIdx].a = color.a;
-				// save vertex texture coordinates
-				vertices[vtxIdx].u.resize(uvsets.length());
-				vertices[vtxIdx].v.resize(uvsets.length());
-				// save vbas
-				vertices[vtxIdx].vba.resize(weights[vtxIdx].length());
-				for (int j=0; j<weights[vtxIdx].length(); j++)
-				{
-					vertices[vtxIdx].vba[j] = (weights[vtxIdx])[j];
-				}
-				// save joint ids
-				vertices[vtxIdx].jointIds.resize(jointIds[vtxIdx].length());
-				for (j=0; j<jointIds[vtxIdx].length(); j++)
-				{
-					vertices[vtxIdx].jointIds[j] = (jointIds[vtxIdx])[j];
-				}
-				// save uv sets data
-				for (j=0; j<uvsets.length(); j++)
-				{
-					float2 uv;
-					stat = faceIter.getUV(i,uv,&uvsets[j]);
-					if (MS::kSuccess != stat)
-					{
-						msg = "Warning, no uv assigned to vertex for uvset ";
-						msg += uvsets[j];
-						MGlobal::displayInfo(msg);
-						uv[0] = 0;
-						uv[1] = 0;
-					}
-					vertices[vtxIdx].u[j] = uv[0];
-					vertices[vtxIdx].v[j] = (-1)*(uv[1]-1);
-				}
-				// save vertex index in face info
-				faces[faceIter.index()].v[i] = vtxIdx;
-				// update value of index to next vertex info (-1 means nothing next)
-				vertices[vtxIdx].next = -1;
-			}
-			else	// already found at least 1 vertex in this position
-			{
-				// check if a vertex with same attributes has been saved already
-				for (k=vtxIdx; k!=-1 && different; k=vertices[k].next)
-				{
-					different = false;
+				different = true;
+				vtxIdx = faceIter.vertexIndex(triVertexIdx[i]);
+				nrmIdx = faceIter.normalIndex(triVertexIdx[i]);
 
-					if (params.exportVertNorm)
-					{
-						MFloatVector n1 = normals[vertices[k].normalIdx];
-						MFloatVector n2 = normals[nrmIdx];
-						if (n1.x!=n2.x || n1.y!=n2.y || n1.z!=n2.z)
-							different = true;
-					}
-					
-					if ((params.exportVertCol) &&
-						(vertices[k].r!=color.r || vertices[k].g!=color.g || vertices[k].b!= color.b || vertices[k].a!=color.a))
-					{
-						different = true;
-					}
-					
-					if (params.exportTexCoord)
-					{
-						for (int j=0; j<uvsets.length(); j++)
-						{
-							float2 uv;
-							stat = faceIter.getUV(i,uv,&uvsets[j]);
-							if (MS::kSuccess != stat)
-							{
-								uv[0] = 0;
-								uv[1] = 0;
-							}
-							uv[1] = (-1)*(uv[1]-1);
-							if (vertices[k].u[j]!=uv[0] || vertices[k].v[j]!=uv[1])
-								different = true;
-						}
-					}
-
-					idx = k;
-				}
-				// if no identical vertex has been saved, then save the vertex info
-				if (different)
+				// get vertex colour
+				stat = faceIter.getColor(color,triVertexIdx[i]);
+				if (MS::kSuccess != stat)
 				{
-					vertex vtx;
+					MGlobal::displayInfo("Error retrieving vertex colour");
+					return MS::kFailure;
+				}
+
+				if (vertices[vtxIdx].next == -2)	// first time we encounter a vertex in this position
+				{
 					// save vertex position
-					vtx.pointIdx = vtxIdx;
+					points[vtxIdx].cartesianize();
+					vertices[vtxIdx].pointIdx = vtxIdx;
 					// save vertex normal
-					vtx.normalIdx = nrmIdx;
+					vertices[vtxIdx].normalIdx = nrmIdx;
 					// save vertex colour
-					vtx.r = color.r;
-					vtx.g = color.g;
-					vtx.b = color.b;
-					vtx.a = color.a;
-					// save vertex vba
-					vtx.vba.resize(weights[vtxIdx].length());
-					for (j=0; j<weights[vtxIdx].length(); j++)
+					vertices[vtxIdx].r = color.r;
+					vertices[vtxIdx].g = color.g;
+					vertices[vtxIdx].b = color.b;
+					vertices[vtxIdx].a = color.a;
+					// save vertex texture coordinates
+					vertices[vtxIdx].u.resize(uvsets.length());
+					vertices[vtxIdx].v.resize(uvsets.length());
+					// save vbas
+					vertices[vtxIdx].vba.resize(weights[vtxIdx].length());
+					for (int j=0; j<weights[vtxIdx].length(); j++)
 					{
-						vtx.vba[j] = (weights[vtxIdx])[j];
+						vertices[vtxIdx].vba[j] = (weights[vtxIdx])[j];
 					}
 					// save joint ids
-					vtx.jointIds.resize(jointIds[vtxIdx].length());
-					for (j=0; j<jointIds[vtxIdx].length(); j++)
+					vertices[vtxIdx].jointIds.resize(jointIds[vtxIdx].length());
+					for (int j=0; j<jointIds[vtxIdx].length(); j++)
 					{
-						vtx.jointIds[j] = (jointIds[vtxIdx])[j];
+						vertices[vtxIdx].jointIds[j] = (jointIds[vtxIdx])[j];
 					}
-					// save vertex texture coordinates
-					vtx.u.resize(uvsets.length());
-					vtx.v.resize(uvsets.length());
-					for (j=0; j<uvsets.length(); j++)
+					// save uv sets data
+					for (int j=0; j<uvsets.length(); j++)
 					{
 						float2 uv;
-						stat = faceIter.getUV(i,uv,&uvsets[j]);
+						stat = faceIter.getUV(triVertexIdx[i],uv,&uvsets[j]);
 						if (MS::kSuccess != stat)
 						{
 							msg = "Warning, no uv assigned to vertex for uvset ";
@@ -335,22 +273,118 @@ MStatus TransferMesh::load(MDagPath& meshDag,ParamList &params,TransferSkeleton*
 							uv[0] = 0;
 							uv[1] = 0;
 						}
-						vtx.u[j] = uv[0];
-						vtx.v[j] = (-1)*(uv[1]-1);
+						vertices[vtxIdx].u[j] = uv[0];
+						vertices[vtxIdx].v[j] = (-1)*(uv[1]-1);
 					}
-					vtx.next = -1;
-					vertices.push_back(vtx);
 					// save vertex index in face info
-					faces[faceIter.index()].v[i] = vertices.size()-1;
-					vertices[idx].next = vertices.size()-1;
+					newFace.v[i] = vtxIdx;
+					// update value of index to next vertex info (-1 means nothing next)
+					vertices[vtxIdx].next = -1;
 				}
-				else
+				else	// already found at least 1 vertex in this position
 				{
-					faces[faceIter.index()].v[i] = idx;
+					// check if a vertex with same attributes has been saved already
+					for (k=vtxIdx; k!=-1 && different; k=vertices[k].next)
+					{
+						different = false;
+
+						if (params.exportVertNorm)
+						{
+							MFloatVector n1 = normals[vertices[k].normalIdx];
+							MFloatVector n2 = normals[nrmIdx];
+							if (n1.x!=n2.x || n1.y!=n2.y || n1.z!=n2.z)
+								different = true;
+						}
+
+						if ((params.exportVertCol) &&
+							(vertices[k].r!=color.r || vertices[k].g!=color.g || vertices[k].b!= color.b || vertices[k].a!=color.a))
+						{
+							different = true;
+						}
+
+						if (params.exportTexCoord)
+						{
+							for (int j=0; j<uvsets.length(); j++)
+							{
+								float2 uv;
+								stat = faceIter.getUV(triVertexIdx[i],uv,&uvsets[j]);
+								if (MS::kSuccess != stat)
+								{
+									uv[0] = 0;
+									uv[1] = 0;
+								}
+								uv[1] = (-1)*(uv[1]-1);
+								if (vertices[k].u[j]!=uv[0] || vertices[k].v[j]!=uv[1])
+									different = true;
+							}
+						}
+
+						idx = k;
+					}
+					// if no identical vertex has been saved, then save the vertex info
+					if (different)
+					{
+						vertex vtx;
+						// save vertex position
+						vtx.pointIdx = vtxIdx;
+						// save vertex normal
+						vtx.normalIdx = nrmIdx;
+						// save vertex colour
+						vtx.r = color.r;
+						vtx.g = color.g;
+						vtx.b = color.b;
+						vtx.a = color.a;
+						// save vertex vba
+						vtx.vba.resize(weights[vtxIdx].length());
+						for (j=0; j<weights[vtxIdx].length(); j++)
+						{
+							vtx.vba[j] = (weights[vtxIdx])[j];
+						}
+						// save joint ids
+						vtx.jointIds.resize(jointIds[vtxIdx].length());
+						for (j=0; j<jointIds[vtxIdx].length(); j++)
+						{
+							vtx.jointIds[j] = (jointIds[vtxIdx])[j];
+						}
+						// save vertex texture coordinates
+						vtx.u.resize(uvsets.length());
+						vtx.v.resize(uvsets.length());
+						for (j=0; j<uvsets.length(); j++)
+						{
+							float2 uv;
+							stat = faceIter.getUV(triVertexIdx[i],uv,&uvsets[j]);
+							if (MS::kSuccess != stat)
+							{
+								msg = "Warning, no uv assigned to vertex for uvset ";
+								msg += uvsets[j];
+								MGlobal::displayInfo(msg);
+								uv[0] = 0;
+								uv[1] = 0;
+							}
+							vtx.u[j] = uv[0];
+							vtx.v[j] = (-1)*(uv[1]-1);
+						}
+						vtx.next = -1;
+						vertices.push_back(vtx);
+						// save vertex index in face info
+						newFace.v[i] = vertices.size()-1;
+						vertices[idx].next = vertices.size()-1;
+					}
+					else
+					{
+						newFace.v[i] = idx;
+					}
 				}
-			}			
-		}
+			} // end iteration of triangle vertices
+			faces.push_back(newFace);
+		} // end iteration of triangles
 	}
+	//set flag for use of 32 bit indexes
+	if (faces.size() < 65536 && vertices.size() < 65536)
+		mUse32bitIndexes = false;
+	else
+		mUse32bitIndexes = true;
+
 	return MS::kSuccess;
 }
 
@@ -867,3 +901,4 @@ MStatus TransferMesh::writeTexture(MFnDependencyNode& tex,TexOpType texOp,ParamL
 
 	return MS::kSuccess;
 }
+

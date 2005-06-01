@@ -7,6 +7,7 @@
 void ParamList::parseArgs(const MArgList &args)
 {
 	MStatus stat;
+	// Parse arguments from command line
 	for (unsigned int i = 0; i < args.length(); i++ )
 	{
         if ((MString("-all") == args.asString(i,&stat)) && (MS::kSuccess == stat))
@@ -75,6 +76,22 @@ void ParamList::parseArgs(const MArgList &args)
 		{
 			exportSkelBin = true;
 		}
+	}
+	// Read options from exporter window
+	int neutralPoseType;
+	MGlobal::executeCommand("radioButtonGrp -q -select NeutralPoseRadio",neutralPoseType);
+	switch (neutralPoseType)
+	{
+	case 1:
+		neutralPoseType = 0;
+		break;
+	case 2:
+		neutralPoseType = 1;
+		break;
+	case 3:
+		neutralPoseType = 2;
+		MGlobal::executeCommand("intField -q -v NeutralPoseFrame",neutralPoseFrame);
+		break;
 	}
 }
 
