@@ -231,6 +231,10 @@ global proc formatUI()
 		checkBox -edit -value false ExportAnims;
 	checkBox -edit -enable $exportSkeleton ExportAnims;
 	int $exportAnims = `checkBox -query -value ExportAnims`;
+	text -edit -enable $exportAnims NeutralPoseLabel;
+	radioButtonGrp -edit -enable $exportAnims NeutralPoseRadio;
+	int $neutralPoseType = `radioButtonGrp -query -select NeutralPoseRadio`;
+	intField -edit -enable (($neutralPoseType == 3)&&($exportAnims)) NeutralPoseFrame;
 	int $i;
 	for ($i=1; $i<=$numClips; $i++)
 	{
@@ -253,7 +257,7 @@ global proc formatUI()
 		radioButtonGrp -edit -enable (($rangeType == 1)&&($exportClip)) ("ClipRangeUnits"+$i);
 
 		int $rateType = `radioButtonGrp -query -select ("ClipRateType"+$i)`;
-		floatField -edit -enable (($rateType == 1)&&($exportClip)) ("ClipRateFrames"+$i);
+		intField -edit -enable (($rateType == 1)&&($exportClip)) ("ClipRateFrames"+$i);
 		floatField -edit -enable (($rateType == 2)&&($exportClip)) ("ClipRateSeconds"+$i);
 	} 
 		
@@ -584,6 +588,33 @@ global proc defineUIView()
 					-label "Export animations (requires export of skeleton)"
 				ExportAnims;
 
+				text
+					-parent AnimsLayout
+					-label "Frame for neutral pose:"
+				NeutralPoseLabel;
+
+				radioButtonGrp
+					-parent AnimsLayout
+					-numberOfRadioButtons 3
+					-labelArray3 "Current frame" "Skin bind pose" "Frame:"
+					-cw 1 100
+					-cw 2 100
+					-cw 3 100
+					-select 1
+					-changeCommand "formatUI()"
+				NeutralPoseRadio;
+
+				columnLayout
+					-parent AnimsLayout
+					-columnAttach "left" 200
+				NeutralPoseFrameLayout;
+
+					intField
+						-parent NeutralPoseFrameLayout
+						-value 0
+						-width 50
+					NeutralPoseFrame;
+
 				columnLayout
 					-parent AnimsLayout
 					-columnAttach "left" 0
@@ -878,7 +909,7 @@ global proc addClip()
 				-columnAttach 2 "both" 15
 			("ClipRateLayout"+$numClips);
 							
-				floatField
+				intField
 					-parent ("ClipRateLayout"+$numClips)
 					-width 50
 					-value 1.000

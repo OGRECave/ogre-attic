@@ -92,7 +92,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include,C:\Program Files\Alias\Maya6.5\include"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya6.5\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"

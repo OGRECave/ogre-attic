@@ -35,6 +35,9 @@ public:
 
 	std::vector<clipInfo> clipList;
 
+	unsigned short neutralPoseType;		// 0 means use current frame, 1 use bind pose, 2 use specified frame
+	long neutralPoseFrame;				// frame to use as neutral pose
+
 	// constructor
 	ParamList()	{
 		exportMesh = false;
@@ -59,6 +62,8 @@ public:
 		animFilename = "";
 		camerasFilename = "";
 		clipList.clear();
+		neutralPoseType = 0;	// set default to current frame
+		neutralPoseFrame = 0;
 	}
 
 	ParamList& operator=(ParamList& source)	{
@@ -91,6 +96,8 @@ public:
 			clipList[i].stop = source.clipList[i].stop;
 			clipList[i].rate = source.clipList[i].rate;
 		}
+		neutralPoseType = source.neutralPoseType;
+		neutralPoseFrame = source.neutralPoseFrame;
 		return *this;
 	}
 

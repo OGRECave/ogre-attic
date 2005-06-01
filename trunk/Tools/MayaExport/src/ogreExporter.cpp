@@ -40,7 +40,7 @@ MStatus OgreExporter::doIt(const MArgList& args)
 				command += i;
 				MGlobal::executeCommand(command,rangeUnits,false);
 				if (rangeUnits == 1)
-				{	//range specified in range => convert to seconds
+				{	//range specified in frames => convert to seconds
 					MTime t1 = startTime;
 					MTime t2 = stopTime;
 					startTime = t1.as(MTime::kSeconds);
@@ -62,7 +62,7 @@ MStatus OgreExporter::doIt(const MArgList& args)
 			switch (rateType)
 			{
 			case 1:	//rate specified in frames
-				command = "floatField -q -v ClipRateFrames";
+				command = "intField -q -v ClipRateFrames";
 				command += i;
 				MGlobal::executeCommand(command,rate,false);
 				t = rate;
