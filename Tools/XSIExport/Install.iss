@@ -1,7 +1,8 @@
 
 [Setup]
 AppName=OGRE XSI Exporter
-AppVerName=OGRE XSI Exporter 1.0.1c
+AppVersion=1.0.2
+AppVerName=OGRE XSI Exporter 1.0.2
 DefaultDirName=c:\SoftImage\XSI_4.2
 DefaultGroupName=OGRE XSI Exporter
 Compression=lzma

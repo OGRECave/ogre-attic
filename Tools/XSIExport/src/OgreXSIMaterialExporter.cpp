@@ -946,6 +946,9 @@ namespace Ogre {
 			return TextureUnitState::TAM_CLAMP;
 
 		};
+
+		// Keep compiler happy
+		return TextureUnitState::TAM_WRAP;
 	}
 	//-------------------------------------------------------------------------
 	SceneBlendFactor XsiMaterialExporter::convertSceneBlend(short xsiVal)
