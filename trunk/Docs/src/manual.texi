@@ -383,6 +383,11 @@ material walls/funkywall1
 
 Every material in the script must be given a name, which is the line 'material <blah>' before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your materials, and also to avoid duplicate names, but the engine does not treat the name as hierarchical, just as a string.@*@*
 
+@strong{ NOTE: ':' is the delimiter for specifying material copy in the script so it can't be used as part of the material name.}
+@*@*
+
+A material can copy from a previously defined material by using a @emph{colon} @strong{:} after the material name followed by the name of the reference material to copy. If the reference material can not be found then it is ignored.  (@xref{Copying Materials})@*@*
+
 A material can be made up of many techniques (@xref{Techniques})- a technique is one way of achieving the effect you are looking for. You can supply more than one technique in order to provide fallback approaches where a card does not have the ability to render the preferred technique, or where you wish to define lower level of detail versions of the material in order to conserve rendering power when objects are more distant. @*@*
 
 Each technique can be made up of many passes (@xref{Passes}), that is a complete render of the object can be performed multiple times with different settings in order to produce composite effects. Ogre may also split the passes you have defined into many passes at runtime, if you define a pass which uses too many texture units for the card you are currently running on (note that it can only do this if you are not using a fragment program). Each pass has a number of top-level attributes such as 'ambient' to set the amount & colour of the ambient light reflected by the material. Some of these options do not apply if you are using vertex programs, @xref{Passes} for more details. @*@*
@@ -429,6 +434,10 @@ Note that if the number of texture_unit entries exceeds the number of texture un
 @*
 In a material script, techniques must be listed in order of preference, i.e. the earlier techniques are preferred over the later techniques. This normally means you will list your most advanced, most demanding techniques first in the script, and list fallbacks afterwards.@*@*
 
+To help clearly identify what each technique is used for, the technique can be named but its optional.  Techniques not named within the script will take on a name that is the technique index number.  For example: the first technique in a material is index 0, its name would be "0" if it was not given a name in the script.  The technique name must be unqiue within the material or else the final technique is the resulting merge of all techniques with the same name in the material.  A warning message is posted in the Ogre.log if this occurs.  Named techniques can help when copying a material and modifying an existing technique: (@xref{Copying Materials})@*@*
+
+Format technique name@*@*
+
 Techniques have only one attribute of their own, which indicates which LOD index they belong to (@xref{lod_index}). We also mention an extra Material attribute called @ref{lod_distances} which isn't a Technique attribute but is directly related to the lod_index attribute, so it's listed here for convenience.@*@*
 
 @anchor{lod_index}
@@ -465,6 +474,9 @@ Techniques also contain one or more passes (and there must be at least one), @xr
 @node Passes
 @subsection Passes
 A pass is a single render of the geometry in question; a single call to the rendering API with a certain set of rendering properties. A technique can have between one and 16 passes, although clearly the more passes you use, the more expensive the technique will be to render.@*@*
+
+To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be "0" if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (@xref{Copying Materials})@*@*
+
 Passes have a set of global attributes (described below), zero or more nested texture_unit entries (@xref{Texture Units}), and optionally a reference to a vertex and / or a fragment program (@xref{Using Vertex and Fragment Programs in a Pass}).
 
 @*@*
@@ -1499,6 +1511,8 @@ Near clip distance, in world units
 Far clip distance, in world units (may be 0 for infinite view projection)
 @item texture_viewproj_matrix
 Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
+@item pass_number
+Sets the active pass index number in a gpu parameter.  The first pass in a technique has an index of 0, the second an index of 1 and so on.  This is usefull for multipass shaders (ie fur or blur shader) that need to know what pass it is.  By setting up the auto parameter in a @ref{Default Program Parameters} list in a program definition, there is no requirement to set the pass number parameter in each pass and lose track.
 @item custom
 This allows you to map a custom parameter on an individual Renderable (see Renderable::setCustomParameter) to a parameter on a GPU program. It requires that you complete the 'extra_params' field with the index that was used in the Renderable::setCustomParameter call, and this will ensure that whenever this Renderable is used, it will have it's custom parameter mapped in. It's very important that this parameter has been defined on all Renderables that are assigned the material that contains this automatic mapping, otherwise the process will fail.
 @end table
@@ -1549,6 +1563,7 @@ shadow_receiver_vertex_program_ref myShadowReceiverVertexProgram
 
 For the purposes of writing this alternate program, there is an automatic parameter binding of 'texture_viewproj_matrix' which provides the program with texture projection parameters. The vertex program should do it's normal vertex processing, and generate texture coordinates using this matrix and place them in texture coord sets 0 and 1, since some shadow techniques use 2 texture units. The colour of the vertices output by this vertex program must always be white, so as not to affect the final colour of the rendered shadow.
 
+@include MaterialScriptCopy.inc
 
 @node Particle Scripts
 @section Particle Scripts
