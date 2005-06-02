@@ -14,13 +14,18 @@ menu -label "Ogre" -tearOff false;
 global proc ogreExporter()
 {
 	defineUIView();
-	initUI();
-	formatUI();
+	string $valStrings[];
+	$valStrings = `fileInfo -q "ogreExporter_savedSettings"`;
+	if (`gmatch $valStrings[0] "1"`)
+		loadSettings();
+	else
+		defaultSettings();
 }
 
 // ===== Export
 global proc runOgreExport()
 {
+	saveSettings();
 	// ===== Files and directories
 	string $sceneFile    = `file -query -sceneName`;
 	string $mayaFile     = basename($sceneFile, "");
@@ -180,7 +185,7 @@ global proc formatUI()
 	// --- Common parameters
 
 	// --- Mesh Export
-	int $exportMesh = `checkBox -query -value ExportMesh`;
+	int $exportMesh = `checkBox -q -v ExportMesh`;
       checkBox -edit -enable $exportMesh ExportVBA;
 	checkBox -edit -enable $exportMesh ExportMeshNormals;
 	checkBox -edit -enable $exportMesh ExportMeshColours;
@@ -725,6 +730,45 @@ global proc defineUIView()
 			-width 325
 		ButtonExport;
 
+		// --- Manage settings
+		separator
+			-parent OgreExportLayout
+			-style "in" 
+			-width 325
+			-height 5;
+
+		rowLayout
+			-parent OgreExportLayout
+			-numberOfColumns 3
+			-columnWidth3 110 110 100
+			-columnAlign 1 "center"
+			-columnAlign 2 "center"
+			-columnAlign 3 "center"
+		SettingsButtonsLayout;
+
+			button
+				-parent SettingsButtonsLayout
+				-label "Load settings"
+				-command "loadSettings"
+				-width 100
+			LoadSettingsButton;
+
+			button
+				-parent SettingsButtonsLayout
+				-label "Save settings"
+				-command "saveSettings"
+				-width 100
+			SaveSettingsButton;
+
+			button
+				-parent SettingsButtonsLayout
+				-label "Default settings"
+				-command "defaultSettings"
+				-width 100
+			DefaultSettingsButton;
+
+
+
 	// --- Add an empty clip
 	addClip();
 	// --- Show the Window
@@ -931,5 +975,264 @@ global proc delClip()
 		deleteUI("ClipFrame"+$numClips);
 		$numClips--;
 	}
+	formatUI();
+}
+
+global proc saveSettings()
+{
+	fileInfo "ogreExporter_savedSettings" "1";
+	// Common parameters
+	fileInfo "ogreExporter_outputDir" `textField -query -fileName OutputDirectory`;
+	fileInfo "ogreExporter_exportType" `radioCollection -q -select ExportTypeCollection`;
+	fileInfo "ogreExporter_coordsType" `radioCollection -q -select CoordsTypeCollection`;		
+
+	// Mesh
+	fileInfo "ogreExporter_exportMesh" `checkBox -q -v ExportMesh`;
+	fileInfo "ogreExporter_exportVBA" `checkBox -q -v ExportVBA`;
+	fileInfo "ogreExporter_exportNormals" `checkBox -q -v ExportMeshNormals`;
+	fileInfo "ogreExporter_exportColours" `checkBox -q -v ExportMeshColours`;
+	fileInfo "ogreExporter_exportColWhite" `checkBox -q -v ExportMeshColoursWhite`;
+	fileInfo "ogreExporter_exportUVs" `checkBox -q -v ExportMeshUVs`;
+	fileInfo "ogreExporter_meshFilename" `textField -q -text ExportMeshFilename`;
+	fileInfo "ogreExporter_exportMeshBin" `checkBox -q -v ExportMeshBin`;
+	fileInfo "ogreExporter_buildEdges" `checkBox -q -v BuildEdges`;
+	fileInfo "ogreExporter_buildTangents" `checkBox -q -v BuildTangents`;
+	
+	// Materials
+	fileInfo "ogreExporter_exportMat" `checkBox -q -v ExportMaterial`;
+	fileInfo "ogreExporter_materialFile" `textField -q -text ExportMaterialFilename`;
+	fileInfo "ogreExporter_matPrefix" `textField -q -text ExportMaterialPrefix`;
+	fileInfo "ogreExporter_copyTextures" `checkBox -q -v CopyTextures`;
+	fileInfo "ogreExporter_lightingOff" `checkBox -q -v MatLightingOff`;
+	
+	// Skeleton	
+	fileInfo "ogreExporter_exportSkel" `checkBox -q -v ExportSkeleton`;
+	fileInfo "ogreExporter_skelFilename" `textField -q -text ExportSkeletonFilename`; 
+	fileInfo "ogreExporter_exportSkelBin" `checkBox -q -v ExportSkeletonBin`;
+	
+	// Animations
+	fileInfo "ogreExporter_exportAnims" `checkBox -q -v ExportAnims`;
+	fileInfo "ogreExporter_neutralPoseType" `radioButtonGrp -q -select NeutralPoseRadio`;
+	fileInfo "ogreExporter_neutralPoseFrame" `intField -q -v NeutralPoseFrame`;
+	global int $numClips;
+	fileInfo "ogreExporter_numClips" $numClips;
+	int $i; 
+	for ($i=1; $i<=$numClips; $i++)
+	{
+		fileInfo ("ogreExporter_exportClip"+$i) `checkBox -q -v ("ExportClip"+$i)`;
+		fileInfo ("ogreExporter_clipName"+$i) `textField -q -text ("ClipName"+$i)`;
+		fileInfo ("ogreExporter_clipRangeType"+$i) `radioButtonGrp -q -select ("ClipRangeRadio"+$i)`;
+		fileInfo ("ogreExporter_clipStart"+$i) `floatField -q -v ("ClipRangeStart"+$i)`;
+		fileInfo ("ogreExporter_clipEnd"+$i) `floatField -q -v ("ClipRangeEnd"+$i)`;
+		fileInfo ("ogreExporter_clipRangeUnits"+$i) `radioButtonGrp -q -select ("ClipRangeUnits"+$i)`;
+		fileInfo ("ogreExporter_clipRateType"+$i) `radioButtonGrp -q -select ("ClipRateType"+$i)`;
+		fileInfo ("ogreExporter_clipRateFrames"+$i) `intField -q -v ("ClipRateFrames"+$i)`;
+		fileInfo ("ogreExporter_clipRangeSeconds"+$i) `floatField -q -v ("ClipRateSeconds"+$i)`;
+	}
+
+	// Anim Curves
+	fileInfo "ogreExporter_exportAnimCurves" `checkBox -q -v ExportAnimCurves`;
+	fileInfo "ogreExporter_animCurvesFilename" `textField -q -text ExportAnimCurvesFilename`;
+	
+	// Cameras
+	fileInfo "ogreExporter_exportCameras" `checkBox -q -v ExportCameras`;
+	fileInfo "ogreExporter_exportCamerasAnim" `checkBox -q -v ExportCamerasAnim`;
+	fileInfo "ogreExporter_camerasFilename" `textField -q -text ExportCamerasFilename`;
+}
+
+global proc loadSettings()
+{
+	string $valStrings[];
+	int $valInt;
+	float $valFloat;
+	$valStrings = `fileInfo -q "ogreExporter_savedSettings"`;
+	if (`gmatch $valStrings[0] "1"`)
+	{
+		// Common parameters
+		textField -edit -fileName `fileInfo -q "ogreExporter_outputDir"` OutputDirectory;
+		radioCollection -edit -select `fileInfo -q "ogreExporter_exportType"` ExportTypeCollection;
+		radioCollection -edit -select `fileInfo -q "ogreExporter_coordsType"` CoordsTypeCollection;
+	
+		// Mesh
+		$valStrings = `fileInfo -q "ogreExporter_exportMesh"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMesh;
+		$valStrings = `fileInfo -q "ogreExporter_exportVBA"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportVBA;
+		$valStrings = `fileInfo -q "ogreExporter_exportNormals"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMeshNormals;
+		$valStrings = `fileInfo -q "ogreExporter_exportColours"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMeshColours;
+		$valStrings = `fileInfo -q "ogreExporter_exportColWhite"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMeshColoursWhite;
+		$valStrings = `fileInfo -q "ogreExporter_exportUVs"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMeshUVs;
+		textField -edit -text `fileInfo -q "ogreExporter_meshFilename"` ExportMeshFilename;
+		$valStrings = `fileInfo -q "ogreExporter_exportMeshBin"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMeshBin;
+		$valStrings = `fileInfo -q "ogreExporter_buildEdges"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildEdges;
+		$valStrings = `fileInfo -q "ogreExporter_buildTangents"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` BuildTangents;
+	
+		// Materials
+		$valStrings = `fileInfo -q "ogreExporter_exportMat"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMaterial;
+		textField -edit -text `fileInfo -q "ogreExporter_materialFile"` ExportMaterialFilename;
+		textField -edit -text `fileInfo -q "ogreExporter_matPrefix"` ExportMaterialPrefix;
+		$valStrings = `fileInfo -q "ogreExporter_copyTextures"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` CopyTextures;
+		$valStrings = `fileInfo -q "ogreExporter_lightingOff"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` MatLightingOff;
+	
+		// Skeleton		
+		$valStrings = `fileInfo -q "ogreExporter_exportSkel"` ;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportSkeleton;
+		textField -edit -text `fileInfo -q "ogreExporter_skelFilename"` ExportSkeletonFilename;
+		$valStrings = `fileInfo -q "ogreExporter_exportSkelBin"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportSkeletonBin;
+	
+		// Animations
+		$valStrings = `fileInfo -q "ogreExporter_exportAnims"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportAnims;
+		$valStrings = `fileInfo -q "ogreExporter_neutralPoseType"`;
+		$valInt = $valStrings[0];
+		radioButtonGrp -edit -select $valInt NeutralPoseRadio;
+		$valStrings = `fileInfo -q "ogreExporter_neutralPoseFrame"`;
+		$valInt = $valStrings[0];
+		intField -edit -v $valInt NeutralPoseFrame;
+		$valString = `fileInfo -q "ogreExporter_numClips"`;
+		int $n = $valString[0];
+		$valInt = $valString[0];
+		global int $numClips;
+		for (;$numClips>1;delClip());
+		int $i;
+		for ($i=1; $i<=$n; $i++)
+		{
+			if ($i > 1)
+				addClip();
+			$valStrings = `fileInfo -q ("ogreExporter_exportClip"+$i)`;
+			checkBox -edit -v `gmatch $valStrings[0] "1"` ("ExportClip"+$i);
+			textField -edit -text `fileInfo -q ("ogreExporter_clipName"+$i)` ("ClipName"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipRangeType"+$i)`;
+			$valInt = $valStrings[0];
+			radioButtonGrp -edit -select $valInt ("ClipRangeRadio"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipStart"+$i)`;
+			$valFloat = $valStrings[0];
+			floatField -edit -v $valFloat ("ClipRangeStart"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipEnd"+$i)`;
+			$valFloat = $valStrings[0];
+			floatField -edit -v $valFloat ("ClipRangeEnd"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipRangeUnits"+$i)`;
+			$valInt = $valStrings[0];
+			radioButtonGrp -edit -select $valInt ("ClipRangeUnits"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipRateType"+$i)`;
+			$valInt = $valStrings[0];
+			radioButtonGrp -edit -select $valInt ("ClipRateType"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipRateFrames"+$i)`;
+			$valInt = $valStrings[0];
+			intField -edit -v $valInt ("ClipRateFrames"+$i);
+			$valStrings = `fileInfo -q ("ogreExporter_clipRateSeconds"+$i)`;
+			$valFloat = $valStrings[0];
+			floatField -edit -v $valFloat ("ClipRateSeconds"+$i);
+		}
+	
+		// Anim Curves
+		$valStrings = `fileInfo -q "ogreExporter_exportAnimCurves"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportAnimCurves;
+		textField -edit -text `fileInfo -q "ogreExporter_animCurvesFilename"` ExportAnimCurvesFilename;
+	
+		// Cameras
+		$valStrings = `fileInfo -q "ogreExporter_exportCameras"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportCameras;
+		$valStrings = `fileInfo -q "ogreExporter_exportCamerasAnim"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportCamerasAnim;
+		textField -edit -text `fileInfo -q "ogreExporter_camerasFilename"` ExportCamerasFilename;
+	
+		formatUI();
+	}
+}
+
+global proc defaultSettings()
+{
+	// Common parameters
+	textField -edit -fileName "" OutputDirectory;
+	radioCollection -edit -select "RadioButtonAll" ExportTypeCollection;
+	radioCollection -edit -select "RadioButtonWorld" CoordsTypeCollection;
+
+	// Mesh
+	checkBox -edit -v 0 ExportMesh;
+	checkBox -edit -v 1 ExportVBA;
+	checkBox -edit -v 1 ExportMeshNormals;
+	checkBox -edit -v 0 ExportMeshColours;
+	checkBox -edit -v 0 ExportMeshColoursWhite;
+	checkBox -edit -v 1 ExportMeshUVs;
+	textField -edit -text "" ExportMeshFilename;
+	checkBox -edit -v 0 ExportMeshBin;
+	checkBox -edit -v 0 BuildEdges;
+	checkBox -edit -v 0 BuildTangents;
+
+	// Materials
+	checkBox -edit -v 0 ExportMaterial;
+	textField -edit -text "" ExportMaterialFilename;
+	textField -edit -text "" ExportMaterialPrefix;
+	checkBox -edit -v 0 CopyTextures;
+	checkBox -edit -v 0 MatLightingOff;
+
+	// Skeleton	
+	checkBox -edit -v 0 ExportSkeleton;
+	textField -edit -text "" ExportSkeletonFilename;
+	checkBox -edit -v 0 ExportSkeletonBin;
+
+	// Animations
+	checkBox -edit -v 0 ExportAnims;
+	radioButtonGrp -edit -select 1 NeutralPoseRadio;
+	intField -edit -v 0 NeutralPoseFrame;
+	global int $numClips;
+	for (;$numClips>1;delClip());
+	checkBox -edit -v 0 ExportClip1;
+	textField -edit -text "clip1" ClipName1;
+	radioButtonGrp -edit -select 1 ClipRangeRadio1;
+	floatField -edit -v 0 ClipRangeStart1;
+	floatField -edit -v 0 ClipRangeEnd1;
+	radioButtonGrp -edit -select 1 ClipRangeUnits1;
+	radioButtonGrp -edit -select 1 ClipRateType1;
+	intField -edit -v 1 ClipRateFrames1;
+	floatField -edit -v 0.1 ClipRateSeconds1;
+
+	// Anim Curves
+	checkBox -edit -v 0 ExportAnimCurves;
+	textField -edit -text "" ExportAnimCurvesFilename;
+
+	// Cameras
+	checkBox -edit -v 0 ExportCameras;
+	checkBox -edit -v 0 ExportCamerasAnim;
+	textField -edit -text `fileInfo -q "ogreExporter_camerasFilename"` ExportCamerasFilename;
+
+	// Initialize filenames
+	string $sceneFile = `file -query -sceneName`;
+	string $sceneDir = dirname($sceneFile);
+	string $baseFile = basename($sceneFile, ".mb");
+	textField -edit -fileName $sceneDir SceneDirectory;
+	
+	// --- Mesh Export
+	string $meshFile = $baseFile + ".mesh.xml";
+	textField -edit -fileName $meshFile ExportMeshFilename;
+	
+	// --- Material Export
+	string $matFile = $baseFile + ".material";
+	textField -edit -fileName $matFile ExportMaterialFilename;
+
+	// --- Skeleton Export
+	string $skelFile = $baseFile + ".skeleton.xml";
+	textField -edit -fileName $skelFile ExportSkeletonFilename;
+
+	// --- Camera Export
+	string $camFile = $baseFile + ".camera";
+	textField -edit -fileName $camFile ExportCamerasFilename;
+
+	// --- Anim Curves Export
+	string $animFile = $baseFile + ".anim";
+	textField -edit -fileName $animFile ExportAnimCurvesFilename;
+
 	formatUI();
 }
