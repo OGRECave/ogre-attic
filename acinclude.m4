@@ -325,10 +325,10 @@ AC_DEFUN([OGRE_CHECK_OPENEXR],
               [build_exr=$enableval],
               [build_exr=no])
 
-if test "x$build_exr" = "xno" ; then
+if test "x$build_exr" = "xyes" ; then
 	PKG_CHECK_MODULES(OPENEXR, OpenEXR, [build_exr=yes], [build_exr=no])
 
-	if test "x$build_exr" = "xno" ; then
+	if test "x$build_exr" = "xyes" ; then
 	   	AC_CONFIG_FILES([ PlugIns/EXRCodec/Makefile \
     					 PlugIns/EXRCodec/src/Makefile \
     					 PlugIns/EXRCodec/include/Makefile])
