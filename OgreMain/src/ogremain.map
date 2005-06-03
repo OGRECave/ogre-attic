@@ -34,7 +34,11 @@
             Ogre::GpuProgramPtr::*;
             Ogre::GpuProgramManager::*;
             Ogre::GpuProgramUsage::*;
-            Ogre::H*;
+            Ogre::Hardware[IOPV]*;
+            Ogre::HardwareBuffer::*;
+            Ogre::HardwareBufferLicensee::*;
+            Ogre::HardwareBufferManager::[^V]*;
+            Ogre::Hi*;
             Ogre::Image::*;
             Ogre::ImageCodec::[^I]*;
             Ogre::ImageCodec::Image[^D]*;
