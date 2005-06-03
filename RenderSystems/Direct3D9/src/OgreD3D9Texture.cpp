@@ -1173,18 +1173,28 @@ namespace Ogre
 		}
 	}
 	/****************************************************************************************/
-	void D3D9Texture::releaseIfDefaultPool(void)
+	bool D3D9Texture::releaseIfDefaultPool(void)
 	{
 		if(mD3DPool == D3DPOOL_DEFAULT)
 		{
+			LogManager::getSingleton().logMessage(
+				"Releasing D3D9 default pool texture: " + mName);
 			unload();
+			LogManager::getSingleton().logMessage(
+				"Released D3D9 default pool texture: " + mName);
+			return true;
 		}
+		return false;
 	}
 	/****************************************************************************************/
-	void D3D9Texture::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
+	bool D3D9Texture::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
 	{
+		bool ret = false;
 		if(mD3DPool == D3DPOOL_DEFAULT)
 		{
+			ret = true;
+			LogManager::getSingleton().logMessage(
+				"Recreating D3D9 default pool texture: " + mName);
 			// There are 2 possible scenarios here:
 			// 1. This is a render target
 			// 2. This is a dynamic texture, which probably won't have a loader,
@@ -1200,9 +1210,13 @@ namespace Ogre
 				// Dynamic texture with a loader, call it
                 load();
 			}
+			LogManager::getSingleton().logMessage(
+				"Recreated D3D9 default pool texture: " + mName);
 		}
 		// re-query the surface list anyway
 		_createSurfaceList(true);
+
+		return ret;
 
 	}
 

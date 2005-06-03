@@ -116,16 +116,18 @@ namespace Ogre {
         memcpy(pDst, pSource, length);
         this->unlock();    }
 	//---------------------------------------------------------------------
-	void D3D9HardwareIndexBuffer::releaseIfDefaultPool(void)
+	bool D3D9HardwareIndexBuffer::releaseIfDefaultPool(void)
 	{
 		if (mD3DPool == D3DPOOL_DEFAULT)
 		{
 			SAFE_RELEASE(mlpD3DBuffer);
+			return true;
 		}
+		return false;
 
 	}
 	//---------------------------------------------------------------------
-	void D3D9HardwareIndexBuffer::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
+	bool D3D9HardwareIndexBuffer::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
 	{
 		if (mD3DPool == D3DPOOL_DEFAULT)
 		{
@@ -145,7 +147,10 @@ namespace Ogre {
 				OGRE_EXCEPT(hr, "Cannot create D3D9 Index buffer: " + msg, 
 					"D3D9HardwareIndexBuffer::D3D9HardwareIndexBuffer");
 			}
+
+			return true;
 		}
+		return false;
 	}
 	//---------------------------------------------------------------------
 

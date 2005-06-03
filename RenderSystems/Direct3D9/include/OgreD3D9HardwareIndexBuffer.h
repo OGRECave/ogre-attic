@@ -51,9 +51,9 @@ namespace Ogre {
 				bool discardWholeBuffer = false);
 
 		/// For dealing with lost devices - release the resource if in the default pool
-		void releaseIfDefaultPool(void);
+		bool releaseIfDefaultPool(void);
 		/// For dealing with lost devices - recreate the resource if in the default pool
-		void recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev);
+		bool recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev);
 
 		/// Get the D3D-specific index buffer
         LPDIRECT3DINDEXBUFFER9 getD3DIndexBuffer(void) { return mlpD3DBuffer; }

@@ -160,10 +160,10 @@ namespace Ogre {
 		/// utility method, find closest Ogre pixel format that D3D9 can support
 		static PixelFormat _getClosestSupportedPF(PixelFormat ogrePF);
 
-		/// For dealing with lost devices - release the resource if in the default pool
-		void releaseIfDefaultPool(void);
-		/// For dealing with lost devices - recreate the resource if in the default pool
-		void recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev);
+		/// For dealing with lost devices - release the resource if in the default pool (and return true)
+		bool releaseIfDefaultPool(void);
+		/// For dealing with lost devices - recreate the resource if in the default pool (and return true)
+		bool recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev);
 
     };
 
