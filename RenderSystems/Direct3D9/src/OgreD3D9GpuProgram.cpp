@@ -103,6 +103,13 @@ namespace Ogre {
         mType = GPT_VERTEX_PROGRAM;
     }
 	//-----------------------------------------------------------------------------
+	D3D9GpuVertexProgram::~D3D9GpuVertexProgram()
+	{
+		// have to call this here reather than in Resource destructor
+		// since calling virtual methods in base destructors causes crash
+		unload(); 
+	}
+	//-----------------------------------------------------------------------------
     void D3D9GpuVertexProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
     {
 		if (isSupported())
@@ -140,6 +147,13 @@ namespace Ogre {
     {
         mType = GPT_FRAGMENT_PROGRAM;
     }
+	//-----------------------------------------------------------------------------
+	D3D9GpuFragmentProgram::~D3D9GpuFragmentProgram()
+	{
+		// have to call this here reather than in Resource destructor
+		// since calling virtual methods in base destructors causes crash
+		unload(); 
+	}
 	//-----------------------------------------------------------------------------
     void D3D9GpuFragmentProgram::loadFromMicrocode(LPD3DXBUFFER microcode)
     {

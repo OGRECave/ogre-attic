@@ -68,7 +68,7 @@ namespace Ogre {
     public:
         D3D9GpuVertexProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
             const String& group, bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev);
-
+		~D3D9GpuVertexProgram();
         /// Gets the vertex shader
         LPDIRECT3DVERTEXSHADER9 getVertexShader(void) const { return mpVertexShader; }
     protected:
@@ -85,6 +85,7 @@ namespace Ogre {
     public:
         D3D9GpuFragmentProgram(ResourceManager* creator, const String& name, ResourceHandle handle,
             const String& group, bool isManual, ManualResourceLoader* loader, LPDIRECT3DDEVICE9 pDev);
+		~D3D9GpuFragmentProgram();
         /// Gets the pixel shader
         LPDIRECT3DPIXELSHADER9 getPixelShader(void) const { return mpPixelShader; }
     protected:
