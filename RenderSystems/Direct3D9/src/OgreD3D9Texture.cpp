@@ -1204,6 +1204,8 @@ namespace Ogre
 				// render target, or dynamic texture with no loader
 				// just recreate underlying surfaces
 				createInternalResources();
+				// ensure freed at shutdown
+				mIsLoaded = true;
 			}
 			else
 			{
