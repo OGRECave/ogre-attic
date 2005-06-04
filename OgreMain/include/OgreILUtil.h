@@ -34,7 +34,7 @@ namespace Ogre {
     /* 
      * DevIL specific utility class
      **/    
-    class ILUtil {
+    class _OgrePrivate ILUtil {
     public:
     	/// Structure that encapsulates a devIL image format definition
 		struct ILFormat {

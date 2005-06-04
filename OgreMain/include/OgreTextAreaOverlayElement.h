@@ -130,7 +130,7 @@ namespace Ogre
         /** Command object for setting the caption.
                 @see ParamCommand
         */
-        class CmdCaption : public ParamCommand
+        class _OgrePrivate CmdCaption : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -140,7 +140,7 @@ namespace Ogre
         /** Command object for setting the char height.
                 @see ParamCommand
         */
-        class CmdCharHeight : public ParamCommand
+        class _OgrePrivate CmdCharHeight : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -150,7 +150,7 @@ namespace Ogre
         /** Command object for setting the width of a space.
                 @see ParamCommand
         */
-        class CmdSpaceWidth : public ParamCommand
+        class _OgrePrivate CmdSpaceWidth : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -160,7 +160,7 @@ namespace Ogre
         /** Command object for setting the caption.
                 @see ParamCommand
         */
-        class CmdFontName : public ParamCommand
+        class _OgrePrivate CmdFontName : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -170,7 +170,7 @@ namespace Ogre
         /** Command object for setting the top colour.
                 @see ParamCommand
         */
-        class CmdColourTop : public ParamCommand
+        class _OgrePrivate CmdColourTop : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -180,7 +180,7 @@ namespace Ogre
         /** Command object for setting the bottom colour.
                 @see ParamCommand
         */
-        class CmdColourBottom : public ParamCommand
+        class _OgrePrivate CmdColourBottom : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -190,7 +190,7 @@ namespace Ogre
         /** Command object for setting the constant colour.
                 @see ParamCommand
         */
-        class CmdColour : public ParamCommand
+        class _OgrePrivate CmdColour : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;
@@ -200,7 +200,7 @@ namespace Ogre
         /** Command object for setting the alignment.
                 @see ParamCommand
         */
-        class CmdAlignment : public ParamCommand
+        class _OgrePrivate CmdAlignment : public ParamCommand
         {
         public:
             String doGet( const void* target ) const;

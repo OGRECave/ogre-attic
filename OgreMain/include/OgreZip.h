@@ -79,7 +79,7 @@ namespace Ogre {
     };
 
     /** Specialisation of ArchiveFactory for Zip files. */
-    class ZipArchiveFactory : public ArchiveFactory
+    class _OgrePrivate ZipArchiveFactory : public ArchiveFactory
     {
     public:
         virtual ~ZipArchiveFactory() {}
@@ -95,7 +95,7 @@ namespace Ogre {
     };
 
     /** Specialisation of DataStream to handle streaming data from zip archives. */
-    class ZipDataStream : public DataStream
+    class _OgrePrivate ZipDataStream : public DataStream
     {
     protected:
         ZZIP_FILE* mZzipFile;

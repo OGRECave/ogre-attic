@@ -119,7 +119,7 @@ namespace Ogre {
 			a given LOD has wastage, we create an optimised version of it's
 			geometry which is ready for copying with no wastage.
 		*/
-		class OptimisedSubMeshGeometry
+		class _OgrePrivate OptimisedSubMeshGeometry
 		{
 		public:
 			OptimisedSubMeshGeometry() :vertexData(0), indexData(0) {}

@@ -54,42 +54,42 @@ namespace Ogre {
     public:
 
         /** Command object for quota (see ParamCommand).*/
-        class CmdQuota : public ParamCommand
+        class _OgrePrivate CmdQuota : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for material (see ParamCommand).*/
-        class CmdMaterial : public ParamCommand
+        class _OgrePrivate CmdMaterial : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for cull_each (see ParamCommand).*/
-        class CmdCull : public ParamCommand
+        class _OgrePrivate CmdCull : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for particle_width (see ParamCommand).*/
-        class CmdWidth : public ParamCommand
+        class _OgrePrivate CmdWidth : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for particle_height (see ParamCommand).*/
-        class CmdHeight : public ParamCommand
+        class _OgrePrivate CmdHeight : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for renderer (see ParamCommand).*/
-        class CmdRenderer : public ParamCommand
+        class _OgrePrivate CmdRenderer : public ParamCommand
         {
         public:
             String doGet(const void* target) const;

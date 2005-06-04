@@ -73,25 +73,25 @@ namespace Ogre
 		/* Command objects for specifying some base features							*/
 		/* Any PlugIns wishing to add more specific params to "ExternalTextureSourcePlugins"*/
 		/* dictionary, feel free to do so, that's why this is here						*/
-        class CmdInputFileName : public ParamCommand
+        class _OgrePrivate CmdInputFileName : public ParamCommand
         {
         public:
 			String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        class CmdFPS : public ParamCommand
+        class _OgrePrivate CmdFPS : public ParamCommand
         {
         public:
 			String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        class CmdPlayMode : public ParamCommand
+        class _OgrePrivate CmdPlayMode : public ParamCommand
         {
         public:
 			String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
-        class CmdTecPassState : public ParamCommand
+        class _OgrePrivate CmdTecPassState : public ParamCommand
         {
         public:
 			String doGet(const void* target) const;
