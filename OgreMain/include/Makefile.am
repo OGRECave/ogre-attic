@@ -4,6 +4,7 @@ OgreAnimable.h \
 OgreAnimation.h \
 OgreAnimationState.h \
 OgreAnimationTrack.h \
+OgreAny.h \
 OgreArchiveFactory.h \
 OgreArchiveManager.h \
 OgreAutoParamDataSource.h \
