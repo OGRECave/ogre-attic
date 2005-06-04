@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSimpleSpline.h"
 #include "OgreRotationalSpline.h"
 #include "OgreKeyFrame.h"
+#include "OgreAnimable.h"
 
 namespace Ogre 
 {

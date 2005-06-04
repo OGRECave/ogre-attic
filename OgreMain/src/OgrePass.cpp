@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreException.h"
 #include "OgreGpuProgramUsage.h"
 #include "OgreTextureUnitState.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre {
 	
