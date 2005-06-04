@@ -55,7 +55,7 @@ namespace Ogre
 		void setCurrentPlugIn( const String& sTexturePlugInType );
 
 		/** Returns currently selected plugin, may be null if none selected */
-		ExternalTextureSource* getCurrentPlugIn() { return mpCurrExternalTextureSource; }
+		ExternalTextureSource* getCurrentPlugIn( void ) const { return mpCurrExternalTextureSource; }
 	
 		/** Calls the destroy method of all registered plugins... 
 		Only the owner plugin should perform the destroy action. */
