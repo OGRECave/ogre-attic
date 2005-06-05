@@ -225,15 +225,19 @@ namespace Ogre {
             {
 				const LinkedSkeletonAnimationSource* linked = 0;
 				Animation* anim = getAnimation(animState->getAnimationName(), &linked);
-				if (linked)
+				// tolerate state entries for animations we're not aware of
+				if (anim)
 				{
-					anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
-						mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
-				}
-				else
-				{
-					anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
-						mBlendState == ANIMBLEND_CUMULATIVE);
+					if (linked)
+					{
+						anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
+							mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
+					}
+					else
+					{
+						anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
+							mBlendState == ANIMBLEND_CUMULATIVE);
+					}
 				}
             }
         }
@@ -283,45 +287,52 @@ namespace Ogre {
         return ret;
 
     }
+	//---------------------------------------------------------------------
+	Animation* Skeleton::getAnimation(const String& name, 
+		const LinkedSkeletonAnimationSource** linker) const
+	{
+		Animation* ret = getAnimationImpl(name, linker);
+		if (!ret)
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
+				"Skeleton::getAnimation");
+		}
+
+		return ret;
+	}
     //---------------------------------------------------------------------
-    Animation* Skeleton::getAnimation(const String& name, 
+    Animation* Skeleton::getAnimationImpl(const String& name, 
 		const LinkedSkeletonAnimationSource** linker) const
     {
+		Animation* ret = 0;
         AnimationList::const_iterator i = mAnimationsList.find(name);
 
         if (i == mAnimationsList.end())
         {
 			LinkedSkeletonAnimSourceList::const_iterator i;
 			for (i = mLinkedSkeletonAnimSourceList.begin(); 
-				i != mLinkedSkeletonAnimSourceList.end(); ++i)
+				i != mLinkedSkeletonAnimSourceList.end() && !ret; ++i)
 			{
-				try 
+				if (!i->pSkeleton.isNull())
 				{
-					if (!i->pSkeleton.isNull())
+					ret = i->pSkeleton->getAnimationImpl(name);
+					if (ret && linker)
 					{
-						if (linker)
-						{
-							*linker = &(*i);
-						}
-
-						return i->pSkeleton->getAnimation(name);
+						*linker = &(*i);
 					}
-				}
-				catch(Exception&)
-				{
-					// Ignore, keep looking - if we run out, we'll except below
+
 				}
 			}
 
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
-            "Skeleton::getAnimation");
         }
 		else
 		{
 			if (linker)
 				*linker = 0;
-			return i->second;
+			ret = i->second;
 		}
+
+		return ret;
 
     }
     //---------------------------------------------------------------------

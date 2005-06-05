@@ -362,6 +362,10 @@ namespace Ogre {
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const { return 0; } // TODO 
 
+		/// Internal accessor for animations
+		Animation* getAnimationImpl(const String& name, 
+			const LinkedSkeletonAnimationSource** linker = 0) const;
+
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to SkeletonPtr 

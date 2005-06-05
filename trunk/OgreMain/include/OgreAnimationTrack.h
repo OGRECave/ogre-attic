@@ -277,6 +277,87 @@ namespace Ogre
 
 
 	};
+
+	/** Specialised AnimationTrack for dealing with changing vertex position information.
+	*/
+	class _OgreExport VertexAnimationTrack : public AnimationTrack
+	{
+	public:
+		/** The target animation mode */
+		enum TargetMode
+		{
+			/// Interpolate vertex positions in software
+			AM_SOFTWARE, 
+			/** Bind keyframe 1 to position, and keyframe 2 to a texture coordinate
+				for interpolation in hardware */
+			AM_HARDWARE
+		};
+		/// Constructor
+		VertexAnimationTrack(Animation* parent);
+		/// Constructor, associates with target VertexData and temp buffer (for software)
+		VertexAnimationTrack(Animation* parent, VertexData* targetData, 
+			TempBlendedBufferInfo* tmpinfo, TargetMode target = AM_SOFTWARE);
+
+		/** Creates a new KeyFrame and adds it to this animation at the given time index.
+		@remarks
+		It is better to create KeyFrames in time order. Creating them out of order can result 
+		in expensive reordering processing. Note that a KeyFrame at time index 0.0 is always created
+		for you, so you don't need to create this one, just access it using getKeyFrame(0);
+		@param timePos The time from which this KeyFrame will apply.
+		*/
+		virtual VertexKeyFrame* createVertexKeyFrame(Real timePos);
+
+		/** This method in fact does nothing, since interpolation is not performed
+			inside the keyframes for this type of track. 
+		*/
+		void getInterpolatedKeyFrame(Real timeIndex, KeyFrame* kf) const {}
+
+		/// @copydoc AnimationTrack::apply
+		void apply(Real timePos, Real weight = 1.0, bool accumulate = false, 
+			Real scale = 1.0f);
+
+		/** As the 'apply' method but applies to specified VertexData instead of 
+			associated data. */
+		virtual void applyToVertexData(VertexData* data, TempBlendedBufferInfo* tmp, 
+			Real timePos, Real weight = 1.0, 
+			bool accumulate = false, Real scale = 1.0f);
+
+
+		/** Returns the KeyFrame at the specified index. */
+		VertexKeyFrame* getVertexKeyFrame(unsigned short index) const;
+
+		/** Sets the associated VertexData which this track will update. */
+		void setAssociatedVertexData(VertexData* data) { mTargetVertexData = data; }
+		/** Gets the associated VertexData which this track will update. */
+		VertexData* getAssociatedVertexData(void) const { return mTargetVertexData; }
+
+		/** Sets the associated TempBlendBufferInfo structure which this track 
+			will use during the update, if the mode is software (user must configure). */
+		void setAssociatedTempInfo(TempBlendedBufferInfo* tmp) { mTempInfo = tmp; }
+		/** Gets the associated TempBlendBufferInfo structure which this track 
+		will use during the update, if the mode is software (user must configure). */
+		TempBlendedBufferInfo* getAssociatedTempInfo(void) const { return mTempInfo; }
+		/// Set the target mode
+		void setTargetMode(TargetMode m) { mTargetMode = m; }
+		/// Get the target mode
+		TargetMode getTargetMode(void) const { return mTargetMode; }
+
+
+	protected:
+		/// Target to animate
+		VertexData* mTargetVertexData;
+		/// Tempbuffer info used in software mode
+		TempBlendedBufferInfo* mTempInfo;
+		/// Mode to apply
+		TargetMode mTargetMode;
+
+		/// @copydoc AnimationTrack::createKeyFrameImpl
+		KeyFrame* createKeyFrameImpl(Real time);
+
+
+	};
+
+
 }
 
 #endif

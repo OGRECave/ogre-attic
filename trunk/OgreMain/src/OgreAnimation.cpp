@@ -25,10 +25,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreAnimation.h"
 #include "OgreKeyFrame.h"
-#include "OgreAnimationTrack.h"
 #include "OgreException.h"
 #include "OgreSkeleton.h"
 #include "OgreBone.h"
+#include "OgreEntity.h"
+#include "OgreSubEntity.h"
 
 namespace Ogre {
 
@@ -169,10 +170,71 @@ namespace Ogre {
 		mNumericTrackList.clear();
 	}
 	//---------------------------------------------------------------------
+	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle)
+	{
+		VertexAnimationTrack* ret = new VertexAnimationTrack(this);
+
+		mVertexTrackList[handle] = ret;
+		return ret;
+
+	}
+	//---------------------------------------------------------------------
+	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle, 
+		VertexData* data)
+	{
+		VertexAnimationTrack* ret = createVertexTrack(handle);
+
+		ret->setAssociatedVertexData(data);
+
+		return ret;
+	}
+	//---------------------------------------------------------------------
+	unsigned short Animation::getNumVertexTracks(void) const
+	{
+		return (unsigned short)mVertexTrackList.size();
+	}
+	//---------------------------------------------------------------------
+	VertexAnimationTrack* Animation::getVertexTrack(unsigned short handle) const
+	{
+		VertexTrackList::const_iterator i = mVertexTrackList.find(handle);
+
+		if (i == mVertexTrackList.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"Cannot find Vertex track with the specified handle", 
+				"Animation::getVertexTrack");
+		}
+
+		return i->second;
+
+	}
+	//---------------------------------------------------------------------
+	void Animation::destroyVertexTrack(unsigned short handle)
+	{
+		VertexTrackList::iterator i = mVertexTrackList.find(handle);
+
+		if (i != mVertexTrackList.end())
+		{
+			delete i->second;
+			mVertexTrackList.erase(i);
+		}
+	}
+	//---------------------------------------------------------------------
+	void Animation::destroyAllVertexTracks(void)
+	{
+		VertexTrackList::iterator i;
+		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
+		{
+			delete i->second;
+		}
+		mVertexTrackList.clear();
+	}
+	//---------------------------------------------------------------------
 	void Animation::destroyAllTracks(void)
 	{
 		destroyAllNodeTracks();
 		destroyAllNumericTracks();
+		destroyAllVertexTracks();
 	}
     //---------------------------------------------------------------------
     const String& Animation::getName(void) const
@@ -192,6 +254,11 @@ namespace Ogre {
 		{
 			j->second->apply(timePos, weight, accumulate, scale);
 		}
+		VertexTrackList::iterator k;
+		for (k = mVertexTrackList.begin(); k != mVertexTrackList.end(); ++k)
+		{
+			k->second->apply(timePos, weight, accumulate, scale);
+		}
 
     }
     //---------------------------------------------------------------------
@@ -208,6 +275,36 @@ namespace Ogre {
 
 
     }
+	//---------------------------------------------------------------------
+	void Animation::apply(Entity* entity, Real timePos, 
+		VertexAnimationTrack::TargetMode targetMode)
+	{
+		VertexTrackList::iterator i;
+		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
+		{
+			unsigned short handle = i->first;
+			VertexData* vertexData;
+			TempBlendedBufferInfo* tmpInfo;
+			if (handle == 0)
+			{
+				// shared vertex data
+				vertexData = entity->_getMorphAnimVertexData();
+				tmpInfo = entity->_getMorphAnimTempBufferInfo();
+
+			}
+			else
+			{
+				// sub entity vertex data (-1)
+				vertexData = 
+					entity->getSubEntity(handle - 1)->_getMorphAnimVertexData();
+				tmpInfo = 
+					entity->getSubEntity(handle - 1)->_getMorphAnimTempBufferInfo();
+			}
+			i->second->setTargetMode(targetMode);
+			i->second->applyToVertexData(vertexData, tmpInfo, timePos);
+		}
+
+	}
     //---------------------------------------------------------------------
     void Animation::setInterpolationMode(InterpolationMode im)
     {

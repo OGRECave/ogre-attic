@@ -96,6 +96,24 @@ namespace Ogre
     {
         return mRotate;
     }
+	//---------------------------------------------------------------------
+	VertexKeyFrame::VertexKeyFrame(const AnimationTrack* parent, Real time)
+		: KeyFrame(parent, time)
+	{
+	}
+	//---------------------------------------------------------------------
+	void VertexKeyFrame::setVertexBuffer(const HardwareVertexBufferSharedPtr& buf)
+	{
+		mBuffer = buf;
+	}
+	//---------------------------------------------------------------------
+	const HardwareVertexBufferSharedPtr& 
+	VertexKeyFrame::getVertexBuffer(void) const
+	{
+		return mBuffer;
+	}
+	//---------------------------------------------------------------------
+
 
 }
 

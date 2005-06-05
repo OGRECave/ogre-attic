@@ -28,12 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreKeyFrame.h"
 #include "OgreNode.h"
 #include "OgreLogManager.h"
-
-// Debug
-#include "OgreRenderWindow.h"
-#include "OgreRoot.h"
-Ogre::RenderWindow* mMainWindow = 0;
-// End Debug
+#include "OgreHardwareBufferManager.h"
 
 namespace Ogre {
 
@@ -579,6 +574,49 @@ namespace Ogre {
 	{
 		return static_cast<TransformKeyFrame*>(getKeyFrame(index));
 	}
+	//--------------------------------------------------------------------------
+	VertexAnimationTrack::VertexAnimationTrack(Animation* parent)
+		: AnimationTrack(parent)
+	{
+	}
+	//--------------------------------------------------------------------------
+	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, 
+		VertexData* targetData, TempBlendedBufferInfo* tmpinfo, TargetMode target)
+		: AnimationTrack(parent), mTargetVertexData(targetData), 
+		mTempInfo(tmpinfo), mTargetMode(target)
+	{
+	}
+	//--------------------------------------------------------------------------
+	VertexKeyFrame* VertexAnimationTrack::createVertexKeyFrame(Real timePos)
+	{
+		return static_cast<VertexKeyFrame*>(createKeyFrame(timePos));
+	}
+	//--------------------------------------------------------------------------
+	void VertexAnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
+		Real scale)
+	{
+		applyToVertexData(mTargetVertexData, mTempInfo, timePos, weight, accumulate, scale);
+	}
+	//--------------------------------------------------------------------------
+	void VertexAnimationTrack::applyToVertexData(VertexData* data, 
+		TempBlendedBufferInfo* tmpinfo, Real timePos, 
+		Real weight, bool accumulate, Real scale)
+	{
+		// TODO
+		// If target mode is software, need to software interpolate each vertex
+		// otherwise, need to bind our 2 keyframe buffers, one to pos, one to texcoords
+	}
+	//--------------------------------------------------------------------------
+	VertexKeyFrame* VertexAnimationTrack::getVertexKeyFrame(unsigned short index) const
+	{
+		return static_cast<VertexKeyFrame*>(getKeyFrame(index));
+	}
+	//--------------------------------------------------------------------------
+	KeyFrame* VertexAnimationTrack::createKeyFrameImpl(Real time)
+	{
+		return new VertexKeyFrame(this, time);
+	}
+
 	
 }
 
