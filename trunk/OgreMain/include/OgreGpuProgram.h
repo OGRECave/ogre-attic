@@ -884,6 +884,8 @@ namespace Ogre {
         String mSyntaxCode;
         /// Does this (vertex) program include skeletal animation?
         bool mSkeletalAnimation;
+		/// Does this (vertex) program include morph animation?
+		bool mMorphAnimation;
 		/// The default parameters for use with this object
 		GpuProgramParametersSharedPtr mDefaultParams;
 		/// Does this program want light states passed through fixed pipeline
@@ -972,6 +974,23 @@ namespace Ogre {
             skeletal animation, it will expect the vertex program to do it.
         */
         virtual bool isSkeletalAnimationIncluded(void) const { return mSkeletalAnimation; }
+
+        /** Sets whether a vertex program includes the required instructions
+        to perform morph animation. 
+        @remarks
+        If this is set to true, OGRE will not blend the geometry according to 
+        morph animation, it will expect the vertex program to do it.
+        */
+        virtual void setMorphAnimationIncluded(bool included) 
+		{ mMorphAnimation = included; }
+
+        /** Returns whether a vertex program includes the required instructions
+            to perform morph animation. 
+        @remarks
+            If this returns true, OGRE will not blend the geometry according to 
+            morph animation, it will expect the vertex program to do it.
+        */
+        virtual bool isMorphAnimationIncluded(void) const { return mMorphAnimation; }
 
 		/** Get a reference to the default parameters which are to be used for all
 			uses of this program.

@@ -2163,20 +2163,7 @@ Animation* SceneManager::getAnimation(const String& name) const
 void SceneManager::destroyAnimation(const String& name)
 {
     // Also destroy any animation states referencing this animation
-    AnimationStateSet::iterator si, siend;
-    siend = mAnimationStates.end();
-    for (si = mAnimationStates.begin(); si != siend; )
-    {
-        if (si->second.getAnimationName() == name)
-        {
-            // erase, post increment to avoid the invalidated iterator
-            mAnimationStates.erase(si++);
-        }
-        else
-        {
-            ++si;
-        }
-    }
+	mAnimationStates.removeAnimationState(name);
 
     AnimationList::iterator i = mAnimationsList.find(name);
     if (i == mAnimationsList.end())
@@ -2210,89 +2197,42 @@ void SceneManager::destroyAllAnimations(void)
 //-----------------------------------------------------------------------
 AnimationState* SceneManager::createAnimationState(const String& animName)
 {
-    if (mAnimationStates.find(animName) != mAnimationStates.end())
-    {
-        OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-            "Cannot create, AnimationState already exists: "+animName, 
-            "SceneManager::createAnimationState");
-    }
 
     // Get animation, this will throw an exception if not found
     Animation* anim = getAnimation(animName);
 
     // Create new state
-    AnimationState newState(animName, 0, anim->getLength());
-
-    // Record it
-    std::pair<AnimationStateSet::iterator, bool> retPair = 
-        mAnimationStates.insert(AnimationStateSet::value_type(animName, newState));
-
-    // Check boolean return
-    if (retPair.second)
-    {
-        // insert was OK
-        // Get pointer from iterator in pair
-        return &(retPair.first->second);
-    }
-    else
-    {
-        // Problem
-        // Not because of duplicate item, that's checked for above
-        OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, "Unexpected error creating new animation state.",
-            "SceneManager::createAnimationState");
-    }
-
+	return mAnimationStates.createAnimationState(animName, 0, anim->getLength());
 
 }
 //-----------------------------------------------------------------------
 AnimationState* SceneManager::getAnimationState(const String& animName) 
 {
-    AnimationStateSet::iterator i = mAnimationStates.find(animName);
-
-    if (i == mAnimationStates.end())
-    {
-        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-            "Cannot locate animation state for animation " + animName,
-            "SceneManager::getAnimationState");
-    }
-
-    return &(i->second);
+	return mAnimationStates.getAnimationState(animName);
 
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyAnimationState(const String& name)
 {
-    AnimationStateSet::iterator i = mAnimationStates.find(name);
-
-    if (i == mAnimationStates.end())
-    {
-        OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-            "Cannot locate animation state for animation " + name,
-            "SceneManager::destroyAnimationState");
-    }
-
-    mAnimationStates.erase(i);
-
-
+	mAnimationStates.removeAnimationState(name);
 }
 //-----------------------------------------------------------------------
 void SceneManager::destroyAllAnimationStates(void)
 {
-    mAnimationStates.clear();
+    mAnimationStates.removeAllAnimationStates();
 }
 //-----------------------------------------------------------------------
 void SceneManager::_applySceneAnimations(void)
 {
-    AnimationStateSet::const_iterator i, iend;
+    AnimationStateIterator stateIt = mAnimationStates.getAnimationStateIterator();
 
-    i = mAnimationStates.begin();
-    iend = mAnimationStates.end();
-
-    for (;i != iend; ++i)
+    while (stateIt.hasMoreElements())
     {
-        if (i->second.getEnabled())
+		AnimationState* state = stateIt.getNext();
+
+        if (state->getEnabled())
         {
-            Animation* anim = getAnimation(i->second.getAnimationName());
+            Animation* anim = getAnimation(state->getAnimationName());
 
             // Reset any nodes involved
             // NB this excludes blended animations
@@ -2310,7 +2250,7 @@ void SceneManager::_applySceneAnimations(void)
 			}
 
             // Apply the animation
-            anim->apply(i->second.getTimePosition(), i->second.getWeight());
+            anim->apply(state->getTimePosition(), state->getWeight());
         }
     }
 

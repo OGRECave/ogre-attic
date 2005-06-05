@@ -1493,7 +1493,7 @@ namespace Ogre {
         }
         /** Returns a specialised MapIterator over all animation states in the scene. */
         AnimationStateIterator getAnimationStateIterator(void) {
-            return AnimationStateIterator(mAnimationStates.begin(), mAnimationStates.end());
+            return mAnimationStates.getAnimationStateIterator();
         }
 
         /** Sets the general shadow technique to be used in this scene.

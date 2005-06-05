@@ -53,9 +53,11 @@ namespace Ogre {
         mNormaliseNormals = false;
         mFrameBonesLastUpdated = new unsigned long;
         *mFrameBonesLastUpdated = 0;
-        mFrameAnimationLastUpdated = 0;
-        mHardwareSkinning = false;
+        mHardwareAnimation = false;
         mSkeletonInstance = 0;
+		mSkelAnimVertexData = 0;
+		mMorphAnimVertexData = 0;
+
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, MeshPtr& mesh) :
@@ -64,8 +66,10 @@ namespace Ogre {
         mSharedSkeletonEntities(NULL)
     {
         mFullBoundingBox = new AxisAlignedBox;
-        mHardwareSkinning = false;
-        mSharedBlendedVertexData = NULL;
+        mHardwareAnimation = false;
+        mSkelAnimVertexData = 0;
+		mMorphAnimVertexData = 0;
+
 
         // Is mesh skeletally animated?
         if (mMesh->hasSkeleton() && !mMesh->getSkeleton().isNull())
@@ -100,24 +104,30 @@ namespace Ogre {
 
 
         // Initialise the AnimationState, if Mesh has animation
-        if (hasSkeleton())
+		if (hasSkeleton())
+		{
+			mFrameBonesLastUpdated = new unsigned long;
+			*mFrameBonesLastUpdated = 0;
+			mNumBoneMatrices = mSkeletonInstance->getNumBones();
+			mBoneMatrices = new Matrix4[mNumBoneMatrices];
+		}
+		else
+		{
+			mBoneMatrices = 0;
+			mNumBoneMatrices = 0;
+			mFrameBonesLastUpdated  = 0;
+
+		}
+        if (hasSkeleton() || hasMorphAnimation())
         {
             mAnimationState = new AnimationStateSet();
-            mFrameBonesLastUpdated = new unsigned long;
-            *mFrameBonesLastUpdated = 0;
             mesh->_initAnimationState(mAnimationState);
-            mNumBoneMatrices = mSkeletonInstance->getNumBones();
-            mBoneMatrices = new Matrix4[mNumBoneMatrices];
             prepareTempBlendBuffers();
         }
-        else
-        {
-            mBoneMatrices = 0;
-            mNumBoneMatrices = 0;
-            mAnimationState = 0;
-            mFrameBonesLastUpdated  = 0;
-
-        }
+		else
+		{
+			mAnimationState = 0;
+		}
 
         reevaluateVertexProcessing();
 
@@ -132,8 +142,6 @@ namespace Ogre {
         mMaxMaterialLodIndex = 0; 		// Backwards, remember low value = high detail
         mMinMaterialLodIndex = 99;
 
-
-        mFrameAnimationLastUpdated = 0;
 
         // Do we have a mesh where edge lists are not going to be available?
         if (!mesh->isEdgeListBuilt() && !mesh->getAutoBuildEdgeLists())
@@ -193,6 +201,11 @@ namespace Ogre {
             }
         }
     }
+	//-----------------------------------------------------------------------
+	bool Entity::hasMorphAnimation(void) const
+	{
+		return mMesh->hasMorphAnimation();
+	}
     //-----------------------------------------------------------------------
     MeshPtr& Entity::getMesh(void)
     {
@@ -343,7 +356,8 @@ namespace Ogre {
             {
                 // Copy the animation state set to lod entity, we assume the lod
                 // entity only has a subset animation states
-                CopyAnimationStateSubset(*mLodEntityList[mMeshLodIndex - 1]->mAnimationState, *mAnimationState);
+                mAnimationState->copyMatchingState(
+					mLodEntityList[mMeshLodIndex - 1]->mAnimationState);
             }
             mLodEntityList[mMeshLodIndex - 1]->_updateRenderQueue(queue);
             return;
@@ -413,15 +427,8 @@ namespace Ogre {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Entity is not animated", 
                 "Entity::getAnimationState");
         }
-        AnimationStateSet::iterator i = mAnimationState->find(name);
 
-        if (i == mAnimationState->end())
-        {
-            OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
-                "Entity::getAnimationState");
-        }
-
-        return &(i->second);
+		return mAnimationState->getAnimationState(name);
     }
     //-----------------------------------------------------------------------
     AnimationStateSet* Entity::getAllAnimationStates(void)
@@ -439,64 +446,73 @@ namespace Ogre {
         // We only do these tasks if they have not already been done for 
         // this frame 
         Root& root = Root::getSingleton();
-        unsigned long currentFrameNumber = root.getCurrentFrameNumber();
-        if (mFrameAnimationLastUpdated != currentFrameNumber)
+        if (mAnimationState->isDirty())
         {
-            cacheBoneMatrices();
+			if (hasMorphAnimation())
+			{
+				// TODO - apply morph animation
+			}
 
-            // Software blend?
-            bool hwSkinning = isHardwareSkinningEnabled();
-            if (!hwSkinning ||
-                root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
-                root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE)
-            {
-                // Ok, we need to do a software blend
-                // Blend normals in s/w only if we're not using h/w skinning,
-                // since shadows only require positions
-                bool blendNormals = !hwSkinning;
-                // Firstly, check out working vertex buffers
-                if (mSharedBlendedVertexData)
-                {
-                    // Blend shared geometry
-                    // NB we suppress hardware upload while doing blend if we're
-                    // hardware skinned, because the only reason for doing this
-                    // is for shadow, which need only be uploaded then
-                    mTempBlendedBuffer.checkoutTempCopies(true, blendNormals);
-                    mTempBlendedBuffer.bindTempCopies(mSharedBlendedVertexData, 
-                        mHardwareSkinning);
-                    Mesh::softwareVertexBlend(mMesh->sharedVertexData, 
-                        mSharedBlendedVertexData, mBoneMatrices, blendNormals);
-                }
-                SubEntityList::iterator i, iend;
-                iend = mSubEntityList.end();
-                for (i = mSubEntityList.begin(); i != iend; ++i)
-                {
-                    // Blend dedicated geometry
-                    SubEntity* se = *i;
-                    if (se->isVisible() && se->mBlendedVertexData)
-                    {
-                        se->mTempBlendedBuffer.checkoutTempCopies(true, blendNormals);
-                        se->mTempBlendedBuffer.bindTempCopies(se->mBlendedVertexData, 
-                            mHardwareSkinning);
-                        Mesh::softwareVertexBlend(se->mSubMesh->vertexData, 
-                            se->mBlendedVertexData, mBoneMatrices, blendNormals);
-                    }
+			if (hasSkeleton())
+			{
+				cacheBoneMatrices();
 
-                }
+				// Software blend?
+				bool hwSkinning = isHardwareAnimationEnabled();
+				if (!hwSkinning ||
+					root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
+					root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE)
+				{
+					// Ok, we need to do a software blend
+					// Blend normals in s/w only if we're not using h/w skinning,
+					// since shadows only require positions
+					bool blendNormals = !hwSkinning;
+					// Firstly, check out working vertex buffers
+					if (mSkelAnimVertexData)
+					{
+						// Blend shared geometry
+						// NB we suppress hardware upload while doing blend if we're
+						// hardware skinned, because the only reason for doing this
+						// is for shadow, which need only be uploaded then
+						mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
+						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData, 
+							mHardwareAnimation);
+						Mesh::softwareVertexBlend(mMesh->sharedVertexData, 
+							mSkelAnimVertexData, mBoneMatrices, blendNormals);
+					}
+					SubEntityList::iterator i, iend;
+					iend = mSubEntityList.end();
+					for (i = mSubEntityList.begin(); i != iend; ++i)
+					{
+						// Blend dedicated geometry
+						SubEntity* se = *i;
+						if (se->isVisible() && se->mSkelAnimVertexData)
+						{
+							se->mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
+							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData, 
+								mHardwareAnimation);
+							Mesh::softwareVertexBlend(se->mSubMesh->vertexData, 
+								se->mSkelAnimVertexData, mBoneMatrices, blendNormals);
+						}
 
-            }
+					}
+
+				}
+			}
 
             // Trigger update of bounding box if necessary
             if (!mChildObjectList.empty())
                 mParentNode->needUpdate();
-            mFrameAnimationLastUpdated = currentFrameNumber;
+
+			mAnimationState->resetDirty();
+
         }
     }
 	//-----------------------------------------------------------------------
 	void Entity::_updateAnimation(void)
 	{
 		// Externally visible method
-		if (hasSkeleton())
+		if (hasSkeleton() || hasMorphAnimation())
 		{
 			updateAnimation();
 		}
@@ -504,8 +520,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	const VertexData* Entity::_getSharedBlendedVertexData(void) const
 	{
-		assert (mSharedBlendedVertexData && "Not software skinned!");
-        return mSharedBlendedVertexData;
+		assert (mSkelAnimVertexData && "Not software skinned!");
+        return mSkelAnimVertexData;
 	}
     //-----------------------------------------------------------------------
     void Entity::cacheBoneMatrices(void)
@@ -785,11 +801,31 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::prepareTempBlendBuffers(void)
     {
-        if (mSharedBlendedVertexData) 
+        if (mSkelAnimVertexData) 
         {
-            delete mSharedBlendedVertexData;
-            mSharedBlendedVertexData = 0;
+            delete mSkelAnimVertexData;
+            mSkelAnimVertexData = 0;
         }
+		if (mMorphAnimVertexData) 
+		{
+			delete mMorphAnimVertexData;
+			mMorphAnimVertexData = 0;
+		}
+
+		if (hasMorphAnimation())
+		{
+			// Shared data
+			if (mMesh->sharedVertexData)
+			{
+				// Create temporary vertex blend info
+				// Prepare temp vertex data if needed
+				// Clone without copying data, remove blending info
+				// (since blend is performed in software)
+				mMorphAnimVertexData = 
+					cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
+				extractTempBufferInfo(mMorphAnimVertexData, &mTempMorphAnimInfo);
+			}
+		}
 
         if (hasSkeleton())
         {
@@ -800,22 +836,21 @@ namespace Ogre {
                 // Prepare temp vertex data if needed
                 // Clone without copying data, remove blending info
                 // (since blend is performed in software)
-                mSharedBlendedVertexData = 
+                mSkelAnimVertexData = 
                     cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
-                extractTempBufferInfo(mSharedBlendedVertexData, &mTempBlendedBuffer);
+                extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
             }
-
-            SubEntityList::iterator i, iend;
-            iend = mSubEntityList.end();
-            for (i = mSubEntityList.begin(); i != iend; ++i)
-            {
-                SubEntity* s = *i;
-                s->prepareTempBlendBuffers();
-            }
-
 
         }
 
+		// Do SubEntities
+		SubEntityList::iterator i, iend;
+		iend = mSubEntityList.end();
+		for (i = mSubEntityList.begin(); i != iend; ++i)
+		{
+			SubEntity* s = *i;
+			s->prepareTempBlendBuffers();
+		}
     }
     //-----------------------------------------------------------------------
     void Entity::extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info)
@@ -892,13 +927,13 @@ namespace Ogre {
     void Entity::reevaluateVertexProcessing(void)
     {
         // init
-        mHardwareSkinning = false; 
+        mHardwareAnimation = false; 
         mVertexProgramInUse = false; // assume false because we just assign this
         bool firstPass = true;
 
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
-        for (i = mSubEntityList.begin(); i != iend; ++i, firstPass = false)
+        for (i = mSubEntityList.begin(); i != iend; ++i)
         {
             const MaterialPtr& m = (*i)->getMaterial();
             // Make sure it's loaded
@@ -921,17 +956,37 @@ namespace Ogre {
                 // Causes some special processing like forcing a separate light cap
                 mVertexProgramInUse = true;
 
-                // All materials must support skinning for us to consider using
-                // hardware skinning - if one fails we use software
-                if (firstPass)
-                {
-                    mHardwareSkinning = p->getVertexProgram()->isSkeletalAnimationIncluded();
-                }
-                else
-                {
-                    mHardwareSkinning = mHardwareSkinning &&
-                        p->getVertexProgram()->isSkeletalAnimationIncluded();
-                }
+                if (hasSkeleton())
+				{
+					// All materials must support skinning for us to consider using
+					// hardware skinning - if one fails we use software
+					if (firstPass)
+					{
+						mHardwareAnimation = p->getVertexProgram()->isSkeletalAnimationIncluded();
+						firstPass = false;
+					}
+					else
+					{
+						mHardwareAnimation = mHardwareAnimation &&
+							p->getVertexProgram()->isSkeletalAnimationIncluded();
+					}
+				}
+				if (hasMorphAnimation())
+				{
+					// All materials must support skinning for us to consider using
+					// hardware skinning - if one fails we use software
+					if (firstPass)
+					{
+						mHardwareAnimation = p->getVertexProgram()->isMorphAnimationIncluded();
+						firstPass = false;
+					}
+					else
+					{
+						mHardwareAnimation = mHardwareAnimation &&
+							p->getVertexProgram()->isMorphAnimationIncluded();
+					}
+				}
+
             }
         }
 
@@ -958,7 +1013,8 @@ namespace Ogre {
             {
                 // Copy the animation state set to lod entity, we assume the lod
                 // entity only has a subset animation states
-                CopyAnimationStateSubset(*mLodEntityList[mMeshLodIndex - 1]->mAnimationState, *mAnimationState);
+                mAnimationState->copyMatchingState(
+					mLodEntityList[mMeshLodIndex - 1]->mAnimationState);
             }
             return mLodEntityList[mMeshLodIndex-1]->getShadowVolumeRenderableIterator(
                 shadowTechnique, light, indexBuffer, extrude, 
@@ -975,8 +1031,8 @@ namespace Ogre {
         if(!mMesh->isPreparedForShadowVolumes())
         {
             mMesh->prepareForShadowVolume();
-            // reset frame last updated to force update of buffers
-            mFrameAnimationLastUpdated = 0;
+            // force update of animation
+            mAnimationState->_notifyDirty();
             // re-prepare buffers
             prepareTempBlendBuffers();
         }
@@ -1112,7 +1168,7 @@ namespace Ogre {
     {
         if (orig == mMesh->sharedVertexData)
         {
-            return mSharedBlendedVertexData;
+            return mSkelAnimVertexData;
         }
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();

@@ -43,8 +43,8 @@ namespace Ogre {
         mMaterialLodIndex = 0;
         mRenderDetail = SDL_SOLID;
         mVisible = true;
-        mBlendedVertexData = 0;
-        mBlendedVertexData = NULL;
+        mSkelAnimVertexData = 0;
+		mMorphAnimVertexData = 0;
 
 
 
@@ -52,8 +52,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SubEntity::~SubEntity()
     {
-        if (mBlendedVertexData)
-            delete mBlendedVertexData;
+        if (mSkelAnimVertexData)
+            delete mSkelAnimVertexData;
     }
     //-----------------------------------------------------------------------
     SubMesh* SubEntity::getSubMesh(void)
@@ -112,10 +112,10 @@ namespace Ogre {
 		// Use LOD
         mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
         // Do we need to use software skinned vertex data?
-        if (mParentEntity->hasSkeleton() && !mParentEntity->mHardwareSkinning)
+        if (mParentEntity->hasSkeleton() && !mParentEntity->mHardwareAnimation)
         {
             op.vertexData = mSubMesh->useSharedVertices ? 
-                mParentEntity->mSharedBlendedVertexData : mBlendedVertexData;
+                mParentEntity->mSkelAnimVertexData : mSkelAnimVertexData;
 
         }
     }
@@ -128,7 +128,7 @@ namespace Ogre {
         }
         else
         {
-            if (!mParentEntity->isHardwareSkinningEnabled())
+            if (!mParentEntity->isHardwareAnimationEnabled())
             {
                 // Software skinning involves pretransforming
                 // No transform required
@@ -161,7 +161,7 @@ namespace Ogre {
     unsigned short SubEntity::getNumWorldTransforms(void) const
     {
         if (!mParentEntity->mNumBoneMatrices ||
-            !mParentEntity->isHardwareSkinningEnabled())
+            !mParentEntity->isHardwareAnimationEnabled())
         {
             // No skeletal animation, or software skinning (pretransformed)
             return 1;
@@ -205,15 +205,15 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubEntity::prepareTempBlendBuffers(void)
     {
-        if (mBlendedVertexData) 
+        if (mSkelAnimVertexData) 
         {
-            delete mBlendedVertexData;
-            mBlendedVertexData = 0;
+            delete mSkelAnimVertexData;
+            mSkelAnimVertexData = 0;
         }
         // Clone without copying data
-        mBlendedVertexData = 
+        mSkelAnimVertexData = 
             mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-        mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
+        mParentEntity->extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
     }
     //-----------------------------------------------------------------------
     bool SubEntity::getCastsShadows(void) const
@@ -223,8 +223,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	const VertexData* SubEntity::_getBlendedVertexData(void) const
 	{
-		assert (mBlendedVertexData && "Not software skinned!");
-		return mBlendedVertexData;
+		assert (mSkelAnimVertexData && "Not software skinned!");
+		return mSkelAnimVertexData;
 	}
 
 }
