@@ -221,10 +221,26 @@ namespace Ogre {
         return mParentEntity->getCastShadows();
     }
 	//-----------------------------------------------------------------------
-	const VertexData* SubEntity::_getBlendedVertexData(void) const
+	VertexData* SubEntity::_getSkelAnimVertexData(void) 
 	{
 		assert (mSkelAnimVertexData && "Not software skinned!");
 		return mSkelAnimVertexData;
+	}
+	//-----------------------------------------------------------------------
+	VertexData* SubEntity::_getMorphAnimVertexData(void) 
+	{
+		assert (mMorphAnimVertexData && "Not morph animated!");
+		return mMorphAnimVertexData;
+	}
+	//-----------------------------------------------------------------------
+	TempBlendedBufferInfo* SubEntity::_getSkelAnimTempBufferInfo(void) 
+	{
+		return &mTempSkelAnimInfo;
+	}
+	//-----------------------------------------------------------------------
+	TempBlendedBufferInfo* SubEntity::_getMorphAnimTempBufferInfo(void) 
+	{
+		return &mTempMorphAnimInfo;
 	}
 
 }

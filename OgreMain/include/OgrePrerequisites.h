@@ -343,6 +343,7 @@ namespace Ogre {
 	class TagPoint;
 	class TargetManager;
     class Technique;
+	class TempBlendedBufferInfo;
 	class ExternalTextureSource;
     class TextureUnitState;
     class Texture;
@@ -356,6 +357,7 @@ namespace Ogre {
     class Vector3;
     class Vector4;
     class Viewport;  
+	class VertexAnimationTrack;
     class VertexBufferBinding;
     class VertexData;
     class VertexDeclaration;

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector3.h"
 #include "OgreQuaternion.h"
 #include "OgreAny.h"
+#include "OgreHardwareVertexBuffer.h"
 
 namespace Ogre 
 {
@@ -82,7 +83,7 @@ namespace Ogre
 	};
 
 
-	/** Specialised KeyFrams which stores a full transform. */
+	/** Specialised KeyFrame which stores a full transform. */
 	class _OgreExport TransformKeyFrame : public KeyFrame
 	{
 	public:
@@ -123,6 +124,32 @@ namespace Ogre
 		Vector3 mScale;
 		Quaternion mRotate;
 
+
+	};
+
+
+
+	/** Specialised KeyFrame which stores vertex positions. */
+	class _OgreExport VertexKeyFrame : public KeyFrame
+	{
+	public:
+		/** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
+		VertexKeyFrame(const AnimationTrack* parent, Real time);
+		~VertexKeyFrame() {}
+		/** Sets the vertex buffer containing the source positions for this keyframe. 
+		@remarks    
+			We assume that positions are the first 3 float elements in this buffer,
+			although we don't necessarily assume they're the only ones in there.
+		@param buf Vertex buffer link; will not be modified so can be shared
+			read-only data
+		*/
+		void setVertexBuffer(const HardwareVertexBufferSharedPtr& buf);
+
+		/** Gets the vertex buffer containing positions for this keyframe. */
+		const HardwareVertexBufferSharedPtr& getVertexBuffer(void) const;
+
+	protected:
+		HardwareVertexBufferSharedPtr mBuffer;
 
 	};
 

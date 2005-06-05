@@ -518,10 +518,26 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
-	const VertexData* Entity::_getSharedBlendedVertexData(void) const
+	VertexData* Entity::_getSkelAnimVertexData(void)
 	{
 		assert (mSkelAnimVertexData && "Not software skinned!");
         return mSkelAnimVertexData;
+	}
+	//-----------------------------------------------------------------------
+	VertexData* Entity::_getMorphAnimVertexData(void)
+	{
+		assert (mMorphAnimVertexData && "Not morph animated!");
+		return mMorphAnimVertexData;
+	}
+	//-----------------------------------------------------------------------
+	TempBlendedBufferInfo* Entity::_getSkelAnimTempBufferInfo(void)
+	{
+		return &mTempSkelAnimInfo;
+	}
+	//-----------------------------------------------------------------------
+	TempBlendedBufferInfo* Entity::_getMorphAnimTempBufferInfo(void)
+	{
+		return &mTempMorphAnimInfo;
 	}
     //-----------------------------------------------------------------------
     void Entity::cacheBoneMatrices(void)

@@ -157,7 +157,20 @@ namespace Ogre {
 		/** Advanced method to get the temporarily blended vertex information
 		for entities which are software skinned. 
 		*/
-		const VertexData* _getBlendedVertexData(void) const;
+		VertexData* _getSkelAnimVertexData(void);
+		/** Advanced method to get the temporarily blended morph vertex information
+		Applies for both hardware and software morph animation, the format depends
+		on the approach though (blended in-place or both positions bound). 
+		*/
+		VertexData* _getMorphAnimVertexData(void);
+		/** Advanced method to get the temp buffer information for software 
+		skeletal animation.
+		*/
+		TempBlendedBufferInfo* _getSkelAnimTempBufferInfo(void);
+		/** Advanced method to get the temp buffer information for software 
+		morph animation.
+		*/
+		TempBlendedBufferInfo* _getMorphAnimTempBufferInfo(void);
     };
 
 }
