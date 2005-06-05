@@ -229,9 +229,6 @@ namespace Ogre {
         */
         virtual void setAnimationState(const AnimationStateSet& animSet);
 
-        /** Gets the last animation state of this skeleton. */
-        virtual const AnimationStateSet& getAnimationState(void) const;
-        
 
         /** Initialise an animation set suitable for use with this skeleton. 
         @remarks
@@ -341,9 +338,6 @@ namespace Ogre {
         /// Storage of animations, lookup by name
         typedef std::map<String, Animation*> AnimationList;
         AnimationList mAnimationsList;
-
-        /// Saved version of last animation
-        AnimationStateSet mLastAnimationState;
 
 		/// List of references to other skeletons to use animations from 
 		mutable LinkedSkeletonAnimSourceList mLinkedSkeletonAnimSourceList;

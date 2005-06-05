@@ -274,7 +274,10 @@ namespace Ogre {
         /** Returns true if this Mesh has a linked Skeleton. */
         bool hasSkeleton(void) const;
 
-        /** Gets a pointer to any linked Skeleton. 
+		/** Returns true if this Mesh has a morph animations. */
+		bool hasMorphAnimation(void) const;
+
+		/** Gets a pointer to any linked Skeleton. 
         @returns Weak reference to the skeleton - copy this if you want to hold a strong pointer.
         */
         const SkeletonPtr& getSkeleton(void) const;

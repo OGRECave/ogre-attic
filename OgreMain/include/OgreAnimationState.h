@@ -34,6 +34,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+	// Forward decl
+	class AnimationStateSet;
+
     /** Represents the state of an animation and the weight of it's influence. 
     @remarks
         Other classes can hold instances of this class to store the state of any animations
@@ -44,19 +47,18 @@ namespace Ogre {
     class _OgreExport AnimationState : public ControllerValue<Real>
     {
     public:
-        /// Default constructor for STL only
-        AnimationState();
+        /// Normal constructor with all params supplied
+        AnimationState(const String& animName, AnimationStateSet *parent, 
+			Real timePos, Real length, Real weight = 1.0, bool enabled = false);
+		/// constructor to copy from an existing state with new parent
+		AnimationState(AnimationStateSet* parent, const AnimationState &rhs);
 		/** Destructor - is here because class has virtual functions and some compilers 
 			would whine if it won't exist.
 		*/
 		virtual ~AnimationState();
         
-        /// Normal constructor with all params supplied
-        AnimationState(const String& animName, Real timePos, Real length, Real weight = 1.0, bool enabled = false);
         /// Gets the name of the animation to which this state applies
         const String& getAnimationName() const;
-        /// Sets the name of the animation to which this state applies
-        void setAnimationName(const String& name);
         /// Gets the time position for this animation
         Real getTimePosition(void) const;
         /// Sets the time position for this animation
@@ -103,8 +105,12 @@ namespace Ogre {
         */
         void copyStateFrom(const AnimationState& animState);
 
+		/// Get the parent animation state set
+		AnimationStateSet* getParent(void) const { return mParent; }
+
     protected:
         String mAnimationName;
+		AnimationStateSet* mParent;
         Real mTimePos;
         Real mLength;
         Real mInvLength;
@@ -114,18 +120,61 @@ namespace Ogre {
 
     };
 
-    // A set of animation states
-    typedef std::map<String, AnimationState> AnimationStateSet;
-    typedef MapIterator<AnimationStateSet> AnimationStateIterator;
+	// A map of animation states
+	typedef std::map<String, AnimationState*> AnimationStateMap;
+	typedef MapIterator<AnimationStateMap> AnimationStateIterator;
+	typedef ConstMapIterator<AnimationStateMap> ConstAnimationStateIterator;
 
-    /** Copies a subset animation states from source to target.
-    @remarks
-        This routine assume target is a subset of source, it will copy all animation state
-        of the target with the settings from source.
-    @param target Reference to animation state set which will receive the states.
-    @param source Reference to animation state set which will use as source.
-    */
-    _OgreExport void CopyAnimationStateSubset(AnimationStateSet& target, const AnimationStateSet& source);
+	/** Class encapsulating a set of AnimationState objects.
+	*/
+	class _OgreExport AnimationStateSet
+	{
+	public:
+		/// Create a blank animation state set
+		AnimationStateSet();
+		/// Create an animation set by copying the contents of another
+		AnimationStateSet(const AnimationStateSet& rhs);
+
+		~AnimationStateSet();
+
+		/** Create a new AnimationState instance. 
+		@param animName The name of the animation
+		@param timePos Starting time position
+		@param length Length of the animation to play
+		@param weight Weight to apply the animation with 
+		@param enabled Whether the animation is enabled
+		*/
+		AnimationState* createAnimationState(const String& animName,  
+			Real timePos, Real length, Real weight = 1.0, bool enabled = false);
+		/// Get an animation state by the name of the animation
+		AnimationState* getAnimationState(const String& name) const;
+		/// Tests if state for the named animation is present
+		bool hasAnimationState(const String& name) const;
+		/// Remove animation state with the given name
+		void removeAnimationState(const String& name);
+		/// Remove all animation states
+		void removeAllAnimationStates(void);
+
+		/// Get an iterator over all the animation states in this set
+		AnimationStateIterator getAnimationStateIterator(void);
+		/// Get an iterator over all the animation states in this set
+		ConstAnimationStateIterator getAnimationStateIterator(void) const;
+		/// Copy the state of any matching animation states from this to another
+		void copyMatchingState(AnimationStateSet* target);
+		/// Has any animation state been altered since the last time resetDirty was called?
+		bool isDirty(void) const { return mDirty; }
+		/// Reset the dirty flag on this state set
+		void resetDirty(void) { mDirty = false; }
+		/// Set the dirty flag on this state set
+		void _notifyDirty(void) { mDirty = true; }
+
+	protected:
+		bool mDirty;
+		AnimationStateMap mAnimationStates;
+
+
+	};
+
 
 }
 

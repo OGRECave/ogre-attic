@@ -207,64 +207,36 @@ namespace Ogre {
     {
         /* 
         Algorithm:
-          1. Check if animation state is any different from last, if not do nothing
-          2. Reset all bone positions
-          3. Iterate per AnimationState, if enabled get Animation and call Animation::apply
+          1. Reset all bone positions
+          2. Iterate per AnimationState, if enabled get Animation and call Animation::apply
         */
-
-        if (mLastAnimationState.size() == animSet.size())
-        {
-            // Same size, may be able to skip update
-            bool different = false;
-            AnimationStateSet::iterator i;
-            AnimationStateSet::const_iterator j;
-            i = mLastAnimationState.begin();
-            j = animSet.begin();
-            for (; i != mLastAnimationState.end(); ++i, ++j)
-            {
-                if (i->second != j->second)
-                {
-                    different = true;
-                    break;
-                }
-            }
-            // Check any differences?
-            if (!different)
-            {
-                // No, no need to update
-                return;
-            }
-        }
-
-        // Ok, we've established the animation state is different
 
         // Reset bones
         reset();
 
         // Per animation state
-        AnimationStateSet::const_iterator istate;
-        for (istate = animSet.begin(); istate != animSet.end(); ++istate)
+		ConstAnimationStateIterator stateIt = 
+			animSet.getAnimationStateIterator();
+        while (stateIt.hasMoreElements())
         {
             // Apply if enabled
-            const AnimationState& animState = istate->second;
-            if (animState.getEnabled())
+            const AnimationState* animState = stateIt.getNext();
+            if (animState->getEnabled())
             {
 				const LinkedSkeletonAnimationSource* linked = 0;
-				Animation* anim = getAnimation(animState.getAnimationName(), &linked);
+				Animation* anim = getAnimation(animState->getAnimationName(), &linked);
 				if (linked)
 				{
-					anim->apply(this, animState.getTimePosition(), animState.getWeight(), 
+					anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
 						mBlendState == ANIMBLEND_CUMULATIVE, linked->scale);
 				}
 				else
 				{
-					anim->apply(this, animState.getTimePosition(), animState.getWeight(), 
+					anim->apply(this, animState->getTimePosition(), animState->getWeight(), 
 						mBlendState == ANIMBLEND_CUMULATIVE);
 				}
             }
         }
-
-        mLastAnimationState = animSet;
 
 
     }
@@ -307,9 +279,6 @@ namespace Ogre {
 
         // Add to list
         mAnimationsList[name] = ret;
-
-        // Also add to state
-        mLastAnimationState[name] = AnimationState(name, 0, length);
 
         return ret;
 
@@ -371,15 +340,10 @@ namespace Ogre {
         mAnimationsList.erase(i);
 
     }
-    //---------------------------------------------------------------------
-    const AnimationStateSet& Skeleton::getAnimationState(void) const
-    {
-        return mLastAnimationState;
-    }
     //-----------------------------------------------------------------------
     void Skeleton::_initAnimationState(AnimationStateSet* animSet)
     {
-        animSet->clear();
+        animSet->removeAllAnimationStates();
            
         AnimationList::iterator i;
         for (i = mAnimationsList.begin(); i != mAnimationsList.end(); ++i)
@@ -387,7 +351,7 @@ namespace Ogre {
             Animation* anim = i->second;
             // Create animation at time index 0, default params mean this has weight 1 and is disabled
             String animName = anim->getName();
-            (*animSet)[animName] = AnimationState(animName, 0.0, anim->getLength());
+            animSet->createAnimationState(animName, 0.0, anim->getLength());
         }
 
 		// Also iterate over linked animation
@@ -412,9 +376,9 @@ namespace Ogre {
 			Animation* anim = i->second;
 			// Create animation at time index 0, default params mean this has weight 1 and is disabled
 			String animName = anim->getName();
-			if (animSet->find(animName) == animSet->end())
+			if (!animSet->hasAnimationState(animName))
 			{
-				(*animSet)[animName] = AnimationState(animName, 0.0, anim->getLength());
+				animSet->createAnimationState(animName, 0.0, anim->getLength());
 			}
 		}
 		// Also iterate over linked animation

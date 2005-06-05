@@ -83,9 +83,14 @@ namespace Ogre {
 		unsigned short mMaterialLodIndex;
 
         /// blend buffer details for dedicated geometry
-        VertexData* mBlendedVertexData;
+        VertexData* mSkelAnimVertexData;
         /// Quick lookup of buffers
-        TempBlendedBufferInfo mTempBlendedBuffer;
+        TempBlendedBufferInfo mTempSkelAnimInfo;
+		/// Temp buffer details for software morph anim geometry
+		TempBlendedBufferInfo mTempMorphAnimInfo;
+		/// Vertex data details for software morph anim geometry
+		VertexData* mMorphAnimVertexData;
+
         /** Internal method for preparing this Entity for use in animation. */
         void prepareTempBlendBuffers(void);
 
@@ -146,7 +151,7 @@ namespace Ogre {
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
         /// Get the temporary blended vertex data for this subentity
-        const VertexData* getBlendedVertexData(void) { return mBlendedVertexData; }
+        const VertexData* getBlendedVertexData(void) { return mSkelAnimVertexData; }
         /** @copydoc Renderable::getCastsShadows */
         bool getCastsShadows(void) const;
 		/** Advanced method to get the temporarily blended vertex information

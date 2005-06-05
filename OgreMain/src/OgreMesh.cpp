@@ -397,22 +397,27 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Mesh::_initAnimationState(AnimationStateSet* animSet)
     {
-        // Delegate to Skeleton
-        assert(!mSkeleton.isNull() && "Skeleton not present");
-        mSkeleton->_initAnimationState(animSet);
+		if (hasSkeleton())
+		{
+			// Delegate to Skeleton
+			assert(!mSkeleton.isNull() && "Skeleton not present");
+			mSkeleton->_initAnimationState(animSet);
 
-        // Take the opportunity to update the compiled bone assignments
-        if (mBoneAssignmentsOutOfDate)
-            _compileBoneAssignments();
+			// Take the opportunity to update the compiled bone assignments
+			if (mBoneAssignmentsOutOfDate)
+				_compileBoneAssignments();
 
-        SubMeshList::iterator i;
-        for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
-        {
-            if ((*i)->mBoneAssignmentsOutOfDate)
-            {
-                (*i)->_compileBoneAssignments();
-            }
-        }
+			SubMeshList::iterator i;
+			for (i = mSubMeshList.begin(); i != mSubMeshList.end(); ++i)
+			{
+				if ((*i)->mBoneAssignmentsOutOfDate)
+				{
+					(*i)->_compileBoneAssignments();
+				}
+			}
+		}
+
+		// TODO - add morph animation states
     }
     //-----------------------------------------------------------------------
     typedef std::multimap<Real, Mesh::VertexBoneAssignmentList::iterator> WeightIteratorMap;
@@ -1750,6 +1755,12 @@ namespace Ogre {
 
 		}
 		return ret;
+	}
+	//-----------------------------------------------------------------------------
+	bool Mesh::hasMorphAnimation(void) const
+	{
+		// TODO
+		return false;
 	}
 
 }

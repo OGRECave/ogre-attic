@@ -99,10 +99,14 @@ namespace Ogre {
         AnimationStateSet* mAnimationState;
 
 
-        /// Temp blend buffer details for shared geometry
-        TempBlendedBufferInfo mTempBlendedBuffer;
-        /// Temp blend buffer details for shared geometry
-        VertexData* mSharedBlendedVertexData;
+        /// Temp buffer details for software skeletal anim of shared geometry
+        TempBlendedBufferInfo mTempSkelAnimInfo;
+        /// Vertex data details for software skeletal anim of shared geometry
+        VertexData* mSkelAnimVertexData;
+		/// Temp buffer details for software morph anim of shared geometry
+		TempBlendedBufferInfo mTempMorphAnimInfo;
+		/// Vertex data details for software morph anim of shared geometry
+		VertexData* mMorphAnimVertexData;
 
         /** Internal method - given vertex data which could be from the Mesh or 
             any submesh, finds the temporary blend copy. */
@@ -122,8 +126,6 @@ namespace Ogre {
         /// Cached bone matrices, including any world transform
         Matrix4 *mBoneMatrices;
         unsigned short mNumBoneMatrices;
-        /// Records the last frame in which animation was updated
-        unsigned long mFrameAnimationLastUpdated;
 
          /// Perform all the updates required for an animated entity
         void updateAnimation(void);
@@ -146,7 +148,7 @@ namespace Ogre {
         /// Flag determines whether or not to display skeleton
         bool mDisplaySkeleton;
         /// Flag indicating whether hardware skinning is supported by this entities materials
-        bool mHardwareSkinning;
+        bool mHardwareAnimation;
         /// Flag indicating whether we have a vertex program in use on any of our subentities
         bool mVertexProgramInUse;
 
@@ -475,7 +477,7 @@ namespace Ogre {
             assigned to this entity have vertex programs assigned, and all those
             vertex programs must support 'include_skeletal_animation true'.
         */
-        bool isHardwareSkinningEnabled(void) const { return mHardwareSkinning; }
+        bool isHardwareAnimationEnabled(void) const { return mHardwareAnimation; }
 
         /** Overridden from MovableObject */
         void _notifyAttached(Node* parent, bool isTagPoint = false);
@@ -486,6 +488,8 @@ namespace Ogre {
         */
         void shareSkeletonInstanceWith(Entity* entity);
 
+		/** Returns whether or not this entity is morph animated. */
+		bool hasMorphAnimation(void) const;
 	
         /** Stops sharing the SkeletonInstance with other entities.
         */
