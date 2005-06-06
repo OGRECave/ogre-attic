@@ -1,6 +1,5 @@
 INCLUDES = -I$(top_srcdir)/Samples/Common/CEGUIRenderer/include\
-	-I$(top_srcdir)/OgreMain/include @OGRE_CFLAGS@ \
-	@CEGUI_CFLAGS@
+	-I$(top_srcdir)/OgreMain/include @CEGUI_CFLAGS@
 
 lib_LTLIBRARIES=libCEGUIOgreRenderer.la
 

@@ -30,7 +30,7 @@ RenderSystem_GL_la_SOURCES = OgreGLATIFSInit.cpp \
                              OgreGLPixelFormat.cpp \
 				glprocs.c
 
-RenderSystem_GL_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+RenderSystem_GL_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 RenderSystem_GL_la_LIBADD = \
     $(top_builddir)/RenderSystems/GL/src/$(OGRE_GLSUPPORT)/libsupport.la \
     $(top_builddir)/RenderSystems/GL/src/GLSL/src/libGLSL.la \

@@ -48,14 +48,14 @@ namespace Ogre {
         ~BillboardParticleRenderer();
 
         /** Command object for billboard type (see ParamCommand).*/
-        class CmdBillboardType : public ParamCommand
+        class _OgrePrivate CmdBillboardType : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for common direction (see ParamCommand).*/
-        class CmdCommonDirection : public ParamCommand
+        class _OgrePrivate CmdCommonDirection : public ParamCommand
         {
         public:
             String doGet(const void* target) const;

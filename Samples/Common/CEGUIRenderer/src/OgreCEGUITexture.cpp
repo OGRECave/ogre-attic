@@ -128,6 +128,19 @@ void OgreCEGUITexture::loadFromFile(const String& filename, const String& resour
 	Loads (copies) an image in memory into the texture.  The texture is
 	resized as required to hold the image.	
 *************************************************************************/
+
+void _byteSwap(unsigned char* b, int n)
+{
+    register int i = 0;
+    register int j = n-1;
+    while (i<j)
+    {
+        std::swap(b[i], b[j]);
+        i++, j--;
+    }
+}
+#define byteSwap(x) _byteSwap((unsigned char*) &x,sizeof(x))
+
 void OgreCEGUITexture::loadFromMemory(const void* buffPtr, uint buffWidth, uint buffHeight)
 {
 	using namespace Ogre;
@@ -137,7 +150,18 @@ void OgreCEGUITexture::loadFromMemory(const void* buffPtr, uint buffWidth, uint 
 
 	// wrap input buffer with an Ogre DataChunk
     uint32 bytesize = ((buffWidth * sizeof(uint32)) * buffHeight);
+
+#if OGRE_ENDIAN == OGRE_ENDIAN_BIG
+    uint32* swappedBuffer = new uint32[bytesize/4];
+    memcpy(swappedBuffer, buffPtr, bytesize);
+
+    for (int i=0; i < bytesize/4; i++)
+        ByteSwap(swappedBuffer[i]);
+
+    DataStreamPtr odc(new MemoryDataStream(static_cast<void*>(swappedBuffer), bytesize, false));
+#else
 	DataStreamPtr odc(new MemoryDataStream(const_cast<void*>(buffPtr), bytesize, false));
+#endif
 
 	// try to create a Ogre::Texture from the input data
 	d_ogre_texture = TextureManager::getSingleton().loadRawData(getUniqueName(), "General", odc, buffWidth, buffHeight, PF_A8R8G8B8, TEX_TYPE_2D, 0, 1.0f);

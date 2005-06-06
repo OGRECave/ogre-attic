@@ -33,7 +33,7 @@ namespace Ogre
 {
     class ILImageCodec;
     
-    class ILCodecs {
+    class _OgrePrivate ILCodecs {
     protected:
        static std::list<ILImageCodec*> codeclist;
     public:

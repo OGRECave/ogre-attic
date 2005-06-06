@@ -14,6 +14,85 @@
 <p class="header" align="center">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p class="header" align="center">Change Log</p>
+<p class="mainheader" align="left">v1.0.2 [Azathoth] (30 May
+2005) - Maintenance Release</p>
+<ul>
+  <li>Mesh::buildTangentVectors now deals with 32-bit indexes</li>
+  <li>Re-introduce commented out degenerate face test in progressive
+mesh, adds quality at very low LOD levels</li>
+  <li>Multisampling in GLX corrected</li>
+  <li>Documentation fixes</li>
+  <li>A few state optimisations in the rendersystem</li>
+  <li>Removed calls to srand in Math - user might want to control
+random number seeding</li>
+  <li>Addition of a few minor 'getter' methods and const-correctness</li>
+  <li>Matrix4 * Plane should use inverse transpose to transform plane
+normal to deal with non-uniform scale.</li>
+  <li>GL: throw an exception when we failed to properly initialise a
+texture, instead of a devide by zero</li>
+  <li>Fix for skeleton serializer (showed up in XSI testing) - don't
+assume every bone has a track.</li>
+  <li>VC7.1 + OGRE_DOUBLE_PRECISION fix</li>
+  <li>Fix bug in getSquaredViewDepth in WireBoundingBox</li>
+  <li>Added useful fuzzy comparison methods to Vector3 / Quaternion <br>
+  </li>
+  <li>Add animation optimisation methods to eliminate tracks which do
+nothing and duplicate keyframes (used by default in XML converter)</li>
+  <li>Include quake3settings.cfg in SDK distribution</li>
+  <li>Minor particle fixes</li>
+  <li>Allow Renderable to determine whether it can be overridden by
+camera as to the detail level it renders at. Allows us to view the
+whole scene in wireframe but keep the overlays solid by default.</li>
+  <li>Bugfix - when bulk-loading resources, unsupported high-level and
+assembler programs end up getting loaded since they are part of the
+declared resources in the group</li>
+  <li>Fix resource counting bug on bulk loading</li>
+  <li>GLX backdrop image now embedded</li>
+  <li>StringConverter::parseUnsignedInt fixed for boundary numbers</li>
+  <li>Fixed OgreGLTexture and compressed textures delete [] mismatch</li>
+  <li>Timer - compensate for QueryPerformanceCounter hiccups on some
+chipsets</li>
+  <li>MeshUpgrader should set mesh padding factor to nothing to avoid
+adding extra padding</li>
+  <li>Material - restore manual loader and manual flag after applying
+defaults</li>
+  <li>Fixed Node::getPitch/getRoll/getYaw</li>
+  <li>Implement ParentWindowHandle for GLX - Disable FSAA for now, it's
+heavily unstable for NVidia</li>
+  <li>Don't try to log exception when no LogManager exists yet</li>
+  <li>Allow skeletons to share animations with other skeletons
+(requires strict skeletal structure matching) Supports a scale option
+to adapt animation to matching skeletons with different sizes</li>
+  <li>D3D9 window resizing issues resolved</li>
+  <li>Properly support downgrading to 16-bit textures again via
+TextureManager::getSingleton().enable32BitTextures(false)</li>
+  <li>Small bugfix for TerrainSceneManager (texture coords wrapped at 1
+vertex too high)</li>
+  <li>Some MingW and some Linux distribution (e.g. Gentoo) build fixes</li>
+  <li>Fix multi-pass precision issue on nVidia when using GL</li>
+  <li>Fixed Dynlib* deleted 2 times when unloading plugins manually</li>
+  <li>Fixed BSP plugin creating materials in wrong group</li>
+  <li>Fixed unitialised member mQueuedForDeletion in Pass</li>
+  <li>Gui demo control name strings fixed</li>
+  <li>ResourceManager::load methods (and derivatives) now reload an
+existing Resource which is already present, but has been manually
+unloaded</li>
+  <li>Fixes Linux boost linking issue when --enable-threading
+used.&nbsp; Modified slightly to check for the existence of the library
+during ./configure.</li>
+  <li>Linux - disabled RTTI and disabled the ability to use undefined
+symbols in plugin object files.</li>
+  <li>Fix ordering of directional lights in GPU programs to be
+consistent <br>
+  </li>
+  <li>Fix reloading of high-level programs</li>
+  <li>Don't do anything in SharedPtr::setNull if already null, avoids
+issues with shared mutex for null shared pointers.</li>
+  <li>PanelOverlayElement can now live with materials which have no
+texture units.<br>
+    <br>
+  </li>
+</ul>
 <p class="mainheader" align="left">v1.0.1 [Azathoth] (10 April
 2005) - Maintenance Release</p>
 <ul>
@@ -67,8 +146,7 @@ attached to a rotated node</li>
 increases performance of CEGUI rendering</li>
   <li>XSI mesh and skeletal animation exporter</li>
   <li>Added a missing vertexbuffer unlock in
-MeshSerializerImpl::writeGeometry.
-  </li>
+MeshSerializerImpl::writeGeometry. </li>
   <li>Add explicitly named methods to ConfigFile to resolve ambiguity
 when using defaulted paramters</li>
   <li>Minor documentation updates</li>

@@ -48,7 +48,7 @@ namespace Ogre {
         material to reduce render state changes, and outsorts transparent
         objects.
     */
-    class RenderPriorityGroup
+    class _OgrePrivate RenderPriorityGroup
     {
         /** Internal struct reflecting a single Pass for a Renderable. 
         This is used to sort transparent objects.
@@ -245,7 +245,7 @@ namespace Ogre {
     @par
         This is an internal OGRE class, not intended for apps to use.
     */
-    class RenderQueueGroup
+    class _OgrePrivate RenderQueueGroup
     {
     public:
         typedef std::map<ushort, RenderPriorityGroup*, std::less<ushort> > PriorityMap;

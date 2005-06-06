@@ -43,7 +43,7 @@ namespace Ogre {
     will be alternative subclasses of this class to load older versions, whilst this class
     will remain to load the latest version.
     */
-    class MeshSerializerImpl : public Serializer
+    class _OgrePrivate MeshSerializerImpl : public Serializer
     {
     public:
         MeshSerializerImpl();
@@ -134,7 +134,7 @@ namespace Ogre {
     };
 
     /** Class for providing backwards-compatibility for loading version 1.2 of the .mesh format. */
-    class MeshSerializerImpl_v1_2 : public MeshSerializerImpl
+    class _OgrePrivate MeshSerializerImpl_v1_2 : public MeshSerializerImpl
     {
     public:
         MeshSerializerImpl_v1_2();
@@ -153,7 +153,7 @@ namespace Ogre {
     };
 
     /** Class for providing backwards-compatibility for loading version 1.1 of the .mesh format. */
-    class MeshSerializerImpl_v1_1 : public MeshSerializerImpl_v1_2
+    class _OgrePrivate MeshSerializerImpl_v1_1 : public MeshSerializerImpl_v1_2
     {
     public:
         MeshSerializerImpl_v1_1();

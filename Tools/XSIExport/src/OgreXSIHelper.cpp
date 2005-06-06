@@ -33,6 +33,11 @@ namespace Ogre {
 		std::ifstream in(src.c_str(), std::ios::in | std::ios::binary);
 		std::ofstream out(dst.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
 
+		if (!in || !out)
+		{
+			LogOgreAndXSI("Unable to copy texture '" + src + "' to '" + dst + "'");
+			return;
+		}
 
 		char tmpBuf[2048];
 

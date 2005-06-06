@@ -12,7 +12,7 @@ BUILT_SOURCES = OgreSDLConfig.cpp
 EXTRA_DIST = OgreSDLConfig_gtk.cpp OgreSDLConfig_cli.cpp
 
 
-libOgrePlatform_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+libOgrePlatform_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 libOgrePlatform_la_LIBADD = $(SDL_LIBS) $(CFGTK_DEPS_LIBS) $(GL_LIBS) -lOgreMain
 
 pkgdata_DATA = ogre-config.glade

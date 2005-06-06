@@ -7,7 +7,7 @@
 
 namespace Ogre
 {
-    class RenderTargetTexture : public Texture, public RenderTarget
+    class _OgrePrivate RenderTargetTexture : public Texture, public RenderTarget
     {
     public:
         /// @copydoc Texture::isRenderTarget

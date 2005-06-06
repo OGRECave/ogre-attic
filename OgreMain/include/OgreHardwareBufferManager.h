@@ -109,7 +109,7 @@ namespace Ogre {
 
     protected:
         /** Struct holding details of a license to use a temporary shared buffer. */
-        class VertexBufferLicense
+        class _OgrePrivate VertexBufferLicense
         {
         public:
             HardwareVertexBuffer* originalBufferPtr;

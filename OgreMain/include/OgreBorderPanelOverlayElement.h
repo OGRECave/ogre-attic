@@ -174,70 +174,70 @@ namespace Ogre {
 
 
         /** Command object for specifying border sizes (see ParamCommand).*/
-        class CmdBorderSize : public ParamCommand
+        class _OgrePrivate CmdBorderSize : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying the Material for the border (see ParamCommand).*/
-        class CmdBorderMaterial : public ParamCommand
+        class _OgrePrivate CmdBorderMaterial : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderLeftUV : public ParamCommand
+        class _OgrePrivate CmdBorderLeftUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderTopUV : public ParamCommand
+        class _OgrePrivate CmdBorderTopUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderRightUV : public ParamCommand
+        class _OgrePrivate CmdBorderRightUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderBottomUV : public ParamCommand
+        class _OgrePrivate CmdBorderBottomUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderTopLeftUV : public ParamCommand
+        class _OgrePrivate CmdBorderTopLeftUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderBottomLeftUV : public ParamCommand
+        class _OgrePrivate CmdBorderBottomLeftUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderBottomRightUV : public ParamCommand
+        class _OgrePrivate CmdBorderBottomRightUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying texture coordinates for the border (see ParamCommand).*/
-        class CmdBorderTopRightUV : public ParamCommand
+        class _OgrePrivate CmdBorderTopRightUV : public ParamCommand
         {
         public:
             String doGet(const void* target) const;

@@ -6,5 +6,5 @@ Plugin_CgProgramManager_la_SOURCES = OgreCgProgram.cpp \
                              OgreCgProgramFactory.cpp \
                              OgreCgProgramManagerDll.cpp 
 
-Plugin_CgProgramManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+Plugin_CgProgramManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 Plugin_CgProgramManager_la_LIBADD = -lOgreMain -lCg

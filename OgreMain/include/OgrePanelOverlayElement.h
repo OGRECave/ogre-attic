@@ -90,14 +90,14 @@ namespace Ogre {
 
 
         /** Command object for specifying tiling (see ParamCommand).*/
-        class CmdTiling : public ParamCommand
+        class _OgrePrivate CmdTiling : public ParamCommand
         {
         public:
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
         /** Command object for specifying transparency (see ParamCommand).*/
-        class CmdTransparent : public ParamCommand
+        class _OgrePrivate CmdTransparent : public ParamCommand
         {
         public:
             String doGet(const void* target) const;

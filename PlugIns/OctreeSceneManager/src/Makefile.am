@@ -17,5 +17,5 @@ Plugin_OctreeSceneManager_la_SOURCES = \
 							OgreTerrainVertexProgram.cpp 
 
 
-Plugin_OctreeSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src
+Plugin_OctreeSceneManager_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 Plugin_OctreeSceneManager_la_LIBADD = -lOgreMain

@@ -112,15 +112,17 @@ namespace Ogre {
         this->unlock();
     }
 	//---------------------------------------------------------------------
-	void D3D9HardwareVertexBuffer::releaseIfDefaultPool(void)
+	bool D3D9HardwareVertexBuffer::releaseIfDefaultPool(void)
 	{
 		if (mD3DPool == D3DPOOL_DEFAULT)
 		{
 			SAFE_RELEASE(mlpD3DBuffer);
+			return true;
 		}
+		return false;
 	}
 	//---------------------------------------------------------------------
-	void D3D9HardwareVertexBuffer::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
+	bool D3D9HardwareVertexBuffer::recreateIfDefaultPool(LPDIRECT3DDEVICE9 pDev)
 	{
 		if (mD3DPool == D3DPOOL_DEFAULT)
 		{
@@ -137,7 +139,9 @@ namespace Ogre {
 				OGRE_EXCEPT(hr, "Cannot restore D3D9 vertex buffer: " + msg, 
 					"D3D9HardwareVertexBuffer::recreateIfDefaultPool");
 			}
+			return true;
 		}
+		return false;
 	}
 	//---------------------------------------------------------------------
 }

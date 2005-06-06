@@ -150,7 +150,7 @@ namespace Ogre {
 		if ( mUseMouse )
 		{
 			SDL_WM_GrabInput(SDL_GRAB_OFF);
-			SDL_ShowCursor(1);
+			SDL_ShowCursor(SDL_ENABLE);
 		}
     }
 
@@ -190,7 +190,7 @@ namespace Ogre {
 	void SDLInput::_releaseMouse()
 	{
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_ShowCursor(1);
+		SDL_ShowCursor(SDL_ENABLE);
 		mMouseGrabbed = false;
 		mMouseLeft = false;
 		mGrabMouse = true;
@@ -198,7 +198,7 @@ namespace Ogre {
 
 	void SDLInput::_grabMouse()
 	{
-		SDL_ShowCursor(0);
+		SDL_ShowCursor(SDL_DISABLE);
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 		mMouseGrabbed = true;
 		mGrabMouse = false;
