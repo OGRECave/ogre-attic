@@ -238,10 +238,6 @@ namespace Ogre {
 			const NameValuePairList *miscParams ) 
 			: RenderTexture( name, width, height, texType, internalFormat )
         {
-            mPrivateTex = TextureManager::getSingleton().createManual
-                (mName + "_PRIVATE##", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, 
-                texType, mWidth, mHeight, 0, internalFormat, TU_RENDERTARGET );
-			mPrivateTex->load();
         }
 		
         ~D3D9RenderTexture()
