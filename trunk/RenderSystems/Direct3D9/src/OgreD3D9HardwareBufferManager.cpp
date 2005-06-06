@@ -26,6 +26,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9HardwareVertexBuffer.h"
 #include "OgreD3D9HardwareIndexBuffer.h"
 #include "OgreD3D9VertexDeclaration.h"
+#include "OgreLogManager.h"
+#include "OgreStringConverter.h"
+
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -127,13 +130,17 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::releaseDefaultPoolResources(void)
 	{
+		size_t iCount = 0;
+		size_t vCount = 0;
+
 		VertexBufferList::iterator v, vend;
 		vend = mVertexBuffers.end();
 		for (v = mVertexBuffers.begin(); v != vend; ++v)
 		{
 			D3D9HardwareVertexBuffer* vbuf = 
 				static_cast<D3D9HardwareVertexBuffer*>(*v);
-			vbuf->releaseIfDefaultPool();
+			if (vbuf->releaseIfDefaultPool())
+				vCount++;
 		}
 
 
@@ -143,21 +150,31 @@ namespace Ogre {
 		{
 			D3D9HardwareIndexBuffer* ibuf = 
 				static_cast<D3D9HardwareIndexBuffer*>(*i);
-			ibuf->releaseIfDefaultPool();
+			if (ibuf->releaseIfDefaultPool())
+				iCount++;
 
 		}
 
+		LogManager::getSingleton().logMessage("D3D9HardwareBufferManager released:");
+		LogManager::getSingleton().logMessage(
+			StringConverter::toString(vCount) + " unmanaged vertex buffers");
+		LogManager::getSingleton().logMessage(
+			StringConverter::toString(iCount) + " unmanaged index buffers");
 	}
 	//-----------------------------------------------------------------------
 	void D3D9HardwareBufferManager::recreateDefaultPoolResources(void)
 	{
+		size_t iCount = 0;
+		size_t vCount = 0;
+
 		VertexBufferList::iterator v, vend;
 		vend = mVertexBuffers.end();
 		for (v = mVertexBuffers.begin(); v != vend; ++v)
 		{
 			D3D9HardwareVertexBuffer* vbuf = 
 				static_cast<D3D9HardwareVertexBuffer*>(*v);
-			vbuf->recreateIfDefaultPool(mlpD3DDevice);
+			if (vbuf->recreateIfDefaultPool(mlpD3DDevice))
+				vCount++;
 		}
 
 
@@ -167,9 +184,16 @@ namespace Ogre {
 		{
 			D3D9HardwareIndexBuffer* ibuf = 
 				static_cast<D3D9HardwareIndexBuffer*>(*i);
-			ibuf->recreateIfDefaultPool(mlpD3DDevice);
+			if (ibuf->recreateIfDefaultPool(mlpD3DDevice))
+				iCount++;
 
 		}
+
+		LogManager::getSingleton().logMessage("D3D9HardwareBufferManager recreated:");
+		LogManager::getSingleton().logMessage(
+			StringConverter::toString(vCount) + " unmanaged vertex buffers");
+		LogManager::getSingleton().logMessage(
+			StringConverter::toString(iCount) + " unmanaged index buffers");
 	}
 	//-----------------------------------------------------------------------
 

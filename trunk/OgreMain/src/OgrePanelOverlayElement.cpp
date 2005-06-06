@@ -270,45 +270,48 @@ namespace Ogre {
             }
 
             // Get the tcoord buffer & lock
-            HardwareVertexBufferSharedPtr vbuf = 
-                mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
-            float* pVBStart = static_cast<float*>(
-                vbuf->lock(HardwareBuffer::HBL_DISCARD) );
+			if (mNumTexCoordsInBuffer)
+			{
+				HardwareVertexBufferSharedPtr vbuf = 
+					mRenderOp.vertexData->vertexBufferBinding->getBuffer(TEXCOORD_BINDING);
+				float* pVBStart = static_cast<float*>(
+					vbuf->lock(HardwareBuffer::HBL_DISCARD) );
 
-            size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(float);
-            size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(float);
-            for (ushort i = 0; i < numLayers; ++i)
-            {
-                // Calc upper tex coords
-                Real upperX = 1.0f * mTileX[i];
-                Real upperY = 1.0f * mTileY[i];
-                
-                /*
-                    0-----2
-                    |    /|
-                    |  /  |
-                    |/    |
-                    1-----3
-                */
-                // Find start offset for this set
-                float* pTex = pVBStart + (i * uvSize);
+				size_t uvSize = VertexElement::getTypeSize(VET_FLOAT2) / sizeof(float);
+				size_t vertexSize = decl->getVertexSize(TEXCOORD_BINDING) / sizeof(float);
+				for (ushort i = 0; i < numLayers; ++i)
+				{
+					// Calc upper tex coords
+					Real upperX = 1.0f * mTileX[i];
+					Real upperY = 1.0f * mTileY[i];
+	                
+					/*
+						0-----2
+						|    /|
+						|  /  |
+						|/    |
+						1-----3
+					*/
+					// Find start offset for this set
+					float* pTex = pVBStart + (i * uvSize);
 
-                pTex[0] = 0.0f;
-                pTex[1] = 0.0f;
+					pTex[0] = 0.0f;
+					pTex[1] = 0.0f;
 
-                pTex += vertexSize; // jump by 1 vertex stride
-                pTex[0] = 0.0f;
-                pTex[1] = upperY;
+					pTex += vertexSize; // jump by 1 vertex stride
+					pTex[0] = 0.0f;
+					pTex[1] = upperY;
 
-                pTex += vertexSize;
-                pTex[0] = upperX;
-                pTex[1] = 0.0f;
+					pTex += vertexSize;
+					pTex[0] = upperX;
+					pTex[1] = 0.0f;
 
-                pTex += vertexSize;
-                pTex[0] = upperX;
-                pTex[1] = upperY;
-            }
-			vbuf->unlock();
+					pTex += vertexSize;
+					pTex[0] = upperX;
+					pTex[1] = upperY;
+				}
+				vbuf->unlock();
+			}
         }
     }
     //-----------------------------------------------------------------------

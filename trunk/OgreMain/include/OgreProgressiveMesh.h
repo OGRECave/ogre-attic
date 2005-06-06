@@ -120,7 +120,7 @@ namespace Ogre {
 
         /** A vertex as used by a face. This records the index of the actual vertex which is used
 		by the face, and a pointer to the common vertex used for surface evaluation. */
-		class PMFaceVertex {
+		class _OgrePrivate PMFaceVertex {
 		public:
 			size_t realIndex;
 			PMVertex* commonVertex;
@@ -129,7 +129,7 @@ namespace Ogre {
         protected:
 
         /** A triangle in the progressive mesh, holds extra info like face normal. */
-        class PMTriangle {
+        class _OgrePrivate PMTriangle {
         public:
             PMTriangle();
             void setDetails(size_t index, PMFaceVertex *v0, PMFaceVertex *v1, PMFaceVertex *v2);
@@ -152,7 +152,7 @@ namespace Ogre {
 		evaluate the surface properties, a single common vertex is used for these duplicates,
 		and the faces hold the detail of the duplicated vertices.
 		*/
-        class PMVertex {
+        class _OgrePrivate PMVertex {
         public:
             PMVertex();
 	        void setDetails(const Vector3& v, size_t index);

@@ -106,12 +106,14 @@ namespace Ogre {
 #	if defined( __MINGW32__ )
 		// Linux compilers don't have symbol import/export directives.
 #   	define _OgreExport
+#   	define _OgrePrivate
 #   else
 #   	if defined( OGRE_NONCLIENT_BUILD )
 #       	define _OgreExport __declspec( dllexport )
 #   	else
 #       	define _OgreExport __declspec( dllimport )
 #   	endif
+#   	define _OgrePrivate
 #	endif
 // Win32 compilers use _DEBUG for specifying debug builds.
 #   ifdef _DEBUG
@@ -142,6 +144,7 @@ namespace Ogre {
 
 // Linux compilers don't have symbol import/export directives.
 #   define _OgreExport
+#   define _OgrePrivate
 
 // A quick define to overcome different names for the same function
 #   define stricmp strcasecmp

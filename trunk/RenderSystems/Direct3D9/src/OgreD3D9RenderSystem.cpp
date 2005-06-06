@@ -2623,6 +2623,8 @@ namespace Ogre
 		static_cast<D3D9HardwareBufferManager*>(mHardwareBufferManager)
 			->recreateDefaultPoolResources();
 
+		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
+
 		mDeviceLost = false;
 	}
 	//---------------------------------------------------------------------
@@ -2633,6 +2635,7 @@ namespace Ogre
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_notifyDeviceLost(void)
 	{
+		LogManager::getSingleton().logMessage("!!! Direct3D Device Lost!");
 		mDeviceLost = true;
 		// will have lost basic states
 		mBasicStatesInitialised = false;

@@ -326,7 +326,7 @@ namespace Ogre {
         };
 
         /** Structure recording the use of an automatic parameter. */
-        class AutoConstantEntry
+        class _OgrePrivate AutoConstantEntry
         {
         public:
             /// The type of parameter

@@ -25,6 +25,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreD3D9TextureManager.h"
 #include "OgreD3D9Texture.h"
 #include "OgreException.h"
+#include "OgreLogManager.h"
+#include "OgreStringConverter.h"
 
 namespace Ogre 
 {
@@ -53,24 +55,36 @@ namespace Ogre
 
 	void D3D9TextureManager::releaseDefaultPoolResources(void)
 	{
+		size_t count = 0;
+
 		ResourceMap::iterator r, rend;
 		rend = mResources.end();
 		for (r = mResources.begin(); r != rend; ++r)
 		{
 			D3D9TexturePtr t = r->second;
-			t->releaseIfDefaultPool();
+			if (t->releaseIfDefaultPool())
+				count++;
 		}
+		LogManager::getSingleton().logMessage("D3D9TextureManager released:");
+		LogManager::getSingleton().logMessage(
+			StringConverter::toString(count) + " unmanaged textures");
 	}
 
 	void D3D9TextureManager::recreateDefaultPoolResources(void)
 	{
+		size_t count = 0;
+
 		ResourceMap::iterator r, rend;
 		rend = mResources.end();
 		for (r = mResources.begin(); r != rend; ++r)
 		{
 			D3D9TexturePtr t = r->second;
-			t->recreateIfDefaultPool(mpD3DDevice);
+			if(t->recreateIfDefaultPool(mpD3DDevice))
+				count++;
 		}
+		LogManager::getSingleton().logMessage("D3D9TextureManager recreated:");
+		LogManager::getSingleton().logMessage(
+			StringConverter::toString(count) + " unmanaged textures");
 	}
 
 
