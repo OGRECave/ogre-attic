@@ -130,6 +130,9 @@ namespace Ogre {
 		/// @copydoc ParticleSystemRenderer::setRenderQueueGroup
 		void setRenderQueueGroup(RenderQueueGroupID queueID);
 
+		/// Access BillboardSet in use
+		BillboardSet* getBillboardSet(void) const { return mBillboardSet; }
+
     protected:
         static CmdBillboardType msBillboardTypeCmd;
         static CmdCommonDirection msCommonDirectionCmd;
