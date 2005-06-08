@@ -150,12 +150,19 @@ namespace Ogre {
         bool mEdgeListsBuilt;
         bool mAutoBuildEdgeLists;
 
+		/// Storage of morph animations, lookup by name
+		typedef std::map<String, Animation*> AnimationList;
+		AnimationList mAnimationsList;
+
+
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
         /// @copydoc Resource::unloadImpl
         void unloadImpl(void);
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const;
+
+
 
     public:
         /** Default constructor - used by MeshManager
@@ -594,6 +601,22 @@ namespace Ogre {
             const VertexData* targetVertexData, const Matrix4* pMatrices, 
             bool blendNormals);
 
+        /** Performs a software vertex morph, of the kind used for
+            morph animation although it can be used for other purposes. 
+        @remarks
+			This function will linearly interpolate positions between two
+			source buffers, into a third buffer.
+        @param t Parametric distance between the start and end buffer positions
+        @param b1 Vertex buffer containing VET_FLOAT3 entries for the start positions
+		@param b2 Vertex buffer containing VET_FLOAT3 entries for the end positions
+		@param targetVertexData VertexData destination; assumed to have a separate position
+			buffer already bound, and the number of vertices must agree with the
+			number in start and end
+		*/
+        static void softwareVertexMorph(Real t, 
+            const HardwareVertexBufferSharedPtr& b1, 
+			const HardwareVertexBufferSharedPtr& b2, 
+			VertexData* targetVertexData);
         /** Gets a reference to the optional name assignments of the SubMeshes. */
         const SubMeshNameMap& getSubMeshNameMap(void) const { return mSubMeshNameMap; }
 
@@ -613,6 +636,38 @@ namespace Ogre {
             they are not already provided.
         */
         bool getAutoBuildEdgeLists(void) const { return mAutoBuildEdgeLists; }
+
+        /** Creates a new Animation object for morph animating this mesh. 
+        @param name The name of this animation
+        @param length The length of the animation in seconds
+        */
+        virtual Animation* createAnimation(const String& name, Real length);
+
+        /** Returns the named morph Animation object. 
+		@param name The name of the animation
+		*/
+        virtual Animation* getAnimation(const String& name) const;
+
+		/** Internal access to the named morph Animation object - returns null 
+			if it does not exist. 
+		@param name The name of the animation
+		*/
+		virtual Animation* _getAnimationImpl(const String& name) const;
+
+		/** Returns whether this mesh contains the named morph animation. */
+		virtual bool hasAnimation(const String& name);
+
+        /** Removes a morph Animation from this mesh. */
+        virtual void removeAnimation(const String& name);
+
+		/** Gets the number of morph animations in this mesh. */
+		virtual unsigned short getNumAnimations(void) const;
+
+		/** Gets a single morph animation by index. 
+		*/
+		virtual Animation* getAnimation(unsigned short index) const;
+
+
 
 
     };

@@ -284,12 +284,10 @@ namespace Ogre {
 		{
 			unsigned short handle = i->first;
 			VertexData* vertexData;
-			TempBlendedBufferInfo* tmpInfo;
 			if (handle == 0)
 			{
 				// shared vertex data
 				vertexData = entity->_getMorphAnimVertexData();
-				tmpInfo = entity->_getMorphAnimTempBufferInfo();
 
 			}
 			else
@@ -297,11 +295,9 @@ namespace Ogre {
 				// sub entity vertex data (-1)
 				vertexData = 
 					entity->getSubEntity(handle - 1)->_getMorphAnimVertexData();
-				tmpInfo = 
-					entity->getSubEntity(handle - 1)->_getMorphAnimTempBufferInfo();
 			}
 			i->second->setTargetMode(targetMode);
-			i->second->applyToVertexData(vertexData, tmpInfo, timePos);
+			i->second->applyToVertexData(vertexData, timePos);
 		}
 
 	}

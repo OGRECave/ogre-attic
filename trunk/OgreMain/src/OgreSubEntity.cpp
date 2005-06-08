@@ -242,5 +242,30 @@ namespace Ogre {
 	{
 		return &mTempMorphAnimInfo;
 	}
+	//-----------------------------------------------------------------------
+	void SubEntity::_updateCustomGpuParameter(
+		const GpuProgramParameters::AutoConstantEntry& constantEntry,
+		GpuProgramParameters* params) const
+	{
+		if (constantEntry.paramType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
+		{
+			// get the parametric morph value
+			if (mMorphAnimVertexData)
+			{
+				params->setConstant(constantEntry.index, 
+					mMorphAnimVertexData->hwMorphParametric);
+			}
+			else
+			{
+				params->setConstant(constantEntry.index, 
+					mParentEntity->mMorphAnimVertexData->hwMorphParametric);
+			}
+		}
+		else
+		{
+			// default
+			return Renderable::_updateCustomGpuParameter(constantEntry, params);
+		}
+	}
 
 }

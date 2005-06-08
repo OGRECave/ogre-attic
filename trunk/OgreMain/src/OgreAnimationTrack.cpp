@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreNode.h"
 #include "OgreLogManager.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreMesh.h"
 
 namespace Ogre {
 
@@ -581,9 +582,8 @@ namespace Ogre {
 	}
 	//--------------------------------------------------------------------------
 	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, 
-		VertexData* targetData, TempBlendedBufferInfo* tmpinfo, TargetMode target)
-		: AnimationTrack(parent), mTargetVertexData(targetData), 
-		mTempInfo(tmpinfo), mTargetMode(target)
+		VertexData* targetData, TargetMode target)
+		: AnimationTrack(parent), mTargetVertexData(targetData), mTargetMode(target)
 	{
 	}
 	//--------------------------------------------------------------------------
@@ -595,16 +595,49 @@ namespace Ogre {
 	void VertexAnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
 		Real scale)
 	{
-		applyToVertexData(mTargetVertexData, mTempInfo, timePos, weight, accumulate, scale);
+		applyToVertexData(mTargetVertexData, timePos, weight, accumulate, scale);
 	}
 	//--------------------------------------------------------------------------
 	void VertexAnimationTrack::applyToVertexData(VertexData* data, 
-		TempBlendedBufferInfo* tmpinfo, Real timePos, 
-		Real weight, bool accumulate, Real scale)
+		Real timePos, Real weight, bool accumulate, Real scale)
 	{
-		// TODO
-		// If target mode is software, need to software interpolate each vertex
-		// otherwise, need to bind our 2 keyframe buffers, one to pos, one to texcoords
+		// Get keyframes
+		KeyFrame *kf1, *kf2; 
+		Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
+
+		VertexKeyFrame* vkf1 = static_cast<VertexKeyFrame*>(kf1);
+		VertexKeyFrame* vkf2 = static_cast<VertexKeyFrame*>(kf2);
+
+		if (mTargetMode == TM_HARDWARE)
+		{
+			// If target mode is hardware, need to bind our 2 keyframe buffers, 
+			// one to main pos, one to morph target texcoord 
+			if (!data->hwMorphVertexDeclaration)
+			{
+				data->allocatehwMorphTargetElement();
+			}
+			// no use for TempBlendedBufferInfo here btw
+			// NB we assume that position buffer is unshared
+			// VertexDeclaration::getAutoOrganisedDeclaration should see to that
+			const VertexElement* posElem = 
+				data->hwMorphVertexDeclaration->findElementBySemantic(VES_POSITION);
+			// Set keyframe1 data as original position
+			data->vertexBufferBinding->setBinding(
+				posElem->getSource(), vkf1->getVertexBuffer());
+			// Set keyframe2 data as derived
+			data->vertexBufferBinding->setBinding(
+				data->hwMorphTargetElement->getSource(), vkf2->getVertexBuffer());
+			// save T for use later
+			data->hwMorphParametric = t;
+
+		}
+		else
+		{
+			// If target mode is software, need to software interpolate each vertex
+
+			Mesh::softwareVertexMorph(
+				t, vkf1->getVertexBuffer(), vkf2->getVertexBuffer(), data);
+		}
 	}
 	//--------------------------------------------------------------------------
 	VertexKeyFrame* VertexAnimationTrack::getVertexKeyFrame(unsigned short index) const

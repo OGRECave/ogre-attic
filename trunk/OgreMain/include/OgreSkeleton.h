@@ -213,6 +213,14 @@ namespace Ogre {
         virtual Animation* getAnimation(const String& name, 
 			const LinkedSkeletonAnimationSource** linker = 0) const;
 
+		/// Internal accessor for animations (returns null if animation does not exist)
+		Animation* _getAnimationImpl(const String& name, 
+			const LinkedSkeletonAnimationSource** linker = 0) const;
+
+
+		/** Returns whether this skeleton contains the named animation. */
+		virtual bool hasAnimation(const String& name);
+
         /** Removes an Animation from this skeleton. */
         virtual void removeAnimation(const String& name);
 
@@ -361,10 +369,6 @@ namespace Ogre {
         void unloadImpl(void);
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const { return 0; } // TODO 
-
-		/// Internal accessor for animations
-		Animation* getAnimationImpl(const String& name, 
-			const LinkedSkeletonAnimationSource** linker = 0) const;
 
     };
 

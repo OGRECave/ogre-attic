@@ -463,7 +463,7 @@ void MilkshapePlugin::doExportMesh(msModel* pModel)
         // Now use Ogre's ability to reorganise the vertex buffers the best way
         Ogre::VertexDeclaration* newDecl = 
             ogreSubMesh->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(
-                foundBoneAssignment);
+                foundBoneAssignment, false);
         Ogre::BufferUsageList bufferUsages;
         for (size_t u = 0; u <= newDecl->getMaxSource(); ++u)
             bufferUsages.push_back(Ogre::HardwareBuffer::HBU_STATIC_WRITE_ONLY);

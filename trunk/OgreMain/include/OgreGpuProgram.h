@@ -282,7 +282,12 @@ namespace Ogre {
 
             /** provides current elapsed time
             */
-            ACT_TIME
+            ACT_TIME,
+
+			/** Provides a parametric animation value [0..1], only available
+				where the renderable specifically implements it.
+			*/
+			ACT_ANIMATION_PARAMETRIC
  
         };
 

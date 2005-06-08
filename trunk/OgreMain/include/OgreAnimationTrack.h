@@ -287,16 +287,16 @@ namespace Ogre
 		enum TargetMode
 		{
 			/// Interpolate vertex positions in software
-			AM_SOFTWARE, 
+			TM_SOFTWARE, 
 			/** Bind keyframe 1 to position, and keyframe 2 to a texture coordinate
 				for interpolation in hardware */
-			AM_HARDWARE
+			TM_HARDWARE
 		};
 		/// Constructor
 		VertexAnimationTrack(Animation* parent);
 		/// Constructor, associates with target VertexData and temp buffer (for software)
 		VertexAnimationTrack(Animation* parent, VertexData* targetData, 
-			TempBlendedBufferInfo* tmpinfo, TargetMode target = AM_SOFTWARE);
+			TargetMode target = TM_SOFTWARE);
 
 		/** Creates a new KeyFrame and adds it to this animation at the given time index.
 		@remarks
@@ -318,7 +318,7 @@ namespace Ogre
 
 		/** As the 'apply' method but applies to specified VertexData instead of 
 			associated data. */
-		virtual void applyToVertexData(VertexData* data, TempBlendedBufferInfo* tmp, 
+		virtual void applyToVertexData(VertexData* data, 
 			Real timePos, Real weight = 1.0, 
 			bool accumulate = false, Real scale = 1.0f);
 
@@ -331,12 +331,6 @@ namespace Ogre
 		/** Gets the associated VertexData which this track will update. */
 		VertexData* getAssociatedVertexData(void) const { return mTargetVertexData; }
 
-		/** Sets the associated TempBlendBufferInfo structure which this track 
-			will use during the update, if the mode is software (user must configure). */
-		void setAssociatedTempInfo(TempBlendedBufferInfo* tmp) { mTempInfo = tmp; }
-		/** Gets the associated TempBlendBufferInfo structure which this track 
-		will use during the update, if the mode is software (user must configure). */
-		TempBlendedBufferInfo* getAssociatedTempInfo(void) const { return mTempInfo; }
 		/// Set the target mode
 		void setTargetMode(TargetMode m) { mTargetMode = m; }
 		/// Get the target mode
@@ -346,8 +340,6 @@ namespace Ogre
 	protected:
 		/// Target to animate
 		VertexData* mTargetVertexData;
-		/// Tempbuffer info used in software mode
-		TempBlendedBufferInfo* mTempInfo;
 		/// Mode to apply
 		TargetMode mTargetMode;
 
