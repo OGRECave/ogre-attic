@@ -44,6 +44,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSkeletonInstance.h"
 #include "OgreEdgeListBuilder.h"
 #include "OgreStringConverter.h"
+#include "OgreAnimation.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -448,9 +449,40 @@ namespace Ogre {
         Root& root = Root::getSingleton();
         if (mAnimationState->isDirty())
         {
+			bool hwSkinning = isHardwareAnimationEnabled();
+			bool stencilShadows = 
+				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
+				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE;
 			if (hasMorphAnimation())
 			{
-				// TODO - apply morph animation
+				if (!hwSkinning || stencilShadows)
+				{
+					// grab & bind temporary buffer for positions
+					if (mMorphAnimVertexData)
+					{
+						mTempMorphAnimInfo.checkoutTempCopies(true, false);
+						// NB we suppress hardware upload while doing blend if we're
+						// hardware skinned, because the only reason for doing this
+						// is for shadow, which need only be uploaded then
+						mTempMorphAnimInfo.bindTempCopies(mMorphAnimVertexData, 
+							hwSkinning);
+					}
+					SubEntityList::iterator i, iend;
+					iend = mSubEntityList.end();
+					for (i = mSubEntityList.begin(); i != iend; ++i)
+					{
+						// Blend dedicated geometry
+						SubEntity* se = *i;
+						if (se->isVisible() && se->mMorphAnimVertexData)
+						{
+							se->mTempMorphAnimInfo.checkoutTempCopies(true, false);
+							se->mTempMorphAnimInfo.bindTempCopies(se->mMorphAnimVertexData, 
+								hwSkinning);
+						}
+
+					}
+				}
+				applyMorphAnimation();
 			}
 
 			if (hasSkeleton())
@@ -458,10 +490,7 @@ namespace Ogre {
 				cacheBoneMatrices();
 
 				// Software blend?
-				bool hwSkinning = isHardwareAnimationEnabled();
-				if (!hwSkinning ||
-					root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
-					root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE)
+				if (!hwSkinning || stencilShadows)
 				{
 					// Ok, we need to do a software blend
 					// Blend normals in s/w only if we're not using h/w skinning,
@@ -476,7 +505,7 @@ namespace Ogre {
 						// is for shadow, which need only be uploaded then
 						mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData, 
-							mHardwareAnimation);
+							hwSkinning);
 						Mesh::softwareVertexBlend(mMesh->sharedVertexData, 
 							mSkelAnimVertexData, mBoneMatrices, blendNormals);
 					}
@@ -490,7 +519,7 @@ namespace Ogre {
 						{
 							se->mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData, 
-								mHardwareAnimation);
+								hwSkinning);
 							Mesh::softwareVertexBlend(se->mSubMesh->vertexData, 
 								se->mSkelAnimVertexData, mBoneMatrices, blendNormals);
 						}
@@ -508,6 +537,32 @@ namespace Ogre {
 
         }
     }
+	//-----------------------------------------------------------------------
+	void Entity::applyMorphAnimation(void)
+	{
+		// Morph animation cannot blend (arbitrary blends would require
+		// 2n + 1 vetex bindings (where n is the number of active animations)
+		// So pick the first active morph animation
+		AnimationStateIterator animIt = mAnimationState->getAnimationStateIterator();
+		MeshPtr msh = getMesh();
+		while(animIt.hasMoreElements())
+		{
+			AnimationState* state = animIt.getNext();
+			if (state->getEnabled())
+			{
+				Animation* anim = msh->_getAnimationImpl(state->getAnimationName());
+				if (anim)
+				{
+					anim->apply(this, state->getTimePosition(), 
+						mHardwareAnimation ? 
+							VertexAnimationTrack::TM_HARDWARE : 
+							VertexAnimationTrack::TM_SOFTWARE);
+					break;
+				}
+			}
+		}
+		
+	}
 	//-----------------------------------------------------------------------
 	void Entity::_updateAnimation(void)
 	{

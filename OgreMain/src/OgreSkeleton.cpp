@@ -291,7 +291,7 @@ namespace Ogre {
 	Animation* Skeleton::getAnimation(const String& name, 
 		const LinkedSkeletonAnimationSource** linker) const
 	{
-		Animation* ret = getAnimationImpl(name, linker);
+		Animation* ret = _getAnimationImpl(name, linker);
 		if (!ret)
 		{
 			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "No animation entry found named " + name, 
@@ -300,8 +300,13 @@ namespace Ogre {
 
 		return ret;
 	}
+	//---------------------------------------------------------------------
+	bool Skeleton::hasAnimation(const String& name)
+	{
+		return _getAnimationImpl(name) != 0;
+	}
     //---------------------------------------------------------------------
-    Animation* Skeleton::getAnimationImpl(const String& name, 
+    Animation* Skeleton::_getAnimationImpl(const String& name, 
 		const LinkedSkeletonAnimationSource** linker) const
     {
 		Animation* ret = 0;
@@ -315,7 +320,7 @@ namespace Ogre {
 			{
 				if (!i->pSkeleton.isNull())
 				{
-					ret = i->pSkeleton->getAnimationImpl(name);
+					ret = i->pSkeleton->_getAnimationImpl(name);
 					if (ret && linker)
 					{
 						*linker = &(*i);

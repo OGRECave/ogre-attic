@@ -171,6 +171,11 @@ namespace Ogre {
 		morph animation.
 		*/
 		TempBlendedBufferInfo* _getMorphAnimTempBufferInfo(void);
+
+		/** Overridden from Renderble to provide some custom behaviour. */
+		void _updateCustomGpuParameter(
+			const GpuProgramParameters::AutoConstantEntry& constantEntry,
+			GpuProgramParameters* params) const;
     };
 
 }

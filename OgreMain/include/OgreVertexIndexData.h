@@ -60,6 +60,13 @@ namespace Ogre {
 		/// The number of vertices used in this operation
 		size_t vertexCount;
 
+		/// VertexDeclaration which is a copy of this one, but with hardware morph binding
+		VertexDeclaration* hwMorphVertexDeclaration;
+		/// VertexElement which has been allocated to hardware morph target usage
+		const VertexElement* hwMorphTargetElement;
+		/// Parametric value expressing hardware morph distance between pos and morph target
+		Real hwMorphParametric;
+
 		/** Clones this vertex data, potentially including replicating any vertex buffers.
 		@remarks The caller is expected to delete the returned pointer when ready
 		*/
@@ -136,6 +143,20 @@ namespace Ogre {
 			excluding them from the declaration if you wish, however.
 		*/
 		void reorganiseBuffers(VertexDeclaration* newDeclaration);
+
+		/** Allocate a new element to serve as the holder of morph target positions
+			for hardware morphing.
+		@remarks
+			This method will allocate the next free texture coordinate for use
+			as a morph target (3D position), and will save it in hwMorphTargetElement
+			as well as setting up hwMorphVertexDeclaration containing it.
+			It will also assume that the source of this new element will be a new
+			buffer which is not bound at this time, so will set the source to 
+			1 higher than the current highest binding source. The caller is
+			expected to bind this new buffer when appropriate (as well as the 
+			source morph buffer which will be bound to the main position).
+		*/
+		void allocatehwMorphTargetElement(void);
 
 
 

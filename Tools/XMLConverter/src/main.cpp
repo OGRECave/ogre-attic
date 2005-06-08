@@ -316,7 +316,7 @@ void XMLToBinary(XmlOptions opts)
                 // Automatic
                 VertexDeclaration* newDcl = 
                     newMesh->sharedVertexData->vertexDeclaration->getAutoOrganisedDeclaration(
-                        newMesh->hasSkeleton());
+                        newMesh->hasSkeleton(), newMesh->hasMorphAnimation());
                 if (*newDcl != *(newMesh->sharedVertexData->vertexDeclaration))
                 {
                     // Usages don't matter here since we're onlly exporting
@@ -337,7 +337,7 @@ void XMLToBinary(XmlOptions opts)
                     // Automatic
                     VertexDeclaration* newDcl = 
                         sm->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(
-                            newMesh->hasSkeleton());
+                            newMesh->hasSkeleton(), newMesh->hasMorphAnimation());
                     if (*newDcl != *(sm->vertexData->vertexDeclaration))
                     {
                         // Usages don't matter here since we're onlly exporting

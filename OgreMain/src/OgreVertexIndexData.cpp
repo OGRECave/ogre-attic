@@ -44,6 +44,8 @@ namespace Ogre {
 			createVertexDeclaration();
 		vertexCount = 0;
 		vertexStart = 0;
+		hwMorphVertexDeclaration = 0;
+		hwMorphTargetElement = 0;
 
 	}
     //-----------------------------------------------------------------------
@@ -52,6 +54,10 @@ namespace Ogre {
 		HardwareBufferManager::getSingleton().
 			destroyVertexBufferBinding(vertexBufferBinding);
 		HardwareBufferManager::getSingleton().destroyVertexDeclaration(vertexDeclaration);
+		if (hwMorphVertexDeclaration)
+		{
+			HardwareBufferManager::getSingleton().destroyVertexDeclaration(hwMorphVertexDeclaration);
+		}
 
 	}
     //-----------------------------------------------------------------------
@@ -484,6 +490,40 @@ namespace Ogre {
         reorganiseBuffers(newDeclaration, usages);
 
     }
+	//-----------------------------------------------------------------------
+	void VertexData::allocatehwMorphTargetElement(void)
+	{
+		if (hwMorphVertexDeclaration)
+		{
+			HardwareBufferManager::getSingleton().destroyVertexDeclaration(hwMorphVertexDeclaration);
+			hwMorphVertexDeclaration = 0;
+			hwMorphTargetElement = 0;
+		}
+
+		unsigned short texCoord = 0;
+		const VertexDeclaration::VertexElementList& vel = vertexDeclaration->getElements();
+		for (VertexDeclaration::VertexElementList::const_iterator i = vel.begin(); 
+			i != vel.end(); ++i)
+		{
+			const VertexElement& el = *i;
+			if (el.getSemantic() == VES_TEXTURE_COORDINATES)
+			{
+				++texCoord;
+			}
+		}
+		assert(texCoord <= OGRE_MAX_TEXTURE_COORD_SETS);
+
+		// Copy vertex declaration into new
+		hwMorphVertexDeclaration = vertexDeclaration->clone(); 
+
+		// Create a new 3D texture coordinate set
+		hwMorphTargetElement = &(hwMorphVertexDeclaration->addElement(
+			vertexBufferBinding->getNextIndex(), 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoord));
+
+		// Vertex buffer will not be bound yet, we expect this to be done by the
+		// caller when it becomes appropriate (e.g. through a VertexAnimationTrack)
+
+	}
     //-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
 	IndexData::IndexData()

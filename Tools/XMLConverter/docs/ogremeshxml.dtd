@@ -1,5 +1,5 @@
 <!ELEMENT mesh (sharedgeometry?, submeshes, 
-	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?)>
+	skeletonlink?, boneassignments?, levelofdetail?, submeshnames?, animations?)>
 <!ELEMENT sharedgeometry (vertexbuffer+)>
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
@@ -92,6 +92,21 @@
 <!ATTLIST submeshname 
 	name	CDATA	#REQUIRED
 	index	CDATA	#REQUIRED >
+<!ELEMENT animations (animation+)>
+<!ELEMENT animation (tracks)>
+<!ATTLIST animation
+	name	CDATA	#REQUIRED >
+<!ELEMENT tracks (track+)>
+<!ELEMENT track (keyframes)>
+<!ATTLIST track 
+	target	(mesh|submesh) #REQUIRED
+	index	CDATA	"0" >
+<!ELEMENT keyframes (keyframe)>
+<!ELEMENT keyframe (position+)>
+<!ATTLIST keyframe
+	time	CDATA	#REQUIRED 
+	useoriginalpositions (true|false) "false">
+
 	
 				
 	

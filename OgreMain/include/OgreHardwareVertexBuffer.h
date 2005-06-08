@@ -305,10 +305,15 @@ namespace Ogre {
         /** Generates a new VertexDeclaration for optimal usage based on the current
             vertex declaration, which can be used with VertexData::reorganiseBuffers later 
             if you wish, or simply used as a template.
-        @param animated Whether this vertex data is going to be animated; this
-            affects the choice of both usage and buffer splits.
+		@remarks
+			Different buffer organisations and buffer usages will be returned
+            depending on the parameters passed to this method.
+        @param skeletalAnimation Whether this vertex data is going to be 
+			skeletally animated
+		@param morphAnimation Whether this vertex data is going to be morph animated
         */
-        VertexDeclaration* getAutoOrganisedDeclaration(bool animated);
+        VertexDeclaration* getAutoOrganisedDeclaration(bool skeletalAnimation, 
+			bool morphAnimation);
 
         /** Gets the indeex of the highest source value referenced by this declaration. */
         unsigned short getMaxSource(void) const;

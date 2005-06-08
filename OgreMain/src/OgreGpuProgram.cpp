@@ -114,7 +114,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_TRANSPOSE_WORLD_MATRIX,             "transpose_world_matrix",            16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,     "inverse_transpose_world_matrix",    16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_INT, ACDT_NONE),
-        AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL)
+        AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
+		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               1, ET_REAL, ACDT_NONE)
     };
 
     
@@ -597,6 +598,7 @@ namespace Ogre
                 setConstant(i->index, source.getPassNumber());
                 break;
             case ACT_CUSTOM:
+			case ACT_ANIMATION_PARAMETRIC:
                 source.getCurrentRenderable()->_updateCustomGpuParameter(*i, this);
                 break;
             default:

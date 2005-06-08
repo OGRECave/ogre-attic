@@ -199,6 +199,9 @@ namespace Ogre {
         /// Trigger reevaluation of the kind of vertex processing in use
         void reevaluateVertexProcessing(void);
 
+		/// Apply morph animation
+		void applyMorphAnimation(void);
+		
     public:
         /// Contains the child objects (attached to bones) indexed by name
         typedef std::map<String, MovableObject*> ChildObjectList;
