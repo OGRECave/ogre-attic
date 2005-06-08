@@ -3000,6 +3000,9 @@ def export_mesh(object, exportOptions):
 		# note: material slots may be empty, resp. meshMaterialList entries may be None
 		nMaterials = len(meshMaterialList)
 
+		# warn if mesh is a subdivision surface
+		if (data.getMode() & Blender.NMesh.Modes['SUBSURF']):
+			exportLogger.logWarning("Mesh \"%s\" is a subdivision surface. Convert it to mesh, if you want to export the subdivision result." % data.name)
 		# create ogre materials
 		for face in data.faces:
 			faceMaterial = None
@@ -3768,12 +3771,6 @@ def doneMessageBox():
 ######
 # Main
 ######
-isImported = 0
-try:
-	if ((__script__['name'] != 'Ogre XML') and (__script__['name'] != 'ogreexport.py')):
-		isImported = 1
-except NameError:
-	isImported = 1
-if not isImported:
+if (__name__ == "__main__"):
 	initGUI()
 	Draw.Register(gui, eventCallback, buttonCallback)
