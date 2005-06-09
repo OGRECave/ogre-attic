@@ -212,7 +212,7 @@ namespace Ogre {
 			};
 
 			VertexCacheProfiler(unsigned int cachesize = 16, CacheType cachetype = FIFO )
-				: size ( cachesize ), type ( cachetype ), hit (0), miss (0), tail (0), buffersize (0)
+				: size ( cachesize ), type ( cachetype ), tail (0), buffersize (0), hit (0), miss (0)
 			{
 				cache = new uint32[size];
 			};

@@ -391,9 +391,9 @@ namespace Ogre {
                 : entryIndex(0)
                 , elementCount(0)
                 , elementType(ET_INT)
+                , autoIndex(0)
                 , isAllocated(false)
                 , isAuto(false)
-                , autoIndex(0)
             {}
 
         };
