@@ -111,23 +111,50 @@ namespace Ogre {
     {
 		// Use LOD
         mSubMesh->_getRenderOperation(op, mParentEntity->mMeshLodIndex);
-        // Do we need to use software skinned vertex data?
-        if (mParentEntity->hasSkeleton() && !mParentEntity->mHardwareAnimation)
-        {
-            op.vertexData = mSubMesh->useSharedVertices ? 
-                mParentEntity->mSkelAnimVertexData : mSkelAnimVertexData;
+		// Deal with any vertex data overrides
+		op.vertexData = getVertexDataForBinding();
 
-        }
     }
+	//-----------------------------------------------------------------------
+	VertexData* SubEntity::getVertexDataForBinding(void)
+	{
+		if (mSubMesh->useSharedVertices)
+		{
+			return mParentEntity->getVertexDataForBinding();
+		}
+		else
+		{
+			// Morphing? 
+			if (mParentEntity->shouldBindMorphVertexData())
+			{
+				// we use morph vertex data, will have had 2x keyframes bound
+				return mMorphAnimVertexData;
+
+			}
+			// Otherwise do we need to use software skinned vertex data?
+			else if (mParentEntity->shouldBindSkeletalVertexData())
+			{
+				return mSkelAnimVertexData;
+
+			}
+			else
+			{
+				// original 
+				return mSubMesh->vertexData;
+			}
+		}
+	}
     //-----------------------------------------------------------------------
     void SubEntity::getWorldTransforms(Matrix4* xform) const
     {
         if (!mParentEntity->mNumBoneMatrices)
         {
+			// no bones
             *xform = mParentEntity->_getParentNodeFullTransform();
         }
         else
         {
+			// bones
             if (!mParentEntity->isHardwareAnimationEnabled())
             {
                 // Software skinning involves pretransforming

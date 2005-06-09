@@ -150,8 +150,6 @@ namespace Ogre {
         SceneDetailLevel getRenderDetail() const {return mRenderDetail;}
         /** @copydoc Renderable::getLights */
         const LightList& getLights(void) const;
-        /// Get the temporary blended vertex data for this subentity
-        const VertexData* getBlendedVertexData(void) { return mSkelAnimVertexData; }
         /** @copydoc Renderable::getCastsShadows */
         bool getCastsShadows(void) const;
 		/** Advanced method to get the temporarily blended vertex information
@@ -171,6 +169,9 @@ namespace Ogre {
 		morph animation.
 		*/
 		TempBlendedBufferInfo* _getMorphAnimTempBufferInfo(void);
+		/// Retrieve the VertexData which should be used for GPU binding
+		VertexData* getVertexDataForBinding(void);
+
 
 		/** Overridden from Renderble to provide some custom behaviour. */
 		void _updateCustomGpuParameter(
