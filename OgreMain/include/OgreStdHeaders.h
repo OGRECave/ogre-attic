@@ -23,7 +23,7 @@
 #include <queue>
 
 // Note - not in the original STL, but exists in SGI STL and STLport
-#ifdef EXT_HASH
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC
 #   include <ext/hash_map>
 #   include <ext/hash_set>
 #else
