@@ -468,7 +468,7 @@ namespace Ogre {
 		/** Internal method for retrieving bone matrix information. */
         unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
         /** Returns whether or not this entity is skeletally animated. */
-        bool hasSkeleton(void) { return mSkeletonInstance != 0; }
+        bool hasSkeleton(void) const { return mSkeletonInstance != 0; }
         /** Get this Entity's personal skeleton instance. */
         SkeletonInstance* getSkeleton(void) { return mSkeletonInstance; }
         /** Returns whether or not hardware skinning is enabled.
@@ -550,11 +550,20 @@ namespace Ogre {
 		TempBlendedBufferInfo* _getMorphAnimTempBufferInfo(void);
 		/// Override to return specific type flag
 		uint32 getTypeFlags(void) const;
+		/// Retrieve the VertexData which should be used for GPU binding
+		VertexData* getVertexDataForBinding(void);
+		/// Should we be binding morph vertex data?
+		bool shouldBindMorphVertexData(void) const;
+		/** Should we be binding skeletal vertex data 
+		@note Assumes shouldBindMorphVertexData returned false; false from both 
+			means original mesh data should be used
+		*/
+		bool shouldBindSkeletalVertexData(void) const;
 
 
 
 
-    };
+	};
 
 	/** Factory object for creating Entity instances */
 	class _OgreExport EntityFactory : public MovableObjectFactory

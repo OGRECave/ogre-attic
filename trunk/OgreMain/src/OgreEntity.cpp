@@ -506,7 +506,10 @@ namespace Ogre {
 						mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 						mTempSkelAnimInfo.bindTempCopies(mSkelAnimVertexData, 
 							hwSkinning);
-						Mesh::softwareVertexBlend(mMesh->sharedVertexData, 
+						// Blend, taking source from either mesh data or morph data
+						Mesh::softwareVertexBlend(
+							hasMorphAnimation()? 
+								mMorphAnimVertexData :	mMesh->sharedVertexData, 
 							mSkelAnimVertexData, mBoneMatrices, blendNormals);
 					}
 					SubEntityList::iterator i, iend;
@@ -520,7 +523,10 @@ namespace Ogre {
 							se->mTempSkelAnimInfo.checkoutTempCopies(true, blendNormals);
 							se->mTempSkelAnimInfo.bindTempCopies(se->mSkelAnimVertexData, 
 								hwSkinning);
-							Mesh::softwareVertexBlend(se->mSubMesh->vertexData, 
+							// Blend, taking source from either mesh data or morph data
+							Mesh::softwareVertexBlend(
+								hasMorphAnimation()? 
+									se->mMorphAnimVertexData : se->mSubMesh->vertexData, 
 								se->mSkelAnimVertexData, mBoneMatrices, blendNormals);
 						}
 
@@ -1092,7 +1098,7 @@ namespace Ogre {
                 extrusionDistance, flags);
         }
 
-        bool hasSkeleton = this->hasSkeleton();
+        bool hasAnimation = this->hasSkeleton() || this->hasMorphAnimation();
 
 
         // Prep mesh if required
@@ -1110,7 +1116,7 @@ namespace Ogre {
 
 
         // Update any animation 
-        if (hasSkeleton)
+        if (hasAnimation)
         {
             updateAnimation();
         }
@@ -1120,7 +1126,7 @@ namespace Ogre {
         // Only use object-space light if we're not doing transforms
         // Since when animating the positions are already transformed into 
         // world space so we need world space light position
-        if (!hasSkeleton)
+        if (!hasSkeleton())
         {
             Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
             lightPos =  world2Obj * lightPos; 
@@ -1153,7 +1159,7 @@ namespace Ogre {
             if (init)
             {
                 const VertexData *pVertData = 0;
-                if (hasSkeleton)
+                if (hasAnimation)
                 {
                     // Use temp buffers
                     pVertData = findBlendedVertexData(egi->vertexData);
@@ -1174,9 +1180,9 @@ namespace Ogre {
                 *si = new EntityShadowRenderable(this, indexBuffer, pVertData, 
                     mVertexProgramInUse || !extrude, subent);
             }
-            else if (hasSkeleton)
+            else if (hasAnimation)
             {
-                // If we have a skeleton, we have no guarantee that the position
+                // If we have animation, we have no guarantee that the position
                 // buffer we used last frame is the same one we used last frame
                 // since a temporary buffer is requested each frame
                 // therefore, we need to update the EntityShadowRenderable
@@ -1188,7 +1194,7 @@ namespace Ogre {
             esr = static_cast<EntityShadowRenderable*>(*si);
             HardwareVertexBufferSharedPtr esrPositionBuffer = esr->getPositionBuffer();
             // For animated entities we need to recalculate the face normals
-            if (hasSkeleton)
+            if (hasAnimation)
             {
                 if (egi->vertexData != mMesh->sharedVertexData || !updatedSharedGeomNormals)
                 {
@@ -1237,9 +1243,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const VertexData* Entity::findBlendedVertexData(const VertexData* orig)
     {
+		bool skel = hasSkeleton();
+
         if (orig == mMesh->sharedVertexData)
         {
-            return mSkelAnimVertexData;
+			return skel? mSkelAnimVertexData : mMorphAnimVertexData;
         }
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
@@ -1248,7 +1256,7 @@ namespace Ogre {
             SubEntity* se = *i;
             if (orig == se->getSubMesh()->vertexData)
             {
-                return se->getBlendedVertexData();
+				return skel? se->_getSkelAnimVertexData() : se->_getMorphAnimVertexData();
             }
         }
         // None found
@@ -1522,6 +1530,44 @@ namespace Ogre {
 	uint32 Entity::getTypeFlags(void) const
 	{
 		return SceneManager::ENTITY_TYPE_MASK;
+	}
+	//-----------------------------------------------------------------------
+	VertexData* Entity::getVertexDataForBinding(void)
+	{
+		// Morphing? 
+		if (shouldBindMorphVertexData())
+		{
+			// we use morph vertex data, will have had 2x keyframes bound
+			return mMorphAnimVertexData;
+
+		}
+		// Otherwise do we need to use software skinned vertex data?
+		else if (shouldBindSkeletalVertexData())
+		{
+			return mSkelAnimVertexData;
+
+		}
+		else
+		{
+			// original 
+			return mMesh->sharedVertexData;
+		}
+	}
+	//-----------------------------------------------------------------------
+	bool Entity::shouldBindMorphVertexData(void) const
+	{
+		// Use morph vertex data if we have hardware morphing (and skeletal since
+		//  we assume hardware morphing means hardware skeletal too)
+		// Also if we have software morphing and no skeletal 
+		return hasMorphAnimation() && 
+			(mHardwareAnimation || !hasSkeleton());
+	}
+	//-----------------------------------------------------------------------
+	bool Entity::shouldBindSkeletalVertexData(void) const
+	{
+		// Bind skeletal vertex data if we're software skinning
+		// NB we assume shouldBindMorphVertexData has returned false
+		return hasSkeleton() && !mHardwareAnimation;
 	}
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
