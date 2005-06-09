@@ -98,7 +98,7 @@
             Ogre::TextAreaOverlayElement::[^C]*;
             Ogre::TextAreaOverlayElementFactory*;
             Ogre::Texture*;
-            Ogre::Ti*;
+            Ogre::T[ir]*;
             Ogre::U*;
             Ogre::Vector[234]*;
             Ogre::Ver*;
