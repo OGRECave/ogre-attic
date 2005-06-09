@@ -223,11 +223,11 @@ namespace Ogre {
 
                         case 9:
                             {
-                                Real mat[9];
+                                float mat[9];
                                 // assume that the 3x3 matrix is packed
-                                memcpy(mat, currentRealConstant++->val, sizeof(Real) * 4);
-                                memcpy(mat + 4, currentRealConstant++->val, sizeof(Real) * 4);
-                                memcpy(mat + 4, currentRealConstant->val, sizeof(Real) );
+                                memcpy(mat, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(mat + 4, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(mat + 4, currentRealConstant->val, sizeof(float) );
 
                                 glUniformMatrix3fvARB_ptr( currentUniform->mLocation, 1, GL_TRUE, mat);
                                 break;
@@ -235,11 +235,11 @@ namespace Ogre {
 
                         case 16:
                             {
-                                Real mat[16];
-                                memcpy(mat, currentRealConstant++->val, sizeof(Real) * 4);
-                                memcpy(mat + 4, currentRealConstant++->val, sizeof(Real) * 4);
-                                memcpy(mat + 8, currentRealConstant++->val, sizeof(Real) * 4);
-                                memcpy(mat + 12, currentRealConstant->val, sizeof(Real) * 4);
+                                float mat[16];
+                                memcpy(mat, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(mat + 4, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(mat + 8, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(mat + 12, currentRealConstant->val, sizeof(float) * 4);
 
                                 glUniformMatrix4fvARB_ptr( currentUniform->mLocation, 1, GL_TRUE, mat);
                                 break;
