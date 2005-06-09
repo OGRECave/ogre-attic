@@ -35,6 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFactoryObj.h"
 #include "OgreAnimable.h"
 #include "OgreAny.h"
+#include "OgreUserDefinedObject.h"
 
 namespace Ogre {
 
