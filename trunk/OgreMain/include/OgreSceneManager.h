@@ -57,9 +57,6 @@ namespace Ogre {
 	class DefaultRaySceneQuery;
 	class DefaultSphereSceneQuery;
 	class DefaultAxisAlignedBoxSceneQuery;
-	class EntityFactory;
-	class LightFactory;
-	class BillboardSetFactory;
 
     /** Manages the rendering of a 'scene' i.e. a collection of primitives.
         @remarks
@@ -89,6 +86,8 @@ namespace Ogre {
 		static uint32 STATICGEOMETRY_TYPE_MASK;
 		/// Query type mask which will be used for lights  @see SceneQuery
 		static uint32 LIGHT_TYPE_MASK;
+		/// User type mask limit
+		static uint32 USER_TYPE_MASK_LIMIT;
         /** Comparator for material map, for sorting materials into render order (e.g. transparent last).
         */
         struct materialLess
@@ -203,6 +202,11 @@ namespace Ogre {
 		SpecialCaseRenderQueueList mSpecialCaseQueueList;
 		SpecialCaseRenderQueueMode mSpecialCaseQueueMode;
 		RenderQueueGroupID mWorldGeometryRenderQueue;
+
+		typedef std::map<String, MovableObject*> MovableObjectMap;
+		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
+		MovableObjectCollectionMap mMovableObjectCollectionMap;
+		MovableObjectMap* getMovableObjectMap(const String& typeName);
 
         /** Internal method for initialising the render queue.
         @remarks
@@ -440,17 +444,6 @@ namespace Ogre {
         };
 
         ShadowCasterSceneQueryListener* mShadowCasterQueryListener;
-
-		typedef std::map<String, MovableObjectFactory*> MovableObjectFactoryMap;
-		MovableObjectFactoryMap mMovableObjectFactoryMap;
-		typedef std::map<String, MovableObject*> MovableObjectMap;
-		typedef std::map<String, MovableObjectMap*> MovableObjectCollectionMap;
-		MovableObjectCollectionMap mMovableObjectCollectionMap;
-		uint32 mNextMovableObjectTypeFlag;
-		// stock factories
-		EntityFactory* mEntityFactory;
-		LightFactory* mLightFactory;
-		BillboardSetFactory* mBillboardSetFactory;
 
         /** Internal method for locating a list of shadow casters which 
             could be affecting the frustum for a given light. 
@@ -1810,43 +1803,6 @@ namespace Ogre {
 		/** Remove & destroy all StaticGeometry instances. */
 		virtual void removeAllStaticGeometry(void);
 
-
-		/** Register a new MovableObjectFactory which will create new MovableObject
-			instances of a particular type, as identified by the getType() method.
-		@remarks
-			Plugin creators can create subclasses of MovableObjectFactory which 
-			construct custom subclasses of MovableObject for insertion in the 
-			scene. This is the primary way that plugins can make custom objects
-			available.
-		@param fact Pointer to the factory instance
-		@param overrideExisting Set this to true to override any existing 
-			factories which are registered for the same type. You should only
-			change this if you are very sure you know what you're doing. 
-		*/
-		virtual void addMovableObjectFactory(MovableObjectFactory* fact, 
-			bool overrideExisting = false);
-		/** Removes a previously registered MovableObjectFactory.
-		@remarks
-			All instances of objects created by this factory will be destroyed
-			before removing the factory (by calling back the factories 
-			'destroyInstance' method). The plugin writer is responsible for actually
-			destroying the factory.
-		*/
-		virtual void removeMovableObjectFactory(MovableObjectFactory* fact);
-		/// Checks whether a factory is registered for a given MovableObject type
-		virtual bool hasMovableObjectFactory(const String& typeName) const;
-		/** Allocate the next MovableObject type flag.
-		@remarks
-			This is done automatically if MovableObjectFactory::requestTypeFlags
-			returns true; don't call this manually unless you're sure you need to.
-		*/
-		uint32 _allocateNextMovableObjectTypeFlag(void);
-
-		typedef ConstMapIterator<MovableObjectFactoryMap> MovableObjectFactoryIterator;
-		/** Return an iterator over all the MovableObjectFactory instances currently
-			registered.
-		*/
-		virtual MovableObjectFactoryIterator getMovableObjectFactoryIterator(void) const;
 
 		/** Create a movable object of the type specified.
 		@remarks

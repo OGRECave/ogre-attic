@@ -36,6 +36,7 @@ email                : janders@users.sf.net
 #include <OgreOctreeSceneQuery.h>
 #include <OgreOctreeSceneManager.h>
 #include <OgreEntity.h>
+#include <OgreRoot.h>
 
 namespace Ogre
 {
@@ -59,8 +60,8 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
     MovableSet set;
 
 	// Iterate over all movable types
-	SceneManager::MovableObjectFactoryIterator factIt = 
-		mParentSceneMgr->getMovableObjectFactoryIterator();
+	Root::MovableObjectFactoryIterator factIt = 
+		Root::getSingleton().getMovableObjectFactoryIterator();
 	while(factIt.hasMoreElements())
 	{
 		SceneManager::MovableObjectIterator it = 

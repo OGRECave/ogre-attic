@@ -25,6 +25,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStableHeaders.h"
 #include "OgreSceneManager.h"
 #include "OgreEntity.h"
+#include "OgreRoot.h"
 
 namespace Ogre {
 	//---------------------------------------------------------------------
@@ -42,8 +43,8 @@ namespace Ogre {
 	void DefaultIntersectionSceneQuery::execute(IntersectionSceneQueryListener* listener)
 	{
 		// Iterate over all movable types
-		SceneManager::MovableObjectFactoryIterator factIt = 
-			mParentSceneMgr->getMovableObjectFactoryIterator();
+		Root::MovableObjectFactoryIterator factIt = 
+			Root::getSingleton().getMovableObjectFactoryIterator();
 		while(factIt.hasMoreElements())
 		{
 			SceneManager::MovableObjectIterator objItA = 
@@ -81,7 +82,7 @@ namespace Ogre {
 					}
 				}
 				// Check  against later groups
-				SceneManager::MovableObjectFactoryIterator factItLater = factIt;
+				Root::MovableObjectFactoryIterator factItLater = factIt;
 				while (factItLater.hasMoreElements())
 				{
 					SceneManager::MovableObjectIterator objItC = 
@@ -132,8 +133,8 @@ namespace Ogre {
 	void DefaultAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
 	{
 		// Iterate over all movable types
-		SceneManager::MovableObjectFactoryIterator factIt = 
-			mParentSceneMgr->getMovableObjectFactoryIterator();
+		Root::MovableObjectFactoryIterator factIt = 
+			Root::getSingleton().getMovableObjectFactoryIterator();
 		while(factIt.hasMoreElements())
 		{
 			SceneManager::MovableObjectIterator objItA = 
@@ -176,8 +177,8 @@ namespace Ogre {
 		// required to fulfil the query
 
 		// Iterate over all movable types
-		SceneManager::MovableObjectFactoryIterator factIt = 
-			mParentSceneMgr->getMovableObjectFactoryIterator();
+		Root::MovableObjectFactoryIterator factIt = 
+			Root::getSingleton().getMovableObjectFactoryIterator();
 		while(factIt.hasMoreElements())
 		{
 			SceneManager::MovableObjectIterator objItA = 
@@ -223,8 +224,8 @@ namespace Ogre {
 		Sphere testSphere;
 
 		// Iterate over all movable types
-		SceneManager::MovableObjectFactoryIterator factIt = 
-			mParentSceneMgr->getMovableObjectFactoryIterator();
+		Root::MovableObjectFactoryIterator factIt = 
+			Root::getSingleton().getMovableObjectFactoryIterator();
 		while(factIt.hasMoreElements())
 		{
 			SceneManager::MovableObjectIterator objItA = 
@@ -267,8 +268,8 @@ namespace Ogre {
 	void DefaultPlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listener)
 	{
 		// Iterate over all movable types
-		SceneManager::MovableObjectFactoryIterator factIt = 
-			mParentSceneMgr->getMovableObjectFactoryIterator();
+		Root::MovableObjectFactoryIterator factIt = 
+			Root::getSingleton().getMovableObjectFactoryIterator();
 		while(factIt.hasMoreElements())
 		{
 			SceneManager::MovableObjectIterator objItA = 

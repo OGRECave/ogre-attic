@@ -53,6 +53,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreFileSystem.h"
 #include "OgreShadowVolumeExtrudeProgram.h"
 #include "OgreResourceBackgroundQueue.h"
+#include "OgreEntity.h"
+#include "OgreBillboardSet.h"
+#include "OgreLight.h"
 
 #if OGRE_NO_DEVIL == 0
 #include "OgreILCodecs.h"
@@ -121,7 +124,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
-      : mLogManager(0), mCurrentFrame(0)
+      : mLogManager(0), mCurrentFrame(0), mNextMovableObjectTypeFlag(1)
     {
         // First create new exception handler
         SET_TERM_HANDLER;
@@ -212,7 +215,15 @@ namespace Ogre {
         // Auto window
         mAutoWindow = 0;
 
-        // Load plugins
+		// instantiate and register base movable factories
+		mEntityFactory = new EntityFactory();
+		addMovableObjectFactory(mEntityFactory);
+		mLightFactory = new LightFactory();
+		addMovableObjectFactory(mLightFactory);
+		mBillboardSetFactory = new BillboardSetFactory();
+		addMovableObjectFactory(mBillboardSetFactory);
+
+		// Load plugins
         if (!pluginFileName.empty())
             loadPlugins(pluginFileName);        
 
@@ -265,6 +276,9 @@ namespace Ogre {
 		delete mResourceBackgroundQueue;
         delete mResourceGroupManager;
 
+		delete mEntityFactory;
+		delete mLightFactory;
+		delete mBillboardSetFactory;
 
 
         mPlatformManager->destroyTimer(mTimer);
@@ -432,11 +446,6 @@ namespace Ogre {
 	void Root::_setCurrentSceneManager(SceneManager* sm)
 	{
 		mCurrentSceneManager = sm;
-		// propagate particle system factory
-		if (!sm->hasMovableObjectFactory(ParticleSystemFactory::FACTORY_TYPE_NAME))
-		{
-			sm->addMovableObjectFactory(mParticleManager->_getFactory(), true);
-		}
 	}
     //-----------------------------------------------------------------------
     RenderSystem* Root::getRenderSystem(void)
@@ -903,4 +912,92 @@ namespace Ogre {
 		for(int i=0; i<3; ++i)
 			mEventTimes[i].clear();
 	}
+	//---------------------------------------------------------------------
+	void Root::addMovableObjectFactory(MovableObjectFactory* fact, 
+		bool overrideExisting)
+	{
+		MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(
+			fact->getType());
+		if (!overrideExisting && facti != mMovableObjectFactoryMap.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"A factory of type '" + fact->getType() + "' already exists.", 
+				"Root::addMovableObjectFactory");
+		}
+
+		if (fact->requestTypeFlags())
+		{
+			if (facti != mMovableObjectFactoryMap.end() && facti->second->requestTypeFlags())
+			{
+				// Copy type flags from the factory we're replacing
+				fact->_notifyTypeFlags(facti->second->getTypeFlags());
+			}
+			else
+			{
+				// Allocate new
+				fact->_notifyTypeFlags(_allocateNextMovableObjectTypeFlag());
+			}
+		}
+
+		// Save
+		mMovableObjectFactoryMap[fact->getType()] = fact;
+
+		LogManager::getSingleton().logMessage("MovableObjectFactory for type '" + 
+			fact->getType() + "' registered.");
+
+	}
+	//---------------------------------------------------------------------
+	bool Root::hasMovableObjectFactory(const String& typeName) const
+	{
+		return !(mMovableObjectFactoryMap.find(typeName) == mMovableObjectFactoryMap.end());
+	}
+	//---------------------------------------------------------------------
+	MovableObjectFactory* Root::getMovableObjectFactory(const String& typeName)
+	{
+		MovableObjectFactoryMap::iterator i = 
+			mMovableObjectFactoryMap.find(typeName);
+		if (i == mMovableObjectFactoryMap.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+				"MovableObjectFactory of type " + typeName + " does not exist",
+				"Root::getMovableObjectFactory");
+		}
+		return i->second;
+	}
+	//---------------------------------------------------------------------
+	uint32 Root::_allocateNextMovableObjectTypeFlag(void)
+	{
+		if (mNextMovableObjectTypeFlag == SceneManager::USER_TYPE_MASK_LIMIT)
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"Cannot allocate a type flag since "
+				"all the available flags have been used.", 
+				"Root::_allocateNextMovableObjectTypeFlag");
+
+		}
+		uint32 ret = mNextMovableObjectTypeFlag;
+		mNextMovableObjectTypeFlag <<= 1;
+		return ret;
+
+	}
+	//---------------------------------------------------------------------
+	void Root::removeMovableObjectFactory(MovableObjectFactory* fact)
+	{
+		MovableObjectFactoryMap::iterator i = mMovableObjectFactoryMap.find(
+			fact->getType());
+		if (i != mMovableObjectFactoryMap.end())
+		{
+			mMovableObjectFactoryMap.erase(i);
+		}
+
+	}
+	//---------------------------------------------------------------------
+	Root::MovableObjectFactoryIterator 
+	Root::getMovableObjectFactoryIterator(void) const
+	{
+		return MovableObjectFactoryIterator(mMovableObjectFactoryMap.begin(),
+			mMovableObjectFactoryMap.end());
+
+	}
+		
 }
