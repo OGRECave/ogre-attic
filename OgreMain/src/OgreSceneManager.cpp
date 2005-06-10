@@ -71,7 +71,7 @@ uint32 SceneManager::ENTITY_TYPE_MASK			= 0x40000000;
 uint32 SceneManager::FX_TYPE_MASK				= 0x20000000;
 uint32 SceneManager::STATICGEOMETRY_TYPE_MASK   = 0x10000000;
 uint32 SceneManager::LIGHT_TYPE_MASK			= 0x08000000;
-#define MAX_USER_TYPE_MASK SceneManager::LIGHT_TYPE_MASK
+uint32 SceneManager::USER_TYPE_MASK_LIMIT         = SceneManager::LIGHT_TYPE_MASK;
 //-----------------------------------------------------------------------
 SceneManager::SceneManager() :
 mRenderQueue(0),
@@ -115,8 +115,7 @@ mShadowTextureSelfShadow(false),
 mShadowTextureCustomCasterPass(0),
 mShadowTextureCustomReceiverPass(0),
 mShadowTextureCasterVPDirty(false),
-mShadowTextureReceiverVPDirty(false),
-mNextMovableObjectTypeFlag(1)
+mShadowTextureReceiverVPDirty(false)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");
@@ -134,16 +133,6 @@ mNextMovableObjectTypeFlag(1)
     }
 
 	mShadowCasterQueryListener = new ShadowCasterSceneQueryListener(this);
-
-	// instantiate and register base movable factories
-	mEntityFactory = new EntityFactory();
-	addMovableObjectFactory(mEntityFactory);
-	mLightFactory = new LightFactory();
-	addMovableObjectFactory(mLightFactory);
-	mBillboardSetFactory = new BillboardSetFactory();
-	addMovableObjectFactory(mBillboardSetFactory);
-
-
 
 }
 //-----------------------------------------------------------------------
@@ -166,9 +155,6 @@ SceneManager::~SceneManager()
     delete mShadowCasterSphereQuery;
     delete mShadowCasterAABBQuery;
     delete mRenderQueue;
-	delete mEntityFactory;
-	delete mLightFactory;
-	delete mBillboardSetFactory;
 }
 //-----------------------------------------------------------------------
 RenderQueue* SceneManager::getRenderQueue(void)
@@ -3847,104 +3833,33 @@ void SceneManager::destroyQuery(SceneQuery* query)
     delete query;
 }
 //---------------------------------------------------------------------
-void SceneManager::addMovableObjectFactory(MovableObjectFactory* fact, 
-	bool overrideExisting)
+SceneManager::MovableObjectMap* 
+SceneManager::getMovableObjectMap(const String& typeName)
 {
-	MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(
-		fact->getType());
-	if (!overrideExisting && facti != mMovableObjectFactoryMap.end())
+	MovableObjectCollectionMap::iterator i = 
+		mMovableObjectCollectionMap.find(typeName);
+	if (i == mMovableObjectCollectionMap.end())
 	{
-		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-			"A factory of type '" + fact->getType() + "' already exists.", 
-			"SceneManager::addMovableObjectFactory");
+		// create
+		MovableObjectMap* newMap = new MovableObjectMap();
+		mMovableObjectCollectionMap[typeName] = newMap;
+		return newMap;
 	}
-
-	if (fact->requestTypeFlags())
+	else
 	{
-		if (facti != mMovableObjectFactoryMap.end() && facti->second->requestTypeFlags())
-		{
-			// Copy type flags from the factory we're replacing
-			fact->_notifyTypeFlags(facti->second->getTypeFlags());
-		}
-		else
-		{
-			// Allocate new
-			fact->_notifyTypeFlags(_allocateNextMovableObjectTypeFlag());
-		}
+		return i->second;
 	}
-
-	// create collection for instances
-	if (facti == mMovableObjectFactoryMap.end())
-	{
-		mMovableObjectCollectionMap[fact->getType()] = new MovableObjectMap();
-	}
-
-	// Save
-	mMovableObjectFactoryMap[fact->getType()] = fact;
-
-	LogManager::getSingleton().logMessage("MovableObjectFactory for type '" + 
-		fact->getType() + "' registered.");
-
-}
-//---------------------------------------------------------------------
-bool SceneManager::hasMovableObjectFactory(const String& typeName) const
-{
-	return !(mMovableObjectFactoryMap.find(typeName) == mMovableObjectFactoryMap.end());
-}
-//---------------------------------------------------------------------
-uint32 SceneManager::_allocateNextMovableObjectTypeFlag(void)
-{
-	if (mNextMovableObjectTypeFlag == MAX_USER_TYPE_MASK)
-	{
-		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-			"Cannot allocate a type flag since "
-			"all the available flags have been used.", 
-			"SceneManager::_allocateNextMovableObjectTypeFlag");
-
-	}
-	uint32 ret = mNextMovableObjectTypeFlag;
-	mNextMovableObjectTypeFlag <<= 1;
-	return ret;
-
-}
-//---------------------------------------------------------------------
-void SceneManager::removeMovableObjectFactory(MovableObjectFactory* fact)
-{
-	MovableObjectFactoryMap::iterator i = mMovableObjectFactoryMap.find(
-		fact->getType());
-	if (i != mMovableObjectFactoryMap.end())
-	{
-		destroyAllMovableObjectsByType(fact->getType());
-		mMovableObjectFactoryMap.erase(i);
-		mMovableObjectCollectionMap.erase(
-			mMovableObjectCollectionMap.find(fact->getType()));
-	}
-
-}
-//---------------------------------------------------------------------
-SceneManager::MovableObjectFactoryIterator 
-SceneManager::getMovableObjectFactoryIterator(void) const
-{
-	return MovableObjectFactoryIterator(mMovableObjectFactoryMap.begin(),
-		mMovableObjectFactoryMap.end());
-
 }
 //---------------------------------------------------------------------
 MovableObject* SceneManager::createMovableObject(const String& name, 
 	const String& typeName, const NameValuePairList* params)
 {
-	MovableObjectFactoryMap::iterator i = mMovableObjectFactoryMap.find(typeName);
-	if (i == mMovableObjectFactoryMap.end())
-	{
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-			"Factory of type '" + typeName + "' does not exist.", 
-			"SceneManager::createMovableObject");
-	}
+	MovableObjectFactory* factory = 
+		Root::getSingleton().getMovableObjectFactory(typeName);
 	// Check for duplicate names
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	assert(ci != mMovableObjectCollectionMap.end());
-	if (ci->second->find(name) != ci->second->end())
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+
+	if (objectMap->find(name) != objectMap->end())
 	{
 		OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
 			"An object of type '" + typeName + "' with name '" + name
@@ -3952,8 +3867,8 @@ MovableObject* SceneManager::createMovableObject(const String& name,
 			"SceneManager::createMovableObject");
 	}
 
-	MovableObject* newObj = i->second->createInstance(name, params);
-	(*ci->second)[name] = newObj;
+	MovableObject* newObj = factory->createInstance(name, params);
+	(*objectMap)[name] = newObj;
 
 	return newObj;
 
@@ -3961,47 +3876,30 @@ MovableObject* SceneManager::createMovableObject(const String& name,
 //---------------------------------------------------------------------
 void SceneManager::destroyMovableObject(const String& name, const String& typeName)
 {
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	if(ci != mMovableObjectCollectionMap.end())
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectFactory* factory = 
+		Root::getSingleton().getMovableObjectFactory(typeName);
+
+	MovableObjectMap::iterator mi = objectMap->find(name);
+	if (mi != objectMap->end())
 	{
-		MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(typeName);
-		if (facti == mMovableObjectFactoryMap.end())
-		{
-			OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-				"Factory of type '" + typeName + "' does not exist.", 
-				"SceneManager::destroyMovableObject");
-		}
-		MovableObjectMap::iterator mi = ci->second->find(name);
-		if (mi != ci->second->end())
-		{
-			facti->second->destroyInstance(mi->second);
-			ci->second->erase(mi);
-		}
+		factory->destroyInstance(mi->second);
+		objectMap->erase(mi);
 	}
 
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyAllMovableObjectsByType(const String& typeName)
 {
-	MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(typeName);
-	if (facti == mMovableObjectFactoryMap.end())
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectFactory* factory = 
+		Root::getSingleton().getMovableObjectFactory(typeName);
+	MovableObjectMap::iterator i = objectMap->begin();
+	for (; i != objectMap->end(); ++i)
 	{
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-			"Factory of type '" + typeName + "' does not exist.", 
-			"SceneManager::destroyAllMovableObjectsByType");
+		factory->destroyInstance(i->second);
 	}
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	if(ci != mMovableObjectCollectionMap.end())
-	{
-		MovableObjectMap::iterator i = ci->second->begin();
-		for (; i != ci->second->end(); ++i)
-		{
-			facti->second->destroyInstance(i->second);
-		}
-		ci->second->clear();
-	}
+	objectMap->clear();
 
 }
 //---------------------------------------------------------------------
@@ -4011,15 +3909,15 @@ void SceneManager::destroyAllMovableObjects(void)
 
 	for(;ci != mMovableObjectCollectionMap.end(); ++ci)
 	{
-		MovableObjectFactoryMap::iterator facti = mMovableObjectFactoryMap.find(
-			ci->first);
-		if (facti != mMovableObjectFactoryMap.end())
+		if (Root::getSingleton().hasMovableObjectFactory(ci->first))
 		{
 			// Only destroy if we have a factory instance; otherwise must be injected
+			MovableObjectFactory* factory = 
+				Root::getSingleton().getMovableObjectFactory(ci->first);
 			MovableObjectMap::iterator i = ci->second->begin();
 			for (; i != ci->second->end(); ++i)
 			{
-				facti->second->destroyInstance(i->second);
+				factory->destroyInstance(i->second);
 			}
 		}
 		ci->second->clear();
@@ -4029,16 +3927,10 @@ void SceneManager::destroyAllMovableObjects(void)
 //---------------------------------------------------------------------
 MovableObject* SceneManager::getMovableObject(const String& name, const String& typeName)
 {
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	if (ci == mMovableObjectCollectionMap.end())
-	{
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-			"Factory of type '" + typeName + "' does not exist.", 
-			"SceneManager::getMovableObject");
-	}
-	MovableObjectMap::iterator mi = ci->second->find(name);
-	if (mi == ci->second->end())
+	
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectMap::iterator mi = objectMap->find(name);
+	if (mi == objectMap->end())
 	{
 		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
 			"Object named '" + name + "' does not exist.", 
@@ -4051,16 +3943,9 @@ MovableObject* SceneManager::getMovableObject(const String& name, const String& 
 SceneManager::MovableObjectIterator 
 SceneManager::getMovableObjectIterator(const String& typeName)
 {
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	if (ci == mMovableObjectCollectionMap.end())
-	{
-		OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
-			"Factory of type '" + typeName + "' does not exist.", 
-			"SceneManager::getMovableObject");
-	}
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
 
-	return MovableObjectIterator(ci->second->begin(), ci->second->end());
+	return MovableObjectIterator(objectMap->begin(), objectMap->end());
 }
 //---------------------------------------------------------------------
 void SceneManager::destroyMovableObject(MovableObject* m)
@@ -4070,35 +3955,18 @@ void SceneManager::destroyMovableObject(MovableObject* m)
 //---------------------------------------------------------------------
 void SceneManager::injectMovableObject(MovableObject* m)
 {
-	// Do we have a collection already?
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		m->getMovableType());
-	if (ci == mMovableObjectCollectionMap.end())
-	{
-		// create
-		std::pair<MovableObjectCollectionMap::iterator, bool> retpair = 
-			mMovableObjectCollectionMap.insert(
-			MovableObjectCollectionMap::value_type(
-				m->getMovableType(), new MovableObjectMap()));
-		ci = retpair.first;
-	}
-	(*ci->second)[m->getName()] = m;
-
-
+	MovableObjectMap* objectMap = getMovableObjectMap(m->getMovableType());
+	(*objectMap)[m->getName()] = m;
 }
 //---------------------------------------------------------------------
 void SceneManager::extractMovableObject(const String& name, const String& typeName)
 {
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	if (ci == mMovableObjectCollectionMap.end())
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	MovableObjectMap::iterator mi = objectMap->find(name);
+	if (mi != objectMap->end())
 	{
-		MovableObjectMap::iterator mi = ci->second->find(name);
-		if (mi != ci->second->end())
-		{
-			// no delete
-			ci->second->erase(mi);
-		}
+		// no delete
+		objectMap->erase(mi);
 	}
 
 }
@@ -4110,13 +3978,9 @@ void SceneManager::extractMovableObject(MovableObject* m)
 //---------------------------------------------------------------------
 void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 {
-	MovableObjectCollectionMap::iterator ci = mMovableObjectCollectionMap.find(
-		typeName);
-	if (ci == mMovableObjectCollectionMap.end())
-	{
-		// no deletion
-		ci->second->clear();
-	}
+	MovableObjectMap* objectMap = getMovableObjectMap(typeName);
+	// no deletion
+	objectMap->clear();
 
 }
 //---------------------------------------------------------------------

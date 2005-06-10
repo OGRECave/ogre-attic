@@ -44,6 +44,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre
 {
     typedef std::vector<RenderSystem*> RenderSystemList;
+	
+	// Forward decls
+	class EntityFactory;
+	class LightFactory;
+	class BillboardSetFactory;
 
     /** The root class of the Ogre system.
         @remarks
@@ -102,6 +107,16 @@ namespace Ogre
         unsigned long mCurrentFrame;
 
         std::vector<DynLib*> mPluginLibs;
+
+		typedef std::map<String, MovableObjectFactory*> MovableObjectFactoryMap;
+		MovableObjectFactoryMap mMovableObjectFactoryMap;
+		uint32 mNextMovableObjectTypeFlag;
+		// stock movable factories
+		EntityFactory* mEntityFactory;
+		LightFactory* mLightFactory;
+		BillboardSetFactory* mBillboardSetFactory;
+
+		
         /** Method reads a plugins configuration file and instantiates all
             plugins.
             @param
@@ -660,6 +675,44 @@ namespace Ogre
 		*/
 		void clearEventTimes(void);
 
+		/** Register a new MovableObjectFactory which will create new MovableObject
+			instances of a particular type, as identified by the getType() method.
+		@remarks
+			Plugin creators can create subclasses of MovableObjectFactory which 
+			construct custom subclasses of MovableObject for insertion in the 
+			scene. This is the primary way that plugins can make custom objects
+			available.
+		@param fact Pointer to the factory instance
+		@param overrideExisting Set this to true to override any existing 
+			factories which are registered for the same type. You should only
+			change this if you are very sure you know what you're doing. 
+		*/
+		void addMovableObjectFactory(MovableObjectFactory* fact, 
+			bool overrideExisting = false);
+		/** Removes a previously registered MovableObjectFactory.
+		@remarks
+			All instances of objects created by this factory will be destroyed
+			before removing the factory (by calling back the factories 
+			'destroyInstance' method). The plugin writer is responsible for actually
+			destroying the factory.
+		*/
+		void removeMovableObjectFactory(MovableObjectFactory* fact);
+		/// Checks whether a factory is registered for a given MovableObject type
+		bool hasMovableObjectFactory(const String& typeName) const;
+		/// Get a MovableObjectFactory for the given type
+		MovableObjectFactory* getMovableObjectFactory(const String& typeName);
+		/** Allocate the next MovableObject type flag.
+		@remarks
+			This is done automatically if MovableObjectFactory::requestTypeFlags
+			returns true; don't call this manually unless you're sure you need to.
+		*/
+		uint32 _allocateNextMovableObjectTypeFlag(void);
+
+		typedef ConstMapIterator<MovableObjectFactoryMap> MovableObjectFactoryIterator;
+		/** Return an iterator over all the MovableObjectFactory instances currently
+			registered.
+		*/
+		MovableObjectFactoryIterator getMovableObjectFactoryIterator(void) const;
     };
 } // Namespace Ogre
 #endif
