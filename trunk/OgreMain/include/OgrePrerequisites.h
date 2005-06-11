@@ -269,6 +269,7 @@ namespace Ogre {
 	class MouseTarget;
     class Node;
 	class NodeAnimationTrack;
+	class NodeKeyFrame;
 	class NumericAnimationTrack;
 	class NumericKeyFrame;
     class Overlay;
@@ -361,6 +362,7 @@ namespace Ogre {
     class VertexBufferBinding;
     class VertexData;
     class VertexDeclaration;
+	class VertexKeyFrame;
     class WireBoundingBox; 
 }
 

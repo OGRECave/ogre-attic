@@ -667,6 +667,13 @@ namespace Ogre {
 		*/
 		virtual Animation* getAnimation(unsigned short index) const;
 
+		/** Gets a pointer to a vertex data element based on a morph animation 
+			track handle.
+		@remarks
+			0 means the shared vertex data, 1+ means a submesh vertex data (index+1)
+		*/
+		VertexData* getVertexDataByTrackHandle(unsigned short handle);
+
 
 
 

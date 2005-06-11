@@ -55,7 +55,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     NodeAnimationTrack* Animation::createNodeTrack(unsigned short handle)
     {
-        NodeAnimationTrack* ret = new NodeAnimationTrack(this);
+        NodeAnimationTrack* ret = new NodeAnimationTrack(this, handle);
 
         mNodeTrackList[handle] = ret;
         return ret;
@@ -113,7 +113,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	NumericAnimationTrack* Animation::createNumericTrack(unsigned short handle)
 	{
-		NumericAnimationTrack* ret = new NumericAnimationTrack(this);
+		NumericAnimationTrack* ret = new NumericAnimationTrack(this, handle);
 
 		mNumericTrackList[handle] = ret;
 		return ret;
@@ -172,7 +172,7 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle)
 	{
-		VertexAnimationTrack* ret = new VertexAnimationTrack(this);
+		VertexAnimationTrack* ret = new VertexAnimationTrack(this, handle);
 
 		mVertexTrackList[handle] = ret;
 		return ret;

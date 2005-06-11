@@ -146,7 +146,18 @@ namespace Ogre {
                                 // unsigned long  vertIndex[2]
                                 // unsigned long  sharedVertIndex[2]
                                 // bool degenerate
-					
+			// Optional morph animation chunk
+			M_ANIMATION = 0xC000,
+				// char* name
+				// float length
+				M_ANIMATION_TRACK = 0xC100,
+					// unsigned short target		// 0 for shared geometry, 
+													// 1+ for submesh index + 1
+					M_ANIMATION_KEYFRAME = 0xC110,
+						// float time
+						// float x,y,z			// repeat by number of vertices in original geometry
+
+		
 	
 	/* Version 1.2 of the .mesh fornmat (deprecated)
 	enum MeshChunkID {
@@ -223,6 +234,7 @@ namespace Ogre {
 				M_SUBMESH_NAME_TABLE_ELEMENT,
 	                // short index
                     // char* name
+
 	*/
     };
 } // namespace

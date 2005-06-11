@@ -57,9 +57,12 @@ namespace Ogre
     {
     public:
         /// Constructor
-        AnimationTrack(Animation* parent);
+        AnimationTrack(Animation* parent, unsigned short handle);
 
         virtual ~AnimationTrack();
+
+		/** Get the handle associated with this track. */
+		unsigned short getHandle(void) const { return mHandle; }
 
         /** Returns the number of keyframes in this animation. */
         virtual unsigned short getNumKeyFrames(void) const;
@@ -139,6 +142,7 @@ namespace Ogre
         KeyFrameList mKeyFrames;
         Real mMaxKeyFrameTime;
         Animation* mParent;
+		unsigned short mHandle;
 
 		/// Create a keyframe implementation - must be overridden
 		virtual KeyFrame* createKeyFrameImpl(Real time) = 0;
@@ -152,9 +156,10 @@ namespace Ogre
 	{
 	public:
 		/// Constructor
-		NumericAnimationTrack(Animation* parent);
+		NumericAnimationTrack(Animation* parent, unsigned short handle);
 		/// Constructor, associates with an AnimableValue
-		NumericAnimationTrack(Animation* parent, AnimableValuePtr& target);
+		NumericAnimationTrack(Animation* parent, unsigned short handle, 
+			AnimableValuePtr& target);
 
         /** Creates a new KeyFrame and adds it to this animation at the given time index.
         @remarks
@@ -210,9 +215,10 @@ namespace Ogre
 	{
 	public:
 		/// Constructor
-		NodeAnimationTrack(Animation* parent);
+		NodeAnimationTrack(Animation* parent, unsigned short handle);
 		/// Constructor, associates with a Node
-		NodeAnimationTrack(Animation* parent, Node* targetNode);
+		NodeAnimationTrack(Animation* parent, unsigned short handle, 
+			Node* targetNode);
         /** Creates a new KeyFrame and adds it to this animation at the given time index.
         @remarks
             It is better to create KeyFrames in time order. Creating them out of order can result 
@@ -293,10 +299,10 @@ namespace Ogre
 			TM_HARDWARE
 		};
 		/// Constructor
-		VertexAnimationTrack(Animation* parent);
+		VertexAnimationTrack(Animation* parent, unsigned short handle);
 		/// Constructor, associates with target VertexData and temp buffer (for software)
-		VertexAnimationTrack(Animation* parent, VertexData* targetData, 
-			TargetMode target = TM_SOFTWARE);
+		VertexAnimationTrack(Animation* parent, unsigned short handle, 
+			VertexData* targetData, TargetMode target = TM_SOFTWARE);
 
 		/** Creates a new KeyFrame and adds it to this animation at the given time index.
 		@remarks

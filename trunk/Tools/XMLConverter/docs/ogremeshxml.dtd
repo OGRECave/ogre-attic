@@ -95,7 +95,8 @@
 <!ELEMENT animations (animation+)>
 <!ELEMENT animation (tracks)>
 <!ATTLIST animation
-	name	CDATA	#REQUIRED >
+	name	CDATA	#REQUIRED 
+	length  CDATA   #REQUIRED>
 <!ELEMENT tracks (track+)>
 <!ELEMENT track (keyframes)>
 <!ATTLIST track 
@@ -104,8 +105,7 @@
 <!ELEMENT keyframes (keyframe)>
 <!ELEMENT keyframe (position+)>
 <!ATTLIST keyframe
-	time	CDATA	#REQUIRED 
-	useoriginalpositions (true|false) "false">
+	time	CDATA	#REQUIRED >
 
 	
 				
