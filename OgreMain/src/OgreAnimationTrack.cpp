@@ -34,8 +34,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //---------------------------------------------------------------------
-    AnimationTrack::AnimationTrack(Animation* parent) : 
-		mParent(parent), mMaxKeyFrameTime(-1)
+    AnimationTrack::AnimationTrack(Animation* parent, unsigned short handle) : 
+		mParent(parent), mMaxKeyFrameTime(-1), mHandle(handle)
     {
     }
     //---------------------------------------------------------------------
@@ -185,14 +185,15 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	// Numeric specialisations
 	//---------------------------------------------------------------------
-	NumericAnimationTrack::NumericAnimationTrack(Animation* parent)
-		: AnimationTrack(parent)
+	NumericAnimationTrack::NumericAnimationTrack(Animation* parent, 
+		unsigned short handle)
+		: AnimationTrack(parent, handle)
 	{
 	}
 	//---------------------------------------------------------------------
 	NumericAnimationTrack::NumericAnimationTrack(Animation* parent, 
-		AnimableValuePtr& target)
-		:AnimationTrack(parent), mTargetAnim(target)
+		unsigned short handle, AnimableValuePtr& target)
+		:AnimationTrack(parent, handle), mTargetAnim(target)
 	{
 	}
 	//---------------------------------------------------------------------
@@ -270,14 +271,15 @@ namespace Ogre {
 	//---------------------------------------------------------------------
 	// Node specialisations
 	//---------------------------------------------------------------------
-	NodeAnimationTrack::NodeAnimationTrack(Animation* parent)
-		: AnimationTrack(parent), mTargetNode(0), mSplineBuildNeeded(false), 
+	NodeAnimationTrack::NodeAnimationTrack(Animation* parent, unsigned short handle)
+		: AnimationTrack(parent, handle), mTargetNode(0), mSplineBuildNeeded(false), 
 		mUseShortestRotationPath(true)
 	{
 	}
 	//---------------------------------------------------------------------
-	NodeAnimationTrack::NodeAnimationTrack(Animation* parent, Node* targetNode)
-		: AnimationTrack(parent), mTargetNode(targetNode), 
+	NodeAnimationTrack::NodeAnimationTrack(Animation* parent, unsigned short handle, 
+		Node* targetNode)
+		: AnimationTrack(parent, handle), mTargetNode(targetNode), 
 		mSplineBuildNeeded(false), mUseShortestRotationPath(true)
 	{
 	}
@@ -576,14 +578,14 @@ namespace Ogre {
 		return static_cast<TransformKeyFrame*>(getKeyFrame(index));
 	}
 	//--------------------------------------------------------------------------
-	VertexAnimationTrack::VertexAnimationTrack(Animation* parent)
-		: AnimationTrack(parent)
+	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, unsigned short handle)
+		: AnimationTrack(parent, handle)
 	{
 	}
 	//--------------------------------------------------------------------------
-	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, 
+	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, unsigned short handle, 
 		VertexData* targetData, TargetMode target)
-		: AnimationTrack(parent), mTargetVertexData(targetData), mTargetMode(target)
+		: AnimationTrack(parent, handle), mTargetVertexData(targetData), mTargetMode(target)
 	{
 	}
 	//--------------------------------------------------------------------------
