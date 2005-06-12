@@ -418,7 +418,13 @@ namespace Ogre {
 			}
 		}
 
-		// TODO - add morph animation states
+		for (AnimationList::iterator i = mAnimationsList.begin(); 
+			i != mAnimationsList.end(); ++i)
+		{
+			animSet->createAnimationState(i->second->getName(), 0.0, 
+				i->second->getLength());
+		}
+
     }
     //-----------------------------------------------------------------------
     typedef std::multimap<Real, Mesh::VertexBoneAssignmentList::iterator> WeightIteratorMap;
@@ -1729,7 +1735,7 @@ namespace Ogre {
 		float* pb2 = static_cast<float*>(b2->lock(HardwareBuffer::HBL_READ_ONLY));
 		
 		const VertexElement* posElem = 
-			targetVertexData->hwMorphVertexDeclaration->findElementBySemantic(VES_POSITION);
+			targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
 		assert(posElem);
 		HardwareVertexBufferSharedPtr destBuf = 
 			targetVertexData->vertexBufferBinding->getBuffer(
