@@ -232,15 +232,42 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void SubEntity::prepareTempBlendBuffers(void)
     {
+		if (mSubMesh->useSharedVertices)
+			return;
+
         if (mSkelAnimVertexData) 
         {
             delete mSkelAnimVertexData;
             mSkelAnimVertexData = 0;
         }
-        // Clone without copying data
-        mSkelAnimVertexData = 
-            mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-        mParentEntity->extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
+		if (mMorphAnimVertexData) 
+		{
+			delete mMorphAnimVertexData;
+			mMorphAnimVertexData = 0;
+		}
+
+		if (mParentEntity->hasMorphAnimation())
+		{
+			// Create temporary vertex blend info
+			// Prepare temp vertex data if needed
+			// Clone without copying data, remove blending info
+			// (since blend is performed in software)
+			mMorphAnimVertexData = 
+				mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+			mParentEntity->extractTempBufferInfo(mMorphAnimVertexData, &mTempMorphAnimInfo);
+		}
+
+		if (mParentEntity->hasSkeleton())
+		{
+			// Create temporary vertex blend info
+			// Prepare temp vertex data if needed
+			// Clone without copying data, remove blending info
+			// (since blend is performed in software)
+			mSkelAnimVertexData = 
+				mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+			mParentEntity->extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
+
+		}
     }
     //-----------------------------------------------------------------------
     bool SubEntity::getCastsShadows(void) const

@@ -56,6 +56,7 @@ namespace Ogre {
 		String source;
 		String syntax;
         bool supportsSkeletalAnimation;
+		bool supportsMorphAnimation;
 		std::map<String, String> customParameters;
 	};
     /** Struct for holding the script context while parsing. */

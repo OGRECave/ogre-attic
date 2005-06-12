@@ -1952,6 +1952,7 @@ namespace Ogre
 		context.programDef = new MaterialScriptProgramDefinition();
 		context.programDef->progType = GPT_VERTEX_PROGRAM;
         context.programDef->supportsSkeletalAnimation = false;
+		context.programDef->supportsMorphAnimation = false;
 
 		// Get name and language code
 		StringVector vecparams = StringUtil::split(params, " \t");
@@ -1980,6 +1981,7 @@ namespace Ogre
 		context.programDef = new MaterialScriptProgramDefinition();
 		context.programDef->progType = GPT_FRAGMENT_PROGRAM;
 		context.programDef->supportsSkeletalAnimation = false;
+		context.programDef->supportsMorphAnimation = false;
 
 		// Get name and language code
 		StringVector vecparams = StringUtil::split(params, " \t");
@@ -2016,6 +2018,15 @@ namespace Ogre
 
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseProgramMorphAnimation(String& params, MaterialScriptContext& context)
+	{
+		// Source filename, preserve case
+		context.programDef->supportsMorphAnimation 
+			= StringConverter::parseBool(params);
+
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseProgramSyntax(String& params, MaterialScriptContext& context)
     {
@@ -2204,6 +2215,7 @@ namespace Ogre
         mProgramAttribParsers.insert(AttribParserList::value_type("source", (ATTRIBUTE_PARSER)parseProgramSource));
         mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
         mProgramAttribParsers.insert(AttribParserList::value_type("includes_skeletal_animation", (ATTRIBUTE_PARSER)parseProgramSkeletalAnimation));
+		mProgramAttribParsers.insert(AttribParserList::value_type("includes_morph_animation", (ATTRIBUTE_PARSER)parseProgramMorphAnimation));
         mProgramAttribParsers.insert(AttribParserList::value_type("default_params", (ATTRIBUTE_PARSER)parseDefaultParams));
 		
         // Set up program default param attribute parsers
@@ -2514,6 +2526,8 @@ namespace Ogre
         }
         // Set skeletal animation option
         gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
+		// Set morph animation option
+		gp->setMorphAnimationIncluded(def->supportsMorphAnimation);
 		// set origin
 		gp->_notifyOrigin(mScriptContext.filename);
 

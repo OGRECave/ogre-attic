@@ -2267,7 +2267,7 @@ protected:
 
 	void testStaticGeometry(void)
 	{
-		//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
+		mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);
 		//mSceneMgr->setShowDebugShadows(true);
 
 		mSceneMgr->setSkyBox(true, "Examples/EveningSkyBox");
@@ -2277,7 +2277,7 @@ protected:
 		// Create a point light
 		Light* l = mSceneMgr->createLight("MainLight");
 		l->setType(Light::LT_DIRECTIONAL);
-		Vector3 dir(1, -1, -1.5);
+		Vector3 dir(0, -1, -1.5);
 		dir.normalise();
 		l->setDirection(dir);
 		l->setDiffuseColour(1.0, 0.7, 0.0);
@@ -2304,14 +2304,14 @@ protected:
 		StaticGeometry* s = mSceneMgr->createStaticGeometry("bing");
 		s->setCastShadows(true);
 		s->setRegionDimensions(Vector3(500,500,500));
-		for (int i = 0; i < 1000; ++i)
+		for (int i = 0; i < 100; ++i)
 		{
 			Vector3 pos;
 			pos.x = Math::RangeRandom(min.x, max.x);
 			pos.y = Math::RangeRandom(min.y, max.y);
 			pos.z = Math::RangeRandom(min.z, max.z);
 
-			s->addEntity(e, pos, Quaternion::IDENTITY, Vector3(5,5,5));
+			s->addEntity(e, pos, Quaternion::IDENTITY);
 
 		}
 
@@ -2423,6 +2423,79 @@ protected:
 
 	}
 
+	void testMorphAnimation()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		MeshPtr mesh = MeshManager::getSingleton().load("cube.mesh", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		SubMesh* sm = mesh->getSubMesh(0);
+		// Re-organise geometry since this mesh has no animation and all 
+		// vertex elements are packed into one buffer
+		VertexDeclaration* newDecl = 
+			sm->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(false, true);
+		sm->vertexData->reorganiseBuffers(newDecl);
+		// get the position buffer (which should now be separate);
+		const VertexElement* posElem = 
+			sm->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr origbuf = 
+			sm->vertexData->vertexBufferBinding->getBuffer(
+				posElem->getSource());
+
+		// Create a new position buffer with updated values
+		HardwareVertexBufferSharedPtr newbuf = 
+			HardwareBufferManager::getSingleton().createVertexBuffer(
+				VertexElement::getTypeSize(VET_FLOAT3),
+				sm->vertexData->vertexCount, 
+				HardwareBuffer::HBU_STATIC, true);
+		float* pSrc = static_cast<float*>(origbuf->lock(HardwareBuffer::HBL_READ_ONLY));
+		float* pDst = static_cast<float*>(newbuf->lock(HardwareBuffer::HBL_DISCARD));
+
+		for (size_t v = 0; v < sm->vertexData->vertexCount; ++v)
+		{
+			// x
+			*pDst++ = *pSrc++;
+			// y (translate)
+			*pDst++ = (*pSrc++) + 100.0f;
+			// z
+			*pDst++ = *pSrc++;
+		}
+
+		origbuf->unlock();
+		newbuf->unlock();
+		
+		// create a morph animation
+		Animation* anim = mesh->createAnimation("testAnim", 10.0f);
+		VertexAnimationTrack* vt = anim->createVertexTrack(1, sm->vertexData);
+		// re-use start positions for frame 0
+		VertexKeyFrame* kf = vt->createVertexKeyFrame(0);
+		kf->setVertexBuffer(origbuf);
+
+		// Use translated buffer for mid frame
+		kf = vt->createVertexKeyFrame(5.0f);
+		kf->setVertexBuffer(newbuf);
+
+		// re-use start positions for final frame
+		kf = vt->createVertexKeyFrame(10.0f);
+		kf->setVertexBuffer(origbuf);
+
+		Entity* e = mSceneMgr->createEntity("test", "cube.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		mAnimState = e->getAnimationState("testAnim");
+		mAnimState->setEnabled(true);
+
+
+
+
+	}
+
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2473,7 +2546,9 @@ protected:
 		//testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
-		testRadixSort();
+		//testRadixSort();
+		testMorphAnimation();
+		
     }
     // Create new frame listener
     void createFrameListener(void)

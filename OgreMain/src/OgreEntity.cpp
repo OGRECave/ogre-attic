@@ -384,7 +384,7 @@ namespace Ogre {
 
         // Since we know we're going to be rendered, take this opportunity to 
         // update the animation
-        if (hasSkeleton())
+        if (hasSkeleton() || hasMorphAnimation())
         {
             updateAnimation();
 
