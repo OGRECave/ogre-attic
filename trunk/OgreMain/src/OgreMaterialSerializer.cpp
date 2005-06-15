@@ -3882,6 +3882,9 @@ namespace Ogre
                         if ((currentParam->name == "includes_skeletal_animation")
                             && (paramstr == "false"))
                             paramstr = "";
+						if ((currentParam->name == "includes_morph_animation")
+							&& (paramstr == "false"))
+							paramstr = "";
 
                         if ((language != "asm") && (currentParam->name == "syntax"))
                             paramstr = "";
