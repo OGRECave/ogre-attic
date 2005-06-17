@@ -41,10 +41,8 @@ namespace Ogre {
     @remarks
         Other classes can hold instances of this class to store the state of any animations
         they are using.
-        This class implements the ControllerValue interface to enable automatic update of
-        animation state through controllers.
     */
-    class _OgreExport AnimationState : public ControllerValue<Real>
+    class _OgreExport AnimationState 
     {
     public:
         /// Normal constructor with all params supplied
@@ -87,11 +85,6 @@ namespace Ogre {
         // Inequality operator
         bool operator!=(const AnimationState& rhs) const;
 
-        /** ControllerValue implementation. */
-        Real getValue(void) const;
-
-        /** ControllerValue implementation. */
-        void setValue(Real value);
         /** Sets whether or not an animation loops at the start and end of
             the animation if the time continues to be altered.
         */

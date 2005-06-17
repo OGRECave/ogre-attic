@@ -162,16 +162,6 @@ namespace Ogre
         return !(*this == rhs);
     }
     //---------------------------------------------------------------------
-    Real AnimationState::getValue(void) const
-    {
-        return mTimePos * mInvLength;
-    }
-    //---------------------------------------------------------------------
-    void AnimationState::setValue(Real value)
-    {
-        setTimePosition(value * mLength);
-    }
-    //---------------------------------------------------------------------
     void AnimationState::copyStateFrom(const AnimationState& animState)
     {
         mTimePos = animState.mTimePos;
