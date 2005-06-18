@@ -92,7 +92,7 @@
             Ogre::StaticGeometry::[^O]*;
             Ogre::Str*;
             Ogre::Su*;
-            Ogre::Tar*;
+            Ogre::Ta*;
             Ogre::Te[cm]*;
             Ogre::TexC*; 
             Ogre::TextAreaOverlayElement::[^C]*;
