@@ -767,7 +767,7 @@ namespace Ogre {
         {
             mRenderer->_notifyParticleQuota(mParticlePool.size());
             if (mParentNode)
-                mRenderer->_notifyAttached(mParentNode);
+                mRenderer->_notifyAttached(mParentNode, mParentIsTagPoint);
             mRenderer->_notifyDefaultDimensions(mDefaultWidth, mDefaultHeight);
             createVisualParticles(0, mParticlePool.size());
             MaterialPtr mat = MaterialManager::getSingleton().load(
