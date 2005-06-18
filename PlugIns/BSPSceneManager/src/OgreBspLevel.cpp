@@ -346,7 +346,7 @@ namespace Ogre {
                         tex->setTextureAddressingMode(TextureUnitState::TAM_WRAP);
                     }
 
-                    if (q3lvl.mFaces[face].lm_texture > 0)
+                    if (q3lvl.mFaces[face].lm_texture >= 0)
                     {
                         // Add lightmap, additive blending
 						StringUtil::StrStreamType lightmapName;
