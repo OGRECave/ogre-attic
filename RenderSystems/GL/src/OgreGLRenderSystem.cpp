@@ -168,7 +168,8 @@ namespace Ogre {
 
         for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
         {
-            mTextureCoordIndex[i] = 0;
+			// Dummy value
+            mTextureCoordIndex[i] = 99;
         }
 
         for (i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
@@ -326,7 +327,15 @@ namespace Ogre {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
 
+			// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
+			// only increased this on the FX/6x00 series
+			GLint arbUnits;
+			glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &arbUnits );
+			if (arbUnits > units)
+				units = arbUnits;
+	    
             mCapabilities->setNumTextureUnits(units);
+
         }
         else
         {
