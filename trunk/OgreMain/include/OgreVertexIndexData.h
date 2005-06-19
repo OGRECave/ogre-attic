@@ -60,8 +60,6 @@ namespace Ogre {
 		/// The number of vertices used in this operation
 		size_t vertexCount;
 
-		/// VertexDeclaration which is a copy of this one, but with hardware morph binding
-		VertexDeclaration* hwMorphVertexDeclaration;
 		/// VertexElement which has been allocated to hardware morph target usage
 		const VertexElement* hwMorphTargetElement;
 		/// Parametric value expressing hardware morph distance between pos and morph target

@@ -88,8 +88,12 @@ namespace Ogre {
         TempBlendedBufferInfo mTempSkelAnimInfo;
 		/// Temp buffer details for software morph anim geometry
 		TempBlendedBufferInfo mTempMorphAnimInfo;
-		/// Vertex data details for software morph anim geometry
-		VertexData* mMorphAnimVertexData;
+		/// Vertex data details for software morph anim of shared geometry
+		VertexData* mSoftwareMorphAnimVertexData;
+		/// Vertex data details for hardware morph anim of shared geometry
+		/// - separate since we need to s/w anim for shadows whilst still altering
+		///   the vertex data for hardware morphing (pos2 binding)
+		VertexData* mHardwareMorphAnimVertexData;
 
         /** Internal method for preparing this Entity for use in animation. */
         void prepareTempBlendBuffers(void);
@@ -156,11 +160,12 @@ namespace Ogre {
 		for entities which are software skinned. 
 		*/
 		VertexData* _getSkelAnimVertexData(void);
-		/** Advanced method to get the temporarily blended morph vertex information
-		Applies for both hardware and software morph animation, the format depends
-		on the approach though (blended in-place or both positions bound). 
+		/** Advanced method to get the temporarily blended software morph vertex information
 		*/
-		VertexData* _getMorphAnimVertexData(void);
+		VertexData* _getSoftwareMorphAnimVertexData(void);
+		/** Advanced method to get the hardware morph vertex information
+		*/
+		VertexData* _getHardwareMorphAnimVertexData(void);
 		/** Advanced method to get the temp buffer information for software 
 		skeletal animation.
 		*/

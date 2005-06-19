@@ -614,7 +614,7 @@ namespace Ogre {
 		{
 			// If target mode is hardware, need to bind our 2 keyframe buffers, 
 			// one to main pos, one to morph target texcoord 
-			if (!data->hwMorphVertexDeclaration)
+			if (!data->hwMorphTargetElement)
 			{
 				data->allocatehwMorphTargetElement();
 			}
@@ -622,7 +622,7 @@ namespace Ogre {
 			// NB we assume that position buffer is unshared
 			// VertexDeclaration::getAutoOrganisedDeclaration should see to that
 			const VertexElement* posElem = 
-				data->hwMorphVertexDeclaration->findElementBySemantic(VES_POSITION);
+				data->vertexDeclaration->findElementBySemantic(VES_POSITION);
 			// Set keyframe1 data as original position
 			data->vertexBufferBinding->setBinding(
 				posElem->getSource(), vkf1->getVertexBuffer());

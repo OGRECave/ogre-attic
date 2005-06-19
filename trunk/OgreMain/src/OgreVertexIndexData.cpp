@@ -44,7 +44,6 @@ namespace Ogre {
 			createVertexDeclaration();
 		vertexCount = 0;
 		vertexStart = 0;
-		hwMorphVertexDeclaration = 0;
 		hwMorphTargetElement = 0;
 
 	}
@@ -54,10 +53,6 @@ namespace Ogre {
 		HardwareBufferManager::getSingleton().
 			destroyVertexBufferBinding(vertexBufferBinding);
 		HardwareBufferManager::getSingleton().destroyVertexDeclaration(vertexDeclaration);
-		if (hwMorphVertexDeclaration)
-		{
-			HardwareBufferManager::getSingleton().destroyVertexDeclaration(hwMorphVertexDeclaration);
-		}
 
 	}
     //-----------------------------------------------------------------------
@@ -493,12 +488,6 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void VertexData::allocatehwMorphTargetElement(void)
 	{
-		if (hwMorphVertexDeclaration)
-		{
-			HardwareBufferManager::getSingleton().destroyVertexDeclaration(hwMorphVertexDeclaration);
-			hwMorphVertexDeclaration = 0;
-			hwMorphTargetElement = 0;
-		}
 
 		unsigned short texCoord = 0;
 		const VertexDeclaration::VertexElementList& vel = vertexDeclaration->getElements();
@@ -513,11 +502,8 @@ namespace Ogre {
 		}
 		assert(texCoord <= OGRE_MAX_TEXTURE_COORD_SETS);
 
-		// Copy vertex declaration into new
-		hwMorphVertexDeclaration = vertexDeclaration->clone(); 
-
 		// Create a new 3D texture coordinate set
-		hwMorphTargetElement = &(hwMorphVertexDeclaration->addElement(
+		hwMorphTargetElement = &(vertexDeclaration->addElement(
 			vertexBufferBinding->getNextIndex(), 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoord));
 
 		// Vertex buffer will not be bound yet, we expect this to be done by the
