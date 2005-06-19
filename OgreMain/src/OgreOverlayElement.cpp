@@ -31,8 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMaterialManager.h"
 #include "OgreOverlay.h"
 #include "OgreOverlayContainer.h"
-#include "OgreMouseEvent.h"
-#include "OgreEventListeners.h"
 #include "OgreOverlayManager.h"
 #include "OgreException.h"
 #include "OgreRenderQueue.h"

@@ -168,7 +168,8 @@ namespace Ogre {
 
         for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
         {
-            mTextureCoordIndex[i] = 0;
+			// Dummy value
+            mTextureCoordIndex[i] = 99;
         }
 
         for (i = 0; i < OGRE_MAX_TEXTURE_LAYERS; i++)
@@ -326,7 +327,15 @@ namespace Ogre {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
 
+			// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
+			// only increased this on the FX/6x00 series
+			GLint arbUnits;
+			glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &arbUnits );
+			if (arbUnits > units)
+				units = arbUnits;
+	    
             mCapabilities->setNumTextureUnits(units);
+
         }
         else
         {
@@ -396,6 +405,19 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
+            if (mGLSupport->checkExtension("GL_NV_vertex_program2_option"))
+            {
+                mCapabilities->setMaxVertexProgramVersion("vp30");
+                mGpuProgramManager->_pushSyntaxCode("vp30");
+                mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
+            }
+
+            if (mGLSupport->checkExtension("GL_NV_vertex_program3"))
+            {
+                mCapabilities->setMaxVertexProgramVersion("vp40");
+                mGpuProgramManager->_pushSyntaxCode("vp40");
+                mGpuProgramManager->registerProgramFactory("vp40", createGLArbGpuProgram);
+            }
         }
 
         if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
@@ -446,6 +468,19 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
+            if (mGLSupport->checkExtension("GL_NV_fragment_program_option"))
+            {
+                mCapabilities->setMaxFragmentProgramVersion("fp30");
+                mGpuProgramManager->_pushSyntaxCode("fp30");
+                mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
+            }
+
+            if (mGLSupport->checkExtension("GL_NV_fragment_program2"))
+            {
+                mCapabilities->setMaxFragmentProgramVersion("fp40");
+                mGpuProgramManager->_pushSyntaxCode("fp40");
+                mGpuProgramManager->registerProgramFactory("fp40", createGLArbGpuProgram);
+            }
         }
 
 		// NFZ - check if GLSL is supported

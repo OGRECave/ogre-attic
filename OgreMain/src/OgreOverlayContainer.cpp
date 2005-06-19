@@ -27,7 +27,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreOverlayContainer.h"
 #include "OgreException.h"
-#include "OgreMouseEvent.h"
 #include "OgreOverlayManager.h"
 
 namespace Ogre {
