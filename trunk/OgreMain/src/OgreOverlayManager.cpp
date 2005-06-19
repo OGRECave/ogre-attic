@@ -33,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
 #include "OgreEntity.h"
-#include "OgrePositionTarget.h"
 #include "OgreException.h"
 #include "OgreViewport.h"
 #include "OgreOverlayElementFactory.h"

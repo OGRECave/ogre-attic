@@ -142,9 +142,14 @@ namespace Ogre {
 // Linux/Apple Settings
 #if OGRE_PLATFORM == OGRE_PLATFORM_LINUX || OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 
-// Linux compilers don't have symbol import/export directives.
-#   define _OgreExport
-#   define _OgrePrivate
+// Enable GCC 4.0 symbol visibility 
+#   if OGRE_COMP_VER >= 400
+#       define _OgreExport  __attribute__ ((visibility("default")))
+#       define _OgrePrivate __attribute__ ((visibility("hidden")))
+#   else
+#       define _OgreExport
+#       define _OgrePrivate
+#   endif
 
 // A quick define to overcome different names for the same function
 #   define stricmp strcasecmp

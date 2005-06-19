@@ -69,9 +69,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_MAX_TEXTURE_COORD_SETS 6
 
-/** Define max number of texture layers allowed per pass. 
+/** Define max number of texture layers allowed per pass on any card. 
 */
-#define OGRE_MAX_TEXTURE_LAYERS 8
+#define OGRE_MAX_TEXTURE_LAYERS 16
 
 /** Define max number of lights allowed per pass. 
 */

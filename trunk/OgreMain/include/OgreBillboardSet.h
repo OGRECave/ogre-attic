@@ -468,6 +468,12 @@ namespace Ogre {
         void injectBillboard(const Billboard& bb);
         /** Finish defining billboards. */
         void endBillboards(void);
+		/** Set the bounds of the BillboardSet.
+		@remarks
+			You may need to call this if you're injecting billboards manually, 
+			and you're relying on the BillboardSet to determine culling.
+		*/
+		void setBounds(const AxisAlignedBox& box, Real radius);
 
 
         /** Overridden from MovableObject

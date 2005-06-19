@@ -30,7 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-
+    class BorderRenderable;
     
     /** A specialisation of the PanelOverlayElement to provide a panel with a border.
     @remarks

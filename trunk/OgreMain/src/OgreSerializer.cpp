@@ -83,7 +83,7 @@ namespace Ogre {
     {
 		// Convert to float, then write
 		float* tmp = new float[count];
-		for (int i = 0; i < count; ++i)
+		for (unsigned int i = 0; i < count; ++i)
 		{
 			tmp[i] = static_cast<float>(pDouble[i]);
 		}
@@ -310,7 +310,7 @@ namespace Ogre {
     {
         for(unsigned int index = 0; index < count; index++)
         {
-            flipEndian((void *)((int)pData + (index * size)), size);
+            flipEndian((void *)((long)pData + (index * size)), size);
         }
     }
     
@@ -319,9 +319,9 @@ namespace Ogre {
         char swapByte;
         for(unsigned int byteIndex = 0; byteIndex < size/2; byteIndex++)
         {
-            swapByte = *(char *)((int)pData + byteIndex);
-            *(char *)((int)pData + byteIndex) = *(char *)((int)pData + size - byteIndex - 1);
-            *(char *)((int)pData + size - byteIndex - 1) = swapByte;
+            swapByte = *(char *)((long)pData + byteIndex);
+            *(char *)((long)pData + byteIndex) = *(char *)((long)pData + size - byteIndex - 1);
+            *(char *)((long)pData + size - byteIndex - 1) = swapByte;
         }
     }
     

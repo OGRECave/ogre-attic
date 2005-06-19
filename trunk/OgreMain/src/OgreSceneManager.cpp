@@ -783,6 +783,8 @@ void SceneManager::_renderScene(Camera* camera, Viewport* vp, bool includeOverla
 
     // Tell params about current ambient light
     mAutoParamDataSource.setAmbientLightColour(mAmbientLight);
+	// Tell rendersystem
+	mDestRenderSystem->setAmbientLight(mAmbientLight.r, mAmbientLight.g, mAmbientLight.b);
 
     // Tell params about render target
     mAutoParamDataSource.setCurrentRenderTarget(vp->getTarget());

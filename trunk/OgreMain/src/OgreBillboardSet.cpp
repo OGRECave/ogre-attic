@@ -433,6 +433,12 @@ namespace Ogre {
     {
         mMainBuf->unlock();
     }
+	//-----------------------------------------------------------------------
+	void BillboardSet::setBounds(const AxisAlignedBox& box, Real radius)
+	{
+		mAABB = box;
+		mBoundingRadius = radius;
+	}
     //-----------------------------------------------------------------------
     void BillboardSet::_updateBounds(void)
     {
