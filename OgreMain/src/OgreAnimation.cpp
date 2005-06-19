@@ -276,28 +276,39 @@ namespace Ogre {
 
     }
 	//---------------------------------------------------------------------
-	void Animation::apply(Entity* entity, Real timePos, 
-		VertexAnimationTrack::TargetMode targetMode)
+	void Animation::apply(Entity* entity, Real timePos, bool software, bool hardware)
 	{
 		VertexTrackList::iterator i;
 		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
 		{
 			unsigned short handle = i->first;
-			VertexData* vertexData;
+			VertexData* swVertexData;
+			VertexData* hwVertexData;
 			if (handle == 0)
 			{
 				// shared vertex data
-				vertexData = entity->_getMorphAnimVertexData();
+				swVertexData = entity->_getSoftwareMorphAnimVertexData();
+				hwVertexData = entity->_getHardwareMorphAnimVertexData();
 
 			}
 			else
 			{
 				// sub entity vertex data (-1)
-				vertexData = 
-					entity->getSubEntity(handle - 1)->_getMorphAnimVertexData();
+				SubEntity* s = entity->getSubEntity(handle - 1);
+				swVertexData = s->_getSoftwareMorphAnimVertexData();
+				hwVertexData = s->_getHardwareMorphAnimVertexData();
 			}
-			i->second->setTargetMode(targetMode);
-			i->second->applyToVertexData(vertexData, timePos);
+			// Apply to both hardware and software, if requested
+			if (software)
+			{
+				i->second->setTargetMode(VertexAnimationTrack::TM_SOFTWARE);
+				i->second->applyToVertexData(swVertexData, timePos);
+			}
+			if (hardware)
+			{
+				i->second->setTargetMode(VertexAnimationTrack::TM_HARDWARE);
+				i->second->applyToVertexData(hwVertexData, timePos);
+			}
 		}
 
 	}

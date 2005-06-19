@@ -194,10 +194,10 @@ namespace Ogre {
 		/** Applies all vertex tracks given a specific time point and weight to a given entity.
 		@remarks
 		@param timePos The time position in the animation to apply.
-		@param targetMode The animation mode to use
+		@param software Whether to populate the software morph vertex data
+		@param hardware Whether to populate the hardware morph vertex data
 		*/
-		void apply(Entity* entity, Real timePos, 
-			VertexAnimationTrack::TargetMode targetMode);
+		void apply(Entity* entity, Real timePos, bool software, bool hardware);
 
         /** Tells the animation how to interpolate between keyframes.
         @remarks

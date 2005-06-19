@@ -44,7 +44,8 @@ namespace Ogre {
         mRenderDetail = SDL_SOLID;
         mVisible = true;
         mSkelAnimVertexData = 0;
-		mMorphAnimVertexData = 0;
+		mSoftwareMorphAnimVertexData = 0;
+		mHardwareMorphAnimVertexData = 0;
 
 
 
@@ -54,6 +55,10 @@ namespace Ogre {
     {
         if (mSkelAnimVertexData)
             delete mSkelAnimVertexData;
+		if (mHardwareMorphAnimVertexData)
+			delete mHardwareMorphAnimVertexData;
+		if (mSoftwareMorphAnimVertexData)
+			delete mSoftwareMorphAnimVertexData;
     }
     //-----------------------------------------------------------------------
     SubMesh* SubEntity::getSubMesh(void)
@@ -124,24 +129,21 @@ namespace Ogre {
 		}
 		else
 		{
-			// Morphing? 
-			if (mParentEntity->shouldBindMorphVertexData())
+			Entity::VertexDataBindChoice c = mParentEntity->chooseVertexDataForBinding();
+			switch(c)
 			{
-				// we use morph vertex data, will have had 2x keyframes bound
-				return mMorphAnimVertexData;
-
-			}
-			// Otherwise do we need to use software skinned vertex data?
-			else if (mParentEntity->shouldBindSkeletalVertexData())
-			{
-				return mSkelAnimVertexData;
-
-			}
-			else
-			{
-				// original 
+			case Entity::BIND_ORIGINAL:
 				return mSubMesh->vertexData;
-			}
+			case Entity::BIND_HARDWARE_MORPH:
+				return mHardwareMorphAnimVertexData;
+			case Entity::BIND_SOFTWARE_MORPH:
+				return mSoftwareMorphAnimVertexData;
+			case Entity::BIND_SOFTWARE_SKELETAL:
+				return mSkelAnimVertexData;
+			};
+			// keep compiler happy
+			return mSubMesh->vertexData;
+
 		}
 	}
     //-----------------------------------------------------------------------
@@ -240,10 +242,15 @@ namespace Ogre {
             delete mSkelAnimVertexData;
             mSkelAnimVertexData = 0;
         }
-		if (mMorphAnimVertexData) 
+		if (mSoftwareMorphAnimVertexData) 
 		{
-			delete mMorphAnimVertexData;
-			mMorphAnimVertexData = 0;
+			delete mSoftwareMorphAnimVertexData;
+			mSoftwareMorphAnimVertexData = 0;
+		}
+		if (mHardwareMorphAnimVertexData) 
+		{
+			delete mHardwareMorphAnimVertexData;
+			mHardwareMorphAnimVertexData = 0;
 		}
 
 		if (mParentEntity->hasMorphAnimation())
@@ -252,9 +259,13 @@ namespace Ogre {
 			// Prepare temp vertex data if needed
 			// Clone without copying data, remove blending info
 			// (since blend is performed in software)
-			mMorphAnimVertexData = 
+			mSoftwareMorphAnimVertexData = 
 				mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-			mParentEntity->extractTempBufferInfo(mMorphAnimVertexData, &mTempMorphAnimInfo);
+			mParentEntity->extractTempBufferInfo(mSoftwareMorphAnimVertexData, &mTempMorphAnimInfo);
+
+			// Also clone for hardware usage, don't remove blend info since we'll
+			// need it if we also hardware skeletally animate
+			mHardwareMorphAnimVertexData = mSubMesh->vertexData->clone(false);
 		}
 
 		if (mParentEntity->hasSkeleton())
@@ -281,10 +292,16 @@ namespace Ogre {
 		return mSkelAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
-	VertexData* SubEntity::_getMorphAnimVertexData(void) 
+	VertexData* SubEntity::_getSoftwareMorphAnimVertexData(void)
 	{
-		assert (mMorphAnimVertexData && "Not morph animated!");
-		return mMorphAnimVertexData;
+		assert (mSoftwareMorphAnimVertexData && "Not morph animated!");
+		return mSoftwareMorphAnimVertexData;
+	}
+	//-----------------------------------------------------------------------
+	VertexData* SubEntity::_getHardwareMorphAnimVertexData(void)
+	{
+		assert (mHardwareMorphAnimVertexData && "Not morph animated!");
+		return mHardwareMorphAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	TempBlendedBufferInfo* SubEntity::_getSkelAnimTempBufferInfo(void) 
@@ -304,15 +321,15 @@ namespace Ogre {
 		if (constantEntry.paramType == GpuProgramParameters::ACT_ANIMATION_PARAMETRIC)
 		{
 			// get the parametric morph value
-			if (mMorphAnimVertexData)
+			if (mHardwareMorphAnimVertexData)
 			{
 				params->setConstant(constantEntry.index, 
-					mMorphAnimVertexData->hwMorphParametric);
+					mHardwareMorphAnimVertexData->hwMorphParametric);
 			}
 			else
 			{
 				params->setConstant(constantEntry.index, 
-					mParentEntity->mMorphAnimVertexData->hwMorphParametric);
+					mParentEntity->mHardwareMorphAnimVertexData->hwMorphParametric);
 			}
 		}
 		else

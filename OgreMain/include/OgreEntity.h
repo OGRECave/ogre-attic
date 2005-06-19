@@ -1,7 +1,7 @@
 /*
 -----------------------------------------------------------------------------
 This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
+(Object-oriented Graphics Rendering Engine)
 For the latest info, see http://ogre.sourceforge.net/
 
 Copyright (c) 2000-2005 The OGRE Team
@@ -37,120 +37,124 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 
 namespace Ogre {
-    /** Defines an instance of a discrete, movable object based on a Mesh.
-        @remarks
-            Ogre generally divides renderable objects into 2 groups, discrete
-            (separate) and relatively small objects which move around the world,
-            and large, sprawling geometry which makes up generally immovable
-            scenery, aka 'level geometry'.
-        @par
-            The Mesh and SubMesh classes deal with the definition of the geometry
-            used by discrete movable objects. Entities are actual instances of
-            objects based on this geometry in the world. Therefore there is
-            usually a single set Mesh for a car, but there may be multiple
-            entities based on it in the world. Entities are able to override
-            aspects of the Mesh it is defined by, such as changing material
-            properties per instance (so you can have many cars using the same
-            geometry but different textures for example). Because a Mesh is split
-            into SubMeshes for this purpose, the Entity class is a grouping class
-            (much like the Mesh class) and much of the detail regarding
-            individual changes is kept in the SubEntity class. There is a 1:1
-            relationship between SubEntity instances and the SubMesh instances
-            associated with the Mesh the Entity is based on.
-        @par
-            Entity and SubEntity classes are never created directly. Use the
-            createEntity method of the SceneManager (passing a model name) to
-            create one.
-        @par
-            Entities are included in the scene by associating them with a
-            SceneNode, using the attachEntity method. See the SceneNode class
-            for full information.
-        @note
-            No functions were declared virtual to improve performance.
-    */
-    class _OgreExport Entity: public MovableObject
-    {
-        // Allow EntityFactory full access
-        friend class EntityFactory;
-        friend class SubEntity;
-    public:
-	typedef std::set<Entity*> EntitySet;
-    
-    protected:
+	/** Defines an instance of a discrete, movable object based on a Mesh.
+	@remarks
+	Ogre generally divides renderable objects into 2 groups, discrete
+	(separate) and relatively small objects which move around the world,
+	and large, sprawling geometry which makes up generally immovable
+	scenery, aka 'level geometry'.
+	@par
+	The Mesh and SubMesh classes deal with the definition of the geometry
+	used by discrete movable objects. Entities are actual instances of
+	objects based on this geometry in the world. Therefore there is
+	usually a single set Mesh for a car, but there may be multiple
+	entities based on it in the world. Entities are able to override
+	aspects of the Mesh it is defined by, such as changing material
+	properties per instance (so you can have many cars using the same
+	geometry but different textures for example). Because a Mesh is split
+	into SubMeshes for this purpose, the Entity class is a grouping class
+	(much like the Mesh class) and much of the detail regarding
+	individual changes is kept in the SubEntity class. There is a 1:1
+	relationship between SubEntity instances and the SubMesh instances
+	associated with the Mesh the Entity is based on.
+	@par
+	Entity and SubEntity classes are never created directly. Use the
+	createEntity method of the SceneManager (passing a model name) to
+	create one.
+	@par
+	Entities are included in the scene by associating them with a
+	SceneNode, using the attachEntity method. See the SceneNode class
+	for full information.
+	@note
+	No functions were declared virtual to improve performance.
+	*/
+	class _OgreExport Entity: public MovableObject
+	{
+		// Allow EntityFactory full access
+		friend class EntityFactory;
+		friend class SubEntity;
+	public:
+		typedef std::set<Entity*> EntitySet;
 
-        /** Private constructor (instances cannot be created directly).
-        */
-        Entity();
-        /** Private constructor - specify name (the usual constructor used).
-        */
-        Entity( const String& name, MeshPtr& mesh);
+	protected:
 
-        /** The Mesh that this Entity is based on.
-        */
-        MeshPtr mMesh;
+		/** Private constructor (instances cannot be created directly).
+		*/
+		Entity();
+		/** Private constructor - specify name (the usual constructor used).
+		*/
+		Entity( const String& name, MeshPtr& mesh);
 
-        /** List of SubEntities (point to SubMeshes).
-        */
-        typedef std::vector<SubEntity*> SubEntityList;
-        SubEntityList mSubEntityList;
+		/** The Mesh that this Entity is based on.
+		*/
+		MeshPtr mMesh;
 
-
-        /// State of animation for animable meshes
-        AnimationStateSet* mAnimationState;
+		/** List of SubEntities (point to SubMeshes).
+		*/
+		typedef std::vector<SubEntity*> SubEntityList;
+		SubEntityList mSubEntityList;
 
 
-        /// Temp buffer details for software skeletal anim of shared geometry
-        TempBlendedBufferInfo mTempSkelAnimInfo;
-        /// Vertex data details for software skeletal anim of shared geometry
-        VertexData* mSkelAnimVertexData;
+		/// State of animation for animable meshes
+		AnimationStateSet* mAnimationState;
+
+
+		/// Temp buffer details for software skeletal anim of shared geometry
+		TempBlendedBufferInfo mTempSkelAnimInfo;
+		/// Vertex data details for software skeletal anim of shared geometry
+		VertexData* mSkelAnimVertexData;
 		/// Temp buffer details for software morph anim of shared geometry
 		TempBlendedBufferInfo mTempMorphAnimInfo;
 		/// Vertex data details for software morph anim of shared geometry
-		VertexData* mMorphAnimVertexData;
+		VertexData* mSoftwareMorphAnimVertexData;
+		/// Vertex data details for hardware morph anim of shared geometry
+		/// - separate since we need to s/w anim for shadows whilst still altering
+		///   the vertex data for hardware morphing (pos2 binding)
+		VertexData* mHardwareMorphAnimVertexData;
 
-        /** Internal method - given vertex data which could be from the Mesh or 
-            any submesh, finds the temporary blend copy. */
-        const VertexData* findBlendedVertexData(const VertexData* orig);
-        /** Internal method - given vertex data which could be from the Mesh or 
-        any SubMesh, finds the corresponding SubEntity. */
-        SubEntity* findSubEntityForVertexData(const VertexData* orig);
+		/** Internal method - given vertex data which could be from the Mesh or 
+		any submesh, finds the temporary blend copy. */
+		const VertexData* findBlendedVertexData(const VertexData* orig);
+		/** Internal method - given vertex data which could be from the Mesh or 
+		any SubMesh, finds the corresponding SubEntity. */
+		SubEntity* findSubEntityForVertexData(const VertexData* orig);
 
-        /** Internal method for extracting metadata out of source vertex data
-            for fast assignment of temporary buffers later. */
-        void extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info);
-        /** Internal method to clone vertex data definitions but to remove blend buffers. */
-        VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
-        /** Internal method for preparing this Entity for use in animation. */
-        void prepareTempBlendBuffers(void);
+		/** Internal method for extracting metadata out of source vertex data
+		for fast assignment of temporary buffers later. */
+		void extractTempBufferInfo(VertexData* sourceData, TempBlendedBufferInfo* info);
+		/** Internal method to clone vertex data definitions but to remove blend buffers. */
+		VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
+		/** Internal method for preparing this Entity for use in animation. */
+		void prepareTempBlendBuffers(void);
 
-        /// Cached bone matrices, including any world transform
-        Matrix4 *mBoneMatrices;
-        unsigned short mNumBoneMatrices;
+		/// Cached bone matrices, including any world transform
+		Matrix4 *mBoneMatrices;
+		unsigned short mNumBoneMatrices;
 
-         /// Perform all the updates required for an animated entity
-        void updateAnimation(void);
+		/// Perform all the updates required for an animated entity
+		void updateAnimation(void);
 
-        /// Records the last frame in which the bones was updated
-        /// It's a pointer because it can be shared between different entities with
-        /// a shared skeleton.
-        unsigned long *mFrameBonesLastUpdated;
+		/// Records the last frame in which the bones was updated
+		/// It's a pointer because it can be shared between different entities with
+		/// a shared skeleton.
+		unsigned long *mFrameBonesLastUpdated;
 
-        /**
-        * A set of all the entities which shares a single SkeletonInstance.
-        * This is only created if the entity is in fact sharing it's SkeletonInstance with
-        * other Entities.
-        */
-        EntitySet* mSharedSkeletonEntities;
-        
-        /// Private method to cache bone matrices from skeleton
-        void cacheBoneMatrices(void);
+		/**
+		* A set of all the entities which shares a single SkeletonInstance.
+		* This is only created if the entity is in fact sharing it's SkeletonInstance with
+		* other Entities.
+		*/
+		EntitySet* mSharedSkeletonEntities;
 
-        /// Flag determines whether or not to display skeleton
-        bool mDisplaySkeleton;
-        /// Flag indicating whether hardware skinning is supported by this entities materials
-        bool mHardwareAnimation;
-        /// Flag indicating whether we have a vertex program in use on any of our subentities
-        bool mVertexProgramInUse;
+		/// Private method to cache bone matrices from skeleton
+		void cacheBoneMatrices(void);
+
+		/// Flag determines whether or not to display skeleton
+		bool mDisplaySkeleton;
+		/// Flag indicating whether hardware skinning is supported by this entities materials
+		bool mHardwareAnimation;
+		/// Flag indicating whether we have a vertex program in use on any of our subentities
+		bool mVertexProgramInUse;
 
 
 		/// The LOD number of the mesh to use, calculated by _notifyCurrentCamera
@@ -170,19 +174,19 @@ namespace Ogre {
 		/// Index of maximum detail LOD (NB lower index is higher detail)
 		ushort mMaxMaterialLodIndex;
 
-        /// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
+		/// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
 		bool mUsingManualLOD;
 		/** List of LOD Entity instances (for manual LODs).
-			We don't know when the mesh is using manual LODs whether one LOD to the next will have the
-			same number of SubMeshes, therefore we have to allow a separate Entity list 
-            with each alternate one.
+		We don't know when the mesh is using manual LODs whether one LOD to the next will have the
+		same number of SubMeshes, therefore we have to allow a separate Entity list 
+		with each alternate one.
 		*/
 		typedef std::vector<Entity*> LODEntityList;
 		LODEntityList mLodEntityList;
 
-        /** This Entity's personal copy of the skeleton, if skeletally animated
-        */
-        SkeletonInstance* mSkeletonInstance;
+		/** This Entity's personal copy of the skeleton, if skeletally animated
+		*/
+		SkeletonInstance* mSkeletonInstance;
 
 		/** Builds a list of SubEntities based on the SubMeshes contained in the Mesh. */
 		void buildSubEntityList(MeshPtr& mesh, SubEntityList* sublist);
@@ -190,233 +194,233 @@ namespace Ogre {
 		/// internal implementation of attaching a 'child' object to this entity and assign the parent node to the child entity
 		void attachObjectImpl(MovableObject *pMovable, TagPoint *pAttachingPoint);
 
-        /// internal implementation of detaching a 'child' object of this entity and clear the parent node of the child entity
-        void detachObjectImpl(MovableObject* pObject);
+		/// internal implementation of detaching a 'child' object of this entity and clear the parent node of the child entity
+		void detachObjectImpl(MovableObject* pObject);
 
-        /// internal implementation of detaching all 'child' objects of this entity
-        void detachAllObjectsImpl(void);
+		/// internal implementation of detaching all 'child' objects of this entity
+		void detachAllObjectsImpl(void);
 
-        /// Trigger reevaluation of the kind of vertex processing in use
-        void reevaluateVertexProcessing(void);
+		/// Trigger reevaluation of the kind of vertex processing in use
+		void reevaluateVertexProcessing(void);
 
 		/// Apply morph animation
-		void applyMorphAnimation(void);
-		
-    public:
-        /// Contains the child objects (attached to bones) indexed by name
-        typedef std::map<String, MovableObject*> ChildObjectList;
-    protected:
-        ChildObjectList mChildObjectList;
+		void applyMorphAnimation(bool hardwareAnimation, bool stencilShadows);
+
+	public:
+		/// Contains the child objects (attached to bones) indexed by name
+		typedef std::map<String, MovableObject*> ChildObjectList;
+	protected:
+		ChildObjectList mChildObjectList;
 
 
 		/// Bounding box that 'contains' all the mesh of each child entity
 		AxisAlignedBox *mFullBoundingBox;
 
-        bool mNormaliseNormals;
+		bool mNormaliseNormals;
 
-        ShadowRenderableList mShadowRenderables;
+		ShadowRenderableList mShadowRenderables;
 
-        /** Nested class to allow entity shadows. */
-        class _OgreExport EntityShadowRenderable : public ShadowRenderable
-        {
-        protected:
-            Entity* mParent;
-            // Shared link to position buffer
-            HardwareVertexBufferSharedPtr mPositionBuffer;
-            // Shared link to w-coord buffer (optional)
-            HardwareVertexBufferSharedPtr mWBuffer;
-            // Link to original vertex data
-            const VertexData* mOriginalVertexData;
-            // Original position buffer source binding
-            unsigned short mOriginalPosBufferBinding;
-            /// Link to SubEntity, only present if SubEntity has it's own geometry
-            SubEntity* mSubEntity;
+		/** Nested class to allow entity shadows. */
+		class _OgreExport EntityShadowRenderable : public ShadowRenderable
+		{
+		protected:
+			Entity* mParent;
+			// Shared link to position buffer
+			HardwareVertexBufferSharedPtr mPositionBuffer;
+			// Shared link to w-coord buffer (optional)
+			HardwareVertexBufferSharedPtr mWBuffer;
+			// Link to original vertex data
+			const VertexData* mOriginalVertexData;
+			// Original position buffer source binding
+			unsigned short mOriginalPosBufferBinding;
+			/// Link to SubEntity, only present if SubEntity has it's own geometry
+			SubEntity* mSubEntity;
 
 
-        public:
-            EntityShadowRenderable(Entity* parent, 
-                HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
-                bool createSeparateLightCap, SubEntity* subent, bool isLightCap = false);
-            ~EntityShadowRenderable();
-            /// Overridden from ShadowRenderable
-            void getWorldTransforms(Matrix4* xform) const;
-            /// Overridden from ShadowRenderable
-            const Quaternion& getWorldOrientation(void) const;
-            /// Overridden from ShadowRenderable
-            const Vector3& getWorldPosition(void) const;
-            HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
-            HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
-            /// Rebind the source positions (for temp buffer users)
-            void rebindPositionBuffer(void);
-            /// Overridden from ShadowRenderable
-            bool isVisible(void) const;
+		public:
+			EntityShadowRenderable(Entity* parent, 
+				HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
+				bool createSeparateLightCap, SubEntity* subent, bool isLightCap = false);
+			~EntityShadowRenderable();
+			/// Overridden from ShadowRenderable
+			void getWorldTransforms(Matrix4* xform) const;
+			/// Overridden from ShadowRenderable
+			const Quaternion& getWorldOrientation(void) const;
+			/// Overridden from ShadowRenderable
+			const Vector3& getWorldPosition(void) const;
+			HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
+			HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
+			/// Rebind the source positions (for temp buffer users)
+			void rebindPositionBuffer(void);
+			/// Overridden from ShadowRenderable
+			bool isVisible(void) const;
 
-        };
-    public:
-        /** Default destructor.
-        */
-        ~Entity();
+		};
+	public:
+		/** Default destructor.
+		*/
+		~Entity();
 
-        /** Gets the Mesh that this Entity is based on.
-        */
-        MeshPtr& getMesh(void);
+		/** Gets the Mesh that this Entity is based on.
+		*/
+		MeshPtr& getMesh(void);
 
-        /** Gets a pointer to a SubEntity, ie a part of an Entity.
-        */
-        SubEntity* getSubEntity(unsigned int index);
-	
+		/** Gets a pointer to a SubEntity, ie a part of an Entity.
+		*/
+		SubEntity* getSubEntity(unsigned int index);
+
 		/** Gets a pointer to a SubEntity by name
-			@remarks - names should be initialized during a Mesh creation.
+		@remarks - names should be initialized during a Mesh creation.
 		*/
 		SubEntity* getSubEntity( const String& name );
 
-        /** Retrieves the number of SubEntity objects making up this entity.
-        */
-        unsigned int getNumSubEntities(void) const;
+		/** Retrieves the number of SubEntity objects making up this entity.
+		*/
+		unsigned int getNumSubEntities(void) const;
 
-        /** Clones this entity and returns a pointer to the clone.
-            @remarks
-                Useful method for duplicating an entity. The new entity must be
-                given a unique name, and is not attached to the scene in any way
-                so must be attached to a SceneNode to be visible (exactly as
-                entities returned from SceneManager::createEntity).
-            @param
-                newName Name for the new entity.
-        */
-        Entity* clone( const String& newName );
+		/** Clones this entity and returns a pointer to the clone.
+		@remarks
+		Useful method for duplicating an entity. The new entity must be
+		given a unique name, and is not attached to the scene in any way
+		so must be attached to a SceneNode to be visible (exactly as
+		entities returned from SceneManager::createEntity).
+		@param
+		newName Name for the new entity.
+		*/
+		Entity* clone( const String& newName );
 
-        /** Sets the material to use for the whole of this entity.
-            @remarks
-                This is a shortcut method to set all the materials for all
-                subentities of this entity. Only use this method is you want to
-                set the same material for all subentities or if you know there
-                is only one. Otherwise call getSubEntity() and call the same
-                method on the individual SubEntity.
-        */
-        void setMaterialName(const String& name);
+		/** Sets the material to use for the whole of this entity.
+		@remarks
+		This is a shortcut method to set all the materials for all
+		subentities of this entity. Only use this method is you want to
+		set the same material for all subentities or if you know there
+		is only one. Otherwise call getSubEntity() and call the same
+		method on the individual SubEntity.
+		*/
+		void setMaterialName(const String& name);
 
-        /** Overridden - see MovableObject.
-        */
-        void _notifyCurrentCamera(Camera* cam);
+		/** Overridden - see MovableObject.
+		*/
+		void _notifyCurrentCamera(Camera* cam);
 
-        /// Overridden - see MovableObject.
-        void setRenderQueueGroup(RenderQueueGroupID queueID);
-        
-        /** Overridden - see MovableObject.
-        */
-        const AxisAlignedBox& getBoundingBox(void) const;
+		/// Overridden - see MovableObject.
+		void setRenderQueueGroup(RenderQueueGroupID queueID);
 
-        /// merge all the child object Bounds a return it
+		/** Overridden - see MovableObject.
+		*/
+		const AxisAlignedBox& getBoundingBox(void) const;
+
+		/// merge all the child object Bounds a return it
 		AxisAlignedBox getChildObjectsBoundingBox(void) const;
 
-        /** Overridden - see MovableObject.
-        */
-        void _updateRenderQueue(RenderQueue* queue);
+		/** Overridden - see MovableObject.
+		*/
+		void _updateRenderQueue(RenderQueue* queue);
 
-        /** Overridden from MovableObject */
-        const String& getMovableType(void) const;
+		/** Overridden from MovableObject */
+		const String& getMovableType(void) const;
 
-        /** For entities based on animated meshes, gets the AnimationState object for a single animation.
-        @remarks
-            You animate an entity by updating the animation state objects. Each of these represents the
-            current state of each animation available to the entity. The AnimationState objects are
-            initialised from the Mesh object.
-        */
-        AnimationState* getAnimationState(const String& name);
-        /** For entities based on animated meshes, gets the AnimationState objects for all animations.
-        @returns
-            In case the entity is animated, this functions returns the pointer to a AnimationStateSet 
-            containing all animations of the entries. If the entity is not animated, it returns 0.
-        @remarks
-            You animate an entity by updating the animation state objects. Each of these represents the
-            current state of each animation available to the entity. The AnimationState objects are
-            initialised from the Mesh object.
-        */
-        AnimationStateSet* getAllAnimationStates(void);
+		/** For entities based on animated meshes, gets the AnimationState object for a single animation.
+		@remarks
+		You animate an entity by updating the animation state objects. Each of these represents the
+		current state of each animation available to the entity. The AnimationState objects are
+		initialised from the Mesh object.
+		*/
+		AnimationState* getAnimationState(const String& name);
+		/** For entities based on animated meshes, gets the AnimationState objects for all animations.
+		@returns
+		In case the entity is animated, this functions returns the pointer to a AnimationStateSet 
+		containing all animations of the entries. If the entity is not animated, it returns 0.
+		@remarks
+		You animate an entity by updating the animation state objects. Each of these represents the
+		current state of each animation available to the entity. The AnimationState objects are
+		initialised from the Mesh object.
+		*/
+		AnimationStateSet* getAllAnimationStates(void);
 
-        /** Tells the Entity whether or not it should display it's skeleton, if it has one.
-        */
-        void setDisplaySkeleton(bool display);
+		/** Tells the Entity whether or not it should display it's skeleton, if it has one.
+		*/
+		void setDisplaySkeleton(bool display);
 
-        /** Returns whether or not the entity is currently displaying its skeleton.
-         */
-        bool getDisplaySkeleton(void) const;
+		/** Returns whether or not the entity is currently displaying its skeleton.
+		*/
+		bool getDisplaySkeleton(void) const;
 
 
 		/** Sets a level-of-detail bias for the mesh detail of this entity.
 		@remarks
-			Level of detail reduction is normally applied automatically based on the Mesh 
-			settings. However, it is possible to influence this behaviour for this entity
-			by adjusting the LOD bias. This 'nudges' the mesh level of detail used for this 
-			entity up or down depending on your requirements. You might want to use this
-			if there was a particularly important entity in your scene which you wanted to
-			detail better than the others, such as a player model.
+		Level of detail reduction is normally applied automatically based on the Mesh 
+		settings. However, it is possible to influence this behaviour for this entity
+		by adjusting the LOD bias. This 'nudges' the mesh level of detail used for this 
+		entity up or down depending on your requirements. You might want to use this
+		if there was a particularly important entity in your scene which you wanted to
+		detail better than the others, such as a player model.
 		@par
-			There are three parameters to this method; the first is a factor to apply; it 
-			defaults to 1.0 (no change), by increasing this to say 2.0, this model would 
-			take twice as long to reduce in detail, whilst at 0.5 this entity would use lower
-			detail versions twice as quickly. The other 2 parameters are hard limits which 
-			let you set the maximum and minimum level-of-detail version to use, after all
-			other calculations have been made. This lets you say that this entity should
-			never be simplified, or that it can only use LODs below a certain level even
-			when right next to the camera.
+		There are three parameters to this method; the first is a factor to apply; it 
+		defaults to 1.0 (no change), by increasing this to say 2.0, this model would 
+		take twice as long to reduce in detail, whilst at 0.5 this entity would use lower
+		detail versions twice as quickly. The other 2 parameters are hard limits which 
+		let you set the maximum and minimum level-of-detail version to use, after all
+		other calculations have been made. This lets you say that this entity should
+		never be simplified, or that it can only use LODs below a certain level even
+		when right next to the camera.
 		@param factor Proportional factor to apply to the distance at which LOD is changed. 
-			Higher values increase the distance at which higher LODs are displayed (2.0 is 
-			twice the normal distance, 0.5 is half).
+		Higher values increase the distance at which higher LODs are displayed (2.0 is 
+		twice the normal distance, 0.5 is half).
 		@param maxDetailIndex The index of the maximum LOD this entity is allowed to use (lower
-			indexes are higher detail: index 0 is the original full detail model).
+		indexes are higher detail: index 0 is the original full detail model).
 		@param minDetailIndex The index of the minimum LOD this entity is allowed to use (higher
-			indexes are lower detail. Use something like 99 if you want unlimited LODs (the actual
-			LOD will be limited by the number in the Mesh)
+		indexes are lower detail). Use something like 99 if you want unlimited LODs (the actual
+		LOD will be limited by the number in the Mesh)
 		*/
 		void setMeshLodBias(Real factor, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
 
 		/** Sets a level-of-detail bias for the material detail of this entity.
 		@remarks
-			Level of detail reduction is normally applied automatically based on the Material 
-			settings. However, it is possible to influence this behaviour for this entity
-			by adjusting the LOD bias. This 'nudges' the material level of detail used for this 
-			entity up or down depending on your requirements. You might want to use this
-			if there was a particularly important entity in your scene which you wanted to
-			detail better than the others, such as a player model.
+		Level of detail reduction is normally applied automatically based on the Material 
+		settings. However, it is possible to influence this behaviour for this entity
+		by adjusting the LOD bias. This 'nudges' the material level of detail used for this 
+		entity up or down depending on your requirements. You might want to use this
+		if there was a particularly important entity in your scene which you wanted to
+		detail better than the others, such as a player model.
 		@par
-			There are three parameters to this method; the first is a factor to apply; it 
-			defaults to 1.0 (no change), by increasing this to say 2.0, this entity would 
-			take twice as long to use a lower detail material, whilst at 0.5 this entity 
-            would use lower detail versions twice as quickly. The other 2 parameters are 
-            hard limits which let you set the maximum and minimum level-of-detail index 
-            to use, after all other calculations have been made. This lets you say that 
-            this entity should never be simplified, or that it can only use LODs below 
-            a certain level even when right next to the camera.
+		There are three parameters to this method; the first is a factor to apply; it 
+		defaults to 1.0 (no change), by increasing this to say 2.0, this entity would 
+		take twice as long to use a lower detail material, whilst at 0.5 this entity 
+		would use lower detail versions twice as quickly. The other 2 parameters are 
+		hard limits which let you set the maximum and minimum level-of-detail index 
+		to use, after all other calculations have been made. This lets you say that 
+		this entity should never be simplified, or that it can only use LODs below 
+		a certain level even when right next to the camera.
 		@param factor Proportional factor to apply to the distance at which LOD is changed. 
-			Higher values increase the distance at which higher LODs are displayed (2.0 is 
-			twice the normal distance, 0.5 is half).
+		Higher values increase the distance at which higher LODs are displayed (2.0 is 
+		twice the normal distance, 0.5 is half).
 		@param maxDetailIndex The index of the maximum LOD this entity is allowed to use (lower
-			indexes are higher detail: index 0 is the original full detail model).
+		indexes are higher detail: index 0 is the original full detail model).
 		@param minDetailIndex The index of the minimum LOD this entity is allowed to use (higher
-			indexes are lower detail. Use something like 99 if you want unlimited LODs (the actual
-			LOD will be limited by the number of lod indexes used in the Material)
+		indexes are lower detail. Use something like 99 if you want unlimited LODs (the actual
+		LOD will be limited by the number of lod indexes used in the Material)
 		*/
-        void setMaterialLodBias(Real factor, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
-			
-        /** Sets the rendering detail of this entire entity (solid, wireframe etc) */
-        void setRenderDetail(SceneDetailLevel renderDetail);
+		void setMaterialLodBias(Real factor, ushort maxDetailIndex = 0, ushort minDetailIndex = 99);
+
+		/** Sets the rendering detail of this entire entity (solid, wireframe etc) */
+		void setRenderDetail(SceneDetailLevel renderDetail);
 
 		/** Sets whether the rendering detail of this entire entity may be 
-			overridden by the camera detail settings. 
+		overridden by the camera detail settings. 
 		*/
 		void setRenderDetailOverrideable(bool renderDetailOverrideable);
 		/** Attaches another object to a certain bone of the skeleton which this entity uses.
-        @remarks
-            This method can be used to attach another object to an animated part of this entity,
-            by attaching it to a bone in the skeleton (with an offset if required). As this entity 
-            is animated, the attached object will move relative to the bone to which it is attached.
-        @param boneName The name of the bone (in the skeleton) to attach this object
-        @param pMovable Pointer to the object to attach
-        @param offsetOrientation An adjustment to the orientation of the attached object, relative to the bone.
-        @param offsetPosition An adjustment to the position of the attached object, relative to the bone.
+		@remarks
+		This method can be used to attach another object to an animated part of this entity,
+		by attaching it to a bone in the skeleton (with an offset if required). As this entity 
+		is animated, the attached object will move relative to the bone to which it is attached.
+		@param boneName The name of the bone (in the skeleton) to attach this object
+		@param pMovable Pointer to the object to attach
+		@param offsetOrientation An adjustment to the orientation of the attached object, relative to the bone.
+		@param offsetPosition An adjustment to the position of the attached object, relative to the bone.
 		@returns The TagPoint to which the object has been attached
-        */
+		*/
 		TagPoint* attachObjectToBone(const String &boneName, 
 			MovableObject *pMovable, 
 			const Quaternion &offsetOrientation = Quaternion::IDENTITY, 
@@ -425,123 +429,124 @@ namespace Ogre {
 		/// detach a MovableObject previously attached using attachObjectToBone
 		MovableObject* detachObjectFromBone(const String &movableName);
 
-        /** Detaches an object by pointer.
-        @remarks
-            This method is need when destroy a MovableObject which attached to a bone of this entity.
-            But sometimes the object may be not in the child object list because it is a lod entity,
-            this method can safely detect and ignore in this case.
-        */
-        void detachObjectFromBone(MovableObject* obj);
+		/** Detaches an object by pointer.
+		@remarks
+		This method is need when destroy a MovableObject which attached to a bone of this entity.
+		But sometimes the object may be not in the child object list because it is a lod entity,
+		this method can safely detect and ignore in this case.
+		*/
+		void detachObjectFromBone(MovableObject* obj);
 
-        /// Detach all MovableObjects previously attached using attachObjectToBone
-        void detachAllObjectsFromBone(void);
+		/// Detach all MovableObjects previously attached using attachObjectToBone
+		void detachAllObjectsFromBone(void);
 
-        typedef MapIterator<ChildObjectList> ChildObjectListIterator;
-        /** Gets an iterator to the list of objects attached to bones on this entity. */
-        ChildObjectListIterator getAttachedObjectIterator(void);
-        /** @see MovableObject::getBoundingRadius */
+		typedef MapIterator<ChildObjectList> ChildObjectListIterator;
+		/** Gets an iterator to the list of objects attached to bones on this entity. */
+		ChildObjectListIterator getAttachedObjectIterator(void);
+		/** @see MovableObject::getBoundingRadius */
 		Real getBoundingRadius(void) const;
-        /** If set to true, this forces normals of this entity to be normalised
-            dynamically by the hardware.
-        @remarks
-            This option can be used to prevent lighting variations when scaling an
-            Entity using a SceneNode - normally because this scaling is hardware
-            based, the normals get scaled too which causes lighting to become inconsistent.
-            However, this has an overhead so only do this if you really need to.
-        */
-        void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
+		/** If set to true, this forces normals of this entity to be normalised
+		dynamically by the hardware.
+		@remarks
+		This option can be used to prevent lighting variations when scaling an
+		Entity using a SceneNode - normally because this scaling is hardware
+		based, the normals get scaled too which causes lighting to become inconsistent.
+		However, this has an overhead so only do this if you really need to.
+		*/
+		void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
 
-        /** Returns true if this entity has auto-normalisation of normals set. */
-        bool getNormaliseNormals(void) const {return mNormaliseNormals; }
+		/** Returns true if this entity has auto-normalisation of normals set. */
+		bool getNormaliseNormals(void) const {return mNormaliseNormals; }
 
 
-        /** Overridden member from ShadowCaster. */
-        EdgeData* getEdgeList(void);
-        /** Overridden member from ShadowCaster. */
-        ShadowRenderableListIterator getShadowVolumeRenderableIterator(
-            ShadowTechnique shadowTechnique, const Light* light, 
-            HardwareIndexBufferSharedPtr* indexBuffer, 
-            bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
+		/** Overridden member from ShadowCaster. */
+		EdgeData* getEdgeList(void);
+		/** Overridden member from ShadowCaster. */
+		ShadowRenderableListIterator getShadowVolumeRenderableIterator(
+			ShadowTechnique shadowTechnique, const Light* light, 
+			HardwareIndexBufferSharedPtr* indexBuffer, 
+			bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
 
 		/** Internal method for retrieving bone matrix information. */
 		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}
 		/** Internal method for retrieving bone matrix information. */
-        unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
-        /** Returns whether or not this entity is skeletally animated. */
-        bool hasSkeleton(void) const { return mSkeletonInstance != 0; }
-        /** Get this Entity's personal skeleton instance. */
-        SkeletonInstance* getSkeleton(void) { return mSkeletonInstance; }
-        /** Returns whether or not hardware skinning is enabled.
-        @remarks
-            Because fixed-function indexed vertex blending is rarely supported
-            by existing graphics cards, hardware skinning can only be done if
-            the vertex programs in the materials used to render an entity support
-            it. Therefore, this method will only return true if all the materials
-            assigned to this entity have vertex programs assigned, and all those
-            vertex programs must support 'include_skeletal_animation true'.
-        */
-        bool isHardwareAnimationEnabled(void) const { return mHardwareAnimation; }
+		unsigned short _getNumBoneMatrices(void) { return mNumBoneMatrices; }
+		/** Returns whether or not this entity is skeletally animated. */
+		bool hasSkeleton(void) const { return mSkeletonInstance != 0; }
+		/** Get this Entity's personal skeleton instance. */
+		SkeletonInstance* getSkeleton(void) { return mSkeletonInstance; }
+		/** Returns whether or not hardware skinning is enabled.
+		@remarks
+		Because fixed-function indexed vertex blending is rarely supported
+		by existing graphics cards, hardware skinning can only be done if
+		the vertex programs in the materials used to render an entity support
+		it. Therefore, this method will only return true if all the materials
+		assigned to this entity have vertex programs assigned, and all those
+		vertex programs must support 'include_skeletal_animation true'.
+		*/
+		bool isHardwareAnimationEnabled(void) const { return mHardwareAnimation; }
 
-        /** Overridden from MovableObject */
-        void _notifyAttached(Node* parent, bool isTagPoint = false);
+		/** Overridden from MovableObject */
+		void _notifyAttached(Node* parent, bool isTagPoint = false);
 
-        /** Shares the SkeletonInstance with the supplied entity.
-        *   Note that in order for this to work, both entities must have the same
-        *   Skeleton.
-        */
-        void shareSkeletonInstanceWith(Entity* entity);
+		/** Shares the SkeletonInstance with the supplied entity.
+		*   Note that in order for this to work, both entities must have the same
+		*   Skeleton.
+		*/
+		void shareSkeletonInstanceWith(Entity* entity);
 
 		/** Returns whether or not this entity is morph animated. */
 		bool hasMorphAnimation(void) const;
-	
-        /** Stops sharing the SkeletonInstance with other entities.
-        */
-        void Entity::stopSharingSkeletonInstance();
+
+		/** Stops sharing the SkeletonInstance with other entities.
+		*/
+		void stopSharingSkeletonInstance();
 
 
-        /**
-        * Returns whether this entity shares it's SkeltonInstance with other entity instances.
-        */
-        inline bool sharesSkeletonInstance() const { return mSharedSkeletonEntities != NULL; }
+		/**
+		* Returns whether this entity shares it's SkeltonInstance with other entity instances.
+		*/
+		inline bool sharesSkeletonInstance() const { return mSharedSkeletonEntities != NULL; }
 
-        /**
-        * Returns a pointer to the set of entities which share a SkeletonInstance.
-        * If this instance does not share it's SkeletonInstance with other instances NULL will be returned
-        */
-        inline const EntitySet* getSkeletonInstanceSharingSet() const { return mSharedSkeletonEntities; }
+		/**
+		* Returns a pointer to the set of entities which share a SkeletonInstance.
+		* If this instance does not share it's SkeletonInstance with other instances NULL will be returned
+		*/
+		inline const EntitySet* getSkeletonInstanceSharingSet() const { return mSharedSkeletonEntities; }
 
 		/** Updates the internal animation state set to include the latest 
-			available animations from the attached skeleton.
+		available animations from the attached skeleton.
 		@remarks
-			Use this method if you manually add animations to a skeleton, or have
-			linked the skeleton to another for animation purposes since creating 
-			this entity.
+		Use this method if you manually add animations to a skeleton, or have
+		linked the skeleton to another for animation purposes since creating 
+		this entity.
 		@note
-			If you have called getAnimationState prior to calling this method, 
-			the pointers will still remain valid.
+		If you have called getAnimationState prior to calling this method, 
+		the pointers will still remain valid.
 		*/
 		void refreshAvailableAnimationState(void);
 
 		/** Advanced method to perform all the updates required for an animated entity.
 		@remarks
-			You don't normally need to call this, but it's here incase you wish
-			to manually update the animation of an Entity at a specific point in
-			time. Animation will not be updated more than once a frame no matter
-			how many times you call this method.
+		You don't normally need to call this, but it's here incase you wish
+		to manually update the animation of an Entity at a specific point in
+		time. Animation will not be updated more than once a frame no matter
+		how many times you call this method.
 		*/
 		void _updateAnimation(void);
 
 		/** Advanced method to get the temporarily blended skeletal vertex information
-			for entities which are software skinned. 
+		for entities which are software skinned. 
 		*/
 		VertexData* _getSkelAnimVertexData(void);
-		/** Advanced method to get the temporarily blended morph vertex information
-		Applies for both hardware and software morph animation, the format depends
-		on the approach though (blended in-place or both positions bound). 
+		/** Advanced method to get the temporarily blended software morph vertex information
 		*/
-		VertexData* _getMorphAnimVertexData(void);
+		VertexData* _getSoftwareMorphAnimVertexData(void);
+		/** Advanced method to get the hardware morph vertex information
+		*/
+		VertexData* _getHardwareMorphAnimVertexData(void);
 		/** Advanced method to get the temp buffer information for software 
-			skeletal animation.
+		skeletal animation.
 		*/
 		TempBlendedBufferInfo* _getSkelAnimTempBufferInfo(void);
 		/** Advanced method to get the temp buffer information for software 
@@ -552,16 +557,17 @@ namespace Ogre {
 		uint32 getTypeFlags(void) const;
 		/// Retrieve the VertexData which should be used for GPU binding
 		VertexData* getVertexDataForBinding(void);
-		/// Should we be binding morph vertex data?
-		bool shouldBindMorphVertexData(void) const;
-		/** Should we be binding skeletal vertex data 
-		@note Assumes shouldBindMorphVertexData returned false; false from both 
-			means original mesh data should be used
-		*/
-		bool shouldBindSkeletalVertexData(void) const;
 
-
-
+		/// Identify which vertex data we should be sending to the renderer
+		enum VertexDataBindChoice 
+		{
+			BIND_ORIGINAL,
+			BIND_SOFTWARE_SKELETAL,
+			BIND_SOFTWARE_MORPH,
+			BIND_HARDWARE_MORPH
+		};
+		/// Choose which vertex data to bind to the renderer
+		VertexDataBindChoice chooseVertexDataForBinding(void) const;
 
 	};
 
@@ -573,7 +579,7 @@ namespace Ogre {
 	public:
 		EntityFactory() {}
 		~EntityFactory() {}
-		
+
 		static String FACTORY_TYPE_NAME;
 
 		const String& getType(void) const;
