@@ -843,7 +843,7 @@ namespace Ogre
 		SAFE_RELEASE(pSurf);
 	}
 	//-----------------------------------------------------------------------------
-	void D3D9RenderWindow::update(void)
+	void D3D9RenderWindow::update(bool swap)
 	{
 		D3D9RenderSystem* rs = static_cast<D3D9RenderSystem*>(
 			Root::getSingleton().getRenderSystem());
@@ -924,6 +924,6 @@ namespace Ogre
 			}
 
 		}
-		RenderWindow::update();
+		RenderWindow::update(swap);
 	}
 }

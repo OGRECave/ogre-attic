@@ -162,7 +162,7 @@ namespace Ogre
 				queued commands complete. Or, you might do this if you want custom
 				control over your windows, such as for externally created windows.
         */
-        virtual void update(bool swapBuffers = true);
+        virtual void update(bool swapBuffers);
 
         /** Returns true if window is running in fullscreen mode.
         */
