@@ -520,7 +520,10 @@ namespace Ogre {
     //---------------------------------------------------------------------
 	void NodeAnimationTrack::optimise(void)
 	{
-		// Iterate from 2nd to penultimate keyframe eliminating duplicates
+		// Eliminate duplicate keyframes from 2nd to penultimate keyframe 
+		// NB only eliminate middle keys from sequences of 5+ identical keyframes
+		// since we need to preserve the boundary keys in place, and we need
+		// 2 at each end to preserve tangents for spline interpolation
 		Vector3 lasttrans;
 		Vector3 lastscale;
 		Quaternion lastorientation;
@@ -528,22 +531,35 @@ namespace Ogre {
 		Radian quatTolerance(1e-3f);
 		std::list<unsigned short> removeList;
 		unsigned short k = 0;
+		ushort dupKfCount = 0;
         for (; i != mKeyFrames.end(); ++i, ++k)
         {
 			TransformKeyFrame* kf = static_cast<TransformKeyFrame*>(*i);
 			Vector3 newtrans = kf->getTranslate();
 			Vector3 newscale = kf->getScale();
 			Quaternion neworientation = kf->getRotation();
-			// Don't consider 1st and last keyframe for elimination
-			KeyFrameList::iterator next = i + 1;
-			if (i != mKeyFrames.begin() && next != mKeyFrames.end())
+			// Ignore first keyframe; now include the last keyframe as we eliminate
+			// only k-2 in a group of 5 to ensure we only eliminate middle keys
+			if (i != mKeyFrames.begin())
 			{
 				if (newtrans.positionEquals(lasttrans) &&
 					newscale.positionEquals(lastscale) && 
 					neworientation.equals(lastorientation, quatTolerance))
 				{
-					// mark this keyframe as removable
-					removeList.push_back(k);			
+					++dupKfCount;
+
+					// 4 indicates this is the 5th duplicate keyframe
+					if (dupKfCount == 4)
+					{
+						// remove the 'middle' keyframe
+						removeList.push_back(k-2);	
+						--dupKfCount;
+					}
+				}
+				else
+				{
+					// reset
+					dupKfCount = 0;
 				}
 					
 			}

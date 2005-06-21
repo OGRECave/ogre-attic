@@ -269,6 +269,11 @@ namespace Ogre {
 		mSize = uncompressedSize;
     }
     //-----------------------------------------------------------------------
+	ZipDataStream::~ZipDataStream()
+	{
+		close();
+	}
+    //-----------------------------------------------------------------------
     size_t ZipDataStream::read(void* buf, size_t count)
     {
         return zzip_file_read(mZzipFile, (char*)buf, count);
