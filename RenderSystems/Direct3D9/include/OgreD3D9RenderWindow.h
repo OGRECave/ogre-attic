@@ -70,7 +70,7 @@ namespace Ogre
 		{ return &md3dpp; }
 
 		/// @copydoc RenderTarget::update
-		void update();
+		void update(bool swap);
 
 		/** Create (or recreate) the D3D device or SwapChain for this window.
 		*/
