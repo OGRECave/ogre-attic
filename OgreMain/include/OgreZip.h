@@ -106,6 +106,7 @@ namespace Ogre {
         ZipDataStream(ZZIP_FILE* zzipFile, size_t uncompressedSize);
         /// Constructor for creating named streams
         ZipDataStream(const String& name, ZZIP_FILE* zzipFile, size_t uncompressedSize);
+		~ZipDataStream();
         /// @copydoc DataStream::read
         size_t read(void* buf, size_t count);
         /// @copydoc DataStream::read
