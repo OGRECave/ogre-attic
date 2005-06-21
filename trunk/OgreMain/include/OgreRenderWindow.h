@@ -146,13 +146,23 @@ namespace Ogre
         */
         virtual void swapBuffers(bool waitForVSync = true) = 0;
 
+		/// @copydoc RenderTarget::update
+        virtual void update(void);
         /** Updates the window contents.
             @remarks
                 The window is updated by telling each camera which is supposed
                 to render into this window to render it's view, and then
-                the window buffers are swapped via swapBuffers()
+                the window buffers are swapped via swapBuffers() if requested
+			@param swapBuffers If set to true, the window will immediately
+				swap it's buffers after update. Otherwise, the buffers are
+				not swapped, and you have to call swapBuffers yourself sometime
+				later. You might want to do this on some rendersystems which 
+				pause for queued rendering commands to complete before accepting
+				swap buffers calls - so you could do other CPU tasks whilst the 
+				queued commands complete. Or, you might do this if you want custom
+				control over your windows, such as for externally created windows.
         */
-        virtual void update(void);
+        virtual void update(bool swapBuffers = true);
 
         /** Returns true if window is running in fullscreen mode.
         */

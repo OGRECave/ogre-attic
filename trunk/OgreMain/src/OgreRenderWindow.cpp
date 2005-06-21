@@ -60,11 +60,20 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void RenderWindow::update(void)
     {
+		update(true);
+	}
+    //-----------------------------------------------------------------------
+    void RenderWindow::update(bool swap)
+    {
         // call superclass
         RenderTarget::update();
 
-        // Swap buffers
-        swapBuffers(Root::getSingleton().getRenderSystem()->getWaitForVerticalBlank());
+
+		if (swap)
+		{
+			// Swap buffers
+    	    swapBuffers(Root::getSingleton().getRenderSystem()->getWaitForVerticalBlank());
+		}
     }
 
 }
