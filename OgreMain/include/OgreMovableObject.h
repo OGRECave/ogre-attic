@@ -275,7 +275,7 @@ namespace Ogre {
     };
 
 	/** Interface definition for a factory class which produces a certain
-		kind of MovableObject, and can be registered with SceneManager in order
+		kind of MovableObject, and can be registered with Root in order
 		to allow all clients to produce new instances of this object, integrated
 		with the standard Ogre processing.
 	*/
@@ -308,19 +308,19 @@ namespace Ogre {
 			selectively include / exclude this type from scene queries?
 		@remarks
 			The default implementation here is to return 'false', ie not to 
-			request a unique type mask from the SceneManager. For objects that
+			request a unique type mask from Root. For objects that
 			never need to be excluded in SceneQuery results, that's fine, since
 			the default implementation of MovableObject::getTypeFlags is to return
 			all ones, hence matching any query type mask. However, if you want the
 			objects created by this factory to be filterable by queries using a 
 			broad type, you have to give them a (preferably unique) type mask - 
 			and given that you don't know what other MovableObject types are 
-			registered, the SceneManager will allocate you one. 
+			registered, Root will allocate you one. 
 		*/
 		virtual bool requestTypeFlags(void) const { return false; }
 		/** Notify this factory of the type mask to apply. 
 		@remarks
-			This should normally only be called by SceneManager in response to
+			This should normally only be called by Root in response to
 			a 'true' result from requestTypeMask. However, you can actually use
 			it yourself if you're careful; for example to assign the same mask
 			to a number of different types of object, should you always wish them
