@@ -59,6 +59,7 @@ namespace Ogre {
 		mSkelAnimVertexData = 0;
 		mSoftwareMorphAnimVertexData = 0;
 		mHardwareMorphAnimVertexData = 0;
+		mLastParentXform = Matrix4::ZERO;
 
     }
     //-----------------------------------------------------------------------
@@ -72,6 +73,8 @@ namespace Ogre {
         mSkelAnimVertexData = 0;
 		mSoftwareMorphAnimVertexData = 0;
 		mHardwareMorphAnimVertexData = 0;
+		mLastParentXform = Matrix4::ZERO;
+
 
 
         // Is mesh skeletally animated?
@@ -446,11 +449,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::updateAnimation(void)
     {
-        // We only do these tasks if they have not already been done for 
-        // this frame 
-        Root& root = Root::getSingleton();
-        if (mAnimationState->isDirty())
+        // We only do these tasks if animation is dirty or transform has altered
+		// when using skeletal animation, which is dependent
+        if (mAnimationState->isDirty() ||
+			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()))
         {
+			Root& root = Root::getSingleton();
 			bool hwSkinning = isHardwareAnimationEnabled();
 			bool stencilShadows = 
 				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
@@ -542,6 +546,8 @@ namespace Ogre {
                 mParentNode->needUpdate();
 
 			mAnimationState->resetDirty();
+
+			mLastParentXform = getParentSceneNode()->_getFullTransform();
 
         }
     }
