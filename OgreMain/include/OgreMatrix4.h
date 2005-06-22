@@ -271,7 +271,7 @@ namespace Ogre
 
         /** Tests 2 matrices for inequality.
         */
-        inline bool operator != ( Matrix4& m2 ) const
+        inline bool operator != ( const Matrix4& m2 ) const
         {
             if( 
                 m[0][0] != m2.m[0][0] || m[0][1] != m2.m[0][1] || m[0][2] != m2.m[0][2] || m[0][3] != m2.m[0][3] ||
