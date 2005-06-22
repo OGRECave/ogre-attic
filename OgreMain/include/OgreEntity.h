@@ -188,6 +188,9 @@ namespace Ogre {
 		*/
 		SkeletonInstance* mSkeletonInstance;
 
+		/// Last parent xform
+		Matrix4 mLastParentXform;
+
 		/** Builds a list of SubEntities based on the SubMeshes contained in the Mesh. */
 		void buildSubEntityList(MeshPtr& mesh, SubEntityList* sublist);
 
