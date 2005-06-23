@@ -667,6 +667,8 @@ namespace Ogre {
 		*/
 		virtual Animation* getAnimation(unsigned short index) const;
 
+		/** Removes all morph Animations from this mesh. */
+		virtual void removeAllAnimations(void);
 		/** Gets a pointer to a vertex data element based on a morph animation 
 			track handle.
 		@remarks
