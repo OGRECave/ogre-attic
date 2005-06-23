@@ -31,6 +31,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreException.h"
+#include "OgreAnimation.h"
+#include "OgreAnimationTrack.h"
+#include "OgreKeyFrame.h"
 
 namespace Ogre {
 
@@ -90,7 +93,12 @@ namespace Ogre {
 		if (elem)
 			readSubMeshNames(elem, mpMesh);
 
-        delete mXMLDoc;
+		// animations
+		elem = rootElem->FirstChildElement("animations");
+		if (elem)
+			readAnimations(elem, mpMesh);
+
+		delete mXMLDoc;
 
         LogManager::getSingleton().logMessage("XMLMeshSerializer import successful.");
         
@@ -177,6 +185,8 @@ namespace Ogre {
 		}
         // Write submesh names
         writeSubMeshNames(rootNode, pMesh);
+		// Write animations
+		writeAnimations(rootNode, pMesh);
 
 
 
@@ -1189,6 +1199,223 @@ namespace Ogre {
 		}
         
 	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::readAnimations(TiXmlElement* mAnimationsNode, Mesh *pMesh)
+	{
+		TiXmlElement* animElem = mAnimationsNode->FirstChildElement("animation");
+		while (animElem)
+		{
+			String name = animElem->Attribute("name");
+			const char* charLen = animElem->Attribute("length");
+			Real len = StringConverter::parseReal(charLen);
+
+			Animation* anim = pMesh->createAnimation(name, len);
+
+			TiXmlElement* tracksNode = animElem->FirstChildElement("tracks");
+			if (tracksNode)
+			{
+				readTracks(tracksNode, pMesh, anim);
+			}
+
+			animElem = animElem->NextSiblingElement();
+
+		}
+
+
+	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::readTracks(TiXmlElement* tracksNode, Mesh *m, Animation* anim)
+	{
+		TiXmlElement* trackNode = tracksNode->FirstChildElement("track");
+		while (trackNode)
+		{
+			String target = trackNode->Attribute("target");
+			unsigned short targetID;
+			VertexData* vertexData = 0;
+			if(target == "mesh")
+			{
+				targetID = 0;
+				vertexData = m->sharedVertexData;
+			}
+			else
+			{
+				// submesh, get index
+				const char* val = trackNode->Attribute("index");
+				if (!val)
+				{
+					OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+						"Required attribute 'index' missing on submesh track", 
+						"XMLMeshSerializer::readTracks");
+				}
+				unsigned short submeshIndex = static_cast<unsigned short>(
+					StringConverter::parseUnsignedInt(val));
+
+				targetID = submeshIndex + 1;
+				vertexData = m->getSubMesh(submeshIndex)->vertexData;
+
+			}
+
+			if (!vertexData)
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Track cannot be created for " + target + " since VertexData "
+					"does not exist at the specified index", 
+					"XMLMeshSerializer::readTracks");
+			}
+
+			// Create track
+			VertexAnimationTrack* track = anim->createVertexTrack(targetID, vertexData);
+
+			TiXmlElement* keyframesNode = trackNode->FirstChildElement("keyframes");
+			if (keyframesNode)
+			{
+				readKeyFrames(keyframesNode, track, vertexData->vertexCount);
+			}
+
+			trackNode = trackNode->NextSiblingElement();
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::readKeyFrames(TiXmlElement* keyframesNode, 
+		VertexAnimationTrack* track, size_t vertexCount)
+	{
+		TiXmlElement* keyNode = keyframesNode->FirstChildElement("keyframe");
+		while (keyNode)
+		{
+			const char* val = keyNode->Attribute("time");
+			if (!val)
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Required attribute 'time' missing on keyframe", 
+					"XMLMeshSerializer::readKeyFrames");
+			}
+			Real time = StringConverter::parseReal(val);
+
+			VertexKeyFrame* kf = track->createVertexKeyFrame(time);
+
+			// create a vertex buffer
+			HardwareVertexBufferSharedPtr vbuf = 
+				HardwareBufferManager::getSingleton().createVertexBuffer(
+				VertexElement::getTypeSize(VET_FLOAT3), vertexCount, 
+				HardwareBuffer::HBU_STATIC, true);
+
+			float* pFloat = static_cast<float*>(
+				vbuf->lock(HardwareBuffer::HBL_DISCARD));
+
+
+			TiXmlElement* posNode = keyNode->FirstChildElement("position");
+			for (size_t v = 0; v < vertexCount; ++v)
+			{
+				if (!posNode)
+				{
+					OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+						"Not enough 'position' elements under keyframe", 
+						"XMLMeshSerializer::readKeyFrames");
+
+				}
+
+				*pFloat++ = StringConverter::parseReal(
+					posNode->Attribute("x"));
+				*pFloat++ = StringConverter::parseReal(
+					posNode->Attribute("y"));
+				*pFloat++ = StringConverter::parseReal(
+					posNode->Attribute("z"));
+
+
+				posNode = posNode->NextSiblingElement("position");
+			}
+
+			vbuf->unlock();
+
+			kf->setVertexBuffer(vbuf);
+				
+
+			keyNode = keyNode->NextSiblingElement();
+		}
+
+
+	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::writeAnimations(TiXmlElement* meshNode, const Mesh* m)
+	{
+		// Skip if no animation
+		if (!m->hasMorphAnimation())
+			return;
+
+		TiXmlElement* animationsNode = 
+			meshNode->InsertEndChild(TiXmlElement("animations"))->ToElement();
+
+		for (unsigned short a = 0; a < m->getNumAnimations(); ++a)
+		{
+			Animation* anim = m->getAnimation(a);
+
+			TiXmlElement* animNode = 
+				animationsNode->InsertEndChild(TiXmlElement("animation"))->ToElement();
+			animNode->SetAttribute("name", anim->getName());
+			animNode->SetAttribute("length", 
+				StringConverter::toString(anim->getLength()));
+
+			TiXmlElement* tracksNode = 
+				animationsNode->InsertEndChild(TiXmlElement("tracks"))->ToElement();
+			Animation::VertexTrackIterator iter = anim->getVertexTrackIterator();
+			while(iter.hasMoreElements())
+			{
+				const VertexAnimationTrack* track = iter.getNext();
+				TiXmlElement* trackNode = 
+					tracksNode->InsertEndChild(TiXmlElement("track"))->ToElement();
+
+				unsigned short targetID = track->getHandle();
+				if (targetID == 0)
+				{
+					trackNode->SetAttribute("target", "mesh");
+				}
+				else
+				{
+					trackNode->SetAttribute("target", "submesh");
+					trackNode->SetAttribute("index", 
+						StringConverter::toString(targetID-1));
+				}
+
+				writeKeyFrames(trackNode, track);
+
+			}
+		}
+
+		
+	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::writeKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track)
+	{
+		TiXmlElement* keyframesNode = 
+			trackNode->InsertEndChild(TiXmlElement("keyframes"))->ToElement();
+
+		size_t vertexCount = track->getAssociatedVertexData()->vertexCount;
+
+		for (unsigned short k = 0; k < track->getNumKeyFrames(); ++k)
+		{
+			VertexKeyFrame* kf = track->getVertexKeyFrame(k);
+			TiXmlElement* keyNode = 
+				keyframesNode->InsertEndChild(TiXmlElement("keyframe"))->ToElement();
+			keyNode->SetAttribute("time", 
+				StringConverter::toString(kf->getTime()));
+
+			HardwareVertexBufferSharedPtr vbuf = kf->getVertexBuffer();
+			float* pFloat = static_cast<float*>(
+				vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
+
+			for (size_t v = 0; v < vertexCount; ++v)
+			{
+				TiXmlElement* posNode = 
+					keyNode->InsertEndChild(TiXmlElement("position"))->ToElement();
+				posNode->SetAttribute("x", StringConverter::toString(*pFloat++));
+				posNode->SetAttribute("y", StringConverter::toString(*pFloat++));
+				posNode->SetAttribute("z", StringConverter::toString(*pFloat++));
+			}
+
+		}
+	}
+
+
 
 }
 
