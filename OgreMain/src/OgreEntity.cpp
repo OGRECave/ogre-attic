@@ -206,6 +206,10 @@ namespace Ogre {
                 delete mFrameBonesLastUpdated;
             }
         }
+		else if (hasMorphAnimation())
+		{
+			delete mAnimationState;
+		}
     }
 	//-----------------------------------------------------------------------
 	bool Entity::hasMorphAnimation(void) const

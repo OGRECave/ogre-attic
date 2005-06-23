@@ -207,6 +207,9 @@ namespace Ogre {
         // Removes all LOD data
         removeLodLevels();
         mPreparedForShadowVolumes = false;
+
+		// remove all animations
+		removeAllAnimations();
     }
 
     //-----------------------------------------------------------------------
@@ -1889,6 +1892,16 @@ namespace Ogre {
 
 		mAnimationsList.erase(i);
 
+	}
+	//---------------------------------------------------------------------
+	void Mesh::removeAllAnimations(void)
+	{
+		AnimationList::iterator i = mAnimationsList.begin();
+		for (; i != mAnimationsList.end(); ++i)
+		{
+			delete i->second;
+		}
+		mAnimationsList.clear();
 	}
 	//---------------------------------------------------------------------
 	VertexData* Mesh::getVertexDataByTrackHandle(unsigned short handle)
