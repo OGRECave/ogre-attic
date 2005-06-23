@@ -471,7 +471,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::removeAllChildren(void)
     {
+		ChildNodeMap::iterator i, iend;
+		iend = mChildren.end();
+		for (i = mChildren.begin(); i != iend; ++i)
+		{
+			i->second->setParent(0);
+		}
         mChildren.clear();
+		mChildrenToUpdate.clear();
     }
     //-----------------------------------------------------------------------
     void Node::setScale(const Vector3& scale)
