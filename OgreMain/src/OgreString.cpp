@@ -203,10 +203,12 @@ namespace Ogre {
 
         String::const_iterator strIt = tmpStr.begin();
         String::const_iterator patIt = tmpPattern.begin();
+		String::const_iterator lastWildCardIt = tmpPattern.end();
         while (strIt != tmpStr.end() && patIt != tmpPattern.end())
         {
             if (*patIt == '*')
             {
+				lastWildCardIt = patIt;
                 // Skip over looking for next character
                 ++patIt;
                 if (patIt == tmpPattern.end())
@@ -225,7 +227,18 @@ namespace Ogre {
             {
                 if (*patIt != *strIt)
                 {
-                    return false;
+					if (lastWildCardIt != tmpPattern.end())
+					{
+						// The last wildcard can match this incorrect sequence
+						// rewind pattern to wildcard and keep searching
+						patIt = lastWildCardIt;
+						lastWildCardIt = tmpPattern.end();
+					}
+					else
+					{
+						// no wildwards left
+						return false;
+					}
                 }
                 else
                 {
