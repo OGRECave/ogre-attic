@@ -125,7 +125,6 @@ namespace Ogre {
 #   endif
 
 #if defined( __MINGW32__ )
-    #define GCC_3_1
     #define EXT_HASH
 #else
     #define snprintf _snprintf

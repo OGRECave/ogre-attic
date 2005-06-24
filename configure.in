@@ -28,8 +28,7 @@ if test x$GCC = xyes; then
     AC_MSG_CHECKING([version 3.1 or above of gcc])
     if test -n "`$CC --version 2>&1|grep ' [[34]].'`"; then
         AC_DEFINE(EXT_HASH,, Use old STL hash options)
-        AC_DEFINE(GCC_3_1,, 3.1 GCC version)
-        AC_SUBST(OGRE_CFLAGS, "-DGCC_3_1 -DEXT_HASH")
+        AC_SUBST(OGRE_CFLAGS, "-DEXT_HASH")
         AC_MSG_RESULT(yes);
     else
         AC_MSG_RESULT(no)
