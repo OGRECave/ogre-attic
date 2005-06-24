@@ -1801,6 +1801,16 @@ namespace Ogre {
 					readAnimationTrack(stream, anim, pMesh);
 					break;
 				};
+				if (!stream->eof())
+				{
+					streamID = readChunk(stream);
+				}
+
+			}
+			if (!stream->eof())
+			{
+				// Backpedal back to start of stream
+				stream->skip(-STREAM_OVERHEAD_SIZE);
 			}
 		}
 	}
@@ -1830,6 +1840,16 @@ namespace Ogre {
 					readKeyFrame(stream, track);
 					break;
 				};
+				if (!stream->eof())
+				{
+					streamID = readChunk(stream);
+				}
+
+			}
+			if (!stream->eof())
+			{
+				// Backpedal back to start of stream
+				stream->skip(-STREAM_OVERHEAD_SIZE);
 			}
 		}
 
