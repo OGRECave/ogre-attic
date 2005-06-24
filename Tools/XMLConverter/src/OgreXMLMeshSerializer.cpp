@@ -1356,7 +1356,7 @@ namespace Ogre {
 				StringConverter::toString(anim->getLength()));
 
 			TiXmlElement* tracksNode = 
-				animationsNode->InsertEndChild(TiXmlElement("tracks"))->ToElement();
+				animNode->InsertEndChild(TiXmlElement("tracks"))->ToElement();
 			Animation::VertexTrackIterator iter = anim->getVertexTrackIterator();
 			while(iter.hasMoreElements())
 			{
