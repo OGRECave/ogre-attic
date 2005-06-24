@@ -126,6 +126,10 @@ namespace Ogre {
 		VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
 		/** Internal method for preparing this Entity for use in animation. */
 		void prepareTempBlendBuffers(void);
+		/** Internal method to copy original vertex data to the morph structures
+			should there be no active animation in use.
+		*/
+		void copyOriginalVertexDataToMorph(void);
 
 		/// Cached bone matrices, including any world transform
 		Matrix4 *mBoneMatrices;

@@ -338,5 +338,37 @@ namespace Ogre {
 			return Renderable::_updateCustomGpuParameter(constantEntry, params);
 		}
 	}
+	//-----------------------------------------------------------------------------
+	void SubEntity::copyOriginalVertexDataToMorph(void)
+	{
+		if (!mSubMesh->useSharedVertices)
+		{
+			const VertexElement* srcPosElem = 
+				mSubMesh->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			HardwareVertexBufferSharedPtr srcBuf = 
+				mSubMesh->vertexData->vertexBufferBinding->getBuffer(
+				srcPosElem->getSource());
+
+			// Bind to software
+			const VertexElement* destPosElem = 
+				mSoftwareMorphAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			mSoftwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				destPosElem->getSource(), srcBuf);
+
+			// Bind to hardware as both pos1 and pos2
+			if (!mHardwareMorphAnimVertexData->hwMorphTargetElement)
+				mHardwareMorphAnimVertexData->allocatehwMorphTargetElement();
+			destPosElem = 
+				mHardwareMorphAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			mHardwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				destPosElem->getSource(), srcBuf);
+			mHardwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				mHardwareMorphAnimVertexData->hwMorphTargetElement->getSource(),
+				srcBuf);
+			mHardwareMorphAnimVertexData->hwMorphParametric = 0.0f;
+
+		}
+	}
+
 
 }
