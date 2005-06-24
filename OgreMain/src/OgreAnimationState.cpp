@@ -175,11 +175,12 @@ namespace Ogre
     }
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
-	AnimationStateSet::AnimationStateSet()
+	AnimationStateSet::AnimationStateSet() : mDirty(true)
 	{
 	}
 	//---------------------------------------------------------------------
 	AnimationStateSet::AnimationStateSet(const AnimationStateSet& rhs)
+		: mDirty(true)
 	{
 		for (AnimationStateMap::const_iterator i = rhs.mAnimationStates.begin();
 			i != rhs.mAnimationStates.end(); ++i)

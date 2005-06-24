@@ -564,6 +564,7 @@ namespace Ogre {
 		AnimationStateIterator animIt = mAnimationState->getAnimationStateIterator();
 		MeshPtr msh = getMesh();
 		bool swAnim = !hardwareAnimation || stencilShadows;
+		bool foundAnim = false;
 		while(animIt.hasMoreElements())
 		{
 			AnimationState* state = animIt.getNext();
@@ -574,11 +575,55 @@ namespace Ogre {
 				{
 					anim->apply(this, state->getTimePosition(), 
 						swAnim, hardwareAnimation);
+					foundAnim = true;
 					break;
 				}
 			}
 		}
+		if (!foundAnim)
+		{
+			// There was no animation, so simply re-bind reference positions
+			copyOriginalVertexDataToMorph();
+
+		}
 		
+	}
+	//-----------------------------------------------------------------------------
+	void Entity::copyOriginalVertexDataToMorph(void)
+	{
+		if (mMesh->sharedVertexData)
+		{
+			const VertexElement* srcPosElem = 
+				mMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			HardwareVertexBufferSharedPtr srcBuf = 
+				mMesh->sharedVertexData->vertexBufferBinding->getBuffer(
+					srcPosElem->getSource());
+
+			// Bind to software
+			const VertexElement* destPosElem = 
+				mSoftwareMorphAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			mSoftwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				destPosElem->getSource(), srcBuf);
+
+			// Bind to hardware as both pos1 and pos2
+			if (!mHardwareMorphAnimVertexData->hwMorphTargetElement)
+				mHardwareMorphAnimVertexData->allocatehwMorphTargetElement();
+			destPosElem = 
+				mHardwareMorphAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			mHardwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				destPosElem->getSource(), srcBuf);
+			mHardwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				mHardwareMorphAnimVertexData->hwMorphTargetElement->getSource(),
+				srcBuf);
+			mHardwareMorphAnimVertexData->hwMorphParametric = 0.0f;
+			
+		}
+
+		for (SubEntityList::iterator i = mSubEntityList.begin(); 
+			i != mSubEntityList.end(); ++i)
+		{
+			(*i)->copyOriginalVertexDataToMorph();
+		}
 	}
 	//-----------------------------------------------------------------------
 	void Entity::_updateAnimation(void)

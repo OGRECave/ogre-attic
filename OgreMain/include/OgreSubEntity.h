@@ -177,6 +177,10 @@ namespace Ogre {
 		/// Retrieve the VertexData which should be used for GPU binding
 		VertexData* getVertexDataForBinding(void);
 
+		/** Internal method to copy original vertex data to the morph structures
+		should there be no active animation in use.
+		*/
+		void copyOriginalVertexDataToMorph(void);
 
 		/** Overridden from Renderble to provide some custom behaviour. */
 		void _updateCustomGpuParameter(
