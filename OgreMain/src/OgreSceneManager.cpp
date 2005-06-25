@@ -129,7 +129,9 @@ mShadowTextureReceiverVPDirty(false)
 
 	mShadowCasterQueryListener = new ShadowCasterSceneQueryListener(this);
 
-
+    Root *root = Root::getSingletonPtr();
+    if (root)
+        _setDestinationRenderSystem(root->getRenderSystem());
 }
 //-----------------------------------------------------------------------
 SceneManager::~SceneManager()
@@ -2815,6 +2817,11 @@ const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
 //---------------------------------------------------------------------
 void SceneManager::initShadowVolumeMaterials(void)
 {
+    /* This should have been set in the SceneManager constructor, but if you
+       created the SceneManager BEFORE the Root object, you will need to call
+       SceneManager::_setDestinationRenderSystem manually.
+     */
+    assert( mDestRenderSystem );
 
     if (mShadowMaterialInitDone)
         return;
