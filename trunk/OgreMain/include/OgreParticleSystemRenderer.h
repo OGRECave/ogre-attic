@@ -90,6 +90,11 @@ namespace Ogre {
 		*/
 		virtual void setRenderQueueGroup(RenderQueueGroupID queueID) = 0;
 
+		/** Setting carried over from ParticleSystem.
+		*/
+		virtual void setKeepParticlesInLocalSpace(bool keepLocal) = 0;
+
+
 
     };
 

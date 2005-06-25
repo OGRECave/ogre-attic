@@ -1655,6 +1655,8 @@ For a detailed description of the core particle system attributes, see the list 
 @ref{particle_renderer, renderer}
 @item
 @ref{particle_sorted, sorted}
+@item
+@ref{particle_localspace, local_space}
 @end itemize
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 
@@ -1712,7 +1714,7 @@ default: false@*
 
 Particle systems do not render themselves, they do it through ParticleRenderer classes. Those classes are registered with a manager in order to provide particle systems with a particular 'look'. OGRE comes configured with a default billboard-based renderer, but more can be added through plugins. Particle renders are registered with a unique name, and you can use that name in this attribute to determine the renderer to use. The default is 'billboard'.@*@*
 
-Particle renderers can have attributes, which can be passed by setting them on the root particle system.
+Particle renderers can have attributes, which can be passed by setting them on the root particle system.@*@*
 
 format: renderer <renderer_name>@*
 default: billboard@*
@@ -1720,9 +1722,17 @@ default: billboard@*
 @anchor{particle_sorted}
 @subheading sorted
 
-By default, particles are not sorted. By setting this attribute to 'true', theparticles will be sorted with respect to the camera, furthest first. This can make certain rendering effects look better at a small sorting expense.
+By default, particles are not sorted. By setting this attribute to 'true', theparticles will be sorted with respect to the camera, furthest first. This can make certain rendering effects look better at a small sorting expense.@*@*
 
 format: sorted <true|false>@*
+default: false@*
+
+@anchor{particle_localspace}
+@subheading local_space
+
+By default, particles are emitted into world space, such that if you transform the node to which the system is attached, it will not affect the particles (only the emitters). This tends to give the normal expected behaviour, which is to model how real world particles travel independently from the objects they are emitted from. However, to create some effects you may want the particles to remain attached to the local space the emitter is in and to follow them directly. This option allows you to do that.@*@*
+
+format: local_space <true|false>@*
 default: false@*
 
 @anchor{billboard_type}

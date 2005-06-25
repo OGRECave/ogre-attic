@@ -50,13 +50,14 @@ namespace Ogre {
     ParticleSystem::CmdWidth ParticleSystem::msWidthCmd;
     ParticleSystem::CmdRenderer ParticleSystem::msRendererCmd;
 	ParticleSystem::CmdSorted ParticleSystem::msSortedCmd;
+	ParticleSystem::CmdLocalSpace ParticleSystem::msLocalSpaceCmd;
 
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() 
       : mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
         mResourceGroupName(ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME),
-        mIsRendererConfigured(false), mSpeedFactor(1.0f), mSorted(false), mRenderer(0),
-        mCullIndividual(false), mPoolSize(0)
+        mIsRendererConfigured(false), mSpeedFactor(1.0f), mSorted(false), 
+		mLocalSpace(false), mRenderer(0),mCullIndividual(false), mPoolSize(0)
     {
         initParameters();
         mAABB.setExtents(-1, -1, -1, 1, 1, 1);
@@ -74,7 +75,8 @@ namespace Ogre {
     ParticleSystem::ParticleSystem(const String& name, const String& resourceGroup)
       : MovableObject(name), mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
         mResourceGroupName(resourceGroup), mIsRendererConfigured(false),
-		mSpeedFactor(1.0f), mRenderer(0), mCullIndividual(false), mPoolSize(0)
+		mSpeedFactor(1.0f), mSorted(false), mLocalSpace(false), mRenderer(0), 
+		mCullIndividual(false), mPoolSize(0)
     {
         setDefaultDimensions( 100, 100 );
         setMaterialName( "BaseWhite" );
@@ -217,6 +219,7 @@ namespace Ogre {
         setDefaultDimensions(rhs.mDefaultWidth, rhs.mDefaultHeight);
         mCullIndividual = rhs.mCullIndividual;
 		mSorted = rhs.mSorted;
+		mLocalSpace = rhs.mLocalSpace;
 
         setRenderer(rhs.getRendererName());
         // Copy settings
@@ -366,9 +369,14 @@ namespace Ogre {
                 (*itEmit)->_initParticle(p);
 
 				// Translate position & direction into world space
-                // Maybe make emitter do this?
-                p->position  = (mParentNode->_getDerivedOrientation() * p->position) + mParentNode->_getDerivedPosition();
-                p->direction = (mParentNode->_getDerivedOrientation() * p->direction);
+				if (!mLocalSpace)
+				{
+					p->position  = 
+						(mParentNode->_getDerivedOrientation() * p->position) 
+						+ mParentNode->_getDerivedPosition();
+					p->direction = 
+						(mParentNode->_getDerivedOrientation() * p->direction);
+				}
 
 				// apply partial frame motion to this particle
             	p->position += (p->direction * timePoint);
@@ -466,62 +474,6 @@ namespace Ogre {
             mRenderer->_updateRenderQueue(queue, mActiveParticles, mCullIndividual);
         }
     }
-    /*
-    //-----------------------------------------------------------------------
-    void ParticleSystem::genBillboardAxes(const Camera& cam, Vector3* pX, Vector3 *pY, const Billboard* pBill)    
-    {
-        // Orientation different from BillboardSet
-        // Billboards are in world space (to decouple them from emitters in node space)
-        Quaternion camQ;
-
-        switch (mBillboardType)
-        {
-        case BBT_POINT:
-            // Get camera world axes for X and Y (depth is irrelevant)
-            // No inverse transform
-            camQ = cam.getDerivedOrientation();
-            *pX = camQ * Vector3::UNIT_X;
-            *pY = camQ * Vector3::UNIT_Y;
-           
-            break;
-        case BBT_ORIENTED_COMMON:
-             // Y-axis is common direction
-            // X-axis is cross with camera direction 
-            *pY = mCommonDirection;
-            *pX = cam.getDerivedDirection().crossProduct(*pY);
-           
-            break;
-        case BBT_ORIENTED_SELF:
-            // Y-axis is direction
-            // X-axis is cross with camera direction 
-
-            // Scale direction first
-            *pY = (pBill->mDirection * 0.01);
-            *pX = cam.getDerivedDirection().crossProduct(*pY);
-
-            break;
-        }
-
-    }
-    //-----------------------------------------------------------------------
-    void ParticleSystem::getWorldTransforms(Matrix4* xform) const
-    {
-        // Particles are already in world space
-        *xform = Matrix4::IDENTITY;
-
-    }
-    //-----------------------------------------------------------------------
-    const Quaternion& ParticleSystem::getWorldOrientation(void) const
-    {
-        return mParentNode->_getDerivedOrientation();
-    }
-    //-----------------------------------------------------------------------
-    const Vector3& ParticleSystem::getWorldPosition(void) const
-    {
-        return mParentNode->_getDerivedPosition();
-    }
-    //-----------------------------------------------------------------------
-    */
     void ParticleSystem::initParameters(void)
     {
         if (createParamDictionary("ParticleSystem"))
@@ -562,6 +514,12 @@ namespace Ogre {
 				"Sets whether particles should be sorted relative to the camera. ",
 				PT_BOOL),
 				&msSortedCmd);
+
+			dict->addParameter(ParameterDef("local_space", 
+				"Sets whether particles should be kept in local space rather than "
+				"emitted into world space. ",
+				PT_BOOL),
+				&msLocalSpaceCmd);
         }
     }
     //-----------------------------------------------------------------------
@@ -608,19 +566,29 @@ namespace Ogre {
             mWorldAABB.setExtents(min, max);
 
 
-            // We've already put particles in world space to decouple them from the
+            // We've may have put particles in world space to decouple them from the
             // node transform, so reverse transform back since we're expected to 
             // provide a local AABB
             Vector3 temp;
             const Vector3 *corner = mWorldAABB.getAllCorners();
             Quaternion invQ = mParentNode->_getDerivedOrientation().Inverse();
-            Vector3 t = mParentNode->_getDerivedPosition();
+            Vector3 t;
+			if (mLocalSpace)
+			{
+				t = Vector3::ZERO;
+			}
+			else
+			{
+				t = mParentNode->_getDerivedPosition();
+			}
             min.x = min.y = min.z = Math::POS_INFINITY;
             max.x = max.y = max.z = Math::NEG_INFINITY;
             for (int i = 0; i < 8; ++i)
             {
                 // Reverse transform corner
-                temp = invQ * (corner[i] - t);
+				temp = corner[i] - t;
+				if (!mLocalSpace)
+                    temp = invQ * (corner[i] - t);
                 min.makeFloor(temp);
                 max.makeCeil(temp);
             }
@@ -784,6 +752,7 @@ namespace Ogre {
             mRenderer->_setMaterial(mat);
 			if (mRenderQueueIDSet)
 				mRenderer->setRenderQueueGroup(mRenderQueueID);
+			mRenderer->setKeepParticlesInLocalSpace(mLocalSpace);
             mIsRendererConfigured = true;
         }
     }
@@ -865,9 +834,23 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------
+	void ParticleSystem::setKeepParticlesInLocalSpace(bool keepLocal)
+	{
+		mLocalSpace = keepLocal;
+		if (mRenderer)
+		{
+			mRenderer->setKeepParticlesInLocalSpace(keepLocal);
+		}
+	}
+	//-----------------------------------------------------------------------
 	void ParticleSystem::_sortParticles(Camera* cam)
 	{
 		Quaternion camQ = cam->getDerivedOrientation();
+		if (mLocalSpace)
+		{
+			// transform the camera orientation into local space
+			camQ = mParentNode->_getDerivedOrientation().Inverse() * camQ;
+		}
 		mSortFunctor.sortDir = camQ * Vector3::UNIT_Z;
 
 		mRadixSorter.sort(mActiveParticles, mSortFunctor);
@@ -952,6 +935,17 @@ namespace Ogre {
 	void ParticleSystem::CmdSorted::doSet(void* target, const String& val)
 	{
 		static_cast<ParticleSystem*>(target)->setSortingEnabled(
+			StringConverter::parseBool(val));
+	}
+	//-----------------------------------------------------------------------
+	String ParticleSystem::CmdLocalSpace::doGet(const void* target) const
+	{
+		return StringConverter::toString(
+			static_cast<const ParticleSystem*>(target)->getKeepParticlesInLocalSpace());
+	}
+	void ParticleSystem::CmdLocalSpace::doSet(void* target, const String& val)
+	{
+		static_cast<ParticleSystem*>(target)->setKeepParticlesInLocalSpace(
 			StringConverter::parseBool(val));
 	}
     //-----------------------------------------------------------------------

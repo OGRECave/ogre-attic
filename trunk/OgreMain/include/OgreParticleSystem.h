@@ -103,6 +103,13 @@ namespace Ogre {
 			String doGet(const void* target) const;
 			void doSet(void* target, const String& val);
 		};
+		/** Command object for local space (see ParamCommand).*/
+		class CmdLocalSpace : public ParamCommand
+		{
+		public:
+			String doGet(const void* target) const;
+			void doSet(void* target, const String& val);
+		};
 
         /// Default constructor required for STL creation in manager
         ParticleSystem();
@@ -462,6 +469,22 @@ namespace Ogre {
         */
         void setBoundsAutoUpdated(bool autoUpdate, Real stopIn = 0.0f);
 
+		/** Sets whether particles (and any affector effects) remain relative 
+			to the node the particle system is attached to.
+		@remarks
+			By defalt particles are in world space once emitted, so they are not
+			affected by movement in the parent node of the particle system. This
+			makes the most sense when dealing with completely independent particles, 
+			but if you want to constrain them to follow local motion too, you
+			can set this to true.
+		*/
+		void setKeepParticlesInLocalSpace(bool keepLocal);
+
+		/** Gets whether particles (and any affector effects) remain relative 
+			to the node the particle system is attached to.
+		*/
+		bool getKeepParticlesInLocalSpace(void) const { return mLocalSpace; }
+
         /** Internal method for updating the bounds of the particle system.
         @remarks
             This is called automatically for a period of time after the system's
@@ -477,6 +500,8 @@ namespace Ogre {
         */
         void _updateBounds(void);
 
+		/// Override to return specific type flag
+		uint32 getTypeFlags(void) const;
     protected:
 
         /// Command objects
@@ -487,6 +512,7 @@ namespace Ogre {
         static CmdWidth msWidthCmd;
         static CmdRenderer msRendererCmd;
 		static CmdSorted msSortedCmd;
+		static CmdLocalSpace msLocalSpaceCmd;
 
 
         AxisAlignedBox mAABB;
@@ -513,6 +539,8 @@ namespace Ogre {
 		Real mSpeedFactor;
 		/// Particles sorted according to camera?
 		bool mSorted;
+		/// Particles in local space?
+		bool mLocalSpace;
 
         typedef std::list<Particle*> ActiveParticleList;
         typedef std::list<Particle*> FreeParticleList;
@@ -607,11 +635,6 @@ namespace Ogre {
 		void createVisualParticles(size_t poolstart, size_t poolend);
 		/// Internal method for destroying ParticleVisualData instances for the pool
 		void destroyVisualParticles(size_t poolstart, size_t poolend);
-
-
-		/// Override to return specific type flag
-		uint32 getTypeFlags(void) const;
-
 
     };
 
