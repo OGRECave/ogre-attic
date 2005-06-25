@@ -161,6 +161,11 @@ namespace Ogre {
 	{
 		mBillboardSet->setRenderQueueGroup(queueID);
 	}
+	//-----------------------------------------------------------------------
+	void BillboardParticleRenderer::setKeepParticlesInLocalSpace(bool keepLocal)
+	{
+		mBillboardSet->setBillboardsInWorldSpace(!keepLocal);
+	}
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------

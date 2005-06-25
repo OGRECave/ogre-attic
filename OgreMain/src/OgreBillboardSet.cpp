@@ -291,7 +291,10 @@ namespace Ogre {
 
 		// Get camera world axes for X and Y (depth is irrelevant)
 		// Convert into billboard local space
-		camQ = invTransform * camQ;
+		if (!mWorldSpace)
+		{
+			camQ = invTransform * camQ;
+		}
 		mSortFunctor.sortDir = camQ * Vector3::UNIT_Z;
 
 		mRadixSorter.sort(mActiveBillboards, mSortFunctor);
@@ -868,6 +871,7 @@ namespace Ogre {
             // X-axis is cross with camera direction 
             // Scale direction first
             *pY = bb->mDirection;
+			*pY *= 0.01f;
             if (!mWorldSpace)
             {
                 // Convert into billboard local space
@@ -876,7 +880,6 @@ namespace Ogre {
             }
             else
             {
-				*pY *= 0.01f;
                 *pX = cam->getDerivedDirection().crossProduct(*pY);
             }
 
