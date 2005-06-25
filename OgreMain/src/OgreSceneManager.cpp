@@ -439,7 +439,12 @@ void SceneManager::removeAllBillboardSets(void)
 void SceneManager::clearScene(void)
 {
 	removeAllStaticGeometry();
-    // Delete all SceneNodes, except root that is
+	// Clear root node of all children
+	mSceneRoot->removeAllChildren();
+	mSceneRoot->detachAllObjects();
+
+
+	// Delete all SceneNodes, except root that is
     for (SceneNodeList::iterator i = mSceneNodes.begin();
         i != mSceneNodes.end(); ++i)
     {
@@ -447,10 +452,6 @@ void SceneManager::clearScene(void)
     }
     mSceneNodes.clear();
     mAutoTrackingSceneNodes.clear();
-
-    // Clear root node of all children
-    mSceneRoot->removeAllChildren();
-    mSceneRoot->detachAllObjects();
 
     removeAllEntities();
     removeAllBillboardSets();

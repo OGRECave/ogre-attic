@@ -82,9 +82,9 @@ namespace Ogre {
 		}
 #endif//OGRE_FORCE_ANGLE_TYPES
         /// Construct a quaternion from 3 orthonormal local axes
-        inline Quaternion(const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis)
+        inline Quaternion(const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis)
         {
-            this->FromAxes(xAxis, yAxis, zAxis);
+            this->FromAxes(xaxis, yaxis, zaxis);
         }
         /// Construct a quaternion from 3 orthonormal local axes
         inline Quaternion(Vector3* akAxis)

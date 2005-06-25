@@ -160,27 +160,27 @@ namespace Ogre {
 		/** Constructor providing extents in the form of a Box object. This constructor
     		assumes the pixel data is laid out consecutively in memory. (this
     		means row after row, slice after slice, with no space in between)
-    		@param extents	Extents of the region defined by data
-    		@param format	Format of this buffer
-    		@param data		Pointer to the actual data
+    		@param extents	    Extents of the region defined by data
+    		@param pixelFormat	Format of this buffer
+    		@param pixelData	Pointer to the actual data
     	*/
-		PixelBox(const Box &extents, PixelFormat format, void *data=0):
-			Box(extents), data(data), format(format)
+		PixelBox(const Box &extents, PixelFormat pixelFormat, void *pixelData=0):
+			Box(extents), data(pixelData), format(pixelFormat)
 		{
 			setConsecutive();
 		}
     	/** Constructor providing width, height and depth. This constructor
     		assumes the pixel data is laid out consecutively in memory. (this
     		means row after row, slice after slice, with no space in between)
-    		@param width	Width of the region
-    		@param height	Height of the region
-    		@param depth	Depth of the region
-    		@param format	Format of this buffer
-    		@param data		Pointer to the actual data
+    		@param width	    Width of the region
+    		@param height	    Height of the region
+    		@param depth	    Depth of the region
+    		@param pixelFormat	Format of this buffer
+    		@param pixelData    Pointer to the actual data
     	*/
-    	PixelBox(size_t width, size_t height, size_t depth, PixelFormat format, void *data=0):
+    	PixelBox(size_t width, size_t height, size_t depth, PixelFormat pixelFormat, void *pixelData=0):
     		Box(0, 0, 0, width, height, depth),
-    		data(data), format(format)
+    		data(pixelData), format(pixelFormat)
     	{
     		setConsecutive();
     	}

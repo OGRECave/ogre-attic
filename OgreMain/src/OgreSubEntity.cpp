@@ -253,31 +253,34 @@ namespace Ogre {
 			mHardwareMorphAnimVertexData = 0;
 		}
 
-		if (mParentEntity->hasMorphAnimation())
+		if (!mSubMesh->useSharedVertices)
 		{
-			// Create temporary vertex blend info
-			// Prepare temp vertex data if needed
-			// Clone without copying data, remove blending info
-			// (since blend is performed in software)
-			mSoftwareMorphAnimVertexData = 
-				mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-			mParentEntity->extractTempBufferInfo(mSoftwareMorphAnimVertexData, &mTempMorphAnimInfo);
+			if (mParentEntity->hasMorphAnimation())
+			{
+				// Create temporary vertex blend info
+				// Prepare temp vertex data if needed
+				// Clone without copying data, remove blending info
+				// (since blend is performed in software)
+				mSoftwareMorphAnimVertexData = 
+					mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+				mParentEntity->extractTempBufferInfo(mSoftwareMorphAnimVertexData, &mTempMorphAnimInfo);
 
-			// Also clone for hardware usage, don't remove blend info since we'll
-			// need it if we also hardware skeletally animate
-			mHardwareMorphAnimVertexData = mSubMesh->vertexData->clone(false);
-		}
+				// Also clone for hardware usage, don't remove blend info since we'll
+				// need it if we also hardware skeletally animate
+				mHardwareMorphAnimVertexData = mSubMesh->vertexData->clone(false);
+			}
 
-		if (mParentEntity->hasSkeleton())
-		{
-			// Create temporary vertex blend info
-			// Prepare temp vertex data if needed
-			// Clone without copying data, remove blending info
-			// (since blend is performed in software)
-			mSkelAnimVertexData = 
-				mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-			mParentEntity->extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
+			if (mParentEntity->hasSkeleton())
+			{
+				// Create temporary vertex blend info
+				// Prepare temp vertex data if needed
+				// Clone without copying data, remove blending info
+				// (since blend is performed in software)
+				mSkelAnimVertexData = 
+					mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
+				mParentEntity->extractTempBufferInfo(mSkelAnimVertexData, &mTempSkelAnimInfo);
 
+			}
 		}
     }
     //-----------------------------------------------------------------------
