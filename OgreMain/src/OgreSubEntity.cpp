@@ -212,10 +212,15 @@ namespace Ogre {
             delete mBlendedVertexData;
             mBlendedVertexData = 0;
         }
-        // Clone without copying data
-        mBlendedVertexData = 
-            mParentEntity->cloneVertexDataRemoveBlendInfo(mSubMesh->vertexData);
-        mParentEntity->extractTempBufferInfo(mBlendedVertexData, &mTempBlendedBuffer);
+		if (!mSubMesh->useSharedVertices)
+		{
+			// Clone without copying data
+			mBlendedVertexData = 
+            	mParentEntity->cloneVertexDataRemoveBlendInfo(
+					mSubMesh->vertexData);
+			mParentEntity->extractTempBufferInfo(
+				mBlendedVertexData, &mTempBlendedBuffer);
+		}
     }
     //-----------------------------------------------------------------------
     bool SubEntity::getCastsShadows(void) const
