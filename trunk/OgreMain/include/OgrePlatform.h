@@ -52,7 +52,9 @@ namespace Ogre {
 
 #elif defined( __GNUC__ )
 #   define OGRE_COMPILER OGRE_COMPILER_GNUC
-#   define OGRE_COMP_VER (((__GNUC__)*100)+__GNUC_MINOR__)
+#   define OGRE_COMP_VER (((__GNUC__)*100) + \
+        (__GNUC_MINOR__*10) + \
+        __GNUC_PATCHLEVEL__)
 
 #elif defined( __BORLANDC__ )
 #   define OGRE_COMPILER OGRE_COMPILER_BORL

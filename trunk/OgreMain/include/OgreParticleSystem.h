@@ -433,6 +433,49 @@ namespace Ogre {
 		/// Gets whether particles are sorted relative to the camera.
 		bool getSortingEnabled(void) const { return mSorted; }
 
+        /** Set the (initial) bounds of the particle system manually. 
+        @remarks
+            If you can, set the bounds of a particle system up-front and 
+            call setBoundsUpdatePeriod(0); this is the most efficient way to
+            organise it. Otherwise, set an initial bounds and let the bounds increase
+            for a little while (the default is 5 seconds), after which time the 
+            AABB is fixed to save time.
+        @param aabb Bounds in local space.
+        */
+        void setBounds(const AxisAlignedBox& aabb);
+
+        /** Sets whether the bounds will be automatically updated
+            for the life of the particle system
+        @remarks
+            If you have a stationary particle system, it would be a good idea to
+            call this method and set the value to 'false', since the maximum
+            bounds of the particle system will eventually be static. If you do
+            this, you can either set the bounds manually using the setBounds()
+            method, or set the second parameter of this method to a positive
+            number of seconds, so that the bounds are calculated for a few
+            seconds and then frozen.
+        @param autoUpdate If true (the default), the particle system will
+            update it's bounds every frame. If false, the bounds update will 
+            cease after the 'stopIn' number of seconds have passed.
+        @param stopIn Only applicable if the first parameter is true, this is the
+            number of seconds after which the automatic update will cease.
+        */
+        void setBoundsAutoUpdated(bool autoUpdate, Real stopIn = 0.0f);
+
+        /** Internal method for updating the bounds of the particle system.
+        @remarks
+            This is called automatically for a period of time after the system's
+            creation (5 seconds by default, settable by setBoundsUpdatePeriod) 
+            to increase (and only increase) the bounds of the system according 
+            to the emitted and affected particles. After this period, the 
+            system is assumed to achieved its maximum size, and the bounds are
+            no longer computed for efficiency. You can tweak the behaviour by 
+            either setting the bounds manually (setBounds, preferred), or 
+            changing the time over which the bounds are updated (performance cost).
+            You can also call this method manually if you need to update the 
+            bounds on an ad-hoc basis.
+        */
+        void _updateBounds(void);
 
     protected:
 
@@ -565,49 +608,6 @@ namespace Ogre {
 		/// Internal method for destroying ParticleVisualData instances for the pool
 		void destroyVisualParticles(size_t poolstart, size_t poolend);
 
-        /** Set the (initial) bounds of the particle system manually. 
-        @remarks
-            If you can, set the bounds of a particle system up-front and 
-            call setBoundsUpdatePeriod(0); this is the most efficient way to
-            organise it. Otherwise, set an initial bounds and let the bounds increase
-            for a little while (the default is 5 seconds), after which time the 
-            AABB is fixed to save time.
-        @param aabb Bounds in local space.
-        */
-        void setBounds(const AxisAlignedBox& aabb);
-
-        /** Sets whether the bounds will be automatically updated
-            for the life of the particle system
-        @remarks
-            If you have a stationary particle system, it would be a good idea to
-            call this method and set the value to 'false', since the maximum
-            bounds of the particle system will eventually be static. If you do
-            this, you can either set the bounds manually using the setBounds()
-            method, or set the second parameter of this method to a positive
-            number of seconds, so that the bounds are calculated for a few
-            seconds and then frozen.
-        @param autoUpdate If true (the default), the particle system will
-            update it's bounds every frame. If false, the bounds update will 
-            cease after the 'stopIn' number of seconds have passed.
-        @param stopIn Only applicable if the first parameter is true, this is the
-            number of seconds after which the automatic update will cease.
-        */
-        void setBoundsAutoUpdated(bool autoUpdate, Real stopIn = 0.0f);
-
-        /** Internal method for updating the bounds of the particle system.
-        @remarks
-            This is called automatically for a period of time after the system's
-            creation (5 seconds by default, settable by setBoundsUpdatePeriod) 
-            to increase (and only increase) the bounds of the system according 
-            to the emitted and affected particles. After this period, the 
-            system is assumed to achieved its maximum size, and the bounds are
-            no longer computed for efficiency. You can tweak the behaviour by 
-            either setting the bounds manually (setBounds, preferred), or 
-            changing the time over which the bounds are updated (performance cost).
-            You can also call this method manually if you need to update the 
-            bounds on an ad-hoc basis.
-        */
-        void _updateBounds(void);
 
 		/// Override to return specific type flag
 		uint32 getTypeFlags(void) const;

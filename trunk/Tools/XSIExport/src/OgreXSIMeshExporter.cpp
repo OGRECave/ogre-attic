@@ -307,6 +307,19 @@ namespace Ogre {
 		String str = msg.str();
 		LogOgreAndXSI(str);
 #endif
+		if (mCurrentTextureCoordDimensions.size() > OGRE_MAX_TEXTURE_COORD_SETS)
+		{
+			// too many texture coordinates!
+			StringUtil::StrStreamType str;
+			str << "PolygonMesh '" << XSItoOgre(xsiMesh->mesh.GetName()) 
+				<< "' has too many texture coordinate sets (" 
+				<< mCurrentTextureCoordDimensions.size()
+				<< "); the limit is " << OGRE_MAX_TEXTURE_COORD_SETS;
+
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), 
+				"XsiMeshExporter::processPolygonMesh");
+
+		}
 		
 		// Save transforms
 		MATH::CTransformation xsiTransform = xsiMesh->obj.GetKinematics().GetGlobal().GetTransform();

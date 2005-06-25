@@ -120,7 +120,7 @@ namespace Ogre {
     #	define _TO_CHAR( x ) x
     #endif
 
-    #if OGRE_COMPILER == OGRE_COMPILER_GNUC
+    #if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310
     #   define HashMap ::__gnu_cxx::hash_map
     #else
     #   if OGRE_COMPILER == OGRE_COMPILER_MSVC
@@ -263,6 +263,7 @@ namespace Ogre {
     class MeshSerializerImpl;
     class MeshManager;
     class MovableObject;
+    class MovablePlane;
 	class MouseEvent;
 	class MouseListener;
 	class MouseMotionListener;

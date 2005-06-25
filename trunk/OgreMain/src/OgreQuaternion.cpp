@@ -170,21 +170,21 @@ namespace Ogre {
         FromRotationMatrix(kRot);
     }
     //-----------------------------------------------------------------------
-    void Quaternion::FromAxes (const Vector3& xAxis, const Vector3& yAxis, const Vector3& zAxis)
+    void Quaternion::FromAxes (const Vector3& xaxis, const Vector3& yaxis, const Vector3& zaxis)
     {
         Matrix3 kRot;
 
-        kRot[0][0] = xAxis.x;
-        kRot[1][0] = xAxis.y;
-        kRot[2][0] = xAxis.z;
+        kRot[0][0] = xaxis.x;
+        kRot[1][0] = xaxis.y;
+        kRot[2][0] = xaxis.z;
 
-        kRot[0][1] = yAxis.x;
-        kRot[1][1] = yAxis.y;
-        kRot[2][1] = yAxis.z;
+        kRot[0][1] = yaxis.x;
+        kRot[1][1] = yaxis.y;
+        kRot[2][1] = yaxis.z;
 
-        kRot[0][2] = zAxis.x;
-        kRot[1][2] = zAxis.y;
-        kRot[2][2] = zAxis.z;
+        kRot[0][2] = zaxis.x;
+        kRot[1][2] = zaxis.y;
+        kRot[2][2] = zaxis.z;
 
         FromRotationMatrix(kRot);
 
@@ -249,23 +249,23 @@ namespace Ogre {
         return Vector3(fTxz+fTwy, fTyz-fTwx, 1.0-(fTxx+fTyy));
     }
     //-----------------------------------------------------------------------
-    void Quaternion::ToAxes (Vector3& xAxis, Vector3& yAxis, Vector3& zAxis) const
+    void Quaternion::ToAxes (Vector3& xaxis, Vector3& yaxis, Vector3& zaxis) const
     {
         Matrix3 kRot;
 
         ToRotationMatrix(kRot);
 
-        xAxis.x = kRot[0][0];
-        xAxis.y = kRot[1][0];
-        xAxis.z = kRot[2][0];
+        xaxis.x = kRot[0][0];
+        xaxis.y = kRot[1][0];
+        xaxis.z = kRot[2][0];
 
-        yAxis.x = kRot[0][1];
-        yAxis.y = kRot[1][1];
-        yAxis.z = kRot[2][1];
+        yaxis.x = kRot[0][1];
+        yaxis.y = kRot[1][1];
+        yaxis.z = kRot[2][1];
 
-        zAxis.x = kRot[0][2];
-        zAxis.y = kRot[1][2];
-        zAxis.z = kRot[2][2];
+        zaxis.x = kRot[0][2];
+        zaxis.y = kRot[1][2];
+        zaxis.z = kRot[2][2];
     }
 
     //-----------------------------------------------------------------------

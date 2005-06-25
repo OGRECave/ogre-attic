@@ -27,8 +27,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-// If we're using the GCC 
-#if OGRE_COMPILER == OGRE_COMPILER_GNUC
+// If we're using the GCC 3.1 C++ Std lib
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310
 
 #include <ext/hash_map>
 namespace __gnu_cxx
@@ -163,7 +163,7 @@ namespace Ogre {
     };
 
 
-#if OGRE_COMPILER == OGRE_COMPILER_GNUC
+#if OGRE_COMPILER == OGRE_COMPILER_GNUC && OGRE_COMP_VER >= 310
     typedef ::__gnu_cxx::hash< _StringBase > _StringHash;    
 #elif !defined( _STLP_HASH_FUN_H )
 #	if _DEFINE_DEPRECATED_HASH_CLASSES

@@ -25,8 +25,10 @@ AC_PROG_LIBTOOL
 
 dnl GCC version check
 if test x$GCC = xyes; then
-    AC_MSG_CHECKING([version 3.x of gcc])
-    if test -n "`$CC --version 2>&1|grep '3.'`"; then
+    AC_MSG_CHECKING([version 3.1 or above of gcc])
+    if test -n "`$CC --version 2>&1|grep ' [[34]].'`"; then
+        AC_DEFINE(EXT_HASH,, Use old STL hash options)
+        AC_SUBST(OGRE_CFLAGS, "-DEXT_HASH")
         AC_MSG_RESULT(yes);
     else
         AC_MSG_RESULT(no)!

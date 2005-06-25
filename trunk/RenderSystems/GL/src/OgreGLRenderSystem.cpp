@@ -327,12 +327,15 @@ namespace Ogre {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
 
-			// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
-			// only increased this on the FX/6x00 series
-			GLint arbUnits;
-			glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &arbUnits );
-			if (arbUnits > units)
-				units = arbUnits;
+			if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
+			{
+				// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
+				// only increased this on the FX/6x00 series
+				GLint arbUnits;
+				glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &arbUnits );
+				if (arbUnits > units)
+					units = arbUnits;
+			}
 	    
             mCapabilities->setNumTextureUnits(units);
 
