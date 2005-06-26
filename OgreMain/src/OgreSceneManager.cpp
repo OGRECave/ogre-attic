@@ -527,25 +527,26 @@ void SceneManager::removeAllBillboardSets(void)
 void SceneManager::clearScene(void)
 {
 	removeAllStaticGeometry();
-	// Clear root node of all children
-	mSceneRoot->removeAllChildren();
-	mSceneRoot->detachAllObjects();
-
-
-	// Delete all SceneNodes, except root that is
-    for (SceneNodeList::iterator i = mSceneNodes.begin();
-        i != mSceneNodes.end(); ++i)
-    {
-        delete i->second;
-    }
-    mSceneNodes.clear();
-    mAutoTrackingSceneNodes.clear();
-
     removeAllEntities();
     removeAllBillboardSets();
     removeAllLights();
 
-    // Clear animations
+	// Clear root node of all children
+	mSceneRoot->removeAllChildren();
+	mSceneRoot->detachAllObjects();
+
+	// Delete all SceneNodes, except root that is
+	for (SceneNodeList::iterator i = mSceneNodes.begin();
+		i != mSceneNodes.end(); ++i)
+	{
+		delete i->second;
+	}
+	mSceneNodes.clear();
+	mAutoTrackingSceneNodes.clear();
+
+
+	
+	// Clear animations
     destroyAllAnimations();
 
     // Remove sky nodes since they've been deleted
@@ -608,6 +609,13 @@ void SceneManager::destroySceneNode(const String& name)
         }
     }
 
+	// detach from parent (don't do this in destructor since bulk destruction
+	// behaves differently)
+	Node* parentNode = i->second->getParent();
+	if (parentNode)
+	{
+		parentNode->removeChild(i->second);
+	}
     delete i->second;
     mSceneNodes.erase(i);
 }
