@@ -2281,7 +2281,7 @@ void SceneManager::useRenderableViewProjMode(Renderable* pRend)
     else if (!useIdentityView && (mCamChanged || lastViewWasIdentity))
     {
         // Coming back to normal from identity view
-        mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix());
+        mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
         lastViewWasIdentity = false;
     }
 

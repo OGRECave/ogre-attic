@@ -86,6 +86,7 @@ namespace Ogre {
 
         mWindowSet = false;
         mAutoAspectRatio = false;
+		mCullFrustum = 0;
     }
 
     //-----------------------------------------------------------------------
@@ -640,5 +641,129 @@ namespace Ogre {
     {
         mAutoAspectRatio = autoratio;
     }
+	//-----------------------------------------------------------------------
+	bool Camera::isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->isVisible(bound, culledBy);
+		}
+		else
+		{
+			return Frustum::isVisible(bound, culledBy);
+		}
+	}
+	//-----------------------------------------------------------------------
+	bool Camera::isVisible(const Sphere& bound, FrustumPlane* culledBy) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->isVisible(bound, culledBy);
+		}
+		else
+		{
+			return Frustum::isVisible(bound, culledBy);
+		}
+	}
+	//-----------------------------------------------------------------------
+	bool Camera::isVisible(const Vector3& vert, FrustumPlane* culledBy) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->isVisible(vert, culledBy);
+		}
+		else
+		{
+			return Frustum::isVisible(vert, culledBy);
+		}
+	}
+	//-----------------------------------------------------------------------
+	const Vector3* Camera::getWorldSpaceCorners(void) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->getWorldSpaceCorners();
+		}
+		else
+		{
+			return Frustum::getWorldSpaceCorners();
+		}
+	}
+	//-----------------------------------------------------------------------
+	const Plane& Camera::getFrustumPlane( unsigned short plane ) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->getFrustumPlane(plane);
+		}
+		else
+		{
+			return Frustum::getFrustumPlane(plane);
+		}
+	}
+	//-----------------------------------------------------------------------
+	bool Camera::projectSphere(const Sphere& sphere, 
+		Real* left, Real* top, Real* right, Real* bottom) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->projectSphere(sphere, left, top, right, bottom);
+		}
+		else
+		{
+			return Frustum::projectSphere(sphere, left, top, right, bottom);
+		}
+	}
+	//-----------------------------------------------------------------------
+	Real Camera::getNearClipDistance(void) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->getNearClipDistance();
+		}
+		else
+		{
+			return Frustum::getNearClipDistance();
+		}
+	}
+	//-----------------------------------------------------------------------
+	Real Camera::getFarClipDistance(void) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->getFarClipDistance();
+		}
+		else
+		{
+			return Frustum::getFarClipDistance();
+		}
+	}
+	//-----------------------------------------------------------------------
+	const Matrix4& Camera::getViewMatrix(void) const
+	{
+		if (mCullFrustum)
+		{
+			return mCullFrustum->getViewMatrix();
+		}
+		else
+		{
+			return Frustum::getViewMatrix();
+		}
+	}
+	//-----------------------------------------------------------------------
+	const Matrix4& Camera::getViewMatrix(bool ownFrustumOnly) const
+	{
+		if (ownFrustumOnly)
+		{
+			return Frustum::getViewMatrix();
+		}
+		else
+		{
+			return getViewMatrix();
+		}
+	}
+	//-----------------------------------------------------------------------
+
+
 
 } // namespace Ogre

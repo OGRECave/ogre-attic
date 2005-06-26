@@ -180,7 +180,7 @@ namespace Ogre {
         // no world transform required
         mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
         // Set view / proj
-        mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix());
+        mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
         mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrix());
 
         // For each material in turn, cache rendering data & render
