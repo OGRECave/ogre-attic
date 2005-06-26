@@ -133,6 +133,8 @@ namespace Ogre {
             when a vieport changes its size
         */
         bool mAutoAspectRatio;
+		/// Custom culling frustum
+		Frustum *mCullFrustum;
 
         // Internal functions for calcs
         void updateFrustum(void) const;
@@ -453,6 +455,52 @@ namespace Ogre {
         /** Retreives if AutoAspectRatio is currently set or not
         */
         bool getAutoAspectRatio(void) const;
+
+		/** Tells the camera to use a separate Frustum instance to perform culling.
+		@remarks
+			By calling this method, you can tell the camera to perform culling
+			against a different frustum to it's own. This is mostly useful for
+			debug cameras that allow you to show the culling behaviour of another
+			camera, or a manual frustum instance. 
+		@note
+			Not everything will be guaranteed to be displayed as
+		@param frustum Pointer to a frustum to use; this can either be a manual
+			Frustum instance (which you can attach to scene nodes like any other
+			MovableObject), or another camera. If you pass 0 to this method it
+			reverts the camera to normal behaviour.
+		*/
+		void setCullingFrustum(Frustum* frustum) { mCullFrustum = frustum; }
+		/** Returns the custom culling frustum in use. */
+		Frustum* getCullingFrustum(void) { return mCullFrustum; }
+
+		/// @copydoc Frustum::isVisible
+		bool isVisible(const AxisAlignedBox& bound, FrustumPlane* culledBy = 0) const;
+		/// @copydoc Frustum::isVisible
+		bool isVisible(const Sphere& bound, FrustumPlane* culledBy = 0) const;
+		/// @copydoc Frustum::isVisible
+		bool isVisible(const Vector3& vert, FrustumPlane* culledBy = 0) const;
+		/// @copydoc Frustum::getWorldSpaceCorners
+		const Vector3* getWorldSpaceCorners(void) const;
+		/// @copydoc Frustum::getFrustumPlane
+		const Plane& getFrustumPlane( unsigned short plane ) const;
+		/// @copydoc Frustum::projectSphere
+		bool projectSphere(const Sphere& sphere, 
+			Real* left, Real* top, Real* right, Real* bottom) const;
+		/// @copydoc Frustum::getNearClipDistance
+		Real getNearClipDistance(void) const;
+		/// @copydoc Frustum::getFarClipDistance
+		Real getFarClipDistance(void) const;
+		/// @copydoc Frustum::getViewMatrix
+		const Matrix4& getViewMatrix(void) const;
+		/** Specialised version of getViewMatrix allowing caller to differentiate
+			whether the custom culling frustum should be allowed or not. 
+		@remarks
+			The default behaviour of the standard getViewMatrix is to delegate to 
+			the alternate culling frustum, if it is set. This is expected when 
+			performing CPU calculations, but the final rendering must be performed
+			using the real view matrix in order to display the correct debug view.
+		*/
+		const Matrix4& getViewMatrix(bool ownFrustumOnly) const;
      };
 
 } // namespace Ogre

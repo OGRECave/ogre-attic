@@ -133,7 +133,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getViewMatrix(void) const
     {
-        return mCurrentCamera->getViewMatrix();
+        return mCurrentCamera->getViewMatrix(true);
     }
     //-----------------------------------------------------------------------------
     const Matrix4& AutoParamDataSource::getViewProjectionMatrix(void) const
