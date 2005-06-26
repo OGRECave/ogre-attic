@@ -55,7 +55,7 @@ namespace Ogre {
 		@remarks Note that this is created for you on construction.
 		*/
 		VertexBufferBinding* vertexBufferBinding;
-		/// The base vertex index to start from, if using unindexed geometry
+		/// The base vertex index to start from
 		size_t vertexStart;
 		/// The number of vertices used in this operation
 		size_t vertexCount;
