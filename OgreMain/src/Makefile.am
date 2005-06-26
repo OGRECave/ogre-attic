@@ -155,4 +155,4 @@ libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
 endif
 
 libOgreMain_la_LIBADD= $(STLPORT_LIBS) $(FT2_LIBS) $(ZZIPLIB_LIBS) $(OGRE_THREAD_LIBS)
-libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -version-info @OGREMAIN_VERSION_INFO@ -Wl,--version-script=ogremain.map
+libOgreMain_la_LDFLAGS = $(SHARED_FLAGS) -version-info @OGREMAIN_VERSION_INFO@ -Wl,--version-script=$(top_srcdir)/OgreMain/src/ogremain.map
