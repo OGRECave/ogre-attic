@@ -462,8 +462,6 @@ namespace Ogre {
 			against a different frustum to it's own. This is mostly useful for
 			debug cameras that allow you to show the culling behaviour of another
 			camera, or a manual frustum instance. 
-		@note
-			Not everything will be guaranteed to be displayed as
 		@param frustum Pointer to a frustum to use; this can either be a manual
 			Frustum instance (which you can attach to scene nodes like any other
 			MovableObject), or another camera. If you pass 0 to this method it
