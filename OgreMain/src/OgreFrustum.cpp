@@ -519,15 +519,19 @@ namespace Ogre {
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.x = combo[3][0] + combo[2][0];
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.y = combo[3][1] + combo[2][1];
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.z = combo[3][2] + combo[2][2];
-            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = combo[3][3] + combo[2][3];
+			mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.normalise();
+			mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = 
+				-(mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.dotProduct(position) + mNearDist);
 
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.x = combo[3][0] - combo[2][0];
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.y = combo[3][1] - combo[2][1];
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.z = combo[3][2] - combo[2][2];
-            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = combo[3][3] - combo[2][3];
+			mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.normalise();
+			mFrustumPlanes[FRUSTUM_PLANE_FAR].d = 
+				-(mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.dotProduct(position) - mFarDist);
 
-            // Renormalise any normals which were not unit length
-            for(int i=0; i<6; i++ ) 
+            // Renormalise any normals which were not unit length (not near & far)
+            for(int i=2; i<6; i++ ) 
             {
                 float length = mFrustumPlanes[i].normal.normalise();
                 mFrustumPlanes[i].d /= length;
