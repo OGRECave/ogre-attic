@@ -958,7 +958,7 @@ namespace Ogre {
             unsigned char* pDest = static_cast<unsigned char*>(
                 newBuffer->lock(HardwareBuffer::HBL_DISCARD));
             size_t vertSize = origBuffer->getVertexSize();
-            for (int v = 0; v < vertexData->vertexCount; ++v)
+            for (size_t v = 0; v < vertexData->vertexCount; ++v)
             {
                 // Copy original vertex data
                 memcpy(pDest, pSrc, vertSize);

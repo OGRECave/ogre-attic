@@ -45,6 +45,7 @@ namespace Ogre
             call would not be polymorphic.
 		*/
 		Timer() ;
+        virtual ~Timer() { }
 		
 		/** Resets timer 
 		*/
