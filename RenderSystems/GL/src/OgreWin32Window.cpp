@@ -331,6 +331,11 @@ namespace Ogre {
 			return;
 
 		RECT rc;
+		// top and left represent outer window position
+		GetWindowRect(mHWnd, &rc);
+		mTop = rc.top;
+		mLeft = rc.left;
+		// width and height represent drawable area only
 		GetClientRect(mHWnd, &rc);
 
 		if (mWidth == rc.right && mHeight == rc.bottom)

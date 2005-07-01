@@ -239,7 +239,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     size_t ParticleSystem::getParticleQuota(void) const
     {
-        return mParticlePool.size();
+        return mPoolSize;
     }
     //-----------------------------------------------------------------------
     void ParticleSystem::setParticleQuota(size_t size)
@@ -249,20 +249,8 @@ namespace Ogre {
 
         if( currSize < size )
         {
-            this->increasePool(size);
-
-            for( size_t i = currSize; i < size; ++i )
-            {
-                // Add new items to the queue
-                mFreeParticles.push_back( mParticlePool[i] );
-            }
-
+            // Will allocate particles on demand
             mPoolSize = size;
-            // Tell the renderer
-            if (mRenderer)
-            {
-                mRenderer->_notifyParticleQuota(size);
-            }
             
         }
     }
@@ -332,7 +320,7 @@ namespace Ogre {
 			    
         iEmitEnd = mEmitters.end();
         emitterCount = mEmitters.size();
-        emissionAllowed = getParticleQuota() - mActiveParticles.size();
+        emissionAllowed = mFreeParticles.size();
         totalRequested = 0;
 
         // Count up total requested emissions
@@ -740,6 +728,26 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::configureRenderer(void)
     {
+        // Actual allocate particles
+        size_t currSize = mParticlePool.size();
+        size_t size = mPoolSize;
+        if( currSize < size )
+        {
+            this->increasePool(size);
+
+            for( size_t i = currSize; i < size; ++i )
+            {
+                // Add new items to the queue
+                mFreeParticles.push_back( mParticlePool[i] );
+            }
+
+            // Tell the renderer, if already configured
+            if (mRenderer && mIsRendererConfigured)
+            {
+                mRenderer->_notifyParticleQuota(size);
+            }
+        }
+
         if (mRenderer && !mIsRendererConfigured)
         {
             mRenderer->_notifyParticleQuota(mParticlePool.size());
