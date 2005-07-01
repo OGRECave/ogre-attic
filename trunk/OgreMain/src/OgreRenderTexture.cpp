@@ -44,6 +44,7 @@ namespace Ogre
         mHeight = height;
         mPriority = OGRE_REND_TO_TEX_RT_GROUP;
         mInternalFormat = format;
+		mColourDepth = PixelUtil::getNumElemBits(format);
 
 		mTexture = TextureManager::getSingleton().createManual( mName, 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 

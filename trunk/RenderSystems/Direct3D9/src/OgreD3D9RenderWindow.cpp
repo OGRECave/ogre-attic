@@ -521,6 +521,10 @@ namespace Ogre
 	{
 		if (mHWnd && !mIsFullScreen)
 		{
+			RECT rc = { 0, 0, width, height };
+			AdjustWindowRect(&rc, GetWindowLong(mHWnd, GWL_STYLE), false);
+			width = rc.right - rc.left;
+			height = rc.bottom - rc.top;
 			SetWindowPos(mHWnd, 0, 0, 0, width, height,
 				SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
 		}
@@ -532,6 +536,11 @@ namespace Ogre
 			return;
 
 		RECT rc;
+		// top and left represent outer window position
+		GetWindowRect(mHWnd, &rc);
+		mTop = rc.top;
+		mLeft = rc.left;
+		// width and height represent drawable area only
 		GetClientRect(mHWnd, &rc);
 		unsigned int width = rc.right;
 		unsigned int height = rc.bottom;
