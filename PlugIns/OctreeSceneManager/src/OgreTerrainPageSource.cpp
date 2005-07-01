@@ -125,6 +125,22 @@ namespace Ogre {
         // calculate neighbours for page
         page->linkNeighbours();
 
+		if(TerrainSceneManager::getOptions().lit)
+		{
+			q = 0;
+			for ( size_t j = 0; j < mPageSize - 1; j += ( mTileSize - 1 ) )
+			{
+				size_t p = 0;
+
+				for ( size_t i = 0; i < mPageSize - 1; i += ( mTileSize - 1 ) )
+				{
+					page->tiles[ p ][ q ]->_calculateNormals();
+					p++;
+				}
+				q++;
+			}
+		}
+
         return page;
     }
     //-------------------------------------------------------------------------

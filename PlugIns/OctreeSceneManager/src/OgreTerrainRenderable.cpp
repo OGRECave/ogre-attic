@@ -253,8 +253,6 @@ namespace Ogre
         Real C = _calculateCFactor();
 
         _calculateMinLevelDist2( C );
-        if (msOptions->lit)
-            _calculateNormals();
 
     }
     //-----------------------------------------------------------------------
@@ -293,6 +291,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void TerrainRenderable::_calculateNormals()
     {
+
         Vector3 norm;
 
         assert (msOptions->lit && "No normals present");

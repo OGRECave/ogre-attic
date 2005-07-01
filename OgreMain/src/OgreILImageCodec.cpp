@@ -82,6 +82,15 @@ namespace Ogre {
 
         // Implicitly pick DevIL codec
         ilSaveImage(const_cast< char * >( outFileName.c_str() ) );
+	
+        // Check if everything was ok
+        ILenum PossibleError = ilGetError() ;
+        if( PossibleError != IL_NO_ERROR ) {
+           ilDeleteImages(1, &ImageName);
+           OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE,
+                "IL Error, could not save file: " + outFileName,
+                iluErrorString(PossibleError) ) ;
+        }
 
         ilDeleteImages(1, &ImageName);
 

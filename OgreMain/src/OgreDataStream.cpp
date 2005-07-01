@@ -309,61 +309,69 @@ namespace Ogre {
     size_t FileStreamDataStream::readLine(char* buf, size_t maxCount, 
         const String& delim)
     {
-        if (delim.empty())
-        {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "No delimiter provided",
-                "FileStreamDataStream::readLine");
-        }
-        if (delim.size() > 1)
-        {
-            LogManager::getSingleton().logMessage(
-                "WARNING: FileStreamDataStream::readLine - using only first delimeter");
-        }
-        // Deal with both Unix & Windows LFs
+		if (delim.empty())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "No delimiter provided",
+				"FileStreamDataStream::readLine");
+		}
+		if (delim.size() > 1)
+		{
+			LogManager::getSingleton().logMessage(
+				"WARNING: FileStreamDataStream::readLine - using only first delimeter");
+		}
+		// Deal with both Unix & Windows LFs
 		bool trimCR = false;
 		if (delim.at(0) == '\n') 
 		{
 			trimCR = true;
 		}
-        // maxCount + 1 since count excludes terminator in getline
-        mpStream->getline(buf, maxCount+1, delim.at(0));
-        size_t ret = mpStream->gcount();
+		// maxCount + 1 since count excludes terminator in getline
+		mpStream->getline(buf, maxCount+1, delim.at(0));
+		size_t ret = mpStream->gcount();
+		// three options
+		// 1) we had an eof before we read a whole line
+		// 2) we ran out of buffer space
+		// 3) we read a whole line - in this case the delim character is taken from the stream but not written in the buffer so the read data is of length ret-1 and thus ends at index ret-2
+		// in all cases the buffer will be null terminated for us
 
-        if (mpStream->fail())
-        {
-            // Did we fail because of maxCount hit?
-            if (ret == maxCount)
-            {
-                // clear failbit for next time 
-                mpStream->clear();
-            }
-            else if (mpStream->eof())
-            {
-                // that's ok too
-            }
-            else
-            {
-                OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
-                    "Streaming error occurred", 
-                    "FileStreamDataStream::readLine");
-            }
-        }
-		if (!ret)
-        {
-            buf[1] = '\0';
-        }
-        else
-        {
-            // trim off CR if we found CR/LF
-		    if (trimCR && buf[ret] == '\r')
-		    {
-			    --ret;
-			    buf[ret+1] = '\0';
-		    }
-        }
+		if (mpStream->eof()) 
+		{
+			// no problem
+		}
+		else if (mpStream->fail())
+		{
+			// Did we fail because of maxCount hit? No - no terminating character
+			// in included in the count in this case
+			if (ret == maxCount)
+			{
+				// clear failbit for next time 
+				mpStream->clear();
+			}
+			else
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+					"Streaming error occurred", 
+					"FileStreamDataStream::readLine");
+			}
+		}
+		else 
+		{
+			// we need to adjust ret because we want to use it as a
+			// pointer to the terminating null character and it is
+			// currently the length of the data read from the stream
+			// i.e. 1 more than the length of the data in the buffer and
+			// hence 1 more than the _index_ of the NULL character
+			--ret;
+		}
 
-        return ret;
-    }
+		// trim off CR if we found CR/LF
+		if (trimCR && buf[ret-1] == '\r')
+		{
+			--ret;
+			buf[ret] = '\0';
+		}
+		return ret;
+	}
     //-----------------------------------------------------------------------
     size_t FileStreamDataStream::skipLine(const String& delim)
     {

@@ -2132,6 +2132,10 @@ namespace Ogre {
             {
                 pBufferData = static_cast<const GLDefaultHardwareVertexBuffer*>(vertexBuffer.get())->getDataPtr(elem->getOffset());
             }
+            if (op.vertexData->vertexStart)
+            {
+                pBufferData = static_cast<char*>(pBufferData) + op.vertexData->vertexStart * vertexBuffer->getVertexSize();
+            }
 
             unsigned int i = 0;
 
@@ -2263,8 +2267,7 @@ namespace Ogre {
         }
         else
         {
-            glDrawArrays(primType, op.vertexData->vertexStart,
-                op.vertexData->vertexCount);
+            glDrawArrays(primType, 0, op.vertexData->vertexCount);
         }
 
         glDisableClientState( GL_VERTEX_ARRAY );
