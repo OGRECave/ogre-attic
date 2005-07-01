@@ -495,6 +495,11 @@ namespace Ogre {
             // -------------------------
             updateFrustum();
 
+			Vector3 newpos = position;
+			if (mReflect)
+			{
+				newpos = mReflectMatrix * newpos;
+			}
             Matrix4 combo = mStandardProjMatrix * mViewMatrix;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.x = combo[3][0] + combo[0][0];
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.y = combo[3][1] + combo[0][1];
@@ -521,14 +526,14 @@ namespace Ogre {
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.z = combo[3][2] + combo[2][2];
 			mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.normalise();
 			mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = 
-				-(mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.dotProduct(position) + mNearDist);
+				-(mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.dotProduct(newpos) + mNearDist);
 
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.x = combo[3][0] - combo[2][0];
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.y = combo[3][1] - combo[2][1];
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.z = combo[3][2] - combo[2][2];
 			mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.normalise();
 			mFrustumPlanes[FRUSTUM_PLANE_FAR].d = 
-				-(mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.dotProduct(position) - mFarDist);
+				-(mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.dotProduct(newpos) - mFarDist);
 
             // Renormalise any normals which were not unit length (not near & far)
             for(int i=2; i<6; i++ ) 
