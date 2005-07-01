@@ -40,9 +40,9 @@ namespace Ogre {
 	{
     private:
         /// Protected copy constructor, to prevent misuse
-        VertexData(const VertexData& rhs) { /* do nothing, should not use */}
+        VertexData(const VertexData& rhs); /* do nothing, should not use */
         /// Protected operator=, to prevent misuse
-        VertexData& operator=(const VertexData& rhs) { return *this; /* do not use */}
+        VertexData& operator=(const VertexData& rhs); /* do not use */
     public:
         VertexData();
         ~VertexData();
@@ -55,7 +55,7 @@ namespace Ogre {
 		@remarks Note that this is created for you on construction.
 		*/
 		VertexBufferBinding* vertexBufferBinding;
-		/// The base vertex index to start from, if using unindexed geometry
+		/// The base vertex index to start from
 		size_t vertexStart;
 		/// The number of vertices used in this operation
 		size_t vertexCount;
@@ -165,9 +165,9 @@ namespace Ogre {
 	{
     protected:
         /// Protected copy constructor, to prevent misuse
-        IndexData(const IndexData& rhs) { /* do nothing, should not use */}
+        IndexData(const IndexData& rhs); /* do nothing, should not use */
         /// Protected operator=, to prevent misuse
-        IndexData& operator=(const IndexData& rhs) { return *this;/* do not use */}
+        IndexData& operator=(const IndexData& rhs); /* do not use */
     public:
         IndexData();
         ~IndexData();

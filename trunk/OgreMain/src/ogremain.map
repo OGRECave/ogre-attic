@@ -105,7 +105,7 @@
             Ogre::Vi*;
             Ogre::W*;
             Ogre::ZipArchive::*;
-            Ogre::[fo]*;
+            Ogre::[fo]*
         };
 
         _ZNS*;

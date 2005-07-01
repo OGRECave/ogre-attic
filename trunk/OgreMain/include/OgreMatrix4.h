@@ -107,6 +107,27 @@ namespace Ogre
             m[3][3] = m33;
         }
 
+        /** Creates a standard 4x4 transformation matrix with a zero translation part from a rotation/scaling 3x3 matrix.
+         */
+
+        inline Matrix4(const Matrix3& m3x3)
+        {
+          operator=(IDENTITY);
+          operator=(m3x3);
+        }
+
+        /** Creates a standard 4x4 transformation matrix with a zero translation part from a rotation/scaling Quaternion.
+         */
+        
+        inline Matrix4(const Quaternion& rot)
+        {
+          Matrix3 m3x3;
+          rot.ToRotationMatrix(m3x3);
+          operator=(IDENTITY);
+          operator=(m3x3);
+        }
+        
+
         inline Real* operator [] ( size_t iRow )
         {
             assert( iRow < 4 );
@@ -313,6 +334,14 @@ namespace Ogre
             m[2][3] = v.z;
         }
 
+        /** Extracts the translation transformation part of the matrix.
+         */
+        inline Vector3 getTrans() const
+        {
+          return Vector3(m[0][3], m[1][3], m[2][3]);
+        }
+        
+
         /** Builds a translation matrix
         */
         inline void makeTrans( const Vector3& v )
@@ -414,6 +443,15 @@ namespace Ogre
             m3x3.m[2][1] = m[2][1];
             m3x3.m[2][2] = m[2][2];
 
+        }
+
+        /** Extracts the rotation / scaling part as a quaternion from the Matrix.
+         */
+        inline Quaternion extractQuaternion() const
+        {
+          Matrix3 m3x3;
+          extract3x3Matrix(m3x3);
+          return Quaternion(m3x3);
         }
 
         static const Matrix4 ZERO;

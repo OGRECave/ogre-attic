@@ -114,13 +114,6 @@ namespace Ogre {
         }
         // Add to unique set
         mUniqueSceneMgrs.insert(sm);
-
-
-        // Set rendersystem, incase this one is late & rendersystem already picked
-        sm->_setDestinationRenderSystem(Root::getSingleton().getRenderSystem());
-
-
-
     }
     //-----------------------------------------------------------------------
     void SceneManagerEnumerator::shutdownAll(void)

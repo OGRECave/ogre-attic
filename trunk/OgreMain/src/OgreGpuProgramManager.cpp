@@ -60,7 +60,7 @@ namespace Ogre {
         GpuProgramPtr prg = getByName(name);
         if (prg.isNull())
         {
-	        GpuProgramPtr prg = createProgram(name, groupName, filename, gptype, syntaxCode);
+	        prg = createProgram(name, groupName, filename, gptype, syntaxCode);
 		}
         prg->load();
         return prg;
@@ -73,7 +73,7 @@ namespace Ogre {
         GpuProgramPtr prg = getByName(name);
         if (prg.isNull())
 		{
-			GpuProgramPtr prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
+			prg = createProgramFromString(name, groupName, code, gptype, syntaxCode);
 		}
         prg->load();
         return prg;

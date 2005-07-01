@@ -134,6 +134,9 @@ mShadowTextureReceiverVPDirty(false)
 
 	mShadowCasterQueryListener = new ShadowCasterSceneQueryListener(this);
 
+    Root *root = Root::getSingletonPtr();
+    if (root)
+        _setDestinationRenderSystem(root->getRenderSystem());
 }
 //-----------------------------------------------------------------------
 SceneManager::~SceneManager()
@@ -439,25 +442,26 @@ void SceneManager::removeAllBillboardSets(void)
 void SceneManager::clearScene(void)
 {
 	removeAllStaticGeometry();
-	// Clear root node of all children
-	mSceneRoot->removeAllChildren();
-	mSceneRoot->detachAllObjects();
-
-
-	// Delete all SceneNodes, except root that is
-    for (SceneNodeList::iterator i = mSceneNodes.begin();
-        i != mSceneNodes.end(); ++i)
-    {
-        delete i->second;
-    }
-    mSceneNodes.clear();
-    mAutoTrackingSceneNodes.clear();
-
     removeAllEntities();
     removeAllBillboardSets();
     removeAllLights();
 
-    // Clear animations
+	// Clear root node of all children
+	mSceneRoot->removeAllChildren();
+	mSceneRoot->detachAllObjects();
+
+	// Delete all SceneNodes, except root that is
+	for (SceneNodeList::iterator i = mSceneNodes.begin();
+		i != mSceneNodes.end(); ++i)
+	{
+		delete i->second;
+	}
+	mSceneNodes.clear();
+	mAutoTrackingSceneNodes.clear();
+
+
+	
+	// Clear animations
     destroyAllAnimations();
 
     // Remove sky nodes since they've been deleted
@@ -520,6 +524,13 @@ void SceneManager::destroySceneNode(const String& name)
         }
     }
 
+	// detach from parent (don't do this in destructor since bulk destruction
+	// behaves differently)
+	Node* parentNode = i->second->getParent();
+	if (parentNode)
+	{
+		parentNode->removeChild(i->second);
+	}
     delete i->second;
     mSceneNodes.erase(i);
 }
@@ -2656,6 +2667,11 @@ const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
 //---------------------------------------------------------------------
 void SceneManager::initShadowVolumeMaterials(void)
 {
+    /* This should have been set in the SceneManager constructor, but if you
+       created the SceneManager BEFORE the Root object, you will need to call
+       SceneManager::_setDestinationRenderSystem manually.
+     */
+    assert( mDestRenderSystem );
 
     if (mShadowMaterialInitDone)
         return;
