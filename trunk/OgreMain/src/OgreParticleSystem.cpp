@@ -660,6 +660,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ParticleSystem::_notifyCurrentCamera(Camera* cam)
     {
+		MovableObject::_notifyCurrentCamera(cam);
+
         if (mSorted)
 		{
 			_sortParticles(cam);

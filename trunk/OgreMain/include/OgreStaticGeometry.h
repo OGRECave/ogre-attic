@@ -398,8 +398,6 @@ namespace Ogre {
 			mutable LightList mLightList;
 			/// The last frame that this light list was updated in
 			mutable ulong mLightListUpdated;
-			/// Hidden because of distance?
-			bool mBeyondFarDistance;
 			/// Edge list, used if stencil shadow casting is enabled 
 			EdgeData* mEdgeList;
 			/// List of shadow renderables

@@ -100,6 +100,8 @@ namespace Ogre {
 
     void SimpleRenderable::_notifyCurrentCamera(Camera* cam)
     {
+		MovableObject::_notifyCurrentCamera(cam);
+
         m_pCamera = cam;
     }
 

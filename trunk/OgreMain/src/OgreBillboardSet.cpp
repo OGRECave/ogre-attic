@@ -306,6 +306,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::_notifyCurrentCamera( Camera* cam )
     {
+		MovableObject::_notifyCurrentCamera(cam);
+
         mCurrentCamera = cam;
         /* Generate the vertices for all the billboards relative to the camera
            Also take the opportunity to update the vertex colours

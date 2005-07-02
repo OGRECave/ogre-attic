@@ -661,7 +661,7 @@ namespace Ogre {
 		SceneManager* mgr, uint32 regionID, const Vector3& centre) 
 		: MovableObject(name), mParent(parent), mSceneMgr(mgr), mNode(0), 
 		mRegionID(regionID), mCentre(centre), mBoundingRadius(0.0f), 
-		mCurrentLod(0), mLightListUpdated(0), mBeyondFarDistance(false),
+		mCurrentLod(0), mLightListUpdated(0),
 		mEdgeList(0), mVertexProgramInUse(false)
 	{
 		// First LOD mandatory, and always from 0

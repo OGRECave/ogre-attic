@@ -35,6 +35,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     MovableObject::MovableObject()
 		: mCreator(0), mParentNode(0), mParentIsTagPoint(false), mVisible(true), 
+		 mUpperDistance(0), mSquaredUpperDistance(0), mBeyondFarDistance(false),
          mRenderQueueID(RENDER_QUEUE_MAIN),
          mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
          mCastShadows (true)
@@ -45,7 +46,8 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	MovableObject::MovableObject(const String& name) 
 		: mName(name), mCreator(0), mParentNode(0), mParentIsTagPoint(false), 
-		mVisible(true), mRenderQueueID(RENDER_QUEUE_MAIN),
+		mVisible(true), mUpperDistance(0), mSquaredUpperDistance(0), 
+		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
 		mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
 		mCastShadows (true)
 	{
@@ -130,9 +132,30 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool MovableObject::isVisible(void) const
     {
-        return mVisible;
-
+		return mVisible && !mBeyondFarDistance;
     }
+	//-----------------------------------------------------------------------
+	void MovableObject::_notifyCurrentCamera(Camera* cam)
+	{
+		if (mParentNode)
+		{
+			Real rad = getBoundingRadius();
+			Real squaredDepth = mParentNode->getSquaredViewDepth(cam);
+			// Distance from the edge of the bounding sphere
+			Real dist = squaredDepth - rad*rad;
+			// Clamp to 0
+			dist = std::max(static_cast<Real>(0.0), dist);
+			if (mSquaredUpperDistance && dist > mSquaredUpperDistance)
+			{
+				mBeyondFarDistance = true;
+			}
+			else
+			{
+				mBeyondFarDistance = false;
+			}
+		}
+
+	}
     //-----------------------------------------------------------------------
     void MovableObject::setRenderQueueGroup(RenderQueueGroupID queueID)
     {
