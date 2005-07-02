@@ -2154,25 +2154,34 @@ namespace Ogre
 				OGRE_EXCEPT( hr, "Failed to set index buffer", "D3D9RenderSystem::_render" );
             }
 
-			// do indexed draw operation
-			hr = mpD3DDevice->DrawIndexedPrimitive(
-                primType, 
-                static_cast<INT>(op.vertexData->vertexStart), 
-                0, // Min vertex index - assume we can go right down to 0 
-                static_cast<UINT>(op.vertexData->vertexCount), 
-                static_cast<UINT>(op.indexData->indexStart), 
-                static_cast<UINT>(primCount)
-                );
+            do
+            {
+                // do indexed draw operation
+			    hr = mpD3DDevice->DrawIndexedPrimitive(
+                    primType, 
+                    static_cast<INT>(op.vertexData->vertexStart), 
+                    0, // Min vertex index - assume we can go right down to 0 
+                    static_cast<UINT>(op.vertexData->vertexCount), 
+                    static_cast<UINT>(op.indexData->indexStart), 
+                    static_cast<UINT>(primCount)
+                    );
+
+            } while (updatePassIterationRenderState());
 		}
 		else
         {
-            // Unindexed, a little simpler!
-			hr = mpD3DDevice->DrawPrimitive(
-                primType, 
-                static_cast<UINT>(op.vertexData->vertexStart), 
-                static_cast<UINT>(primCount)
-                ); 
-        }
+            // nfz: gpu_iterate
+            do
+            {
+                // Unindexed, a little simpler!
+			    hr = mpD3DDevice->DrawPrimitive(
+                    primType, 
+                    static_cast<UINT>(op.vertexData->vertexStart), 
+                    static_cast<UINT>(primCount)
+                    ); 
+
+            } while (updatePassIterationRenderState());
+        } 
 
 		if( FAILED( hr ) )
 		{
@@ -2222,6 +2231,7 @@ namespace Ogre
         switch(gptype)
         {
         case GPT_VERTEX_PROGRAM:
+            mActiveVertexGpuProgramParameters.setNull();
             hr = mpD3DDevice->SetVertexShader(NULL);
             if (FAILED(hr))
             {
@@ -2230,6 +2240,7 @@ namespace Ogre
             }
             break;
         case GPT_FRAGMENT_PROGRAM:
+            mActiveFragmentGpuProgramParameters.setNull();
             hr = mpD3DDevice->SetPixelShader(NULL);
             if (FAILED(hr))
             {
@@ -2251,6 +2262,7 @@ namespace Ogre
         switch(gptype)
         {
         case GPT_VERTEX_PROGRAM:
+            mActiveVertexGpuProgramParameters = params;
             // Bind floats
             if (params->hasRealConstantParams())
             {
@@ -2264,7 +2276,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
                             index, e->val, 1)))
                         {
-                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload vertex shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2285,7 +2297,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantI(
                             index, e->val, 1)))
                         {
-                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload vertex shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2295,6 +2307,7 @@ namespace Ogre
             }
             break;
         case GPT_FRAGMENT_PROGRAM:
+            mActiveFragmentGpuProgramParameters = params;
             // Bind floats
             if (params->hasRealConstantParams())
             {
@@ -2318,7 +2331,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
                             index, e->val, 1)))
                         {
-                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload pixel shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2339,7 +2352,7 @@ namespace Ogre
                         if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantI(
                             index, e->val, 1)))
                         {
-                            OGRE_EXCEPT(hr, "Unable to upload shader float parameters", 
+                            OGRE_EXCEPT(hr, "Unable to upload pixel shader float parameters", 
                                 "D3D9RenderSystem::bindGpuProgramParameters");
                         }
                     }
@@ -2349,6 +2362,43 @@ namespace Ogre
             }
             break;
         };
+    }
+	//---------------------------------------------------------------------
+    void D3D9RenderSystem::bindGpuProgramPassIterationParameters(GpuProgramType gptype)
+    {
+
+        HRESULT hr;
+        GpuProgramParameters::RealConstantEntry* realEntry;
+
+        switch(gptype)
+        {
+        case GPT_VERTEX_PROGRAM:
+            realEntry = mActiveVertexGpuProgramParameters->getPassIterationEntry();
+            if (realEntry)
+            {
+                if (FAILED(hr = mpD3DDevice->SetVertexShaderConstantF(
+                        mActiveVertexGpuProgramParameters->getPassIterationEntryIndex(), realEntry->val, 1)))
+                {
+                    OGRE_EXCEPT(hr, "Unable to upload vertex shader multi pass parameters", 
+                    "D3D9RenderSystem::bindGpuProgramMultiPassParameters");
+                }
+            }
+            break;
+
+        case GPT_FRAGMENT_PROGRAM:
+            realEntry = mActiveFragmentGpuProgramParameters->getPassIterationEntry();
+            if (realEntry)
+            {
+                if (FAILED(hr = mpD3DDevice->SetPixelShaderConstantF(
+                        mActiveFragmentGpuProgramParameters->getPassIterationEntryIndex(), realEntry->val, 1)))
+                {
+                    OGRE_EXCEPT(hr, "Unable to upload pixel shader multi pass parameters", 
+                    "D3D9RenderSystem::bindGpuProgramMultiPassParameters");
+                }
+            }
+            break;
+
+        }
     }
     //---------------------------------------------------------------------
     void D3D9RenderSystem::setClipPlanes(const PlaneList& clipPlanes)

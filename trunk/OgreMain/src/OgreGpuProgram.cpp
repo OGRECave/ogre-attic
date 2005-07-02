@@ -113,7 +113,8 @@ namespace Ogre
         AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TRANSPOSE_WORLD_MATRIX,             "transpose_world_matrix",            16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,     "inverse_transpose_world_matrix",    16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_INT, ACDT_NONE),
+        AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_PASS_ITERATION_NUMBER,              "pass_iteration_number",              1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
 		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               1, ET_REAL, ACDT_NONE)
     };
@@ -231,7 +232,7 @@ namespace Ogre
     //-----------------------------------------------------------------------------
     //-----------------------------------------------------------------------------
     GpuProgramParameters::GpuProgramParameters()
-        : mTransposeMatrices(false), mAutoAddParamName(false)
+        : mTransposeMatrices(false), mAutoAddParamName(false), mActivePassIterationEntry(0)
     {
     }
     //-----------------------------------------------------------------------------
@@ -595,7 +596,12 @@ namespace Ogre
                 setConstant(i->index, source.getTextureViewProjMatrix());
                 break;
             case ACT_PASS_NUMBER:
-                setConstant(i->index, source.getPassNumber());
+                setConstant(i->index, (float)source.getPassNumber());
+                break;
+            case ACT_PASS_ITERATION_NUMBER:
+                setConstant(i->index, 0.0f);
+                mActivePassIterationEntry = getRealConstantEntry(i->index);
+                mActivePassIterationEntryIndex = i->index;
                 break;
             case ACT_CUSTOM:
 			case ACT_ANIMATION_PARAMETRIC:
@@ -1089,7 +1095,22 @@ namespace Ogre
         return sizeof(AutoConstantDictionary)/sizeof(AutoConstantDefinition);
     }
 
+    //-----------------------------------------------------------------------
+    void GpuProgramParameters::incPassIterationNumber(void)
+    {
+        if (mActivePassIterationEntry)
+        {
+            // only increment first element
+            ++mActivePassIterationEntry->val[0];
+            mActivePassIterationEntry->isSet = true;
+        }
+    }
 
+    //-----------------------------------------------------------------------
+    GpuProgramParameters::RealConstantEntry* GpuProgramParameters::getPassIterationEntry(void)
+    {
+        return mActivePassIterationEntry;
+    }
     //-----------------------------------------------------------------------
     //-----------------------------------------------------------------------
     String GpuProgram::CmdType::doGet(const void* target) const

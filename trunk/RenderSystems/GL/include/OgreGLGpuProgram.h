@@ -48,6 +48,9 @@ namespace Ogre {
 
         /// Execute the param binding functions for this program
         virtual void bindProgramParameters(GpuProgramParametersSharedPtr params) {}
+		/// Bind just the pass iteration parameters
+		virtual void bindProgramPassIterationParameters(GpuProgramParametersSharedPtr params) {}
+
 
         /// Get the assigned GL program id
         const GLuint getProgramID(void) const
@@ -79,6 +82,8 @@ namespace Ogre {
         void unbindProgram(void);
         /// Execute the param binding functions for this program
         void bindProgramParameters(GpuProgramParametersSharedPtr params);
+		/// Bind just the pass iteration parameters
+		void bindProgramPassIterationParameters(GpuProgramParametersSharedPtr params);
 
         /// Get the GL type for the program
         const GLuint getProgramType(void) const

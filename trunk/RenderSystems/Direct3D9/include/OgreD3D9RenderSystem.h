@@ -224,9 +224,22 @@ namespace Ogre
 		void setVertexDeclaration(VertexDeclaration* decl);
 		void setVertexBufferBinding(VertexBufferBinding* binding);
         void _render(const RenderOperation& op);
+        /** See
+          RenderSystem
+         */
         void bindGpuProgram(GpuProgram* prg);
+        /** See
+          RenderSystem
+         */
         void unbindGpuProgram(GpuProgramType gptype);
+        /** See
+          RenderSystem
+         */
         void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params);
+        /** See
+          RenderSystem
+         */
+        void bindGpuProgramPassIterationParameters(GpuProgramType gptype);
         /** See
           RenderSystem
          */
@@ -250,8 +263,6 @@ namespace Ogre
 		bool isDeviceLost(void);
 		/** Notify that a device has been lost */
 		void _notifyDeviceLost(void);
-
-
 
 	};
 }

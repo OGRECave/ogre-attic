@@ -39,7 +39,7 @@ namespace Ogre {
     Pass::PassSet Pass::msPassGraveyard;
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique* parent, unsigned short index)
-        : mParent(parent), mIndex(index)
+        : mParent(parent), mIndex(index), mPassIterationCount(0)
     {
         // Default to white ambient & diffuse, no specular / emissive
 	    mAmbient = mDiffuse = ColourValue::White;
@@ -71,7 +71,7 @@ namespace Ogre {
 	    mManualCullMode = MANUAL_CULL_BACK;
 	    mLightingEnabled = true;
         mMaxSimultaneousLights = OGRE_MAX_SIMULTANEOUS_LIGHTS;
-		mRunOncePerLight = false;
+		mIteratePerLight = false;
         mRunOnlyForOneLightType = true;
         mOnlyLightType = Light::LT_POINT;
 	    mShadeOptions = SO_GOURAUD;
@@ -91,7 +91,7 @@ namespace Ogre {
 	
     //-----------------------------------------------------------------------------
 	Pass::Pass(Technique *parent, unsigned short index, const Pass& oth)
-        :mParent(parent), mIndex(index), mQueuedForDeletion(false)
+        :mParent(parent), mIndex(index), mQueuedForDeletion(false), mPassIterationCount(0)
     {
         *this = oth;
         mParent = parent;
@@ -138,10 +138,11 @@ namespace Ogre {
 	    mManualCullMode = oth.mManualCullMode;
 	    mLightingEnabled = oth.mLightingEnabled;
         mMaxSimultaneousLights = oth.mMaxSimultaneousLights;
-		mRunOncePerLight = oth.mRunOncePerLight;
+		mIteratePerLight = oth.mIteratePerLight;
         mRunOnlyForOneLightType = oth.mRunOnlyForOneLightType;
         mOnlyLightType = oth.mOnlyLightType;
 	    mShadeOptions = oth.mShadeOptions;
+        mPassIterationCount = oth.mPassIterationCount;
 
 		if (oth.mVertexProgramUsage)
 		{
@@ -496,10 +497,10 @@ namespace Ogre {
         return mMaxSimultaneousLights;
     }
     //-----------------------------------------------------------------------
-    void Pass::setRunOncePerLight(bool enabled, 
+    void Pass::setIteratePerLight(bool enabled, 
             bool onlyForOneLightType, Light::LightTypes lightType)
     {
-        mRunOncePerLight = enabled;
+        mIteratePerLight = enabled;
         mRunOnlyForOneLightType = onlyForOneLightType;
         mOnlyLightType = lightType;
     }

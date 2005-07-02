@@ -1927,6 +1927,8 @@ namespace Ogre {
 			break;
         // XXX
         case LBS_SPECULAR:
+            src1op = GL_PRIMARY_COLOR;
+            break;
 		default:
             src1op = 0;
         }
@@ -1947,6 +1949,8 @@ namespace Ogre {
 			break;
         // XXX
         case LBS_SPECULAR:
+            src2op = GL_PRIMARY_COLOR;
+            break;
 		default:
             src2op = 0;
         }
@@ -2262,12 +2266,19 @@ namespace Ogre {
 
             GLenum indexType = (op.indexData->indexBuffer->getType() == HardwareIndexBuffer::IT_16BIT) ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT;
 
-            glDrawElements(primType, op.indexData->indexCount, indexType, pBufferData);
+			do
+			{
+				glDrawElements(primType, op.indexData->indexCount, indexType, pBufferData);
+			} while (updatePassIterationRenderState());
 
         }
         else
         {
             glDrawArrays(primType, 0, op.vertexData->vertexCount);
+			do
+			{
+				glDrawArrays(primType, 0, op.vertexData->vertexCount);
+			} while (updatePassIterationRenderState());
         }
 
         glDisableClientState( GL_VERTEX_ARRAY );
@@ -2320,15 +2331,16 @@ namespace Ogre {
 
         if (gptype == GPT_VERTEX_PROGRAM && mCurrentVertexProgram)
         {
+            mActiveVertexGpuProgramParameters.setNull();
             mCurrentVertexProgram->unbindProgram();
             mCurrentVertexProgram = 0;
         }
         else if (gptype == GPT_FRAGMENT_PROGRAM && mCurrentFragmentProgram)
         {
+            mActiveFragmentGpuProgramParameters.setNull();
             mCurrentFragmentProgram->unbindProgram();
             mCurrentFragmentProgram = 0;
         }
-
 
     }
 	//---------------------------------------------------------------------
@@ -2336,11 +2348,25 @@ namespace Ogre {
     {
         if (gptype == GPT_VERTEX_PROGRAM)
         {
+            mActiveVertexGpuProgramParameters = params;
             mCurrentVertexProgram->bindProgramParameters(params);
         }
         else
         {
+            mActiveFragmentGpuProgramParameters = params;
             mCurrentFragmentProgram->bindProgramParameters(params);
+        }
+    }
+	//---------------------------------------------------------------------
+    void GLRenderSystem::bindGpuProgramPassIterationParameters(GpuProgramType gptype)
+    {
+        if (gptype == GPT_VERTEX_PROGRAM)
+        {
+            mCurrentVertexProgram->bindProgramPassIterationParameters(mActiveVertexGpuProgramParameters);
+        }
+        else
+        {
+            mCurrentFragmentProgram->bindProgramPassIterationParameters(mActiveFragmentGpuProgramParameters);
         }
     }
 	//---------------------------------------------------------------------

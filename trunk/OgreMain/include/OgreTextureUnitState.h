@@ -357,6 +357,15 @@ namespace Ogre {
         */
         const String& getFrameTextureName(unsigned int frameNumber) const;
 
+        /** Sets the name of the texture associated with a frame.
+        @param name The name of the texture
+        @param frameNumber The frame the texture name is to be placed in
+        @note
+        Throws an exception if frameNumber exceeds max allowable frame numbers.
+        Applies to both fixed-function and programmable pipeline.
+        */
+        void setFrameTextureName(const String& name, unsigned int frameNumber);
+
         /** Gets the number of frames for a texture.
         @note
         Applies to both fixed-function and programmable pipeline.

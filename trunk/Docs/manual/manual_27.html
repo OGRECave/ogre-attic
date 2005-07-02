@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.0: Standard Particle Emitters</TITLE>
+<TITLE>OGRE Manual v1.1.0: Standard Particle Emitters</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.0: Standard Particle Emitters">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.0: Standard Particle Emitters">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Standard Particle Emitters">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Standard Particle Emitters">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC128"></A>
+<A NAME="SEC130"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC113"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC97"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC135"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC115"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC98"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC137"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,29 +35,29 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.4 Standard Particle Emitters </H3>
-<!--docid::SEC128::-->
+<!--docid::SEC130::-->
 Ogre comes preconfigured with a few particle emitters. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these emitters are implemented).
 <P>
 
 <UL>
 <LI>
-<A HREF="manual_27.html#SEC129">Point Emitter</A>
+<A HREF="manual_27.html#SEC131">Point Emitter</A>
 <LI>
-<A HREF="manual_27.html#SEC130">Box Emitter</A>
+<A HREF="manual_27.html#SEC132">Box Emitter</A>
 <LI>
-<A HREF="manual_27.html#SEC131">Cylinder Emitter</A>
+<A HREF="manual_27.html#SEC133">Cylinder Emitter</A>
 <LI>
-<A HREF="manual_27.html#SEC132">Ellipsoid Emitter</A>
+<A HREF="manual_27.html#SEC134">Ellipsoid Emitter</A>
 <LI>
-<A HREF="manual_27.html#SEC133">Hollow Ellipsoid Emitter</A>
+<A HREF="manual_27.html#SEC135">Hollow Ellipsoid Emitter</A>
 <LI>
-<A HREF="manual_27.html#SEC134">Ring Emitter</A>
+<A HREF="manual_27.html#SEC136">Ring Emitter</A>
 </UL>
 <BR><BR>
 <A NAME="Point Emitter"></A>
-<A NAME="SEC129"></A>
+<A NAME="SEC131"></A>
 <H3> Point Emitter </H3>
-<!--docid::SEC129::-->
+<!--docid::SEC131::-->
 <P>
 
 This emitter emits particles from a single point, which is it's position. This emitter has no additional attributes over an above the standard emitter attributes.<BR><BR>
@@ -74,9 +74,9 @@ Please note that the name of the emitter ('Point') is case-sensitive.
 </P><P>
 
 <A NAME="Box Emitter"></A>
-<A NAME="SEC130"></A>
+<A NAME="SEC132"></A>
 <H3> Box Emitter </H3>
-<!--docid::SEC130::-->
+<!--docid::SEC132::-->
 <P>
 
 This emitter emits particles from a random location within a 3-dimensional box. It's extra attributes are:<BR><BR>
@@ -106,26 +106,26 @@ To create a box emitter, include a section like this within your particle system
 </pre></td></tr></table><P>
 
 <A NAME="Cylinder Emitter"></A>
-<A NAME="SEC131"></A>
+<A NAME="SEC133"></A>
 <H3> Cylinder Emitter </H3>
-<!--docid::SEC131::-->
+<!--docid::SEC133::-->
 <P>
 
-This emitter emits particles in a random direction from within a cylinder area, where the cylinder is oriented along the Z-axis. This emitter has exactly the same parameters as the <A HREF="manual_27.html#SEC130">Box Emitter</A> so there are no additional parameters to consider here - the width and height determine the shape of the cylinder along it's axis (if they are different it is an ellipsoid cylinder), the depth determines the length of the cylinder. 
+This emitter emits particles in a random direction from within a cylinder area, where the cylinder is oriented along the Z-axis. This emitter has exactly the same parameters as the <A HREF="manual_27.html#SEC132">Box Emitter</A> so there are no additional parameters to consider here - the width and height determine the shape of the cylinder along it's axis (if they are different it is an ellipsoid cylinder), the depth determines the length of the cylinder. 
 </P><P>
 
 <A NAME="Ellipsoid Emitter"></A>
-<A NAME="SEC132"></A>
+<A NAME="SEC134"></A>
 <H3> Ellipsoid Emitter </H3>
-<!--docid::SEC132::-->
-This emitter emits particles from within an ellipsoid shaped area, ie a sphere or squashed-sphere area. The parameters are again identical to the <A HREF="manual_27.html#SEC130">Box Emitter</A>, except that the dimensions describe the widest points along each of the axes.
+<!--docid::SEC134::-->
+This emitter emits particles from within an ellipsoid shaped area, ie a sphere or squashed-sphere area. The parameters are again identical to the <A HREF="manual_27.html#SEC132">Box Emitter</A>, except that the dimensions describe the widest points along each of the axes.
 <P>
 
 <A NAME="Hollow Ellipsoid Emitter"></A>
-<A NAME="SEC133"></A>
+<A NAME="SEC135"></A>
 <H3> Hollow Ellipsoid Emitter </H3>
-<!--docid::SEC133::-->
-This emitter is just like <A HREF="manual_27.html#SEC132">Ellipsoid Emitter</A> except that there is a hollow area in the centre of the ellipsoid from which no particles are emitted. Therefore it has 3 extra parameters in order to define this area:
+<!--docid::SEC135::-->
+This emitter is just like <A HREF="manual_27.html#SEC134">Ellipsoid Emitter</A> except that there is a hollow area in the centre of the ellipsoid from which no particles are emitted. Therefore it has 3 extra parameters in order to define this area:
 <P>
 
 <DL COMPACT>
@@ -139,10 +139,10 @@ This emitter is just like <A HREF="manual_27.html#SEC132">Ellipsoid Emitter</A> 
 <P>
 
 <A NAME="Ring Emitter"></A>
-<A NAME="SEC134"></A>
+<A NAME="SEC136"></A>
 <H3> Ring Emitter </H3>
-<!--docid::SEC134::-->
-This emitter emits particles from a ring-shaped area, ie a little like <A HREF="manual_27.html#SEC133">Hollow Ellipsoid Emitter</A> except only in 2 dimensions.
+<!--docid::SEC136::-->
+This emitter emits particles from a ring-shaped area, ie a little like <A HREF="manual_27.html#SEC135">Hollow Ellipsoid Emitter</A> except only in 2 dimensions.
 <P>
 
 <DL COMPACT>
@@ -154,15 +154,15 @@ This emitter emits particles from a ring-shaped area, ie a little like <A HREF="
 <BR><BR>
 <P>
 
-See also: <A HREF="manual_23.html#SEC97">3.2 Particle Scripts</A>, <A HREF="manual_25.html#SEC111">3.2.2 Particle Emitters</A>
+See also: <A HREF="manual_23.html#SEC98">3.2 Particle Scripts</A>, <A HREF="manual_25.html#SEC113">3.2.2 Particle Emitters</A>
 </P><P>
 
 <A NAME="Particle Affectors"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC113"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC97"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC135"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC115"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC98"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC137"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>

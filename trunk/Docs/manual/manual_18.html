@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.0: Passes</TITLE>
+<TITLE>OGRE Manual v1.1.0: Passes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.0: Passes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.0: Passes">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Passes">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Passes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -39,10 +39,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 A pass is a single render of the geometry in question; a single call to the rendering API with a certain set of rendering properties. A technique can have between one and 16 passes, although clearly the more passes you use, the more expensive the technique will be to render.<BR><BR>
 <P>
 
-To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be "0" if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (See section <A HREF="manual_22.html#SEC93">3.1.6 Copying Materials</A>)<BR><BR>
+To help clearly identify what each pass is used for, the pass can be named but its optional.  Passes not named within the script will take on a name that is the pass index number.  For example: the first pass in a technique is index 0 so its name would be "0" if it was not given a name in the script.  The pass name must be unqiue within the technique or else the final pass is the resulting merge of all passes with the same name in the technique.  A warning message is posted in the Ogre.log if this occurs.  Named passes can help when copying a material and modifying an existing pass: (See section <A HREF="manual_22.html#SEC94">3.1.6 Copying Materials</A>)<BR><BR>
 </P><P>
 
-Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_19.html#SEC55">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_21.html#SEC86">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
+Passes have a set of global attributes (described below), zero or more nested texture_unit entries (See section <A HREF="manual_19.html#SEC55">3.1.3 Texture Units</A>), and optionally a reference to a vertex and / or a fragment program (See section <A HREF="manual_21.html#SEC87">3.1.5 Using Vertex and Fragment Programs in a Pass</A>).
 </P><P>
 
 <BR><BR>
@@ -496,7 +496,7 @@ Sets the maximum number of lights which will be considered for use with this pas
 Format: max_lights &#60;number&#62;<BR><BR>
 </P><P>
 
-The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_21.html#SEC86">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_18.html#SEC54">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
+The maximum number of lights which can be used when rendering fixed-function materials is set by the rendering system, and is typically set at 8. When you are using the programmable pipeline (See section <A HREF="manual_21.html#SEC87">3.1.5 Using Vertex and Fragment Programs in a Pass</A>) this limit is dependent on the program you are running, or, if you use 'iteration once_per_light' (See section <A HREF="manual_18.html#SEC54">iteration</A>), it effectively only bounded by the number of passes you are willing to use. Whichever method you use, however, the max_lights limit applies.<BR><BR>
 </P><P>
 
 Default: max_lights 8<BR>
@@ -511,19 +511,119 @@ Default: max_lights 8<BR>
 Sets whether or not this pass is iterated, ie issued more than once.<BR><BR>
 </P><P>
 
-Format: iteration &#60;once | once_per_light&#62; [lightType]<BR><BR>
-Example: iteration once_per_light point
-</P><P>
+Basic Format: iteration &#60;once | once_per_light&#62; [lightType]<BR><BR>
+Advanced Format: iteration &#60;number&#62; [&#60;per_light&#62; [lightType]]<BR><BR>
+Examples:
+<DL COMPACT>
+<DT>iteration once
+<DD>	The pass is onle executed once which is the default behaviour.
+<DT>iteration once_per_light point
+<DD>	The pass is executed once for each point light.
+<DT>iteration 5
+<DD>	The render state for the pass will be setup and then the draw call will execute 5 times.
+<DT>iteration 5 per_light point
+<DD>	The render state for the pass will be setup and then the draw call will execute 5 times.  This will be done for each point light.
+</DL>
+<BR>
+<P>
 
 By default, passes are only issued once. However, if you use the programmable pipeline, or you wish to exceed the normal limits on the number of lights which are supported, you might want to use the once_per_light option. In this case, only light index 0 is ever used, and the pass is issued multiple times, each time with a different light in light index 0. Clearly this will make the pass more expensive, but it may be the only way to achieve certain effects such as per-pixel lighting effects which take into account 1..n lights.<BR><BR>
+</P><P>
+
+Using a number instead of "once" instructs the pass to iterate more than once after the render state is setup.  The render state is not changed after the initial setup so repeated draw calls are very fast and ideal for passes using programmable shaders that must iterate more than once with the same render state ie. shaders that do fur, motion blur, special filtering.<BR><BR>
 </P><P>
 
 If you use once_per_light, you should also add an ambient pass to the technique before this pass, otherwise when no lights are in range of this object it will not get rendered at all; this is important even when you have no ambient light in the scene, because you would still want the objects sihouette to appear.<BR><BR>
 </P><P>
 
-The second parameter to the attribute only applies if you use once_per_light, and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you;re writing a vertex / fragment program it is a lot better if you can assume the kind of lights you'll be dealing with. 
+The second parameter to the attribute only applies if you use once_per_light or per_light, and restricts the pass to being run for lights of a single type (either 'point', 'directional' or 'spot'). In the example, the pass will be run once per point light. This can be useful because when you're writing a vertex / fragment program it is a lot better if you can assume the kind of lights you'll be dealing with. 
 <BR><BR>
-Default: iteration once
+Default: iteration once<BR><BR>
+</P><P>
+
+<A NAME="fur_example"></A>
+Example: Simple Fur shader material script that uses a second pass with 10 iterations to grow the fur:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// GLSL simple Fur
+vertex_program GLSLDemo/FurVS glsl 
+{ 
+  source fur.vert 
+  default_params
+  {
+    param_named_auto lightPosition light_position_object_space 0
+    param_named_auto eyePosition camera_position_object_space
+    param_named_auto passNumber pass_number
+    param_named_auto multiPassNumber pass_iteration_number
+    param_named furLength float 0.15
+  }
+} 
+
+fragment_program GLSLDemo/FurFS glsl 
+{ 
+  source fur.frag 
+  default_params
+  {
+    param_named Ka float 0.2
+    param_named Kd float 0.5
+    param_named Ks float 0.0
+    param_named furTU int 0
+  }
+} 
+
+material Fur
+{ 
+  technique GLSL
+  { 
+    pass base_coat
+    { 
+      ambient 0.7 0.7 0.7
+      diffuse 0.5 0.8 0.5
+      specular 1.0 1.0 1.0 1.5
+
+      vertex_program_ref GLSLDemo/FurVS
+      {
+      }
+
+      fragment_program_ref GLSLDemo/FurFS 
+      { 
+      } 
+
+      texture_unit
+      {
+        texture Fur.tga
+        tex_coord_set 0
+        filtering trilinear
+      }
+
+    } 
+
+    pass grow_fur
+    { 
+      ambient 0.7 0.7 0.7
+      diffuse 0.8 1.0 0.8
+      specular 1.0 1.0 1.0 64
+      depth_write off
+
+      scene_blend src_alpha one
+      iteration 10
+      
+      vertex_program_ref GLSLDemo/FurVS
+      {
+      }
+
+      fragment_program_ref GLSLDemo/FurFS
+      {
+      }
+
+      texture_unit
+      {
+        texture Fur.tga
+        tex_coord_set 0
+        filtering trilinear
+      }
+    } 
+  } 
+}
+</pre></td></tr></table>Note: use gpu program auto parameters  <A HREF="manual_21.html#pass_number">pass_number</A> and  <A HREF="manual_21.html#pass_iteration_number">pass_iteration_number</A> to tell the vertex or fragment program the pass number and iteration number.
 </P><P>
 
 <A NAME="Texture Units"></A>
