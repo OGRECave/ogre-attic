@@ -139,15 +139,22 @@ namespace Ogre {
 	{
 		if (mParentNode)
 		{
-			Real rad = getBoundingRadius();
-			Real squaredDepth = mParentNode->getSquaredViewDepth(cam);
-			// Distance from the edge of the bounding sphere
-			Real dist = squaredDepth - rad*rad;
-			// Clamp to 0
-			dist = std::max(static_cast<Real>(0.0), dist);
-			if (mSquaredUpperDistance && dist > mSquaredUpperDistance)
+			if (mSquaredUpperDistance)
 			{
-				mBeyondFarDistance = true;
+				Real rad = getBoundingRadius();
+				Real squaredDepth = mParentNode->getSquaredViewDepth(cam);
+				// Distance from the edge of the bounding sphere
+				Real dist = squaredDepth - rad*rad;
+				// Clamp to 0
+				dist = std::max(static_cast<Real>(0.0), dist);
+				if (dist > mSquaredUpperDistance)
+				{
+					mBeyondFarDistance = true;
+				}
+				else
+				{
+					mBeyondFarDistance = false;
+				}
 			}
 			else
 			{
