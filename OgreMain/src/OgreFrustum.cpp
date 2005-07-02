@@ -658,12 +658,6 @@ namespace Ogre {
         static LightList ll;
         return ll;
     }
-    //-----------------------------------------------------------------------
-    void Frustum::_notifyCurrentCamera(Camera* cam)
-    {
-        // NA
-    }
-
     // -------------------------------------------------------------------
     void Frustum::invalidateFrustum() const
     {

@@ -323,6 +323,7 @@ namespace Ogre
     //-----------------------------------------------------------------------
     void TerrainRenderable::_notifyCurrentCamera( Camera* cam )
     {
+		MovableObject::_notifyCurrentCamera(cam);
 
         if ( mForcedRenderLevel >= 0 )
         {

@@ -269,9 +269,6 @@ namespace Ogre {
 		void setSpotlightFalloff(Real val);
 
         /** Overridden from MovableObject */
-        void _notifyCurrentCamera(Camera* cam);
-
-        /** Overridden from MovableObject */
         const AxisAlignedBox& getBoundingBox(void) const;
 
         /** Overridden from MovableObject */

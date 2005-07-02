@@ -260,11 +260,6 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void Light::_notifyCurrentCamera(Camera* cam)
-    {
-        // Do nothing
-    }
-    //-----------------------------------------------------------------------
     const AxisAlignedBox& Light::getBoundingBox(void) const
     {
         // Null, lights are not visible

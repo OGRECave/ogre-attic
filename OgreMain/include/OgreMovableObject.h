@@ -59,6 +59,11 @@ namespace Ogre {
         bool mParentIsTagPoint;
         /// Is this object visible?
         bool mVisible;
+		/// Upper distance to still render
+		Real mUpperDistance;
+		Real mSquaredUpperDistance;
+		/// Hidden because of distance?
+		bool mBeyondFarDistance;
 		/// User defined link to another object / value / whatever
 		Any mUserAny;
         /// The render queue to use when rendering this object
@@ -130,7 +135,7 @@ namespace Ogre {
                 Certain objects may want to do specific processing based on the camera position. This method notifies
                 them incase they wish to do this.
         */
-        virtual void _notifyCurrentCamera(Camera* cam) = 0;
+        virtual void _notifyCurrentCamera(Camera* cam);
 
         /** Retrieves the local axis-aligned bounding box for this object.
             @remarks
@@ -157,8 +162,22 @@ namespace Ogre {
         /** Tells this object whether to be visible or not, if it has a renderable component. */
         virtual void setVisible(bool visible);
 
-        /** Returns whether or not this object is supposed to be visible or not. */
+        /** Returns whether or not this object is supposed to be visible or not. 
+		@remarks
+			Takes into account both upper rendering distance and visible flag.
+		*/
         virtual bool isVisible(void) const;
+		/** Sets the distance at which the object is no longer rendered.
+		@param dist Distance beyond which the object will not be rendered 
+			(the default is 0, which means objects are always rendered).
+		*/
+		virtual void setRenderingDistance(Real dist) { 
+			mUpperDistance = dist; 
+			mSquaredUpperDistance = mUpperDistance * mUpperDistance;
+		}
+
+		/** Gets the distance at which batches are no longer rendered. */
+		virtual Real getRenderingDistance(void) const { return mUpperDistance; }
 
         /** Call this to associate your own custom user object instance with this MovableObject.
         @remarks
