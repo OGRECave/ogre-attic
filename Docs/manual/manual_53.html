@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.0: Shadows</TITLE>
+<TITLE>OGRE Manual v1.1.0: Shadows</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.0: Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.0: Shadows">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Shadows">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Shadows">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC204"></A>
+<A NAME="SEC206"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC197"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC199"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC207"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC209"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,14 +35,14 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H1> 7. Shadows </H1>
-<!--docid::SEC204::-->
+<!--docid::SEC206::-->
 Shadows are clearly an important part of rendering a believable scene - they provide a more tangible feel to the objects in the scene, and aid the viewer in understanding the spatial relationship between objects. Unfortunately, shadows are also one of the most challenging aspects of 3D rendering, and they are still very much an active area of research. Whilst there are many techniques to render shadows, none is perfect and they all come with advantages and disadvantages. For this reason, Ogre provides multiple shadow implementations, with plenty of configuration settings, so you can choose which technique is most appropriate for your scene.<BR><BR>
 
-Shadow implementations fall into basically 2 broad categories: <A HREF="manual_54.html#SEC207">7.1 Stencil Shadows</A> and <A HREF="manual_55.html#SEC214">7.2 Texture-based Shadows</A>. This describes the method by which the shape of the shadow is generated. In addition, there is more than one way to render the shadow into the scene: <A HREF="manual_56.html#SEC225">7.3 Modulative Shadows</A>, which darkens the scene in areas of shadow, and <A HREF="manual_57.html#SEC227">7.4 Additive Light Masking</A> which by contrast builds up light contribution in areas which are not in shadow. Ogre supports all these combinations.<BR><BR>
+Shadow implementations fall into basically 2 broad categories: <A HREF="manual_54.html#SEC209">7.1 Stencil Shadows</A> and <A HREF="manual_55.html#SEC216">7.2 Texture-based Shadows</A>. This describes the method by which the shape of the shadow is generated. In addition, there is more than one way to render the shadow into the scene: <A HREF="manual_56.html#SEC227">7.3 Modulative Shadows</A>, which darkens the scene in areas of shadow, and <A HREF="manual_57.html#SEC229">7.4 Additive Light Masking</A> which by contrast builds up light contribution in areas which are not in shadow. Ogre supports all these combinations.<BR><BR>
 
-<A NAME="SEC205"></A>
+<A NAME="SEC207"></A>
 <H3> Enabling shadows </H3>
-<!--docid::SEC205::-->
+<!--docid::SEC207::-->
 Shadows are disabled by default, here's how you turn them on and configure them in the general sense:
 <OL>
 <LI>
@@ -58,9 +58,9 @@ Configure shadow far distance. You can limit the distance at which shadows are c
 Turn off the receipt of shadows on materials that should not receive them. You can turn off the receipt of shadows (note, not the casting of shadows - that is done per-object) by calling Material::setReceiveShadows or using the receive_shadows material attribute. This is useful for materials which should be considered self-illuminated for example. Note that transparent materials are typically excluded from receiving and casting shadows, although see the <A HREF="manual_16.html#SEC31">transparency_casts_shadows</A> option for exceptions. 
 </OL>
 
-<A NAME="SEC206"></A>
+<A NAME="SEC208"></A>
 <H3> Opting out of shadows </H3>
-<!--docid::SEC206::-->
+<!--docid::SEC208::-->
 By default Ogre treats all non-transparent objects as shadow casters and receivers (depending on the shadow technique they may not be able to be both at once, check the docs for your chosen technique first). You can disable shadows in various ways:
 <DL COMPACT>
 <DT>Turning off shadow casting on the light
@@ -76,9 +76,9 @@ By default Ogre treats all non-transparent objects as shadow casters and receive
 <A NAME="Stencil Shadows"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC197"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC199"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC207"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC209"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>

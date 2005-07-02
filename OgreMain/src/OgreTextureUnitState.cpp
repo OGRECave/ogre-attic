@@ -259,6 +259,27 @@ namespace Ogre {
         return mTextureType;
 
     }
+
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setFrameTextureName(const String& name, unsigned int frameNumber)
+    {
+        if (frameNumber > OGRE_MAX_TEXTURE_FRAMES)
+        {
+			StringUtil::StrStreamType str;
+            str << "Maximum number of frames is " << OGRE_MAX_TEXTURE_FRAMES << ".";
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setFrameTextureName");
+        }
+
+        mFrames[frameNumber] = name;
+
+        if (isLoaded())
+        {
+            _load(); // reload
+            // Tell parent to recalculate hash
+            mParent->_dirtyHash();
+        }
+    }
+
     //-----------------------------------------------------------------------
     void TextureUnitState::setAnimatedTextureName( const String& name, unsigned int numFrames, Real duration)
     {

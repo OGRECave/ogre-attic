@@ -1952,7 +1952,7 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
         // and the light parameters are updated once per traversal through the
         // loop
         const LightList& rendLightList = rend->getLights();
-        bool iteratePerLight = pass->getRunOncePerLight();
+        bool iteratePerLight = pass->getIteratePerLight();
         size_t numIterations = iteratePerLight ? rendLightList.size() : 1;
         const LightList* pLightListToUse;
         for (size_t i = 0; i < numIterations; ++i)
@@ -2009,6 +2009,7 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
             }
             // issue the render op		
             // nfz: check for gpu_multipass
+            mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
             mDestRenderSystem->_render(ro);
         } // possibly iterate per light
     }
@@ -2044,7 +2045,8 @@ void SceneManager::renderSingleObject(Renderable* rend, Pass* pass,
             mDestRenderSystem->_useLights(*manualLightList, pass->getMaxSimultaneousLights());
         }
         // issue the render op		
-        // nfz: check for gpu_multipass
+        // nfz: set up multipass rendering
+        mDestRenderSystem->setCurrentPassIterationCount(pass->getPassIterationCount());
         mDestRenderSystem->_render(ro);
     }
 }

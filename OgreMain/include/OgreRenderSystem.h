@@ -849,8 +849,12 @@ namespace Ogre
         */
         virtual void bindGpuProgram(GpuProgram* prg) = 0;
 
-        /** Bind Gpu program parameters. */
+        /** Bind Gpu program parameters.
+        */
         virtual void bindGpuProgramParameters(GpuProgramType gptype, GpuProgramParametersSharedPtr params) = 0;
+   		/** Only binds Gpu program parameters used for passes that have more than one iteration rendering
+        */
+        virtual void bindGpuProgramPassIterationParameters(GpuProgramType gptype) = 0;
         /** Unbinds GpuPrograms of a given GpuProgramType.
         @remarks
             This returns the pipeline to fixed-function processing for this type.
@@ -945,6 +949,12 @@ namespace Ogre
         @see Renderable::useIdentityView, Renderable::useIdentityProjection
         */
         virtual Real getMaximumDepthInputValue(void) = 0;
+        /** set the current multi pass count value.  This must be set prior to 
+            calling _render() if multiple renderings of the same pass state are 
+            required.
+        @param count Number of times to render the current state.
+        */
+        void setCurrentPassIterationCount(const size_t count) { mCurrentPassIterationCount = count; }
     protected:
 
 
@@ -954,6 +964,9 @@ namespace Ogre
 		RenderTargetPriorityMap mPrioritisedRenderTargets;
 		/** The Active render target. */
 		RenderTarget * mActiveRenderTarget;
+        /** The Active GPU programs and gpu program parameters*/
+        GpuProgramParametersSharedPtr mActiveVertexGpuProgramParameters;
+        GpuProgramParametersSharedPtr mActiveFragmentGpuProgramParameters;
 
         // Texture manager
         // A concrete class of this will be created and
@@ -982,6 +995,15 @@ namespace Ogre
 		ColourValue mManualBlendColours[OGRE_MAX_TEXTURE_LAYERS][2];
 
         bool mInvertVertexWinding;
+
+        /// number of times to render the current state
+        size_t mCurrentPassIterationCount;
+
+        /** updates pass iteration rendering state including bound gpu program parameter
+            pass iteration auto constant entry
+        @returns True if more iterations are required
+        */
+        bool updatePassIterationRenderState(void);
 
     };
 }

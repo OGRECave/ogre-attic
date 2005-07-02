@@ -652,7 +652,7 @@ namespace Ogre {
                 }
                 break;
             case IS_PER_LIGHT:
-                if (p->getRunOncePerLight())
+                if (p->getIteratePerLight())
                 {
                     // If this is per-light already, use it directly
                     iPass = new IlluminationPass();

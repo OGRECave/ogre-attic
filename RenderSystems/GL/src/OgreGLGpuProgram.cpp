@@ -104,6 +104,20 @@ void GLArbGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr params
 
 }
 
+void GLArbGpuProgram::bindProgramPassIterationParameters(GpuProgramParametersSharedPtr params)
+{
+    GLenum type = (mType == GPT_VERTEX_PROGRAM) ? 
+        GL_VERTEX_PROGRAM_ARB : GL_FRAGMENT_PROGRAM_ARB;
+    
+    GpuProgramParameters::RealConstantEntry* realEntry = params->getPassIterationEntry();
+
+    if (realEntry)
+    {
+        glProgramLocalParameter4fvARB_ptr(type, (GLuint)params->getPassIterationEntryIndex(), realEntry->val);
+    }
+
+}
+
 void GLArbGpuProgram::unloadImpl(void)
 {
     glDeleteProgramsARB_ptr(1, &mProgramID);
@@ -112,7 +126,7 @@ void GLArbGpuProgram::unloadImpl(void)
 void GLArbGpuProgram::loadFromSource(void)
 {
     glBindProgramARB_ptr(mProgramType, mProgramID);
-    glProgramStringARB_ptr(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, mSource.length(), mSource.c_str());
+    glProgramStringARB_ptr(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, (GLsizei)mSource.length(), mSource.c_str());
     if (GL_INVALID_OPERATION == glGetError())
     {
         int errPos;

@@ -276,9 +276,16 @@ namespace Ogre {
  			*/
  			ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,
 
-            /** provides the pass iteration number
+            /** provides the pass index number within the technique
+                of the active materil.
             */
             ACT_PASS_NUMBER,
+
+            /** provides the current iteration number of the pass. The iteration
+                number is the number of times the current render operation has
+                been drawn for the acitve pass.
+            */
+            ACT_PASS_ITERATION_NUMBER,
 
             /** provides current elapsed time
             */
@@ -422,6 +429,10 @@ namespace Ogre {
         bool mTransposeMatrices;
 		/// flag to indicate if names not found will be automatically added
 		bool mAutoAddParamName;
+        /// active pass iteration parameter real constant entry;
+        RealConstantEntry* mActivePassIterationEntry;
+        /// index for active pass iteration parameter real constant entry;
+        size_t mActivePassIterationEntryIndex;
 
 
     public:
@@ -833,6 +844,17 @@ namespace Ogre {
         /** Returns the number of auto constant definitions
         */
         inline static size_t getNumAutoConstantDefinitions(void);
+        /** increments the multipass number entry by 1 if it exists
+        */
+        void incPassIterationNumber(void);
+        /** gets the MultipassEntry if it exists.
+        @returns NULL if a Multipass constant entry does not exist.
+        */
+        RealConstantEntry* getPassIterationEntry(void);
+        /** gets the MultipassEntry index.  The value returned is only valid if if 
+            getMultipassEntry() does not return NULL.
+        */
+        size_t getPassIterationEntryIndex(void) const { return mActivePassIterationEntryIndex; }
     };
 
     /// Shared pointer used to hold references to GpuProgramParameters instances

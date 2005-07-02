@@ -101,7 +101,7 @@ namespace Ogre {
         /// Max simultaneous lights
         unsigned short mMaxSimultaneousLights;
 		/// Run this pass once per light?
-		bool mRunOncePerLight;
+		bool mIteratePerLight;
         // Should it only be run for a certain light type?
         bool mRunOnlyForOneLightType;
         Light::LightTypes mOnlyLightType;
@@ -133,6 +133,8 @@ namespace Ogre {
 		GpuProgramUsage *mFragmentProgramUsage;
         // Is this pass queued for deletion?
         bool mQueuedForDeletion;
+        // number of pass iterations to perform
+        size_t mPassIterationCount;
 	public:
 		typedef std::set<Pass*> PassSet;
     protected:
@@ -655,17 +657,19 @@ namespace Ogre {
         /** Gets the alpha reject value. See setAlphaRejectSettings for more information.
         */
 		unsigned char getAlphaRejectValue(void) const { return mAlphaRejectVal; }
-        /** Sets whether or not this pass should be run once per light which
+        /** Sets whether or not this pass should iterate per light which
 		    can affect the object being rendered.
 		@remarks
 			The default behaviour for a pass (when this option is 'false'), is 
-			for a pass to be rendered only once, with all the lights which could
+			for a pass to be rendered only once (or the number of times set in 
+			setPassIterationCount), with all the lights which could
 			affect this object set at the same time (up to the maximum lights
 			allowed in the render system, which is typically 8). 
 		@par
 			Setting this option to 'true' changes this behaviour, such that 
 			instead of trying to issue render this pass once per object, it
-			is run once <b>per light</b> which can affect this object. In
+			is run <b>per light</b> which can affect this object, the number of
+			times set in setPassIterationCount (default is once). In
 			this case, only light index 0 is ever used, and is a different light
 			every time the pass is issued, up to the total number of lights
 			which is affecting this object. This has 2 advantages:
@@ -690,14 +694,14 @@ namespace Ogre {
             of light, other light types will be ignored.
         @param lightType The single light type which will be considered for this pass
 		*/
-        void setRunOncePerLight(bool enabled, 
+        void setIteratePerLight(bool enabled, 
             bool onlyForOneLightType = true, Light::LightTypes lightType = Light::LT_POINT);
 
         /** Does this pass run once for every light in range? */
-		bool getRunOncePerLight(void) const { return mRunOncePerLight; }
-        /** Does this pass run only for a single light type (if getRunOncePerLight is true). */
+		bool getIteratePerLight(void) const { return mIteratePerLight; }
+        /** Does this pass run only for a single light type (if getIteratePerLight is true). */
         bool getRunOnlyForOneLightType(void) const { return mRunOnlyForOneLightType; }
-        /** Gets the single light type this pass runs for if  getRunOncePerLight and 
+        /** Gets the single light type this pass runs for if  getIteratePerLight and 
             getRunOnlyForOneLightType are both true. */
         Light::LightTypes getOnlyLightType() const { return mOnlyLightType; }
 		
@@ -944,6 +948,25 @@ namespace Ogre {
         /** Returns whether this pass is ambient only.
         */
         bool isAmbientOnly(void) const;
+
+        /** set the number of iterations that this pass
+        should perform when doing fast multi pass operation.
+        @remarks
+            Only applicable for programmable passes.
+        @param count number of iterations to perform fast multi pass operations.
+            A value greater than 0 will cause the pass to be executed count number of
+            times without changing the render state.  This is very usefull for passes
+            that use programmable shaders that have to iterate more than once but don't
+            need a render state change.  Using multi pass can dramatically speed up rendering
+            for materials that do things like fur, blur.
+            A value of 0 turns off multi pass operation and the pass does
+            the normal pass operation.
+        */
+        void setPassIterationCount(const size_t count) { mPassIterationCount = count; }
+
+        /** Gets the multi pass count value.
+        */
+        size_t getPassIterationCount(void) const { return mPassIterationCount; }
 
         
     };

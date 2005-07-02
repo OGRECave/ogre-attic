@@ -24,7 +24,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreGLSLExtSupport.h"
-#include "OgreGpuProgram.h"
 #include "OgreGLSLLinkProgram.h"
 
 namespace Ogre {
@@ -287,5 +286,38 @@ namespace Ogre {
 		} // end while
 	}
 
+	//-----------------------------------------------------------------------
+	void GLSLLinkProgram::updatePassIterationUniforms(GpuProgramParametersSharedPtr params)
+	{
+		// iterate through uniform reference list and update pass iteration uniform values
+		UniformReferenceIterator currentUniform = mUniformReferences.begin();
+		UniformReferenceIterator endUniform = mUniformReferences.end();
 
+		GpuProgramParameters::RealConstantEntry* currentRealConstant;
+		GpuProgramParameters::IntConstantEntry* currentIntConstant;
+
+        currentRealConstant = params->getPassIterationEntry();
+        if (currentRealConstant)
+        {
+            // need to find the uniform that matches the multi pass entry
+		    while (currentUniform != endUniform)
+		    {
+			    // get the index in the parameter real list
+
+			    if (currentUniform->isReal)
+			    {
+				    
+				    if (currentRealConstant == params->getNamedRealConstantEntry( currentUniform->mName ))
+				    {
+                        glUniform1fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+                        // there will only be one multipass entry
+                        return;
+                    }
+                }
+			    // get the next uniform
+			    ++currentUniform;
+            }
+        }
+
+    }
 } // namespace Ogre

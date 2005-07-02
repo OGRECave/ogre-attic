@@ -376,6 +376,10 @@ namespace Ogre {
         else
             val = op.vertexData->vertexCount;
 
+        // account for a pass having multiple iterations
+        if (mCurrentPassIterationCount > 1)
+            val *= mCurrentPassIterationCount;
+
         switch(op.operationType)
         {
 		case RenderOperation::OT_TRIANGLE_LIST:
@@ -415,5 +419,26 @@ namespace Ogre {
             target->_notifyCameraRemoved(cam);
         }
     }
+
+	//---------------------------------------------------------------------
+    bool RenderSystem::updatePassIterationRenderState(void)
+    {
+        if (mCurrentPassIterationCount <= 1)
+            return false;
+
+        --mCurrentPassIterationCount;
+        if (!mActiveVertexGpuProgramParameters.isNull())
+        {
+            mActiveVertexGpuProgramParameters->incPassIterationNumber();
+            bindGpuProgramPassIterationParameters(GPT_VERTEX_PROGRAM);
+        }
+        if (!mActiveVertexGpuProgramParameters.isNull())
+        {
+            mActiveFragmentGpuProgramParameters->incPassIterationNumber();
+            bindGpuProgramPassIterationParameters(GPT_FRAGMENT_PROGRAM);
+        }
+        return true;
+    }
+
 }
 

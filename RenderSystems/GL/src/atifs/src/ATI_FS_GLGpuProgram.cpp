@@ -89,6 +89,16 @@ void ATI_FS_GLGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr pa
 
 }
 
+void ATI_FS_GLGpuProgram::bindProgramPassIterationParameters(GpuProgramParametersSharedPtr params)
+{
+    GpuProgramParameters::RealConstantEntry* realEntry = params->getPassIterationEntry();
+
+    if (realEntry)
+    {
+        glSetFragmentShaderConstantATI_ptr( GL_CON_0_ATI + (GLuint)params->getPassIterationEntryIndex(), realEntry->val);
+    }
+}
+
 
 void ATI_FS_GLGpuProgram::unloadImpl(void)
 {
@@ -107,7 +117,8 @@ void ATI_FS_GLGpuProgram::loadFromSource(void)
 
     bool Error = !PS1_4Assembler.compile(mSource.c_str());
 
-    if(!Error) { 
+    if (!Error)
+	{ 
 		glBindFragmentShaderATI_ptr(mProgramID);
 		glBeginFragmentShaderATI_ptr();
 			// compile was successfull so send the machine instructions thru GL to GPU
@@ -122,7 +133,8 @@ void ATI_FS_GLGpuProgram::loadFromSource(void)
 		}
 
     }
-    else {
+    else
+	{
 		// an error occured when compiling the ps_1_4 source code
 		char buff[50];
         sprintf(buff,"error on line %d in pixel shader source\n", PS1_4Assembler.mCurrentLine);

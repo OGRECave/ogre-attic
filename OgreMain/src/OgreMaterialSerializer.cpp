@@ -436,50 +436,88 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    void parseIterationLightTypes(String& params, MaterialScriptContext& context)
+    {
+        // Parse light type
+        if (params == "directional")
+        {
+            context.pass->setIteratePerLight(true, true, Light::LT_DIRECTIONAL);
+        }
+        else if (params == "point")
+        {
+            context.pass->setIteratePerLight(true, true, Light::LT_POINT);
+        }
+        else if (params == "spot")
+        {
+            context.pass->setIteratePerLight(true, true, Light::LT_SPOTLIGHT);
+        }
+        else
+        {
+            logParseError("Bad iteration attribute, valid values for light type parameter "
+                "are 'point' or 'directional' or 'spot'.", context);
+        }
+
+    }
+    //-----------------------------------------------------------------------
     bool parseIteration(String& params, MaterialScriptContext& context)
     {
+        // we could have more than one parameter
+        /** combinations could be:
+            iteration once
+            iteration once_per_light [light type]
+            iteration <number>
+            iteration <number> [per_light] [light type]
+        */
         StringUtil::toLowerCase(params);
         StringVector vecparams = StringUtil::split(params, " \t");
-        if (vecparams.size() != 1 && vecparams.size() != 2)
+        if (vecparams.size() < 1 || vecparams.size() > 3)
         {
-            logParseError("Bad iteration attribute, expected 1 or 2 parameters.", context);
+            logParseError("Bad iteration attribute, expected 1 to 3 parameters.", context);
             return false;
         }
 
         if (vecparams[0]=="once")
-            context.pass->setRunOncePerLight(false);
+            context.pass->setIteratePerLight(false);
         else if (vecparams[0]=="once_per_light")
         {
             if (vecparams.size() == 2)
             {
-                // Parse light type
-                if (vecparams[1] == "directional")
-                {
-                    context.pass->setRunOncePerLight(true, true, Light::LT_DIRECTIONAL);
-                }
-                else if (vecparams[1] == "point")
-                {
-                    context.pass->setRunOncePerLight(true, true, Light::LT_POINT);
-                }
-                else if (vecparams[1] == "spot")
-                {
-                    context.pass->setRunOncePerLight(true, true, Light::LT_SPOTLIGHT);
-                }
-                else
-                {
-                    logParseError("Bad iteration attribute, valid values for second parameter "
-                        "are 'point' or 'directional' or 'spot'.", context);
-                }
+                parseIterationLightTypes(vecparams[1], context);
             }
-            else
+            else 
             {
-                context.pass->setRunOncePerLight(true, false);
+                context.pass->setIteratePerLight(true, false);
             }
 
         }
-        else
-            logParseError(
-                "Bad iteration attribute, valid parameters are 'once' or 'once_per_light'.", context);
+        else // could be using form: <number> [per_light] [light type]
+        {
+            int passIterationCount = StringConverter::parseInt(vecparams[0]);
+            if (passIterationCount > 0)
+            {
+                context.pass->setPassIterationCount(passIterationCount);
+                if (vecparams.size() > 1)
+                {
+                    if (vecparams[1] == "per_light")
+                    {
+                        if (vecparams.size() == 3)
+                        {
+                            parseIterationLightTypes(vecparams[2], context);
+                        }
+                        else 
+                        {
+                            context.pass->setIteratePerLight(true, false);
+                        }
+                    }
+                    else
+                        logParseError(
+                            "Bad iteration attribute, valid parameters are <number> [per_light] [light type].", context);
+                }
+            }
+            else
+                logParseError(
+                    "Bad iteration attribute, valid parameters are 'once' or 'once_per_light' or <number> [per_light] [light type].", context);
+        }
         return false;
     }
     //-----------------------------------------------------------------------
@@ -2754,11 +2792,22 @@ namespace Ogre
             }
 			// iteration
             if (mDefaults || 
-                pPass->getRunOncePerLight())
+                pPass->getIteratePerLight() || (pPass->getPassIterationCount() > 0))
             {
                 writeAttribute(3, "iteration");
-                writeValue(pPass->getRunOncePerLight() ? "once_per_light" : "once");
-                if (pPass->getRunOncePerLight() && pPass->getRunOnlyForOneLightType())
+                // multipass count
+                if (pPass->getPassIterationCount() > 0)
+                {
+                    writeValue(StringConverter::toString(pPass->getPassIterationCount()));
+                    if (pPass->getIteratePerLight())
+                        writeValue("per_light");
+                }
+                else
+                {
+                    writeValue(pPass->getIteratePerLight() ? "once_per_light" : "once");
+                }
+
+                if (pPass->getIteratePerLight() && pPass->getRunOnlyForOneLightType())
                 {
                     switch (pPass->getOnlyLightType())
                     {
@@ -2972,6 +3021,7 @@ namespace Ogre
             }
 
             // nfz
+
             //  GPU Vertex and Fragment program references and parameters
             if (pPass->hasVertexProgram())
             {

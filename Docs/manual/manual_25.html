@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.0: Particle Emitters</TITLE>
+<TITLE>OGRE Manual v1.1.0: Particle Emitters</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.0: Particle Emitters">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.0: Particle Emitters">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Particle Emitters">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Particle Emitters">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC111"></A>
+<A NAME="SEC113"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC101"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC97"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC113"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC102"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC98"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC115"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,55 +35,55 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.2 Particle Emitters </H3>
-<!--docid::SEC111::-->
+<!--docid::SEC113::-->
 Particle emitters are classified by 'type' e.g. 'Point' emitters emit from a single point whilst 'Box' emitters emit randomly from an area. New emitters can be added to Ogre by creating plugins. You add an emitter to a system by nesting another section within it, headed with the keyword 'emitter' followed by the name of the type of emitter (case sensitive). Ogre currently supports 'Point', 'Box', 'Cylinder', 'Ellipsoid', 'HollowEllipsoid' and 'Ring' emitters.
 <P>
 
-<A NAME="SEC112"></A>
+<A NAME="SEC114"></A>
 <H3> Particle Emitter Universal Attributes </H3>
-<!--docid::SEC112::-->
+<!--docid::SEC114::-->
 <UL>
 <LI>
-<A HREF="manual_26.html#SEC114">angle</A>
+<A HREF="manual_26.html#SEC116">angle</A>
 <LI>
-<A HREF="manual_26.html#SEC115">colour</A>
+<A HREF="manual_26.html#SEC117">colour</A>
 <LI>
  <A HREF="manual_26.html#colour_range_start">colour_range_start</A>
 <LI>
  <A HREF="manual_26.html#colour_range_end">colour_range_end</A>
 <LI>
-<A HREF="manual_26.html#SEC117">direction</A>
+<A HREF="manual_26.html#SEC119">direction</A>
 <LI>
-<A HREF="manual_26.html#SEC118">emission_rate</A>
+<A HREF="manual_26.html#SEC120">emission_rate</A>
 <LI>
-<A HREF="manual_26.html#SEC119">position</A>
+<A HREF="manual_26.html#SEC121">position</A>
 <LI>
-<A HREF="manual_26.html#SEC120">velocity</A>
+<A HREF="manual_26.html#SEC122">velocity</A>
 <LI>
  <A HREF="manual_26.html#velocity_min">velocity_min</A>
 <LI>
  <A HREF="manual_26.html#velocity_max">velocity_max</A>
 <LI>
-<A HREF="manual_26.html#SEC122">time_to_live</A>
+<A HREF="manual_26.html#SEC124">time_to_live</A>
 <LI>
  <A HREF="manual_26.html#time_to_live_min">time_to_live_min</A>
 <LI>
  <A HREF="manual_26.html#time_to_live_max">time_to_live_max</A>
 <LI>
-<A HREF="manual_26.html#SEC124">duration</A>
+<A HREF="manual_26.html#SEC126">duration</A>
 <LI>
  <A HREF="manual_26.html#duration_min">duration_min</A>
 <LI>
  <A HREF="manual_26.html#duration_max">duration_max</A>
 <LI>
-<A HREF="manual_26.html#SEC126">repeat_delay</A>
+<A HREF="manual_26.html#SEC128">repeat_delay</A>
 <LI>
  <A HREF="manual_26.html#repeat_delay_min">repeat_delay_min</A>
 <LI>
  <A HREF="manual_26.html#repeat_delay_max">repeat_delay_max</A>
 </UL>
 <BR><BR>
-See also: <A HREF="manual_23.html#SEC97">3.2 Particle Scripts</A>, <A HREF="manual_28.html#SEC135">3.2.5 Particle Affectors</A>
+See also: <A HREF="manual_23.html#SEC98">3.2 Particle Scripts</A>, <A HREF="manual_28.html#SEC137">3.2.5 Particle Affectors</A>
 <P>
 
 <A NAME="Particle Emitter Attributes"></A>
