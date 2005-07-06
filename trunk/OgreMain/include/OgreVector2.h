@@ -367,36 +367,12 @@ namespace Ogre
         {         
             return Vector2 (-y, x);
         }
-        /** Calculates the cross-product of 2 vectors, i.e. the vector that
-            lies perpendicular to them both.
-            @remarks
-                The cross-product is normally used to calculate the normal
-                vector of a plane, by calculating the cross-product of 2
-                non-equivalent vectors which lie on the plane (e.g. 2 edges
-                of a triangle).
-            @param
-                vec Vector which, together with this one, will be used to
-                calculate the cross-product.
-            @returns
-                A vector which is the result of the cross-product. This
-                vector will <b>NOT</b> be normalised, to maximise efficiency
-                - call Vector3::normalise on the result if you wish this to
-                be done. As for which side the resultant vector will be on, the
-                returned vector will be on the side from which the arc from 'this'
-                to rkVector is anticlockwise, e.g. UNIT_Y.crossProduct(UNIT_Z) 
-                = UNIT_X, whilst UNIT_Z.crossProduct(UNIT_Y) = -UNIT_X.
-            @par
-                For a clearer explanation, look a the left and the bottom edges
-                of your monitor's screen. Assume that the first vector is the
-                left edge and the second vector is the bottom edge, both of
-                them starting from the lower-left corner of the screen. The
-                resulting vector is going to be perpendicular to both of them
-                and will go <i>inside</i> the screen, towards the cathode tube
-                (assuming you're using a CRT monitor, of course).
+        /** Calculates the 2 dimensional cross-product of 2 vectors, which results
+			in a single floating point value which is 2 times the area of the triangle.
         */
-        inline Vector2 crossProduct( const Vector2& rkVector ) const
+        inline Real crossProduct( const Vector2& rkVector ) const
         {
-            return Vector2(-rkVector.y, rkVector.x);
+            return x * rkVector.y - y * rkVector.x;
         }
         /** Generates a new random vector which deviates from this vector by a
             given angle in a random direction.
