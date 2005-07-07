@@ -28,7 +28,7 @@ Description: Somewhere to play in the sand...
 ApplicationObject *ball;
 
 SceneNode* targetNode;
-RaySceneQuery* rsq;
+RaySceneQuery* rsq = 0;
 
 
 // Event handler to add ability to alter curvature
@@ -97,7 +97,8 @@ public:
     }
 
     ~BspCollisionApplication() 
-    {  
+    {
+		delete rsq;
     }
 
 protected:
