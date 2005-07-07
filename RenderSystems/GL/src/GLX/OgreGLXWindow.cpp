@@ -55,8 +55,10 @@ GLXWindow::GLXWindow(Display *display) :
 		mDisplay(display),
 		mWindow(0),
 		mGlxContext(0),
-        mActive(false), mClosed(false),mFullScreen(false), mOldMode(-1),
-        mContext(0) {}
+        mClosed(false),mFullScreen(false), mOldMode(-1),
+        mContext(0) {
+	mActive = false;
+}
 
 GLXWindow::~GLXWindow() {
 	if(mGlxContext)
