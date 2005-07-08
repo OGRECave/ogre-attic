@@ -44,6 +44,7 @@ namespace Ogre {
 #   include <windows.h>
 #   include <wingdi.h>
 #   include <GL/glew.h>
+#   include <GL/wglew.h>
 #   include <GL/glu.h>
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #   include <GL/glew.h>
