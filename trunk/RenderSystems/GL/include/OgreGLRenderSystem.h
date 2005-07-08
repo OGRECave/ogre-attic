@@ -125,6 +125,8 @@ namespace Ogre {
         /* Map of render target -> context mappings. This is used to find the
          * GL context for a certain render target */
         ContextMap mContextMap;
+        /* Support framebuffer objects? (direct render to texture */
+        bool mFBO;
     public:
         // Default constructor / destructor
         GLRenderSystem();

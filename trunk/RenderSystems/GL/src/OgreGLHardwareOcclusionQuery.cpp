@@ -50,7 +50,7 @@ GLHardwareOcclusionQuery::GLHardwareOcclusionQuery()
 
 	// Check for hardware occlusion support
 	// This is a hack to see if hw occlusion is supported. pointer is 0 if it's not supported.
-    if(glGenQueriesARB_ptr != 0)
+    if(glGenQueriesARB != 0)
     {
 		mHasOcclusionSupport = true;
 	}
@@ -61,7 +61,7 @@ GLHardwareOcclusionQuery::GLHardwareOcclusionQuery()
 
 	if(mHasOcclusionSupport)
 	{
-		glGenQueriesARB_ptr(1, &mQueryID );	
+		glGenQueriesARB(1, &mQueryID );	
 	}
 }
 
@@ -72,7 +72,7 @@ GLHardwareOcclusionQuery::~GLHardwareOcclusionQuery()
 { 
 	if( mHasOcclusionSupport )
 	{
-		glDeleteQueriesARB_ptr(1, &mQueryID);  
+		glDeleteQueriesARB(1, &mQueryID);  
 	}	
 }
 
@@ -92,7 +92,7 @@ void GLHardwareOcclusionQuery::beginOcclusionQuery()
 
 		if ( mSkipCounter == 0)
 		{
-			glBeginQueryARB_ptr(GL_SAMPLES_PASSED_ARB, mQueryID);
+			glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryID);
 		}
 	}
 }
@@ -104,7 +104,7 @@ void GLHardwareOcclusionQuery::endOcclusionQuery()
 	{
 		if( mSkipCounter == 0)
 		{
-			glEndQueryARB_ptr(GL_SAMPLES_PASSED_ARB);
+			glEndQueryARB(GL_SAMPLES_PASSED_ARB);
 		}
 
 		mSkipCounter++;
@@ -118,7 +118,7 @@ bool GLHardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments,
 {
 	if( mHasOcclusionSupport )	// Make it fail silently if hardware occlusion isn't supported
 	{
-		glGetQueryObjectuivARB_ptr(mQueryID, GL_QUERY_RESULT_ARB, NumOfFragments);
+		glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_ARB, NumOfFragments);
 	}
 	else
 	{

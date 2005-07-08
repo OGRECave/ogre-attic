@@ -173,23 +173,23 @@ namespace Ogre {
 				switch(mTextureType)
 				{
 					case TEX_TYPE_1D:
-						glCompressedTexImage1DARB_ptr(GL_TEXTURE_1D, mip, format, 
+						glCompressedTexImage1DARB(GL_TEXTURE_1D, mip, format, 
 							width, 0, 
 							size, tmpdata);
 						break;
 					case TEX_TYPE_2D:
-						glCompressedTexImage2DARB_ptr(GL_TEXTURE_2D, mip, format,
+						glCompressedTexImage2DARB(GL_TEXTURE_2D, mip, format,
 							width, height, 0, 
 							size, tmpdata);
 						break;
 					case TEX_TYPE_3D:
-						glCompressedTexImage3DARB_ptr(GL_TEXTURE_3D, mip, format,
+						glCompressedTexImage3DARB(GL_TEXTURE_3D, mip, format,
 							width, height, depth, 0, 
 							size, tmpdata);
 						break;
 					case TEX_TYPE_CUBE_MAP:
 						for(int face=0; face<6; face++) {
-							glCompressedTexImage2DARB_ptr(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mip, format,
+							glCompressedTexImage2DARB(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, mip, format,
 								width, height, 0, 
 								size, tmpdata);
 						}

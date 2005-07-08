@@ -1,15 +1,6 @@
 #include "ts1.0_inst.h"
-#ifdef WIN32
-#include <windows.h>
-#endif
+#include <OgreGLPrerequisites.h>
 
-#if defined(__APPLE__) && defined(__GNUC__)
-#include <OpenGL/gl.h>
-#include "glext.h"
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
 Inst::Inst(int inst, float arg0, float arg1, float arg2, float arg3, float arg4, float arg5, float arg6)
 {
 	opcode.word = inst;
@@ -74,7 +65,7 @@ void Inst::Invoke()
 		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_PASS_THROUGH_NV);
 		break;
 	case TSP_OFFSET_2D_SCALE:
-		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_OFFSET_TEXTURE_2D_SCALE_NV);
+		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_OFFSET_TEXTURE_SCALE_NV);
 		glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB + (int)args[0]);
 		glTexEnvfv(GL_TEXTURE_SHADER_NV, GL_OFFSET_TEXTURE_MATRIX_NV, &args[1]);
 		glTexEnvf(GL_TEXTURE_SHADER_NV, GL_OFFSET_TEXTURE_SCALE_NV, args[5]);

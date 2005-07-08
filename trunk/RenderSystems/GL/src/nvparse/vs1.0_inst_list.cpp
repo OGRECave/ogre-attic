@@ -170,7 +170,7 @@ namespace
 		const GLubyte *errString;
 		
 		int len = strlen(instring);
-		glLoadProgramNV_ptr( target, id, len, (const GLubyte *) instring );
+		glLoadProgramNV( target, id, len, (const GLubyte *) instring );
 		if ( (errCode = glGetError()) != GL_NO_ERROR )
 		{
 			errString = gluErrorString( errCode );

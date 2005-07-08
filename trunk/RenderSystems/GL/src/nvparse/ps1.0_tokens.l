@@ -17,12 +17,6 @@ using namespace ps10;
 
 #include "_ps1.0_parser.h"
 
-#ifdef _WIN32
-# include <windows.h>
-#endif
-
-#include <GL/gl.h>
-#include <GL/glext.h>
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 

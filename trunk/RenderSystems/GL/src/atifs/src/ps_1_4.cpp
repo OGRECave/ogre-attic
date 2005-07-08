@@ -26,7 +26,6 @@ http://www.gnu.org/copyleft/gpl.html.
  
  //---------------------------------------------------------------------------
 #include "ps_1_4.h"
-#include "OgreGLATIFSInit.h"
 
 //---------------------------------------------------------------------------
 
@@ -1013,7 +1012,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
     switch(PassMachineInstructions[instIDX]) {
       case mi_COLOROP1:
         if((instIDX+7) < instCount)
-          glColorFragmentOp1ATI_ptr(PassMachineInstructions[instIDX+1], // op
+          glColorFragmentOp1ATI(PassMachineInstructions[instIDX+1], // op
             PassMachineInstructions[instIDX+2], // dst
             PassMachineInstructions[instIDX+3], // dstMask
             PassMachineInstructions[instIDX+4], // dstMod
@@ -1025,7 +1024,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_COLOROP2:
         if((instIDX+10) < instCount)
-          glColorFragmentOp2ATI_ptr(PassMachineInstructions[instIDX+1], // op
+          glColorFragmentOp2ATI(PassMachineInstructions[instIDX+1], // op
             PassMachineInstructions[instIDX+2], // dst
             PassMachineInstructions[instIDX+3], // dstMask
             PassMachineInstructions[instIDX+4], // dstMod
@@ -1040,7 +1039,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_COLOROP3:
         if((instIDX+13) < instCount)
-          glColorFragmentOp3ATI_ptr(PassMachineInstructions[instIDX+1], // op
+          glColorFragmentOp3ATI(PassMachineInstructions[instIDX+1], // op
             PassMachineInstructions[instIDX+2],  // dst
             PassMachineInstructions[instIDX+3],  // dstMask
             PassMachineInstructions[instIDX+4],  // dstMod
@@ -1058,7 +1057,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_ALPHAOP1:
         if((instIDX+6) < instCount)
-          glAlphaFragmentOp1ATI_ptr(PassMachineInstructions[instIDX+1], // op
+          glAlphaFragmentOp1ATI(PassMachineInstructions[instIDX+1], // op
             PassMachineInstructions[instIDX+2],   // dst
             PassMachineInstructions[instIDX+3],   // dstMod
             PassMachineInstructions[instIDX+4],   // arg1
@@ -1069,7 +1068,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_ALPHAOP2:
         if((instIDX+9) < instCount)
-          glAlphaFragmentOp2ATI_ptr(PassMachineInstructions[instIDX+1], // op
+          glAlphaFragmentOp2ATI(PassMachineInstructions[instIDX+1], // op
             PassMachineInstructions[instIDX+2],   // dst
             PassMachineInstructions[instIDX+3],   // dstMod
             PassMachineInstructions[instIDX+4],   // arg1
@@ -1083,7 +1082,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_ALPHAOP3:
         if((instIDX+12) < instCount)
-          glAlphaFragmentOp3ATI_ptr(PassMachineInstructions[instIDX+1], // op
+          glAlphaFragmentOp3ATI(PassMachineInstructions[instIDX+1], // op
             PassMachineInstructions[instIDX+2],   // dst
             PassMachineInstructions[instIDX+3],   // dstMod
             PassMachineInstructions[instIDX+4],   // arg1
@@ -1100,14 +1099,14 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_SETCONSTANTS:
         if((instIDX+2) < instCount)
-          glSetFragmentShaderConstantATI_ptr(PassMachineInstructions[instIDX+1], // dst
+          glSetFragmentShaderConstantATI(PassMachineInstructions[instIDX+1], // dst
             &mConstants[PassMachineInstructions[instIDX+2]]);
         instIDX += 3;
         break;
 
       case mi_PASSTEXCOORD:
         if((instIDX+3) < instCount)
-          glPassTexCoordATI_ptr(PassMachineInstructions[instIDX+1], // dst
+          glPassTexCoordATI(PassMachineInstructions[instIDX+1], // dst
             PassMachineInstructions[instIDX+2], // coord
             PassMachineInstructions[instIDX+3]); // swizzle
         instIDX += 4;
@@ -1115,7 +1114,7 @@ bool PS_1_4::bindMachineInstInPassToFragmentShader(const MachineInstContainer & 
 
       case mi_SAMPLEMAP:
         if((instIDX+3) < instCount)
-          glSampleMapATI_ptr(PassMachineInstructions[instIDX+1], // dst
+          glSampleMapATI(PassMachineInstructions[instIDX+1], // dst
             PassMachineInstructions[instIDX+2], // interp
             PassMachineInstructions[instIDX+3]); // swizzle
         instIDX += 4;

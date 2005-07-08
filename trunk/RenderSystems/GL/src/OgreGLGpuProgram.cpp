@@ -51,7 +51,7 @@ GLArbGpuProgram::GLArbGpuProgram(ResourceManager* creator, const String& name,
     ManualResourceLoader* loader) 
     : GLGpuProgram(creator, name, handle, group, isManual, loader)
 {
-    glGenProgramsARB_ptr(1, &mProgramID);
+    glGenProgramsARB(1, &mProgramID);
 }
 
 GLArbGpuProgram::~GLArbGpuProgram()
@@ -70,12 +70,12 @@ void GLArbGpuProgram::setType(GpuProgramType t)
 void GLArbGpuProgram::bindProgram(void)
 {
     glEnable(mProgramType);
-    glBindProgramARB_ptr(mProgramType, mProgramID);
+    glBindProgramARB(mProgramType, mProgramID);
 }
 
 void GLArbGpuProgram::unbindProgram(void)
 {
-    glBindProgramARB_ptr(mProgramType, 0);
+    glBindProgramARB(mProgramType, 0);
     glDisable(mProgramType);
 }
 
@@ -95,7 +95,7 @@ void GLArbGpuProgram::bindProgramParameters(GpuProgramParametersSharedPtr params
             const GpuProgramParameters::RealConstantEntry* e = realIt.peekNextPtr();
             if (e->isSet)
             {
-                glProgramLocalParameter4fvARB_ptr(type, index, e->val);
+                glProgramLocalParameter4fvARB(type, index, e->val);
             }
             index++;
             realIt.moveNext();
@@ -113,20 +113,21 @@ void GLArbGpuProgram::bindProgramPassIterationParameters(GpuProgramParametersSha
 
     if (realEntry)
     {
-        glProgramLocalParameter4fvARB_ptr(type, (GLuint)params->getPassIterationEntryIndex(), realEntry->val);
+        glProgramLocalParameter4fvARB(type, (GLuint)params->getPassIterationEntryIndex(), realEntry->val);
     }
 
 }
 
 void GLArbGpuProgram::unloadImpl(void)
 {
-    glDeleteProgramsARB_ptr(1, &mProgramID);
+    glDeleteProgramsARB(1, &mProgramID);
 }
 
 void GLArbGpuProgram::loadFromSource(void)
 {
-    glBindProgramARB_ptr(mProgramType, mProgramID);
-    glProgramStringARB_ptr(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, (GLsizei)mSource.length(), mSource.c_str());
+    glBindProgramARB(mProgramType, mProgramID);
+    glProgramStringARB(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, (GLsizei)mSource.length(), mSource.c_str());
+
     if (GL_INVALID_OPERATION == glGetError())
     {
         int errPos;
@@ -139,6 +140,6 @@ void GLArbGpuProgram::loadFromSource(void)
             "Cannot load GL vertex program " + mName + 
             ".  Line " + errPosStr + ":\n" + errStr, mName);
     }
-    glBindProgramARB_ptr(mProgramType, 0);
+    glBindProgramARB(mProgramType, 0);
 }
 

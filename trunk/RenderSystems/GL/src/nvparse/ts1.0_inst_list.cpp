@@ -2,19 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#define GL_GLEXT_PROTOTYPES
-#define GL_GLEXT_LEGACY
-#if defined(__APPLE__) && defined(__GNUC__)
-#include <OpenGL/gl.h>
-#include "glext.h"
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
 
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
@@ -58,14 +45,14 @@ void InstList::Invoke()
         int i;
 	for (i = 0; i < size; i++) {
 		// set active texture
-		glActiveTextureARB_ptr(GL_TEXTURE0_ARB + i);
+		glActiveTextureARB(GL_TEXTURE0_ARB + i);
 		list[i].Invoke();
 	}
 	// Reset active texture to unit 0
 	// Could do a glGet to figure out what the initial active texunit was,
 	// and reset to that, but the glGet would not behave well within
 	// a display list...
-	glActiveTextureARB_ptr(GL_TEXTURE0_ARB);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
 }
 
 void InstList::Validate()

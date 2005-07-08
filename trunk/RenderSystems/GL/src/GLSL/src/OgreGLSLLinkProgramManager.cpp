@@ -132,7 +132,7 @@ namespace Ogre {
 			// ActiveLinkProgram is no longer valid
 			mActiveLinkProgram = NULL;
 			// change back to fixed pipeline
-			glUseProgramObjectARB_ptr(0);
+			glUseProgramObjectARB(0);
 		}
 	}
 
@@ -145,7 +145,7 @@ namespace Ogre {
 			// ActiveLinkProgram is no longer valid
 			mActiveLinkProgram = NULL;
 			// change back to fixed pipeline
-			glUseProgramObjectARB_ptr(0);
+			glUseProgramObjectARB(0);
 		}
 	}
 

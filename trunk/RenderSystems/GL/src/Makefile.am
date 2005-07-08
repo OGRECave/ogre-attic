@@ -11,8 +11,7 @@ SUBDIRS = $(OGRE_GLSUPPORT) nvparse atifs GLSL
 
 pkglib_LTLIBRARIES = RenderSystem_GL.la
 
-RenderSystem_GL_la_SOURCES = OgreGLATIFSInit.cpp \
-                             OgreGLEngineDll.cpp \
+RenderSystem_GL_la_SOURCES = OgreGLEngineDll.cpp \
                              OgreGLGpuProgram.cpp \
                              OgreGLGpuNvparseProgram.cpp \
                              OgreGLGpuProgramManager.cpp \
@@ -28,7 +27,7 @@ RenderSystem_GL_la_SOURCES = OgreGLATIFSInit.cpp \
                              OgreGLDefaultHardwareBufferManager.cpp \
                              OgreGLContext.cpp \
                              OgreGLPixelFormat.cpp \
-				glprocs.c
+				glew.cpp
 
 RenderSystem_GL_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs
 RenderSystem_GL_la_LIBADD = \
