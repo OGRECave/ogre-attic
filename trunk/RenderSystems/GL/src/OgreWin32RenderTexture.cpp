@@ -45,16 +45,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-	static PFNWGLCHOOSEPIXELFORMATARBPROC _wglChoosePixelFormatARB = 0;
-	static PFNWGLCREATEPBUFFERARBPROC _wglCreatePbufferARB = 0;
-	static PFNWGLGETPBUFFERDCARBPROC _wglGetPbufferDCARB = 0;
-	static PFNWGLRELEASEPBUFFERDCARBPROC _wglReleasePbufferDCARB = 0;
-	static PFNWGLDESTROYPBUFFERARBPROC _wglDestroyPbufferARB = 0;
-	static PFNWGLQUERYPBUFFERARBPROC _wglQueryPbufferARB = 0;
-	static PFNWGLBINDTEXIMAGEARBPROC _wglBindTexImageARB = 0;
-	static PFNWGLRELEASETEXIMAGEARBPROC _wglReleaseTexImageARB = 0;
-	static PFNWGLGETPIXELFORMATATTRIBIVARBPROC _wglGetPixelFormatAttribivARB = 0;
-
 	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
 			unsigned int width, unsigned int height,
 			TextureType texType, PixelFormat internalFormat, 
@@ -63,18 +53,6 @@ namespace Ogre {
 		mGLSupport(glsupport),
         mContext(0), mUseBind(useBind)
 	{
-		if(!_wglChoosePixelFormatARB) _wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-		if(!_wglCreatePbufferARB) _wglCreatePbufferARB = (PFNWGLCREATEPBUFFERARBPROC)wglGetProcAddress("wglCreatePbufferARB");
-		if(!_wglGetPbufferDCARB) _wglGetPbufferDCARB = (PFNWGLGETPBUFFERDCARBPROC)wglGetProcAddress("wglGetPbufferDCARB");
-		if(!_wglReleasePbufferDCARB) _wglReleasePbufferDCARB = (PFNWGLRELEASEPBUFFERDCARBPROC)wglGetProcAddress("wglReleasePbufferDCARB");
-		if(!_wglDestroyPbufferARB) _wglDestroyPbufferARB = (PFNWGLDESTROYPBUFFERARBPROC)wglGetProcAddress("wglDestroyPbufferARB");
-		if(!_wglQueryPbufferARB) _wglQueryPbufferARB = (PFNWGLQUERYPBUFFERARBPROC)wglGetProcAddress("wglQueryPbufferARB");
-		if(!_wglGetPixelFormatAttribivARB) _wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribivARB");
-		if(mUseBind)
-		{
-			if(!_wglBindTexImageARB) _wglBindTexImageARB = (PFNWGLBINDTEXIMAGEARBPROC)wglGetProcAddress("wglBindTexImageARB");
-			if(!_wglReleaseTexImageARB) _wglReleaseTexImageARB = (PFNWGLRELEASETEXIMAGEARBPROC)wglGetProcAddress("wglReleaseTexImageARB");
-		}
 	
 		createPBuffer();
 
@@ -88,7 +66,7 @@ namespace Ogre {
 		{
 			// Bind texture
 			glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
-			_wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+			wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 		}
 	}
 	Win32RenderTexture::~Win32RenderTexture() 
@@ -100,7 +78,7 @@ namespace Ogre {
 				static_cast<GLTexture*>(mTexture.get())->getGLID());
 			glBindTexture(GL_TEXTURE_2D,
 				static_cast<GLTexture*>(mTexture.get())->getGLID());
-			_wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
+			wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 		}
            
         // Unregister and destroy mContext
@@ -188,7 +166,7 @@ namespace Ogre {
 		unsigned int count;
 
 		// Choose suitable pixel format
-		_wglChoosePixelFormatARB(old_hdc,attrib,NULL,1,&format,&count);
+		wglChoosePixelFormatARB(old_hdc,attrib,NULL,1,&format,&count);
 		if(count == 0)
 			OGRE_EXCEPT(0, "wglChoosePixelFormatARB() failed", "Win32RenderTexture::createPBuffer");
 
@@ -211,34 +189,34 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage(
 			LML_NORMAL, str.str());
 
-		mPBuffer = _wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib);
+		mPBuffer = wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib);
 		if(!mPBuffer)
 			OGRE_EXCEPT(0, "wglCreatePbufferARB() failed", "Win32RenderTexture::createPBuffer");
 
-		mHDC = _wglGetPbufferDCARB(mPBuffer);
+		mHDC = wglGetPbufferDCARB(mPBuffer);
 		if(!mHDC) {
-			_wglDestroyPbufferARB(mPBuffer);
+			wglDestroyPbufferARB(mPBuffer);
 			OGRE_EXCEPT(0, "wglGetPbufferDCARB() failed", "Win32RenderTexture::createPBuffer");
 		}
 			
 		mGlrc = wglCreateContext(mHDC);
 		if(!mGlrc) {
-			_wglReleasePbufferDCARB(mPBuffer,mHDC);
-			_wglDestroyPbufferARB(mPBuffer);
+			wglReleasePbufferDCARB(mPBuffer,mHDC);
+			wglDestroyPbufferARB(mPBuffer);
 			OGRE_EXCEPT(0, "wglCreateContext() failed", "Win32RenderTexture::createPBuffer");
 		}
 
 		if(!wglShareLists(old_context,mGlrc)) {
 			wglDeleteContext(mGlrc);
-			_wglReleasePbufferDCARB(mPBuffer,mHDC);
-			_wglDestroyPbufferARB(mPBuffer);
+			wglReleasePbufferDCARB(mPBuffer,mHDC);
+			wglDestroyPbufferARB(mPBuffer);
 			OGRE_EXCEPT(0, "wglShareLists() failed", "Win32RenderTexture::createPBuffer");
 		}
 				
 		// Query real width and height
 		int iWidth, iHeight;
-		_wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
-		_wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
+		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
+		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
         str.clear();
         str << "Win32RenderTexture::PBuffer created -- Real dimensions "
             << mWidth << "x" << mHeight;
@@ -249,8 +227,8 @@ namespace Ogre {
 	void Win32RenderTexture::destroyPBuffer() 
 	{
 		wglDeleteContext(mGlrc);
-		_wglReleasePbufferDCARB(mPBuffer,mHDC);
-		_wglDestroyPbufferARB(mPBuffer);
+		wglReleasePbufferDCARB(mPBuffer,mHDC);
+		wglDestroyPbufferARB(mPBuffer);
 	}
 
 

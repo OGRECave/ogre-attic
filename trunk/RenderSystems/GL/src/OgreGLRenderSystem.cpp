@@ -51,7 +51,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 
 // Convenience macro from ARB_vertex_buffer_object spec
 #define VBO_BUFFER_OFFSET(i) ((char *)NULL + (i))
-GLEWAPI GLenum glewContextInit (Ogre::GLSupport *glSupport);
+GLenum glewContextInit (Ogre::GLSupport *glSupport);
 
 namespace Ogre {
 
