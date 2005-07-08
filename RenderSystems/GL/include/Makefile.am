@@ -6,7 +6,6 @@ noinst_HEADERS = OgreGLPrerequisites.h \
                  OgreGLSupport.h \
                  OgreGLTexture.h \
                  OgreGLTextureManager.h \
-                 OgreGLATIFSInit.h \
                  OgreSDLGLSupport.h \
                  OgreSDLPrerequisites.h \
                  OgreSDLWindow.h \

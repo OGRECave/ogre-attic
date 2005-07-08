@@ -54,14 +54,14 @@ namespace Ogre {
         {
             checkForGLSLError( "GLSLProgram::GLSLProgram", "GL Errors before creating shader object", 0 );
             // create shader object
-            mGLHandle = glCreateShaderObjectARB_ptr(
+            mGLHandle = glCreateShaderObjectARB(
                 (mType == GPT_VERTEX_PROGRAM) ? GL_VERTEX_SHADER_ARB : GL_FRAGMENT_SHADER_ARB );
 
             checkForGLSLError( "GLSLProgram::GLSLProgram", "Error creating GLSL shader Object", 0 );
         }
 
         const char* SLSource = mSource.c_str();
-		glShaderSourceARB_ptr(mGLHandle, 1, &SLSource, NULL);
+		glShaderSourceARB(mGLHandle, 1, &SLSource, NULL);
 		// check for load errors
 		checkForGLSLError( "GLSLProgram::loadFromSource", "Cannot load GLSL high-level shader source : " + mName, 0 );
 
@@ -72,9 +72,9 @@ namespace Ogre {
 	bool GLSLProgram::compile(const bool checkErrors)
 	{
 
-		glCompileShaderARB_ptr(mGLHandle);
+		glCompileShaderARB(mGLHandle);
 		// check for compile errors
-		glGetObjectParameterivARB_ptr(mGLHandle, GL_OBJECT_COMPILE_STATUS_ARB, &mCompiled);
+		glGetObjectParameterivARB(mGLHandle, GL_OBJECT_COMPILE_STATUS_ARB, &mCompiled);
 		// force exception if not compiled
 		if (checkErrors)
 		{
@@ -100,7 +100,7 @@ namespace Ogre {
     {
 		if (isSupported())
 		{
-			glDeleteObjectARB_ptr(mGLHandle);
+			glDeleteObjectARB(mGLHandle);
 		}
 
 		// should we do this here?
@@ -190,7 +190,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLProgram::attachToProgramObject( const GLhandleARB programObject )
 	{
-		glAttachObjectARB_ptr( programObject, mGLHandle );
+		glAttachObjectARB( programObject, mGLHandle );
 		checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram",
 			"Error attaching " + mName + " shader object to GLSL Program Object", programObject );
 		// attach child objects

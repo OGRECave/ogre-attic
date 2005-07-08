@@ -28,7 +28,7 @@ void GeneralCombinersStruct::Validate(int numConsts, ConstColorStruct *pcc)
 		localConsts += general[i].numConsts;
 
 	if (localConsts > 0)
-		if (NULL == glCombinerStageParameterfvNV_ptr)
+		if (NULL == glCombinerStageParameterfvNV)
 			errors.set("local constant(s) specified, but not supported -- ignored");
 		else
 			for (i = 0; i < num; i++)
@@ -44,12 +44,12 @@ void GeneralCombinersStruct::Validate(int numConsts, ConstColorStruct *pcc)
 
 void GeneralCombinersStruct::Invoke()
 {
-	glCombinerParameteriNV_ptr(GL_NUM_GENERAL_COMBINERS_NV, num);
+	glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, num);
 	int i;
 	for (i = 0; i < num; i++)
 		general[i].Invoke(i);
 	
-	if (NULL != glCombinerStageParameterfvNV_ptr) {
+	if (NULL != glCombinerStageParameterfvNV) {
 		if (localConsts > 0)
 			glEnable(GL_PER_STAGE_CONSTANTS_NV);
 		else
@@ -116,9 +116,9 @@ void GeneralCombinerStruct::Invoke(int stage)
 {
 	int i;
 
-	if (NULL != glCombinerStageParameterfvNV_ptr)
+	if (NULL != glCombinerStageParameterfvNV)
 		for (i = 0; i < numConsts; i++)
-			glCombinerStageParameterfvNV_ptr(GL_COMBINER0_NV + stage, cc[i].reg.bits.name, &(cc[i].v[0]));
+			glCombinerStageParameterfvNV(GL_COMBINER0_NV + stage, cc[i].reg.bits.name, &(cc[i].v[0]));
 
 	for (i = 0; i < 2; i++)
 		portion[i].Invoke(stage);
@@ -215,35 +215,35 @@ void GeneralFunctionStruct::Invoke(int stage, int portion, BiasScaleEnum bs)
 {
 	GLenum portionEnum = (RCP_RGB == portion) ? GL_RGB : GL_ALPHA;
 
-	glCombinerInputNV_ptr(GL_COMBINER0_NV + stage,
+	glCombinerInputNV(GL_COMBINER0_NV + stage,
 		portionEnum,
 		GL_VARIABLE_A_NV,
 		op[0].reg[1].reg.bits.name,
 		op[0].reg[1].map,
 		MAP_CHANNEL(op[0].reg[1].reg.bits.channel));
 
-	glCombinerInputNV_ptr(GL_COMBINER0_NV + stage,
+	glCombinerInputNV(GL_COMBINER0_NV + stage,
 		portionEnum,
 		GL_VARIABLE_B_NV,
 		op[0].reg[2].reg.bits.name,
 		op[0].reg[2].map,
 		MAP_CHANNEL(op[0].reg[2].reg.bits.channel));
 
-	glCombinerInputNV_ptr(GL_COMBINER0_NV + stage,
+	glCombinerInputNV(GL_COMBINER0_NV + stage,
 		portionEnum,
 		GL_VARIABLE_C_NV,
 		op[1].reg[1].reg.bits.name,
 		op[1].reg[1].map,
 		MAP_CHANNEL(op[1].reg[1].reg.bits.channel));
 
-	glCombinerInputNV_ptr(GL_COMBINER0_NV + stage,
+	glCombinerInputNV(GL_COMBINER0_NV + stage,
 		portionEnum,
 		GL_VARIABLE_D_NV,
 		op[1].reg[2].reg.bits.name,
 		op[1].reg[2].map,
 		MAP_CHANNEL(op[1].reg[2].reg.bits.channel));
 
-	glCombinerOutputNV_ptr(GL_COMBINER0_NV + stage,
+	glCombinerOutputNV(GL_COMBINER0_NV + stage,
 		portionEnum,
 		op[0].reg[0].reg.bits.name,
 		op[1].reg[0].reg.bits.name,

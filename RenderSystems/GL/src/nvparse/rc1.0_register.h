@@ -1,23 +1,8 @@
 #ifndef _RC10_REGISTER_H
 #define _RC10_REGISTER_H
 
-#ifdef _WIN32
-# include <windows.h>
-# define BYTE_ORDER !BIG_ENDIAN
-#endif
-
-#define GL_GLEXT_LEGACY
-#define GL_GLEXT_PROTOTYPES
-#if defined(__APPLE__) &&  defined(__GNUC__)
-#include <OpenGL/gl.h>
-#include "glext.h"
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
-
 #include <stdlib.h>
-
+#include <GL/glew.h>
 
 #define RCP_NUM_GENERAL_COMBINERS 8
 

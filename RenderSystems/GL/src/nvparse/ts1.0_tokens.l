@@ -11,13 +11,6 @@ alphanum [0-9a-zA-Z_]
 #ifdef _WIN32
 # include <windows.h>
 #endif
-
-#if defined(__APPLE__) && defined(__GNUC__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 

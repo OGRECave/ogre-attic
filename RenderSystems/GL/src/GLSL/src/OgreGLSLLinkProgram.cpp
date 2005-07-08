@@ -34,7 +34,7 @@ namespace Ogre {
 		mUniformRefsBuilt(false)
 	{
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error prior to Creating GLSL Program Object", 0 );
-		    mGLHandle = glCreateProgramObjectARB_ptr();
+		    mGLHandle = glCreateProgramObjectARB();
 			checkForGLSLError( "GLSLLinkProgram::GLSLLinkProgram", "Error Creating GLSL Program Object", 0 );
 
 	}
@@ -42,7 +42,7 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	GLSLLinkProgram::~GLSLLinkProgram(void)
 	{
-		glDeleteObjectARB_ptr(mGLHandle);
+		glDeleteObjectARB(mGLHandle);
 
 	}
 
@@ -51,8 +51,8 @@ namespace Ogre {
 	{
 		if (!mLinked)
 		{
-			glLinkProgramARB_ptr( mGLHandle );
-			glGetObjectParameterivARB_ptr( mGLHandle, GL_OBJECT_LINK_STATUS_ARB, &mLinked );
+			glLinkProgramARB( mGLHandle );
+			glGetObjectParameterivARB( mGLHandle, GL_OBJECT_LINK_STATUS_ARB, &mLinked );
 			// force logging and raise exception if not linked
 			checkForGLSLError( "GLSLLinkProgram::Activate",
 				"Error linking GLSL Program Object", mGLHandle, !mLinked, !mLinked );
@@ -66,7 +66,7 @@ namespace Ogre {
 
 		if (mLinked)
 		{
-		    glUseProgramObjectARB_ptr( mGLHandle );
+		    glUseProgramObjectARB( mGLHandle );
 		}
 	}
 
@@ -85,16 +85,16 @@ namespace Ogre {
 			UniformReference newUniformReference;
 
 			// get the number of active uniforms
-			glGetObjectParameterivARB_ptr(mGLHandle, GL_OBJECT_ACTIVE_UNIFORMS_ARB,
+			glGetObjectParameterivARB(mGLHandle, GL_OBJECT_ACTIVE_UNIFORMS_ARB,
 					&uniformCount);
 
 			// Loop over each of the active uniforms, and add them to the reference container
 			// only do this for user defined uniforms, ignore built in gl state uniforms
 			for (int index = 0; index < uniformCount; index++)
 			{
-				glGetActiveUniformARB_ptr(mGLHandle, index, BUFFERSIZE, NULL, &size, &newUniformReference.mType, uniformName);
+				glGetActiveUniformARB(mGLHandle, index, BUFFERSIZE, NULL, &size, &newUniformReference.mType, uniformName);
 				// don't add built in uniforms 
-				newUniformReference.mLocation = glGetUniformLocationARB_ptr(mGLHandle, uniformName);
+				newUniformReference.mLocation = glGetUniformLocationARB(mGLHandle, uniformName);
 				if (newUniformReference.mLocation >= 0)
 				{
 					// user defined uniform found, add it to the reference list
@@ -196,26 +196,26 @@ namespace Ogre {
 						switch (currentUniform->mElementCount)
 						{
 						case 1:
-							glUniform1fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							glUniform1fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
 							break;
 
 						case 2:
-							glUniform2fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							glUniform2fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
 							break;
 
 						case 3:
-							glUniform3fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							glUniform3fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
 							break;
 
 						case 4:
                             {
                                 if (currentUniform->mType == GL_FLOAT_MAT2_ARB)
                                 {
-                                    glUniformMatrix2fvARB_ptr( currentUniform->mLocation, 1, GL_TRUE, currentRealConstant->val);
+                                    glUniformMatrix2fvARB( currentUniform->mLocation, 1, GL_TRUE, currentRealConstant->val);
                                 }
                                 else
                                 {
-							        glUniform4fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+							        glUniform4fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
                                 }
                             }
 							break;
@@ -228,7 +228,7 @@ namespace Ogre {
                                 memcpy(mat + 4, currentRealConstant++->val, sizeof(float) * 4);
                                 memcpy(mat + 4, currentRealConstant->val, sizeof(float) );
 
-                                glUniformMatrix3fvARB_ptr( currentUniform->mLocation, 1, GL_TRUE, mat);
+                                glUniformMatrix3fvARB( currentUniform->mLocation, 1, GL_TRUE, mat);
                                 break;
                             }
 
@@ -240,7 +240,7 @@ namespace Ogre {
                                 memcpy(mat + 8, currentRealConstant++->val, sizeof(float) * 4);
                                 memcpy(mat + 12, currentRealConstant->val, sizeof(float) * 4);
 
-                                glUniformMatrix4fvARB_ptr( currentUniform->mLocation, 1, GL_TRUE, mat);
+                                glUniformMatrix4fvARB( currentUniform->mLocation, 1, GL_TRUE, mat);
                                 break;
                             }
 
@@ -259,19 +259,19 @@ namespace Ogre {
 						switch (currentUniform->mElementCount)
 						{
 						case 1:
-							glUniform1ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform1ivARB( currentUniform->mLocation, 1, currentIntConstant->val );
 							break;
 
 						case 2:
-							glUniform2ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform2ivARB( currentUniform->mLocation, 1, currentIntConstant->val );
 							break;
 
 						case 3:
-							glUniform3ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform3ivARB( currentUniform->mLocation, 1, currentIntConstant->val );
 							break;
 
 						case 4:
-							glUniform4ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform4ivARB( currentUniform->mLocation, 1, currentIntConstant->val );
 							break;
 						} // end switch
 					}
@@ -309,7 +309,7 @@ namespace Ogre {
 				    
 				    if (currentRealConstant == params->getNamedRealConstantEntry( currentUniform->mName ))
 				    {
-                        glUniform1fvARB_ptr( currentUniform->mLocation, 1, currentRealConstant->val );
+                        glUniform1fvARB( currentUniform->mLocation, 1, currentRealConstant->val );
                         // there will only be one multipass entry
                         return;
                     }

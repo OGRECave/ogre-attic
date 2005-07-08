@@ -10,18 +10,6 @@ alphanum [0-9a-zA-Z_]
 #include "rc1.0_combiners.h"
 #include "_rc1.0_parser.h"
 
-#ifdef _WIN32
-# include <windows.h>
-#endif
-
-#if defined(__APPLE__) && defined(__GNUC__)
-#include <OpenGL/gl.h>
-#include "glext.h"
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
-
 #include "nvparse_errors.h"
 #include "nvparse_externs.h"
 

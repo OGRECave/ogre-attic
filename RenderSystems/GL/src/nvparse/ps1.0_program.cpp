@@ -166,7 +166,7 @@ namespace
 			cval[1] = c.g;
 			cval[2] = c.b;
 			cval[3] = c.a;
-			glCombinerStageParameterfvNV_ptr(stage, cclr, cval);
+			glCombinerStageParameterfvNV(stage, cclr, cval);
 		}
 	};
 
@@ -205,7 +205,7 @@ namespace
 		{
 			for(stage = 0; stage < 4; stage++)
 			{
-				glActiveTextureARB_ptr(GL_TEXTURE0_ARB + stage);
+				glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 				glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_NONE);
 			}
 			stage = 0;
@@ -216,7 +216,7 @@ namespace
 		{
 			if(stage > 3)
 				return;
-			glActiveTextureARB_ptr(GL_TEXTURE0_ARB + stage);
+			glActiveTextureARB(GL_TEXTURE0_ARB + stage);
 
 			string op = instr[0];
 			if(op == "tex")
@@ -241,7 +241,7 @@ namespace
 				if(instr.size() != 3 || stage == 0)
 					fprintf(stderr,"incorrect \"texbeml\" instruction, stage %d...\n", stage);
 				reg2stage[instr[1]] = stage;
-				glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_OFFSET_TEXTURE_2D_SCALE_NV);
+				glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_OFFSET_TEXTURE_SCALE_NV);
 				if(reg2stage.count(instr[2]) == 0)
 					fprintf(stderr,"incorrect \"texbeml\" instruction, stage %d...\n", stage);
 				glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB + reg2stage[instr[2]]);
@@ -638,37 +638,37 @@ namespace
 
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_C_NV, b.reg, b.map, b.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_C_NV, b.reg, b.map, b.comp);
 					if(op == "add")
-						glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
+						glCombinerInputNV(C, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
 					else
-						glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO, GL_EXPAND_NORMAL_NV, GL_RGB);
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+						glCombinerInputNV(C, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO, GL_EXPAND_NORMAL_NV, GL_RGB);
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 
 				if(mask == GL_RGBA || mask == GL_ALPHA)
 				{
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_C_NV, b.reg, b.map, b.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_C_NV, b.reg, b.map, b.alphaComp);
 					if(op == "add")
-						glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+						glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
 					else
-						glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_EXPAND_NORMAL_NV, GL_ALPHA);
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+						glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_EXPAND_NORMAL_NV, GL_ALPHA);
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -681,31 +681,31 @@ namespace
 				{} // bad
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_C_NV, b.reg, b.map, b.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_C_NV, b.reg, b.map, b.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_TRUE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 
 				if(mask == GL_RGBA || mask == GL_ALPHA)
 				{
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_C_NV, b.reg, b.map, b.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_C_NV, b.reg, b.map, b.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_TRUE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -716,9 +716,9 @@ namespace
 
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);
-					glCombinerOutputNV_ptr(C, GL_RGB, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);
+					glCombinerOutputNV(C, GL_RGB, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
 						GL_TRUE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
@@ -735,7 +735,7 @@ namespace
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -747,31 +747,31 @@ namespace
 
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, GL_UNSIGNED_IDENTITY_NV, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_C_NV, a.reg, GL_UNSIGNED_INVERT_NV, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_D_NV, c.reg, c.map, c.comp);
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, GL_UNSIGNED_IDENTITY_NV, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_C_NV, a.reg, GL_UNSIGNED_INVERT_NV, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_D_NV, c.reg, c.map, c.comp);
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 
 				if(mask == GL_RGBA || mask == GL_ALPHA)
 				{
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, GL_UNSIGNED_IDENTITY_NV, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_B_NV, b.reg, b.map, b.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_C_NV, a.reg, GL_UNSIGNED_INVERT_NV, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_D_NV, c.reg, c.map, c.alphaComp);
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, GL_UNSIGNED_IDENTITY_NV, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_B_NV, b.reg, b.map, b.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_C_NV, a.reg, GL_UNSIGNED_INVERT_NV, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_D_NV, c.reg, c.map, c.alphaComp);
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -783,31 +783,31 @@ namespace
 
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);					
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_C_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_D_NV, c.reg, c.map, c.comp);
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);					
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_C_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_D_NV, c.reg, c.map, c.comp);
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 
 				if(mask == GL_RGBA || mask == GL_ALPHA)
 				{
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_B_NV, b.reg, b.map, b.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_C_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_D_NV, c.reg, c.map, c.alphaComp);
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_B_NV, b.reg, b.map, b.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_C_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_D_NV, c.reg, c.map, c.alphaComp);
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, dreg, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -817,27 +817,27 @@ namespace
 
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
-					glCombinerOutputNV_ptr(C, GL_RGB, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_RGB);
+					glCombinerOutputNV(C, GL_RGB, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 
 				if(mask == GL_RGBA || mask == GL_ALPHA)
 				{
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-					glCombinerOutputNV_ptr(C, GL_ALPHA, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+					glCombinerOutputNV(C, GL_ALPHA, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -848,27 +848,27 @@ namespace
 
 				if(mask == GL_RGBA || mask == GL_RGB)
 				{
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
-					glCombinerInputNV_ptr(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);
-					glCombinerOutputNV_ptr(C, GL_RGB, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_A_NV, a.reg, a.map, a.comp);
+					glCombinerInputNV(C, GL_RGB, GL_VARIABLE_B_NV, b.reg, b.map, b.comp);
+					glCombinerOutputNV(C, GL_RGB, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 
 				if(mask == GL_RGBA || mask == GL_ALPHA)
 				{
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
-					glCombinerInputNV_ptr(C, GL_ALPHA, GL_VARIABLE_B_NV, b.reg, b.map, b.alphaComp);
-					glCombinerOutputNV_ptr(C, GL_ALPHA, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_A_NV, a.reg, a.map, a.alphaComp);
+					glCombinerInputNV(C, GL_ALPHA, GL_VARIABLE_B_NV, b.reg, b.map, b.alphaComp);
+					glCombinerOutputNV(C, GL_ALPHA, dreg, GL_DISCARD_NV, GL_DISCARD_NV, scale, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 				else if (!paired_instr)
 				{
-					glCombinerOutputNV_ptr(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
+					glCombinerOutputNV(C, GL_ALPHA, GL_DISCARD_NV, GL_DISCARD_NV, GL_DISCARD_NV, GL_NONE, GL_NONE,
 									   GL_FALSE, GL_FALSE, GL_FALSE);
 				}
 			}
@@ -885,18 +885,18 @@ namespace
 
 void ps10::SetFinalCombinerStage()
 {
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_A_NV,GL_FOG,GL_UNSIGNED_IDENTITY_NV,GL_ALPHA);
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_B_NV,GL_SPARE0_NV,
+	glFinalCombinerInputNV(GL_VARIABLE_A_NV,GL_FOG,GL_UNSIGNED_IDENTITY_NV,GL_ALPHA);
+	glFinalCombinerInputNV(GL_VARIABLE_B_NV,GL_SPARE0_NV,
 			GL_UNSIGNED_IDENTITY_NV,GL_RGB);
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_C_NV,GL_FOG,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_D_NV,GL_ZERO,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_E_NV,GL_ZERO,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_F_NV,GL_ZERO,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
+	glFinalCombinerInputNV(GL_VARIABLE_C_NV,GL_FOG,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
+	glFinalCombinerInputNV(GL_VARIABLE_D_NV,GL_ZERO,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
+	glFinalCombinerInputNV(GL_VARIABLE_E_NV,GL_ZERO,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
+	glFinalCombinerInputNV(GL_VARIABLE_F_NV,GL_ZERO,GL_UNSIGNED_IDENTITY_NV,GL_RGB);
 	std::set<const char*, ltstr>::iterator iter = ps10::alphaBlueRegisters.find("r0");
 	GLenum alphaComp = GL_ALPHA;
 	if (iter != ps10::alphaBlueRegisters.end())
 		alphaComp = GL_BLUE;
-	glFinalCombinerInputNV_ptr(GL_VARIABLE_G_NV,GL_SPARE0_NV,GL_UNSIGNED_IDENTITY_NV,alphaComp);
+	glFinalCombinerInputNV(GL_VARIABLE_G_NV,GL_SPARE0_NV,GL_UNSIGNED_IDENTITY_NV,alphaComp);
 	// We can now clear alphaBlueRegisters for the next go around
 	alphaBlueRegisters.clear();
 }
@@ -913,14 +913,14 @@ void ps10::invoke(vector<constdef> * c,
 		for_each(c->begin(), c->end(), set_constants());
 	if(a)
 		for_each(a->begin(), a->end(), set_texture_shaders(c));
-	glActiveTextureARB_ptr( GL_TEXTURE0_ARB );
+	glActiveTextureARB( GL_TEXTURE0_ARB );
     int numCombiners = 0;
     list<vector<string> >::iterator it = b->begin();
     for(; it!=b->end(); ++it) {
       if ( (*it)[0] != "+" )
         numCombiners++;
     }
-    glCombinerParameteriNV_ptr(GL_NUM_GENERAL_COMBINERS_NV, numCombiners);
+    glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, numCombiners);
 	if(b)
 		for_each(b->begin(), b->end(), set_register_combiners());
 	SetFinalCombinerStage();
