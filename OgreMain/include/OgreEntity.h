@@ -447,6 +447,11 @@ namespace Ogre {
         ChildObjectListIterator getAttachedObjectIterator(void);
         /** @see MovableObject::getBoundingRadius */
 		Real getBoundingRadius(void) const;
+		/** @copy MovableObject::getWorldBoundingBox */
+		const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const;
+		/** @copy MovableObject::getWorldBoundingSphere */
+		const Sphere& getWorldBoundingSphere(bool derive = false) const;
+
         /** If set to true, this forces normals of this entity to be normalised
             dynamically by the hardware.
         @remarks
