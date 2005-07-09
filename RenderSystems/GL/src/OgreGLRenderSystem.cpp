@@ -326,6 +326,7 @@ namespace Ogre {
         {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
+			mFixedFunctionTextureUnits = units;
 
 			if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
 			{
@@ -408,19 +409,6 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
-            if (mGLSupport->checkExtension("GL_NV_vertex_program2_option"))
-            {
-                mCapabilities->setMaxVertexProgramVersion("vp30");
-                mGpuProgramManager->_pushSyntaxCode("vp30");
-                mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
-            }
-
-            if (mGLSupport->checkExtension("GL_NV_vertex_program3"))
-            {
-                mCapabilities->setMaxVertexProgramVersion("vp40");
-                mGpuProgramManager->_pushSyntaxCode("vp40");
-                mGpuProgramManager->registerProgramFactory("vp40", createGLArbGpuProgram);
-            }
         }
 
         if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
@@ -471,19 +459,6 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
-            if (mGLSupport->checkExtension("GL_NV_fragment_program_option"))
-            {
-                mCapabilities->setMaxFragmentProgramVersion("fp30");
-                mGpuProgramManager->_pushSyntaxCode("fp30");
-                mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
-            }
-
-            if (mGLSupport->checkExtension("GL_NV_fragment_program2"))
-            {
-                mCapabilities->setMaxFragmentProgramVersion("fp40");
-                mGpuProgramManager->_pushSyntaxCode("fp40");
-                mGpuProgramManager->registerProgramFactory("fp40", createGLArbGpuProgram);
-            }
         }
 
 		// NFZ - check if GLSL is supported
@@ -1045,24 +1020,36 @@ namespace Ogre {
 
             if(lastTextureType != mTextureTypes[stage] && lastTextureType != 0)
             {
-                glDisable( lastTextureType );
+				if (stage < mFixedFunctionTextureUnits)
+				{
+	                glDisable( lastTextureType );
+				}
             }
 
-			glEnable( mTextureTypes[stage] );
+			if (stage < mFixedFunctionTextureUnits)
+			{
+				glEnable( mTextureTypes[stage] );
+			}
+
 			if(!tex.isNull())
 				glBindTexture( mTextureTypes[stage], tex->getGLID() );
+
         }
         else
         {
-            if (lastTextureType != 0)
-            {
-                glDisable( mTextureTypes[stage] );
-            }
-			glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			if (stage < mFixedFunctionTextureUnits)
+			{
+				if (lastTextureType != 0)
+				{
+					glDisable( mTextureTypes[stage] );
+				}
+				glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			}
         }
 
         glActiveTextureARB_ptr( GL_TEXTURE0 );
-    }
+
+	}
 
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureCoordSet(size_t stage, size_t index)
@@ -1073,7 +1060,14 @@ namespace Ogre {
     void GLRenderSystem::_setTextureCoordCalculation(size_t stage, TexCoordCalcMethod m, 
         const Frustum* frustum)
     {
-        GLfloat M[16];
+		if (stage >= mFixedFunctionTextureUnits)
+		{
+			// Can't do this
+			return;
+		}
+
+		
+		GLfloat M[16];
         Matrix4 projectionBias;
 
         // Default to no extra auto texture matrix
@@ -1086,7 +1080,7 @@ namespace Ogre {
 
         glActiveTextureARB_ptr( GL_TEXTURE0 + stage );
 
-        switch( m )
+		switch( m )
         {
         case TEXCALC_NONE:
             glDisable( GL_TEXTURE_GEN_S );
@@ -1206,7 +1200,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureAddressingMode(size_t stage, TextureUnitState::TextureAddressingMode tam)
     {
-        GLint type;
+		GLint type;
         switch(tam)
         {
         case TextureUnitState::TAM_WRAP:
@@ -1229,7 +1223,13 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureMatrix(size_t stage, const Matrix4& xform)
     {
-        GLfloat mat[16];
+		if (stage >= mFixedFunctionTextureUnits)
+		{
+			// Can't do this
+			return;
+		}
+
+		GLfloat mat[16];
         makeGLMatrix(mat, xform);
 
 		if(mTextureTypes[stage] != GL_TEXTURE_3D && 
@@ -1871,7 +1871,13 @@ namespace Ogre {
 	//-----------------------------------------------------------------------------
     void GLRenderSystem::_setTextureBlendMode(size_t stage, const LayerBlendModeEx& bm)
     {       
-        // Check to see if blending is supported
+		if (stage >= mFixedFunctionTextureUnits)
+		{
+			// Can't do this
+			return;
+		}
+
+		// Check to see if blending is supported
         if(!mCapabilities->hasCapability(RSC_BLENDING))
             return;
 
@@ -2168,7 +2174,7 @@ namespace Ogre {
                 break;
             case VES_TEXTURE_COORDINATES:
 
-                for (i = 0; i < mCapabilities->getNumTextureUnits(); i++)
+                for (i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
                 {
 					// Only set this texture unit's texcoord pointer if it
 					// is supposed to be using this element's index
@@ -2267,7 +2273,7 @@ namespace Ogre {
         }
 
         glDisableClientState( GL_VERTEX_ARRAY );
-        for (int i = 0; i < mCapabilities->getNumTextureUnits(); i++)
+        for (int i = 0; i < OGRE_MAX_TEXTURE_COORD_SETS; i++)
         {
             glClientActiveTextureARB_ptr(GL_TEXTURE0 + i);
             glDisableClientState( GL_TEXTURE_COORD_ARRAY );

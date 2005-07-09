@@ -69,6 +69,9 @@ namespace Ogre {
         /// holds texture type settings for every stage
         GLenum mTextureTypes[OGRE_MAX_TEXTURE_LAYERS];
 
+		/// Number of fixed-function texture units
+		unsigned short mFixedFunctionTextureUnits;
+
         void initConfigOptions(void);
         void initInputDevices(void);
         void processInputDevices(void);
