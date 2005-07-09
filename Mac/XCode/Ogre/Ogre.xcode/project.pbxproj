@@ -56,6 +56,7 @@
 				82270CB70701176400E6B1F9,
 				82270CF307011B4000E6B1F9,
 				82A3A30907A1AA89001CBF8B,
+				823501AB0853A8780018B3FE,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -94,6 +95,7 @@
 				82270CB60701176400E6B1F9,
 				82270CF207011B4000E6B1F9,
 				82A3A30807A1AA89001CBF8B,
+				823501AA0853A8780018B3FE,
 			);
 		};
 		0867D691FE84028FC02AAC07 = {
@@ -109,6 +111,7 @@
 				089C1665FE841158C02AAC07,
 				0867D69AFE84028FC02AAC07,
 				034768DFFF38A50411DB9C8B,
+				823501B70853A8790018B3FE,
 			);
 			isa = PBXGroup;
 			name = Ogre;
@@ -5871,6 +5874,7 @@
 				FRAMEWORK_SEARCH_PATHS = "\"$(HOME)/Library/Frameworks\"";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				HEADER_SEARCH_PATHS = ../../../RenderSystems/GL/include;
 				INFOPLIST_FILE = "GL Render System-Info.plist";
 				LIBRARY_SEARCH_PATHS = ../../../RenderSystems/GL/src;
 				OTHER_CFLAGS = "";
@@ -9201,6 +9205,154 @@
 			};
 		};
 		8232607F07C5A84200667287 = {
+			fileRef = 82A3A35207A1ABBD001CBF8B;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		823501A60853A8780018B3FE = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823501A70853A8780018B3FE = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823501A80853A8780018B3FE = {
+			buildActionMask = 2147483647;
+			files = (
+				823502890853A8D50018B3FE,
+				8235028A0853A8D50018B3FE,
+				8235028B0853A8D50018B3FE,
+				8235028C0853A8D50018B3FE,
+				8235028E0853A8D50018B3FE,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823501A90853A8780018B3FE = {
+			buildActionMask = 2147483647;
+			files = (
+				8235028F0853A8EE0018B3FE,
+				823501B80853A8BB0018B3FE,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		823501AA0853A8780018B3FE = {
+			buildPhases = (
+				823501A60853A8780018B3FE,
+				823501A70853A8780018B3FE,
+				823501A80853A8780018B3FE,
+				823501A90853A8780018B3FE,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
+				FRAMEWORK_VERSION = A;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Carbon.framework/Headers/Carbon.h";
+				INFOPLIST_FILE = "OctreeSceneManager-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				OTHER_CFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = OctreeSceneManager;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = OctreeSceneManager;
+			productName = OctreeSceneManager;
+			productReference = 823501AB0853A8780018B3FE;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>OctreeSceneManager</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.yourcompany.OctreeSceneManager</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>FMWK</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+</dict>
+</plist>
+";
+			productType = "com.apple.product-type.framework";
+		};
+		823501AB0853A8780018B3FE = {
+			explicitFileType = wrapper.framework;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = OctreeSceneManager.framework;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		823501B70853A8790018B3FE = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.xml;
+			path = "OctreeSceneManager-Info.plist";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		823501B80853A8BB0018B3FE = {
+			fileRef = 8DC2EF5B0486A6940098B216;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		823502890853A8D50018B3FE = {
+			fileRef = 82270CD50701183000E6B1F9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8235028A0853A8D50018B3FE = {
+			fileRef = 82270CD60701183000E6B1F9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8235028B0853A8D50018B3FE = {
+			fileRef = 82270CD70701183000E6B1F9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8235028C0853A8D50018B3FE = {
+			fileRef = 82270CD80701183000E6B1F9;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8235028E0853A8D50018B3FE = {
+			fileRef = 823CF8330729B51A0048D983;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		8235028F0853A8EE0018B3FE = {
 			fileRef = 82A3A35207A1ABBD001CBF8B;
 			isa = PBXBuildFile;
 			settings = {

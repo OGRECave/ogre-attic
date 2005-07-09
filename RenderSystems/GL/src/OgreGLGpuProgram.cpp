@@ -115,7 +115,7 @@ void GLArbGpuProgram::loadFromSource(void)
     glProgramStringARB_ptr(mProgramType, GL_PROGRAM_FORMAT_ASCII_ARB, mSource.length(), mSource.c_str());
     if (GL_INVALID_OPERATION == glGetError())
     {
-        int errPos;
+        GLint errPos;
         glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errPos);
         char errPosStr[16];
         snprintf(errPosStr, 16, "%d", errPos);

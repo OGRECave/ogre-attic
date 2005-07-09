@@ -178,13 +178,13 @@ namespace Ogre
 
 		if (obj > 0)
 		{
-			int infologLength = 0;
+			GLint infologLength = 0;
 
 			glGetObjectParameterivARB_ptr(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &infologLength);
 
 			if (infologLength > 0)
 			{
-				int charsWritten  = 0;
+				GLint charsWritten  = 0;
 
 				GLcharARB * infoLog = new GLcharARB[infologLength];
 

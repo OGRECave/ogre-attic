@@ -51,6 +51,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #   ifndef APIENTRY
 #       define APIENTRY
 #   endif
+#   define GL_GLEXT_LEGACY 
 #   include <OpenGL/gl.h>
 #   include <OpenGL/glu.h>
 #endif

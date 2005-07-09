@@ -77,7 +77,7 @@ namespace Ogre {
 		if (!mUniformRefsBuilt)
 		{
 			// scan through the active uniforms and add them to the reference list
-			int    uniformCount;
+			GLint    uniformCount;
 			GLint  size;
 			//GLenum type;
 			#define BUFFERSIZE 100
@@ -210,19 +210,19 @@ namespace Ogre {
 						switch (currentUniform->mElementCount)
 						{
 						case 1:
-							glUniform1ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform1ivARB_ptr( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
 							break;
 
 						case 2:
-							glUniform2ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform2ivARB_ptr( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
 							break;
 
 						case 3:
-							glUniform3ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform3ivARB_ptr( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
 							break;
 
 						case 4:
-							glUniform4ivARB_ptr( currentUniform->mLocation, 1, currentIntConstant->val );
+							glUniform4ivARB_ptr( currentUniform->mLocation, 1, (const GLint*)currentIntConstant->val );
 							break;
 						} // end switch
 					}

@@ -62,19 +62,19 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
    // byte swapping functions
-   void SwapFourBytes(unsigned long *dw)
+   void SwapFourBytes(uint32* dw)
    {
-      unsigned long tmp;
+      uint32 tmp;
       tmp =  (*dw & 0x000000FF);
       tmp = ((*dw & 0x0000FF00) >> 0x08) | (tmp << 0x08);
       tmp = ((*dw & 0x00FF0000) >> 0x10) | (tmp << 0x08);
       tmp = ((*dw & 0xFF000000) >> 0x18) | (tmp << 0x08);
-      memcpy (dw, &tmp, sizeof(unsigned long));
+      memcpy (dw, &tmp, sizeof(uint32));
    }
    //-----------------------------------------------------------------------
-   void SwapFourBytesGrup (unsigned long *src, int size)
+   void SwapFourBytesGrup (uint32* src, int size)
    {
-      unsigned long *ptr = (unsigned long *)src;
+      uint32* ptr = (uint32*)src;
       int i;
       for (i = 0; i < size/4; ++i) {
          SwapFourBytes (&ptr[i]);
@@ -101,7 +101,7 @@ namespace Ogre {
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
       // swap header
-        SwapFourBytes (&mHeader->version);
+        SwapFourBytes ((uint32*)&mHeader->version);
 #endif
     }
     //-----------------------------------------------------------------------
@@ -141,23 +141,23 @@ namespace Ogre {
         mBrushes = (bsp_brush_t*) getLump(BSP_BRUSH_LUMP);
         mBrushSides = (bsp_brushside_t*) getLump(BSP_BRUSHSIDES_LUMP);
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-        SwapFourBytesGrup ((unsigned long*)mElements, mNumElements*sizeof(int));
-        SwapFourBytesGrup ((unsigned long*)mFaces, mNumFaces*sizeof(bsp_face_t));
-        SwapFourBytesGrup ((unsigned long*)mLeafFaces, mNumLeafFaces*sizeof(int));
-        SwapFourBytesGrup ((unsigned long*)mLeaves, mNumLeaves*sizeof(bsp_leaf_t));
-        SwapFourBytesGrup ((unsigned long*)mModels, mNumModels*sizeof(bsp_model_t));
-        SwapFourBytesGrup ((unsigned long*)mNodes, mNumNodes*sizeof(bsp_node_t));
-        SwapFourBytesGrup ((unsigned long*)mPlanes, mNumPlanes*sizeof(bsp_plane_t));
+        SwapFourBytesGrup ((uint32*)mElements, mNumElements*sizeof(int));
+        SwapFourBytesGrup ((uint32*)mFaces, mNumFaces*sizeof(bsp_face_t));
+        SwapFourBytesGrup ((uint32*)mLeafFaces, mNumLeafFaces*sizeof(int));
+        SwapFourBytesGrup ((uint32*)mLeaves, mNumLeaves*sizeof(bsp_leaf_t));
+        SwapFourBytesGrup ((uint32*)mModels, mNumModels*sizeof(bsp_model_t));
+        SwapFourBytesGrup ((uint32*)mNodes, mNumNodes*sizeof(bsp_node_t));
+        SwapFourBytesGrup ((uint32*)mPlanes, mNumPlanes*sizeof(bsp_plane_t));
         for (int i=0; i < mNumShaders; ++i) {
-            SwapFourBytes(&mShaders[i].surface_flags);
-            SwapFourBytes(&mShaders[i].content_flags);
+            SwapFourBytes((uint32*)&mShaders[i].surface_flags);
+            SwapFourBytes((uint32*)&mShaders[i].content_flags);
         }   
-        SwapFourBytes(&mVis->cluster_count);
-        SwapFourBytes(&mVis->row_size);
-        SwapFourBytesGrup ((unsigned long*)mVertices, mNumVertices*sizeof(bsp_vertex_t));
-        SwapFourBytesGrup ((unsigned long*)mLeafBrushes, mNumLeafBrushes*sizeof(int));
-        SwapFourBytesGrup ((unsigned long*)mBrushes,  mNumBrushes*sizeof(bsp_brush_t));
-        SwapFourBytesGrup ((unsigned long*)mBrushSides, mNumBrushSides*sizeof(bsp_brushside_t));
+        SwapFourBytes((uint32*)&mVis->cluster_count);
+        SwapFourBytes((uint32*)&mVis->row_size);
+        SwapFourBytesGrup ((uint32*)mVertices, mNumVertices*sizeof(bsp_vertex_t));
+        SwapFourBytesGrup ((uint32*)mLeafBrushes, mNumLeafBrushes*sizeof(int));
+        SwapFourBytesGrup ((uint32*)mBrushes,  mNumBrushes*sizeof(bsp_brush_t));
+        SwapFourBytesGrup ((uint32*)mBrushSides, mNumBrushSides*sizeof(bsp_brushside_t));
 #endif
     }
     //-----------------------------------------------------------------------
@@ -168,7 +168,7 @@ namespace Ogre {
        
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             // swap lump offset
-            SwapFourBytes (&mHeader->lumps[lumpType].offset);
+            SwapFourBytes ((uint32*)&mHeader->lumps[lumpType].offset);
 #endif
             return (unsigned char*)mHeader + mHeader->lumps[lumpType].offset;
         }
@@ -183,7 +183,7 @@ namespace Ogre {
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
         // swap lump size
-        SwapFourBytes (&mHeader->lumps[lumpType].size);
+        SwapFourBytes ((uint32*)&mHeader->lumps[lumpType].size);
 #endif
         return mHeader->lumps[lumpType].size;
     }
