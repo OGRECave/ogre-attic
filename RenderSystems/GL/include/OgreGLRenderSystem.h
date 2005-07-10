@@ -120,13 +120,32 @@ namespace Ogre {
         GLContext *mMainContext;
         /* The current GL context */
         GLContext *mCurrentContext;
+        /** Trivial class to hash a rendertarget* into a size_t */
+        struct HashRenderTarget
+        {
+            size_t operator()(const RenderTarget* rt) const
+            {
+                return (size_t)rt;
+            }
+        };
         /* Type that maps render targets to contexts */
-        typedef std::map<RenderTarget*,GLContext*> ContextMap;
-        /* Map of render target -> context mappings. This is used to find the
-         * GL context for a certain render target */
+        typedef HashMap<RenderTarget*,GLContext*,HashRenderTarget> ContextMap;
+        /* Type that maps render targets to FBO ids */
+        typedef HashMap<RenderTarget*,GLuint,HashRenderTarget> FBOMap;
+        /** Map of render target -> context mappings. This is used to find the
+            GL context for a certain render target 
+        */
         ContextMap mContextMap;
-        /* Support framebuffer objects? (direct render to texture */
+        /** Does hardware support framebuffer objects? (direct render to texture via
+            GL_EXT_framebuffer_object. This is preferable to pbuffers, which depend on the
+            GL support used and are generally unwieldy and slow.
+         */
         bool mFBO;
+        /** Map of render target -> FBO id. This is used to find the FBO id for a certain
+            render target. If it is not in here, the render target is not an FBO, but the main
+            frame buffer of a context (pbuffer/window).
+        */
+        FBOMap mFBOMap;
     public:
         // Default constructor / destructor
         GLRenderSystem();
@@ -407,30 +426,32 @@ namespace Ogre {
         // ----------------------------------
         // GLRenderSystem specific members
         // ----------------------------------
-        /**
-         * One time initialization for the RenderState of a context. Things that
-         * only need to be set once, like the LightingModel can be defined here.
+        /** One time initialization for the RenderState of a context. Things that
+            only need to be set once, like the LightingModel can be defined here.
          */
         void _oneTimeContextInitialization();
-        /**
-         * Set current render target to target, enabling its GL context if needed
+        /** Set current render target to target, enabling its GL context if needed
          */
         void _setRenderTarget(RenderTarget *target);
-        /**
-         * Register a render target->context mapping.
+        /** Register a render target->context mapping.
          */
         void _registerContext(RenderTarget *target, GLContext *context);
-        /**
-         * Unregister a render target->context mapping. If the context of target 
-         * is the current context, change the context to the main context so it
-         * can be destroyed safely.
+        /** Unregister a render target->context mapping. If the context of target 
+            is the current context, change the context to the main context so it
+            can be destroyed safely.
          */
         void _unregisterContext(RenderTarget *target);
-        /**
-         * Get the main context. This is generally the context with which 
-         * a new context wants to share buffers and textures.
+        /** Get the main context. This is generally the context with which 
+            a new context wants to share buffers and textures.
          */
         GLContext *_getMainContext();
+        /** Register a render target->FBO mapping. This mapping is used in _setRenderTarget 
+            for enabling the right frame buffer object when this render target is activated.
+         */
+        void _registerFBO(RenderTarget *target, GLuint fb) { mFBOMap[target] = fb; }
+        /**  Unregister a render target->context mapping.
+         */
+        void _unregisterFBO(RenderTarget *target) { mFBOMap.erase(target); }
     };
 }
 #endif
