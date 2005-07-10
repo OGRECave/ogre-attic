@@ -93,6 +93,21 @@ void OctreeIntersectionSceneQuery::execute(IntersectionSceneQueryListener* liste
 							e->getWorldBoundingBox().intersects( m->getWorldBoundingBox() ) )
 					{
 						listener -> queryResult( e, m );
+						// deal with attached objects, since they are not directly attached to nodes
+						if (m->getMovableType() == "Entity")
+						{
+							Entity* e2 = static_cast<Entity*>(m);
+							Entity::ChildObjectListIterator childIt = e2->getAttachedObjectIterator();
+							while(childIt.hasMoreElements())
+							{
+								MovableObject* c = childIt.getNext();
+								if (c->getQueryFlags() & mQueryMask && 
+									e->getWorldBoundingBox().intersects( c->getWorldBoundingBox() ))
+								{
+									listener->queryResult(e, c);
+								}
+							}
+						}
 					}
 					set.insert( MovablePair(e,m) );
 
@@ -133,7 +148,22 @@ void OctreeAxisAlignedBoxSceneQuery::execute(SceneQueryListener* listener)
 				mAABB.intersects( m->getWorldBoundingBox() ) )
             {
                 listener -> queryResult( m );
+				// deal with attached objects, since they are not directly attached to nodes
+				if (m->getMovableType() == "Entity")
+				{
+					Entity* e = static_cast<Entity*>(m);
+					Entity::ChildObjectListIterator childIt = e->getAttachedObjectIterator();
+					while(childIt.hasMoreElements())
+					{
+						MovableObject* c = childIt.getNext();
+						if (c->getQueryFlags() & mQueryMask)
+						{
+							listener->queryResult(c);
+						}
+					}
+				}
             }
+
         }
 
         ++it;
@@ -171,6 +201,24 @@ void OctreeRaySceneQuery::execute(RaySceneQueryListener* listener)
                 if( result.first )
                 {
                     listener -> queryResult( m, result.second );
+					// deal with attached objects, since they are not directly attached to nodes
+					if (m->getMovableType() == "Entity")
+					{
+						Entity* e = static_cast<Entity*>(m);
+						Entity::ChildObjectListIterator childIt = e->getAttachedObjectIterator();
+						while(childIt.hasMoreElements())
+						{
+							MovableObject* c = childIt.getNext();
+							if (c->getQueryFlags() & mQueryMask)
+							{
+								result = mRay.intersects(c->getWorldBoundingBox());
+								if (result.first)
+								{
+									listener->queryResult(c, result.second);
+								}
+							}
+						}
+					}
                 }
             }
         }
@@ -210,6 +258,21 @@ void OctreeSphereSceneQuery::execute(SceneQueryListener* listener)
 				mSphere.intersects( m->getWorldBoundingBox() ) )
             {
                 listener -> queryResult( m );
+				// deal with attached objects, since they are not directly attached to nodes
+				if (m->getMovableType() == "Entity")
+				{
+					Entity* e = static_cast<Entity*>(m);
+					Entity::ChildObjectListIterator childIt = e->getAttachedObjectIterator();
+					while(childIt.hasMoreElements())
+					{
+						MovableObject* c = childIt.getNext();
+						if (c->getQueryFlags() & mQueryMask &&
+							mSphere.intersects( c->getWorldBoundingBox()))
+						{
+							listener->queryResult(c);
+						}
+					}
+				}
             }
         }
 
@@ -251,6 +314,21 @@ void OctreePlaneBoundedVolumeListSceneQuery::execute(SceneQueryListener* listene
 					(*pi).intersects( m->getWorldBoundingBox() ) )
                 {
                     listener -> queryResult( m );
+					// deal with attached objects, since they are not directly attached to nodes
+					if (m->getMovableType() == "Entity")
+					{
+						Entity* e = static_cast<Entity*>(m);
+						Entity::ChildObjectListIterator childIt = e->getAttachedObjectIterator();
+						while(childIt.hasMoreElements())
+						{
+							MovableObject* c = childIt.getNext();
+							if (c->getQueryFlags() & mQueryMask &&
+								(*pi).intersects( c->getWorldBoundingBox()))
+							{
+								listener->queryResult(c);
+							}
+						}
+					}
                 }
             }
             ++it;

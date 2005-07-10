@@ -44,7 +44,6 @@ private:
 	::Atom mAtomDeleteWindow;
 	::GLXContext mGlxContext;
 
-	bool mActive;	// Window is currently on screen?
 	bool mClosed;
 	bool mFullScreen;
 	int mOldMode;	// Mode before switching to fullscreen

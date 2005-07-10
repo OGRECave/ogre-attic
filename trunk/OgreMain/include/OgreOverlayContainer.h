@@ -60,7 +60,7 @@ namespace Ogre {
 		bool mChildrenProcessEvents;
  
     public:
-        /// Constructor: do not call direct, use OverlayManager::createContainer
+        /// Constructor: do not call direct, use OverlayManager::createOverlayElement
         OverlayContainer(const String& name);
         virtual ~OverlayContainer();
 

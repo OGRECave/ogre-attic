@@ -452,27 +452,33 @@ namespace Ogre {
 		ChildObjectListIterator getAttachedObjectIterator(void);
 		/** @see MovableObject::getBoundingRadius */
 		Real getBoundingRadius(void) const;
-		/** If set to true, this forces normals of this entity to be normalised
-		dynamically by the hardware.
-		@remarks
-		This option can be used to prevent lighting variations when scaling an
-		Entity using a SceneNode - normally because this scaling is hardware
-		based, the normals get scaled too which causes lighting to become inconsistent.
-		However, this has an overhead so only do this if you really need to.
-		*/
-		void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
 
-		/** Returns true if this entity has auto-normalisation of normals set. */
-		bool getNormaliseNormals(void) const {return mNormaliseNormals; }
+		/** @copy MovableObject::getWorldBoundingBox */
+		const AxisAlignedBox& getWorldBoundingBox(bool derive = false) const;
+		/** @copy MovableObject::getWorldBoundingSphere */
+		const Sphere& getWorldBoundingSphere(bool derive = false) const;
+
+        /** If set to true, this forces normals of this entity to be normalised
+            dynamically by the hardware.
+        @remarks
+            This option can be used to prevent lighting variations when scaling an
+            Entity using a SceneNode - normally because this scaling is hardware
+            based, the normals get scaled too which causes lighting to become inconsistent.
+            However, this has an overhead so only do this if you really need to.
+        */
+        void setNormaliseNormals(bool normalise) { mNormaliseNormals = normalise; }
+
+        /** Returns true if this entity has auto-normalisation of normals set. */
+        bool getNormaliseNormals(void) const {return mNormaliseNormals; }
 
 
-		/** Overridden member from ShadowCaster. */
-		EdgeData* getEdgeList(void);
-		/** Overridden member from ShadowCaster. */
-		ShadowRenderableListIterator getShadowVolumeRenderableIterator(
-			ShadowTechnique shadowTechnique, const Light* light, 
-			HardwareIndexBufferSharedPtr* indexBuffer, 
-			bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
+        /** Overridden member from ShadowCaster. */
+        EdgeData* getEdgeList(void);
+        /** Overridden member from ShadowCaster. */
+        ShadowRenderableListIterator getShadowVolumeRenderableIterator(
+            ShadowTechnique shadowTechnique, const Light* light, 
+            HardwareIndexBufferSharedPtr* indexBuffer, 
+            bool extrudeVertices, Real extrusionDistance, unsigned long flags = 0 );
 
 		/** Internal method for retrieving bone matrix information. */
 		const Matrix4* _getBoneMatrices(void) { return mBoneMatrices;}

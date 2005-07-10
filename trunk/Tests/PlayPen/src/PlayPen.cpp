@@ -740,51 +740,34 @@ protected:
 
 	void testBug()
 	{
+		// Set ambient light
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		mWindow->getViewport(0)->setBackgroundColour(ColourValue::White);
 
-		MaterialPtr mat = MaterialManager::getSingleton().create("test", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		// known png with alpha
-		Pass* pass = mat->getTechnique(0)->getPass(0);
-		TextureUnitState* t = pass->createTextureUnitState();
-		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, ColourValue(1,0,0));
-		t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5);
 
-		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-		// alpha blend
-		//pass->setDepthWriteEnabled(false);
 
-		// alpha reject
-		//pass->setDepthWriteEnabled(true);
-		//pass->setAlphaRejectSettings(CMPF_LESS, 128);
-
-		// Define a floor plane mesh
-		Plane p;
-		p.normal = Vector3::UNIT_Y;
-		p.d = 200;
-		MeshManager::getSingleton().createPlane("FloorPlane",
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
-
-		// Create an entity (the floor)
-		Entity* ent = mSceneMgr->createEntity("floor", "FloorPlane");
-		ent->setMaterialName("test");
+		Entity *ent = mSceneMgr->createEntity("robot", "logcabin.mesh");
+		// Uncomment the below to test software skinning
+		//ent->setMaterialName("Examples/Rocky");
+		// Add entity to the scene node
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		mAnimState = ent->getAnimationState("door1");
+		mAnimState->setEnabled(true);
 
-		mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
-		mSceneMgr->setAmbientLight(ColourValue::White);
+		// Give it a little ambience with lights
+		Light* l;
+		l = mSceneMgr->createLight("BlueLight");
+		l->setPosition(-200,-80,-100);
+		l->setDiffuseColour(0.5, 0.5, 1.0);
 
-		mat = MaterialManager::getSingleton().create("test2", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		// known png with alpha
-		pass = mat->getTechnique(0)->getPass(0);
-		t = pass->createTextureUnitState();
-		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, ColourValue(0,1,0));
-		//t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5);
+		l = mSceneMgr->createLight("GreenLight");
+		l->setPosition(0,0,-100);
+		l->setDiffuseColour(0.5, 1.0, 0.5);
 
-		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-		ent = mSceneMgr->createEntity("floor2", "FloorPlane");
-		ent->setMaterialName("test2");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(500, 20, 0))->attachObject(ent);
+		// Position the camera
+		mCamera->setPosition(100,50,100);
+		mCamera->lookAt(-50,50,0);
+
 	}
 
 	void testTransparencyMipMaps()
@@ -2425,6 +2408,11 @@ protected:
 
 	void testMorphAnimation()
 	{
+		bool testStencil = true;
+
+		if (testStencil)
+			mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 		Vector3 dir(-1, -1, 0.5);
 		dir.normalise();
@@ -2432,6 +2420,7 @@ protected:
 		l->setType(Light::LT_DIRECTIONAL);
 		l->setDirection(dir);
 
+		/*
 		MeshPtr mesh = MeshManager::getSingleton().load("cube.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
@@ -2441,6 +2430,8 @@ protected:
 		VertexDeclaration* newDecl = 
 			sm->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(false, true);
 		sm->vertexData->reorganiseBuffers(newDecl);
+		if (testStencil)
+			sm->vertexData->prepareForShadowVolume(); // need to re-prep since reorganised
 		// get the position buffer (which should now be separate);
 		const VertexElement* posElem = 
 			sm->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
@@ -2485,12 +2476,34 @@ protected:
 		kf = vt->createVertexKeyFrame(10.0f);
 		kf->setVertexBuffer(origbuf);
 
-		Entity* e = mSceneMgr->createEntity("test", "cube.mesh");
+		// write
+		MeshSerializer ser;
+		ser.exportMesh(mesh.get(), "testmorph.mesh");
+		*/
+
+		Entity* e = mSceneMgr->createEntity("test", "testmorph.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
-		mAnimState = e->getAnimationState("testAnim");
-		mAnimState->setEnabled(true);
+		// test hardware morph
+		//e->setMaterialName("testmorph");
 
+		mCamera->setNearClipDistance(0.5);
+		mSceneMgr->setShowDebugShadows(true);
+
+		mAnimState = e->getAnimationState("testAnim");
+		//mAnimState->setEnabled(true);
+		
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 200;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
 
 
 
@@ -2548,7 +2561,7 @@ protected:
 		//testTransparencyMipMaps();
 		//testRadixSort();
 		testMorphAnimation();
-		
+		//testBug();
     }
     // Create new frame listener
     void createFrameListener(void)

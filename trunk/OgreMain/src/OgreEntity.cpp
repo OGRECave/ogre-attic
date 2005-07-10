@@ -354,6 +354,37 @@ namespace Ogre {
 
         return full_aa_box;
     }
+	//-----------------------------------------------------------------------
+	const AxisAlignedBox& Entity::getWorldBoundingBox(bool derive) const
+	{
+		if (derive)
+		{
+			// derive child bounding boxes
+			ChildObjectList::const_iterator child_itr = mChildObjectList.begin();
+			ChildObjectList::const_iterator child_itr_end = mChildObjectList.end();
+			for( ; child_itr != child_itr_end; child_itr++)
+			{
+				child_itr->second->getWorldBoundingBox(true);
+			}
+		}
+		return MovableObject::getWorldBoundingBox(derive);
+	}
+	//-----------------------------------------------------------------------
+	const Sphere& Entity::getWorldBoundingSphere(bool derive) const
+	{
+		if (derive)
+		{
+			// derive child bounding boxes
+			ChildObjectList::const_iterator child_itr = mChildObjectList.begin();
+			ChildObjectList::const_iterator child_itr_end = mChildObjectList.end();
+			for( ; child_itr != child_itr_end; child_itr++)
+			{
+				child_itr->second->getWorldBoundingSphere(true);
+			}
+		}
+		return MovableObject::getWorldBoundingSphere(derive);
+
+	}
     //-----------------------------------------------------------------------
     void Entity::_updateRenderQueue(RenderQueue* queue)
     {

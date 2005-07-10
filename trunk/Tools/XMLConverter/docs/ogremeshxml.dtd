@@ -7,7 +7,7 @@
 <!ELEMENT submesh (faces,geometry?,boneassignments?)>
 <!ATTLIST submesh 
 	material 			CDATA 			#REQUIRED
-	usesharedvertices	(true|false)	"false"
+	usesharedvertices	(true|false)	"true"
 	use32bitindexes		(true|false)	"false"
 	operationtype       (triangle_list|triangle_strip|triangle_fan)	"triangle_list">
 <!ELEMENT faces (face+)>

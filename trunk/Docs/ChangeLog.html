@@ -14,6 +14,81 @@
 <p class="header" align="center">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p class="header" align="center">Change Log</p>
+<p class="mainheader" align="left">v1.0.3 [Azathoth] (10 July
+2005) - Maintenance Release</p>
+<ul>
+  <li>Fixed a problem in D3D9 where GeForce 6x00 range was not enabling infinite projection</li>
+  <li>libOgreMain.so now only exports symbols based on ogremain.map</li>
+  <li>Fixed --enable-openexr argument for ./configure</li>
+  <li>XSI exporter - don't crash if textures are not found, just warn
+instead.&nbsp; Also trap cases where too many texture coordinate sets
+are used and warn.<br>
+  </li>
+  <li>Last of D3D9 leaks removed</li>
+  <li>Extra logging for D3D9 device lost / restore process</li>
+  <li>Fix device restore of RTT in D3D9</li>
+  <li>Replace SDL hard-coded constant args for SDL_ShowMouse</li>
+  <li>Make RenderWindow::windowMovedOrResized virtual &amp; generalised
+from GL/D3D since they're useful for people with externally managed
+windows</li>
+  <li>Corrected type of the returned value from
+std::string::find_first_of and find_first_not_of</li>
+  <li>Allow external setting of BillboardSet bounds for billboard
+injection</li>
+  <li>Q3A level loader - reject lightmap indexes &lt; 0, not just -1,
+for greater level compatibility</li>
+  <li>Export TagPoint to allow post attach-to-bone modifications</li>
+  <li>Set ambient light settings per _renderScene call incase we switch
+contexts in GL</li>
+  <li>gcc 4.0 compatibility and removed the need for GCC_3_1 compiler
+flag<br>
+  </li>
+  <li>In GL, support the GL_MAX_TEXTURE_IMAGE_UNITS_ARB number of
+texture units when using shader hardware instead of just
+GL_MAX_TEXTURE_UNITS<br>
+  </li>
+  <li>Fix attaching particle systems to bones&nbsp;</li>
+  <li>Implemented vp30, vp40, fp30 and fp40 Cg profiles</li>
+  <li>Fixed a 64 bit issue in Serializer::flipEndian</li>
+  <li>Add conversion from GpuProgramPtr to HighLevelGpuProgramPtr, and
+fix mutex usage on existing reverse conversion</li>
+  <li>CEGUI v0.3.0 now required<br>
+  </li>
+  <li>Fix memory leak in ZipDataStream</li>
+  <li>Fix to AnimationTrack::optimise - we should not eliminate all
+duplicate keys since the boundary values are required to preserve the
+interpolation shape. In fact, we need to preserve sequences of up to no
+more than 4 identical keys to preserve tangents for if spline
+interpolation is used. Any inner ones are removed.</li>
+  <li>Matrix4::operator != should take a const reference parameter</li>
+  <li>Node::removeAllChildren should notify those children of
+detachment and clear the child update list too.</li>
+  <li>Fix a bug in StringUtil::match where a partial match after a
+wildcard goes wrong and the wildcard doesn't correctly consume it ready
+for later matches</li>
+  <li>Fixed some variable shadowing warnings in gcc</li>
+  <li>Don't try to prep subentities for shadow volumes if they don't
+have their own geometry</li>
+  <li>Fixed DataStream::readLine returning incorrect count and not
+dealing with reading exactly the max length properly</li>
+  <li>Fixed TerrainSceneManager incorrectly calculating normals</li>
+  <li>VertexData::vertexStart bugfix for GL render system</li>
+  <li>Fix small inconsistency in near / far clip plane in world space
+between rendersystems</li>
+  <li>A few win32 resize / getMetrics fixes</li>
+  <li>Allocate initial particle pools on demand to save memory</li>
+  <li>3DSMax exporter - support mirrored bones</li>
+  <li>Fix memory leak in Bsp Collision demo</li>
+  <li>Correct GLX initialisation issue</li>
+  <li>Objects which are attached to bones are now properly picked up by
+scene queries and cast shadows properly</li>
+  <li>Fixed carrying forward of manual loader through
+Material::applyDefaults<br>
+  </li>
+  <li>A few other miscellaneous safety checks<br>
+    <br>
+  </li>
+</ul>
 <p class="mainheader" align="left">v1.0.2 [Azathoth] (30 May
 2005) - Maintenance Release</p>
 <ul>
