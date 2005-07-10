@@ -199,11 +199,15 @@ namespace Ogre {
             String savedName = mName;
             String savedGroup = mGroup;
             ResourceHandle savedHandle = mHandle;
+			ManualResourceLoader *savedLoader = mLoader;
+			bool savedManual = mIsManual;
 			*this = *defaults;
             // restore name & handle
             mName = savedName;
             mHandle = savedHandle;
             mGroup = savedGroup;
+			mLoader = savedLoader;
+			mIsManual = savedManual;
 		}
         mCompilationRequired = true;
 
