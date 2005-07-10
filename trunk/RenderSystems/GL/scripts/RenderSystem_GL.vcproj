@@ -145,6 +145,9 @@
 				RelativePath="..\src\OgreGLEngineDll.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLFBORenderTexture.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLGpuNvparseProgram.cpp">
 			</File>
 			<File
@@ -375,6 +378,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGLDefaultHardwareBufferManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLFBORenderTexture.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGLGpuNvparseProgram.h">
