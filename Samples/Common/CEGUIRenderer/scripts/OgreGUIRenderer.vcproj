@@ -35,7 +35,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CEGUIBase_d.lib Ogremain_d.lib xerces-c_2D.lib"
+				AdditionalDependencies="CEGUIBase_d.lib Ogremain_d.lib"
 				OutputFile="$(OutDir)/$(ProjectName)_d.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"
@@ -82,7 +82,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CEGUIBase.lib Ogremain.lib xerces-c_2.lib"
+				AdditionalDependencies="CEGUIBase.lib Ogremain.lib"
 				OutputFile="$(OutDir)/$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;..\..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;..\..\..\..\dependencies\lib\$(ConfigurationName)"

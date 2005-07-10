@@ -118,7 +118,7 @@ bool GLHardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments,
 {
 	if( mHasOcclusionSupport )	// Make it fail silently if hardware occlusion isn't supported
 	{
-		glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_ARB, NumOfFragments);
+		glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_ARB, (GLuint*)NumOfFragments);
 	}
 	else
 	{

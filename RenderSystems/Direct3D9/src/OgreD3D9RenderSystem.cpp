@@ -737,7 +737,11 @@ namespace Ogre
             // So exclude all cards prior to the FX range from doing infinite
             D3DADAPTER_IDENTIFIER9 adapterID = mActiveD3DDriver->getAdapterIdentifier();
 			if (adapterID.VendorId != 0x10DE || // not nVidia
-                adapterID.DeviceId >= 0x0301) // or GeForce FX or above
+				!((adapterID.DeviceId >= 0x200 && adapterID.DeviceId <= 0x20F) || //gf3
+				  (adapterID.DeviceId >= 0x250 && adapterID.DeviceId <= 0x25F) || //gf4ti
+				  (adapterID.DeviceId >= 0x280 && adapterID.DeviceId <= 0x28F) || //gf4ti
+				  (adapterID.DeviceId >= 0x170 && adapterID.DeviceId <= 0x18F) || //gf4 go
+				  (adapterID.DeviceId >= 0x280 && adapterID.DeviceId <= 0x28F)))  //gf4ti go
 			{
 				mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
 			}
