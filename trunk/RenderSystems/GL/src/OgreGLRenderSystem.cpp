@@ -43,7 +43,7 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLSLExtSupport.h"
 #include "OgreGLHardwareOcclusionQuery.h"
 #include "OgreGLContext.h"
-
+#include "OgreGLFBORenderTexture.h"
 
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
@@ -96,7 +96,7 @@ namespace Ogre {
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0),
         mGpuProgramManager(0),
-        mFBO(0)
+        mFBO(false)
     {
         size_t i;
 
@@ -474,8 +474,9 @@ namespace Ogre {
         {
             LogManager::getSingleton().logMessage("Framebuffer object support detected");
             mFBO = true;
+            mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
         }
-		
+        
 		// 3D textures should be supported by GL 1.2, which is our minimum version
         mCapabilities->setCapability(RSC_TEXTURE_3D);
 
@@ -612,8 +613,17 @@ namespace Ogre {
 			}
 			LogManager::getSingleton().logMessage(ss.str());
 		}
-		// Pass on the create call
-        RenderTexture *rt = mGLSupport->createRenderTexture(name, width, height, texType, internalFormat, miscParams);
+        RenderTexture *rt;
+        if(mFBO)
+        {
+            /// Frame buffer objects supported, use those
+            rt = new GLFBORenderTexture(name, width, height, texType, internalFormat, miscParams);
+        }
+        else
+        {
+            // Pass on the create call
+            rt = mGLSupport->createRenderTexture(name, width, height, texType, internalFormat, miscParams);
+        }
         attachRenderTarget( *rt );
         return rt;
     }
@@ -2431,17 +2441,35 @@ namespace Ogre {
     void GLRenderSystem::_setRenderTarget(RenderTarget *target)
     {
         mActiveRenderTarget = target;
+        
         // Switch context if different from current one
         ContextMap::iterator i = mContextMap.find(target);
-        if(i != mContextMap.end() && mCurrentContext != i->second) {
+        if(i != mContextMap.end() && mCurrentContext != i->second) 
+        {
+            // This rendertarget has a registered context, activate it
             mCurrentContext->endCurrent();
             mCurrentContext = i->second;
+            mCurrentContext->setCurrent();
+            
             // Check if the context has already done one-time initialisation
             if(!mCurrentContext->getInitialized()) {
                _oneTimeContextInitialization();
                mCurrentContext->setInitialized();
             }
-            mCurrentContext->setCurrent();
+        }
+        
+        // Bind frame buffer object
+        if(mFBO)
+        {
+            GLuint fb;
+            /// Check if the render target is in the rendertarget->FBO map
+            FBOMap::iterator i = mFBOMap.find(target);
+            if(i != mFBOMap.end()) 
+                fb = i->second;
+            else
+                // Old style context (window/pbuffer) or copying render texture
+                fb = 0;
+            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
         }
     }
     //---------------------------------------------------------------------
