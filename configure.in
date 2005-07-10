@@ -79,7 +79,6 @@ CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 
 dnl versioning info for libtool
-r
 dnl Note this is the ABI version which is not the same as our actual library version
 OGREMAIN_CURRENT=7
 OGREMAIN_REVISION=1
