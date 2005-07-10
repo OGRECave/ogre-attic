@@ -124,7 +124,6 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Debug\devil.dll"
   File "..\..\Samples\Common\bin\Debug\cg.dll"
   File "..\..\Samples\Common\bin\Debug\zlib1.dll"
-  File "..\..\Samples\Common\bin\Debug\xerces-c_2_5_0D.dll"
 
   File "..\..\Samples\Common\bin\Debug\OgreMain_d.dll"
   File "..\..\Samples\Common\bin\Debug\OgrePlatform_d.dll"
@@ -153,7 +152,6 @@ Section -Binaries
   File "..\..\Samples\Common\bin\Release\devil.dll"
   File "..\..\Samples\Common\bin\Release\cg.dll"
   File "..\..\Samples\Common\bin\Release\zlib1.dll"
-  File "..\..\Samples\Common\bin\Release\xerces-c_2_5_0.dll"
 
   File "..\..\Samples\Common\bin\Release\OgreMain.dll"
   File "..\..\Samples\Common\bin\Release\OgrePlatform.dll"
