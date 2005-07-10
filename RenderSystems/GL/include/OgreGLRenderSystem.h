@@ -120,18 +120,10 @@ namespace Ogre {
         GLContext *mMainContext;
         /* The current GL context */
         GLContext *mCurrentContext;
-        /** Trivial class to hash a rendertarget* into a size_t */
-        struct HashRenderTarget
-        {
-            size_t operator()(const RenderTarget* rt) const
-            {
-                return (size_t)rt;
-            }
-        };
         /* Type that maps render targets to contexts */
-        typedef HashMap<RenderTarget*,GLContext*,HashRenderTarget> ContextMap;
+		typedef std::map<RenderTarget*,GLContext*> ContextMap;
         /* Type that maps render targets to FBO ids */
-        typedef HashMap<RenderTarget*,GLuint,HashRenderTarget> FBOMap;
+        typedef std::map<RenderTarget*,GLuint> FBOMap;
         /** Map of render target -> context mappings. This is used to find the
             GL context for a certain render target 
         */

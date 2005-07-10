@@ -29,7 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLContext.h"
 
 namespace Ogre {
-    class _OgreExport GLFBORenderTexture : public GLRenderTexture
+    class GLFBORenderTexture : public GLRenderTexture
     {
     public:
         GLFBORenderTexture( const String & name, unsigned int width, unsigned int height,
