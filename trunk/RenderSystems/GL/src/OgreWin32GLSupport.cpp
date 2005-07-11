@@ -58,7 +58,7 @@ namespace Ogre {
 		optFullScreen.name = "Full Screen";
 		optFullScreen.possibleValues.push_back("Yes");
 		optFullScreen.possibleValues.push_back("No");
-		optFullScreen.currentValue = "No";
+		optFullScreen.currentValue = "Yes";
 		optFullScreen.immutable = false;
 
 		// Video mode possiblities
@@ -76,7 +76,7 @@ namespace Ogre {
 			optVideoMode.possibleValues.push_back(szBuf);
 		}
 		remove_duplicates(optVideoMode.possibleValues);
-		optVideoMode.currentValue = optVideoMode.possibleValues.back();
+		optVideoMode.currentValue = optVideoMode.possibleValues.front();
 
 		optColourDepth.name = "Colour Depth";
 		optColourDepth.immutable = false;
