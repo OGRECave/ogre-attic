@@ -58,7 +58,7 @@ namespace Ogre {
 		optFullScreen.name = "Full Screen";
 		optFullScreen.possibleValues.push_back("Yes");
 		optFullScreen.possibleValues.push_back("No");
-		optFullScreen.currentValue = "Yes";
+		optFullScreen.currentValue = "No";
 		optFullScreen.immutable = false;
 
 		// Video mode possiblities
@@ -76,7 +76,7 @@ namespace Ogre {
 			optVideoMode.possibleValues.push_back(szBuf);
 		}
 		remove_duplicates(optVideoMode.possibleValues);
-		optVideoMode.currentValue = optVideoMode.possibleValues.front();
+		optVideoMode.currentValue = optVideoMode.possibleValues.back();
 
 		optColourDepth.name = "Colour Depth";
 		optColourDepth.immutable = false;
@@ -236,7 +236,7 @@ namespace Ogre {
 	{
 		ConfigOptionMap::iterator opt = mOptions.find("Display Frequency");
 		if (opt == mOptions.end())
-			OGRE_EXCEPT(999, "Can't find Colour Depth options!", "Win32GLSupport::newWindow");
+			OGRE_EXCEPT(999, "Can't find Display Frequency options!", "Win32GLSupport::newWindow");
 		unsigned int displayFrequency = StringConverter::parseUnsignedInt(opt->second.currentValue);
 
 		Win32Window* window = new Win32Window(*this);
@@ -313,6 +313,7 @@ namespace Ogre {
 #endif
 			return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);
 	}
+
 
 	void Win32GLSupport::initialiseWGL()
 	{
@@ -410,10 +411,11 @@ namespace Ogre {
 				};
 				int formats[256];
 				unsigned int count;
-				PFNWGLCHOOSEPIXELFORMATARBPROC _wglChoosePixelFormatARB =
-					(PFNWGLCHOOSEPIXELFORMATARBPROC)
-					wglGetProcAddress("wglChoosePixelFormatARB");
-				_wglChoosePixelFormatARB(hdc, iattr, 0, 256, formats, &count);
+                // cheating here.  wglChoosePixelFormatARB procc address needed later on
+                // when a valid GL context does not exist and glew is not initialized yet.
+                __wglewChoosePixelFormatARB =
+                    (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+				__wglewChoosePixelFormatARB(hdc, iattr, 0, 256, formats, &count);
 				
 				// determine what multisampling levels are offered
 				int query = WGL_SAMPLES_ARB, samples;
@@ -479,7 +481,10 @@ namespace Ogre {
 			};
 
 			UINT nformats;
-			wglChoosePixelFormatARB(hdc, iattr, NULL, 1, &format, &nformats);
+            assert(__wglewChoosePixelFormatARB && "failed to get proc address for ChoosePixelFormatARB");
+            // ChoosePixelFormatARB proc address was obtained when setting up a dummy GL context in initialiseWGL()
+            // since glew hasn't been initialized yet, we have to cheat and use the previously obtained address
+			__wglewChoosePixelFormatARB(hdc, iattr, NULL, 1, &format, &nformats);
 		}
 		else
 		{
