@@ -2047,7 +2047,8 @@ void PS_1_4::testCompile(char* testname, char* teststr, SymbolID* testresult, ui
 	fprintf(fp, "\n  Validating Pass 1:\n");
 
 	fprintf(fp, "\n  Tokens:\n");
-	for(uint i = 0; i<(mTokenInstructions.size()); i++) {
+    uint i;
+	for(i = 0; i<(mTokenInstructions.size()); i++) {
 		fprintf(fp,"    Token[%d] [%s] %d: [%s] %d: %s", i, getTypeDefText(mTokenInstructions[i].mID),
 			mTokenInstructions[i].mID, getTypeDefText(testresult[i]), testresult[i],
 			(mTokenInstructions[i].mID == (uint)testresult[i]) ? passed : failed);
