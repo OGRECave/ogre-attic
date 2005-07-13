@@ -351,7 +351,8 @@ namespace Ogre {
         */
         unsigned int getCurrentFrame(void) const;
 
-        /** Gets the name of the texture associated with a frame.
+        /** Gets the name of the texture associated with a frame number.
+            Throws an exception if frameNumber exceeds the number of stored frames.
         @note
         Applies to both fixed-function and programmable pipeline.
         */
@@ -361,11 +362,25 @@ namespace Ogre {
         @param name The name of the texture
         @param frameNumber The frame the texture name is to be placed in
         @note
-        Throws an exception if frameNumber exceeds max allowable frame numbers.
+        Throws an exception if frameNumber exceeds the number of stored frames.
         Applies to both fixed-function and programmable pipeline.
         */
         void setFrameTextureName(const String& name, unsigned int frameNumber);
 
+        /** Add a Texture name to the end of the frame container.
+        @param name The name of the texture
+        @note
+        Applies to both fixed-function and programmable pipeline.
+        */
+        void addFrameTextureName(const String& name);
+        /** deletes a specific texture frame.  The texture used is not deleted but the
+            texture will no longer be used by the Texture Unit.  An exception is raised
+            if the frame number exceeds the number of actual frames.
+        @param frameNumber The frame number of the texture to be deleted.
+        @note
+        Applies to both fixed-function and programmable pipeline.
+        */
+        void deleteFrameTextureName(const size_t frameNumber);
         /** Gets the number of frames for a texture.
         @note
         Applies to both fixed-function and programmable pipeline.
@@ -898,13 +913,8 @@ namespace Ogre {
 	
 protected:
         // State
-#define OGRE_MAX_TEXTURE_FRAMES 32
-
-        /// Number of frames of animation, or frames making up cubic
-        unsigned int mNumFrames;        
         /// The xurrent animation frame.
         unsigned int mCurrentFrame;
-        // String mFrames[OGRE_MAX_TEXTURE_FRAMES] is at the end of the class                
 
         /// Duration of animation in seconds
         Real mAnimDuration;            
@@ -950,7 +960,7 @@ protected:
         // Complex members (those that can't be copied using memcpy) are at the end to 
         // allow for fast copying of the basic members.
         //
-        String mFrames[OGRE_MAX_TEXTURE_FRAMES]; // Names of frames
+        std::vector<String> mFrames;
 
         typedef std::multimap<TextureEffectType, TextureEffect> EffectMap;
         EffectMap mEffects;
