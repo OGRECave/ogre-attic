@@ -275,9 +275,8 @@ namespace Ogre {
         }
         else // raise exception for frameNumber out of bounds
         {
-			StringUtil::StrStreamType str;
-            str << "frame number exceeds number of stored frames" << ".";
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setFrameTextureName");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "frameNumber paramter value exceeds number of stored frames.",
+                "TextureUnitState::setFrameTextureName");
         }
     }
 
@@ -314,9 +313,8 @@ namespace Ogre {
         }
         else
         {
-			StringUtil::StrStreamType str;
-            str << "frame number exceeds number of stored frames" << ".";
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setFrameTextureName");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "frameNumber paramter value exceeds number of stored frames.",
+                "TextureUnitState::deleteFrameTextureName");
         }
     }
 
@@ -402,9 +400,8 @@ namespace Ogre {
         }
         else
         {
-			StringUtil::StrStreamType str;
-            str << "frame number exceeds number of stored frames" << ".";
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setFrameTextureName");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "frameNumber paramter value exceeds number of stored frames.",
+                "TextureUnitState::setCurrentFrame");
         }
 
     }
@@ -423,9 +420,8 @@ namespace Ogre {
     {
         if (frameNumber >= mFrames.size())
         {
-			StringUtil::StrStreamType str;
-            str << "frame number exceeds number of stored frames" << ".";
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, str.str(), "TextureUnitState::setFrameTextureName");
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "frameNumber paramter value exceeds number of stored frames.",
+                "TextureUnitState::getFrameTextureName");
         }
 
         return mFrames[frameNumber];
