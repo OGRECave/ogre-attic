@@ -218,9 +218,9 @@ void OgreCEGUITexture::freeOgreTexture(void)
 {
 	if ((!d_ogre_texture.isNull()) && !d_isLinked)
 	{
-		Ogre::TextureManager::getSingleton().unload(d_ogre_texture->getName());
-		d_ogre_texture.setNull();
+		Ogre::TextureManager::getSingleton().remove(d_ogre_texture->getHandle());
 	}
+	d_ogre_texture.setNull();
 }
 
 
