@@ -35,7 +35,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-    class _OgreExport GLXRenderTexture : public GLRenderTexture
+    class GLXRenderTexture : public GLRenderTexture
     {
     public:
         GLXRenderTexture( const String & name, unsigned int width, unsigned int height,
