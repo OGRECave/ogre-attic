@@ -198,21 +198,17 @@ namespace Ogre  {
             case PF_A2B10G10R10:
                 return GL_RGB10_A2;
 			case PF_FLOAT16_R:
-				return GL_LUMINANCE_FLOAT16_ATI;
+				return GL_LUMINANCE16F_ARB;
             case PF_FLOAT16_RGB:
-                return GL_RGB_FLOAT16_ATI;
-                //    return GL_RGB16F_ARB;
+                return GL_RGB16F_ARB;
             case PF_FLOAT16_RGBA:
-                return GL_RGBA_FLOAT16_ATI;
-                //    return GL_RGBA16F_ARB;
+                return GL_RGBA16F_ARB;
 			case PF_FLOAT32_R:
-				return GL_LUMINANCE_FLOAT32_ATI;
+				return GL_LUMINANCE32F_ARB;
             case PF_FLOAT32_RGB:
-                return GL_RGB_FLOAT32_ATI;
-                //    return GL_RGB32F_ARB;
+                return GL_RGB32F_ARB;
             case PF_FLOAT32_RGBA:
-                return GL_RGBA_FLOAT32_ATI;
-                //    return GL_RGBA32F_ARB;
+                return GL_RGBA32F_ARB;
 			case PF_SHORT_RGBA:
 				return GL_RGBA16;
             case PF_DXT1:
