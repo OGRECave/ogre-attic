@@ -2832,10 +2832,14 @@ namespace Ogre
                     pPass->getAmbient().r != 1 ||
                     pPass->getAmbient().g != 1 ||
                     pPass->getAmbient().b != 1 ||
-                    pPass->getAmbient().a != 1)
+                    pPass->getAmbient().a != 1 ||
+                    (pPass->getVertexColourTracking() & TVC_AMBIENT))
                 {
                     writeAttribute(3, "ambient");
-                    writeColourValue(pPass->getAmbient(), true);
+                    if (pPass->getVertexColourTracking() & TVC_AMBIENT)
+                        writeValue("vertexcolour");
+                    else
+                        writeColourValue(pPass->getAmbient(), true);
                 }
 
                 // Diffuse
@@ -2843,10 +2847,14 @@ namespace Ogre
                     pPass->getDiffuse().r != 1 ||
                     pPass->getDiffuse().g != 1 ||
                     pPass->getDiffuse().b != 1 ||
-                    pPass->getDiffuse().a != 1)
+                    pPass->getDiffuse().a != 1 ||
+                    (pPass->getVertexColourTracking() & TVC_DIFFUSE))
                 {
                     writeAttribute(3, "diffuse");
-                    writeColourValue(pPass->getDiffuse(), true);
+                    if (pPass->getVertexColourTracking() & TVC_DIFFUSE)
+                        writeValue("vertexcolour");
+                    else
+                        writeColourValue(pPass->getDiffuse(), true);
                 }
 
                 // Specular
@@ -2855,11 +2863,20 @@ namespace Ogre
                     pPass->getSpecular().g != 0 ||
                     pPass->getSpecular().b != 0 ||
                     pPass->getSpecular().a != 1 ||
-                    pPass->getShininess() != 0)
+                    pPass->getShininess() != 0 ||
+                    (pPass->getVertexColourTracking() & TVC_SPECULAR))
                 {
                     writeAttribute(3, "specular");
-                    writeColourValue(pPass->getSpecular(), true);
+                    if (pPass->getVertexColourTracking() & TVC_SPECULAR)
+                    {
+                        writeValue("vertexcolour");
+                    }
+                    else
+                    {
+                        writeColourValue(pPass->getSpecular(), true);
+                    }
                     writeValue(StringConverter::toString(pPass->getShininess()));
+
                 }
 
                 // Emissive
@@ -2867,10 +2884,14 @@ namespace Ogre
                     pPass->getSelfIllumination().r != 0 ||
                     pPass->getSelfIllumination().g != 0 ||
                     pPass->getSelfIllumination().b != 0 ||
-                    pPass->getSelfIllumination().a != 1)
+                    pPass->getSelfIllumination().a != 1 ||
+                    (pPass->getVertexColourTracking() & TVC_EMISSIVE))
                 {
                     writeAttribute(3, "emissive");
-                    writeColourValue(pPass->getSelfIllumination(), true);
+                    if (pPass->getVertexColourTracking() & TVC_EMISSIVE)
+                        writeValue("vertexcolour");
+                    else
+                        writeColourValue(pPass->getSelfIllumination(), true);
                 }
             }
 
