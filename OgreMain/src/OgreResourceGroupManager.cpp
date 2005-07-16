@@ -263,6 +263,8 @@ namespace Ogre {
 		// set current group
 		mCurrentGroup = grp;
 		dropGroupContents(grp);
+		// clear initialised flag
+		grp->initialised = false;
 		// reset current group
 		mCurrentGroup = 0;
 		LogManager::getSingleton().logMessage("Finished clearing resource group " + name);
