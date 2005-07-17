@@ -200,23 +200,26 @@ Firstly, you lock the buffer but assign the result to a unsigned char* rather th
 // Get base pointer
 unsigned char* pVert = static_cast<unsigned char*>(vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
 Real* pReal;
-// Get elements
-VertexDeclaration::VertexElementList elems = decl->findElementsBySource(bufferIdx);
-VertexDeclaration::VertexElementList::iterator i, iend;
-for (i = elems.begin(); i != elems.end(); ++i)
+for (size_t v = 0; v < vertexCount; ++v)
 {
-	VertexElement& elem = *i;
-	if (elem.getSemantic() == VES_POSITION)
+	// Get elements
+	VertexDeclaration::VertexElementList elems = decl->findElementsBySource(bufferIdx);
+	VertexDeclaration::VertexElementList::iterator i, iend;
+	for (i = elems.begin(); i != elems.end(); ++i)
 	{
-		elem.baseVertexPointerToElement(pVert, &pReal);
-		// write position using pReal
+		VertexElement& elem = *i;
+		if (elem.getSemantic() == VES_POSITION)
+		{
+			elem.baseVertexPointerToElement(pVert, &pReal);
+			// write position using pReal
 
+		}
+		
+		...
+		
+		
 	}
-	
-	...
-	
 	pVert += vbuf->getVertexSize();
-	
 }
 vbuf->unlock();
 @end example
