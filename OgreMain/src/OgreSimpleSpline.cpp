@@ -77,7 +77,7 @@ namespace Ogre {
 
         
         // Work out which segment this is in
-        Real fSeg = t * mPoints.size();
+        Real fSeg = t * (mPoints.size() - 1);
         unsigned int segIdx = (unsigned int)fSeg;
         // Apportion t 
         t = fSeg - segIdx;
