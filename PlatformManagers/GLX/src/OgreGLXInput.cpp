@@ -33,7 +33,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
-#include <X11/extensions/xf86vmode.h>
 
 namespace Ogre {
 
