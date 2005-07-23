@@ -1393,13 +1393,13 @@ namespace Ogre
         // QL iteration with implicit shifting to reduce matrix from tridiagonal
         // to diagonal
 
-        for (size_t i0 = 0; i0 < 3; i0++)
+        for (int i0 = 0; i0 < 3; i0++)
         {
             const unsigned int iMaxIter = 32;
             unsigned int iIter;
             for (iIter = 0; iIter < iMaxIter; iIter++)
             {
-                size_t i1;
+                int i1;
                 for (i1 = i0; i1 <= 1; i1++)
                 {
                     Real fSum = Math::Abs(afDiag[i1]) +
@@ -1419,7 +1419,7 @@ namespace Ogre
                 Real fSin = 1.0;
                 Real fCos = 1.0;
                 Real fTmp2 = 0.0;
-                for (size_t i2 = i1-1; i2 >= i0; i2--)
+                for (int i2 = i1-1; i2 >= i0; i2--)
                 {
                     Real fTmp3 = fSin*afSubDiag[i2];
                     Real fTmp4 = fCos*afSubDiag[i2];
@@ -1445,7 +1445,7 @@ namespace Ogre
                     afDiag[i2+1] = fTmp0+fTmp2;
                     fTmp0 = fCos*fTmp1-fTmp4;
 
-                    for (size_t iRow = 0; iRow < 3; iRow++)
+                    for (int iRow = 0; iRow < 3; iRow++)
                     {
                         fTmp3 = m[iRow][i2+1];
                         m[iRow][i2+1] = fSin*m[iRow][i2] +

@@ -60,7 +60,9 @@ namespace Ogre {
 //-----------------------------------------------------------------------------
     EventProcessor::~EventProcessor()
     {
-
+        // just in case more frames are still being rendered
+        // and was registered as a FrameListener.
+        stopProcessingEvents();
 		cleanup();
     }
 

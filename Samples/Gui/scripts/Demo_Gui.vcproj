@@ -126,6 +126,12 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
 				RelativePath="..\src\Gui.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm150"/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

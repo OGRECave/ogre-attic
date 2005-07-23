@@ -31,7 +31,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLXWindowInterface.h"
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
-#include <X11/extensions/xf86vmode.h>
 #include <GL/glx.h>
 #include <GL/glxext.h>
 
