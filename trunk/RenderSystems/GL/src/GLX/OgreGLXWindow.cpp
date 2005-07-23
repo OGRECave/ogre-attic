@@ -106,6 +106,9 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	// Make sure the window is centered if no left and top in parameters
 	size_t left = (int)DisplayWidth(mDisplay, screen)/2 - width/2;
 	size_t top = (int)DisplayHeight(mDisplay, screen)/2 - height/2;
+	
+	// Maybe user already created the window and passed its visualinfo in miscParams
+	XVisualInfo *	extVisualHandler = NULL;
 
 	std::cerr << "Parsing miscParams" << std::endl;
 	if(miscParams)
@@ -147,6 +150,31 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			left = top = 0;
 			fullScreen = false; // Can't be full screen if embedded in an app!
 		}
+		
+		opt = miscParams->find("externalWindowHandle");
+		if(opt != miscParams->end()) // embedding OGRE in already created window
+		{
+			std::vector<String> tokens = StringUtil::split(opt->second, " :");
+			String new_display = tokens[0];
+			String new_screen = tokens[1];
+			String wid = tokens[2];
+			
+			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedInt(new_display)); 
+			screen = StringConverter::parseUnsignedInt(new_screen); 
+			mWindow = StringConverter::parseUnsignedInt(wid);
+			
+			if(tokens.size() > 3) // external visual was already setup
+			{
+				extVisualHandler = reinterpret_cast<XVisualInfo*>(StringConverter::parseUnsignedInt(tokens[3]));
+			}
+			
+			depth = DisplayPlanes(mDisplay, screen);
+			rootWindow = RootWindow(mDisplay, screen);
+			
+			left = top = 0;
+			fullScreen = false; // Can't be full screen if embedded in an app!
+		}
+
 	}
 
 	// Check for full screen mode if FSAA was asked for
@@ -206,101 +234,120 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 		}
 	}
 #endif
-	// Apply some magic algorithm to get the best visual
-	int best_visual = GLXUtils::findBestVisual(mDisplay, screen, fsaa_samples);
-	if(best_visual == -1)
+
+	XVisualInfo* visualInfo = NULL;
+	if(extVisualHandler == NULL) // user didn't create visual ( and window ) himself 
 	{
-		best_visual = GLXUtils::findBestVisual(mDisplay, screen);
-		LogManager::getSingleton().logMessage("GLXWindow::create -- Requested FSAA of "+
-				StringConverter::toString(fsaa_samples)+" was not acquirable, defaulting to first suitable visual");
-	}
-	LogManager::getSingleton().logMessage("GLXWindow::create -- Best visual is "+StringConverter::toString(best_visual));
-
-	// Get information about this so-called-best visual
-	XVisualInfo templ;
-	int nmatch;
-	templ.visualid = best_visual;
-	XVisualInfo *visualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
-	if(visualInfo==0 || nmatch==0) {
-		OGRE_EXCEPT(999, "GLXWindow: error choosing visual", "GLXWindow::create");
-	}
-
-	XSetWindowAttributes attr;
-	unsigned long mask;
-	attr.background_pixel = 0;
-	attr.border_pixel = 0;
-	attr.colormap = XCreateColormap(mDisplay,rootWindow,visualInfo->visual,AllocNone);
-	attr.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
-	if(fullScreen) {
-		mask = CWBackPixel | CWColormap | CWOverrideRedirect | CWSaveUnder | CWBackingStore | CWEventMask;
-		attr.override_redirect = True;
-		attr.backing_store = NotUseful;
-		attr.save_under = False;
-		// Fullscreen windows are always in the top left origin
-		left = top = 0;
-	} else
-		mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
-
-	// Create window on server
-	mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,visualInfo->depth,InputOutput,visualInfo->visual,mask,&attr);
-	if(!mWindow) {
-		OGRE_EXCEPT(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
-	}
-
-	// Make sure the window is in normal state
-	XWMHints *wm_hints;
-	if ((wm_hints = XAllocWMHints()) != NULL) {
-		wm_hints->initial_state = NormalState;
-		wm_hints->input = True;
-		wm_hints->flags = StateHint | InputHint;
-
-		// Check if we can give it an icon
-		if(depth == 24 || depth == 32) {
-			// Woot! The right bit depth, we can load an icon
-			if(GLXUtils::LoadIcon(mDisplay, rootWindow, "GLX_icon.png", &wm_hints->icon_pixmap, &wm_hints->icon_mask))
-				wm_hints->flags |= IconPixmapHint | IconMaskHint;
+		// Apply some magic algorithm to get the best visual
+		int best_visual = GLXUtils::findBestVisual(mDisplay, screen, fsaa_samples);
+		if(best_visual == -1)
+		{
+			best_visual = GLXUtils::findBestVisual(mDisplay, screen);
+			LogManager::getSingleton().logMessage("GLXWindow::create -- Requested FSAA of "+
+					StringConverter::toString(fsaa_samples)+" was not acquirable, defaulting to first suitable visual");
 		}
+		LogManager::getSingleton().logMessage("GLXWindow::create -- Best visual is "+StringConverter::toString(best_visual));
+
+		// Get information about this so-called-best visual
+		XVisualInfo templ;
+		int nmatch;
+		templ.visualid = best_visual;
+		visualInfo = XGetVisualInfo(mDisplay, VisualIDMask, &templ, &nmatch);
+		if(visualInfo==0 || nmatch==0) {
+			OGRE_EXCEPT(999, "GLXWindow: error choosing visual", "GLXWindow::create");
+		}
+
+		XSetWindowAttributes attr;
+		unsigned long mask;
+		attr.background_pixel = 0;
+		attr.border_pixel = 0;
+		attr.colormap = XCreateColormap(mDisplay,rootWindow,visualInfo->visual,AllocNone);
+		attr.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
+		if(fullScreen) {
+			mask = CWBackPixel | CWColormap | CWOverrideRedirect | CWSaveUnder | CWBackingStore | CWEventMask;
+			attr.override_redirect = True;
+			attr.backing_store = NotUseful;
+			attr.save_under = False;
+			// Fullscreen windows are always in the top left origin
+			left = top = 0;
+		} else
+			mask = CWBackPixel | CWBorderPixel | CWColormap | CWEventMask;
+	
+		// Create window on server
+		mWindow = XCreateWindow(mDisplay,parentWindow,left,top,width,height,0,visualInfo->depth,InputOutput,visualInfo->visual,mask,&attr);
+		if(!mWindow) {
+			OGRE_EXCEPT(999, "GLXWindow: XCreateWindow failed", "GLXWindow::create");
+		}
+	
+		// Make sure the window is in normal state
+		XWMHints *wm_hints;
+		if ((wm_hints = XAllocWMHints()) != NULL) {
+			wm_hints->initial_state = NormalState;
+			wm_hints->input = True;
+			wm_hints->flags = StateHint | InputHint;
+	
+			// Check if we can give it an icon
+			if(depth == 24 || depth == 32) {
+				// Woot! The right bit depth, we can load an icon
+				if(GLXUtils::LoadIcon(mDisplay, rootWindow, "GLX_icon.png", &wm_hints->icon_pixmap, &wm_hints->icon_mask))
+					wm_hints->flags |= IconPixmapHint | IconMaskHint;
+			}
+		}
+	
+		// Set size and location hints
+		XSizeHints *size_hints;
+		if ((size_hints = XAllocSizeHints()) != NULL) {
+			// Otherwise some window managers ignore our position request
+			size_hints->flags = USPosition;
+		}
+	
+		// Make text property from title
+		XTextProperty titleprop;
+		char *lst = (char*)title.c_str();
+		XStringListToTextProperty((char **)&lst, 1, &titleprop);
+	
+		XSetWMProperties(mDisplay, mWindow, &titleprop, NULL, NULL, 0, size_hints, wm_hints, NULL);
+	
+		// We don't like memory leaks. Free the clientside storage, but not the
+		// pixmaps as they're still being used by the server.
+		XFree(titleprop.value);
+		XFree(wm_hints);
+		XFree(size_hints);
+	
+		// Acquire atom to recognize window close events
+		mAtomDeleteWindow = XInternAtom(mDisplay,"WM_DELETE_WINDOW",False);
+		XSetWMProtocols(mDisplay,mWindow,&mAtomDeleteWindow,1);
+	
+		// Map window unto screen and focus it.
+		XMapWindow(mDisplay,mWindow);
+	
+		// Make sure the server is up to date and focus the window
+		XFlush(mDisplay);
+	}
+	else
+	{
+		LogManager::getSingleton().logMessage("GLXWindow::create -- using external window handle");
+		visualInfo == extVisualHandler;
 	}
 
-	// Set size and location hints
-	XSizeHints *size_hints;
-	if ((size_hints = XAllocSizeHints()) != NULL) {
-		// Otherwise some window managers ignore our position request
-		size_hints->flags = USPosition;
+	GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
+	GLXContext* mainContext = static_cast<GLXContext*>( rs->_getMainContext() );
+	if ( mainContext == 0 )
+	{
+		// Finally, create a GL context
+		// we want to share it with main
+		mGlxContext = glXCreateContext(mDisplay,visualInfo,NULL,True);
 	}
-
-	// Make text property from title
-	XTextProperty titleprop;
-	char *lst = (char*)title.c_str();
-	XStringListToTextProperty((char **)&lst, 1, &titleprop);
-
-	XSetWMProperties(mDisplay, mWindow, &titleprop, NULL, NULL, 0, size_hints, wm_hints, NULL);
-
-	// We don't like memory leaks. Free the clientside storage, but not the
-	// pixmaps as they're still being used by the server.
-	XFree(titleprop.value);
-	XFree(wm_hints);
-	XFree(size_hints);
-
-	// Acquire atom to recognize window close events
-	mAtomDeleteWindow = XInternAtom(mDisplay,"WM_DELETE_WINDOW",False);
-	XSetWMProtocols(mDisplay,mWindow,&mAtomDeleteWindow,1);
-
-	// Map window unto screen and focus it.
-	XMapWindow(mDisplay,mWindow);
-
-	// Make sure the server is up to date and focus the window
-	XFlush(mDisplay);
-
-	// Finally, create a GL context
-	mGlxContext = glXCreateContext(mDisplay,visualInfo,NULL,True);
+		else
+			mGlxContext = glXCreateContext(mDisplay,visualInfo,mainContext->mCtx,True);
+	
 	if(!mGlxContext) {
 		OGRE_EXCEPT(999, "glXCreateContext failed", "GLXWindow::create");
 	}
-	glXMakeCurrent(mDisplay,mWindow,mGlxContext);
 
 	// Free visual info
-	XFree(visualInfo);
+	if (extVisualHandler == NULL)
+		XFree(visualInfo);
 
 	mName = name;
 	mWidth = width;
@@ -310,8 +357,10 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
     // Create OGRE GL context
     mContext = new GLXContext(mDisplay, mWindow, mGlxContext);
     // Register the context with the rendersystem and associate it with this window
-    GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
     rs->_registerContext(this, mContext);
+	
+	if ( rs->_getMainContext() == 0 )
+		glXMakeCurrent(mDisplay,mWindow,mGlxContext);
 }
 
 void GLXWindow::destroy(void)
