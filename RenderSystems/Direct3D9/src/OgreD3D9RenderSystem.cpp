@@ -551,6 +551,9 @@ namespace Ogre
 		{
 			HRESULT hr = mpD3DDevice->SetStreamSource(i, NULL, 0, 0);
 		}
+		// Clean up depth stencil surfaces
+		_cleanupDepthStencils();
+
 		RenderSystem::shutdown();
 		SAFE_DELETE( mDriverList );
 		mActiveD3DDriver = NULL;
@@ -933,25 +936,12 @@ namespace Ogre
 		unsigned int width, unsigned int height,
 		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
 	{
-		// Log a message
-		std::stringstream ss;
-		ss << "D3D9RenderSystem::createRenderTexture \"" << name << "\", " <<
-			width << "x" << height << " texType=" << texType <<
-			" internalFormat=" << PixelUtil::getFormatName(internalFormat) << " ";
-		if(miscParams)
-		{
-			ss << "miscParams: ";
-			NameValuePairList::const_iterator it;
-			for(it=miscParams->begin(); it!=miscParams->end(); ++it)
-			{
-				ss << it->first << "=" << it->second << " ";
-			}
-		}
-		LogManager::getSingleton().logMessage(ss.str());
-		// Create render texture
-		D3D9RenderTexture *rt = new D3D9RenderTexture( name, width, height, texType, internalFormat, miscParams );
-		attachRenderTarget( *rt );
-		return rt;
+		/// Create a new 2D texture, and return surface to render to
+        TexturePtr mTexture = TextureManager::getSingleton().createManual( name, 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
+			width, height, 0, internalFormat, TU_RENDERTARGET );
+            
+        return mTexture->getBuffer()->getRenderTarget();
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::destroyRenderTarget(const String& name)
@@ -1917,7 +1907,15 @@ namespace Ogre
 			LPDIRECT3DSURFACE9 pDepth = NULL;
 			target->getCustomAttribute( "D3DZBUFFER", &pDepth );
 			if (!pDepth)
-				return;
+			{
+				/// No depth buffer provided, use our own
+				/// Request a depth stencil that is compatible with the format, multisample type and
+				/// dimensions of the render target.
+				D3DSURFACE_DESC srfDesc;
+				if(FAILED(pBack->GetDesc(&srfDesc)))
+					return; // ?
+				pDepth = _getDepthStencilFor(srfDesc.Format, srfDesc.MultiSampleType, srfDesc.Width, srfDesc.Height);
+			}
 			
 			hr = mpD3DDevice->SetRenderTarget(0, pBack);
 			if (FAILED(hr))
@@ -2636,6 +2634,9 @@ namespace Ogre
 	{
 		// Release all non-managed resources
 
+		// Cleanup depth stencils
+		_cleanupDepthStencils();
+
 		// We have to deal with non-managed textures and vertex buffers
 		// GPU programs don't have to be restored
 		static_cast<D3D9TextureManager*>(mTextureManager)->releaseDefaultPoolResources();
@@ -2695,4 +2696,109 @@ namespace Ogre
 		mBasicStatesInitialised = false;
 	}
 
+	//---------------------------------------------------------------------
+	// Formats to try, in decreasing order of preference
+	D3DFORMAT ddDepthStencilFormats[]={
+		D3DFMT_D24FS8,
+		D3DFMT_D24S8,
+		D3DFMT_D24X4S4,
+		D3DFMT_D24X8,
+		D3DFMT_D15S1,
+		D3DFMT_D16,
+		D3DFMT_D32
+	};
+#define NDSFORMATS (sizeof(ddDepthStencilFormats)/sizeof(D3DFORMAT))
+	
+	D3DFORMAT D3D9RenderSystem::_getDepthStencilFormatFor(D3DFORMAT fmt)
+	{
+		/// Check if result is cached
+		DepthStencilHash::iterator i = mDepthStencilHash.find(fmt);
+		if(i != mDepthStencilHash.end())
+			return i->second;
+		/// If not, probe with CheckDepthStencilMatch
+		D3DFORMAT dsfmt = D3DFMT_UNKNOWN;
+
+		/// Get description of primary render target
+		LPDIRECT3DSURFACE9 mSurface = mPrimaryWindow->getRenderSurface();
+		D3DSURFACE_DESC srfDesc;
+
+		if(!FAILED(mSurface->GetDesc(&srfDesc)))
+		{
+			/// Probe all depth stencil formats
+			/// Break on first one that matches
+			for(size_t x=0; x<NDSFORMATS; ++x)
+			{
+				if(mpD3D->CheckDepthStencilMatch(
+					mActiveD3DDriver->getAdapterNumber(),
+					D3DDEVTYPE_HAL, srfDesc.Format,
+					fmt, ddDepthStencilFormats[x]) == D3D_OK)
+				{
+					dsfmt = ddDepthStencilFormats[x];
+					break;
+				}
+			}
+		}
+		/// Cache result
+		mDepthStencilHash[fmt] = dsfmt;
+		return dsfmt;
+	}
+	IDirect3DSurface9* D3D9RenderSystem::_getDepthStencilFor(D3DFORMAT fmt, D3DMULTISAMPLE_TYPE multisample, size_t width, size_t height)
+	{
+		D3DFORMAT dsfmt = _getDepthStencilFormatFor(fmt);
+		if(dsfmt == D3DFMT_UNKNOWN)
+			return 0;
+		IDirect3DSurface9 *surface = 0;
+
+		/// Check if result is cached
+		ZBufferFormat zbfmt(dsfmt, multisample);
+		ZBufferHash::iterator i = mZBufferHash.find(zbfmt);
+		if(i != mZBufferHash.end())
+		{
+			/// Check if size is larger or equal
+			if(i->second.width >= width && i->second.height >= height)
+			{
+				surface = i->second.surface;
+			} 
+			else
+			{
+				/// If not, destroy current buffer
+				i->second.surface->Release();
+				mZBufferHash.erase(i);
+			}
+		}
+		if(!surface)
+		{
+			/// If not, create the depthstencil surface
+			HRESULT hr = mpD3DDevice->CreateDepthStencilSurface( 
+				width, 
+				height, 
+				dsfmt, 
+				multisample, 
+				NULL, 
+				TRUE,  // discard true or false?
+				&surface, 
+				NULL);
+			if(FAILED(hr))
+			{
+				String msg = DXGetErrorDescription9(hr);
+				OGRE_EXCEPT( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9RenderSystem::_getDepthStencilFor" );
+			}
+			/// And cache it
+			ZBufferRef zb;
+			zb.surface = surface;
+			zb.width = width;
+			zb.height = height;
+			mZBufferHash[zbfmt] = zb;
+		}
+		return surface;
+	}
+	void D3D9RenderSystem::_cleanupDepthStencils()
+	{
+		for(ZBufferHash::iterator i = mZBufferHash.begin(); i != mZBufferHash.end(); ++i)
+		{
+			/// Release buffer
+			i->second.surface->Release();
+		}
+		mZBufferHash.clear();
+	}
 }

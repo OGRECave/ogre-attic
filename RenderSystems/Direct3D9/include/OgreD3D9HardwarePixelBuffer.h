@@ -40,6 +40,11 @@ namespace Ogre {
 
 		/// Unlock a box
 		void unlockImpl(void);
+
+		/// Create (or update) render textures for slices
+		void createRenderTextures();
+		/// Destroy render textures for slices
+		void destroyRenderTextures();
 		
 		/// D3DDevice pointer
 		IDirect3DDevice9 *mpDev;
@@ -53,10 +58,14 @@ namespace Ogre {
 		/// Temporary volume in main memory if direct locking of mVolume is not possible
 		IDirect3DVolume9 *mTempVolume;
 		
-		// Mipmapping
+		/// Mipmapping
 		bool mDoMipmapGen;
 		bool mHWMipmaps;
 		IDirect3DBaseTexture9 *mMipTex;
+
+		/// Render targets
+		typedef std::vector<RenderTexture*> SliceTRT;
+        SliceTRT mSliceTRT;
 	public:
 		D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage);
 		
@@ -80,6 +89,18 @@ namespace Ogre {
 		void _setMipmapping(bool doMipmapGen, bool HWMipmaps, IDirect3DBaseTexture9 *mipTex);
 		
 		~D3D9HardwarePixelBuffer();
+
+		/// Get rendertarget for z slice
+		RenderTexture *getRenderTarget(size_t zoffset);
+
+		/// Accessor for surface
+		IDirect3DSurface9 *getSurface() { return mSurface; }
+
+		/// Notify TextureBuffer of destruction of render target
+        virtual void _clearSliceRTT(size_t zoffset)
+        {
+            mSliceTRT[zoffset] = 0;
+        }
 	};
 };
 #endif

@@ -91,6 +91,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 #define OGRE_DEBUG_MEMORY_MANAGER 1
 
+/** Define max number of multiple render targets (MRTs) to render to at once.
+*/
+#define OGRE_MAX_MULTIPLE_RENDER_TARGETS 8
+
 /** Indicate general support for multithreading.
 	This will enable threading support in certain parts of the
 	engine, mainly resource loading and SharedPtr handling. 

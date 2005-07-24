@@ -140,25 +140,6 @@ namespace Ogre {
             return *this;
         }
     };
-
-    /// GL implementation of RenderTexture
-    class GLRenderTexture : public RenderTexture
-    {
-    public:
-        GLRenderTexture(const String& name, uint width, uint height, TextureType texType, PixelFormat format,
-			const NameValuePairList *miscParams) 
-            : RenderTexture(name, width, height, texType, format) 
-        {
-            mGLTexture = mTexture;
-        }
-
-        void _copyToTexture(void);
-
-        bool requiresTextureFlipping() const { return true; }
-        virtual void writeContentsToFile( const String & filename );
-    protected:
-        GLTexturePtr mGLTexture;
-    };
 }
 
 #endif // __GLTEXTURE_H__

@@ -27,34 +27,25 @@ http://www.gnu.org/copyleft/lesser.txt.
 #define __Win32RT_H__
 
 #include "OgreWin32Prerequisites.h"
-#include "OgreGLTexture.h"
-
+#include "OgreWin32Context.h"
+#include "OgreGLPBuffer.h"
 
 namespace Ogre {
-    class Win32RenderTexture : public GLRenderTexture
+    class Win32PBuffer : public GLPBuffer
     {
-    public:
-		Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
-			unsigned int width, unsigned int height,
-			TextureType texType, PixelFormat internalFormat, 
-			const NameValuePairList *miscParams, bool useBind );
-        ~Win32RenderTexture();
+	public:
+		Win32PBuffer(ComponentType format, size_t width, size_t height);
+		~Win32PBuffer();
+	    
+		virtual GLContext *getContext() { return mContext; }
     protected:
-        virtual void _copyToTexture();
-        /// internal method for firing events
-        // virtual void firePreUpdate(void);
-        /// internal method for firing events
-        // virtual void firePostUpdate(void);
-
         void createPBuffer();
 		void destroyPBuffer();
 
-		Win32GLSupport &mGLSupport;
 		HDC		mHDC;
 		HGLRC	mGlrc;
 		HPBUFFERARB mPBuffer;
         Win32Context *mContext;
-		bool mUseBind;
     };
 }
 

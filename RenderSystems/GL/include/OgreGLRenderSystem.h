@@ -106,8 +106,8 @@ namespace Ogre {
 
         // check if the GL system has already been initialized
         bool mGLInitialized;
-        // Initialise GL context
-        void initGL(void);
+        // Initialise GL system and capabilities
+        void initGL(RenderTarget *primary);
 
         HardwareBufferManager* mHardwareBufferManager;
         GLGpuProgramManager* mGpuProgramManager;
@@ -119,28 +119,17 @@ namespace Ogre {
         GLGpuProgram* mCurrentVertexProgram;
         GLGpuProgram* mCurrentFragmentProgram;
 
-        /* The main GL context */
+		/* The main GL context */
         GLContext *mMainContext;
         /* The current GL context */
         GLContext *mCurrentContext;
-        /* Type that maps render targets to contexts */
-		typedef std::map<RenderTarget*,GLContext*> ContextMap;
-        /* Type that maps render targets to FBO ids */
-        typedef std::map<RenderTarget*,GLuint> FBOMap;
-        /** Map of render target -> context mappings. This is used to find the
-            GL context for a certain render target 
-        */
-        ContextMap mContextMap;
-        /** Does hardware support framebuffer objects? (direct render to texture via
+
+        /** Manager object for Frame Buffer Objects.
+            0 if hardware does not support this extension. (direct render to texture via
             GL_EXT_framebuffer_object. This is preferable to pbuffers, which depend on the
             GL support used and are generally unwieldy and slow.
-         */
-        bool mFBO;
-        /** Map of render target -> FBO id. This is used to find the FBO id for a certain
-            render target. If it is not in here, the render target is not an FBO, but the main
-            frame buffer of a context (pbuffer/window).
         */
-        FBOMap mFBOMap;
+        GLRTTManager *mRTTManager;
     public:
         // Default constructor / destructor
         GLRenderSystem();
@@ -428,25 +417,18 @@ namespace Ogre {
         /** Set current render target to target, enabling its GL context if needed
          */
         void _setRenderTarget(RenderTarget *target);
-        /** Register a render target->context mapping.
-         */
-        void _registerContext(RenderTarget *target, GLContext *context);
         /** Unregister a render target->context mapping. If the context of target 
             is the current context, change the context to the main context so it
-            can be destroyed safely.
+            can be destroyed safely. 
+            
+            @note This is automatically called by the destructor of 
+            GLContext.
          */
-        void _unregisterContext(RenderTarget *target);
+        void _unregisterContext(GLContext *context);
         /** Get the main context. This is generally the context with which 
             a new context wants to share buffers and textures.
          */
         GLContext *_getMainContext();
-        /** Register a render target->FBO mapping. This mapping is used in _setRenderTarget 
-            for enabling the right frame buffer object when this render target is activated.
-         */
-        void _registerFBO(RenderTarget *target, GLuint fb) { mFBOMap[target] = fb; }
-        /**  Unregister a render target->context mapping.
-         */
-        void _unregisterFBO(RenderTarget *target) { mFBOMap.erase(target); }
     };
 }
 #endif

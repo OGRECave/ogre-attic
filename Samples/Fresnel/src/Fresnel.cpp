@@ -30,7 +30,7 @@ Description: Fresnel reflections and refractions
 */
 
 #include "ExampleApplication.h"
-
+#include "OgreHardwarePixelBuffer.h"
 // Hacky globals
 Camera* theCam;
 Entity* pPlaneEnt;
@@ -214,8 +214,11 @@ protected:
 
         Entity* pEnt;
 
-        
-        RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
+        TexturePtr mTexture = TextureManager::getSingleton().createManual( "Refraction", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			512, 512, 0, PF_R8G8B8, TU_RENDERTARGET );
+        //RenderTexture* rttTex = mRoot->getRenderSystem()->createRenderTexture( "Refraction", 512, 512 );
+        RenderTarget *rttTex = mTexture->getBuffer()->getRenderTarget();
 		
         {
             Viewport *v = rttTex->addViewport( mCamera );
@@ -225,8 +228,11 @@ protected:
             rttTex->addListener(&mRefractionListener);
         }
         
-		
-        rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
+		mTexture = TextureManager::getSingleton().createManual( "Reflection", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+			512, 512, 0, PF_R8G8B8, TU_RENDERTARGET );
+        //rttTex = mRoot->getRenderSystem()->createRenderTexture( "Reflection", 512, 512 );
+        rttTex = mTexture->getBuffer()->getRenderTarget();
         {
             Viewport *v = rttTex->addViewport( mCamera );
             MaterialPtr mat = MaterialManager::getSingleton().getByName("Examples/FresnelReflectionRefraction");

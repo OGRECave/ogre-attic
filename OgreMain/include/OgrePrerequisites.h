@@ -352,7 +352,7 @@ namespace Ogre {
     class TexturePtr;
 	class TextureFont;
     class TextureManager;
-	class TransformKeyFrame;
+    class TransformKeyFrame;
 	class Timer;
     class UserDefinedObject;
     class Vector2;

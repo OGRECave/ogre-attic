@@ -9,12 +9,7 @@
 #include "OgreGLTexture.h"
 #include "OgreWin32Window.h"
 #include <GL/wglext.h>
-
-#define HW_RTT
-
-#ifdef HW_RTT
 #include "OgreWin32RenderTexture.h"
-#endif
 
 using namespace Ogre;
 
@@ -284,20 +279,12 @@ namespace Ogre {
         }
 	}
 
-	void Win32GLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) 
-	{
-		if( checkExtension("WGL_ARB_pbuffer") ) 
-		{
-			// If yes, add rendersystem flag RSC_HWRENDER_TO_TEXTURE	
-			caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
-		}
-	}
 
 	void* Win32GLSupport::getProcAddress(const String& procname)
 	{
         	return (void*)wglGetProcAddress( procname.c_str() );
 	}
-
+/*
 	RenderTexture * Win32GLSupport::createRenderTexture( const String & name, 
 		unsigned int width, unsigned int height,
 		TextureType texType, PixelFormat internalFormat, 
@@ -314,7 +301,7 @@ namespace Ogre {
 			return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);
 	}
 
-
+*/
 	void Win32GLSupport::initialiseWGL()
 	{
 		// wglGetProcAddress does not work without an active OpenGL context,
@@ -492,5 +479,14 @@ namespace Ogre {
 		}
 
 		return (format != 0 && SetPixelFormat(hdc, format, &pfd));
+	}
+
+	bool Win32GLSupport::supportsPBuffers()
+	{
+		return __WGLEW_ARB_pbuffer;
+	}
+    GLPBuffer *Win32GLSupport::createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height)
+	{
+		return new Win32PBuffer(format, width, height);
 	}
 }

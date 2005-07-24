@@ -163,8 +163,8 @@ namespace Ogre  {
                 return 0;
         }
     }
-
-    GLenum GLPixelUtil::getClosestGLInternalFormat(PixelFormat mFormat)
+    
+    GLenum GLPixelUtil::getGLInternalFormat(PixelFormat mFormat)
     {
         switch(mFormat) {
             case PF_L8:
@@ -218,8 +218,17 @@ namespace Ogre  {
             case PF_DXT5:
                 return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
             default:
-                return GL_RGBA8;
+                return GL_NONE;
         }
+    }
+
+    GLenum GLPixelUtil::getClosestGLInternalFormat(PixelFormat mFormat)
+    {
+        GLenum format = getGLInternalFormat(mFormat);
+        if(format==GL_NONE)
+            return GL_RGBA8;
+        else
+            return format;
     }
 	
 	//----------------------------------------------------------------------------- 	

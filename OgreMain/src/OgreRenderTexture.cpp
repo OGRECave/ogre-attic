@@ -26,42 +26,70 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreRenderTexture.h"
 #include "OgreException.h"
+#include "OgreHardwarePixelBuffer.h"
+#include "OgreImage.h"
+#include "OgreImageCodec.h"
 
 namespace Ogre
 {
-	RenderTexture::RenderTexture( const String & name, uint width, uint height, TextureType texType, PixelFormat format )
-	{
-        if (texType != TEX_TYPE_2D &&
-			texType != TEX_TYPE_CUBE_MAP)
-		{
-			OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, 
-					"Render to texture is implemented only for 2D and cube textures", 
-					"RenderTexture::RenderTexture" );
-		}
 
-        mName = name;
-        mWidth = width;
-        mHeight = height;
+    //-----------------------------------------------------------------------------
+	RenderTexture::RenderTexture(HardwarePixelBuffer *buffer, size_t zoffset):
+		mBuffer(buffer), mZOffset(zoffset)
+    {
         mPriority = OGRE_REND_TO_TEX_RT_GROUP;
-        mInternalFormat = format;
-		mColourDepth = PixelUtil::getNumElemBits(format);
-
-		mTexture = TextureManager::getSingleton().createManual( mName, 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
-			mWidth, mHeight, 0, mInternalFormat, TU_RENDERTARGET );
-		mTexture->load();
-
+		mWidth = mBuffer->getWidth();
+		mHeight = mBuffer->getHeight();
     }
-
     RenderTexture::~RenderTexture()
     {
-		TextureManager::getSingleton().remove(mName);
+		mBuffer->_clearSliceRTT(0);
     }
 
-	void RenderTexture::firePostUpdate()
-	{
-		RenderTarget::firePostUpdate();
+	void RenderTexture::writeContentsToFile( const String & filename )
+    {
+		// copyToMemory
+        ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
+        
+        imgData->width = mWidth;
+        imgData->height = mHeight;
+		imgData->depth = 1;
+        imgData->format = PF_BYTE_RGBA;
+		size_t size = imgData->width * imgData->height * 4;
 
-		_copyToTexture();
-	}
+        // Allocate buffer 
+        uchar* pBuffer = new uchar[size];
+
+        // Read pixels
+        mBuffer->blitToMemory(
+			Box(0,0,mZOffset,mWidth,mHeight,mZOffset+1), 
+			PixelBox(mWidth, mHeight, 1, imgData->format, pBuffer)
+		);
+
+        // Wrap buffer in a chunk
+        MemoryDataStreamPtr stream(new MemoryDataStream(
+            pBuffer, size, false));
+
+        // Get codec 
+        size_t pos = filename.find_last_of(".");
+            String extension;
+        if( pos == String::npos )
+            OGRE_EXCEPT(
+                Exception::ERR_INVALIDPARAMS, 
+            "Unable to determine image type for '" + filename + "' - invalid extension.",
+                "GLRenderTexture::writeContentsToFile" );
+
+        while( pos != filename.length() - 1 )
+            extension += filename[++pos];
+
+        // Get the codec
+        Codec * pCodec = Codec::getCodec(extension);
+
+        // Write out
+        Codec::CodecDataPtr codecDataPtr(imgData);
+        pCodec->codeToFile(stream, filename, codecDataPtr);
+
+		delete [] pBuffer;
+    }
+
 }

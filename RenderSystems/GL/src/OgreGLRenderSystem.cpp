@@ -43,8 +43,9 @@ http://www.gnu.org/copyleft/lesser.txt.s
 #include "OgreGLSLExtSupport.h"
 #include "OgreGLHardwareOcclusionQuery.h"
 #include "OgreGLContext.h"
-#include "OgreGLFBORenderTexture.h"
 
+#include "OgreGLFBORenderTexture.h"
+#include "OgreGLPBRenderTexture.h"
 #ifdef HAVE_CONFIG_H
 #   include "config.h"
 #endif
@@ -96,7 +97,7 @@ namespace Ogre {
     GLRenderSystem::GLRenderSystem()
       : mDepthWrite(true), mHardwareBufferManager(0),
         mGpuProgramManager(0),
-        mFBO(false)
+        mRTTManager(0)
     {
         size_t i;
 
@@ -205,7 +206,7 @@ namespace Ogre {
         return autoWindow;
     }
 
-    void GLRenderSystem::initGL(void)
+    void GLRenderSystem::initGL(RenderTarget *primary)
     {
         mGLSupport->initialiseExtensions();
 
@@ -470,23 +471,43 @@ namespace Ogre {
             mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
         }
         
-        // Check for framebuffer object extension
-        if(mGLSupport->checkExtension("GL_EXT_framebuffer_object"))
-        {
-            LogManager::getSingleton().logMessage("Framebuffer object support detected");
-            mFBO = true;
-            mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
-        }
-        
 		// 3D textures should be supported by GL 1.2, which is our minimum version
         mCapabilities->setCapability(RSC_TEXTURE_3D);
 
-		// Check for GLSupport specific extensions
-		mGLSupport->initialiseCapabilities(*mCapabilities);
 
         // Get extension function pointers
         glewContextInit(mGLSupport);
-
+        
+        /// Do this after extension function pointers are initialised as the extension
+        /// is used to probe further capabilities.
+         // Check for framebuffer object extension
+        const int rttOverride = 0; // override: 0 use whatever available, 1 use PBuffers, 2 force use copying
+        if(mGLSupport->checkExtension("GL_EXT_framebuffer_object") && rttOverride<1)
+        {
+            LogManager::getSingleton().logMessage("GL: Using GL_EXT_framebuffer_object for rendering to textures (best)");
+            mRTTManager = new GLFBOManager();
+            //mRTTManager = new GLCopyingRTTManager();
+            mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
+        }
+        else
+        {
+            // Check GLSupport for PBuffer support
+            if(mGLSupport->supportsPBuffers() && rttOverride<2)
+            {
+                // Use PBuffers
+                mRTTManager = new GLPBRTTManager(mGLSupport, primary);
+                LogManager::getSingleton().logMessage("GL: Using PBuffers for rendering to textures");
+                mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
+            }
+            else
+            {
+                // No pbuffer support either -- fallback to simplest copying from framebuffer
+                mRTTManager = new GLCopyingRTTManager();
+                LogManager::getSingleton().logMessage("GL: Using framebuffer copy for rendering to textures (worst)");
+                LogManager::getSingleton().logMessage("GL: Warning: RenderTexture size is restricted to size of framebuffer. If you are on Linux, consider using GLX instead of SDL.");
+            }
+        }
+        
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
         mGLInitialized = true;
     }
@@ -502,18 +523,14 @@ namespace Ogre {
         RenderSystem::shutdown();
 
         // Deleting the GPU program manager and hardware buffer manager.  Has to be done before the mGLSupport->stop().
-		if (mGpuProgramManager)
-        {
-        	delete mGpuProgramManager;
-        	mGpuProgramManager = 0;
-        }
-
-        if (mHardwareBufferManager)
-        {
-            delete mHardwareBufferManager;
-            mHardwareBufferManager = 0;
-        }
-
+        delete mGpuProgramManager;
+        mGpuProgramManager = 0;
+        
+        delete mHardwareBufferManager;
+        mHardwareBufferManager = 0;
+        
+        delete mRTTManager;
+        mRTTManager = 0;
 
         mGLSupport->stop();
         mStopRendering = true;
@@ -577,17 +594,17 @@ namespace Ogre {
         if (!mGLInitialized) 
         {
             // Initialise GL after the first window has been created
-            initGL();
-            mTextureManager = new GLTextureManager(*mGLSupport);
+            initGL(win);
+            mTextureManager = new GLTextureManager(*mGLSupport); 
             // Set main and current context
-            ContextMap::iterator i = mContextMap.find(win);
-            if(i != mContextMap.end()) {
-                mCurrentContext = i->second;
-                mMainContext =  i->second;
-                mCurrentContext->setCurrent();
-            }
+            mMainContext = 0;
+            win->getCustomAttribute("GLCONTEXT", &mMainContext);
+            mCurrentContext = mMainContext;
+            
             // Initialise the main context
             _oneTimeContextInitialization();
+            if(mCurrentContext)
+                mCurrentContext->setInitialized();
         }
 
 
@@ -599,34 +616,12 @@ namespace Ogre {
 	RenderTexture * GLRenderSystem::createRenderTexture( const String & name, unsigned int width, unsigned int height,
 		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams ) 
     {
-		// Log a message
-		std::stringstream ss;
-		ss << "GLRenderSystem::createRenderTexture \"" << name << "\", " <<
-			width << "x" << height << " texType=" << texType <<
-			" internalFormat=" << PixelUtil::getFormatName(internalFormat) << " ";
-		if(miscParams)
-		{
-			ss << "miscParams: ";
-			NameValuePairList::const_iterator it;
-			for(it=miscParams->begin(); it!=miscParams->end(); ++it)
-			{
-				ss << it->first << "=" << it->second << " ";
-			}
-			LogManager::getSingleton().logMessage(ss.str());
-		}
-        RenderTexture *rt;
-        if(mFBO)
-        {
-            /// Frame buffer objects supported, use those
-            rt = new GLFBORenderTexture(name, width, height, texType, internalFormat, miscParams);
-        }
-        else
-        {
-            // Pass on the create call
-            rt = mGLSupport->createRenderTexture(name, width, height, texType, internalFormat, miscParams);
-        }
-        attachRenderTarget( *rt );
-        return rt;
+        /// Create a new 2D texture, and return surface to render to
+        TexturePtr mTexture = TextureManager::getSingleton().createManual( name, 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
+			width, height, 0, internalFormat, TU_RENDERTARGET );
+            
+        return mTexture->getBuffer()->getRenderTarget();
     }
 
     //-----------------------------------------------------------------------
@@ -2471,15 +2466,20 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void GLRenderSystem::_setRenderTarget(RenderTarget *target)
     {
+        // Unbind frame buffer object
+        if(mActiveRenderTarget)
+            mRTTManager->unbind(mActiveRenderTarget);
+        
         mActiveRenderTarget = target;
         
         // Switch context if different from current one
-        ContextMap::iterator i = mContextMap.find(target);
-        if(i != mContextMap.end() && mCurrentContext != i->second) 
+        GLContext *newContext = 0;
+        target->getCustomAttribute("GLCONTEXT", &newContext);
+        if(newContext && mCurrentContext != newContext) 
         {
             // This rendertarget has a registered context, activate it
             mCurrentContext->endCurrent();
-            mCurrentContext = i->second;
+            mCurrentContext = newContext;
             mCurrentContext->setCurrent();
             
             // Check if the context has already done one-time initialisation
@@ -2490,29 +2490,12 @@ namespace Ogre {
         }
         
         // Bind frame buffer object
-        if(mFBO)
-        {
-            GLuint fb;
-            /// Check if the render target is in the rendertarget->FBO map
-            FBOMap::iterator i = mFBOMap.find(target);
-            if(i != mFBOMap.end()) 
-                fb = i->second;
-            else
-                // Old style context (window/pbuffer) or copying render texture
-                fb = 0;
-            glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
-        }
+        mRTTManager->bind(target);
     }
     //---------------------------------------------------------------------
-    void GLRenderSystem::_registerContext(RenderTarget *target, GLContext *context)
+    void GLRenderSystem::_unregisterContext(GLContext *context)
     {
-        mContextMap[target] = context;
-    }
-    //---------------------------------------------------------------------
-    void GLRenderSystem::_unregisterContext(RenderTarget *target)
-    {
-        ContextMap::iterator i = mContextMap.find(target);
-        if(i != mContextMap.end() && mCurrentContext == i->second) {
+        if(mCurrentContext == context) {
             // Change the context to something else so that a valid context
             // remains active. When this is the main context being unregistered,
             // we set the main context to 0.
@@ -2521,10 +2504,12 @@ namespace Ogre {
                 mCurrentContext = mMainContext;
                 mCurrentContext->setCurrent();
             } else {
+                /// No contexts remain
+                mCurrentContext->endCurrent();
+                mCurrentContext = 0;
                 mMainContext = 0;
             }
         }
-        mContextMap.erase(target);
     }
     //---------------------------------------------------------------------
     GLContext *GLRenderSystem::_getMainContext() {

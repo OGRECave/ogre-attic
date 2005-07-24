@@ -156,17 +156,6 @@ void GLXGLSupport::stop() {
 	mDisplay = 0;
 }
 
-void GLXGLSupport::initialiseCapabilities(RenderSystemCapabilities &caps) 
-{
-    // Broken for ATI glx currently
-	if(getGLVendor() != "ATI")
-    	caps.setCapability(RSC_HWRENDER_TO_TEXTURE);
-	// This does work for ATI, even under Linux
-	if(checkExtension("GL_SGIS_generate_mipmap"))
-		caps.setCapability(RSC_AUTOMIPMAP);
-}
-
-
 extern "C" {
 extern void (*glXGetProcAddressARB(const GLubyte *procName))( void );
 };
@@ -176,15 +165,13 @@ void* GLXGLSupport::getProcAddress(const String& procname) {
 }
 
 
-
-RenderTexture * GLXGLSupport::createRenderTexture( const String & name, unsigned int width, unsigned int height,
-		TextureType texType, PixelFormat internalFormat, 
-		const NameValuePairList *miscParams )
+bool GLXGLSupport::supportsPBuffers()
 {
-	if(Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_HWRENDER_TO_TEXTURE))
-		return new GLXRenderTexture(name, width, height, texType, internalFormat, miscParams);
-	else
-		return new GLRenderTexture(name, width, height, texType, internalFormat, miscParams);
-}  
+    return true;
+}
+GLPBuffer *GLXGLSupport::createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height)
+{
+    return new GLXPBuffer(format, width, height);
+}
 
 }

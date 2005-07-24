@@ -33,6 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 
 namespace Ogre {
+
     /** Specialisation of HardwareBuffer for a pixel buffer. The
     	HardwarePixelbuffer abstracts an 1D, 2D or 3D quantity of pixels
     	stored by the rendering API. The buffer can be located on the card
@@ -60,6 +61,12 @@ namespace Ogre {
 
         /// Internal implementation of unlock(), must be overridden in subclasses
         // virtual void unlockImpl(void) = 0;
+
+		/** Notify TextureBuffer of destruction of render target.
+			Called by RenderTexture when destroyed.
+		*/
+		virtual void _clearSliceRTT(size_t zoffset);
+		friend class RenderTexture;
     public:
         /// Should be called by HardwareBufferManager
         HardwarePixelBuffer(size_t mWidth, size_t mHeight, size_t mDepth,
@@ -158,6 +165,15 @@ namespace Ogre {
 		{
 			blitToMemory(Box(0,0,0,mWidth,mHeight,mDepth), dst);
 		}
+        
+        /** Get a render target for this PixelBuffer, or a slice of it. The texture this
+            was acquired from must have TU_RENDERTARGET set, otherwise it is possible to
+            render to it and this method will throw an ERR_RENDERSYSTEM exception.
+            @param slice    Which slice
+            @returns A pointer to the render target. This pointer has the lifespan of this
+            PixelBuffer.
+        */
+        virtual RenderTexture *getRenderTarget(size_t slice=0);
         
         /// Gets the width of this buffer
         size_t getWidth() const { return mWidth; }

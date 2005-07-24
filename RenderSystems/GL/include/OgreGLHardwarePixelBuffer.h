@@ -29,44 +29,32 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHardwarePixelBuffer.h"
 
 namespace Ogre {
-
 	class GLHardwarePixelBuffer: public HardwarePixelBuffer
 	{
-	protected:
+	protected:  
 		/// Lock a box
 		PixelBox lockImpl(const Image::Box lockBox,  LockOptions options);
 
 		/// Unlock a box
 		void unlockImpl(void);
-		
-		enum Type {
-			TYPE_TEXTURE,		// Texture subsurface
-			TYPE_FRAMEBUFFER,	// Framebuffer surface
- 			TYPE_PBO			// Plain pixel buffer object
-		};
-		Type mType;
-		
-		// In case this is a texture level, define the texture type and ID
-		GLenum mTarget;
-		GLenum mFaceTarget; // same as mTarget in case of GL_TEXTURE_xD, but cubemap face for cubemaps
-		GLuint mTextureID;
-		GLint mFace;
-		GLint mLevel;
-		bool mSoftwareMipmap;		// Use GLU for mip mapping
+        
 		// Internal buffer; either on-card or in system memory, freed/allocated on demand
 		// depending on buffer usage
 		PixelBox mBuffer;
+        GLenum mGLInternalFormat; // GL internal format
 		
 		// Buffer allocation/freeage
 		void allocateBuffer();
 		void freeBuffer();
 		// Upload a box of pixels to this buffer on the card
-		void upload(const PixelBox &data);
+		virtual void upload(const PixelBox &data);
 		// Download a box of pixels from the card
-		void download(const PixelBox &data);
+		virtual void download(const PixelBox &data);
 	public:
-		GLHardwarePixelBuffer(GLenum target, GLuint id, GLint face, GLint level, Usage usage, 
-			bool softwareMipmap);
+        /// Should be called by HardwareBufferManager
+        GLHardwarePixelBuffer(size_t mWidth, size_t mHeight, size_t mDepth,
+                PixelFormat mFormat,
+                HardwareBuffer::Usage usage);
 		
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
@@ -78,8 +66,65 @@ namespace Ogre {
 		void blitToMemory(const Image::Box &srcBox, const PixelBox &dst);
 		
 		~GLHardwarePixelBuffer();
+        
+        /** Bind surface to frame buffer. Needs FBO extension.
+        */
+        virtual void bindToFramebuffer(GLenum attachment, size_t zoffset);
+        GLenum getGLFormat() { return mGLInternalFormat; }
 	};
 
+    /** Texture surface.
+    */
+    class GLTextureBuffer: public GLHardwarePixelBuffer
+	{
+    public:
+        /** Texture constructor */
+		GLTextureBuffer(const String &baseName, GLenum target, GLuint id, GLint face, GLint level, Usage usage, 
+			bool softwareMipmap);
+        ~GLTextureBuffer();
+        
+        /// @copydoc GLHardwarePixelBuffer::bindToFramebuffer
+        virtual void bindToFramebuffer(GLenum attachment, size_t zoffset);
+        /// @copydoc ardwarePixelBuffer::getRenderTarget
+        RenderTexture* getRenderTarget(size_t);
+        // Upload a box of pixels to this buffer on the card
+		virtual void upload(const PixelBox &data);
+		// Download a box of pixels from the card
+		virtual void download(const PixelBox &data);
+        
+        // Notify TextureBuffer of destruction of render target
+        void _clearSliceRTT(size_t zoffset)
+        {
+            mSliceTRT[zoffset] = 0;
+        }
+        // Copy from framebuffer
+        void copyFromFramebuffer(size_t zoffset);
+    protected:
+        // In case this is a texture level
+		GLenum mTarget;
+		GLenum mFaceTarget; // same as mTarget in case of GL_TEXTURE_xD, but cubemap face for cubemaps
+		GLuint mTextureID;
+		GLint mFace;
+		GLint mLevel;
+		bool mSoftwareMipmap;		// Use GLU for mip mapping
+        
+        typedef std::vector<RenderTexture*> SliceTRT;
+        SliceTRT mSliceTRT;
+    };
+     /** Renderbuffer surface.  Needs FBO extension.
+     */
+    class GLRenderBuffer: public GLHardwarePixelBuffer
+	{
+    public:
+        GLRenderBuffer(GLenum format, size_t width, size_t height);
+        ~GLRenderBuffer();
+        
+        /// @copydoc GLHardwarePixelBuffer::bindToFramebuffer
+        virtual void bindToFramebuffer(GLenum attachment, size_t zoffset);
+    protected:
+        // In case this is a  render buffer
+        GLuint mRenderbufferID;
+    };
 };
 
 #endif

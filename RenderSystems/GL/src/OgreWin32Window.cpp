@@ -260,9 +260,6 @@ namespace Ogre {
 
 		// Create RenderSystem context
 		mContext = new Win32Context(mHDC, mGlrc);
-		// Register the context with the rendersystem and associate it with this window
-		GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-		rs->_registerContext(this, mContext);
 
 		mActive = true;
 	}
@@ -273,13 +270,8 @@ namespace Ogre {
 			return;
 
 		// Unregister and destroy OGRE GLContext
-		if (mContext)
-		{
-			GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-			rs->_unregisterContext(this);
-			delete mContext;
-			mContext = 0;
-		}
+		delete mContext;
+
 		if (mGlrc)
 		{
 			wglDeleteContext(mGlrc);
@@ -490,12 +482,15 @@ namespace Ogre {
 
 	void Win32Window::getCustomAttribute( const String& name, void* pData )
 	{
-		if( name == "HWND" )
+		if( name == "GLCONTEXT" ) {
+			*static_cast<GLContext**>(pData) = mContext;
+			return;
+		} else if( name == "HWND" )
 		{
 			HWND *pHwnd = (HWND*)pData;
 			*pHwnd = getWindowHandle();
 			return;
-		}
+		} 
 	}
 
 }

@@ -38,6 +38,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImageCodec.h"
 #include "OgreStringConverter.h"
 
+#include "OgreGLFBORenderTexture.h"
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #   include <windows.h>
 #   include <wingdi.h>
@@ -126,9 +128,18 @@ namespace Ogre {
 		{
 			mFormat = PF_A8R8G8B8;
 		}
-		
+        
+        // Check if this is a valid rendertarget format
+		if( mUsage & TU_RENDERTARGET )
+        {
+            // valid rendertarget format?
+            if(!GLRTTManager::getSingleton().checkFormat(mFormat))
+            {
+                // Format not allowed, revert to RGBA8
+                mFormat = PF_A8R8G8B8;
+            }
+        }
 		// Check requested number of mipmaps
-		// Zero means create mip levels until 1x1
 		size_t maxMips = GLPixelUtil::getMaxMipmaps(mWidth, mHeight, mDepth, mFormat);
 		if(mNumMipmaps>maxMips)
 			mNumMipmaps = maxMips;
@@ -246,9 +257,6 @@ namespace Ogre {
 	
     void GLTexture::createRenderTexture(void)
     {
-        if (this->getTextureType() != TEX_TYPE_2D)
-            OGRE_EXCEPT( Exception::UNIMPLEMENTED_FEATURE, "**** Create render texture implemented only for 2D textures!!! ****", "GLTexture::createRenderTexture" );
-
         // Create the GL texture
 		// This already does everything neccessary
         createInternalResources();
@@ -354,7 +362,7 @@ namespace Ogre {
 		{
 			for(int mip=0; mip<=getNumMipmaps(); mip++)
 			{
-                GLHardwarePixelBuffer *buf = new GLHardwarePixelBuffer(getGLTextureTarget(), mTextureID, face, mip,
+                GLHardwarePixelBuffer *buf = new GLTextureBuffer(mName, getGLTextureTarget(), mTextureID, face, mip,
 						static_cast<HardwareBuffer::Usage>(mUsage), doSoftware && mip==0);
 				mSurfaceList.push_back(HardwarePixelBufferSharedPtr(buf));
                 
@@ -388,15 +396,8 @@ namespace Ogre {
 	}
 	
 	//---------------------------------------------------------------------------------------------
-    void GLRenderTexture::_copyToTexture(void)
-    {		
-        glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
-			
-        glCopyTexSubImage2D(GL_TEXTURE_2D, mGLTexture->getNumMipmaps(), 0, 0,
-            0, 0, mWidth, mHeight);
 
-    }
-    
+#if 0    
     void GLRenderTexture::writeContentsToFile( const String & filename ) 
     {
         ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
@@ -447,6 +448,6 @@ namespace Ogre {
 
         delete [] pBuffer;
     }
-
+#endif
 }
 

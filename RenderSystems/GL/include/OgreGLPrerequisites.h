@@ -35,6 +35,10 @@ namespace Ogre {
     class GLTextureManager;
     class GLGpuProgram;
     class GLContext;
+    class GLRTTManager;
+    class GLFBOManager;
+    class GLHardwarePixelBuffer;
+    class GLRenderBuffer;
 }
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32

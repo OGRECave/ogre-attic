@@ -177,6 +177,9 @@ namespace Ogre {
 
             mRenderTargets.erase( it );
         }
+        /// If detached render target is the active render target, reset active render target
+        if(ret == mActiveRenderTarget)
+            mActiveRenderTarget = 0;
 
         return ret;
     }
