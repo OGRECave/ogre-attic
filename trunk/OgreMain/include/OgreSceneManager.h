@@ -353,9 +353,9 @@ namespace Ogre {
         unsigned short mShadowTextureSize;
         unsigned short mShadowTextureCount;
 		PixelFormat mShadowTextureFormat;
-        typedef std::vector<RenderTexture*> ShadowTextureList;
+        typedef std::vector<TexturePtr> ShadowTextureList;
         ShadowTextureList mShadowTextures;
-        RenderTexture* mCurrentShadowTexture;
+        Texture* mCurrentShadowTexture;
 		bool mShadowUseInfiniteFarPlane;
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks

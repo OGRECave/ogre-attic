@@ -161,6 +161,14 @@ namespace Ogre
 				"Writing a byte range is not implemented. Use blitFromMemory.",
 				"HardwarePixelBuffer::writeData");
 	}
+    //-----------------------------------------------------------------------------    
+    
+    RenderTexture *HardwarePixelBuffer::getRenderTarget(size_t)
+    {
+        OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE,
+				"Not yet implemented for this rendersystem.",
+				"HardwarePixelBuffer::getRenderTarget");
+    }
 
     //-----------------------------------------------------------------------------    
     
@@ -168,6 +176,11 @@ namespace Ogre
         : SharedPtr<HardwarePixelBuffer>(buf)
     {
 
-    }    
+    }   
+	//-----------------------------------------------------------------------------    
+
+	void HardwarePixelBuffer::_clearSliceRTT(size_t zoffset)
+	{
+	}
 
 };

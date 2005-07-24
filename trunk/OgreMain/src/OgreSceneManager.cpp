@@ -58,7 +58,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreShadowVolumeExtrudeProgram.h"
 #include "OgreDataStream.h"
 #include "OgreStaticGeometry.h"
-
+#include "OgreHardwarePixelBuffer.h"
 // This class implements the most basic scene manager
 
 #include <cstdio>
@@ -1600,15 +1600,16 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
             if (!l->getCastShadows())
                 continue;
 
-            mCurrentShadowTexture = *si;
+			// Store current shadow texture
+            mCurrentShadowTexture = si->getPointer();
+			// Get camera for current shadow texture
+            Camera *cam = mCurrentShadowTexture->getBuffer()->getRenderTarget()->getViewport(0)->getCamera();
             // Hook up receiver texture
             mShadowReceiverPass->getTextureUnitState(0)->setTextureName(
                 mCurrentShadowTexture->getName());
             // Hook up projection frustum
-            mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(
-                true, mCurrentShadowTexture->getViewport(0)->getCamera());
-            mAutoParamDataSource.setTextureProjector(
-                mCurrentShadowTexture->getViewport(0)->getCamera());
+            mShadowReceiverPass->getTextureUnitState(0)->setProjectiveTexturing(true, cam);
+            mAutoParamDataSource.setTextureProjector(cam);
             // if this light is a spotlight, we need to add the spot fader layer
             if (l->getType() == Light::LT_SPOTLIGHT)
             {
@@ -1617,8 +1618,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
                 {
                     TextureUnitState* t = 
                         mShadowReceiverPass->createTextureUnitState("spot_shadow_fade.png");
-                    t->setProjectiveTexturing(
-                        true, mCurrentShadowTexture->getViewport(0)->getCamera());
+                    t->setProjectiveTexturing(true, cam);
                     t->setColourOperation(LBO_ADD);
                     t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
                 }
@@ -1627,8 +1627,7 @@ void SceneManager::renderModulativeTextureShadowedQueueGroupObjects(RenderQueueG
                     // Just set projector
                     TextureUnitState* t = 
                         mShadowReceiverPass->getTextureUnitState(1);
-                    t->setProjectiveTexturing(
-                        true, mCurrentShadowTexture->getViewport(0)->getCamera());
+                    t->setProjectiveTexturing(true, cam);
                 }
             }
             else if (mShadowReceiverPass->getNumTextureUnitStates() > 1)
@@ -3552,10 +3551,14 @@ void SceneManager::createShadowTextures(unsigned short size,
     iend = mShadowTextures.end();
     for (i = mShadowTextures.begin(); i != iend; ++i)
     {
-        RenderTexture* r = *i;
+        TexturePtr &shadowTex = *i;
+        RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
+
         // remove camera and destroy texture
-        removeCamera(r->getViewport(0)->getCamera());
-        mDestRenderSystem->destroyRenderTexture(r->getName());
+        removeCamera(shadowRTT->getViewport(0)->getCamera());
+        
+        // destroy texture
+        TextureManager::getSingleton().remove(shadowTex->getName());
     }
     mShadowTextures.clear();
 
@@ -3566,23 +3569,28 @@ void SceneManager::createShadowTextures(unsigned short size,
         String matName = baseName + "Mat" + StringConverter::toString(t);
         String camName = baseName + "Cam" + StringConverter::toString(t);
 
-        RenderTexture* shadowTex;
+        TexturePtr shadowTex;
+        RenderTexture *shadowRTT = 0;
         if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
         {
-            shadowTex = mDestRenderSystem->createRenderTexture( 
-                targName, size, size, TEX_TYPE_2D, mShadowTextureFormat);
+            shadowTex = TextureManager::getSingleton().createManual( targName, 
+                ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
+                size, size, 0, mShadowTextureFormat, TU_RENDERTARGET);
+                
+            shadowRTT = shadowTex->getBuffer()->getRenderTarget();
         }
 
         // Create a camera to go with this texture
         Camera* cam = createCamera(camName);
         cam->setAspectRatio(1.0f);
         // Create a viewport
-        Viewport *v = shadowTex->addViewport(cam);
+        Viewport *v = shadowRTT->addViewport(cam);
         v->setClearEveryFrame(true);
         // remove overlays
         v->setOverlaysEnabled(false);
         // Don't update automatically - we'll do it when required
-        shadowTex->setAutoUpdated(false);
+        shadowRTT->setAutoUpdated(false);
+        
         mShadowTextures.push_back(shadowTex);
 
         // Also create corresponding Material used for rendering this shadow
@@ -3636,7 +3644,11 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
         i != iend && si != siend; ++i)
     {
         Light* light = *i;
-        RenderTexture* shadowTex = *si;
+        TexturePtr &shadowTex = *si;
+        RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
+        Viewport *shadowView = shadowRTT->getViewport(0);
+        Camera *texCam = shadowView->getCamera();
+        
         // Skip non-shadowing lights
         if (!light->getCastShadows())
             continue;
@@ -3644,9 +3656,7 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
         // Directional lights 
         if (light->getType() == Light::LT_DIRECTIONAL)
         {
-
             // set up the shadow texture
-            Camera* texCam = shadowTex->getViewport(0)->getCamera();
             // Set ortho projection
             texCam->setProjectionType(PT_ORTHOGRAPHIC);
             // set easy FOV and near dist so that texture covers far dist
@@ -3713,19 +3723,16 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             texCam->setPosition(pos);
 
             if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
-                shadowTex->getViewport(0)->setBackgroundColour(ColourValue::White);
+                shadowView->setBackgroundColour(ColourValue::White);
 
             // Update target
-            shadowTex->update();
+            shadowRTT->update();
 
             ++si;
         }
         // Spotlight
         else if (light->getType() == Light::LT_SPOTLIGHT)
         {
-
-            // set up the shadow texture
-            Camera* texCam = shadowTex->getViewport(0)->getCamera();
             // Set perspective projection
             texCam->setProjectionType(PT_PERSPECTIVE);
             // set FOV slightly larger than the spotlight range to ensure coverage
@@ -3737,10 +3744,10 @@ void SceneManager::prepareShadowTextures(Camera* cam, Viewport* vp)
             texCam->setNearClipDistance(cam->getNearClipDistance());
 
             if (mShadowTechnique == SHADOWTYPE_TEXTURE_MODULATIVE)
-                shadowTex->getViewport(0)->setBackgroundColour(ColourValue::White);
+                shadowView->setBackgroundColour(ColourValue::White);
 
             // Update target
-            shadowTex->update();
+            shadowRTT->update();
 
             ++si;
         }

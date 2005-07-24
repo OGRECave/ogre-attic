@@ -80,6 +80,8 @@ namespace Ogre
 		*/
 		void destroyD3DResources();
 	
+		/// Accessor for render surface
+		LPDIRECT3DSURFACE9 getRenderSurface() { return mpRenderSurface; }
 	protected:
 		HINSTANCE mInstance;			// Process instance
 		D3D9Driver *mDriver;			// D3D9 driver

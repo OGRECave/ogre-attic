@@ -35,10 +35,6 @@ public:
 	virtual RenderWindow* newWindow(const String &name, unsigned int width, unsigned int height, 
 		bool fullScreen, const NameValuePairList *miscParams = 0);
 
-	/// @copydoc RenderSystem::createRenderTexture
-	virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
-		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
-			const NameValuePairList *miscParams = 0 ); 
 	
 	/**
 	* Start anything special
@@ -49,17 +45,13 @@ public:
 	*/
 	void stop();
 
-    /**
-     * Mark capabilities exposed by GLSupport
-     */
-    void initialiseCapabilities(RenderSystemCapabilities &caps);
-
 	/**
 	* Get the address of a function
 	*/
 	void* getProcAddress(const String& procname);
  
- 
+    virtual bool supportsPBuffers();
+    virtual GLPBuffer *createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height);
 private:
 	// X display
 	Display *mDisplay;

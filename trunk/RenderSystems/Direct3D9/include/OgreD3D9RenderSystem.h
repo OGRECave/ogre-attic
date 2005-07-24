@@ -143,6 +143,24 @@ namespace Ogre
 		bool mDeviceLost;
 		bool mBasicStatesInitialised;
 
+		/** Mapping of texture format -> DepthStencil. Used as cache by _getDepthStencilFormatFor
+		*/
+		typedef HashMap<D3DFORMAT, D3DFORMAT> DepthStencilHash;
+		DepthStencilHash mDepthStencilHash;
+
+		/** Mapping of depthstencil format -> depthstencil buffer
+			Keep one depthstencil buffer around for every format that is used, it must be large
+			enough to hold the largest rendering target.
+			This is used as cache by _getDepthStencilFor.
+		*/
+		typedef std::pair<D3DFORMAT, D3DMULTISAMPLE_TYPE> ZBufferFormat;
+		struct ZBufferRef
+		{
+			IDirect3DSurface9 *surface;
+			size_t width, height;
+		};
+		typedef std::map<ZBufferFormat, ZBufferRef> ZBufferHash;
+		ZBufferHash mZBufferHash;
 	public:
 		// constructor
 		D3D9RenderSystem( HINSTANCE hInstance );
@@ -264,6 +282,20 @@ namespace Ogre
 		/** Notify that a device has been lost */
 		void _notifyDeviceLost(void);
 
+		/** Check which depthStencil formats can be used with a certain pixel format,
+			and return the best suited.
+		*/
+		D3DFORMAT _getDepthStencilFormatFor(D3DFORMAT fmt);
+
+		/** Get a depth stencil surface that is compatible with an internal pixel format and
+			multisample type.
+			@returns A directx surface, or 0 if there is no compatible depthstencil possible.
+		*/
+		IDirect3DSurface9* _getDepthStencilFor(D3DFORMAT fmt, D3DMULTISAMPLE_TYPE multisample, size_t width, size_t height);
+
+		/** Clear all cached depth stencil surfaces
+		*/
+		void _cleanupDepthStencils();
 	};
 }
 #endif

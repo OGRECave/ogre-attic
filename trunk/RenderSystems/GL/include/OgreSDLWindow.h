@@ -61,6 +61,13 @@ namespace Ogre {
         /** Overridden - see RenderTarget.
         */
         void writeContentsToFile(const String& filename);
+        
+        /** Overridden - see RenderTarget.
+        */
+        void getCustomAttribute( const String& name, void* pData )
+        {
+            // NOOP
+        }
 
 		bool requiresTextureFlipping() const { return false; }
     };

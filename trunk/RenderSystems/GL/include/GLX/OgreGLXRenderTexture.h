@@ -27,31 +27,39 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgrePrerequisites.h"
 
-#include "OgreGLTexture.h"
+#include "OgreGLPBuffer.h"
 #include "OgreGLXContext.h"
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
-
 namespace Ogre
 {
-    class GLXRenderTexture : public GLRenderTexture
+
+    class GLXPBuffer : public GLPBuffer
     {
     public:
-        GLXRenderTexture( const String & name, unsigned int width, unsigned int height,
-			TextureType texType, PixelFormat internalFormat, 
-			const NameValuePairList *miscParams );
-        ~GLXRenderTexture();
+        GLXPBuffer(ComponentType format, size_t width, size_t height);
+        ~GLXPBuffer();
+        
+        virtual GLContext *getContext();
     protected:
-        //virtual void _copyToTexture();
-
         void createPBuffer();
 
         ::Display      *_pDpy;
         ::GLXContext   _hGLContext;
         ::GLXPbuffer   _hPBuffer;
-        GLXContext   *mContext;
+        Ogre::GLXContext   *mContext;
+        
+        /// Find out which extension to use for floating point
+        /// Possible floating point extensions, in order of preference (ARB is best)
+        enum RTFType {
+            RTF_NONE=0,
+            RTF_NV=1,    /** GLX_NV_float_buffer */
+            RTF_ATI=2,   /** GLX_ATI_pixel_format_float */
+            RTF_ARB=3    /** GLX_ARB_fbconfig_float */
+        };
+        
+        RTFType detectRTFType();
     };
 }
-
 #endif

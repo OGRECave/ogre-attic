@@ -45,9 +45,14 @@ namespace Ogre {
 			one (and conversion is needed)
 		*/
 		static GLenum getGLOriginDataType(PixelFormat mFormat);
+        
+        /**	Takes the OGRE pixel format and returns the type that must be provided
+			to GL as internal format. GL_NONE if no match exists.
+		*/
+		static GLenum getGLInternalFormat(PixelFormat mFormat);
 	
 		/**	Takes the OGRE pixel format and returns the type that must be provided
-			to GL as internal format.
+			to GL as internal format. If no match exists, returns the closest match.
 		*/
 		static GLenum getClosestGLInternalFormat(PixelFormat mFormat);
 		

@@ -30,22 +30,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderTarget.h"
 
 namespace Ogre
-{
-    class _OgreExport RenderTexture : public RenderTarget
+{    
+    /** This class represents a RenderTarget that renders to a Texture. There is no 1 on 1
+        relation between Textures and RenderTextures, as there can be multiple 
+        RenderTargets rendering to different mipmaps, faces (for cubemaps) or slices (for 3D textures)
+        of the same Texture.
+    */
+    class _OgreExport RenderTexture: public RenderTarget
     {
     public:
-        RenderTexture( const String & name, uint width, uint height, TextureType texType = TEX_TYPE_2D,  PixelFormat format = PF_R8G8B8);
-        ~RenderTexture();
-    protected:
-		RenderTexture() {};
+        RenderTexture(HardwarePixelBuffer *buffer, size_t zoffset);
+        virtual ~RenderTexture();
 
-		virtual void firePostUpdate();
-		virtual void _copyToTexture() = 0;
-
+		void writeContentsToFile( const String & filename );
 	protected:
-		/// The texture that gets accesses by the rest of the API.
-        TexturePtr mTexture;
-        PixelFormat mInternalFormat;
+		HardwarePixelBuffer *mBuffer;
+		size_t mZOffset;
     };
 }
 

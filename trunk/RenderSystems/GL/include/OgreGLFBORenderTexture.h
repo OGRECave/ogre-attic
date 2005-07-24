@@ -25,28 +25,184 @@ http://www.gnu.org/copyleft/lesser.txt.
 #ifndef __OgreGLFBORTT_H__
 #define __OgreGLFBORTT_H__
 
-#include "OgreGLTexture.h"
+#include "OgreGLRenderTexture.h"
 #include "OgreGLContext.h"
 
 namespace Ogre {
-    class GLFBORenderTexture : public GLRenderTexture
+    
+    /** Frame Buffer Object abstraction.
+    */
+    class GLFrameBufferObject
     {
     public:
-        GLFBORenderTexture( const String & name, unsigned int width, unsigned int height,
-			TextureType texType, PixelFormat internalFormat, 
-			const NameValuePairList *miscParams );
-        ~GLFBORenderTexture();
-    protected:
-        virtual void _copyToTexture();
-
-        GLuint tryFormat(GLenum depthFormat, GLenum stencilFormat);
-    
-        void createFBO();
+        GLFrameBufferObject(GLFBOManager *manager);
+        ~GLFrameBufferObject();
+        //void bindSurface(size_t attachment, RenderTarget *target);
+        /** Bind a surface to a certain attachment point.
+            attachment: 0..OGRE_MAX_MULTIPLE_RENDER_TARGETS-1
+        */
+        void bindSurface(size_t attachment, const GLSurfaceDesc &target);
+        /** Unbind attachment
+        */
+        void unbindSurface(size_t attachment);
+        /** Initialise object (find suitable depth and stencil format).
+            Must be called every time the bindings change.
+            It fails with an exception (ERR_INVALIDPARAMS) if:
+            - Attachment point 0 has no binding
+            - Not all bound surfaces have the same size
+            - Not all bound surfaces have the same internal format
+        */
+        void initialise();
+        /** Bind FrameBufferObject
+        */
+        void bind();
         
+        /// Accessors
+        size_t getWidth();
+        size_t getHeight();
+        PixelFormat getFormat();
+        
+        GLFBOManager *getManager() { return mManager; }
+    private:
+        GLFBOManager *mManager;
         GLuint mFB;
-        GLuint mDepthRB;
-        GLuint mStencilRB;
+        GLSurfaceDesc mDepth;
+        GLSurfaceDesc mStencil;
+        // Arbitrary number of texture surfaces
+        GLSurfaceDesc mColour[OGRE_MAX_MULTIPLE_RENDER_TARGETS];
     };
+
+    class GLFBOManager;
+
+    /** RenderTexture for GL FBO
+    */
+    class GLFBORenderTexture: public GLRenderTexture
+    {
+    public:
+        GLFBORenderTexture(GLFBOManager *manager, const String &name, const GLSurfaceDesc &target);
+
+        virtual void getCustomAttribute(const String& name, void* pData);
+    protected:
+        GLFrameBufferObject mFB;
+    };
+    
+    /** Factory for GL Frame Buffer Objects, and related things.
+    */
+    class GLFBOManager: public GLRTTManager
+    {
+    public:
+        GLFBOManager();
+		~GLFBOManager();
+        
+        /** Bind a certain render target if it is a FBO. If it is not a FBO, bind the
+            main frame buffer.
+        */
+        void bind(RenderTarget *target);
+        
+        /** Unbind a certain render target. No-op for FBOs.
+        */
+        void unbind(RenderTarget *target) {};
+        
+        /** Get best depth and stencil supported for given internalFormat
+        */
+        void getBestDepthStencil(GLenum internalFormat, GLenum *depthFormat, GLenum *stencilFormat);
+        
+        /** Create a texture rendertarget object
+        */
+        GLFBORenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target);
+        
+        /** Create a framebuffer object
+        */
+        GLFrameBufferObject *createFrameBufferObject();
+        
+        /** Destroy a framebuffer object
+        */
+        void destroyFrameBufferObject(GLFrameBufferObject *);
+        
+        /** Request a render buffer. If format is GL_NONE, return a zero buffer.
+        */
+        GLSurfaceDesc requestRenderBuffer(GLenum format, size_t width, size_t height);
+        /** Release a render buffer. Ignore silently if surface.buffer is 0.
+        */
+        void releaseRenderBuffer(const GLSurfaceDesc &surface);
+        
+        /** Check if a certain format is usable as FBO rendertarget format
+        */
+        bool checkFormat(PixelFormat format) { return mProps[format].valid; }
+    private:
+        /** Frame Buffer Object properties for a certain texture format.
+        */
+        struct FormatProperties
+        {
+            bool valid; // This format can be used as RTT (FBO)
+            
+            /** Allowed modes/properties for this pixel format
+            */
+            struct Mode
+            {
+                size_t depth;     // Depth format (0=no depth)
+                size_t stencil;   // Stencil format (0=no stencil)
+            };
+            
+            std::vector<Mode> modes;
+        };
+        /** Properties for all internal formats defined by OGRE
+        */
+        FormatProperties mProps[PF_COUNT];
+        
+        /** Stencil and depth renderbuffers of the same format are re-used between surfaces of the 
+            same size and format. This can save a lot of memory when a large amount of rendertargets
+            are used.
+        */
+        struct RBFormat
+        {
+            RBFormat(GLenum format, size_t width, size_t height):
+                format(format), width(width), height(height)
+            {}
+            GLenum format;
+            size_t width;
+            size_t height;
+            // Overloaded comparison operator for usage in map
+            bool operator < (const RBFormat &other) const
+            {
+                if(format < other.format)
+                {
+                    return true;
+                }
+                else if(format == other.format)
+                {
+                    if(width < other.width)
+                    {
+                        return true;
+                    }
+                    else if(width == other.width)
+                    {
+                        if(height < other.height)
+                            return true;
+                    }
+                }
+                return false;
+            }
+        };
+        struct RBRef
+        {
+            RBRef(){}
+            RBRef(GLRenderBuffer *buffer):
+                buffer(buffer), refcount(1)
+            { }
+            GLRenderBuffer *buffer;
+            size_t refcount;
+        };
+        typedef std::map<RBFormat, RBRef> RenderBufferMap;
+        RenderBufferMap mRenderBufferMap;
+        // map(format, sizex, sizey) -> [GLSurface*,refcount]
+        
+        
+        /** Detect allowed FBO formats */
+        void detectFBOFormats();
+        GLuint _tryFormat(GLenum depthFormat, GLenum stencilFormat);
+    };
+    
 
 }
 

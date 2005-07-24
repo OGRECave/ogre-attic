@@ -28,49 +28,33 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderSystem.h"
 #include "OgreImageCodec.h"
 #include "OgreException.h"
-
+#include "OgreStringConverter.h"
 #include "OgreWin32RenderTexture.h"
 #include "OgreWin32GLSupport.h"
 #include "OgreWin32Context.h"
 
-// ATI float extension
-#ifndef WGL_ATI_pixel_format_float
-#define WGL_ATI_pixel_format_float  1
-
-#define WGL_TYPE_RGBA_FLOAT_ATI             0x21A0
-#define GL_TYPE_RGBA_FLOAT_ATI              0x8820
-#define GL_COLOR_CLEAR_UNCLAMPED_VALUE_ATI  0x8835
-#endif
-
-
 namespace Ogre {
 
-	Win32RenderTexture::Win32RenderTexture(Win32GLSupport &glsupport, const String & name, 
-			unsigned int width, unsigned int height,
-			TextureType texType, PixelFormat internalFormat, 
-			const NameValuePairList *miscParams, bool useBind ):
-		GLRenderTexture(name, width, height, texType, internalFormat, miscParams),
-		mGLSupport(glsupport),
-        mContext(0), mUseBind(useBind)
+	 Win32PBuffer::Win32PBuffer(ComponentType format, size_t width, size_t height):
+		GLPBuffer(format, width, height),
+        mContext(0)
 	{
-	
 		createPBuffer();
 
         // Create context
         mContext = new Win32Context(mHDC, mGlrc);
-        // Register the context with the rendersystem
-        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-        rs->_registerContext(this, mContext);        
-
+#if 0
 		if(mUseBind)
 		{
 			// Bind texture
 			glBindTexture(GL_TEXTURE_2D, static_cast<GLTexture*>(mTexture.get())->getGLID());
 			wglBindTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 		}
+#endif
 	}
-	Win32RenderTexture::~Win32RenderTexture() 
+	 Win32PBuffer::~Win32PBuffer() 
 	{
+#if 0
 		if(mUseBind)
 		{
 			// Unbind texture
@@ -80,72 +64,68 @@ namespace Ogre {
 				static_cast<GLTexture*>(mTexture.get())->getGLID());
 			wglReleaseTexImageARB(mPBuffer, WGL_FRONT_LEFT_ARB);
 		}
-           
+#endif
         // Unregister and destroy mContext
-        GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
-        rs->_unregisterContext(this);
         delete mContext;        
            
 		// Destroy pbuffer
 		destroyPBuffer();
 	}
 	
-	void Win32RenderTexture::_copyToTexture() 
+	void Win32PBuffer::createPBuffer() 
 	{
-		if(!mUseBind)
-		{
-			// Use old fasioned copying
-			GLRenderTexture::_copyToTexture();
-		}
-	}
- /*
-	void Win32RenderTexture::firePreUpdate(void) 
-	{
-		//SwapBuffers(mHDC);
-		// Enable current context
-		mGLSupport.pushContext(mHDC, mGlrc);
-		// Fire default preupdate
-		GLRenderTexture::firePreUpdate();
-	}
-	void Win32RenderTexture::firePostUpdate(void) 
-	{
-		// Fire default postupdate
-		GLRenderTexture::firePostUpdate();
-		// Possibly enable previous context
-		mGLSupport.popContext();
-	}
-*/
-	void Win32RenderTexture::createPBuffer() 
-	{
+
+        // Process format
+        int bits=0;
+        bool isFloat=false;
+		bool hasAlpha=true;
+        switch(mFormat)
+        {
+            case PT_BYTE:
+                bits=8; isFloat=false;
+                break;
+            case PT_SHORT:
+                bits=16; isFloat=false;
+                break;
+            case PT_FLOAT16:
+                bits=16; isFloat=true;
+                break;
+            case PT_FLOAT32:
+                bits=32; isFloat=true;
+                break;
+            default: break;
+        };
 		LogManager::getSingleton().logMessage(
-	    "Win32RenderTexture::Creating PBuffer"
+			" Win32PBuffer::Creating PBuffer of format bits="+
+			StringConverter::toString(bits)+
+			" float="+StringConverter::toString(isFloat)
 	    );
+
 
 		HDC old_hdc = wglGetCurrentDC();
 		HGLRC old_context = wglGetCurrentContext();
 
 		// Bind to RGB or RGBA texture
 		int bttype = 0;
+#if 0
 		if(mUseBind)
 		{
 			// Only provide bind type when actually binding
 			bttype = PixelUtil::hasAlpha(mInternalFormat)?
 				WGL_BIND_TO_TEXTURE_RGBA_ARB : WGL_BIND_TO_TEXTURE_RGB_ARB;
 		}
-		int texformat = PixelUtil::hasAlpha(mInternalFormat)?
+#endif
+		int texformat = hasAlpha?
 			WGL_TEXTURE_RGBA_ARB : WGL_TEXTURE_RGB_ARB;
 		// Make a float buffer?
-        int pixeltype = PixelUtil::isFloatingPoint(mInternalFormat)?
-			WGL_TYPE_RGBA_FLOAT_ATI : WGL_TYPE_RGBA_ARB;
-		// Get R,G,B,A depths
-		int depths[4];
-		PixelUtil::getBitDepths(mInternalFormat, depths);
-
+        int pixeltype = isFloat?
+			WGL_TYPE_RGBA_FLOAT_ARB: WGL_TYPE_RGBA_ARB;
+		
 		int attrib[] = {
-			WGL_RED_BITS_ARB,depths[0],
-			WGL_GREEN_BITS_ARB,depths[1],
-			WGL_BLUE_BITS_ARB,depths[2],
-			WGL_ALPHA_BITS_ARB,depths[3],
+			WGL_RED_BITS_ARB,bits,
+			WGL_GREEN_BITS_ARB,bits,
+			WGL_BLUE_BITS_ARB,bits,
+			WGL_ALPHA_BITS_ARB,bits,
 			WGL_STENCIL_BITS_ARB,1,
 			WGL_DEPTH_BITS_ARB,15,
 			WGL_DRAW_TO_PBUFFER_ARB,true,
@@ -156,19 +136,23 @@ namespace Ogre {
 			bttype,true, // must be last, as bttype can be zero
 			0
 		};
-		int pattrib[] = { 
+		int pattrib_default[] = { 
+			0
+		};
+#if 0
+		int pattrib_bind[] = { 
 			WGL_TEXTURE_FORMAT_ARB, texformat, 
 			WGL_TEXTURE_TARGET_ARB, WGL_TEXTURE_2D_ARB,
 			0 
 		};
-
+#endif
 		int format;
 		unsigned int count;
 
 		// Choose suitable pixel format
 		wglChoosePixelFormatARB(old_hdc,attrib,NULL,1,&format,&count);
 		if(count == 0)
-			OGRE_EXCEPT(0, "wglChoosePixelFormatARB() failed", "Win32RenderTexture::createPBuffer");
+			OGRE_EXCEPT(0, "wglChoosePixelFormatARB() failed", " Win32PBuffer::createPBuffer");
 
 		// Analyse pixel format
 		const int piAttributes[]={
@@ -179,7 +163,7 @@ namespace Ogre {
 		wglGetPixelFormatAttribivARB(old_hdc,format,0,sizeof(piAttributes)/sizeof(const int),piAttributes,piValues);
 
         StringUtil::StrStreamType str;
-        str << "Win32RenderTexture::PBuffer -- Chosen pixel format rgba="
+        str << " Win32PBuffer::PBuffer -- Chosen pixel format rgba="
             << piValues[0] << ","  
             << piValues[1] << ","  
             << piValues[2] << ","  
@@ -189,42 +173,38 @@ namespace Ogre {
 		LogManager::getSingleton().logMessage(
 			LML_NORMAL, str.str());
 
-		mPBuffer = wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib);
+		mPBuffer = wglCreatePbufferARB(old_hdc,format,mWidth,mHeight,pattrib_default);
 		if(!mPBuffer)
-			OGRE_EXCEPT(0, "wglCreatePbufferARB() failed", "Win32RenderTexture::createPBuffer");
+			OGRE_EXCEPT(0, "wglCreatePbufferARB() failed", " Win32PBuffer::createPBuffer");
 
 		mHDC = wglGetPbufferDCARB(mPBuffer);
 		if(!mHDC) {
 			wglDestroyPbufferARB(mPBuffer);
-			OGRE_EXCEPT(0, "wglGetPbufferDCARB() failed", "Win32RenderTexture::createPBuffer");
+			OGRE_EXCEPT(0, "wglGetPbufferDCARB() failed", " Win32PBuffer::createPBuffer");
 		}
 			
 		mGlrc = wglCreateContext(mHDC);
 		if(!mGlrc) {
 			wglReleasePbufferDCARB(mPBuffer,mHDC);
 			wglDestroyPbufferARB(mPBuffer);
-			OGRE_EXCEPT(0, "wglCreateContext() failed", "Win32RenderTexture::createPBuffer");
+			OGRE_EXCEPT(0, "wglCreateContext() failed", " Win32PBuffer::createPBuffer");
 		}
 
 		if(!wglShareLists(old_context,mGlrc)) {
 			wglDeleteContext(mGlrc);
 			wglReleasePbufferDCARB(mPBuffer,mHDC);
 			wglDestroyPbufferARB(mPBuffer);
-			OGRE_EXCEPT(0, "wglShareLists() failed", "Win32RenderTexture::createPBuffer");
+			OGRE_EXCEPT(0, "wglShareLists() failed", " Win32PBuffer::createPBuffer");
 		}
 				
 		// Query real width and height
 		int iWidth, iHeight;
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_WIDTH_ARB, &iWidth);
 		wglQueryPbufferARB(mPBuffer, WGL_PBUFFER_HEIGHT_ARB, &iHeight);
-        str.clear();
-        str << "Win32RenderTexture::PBuffer created -- Real dimensions "
-            << mWidth << "x" << mHeight;
-		LogManager::getSingleton().logMessage(LML_NORMAL, str.str());
 		mWidth = iWidth;  
 		mHeight = iHeight;
 	}
-	void Win32RenderTexture::destroyPBuffer() 
+	void Win32PBuffer::destroyPBuffer() 
 	{
 		wglDeleteContext(mGlrc);
 		wglReleasePbufferDCARB(mPBuffer,mHDC);
