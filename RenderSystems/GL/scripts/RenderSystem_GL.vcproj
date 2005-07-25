@@ -172,10 +172,16 @@
 				RelativePath="..\src\OgreGLHardwareVertexBuffer.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreGLPBRenderTexture.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreGLPixelFormat.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreGLRenderSystem.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreGLRenderTexture.cpp">
 			</File>
 			<File
 				RelativePath="..\src\OgreGLSupport.cpp">
@@ -407,6 +413,12 @@
 				RelativePath="..\include\OgreGLHardwareVertexBuffer.h">
 			</File>
 			<File
+				RelativePath="..\include\OgreGLPBRenderTexture.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLPBuffer.h">
+			</File>
+			<File
 				RelativePath="..\include\OgreGLPixelFormat.h">
 			</File>
 			<File
@@ -414,6 +426,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreGLRenderSystem.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLRenderTexture.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreGLSupport.h">
