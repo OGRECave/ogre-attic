@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 2 2005 by texi2html 1.64 -->
+<!-- Created on , 25 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC98"></A>
+<A NAME="SEC100"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC94"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC96"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC102"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC104"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,27 +35,21 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H2> 3.2 Particle Scripts </H2>
-<!--docid::SEC98::-->
-<P>
+<!--docid::SEC100::-->
 
 Particle scripts allow you to define particle systems to be instantiated in your code without having to hard-code the settings themselves in your source code, allowing a very quick turnaround on any changes you make. Particle systems which are defined in scripts are used as templates, and multiple actual systems can be created from them at runtime.<BR><BR>
-</P><P>
 
-<A NAME="SEC99"></A>
+<A NAME="SEC101"></A>
 <H2> Loading scripts  </H2>
-<!--docid::SEC99::-->
-<P>
+<!--docid::SEC101::-->
 
 Particle system scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.particle' extension and parses them. If you want to parse files with a different extension, use the ParticleSystemManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use ParticleSystemManager::getSingleton().parseScript.<BR><BR>
-</P><P>
 
 Once scripts have been parsed, your code is free to instantiate systems based on them using the ParticleSystemManager::getSingleton().createSystem() method which can take both a name for the new system, and the name of the template to base it on (this template name is in the script).<BR><BR>
-</P><P>
 
-<A NAME="SEC100"></A>
+<A NAME="SEC102"></A>
 <H2> Format  </H2>
-<!--docid::SEC100::-->
-<P>
+<!--docid::SEC102::-->
 
 Several particle systems may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in a typical example:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>// A sparkly purple fountain
@@ -98,32 +92,29 @@ Examples/PurpleFountain
 }
 </pre></td></tr></table><BR><BR>
 Every particle system in the script must be given a name, which is the line before the first opening '{', in the example this is 'Examples/PurpleFountain'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your particle systems, and also to avoid duplicate names, but the engine does not treat the name as hierarchical, just as a string.<BR><BR>
-</P><P>
 
 A system can have top-level attributes set using the scripting commands available, such as 'quota' to set the maximum number of particles allowed in the system. Emitters (which create particles) and affectors (which modify particles) are added as nested definitions within the script. The parameters available in the emitter and affector sections are entirely dependent on the type of emitter / affector.<BR><BR>
-</P><P>
 
 For a detailed description of the core particle system attributes, see the list below:
-</P><P>
 
-<A NAME="SEC101"></A>
+<A NAME="SEC103"></A>
 <H3> Available Particle System Attributes </H3>
-<!--docid::SEC101::-->
+<!--docid::SEC103::-->
 <UL>
 <LI>
-<A HREF="manual_24.html#SEC103">quota</A>
+<A HREF="manual_24.html#SEC105">quota</A>
 <LI>
 <A HREF="manual_24.html#particle_material">material</A>
 <LI>
-<A HREF="manual_24.html#SEC105">particle_width</A>
+<A HREF="manual_24.html#SEC107">particle_width</A>
 <LI>
-<A HREF="manual_24.html#SEC106">particle_height</A>
+<A HREF="manual_24.html#SEC108">particle_height</A>
 <LI>
-<A HREF="manual_24.html#SEC107">cull_each</A>
+<A HREF="manual_24.html#SEC109">cull_each</A>
 <LI>
-<A HREF="manual_24.html#SEC111">billboard_type</A>
+<A HREF="manual_24.html#SEC113">billboard_type</A>
 <LI>
-<A HREF="manual_24.html#SEC112">common_direction</A>
+<A HREF="manual_24.html#SEC114">common_direction</A>
 <LI>
 <A HREF="manual_24.html#particle_renderer">renderer</A>
 <LI>
@@ -131,15 +122,14 @@ For a detailed description of the core particle system attributes, see the list 
 <LI>
 <A HREF="manual_24.html#particle_localspace">local_space</A>
 </UL>
-See also: <A HREF="manual_25.html#SEC113">3.2.2 Particle Emitters</A>, <A HREF="manual_28.html#SEC137">3.2.5 Particle Affectors</A>
-<P>
+See also: <A HREF="manual_25.html#SEC115">3.2.2 Particle Emitters</A>, <A HREF="manual_28.html#SEC139">3.2.5 Particle Affectors</A>
 
 <A NAME="Particle System Attributes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC94"> &lt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC96"> &lt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC102"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_24.html#SEC104"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -148,7 +138,7 @@ See also: <A HREF="manual_25.html#SEC113">3.2.2 Particle Emitters</A>, <A HREF="
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 2 2005</I>
+by <I>Steve Streeting</I> on <I>, 25 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
