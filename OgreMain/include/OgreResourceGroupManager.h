@@ -63,6 +63,8 @@ namespace Ogre {
     class _OgreExport ResourceGroupListener
     {
     public:
+        virtual ~ResourceGroupListener() {}
+
 		/** This event is fired when a resource group begins parsing scripts.
 		@param groupName The name of the group 
 		@param scriptCount The number of scripts which will be parsed

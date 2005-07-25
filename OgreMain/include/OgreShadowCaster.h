@@ -104,6 +104,7 @@ namespace Ogre {
     class _OgreExport ShadowCaster
     {
     public:
+        virtual ~ShadowCaster() { }
         /** Returns whether or not this object currently casts a shadow. */
         virtual bool getCastShadows(void) const = 0;
 

@@ -164,6 +164,7 @@ namespace Ogre {
     class _OgreExport SceneQueryListener
     {
     public:
+        virtual ~SceneQueryListener() { }
         /** Called when a MovableObject is returned by a query.
         @remarks
             The implementor should return 'true' to continue returning objects,
@@ -311,6 +312,7 @@ namespace Ogre {
     class _OgreExport RaySceneQueryListener 
     {
     public:
+        virtual ~RaySceneQueryListener() { }
         /** Called when a movable objects intersects the ray.
         @remarks
             As with SceneQueryListener, the implementor of this method should return 'true'
@@ -436,6 +438,7 @@ namespace Ogre {
     class _OgreExport IntersectionSceneQueryListener 
     {
     public:
+        virtual ~IntersectionSceneQueryListener() { }
         /** Called when 2 movable objects intersect one another.
         @remarks
             As with SceneQueryListener, the implementor of this method should return 'true'
