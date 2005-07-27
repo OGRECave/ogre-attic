@@ -182,6 +182,9 @@ namespace Ogre
 		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
 			const NameValuePairList *miscParams = 0 ); 
 
+		/// @copydoc RenderSystem::createMultiRenderTarget
+		virtual MultiRenderTarget * createMultiRenderTarget(const String & name);
+
 		String getErrorDescription( long errorNumber ) const;
 		const String& getName(void) const;
 		// Low-level overridden members

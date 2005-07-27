@@ -313,6 +313,7 @@ namespace Ogre {
     class RenderTarget;
     class RenderTargetListener;
     class RenderTexture;
+	class MultiRenderTarget;
     class RenderWindow;
     class RenderOperation;
     class Resource;

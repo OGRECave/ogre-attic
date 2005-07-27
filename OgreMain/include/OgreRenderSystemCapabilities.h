@@ -116,6 +116,8 @@ namespace Ogre {
             ushort mFragmentProgramConstantIntCount;           
             /// The number of boolean constants fragment programs support
             ushort mFragmentProgramConstantBoolCount;
+			/// The number of simultaneous render targets supported
+			ushort mNumMultiRenderTargets;
 
     	public:	
             RenderSystemCapabilities ();
@@ -140,6 +142,12 @@ namespace Ogre {
             {
                 mNumVertexBlendMatrices = num;
             }
+
+			/// The number of simultaneous render targets supported
+			void setNumMultiRenderTargets(ushort num)
+			{
+				mNumMultiRenderTargets = num;
+			}
 
             ushort getNumWorldMatricies(void) const
             { 
@@ -178,6 +186,12 @@ namespace Ogre {
             {
                 return mNumVertexBlendMatrices;
             }
+
+			/// The number of simultaneous render targets supported
+			ushort numMultiRenderTargets(void) const
+			{
+				return mNumMultiRenderTargets;
+			}
 
             /** Adds a capability flag to mCapabilities
             */

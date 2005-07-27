@@ -91,5 +91,20 @@ namespace Ogre
 
 		delete [] pBuffer;
     }
+	//-----------------------------------------------------------------------------
+	MultiRenderTarget::MultiRenderTarget(const String &name)
+    {
+        mPriority = OGRE_REND_TO_TEX_RT_GROUP;
+		mName = name;
+		/// Width and height is unknown with no targets attached
+		mWidth = mHeight = 0;
+    }
+	//-----------------------------------------------------------------------------
+	void MultiRenderTarget::writeContentsToFile( const String & filename )
+	{
+		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Cannot write MultiRenderTargets to disk",
+                "MultiRenderTarget::writeContentsToFile");
+	}
 
 }

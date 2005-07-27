@@ -44,7 +44,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgramManager.h"
 #include "OgreD3D9HardwareOcclusionQuery.h"
 #include "OgreFrustum.h"
-
+#include "OgreD3D9MultiRenderTarget.h"
 
 
 namespace Ogre 
@@ -763,6 +763,16 @@ namespace Ogre
 		// We always support rendertextures bigger than the frame buffer
         mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
 
+		// Number of render targets
+		mCapabilities->setNumMultiRenderTargets(std::min((ushort)mCaps.NumSimultaneousRTs, (ushort)OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+
+		//
+		if(mCaps.PrimitiveMiscCaps & D3DPMISCCAPS_MRTINDEPENDENTBITDEPTHS)
+		{
+			LogManager::getSingleton().logMessage("Multiple render targets with independent bit depths supported");
+
+		}
+
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
     }
     //---------------------------------------------------------------------
@@ -931,17 +941,14 @@ namespace Ogre
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
         }
     }
-    //---------------------------------------------------------------------
-	RenderTexture * D3D9RenderSystem::createRenderTexture( const String & name, 
-		unsigned int width, unsigned int height,
-		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
+	//-----------------------------------------------------------------------
+	MultiRenderTarget * D3D9RenderSystem::createMultiRenderTarget(const String & name)
 	{
-		/// Create a new 2D texture, and return surface to render to
-        TexturePtr mTexture = TextureManager::getSingleton().createManual( name, 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
-			width, height, 0, internalFormat, TU_RENDERTARGET );
-            
-        return mTexture->getBuffer()->getRenderTarget();
+		MultiRenderTarget *retval;
+		retval = new D3D9MultiRenderTarget(name);
+		attachRenderTarget(*retval);
+
+		return retval;
 	}
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::destroyRenderTarget(const String& name)
@@ -1899,9 +1906,11 @@ namespace Ogre
 			RenderTarget* target;
 			target = vp->getTarget();
 
-			LPDIRECT3DSURFACE9 pBack = NULL;
+			// Retrieve render surfaces (up to OGRE_MAX_MULTIPLE_RENDER_TARGETS)
+			LPDIRECT3DSURFACE9 pBack[OGRE_MAX_MULTIPLE_RENDER_TARGETS];
+			memset(pBack, 0, sizeof(pBack));
 			target->getCustomAttribute( "DDBACKBUFFER", &pBack );
-			if (!pBack)
+			if (!pBack[0])
 				return;
 
 			LPDIRECT3DSURFACE9 pDepth = NULL;
@@ -1912,16 +1921,20 @@ namespace Ogre
 				/// Request a depth stencil that is compatible with the format, multisample type and
 				/// dimensions of the render target.
 				D3DSURFACE_DESC srfDesc;
-				if(FAILED(pBack->GetDesc(&srfDesc)))
+				if(FAILED(pBack[0]->GetDesc(&srfDesc)))
 					return; // ?
 				pDepth = _getDepthStencilFor(srfDesc.Format, srfDesc.MultiSampleType, srfDesc.Width, srfDesc.Height);
 			}
-			
-			hr = mpD3DDevice->SetRenderTarget(0, pBack);
-			if (FAILED(hr))
+			// Bind render targets
+			uint count = mCapabilities->numMultiRenderTargets();
+			for(uint x=0; x<count; ++x)
 			{
-				String msg = DXGetErrorDescription9(hr);
-				OGRE_EXCEPT( hr, "Failed to setRenderTarget : " + msg, "D3D9RenderSystem::_setViewport" );
+				hr = mpD3DDevice->SetRenderTarget(x, pBack[x]);
+				if (FAILED(hr))
+				{
+					String msg = DXGetErrorDescription9(hr);
+					OGRE_EXCEPT( hr, "Failed to setRenderTarget : " + msg, "D3D9RenderSystem::_setViewport" );
+				}
 			}
 			hr = mpD3DDevice->SetDepthStencilSurface(pDepth);
 			if (FAILED(hr))

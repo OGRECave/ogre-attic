@@ -358,9 +358,15 @@ namespace Ogre
                 arbitrary rendertextures with the TextureManager::createManual call with usage
                 TU_RENDERTEXTURE.
 		*/
-		virtual RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
+		RenderTexture * createRenderTexture( const String & name, unsigned int width, unsigned int height,
 		 	TextureType texType = TEX_TYPE_2D, PixelFormat internalFormat = PF_X8R8G8B8, 
-			const NameValuePairList *miscParams = 0 ) = 0; 
+			const NameValuePairList *miscParams = 0 ); 
+
+		/**	Create a MultiRenderTarget, which is a render target that renders to multiple RenderTextures
+			at once. Surfaces can be bound and unbound at will.
+			This fails if mCapabilities->numMultiRenderTargets() is smaller than 2.
+		*/
+		virtual MultiRenderTarget * createMultiRenderTarget(const String & name) = 0; 
 
         /** Destroys a render window */
         virtual void destroyRenderWindow(const String& name);

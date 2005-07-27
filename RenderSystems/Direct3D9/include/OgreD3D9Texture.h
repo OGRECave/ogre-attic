@@ -241,6 +241,11 @@ namespace Ogre {
                 *pHwnd = NULL;
                 return;
             }
+			else if(name == "BUFFER")
+			{
+				*static_cast<HardwarePixelBuffer**>(pData) = mBuffer;
+				return;
+			}
 		}
 
 		bool requiresTextureFlipping() const { return false; }
