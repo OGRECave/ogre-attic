@@ -191,6 +191,9 @@
 			<File
 				RelativePath="..\src\OgreD3D9VideoModeList.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreD3D9MultiRenderTarget.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -254,6 +257,9 @@
 			</File>
 			<File
 				RelativePath="..\include\OgreD3D9VideoModeList.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreD3D9MultiRenderTarget.h">
 			</File>
 		</Filter>
 		<Filter
