@@ -482,17 +482,10 @@ namespace Ogre {
         /// is used to probe further capabilities.
          // Check for framebuffer object extension
         int rttOverride = 0; // override: 0 use whatever available, 1 use PBuffers, 2 force use copying
-		if(mGLSupport->getGLVendor() == "ATI")
-		{
-			/// Block ATI from using FBO for now, as it crashes inside the driver upon detection
-			/// of allowed RTT formats.
-			rttOverride = 1;
-		}
         if(mGLSupport->checkExtension("GL_EXT_framebuffer_object") && rttOverride<1)
         {
             LogManager::getSingleton().logMessage("GL: Using GL_EXT_framebuffer_object for rendering to textures (best)");
-            mRTTManager = new GLFBOManager();
-            //mRTTManager = new GLCopyingRTTManager();
+            mRTTManager = new GLFBOManager(mGLSupport->getGLVendor() == "ATI");
             mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
         }
         else
@@ -616,19 +609,6 @@ namespace Ogre {
         return win;
     }
 
-    RenderTexture * GLRenderSystem::createRenderTexture( const String &name, unsigned int width, 
-	unsigned int height, TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
-    {
-         /// Create a new 2D texture, and return surface to render to
-         TexturePtr mTexture = TextureManager::getSingleton().createManual(
-name,
-                       ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-texType,
-                       width, height, 0, internalFormat, TU_RENDERTARGET );
-
-         return mTexture->getBuffer()->getRenderTarget();
-    }
-/*
 	//-----------------------------------------------------------------------
 	MultiRenderTarget * GLRenderSystem::createMultiRenderTarget(const String & name)
 	{
@@ -637,8 +617,8 @@ texType,
 			"Not yet implemented for GL", "GLRenderSystem::createMultiRenderTarget" );
 		return 0;
 	}
-*/
-    //-----------------------------------------------------------------------
+
+	//-----------------------------------------------------------------------
     void GLRenderSystem::destroyRenderWindow(RenderWindow* pWin)
     {
         // Find it to remove from list

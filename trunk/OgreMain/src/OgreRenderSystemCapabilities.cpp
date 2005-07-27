@@ -34,7 +34,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     RenderSystemCapabilities::RenderSystemCapabilities() 
       : mNumWorldMatrices(0), mNumTextureUnits(0), mStencilBufferBitDepth(0),
-        mNumVertexBlendMatrices(0), mCapabilities(0)
+        mNumVertexBlendMatrices(0), mNumMultiRenderTargets(1), mCapabilities(0)
     {
     }
     //-----------------------------------------------------------------------
@@ -138,7 +138,9 @@ namespace Ogre {
 		pLog->logMessage(
             " * Volume textures: " 
             + StringConverter::toString(hasCapability(RSC_TEXTURE_3D), true));
-
+		pLog->logMessage(
+            " * Multiple Render Targets: " 
+            + StringConverter::toString(mNumMultiRenderTargets));
 
     }
 };

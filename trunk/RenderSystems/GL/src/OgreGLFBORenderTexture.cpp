@@ -234,7 +234,8 @@ size_t depthBits[] = {
 };
 #define DEPTHFORMAT_COUNT (sizeof(depthFormats)/sizeof(GLenum))
     
-    GLFBOManager::GLFBOManager()
+	GLFBOManager::GLFBOManager(bool atimode):
+		mATIMode(atimode)
     {
         detectFBOFormats();
     }
@@ -315,6 +316,17 @@ size_t depthBits[] = {
         {
             mProps[x].valid = false;
 
+			// No test for compressed formats
+			if(PixelUtil::isCompressed((PixelFormat)x))
+				continue;
+
+			// Buggy ATI cards *crash* on non-RGB(A) formats
+			int depths[4];
+			PixelUtil::getBitDepths((PixelFormat)x, depths);
+			if(mATIMode && (!depths[0] || !depths[1] || !depths[2]))
+				continue;
+
+			// Fetch GL format token
 			GLenum fmt = GLPixelUtil::getGLInternalFormat((PixelFormat)x);
             if(fmt == GL_NONE && x!=0)
                 continue;

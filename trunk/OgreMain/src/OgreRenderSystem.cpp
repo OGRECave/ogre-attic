@@ -39,6 +39,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshManager.h"
 #include "OgreMaterial.h"
 #include "OgreTimer.h"
+#include "OgreHardwarePixelBuffer.h"
 
 namespace Ogre {
 
@@ -114,6 +115,18 @@ namespace Ogre {
 
         return 0;
     }
+	//---------------------------------------------------------------------
+	RenderTexture * RenderSystem::createRenderTexture( const String & name, 
+		unsigned int width, unsigned int height,
+		TextureType texType, PixelFormat internalFormat, const NameValuePairList *miscParams )
+	{
+		/// Create a new 2D texture, and return surface to render to
+        TexturePtr mTexture = TextureManager::getSingleton().createManual( name, 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
+			width, height, 0, internalFormat, TU_RENDERTARGET );
+            
+        return mTexture->getBuffer()->getRenderTarget();
+	}
     //---------------------------------------------------------------------------------------------
     void RenderSystem::destroyRenderWindow(const String& name)
     {

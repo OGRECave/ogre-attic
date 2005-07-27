@@ -91,7 +91,7 @@ namespace Ogre {
     class GLFBOManager: public GLRTTManager
     {
     public:
-        GLFBOManager();
+        GLFBOManager(bool atimode);
 		~GLFBOManager();
         
         /** Bind a certain render target if it is a FBO. If it is not a FBO, bind the
@@ -197,6 +197,8 @@ namespace Ogre {
         RenderBufferMap mRenderBufferMap;
         // map(format, sizex, sizey) -> [GLSurface*,refcount]
         
+		/// Buggy ATI driver?
+		bool mATIMode;
         
         /** Detect allowed FBO formats */
         void detectFBOFormats();
