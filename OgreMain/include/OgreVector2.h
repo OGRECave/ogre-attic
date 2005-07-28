@@ -448,7 +448,7 @@ namespace Ogre
         /** Calculates a reflection vector to the plane with the given normal . 
         @remarks NB assumes 'this' is pointing AWAY FROM the plane, invert if it is not.
         */
-        inline Vector2 reflect(const Vector2& normal)
+        inline Vector2 reflect(const Vector2& normal) const
         {
             return Vector2( *this - ( 2 * this->dotProduct(normal) * normal ) );
         }

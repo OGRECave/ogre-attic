@@ -87,7 +87,7 @@ namespace Ogre {
             this->FromAxes(xaxis, yaxis, zaxis);
         }
         /// Construct a quaternion from 3 orthonormal local axes
-        inline Quaternion(Vector3* akAxis)
+        inline Quaternion(const Vector3* akAxis)
         {
             this->FromAxes(akAxis);
         }
@@ -166,7 +166,7 @@ namespace Ogre {
    		/// Calculate the local yaw element of this quaternion
 		Radian getYaw(void) const;		
 		/// Equality with tolerance (tolerance is max angle difference)
-		bool equals(const Quaternion& rhs, const Radian& tolerance);
+		bool equals(const Quaternion& rhs, const Radian& tolerance) const;
 		
 	    // spherical linear interpolation
         static Quaternion Slerp (Real fT, const Quaternion& rkP,

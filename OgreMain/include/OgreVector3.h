@@ -575,7 +575,7 @@ namespace Ogre
         /** Calculates a reflection vector to the plane with the given normal . 
         @remarks NB assumes 'this' is pointing AWAY FROM the plane, invert if it is not.
         */
-        inline Vector3 reflect(const Vector3& normal)
+        inline Vector3 reflect(const Vector3& normal) const
         {
             return Vector3( *this - ( 2 * this->dotProduct(normal) * normal ) );
         }
@@ -586,7 +586,7 @@ namespace Ogre
 		@param tolerance The amount that each element of the vector may vary by 
 			and still be considered equal
 		*/
-		inline bool positionEquals(const Vector3& rhs, Real tolerance = 1e-03)
+		inline bool positionEquals(const Vector3& rhs, Real tolerance = 1e-03) const
 		{
 			return Math::RealEqual(x, rhs.x, tolerance) &&
 				Math::RealEqual(y, rhs.y, tolerance) &&
@@ -600,7 +600,7 @@ namespace Ogre
 			still be considered equal
 		*/
 		inline bool directionEquals(const Vector3& rhs, 
-			const Radian& tolerance)
+			const Radian& tolerance) const
 		{
 			Real dot = dotProduct(rhs);
 			Radian angle = Math::ACos(dot);
