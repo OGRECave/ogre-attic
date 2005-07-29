@@ -11,6 +11,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\bin\debug\rendersystem_gl.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -39,15 +40,17 @@
 					<Add library="OgreMain_d"/>
 					<Add library="OPENGL32"/>
 					<Add library="GLU32"/>
+					<Add library="GDI32"/>
 					<Add directory="..\..\..\OgreMain\lib\Debug"/>
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\RenderSystem_GL.dll ..\..\..\Samples\Common\Bin\Debug"/>
+					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Debug\RenderSystem_GL.dll ..\..\..\Samples\Common\Bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="..\bin\release\rendersystem_gl.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -119,6 +122,13 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
+		<Unit filename="..\include\GL\glew.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
 		<Unit filename="..\include\OgreGLContext.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
@@ -127,6 +137,13 @@
 			<Option target="Release"/>
 		</Unit>
 		<Unit filename="..\include\OgreGLDefaultHardwareBufferManager.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\OgreGLFBORenderTexture.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
 			<Option link="0"/>
@@ -189,6 +206,13 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
+		<Unit filename="..\include\OgreGLPBuffer.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
 		<Unit filename="..\include\OgreGLPixelFormat.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
@@ -204,6 +228,13 @@
 			<Option target="Release"/>
 		</Unit>
 		<Unit filename="..\include\OgreGLRenderSystem.h">
+			<Option compilerVar=""/>
+			<Option compile="0"/>
+			<Option link="0"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\include\OgreGLRenderTexture.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
 			<Option link="0"/>
@@ -344,6 +375,11 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
+		<Unit filename="..\src\OgreGLFBORenderTexture.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
 		<Unit filename="..\src\OgreGLGpuNvparseProgram.cpp">
 			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
@@ -384,12 +420,22 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
+		<Unit filename="..\src\OgreGLPBRenderTexture.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
 		<Unit filename="..\src\OgreGLPixelFormat.cpp">
 			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
 		<Unit filename="..\src\OgreGLRenderSystem.cpp">
+			<Option compilerVar="CPP"/>
+			<Option target="Debug"/>
+			<Option target="Release"/>
+		</Unit>
+		<Unit filename="..\src\OgreGLRenderTexture.cpp">
 			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
 			<Option target="Release"/>
@@ -460,8 +506,8 @@
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>
-		<Unit filename="..\src\glprocs.c">
-			<Option compilerVar="CC"/>
+		<Unit filename="..\src\glew.cpp">
+			<Option compilerVar="CPP"/>
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>

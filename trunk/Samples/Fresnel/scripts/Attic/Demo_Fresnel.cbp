@@ -10,12 +10,14 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\bin\Debug\demo_fresnel.exe"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
 				<Option type="1"/>
 				<Option compiler="0"/>
 				<Option includeInTargetAll="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
 					<Add option="-W"/>
 					<Add option="-g"/>
@@ -31,16 +33,18 @@
 					<Add directory="..\..\..\OgreMain\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\Demo_Fresnel.exe ..\..\Common\Bin\Debug"/>
+					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Debug\Demo_Fresnel.exe ..\..\Common\Bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="..\bin\Release\Demo_Fresnel.exe"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output="C:\Downloads\Ogre\build\ogrenew\Samples\Fresnel\scripts\.deps"/>
 				<Option external_deps=""/>
 				<Option type="1"/>
 				<Option compiler="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
 					<Add option="-W"/>
 					<Add option="-DWIN32"/>

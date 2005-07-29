@@ -10,16 +10,18 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\bin\debug\ogrexmlconverter.exe"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
 				<Option type="1"/>
 				<Option compiler="0"/>
 				<Option includeInTargetAll="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
-					<Add option="-DTIXML_USE_STL"/>
 					<Add option="-W"/>
 					<Add option="-g"/>
+					<Add option="-DTIXML_USE_STL"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\include"/>
@@ -30,16 +32,18 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\OgreXMLConverter.exe ..\..\Common\bin\Debug"/>
+					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Debug\OgreXMLConverter.exe ..\..\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="..\bin\Release\OgreXMLConverter.exe"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output="C:\Downloads\Ogre\build\ogrenew\Tools\XMLConverter\scripts\.deps"/>
 				<Option external_deps=""/>
 				<Option type="1"/>
 				<Option compiler="0"/>
+				<Option projectResourceIncludeDirsRelation="1"/>
 				<Compiler>
 					<Add option="-W"/>
 					<Add option="-g"/>

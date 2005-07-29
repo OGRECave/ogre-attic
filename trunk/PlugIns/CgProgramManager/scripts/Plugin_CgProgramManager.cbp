@@ -11,6 +11,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\bin\debug\plugin_cgprogrammanager.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -19,13 +20,13 @@
 				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-D_DEBUG"/>
 					<Add option="-D_WINDOWS"/>
 					<Add option="-D_USRDLL"/>
 					<Add option="-DPLUGIN_BSPSCENEMANAGER_EXPORTS"/>
-					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
 					<Add directory="..\..\..\Dependencies\include"/>
@@ -37,11 +38,12 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\Plugin_CgProgramManager.dll ..\..\..\Samples\Common\bin\Debug"/>
+					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Debug\Plugin_CgProgramManager.dll ..\..\..\Samples\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="..\bin\release\plugin_cgprogrammanager.dll"/>
+				<Option working_dir="."/>
 				<Option object_output="..\obj\release"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -49,6 +51,7 @@
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-fexpensive-optimizations"/>
 					<Add option="-W"/>
 					<Add option="-g"/>
 					<Add option="-DWIN32"/>

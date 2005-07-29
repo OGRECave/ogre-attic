@@ -11,6 +11,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\bin\debug\platformmanager_win32.dll"/>
+				<Option working_dir="..\bin\debug"/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -19,16 +20,22 @@
 				<Option includeInTargetAll="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-W"/>
+					<Add option="-g"/>
 					<Add option="-DWIN32"/>
 					<Add option="-D_DEBUG"/>
 					<Add option="-D_WINDOWS"/>
 					<Add option="-D_USRDLL"/>
 					<Add option="-DPLATFORMMANAGER_WIN32_EXPORTS"/>
-					<Add option="-W"/>
-					<Add option="-g"/>
 					<Add directory="..\include"/>
 					<Add directory="..\..\..\OgreMain\include"/>
+					<Add directory="..\misc"/>
+					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
+				<ResourceCompiler>
+					<Add directory="..\misc"/>
+					<Add directory="..\include"/>
+				</ResourceCompiler>
 				<Linker>
 					<Add library="OgreMain_d"/>
 					<Add library="dxguid"/>
@@ -38,11 +45,12 @@
 					<Add directory="..\..\..\Dependencies\lib\Debug"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\bin\Debug\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Debug\OgrePlatform_d.dll"/>
+					<Add after="..\..\..\Dependencies\bin\cp.exe ..\bin\Debug\PlatformManager_Win32.dll ..\..\..\Samples\Common\Bin\Debug\OgrePlatform_d.dll"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
 				<Option output="..\bin\release\platformmanager_win32.dll"/>
+				<Option working_dir="..\bin\release"/>
 				<Option object_output="..\obj\Release"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -50,6 +58,7 @@
 				<Option compiler="0"/>
 				<Option createStaticLib="1"/>
 				<Compiler>
+					<Add option="-fexpensive-optimizations"/>
 					<Add option="-W"/>
 					<Add option="-DWIN32"/>
 					<Add option="-DNDEBUG"/>
@@ -61,6 +70,10 @@
 					<Add directory="..\misc"/>
 					<Add directory="..\..\..\Dependencies\include"/>
 				</Compiler>
+				<ResourceCompiler>
+					<Add directory="..\include"/>
+					<Add directory="..\misc"/>
+				</ResourceCompiler>
 				<Linker>
 					<Add library="OgreMain"/>
 					<Add library="dxguid"/>
@@ -76,6 +89,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-W"/>
 			<Add option="-g"/>
 		</Compiler>
 		<Linker>
@@ -139,7 +153,7 @@
 		</Unit>
 		<Unit filename="..\misc\OgreWin32Resources.rc">
 			<Option compilerVar="WINDRES"/>
-			<Option objectName="..\misc\OgreWin32Resources.res"/>
+			<Option objectName="misc\OgreWin32Resources.res"/>
 			<Option target="Debug"/>
 			<Option target="Release"/>
 		</Unit>

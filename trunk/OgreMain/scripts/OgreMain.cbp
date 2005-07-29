@@ -11,7 +11,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="..\lib\Debug\ogremain_d.dll"/>
-				<Option working_dir="."/>
+				<Option working_dir="..\lib\Debug"/>
 				<Option object_output="..\obj\Debug"/>
 				<Option deps_output=".deps"/>
 				<Option external_deps=""/>
@@ -43,8 +43,8 @@
 					<Add directory="..\..\Dependencies\lib\Release"/>
 				</Linker>
 				<ExtraCommands>
-					<Add after="copy ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug"/>
-					<Add after="copy ..\lib\Debug\OgreMain_d.dll ..\..\Tools\Common\bin\Debug"/>
+					<Add after="..\..\Dependencies\bin\cp.exe ..\lib\Debug\ogremain_d.dll ..\..\Samples\Common\bin\Debug"/>
+					<Add after="..\..\Dependencies\bin\cp.exe ..\lib\Debug\ogremain_d.dll ..\..\Tools\Common\bin\Debug"/>
 				</ExtraCommands>
 			</Target>
 			<Target title="Release">
@@ -85,6 +85,9 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-W"/>
+		</Compiler>
 		<Unit filename="..\include\Ogre.h">
 			<Option compilerVar=""/>
 			<Option compile="0"/>
