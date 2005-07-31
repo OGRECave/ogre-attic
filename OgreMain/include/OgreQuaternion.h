@@ -215,7 +215,7 @@ namespace Ogre {
         inline _OgreExport friend std::ostream& operator <<
             ( std::ostream& o, const Quaternion& q )
         {
-            o << "Quaternion(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
+            o << "Quaternion(" << q.w << ", " << q.x << ", " << q.y << ", " << q.z << ")";
             return o;
         }
 
