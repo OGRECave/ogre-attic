@@ -54,7 +54,7 @@ namespace Ogre
         }
 
         template<typename ValueType>
-        Any(const ValueType & value)
+        explicit Any(const ValueType & value)
           : mContent(new holder<ValueType>(value))
         {
         }
