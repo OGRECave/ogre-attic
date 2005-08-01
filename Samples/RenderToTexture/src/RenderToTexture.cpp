@@ -147,7 +147,7 @@ protected:
             // Blend with base texture
             t->setColourOperationEx(LBX_BLEND_MANUAL, LBS_TEXTURE, LBS_CURRENT, ColourValue::White, 
                 ColourValue::White, 0.25);
-			t->setTextureAddressingMode(TextureUnitState::TextureAddressingMode::TAM_CLAMP);
+			t->setTextureAddressingMode(TextureUnitState::TAM_CLAMP);
 			t->setProjectiveTexturing(true, mReflectCam);
             rttTex->addListener(this);
 
