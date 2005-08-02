@@ -38,6 +38,10 @@ template<> GLRTTManager* Singleton<GLRTTManager>::ms_Singleton = 0;
 GLRTTManager::~GLRTTManager()
 {
 }
+MultiRenderTarget* GLRTTManager::createMultiRenderTarget(const String & name)
+{
+	OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "MultiRenderTarget can only be used with GL_EXT_framebuffer_object extension", "GLRTTManager::createMultiRenderTarget");
+}
 //-----------------------------------------------------------------------------  
     GLRenderTexture::GLRenderTexture(const String &name, const GLSurfaceDesc &target):
         RenderTexture(target.buffer, target.zoffset)

@@ -30,6 +30,8 @@ RenderSystem_GL_la_SOURCES = OgreGLEngineDll.cpp \
                              OgreGLRenderTexture.cpp \
 			                 OgreGLFBORenderTexture.cpp \
                              OgreGLPBRenderTexture.cpp \
+							 OgreGLFBOMultiRenderTarget.cpp \
+							 OgreGLFrameBufferObject.cpp \
 				            glew.cpp
 
 RenderSystem_GL_la_LDFLAGS = -module $(PLUGIN_FLAGS) -L$(top_builddir)/OgreMain/src -Wl,-z,defs

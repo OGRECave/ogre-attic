@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreStringConverter.h"
 #include "OgreRoot.h"
 #include "OgreGLHardwarePixelBuffer.h"
+#include "OgreGLFBOMultiRenderTarget.h"
+
 namespace Ogre {
 
 //-----------------------------------------------------------------------------    
@@ -39,7 +41,6 @@ namespace Ogre {
     {
         // Bind target to surface 0 and initialise
         mFB.bindSurface(0, target);
-        mFB.initialise();
         // Get attributes
         mWidth = mFB.getWidth();
         mHeight = mFB.getHeight();
@@ -52,176 +53,7 @@ namespace Ogre {
             *static_cast<GLFrameBufferObject **>(pData) = &mFB;
         }
     }
-        
-//-----------------------------------------------------------------------------
-    GLFrameBufferObject::GLFrameBufferObject(GLFBOManager *manager):
-        mManager(manager)
-    {
-        /// Generate framebuffer object
-        glGenFramebuffersEXT(1, &mFB);
-        /// Initialise state
-        mDepth.buffer=0;
-        mStencil.buffer=0;
-        for(size_t x=0; x<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++x)
-        {
-            mColour[x].buffer=0;
-        }
-    }
-    GLFrameBufferObject::~GLFrameBufferObject()
-    {
-        mManager->releaseRenderBuffer(mDepth);
-        mManager->releaseRenderBuffer(mStencil);
-        /// Delete framebuffer object
-        glDeleteFramebuffersEXT(1, &mFB);        
-    }
-    void GLFrameBufferObject::bindSurface(size_t attachment, const GLSurfaceDesc &target)
-    {
-        assert(attachment < OGRE_MAX_MULTIPLE_RENDER_TARGETS);
-        mColour[attachment] = target;
-    }
-    void GLFrameBufferObject::unbindSurface(size_t attachment)
-    {
-        assert(attachment < OGRE_MAX_MULTIPLE_RENDER_TARGETS);
-        mColour[attachment].buffer = 0;
-    }
-    void GLFrameBufferObject::initialise()
-    {
-        mManager->releaseRenderBuffer(mDepth);
-        mManager->releaseRenderBuffer(mStencil);
-        /// First buffer must be bound
-        if(!mColour[0].buffer)
-        {
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-            "Attachment 0 must have surface attached",
-		 	"GLFrameBufferObject::initialise");
-        }
-        /// Bind FBO to frame buffer
-        bind();
-        /// Store basic stats
-        size_t width = mColour[0].buffer->getWidth();
-        size_t height = mColour[0].buffer->getHeight();
-        GLuint format = mColour[0].buffer->getGLFormat();
-        PixelFormat ogreFormat = mColour[0].buffer->getFormat();
-        /// Bind all attachment points to frame buffer
-        for(size_t x=0; x<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++x)
-        {
-            if(mColour[x].buffer)
-            {
-                if(mColour[x].buffer->getWidth() != width || mColour[x].buffer->getHeight() != height)
-                {
-                    std::stringstream ss;
-                    ss << "Attachment " << x << " has incompatible size ";
-                    ss << mColour[x].buffer->getWidth() << "x" << mColour[x].buffer->getHeight();
-                    ss << ". It must be of the same as the size of surface 0, ";
-                    ss << width << "x" << height;
-                    ss << ".";
-                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, ss.str(), "GLFrameBufferObject::initialise");
-                }
-                if(mColour[x].buffer->getGLFormat() != format)
-                {
-                    std::stringstream ss;
-                    ss << "Attachment " << x << " has incompatible format.";
-                    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, ss.str(), "GLFrameBufferObject::initialise");
-                }
-                mColour[x].buffer->bindToFramebuffer(GL_COLOR_ATTACHMENT0_EXT+x, mColour[x].zoffset);
-            }
-            else
-            {
-                // Detach
-                glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT+x,
-                    GL_RENDERBUFFER_EXT, 0);
-            }
-        }
-        /// Find suitable depth and stencil format that is compatible with colour format
-        GLenum depthFormat, stencilFormat;
-        mManager->getBestDepthStencil(ogreFormat, &depthFormat, &stencilFormat);
-        
-        /// Request surfaces
-        mDepth = mManager->requestRenderBuffer(depthFormat, width, height);
-        mStencil = mManager->requestRenderBuffer(stencilFormat, width, height);
-        
-        /// Attach/detach surfaces
-        if(mDepth.buffer)
-        {
-            mDepth.buffer->bindToFramebuffer(GL_DEPTH_ATTACHMENT_EXT, mDepth.zoffset);
-        }
-        else
-        {
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-                GL_RENDERBUFFER_EXT, 0);
-        }
-        if(mStencil.buffer)
-        {
-            mStencil.buffer->bindToFramebuffer(GL_STENCIL_ATTACHMENT_EXT, mDepth.zoffset);
-        }
-        else
-        {
-            glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
-                GL_RENDERBUFFER_EXT, 0);
-        }
-
-		/// Do glDrawBuffer calls
-		if(glDrawBuffers)
-		{
-			GLenum bufs[OGRE_MAX_MULTIPLE_RENDER_TARGETS];
-			GLsizei n=0;
-			for(size_t x=0; x<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++x)
-			{
-				// Fill bufs
-				bufs[x] = GL_COLOR_ATTACHMENT0_EXT + x;
-				// If there is a buffer defined here, set N to one abive it
-				if(mColour[x].buffer)
-					n = x+1;
-			}
-			glDrawBuffers(n, bufs);
-		}
-
-        
-        /// Check status
-        GLuint status;
-        status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-        
-        /// Bind main buffer
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-        
-        switch(status)
-        {
-        case GL_FRAMEBUFFER_COMPLETE_EXT:
-            // All is good
-            break;
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-            "All framebuffer formats with this texture internal format unsupported",
-		 	"GLFrameBufferObject::initialise");
-        default:
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
-            "Framebuffer incomplete or other FBO status error",
-		 	"GLFrameBufferObject::initialise");
-        }
-        
-    }
-    void GLFrameBufferObject::bind()
-    {
-        /// Bind it to FBO
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFB);
-    }
-    size_t GLFrameBufferObject::getWidth()
-    {
-        assert(mColour[0].buffer);
-        return mColour[0].buffer->getWidth();
-    }
-    size_t GLFrameBufferObject::getHeight()
-    {
-        assert(mColour[0].buffer);
-        return mColour[0].buffer->getHeight();
-    }
-    PixelFormat GLFrameBufferObject::getFormat()
-    {
-        assert(mColour[0].buffer);
-        return mColour[0].buffer->getFormat();
-    }
-//-----------------------------------------------------------------------------    
-
+   
 /// Size of probe texture
 #define PROBE_SIZE 256
 /// Stencil and depth formats to be tried
@@ -329,6 +161,11 @@ size_t depthBits[] = {
         {
             mProps[x].valid = false;
 
+			// Fetch GL format token
+			GLenum fmt = GLPixelUtil::getGLInternalFormat((PixelFormat)x);
+            if(fmt == GL_NONE && x!=0)
+                continue;
+
 			// No test for compressed formats
 			if(PixelUtil::isCompressed((PixelFormat)x))
 				continue;
@@ -336,37 +173,36 @@ size_t depthBits[] = {
 			// Buggy ATI cards *crash* on non-RGB(A) formats
 			int depths[4];
 			PixelUtil::getBitDepths((PixelFormat)x, depths);
-			if(mATIMode && (!depths[0] || !depths[1] || !depths[2]))
+			if(fmt!=GL_NONE && mATIMode && (!depths[0] || !depths[1] || !depths[2]))
 				continue;
 
-			// Fetch GL format token
-			GLenum fmt = GLPixelUtil::getGLInternalFormat((PixelFormat)x);
-            if(fmt == GL_NONE && x!=0)
-                continue;
-            
-            // Create and attach texture
-            glGenTextures(1, &tid);
-		    glBindTexture(target, tid);
-            glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
-            if(x)
-            {
-                // 2D
-                glTexImage2D(target, 0, fmt, PROBE_SIZE, PROBE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-            }
             // Create and attach framebuffer
             glGenFramebuffersEXT(1, &fb);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
-            if(x)
+            if(fmt!=GL_NONE)
             {
-                // x==0 is the format without colour buffer. In this case, don't bind the 
-                // texture.
-                glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+				// Create and attach texture
+				glGenTextures(1, &tid);
+				glBindTexture(target, tid);
+				glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+				glTexImage2D(target, 0, fmt, PROBE_SIZE, PROBE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                                 target, tid, 0);
             }
+			else
+			{
+				// Draw to nowhere -- stencil/depth only
+				tid = 0;
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+			}
             // Check status
             GLuint status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-            //std::cerr << std::hex << fmt << " " << status << std::endl;
-            if(status == GL_FRAMEBUFFER_COMPLETE_EXT)
+
+			// Ignore status in case of fmt==GL_NONE, because no implementation will accept
+			// a buffer without *any* attachment. Buffers with only stencil and depth attachment
+			// might still be supported, so we must continue probing.
+            if(fmt == GL_NONE || status == GL_FRAMEBUFFER_COMPLETE_EXT)
             {
                 mProps[x].valid = true;
                 //std::cerr << PixelUtil::getFormatName((PixelFormat)x) << " ";
@@ -461,6 +297,11 @@ size_t depthBits[] = {
         GLFBORenderTexture *retval = new GLFBORenderTexture(this, name, target);
         return retval;
     }
+	MultiRenderTarget *GLFBOManager::createMultiRenderTarget(const String & name)
+	{
+		return new GLFBOMultiRenderTarget(this, name);
+	}
+
     GLFrameBufferObject *GLFBOManager::createFrameBufferObject()
     {
         return new GLFrameBufferObject(this);

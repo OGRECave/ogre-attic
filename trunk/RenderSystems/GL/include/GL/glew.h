@@ -1964,6 +1964,17 @@ typedef void (GLAPIENTRY * PFNGLDRAWBUFFERSARBPROC) (GLsizei n, const GLenum* bu
 
 #endif /* GL_ARB_fragment_shader */
 
+/* ------------------------ GL_ARB_half_float_pixel ------------------------ */
+
+#ifndef GL_ARB_half_float_pixel
+#define GL_ARB_half_float_pixel 1
+
+#define GL_HALF_FLOAT_ARB 0x140B
+
+#define GLEW_ARB_half_float_pixel GLEW_GET_VAR(__GLEW_ARB_half_float_pixel)
+
+#endif /* GL_ARB_half_float_pixel */
+
 /* --------------------------- GL_ARB_multisample -------------------------- */
 
 #ifndef GL_ARB_multisample
@@ -3134,6 +3145,60 @@ typedef void (GLAPIENTRY * PFNGLACTIVESTENCILFACEEXTPROC) (GLenum face);
 
 #endif /* GL_EXT_texture_filter_anisotropic */
 
+/* ------------------------- GL_NV_fragment_program ------------------------ */
+
+#ifndef GL_NV_fragment_program
+#define GL_NV_fragment_program 1
+
+#define GL_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMETERS_NV 0x8868
+#define GL_FRAGMENT_PROGRAM_NV 0x8870
+#define GL_MAX_TEXTURE_COORDS_NV 0x8871
+#define GL_MAX_TEXTURE_IMAGE_UNITS_NV 0x8872
+#define GL_FRAGMENT_PROGRAM_BINDING_NV 0x8873
+#define GL_PROGRAM_ERROR_STRING_NV 0x8874
+
+typedef void (GLAPIENTRY * PFNGLGETPROGRAMNAMEDPARAMETERDVNVPROC) (GLuint id, GLsizei len, const GLubyte* name, GLdouble *params);
+typedef void (GLAPIENTRY * PFNGLGETPROGRAMNAMEDPARAMETERFVNVPROC) (GLuint id, GLsizei len, const GLubyte* name, GLfloat *params);
+typedef void (GLAPIENTRY * PFNGLPROGRAMNAMEDPARAMETER4DNVPROC) (GLuint id, GLsizei len, const GLubyte* name, GLdouble x, GLdouble y, GLdouble z, GLdouble w);
+typedef void (GLAPIENTRY * PFNGLPROGRAMNAMEDPARAMETER4DVNVPROC) (GLuint id, GLsizei len, const GLubyte* name, const GLdouble v[]);
+typedef void (GLAPIENTRY * PFNGLPROGRAMNAMEDPARAMETER4FNVPROC) (GLuint id, GLsizei len, const GLubyte* name, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
+typedef void (GLAPIENTRY * PFNGLPROGRAMNAMEDPARAMETER4FVNVPROC) (GLuint id, GLsizei len, const GLubyte* name, const GLfloat v[]);
+
+#define glGetProgramNamedParameterdvNV GLEW_GET_FUN(__glewGetProgramNamedParameterdvNV)
+#define glGetProgramNamedParameterfvNV GLEW_GET_FUN(__glewGetProgramNamedParameterfvNV)
+#define glProgramNamedParameter4dNV GLEW_GET_FUN(__glewProgramNamedParameter4dNV)
+#define glProgramNamedParameter4dvNV GLEW_GET_FUN(__glewProgramNamedParameter4dvNV)
+#define glProgramNamedParameter4fNV GLEW_GET_FUN(__glewProgramNamedParameter4fNV)
+#define glProgramNamedParameter4fvNV GLEW_GET_FUN(__glewProgramNamedParameter4fvNV)
+
+#define GLEW_NV_fragment_program GLEW_GET_VAR(__GLEW_NV_fragment_program)
+
+#endif /* GL_NV_fragment_program */
+
+/* ------------------------ GL_NV_fragment_program2 ------------------------ */
+
+#ifndef GL_NV_fragment_program2
+#define GL_NV_fragment_program2 1
+
+#define GL_MAX_PROGRAM_EXEC_INSTRUCTIONS_NV 0x88F4
+#define GL_MAX_PROGRAM_CALL_DEPTH_NV 0x88F5
+#define GL_MAX_PROGRAM_IF_DEPTH_NV 0x88F6
+#define GL_MAX_PROGRAM_LOOP_DEPTH_NV 0x88F7
+#define GL_MAX_PROGRAM_LOOP_COUNT_NV 0x88F8
+
+#define GLEW_NV_fragment_program2 GLEW_GET_VAR(__GLEW_NV_fragment_program2)
+
+#endif /* GL_NV_fragment_program2 */
+
+/* --------------------- GL_NV_fragment_program_option --------------------- */
+
+#ifndef GL_NV_fragment_program_option
+#define GL_NV_fragment_program_option 1
+
+#define GLEW_NV_fragment_program_option GLEW_GET_VAR(__GLEW_NV_fragment_program_option)
+
+#endif /* GL_NV_fragment_program_option */
+
 /* ------------------------- GL_NV_occlusion_query ------------------------- */
 
 #ifndef GL_NV_occlusion_query
@@ -3581,6 +3646,29 @@ typedef void (GLAPIENTRY * PFNGLVERTEXATTRIBS4UBVNVPROC) (GLuint index, GLsizei 
 #define GLEW_NV_vertex_program GLEW_GET_VAR(__GLEW_NV_vertex_program)
 
 #endif /* GL_NV_vertex_program */
+
+/* ---------------------- GL_NV_vertex_program2_option --------------------- */
+
+#ifndef GL_NV_vertex_program2_option
+#define GL_NV_vertex_program2_option 1
+
+#define GL_MAX_PROGRAM_EXEC_INSTRUCTIONS_NV 0x88F4
+#define GL_MAX_PROGRAM_CALL_DEPTH_NV 0x88F5
+
+#define GLEW_NV_vertex_program2_option GLEW_GET_VAR(__GLEW_NV_vertex_program2_option)
+
+#endif /* GL_NV_vertex_program2_option */
+
+/* ------------------------- GL_NV_vertex_program3 ------------------------- */
+
+#ifndef GL_NV_vertex_program3
+#define GL_NV_vertex_program3 1
+
+#define MAX_VERTEX_TEXTURE_IMAGE_UNITS_ARB 0x8B4C
+
+#define GLEW_NV_vertex_program3 GLEW_GET_VAR(__GLEW_NV_vertex_program3)
+
+#endif /* GL_NV_vertex_program3 */
 
 /* ------------------------ GL_SGIS_generate_mipmap ------------------------ */
 
@@ -4055,6 +4143,13 @@ GLEW_FUN_EXPORT PFNGLSECONDARYCOLORPOINTEREXTPROC __glewSecondaryColorPointerEXT
 
 GLEW_FUN_EXPORT PFNGLACTIVESTENCILFACEEXTPROC __glewActiveStencilFaceEXT;
 
+GLEW_FUN_EXPORT PFNGLGETPROGRAMNAMEDPARAMETERDVNVPROC __glewGetProgramNamedParameterdvNV;
+GLEW_FUN_EXPORT PFNGLGETPROGRAMNAMEDPARAMETERFVNVPROC __glewGetProgramNamedParameterfvNV;
+GLEW_FUN_EXPORT PFNGLPROGRAMNAMEDPARAMETER4DNVPROC __glewProgramNamedParameter4dNV;
+GLEW_FUN_EXPORT PFNGLPROGRAMNAMEDPARAMETER4DVNVPROC __glewProgramNamedParameter4dvNV;
+GLEW_FUN_EXPORT PFNGLPROGRAMNAMEDPARAMETER4FNVPROC __glewProgramNamedParameter4fNV;
+GLEW_FUN_EXPORT PFNGLPROGRAMNAMEDPARAMETER4FVNVPROC __glewProgramNamedParameter4fvNV;
+
 GLEW_FUN_EXPORT PFNGLBEGINOCCLUSIONQUERYNVPROC __glewBeginOcclusionQueryNV;
 GLEW_FUN_EXPORT PFNGLDELETEOCCLUSIONQUERIESNVPROC __glewDeleteOcclusionQueriesNV;
 GLEW_FUN_EXPORT PFNGLENDOCCLUSIONQUERYNVPROC __glewEndOcclusionQueryNV;
@@ -4159,6 +4254,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_VERSION_2_0;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_draw_buffers;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_fragment_program;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_fragment_shader;
+GLEW_VAR_EXPORT GLboolean __GLEW_ARB_half_float_pixel;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_multisample;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_multitexture;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_occlusion_query;
@@ -4185,12 +4281,17 @@ GLEW_VAR_EXPORT GLboolean __GLEW_EXT_texture_cube_map;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_texture_env_combine;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_texture_env_dot3;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_texture_filter_anisotropic;
+GLEW_VAR_EXPORT GLboolean __GLEW_NV_fragment_program;
+GLEW_VAR_EXPORT GLboolean __GLEW_NV_fragment_program2;
+GLEW_VAR_EXPORT GLboolean __GLEW_NV_fragment_program_option;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_occlusion_query;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_register_combiners;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_register_combiners2;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_texture_compression_vtc;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_texture_shader;
 GLEW_VAR_EXPORT GLboolean __GLEW_NV_vertex_program;
+GLEW_VAR_EXPORT GLboolean __GLEW_NV_vertex_program2_option;
+GLEW_VAR_EXPORT GLboolean __GLEW_NV_vertex_program3;
 GLEW_VAR_EXPORT GLboolean __GLEW_SGIS_generate_mipmap;
 
 #ifdef GLEW_MX
