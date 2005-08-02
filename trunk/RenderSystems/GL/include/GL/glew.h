@@ -2723,6 +2723,37 @@ typedef GLint (GLAPIENTRY * PFNGLGETATTRIBLOCATIONARBPROC) (GLhandleARB programO
 
 #endif /* GL_ARB_vertex_shader */
 
+/* -------------------------- GL_ATI_draw_buffers -------------------------- */
+
+#ifndef GL_ATI_draw_buffers
+#define GL_ATI_draw_buffers 1
+
+#define GL_MAX_DRAW_BUFFERS_ATI 0x8824
+#define GL_DRAW_BUFFER0_ATI 0x8825
+#define GL_DRAW_BUFFER1_ATI 0x8826
+#define GL_DRAW_BUFFER2_ATI 0x8827
+#define GL_DRAW_BUFFER3_ATI 0x8828
+#define GL_DRAW_BUFFER4_ATI 0x8829
+#define GL_DRAW_BUFFER5_ATI 0x882A
+#define GL_DRAW_BUFFER6_ATI 0x882B
+#define GL_DRAW_BUFFER7_ATI 0x882C
+#define GL_DRAW_BUFFER8_ATI 0x882D
+#define GL_DRAW_BUFFER9_ATI 0x882E
+#define GL_DRAW_BUFFER10_ATI 0x882F
+#define GL_DRAW_BUFFER11_ATI 0x8830
+#define GL_DRAW_BUFFER12_ATI 0x8831
+#define GL_DRAW_BUFFER13_ATI 0x8832
+#define GL_DRAW_BUFFER14_ATI 0x8833
+#define GL_DRAW_BUFFER15_ATI 0x8834
+
+typedef void (GLAPIENTRY * PFNGLDRAWBUFFERSATIPROC) (GLsizei n, const GLenum* bufs);
+
+#define glDrawBuffersATI GLEW_GET_FUN(__glewDrawBuffersATI)
+
+#define GLEW_ATI_draw_buffers GLEW_GET_VAR(__GLEW_ATI_draw_buffers)
+
+#endif /* GL_ATI_draw_buffers */
+
 /* ------------------------- GL_ATI_fragment_shader ------------------------ */
 
 #ifndef GL_ATI_fragment_shader
@@ -3969,6 +4000,8 @@ GLEW_FUN_EXPORT PFNGLBINDATTRIBLOCATIONARBPROC __glewBindAttribLocationARB;
 GLEW_FUN_EXPORT PFNGLGETACTIVEATTRIBARBPROC __glewGetActiveAttribARB;
 GLEW_FUN_EXPORT PFNGLGETATTRIBLOCATIONARBPROC __glewGetAttribLocationARB;
 
+GLEW_FUN_EXPORT PFNGLDRAWBUFFERSATIPROC __glewDrawBuffersATI;
+
 GLEW_FUN_EXPORT PFNGLALPHAFRAGMENTOP1ATIPROC __glewAlphaFragmentOp1ATI;
 GLEW_FUN_EXPORT PFNGLALPHAFRAGMENTOP2ATIPROC __glewAlphaFragmentOp2ATI;
 GLEW_FUN_EXPORT PFNGLALPHAFRAGMENTOP3ATIPROC __glewAlphaFragmentOp3ATI;
@@ -4140,6 +4173,7 @@ GLEW_VAR_EXPORT GLboolean __GLEW_ARB_texture_non_power_of_two;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_vertex_buffer_object;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_vertex_program;
 GLEW_VAR_EXPORT GLboolean __GLEW_ARB_vertex_shader;
+GLEW_VAR_EXPORT GLboolean __GLEW_ATI_draw_buffers;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_fragment_shader;
 GLEW_VAR_EXPORT GLboolean __GLEW_ATI_texture_float;
 GLEW_VAR_EXPORT GLboolean __GLEW_EXT_framebuffer_object;
