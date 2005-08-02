@@ -27,51 +27,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreGLRenderTexture.h"
 #include "OgreGLContext.h"
+#include "OgreGLFrameBufferObject.h"
 
 namespace Ogre {
-    
-    /** Frame Buffer Object abstraction.
-    */
-    class GLFrameBufferObject
-    {
-    public:
-        GLFrameBufferObject(GLFBOManager *manager);
-        ~GLFrameBufferObject();
-        //void bindSurface(size_t attachment, RenderTarget *target);
-        /** Bind a surface to a certain attachment point.
-            attachment: 0..OGRE_MAX_MULTIPLE_RENDER_TARGETS-1
-        */
-        void bindSurface(size_t attachment, const GLSurfaceDesc &target);
-        /** Unbind attachment
-        */
-        void unbindSurface(size_t attachment);
-        /** Initialise object (find suitable depth and stencil format).
-            Must be called every time the bindings change.
-            It fails with an exception (ERR_INVALIDPARAMS) if:
-            - Attachment point 0 has no binding
-            - Not all bound surfaces have the same size
-            - Not all bound surfaces have the same internal format
-        */
-        void initialise();
-        /** Bind FrameBufferObject
-        */
-        void bind();
-        
-        /// Accessors
-        size_t getWidth();
-        size_t getHeight();
-        PixelFormat getFormat();
-        
-        GLFBOManager *getManager() { return mManager; }
-    private:
-        GLFBOManager *mManager;
-        GLuint mFB;
-        GLSurfaceDesc mDepth;
-        GLSurfaceDesc mStencil;
-        // Arbitrary number of texture surfaces
-        GLSurfaceDesc mColour[OGRE_MAX_MULTIPLE_RENDER_TARGETS];
-    };
-
     class GLFBOManager;
 
     /** RenderTexture for GL FBO
@@ -109,7 +67,11 @@ namespace Ogre {
         
         /** Create a texture rendertarget object
         */
-        GLFBORenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target);
+        virtual GLFBORenderTexture *createRenderTexture(const String &name, const GLSurfaceDesc &target);
+
+		/** Create a multi render target 
+		*/
+		virtual MultiRenderTarget* createMultiRenderTarget(const String & name);
         
         /** Create a framebuffer object
         */

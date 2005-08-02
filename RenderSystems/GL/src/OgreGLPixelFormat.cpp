@@ -152,7 +152,7 @@ namespace Ogre  {
 			case PF_FLOAT16_R:
             case PF_FLOAT16_RGB:
             case PF_FLOAT16_RGBA:
-                return 0; // GL_HALF_FLOAT_ARB -- nyi
+                return GL_HALF_FLOAT_ARB;
 			case PF_FLOAT32_R:
             case PF_FLOAT32_RGB:
             case PF_FLOAT32_RGBA:

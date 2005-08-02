@@ -214,34 +214,32 @@ namespace Ogre {
             "***************************\n"
             "*** GL Renderer Started ***\n"
             "***************************");
-
+		// Get extension function pointers
+        glewContextInit(mGLSupport);
 
         // Check for hardware mipmapping support.
-        // Note: This is disabled for ATI cards until they fix their drivers
-        if(mGLSupport->getGLVendor() != "ATI" && 
-            (mGLSupport->checkMinGLVersion("1.4.0") || 
-             mGLSupport->checkExtension("GL_SGIS_generate_mipmap")))
+        if(__GLEW_VERSION_1_4 || __GLEW_SGIS_generate_mipmap)
         {
             mCapabilities->setCapability(RSC_AUTOMIPMAP);
         }
 
         // Check for blending support
-        if(mGLSupport->checkMinGLVersion("1.3.0") || 
-            mGLSupport->checkExtension("GL_ARB_texture_env_combine") || 
-            mGLSupport->checkExtension("GL_EXT_texture_env_combine"))
+        if(__GLEW_VERSION_1_3 || 
+            __GLEW_ARB_texture_env_combine || 
+            __GLEW_EXT_texture_env_combine)
         {
             mCapabilities->setCapability(RSC_BLENDING);
         }
 
         // Check for Multitexturing support and set number of texture units
-        if(mGLSupport->checkMinGLVersion("1.3.0") || 
-            mGLSupport->checkExtension("GL_ARB_multitexture"))
+        if(__GLEW_VERSION_1_3 || 
+           __GLEW_ARB_multitexture)
         {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
 			mFixedFunctionTextureUnits = units;
 
-			if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
+			if (__GLEW_ARB_fragment_program)
 			{
 				// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
 				// only increased this on the FX/6x00 series
@@ -261,23 +259,23 @@ namespace Ogre {
         }
             
         // Check for Anisotropy support
-        if(mGLSupport->checkExtension("GL_EXT_texture_filter_anisotropic"))
+        if(__GLEW_EXT_texture_filter_anisotropic)
         {
             mCapabilities->setCapability(RSC_ANISOTROPY);
         }
 
         // Check for DOT3 support
-        if(mGLSupport->checkMinGLVersion("1.3.0") ||
-            mGLSupport->checkExtension("GL_ARB_texture_env_dot3") ||
-            mGLSupport->checkExtension("GL_EXT_texture_env_dot3"))
+        if(__GLEW_VERSION_1_3 ||
+           __GLEW_ARB_texture_env_dot3 ||
+           __GLEW_EXT_texture_env_dot3)
         {
             mCapabilities->setCapability(RSC_DOT3);
         }
 
         // Check for cube mapping
-        if(mGLSupport->checkMinGLVersion("1.3.0") || 
-            mGLSupport->checkExtension("GL_ARB_texture_cube_map") || 
-            mGLSupport->checkExtension("GL_EXT_texture_cube_map"))
+        if(__GLEW_VERSION_1_3 || 
+           __GLEW_ARB_texture_cube_map ||
+           __GLEW_EXT_texture_cube_map)
         {
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
@@ -293,7 +291,7 @@ namespace Ogre {
         }
 
         // Check for VBO support
-        if(mGLSupport->checkExtension("GL_ARB_vertex_buffer_object"))
+        if(__GLEW_VERSION_1_5 || __GLEW_ARB_vertex_buffer_object)
         {
             mCapabilities->setCapability(RSC_VBO);
 
@@ -309,7 +307,7 @@ namespace Ogre {
         // GPU Program Manager setup
         mGpuProgramManager = new GLGpuProgramManager();
 
-		if(mGLSupport->checkExtension("GL_ARB_vertex_program"))
+		if(__GLEW_ARB_vertex_program)
         {
             mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
 
@@ -322,14 +320,14 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
-			if (mGLSupport->checkExtension("GL_NV_vertex_program2_option"))
+			if (__GLEW_NV_vertex_program2_option)
 			{
 				mCapabilities->setMaxVertexProgramVersion("vp30");
 				mGpuProgramManager->_pushSyntaxCode("vp30");
 				mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
 			}
 
-			if (mGLSupport->checkExtension("GL_NV_vertex_program3"))
+			if (__GLEW_NV_vertex_program3)
 			{
 				mCapabilities->setMaxVertexProgramVersion("vp40");
 				mGpuProgramManager->_pushSyntaxCode("vp40");
@@ -337,8 +335,8 @@ namespace Ogre {
 			}
 		}
 
-        if (mGLSupport->checkExtension("GL_NV_register_combiners2") &&
-            mGLSupport->checkExtension("GL_NV_texture_shader"))
+        if (__GLEW_NV_register_combiners2 &&
+            __GLEW_NV_texture_shader)
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             mCapabilities->setMaxFragmentProgramVersion("fp20");
@@ -347,9 +345,8 @@ namespace Ogre {
             mGpuProgramManager->registerProgramFactory("fp20", createGLGpuNvparseProgram);
         }
 
-
 		// NFZ - check for ATI fragment shader support
-		if (mGLSupport->checkExtension("GL_ATI_fragment_shader"))
+		if (__GLEW_ATI_fragment_shader)
 		{
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
@@ -372,8 +369,7 @@ namespace Ogre {
             mGpuProgramManager->registerProgramFactory("ps_1_1", createGL_ATI_FS_GpuProgram);
 		}
 
-
-        if (mGLSupport->checkExtension("GL_ARB_fragment_program"))
+        if (__GLEW_ARB_fragment_program)
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             // Fragment Program Properties
@@ -385,14 +381,14 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
-			if (mGLSupport->checkExtension("GL_NV_fragment_program_option"))
+			if (__GLEW_NV_fragment_program_option)
 			{
 				mCapabilities->setMaxFragmentProgramVersion("fp30");
 				mGpuProgramManager->_pushSyntaxCode("fp30");
 				mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
 			}
 
-			if (mGLSupport->checkExtension("GL_NV_fragment_program2"))
+			if (__GLEW_NV_fragment_program2)
 			{
 				mCapabilities->setMaxFragmentProgramVersion("fp40");
 				mGpuProgramManager->_pushSyntaxCode("fp40");
@@ -400,11 +396,12 @@ namespace Ogre {
 			}        
 		}
 
-		// NFZ - check if GLSL is supported
-		if ( mGLSupport->checkExtension("GL_ARB_shading_language_100") &&
-			 mGLSupport->checkExtension("GL_ARB_shader_objects") &&
-			 mGLSupport->checkExtension("GL_ARB_fragment_shader") &&
-			 mGLSupport->checkExtension("GL_ARB_vertex_shader") )
+		// NFZ - Check if GLSL is supported
+		if ( __GLEW_VERSION_2_0 || 
+			(__GLEW_ARB_shading_language_100 &&
+			 __GLEW_ARB_shader_objects &&
+			 __GLEW_ARB_fragment_shader &&
+			 __GLEW_ARB_vertex_shader) )
 		{
 			// NFZ - check for GLSL vertex and fragment shader support successful
             mGpuProgramManager->_pushSyntaxCode("glsl");
@@ -412,18 +409,17 @@ namespace Ogre {
 		}
 
 		// Check for texture compression
-        if(mGLSupport->checkMinGLVersion("1.3.0") ||
-            mGLSupport->checkExtension("GL_ARB_texture_compression"))
+        if(__GLEW_VERSION_1_3 || __GLEW_ARB_texture_compression)
         {   
             mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
          
             // Check for dxt compression
-            if(mGLSupport->checkExtension("GL_EXT_texture_compression_s3tc"))
+            if(__GLEW_EXT_texture_compression_s3tc)
             {
                 mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
             }
             // Check for vtc compression
-            if(mGLSupport->checkExtension("GL_NV_texture_compression_vtc"))
+            if(__GLEW_NV_texture_compression_vtc)
             {
                 mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
             }
@@ -435,18 +431,18 @@ namespace Ogre {
 		mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
 
         // 2-sided stencil?
-        if (mGLSupport->checkExtension("GL_EXT_stencil_two_side"))
+        if (__GLEW_VERSION_2_0 || __GLEW_EXT_stencil_two_side)
         {
             mCapabilities->setCapability(RSC_TWO_SIDED_STENCIL);
         }
         // stencil wrapping?
-        if (mGLSupport->checkExtension("GL_EXT_stencil_wrap"))
+        if (__GLEW_VERSION_1_4 || __GLEW_EXT_stencil_wrap)
         {
             mCapabilities->setCapability(RSC_STENCIL_WRAP);
         }
 
         // Check for hardware occlusion support
-        if(mGLSupport->checkExtension("GL_NV_occlusion_query"))
+        if(__GLEW_NV_occlusion_query)
         {
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
@@ -458,24 +454,19 @@ namespace Ogre {
         mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
 
         // Check for non-power-of-2 texture support
-		if(mGLSupport->checkExtension("GL_ARB_texture_non_power_of_two"))
+		if(__GLEW_ARB_texture_non_power_of_two)
         {
             mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
         }
 
         // Check for Float textures
-        if(mGLSupport->checkExtension("GL_ATI_texture_float") ||
-//           mGLSupport->checkExtension("GL_NV_float_buffer") ||
-           mGLSupport->checkExtension("GL_ARB_texture_float"))
+        if(__GLEW_ATI_texture_float || __GLEW_ARB_texture_float)
         {
             mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
         }
         
 		// 3D textures should be supported by GL 1.2, which is our minimum version
         mCapabilities->setCapability(RSC_TEXTURE_3D);
-
-        // Get extension function pointers
-        glewContextInit(mGLSupport);
         
         /// Do this after extension function pointers are initialised as the extension
         /// is used to probe further capabilities.
@@ -630,10 +621,9 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	MultiRenderTarget * GLRenderSystem::createMultiRenderTarget(const String & name)
 	{
-		/// XXX TODO
-		Exception( Exception::ERR_INTERNAL_ERROR, 
-			"Not yet implemented for GL", "GLRenderSystem::createMultiRenderTarget" );
-		return 0;
+		MultiRenderTarget *retval = mRTTManager->createMultiRenderTarget(name);
+		attachRenderTarget( *retval );
+		return retval;
 	}
 
 	//-----------------------------------------------------------------------
@@ -1542,35 +1532,60 @@ namespace Ogre {
             if (!mCapabilities->hasCapability(RSC_TWO_SIDED_STENCIL))
                 OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "2-sided stencils are not supported",
                     "GLRenderSystem::setStencilBufferParams");
-            glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+            
             // NB: We should always treat CCW as front face for consistent with default
             // culling mode. Therefore, we must take care with two-sided stencil settings.
             flip = (mInvertVertexWinding && !mActiveRenderTarget->requiresTextureFlipping()) ||
                    (!mInvertVertexWinding && mActiveRenderTarget->requiresTextureFlipping());
-
-            // Set alternative versions of ops
-            glActiveStencilFaceEXT(GL_BACK);
-            glStencilMask(mask);
-            glStencilFunc(convertCompareFunction(func), refValue, mask);
-            glStencilOp(
-                convertStencilOp(stencilFailOp, !flip), 
-                convertStencilOp(depthFailOp, !flip), 
-                convertStencilOp(passOp, !flip));
-            // reset
-            glActiveStencilFaceEXT(GL_FRONT);
+			if(__GLEW_VERSION_2_0) // New GL2 commands
+			{
+				// Back
+				glStencilMaskSeparate(GL_BACK, mask);
+				glStencilFuncSeparate(GL_BACK, convertCompareFunction(func), refValue, mask);
+				glStencilOpSeparate(GL_BACK, 
+					convertStencilOp(stencilFailOp, !flip), 
+					convertStencilOp(depthFailOp, !flip), 
+					convertStencilOp(passOp, !flip));
+				// Front
+				glStencilMaskSeparate(GL_FRONT, mask);
+				glStencilFuncSeparate(GL_FRONT, convertCompareFunction(func), refValue, mask);
+				glStencilOpSeparate(GL_FRONT, 
+					convertStencilOp(stencilFailOp, flip),
+					convertStencilOp(depthFailOp, flip), 
+					convertStencilOp(passOp, flip));
+			}
+			else // EXT_stencil_two_side
+			{
+				glEnable(GL_STENCIL_TEST_TWO_SIDE_EXT);
+				// Back
+				glActiveStencilFaceEXT(GL_BACK);
+				glStencilMask(mask);
+				glStencilFunc(convertCompareFunction(func), refValue, mask);
+				glStencilOp(
+					convertStencilOp(stencilFailOp, !flip), 
+					convertStencilOp(depthFailOp, !flip), 
+					convertStencilOp(passOp, !flip));
+				// Front
+				glActiveStencilFaceEXT(GL_FRONT);
+				glStencilMask(mask);
+				glStencilFunc(convertCompareFunction(func), refValue, mask);
+				glStencilOp(
+					convertStencilOp(stencilFailOp, flip),
+					convertStencilOp(depthFailOp, flip), 
+					convertStencilOp(passOp, flip));
+			}
         }
         else
         {
             glDisable(GL_STENCIL_TEST_TWO_SIDE_EXT);
             flip = false;
+			glStencilMask(mask);
+			glStencilFunc(convertCompareFunction(func), refValue, mask);
+			glStencilOp(
+				convertStencilOp(stencilFailOp, flip),
+				convertStencilOp(depthFailOp, flip), 
+				convertStencilOp(passOp, flip));
         }
-
-        glStencilMask(mask);
-        glStencilFunc(convertCompareFunction(func), refValue, mask);
-        glStencilOp(
-            convertStencilOp(stencilFailOp, flip),
-            convertStencilOp(depthFailOp, flip), 
-            convertStencilOp(passOp, flip));
     }
     //---------------------------------------------------------------------
     GLint GLRenderSystem::convertCompareFunction(CompareFunction func) const

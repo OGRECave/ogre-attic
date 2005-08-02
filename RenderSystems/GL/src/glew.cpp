@@ -598,6 +598,13 @@ PFNGLSECONDARYCOLORPOINTEREXTPROC __glewSecondaryColorPointerEXT = NULL;
 
 PFNGLACTIVESTENCILFACEEXTPROC __glewActiveStencilFaceEXT = NULL;
 
+PFNGLGETPROGRAMNAMEDPARAMETERDVNVPROC __glewGetProgramNamedParameterdvNV = NULL;
+PFNGLGETPROGRAMNAMEDPARAMETERFVNVPROC __glewGetProgramNamedParameterfvNV = NULL;
+PFNGLPROGRAMNAMEDPARAMETER4DNVPROC __glewProgramNamedParameter4dNV = NULL;
+PFNGLPROGRAMNAMEDPARAMETER4DVNVPROC __glewProgramNamedParameter4dvNV = NULL;
+PFNGLPROGRAMNAMEDPARAMETER4FNVPROC __glewProgramNamedParameter4fNV = NULL;
+PFNGLPROGRAMNAMEDPARAMETER4FVNVPROC __glewProgramNamedParameter4fvNV = NULL;
+
 PFNGLBEGINOCCLUSIONQUERYNVPROC __glewBeginOcclusionQueryNV = NULL;
 PFNGLDELETEOCCLUSIONQUERIESNVPROC __glewDeleteOcclusionQueriesNV = NULL;
 PFNGLENDOCCLUSIONQUERYNVPROC __glewEndOcclusionQueryNV = NULL;
@@ -701,6 +708,7 @@ GLboolean __GLEW_VERSION_2_0 = GL_FALSE;
 GLboolean __GLEW_ARB_draw_buffers = GL_FALSE;
 GLboolean __GLEW_ARB_fragment_program = GL_FALSE;
 GLboolean __GLEW_ARB_fragment_shader = GL_FALSE;
+GLboolean __GLEW_ARB_half_float_pixel = GL_FALSE;
 GLboolean __GLEW_ARB_multisample = GL_FALSE;
 GLboolean __GLEW_ARB_multitexture = GL_FALSE;
 GLboolean __GLEW_ARB_occlusion_query = GL_FALSE;
@@ -727,12 +735,17 @@ GLboolean __GLEW_EXT_texture_cube_map = GL_FALSE;
 GLboolean __GLEW_EXT_texture_env_combine = GL_FALSE;
 GLboolean __GLEW_EXT_texture_env_dot3 = GL_FALSE;
 GLboolean __GLEW_EXT_texture_filter_anisotropic = GL_FALSE;
+GLboolean __GLEW_NV_fragment_program = GL_FALSE;
+GLboolean __GLEW_NV_fragment_program2 = GL_FALSE;
+GLboolean __GLEW_NV_fragment_program_option = GL_FALSE;
 GLboolean __GLEW_NV_occlusion_query = GL_FALSE;
 GLboolean __GLEW_NV_register_combiners = GL_FALSE;
 GLboolean __GLEW_NV_register_combiners2 = GL_FALSE;
 GLboolean __GLEW_NV_texture_compression_vtc = GL_FALSE;
 GLboolean __GLEW_NV_texture_shader = GL_FALSE;
 GLboolean __GLEW_NV_vertex_program = GL_FALSE;
+GLboolean __GLEW_NV_vertex_program2_option = GL_FALSE;
+GLboolean __GLEW_NV_vertex_program3 = GL_FALSE;
 GLboolean __GLEW_SGIS_generate_mipmap = GL_FALSE;
 
 #endif /* !GLEW_MX */
@@ -1024,6 +1037,10 @@ static GLboolean _glewInit_GL_ARB_draw_buffers (GLEW_CONTEXT_ARG_DEF_INIT)
 #ifdef GL_ARB_fragment_shader
 
 #endif /* GL_ARB_fragment_shader */
+
+#ifdef GL_ARB_half_float_pixel
+
+#endif /* GL_ARB_half_float_pixel */
 
 #ifdef GL_ARB_multisample
 
@@ -1448,6 +1465,32 @@ static GLboolean _glewInit_GL_EXT_stencil_two_side (GLEW_CONTEXT_ARG_DEF_INIT)
 
 #endif /* GL_EXT_texture_filter_anisotropic */
 
+#ifdef GL_NV_fragment_program
+
+static GLboolean _glewInit_GL_NV_fragment_program (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glGetProgramNamedParameterdvNV = (PFNGLGETPROGRAMNAMEDPARAMETERDVNVPROC)glewGetProcAddress((const GLubyte*)"glGetProgramNamedParameterdvNV")) == NULL) || r;
+  r = ((glGetProgramNamedParameterfvNV = (PFNGLGETPROGRAMNAMEDPARAMETERFVNVPROC)glewGetProcAddress((const GLubyte*)"glGetProgramNamedParameterfvNV")) == NULL) || r;
+  r = ((glProgramNamedParameter4dNV = (PFNGLPROGRAMNAMEDPARAMETER4DNVPROC)glewGetProcAddress((const GLubyte*)"glProgramNamedParameter4dNV")) == NULL) || r;
+  r = ((glProgramNamedParameter4dvNV = (PFNGLPROGRAMNAMEDPARAMETER4DVNVPROC)glewGetProcAddress((const GLubyte*)"glProgramNamedParameter4dvNV")) == NULL) || r;
+  r = ((glProgramNamedParameter4fNV = (PFNGLPROGRAMNAMEDPARAMETER4FNVPROC)glewGetProcAddress((const GLubyte*)"glProgramNamedParameter4fNV")) == NULL) || r;
+  r = ((glProgramNamedParameter4fvNV = (PFNGLPROGRAMNAMEDPARAMETER4FVNVPROC)glewGetProcAddress((const GLubyte*)"glProgramNamedParameter4fvNV")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_NV_fragment_program */
+
+#ifdef GL_NV_fragment_program2
+
+#endif /* GL_NV_fragment_program2 */
+
+#ifdef GL_NV_fragment_program_option
+
+#endif /* GL_NV_fragment_program_option */
+
 #ifdef GL_NV_occlusion_query
 
 static GLboolean _glewInit_GL_NV_occlusion_query (GLEW_CONTEXT_ARG_DEF_INIT)
@@ -1589,6 +1632,14 @@ static GLboolean _glewInit_GL_NV_vertex_program (GLEW_CONTEXT_ARG_DEF_INIT)
 }
 
 #endif /* GL_NV_vertex_program */
+
+#ifdef GL_NV_vertex_program2_option
+
+#endif /* GL_NV_vertex_program2_option */
+
+#ifdef GL_NV_vertex_program3
+
+#endif /* GL_NV_vertex_program3 */
 
 #ifdef GL_SGIS_generate_mipmap
 
@@ -1736,6 +1787,9 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GL_ARB_fragment_shader
   GLEW_ARB_fragment_shader = glewGetExtension("GL_ARB_fragment_shader");
 #endif /* GL_ARB_fragment_shader */
+#ifdef GL_ARB_half_float_pixel
+  GLEW_ARB_half_float_pixel = glewGetExtension("GL_ARB_half_float_pixel");
+#endif /* GL_ARB_half_float_pixel */
 #ifdef GL_ARB_multisample
   GLEW_ARB_multisample = glewGetExtension("GL_ARB_multisample");
   if (glewExperimental || GLEW_ARB_multisample) GLEW_ARB_multisample = !_glewInit_GL_ARB_multisample(GLEW_CONTEXT_ARG_VAR_INIT);
@@ -1827,6 +1881,16 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
 #ifdef GL_EXT_texture_filter_anisotropic
   GLEW_EXT_texture_filter_anisotropic = glewGetExtension("GL_EXT_texture_filter_anisotropic");
 #endif /* GL_EXT_texture_filter_anisotropic */
+#ifdef GL_NV_fragment_program
+  GLEW_NV_fragment_program = glewGetExtension("GL_NV_fragment_program");
+  if (glewExperimental || GLEW_NV_fragment_program) GLEW_NV_fragment_program = !_glewInit_GL_NV_fragment_program(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_NV_fragment_program */
+#ifdef GL_NV_fragment_program2
+  GLEW_NV_fragment_program2 = glewGetExtension("GL_NV_fragment_program2");
+#endif /* GL_NV_fragment_program2 */
+#ifdef GL_NV_fragment_program_option
+  GLEW_NV_fragment_program_option = glewGetExtension("GL_NV_fragment_program_option");
+#endif /* GL_NV_fragment_program_option */
 #ifdef GL_NV_occlusion_query
   GLEW_NV_occlusion_query = glewGetExtension("GL_NV_occlusion_query");
   if (glewExperimental || GLEW_NV_occlusion_query) GLEW_NV_occlusion_query = !_glewInit_GL_NV_occlusion_query(GLEW_CONTEXT_ARG_VAR_INIT);
@@ -1849,6 +1913,12 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   GLEW_NV_vertex_program = glewGetExtension("GL_NV_vertex_program");
   if (glewExperimental || GLEW_NV_vertex_program) GLEW_NV_vertex_program = !_glewInit_GL_NV_vertex_program(GLEW_CONTEXT_ARG_VAR_INIT);
 #endif /* GL_NV_vertex_program */
+#ifdef GL_NV_vertex_program2_option
+  GLEW_NV_vertex_program2_option = glewGetExtension("GL_NV_vertex_program2_option");
+#endif /* GL_NV_vertex_program2_option */
+#ifdef GL_NV_vertex_program3
+  GLEW_NV_vertex_program3 = glewGetExtension("GL_NV_vertex_program3");
+#endif /* GL_NV_vertex_program3 */
 #ifdef GL_SGIS_generate_mipmap
   GLEW_SGIS_generate_mipmap = glewGetExtension("GL_SGIS_generate_mipmap");
 #endif /* GL_SGIS_generate_mipmap */

@@ -73,6 +73,10 @@ namespace Ogre {
             binding is used.
         */
         virtual void unbind(RenderTarget *target) = 0;
+
+		/** Create a multi render target 
+		*/
+		virtual MultiRenderTarget* createMultiRenderTarget(const String & name);
     };
     
     /** RenderTexture for simple copying from frame buffer
