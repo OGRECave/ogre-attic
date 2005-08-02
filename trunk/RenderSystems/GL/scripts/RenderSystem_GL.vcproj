@@ -207,6 +207,12 @@
 			<File
 				RelativePath="..\src\glew.cpp">
 			</File>
+			<File
+				RelativePath="..\src\OgreGLFBOMultiRenderTarget.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreGLFrameBufferObject.cpp">
+			</File>
 			<Filter
 				Name="nvparse"
 				Filter="">
@@ -477,6 +483,12 @@
 			</File>
 			<File
 				RelativePath="..\include\GL\wglew.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLFBOMultiRenderTarget.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreGLFrameBufferObject.h">
 			</File>
 			<Filter
 				Name="glsl"
