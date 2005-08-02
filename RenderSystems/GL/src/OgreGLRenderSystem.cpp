@@ -474,7 +474,6 @@ namespace Ogre {
 		// 3D textures should be supported by GL 1.2, which is our minimum version
         mCapabilities->setCapability(RSC_TEXTURE_3D);
 
-
         // Get extension function pointers
         glewContextInit(mGLSupport);
         
@@ -482,8 +481,27 @@ namespace Ogre {
         /// is used to probe further capabilities.
          // Check for framebuffer object extension
         int rttOverride = 0; // override: 0 use whatever available, 1 use PBuffers, 2 force use copying
-        if(mGLSupport->checkExtension("GL_EXT_framebuffer_object") && rttOverride<1)
+        if(__GLEW_EXT_framebuffer_object && rttOverride<1)
         {
+			// Probe number of draw buffers
+			// Only makes sense with FBO support, so probe here
+			if(__GLEW_VERSION_2_0 || 
+				__GLEW_ARB_draw_buffers ||
+				__GLEW_ATI_draw_buffers)
+			{
+				GLint buffers;
+				glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
+				mCapabilities->setNumMultiRenderTargets(std::min(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
+				if(!__GLEW_VERSION_2_0)
+				{
+					// Before GL version 2.0, we need to get one of the extensions
+					if(__GLEW_ARB_draw_buffers)
+						__glewDrawBuffers = glDrawBuffersARB;
+					else if(__GLEW_ATI_draw_buffers)
+						__glewDrawBuffers = glDrawBuffersATI;
+				}
+			}
+			// Create FBO manager
             LogManager::getSingleton().logMessage("GL: Using GL_EXT_framebuffer_object for rendering to textures (best)");
             mRTTManager = new GLFBOManager(mGLSupport->getGLVendor() == "ATI");
             mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);

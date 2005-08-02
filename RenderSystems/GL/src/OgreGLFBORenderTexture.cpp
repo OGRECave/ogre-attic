@@ -159,14 +159,27 @@ namespace Ogre {
             glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
                 GL_RENDERBUFFER_EXT, 0);
         }
+
+		/// Do glDrawBuffer calls
+		if(glDrawBuffers)
+		{
+			GLenum bufs[OGRE_MAX_MULTIPLE_RENDER_TARGETS];
+			GLsizei n=0;
+			for(size_t x=0; x<OGRE_MAX_MULTIPLE_RENDER_TARGETS; ++x)
+			{
+				// Fill bufs
+				bufs[x] = GL_COLOR_ATTACHMENT0_EXT + x;
+				// If there is a buffer defined here, set N to one abive it
+				if(mColour[x].buffer)
+					n = x+1;
+			}
+			glDrawBuffers(n, bufs);
+		}
+
         
         /// Check status
         GLuint status;
         status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-        
-        /// Do glDrawBuffer calls
-        /// If MRT enabled
-        /// TODO
         
         /// Bind main buffer
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);

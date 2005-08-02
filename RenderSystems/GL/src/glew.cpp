@@ -543,6 +543,8 @@ PFNGLBINDATTRIBLOCATIONARBPROC __glewBindAttribLocationARB = NULL;
 PFNGLGETACTIVEATTRIBARBPROC __glewGetActiveAttribARB = NULL;
 PFNGLGETATTRIBLOCATIONARBPROC __glewGetAttribLocationARB = NULL;
 
+PFNGLDRAWBUFFERSATIPROC __glewDrawBuffersATI = NULL;
+
 PFNGLALPHAFRAGMENTOP1ATIPROC __glewAlphaFragmentOp1ATI = NULL;
 PFNGLALPHAFRAGMENTOP2ATIPROC __glewAlphaFragmentOp2ATI = NULL;
 PFNGLALPHAFRAGMENTOP3ATIPROC __glewAlphaFragmentOp3ATI = NULL;
@@ -713,6 +715,7 @@ GLboolean __GLEW_ARB_texture_non_power_of_two = GL_FALSE;
 GLboolean __GLEW_ARB_vertex_buffer_object = GL_FALSE;
 GLboolean __GLEW_ARB_vertex_program = GL_FALSE;
 GLboolean __GLEW_ARB_vertex_shader = GL_FALSE;
+GLboolean __GLEW_ATI_draw_buffers = GL_FALSE;
 GLboolean __GLEW_ATI_fragment_shader = GL_FALSE;
 GLboolean __GLEW_ATI_texture_float = GL_FALSE;
 GLboolean __GLEW_EXT_framebuffer_object = GL_FALSE;
@@ -1307,6 +1310,19 @@ static GLboolean _glewInit_GL_ARB_vertex_shader (GLEW_CONTEXT_ARG_DEF_INIT)
 
 #endif /* GL_ARB_vertex_shader */
 
+#ifdef GL_ATI_draw_buffers
+
+static GLboolean _glewInit_GL_ATI_draw_buffers (GLEW_CONTEXT_ARG_DEF_INIT)
+{
+  GLboolean r = GL_FALSE;
+
+  r = ((glDrawBuffersATI = (PFNGLDRAWBUFFERSATIPROC)glewGetProcAddress((const GLubyte*)"glDrawBuffersATI")) == NULL) || r;
+
+  return r;
+}
+
+#endif /* GL_ATI_draw_buffers */
+
 #ifdef GL_ATI_fragment_shader
 
 static GLboolean _glewInit_GL_ATI_fragment_shader (GLEW_CONTEXT_ARG_DEF_INIT)
@@ -1770,6 +1786,10 @@ GLenum glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
   GLEW_ARB_vertex_shader = glewGetExtension("GL_ARB_vertex_shader");
   if (glewExperimental || GLEW_ARB_vertex_shader) { GLEW_ARB_vertex_shader = !_glewInit_GL_ARB_vertex_shader(GLEW_CONTEXT_ARG_VAR_INIT); _glewInit_GL_ARB_vertex_program(GLEW_CONTEXT_ARG_VAR_INIT); }
 #endif /* GL_ARB_vertex_shader */
+#ifdef GL_ATI_draw_buffers
+  GLEW_ATI_draw_buffers = glewGetExtension("GL_ATI_draw_buffers");
+  if (glewExperimental || GLEW_ATI_draw_buffers) GLEW_ATI_draw_buffers = !_glewInit_GL_ATI_draw_buffers(GLEW_CONTEXT_ARG_VAR_INIT);
+#endif /* GL_ATI_draw_buffers */
 #ifdef GL_ATI_fragment_shader
   GLEW_ATI_fragment_shader = glewGetExtension("GL_ATI_fragment_shader");
   if (glewExperimental || GLEW_ATI_fragment_shader) GLEW_ATI_fragment_shader = !_glewInit_GL_ATI_fragment_shader(GLEW_CONTEXT_ARG_VAR_INIT);
