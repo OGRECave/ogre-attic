@@ -160,18 +160,20 @@ namespace Ogre {
     {
         Passes::iterator i    = mPasses.begin();
         Passes::iterator iend = mPasses.end();
+        Pass* foundPass = 0;
+
         // iterate through techniques to find a match
         while (i != iend)
         {
             if ( (*i)->getName() == name )
+            {
+                foundPass = (*i);
                 break;
+            }
             ++i;
         }
 
-        if (i != iend)
-            return (*i);
-        else
-            return 0;
+        return foundPass;
     }
     //-----------------------------------------------------------------------------
     unsigned short Technique::getNumPasses(void) const
