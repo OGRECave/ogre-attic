@@ -208,12 +208,22 @@ namespace Ogre {
 
     void GLRenderSystem::initGL(RenderTarget *primary)
     {
+        // Set main and current context
+        mMainContext = 0;
+        primary->getCustomAttribute("GLCONTEXT", &mMainContext);
+        mCurrentContext = mMainContext;
+        
+        // Set primary context as active
+        if(mCurrentContext)
+            mCurrentContext->setCurrent();
+            
+        // Setup GLSupport
         mGLSupport->initialiseExtensions();
 
         LogManager::getSingleton().logMessage(
             "***************************\n"
             "*** GL Renderer Started ***\n"
-            "***************************");
+                "***************************");
 		// Get extension function pointers
         glewContextInit(mGLSupport);
 
@@ -517,6 +527,10 @@ namespace Ogre {
         }
         
         mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+
+        /// Create the texture manager        
+        mTextureManager = new GLTextureManager(*mGLSupport); 
+
         mGLInitialized = true;
     }
 
@@ -600,14 +614,9 @@ namespace Ogre {
         attachRenderTarget( *win );
 
         if (!mGLInitialized) 
-        {
+        {                
             // Initialise GL after the first window has been created
             initGL(win);
-            mTextureManager = new GLTextureManager(*mGLSupport); 
-            // Set main and current context
-            mMainContext = 0;
-            win->getCustomAttribute("GLCONTEXT", &mMainContext);
-            mCurrentContext = mMainContext;
             
             // Initialise the main context
             _oneTimeContextInitialization();
