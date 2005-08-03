@@ -218,28 +218,28 @@ namespace Ogre {
         glewContextInit(mGLSupport);
 
         // Check for hardware mipmapping support.
-        if(__GLEW_VERSION_1_4 || __GLEW_SGIS_generate_mipmap)
+        if(GLEW_VERSION_1_4 || GLEW_SGIS_generate_mipmap)
         {
             mCapabilities->setCapability(RSC_AUTOMIPMAP);
         }
 
         // Check for blending support
-        if(__GLEW_VERSION_1_3 || 
-            __GLEW_ARB_texture_env_combine || 
-            __GLEW_EXT_texture_env_combine)
+        if(GLEW_VERSION_1_3 || 
+            GLEW_ARB_texture_env_combine || 
+            GLEW_EXT_texture_env_combine)
         {
             mCapabilities->setCapability(RSC_BLENDING);
         }
 
         // Check for Multitexturing support and set number of texture units
-        if(__GLEW_VERSION_1_3 || 
-           __GLEW_ARB_multitexture)
+        if(GLEW_VERSION_1_3 || 
+           GLEW_ARB_multitexture)
         {
             GLint units;
             glGetIntegerv( GL_MAX_TEXTURE_UNITS, &units );
 			mFixedFunctionTextureUnits = units;
 
-			if (__GLEW_ARB_fragment_program)
+			if (GLEW_ARB_fragment_program)
 			{
 				// Also check GL_MAX_TEXTURE_IMAGE_UNITS_ARB since NV at least
 				// only increased this on the FX/6x00 series
@@ -259,23 +259,23 @@ namespace Ogre {
         }
             
         // Check for Anisotropy support
-        if(__GLEW_EXT_texture_filter_anisotropic)
+        if(GLEW_EXT_texture_filter_anisotropic)
         {
             mCapabilities->setCapability(RSC_ANISOTROPY);
         }
 
         // Check for DOT3 support
-        if(__GLEW_VERSION_1_3 ||
-           __GLEW_ARB_texture_env_dot3 ||
-           __GLEW_EXT_texture_env_dot3)
+        if(GLEW_VERSION_1_3 ||
+           GLEW_ARB_texture_env_dot3 ||
+           GLEW_EXT_texture_env_dot3)
         {
             mCapabilities->setCapability(RSC_DOT3);
         }
 
         // Check for cube mapping
-        if(__GLEW_VERSION_1_3 || 
-           __GLEW_ARB_texture_cube_map ||
-           __GLEW_EXT_texture_cube_map)
+        if(GLEW_VERSION_1_3 || 
+           GLEW_ARB_texture_cube_map ||
+           GLEW_EXT_texture_cube_map)
         {
             mCapabilities->setCapability(RSC_CUBEMAPPING);
         }
@@ -291,7 +291,7 @@ namespace Ogre {
         }
 
         // Check for VBO support
-        if(__GLEW_VERSION_1_5 || __GLEW_ARB_vertex_buffer_object)
+        if(GLEW_VERSION_1_5 || GLEW_ARB_vertex_buffer_object)
         {
             mCapabilities->setCapability(RSC_VBO);
 
@@ -307,7 +307,7 @@ namespace Ogre {
         // GPU Program Manager setup
         mGpuProgramManager = new GLGpuProgramManager();
 
-		if(__GLEW_ARB_vertex_program)
+		if(GLEW_ARB_vertex_program)
         {
             mCapabilities->setCapability(RSC_VERTEX_PROGRAM);
 
@@ -320,14 +320,14 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbvp1");
             mGpuProgramManager->registerProgramFactory("arbvp1", createGLArbGpuProgram);
-			if (__GLEW_NV_vertex_program2_option)
+			if (GLEW_NV_vertex_program2_option)
 			{
 				mCapabilities->setMaxVertexProgramVersion("vp30");
 				mGpuProgramManager->_pushSyntaxCode("vp30");
 				mGpuProgramManager->registerProgramFactory("vp30", createGLArbGpuProgram);
 			}
 
-			if (__GLEW_NV_vertex_program3)
+			if (GLEW_NV_vertex_program3)
 			{
 				mCapabilities->setMaxVertexProgramVersion("vp40");
 				mGpuProgramManager->_pushSyntaxCode("vp40");
@@ -335,8 +335,8 @@ namespace Ogre {
 			}
 		}
 
-        if (__GLEW_NV_register_combiners2 &&
-            __GLEW_NV_texture_shader)
+        if (GLEW_NV_register_combiners2 &&
+            GLEW_NV_texture_shader)
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             mCapabilities->setMaxFragmentProgramVersion("fp20");
@@ -346,7 +346,7 @@ namespace Ogre {
         }
 
 		// NFZ - check for ATI fragment shader support
-		if (__GLEW_ATI_fragment_shader)
+		if (GLEW_ATI_fragment_shader)
 		{
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
@@ -369,7 +369,7 @@ namespace Ogre {
             mGpuProgramManager->registerProgramFactory("ps_1_1", createGL_ATI_FS_GpuProgram);
 		}
 
-        if (__GLEW_ARB_fragment_program)
+        if (GLEW_ARB_fragment_program)
         {
             mCapabilities->setCapability(RSC_FRAGMENT_PROGRAM);
             // Fragment Program Properties
@@ -381,14 +381,14 @@ namespace Ogre {
 
             mGpuProgramManager->_pushSyntaxCode("arbfp1");
             mGpuProgramManager->registerProgramFactory("arbfp1", createGLArbGpuProgram);
-			if (__GLEW_NV_fragment_program_option)
+			if (GLEW_NV_fragment_program_option)
 			{
 				mCapabilities->setMaxFragmentProgramVersion("fp30");
 				mGpuProgramManager->_pushSyntaxCode("fp30");
 				mGpuProgramManager->registerProgramFactory("fp30", createGLArbGpuProgram);
 			}
 
-			if (__GLEW_NV_fragment_program2)
+			if (GLEW_NV_fragment_program2)
 			{
 				mCapabilities->setMaxFragmentProgramVersion("fp40");
 				mGpuProgramManager->_pushSyntaxCode("fp40");
@@ -397,11 +397,11 @@ namespace Ogre {
 		}
 
 		// NFZ - Check if GLSL is supported
-		if ( __GLEW_VERSION_2_0 || 
-			(__GLEW_ARB_shading_language_100 &&
-			 __GLEW_ARB_shader_objects &&
-			 __GLEW_ARB_fragment_shader &&
-			 __GLEW_ARB_vertex_shader) )
+		if ( GLEW_VERSION_2_0 || 
+			(GLEW_ARB_shading_language_100 &&
+			 GLEW_ARB_shader_objects &&
+			 GLEW_ARB_fragment_shader &&
+			 GLEW_ARB_vertex_shader) )
 		{
 			// NFZ - check for GLSL vertex and fragment shader support successful
             mGpuProgramManager->_pushSyntaxCode("glsl");
@@ -409,17 +409,17 @@ namespace Ogre {
 		}
 
 		// Check for texture compression
-        if(__GLEW_VERSION_1_3 || __GLEW_ARB_texture_compression)
+        if(GLEW_VERSION_1_3 || GLEW_ARB_texture_compression)
         {   
             mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION);
          
             // Check for dxt compression
-            if(__GLEW_EXT_texture_compression_s3tc)
+            if(GLEW_EXT_texture_compression_s3tc)
             {
                 mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_DXT);
             }
             // Check for vtc compression
-            if(__GLEW_NV_texture_compression_vtc)
+            if(GLEW_NV_texture_compression_vtc)
             {
                 mCapabilities->setCapability(RSC_TEXTURE_COMPRESSION_VTC);
             }
@@ -431,18 +431,18 @@ namespace Ogre {
 		mCapabilities->setCapability(RSC_USER_CLIP_PLANES);
 
         // 2-sided stencil?
-        if (__GLEW_VERSION_2_0 || __GLEW_EXT_stencil_two_side)
+        if (GLEW_VERSION_2_0 || GLEW_EXT_stencil_two_side)
         {
             mCapabilities->setCapability(RSC_TWO_SIDED_STENCIL);
         }
         // stencil wrapping?
-        if (__GLEW_VERSION_1_4 || __GLEW_EXT_stencil_wrap)
+        if (GLEW_VERSION_1_4 || GLEW_EXT_stencil_wrap)
         {
             mCapabilities->setCapability(RSC_STENCIL_WRAP);
         }
 
         // Check for hardware occlusion support
-        if(__GLEW_NV_occlusion_query)
+        if(GLEW_NV_occlusion_query)
         {
             mCapabilities->setCapability(RSC_HWOCCLUSION);		
         }
@@ -454,13 +454,13 @@ namespace Ogre {
         mCapabilities->setCapability(RSC_INFINITE_FAR_PLANE);
 
         // Check for non-power-of-2 texture support
-		if(__GLEW_ARB_texture_non_power_of_two)
+		if(GLEW_ARB_texture_non_power_of_two)
         {
             mCapabilities->setCapability(RSC_NON_POWER_OF_2_TEXTURES);
         }
 
         // Check for Float textures
-        if(__GLEW_ATI_texture_float || __GLEW_ARB_texture_float)
+        if(GLEW_ATI_texture_float || GLEW_ARB_texture_float)
         {
             mCapabilities->setCapability(RSC_TEXTURE_FLOAT);
         }
@@ -472,23 +472,23 @@ namespace Ogre {
         /// is used to probe further capabilities.
          // Check for framebuffer object extension
         int rttOverride = 0; // override: 0 use whatever available, 1 use PBuffers, 2 force use copying
-        if(__GLEW_EXT_framebuffer_object && rttOverride<1)
+        if(GLEW_EXT_framebuffer_object && rttOverride<1)
         {
 			// Probe number of draw buffers
 			// Only makes sense with FBO support, so probe here
-			if(__GLEW_VERSION_2_0 || 
-				__GLEW_ARB_draw_buffers ||
-				__GLEW_ATI_draw_buffers)
+			if(GLEW_VERSION_2_0 || 
+				GLEW_ARB_draw_buffers ||
+				GLEW_ATI_draw_buffers)
 			{
 				GLint buffers;
 				glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &buffers);
 				mCapabilities->setNumMultiRenderTargets(std::min(buffers, OGRE_MAX_MULTIPLE_RENDER_TARGETS));
-				if(!__GLEW_VERSION_2_0)
+				if(!GLEW_VERSION_2_0)
 				{
 					// Before GL version 2.0, we need to get one of the extensions
-					if(__GLEW_ARB_draw_buffers)
+					if(GLEW_ARB_draw_buffers)
 						__glewDrawBuffers = glDrawBuffersARB;
-					else if(__GLEW_ATI_draw_buffers)
+					else if(GLEW_ATI_draw_buffers)
 						__glewDrawBuffers = glDrawBuffersATI;
 				}
 			}
@@ -1537,7 +1537,7 @@ namespace Ogre {
             // culling mode. Therefore, we must take care with two-sided stencil settings.
             flip = (mInvertVertexWinding && !mActiveRenderTarget->requiresTextureFlipping()) ||
                    (!mInvertVertexWinding && mActiveRenderTarget->requiresTextureFlipping());
-			if(__GLEW_VERSION_2_0) // New GL2 commands
+			if(GLEW_VERSION_2_0) // New GL2 commands
 			{
 				// Back
 				glStencilMaskSeparate(GL_BACK, mask);
