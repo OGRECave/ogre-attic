@@ -896,7 +896,7 @@ namespace Ogre {
         unsigned int getTextureAnisotropy() const;
 
         /// Gets the parent Pass object
-        Pass* getParent(void) { return mParent; }
+        Pass* getParent(void) const { return mParent; }
 
 		/** Internal method for loading this object as part of Material::load */
 		void _load(void);
@@ -909,6 +909,15 @@ namespace Ogre {
         bool isLoaded(void);
         /** Tells the class that it needs recompilation. */
         void _notifyNeedsRecompile(void);
+
+        /** Set the name of the Texture Unit State
+        @remarks
+            The name of the Texture Unit State is optional.  Its usefull in material scripts where a material could inherit
+            from another material and only want to modify a particalar Texture Unit State.
+        */
+        void setName(const String& name);
+        /// get the name of the Texture Unit State
+        const String getName(void) const { return mName; }
 
 	
 protected:
@@ -961,6 +970,7 @@ protected:
         // allow for fast copying of the basic members.
         //
         std::vector<String> mFrames;
+        String mName; // optional name for the TUS
 
         typedef std::multimap<TextureEffectType, TextureEffect> EffectMap;
         EffectMap mEffects;
