@@ -292,10 +292,7 @@ namespace Ogre {
     TextureUnitState* Pass::createTextureUnitState(void)
     {
         TextureUnitState *t = new TextureUnitState(this);
-        mTextureUnitStates.push_back(t);
-        // Needs recompilation
-        mParent->_notifyNeedsRecompile();
-        _dirtyHash();
+        addTextureUnitState(t);
 	    return t;
     }
     //-----------------------------------------------------------------------
@@ -305,19 +302,37 @@ namespace Ogre {
         TextureUnitState *t = new TextureUnitState(this);
 	    t->setTextureName(textureName);
 	    t->setTextureCoordSet(texCoordSet);
-        mTextureUnitStates.push_back(t);
-        // Needs recompilation
-        mParent->_notifyNeedsRecompile();
-        _dirtyHash();
+        addTextureUnitState(t);
 	    return t;
     }
     //-----------------------------------------------------------------------
 	void Pass::addTextureUnitState(TextureUnitState* state)
 	{
-		mTextureUnitStates.push_back(state);
-        // Needs recompilation
-        mParent->_notifyNeedsRecompile();
-        _dirtyHash();
+        assert(state && "state is 0 in Pass::addTextureUnitState()");
+        if (state)
+        {
+            // only attach TUS to pass if TUS does not belong to another pass
+            if ((state->getParent() == 0) || (state->getParent() == this))
+            {
+		        mTextureUnitStates.push_back(state);
+                // if texture unit state name is empty then give it a default name based on its index
+                if (state->getName().empty())
+                {
+                    // its the last entry in the container so its index is size - 1
+                    size_t idx = mTextureUnitStates.size() - 1;
+                    state->setName( StringConverter::toString(idx) );
+                }
+                // Needs recompilation
+                mParent->_notifyNeedsRecompile();
+                _dirtyHash();
+            }
+            else
+            {
+			    OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "TextureUnitState already attached to another pass",
+				    "Pass:addTextureUnitState");
+
+            }
+        }
 	}
     //-----------------------------------------------------------------------
     TextureUnitState* Pass::getTextureUnitState(unsigned short index) 
@@ -325,6 +340,61 @@ namespace Ogre {
         assert (index < mTextureUnitStates.size() && "Index out of bounds");
 	    return mTextureUnitStates[index];
     }
+    //-----------------------------------------------------------------------------
+    TextureUnitState* Pass::getTextureUnitState(const String& name)
+    {
+        TextureUnitStates::iterator i    = mTextureUnitStates.begin();
+        TextureUnitStates::iterator iend = mTextureUnitStates.end();
+        TextureUnitState* foundTUS = 0;
+
+        // iterate through techniques to find a match
+        while (i != iend)
+        {
+            if ( (*i)->getName() == name )
+            {
+                foundTUS = (*i);
+                break;
+            }
+
+            ++i;
+        }
+
+        return foundTUS;
+    }
+
+    //-----------------------------------------------------------------------
+    unsigned short Pass::getTextureUnitStateIndex(const TextureUnitState* state)
+    {
+        assert(state && "state is 0 in Pass::addTextureUnitState()");
+        unsigned short idx = 0;
+
+        // only find index for state attached to this pass
+        if (state->getParent() == this)
+        {
+            // iterate through TUS container and find matching pointer to state
+            TextureUnitStates::iterator i    = mTextureUnitStates.begin();
+            TextureUnitStates::iterator iend = mTextureUnitStates.end();
+            while (i != iend)
+            {
+                if ( (*i) == state )
+                {
+                    // calculate index
+                    idx = static_cast<unsigned short>(i - mTextureUnitStates.begin());
+                    break;
+                }
+
+                ++i;
+            }
+        }
+        else
+        {
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "TextureUnitState is not attached to this pass",
+				"Pass:getTextureUnitStateIndex");
+        }
+
+        return idx;
+    }
+
     //-----------------------------------------------------------------------
     Pass::TextureUnitStateIterator
         Pass::getTextureUnitStateIterator(void)
