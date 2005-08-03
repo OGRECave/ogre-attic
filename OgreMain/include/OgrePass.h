@@ -326,11 +326,27 @@ namespace Ogre {
         Applies to both fixed-function and programmable passes.
         */
         TextureUnitState* createTextureUnitState( const String& textureName, unsigned short texCoordSet = 0);
-		/** Adds the passed in TextureUnitState, to the existing Pass. */
+		/** Adds the passed in TextureUnitState, to the existing Pass. 
+        @param
+        state The Texture Unit State to be attached to this pass.  It must not be attached to another pass.
+        @note
+            Throws an exception if the TextureUnitState is attached to another Pass.*/
 		void addTextureUnitState(TextureUnitState* state);
         /** Retrieves a pointer to a texture unit state so it may be modified.
         */
         TextureUnitState* getTextureUnitState(unsigned short index);
+        /** Retrieves the Texture Unit State matching name.
+            Returns 0 if name match is not found.
+        */
+        TextureUnitState* getTextureUnitState(const String& name);
+
+        /**  Retrieve the index of the Texture Unit State in the pass.
+        @param
+        state The Texture Unit State this is attached to this pass.
+        @note
+            Throws an exception if the state is not attached to the pass.
+        */
+        unsigned short getTextureUnitStateIndex(const TextureUnitState* state);
 
         typedef VectorIterator<TextureUnitStates> TextureUnitStateIterator;
         /** Get an iterator over the TextureUnitStates contained in this Pass. */
