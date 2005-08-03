@@ -1310,6 +1310,7 @@ namespace Ogre
         // Determine type
         size_t start, dims, roundedDims, i;
         bool isReal;
+        bool isMatrix4x4 = false;
 
         StringUtil::toLowerCase(vecparams[1]);
 
@@ -1317,6 +1318,7 @@ namespace Ogre
         {
             dims = 16;
             isReal = true;
+            isMatrix4x4 = true;
         }
         else if ((start = vecparams[1].find("float")) != String::npos)
         {
@@ -1390,10 +1392,28 @@ namespace Ogre
                 realBuffer[i] = 0.0f; 
 
             }
-            // Set
-            context.programParams->setConstant(index, realBuffer, roundedDims * 0.25);
-            delete [] realBuffer;
 
+            if (isMatrix4x4)
+            {
+                // its a Matrix4x4 so pass as a Matrix4
+                // use specialized setConstant that takes a matrix so matrix is transposed if required
+                Matrix4 m4x4(
+                    realBuffer[0],  realBuffer[1],  realBuffer[2],  realBuffer[3],
+                    realBuffer[4],  realBuffer[5],  realBuffer[6],  realBuffer[7],
+                    realBuffer[8],  realBuffer[9],  realBuffer[10], realBuffer[11],
+                    realBuffer[12], realBuffer[13], realBuffer[14], realBuffer[15]
+                    );
+                context.programParams->setConstant(index, m4x4);
+            }
+            else 
+            {
+                // Set
+                context.programParams->setConstant(index, realBuffer, roundedDims * 0.25);
+
+            }
+
+            
+            delete [] realBuffer;
             // log the parameter
             context.programParams->addConstantDefinition(paramName, index, dims, GpuProgramParameters::ET_REAL);
         }
@@ -1711,7 +1731,7 @@ namespace Ogre
         {
             // no name was given in the script so a new technique will be created
 		    // Increase technique level depth
-		    context.techLev += 1;
+		    ++context.techLev;
         }
 
         // Create a new technique if it doesn't already exist
@@ -1756,7 +1776,7 @@ namespace Ogre
         else
         {
 		    //Increase pass level depth
-		    context.passLev += 1;
+		    ++context.passLev;
         }
 
         if (context.technique->getNumPasses() > context.passLev)
@@ -1780,38 +1800,31 @@ namespace Ogre
     //-----------------------------------------------------------------------
     bool parseTextureUnit(String& params, MaterialScriptContext& context)
     {
-        // if params is a number then see if that texture unit exists and is in bounds
+        // if params is a name then see if that texture unit exists
         // if not then log the warning and just move on to the next TU from current
-        if (!params.empty())
+        if (!params.empty() && (context.pass->getNumTextureUnitStates() > 0))
         {
-            // specifying an index in the script for a TU means that a specific TU is being requested
+            // specifying a TUS name in the script for a TU means that a specific TU is being requested
             // try to get the specific TU
             // if the index requested is not valid, just creat a new TU
-            int newStateLev = StringConverter::parseInt(params);
-
-            // check if index is in bounds
-            if ((newStateLev >= 0) && (newStateLev < context.pass->getNumTextureUnitStates()))
+            // find the TUS with name = params
+            TextureUnitState * foundTUS = context.pass->getTextureUnitState(params);
+            if (foundTUS)
             {
-                context.stateLev = newStateLev;
+                context.stateLev = context.pass->getTextureUnitStateIndex(foundTUS);
             }
             else
             {
-                // position index to end: defaults to creating a new TU
+                // name was not found so a new TUS is needed
+                // position TUS level to the end index
+                // a new TUS will be created later on
                 context.stateLev = context.pass->getNumTextureUnitStates();
-                // check if the new index is one past the end
-                if (newStateLev != context.stateLev)
-                {
-                    // oops, not in bounds so log it and add a new TU anyway
-                    logParseError("Texture Unit State index: " + StringConverter::toString(newStateLev) +
-                    " out of bounds, using index " + StringConverter::toString(context.stateLev) + " instead", context);
-                }
             }
         }
         else
         {
-            // an index number was not given in the script for the texture unit
-		    // Increase texture unit depth
-		    context.stateLev += 1;
+		    //Increase Texture Unit State level depth
+		    ++context.stateLev;
         }
 
         if (context.pass->getNumTextureUnitStates() > context.stateLev)
@@ -1822,14 +1835,16 @@ namespace Ogre
         {
             // Create a new texture unit
             context.textureUnit = context.pass->createTextureUnitState();
+            if (!params.empty())
+                context.textureUnit->setName(params);
         }
         // update section
         context.section = MSS_TEXTUREUNIT;
 
-
         // Return TRUE because this must be followed by a {
         return true;
     }
+
     //-----------------------------------------------------------------------
     bool parseVertexProgramRef(String& params, MaterialScriptContext& context)
     {
@@ -3097,6 +3112,7 @@ namespace Ogre
         LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
         mBuffer += "\n";
         writeAttribute(3, "texture_unit");
+        writeValue(pTex->getName());
         beginSection(3);
         {
             //texture name
