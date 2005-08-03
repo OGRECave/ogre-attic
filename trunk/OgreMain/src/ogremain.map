@@ -55,6 +55,7 @@
             Ogre::MeshSerializer::*;
             Ogre::Mou*;
             Ogre::Mov*;
+            Ogre::MultiRenderTarget::*;
             Ogre::N*;
             Ogre::O*;
             Ogre::PanelOverlayElementFactory*;
@@ -171,6 +172,7 @@
         _ZT[ISV]N4Ogre31TexCoordModifierControllerValueE;
         _ZT[ISV]N4Ogre[0-9][0-9][U-W]*;
         _ZT[ISV]N4Ogre10ZipArchiveE;
+        _ZT[ISV]N4Ogre17MultiRenderTargetE;
 
         # export thunks
         _ZThn*;
