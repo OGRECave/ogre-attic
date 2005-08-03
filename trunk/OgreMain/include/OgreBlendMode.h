@@ -143,7 +143,7 @@ namespace Ogre {
         ColourValue colourArg2;
         /// Manual alpha value for manual source1
         Real alphaArg1;
-        /// Manual colour value for manual source1
+        /// Manual alpha value for manual source2
         Real alphaArg2;
         /// Manual blending factor
         Real factor;
