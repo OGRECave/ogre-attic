@@ -231,18 +231,20 @@ namespace Ogre {
     {
         Techniques::iterator i    = mTechniques.begin();
         Techniques::iterator iend = mTechniques.end();
+        Technique* foundTechnique = 0;
+
         // iterate through techniques to find a match
         while (i != iend)
         {
             if ( (*i)->getName() == name )
+            {
+                foundTechnique = (*i);
                 break;
+            }
             ++i;
         }
 
-        if (i != iend)
-            return (*i);
-        else
-            return 0;
+        return foundTechnique;
     }
     //-----------------------------------------------------------------------	
     unsigned short Material::getNumTechniques(void) const
