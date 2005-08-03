@@ -150,8 +150,8 @@ namespace Ogre {
         // copy basic members (int's, real's)
         memcpy( this, &oth, (uchar *)(&oth.mFrames) - (uchar *)(&oth) );
         // copy complex members
-        mFrames = oth.mFrames;
-
+        mFrames  = oth.mFrames;
+        mName    = oth.mName;
         mEffects = oth.mEffects;
 
         mParent->_dirtyHash();
@@ -1021,6 +1021,11 @@ namespace Ogre {
             removeEffect(ET_PROJECTIVE_TEXTURE);
         }
 
+    }
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setName(const String& name)
+    {
+        mName = name;
     }
 
 }
