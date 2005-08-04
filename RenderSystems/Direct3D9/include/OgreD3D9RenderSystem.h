@@ -145,7 +145,7 @@ namespace Ogre
 
 		/** Mapping of texture format -> DepthStencil. Used as cache by _getDepthStencilFormatFor
 		*/
-		typedef HashMap<D3DFORMAT, D3DFORMAT> DepthStencilHash;
+		typedef HashMap<unsigned int, D3DFORMAT> DepthStencilHash;
 		DepthStencilHash mDepthStencilHash;
 
 		/** Mapping of depthstencil format -> depthstencil buffer

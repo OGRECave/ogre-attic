@@ -2725,7 +2725,7 @@ namespace Ogre
 	D3DFORMAT D3D9RenderSystem::_getDepthStencilFormatFor(D3DFORMAT fmt)
 	{
 		/// Check if result is cached
-		DepthStencilHash::iterator i = mDepthStencilHash.find(fmt);
+		DepthStencilHash::iterator i = mDepthStencilHash.find((unsigned int)fmt);
 		if(i != mDepthStencilHash.end())
 			return i->second;
 		/// If not, probe with CheckDepthStencilMatch
@@ -2752,7 +2752,7 @@ namespace Ogre
 			}
 		}
 		/// Cache result
-		mDepthStencilHash[fmt] = dsfmt;
+		mDepthStencilHash[(unsigned int)fmt] = dsfmt;
 		return dsfmt;
 	}
 	IDirect3DSurface9* D3D9RenderSystem::_getDepthStencilFor(D3DFORMAT fmt, D3DMULTISAMPLE_TYPE multisample, size_t width, size_t height)
