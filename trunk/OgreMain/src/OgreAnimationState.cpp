@@ -125,9 +125,8 @@ namespace Ogre
     //---------------------------------------------------------------------
     void AnimationState::addTime(Real offset)
     {
-        setTimePosition(mTimePos += offset);
-		mParent->_notifyDirty();
-}
+        setTimePosition(mTimePos + offset);
+    }
     //---------------------------------------------------------------------
     bool AnimationState::getEnabled(void) const
     {
