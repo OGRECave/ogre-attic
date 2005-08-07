@@ -512,6 +512,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 						Name="VCCLCompilerTool"
 						AdditionalOptions="/Zm200"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm150"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\OgreRotationSpline.cpp">
