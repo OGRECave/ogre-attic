@@ -741,50 +741,36 @@ protected:
 	void testBug()
 	{
 
-		MaterialPtr mat = MaterialManager::getSingleton().create("test", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		// known png with alpha
-		Pass* pass = mat->getTechnique(0)->getPass(0);
-		TextureUnitState* t = pass->createTextureUnitState();
-		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, ColourValue(1,0,0));
-		t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5);
+		//Load the main background
+		MaterialPtr      bgmaterial = MaterialManager::getSingleton().create("Background", "General");
+		bgmaterial->getTechnique(0)->getPass(0)->createTextureUnitState("ogrelogo.png");
+		bgmaterial->getTechnique(0)->getPass(0)->setDepthCheckEnabled(false);
+		bgmaterial->getTechnique(0)->getPass(0)->setDepthWriteEnabled(false);
 
-		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-		// alpha blend
-		//pass->setDepthWriteEnabled(false);
+		//Disable lighting on background
+		bgmaterial->getTechnique(0)->getPass(0)->setLightingEnabled(false);
 
-		// alpha reject
-		//pass->setDepthWriteEnabled(true);
-		//pass->setAlphaRejectSettings(CMPF_LESS, 128);
+		//Create background rectangle
+		Rectangle2D*   bgrect = new Rectangle2D(true);
 
-		// Define a floor plane mesh
-		Plane p;
-		p.normal = Vector3::UNIT_Y;
-		p.d = 200;
-		MeshManager::getSingleton().createPlane("FloorPlane",
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-			p,2000,2000,1,1,true,1,5,5,Vector3::UNIT_Z);
+		//Cover whole screen
+		bgrect->setCorners(-1.0,1.0,1.0,-1.0);
 
-		// Create an entity (the floor)
-		Entity* ent = mSceneMgr->createEntity("floor", "FloorPlane");
-		ent->setMaterialName("test");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
+		//Kludge: set bounding box to a large size.
+		bgrect->setBoundingBox(AxisAlignedBox(-10000.0*Vector3::UNIT_SCALE, 100000.0*Vector3::UNIT_SCALE));
+		bgrect->setMaterial("Background");
 
-		mSceneMgr->setSkyDome(true, "Examples/CloudySky", 5, 8);
-		mSceneMgr->setAmbientLight(ColourValue::White);
+		//Render background before everything else
+		bgrect->setRenderQueueGroup(RENDER_QUEUE_BACKGROUND);
 
-		mat = MaterialManager::getSingleton().create("test2", 
-			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
-		// known png with alpha
-		pass = mat->getTechnique(0)->getPass(0);
-		t = pass->createTextureUnitState();
-		t->setColourOperationEx(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, ColourValue(0,1,0));
-		//t->setAlphaOperation(LBX_SOURCE1, LBS_MANUAL, LBS_CURRENT, 0.5);
+		//Attach background to the scene
+		SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Background");
+		node->attachObject(bgrect); 	
 
-		pass->setSceneBlending(SBT_TRANSPARENT_ALPHA);
-		ent = mSceneMgr->createEntity("floor2", "FloorPlane");
-		ent->setMaterialName("test2");
-		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(500, 20, 0))->attachObject(ent);
+
+		Entity* e = mSceneMgr->createEntity("2", "knot.mesh");
+		e->setMaterialName("mymaterial");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 	}
 
 	void testTransparencyMipMaps()
@@ -1652,6 +1638,8 @@ protected:
             {
                 ent->getParentNode()->yaw(Degree(45));
             }
+
+			ent->getParentNode()->scale(Vector3(0.5, 0.5, 0.5));
         }
         mAnimState = ent->getAnimationState("Walk");
         mAnimState->setEnabled(true);
@@ -2346,6 +2334,37 @@ protected:
 
 	}
 
+	void testDepthBias()
+	{
+		SceneNode* node = mSceneMgr->getRootSceneNode()->createChildSceneNode("Entity");
+		const String meshName("cube.mesh");
+		Entity* entity;
+
+		entity = mSceneMgr->createEntity("Entity", meshName);
+		entity->setMaterialName("Entity");
+		node->attachObject(entity);
+
+		for (size_t i = 0; i <= 6;++i)
+		{
+			String name("Decal");
+			name += StringConverter::toString(i);
+
+			MaterialPtr pMat = static_cast<MaterialPtr>(MaterialManager::getSingleton().create(
+				name, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME));
+
+			pMat->getTechnique(0)->getPass(0)->setLightingEnabled(false);
+			pMat->getTechnique(0)->getPass(0)->setAlphaRejectSettings(CMPF_GREATER_EQUAL, 128);
+			pMat->getTechnique(0)->getPass(0)->setDepthBias(i);
+			pMat->getTechnique(0)->getPass(0)->createTextureUnitState(name + ".png");
+
+			entity = mSceneMgr->createEntity(name, meshName);
+			entity->setMaterialName(name);
+			node->attachObject(entity);
+		}
+
+		mCamera->setPosition(70.0, 90.0, 220.0);
+		mCamera->lookAt(Vector3::ZERO); 
+	}
 
     // Just override the mandatory create scene method
     void createScene(void)
@@ -2385,9 +2404,11 @@ protected:
 		//testSimpleMesh();
 		//test2Windows();
 		//testStaticGeometry();
-		testBug();
+		//testBug();
 		//testReloadResources();
 		//testTransparencyMipMaps();
+		testDepthBias();
+
     }
     // Create new frame listener
     void createFrameListener(void)

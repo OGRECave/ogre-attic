@@ -1660,6 +1660,8 @@ namespace Ogre
 	void D3D9RenderSystem::_setDepthBias(ushort bias)
 	{
 		float bias_float = static_cast<float>(-bias);
+		// scale down - certainly needed for nVidia
+		bias_float /= 16.0f;
 		HRESULT hr = __SetRenderState(D3DRS_DEPTHBIAS, *(DWORD*)&bias_float);
 		if (FAILED(hr))
 			OGRE_EXCEPT(hr, "Error setting depth bias", "D3D9RenderSystem::_setDepthBias");
