@@ -408,6 +408,8 @@ namespace Ogre
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
 		D3DFORMAT d3dPF = this->_chooseD3DFormat();
+		// let's D3DX check the corrected pixel format
+		hr = D3DXCheckTextureRequirements(mpDev, NULL, NULL, NULL, 0, &d3dPF, mD3DPool);
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
@@ -424,22 +426,25 @@ namespace Ogre
 			{
 				mDynamicTextures = false;
 			}
-
 		}
 		// check if mip maps are supported on hardware
-		if ((mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP) && mNumMipmaps > 0)
+		mAutoGenMipmaps = false;
+		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
 		{
-			// use auto.gen. if available, and if desired
-            mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
-			if ((mUsage & TU_AUTOMIPMAP) && mAutoGenMipmaps)
+			if (mUsage & TU_AUTOMIPMAP)
 			{
-				usage |= D3DUSAGE_AUTOGENMIPMAP;
-				numMips = 0;
+				// use auto.gen. if available, and if desired
+				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
+				if (mAutoGenMipmaps)
+				{
+					usage |= D3DUSAGE_AUTOGENMIPMAP;
+					numMips = 0;
+				}
 			}
 		}
 		else
 		{
-			// device don't support mip maps, or zero mipmaps requested
+			// no mip map support for this kind of textures :(
 			mNumMipmaps = 0;
 			numMips = 1;
 		}
@@ -499,19 +504,38 @@ namespace Ogre
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
 		D3DFORMAT d3dPF = this->_chooseD3DFormat();
+		// let's D3DX check the corrected pixel format
+		hr = D3DXCheckCubeTextureRequirements(mpDev, NULL, NULL, 0, &d3dPF, mD3DPool);
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
 		UINT numMips = mNumMipmaps + 1;
+		// Check dynamic textures
+		if (mUsage & TU_DYNAMIC)
+		{
+			if (_canUseDynamicTextures(usage, D3DRTYPE_CUBETEXTURE, d3dPF))
+			{
+				usage |= D3DUSAGE_DYNAMIC;
+				mDynamicTextures = true;
+			}
+			else
+			{
+				mDynamicTextures = false;
+			}
+		}
 		// check if mip map cube textures are supported
+		mAutoGenMipmaps = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
 		{
-			// use auto.gen. if available
-            mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
-			if (mAutoGenMipmaps)
+			if (mUsage & TU_AUTOMIPMAP)
 			{
-				usage |= D3DUSAGE_AUTOGENMIPMAP;
-				numMips = 0;
+				// use auto.gen. if available
+				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
+				if (mAutoGenMipmaps)
+				{
+					usage |= D3DUSAGE_AUTOGENMIPMAP;
+					numMips = 0;
+				}
 			}
 		}
 		else
@@ -575,19 +599,38 @@ namespace Ogre
 		// determine wich D3D9 pixel format we'll use
 		HRESULT hr;
 		D3DFORMAT d3dPF = this->_chooseD3DFormat();
+		// let's D3DX check the corrected pixel format
+		hr = D3DXCheckVolumeTextureRequirements(mpDev, NULL, NULL, NULL, NULL, 0, &d3dPF, mD3DPool);
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
 		UINT numMips = mNumMipmaps + 1;
-		// check if mip map cube textures are supported
+		// Check dynamic textures
+		if (mUsage & TU_DYNAMIC)
+		{
+			if (_canUseDynamicTextures(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF))
+			{
+				usage |= D3DUSAGE_DYNAMIC;
+				mDynamicTextures = true;
+			}
+			else
+			{
+				mDynamicTextures = false;
+			}
+		}
+		// check if mip map volume textures are supported
+		mAutoGenMipmaps = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP)
 		{
-			// use auto.gen. if available
-            mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
-			if (mAutoGenMipmaps)
+			if (mUsage & TU_AUTOMIPMAP)
 			{
-				usage |= D3DUSAGE_AUTOGENMIPMAP;
-				numMips = 0;
+				// use auto.gen. if available
+				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
+				if (mAutoGenMipmaps)
+				{
+					usage |= D3DUSAGE_AUTOGENMIPMAP;
+					numMips = 0;
+				}
 			}
 		}
 		else
@@ -964,7 +1007,7 @@ namespace Ogre
 		if(mipmap > mNumMipmaps)
 			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "Mipmap index out of range",
 					"D3D9Texture::getBuffer");
-		int idx = face*(mNumMipmaps+1) + mipmap;
+		size_t idx = face*(mNumMipmaps+1) + mipmap;
 		assert(idx < mSurfaceList.size());
 		return mSurfaceList[idx];
 	}

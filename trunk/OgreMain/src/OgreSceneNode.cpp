@@ -384,9 +384,12 @@ namespace Ogre {
     {
         ChildNodeMap::iterator i, iend;
         iend = mChildren.end();
-        for (i = mChildren.begin(); i != iend; ++i)
+        for (i = mChildren.begin(); i != iend;)
         {
             SceneNode* sn = static_cast<SceneNode*>(i->second);
+			// increment iterator before destroying (iterator invalidated by 
+			// SceneManager::destroySceneNode because it causes removal from parent)
+			++i;
             sn->removeAndDestroyAllChildren();
             sn->getCreator()->destroySceneNode(sn->getName());
         }

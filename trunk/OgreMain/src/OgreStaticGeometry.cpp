@@ -240,9 +240,12 @@ namespace Ogre {
 				VES_POSITION);
 		HardwareVertexBufferSharedPtr vbuf = 
 			vertexData->vertexBufferBinding->getBuffer(posElem->getSource());
+		// Lock 'normal' rather than 'read only' due to a bizarre D3D debug runtime 
+		// rule that means you can't lock a managed write-only buffer read-only
+		// but can lock it normally and read - duh!
 		unsigned char* vertex = 
 			static_cast<unsigned char*>(
-				vbuf->lock(HardwareBuffer::HBL_READ_ONLY));
+				vbuf->lock(HardwareBuffer::HBL_NORMAL));
 		float* pFloat;
 
 		Vector3 min, max;
@@ -393,14 +396,14 @@ namespace Ogre {
 		if (use32bitIndexes)
 		{
 			p32 = static_cast<uint32*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_NORMAL));
 			buildIndexRemap(p32, id->indexCount, indexRemap);
 			id->indexBuffer->unlock();
 		}
 		else
 		{
 			p16 = static_cast<uint16*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_NORMAL));
 			buildIndexRemap(p16, id->indexCount, indexRemap);
 			id->indexBuffer->unlock();
 		}
@@ -443,7 +446,7 @@ namespace Ogre {
 			// indexes in the old buffer, but note that we're not guaranteed to
 			// address every vertex (which is kinda why we're here)
 			uchar* pSrcBase = static_cast<uchar*>(
-				oldBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+				oldBuf->lock(HardwareBuffer::HBL_NORMAL));
 			uchar* pDstBase = static_cast<uchar*>(
 				newBuf->lock(HardwareBuffer::HBL_DISCARD));
 			size_t vertexSize = oldBuf->getVertexSize();
@@ -476,7 +479,7 @@ namespace Ogre {
 		{
 			uint32 *pSrc32, *pDst32;
 			pSrc32 = static_cast<uint32*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_NORMAL));
 			pDst32 = static_cast<uint32*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc32, pDst32, indexRemap, id->indexCount);
@@ -487,7 +490,7 @@ namespace Ogre {
 		{
 			uint16 *pSrc16, *pDst16;
 			pSrc16 = static_cast<uint16*>(id->indexBuffer->lock(
-				id->indexStart, id->indexCount, HardwareBuffer::HBL_READ_ONLY));
+				id->indexStart, id->indexCount, HardwareBuffer::HBL_NORMAL));
 			pDst16 = static_cast<uint16*>(ibuf->lock(
 				HardwareBuffer::HBL_DISCARD));
 			remapIndexes(pSrc16, pDst16, indexRemap, id->indexCount);
@@ -1495,7 +1498,7 @@ namespace Ogre {
 				uint32* pSrc = static_cast<uint32*>(
 					srcIdxData->indexBuffer->lock(
 						srcIdxData->indexStart, srcIdxData->indexCount,
-						HardwareBuffer::HBL_READ_ONLY));
+						HardwareBuffer::HBL_NORMAL));
 
 				copyIndexes(pSrc, p32Dest, srcIdxData->indexCount, indexOffset);
 				p32Dest += srcIdxData->indexCount;
@@ -1507,7 +1510,7 @@ namespace Ogre {
 				uint16* pSrc = static_cast<uint16*>(
 					srcIdxData->indexBuffer->lock(
 					srcIdxData->indexStart, srcIdxData->indexCount,
-					HardwareBuffer::HBL_READ_ONLY));
+					HardwareBuffer::HBL_NORMAL));
 
 				copyIndexes(pSrc, p16Dest, srcIdxData->indexCount, indexOffset);
 				p16Dest += srcIdxData->indexCount;
@@ -1524,7 +1527,7 @@ namespace Ogre {
 				HardwareVertexBufferSharedPtr srcBuf = 
 					srcBinds->getBuffer(b);
 				uchar* pSrcBase = static_cast<uchar*>(
-					srcBuf->lock(HardwareBuffer::HBL_READ_ONLY));
+					srcBuf->lock(HardwareBuffer::HBL_NORMAL));
 				// Get buffer lock pointer, we'll update this later
 				uchar* pDstBase = destBufferLocks[b];
 				size_t bufInc = srcBuf->getVertexSize();

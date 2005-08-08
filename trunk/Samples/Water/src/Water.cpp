@@ -528,7 +528,9 @@ public:
 class WaterApplication : public ExampleApplication
 {
 public:
-    WaterApplication() {
+    WaterApplication()
+        : waterMesh(0)
+    {
     
     }
 

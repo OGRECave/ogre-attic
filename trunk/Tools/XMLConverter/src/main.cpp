@@ -275,7 +275,8 @@ void meshToXML(XmlOptions opts)
 {
     std::ifstream ifs;
     ifs.open(opts.source.c_str(), std::ios_base::in | std::ios_base::binary);
-    DataStreamPtr stream(new FileStreamDataStream(opts.source, &ifs));
+    // pass false for freeOnClose to FileStreamDataStream since ifs is created on stack
+    DataStreamPtr stream(new FileStreamDataStream(opts.source, &ifs, false));
 
     MeshPtr mesh = MeshManager::getSingleton().create("conversion", 
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -601,7 +602,8 @@ void skeletonToXML(XmlOptions opts)
     SkeletonPtr skel = SkeletonManager::getSingleton().create("conversion", 
         ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
-    DataStreamPtr stream(new FileStreamDataStream(opts.source, &ifs));
+    // pass false for freeOnClose to FileStreamDataStream since ifs is created localy on stack
+    DataStreamPtr stream(new FileStreamDataStream(opts.source, &ifs, false));
     skeletonSerializer->importSkeleton(stream, skel.getPointer());
    
     xmlSkeletonSerializer->exportSkeleton(skel.getPointer(), opts.dest);

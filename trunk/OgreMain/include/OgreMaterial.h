@@ -98,11 +98,18 @@ namespace Ogre {
         typedef std::map<unsigned short, Technique*> BestTechniqueList;
         BestTechniqueList mBestTechniqueList;
 
-        /// Does this material require compilation?
-        bool mCompilationRequired;
         LodDistanceList mLodDistances;
         bool mReceiveShadows;
 		bool mTransparencyCastsShadows;
+        /// Does this material require compilation?
+        bool mCompilationRequired;
+
+        /** Fixup the best technique list guarantees no gaps inside.
+        @remarks
+            Iterate over the best technique list, looking for gaps and filling them in
+            guarantees we've got a sequential list with entries in all indexes
+        */
+        void fixupBestTechniqueList(void);
 
 		/** Overridden from Resource.
 		*/

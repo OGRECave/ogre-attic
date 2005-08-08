@@ -99,7 +99,7 @@ namespace Ogre {
 
         if (mCamera->getAutoAspectRatio()) 
         {
-            mCamera->setAspectRatio((Real) (mActWidth / mActHeight));
+            mCamera->setAspectRatio((Real) mActWidth / (Real) mActHeight);
         }
 
 		StringUtil::StrStreamType msg;
