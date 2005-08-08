@@ -294,8 +294,12 @@ namespace Ogre {
 			/** Provides a parametric animation value [0..1], only available
 				where the renderable specifically implements it.
 			*/
-			ACT_ANIMATION_PARAMETRIC
- 
+			ACT_ANIMATION_PARAMETRIC,
+
+			/// A light position in view space (index determined by setAutoConstant call)
+            ACT_LIGHT_POSITION_VIEW_SPACE,
+			/// A light direction in view space (index determined by setAutoConstant call)
+			ACT_LIGHT_DIRECTION_VIEW_SPACE 
         };
 
         /** Defines the type of the extra data item used by the auto constant.

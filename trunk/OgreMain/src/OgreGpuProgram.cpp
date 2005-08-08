@@ -65,7 +65,7 @@ namespace Ogre
         AutoConstantDefinition(ACT_LIGHT_DIRECTION,               "light_direction",              4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POSITION_OBJECT_SPACE,   "light_position_object_space",  4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_DIRECTION_OBJECT_SPACE,  "light_direction_object_space", 4, ET_REAL, ACDT_INT),
-        AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
@@ -116,7 +116,9 @@ namespace Ogre
         AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_PASS_ITERATION_NUMBER,              "pass_iteration_number",              1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
-		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               1, ET_REAL, ACDT_NONE)
+		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               1, ET_REAL, ACDT_NONE),
+		AutoConstantDefinition(ACT_LIGHT_POSITION_VIEW_SPACE,     "light_position_view_space",    4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE,    "light_direction_view_space",   4, ET_REAL, ACDT_INT)
     };
 
     
@@ -647,6 +649,17 @@ namespace Ogre
                 break;
             case ACT_LIGHT_DIRECTION_OBJECT_SPACE:
                 vec3 = source.getInverseWorldMatrix() * 
+                    source.getLight(i->data).getDerivedDirection();
+                vec3.normalise();
+                // Set as 4D vector for compatibility
+                setConstant(i->index, Vector4(vec3.x, vec3.y, vec3.z, 1.0f));
+                break;
+			case ACT_LIGHT_POSITION_VIEW_SPACE:
+                setConstant(i->index, 
+                    source.getWorldViewMatrix() * source.getLight(i->data).getAs4DVector());
+                break;
+            case ACT_LIGHT_DIRECTION_VIEW_SPACE:
+                vec3 = source.getWorldViewMatrix() * 
                     source.getLight(i->data).getDerivedDirection();
                 vec3.normalise();
                 // Set as 4D vector for compatibility
