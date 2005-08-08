@@ -40,7 +40,9 @@ namespace Ogre {
 	Material::Material(ResourceManager* creator, const String& name, ResourceHandle handle,
 		const String& group, bool isManual, ManualResourceLoader* loader)
 		:Resource(creator, name, handle, group, isManual, loader),
-		mCompilationRequired(true), mReceiveShadows(true), mTransparencyCastsShadows(false)
+         mReceiveShadows(true),
+         mTransparencyCastsShadows(false),
+         mCompilationRequired(true)
     {
 		mLodDistances.push_back(0.0f);
 
@@ -72,6 +74,7 @@ namespace Ogre {
 	    mHandle = rhs.mHandle;
         mSize = rhs.mSize;
         mReceiveShadows = rhs.mReceiveShadows;
+        mTransparencyCastsShadows = rhs.mTransparencyCastsShadows;
 
 
 
@@ -92,14 +95,12 @@ namespace Ogre {
             }
         }
 
+        // Fixup the best technique list guarantees no gaps inside
+        fixupBestTechniqueList();
+
 		// Also copy LOD information
-		mLodDistances.clear();
-		LodDistanceList::const_iterator lodi, lodiend;
-		lodiend = rhs.mLodDistances.end();
-		for (lodi = rhs.mLodDistances.begin(); lodi != lodiend; ++lodi)
-		{
-			mLodDistances.push_back(*lodi);
-		}
+		mLodDistances = rhs.mLodDistances;
+
         mCompilationRequired = rhs.mCompilationRequired; 
         mIsLoaded = rhs.mIsLoaded;
 
@@ -331,25 +332,10 @@ namespace Ogre {
 					BestTechniqueList::value_type((*i)->getLodIndex(), *i));
             }
         }
-		// Now iterate over the best technique list, looking for gaps and filling them in
-		// guarantees we've got a sequential list with entries in all indexes
-		BestTechniqueList::iterator bi, biend;
-		biend = mBestTechniqueList.end();
-		unsigned short lastIndex = 0;
-		Technique* lastTechnique = NULL;
-		for (bi = mBestTechniqueList.begin(); bi != biend; ++bi)
-		{
-			while (bi->first > lastIndex + 1)
-			{
-				if (!lastTechnique) // hmm, index 0 is missing, use the first one we have
-					lastTechnique = bi->second;
-				mBestTechniqueList[++lastIndex] = lastTechnique;
-			}
 
-			lastIndex = bi->first;
-			lastTechnique = bi->second;
+        // Fixup the best technique list guarantees no gaps inside
+        fixupBestTechniqueList();
 
-		}
         mCompilationRequired = false;
 
         // Did we find any?
@@ -359,6 +345,32 @@ namespace Ogre {
                 "Warning: material " + mName + " has no supportable Techniques on this "
                 "hardware, it will be rendered blank.");
         }
+    }
+    //-----------------------------------------------------------------------
+    void Material::fixupBestTechniqueList(void)
+    {
+		BestTechniqueList::iterator bi, biend;
+		biend = mBestTechniqueList.end();
+
+		unsigned short lastIndex = 0;
+		Technique* lastTechnique = 0;
+
+		for (bi = mBestTechniqueList.begin(); bi != biend; ++bi)
+		{
+			if (lastIndex < bi->first)
+			{
+				if (!lastTechnique) // hmm, index 0 is missing, use the first one we have
+					lastTechnique = bi->second;
+
+				do
+                {
+					mBestTechniqueList.insert(BestTechniqueList::value_type(lastIndex, lastTechnique));
+				} while (++lastIndex < bi->first);
+			}
+
+			++lastIndex;
+			lastTechnique = bi->second;
+		}
     }
     //-----------------------------------------------------------------------
     void Material::setAmbient(Real red, Real green, Real blue)
