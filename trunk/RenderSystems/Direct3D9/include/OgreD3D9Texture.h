@@ -111,7 +111,7 @@ namespace Ogre {
 		
 		/// internal method, create D3D9HardwarePixelBuffers for every face and
 		/// mipmap level. This method must be called after the D3D texture object was created
-		void _createSurfaceList(bool updateOldList=false);
+		void _createSurfaceList(void);
 
         /// overriden from Resource
         void loadImpl();
@@ -226,6 +226,14 @@ namespace Ogre {
 			mName = name;
 		}
         ~D3D9RenderTexture() {}
+
+        void rebind(D3D9HardwarePixelBuffer *buffer)
+        {
+            mBuffer = buffer;
+            mWidth = mBuffer->getWidth();
+            mHeight = mBuffer->getHeight();
+            mColourDepth = Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat());
+        }
 
 		virtual void getCustomAttribute( const String& name, void *pData )
         {

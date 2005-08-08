@@ -125,6 +125,9 @@ namespace Ogre {
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, texType, 
 			width, height, 0, internalFormat, TU_RENDERTARGET );
             
+        // Ensure texture loaded and internal resources created
+        mTexture->load();
+
         return mTexture->getBuffer()->getRenderTarget();
 	}
     //---------------------------------------------------------------------------------------------

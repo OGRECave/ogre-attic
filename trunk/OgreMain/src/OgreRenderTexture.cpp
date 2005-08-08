@@ -40,6 +40,7 @@ namespace Ogre
         mPriority = OGRE_REND_TO_TEX_RT_GROUP;
 		mWidth = mBuffer->getWidth();
 		mHeight = mBuffer->getHeight();
+        mColourDepth = Ogre::PixelUtil::getNumElemBits(mBuffer->getFormat());
     }
     RenderTexture::~RenderTexture()
     {

@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreImage.h"
 #include "OgreTexture.h"
 #include "OgreException.h"
+#include "OgreResourceManager.h"
 
 namespace Ogre {
 	//--------------------------------------------------------------------------
@@ -62,6 +63,27 @@ namespace Ogre {
         }
 
         
+    }
+    //--------------------------------------------------------------------------
+	void Texture::load(void)
+    {
+        {
+		    OGRE_LOCK_AUTO_MUTEX
+		    if (!mIsLoaded && mIsManual && !mLoader && (mUsage & TU_RENDERTARGET))
+            {
+                createInternalResources();
+			    // Calculate resource size
+			    mSize = calculateSize();
+			    // Now loaded
+			    mIsLoaded = true;
+			    // Notify manager
+			    if (mCreator)
+				    mCreator->_notifyResourceLoaded(this);
+                return;
+            }
+        }
+
+        Resource::load();
     }
     //--------------------------------------------------------------------------
 	void Texture::loadRawData( DataStreamPtr& stream, 
