@@ -118,7 +118,6 @@ namespace Ogre {
         ret->setFormat(format);
         ret->setUsage(usage);
         ret->enable32Bit(mIs32Bit);
-        ret->createInternalResources();
         return ret;
     }
     //-----------------------------------------------------------------------

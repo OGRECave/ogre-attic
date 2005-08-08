@@ -171,6 +171,13 @@ namespace Ogre
 	/****************************************************************************************/
 	void D3D9Texture::loadImpl()
 	{
+		if (mUsage & TU_RENDERTARGET)
+		{
+			createInternalResources();
+			mIsLoaded = true;
+			return;
+		}
+		
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -1242,24 +1249,11 @@ namespace Ogre
 			// 1. This is a render target
 			// 2. This is a dynamic texture, which probably won't have a loader,
 			//    but if it does, we'll call it
-			if ((mUsage & TU_RENDERTARGET) || !mLoader)
-			{
-				// render target, or dynamic texture with no loader
-				// just recreate underlying surfaces
-				createInternalResources();
-				// ensure freed at shutdown
-				mIsLoaded = true;
-			}
-			else
-			{
-				// Dynamic texture with a loader, call it
-                load();
-			}
+			// whether or no, the load() can do anything for me
+            load();
 			LogManager::getSingleton().logMessage(
 				"Recreated D3D9 default pool texture: " + mName);
 		}
-		// re-query the surface list anyway
-		_createSurfaceList(true);
 
 		return ret;
 
