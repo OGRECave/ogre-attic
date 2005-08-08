@@ -3577,6 +3577,9 @@ void SceneManager::createShadowTextures(unsigned short size,
                 ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
                 size, size, 0, mShadowTextureFormat, TU_RENDERTARGET);
                 
+            // Ensure texture loaded
+            shadowTex->load();
+
             shadowRTT = shadowTex->getBuffer()->getRenderTarget();
         }
 

@@ -171,6 +171,13 @@ namespace Ogre
 	/****************************************************************************************/
 	void D3D9Texture::loadImpl()
 	{
+		if (mUsage & TU_RENDERTARGET)
+		{
+			createInternalResources();
+			mIsLoaded = true;
+			return;
+		}
+
 		// load based on tex.type
 		switch (this->getTextureType())
 		{
@@ -896,7 +903,7 @@ namespace Ogre
 	// Macro to hide ugly cast
 	#define GETLEVEL(face,mip) \
 	 	static_cast<D3D9HardwarePixelBuffer*>(mSurfaceList[face*(mNumMipmaps+1)+mip].get())
-	void D3D9Texture::_createSurfaceList(bool updateOldList)
+	void D3D9Texture::_createSurfaceList(void)
 	{
 		IDirect3DSurface9 *surface;
 		IDirect3DVolume9 *volume;
@@ -919,6 +926,8 @@ namespace Ogre
 		{
 			bufusage |= TU_RENDERTARGET;
 		}
+		
+		bool updateOldList = mSurfaceList.size() == (getNumFaces() * (mNumMipmaps + 1));
 
 		if(!updateOldList)
 		{
@@ -950,7 +959,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				surface->Release();
 
-				GETLEVEL(0, mip)->bind(mpDev, surface);
+				GETLEVEL(0, mip)->bind(mpDev, surface, updateOldList);
 			}
 			break;
 		case TEX_TYPE_CUBE_MAP:
@@ -967,7 +976,7 @@ namespace Ogre
 					// this is safe because the texture keeps a reference as well
 					surface->Release();
 					
-					GETLEVEL(face, mip)->bind(mpDev, surface);
+					GETLEVEL(face, mip)->bind(mpDev, surface, updateOldList);
 				}
 			}
 			break;
@@ -983,7 +992,7 @@ namespace Ogre
 				// this is safe because the texture keeps a reference as well
 				volume->Release();
 						
-				GETLEVEL(0, mip)->bind(mpDev, volume);
+				GETLEVEL(0, mip)->bind(mpDev, volume, updateOldList);
 			}
 			break;
 		};
@@ -1040,24 +1049,11 @@ namespace Ogre
 			// 1. This is a render target
 			// 2. This is a dynamic texture, which probably won't have a loader,
 			//    but if it does, we'll call it
-			if ((mUsage & TU_RENDERTARGET) || !mLoader)
-			{
-				// render target, or dynamic texture with no loader
-				// just recreate underlying surfaces
-				createInternalResources();
-				// ensure freed at shutdown
-				mIsLoaded = true;
-			}
-			else
-			{
-				// Dynamic texture with a loader, call it
-                load();
-			}
+			// whether or no, the load() can do anything for me
+			load();
 			LogManager::getSingleton().logMessage(
 				"Recreated D3D9 default pool texture: " + mName);
 		}
-		// re-query the surface list anyway
-		_createSurfaceList(true);
 
 		return ret;
 

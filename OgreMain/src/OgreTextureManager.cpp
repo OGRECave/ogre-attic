@@ -118,7 +118,10 @@ namespace Ogre {
         ret->setFormat(format);
         ret->setUsage(usage);
         ret->enable32Bit(mIs32Bit);
-        ret->createInternalResources();
+
+		// Auto-load RTT
+		if (usage & TU_RENDERTARGET)
+			ret->load();
         return ret;
     }
     //-----------------------------------------------------------------------

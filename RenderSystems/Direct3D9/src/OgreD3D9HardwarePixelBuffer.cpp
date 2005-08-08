@@ -54,7 +54,7 @@ D3D9HardwarePixelBuffer::~D3D9HardwarePixelBuffer()
 	destroyRenderTextures();
 }
 //-----------------------------------------------------------------------------  
-void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *surface)
+void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *surface, bool update)
 {
 	mpDev = dev;
 	mSurface = surface;
@@ -73,10 +73,10 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *sur
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
 	if(mUsage & TU_RENDERTARGET)
-		createRenderTextures();
+		createRenderTextures(update);
 }
 //-----------------------------------------------------------------------------
-void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volume)
+void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volume, bool update)
 {
 	mpDev = dev;
 	mVolume = volume;
@@ -95,7 +95,7 @@ void D3D9HardwarePixelBuffer::bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *volu
 	mSizeInBytes = PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 
 	if(mUsage & TU_RENDERTARGET)
-		createRenderTextures();
+		createRenderTextures(update);
 }
 //-----------------------------------------------------------------------------  
 // Util functions to convert a D3D locked box to a pixel box
@@ -481,8 +481,19 @@ RenderTexture *D3D9HardwarePixelBuffer::getRenderTarget(size_t zoffset)
     return mSliceTRT[zoffset];
 }
 //-----------------------------------------------------------------------------    
-void D3D9HardwarePixelBuffer::createRenderTextures()
+void D3D9HardwarePixelBuffer::createRenderTextures(bool update)
 {
+    if (update)
+    {
+        assert(mSliceTRT.size() == mDepth);
+        for (SliceTRT::const_iterator it = mSliceTRT.begin(); it != mSliceTRT.end(); ++it)
+        {
+            D3D9RenderTexture *trt = static_cast<D3D9RenderTexture*>(*it);
+            trt->rebind(this);
+        }
+        return;
+    }
+
 	destroyRenderTextures();
 	if(!mSurface)
 	{

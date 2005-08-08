@@ -42,7 +42,7 @@ namespace Ogre {
 		void unlockImpl(void);
 
 		/// Create (or update) render textures for slices
-		void createRenderTextures();
+		void createRenderTextures(bool update);
 		/// Destroy render textures for slices
 		void destroyRenderTextures();
 		
@@ -70,8 +70,8 @@ namespace Ogre {
 		D3D9HardwarePixelBuffer(HardwareBuffer::Usage usage);
 		
 		/// Call this to associate a D3D surface or volume with this pixel buffer
-		void bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *mSurface);
-		void bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *mVolume);
+		void bind(IDirect3DDevice9 *dev, IDirect3DSurface9 *mSurface, bool update);
+		void bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *mVolume, bool update);
 		
 		/// @copydoc HardwarePixelBuffer::blit
 		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);

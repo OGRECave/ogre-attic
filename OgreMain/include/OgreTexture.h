@@ -227,6 +227,9 @@ namespace Ogre {
 		*/
 		virtual HardwarePixelBufferSharedPtr getBuffer(size_t face=0, size_t mipmap=0) = 0;
 
+		/// @copydoc Resource::load
+		void load(void);
+
     protected:
         unsigned long mHeight;
         unsigned long mWidth;
