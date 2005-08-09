@@ -159,6 +159,10 @@ namespace Ogre {
         bool mDisplaySkeleton;
         /// Flag indicating whether hardware skinning is supported by this entities materials
         bool mHardwareSkinning;
+        /// Counter indicating number of requests for software skinning.
+        int mSoftwareSkinningRequests;
+        /// Counter indicating number of requests for software skinned normals.
+        int mSoftwareSkinningNormalsRequests;
         /// Flag indicating whether we have a vertex program in use on any of our subentities
         bool mVertexProgramInUse;
 
@@ -492,6 +496,51 @@ namespace Ogre {
             vertex programs must support 'include_skeletal_animation true'.
         */
         bool isHardwareSkinningEnabled(void) const { return mHardwareSkinning; }
+        /** Returns the number of requests that have been made for software skinning
+        @remarks
+            If non-zero then software skinning will be performed in updateAnimation
+            regardless of the current setting of isHardwareSkinningEnabled.
+            Requests for software skinning are made by calling the 
+            addSoftwareSkinningRequest() method.
+        */
+        int getSoftwareSkinningRequests(void) const { return mSoftwareSkinningRequests; }
+        /** Returns the number of requests that have been made for software skinning of normals
+        @remarks
+            If non-zero, and getSoftwareSkinningRequests() also returns non-zero,
+            then software skinning of normals will be performed in updateAnimation
+            regardless of the current setting of isHardwareSkinningEnabled.
+            Currently it is not possible to force software skinning of only normals.
+            Consequently this value is always less than or equal to that returned
+            by getSoftwareSkinningRequests().
+            Requests for software skinning of normals are made by calling the 
+            addSoftwareSkinningRequest() method with 'true' as the parameter.
+        */
+        int getSoftwareSkinningNormalsRequests(void) const { return mSoftwareSkinningNormalsRequests; }
+        /** Add a request for software skinning
+        @remarks
+            Tells the entity to perform skinning calculations for skeletal
+            animations in software, regardless of the current setting of 
+            isHardwareSkinningEnabled().  Software skinning will be performed
+            any time one or more requests have been made.  If 'normalsAlso' is
+            'true', then the entity will also do software blending on normal
+            vectors, in addition to positions. This advanced method useful for 
+            situations in which access to actual mesh vertices is required,
+            such as accurate collision detection or certain advanced shading 
+            techniques.  When software skinning is no longer needed, 
+            the caller of this method should always remove the request by calling
+            removeSoftwareSkinningRequest(), passing the same value for 
+            'normalsAlso'.
+        */
+        void addSoftwareSkinningRequest(bool normalsAlso);
+        /** Removes a request for software skinning
+        @remarks
+            Calling this decrements the entity's internal counter of the number
+            of requests for software skinning.  If the counter is already zero
+            then calling this method throws an exception.  The 'normalsAlso' 
+            flag if set to 'true' will also decrement the internal counter of
+            number of requests for software skinning of normals.
+        */
+        void removeSoftwareSkinningRequest(bool normalsAlso);
 
         /** Overridden from MovableObject */
         void _notifyAttached(Node* parent, bool isTagPoint = false);

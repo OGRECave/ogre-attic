@@ -52,9 +52,11 @@ namespace Ogre {
         mFullBoundingBox = new AxisAlignedBox;
         mNormaliseNormals = false;
         mFrameBonesLastUpdated = new unsigned long;
-        *mFrameBonesLastUpdated = 0;
-        mFrameAnimationLastUpdated = 0;
+		*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
+        mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
         mHardwareSkinning = false;
+        mSoftwareSkinningRequests = 0;
+        mSoftwareSkinningNormalsRequests = 0;
         mSkeletonInstance = 0;
     }
     //-----------------------------------------------------------------------
@@ -66,6 +68,8 @@ namespace Ogre {
     {
         mFullBoundingBox = new AxisAlignedBox;
         mHardwareSkinning = false;
+        mSoftwareSkinningRequests = 0;
+        mSoftwareSkinningNormalsRequests = 0;
         mSharedBlendedVertexData = NULL;
 
         // Is mesh skeletally animated?
@@ -105,7 +109,7 @@ namespace Ogre {
         {
             mAnimationState = new AnimationStateSet();
             mFrameBonesLastUpdated = new unsigned long;
-            *mFrameBonesLastUpdated = 0;
+            *mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
             mesh->_initAnimationState(mAnimationState);
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
             mBoneMatrices = new Matrix4[mNumBoneMatrices];
@@ -134,7 +138,7 @@ namespace Ogre {
         mMinMaterialLodIndex = 99;
 
 
-        mFrameAnimationLastUpdated = 0;
+        mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
 
         // Do we have a mesh where edge lists are not going to be available?
         if (!mesh->isEdgeListBuilt() && !mesh->getAutoBuildEdgeLists())
@@ -482,14 +486,17 @@ namespace Ogre {
 
             // Software blend?
             bool hwSkinning = isHardwareSkinningEnabled();
-            if (!hwSkinning ||
+            bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
+            bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
+            if (!hwSkinning || forcedSwSkinning ||
                 root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
                 root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE)
             {
+                bool blendNormals = !hwSkinning || forcedNormals;
+
                 // Ok, we need to do a software blend
                 // Blend normals in s/w only if we're not using h/w skinning,
                 // since shadows only require positions
-                bool blendNormals = !hwSkinning;
                 // Firstly, check out working vertex buffers
                 if (mSharedBlendedVertexData)
                 {
@@ -519,9 +526,7 @@ namespace Ogre {
                     }
 
                 }
-
             }
-
             // Trigger update of bounding box if necessary
             if (!mChildObjectList.empty())
                 mParentNode->needUpdate();
@@ -604,6 +609,7 @@ namespace Ogre {
             // replacement world matrices
             unsigned short i;
             Matrix4 worldXform = _getParentNodeFullTransform();
+            assert (mNumBoneMatrices==mSkeletonInstance->getNumBones());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
 
             for (i = 0; i < mNumBoneMatrices; ++i)
@@ -1010,7 +1016,7 @@ namespace Ogre {
         {
             mMesh->prepareForShadowVolume();
             // reset frame last updated to force update of buffers
-            mFrameAnimationLastUpdated = 0;
+            mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
             // re-prepare buffers
             prepareTempBlendBuffers();
         }
@@ -1184,6 +1190,36 @@ namespace Ogre {
 
         // None found
         return 0;
+    }
+    //-----------------------------------------------------------------------
+    void Entity::addSoftwareSkinningRequest(bool normalsAlso) 
+    {
+        mSoftwareSkinningRequests++;
+        if (normalsAlso) {
+            mSoftwareSkinningNormalsRequests++;
+        }
+        if(!mMesh->isPreparedForShadowVolumes())
+        {
+            mMesh->prepareForShadowVolume();
+            // re-prepare buffers
+            prepareTempBlendBuffers();
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Entity::removeSoftwareSkinningRequest(bool normalsAlso)
+    {
+        if (mSoftwareSkinningRequests == 0 ||
+            (normalsAlso && mSoftwareSkinningNormalsRequests == 0)) 
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                        "Attempt to remove nonexistant request.",
+                        "Entity::removeSoftwareSkinningRequest");
+        }
+        mSoftwareSkinningRequests--;
+        if (normalsAlso) {
+            mSoftwareSkinningNormalsRequests--;
+        }
+        // TODO: possibly undo "shadow volume" prep if no longer needed
     }
     //-----------------------------------------------------------------------
     void Entity::_notifyAttached(Node* parent, bool isTagPoint)
