@@ -76,8 +76,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Node::~Node()
     {
-    }    
-
+		removeAllChildren();
+		if(mParent)
+			mParent->removeChild(this); 
+	}    
     //-----------------------------------------------------------------------
     Node* Node::getParent(void) const
     {
