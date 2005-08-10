@@ -212,6 +212,14 @@ namespace Ogre {
             return *this;
         }
 
+		/** Set a colour value from Hue, Saturation and Brightness.
+		@param hue Hue value, scaled to the [0,1] range as opposed to the 0-360
+		@param saturation Saturation level, [0,1]
+		@param brightness Brightness level, [0,1]
+		*/
+		void setHSB(Real hue, Real saturation, Real brightness);
+
+
 		/** Function for writing to a stream.
 		*/
 		inline _OgreExport friend std::ostream& operator <<
