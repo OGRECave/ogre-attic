@@ -46,32 +46,55 @@ namespace Ogre
 
     GpuProgramParameters::AutoConstantDefinition GpuProgramParameters::AutoConstantDictionary[] = {
         AutoConstantDefinition(ACT_WORLD_MATRIX,                  "world_matrix",                16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_WORLD_MATRIX,          "inverse_world_matrix",        16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TRANSPOSE_WORLD_MATRIX,             "transpose_world_matrix",            16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLD_MATRIX, "inverse_transpose_world_matrix", 16, ET_REAL, ACDT_NONE),
+
         AutoConstantDefinition(ACT_WORLD_MATRIX_ARRAY_3x4,        "world_matrix_array_3x4",      12, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_WORLD_MATRIX_ARRAY,            "world_matrix_array",          16, ET_REAL, ACDT_NONE),
+
         AutoConstantDefinition(ACT_VIEW_MATRIX,                   "view_matrix",                 16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_PROJECTION_MATRIX,             "projection_matrix",           16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_VIEWPROJ_MATRIX,               "viewproj_matrix",             16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_WORLDVIEW_MATRIX,              "worldview_matrix",            16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_WORLDVIEWPROJ_MATRIX,          "worldviewproj_matrix",        16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSE_WORLD_MATRIX,          "inverse_world_matrix",        16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_VIEW_MATRIX,           "inverse_view_matrix",         16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TRANSPOSE_VIEW_MATRIX,              "transpose_view_matrix",             16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_VIEW_MATRIX,       "inverse_transpose_view_matrix",     16, ET_REAL, ACDT_NONE),
+
+        AutoConstantDefinition(ACT_PROJECTION_MATRIX,             "projection_matrix",           16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_PROJECTION_MATRIX,          "inverse_projection_matrix",         16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TRANSPOSE_PROJECTION_MATRIX,        "transpose_projection_matrix",       16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_PROJECTION_MATRIX, "inverse_transpose_projection_matrix", 16, ET_REAL, ACDT_NONE),
+
+        AutoConstantDefinition(ACT_VIEWPROJ_MATRIX,               "viewproj_matrix",             16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_VIEWPROJ_MATRIX,       "inverse_viewproj_matrix",     16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TRANSPOSE_VIEWPROJ_MATRIX,          "transpose_viewproj_matrix",         16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_VIEWPROJ_MATRIX,   "inverse_transpose_viewproj_matrix", 16, ET_REAL, ACDT_NONE),
+
+        AutoConstantDefinition(ACT_WORLDVIEW_MATRIX,              "worldview_matrix",            16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_INVERSE_WORLDVIEW_MATRIX,      "inverse_worldview_matrix",    16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSETRANSPOSE_WORLD_MATRIX, "inverse_transpose_world_matrix", 16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEW_MATRIX,         "transpose_worldview_matrix",        16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, ET_REAL, ACDT_NONE),
+
+        AutoConstantDefinition(ACT_WORLDVIEWPROJ_MATRIX,          "worldviewproj_matrix",        16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_WORLDVIEWPROJ_MATRIX,       "inverse_worldviewproj_matrix",      16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,     "transpose_worldviewproj_matrix",    16, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX, "inverse_transpose_worldviewproj_matrix", 16, ET_REAL, ACDT_NONE),
+
+        AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_LIGHT_DIFFUSE_COLOUR,          "light_diffuse_colour",         4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_SPECULAR_COLOUR,         "light_specular_colour",        4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_ATTENUATION,             "light_attenuation",            4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POSITION,                "light_position",               4, ET_REAL, ACDT_INT),
-        AutoConstantDefinition(ACT_LIGHT_DIRECTION,               "light_direction",              4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_POSITION_OBJECT_SPACE,   "light_position_object_space",  4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_POSITION_VIEW_SPACE,          "light_position_view_space",    4, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_LIGHT_DIRECTION,               "light_direction",              4, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_LIGHT_DIRECTION_OBJECT_SPACE,  "light_direction_object_space", 4, ET_REAL, ACDT_INT),
+		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE,         "light_direction_view_space",   4, ET_REAL, ACDT_INT),
 		AutoConstantDefinition(ACT_LIGHT_DISTANCE_OBJECT_SPACE,   "light_distance_object_space",  1, ET_REAL, ACDT_INT),
         AutoConstantDefinition(ACT_SHADOW_EXTRUSION_DISTANCE,     "shadow_extrusion_distance",    1, ET_REAL, ACDT_INT),
+        AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CAMERA_POSITION_OBJECT_SPACE,  "camera_position_object_space", 3, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_AMBIENT_LIGHT_COLOUR,          "ambient_light_colour",         4, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_TEXTURE_VIEWPROJ_MATRIX,       "texture_viewproj_matrix",     16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_CUSTOM,                        "custom",                       4, ET_REAL, ACDT_INT),  // *** needs to be tested
-        AutoConstantDefinition(ACT_CAMERA_POSITION,               "camera_position",              3, ET_REAL, ACDT_NONE),
+        AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_TIME_0_X,                      "time_0_x",                     4, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_COSTIME_0_X,                   "costime_0_x",                  4, ET_REAL, ACDT_REAL),
         AutoConstantDefinition(ACT_SINTIME_0_X,                   "sintime_0_x",                  4, ET_REAL, ACDT_REAL),
@@ -98,27 +121,9 @@ namespace Ogre
         AutoConstantDefinition(ACT_FOV,                           "fov",                          1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_NEAR_CLIP_DISTANCE,            "near_clip_distance",           1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_FAR_CLIP_DISTANCE,             "far_clip_distance",            1, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSE_VIEWPROJ_MATRIX,       "inverse_viewproj_matrix",     16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSETRANSPOSE_VIEWPROJ_MATRIX,   "inverse_transpose_viewproj_matrix", 16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TRANSPOSE_VIEWPROJ_MATRIX,          "transpose_viewproj_matrix",         16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TRANSPOSE_VIEW_MATRIX,              "transpose_view_matrix",             16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSETRANSPOSE_VIEW_MATRIX,       "inverse_transpose_view_matrix",     16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TRANSPOSE_PROJECTION_MATRIX,        "transpose_projection_matrix",       16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSE_PROJECTION_MATRIX,          "inverse_projection_matrix",         16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSETRANSPOSE_PROJECTION_MATRIX, "inverse_transpose_projection_matrix", 16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,     "transpose_worldviewproj_matrix",    16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSE_WORLDVIEWPROJ_MATRIX,       "inverse_worldviewproj_matrix",      16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSETRANSPOSE_WORLDVIEWPROJ_MATRIX, "inverse_transpose_worldviewproj_matrix", 16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TRANSPOSE_WORLDVIEW_MATRIX,         "transpose_worldview_matrix",        16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX, "inverse_transpose_worldview_matrix", 16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TRANSPOSE_WORLD_MATRIX,             "transpose_world_matrix",            16, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,     "inverse_transpose_world_matrix",    16, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_PASS_NUMBER,                        "pass_number",                        1, ET_REAL, ACDT_NONE),
         AutoConstantDefinition(ACT_PASS_ITERATION_NUMBER,              "pass_iteration_number",              1, ET_REAL, ACDT_NONE),
-        AutoConstantDefinition(ACT_TIME,                               "time",                               1, ET_REAL, ACDT_REAL),
 		AutoConstantDefinition(ACT_ANIMATION_PARAMETRIC,               "animation_parametric",               1, ET_REAL, ACDT_NONE),
-		AutoConstantDefinition(ACT_LIGHT_POSITION_VIEW_SPACE,     "light_position_view_space",    4, ET_REAL, ACDT_INT),
-		AutoConstantDefinition(ACT_LIGHT_DIRECTION_VIEW_SPACE,    "light_direction_view_space",   4, ET_REAL, ACDT_INT)
     };
 
     
@@ -419,136 +424,16 @@ namespace Ogre
             case ACT_WORLD_MATRIX:
                 setConstant(i->index, source.getWorldMatrix());
                 break;
-           case ACT_TIME_0_X:
-               setConstant(i->index, Vector4(source.getTime_0_X(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_COSTIME_0_X:
-               setConstant(i->index, Vector4(source.getCosTime_0_X(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_SINTIME_0_X:
-               setConstant(i->index, Vector4(source.getSinTime_0_X(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_TANTIME_0_X:
-               setConstant(i->index, Vector4(source.getTanTime_0_X(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_TIME_0_X_PACKED:
-               setConstant(i->index, source.getTime_0_X_packed(i->fData));
-               break;
-           case ACT_TIME_0_1:
-               setConstant(i->index, Vector4(source.getTime_0_1(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_COSTIME_0_1:
-               setConstant(i->index, Vector4(source.getCosTime_0_1(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_SINTIME_0_1:
-               setConstant(i->index, Vector4(source.getSinTime_0_1(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_TANTIME_0_1:
-               setConstant(i->index, Vector4(source.getTanTime_0_1(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_TIME_0_1_PACKED:
-               setConstant(i->index, source.getTime_0_1_packed(i->fData));
-               break;
-           case ACT_TIME_0_2PI:
-               setConstant(i->index, Vector4(source.getTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_COSTIME_0_2PI:
-               setConstant(i->index, Vector4(source.getCosTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_SINTIME_0_2PI:
-               setConstant(i->index, Vector4(source.getSinTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_TANTIME_0_2PI:
-               setConstant(i->index, Vector4(source.getTanTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
-               break;
-           case ACT_TIME_0_2PI_PACKED:
-               setConstant(i->index, source.getTime_0_2Pi_packed(i->fData));
-               break;
-           case ACT_FPS:
-               setConstant(i->index, source.getFPS());
-               break;
-           case ACT_VIEWPORT_WIDTH:
-               setConstant(i->index, source.getViewportWidth());
-               break;
-           case ACT_VIEWPORT_HEIGHT:
-               setConstant(i->index, source.getViewportHeight());
-               break;
-           case ACT_INVERSE_VIEWPORT_WIDTH:
-               setConstant(i->index, source.getInverseViewportWidth());
-               break;
-           case ACT_INVERSE_VIEWPORT_HEIGHT:
-               setConstant(i->index, source.getInverseViewportHeight());
-               break;
-           case ACT_VIEW_DIRECTION:
-               setConstant(i->index, source.getViewDirection());
-               break;
-           case ACT_VIEW_SIDE_VECTOR:
-               setConstant(i->index, source.getViewSideVector());
-               break;
-           case ACT_VIEW_UP_VECTOR:
-               setConstant(i->index, source.getViewUpVector());
-               break;
-           case ACT_FOV:
-               setConstant(i->index, source.getFOV());
-               break;
-           case ACT_NEAR_CLIP_DISTANCE:
-               setConstant(i->index, source.getNearClipDistance());
-               break;
-           case ACT_FAR_CLIP_DISTANCE:
-               setConstant(i->index, source.getFarClipDistance());
-               break;
-           case ACT_INVERSE_VIEWPROJ_MATRIX:
-               setConstant(i->index, source.getInverseViewProjMatrix());
-               break;
-           case ACT_INVERSETRANSPOSE_VIEWPROJ_MATRIX:
-               setConstant(i->index, source.getInverseTransposeViewProjMatrix());
-               break;
-           case ACT_TRANSPOSE_VIEWPROJ_MATRIX:
-               setConstant(i->index, source.getTransposeViewProjMatrix());
-               break;
-           case ACT_TRANSPOSE_VIEW_MATRIX:
-               setConstant(i->index, source.getTransposeViewMatrix());
-               break;
-           case ACT_INVERSE_VIEW_MATRIX:
-               setConstant(i->index, source.getInverseViewMatrix());
-               break;
-           case ACT_INVERSETRANSPOSE_VIEW_MATRIX:
-               setConstant(i->index, source.getTransposeViewMatrix());
-               break;
-           case ACT_TRANSPOSE_PROJECTION_MATRIX:
-               setConstant(i->index, source.getTransposeProjectionMatrix());
-               break;
-           case ACT_INVERSE_PROJECTION_MATRIX:
-               setConstant(i->index, source.getInverseProjectionMatrix());
-               break;
-           case ACT_INVERSETRANSPOSE_PROJECTION_MATRIX:
-               setConstant(i->index, source.getInverseTransposeProjectionMatrix());
-               break;
-           case ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX:
-               setConstant(i->index, source.getTransposeWorldViewProjMatrix());
-               break;
-           case ACT_INVERSE_WORLDVIEWPROJ_MATRIX:
-               setConstant(i->index, source.getInverseWorldViewProjMatrix());
-               break;
-           case ACT_INVERSETRANSPOSE_WORLDVIEWPROJ_MATRIX:
-               setConstant(i->index, source.getInverseTransposeWorldViewProjMatrix());
-               break;
-           case ACT_TRANSPOSE_WORLDVIEW_MATRIX:
-               setConstant(i->index, source.getTransposeWorldViewMatrix());
-               break;
-           case ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX:
-               setConstant(i->index, source.getInverseTransposeWorldViewMatrix());
-               break;
-           case ACT_TRANSPOSE_WORLD_MATRIX:
+            case ACT_INVERSE_WORLD_MATRIX:
+                setConstant(i->index, source.getInverseWorldMatrix());
+                break;
+            case ACT_TRANSPOSE_WORLD_MATRIX:
                setConstant(i->index, source.getTransposeWorldMatrix());
                break;
-           case ACT_INVERSETRANSPOSE_WORLD_MATRIX:
+            case ACT_INVERSE_TRANSPOSE_WORLD_MATRIX:
                setConstant(i->index, source.getInverseTransposeWorldMatrix());
                break;
-            case ACT_WORLD_MATRIX_ARRAY:
-                setConstant(i->index, source.getWorldMatrixArray(), 
-                    source.getWorldMatrixCount());
-                break;
+
             case ACT_WORLD_MATRIX_ARRAY_3x4:
                 // Loop over matrices
                 pMatrix = source.getWorldMatrixArray();
@@ -563,37 +448,165 @@ namespace Ogre
                 }
                 
                 break;
+            case ACT_WORLD_MATRIX_ARRAY:
+                setConstant(i->index, source.getWorldMatrixArray(), 
+                    source.getWorldMatrixCount());
+                break;
             case ACT_VIEW_MATRIX:
                 setConstant(i->index, source.getViewMatrix());
                 break;
+            case ACT_INVERSE_VIEW_MATRIX:
+               setConstant(i->index, source.getInverseViewMatrix());
+               break;
+            case ACT_TRANSPOSE_VIEW_MATRIX:
+               setConstant(i->index, source.getTransposeViewMatrix());
+               break;
+            case ACT_INVERSE_TRANSPOSE_VIEW_MATRIX:
+               setConstant(i->index, source.getTransposeViewMatrix());
+               break;
+
             case ACT_PROJECTION_MATRIX:
                 setConstant(i->index, source.getProjectionMatrix());
                 break;
-            case ACT_WORLDVIEW_MATRIX:
-                setConstant(i->index, source.getWorldViewMatrix());
-                break;
+            case ACT_INVERSE_PROJECTION_MATRIX:
+               setConstant(i->index, source.getInverseProjectionMatrix());
+               break;
+            case ACT_TRANSPOSE_PROJECTION_MATRIX:
+               setConstant(i->index, source.getTransposeProjectionMatrix());
+               break;
+            case ACT_INVERSE_TRANSPOSE_PROJECTION_MATRIX:
+               setConstant(i->index, source.getInverseTransposeProjectionMatrix());
+               break;
+
             case ACT_VIEWPROJ_MATRIX:
                 setConstant(i->index, source.getViewProjectionMatrix());
                 break;
-            case ACT_WORLDVIEWPROJ_MATRIX:
-                setConstant(i->index, source.getWorldViewProjMatrix());
-                break;
-            case ACT_INVERSE_WORLD_MATRIX:
-                setConstant(i->index, source.getInverseWorldMatrix());
+            case ACT_INVERSE_VIEWPROJ_MATRIX:
+               setConstant(i->index, source.getInverseViewProjMatrix());
+               break;
+            case ACT_TRANSPOSE_VIEWPROJ_MATRIX:
+               setConstant(i->index, source.getTransposeViewProjMatrix());
+               break;
+            case ACT_INVERSE_TRANSPOSE_VIEWPROJ_MATRIX:
+               setConstant(i->index, source.getInverseTransposeViewProjMatrix());
+               break;
+
+            case ACT_WORLDVIEW_MATRIX:
+                setConstant(i->index, source.getWorldViewMatrix());
                 break;
             case ACT_INVERSE_WORLDVIEW_MATRIX:
                 setConstant(i->index, source.getInverseWorldViewMatrix());
                 break;
+            case ACT_TRANSPOSE_WORLDVIEW_MATRIX:
+               setConstant(i->index, source.getTransposeWorldViewMatrix());
+               break;
+            case ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX:
+               setConstant(i->index, source.getInverseTransposeWorldViewMatrix());
+               break;
+
+            case ACT_WORLDVIEWPROJ_MATRIX:
+                setConstant(i->index, source.getWorldViewProjMatrix());
+                break;
+            case ACT_INVERSE_WORLDVIEWPROJ_MATRIX:
+               setConstant(i->index, source.getInverseWorldViewProjMatrix());
+               break;
+            case ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX:
+               setConstant(i->index, source.getTransposeWorldViewProjMatrix());
+               break;
+            case ACT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX:
+               setConstant(i->index, source.getInverseTransposeWorldViewProjMatrix());
+               break;
+
+            // NB ambient light still here because it's not related to a specific light
+            case ACT_AMBIENT_LIGHT_COLOUR: 
+                setConstant(i->index, source.getAmbientLightColour());
+                break;
+
             case ACT_CAMERA_POSITION:
                 setConstant(i->index, source.getCameraPosition());
                 break;
             case ACT_CAMERA_POSITION_OBJECT_SPACE:
                 setConstant(i->index, source.getCameraPositionObjectSpace());
                 break;
-            // NB ambient light still here because it's not related to a specific light
-            case ACT_AMBIENT_LIGHT_COLOUR: 
-                setConstant(i->index, source.getAmbientLightColour());
-                break;
+
+            case ACT_TIME_0_X:
+               setConstant(i->index, Vector4(source.getTime_0_X(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_COSTIME_0_X:
+               setConstant(i->index, Vector4(source.getCosTime_0_X(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_SINTIME_0_X:
+               setConstant(i->index, Vector4(source.getSinTime_0_X(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_TANTIME_0_X:
+               setConstant(i->index, Vector4(source.getTanTime_0_X(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_TIME_0_X_PACKED:
+               setConstant(i->index, source.getTime_0_X_packed(i->fData));
+               break;
+            case ACT_TIME_0_1:
+               setConstant(i->index, Vector4(source.getTime_0_1(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_COSTIME_0_1:
+               setConstant(i->index, Vector4(source.getCosTime_0_1(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_SINTIME_0_1:
+               setConstant(i->index, Vector4(source.getSinTime_0_1(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_TANTIME_0_1:
+               setConstant(i->index, Vector4(source.getTanTime_0_1(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_TIME_0_1_PACKED:
+               setConstant(i->index, source.getTime_0_1_packed(i->fData));
+               break;
+            case ACT_TIME_0_2PI:
+               setConstant(i->index, Vector4(source.getTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_COSTIME_0_2PI:
+               setConstant(i->index, Vector4(source.getCosTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_SINTIME_0_2PI:
+               setConstant(i->index, Vector4(source.getSinTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_TANTIME_0_2PI:
+               setConstant(i->index, Vector4(source.getTanTime_0_2Pi(i->fData), 0.f, 0.f, 0.f));
+               break;
+            case ACT_TIME_0_2PI_PACKED:
+               setConstant(i->index, source.getTime_0_2Pi_packed(i->fData));
+               break;
+            case ACT_FPS:
+               setConstant(i->index, source.getFPS());
+               break;
+            case ACT_VIEWPORT_WIDTH:
+               setConstant(i->index, source.getViewportWidth());
+               break;
+            case ACT_VIEWPORT_HEIGHT:
+               setConstant(i->index, source.getViewportHeight());
+               break;
+            case ACT_INVERSE_VIEWPORT_WIDTH:
+               setConstant(i->index, source.getInverseViewportWidth());
+               break;
+            case ACT_INVERSE_VIEWPORT_HEIGHT:
+               setConstant(i->index, source.getInverseViewportHeight());
+               break;
+            case ACT_VIEW_DIRECTION:
+               setConstant(i->index, source.getViewDirection());
+               break;
+            case ACT_VIEW_SIDE_VECTOR:
+               setConstant(i->index, source.getViewSideVector());
+               break;
+            case ACT_VIEW_UP_VECTOR:
+               setConstant(i->index, source.getViewUpVector());
+               break;
+            case ACT_FOV:
+               setConstant(i->index, source.getFOV());
+               break;
+            case ACT_NEAR_CLIP_DISTANCE:
+               setConstant(i->index, source.getNearClipDistance());
+               break;
+            case ACT_FAR_CLIP_DISTANCE:
+               setConstant(i->index, source.getFarClipDistance());
+               break;
             case ACT_TEXTURE_VIEWPROJ_MATRIX:
                 setConstant(i->index, source.getTextureViewProjMatrix());
                 break;

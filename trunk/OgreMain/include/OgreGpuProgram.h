@@ -62,30 +62,100 @@ namespace Ogre {
         {
             /// The current world matrix
             ACT_WORLD_MATRIX,
+            /// The current world matrix, inverted
+            ACT_INVERSE_WORLD_MATRIX,
+ 			/** Provides transpose of world matrix.
+ 			Equivalent to RenderMonkey's "WorldTranspose".
+ 			*/
+ 			ACT_TRANSPOSE_WORLD_MATRIX,
+            /// The current world matrix, inverted & transposed
+            ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,
+
+
             /// The current array of world matrices, as a 3x4 matrix, used for blending
             ACT_WORLD_MATRIX_ARRAY_3x4,
             /// The current array of world matrices, used for blending
             ACT_WORLD_MATRIX_ARRAY,
+
+
             /// The current view matrix
             ACT_VIEW_MATRIX,
-            /// The current projection matrix
-            ACT_PROJECTION_MATRIX,
-            /// The current view & projection matrices concatenated
-            ACT_VIEWPROJ_MATRIX,
-            /// The current world & view matrices concatenated
-            ACT_WORLDVIEW_MATRIX,
-            /// The current world, view & projection matrices concatenated
-            ACT_WORLDVIEWPROJ_MATRIX,
-            /// The current world matrix, inverted
-            ACT_INVERSE_WORLD_MATRIX,
 			/// The current view matrix, inverted
 			ACT_INVERSE_VIEW_MATRIX,
+			/** Provides transpose of view matrix.
+			Equivalent to RenderMonkey's "ViewTranspose".
+			*/
+			ACT_TRANSPOSE_VIEW_MATRIX,
+			/** Provides inverse transpose of view matrix.
+			Equivalent to RenderMonkey's "ViewInverseTranspose".
+			*/
+			ACT_INVERSE_TRANSPOSE_VIEW_MATRIX,
+
+
+            /// The current projection matrix
+            ACT_PROJECTION_MATRIX,
+			/** Provides inverse of projection matrix.
+			Equivalent to RenderMonkey's "ProjectionInverse".
+			*/
+			ACT_INVERSE_PROJECTION_MATRIX,
+			/** Provides transpose of projection matrix.
+			Equivalent to RenderMonkey's "ProjectionTranspose".
+			*/
+			ACT_TRANSPOSE_PROJECTION_MATRIX,
+			/** Provides inverse transpose of projection matrix.
+			Equivalent to RenderMonkey's "ProjectionInverseTranspose".
+			*/
+			ACT_INVERSE_TRANSPOSE_PROJECTION_MATRIX,
+
+
+            /// The current view & projection matrices concatenated
+            ACT_VIEWPROJ_MATRIX,
+			/** Provides inverse of concatenated view and projection matrices.
+			Equivalent to RenderMonkey's "ViewProjectionInverse".
+			*/
+			ACT_INVERSE_VIEWPROJ_MATRIX,
+			/** Provides transpose of concatenated view and projection matrices.
+			Equivalent to RenderMonkey's "ViewProjectionTranspose".
+			*/
+			ACT_TRANSPOSE_VIEWPROJ_MATRIX,
+			/** Provides inverse transpose of concatenated view and projection matrices.
+			Equivalent to RenderMonkey's "ViewProjectionInverseTranspose".
+			*/
+			ACT_INVERSE_TRANSPOSE_VIEWPROJ_MATRIX,
+
+
+            /// The current world & view matrices concatenated
+            ACT_WORLDVIEW_MATRIX,
             /// The current world & view matrices concatenated, then inverted
             ACT_INVERSE_WORLDVIEW_MATRIX,
-            /// The current world matrix, inverted & transposed
-            ACT_INVERSETRANSPOSE_WORLD_MATRIX,
+ 			/** Provides transpose of concatenated world and view matrices.
+ 				Equivalent to RenderMonkey's "WorldViewTranspose".
+ 			*/
+ 			ACT_TRANSPOSE_WORLDVIEW_MATRIX,
             /// The current world & view matrices concatenated, then inverted & tranposed
-            ACT_INVERSETRANSPOSE_WORLDVIEW_MATRIX,
+            ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX,
+			/// view matrices.
+
+
+            /// The current world, view & projection matrices concatenated
+            ACT_WORLDVIEWPROJ_MATRIX,
+			/** Provides inverse of concatenated world, view and projection matrices.
+			Equivalent to RenderMonkey's "WorldViewProjectionInverse".
+			*/
+			ACT_INVERSE_WORLDVIEWPROJ_MATRIX,
+			/** Provides transpose of concatenated world, view and projection matrices.
+			Equivalent to RenderMonkey's "WorldViewProjectionTranspose".
+			*/
+			ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,
+			/** Provides inverse transpose of concatenated world, view and projection
+			matrices. Equivalent to RenderMonkey's "WorldViewProjectionInverseTranspose".
+ 			*/
+			ACT_INVERSE_TRANSPOSE_WORLDVIEWPROJ_MATRIX,
+
+
+			/// The ambient light colour set in the scene
+			ACT_AMBIENT_LIGHT_COLOUR, 
+
             /// Light diffuse colour (index determined by setAutoConstant call)
             ACT_LIGHT_DIFFUSE_COLOUR,
             /// Light diffuse colour (index determined by setAutoConstant call)
@@ -94,12 +164,16 @@ namespace Ogre {
             ACT_LIGHT_ATTENUATION,
             /// A light position in world space (index determined by setAutoConstant call)
             ACT_LIGHT_POSITION,
-            /// A light direction in world space (index determined by setAutoConstant call)
-            ACT_LIGHT_DIRECTION,
             /// A light position in object space (index determined by setAutoConstant call)
             ACT_LIGHT_POSITION_OBJECT_SPACE,
+			/// A light position in view space (index determined by setAutoConstant call)
+            ACT_LIGHT_POSITION_VIEW_SPACE,
+            /// A light direction in world space (index determined by setAutoConstant call)
+            ACT_LIGHT_DIRECTION,
             /// A light direction in object space (index determined by setAutoConstant call)
             ACT_LIGHT_DIRECTION_OBJECT_SPACE,
+			/// A light direction in view space (index determined by setAutoConstant call)
+			ACT_LIGHT_DIRECTION_VIEW_SPACE,
 			/** The distance of the light from the center of the object
 				a useful approximation as an alternative to per-vertex distance
 				calculations.
@@ -109,16 +183,17 @@ namespace Ogre {
 			    finite extrusion programs.
 			*/
 			ACT_SHADOW_EXTRUSION_DISTANCE,
+            /// The current camera's position in world space
+            ACT_CAMERA_POSITION,
             /// The current camera's position in object space 
             ACT_CAMERA_POSITION_OBJECT_SPACE,
-			/// The ambient light colour set in the scene
-			ACT_AMBIENT_LIGHT_COLOUR, 
             /// The view/projection matrix of the assigned texture projection frustum
             ACT_TEXTURE_VIEWPROJ_MATRIX,
             /// A custom parameter which will come from the renderable, using 'data' as the identifier
             ACT_CUSTOM,
-            /// The current camera's position in world space
-            ACT_CAMERA_POSITION,
+            /** provides current elapsed time
+            */
+            ACT_TIME,
 			/** Single float value, which repeats itself based on given as
 			parameter "cycle time". Equivalent to RenderMonkey's "Time0_X".
 			*/
@@ -209,73 +284,6 @@ namespace Ogre {
 			*/
 			ACT_FAR_CLIP_DISTANCE,
 
-			/// view matrices.
-			/** Provides inverse of concatenated view and projection matrices.
-			Equivalent to RenderMonkey's "ViewProjectionInverse".
-			*/
-			ACT_INVERSE_VIEWPROJ_MATRIX,
-			/** Provides inverse transpose of concatenated view and projection matrices.
-			Equivalent to RenderMonkey's "ViewProjectionInverseTranspose".
-			*/
-			ACT_INVERSETRANSPOSE_VIEWPROJ_MATRIX,
-			/** Provides transpose of concatenated view and projection matrices.
-			Equivalent to RenderMonkey's "ViewProjectionTranspose".
-			*/
-			ACT_TRANSPOSE_VIEWPROJ_MATRIX,
-
-			/** Provides transpose of view matrix.
-			Equivalent to RenderMonkey's "ViewTranspose".
-			*/
-			ACT_TRANSPOSE_VIEW_MATRIX,
-			/** Provides inverse transpose of view matrix.
-			Equivalent to RenderMonkey's "ViewInverseTranspose".
-			*/
-			ACT_INVERSETRANSPOSE_VIEW_MATRIX,
-
-			/** Provides transpose of projection matrix.
-			Equivalent to RenderMonkey's "ProjectionTranspose".
-			*/
-			ACT_TRANSPOSE_PROJECTION_MATRIX,
-			/** Provides inverse of projection matrix.
-			Equivalent to RenderMonkey's "ProjectionInverse".
-			*/
-			ACT_INVERSE_PROJECTION_MATRIX,
-			/** Provides inverse transpose of projection matrix.
-			Equivalent to RenderMonkey's "ProjectionInverseTranspose".
-			*/
-			ACT_INVERSETRANSPOSE_PROJECTION_MATRIX,
-
-			/** Provides transpose of concatenated world, view and projection matrices.
-			Equivalent to RenderMonkey's "WorldViewProjectionTranspose".
-			*/
-			ACT_TRANSPOSE_WORLDVIEWPROJ_MATRIX,
-			/** Provides inverse of concatenated world, view and projection matrices.
-			Equivalent to RenderMonkey's "WorldViewProjectionInverse".
-			*/
-			ACT_INVERSE_WORLDVIEWPROJ_MATRIX,
-			/** Provides inverse transpose of concatenated world, view and projection
-			matrices. Equivalent to RenderMonkey's "WorldViewProjectionInverseTranspose".
- 			*/
-			ACT_INVERSETRANSPOSE_WORLDVIEWPROJ_MATRIX,
- 			
- 			/** Provides transpose of concatenated world and view matrices.
- 				Equivalent to RenderMonkey's "WorldViewTranspose".
- 			*/
- 			ACT_TRANSPOSE_WORLDVIEW_MATRIX,
- 			/** Provides inverse transpose of concatenate world and view matrices.
-				Equivalent to RenderMonkey's "WorldViewInverseTranspose".
- 			*/
- 			ACT_INVERSE_TRANSPOSE_WORLDVIEW_MATRIX,
- 
- 			/** Provides transpose of world matrix.
- 			Equivalent to RenderMonkey's "WorldTranspose".
- 			*/
- 			ACT_TRANSPOSE_WORLD_MATRIX,
- 			/** Provides inverse transpose of world matrix.
- 			Equivalent to RenderMonkey's "WorldInverseTranspose".
- 			*/
- 			ACT_INVERSE_TRANSPOSE_WORLD_MATRIX,
-
             /** provides the pass index number within the technique
                 of the active materil.
             */
@@ -287,19 +295,12 @@ namespace Ogre {
             */
             ACT_PASS_ITERATION_NUMBER,
 
-            /** provides current elapsed time
-            */
-            ACT_TIME,
 
 			/** Provides a parametric animation value [0..1], only available
 				where the renderable specifically implements it.
 			*/
 			ACT_ANIMATION_PARAMETRIC,
 
-			/// A light position in view space (index determined by setAutoConstant call)
-            ACT_LIGHT_POSITION_VIEW_SPACE,
-			/// A light direction in view space (index determined by setAutoConstant call)
-			ACT_LIGHT_DIRECTION_VIEW_SPACE 
         };
 
         /** Defines the type of the extra data item used by the auto constant.
