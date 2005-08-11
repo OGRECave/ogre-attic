@@ -173,8 +173,11 @@ namespace Ogre {
             or if you use one of the self-contained load...() methods, then it will be
             called for you.
         */
-        virtual void createInternalResources(void) = 0;
+        virtual void createInternalResources(void);
 
+        /** Frees internal texture resources for this texture. 
+        */
+        virtual void freeInternalResources(void);
 		/** Copies (and maybe scales to fit) the contents of this texture to
 			another texture. */
 		virtual void copyToTexture( TexturePtr& target ) {}
@@ -227,9 +230,6 @@ namespace Ogre {
 		*/
 		virtual HardwarePixelBufferSharedPtr getBuffer(size_t face=0, size_t mipmap=0) = 0;
 
-		/// @copydoc Resource::load
-		void load(void);
-
     protected:
         unsigned long mHeight;
         unsigned long mWidth;
@@ -246,6 +246,9 @@ namespace Ogre {
         unsigned long mSrcWidth, mSrcHeight;
         unsigned short mFinalBpp;
         bool mHasAlpha;
+
+		bool mInternalResourcesCreated;
+
 		/// @copydoc Resource::calculateSize
 		size_t calculateSize(void) const;
 		
@@ -258,6 +261,19 @@ namespace Ogre {
 			images in the vector each image will be loaded as a face.
 		*/
         void _loadImages( const std::vector<const Image*>& images );
+
+
+		/** Implementation of creating internal texture resources 
+		*/
+		virtual void createInternalResourcesImpl(void) = 0;
+
+		/** Implementation of freeing internal texture resources 
+		*/
+		virtual void freeInternalResourcesImpl(void) = 0;
+
+		/** Default implementation of unload which calls freeInternalResources */
+		void unloadImpl(void);
+
     };
 
     /** Specialisation of SharedPtr to allow SharedPtr to be assigned to TexturePtr 

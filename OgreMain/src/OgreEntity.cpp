@@ -53,8 +53,10 @@ namespace Ogre {
         mFullBoundingBox = new AxisAlignedBox;
         mNormaliseNormals = false;
         mFrameBonesLastUpdated = new unsigned long;
-        *mFrameBonesLastUpdated = 0;
+		*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
         mHardwareAnimation = false;
+        mSoftwareSkinningRequests = 0;
+        mSoftwareSkinningNormalsRequests = 0;
         mSkeletonInstance = 0;
 		mSkelAnimVertexData = 0;
 		mSoftwareMorphAnimVertexData = 0;
@@ -70,6 +72,8 @@ namespace Ogre {
     {
         mFullBoundingBox = new AxisAlignedBox;
         mHardwareAnimation = false;
+        mSoftwareSkinningRequests = 0;
+        mSoftwareSkinningNormalsRequests = 0;
         mSkelAnimVertexData = 0;
 		mSoftwareMorphAnimVertexData = 0;
 		mHardwareMorphAnimVertexData = 0;
@@ -113,7 +117,7 @@ namespace Ogre {
 		if (hasSkeleton())
 		{
 			mFrameBonesLastUpdated = new unsigned long;
-			*mFrameBonesLastUpdated = 0;
+			*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
 			mNumBoneMatrices = mSkeletonInstance->getNumBones();
 			mBoneMatrices = new Matrix4[mNumBoneMatrices];
 		}
@@ -493,12 +497,14 @@ namespace Ogre {
         {
 			Root& root = Root::getSingleton();
 			bool hwSkinning = isHardwareAnimationEnabled();
+            bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
+            bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
 			bool stencilShadows = 
 				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
 				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE;
 			if (hasMorphAnimation())
 			{
-				if (!hwSkinning || stencilShadows)
+				if (!hwSkinning || forcedSwSkinning || stencilShadows)
 				{
 					// grab & bind temporary buffer for positions
 					if (mSoftwareMorphAnimVertexData)
@@ -533,12 +539,12 @@ namespace Ogre {
 				cacheBoneMatrices();
 
 				// Software blend?
-				if (!hwSkinning || stencilShadows)
+				if (!hwSkinning || forcedSwSkinning || stencilShadows)
 				{
 					// Ok, we need to do a software blend
 					// Blend normals in s/w only if we're not using h/w skinning,
 					// since shadows only require positions
-					bool blendNormals = !hwSkinning;
+					bool blendNormals = !hwSkinning || forcedNormals;
 					// Firstly, check out working vertex buffers
 					if (mSkelAnimVertexData)
 					{
@@ -756,6 +762,7 @@ namespace Ogre {
             // replacement world matrices
             unsigned short i;
             Matrix4 worldXform = _getParentNodeFullTransform();
+            assert (mNumBoneMatrices==mSkeletonInstance->getNumBones());
             mNumBoneMatrices = mSkeletonInstance->getNumBones();
 
             for (i = 0; i < mNumBoneMatrices; ++i)
@@ -1389,6 +1396,36 @@ namespace Ogre {
 
         // None found
         return 0;
+    }
+    //-----------------------------------------------------------------------
+    void Entity::addSoftwareSkinningRequest(bool normalsAlso) 
+    {
+        mSoftwareSkinningRequests++;
+        if (normalsAlso) {
+            mSoftwareSkinningNormalsRequests++;
+        }
+        if(!mMesh->isPreparedForShadowVolumes())
+        {
+            mMesh->prepareForShadowVolume();
+            // re-prepare buffers
+            prepareTempBlendBuffers();
+        }
+    }
+    //-----------------------------------------------------------------------
+    void Entity::removeSoftwareSkinningRequest(bool normalsAlso)
+    {
+        if (mSoftwareSkinningRequests == 0 ||
+            (normalsAlso && mSoftwareSkinningNormalsRequests == 0)) 
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                        "Attempt to remove nonexistant request.",
+                        "Entity::removeSoftwareSkinningRequest");
+        }
+        mSoftwareSkinningRequests--;
+        if (normalsAlso) {
+            mSoftwareSkinningNormalsRequests--;
+        }
+        // TODO: possibly undo "shadow volume" prep if no longer needed
     }
     //-----------------------------------------------------------------------
     void Entity::_notifyAttached(Node* parent, bool isTagPoint)

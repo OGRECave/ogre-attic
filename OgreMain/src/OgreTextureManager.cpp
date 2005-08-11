@@ -118,11 +118,8 @@ namespace Ogre {
         ret->setFormat(format);
         ret->setUsage(usage);
         ret->enable32Bit(mIs32Bit);
-
-		// Auto-load RTT
-		if (usage & TU_RENDERTARGET)
-			ret->load();
-        return ret;
+		ret->createInternalResources();
+		return ret;
     }
     //-----------------------------------------------------------------------
     void TextureManager::enable32BitTextures( bool setting )

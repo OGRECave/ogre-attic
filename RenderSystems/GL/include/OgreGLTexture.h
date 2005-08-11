@@ -45,8 +45,6 @@ namespace Ogre {
 
         virtual ~GLTexture();      
 
-        /// @copydoc Texture::createInternalResources
-        void createInternalResources(void);
 		void loadImage( const Image& img );
         void createRenderTexture();
 			
@@ -60,10 +58,12 @@ namespace Ogre {
         { return mTextureID; }
 
     protected:
+		/// @copydoc Texture::createInternalResourcesImpl
+		void createInternalResourcesImpl(void);
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
-        /// @copydoc Resource::unloadImpl
-        void unloadImpl(void);
+        /// @copydoc Resource::freeInternalResourcesImpl
+        void freeInternalResourcesImpl(void);
 
 		/** internal method, create GLHardwarePixelBuffers for every face and
 			 mipmap level. This method must be called after the GL texture object was created,
