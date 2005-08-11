@@ -68,7 +68,14 @@ namespace Ogre {
     {
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+		if (!mIsLoaded)
+		{
+			unload(); 
+		}
+		else
+		{
+			freeInternalResources();
+		}
     }
 
     GLenum GLTexture::getGLTextureTarget(void) const
@@ -89,7 +96,7 @@ namespace Ogre {
     }
 
 	//* Creation / loading methods ********************************************
-	void GLTexture::createInternalResources(void)
+	void GLTexture::createInternalResourcesImpl(void)
     {
 		// Adjust requested parameters to capabilities
 
@@ -325,7 +332,7 @@ namespace Ogre {
 	
 	//*************************************************************************
     
-    void GLTexture::unloadImpl()
+    void GLTexture::freeInternalResourcesImpl()
     {
 		mSurfaceList.clear();
         glDeleteTextures( 1, &mTextureID );

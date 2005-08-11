@@ -94,8 +94,10 @@ namespace Ogre {
 		/// internal method, return a D3D pixel format for texture creation
 		D3DFORMAT _chooseD3DFormat();
 
-		/// internal method, free D3D9 resources
-		void _freeResources();
+		/// @copydoc Texture::createInternalResourcesImpl
+		void createInternalResourcesImpl(void);
+		/// free internal resources
+		void freeInternalResourcesImpl(void);
 		/// internal method, set Texture class source image protected attributes
 		void _setSrcAttributes(unsigned long width, unsigned long height, unsigned long depth, PixelFormat format);
 		/// internal method, set Texture class final texture protected attributes
@@ -115,12 +117,10 @@ namespace Ogre {
 		
 		/// internal method, create D3D9HardwarePixelBuffers for every face and
 		/// mipmap level. This method must be called after the D3D texture object was created
-		void _createSurfaceList(bool updateOldList=false);
+		void _createSurfaceList(void);
 
         /// overriden from Resource
         void loadImpl();
-        /// overriden from Resource
-        void unloadImpl();
 	public:
 		/// constructor 
         D3D9Texture(ResourceManager* creator, const String& name, ResourceHandle handle,
@@ -134,8 +134,6 @@ namespace Ogre {
 		/// overriden from Texture
 		void loadImage( const Image &img );
 
-        /// @copydoc Texture::createInternalResources
-        void createInternalResources(void);
 
 		/// @copydoc Texture::getBuffer
 		HardwarePixelBufferSharedPtr getBuffer(size_t face, size_t mipmap);

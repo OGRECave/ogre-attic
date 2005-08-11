@@ -58,7 +58,14 @@ namespace Ogre
 	{
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+		if (!mIsLoaded)
+		{
+			unload(); 
+		}
+		else
+		{
+			freeInternalResources();
+		}
 	}
 
 	/****************************************************************************************/
@@ -197,12 +204,7 @@ namespace Ogre
 
 	}
 	/****************************************************************************************/
-	void D3D9Texture::unloadImpl()
-	{
-		_freeResources();
-	}
-	/****************************************************************************************/
-	void D3D9Texture::_freeResources()
+	void D3D9Texture::freeInternalResourcesImpl()
 	{
 		SAFE_RELEASE(mpTex);
 		SAFE_RELEASE(mpNormTex);
@@ -231,7 +233,7 @@ namespace Ogre
             if (FAILED(hr))
 		    {
 			    OGRE_EXCEPT( hr, "Can't create cube texture", "D3D9Texture::_loadCubeTex" );
-			    this->_freeResources();
+			    this->freeInternalResources();
 		    }
 
             hr = mpCubeTex->QueryInterface(IID_IDirect3DBaseTexture9, (void **)&mpTex);
@@ -239,7 +241,7 @@ namespace Ogre
             if (FAILED(hr))
 		    {
 			    OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadCubeTex" );
-			    this->_freeResources();
+			    this->freeInternalResources();
 		    }
 
             D3DSURFACE_DESC texDesc;
@@ -301,7 +303,7 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadVolumeTex" );
-				this->_freeResources();
+				this->freeInternalResources();
 			}
 	
 			D3DVOLUME_DESC texDesc;
@@ -350,7 +352,7 @@ namespace Ogre
 			if (FAILED(hr))
 			{
 				OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_loadNormTex" );
-				this->_freeResources();
+				this->freeInternalResources();
 			}
 	
 			D3DSURFACE_DESC texDesc;
@@ -368,7 +370,7 @@ namespace Ogre
 		}
 	}
 	/****************************************************************************************/
-    void D3D9Texture::createInternalResources(void)
+    void D3D9Texture::createInternalResourcesImpl(void)
 	{
 		// If mSrcWidth and mSrcHeight are zero, the requested extents have probably been set
 		// through setWidth and setHeight, which set mWidth and mHeight. Take those values.
@@ -404,7 +406,7 @@ namespace Ogre
 			break;
 		default:
 			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::createInternalResources" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 	}
 	/****************************************************************************************/
@@ -470,7 +472,7 @@ namespace Ogre
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			this->_freeResources();
+			this->freeInternalResources();
 			OGRE_EXCEPT( hr, "Error creating texture", "D3D9Texture::_createNormTex" );
 		}
 		
@@ -479,7 +481,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createNormTex" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		
 		// set final tex. attributes from tex. description
@@ -489,7 +491,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createNormTex" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
 		
@@ -569,7 +571,7 @@ namespace Ogre
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			this->_freeResources();
+			this->freeInternalResources();
 			OGRE_EXCEPT( hr, "Error creating texture", "D3D9Texture::_createCubeTex" );
 		}
 
@@ -578,7 +580,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createCubeTex" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		
 		// set final tex. attributes from tex. description
@@ -588,7 +590,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createCubeTex" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, this->_getPF(desc.Format));
 		
@@ -670,7 +672,7 @@ namespace Ogre
 		// check result and except if failed
 		if (FAILED(hr))
 		{
-			this->_freeResources();
+			this->freeInternalResources();
 			OGRE_EXCEPT( hr, "Error creating texture", "D3D9Texture::_createVolumeTex" );
 		}
 
@@ -679,7 +681,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			OGRE_EXCEPT( hr, "Can't get base texture", "D3D9Texture::_createVolumeTex" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		
 		// set final tex. attributes from tex. description
@@ -689,7 +691,7 @@ namespace Ogre
 		if (FAILED(hr))
 		{
 			OGRE_EXCEPT( hr, "Can't get texture description", "D3D9Texture::_createVolumeTex" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, this->_getPF(desc.Format));
 		
@@ -815,7 +817,7 @@ namespace Ogre
 			break;
 		default:
 			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3D9Texture::_setSrcAttributes" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 	}
 	/****************************************************************************************/
@@ -925,7 +927,7 @@ namespace Ogre
 		{
 			String msg = DXGetErrorDescription9(hr);
 			OGRE_EXCEPT( hr, "Error GetDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		// get it's description
 		hr = pSrf->GetDesc(&srfDesc);
@@ -934,7 +936,7 @@ namespace Ogre
 			String msg = DXGetErrorDescription9(hr);
 			OGRE_EXCEPT( hr, "Error GetDesc : " + msg, "D3D9Texture::_createDepthStencil" );
 			SAFE_RELEASE(pSrf);
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 		// release the temp. surface
 		SAFE_RELEASE(pSrf);
@@ -955,7 +957,7 @@ namespace Ogre
 		{
 			String msg = DXGetErrorDescription9(hr);
 			OGRE_EXCEPT( hr, "Error CreateDepthStencilSurface : " + msg, "D3D9Texture::_createDepthStencil" );
-			this->_freeResources();
+			this->freeInternalResources();
 		}
 	}
 	
@@ -963,7 +965,7 @@ namespace Ogre
 	// Macro to hide ugly cast
 	#define GETLEVEL(face,mip) \
 	 	static_cast<D3D9HardwarePixelBuffer*>(mSurfaceList[face*(mNumMipmaps+1)+mip].get())
-	void D3D9Texture::_createSurfaceList(bool updateOldList)
+	void D3D9Texture::_createSurfaceList(void)
 	{
 		IDirect3DSurface9 *surface;
 		IDirect3DVolume9 *volume;
@@ -983,6 +985,7 @@ namespace Ogre
 			bufusage = HardwareBuffer::HBU_STATIC;
 		}
 
+		bool updateOldList = mSurfaceList.size() == (getNumFaces() * (mNumMipmaps + 1));
 		if(!updateOldList)
 		{
 			// Create new list of surfaces
@@ -1229,7 +1232,15 @@ namespace Ogre
 		{
 			LogManager::getSingleton().logMessage(
 				"Releasing D3D9 default pool texture: " + mName);
-			unload();
+			if ((mIsManual && !mLoader) || mUsage & TU_RENDERTARGET)
+			{
+				// just free any internal resources
+				freeInternalResources();
+			}
+			else
+			{
+				unload();
+			}
 			LogManager::getSingleton().logMessage(
 				"Released D3D9 default pool texture: " + mName);
 			return true;
@@ -1250,7 +1261,15 @@ namespace Ogre
 			// 2. This is a dynamic texture, which probably won't have a loader,
 			//    but if it does, we'll call it
 			// whether or no, the load() can do anything for me
-            load();
+			if ((mIsManual && !mLoader) || mUsage & TU_RENDERTARGET)
+			{
+				// just recreate any internal resources
+				createInternalResources();
+			}
+			else
+			{
+				load();
+			}
 			LogManager::getSingleton().logMessage(
 				"Recreated D3D9 default pool texture: " + mName);
 		}

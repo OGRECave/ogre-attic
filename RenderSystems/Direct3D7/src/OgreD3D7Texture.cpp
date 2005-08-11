@@ -171,7 +171,14 @@ namespace Ogre {
         __safeRelease( &mD3DDevice );
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+		if (!mIsLoaded)
+		{
+            unload(); 
+		}
+		else
+		{
+			freeInternalResources();
+		}
     }
 	
     //---------------------------------------------------------------------------------------------
@@ -196,7 +203,7 @@ namespace Ogre {
 		_loadImages( imagePtrs );
 	}
     //---------------------------------------------------------------------------------------------
-    void D3DTexture::createInternalResources(void)
+    void D3DTexture::createInternalResourcesImpl(void)
     {
         if (mTextureType == TEX_TYPE_CUBE_MAP)
         {
@@ -250,7 +257,7 @@ namespace Ogre {
 	}
 
     //---------------------------------------------------------------------------------------------
-    void D3DTexture::unloadImpl()
+    void D3DTexture::freeInternalResourcesImpl()
     {
         __safeRelease( &mSurface );
     }

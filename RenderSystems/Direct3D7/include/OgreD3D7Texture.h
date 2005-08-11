@@ -52,9 +52,6 @@ namespace Ogre {
         /// D3D-specific member that returns the underlying surface.
         LPDIRECTDRAWSURFACE7 getDDSurface(void);
 
-        /// @copydoc Texture::createInternalResources
-        void createInternalResources(void);
-
 		/// @copydoc Texture::getBuffer
 		HardwarePixelBufferSharedPtr getBuffer(size_t face, size_t mipmap);
 
@@ -74,8 +71,10 @@ namespace Ogre {
 
         /// @copydoc Resource::loadImpl
         void loadImpl(void);
-        /// @copydoc Resource::unloadImpl
-        void unloadImpl(void);
+		/// @copydoc Texture::createInternalResourcesImpl
+		void createInternalResourcesImpl(void);
+        /// @copydoc Resource::freeInternalResourcesImpl
+        void freeInternalResourcesImpl(void);
 		
 		void createSurface2D(void);
 		void createSurface3D(void);
