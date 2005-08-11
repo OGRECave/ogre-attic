@@ -29,6 +29,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreTagPoint.h"
 #include "OgreLight.h"
 #include "OgreEntity.h"
+#include "OgreRoot.h"
+#include "OgreSceneManager.h"
 
 namespace Ogre {
 
@@ -38,7 +40,7 @@ namespace Ogre {
 		 mUpperDistance(0), mSquaredUpperDistance(0), mBeyondFarDistance(false),
          mRenderQueueID(RENDER_QUEUE_MAIN),
          mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
-         mCastShadows (true)
+		 mVisibilityFlags(0xFFFFFFFF), mCastShadows (true)
     {
 		mWorldAABB.setNull();
         
@@ -132,7 +134,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool MovableObject::isVisible(void) const
     {
-		return mVisible && !mBeyondFarDistance;
+		bool flagVis = true;
+		if (Root::getSingleton()._getCurrentSceneManager())
+		{
+			flagVis = mVisibilityFlags & 
+				Root::getSingleton()._getCurrentSceneManager()->getVisibilityMask();
+		}
+
+		return mVisible && !mBeyondFarDistance && flagVis;
     }
 	//-----------------------------------------------------------------------
 	void MovableObject::_notifyCurrentCamera(Camera* cam)
