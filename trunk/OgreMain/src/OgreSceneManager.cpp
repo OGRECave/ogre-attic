@@ -115,7 +115,8 @@ mShadowTextureSelfShadow(false),
 mShadowTextureCustomCasterPass(0),
 mShadowTextureCustomReceiverPass(0),
 mShadowTextureCasterVPDirty(false),
-mShadowTextureReceiverVPDirty(false)
+mShadowTextureReceiverVPDirty(false),
+mVisibilityMask(0xFFFFFFFF)
 {
     // Root scene node
     mSceneRoot = new SceneNode(this, "root node");

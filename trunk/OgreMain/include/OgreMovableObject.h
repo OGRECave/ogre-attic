@@ -72,6 +72,8 @@ namespace Ogre {
 		bool mRenderQueueIDSet;
         /// Flags determining whether this object is included / excluded from scene queries
         uint32 mQueryFlags;
+        /// Flags determining whether this object is visible (compared to SceneManager mask)
+        uint32 mVisibilityFlags;
         /// Cached world AABB of this object
         mutable AxisAlignedBox mWorldAABB;
 		// Cached world bounding sphere
@@ -246,7 +248,28 @@ namespace Ogre {
         /// Returns the query flags relevant for this object
         virtual unsigned long getQueryFlags(void) const { return mQueryFlags; }
 
-        /// Define a default implementation of method from ShadowCaster which implements no shadows
+
+		
+        /** Sets the visiblity flags for this object.
+        @remarks
+			As well as a simple true/false value for visibility (as seen in setVisible), 
+			you can also set visiblity flags which when 'and'ed with the SceneManager's
+			visibility mask can also make an object invisible.
+        */
+        virtual void setVisibilityFlags(unsigned long flags) { mVisibilityFlags = flags; }
+
+        /** As setVisibilityFlags, except the flags passed as parameters are appended to the
+        existing flags on this object. */
+        virtual void addVisibilityFlags(unsigned long flags) { mVisibilityFlags |= flags; }
+            
+        /** As setVisibilityFlags, except the flags passed as parameters are removed from the
+        existing flags on this object. */
+        virtual void removeVisibilityFlags(unsigned long flags) { mVisibilityFlags ^= flags; }
+        
+        /// Returns the visibility flags relevant for this object
+        virtual unsigned long getVisibilityFlags(void) const { return mVisibilityFlags; }
+		
+		/// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }
         /// Define a default implementation of method from ShadowCaster which implements no shadows
         ShadowRenderableListIterator getShadowVolumeRenderableIterator(

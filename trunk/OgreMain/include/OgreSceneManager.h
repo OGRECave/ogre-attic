@@ -357,6 +357,7 @@ namespace Ogre {
         ShadowTextureList mShadowTextures;
         Texture* mCurrentShadowTexture;
 		bool mShadowUseInfiniteFarPlane;
+
         /** Internal method for locating a list of lights which could be affecting the frustum. 
         @remarks
             Custom scene managers are encouraged to override this method to make use of their
@@ -406,6 +407,9 @@ namespace Ogre {
 		GpuProgramParametersSharedPtr mShadowTextureCustomReceiverVPParams;
 		bool mShadowTextureCasterVPDirty;
 		bool mShadowTextureReceiverVPDirty;
+
+		/// Visibility mask used to show / hide objects
+		uint32 mVisibilityMask;
 
 
         GpuProgramParametersSharedPtr mInfiniteExtrusionParams;
@@ -1870,6 +1874,16 @@ namespace Ogre {
 			attempt to destroy them.
 		*/
 		virtual void extractAllMovableObjectsByType(const String& typeName);
+
+		/** Sets a mask which is bitwise 'and'ed with objects own visibility masks
+			to determine if the object is visible.
+		*/
+		virtual void setVisibilityMask(uint32 vmask) { mVisibilityMask = vmask; }
+
+		/** Gets a mask which is bitwise 'and'ed with objects own visibility masks
+			to determine if the object is visible.
+		*/
+		virtual uint32 getVisibilityMask(void) { return mVisibilityMask; }
 
 		
     };
