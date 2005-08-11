@@ -235,18 +235,18 @@ namespace Ogre {
             a bit on these flags is set, will it be included in a query asking for that flag. The
             meaning of the bits is application-specific.
         */
-        virtual void setQueryFlags(unsigned long flags) { mQueryFlags = flags; }
+        virtual void setQueryFlags(uint32 flags) { mQueryFlags = flags; }
 
         /** As setQueryFlags, except the flags passed as parameters are appended to the
         existing flags on this object. */
-        virtual void addQueryFlags(unsigned long flags) { mQueryFlags |= flags; }
+        virtual void addQueryFlags(uint32 flags) { mQueryFlags |= flags; }
             
         /** As setQueryFlags, except the flags passed as parameters are removed from the
         existing flags on this object. */
-        virtual void removeQueryFlags(unsigned long flags) { mQueryFlags ^= flags; }
+        virtual void removeQueryFlags(uint32 flags) { mQueryFlags ^= flags; }
         
         /// Returns the query flags relevant for this object
-        virtual unsigned long getQueryFlags(void) const { return mQueryFlags; }
+        virtual uint32 getQueryFlags(void) const { return mQueryFlags; }
 
 
 		
@@ -256,18 +256,18 @@ namespace Ogre {
 			you can also set visiblity flags which when 'and'ed with the SceneManager's
 			visibility mask can also make an object invisible.
         */
-        virtual void setVisibilityFlags(unsigned long flags) { mVisibilityFlags = flags; }
+        virtual void setVisibilityFlags(uint32 flags) { mVisibilityFlags = flags; }
 
         /** As setVisibilityFlags, except the flags passed as parameters are appended to the
         existing flags on this object. */
-        virtual void addVisibilityFlags(unsigned long flags) { mVisibilityFlags |= flags; }
+        virtual void addVisibilityFlags(uint32 flags) { mVisibilityFlags |= flags; }
             
         /** As setVisibilityFlags, except the flags passed as parameters are removed from the
         existing flags on this object. */
-        virtual void removeVisibilityFlags(unsigned long flags) { mVisibilityFlags ^= flags; }
+        virtual void removeVisibilityFlags(uint32 flags) { mVisibilityFlags ^= flags; }
         
         /// Returns the visibility flags relevant for this object
-        virtual unsigned long getVisibilityFlags(void) const { return mVisibilityFlags; }
+        virtual uint32 getVisibilityFlags(void) const { return mVisibilityFlags; }
 		
 		/// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }
