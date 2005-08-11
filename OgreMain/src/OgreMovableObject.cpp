@@ -51,6 +51,7 @@ namespace Ogre {
 		mVisible(true), mUpperDistance(0), mSquaredUpperDistance(0), 
 		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
 		mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
+		mVisibilityFlags(0xFFFFFFFF),
 		mCastShadows (true)
 	{
 		mWorldAABB.setNull();
