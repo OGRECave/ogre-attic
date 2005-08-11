@@ -137,8 +137,8 @@ namespace Ogre {
 		bool flagVis = true;
 		if (Root::getSingleton()._getCurrentSceneManager())
 		{
-			flagVis = mVisibilityFlags & 
-				Root::getSingleton()._getCurrentSceneManager()->getVisibilityMask();
+			flagVis = (mVisibilityFlags & 
+				Root::getSingleton()._getCurrentSceneManager()->getVisibilityMask()) != 0;
 		}
 
 		return mVisible && !mBeyondFarDistance && flagVis;
