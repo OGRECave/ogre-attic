@@ -47,7 +47,7 @@ namespace Ogre {
             mUsage(TU_DEFAULT),
             // mSrcBpp inited later on
             mSrcWidth(0),
-            mSrcHeight(0)
+            mSrcHeight(0), mInternalResourcesCreated(false)
             // mFinalBpp inited later on by enable32bit
             // mHasAlpha inited later on            
     {
@@ -64,28 +64,7 @@ namespace Ogre {
 
         
     }
-    //--------------------------------------------------------------------------
-	void Texture::load(void)
-    {
-        {
-		    OGRE_LOCK_AUTO_MUTEX
-		    if (!mIsLoaded && mIsManual && !mLoader && (mUsage & TU_RENDERTARGET))
-            {
-                createInternalResources();
-			    // Calculate resource size
-			    mSize = calculateSize();
-			    // Now loaded
-			    mIsLoaded = true;
-			    // Notify manager
-			    if (mCreator)
-				    mCreator->_notifyResourceLoaded(this);
-                return;
-            }
-        }
-
-        Resource::load();
-    }
-    //--------------------------------------------------------------------------
+	//--------------------------------------------------------------------------    //--------------------------------------------------------------------------
 	void Texture::loadRawData( DataStreamPtr& stream, 
 		ushort uWidth, ushort uHeight, PixelFormat eFormat)
 	{
@@ -265,5 +244,29 @@ namespace Ogre {
 
         mIsLoaded = true;
     }
+	//-----------------------------------------------------------------------------
+	void Texture::createInternalResources(void)
+	{
+		if (!mInternalResourcesCreated)
+		{
+			createInternalResourcesImpl();
+			mInternalResourcesCreated = true;
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void Texture::freeInternalResources(void)
+	{
+		if (mInternalResourcesCreated)
+		{
+			freeInternalResourcesImpl();
+			mInternalResourcesCreated = false;
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void Texture::unloadImpl(void)
+	{
+		freeInternalResources();
+	}
+
 
 }
