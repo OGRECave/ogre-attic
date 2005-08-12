@@ -37,7 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 /** If set to 1, stack unwinding code is compiled into the library and called
     in case an exception is thrown in order to show the call stack.
 */
-#define OGRE_STACK_UNWINDING 1
+#define OGRE_STACK_UNWINDING 0
 
 /** There are three modes for handling asserts in OGRE:
 0 - STANDARD - Standard asserts in debug builds, nothing in release builds
