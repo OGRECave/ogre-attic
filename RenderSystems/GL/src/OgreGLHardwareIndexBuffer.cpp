@@ -77,11 +77,8 @@ namespace Ogre {
             //glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mSizeInBytes, NULL, 
             //    GLHardwareBufferManager::getGLUsage(mUsage));
 
-            // TODO: we should be using the below implementation, but nVidia cards
-            // choke on it and perform terribly - for investigation with nVidia
             access = (mUsage == HBU_DYNAMIC || mUsage == HBU_STATIC) ? 
                 GL_READ_WRITE_ARB : GL_WRITE_ONLY_ARB;
-            //access = GL_READ_WRITE;
         }
         else if(options == HBL_READ_ONLY)
         {
