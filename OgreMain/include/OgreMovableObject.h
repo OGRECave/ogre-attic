@@ -83,6 +83,13 @@ namespace Ogre {
         /// Does this object cast shadows?
         bool mCastShadows;
 
+		// Static members
+		/// Default query flags
+		static uint32 msDefaultQueryFlags;
+		/// Default visibility flags
+		static uint32 msDefaultVisibilityFlags;
+
+
 
     public:
         /// Constructor
@@ -243,11 +250,18 @@ namespace Ogre {
             
         /** As setQueryFlags, except the flags passed as parameters are removed from the
         existing flags on this object. */
-        virtual void removeQueryFlags(uint32 flags) { mQueryFlags ^= flags; }
+        virtual void removeQueryFlags(unsigned long flags) { mQueryFlags &= ~flags; }
         
         /// Returns the query flags relevant for this object
         virtual uint32 getQueryFlags(void) const { return mQueryFlags; }
 
+		/** Set the default query flags for all future MovableObject instances.
+		*/
+		static void setDefaultQueryFlags(uint32 flags) { msDefaultQueryFlags = flags; }
+
+		/** Get the default query flags for all future MovableObject instances.
+		*/
+		static uint32 getDefaultQueryFlags(uint32 flags) { return msDefaultQueryFlags; }
 
 		
         /** Sets the visiblity flags for this object.
@@ -264,11 +278,19 @@ namespace Ogre {
             
         /** As setVisibilityFlags, except the flags passed as parameters are removed from the
         existing flags on this object. */
-        virtual void removeVisibilityFlags(uint32 flags) { mVisibilityFlags ^= flags; }
+        virtual void removeVisibilityFlags(uint32 flags) { mVisibilityFlags &= ~flags; }
         
         /// Returns the visibility flags relevant for this object
         virtual uint32 getVisibilityFlags(void) const { return mVisibilityFlags; }
+
+		/** Set the default visibility flags for all future MovableObject instances.
+		*/
+		static void setDefaultVisibilityFlags(uint32 flags) { msDefaultVisibilityFlags = flags; }
 		
+		/** Get the default visibility flags for all future MovableObject instances.
+		*/
+		static uint32 getDefaultVisibilityFlags(uint32 flags) { return msDefaultVisibilityFlags; }
+
 		/// Define a default implementation of method from ShadowCaster which implements no shadows
         EdgeData* getEdgeList(void) { return NULL; }
         /// Define a default implementation of method from ShadowCaster which implements no shadows

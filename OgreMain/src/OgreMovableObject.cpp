@@ -33,14 +33,17 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreSceneManager.h"
 
 namespace Ogre {
-
+	//-----------------------------------------------------------------------
+	//-----------------------------------------------------------------------
+	uint32 MovableObject::msDefaultQueryFlags = 0xFFFFFFFF;
+	uint32 MovableObject::msDefaultVisibilityFlags = 0xFFFFFFFF;
     //-----------------------------------------------------------------------
     MovableObject::MovableObject()
 		: mCreator(0), mParentNode(0), mParentIsTagPoint(false), mVisible(true), 
 		 mUpperDistance(0), mSquaredUpperDistance(0), mBeyondFarDistance(false),
          mRenderQueueID(RENDER_QUEUE_MAIN),
-         mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
-		 mVisibilityFlags(0xFFFFFFFF), mCastShadows (true)
+         mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
+		 mVisibilityFlags(msDefaultVisibilityFlags), mCastShadows (true)
     {
 		mWorldAABB.setNull();
         
@@ -50,8 +53,8 @@ namespace Ogre {
 		: mName(name), mCreator(0), mParentNode(0), mParentIsTagPoint(false), 
 		mVisible(true), mUpperDistance(0), mSquaredUpperDistance(0), 
 		mBeyondFarDistance(false), mRenderQueueID(RENDER_QUEUE_MAIN),
-		mRenderQueueIDSet(false), mQueryFlags(0xFFFFFFFF),
-		mVisibilityFlags(0xFFFFFFFF),
+		mRenderQueueIDSet(false), mQueryFlags(msDefaultQueryFlags),
+		mVisibilityFlags(msDefaultVisibilityFlags),
 		mCastShadows (true)
 	{
 		mWorldAABB.setNull();
