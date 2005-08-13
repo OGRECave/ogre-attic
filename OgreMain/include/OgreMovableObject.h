@@ -191,7 +191,7 @@ namespace Ogre {
             
         /** As setQueryFlags, except the flags passed as parameters are removed from the
         existing flags on this object. */
-        virtual void removeQueryFlags(unsigned long flags) { mQueryFlags ^= flags; }
+        virtual void removeQueryFlags(unsigned long flags) { mQueryFlags &= ~flags; }
         
         /// Returns the query flags relevant for this object
         virtual unsigned long getQueryFlags(void) const { return mQueryFlags; }
