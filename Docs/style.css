@@ -1,8 +1,8 @@
 body {  font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 10pt; color: black; background-color: white}
-a:link {  color: #005500; text-decoration: underline}
+a:link {  color: #003300; text-decoration: underline}
 a:hover {  color: #F5BC52; text-decoration: underline}
-a:visited {  color: #007700; text-decoration: underline}
-li {  color: #005500; list-style-type: diamond; position: relative; left: -15px; clip:    rect(   )}
+a:visited {  color: #004400; text-decoration: underline}
+li {  color: #003300; list-style-type: diamond; position: relative; left: -15px; clip:    rect(   )}
 td {  font-size: 10pt}
 th {  font-size: 10pt}
 
@@ -18,7 +18,7 @@ th {  font-size: 10pt}
 
 H1, H2, H3 {
         background-color: #6b7d6b;
-	color: #F5BC52;
+	color: white;
 	padding: 2px;
 	padding-left: 5px;
 	border-style: solid;
