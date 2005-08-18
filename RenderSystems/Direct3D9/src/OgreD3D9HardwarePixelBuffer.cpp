@@ -163,6 +163,10 @@ D3DBOX toD3DBOXExtent(const PixelBox &lockBox)
 //-----------------------------------------------------------------------------  
 PixelBox D3D9HardwarePixelBuffer::lockImpl(const Image::Box lockBox,  LockOptions options)
 {
+	// Check for misuse
+	if(mUsage & TU_RENDERTARGET)
+		OGRE_EXCEPT(Exception::ERR_RENDERINGAPI_ERROR, "DirectX does not allow locking of or directly writing to RenderTargets. Use blitFromMemory if you need the contents.",
+		 	"D3D9HardwarePixelBuffer::lockImpl");	
 	// Set extents and format
 	PixelBox rval(lockBox, mFormat);
 	// Set locking flags according to options
