@@ -374,7 +374,6 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius, Ligh
     // Really basic trawl of the lights, then sort
     // Subclasses could do something smarter
     destList.clear();
-    Real squaredRadius = radius * radius;
 
     SceneLightList::iterator i, iend;
     iend = mLights.end();
@@ -395,7 +394,8 @@ void SceneManager::_populateLightList(const Vector3& position, Real radius, Ligh
                 lt->tempSquareDist = (lt->getDerivedPosition() - position).squaredLength();
                 // only add in-range lights
                 Real range = lt->getAttenuationRange();
-                if ((lt->tempSquareDist - squaredRadius) <= (range * range))
+                Real maxDist = range + radius;
+                if (lt->tempSquareDist <= Math::Sqr(maxDist))
                 {
                     destList.push_back(lt);
                 }

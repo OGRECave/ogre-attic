@@ -807,32 +807,38 @@ namespace Ogre {
 	//--------------------------------------------------------------------------
 	void StaticGeometry::Region::_notifyCurrentCamera(Camera* cam)
 	{
-		// Determine active lod
+		// Calculate squared view depth
 		Vector3 diff = cam->getDerivedPosition() - mCentre;
+		Real squaredDepth = diff.squaredLength();
+
+		// Determine whether to still render
+		Real renderingDist = mParent->getRenderingDistance();
+		if (renderingDist > 0)
+		{
+			// Max distance to still render
+			Real maxDist = renderingDist + mBoundingRadius;
+			if (squaredDepth > Math::Sqr(maxDist))
+			{
+				mBeyondFarDistance = true;
+				return;
+			}
+		}
+
+		mBeyondFarDistance = false;
+
 		// Distance from the edge of the bounding sphere
-		mCamDistanceSquared = diff.squaredLength() 
-			- mBoundingRadius*mBoundingRadius;
+		mCamDistanceSquared = squaredDepth - mBoundingRadius * mBoundingRadius;
 		// Clamp to 0
 		mCamDistanceSquared = std::max(static_cast<Real>(0.0), mCamDistanceSquared);
 
-
-		Real maxDist = mParent->getSquaredRenderingDistance();
-		if (maxDist && mCamDistanceSquared > maxDist)
+		// Determine active lod
+		mCurrentLod = mLodSquaredDistances.size() - 1;
+		for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
 		{
-			mBeyondFarDistance = true;
-		}
-		else
-		{
-			mBeyondFarDistance = false;
-
-			mCurrentLod = mLodSquaredDistances.size() - 1;
-			for (ushort i = 0; i < mLodSquaredDistances.size(); ++i)
+			if (mLodSquaredDistances[i] > mCamDistanceSquared)
 			{
-				if (mLodSquaredDistances[i] > mCamDistanceSquared)
-				{
-					mCurrentLod = i - 1;
-					break;
-				}
+				mCurrentLod = i - 1;
+				break;
 			}
 		}
 		
