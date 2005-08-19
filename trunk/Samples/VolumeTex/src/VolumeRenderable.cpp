@@ -196,7 +196,7 @@ void VolumeRenderable::initialise()
 	 // Create a brand new private material
 	MaterialPtr material = 
 		MaterialManager::getSingleton().create(mTexture, "VolumeRenderable",
-			true, 0); // Manual, loader
+			false, 0); // Manual, loader
 
 	// Remove pre-created technique from defaults
 	material->removeAllTechniques();

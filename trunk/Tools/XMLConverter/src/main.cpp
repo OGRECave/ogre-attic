@@ -658,7 +658,6 @@ int main(int numargs, char** args)
 
     
 
-    delete bufferManager;
     delete xmlSkeletonSerializer;
     delete skeletonSerializer;
     delete xmlMeshSerializer;
@@ -666,6 +665,7 @@ int main(int numargs, char** args)
     delete skelMgr;
     delete matMgr;
     delete meshMgr;
+	delete bufferManager;
     delete mth;
     delete rgm;
     delete logMgr;

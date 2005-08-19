@@ -540,33 +540,29 @@ namespace Ogre {
 			Quaternion neworientation = kf->getRotation();
 			// Ignore first keyframe; now include the last keyframe as we eliminate
 			// only k-2 in a group of 5 to ensure we only eliminate middle keys
-			if (i != mKeyFrames.begin())
+			if (i != mKeyFrames.begin() &&
+				newtrans.positionEquals(lasttrans) &&
+				newscale.positionEquals(lastscale) && 
+				neworientation.equals(lastorientation, quatTolerance))
 			{
-				if (newtrans.positionEquals(lasttrans) &&
-					newscale.positionEquals(lastscale) && 
-					neworientation.equals(lastorientation, quatTolerance))
-				{
-					++dupKfCount;
+				++dupKfCount;
 
-					// 4 indicates this is the 5th duplicate keyframe
-					if (dupKfCount == 4)
-					{
-						// remove the 'middle' keyframe
-						removeList.push_back(k-2);	
-						--dupKfCount;
-					}
-				}
-				else
+				// 4 indicates this is the 5th duplicate keyframe
+				if (dupKfCount == 4)
 				{
-					// reset
-					dupKfCount = 0;
+					// remove the 'middle' keyframe
+					removeList.push_back(k-2);	
+					--dupKfCount;
 				}
-					
 			}
-
-			lasttrans = newtrans;
-			lastscale = newscale;
-			lastorientation = neworientation;
+			else
+			{
+				// reset
+				dupKfCount = 0;
+				lasttrans = newtrans;
+				lastscale = newscale;
+				lastorientation = neworientation;
+			}
 		}
 
 		// Now remove keyframes, in reverse order to avoid index revocation
