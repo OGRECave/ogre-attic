@@ -44,6 +44,15 @@ namespace Ogre {
          mTransparencyCastsShadows(false),
          mCompilationRequired(true)
     {
+		// Override isManual, not applicable for Material (we always want to call loadImpl)
+		if(isManual)
+		{
+			mIsManual = false;
+			LogManager::getSingleton().logMessage("Material " + name + 
+				" was requested with isManual=true, but this is not applicable " 
+				"for materials; the flag has been reset to false");
+		}
+
 		mLodDistances.push_back(0.0f);
 
 		applyDefaults();
