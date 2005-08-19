@@ -45,6 +45,7 @@ typedef enum _OCCLUSIONQUERY
   * hardware occlusion.
   *
   * @author Lee Sandberg
+  * Updated on 4/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
   */
 class _OgreExport HardwareOcclusionQuery
 {
@@ -81,8 +82,8 @@ public:
 	  *				Results must be pulled using:
 	  *				UINT	m_uintNumberOfPixelsVisable;
 	  *				pullOcclusionQuery( &m_dwNumberOfPixelsVisable );
-	  *				You may not get the result directlly after the first pass or frame.
-	  *				Objects not visable must be tested every frame, visable objects may be tested less freqvent.
+	  *				You may not get the result directly after the first pass or frame.
+	  *				Objects not visible must be tested every frame, visible objects may be tested less frequently.
 	  *			
 	  */
 	virtual void beginOcclusionQuery() = 0;
@@ -109,12 +110,17 @@ public:
 	virtual unsigned int getLastQuerysPixelcount() = 0;
 
 	/**
+	  * Lets you know when query is done, or still be processed by the Hardware
+	  * @return true if query isn't finished.
+	  */
+	 virtual bool HardwareOcclusionQuery::isStillOutstanding(void) = 0; 
+	/**
 	  *   
 	  * @Remarks This function allows you to set how often the hardware occlusion really are sent to the driver
-	  * if you set it to 0 every hw occlusion test is acctually made. If you set it to 1 only the half of your queries are sent 
-	  * for all visable objects. 2 will result in 25% of all queries to acctualy be sent. 
-	  * New and none visable objects will be tested all the time.
-	  * This functionality is here because this class can keep track on visable and none visable objects for you.
+	  * if you set it to 0 every hardware occlusion test is actually made. If you set it to 1 only the half of your queries are sent 
+	  * for all visible objects. 2 will result in 25% of all queries to actually be sent. 
+	  * New and none visible objects will be tested all the time.
+	  * This functionality is here because this class can keep track on visible and none visible objects for you.
 	  * Once you you set the SkipRate for any hardware occlusion instance it effects all others.
 	  */
 

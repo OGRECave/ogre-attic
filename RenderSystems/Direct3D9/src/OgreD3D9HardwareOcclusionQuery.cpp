@@ -35,6 +35,7 @@ namespace Ogre {
 	* @author Lee Sandberg
 	*
 	* Updated on 12/7/2004 by Chris McGuirk
+	* Updated on 4/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
 	*/
 
 	/**
@@ -98,6 +99,7 @@ namespace Ogre {
 			if(mSkipCounter == 0)
 			{
 				mpQuery->Issue(D3DISSUE_END); 
+                mIsQueryResultStillOutstanding = true;
 			}
 
 			// The skip counter is increased
@@ -108,22 +110,32 @@ namespace Ogre {
 	//------------------------------------------------------------------
 	// This version of pullOcclusionQuery causes the DX9 API/Driver to not flush all commands to the 3D card
 	// to allow a fast result from the query, but the batching of API calls to the card will be normal. 
-	// But the query wont be processed until the card recives the query in the next batch.
+	// But the query wont be processed until the card receives the query in the next batch.
 	// Note: OpenGL dosn't use this flag at all so the application running OpenGL won't display any different behaviour.
 	//--
 	bool D3D9HardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag  ) 
 	{
-		HRESULT hr;
 
 		// Make it fail silently if hardware occlusion isn't supported
 		if(mHasOcclusionSupport)
 		{
-			DWORD d3dFlags = (flag == HWOCCLUSIONQUERY_FLUSH) ? D3DGETDATA_FLUSH : 0;
+            // in case you didn't check if query arrived and want the result now.
+            if (mIsQueryResultStillOutstanding)
+            {
+			    DWORD d3dFlags = (flag == HWOCCLUSIONQUERY_FLUSH) ? D3DGETDATA_FLUSH : 0;
 
-			// run until success (http://www.gamedev.net/reference/programming/features/occlusionculling/page2.asp)
-			while(hr = mpQuery->GetData( NumOfFragments, sizeof( NumOfFragments ), d3dFlags) == S_FALSE);
+		        HRESULT hr;
 
-			mPixelCount = *NumOfFragments;
+			    // run until success (http://www.gamedev.net/reference/programming/features/occlusionculling/page2.asp)
+			    while (hr = mpQuery->GetData( NumOfFragments, sizeof( *NumOfFragments ), d3dFlags) == S_FALSE)
+                    ;
+			    mPixelCount = *NumOfFragments;
+            }
+            else
+            {
+                // we already stored result from last frames.
+                 *NumOfFragments = mPixelCount;
+            }
 		}
 		else 
 		{
@@ -133,6 +145,30 @@ namespace Ogre {
 
 		return true;
 	}
+    //------------------------------------------------------------------
+    bool D3D9HardwareOcclusionQuery::isStillOutstanding(void)
+    {
+    if(mHasOcclusionSupport)
+    {
+        // in case you already asked for this query
+        if (!mIsQueryResultStillOutstanding)
+            return false;
 
+        DWORD d3dFlags = 0;// not asking for flushed queries here.
+
+
+        if (mpQuery->GetData( &mPixelCount, sizeof( mPixelCount ), d3dFlags) == S_FALSE)
+            return true;
+
+        mIsQueryResultStillOutstanding = false;
+        return false;
+             
+    }
+    else
+    {
+        return false;
+    }
+       
+    } 
 
 }
