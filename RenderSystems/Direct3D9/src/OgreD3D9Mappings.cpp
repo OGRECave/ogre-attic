@@ -469,7 +469,12 @@ namespace Ogre
         }
         if (options == HardwareBuffer::HBL_READ_ONLY)
         {
-            ret |= D3DLOCK_READONLY;
+			// D3D debug runtime doesn't like you locking managed buffers readonly
+			// when they were created with write-only (even though you CAN read
+			// from the software backed version)
+			if (!(usage & HardwareBuffer::HBU_WRITE_ONLY))
+				ret |= D3DLOCK_READONLY;
+
         }
         if (options == HardwareBuffer::HBL_NO_OVERWRITE)
         {

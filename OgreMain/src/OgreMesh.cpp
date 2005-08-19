@@ -727,16 +727,27 @@ namespace Ogre {
         if (mIsLodManual && index > 0 && mMeshLodUsageList[index].manualMesh.isNull())
         {
             // Load the mesh now
-            mMeshLodUsageList[index].manualMesh = 
-                MeshManager::getSingleton().load(
-                    mMeshLodUsageList[index].manualName,
-                    mGroup);
-            // get the edge data, if required
-            if (!mMeshLodUsageList[index].edgeData)
-            {
-                mMeshLodUsageList[index].edgeData = 
-                    mMeshLodUsageList[index].manualMesh->getEdgeList(0);
-            }
+			try {
+				mMeshLodUsageList[index].manualMesh = 
+					MeshManager::getSingleton().load(
+						mMeshLodUsageList[index].manualName,
+						mGroup);
+				// get the edge data, if required
+				if (!mMeshLodUsageList[index].edgeData)
+				{
+					mMeshLodUsageList[index].edgeData = 
+						mMeshLodUsageList[index].manualMesh->getEdgeList(0);
+				}
+			}
+			catch (Exception& e)
+			{	
+				StringUtil::StrStreamType str;
+				str << "Error while loading manual LOD level " 
+					<< mMeshLodUsageList[index].manualName 
+					<< " - this LOD level will not be rendered. You can "
+					<< "ignore this error in offline mesh tools.";
+				LogManager::getSingleton().logMessage(str.str());
+			}
 
         }
         return mMeshLodUsageList[index];
@@ -1309,7 +1320,10 @@ namespace Ogre {
             {
                 // Delegate edge building to manual mesh
                 // It should have already built it's own edge list while loading
-                usage.edgeData = usage.manualMesh->getEdgeList(0);
+				if (!usage.manualMesh.isNull())
+				{
+					usage.edgeData = usage.manualMesh->getEdgeList(0);
+				}
             }
             else
             {

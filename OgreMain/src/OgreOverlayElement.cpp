@@ -415,7 +415,7 @@ namespace Ogre {
 		if (mGeomUVsOutOfDate && mInitialised)
 		{
 			updateTextureGeometry();
-			mGeomPositionsOutOfDate = false;
+			mGeomUVsOutOfDate = false;
 		}
     }
     //---------------------------------------------------------------------

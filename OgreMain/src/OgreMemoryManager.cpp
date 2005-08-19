@@ -251,7 +251,7 @@ namespace Ogre
     */
     const char *sourceFileStripper( const char *sourceFile )
     {
-        char *ptr = strrchr(sourceFile, '\\');
+        const char *ptr = strrchr(sourceFile, '\\');
         if( ptr ) 
             return ptr + 1;
         ptr = strrchr( sourceFile, '/' );
