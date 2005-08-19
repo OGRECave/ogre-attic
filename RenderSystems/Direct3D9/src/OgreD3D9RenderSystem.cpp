@@ -2438,6 +2438,18 @@ namespace Ogre
         Real bottom, Real top, Real nearPlane, Real farPlane, Matrix4& dest,
         bool forGpuProgram)
     {
+        // Correct position for off-axis projection matrix
+        if (!forGpuProgram)
+        {
+            Real offsetX = left + right;
+            Real offsetY = top + bottom;
+
+            left -= offsetX;
+            right -= offsetX;
+            top -= offsetY;
+            bottom -= offsetY;
+        }
+
         Real width = right - left;
         Real height = top - bottom;
         Real q, qn;
