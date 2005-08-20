@@ -1238,7 +1238,7 @@ The current supported syntaxes are:
 These are the DirectX vertex shader assembler syntaxes. 
 @item arbvp1
 This is the OpenGL standard assembler format for vertex programs. It's roughly equivalent to DirectX vs_1_1.
-@item ps_1_1, ps_1_2, ps_1_3, ps_1_4, ps_2_x, ps_3_0, ps_3_x
+@item ps_1_1, ps_1_2, ps_1_3, ps_1_4, ps_2_0, ps_2_x, ps_3_0, ps_3_x
 These are the DirectX pixel shader (ie fragment program) assembler syntaxes.@*
 NOTE: for ATI 8500, 9000, 9100, 9200 hardware, ps_1_1 to ps_1_4 can also be used in OpenGL.  The ATI 8500 to 9200 do not support arbfp1 but do support atifs extension in OpenGL which is very similar in function to ps_1_4 in DirectX.  Ogre has a built in ps_1_x to atifs compiler that is automatically invoked when ps_1_x is used in OpenGL on ATI hardware.
 @item arbfp1
