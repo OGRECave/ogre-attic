@@ -138,7 +138,7 @@ bool GLHardwareOcclusionQuery::isStillOutstanding(void)
       GLuint available;
 
       glGetQueryObjectuivARB_ptr(mQueryID, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-      return !(TRUE == available);
+      return !(available == GL_TRUE);
    }
    else
    {
