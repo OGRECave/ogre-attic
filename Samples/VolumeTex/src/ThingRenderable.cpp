@@ -29,6 +29,9 @@ ThingRenderable::ThingRenderable(float radius, size_t count, float qsize):
 }
 ThingRenderable::~ThingRenderable()
 {
+    // need to release IndexData and vertexData created for renderable
+    delete mRenderOp.indexData;
+    delete mRenderOp.vertexData;
 }
 
 void ThingRenderable::addTime(float t)

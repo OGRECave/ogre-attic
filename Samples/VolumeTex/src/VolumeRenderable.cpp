@@ -42,6 +42,10 @@ VolumeRenderable::~VolumeRenderable()
 {
 	// Remove private material
 	MaterialManager::getSingleton().remove(mTexture);
+    // need to release IndexData and vertexData created for renderable
+    delete mRenderOp.indexData;
+    delete mRenderOp.vertexData;
+
 }
 
 void VolumeRenderable::_notifyCurrentCamera( Camera* cam )
