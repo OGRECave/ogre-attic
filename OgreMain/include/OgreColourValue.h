@@ -80,6 +80,18 @@ namespace Ogre {
 	    /** Retrieves colours as ABGR */
 	    ABGR getAsABGR(void) const;
 
+	    /** Sets colour as RGBA.
+	    */
+        void setAsRGBA(RGBA val);
+
+	    /** Sets colour as ARGB.
+	    */
+        void setAsARGB(ARGB val);
+
+	    /** Sets colour as ABGR.
+	    */
+        void setAsABGR(ABGR val);
+
         // arithmetic operations
         inline ColourValue operator + ( const ColourValue& rkVector ) const
         {
