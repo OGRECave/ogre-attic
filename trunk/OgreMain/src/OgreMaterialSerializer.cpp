@@ -3764,7 +3764,9 @@ namespace Ogre
             // get the constant definition
             const GpuProgramParameters::ConstantDefinition* constDef = 
 				params->getConstantDefinition(paramIndex);
-            if (constDef)
+            // only output if the constant definition exists and its actually being used
+            // assume its being used if elementCount > 0
+            if (constDef && constDef->elementCount)
             {
                 // don't duplicate constants that are defined as a default parameter
                 bool defaultExist = false;
@@ -3777,7 +3779,7 @@ namespace Ogre
 
                     if (defaultConstDef)
                     {
-                        //check all the elements for being equal
+                        // check all the elements for being equal
                         // auto settings must be the same to be equal
                         if ((defaultConstDef->isAuto && constDef->isAuto) && 
 							(defaultConstDef->autoIndex == constDef->autoIndex))
@@ -3791,20 +3793,35 @@ namespace Ogre
                                 const GpuProgramParameters::RealConstantEntry* constEntry =
                                     params->getRealConstantEntry(constDef->entryIndex);
 
-                                const GpuProgramParameters::RealConstantEntry* defaultEntry =
-                                    defaultParams->getRealConstantEntry(defaultConstDef->entryIndex);
-                            
-                                defaultExist = isConstantRealValsEqual(constEntry, defaultEntry, constDef->elementCount);
+                                if (!constEntry)
+                                    // no constant entry found so pretend default value exist and don't output anything
+                                    defaultExist = true;
+                                else
+                                {
+                                    const GpuProgramParameters::RealConstantEntry* defaultEntry =
+                                        defaultParams->getRealConstantEntry(defaultConstDef->entryIndex);
+                                    // compare current pass gpu parameter value with defualt entry parameter values
+                                    // only ouput if they are different
+                                    defaultExist = isConstantRealValsEqual(constEntry, defaultEntry, constDef->elementCount);
+                                }
                             }
                             else // dealing with int
                             {
                                 const GpuProgramParameters::IntConstantEntry* constEntry =
                                     params->getIntConstantEntry(constDef->entryIndex);
 
-                                const GpuProgramParameters::IntConstantEntry* defaultEntry =
-                                    defaultParams->getIntConstantEntry(defaultConstDef->entryIndex);
-                            
-                                defaultExist = isConstantIntValsEqual(constEntry, defaultEntry, constDef->elementCount);
+                                if (!constEntry)
+                                    // no constant entry found so pretend default value exist and don't output anything
+                                    defaultExist = true;
+                                else
+                                {
+                                    const GpuProgramParameters::IntConstantEntry* defaultEntry =
+                                        defaultParams->getIntConstantEntry(defaultConstDef->entryIndex);
+
+                                    // compare current pass gpu parameter values with defualt entry parameter values
+                                    // only ouput if they are different
+                                    defaultExist = isConstantIntValsEqual(constEntry, defaultEntry, constDef->elementCount);
+                                }
                             }
 
                         }
