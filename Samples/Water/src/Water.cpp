@@ -79,6 +79,8 @@ void prepareCircleMaterial()
 	material->setSceneBlending( SBT_ADD );
 	material->setDepthWriteEnabled( false ) ;
     material->load();
+    // finished with bmap so release the memory
+    delete [] bmap;
 }
 
 
