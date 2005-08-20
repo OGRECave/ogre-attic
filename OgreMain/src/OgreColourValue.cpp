@@ -117,7 +117,7 @@ namespace Ogre {
         return val32;
     }
     //---------------------------------------------------------------------
-    void ColourValue::setAsRGBA(RGBA val)
+    void ColourValue::setAsRGBA(const RGBA val)
     {
         uint32 val32 = val;
 
@@ -137,7 +137,7 @@ namespace Ogre {
         a = static_cast<uint8>(val32) / 255.0f;
     }
     //---------------------------------------------------------------------
-    void ColourValue::setAsARGB(ARGB val)
+    void ColourValue::setAsARGB(const ARGB val)
     {
         uint32 val32 = val;
 
@@ -157,7 +157,7 @@ namespace Ogre {
         b = static_cast<uint8>(val32) / 255.0f;
     }
     //---------------------------------------------------------------------
-    void ColourValue::setAsABGR(ABGR val)
+    void ColourValue::setAsABGR(const ABGR val)
     {
         uint32 val32 = val;
 

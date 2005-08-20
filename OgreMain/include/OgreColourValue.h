@@ -82,15 +82,15 @@ namespace Ogre {
 
 	    /** Sets colour as RGBA.
 	    */
-        void setAsRGBA(RGBA val);
+        void setAsRGBA(const RGBA val);
 
 	    /** Sets colour as ARGB.
 	    */
-        void setAsARGB(ARGB val);
+        void setAsARGB(const ARGB val);
 
 	    /** Sets colour as ABGR.
 	    */
-        void setAsABGR(ABGR val);
+        void setAsABGR(const ABGR val);
 
         // arithmetic operations
         inline ColourValue operator + ( const ColourValue& rkVector ) const
@@ -117,7 +117,7 @@ namespace Ogre {
             return kDiff;
         }
 
-        inline ColourValue operator * ( float fScalar ) const
+        inline ColourValue operator * (const float fScalar ) const
         {
             ColourValue kProd;
 
@@ -153,7 +153,7 @@ namespace Ogre {
             return kProd;
         }
 
-        inline ColourValue operator / ( float fScalar ) const
+        inline ColourValue operator / (const float fScalar ) const
         {
             assert( fScalar != 0.0 );
 
@@ -168,7 +168,7 @@ namespace Ogre {
             return kDiv;
         }
 
-        inline friend ColourValue operator * ( float fScalar, const ColourValue& rkVector )
+        inline friend ColourValue operator * (const float fScalar, const ColourValue& rkVector )
         {
             ColourValue kProd;
 
@@ -201,7 +201,7 @@ namespace Ogre {
             return *this;
         }
 
-        inline ColourValue& operator *= ( float fScalar )
+        inline ColourValue& operator *= (const float fScalar )
         {
             r *= fScalar;
             g *= fScalar;
@@ -210,7 +210,7 @@ namespace Ogre {
             return *this;
         }
 
-        inline ColourValue& operator /= ( float fScalar )
+        inline ColourValue& operator /= (const float fScalar )
         {
             assert( fScalar != 0.0 );
 
