@@ -31,4 +31,4 @@ fi
 rm -rf autom4te.cache
 
 # Fire up autotools
-libtoolize --force && aclocal -I Scripts/m4 $ACLOCAL_FLAGS && autoheader && automake --include-deps --add-missing --foreign && autoconf 
+libtoolize --force --copy && aclocal -I Scripts/m4 $ACLOCAL_FLAGS && autoheader && automake --include-deps --add-missing --foreign --copy && autoconf 

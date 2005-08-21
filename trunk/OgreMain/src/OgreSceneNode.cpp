@@ -289,7 +289,8 @@ namespace Ogre {
             for (child = mChildren.begin(); child != childend; ++child)
             {
                 SceneNode* sceneChild = static_cast<SceneNode*>(child->second);
-                sceneChild->_findVisibleObjects(cam, queue, includeChildren, displayNodes);
+                sceneChild->_findVisibleObjects(cam, queue, includeChildren, 
+					displayNodes, onlyShadowCasters);
             }
         }
 

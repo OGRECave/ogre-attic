@@ -9,15 +9,110 @@
   <meta name="CHANGED" content="20050220;20480617">
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<body bgcolor="#003300" dir="ltr" lang="en-US" link="#ffff00"
- text="#ccffcc">
+<body>
 <p class="header" align="center">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p class="header" align="center">Change Log</p>
+<p class="mainheader" align="left">v1.0.4 [Azathoth] (21 August
+2005) - Maintenance Release</p>
+<ul>
+	<li>Fix texture shadows when using basic SceneManager (not octree or bsp)</li>
+  <li>Fix memory leaks in Demo_Water and Demo_VolumeTex<br>
+  </li>
+  <li>Add isStillOutstanding method to hardware occlusion queries to
+promote more asynchronous behaviour<br>
+  </li>
+  <li>Fix a couple of squared distance comparison bugs<br>
+  </li>
+  <li>Fix OverlayElement::updateTextureGeometry being called
+repetitively<br>
+  </li>
+  <li>D3D _makePerspectiveMatrix fix (left/top/right/bottom version)<br>
+  </li>
+  <li>Demo_VolumeTex material loading bug fixed<br>
+  </li>
+  <li>Fixed accumulated discrepancy in animation track optimise<br>
+  </li>
+  <li>Bugfix to SceneQuery::removeQueryFlags<br>
+  </li>
+  <li>Node destruction now cleaner<br>
+  </li>
+  <li>Add ability to force software skinning to Entity<br>
+  </li>
+  <li>D3D texture bugfixes</li>
+  <ul>
+    <li>We need to check the corrected pixel format before determining
+hardware dynamic/auto-mipmap texture support</li>
+    <li>The D3D render system texture auto mipmap generation should
+respect the TU_AUTOMIPMAP usage</li>
+    <li>Should check the ability to use dyncamic textures in volume and
+cube maps before enabling the flag<br>
+    </li>
+  </ul>
+  <li>Fix remaining device restore problems with manual (e.g. dynamic)
+textures, RTTs that are never used, and colour state after restore<br>
+  </li>
+  <li>Material bug - fixup best techniques container when material
+copied<br>
+  </li>
+  <li>Fix depth bias in D3D9 on nVidia to be more reliable<br>
+  </li>
+  <li>Fix iterator invalidation problem in
+SceneNode::removeAndDestroyChildren<br>
+  </li>
+  <li>Quaternion::equals now takes negated quaternion into account, may
+define the same rotation</li>
+  <li>XML Converter issues fixed:</li>
+  <ul>
+    <li>crash fix - prevent FileStreamDataStream from deleting stack
+allocated stream</li>
+    <li>fixed a problem with converting manual LOD levels <br>
+    </li>
+  </ul>
+  <li>Fixed water demo crash if ESC pressed at config screen<br>
+  </li>
+  <li>Fixed Viewport/Camera auto aspect ratio bug - use floating point
+division, not integer<br>
+  </li>
+  <li>getRenderTargetIterator added to RenderSystem to allow external
+parsing of current targets<br>
+  </li>
+  <li>Clamp projected texture in Demo_RenderToTexture to avoid
+artefacts on some cards<br>
+  </li>
+  <li>TagPoint was not inheriting parent entity scale meaning attached
+object didn't scale with their parents; now they do<br>
+  </li>
+  <li>Several small documentation corrections</li>
+  <li>Fixed off-by-one bug in SimpleSpline &amp; RotationSpline which
+caused incorrect interpolation over loop<br>
+  </li>
+  <li>Resource group initialised flag is now reset when clearing,
+allowing scripts to be re-read<br>
+  </li>
+  <li>Hardware skinning example shaders now handle directional as well
+as point lights<br>
+  </li>
+  <li>Fixed CEGuiTexture so it frees shared pointer whether it deleted
+shared texture or not<br>
+  </li>
+  <li>Fixed bug in EventProcessor shutdown: wasn't removing its
+registered frame listener which causes a seg fault if rendering
+continues<br>
+  </li>
+  <li>Infinite loop bug fixed in Matrix3::QLAlgorithm<br>
+  </li>
+  <li>Small compatibility fixes for VS2005<br>
+  </li>
+  <li>Context switching problem in GL Render system (GLX) solved</li>
+  <li>Some const correctness and other tidying exercises<br>
+  </li>
+</ul>
 <p class="mainheader" align="left">v1.0.3 [Azathoth] (10 July
 2005) - Maintenance Release</p>
 <ul>
-  <li>Fixed a problem in D3D9 where GeForce 6x00 range was not enabling infinite projection</li>
+  <li>Fixed a problem in D3D9 where GeForce 6x00 range was not enabling
+infinite projection</li>
   <li>libOgreMain.so now only exports symbols based on ogremain.map</li>
   <li>Fixed --enable-openexr argument for ./configure</li>
   <li>XSI exporter - don't crash if textures are not found, just warn
@@ -359,8 +454,8 @@ Porting Notes Wiki Page</a>. </p>
 <p align="left">Enhancements and new Features:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Resource
-System Overhaul</font>: </p>
+    <p style="margin-bottom: 0cm;">Resource
+System Overhaul: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Resources now addressed through
@@ -397,8 +492,9 @@ experienced users. </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Hardware Pixel
-Buffers &amp; Image enhancements</font>: </p>
+    <p style="margin-bottom: 0cm;">Hardware
+Pixel
+Buffers &amp; Image enhancements: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Direct access to read / write to
@@ -426,8 +522,9 @@ templated conversion routines available in capable compilers </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">High Dynamic
-Range (HDR) rendering support</font>: </p>
+    <p style="margin-bottom: 0cm;">High
+Dynamic
+Range (HDR) rendering support: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Create render textures in
@@ -440,16 +537,16 @@ disk using the OpenEXR plugin (optional) </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Particle
-System enhancements</font>: Particle systems are no longer limited to
+    <p style="margin-bottom: 0cm;">Particle
+System enhancements: Particle systems are no longer limited to
 rendering with billboards, they render through instances of
 ParticleSystemRenderer subclasses, which can be implemented in plugins
 and added at runtime. Use of these alternative renderers is scriptable
 and can be used to implement alternative particle types like ribbons. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">GUI changes</font>:
-    </p>
+    <p style="margin-bottom: 0cm;">GUI
+changes: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">The OGRE internal GUI has been
@@ -465,7 +562,9 @@ instead of *GuiElement to reflect their role </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;">Material changes: </p>
+    <p style="margin-bottom: 0cm;"><span
+ style="font-weight: bold; color: rgb(0, 102, 0);">Material changes</span>:
+    </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">alpha_rejection has been moved
@@ -588,8 +687,8 @@ Maintenance Release</p>
 <p align="left">Changes:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Stencil shadows</font>:
-    </p>
+    <p style="margin-bottom: 0cm;">Stencil
+shadows: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Runtime performance improvements
@@ -608,22 +707,21 @@ in reflected camera scenarios </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">TerrainSceneManager</font>:
+    <p style="margin-bottom: 0cm;">TerrainSceneManager:
 Fixed crash when you clear the terrain scene but don't call
 setWorldGeometry again </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Direct3D
-textures</font>: Prefer D3DFMT_X8R8G8B8 over D3DFMT_R8G8B8 for texture
+    <p style="margin-bottom: 0cm;">Direct3D
+textures: Prefer D3DFMT_X8R8G8B8 over D3DFMT_R8G8B8 for texture
 formats, and disable auto mipmap generation when mipmaps == 0 </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">BillboardSet</font>:
+    <p style="margin-bottom: 0cm;">BillboardSet:
 avoid double-free crashes under certain calling orders. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Camera</font>:
-    </p>
+    <p style="margin-bottom: 0cm;">Camera: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Better safety checks for bad
@@ -636,7 +734,7 @@ now works for orthographic projection </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">GL</font>: </p>
+    <p style="margin-bottom: 0cm;">GL: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Added virtual keyword to
@@ -649,8 +747,7 @@ consistency issues in fixed-function lighting states </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Scene Queries</font>:
-    </p>
+    <p style="margin-bottom: 0cm;">Scene Queries: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Query mask flags for world
@@ -671,30 +768,30 @@ attached to detached subtrees of the scene graph </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Font</font>:
+    <p style="margin-bottom: 0cm;">Font:
 several fixes to make on-screen fonts much crisper </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Windows</font>:
+    <p style="margin-bottom: 0cm;">Windows:
 requested size now translated to client area size in windowed mode
 (except if full window size exceeds the desktop size) </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Material
-scripts</font>: automatic GPU program parameter 'projection_matrix' now
+    <p style="margin-bottom: 0cm;">Material
+scripts: automatic GPU program parameter 'projection_matrix' now
 parsed correctly </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">VC7.1+ STL</font>:
+    <p style="margin-bottom: 0cm;">VC7.1+ STL:
 Avoid long shutdown in debug mode </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">VC6</font>:
+    <p style="margin-bottom: 0cm;">VC6:
 Added /Zm option to VC6 to avoid compiler out of heap space errors </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Blender
-exporter</font>: </p>
+    <p style="margin-bottom: 0cm;">Blender
+exporter: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Fixed calculation of initial
@@ -722,8 +819,7 @@ automatically </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">3DS exporter</font>:
-    </p>
+    <p style="margin-bottom: 0cm;">3DS exporter: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Export vertex alpha export as
@@ -760,12 +856,11 @@ exported when using multiple animations. </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Memory manager</font>:
+    <p style="margin-bottom: 0cm;">Memory manager:
 Fix use of memory macros without namespace Ogre </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Manual updates</font>:
-    </p>
+    <p style="margin-bottom: 0cm;">Manual updates: </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Mention optional alpha
@@ -913,8 +1008,8 @@ development branch (which will be released as 1.0) is called
 <p align="left">Enhancements:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Binary mesh
-format enhanced</font>. Previously the binary mesh format did not
+    <p style="margin-bottom: 0cm;">Binary mesh
+format enhanced. Previously the binary mesh format did not
 support all the flexibility you could attain when you built meshes
 programmatically. This has been addressed, and the mesh can now store
 arbitrary vertex buffer formats, precomputed edge lists (for stencil
@@ -929,27 +1024,27 @@ precomputed and stored by default - if you don't intend to use stencil
 shadows then you can disable this with the '-e' parameter.</p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">OpenGL Shading
-Language (GLSL) support</font>. This means Ogre now supports
+    <p style="margin-bottom: 0cm;">OpenGL Shading
+Language (GLSL) support. This means Ogre now supports
 programmable shaders written in Cg, HLSL, GLSL and all variants of
 assembler (DirectX and GL). </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Explicit
-Radian, Degree and AngleUnit classes</font>. To resolve ambiguity as to
+    <p style="margin-bottom: 0cm;">Explicit
+Radian, Degree and AngleUnit classes. To resolve ambiguity as to
 which angle unit is being used, all methods which take an angle now
 take a Radian class. You can pass Degree instances to this too and get
 automatic degree-to-radian conversion. You can also use the AngleUnit
 class which defaults to the current angle units (see Math). Note that
 conversions are inlined and are thus very cheap; although if you want
-to avoid them entirely, use Radian. This is an <font color="#ff6600">interface
-breaking change</font>, so you will need to update your code to use
+to avoid them entirely, use Radian. This is an interface
+breaking change, so you will need to update your code to use
 Radian(radianValue) or Degree(degreeValue) where you are using basic
 types to store angles.</p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff00">Reflection
-enhancements</font>. Automatic reflections using dynamic planes are now
+    <p style="margin-bottom: 0cm;">Reflection
+enhancements. Automatic reflections using dynamic planes are now
 simple to create using MovablePlane, and 'custom near clip planes'
 (oblique depth projection) are available to allow you to clip reflected
 geometry to an arbitrary plane without requiring additional hardware
@@ -1000,7 +1095,7 @@ texture shadows, if an option is enabled in their material (useful for
 alpha rejection textures) </p>
   </li>
   <li>
-    <p>Added <font color="#ffff33">GLX</font> platform manager,
+    <p>Added GLX platform manager,
 enabling the use of OGRE on Linux without using SDL. This also has a
 nice configuration dialog instead of the text based one. </p>
   </li>
@@ -1011,8 +1106,8 @@ nice configuration dialog instead of the text based one. </p>
     <p style="margin-bottom: 0cm;">Ogre::String is no longer a subclass
 of std::string, but a typedef to it. All extra methods which were on
 Ogre::String are now on the Ogre::StringUtil class. This is to resolve
-compatibility issues on some STLs; this is an <font color="#ff6600">interface
-breaking change</font> so you will need to update your code to use the
+compatibility issues on some STLs; this is an interface
+breaking change so you will need to update your code to use the
 equivalent StringUtil methods.</p>
   </li>
   <li>
@@ -1071,20 +1166,20 @@ than one SubMesh with it's own geometry </p>
 <p>Deprecation warnings:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">SceneNode::attachCamera
-and SceneNode::attachLight</font>, which have been deprecated for some
+    <p style="margin-bottom: 0cm;">SceneNode::attachCamera
+and SceneNode::attachLight, which have been deprecated for some
 time, have been removed. Use SceneNode::attachObject.</p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33">Internal GUI
-classes</font>; in the next release, the internal GUI will be removed
+    <p style="margin-bottom: 0cm;">Internal GUI
+classes; in the next release, the internal GUI will be removed
 in favour of <a href="http://crayzedsgui.sourceforge.net/">Crazy
 Eddie's GUI</a>, and we advise all users to begin migrating their code
 now. This covers the interactive GUIs (ie buttons, scroll bars etc) and
 not static overlays, which will still be available in Ogre. </p>
   </li>
   <li>
-    <p><font color="#ffff33">NatureSceneManager</font>; this will be
+    <p>NatureSceneManager; this will be
 moved to ogreaddons in the next version incase anyone wishes to
 continue to maintain it. The Ogre team have no plans to support this
 scene manager since TerrainSceneManager and PagingLandscape (in
@@ -1096,8 +1191,8 @@ Release</p>
 <p align="left">Enhancements:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><font color="#ffff33"><b>TerrainSceneManager
-improved</b></font></p>
+    <p style="margin-bottom: 0cm;"><b>TerrainSceneManager
+improved</b></p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Vertex program morphing allows
@@ -1212,7 +1307,7 @@ Release</p>
 <p align="left">Enhancements:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff33">Shadows</font></b>
+    <p style="margin-bottom: 0cm;"><b>Shadows</b>
     </p>
     <ul>
       <li>
@@ -1261,8 +1356,8 @@ not tell you about this!</p>
 </ul>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff33">Hardware
-Skinning</font></b> </p>
+    <p style="margin-bottom: 0cm;"><b>Hardware
+Skinning</b> </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">Skeletal animation can now be
@@ -1275,31 +1370,31 @@ your target vertex program version</p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff33">General
-purpose projective texturing</font></b>. Projective texturing was
+    <p style="margin-bottom: 0cm;"><b>General
+purpose projective texturing</b>. Projective texturing was
 possible in Ogre before, but it required you to manually set up the
 texture matrices. Now there is a simple 1-method call which allows you
 to link a texture unit to a Frustum instance, and it will automatically
 sync the projection of the texture with changes to the frustum. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff33">Node/SceneNode
-enhancements</font></b>. You can now make a node automatically track
+    <p style="margin-bottom: 0cm;"><b>Node/SceneNode
+enhancements</b>. You can now make a node automatically track
 (constantly look at) another node, and all transforms now take a
 'transform space' parameter to make it easier to perform
 transformations relative to any space. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff33">Skeleton
-instances</font></b>. The sharing of skeletons between multiple
+    <p style="margin-bottom: 0cm;"><b>Skeleton
+instances</b>. The sharing of skeletons between multiple
 animated objects has been made more flexible so that you can now more
 easily hook up external effects on the bones on particular instances of
 that skeleton (in entities); applications such as manually controlling
 bones or ragdoll simulations benefit from these enhancements. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff33">External
-Texture Sources</font></b>. You can now register external texture
+    <p style="margin-bottom: 0cm;"><b>External
+Texture Sources</b>. You can now register external texture
 sources in order to feed texture data in from another source; this has
 been used to render video through a texture for example, although the
 technique can be used for many other things.</p>
@@ -1423,23 +1518,22 @@ Release</p>
 <p align="left">Changes since 0.12.3:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff00">Major
-material upgrade</font></b>! This is a subsection of it's own.. </p>
+    <p style="margin-bottom: 0cm;"><b>Major
+material upgrade</b>! This is a subsection of it's own.. </p>
     <ul>
       <li>
-        <p style="margin-bottom: 0cm;">Support for <font
- color="#ffff00">vertex and fragment programs</font> (shaders),
+        <p style="margin-bottom: 0cm;">Support for vertex and fragment programs (shaders),
 including: </p>
         <ul>
           <li>
-            <p style="margin-bottom: 0cm;"><font color="#ffff00">Low-level
-assembler programs</font> under D3D9 (vs_1_1, vs_2_x, ps_1_x, ps_2_x)
+            <p style="margin-bottom: 0cm;">Low-level
+assembler programs under D3D9 (vs_1_1, vs_2_x, ps_1_x, ps_2_x)
 and GL (NV_texture_shader, NV_register_combiners, arbvp1, arbfp1,
 ATI_fragment_shader) </p>
           </li>
           <li>
-            <p style="margin-bottom: 0cm;"><font color="#ffff00">High-level
-program support</font> via plugins, so far we support Cg and D3D9 HLSL.
+            <p style="margin-bottom: 0cm;">High-level
+program support via plugins, so far we support Cg and D3D9 HLSL.
 Cg compiles down to D3D and GL assembler, and includes converters to
 non-assembler formats including NV_register_combiners and
 ATI_fragment_shader so you can write a single program for all targets. </p>
@@ -1457,21 +1551,20 @@ scripts </p>
         </ul>
       </li>
       <li>
-        <p style="margin-bottom: 0cm;">Materials now support <font
- color="#ffff00">multiple 'techniques'</font>, which can be used as
+        <p style="margin-bottom: 0cm;">Materials now support multiple 'techniques', which can be used as
 automatic fallbacks for older cards which don't support the requisite
 features for your preferred shading approach</p>
       </li>
       <li>
-        <p style="margin-bottom: 0cm;"><font color="#ffff00">Material
-LOD</font> - you can tell materials to change technique over distance
+        <p style="margin-bottom: 0cm;">Material
+LOD - you can tell materials to change technique over distance
 to save rendering power on distant objects; this is subject to the same
 control parameters (camera bias and entity bias) that is used for mesh
 LOD so you can tweak it heavily </p>
       </li>
       <li>
-        <p style="margin-bottom: 0cm;"><font color="#ffff00">Scriptable
-multipass rendering</font>; you can now specify multiple passes in one
+        <p style="margin-bottom: 0cm;">Scriptable
+multipass rendering; you can now specify multiple passes in one
 material if you wish, and those passes can also be iterated once per
 light automatically, and the engine will call the pass with each nearby
 light </p>
@@ -1485,8 +1578,8 @@ using the OgreMaterialUpgrade tool </p>
     </ul>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff00">Light
-management upgraded</font></b>; you can now have an unlimited number of
+    <p style="margin-bottom: 0cm;"><b>Light
+management upgraded</b>; you can now have an unlimited number of
 lights in the scene, and OGRE will pick and use the 'n' closest lights
 ('n' is configurable per pass in the material scripts) which are within
 their attenuation range when rendering an object. This makes light
@@ -1495,16 +1588,15 @@ fragment programs. As mentioned above, passes can even be configured to
 iterate using the 'n' nearest lights. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff00">More
-texture formats supported</font></b>: we now support <font
- color="#ffff00">1D</font> textures, <font color="#ffff00">compressed
-textures</font> (DXT formats), <font color="#ffff00">volume textures</font>
+    <p style="margin-bottom: 0cm;"><b>More
+texture formats supported</b>: we now support 1D textures, compressed
+textures (DXT formats), volume textures
 (true 3D textures, not just 6 faces like cube maps), and loading all of
-the above from the <font color="#ffff00">.dds format</font>, even in
+the above from the .dds format, even in
 GL. </p>
   </li>
   <li>
-    <p style="margin-bottom: 0cm;"><b><font color="#ffff00">XCode </font></b>IDE
+    <p style="margin-bottom: 0cm;"><b>XCode </b>IDE
 support on Mac OSX</p>
   </li>
   <li>
