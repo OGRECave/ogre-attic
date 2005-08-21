@@ -271,6 +271,11 @@ namespace Ogre
     {
         setConstant(index, vec.val, 1);
     }
+	//-----------------------------------------------------------------------------
+	void GpuProgramParameters::setConstant(size_t index, Real val)
+	{
+		setConstant(index, Vector4(val, 0.0f, 0.0f, 0.0f));
+	}
     //-----------------------------------------------------------------------------
     void GpuProgramParameters::setConstant(size_t index, const Vector3& vec)
     {

@@ -456,6 +456,14 @@ namespace Ogre {
 		@param vec The value to set
 		*/
 		void setConstant(size_t index, const Vector4& vec);
+		/** Sets a single floating-point parameter to the program.
+		@note This is actually equivalent to calling 
+		setConstant(index Vector4(val, 0, 0, 0)) since all constants are 4D.
+		@param index The constant index at which to place the parameter (each constant is
+		a 4D float)
+		@param val The value to set
+		*/
+		void setConstant(size_t index, Real val);
 		/** Sets a 4-element floating-point parameter to the program via Vector3.
 		@param index The constant index at which to place the parameter (each constant is
             a 4D float).

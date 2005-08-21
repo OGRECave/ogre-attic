@@ -117,6 +117,66 @@ namespace Ogre {
         return val32;
     }
     //---------------------------------------------------------------------
+    void ColourValue::setAsRGBA(const RGBA val)
+    {
+        uint32 val32 = val;
+
+        // Convert from 32bit pattern
+        // (RGBA = 8888)
+
+        // Red
+        r = static_cast<uint8>(val32 >> 24) / 255.0f;
+
+        // Green
+        g = static_cast<uint8>(val32 >> 16) / 255.0f;
+
+        // Blue
+        b = static_cast<uint8>(val32 >> 8) / 255.0f;
+
+        // Alpha
+        a = static_cast<uint8>(val32) / 255.0f;
+    }
+    //---------------------------------------------------------------------
+    void ColourValue::setAsARGB(const ARGB val)
+    {
+        uint32 val32 = val;
+
+        // Convert from 32bit pattern
+        // (ARGB = 8888)
+
+        // Alpha
+        a = static_cast<uint8>(val32 >> 24) / 255.0f;
+
+        // Red
+        r = static_cast<uint8>(val32 >> 16) / 255.0f;
+
+        // Green
+        g = static_cast<uint8>(val32 >> 8) / 255.0f;
+
+        // Blue
+        b = static_cast<uint8>(val32) / 255.0f;
+    }
+    //---------------------------------------------------------------------
+    void ColourValue::setAsABGR(const ABGR val)
+    {
+        uint32 val32 = val;
+
+        // Convert from 32bit pattern
+        // (ABGR = 8888)
+
+        // Alpha
+        a = static_cast<uint8>(val32 >> 24) / 255.0f;
+
+        // Blue
+        b = static_cast<uint8>(val32 >> 16) / 255.0f;
+
+        // Green
+        g = static_cast<uint8>(val32 >> 8) / 255.0f;
+
+        // Red
+        r = static_cast<uint8>(val32) / 255.0f;
+    }
+    //---------------------------------------------------------------------
     bool ColourValue::operator==(const ColourValue& rhs) const
     {
         return (r == rhs.r &&

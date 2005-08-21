@@ -36,6 +36,7 @@ namespace Ogre {
   *
   * Updated on 12/7/2004 by Chris McGuirk
   * - Implemented ARB_occlusion_query
+  * Updated on 4/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
   */
 
 /**
@@ -112,7 +113,7 @@ void GLHardwareOcclusionQuery::endOcclusionQuery()
 }
 
 //------------------------------------------------------------------
-// OpenGL dosn't use the flag paramter.
+// OpenGL dosn't use the flag parameter.
 //------------------------------------------------------------------
 bool GLHardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag  ) 
 {
@@ -122,14 +123,28 @@ bool GLHardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments,
 	}
 	else
 	{
-		*NumOfFragments = 100000;		// Fails quitlly -> every object tested is visable.
+		*NumOfFragments = 100000;		// Fails quietly -> every object tested is visible.
 	}
 
 	mPixelCount = *NumOfFragments; 
 	
 	return true;
 }
+//------------------------------------------------------------------
+bool GLHardwareOcclusionQuery::isStillOutstanding(void)
+{   
+   if(mHasOcclusionSupport)
+   {
+      GLuint available;
 
+      glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+      return !(available == GL_TRUE);
+   }
+   else
+   {
+      return false;   
+   }
+} 
 
 }
 
