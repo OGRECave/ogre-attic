@@ -504,7 +504,8 @@ namespace Ogre {
 			}
 			// Create FBO manager
             LogManager::getSingleton().logMessage("GL: Using GL_EXT_framebuffer_object for rendering to textures (best)");
-            mRTTManager = new GLFBOManager(mGLSupport->getGLVendor() == "ATI");
+            //mRTTManager = new GLFBOManager(mGLSupport->getGLVendor() == "ATI");
+            mRTTManager = new GLFBOManager(false);
             mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
         }
         else
