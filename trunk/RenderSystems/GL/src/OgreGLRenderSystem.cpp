@@ -2169,7 +2169,6 @@ namespace Ogre {
         }
         else
         {
-            glDrawArrays(primType, 0, op.vertexData->vertexCount);
 			do
 			{
 				glDrawArrays(primType, 0, op.vertexData->vertexCount);
