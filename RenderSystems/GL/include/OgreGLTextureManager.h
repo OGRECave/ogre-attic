@@ -39,13 +39,18 @@ namespace Ogre {
         GLTextureManager(GLSupport& support);
         virtual ~GLTextureManager();
 
+		GLuint getWarningTextureID() { return mWarningTextureID; }
     protected:
         /// @copydoc ResourceManager::createImpl
         Resource* createImpl(const String& name, ResourceHandle handle, 
             const String& group, bool isManual, ManualResourceLoader* loader, 
             const NameValuePairList* createParams);
 
+		/// Internal method to create a warning texture (bound when a texture unit is blank)
+		void createWarningTexture();
+
         GLSupport& mGLSupport;
+		GLuint mWarningTextureID;
     };
 }
 #endif

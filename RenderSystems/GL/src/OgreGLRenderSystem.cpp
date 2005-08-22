@@ -1059,7 +1059,8 @@ namespace Ogre {
 
 			if(!tex.isNull())
 				glBindTexture( mTextureTypes[stage], tex->getGLID() );
-
+			else
+				glBindTexture( mTextureTypes[stage], static_cast<GLTextureManager*>(mTextureManager)->getWarningTextureID() );
         }
         else
         {
