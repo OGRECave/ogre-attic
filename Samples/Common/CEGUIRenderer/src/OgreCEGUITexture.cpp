@@ -156,7 +156,7 @@ void OgreCEGUITexture::loadFromMemory(const void* buffPtr, uint buffWidth, uint 
     memcpy(swappedBuffer, buffPtr, bytesize);
 
     for (int i=0; i < bytesize/4; i++)
-        ByteSwap(swappedBuffer[i]);
+        byteSwap(swappedBuffer[i]);
 
     DataStreamPtr odc(new MemoryDataStream(static_cast<void*>(swappedBuffer), bytesize, false));
 #else
