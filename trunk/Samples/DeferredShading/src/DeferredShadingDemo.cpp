@@ -227,6 +227,20 @@ protected:
     // Just override the mandatory create scene method
     void createScene(void)
     {
+		RenderSystem *rs = Root::getSingleton().getRenderSystem();
+		const RenderSystemCapabilities* caps = rs->getCapabilities();
+        if (!caps->hasCapability(RSC_VERTEX_PROGRAM) || !(caps->hasCapability(RSC_FRAGMENT_PROGRAM)))
+        {
+            OGRE_EXCEPT(1, "Your card does not support vertex and fragment programs (or you selected D3D7), so cannot "
+                "run this demo. Sorry!", 
+                "DeferredShading::createScene");
+        }
+		if (caps->numMultiRenderTargets()<2)
+        {
+            OGRE_EXCEPT(1, "Your card does not support at least two simulataneous render targets, so cannot "
+                "run this demo. Sorry!", 
+                "DeferredShading::createScene");
+        }
 		// Prepare athene mesh for normalmapping
         MeshPtr pAthene = MeshManager::getSingleton().load("athene.mesh", 
             ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -491,8 +505,7 @@ protected:
 		Animation* anim = mSceneMgr->createAnimation("LightSwarmTrack", stations*seconds_per_station);
 		// Spline it for nice curves
 		anim->setInterpolationMode(Animation::IM_SPLINE);
-		for(int x=0; x<nodes.size(); ++x)
-		//for(int x=0; x<1; ++x)
+		for(unsigned int x=0; x<nodes.size(); ++x)
 		{
 			// Create a track to animate the camera's node
 			NodeAnimationTrack* track = anim->createNodeTrack(x, nodes[x]);
