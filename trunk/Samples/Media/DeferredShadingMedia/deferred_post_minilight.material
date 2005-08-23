@@ -1,0 +1,63 @@
+// Auxilary lights
+
+material DeferredShading/Post/LightMaterial
+{
+    technique
+    {
+		pass
+		{
+			scene_blend add
+			depth_write off
+			depth_check on
+			lighting off
+			// Don't disable depth test, because the light doesn't have to be rendered
+			// if the bounding geometry is obscured.
+			
+			fragment_program_ref DeferredShading/post/hlsl/LightMaterial_ps
+			{
+			}
+			vertex_program_ref DeferredShading/post/hlsl/LightMaterial_vs
+			{
+			}
+			texture_unit
+			{
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+	technique
+    {
+		pass
+		{
+			scene_blend add
+			depth_write off
+			depth_check on
+			lighting off
+			// Don't disable depth test, because the light doesn't have to be rendered
+			// if the bounding geometry is obscured.
+			
+			fragment_program_ref DeferredShading/post/glsl/LightMaterial_ps
+			{
+			}
+			vertex_program_ref DeferredShading/post/glsl/LightMaterial_vs
+			{
+			}
+			texture_unit
+			{
+				tex_address_mode clamp
+				filtering none
+			}
+			texture_unit
+			{
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+}
