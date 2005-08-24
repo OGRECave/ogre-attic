@@ -109,7 +109,8 @@
         };
 
         _ZNS*;
-        _ZN9__gnu_cxx10*;
+        _ZN9__gnu_cxx*;
+        _ZZN9__gnu_cxx*;
 
         # export vtables & typeinfo
         _ZT[ISV]N4Ogre[0-9][AB]*;
