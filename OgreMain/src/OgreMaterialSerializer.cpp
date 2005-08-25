@@ -2639,16 +2639,16 @@ namespace Ogre
         }
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::exportMaterial(const MaterialPtr& pMat, const String &fileName, bool exportDefaults, const bool includeProgDef)
+    void MaterialSerializer::exportMaterial(const MaterialPtr& pMat, const String &fileName, bool exportDefaults,
+        const bool includeProgDef, const String& programFilename)
     {
         clearQueue();
         mDefaults = exportDefaults;
-        mIncludeProgramDefinition = includeProgDef;
         writeMaterial(pMat);
-        exportQueued(fileName);
+        exportQueued(fileName, includeProgDef, programFilename);
     }
     //-----------------------------------------------------------------------
-    void MaterialSerializer::exportQueued(const String &fileName, const String& programFilename)
+    void MaterialSerializer::exportQueued(const String &fileName, const bool includeProgDef, const String& programFilename)
     {
         // write out gpu program definitions to the buffer
         writeGpuPrograms();
@@ -2663,16 +2663,19 @@ namespace Ogre
             OGRE_EXCEPT(Exception::ERR_CANNOT_WRITE_TO_FILE, "Cannot create material file.",
             "MaterialSerializer::export");
 
-        if (mIncludeProgramDefinition && !mGpuProgramBuffer.empty())
+        // output gpu program definitions to material script file if includeProgDef is true
+        if (includeProgDef && !mGpuProgramBuffer.empty())
         {
             fputs(mGpuProgramBuffer.c_str(), fp);
         }
+
+        // output main buffer holding material script
         fputs(mBuffer.c_str(), fp);
         fclose(fp);
 
         // write program script if program filename and program definitions
         // were not included in material script
-        if (!mIncludeProgramDefinition && !mGpuProgramBuffer.empty() && !programFilename.empty())
+        if (!includeProgDef && !mGpuProgramBuffer.empty() && !programFilename.empty())
         {
             FILE *fp;
             fp = fopen(programFilename.c_str(), "w");
@@ -2688,13 +2691,12 @@ namespace Ogre
     }
     //-----------------------------------------------------------------------
     void MaterialSerializer::queueForExport(const MaterialPtr& pMat, 
-		bool clearQueued, bool exportDefaults, const bool includeProgDef)
+		bool clearQueued, bool exportDefaults)
     {
         if (clearQueued)
             clearQueue();
 
         mDefaults = exportDefaults;
-        mIncludeProgramDefinition = includeProgDef;
         writeMaterial(pMat);
     }
     //-----------------------------------------------------------------------
@@ -2786,7 +2788,10 @@ namespace Ogre
     void MaterialSerializer::writePass(const Pass* pPass)
     {
         writeAttribute(2, "pass");
-        writeValue(pPass->getName());
+        // only output pass name if its not the default name
+        if (pPass->getName() != StringConverter::toString(pPass->getIndex()))
+            writeValue(pPass->getName());
+
         beginSection(2);
         {
             //lighting
@@ -2808,7 +2813,7 @@ namespace Ogre
                 pPass->getIteratePerLight() || (pPass->getPassIterationCount() > 0))
             {
                 writeAttribute(3, "iteration");
-                // multipass count
+                // pass iteration count
                 if (pPass->getPassIterationCount() > 0)
                 {
                     writeValue(StringConverter::toString(pPass->getPassIterationCount()));
@@ -3110,7 +3115,10 @@ namespace Ogre
         LogManager::getSingleton().logMessage("MaterialSerializer : parsing texture layer.", LML_CRITICAL);
         mBuffer += "\n";
         writeAttribute(3, "texture_unit");
-        writeValue(pTex->getName());
+        // only write out name if its not equal to the default name
+        if (pTex->getName() != StringConverter::toString(pTex->getParent()->getTextureUnitStateIndex(pTex)))
+            writeValue(pTex->getName());
+
         beginSection(3);
         {
             //texture name
@@ -3118,6 +3126,7 @@ namespace Ogre
             {
                 writeAttribute(4, "texture");
                 writeValue(pTex->getTextureName());
+
                 switch (pTex->getTextureType())
                 {
                 case TEX_TYPE_1D:
