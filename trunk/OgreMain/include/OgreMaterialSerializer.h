@@ -175,7 +175,7 @@ namespace Ogre {
 		void exportQueued(const String& filename, const bool includeProgDef = false, const String& programFilename = "");
         /** Exports a single in-memory Material to the named material script file.
         @param exportDefaults if true then exports all values including defaults
-        @param includeProgDef it true includes Gpu shader program definitions in the
+        @param includeProgDef if true includes Gpu shader program definitions in the
             export material script otherwise if false then program definitions will
             be exported to a seperate file with name programFilename if
             programFilename is not empty
