@@ -160,24 +160,30 @@ namespace Ogre {
 		@param clearQueued If true, any materials already queued will be removed
 		@param exportDefaults If true, attributes which are defaulted will be
 			included in the script exported, otherwise they will be omitted
-		@param includeProgDef If true, vertex program and fragment program 
-			definitions will be written at the top of the material script
 		*/
         void queueForExport(const MaterialPtr& pMat, bool clearQueued = false, 
-			bool exportDefaults = false, const bool includeProgDef = true);
+			bool exportDefaults = false);
         /** Exports queued material(s) to a named material script file.
         @param filename the file name of the material script to be exported
+		@param includeProgDef If true, vertex program and fragment program 
+			definitions will be written at the top of the material script
         @param programFilename the file name of the vertex / fragment program 
-			script to be exported. This is only used if includeProgDef was false 
+			script to be exported. This is only used if there are program definitions
+            to be exported and includeProgDef is false 
 			when calling queueForExport.
         */
-		void exportQueued(const String& filename, const String& programFilename = "");
-        /** Exports an in-memory Material to the named material script file.
+		void exportQueued(const String& filename, const bool includeProgDef = false, const String& programFilename = "");
+        /** Exports a single in-memory Material to the named material script file.
         @param exportDefaults if true then exports all values including defaults
-        @param includeProgDef include Gpu shader program definitions in the export material script
+        @param includeProgDef it true includes Gpu shader program definitions in the
+            export material script otherwise if false then program definitions will
+            be exported to a seperate file with name programFilename if
+            programFilename is not empty
+        @param programFilename the file name of the vertex / fragment program 
+			script to be exported. This is only used if includeProgDef is false.
         */
         void exportMaterial(const MaterialPtr& pMat, const String& filename, bool exportDefaults = false,
-            const bool includeProgDef = true);
+            const bool includeProgDef = false, const String& programFilename = "");
 		/** Returns a string representing the parsed material(s) */
 		const String &getQueuedAsString() const;
 		/** Clears the internal buffer */
@@ -196,7 +202,6 @@ namespace Ogre {
         typedef GpuProgramDefinitionContainer::iterator GpuProgramDefIterator;
         GpuProgramDefinitionContainer mGpuProgramDefinitionContainer;
 		bool mDefaults;
-        bool mIncludeProgramDefinition;
 
         void beginSection(unsigned short level, const bool useMainBuffer = true)
 		{
