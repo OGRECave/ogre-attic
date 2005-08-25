@@ -347,7 +347,7 @@ namespace Ogre {
         TextureUnitStates::iterator iend = mTextureUnitStates.end();
         TextureUnitState* foundTUS = 0;
 
-        // iterate through techniques to find a match
+        // iterate through TUS Container to find a match
         while (i != iend)
         {
             if ( (*i)->getName() == name )
