@@ -272,53 +272,6 @@ unsigned short* pIdx = static_cast<unsigned short*>(ibuf->lock(HardwareBuffer::H
 @end example
 You can then write to the buffer using the usual pointer semantics, just remember to unlock the buffer when you're finished!
 
-@node Hardware Index Buffers
-@section Hardware Index Buffers
-Index buffers are used to render geometry by building triangles out of vertices indirectly by reference to their position in the buffer, rather than just building triangles by sequentially reading vertices. Index buffers are simpler than vertex buffers, since they are just a list of indexes at the end of the day, howeverthey can be held on the hardware and shared between multiple pieces of geometry in the same way vertex buffers can, so the rules on creation and locking are the same. @xref{Hardware Buffers} for information.
-
-@node The IndexData class
-@subsection The IndexData class
-This class summarises the information required to use a set of indexes to render geometry. It's members are as follows:
-@table @asis
-@item indexStart
-The first index used by this piece of geometry; this can be useful for sharing a single index buffer among several geometry pieces.
-@item indexCount
-The number of indexes used by this particular renderable.
-@item indexBuffer 
-The index buffer which is used to source the indexes. 
-@end table
-
-@subheading Creating an Index Buffer
-Index buffers are created using @xref{The Hardware Buffer Manager} just like vertex buffers, here's how:
-@example
-HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
-    createIndexBuffer(
-        HardwareIndexBuffer::IT_16BIT, // type of index
-        numIndexes, // number of indexes
-        HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
-        false); // no shadow buffer 
-@end example
-Once again, notice that the return type is a class rather than a pointer; this is reference counted so that the buffer is automatically destroyed when no more references are made to it. The parameters to the index buffer creation are:
-@table @asis
-@item indexType
-There are 2 types of index; 16-bit and 32-bit. They both perform the same way, except that the latter can address larger vertex buffers. If your buffer includes more than 65526 vertices, then you will need to use 32-bit indexes. Note that you should only use 32-bit indexes when you need to, since they incur more overhead than 16-bit vertices, and are not supported on some older hardware.
-@item numIndexes
-The number of indexes in the buffer. As with vertex buffers, you should consider whether you can use a shared index buffer which is used by multiple pieces of geometry, since there can be performance advantages to switching index buffers less often. 
-@item usage
-This tells the system how you intend to use the buffer. @xref{Buffer Usage}
-@item useShadowBuffer
-Tells the system whether you want this buffer backed by a system-memory copy. @xref{Shadow Buffers}
-@end table
-
-@node Updating Index Buffers
-@subsection Updating Index Buffers
-Updating index buffers can only be done when you lock the buffer for writing; @xref{Locking buffers} for details. Locking returns a void pointer, which must be cast to the apropriate type; with index buffers this is either an unsigned short (for 16-bit indexes) or an unsigned long (for 32-bit indexes). For example:
-@example
-unsigned short* pIdx = static_cast<unsigned short*>(ibuf->lock(HardwareBuffer::HBL_DISCARD));
-@end example
-You can then write to the buffer using the usual pointer semantics, just remember to unlock the buffer when you're finished!
-
-
 @node Hardware Pixel Buffers
 @section Hardware Pixel Buffers
 
