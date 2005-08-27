@@ -1,6 +1,6 @@
 @node Hardware Buffers
 @chapter Hardware Buffers
-Both vertex buffers and index buffers inherit most of their features from the HardwareBuffer class. The general premise with a hardware buffer is that it is an area of memory with which you can do whatever you like; there is no format (vertex or otherwise) associated with the buffer itself - that is entirely up to interpretation by the methods that use it - in that way, a HardwareBuffer is just like an area of memory you might allocate using 'malloc' - the difference being that this memory is likely to be located in GPU or AGP memory. 
+Vertex buffers, index buffers and pixel buffers inherit most of their features from the HardwareBuffer class. The general premise with a hardware buffer is that it is an area of memory with which you can do whatever you like; there is no format (vertex or otherwise) associated with the buffer itself - that is entirely up to interpretation by the methods that use it - in that way, a HardwareBuffer is just like an area of memory you might allocate using 'malloc' - the difference being that this memory is likely to be located in GPU or AGP memory.
 @node The Hardware Buffer Manager
 @section The Hardware Buffer Manager
 The HardwareBufferManager class is the factory hub of all the objects in the new geometry system. You create and destroy the majority of the objects you use to define geometry through this class. It's a Singleton, so you access it by doing HardwareBufferManager::getSingleton() - however be aware that it is only guaranteed to exist after the RenderSystem has been initialised (after you call Root::initialise); this is because the objects created are invariably API-specific, although you will deal with them through one common interface. 
@@ -271,4 +271,345 @@ Updating index buffers can only be done when you lock the buffer for writing; @x
 unsigned short* pIdx = static_cast<unsigned short*>(ibuf->lock(HardwareBuffer::HBL_DISCARD));
 @end example
 You can then write to the buffer using the usual pointer semantics, just remember to unlock the buffer when you're finished!
+
+@node Hardware Index Buffers
+@section Hardware Index Buffers
+Index buffers are used to render geometry by building triangles out of vertices indirectly by reference to their position in the buffer, rather than just building triangles by sequentially reading vertices. Index buffers are simpler than vertex buffers, since they are just a list of indexes at the end of the day, howeverthey can be held on the hardware and shared between multiple pieces of geometry in the same way vertex buffers can, so the rules on creation and locking are the same. @xref{Hardware Buffers} for information.
+
+@node The IndexData class
+@subsection The IndexData class
+This class summarises the information required to use a set of indexes to render geometry. It's members are as follows:
+@table @asis
+@item indexStart
+The first index used by this piece of geometry; this can be useful for sharing a single index buffer among several geometry pieces.
+@item indexCount
+The number of indexes used by this particular renderable.
+@item indexBuffer 
+The index buffer which is used to source the indexes. 
+@end table
+
+@subheading Creating an Index Buffer
+Index buffers are created using @xref{The Hardware Buffer Manager} just like vertex buffers, here's how:
+@example
+HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
+    createIndexBuffer(
+        HardwareIndexBuffer::IT_16BIT, // type of index
+        numIndexes, // number of indexes
+        HardwareBuffer::HBU_STATIC_WRITE_ONLY, // usage
+        false); // no shadow buffer 
+@end example
+Once again, notice that the return type is a class rather than a pointer; this is reference counted so that the buffer is automatically destroyed when no more references are made to it. The parameters to the index buffer creation are:
+@table @asis
+@item indexType
+There are 2 types of index; 16-bit and 32-bit. They both perform the same way, except that the latter can address larger vertex buffers. If your buffer includes more than 65526 vertices, then you will need to use 32-bit indexes. Note that you should only use 32-bit indexes when you need to, since they incur more overhead than 16-bit vertices, and are not supported on some older hardware.
+@item numIndexes
+The number of indexes in the buffer. As with vertex buffers, you should consider whether you can use a shared index buffer which is used by multiple pieces of geometry, since there can be performance advantages to switching index buffers less often. 
+@item usage
+This tells the system how you intend to use the buffer. @xref{Buffer Usage}
+@item useShadowBuffer
+Tells the system whether you want this buffer backed by a system-memory copy. @xref{Shadow Buffers}
+@end table
+
+@node Updating Index Buffers
+@subsection Updating Index Buffers
+Updating index buffers can only be done when you lock the buffer for writing; @xref{Locking buffers} for details. Locking returns a void pointer, which must be cast to the apropriate type; with index buffers this is either an unsigned short (for 16-bit indexes) or an unsigned long (for 32-bit indexes). For example:
+@example
+unsigned short* pIdx = static_cast<unsigned short*>(ibuf->lock(HardwareBuffer::HBL_DISCARD));
+@end example
+You can then write to the buffer using the usual pointer semantics, just remember to unlock the buffer when you're finished!
+
+
+@node Hardware Pixel Buffers
+@section Hardware Pixel Buffers
+
+Hardware Pixel Buffers are a special kind of buffer that stores graphical data in graphics card memory, generally
+for use as textures. Pixel buffers can represent a one dimensional, two dimensional or three dimensional image. A texture can consist of a multiple of these buffers.
+
+In contrary to vertex and index buffers, pixel buffers are not constructed directly. When creating a texture, the necessary pixel buffers to hold its data are constructed automatically.
+
+@node Textures
+@subsection Textures
+
+A texture is an image that can be applied onto the surface of a three dimensional model. In Ogre, textures are represented by the Texture resource class.
+
+@subheading Creating a texture
+
+Textures are created through the TextureManager. In most cases they are created from image files directly by the
+Ogre resource system. If you are reading this, you most probably want to create a texture manually so that you can provide it with image data yourself. This is done through TextureManager::createManual:
+
+@example
+ptex = TextureManager::getSingleton().createManual(
+    "MyManualTexture", // Name of texture
+    "General", // Name of resource group in which the texture should be created
+    TEX_TYPE_2D, // Texture type
+    256, // Width
+    256, // Height
+    1, // Depth (Must be 1 for two dimensional textures)
+    0, // Number of mipmaps
+    PF_A8R8G8B8, // Pixel format
+    TU_DYNAMIC_WRITE_ONLY // usage
+);
+@end example
+
+This example creates a texture named @emph{MyManualTexture} in resource group @emph{General}. It is a
+square @emph{two dimensional} texture, with width 256 and height 256. It has @emph{no mipmaps}, internal
+format @emph{PF_A8R8G8B8} and usage @emph{TU_DYNAMIC_WRITE_ONLY}.
+
+The different texture types will be discussed in @ref{Texture Types}. Pixel formats are summarised in
+@ref{Pixel Formats}.
+
+@subheading Texture usages
+
+In addition to the hardware buffer usages as described in @xref{Buffer Usage} there are some usage flags specific to textures:
+@table
+@item TU_AUTOMIPMAP
+Mipmaps for this texture will be automatically generated by the graphics hardware. The exact algorithm used is not
+defined, but you can assume it to be a 2x2 box filter.
+@item TU_RENDERTARGET
+This texture will be a render target, ie. used as a target for render to texture. Setting this flag will ignore all other texture usages except TU_AUTOMIPMAP.
+@item TU_DEFAULT
+This is actualy a combination of usage flags, and is equivalent to TU_AUTOMIPMAP | TU_STATIC_WRITE_ONLY. The resource
+system uses these flags for textures that are loaded from images.
+
+@end table
+
+@subheading Getting a PixelBuffer
+
+A Texture can consist of multiple PixelBuffers, one for each combo if mipmap level and face number. To get a PixelBuffer from a Texture object the method Texture::getBuffer(face, mipmap) is used:
+
+@emph{face} should be zero for non-cubemap textures. For cubemap textures it identifies the face to use, which is one of the cube faces described in @xref{Texture Types}.
+
+@emph{mipmap} is zero for the zeroth mipmap level, one for the first mipmap level, and so on. On textures that have automatic mipmap generation (TU_AUTOMIPMAP) only level 0 should be accessed, the rest will be taken care of by the rendering API.
+
+A simple example of using getBuffer is
+@example
+// Get the PixelBuffer for face 0, mipmap 0.
+HardwarePixelBufferSharedPtr ptr = tex->getBuffer(0,0);
+@end example
+
+@node Updating Pixel Buffers
+@subsection Updating Pixel Buffers
+
+Pixel Buffers can be updated in two different ways; a simple, convient way and a more difficult (but in some cases faster) method. Both methods make use of PixelBox objects (@xref{Pixel boxes}) to represent image data in memory.
+
+@subheading blitFromMemory
+
+The easy method to get an image into a PixelBuffer is by using HardwarePixelBuffer::blitFromMemory. This takes a PixelBox object and does all necessary pixel format conversion and scaling for you. For example, to create a manual texture and load an image into it, all you have to do is
+
+@example
+// Manually loads an image and puts the contents in a manually created texture
+Image img;
+img.load("elephant.png", "General");
+// Create RGB texture with 5 mipmaps
+TexturePtr tex = TextureManager::getSingleton().createManual(
+    "elephant",
+    "General",
+    TEX_TYPE_2D,
+    img.getWidth(), img.getHeight(),
+    5, PF_X8R8G8B8);
+// Copy face 0 mipmap 0 of the image to face 0 mipmap 0 of the texture.
+tex->getBuffer(0,0)->blitFromMemory(img.getPixelBox(0,0));
+@end example
+
+@subheading Direct memory locking
+
+A more advanced method to transfer image data from and to a PixelBuffer is to use locking. By locking a PixelBuffer
+you can directly access its contents in whatever the internal format of the buffer inside the GPU is.
+
+@example
+/// Lock the buffer so we can write to it
+buffer->lock(HardwareBuffer::HBL_DISCARD);
+const PixelBox &pb = buffer->getCurrentLock();
+
+/// Update the contents of pb here
+/// Image data starts at pb.data and has format pb.format
+/// Here we assume data.format is PF_X8R8G8B8 so we can address pixels as uint32.
+uint32 *data = static_cast<uint32*>(pb.data);
+size_t height = pb.getHeight();
+size_t width = pb.getWidth();
+size_t rowSkip = pb.getRowSkip(); // Skip between rows of image
+for(size_t y=0; y<height; ++y)
+{
+    for(size_t x=0; x<width; ++x)
+{
+        // 0xRRGGBB -> fill the buffer with yellow pixels
+        data[rowSkip*y + x] = 0x00FFFF00;
+}
+}
+
+/// Unlock the buffer again (frees it for use by the GPU)
+buffer->unlock();
+@end example
+
+
+@node Texture Types
+@subsection Texture Types
+
+There are four types of textures supported by current hardware, three of them only differ in the amount of dimensions
+they have (one, two or three). The fourth one is special. The different texture types are:
+
+@table @asis
+
+@item TEX_TYPE_1D
+One dimensional texture, used in combination with 1D texture coordinates.
+@item TEX_TYPE_2D
+Two dimensional texture, used in combination with 2D texture coordinates.
+@item TEX_TYPE_3D
+Three dimensional volume texture, used in combination with 3D texture coordinates.
+@item TEX_TYPE_CUBE_MAP
+Cube map (six two dimensional textures, one for each cube face), used in combination with 3D texture coordinates.
+
+@end table
+
+@subheading Cube map textures
+
+The cube map texture type (TEX_TYPE_CUBE_MAP) is a different beast from the others; a cube map texture represents a series of six two dimensional images addressed by 3D texture coordinates.
+    
+@table @asis
+@item +X (face 0)
+Represents the positive x plane (right).
+@item -X (face 1)
+Represents the negative x plane (left).
+@item +Y (face 2)
+Represents the positive y plane (top).
+@item -Y (face 3)
+Represents the negative y plane (bottom).
+@item +Z (face 4)
+Represents the positive z plane (front).
+@item -Z (face 5)
+Represents the negative z plane (back).
+@end table
+
+@node Pixel Formats
+@subsection Pixel Formats
+
+A pixel format described the storage format of pixel data. It defines the way pixels are encoded in memory. The following classes of pixel formats (PF_*) are defined:
+
+@table @asis
+@item Native endian formats (PF_A8R8G8B8 and other formats with bit counts)
+These are native endian (16, 24 and 32 bit) integers in memory. This means that an image with format PF_A8R8G8B8 can be seen as an array of 32 bit integers, defined as 0xAARRGGBB in hexadecimal. The meaning of the letters is described below.
+
+@item Byte formats (PF_BYTE_*)
+These formats have one byte per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_BYTE_RGBA consists of blocks of four bytes, one for red, one for green, one for blue, one for alpha.
+
+@item Short formats (PF_SHORT_*)
+These formats have one unsigned short (16 bit integer) per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_SHORT_RGBA consists of blocks of four 16 bit integers, one for red, one for green, one for blue, one for alpha.
+
+@item Float16 formats (PF_FLOAT16_*)
+These formats have one 16 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT16_RGBA consists of blocks of four 16 bit floats, one for red, one for green, one for blue, one for alpha. The 16 bit floats, also called half float) are very similar to the IEEE single-precision floating-point standard of the 32 bits floats, except that they have only 5 exponent bits and 10 mantissa. Note that there is no standard C++ data type or CPU support to work with these efficiently, but GPUs can
+calculate with these much more efficiently than with 32 bit floats.
+
+@item Float32 formats (PF_FLOAT32_*)
+These formats have one 32 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT32_RGBA consists of blocks of four 32 bit floats, one for red, one for green, one for blue, one for alpha. The C++ data type for these 32 bits floats is just "float".
+
+@item Compressed formats (PF_DXT[1-5])
+S3TC compressed texture formats, a good description can be found at | Wikipedia (http://en.wikipedia.org/wiki/S3TC)
+
+@end table
+
+@subheading Colour channels
+
+The meaning of the channels R,G,B,A,L and X is defined as
+
+@table @asis
+@item R
+Red colour component, usually ranging from 0.0 (no red) to 1.0 (full red).
+@item G
+Green colour component, usually ranging from 0.0 (no green) to 1.0 (full green).
+@item B
+Blue colour component, usually ranging from 0.0 (no blue) to 1.0 (full blue).
+@item A
+Alpha component, usually ranging from 0.0 (entire transparent) to 1.0 (opaque).
+@item L
+Luminance component, usually ranging from 0.0 (black) to 1.0 (white). The luminance component is duplicated in the R, G, and B channels to achieve a greyscale image.
+@item X
+This component is completely ignored.
+@end table
+
+If none of red, green and blue components, or luminance is defined in a format, these default to 0. For the alpha channel this is different; if no alpha is defined, it defaults to 1. 
+
+@subheading Complete list of pixel formats
+
+This pixel formats supported by the current version of Ogre are
+
+@table
+
+@item Byte formats
+PF_BYTE_RGB, PF_BYTE_BGR, PF_BYTE_BGRA, PF_BYTE_RGBA, PF_BYTE_L, PF_BYTE_LA, PF_BYTE_A
+
+@item Short formats
+PF_SHORT_RGBA
+
+@item Float16 formats
+PF_FLOAT16_R, PF_FLOAT16_RGB, PF_FLOAT16_RGBA
+
+@item Float32 formats
+PF_FLOAT32_R, PF_FLOAT32_RGB, PF_FLOAT32_RGBA
+
+@item 8 bit native endian formats
+PF_L8, PF_A8, PF_A4L4, PF_R3G3B2
+
+@item 16 bit native endian formats
+PF_L16, PF_R5G6B5, PF_B5G6R5, PF_A4R4G4B4, PF_A1R5G5B5
+
+@item 24 bit native endian formats
+PF_R8G8B8, PF_B8G8R8
+
+@item 32 bit native endian formats
+PF_A8R8G8B8, PF_A8B8G8R8, PF_B8G8R8A8, PF_R8G8B8A8, PF_X8R8G8B8, PF_X8B8G8R8, PF_A2R10G10B10 PF_A2B10G10R10
+
+@item Compressed formats
+PF_DXT1, PF_DXT2, PF_DXT3, PF_DXT4, PF_DXT5
+
+@end table
+
+@node Pixel boxes
+@subsection Pixel boxes
+
+All methods in Ogre that take or return raw image data return a PixelBox object.
+
+A PixelBox is a primitive describing a volume (3D), image (2D) or line (1D) of pixels in CPU memory. It describes the location and data format of a region of memory used for image data, but does not do any memory management in itself.
+
+Inside the memory pointed to by the @emph{data} member of a pixel box, pixels are stored as a succession of "depth" slices (in Z), each containing "height" rows (Y) of "width" pixels (X).
+
+Dimensions that are not used must be 1. For example, a one dimensional image will have extents (width,1,1). A two dimensional image has extents (width,height,1).
+
+A PixelBox has the following members:
+@table @asis
+@item data
+The pointer to the first component of the image data in memory.
+@item format
+The pixel format (@xref{Pixel Formats}) of the image data.
+@item rowPitch
+The number of elements between the leftmost pixel of one row and the left pixel of the next. This value must always be equal to getWidth() (consecutive) for compressed formats.
+@item slicePitch
+The number of elements between the top left pixel of one (depth) slice and the top left pixel of the next. Must be a multiple of  rowPitch. This value must always be equal to getWidth()*getHeight() (consecutive)
+for compressed formats.
+@item left, top, right, bottom, front, back
+Extents of the box in three dimensional integer space. Note that the left, top, and front edges are included but the right, bottom and top ones are not. @emph{left} must always be smaller or equal to @emph{right}, @emph{top} must always be smaller or equal to @emph{bottom}, and @emph{front} must always be smaller or equal to @emph{back}.
+@end table
+
+It also has some useful methods:
+@table @asis
+@item getWidth()
+Get the width of this box
+@item getHeight()
+Get the height of this box. This is 1 for one dimensional images.
+@item getDepth()
+Get the depth of this box. This is 1 for one and two dimensional images.
+@item setConsecutive()
+Set the rowPitch and slicePitch so that the buffer is laid out consecutive in memory.
+@item getRowSkip()
+Get the number of elements between one past the rightmost pixel of one row and the leftmost pixel of the next row. This is zero if rows are consecutive.
+@item getSliceSkip()
+Get the number of elements between one past the right bottom pixel of one slice and the left top pixel of the next slice. This is zero if slices are consecutive.
+@item isConsecutive()
+Return whether this buffer is laid out consecutive in memory (ie the pitches are equal to the dimensions)
+@item getConsecutiveSize()
+Return the size (in bytes) this image would take if it was laid out consecutive in memory
+@item getSubVolume(const Box &def)
+Return a subvolume of this PixelBox, as a PixelBox.
+@end table
+
+For more information about these methods consult the API documentation.
 
