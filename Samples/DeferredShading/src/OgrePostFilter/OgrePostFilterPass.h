@@ -29,7 +29,7 @@ public:
 
 class OgrePostFilterPass {
 
-	friend OgrePostFilter;
+	friend class OgrePostFilter;
 
 	public:
 

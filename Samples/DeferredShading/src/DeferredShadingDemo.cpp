@@ -20,14 +20,15 @@ The paper for GDC2004 on Deferred Shading can be found here:
 
 This demo source file is in the public domain.
 */
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-#endif
 
 #include "Ogre.h"
 #include "ExampleApplication.h"
 #include "ExampleFrameListener.h"
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#endif
 
 #include "DeferredShading.h"
 

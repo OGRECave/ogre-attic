@@ -199,6 +199,9 @@ AC_CONFIG_FILES([Makefile \
 	Samples/VolumeTex/Makefile \
 	Samples/VolumeTex/src/Makefile \
 	Samples/VolumeTex/include/Makefile \
+	Samples/DeferredShading/Makefile \
+	Samples/DeferredShading/src/Makefile \
+	Samples/DeferredShading/include/Makefile  \
     Tests/Makefile \
     Tests/src/Makefile \
     Tools/Makefile \

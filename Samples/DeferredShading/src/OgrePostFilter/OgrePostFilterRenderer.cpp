@@ -146,7 +146,7 @@ void OgrePostFilterRenderer::preRenderTargetUpdate(const RenderTargetEvent& evt)
 			if(!tech)
 				// No technique?
 				continue;
-			for(ushort pass=0; pass<tech->getNumPasses(); ++pass)
+			for(unsigned short pass=0; pass<tech->getNumPasses(); ++pass)
 			{
 				tech->getPass(pass)->getTextureUnitState(tus)->setTextureName( 
 					inputTexture->getName() 
