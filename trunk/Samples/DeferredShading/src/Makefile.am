@@ -1,9 +1,16 @@
-INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/RenderToTexture/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
+INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/DeferredShading/include -I$(top_srcdir)/OgreMain/include -I$(top_srcdir)/Samples/Common/include
 
-noinst_PROGRAMS = RenderToTexture
-RenderToTexture_SOURCES = RenderToTexture.cpp
-RenderToTexture_LDFLAGS = -L$(top_builddir)/OgreMain/src
-RenderToTexture_LDADD = -lOgreMain
+noinst_PROGRAMS = DeferredShading
+DeferredShading_SOURCES = DeferredShading.cpp \
+DeferredShadingDemo.cpp \
+OgrePostFilter/OgrePostFilter.cpp \
+OgrePostFilter/OgrePostFilterManager.cpp \
+OgrePostFilter/OgrePostFilterPass.cpp \
+OgrePostFilter/OgrePostFilterRenderer.cpp \
+OgrePostFilter/OgrePostFilterShared.cpp
+
+DeferredShading_LDFLAGS = -L$(top_builddir)/OgreMain/src
+DeferredShading_LDADD = -lOgreMain
 
 install-exec-local:
-	$(INSTALL_PROGRAM) .libs/RenderToTexture $(top_builddir)/Samples/Common/bin/RenderToTexture
+	$(INSTALL_PROGRAM) .libs/DeferredShading $(top_builddir)/Samples/Common/bin/DeferredShading

@@ -2,7 +2,7 @@
 // Manuel Bua
 //
 // $HeadURL: svn://localhost/OgreDev/testBed/OgrePostFilter/OgrePostFilterRenderer.cpp $
-// $Id: OgrePostFilterRenderer.cpp,v 1.1 2005-08-23 15:54:12 miathan6 Exp $
+// $Id: OgrePostFilterRenderer.cpp,v 1.2 2005-08-27 15:49:51 miathan6 Exp $
 
 #include "OgrePostFilterRenderer.h"
 #include "OgreHardwarePixelBuffer.h"
@@ -146,7 +146,7 @@ void OgrePostFilterRenderer::preRenderTargetUpdate(const RenderTargetEvent& evt)
 			if(!tech)
 				// No technique?
 				continue;
-			for(ushort pass=0; pass<tech->getNumPasses(); ++pass)
+			for(unsigned short pass=0; pass<tech->getNumPasses(); ++pass)
 			{
 				tech->getPass(pass)->getTextureUnitState(tus)->setTextureName( 
 					inputTexture->getName() 

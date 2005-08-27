@@ -2,7 +2,7 @@
 // Manuel Bua
 //
 // $HeadURL: svn://localhost/OgreDev/testBed/OgrePostFilter/OgrePostFilterPass.h $
-// $Id: OgrePostFilterPass.h,v 1.1 2005-08-23 15:54:12 miathan6 Exp $
+// $Id: OgrePostFilterPass.h,v 1.2 2005-08-27 15:49:51 miathan6 Exp $
 
 #pragma once
 
@@ -29,7 +29,7 @@ public:
 
 class OgrePostFilterPass {
 
-	friend OgrePostFilter;
+	friend class OgrePostFilter;
 
 	public:
 
