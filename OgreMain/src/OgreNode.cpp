@@ -225,6 +225,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::addChild(Node* child)
     {
+        assert(!child->mParent);
+        
         mChildren.insert(ChildNodeMap::value_type(child->getName(), child));
         child->setParent(this);
 
