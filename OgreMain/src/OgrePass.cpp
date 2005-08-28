@@ -394,10 +394,18 @@ namespace Ogre {
     bool Pass::isTransparent(void) const
     {
 		// Transparent if any of the destination colour is taken into account
-	    if (mDestBlendFactor != SBF_ZERO)
-		    return true;
-	    else
+		if (mDestBlendFactor == SBF_ZERO && 
+			mSourceBlendFactor != SBF_DEST_COLOUR && 
+			mSourceBlendFactor != SBF_ONE_MINUS_DEST_COLOUR && 
+			mSourceBlendFactor != SBF_DEST_ALPHA && 
+			mSourceBlendFactor != SBF_ONE_MINUS_DEST_ALPHA)
+		{
 		    return false;
+		}
+	    else
+		{
+		    return true;
+		}
     }
     //-----------------------------------------------------------------------
     void Pass::setDepthCheckEnabled(bool enabled)
