@@ -213,7 +213,7 @@ namespace Ogre {
         */
         virtual UserDefinedObject* getUserObject(void) 
 		{ 
-			return any_cast<UserDefinedObject*>(mUserAny); 
+			return mUserAny.isEmpty() ? 0 : any_cast<UserDefinedObject*>(mUserAny); 
 		}
 
 		/** Sets any kind of user value on this object.
