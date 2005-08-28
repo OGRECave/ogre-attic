@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 20 2005 by texi2html 1.64 -->
+<!-- Created on , 28 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.4: Modulative Shadows</TITLE>
+<TITLE>OGRE Manual v1.0.4: Pixel Formats</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.4: Modulative Shadows">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.4: Modulative Shadows">
+<META NAME="description" CONTENT="OGRE Manual v1.0.4: Pixel Formats">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.4: Pixel Formats">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,35 +23,119 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC219"></A>
+<A NAME="SEC201"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC208"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_52.html#SEC198"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC221"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC199"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_51.html#SEC191"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC204"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H2> 7.3 Modulative Shadows </H2>
-<!--docid::SEC219::-->
-Modulative shadows work by darkening an already rendered scene with a fixed colour. First, the scene is rendered normally containing all the objects which will be shadowed, then a modulative pass is done per light, which darkens areas in shadow. Finally, objects which do not receive shadows are rendered.<BR><BR>
+<H3> 5.8.4 Pixel Formats </H3>
+<!--docid::SEC201::-->
 
-There are 2 modulative shadow techniques; stencil-based (See section <A HREF="manual_53.html#SEC201">7.1 Stencil Shadows</A> : SHADOWTYPE_STENCIL_MODULATIVE) and texture-based (See section <A HREF="manual_54.html#SEC208">7.2 Texture-based Shadows</A> : SHADOWTYPE_TEXTURE_MODULATIVE). Modulative shadows are an inaccurate lighting model, since they darken the areas of shadow uniformly, irrespective of the amount of light which would have fallen on the shadow area anyway. However, they can give fairly attractive results for a much lower overhead than more 'correct' methods like <A HREF="manual_56.html#SEC221">7.4 Additive Light Masking</A>, and they also combine well with pre-baked static lighting (such as precalculated lightmaps), which additive lighting does not. The main thing to consider is that using multiple light sources can result in overly dark shadows (where shadows overlap, which intuitively looks right in fact, but it's not physically correct) and artefacts when using stencil shadows (See section <A HREF="manual_53.html#SEC205">The Silhouette Edge</A>). <BR><BR>
+A pixel format described the storage format of pixel data. It defines the way pixels are encoded in memory. The following classes of pixel formats (PF_*) are defined:
 
-<A NAME="Shadow Colour"></A>
-<A NAME="SEC220"></A>
-<H3> Shadow Colour </H3>
-<!--docid::SEC220::-->
-The colour which is used to darken the areas in shadow is set by SceneManager::setShadowColour; it defaults to a dark grey (so that the underlying colour still shows through a bit).<BR><BR>
+<DL COMPACT>
+<DT>Native endian formats (PF_A8R8G8B8 and other formats with bit counts)
+<DD>These are native endian (16, 24 and 32 bit) integers in memory. This means that an image with format PF_A8R8G8B8 can be seen as an array of 32 bit integers, defined as 0xAARRGGBB in hexadecimal. The meaning of the letters is described below.
 
-<A NAME="Additive Light Masking"></A>
+<DT>Byte formats (PF_BYTE_*)
+<DD>These formats have one byte per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_BYTE_RGBA consists of blocks of four bytes, one for red, one for green, one for blue, one for alpha.
+
+<DT>Short formats (PF_SHORT_*)
+<DD>These formats have one unsigned short (16 bit integer) per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_SHORT_RGBA consists of blocks of four 16 bit integers, one for red, one for green, one for blue, one for alpha.
+
+<DT>Float16 formats (PF_FLOAT16_*)
+<DD>These formats have one 16 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT16_RGBA consists of blocks of four 16 bit floats, one for red, one for green, one for blue, one for alpha. The 16 bit floats, also called half float) are very similar to the IEEE single-precision floating-point standard of the 32 bits floats, except that they have only 5 exponent bits and 10 mantissa. Note that there is no standard C++ data type or CPU support to work with these efficiently, but GPUs can
+calculate with these much more efficiently than with 32 bit floats.
+
+<DT>Float32 formats (PF_FLOAT32_*)
+<DD>These formats have one 32 bit floating point number per channel, and their channels in memory are organized in the order they are specified in the format name. For example, PF_FLOAT32_RGBA consists of blocks of four 32 bit floats, one for red, one for green, one for blue, one for alpha. The C++ data type for these 32 bits floats is just "float".
+
+<DT>Compressed formats (PF_DXT[1-5])
+<DD>S3TC compressed texture formats, a good description can be found at | Wikipedia (http://en.wikipedia.org/wiki/S3TC)
+
+</DL>
+
+<A NAME="SEC202"></A>
+<H3> Colour channels </H3>
+<!--docid::SEC202::-->
+
+The meaning of the channels R,G,B,A,L and X is defined as
+
+<DL COMPACT>
+<DT>R
+<DD>Red colour component, usually ranging from 0.0 (no red) to 1.0 (full red).
+<DT>G
+<DD>Green colour component, usually ranging from 0.0 (no green) to 1.0 (full green).
+<DT>B
+<DD>Blue colour component, usually ranging from 0.0 (no blue) to 1.0 (full blue).
+<DT>A
+<DD>Alpha component, usually ranging from 0.0 (entire transparent) to 1.0 (opaque).
+<DT>L
+<DD>Luminance component, usually ranging from 0.0 (black) to 1.0 (white). The luminance component is duplicated in the R, G, and B channels to achieve a greyscale image.
+<DT>X
+<DD>This component is completely ignored.
+</DL>
+
+If none of red, green and blue components, or luminance is defined in a format, these default to 0. For the alpha channel this is different; if no alpha is defined, it defaults to 1. 
+
+<A NAME="SEC203"></A>
+<H3> Complete list of pixel formats </H3>
+<!--docid::SEC203::-->
+
+This pixel formats supported by the current version of Ogre are
+
+<DL COMPACT>
+
+<DT>Byte formats
+<DD>PF_BYTE_RGB, PF_BYTE_BGR, PF_BYTE_BGRA, PF_BYTE_RGBA, PF_BYTE_L, PF_BYTE_LA, PF_BYTE_A
+
+<DT>Short formats
+<DD>PF_SHORT_RGBA
+
+<DT>Float16 formats
+<DD>PF_FLOAT16_R, PF_FLOAT16_RGB, PF_FLOAT16_RGBA
+
+<DT>Float32 formats
+<DD>PF_FLOAT32_R, PF_FLOAT32_RGB, PF_FLOAT32_RGBA
+
+<DT>8 bit native endian formats
+<DD>PF_L8, PF_A8, PF_A4L4, PF_R3G3B2
+
+<DT>16 bit native endian formats
+<DD>PF_L16, PF_R5G6B5, PF_B5G6R5, PF_A4R4G4B4, PF_A1R5G5B5
+
+<DT>24 bit native endian formats
+<DD>PF_R8G8B8, PF_B8G8R8
+
+<DT>32 bit native endian formats
+<DD>PF_A8R8G8B8, PF_A8B8G8R8, PF_B8G8R8A8, PF_R8G8B8A8, PF_X8R8G8B8, PF_X8B8G8R8, PF_A2R10G10B10 PF_A2B10G10R10
+
+<DT>Compressed formats
+<DD>PF_DXT1, PF_DXT2, PF_DXT3, PF_DXT4, PF_DXT5
+
+</DL>
+
+<A NAME="Pixel boxes"></A>
 <HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_54.html#SEC199"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_51.html#SEC191"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_56.html#SEC204"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 20 2005</I>
+by <I>Steve Streeting</I> on <I>, 28 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 20 2005 by texi2html 1.64 -->
+<!-- Created on , 28 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -53,17 +53,56 @@ Here is an example of a definition of a low-level vertex program:
 
 The current supported syntaxes are:
 <DL COMPACT>
-<DT>vs_1_1, vs_2_0, vs_2_x, vs_3_0
-<DD>These are the DirectX vertex shader assembler syntaxes. 
+<DT>vs_1_1
+<DD>This is one of the DirectX vertex shader assembler syntaxes. <BR>
+Supported on cards from: ATI Radeon 8500, nVidia GeForce 3 <BR>
+<DT>vs_2_0
+<DD>Another one of the DirectX vertex shader assembler syntaxes. <BR>
+Supported on cards from: ATI Radeon 9600, nVidia GeForce FX 5 series <BR>
+<DT>vs_2_x
+<DD>Another one of the DirectX vertex shader assembler syntaxes. <BR>
+Supported on cards from: ATI Radeon X series, nVidia GeForce FX 6 series <BR>
+<DT>vs_3_0
+<DD>Another one of the DirectX vertex shader assembler syntaxes. <BR>
+Supported on cards from: nVidia GeForce FX 6 series
 <DT>arbvp1
 <DD>This is the OpenGL standard assembler format for vertex programs. It's roughly equivalent to DirectX vs_1_1.
-<DT>ps_1_1, ps_1_2, ps_1_3, ps_1_4, ps_2_0, ps_2_x, ps_3_0, ps_3_x
-<DD>These are the DirectX pixel shader (ie fragment program) assembler syntaxes.<BR>
-NOTE: for ATI 8500, 9000, 9100, 9200 hardware, ps_1_1 to ps_1_4 can also be used in OpenGL.  The ATI 8500 to 9200 do not support arbfp1 but do support atifs extension in OpenGL which is very similar in function to ps_1_4 in DirectX.  Ogre has a built in ps_1_x to atifs compiler that is automatically invoked when ps_1_x is used in OpenGL on ATI hardware.
+<DT>vp20
+<DD>This is an nVidia-specific OpenGL vertex shader syntax which is a superset of vs 1.1. 
+<DT>vp30
+<DD>Another nVidia-specific OpenGL vertex shader syntax. It is a superset of vs 2.0, which is supported on nVidia GeForce FX 5 series and higher.
+<DT>vp40
+<DD>Another nVidia-specific OpenGL vertex shader syntax. It is a superset of vs 3.0, which is supported on nVidia GeForce FX 6 series and higher.
+<DT>ps_1_1, ps_1_2, ps_1_3
+<DD>DirectX pixel shader (ie fragment program) assembler syntax. <BR>
+Supported on cards from: ATI Radeon 8500, nVidia GeForce 3 <BR>
+NOTE: for ATI 8500, 9000, 9100, 9200 hardware, this profile can also be used in OpenGL.  The ATI 8500 to 9200 do not support arbfp1 but do support atifs extension in OpenGL which is very similar in function to ps_1_4 in DirectX.  Ogre has a built in ps_1_x to atifs compiler that is automatically invoked when ps_1_x is used in OpenGL on ATI hardware.
+<DT>ps_1_4
+<DD>DirectX pixel shader (ie fragment program) assembler syntax. <BR>
+Supported on cards from: ATI Radeon 8500, nVidia GeForce FX 5 series <BR>
+NOTE: for ATI 8500, 9000, 9100, 9200 hardware, this profile can also be used in OpenGL.  The ATI 8500 to 9200 do not support arbfp1 but do support atifs extension in OpenGL which is very similar in function to ps_1_4 in DirectX.  Ogre has a built in ps_1_x to atifs compiler that is automatically invoked when ps_1_x is used in OpenGL on ATI hardware.
+<DT>ps_2_0
+<DD>DirectX pixel shader (ie fragment program) assembler syntax. <BR>
+Supported cards: ATI Radeon 9600, nVidia GeForce FX 5 series<BR>
+<DT>ps_2_x
+<DD>DirectX pixel shader (ie fragment program) assembler syntax. This is basically
+ps_2_0 with a higher number of instructions. <BR>
+Supported cards: ATI Radeon X series, nVidia GeForce FX 6 series<BR>
+<DT>ps_3_0
+<DD>DirectX pixel shader (ie fragment program) assembler syntax. <BR>
+Supported cards: nVidia GeForce FX6 series<BR>
+<DT>ps_3_x
+<DD>DirectX pixel shader (ie fragment program) assembler syntax. <BR>
+Supported cards: nVidia GeForce FX7 series<BR>
 <DT>arbfp1
 <DD>This is the OpenGL standard assembler format for fragment programs. It's roughly equivalent to ps_2_0, which means that not all cards that support basic pixel shaders under DirectX support arbfp1 (for example neither the GeForce3 or GeForce4 support arbfp1, but they do support ps_1_1).
 <DT>fp20
-<DD>This is an nVidia-specific OpenGL syntax which allows you to use the 'nvparse' format for basic fragment programs. It actually uses NV_texture_shader and NV_register_combiners to provide functionality equivalent to DirectX's ps_1_1 under GL, but only for nVidia cards. However, since ATI cards adopted arbfp1 a little earlier than nVidia, it is mainly nVidia cards like the GeForce3 and GeForce4 that this will be useful for. You can find more information about nvparse at http://developer.nvidia.com/object/nvparse.html.
+<DD>This is an nVidia-specific OpenGL fragment syntax which is a superset of ps 1.3. It allows you to use the 'nvparse' format for basic fragment programs. It actually uses NV_texture_shader and NV_register_combiners to provide functionality equivalent to DirectX's ps_1_1 under GL, but only for nVidia cards. However, since ATI cards adopted arbfp1 a little earlier than nVidia, it is mainly nVidia cards like the GeForce3 and GeForce4 that this will be useful for. You can find more information about nvparse at http://developer.nvidia.com/object/nvparse.html.
+<DT>fp30
+<DD>Another nVidia-specific OpenGL fragment shader syntax. It is a superset of ps 2.0, which is supported on nVidia GeForce FX 5 series and higher.
+<DT>fp40
+<DD>Another nVidia-specific OpenGL fragment shader syntax. It is a superset of ps 3.0, which is supported on nVidia GeForce FX 6 series and higher.
+
 </DL>
 
 You can get a definitive list of the syntaxes supported by the current card by calling GpuProgramManager::getSingleton().getSupportedSyntax().<BR><BR>
@@ -212,7 +251,7 @@ You can implement skeletal animation in hardware by writing a vertex program whi
 <A NAME="SEC85"></A>
 <H3> Vertex Programs With Shadows </H3>
 <!--docid::SEC85::-->
-When using shadows (See section <A HREF="manual_52.html#SEC198">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
+When using shadows (See section <A HREF="manual_58.html#SEC212">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
 
 If you use <STRONG>stencil shadows</STRONG>, then any vertex programs which do vertex deformation can be a problem, because stencil shadows are calculated on the CPU, which does not have access to the modified vertices. If the vertex program is doing standard skeletal animation, this is ok (see section above) because Ogre knows how to replicate the effect in software, but any other vertex deformation cannot be replicated, and you will either have to accept that the shadow will not reflect this deformation, or you should turn off shadows for that object. <BR><BR>
 
@@ -233,7 +272,7 @@ If you use <STRONG>texture shadows</STRONG>, then vertex deformation is acceptab
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 20 2005</I>
+by <I>Steve Streeting</I> on <I>, 28 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
