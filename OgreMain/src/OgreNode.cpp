@@ -470,6 +470,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const Vector3 & Node::_getDerivedScale(void) const
     {
+        if (mNeedParentUpdate)
+        {
+            _updateFromParent();
+            mNeedParentUpdate = false;
+        }
         return mDerivedScale;
     }
     //-----------------------------------------------------------------------
