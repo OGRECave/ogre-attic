@@ -225,6 +225,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Node::addChild(Node* child)
     {
+        assert(!child->mParent);
+        
         mChildren.insert(ChildNodeMap::value_type(child->getName(), child));
         child->setParent(this);
 
@@ -468,6 +470,11 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     const Vector3 & Node::_getDerivedScale(void) const
     {
+        if (mNeedParentUpdate)
+        {
+            _updateFromParent();
+            mNeedParentUpdate = false;
+        }
         return mDerivedScale;
     }
     //-----------------------------------------------------------------------

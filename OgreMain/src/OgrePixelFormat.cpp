@@ -662,6 +662,9 @@ namespace Ogre {
         } else {
             switch(pf)
             {
+            case PF_FLOAT32_R:
+                ((float*)dest)[0] = r;
+                break;
             case PF_FLOAT32_RGB:
                 ((float*)dest)[0] = r;
                 ((float*)dest)[1] = g;
@@ -672,6 +675,9 @@ namespace Ogre {
                 ((float*)dest)[1] = g;
                 ((float*)dest)[2] = b;
                 ((float*)dest)[3] = a;
+                break;
+            case PF_FLOAT16_R:
+                ((uint16*)dest)[0] = Bitwise::floatToHalf(r);
                 break;
             case PF_FLOAT16_RGB:
                 ((uint16*)dest)[0] = Bitwise::floatToHalf(r);
@@ -777,6 +783,10 @@ namespace Ogre {
         } else {
             switch(pf)
             {
+            case PF_FLOAT32_R:
+                *r = *g = *b = ((float*)src)[0];
+                *a = 1.0f;
+                break;
             case PF_FLOAT32_RGB:
                 *r = ((float*)src)[0];
                 *g = ((float*)src)[1];
@@ -788,6 +798,10 @@ namespace Ogre {
                 *g = ((float*)src)[1];
                 *b = ((float*)src)[2];
                 *a = ((float*)src)[3];
+                break;
+            case PF_FLOAT16_R:
+                *r = *g = *b = Bitwise::halfToFloat(((uint16*)src)[0]);
+                *a = 1.0f;
                 break;
             case PF_FLOAT16_RGB:
                 *r = Bitwise::halfToFloat(((uint16*)src)[0]);

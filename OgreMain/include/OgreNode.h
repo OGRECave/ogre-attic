@@ -445,7 +445,8 @@ namespace Ogre {
         */
         virtual Node* createChild(const String& name, const Vector3& translate = Vector3::ZERO, const Quaternion& rotate = Quaternion::IDENTITY);
 
-        /** Adds a (precreated) child scene node to this node.
+        /** Adds a (precreated) child scene node to this node. If it is attached to another node,
+            it must be detached first.
         @param child The Node which is to become a child node of this one
         */
         virtual void addChild(Node* child);
