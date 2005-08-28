@@ -139,7 +139,20 @@ namespace Ogre {
         */
         virtual void _updateRenderQueue(RenderQueue* queue) = 0;
 
-        /** Tells this object whether to be visible or not, if it has a renderable component. */
+        /** Tells this object whether to be visible or not, if it has a renderable component. 
+		@note An alternative approach of making an object invisible is to detach it
+			from it's SceneNode, or to remove the SceneNode entirely. 
+			Detaching a node means that structurally the scene graph changes. 
+			Once this change has taken place, the objects / nodes that have been 
+			removed have less overhead to the visbility detection pass than simply
+			making the object invisible, so if you do this and leave the objects 
+			out of the tree for a long time, it's faster. However, the act of 
+			detaching / reattaching nodes is in itself more expensive than 
+			setting an object visibility flag, since in the latter case 
+			structural changes are not made. Therefore, small or frequent visbility
+			changes are best done using this method; large or more longer term
+			changes are best done by detaching.
+		*/
         virtual void setVisible(bool visible);
 
         /** Returns whether or not this object is supposed to be visible or not. */
