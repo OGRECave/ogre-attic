@@ -134,6 +134,8 @@ namespace Ogre {
 		/// Cached bone matrices, including any world transform
 		Matrix4 *mBoneMatrices;
 		unsigned short mNumBoneMatrices;
+		/// Records the last frame in which animation was updated
+		unsigned long mFrameAnimationLastUpdated;
 
 		/// Perform all the updates required for an animated entity
 		void updateAnimation(void);
