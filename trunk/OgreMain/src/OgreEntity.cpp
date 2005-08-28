@@ -54,6 +54,7 @@ namespace Ogre {
         mNormaliseNormals = false;
         mFrameBonesLastUpdated = new unsigned long;
 		*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
+        mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
         mHardwareAnimation = false;
         mSoftwareSkinningRequests = 0;
         mSoftwareSkinningNormalsRequests = 0;
@@ -152,6 +153,8 @@ namespace Ogre {
         mMaxMaterialLodIndex = 0; 		// Backwards, remember low value = high detail
         mMinMaterialLodIndex = 99;
 
+
+        mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
 
         // Do we have a mesh where edge lists are not going to be available?
         if (!mesh->isEdgeListBuilt() && !mesh->getAutoBuildEdgeLists())
@@ -492,7 +495,7 @@ namespace Ogre {
     {
         // We only do these tasks if animation is dirty or transform has altered
 		// when using skeletal animation, which is dependent
-        if (mAnimationState->isDirty() ||
+        if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
 			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()))
         {
 			Root& root = Root::getSingleton();
@@ -588,7 +591,7 @@ namespace Ogre {
             if (!mChildObjectList.empty())
                 mParentNode->needUpdate();
 
-			mAnimationState->resetDirty();
+			mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber();
 
 			mLastParentXform = getParentSceneNode()->_getFullTransform();
 
@@ -1219,8 +1222,8 @@ namespace Ogre {
         if(!mMesh->isPreparedForShadowVolumes())
         {
             mMesh->prepareForShadowVolume();
-            // force update of animation
-            mAnimationState->_notifyDirty();
+            // reset frame last updated to force update of animations
+            mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber() - 1;
             // re-prepare buffers
             prepareTempBlendBuffers();
         }

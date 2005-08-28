@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreAnimationState.h"
 #include "OgreException.h"
+#include "OgreRoot.h"
 
 namespace Ogre 
 {
@@ -174,12 +175,13 @@ namespace Ogre
     }
 	//---------------------------------------------------------------------
 	//---------------------------------------------------------------------
-	AnimationStateSet::AnimationStateSet() : mDirty(true)
+	AnimationStateSet::AnimationStateSet()
+		: mDirtyFrameNumber(std::numeric_limits<unsigned long>::max())
 	{
 	}
 	//---------------------------------------------------------------------
 	AnimationStateSet::AnimationStateSet(const AnimationStateSet& rhs)
-		: mDirty(true)
+		: mDirtyFrameNumber(std::numeric_limits<unsigned long>::max())
 	{
 		for (AnimationStateMap::const_iterator i = rhs.mAnimationStates.begin();
 			i != rhs.mAnimationStates.end(); ++i)
@@ -279,6 +281,11 @@ namespace Ogre
                 i->second->copyStateFrom(*(iother->second));
             }
         }
+    }
+    //---------------------------------------------------------------------
+    void AnimationStateSet::_notifyDirty(void)
+    {
+        mDirtyFrameNumber = Root::getSingleton().getCurrentFrameNumber();
     }
 
 

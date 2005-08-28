@@ -154,15 +154,13 @@ namespace Ogre {
 		ConstAnimationStateIterator getAnimationStateIterator(void) const;
 		/// Copy the state of any matching animation states from this to another
 		void copyMatchingState(AnimationStateSet* target);
-		/// Has any animation state been altered since the last time resetDirty was called?
-		bool isDirty(void) const { return mDirty; }
-		/// Reset the dirty flag on this state set
-		void resetDirty(void) { mDirty = false; }
-		/// Set the dirty flag on this state set
-		void _notifyDirty(void) { mDirty = true; }
+		/// Set the dirty flag and dirty frame number on this state set
+		void _notifyDirty(void);
+		/// Get the latest animation state been altered frame number
+		unsigned long getDirtyFrameNumber(void) const { return mDirtyFrameNumber; }
 
 	protected:
-		bool mDirty;
+		unsigned long mDirtyFrameNumber;
 		AnimationStateMap mAnimationStates;
 
 
