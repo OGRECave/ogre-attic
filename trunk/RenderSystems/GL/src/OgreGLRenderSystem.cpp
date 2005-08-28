@@ -898,7 +898,8 @@ namespace Ogre {
 
 			if(!tex.isNull())
 				glBindTexture( mTextureTypes[stage], tex->getGLID() );
-
+			else
+				glBindTexture( mTextureTypes[stage], static_cast<GLTextureManager*>(mTextureManager)->getWarningTextureID() );
         }
         else
         {
@@ -2500,6 +2501,42 @@ namespace Ogre {
         }
     }
     //---------------------------------------------------------------------
+    void GLRenderSystem::_switchContext(GLContext *context)
+    {
+        // Unbind GPU programs and rebind to new context later, because
+        // scene manager treat render system as ONE 'context' ONLY, and it
+        // cached the GPU programs using state.
+        if (mCurrentVertexProgram)
+            mCurrentVertexProgram->unbindProgram();
+        if (mCurrentFragmentProgram)
+            mCurrentFragmentProgram->unbindProgram();
+
+        // It's ready to switching
+        mCurrentContext->endCurrent();
+        mCurrentContext = context;
+        mCurrentContext->setCurrent();
+        
+        // Check if the context has already done one-time initialisation
+        if(!mCurrentContext->getInitialized()) 
+        {
+            _oneTimeContextInitialization();
+            mCurrentContext->setInitialized();
+        }
+
+        // Rebind GPU programs to new context
+        if (mCurrentVertexProgram)
+            mCurrentVertexProgram->bindProgram();
+        if (mCurrentFragmentProgram)
+            mCurrentFragmentProgram->bindProgram();
+
+        // Must reset depth/colour write mask to according with user desired, otherwise,
+        // clearFrameBuffer would be wrong because the value we are recorded may be
+        // difference with the really state stored in GL context.
+        glDepthMask(mDepthWrite);
+        glColorMask(mColourWrite[0], mColourWrite[1], mColourWrite[2], mColourWrite[3]);
+
+    }
+    //---------------------------------------------------------------------
     void GLRenderSystem::_setRenderTarget(RenderTarget *target)
     {
         // Unbind frame buffer object
@@ -2513,16 +2550,7 @@ namespace Ogre {
         target->getCustomAttribute("GLCONTEXT", &newContext);
         if(newContext && mCurrentContext != newContext) 
         {
-            // This rendertarget has a registered context, activate it
-            mCurrentContext->endCurrent();
-            mCurrentContext = newContext;
-            mCurrentContext->setCurrent();
-            
-            // Check if the context has already done one-time initialisation
-            if(!mCurrentContext->getInitialized()) {
-               _oneTimeContextInitialization();
-               mCurrentContext->setInitialized();
-            }
+            _switchContext(newContext);
         }
         
         // Bind frame buffer object
@@ -2536,9 +2564,7 @@ namespace Ogre {
             // remains active. When this is the main context being unregistered,
             // we set the main context to 0.
             if(mCurrentContext != mMainContext) {
-                mCurrentContext->endCurrent();
-                mCurrentContext = mMainContext;
-                mCurrentContext->setCurrent();
+                _switchContext(mMainContext);
             } else {
                 /// No contexts remain
                 mCurrentContext->endCurrent();
