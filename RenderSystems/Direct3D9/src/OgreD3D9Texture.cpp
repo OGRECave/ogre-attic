@@ -1232,15 +1232,10 @@ namespace Ogre
 		{
 			LogManager::getSingleton().logMessage(
 				"Releasing D3D9 default pool texture: " + mName);
-			if ((mIsManual && !mLoader) || mUsage & TU_RENDERTARGET)
-			{
-				// just free any internal resources
-				freeInternalResources();
-			}
-			else
-			{
-				unload();
-			}
+			// Just free any internal resources, don't call unload() here
+			// because we want the un-touched resource to keep its unloaded status
+			// after device reset.
+			freeInternalResources();
 			LogManager::getSingleton().logMessage(
 				"Released D3D9 default pool texture: " + mName);
 			return true;
@@ -1256,18 +1251,26 @@ namespace Ogre
 			ret = true;
 			LogManager::getSingleton().logMessage(
 				"Recreating D3D9 default pool texture: " + mName);
-			// There are 2 possible scenarios here:
-			// 1. This is a render target
-			// 2. This is a dynamic texture, which probably won't have a loader,
-			//    but if it does, we'll call it
-			// whether or no, the load() can do anything for me
-			if ((mIsManual && !mLoader) || mUsage & TU_RENDERTARGET)
+			// We just want to create the texture resources if:
+			// 1. This is a render texture, or
+			// 2. This is a manual texture with no loader, or
+			// 3. This was an unloaded regular texture (preserve unloaded state)
+			if ((mIsManual && !mLoader) || (mUsage & TU_RENDERTARGET) || !mIsLoaded)
 			{
 				// just recreate any internal resources
 				createInternalResources();
 			}
+			// Otherwise, this is a regular loaded texture, or a manual texture with a loader
 			else
 			{
+				// The internal resources already freed, need unload/load here:
+				// 1. Make sure resource memory usage statistic correction.
+				// 2. Don't call unload() in releaseIfDefaultPool() because we want
+				//    the un-touched resource keep unload status after device reset.
+				unload();
+				// if manual, we need to recreate internal resources since load() won't do that
+				if (mIsManual)
+					createInternalResources();
 				load();
 			}
 			LogManager::getSingleton().logMessage(
