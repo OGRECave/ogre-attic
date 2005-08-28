@@ -408,6 +408,9 @@ namespace Ogre {
          * only need to be set once, like the LightingModel can be defined here.
          */
         void _oneTimeContextInitialization();
+        /** Switch GL context, dealing with involved internal cached states too
+        */
+        void _switchContext(GLContext *context);
         /**
          * Set current render target to target, enabling its GL context if needed
          */
