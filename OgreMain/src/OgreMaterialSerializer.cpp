@@ -996,7 +996,7 @@ namespace Ogre
                         "(expected 4 for manual blend)", context);
                     return false;
                 }
-                manual = StringConverter::parseReal(vecparams[4]);
+                manual = StringConverter::parseReal(vecparams[3]);
             }
             if (src1 == LBS_MANUAL)
             {
