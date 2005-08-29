@@ -171,9 +171,19 @@ namespace Ogre {
 		    mFragmentProgramUsage = NULL;
         }
 
-		// Copy texture units
-		removeAllTextureUnitStates();
 		TextureUnitStates::const_iterator i, iend;
+
+        // Clear texture units but doesn't notify need recompilation in the case
+        // we are cloning, The parent material will take care of this.
+        iend = mTextureUnitStates.end();
+        for (i = mTextureUnitStates.begin(); i != iend; ++i)
+        {
+            delete *i;
+        }
+
+        mTextureUnitStates.clear();
+
+		// Copy texture units
 		iend = oth.mTextureUnitStates.end();
 		for (i = oth.mTextureUnitStates.begin(); i != iend; ++i)
 		{

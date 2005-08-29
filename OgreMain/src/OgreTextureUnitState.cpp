@@ -158,7 +158,13 @@ namespace Ogre {
 
         mEffects = oth.mEffects;
 
-        mParent->_dirtyHash();
+        // Load immediately if Material loaded
+        if (isLoaded())
+        {
+            _load();
+            // Tell parent to recalculate hash
+            mParent->_dirtyHash();
+        }
 
         return *this;
     }
