@@ -33,6 +33,32 @@ namespace Ogre {
     */
     class Bitwise {
     public:
+        /** Returns the most significant bit set in a value.
+        */
+        static FORCEINLINE unsigned int mostSignificantBitSet(unsigned int value)
+        {
+            unsigned int result = 0;
+            while (value != 0) {
+                ++result;
+                value >>= 1;
+            }
+            return result-1;
+        }
+        /** Returns the closest power-of-two number greater or equal to value.
+            @note 0 and 1 are powers of two, so 
+                firstPO2From(0)==0 and firstPO2From(1)==1.
+        */
+        static FORCEINLINE uint32 firstPO2From(uint32 n)
+        {
+            --n;            
+            n |= n >> 16;
+            n |= n >> 8;
+            n |= n >> 4;
+            n |= n >> 2;
+            n |= n >> 1;
+            ++n;
+            return n;
+        }
         /** Returns the number of bits a pattern must be shifted right by to
             remove right-hand zeroes.
         */
