@@ -856,7 +856,7 @@ namespace Ogre {
         static const AutoConstantDefinition* getAutoConstantDefinition(const size_t idx);
         /** Returns the number of auto constant definitions
         */
-        inline static size_t getNumAutoConstantDefinitions(void);
+        static size_t getNumAutoConstantDefinitions(void);
         /** increments the multipass number entry by 1 if it exists
         */
         void incPassIterationNumber(void);
