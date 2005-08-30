@@ -136,7 +136,7 @@ namespace Ogre {
         return false;
     }
 
-	GLPBuffer* GLSupport::createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height)
+	GLPBuffer* GLSupport::createPBuffer(PixelComponentType format, size_t width, size_t height)
     {
         return 0;
     }

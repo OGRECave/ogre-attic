@@ -267,6 +267,26 @@ namespace Ogre {
 	{
 		freeInternalResources();
 	}
+    //-----------------------------------------------------------------------------   
+    void Texture::copyToTexture( TexturePtr& target )
+    {
+        if(target->getNumFaces() != getNumFaces())
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+                "Texture types must match",
+                "Texture::copyToTexture");
+        }
+        size_t numMips = std::min(getNumMipmaps(), target->getNumMipmaps());
+        if((mUsage & TU_AUTOMIPMAP) || (target->getUsage()&TU_AUTOMIPMAP))
+            numMips = 0;
+        for(int face=0; face<getNumFaces(); face++)
+        {
+            for(int mip=0; mip<=numMips; mip++)
+            {
+                target->getBuffer(face, mip)->blit(getBuffer(face, mip));
+            }
+        }
+    }
 
 
 }

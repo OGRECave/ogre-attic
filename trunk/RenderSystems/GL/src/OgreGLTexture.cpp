@@ -37,6 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCodec.h"
 #include "OgreImageCodec.h"
 #include "OgreStringConverter.h"
+#include "OgreBitwise.h"
 
 #include "OgreGLFBORenderTexture.h"
 
@@ -47,15 +48,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
-    unsigned int mostSignificantBitSet(unsigned int value)
-	{
-		unsigned int result = 0;
-		while (value != 0) {
-			++result;
-			value >>= 1;
-		}
-		return result-1;
-	}
+
 
     GLTexture::GLTexture(ResourceManager* creator, const String& name, 
         ResourceHandle handle, const String& group, bool isManual, 
@@ -101,37 +94,23 @@ namespace Ogre {
 	void GLTexture::createInternalResourcesImpl(void)
     {
 		// Adjust requested parameters to capabilities
+        const RenderSystemCapabilities *caps = Root::getSingleton().getRenderSystem()->getCapabilities();
 
-		// Check power-of-two size if required
-        unsigned int newWidth = (1 << mostSignificantBitSet(mWidth));
-        if (newWidth != mWidth)
-            newWidth <<= 1;
-
-        unsigned int newHeight = (1 << mostSignificantBitSet(mHeight));
-        if (newHeight != mHeight)
-            newHeight <<= 1;
-
-		unsigned int newDepth = (1 << mostSignificantBitSet(mDepth));
-        if (newDepth != mDepth)
-            newDepth <<= 1;
-
-        if(!Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_NON_POWER_OF_2_TEXTURES))
-		{
-			mHeight = newHeight;
-			mWidth = newWidth;
-			mDepth = newDepth;
-		}
+		// Convert to nearest power-of-two size if required
+        mWidth = GLPixelUtil::optionalPO2(mWidth);      
+        mHeight = GLPixelUtil::optionalPO2(mHeight);
+        mDepth = GLPixelUtil::optionalPO2(mDepth);
 		
 		// Check compressed texture support
 		// if a compressed format not supported, revert to PF_A8R8G8B8
 		if(PixelUtil::isCompressed(mFormat) &&
-		 !Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
+            !caps->hasCapability( RSC_TEXTURE_COMPRESSION_DXT ))
 		{
 			mFormat = PF_A8R8G8B8;
 		}
 		// if floating point textures not supported, revert to PF_A8R8G8B8
 		if(PixelUtil::isFloatingPoint(mFormat) &&
-		 !Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability( RSC_TEXTURE_FLOAT ))
+            !caps->hasCapability( RSC_TEXTURE_FLOAT ))
 		{
 			mFormat = PF_A8R8G8B8;
 		}
@@ -139,12 +118,9 @@ namespace Ogre {
         // Check if this is a valid rendertarget format
 		if( mUsage & TU_RENDERTARGET )
         {
-            // valid rendertarget format?
-            if(!GLRTTManager::getSingleton().checkFormat(mFormat))
-            {
-                // Format not allowed, revert to RGBA8
-                mFormat = PF_A8R8G8B8;
-            }
+            /// Get closest supported alternative
+            /// If mFormat is supported it's returned
+            mFormat = GLRTTManager::getSingleton().getSupportedAlternative(mFormat);
         }
 		// Check requested number of mipmaps
 		size_t maxMips = GLPixelUtil::getMaxMipmaps(mWidth, mHeight, mDepth, mFormat);
@@ -163,7 +139,7 @@ namespace Ogre {
 		// If we can do automip generation and the user desires this, do so
 		if((mUsage & TU_AUTOMIPMAP) &&
 		    mNumMipmaps &&
-		 	Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
+            caps->hasCapability(RSC_AUTOMIPMAP))
         {
             glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
         }
@@ -174,6 +150,10 @@ namespace Ogre {
 		size_t width = mWidth;
 		size_t height = mHeight;
 		size_t depth = mDepth;
+#if 0
+        /** Luckily, this hack seems not to be needed; empty compressed textures can very well be created the 
+            conventional way with glTexImageXD.
+        */
 		if(PixelUtil::isCompressed(mFormat))
 		{
 			// Compressed formats
@@ -220,6 +200,7 @@ namespace Ogre {
 			delete [] tmpdata;
 		}
 		else
+#endif
 		{
 			// Run through this process to pregenerate mipmap piramid
 			for(int mip=0; mip<=mNumMipmaps; mip++)
@@ -402,59 +383,5 @@ namespace Ogre {
 		return mSurfaceList[idx];
 	}
 	
-	//---------------------------------------------------------------------------------------------
-
-#if 0    
-    void GLRenderTexture::writeContentsToFile( const String & filename ) 
-    {
-        ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
-        
-        imgData->width = mGLTexture->getWidth();
-        imgData->height = mGLTexture->getHeight();
-		imgData->depth = 1;
-        imgData->format = PF_BYTE_RGB;
-
-        // Allocate buffer 
-        uchar* pBuffer = new uchar[imgData->width * imgData->height * 3];
-
-        // Read pixels
-        // I love GL: it does all the locking & colour conversion for us
-        glBindTexture(GL_TEXTURE_2D, mGLTexture->getGLID());
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, pBuffer);
-
-        // Wrap buffer in a chunk
-        DataStreamPtr stream(new MemoryDataStream(
-            pBuffer, imgData->width * imgData->height * 3, false));
-
-        // Need to flip the read data over in Y though
-        Image img;
-        img.loadRawData(stream, imgData->width, imgData->height, imgData->format );
-        img.flipAroundX();
-
-        MemoryDataStreamPtr streamFlipped(
-            new MemoryDataStream(img.getData(), stream->size(), false));
-
-        // Get codec 
-        size_t pos = filename.find_last_of(".");
-            String extension;
-        if( pos == String::npos )
-            OGRE_EXCEPT(
-                Exception::ERR_INVALIDPARAMS, 
-            "Unable to determine image type for '" + filename + "' - invalid extension.",
-                "GLRenderTexture::writeContentsToFile" );
-
-        while( pos != filename.length() - 1 )
-            extension += filename[++pos];
-
-        // Get the codec
-        Codec * pCodec = Codec::getCodec(extension);
-
-        // Write out
-        Codec::CodecDataPtr codecDataPtr(imgData);
-        pCodec->codeToFile(streamFlipped, filename, codecDataPtr);
-
-        delete [] pBuffer;
-    }
-#endif
 }
 

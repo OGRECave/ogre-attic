@@ -51,7 +51,7 @@ public:
 	void* getProcAddress(const String& procname);
  
     virtual bool supportsPBuffers();
-    virtual GLPBuffer *createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height);
+    virtual GLPBuffer *createPBuffer(PixelComponentType format, size_t width, size_t height);
 private:
 	// X display
 	Display *mDisplay;

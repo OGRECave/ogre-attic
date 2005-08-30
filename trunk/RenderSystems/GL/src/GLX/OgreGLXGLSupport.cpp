@@ -169,7 +169,7 @@ bool GLXGLSupport::supportsPBuffers()
 {
     return true;
 }
-GLPBuffer *GLXGLSupport::createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height)
+GLPBuffer *GLXGLSupport::createPBuffer(PixelComponentType format, size_t width, size_t height)
 {
     return new GLXPBuffer(format, width, height);
 }

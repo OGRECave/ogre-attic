@@ -38,7 +38,7 @@ namespace Ogre
     class GLXPBuffer : public GLPBuffer
     {
     public:
-        GLXPBuffer(ComponentType format, size_t width, size_t height);
+        GLXPBuffer(PixelComponentType format, size_t width, size_t height);
         ~GLXPBuffer();
         
         virtual GLContext *getContext();

@@ -34,7 +34,7 @@ namespace Ogre {
     class Win32PBuffer : public GLPBuffer
     {
 	public:
-		Win32PBuffer(ComponentType format, size_t width, size_t height);
+		Win32PBuffer(PixelComponentType format, size_t width, size_t height);
 		~Win32PBuffer();
 	    
 		virtual GLContext *getContext() { return mContext; }

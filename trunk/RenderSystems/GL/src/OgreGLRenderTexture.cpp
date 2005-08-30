@@ -35,13 +35,31 @@ namespace Ogre {
 //-----------------------------------------------------------------------------
 
 template<> GLRTTManager* Singleton<GLRTTManager>::ms_Singleton = 0;
-GLRTTManager::~GLRTTManager()
-{
-}
-MultiRenderTarget* GLRTTManager::createMultiRenderTarget(const String & name)
-{
-	OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "MultiRenderTarget can only be used with GL_EXT_framebuffer_object extension", "GLRTTManager::createMultiRenderTarget");
-}
+    GLRTTManager::~GLRTTManager()
+    {
+    }
+    MultiRenderTarget* GLRTTManager::createMultiRenderTarget(const String & name)
+    {
+    	OGRE_EXCEPT(Exception::UNIMPLEMENTED_FEATURE, "MultiRenderTarget can only be used with GL_EXT_framebuffer_object extension", "GLRTTManager::createMultiRenderTarget");
+    }
+    PixelFormat GLRTTManager::getSupportedAlternative(PixelFormat format)
+    {
+        if(checkFormat(format))
+            return format;
+        /// Find first alternative
+        PixelComponentType pct = PixelUtil::getComponentType(format);
+        switch(pct)
+        {
+        case PCT_BYTE: format = PF_A8R8G8B8; break;
+        case PCT_SHORT: format = PF_SHORT_RGBA; break;
+        case PCT_FLOAT16: format = PF_FLOAT16_RGBA; break;
+        case PCT_FLOAT32: format = PF_FLOAT32_RGBA; break;
+        }
+        if(checkFormat(format))
+            return format;
+        /// If none at all, return to default
+        return PF_A8R8G8B8;
+    }
 //-----------------------------------------------------------------------------  
     GLRenderTexture::GLRenderTexture(const String &name, const GLSurfaceDesc &target):
         RenderTexture(target.buffer, target.zoffset)

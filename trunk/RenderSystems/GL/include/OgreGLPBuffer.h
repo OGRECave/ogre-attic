@@ -35,31 +35,22 @@ namespace Ogre {
     class GLPBuffer
     {
     public:
-        /** PBuffer component format */
-        enum ComponentType
-        {
-            PT_BYTE = 0,    /// Byte per component (8 bit fixed 0.0..1.0)
-            PT_SHORT = 1,   /// Short per component (16 bit fixed 0.0..1.0))
-            PT_FLOAT16 = 2, /// 16 bit float per component
-            PT_FLOAT32 = 3, /// 32 bit float per component
-            PT_COUNT = 4    /// Number of pixel types
-        };
-        GLPBuffer(ComponentType format, size_t width, size_t height);
+        GLPBuffer(PixelComponentType format, size_t width, size_t height);
         virtual ~GLPBuffer();
         
         /** Get the GL context that needs to be active to render to this PBuffer.
         */
         virtual GLContext *getContext() = 0;
         
-        ComponentType getFormat() { return mFormat; }
+        PixelComponentType getFormat() { return mFormat; }
         size_t getWidth() { return mWidth; }
         size_t getHeight() { return mHeight; }
         
         /** Get PBuffer component format for an OGRE pixel format.
          */
-        static ComponentType getComponentType(PixelFormat fmt);
+        static PixelComponentType getPixelComponentType(PixelFormat fmt);
     protected:
-        ComponentType mFormat;
+        PixelComponentType mFormat;
         size_t mWidth, mHeight;
     };
     

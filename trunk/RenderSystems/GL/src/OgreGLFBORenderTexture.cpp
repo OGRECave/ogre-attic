@@ -83,6 +83,8 @@ size_t depthBits[] = {
 		mATIMode(atimode)
     {
         detectFBOFormats();
+        
+        glGenFramebuffersEXT(1, &mTempFBO);
     }
 
 	GLFBOManager::~GLFBOManager()
@@ -91,6 +93,8 @@ size_t depthBits[] = {
 		{
 			LogManager::getSingleton().logMessage("GL: Warning! GLFBOManager destructor called, but not all renderbuffers were released.");
 		}
+        
+        glDeleteFramebuffersEXT(1, &mTempFBO);      
 	}
 
     /** Try a certain FBO format, and return the status. Also sets mDepthRB and mStencilRB.

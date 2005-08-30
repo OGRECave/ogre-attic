@@ -237,9 +237,9 @@ void D3D9HardwarePixelBuffer::unlockImpl(void)
 		_genMipmaps();
 }
 //-----------------------------------------------------------------------------  
-void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *rsrc, const Image::Box &srcBox, const Image::Box &dstBox)
+void D3D9HardwarePixelBuffer::blit(const HardwarePixelBufferSharedPtr &rsrc, const Image::Box &srcBox, const Image::Box &dstBox)
 {
-	D3D9HardwarePixelBuffer *src = static_cast<D3D9HardwarePixelBuffer*>(rsrc);
+	D3D9HardwarePixelBuffer *src = static_cast<D3D9HardwarePixelBuffer*>(rsrc.getPointer());
 	if(mSurface && src->mSurface)
 	{
 		// Surface-to-surface
@@ -273,6 +273,7 @@ void D3D9HardwarePixelBuffer::blit(HardwarePixelBuffer *rsrc, const Image::Box &
 	}
 	else
 	{
+        // Software fallback   
 		HardwarePixelBuffer::blit(src, srcBox, dstBox);
 	}
 }

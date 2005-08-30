@@ -56,9 +56,6 @@ namespace Ogre {
                 PixelFormat mFormat,
                 HardwareBuffer::Usage usage);
 		
-		/// @copydoc HardwarePixelBuffer::blit
-		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
-		
 		/// @copydoc HardwarePixelBuffer::blitFromMemory
 		void blitFromMemory(const PixelBox &src, const Image::Box &dstBox);
 		
@@ -91,6 +88,9 @@ namespace Ogre {
 		virtual void upload(const PixelBox &data);
 		// Download a box of pixels from the card
 		virtual void download(const PixelBox &data);
+  
+        // Hardware implementation of blitFromMemory
+        virtual void blitFromMemory(const PixelBox &src_orig, const Image::Box &dstBox);
         
         // Notify TextureBuffer of destruction of render target
         void _clearSliceRTT(size_t zoffset)
@@ -99,6 +99,10 @@ namespace Ogre {
         }
         // Copy from framebuffer
         void copyFromFramebuffer(size_t zoffset);
+        /// @copydoc HardwarePixelBuffer::blit
+        void blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox);
+        // Blitting implementation
+        void blitFromTexture(GLTextureBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
     protected:
         // In case this is a texture level
 		GLenum mTarget;
