@@ -56,7 +56,7 @@ namespace Ogre
 		bool selectPixelFormat(HDC hdc, int colourDepth, int multisample = 0);
 
 		virtual bool supportsPBuffers();
-		virtual GLPBuffer *createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height);
+		virtual GLPBuffer *createPBuffer(PixelComponentType format, size_t width, size_t height);
 	private:
 		// Allowed video modes
 		std::vector<DEVMODE> mDevModes;
