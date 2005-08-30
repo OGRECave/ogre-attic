@@ -148,6 +148,17 @@ namespace Ogre {
         // replaces R,G and B. (but not A)
         PFF_LUMINANCE       = 0x00000020
     };
+    
+    /** Pixel component format */
+    enum PixelComponentType
+    {
+        PCT_BYTE = 0,    /// Byte per component (8 bit fixed 0.0..1.0)
+        PCT_SHORT = 1,   /// Short per component (16 bit fixed 0.0..1.0))
+        PCT_FLOAT16 = 2, /// 16 bit float per component
+        PCT_FLOAT32 = 3, /// 32 bit float per component
+        PCT_COUNT = 4    /// Number of pixel types
+    };
+    
 	/** A primitive describing a volume (3D), image (2D) or line (1D) of pixels in memory.
      	In case of a rectangle, depth must be 1. 
      	Pixels are stored as a succession of "depth" slices, each containing "height" rows of 
@@ -341,6 +352,17 @@ namespace Ogre {
                true if yes, otherwise false
         */
         static bool isAccessible(PixelFormat srcformat);
+        
+        /** Returns the component type for a certain pixel format. Returns PCT_BYTE
+            in case there is no clear component type like with compressed formats.
+            This is one of PCT_BYTE, PCT_SHORT, PCT_FLOAT16, PCT_FLOAT32.
+        */
+        static PixelComponentType getComponentType(PixelFormat fmt);
+        
+        /** Returns the component count for a certain pixel format. Returns 3(no alpha) or 
+            4 (has alpha) in case there is no clear component type like with compressed formats.
+         */
+        static size_t getComponentCount(PixelFormat fmt);
         
         /** Pack a colour value to memory
         	@param colour	The colour
