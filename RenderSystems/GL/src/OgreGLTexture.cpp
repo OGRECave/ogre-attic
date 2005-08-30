@@ -343,11 +343,6 @@ namespace Ogre {
 	void GLTexture::_createSurfaceList()
 	{
 		mSurfaceList.clear();
-		// Make our understanding of the number of mips matches the GL one
-		glBindTexture( getGLTextureTarget(), mTextureID );
-		GLint value;
-		glGetTexParameteriv( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, &value );
-		mNumMipmaps = value;
 		
 		// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 		bool wantGeneratedMips = (mUsage & TU_AUTOMIPMAP)!=0;
