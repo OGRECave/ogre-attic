@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGLPrerequisites.h"
 #include "OgrePixelFormat.h"
 namespace Ogre {
+    
 	/**
 	* Class to do pixel format mapping between GL and OGRE
 	*/
@@ -80,6 +81,11 @@ namespace Ogre {
 				so this might differ.
 		*/
 		static size_t getMaxMipmaps(size_t width, size_t height, size_t depth, PixelFormat format);
+        
+        /** Returns next power-of-two size if required by render system, in case
+            RSC_NON_POWER_OF_2_TEXTURES is supported it returns value as-is.
+        */
+        static size_t optionalPO2(size_t value);
 	};
 };
 

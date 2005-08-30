@@ -41,7 +41,7 @@ public:
 		bool fullScreen, const NameValuePairList *miscParams = 0) = 0;
 
     virtual bool supportsPBuffers();
-    virtual GLPBuffer *createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height);
+    virtual GLPBuffer *createPBuffer(PixelComponentType format, size_t width, size_t height);
 
     /**
     * Start anything special

@@ -107,32 +107,26 @@ namespace Ogre {
         	@param srcBox	Image::Box describing the source region in src
         	@param dstBox	Image::Box describing the destination region in this buffer
 			@remarks The source and destination regions dimensions don't have to match, in which
-		   	case scaling is done. This scaling is done in software for some render systems, 
-			thus for realtime usage it is recommended to pass the source image in the right dimensions.
+		   	case scaling is done. This scaling is generally done using a bilinear filter in hardware,
+            but it is faster to pass the source image in the right dimensions.
 			@note Only call this function when both  buffers are unlocked. 
          */        
-        virtual void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
+        virtual void blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox);
 
 		/** Convience function that blits the entire source pixel buffer to this buffer. 
 			If source and destination dimensions don't match, scaling is done.
 			@param src		PixelBox containing the source pixels and format in memory
 			@note Only call this function when the buffer is unlocked. 
 		*/
-		void blit(HardwarePixelBuffer *src)
-		{
-			blit(src, 
-				Box(0,0,0,src->getWidth(),src->getHeight(),src->getDepth()), 
-				Box(0,0,0,mWidth,mHeight,mDepth)
-			);
-		}
+		void blit(const HardwarePixelBufferSharedPtr &src); 
 		
 		/** Copies a region from normal memory to a region of this pixelbuffer. The source
 			image can be in any pixel format supported by OGRE, and in any size. 
 		   	@param src		PixelBox containing the source pixels and format in memory
 		   	@param dstBox	Image::Box describing the destination region in this buffer
-		   	@remarks The source and destination regions dimensions don't have to match, in which
-		   	case scaling is done. This scaling is done in software for some render systems, 
-			so for realtime usage it is recommended to pass the source image in the right dimensions.
+            @remarks The source and destination regions dimensions don't have to match, in which
+            case scaling is done. This scaling is generally done using a bilinear filter in hardware,
+            but it is faster to pass the source image in the right dimensions.
 			@note Only call this function when the buffer is unlocked. 
 		*/
 		virtual void blitFromMemory(const PixelBox &src, const Image::Box &dstBox) = 0;

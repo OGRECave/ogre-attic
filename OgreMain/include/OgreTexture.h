@@ -178,9 +178,10 @@ namespace Ogre {
         /** Frees internal texture resources for this texture. 
         */
         virtual void freeInternalResources(void);
+        
 		/** Copies (and maybe scales to fit) the contents of this texture to
 			another texture. */
-		virtual void copyToTexture( TexturePtr& target ) {}
+		virtual void copyToTexture( TexturePtr& target );
 
         /** Loads the data from an image.
         */

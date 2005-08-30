@@ -32,7 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 //-----------------------------------------------------------------------------  
-    GLPBuffer::GLPBuffer(ComponentType format, size_t width, size_t height):
+    GLPBuffer::GLPBuffer(PixelComponentType format, size_t width, size_t height):
         mFormat(format),
         mWidth(width),
         mHeight(height)
@@ -41,30 +41,13 @@ namespace Ogre {
     GLPBuffer::~GLPBuffer()
     {
     }
-    
-    GLPBuffer::ComponentType GLPBuffer::getComponentType(PixelFormat fmt)
-    {
-        if(PixelUtil::isFloatingPoint(fmt))
-        {
-            if(fmt==PF_FLOAT32_R || fmt==PF_FLOAT32_RGB || fmt==PF_FLOAT32_RGBA)
-                return PT_FLOAT32;
-            else
-                return PT_FLOAT16;
-        }
-        else
-        {
-            if(fmt==PF_SHORT_RGBA || fmt==PF_SHORT_L)
-                return PT_SHORT;
-            else
-                return PT_BYTE;
-        }
-    }
+
 //-----------------------------------------------------------------------------  
     GLPBRenderTexture::GLPBRenderTexture(GLPBRTTManager *manager, const String &name, const GLSurfaceDesc &target):
         GLRenderTexture(name, target),
         mManager(manager)
     {
-        mPBFormat = GLPBuffer::getComponentType(target.buffer->getFormat());
+        mPBFormat = PixelUtil::getComponentType(target.buffer->getFormat());
         
         mManager->requestPBuffer(mPBFormat, mWidth, mHeight);
     }
@@ -98,7 +81,7 @@ namespace Ogre {
     GLPBRTTManager::~GLPBRTTManager()
     {
         // Delete remaining PBuffers
-        for(size_t x=0; x<GLPBuffer::PT_COUNT; ++x)
+        for(size_t x=0; x<PCT_COUNT; ++x)
         {
             delete mPBuffers[x].pb;
         }
@@ -130,7 +113,7 @@ namespace Ogre {
             static_cast<GLTextureBuffer*>(surface.buffer)->copyFromFramebuffer(surface.zoffset);
     }
     
-    void GLPBRTTManager::requestPBuffer(GLPBuffer::ComponentType ctype, size_t width, size_t height)
+    void GLPBRTTManager::requestPBuffer(PixelComponentType ctype, size_t width, size_t height)
     {
         //Check size
         if(mPBuffers[ctype].pb)
@@ -151,7 +134,7 @@ namespace Ogre {
         ++mPBuffers[ctype].refcount;
     }
     
-    void GLPBRTTManager::releasePBuffer(GLPBuffer::ComponentType ctype)
+    void GLPBRTTManager::releasePBuffer(PixelComponentType ctype)
     {
         --mPBuffers[ctype].refcount;
         if(mPBuffers[ctype].refcount == 0)
@@ -161,11 +144,11 @@ namespace Ogre {
         }
     }
     
-    GLContext *GLPBRTTManager::getContextFor(GLPBuffer::ComponentType ctype, size_t width, size_t height)
+    GLContext *GLPBRTTManager::getContextFor(PixelComponentType ctype, size_t width, size_t height)
     {
         // Faster to return main context if the RTT is smaller than the window size
-        // and ctype is PT_BYTE. This must be checked every time because the window might have been resized
-		if(ctype == GLPBuffer::PT_BYTE)
+        // and ctype is PCT_BYTE. This must be checked every time because the window might have been resized
+		if(ctype == PCT_BYTE)
 		{
 			if(width <= mMainWindow->getWidth() && height <= mMainWindow->getWidth())
 				return mMainContext;

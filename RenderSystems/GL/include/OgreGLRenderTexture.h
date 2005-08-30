@@ -77,6 +77,10 @@ namespace Ogre {
 		/** Create a multi render target 
 		*/
 		virtual MultiRenderTarget* createMultiRenderTarget(const String & name);
+        
+        /** Get the closest supported alternative format. If format is supported, returns format.
+        */
+        virtual PixelFormat getSupportedAlternative(PixelFormat format);
     };
     
     /** RenderTexture for simple copying from frame buffer

@@ -54,7 +54,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre
 {
-    GLXPBuffer::GLXPBuffer(ComponentType format, size_t width, size_t height):
+    GLXPBuffer::GLXPBuffer(PixelComponentType format, size_t width, size_t height):
         GLPBuffer(format, width, height),
         _hPBuffer(0),
         mContext(0)
@@ -84,16 +84,16 @@ namespace Ogre
         bool isFloat=false;
         switch(mFormat)
         {
-            case PT_BYTE:
+            case PCT_BYTE:
                 bits=8; isFloat=false;
                 break;
-            case PT_SHORT:
+            case PCT_SHORT:
                 bits=16; isFloat=false;
                 break;
-            case PT_FLOAT16:
+            case PCT_FLOAT16:
                 bits=16; isFloat=true;
                 break;
-            case PT_FLOAT32:
+            case PCT_FLOAT32:
                 bits=32; isFloat=true;
                 break;
             default: break;

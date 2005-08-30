@@ -42,7 +42,7 @@ namespace Ogre {
         virtual void getCustomAttribute(const String& name, void* pData);
     protected:
         GLPBRTTManager *mManager;
-        GLPBuffer::ComponentType mPBFormat;
+        PixelComponentType mPBFormat;
     };
         
     /** Manager for rendertextures and PBuffers (offscreen rendering contexts)
@@ -71,15 +71,15 @@ namespace Ogre {
         
         /** Create PBuffer for a certain pixel format and size
         */
-        void requestPBuffer(GLPBuffer::ComponentType ctype, size_t width, size_t height);
+        void requestPBuffer(PixelComponentType ctype, size_t width, size_t height);
         
         /** Release PBuffer for a certain pixel format
         */
-        void releasePBuffer(GLPBuffer::ComponentType ctype);
+        void releasePBuffer(PixelComponentType ctype);
         
         /** Get GL rendering context for a certain component type and size.
         */
-        GLContext *getContextFor(GLPBuffer::ComponentType ctype, size_t width, size_t height);
+        GLContext *getContextFor(PixelComponentType ctype, size_t width, size_t height);
     protected:
         /** GLSupport reference, used to create PBuffers */
         GLSupport *mSupport;
@@ -95,7 +95,7 @@ namespace Ogre {
             size_t refcount;
         };
         /** Type to map each component type to a PBuffer */
-        PBRef mPBuffers[GLPBuffer::PT_COUNT];
+        PBRef mPBuffers[PCT_COUNT];
     };
 }
 

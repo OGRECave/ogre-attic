@@ -87,12 +87,7 @@ void GLHardwarePixelBuffer::unlockImpl(void)
 	
 	freeBuffer();
 }
-//-----------------------------------------------------------------------------  
-void GLHardwarePixelBuffer::blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
-{
-	// this can be sped up with some copy pixels primitive, sometimes, maybe
-	HardwarePixelBuffer::blit(src, srcBox, dstBox);
-}
+
 //-----------------------------------------------------------------------------  
 void GLHardwarePixelBuffer::blitFromMemory(const PixelBox &src, const Image::Box &dstBox)
 {
@@ -492,6 +487,302 @@ void GLTextureBuffer::copyFromFramebuffer(size_t zoffset)
         glCopyTexSubImage3D(mFaceTarget, mLevel, 0, 0, zoffset, 0, 0, mWidth, mHeight);
         break;
     }
+}
+//-----------------------------------------------------------------------------  
+void GLTextureBuffer::blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox)
+{
+    GLTextureBuffer *srct = static_cast<GLTextureBuffer *>(src.getPointer());
+    /// Check for FBO support first
+    /// Destination texture must be 1D, 2D, 3D, or Cube
+    /// Source texture must be 1D, 2D or 3D
+    if(GLEW_EXT_framebuffer_object &&
+        (srct->mTarget==GL_TEXTURE_1D||srct->mTarget==GL_TEXTURE_2D||srct->mTarget==GL_TEXTURE_3D))
+    {
+        blitFromTexture(srct, srcBox, dstBox);
+    }
+    else
+    {
+        GLHardwarePixelBuffer::blit(src, srcBox, dstBox);
+    }
+}
+
+//-----------------------------------------------------------------------------  
+/// Very fast texture-to-texture blitter and hardware bi/trilinear scaling implementation using FBO
+/// Destination texture must be 1D, 2D, 3D, or Cube
+/// Source texture must be 1D, 2D or 3D
+/// Supports compressed formats as both source and destination format, it will use the hardware DXT compressor
+/// if available.
+/// @author W.J. van der Laan
+void GLTextureBuffer::blitFromTexture(GLTextureBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox)
+{
+    //std::cerr << "GLTextureBuffer::blitFromTexture " <<
+    //src->mTextureID << ":" << srcBox.left << "," << srcBox.top << "," << srcBox.right << "," << srcBox.bottom << " " << 
+    //mTextureID << ":" << dstBox.left << "," << dstBox.top << "," << dstBox.right << "," << dstBox.bottom << std::endl;
+    /// Store reference to FBO manager
+    GLFBOManager *fboMan = static_cast<GLFBOManager *>(GLRTTManager::getSingletonPtr());
+    
+    /// Save and clear GL state for rendering
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | 
+        GL_FOG_BIT | GL_LIGHTING_BIT | GL_POLYGON_BIT | GL_SCISSOR_BIT | GL_STENCIL_BUFFER_BIT |
+        GL_TEXTURE_BIT | GL_VIEWPORT_BIT);
+
+    /// Disable alpha, depth and scissor testing, disable blending, 
+    /// disable culling, disble lighting, disable fog and reset foreground
+    /// colour.
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_FOG);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    /// Save and reset matrices
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_TEXTURE);
+    glPushMatrix();
+    glLoadIdentity();
+    
+    /// Set up source texture
+    glBindTexture(src->mTarget, src->mTextureID);
+    
+    /// Set filtering modes depending on the dimensions and source
+    if(srcBox.getWidth()==dstBox.getWidth() &&
+        srcBox.getHeight()==dstBox.getHeight() &&
+        srcBox.getDepth()==dstBox.getDepth())
+    {
+        /// Dimensions match -- use nearest filtering (fastest and pixel correct)
+        glTexParameteri(src->mTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(src->mTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    else
+    {
+        /// Dimensions don't match -- use bi or trilinear filtering depending on the
+        /// source texture.
+        if(src->mUsage & TU_AUTOMIPMAP)
+        {
+            /// Automatic mipmaps, we can safely use trilinear filter which
+            /// brings greatly imporoved quality for minimisation.
+            glTexParameteri(src->mTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(src->mTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);    
+        }
+        else
+        {
+            /// Manual mipmaps, stay safe with bilinear filtering so that no
+            /// intermipmap leakage occurs.
+            glTexParameteri(src->mTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(src->mTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        }
+    }
+    /// Clamp to edge (fastest)
+    glTexParameteri(src->mTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(src->mTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(src->mTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    
+    /// Set origin base level mipmap to make sure we source from the right mip
+    /// level.
+    glTexParameteri(src->mTarget, GL_TEXTURE_BASE_LEVEL, src->mLevel);
+    
+    /// Store old binding so it can be restored later
+    GLint oldfb;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, &oldfb);
+    
+    /// Set up temporary FBO
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboMan->getTemporaryFBO());
+    
+    GLuint tempTex = 0;
+    if(!fboMan->checkFormat(mFormat))
+    {
+        /// If target format not directly supported, create intermediate texture
+        GLenum tempFormat = GLPixelUtil::getClosestGLInternalFormat(fboMan->getSupportedAlternative(mFormat));
+        glGenTextures(1, &tempTex);
+        glBindTexture(GL_TEXTURE_2D, tempTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        /// Allocate temporary texture of the size of the destination area
+        glTexImage2D(GL_TEXTURE_2D, 0, tempFormat, 
+            GLPixelUtil::optionalPO2(dstBox.getWidth()), GLPixelUtil::optionalPO2(dstBox.getHeight()), 
+            0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+            GL_TEXTURE_2D, tempTex, 0);
+        /// Set viewport to size of destination slice
+        glViewport(0, 0, dstBox.getWidth(), dstBox.getHeight());
+    }
+    else
+    {
+        /// We are going to bind directly, so set viewport to size and position of destination slice
+        glViewport(dstBox.left, dstBox.top, dstBox.getWidth(), dstBox.getHeight());
+    }
+    
+    /// Process each destination slice
+    for(size_t slice=dstBox.front; slice<dstBox.back; ++slice)
+    {
+        if(!tempTex)
+        {
+            /// Bind directly
+            bindToFramebuffer(GL_COLOR_ATTACHMENT0_EXT, slice);
+        }
+        /// Calculate source texture coordinates
+        float u1 = (float)srcBox.left / (float)src->mWidth;
+        float v1 = (float)srcBox.top / (float)src->mHeight;
+        float u2 = (float)srcBox.right / (float)src->mWidth;
+        float v2 = (float)srcBox.bottom / (float)src->mHeight;
+        /// Calculate source slice for this destination slice
+        float w = (float)(slice - dstBox.front) / (float)dstBox.getDepth();
+        /// Get slice # in source
+        w = w * (float)srcBox.getDepth() + srcBox.front;
+        /// Normalise to texture coordinate in 0.0 .. 1.0
+        w = (w+0.5f) / (float)src->mDepth;
+        
+        /// Finally we're ready to rumble
+        glBindTexture(src->mTarget, src->mTextureID);
+        glEnable(src->mTarget);
+        glBegin(GL_QUADS);
+        glTexCoord3f(u1, v1, w);
+        glVertex2f(-1.0f, -1.0f);
+        glTexCoord3f(u2, v1, w);
+        glVertex2f(1.0f, -1.0f);
+        glTexCoord3f(u2, v2, w);
+        glVertex2f(1.0f, 1.0f);
+        glTexCoord3f(u1, v2, w);
+        glVertex2f(-1.0f, 1.0f);
+        glEnd();
+        glDisable(src->mTarget);
+        
+        if(tempTex)
+        {
+            /// Copy temporary texture
+            glBindTexture(mTarget, mTextureID);
+            switch(mTarget)
+            {
+            case GL_TEXTURE_1D:
+                glCopyTexSubImage1D(mFaceTarget, mLevel, 
+                    dstBox.left, 
+                    0, 0, dstBox.getWidth());
+                break;
+            case GL_TEXTURE_2D:
+            case GL_TEXTURE_CUBE_MAP:
+                glCopyTexSubImage2D(mFaceTarget, mLevel, 
+                    dstBox.left, dstBox.top, 
+                    0, 0, dstBox.getWidth(), dstBox.getHeight());
+                break;
+            case GL_TEXTURE_3D:
+                glCopyTexSubImage3D(mFaceTarget, mLevel, 
+                    dstBox.left, dstBox.top, slice, 
+                    0, 0, dstBox.getWidth(), dstBox.getHeight());
+                break;
+            }
+        }
+    }
+    /// Finish up 
+    if(!tempTex)
+    {
+        /// Generate mipmaps
+        if(mUsage & TU_AUTOMIPMAP)
+        {
+            glBindTexture(mTarget, mTextureID);
+            glGenerateMipmapEXT(mTarget);
+        }
+    }
+
+    /// Reset source texture to sane state
+    glBindTexture(src->mTarget, src->mTextureID);
+    glTexParameteri(src->mTarget, GL_TEXTURE_BASE_LEVEL, 0);
+    
+    /// Detach texture from temporary framebuffer
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
+                    GL_RENDERBUFFER_EXT, 0);
+    /// Restore old framebuffer
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, oldfb);
+    /// Restore matrix stacks and render state
+    glMatrixMode(GL_TEXTURE);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glPopAttrib();
+    glDeleteTextures(1, &tempTex);
+}
+//-----------------------------------------------------------------------------  
+/// blitFromMemory doing hardware trilinear scaling
+void GLTextureBuffer::blitFromMemory(const PixelBox &src_orig, const Image::Box &dstBox)
+{
+    /// Fall back to normal GLHardwarePixelBuffer::blitFromMemory in case 
+    /// - FBO is not supported
+    /// - the source dimensions match the destination ones, in which case no scaling is needed
+    if(!GLEW_EXT_framebuffer_object ||
+        (src_orig.getWidth() == dstBox.getWidth() &&
+        src_orig.getHeight() == dstBox.getHeight() &&
+        src_orig.getDepth() == dstBox.getDepth()))
+    {
+        GLHardwarePixelBuffer::blitFromMemory(src_orig, dstBox);
+        return;
+    }
+    if(!mBuffer.contains(dstBox))
+        OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "destination box out of range",
+                    "GLHardwarePixelBuffer::blitFromMemory");
+    /// For scoped deletion of conversion buffer
+    MemoryDataStreamPtr buf;
+    PixelBox src;
+    
+    /// First, convert the srcbox to a OpenGL compatible pixel format
+    if(GLPixelUtil::getGLOriginFormat(src_orig.format) == 0)
+    {
+        /// Convert to buffer internal format
+        buf.bind(new MemoryDataStream(
+                PixelUtil::getMemorySize(src_orig.getWidth(), src_orig.getHeight(), src_orig.getDepth(),
+                                         mFormat)));
+        src = PixelBox(src_orig.getWidth(), src_orig.getHeight(), src_orig.getDepth(), mFormat, buf->getPtr());
+        PixelUtil::bulkPixelConversion(src_orig, src);
+    }
+    else
+    {
+        /// No conversion needed
+        src = src_orig;
+    }
+    
+    /// Create temporary texture to store source data
+    GLuint id;
+    GLenum target = (src.getDepth()!=1)?GL_TEXTURE_3D:GL_TEXTURE_2D;
+    GLsizei width = GLPixelUtil::optionalPO2(src.getWidth());
+    GLsizei height = GLPixelUtil::optionalPO2(src.getHeight());
+    GLsizei depth = GLPixelUtil::optionalPO2(src.getDepth());
+    GLenum format = GLPixelUtil::getClosestGLInternalFormat(src.format);
+    
+    /// Generate texture name
+    glGenTextures(1, &id);
+    
+    /// Set texture type
+    glBindTexture(target, id);
+    
+    /// Set automatic mipmap generation; nice for minimisation
+    glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 1000 );
+    glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE );
+    
+    /// Allocate texture memory
+    if(target == GL_TEXTURE_3D)
+        glTexImage3D(target, 0, format, width, height, depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    else
+        glTexImage2D(target, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+    /// GL texture buffer
+    GLTextureBuffer tex("", target, id, 0, 0, (Usage)(TU_AUTOMIPMAP|HBU_STATIC_WRITE_ONLY), false);
+    
+    /// Upload data to 0,0,0 in temporary texture
+    PixelBox tempTarget(src.getWidth(), src.getHeight(), src.getDepth(), src.format, src.data);
+    tex.upload(tempTarget);
+    
+    /// Blit
+    blitFromTexture(&tex, tempTarget, dstBox);
+    
+    /// Delete temp texture
+    glDeleteTextures(1, &id);
 }
 //-----------------------------------------------------------------------------    
 

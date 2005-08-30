@@ -91,6 +91,10 @@ namespace Ogre {
         /** Check if a certain format is usable as FBO rendertarget format
         */
         bool checkFormat(PixelFormat format) { return mProps[format].valid; }
+        
+        /** Get a FBO without depth/stencil for temporary use, like blitting between textures.
+        */
+        GLuint getTemporaryFBO() { return mTempFBO; }
     private:
         /** Frame Buffer Object properties for a certain texture format.
         */
@@ -158,6 +162,10 @@ namespace Ogre {
         typedef std::map<RBFormat, RBRef> RenderBufferMap;
         RenderBufferMap mRenderBufferMap;
         // map(format, sizex, sizey) -> [GLSurface*,refcount]
+        
+        /** Temporary FBO identifier
+         */
+        GLuint mTempFBO;
         
 		/// Buggy ATI driver?
 		bool mATIMode;

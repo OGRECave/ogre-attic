@@ -74,7 +74,7 @@ namespace Ogre {
 		void bind(IDirect3DDevice9 *dev, IDirect3DVolume9 *mVolume, bool update);
 		
 		/// @copydoc HardwarePixelBuffer::blit
-		void blit(HardwarePixelBuffer *src, const Image::Box &srcBox, const Image::Box &dstBox);
+        void blit(const HardwarePixelBufferSharedPtr &src, const Image::Box &srcBox, const Image::Box &dstBox)      
 		
 		/// @copydoc HardwarePixelBuffer::blitFromMemory
 		void blitFromMemory(const PixelBox &src, const Image::Box &dstBox);

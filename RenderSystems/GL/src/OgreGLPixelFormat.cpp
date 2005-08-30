@@ -24,6 +24,9 @@ http://www.gnu.org/copyleft/lesser.txt.
 */
 
 #include "OgreGLPixelFormat.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
+#include "OgreBitwise.h"
 
 namespace Ogre  {
 	//-----------------------------------------------------------------------------
@@ -304,5 +307,15 @@ namespace Ogre  {
 		
 		return count;
 	}
+    //-----------------------------------------------------------------------------    
+    size_t GLPixelUtil::optionalPO2(size_t value)
+    {
+        const RenderSystemCapabilities *caps = Root::getSingleton().getRenderSystem()->getCapabilities();
+        if(caps->hasCapability(RSC_NON_POWER_OF_2_TEXTURES))
+            return value;
+        else
+            return Bitwise::firstPO2From((uint32)value);
+    }   
+
 	
 };

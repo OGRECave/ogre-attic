@@ -47,6 +47,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreGpuProgramManager.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreHardwareIndexBuffer.h"
+#include "OgreHardwarePixelBuffer.h"
 #include "OgreHardwareOcclusionQuery.h"
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreHighLevelGpuProgram.h"

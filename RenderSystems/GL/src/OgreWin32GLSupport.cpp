@@ -485,7 +485,7 @@ namespace Ogre {
 	{
 		return __WGLEW_ARB_pbuffer;
 	}
-    GLPBuffer *Win32GLSupport::createPBuffer(GLPBuffer::ComponentType format, size_t width, size_t height)
+    GLPBuffer *Win32GLSupport::createPBuffer(PixelComponentType format, size_t width, size_t height)
 	{
 		return new Win32PBuffer(format, width, height);
 	}
