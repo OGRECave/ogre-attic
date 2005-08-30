@@ -274,7 +274,7 @@ void D3D9HardwarePixelBuffer::blit(const HardwarePixelBufferSharedPtr &rsrc, con
 	else
 	{
         // Software fallback   
-		HardwarePixelBuffer::blit(src, srcBox, dstBox);
+		HardwarePixelBuffer::blit(rsrc, srcBox, dstBox);
 	}
 }
 //-----------------------------------------------------------------------------  
