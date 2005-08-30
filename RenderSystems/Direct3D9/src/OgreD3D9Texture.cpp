@@ -441,7 +441,7 @@ namespace Ogre
 		mAutoGenMipmaps = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
 		{
-			if (mUsage & TU_AUTOMIPMAP)
+			if (mUsage & TU_AUTOMIPMAP && mNumMipmaps != 0)
 			{
 				// use auto.gen. if available, and if desired
 				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
@@ -541,7 +541,7 @@ namespace Ogre
 		mAutoGenMipmaps = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
 		{
-			if (mUsage & TU_AUTOMIPMAP)
+			if (mUsage & TU_AUTOMIPMAP && mNumMipmaps != 0)
 			{
 				// use auto.gen. if available
 				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
@@ -640,7 +640,7 @@ namespace Ogre
 		mAutoGenMipmaps = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP)
 		{
-			if (mUsage & TU_AUTOMIPMAP)
+			if (mUsage & TU_AUTOMIPMAP && mNumMipmaps != 0)
 			{
 				// use auto.gen. if available
 				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
@@ -1055,7 +1055,7 @@ namespace Ogre
 		};
 		
 		// Set autogeneration of mipmaps for each face of the texture, if it is enabled
-		if(mNumMipmaps>0 && (mUsage & TU_AUTOMIPMAP)) 
+		if(mNumMipmaps != 0 && (mUsage & TU_AUTOMIPMAP)) 
 		{
 			for(face=0; face<getNumFaces(); ++face)
 			{
