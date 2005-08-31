@@ -210,7 +210,9 @@ namespace Ogre {
         /// Add the texture values to the existing scene content
         SBT_ADD,
 		/// Multiply the 2 colours together
-		SBT_MODULATE
+		SBT_MODULATE,
+        /// The default blend mode where source replaces destination
+        SBT_REPLACE
         // TODO : more
     };
 
