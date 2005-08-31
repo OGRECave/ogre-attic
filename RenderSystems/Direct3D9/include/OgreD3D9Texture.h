@@ -56,8 +56,6 @@ namespace Ogre {
 		IDirect3DSurface9		*mpZBuff;	
 		/// actual texture pointer
 		IDirect3DBaseTexture9	*mpTex;		
-		/// Requested number of mipmaps; saved since may ge overriden by renderer / autogen
-		size_t mRequestedNumMipMaps;
 
 		/// cube texture individual face names
 		String							mCubeFaceNames[6];
