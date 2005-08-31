@@ -137,6 +137,7 @@ namespace Ogre {
 		// Check requested number of mipmaps
 		// Zero means create mip levels until 1x1
 		size_t maxMips = GLPixelUtil::getMaxMipmaps(mWidth, mHeight, mDepth, mFormat);
+		mNumMipmaps = mNumRequestedMipmaps;
 		if(mNumMipmaps>maxMips)
 			mNumMipmaps = maxMips;
 		

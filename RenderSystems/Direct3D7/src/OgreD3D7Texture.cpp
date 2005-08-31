@@ -344,7 +344,7 @@ namespace Ogre {
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
             ddsd.ddsCaps.dwCaps2 = 0;
-            mNumMipmaps = 0;
+            mNumRequestedMipmaps = 0;
         }
         else
         {
@@ -354,10 +354,10 @@ namespace Ogre {
         /* If we want to have mip-maps, set the flags. Note that if the
            texture is the render target type mip-maps are automatically 
            disabled. */
-        if( mNumMipmaps )
+        if( mNumRequestedMipmaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.dwMipMapCount = mNumMipmaps;
+            ddsd.dwMipMapCount = mNumRequestedMipmaps;
 
             ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP | DDSCAPS_COMPLEX;            
         }
@@ -481,7 +481,7 @@ namespace Ogre {
         if( mUsage == TU_RENDERTARGET )
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
-            mNumMipmaps = 0;
+            mNumRequestedMipmaps = 0;
         }
         else
         {
@@ -491,10 +491,10 @@ namespace Ogre {
         /* If we want to have mip-maps, set the flags. Note that if the
            texture is the render target type mip-maps are automatically 
            disabled. */
-        if( mNumMipmaps )
+        if( mNumRequestedMipmaps )
         {
             ddsd.dwFlags |= DDSD_MIPMAPCOUNT;
-            ddsd.dwMipMapCount = mNumMipmaps;
+            ddsd.dwMipMapCount = mNumRequestedMipmaps;
 
             ddsd.ddsCaps.dwCaps |= DDSCAPS_MIPMAP;            
         }
