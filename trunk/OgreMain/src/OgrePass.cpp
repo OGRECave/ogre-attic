@@ -451,6 +451,9 @@ namespace Ogre {
 	    case SBT_ADD:
 		    setSceneBlending(SBF_ONE, SBF_ONE);
 		    break;
+        case SBT_REPLACE:
+            setSceneBlending(SBF_ONE, SBF_ZERO);
+            break;
 	    // TODO: more
 	    }
 
