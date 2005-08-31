@@ -2409,7 +2409,11 @@ class Mesh:
 			f.write(tab(2)+"<submesh")
 			f.write(" material=\"%s\"" % submesh.material.name)
 			f.write(" usesharedvertices=\"false\"")
-			f.write(" use32bitindexes=\"false\"")
+			if (len(submesh.vertices) < 65535):
+				f.write(" use32bitindexes=\"false\"")
+			else:
+				f.write(" use32bitindexes=\"true\"")
+				exportLogger.logInfo("Switched to 32 bit indices for submesh \"%s\"." % submesh.material.name)
 			f.write(" operationtype=\"triangle_list\"")
 			f.write(">\n")
 			
