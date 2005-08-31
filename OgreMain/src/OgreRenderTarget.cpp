@@ -436,6 +436,10 @@ namespace Ogre {
         // RenderWindow will override and return true for the primary window
         return false;
     }
-
+    //-----------------------------------------------------------------------
+    RenderTarget::Impl *RenderTarget::_getImpl()
+    {
+        return 0;
+    }
 
 }        
