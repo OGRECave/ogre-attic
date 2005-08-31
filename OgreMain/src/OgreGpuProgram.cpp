@@ -236,7 +236,7 @@ namespace Ogre
 
 
     //-----------------------------------------------------------------------------
-    //-----------------------------------------------------------------------------
+    //      GpuProgramParameters Methods
     //-----------------------------------------------------------------------------
     GpuProgramParameters::GpuProgramParameters()
         : mTransposeMatrices(false), mAutoAddParamName(false), mActivePassIterationEntry(0)
