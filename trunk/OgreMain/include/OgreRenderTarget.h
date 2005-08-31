@@ -287,6 +287,25 @@ namespace Ogre {
         */
         virtual bool isPrimary(void) const;
 
+        /** RenderSystem specific interface for a RenderTarget;
+            this should be subclassed by RenderSystems.
+        */
+        class Impl
+        {
+        protected:
+            /** Declared protected as interface is never used for destruction.
+                gcc will issue a warning here: `class Impl' has virtual functions 
+                but non-virtual destructor. This is no problem because this interface 
+                is never used to delete an object.
+            */
+            ~Impl() { };
+        };
+        /** Get rendersystem specific interface for this RenderTarget.
+            This is used by the RenderSystem to (un)bind this target, 
+            and to get specific information like surfaces
+            and framebuffer objects.
+        */
+        virtual Impl *_getImpl();
     protected:
         /// The name of this target.
         String mName;
