@@ -48,7 +48,6 @@ namespace Ogre
         mpCubeTex(NULL),
 		mpVolumeTex(NULL),
         mpTex(NULL),
-        mAutoGenMipmaps(false),
 		mDynamicTextures(false)
 	{
         _initDevice();
@@ -67,7 +66,6 @@ namespace Ogre
 			freeInternalResources();
 		}
 	}
-
 	/****************************************************************************************/
 	void D3D9Texture::copyToTexture(TexturePtr& target)
 	{
@@ -422,7 +420,7 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = mNumMipmaps + 1;
+		UINT numMips = mNumRequestedMipmaps + 1;
 		// Check dynamic textures
 		if (mUsage & TU_DYNAMIC)
 		{
@@ -437,14 +435,14 @@ namespace Ogre
 			}
 		}
 		// check if mip maps are supported on hardware
-		mAutoGenMipmaps = false;
+		mMipmapsHardwareGenerated = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPMAP)
 		{
-			if (mUsage & TU_AUTOMIPMAP)
+			if (mUsage & TU_AUTOMIPMAP && mNumRequestedMipmaps != 0)
 			{
 				// use auto.gen. if available, and if desired
-				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
-				if (mAutoGenMipmaps)
+				mMipmapsHardwareGenerated = this->_canAutoGenMipmaps(usage, D3DRTYPE_TEXTURE, d3dPF);
+				if (mMipmapsHardwareGenerated)
 				{
 					usage |= D3DUSAGE_AUTOGENMIPMAP;
 					numMips = 0;
@@ -495,7 +493,7 @@ namespace Ogre
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D9Mappings::_getPF(desc.Format));
 		
 		// Set best filter type
-		if(mAutoGenMipmaps)
+		if(mMipmapsHardwareGenerated)
 		{
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
@@ -518,7 +516,7 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = mNumMipmaps + 1;
+		UINT numMips = mNumRequestedMipmaps + 1;
 		// Check dynamic textures
 		if (mUsage & TU_DYNAMIC)
 		{
@@ -533,14 +531,14 @@ namespace Ogre
 			}
 		}
 		// check if mip map cube textures are supported
-		mAutoGenMipmaps = false;
+		mMipmapsHardwareGenerated = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPCUBEMAP)
 		{
-			if (mUsage & TU_AUTOMIPMAP)
+			if (mUsage & TU_AUTOMIPMAP && mNumRequestedMipmaps != 0)
 			{
 				// use auto.gen. if available
-				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
-				if (mAutoGenMipmaps)
+				mMipmapsHardwareGenerated = this->_canAutoGenMipmaps(usage, D3DRTYPE_CUBETEXTURE, d3dPF);
+				if (mMipmapsHardwareGenerated)
 				{
 					usage |= D3DUSAGE_AUTOGENMIPMAP;
 					numMips = 0;
@@ -590,7 +588,7 @@ namespace Ogre
 		this->_setFinalAttributes(desc.Width, desc.Height, 1, D3D9Mappings::_getPF(desc.Format));
 
 		// Set best filter type
-		if(mAutoGenMipmaps)
+		if(mMipmapsHardwareGenerated)
 		{
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
@@ -613,7 +611,7 @@ namespace Ogre
 
 		// Use D3DX to help us create the texture, this way it can adjust any relevant sizes
 		DWORD usage = (mUsage & TU_RENDERTARGET) ? D3DUSAGE_RENDERTARGET : 0;
-		UINT numMips = mNumMipmaps + 1;
+		UINT numMips = mNumRequestedMipmaps + 1;
 		// Check dynamic textures
 		if (mUsage & TU_DYNAMIC)
 		{
@@ -628,14 +626,14 @@ namespace Ogre
 			}
 		}
 		// check if mip map volume textures are supported
-		mAutoGenMipmaps = false;
+		mMipmapsHardwareGenerated = false;
 		if (mDevCaps.TextureCaps & D3DPTEXTURECAPS_MIPVOLUMEMAP)
 		{
-			if (mUsage & TU_AUTOMIPMAP)
+			if (mUsage & TU_AUTOMIPMAP && mNumRequestedMipmaps != 0)
 			{
 				// use auto.gen. if available
-				mAutoGenMipmaps = this->_canAutoGenMipmaps(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
-				if (mAutoGenMipmaps)
+				mMipmapsHardwareGenerated = this->_canAutoGenMipmaps(usage, D3DRTYPE_VOLUMETEXTURE, d3dPF);
+				if (mMipmapsHardwareGenerated)
 				{
 					usage |= D3DUSAGE_AUTOGENMIPMAP;
 					numMips = 0;
@@ -687,7 +685,7 @@ namespace Ogre
 		this->_setFinalAttributes(desc.Width, desc.Height, desc.Depth, D3D9Mappings::_getPF(desc.Format));
 		
 		// Set best filter type
-		if(mAutoGenMipmaps)
+		if(mMipmapsHardwareGenerated)
 		{
 			hr = mpTex->SetAutoGenFilterType(_getBestFilterMethod());
 			if(FAILED(hr))
@@ -871,6 +869,23 @@ namespace Ogre
 		assert(mpDev);
 		assert(mpD3D);
 
+		// Hacky override - many (all?) cards seem to not be able to autogen on 
+		// textures which are not a power of two
+		bool xpot = false;
+		bool ypot = false;
+		bool zpot = false;
+		// I assume people don't want to use textures bigger than 32768!
+		for (int i = 0; i < 16 && (xpot == false || ypot == false || zpot == false); ++i)
+		{
+			size_t sz = 1 << i;
+			xpot = xpot || (sz == mWidth);
+			ypot = ypot || (sz == mHeight);
+			zpot = zpot || (sz == mDepth);
+		}
+		// Can we even mipmap on 3D textures? Well
+		if (!xpot || !ypot || !zpot)
+			return false;
+
 		if (mDevCaps.Caps2 & D3DCAPS2_CANAUTOGENMIPMAP)
 		{
 			HRESULT hr;
@@ -1000,11 +1015,11 @@ namespace Ogre
 		};
 		
 		// Set autogeneration of mipmaps for each face of the texture, if it is enabled
-		if(mNumMipmaps>0 && (mUsage & TU_AUTOMIPMAP)) 
+		if(mNumRequestedMipmaps != 0 && (mUsage & TU_AUTOMIPMAP)) 
 		{
 			for(face=0; face<getNumFaces(); ++face)
 			{
-				GETLEVEL(face, 0)->_setMipmapping(true, mAutoGenMipmaps, mpTex);
+				GETLEVEL(face, 0)->_setMipmapping(true, mMipmapsHardwareGenerated, mpTex);
 			}
 		}
 	}
