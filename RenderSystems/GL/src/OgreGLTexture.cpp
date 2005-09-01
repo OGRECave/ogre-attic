@@ -151,9 +151,10 @@ namespace Ogre {
         glTexParameteri( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps );
 		
 		// If we can do automip generation and the user desires this, do so
+		mMipmapsHardwareGenerated = 
+			Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP);
 		if((mUsage & TU_AUTOMIPMAP) &&
-		    mNumMipmaps &&
-		 	Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP))
+		    mNumRequestedMipmaps && mMipmapsHardwareGenerated)
         {
             glTexParameteri( getGLTextureTarget(), GL_GENERATE_MIPMAP, GL_TRUE );
         }
@@ -347,11 +348,10 @@ namespace Ogre {
 		
 		// For all faces and mipmaps, store surfaces as HardwarePixelBufferSharedPtr
 		bool wantGeneratedMips = (mUsage & TU_AUTOMIPMAP)!=0;
-		bool canMip = Root::getSingleton().getRenderSystem()->getCapabilities()->hasCapability(RSC_AUTOMIPMAP);
 		
 		// Do mipmapping in software? (uses GLU) For some cards, this is still needed. Of course,
 		// only when mipmap generation is desired.
-		bool doSoftware = wantGeneratedMips && !canMip && getNumMipmaps(); 
+		bool doSoftware = wantGeneratedMips && !mMipmapsHardwareGenerated && getNumMipmaps(); 
 		
 		for(int face=0; face<getNumFaces(); face++)
 		{
