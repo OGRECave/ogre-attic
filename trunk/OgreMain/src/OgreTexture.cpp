@@ -40,7 +40,9 @@ namespace Ogre {
             mHeight(512),
             mWidth(512),
             mDepth(1),
+			mNumRequestedMipmaps(0),
             mNumMipmaps(0),
+			mMipmapsHardwareGenerated(false),
             mGamma(1.0f),
             mTextureType(TEX_TYPE_2D),            
             mFormat(PF_A8R8G8B8),
@@ -174,12 +176,20 @@ namespace Ogre {
 		str << "Texture: " << mName << ": Loading " << faces << " faces"
 			<< "(" << PixelUtil::getFormatName(images[0]->getFormat()) << "," <<
 			images[0]->getWidth() << "x" << images[0]->getHeight() << "x" << images[0]->getDepth() <<
-			") with "
-			<< mNumMipmaps;
+			") with ";
+		if (!(mMipmapsHardwareGenerated && mNumMipmaps == 0))
+			str << mNumMipmaps;
 		if(mUsage & TU_AUTOMIPMAP)
+		{
+			if (mMipmapsHardwareGenerated)
+				str << " hardware";
+
 			str << " generated mipmaps";
+		}
 		else
+		{
 			str << " custom mipmaps";
+		}
  		if(multiImage)
 			str << " from multiple Images.";
 		else

@@ -85,7 +85,7 @@ namespace Ogre {
         mReceiveShadows = rhs.mReceiveShadows;
         mTransparencyCastsShadows = rhs.mTransparencyCastsShadows;
 
-
+        mIsLoaded = rhs.mIsLoaded;
 
         // Copy Techniques
         this->removeAllTechniques();
@@ -111,7 +111,7 @@ namespace Ogre {
 		mLodDistances = rhs.mLodDistances;
 
         mCompilationRequired = rhs.mCompilationRequired; 
-        mIsLoaded = rhs.mIsLoaded;
+        assert(mIsLoaded == rhs.mIsLoaded);
 
 	    return *this;
     }
@@ -169,7 +169,6 @@ namespace Ogre {
 			newMat->mGroup = newGroup;
 		}
 		
-		newMat->mIsLoaded = this->mIsLoaded;
         // Correct the name & handle, they get copied too
         newMat->mName = newName;
         newMat->mHandle = newHandle;

@@ -90,7 +90,7 @@ namespace Ogre {
         }
         std::pair<ResourceHandleMap::iterator, bool> resultHandle = 
             mResourcesByHandle.insert( ResourceHandleMap::value_type( res->getHandle(), res ) );
-        if (!result.second)
+        if (!resultHandle.second)
         {
             OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, "Resource with the handle " + 
                 StringConverter::toString(res->getHandle()) + 

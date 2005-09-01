@@ -65,8 +65,6 @@ namespace Ogre {
 		D3DPOOL							mD3DPool;
 		/// device capabilities pointer
 		D3DCAPS9						mDevCaps;
-        // Auto-generated mipmaps?
-        bool                            mAutoGenMipmaps;
 		// Dynamic textures?
 		bool                            mDynamicTextures;
 		/// Vector of pointers to subsurfaces

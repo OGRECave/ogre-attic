@@ -38,7 +38,7 @@ namespace Ogre
 	@remarks
 		Building one-off geometry objects manually usually requires getting
 		down and dirty with the vertex buffer and vertex declaration API, 
-		which some people find a stepp learning curve. This class gives you 
+		which some people find a steep learning curve. This class gives you 
 		a simpler interface specifically for the purpose of building a one-off
 		3D object simply and quickly. Note that if you intend to instance your
 		object you will still need to become familiar with the Mesh class. 
