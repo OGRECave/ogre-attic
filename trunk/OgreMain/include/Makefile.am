@@ -72,6 +72,7 @@ OgreKeyTarget.h \
 OgreLight.h \
 OgreLog.h \
 OgreLogManager.h \
+OgreManualObject.h \
 OgreMaterial.h \
 OgreMaterialManager.h \
 OgreMaterialSerializer.h \
