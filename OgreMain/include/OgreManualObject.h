@@ -23,8 +23,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 -----------------------------------------------------------------------------
 */
 
-#ifndef __OgreSimpleManualObject_H__
-#define __OgreSimpleManualObject_H__
+#ifndef __OgreManualObject_H__
+#define __OgreManualObject_H__
 
 #include "OgrePrerequisites.h"
 #include "OgreMovableObject.h"
@@ -71,23 +71,60 @@ namespace Ogre
 			 you can call index() as many times as you need to define them.
 			 If you don't do this, the class will assume you want triangles drawn
 			 directly as defined by the vertex list, ie non-indexed geometry.
-		  -# Call end() to finish entering data. 
-	    After calling end(), the class will organise the data internally and make
-		it ready to render with. Like any other MovableObject you should attach 
-		the object to a SceneNode to make it visible. Other aspects like the 
-		material to use and the relative render order can be controlled
-		using the methods setMaterialName and setRenderQueueGroup.
+		  -# Call end() to finish entering data.
+		  -# Optionally repeat the begin-end cycle if you want more geometry 
+		  	using different rendering operation types, or different materials
+	    After calling end(), the class will organise the data for that section
+		internally and make it ready to render with. Like any other 
+		MovableObject you should attach the object to a SceneNode to make it 
+		visible. Other aspects like the relative render order can be controlled
+		using standard MovableObject methods like setRenderQueueGroup.
+	@remarks
+		Note that like all OGRE geometry, triangles should be specified in 
+		anti-clockwise winding order (whether you're doing it with just
+		vertices, or using indexes too). That is to say that the front of the
+		face is the one where the vertices are listed in anti-clockwise order.
 	*/
-	class _OgreExport SimpleManualObject : public MovableObject, public Renderable
+	class _OgreExport ManualObject : public MovableObject
 	{
 	public:
-		SimpleManualObject(const String& name);
-		virtual ~SimpleManualObject();
+		ManualObject(const String& name);
+		virtual ~ManualObject();
 
-		/** Start defining the object.
+		/** Completely clear the contents of the object.
+		@remarks
+			This class is not designed for dynamic vertex data, since the 
+			translation it has to perform is not suitable for frame-by-frame
+			updates. However if you do want to modify the contents from time
+			to time you can do so by clearing and re-specifying the data.
+		*/
+		virtual void clear(void);
+		
+		/** Estimate the number of vertices ahead of time.
+		@remarks
+			Calling this helps to avoid memory reallocation when you define
+			vertices. 
+		*/
+		virtual void estimateVertexCount(size_t vcount);
+
+		/** Estimate the number of vertices ahead of time.
+		@remarks
+			Calling this helps to avoid memory reallocation when you define
+			indices. 
+		*/
+		virtual void estimateIndexCount(size_t icount);
+
+		/** Start defining a part of the object.
+		@remarks
+			Each time you call this method, you start a new section of the
+			object with its own material and potentially its own type of
+			rendering operation (triangles, points or lines for example).
+		@param materialName The name of the material to render this part of the
+			object with.
 		@param opType The type of operation to use to render. 
 		*/
-		virtual void begin(RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
+		virtual void begin(const String& materialName, 
+			RenderOperation::OperationType opType = RenderOperation::OT_TRIANGLE_LIST);
 		/** Add a vertex position, starting a new vertex at the same time. 
 		@remarks A vertex position is slightly special among the other vertex data
 			methods like normal() and textureCoord(), since calling it indicates
@@ -104,7 +141,7 @@ namespace Ogre
 			Vertex normals are most often used for dynamic lighting, and 
 			their components should be normalised.
 		*/
-		virtual void normal(const Vector4& norm);
+		virtual void normal(const Vector3& norm);
 		/// @copydoc SimpleManualObject::normal(const Vector3&)
 		virtual void normal(Real x, Real y, Real z);
 
@@ -133,11 +170,6 @@ namespace Ogre
 		@param r,g,b,a Colour components expressed as floating point numbers from 0-1
 		*/
 		virtual void colour(Real r, Real g, Real b, Real a = 1.0f);
-		/** Add a vertex colour to a vertex.
-		@param col Packed colour value which should have been generated from 
-			RenderSystem::convertColourValue. 
-		*/
-		virtual void colour(RGBA col);
 
 		/** Add a vertex index to construct faces / lines / points via indexing
 			rather than just by a simple list of vertices. 
@@ -151,14 +183,25 @@ namespace Ogre
 		@param idx A vertex index from 0 to 65535. 
 		*/
 		virtual void index(uint16 idx);
-		/** Add a set of 3 vertex indices to construct a face; this is a shortcut
-			to calling the single-parameter version 3 times for for triangle lists.
+		/** Add a set of 3 vertex indices to construct a triangle; this is a
+			shortcut to calling the single-parameter version 3 times. It is
+			only valid for triangle lists.
 		@note
 			32-bit indexes are not supported on all cards which is why this 
 			class only allows 16-bit indexes, for simplicity and ease of use.
 		@param i1, i2, i3 3 vertex indices from 0 to 65535 defining a face. 
 		*/
 		virtual void index(uint16 i1, uint16 i2, uint16 i3);
+		/** Add a set of 4 vertex indices to construct a quad (out of 2 
+			triangles); this is a shortcut to calling the single-parameter 
+			version 6 times, or the 3-parameter version twice. It's only
+			valid for triangle list operations.
+		@note
+			32-bit indexes are not supported on all cards which is why this 
+			class only allows 16-bit indexes, for simplicity and ease of use.
+		@param i1, i2, i3 3 vertex indices from 0 to 65535 defining a face. 
+		*/
+		virtual void index(uint16 i1, uint16 i2, uint16 i3, uint16 i4);
 
 		/** Finish defining the object and compile the final renderable version. */
 		virtual void end(void);
@@ -174,30 +217,102 @@ namespace Ogre
 		/** @copydoc MovableObject::_updateRenderQueue. */
 		void _updateRenderQueue(RenderQueue* queue);
 
-		// Renderable overrides
-		/** @copydoc Renderable::getMaterial. */
-		const MaterialPtr& getMaterial(void) const;
-		/** @copydoc Renderable::getRenderOperation. */
-		void getRenderOperation(RenderOperation& op);
-		/** @copydoc Renderable::getWorldTransforms. */
-		void getWorldTransforms(Matrix4* xform) const;
-		/** @copydoc Renderable::getWorldOrientation. */
-		const Quaternion& getWorldOrientation(void) const;
-		/** @copydoc Renderable::getWorldPosition. */
-		const Vector3& getWorldPosition(void) const;
 
+		/// Built, renderable section of geometry
+		class _OgreExport ManualObjectSection : public Renderable
+		{
+		protected:
+			ManualObject* mParent;
+			String mMaterialName;
+			mutable MaterialPtr mMaterial;
+			RenderOperation mRenderOperation;
+			
+		public:
+			ManualObjectSection(ManualObject* parent, const String& materialName,
+				RenderOperation::OperationType opType);
+			virtual ~ManualObjectSection();
+			
+			/// Retrieve render operation for manipulation
+			RenderOperation* getRenderOperation(void);
+			
+			// Renderable overrides
+			/** @copydoc Renderable::getMaterial. */
+			const MaterialPtr& getMaterial(void) const;
+			/** @copydoc Renderable::getRenderOperation. */
+			void getRenderOperation(RenderOperation& op);
+			/** @copydoc Renderable::getWorldTransforms. */
+			void getWorldTransforms(Matrix4* xform) const;
+			/** @copydoc Renderable::getWorldOrientation. */
+			const Quaternion& getWorldOrientation(void) const;
+			/** @copydoc Renderable::getWorldPosition. */
+			const Vector3& getWorldPosition(void) const;
+			/** @copydoc Renderable::getSquaredViewDepth. */
+			Real getSquaredViewDepth(const Ogre::Camera *) const;
+			/** @copydoc Renderable::getLights. */
+			const LightList &getLights(void) const;
+					
+		};
+
+		typedef std::vector<ManualObjectSection*> SectionList;
+		
+	protected:
+		/// List of subsections
+		SectionList mSectionList;
+		/// Current section
+		ManualObjectSection* mCurrentSection;
+		/// Temporary vertex structure
+		struct TempVertex
+		{
+			Vector3 position;
+			Vector3 normal;
+			Vector3 texCoord[OGRE_MAX_TEXTURE_COORD_SETS];
+			ushort texCoordDims[OGRE_MAX_TEXTURE_COORD_SETS];
+			ColourValue colour;
+		};
+		/// Temp storage
+		TempVertex mTempVertex;
+		/// First vertex indicator
+		bool mFirstVertex;
+		/// Temp vertex data to copy?
+		bool mTempVertexPending;
+		/// System-memory buffer whilst we establish the size required
+		char* mTempVertexBuffer;
+		/// System memory allocation size, in bytes
+		size_t mTempVertexSize;
+		/// System-memory buffer whilst we establish the size required
+		uint16* mTempIndexBuffer;
+		/// System memory allocation size, in bytes
+		size_t mTempIndexSize;
+		/// Current declaration vertex size
+		size_t mDeclSize;
+		/// Current texture coordinate
+		ushort mTexCoordIndex;
+		/// Bounding box
+		AxisAlignedBox mAABB;
+		/// Bounding sphere
+		Real mRadius;
+
+		/// Delete temp buffers and reset init counts
+		virtual void resetTempAreas(void);
+		/// Resize the temp vertex buffer?
+		virtual void resizeTempVertexBufferIfNeeded(size_t numVerts);
+		/// Resize the temp index buffer?
+		virtual void resizeTempIndexBufferIfNeeded(size_t numInds);
+
+		/// Copy current temp vertex into buffer
+		virtual void copyTempVertexToBuffer(void);
 
 	};
 
 
 	/** Factory object for creating SimpleManualObject instances */
-	class _OgreExport SimpleManualObjectFactory : public MovableObjectFactory
+	class _OgreExport ManualObjectFactory : public MovableObjectFactory
 	{
 	protected:
 		MovableObject* createInstanceImpl( const String& name, const NameValuePairList* params);
 	public:
-		SimpleManualObjectFactory() {}
-		~SimpleManualObjectFactory() {}
+		ManualObjectFactory() {}
+		~ManualObjectFactory() {}
 
 		static String FACTORY_TYPE_NAME;
 
@@ -205,7 +320,7 @@ namespace Ogre
 		void destroyInstance( MovableObject* obj);  
 
 	};
-
+}
 
 #endif
 

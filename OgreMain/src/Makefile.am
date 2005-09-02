@@ -60,6 +60,7 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreLight.cpp \
                          OgreLog.cpp \
                          OgreLogManager.cpp \
+						 OgreManualObject.cpp \
                          OgreMaterial.cpp \
                          OgreMaterialManager.cpp \
                          OgreMaterialSerializer.cpp \

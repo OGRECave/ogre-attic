@@ -334,6 +334,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreLogManager.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreManualObject.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreMaterial.cpp">
 			</File>
 			<File
@@ -882,6 +885,9 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreLogManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreManualObject.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreMaterial.h">
