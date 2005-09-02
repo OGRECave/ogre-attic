@@ -327,7 +327,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	else
 	{
 		LogManager::getSingleton().logMessage("GLXWindow::create -- using external window handle");
-		visualInfo == extVisualHandler;
+		visualInfo = extVisualHandler;
 	}
 
 	GLRenderSystem *rs = static_cast<GLRenderSystem*>(Root::getSingleton().getRenderSystem());
