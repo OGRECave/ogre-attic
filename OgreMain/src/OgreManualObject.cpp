@@ -34,9 +34,10 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
 
+#define TEMP_INITIAL_SIZE 50
 #define TEMP_VERTEXSIZE_GUESS sizeof(float) * 12
-#define TEMP_INITIAL_VERTEX_SIZE TEMP_VERTEXSIZE_GUESS * 50
-#define TEMP_INITIAL_INDEX_SIZE sizeof(uint16) * 50
+#define TEMP_INITIAL_VERTEX_SIZE TEMP_VERTEXSIZE_GUESS * TEMP_INITIAL_SIZE
+#define TEMP_INITIAL_INDEX_SIZE sizeof(uint16) * TEMP_INITIAL_SIZE
 	//-----------------------------------------------------------------------------
 	ManualObject::ManualObject(const String& name)
 		: MovableObject(name), 
@@ -89,8 +90,18 @@ namespace Ogre {
 			// estimate - size checks will deal for subsequent verts
 			newSize = TEMP_VERTEXSIZE_GUESS * numVerts;
 		}
-		if (newSize > mTempVertexSize)
+		if (newSize > mTempVertexSize || !mTempVertexBuffer)
 		{
+			if (!mTempVertexBuffer)
+			{
+				// init
+				newSize = mTempVertexSize;
+			}
+			else
+			{
+				// increase to at least double current
+				newSize = std::max(newSize, mTempVertexSize*2);
+			}
 			// copy old data
 			char* tmp = mTempVertexBuffer;
 			mTempVertexBuffer = new char[newSize];
@@ -107,8 +118,18 @@ namespace Ogre {
 	void ManualObject::resizeTempIndexBufferIfNeeded(size_t numInds)
 	{
 		size_t newSize = numInds * sizeof(uint16);
-		if (newSize > mTempIndexSize)
+		if (newSize > mTempIndexSize || !mTempIndexBuffer)
 		{
+			if (!mTempIndexBuffer)
+			{
+				// init
+				newSize = mTempIndexSize;
+			}
+			else
+			{
+				// increase to at least double current
+				newSize = std::max(newSize, mTempIndexSize*2);
+			}
 			uint16* tmp = mTempIndexBuffer;
 			mTempIndexBuffer = new uint16[numInds];
 			if (tmp)
