@@ -250,6 +250,7 @@ namespace Ogre {
     class Log;
     class LogManager;
 	class ManualResourceLoader;
+	class ManualObject;
     class Material;
     class MaterialPtr;
     class MaterialManager;
