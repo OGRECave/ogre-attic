@@ -147,7 +147,7 @@ void specular_fp( float2 uv			: TEXCOORD0,
 	
 
 	// Calculate dot product for diffuse
-	colour = (lightDiffuse * dot(bumpVec, lightVec)) + 
+	colour = (lightDiffuse * saturate(dot(bumpVec, lightVec))) + 
 			(lightSpecular * specFactor);
 	
 }
