@@ -49,6 +49,7 @@ namespace Ogre
 	class EntityFactory;
 	class LightFactory;
 	class BillboardSetFactory;
+	class ManualObjectFactory;
 
     /** The root class of the Ogre system.
         @remarks
@@ -115,6 +116,7 @@ namespace Ogre
 		EntityFactory* mEntityFactory;
 		LightFactory* mLightFactory;
 		BillboardSetFactory* mBillboardSetFactory;
+		ManualObjectFactory* mManualObjectFactory;
 
 		
         /** Method reads a plugins configuration file and instantiates all

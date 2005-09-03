@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreHardwareBufferManager.h"
+#include "OgreEdgeListBuilder.h"
 
 namespace Ogre {
 
@@ -45,7 +46,8 @@ namespace Ogre {
 		  mTempVertexPending(false),
 		  mTempVertexBuffer(0), mTempVertexSize(TEMP_INITIAL_VERTEX_SIZE), 
 		  mTempIndexBuffer(0), mTempIndexSize(TEMP_INITIAL_INDEX_SIZE), 
-		  mDeclSize(0), mTexCoordIndex(0), mRadius(0)
+		  mDeclSize(0), mTexCoordIndex(0), mRadius(0), mAnyIndexed(false),
+		  mEdgeList(0)
 	{
 	}
 	//-----------------------------------------------------------------------------
@@ -64,6 +66,17 @@ namespace Ogre {
 		mSectionList.clear();
 		mRadius = 0;
 		mAABB.setNull();
+		delete mEdgeList;
+		mEdgeList = 0;
+		mAnyIndexed = false;
+		for (ShadowRenderableList::iterator s = mShadowRenderables.begin(); 
+			s != mShadowRenderables.end(); ++s)
+		{
+			delete *s;
+		}
+		mShadowRenderables.clear();
+
+
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::resetTempAreas(void)
@@ -347,6 +360,7 @@ namespace Ogre {
 				"You must call begin() before this method", 
 				"ManualObject::index");
 		}
+		mAnyIndexed = true;
 		// make sure we have index data
 		RenderOperation* rop = mCurrentSection->getRenderOperation();
 		if (!rop->indexData)
@@ -494,6 +508,9 @@ namespace Ogre {
 				mTempIndexBuffer, true);
 		}
 
+		mCurrentSection = 0;
+		resetTempAreas();
+
 	}
 	//-----------------------------------------------------------------------------
 	const String& ManualObject::getMovableType(void) const
@@ -520,6 +537,110 @@ namespace Ogre {
 			else
 				queue->addRenderable(*i);
 		}
+	}
+	//-----------------------------------------------------------------------------
+	EdgeData* ManualObject::getEdgeList(void)
+	{
+		// Build on demand
+		if (!mEdgeList && mAnyIndexed)
+		{
+			EdgeListBuilder eb;
+			size_t vertexSet = 0;
+			for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
+			{
+				RenderOperation* rop = (*i)->getRenderOperation();
+				// Only indexed geometry supported for stencil shadows
+				if (rop->useIndexes)
+				{
+					eb.addVertexData(rop->vertexData);
+					eb.addIndexData(rop->indexData, vertexSet++);
+				}
+			}
+
+			mEdgeList = eb.build();
+
+		}
+		return mEdgeList;
+	}
+	//-----------------------------------------------------------------------------
+	ShadowCaster::ShadowRenderableListIterator 
+	ManualObject::getShadowVolumeRenderableIterator(
+		ShadowTechnique shadowTechnique, const Light* light, 
+		HardwareIndexBufferSharedPtr* indexBuffer, 
+		bool extrude, Real extrusionDistance, unsigned long flags)
+	{
+		assert(indexBuffer && "Only external index buffers are supported right now");
+		assert((*indexBuffer)->getType() == HardwareIndexBuffer::IT_16BIT && 
+			"Only 16-bit indexes supported for now");
+
+		// Calculate the object space light details
+		Vector4 lightPos = light->getAs4DVector();
+		Matrix4 world2Obj = mParentNode->_getFullTransform().inverse();
+		lightPos =  world2Obj * lightPos; 
+
+
+		// Init shadow renderable list if required (only allow indexed)
+		bool init = mShadowRenderables.empty() && mAnyIndexed;
+
+		EdgeData::EdgeGroupList::iterator egi;
+		ShadowRenderableList::iterator si, siend;
+		ManualObjectSectionShadowRenderable* esr = 0;
+		SectionList::iterator seci;
+		if (init)
+			mShadowRenderables.resize(mEdgeList->edgeGroups.size());
+
+		siend = mShadowRenderables.end();
+		egi = mEdgeList->edgeGroups.begin();
+		seci = mSectionList.begin();
+		for (si = mShadowRenderables.begin(); si != siend; ++si, ++egi, ++seci)
+		{
+			if (init)
+			{
+				// Create a new renderable, create a separate light cap if
+				// we're using a vertex program (either for this model, or
+				// for extruding the shadow volume) since otherwise we can 
+				// get depth-fighting on the light cap
+				MaterialPtr mat = (*seci)->getMaterial();
+				mat->load();
+				bool vertexProgram = false;
+				Technique* t = mat->getBestTechnique();
+				for (int p = 0; p < t->getNumPasses(); ++p)
+				{
+					Pass* pass = t->getPass(p);
+					if (pass->hasVertexProgram())
+					{
+						vertexProgram = true;
+						break;
+					}
+				}
+				*si = new ManualObjectSectionShadowRenderable(this, indexBuffer, 
+					egi->vertexData, vertexProgram || !extrude);
+			}
+			// Get shadow renderable
+			esr = static_cast<ManualObjectSectionShadowRenderable*>(*si);
+			HardwareVertexBufferSharedPtr esrPositionBuffer = esr->getPositionBuffer();
+			// Extrude vertices in software if required
+			if (extrude)
+			{
+				extrudeVertices(esrPositionBuffer, 
+					egi->vertexData->vertexCount, 
+					lightPos, extrusionDistance);
+
+			}
+
+		}
+		// Calc triangle light facing
+		updateEdgeListLightFacing(mEdgeList, lightPos);
+
+		// Generate indexes and update renderables
+		generateShadowVolume(mEdgeList, *indexBuffer, light,
+			mShadowRenderables, flags);
+
+
+		return ShadowRenderableListIterator(
+			mShadowRenderables.begin(), mShadowRenderables.end());
+
+
 	}
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
@@ -594,6 +715,85 @@ namespace Ogre {
 		return n->findLights(mParent->getBoundingRadius());
 	}
 	//-----------------------------------------------------------------------------
+	//--------------------------------------------------------------------------
+	ManualObject::ManualObjectSectionShadowRenderable::ManualObjectSectionShadowRenderable(
+		ManualObject* parent, HardwareIndexBufferSharedPtr* indexBuffer, 
+		const VertexData* vertexData, bool createSeparateLightCap, 
+		bool isLightCap)
+		: mParent(parent)
+	{
+		// Initialise render op
+		mRenderOp.indexData = new IndexData();
+		mRenderOp.indexData->indexBuffer = *indexBuffer;
+		mRenderOp.indexData->indexStart = 0;
+		// index start and count are sorted out later
+
+		// Create vertex data which just references position component (and 2 component)
+		mRenderOp.vertexData = new VertexData();
+		mRenderOp.vertexData->vertexDeclaration = 
+			HardwareBufferManager::getSingleton().createVertexDeclaration();
+		mRenderOp.vertexData->vertexBufferBinding = 
+			HardwareBufferManager::getSingleton().createVertexBufferBinding();
+		// Map in position data
+		mRenderOp.vertexData->vertexDeclaration->addElement(0,0,VET_FLOAT3, VES_POSITION);
+		ushort origPosBind = 
+			vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION)->getSource();
+		mPositionBuffer = vertexData->vertexBufferBinding->getBuffer(origPosBind);
+		mRenderOp.vertexData->vertexBufferBinding->setBinding(0, mPositionBuffer);
+		// Map in w-coord buffer (if present)
+		if(!vertexData->hardwareShadowVolWBuffer.isNull())
+		{
+			mRenderOp.vertexData->vertexDeclaration->addElement(1,0,VET_FLOAT1, VES_TEXTURE_COORDINATES, 0);
+			mWBuffer = vertexData->hardwareShadowVolWBuffer;
+			mRenderOp.vertexData->vertexBufferBinding->setBinding(1, mWBuffer);
+		}
+		// Use same vertex start as input
+		mRenderOp.vertexData->vertexStart = vertexData->vertexStart;
+
+		if (isLightCap)
+		{
+			// Use original vertex count, no extrusion
+			mRenderOp.vertexData->vertexCount = vertexData->vertexCount;
+		}
+		else
+		{
+			// Vertex count must take into account the doubling of the buffer,
+			// because second half of the buffer is the extruded copy
+			mRenderOp.vertexData->vertexCount = 
+				vertexData->vertexCount * 2;
+			if (createSeparateLightCap)
+			{
+				// Create child light cap
+				mLightCap = new ManualObjectSectionShadowRenderable(parent, 
+					indexBuffer, vertexData, false, true);
+			}
+		}
+	}
+	//--------------------------------------------------------------------------
+	ManualObject::ManualObjectSectionShadowRenderable::~ManualObjectSectionShadowRenderable()
+	{
+		delete mRenderOp.indexData;
+		delete mRenderOp.vertexData;
+	}
+	//--------------------------------------------------------------------------
+	void ManualObject::ManualObjectSectionShadowRenderable::getWorldTransforms(
+		Matrix4* xform) const
+	{
+		// pretransformed
+		*xform = mParent->_getParentNodeFullTransform();
+	}
+	//--------------------------------------------------------------------------
+	const Quaternion& 
+		ManualObject::ManualObjectSectionShadowRenderable::getWorldOrientation(void) const
+	{
+		return mParent->getParentNode()->_getDerivedOrientation();
+	}
+	//--------------------------------------------------------------------------
+	const Vector3& 
+		ManualObject::ManualObjectSectionShadowRenderable::getWorldPosition(void) const
+	{
+		return mParent->getParentNode()->_getDerivedPosition();
+	}
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
 	String ManualObjectFactory::FACTORY_TYPE_NAME = "ManualObject";

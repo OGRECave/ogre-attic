@@ -70,7 +70,9 @@ namespace Ogre
 		  -# If you want to define triangles (or lines/points) by indexing into the vertex list, 
 			 you can call index() as many times as you need to define them.
 			 If you don't do this, the class will assume you want triangles drawn
-			 directly as defined by the vertex list, ie non-indexed geometry.
+			 directly as defined by the vertex list, ie non-indexed geometry. Note
+			 that stencil shadows are only supported on indexed geometry, and that
+			 indexed geometry is a little faster; so you should try to use it.
 		  -# Call end() to finish entering data.
 		  -# Optionally repeat the begin-end cycle if you want more geometry 
 		  	using different rendering operation types, or different materials
@@ -79,7 +81,7 @@ namespace Ogre
 		MovableObject you should attach the object to a SceneNode to make it 
 		visible. Other aspects like the relative render order can be controlled
 		using standard MovableObject methods like setRenderQueueGroup.
-	@remarks
+	@par
 		Note that like all OGRE geometry, triangles should be specified in 
 		anti-clockwise winding order (whether you're doing it with just
 		vertices, or using indexes too). That is to say that the front of the
@@ -216,6 +218,13 @@ namespace Ogre
 		Real getBoundingRadius(void) const;
 		/** @copydoc MovableObject::_updateRenderQueue. */
 		void _updateRenderQueue(RenderQueue* queue);
+		/** Implement this method to enable stencil shadows. */
+		EdgeData* getEdgeList(void);
+		/** Implement this method to enable stencil shadows. */
+		ShadowRenderableListIterator getShadowVolumeRenderableIterator(
+			ShadowTechnique shadowTechnique, const Light* light, 
+			HardwareIndexBufferSharedPtr* indexBuffer, 
+			bool extrudeVertices, Real extrusionDist, unsigned long flags = 0);
 
 
 		/// Built, renderable section of geometry
@@ -251,6 +260,31 @@ namespace Ogre
 			/** @copydoc Renderable::getLights. */
 			const LightList &getLights(void) const;
 					
+		};
+		/** Nested class to allow shadows. */
+		class _OgreExport ManualObjectSectionShadowRenderable : public ShadowRenderable
+		{
+		protected:
+			ManualObject* mParent;
+			// Shared link to position buffer
+			HardwareVertexBufferSharedPtr mPositionBuffer;
+			// Shared link to w-coord buffer (optional)
+			HardwareVertexBufferSharedPtr mWBuffer;
+
+		public:
+			ManualObjectSectionShadowRenderable(ManualObject* parent, 
+				HardwareIndexBufferSharedPtr* indexBuffer, const VertexData* vertexData, 
+				bool createSeparateLightCap, bool isLightCap = false);
+			~ManualObjectSectionShadowRenderable();
+			/// Overridden from ShadowRenderable
+			void getWorldTransforms(Matrix4* xform) const;
+			/// Overridden from ShadowRenderable
+			const Quaternion& getWorldOrientation(void) const;
+			/// Overridden from ShadowRenderable
+			const Vector3& getWorldPosition(void) const;
+			HardwareVertexBufferSharedPtr getPositionBuffer(void) { return mPositionBuffer; }
+			HardwareVertexBufferSharedPtr getWBuffer(void) { return mWBuffer; }
+
 		};
 
 		typedef std::vector<ManualObjectSection*> SectionList;
@@ -291,6 +325,13 @@ namespace Ogre
 		AxisAlignedBox mAABB;
 		/// Bounding sphere
 		Real mRadius;
+		/// Any indexed geoemtry on any sections?
+		bool mAnyIndexed;
+		/// Edge list, used if stencil shadow casting is enabled 
+		EdgeData* mEdgeList;
+		/// List of shadow renderables
+		ShadowRenderableList mShadowRenderables;
+
 
 		/// Delete temp buffers and reset init counts
 		virtual void resetTempAreas(void);

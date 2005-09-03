@@ -57,6 +57,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreKeyFrame.h"
 #include "OgreLight.h"
 #include "OgreLogManager.h"
+#include "OgreManualObject.h"
 #include "OgreMaterial.h"
 #include "OgreMaterialManager.h"
 #include "OgreMaterialSerializer.h"
