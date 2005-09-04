@@ -443,9 +443,7 @@ void SceneManager::removeAllBillboardSets(void)
 void SceneManager::clearScene(void)
 {
 	removeAllStaticGeometry();
-    removeAllEntities();
-    removeAllBillboardSets();
-    removeAllLights();
+	destroyAllMovableObjects();
 
 	// Clear root node of all children
 	mSceneRoot->removeAllChildren();
