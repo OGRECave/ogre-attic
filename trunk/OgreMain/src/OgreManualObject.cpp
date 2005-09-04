@@ -88,7 +88,7 @@ namespace Ogre {
 		mTempVertexBuffer = 0;
 		mTempIndexBuffer = 0;
 		mTempVertexSize = TEMP_INITIAL_VERTEX_SIZE;
-		mTempIndexSize = TEMP_VERTEXSIZE_GUESS;
+		mTempIndexSize = TEMP_INITIAL_INDEX_SIZE;
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::resizeTempVertexBufferIfNeeded(size_t numVerts)
@@ -145,6 +145,7 @@ namespace Ogre {
 				// increase to at least double current
 				newSize = std::max(newSize, mTempIndexSize*2);
 			}
+			numInds = newSize / sizeof(uint16);
 			uint16* tmp = mTempIndexBuffer;
 			mTempIndexBuffer = new uint16[numInds];
 			if (tmp)
