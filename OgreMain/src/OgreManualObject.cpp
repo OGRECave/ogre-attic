@@ -194,18 +194,19 @@ namespace Ogre {
 				"You must call begin() before this method", 
 				"ManualObject::position");
 		}
+		if (mTempVertexPending)
+		{
+			// bake current vertex
+			copyTempVertexToBuffer();
+			mFirstVertex = false;
+		}
+
 		if (mFirstVertex)
 		{
 			// defining declaration
 			mCurrentSection->getRenderOperation()->vertexData->vertexDeclaration
 				->addElement(0, mDeclSize, VET_FLOAT3, VES_POSITION);
 			mDeclSize += VertexElement::getTypeSize(VET_FLOAT3);
-		}
-
-		if (mTempVertexPending)
-		{
-			// bake current vertex
-			copyTempVertexToBuffer();
 		}
 
 		mTempVertex.position.x = x;
@@ -219,7 +220,6 @@ namespace Ogre {
 		// reset current texture coord
 		mTexCoordIndex = 0;
 
-		mFirstVertex = false;
 		mTempVertexPending = true;
 	}
 	//-----------------------------------------------------------------------------
