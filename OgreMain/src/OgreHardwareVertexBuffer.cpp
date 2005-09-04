@@ -442,7 +442,7 @@ namespace Ogre {
 				++buffer;
 				offset = 0;
 			}
-            if ((skeletalAnimation || morphAnimation) ||
+            if ((skeletalAnimation || morphAnimation) &&
                 elem.getSemantic() != VES_POSITION && elem.getSemantic() != VES_NORMAL)
             {
 				// All animated meshes have to split after normal
