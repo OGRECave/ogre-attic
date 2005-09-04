@@ -684,6 +684,14 @@ namespace Ogre {
 		}
 		mLodBucketList.clear();
 
+		for (ShadowRenderableList::iterator s = mShadowRenderables.begin();
+			s != mShadowRenderables.end(); ++s)
+		{
+			delete *s;
+		}
+		mShadowRenderables.clear();
+		delete mEdgeList;
+
 		// no need to delete queued meshes, these are managed in StaticGeometry
 
 	}
