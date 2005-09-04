@@ -26,12 +26,14 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreManualObject.h"
 #include "OgreException.h"
 #include "OgreMaterialManager.h"
-#include "OgreResourceGroupManager.h"
 #include "OgreSceneNode.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreEdgeListBuilder.h"
+#include "OgreMeshManager.h"
+#include "OgreMesh.h"
+#include "OgreSubMesh.h"
 
 namespace Ogre {
 
@@ -374,7 +376,7 @@ namespace Ogre {
 		mTempIndexBuffer[rop->indexData->indexCount - 1] = idx;
 	}
 	//-----------------------------------------------------------------------------
-	void ManualObject::index(uint16 i1, uint16 i2, uint16 i3)	
+	void ManualObject::triangle(uint16 i1, uint16 i2, uint16 i3)	
 	{
 		if (!mCurrentSection)
 		{
@@ -395,12 +397,12 @@ namespace Ogre {
 		index(i3);
 	}
 	//-----------------------------------------------------------------------------
-	void ManualObject::index(uint16 i1, uint16 i2, uint16 i3, uint16 i4)
+	void ManualObject::quad(uint16 i1, uint16 i2, uint16 i3, uint16 i4)
 	{
 		// first tri
-		index(i1, i2, i3);
+		triangle(i1, i2, i3);
 		// second tri
-		index(i3, i4, i1);
+		triangle(i3, i4, i1);
 	}
 	//-----------------------------------------------------------------------------
 	void ManualObject::copyTempVertexToBuffer(void)
@@ -511,6 +513,53 @@ namespace Ogre {
 		mCurrentSection = 0;
 		resetTempAreas();
 
+	}
+	//-----------------------------------------------------------------------------
+	MeshPtr ManualObject::convertToMesh(const String& meshName, const String& groupName)
+	{
+		if (mCurrentSection)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"You cannot call convertToMesh() whilst you are in the middle of "
+				"defining the object; call end() first.", 
+				"ManualObject::convertToMesh");
+		}
+		if (mSectionList.empty())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"No data defined to convert to a mesh.", 
+				"ManualObject::convertToMesh");
+		}
+		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
+		{
+			ManualObjectSection* sec = *i;
+			if (!sec->getRenderOperation()->useIndexes)
+			{
+				OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+					"Only indexed geometry may be converted to a mesh.", 
+					"ManualObject::convertToMesh");
+			}
+		}
+		MeshPtr m = MeshManager::getSingleton().createManual(meshName, groupName);
+
+		for (SectionList::iterator i = mSectionList.begin(); i != mSectionList.end(); ++i)
+		{
+			ManualObjectSection* sec = *i;
+			RenderOperation* rop = sec->getRenderOperation();
+			SubMesh* sm = m->createSubMesh();
+			sm->useSharedVertices = false;
+			sm->operationType = rop->operationType;
+			sm->setMaterialName(sec->getMaterialName());
+			// Copy vertex data; replicate buffers too
+			sm->vertexData = rop->vertexData->clone(true);
+			// Copy index data; replicate buffers too
+			sm->indexData = rop->indexData->clone(true);
+		}
+		m->load();
+
+		return m;
+
+		
 	}
 	//-----------------------------------------------------------------------------
 	const String& ManualObject::getMovableType(void) const

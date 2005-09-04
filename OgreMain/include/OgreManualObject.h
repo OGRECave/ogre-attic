@@ -29,6 +29,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgrePrerequisites.h"
 #include "OgreMovableObject.h"
 #include "OgreRenderable.h"
+#include "OgreResourceGroupManager.h"
 
 
 namespace Ogre
@@ -186,27 +187,40 @@ namespace Ogre
 		*/
 		virtual void index(uint16 idx);
 		/** Add a set of 3 vertex indices to construct a triangle; this is a
-			shortcut to calling the single-parameter version 3 times. It is
-			only valid for triangle lists.
+			shortcut to calling index() 3 times. It is only valid for triangle 
+			lists.
 		@note
 			32-bit indexes are not supported on all cards which is why this 
 			class only allows 16-bit indexes, for simplicity and ease of use.
 		@param i1, i2, i3 3 vertex indices from 0 to 65535 defining a face. 
 		*/
-		virtual void index(uint16 i1, uint16 i2, uint16 i3);
+		virtual void triangle(uint16 i1, uint16 i2, uint16 i3);
 		/** Add a set of 4 vertex indices to construct a quad (out of 2 
-			triangles); this is a shortcut to calling the single-parameter 
-			version 6 times, or the 3-parameter version twice. It's only
-			valid for triangle list operations.
+			triangles); this is a shortcut to calling index() 6 times, 
+			or triangle() twice. It's only valid for triangle list operations.
 		@note
 			32-bit indexes are not supported on all cards which is why this 
 			class only allows 16-bit indexes, for simplicity and ease of use.
 		@param i1, i2, i3 3 vertex indices from 0 to 65535 defining a face. 
 		*/
-		virtual void index(uint16 i1, uint16 i2, uint16 i3, uint16 i4);
+		virtual void quad(uint16 i1, uint16 i2, uint16 i3, uint16 i4);
 
 		/** Finish defining the object and compile the final renderable version. */
 		virtual void end(void);
+
+		/** Convert this object to a Mesh. 
+		@remarks
+			After you've finished building this object, you may convert it to 
+			a Mesh if you want in order to be able to create many instances of
+			it in the world (via Entity). This is optional, since this instance
+			can be directly attached to a SceneNode itself, but of course only
+			one instance of it can exist that way. 
+		@note Only objects which use indexed geometry may be converted to a mesh.
+		@param meshName The name to give the mesh
+		@param groupName The resource group to create the mesh in
+		*/
+		virtual MeshPtr convertToMesh(const String& meshName, 
+			const String& groupName = ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
 		// MovableObject overrides
 
@@ -243,6 +257,8 @@ namespace Ogre
 			
 			/// Retrieve render operation for manipulation
 			RenderOperation* getRenderOperation(void);
+			/// Retrieve the material name in use
+			const String& getMaterialName(void) const { return mMaterialName; }
 			
 			// Renderable overrides
 			/** @copydoc Renderable::getMaterial. */

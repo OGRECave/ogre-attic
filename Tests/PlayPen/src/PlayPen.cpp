@@ -746,7 +746,7 @@ protected:
 
 
 
-		Entity *ent = mSceneMgr->createEntity("robot", "logcabin.mesh");
+		Entity *ent = mSceneMgr->createEntity("robot", "invertedcube.mesh");
 		// Uncomment the below to test software skinning
 		//ent->setMaterialName("Examples/Rocky");
 		// Add entity to the scene node
@@ -2510,6 +2510,164 @@ protected:
 	}
 
 
+	void testManualObjectNonIndexed()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->createMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+		man->begin("Examples/OgreLogo");
+		// Define a 40x40 plane, non-indexed
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+		man->end();
+
+		man->begin("Examples/BumpyMetal");
+
+		// Define a 40x40 plane, non-indexed
+		man->position(-20, 20, 20);
+		man->normal(0, 1, 0);
+		man->textureCoord(0, 0);
+
+		man->position(20, 20, 20);
+		man->normal(0, 1, 0);
+		man->textureCoord(0, 1);
+
+		man->position(20, 20, -20);
+		man->normal(0, 1, 0);
+		man->textureCoord(1, 1);
+
+		man->position(20, 20, -20);
+		man->normal(0, 1, 0);
+		man->textureCoord(1, 1);
+
+		man->position(-20, 20, -20);
+		man->normal(0, 1, 0);
+		man->textureCoord(1, 0);
+
+		man->position(-20, 20, 20);
+		man->normal(0, 1, 0);
+		man->textureCoord(0, 0);
+
+		man->end();
+
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(man);
+
+	}
+
+	void testManualObjectIndexed()
+	{
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 100;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+		ManualObject* man = static_cast<ManualObject*>(
+			mSceneMgr->createMovableObject("test", ManualObjectFactory::FACTORY_TYPE_NAME));
+
+		man->begin("Examples/OgreLogo");
+		// Define a 40x40 plane, indexed
+		man->position(-20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 0);
+
+		man->position(-20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(0, 1);
+
+		man->position(20, -20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 1);
+
+		man->position(20, 20, 20);
+		man->normal(0, 0, 1);
+		man->textureCoord(1, 0);
+
+		man->quad(0, 1, 2, 3);
+
+		man->end();
+
+		man->begin("Examples/BumpyMetal");
+
+		// Define a 40x40 plane, indexed
+		man->position(-20, 20, 20);
+		man->normal(0, 1, 0);
+		man->textureCoord(0, 0);
+
+		man->position(20, 20, 20);
+		man->normal(0, 1, 0);
+		man->textureCoord(0, 1);
+
+		man->position(20, 20, -20);
+		man->normal(0, 1, 0);
+		man->textureCoord(1, 1);
+
+		man->position(-20, 20, -20);
+		man->normal(0, 1, 0);
+		man->textureCoord(1, 0);
+
+		man->quad(0, 1, 2, 3);
+
+		man->end();
+
+
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(man);
+
+	}
+
     // Just override the mandatory create scene method
     void createScene(void)
     {
@@ -2560,8 +2718,10 @@ protected:
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
-		testMorphAnimation();
+		//testMorphAnimation();
 		//testBug();
+		//testManualObjectNonIndexed();
+		testManualObjectIndexed();
     }
     // Create new frame listener
     void createFrameListener(void)
