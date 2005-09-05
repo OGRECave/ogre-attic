@@ -42,7 +42,7 @@ namespace Ogre {
             to delete an object.
             warning: `class Ogre::CompositorChain' has virtual functions but non-virtual destructor
         */
-        ~CompositorChain();
+        virtual ~CompositorChain();
         
         /// Data types
         typedef std::vector<CompositorInstance*> Instances;
@@ -162,6 +162,8 @@ namespace Ogre {
 		RQListener mOurListener;
 		/// Store old scene visibility mask
 		uint32 mOldVisibilityMask;
+        /// Store old camera LOD bias      
+        float mOldLodBias;      
     };
 }
 

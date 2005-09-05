@@ -80,6 +80,7 @@ void CompositorManager::initialise(void)
     CompositorPtr scene = create("Ogre/Scene", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
     CompositionTechnique *t = scene->createTechnique();
     CompositionTargetPass *tp = t->getOutputTargetPass();
+    tp->setVisibilityMask(0xFFFFFFFF);
 	{
 		CompositionPass *pass = tp->createPass();
 		pass->setType(CompositionPass::PT_CLEAR);
@@ -88,7 +89,6 @@ void CompositorManager::initialise(void)
 		CompositionPass *pass = tp->createPass();
 		pass->setType(CompositionPass::PT_RENDERSCENE);
 		/// Render everything, including skies
-		pass->setVisibilityMask(0xFFFFFFFF);
 		pass->setFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY);
 		pass->setLastRenderQueue(RENDER_QUEUE_SKIES_LATE);
 	}

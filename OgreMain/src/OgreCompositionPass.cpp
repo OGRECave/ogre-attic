@@ -31,7 +31,6 @@ namespace Ogre {
 CompositionPass::CompositionPass(CompositionTargetPass *parent):
     mParent(parent),
     mType(PT_RENDERQUAD),
-    mVisibilityMask(0),
 	mFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY),
 	mLastRenderQueue(RENDER_QUEUE_SKIES_LATE),
     mClearBuffers(FBT_COLOUR|FBT_DEPTH|FBT_STENCIL),
@@ -76,16 +75,6 @@ void CompositionPass::setMaterialName(const String &name)
 MaterialPtr CompositionPass::getMaterial() const
 {
     return mMaterial;
-}
-//-----------------------------------------------------------------------
-void CompositionPass::setVisibilityMask(uint32 mask)
-{
-    mVisibilityMask = mask;
-}
-//-----------------------------------------------------------------------
-uint32 CompositionPass::getVisibilityMask()
-{
-    return mVisibilityMask;
 }
 //-----------------------------------------------------------------------
 void CompositionPass::setClearBuffers(uint32 val)

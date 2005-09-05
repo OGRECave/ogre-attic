@@ -174,6 +174,9 @@ void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op
 	/// Set visiblity mask
 	mOldVisibilityMask = sm->getVisibilityMask();
 	sm->setVisibilityMask(op.visibilityMask);
+    /// Set LOD bias level
+    mOldLodBias = cam->getLodBias();
+    cam->setLodBias(cam->getLodBias() * op.lodBias);
     /// XXX TODO
     //vp->setClearEveryFrame( true );
     //vp->setOverlaysEnabled( false );
@@ -187,8 +190,9 @@ void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &o
 	sm->removeRenderQueueListener(&mOurListener);
 	/// Flush remaing operations
 	mOurListener.flushUpTo((RenderQueueGroupID)RENDER_QUEUE_COUNT);
-	/// Restore default visibility mask
+	/// Restore default scene and camera settings
 	sm->setVisibilityMask(mOldVisibilityMask);
+    cam->setLodBias(mOldLodBias);
 }
 //-----------------------------------------------------------------------
 void CompositorChain::postViewportUpdate(const RenderTargetViewportEvent& evt)

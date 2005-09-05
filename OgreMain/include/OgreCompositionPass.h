@@ -67,15 +67,6 @@ namespace Ogre {
 			@note applies when PassType is RENDERQUAD 
 		*/
         MaterialPtr getMaterial() const;
-        
-        /** Set the scene visiblity mask used by this pass 
-			@note applies when PassType is RENDERSCENE
-		*/
-        void setVisibilityMask(uint32 mask);
-        /** Get the scene visiblity mask used by this pass 
-			@note applies when PassType is RENDERSCENE
-		*/
-        uint32 getVisibilityMask();
 		/** Set the first render queue to be rendered in this pass (inclusive) 
 			@note applies when PassType is RENDERSCENE
 		*/
@@ -232,9 +223,7 @@ namespace Ogre {
         PassType mType;
         /// Material used for rendering
         MaterialPtr mMaterial;
-        /// Scene visibility mask used for rendering (in case of PT_RENDERSCENE)
-        uint32 mVisibilityMask;
-		/// [first,last] render queue to render this pass (in case of PT_RENDERSCENE)
+        /// [first,last] render queue to render this pass (in case of PT_RENDERSCENE)
 		RenderQueueGroupID mFirstRenderQueue;
 		RenderQueueGroupID mLastRenderQueue;
         /// Clear buffers (in case of PT_CLEAR)
