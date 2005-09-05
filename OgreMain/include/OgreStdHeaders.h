@@ -21,6 +21,7 @@
 #include <list>
 #include <deque>
 #include <queue>
+#include <bitset>
 
 // Note - not in the original STL, but exists in SGI STL and STLport
 #if OGRE_COMPILER == OGRE_COMPILER_GNUC

@@ -4014,6 +4014,16 @@ void SceneManager::extractAllMovableObjectsByType(const String& typeName)
 
 }
 //---------------------------------------------------------------------
-
+void SceneManager::_injectRenderWithPass(Pass *pass, Renderable *rend)
+{
+	// render something as if it came from the current queue
+    Pass *usedPass = setPass(pass);
+    renderSingleObject(rend, usedPass, false);
+}
+//---------------------------------------------------------------------
+RenderSystem *SceneManager::getDestinationRenderSystem()
+{
+	return mDestRenderSystem;
+}
 
 }

@@ -149,7 +149,16 @@ libOgreMain_la_SOURCES = OgreAnimation.cpp \
                          OgreVertexIndexData.cpp \
                          OgreViewport.cpp \
                          OgreWireBoundingBox.cpp \
-                         OgreZip.cpp
+                         OgreZip.cpp \
+                         OgreCompositionPass.cpp \
+                         OgreCompositionTargetPass.cpp \
+                         OgreCompositionTechnique.cpp \
+                         OgreCompositor.cpp \
+                         OgreCompositorChain.cpp \
+                         OgreCompositorInstance.cpp \
+                         OgreCompositorManager.cpp \
+                         OgreCompositorSerializer.cpp
+
 
 if USE_DEVIL
 libOgreMain_la_SOURCES +=OgreILImageCodec.cpp \
