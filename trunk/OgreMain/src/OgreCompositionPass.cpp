@@ -37,7 +37,15 @@ CompositionPass::CompositionPass(CompositionTargetPass *parent):
     mClearBuffers(FBT_COLOUR|FBT_DEPTH|FBT_STENCIL),
     mClearColour(0.0,0.0,0.0,0.0),
 	mClearDepth(1.0f),
-	mClearStencil(0)
+	mClearStencil(0),
+    mStencilCheck(false),
+    mStencilFunc(CMPF_ALWAYS_PASS),
+    mStencilRefValue(0),
+    mStencilMask(0xFFFFFFFF),
+    mStencilFailOp(SOP_KEEP),
+    mStencilDepthFailOp(SOP_KEEP),
+    mStencilPassOp(SOP_KEEP),
+    mStencilTwoSidedOperation(false)
 {
 }
 //-----------------------------------------------------------------------
