@@ -367,6 +367,13 @@ namespace Ogre {
     class VertexDeclaration;
 	class VertexKeyFrame;
     class WireBoundingBox; 
+    class Compositor;
+    class CompositorManager;
+    class CompositorChain;
+    class CompositorInstance;
+    class CompositionTechnique;
+    class CompositionPass;
+    class CompositionTargetPass;
 }
 
 #endif // __OgrePrerequisites_H__

@@ -69,6 +69,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreHighLevelGpuProgramManager.h"
 
 #include "OgreExternalTextureSourceManager.h"
+#include "OgreCompositorManager.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
@@ -212,6 +213,7 @@ namespace Ogre {
         mHighLevelGpuProgramManager = new HighLevelGpuProgramManager();
 
 		mExternalTextureSourceManager = new ExternalTextureSourceManager();
+        mCompositorManager = new CompositorManager();      
 
         // Auto window
         mAutoWindow = 0;
@@ -247,7 +249,8 @@ namespace Ogre {
 		shutdownPlugins();
         shutdown();
         delete mSceneManagerEnum;
-
+        
+        delete mCompositorManager;
 		delete mExternalTextureSourceManager;
 #if OGRE_NO_DEVIL == 0
         ILCodecs::deleteCodecs();

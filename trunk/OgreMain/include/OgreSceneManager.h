@@ -485,7 +485,6 @@ namespace Ogre {
 		*/
 		virtual void renderTransparentShadowCasterObjects(const RenderPriorityGroup::TransparentRenderablePassList& objs, 
 			bool doLightIteration, const LightList* manualLightList = 0);
-
     public:
         /** Default constructor.
         */
@@ -1885,7 +1884,16 @@ namespace Ogre {
 		*/
 		virtual uint32 getVisibilityMask(void) { return mVisibilityMask; }
 
-		
+		/** Render something as if it came from the current queue.
+			@param pass		Material pass to use for setting up this quad.
+			@param rend		Renderable to render
+		 */
+		void _injectRenderWithPass(Pass *pass, Renderable *rend);
+
+		/** Get the rendersystem subclass to which the output of this Scene Manager
+			gets sent
+		*/
+		RenderSystem *getDestinationRenderSystem();
     };
 
     /** Default implementation of IntersectionSceneQuery. */

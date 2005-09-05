@@ -193,4 +193,12 @@ OgreVertexIndexData.h \
 OgreViewport.h \
 OgreWireBoundingBox.h \
 OgreZip.h \
+OgreCompositor.h \
+OgreCompositorChain.h \
+OgreCompositorInstance.h \
+OgreCompositorManager.h \
+OgreCompositorSerializer.h \
+OgreCompositionTechnique.h \
+OgreCompositionPass.h \
+OgreCompositionTargetPass.h \
 asm_math.h

@@ -1,0 +1,274 @@
+/*
+-----------------------------------------------------------------------------
+This source file is part of OGRE
+    (Object-oriented Graphics Rendering Engine)
+For the latest info, see http://www.ogre3d.org/
+
+Copyright (c) 2000-2005 The OGRE Team
+Also see acknowledgements in Readme.html
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU Lesser General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place - Suite 330, Boston, MA 02111-1307, USA, or go to
+http://www.gnu.org/copyleft/lesser.txt.
+-----------------------------------------------------------------------------
+*/
+#include "OgreStableHeaders.h"
+#include "OgreCompositorChain.h"
+#include "OgreCompositionTechnique.h"
+#include "OgreCompositorInstance.h"
+#include "OgreViewport.h"
+#include "OgreCamera.h"
+#include "OgreRenderTarget.h"
+#include "OgreLogManager.h"
+#include "OgreCompositorManager.h"
+#include "OgreSceneManager.h"
+namespace Ogre {
+CompositorChain::CompositorChain(Viewport *vp):
+    mViewport(vp),
+    mDirty(true)
+{
+    assert(mViewport);
+    mViewport->getTarget()->addListener(this);
+    
+    /// Create base "original scene" compositor
+    CompositorPtr base = CompositorManager::getSingleton().load("Ogre/Scene",
+        ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+    mOriginalScene = base->getSupportedTechnique(0)->createInstance(this);
+}
+//-----------------------------------------------------------------------
+CompositorChain::~CompositorChain()
+{
+    removeAllCompositors();
+    mViewport->getTarget()->removeListener(this);
+    /// Destroy "original scene" compositor instance
+    mOriginalScene->getTechnique()->destroyInstance(mOriginalScene);
+}
+//-----------------------------------------------------------------------
+CompositorInstance* CompositorChain::addCompositor(CompositorPtr filter, size_t addPosition, size_t technique)
+{
+    filter->touch();
+    if(technique >= filter->getNumSupportedTechniques())
+    {
+        /// Warn user
+        LogManager::getSingleton().logMessage(
+            "CompositorChain: Compositor " + filter->getName() + " has no supported techniques.", LML_CRITICAL
+        );
+        return 0;
+    }
+    CompositionTechnique *tech = filter->getSupportedTechnique(technique);
+    CompositorInstance *t = tech->createInstance(this);
+    
+    if(addPosition == LAST)
+        addPosition = mInstances.size();
+    else
+        assert(addPosition <= mInstances.size() && "Index out of bounds.");
+    mInstances.insert(mInstances.begin()+addPosition, t);
+    
+    mDirty = true;
+    return t;
+}
+//-----------------------------------------------------------------------
+void CompositorChain::removeCompositor(size_t index)
+{
+    assert (index < mInstances.size() && "Index out of bounds.");
+    Instances::iterator i = mInstances.begin() + index;
+    (*i)->getTechnique()->destroyInstance(*i);
+    mInstances.erase(i);
+    
+    mDirty = true;
+}
+//-----------------------------------------------------------------------
+size_t CompositorChain::getNumCompositors()
+{
+    return mInstances.size();
+}
+//-----------------------------------------------------------------------
+void CompositorChain::removeAllCompositors()
+{
+    Instances::iterator i, iend;
+    iend = mInstances.end();
+    for (i = mInstances.begin(); i != iend; ++i)
+    {
+        (*i)->getTechnique()->destroyInstance(*i);
+    }
+    mInstances.clear();
+    
+    mDirty = true;
+}
+//-----------------------------------------------------------------------
+void CompositorChain::_removeInstance(CompositorInstance *i)
+{
+	mInstances.erase(std::find(mInstances.begin(), mInstances.end(), i));
+	i->getTechnique()->destroyInstance(i);
+}
+//-----------------------------------------------------------------------
+CompositorInstance *CompositorChain::getCompositor(size_t index)
+{
+    assert (index < mInstances.size() && "Index out of bounds.");
+    return mInstances[index];
+}
+
+//-----------------------------------------------------------------------
+CompositorChain::InstanceIterator CompositorChain::getCompositors()
+{
+    return InstanceIterator(mInstances.begin(), mInstances.end());
+}
+//-----------------------------------------------------------------------
+void CompositorChain::setCompositorEnabled(size_t position, bool state)
+{
+    getCompositor(position)->setEnabled(state);
+}
+//-----------------------------------------------------------------------
+void CompositorChain::preRenderTargetUpdate(const RenderTargetEvent& evt)
+{
+	/// Compile if state is dirty
+    if(mDirty)
+        _compile();
+	/// Update dependent render targets; this is done in the preRenderTarget 
+	/// and not the preViewportUpdate for a reason: at this time, the
+	/// target Rendertarget will not yet have been set as current. 
+	/// ( RenderSystem::setViewport(...) ) if it would have been, the rendering
+	/// order would be screwed up and problems would arise with copying rendertextures.
+    Camera *cam = mViewport->getCamera();
+    /// Iterate over compiled state
+    CompositorInstance::CompiledState::iterator i;
+    for(i=mCompiledState.begin(); i!=mCompiledState.end(); ++i)
+    {
+		/// Skip if this is a target that should only be initialised initially
+		if(i->onlyInitial && i->hasBeenRendered)
+			continue;
+		i->hasBeenRendered = true;
+		/// Setup and render
+        preTargetOperation(*i, i->target->getViewport(0), cam);
+        i->target->update();
+        postTargetOperation(*i, i->target->getViewport(0), cam);
+    }
+}
+//-----------------------------------------------------------------------
+void CompositorChain::preViewportUpdate(const RenderTargetViewportEvent& evt)
+{
+    if(evt.source != mViewport)
+        return;
+    Camera *cam = mViewport->getCamera();
+    /// Prepare for output operation
+    preTargetOperation(mOutputOperation, mViewport, cam);
+}
+//-----------------------------------------------------------------------
+void CompositorChain::preTargetOperation(CompositorInstance::TargetOperation &op, Viewport *vp, Camera *cam)
+{
+    SceneManager *sm = cam->getSceneManager();
+	/// Set up render target listener
+	mOurListener.setOperation(&op, sm, sm->getDestinationRenderSystem());
+	/// Register it
+	sm->addRenderQueueListener(&mOurListener);
+	/// Set visiblity mask
+	mOldVisibilityMask = sm->getVisibilityMask();
+	sm->setVisibilityMask(op.visibilityMask);
+    /// XXX TODO
+    //vp->setClearEveryFrame( true );
+    //vp->setOverlaysEnabled( false );
+    //vp->setBackgroundColour( op.clearColour );
+}
+//-----------------------------------------------------------------------
+void CompositorChain::postTargetOperation(CompositorInstance::TargetOperation &op, Viewport *vp, Camera *cam)
+{
+    SceneManager *sm = cam->getSceneManager();
+	/// Unregister our listener
+	sm->removeRenderQueueListener(&mOurListener);
+	/// Flush remaing operations
+	mOurListener.flushUpTo((RenderQueueGroupID)RENDER_QUEUE_COUNT);
+	/// Restore default visibility mask
+	sm->setVisibilityMask(mOldVisibilityMask);
+}
+//-----------------------------------------------------------------------
+void CompositorChain::postViewportUpdate(const RenderTargetViewportEvent& evt)
+{
+    if(evt.source != mViewport)
+        return;
+    postTargetOperation(mOutputOperation, mViewport, mViewport->getCamera());
+}
+//-----------------------------------------------------------------------
+void CompositorChain::_compile()
+{
+    /// Set previous CompositorInstance for each compositor in the list
+    CompositorInstance *lastComposition = mOriginalScene;
+	mOriginalScene->mPreviousInstance = 0;
+    for(Instances::iterator i=mInstances.begin(); i!=mInstances.end(); ++i)
+    {
+        if((*i)->getEnabled())
+        {
+            (*i)->mPreviousInstance = lastComposition;
+            lastComposition = (*i);
+        }
+    }
+    
+    /// Clear compiled state
+    mCompiledState.clear();
+    mOutputOperation = CompositorInstance::TargetOperation(0);
+
+    /// Compile misc targets
+    lastComposition->_compileTargetOperations(mCompiledState);
+    
+    /// Final target viewport (0)
+    lastComposition->_compileOutputOperation(mOutputOperation);
+    
+    mDirty = false;
+}
+//-----------------------------------------------------------------------
+void CompositorChain::_markDirty()
+{
+    mDirty = true;
+}
+//-----------------------------------------------------------------------
+Viewport *CompositorChain::getViewport()
+{
+    return mViewport;
+}
+//-----------------------------------------------------------------------
+void CompositorChain::RQListener::renderQueueStarted(RenderQueueGroupID id, bool& skipThisQueue)
+{
+	flushUpTo(id);
+	/// If noone wants to render this queue, skip it
+	/// Don't skip the OVERLAY queue because that's handled seperately
+	if(!mOperation->renderQueues.test(id) && id!=RENDER_QUEUE_OVERLAY)
+	{
+		skipThisQueue = true;
+	}
+}
+//-----------------------------------------------------------------------
+void CompositorChain::RQListener::renderQueueEnded(RenderQueueGroupID id, bool& repeatThisQueue)
+{
+}
+//-----------------------------------------------------------------------
+void CompositorChain::RQListener::setOperation(CompositorInstance::TargetOperation *op,SceneManager *sm,RenderSystem *rs)
+{
+	mOperation = op;
+	mSceneManager = sm;
+	mRenderSystem = rs;
+	currentOp = op->renderSystemOperations.begin();
+	lastOp = op->renderSystemOperations.end();
+}
+//-----------------------------------------------------------------------
+void CompositorChain::RQListener::flushUpTo(RenderQueueGroupID id)
+{
+	/// Process all RenderSystemOperations up to and including render queue id.
+    /// Including, because the operations for RenderQueueGroup x should be executed
+	/// at the beginning of the RenderQueueGroup render for x.
+	while(currentOp != lastOp && currentOp->first <= id)
+	{
+		currentOp->second->execute(mSceneManager, mRenderSystem);
+		++currentOp;
+	}
+}
+//-----------------------------------------------------------------------
+}
