@@ -57,9 +57,11 @@ CompositorInstance::~CompositorInstance()
 //-----------------------------------------------------------------------
 void CompositorInstance::setEnabled(bool value)
 {
-    mEnabled = value;
-    /// Chain state needs recompile
-    mChain->_markDirty();
+    /// Chain state needs recompile?
+    if(mEnabled != value)
+        mChain->_markDirty();
+
+    mEnabled = value;    
 }
 //-----------------------------------------------------------------------
 bool CompositorInstance::getEnabled()
@@ -183,8 +185,6 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 					StringConverter::toString(pass->getFirstRenderQueue())+" before "+
 					StringConverter::toString(finalState.currentQueueGroupID));
 			}
-			/// Add visibility mask
-            finalState.visibilityMask |= pass->getVisibilityMask();
 			/// Add render queues
 			for(int x=pass->getFirstRenderQueue(); x<=pass->getLastRenderQueue(); ++x)
 			{
@@ -265,8 +265,10 @@ void CompositorInstance::_compileTargetOperations(CompiledState &compiledState)
         CompositionTargetPass *target = it.getNext();
         
         TargetOperation ts(getTargetForTex(target->getOutputName()));
-        /// Set "only initial" flag according to CompositionTargetPass.
+        /// Set "only initial" flag, visibilityMask and lodBias according to CompositionTargetPass.
         ts.onlyInitial = target->getOnlyInitial();
+        ts.visibilityMask = target->getVisibilityMask();
+        ts.lodBias = target->getLodBias();
         /// Check for input mode previous
         if(target->getInputMode() == CompositionTargetPass::IM_PREVIOUS)
         {
@@ -285,6 +287,11 @@ void CompositorInstance::_compileOutputOperation(TargetOperation &finalState)
 {
     /// Final target
     CompositionTargetPass *tpass = mTechnique->getOutputTargetPass();
+    
+    /// Logical-and together the visibilityMask, and multiply the lodBias
+    finalState.visibilityMask &= tpass->getVisibilityMask();
+    finalState.lodBias *= tpass->getLodBias();
+    
     if(tpass->getInputMode() == CompositionTargetPass::IM_PREVIOUS)
     {
         /// Collect target state for previous compositor
@@ -292,6 +299,7 @@ void CompositorInstance::_compileOutputOperation(TargetOperation &finalState)
         /// with later operations
         mPreviousInstance->_compileOutputOperation(finalState);
     }
+    /// Collect passes
     collectPasses(finalState, tpass);
 }
 //-----------------------------------------------------------------------

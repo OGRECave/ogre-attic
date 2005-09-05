@@ -31,7 +31,9 @@ namespace Ogre {
 CompositionTargetPass::CompositionTargetPass(CompositionTechnique *parent):
     mParent(parent),
     mInputMode(IM_NONE),
-    mOnlyInitial(false)
+    mOnlyInitial(false),
+    mVisibilityMask(0xFFFFFFFF),
+    mLodBias(1.0f)
 {
 }
 //-----------------------------------------------------------------------
@@ -68,6 +70,26 @@ void CompositionTargetPass::setOnlyInitial(bool value)
 bool CompositionTargetPass::getOnlyInitial()
 {
     return mOnlyInitial;
+}
+//-----------------------------------------------------------------------
+void CompositionTargetPass::setVisibilityMask(uint32 mask)
+{
+    mVisibilityMask = mask;
+}
+//-----------------------------------------------------------------------
+uint32 CompositionTargetPass::getVisibilityMask()
+{
+    return mVisibilityMask;
+}
+//-----------------------------------------------------------------------
+void CompositionTargetPass::setLodBias(float bias)
+{
+    mLodBias = bias;
+}
+//-----------------------------------------------------------------------
+float CompositionTargetPass::getLodBias()
+{
+    return mLodBias;
 }
 //-----------------------------------------------------------------------
 CompositionPass *CompositionTargetPass::createPass()

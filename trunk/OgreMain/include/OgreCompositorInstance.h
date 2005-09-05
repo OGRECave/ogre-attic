@@ -64,7 +64,8 @@ namespace Ogre {
             { 
             }
             TargetOperation(RenderTarget *target):
-                target(target), currentQueueGroupID(0), visibilityMask(0),
+                target(target), currentQueueGroupID(0), visibilityMask(0xFFFFFFFF),
+                lodBias(1.0f),
                 onlyInitial(false), hasBeenRendered(false)
             { 
             }
@@ -81,6 +82,10 @@ namespace Ogre {
 			/// Scene visibility mask
             /// If this is 0, the scene is not rendered at all
             uint32 visibilityMask;
+            
+            /// LOD offset. This is multiplied with the camera LOD offset
+            /// 1.0 is default, lower means lower detail, higher means higher detail
+            float lodBias;
             
             /** A set of render queues to either include or exclude certain render queues.
 	 		*/

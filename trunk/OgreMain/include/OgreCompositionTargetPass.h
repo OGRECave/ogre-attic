@@ -67,6 +67,21 @@ namespace Ogre {
         */
         bool getOnlyInitial();
         
+        /** Set the scene visiblity mask used by this pass 
+        */
+        void setVisibilityMask(uint32 mask);
+        /** Get the scene visiblity mask used by this pass 
+        */
+        uint32 getVisibilityMask();
+        
+        /** Set the scene LOD bias used by this pass. The default is 1.0,
+            everything below that means lower quality, higher means higher quality.
+        */
+        void setLodBias(float bias);
+        /** Get the scene LOD bias used by this pass 
+        */
+        float getLodBias();
+        
         /** Create a new pass, and return a pointer to it.
         */
         CompositionPass *createPass();
@@ -101,6 +116,10 @@ namespace Ogre {
         /// This target pass is only executed initially after the effect
         /// has been enabled.
         bool mOnlyInitial;
+        /// Visibility mask for this render
+        uint32 mVisibilityMask;
+        /// LOD bias of this render
+        float mLodBias;
     };
 
 }
