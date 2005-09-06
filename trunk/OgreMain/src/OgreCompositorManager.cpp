@@ -135,13 +135,13 @@ Renderable *CompositorManager::_getTexturedRectangle2D()
 	return mRectangle;
 }
 //-----------------------------------------------------------------------
-void CompositorManager::addCompositor(Viewport *vp, const String &compositor, int addPosition)
+CompositorInstance *CompositorManager::addCompositor(Viewport *vp, const String &compositor, int addPosition)
 {
 	CompositorPtr comp = getByName(compositor);
 	if(comp.isNull())
-		return;
+		return 0;
 	CompositorChain *chain = getCompositorChain(vp);
-	chain->addCompositor(comp, addPosition==-1?CompositorChain::LAST:(size_t)addPosition);
+	return chain->addCompositor(comp, addPosition==-1?CompositorChain::LAST:(size_t)addPosition);
 }
 //-----------------------------------------------------------------------
 void CompositorManager::removeCompositor(Viewport *vp, const String &compositor)
