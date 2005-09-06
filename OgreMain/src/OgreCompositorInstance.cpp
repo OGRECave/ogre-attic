@@ -126,18 +126,23 @@ public:
 class RSQuadOperation: public CompositorInstance::RenderSystemOperation
 {
 public:
-	RSQuadOperation(MaterialPtr mat):
-	  mat(mat)
+	RSQuadOperation(CompositorInstance *instance, uint32 pass_id, MaterialPtr mat):
+	  mat(mat),instance(instance), pass_id(pass_id)
 	{
 		mat->load();
+		instance->_fireNotifyMaterialSetup(pass_id, mat);
 		technique = mat->getTechnique(0);
 		assert(technique);
 	}
 	MaterialPtr mat;
 	Technique *technique;
+	CompositorInstance *instance;
+	uint32 pass_id;
 
 	virtual void execute(SceneManager *sm, RenderSystem *rs)
 	{
+		// Fire listener
+		instance->_fireNotifyMaterialRender(pass_id, mat);
 		// Queue passes from mat
 		Technique::PassIterator i = technique->getPassIterator();
 		while(i.hasMoreElements())
@@ -241,8 +246,7 @@ void CompositorInstance::collectPasses(TargetOperation &finalState, CompositionT
 					}
 				}
 			}
-            
-			queueRenderSystemOp(finalState, new RSQuadOperation(mat));
+			queueRenderSystemOp(finalState, new RSQuadOperation(this,pass->getIdentifier(),mat));
             break;
         }
     }
@@ -425,8 +429,43 @@ void CompositorInstance::clearCompilationState()
 	mRenderSystemOperations.clear();
 }
 //-----------------------------------------------------------------------
+void CompositorInstance::addListener(Listener *l)
+{
+	mListeners.push_back(l);
+}
+//-----------------------------------------------------------------------
+void CompositorInstance::removeListener(Listener *l)
+{
+	mListeners.erase(std::find(mListeners.begin(), mListeners.end(), l));
+}
+//-----------------------------------------------------------------------
+void CompositorInstance::_fireNotifyMaterialSetup(uint32 pass_id, MaterialPtr &mat)
+{
+	Listeners::iterator i, iend=mListeners.end();
+	for(i=mListeners.begin(); i!=iend; ++i)
+		(*i)->notifyMaterialSetup(pass_id, mat);
+}
+//-----------------------------------------------------------------------
+void CompositorInstance::_fireNotifyMaterialRender(uint32 pass_id, MaterialPtr &mat)
+{
+	Listeners::iterator i, iend=mListeners.end();
+	for(i=mListeners.begin(); i!=iend; ++i)
+		(*i)->notifyMaterialRender(pass_id, mat);
+}
+//-----------------------------------------------------------------------
 CompositorInstance::RenderSystemOperation::~RenderSystemOperation()
 {
 }
+//-----------------------------------------------------------------------
+CompositorInstance::Listener::~Listener()
+{
+}
+void CompositorInstance::Listener::notifyMaterialSetup(uint32 pass_id, MaterialPtr &mat)
+{
+}
+void CompositorInstance::Listener::notifyMaterialRender(uint32 pass_id, MaterialPtr &mat)
+{
+}
+//-----------------------------------------------------------------------
 
 }

@@ -40,7 +40,35 @@ namespace Ogre {
     public:
         CompositorInstance(Compositor *filter, CompositionTechnique *technique, CompositorChain *chain);
         virtual ~CompositorInstance();
+		/** Provides an interface to "listen in" to to render system operations executed by this 
+			CompositorInstance.
+		*/
+		class _OgreExport Listener
+		{
+		public:
+			virtual ~Listener();
 
+			/** Notification of when a render target operation involving a material (like
+				rendering a quad) is compiled, so that miscelleneous parameters that are different
+				per Compositor instance can be set up.
+				@param pass_id	Pass identifier within Compositor instance, this is speficied 
+								by the user by CompositionPass::setIdentifier().
+				@param mat		Material, this may be changed at will and will only affect
+								the current instance of the Compositor, not the global material
+								it was cloned from.
+			 */
+			virtual void notifyMaterialSetup(uint32 pass_id, MaterialPtr &mat);
+
+			/** Notification before a render target operation involving a material (like
+				rendering a quad), so that material parameters can be varied.
+				@param pass_id	Pass identifier within Compositor instance, this is speficied 
+								by the user by CompositionPass::setIdentifier().
+				@param mat		Material, this may be changed at will and will only affect
+								the current instance of the Compositor, not the global material
+								it was cloned from.
+			 */
+			virtual void notifyMaterialRender(uint32 pass_id, MaterialPtr &mat);
+		};
         /** Specific render system operation. A render target operation does special operations
 		    between render queues like rendering a quad, clearing the frame buffer or 
 			setting stencil state.
@@ -139,7 +167,27 @@ namespace Ogre {
 		/** Get Chain that this instance is part of
         */
         CompositorChain *getChain();
-    private:
+
+		/** Add a listener. Listeners provide an interface to "listen in" to to render system 
+			operations executed by this CompositorInstance so that materials can be 
+			programmatically set up.
+			@see CompositorInstance::Listener
+		*/
+		void addListener(Listener *l);
+
+		/** Remove a listener.
+			@see CompositorInstance::Listener
+		*/
+		void removeListener(Listener *l);
+
+		/** Notify listeners of a material compilation.
+		*/
+		void _fireNotifyMaterialSetup(uint32 pass_id, MaterialPtr &mat);
+
+		/** Notify listeners of a material render.
+		*/
+		void _fireNotifyMaterialRender(uint32 pass_id, MaterialPtr &mat);
+	private:
         /// Compositor of which this is an instance
         Compositor *mCompositor;
         /// Composition technique used by this instance
@@ -157,6 +205,10 @@ namespace Ogre {
 		/// clearCompilationState()
 		typedef std::vector<RenderSystemOperation*> RenderSystemOperations;
 		RenderSystemOperations mRenderSystemOperations;
+
+		/// Vector of listeners
+		typedef std::vector<Listener*> Listeners;
+		Listeners mListeners;
         
         /// Previous instance (set by chain)
         CompositorInstance *mPreviousInstance;

@@ -31,6 +31,7 @@ namespace Ogre {
 CompositionPass::CompositionPass(CompositionTargetPass *parent):
     mParent(parent),
     mType(PT_RENDERQUAD),
+	mIdentifier(0),
 	mFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY),
 	mLastRenderQueue(RENDER_QUEUE_SKIES_LATE),
     mClearBuffers(FBT_COLOUR|FBT_DEPTH|FBT_STENCIL),
@@ -60,6 +61,16 @@ void CompositionPass::setType(CompositionPass::PassType type)
 CompositionPass::PassType CompositionPass::getType() const
 {
     return mType;
+}
+//-----------------------------------------------------------------------
+void CompositionPass::setIdentifier(uint32 id)
+{
+    mIdentifier = id;
+}
+//-----------------------------------------------------------------------
+uint32 CompositionPass::getIdentifier() const
+{
+    return mIdentifier;
 }
 //-----------------------------------------------------------------------
 void CompositionPass::setMaterial(MaterialPtr mat)

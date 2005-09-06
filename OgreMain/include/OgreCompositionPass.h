@@ -55,6 +55,13 @@ namespace Ogre {
         /** Get the type of composition pass */
         PassType getType() const;
         
+		/** Set an identifier for this pass. This identifier can be used to
+			"listen in" on this pass with an CompositorInstance::Listener. 
+		*/
+		void setIdentifier(uint32 id);
+		/** Get the identifier for this pass */
+		uint32 getIdentifier() const;
+
         /** Set the material used by this pass
 			@note applies when PassType is RENDERQUAD 
 		*/
@@ -221,6 +228,8 @@ namespace Ogre {
         CompositionTargetPass *mParent;
         /// Type of composition pass
         PassType mType;
+		/// Identifier for this pass
+		uint32 mIdentifier;
         /// Material used for rendering
         MaterialPtr mMaterial;
         /// [first,last] render queue to render this pass (in case of PT_RENDERSCENE)
