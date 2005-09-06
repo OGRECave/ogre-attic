@@ -256,7 +256,7 @@ The OverlayElement class abstracts the details of 2D elements which are added to
 
 An important built-in subclass of OverlayElement is OverlayContainer. OverlayContainer is the same as a OverlayElement, except that it can contain other OverlayElements, grouping them together (allowing them to be moved together for example) and providing them with a local coordinate origin for easier lineup.@*@*
 
-The third important class is GuiManager. Whenever an application wishes to create a 2D element to add to an overlay (or a container), it should call GuiManager::createOverlayElement. The type of element you wish to create is identified by a string, the reason being that it allows plugins to register new types of OverlayElement for you to create without you having to link specifically to those libraries. For example, to create a panel (a plain rectangular area which can contain other OverlayElements) you would call GuiManager::getSingleton().createOverlayElement("Panel", "myNewPanel");@*@*
+The third important class is OverlayManager. Whenever an application wishes to create a 2D element to add to an overlay (or a container), it should call OverlayManager::createOverlayElement. The type of element you wish to create is identified by a string, the reason being that it allows plugins to register new types of OverlayElement for you to create without you having to link specifically to those libraries. For example, to create a panel (a plain rectangular area which can contain other OverlayElements) you would call OverlayManager::getSingleton().createOverlayElement("Panel", "myNewPanel");@*@*
 
 @heading Adding 2D Elements to the Overlay
 
@@ -278,17 +278,11 @@ This mode is useful when you want items in the overlay to be the same size on th
 
 Another nice feature of overlays is being able to rotate, scroll and scale them as a whole. You can use this for zooming in / out menu systems, dropping them in from off screen and other nice effects. See the Overlay::scroll, Overlay::rotate and Overlay::scale methods for more information.
 
-@heading Input And Overlays
-
-Many uses for overlays naturally lend themselves to user input, such as menu screens. There are a number of built-in OverlayElements which accept event-based input and these are demonstrated in the Gui demo which comes with OGRE. @xref{Event-based Gui Features} for more details.
-
 @heading Scripting overlays
 Overlays can also be defined in scripts. @xref{Overlay Scripts} for details.
 
-
-@node Event-based Gui Features
-@subsection Event-based Gui Features
-OGRE features an event-based gui system which allows you to build overlays using buttons, scrollbars, text boxes etc. This area is still under revision; additional information is available at Traksewt's site at @url{http://www.sparksuit.com/sparksuit/index.cfm?view=tutorials}.
+@heading GUI systems
+Overlays are only really designed for non-interactive screen elements, although you can use them as a crude GUI. For a far more complete GUI solution, we recommend CEGui (@url{http://www.cegui.org.uk}), as demonstrated in the sample Demo_Gui.
 
 @node Skeletal Animation
 @section Skeletal Animation
@@ -2387,9 +2381,9 @@ These are delimited by curly braces. The format for the header preceding the fir
 { ...@*@*
 @table @asis
 @item type_name
-Must resolve to the name of a OverlayElement type which has been registered with the GuiManager. Plugins register with the GuiManager to advertise their ability to create elements, and at this time advertise the name of the type. OGRE comes preconfigured with types 'Panel', 'BorderPanel' and 'TextArea'.
+Must resolve to the name of a OverlayElement type which has been registered with the OverlayManager. Plugins register with the OverlayManager to advertise their ability to create elements, and at this time advertise the name of the type. OGRE comes preconfigured with types 'Panel', 'BorderPanel' and 'TextArea'.
 @item instance_name
-Must be a name unique among all other elements / containers by which to identify the element. Note that you can obtain a pointer to any named element by calling GuiManager::getSingleton().getOverlayElement(name).
+Must be a name unique among all other elements / containers by which to identify the element. Note that you can obtain a pointer to any named element by calling OverlayManager::getSingleton().getOverlayElement(name).
 @item template_name
 Optional template on which to base this item. See templates.
 @end table

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 28 2005 by texi2html 1.64 -->
+<!-- Created on , 6 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.4: Standard Particle Affectors</TITLE>
+<TITLE>OGRE Manual v1.0.4: Overlay Scripts</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.4: Standard Particle Affectors">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.4: Standard Particle Affectors">
+<META NAME="description" CONTENT="OGRE Manual v1.0.4: Overlay Scripts">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.4: Overlay Scripts">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,287 +23,256 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC130"></A>
+<A NAME="SEC137"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC129"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC93"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC138"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC144"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.2.6 Standard Particle Affectors </H3>
-<!--docid::SEC130::-->
-Ogre comes preconfigured with a few particle affectors. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these affectors are implemented).
+<H2> 3.3 Overlay Scripts </H2>
+<!--docid::SEC137::-->
+<P>
 
-<UL>
-<LI>
-<A HREF="manual_28.html#SEC131">Linear Force Affector</A>
-<LI>
-<A HREF="manual_28.html#SEC132">ColourFader Affector</A>
-<LI>
-<A HREF="manual_28.html#SEC133">ColourFader2 Affector</A>
-<LI>
-<A HREF="manual_28.html#SEC134">Scaler Affector</A>
-<LI>
-<A HREF="manual_28.html#SEC135">Rotator Affector</A>
-<LI>
-<A HREF="manual_28.html#SEC136">ColourInterpolator Affector</A>
-<LI>
-<A HREF="manual_28.html#SEC137">ColourImage Affector</A>
-</UL>
+Overlay scripts offer you the ability to define overlays in a script which can be reused easily. Whilst you could set up all overlays for a scene in code using the methods of the SceneManager, Overlay and OverlayElement classes, in practice it's a bit unwieldy. Instead you can store overlay definitions in text files which can then be loaded whenever required.<BR><BR>
+</P><P>
 
-<A NAME="Linear Force Affector"></A>
-<A NAME="SEC131"></A>
-<H3> Linear Force Affector </H3>
-<!--docid::SEC131::-->
+<A NAME="SEC138"></A>
+<H2> Loading scripts   </H2>
+<!--docid::SEC138::-->
+<P>
 
-This affector applies a force vector to all particles to modify their trajectory. Can be used for gravity, wind, or any other linear force. It's extra attributes are:<BR><BR>
+Overlay scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.overlay' extension and parses them. If you want to parse files with a different extension, use the OverlayManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use OverlayManager::getSingleton().parseScript.<BR><BR>
+</P><P>
+
+<A NAME="SEC139"></A>
+<H2> Format   </H2>
+<!--docid::SEC139::-->
+<P>
+
+Several overlays may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), comments indicated by starting a line with '//' (note, no nested form comments allowed), and inheritance through the use of templates. The general format is shown below in a typical example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// The name of the overlay comes first
+MyOverlays/ANewOverlay
+{
+    zorder 200
+
+    container Panel(MyOverlayElements/TestPanel)
+    {
+        // Center it horzontally, put it at the top
+        left 0.25
+        top 0
+        width 0.5
+        height 0.1
+        material MyMaterials/APanelMaterial
+
+        // Another panel nested in this one
+        container Panel(MyOverlayElements/AnotherPanel)
+        {
+             left 0
+             top 0
+             width 0.1
+             height 0.1
+             material MyMaterials/NestedPanel
+        }
+    }
+
+}
+</pre></td></tr></table></P><P>
+
+The above example defines a single overlay called 'MyOverlays/ANewOverlay', with 2 panels in it, one nested under the other. It uses relative metrics (the default if no metrics_mode option is found).<BR><BR>
+</P><P>
+
+Every overlay in the script must be given a name, which is the line before the first opening '{'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your overlays, and also to avoid duplicate names, but the engine does not treat the name a hierarchical, just as a string. Within the braces are the properties of the overlay, and any nested elements. The overlay itself only has a single property 'zorder' which determines how'high' it is in the stack of overlays if more than one is displayed at the same time. Overlays with higher zorder values are displayed on top.<BR><BR>
+</P><P>
+
+<A NAME="SEC140"></A>
+<H2> Adding elements to the overlay </H2>
+<!--docid::SEC140::-->
+<P>
+
+Within an overlay, you can include any number of 2D or 3D elements. You do this by defining a nested block headed by:
 <DL COMPACT>
-<DT>force_vector
-<DD>Sets the vector for the force to be applied to every particle. The magnitude of this vector determines how strong the force is.<BR>
-    format: force_vector &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
-    example: force_vector 50 0 -50<BR>
-    default: 0 -100 0 (a fair gravity effect)<BR>
-<DT>force_application
-<DD>
-Sets the way in which the force vector is applied to particle momentum.<BR>
-    format: force_application &#60;add|average&#62;<BR>
-    example: force_application average<BR>
-    default: add<BR>
-The options are:
-<DL COMPACT>
-<DT>average
-<DD>	The resulting momentum is the average of the force vector and the particle's current motion. Is self-stabilising but the speed at which the particle changes direction is non-linear.
-<DT>add
-<DD>	The resulting momentum is the particle's current motion plus the force vector. This is traditional force acceleration but can potentially result in unlimited velocity.
-</DL>
+<DT>'element'
+<DD>if you want to define a 2D element which cannot have children of it's own
+<DT>'container'
+<DD>if you want to define a 2D container object (which may itself have nested containers or elements)
+<DT>'entity'
+<DD>if you want to include a 3D element (can only occur directly under the overlay, not under a 2D element)
 </DL>
 <BR>
-To create a linear force affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector LinearForce
-{
-    // Settings go here
-}
-</pre></td></tr></table>Please note that the name of the affector type ('LinearForce') is case-sensitive.
+The element and container blocks are pretty identical apart from their ability to store nested blocks.
+<P>
 
-<A NAME="ColourFader Affector"></A>
-<A NAME="SEC132"></A>
-<H3> ColourFader Affector </H3>
-<!--docid::SEC132::-->
+<A NAME="SEC141"></A>
+<H2> 'container' / 'element' blocks </H2>
+<!--docid::SEC141::-->
+<P>
 
-This affector modifies the colour of particles in flight. It's extra attributes are:
+These are delimited by curly braces. The format for the header preceding the first brace is:<BR><BR>
+</P><P>
+
+[container | element] &#60;type_name&#62; ( &#60;instance_name&#62;) [: &#60;template_name&#62;]<BR>
+{ ...<BR><BR>
 <DL COMPACT>
-<DT>red
-<DD>Sets the adjustment to be made to the red component of the particle colour per second.<BR>
-    format: red &#60;delta_value&#62;<BR>
-    example: red -0.1<BR>
-    default: 0<BR>
-<DT>green
-<DD>Sets the adjustment to be made to the green component of the particle colour per second.<BR>
-    format: green &#60;delta_value&#62;<BR>
-    example: green -0.1<BR>
-    default: 0<BR>
-<DT>blue
-<DD>Sets the adjustment to be made to the blue component of the particle colour per second.<BR>
-    format: blue &#60;delta_value&#62;<BR>
-    example: blue -0.1<BR>
-    default: 0<BR>
-<DT>alpha
-<DD>Sets the adjustment to be made to the alpha component of the particle colour per second.<BR>
-    format: alpha &#60;delta_value&#62;<BR>
-example: alpha -0.1<BR>
-default: 0<BR>
+<DT>type_name
+<DD>Must resolve to the name of a OverlayElement type which has been registered with the OverlayManager. Plugins register with the OverlayManager to advertise their ability to create elements, and at this time advertise the name of the type. OGRE comes preconfigured with types 'Panel', 'BorderPanel' and 'TextArea'.
+<DT>instance_name
+<DD>Must be a name unique among all other elements / containers by which to identify the element. Note that you can obtain a pointer to any named element by calling OverlayManager::getSingleton().getOverlayElement(name).
+<DT>template_name
+<DD>Optional template on which to base this item. See templates.
 </DL>
-To create a colour fader affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourFader
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="ColourFader2 Affector"></A>
-<A NAME="SEC133"></A>
-<H3> ColourFader2 Affector </H3>
-<!--docid::SEC133::-->
+<P>
 
-This affector is similar to the <A HREF="manual_28.html#SEC132">ColourFader Affector</A>, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
+The properties which can be included within the braces depend on the custom type. However the following are always valid:
+<UL>
+<LI>
+<A HREF="manual_29.html#SEC145">metrics_mode</A>
+<LI>
+<A HREF="manual_29.html#SEC146">horz_align</A>
+<LI>
+<A HREF="manual_29.html#SEC147">vert_align</A>
+<LI>
+<A HREF="manual_29.html#SEC148">left</A>
+<LI>
+<A HREF="manual_29.html#SEC149">top</A>
+<LI>
+<A HREF="manual_29.html#SEC150">width</A>
+<LI>
+<A HREF="manual_29.html#SEC151">height</A>
+<LI>
+<A HREF="manual_29.html#overlay_material">material</A>
+<LI>
+<A HREF="manual_29.html#SEC153">caption</A>
+</UL>
+<P>
+
+<A NAME="SEC142"></A>
+<H3> 'entity' blocks </H3>
+<!--docid::SEC142::-->
+<P>
+
+These are delimited by curly braces. The format for the header preceding the first brace is:<BR><BR>
+</P><P>
+
+entity &#60;mesh_name&#62; ( &#60;entity_name&#62;)<BR>
+{ ...<BR><BR>
+</P><P>
+
 <DL COMPACT>
-<DT>red1
-<DD>Sets the adjustment to be made to the red component of the particle colour per second for the first state.<BR>
-    format: red &#60;delta_value&#62;<BR>
-    example: red -0.1<BR>
-    default: 0<BR>
-<DT>green1
-<DD>Sets the adjustment to be made to the green component of the particle colour per second for the first state.<BR>
-    format: green &#60;delta_value&#62;<BR>
-    example: green -0.1<BR>
-    default: 0<BR>
-<DT>blue1
-<DD>Sets the adjustment to be made to the blue component of the particle colour per second for the first state.<BR>
-    format: blue &#60;delta_value&#62;<BR>
-    example: blue -0.1<BR>
-    default: 0<BR>
-<DT>alpha1
-<DD>Sets the adjustment to be made to the alpha component of the particle colour per second for the first state.<BR>
-    format: alpha &#60;delta_value&#62;<BR>
-example: alpha -0.1<BR>
-default: 0<BR>
-<DT>red2
-<DD>Sets the adjustment to be made to the red component of the particle colour per second for the second state.<BR>
-    format: red &#60;delta_value&#62;<BR>
-    example: red -0.1<BR>
-    default: 0<BR>
-<DT>green2
-<DD>Sets the adjustment to be made to the green component of the particle colour per second for the second state.<BR>
-    format: green &#60;delta_value&#62;<BR>
-    example: green -0.1<BR>
-    default: 0<BR>
-<DT>blue2
-<DD>Sets the adjustment to be made to the blue component of the particle colour per second for the second state.<BR>
-    format: blue &#60;delta_value&#62;<BR>
-    example: blue -0.1<BR>
-    default: 0<BR>
-<DT>alpha2
-<DD>Sets the adjustment to be made to the alpha component of the particle colour per second for the second state.<BR>
-    format: alpha &#60;delta_value&#62;<BR>
-example: alpha -0.1<BR>
-default: 0<BR>
-<DT>state_change
-<DD>When a particle has this much time left to live, it will switch to state 2.<BR>
-    format: state_change &#60;seconds&#62;<BR>
-example: state_change 2<BR>
-default: 1<BR>
+<DT>mesh_name
+<DD>The name of a .mesh file defining the entity geometry
+<DT>entity_name
+<DD>The name to give the entity created, must be unique to this entity.
+<DT>position
+<DD>The position of the entity, as an x, y, z triple.
+<DT>rotation
+<DD>The rotation of the entity, expressed as &#60;angle_in_degrees&#62; &#60;axis_x&#62; &#60;axis_y&#62; &#60;axis_z&#62;
 </DL>
-To create a ColourFader2 affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourFader2
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="Scaler Affector"></A>
-<A NAME="SEC134"></A>
-<H3> Scaler Affector </H3>
-<!--docid::SEC134::-->
+<P>
 
-This affector scales particles in flight. It's extra attributes are:
-<DL COMPACT>
-<DT>rate
-<DD>The amount by which to scale the particles in both the x and y direction per second.
-</DL>
-To create a scale affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector Scaler
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="Rotator Affector"></A>
-<A NAME="SEC135"></A>
-<H3> Rotator Affector </H3>
-<!--docid::SEC135::-->
+This is treated like any other Entity, See section <A HREF="manual_10.html#SEC13">2.6 Entities</A>.
+</P><P>
 
-This affector rotates particles in flight. This is done by rotating the texture. It's extra attributes are:
-<DL COMPACT>
-<DT>rotation_speed_range_start
-<DD>The start of a range of rotation speeds to be assigned to emitted particles.<BR>
-    format: rotation_speed_range_start &#60;degrees_per_second&#62;<BR>
-example: rotation_speed_range_start 90<BR>
-default: 0<BR>
-<DT>rotation_speed_range_end
-<DD>The end of a range of rotation speeds to be assigned to emitted particles.<BR>
-    format: rotation_speed_range_end &#60;degrees_per_second&#62;<BR>
-example: rotation_speed_range_end 180<BR>
-default: 0<BR>
-<DT>rotation_range_start
-<DD>The start of a range of rotation angles to be assigned to emitted particles.<BR>
-    format: rotation_range_start &#60;degrees&#62;<BR>
-example: rotation_range_start 0<BR>
-default: 0<BR>
-<DT>rotation_range_end
-<DD>The end of a range of rotation angles to be assigned to emitted particles.<BR>
-    format: rotation_range_end &#60;degrees&#62;<BR>
-example: rotation_range_end 360<BR>
-default: 0<BR>
-</DL>
-To create a rotate affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector Rotator
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="ColourInterpolator Affector"></A>
-<A NAME="SEC136"></A>
-<H3> ColourInterpolator Affector </H3>
-<!--docid::SEC136::-->
+<A NAME="SEC143"></A>
+<H2> Templates </H2>
+<!--docid::SEC143::-->
+<P>
 
-Similar to the ColourFader and ColourFader2 Affector?s, this affector modifies the colour of particles in flight, except it has a variable number of defined stages. It swaps the particle colour for several stages in the life of a particle and interpolates between them. It's extra attributes are:
-<DL COMPACT>
-<DT>time0
-<DD>The point in time of stage 0.<BR>
-    format: time0 &#60;0-1 based on lifetime&#62;<BR>
-example: time0 0<BR>
-default: 1<BR>
-<DT>colour0
-<DD>The colour at stage 0.<BR>
-    format: colour0 &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
-example: colour0 1 0 0 1<BR>
-default: 0.5 0.5 0.5 0.0<BR>
-<DT>time1
-<DD>The point in time of stage 1.<BR>
-    format: time1 &#60;0-1 based on lifetime&#62;<BR>
-example: time1 0.5<BR>
-default: 1<BR>
-<DT>colour1
-<DD>The colour at stage 1.<BR>
-    format: colour1 &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
-example: colour1 0 1 0 1<BR>
-default: 0.5 0.5 0.5 0.0<BR>
-<DT>time2
-<DD>The point in time of stage 2.<BR>
-    format: time2 &#60;0-1 based on lifetime&#62;<BR>
-example: time2 1<BR>
-default: 1<BR>
-<DT>colour2
-<DD>The colour at stage 2.<BR>
-    format: colour2 &#60;r&#62; &#60;g&#62; &#60;b&#62; [&#60;a&#62;]<BR>
-example: colour2 0 0 1 1<BR>
-default: 0.5 0.5 0.5 0.0<BR>
-<DT>[...]
-<DD></DL>
-The number of stages is variable. The maximal number of stages is 6; where time5 and colour5 are the last possible parameters.
-To create a colour interpolation affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourInterpolator
-{
-    // Settings go here
-}
-</pre></td></tr></table>
-<A NAME="ColourImage Affector"></A>
-<A NAME="SEC137"></A>
-<H3> ColourImage Affector </H3>
-<!--docid::SEC137::-->
+You can use templates to create numerous elements with the same properties. A template is an abstract element and it is not added to an overlay. It acts as a base class that elements can inherit and get its default properties. To create a template, the keyword 'template' must be the first word in the element definition (before container, element, or entity). The template element is created in the topmost scope - it is NOT specified in an Overlay. It is recommended that you define templates in a separate overlay though this is not essential. Having templates defined in a separate file will allow different look &#38; feels to be easily substituted.<BR><BR>
+</P><P>
 
-This is another affector that modifies the colour of particles in flight, but instead of programmatically defining colours, the colours are taken from a specified image file. The range of colour values begins from the left side of the image and move to the right over the lifetime of the particle, therefore only the horizontal dimension of the image is used. Its extra attributes are:
-<DL COMPACT>
-<DT>image
-<DD>The start of a range of rotation speed to be assigned to emitted particles.<BR>
-    format: image &#60;image_name&#62;<BR>
-example: image rainbow.png<BR>
-default: none<BR>
-</DL>
-To create a ColourImage affector, include a section like this within your particle system script:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>affector ColourImage
-{
-    // Settings go here
-}
-</pre></td></tr></table>
+Elements can inherit a template in a similar way to C++ inheritance - by using the : operator on the element definition. The : operator is placed after the closing bracket of the name (separated by a space). The name of the template to inherit is then placed after the : operator (also separated by a space).<BR><BR>
+</P><P>
 
-<A NAME="Overlay Scripts"></A>
+A template can contain template children which are created when the template is subclassed and instantiated. Using the template keyword for the children of a template is optional but recommended for clarity, as the children of a template are always going to be templates themselves.<BR><BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>template container BorderPanel(MyTemplates/BasicBorderPanel)
+{
+    left 0
+    top 0
+    width 1
+    height 1
+
+// setup the texture UVs for a borderpanel
+
+// do this in a template so it doesn't need to be redone everywhere
+    material Core/StatsBlockCenter
+    border_size 0.05 0.05 0.06665 0.06665
+    border_material Core/StatsBlockBorder
+    border_topleft_uv 0.0000 1.0000 0.1914 0.7969
+    border_top_uv 0.1914 1.0000 0.8086 0.7969
+    border_topright_uv 0.8086 1.0000 1.0000 0.7969
+    border_left_uv 0.0000 0.7969 0.1914 0.2148
+    border_right_uv 0.8086 0.7969 1.0000 0.2148
+    border_bottomleft_uv 0.0000 0.2148 0.1914 0.0000
+    border_bottom_uv 0.1914 0.2148 0.8086 0.0000
+    border_bottomright_uv 0.8086 0.2148 1.0000 0.0000
+}
+template container Button(MyTemplates/BasicButton) : MyTemplates/BasicBorderPanel
+{
+    left 0.82
+    top 0.45
+    width 0.16
+    height 0.13
+    material Core/StatsBlockCenter
+    border_up_material Core/StatsBlockBorder/Up
+    border_down_material Core/StatsBlockBorder/Down
+}
+template element TextArea(MyTemplates/BasicText)
+{
+    font_name Ogre
+    char_height 0.08
+    colour_top 1 1 0
+    colour_bottom 1 0.2 0.2
+    left 0.03
+    top 0.02
+    width 0.12
+    height 0.09
+}
+
+MyOverlays/AnotherOverlay
+{
+    zorder 490
+    container BorderPanel(MyElements/BackPanel) : MyTemplates/BasicBorderPanel
+    {
+        left 0
+        top 0
+        width 1
+        height 1
+
+        container Button(MyElements/HostButton) : MyTemplates/BasicButton
+        {
+            left 0.82
+            top 0.45
+            caption MyTemplates/BasicText HOST
+        }
+
+        container Button(MyElements/JoinButton) : MyTemplates/BasicButton
+        {
+            left 0.82
+            top 0.60
+            caption MyTemplates/BasicText JOIN
+        }
+    }
+}
+</pre></td></tr></table>The above example uses templates to define a button. Note that the button template inherits from the borderPanel template. This reduces the number of attributes needed to instantiate a button.<BR><BR>
+</P><P>
+
+Also note that the instantiate of a Button needs a template name for the caption attribute. So templates can also be used by elements that need dynamic creation of children elements (the button creates a TextAreaElement in this case for its caption).<BR><BR>
+</P><P>
+
+See section <A HREF="manual_29.html#SEC144">3.3.1 OverlayElement Attributes</A>, <A HREF="manual_30.html#SEC155">3.3.2 Standard OverlayElements</A>
+</P><P>
+
+<A NAME="OverlayElement Attributes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
 <TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_27.html#SEC129"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC93"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC138"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_29.html#SEC144"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -312,7 +281,7 @@ To create a ColourImage affector, include a section like this within your partic
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 28 2005</I>
+by <I>Steve Streeting</I> on <I>, 6 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
