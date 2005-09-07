@@ -663,4 +663,16 @@ namespace Ogre {
         return LodDistanceIterator(mLodDistances.begin(), mLodDistances.end());
     }
 
+    //-----------------------------------------------------------------------
+    void Material::applyTextureAliases(const AliasTextureNamePairList& aliasList) const
+    {
+        // iterate through all techniques and apply texture aliases
+		Techniques::const_iterator i, iend;
+		iend = mTechniques.end();
+
+		for (i = mTechniques.begin(); i != iend; ++i)
+		{
+			(*i)->applyTextureAliases(aliasList);
+		}
+    }
 }

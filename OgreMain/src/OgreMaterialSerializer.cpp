@@ -1277,6 +1277,13 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
+    bool parseTextureAlias(String& params, MaterialScriptContext& context)
+    {
+        context.textureUnit->setTextureNameAlias(params);
+
+        return false;
+    }
+    //-----------------------------------------------------------------------
     bool parseLodDistances(String& params, MaterialScriptContext& context)
     {
         StringVector vecparams = StringUtil::split(params, " \t");
@@ -1300,6 +1307,24 @@ namespace Ogre
         context.technique->setLodIndex(StringConverter::parseInt(params));
         return false;
     }
+    //-----------------------------------------------------------------------
+    bool parseMaterialTextureAlias(String& params, MaterialScriptContext& context)
+    {
+        StringVector vecparams = StringUtil::split(params, "=");
+        if (vecparams.size() != 2)
+        {
+            logParseError("Wrong number of parameters for texture_alias, expected 2", context);
+            return false;
+        }
+        // get rid of leading and trailing white space
+        StringUtil::trim(vecparams[0]);
+        StringUtil::trim(vecparams[1]);
+        // first parameter is alias name and second paramater is texture name
+        context.textureAliases[vecparams[0]] = vecparams[1];
+
+        return false;
+    }
+
     //-----------------------------------------------------------------------
     void processManualProgramParam(size_t index, const String& commandname, 
         StringVector& vecparams, MaterialScriptContext& context)
@@ -1700,7 +1725,7 @@ namespace Ogre
         // if params is not empty then see if the technique name already exists
         if (!params.empty() && (context.material->getNumTechniques() > 0))
         {
-            // find the pass with name = params
+            // find the technique with name = params
             Technique * foundTechnique = context.material->getTechnique(params);
             if (foundTechnique)
             {
@@ -2208,6 +2233,8 @@ namespace Ogre
         mMaterialAttribParsers.insert(AttribParserList::value_type("receive_shadows", (ATTRIBUTE_PARSER)parseReceiveShadows));
 		mMaterialAttribParsers.insert(AttribParserList::value_type("transparency_casts_shadows", (ATTRIBUTE_PARSER)parseTransparencyCastsShadows));
         mMaterialAttribParsers.insert(AttribParserList::value_type("technique", (ATTRIBUTE_PARSER)parseTechnique));
+        mMaterialAttribParsers.insert(AttribParserList::value_type("texture_alias", (ATTRIBUTE_PARSER)parseMaterialTextureAlias));
+
         // Set up technique attribute parsers
         mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
         mTechniqueAttribParsers.insert(AttribParserList::value_type("pass", (ATTRIBUTE_PARSER)parsePass));
@@ -2256,6 +2283,7 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("wave_xform", (ATTRIBUTE_PARSER)parseWaveXform));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("filtering", (ATTRIBUTE_PARSER)parseFiltering));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("max_anisotropy", (ATTRIBUTE_PARSER)parseAnisotropy));
+        mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_alias", (ATTRIBUTE_PARSER)parseTextureAlias));
 
         // Set up program reference attribute parsers
         mProgramRefAttribParsers.insert(AttribParserList::value_type("param_indexed", (ATTRIBUTE_PARSER)parseParamIndexed));
@@ -2370,12 +2398,22 @@ namespace Ogre
             if (line == "}")
             {
                 // End of material
+                // if texture aliases were found, pass them to the material
+                // to update texture names used in Texture unit states
+                if (!mScriptContext.textureAliases.empty())
+                {
+                    // request material to update all texture names in TUS's
+                    // that use texture aliases in the list
+                    mScriptContext.material->applyTextureAliases(mScriptContext.textureAliases);
+                }
+
                 mScriptContext.section = MSS_NONE;
                 mScriptContext.material.setNull();
 				//Reset all levels for next material
 				mScriptContext.passLev = -1;
 				mScriptContext.stateLev= -1;
 				mScriptContext.techLev = -1;
+                mScriptContext.textureAliases.clear();
             }
             else
             {
@@ -3121,6 +3159,13 @@ namespace Ogre
 
         beginSection(3);
         {
+            // texture_alias
+            if (!pTex->getTextureNameAlias().empty())
+            {
+                writeAttribute(4, "texture_alias");
+                writeValue(pTex->getTextureNameAlias());
+            }
+
             //texture name
             if (pTex->getNumFrames() == 1 && pTex->getTextureName() != "" && !pTex->isCubic())
             {

@@ -408,6 +408,14 @@ namespace Ogre {
         /// Gets the name of the technique
         const String& getName(void) const { return mName; }
 
+        /** Applies texture names to Texture Unit State with matching texture name aliases.
+            All passes, and Texture Unit States within the technique are checked.
+
+        @param aliasList is a map container of texture alias, texture name pairs
+        */
+        void applyTextureAliases(const AliasTextureNamePairList& aliasList) const;
+
+
     };
 
 

@@ -774,5 +774,17 @@ namespace Ogre {
 		return mParent->getGroup();
 	}
 
+    //-----------------------------------------------------------------------
+    void Technique::applyTextureAliases(const AliasTextureNamePairList& aliasList) const
+    {
+        // iterate through passes and apply texture alias
+        Passes::const_iterator i, iend;
+        iend = mPasses.end();
+
+        for(i = mPasses.begin(); i != iend; ++i)
+        {
+			(*i)->applyTextureAliases(aliasList);
+        }
+    }
 
 }

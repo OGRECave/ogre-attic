@@ -82,6 +82,7 @@ namespace Ogre {
 		// Error reporting state
         size_t lineNo;
         String filename;
+        AliasTextureNamePairList textureAliases;
     };
     /// Function def for material attribute parser; return value determines if the next line should be {
     typedef bool (*ATTRIBUTE_PARSER)(String& params, MaterialScriptContext& context);

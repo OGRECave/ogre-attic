@@ -563,6 +563,13 @@ namespace Ogre {
             // call superclass
             Resource::touch();
         }
+        
+        /** Applies texture names to Texture Unit State with matching texture name aliases.
+            All techniques, passes, and Texture Unit States within the material are checked.
+
+        @param aliasList is a map container of texture alias, texture name pairs
+        */
+        void applyTextureAliases(const AliasTextureNamePairList& aliasList) const;
 
 
     };

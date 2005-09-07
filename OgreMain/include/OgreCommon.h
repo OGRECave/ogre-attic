@@ -203,6 +203,9 @@ namespace Ogre {
 	/// Name / value parameter pair (first = name, second = value)
 	typedef std::map<String, String> NameValuePairList;
 
+    /// Alias / Texture name pair (first = alias, second = texture name)
+    typedef std::map<String, String> AliasTextureNamePairList;
+
         template< typename T > struct TRect
         {
           T left, top, right, bottom;
