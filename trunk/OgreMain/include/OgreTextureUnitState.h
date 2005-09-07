@@ -917,12 +917,29 @@ namespace Ogre {
         */
         void setName(const String& name);
         /// get the name of the Texture Unit State
-        const String getName(void) const { return mName; }
+        const String& getName(void) const { return mName; }
 
+        /** Set the alias name used for texture frame names
+        @param name can be any sequence of characters and does not have to be unique           
+        */
+        void setTextureNameAlias(const String& name);
+        /** gets the Texture Name Alias of the Texture Unit.
+        */
+        const String& getTextureNameAlias(void) const { return mTextureNameAlias;}
+
+        /** Applies texture names to Texture Unit State with matching texture name aliases.
+            If no matching aliases are found then the TUS state does not change.
+        @remarks
+            Cubic, 1d, 2d, and 3d textures are determined from current state of the Texture Unit.
+            Assumes animated frames are sequentially numbered in the name.
+
+        @param aliasList is a map container of texture alias, texture name pairs
+        */
+        void applyTextureAliases(const AliasTextureNamePairList& aliasList);
 	
 protected:
         // State
-        /// The xurrent animation frame.
+        /// The current animation frame.
         unsigned int mCurrentFrame;
 
         /// Duration of animation in seconds
@@ -970,8 +987,8 @@ protected:
         // allow for fast copying of the basic members.
         //
         std::vector<String> mFrames;
-        String mName; // optional name for the TUS
-
+        String mName;               // optional name for the TUS
+        String mTextureNameAlias;       // optional alias for texture frames
         typedef std::multimap<TextureEffectType, TextureEffect> EffectMap;
         EffectMap mEffects;
         //-----------------------------------------------------------------------------

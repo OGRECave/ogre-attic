@@ -172,7 +172,7 @@ namespace Ogre {
         */
         void setName(const String& name);
         /// get the name of the pass
-        const String getName(void) const { return mName; }
+        const String& getName(void) const { return mName; }
 
         /** Sets the ambient colour reflectance properties of this pass.
         @remarks
@@ -984,6 +984,12 @@ namespace Ogre {
         */
         size_t getPassIterationCount(void) const { return mPassIterationCount; }
 
+        /** Applies texture names to Texture Unit State with matching texture name aliases.
+            All Texture Unit States within the pass are checked.
+
+        @param aliasList is a map container of texture alias, texture name pairs
+        */
+        void applyTextureAliases(const AliasTextureNamePairList& aliasList) const;
         
     };
 

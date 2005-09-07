@@ -154,6 +154,8 @@ namespace Ogre {
         mName    = oth.mName;
         mEffects = oth.mEffects;
 
+        mTextureNameAlias = oth.mTextureNameAlias;
+
         // Load immediately if Material loaded
         if (isLoaded())
         {
@@ -1032,6 +1034,45 @@ namespace Ogre {
     void TextureUnitState::setName(const String& name)
     {
         mName = name;
+    }
+
+    //-----------------------------------------------------------------------
+    void TextureUnitState::setTextureNameAlias(const String& name)
+    {
+        mTextureNameAlias = name;
+    }
+
+    //-----------------------------------------------------------------------
+    void TextureUnitState::applyTextureAliases(const AliasTextureNamePairList& aliasList)
+    {
+        // if TUS has an alias see if its in the alias container
+        if (!mTextureNameAlias.empty())
+        {
+            AliasTextureNamePairList::const_iterator aliasEntry =
+                aliasList.find(mTextureNameAlias);
+
+            if (aliasEntry != aliasList.end())
+            {
+                // match was found so change the texture name in mFrames
+                // currently assumes animated frames are sequentially numbered
+                // cubic, 1d, 2d, and 3d textures are determined from current TUS state
+                
+                // if cubic or 3D
+                if (mCubic)
+                {
+                    setCubicTextureName(aliasEntry->second, mTextureType == TEX_TYPE_CUBE_MAP);
+                }
+                else
+                {
+                    // if more than one frame then assume animated frames
+                    if (mFrames.size() > 1)
+                        setAnimatedTextureName(aliasEntry->second, mFrames.size(), mAnimDuration);
+                    else
+                        setTextureName(aliasEntry->second, mTextureType, mTextureSrcMipmaps);
+                }
+                
+            }
+        }
     }
 
 }

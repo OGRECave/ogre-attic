@@ -1144,4 +1144,18 @@ namespace Ogre {
 		return mParent->getResourceGroup();
 	}
 
+    //-----------------------------------------------------------------------
+    void Pass::applyTextureAliases(const AliasTextureNamePairList& aliasList) const
+    {
+        // iterate through each texture unit state and apply the texture alias if it applies
+        TextureUnitStates::const_iterator i, iend;
+        iend = mTextureUnitStates.end();
+
+        for (i = mTextureUnitStates.begin(); i != iend; ++i)
+        {
+            (*i)->applyTextureAliases(aliasList);
+        }
+    }
+
+
 }
