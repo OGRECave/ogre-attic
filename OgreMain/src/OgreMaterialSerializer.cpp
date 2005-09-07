@@ -1308,17 +1308,14 @@ namespace Ogre
         return false;
     }
     //-----------------------------------------------------------------------
-    bool parseMaterialTextureAlias(String& params, MaterialScriptContext& context)
+    bool parseSetTextureAlias(String& params, MaterialScriptContext& context)
     {
-        StringVector vecparams = StringUtil::split(params, "=");
+        StringVector vecparams = StringUtil::split(params, " \t");
         if (vecparams.size() != 2)
         {
             logParseError("Wrong number of parameters for texture_alias, expected 2", context);
             return false;
         }
-        // get rid of leading and trailing white space
-        StringUtil::trim(vecparams[0]);
-        StringUtil::trim(vecparams[1]);
         // first parameter is alias name and second paramater is texture name
         context.textureAliases[vecparams[0]] = vecparams[1];
 
@@ -2228,16 +2225,18 @@ namespace Ogre
         mRootAttribParsers.insert(AttribParserList::value_type("material", (ATTRIBUTE_PARSER)parseMaterial));
         mRootAttribParsers.insert(AttribParserList::value_type("vertex_program", (ATTRIBUTE_PARSER)parseVertexProgram));
         mRootAttribParsers.insert(AttribParserList::value_type("fragment_program", (ATTRIBUTE_PARSER)parseFragmentProgram));
+
         // Set up material attribute parsers
         mMaterialAttribParsers.insert(AttribParserList::value_type("lod_distances", (ATTRIBUTE_PARSER)parseLodDistances));
         mMaterialAttribParsers.insert(AttribParserList::value_type("receive_shadows", (ATTRIBUTE_PARSER)parseReceiveShadows));
 		mMaterialAttribParsers.insert(AttribParserList::value_type("transparency_casts_shadows", (ATTRIBUTE_PARSER)parseTransparencyCastsShadows));
         mMaterialAttribParsers.insert(AttribParserList::value_type("technique", (ATTRIBUTE_PARSER)parseTechnique));
-        mMaterialAttribParsers.insert(AttribParserList::value_type("texture_alias", (ATTRIBUTE_PARSER)parseMaterialTextureAlias));
+        mMaterialAttribParsers.insert(AttribParserList::value_type("set_texture_alias", (ATTRIBUTE_PARSER)parseSetTextureAlias));
 
         // Set up technique attribute parsers
         mTechniqueAttribParsers.insert(AttribParserList::value_type("lod_index", (ATTRIBUTE_PARSER)parseLodIndex));
         mTechniqueAttribParsers.insert(AttribParserList::value_type("pass", (ATTRIBUTE_PARSER)parsePass));
+
         // Set up pass attribute parsers
         mPassAttribParsers.insert(AttribParserList::value_type("ambient", (ATTRIBUTE_PARSER)parseAmbient));
         mPassAttribParsers.insert(AttribParserList::value_type("diffuse", (ATTRIBUTE_PARSER)parseDiffuse));
@@ -2262,9 +2261,9 @@ namespace Ogre
         mPassAttribParsers.insert(AttribParserList::value_type("fragment_program_ref", (ATTRIBUTE_PARSER)parseFragmentProgramRef));
         mPassAttribParsers.insert(AttribParserList::value_type("max_lights", (ATTRIBUTE_PARSER)parseMaxLights));
         mPassAttribParsers.insert(AttribParserList::value_type("iteration", (ATTRIBUTE_PARSER)parseIteration));
-		mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_source", (ATTRIBUTE_PARSER)parseTextureSource));
 
         // Set up texture unit attribute parsers
+		mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture_source", (ATTRIBUTE_PARSER)parseTextureSource));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("texture", (ATTRIBUTE_PARSER)parseTexture));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("anim_texture", (ATTRIBUTE_PARSER)parseAnimTexture));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("cubic_texture", (ATTRIBUTE_PARSER)parseCubicTexture));
