@@ -52,6 +52,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <xsi_track.h>
 #include <xsi_clip.h>
 #include <xsi_selection.h>
+#include <xsi_statickinematicstate.h>
 
 using namespace XSI;
 
@@ -93,6 +94,8 @@ namespace Ogre
 
 		// progress report
 		ProgressManager::getSingleton().progress();
+
+		establishInitialTransforms(deformers);
 
 		// create animations 
 		createAnimations(skeleton.get(), deformers, framesPerSecond, animList);
@@ -509,19 +512,6 @@ namespace Ogre
 			DeformerEntry* deformer = di->second;
 			AnimationTrack* track = pAnim->createTrack(deformer->boneID, deformer->pBone);
 			deformerTracks[deformer->boneID] = track;
-			if (deformer->pBone->getParent() == 0)
-			{
-				// Based on global
-				deformer->initialXform = 
-					deformer->obj.GetKinematics().GetGlobal().GetTransform();
-			}
-			else
-			{
-				// Based on local
-				deformer->initialXform = 
-					deformer->obj.GetKinematics().GetLocal().GetTransform();
-			}
-
 		}
 
 		Model model = placeAnimationInMixer(animEntry);
@@ -547,6 +537,27 @@ namespace Ogre
 		Mixer mixer(model.GetMixer());
 		removeAllFromMixer(mixer);
 
+	}
+	//-----------------------------------------------------------------------------
+	void XsiSkeletonExporter::establishInitialTransforms(DeformerMap& deformers)
+	{
+		for (DeformerMap::iterator di = deformers.begin(); di != deformers.end(); ++di)
+		{
+			DeformerEntry* deformer = di->second;
+			if (deformer->pBone->getParent() == 0)
+			{
+				// Based on global
+				deformer->initialXform = 
+					deformer->obj.GetKinematics().GetGlobal().GetTransform();
+			}
+			else
+			{
+				// Based on local
+				deformer->initialXform = 
+					deformer->obj.GetKinematics().GetLocal().GetTransform();
+			}
+
+		}
 	}
 	//-----------------------------------------------------------------------------
 	void XsiSkeletonExporter::sampleAllBones(DeformerMap& deformers, 
@@ -773,6 +784,7 @@ namespace Ogre
 			}
 
 		}
+
 	}
 	//-----------------------------------------------------------------------------
 	XSI::Mixer XsiSkeletonExporter::getMixer(AnimationEntry& anim)
@@ -817,6 +829,18 @@ namespace Ogre
 		args[3] = instrack.GetFullName();
 		args[4] = 0.0f; // start frame
 		mXsiApp.ExecuteCommand(L"AddClip", args, dummy);
+
+
+		// Reset the animation to frame 0, such that following animations start with the initial bone transforms
+		args.Resize(2);
+		args[0] = L"PlayControl.Key";
+		args[1] = (long)0;
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+		args[0] = L"PlayControl.Current";
+		args[1] = (long)0;
+		mXsiApp.ExecuteCommand(L"SetValue", args, dummy);
+		mXsiApp.ExecuteCommand(L"Refresh", CValueArray(), dummy);
+
 
 		return model;
 
