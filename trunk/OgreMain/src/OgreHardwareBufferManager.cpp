@@ -318,6 +318,12 @@ namespace Ogre {
                 HardwareBufferManager::BLT_AUTOMATIC_RELEASE, this);
         }
     }
+	//-----------------------------------------------------------------------------
+	bool TempBlendedBufferInfo::buffersCheckedOut(void) const
+	{
+		return (!bindPositions || !destPositionBuffer.isNull()) && 
+			(!bindNormals || !destNormalBuffer.isNull());
+	}
     //-----------------------------------------------------------------------------
     void TempBlendedBufferInfo::bindTempCopies(VertexData* targetData, bool suppressHardwareUpload)
     {

@@ -493,21 +493,26 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Entity::updateAnimation(void)
     {
-        // We only do these tasks if animation is dirty or transform has altered
+		Root& root = Root::getSingleton();
+		bool hwSkinning = isHardwareAnimationEnabled();
+		bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
+		bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
+		bool stencilShadows = 
+			root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
+			root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE;
+		bool softwareAnimation = !hwSkinning || forcedSwSkinning || stencilShadows;
+
+		// We only do these tasks if animation is dirty or transform has altered
 		// when using skeletal animation, which is dependent
+		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
-			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()))
+			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()) ||
+			(softwareAnimation && hasMorphAnimation() && !mTempMorphAnimInfo.buffersCheckedOut()) ||
+			(softwareAnimation && hasSkeleton() && !mTempSkelAnimInfo.buffersCheckedOut()))
         {
-			Root& root = Root::getSingleton();
-			bool hwSkinning = isHardwareAnimationEnabled();
-            bool forcedSwSkinning = getSoftwareSkinningRequests()>0;
-            bool forcedNormals = getSoftwareSkinningNormalsRequests()>0;
-			bool stencilShadows = 
-				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
-				root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE;
 			if (hasMorphAnimation())
 			{
-				if (!hwSkinning || forcedSwSkinning || stencilShadows)
+				if (softwareAnimation)
 				{
 					// grab & bind temporary buffer for positions
 					if (mSoftwareMorphAnimVertexData)
@@ -542,7 +547,7 @@ namespace Ogre {
 				cacheBoneMatrices();
 
 				// Software blend?
-				if (!hwSkinning || forcedSwSkinning || stencilShadows)
+				if (softwareAnimation)
 				{
 					// Ok, we need to do a software blend
 					// Blend normals in s/w only if we're not using h/w skinning,
