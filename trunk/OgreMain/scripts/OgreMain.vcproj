@@ -196,6 +196,30 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 				RelativePath="..\src\OgreCommon.cpp">
 			</File>
 			<File
+				RelativePath="..\src\OgreCompositionPass.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositionTargetPass.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositionTechnique.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositor.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositorChain.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositorInstance.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositorManager.cpp">
+			</File>
+			<File
+				RelativePath="..\src\OgreCompositorSerializer.cpp">
+			</File>
+			<File
 				RelativePath="..\src\OgreConfigFile.cpp">
 			</File>
 			<File
@@ -726,6 +750,30 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 			</File>
 			<File
 				RelativePath="..\include\OgreCommon.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositionPass.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositionTargetPass.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositionTechnique.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositor.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositorChain.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositorInstance.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositorManager.h">
+			</File>
+			<File
+				RelativePath="..\include\OgreCompositorSerializer.h">
 			</File>
 			<File
 				RelativePath="..\include\OgreConfig.h">
