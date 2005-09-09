@@ -188,7 +188,14 @@ size_t depthBits[] = {
 				// Create and attach texture
 				glGenTextures(1, &tid);
 				glBindTexture(target, tid);
-				glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+				
+                // Set some default parameters so it won't fail on NVidia cards         
+                glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+                glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                            
 				glTexImage2D(target, 0, fmt, PROBE_SIZE, PROBE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
                                 target, tid, 0);
