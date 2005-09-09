@@ -1918,6 +1918,11 @@ namespace Ogre
 			d3dvp.Y = vp->getActualTop();
 			d3dvp.Width = vp->getActualWidth();
 			d3dvp.Height = vp->getActualHeight();
+            if (target->requiresTextureFlipping())
+            {
+                // Convert "top-left" to "bottom-left"
+                d3dvp.Y = target->getHeight() - d3dvp.Height - d3dvp.Y;
+            }
 
 			// Z-values from 0.0 to 1.0 (TODO: standardise with OpenGL)
 			d3dvp.MinZ = 0.0f;
