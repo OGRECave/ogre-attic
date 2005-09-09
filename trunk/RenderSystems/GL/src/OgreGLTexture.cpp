@@ -136,6 +136,12 @@ namespace Ogre {
         
 		// This needs to be set otherwise the texture doesn't get rendered
         glTexParameteri( getGLTextureTarget(), GL_TEXTURE_MAX_LEVEL, mNumMipmaps );
+        
+        // Set some misc default parameters so NVidia won't complain, these can of course be changed later
+        glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(getGLTextureTarget(), GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(getGLTextureTarget(), GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(getGLTextureTarget(), GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		
 		// If we can do automip generation and the user desires this, do so
 		mMipmapsHardwareGenerated = 
