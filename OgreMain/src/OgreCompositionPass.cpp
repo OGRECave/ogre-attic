@@ -34,7 +34,7 @@ CompositionPass::CompositionPass(CompositionTargetPass *parent):
 	mIdentifier(0),
 	mFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY),
 	mLastRenderQueue(RENDER_QUEUE_SKIES_LATE),
-    mClearBuffers(FBT_COLOUR|FBT_DEPTH|FBT_STENCIL),
+    mClearBuffers(FBT_COLOUR|FBT_DEPTH),
     mClearColour(0.0,0.0,0.0,0.0),
 	mClearDepth(1.0f),
 	mClearStencil(0),
