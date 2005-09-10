@@ -152,37 +152,22 @@
 				RelativePath="..\src\DeferredShadingDemo.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilter.cpp">
+				RelativePath="..\src\LightMaterialGenerator.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilter.h">
+				RelativePath="..\include\LightMaterialGenerator.h">
 			</File>
 			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterManager.cpp">
+				RelativePath="..\src\MaterialGenerator.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterManager.h">
+				RelativePath="..\include\MaterialGenerator.h">
 			</File>
 			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterObserver.h">
+				RelativePath="..\src\MLight.cpp">
 			</File>
 			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterPass.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterPass.h">
-			</File>
-			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterRenderer.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterRenderer.h">
-			</File>
-			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterShared.cpp">
-			</File>
-			<File
-				RelativePath="..\src\OgrePostFilter\OgrePostFilterShared.h">
+				RelativePath="..\include\MLight.h">
 			</File>
 		</Filter>
 		<Filter
