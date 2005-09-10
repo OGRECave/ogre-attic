@@ -108,6 +108,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreUserDefinedObject.h"
 #include "OgreVector2.h"
 #include "OgreViewport.h"
+#include "OgreCompositor.h"
+#include "OgreCompositorManager.h"
+#include "OgreCompositorChain.h"
+#include "OgreCompositorInstance.h"
+#include "OgreCompositionTechnique.h"
+#include "OgreCompositionPass.h"
+#include "OgreCompositionTargetPass.h"
 // .... more to come
 
 #endif
