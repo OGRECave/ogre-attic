@@ -88,6 +88,10 @@ material Test13/DeferredAthena: DeferredShading/Material/UntexturedNormalMapped
 			{
 				texture atheneNormalMap.png
 			}
+			fragment_program_ref
+			{
+				param_named specularity float 0.5
+			}
 		}
 	}
 	technique glsl
@@ -97,6 +101,10 @@ material Test13/DeferredAthena: DeferredShading/Material/UntexturedNormalMapped
 			texture_unit
 			{
 				texture atheneNormalMap.png
+			}
+			fragment_program_ref
+			{
+				param_named specularity float 0.5
 			}
 		}
 	}

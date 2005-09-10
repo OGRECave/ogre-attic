@@ -1,4 +1,4 @@
-// From the WIKI -- tesselate a sphere
+/// From the WIKI -- tesselate a sphere
 void createSphere(const std::string& strName, const float r, const int nRings = 16, const int nSegments = 16)
 {
 	MeshPtr pSphere = MeshManager::getSingleton().createManual(strName, ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -84,4 +84,4 @@ void createSphere(const std::string& strName, const float r, const int nRings = 
 	pSphere->_setBoundingSphereRadius(r);
         // this line makes clear the mesh is loaded (avoids memory leakes)
         pSphere->load();
-}								 
+}
