@@ -19,248 +19,202 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
-#include "Ogre.h"
+#include "DeferredShading.h"
+
 #include "OgreConfigFile.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
-#include "OgrePostFilter/OgrePostFilterManager.h"
 
-#include "DeferredShading.h"
+#include "OgreHardwarePixelBuffer.h"
+#include "OgreRoot.h"
+#include "OgreRenderSystem.h"
 
-#include "CreateSphere.h"
+#include "OgreEntity.h"
+#include "OgreSubEntity.h"
+#include "OgreRoot.h"
+
+#include "OgreCompositor.h"
+#include "OgreCompositorManager.h"
+#include "OgreCompositorChain.h"
+#include "OgreCompositorInstance.h"
+#include "OgreCompositionTechnique.h"
+#include "OgreCompositionPass.h"
+#include "OgreCompositionTargetPass.h"
+
+#include "MLight.h"
+#include "LightMaterialGenerator.h"
+
+#include "OgreHighLevelGpuProgram.h"
+#include "OgreHighLevelGpuProgramManager.h"
 
 using namespace Ogre;
 
-/** Postfilter doing full deferred shading with two lights in one pass
-*/
-class DeferredShadingPf : public OgrePostFilter, public OgrePostFilterPassListener 
+/// XXX make this a .compositor script
+void createPostFilters()
 {
-	public:
-		DeferredShadingPf(const TexturePtr &texture0, const TexturePtr &texture1, SceneManager *scenemgr)
-			: OgrePostFilter( "DeferredShading" ),
-			mTexture0(texture0),
-			mTexture1(texture1),
-			mSceneMgr(scenemgr)
+	/** Postfilter for rendering to fat render target. Excludes skies, backgrounds and other unwanted
+		objects.
+	*/
+	CompositorPtr comp7 = CompositorManager::getSingleton().create(
+				"DeferredShading/Fat", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
+	{
+		CompositionTechnique *t = comp7->createTechnique();
 		{
-
+			CompositionTargetPass *tp = t->getOutputTargetPass();
+			tp->setInputMode(CompositionTargetPass::IM_NONE);
+			tp->setVisibilityMask(DeferredShadingSystem::SceneVisibilityMask);
+			/// Clear
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_CLEAR);
+				pass->setClearColour(ColourValue(0,0,0,0));
+			}
+			/// Render geometry
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERSCENE);
+				pass->setFirstRenderQueue(RENDER_QUEUE_1);
+				pass->setLastRenderQueue(RENDER_QUEUE_9);
+			}
 		}
-		// OgrePostFilterPassListener
-		virtual void preUpdateNotify()
+	}
+	/** Postfilter doing full deferred shading with two lights in one pass
+	*/
+	CompositorPtr comp = CompositorManager::getSingleton().create(
+				"DeferredShading/Single", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
+	{
+		CompositionTechnique *t = comp->createTechnique();
 		{
-			// Show light geometry
-			mSceneMgr->setVisibilityMask(mSceneMgr->getVisibilityMask() | DeferredShadingSystem::PostVisibilityMask);
+			CompositionTargetPass *tp = t->getOutputTargetPass();
+			tp->setInputMode(CompositionTargetPass::IM_NONE);
+			tp->setVisibilityMask(DeferredShadingSystem::PostVisibilityMask);
+			/// Render skies
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERSCENE);
+				pass->setFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY);
+				pass->setLastRenderQueue(RENDER_QUEUE_SKIES_EARLY);
+			}
+			/// Render ambient pass
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("DeferredShading/Post/Single");
+				pass->setIdentifier(1);
+			}
+			/// Render overlayed geometry
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERSCENE);
+				pass->setFirstRenderQueue(RENDER_QUEUE_1);
+				pass->setLastRenderQueue(RENDER_QUEUE_9);
+			}
 		}
-		virtual void postUpdateNotify()
+	}
+	/** Postfilter doing full deferred shading with an ambient pass and multiple light passes
+	*/
+	CompositorPtr comp2 = CompositorManager::getSingleton().create(
+				"DeferredShading/Multi", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
+	{
+		CompositionTechnique *t = comp2->createTechnique();
 		{
-			// Hide light geometry
-			mSceneMgr->setVisibilityMask(mSceneMgr->getVisibilityMask() & ~DeferredShadingSystem::PostVisibilityMask);
+			CompositionTargetPass *tp = t->getOutputTargetPass();
+			tp->setInputMode(CompositionTargetPass::IM_NONE);
+			tp->setVisibilityMask(DeferredShadingSystem::PostVisibilityMask);
+			/// Render skies
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERSCENE);
+				pass->setFirstRenderQueue(RENDER_QUEUE_SKIES_EARLY);
+				pass->setLastRenderQueue(RENDER_QUEUE_SKIES_EARLY);
+			}
+			/// Render ambient pass
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("DeferredShading/Post/Multi");
+				pass->setIdentifier(1);
+			}
+			/// Render overlayed geometry
+			{
+				CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERSCENE);
+				pass->setFirstRenderQueue(RENDER_QUEUE_1);
+				pass->setLastRenderQueue(RENDER_QUEUE_9);
+			}
 		}
-	public:
-		virtual RenderTarget* setupSceneRt() { return 0; }
-		virtual void setupPasses( std::vector<OgrePostFilterPass*>& filterPasses ) 
+	}	
+	/** Postfilter that shows the normal channel
+	*/
+	CompositorPtr comp3 = CompositorManager::getSingleton().create(
+				"DeferredShading/ShowNormal", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
+	{
+		CompositionTechnique *t = comp3->createTechnique();
 		{
-			OgrePostFilterPass *iPass2 = new OgrePostFilterPass( "DeferredShading/Post/Single" );
-			iPass2->addInputTexture( mTexture0 );
-			iPass2->addInputTexture( mTexture1 );
-			iPass2->setListener(this);
-			iPass2->setOutputTexture( 0 );
-			filterPasses.push_back( iPass2 );
+			CompositionTargetPass *tp = t->getOutputTargetPass();
+			tp->setInputMode(CompositionTargetPass::IM_NONE);
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("DeferredShading/Post/ShowNormal");
+				pass->setIdentifier(1);
+			}
 		}
-	private:
-		TexturePtr mTexture0, mTexture1;
-		SceneManager *mSceneMgr;
-};
-
-/** Postfilter doing full deferred shading with an ambient pass and multiple light passes
-*/
-class DeferredMultiShadingPf : public OgrePostFilter, public OgrePostFilterPassListener
-{
-	public:
-		DeferredMultiShadingPf(const TexturePtr &texture0, const TexturePtr &texture1, SceneManager *scenemgr)
-			: OgrePostFilter( "DeferredMulti" ),
-			mTexture0(texture0),
-			mTexture1(texture1),
-			mSceneMgr(scenemgr)
+	}	
+	/** Postfilter that shows the depth and specular channel
+	*/
+	CompositorPtr comp4 = CompositorManager::getSingleton().create(
+				"DeferredShading/ShowDepthSpecular", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
+	{
+		CompositionTechnique *t = comp4->createTechnique();
 		{
+			CompositionTargetPass *tp = t->getOutputTargetPass();
+			tp->setInputMode(CompositionTargetPass::IM_NONE);
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("DeferredShading/Post/ShowDS");
+				pass->setIdentifier(1);
+			}
 		}
-		~DeferredMultiShadingPf()
+	}	
+	/** Postfilter that shows the depth and specular channel
+	*/
+	CompositorPtr comp5 = CompositorManager::getSingleton().create(
+				"DeferredShading/ShowColour", ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME
+			);
+	{
+		CompositionTechnique *t = comp5->createTechnique();
 		{
+			CompositionTargetPass *tp = t->getOutputTargetPass();
+			tp->setInputMode(CompositionTargetPass::IM_NONE);
+			{	CompositionPass *pass = tp->createPass();
+				pass->setType(CompositionPass::PT_RENDERQUAD);
+				pass->setMaterialName("DeferredShading/Post/ShowColour");
+				pass->setIdentifier(1);
+			}
 		}
-		virtual RenderTarget* setupSceneRt() { return 0; }
-		virtual void setupPasses( std::vector<OgrePostFilterPass*>& filterPasses ) 
-		{
-			OgrePostFilterPass *iPass2 = new OgrePostFilterPass( "DeferredShading/Post/Multi" );
-			iPass2->addInputTexture( mTexture0 );
-			iPass2->addInputTexture( mTexture1 );
-			iPass2->setOutputTexture( 0 );
-			iPass2->setListener(this);
-			filterPasses.push_back( iPass2 );
-		}
-		virtual void preUpdateNotify()
-		{
-			// Show light geometry
-			mSceneMgr->setVisibilityMask(mSceneMgr->getVisibilityMask() | DeferredShadingSystem::PostVisibilityMask);
-		}
-		virtual void postUpdateNotify()
-		{
-			// Hide light geometry
-			mSceneMgr->setVisibilityMask(mSceneMgr->getVisibilityMask() & ~DeferredShadingSystem::PostVisibilityMask);
-		}
-	private:
-		TexturePtr mTexture0, mTexture1;
-		SceneManager *mSceneMgr;
-};
-
-
-/** Postfilter that shows the normal channel
-*/
-class ShowNormalPf : public OgrePostFilter 
-{
-	public:
-		ShowNormalPf(const TexturePtr &texture0, const TexturePtr &texture1)
-			: OgrePostFilter( "ShowNormal" ),
-			mTexture0(texture0), mTexture1(texture1) 
-		{ }
-	public:
-		virtual RenderTarget* setupSceneRt() { return 0; }
-		virtual void setupPasses( std::vector<OgrePostFilterPass*>& filterPasses ) 
-		{			
-			OgrePostFilterPass *iPass2 = new OgrePostFilterPass( "DeferredShading/Post/ShowNormal");
-			iPass2->addInputTexture( mTexture0 );
-			iPass2->addInputTexture( mTexture1 );
-			iPass2->setOutputTexture( 0 );
-			filterPasses.push_back( iPass2 );
-		}
-	private:
-		TexturePtr mTexture0, mTexture1;
-};
-
-/** Postfilter that shows the depth and specular channel
-*/
-class ShowDSPf : public OgrePostFilter 
-{
-	public:
-		ShowDSPf(const TexturePtr &texture0, const TexturePtr &texture1)
-			: OgrePostFilter( "ShowDepthSpec" ),
-			mTexture0(texture0), mTexture1(texture1) 
-		{ }
-	public:
-		virtual RenderTarget* setupSceneRt() { return 0; }
-		virtual void setupPasses( std::vector<OgrePostFilterPass*>& filterPasses ) 
-		{
-			OgrePostFilterPass *iPass2 = new OgrePostFilterPass( "DeferredShading/Post/ShowDS");
-			iPass2->addInputTexture( mTexture0 );
-			iPass2->addInputTexture( mTexture1 );
-			iPass2->setOutputTexture( 0 );
-			filterPasses.push_back( iPass2 );
-		}
-	private:
-		TexturePtr mTexture0, mTexture1;
-};
-
-/** Postfilter that shows the colour channel
-*/
-class ShowColourPf : public OgrePostFilter 
-{
-	public:
-		ShowColourPf(const TexturePtr &texture0, const TexturePtr &texture1)
-			: OgrePostFilter( "ShowColour" ),
-			mTexture0(texture0), mTexture1(texture1) 
-		{ }
-	public:
-		virtual RenderTarget* setupSceneRt() { return 0; }
-		virtual void setupPasses( std::vector<OgrePostFilterPass*>& filterPasses ) 
-		{
-			OgrePostFilterPass *iPass2 = new OgrePostFilterPass( "DeferredShading/Post/ShowColour");
-			iPass2->addInputTexture( mTexture0 );
-			iPass2->addInputTexture( mTexture1 );
-			iPass2->setOutputTexture( 0 );
-			filterPasses.push_back( iPass2 );
-		}
-	private:
-		TexturePtr mTexture0, mTexture1;
-};
-
-MLight::MLight(SceneManager *mSceneMgr, SceneNode *parent, uint32 visibilityFlags)
-{
-	nodeM = parent->createChildSceneNode();
-	nodeL = nodeM->createChildSceneNode();
-	// Set up geometry
-	geom = mSceneMgr->createEntity(nodeL->getName(), "PointLightMesh");
-	geom->setMaterialName("DeferredShading/Post/LightMaterial");
-	// Set render priority to high (just after normal postprocess)
-	geom->setRenderQueueGroup(RENDER_QUEUE_2);
-	// Hide when created
-	//geom->setVisible(false);
-	geom->setVisibilityFlags(visibilityFlags);
-	// Diffuse and specular colour
-	setDiffuseColour(Ogre::ColourValue(1,1,1));
-	setSpecularColour(Ogre::ColourValue(0,0,0));
-
-	nodeL->attachObject(geom);
-}
-void MLight::setFalloff(float c, float b, float a)
-{
-	// Set falloff parameter to shader
-	geom->getSubEntity(0)->setCustomParameter(3, Vector4(c, b, a, 0));
-
-	// Calculate radius from falloff
-	int threshold_level = 15;// differece of 10-15 levels deemed unnoticable
-	float threshold = 1.0f/((float)threshold_level/256.0f); 
-
-	// Use quadratic formula
-	c = c-threshold;
-	float d=sqrt(b*b-4*a*c);
-	float x=(-2*c)/(b+d);
-
-	// Scale node to radius
-	nodeL->setScale(x,x,x);
-}
-void MLight::setDiffuseColour(const Ogre::ColourValue &col)
-{
-	geom->getSubEntity(0)->setCustomParameter(1, Vector4(col.r, col.g, col.b, col.a));
-}
-void MLight::setSpecularColour(const Ogre::ColourValue &col)
-{
-	geom->getSubEntity(0)->setCustomParameter(2, Vector4(col.r, col.g, col.b, col.a));
-}
-Ogre::SceneNode *MLight::getNode()
-{
-	return nodeM;
-}
-
-Ogre::ColourValue MLight::getDiffuseColour()
-{
-	Ogre::Vector4 val = geom->getSubEntity(0)->getCustomParameter(1);
-	return Ogre::ColourValue(val[0], val[1], val[2], val[3]);
-}
-
-Ogre::ColourValue MLight::getSpecularColour()
-{
-	Ogre::Vector4 val = geom->getSubEntity(0)->getCustomParameter(2);
-	return Ogre::ColourValue(val[0], val[1], val[2], val[3]);
+	}
 }
 
 
 DeferredShadingSystem::DeferredShadingSystem(
-		RenderTarget *win, SceneManager *sm, SceneNode *rootNode, Camera *cam
+		Viewport *vp, SceneManager *sm,  Camera *cam
 	):
-	mSceneMgr(sm), mWindow(win), mRootNode(rootNode), mCamera(cam)
+	mSceneMgr(sm), mViewport(vp), mCamera(cam),
+		mLightMaterialGenerator(0)
 {
-	iPfManager = 0;
-	iDeferredShadingPf = 0;
-	iShowNormalPf = 0;
-	iShowDSPf = 0;
-	iShowColourPf = 0;
-	iDeferredMultiShadingPf = 0;
-	mLightParentNode = 0;
+	for(int i=0; i<DSM_COUNT; ++i)
+		mInstance[i]=0;
+
+	mActive = true;
+	mCurrentMode = DSM_MULTIPASS;
+
 	rttTex = 0;
+
+	createPostFilters();
 
 	createResources();
 	// Hide post geometry
 	mSceneMgr->setVisibilityMask(mSceneMgr->getVisibilityMask() & ~PostVisibilityMask);
 	// Default to normal deferred shading mode
-	setMode(DSM_SINGLEPASS);
+	setMode(mCurrentMode);
 	setActive(true);
 }
 
@@ -272,45 +226,36 @@ DeferredShadingSystem::~DeferredShadingSystem()
 		delete (*i);
 	}
 
-	delete iDeferredShadingPf;
-	delete iShowNormalPf;
-	delete iShowDSPf;
-	delete iShowColourPf;
-	delete iDeferredMultiShadingPf;
-	delete iPfManager;
+	Ogre::CompositorChain *chain = Ogre::CompositorManager::getSingleton().getCompositorChain(mViewport);
+	for(int i=0; i<DSM_COUNT; ++i)
+		chain->_removeInstance(mInstance[i]);
+
+	delete mLightMaterialGenerator;
 }
 void DeferredShadingSystem::setMode(DSMode mode)
 {
-	switch(mode)
+	for(int i=0; i<DSM_COUNT; ++i)
 	{
-	case DSM_SINGLEPASS:
-		iPfManager->setPostFilter(iDeferredShadingPf);
-		break;
-	case DSM_MULTIPASS:
-		iPfManager->setPostFilter(iDeferredMultiShadingPf);
-		break;
-	case DSM_SHOWCOLOUR:
-		iPfManager->setPostFilter(iShowColourPf);
-		break;
-	case DSM_SHOWNORMALS:
-		iPfManager->setPostFilter(iShowNormalPf);
-		break;
-	case DSM_SHOWDSP:
-		iPfManager->setPostFilter(iShowDSPf);
-		break;
+		if(i == mode)
+			mInstance[i]->setEnabled(mActive);
+		else
+			mInstance[i]->setEnabled(false);
 	}
+	mCurrentMode = mode;
 }
 void DeferredShadingSystem::setActive(bool active)
 {
-	iPfManager->getRenderer()->setActive(active);
+	mActive = active;
+	setMode(mCurrentMode);
 }
 void DeferredShadingSystem::createResources(void)
 {
+	Ogre::CompositorManager &compMan = Ogre::CompositorManager::getSingleton();
 	// Create 'fat' render target
-	unsigned int width = mWindow->getWidth();
-	unsigned int height = mWindow->getHeight();
+	unsigned int width = mViewport->getActualWidth();
+	unsigned int height = mViewport->getActualHeight();
 	PixelFormat format = PF_FLOAT16_RGBA;
-	//PixelFormat format = PF_BYTE_RGBA;
+	//PixelFormat format = PF_SHORT_RGBA;
 
 	mTexture0 = TextureManager::getSingleton().createManual("RttTex0", 
 		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
@@ -318,7 +263,8 @@ void DeferredShadingSystem::createResources(void)
 	mTexture1 = TextureManager::getSingleton().createManual("RttTex1", 
 		ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, TEX_TYPE_2D, 
 		width, height, 0, format, TU_RENDERTARGET );
-
+	//assert(mTexture0->getFormat() == format);
+	//assert(mTexture1->getFormat() == format);
 	rttTex = Ogre::Root::getSingleton().getRenderSystem()->createMultiRenderTarget("MRT");
 	rttTex->bindSurface(0, mTexture0->getBuffer()->getRenderTarget());
 	rttTex->bindSurface(1, mTexture1->getBuffer()->getRenderTarget());
@@ -326,57 +272,44 @@ void DeferredShadingSystem::createResources(void)
 
 	// Setup viewport on 'fat' render target
 	Viewport* v = rttTex->addViewport( mCamera );
-	v->setClearEveryFrame( true );
+	v->setClearEveryFrame( false );
 	v->setOverlaysEnabled( false );
 	v->setBackgroundColour( ColourValue( 0, 0, 0, 0) );
+	compMan.addCompositor(v, "DeferredShading/Fat");
 
-	// Create mini lights
-	initialiseLightGeometry();
-
-	// Create postfilter manager
-	iPfManager = new OgrePostFilterManager( 
-		Root::getSingletonPtr(),
-		mWindow, mSceneMgr, mRootNode, mCamera 
-	);
+	// Create lights material generator
+	setupMaterial(MaterialManager::getSingleton().getByName("DeferredShading/LightMaterialQuad"));
+	setupMaterial(MaterialManager::getSingleton().getByName("DeferredShading/LightMaterial"));
+	if(Root::getSingleton().getRenderSystem()->getName()=="OpenGL Rendering Subsystem")
+		mLightMaterialGenerator = new LightMaterialGenerator("glsl");
+	else
+		mLightMaterialGenerator = new LightMaterialGenerator("hlsl");
 
 	// Create filters
-	iDeferredShadingPf = new DeferredShadingPf(mTexture0, mTexture1, mSceneMgr);
-	iDeferredMultiShadingPf = new DeferredMultiShadingPf(mTexture0, mTexture1, mSceneMgr);
-	iShowColourPf = new ShowColourPf(mTexture0, mTexture1);
-	iShowNormalPf = new ShowNormalPf(mTexture0, mTexture1);
-	iShowDSPf = new ShowDSPf(mTexture0, mTexture1);
-}
+	mInstance[DSM_SINGLEPASS] = compMan.addCompositor(mViewport, "DeferredShading/Single");
+	mInstance[DSM_MULTIPASS] = compMan.addCompositor(mViewport, "DeferredShading/Multi");
+	mInstance[DSM_SHOWNORMALS] = compMan.addCompositor(mViewport, "DeferredShading/ShowNormal");
+	mInstance[DSM_SHOWDSP] = compMan.addCompositor(mViewport, "DeferredShading/ShowDepthSpecular");
+	mInstance[DSM_SHOWCOLOUR] = compMan.addCompositor(mViewport, "DeferredShading/ShowColour");
 
-void DeferredShadingSystem::initialiseLightGeometry()
+	// Add material setup callback
+	for(int i=0; i<DSM_COUNT; ++i)
+		mInstance[i]->addListener(this);
+}
+void DeferredShadingSystem::setupMaterial(const MaterialPtr &mat)
 {
-	// Create mesh
-	createSphere("PointLightMesh", 1.0f, 6, 6);
-	// Create uber node for lights
-	mLightParentNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("LightSwarm");
-	// Hide
-	//mLightParentNode->setVisible(false, true);
-	// Setup material
-	MaterialPtr mat = MaterialManager::getSingleton().getByName("DeferredShading/Post/LightMaterial");
-	for(size_t i=0; i<mat->getNumTechniques(); ++i)
+	for(unsigned short i=0; i<mat->getNumTechniques(); ++i)
 	{
 		Pass *pass = mat->getTechnique(i)->getPass(0);
 		pass->getTextureUnitState(0)->setTextureName(mTexture0->getName());
 		pass->getTextureUnitState(1)->setTextureName(mTexture1->getName());
 	}
-
-	//GpuProgramParametersSharedPtr params = pass->getVertexProgramParameters();
-	//params->setNamedConstant("texSize", Vector4(mTexture0->getWidth(), mTexture0->getHeight(), 0, 0));
-}
-
-void DeferredShadingSystem::setMLightsVisible(bool active)
-{
-	//static_cast<DeferredShadingPf*>(iDeferredShadingPf)->enableMLights(active);
-	//static_cast<DeferredMultiShadingPf*>(iDeferredMultiShadingPf)->enableMLights(active);
 }
 
 MLight *DeferredShadingSystem::createMLight()
 {
-	MLight *rv = new MLight(mSceneMgr, mLightParentNode, PostVisibilityMask);
+	MLight *rv = new MLight(mLightMaterialGenerator);
+	rv->setVisibilityFlags(PostVisibilityMask);
 	mLights.insert(rv);
 
 	return rv;
@@ -390,4 +323,13 @@ void DeferredShadingSystem::destroyMLight(MLight *m)
 void DeferredShadingSystem::update()
 {
 	rttTex->update();
+}
+
+void DeferredShadingSystem::notifyMaterialSetup(uint32 pass_id, MaterialPtr &mat)
+{
+	/// Local pass identifier 1 is the render quad pass
+	if(pass_id == 1)
+	{
+		setupMaterial(mat);
+	}
 }

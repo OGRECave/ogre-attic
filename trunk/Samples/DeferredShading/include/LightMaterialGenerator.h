@@ -1,5 +1,5 @@
 /**
-Implementation of a Deferred Shading engine in OGRE, using Multiple Render Targets and
+Implementation of Deferred Shading in OGRE using Multiple Render Targets and
 HLSL/GLSL high level language shaders.
 	// W.J. :wumpus: van der Laan 2005 //
 
@@ -17,6 +17,8 @@ their convex bounding geometry. This is also shown in this demo by 6 swarming li
 
 The paper for GDC2004 on Deferred Shading can be found here:
   http://www.talula.demon.co.uk/DeferredShading.pdf
+
+This uses a heavily hacked version of the Ogre PostProcessing framework by Manuel.
 *******************************************************************************
 Copyright (c) W.J. van der Laan
 
@@ -38,83 +40,15 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 *******************************************************************************
 */
-#ifndef H_WJ_DeferredShadingSystem
-#define H_WJ_DeferredShadingSystem
+#ifndef H_WJ_LightMaterialGenerator
+#define H_WJ_LightMaterialGenerator
 
-#include "OgreCompositorInstance.h"
-#include "OgreSceneManager.h"
-#include "OgreSceneNode.h"
-#include "OgreMaterial.h"
-class MLight;
-class MaterialGenerator;
+#include "MaterialGenerator.h"
 
-/** System to manage Deferred Shading for a camera/render target.
- */
-class DeferredShadingSystem: public Ogre::CompositorInstance::Listener
+class LightMaterialGenerator: public MaterialGenerator
 {
 public:
-	DeferredShadingSystem(Ogre::Viewport *vp, Ogre::SceneManager *sm, Ogre::Camera *cam);
-	~DeferredShadingSystem();
-
-	enum DSMode
-	{
-		DSM_SINGLEPASS = 0,  // Single pass + two lights
-		DSM_MULTIPASS = 1,   // Multi pass
-		DSM_SHOWCOLOUR = 2,  // Show diffuse (for debugging)
-		DSM_SHOWNORMALS = 3, // Show normals (for debugging)
-		DSM_SHOWDSP = 4,	 // Show depth and specular channel (for debugging)
-		DSM_COUNT = 5
-	};
-
-	/** Set rendering mode (one of DSMode)
-	 */
-	void setMode(DSMode mode);
-
-	/** Activate or deactivate system
-	 */
-	void setActive(bool active);
-
-	/** Create a new MiniLight 
-	 */
-	MLight *createMLight();
-
-	/** Destroy a MiniLight
-	 */
-	void destroyMLight(MLight *m);
-
-	/** Update fat (origin) render target
-	*/
-	void update();
-
-	/// Visibility mask for scene
-	static const Ogre::uint32 SceneVisibilityMask = 0x00000001;
-	/// Visibility mask for post-processing geometry (lights, unlit particles)
-	static const Ogre::uint32 PostVisibilityMask = 0x00000002;
-
-	/** @copydoc CompositorInstance::Listener::notifyMaterialSetup
-	 */
-	virtual void notifyMaterialSetup(Ogre::uint32 pass_id, Ogre::MaterialPtr &mat);
-protected:
-	Ogre::Viewport *mViewport;
-	Ogre::SceneManager *mSceneMgr;
-	Ogre::Camera *mCamera;
-	
-	// Fat render target
-	Ogre::MultiRenderTarget *rttTex;
-	// Filters
-	Ogre::CompositorInstance *mInstance[DSM_COUNT];
-	// Active/inactive
-	bool mActive;
-	DSMode mCurrentMode;
-
-	std::set<MLight*> mLights;
-	Ogre::TexturePtr mTexture0, mTexture1;
-
-	MaterialGenerator *mLightMaterialGenerator;
-
-    void createResources();
-	void initialiseLightGeometry();
-	void setupMaterial(const Ogre::MaterialPtr &mat);
+	LightMaterialGenerator(const Ogre::String &language);
 };
 
 #endif
