@@ -97,7 +97,7 @@ namespace Ogre {
 				override material (at least -- color)
 		*/
 
-        /** Set the viewport clear buffers  (defaults to FBT_COLOUR, FBT_DEPTH, FBT_STENCIL)
+        /** Set the viewport clear buffers  (defaults to FBT_COLOUR|FBT_DEPTH)
             @param val is a combination of FBT_COLOUR, FBT_DEPTH, FBT_STENCIL.
 			@note applies when PassType is CLEAR
         */
