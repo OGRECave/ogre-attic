@@ -109,6 +109,7 @@ namespace Ogre {
 		void removeAllFromMixer(XSI::Mixer& mixer);
 		void sampleAllBones(DeformerMap& deformers, 
 			std::vector<NodeAnimationTrack*> deformerTracks, double frame, float fps);
+		void establishInitialTransforms(DeformerMap& deformers);
 
 	};
 

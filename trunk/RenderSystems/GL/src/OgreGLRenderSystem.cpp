@@ -1215,8 +1215,12 @@ namespace Ogre {
               w = vp->getActualWidth();
               h = vp->getActualHeight();
               x = vp->getActualLeft();
-              y = target->getHeight() - vp->getActualTop() - h;
-  
+              y = vp->getActualTop();
+              if (!target->requiresTextureFlipping())
+              {
+                  // Convert "upper-left" corner to "lower-left"
+                  y = target->getHeight() - h - y;
+              }
               glViewport(x, y, w, h);
   
               // Configure the viewport clipping
@@ -2302,6 +2306,8 @@ namespace Ogre {
     void GLRenderSystem::setScissorTest(bool enabled, size_t left, 
         size_t top, size_t right, size_t bottom)
     {
+        // If request texture flipping, use "upper-left", otherwise use "lower-left"
+        bool flipping = mActiveRenderTarget->requiresTextureFlipping();
         //  GL measures from the bottom, not the top
         size_t targetHeight = mActiveRenderTarget->getHeight();
         // Calculate the "lower-left" corner of the viewport
@@ -2312,7 +2318,10 @@ namespace Ogre {
             glEnable(GL_SCISSOR_TEST);
             // NB GL uses width / height rather than right / bottom
             x = left;
-            y = targetHeight - bottom;
+            if (flipping)
+                y = top;
+            else
+                y = targetHeight - bottom;
             w = right - left;
             h = bottom - top;
             glScissor(x, y, w, h);
@@ -2324,7 +2333,10 @@ namespace Ogre {
             w = mActiveViewport->getActualWidth();
             h = mActiveViewport->getActualHeight();
             x = mActiveViewport->getActualLeft();
-            y = targetHeight - mActiveViewport->getActualTop() - h;
+            if (flipping)
+                y = mActiveViewport->getActualTop();
+            else
+                y = targetHeight - mActiveViewport->getActualTop() - h;
             glScissor(x, y, w, h);
         }
     }

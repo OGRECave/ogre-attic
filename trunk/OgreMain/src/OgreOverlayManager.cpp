@@ -85,16 +85,19 @@ namespace Ogre {
     //---------------------------------------------------------------------
     Overlay* OverlayManager::create(const String& name)
     {
-        Overlay* ret = new Overlay(name);
+        Overlay* ret = 0;
         OverlayMap::iterator i = mOverlayMap.find(name);
+
         if (i == mOverlayMap.end())
         {
+            ret = new Overlay(name);
+            assert(ret && "Overlay creation failed");
             mOverlayMap[name] = ret;
         }
         else
         {
             OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
-                "Overlay with name '" + name + "' a;ready exists!",
+                "Overlay with name '" + name + "' already exists!",
                 "OverlayManager::create");
         }
 
