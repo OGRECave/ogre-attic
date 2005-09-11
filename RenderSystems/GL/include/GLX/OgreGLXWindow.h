@@ -45,6 +45,7 @@ private:
 
 	bool mClosed;
 	bool mFullScreen;
+        bool mTopLevel; // This is false if the Ogre window is embedded
 	int mOldMode;	// Mode before switching to fullscreen
 
 	GLXContext   *mContext;

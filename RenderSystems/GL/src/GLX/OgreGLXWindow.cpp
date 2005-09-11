@@ -110,6 +110,9 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 	// Maybe user already created the window and passed its visualinfo in miscParams
 	XVisualInfo *	extVisualHandler = NULL;
 
+        // Unless parentWindowHandle is given in miscParams we're top-level
+	mTopLevel = true;
+   
 	std::cerr << "Parsing miscParams" << std::endl;
 	if(miscParams)
 	{
@@ -149,6 +152,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 
 			left = top = 0;
 			fullScreen = false; // Can't be full screen if embedded in an app!
+            mTopLevel = false;  // Can't be top-level if embedded
 		}
 		
 		opt = miscParams->find("externalWindowHandle");
@@ -173,6 +177,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			
 			left = top = 0;
 			fullScreen = false; // Can't be full screen if embedded in an app!
+            mTopLevel = false;  // Can't be top-level if embedded         
 		}
 
 	}
@@ -392,7 +397,12 @@ void GLXWindow::reposition(int left, int top)
 
 void GLXWindow::resize(unsigned int width, unsigned int height)
 {
-	XResizeWindow(mDisplay,mWindow,width,height);
+    if (!mTopLevel) 
+        /// Embedded
+        resized(width, height);
+    else
+        /// Ogre handles window
+        XResizeWindow(mDisplay,mWindow,width,height);
 }
 
 void GLXWindow::swapBuffers(bool waitForVSync)
