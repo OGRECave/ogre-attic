@@ -197,6 +197,7 @@ namespace Ogre {
                 FreeTemporaryVertexBufferMap::iterator vbi =
                     mFreeTempVertexBufferMap.find(vbl.originalBufferPtr);
                 assert (vbi != mFreeTempVertexBufferMap.end());
+				vbl.licensee->licenseExpired(vbl.buffer.get());
 
                 vbi->second->push_back(vbl.buffer);
                 mTempVertexBufferLicenses.erase(i);
@@ -222,6 +223,7 @@ namespace Ogre {
                 FreeTemporaryVertexBufferMap::iterator vbi =
                     mFreeTempVertexBufferMap.find(vbl.originalBufferPtr);
                 assert (vbi != mFreeTempVertexBufferMap.end());
+				vbl.licensee->licenseExpired(vbl.buffer.get());
 
                 vbi->second->push_back(vbl.buffer);
                 i = mTempVertexBufferLicenses.erase(i);
