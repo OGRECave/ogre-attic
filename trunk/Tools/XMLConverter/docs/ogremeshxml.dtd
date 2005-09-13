@@ -4,12 +4,17 @@
 <!ATTLIST sharedgeometry
 	vertexcount CDATA #REQUIRED>
 <!ELEMENT submeshes (submesh+)>
-<!ELEMENT submesh (faces,geometry?,boneassignments?)>
+<!ELEMENT submesh (textures?,faces,geometry?,boneassignments?)>
 <!ATTLIST submesh 
 	material 			CDATA 			#REQUIRED
 	usesharedvertices	(true|false)	"true"
 	use32bitindexes		(true|false)	"false"
 	operationtype       (triangle_list|triangle_strip|triangle_fan)	"triangle_list">
+<!ELEMENT textures (texture+)>
+<!ELEMENT texture EMPTY>
+<!ATTLIST texture
+	alias	CDATA	#REQUIRED
+	name	CDATA	#REQUIRED>
 <!ELEMENT faces (face+)>
 <!ATTLIST faces 
 	count		CDATA	#REQUIRED>

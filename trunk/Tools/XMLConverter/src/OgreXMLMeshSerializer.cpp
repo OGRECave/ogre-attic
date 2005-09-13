@@ -295,6 +295,9 @@ namespace Ogre {
             writeGeometry(geomNode, s->vertexData);
         }
 
+        // texture aliases
+        writeTextureAliases(subMeshNode, s);
+
         // Bone assignments
         if (mpMesh->hasSkeleton())
         {
@@ -494,6 +497,29 @@ namespace Ogre {
 
     }
     //---------------------------------------------------------------------
+    void XMLMeshSerializer::writeTextureAliases(TiXmlElement* mSubmeshesNode, const SubMesh* subMesh)
+    {
+        if (!subMesh->hasTextureAliases())
+            return; // do nothing
+
+        TiXmlElement* textureAliasesNode = 
+            mSubmeshesNode->InsertEndChild(TiXmlElement("textures"))->ToElement();
+
+        // use ogre map iterator
+        SubMesh::AliasTextureIterator aliasIterator = subMesh->getAliasTextureIterator();
+
+        while (aliasIterator.hasMoreElements())
+        {
+            TiXmlElement* aliasTextureNode = 
+                textureAliasesNode->InsertEndChild(TiXmlElement("texture"))->ToElement();
+            // iterator key is alias and value is texture name
+            aliasTextureNode->SetAttribute("alias", aliasIterator.peekNextKey());
+            aliasTextureNode->SetAttribute("name", aliasIterator.peekNextValue());
+            aliasIterator.moveNext();
+        }
+
+    }
+    //---------------------------------------------------------------------
     void XMLMeshSerializer::readSubMeshes(TiXmlElement* mSubmeshesNode)
     {
         LogManager::getSingleton().logMessage("Reading submeshes...");
@@ -609,6 +635,11 @@ namespace Ogre {
                     readGeometry(geomNode, sm->vertexData);
                 }
             }
+
+            // texture aliases
+            TiXmlElement* textureAliasesNode = smElem->FirstChildElement("textures");
+            if(textureAliasesNode)
+                readTextureAliases(textureAliasesNode, sm);
 
             // Bone assignments
             TiXmlElement* boneAssigns = smElem->FirstChildElement("boneassignments");
@@ -903,6 +934,26 @@ namespace Ogre {
         }
 
         LogManager::getSingleton().logMessage("Bone assignments done.");
+    }
+    //---------------------------------------------------------------------
+    void XMLMeshSerializer::readTextureAliases(TiXmlElement* mTextureAliasesNode, SubMesh* subMesh)
+    {
+        LogManager::getSingleton().logMessage("Reading sub mesh texture aliases...");
+
+        // Iterate over all children (texture entries)
+        for (TiXmlElement* elem = mTextureAliasesNode->FirstChildElement();
+             elem != 0; elem = elem->NextSiblingElement())
+        {
+            // pass alias and texture name to submesh
+            // read attribute "alias"
+            String alias = elem->Attribute("alias");
+            // read attribute "name"
+            String name = elem->Attribute("name");
+
+            subMesh->addTextureAlias(alias, name);
+        }
+
+        LogManager::getSingleton().logMessage("Texture aliases done.");
     }
     //---------------------------------------------------------------------
 	void XMLMeshSerializer::readSubMeshNames(TiXmlElement* mMeshNamesNode, Mesh *sm)

@@ -68,6 +68,13 @@ namespace Ogre {
                     // unsigned int vertexIndex;
                     // unsigned short boneIndex;
                     // float weight;
+    			// Optional chunk that matches a texture name to an alias
+                // a texture alias is sent to the submesh material to use this texture name
+                // instead of the one in the texture unit with a matching alias name
+                M_SUBMESH_TEXTURE_ALIAS = 0x4200, // Repeating section
+                    // char* aliasName;
+                    // char* textureName;
+
             M_GEOMETRY          = 0x5000, // NB this chunk is embedded within M_MESH and M_SUBMESH
                 // unsigned int vertexCount
 				M_GEOMETRY_VERTEX_DECLARATION = 0x5100,
