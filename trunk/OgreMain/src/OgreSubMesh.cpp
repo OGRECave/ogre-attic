@@ -32,22 +32,18 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     //-----------------------------------------------------------------------
     SubMesh::SubMesh()
+        : useSharedVertices(true)
+        , vertexData(0)
+        , mMatInitialised(false)
+        , mBoneAssignmentsOutOfDate(false)
+        , operationType(RenderOperation::OT_TRIANGLE_LIST)
     {
-		useSharedVertices = true;
-		vertexData = NULL;
 		indexData = new IndexData();
-        mMatInitialised = false;
-        mBoneAssignmentsOutOfDate = false;
-        operationType = RenderOperation::OT_TRIANGLE_LIST;
-
     }
     //-----------------------------------------------------------------------
     SubMesh::~SubMesh()
     {
-        if (vertexData)
-        {
-            delete vertexData;
-        }
+        delete vertexData;
 		delete indexData;
 
 		removeLodLevels();
@@ -141,6 +137,27 @@ namespace Ogre {
     {
         return BoneAssignmentIterator(mBoneAssignments.begin(),
             mBoneAssignments.end());
+    }
+    //---------------------------------------------------------------------
+    SubMesh::AliasTextureIterator SubMesh::getAliasTextureIterator(void) const
+    {
+        return AliasTextureIterator(mTextureAliases.begin(),
+            mTextureAliases.end());
+    }
+    //---------------------------------------------------------------------
+    void SubMesh::addTextureAlias(const String& aliasName, const String& textureName)
+    {
+        mTextureAliases[aliasName] = textureName;
+    }
+    //---------------------------------------------------------------------
+    void SubMesh::removeTextureAlias(const String& aliasName)
+    {
+        mTextureAliases.erase(aliasName);
+    }
+    //---------------------------------------------------------------------
+    void SubMesh::removeAllTextureAliases(void)
+    {
+        mTextureAliases.clear();
     }
     //---------------------------------------------------------------------
     void SubMesh::removeLodLevels(void)
