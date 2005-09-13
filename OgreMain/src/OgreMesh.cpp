@@ -253,6 +253,8 @@ namespace Ogre {
             // Copy any bone assignments
             newSub->mBoneAssignments = (*subi)->mBoneAssignments;
             newSub->mBoneAssignmentsOutOfDate = (*subi)->mBoneAssignmentsOutOfDate;
+            // Copy texture aliases
+            newSub->mTextureAliases = (*subi)->mTextureAliases;
 
             // Copy lod face lists
             newSub->mLodFaceList.reserve((*subi)->mLodFaceList.size());
