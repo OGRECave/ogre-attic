@@ -932,10 +932,16 @@ namespace Ogre {
         @remarks
             Cubic, 1d, 2d, and 3d textures are determined from current state of the Texture Unit.
             Assumes animated frames are sequentially numbered in the name.
+            If matching texture aliases are found then true is returned.
 
-        @param aliasList is a map container of texture alias, texture name pairs
+        @param
+            aliasList is a map container of texture alias, texture name pairs
+        @param
+            apply set true to apply the texture aliases else just test to see if texture aliases are found.
+        @return
+            True if matching texture aliases were found in the Texture Unit State.
         */
-        void applyTextureAliases(const AliasTextureNamePairList& aliasList);
+        bool applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply = true);
 	
 protected:
         // State
