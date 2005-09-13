@@ -250,6 +250,11 @@ namespace Ogre {
         {
             writeGeometry(s->vertexData);
         }
+
+        // end of sub mesh chunk
+
+        // write out texture alias chunks
+        writeSubMeshTextureAliases(s);
         
         // Operation type
         writeSubMeshOperation(s);
@@ -271,6 +276,30 @@ namespace Ogre {
 
 
     }
+
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::writeSubMeshTextureAliases(const SubMesh* s)
+    {
+        size_t chunkSize;
+        AliasTextureNamePairList::const_iterator i;
+
+		LogManager::getSingleton().logMessage("Exporting submesh texture aliases...");
+
+        // iterate through texture aliases and write them out as a chunk
+        for (i = s->mTextureAliases.begin(); i != s->mTextureAliases.end(); ++i)
+        {
+            // calculate chunk size based on string length + 1.  Add 1 for the line feed.
+            chunkSize = STREAM_OVERHEAD_SIZE + i->first.length() + i->second.length() + 2;
+			writeChunkHeader(M_SUBMESH_TEXTURE_ALIAS, chunkSize);
+            // write out alias name
+            writeString(i->first);
+            // write out texture name
+            writeString(i->second);
+        }
+
+		LogManager::getSingleton().logMessage("Submesh texture aliases exported.");
+    }
+
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSubMeshOperation(const SubMesh* sm)
     {
@@ -383,8 +412,8 @@ namespace Ogre {
 		Mesh::SubMeshNameMap::const_iterator it = pMesh->mSubMeshNameMap.begin();		
 		while(it != pMesh->mSubMeshNameMap.end())
 		{
-			// size of the index
-			size += sizeof(uint16);
+			// size of the index + header size for each element chunk
+			size += STREAM_OVERHEAD_SIZE + sizeof(uint16);
 			// name
 			size += it->first.length() + 1;
 
@@ -461,12 +490,41 @@ namespace Ogre {
             size += calcGeometrySize(pSub->vertexData);
         }
 
+        size += calcSubMeshTextureAliasesSize(pSub);
+        size += calcSubMeshOperationSize(pSub);
+
+        // Bone assignments
+        if (!pSub->mBoneAssignments.empty())
+        {
+            SubMesh::VertexBoneAssignmentList::const_iterator vi;
+            for (vi = pSub->mBoneAssignments.begin(); 
+                 vi != pSub->mBoneAssignments.end(); ++vi)
+            {
+                size += calcBoneAssignmentSize();
+            }
+        }
+
         return size;
     }
     //---------------------------------------------------------------------
     size_t MeshSerializerImpl::calcSubMeshOperationSize(const SubMesh* pSub)
     {
         return STREAM_OVERHEAD_SIZE + sizeof(uint16);
+    }
+    //---------------------------------------------------------------------
+    size_t MeshSerializerImpl::calcSubMeshTextureAliasesSize(const SubMesh* pSub)
+    {
+        size_t chunkSize = 0;
+        AliasTextureNamePairList::const_iterator i;
+
+        // iterate through texture alias map and calc size of strings
+        for (i = pSub->mTextureAliases.begin(); i != pSub->mTextureAliases.end(); ++i)
+        {
+            // calculate chunk size based on string length + 1.  Add 1 for the line feed.
+            chunkSize += STREAM_OVERHEAD_SIZE + i->first.length() + i->second.length() + 2;
+        }
+
+        return chunkSize;
     }
     //---------------------------------------------------------------------
     size_t MeshSerializerImpl::calcGeometrySize(const VertexData* vertexData)
@@ -782,7 +840,6 @@ namespace Ogre {
         // char* materialName
         String materialName = readString(stream);
         sm->setMaterialName(materialName);
-
         // bool useSharedVertices
         readBools(stream,&sm->useSharedVertices, 1);
 
@@ -842,13 +899,14 @@ namespace Ogre {
         }
 
 
-        // Find all bone assignments (if present) 
+        // Find all bone assignments, submesh operation, and texture aliases (if present) 
         if (!stream->eof())
         {
             streamID = readChunk(stream);
             while(!stream->eof() &&
                 (streamID == M_SUBMESH_BONE_ASSIGNMENT ||
-                 streamID == M_SUBMESH_OPERATION))
+                 streamID == M_SUBMESH_OPERATION ||
+                 streamID == M_SUBMESH_TEXTURE_ALIAS))
             {
                 switch(streamID)
                 {
@@ -857,6 +915,9 @@ namespace Ogre {
                     break;
                 case M_SUBMESH_BONE_ASSIGNMENT:
                     readSubMeshBoneAssignment(stream, pMesh, sm);
+                    break;
+                case M_SUBMESH_TEXTURE_ALIAS:
+                    readSubMeshTextureAlias(stream, pMesh, sm);
                     break;
                 }
 
@@ -883,6 +944,13 @@ namespace Ogre {
         unsigned short opType;
         readShorts(stream, &opType, 1);
         sm->operationType = static_cast<RenderOperation::OperationType>(opType);
+    }
+    //---------------------------------------------------------------------
+    void MeshSerializerImpl::readSubMeshTextureAlias(DataStreamPtr& stream, Mesh* pMesh, SubMesh* sub)
+    {
+        String aliasName = readString(stream);
+        String textureName = readString(stream);
+        sub->addTextureAlias(aliasName, textureName);
     }
     //---------------------------------------------------------------------
     void MeshSerializerImpl::writeSkeletonLink(const String& skelName)
