@@ -87,7 +87,7 @@ namespace Ogre {
         /** Moves the iterator on one element. */
         void moveNext(void)
         {
-            mCurrent++;
+            ++mCurrent;
         }
 
 
@@ -166,7 +166,7 @@ namespace Ogre {
         /** Moves the iterator on one element. */
         void moveNext(void)
         {
-            mCurrent++;
+            ++mCurrent;
         }
 
 
@@ -230,7 +230,7 @@ namespace Ogre {
         /** Moves the iterator on one element. */
         void moveNext(void) const
         {
-            mCurrent++;
+            ++mCurrent;
         }
 
 
@@ -309,7 +309,7 @@ namespace Ogre {
         /** Moves the iterator on one element. */
         void moveNext(void) const
         {
-            mCurrent++;
+            ++mCurrent;
         }
 
 
