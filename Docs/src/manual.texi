@@ -413,6 +413,14 @@ Format: transparency_casts_shadows <on|off>@*
 Default: off@*@*
 Whether or not an object casts a shadow is the combination of a number of factors, @xref{Shadows} for full details; however this allows you to make a transparent material cast shadows, when it would otherwise not. For example, when using texture shadows, transparent materials are normally not rendered into the shadow texture because they should not block light. This flag overrides that.
 
+@anchor{set_texture_alias}
+@subheading set_texture_alias
+This attribute associates a texture alias with a texture name.@*@*
+
+Format: set_texture_alias <alias name> <texture name>@*@*
+
+This attribute is used to set the textures used in texture unit states that were copied from another material.(@xref{Copying Materials})@*@*
+
 @node Techniques
 @subsection Techniques
 
@@ -929,6 +937,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @heading Available Texture Layer Attributes
 @itemize @bullet
 @item
+@ref{texture_alias}
+@item
 @ref{texture}
 @item
 @ref{anim_texture}
@@ -969,6 +979,17 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, @xref{External Texture Sources} for details.
 
 @heading Attribute Descriptions
+@anchor{texture_alias}
+@subheading texture_alias
+
+Sets the alias name for this texture unit.@*@*
+
+Format: texture_alias <name>@*@*
+
+Example: texture_alias NormalMap@*@*
+
+Setting the texture alias name is usefull if this material is to be copied by other other materials and only the textures will be changed in the new material.(@xref{Copying Materials})@*@*
+
 @anchor{texture}
 @subheading texture
 
@@ -1523,58 +1544,61 @@ example: param_indexed_auto 0 worldviewproj_matrix@*@*
 @table @asis
 @item world_matrix
 The current world matrix.
-@item world_matrix_array_3x4
-An array of world matrices, each represented as only a 3x4 matrix (3 rows of 4columns) usually for doing hardware skinning. You should make enough entries available in your vertex program for the number of bones in use, ie an array of numBones*3 float4's.
-@item view_matrix
-The current view matrix.
-@item projection_matrix
-The current projection matrix.
-@item worldview_matrix
-The current world and view matrices concatenated.
-@item viewproj_matrix
-The current view and projection matrices concatenated.
-@item worldviewproj_matrix
-The current world, view and projection matrices concatenated.
 @item inverse_world_matrix
 The inverse of the current world matrix.
-@item inverse_view_matrix
-The inverse of the current view matrix.
-@item inverse_worldview_matrix
-The inverse of the current concatenated world and view matrices.
-@item inverse_transpose_world_matrix
-The inverse transpose of the current world matrix.
-@item inverse_transpose_worldview_matrix
-The inverse transpose of the current concatenated world and view matrices.
-@item inverse_viewproj_matrix
-The inverse of the view & projection matrices
-@item inverse_transpose_viewproj_matrix
-The inverse transpose of the view & projection matrices
-@item transpose_viewproj_matrix
-The transpose of the view & projection matrices
-@item transpose_view_matrix
-The transpose of the view matrix
-@item inverse_transpose_view_matrix
-The inverse transpose of the view matrix
-@item transpose_projection_matrix
-The transpose of the projection matrix
-@item inverse_projection_matrix
-The inverse of the projection matrix
-@item inverse_transpose_projection_matrix
-The inverse transpose of the projection matrix
-@item transpose_worldviewproj_matrix
-The transpose of the world, view and projection matrices
-@item inverse_worldviewproj_matrix
-The inverse of the world, view and projection matrices
-@item inverse_transpose_worldviewproj_matrix
-The inverse transpose of the world, view and projection matrices
-@item transpose_worldview_matrix
-The transpose of the world and view matrices
-@item inverse_transpose_worldview_matrix
-The inverse transpose of the world and view matrices
 @item transpose_world_matrix
 The transpose of the world matrix
 @item inverse_transpose_world_matrix
 The inverse transpose of the world matrix
+
+@item world_matrix_array_3x4
+An array of world matrices, each represented as only a 3x4 matrix (3 rows of 4columns) usually for doing hardware skinning. You should make enough entries available in your vertex program for the number of bones in use, ie an array of numBones*3 float4's.
+
+@item view_matrix
+The current view matrix.
+@item inverse_view_matrix
+The inverse of the current view matrix.
+@item transpose_view_matrix
+The transpose of the view matrix
+@item inverse_transpose_view_matrix
+The inverse transpose of the view matrix
+
+@item projection_matrix
+The current projection matrix.
+@item inverse_projection_matrix
+The inverse of the projection matrix
+@item transpose_projection_matrix
+The transpose of the projection matrix
+@item inverse_transpose_projection_matrix
+The inverse transpose of the projection matrix
+
+@item worldview_matrix
+The current world and view matrices concatenated.
+@item inverse_worldview_matrix
+The inverse of the current concatenated world and view matrices.
+@item transpose_worldview_matrix
+The transpose of the world and view matrices
+@item inverse_transpose_worldview_matrix
+The inverse transpose of the current concatenated world and view matrices.
+
+@item viewproj_matrix
+The current view and projection matrices concatenated.
+@item inverse_viewproj_matrix
+The inverse of the view & projection matrices
+@item transpose_viewproj_matrix
+The transpose of the view & projection matrices
+@item inverse_transpose_viewproj_matrix
+The inverse transpose of the view & projection matrices
+
+@item worldviewproj_matrix
+The current world, view and projection matrices concatenated.
+@item inverse_worldviewproj_matrix
+The inverse of the world, view and projection matrices
+@item transpose_worldviewproj_matrix
+The transpose of the world, view and projection matrices
+@item inverse_transpose_worldviewproj_matrix
+The inverse transpose of the world, view and projection matrices
+
 @item light_diffuse_colour
 The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light - note that directional lights are always first in the list and always present). NB if there are no lights this close, then the parameter will be set to black.
 @item light_specular_colour
