@@ -23,7 +23,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include,C:\Program Files\Alias\Maya6.5\include"
+				AdditionalIncludeDirectories="..\include;C:\Programmi\Alias\Maya6.5\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NT_PLUGIN"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -45,7 +45,7 @@
 				OutputFile="Debug\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="C:\Program Files\Alias\Maya6.5\lib"
+				AdditionalLibraryDirectories="C:\Programmi\Alias\Maya6.5\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile=".\Debug/ogreExporter.pdb"
 				SubSystem="2"
@@ -92,7 +92,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya6.5\include&quot;"
+				AdditionalIncludeDirectories="..\include;C:\Programmi\Alias\Maya6.5\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -114,7 +114,7 @@
 				OutputFile="..\bin\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="C:\Program Files\Alias\Maya6.5\lib"
+				AdditionalLibraryDirectories="C:\Programmi\Alias\Maya6.5\lib"
 				ProgramDatabaseFile=".\Release/ogreExporter.pdb"
 				SubSystem="2"
 				ImportLibrary=".\Release/ogreExporter.lib"
@@ -156,24 +156,13 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
 			<File
+				RelativePath="..\src\material.cpp">
+			</File>
+			<File
+				RelativePath="..\src\mesh.cpp">
+			</File>
+			<File
 				RelativePath="..\src\ogreExporter.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\paramlist.cpp">
@@ -196,49 +185,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\transferMesh.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"/>
-				</FileConfiguration>
+				RelativePath="..\src\skeleton.cpp">
 			</File>
 			<File
-				RelativePath="..\src\transferSkeleton.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"
-						BasicRuntimeChecks="3"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"/>
-				</FileConfiguration>
+				RelativePath="..\src\submesh.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\include\material.h">
+			</File>
+			<File
+				RelativePath="..\include\materialSet.h">
+			</File>
+			<File
+				RelativePath="..\include\mayaExportLayer.h">
+			</File>
+			<File
+				RelativePath="..\include\mesh.h">
+			</File>
 			<File
 				RelativePath="..\include\ogreExporter.h">
 			</File>
@@ -246,10 +213,13 @@
 				RelativePath="..\include\paramlist.h">
 			</File>
 			<File
-				RelativePath="..\include\transferMesh.h">
+				RelativePath="..\include\singleton.h">
 			</File>
 			<File
-				RelativePath="..\include\transferSkeleton.h">
+				RelativePath="..\include\skeleton.h">
+			</File>
+			<File
+				RelativePath="..\include\submesh.h">
 			</File>
 		</Filter>
 		<Filter
