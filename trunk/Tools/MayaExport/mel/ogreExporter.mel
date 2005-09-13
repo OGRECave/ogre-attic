@@ -69,6 +69,11 @@ global proc runOgreExport()
 		$options += " -mesh";
 		$options += " \"" + encodeString(toNativePath($outputDir+$meshFile)) + "\"";
 
+		if (`checkBox -query -value UseSharedGeometry`)
+		{
+			$options += " -shared";
+		}
+
             if (`checkBox -query -value ExportVBA`)
 		{
 			$options += " -v";
@@ -186,6 +191,7 @@ global proc formatUI()
 
 	// --- Mesh Export
 	int $exportMesh = `checkBox -q -v ExportMesh`;
+	checkBox -edit -enable $exportMesh UseSharedGeometry;
       checkBox -edit -enable $exportMesh ExportVBA;
 	checkBox -edit -enable $exportMesh ExportMeshNormals;
 	checkBox -edit -enable $exportMesh ExportMeshColours;
@@ -407,6 +413,13 @@ global proc defineUIView()
 					-changeCommand "formatUI"
 					-label "Export mesh to Ogre XML format"
 				ExportMesh;
+
+				checkBox
+					-parent MeshLayout
+					-value false
+					-changeCommand "formatUI"
+					-label "Use shared geometry"
+				UseSharedGeometry;
 
                         checkBox
 					-parent MeshLayout
@@ -988,6 +1001,7 @@ global proc saveSettings()
 
 	// Mesh
 	fileInfo "ogreExporter_exportMesh" `checkBox -q -v ExportMesh`;
+	fileInfo "ogreExporter_useSharedGeom" `checkBox -q -v UseSharedGeometry`;
 	fileInfo "ogreExporter_exportVBA" `checkBox -q -v ExportVBA`;
 	fileInfo "ogreExporter_exportNormals" `checkBox -q -v ExportMeshNormals`;
 	fileInfo "ogreExporter_exportColours" `checkBox -q -v ExportMeshColours`;
@@ -1056,6 +1070,8 @@ global proc loadSettings()
 		// Mesh
 		$valStrings = `fileInfo -q "ogreExporter_exportMesh"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportMesh;
+		$valStrings = `fileInfo -q "ogreExporter_useSharedGeom"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` UseSharedGeometry;
 		$valStrings = `fileInfo -q "ogreExporter_exportVBA"`;
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportVBA;
 		$valStrings = `fileInfo -q "ogreExporter_exportNormals"`;
@@ -1161,6 +1177,7 @@ global proc defaultSettings()
 
 	// Mesh
 	checkBox -edit -v 0 ExportMesh;
+	checkBox -edit -v 1 UseSharedGeometry;
 	checkBox -edit -v 1 ExportVBA;
 	checkBox -edit -v 1 ExportMeshNormals;
 	checkBox -edit -v 0 ExportMeshColours;
