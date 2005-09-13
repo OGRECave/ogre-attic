@@ -775,16 +775,19 @@ namespace Ogre {
 	}
 
     //-----------------------------------------------------------------------
-    void Technique::applyTextureAliases(const AliasTextureNamePairList& aliasList) const
+    bool Technique::applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply) const
     {
         // iterate through passes and apply texture alias
         Passes::const_iterator i, iend;
         iend = mPasses.end();
+        bool testResult = false;
 
         for(i = mPasses.begin(); i != iend; ++i)
         {
-			(*i)->applyTextureAliases(aliasList);
+			testResult = testResult || (*i)->applyTextureAliases(aliasList, apply);
         }
+
+        return testResult;
     }
 
 }

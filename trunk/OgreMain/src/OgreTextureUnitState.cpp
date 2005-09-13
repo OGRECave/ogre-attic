@@ -1043,8 +1043,9 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void TextureUnitState::applyTextureAliases(const AliasTextureNamePairList& aliasList)
+    bool TextureUnitState::applyTextureAliases(const AliasTextureNamePairList& aliasList, const bool apply)
     {
+        bool testResult = false;
         // if TUS has an alias see if its in the alias container
         if (!mTextureNameAlias.empty())
         {
@@ -1054,25 +1055,32 @@ namespace Ogre {
             if (aliasEntry != aliasList.end())
             {
                 // match was found so change the texture name in mFrames
-                // currently assumes animated frames are sequentially numbered
-                // cubic, 1d, 2d, and 3d textures are determined from current TUS state
-                
-                // if cubic or 3D
-                if (mCubic)
+                testResult = true;
+
+                if (apply)
                 {
-                    setCubicTextureName(aliasEntry->second, mTextureType == TEX_TYPE_CUBE_MAP);
-                }
-                else
-                {
-                    // if more than one frame then assume animated frames
-                    if (mFrames.size() > 1)
-                        setAnimatedTextureName(aliasEntry->second, mFrames.size(), mAnimDuration);
+                    // currently assumes animated frames are sequentially numbered
+                    // cubic, 1d, 2d, and 3d textures are determined from current TUS state
+                    
+                    // if cubic or 3D
+                    if (mCubic)
+                    {
+                        setCubicTextureName(aliasEntry->second, mTextureType == TEX_TYPE_CUBE_MAP);
+                    }
                     else
-                        setTextureName(aliasEntry->second, mTextureType, mTextureSrcMipmaps);
+                    {
+                        // if more than one frame then assume animated frames
+                        if (mFrames.size() > 1)
+                            setAnimatedTextureName(aliasEntry->second, mFrames.size(), mAnimDuration);
+                        else
+                            setTextureName(aliasEntry->second, mTextureType, mTextureSrcMipmaps);
+                    }
                 }
                 
             }
         }
+
+        return testResult;
     }
 
 }
