@@ -520,6 +520,15 @@ namespace Ogre {
 					node->_getDerivedScale());
 			}
 		}
+		// Iterate through all the child-nodes
+		SceneNode::ConstChildNodeIterator nodei = node->getChildIterator();
+
+		while (nodei.hasMoreElements())
+		{
+			const SceneNode* node = static_cast<const SceneNode*>(nodei.getNext());
+			// Add this subnode and its children...
+			addSceneNode( node );
+		} 
 	}
 	//--------------------------------------------------------------------------
 	void StaticGeometry::build(void)

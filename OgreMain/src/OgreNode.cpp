@@ -717,6 +717,11 @@ namespace Ogre {
     {
         return ChildNodeIterator(mChildren.begin(), mChildren.end());
     }
+	//-----------------------------------------------------------------------
+	Node::ConstChildNodeIterator Node::getChildIterator(void) const
+	{
+		return ConstChildNodeIterator(mChildren.begin(), mChildren.end());
+	}
     //-----------------------------------------------------------------------
     void Node::_weightedTransform(Real weight, const Vector3& translate, 
        const Quaternion& rotate, const Vector3& scale)
