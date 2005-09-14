@@ -156,6 +156,7 @@ namespace Ogre {
 	{
 		OGRE_LOCK_AUTO_MUTEX
 
+
 		// Overridden to ensure edge lists get built from manual or
 		// loaded meshes
 		Resource::load();
@@ -173,6 +174,7 @@ namespace Ogre {
 				buildEdgeList();
 			}
 		}
+
 	}
 	//-----------------------------------------------------------------------
     void Mesh::loadImpl()
@@ -184,7 +186,13 @@ namespace Ogre {
         DataStreamPtr stream = 
             ResourceGroupManager::getSingleton().openResource(mName, mGroup);
         serializer.importMesh(stream, this);
-
+        
+        /* check all submeshes to see if their materials should be
+           updated.  If the submesh has texture aliases that match those
+           found in the current material then a new material is created using
+           the textures from the submesh.
+        */
+        updateMaterialForAllSubMeshes();
     }
 
     //-----------------------------------------------------------------------
@@ -1932,5 +1940,16 @@ namespace Ogre {
 		}
 	}
 
+	//---------------------------------------------------------------------
+	void Mesh::updateMaterialForAllSubMeshes(void)
+	{
+        // iterate through each sub mesh and request the submesh to update its material
+        std::vector<SubMesh*>::iterator subi;
+        for (subi = mSubMeshList.begin(); subi != mSubMeshList.end(); ++subi)
+        {
+            (*subi)->updateMaterialUsingTextureAliases();
+        }
+
+    }
 }
 
