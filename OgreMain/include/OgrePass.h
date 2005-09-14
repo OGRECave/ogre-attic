@@ -991,7 +991,7 @@ namespace Ogre {
         @param
             aliasList is a map container of texture alias, texture name pairs
         @param
-            apply set true to apply the texture aliases else just test to see if texture aliases are found.
+            apply set true to apply the texture aliases else just test to see if texture alias matches are found.
         @return
             True if matching texture aliases were found in the pass.
         */
