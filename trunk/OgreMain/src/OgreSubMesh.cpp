@@ -28,6 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMesh.h"
 #include "OgreException.h"
 #include "OgreMeshManager.h"
+#include "OgreMaterialManager.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -158,6 +159,44 @@ namespace Ogre {
     void SubMesh::removeAllTextureAliases(void)
     {
         mTextureAliases.clear();
+    }
+    //---------------------------------------------------------------------
+    bool SubMesh::updateMaterialUsingTextureAliases(void)
+    {
+        bool newMaterialCreated = false;
+        // if submesh has texture aliases
+        // ask the material manager if the current summesh material exists
+        if (hasTextureAliases() && MaterialManager::getSingleton().resourceExists(mMaterialName))
+        {
+            // get the current submesh material
+            MaterialPtr material = MaterialManager::getSingleton().getByName( mMaterialName );
+            // get test result for if change will occur when the texture aliases are applied
+            if (material->applyTextureAliases(mTextureAliases, false))
+            {
+                // material textures will be changed so copy material,
+                // new material name is old material name + index
+                // check with material manager and find a unique name
+                size_t index = 0;
+                String newMaterialName = mMaterialName + "_" + StringConverter::toString(index);
+                while (MaterialManager::getSingleton().resourceExists(newMaterialName))
+                {
+                    // increment index for next name
+                    newMaterialName = mMaterialName + "_" + StringConverter::toString(++index);
+                }
+
+                Ogre::MaterialPtr newMaterial = Ogre::MaterialManager::getSingleton().create(
+                    newMaterialName, material->getGroup());
+                // copy parent material details to new material
+                material->copyDetailsTo(newMaterial);
+                // apply texture aliases to new material
+                newMaterial->applyTextureAliases(mTextureAliases);
+                // place new material name in submesh
+                setMaterialName(newMaterialName);
+                newMaterialCreated = true;
+            }
+        }
+
+        return newMaterialCreated;
     }
     //---------------------------------------------------------------------
     void SubMesh::removeLodLevels(void)
