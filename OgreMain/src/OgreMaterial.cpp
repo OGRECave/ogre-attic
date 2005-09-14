@@ -111,7 +111,7 @@ namespace Ogre {
 		mLodDistances = rhs.mLodDistances;
 
         mCompilationRequired = rhs.mCompilationRequired; 
-        assert(mIsLoaded == rhs.mIsLoaded);
+        //assert(mIsLoaded == rhs.mIsLoaded);
 
 	    return *this;
     }
@@ -673,7 +673,8 @@ namespace Ogre {
 
 		for (i = mTechniques.begin(); i != iend; ++i)
 		{
-			testResult = testResult || (*i)->applyTextureAliases(aliasList, apply);
+            if ((*i)->applyTextureAliases(aliasList, apply))
+                testResult = true;
 		}
 
         return testResult;

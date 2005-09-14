@@ -163,6 +163,19 @@ namespace Ogre {
         /** Gets the number of texture aliases assigned to the sub mesh.
         */
         size_t getTextureAliasCount(void) const { return mTextureAliases.size(); }
+
+        /**  The current material used by the submesh is copied into a new material
+            and the submesh's texture aliases are applied if the current texture alias
+            names match those found in the original material.
+        @remarks
+            The submesh's texture aliases must be setup prior to calling this method.
+            If a new material has to be created, the subMesh autogenerates the new name.
+            The new name is the old name + "_" + number.
+        @return 
+            True if texture aliases were applied and a new material was created.
+        */
+        bool updateMaterialUsingTextureAliases(void);
+
     protected:
 
         /// Name of the material this SubMesh uses.

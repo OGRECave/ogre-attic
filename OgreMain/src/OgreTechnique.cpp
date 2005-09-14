@@ -784,7 +784,8 @@ namespace Ogre {
 
         for(i = mPasses.begin(); i != iend; ++i)
         {
-			testResult = testResult || (*i)->applyTextureAliases(aliasList, apply);
+            if ((*i)->applyTextureAliases(aliasList, apply))
+                testResult = true;
         }
 
         return testResult;
