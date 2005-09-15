@@ -51,6 +51,14 @@ namespace Ogre {
 	{
 		if (!mLinked)
 		{
+            // if performing skeletal animation (hardware skinning) then bind default vertex attribute names
+            // note that attribute binding has to occur prior to final link of shader objects
+            if (mSkeletalAnimation)
+            {
+                glBindAttribLocationARB(mGLHandle, 7, "BlendIndex");
+                glBindAttribLocationARB(mGLHandle, 1, "BlendWeight");
+            }
+
 			glLinkProgramARB( mGLHandle );
 			glGetObjectParameterivARB( mGLHandle, GL_OBJECT_LINK_STATUS_ARB, &mLinked );
 			// force logging and raise exception if not linked
@@ -76,9 +84,8 @@ namespace Ogre {
 		if (!mUniformRefsBuilt)
 		{
 			// scan through the active uniforms and add them to the reference list
-			GLint    uniformCount;
-			GLint  size;
-			//GLenum type;
+			GLint uniformCount;
+
 			#define BUFFERSIZE 100
 			char   uniformName[BUFFERSIZE];
 			//GLint location;
@@ -92,7 +99,7 @@ namespace Ogre {
 			// only do this for user defined uniforms, ignore built in gl state uniforms
 			for (int index = 0; index < uniformCount; index++)
 			{
-				glGetActiveUniformARB(mGLHandle, index, BUFFERSIZE, NULL, &size, &newUniformReference.mType, uniformName);
+				glGetActiveUniformARB(mGLHandle, index, BUFFERSIZE, NULL, &newUniformReference.mArraySize, &newUniformReference.mType, uniformName);
 				// don't add built in uniforms 
 				newUniformReference.mLocation = glGetUniformLocationARB(mGLHandle, uniformName);
 				if (newUniformReference.mLocation >= 0)
@@ -175,6 +182,9 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void GLSLLinkProgram::updateUniforms(GpuProgramParametersSharedPtr params)
 	{
+        // float array buffer used to pass arrays to GL
+        static float floatBuffer[256];
+
 		// iterate through uniform reference list and update uniform values
 		UniformReferenceIterator currentUniform = mUniformReferences.begin();
 		UniformReferenceIterator endUniform = mUniformReferences.end();
@@ -222,25 +232,25 @@ namespace Ogre {
 
                         case 9:
                             {
-                                float mat[9];
+                                //float mat[9];
                                 // assume that the 3x3 matrix is packed
-                                memcpy(mat, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(mat + 4, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(mat + 4, currentRealConstant->val, sizeof(float) );
+                                memcpy(floatBuffer, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(floatBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(floatBuffer + 4, currentRealConstant->val, sizeof(float) );
 
-                                glUniformMatrix3fvARB( currentUniform->mLocation, 1, GL_TRUE, mat);
+                                glUniformMatrix3fvARB( currentUniform->mLocation, 1, GL_TRUE, floatBuffer);
                                 break;
                             }
 
                         case 16:
                             {
-                                float mat[16];
-                                memcpy(mat, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(mat + 4, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(mat + 8, currentRealConstant++->val, sizeof(float) * 4);
-                                memcpy(mat + 12, currentRealConstant->val, sizeof(float) * 4);
+                                //float mat[16];
+                                memcpy(floatBuffer, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(floatBuffer + 4, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(floatBuffer + 8, currentRealConstant++->val, sizeof(float) * 4);
+                                memcpy(floatBuffer + 12, currentRealConstant++->val, sizeof(float) * 4);
 
-                                glUniformMatrix4fvARB( currentUniform->mLocation, 1, GL_TRUE, mat);
+                                glUniformMatrix4fvARB( currentUniform->mLocation, 1, GL_TRUE, floatBuffer);
                                 break;
                             }
 
