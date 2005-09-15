@@ -3,11 +3,9 @@ INCLUDES = $(STLPORT_CFLAGS) -I$(top_srcdir)/Samples/DeferredShading/include -I$
 noinst_PROGRAMS = DeferredShading
 DeferredShading_SOURCES = DeferredShading.cpp \
 DeferredShadingDemo.cpp \
-OgrePostFilter/OgrePostFilter.cpp \
-OgrePostFilter/OgrePostFilterManager.cpp \
-OgrePostFilter/OgrePostFilterPass.cpp \
-OgrePostFilter/OgrePostFilterRenderer.cpp \
-OgrePostFilter/OgrePostFilterShared.cpp
+LightMaterialGenerator.cpp \
+MaterialGenerator.cpp \
+MLight.cpp
 
 DeferredShading_LDFLAGS = -L$(top_builddir)/OgreMain/src
 DeferredShading_LDADD = -lOgreMain
