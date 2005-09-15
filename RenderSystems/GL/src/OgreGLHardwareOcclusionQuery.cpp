@@ -36,114 +36,58 @@ namespace Ogre {
   *
   * Updated on 12/7/2004 by Chris McGuirk
   * - Implemented ARB_occlusion_query
-  * Updated on 4/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
+  * Updated on 13/9/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
   */
-
+//------------------------------------------------------------------
 /**
   * Default object constructor
   * 
   */
 GLHardwareOcclusionQuery::GLHardwareOcclusionQuery() 
 { 
-	mPixelCount = 0; 
-	mSkipCounter = 0;
-	mSkipInterval = 0;
-
 	// Check for hardware occlusion support
 	// This is a hack to see if hw occlusion is supported. pointer is 0 if it's not supported.
-    if(glGenQueriesARB != 0)
+    if (glGenQueriesARB == 0)
     {
-		mHasOcclusionSupport = true;
-	}
-	else
-	{
-		mHasOcclusionSupport = false;
-	}
-
-	if(mHasOcclusionSupport)
-	{
-		glGenQueriesARB(1, &mQueryID );	
-	}
+        OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, 
+                    "Cannot allocate a Hardware query. This video card doesn't supports it, sorry.", 
+                    "GLHardwareOcclusionQuery::GLHardwareOcclusionQuery" );
+    }
+    glGenQueriesARB(1, &mQueryID );	
+	
 }
-
+//------------------------------------------------------------------
 /**
   * Object destructor
   */
 GLHardwareOcclusionQuery::~GLHardwareOcclusionQuery() 
 { 
-	if( mHasOcclusionSupport )
-	{
-		glDeleteQueriesARB(1, &mQueryID);  
-	}	
+	glDeleteQueriesARB(1, &mQueryID);  
 }
-
 //------------------------------------------------------------------
-// Occlusion query functions (see base class documentation for this)
-//--
 void GLHardwareOcclusionQuery::beginOcclusionQuery() 
 { 
-	// Make it fail silently if hardware occlusion isn't supported
-	if(mHasOcclusionSupport)
-	{
-		// Counter starts at 0 again at mSkipInterval 
-		if(mSkipCounter == mSkipInterval) 
-		{ 
-			mSkipCounter = 0; 
-		}
-
-		if ( mSkipCounter == 0)
-		{
-			glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryID);
-		}
-	}
+	glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryID);
 }
-	
+//------------------------------------------------------------------
 void GLHardwareOcclusionQuery::endOcclusionQuery() 
 { 
-	// Make it fail silently if hardware occlusion isn't supported
-	if(mHasOcclusionSupport)
-	{
-		if( mSkipCounter == 0)
-		{
-			glEndQueryARB(GL_SAMPLES_PASSED_ARB);
-		}
-
-		mSkipCounter++;
-	}
+    glEndQueryARB(GL_SAMPLES_PASSED_ARB);
 }
-
 //------------------------------------------------------------------
-// OpenGL dosn't use the flag parameter.
-//------------------------------------------------------------------
-bool GLHardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag  ) 
+bool GLHardwareOcclusionQuery::pullOcclusionQuery( unsigned int* NumOfFragments ) 
 {
-	if( mHasOcclusionSupport )	// Make it fail silently if hardware occlusion isn't supported
-	{
-		glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_ARB, (GLuint*)NumOfFragments);
-	}
-	else
-	{
-		*NumOfFragments = 100000;		// Fails quietly -> every object tested is visible.
-	}
-
-	mPixelCount = *NumOfFragments; 
-	
+	glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_ARB, (GLuint*)NumOfFragments);
+	mPixelCount = *NumOfFragments;
 	return true;
 }
 //------------------------------------------------------------------
 bool GLHardwareOcclusionQuery::isStillOutstanding(void)
-{   
-   if(mHasOcclusionSupport)
-   {
+{    
       GLuint available;
 
       glGetQueryObjectuivARB(mQueryID, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-      return !(available == GL_TRUE);
-   }
-   else
-   {
-      return false;   
-   }
+      return !(available == GL_TRUE);  
 } 
 
 }
