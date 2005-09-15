@@ -100,6 +100,7 @@ namespace Ogre {
 				if (mActiveVertexGpuProgram)
 				{
 					mActiveVertexGpuProgram->getGLSLProgram()->attachToProgramObject( mActiveLinkProgram->getGLHandle() );
+                    mActiveLinkProgram->setSkeletalAnimationIncluded(mActiveVertexGpuProgram->isSkeletalAnimationIncluded());
 				}
 
 				if (mActiveFragmentGpuProgram)
