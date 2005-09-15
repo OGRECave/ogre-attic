@@ -363,6 +363,12 @@ copy $(OutDir)\$(TargetFileName) ..\..\Tools\Common\bin\$(ConfigurationName)
 					Name="Debug|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm400"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
 						AdditionalOptions="/Zm200"/>
 				</FileConfiguration>
 			</File>
