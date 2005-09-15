@@ -31,21 +31,13 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 
-/**
-  * Hardware occlusion query flags
-  */
-typedef enum _OCCLUSIONQUERY 
-{
-	HWOCCLUSIONQUERY_FLUSH,   /** Direct3D uses this, but not OpenGL */
-	HWOCCLUSIONQUERY_NOFLUSH, /** To decide if the driver should flush all batched API calls to serve an occlusion query faster. */
-} HW_OCCLUSIONQUERY;
 
 /**
   * This is a abstract class that that provides the interface for the query class for 
   * hardware occlusion.
   *
   * @author Lee Sandberg
-  * Updated on 4/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
+  * Updated on 13/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
   */
 class _OgreExport HardwareOcclusionQuery
 {
@@ -82,8 +74,6 @@ public:
 	  *				Results must be pulled using:
 	  *				UINT	m_uintNumberOfPixelsVisable;
 	  *				pullOcclusionQuery( &m_dwNumberOfPixelsVisable );
-	  *				You may not get the result directly after the first pass or frame.
-	  *				Objects not visible must be tested every frame, visible objects may be tested less frequently.
 	  *			
 	  */
 	virtual void beginOcclusionQuery() = 0;
@@ -97,41 +87,31 @@ public:
       * Pulls the hardware occlusion query too see if there is a result.
       * @retval NumOfFragments will get the resulting number of fragments.
       * @return True if success or false if not.
-	  * @Remarks In DX9 mode specifying OCCLUSIONQUERY_FLUSH as the flag, will case the driver to flush whatever API calls are batched.
-	  * In OpenGL mode it makes no difference if you specify OCCLUSIONQUERY_FLUSH or OCCLUSIONQUERY_NOFLUSH.
       */
-	virtual bool pullOcclusionQuery(unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag = HWOCCLUSIONQUERY_FLUSH) = 0;
+	virtual bool pullOcclusionQuery(unsigned int* NumOfFragments) = 0;
 
 	/**
 	  * Let's you get the last pixel count with out doing the hardware occlusion test
 	  * @return The last fragment count from the last test.
 	  * Remarks This function won't give you new values, just the old value.
 	  */
-	virtual unsigned int getLastQuerysPixelcount() = 0;
+	unsigned int getLastQuerysPixelcount() const { return mPixelCount; }
 
 	/**
 	  * Lets you know when query is done, or still be processed by the Hardware
 	  * @return true if query isn't finished.
 	  */
 	 virtual bool HardwareOcclusionQuery::isStillOutstanding(void) = 0; 
-	/**
-	  *   
-	  * @Remarks This function allows you to set how often the hardware occlusion really are sent to the driver
-	  * if you set it to 0 every hardware occlusion test is actually made. If you set it to 1 only the half of your queries are sent 
-	  * for all visible objects. 2 will result in 25% of all queries to actually be sent. 
-	  * New and none visible objects will be tested all the time.
-	  * This functionality is here because this class can keep track on visible and none visible objects for you.
-	  * Once you you set the SkipRate for any hardware occlusion instance it effects all others.
-	  */
 
-	virtual void	setSkipRate( int skip ) = 0;
-	virtual int		getSkipRate() = 0;
 
-//----------------------------------------------------------------------
-// Private members
-//--
-private:
-
+    //----------------------------------------------------------------------
+    // protected members
+    //--
+    protected :
+        // numbers of visible pixels determined by last query
+        unsigned int mPixelCount;
+        // is query hasn't yet returned a result.
+		bool		 mIsQueryResultStillOutstanding;
 };
 
 }

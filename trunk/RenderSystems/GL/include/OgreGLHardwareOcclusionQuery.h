@@ -63,7 +63,7 @@ namespace Ogre {
   * hardware occlusion.
   *
   * @author Lee Sandberg email: lee@abcmedia.se
-  * Updated on 4/8/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
+  * Updated on 13/9/2005 by Tuan Kuranes email: tuan.kuranes@free.fr
   */
 
 class GLHardwareOcclusionQuery : public HardwareOcclusionQuery
@@ -85,43 +85,18 @@ public:
 	//------------------------------------------------------------------
 	// Occlusion query functions (see base class documentation for this)
 	//--
-
 	void beginOcclusionQuery();
 	void endOcclusionQuery();
-	bool pullOcclusionQuery( unsigned int* NumOfFragments, const HW_OCCLUSIONQUERY flag  ); 
-	unsigned int getLastQuerysPixelcount() { return mPixelCount; }
+	bool pullOcclusionQuery( unsigned int* NumOfFragments); 
 	bool isStillOutstanding(void);
 
-	// This functions are optional, it's a simple filter that simply skips some hardware occlusion tests on visible objects only
-	// It's easy to use if you don't have to keep track on which objects are visible (can be skipped) and what objects arn't visible..
-	// (None visible objects and object you introduce for the first time have always to be tested although the cheapest possible 
-	// LOD (Level Of Detail) mesh and material wise). 
 
-	/**
-	  *   
-	  * Remarks This function allows you to set how often the hardware occlusion really sent to the driver
-	  * if you set it to 0 every hardware occlusion test is actually made. If you set it to 2 only 50% of your queries are sent. 
-	  * for all visible objects. 3 will result in 33% of all queries to actually be sent and so on. 
-	  * New and none visible objects will be tested all the time.
-	  * This functionality is here because this class can keep track on visible and none visible objects for you.
-	  * Once you you set the SkipRate for any hardware occlusion instance it effects all others.
-	  */
+    //----------------------------------------------------------------------
+    // private members
+    //--
+    private:
 
-	void setSkipRate( int skip ) { mSkipInterval = skip; }		// Using 2 only 50 % of the tests are actually made and 3 results in only 33% of the tests. So on.
-	int	 getSkipRate() { return mSkipInterval; } 
-
-
-//----------------------------------------------------------------------
-// Protected members
-//--
-protected:
-
-	unsigned int	mPixelCount;
-	GLuint			mQueryID;
-	bool			m_bOcclusionQuery;
-	int				mSkipCounter;
-	int				mSkipInterval;
-	bool			mHasOcclusionSupport;
+	    GLuint			mQueryID;
 };
 
 }
