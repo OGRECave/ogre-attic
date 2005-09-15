@@ -33,7 +33,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 
-#define DINPUT_BUFFERSIZE  16
+#define DINPUT_BUFFERSIZE  64
 
 namespace Ogre {
     //-----------------------------------------------------------------------
