@@ -394,6 +394,7 @@ namespace Ogre {
             String name;
             size_t entryIndex;
             size_t elementCount;
+            size_t arraySize;
             ElementType elementType;
             size_t autoIndex;
             bool   isAllocated;
@@ -402,6 +403,7 @@ namespace Ogre {
             ConstantDefinition()
                 : entryIndex(0)
                 , elementCount(0)
+                , arraySize(1)
                 , elementType(ET_INT)
                 , autoIndex(0)
                 , isAllocated(false)
