@@ -132,8 +132,18 @@ namespace Ogre {
         newBill->setColour(colour);
         newBill->_notifyOwner(this);
 
-        _updateBounds();
+		// Merge into bounds
+		Real adjust = std::max(mDefaultWidth, mDefaultHeight);
+        Vector3 vecAdjust(adjust, adjust, adjust);
+		Vector3 newMin = position - vecAdjust;
+		Vector3 newMax = position + vecAdjust;
+		
+        mAABB.merge(newMin);
+        mAABB.merge(newMax);
 
+		Real sqlen = std::max(newMin.squaredLength(), newMax.squaredLength());
+		mBoundingRadius = std::max(mBoundingRadius, Math::Sqrt(sqlen));
+		
         return newBill;
     }
 
