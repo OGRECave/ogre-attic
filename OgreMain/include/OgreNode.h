@@ -63,6 +63,7 @@ namespace Ogre {
         };
         typedef HashMap<String, Node*> ChildNodeMap;
         typedef MapIterator<ChildNodeMap> ChildNodeIterator;
+		typedef ConstMapIterator<ChildNodeMap> ConstChildNodeIterator;
 
     protected:
         /// Pointer to parent node
@@ -476,6 +477,18 @@ namespace Ogre {
             the iterator IS allowed and does not invalidate the iterator.
         */
         virtual ChildNodeIterator getChildIterator(void);
+
+        /** Retrieves an iterator for efficiently looping through all children of this node.
+        @remarks
+            Using this is faster than repeatedly calling getChild if you want to go through
+            all (or most of) the children of this node.
+            Note that the returned iterator is only valid whilst no children are added or
+            removed from this node. Thus you should not store this returned iterator for
+            later use, nor should you add / remove children whilst iterating through it;
+            store up changes for later. Note that calling methods on returned items in 
+            the iterator IS allowed and does not invalidate the iterator.
+        */
+		virtual ConstChildNodeIterator getChildIterator(void) const;
 
         /** Drops the specified child from this node. 
         @remarks
