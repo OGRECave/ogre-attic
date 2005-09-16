@@ -78,6 +78,11 @@ namespace OgreMayaExporter
 			{
 				exportSkelBin = true;
 			}
+			else if ((MString("-particles") == args.asString(i,&stat)) && (MS::kSuccess == stat))
+			{
+				exportParticles = true;
+				particlesFilename = args.asString(++i,&stat);
+			}
 			else if ((MString("-shared") == args.asString(i,&stat)) && (MS::kSuccess == stat))
 			{
 				useSharedGeom = true;
@@ -255,6 +260,15 @@ namespace OgreMayaExporter
 			if (!outCameras)
 			{
 				std::cout << "Error opening file: " << camerasFilename.asChar() << "\n";
+				return MS::kFailure;
+			}
+		}
+		if (exportParticles)
+		{
+			outParticles.open(particlesFilename.asChar());
+			if (!outParticles)
+			{
+				std::cout << "Error opening file: " << particlesFilename.asChar() << "\n";
 				return MS::kFailure;
 			}
 		}

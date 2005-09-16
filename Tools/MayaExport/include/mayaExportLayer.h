@@ -11,6 +11,9 @@
 #include <maya/MObject.h>
 #include <maya/MObjectArray.h>
 #include <maya/MIntArray.h>
+#include <maya/MFnIntArrayData.h>
+#include <maya/MFnDoubleArrayData.h>
+#include <maya/MFnVectorArrayData.h>
 #include <maya/MArgList.h>
 #include <maya/MStatus.h>
 #include <maya/MDagPath.h>

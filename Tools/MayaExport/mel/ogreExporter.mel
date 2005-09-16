@@ -39,6 +39,7 @@ global proc runOgreExport()
 	string $skeletonFile = (`textField -query -text ExportSkeletonFilename`);
 	string $animFile     = (`textField -query -text ExportAnimCurvesFilename`);
 	string $camerasFile  = (`textField -query -text ExportCamerasFilename`);
+	string $particlesFile= (`textField -query -text ExportParticlesFilename`);
 
 	// ===== Options
 	string $options = "";
@@ -136,6 +137,13 @@ global proc runOgreExport()
 		{
 			$options += " -camAnim";
 		}
+	}
+
+	// --- Particles export
+	int $exportParticles = `checkBox -query -value ExportParticles`;
+	if ($exportParticles)
+	{
+		$options += " -particles \"" + encodeString(toNativePath($outputDir+$particlesFile)) + "\"";
 	}
 		
 	// ===== Export
@@ -286,6 +294,11 @@ global proc formatUI()
 	}
 	text -edit -enable $exportCameras ExportCamerasFilenameLabel;
 	textField -edit -enable $exportCameras ExportCamerasFilename;
+
+	// --- particles Export
+	int $exportParticles = `checkBox -query -value ExportParticles`;
+	text -edit -enable $exportParticles ExportParticlesFilenameLabel;
+	textField -edit -enable $exportParticles ExportParticlesFilename;
 }
 
 // ===== Initialization code
@@ -318,6 +331,10 @@ global proc initUI()
 	// --- Anim Curves Export
 	string $animFile = $baseFile + ".anim";
 	textField -edit -fileName $animFile ExportAnimCurvesFilename;
+
+	// --- Particles Export
+	string $particlesFile = $baseFile + ".particles.xml";
+	textField -edit -fileName $particlesFile ExportParticlesFilename;
 }
 
 // ===== Define UI
@@ -730,6 +747,37 @@ global proc defineUIView()
 					-enable false
 				ExportCamerasFilename;
 
+		// --- Particles
+		frameLayout 
+			-parent OgreExportLayout
+			-collapsable true
+			-label "Particles" 
+		ParticlesFrame;
+
+			columnLayout 
+				-parent ParticlesFrame
+				-columnAttach "left" 20
+			ParticlesLayout;
+			
+				checkBox
+					-parent ParticlesLayout
+					-value false 
+					-changeCommand "formatUI"
+					-label "Export particles to Ogre .particles file"
+				ExportParticles;
+				
+				text
+					-parent ParticlesLayout     
+					-label "Particles Filename"
+					-enable false
+				ExportParticlesFilenameLabel;
+				
+				textField
+					-parent ParticlesLayout 
+					-width 305
+					-enable false
+				ExportParticlesFilename;
+
 		// --- Export!
 		separator
 			-parent OgreExportLayout 
@@ -1052,6 +1100,10 @@ global proc saveSettings()
 	fileInfo "ogreExporter_exportCameras" `checkBox -q -v ExportCameras`;
 	fileInfo "ogreExporter_exportCamerasAnim" `checkBox -q -v ExportCamerasAnim`;
 	fileInfo "ogreExporter_camerasFilename" `textField -q -text ExportCamerasFilename`;
+
+	// Particles
+	fileInfo "ogreExporter_exportParticles" `checkBox -q -v ExportParticles`;
+	fileInfo "ogreExporter_particlesFilename" `textField -q -text ExportParticlesFilename`;	
 }
 
 global proc loadSettings()
@@ -1164,6 +1216,11 @@ global proc loadSettings()
 		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportCamerasAnim;
 		textField -edit -text `fileInfo -q "ogreExporter_camerasFilename"` ExportCamerasFilename;
 	
+		// Particles
+		$valStrings = `fileInfo -q "ogreExporter_exportParticles"`;
+		checkBox -edit -v `gmatch $valStrings[0] "1"` ExportParticles;
+		textField -edit -text `fileInfo -q "ogreExporter_particlesFilename"` ExportParticlesFilename;
+
 		formatUI();
 	}
 }
@@ -1225,6 +1282,10 @@ global proc defaultSettings()
 	checkBox -edit -v 0 ExportCamerasAnim;
 	textField -edit -text `fileInfo -q "ogreExporter_camerasFilename"` ExportCamerasFilename;
 
+	// Particles
+	checkBox -edit -v 0 ExportParticles;
+	textField -edit -text "" ExportParticlesFilename;
+
 	// Initialize filenames
 	string $sceneFile = `file -query -sceneName`;
 	string $sceneDir = dirname($sceneFile);
@@ -1250,6 +1311,10 @@ global proc defaultSettings()
 	// --- Anim Curves Export
 	string $animFile = $baseFile + ".anim";
 	textField -edit -fileName $animFile ExportAnimCurvesFilename;
+
+	// --- Particles Export
+	string $particlesFile = $baseFile + ".particles.xml";
+	textField -edit -fileName $particlesFile ExportParticlesFilename;
 
 	formatUI();
 }

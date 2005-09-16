@@ -3,6 +3,7 @@
 #define OGRE_EXPORTER_H
 
 #include "mesh.h"
+#include "particles.h"
 #include "mayaExportLayer.h"
 #include <maya/MPxCommand.h>
 #include <maya/MFnPlugin.h>
