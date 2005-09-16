@@ -92,7 +92,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;C:\Programmi\Alias\Maya6.5\include"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya7.0\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -111,10 +111,10 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
 				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
-				OutputFile="..\bin\ogreExporter.mll"
+				OutputFile="..\bin\7.0\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="C:\Programmi\Alias\Maya6.5\lib"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya7.0\lib&quot;"
 				ProgramDatabaseFile=".\Release/ogreExporter.pdb"
 				SubSystem="2"
 				ImportLibrary=".\Release/ogreExporter.lib"
@@ -185,6 +185,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\particles.cpp">
+			</File>
+			<File
 				RelativePath="..\src\skeleton.cpp">
 			</File>
 			<File
@@ -211,6 +214,9 @@
 			</File>
 			<File
 				RelativePath="..\include\paramlist.h">
+			</File>
+			<File
+				RelativePath="..\include\particles.h">
 			</File>
 			<File
 				RelativePath="..\include\singleton.h">
