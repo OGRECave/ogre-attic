@@ -38,7 +38,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreCursor.h"
 #include <dxerr8.h>
 
-#define DINPUT_BUFFERSIZE  16
+#define DINPUT_BUFFERSIZE  64
 //#define DIPROP_BUFFERSIZE 256
 
 namespace Ogre {
@@ -568,49 +568,21 @@ namespace Ogre {
 
 		hr = mlpDIKeyboard->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
 										 didod, &dwElements, 0 );
-		if( hr != DI_OK ) 
+		if( FAILED(hr) ) 
 		{
-			// We got an error or we got DI_BUFFEROVERFLOW.
-			//
-			// Either way, it means that continuous contact with the
-			// device has been lost, either due to an external
-			// interruption, or because the buffer overflowed
-			// and some events were lost.
-			//
-			// Consequently, if a button was pressed at the time
-			// the buffer overflowed or the connection was broken,
-			// the corresponding "up" message might have been lost.
-			//
-			// But since our simple sample doesn't actually have
-			// any state associated with button up or down events,
-			// there is no state to reset.  (In a real game, ignoring
-			// the buffer overflow would result in the game thinking
-			// a key was held down when in fact it isn't; it's just
-			// that the "up" event got lost because the buffer
-			// overflowed.)
-			//
-			// If we want to be cleverer, we could do a
-			// GetDeviceState() and compare the current state
-			// against the state we think the device is in,
-			// and process all the states that are currently
-			// different from our private state.
+			// Error
 			hr = mlpDIKeyboard->Acquire();
 			while( hr == DIERR_INPUTLOST ) 
 				hr = mlpDIKeyboard->Acquire();
 
-			// Update the dialog text 
-	/*        if( hr == DIERR_OTHERAPPHASPRIO || 
-				hr == DIERR_NOTACQUIRED ) 
-				SetDlgItemText( hDlg, IDC_DATA, TEXT("Unacquired") );
-	*/
 			// hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
 			// may occur when the app is minimized or in the process of 
 			// switching, so just try again later 
-			return S_OK; 
+			return !FAILED(hr); 
 		}
 
-		if( FAILED(hr) )  
-			return false;
+		// DI_BUFFEROVERFLOW we don't do anything with since we still want to
+		// process what's in the buffer
 
 		for(unsigned int i = 0; i < dwElements; i++ ) 
 		{
@@ -634,51 +606,35 @@ namespace Ogre {
     
 		dwElements = DINPUT_BUFFERSIZE;
 
+        // Try to read the data. Continue normally on success (DI_OK
+        // or DI_BUFFEROVERFLOW) as we have to process the read data
+        // we got.
 		hr = mlpDIMouse->GetDeviceData( sizeof(DIDEVICEOBJECTDATA),
 										 didod, &dwElements, 0 );
-		if( hr != DI_OK ) 
+		if( FAILED(hr) ) 
 		{
-			// We got an error or we got DI_BUFFEROVERFLOW.
+            // No need to handle DI_BUFFEROVERFLOW in ERROR handling.
+            // So moved it to later.
+            //
+			// We got an error.
 			//
-			// Either way, it means that continuous contact with the
+			// It means that continuous contact with the
 			// device has been lost, either due to an external
-			// interruption, or because the buffer overflowed
-			// and some events were lost.
+			// interruption.
 			//
-			// Consequently, if a button was pressed at the time
-			// the buffer overflowed or the connection was broken,
-			// the corresponding "up" message might have been lost.
-			//
-			// But since our simple sample doesn't actually have
-			// any state associated with button up or down events,
-			// there is no state to reset.  (In a real game, ignoring
-			// the buffer overflow would result in the game thinking
-			// a key was held down when in fact it isn't; it's just
-			// that the "up" event got lost because the buffer
-			// overflowed.)
-			//
-			// If we want to be cleverer, we could do a
-			// GetDeviceState() and compare the current state
-			// against the state we think the device is in,
-			// and process all the states that are currently
-			// different from our private state.
+			
 			hr = mlpDIMouse->Acquire();
 			while( hr == DIERR_INPUTLOST ) 
 				hr = mlpDIMouse->Acquire();
 
-			// Update the dialog text 
-	/*        if( hr == DIERR_OTHERAPPHASPRIO || 
-				hr == DIERR_NOTACQUIRED ) 
-				SetDlgItemText( hDlg, IDC_DATA, TEXT("Unacquired") );
-	*/
 			// hr may be DIERR_OTHERAPPHASPRIO or other errors.  This
 			// may occur when the app is minimized or in the process of 
 			// switching, so just try again later 
-			return S_OK; 
+			return !FAILED(hr); 
 		}
 
-		if( FAILED(hr) )  
-			return false;
+		// DI_BUFFEROVERFLOW we don't do anything with since we still want to
+		// process what's in the buffer
 
 		bool xSet = false;
 		bool ySet = false;
