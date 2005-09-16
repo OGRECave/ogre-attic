@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 25 2005 by texi2html 1.64 -->
+<!-- Created on , 16 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Copying Materials</TITLE>
+<TITLE>OGRE Manual v1.1.0: Particle Scripts</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Copying Materials">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Copying Materials">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Particle Scripts">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Particle Scripts">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,141 +23,113 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC96"></A>
+<A NAME="SEC99"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC89"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC100"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC95"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC103"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.1.6 Copying Materials </H3>
-<!--docid::SEC96::-->
-
-When creating new materials scripts that are only slight variations of another material script, the script writer resorts to copy and pasting materials within scripts.  For simple materials, the copy/paste method is acceptable.  Complex materials that use multiple passes along with vertex and pixel shaders become very tedious to edit when many variations are needed.  To reduce the tediousness of making new materials that are just slight variations of previously defined materials, new materials can copy from previously defined materials and modify specific techniques, passes, texture units or add new ones.<BR><BR>
-
-To make a new material that is based on one previously defined, add a <EM>colon</EM> <STRONG>:</STRONG> after the new material name followed by the name of the material that is to be copied.<BR><BR>
-
-Format: material &#60;NewUniqueChildName&#62; : &#60;ReferanceParentMaterial&#62;<BR><BR>
-
-The only caveat is that a parent material must have been defined/parsed prior to the child material script being parsed.  The easiest way to achieve this is to place parents at the begining of the material script file.  After material scripts are loaded into Ogre, materials no longer maintain their copy inheritance structure.  If a parent material is modified through code at runtime, the changes have no effect on child materials that were copied from it in the script.<BR><BR>
-
-Material copying within the script alleviates some drudgery from copy/paste but having the ability to identify specific techniques, passes, and texture units to modify makes material copying easier.  Techniques, passes, texture units can be identified directly in the child material without having to layout previous techniques, passes, texture units by associating a name with them,  Techniques and passes can take a name and texture units can be numbered within the material script.<BR><BR>
-
-<STRONG>NOTE:  Using names is optional so older scripts will still work just fine and you can inherit from them as well.</STRONG><BR><BR>
-
-Names become very usefull in materials that copy from other materials.  In order to overide values they must be in the correct technique, pass, texture unit etc.  The script could be layed out using the sequence of techniques, passes, texture units in the child material but if only one paramter needs to change in say the 5th pass then the first four passes prior to the fith would have to be placed in the script:<BR><BR>
-
-Here is an example:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>material test2 : test1
-{
-  technique
-  {
-    pass
-    {
-    }
-
-    pass
-    {
-    }
-
-    pass
-    {
-    }
-
-    pass
-    {
-    }
-
-    pass
-    {
-	  ambient 0.5 0.7 0.3 1.0
-    }
-  }
-}
-</pre></td></tr></table>
-This method is tedious for materials that only have slight variations to their parent.
-An easier way is to name the pass directly without listing the previous passes:<BR>
-
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>material test2 : test1
-{
-  technique 0
-  {
-    pass 4
-    {
-	  ambient 0.5 0.7 0.3 1.0
-    }
-  }
-}
-</pre></td></tr></table>
-The parent pass name must be known and the pass must be in the correct technique in order for this to work correctly.  Specifying the technique name and the pass name is the best method.  If the parent technique/pass are not named then use their index values for their name as done in the example.<BR><BR>
-
-<A NAME="SEC97"></A>
-<H3> Adding new Techniques, Passes, to copied materials: </H3>
-<!--docid::SEC97::-->
-
-If a new technique or pass needs to be added to a copied material then use a unique name for the technique or pass that does not exist in the parent material.  Using an index for the name that is one greater than the last index in the parent will do the same thing.  The new technique/pass will be added to the end of the techniques/passes copied from the parent material.<BR><BR>
-
-Note:  if passes or techniques aren't given a name, they will take on a default name based on their index.  For example the first pass has index 0 so its name will be 0.
-
-<A NAME="SEC98"></A>
-<H3> Dealing with Program References and Shader Parameters: </H3>
-<!--docid::SEC98::-->
-
-For a child material that only needs to change some shader parameters within a pass, do the following:<BR><BR>
-
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>material furtest2 : furtest1
-{
-  technique ati8500
-  {
-    pass fur3
-    {
-      fragment_program_ref
-      {
-        param_named furlength float 0.5
-      }
-    }
-  }
-}
-</pre></td></tr></table>
-There is no requirement to give the name of the fragment program reference since the parent material has already done this and the same applies to a vertex program reference, but dropping the program reference name only applies if one is defined in the pass copied from the parent material.  If the parent didn't have a program reference then an exception is generated since the material parser has no clue as to what the script intended.<BR><BR>
-
-Program references can be added to copied passes that had no program references.  The whole program reference will have to be defined with in the pass.<BR><BR>
-
-If a different program ref is to be used in the copied pass then just put in the name of the different vertex/fragment program reference.  This is usefull when you want to inherit from a parent material but want to use a different shader program for one of the passes.<BR><BR>
-
-<A NAME="SEC99"></A>
-<H3> Identifying Texture Units to overide values </H3>
+<H2> 3.2 Particle Scripts </H2>
 <!--docid::SEC99::-->
 
-A specific texture unit state (TUS) can be specified in the pass without declaring previous texture units.  Using this for parent materials helps with readability only and is optional.  If the index number of the TUS is wrong in the parent material then the parser will just ignore the number and generate the proper index along with putting a warning message in the ogre log.  This feature is more useful for child materials that need to modify a specific TUS or need to add a new TUS.<BR><BR>
+Particle scripts allow you to define particle systems to be instantiated in your code without having to hard-code the settings themselves in your source code, allowing a very quick turnaround on any changes you make. Particle systems which are defined in scripts are used as templates, and multiple actual systems can be created from them at runtime.<BR><BR>
 
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>material BumpMap2 : BumpMap1
+<A NAME="SEC100"></A>
+<H2> Loading scripts  </H2>
+<!--docid::SEC100::-->
+
+Particle system scripts are loaded at initialisation time by the system: by default it looks in all common resource locations (see Root::addResourceLocation) for files with the '.particle' extension and parses them. If you want to parse files with a different extension, use the ParticleSystemManager::getSingleton().parseAllSources method with your own extension, or if you want to parse an individual file, use ParticleSystemManager::getSingleton().parseScript.<BR><BR>
+
+Once scripts have been parsed, your code is free to instantiate systems based on them using the ParticleSystemManager::getSingleton().createSystem() method which can take both a name for the new system, and the name of the template to base it on (this template name is in the script).<BR><BR>
+
+<A NAME="SEC101"></A>
+<H2> Format  </H2>
+<!--docid::SEC101::-->
+
+Several particle systems may be defined in a single script. The script format is pseudo-C++, with sections delimited by curly braces ({}), and comments indicated by starting a line with '//' (note, no nested form comments allowed). The general format is shown below in a typical example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>// A sparkly purple fountain
+Examples/PurpleFountain
 {
-  technique ati8500
-  {
-    pass 0
+    material Examples/Flare2
+    particle_width 20
+    particle_height 20
+    cull_each false
+    quota 10000
+    billboard_type oriented_self
+
+    // Area emitter
+    emitter Point
     {
-      texture_unit 1
-      {
-        texture BumpyMetalNM.png
-      }
+        angle 15
+        emission_rate 75
+        time_to_live 3
+        direction 0 1 0
+        velocity_min 250
+        velocity_max 300
+        colour_range_start 1 0 0
+        colour_range_end 0 0 1
     }
-  }
+
+    // Gravity
+    affector LinearForce
+    {
+        force_vector 0 -100 0
+        force_application add
+    }
+
+    // Fader
+    affector ColourFader
+    {
+        red -0.25
+        green -0.25
+        blue -0.25
+    }
 }
-</pre></td></tr></table>
-If a texture unit index is greater than what already exits in the pass, a new texture unit will be created after the last existing TUS in the current pass. if the new TUS index does not match the index specified in the script then an warning message will be placed in the log and the index value corrected.
+</pre></td></tr></table><BR><BR>
+Every particle system in the script must be given a name, which is the line before the first opening '{', in the example this is 'Examples/PurpleFountain'. This name must be globally unique. It can include path characters (as in the example) to logically divide up your particle systems, and also to avoid duplicate names, but the engine does not treat the name as hierarchical, just as a string.<BR><BR>
 
+A system can have top-level attributes set using the scripting commands available, such as 'quota' to set the maximum number of particles allowed in the system. Emitters (which create particles) and affectors (which modify particles) are added as nested definitions within the script. The parameters available in the emitter and affector sections are entirely dependent on the type of emitter / affector.<BR><BR>
 
-<A NAME="Particle Scripts"></A>
+For a detailed description of the core particle system attributes, see the list below:
+
+<A NAME="SEC102"></A>
+<H3> Available Particle System Attributes </H3>
+<!--docid::SEC102::-->
+<UL>
+<LI>
+<A HREF="manual_23.html#SEC104">quota</A>
+<LI>
+<A HREF="manual_23.html#particle_material">material</A>
+<LI>
+<A HREF="manual_23.html#SEC106">particle_width</A>
+<LI>
+<A HREF="manual_23.html#SEC107">particle_height</A>
+<LI>
+<A HREF="manual_23.html#SEC108">cull_each</A>
+<LI>
+<A HREF="manual_23.html#SEC112">billboard_type</A>
+<LI>
+<A HREF="manual_23.html#SEC113">common_direction</A>
+<LI>
+<A HREF="manual_23.html#particle_renderer">renderer</A>
+<LI>
+<A HREF="manual_23.html#particle_sorted">sorted</A>
+<LI>
+<A HREF="manual_23.html#particle_localspace">local_space</A>
+</UL>
+See also: <A HREF="manual_24.html#SEC114">3.2.2 Particle Emitters</A>, <A HREF="manual_27.html#SEC138">3.2.5 Particle Affectors</A>
+
+<A NAME="Particle System Attributes"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC89"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_16.html#SEC25"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC100"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC95"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC103"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -166,7 +138,7 @@ If a texture unit index is greater than what already exits in the pass, a new te
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 25 2005</I>
+by <I>Steve Streeting</I> on <I>, 16 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
