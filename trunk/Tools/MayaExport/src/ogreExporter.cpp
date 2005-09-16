@@ -159,6 +159,25 @@ namespace OgreMayaExporter
 				}
 			}
 		}
+		else if ( ( dagPath.apiType() == MFn::kParticle ) && m_params.exportParticles )
+		{	// we have found a set of particles
+			MFnDagNode fnNode(dagPath);
+			if (!fnNode.isIntermediateObject())
+			{
+				std::cout <<  "Found particles node: "<< dagPath.fullPathName().asChar() << "\n";
+				std::cout <<  "Translating particles node: "<< dagPath.fullPathName().asChar() << "...\n";
+				Particles particles;
+				particles.load(dagPath,m_params);
+				stat = particles.writeToXML(m_params);
+				if (MS::kSuccess == stat)
+					std::cout << "OK\n";
+				else
+				{
+					std::cout << "Error, Aborting operation\n";
+					return MS::kFailure;
+				}
+			}
+		}
 		// look for meshes and cameras within the node's children
 		for (unsigned int i=0; i<dagPath.childCount(); i++)
 		{

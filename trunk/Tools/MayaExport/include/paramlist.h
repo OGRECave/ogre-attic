@@ -24,12 +24,12 @@ namespace OgreMayaExporter
 		bool exportMesh, exportMaterial, exportAnimCurves, exportCameras, exportAll, exportVBA,
 			exportVertNorm, exportVertCol, exportVertColWhite, exportTexCoord, exportCamerasAnim,
 			exportSkeleton, exportAnims, exportMeshBin, exportSkelBin, exportWorldCoords, useSharedGeom,
-			lightingOff, copyTextures;
+			lightingOff, copyTextures, exportParticles;
 
 		MString meshFilename, skeletonFilename, materialFilename, animFilename, camerasFilename, matPrefix,
-			outputDir;
+			outputDir, particlesFilename;
 
-		std::ofstream outMesh, outMaterial, outAnim, outCameras, outSkeleton;
+		std::ofstream outMesh, outMaterial, outAnim, outCameras, outSkeleton, outParticles;
 
 		MStringArray writtenMaterials;
 
@@ -46,6 +46,7 @@ namespace OgreMayaExporter
 			exportAnims = false;
 			exportAnimCurves = false;
 			exportCameras = false;
+			exportParticles = false;
 			exportMeshBin = false;
 			exportSkelBin = false;
 			exportAll = false;
@@ -64,6 +65,7 @@ namespace OgreMayaExporter
 			materialFilename = "";
 			animFilename = "";
 			camerasFilename = "";
+			particlesFilename = "";
 			matPrefix = "";
 			outputDir = "";
 			clipList.clear();
@@ -88,6 +90,7 @@ namespace OgreMayaExporter
 			exportCamerasAnim = source.exportCamerasAnim;
 			exportMeshBin = source.exportMeshBin;
 			exportSkelBin = source.exportSkelBin;
+			exportParticles = source.exportParticles;
 			useSharedGeom = source.useSharedGeom;
 			lightingOff = source.lightingOff;
 			copyTextures = source.copyTextures;
@@ -96,6 +99,7 @@ namespace OgreMayaExporter
 			materialFilename = source.materialFilename;
 			animFilename = source.animFilename;
 			camerasFilename = source.camerasFilename;
+			particlesFilename = source.particlesFilename;
 			matPrefix = source.matPrefix;
 			outputDir = source.outputDir;
 			clipList.resize(source.clipList.size());
@@ -123,6 +127,8 @@ namespace OgreMayaExporter
 				outAnim.close();
 			if (outCameras)
 				outCameras.close();
+			if (outParticles)
+				outParticles.close();
 		}
 		// method to pars arguments and set parameters
 		void parseArgs(const MArgList &args);
