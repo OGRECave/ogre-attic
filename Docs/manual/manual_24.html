@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 25 2005 by texi2html 1.64 -->
+<!-- Created on , 16 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Particle System Attributes</TITLE>
+<TITLE>OGRE Manual v1.1.0: Particle Emitters</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Particle System Attributes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Particle System Attributes">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Particle Emitters">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Particle Emitters">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,157 +23,74 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC104"></A>
-<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC100"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC100"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC115"> &gt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
-</TR></TABLE>
-<HR SIZE=1>
-<H3> 3.2.1 Particle System Attributes </H3>
-<!--docid::SEC104::-->
-This section describes to attributes which you can set on every particle system using scripts. All atributes have default values so all settings are optional in your script.<BR><BR>
-
-<A NAME="quota"></A>
-<A NAME="SEC105"></A>
-<H3> quota </H3>
-<!--docid::SEC105::-->
-
-Sets the maximum number of particles this system is allowed to contain at one time. When this limit is exhausted, the emitters will not be allowed to emit any more particles until some destroyed (e.g. through their time_to_live running out). Note that you will almost always want to change this, since it defaults to a very low value (particle pools are only ever increased in size, never decreased).<BR><BR>
-
-format: quota &#60;max_particles&#62;<BR>
-example: quota 10000<BR>
-default: 10<BR>
-
-<A NAME="particle_material"></A>
-<A NAME="SEC106"></A>
-<H3> material </H3>
-<!--docid::SEC106::-->
-
-Sets the name of the material which all particles in this system will use. All paticles in a system use the same material, although each particle can tint this material through the use of it's colour property.<BR><BR>
-
-format: material &#60;material_name&#62;<BR>
-example: material Examples/Flare<BR>
-default: none (blank material)<BR>
-
-<A NAME="particle_width"></A>
-<A NAME="SEC107"></A>
-<H3> particle_width </H3>
-<!--docid::SEC107::-->
-
-Sets the width of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.<BR>
-
-format: particle_width &#60;width&#62;<BR>
-example: particle_width 20<BR>
-default: 100<BR>
-
-<A NAME="particle_height"></A>
-<A NAME="SEC108"></A>
-<H3> particle_height </H3>
-<!--docid::SEC108::-->
-
-Sets the height of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.<BR>
-
-format: particle_height &#60;height&#62;<BR>
-example: particle_height 20<BR>
-default: 100<BR>
-
-<A NAME="cull_each"></A>
-<A NAME="SEC109"></A>
-<H3> cull_each </H3>
-<!--docid::SEC109::-->
-
-All particle systems are culled by the bounding box which contains all the particles in the system. This is normally sufficient for fairly locally constrained particle systems where most particles are either visible or not visible together. However, for those that spread particles over a wider area (e.g. a rain system), you may want to actually cull each particle individually to save on time, since it is far more likely that only a subset of the particles will be visible. You do this by setting the cull_each parameter to true.<BR><BR>
-
-format: cull_each &#60;true|false&#62;<BR>
-example: cull_each true<BR>
-default: false<BR>
-
-<A NAME="particle_renderer"></A>
-<A NAME="SEC110"></A>
-<H3> renderer </H3>
-<!--docid::SEC110::-->
-
-Particle systems do not render themselves, they do it through ParticleRenderer classes. Those classes are registered with a manager in order to provide particle systems with a particular 'look'. OGRE comes configured with a default billboard-based renderer, but more can be added through plugins. Particle renders are registered with a unique name, and you can use that name in this attribute to determine the renderer to use. The default is 'billboard'.<BR><BR>
-
-Particle renderers can have attributes, which can be passed by setting them on the root particle system.<BR><BR>
-
-format: renderer &#60;renderer_name&#62;<BR>
-default: billboard<BR>
-
-<A NAME="particle_sorted"></A>
-<A NAME="SEC111"></A>
-<H3> sorted </H3>
-<!--docid::SEC111::-->
-
-By default, particles are not sorted. By setting this attribute to 'true', theparticles will be sorted with respect to the camera, furthest first. This can make certain rendering effects look better at a small sorting expense.<BR><BR>
-
-format: sorted &#60;true|false&#62;<BR>
-default: false<BR>
-
-<A NAME="particle_localspace"></A>
-<A NAME="SEC112"></A>
-<H3> local_space </H3>
-<!--docid::SEC112::-->
-
-By default, particles are emitted into world space, such that if you transform the node to which the system is attached, it will not affect the particles (only the emitters). This tends to give the normal expected behaviour, which is to model how real world particles travel independently from the objects they are emitted from. However, to create some effects you may want the particles to remain attached to the local space the emitter is in and to follow them directly. This option allows you to do that.<BR><BR>
-
-format: local_space &#60;true|false&#62;<BR>
-default: false<BR>
-
-<A NAME="billboard_type"></A>
-<A NAME="SEC113"></A>
-<H3> billboard_type </H3>
-<!--docid::SEC113::-->
-
-This is actually an attribute of the 'billboard' particle renderer (the default), and is an example of passing attributes to a particle renderer by declaring them directly within the system declaration. Particles using the default renderer are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the camera. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.<BR><BR>
-
-format: billboard_type &#60;point|oriented_common|oriented_self&#62;<BR>
-example: billboard_type oriented_self<BR>
-default: point<BR>
-
-The options for this parameter are:
-<DL COMPACT>
-<DT>point
-<DD>	The default arrangement, this approximates spherical particles and the billboards always fully face the camera.
-<DT>oriented_common
-<DD>	Particles are oriented around a common, typically fixed direction vector (see <A HREF="manual_24.html#SEC114">common_direction</A>), which acts as their local Y axis. The billboard roatates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
-<DT>oriented_self
-<DD>	Particles are oriented around their own direction vector, which acts as their local Y axis. As the particle changes direction, so the billboard reorients itself to face this way. Good for laser fire, fireworks and other 'streaky' particles that should look like they are travelling in their own direction.
-</DL>
-
-<A NAME="common_direction"></A>
 <A NAME="SEC114"></A>
-<H3> common_direction </H3>
-<!--docid::SEC114::-->
-
-Only required if <A HREF="manual_24.html#SEC113">billboard_type</A> is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.<BR><BR>
-
-format: common_direction &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
-example: common_direction 0 -1 0<BR>
-default: none<BR>
-<BR><BR>
-See also: <A HREF="manual_25.html#SEC115">3.2.2 Particle Emitters</A>, <A HREF="manual_28.html#SEC139">3.2.5 Particle Affectors</A>
-
-<A NAME="Particle Emitters"></A>
-<HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC100"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC100"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC115"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC103"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_22.html#SEC99"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_25.html#SEC116"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
+<HR SIZE=1>
+<H3> 3.2.2 Particle Emitters </H3>
+<!--docid::SEC114::-->
+Particle emitters are classified by 'type' e.g. 'Point' emitters emit from a single point whilst 'Box' emitters emit randomly from an area. New emitters can be added to Ogre by creating plugins. You add an emitter to a system by nesting another section within it, headed with the keyword 'emitter' followed by the name of the type of emitter (case sensitive). Ogre currently supports 'Point', 'Box', 'Cylinder', 'Ellipsoid', 'HollowEllipsoid' and 'Ring' emitters.
+
+<A NAME="SEC115"></A>
+<H3> Particle Emitter Universal Attributes </H3>
+<!--docid::SEC115::-->
+<UL>
+<LI>
+<A HREF="manual_25.html#SEC117">angle</A>
+<LI>
+<A HREF="manual_25.html#SEC118">colour</A>
+<LI>
+ <A HREF="manual_25.html#colour_range_start">colour_range_start</A>
+<LI>
+ <A HREF="manual_25.html#colour_range_end">colour_range_end</A>
+<LI>
+<A HREF="manual_25.html#SEC120">direction</A>
+<LI>
+<A HREF="manual_25.html#SEC121">emission_rate</A>
+<LI>
+<A HREF="manual_25.html#SEC122">position</A>
+<LI>
+<A HREF="manual_25.html#SEC123">velocity</A>
+<LI>
+ <A HREF="manual_25.html#velocity_min">velocity_min</A>
+<LI>
+ <A HREF="manual_25.html#velocity_max">velocity_max</A>
+<LI>
+<A HREF="manual_25.html#SEC125">time_to_live</A>
+<LI>
+ <A HREF="manual_25.html#time_to_live_min">time_to_live_min</A>
+<LI>
+ <A HREF="manual_25.html#time_to_live_max">time_to_live_max</A>
+<LI>
+<A HREF="manual_25.html#SEC127">duration</A>
+<LI>
+ <A HREF="manual_25.html#duration_min">duration_min</A>
+<LI>
+ <A HREF="manual_25.html#duration_max">duration_max</A>
+<LI>
+<A HREF="manual_25.html#SEC129">repeat_delay</A>
+<LI>
+ <A HREF="manual_25.html#repeat_delay_min">repeat_delay_min</A>
+<LI>
+ <A HREF="manual_25.html#repeat_delay_max">repeat_delay_max</A>
+</UL>
+<BR><BR>
+See also: <A HREF="manual_22.html#SEC99">3.2 Particle Scripts</A>, <A HREF="manual_27.html#SEC138">3.2.5 Particle Affectors</A>
+
+
+<A NAME="Particle Emitter Attributes"></A>
+<HR SIZE=1>
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 25 2005</I>
+by <I>Steve Streeting</I> on <I>, 16 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
