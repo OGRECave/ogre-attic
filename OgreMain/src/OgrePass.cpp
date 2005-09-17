@@ -607,7 +607,7 @@ namespace Ogre {
 			// Set the new pass to fallback using scene blend
 			newPass->setSceneBlending(
 				(*i)->getColourBlendFallbackSrc(), (*i)->getColourBlendFallbackDest());
-			// Add all the other passes
+			// Add all the other texture unit states
 			for (; i != iend; ++i)
 			{
 				newPass->addTextureUnitState(*i);
