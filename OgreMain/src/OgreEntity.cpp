@@ -1227,8 +1227,9 @@ namespace Ogre {
         if(!mMesh->isPreparedForShadowVolumes())
         {
             mMesh->prepareForShadowVolume();
-            // reset frame last updated to force update of animations
-            mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber() - 1;
+            // reset frame last updated to force update of animations if they exist
+            if (mAnimationState)
+                mFrameAnimationLastUpdated = mAnimationState->getDirtyFrameNumber() - 1;
             // re-prepare buffers
             prepareTempBlendBuffers();
         }
