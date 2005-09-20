@@ -181,7 +181,7 @@ namespace Ogre {
         mDestRenderSystem->_setWorldMatrix(Matrix4::IDENTITY);
         // Set view / proj
         mDestRenderSystem->_setViewMatrix(mCameraInProgress->getViewMatrix(true));
-        mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrix());
+        mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
 
         // For each material in turn, cache rendering data & render
         MaterialFaceGroupMap::const_iterator mati;

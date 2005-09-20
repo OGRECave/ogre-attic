@@ -80,29 +80,32 @@ namespace Ogre
         mutable Quaternion mLastParentOrientation;
         mutable Vector3 mLastParentPosition;
 
-        /// Pre-calced projection matrix
-        mutable Matrix4 mProjMatrix;
+        /// Pre-calced projection matrix for the specific render system
+        mutable Matrix4 mProjMatrixRS;
+        /// Pre-calced standard projection matrix but with render system depth range
+        mutable Matrix4 mProjMatrixRSDepth;
         /// Pre-calced standard projection matrix
-        mutable Matrix4 mStandardProjMatrix;
+        mutable Matrix4 mProjMatrix;
         /// Pre-calced view matrix
         mutable Matrix4 mViewMatrix;
         /// Something's changed in the frustrum shape?
         mutable bool mRecalcFrustum;
         /// Something re the view pos has changed
         mutable bool mRecalcView;
-
-
-        /** Temp coefficient values calculated from a frustum change,
-            used when establishing the frustum planes when the view changes
-        */
-        mutable Real mCoeffL[2], mCoeffR[2], mCoeffB[2], mCoeffT[2];
-
-
+        /// Something re the frustum planes has changed
+        mutable bool mRecalcFrustumPlanes;
+        /// Something re the world space corners has changed
+        mutable bool mRecalcWorldSpaceCorners;
+        /// Something re the vertex data has changed
+        mutable bool mRecalcVertexData;
 
 		
         // Internal functions for calcs
         virtual void updateFrustum(void) const;
         virtual void updateView(void) const;
+        virtual void updateFrustumPlanes(void) const;
+        virtual void updateWorldSpaceCorners(void) const;
+        virtual void updateVertexData(void) const;
         virtual bool isViewOutOfDate(void) const;
         virtual bool isFrustumOutOfDate(void) const;
         /// Signal to update frustum information.
@@ -230,16 +233,18 @@ namespace Ogre
         */
         virtual Real getAspectRatio(void) const;
 
-        /** Gets the projection matrix for this frustum. Mainly for use by OGRE internally.
+        /** Gets the projection matrix for this frustum adjusted for the current
+			rendersystem specifics (may be right or left-handed, depth range
+			may vary).
         @remarks
             This method retrieves the rendering-API dependent version of the projection
             matrix. If you want a 'typical' projection matrix then use 
-            getStandardProjectionMatrix.
+            getProjectionMatrix.
 
         */
-        virtual const Matrix4& getProjectionMatrix(void) const;
-        /** Gets the 'standard' projection matrix for this frustum, ie the 
-        projection matrix which conforms to standard right-handed rules.
+        virtual const Matrix4& getProjectionMatrixRS(void) const;
+        /** Gets the depth-adjusted projection matrix for the current rendersystem,
+			but one which still conforms to right-hand rules.
         @remarks
             This differs from the rendering-API dependent getProjectionMatrix
             in that it always returns a right-handed projection matrix result 
@@ -249,11 +254,27 @@ namespace Ogre
             GL uses [-1,1], and the range must be kept the same between programmable
             and fixed-function pipelines.
         */
-        virtual const Matrix4& getStandardProjectionMatrix(void) const;
+        virtual const Matrix4& getProjectionMatrixWithRSDepth(void) const;
+        /** Gets the normal projection matrix for this frustum, ie the 
+        projection matrix which conforms to standard right-handed rules and
+        uses depth range [-1,+1].
+        @remarks
+            This differs from the rendering-API dependent getRenderSystemProjectionMatrix
+            in that it always returns a right-handed projection matrix with depth
+            range [-1,+1], result no matter what rendering API is being used - this
+            is required for some uniform algebra for example.
+        */
+        virtual const Matrix4& getProjectionMatrix(void) const;
 
         /** Gets the view matrix for this frustum. Mainly for use by OGRE internally.
         */
         virtual const Matrix4& getViewMatrix(void) const;
+
+        /** Retrieves the clipping planes of the frustum.
+        @remarks
+            The clipping planes are ordered as declared in enumerate constants FrustumPlane.
+        */
+        virtual const Plane* getFrustumPlanes(void) const;
 
         /** Retrieves a specified plane of the frustum.
             @remarks
@@ -312,6 +333,9 @@ namespace Ogre
 
         /** Overridden from MovableObject */
         const String& getMovableType(void) const;
+
+        /** Overridden from MovableObject */
+        void _notifyCurrentCamera(Camera* cam);
 
         /** Overridden from Renderable */
         const MaterialPtr& getMaterial(void) const;

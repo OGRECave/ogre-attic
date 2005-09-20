@@ -2308,7 +2308,7 @@ void SceneManager::useRenderableViewProjMode(Renderable* pRend)
     else if (!useIdentityProj && (mCamChanged || lastProjWasIdentity))
     {
         // Coming back from flat projection
-        mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrix());
+        mDestRenderSystem->_setProjectionMatrix(mCameraInProgress->getProjectionMatrixRS());
         lastProjWasIdentity = false;
     }
 

@@ -150,7 +150,7 @@ namespace Ogre {
     {
         // NB use API-independent projection matrix since GPU programs
         // bypass the API-specific handedness and use right-handed coords
-        mProjectionMatrix = mCurrentCamera->getStandardProjectionMatrix();
+        mProjectionMatrix = mCurrentCamera->getProjectionMatrixWithRSDepth();
         if (mCurrentRenderTarget && mCurrentRenderTarget->requiresTextureFlipping())
         {
             // Because we're not using setProjectionMatrix, this needs to be done here
@@ -291,7 +291,7 @@ namespace Ogre {
         {
             mTextureViewProjMatrix = 
                 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * 
-                mCurrentTextureProjector->getStandardProjectionMatrix() * 
+                mCurrentTextureProjector->getProjectionMatrixWithRSDepth() * 
 				mCurrentTextureProjector->getViewMatrix();
             mTextureViewProjMatrixDirty = false;
         }

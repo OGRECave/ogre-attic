@@ -699,6 +699,15 @@ namespace Ogre
         */
         virtual void convertColourValue(const ColourValue& colour, uint32* pDest) = 0;
 
+        /** Converts a uniform projection matrix to suitable for this render system.
+        @remarks
+            Because different APIs have different requirements (some incompatible) for the
+            projection matrix, this method allows each to implement their own correctly and pass
+            back a generic OGRE matrix for storage in the engine.
+        */
+        virtual void _convertProjectionMatrix(const Matrix4& matrix,
+            Matrix4& dest, bool forGpuProgram = false) = 0;
+
         /** Builds a perspective projection matrix suitable for this render system.
         @remarks
             Because different APIs have different requirements (some incompatible) for the

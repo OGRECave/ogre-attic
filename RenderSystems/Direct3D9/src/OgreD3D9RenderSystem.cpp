@@ -988,6 +988,27 @@ namespace Ogre
 	{
 		*pDest = colour.getAsARGB();
 	}
+    //---------------------------------------------------------------------
+    void D3D9RenderSystem::_convertProjectionMatrix(const Matrix4& matrix,
+        Matrix4& dest, bool forGpuProgram)
+    {
+        dest = matrix;
+
+        // Convert depth range from [-1,+1] to [0,1]
+        dest[2][0] = (dest[2][0] + dest[3][0]) / 2;
+        dest[2][1] = (dest[2][1] + dest[3][1]) / 2;
+        dest[2][2] = (dest[2][2] + dest[3][2]) / 2;
+        dest[2][3] = (dest[2][3] + dest[3][3]) / 2;
+
+        if (!forGpuProgram)
+        {
+            // Convert right-handed to left-handed
+            dest[0][2] = -dest[0][2];
+            dest[1][2] = -dest[1][2];
+            dest[2][2] = -dest[2][2];
+            dest[3][2] = -dest[3][2];
+        }
+    }
 	//---------------------------------------------------------------------
 	void D3D9RenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
@@ -1381,7 +1402,7 @@ namespace Ogre
             // apply the projector view & projection matrices
             newMat = mViewMatrix.inverse() * newMat;
             newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
-            newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
+            newMat = mTexStageDesc[stage].frustum->getProjectionMatrixRS() * newMat;
             if (mTexStageDesc[stage].frustum->getProjectionType() == PT_PERSPECTIVE)
             {
                 newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * newMat;

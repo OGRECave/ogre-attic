@@ -1051,7 +1051,7 @@ namespace Ogre {
             projectionBias[2][2] = 1.0; projectionBias[0][3] = 0.5; 
             projectionBias[1][3] = 0.5; projectionBias[3][3] = 1.0;
 
-            projectionBias = projectionBias * frustum->getProjectionMatrix();
+            projectionBias = projectionBias * frustum->getProjectionMatrixRS();
             projectionBias = projectionBias * frustum->getViewMatrix();
             projectionBias = projectionBias * mWorldMatrix;
 
@@ -1436,6 +1436,13 @@ namespace Ogre {
     #endif
     }
     
+    void GLRenderSystem::_convertProjectionMatrix(const Matrix4& matrix,
+        Matrix4& dest, bool forGpuProgram)
+    {
+        // no any convertion request for OpenGL
+        dest = matrix;
+    }
+
     void GLRenderSystem::_makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, 
         Real farPlane, Matrix4& dest, bool forGpuProgram)
     {

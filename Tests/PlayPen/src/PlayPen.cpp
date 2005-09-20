@@ -160,7 +160,7 @@ public:
             scaleMat[0][3] = 0.5f;
             scaleMat[1][3] = 0.5f;
             scaleMat[2][3] = 0.5f;
-            Matrix4 mat = frustum->getProjectionMatrix() * 
+            Matrix4 mat = frustum->getProjectionMatrixWithRSDepth() * 
                 frustum->getViewMatrix();
             
             
@@ -1929,9 +1929,10 @@ protected:
         mTestNode[3]->attachObject( pEnt );
 
 		// User test
+		/*
 		pEnt = mSceneMgr->createEntity( "3.6", "ogre_male_endCaps.mesh" );
 		mSceneMgr->getRootSceneNode()->createChildSceneNode(Vector3(0, 0, 100))->attachObject( pEnt );
-
+		*/
 
         MeshPtr msh = MeshManager::getSingleton().load("knot.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
@@ -2691,7 +2692,7 @@ protected:
         //testEdgeBuilderMultiIndexBufSingleVertexBuf();
         //testEdgeBuilderMultiIndexBufMultiVertexBuf();
         //testPrepareShadowVolume();
-        //testWindowedViewportMode();
+        testWindowedViewportMode();
         //testSubEntityVisibility();
         //testAttachObjectsToBones();
         //testSkeletalAnimation();
@@ -2721,7 +2722,7 @@ protected:
 		//testMorphAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
-		testManualObjectIndexed();
+		//testManualObjectIndexed();
     }
     // Create new frame listener
     void createFrameListener(void)
