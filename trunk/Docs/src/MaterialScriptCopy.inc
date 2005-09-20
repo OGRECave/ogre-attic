@@ -97,7 +97,7 @@ If a different program ref is to be used in the copied pass then just put in the
 
 @subheading Identifying Texture Units to overide values
 
-A specific texture unit state (TUS) can be specified in the pass without declaring previous texture units.  Using this for parent materials helps with readability only and is optional.  If the index number of the TUS is wrong in the parent material then the parser will just ignore the number and generate the proper index along with putting a warning message in the ogre log.  This feature is more useful for child materials that need to modify a specific TUS or need to add a new TUS.@*@*
+A specific texture unit state (TUS) can be given a unique name within a pass of a material so that it can be identified later in cloned materials that need to override specified texture unit states in the pass without declaring previous texture units.  Using a unique name for a Texture unit in a pass of a cloned material adds a new texture unit at the end of the texture unit list for the pass.@*@*
 
 @example
 material BumpMap2 : BumpMap1
@@ -106,7 +106,7 @@ material BumpMap2 : BumpMap1
   {
     pass 0
     {
-      texture_unit 1
+      texture_unit NormalMap
       {
         texture BumpyMetalNM.png
       }
@@ -115,5 +115,157 @@ material BumpMap2 : BumpMap1
 }
 @end example
 
-If a texture unit index is greater than what already exits in the pass, a new texture unit will be created after the last existing TUS in the current pass. if the new TUS index does not match the index specified in the script then an warning message will be placed in the log and the index value corrected.
+@subheading Texture Aliases
 
+Texture aliases are usefull for when only the textures used in texture units need to be specified for a cloned material.  In the source material ie the original material to be cloned, each texture unit can be given a texture alias name.  The cloned material in the script can then specify what textures should be used for each texture alias.@*@*
+
+Using texture aliases within texture units:@*
+Format:@*
+texture_alias <name>@*@*
+
+Example: The base material to be cloned:@*
+@example
+material TSNormalSpecMapping
+{ 
+  technique GLSL
+  { 
+    pass 
+    { 
+      ambient 0.1 0.1 0.1
+      diffuse 0.7 0.7 0.7
+      specular 0.7 0.7 0.7 128
+		
+      vertex_program_ref GLSLDemo/OffsetMappingVS
+      {
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto eyePosition camera_position_object_space
+        param_named textureScale float 1.0
+      }
+
+      fragment_program_ref GLSLDemo/TSNormalSpecMappingFS 
+      { 
+        param_named normalMap int 0
+        param_named diffuseMap int 1
+        param_named fxMap int 2
+      } 
+
+      // Normal map
+      texture_unit 
+      {
+        texture_alias NormalMap
+        texture defaultNM.png
+        tex_coord_set 0
+        filtering trilinear
+      }
+
+      // Base diffuse texture map
+      texture_unit 
+      {
+        texture_alias DiffuseMap
+        texture defaultDiff.png
+        filtering trilinear
+        tex_coord_set 1
+      }
+
+      // spec map for shinnines
+      texture_unit
+      {
+        texture_alias SpecMap
+        texture defaultSpec.png
+        filtering trilinear
+        tex_coord_set 2
+      }
+
+    } 
+
+  } 
+
+  technique HLSL_DX9
+  { 
+    pass 
+    { 
+			
+      vertex_program_ref FxMap_HLSL_VS
+      {
+        param_named_auto worldViewProj_matrix worldviewproj_matrix 
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto eyePosition camera_position_object_space
+      }
+
+      fragment_program_ref FxMap_HLSL_PS 
+      { 
+        param_named ambientColor float4 0.2 0.2 0.2 0.2
+      } 
+
+      // Normal map
+      texture_unit 
+      {
+        texture_alias NormalMap
+        texture defaultNM.png
+        tex_coord_set 0
+        filtering trilinear
+      }
+
+      // Base diffuse texture map
+      texture_unit 
+      {
+        texture_alias DiffuseMap
+        texture defaultDiff.png
+        filtering trilinear
+        tex_coord_set 1
+      }
+
+      // spec map for shinnines
+      texture_unit
+      {
+        texture_alias SpecMap
+        texture defaultSpec.png
+        filtering trilinear
+        tex_coord_set 2
+      }
+
+    } 
+
+  } 
+}
+@end example
+
+Note that the GLSL and HLSL techniques use the same textures.  For each texture usage type a texture alias is given that describes what the texture is used for.  So the first texture unit in the GLSL technique has the same alias as the TUS in the HLSL technique since its the same texture used. Same goes for the second and third texture units.@*@*
+
+Now we want to clone the material but only want to change the textures used.  We could copy and paste the whole material but if we decide to change the base material later then we also have to update the copied material in the script.  With set_texture_alias, copying a material is very easy now.  set_texture_alias is specified at the top of the material definition.  All techniques using the specified texture alias will be effected by set_texture_alias.@*@*
+
+Format:@*
+set_texture_alias <alias name> = <texture name>@*
+@example
+material fxTest : TSNormalSpecMapping
+{
+  set_texture_alias NormalMap = fxTestNMap.png
+  set_texture_alias DiffuseMap = fxTestDiff.png
+  set_texture_alias SpecMap = fxTestMap.png
+}
+@end example
+
+The textures in both techniques in the child material will automatically get replaced with the new ones we want to use.@*@*
+
+  The same process can be done in code as long you set up the texture alias names so then there is no need to traverse technique/pass/TUS to change a texture.  You just call myMaterialPtr->applyTextureAliases(myAliasTextureNameList) which will update all textures in all texture units that match the alias names in the map container reference you passed as a parameter.@*@*
+
+ You don't have to supply all the textures in the copied material.@*
+@example
+material fxTest2 : fxTest
+{
+  texture_alias DiffuseMap = fxTest2Diff.png
+  texture_alias SpecMap = fxTest2Map.png
+}
+@end example
+
+Material fxTest2 only changes the diffuse and spec maps of material fxTest and uses the same normal map.@*@*
+
+Another example:
+@example
+material fxTest3 : TSNormalSpecMapping
+{
+  texture_alias DiffuseMap = fxTest2Diff.png
+}
+@end example
+
+fxTest3 will end up with the default textures for the normal map and spec map setup in TSNormalSpecMapping material but will have a different diffuse map.  So your base material can define the default textures to use and then the child materials can override specific textures.@*@*
