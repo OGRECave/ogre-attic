@@ -50,24 +50,18 @@ namespace Ogre {
         mFarDist(100000.0f), 
         mNearDist(100.0f), 
         mAspect(1.33333333333333f), 
-        mProjMatrix(Matrix4::ZERO), 
-        mViewMatrix(Matrix4::ZERO), 
+        mLastParentOrientation(Quaternion::IDENTITY),
+        mLastParentPosition(Vector3::ZERO),
         mRecalcFrustum(true), 
         mRecalcView(true), 
+        mRecalcFrustumPlanes(true),
+        mRecalcWorldSpaceCorners(true),
+        mRecalcVertexData(true),
         mReflect(false), 
-        mReflectMatrix(Matrix4::ZERO), 
         mLinkedReflectPlane(0),
         mObliqueDepthProjection(false), 
         mLinkedObliqueProjPlane(0)
     {
-        // Initialise vertex & index data
-        mVertexData.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
-        mVertexData.vertexCount = 32;
-        mVertexData.vertexStart = 0;
-        mVertexData.vertexBufferBinding->setBinding( 0,
-            HardwareBufferManager::getSingleton().createVertexBuffer(
-                sizeof(float)*3, 32, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY) );
-
         // Initialise material
         mMaterial = MaterialManager::getSingleton().getByName("BaseWhiteNoLighting");
         
@@ -80,6 +74,7 @@ namespace Ogre {
 
 
         updateView();
+        updateFrustum();
     }
 
     //-----------------------------------------------------------------------
@@ -140,12 +135,20 @@ namespace Ogre {
         return mProjMatrix;
     }
     //-----------------------------------------------------------------------
-    const Matrix4& Frustum::getStandardProjectionMatrix(void) const
+    const Matrix4& Frustum::getProjectionMatrixWithRSDepth(void) const
     {
 
         updateFrustum();
 
-        return mStandardProjMatrix;
+        return mProjMatrixRSDepth;
+    }
+    //-----------------------------------------------------------------------
+    const Matrix4& Frustum::getProjectionMatrixRS(void) const
+    {
+
+        updateFrustum();
+
+        return mProjMatrixRS;
     }
     //-----------------------------------------------------------------------
     const Matrix4& Frustum::getViewMatrix(void) const
@@ -157,10 +160,19 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
+    const Plane* Frustum::getFrustumPlanes(void) const
+    {
+        // Make any pending updates to the calculated frustum planes
+        updateFrustumPlanes();
+
+        return mFrustumPlanes;
+    }
+
+    //-----------------------------------------------------------------------
     const Plane& Frustum::getFrustumPlane(unsigned short plane) const
     {
-        // Make any pending updates to the calculated frustum
-        updateView();
+        // Make any pending updates to the calculated frustum planes
+        updateFrustumPlanes();
 
         return mFrustumPlanes[plane];
 
@@ -172,8 +184,8 @@ namespace Ogre {
         // Null boxes always invisible
         if (bound.isNull()) return false;
 
-        // Make any pending updates to the calculated frustum
-        updateView();
+        // Make any pending updates to the calculated frustum planes
+        updateFrustumPlanes();
 
         // Get corners of the box
         const Vector3* pCorners = bound.getAllCorners();
@@ -210,8 +222,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Frustum::isVisible(const Vector3& vert, FrustumPlane* culledBy) const
     {
-        // Make any pending updates to the calculated frustum
-        updateView();
+        // Make any pending updates to the calculated frustum planes
+        updateFrustumPlanes();
 
         // For each plane, see if all points are on the negative side
         // If so, object is not visible
@@ -237,8 +249,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Frustum::isVisible(const Sphere& sphere, FrustumPlane* culledBy) const
     {
-        // Make any pending updates to the calculated frustum
-        updateView();
+        // Make any pending updates to the calculated frustum planes
+        updateFrustumPlanes();
 
         // For each plane, see if sphere is on negative side
         // If so, object is not visible
@@ -271,48 +283,116 @@ namespace Ogre {
             Radian thetaY (mFOVy * 0.5f);
             Real tanThetaY = Math::Tan(thetaY);
             Real tanThetaX = tanThetaY * mAspect;
-            Real vpTop = tanThetaY * mNearDist;
-            Real vpRight = tanThetaX * mNearDist;
-            Real vpBottom = -vpTop;
-            Real vpLeft = -vpRight;
 
-            RenderSystem* renderSystem = Root::getSingleton().getRenderSystem();
             // Recalc if frustum params changed
             if (mProjType == PT_PERSPECTIVE)
             {
+                // Calc matrix elements
+                Real w = 1 / tanThetaX;
+                Real h = 1 / tanThetaY;
+                Real q, qn;
+                if (mFarDist == 0)
+                {
+                    // Infinite far plane
+                    q = Frustum::INFINITE_FAR_PLANE_ADJUST - 1;
+                    qn = mNearDist * (Frustum::INFINITE_FAR_PLANE_ADJUST - 2);
+                }
+                else
+                {
+                    q = - (mFarDist + mNearDist) / (mFarDist - mNearDist);
+                    qn = -2 * (mFarDist * mNearDist) / (mFarDist - mNearDist);
+                }
 
-                // PERSPECTIVE transform, API specific
-                renderSystem->_makeProjectionMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mProjMatrix);
+                // NB: This creates 'uniform' perspective projection matrix,
+                // which depth range [-1,1], right-handed rules
+                //
+                // [ w   0   0   0  ]
+                // [ 0   h   0   0  ]
+                // [ 0   0   q   qn ]
+                // [ 0   0   -1  0  ]
 
-                // PERSPECTIVE transform, API specific for Gpu Programs
-                renderSystem->_makeProjectionMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
+                mProjMatrix = Matrix4::ZERO;
+                mProjMatrix[0][0] = w;
+                mProjMatrix[1][1] = h;
+                mProjMatrix[2][2] = q;
+                mProjMatrix[2][3] = qn;
+                mProjMatrix[3][2] = -1;
 
                 if (mObliqueDepthProjection)
                 {
                     // Translate the plane into view space
-                    Plane viewSpaceNear = mViewMatrix * mObliqueProjPlane;
-                    renderSystem->_applyObliqueDepthProjection(
-                        mProjMatrix, viewSpaceNear, false);
-                    renderSystem->_applyObliqueDepthProjection(
-                        mStandardProjMatrix, viewSpaceNear, true);
+                    Plane plane = getViewMatrix() * mObliqueProjPlane;
+
+                    // Thanks to Eric Lenyel for posting this calculation at www.terathon.com
+
+                    // Calculate the clip-space corner point opposite the clipping plane
+                    // as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1) and
+                    // transform it into camera space by multiplying it
+                    // by the inverse of the projection matrix
+
+                    /* generalised version
+                    Vector4 q = matrix.inverse() * 
+                        Vector4(Math::Sign(plane.normal.x), Math::Sign(plane.normal.y), 1.0f, 1.0f);
+                    */
+                    Vector4 q;
+                    q.x = (Math::Sign(plane.normal.x) + mProjMatrix[0][2]) / mProjMatrix[0][0];
+                    q.y = (Math::Sign(plane.normal.y) + mProjMatrix[1][2]) / mProjMatrix[1][1];
+                    q.z = -1;
+                    q.w = (1 + mProjMatrix[2][2]) / mProjMatrix[2][3];
+
+                    // Calculate the scaled plane vector
+                    Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
+                    Vector4 c = clipPlane4d * (2 / (clipPlane4d.dotProduct(q)));
+
+                    // Replace the third row of the projection matrix
+                    mProjMatrix[2][0] = c.x;
+                    mProjMatrix[2][1] = c.y;
+                    mProjMatrix[2][2] = c.z + 1;
+                    mProjMatrix[2][3] = c.w; 
                 }
             }
             else if (mProjType == PT_ORTHOGRAPHIC)
             {
-                // ORTHOGRAPHIC projection, API specific 
-                Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mProjMatrix);
+                Real half_w = tanThetaX * mNearDist;
+                Real half_h = tanThetaY * mNearDist;
+                Real iw = 1 / half_w;
+                Real ih = 1 / half_h;
+                Real q, qn;
+                if (mFarDist == 0)
+                {
+                    // Can not do infinite far plane here, avoid divided zero only
+                    q = - Frustum::INFINITE_FAR_PLANE_ADJUST / mNearDist;
+                    qn = - Frustum::INFINITE_FAR_PLANE_ADJUST - 1;
+                }
+                else
+                {
+                    q = -2 / (mFarDist - mNearDist);
+                    qn = - (mFarDist + mNearDist) / (mFarDist - mNearDist);
+                }
 
-                // ORTHOGRAPHIC projection, non-API specific 
-                Root::getSingleton().getRenderSystem()->_makeOrthoMatrix(mFOVy, 
-                    mAspect, mNearDist, mFarDist, mStandardProjMatrix, true);
+                // NB: This creates 'uniform' orthographic projection matrix,
+                // which depth range [-1,1], right-handed rules
+                //
+                // [ iw  0   0   0  ]
+                // [ 0   ih  0   0  ]
+                // [ 0   0   q   qn ]
+                // [ 0   0   0   1  ]
 
-
+                mProjMatrix = Matrix4::ZERO;
+                mProjMatrix[0][0] = iw;
+                mProjMatrix[1][1] = ih;
+                mProjMatrix[2][2] = q;
+                mProjMatrix[2][3] = qn;
+                mProjMatrix[3][3] = 1;
             }
 
-            
+            RenderSystem* renderSystem = Root::getSingleton().getRenderSystem();
+            // API specific
+            renderSystem->_convertProjectionMatrix(mProjMatrix, mProjMatrixRS);
+            // API specific for Gpu Programs
+            renderSystem->_convertProjectionMatrix(mProjMatrix, mProjMatrixRSDepth, true);
+
+
             // Calculate bounding box (local)
             // Box is from 0, down -Z, max dimensions as determined from far plane
             // If infinite view frustum just pick a far value
@@ -324,6 +404,43 @@ namespace Ogre {
             Vector3 min(-farRight, -farTop, 0);
             Vector3 max(farRight, farTop, -farDist);
             mBoundingBox.setExtents(min, max);
+
+            mRecalcFrustum = false;
+
+            // Signal to update frustum clipping planes
+            mRecalcFrustumPlanes = true;
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    void Frustum::updateVertexData(void) const
+    {
+        if (mRecalcVertexData)
+        {
+            if (mVertexData.vertexBufferBinding->getBufferCount() <= 0)
+            {
+                // Initialise vertex & index data
+                mVertexData.vertexDeclaration->addElement(0, 0, VET_FLOAT3, VES_POSITION);
+                mVertexData.vertexCount = 32;
+                mVertexData.vertexStart = 0;
+                mVertexData.vertexBufferBinding->setBinding( 0,
+                    HardwareBufferManager::getSingleton().createVertexBuffer(
+                        sizeof(float)*3, 32, HardwareBuffer::HBU_DYNAMIC_WRITE_ONLY) );
+            }
+
+            // Common calcs
+            Radian thetaY (mFOVy * 0.5f);
+            Real tanThetaY = Math::Tan(thetaY);
+            Real tanThetaX = tanThetaY * mAspect;
+            Real vpTop = tanThetaY * mNearDist;
+            Real vpRight = tanThetaX * mNearDist;
+            Real vpBottom = -vpTop;
+            Real vpLeft = -vpRight;
+            Real farDist = (mFarDist == 0) ? 100000 : mFarDist;
+            Real farTop = tanThetaY * (mProjType == PT_ORTHOGRAPHIC? mNearDist : farDist);
+            Real farRight = tanThetaX * (mProjType == PT_ORTHOGRAPHIC? mNearDist : farDist);
+            Real farBottom = -farTop;
+            Real farLeft = -farRight;
 
             // Calculate vertex positions (local)
             // 0 is the origin
@@ -388,62 +505,61 @@ namespace Ogre {
 
             vbuf->unlock();
 
-            mRecalcFrustum = false;
+            mRecalcVertexData = false;
         }
     }
 
     //-----------------------------------------------------------------------
     bool Frustum::isViewOutOfDate(void) const
     {
-        bool returnVal = false;
         // Attached to node?
         if (mParentNode)
         {
-            if (!mRecalcView && mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
-                mParentNode->_getDerivedPosition() == mLastParentPosition)
-            {
-                returnVal = false;
-            }
-            else
+            if (mRecalcView ||
+                mParentNode->_getDerivedOrientation() != mLastParentOrientation ||
+                mParentNode->_getDerivedPosition() != mLastParentPosition)
             {
                 // Ok, we're out of date with SceneNode we're attached to
                 mLastParentOrientation = mParentNode->_getDerivedOrientation();
                 mLastParentPosition = mParentNode->_getDerivedPosition();
-                returnVal = true;
+                mRecalcView = true;
             }
         }
         // Deriving reflection from linked plane?
-        if (mReflect && mLinkedReflectPlane && 
+        if (mLinkedReflectPlane && 
             !(mLastLinkedReflectionPlane == mLinkedReflectPlane->_getDerivedPlane()))
         {
             mReflectPlane = mLinkedReflectPlane->_getDerivedPlane();
             mReflectMatrix = Math::buildReflectionMatrix(mReflectPlane);
             mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
-            returnVal = true;
+            mRecalcView = true;
         }
 
-        return mRecalcView || returnVal;
+        return mRecalcView;
     }
 
     //-----------------------------------------------------------------------
     bool Frustum::isFrustumOutOfDate(void) const
     {
         // Deriving custom near plane from linked plane?
-        bool returnVal = false;
         if (mObliqueDepthProjection)
         {
-            // Always out of date since plane needs to be in view space
-            returnVal = true;
+            // Out of date when view out of data since plane needs to be in view space
+            if (isViewOutOfDate())
+            {
+                mRecalcFrustum = true;
+            }
             // Update derived plane
             if (mLinkedObliqueProjPlane && 
                 !(mLastLinkedObliqueProjPlane == mLinkedObliqueProjPlane->_getDerivedPlane()))
             {
                 mObliqueProjPlane = mLinkedObliqueProjPlane->_getDerivedPlane();
                 mLastLinkedObliqueProjPlane = mObliqueProjPlane;
+                mRecalcFrustum = true;
             }
         }
 
-        return mRecalcFrustum || returnVal;
+        return mRecalcFrustum;
     }
 
     //-----------------------------------------------------------------------
@@ -490,17 +606,34 @@ namespace Ogre {
                 mViewMatrix = mViewMatrix * mReflectMatrix;
             }
 
+            mRecalcView = false;
+
+            // Signal to update frustum clipping planes
+            mRecalcFrustumPlanes = true;
+            // Signal to update world space corners
+            mRecalcWorldSpaceCorners = true;
+            // Signal to update frustum if oblique plane enabled,
+            // since plane needs to be in view space
+            if (mObliqueDepthProjection)
+            {
+                mRecalcFrustum = true;
+            }
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    void Frustum::updateFrustumPlanes(void) const
+    {
+        updateView();
+        updateFrustum();
+
+        if (mRecalcFrustumPlanes)
+        {
             // -------------------------
             // Update the frustum planes
             // -------------------------
-            updateFrustum();
+            Matrix4 combo = mProjMatrix * mViewMatrix;
 
-			Vector3 newpos = position;
-			if (mReflect)
-			{
-				newpos = mReflectMatrix * newpos;
-			}
-            Matrix4 combo = mStandardProjMatrix * mViewMatrix;
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.x = combo[3][0] + combo[0][0];
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.y = combo[3][1] + combo[0][1];
             mFrustumPlanes[FRUSTUM_PLANE_LEFT].normal.z = combo[3][2] + combo[0][2];
@@ -524,24 +657,32 @@ namespace Ogre {
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.x = combo[3][0] + combo[2][0];
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.y = combo[3][1] + combo[2][1];
             mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.z = combo[3][2] + combo[2][2];
-			mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.normalise();
-			mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = 
-				-(mFrustumPlanes[FRUSTUM_PLANE_NEAR].normal.dotProduct(newpos) + mNearDist);
+            mFrustumPlanes[FRUSTUM_PLANE_NEAR].d = combo[3][3] + combo[2][3];
 
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.x = combo[3][0] - combo[2][0];
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.y = combo[3][1] - combo[2][1];
             mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.z = combo[3][2] - combo[2][2];
-			mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.normalise();
-			mFrustumPlanes[FRUSTUM_PLANE_FAR].d = 
-				-(mFrustumPlanes[FRUSTUM_PLANE_FAR].normal.dotProduct(newpos) - mFarDist);
+            mFrustumPlanes[FRUSTUM_PLANE_FAR].d = combo[3][3] - combo[2][3];
 
-            // Renormalise any normals which were not unit length (not near & far)
-            for(int i=2; i<6; i++ ) 
+            // Renormalise any normals which were not unit length
+            for(int i=0; i<6; i++ ) 
             {
                 float length = mFrustumPlanes[i].normal.normalise();
                 mFrustumPlanes[i].d /= length;
             }
 
+            mRecalcFrustumPlanes = false;
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    void Frustum::updateWorldSpaceCorners(void) const
+    {
+        updateView();
+        updateFrustum();
+
+        if (mRecalcWorldSpaceCorners)
+        {
             // Update worldspace corners
             Matrix4 eyeToWorld = mViewMatrix.inverse();
             // Get worldspace frustum corners
@@ -565,7 +706,7 @@ namespace Ogre {
             mWorldSpaceCorners[7] = eyeToWorld * Vector3( farx, -fary, -farDist);
 
 
-            mRecalcView = false;
+            mRecalcWorldSpaceCorners = false;
 
         }
 
@@ -613,8 +754,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void Frustum::getRenderOperation(RenderOperation& op) 
     {
-        updateView();
-        updateFrustum();
+        updateVertexData();
         op.operationType = RenderOperation::OT_LINE_LIST;
         op.useIndexes = false;
         op.vertexData = &mVertexData;
@@ -658,20 +798,35 @@ namespace Ogre {
         static LightList ll;
         return ll;
     }
+    //-----------------------------------------------------------------------
+    void Frustum::_notifyCurrentCamera(Camera* cam)
+    {
+        // Make sure bounding box up-to-date
+        updateFrustum();
+
+        MovableObject::_notifyCurrentCamera(cam);
+    }
+
     // -------------------------------------------------------------------
     void Frustum::invalidateFrustum() const
     {
         mRecalcFrustum = true;
+        mRecalcFrustumPlanes = true;
+        mRecalcWorldSpaceCorners = true;
+        mRecalcVertexData = true;
     }
     // -------------------------------------------------------------------
     void Frustum::invalidateView() const
     {
         mRecalcView = true;
+        mRecalcFrustumPlanes = true;
+        mRecalcWorldSpaceCorners = true;
+        mRecalcVertexData = true;
     }
     // -------------------------------------------------------------------
     const Vector3* Frustum::getWorldSpaceCorners(void) const
     {
-        updateView();
+        updateWorldSpaceCorners();
 
         return mWorldSpaceCorners;
     }
@@ -721,6 +876,7 @@ namespace Ogre {
     void Frustum::disableReflection(void)
     {
         mReflect = false;
+        mLinkedReflectPlane = 0;
         mLastLinkedReflectionPlane.normal = Vector3::ZERO;
         invalidateView();
     }
@@ -742,12 +898,12 @@ namespace Ogre {
             if (eyeSpacePos.squaredLength() <= r * r)
                 return false;
 
-            Vector3 screenSpacePos = getStandardProjectionMatrix() * eyeSpacePos;
+            Vector3 screenSpacePos = getProjectionMatrix() * eyeSpacePos;
 
 
             // perspective attenuate
             Vector3 spheresize(r, r, eyeSpacePos.z);
-            spheresize = getStandardProjectionMatrix() * spheresize;
+            spheresize = getProjectionMatrix() * spheresize;
 
             Real possLeft = screenSpacePos.x - spheresize.x;
             Real possRight = screenSpacePos.x + spheresize.x;

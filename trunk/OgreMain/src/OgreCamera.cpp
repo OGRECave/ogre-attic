@@ -65,7 +65,7 @@ namespace Ogre {
 
         // Init matrices
         mViewMatrix = Matrix4::ZERO;
-        mProjMatrix = Matrix4::ZERO;
+        mProjMatrixRS = Matrix4::ZERO;
 
         mParentNode = 0;
 
@@ -323,24 +323,20 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     bool Camera::isViewOutOfDate(void) const
     {
-        bool returnVal = false;
         // Overridden from Frustum to use local orientation / position offsets
         // Attached to node?
         if (mParentNode != 0)
         {
-            if (!mRecalcView && mParentNode->_getDerivedOrientation() == mLastParentOrientation &&
-                mParentNode->_getDerivedPosition() == mLastParentPosition)
-            {
-                returnVal = false;
-            }
-            else
+            if (mRecalcView ||
+                mParentNode->_getDerivedOrientation() != mLastParentOrientation ||
+                mParentNode->_getDerivedPosition() != mLastParentPosition)
             {
                 // Ok, we're out of date with SceneNode we're attached to
                 mLastParentOrientation = mParentNode->_getDerivedOrientation();
                 mLastParentPosition = mParentNode->_getDerivedPosition();
                 mDerivedOrientation = mLastParentOrientation * mOrientation;
                 mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
-                returnVal = true;
+                mRecalcView = true;
             }
         }
         else
@@ -357,10 +353,10 @@ namespace Ogre {
             mReflectPlane = mLinkedReflectPlane->_getDerivedPlane();
             mReflectMatrix = Math::buildReflectionMatrix(mReflectPlane);
             mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
-            returnVal = true;
+            mRecalcView = true;
         }
 
-        return returnVal || mRecalcView;
+        return mRecalcView;
 
     }
 
@@ -375,14 +371,14 @@ namespace Ogre {
     // -------------------------------------------------------------------
     void Camera::invalidateView() const
     {
-        mRecalcView = true;
         mRecalcWindow = true;
+        Frustum::invalidateView();
     }
     // -------------------------------------------------------------------
     void Camera::invalidateFrustum(void) const
     {
-        mRecalcFrustum = true;
         mRecalcWindow = true;
+        Frustum::invalidateFrustum();
     }
     //-----------------------------------------------------------------------
     void Camera::_renderScene(Viewport *vp, bool includeOverlays)

@@ -311,6 +311,11 @@ namespace Ogre {
         /** See
           RenderSystem
          */
+        void _convertProjectionMatrix(const Matrix4& matrix,
+            Matrix4& dest, bool forGpuProgram = false);
+        /** See
+          RenderSystem
+         */
         void _makeProjectionMatrix(const Radian& fovy, Real aspect, Real nearPlane, Real farPlane, 
             Matrix4& dest, bool forGpuProgram = false);
         /** See
