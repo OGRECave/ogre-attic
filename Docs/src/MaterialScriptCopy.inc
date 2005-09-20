@@ -239,9 +239,9 @@ set_texture_alias <alias name> = <texture name>@*
 @example
 material fxTest : TSNormalSpecMapping
 {
-  set_texture_alias NormalMap = fxTestNMap.png
-  set_texture_alias DiffuseMap = fxTestDiff.png
-  set_texture_alias SpecMap = fxTestMap.png
+  set_texture_alias NormalMap fxTestNMap.png
+  set_texture_alias DiffuseMap fxTestDiff.png
+  set_texture_alias SpecMap fxTestMap.png
 }
 @end example
 
@@ -253,8 +253,8 @@ The textures in both techniques in the child material will automatically get rep
 @example
 material fxTest2 : fxTest
 {
-  texture_alias DiffuseMap = fxTest2Diff.png
-  texture_alias SpecMap = fxTest2Map.png
+  set_texture_alias DiffuseMap fxTest2Diff.png
+  set_texture_alias SpecMap fxTest2Map.png
 }
 @end example
 
@@ -264,7 +264,7 @@ Another example:
 @example
 material fxTest3 : TSNormalSpecMapping
 {
-  texture_alias DiffuseMap = fxTest2Diff.png
+  set_texture_alias DiffuseMap fxTest2Diff.png
 }
 @end example
 
