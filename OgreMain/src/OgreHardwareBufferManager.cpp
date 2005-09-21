@@ -321,10 +321,10 @@ namespace Ogre {
         }
     }
 	//-----------------------------------------------------------------------------
-	bool TempBlendedBufferInfo::buffersCheckedOut(void) const
+	bool TempBlendedBufferInfo::buffersCheckedOut(bool positions, bool normals) const
 	{
-		return (!bindPositions || !destPositionBuffer.isNull()) && 
-			(!bindNormals || !destNormalBuffer.isNull());
+		return (!positions || !destPositionBuffer.isNull()) && 
+            (!normals || !(posNormalShareBuffer ? destPositionBuffer.isNull() : destNormalBuffer.isNull()));
 	}
     //-----------------------------------------------------------------------------
     void TempBlendedBufferInfo::bindTempCopies(VertexData* targetData, bool suppressHardwareUpload)

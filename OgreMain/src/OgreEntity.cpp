@@ -501,14 +501,17 @@ namespace Ogre {
 			root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_ADDITIVE ||
 			root._getCurrentSceneManager()->getShadowTechnique() == SHADOWTYPE_STENCIL_MODULATIVE;
 		bool softwareAnimation = !hwSkinning || forcedSwSkinning || stencilShadows;
+		// Blend normals in s/w only if we're not using h/w skinning,
+		// since shadows only require positions
+		bool blendNormals = !hwSkinning || forcedNormals;
 
 		// We only do these tasks if animation is dirty or transform has altered
 		// when using skeletal animation, which is dependent
 		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
 			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()) ||
-			(softwareAnimation && hasMorphAnimation() && !mTempMorphAnimInfo.buffersCheckedOut()) ||
-			(softwareAnimation && hasSkeleton() && !mTempSkelAnimInfo.buffersCheckedOut()))
+			(softwareAnimation && hasMorphAnimation() && !mTempMorphAnimInfo.buffersCheckedOut(true, false)) ||
+			(softwareAnimation && hasSkeleton() && !mTempSkelAnimInfo.buffersCheckedOut(true, blendNormals)))
         {
 			if (hasMorphAnimation())
 			{
@@ -550,9 +553,6 @@ namespace Ogre {
 				if (softwareAnimation)
 				{
 					// Ok, we need to do a software blend
-					// Blend normals in s/w only if we're not using h/w skinning,
-					// since shadows only require positions
-					bool blendNormals = !hwSkinning || forcedNormals;
 					// Firstly, check out working vertex buffers
 					if (mSkelAnimVertexData)
 					{

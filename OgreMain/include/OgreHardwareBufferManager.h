@@ -78,7 +78,7 @@ namespace Ogre {
         /** Overridden member from HardwareBufferLicensee. */
         void licenseExpired(HardwareBuffer* buffer);
 		/** Do we currently have buffer copies checked out? */
-		bool buffersCheckedOut(void) const;
+		bool buffersCheckedOut(bool positions = true, bool normals = true) const;
     };
 
 
