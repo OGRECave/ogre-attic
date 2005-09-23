@@ -217,6 +217,11 @@ namespace Ogre {
 		{
 			delete mAnimationState;
 		}
+
+		delete mSkelAnimVertexData;
+		delete mSoftwareMorphAnimVertexData;
+		delete mHardwareMorphAnimVertexData;
+
     }
 	//-----------------------------------------------------------------------
 	bool Entity::hasMorphAnimation(void) const
@@ -1627,11 +1632,21 @@ namespace Ogre {
         }
 
 		if (mSkelAnimVertexData)
+		{
 			delete mSkelAnimVertexData;
+			mSkelAnimVertexData = 0;
+		}
 		if (mHardwareMorphAnimVertexData)
+		{
 			delete mHardwareMorphAnimVertexData;
+			mHardwareMorphAnimVertexData = 0;
+		}
 		if (mSoftwareMorphAnimVertexData)
+		{
 			delete mSoftwareMorphAnimVertexData;
+			mSoftwareMorphAnimVertexData = 0;
+		}
+
 
     }    
     //-----------------------------------------------------------------------
