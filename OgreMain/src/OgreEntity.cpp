@@ -197,6 +197,8 @@ namespace Ogre {
                 delete mFrameBonesLastUpdated;
             }
         }
+
+		delete mSharedBlendedVertexData;
     }
     //-----------------------------------------------------------------------
     MeshPtr& Entity::getMesh(void)
