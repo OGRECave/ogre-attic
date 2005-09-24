@@ -71,6 +71,7 @@ namespace Ogre {
 		@param exportChildren Whether to cascade down each objects children
         @param edgeLists Whether to calculate edge lists
         @param tangents Whether to calculate tangents
+		@param materialPrefix Prefix to give all materials
 		@param lod LOD generation parameters (if required)
 		@param skeletonName Name of the skeleton to link to if animated
 		@returns List of deformers (bones) which were found whilst exporting (if
@@ -78,7 +79,8 @@ namespace Ogre {
         */
         DeformerMap& exportMesh(const String& fileName, 
             bool mergeSubMeshes, bool exportChildren, bool edgeLists, 
-			bool tangents, LodData* lod = 0, const String& skeletonName = "");
+			bool tangents, const String& materialPrefix = StringUtil::BLANK,
+			LodData* lod = 0, const String& skeletonName = "");
 
 		/** Get a list of materials which were located during the last call
 		 *  to exportMesh. 
@@ -151,6 +153,8 @@ namespace Ogre {
 		MaterialMap mXsiMaterialMap;
 		/// Map from texture projection names to uv index
 		TextureProjectionMap mTextureProjectionMap;
+		/// Material prefix
+		String mMaterialPrefix;
 
 
 		/// Build a list of PolygonMesh instances from selection

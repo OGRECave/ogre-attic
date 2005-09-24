@@ -91,7 +91,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	DeformerMap& XsiMeshExporter::exportMesh(const String& fileName, 
 		bool mergeSubMeshes, bool exportChildren, 
-		bool edgeLists, bool tangents, LodData* lod, const String& skeletonName)
+		bool edgeLists, bool tangents, const String& materialPrefix, 
+		LodData* lod, const String& skeletonName)
     {
 
 		LogOgreAndXSI(L"** Begin OGRE Mesh Export **");
@@ -101,6 +102,8 @@ namespace Ogre {
         // Construct mesh
         MeshPtr pMesh = MeshManager::getSingleton().createManual("XSIExport", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		mMaterialPrefix = materialPrefix;
 
 		cleanupDeformerMap();
 		cleanupMaterialMap();
@@ -554,7 +557,8 @@ namespace Ogre {
 		 * materials in question, and define the PolygonCluster map
 		 */
 		// Main material (will never exist if not merging submeshes)
-		String materialName = XSItoOgre(xsiMesh->obj.GetMaterial().GetName());
+		String materialName = mMaterialPrefix + 
+			XSItoOgre(xsiMesh->obj.GetMaterial().GetName());
 		registerMaterial(materialName, xsiMesh->obj.GetMaterial());
 		
 		mMainProtoMesh = createOrRetrieveProtoSubMesh(
@@ -575,7 +579,8 @@ namespace Ogre {
 			// Is the material different for this poly cluster?
 			if (cluster.GetMaterial() != xsiMesh->obj.GetMaterial())
 			{
-				String submatName = XSItoOgre(cluster.GetMaterial().GetName());
+				String submatName = mMaterialPrefix + 
+					XSItoOgre(cluster.GetMaterial().GetName());
 				registerMaterial(submatName, cluster.GetMaterial());
 				ProtoSubMesh* ps = createOrRetrieveProtoSubMesh(
 					submatName,

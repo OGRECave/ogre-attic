@@ -346,6 +346,10 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				numSteps += 3;
 
 			Ogre::ProgressManager progressMgr(numSteps);
+			
+			// Any material prefix? We need that for mesh linking too
+			param = prop.GetParameters().GetItem( L"materialPrefix" );
+			Ogre::String materialPrefix = XSItoOgre(param.GetValue());
 
 			if (exportSkeleton)
 			{
@@ -434,7 +438,8 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				// Do the mesh
 				Ogre::DeformerMap& deformers = 
 					meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
-						exportChildren, edgeLists, tangents, lodData, skelName);
+						exportChildren, edgeLists, tangents, materialPrefix,
+						lodData, skelName);
 				// do the skeleton
 				skelExporter.exportSkeleton(skeletonFileName, deformers, fps, selAnimList);
 
@@ -445,7 +450,7 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 			{
 				// Just mesh
 				meshExporter.exportMesh(meshFileName, mergeSubmeshes, 
-					exportChildren, edgeLists, tangents, lodData);
+					exportChildren, edgeLists, tangents, materialPrefix, lodData);
 			}
 
 			
@@ -457,9 +462,6 @@ XSI::CStatus OnOgreMeshExportMenu( XSI::CRef& in_ref )
 				param = prop.GetParameters().GetItem( L"targetMaterialFileName" );
 				Ogre::String materialFileName = XSItoOgre(param.GetValue());
 				
-				param = prop.GetParameters().GetItem( L"materialPrefix" );
-				Ogre::String materialPrefix = XSItoOgre(param.GetValue());
-
 				Ogre::XsiMaterialExporter matExporter;
 				try 
 				{
