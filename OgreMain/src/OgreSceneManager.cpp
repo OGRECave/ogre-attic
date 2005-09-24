@@ -553,6 +553,10 @@ void SceneManager::clearScene(void)
     mSkyBoxNode = mSkyPlaneNode = mSkyDomeNode = 0;
     mSkyBoxEnabled = mSkyPlaneEnabled = mSkyDomeEnabled = false; 
 
+	// Clear render queue, empty completely
+	if (mRenderQueue)
+		mRenderQueue->clear(true);
+
 }
 //-----------------------------------------------------------------------
 SceneNode* SceneManager::createSceneNode(void)
