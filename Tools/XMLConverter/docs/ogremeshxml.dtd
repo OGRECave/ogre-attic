@@ -56,14 +56,14 @@
 	colours_diffuse 			(true|false)	"false"
 	colours_specular 			(true|false)	"false"
 	texture_coords				(0|1|2|3|4|5|6|7|8) 	"0"
-	texture_coord_dimensions_0 	(0|1|2)		 	"2"
-	texture_coord_dimensions_1 	(0|1|2)		 	"2"
-	texture_coord_dimensions_2 	(0|1|2)		 	"2"
-	texture_coord_dimensions_3 	(0|1|2)		 	"2"
-	texture_coord_dimensions_4 	(0|1|2)		 	"2"
-	texture_coord_dimensions_5 	(0|1|2)		 	"2"
-	texture_coord_dimensions_6 	(0|1|2)		 	"2"
-	texture_coord_dimensions_7 	(0|1|2)		 	"2">
+	texture_coord_dimensions_0 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_1 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_2 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_3 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_4 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_5 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_6 	(0|1|2|3)		 	"2"
+	texture_coord_dimensions_7 	(0|1|2|3)		 	"2">
 <!ELEMENT vertex (position?, normal?, colour_diffuse?, colour_specular?, 
 	texcoord*)>
 <!ELEMENT position EMPTY>
