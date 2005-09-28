@@ -83,8 +83,7 @@ namespace Ogre {
         /** Constructor, don't call directly, use SkeletonManager.
         @remarks
             On creation, a Skeleton has a no bones, you should create them and link
-            them together appropriately. Unless you state otherwise by attaching it to 
-            a higher bone, the first bone you create is deemed to be the root bone.
+            them together appropriately. 
         */
         Skeleton(ResourceManager* creator, const String& name, ResourceHandle handle,
             const String& group, bool isManual = false, ManualResourceLoader* loader = 0);
@@ -93,9 +92,9 @@ namespace Ogre {
 
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
-            This method creates an unattached new Bone for this skeleton. Unless this is to
-            be the root bone (there must only be one of these), you must
-            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            This method creates an unattached new Bone for this skeleton.
+			Unless this is to be a root bone (there may be more than one of 
+			these), you must attach it to another Bone in the skeleton using addChild for it to be any use.
             For this reason you will likely be better off creating child bones using the
             Bone::createChild method instead, once you have created the root bone. 
         @par
@@ -109,11 +108,10 @@ namespace Ogre {
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
             This method creates an unattached new Bone for this skeleton and assigns it a 
-            specific handle. Unless this is to
-            be the root bone (there must only be one of these), you must
-            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            specific handle. Unless this is to be a root bone (there may be more than one of 
+			these), you must attach it to another Bone in the skeleton using addChild for it to be any use. 
             For this reason you will likely be better off creating child bones using the
-            Bone::createChild method instead, once you have created the root bone. 
+            Bone::createChild method instead, once you have created a root bone. 
         @param handle The handle to give to this new bone - must be unique within this skeleton. 
             You should also ensure that all bone handles are eventually contiguous (this is to simplify
             their compilation into an indexed array of transformation matrices). For this reason
@@ -125,9 +123,8 @@ namespace Ogre {
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
             This method creates an unattached new Bone for this skeleton and assigns it a 
-            specific name. Unless this is to
-            be the root bone (there must only be one of these), you must
-            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            specific name.Unless this is to be a root bone (there may be more than one of 
+			these), you must attach it to another Bone in the skeleton using addChild for it to be any use.
             For this reason you will likely be better off creating child bones using the
             Bone::createChild method instead, once you have created the root bone. 
         @param name The name to give to this new bone - must be unique within this skeleton. 
@@ -141,9 +138,8 @@ namespace Ogre {
         /** Creates a brand new Bone owned by this Skeleton. 
         @remarks
             This method creates an unattached new Bone for this skeleton and assigns it a 
-            specific name and handle. Unless this is to
-            be the root bone (there must only be one of these), you must
-            attach it to another Bone in the skeleton using addChild for it to be any use. 
+            specific name and handle. Unless this is to be a root bone (there may be more than one of 
+			these), you must attach it to another Bone in the skeleton using addChild for it to be any use.
             For this reason you will likely be better off creating child bones using the
             Bone::createChild method instead, once you have created the root bone. 
         @param name The name to give to this new bone - must be unique within this skeleton. 
