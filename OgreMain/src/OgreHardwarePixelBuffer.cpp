@@ -127,7 +127,7 @@ namespace Ogre
 			
 		const PixelBox &dstlock = lock(dstBox, method);
 		if(dstlock.getWidth() != srclock.getWidth() ||
-        	dstlock.getHeight() != srclock.getDepth() ||
+        	dstlock.getHeight() != srclock.getHeight() ||
         	dstlock.getDepth() != srclock.getDepth())
 		{
 			// Scaling desired
