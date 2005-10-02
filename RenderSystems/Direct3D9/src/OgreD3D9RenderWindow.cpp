@@ -722,52 +722,32 @@ namespace Ogre
 			SAFE_RELEASE(pTempSurf);
 			OGRE_EXCEPT(hr, "Can't get front buffer!", "D3D9RenderWindow::writeContentsToFile");
 		}
-
-		if (!mIsFullScreen)
+		
+		D3DLOCKED_RECT lockedRect;
+		if(mIsFullScreen)
 		{
-			POINT pt={0, 0};
+			if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
+			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
+			{
+				OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
+			} 
+		}
+		else
+		{
 			RECT srcRect;
 			GetWindowRect(mHWnd, &srcRect);
 
 			desc.Width = srcRect.right - srcRect.left;
 			desc.Height = srcRect.bottom - srcRect.top;
-			desc.Format = D3DFMT_A8R8G8B8;         // this is what we get from the screen, so stick with it
 
-			// NB we can't lock the back buffer direct because it's no created that way
-			// and to do so hits performance, so copy to another surface
-			// Must be the same format as the source surface
-			if (FAILED(hr = mpD3DDevice->CreateOffscreenPlainSurface(
-				desc.Width, 
-				desc.Height, 
-				desc.Format, 
-				D3DPOOL_DEFAULT, 
-				&pSurf,
-				NULL)))
-			{
-				SAFE_RELEASE(pSurf);
-				OGRE_EXCEPT(hr, "Cannot create offscreen buffer 2!", "D3D9RenderWindow::writeContentsToFile");
-			}
+			if (FAILED(hr = pTempSurf->LockRect(&lockedRect, &srcRect, 
 
-			// Copy
-			if (FAILED(hr = mpD3DDevice->UpdateSurface(pTempSurf, &srcRect, pSurf, &pt)))
-			{
-				SAFE_RELEASE(pTempSurf);
-				SAFE_RELEASE(pSurf);
-				OGRE_EXCEPT(hr, "Cannot update surface!", "D3D9RenderWindow::writeContentsToFile");
-			}
-
-			SAFE_RELEASE(pTempSurf);
-			pTempSurf = pSurf;
-			pSurf = NULL;
-		}
-
-		D3DLOCKED_RECT lockedRect;
-		if (FAILED(hr = pTempSurf->LockRect(&lockedRect, NULL, 
 			D3DLOCK_READONLY | D3DLOCK_NOSYSLOCK)))
-		{
-			OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
-		} 
-
+			{
+				OGRE_EXCEPT(hr, "can't lock rect!", "D3D9RenderWindow::writeContentsToFile");
+			} 
+		}
+  
 		ImageCodec::ImageData *imgData = new ImageCodec::ImageData();
 		imgData->width = desc.Width;
 		imgData->height = desc.Height;
