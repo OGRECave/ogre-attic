@@ -183,7 +183,7 @@ public:
 				e->getParentSceneNode()->detachObject("1");
 				e = mSceneMgr->getEntity("2");
 				e->getParentSceneNode()->detachObject("2");
-				mSceneMgr->removeAllEntities();
+				mSceneMgr->destroyAllEntities();
 				ResourceGroupManager::getSingleton().unloadResourceGroup("Sinbad");
 				ResourceGroupManager::getSingleton().loadResourceGroup("Sinbad");
 
@@ -721,7 +721,7 @@ protected:
 		unsigned int count = 10;
 		while(count--)
 		{
-			if(s) mSceneMgr->removeStaticGeometry(s);
+			if(s) mSceneMgr->destroyStaticGeometry(s);
 			s = mSceneMgr->createStaticGeometry("bing");
 
 			s->addEntity(e, Vector3(100, 100, 100));
@@ -1098,11 +1098,11 @@ protected:
         mTestNode[0]->translate(0, 0, 750);
 
         frustum = new Frustum();
-        //frustum->setVisible(true);
+        frustum->setVisible(true);
         frustum->setFarClipDistance(5000);
         frustum->setNearClipDistance(200);
         frustum->setAspectRatio(1);
-        frustum->setProjectionType(PT_ORTHOGRAPHIC);
+        //frustum->setProjectionType(PT_ORTHOGRAPHIC);
         mTestNode[0]->attachObject(frustum);
 
         // Hook the frustum up to the material
@@ -2492,7 +2492,7 @@ protected:
 		mSceneMgr->setShowDebugShadows(true);
 
 		mAnimState = e->getAnimationState("testAnim");
-		//mAnimState->setEnabled(true);
+		mAnimState->setEnabled(true);
 		
 
 		Plane plane;
@@ -2692,7 +2692,7 @@ protected:
         //testEdgeBuilderMultiIndexBufSingleVertexBuf();
         //testEdgeBuilderMultiIndexBufMultiVertexBuf();
         //testPrepareShadowVolume();
-        testWindowedViewportMode();
+        //testWindowedViewportMode();
         //testSubEntityVisibility();
         //testAttachObjectsToBones();
         //testSkeletalAnimation();
@@ -2719,7 +2719,7 @@ protected:
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
-		//testMorphAnimation();
+		testMorphAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();

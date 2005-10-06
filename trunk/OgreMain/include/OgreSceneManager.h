@@ -515,18 +515,18 @@ namespace Ogre {
             @param
                 cam Pointer to the camera to remove
         */
-        virtual void removeCamera(Camera *cam);
+        virtual void destroyCamera(Camera *cam);
 
         /** Removes a camera from the scene.
             @remarks
                 This method removes an camera from the scene based on the
                 camera's name rather than a pointer.
         */
-        virtual void removeCamera(const String& name);
+        virtual void destroyCamera(const String& name);
 
         /** Removes (and destroys) all cameras from the scene.
         */
-        virtual void removeAllCameras(void);
+        virtual void destroyAllCameras(void);
 
         /** Creates a light for use in the scene.
             @remarks
@@ -548,16 +548,16 @@ namespace Ogre {
             @remarks
                 Any pointers held to this light after calling this method will be invalid.
         */
-        virtual void removeLight(const String& name);
+        virtual void destroyLight(const String& name);
 
         /** Removes the light from the scene and destroys it based on a pointer.
             @remarks
                 Any pointers held to this light after calling this method will be invalid.
         */
-        virtual void removeLight(Light* light);
+        virtual void destroyLight(Light* light);
         /** Removes and destroys all lights in the scene.
         */
-        virtual void removeAllLights(void);
+        virtual void destroyAllLights(void);
 
         /** Populate a light list with an ordered set of the lights which are closest
         to the position specified.
@@ -685,7 +685,7 @@ namespace Ogre {
             @see
                 SceneManager::clearScene
         */
-        virtual void removeEntity(Entity* ent);
+        virtual void destroyEntity(Entity* ent);
 
         /** Removes & destroys an Entity from the SceneManager by name.
             @warning
@@ -695,7 +695,7 @@ namespace Ogre {
             @see
                 SceneManager::clearScene
         */
-        virtual void removeEntity(const String& name);
+        virtual void destroyEntity(const String& name);
 
         /** Removes & destroys all Entities.
             @warning
@@ -706,8 +706,26 @@ namespace Ogre {
             @see
                 SceneManager::clearScene
         */
-        virtual void removeAllEntities(void);
+        virtual void destroyAllEntities(void);
 
+        /** Create a ManualObject, an object which you populate with geometry
+			manually through a GL immediate-mode style interface.
+        @param
+            name The name to be given to the object (must be unique).
+        */
+        virtual ManualObject* createManualObject(const String& name);
+        /** Retrieves a pointer to the named ManualObject. */
+        virtual ManualObject* getManualObject(const String& name);
+
+        /** Removes & destroys a ManualObject from the SceneManager.
+        */
+        virtual void destroyManualObject(ManualObject* obj);
+		/** Removes & destroys a ManualObject from the SceneManager.
+		*/
+		virtual void destroyManualObject(const String& name);
+		/** Removes & destroys all ManualObjects from the SceneManager.
+		*/
+		virtual void destroyAllManualObjects(void);
         /** Empties the entire scene, inluding all SceneNodes, Entities, Lights, 
             BillboardSets etc. Cameras are not deleted at this stage since
             they are still referenced by viewports, which are not destroyed during
@@ -1183,7 +1201,7 @@ namespace Ogre {
                 to a SceneNode. It may be safer to wait to clear the whole
                 scene. If you are unsure, use clearScene.
         */
-        virtual void removeBillboardSet(BillboardSet* set);
+        virtual void destroyBillboardSet(BillboardSet* set);
 
         /** Removes & destroys an BillboardSet from the SceneManager by name.
             @warning
@@ -1191,7 +1209,7 @@ namespace Ogre {
                 to a SceneNode. It may be safer to wait to clear the whole
                 scene. If you are unsure, use clearScene.
         */
-        virtual void removeBillboardSet(const String& name);
+        virtual void destroyBillboardSet(const String& name);
 
         /** Removes & destroys all BillboardSets.
         @warning
@@ -1202,7 +1220,7 @@ namespace Ogre {
         @see
         SceneManager::clearScene
         */
-        virtual void removeAllBillboardSets(void);
+        virtual void destroyAllBillboardSets(void);
 
         /** Tells the SceneManager whether it should render the SceneNodes which 
             make up the scene as well as the objects in the scene.
@@ -1800,11 +1818,11 @@ namespace Ogre {
 		/** Retrieve a previously created StaticGeometry instance. */
 		virtual StaticGeometry* getStaticGeometry(const String& name) const;
 		/** Remove & destroy a StaticGeometry instance. */
-		virtual void removeStaticGeometry(StaticGeometry* geom);
+		virtual void destroyStaticGeometry(StaticGeometry* geom);
 		/** Remove & destroy a StaticGeometry instance. */
-		virtual void removeStaticGeometry(const String& name);
+		virtual void destroyStaticGeometry(const String& name);
 		/** Remove & destroy all StaticGeometry instances. */
-		virtual void removeAllStaticGeometry(void);
+		virtual void destroyAllStaticGeometry(void);
 
 
 		/** Create a movable object of the type specified.
