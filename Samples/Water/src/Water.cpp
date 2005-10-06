@@ -223,7 +223,7 @@ public:
 	~WaterCircle()
 	{
 		MeshManager::getSingleton().remove(mesh->getHandle());
-		sceneMgr->removeEntity(entity->getName());
+		sceneMgr->destroyEntity(entity->getName());
 		static_cast<SceneNode*> (sceneMgr->getRootSceneNode())->removeChild(node->getName());
 	}
 	void animate(Real timeSinceLastFrame)

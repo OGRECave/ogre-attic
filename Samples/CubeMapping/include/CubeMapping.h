@@ -282,7 +282,7 @@ private:
 		
 		// detach and destroy entity
 		objectNode->detachAllObjects();
-		mSceneMgr->removeEntity(ENTITY_NAME);
+		mSceneMgr->destroyEntity(ENTITY_NAME);
 		
 		// destroy mesh as well, to reset its geometry
 		MeshManager::getSingleton().remove(clonedMesh->getHandle());

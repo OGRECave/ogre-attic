@@ -59,6 +59,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreDataStream.h"
 #include "OgreStaticGeometry.h"
 #include "OgreHardwarePixelBuffer.h"
+#include "OgreManualObject.h"
 // This class implements the most basic scene manager
 
 #include <cstdio>
@@ -143,7 +144,7 @@ mVisibilityMask(0xFFFFFFFF)
 SceneManager::~SceneManager()
 {
     clearScene();
-    removeAllCameras();
+    destroyAllCameras();
 
 	// clear down movable object collection map
 	for (MovableObjectCollectionMap::iterator i = mMovableObjectCollectionMap.begin();
@@ -257,7 +258,7 @@ Camera* SceneManager::getCamera(const String& name)
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeCamera(Camera *cam)
+void SceneManager::destroyCamera(Camera *cam)
 {
     // Find in list
     CameraList::iterator i = mCameras.begin();
@@ -276,7 +277,7 @@ void SceneManager::removeCamera(Camera *cam)
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeCamera(const String& name)
+void SceneManager::destroyCamera(const String& name)
 {
     // Find in list
     CameraList::iterator i = mCameras.find(name);
@@ -291,7 +292,7 @@ void SceneManager::removeCamera(const String& name)
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeAllCameras(void)
+void SceneManager::destroyAllCameras(void)
 {
 
     CameraList::iterator i = mCameras.begin();
@@ -316,17 +317,17 @@ Light* SceneManager::getLight(const String& name)
 		getMovableObject(name, LightFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
-void SceneManager::removeLight(Light *l)
+void SceneManager::destroyLight(Light *l)
 {
 	destroyMovableObject(l);
 }
 //-----------------------------------------------------------------------
-void SceneManager::removeLight(const String& name)
+void SceneManager::destroyLight(const String& name)
 {
 	destroyMovableObject(name, LightFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
-void SceneManager::removeAllLights(void)
+void SceneManager::destroyAllLights(void)
 {
 	destroyAllMovableObjectsByType(LightFactory::FACTORY_TYPE_NAME);
 }
@@ -415,34 +416,62 @@ Entity* SceneManager::getEntity(const String& name)
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeEntity(Entity *e)
+void SceneManager::destroyEntity(Entity *e)
 {
 	destroyMovableObject(e);
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeEntity(const String& name)
+void SceneManager::destroyEntity(const String& name)
 {
 	destroyMovableObject(name, EntityFactory::FACTORY_TYPE_NAME);
 
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeAllEntities(void)
+void SceneManager::destroyAllEntities(void)
 {
 
 	destroyAllMovableObjectsByType(EntityFactory::FACTORY_TYPE_NAME);
 }
 
 //-----------------------------------------------------------------------
-void SceneManager::removeAllBillboardSets(void)
+void SceneManager::destroyAllBillboardSets(void)
 {
 	destroyAllMovableObjectsByType(BillboardSetFactory::FACTORY_TYPE_NAME);
 }
 //-----------------------------------------------------------------------
+ManualObject* SceneManager::createManualObject(const String& name)
+{
+	return static_cast<ManualObject*>(
+		createMovableObject(name, ManualObjectFactory::FACTORY_TYPE_NAME));
+}
+//-----------------------------------------------------------------------
+ManualObject* SceneManager::getManualObject(const String& name)
+{
+	return static_cast<ManualObject*>(
+		getMovableObject(name, ManualObjectFactory::FACTORY_TYPE_NAME));
+
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyManualObject(ManualObject* obj)
+{
+	destroyMovableObject(obj);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyManualObject(const String& name)
+{
+	destroyMovableObject(name, ManualObjectFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
+void SceneManager::destroyAllManualObjects(void)
+{
+	destroyAllMovableObjectsByType(ManualObjectFactory::FACTORY_TYPE_NAME);
+}
+//-----------------------------------------------------------------------
 void SceneManager::clearScene(void)
 {
-	removeAllStaticGeometry();
+	destroyAllStaticGeometry();
 	destroyAllMovableObjects();
 
 	// Clear root node of all children
@@ -975,7 +1004,7 @@ void SceneManager::setSkyPlane(
         if (mSkyPlaneEntity)
         {
             // destroy old one, do it by name for speed
-            removeEntity(meshName);
+            destroyEntity(meshName);
         }
         // Create, use the same name for mesh and entity
         mSkyPlaneEntity = createEntity(meshName, meshName);
@@ -1045,7 +1074,7 @@ void SceneManager::setSkyBox(
             if (mSkyBoxEntity[i])
             {
                 // destroy old one, do it by name for speed
-                removeEntity(entName);
+                destroyEntity(entName);
             }
             mSkyBoxEntity[i] = createEntity(entName, planeMesh->getName());
             mSkyBoxEntity[i]->setCastShadows(false);
@@ -1129,7 +1158,7 @@ void SceneManager::setSkyDome(
             if (mSkyDomeEntity[i])
             {
                 // destroy old one, do it by name for speed
-                removeEntity(entName);
+                destroyEntity(entName);
             }
             mSkyDomeEntity[i] = createEntity(entName, planeMesh->getName());
             mSkyDomeEntity[i]->setMaterialName(m->getName());
@@ -2117,12 +2146,12 @@ BillboardSet* SceneManager::getBillboardSet(const String& name)
 		getMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME));
 }
 //-----------------------------------------------------------------------
-void SceneManager::removeBillboardSet(BillboardSet* set)
+void SceneManager::destroyBillboardSet(BillboardSet* set)
 {
 	destroyMovableObject(set);
 }
 //-----------------------------------------------------------------------
-void SceneManager::removeBillboardSet(const String& name)
+void SceneManager::destroyBillboardSet(const String& name)
 {
 	destroyMovableObject(name, BillboardSetFactory::FACTORY_TYPE_NAME);
 }
@@ -3554,7 +3583,7 @@ void SceneManager::createShadowTextures(unsigned short size,
         RenderTarget *shadowRTT = shadowTex->getBuffer()->getRenderTarget();
 
         // remove camera and destroy texture
-        removeCamera(shadowRTT->getViewport(0)->getCamera());
+        destroyCamera(shadowRTT->getViewport(0)->getCamera());
         
         // destroy texture
         TextureManager::getSingleton().remove(shadowTex->getName());
@@ -3784,12 +3813,12 @@ StaticGeometry* SceneManager::getStaticGeometry(const String& name) const
 	return i->second;
 }
 //---------------------------------------------------------------------
-void SceneManager::removeStaticGeometry(StaticGeometry* geom)
+void SceneManager::destroyStaticGeometry(StaticGeometry* geom)
 {
-	removeStaticGeometry(geom->getName());
+	destroyStaticGeometry(geom->getName());
 }
 //---------------------------------------------------------------------
-void SceneManager::removeStaticGeometry(const String& name)
+void SceneManager::destroyStaticGeometry(const String& name)
 {
 	StaticGeometryList::iterator i = mStaticGeometryList.find(name);
 	if (i != mStaticGeometryList.end())
@@ -3800,7 +3829,7 @@ void SceneManager::removeStaticGeometry(const String& name)
 
 }
 //---------------------------------------------------------------------
-void SceneManager::removeAllStaticGeometry(void)
+void SceneManager::destroyAllStaticGeometry(void)
 {
 	StaticGeometryList::iterator i, iend;
 	iend = mStaticGeometryList.end();
