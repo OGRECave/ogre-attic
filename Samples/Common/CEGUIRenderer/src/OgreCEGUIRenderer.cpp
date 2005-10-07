@@ -679,6 +679,8 @@ void OgreCEGUIRenderer::constructor_impl(Ogre::RenderWindow* window, Ogre::Rende
 	d_sorted		= true;
 	d_ogre_root		= Root::getSingletonPtr();
 	d_render_sys	= d_ogre_root->getRenderSystem();
+    // set ID string
+    d_identifierString = "CEGUI::OgreRenderer - Official Ogre based renderer module for CEGUI";
 
 	// Create and initialise the Ogre specific parts required for use in rendering later.
     // Main GUI
