@@ -267,7 +267,7 @@ protected:
 
         // load scheme and set up defaults
         CEGUI::SchemeManager::getSingleton().loadScheme(
-                (CEGUI::utf8*)"TaharezLook.scheme");
+                (CEGUI::utf8*)"TaharezLookskin.scheme");
         mGUISystem->setDefaultMouseCursor(
                 (CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
         mGUISystem->setDefaultFont((CEGUI::utf8*)"Tahoma-12");
