@@ -556,6 +556,10 @@ namespace Ogre {
 			// Copy index data; replicate buffers too
 			sm->indexData = rop->indexData->clone(true);
 		}
+        // update bounds
+		m->_setBounds(mAABB);
+		m->_setBoundingSphereRadius(mRadius);
+
 		m->load();
 
 		return m;
