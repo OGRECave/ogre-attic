@@ -112,8 +112,13 @@ namespace Ogre {
             @param
                 debuggerOutput If true, output to this log will also be
                 routed to the debugger's output window.
+            @param
+                suppressFileOutput If true, this is a logical rather than a physical
+				log and no file output will be written. If you do this you should
+				register a LogListener so log output is not lost.
         */
-        Log* createLog( const String& name, bool defaultLog = false, bool debuggerOutput = true );
+        Log* createLog( const String& name, bool defaultLog = false, bool debuggerOutput = true, 
+			bool suppressFileOutput = false);
 
         /** Retrieves a log managed by this class.
         */

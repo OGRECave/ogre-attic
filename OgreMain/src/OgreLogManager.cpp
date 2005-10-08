@@ -55,9 +55,10 @@ namespace Ogre {
         }
     }
     //-----------------------------------------------------------------------
-    Log* LogManager::createLog( const String& name, bool defaultLog, bool debuggerOutput)
+    Log* LogManager::createLog( const String& name, bool defaultLog, bool debuggerOutput, 
+		bool suppressFileOutput)
     {
-        Log* newLog = new Log(name, debuggerOutput);
+        Log* newLog = new Log(name, debuggerOutput, suppressFileOutput);
 
         if( !mDefaultLog || defaultLog )
         {
@@ -71,9 +72,6 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Log* LogManager::getDefaultLog()
     {
-        if (!mDefaultLog)
-            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, "No logs created yet. ", "LogManager::getDefaultLog");
-
         return mDefaultLog;
     }
     //-----------------------------------------------------------------------
@@ -97,12 +95,18 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void LogManager::logMessage( const String& message, LogMessageLevel lml, bool maskDebug)
     {
-        getDefaultLog()->logMessage(message, lml, maskDebug);
+		if (mDefaultLog)
+		{
+			mDefaultLog->logMessage(message, lml, maskDebug);
+		}
     }
     //-----------------------------------------------------------------------
     void LogManager::setLogDetail(LoggingLevel ll)
     {
-        getDefaultLog()->setLogDetail(ll);
+		if (mDefaultLog)
+		{
+	        mDefaultLog->setLogDetail(ll);
+		}
     }
 	//-----------------------------------------------------------------------
 	void LogManager::_routeMessage(	const String& name,

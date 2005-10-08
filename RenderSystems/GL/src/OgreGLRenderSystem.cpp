@@ -664,7 +664,11 @@ namespace Ogre {
 		glGetQueryObjectuivARB_ptr =
 			(GL_GetQueryObjectuivARB_Func)mGLSupport->getProcAddress("glGetQueryObjectuivARB");
 
-        mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
+		if (defaultLog)
+		{
+	        mCapabilities->log(defaultLog);
+		}
         mGLInitialized = true;
     }
 

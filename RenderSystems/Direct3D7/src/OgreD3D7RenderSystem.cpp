@@ -615,7 +615,11 @@ namespace Ogre {
             // Set the number of texture units based on details from current device
             mCapabilities->setNumTextureUnits(mD3DDeviceDesc.wMaxSimultaneousTextures);
 
-            mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+            Log* defaultLog = LogManager::getSingleton().getDefaultLog();
+			if (defaultLog)
+			{
+				mCapabilities->log(defaultLog);
+			}
 
             firstWindow = false;
         }

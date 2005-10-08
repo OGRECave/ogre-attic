@@ -760,7 +760,11 @@ namespace Ogre
 		// We always support rendertextures bigger than the frame buffer
         mCapabilities->setCapability(RSC_HWRENDER_TO_TEXTURE);
 
-        mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
+		if (defaultLog)
+		{
+	        mCapabilities->log(defaultLog);
+		}
     }
     //---------------------------------------------------------------------
     void D3D9RenderSystem::convertVertexShaderCaps(void)
