@@ -47,20 +47,18 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     RenderSystem::RenderSystem()
-    {
-        mActiveViewport = 0;
-		mActiveRenderTarget = NULL;
-        mTextureManager = 0;
-        mCapabilities = 0;
-        mVSync = true;
-		mWBuffer = false;
-
-
+        : mActiveRenderTarget(0)
+        , mTextureManager(0)
+        , mCapabilities(0)
+        , mActiveViewport(0)
         // This means CULL clockwise vertices, i.e. front of poly is counter-clockwise
         // This makes it the same as OpenGL and other right-handed systems
-        mCullingMode = CULL_CLOCKWISE;
-        mInvertVertexWinding = false;
-
+        , mCullingMode(CULL_CLOCKWISE)
+        , mVSync(true)
+		, mWBuffer(false)
+        , mInvertVertexWinding(false)
+        , mCurrentPassIterationCount(0)
+    {
         // instanciate RenderSystemCapabilities
         mCapabilities = new RenderSystemCapabilities();
     }
