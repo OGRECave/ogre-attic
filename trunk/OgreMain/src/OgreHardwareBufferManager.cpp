@@ -304,6 +304,19 @@ namespace Ogre {
             usage, useShadowBuffer);
     }
     //-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    TempBlendedBufferInfo::~TempBlendedBufferInfo(void)
+    {
+        // check that temp buffers have been released
+        HardwareBufferManager &mgr = HardwareBufferManager::getSingleton();
+        if (!destPositionBuffer.isNull())
+            mgr.releaseVertexBufferCopy(destPositionBuffer);
+        if (!destNormalBuffer.isNull())
+            mgr.releaseVertexBufferCopy(destNormalBuffer);
+
+    }
+    //-----------------------------------------------------------------------------
     void TempBlendedBufferInfo::checkoutTempCopies(bool positions, bool normals)
     {
         bindPositions = positions;

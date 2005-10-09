@@ -22,6 +22,7 @@ Place - Suite 330, Boston, MA 02111-1307, USA, or go to
 http://www.gnu.org/copyleft/gpl.html.
 -----------------------------------------------------------------------------
 */
+#include "OgreStableHeaders.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

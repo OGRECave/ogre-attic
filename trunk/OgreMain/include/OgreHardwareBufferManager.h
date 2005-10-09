@@ -71,6 +71,7 @@ namespace Ogre {
         bool bindPositions;
         bool bindNormals;
 
+        ~TempBlendedBufferInfo(void);
         /// Utility method, checks out temporary copies of src into dest
         void checkoutTempCopies(bool positions = true, bool normals = true);
         /// Utility method, binds dest copies into a given VertexData struct

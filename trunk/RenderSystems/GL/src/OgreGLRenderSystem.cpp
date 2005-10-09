@@ -527,7 +527,11 @@ namespace Ogre {
             }
         }
         
-        mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
+		if (defaultLog)
+		{
+			mCapabilities->log(defaultLog);
+		}
 
         /// Create the texture manager        
         mTextureManager = new GLTextureManager(*mGLSupport); 

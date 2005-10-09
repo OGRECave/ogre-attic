@@ -150,9 +150,11 @@ namespace Ogre {
             overlay would be higher than the cockpit to ensure it was always on top).
         @par    
             A SceneNode can have nay number of 3D objects attached to it. SceneNodes
-            are created using SceneManager::createSceneNode, and are normally attached 
-            (directly or indirectly) to the root node of the scene. By attaching them
-            to an overlay, you indicate that:<OL>
+            are usually created using SceneManager::createSceneNode, but in this case
+			you should create a standard SceneNode instance <b>manually</b>; this is
+			because these scene nodes are not managed by the SceneManager and some custom
+			SceneManager plugins will rely on specialist behaviour the overlay does not
+			support. By attaching a SceneNode to an overlay, you indicate that:<OL>
             <LI>You want the contents of this node to only appear when the overlay is active</LI>
             <LI>You want the node to inherit a coordinate space relative to the camera,
                 rather than relative to the root scene node</LI>
@@ -167,6 +169,8 @@ namespace Ogre {
             can get artefacts because of the lack of depth buffer checking. So you should 
             ensure that any 3D objects you us in the overlay are convex, and don't overlap
             each other. If they must overlap, split them up and put them in 2 overlays.
+			Alternatively, use a 2D element underneath them which will clear the depth buffer
+			values underneath ready for the 3D element to be rendered correctly.
         */
         void add3D(SceneNode* node);
 

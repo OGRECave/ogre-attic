@@ -61,12 +61,13 @@ namespace Ogre {
         std::ofstream	mfpLog;
         LoggingLevel	mLogLevel;
         bool			mDebugOut;
+		bool			mSuppressFile;
 		String			mName;
 
     public:
         /** Usual constructor - called by LogManager.
         */
-        Log( const String& name, bool debugOutput = true);
+        Log( const String& name, bool debugOutput = true, bool suppressFileOutput = false);
 
         /** Default destructor.
         */

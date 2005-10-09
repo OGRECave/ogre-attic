@@ -773,7 +773,11 @@ namespace Ogre
 
 		}
 
-        mCapabilities->log(LogManager::getSingleton().getDefaultLog());
+		Log* defaultLog = LogManager::getSingleton().getDefaultLog();
+		if (defaultLog)
+		{
+			mCapabilities->log(defaultLog);
+		}
     }
     //---------------------------------------------------------------------
     void D3D9RenderSystem::convertVertexShaderCaps(void)
