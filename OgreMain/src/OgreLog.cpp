@@ -31,17 +31,22 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
     //-----------------------------------------------------------------------
-    Log::Log( const String& name, bool debuggerOuput )
+    Log::Log( const String& name, bool debuggerOuput, bool suppressFile )
+		: mLogLevel(LL_NORMAL), mDebugOut(debuggerOuput), mSuppressFile(suppressFile), 
+		mName(name)
     {
-        mfpLog.open(name.c_str());
-        mDebugOut = debuggerOuput;
-        mLogLevel = LL_NORMAL;
-		mName = name;
+		if (!mSuppressFile)
+		{
+			mfpLog.open(name.c_str());
+		}
     }
     //-----------------------------------------------------------------------
     Log::~Log()
     {
-        mfpLog.close();
+		if (!mSuppressFile)
+		{
+	        mfpLog.close();
+		}
     }
     //-----------------------------------------------------------------------
     void Log::logMessage( const String& message, LogMessageLevel lml, bool maskDebug )
@@ -58,15 +63,19 @@ namespace Ogre {
                 std::cerr << message << std::endl;
 
             // Write time into log
-            struct tm *pTime;
-            time_t ctTime; time(&ctTime);
-            pTime = localtime( &ctTime );
-            mfpLog << std::setw(2) << std::setfill('0') << pTime->tm_hour
-                << ":" << std::setw(2) << std::setfill('0') << pTime->tm_min
-                << ":" << std::setw(2) << std::setfill('0') << pTime->tm_sec << ": " << message << std::endl;
+			if (!mSuppressFile)
+			{
+				struct tm *pTime;
+				time_t ctTime; time(&ctTime);
+				pTime = localtime( &ctTime );
+				mfpLog << std::setw(2) << std::setfill('0') << pTime->tm_hour
+					<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_min
+					<< ":" << std::setw(2) << std::setfill('0') << pTime->tm_sec 
+					<< ": " << message << std::endl;
 
-            // Flush stcmdream to ensure it is written (incase of a crash, we need log to be up to date)
-            mfpLog.flush();
+				// Flush stcmdream to ensure it is written (incase of a crash, we need log to be up to date)
+				mfpLog.flush();
+			}
         }
     }
     //-----------------------------------------------------------------------

@@ -305,19 +305,26 @@ namespace Ogre {
         }
 
         /** Clears this group of renderables. 
-        @remarks
-            Doesn't delete any priority groups, just empties them. Saves on 
+        @param destroy
+            If false, doesn't delete any priority groups, just empties them. Saves on 
             memory deallocations since the chances are rougly the same kinds of 
-            renderables are going to be sent to the queue again next time.
+            renderables are going to be sent to the queue again next time. If
+			true, completely destroys.
         */
-        void clear(void)
+        void clear(bool destroy = false)
         {
             PriorityMap::iterator i, iend;
             iend = mPriorityGroups.end();
             for (i = mPriorityGroups.begin(); i != iend; ++i)
             {
-                i->second->clear();
+				if (destroy)
+					delete i->second;
+				else
+					i->second->clear();
             }
+
+			if (destroy)
+				mPriorityGroups.clear();
 
         }
 

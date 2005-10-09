@@ -109,9 +109,10 @@ namespace Ogre {
 
 		// Also copy LOD information
 		mLodDistances = rhs.mLodDistances;
-
-        mCompilationRequired = rhs.mCompilationRequired; 
-        //assert(mIsLoaded == rhs.mIsLoaded);
+        mCompilationRequired = rhs.mCompilationRequired;
+        // illumination passes are not compiled right away so
+        // mIsLoaded state should still be the same as the original material
+        assert(mIsLoaded == rhs.mIsLoaded);
 
 	    return *this;
     }

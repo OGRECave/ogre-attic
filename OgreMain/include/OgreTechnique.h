@@ -41,6 +41,14 @@ namespace Ogre {
     class _OgreExport Technique
     {
     protected:
+        // illumination pass state type
+        enum IlluminationPassesState
+        {
+            IPS_COMPILE_DISABLED = -1,
+            IPS_NOT_COMPILED = 0,
+            IPS_COMPILED = 1
+        };
+
         typedef std::vector<Pass*> Passes;
         /// List of primary passes
         Passes mPasses;
@@ -48,6 +56,7 @@ namespace Ogre {
         IlluminationPassList mIlluminationPasses;
         Material* mParent; // raw pointer since we don't want child to stop parent's destruction
         bool mIsSupported;
+        IlluminationPassesState mIlluminationPassesCompilationPhase;
         unsigned short mLodIndex;
         String mName; // optional name for the technique
 

@@ -90,8 +90,10 @@ namespace Ogre {
         virtual ~RenderQueue();
 
         /** Empty the queue - should only be called by SceneManagers.
+		@param destroyPassMaps Set to true to destroy all pass maps so that
+			the queue is completely clean (useful when switching scene managers)
         */
-        void clear(void);
+        void clear(bool destroyPassMaps = false);
 
 		/** Get a render queue group.
 		@remarks

@@ -82,7 +82,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void RenderQueue::clear(void)
+    void RenderQueue::clear(bool destroyPassMaps)
     {
         // Clear the queues
         RenderQueueGroupMap::iterator i, iend;
@@ -90,7 +90,7 @@ namespace Ogre {
         iend = mGroups.end();
         for (; i != iend; ++i)
         {
-            i->second->clear();
+            i->second->clear(destroyPassMaps);
         }
 
         // Now trigger the pending pass updates

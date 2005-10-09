@@ -13,10 +13,105 @@
 <p class="header" align="center">OGRE (Object-Oriented Graphics
 Rendering Engine)</p>
 <p class="header" align="center">Change Log</p>
+<p class="mainheader" align="left">v1.0.5 [Azathoth] (25 September
+2005) - Maintenance Release</p>
+<ul>
+  <li>D3D9:&nbsp; <br>
+  </li>
+  <ul>
+    <li>Fixed device lost issue with manual textures with manual
+loaders.</li>
+    <li>Ensure that textures which were unloaded at the time of the
+device lost remain unloaded after the device is restored (previously
+these textures would be loaded by the restore)</li>
+    <li>Fix restoration of specified number of mipmaps after device
+restore</li>
+    <li>Fix mipmap issue introduced in 1.0.4 with textures whose
+dimensions are not power of two<br>
+    </li>
+  </ul>
+  <li>GL: <br>
+  </li>
+  <ul>
+    <li>context switching should be preserving GPU programs and
+depth/colour mask settings, because scene manager treat render system
+as ONE 'context' ONLY.</li>
+    <li>'Warning texture' now bound to a texture unit if it is used but
+not
+defined, e.g. in a shader but the material definition does not include
+a corresponding texture unit</li>
+    <li>Fix a flipping issue when a viewport doesn't take up the whole
+of a render texture<br>
+    </li>
+  </ul>
+  <li>XSI Exporter:</li>
+  <ul>
+    <li>Fix export of multiple animations where initial pose is
+different</li>
+    <li>Material prefix should apply to the exported .mesh as well as
+the .material<br>
+    </li>
+  </ul>
+  <li>Fix memory leak on software skinning<br>
+  </li>
+  <li>Material: compile illumination passes on demand<br>
+  </li>
+  <li>BillboardSet: Optimise updating of bounds when creating a new
+billboard<br>
+  </li>
+  <li>Win32 platform fix: DInput buffer overflows resolved<br>
+  </li>
+  <li>StaticGeometry::addSceneNode should cascade as documented<br>
+  </li>
+  <li>Ensure HardwareBufferLicensee::licenseExpired is called in all
+cases<br>
+  </li>
+  <li>GLXWindow::resize fixed<br>
+  </li>
+  <li>Fix potential memory leak during overlay creation<br>
+  </li>
+  <li>Alter bump mapping / offset mapping shaders to handle directional
+lights as well<br>
+  </li>
+  <li>Fix a range issue on the specular bump mapping shader, looks
+nicer now<br>
+  </li>
+  <li>Fix memory leaks when using StaticGeometry &amp; stencil shadows<br>
+  </li>
+  <li>Fix TextureUnitState clone bug: _load called after after TUS is
+cloned so that effect and animation controllers are constructed. Also
+reduced _dirtyhash() calls while cloning TUS<br>
+  </li>
+  <li>Fix off-by-one bug in parseAlphaOpEx when using manual blend<br>
+  </li>
+  <li>Fix potential transparencybug: passes can be transparent even if
+destination blend factor is zero, if source factor is destination-based<br>
+  </li>
+  <li>Node: Assert that a node is parent-less before adding it in
+addChild, avoids inconsistency issues<br>
+  </li>
+  <li>Support conversion from and to PF_FLOATxx_R pixel format<br>
+  </li>
+  <li>Fix segfault in OgreXMLConverter when built with GCC 4.0<br>
+  </li>
+  <li>Fix big endian compilation bug in CEGuiTexture (affects Linux on
+PPC and OSX)<br>
+  </li>
+  <li>Some API and manual clarifications, including:</li>
+  <ul>
+    <li>Finally add section on hardware pixel buffers<br>
+    </li>
+    <li>now includes minimum ATI/nVidia card specifications for shaders
+of a given profile</li>
+    <li>Remove / correct old GUI manual pages<br>
+    </li>
+  </ul>
+</ul>
 <p class="mainheader" align="left">v1.0.4 [Azathoth] (21 August
 2005) - Maintenance Release</p>
 <ul>
-	<li>Fix texture shadows when using basic SceneManager (not octree or bsp)</li>
+  <li>Fix texture shadows when using basic SceneManager (not octree or
+bsp)</li>
   <li>Fix memory leaks in Demo_Water and Demo_VolumeTex<br>
   </li>
   <li>Add isStillOutstanding method to hardware occlusion queries to
@@ -1307,8 +1402,7 @@ Release</p>
 <p align="left">Enhancements:</p>
 <ul>
   <li>
-    <p style="margin-bottom: 0cm;"><b>Shadows</b>
-    </p>
+    <p style="margin-bottom: 0cm;"><b>Shadows</b> </p>
     <ul>
       <li>
         <p style="margin-bottom: 0cm;">3 different techniques: </p>
@@ -1522,7 +1616,8 @@ Release</p>
 material upgrade</b>! This is a subsection of it's own.. </p>
     <ul>
       <li>
-        <p style="margin-bottom: 0cm;">Support for vertex and fragment programs (shaders),
+        <p style="margin-bottom: 0cm;">Support for vertex and fragment
+programs (shaders),
 including: </p>
         <ul>
           <li>
@@ -1551,7 +1646,8 @@ scripts </p>
         </ul>
       </li>
       <li>
-        <p style="margin-bottom: 0cm;">Materials now support multiple 'techniques', which can be used as
+        <p style="margin-bottom: 0cm;">Materials now support multiple
+'techniques', which can be used as
 automatic fallbacks for older cards which don't support the requisite
 features for your preferred shading approach</p>
       </li>
