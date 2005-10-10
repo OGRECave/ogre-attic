@@ -1128,6 +1128,7 @@ class ArmatureExporter:
 												ipo.EvaluateCurveOn(curveId["QuatZ"], frame), \
 												ipo.EvaluateCurveOn(curveId["QuatW"], frame) ]
 										rotQuat = Mathutils.Quaternion(rot)
+								rotQuat.normalize()
 								if curveId.has_key("SizeX"):
 									sizeX = ipo.EvaluateCurveOn(curveId["SizeX"], frame)
 								if curveId.has_key("SizeY"):
