@@ -51,7 +51,7 @@ namespace Ogre
 		mpVideoModeList = NULL;
 	}
 
-	D3D9Driver::D3D9Driver( LPDIRECT3D9 pD3D, unsigned int adapterNumber, D3DADAPTER_IDENTIFIER9 adapterIdentifier, D3DDISPLAYMODE desktopDisplayMode )
+	D3D9Driver::D3D9Driver( LPDIRECT3D9 pD3D, unsigned int adapterNumber, const D3DADAPTER_IDENTIFIER9& adapterIdentifier, const D3DDISPLAYMODE& desktopDisplayMode )
 	{
 		tempNo = ++driverCount;
 		mpD3D = pD3D;

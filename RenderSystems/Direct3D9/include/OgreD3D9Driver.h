@@ -58,7 +58,7 @@ namespace Ogre
 		// Constructors
 		D3D9Driver();						// Default
 		D3D9Driver( const D3D9Driver &ob );	// Copy
-		D3D9Driver( LPDIRECT3D9 pD3D, unsigned int adapterNumber, D3DADAPTER_IDENTIFIER9 adapterIdentifer, D3DDISPLAYMODE desktopDisplayMode );
+		D3D9Driver( LPDIRECT3D9 pD3D, unsigned int adapterNumber, const D3DADAPTER_IDENTIFIER9& adapterIdentifer, const D3DDISPLAYMODE& desktopDisplayMode );
 		~D3D9Driver();
 
 		// Information accessors
@@ -71,8 +71,8 @@ namespace Ogre
 		// change the device
 		void setD3DDevice(LPDIRECT3DDEVICE9 pD3DDevice) { mpD3DDevice = pD3DDevice; }
 		unsigned int getAdapterNumber() const { return mAdapterNumber; }
-		D3DADAPTER_IDENTIFIER9 getAdapterIdentifier() const { return mAdapterIdentifier; }
-		D3DDISPLAYMODE getDesktopMode() const { return mDesktopDisplayMode; }
+		const D3DADAPTER_IDENTIFIER9& getAdapterIdentifier() const { return mAdapterIdentifier; }
+		const D3DDISPLAYMODE& getDesktopMode() const { return mDesktopDisplayMode; }
 
 		D3D9VideoModeList* getVideoModeList();
 	};
