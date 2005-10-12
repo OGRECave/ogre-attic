@@ -180,6 +180,10 @@ namespace Ogre {
         } else {
             ret = mFreeTagPoints.front();
             mFreeTagPoints.pop_front();
+            // Initial some members ensure identically behavior, avoiding potential bug.
+            ret->setParentEntity(0);
+            ret->setChildObject(0);
+            ret->setInheritScale(true);
         }
         mActiveTagPoints.push_back(ret);
 

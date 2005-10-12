@@ -50,6 +50,7 @@ namespace Ogre {
         mIndexData(0),
         mCullIndividual( false ),
         mBillboardType(BBT_POINT),
+        mCommonDirection(Ogre::Vector3::UNIT_Z),
         mBuffersCreated(false),
         mPoolSize(0),
         mExternalData(false)
@@ -74,6 +75,7 @@ namespace Ogre {
         mIndexData(0),
         mCullIndividual( false ),
         mBillboardType(BBT_POINT),
+        mCommonDirection(Ogre::Vector3::UNIT_Z),
         mBuffersCreated(false),
         mPoolSize(poolSize),
         mExternalData(externalData)
@@ -130,6 +132,9 @@ namespace Ogre {
 
         newBill->setPosition(position);
         newBill->setColour(colour);
+        newBill->mDirection = Vector3::ZERO;
+        newBill->setRotation(Radian(0));
+        newBill->resetDimensions();
         newBill->_notifyOwner(this);
 
 		// Merge into bounds
