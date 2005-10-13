@@ -250,7 +250,6 @@ namespace Ogre {
 		_createSurfaceList();
 		// Get final internal format
 		mFormat = getBuffer(0,0)->getFormat();
-		mIsLoaded = true;
 	}
 	
     void GLTexture::createRenderTexture(void)
