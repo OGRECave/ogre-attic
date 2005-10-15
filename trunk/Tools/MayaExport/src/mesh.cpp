@@ -349,7 +349,6 @@ namespace OgreMayaExporter
 										uv[1] = 0;
 									}
 									uv[1] = (-1)*(uv[1]-1);
-									std::cout << vertices[k].u.size() << "\n";
 									if (vertices[k].u[j]!=uv[0] || vertices[k].v[j]!=uv[1])
 									{
 										different = true;
