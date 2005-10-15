@@ -560,6 +560,8 @@ namespace Ogre
         else
         {
             // Single page
+            if (mTerrainPages.empty() || mTerrainPages[0].empty())
+                return 0;
             return mTerrainPages[0][0];
         }
     }

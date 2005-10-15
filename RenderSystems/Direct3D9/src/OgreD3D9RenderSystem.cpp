@@ -293,7 +293,7 @@ namespace Ogre
 			it->second.currentValue = value;
 		else
 		{
-            str.clear();
+            str.str(StringUtil::BLANK);
             str << "Option named '" << name << "' does not exist.";
 			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, str.str(), "D3D9RenderSystem::setConfigOption" );
 		}
@@ -738,7 +738,7 @@ namespace Ogre
 			// GeForce4 Ti (and presumably GeForce3) does not
 			// render infinite projection properly, even though it does in GL
             // So exclude all cards prior to the FX range from doing infinite
-            D3DADAPTER_IDENTIFIER9 adapterID = mActiveD3DDriver->getAdapterIdentifier();
+            const D3DADAPTER_IDENTIFIER9& adapterID = mActiveD3DDriver->getAdapterIdentifier();
 			if (adapterID.VendorId != 0x10DE || // not nVidia
 				!((adapterID.DeviceId >= 0x200 && adapterID.DeviceId <= 0x20F) || //gf3
 				  (adapterID.DeviceId >= 0x250 && adapterID.DeviceId <= 0x25F) || //gf4ti
@@ -868,7 +868,6 @@ namespace Ogre
                 mCapabilities->setMaxFragmentProgramVersion("ps_1_4");
                 break;
             }
-            break;
             // no boolean params allowed
             mCapabilities->setFragmentProgramConstantBoolCount(0);
             // no integer params allowed
@@ -877,6 +876,7 @@ namespace Ogre
             // NB in ps_1_x these are actually stored as fixed point values,
             // but they are entered as floats
             mCapabilities->setFragmentProgramConstantFloatCount(8);
+            break;
         case 2:
             if (minor > 0)
             {
