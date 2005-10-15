@@ -87,13 +87,12 @@ namespace OgreMayaExporter
 	}
 
 	MStatus Submesh::load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MFloatPointArray& points, 
-		MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params)
+		MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params,bool opposite)
 	{
 		//save uvsets info
-		for (int i=0; i<texcoordsets.length(); i++)
+		for (int i=m_uvsets.size(); i<texcoordsets.length(); i++)
 		{
 			uvset uv;
-			uv.name = texcoordsets[i];
 			uv.size = 2;
 			m_uvsets.push_back(uv);
 		}
@@ -101,15 +100,25 @@ namespace OgreMayaExporter
 		for (i=0; i<faces.size(); i++)
 		{
 			face newFace;
+			// if we are using shared geometry, indexes refer to the vertex buffer of the whole mesh
 			if (params.useSharedGeom)
 			{
-				newFace.v[0] = faces[i].v[0];
-				newFace.v[1] = faces[i].v[1];
-				newFace.v[2] = faces[i].v[2];
+				if(opposite)
+				{	// reverse order of face vertices for correct culling
+					newFace.v[0] = faces[i].v[2];
+					newFace.v[1] = faces[i].v[1];
+					newFace.v[2] = faces[i].v[0];
+				}
+				else
+				{
+					newFace.v[0] = faces[i].v[0];
+					newFace.v[1] = faces[i].v[1];
+					newFace.v[2] = faces[i].v[2];
+				}
 			}
+			// otherwise we create a vertex buffer for this submesh
 			else
-			{
-				// faces are triangles, so retrieve index of the three vertices
+			{	// faces are triangles, so retrieve index of the three vertices
 				for (int j=0; j<3; j++)
 				{
 					vertex v;
@@ -119,9 +128,19 @@ namespace OgreMayaExporter
 					v.y = points[vInfo.pointIdx].y;
 					v.z = points[vInfo.pointIdx].z;
 					// save vertex normal
-					v.nx = normals[vInfo.normalIdx].x;
-					v.ny = normals[vInfo.normalIdx].y;
-					v.nz = normals[vInfo.normalIdx].z;
+					if (opposite)
+					{
+						v.n.x = -normals[vInfo.normalIdx].x;
+						v.n.y = -normals[vInfo.normalIdx].y;
+						v.n.z = -normals[vInfo.normalIdx].z;
+					}
+					else
+					{
+						v.n.x = normals[vInfo.normalIdx].x;
+						v.n.y = normals[vInfo.normalIdx].y;
+						v.n.z = normals[vInfo.normalIdx].z;
+					}
+					v.n.normalize();
 					// save vertex color
 					v.r = vInfo.r;
 					v.g = vInfo.g;
@@ -146,7 +165,10 @@ namespace OgreMayaExporter
 					}
 					// add newly created vertex to vertex list
 					m_vertices.push_back(v);
-					newFace.v[j] = m_vertices.size() - 1;
+					if (opposite)	// reverse order of face vertices to get correct culling
+						newFace.v[2-j] = m_vertices.size() - 1;
+					else
+						newFace.v[j] = m_vertices.size() - 1;
 				}
 			}
 			m_faces.push_back(newFace);
@@ -221,8 +243,8 @@ namespace OgreMayaExporter
 				//write vertex normal
 				if (params.exportVertNorm)
 				{
-					params.outMesh << "\t\t\t\t\t\t<normal x=\"" << m_vertices[i].nx << "\" y=\"" 
-						<< m_vertices[i].ny << "\" " << "z=\"" << m_vertices[i].nz << "\"/>\n";
+					params.outMesh << "\t\t\t\t\t\t<normal x=\"" << m_vertices[i].n.x << "\" y=\"" 
+						<< m_vertices[i].n.y << "\" " << "z=\"" << m_vertices[i].n.z << "\"/>\n";
 				}
 				//write vertex colour
 				if (params.exportVertCol)

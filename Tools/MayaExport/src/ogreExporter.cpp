@@ -58,26 +58,46 @@ namespace OgreMayaExporter
 
 		/**************************** WRITE DATA **********************************/
 		// write mesh data
-		std::cout << "Writing mesh data to xml file...\n";
-		stat  = m_pMesh->writeXML(m_params);
-		if (stat == MS::kSuccess)
-			std::cout << "OK\n";
-		else
+		if (m_params.exportMesh)
 		{
-			std::cout << "Error writing mesh to XML\n";
-			exit();
-			return MS::kFailure;
+			std::cout << "Writing mesh data to xml file...\n";
+			stat  = m_pMesh->writeXML(m_params);
+			if (stat == MS::kSuccess)
+				std::cout << "OK\n";
+			else
+			{
+				std::cout << "Error writing mesh to XML\n";
+				exit();
+				return MS::kFailure;
+			}
+		}
+		// write skeleton data
+		if (m_params.exportSkeleton)
+		{
+			std::cout << "Writing skeleton data to xml file...\n";
+			stat  = m_pMesh->getSkeleton()->writeXML(m_params);
+			if (stat == MS::kSuccess)
+				std::cout << "OK\n";
+			else
+			{
+				std::cout << "Error writing skeleton to XML\n";
+				exit();
+				return MS::kFailure;
+			}
 		}
 		// write materials data
-		std::cout << "Writing materials data...\n";
-		stat  = m_pMaterialSet->writeXML(m_params);
-		if (stat == MS::kSuccess)
-			std::cout << "OK\n";
-		else
+		if (m_params.exportMaterial)
 		{
-			std::cout << "Error writing mesh to XML\n";
-			exit();
-			return MS::kFailure;
+			std::cout << "Writing materials data...\n";
+			stat  = m_pMaterialSet->writeXML(m_params);
+			if (stat == MS::kSuccess)
+				std::cout << "OK\n";
+			else
+			{
+				std::cout << "Error writing materials file\n";
+				exit();
+				return MS::kFailure;
+			}
 		}
 
 		exit();
@@ -127,17 +147,14 @@ namespace OgreMayaExporter
 			if (!meshFn.isIntermediateObject())
 			{
 				std::cout << "Found mesh node: " << meshDag.fullPathName().asChar() << "\n";
-				if (m_params.exportMesh||m_params.exportMaterial)
+				std::cout << "Loading mesh node " << meshDag.fullPathName().asChar() << "...\n";
+				stat = m_pMesh->load(meshDag,m_params);
+				if (MS::kSuccess == stat)
+					std::cout << "OK\n";
+				else
 				{
-					std::cout << "Loading mesh node " << meshDag.fullPathName().asChar() << "...\n";
-					stat = m_pMesh->load(meshDag,m_params);
-					if (MS::kSuccess == stat)
-						std::cout << "OK\n";
-					else
-					{
-						std::cout << "Error, Aborting operation\n";
-						return MS::kFailure;
-					}
+					std::cout << "Error, Aborting operation\n";
+					return MS::kFailure;
 				}
 			}
 		}

@@ -246,12 +246,14 @@ namespace OgreMayaExporter
 		MGlobal::executeCommand(command,absFilename);
 		tex.absFilename = absFilename;
 		tex.filename = filename;
+		tex.uvsetIndex = 0;
+		tex.uvsetName = "";
 		// Set texture operation type
 		tex.opType = opType;
 		// Get connections to uvCoord attribute of texture node
 		MPlugArray texSrcPlugs;
 		pTexNode->findPlug("uvCoord").connectedTo(texSrcPlugs,true,false);
-		// Get place2dtexture node
+		// Get place2dtexture node (if connected)
 		MFnDependencyNode* pPlace2dTexNode = NULL;
 		for (int j=0; j<texSrcPlugs.length(); j++)
 		{
@@ -261,7 +263,7 @@ namespace OgreMayaExporter
 				continue;
 			}
 		}
-		// Get uvChooser node
+		// Get uvChooser node (if connected)
 		MFnDependencyNode* pUvChooserNode = NULL;
 		if (pPlace2dTexNode)
 		{

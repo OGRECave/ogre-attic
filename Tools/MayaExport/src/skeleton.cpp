@@ -25,7 +25,7 @@ namespace OgreMayaExporter
 	}
 
 
-	// Load skeleton data from mgiven skin cluster
+	// Load skeleton data from given skin cluster
 	MStatus Skeleton::load(MFnSkinCluster* pSkinCluster,ParamList& params)
 	{
 		MStatus stat;
@@ -329,8 +329,10 @@ namespace OgreMayaExporter
 		// calculate times from parameters
 		else
 		{
-			for (double t=start; t<=stop; t+=rate)
+			times.clear();
+			for (double t=start; t<stop; t+=rate)
 				times.push_back(t);
+			times.push_back(stop);
 		}
 
 		// get animation length
