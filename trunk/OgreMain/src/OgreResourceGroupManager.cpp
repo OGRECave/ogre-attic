@@ -628,10 +628,11 @@ namespace Ogre {
 			"Parsing scripts for resource group " + grp->name);
 
 		// Count up the number of scripts we have to parse
-        typedef std::list<DataStreamListPtr> StreamListList;
-        typedef std::pair<ScriptLoader*, StreamListList> LoaderStreamListPair;
-        typedef std::list<LoaderStreamListPair> ScriptLoaderStreamList;
-        ScriptLoaderStreamList scriptLoaderStreamList;
+        typedef std::list<FileInfoListPtr> FileListList;
+        typedef SharedPtr<FileListList> FileListListPtr;
+        typedef std::pair<ScriptLoader*, FileListListPtr> LoaderFileListPair;
+        typedef std::list<LoaderFileListPair> ScriptLoaderFileList;
+        ScriptLoaderFileList scriptLoaderFileList;
 		size_t scriptCount = 0;
 		// Iterate over script users in loading order and get streams
 		ScriptLoaderOrderMap::iterator oi;
@@ -639,38 +640,44 @@ namespace Ogre {
 			oi != mScriptLoaderOrderMap.end(); ++oi)
 		{
 			ScriptLoader* su = oi->second;
-            StreamListList streamListList;
+            FileListListPtr fileListList(new FileListList);
 
 			// Get all the patterns and search them
 			const StringVector& patterns = su->getScriptPatterns();
 			for (StringVector::const_iterator p = patterns.begin(); p != patterns.end(); ++p)
 			{
-				DataStreamListPtr streamList = openResources(*p, grp->name);
-				scriptCount += streamList->size();
-				streamListList.push_back(streamList);
+				FileInfoListPtr fileList = findResourceFileInfo(grp->name, *p);
+				scriptCount += fileList->size();
+				fileListList->push_back(fileList);
 			}
-            scriptLoaderStreamList.push_back(
-                LoaderStreamListPair(su, streamListList));
+            scriptLoaderFileList.push_back(
+                LoaderFileListPair(su, fileListList));
 		}
 		// Fire scripting event
 		fireResourceGroupScriptingStarted(grp->name, scriptCount);
 
 		// Iterate over scripts and parse
 		// Note we respect original ordering
-        for (ScriptLoaderStreamList::iterator slsi = scriptLoaderStreamList.begin();
-            slsi != scriptLoaderStreamList.end(); ++slsi)
+        for (ScriptLoaderFileList::iterator slfli = scriptLoaderFileList.begin();
+            slfli != scriptLoaderFileList.end(); ++slfli)
         {
-			ScriptLoader* su = slsi->first;
+			ScriptLoader* su = slfli->first;
             // Iterate over each list
-            for (StreamListList::iterator slli = slsi->second.begin(); slli != slsi->second.end(); ++slli)
+            for (FileListList::iterator flli = slfli->second->begin(); flli != slfli->second->end(); ++flli)
             {
 			    // Iterate over each item in the list
-			    for (DataStreamList::iterator si = (*slli)->begin(); si != (*slli)->end(); ++si)
+			    for (FileInfoList::iterator fii = (*flli)->begin(); fii != (*flli)->end(); ++fii)
 			    {
                     LogManager::getSingleton().logMessage(
-                        "Parsing script " + (*si)->getName());
-                    fireScriptStarted((*si)->getName());
-				    su->parseScript(*si, grp->name);
+                        "Parsing script " + fii->filename);
+                    fireScriptStarted(fii->filename);
+                    {
+                        DataStreamPtr stream = fii->archive->open(fii->filename);
+                        if (!stream.isNull())
+                        {
+                            su->parseScript(stream, grp->name);
+                        }
+                    }
 				    fireScriptEnded();
 			    }
             }
