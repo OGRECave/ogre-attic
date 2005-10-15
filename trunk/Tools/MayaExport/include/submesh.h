@@ -11,7 +11,6 @@ namespace OgreMayaExporter
 	typedef struct uvsettag
 	{
 		short size;					//number of coordinates (between 1 and 3)
-		MString name;				//name of the tex coord set
 	} uvset;
 	/***** structure for texture coordinates *****/
 	typedef struct texcoordstag
@@ -30,7 +29,7 @@ namespace OgreMayaExporter
 	typedef struct vertextag
 	{
 		double x, y, z;						//vertex coordinates
-		double nx, ny, nz;					//vertex normal components
+		MVector n;							//vertex normal
 		float r,g,b,a;						//vertex colour
 		std::vector<texcoords> texcoords;	//vertex texture coordinates
 		std::vector<vba> vbas;				//vertex bone assignements
@@ -72,7 +71,7 @@ namespace OgreMayaExporter
 		//load data
 		MStatus loadMaterial(MObject& shader,MStringArray& uvsets,ParamList& params);
 		MStatus load(std::vector<face>& faces, std::vector<vertexInfo>& vertInfo, MFloatPointArray& points,
-			MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params); 
+			MFloatVectorArray& normals, MStringArray& texcoordsets,ParamList& params,bool opposite = false); 
 		//get number of triangles composing the submesh
 		long numTriangles();
 		//get number of vertices

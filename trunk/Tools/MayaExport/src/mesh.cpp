@@ -36,6 +36,12 @@ namespace OgreMayaExporter
 		m_pSkeleton = NULL;
 	}
 
+	// get pointer to linked skeleton
+	Skeleton* Mesh::getSkeleton()
+	{
+		return m_pSkeleton;
+	}
+
 	/*******************************************************************************
 	 *                    Load mesh data from a maya Fn                            *
 	 *******************************************************************************/
@@ -48,6 +54,38 @@ namespace OgreMayaExporter
 
 		// get the mesh object
 		MFnMesh mesh(meshDag);
+		//initialise variables
+		std::vector<MFloatArray> weights;
+		std::vector<MIntArray> jointIds;
+		unsigned int numJoints = 0;
+		std::vector<vertexInfo> vertices;
+		MFloatPointArray points;
+		MFloatVectorArray normals;
+		vertices.resize(mesh.numVertices());
+		weights.resize(mesh.numVertices());
+		jointIds.resize(mesh.numVertices());
+		// get uv texture coordinate sets' names
+		MStringArray uvsets;
+		if (mesh.numUVSets() > 0)
+		{
+			stat = mesh.getUVSetNames(uvsets);
+			if (MS::kSuccess != stat)
+			{
+				std::cout << "Error retrieving UV sets names\n";
+				return MS::kFailure;
+			}
+		}
+		//Save uvsets info
+		for (int i=m_uvsets.size(); i<uvsets.length(); i++)
+		{
+			uvset uv;
+			uv.size = 2;
+			m_uvsets.push_back(uv);
+		}
+		
+		// check the "opposite" attribute to see if we have to flip normals
+		bool opposite = false;
+		mesh.findPlug("opposite",true).getValue(opposite);
 
 		if (params.exportVBA || params.exportSkeleton)
 		{
@@ -108,36 +146,7 @@ namespace OgreMayaExporter
 		std::vector<faceArray> polygonSets;
 		polygonSets.resize(shaders.length());
 
-		// get uv texture coordinate sets' names
-		MStringArray uvsets;
-		if (mesh.numUVSets() > 0)
-		{
-			stat = mesh.getUVSetNames(uvsets);
-			if (MS::kSuccess != stat)
-			{
-				std::cout << "Error retrieving UV sets names\n";
-				return MS::kFailure;
-			}
-		}
-		//Save uvsets info
-		for (int i=0; i<uvsets.length(); i++)
-		{
-			uvset uv;
-			uv.name = uvsets[i];
-			uv.size = 2;
-			m_uvsets.push_back(uv);
-		}
 		// Get faces data
-		//initialise variables
-		std::vector<MFloatArray> weights;
-		std::vector<MIntArray> jointIds;
-		unsigned int numJoints;
-		std::vector<vertexInfo> vertices;
-		MFloatPointArray points;
-		MFloatVectorArray normals;
-		vertices.resize(mesh.numVertices());
-		weights.resize(mesh.numVertices());
-		jointIds.resize(mesh.numVertices());
 		// prepare vertex table
 		for (int i=0; i<vertices.size(); i++)
 			vertices[i].next = -2;
@@ -154,6 +163,7 @@ namespace OgreMayaExporter
 		//get list of vertex weights
 		if (m_pSkinCluster)
 		{
+			std::cout << "Get vbas\n";
 			MItGeometry iterGeom(meshDag);
 			for (i=0; !iterGeom.isDone(); iterGeom.next(), i++)
 			{
@@ -163,13 +173,17 @@ namespace OgreMayaExporter
 				weights[i]=vertexWeights;
 				if (MS::kSuccess != stat)
 				{
-					std::cout << "Error retrieving vba\n";
+					std::cout << "Error retrieving vertex weights\n";
 				}
 				// get ids for the joints
 				if (m_pSkeleton)
 				{
 					MDagPathArray influenceObjs;
 					m_pSkinCluster->influenceObjects(influenceObjs,&stat);
+					if (MS::kSuccess != stat)
+					{
+						std::cout << "Error retrieving influence objects for given skin cluster\n";
+					}
 					jointIds[i].setLength(weights[i].length());
 					for (int j=0; j<influenceObjs.length(); j++)
 					{
@@ -186,7 +200,7 @@ namespace OgreMayaExporter
 				}
 			}
 		}
-
+		std::cout << "Iterate over mesh polygons\n";
 		// create an iterator to go through mesh polygons
 		MItMeshPolygon faceIter(mesh.object(),&stat);
 		if (MS::kSuccess != stat)
@@ -232,13 +246,27 @@ namespace OgreMayaExporter
 					int vtxIdx = faceIter.vertexIndex(triVertexIdx[i]);
 					int nrmIdx = faceIter.normalIndex(triVertexIdx[i]);
 
-					// get vertex colour
+					// get vertex color
 					MColor color;
-					stat = faceIter.getColor(color,triVertexIdx[i]);
-					if (MS::kSuccess != stat)
+					if (faceIter.hasColor(triVertexIdx[i]))
 					{
-						std::cout << "Error retrieving vertex colour\n";
-						return MS::kFailure;
+						stat = faceIter.getColor(color,triVertexIdx[i]);
+						if (MS::kSuccess != stat)
+						{
+							color = MColor(1,1,1,1);
+						}
+						if (color.r > 1)
+							color.r = 1;
+						if (color.g > 1)
+							color.g = 1;
+						if (color.b > 1)
+							color.b = 1;
+						if (color.a > 1)
+							color.a = 1;
+					}
+					else
+					{
+						color = MColor(1,1,1,1);
 					}
 
 					if (vertices[vtxIdx].next == -2)	// first time we encounter a vertex in this position
@@ -282,7 +310,7 @@ namespace OgreMayaExporter
 							vertices[vtxIdx].v[j] = (-1)*(uv[1]-1);
 						}
 						// save vertex index in face info
-						newFace.v[i] = vtxIdx;
+						newFace.v[i] = m_vertices.size() + vtxIdx;
 						// update value of index to next vertex info (-1 means nothing next)
 						vertices[vtxIdx].next = -1;
 					}
@@ -298,7 +326,9 @@ namespace OgreMayaExporter
 								MFloatVector n1 = normals[vertices[k].normalIdx];
 								MFloatVector n2 = normals[nrmIdx];
 								if (n1.x!=n2.x || n1.y!=n2.y || n1.z!=n2.z)
+								{
 									different = true;
+								}
 							}
 
 							if ((params.exportVertCol) &&
@@ -319,8 +349,11 @@ namespace OgreMayaExporter
 										uv[1] = 0;
 									}
 									uv[1] = (-1)*(uv[1]-1);
+									std::cout << vertices[k].u.size() << "\n";
 									if (vertices[k].u[j]!=uv[0] || vertices[k].v[j]!=uv[1])
+									{
 										different = true;
+									}
 								}
 							}
 							idx = k;
@@ -368,12 +401,12 @@ namespace OgreMayaExporter
 							vtx.next = -1;
 							vertices.push_back(vtx);
 							// save vertex index in face info
-							newFace.v[i] = vertices.size()-1;
+							newFace.v[i] = m_vertices.size() + vertices.size()-1;
 							vertices[idx].next = vertices.size()-1;
 						}
 						else
 						{
-							newFace.v[i] = idx;
+							newFace.v[i] = m_vertices.size() + idx;
 						}
 					}
 				} // end iteration of triangle vertices
@@ -394,9 +427,19 @@ namespace OgreMayaExporter
 				v.y = points[vInfo.pointIdx].y;
 				v.z = points[vInfo.pointIdx].z;
 				// save vertex normal
-				v.nx = normals[vInfo.normalIdx].x;
-				v.ny = normals[vInfo.normalIdx].y;
-				v.nz = normals[vInfo.normalIdx].z;
+				if (opposite)
+				{
+					v.n.x = -normals[vInfo.normalIdx].x;
+					v.n.y = -normals[vInfo.normalIdx].y;
+					v.n.z = -normals[vInfo.normalIdx].z;
+				}
+				else
+				{
+					v.n.x = normals[vInfo.normalIdx].x;
+					v.n.y = normals[vInfo.normalIdx].y;
+					v.n.z = normals[vInfo.normalIdx].z;
+				}
+				v.n.normalize();
 				// save vertex color
 				v.r = vInfo.r;
 				v.g = vInfo.g;
@@ -440,7 +483,7 @@ namespace OgreMayaExporter
 			}
 
 			//load vertex and face data
-			stat = pSubmesh->load(polygonSets[i],vertices,points,normals,uvsets,params);
+			stat = pSubmesh->load(polygonSets[i],vertices,points,normals,uvsets,params,opposite);
 
 			//add submesh to current mesh
 			m_submeshes.push_back(pSubmesh);
@@ -487,8 +530,8 @@ namespace OgreMayaExporter
 				//write vertex normal
 				if (params.exportVertNorm)
 				{
-					params.outMesh << "\t\t\t\t<normal x=\"" << m_vertices[i].nx << "\" y=\"" 
-						<< m_vertices[i].ny << "\" " << "z=\"" << m_vertices[i].nz << "\"/>\n";
+					params.outMesh << "\t\t\t\t<normal x=\"" << m_vertices[i].n.x << "\" y=\"" 
+						<< m_vertices[i].n.y << "\" " << "z=\"" << m_vertices[i].n.z << "\"/>\n";
 				}
 				//write vertex colour
 				if (params.exportVertCol)
@@ -534,10 +577,9 @@ namespace OgreMayaExporter
 			}
 		}
 		params.outMesh << "\t</submeshes>\n";
-		// write skeleton data
+		// write skeleton link
 		if (params.exportSkeleton && m_pSkeleton)
 		{
-			// write skeleton link
 			int ri = params.skeletonFilename.rindex('\\');
 			int end = params.skeletonFilename.length() - 1;
 			MString filename = params.skeletonFilename.substring(ri+1,end);
@@ -545,8 +587,6 @@ namespace OgreMayaExporter
 				&& filename.length() >= 5)
 				filename = filename.substring(0,filename.length()-5);
 			params.outMesh << "\t<skeletonlink name=\"" <<  filename.asChar() << "\"/>\n";
-			// write skeleton to XML
-			m_pSkeleton->writeXML(params);
 		}
 		// Write shared geometry bone assignments
 		if (params.useSharedGeom && params.exportVBA)

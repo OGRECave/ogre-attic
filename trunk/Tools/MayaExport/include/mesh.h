@@ -17,6 +17,8 @@ namespace OgreMayaExporter
 		~Mesh();
 		//clear data
 		void clear();
+		//get pointer to linked skeleton
+		Skeleton* getSkeleton();
 		//load mesh data from a maya Fn
 		MStatus load(MDagPath& meshDag,ParamList &params);
 		//write mesh data to maya XML
