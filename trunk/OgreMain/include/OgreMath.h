@@ -342,28 +342,20 @@ namespace Ogre
        /** Convert from degrees to the current AngleUnit. */
        static Real DegreesToAngleUnits(Real degrees);
 
-       /** Checks wether a given point is inside a triangle, in a
+       /** Checks whether a given point is inside a triangle, in a
             2-dimensional (Cartesian) space.
             @remarks
                 The vertices of the triangle must be given in either
                 trigonometrical (anticlockwise) or inverse trigonometrical
                 (clockwise) order.
             @param
-                px The X-coordinate of the point.
+                p The point.
             @param
-                py The Y-coordinate of the point.
+                a The triangle's first vertex.
             @param
-                ax The X-coordinate of the triangle's first vertex.
+                b The triangle's second vertex.
             @param
-                ay The Y-coordinate of the triangle's first vertex.
-            @param
-                bx The X-coordinate of the triangle's second vertex.
-            @param
-                by The Y-coordinate of the triangle's second vertex.
-            @param
-                cx The X-coordinate of the triangle's third vertex.
-            @param
-                cy The Y-coordinate of the triangle's third vertex.
+                c The triangle's third vertex.
             @returns
                 If the point resides in the triangle, <b>true</b> is
                 returned.
@@ -371,8 +363,35 @@ namespace Ogre
                 If the point is outside the triangle, <b>false</b> is
                 returned.
         */
-        static bool pointInTri2D( Real px, Real pz, Real ax, Real az, Real bx, Real bz, Real cx, Real cz );
+        static bool pointInTri2D(const Vector2& p, const Vector2& a, 
+			const Vector2& b, const Vector2& c);
 
+       /** Checks whether a given 3D point is inside a triangle.
+       @remarks
+            The vertices of the triangle must be given in either
+            trigonometrical (anticlockwise) or inverse trigonometrical
+            (clockwise) order, and the point must be guaranteed to be in the
+			same plane as the triangle
+        @param
+            p The point.
+        @param
+            a The triangle's first vertex.
+        @param
+            b The triangle's second vertex.
+        @param
+            c The triangle's third vertex.
+		@param 
+			normal The triangle plane's normal (passed in rather than calculated
+				on demand since the callermay already have it)
+        @returns
+            If the point resides in the triangle, <b>true</b> is
+            returned.
+        @par
+            If the point is outside the triangle, <b>false</b> is
+            returned.
+        */
+        static bool pointInTri3D(const Vector3& p, const Vector3& a, 
+			const Vector3& b, const Vector3& c, const Vector3& normal);
         /** Ray / plane intersection, returns boolean result and distance. */
         static std::pair<bool, Real> intersects(const Ray& ray, const Plane& plane);
 
