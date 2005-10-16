@@ -262,9 +262,23 @@ namespace Ogre {
             been changed in some fundamental way, and the owner of the original 
             wishes to make that known so that new copies will reflect the
             changes.
+        @param sourceBuffer the source buffer as a shared pointer.  Any buffer copies created from the source buffer
+            are deleted.
         */
         virtual void _forceReleaseBufferCopies(
-            const HardwareVertexBufferSharedPtr& sourceBuffer);
+            const HardwareVertexBufferSharedPtr& sourceBuffer)
+        { _forceReleaseBufferCopies(sourceBuffer.get()); }
+
+        /** Internal method that forces the release of copies of a given buffer.
+        @remarks
+            This usually means that the buffer which the copies are based on has
+            been changed in some fundamental way, and the owner of the original 
+            wishes to make that known so that new copies will reflect the
+            changes.
+        @param sourceBuffer the source buffer as a pointer.  Any buffer copies created from the source buffer
+            are deleted.
+        */
+        void _forceReleaseBufferCopies(HardwareVertexBuffer* sourceBuffer);
 
 		/// Notification that a hardware vertex buffer has been destroyed
 		void _notifyVertexBufferDestroyed(HardwareVertexBuffer* buf);

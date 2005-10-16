@@ -237,7 +237,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     void HardwareBufferManager::_forceReleaseBufferCopies(
-        const HardwareVertexBufferSharedPtr& sourceBuffer)
+        HardwareVertexBuffer* sourceBuffer)
     {
         TemporaryVertexBufferLicenseList::iterator i;
         i = mTempVertexBufferLicenses.begin(); 
@@ -246,7 +246,7 @@ namespace Ogre {
         while (i != mTempVertexBufferLicenses.end()) 
         {
             const VertexBufferLicense& vbl = *i;
-            if (vbl.originalBufferPtr == sourceBuffer.get())
+            if (vbl.originalBufferPtr == sourceBuffer)
             {
                 // Just tell the owner that this is being released
                 vbl.licensee->licenseExpired(vbl.buffer.get());
@@ -258,20 +258,15 @@ namespace Ogre {
             }
         }
         // Erase the free copies
+        // locate the source buffer entry in the FreeTemporaryVertexBufferMap
+        // if there is an entry for this source buffer there will only be one
         FreeTemporaryVertexBufferMap::iterator fi =
-            mFreeTempVertexBufferMap.begin();
-        while (fi != mFreeTempVertexBufferMap.end())
+            mFreeTempVertexBufferMap.find(sourceBuffer);
+        if (fi != mFreeTempVertexBufferMap.end())
         {
-            if (fi->first == sourceBuffer.get())
-            {
-                delete fi->second;
-                FreeTemporaryVertexBufferMap::iterator deli = fi++;
-                mFreeTempVertexBufferMap.erase(deli);
-            }
-            else
-            {
-                ++fi;
-            }
+            // an entry was found so delete it
+            delete fi->second;
+            mFreeTempVertexBufferMap.erase(fi);
         }
     }
 	//-----------------------------------------------------------------------
@@ -280,6 +275,8 @@ namespace Ogre {
 		VertexBufferList::iterator i = mVertexBuffers.find(buf);
 		if (i != mVertexBuffers.end())
 		{
+            // release vertex buffer copies
+            _forceReleaseBufferCopies(*i);
 			mVertexBuffers.erase(i);
 		}
 	}
