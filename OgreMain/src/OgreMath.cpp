@@ -227,36 +227,28 @@ namespace Ogre
     }
 
     //-----------------------------------------------------------------------
-    bool Math::pointInTri2D( Real px, Real py, Real ax, Real ay, Real bx, Real by, Real cx, Real cy )
+	bool Math::pointInTri2D(const Vector2& p, const Vector2& a, 
+		const Vector2& b, const Vector2& c)
     {
-        Real v1x, v2x, v1y, v2y;
+        Vector2 v1, v2;
         bool bClockwise;
 
-        v1x = bx - ax;
-        v1y = by - ay;
-
-        v2x = px - bx;
-        v2y = py - by;
+        v1 = b - a;
+        v2 = p - b;
 
         // For the sake of readability
-        #define Clockwise ( v1x * v2y - v1y * v2x >= 0.0 )
+        #define Clockwise ( v1.x * v2.y - v1.y * v2.x >= 0.0 )
 
         bClockwise = Clockwise;
 
-        v1x = cx - bx;
-        v1y = cy - by;
-
-        v2x = px - cx;
-        v2y = py - cy;
+        v1 = c - b;
+        v2 = p - c;
 
         if( Clockwise != bClockwise )
             return false;
 
-        v1x = ax - cx;
-        v1y = ay - cy;
-
-        v2x = px - ax;
-        v2y = py - ay;
+        v1 = a - c;
+        v2 = p - a;
 
         if( Clockwise != bClockwise )
             return false;
@@ -266,7 +258,35 @@ namespace Ogre
         // Clean up the #defines
         #undef Clockwise
     }
+	//-----------------------------------------------------------------------
+	bool Math::pointInTri3D(const Vector3& p, const Vector3& a, 
+		const Vector3& b, const Vector3& c, const Vector3& normal)
+	{
+        // Winding must be consistent from all edges for point to be inside
+		Vector3 v1, v2;
+        bool bClockwise;
 
+        v1 = b - a;
+        v2 = p - a;
+
+		// Note we don't care about normalisation here since sign is all we need
+		// It means we don't have to worry about magnitude of cross products either
+        bClockwise = (v1.crossProduct(v2).dotProduct(normal) >= 0.0f);
+
+        v1 = c - b;
+        v2 = p - b;
+
+        if((v1.crossProduct(v2).dotProduct(normal) >= 0.0f) != bClockwise )
+            return false;
+
+        v1 = a - c;
+        v2 = p - c;
+
+        if((v1.crossProduct(v2).dotProduct(normal) >= 0.0f) != bClockwise )
+            return false;
+
+        return true;
+	}
     //-----------------------------------------------------------------------
     bool Math::RealEqual( Real a, Real b, Real tolerance )
     {
