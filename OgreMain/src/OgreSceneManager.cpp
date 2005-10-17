@@ -2878,6 +2878,11 @@ void SceneManager::initShadowVolumeMaterials(void)
         else
         {
             mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
+
+            if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+            {
+                mInfiniteExtrusionParams = mShadowDebugPass->getVertexProgramParameters();
+            }
         }
     }
 
@@ -2918,6 +2923,11 @@ void SceneManager::initShadowVolumeMaterials(void)
         else
         {
             mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
+
+            if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+            {
+                mFiniteExtrusionParams = mShadowStencilPass->getVertexProgramParameters();
+            }
         }
     }
 
