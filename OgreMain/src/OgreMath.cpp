@@ -574,6 +574,188 @@ namespace Ogre
 
     }
     //-----------------------------------------------------------------------
+    bool Math::intersects(const Ray& ray, const AxisAlignedBox& box,
+        Real* d1, Real* d2)
+    {
+        if (box.isNull())
+            return false;
+
+        const Vector3& min = box.getMinimum();
+        const Vector3& max = box.getMaximum();
+        const Vector3& rayorig = ray.getOrigin();
+        const Vector3& raydir = ray.getDirection();
+
+        Vector3 absDir;
+        absDir[0] = Math::Abs(raydir[0]);
+        absDir[1] = Math::Abs(raydir[1]);
+        absDir[2] = Math::Abs(raydir[2]);
+
+        // Sort the axis, ensure check minimise floating error axis first
+        int imax = 0, imid = 1, imin = 2;
+        if (absDir[0] < absDir[2])
+        {
+            imax = 2;
+            imin = 0;
+        }
+        if (absDir[1] < absDir[imin])
+        {
+            imid = imin;
+            imin = 1;
+        }
+        else if (absDir[1] > absDir[imax])
+        {
+            imid = imax;
+            imax = 1;
+        }
+
+        Real start = 0, end = Math::POS_INFINITY;
+
+#define _CALC_AXIS(i)                                       \
+    do {                                                    \
+        Real denom = 1 / raydir[i];                         \
+        Real newstart = (min[i] - rayorig[i]) * denom;      \
+        Real newend = (max[i] - rayorig[i]) * denom;        \
+        if (newstart > newend) std::swap(newstart, newend); \
+        if (newstart > end || newend < start) return false; \
+        if (newstart > start) start = newstart;             \
+        if (newend < end) end = newend;                     \
+    } while(0)
+
+        // Check each axis in turn
+
+        _CALC_AXIS(imax);
+
+        if (absDir[imid] < std::numeric_limits<Real>::epsilon())
+        {
+            // Parallel with middle and minimise axis, check bounds only
+            if (rayorig[imid] < min[imid] || rayorig[imid] > max[imid] ||
+                rayorig[imin] < min[imin] || rayorig[imin] > max[imin])
+                return false;
+        }
+        else
+        {
+            _CALC_AXIS(imid);
+
+            if (absDir[imin] < std::numeric_limits<Real>::epsilon())
+            {
+                // Parallel with minimise axis, check bounds only
+                if (rayorig[imin] < min[imin] || rayorig[imin] > max[imin])
+                    return false;
+            }
+            else
+            {
+                _CALC_AXIS(imin);
+            }
+        }
+#undef _CALC_AXIS
+
+        if (d1) *d1 = start;
+        if (d2) *d2 = end;
+
+        return true;
+    }
+    //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, const Vector3& a,
+        const Vector3& b, const Vector3& c, const Vector3& normal,
+        bool positiveSide, bool negativeSide)
+    {
+        //
+        // Calculate intersection with plane.
+        //
+        Real t;
+        {
+            Real denom = normal.dotProduct(ray.getDirection());
+
+            // Check intersect side
+            if (denom > + std::numeric_limits<Real>::epsilon())
+            {
+                if (!negativeSide)
+                    return std::pair<bool, Real>(false, 0);
+            }
+            else if (denom < - std::numeric_limits<Real>::epsilon())
+            {
+                if (!positiveSide)
+                    return std::pair<bool, Real>(false, 0);
+            }
+            else
+            {
+                // Parallel or triangle area is close to zero when
+                // the plane normal not normalised.
+                return std::pair<bool, Real>(false, 0);
+            }
+
+            t = normal.dotProduct(a - ray.getOrigin()) / denom;
+
+            if (t < 0)
+            {
+                // Intersection is behind origin
+                return std::pair<bool, Real>(false, 0);
+            }
+        }
+
+        //
+        // Calculate the largest area projection plane in X, Y or Z.
+        //
+        size_t i0, i1;
+        {
+            Real n0 = Math::Abs(normal[0]);
+            Real n1 = Math::Abs(normal[1]);
+            Real n2 = Math::Abs(normal[2]);
+
+            i0 = 1; i1 = 2;
+            if (n1 > n2)
+            {
+                if (n1 > n0) i0 = 0;
+            }
+            else
+            {
+                if (n2 > n0) i1 = 0;
+            }
+        }
+
+        //
+        // Check the intersection point is inside the triangle.
+        //
+        {
+            Real u1 = b[i0] - a[i0];
+            Real v1 = b[i1] - a[i1];
+            Real u2 = c[i0] - a[i0];
+            Real v2 = c[i1] - a[i1];
+            Real u0 = t * ray.getDirection()[i0] + ray.getOrigin()[i0] - a[i0];
+            Real v0 = t * ray.getDirection()[i1] + ray.getOrigin()[i1] - a[i1];
+
+            Real alpha = u0 * v2 - u2 * v0;
+            Real beta  = u1 * v0 - u0 * v1;
+            Real area  = u1 * v2 - u2 * v1;
+
+            // epsilon to avoid float precision error
+            const Real EPSILON = 1e-3f;
+
+            Real tolerance = - EPSILON * area;
+
+            if (area > 0)
+            {
+                if (alpha < tolerance || beta < tolerance || alpha+beta > area-tolerance)
+                    return std::pair<bool, Real>(false, 0);
+            }
+            else
+            {
+                if (alpha > tolerance || beta > tolerance || alpha+beta < area-tolerance)
+                    return std::pair<bool, Real>(false, 0);
+            }
+        }
+
+        return std::pair<bool, Real>(true, t);
+    }
+    //-----------------------------------------------------------------------
+    std::pair<bool, Real> Math::intersects(const Ray& ray, const Vector3& a,
+        const Vector3& b, const Vector3& c,
+        bool positiveSide, bool negativeSide)
+    {
+        Vector3 normal = calculateBasicFaceNormalWithoutNormalize(a, b, c);
+        return intersects(ray, a, b, c, normal, positiveSide, negativeSide);
+    }
+    //-----------------------------------------------------------------------
     bool Math::intersects(const Sphere& sphere, const AxisAlignedBox& box)
     {
         if (box.isNull()) return false;
