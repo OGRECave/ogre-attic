@@ -416,7 +416,7 @@ namespace Ogre {
         @note
         Has no effect in the programmable pipeline.
         */
-        const Matrix4& getTextureTransform(void);
+        const Matrix4& getTextureTransform(void) const;
 
         /** Sets the translation offset of the texture, ie scrolls the texture.
         @remarks
@@ -887,11 +887,11 @@ protected:
         LayerBlendModeEx alphaBlendMode;
         bool mIsBlank;
 
-        bool mRecalcTexMatrix;
+        mutable bool mRecalcTexMatrix;
         Real mUMod, mVMod;
         Real mUScale, mVScale;
         Radian mRotate;
-        Matrix4 mTexModMatrix;
+        mutable Matrix4 mTexModMatrix;
 
         // Animation, will be set up as Controllers
         Real mUScrollAnim, mVScrollAnim;
@@ -931,7 +931,7 @@ protected:
 
         /** Internal method for calculating texture matrix.
         */
-        void recalcTextureMatrix(void);
+        void recalcTextureMatrix(void) const;
 
         /** Internal method for creating animation controller.
         */

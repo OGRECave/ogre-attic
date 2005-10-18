@@ -582,7 +582,7 @@ namespace Ogre {
         mRecalcTexMatrix = true;
     }
     //-----------------------------------------------------------------------
-    const Matrix4& TextureUnitState::getTextureTransform()
+    const Matrix4& TextureUnitState::getTextureTransform() const
     {
         if (mRecalcTexMatrix)
             recalcTextureMatrix();
@@ -590,7 +590,7 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void TextureUnitState::recalcTextureMatrix()
+    void TextureUnitState::recalcTextureMatrix() const
     {
         // Assumption: 2D texture coords
         Matrix3 xform, rot;

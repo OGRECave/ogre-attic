@@ -852,6 +852,8 @@ Here are the attributes you can use in a 'texture_unit' section of a .material s
 @ref{scale}
 @item
 @ref{wave_xform}
+@item
+@ref{transform}
 @end itemize
 
 You can also use a nested 'texture_source' section in order to use a special add-in as a source of texture data, @xref{External Texture Sources} for details.
@@ -1206,6 +1208,15 @@ Example: wave_xform scale_x sine 1.0 0.2 0.0 5.0@*@*
 @end table
 @*
 The range of the output of the wave will be {base, base+amplitude}. So the example above scales the texture in the x direction between 1 (normal size) and 5 along a sine wave at one cycle every 5 second (0.2 waves per second).@*@*
+
+@anchor{transform}
+@subheading transform
+
+This attribute allows you to specify a static 4x4 transformation matrix for the texture unit, thus replacing the individual scroll, rotate and scale attributes mentioned above. @*@*
+
+Format: transform m00 m01 m02 m03 m10 m11 m12 m13 m20 m21 m22 m23 m30 m31 m32 m33@*@*
+
+The indexes of the 4x4 matrix value above are expressed as m<row><col>.
 
 @node Declaring Vertex and Fragment Programs
 @subsection Declaring Vertex and Fragment Programs

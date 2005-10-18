@@ -1185,6 +1185,37 @@ namespace Ogre
 
         return false;
     }
+	//-----------------------------------------------------------------------
+	bool parseTransform(String& params, MaterialScriptContext& context)
+	{
+		StringVector vecparams = StringUtil::split(params, " \t");
+		if (vecparams.size() != 16)
+		{
+			logParseError("Bad transform attribute, wrong number of parameters (expected 16)", context);
+			return false;
+		}
+		Matrix4 xform(
+			StringConverter::parseReal(vecparams[0]), 
+			StringConverter::parseReal(vecparams[1]), 
+			StringConverter::parseReal(vecparams[2]), 
+			StringConverter::parseReal(vecparams[3]), 
+			StringConverter::parseReal(vecparams[4]), 
+			StringConverter::parseReal(vecparams[5]), 
+			StringConverter::parseReal(vecparams[6]), 
+			StringConverter::parseReal(vecparams[7]), 
+			StringConverter::parseReal(vecparams[8]), 
+			StringConverter::parseReal(vecparams[9]), 
+			StringConverter::parseReal(vecparams[10]), 
+			StringConverter::parseReal(vecparams[11]), 
+			StringConverter::parseReal(vecparams[12]), 
+			StringConverter::parseReal(vecparams[13]), 
+			StringConverter::parseReal(vecparams[14]), 
+			StringConverter::parseReal(vecparams[15]) );
+		context.textureUnit->setTextureTransform(xform);
+
+
+		return false;
+	}
     //-----------------------------------------------------------------------
     bool parseDepthBias(String& params, MaterialScriptContext& context)
     {
@@ -2225,6 +2256,7 @@ namespace Ogre
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("rotate_anim", (ATTRIBUTE_PARSER)parseRotateAnim));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("scale", (ATTRIBUTE_PARSER)parseScale));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("wave_xform", (ATTRIBUTE_PARSER)parseWaveXform));
+		mTextureUnitAttribParsers.insert(AttribParserList::value_type("transform", (ATTRIBUTE_PARSER)parseTransform));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("filtering", (ATTRIBUTE_PARSER)parseFiltering));
         mTextureUnitAttribParsers.insert(AttribParserList::value_type("max_anisotropy", (ATTRIBUTE_PARSER)parseAnisotropy));
 
@@ -3133,12 +3165,14 @@ namespace Ogre
                     writeValue(StringConverter::toString(pTex->getAlphaBlendMode().alphaArg2));
             }
 
+			bool individualTransformElems = false;
             // rotate
             if (mDefaults ||
                 pTex->getTextureRotate() != Radian(0))
             {
                 writeAttribute(4, "rotate");
                 writeValue(StringConverter::toString(pTex->getTextureRotate().valueDegrees()));
+				individualTransformElems = true;
             }
 
             // scroll
@@ -3149,6 +3183,7 @@ namespace Ogre
                 writeAttribute(4, "scroll");
                 writeValue(StringConverter::toString(pTex->getTextureUScroll()));
                 writeValue(StringConverter::toString(pTex->getTextureVScroll()));
+				individualTransformElems = true;
             }
             // scale
             if (mDefaults ||
@@ -3158,7 +3193,24 @@ namespace Ogre
                 writeAttribute(4, "scale");
                 writeValue(StringConverter::toString(pTex->getTextureUScale()));
                 writeValue(StringConverter::toString(pTex->getTextureVScale()));
+				individualTransformElems = true;
             }
+
+			// free transform
+			if (!individualTransformElems && 
+				(mDefaults ||
+				pTex->getTextureTransform() != Matrix4::IDENTITY))
+			{
+				writeAttribute(4, "transform");
+				const Matrix4& xform = pTex->getTextureTransform();
+				for (int row = 0; row < 4; ++row)
+				{
+					for (int col = 0; col < 4; ++col)
+					{
+						writeValue(StringConverter::toString(xform[row][col]));
+					}
+				}
+			}
 
             EffectMap m_ef = pTex->getEffects();
             if (!m_ef.empty())
