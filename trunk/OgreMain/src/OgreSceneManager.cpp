@@ -2638,7 +2638,7 @@ const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
         AxisAlignedBox aabb;
         const Vector3* corners = camera->getWorldSpaceCorners();
         Vector3 min, max;
-        Vector3 extrude = light->getDirection() * -mShadowDirLightExtrudeDist;
+        Vector3 extrude = light->getDerivedDirection() * -mShadowDirLightExtrudeDist;
         // do first corner
         min = max = corners[0];
         min.makeFloor(corners[0] + extrude);
@@ -2666,7 +2666,7 @@ const SceneManager::ShadowCasterList& SceneManager::findShadowCastersForLight(
     }
     else
     {
-        Sphere s(light->getPosition(), light->getAttenuationRange());
+        Sphere s(light->getDerivedPosition(), light->getAttenuationRange());
         // eliminate early if camera cannot see light sphere
         if (camera->isVisible(s))
         {
@@ -2749,6 +2749,11 @@ void SceneManager::initShadowVolumeMaterials(void)
         else
         {
             mShadowDebugPass = matDebug->getTechnique(0)->getPass(0);
+
+            if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+            {
+                mInfiniteExtrusionParams = mShadowDebugPass->getVertexProgramParameters();
+            }
         }
     }
 
@@ -2789,6 +2794,11 @@ void SceneManager::initShadowVolumeMaterials(void)
         else
         {
             mShadowStencilPass = matStencil->getTechnique(0)->getPass(0);
+
+            if (mDestRenderSystem->getCapabilities()->hasCapability(RSC_VERTEX_PROGRAM))
+            {
+                mFiniteExtrusionParams = mShadowStencilPass->getVertexProgramParameters();
+            }
         }
     }
 
