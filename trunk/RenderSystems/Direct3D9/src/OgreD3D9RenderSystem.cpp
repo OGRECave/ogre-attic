@@ -2763,6 +2763,18 @@ namespace Ogre
 			/// Break on first one that matches
 			for(size_t x=0; x<NDSFORMATS; ++x)
 			{
+                // Verify that the depth format exists
+                if (mpD3D->CheckDeviceFormat(
+                    mActiveD3DDriver->getAdapterNumber(),
+                    D3DDEVTYPE_HAL,
+                    srfDesc.Format,
+                    D3DUSAGE_DEPTHSTENCIL,
+                    D3DRTYPE_SURFACE,
+                    ddDepthStencilFormats[x]) != D3D_OK)
+                {
+                    continue;
+                }
+                // Verify that the depth format is compatible
 				if(mpD3D->CheckDepthStencilMatch(
 					mActiveD3DDriver->getAdapterNumber(),
 					D3DDEVTYPE_HAL, srfDesc.Format,
