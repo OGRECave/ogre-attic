@@ -726,6 +726,7 @@ namespace Ogre {
 
 				xform = rot3x3 * scale3x3;
 				xform.setTrans(trans);
+				usexform = true;
 
 			}
 			
