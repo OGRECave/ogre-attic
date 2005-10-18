@@ -166,6 +166,32 @@ namespace Ogre {
 
 	};
 
+	/** ControllerValue wrapper class for AnimationState.
+	@remarks
+		In Azathoth and earlier, AnimationState was a ControllerValue but this
+		actually causes memory problems since Controllers delete their values
+		automatically when there are no further references to them, but AnimationState
+		is deleted explicitly elsewhere so this causes double-free problems.
+		This wrapper acts as a bridge and it is this which is destroyed automatically.
+	*/
+	class _OgreExport AnimationStateControllerValue : public ControllerValue<Real>
+	{
+	protected:
+		AnimationState* mTargetAnimationState;
+	public:
+		/** Constructor, pass in the target animation state. */
+		AnimationStateControllerValue(AnimationState* targetAnimationState)
+			: mTargetAnimationState(targetAnimationState) {}
+		/// Destructor (parent already virtual)
+		~AnimationStateControllerValue() {}
+		/** ControllerValue implementation. */
+		Real getValue(void) const;
+
+		/** ControllerValue implementation. */
+		void setValue(Real value);
+
+	};
+
 
 }
 
