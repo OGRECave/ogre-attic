@@ -84,7 +84,7 @@ namespace Ogre {
         {
             OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
                 "Cannot find track with the specified handle", 
-                "Animation::getTrackByHandle");
+                "Animation::getTrack");
         }
 
         return i->second;
@@ -95,9 +95,11 @@ namespace Ogre {
     {
         TrackList::iterator i = mTrackList.find(handle);
 
-        delete i->second;
-
-        mTrackList.erase(i);
+		if (i != mTrackList.end())
+		{
+			delete i->second;
+			mTrackList.erase(i);
+		}
     }
     //---------------------------------------------------------------------
     void Animation::destroyAllTracks(void)
