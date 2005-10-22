@@ -26,6 +26,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 #include "OgreMath.h"
 #include "asm_math.h"
+#include "OgreVector2.h"
 #include "OgreVector3.h"
 #include "OgreVector4.h"
 #include "OgreRay.h"
