@@ -48,39 +48,59 @@ http://www.gnu.org/copyleft/lesser.txt.
 
 namespace Ogre {
     //-----------------------------------------------------------------------
-    Entity::Entity () 
+    Entity::Entity ()
+		: mSkelAnimVertexData(0),
+		  mSoftwareMorphAnimVertexData(0),
+		  mHardwareMorphAnimVertexData(0),
+		  mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
+		  mSharedSkeletonEntities(NULL),
+		  mDisplaySkeleton(false),
+	      mHardwareAnimation(false),
+		  mVertexProgramInUse(false),
+		  mSoftwareSkinningRequests(0),
+		  mSoftwareSkinningNormalsRequests(0),
+		  mMeshLodFactorInv(1.0f),
+		  mMeshLodIndex(0),
+		  mMaxMeshLodIndex(0),		// Backwards, remember low value = high detail
+		  mMinMeshLodIndex(99),
+		  mMaterialLodFactorInv(1.0f),
+		  mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
+		  mMinMaterialLodIndex(99),
+          mSkeletonInstance(0),
+		  mLastParentXform(Matrix4::ZERO),
+		  mNormaliseNormals(false)
     {
         mFullBoundingBox = new AxisAlignedBox;
-        mNormaliseNormals = false;
         mFrameBonesLastUpdated = new unsigned long;
 		*mFrameBonesLastUpdated = std::numeric_limits<unsigned long>::max();
-        mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
-        mHardwareAnimation = false;
-        mSoftwareSkinningRequests = 0;
-        mSoftwareSkinningNormalsRequests = 0;
-        mSkeletonInstance = 0;
-		mSkelAnimVertexData = 0;
-		mSoftwareMorphAnimVertexData = 0;
-		mHardwareMorphAnimVertexData = 0;
-		mLastParentXform = Matrix4::ZERO;
 
     }
     //-----------------------------------------------------------------------
     Entity::Entity( const String& name, MeshPtr& mesh) :
 		MovableObject(name),
         mMesh(mesh),
-        mSharedSkeletonEntities(NULL)
+		mSkelAnimVertexData(0),
+		mSoftwareMorphAnimVertexData(0),
+		mHardwareMorphAnimVertexData(0),
+		mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
+        mSharedSkeletonEntities(NULL),
+		mDisplaySkeleton(false),
+		mHardwareAnimation(false),
+		mVertexProgramInUse(false),
+		mSoftwareSkinningRequests(0),
+		mSoftwareSkinningNormalsRequests(0),
+		mMeshLodFactorInv(1.0f),
+		mMeshLodIndex(0),
+		mMaxMeshLodIndex(0),		// Backwards, remember low value = high detail
+		mMinMeshLodIndex(99),
+		mMaterialLodFactorInv(1.0f),
+		mMaxMaterialLodIndex(0), 		// Backwards, remember low value = high detail
+		mMinMaterialLodIndex(99),
+		mSkeletonInstance(0),
+		mLastParentXform(Matrix4::ZERO),
+		mNormaliseNormals(false)
     {
         mFullBoundingBox = new AxisAlignedBox;
-        mHardwareAnimation = false;
-        mSoftwareSkinningRequests = 0;
-        mSoftwareSkinningNormalsRequests = 0;
-        mSkelAnimVertexData = 0;
-		mSoftwareMorphAnimVertexData = 0;
-		mHardwareMorphAnimVertexData = 0;
-		mLastParentXform = Matrix4::ZERO;
-
-
 
         // Is mesh skeletally animated?
         if (mMesh->hasSkeleton() && !mMesh->getSkeleton().isNull())
@@ -142,19 +162,6 @@ namespace Ogre {
 
         reevaluateVertexProcessing();
 
-        mDisplaySkeleton = false;
-
-        mMeshLodFactorInv = 1.0f;
-        mMeshLodIndex = 0;
-        mMaxMeshLodIndex = 0; 		// Backwards, remember low value = high detail
-        mMinMeshLodIndex = 99;
-
-        mMaterialLodFactorInv = 1.0f;
-        mMaxMaterialLodIndex = 0; 		// Backwards, remember low value = high detail
-        mMinMaterialLodIndex = 99;
-
-
-        mFrameAnimationLastUpdated = std::numeric_limits<unsigned long>::max();
 
         // Do we have a mesh where edge lists are not going to be available?
         if (!mesh->isEdgeListBuilt() && !mesh->getAutoBuildEdgeLists())
@@ -615,7 +622,7 @@ namespace Ogre {
 		// So pick the first active morph animation
 		AnimationStateIterator animIt = mAnimationState->getAnimationStateIterator();
 		MeshPtr msh = getMesh();
-		bool swAnim = !hardwareAnimation || stencilShadows;
+		bool swAnim = !hardwareAnimation || stencilShadows || (mSoftwareSkinningRequests>0);
 		bool foundAnim = false;
 		while(animIt.hasMoreElements())
 		{
