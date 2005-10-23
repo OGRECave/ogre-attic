@@ -37,170 +37,202 @@ http://www.gnu.org/copyleft/gpl.html.
 
 bool PS_1_4::LibInitialized = false;
 
+#define SYMSTART {
+#define SYMDEF  ,0,0,0,0},{
+#define SYMEND  ,0,0,0,0}
+
 PS_1_4::SymbolDef PS_1_4::PS_1_4_SymbolTypeLib[] = {
 	// pixel shader versions supported
-	{sid_PS_1_4, GL_NONE, ckp_PS_BASE, ckp_PS_1_4},
-	{sid_PS_1_1, GL_NONE, ckp_PS_BASE, ckp_PS_1_1},
-	{sid_PS_1_2, GL_NONE, ckp_PS_BASE, ckp_PS_1_2 + ckp_PS_1_1},
-	{sid_PS_1_3, GL_NONE, ckp_PS_BASE, ckp_PS_1_3 + ckp_PS_1_2 + ckp_PS_1_1},
+	{ sid_PS_1_4, GL_NONE, ckp_PS_BASE, ckp_PS_1_4, 0, 0, 0 },
+	{ sid_PS_1_1, GL_NONE, ckp_PS_BASE, ckp_PS_1_1, 0, 0, 0 },
+	{ sid_PS_1_2, GL_NONE, ckp_PS_BASE, ckp_PS_1_2 + ckp_PS_1_1, 0, 0, 0 },
+	{ sid_PS_1_3, GL_NONE, ckp_PS_BASE, ckp_PS_1_3 + ckp_PS_1_2 + ckp_PS_1_1, 0, 0, 0 },
 
 	// PS_BASE
 
 	// constants
-	{sid_C0, GL_CON_0_ATI, ckp_PS_BASE},
-	{sid_C1, GL_CON_1_ATI, ckp_PS_BASE},
-	{sid_C2, GL_CON_2_ATI, ckp_PS_BASE},
-	{sid_C3, GL_CON_3_ATI, ckp_PS_BASE},
-	{sid_C4, GL_CON_4_ATI, ckp_PS_BASE},
-	{sid_C5, GL_CON_5_ATI, ckp_PS_BASE},
-	{sid_C6, GL_CON_6_ATI, ckp_PS_BASE},
-	{sid_C7, GL_CON_7_ATI, ckp_PS_BASE},
+	SYMSTART sid_C0, GL_CON_0_ATI, ckp_PS_BASE
+	SYMDEF sid_C1, GL_CON_1_ATI, ckp_PS_BASE
+	SYMDEF sid_C2, GL_CON_2_ATI, ckp_PS_BASE
+	SYMDEF sid_C3, GL_CON_3_ATI, ckp_PS_BASE
+	SYMDEF sid_C4, GL_CON_4_ATI, ckp_PS_BASE
+	SYMDEF sid_C5, GL_CON_5_ATI, ckp_PS_BASE
+	SYMDEF sid_C6, GL_CON_6_ATI, ckp_PS_BASE
+	SYMDEF sid_C7, GL_CON_7_ATI, ckp_PS_BASE
 
 	// colour
-	{sid_V0, GL_PRIMARY_COLOR_ARB,  ckp_PS_BASE},
-	{sid_V1, GL_SECONDARY_INTERPOLATOR_ATI,  ckp_PS_BASE},
+	SYMDEF sid_V0, GL_PRIMARY_COLOR_ARB,  ckp_PS_BASE
+	SYMDEF sid_V1, GL_SECONDARY_INTERPOLATOR_ATI,  ckp_PS_BASE
 
 	// instruction ops
-	{sid_ADD, GL_ADD_ATI, ckp_PS_BASE},
-	{sid_SUB, GL_SUB_ATI, ckp_PS_BASE},
-	{sid_MUL, GL_MUL_ATI, ckp_PS_BASE},
-	{sid_MAD, GL_MAD_ATI, ckp_PS_BASE},
-	{sid_LRP, GL_LERP_ATI, ckp_PS_BASE},
-	{sid_MOV, GL_MOV_ATI, ckp_PS_BASE},
-	{sid_CMP, GL_CND0_ATI, ckp_PS_BASE},
-	{sid_CND, GL_CND_ATI, ckp_PS_BASE},
-	{sid_DP3, GL_DOT3_ATI, ckp_PS_BASE},
-	{sid_DP4, GL_DOT4_ATI, ckp_PS_BASE},
+	SYMDEF sid_ADD, GL_ADD_ATI, ckp_PS_BASE
+	SYMDEF sid_SUB, GL_SUB_ATI, ckp_PS_BASE
+	SYMDEF sid_MUL, GL_MUL_ATI, ckp_PS_BASE
+	SYMDEF sid_MAD, GL_MAD_ATI, ckp_PS_BASE
+	SYMDEF sid_LRP, GL_LERP_ATI, ckp_PS_BASE
+	SYMDEF sid_MOV, GL_MOV_ATI, ckp_PS_BASE
+	SYMDEF sid_CMP, GL_CND0_ATI, ckp_PS_BASE
+	SYMDEF sid_CND, GL_CND_ATI, ckp_PS_BASE
+	SYMDEF sid_DP3, GL_DOT3_ATI, ckp_PS_BASE
+	SYMDEF sid_DP4, GL_DOT4_ATI, ckp_PS_BASE
 
-	{sid_DEF, GL_NONE, ckp_PS_BASE},
+	SYMDEF sid_DEF, GL_NONE, ckp_PS_BASE
 
 	// Masks
-	{sid_R, GL_RED_BIT_ATI, ckp_PS_1_4},
-	{sid_RA, GL_RED_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
-	{sid_G, GL_GREEN_BIT_ATI, ckp_PS_1_4},
-	{sid_GA, GL_GREEN_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
-	{sid_B, GL_BLUE_BIT_ATI, ckp_PS_1_4},
-	{sid_BA, GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
-	{sid_A, ALPHA_BIT, ckp_PS_BASE},
-	{sid_RGBA, RGB_BITS | ALPHA_BIT, ckp_PS_BASE},
-	{sid_RGB, RGB_BITS,  ckp_PS_BASE},
-	{sid_RG, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI, ckp_PS_1_4},
-	{sid_RGA, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
-	{sid_RB, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI, ckp_PS_1_4},
-	{sid_RBA, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
-	{sid_GB, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI, ckp_PS_1_4},
-	{sid_GBA, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4},
+	SYMDEF sid_R, GL_RED_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_RA, GL_RED_BIT_ATI | ALPHA_BIT, ckp_PS_1_4
+	SYMDEF sid_G, GL_GREEN_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_GA, GL_GREEN_BIT_ATI | ALPHA_BIT, ckp_PS_1_4
+	SYMDEF sid_B, GL_BLUE_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_BA, GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4
+	SYMDEF sid_A, ALPHA_BIT, ckp_PS_BASE
+	SYMDEF sid_RGBA, RGB_BITS | ALPHA_BIT, ckp_PS_BASE
+	SYMDEF sid_RGB, RGB_BITS,  ckp_PS_BASE
+	SYMDEF sid_RG, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_RGA, GL_RED_BIT_ATI | GL_GREEN_BIT_ATI | ALPHA_BIT, ckp_PS_1_4
+	SYMDEF sid_RB, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_RBA, GL_RED_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4
+	SYMDEF sid_GB, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_GBA, GL_GREEN_BIT_ATI | GL_BLUE_BIT_ATI | ALPHA_BIT, ckp_PS_1_4
 
 	// Rep
-	{sid_RRRR, GL_RED, ckp_PS_1_4},
-	{sid_GGGG, GL_GREEN, ckp_PS_1_4},
-	{sid_BBBB, GL_BLUE, ckp_PS_BASE},
-	{sid_AAAA, GL_ALPHA, ckp_PS_BASE},
+	SYMDEF sid_RRRR, GL_RED, ckp_PS_1_4
+	SYMDEF sid_GGGG, GL_GREEN, ckp_PS_1_4
+	SYMDEF sid_BBBB, GL_BLUE, ckp_PS_BASE
+	SYMDEF sid_AAAA, GL_ALPHA, ckp_PS_BASE
 
 
 	// modifiers
-	{sid_X2, GL_2X_BIT_ATI, ckp_PS_BASE}, {sid_X4, GL_4X_BIT_ATI, ckp_PS_BASE},
-	{sid_D2, GL_HALF_BIT_ATI, ckp_PS_BASE}, {sid_SAT, GL_SATURATE_BIT_ATI, ckp_PS_BASE},
+	SYMDEF sid_X2, GL_2X_BIT_ATI, ckp_PS_BASE
+	SYMDEF sid_X4, GL_4X_BIT_ATI, ckp_PS_BASE
+	SYMDEF sid_D2, GL_HALF_BIT_ATI, ckp_PS_BASE
+	SYMDEF sid_SAT, GL_SATURATE_BIT_ATI, ckp_PS_BASE
 
 	// argument modifiers
-	{sid_BIAS, GL_BIAS_BIT_ATI, ckp_PS_BASE}, {sid_INVERT, GL_COMP_BIT_ATI, ckp_PS_BASE},
-	{sid_NEGATE, GL_NEGATE_BIT_ATI, ckp_PS_BASE}, {sid_BX2, GL_2X_BIT_ATI | GL_BIAS_BIT_ATI, ckp_PS_BASE},
-
+	SYMDEF sid_BIAS, GL_BIAS_BIT_ATI, ckp_PS_BASE
+	SYMDEF sid_INVERT, GL_COMP_BIT_ATI, ckp_PS_BASE
+	SYMDEF sid_NEGATE, GL_NEGATE_BIT_ATI, ckp_PS_BASE
+	SYMDEF sid_BX2, GL_2X_BIT_ATI | GL_BIAS_BIT_ATI, ckp_PS_BASE
+	
 	// seperator characters
-	{sid_COMMA, GL_NONE, ckp_PS_BASE}, {sid_VALUE, GL_NONE, ckp_PS_BASE},
+	SYMDEF sid_COMMA, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_VALUE, GL_NONE, ckp_PS_BASE
 
 	// PS_1_4
 	// temp R/W registers
-	{sid_R0, GL_REG_0_ATI, ckp_PS_1_4}, {sid_R1, GL_REG_1_ATI, ckp_PS_1_4},	{sid_R2, GL_REG_2_ATI, ckp_PS_1_4},
-	{sid_R3, GL_REG_3_ATI, ckp_PS_1_4},	{sid_R4, GL_REG_4_ATI, ckp_PS_1_4},	{sid_R5, GL_REG_5_ATI, ckp_PS_1_4},
+	SYMDEF sid_R0, GL_REG_0_ATI, ckp_PS_1_4
+	SYMDEF sid_R1, GL_REG_1_ATI, ckp_PS_1_4
+	SYMDEF sid_R2, GL_REG_2_ATI, ckp_PS_1_4
+	SYMDEF sid_R3, GL_REG_3_ATI, ckp_PS_1_4
+	SYMDEF sid_R4, GL_REG_4_ATI, ckp_PS_1_4
+	SYMDEF sid_R5, GL_REG_5_ATI, ckp_PS_1_4
 
 	// textures
-	{sid_T0, GL_TEXTURE0_ARB, ckp_PS_1_4}, {sid_T1, GL_TEXTURE1_ARB, ckp_PS_1_4}, {sid_T2, GL_TEXTURE2_ARB, ckp_PS_1_4},
-	{sid_T3, GL_TEXTURE3_ARB, ckp_PS_1_4}, {sid_T4, GL_TEXTURE4_ARB, ckp_PS_1_4}, {sid_T5, GL_TEXTURE5_ARB, ckp_PS_1_4},
-	{sid_DP2ADD, GL_DOT2_ADD_ATI, ckp_PS_1_4},
+	SYMDEF sid_T0, GL_TEXTURE0_ARB, ckp_PS_1_4
+	SYMDEF sid_T1, GL_TEXTURE1_ARB, ckp_PS_1_4
+	SYMDEF sid_T2, GL_TEXTURE2_ARB, ckp_PS_1_4
+	SYMDEF sid_T3, GL_TEXTURE3_ARB, ckp_PS_1_4
+	SYMDEF sid_T4, GL_TEXTURE4_ARB, ckp_PS_1_4
+	SYMDEF sid_T5, GL_TEXTURE5_ARB, ckp_PS_1_4
+	SYMDEF sid_DP2ADD, GL_DOT2_ADD_ATI, ckp_PS_1_4
 
 	// modifiers
-	{sid_X8, GL_8X_BIT_ATI, ckp_PS_1_4}, {sid_D8, GL_EIGHTH_BIT_ATI, ckp_PS_1_4}, {sid_D4, GL_QUARTER_BIT_ATI, ckp_PS_1_4},
+	SYMDEF sid_X8, GL_8X_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_D8, GL_EIGHTH_BIT_ATI, ckp_PS_1_4
+	SYMDEF sid_D4, GL_QUARTER_BIT_ATI, ckp_PS_1_4
 
 	// instructions
-	{sid_TEXCRD, GL_NONE, ckp_PS_1_4}, {sid_TEXLD, GL_NONE, ckp_PS_1_4},
+	SYMDEF sid_TEXCRD, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_TEXLD, GL_NONE, ckp_PS_1_4
 
 	// texture swizzlers
 
-	{sid_STR, GL_SWIZZLE_STR_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4},
-	{sid_STQ, GL_SWIZZLE_STQ_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4},
-	{sid_STRDR, GL_SWIZZLE_STR_DR_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4},
-	{sid_STQDQ, GL_SWIZZLE_STQ_DQ_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4}, 
+	SYMDEF sid_STR, GL_SWIZZLE_STR_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4
+	SYMDEF sid_STQ, GL_SWIZZLE_STQ_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4
+	SYMDEF sid_STRDR, GL_SWIZZLE_STR_DR_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4
+	SYMDEF sid_STQDQ, GL_SWIZZLE_STQ_DQ_ATI - GL_SWIZZLE_STR_ATI, ckp_PS_1_4 
 
-	{sid_BEM, GL_NONE, ckp_PS_1_4},
-	{sid_PHASE, GL_NONE, ckp_PS_1_4},
+	SYMDEF sid_BEM, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_PHASE, GL_NONE, ckp_PS_1_4
 
 	// PS_1_1 
 	// temp R/W registers
 	// r0, r1 are mapped to r4, r5
 	// t0 to t3 are mapped to r0 to r3
-	{sid_1R0, GL_REG_4_ATI, ckp_PS_1_1}, {sid_1R1, GL_REG_5_ATI, ckp_PS_1_1},
-	{sid_1T0, GL_REG_0_ATI, ckp_PS_1_1},
-	{sid_1T1, GL_REG_1_ATI, ckp_PS_1_1}, {sid_1T2, GL_REG_2_ATI, ckp_PS_1_1}, {sid_1T3, GL_REG_3_ATI, ckp_PS_1_1},
+	SYMDEF sid_1R0, GL_REG_4_ATI, ckp_PS_1_1
+	SYMDEF sid_1R1, GL_REG_5_ATI, ckp_PS_1_1
+	SYMDEF sid_1T0, GL_REG_0_ATI, ckp_PS_1_1
+	SYMDEF sid_1T1, GL_REG_1_ATI, ckp_PS_1_1
+	SYMDEF sid_1T2, GL_REG_2_ATI, ckp_PS_1_1
+	SYMDEF sid_1T3, GL_REG_3_ATI, ckp_PS_1_1
 
 	// instructions common to PS_1_1, PS_1_2, PS_1_3
-	{sid_TEX, GL_NONE, ckp_PS_1_1},	{sid_TEXCOORD, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X2PAD, GL_NONE, ckp_PS_1_1},
-	{sid_TEXM3X2TEX, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X3PAD, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X3TEX, GL_NONE, ckp_PS_1_1},
-	{sid_TEXM3X3SPEC, GL_NONE, ckp_PS_1_1}, {sid_TEXM3X3VSPEC, GL_NONE, ckp_PS_1_1}, {sid_TEXREG2AR, GL_NONE, ckp_PS_1_2},
-	{sid_TEXREG2GB, GL_NONE, ckp_PS_1_2},
+	SYMDEF sid_TEX, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXCOORD, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXM3X2PAD, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXM3X2TEX, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXM3X3PAD, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXM3X3TEX, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXM3X3SPEC, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXM3X3VSPEC, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXREG2AR, GL_NONE, ckp_PS_1_2
+	SYMDEF sid_TEXREG2GB, GL_NONE, ckp_PS_1_2
 
 	// PS_1_2 & PS_1_3
-	{sid_TEXREG2RGB, GL_NONE, ckp_PS_1_2}, {sid_TEXDP3, GL_NONE, ckp_PS_1_2}, {sid_TEXDP3TEX, GL_NONE, ckp_PS_1_2},
+	SYMDEF sid_TEXREG2RGB, GL_NONE, ckp_PS_1_2
+	SYMDEF sid_TEXDP3, GL_NONE, ckp_PS_1_2
+	SYMDEF sid_TEXDP3TEX, GL_NONE, ckp_PS_1_2
 	
 
 	// Common
-	{sid_SKIP, GL_NONE, ckp_PS_BASE}, {sid_PLUS, GL_NONE, ckp_PS_BASE},
+	SYMDEF sid_SKIP, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_PLUS, GL_NONE, ckp_PS_BASE
 
 	// Non-Terminal Tokens
-	{sid_PROGRAM, GL_NONE, ckp_PS_BASE},
-	{sid_PROGRAMTYPE, GL_NONE, ckp_PS_BASE},
-	{sid_DECLCONSTS, GL_NONE, ckp_PS_BASE},
-	{sid_DEFCONST, GL_NONE, ckp_PS_BASE},
-	{sid_CONSTANT, GL_NONE, ckp_PS_BASE},
-	{sid_COLOR, GL_NONE, ckp_PS_BASE}, 
-	{sid_TEXSWIZZLE, GL_NONE, ckp_PS_BASE},
-	{sid_UNARYOP, GL_NONE, ckp_PS_BASE},
-	{sid_NUMVAL, GL_NONE, ckp_PS_BASE},
-	{sid_SEPERATOR, GL_NONE, ckp_PS_BASE},
-	{sid_ALUOPS, GL_NONE, ckp_PS_BASE},
-	{sid_TEXMASK, GL_NONE, ckp_PS_BASE},
-	{sid_TEXOP_PS1_1_3, GL_NONE, ckp_PS_1_1}, 
-	{sid_TEXOP_PS1_4, GL_NONE, ckp_PS_1_4},
-	{sid_ALU_STATEMENT, GL_NONE, ckp_PS_BASE},
-	{sid_DSTMODSAT, GL_NONE, ckp_PS_BASE},
-	{sid_UNARYOP_ARGS, GL_NONE, ckp_PS_BASE},
-	{sid_REG_PS1_4, GL_NONE, ckp_PS_1_4},
-	{sid_TEX_PS1_4, GL_NONE, ckp_PS_1_4},
-	{sid_REG_PS1_1_3, GL_NONE, ckp_PS_1_1},
-	{sid_TEX_PS1_1_3, GL_NONE, ckp_PS_1_1},
-	{sid_DSTINFO, GL_NONE, ckp_PS_BASE},
-	{sid_SRCINFO, GL_NONE, ckp_PS_BASE},
-	{sid_BINARYOP_ARGS, GL_NONE, ckp_PS_BASE},
-	{sid_TERNARYOP_ARGS, GL_NONE, ckp_PS_BASE},
-	{sid_TEMPREG, GL_NONE, ckp_PS_BASE},
-	{sid_DSTMASK, GL_NONE, ckp_PS_BASE},
-	{sid_PRESRCMOD, GL_NONE, ckp_PS_BASE},
-	{sid_SRCNAME, GL_NONE, ckp_PS_BASE},
-	{sid_SRCREP, GL_NONE, ckp_PS_BASE},
-	{sid_POSTSRCMOD, GL_NONE, ckp_PS_BASE},
-	{sid_DSTMOD, GL_NONE, ckp_PS_BASE},
-	{sid_DSTSAT, GL_NONE, ckp_PS_BASE},
-	{sid_BINARYOP, GL_NONE, ckp_PS_BASE},
-	{sid_TERNARYOP, GL_NONE, ckp_PS_BASE},
-	{sid_TEXOPS_PHASE1, GL_NONE, ckp_PS_BASE},
-	{sid_COISSUE, GL_NONE, ckp_PS_BASE},
-	{sid_PHASEMARKER, GL_NONE, ckp_PS_1_4},
-	{sid_TEXOPS_PHASE2, GL_NONE, ckp_PS_1_4},
-	{sid_TEXREG_PS1_4, GL_NONE, ckp_PS_1_4},
-	{sid_TEXOPS_PS1_4, GL_NONE, ckp_PS_1_4},
-	{sid_TEXOPS_PS1_1_3, GL_NONE, ckp_PS_1_1},
-	{sid_TEXCISCOP_PS1_1_3, GL_NONE, ckp_PS_1_1},
-
+	SYMDEF sid_PROGRAM, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_PROGRAMTYPE, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_DECLCONSTS, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_DEFCONST, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_CONSTANT, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_COLOR, GL_NONE, ckp_PS_BASE 
+	SYMDEF sid_TEXSWIZZLE, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_UNARYOP, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_NUMVAL, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_SEPERATOR, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_ALUOPS, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_TEXMASK, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_TEXOP_PS1_1_3, GL_NONE, ckp_PS_1_1 
+	SYMDEF sid_TEXOP_PS1_4, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_ALU_STATEMENT, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_DSTMODSAT, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_UNARYOP_ARGS, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_REG_PS1_4, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_TEX_PS1_4, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_REG_PS1_1_3, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEX_PS1_1_3, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_DSTINFO, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_SRCINFO, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_BINARYOP_ARGS, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_TERNARYOP_ARGS, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_TEMPREG, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_DSTMASK, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_PRESRCMOD, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_SRCNAME, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_SRCREP, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_POSTSRCMOD, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_DSTMOD, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_DSTSAT, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_BINARYOP, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_TERNARYOP, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_TEXOPS_PHASE1, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_COISSUE, GL_NONE, ckp_PS_BASE
+	SYMDEF sid_PHASEMARKER, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_TEXOPS_PHASE2, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_TEXREG_PS1_4, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_TEXOPS_PS1_4, GL_NONE, ckp_PS_1_4
+	SYMDEF sid_TEXOPS_PS1_1_3, GL_NONE, ckp_PS_1_1
+	SYMDEF sid_TEXCISCOP_PS1_1_3, GL_NONE, ckp_PS_1_1
+	SYMEND
 };
 
 
@@ -208,25 +240,26 @@ PS_1_4::SymbolDef PS_1_4::PS_1_4_SymbolTypeLib[] = {
 
 // <>	- non-terminal token
 #define _rule_		{otRULE,		// ::=	- rule definition
-#define _is_		},{otAND,
-#define _and_		},{otAND,		//      - blank space is an implied "AND" meaning the token is required
-#define _or_		},{otOR,		// |	- or
-#define _optional_	},{otOPTIONAL,	// []	- optional
-#define _repeat_	},{otREPEAT,	// {}	- repeat until fail
-#define _end_		},{otEND},
+#define _is_		,0},{otAND,
+#define _and_		,0},{otAND,		//      - blank space is an implied "AND" meaning the token is required
+#define _or_		,0},{otOR,		// |	- or
+#define _optional_	,0},{otOPTIONAL,	// []	- optional
+#define _repeat_	,0},{otREPEAT,	// {}	- repeat until fail
+#define _end_		,0},{otEND,0,0,0},
+#define _nt_        ,0
 // " "  - terminal token string
 
 PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 
 	_rule_ sid_PROGRAM, "Program"
 
-		_is_ sid_PROGRAMTYPE
-		_optional_ sid_DECLCONSTS
-		_optional_ sid_TEXOPS_PHASE1
-		_optional_ sid_ALUOPS 
-		_optional_ sid_PHASEMARKER
-		_optional_ sid_TEXOPS_PHASE2
-		_optional_ sid_ALUOPS
+		_is_ sid_PROGRAMTYPE _nt_
+		_optional_ sid_DECLCONSTS _nt_
+		_optional_ sid_TEXOPS_PHASE1 _nt_
+		_optional_ sid_ALUOPS _nt_
+		_optional_ sid_PHASEMARKER _nt_
+		_optional_ sid_TEXOPS_PHASE2 _nt_
+		_optional_ sid_ALUOPS _nt_
 		_end_ 
 
 	_rule_ sid_PROGRAMTYPE, "<ProgramType>"
@@ -244,19 +277,19 @@ PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 
 	_rule_ sid_DECLCONSTS, "<DeclareConstants>"
 
-		_repeat_ sid_DEFCONST
+		_repeat_ sid_DEFCONST _nt_
 		_end_
 
 
 	_rule_ sid_TEXOPS_PHASE1, "<TexOps_Phase1>"
 
-		_is_ sid_TEXOPS_PS1_1_3
-		_or_ sid_TEXOPS_PS1_4
+		_is_ sid_TEXOPS_PS1_1_3 _nt_
+		_or_ sid_TEXOPS_PS1_4 _nt_
 		_end_
 
 	_rule_ sid_TEXOPS_PHASE2, "<TexOps_Phase2>"
 
-		_is_ sid_TEXOPS_PS1_4
+		_is_ sid_TEXOPS_PS1_4 _nt_
 		_end_
 
 	_rule_ sid_NUMVAL, "<NumVal>"
@@ -266,26 +299,26 @@ PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 
 	_rule_ sid_TEXOPS_PS1_1_3, "<TexOps_PS1_1_3>"
 
-		_repeat_ sid_TEXOP_PS1_1_3
+		_repeat_ sid_TEXOP_PS1_1_3 _nt_
 		_end_
 
 	_rule_ sid_TEXOPS_PS1_4, "<TexOps_PS1_4>"
 
-		_repeat_ sid_TEXOP_PS1_4
+		_repeat_ sid_TEXOP_PS1_4 _nt_
 		_end_
 
 	_rule_ sid_TEXOP_PS1_1_3, "<TexOp_PS1_1_3>"
 
-		_is_  sid_TEXCISCOP_PS1_1_3
-		_and_ sid_TEX_PS1_1_3
-		_and_ sid_SEPERATOR
-		_and_ sid_TEX_PS1_1_3
+		_is_  sid_TEXCISCOP_PS1_1_3 _nt_
+		_and_ sid_TEX_PS1_1_3 _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_TEX_PS1_1_3 _nt_
 
 		_or_  sid_TEXCOORD, "texcoord"
-		_and_ sid_TEX_PS1_1_3
+		_and_ sid_TEX_PS1_1_3 _nt_
 
 		_or_  sid_TEX, "tex"
-		_and_ sid_TEX_PS1_1_3
+		_and_ sid_TEX_PS1_1_3 _nt_
 
 
 
@@ -294,103 +327,105 @@ PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 	_rule_ sid_TEXOP_PS1_4, "<TexOp_PS1_4>"
 
 		_is_  sid_TEXCRD, "texcrd"
-		_and_ sid_REG_PS1_4
-		_optional_ sid_TEXMASK
-		_and_ sid_SEPERATOR
-		_and_ sid_TEXREG_PS1_4
+		_and_ sid_REG_PS1_4 _nt_
+		_optional_ sid_TEXMASK _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_TEXREG_PS1_4 _nt_
 
 		_or_  sid_TEXLD, "texld"
-		_and_ sid_REG_PS1_4
-		_optional_ sid_TEXMASK
-		_and_ sid_SEPERATOR
-		_and_ sid_TEXREG_PS1_4 
+		_and_ sid_REG_PS1_4 _nt_
+		_optional_ sid_TEXMASK _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_TEXREG_PS1_4 _nt_
 		_end_
 
 	_rule_ sid_ALUOPS, "<ALUOps>"
 
-		_repeat_ sid_ALU_STATEMENT
+		_repeat_ sid_ALU_STATEMENT _nt_
 		_end_
 
 	_rule_ sid_ALU_STATEMENT, "<ALUStatement>"
 
-		_is_ sid_COISSUE
-		_and_ sid_UNARYOP
-		_optional_ sid_DSTMODSAT
-		_and_ sid_UNARYOP_ARGS 
+		_is_ sid_COISSUE _nt_
+		_and_ sid_UNARYOP _nt_
+		_optional_ sid_DSTMODSAT _nt_
+		_and_ sid_UNARYOP_ARGS _nt_ 
 
-		_or_ sid_COISSUE
-		_and_ sid_BINARYOP
-		_optional_ sid_DSTMODSAT
-		_and_ sid_BINARYOP_ARGS
+		_or_ sid_COISSUE _nt_
+		_and_ sid_BINARYOP _nt_
+		_optional_ sid_DSTMODSAT _nt_
+		_and_ sid_BINARYOP_ARGS _nt_
 		
-		_or_ sid_COISSUE
-		_and_ sid_TERNARYOP
-		_optional_ sid_DSTMODSAT
-		_and_ sid_TERNARYOP_ARGS 
+		_or_ sid_COISSUE _nt_
+		_and_ sid_TERNARYOP _nt_
+		_optional_ sid_DSTMODSAT _nt_
+		_and_ sid_TERNARYOP_ARGS _nt_
 		_end_
 
 
 	_rule_ sid_TEXREG_PS1_4, "<TexReg_PS1_4>"
 
-		_is_ sid_TEX_PS1_4  _optional_ sid_TEXSWIZZLE
-		_or_ sid_REG_PS1_4  _optional_ sid_TEXSWIZZLE
+		_is_ sid_TEX_PS1_4  _nt_
+		_optional_ sid_TEXSWIZZLE _nt_
+		_or_ sid_REG_PS1_4  _nt_
+		_optional_ sid_TEXSWIZZLE _nt_
 		_end_
 
 	_rule_ sid_UNARYOP_ARGS, "<UnaryOpArgs>"
 
-		_is_  sid_DSTINFO
-		_and_ sid_SRCINFO
+		_is_  sid_DSTINFO _nt_
+		_and_ sid_SRCINFO _nt_
 		_end_
 
 	_rule_ sid_BINARYOP_ARGS, "<BinaryOpArgs>"
 	
-		_is_  sid_DSTINFO
-		_and_ sid_SRCINFO
-		_and_ sid_SRCINFO
+		_is_  sid_DSTINFO _nt_
+		_and_ sid_SRCINFO _nt_
+		_and_ sid_SRCINFO _nt_
 		_end_
 
 	_rule_ sid_TERNARYOP_ARGS, "<TernaryOpArgs>"
 		
-		_is_  sid_DSTINFO
-		_and_ sid_SRCINFO
-		_and_ sid_SRCINFO
-		_and_ sid_SRCINFO
+		_is_  sid_DSTINFO _nt_
+		_and_ sid_SRCINFO _nt_
+		_and_ sid_SRCINFO _nt_
+		_and_ sid_SRCINFO _nt_
 		_end_
  
 	_rule_ sid_DSTINFO, "<DstInfo>"
 
-		_is_ sid_TEMPREG
-		_optional_ sid_DSTMASK
+		_is_ sid_TEMPREG _nt_
+		_optional_ sid_DSTMASK _nt_
 		_end_
 
 	_rule_ sid_SRCINFO, "<SrcInfo>"
 	
-		_is_ sid_SEPERATOR
-		_optional_ sid_PRESRCMOD
-		_and_ sid_SRCNAME
-		_optional_ sid_POSTSRCMOD
-		_optional_ sid_SRCREP
+		_is_ sid_SEPERATOR _nt_
+		_optional_ sid_PRESRCMOD _nt_
+		_and_ sid_SRCNAME _nt_
+		_optional_ sid_POSTSRCMOD _nt_
+		_optional_ sid_SRCREP _nt_
 		_end_
 
 	_rule_ sid_SRCNAME, "<SrcName>"
 	
-		_is_ sid_TEMPREG
-		_or_ sid_CONSTANT
-		_or_ sid_COLOR
+		_is_ sid_TEMPREG _nt_
+		_or_ sid_CONSTANT _nt_
+		_or_ sid_COLOR _nt_
 		_end_
 
 	_rule_ sid_DEFCONST, "<DefineConstant>"
 
 		_is_ sid_DEF, "def"
-		_and_ sid_CONSTANT
-		_and_ sid_SEPERATOR
-		_and_ sid_NUMVAL
-		_and_ sid_SEPERATOR
-		_and_ sid_NUMVAL
-		_and_ sid_SEPERATOR
-		_and_ sid_NUMVAL
-		_and_ sid_SEPERATOR
-		_and_ sid_NUMVAL
+		_and_ sid_CONSTANT _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_NUMVAL _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_NUMVAL _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_NUMVAL _nt_
+		_and_ sid_SEPERATOR _nt_
+		_and_ sid_NUMVAL _nt_
 		_end_
 
 	_rule_ sid_CONSTANT, "<Constant>"
@@ -494,15 +529,15 @@ PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 
 	_rule_ sid_TEMPREG, "<TempReg>"
 
-		_is_ sid_REG_PS1_4
-		_or_ sid_REG_PS1_1_3
-		_or_ sid_TEX_PS1_1_3
+		_is_ sid_REG_PS1_4 _nt_
+		_or_ sid_REG_PS1_1_3 _nt_
+		_or_ sid_TEX_PS1_1_3 _nt_
 		_end_
 
 	_rule_ sid_DSTMODSAT, "<DstModSat>"
 	
-		_optional_ sid_DSTMOD
-		_optional_ sid_DSTSAT
+		_optional_ sid_DSTMOD _nt_
+		_optional_ sid_DSTSAT _nt_
 		_end_
 
 	_rule_  sid_UNARYOP, "<UnaryOp>"
@@ -613,8 +648,8 @@ PS_1_4::TokenRule PS_1_4::PS_1_x_RulePath[] = {
 //***************************** MACROs for PS1_1 , PS1_2, PS1_3 CISC instructions **************************************
 
 // macro to make the macro text data easier to read
-#define _token_ },{
-
+#define _token_ ,0,0},{
+#define _token_end_ ,0,0}
 // macro token expansion for ps_1_2 instruction: texreg2ar
 PS_1_4::TokenInst PS_1_4::texreg2ar[] = {
 	// mov r(x).r, r(y).a
@@ -638,7 +673,7 @@ PS_1_4::TokenInst PS_1_4::texreg2ar[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R1
-	}
+	_token_end_
 };
 
 PS_1_4::RegModOffset PS_1_4::texreg2xx_RegMods[] = {
@@ -679,7 +714,7 @@ PS_1_4::TokenInst PS_1_4::texreg2gb[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R1
-	}
+	_token_end_
 };
 
 PS_1_4::MacroRegModify PS_1_4::texreg2gb_MacroMods = {
@@ -701,7 +736,7 @@ PS_1_4::TokenInst PS_1_4::texdp3[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R0
-	}
+	_token_end_
 };
 
 
@@ -739,7 +774,7 @@ PS_1_4::TokenInst PS_1_4::texdp3tex[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R1
-	}
+	_token_end_
 };
 
 
@@ -774,7 +809,7 @@ PS_1_4::TokenInst PS_1_4::texm3x2pad[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R0
-	}
+	_token_end_
 
 };
 
@@ -812,7 +847,7 @@ PS_1_4::TokenInst PS_1_4::texm3x2tex[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R4
-	}
+	_token_end_
 
 };
 
@@ -842,7 +877,7 @@ PS_1_4::TokenInst PS_1_4::texm3x3pad[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R0
-	}
+	_token_end_
 
 };
 
@@ -873,7 +908,7 @@ PS_1_4::TokenInst PS_1_4::texm3x3tex[] = {
 	_token_ sid_REG_PS1_4,	sid_R1
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R4
-	}
+	_token_end_
 };
 
 
@@ -953,7 +988,7 @@ PS_1_4::TokenInst PS_1_4::texm3x3spec[] = {
 	_token_ sid_SEPERATOR,	sid_COMMA
 	_token_ sid_REG_PS1_4,	sid_R4
 	_token_ sid_TEXSWIZZLE,	sid_STRDR
-	}
+	_token_end_
 
 };
 
