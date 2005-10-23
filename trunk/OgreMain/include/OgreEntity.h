@@ -157,7 +157,7 @@ namespace Ogre {
 
 		/// Flag determines whether or not to display skeleton
 		bool mDisplaySkeleton;
-		/// Flag indicating whether hardware skinning is supported by this entities materials
+		/// Flag indicating whether hardware animation is supported by this entities materials
 		bool mHardwareAnimation;
 		/// Flag indicating whether we have a vertex program in use on any of our subentities
 		bool mVertexProgramInUse;
@@ -184,8 +184,6 @@ namespace Ogre {
 		/// Index of maximum detail LOD (NB lower index is higher detail)
 		ushort mMaxMaterialLodIndex;
 
-		/// Flag indicating that mesh uses manual LOD and so might have multiple SubEntity versions
-		bool mUsingManualLOD;
 		/** List of LOD Entity instances (for manual LODs).
 		We don't know when the mesh is using manual LODs whether one LOD to the next will have the
 		same number of SubMeshes, therefore we have to allow a separate Entity list 
@@ -494,14 +492,15 @@ namespace Ogre {
 		bool hasSkeleton(void) const { return mSkeletonInstance != 0; }
 		/** Get this Entity's personal skeleton instance. */
 		SkeletonInstance* getSkeleton(void) { return mSkeletonInstance; }
-		/** Returns whether or not hardware skinning is enabled.
+		/** Returns whether or not hardware animation is enabled.
 		@remarks
 		Because fixed-function indexed vertex blending is rarely supported
 		by existing graphics cards, hardware skinning can only be done if
 		the vertex programs in the materials used to render an entity support
 		it. Therefore, this method will only return true if all the materials
 		assigned to this entity have vertex programs assigned, and all those
-		vertex programs must support 'include_skeletal_animation true'.
+		vertex programs must support 'include_morph_animation true' if using morph
+		animation and 'include_skeletal_animation true' if using skeletal animation.
 		*/
 		bool isHardwareAnimationEnabled(void) const { return mHardwareAnimation; }
 
