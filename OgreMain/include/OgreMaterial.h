@@ -248,7 +248,7 @@ namespace Ogre {
             Compiling a material involves determining which Techniques are supported on the
             card on which OGRE is currently running, and for fixed-function Passes within those
             Techniques, splitting the passes down where they contain more TextureUnitState 
-            instances than the curren card has texture units.
+            instances than the current card has texture units.
         @par
             This process is automatically done when the Material is loaded, but may be
             repeated if you make some procedural changes.
@@ -559,6 +559,14 @@ namespace Ogre {
             // call superclass
             Resource::touch();
         }
+
+	    /** Gets the compilation status of the material.
+        @return True if the material needs recompilation.
+        */
+	    bool getCompilationRequired() const
+	    {
+		    return mCompilationRequired;
+	    }
 
 
     };
