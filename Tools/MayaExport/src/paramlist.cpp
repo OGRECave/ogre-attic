@@ -94,7 +94,7 @@ namespace OgreMayaExporter
 		//neutral pose
 		int neutralPoseType_loc;
 		MGlobal::executeCommand("radioButtonGrp -q -select NeutralPoseRadio",neutralPoseType_loc);
-		switch (neutralPoseType)
+		switch (neutralPoseType_loc)
 		{
 		case 1:
 			neutralPoseType = 0;
@@ -103,8 +103,8 @@ namespace OgreMayaExporter
 			neutralPoseType = 1;
 			break;
 		case 3:
-			int neutralPoseFrame_loc;
 			neutralPoseType = 2;
+			int neutralPoseFrame_loc;
 			MGlobal::executeCommand("intField -q -v NeutralPoseFrame",neutralPoseFrame_loc);
 			neutralPoseFrame = neutralPoseFrame_loc;
 			break;
