@@ -555,8 +555,15 @@ namespace OgreMayaExporter
 				{
 					for (int j=0; j<m_uvsets.size(); j++)
 					{
-						params.outMesh << "\t\t\t\t<texcoord u=\"" << m_vertices[i].texcoords[j].u << "\" v=\"" << 
-							m_vertices[i].texcoords[j].v << "\"/>\n";
+						if (j < m_vertices[i].texcoords.size())
+						{
+							params.outMesh << "\t\t\t\t<texcoord u=\"" << m_vertices[i].texcoords[j].u << "\" v=\"" << 
+								m_vertices[i].texcoords[j].v << "\"/>\n";
+						}
+						else
+						{
+							params.outMesh << "\t\t\t\t<texcoord u=\"0\" v=\"0\"/>\n";
+						}
 					}
 				}
 				params.outMesh << "\t\t\t</vertex>\n";
