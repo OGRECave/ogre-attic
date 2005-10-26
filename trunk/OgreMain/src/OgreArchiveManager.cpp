@@ -72,6 +72,31 @@ namespace Ogre {
         }
         return pArch;
     }
+	//-----------------------------------------------------------------------
+	void ArchiveManager::unload(Archive* arch)
+	{
+		unload(arch->getName());
+	}
+	//-----------------------------------------------------------------------
+	void ArchiveManager::unload(const String& filename)
+	{
+		ArchiveMap::iterator i = mArchives.find(filename);
+
+		if (i != mArchives.end())
+		{
+			i->second->unload();
+			// Find factory to destroy
+			ArchiveFactoryMap::iterator fit = mArchFactories.find(i->second->getType());
+			if (fit == mArchFactories.end())
+			{
+				// Factory not found
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, "Cannot find an archive factory "
+					"to deal with archive of type " + i->second->getType(), "ArchiveManager::~ArchiveManager");
+			}
+			fit->second->destroyInstance(i->second);
+			mArchives.erase(i);
+		}
+	}
     //-----------------------------------------------------------------------
     ArchiveManager::~ArchiveManager()
     {

@@ -83,7 +83,10 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            OGRE_EXCEPT(hr, "Cannot assemble D3D9 shader " + mName,
+            String message = "Cannot assemble D3D9 shader " + mName + " Errors:\n" +
+                static_cast<const char*>(errors->GetBufferPointer());
+            errors->Release();
+            OGRE_EXCEPT(hr, message,
                 "D3D9GpuProgram::loadFromSource");
             
         }

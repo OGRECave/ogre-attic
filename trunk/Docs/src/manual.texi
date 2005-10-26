@@ -1677,7 +1677,7 @@ The current viewport height in pixels
 @item inverse_viewport_height
 1.0/the current viewport height in pixels
 @item view_direction
-View direction vector
+View direction vector in object space
 @item view_side_vector
 View local X axis
 @item view_up_vector
