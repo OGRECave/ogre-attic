@@ -56,8 +56,10 @@ namespace Ogre {
 
         if (FAILED(hr))
         {
-            OGRE_EXCEPT(hr, "Cannot assemble D3D9 high-level shader " + mName + 
-                static_cast<const char*>(errors->GetBufferPointer()),
+            String message = "Cannot assemble D3D9 high-level shader " + mName + " Errors:\n" +
+                static_cast<const char*>(errors->GetBufferPointer());
+            errors->Release();
+            OGRE_EXCEPT(hr, message,
                 "D3D9HLSLProgram::loadFromSource");
         }
 

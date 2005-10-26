@@ -1050,10 +1050,7 @@ namespace Ogre {
             mUseAutoTextureMatrix = true;
 
             // Set scale and translation matrix for projective textures
-            projectionBias = Matrix4::ZERO;
-            projectionBias[0][0] = 0.5; projectionBias[1][1] = -0.5; 
-            projectionBias[2][2] = 1.0; projectionBias[0][3] = 0.5; 
-            projectionBias[1][3] = 0.5; projectionBias[3][3] = 1.0;
+            projectionBias = Matrix4::CLIPSPACE2DTOIMAGESPACE;
 
             projectionBias = projectionBias * frustum->getProjectionMatrixRS();
             projectionBias = projectionBias * frustum->getViewMatrix();
@@ -1072,6 +1069,7 @@ namespace Ogre {
 	{
         switch(tam)
         {
+        default:
         case TextureUnitState::TAM_WRAP:
             return GL_REPEAT;
         case TextureUnitState::TAM_MIRROR:
@@ -1111,6 +1109,8 @@ namespace Ogre {
 			// Convert 3x3 rotation/translation matrix to 4x4
 			mat[12] = mat[8];
 			mat[13] = mat[9];
+            mat[8] = 0;
+            mat[9] = 0;
 		}
 //        mat[14] = mat[10];
 //        mat[15] = mat[11];
@@ -1128,18 +1128,13 @@ namespace Ogre {
         glActiveTextureARB(GL_TEXTURE0 + stage);
         glMatrixMode(GL_TEXTURE);
 
+        // Load this matrix in
+        glLoadMatrixf(mat);
+
         if (mUseAutoTextureMatrix)
         {
-            // Load auto matrix in
-            glLoadMatrixf(mAutoTextureMatrix);
-            // Concat new matrix
-            glMultMatrixf(mat);
-
-        }
-        else
-        {
-            // Just load this matrix
-            glLoadMatrixf(mat);
+            // Concat auto matrix
+            glMultMatrixf(mAutoTextureMatrix);
         }
 
         glMatrixMode(GL_MODELVIEW);
