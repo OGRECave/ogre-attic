@@ -48,15 +48,15 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
         0.5,    0,  0, -0.5, 
-        0, -0.5,  0, -0.5, 
-        0,    0,  0,   1,
-        0,    0,  0,   1);
+          0, -0.5,  0, -0.5, 
+          0,    0,  0,   -1,
+          0,    0,  0,    1);
 
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO(
-        -0.5,    0,  0, -0.5, 
-        0, 0.5,  0, -0.5, 
-        0,    0,  0,   1,
-        0,    0,  0,   1);
+        -0.5,   0,  0, -0.5, 
+           0, 0.5,  0, -0.5, 
+           0,   0,  0,   -1,
+           0,   0,  0,    1);
 
     //-----------------------------------------------------------------------
     D3DRenderSystem::D3DRenderSystem(HINSTANCE hInstance)
@@ -1044,7 +1044,7 @@ namespace Ogre {
             // Derive camera space to projector space transform
             // To do this, we need to undo the camera view matrix, then 
             // apply the projector view & projection matrices
-            newMat = mViewMatrix.inverse() * newMat;
+            newMat = mViewMatrix.inverse();
             newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
             newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
             if (mTexStageDesc[stage].frustum->getProjectionType() == PT_PERSPECTIVE)
@@ -1055,6 +1055,7 @@ namespace Ogre {
             {
                 newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO * newMat;
             }
+            newMat = xForm * newMat;
 
         }
 
@@ -1062,7 +1063,8 @@ namespace Ogre {
 		d3dMat = makeD3DMatrix(newMat);
 
 		// need this if texture is a cube map, to invert D3D's z coord
-		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE)
+		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE &&
+            mTexStageDesc[stage].autoTexCoordType != TEXCALC_PROJECTIVE_TEXTURE)
 		{
 			d3dMat._13 = -d3dMat._13;
 			d3dMat._23 = -d3dMat._23;

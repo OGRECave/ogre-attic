@@ -52,15 +52,15 @@ namespace Ogre
 
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
         0.5,    0,  0, -0.5, 
-        0, -0.5,  0, -0.5, 
-        0,    0,  0,   1,
-        0,    0,  0,   1);
+          0, -0.5,  0, -0.5, 
+          0,    0,  0,   -1,
+          0,    0,  0,    1);
 
     const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO(
-        -0.5,    0,  0, -0.5, 
-        0, 0.5,  0, -0.5, 
-        0,    0,  0,   1,
-        0,    0,  0,   1);
+        -0.5,   0,  0, -0.5, 
+           0, 0.5,  0, -0.5, 
+           0,   0,  0,   -1,
+           0,   0,  0,    1);
 
 	//---------------------------------------------------------------------
 	D3D9RenderSystem::D3D9RenderSystem( HINSTANCE hInstance )
@@ -1351,26 +1351,22 @@ namespace Ogre
         // If this is a cubic reflection, we need to modify using the view matrix
         if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)
         {
-            D3DXMATRIX viewMatrix; 
-
-            // Get view matrix
-            mpD3DDevice->GetTransform(D3DTS_VIEW, &viewMatrix);
-            // Get transposed 3x3, ie since D3D is transposed just copy
+            // Get transposed 3x3
             // We want to transpose since that will invert an orthonormal matrix ie rotation
             Matrix4 ogreViewTransposed;
-            ogreViewTransposed[0][0] = viewMatrix.m[0][0];
-            ogreViewTransposed[0][1] = viewMatrix.m[0][1];
-            ogreViewTransposed[0][2] = viewMatrix.m[0][2];
+            ogreViewTransposed[0][0] = mViewMatrix[0][0];
+            ogreViewTransposed[0][1] = mViewMatrix[1][0];
+            ogreViewTransposed[0][2] = mViewMatrix[2][0];
             ogreViewTransposed[0][3] = 0.0f;
 
-            ogreViewTransposed[1][0] = viewMatrix.m[1][0];
-            ogreViewTransposed[1][1] = viewMatrix.m[1][1];
-            ogreViewTransposed[1][2] = viewMatrix.m[1][2];
+            ogreViewTransposed[1][0] = mViewMatrix[0][1];
+            ogreViewTransposed[1][1] = mViewMatrix[1][1];
+            ogreViewTransposed[1][2] = mViewMatrix[2][1];
             ogreViewTransposed[1][3] = 0.0f;
 
-            ogreViewTransposed[2][0] = viewMatrix.m[2][0];
-            ogreViewTransposed[2][1] = viewMatrix.m[2][1];
-            ogreViewTransposed[2][2] = viewMatrix.m[2][2];
+            ogreViewTransposed[2][0] = mViewMatrix[0][2];
+            ogreViewTransposed[2][1] = mViewMatrix[1][2];
+            ogreViewTransposed[2][2] = mViewMatrix[2][2];
             ogreViewTransposed[2][3] = 0.0f;
 
             ogreViewTransposed[3][0] = 0.0f;
@@ -1386,7 +1382,7 @@ namespace Ogre
             // Derive camera space to projector space transform
             // To do this, we need to undo the camera view matrix, then 
             // apply the projector view & projection matrices
-            newMat = mViewMatrix.inverse() * newMat;
+            newMat = mViewMatrix.inverse();
             newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
             newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
             if (mTexStageDesc[stage].frustum->getProjectionType() == PT_PERSPECTIVE)
@@ -1397,6 +1393,7 @@ namespace Ogre
             {
                 newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO * newMat;
             }
+            newMat = xForm * newMat;
 
         }
 
@@ -1404,7 +1401,8 @@ namespace Ogre
 		d3dMat = D3D9Mappings::makeD3DXMatrix(newMat);
 
 		// need this if texture is a cube map, to invert D3D's z coord
-		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE)
+		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE &&
+            mTexStageDesc[stage].autoTexCoordType != TEXCALC_PROJECTIVE_TEXTURE)
 		{
 			d3dMat._13 = -d3dMat._13;
 			d3dMat._23 = -d3dMat._23;
