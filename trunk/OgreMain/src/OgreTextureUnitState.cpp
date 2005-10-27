@@ -683,33 +683,32 @@ namespace Ogre {
     void TextureUnitState::recalcTextureMatrix() const
     {
         // Assumption: 2D texture coords
-        Matrix3 xform, rot;
+        Matrix4 xform;
 
-        xform = Matrix3::IDENTITY;
-        if (mUScale || mVScale)
+        xform = Matrix4::IDENTITY;
+        if (mUScale != 1 || mVScale != 1)
         {
             // Offset to center of texture
             xform[0][0] = 1/mUScale;
             xform[1][1] = 1/mVScale;
             // Skip matrix concat since first matrix update
-            xform[0][2] = (-0.5 * xform[0][0]) + 0.5;
-            xform[1][2] = (-0.5 * xform[1][1]) + 0.5;
-
+            xform[0][3] = (-0.5 * xform[0][0]) + 0.5;
+            xform[1][3] = (-0.5 * xform[1][1]) + 0.5;
         }
 
         if (mUMod || mVMod)
         {
-            Matrix3 xlate = Matrix3::IDENTITY;
+            Matrix4 xlate = Matrix4::IDENTITY;
 
-            xlate[0][2] = mUMod;
-            xlate[1][2] = mVMod;
+            xlate[0][3] = mUMod;
+            xlate[1][3] = mVMod;
 
             xform = xlate * xform;
         }
 
         if (mRotate != Radian(0))
         {
-            rot = Matrix3::IDENTITY;
+            Matrix4 rot = Matrix4::IDENTITY;
             Radian theta ( mRotate );
             Real cosTheta = Math::Cos(theta);
             Real sinTheta = Math::Sin(theta);
@@ -719,9 +718,8 @@ namespace Ogre {
             rot[1][0] = sinTheta;
             rot[1][1] = cosTheta;
             // Offset center of rotation to center of texture
-            rot[0][2] = 0.5 + ( (-0.5 * cosTheta) - (-0.5 * sinTheta) );
-            rot[1][2] = 0.5 + ( (-0.5 * sinTheta) + (-0.5 * cosTheta) );
-
+            rot[0][3] = 0.5 + ( (-0.5 * cosTheta) - (-0.5 * sinTheta) );
+            rot[1][3] = 0.5 + ( (-0.5 * sinTheta) + (-0.5 * cosTheta) );
 
             xform = rot * xform;
         }

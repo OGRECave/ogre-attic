@@ -1052,7 +1052,7 @@ namespace Ogre {
             // Set scale and translation matrix for projective textures
             projectionBias = Matrix4::CLIPSPACE2DTOIMAGESPACE;
 
-            projectionBias = projectionBias * frustum->getProjectionMatrixRS();
+            projectionBias = projectionBias * frustum->getProjectionMatrix();
             projectionBias = projectionBias * frustum->getViewMatrix();
             projectionBias = projectionBias * mWorldMatrix;
 
@@ -1102,28 +1102,6 @@ namespace Ogre {
 
 		GLfloat mat[16];
         makeGLMatrix(mat, xform);
-
-		if(mTextureTypes[stage] != GL_TEXTURE_3D && 
-		   mTextureTypes[stage] != GL_TEXTURE_CUBE_MAP)
-		{
-			// Convert 3x3 rotation/translation matrix to 4x4
-			mat[12] = mat[8];
-			mat[13] = mat[9];
-            mat[8] = 0;
-            mat[9] = 0;
-		}
-//        mat[14] = mat[10];
-//        mat[15] = mat[11];
-
-//        for (int j=0; j< 4; j++)
-//        {
-//            int x = 0;
-//            for (x = 0; x < 4; x++)
-//            {
-//                printf("[%2d]=%0.2f\t", (x*4) + j, mat[(x*4) + j]);
-//            }
-//            printf("\n");
-//        }
 
         glActiveTextureARB(GL_TEXTURE0 + stage);
         glMatrixMode(GL_TEXTURE);
