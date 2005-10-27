@@ -50,18 +50,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre 
 {
 
-    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE(
-        0.5,    0,  0, -0.5, 
-          0, -0.5,  0, -0.5, 
-          0,    0,  0,   -1,
-          0,    0,  0,    1);
-
-    const Matrix4 PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO(
-        -0.5,   0,  0, -0.5, 
-           0, 0.5,  0, -0.5, 
-           0,   0,  0,   -1,
-           0,   0,  0,    1);
-
 	//---------------------------------------------------------------------
 	D3D9RenderSystem::D3D9RenderSystem( HINSTANCE hInstance )
 	{
@@ -1337,13 +1325,12 @@ namespace Ogre
 	void D3D9RenderSystem::_setTextureMatrix( size_t stage, const Matrix4& xForm )
 	{
 		HRESULT hr;
-		D3DXMATRIX d3dMatId; // ident. matrix in D3DX format
 		D3DXMATRIX d3dMat; // the matrix we'll maybe apply
 		Matrix4 newMat = xForm; // the matrix we'll apply after conv. to D3D format
-		// make the ident. matrix in D3D format
-		D3DXMatrixIdentity(&d3dMatId);
+		// Cache texcoord calc method to register
+		TexCoordCalcMethod autoTexCoordType = mTexStageDesc[stage].autoTexCoordType;
 
-		if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
+		if (autoTexCoordType == TEXCALC_ENVIRONMENT_MAP)
         {
             if (mCaps.VertexProcessingCaps & D3DVTXPCAPS_TEXGEN_SPHEREMAP)
             {
@@ -1367,7 +1354,7 @@ namespace Ogre
 		}
 
         // If this is a cubic reflection, we need to modify using the view matrix
-        if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)
+        if (autoTexCoordType == TEXCALC_ENVIRONMENT_MAP_REFLECTION)
         {
             // Get transposed 3x3
             // We want to transpose since that will invert an orthonormal matrix ie rotation
@@ -1395,47 +1382,98 @@ namespace Ogre
             newMat = newMat.concatenate(ogreViewTransposed);
         }
 
-        if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+        if (autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
         {
             // Derive camera space to projector space transform
             // To do this, we need to undo the camera view matrix, then 
             // apply the projector view & projection matrices
             newMat = mViewMatrix.inverse();
             newMat = mTexStageDesc[stage].frustum->getViewMatrix() * newMat;
-            newMat = mTexStageDesc[stage].frustum->getProjectionMatrixRS() * newMat;
-            if (mTexStageDesc[stage].frustum->getProjectionType() == PT_PERSPECTIVE)
-            {
-                newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_PERSPECTIVE * newMat;
-            }
-            else
-            {
-                newMat = PROJECTIONCLIPSPACE2DTOIMAGESPACE_ORTHO * newMat;
-            }
+            newMat = mTexStageDesc[stage].frustum->getProjectionMatrix() * newMat;
+            newMat = Matrix4::CLIPSPACE2DTOIMAGESPACE * newMat;
             newMat = xForm * newMat;
-
         }
+
+		// need this if texture is a cube map, to invert D3D's z coord
+		if (autoTexCoordType != TEXCALC_NONE &&
+            autoTexCoordType != TEXCALC_PROJECTIVE_TEXTURE)
+		{
+            newMat[2][0] = -newMat[2][0];
+            newMat[2][1] = -newMat[2][1];
+            newMat[2][2] = -newMat[2][2];
+            newMat[2][3] = -newMat[2][3];
+		}
 
         // convert our matrix to D3D format
 		d3dMat = D3D9Mappings::makeD3DXMatrix(newMat);
 
-		// need this if texture is a cube map, to invert D3D's z coord
-		if (mTexStageDesc[stage].autoTexCoordType != TEXCALC_NONE &&
-            mTexStageDesc[stage].autoTexCoordType != TEXCALC_PROJECTIVE_TEXTURE)
-		{
-			d3dMat._13 = -d3dMat._13;
-			d3dMat._23 = -d3dMat._23;
-			d3dMat._33 = -d3dMat._33;
-			d3dMat._43 = -d3dMat._43;
-		}
-
 		// set the matrix if it's not the identity
-		if (d3dMat != d3dMatId)
+		if (!D3DXMatrixIsIdentity(&d3dMat))
 		{
-			// tell D3D the dimension of tex. coord.
-			int texCoordDim;
-            if (mTexStageDesc[stage].autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+            /* It's seems D3D automatically add a texture coordinate with value 1,
+            and fill up the remaining texture coordinates with 0 for the input
+            texture coordinates before pass to texture coordinate transformation.
+
+               NOTE: It's difference with D3DDECLTYPE enumerated type expand in
+            DirectX SDK documentation!
+
+               So we should prepare the texcoord transform, make the transformation
+            just like standardized vector expand, thus, fill w with value 1 and
+            others with 0.
+            */
+            if (autoTexCoordType == TEXCALC_NONE)
             {
-                texCoordDim = D3DTTFF_PROJECTED | D3DTTFF_COUNT3;
+                /* FIXME: The actually input texture coordinate dimensions should
+                be determine by texture coordinate vertex element. Now, just trust
+                user supplied texture type matchs texture coordinate vertex element.
+                */
+                if (mTexStageDesc[stage].texType == D3D9Mappings::D3D_TEX_TYPE_NORMAL)
+                {
+                    /* It's 2D input texture coordinate:
+
+                      texcoord in vertex buffer     D3D expanded to     We are adjusted to
+                                                -->                 -->
+                                (u, v)               (u, v, 1, 0)          (u, v, 0, 1)
+                    */
+                    std::swap(d3dMat._31, d3dMat._41);
+                    std::swap(d3dMat._32, d3dMat._42);
+                    std::swap(d3dMat._33, d3dMat._43);
+                    std::swap(d3dMat._34, d3dMat._44);
+                }
+            }
+            else
+            {
+                // All texgen generate 3D input texture coordinates.
+            }
+
+			// tell D3D the dimension of tex. coord.
+			int texCoordDim = D3DTTFF_DISABLE;
+            if (autoTexCoordType == TEXCALC_PROJECTIVE_TEXTURE)
+            {
+                /* We want texcoords (u, v, w, q) always get divided by q, but D3D
+                projected texcoords is divided by the last element (in the case of
+                2D texcoord, is w). So we tweak the transform matrix, transform the
+                texcoords with w and q swapped: (u, v, q, w), and then D3D will
+                divide u, v by q. The w and q just ignored as it wasn't used by
+                rasterizer.
+                */
+			    switch (mTexStageDesc[stage].texType)
+			    {
+			    case D3D9Mappings::D3D_TEX_TYPE_NORMAL:
+                    std::swap(d3dMat._13, d3dMat._14);
+                    std::swap(d3dMat._23, d3dMat._24);
+                    std::swap(d3dMat._33, d3dMat._34);
+                    std::swap(d3dMat._43, d3dMat._44);
+
+                    texCoordDim = D3DTTFF_PROJECTED | D3DTTFF_COUNT3;
+                    break;
+
+			    case D3D9Mappings::D3D_TEX_TYPE_CUBE:
+			    case D3D9Mappings::D3D_TEX_TYPE_VOLUME:
+                    // Yes, we support 3D projective texture.
+				    texCoordDim = D3DTTFF_PROJECTED | D3DTTFF_COUNT4;
+                    break;
+                }
             }
             else
             {
@@ -1447,6 +1485,7 @@ namespace Ogre
 			    case D3D9Mappings::D3D_TEX_TYPE_CUBE:
 			    case D3D9Mappings::D3D_TEX_TYPE_VOLUME:
 				    texCoordDim = D3DTTFF_COUNT3;
+                    break;
 			    }
             }
 
@@ -1466,7 +1505,6 @@ namespace Ogre
 				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
 
 			// set the identity matrix
-			D3DXMatrixIdentity( &d3dMat );
 			hr = mpD3DDevice->SetTransform( (D3DTRANSFORMSTATETYPE)(D3DTS_TEXTURE0 + stage), &d3dMat );
 			if( FAILED( hr ) )
 				OGRE_EXCEPT( hr, "Error setting texture matrix", "D3D9RenderSystem::_setTextureMatrix" );
