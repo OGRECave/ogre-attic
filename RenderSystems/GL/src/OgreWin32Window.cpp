@@ -225,6 +225,9 @@ namespace Ogre {
 			}
 		}
 
+		HDC old_hdc = wglGetCurrentDC();
+		HGLRC old_context = wglGetCurrentContext();
+
 		RECT rc;
 		// top and left represent outer window position
 		GetWindowRect(mHWnd, &rc);
@@ -254,6 +257,17 @@ namespace Ogre {
 			OGRE_EXCEPT(0, "wglMakeCurrent", "Win32Window::create");
 
 		wglSwapIntervalEXT(vsync? 1 : 0);
+
+        if (old_context)
+        {
+            // Restore old context
+		    if (!wglMakeCurrent(old_hdc, old_context))
+			    OGRE_EXCEPT(0, "wglMakeCurrent() failed", "Win32Window::create");
+
+            // Share lists with old context
+		    if (!wglShareLists(old_context, mGlrc))
+			    OGRE_EXCEPT(0, "wglShareLists() failed", " Win32Window::create");
+        }
 
 		// Create RenderSystem context
 		mContext = new Win32Context(mHDC, mGlrc);
