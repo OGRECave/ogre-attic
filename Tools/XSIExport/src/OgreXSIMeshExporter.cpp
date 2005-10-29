@@ -642,13 +642,13 @@ namespace Ogre {
 		{
 			Cluster cluster(clusterRefArray[i]);	
 
-			// Get mapping from cluster element index to geometry position index
-			CLongArray derefArray = cluster.GetElements().GetArray();
-
 			CRefArray envelopes = cluster.GetEnvelopes();
 			for (int e = 0; e < envelopes.GetCount(); ++e)
 			{
 				Envelope envelope(envelopes[e]);
+
+				// Get mapping from cluster element index to geometry position index
+				CLongArray derefArray = envelope.GetElements(CTime().GetTime()).GetArray();
 
 				CRefArray deformers = envelope.GetDeformers();
 				for (int d = 0; d < deformers.GetCount(); ++d)
@@ -697,33 +697,36 @@ namespace Ogre {
 								// adjust index based on merging
 								size_t adjIndex = positionIndex + poli->second;
 								// look up real index
+								// If it doesn't exist, it's probably on a seam
+								// between clusters and we can safely skip it
 								IndexRemap::iterator remi = ps->posIndexRemap.find(adjIndex);
-								assert (remi != ps->posIndexRemap.end()); // should never fail
-
-								size_t vertIndex = remi->second;
-								bool moreVerts = true;
-								// add UniqueVertex and clones
-								while (moreVerts)
+								if (remi != ps->posIndexRemap.end())
 								{
-									UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
-									VertexBoneAssignment vba;
-									vba.boneIndex = deformerEntry->boneID;
-									vba.vertexIndex = vertIndex;
-									vba.weight = weight;
-									ps->boneAssignments.insert(
-										Mesh::VertexBoneAssignmentList::value_type(vertIndex, vba));
-									atLeastOneAssignment = true;
 
-									if (vertex.nextIndex == 0)
+									size_t vertIndex = remi->second;
+									bool moreVerts = true;
+									// add UniqueVertex and clones
+									while (moreVerts)
 									{
-										moreVerts = false;
-									}
-									else
-									{
-										vertIndex = vertex.nextIndex;
+										UniqueVertex& vertex = ps->uniqueVertices[vertIndex];
+										VertexBoneAssignment vba;
+										vba.boneIndex = deformerEntry->boneID;
+										vba.vertexIndex = vertIndex;
+										vba.weight = weight;
+										ps->boneAssignments.insert(
+											Mesh::VertexBoneAssignmentList::value_type(vertIndex, vba));
+										atLeastOneAssignment = true;
+
+										if (vertex.nextIndex == 0)
+										{
+											moreVerts = false;
+										}
+										else
+										{
+											vertIndex = vertex.nextIndex;
+										}
 									}
 								}
-
 
 							}
 						}
@@ -746,6 +749,7 @@ namespace Ogre {
 
 			}
 		}
+
 
 	}
 	//-----------------------------------------------------------------------
