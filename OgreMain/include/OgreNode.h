@@ -65,6 +65,23 @@ namespace Ogre {
         typedef MapIterator<ChildNodeMap> ChildNodeIterator;
 		typedef ConstMapIterator<ChildNodeMap> ConstChildNodeIterator;
 
+		/** Listener which gets called back on Node events.
+		*/
+		class _OgreExport Listener
+		{
+		public:
+			Listener() {}
+			virtual ~Listener() {}
+			/** Called when a node gets updated.
+			@remarks
+				Note that this happens when the node's derived update happens,
+				not every time a method altering it's state occurs. There may 
+				be several state-changing calls but only one of these calls, 
+				when the node graph is fully updated.
+			*/
+			virtual nodeUpdated(const Node* node) = 0;
+		};
+
     protected:
         /// Pointer to parent node
         Node* mParent;
@@ -188,6 +205,9 @@ namespace Ogre {
         /// Cached derived transform as a 4x4 matrix
         mutable Matrix4 mCachedTransform;
         mutable bool mCachedTransformOutOfDate;
+
+		/** Node listener - only one allowed (no list) for size & performance reasons. */
+		Listener* mListener;
 
 
     public:
@@ -555,7 +575,18 @@ namespace Ogre {
         */
         virtual void _update(bool updateChildren, bool parentHasChanged);
 
-        /** Overridden from Renderable.
+        /** Sets a listener for this Node.
+		@remarks
+			Note for size and performance reasons only one listener per node is
+			allowed.
+		*/
+		virtual void setListener(Listener* listener) { mListener = listener; }
+		
+		/** Gets the current listener for this Node.
+		*/
+		virtual Listener* getListener(Listener* listener) const { return mListener; }
+		
+		/** Overridden from Renderable.
         @remarks
             This is only used if the SceneManager chooses to render the node. This option can be set
             for SceneNodes at SceneManager::setDisplaySceneNodes, and for entities based on skeletal 

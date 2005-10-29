@@ -40,34 +40,54 @@ namespace Ogre {
     unsigned long Node::msNextGeneratedNameExt = 1;
     //-----------------------------------------------------------------------
     Node::Node()
+		:mParent(0), 
+		mNeedParentUpdate(false),
+		mNeedChildUpdate(false),
+		mParentNotified(false),
+		mOrientation(Quaternion::IDENTITY),
+		mPosition(Vector3::ZERO), 
+		mScale(Vector3::UNIT_SCALE), 
+		mInheritScale(true),
+		mDerivedOrientation(Quaternion::IDENTITY),
+		mDerivedPosition(Vector3::ZERO),
+		mDerivedScale(Vector3::UNIT_SCALE),
+		mInitialOrientation(Quaternion::IDENTITY),
+		mInitialPosition(Vector3::ZERO), 
+		mInitialScale(Vector3::UNIT_SCALE),
+		mAccumAnimWeight(0.0f),
+		mCachedTransformOutOfDate(true),
+		mListener(0)
     {
-        mParent = 0;
-        mOrientation = mInitialOrientation = mDerivedOrientation = Quaternion::IDENTITY;
-        mPosition = mInitialPosition = mDerivedPosition = Vector3::ZERO;
-        mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
-        mInheritScale = true;
-		mParentNotified = false ;
-
         // Generate a name
 		StringUtil::StrStreamType str;
 		str << "Unnamed_" << msNextGeneratedNameExt++;
         mName = str.str();
-        mAccumAnimWeight = 0.0f;
 
         needUpdate();
 
     }
     //-----------------------------------------------------------------------
-	Node::Node(const String& name) : Renderable()
+	Node::Node(const String& name) : Renderable(),
+		mParent(0), 
+		mNeedParentUpdate(false),
+		mNeedChildUpdate(false),
+		mParentNotified(false),
+		mName(name),
+		mOrientation(Quaternion::IDENTITY),
+		mPosition(Vector3::ZERO), 
+		mScale(Vector3::UNIT_SCALE), 
+		mInheritScale(true),
+		mDerivedOrientation(Quaternion::IDENTITY),
+		mDerivedPosition(Vector3::ZERO),
+		mDerivedScale(Vector3::UNIT_SCALE),
+		mInitialOrientation(Quaternion::IDENTITY),
+		mInitialPosition(Vector3::ZERO), 
+		mInitialScale(Vector3::UNIT_SCALE),
+		mAccumAnimWeight(0.0f),
+		mCachedTransformOutOfDate(true),
+		mListener(0)
+
     {
-        mName = name;
-        mParent = 0;
-        mOrientation = mInitialOrientation = mDerivedOrientation = Quaternion::IDENTITY;
-        mPosition = mInitialPosition = mDerivedPosition = Vector3::ZERO;
-        mScale = mInitialScale = mDerivedScale = Vector3::UNIT_SCALE;
-        mInheritScale = true;
-        mAccumAnimWeight = 0.0f;
-		mParentNotified = false ;
 
         needUpdate();
 
@@ -127,6 +147,13 @@ namespace Ogre {
             // Update transforms from parent
             _updateFromParent();
 			mNeedParentUpdate = false;
+
+			// Call listener (note, only called if there's something to do)
+			if (mListener)
+			{
+				mListener->nodeUpdated(this);
+			}
+
 		}
 
 		if (mNeedChildUpdate || parentHasChanged)
