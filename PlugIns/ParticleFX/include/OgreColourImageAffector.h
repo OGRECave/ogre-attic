@@ -62,8 +62,11 @@ namespace Ogre {
 
     protected:
         Image					mColourImage;
+        bool                    mColourImageLoaded;
 		String					mColourImageName;
 
+        /** Internal method to load the image */
+        void _loadImage(void);
     };
 
 

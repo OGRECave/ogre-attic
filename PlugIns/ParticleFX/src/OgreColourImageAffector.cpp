@@ -36,7 +36,7 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     ColourImageAffector::ColourImageAffector(ParticleSystem* psys)
-        :ParticleAffector(psys)
+        :ParticleAffector(psys), mColourImageLoaded(false)
     {
         mType = "ColourImage";
 
@@ -51,13 +51,12 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void ColourImageAffector::_initParticle(Particle* pParticle)
 	{
-		const uchar*		data			= mColourImage.getData();
-		const Real			div_255			= 1.0f / 255.f;
-		
-		pParticle->colour.r = data[0] * div_255;
-		pParticle->colour.g = data[1] * div_255;
-		pParticle->colour.b = data[2] * div_255;
-		pParticle->colour.a = data[3] * div_255;
+        if (!mColourImageLoaded)
+        {
+            _loadImage();
+        }
+
+        pParticle->colour = mColourImage.getColourAt(0, 0, 0);
     
 	}
     //-----------------------------------------------------------------------
@@ -66,10 +65,12 @@ namespace Ogre {
         Particle*			p;
 		ParticleIterator	pi				= pSystem->_getIterator();
 
+        if (!mColourImageLoaded)
+        {
+            _loadImage();
+        }
+
 		int				   width			= mColourImage.getWidth()  - 1;
-		int				   height			= mColourImage.getHeight() - 1;
-		const uchar*		data			= mColourImage.getData();
-        const Real      div_255         = 1.0f / 255.f;
         
 		while (!pi.end())
 		{
@@ -115,16 +116,22 @@ namespace Ogre {
     void ColourImageAffector::setImageAdjust(String name)
     {
 		mColourImageName = name;
-        mColourImage.load(name, mParent->getResourceGroupName());
+        mColourImageLoaded = false;
+	}
+    //-----------------------------------------------------------------------
+    void ColourImageAffector::_loadImage(void)
+    {
+        mColourImage.load(mColourImageName, mParent->getResourceGroupName());
 
 		PixelFormat	format = mColourImage.getFormat();
 
 		if ( !PixelUtil::isAccessible(format) )
 		{
 			OGRE_EXCEPT( Exception::ERR_INVALIDPARAMS, "Error: Image is not accessible (rgba) image.",
-					"ColourImageAffector::setImageAdjust" );
+					"ColourImageAffector::_loadImage" );
 		}
 
+        mColourImageLoaded = true;
 	}
     //-----------------------------------------------------------------------
     String ColourImageAffector::getImageAdjust(void) const
