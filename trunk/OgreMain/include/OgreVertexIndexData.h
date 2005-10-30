@@ -60,11 +60,17 @@ namespace Ogre {
 		/// The number of vertices used in this operation
 		size_t vertexCount;
 
-		/// VertexElement which has been allocated to hardware morph target usage
-		const VertexElement* hwMorphTargetElement;
-		/// Parametric value expressing hardware morph distance between pos and morph target
-		Real hwMorphParametric;
 
+		/// Struct used to hold hardware morph / pose vertex data information
+		struct HardwareAnimationData
+		{
+			const VertexElement* targetVertexElement;
+			Real parametric;
+		};
+		typedef std::vector<HardwareAnimationData> HardwareAnimationDataList;
+		/// VertexElements used for hardware morph / pose animation
+		HardwareAnimationDataList hwAnimationDataList;
+		
 		/** Clones this vertex data, potentially including replicating any vertex buffers.
 		@remarks The caller is expected to delete the returned pointer when ready
 		*/
@@ -142,19 +148,20 @@ namespace Ogre {
 		*/
 		void reorganiseBuffers(VertexDeclaration* newDeclaration);
 
-		/** Allocate a new element to serve as the holder of morph target positions
-			for hardware morphing.
+		/** Allocate elements to serve a holder of morph / pose target data 
+			for hardware morphing / pose blending.
 		@remarks
-			This method will allocate the next free texture coordinate for use
-			as a morph target (3D position), and will save it in hwMorphTargetElement
-			as well as setting up hwMorphVertexDeclaration containing it.
-			It will also assume that the source of this new element will be a new
-			buffer which is not bound at this time, so will set the source to 
+			This method will allocate the given number of 3D texture coordinate 
+			sets for use as a morph target or target pose offset (3D position).
+			These elements will be saved in hwAnimationDataList.
+			It will also assume that the source of these new elements will be new
+			buffers which are not bound at this time, so will start the sources to 
 			1 higher than the current highest binding source. The caller is
-			expected to bind this new buffer when appropriate (as well as the 
-			source morph buffer which will be bound to the main position).
+			expected to bind these new buffers when appropriate. For morph animation
+			the original position buffer will be the 'from' keyframe data, whilst
+			for pose animation it will be the original vertex data.
 		*/
-		void allocatehwMorphTargetElement(void);
+		void allocateHardwareAnimationElements(ushort count);
 
 
 

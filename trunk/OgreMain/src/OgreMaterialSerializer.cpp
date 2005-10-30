@@ -2059,6 +2059,7 @@ namespace Ogre
 		context.programDef->progType = GPT_VERTEX_PROGRAM;
         context.programDef->supportsSkeletalAnimation = false;
 		context.programDef->supportsMorphAnimation = false;
+		context.programDef->supportsPoseAnimation = 0;
 
 		// Get name and language code
 		StringVector vecparams = StringUtil::split(params, " \t");
@@ -2088,6 +2089,7 @@ namespace Ogre
 		context.programDef->progType = GPT_FRAGMENT_PROGRAM;
 		context.programDef->supportsSkeletalAnimation = false;
 		context.programDef->supportsMorphAnimation = false;
+		context.programDef->supportsPoseAnimation = 0;
 
 		// Get name and language code
 		StringVector vecparams = StringUtil::split(params, " \t");
@@ -2130,6 +2132,15 @@ namespace Ogre
 		// Source filename, preserve case
 		context.programDef->supportsMorphAnimation 
 			= StringConverter::parseBool(params);
+
+		return false;
+	}
+	//-----------------------------------------------------------------------
+	bool parseProgramPoseAnimation(String& params, MaterialScriptContext& context)
+	{
+		// Source filename, preserve case
+		context.programDef->supportsPoseAnimation 
+			= StringConverter::parseInt(params);
 
 		return false;
 	}
@@ -2327,6 +2338,7 @@ namespace Ogre
         mProgramAttribParsers.insert(AttribParserList::value_type("syntax", (ATTRIBUTE_PARSER)parseProgramSyntax));
         mProgramAttribParsers.insert(AttribParserList::value_type("includes_skeletal_animation", (ATTRIBUTE_PARSER)parseProgramSkeletalAnimation));
 		mProgramAttribParsers.insert(AttribParserList::value_type("includes_morph_animation", (ATTRIBUTE_PARSER)parseProgramMorphAnimation));
+		mProgramAttribParsers.insert(AttribParserList::value_type("includes_pose_animation", (ATTRIBUTE_PARSER)parseProgramPoseAnimation));
         mProgramAttribParsers.insert(AttribParserList::value_type("default_params", (ATTRIBUTE_PARSER)parseDefaultParams));
 		
         // Set up program default param attribute parsers
@@ -2648,6 +2660,8 @@ namespace Ogre
         gp->setSkeletalAnimationIncluded(def->supportsSkeletalAnimation);
 		// Set morph animation option
 		gp->setMorphAnimationIncluded(def->supportsMorphAnimation);
+		// Set pose animation option
+		gp->setPoseAnimationIncluded(def->supportsPoseAnimation);
 		// set origin
 		gp->_notifyOrigin(mScriptContext.filename);
 

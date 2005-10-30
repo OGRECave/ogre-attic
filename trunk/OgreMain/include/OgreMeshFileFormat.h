@@ -153,16 +153,22 @@ namespace Ogre {
                                 // unsigned long  vertIndex[2]
                                 // unsigned long  sharedVertIndex[2]
                                 // bool degenerate
-			// Optional morph animation chunk
-			M_ANIMATION = 0xC000,
+			// Optional vertex animation chunk
+			M_ANIMATIONS = 0xC000, 
+				M_ANIMATION = 0xD000,
 				// char* name
 				// float length
-				M_ANIMATION_TRACK = 0xC100,
+				M_ANIMATION_TRACK = 0xD100,
+					// unsigned short type			// 1 == morph, 2 == pose
 					// unsigned short target		// 0 for shared geometry, 
 													// 1+ for submesh index + 1
-					M_ANIMATION_KEYFRAME = 0xC110,
+					M_ANIMATION_MORPH_KEYFRAME = 0xD110,
 						// float time
 						// float x,y,z			// repeat by number of vertices in original geometry
+					M_ANIMATION_POSE_KEYFRAME = 0xD120,
+						M_ANIMATION_POSE_VERTEX = 0xD121,
+							// unsigned long vertexIndex
+							// float xoffset, yoffset, zoffset
 
 		
 	

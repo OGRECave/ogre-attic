@@ -50,8 +50,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     Entity::Entity ()
 		: mSkelAnimVertexData(0),
-		  mSoftwareMorphAnimVertexData(0),
-		  mHardwareMorphAnimVertexData(0),
+		  mSoftwareVertexAnimVertexData(0),
+		  mHardwareVertexAnimVertexData(0),
 		  mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
 		  mSharedSkeletonEntities(NULL),
 		  mDisplaySkeleton(false),
@@ -80,8 +80,8 @@ namespace Ogre {
 		MovableObject(name),
         mMesh(mesh),
 		mSkelAnimVertexData(0),
-		mSoftwareMorphAnimVertexData(0),
-		mHardwareMorphAnimVertexData(0),
+		mSoftwareVertexAnimVertexData(0),
+		mHardwareVertexAnimVertexData(0),
 		mFrameAnimationLastUpdated(std::numeric_limits<unsigned long>::max()),
         mSharedSkeletonEntities(NULL),
 		mDisplaySkeleton(false),
@@ -149,7 +149,7 @@ namespace Ogre {
 			mFrameBonesLastUpdated  = 0;
 
 		}
-        if (hasSkeleton() || hasMorphAnimation())
+        if (hasSkeleton() || hasVertexAnimation())
         {
             mAnimationState = new AnimationStateSet();
             mesh->_initAnimationState(mAnimationState);
@@ -220,20 +220,20 @@ namespace Ogre {
                 delete mFrameBonesLastUpdated;
             }
         }
-		else if (hasMorphAnimation())
+		else if (hasVertexAnimation())
 		{
 			delete mAnimationState;
 		}
 
 		delete mSkelAnimVertexData;
-		delete mSoftwareMorphAnimVertexData;
-		delete mHardwareMorphAnimVertexData;
+		delete mSoftwareVertexAnimVertexData;
+		delete mHardwareVertexAnimVertexData;
 
     }
 	//-----------------------------------------------------------------------
-	bool Entity::hasMorphAnimation(void) const
+	bool Entity::hasVertexAnimation(void) const
 	{
-		return mMesh->hasMorphAnimation();
+		return mMesh->hasVertexAnimation();
 	}
     //-----------------------------------------------------------------------
     MeshPtr& Entity::getMesh(void)
@@ -445,7 +445,7 @@ namespace Ogre {
 
         // Since we know we're going to be rendered, take this opportunity to 
         // update the animation
-        if (hasSkeleton() || hasMorphAnimation())
+        if (hasSkeleton() || hasVertexAnimation())
         {
             updateAnimation();
 
@@ -502,6 +502,27 @@ namespace Ogre {
     {
 		return EntityFactory::FACTORY_TYPE_NAME;
     }
+	//-----------------------------------------------------------------------
+	bool Entity::tempVertexAnimBuffersBound(void) const
+	{
+		// Do we still have temp buffers for software vertex animation bound?
+		bool ret = true;
+		if (mMesh->sharedVertexData && mMesh->getSharedVertexDataAnimationType() != VAT_NONE)
+		{
+			ret = ret && mTempVertexAnimInfo.buffersCheckedOut(true, false);
+		}
+		for (SubEntityList::const_iterator i = mSubEntityList.begin();
+			i != mSubEntityList.end(); ++i)
+		{
+			SubEntity* sub = *i;
+			if (!sub->getSubMesh()->useSharedVertices
+				&& sub->getSubMesh()->getVertexAnimationType() != VAT_NONE)
+			{
+				ret = ret && sub->_getVertexAnimTempBufferInfo()->buffersCheckedOut(true, false);
+			}
+		}
+		return ret;
+	}
     //-----------------------------------------------------------------------
     void Entity::updateAnimation(void)
     {
@@ -522,21 +543,22 @@ namespace Ogre {
 		// Or, if we're using software animation and temp buffers are unbound
         if (mFrameAnimationLastUpdated != mAnimationState->getDirtyFrameNumber() ||
 			(mLastParentXform != getParentSceneNode()->_getFullTransform() && hasSkeleton()) ||
-			(softwareAnimation && hasMorphAnimation() && !mTempMorphAnimInfo.buffersCheckedOut(true, false)) ||
+			(softwareAnimation && hasVertexAnimation() && !tempVertexAnimBuffersBound()) ||
 			(softwareAnimation && hasSkeleton() && !mTempSkelAnimInfo.buffersCheckedOut(true, blendNormals)))
         {
-			if (hasMorphAnimation())
+			if (hasVertexAnimation())
 			{
 				if (softwareAnimation)
 				{
 					// grab & bind temporary buffer for positions
-					if (mSoftwareMorphAnimVertexData)
+					if (mSoftwareVertexAnimVertexData 
+						&& mMesh->getSharedVertexDataAnimationType() != VAT_NONE)
 					{
-						mTempMorphAnimInfo.checkoutTempCopies(true, false);
+						mTempVertexAnimInfo.checkoutTempCopies(true, false);
 						// NB we suppress hardware upload while doing blend if we're
 						// hardware skinned, because the only reason for doing this
 						// is for shadow, which need only be uploaded then
-						mTempMorphAnimInfo.bindTempCopies(mSoftwareMorphAnimVertexData, 
+						mTempVertexAnimInfo.bindTempCopies(mSoftwareVertexAnimVertexData, 
 							hwSkinning);
 					}
 					SubEntityList::iterator i, iend;
@@ -545,16 +567,17 @@ namespace Ogre {
 					{
 						// Blend dedicated geometry
 						SubEntity* se = *i;
-						if (se->isVisible() && se->mSoftwareMorphAnimVertexData)
+						if (se->isVisible() && se->mSoftwareVertexAnimVertexData
+							&& se->getSubMesh()->getVertexAnimationType() != VAT_NONE)
 						{
-							se->mTempMorphAnimInfo.checkoutTempCopies(true, false);
-							se->mTempMorphAnimInfo.bindTempCopies(se->mSoftwareMorphAnimVertexData, 
+							se->mTempVertexAnimInfo.checkoutTempCopies(true, false);
+							se->mTempVertexAnimInfo.bindTempCopies(se->mSoftwareVertexAnimVertexData, 
 								hwSkinning);
 						}
 
 					}
 				}
-				applyMorphAnimation(hwSkinning, stencilShadows);
+				applyVertexAnimation(hwSkinning, stencilShadows);
 			}
 
 			if (hasSkeleton())
@@ -577,8 +600,8 @@ namespace Ogre {
 							hwSkinning);
 						// Blend, taking source from either mesh data or morph data
 						Mesh::softwareVertexBlend(
-							hasMorphAnimation()? 
-								mSoftwareMorphAnimVertexData :	mMesh->sharedVertexData, 
+							(mMesh->getSharedVertexDataAnimationType() != VAT_NONE) ? 
+								mSoftwareVertexAnimVertexData :	mMesh->sharedVertexData, 
 							mSkelAnimVertexData, mBoneMatrices, blendNormals);
 					}
 					SubEntityList::iterator i, iend;
@@ -594,8 +617,8 @@ namespace Ogre {
 								hwSkinning);
 							// Blend, taking source from either mesh data or morph data
 							Mesh::softwareVertexBlend(
-								hasMorphAnimation()? 
-									se->mSoftwareMorphAnimVertexData : se->mSubMesh->vertexData, 
+								(se->getSubMesh()->getVertexAnimationType() != VAT_NONE)? 
+									se->mSoftwareVertexAnimVertexData : se->mSubMesh->vertexData, 
 								se->mSkelAnimVertexData, mBoneMatrices, blendNormals);
 						}
 
@@ -615,15 +638,86 @@ namespace Ogre {
         }
     }
 	//-----------------------------------------------------------------------
-	void Entity::applyMorphAnimation(bool hardwareAnimation, bool stencilShadows)
+	void Entity::initHardwareAnimationElements(VertexData* vdata, 
+		ushort numberOfElements)
 	{
-		// Morph animation cannot blend (arbitrary blends would require
-		// 2n + 1 vetex bindings (where n is the number of active animations)
-		// So pick the first active morph animation
+		if (vdata->hwAnimationDataList.size() < numberOfElements)
+		{
+			vdata->allocateHardwareAnimationElements(numberOfElements);
+		}
+		// Initialise parametrics incase we don't use all of them
+		for (ushort i = 0; i < numberOfElements; ++i)
+		{
+			vdata->hwAnimationDataList[i].parametric = 0.0f;
+		}
+	}
+	//-----------------------------------------------------------------------
+	void Entity::applyVertexAnimation(bool hardwareAnimation, bool stencilShadows)
+	{
 		AnimationStateIterator animIt = mAnimationState->getAnimationStateIterator();
 		MeshPtr msh = getMesh();
 		bool swAnim = !hardwareAnimation || stencilShadows || (mSoftwareSkinningRequests>0);
-		bool foundAnim = false;
+
+		// make sure we have enough hardware animation elements to play with
+		if (hardwareAnimation)
+		{
+			if (mHardwareVertexAnimVertexData
+				&& msh->getSharedVertexDataAnimationType() != VAT_NONE)
+			{
+				initHardwareAnimationElements(mHardwareVertexAnimVertexData, 
+					(msh->getSharedVertexDataAnimationType() == VAT_POSE)
+					? mHardwarePoseCount : 1);
+			}
+			for (SubEntityList::iterator si = mSubEntityList.begin();
+				si != mSubEntityList.end(); ++si)
+			{
+				SubEntity* sub = *si;
+				if (sub->_getSoftwareVertexAnimVertexData()
+					&& sub->getSubMesh()->getVertexAnimationType() != VAT_NONE)
+				{
+					initHardwareAnimationElements(
+						sub->_getHardwareVertexAnimVertexData(),
+						(sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
+						? sub->mHardwarePoseCount : 1);
+				}
+			}
+
+		}
+		else
+		{
+			// May be blending multiple poses in software
+			// Suppress hardware upload of buffers
+			if (mSoftwareVertexAnimVertexData && 
+				mMesh->getSharedVertexDataAnimationType() == VAT_POSE)
+			{
+				const VertexElement* elem = mSoftwareVertexAnimVertexData
+					->vertexDeclaration->findElementBySemantic(VES_POSITION);
+				HardwareVertexBufferSharedPtr buf = mSoftwareVertexAnimVertexData
+					->vertexBufferBinding->getBuffer(elem->getSource());
+				buf->suppressHardwareUpdate(true);
+			}
+			for (SubEntityList::iterator si = mSubEntityList.begin();
+				si != mSubEntityList.end(); ++si)
+			{
+				SubEntity* sub = *si;
+				if (sub->_getSoftwareVertexAnimVertexData() && 
+					sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
+				{
+					VertexData* data = sub->_getSoftwareVertexAnimVertexData();
+					const VertexElement* elem = data->vertexDeclaration
+						->findElementBySemantic(VES_POSITION);
+					HardwareVertexBufferSharedPtr buf = data
+						->vertexBufferBinding->getBuffer(elem->getSource());
+					buf->suppressHardwareUpdate(true);
+				}
+			}
+		}
+
+
+		// Now apply the animation(s)
+		// Note - you should only apply one morph animation to each set of vertex data
+		// at once; if you do more, only the last one will actually apply
+		ushort animIndex = 0;
 		while(animIt.hasMoreElements())
 		{
 			AnimationState* state = animIt.getNext();
@@ -632,25 +726,52 @@ namespace Ogre {
 				Animation* anim = msh->_getAnimationImpl(state->getAnimationName());
 				if (anim)
 				{
-					anim->apply(this, state->getTimePosition(), 
-						swAnim, hardwareAnimation);
-					foundAnim = true;
-					break;
+					anim->apply(this, state->getTimePosition(), state->getWeight(), 
+						swAnim, hardwareAnimation, animIndex++);
 				}
 			}
 		}
-		if (!foundAnim)
+		if (animIndex == 0)
 		{
 			// There was no animation, so simply re-bind reference positions
+			// if we're doing morph animation since morph re-binds original pos
 			copyOriginalVertexDataToMorph();
 
+		}
+		// Unsuppress hardware upload if we suppressed it
+		if (!hardwareAnimation)
+		{
+			if (mSoftwareVertexAnimVertexData && 
+				msh->getSharedVertexDataAnimationType() == VAT_POSE)
+			{
+				const VertexElement* elem = mSoftwareVertexAnimVertexData
+					->vertexDeclaration->findElementBySemantic(VES_POSITION);
+				HardwareVertexBufferSharedPtr buf = mSoftwareVertexAnimVertexData
+					->vertexBufferBinding->getBuffer(elem->getSource());
+				buf->suppressHardwareUpdate(false);
+			}
+			for (SubEntityList::iterator si = mSubEntityList.begin();
+				si != mSubEntityList.end(); ++si)
+			{
+				SubEntity* sub = *si;
+				if (sub->_getSoftwareVertexAnimVertexData() && 
+					sub->getSubMesh()->getVertexAnimationType() == VAT_POSE)
+				{
+					VertexData* data = sub->_getSoftwareVertexAnimVertexData();
+					const VertexElement* elem = data->vertexDeclaration
+						->findElementBySemantic(VES_POSITION);
+					HardwareVertexBufferSharedPtr buf = data
+						->vertexBufferBinding->getBuffer(elem->getSource());
+					buf->suppressHardwareUpdate(false);
+				}
+			}
 		}
 		
 	}
 	//-----------------------------------------------------------------------------
 	void Entity::copyOriginalVertexDataToMorph(void)
 	{
-		if (mMesh->sharedVertexData)
+		if (mMesh->sharedVertexData && mMesh->getSharedVertexDataAnimationType() == VAT_MORPH)
 		{
 			const VertexElement* srcPosElem = 
 				mMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
@@ -660,22 +781,10 @@ namespace Ogre {
 
 			// Bind to software
 			const VertexElement* destPosElem = 
-				mSoftwareMorphAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-			mSoftwareMorphAnimVertexData->vertexBufferBinding->setBinding(
+				mSoftwareVertexAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+			mSoftwareVertexAnimVertexData->vertexBufferBinding->setBinding(
 				destPosElem->getSource(), srcBuf);
 
-			// Bind to hardware as both pos1 and pos2
-			if (!mHardwareMorphAnimVertexData->hwMorphTargetElement)
-				mHardwareMorphAnimVertexData->allocatehwMorphTargetElement();
-			destPosElem = 
-				mHardwareMorphAnimVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
-			mHardwareMorphAnimVertexData->vertexBufferBinding->setBinding(
-				destPosElem->getSource(), srcBuf);
-			mHardwareMorphAnimVertexData->vertexBufferBinding->setBinding(
-				mHardwareMorphAnimVertexData->hwMorphTargetElement->getSource(),
-				srcBuf);
-			mHardwareMorphAnimVertexData->hwMorphParametric = 0.0f;
-			
 		}
 
 		for (SubEntityList::iterator i = mSubEntityList.begin(); 
@@ -688,7 +797,7 @@ namespace Ogre {
 	void Entity::_updateAnimation(void)
 	{
 		// Externally visible method
-		if (hasSkeleton() || hasMorphAnimation())
+		if (hasSkeleton() || hasVertexAnimation())
 		{
 			updateAnimation();
 		}
@@ -700,16 +809,16 @@ namespace Ogre {
         return mSkelAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
-	VertexData* Entity::_getSoftwareMorphAnimVertexData(void)
+	VertexData* Entity::_getSoftwareVertexAnimVertexData(void)
 	{
-		assert (mSoftwareMorphAnimVertexData && "Not morph animated!");
-		return mSoftwareMorphAnimVertexData;
+		assert (mSoftwareVertexAnimVertexData && "Not vertex animated!");
+		return mSoftwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
-	VertexData* Entity::_getHardwareMorphAnimVertexData(void)
+	VertexData* Entity::_getHardwareVertexAnimVertexData(void)
 	{
-		assert (mHardwareMorphAnimVertexData && "Not morph animated!");
-		return mHardwareMorphAnimVertexData;
+		assert (mHardwareVertexAnimVertexData && "Not vertex animated!");
+		return mHardwareVertexAnimVertexData;
 	}
 	//-----------------------------------------------------------------------
 	TempBlendedBufferInfo* Entity::_getSkelAnimTempBufferInfo(void)
@@ -717,9 +826,9 @@ namespace Ogre {
 		return &mTempSkelAnimInfo;
 	}
 	//-----------------------------------------------------------------------
-	TempBlendedBufferInfo* Entity::_getMorphAnimTempBufferInfo(void)
+	TempBlendedBufferInfo* Entity::_getVertexAnimTempBufferInfo(void)
 	{
-		return &mTempMorphAnimInfo;
+		return &mTempVertexAnimInfo;
 	}
     //-----------------------------------------------------------------------
     void Entity::cacheBoneMatrices(void)
@@ -1005,33 +1114,34 @@ namespace Ogre {
             delete mSkelAnimVertexData;
             mSkelAnimVertexData = 0;
         }
-		if (mSoftwareMorphAnimVertexData) 
+		if (mSoftwareVertexAnimVertexData) 
 		{
-			delete mSoftwareMorphAnimVertexData;
-			mSoftwareMorphAnimVertexData = 0;
+			delete mSoftwareVertexAnimVertexData;
+			mSoftwareVertexAnimVertexData = 0;
 		}
-		if (mHardwareMorphAnimVertexData) 
+		if (mHardwareVertexAnimVertexData) 
 		{
-			delete mHardwareMorphAnimVertexData;
-			mHardwareMorphAnimVertexData = 0;
+			delete mHardwareVertexAnimVertexData;
+			mHardwareVertexAnimVertexData = 0;
 		}
 
-		if (hasMorphAnimation())
+		if (hasVertexAnimation())
 		{
 			// Shared data
-			if (mMesh->sharedVertexData)
+			if (mMesh->sharedVertexData 
+				&& mMesh->getSharedVertexDataAnimationType() != VAT_NONE)
 			{
 				// Create temporary vertex blend info
 				// Prepare temp vertex data if needed
 				// Clone without copying data, remove blending info
 				// (since blend is performed in software)
-				mSoftwareMorphAnimVertexData = 
+				mSoftwareVertexAnimVertexData = 
 					cloneVertexDataRemoveBlendInfo(mMesh->sharedVertexData);
-				extractTempBufferInfo(mSoftwareMorphAnimVertexData, &mTempMorphAnimInfo);
+				extractTempBufferInfo(mSoftwareVertexAnimVertexData, &mTempVertexAnimInfo);
 
 				// Also clone for hardware usage, don't remove blend info since we'll
 				// need it if we also hardware skeletally animate
-				mHardwareMorphAnimVertexData = mMesh->sharedVertexData->clone(false);
+				mHardwareVertexAnimVertexData = mMesh->sharedVertexData->clone(false);
 			}
 		}
 
@@ -1143,7 +1253,8 @@ namespace Ogre {
         iend = mSubEntityList.end();
         for (i = mSubEntityList.begin(); i != iend; ++i)
         {
-            const MaterialPtr& m = (*i)->getMaterial();
+			SubEntity* sub = *i;
+            const MaterialPtr& m = sub->getMaterial();
             // Make sure it's loaded
             m->load();
             Technique* t = m->getBestTechnique();
@@ -1179,9 +1290,19 @@ namespace Ogre {
 							p->getVertexProgram()->isSkeletalAnimationIncluded();
 					}
 				}
-				if (hasMorphAnimation())
+
+				VertexAnimationType animType = VAT_NONE;
+				if (sub->getSubMesh()->useSharedVertices)
 				{
-					// All materials must support skinning for us to consider using
+					animType = mMesh->getSharedVertexDataAnimationType();
+				}
+				else
+				{
+					animType = sub->getSubMesh()->getVertexAnimationType();
+				}
+				if (animType == VAT_MORPH)
+				{
+					// All materials must support morph animation for us to consider using
 					// hardware skinning - if one fails we use software
 					if (firstPass)
 					{
@@ -1192,6 +1313,31 @@ namespace Ogre {
 					{
 						mHardwareAnimation = mHardwareAnimation &&
 							p->getVertexProgram()->isMorphAnimationIncluded();
+					}
+				}
+				else if (animType == VAT_POSE)
+				{
+					// All materials must support pose animation for us to consider using
+					// hardware skinning - if one fails we use software
+					if (firstPass)
+					{
+						mHardwareAnimation = p->getVertexProgram()->isPoseAnimationIncluded();
+						if (sub->getSubMesh()->useSharedVertices)
+							mHardwarePoseCount = p->getVertexProgram()->getNumberOfPosesIncluded();
+						else
+							sub->mHardwarePoseCount = p->getVertexProgram()->getNumberOfPosesIncluded();
+						firstPass = false;
+					}
+					else
+					{
+						mHardwareAnimation = mHardwareAnimation &&
+							p->getVertexProgram()->isPoseAnimationIncluded();
+						if (sub->getSubMesh()->useSharedVertices)
+							mHardwarePoseCount = std::max(mHardwarePoseCount, 
+								p->getVertexProgram()->getNumberOfPosesIncluded());
+						else
+							sub->mHardwarePoseCount = std::max(sub->mHardwarePoseCount, 
+								p->getVertexProgram()->getNumberOfPosesIncluded());
 					}
 				}
 
@@ -1229,7 +1375,7 @@ namespace Ogre {
                 extrusionDistance, flags);
         }
 
-        bool hasAnimation = this->hasSkeleton() || this->hasMorphAnimation();
+        bool hasAnimation = this->hasSkeleton() || this->hasVertexAnimation();
 
 
         // Prep mesh if required
@@ -1379,7 +1525,7 @@ namespace Ogre {
 
         if (orig == mMesh->sharedVertexData)
         {
-			return skel? mSkelAnimVertexData : mSoftwareMorphAnimVertexData;
+			return skel? mSkelAnimVertexData : mSoftwareVertexAnimVertexData;
         }
         SubEntityList::iterator i, iend;
         iend = mSubEntityList.end();
@@ -1388,7 +1534,7 @@ namespace Ogre {
             SubEntity* se = *i;
             if (orig == se->getSubMesh()->vertexData)
             {
-				return skel? se->_getSkelAnimVertexData() : se->_getSoftwareMorphAnimVertexData();
+				return skel? se->_getSkelAnimVertexData() : se->_getSoftwareVertexAnimVertexData();
             }
         }
         // None found
@@ -1643,15 +1789,15 @@ namespace Ogre {
 			delete mSkelAnimVertexData;
 			mSkelAnimVertexData = 0;
 		}
-		if (mHardwareMorphAnimVertexData)
+		if (mHardwareVertexAnimVertexData)
 		{
-			delete mHardwareMorphAnimVertexData;
-			mHardwareMorphAnimVertexData = 0;
+			delete mHardwareVertexAnimVertexData;
+			mHardwareVertexAnimVertexData = 0;
 		}
-		if (mSoftwareMorphAnimVertexData)
+		if (mSoftwareVertexAnimVertexData)
 		{
-			delete mSoftwareMorphAnimVertexData;
-			mSoftwareMorphAnimVertexData = 0;
+			delete mSoftwareVertexAnimVertexData;
+			mSoftwareVertexAnimVertexData = 0;
 		}
 
 
@@ -1714,15 +1860,16 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	VertexData* Entity::getVertexDataForBinding(void)
 	{
-		Entity::VertexDataBindChoice c = chooseVertexDataForBinding();
+		Entity::VertexDataBindChoice c = 
+			chooseVertexDataForBinding(mMesh->getSharedVertexDataAnimationType() != VAT_NONE);
 		switch(c)
 		{
 		case BIND_ORIGINAL:
 			return mMesh->sharedVertexData;
 		case BIND_HARDWARE_MORPH:
-			return mHardwareMorphAnimVertexData;
+			return mHardwareVertexAnimVertexData;
 		case BIND_SOFTWARE_MORPH:
-			return mSoftwareMorphAnimVertexData;
+			return mSoftwareVertexAnimVertexData;
 		case BIND_SOFTWARE_SKELETAL:
 			return mSkelAnimVertexData;
 		};
@@ -1730,7 +1877,7 @@ namespace Ogre {
 		return mMesh->sharedVertexData;
 	}
 	//-----------------------------------------------------------------------
-	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(void) const
+	Entity::VertexDataBindChoice Entity::chooseVertexDataForBinding(bool vertexAnim) const
 	{
 		if (hasSkeleton())
 		{
@@ -1740,7 +1887,7 @@ namespace Ogre {
 				// may be a 2-stage s/w transform including morph earlier though
 				return BIND_SOFTWARE_SKELETAL;
 			}
-			else if (hasMorphAnimation())
+			else if (vertexAnim)
 			{
 				// hardware morph animation
 				return BIND_HARDWARE_MORPH;
@@ -1751,7 +1898,7 @@ namespace Ogre {
 				return BIND_ORIGINAL;
 			}
 		}
-		else if (hasMorphAnimation())
+		else if (vertexAnim)
 		{
 			// morph only, no skeletal
 			if (mHardwareAnimation)

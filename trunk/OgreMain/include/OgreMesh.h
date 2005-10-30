@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreProgressiveMesh.h"
 #include "OgreHardwareVertexBuffer.h"
 #include "OgreSkeleton.h"
+#include "OgreAnimationTrack.h"
 
 
 namespace Ogre {
@@ -153,6 +154,10 @@ namespace Ogre {
 		/// Storage of morph animations, lookup by name
 		typedef std::map<String, Animation*> AnimationList;
 		AnimationList mAnimationsList;
+		/// The vertex animation type associated with the shared vertex data
+		mutable VertexAnimationType mSharedVertexDataAnimationType;
+		/// Do we need to scan animations for animation types?
+		mutable bool mAnimationTypesDirty;
 
 
         /// @copydoc Resource::loadImpl
@@ -281,8 +286,9 @@ namespace Ogre {
         /** Returns true if this Mesh has a linked Skeleton. */
         bool hasSkeleton(void) const;
 
-		/** Returns true if this Mesh has a morph animations. */
-		bool hasMorphAnimation(void) const;
+		/** Returns whether or not this mesh has some kind of vertex animation. 
+		*/
+		bool hasVertexAnimation(void) const;
 
 		/** Gets a pointer to any linked Skeleton. 
         @returns Weak reference to the skeleton - copy this if you want to hold a strong pointer.
@@ -617,6 +623,24 @@ namespace Ogre {
             const HardwareVertexBufferSharedPtr& b1, 
 			const HardwareVertexBufferSharedPtr& b2, 
 			VertexData* targetVertexData);
+
+        /** Performs a software vertex pose blend, of the kind used for
+            morph animation although it can be used for other purposes. 
+        @remarks
+			This function will apply a weighted offset to the positions in the 
+			incoming vertex data (therefore this is a read/write operation, and 
+			if you expect to call it more than once with the same data, then
+			you would be best to suppress hardware uploads of the position buffer
+			for the duration)
+        @param weight Parametric weight to scale the offsets by
+		@param vertexOffsetMap Potentially sparse map of vertex index -> offset
+		@param targetVertexData VertexData destination; assumed to have a separate position
+			buffer already bound, and the number of vertices must agree with the
+			number in start and end
+		*/
+		static void softwareVertexPoseBlend(Real weight, 
+			const std::map<size_t, Vector3>& vertexOffsetMap,
+			VertexData* targetVertexData);
         /** Gets a reference to the optional name assignments of the SubMeshes. */
         const SubMeshNameMap& getSubMeshNameMap(void) const { return mSubMeshNameMap; }
 
@@ -637,27 +661,31 @@ namespace Ogre {
         */
         bool getAutoBuildEdgeLists(void) const { return mAutoBuildEdgeLists; }
 
-        /** Creates a new Animation object for morph animating this mesh. 
+		/** Gets the type of vertex animation the shared vertex data of this mesh supports.
+		*/
+		virtual VertexAnimationType getSharedVertexDataAnimationType(void) const;
+
+		/** Creates a new Animation object for vertex animating this mesh. 
         @param name The name of this animation
         @param length The length of the animation in seconds
         */
         virtual Animation* createAnimation(const String& name, Real length);
 
-        /** Returns the named morph Animation object. 
+        /** Returns the named vertex Animation object. 
 		@param name The name of the animation
 		*/
         virtual Animation* getAnimation(const String& name) const;
 
-		/** Internal access to the named morph Animation object - returns null 
+		/** Internal access to the named vertex Animation object - returns null 
 			if it does not exist. 
 		@param name The name of the animation
 		*/
 		virtual Animation* _getAnimationImpl(const String& name) const;
 
-		/** Returns whether this mesh contains the named morph animation. */
+		/** Returns whether this mesh contains the named vertex animation. */
 		virtual bool hasAnimation(const String& name);
 
-        /** Removes a morph Animation from this mesh. */
+        /** Removes vertex Animation from this mesh. */
         virtual void removeAnimation(const String& name);
 
 		/** Gets the number of morph animations in this mesh. */
@@ -688,7 +716,13 @@ namespace Ogre {
         */
   		void updateMaterialForAllSubMeshes(void);
 
-
+		/** Internal method which, if animation types have not been determined,
+			scans any vertex animations and determines the type for each set of
+			vertex data (cannot have 2 different types).
+		*/
+		void _determineAnimationTypes(void) const;
+		/** Are the derived animation types out of date? */
+		bool _getAnimationTypesDirty(void) const { return mAnimationTypesDirty; }
 
 
     };

@@ -30,6 +30,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreLogManager.h"
 #include "OgreHardwareBufferManager.h"
 #include "OgreMesh.h"
+#include "OgreException.h"
 
 namespace Ogre {
 
@@ -590,78 +591,163 @@ namespace Ogre {
 		return static_cast<TransformKeyFrame*>(getKeyFrame(index));
 	}
 	//--------------------------------------------------------------------------
-	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, unsigned short handle)
-		: AnimationTrack(parent, handle)
+	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, 
+		unsigned short handle, VertexAnimationType animType)
+		: AnimationTrack(parent, handle), mAnimationType(animType)
 	{
 	}
 	//--------------------------------------------------------------------------
 	VertexAnimationTrack::VertexAnimationTrack(Animation* parent, unsigned short handle, 
-		VertexData* targetData, TargetMode target)
-		: AnimationTrack(parent, handle), mTargetVertexData(targetData), mTargetMode(target)
+		VertexAnimationType animType, VertexData* targetData, TargetMode target)
+		: AnimationTrack(parent, handle), mAnimationType(animType), 
+		mTargetVertexData(targetData), mTargetMode(target)
 	{
 	}
 	//--------------------------------------------------------------------------
-	VertexKeyFrame* VertexAnimationTrack::createVertexKeyFrame(Real timePos)
+	VertexMorphKeyFrame* VertexAnimationTrack::createVertexMorphKeyFrame(Real timePos)
 	{
-		return static_cast<VertexKeyFrame*>(createKeyFrame(timePos));
+		if (mAnimationType != VAT_MORPH)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Morph keyframes can only be created on vertex tracks of type morph.",
+				"VertexAnimationTrack::createVertexMorphKeyFrame");
+		}
+		return static_cast<VertexMorphKeyFrame*>(createKeyFrame(timePos));
+	}
+	//--------------------------------------------------------------------------
+	VertexPoseKeyFrame* VertexAnimationTrack::createVertexPoseKeyFrame(void)
+	{
+		if (mAnimationType != VAT_POSE)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Pose keyframes can only be created on vertex tracks of type pose.",
+				"VertexAnimationTrack::createVertexPoseKeyFrame");
+		}
+		if (!mKeyFrames.empty())
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Pose tracks can only have one keyframe.",
+				"VertexAnimationTrack::createVertexPoseKeyFrame");
+		}
+		return static_cast<VertexPoseKeyFrame*>(createKeyFrame(0.0f));
 	}
 	//--------------------------------------------------------------------------
 	void VertexAnimationTrack::apply(Real timePos, Real weight, bool accumulate, 
 		Real scale)
 	{
-		applyToVertexData(mTargetVertexData, timePos, weight, accumulate, scale);
+		applyToVertexData(mTargetVertexData, timePos, weight);
 	}
 	//--------------------------------------------------------------------------
 	void VertexAnimationTrack::applyToVertexData(VertexData* data, 
-		Real timePos, Real weight, bool accumulate, Real scale)
+		Real timePos, Real weight, ushort animIndex)
 	{
-		// Get keyframes
-		KeyFrame *kf1, *kf2; 
-		Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
-
-		VertexKeyFrame* vkf1 = static_cast<VertexKeyFrame*>(kf1);
-		VertexKeyFrame* vkf2 = static_cast<VertexKeyFrame*>(kf2);
-
-		if (mTargetMode == TM_HARDWARE)
+		if (mAnimationType == VAT_MORPH)
 		{
-			// If target mode is hardware, need to bind our 2 keyframe buffers, 
-			// one to main pos, one to morph target texcoord 
-			if (!data->hwMorphTargetElement)
-			{
-				data->allocatehwMorphTargetElement();
-			}
-			// no use for TempBlendedBufferInfo here btw
-			// NB we assume that position buffer is unshared
-			// VertexDeclaration::getAutoOrganisedDeclaration should see to that
-			const VertexElement* posElem = 
-				data->vertexDeclaration->findElementBySemantic(VES_POSITION);
-			// Set keyframe1 data as original position
-			data->vertexBufferBinding->setBinding(
-				posElem->getSource(), vkf1->getVertexBuffer());
-			// Set keyframe2 data as derived
-			data->vertexBufferBinding->setBinding(
-				data->hwMorphTargetElement->getSource(), vkf2->getVertexBuffer());
-			// save T for use later
-			data->hwMorphParametric = t;
+			// Get keyframes
+			KeyFrame *kf1, *kf2; 
+			Real t = getKeyFramesAtTime(timePos, &kf1, &kf2);
 
+			VertexMorphKeyFrame* vkf1 = static_cast<VertexMorphKeyFrame*>(kf1);
+			VertexMorphKeyFrame* vkf2 = static_cast<VertexMorphKeyFrame*>(kf2);
+
+			if (mTargetMode == TM_HARDWARE)
+			{
+				// If target mode is hardware, need to bind our 2 keyframe buffers, 
+				// one to main pos, one to morph target texcoord 
+				assert(!data->hwAnimationDataList.empty() && 
+					"Haven't set up hardware vertex animation elements!");
+
+				// no use for TempBlendedBufferInfo here btw
+				// NB we assume that position buffer is unshared
+				// VertexDeclaration::getAutoOrganisedDeclaration should see to that
+				const VertexElement* posElem = 
+					data->vertexDeclaration->findElementBySemantic(VES_POSITION);
+				// Set keyframe1 data as original position
+				data->vertexBufferBinding->setBinding(
+					posElem->getSource(), vkf1->getVertexBuffer());
+				// Set keyframe2 data as derived
+				data->vertexBufferBinding->setBinding(
+					data->hwAnimationDataList[0].targetVertexElement->getSource(), 
+					vkf2->getVertexBuffer());
+				// save T for use later
+				data->hwAnimationDataList[0].parametric = t;
+
+			}
+			else
+			{
+				// If target mode is software, need to software interpolate each vertex
+
+				Mesh::softwareVertexMorph(
+					t, vkf1->getVertexBuffer(), vkf2->getVertexBuffer(), data);
+			}
 		}
 		else
 		{
-			// If target mode is software, need to software interpolate each vertex
+			// Pose
 
-			Mesh::softwareVertexMorph(
-				t, vkf1->getVertexBuffer(), vkf2->getVertexBuffer(), data);
+			// Time is irrelevant, only weight matters
+			VertexPoseKeyFrame* kf = getVertexPoseKeyFrame();
+
+			if (mTargetMode == TM_HARDWARE)
+			{
+				// Hardware
+				// If target mode is hardware, need to bind our pose buffers, 
+				// one to main pos, one to morph target texcoord 
+				assert(!data->hwAnimationDataList.empty() && 
+					"Haven't set up hardware vertex animation elements!");
+				// no use for TempBlendedBufferInfo here btw
+				// Set pose target as required
+				VertexData::HardwareAnimationData& animData = data->hwAnimationDataList[animIndex];
+				data->vertexBufferBinding->setBinding(
+					animData.targetVertexElement->getSource(), 
+					kf->_getHardwareVertexBuffer(data->vertexCount));
+				// save weight in parametric
+				animData.parametric = weight;
+			}
+			else
+			{
+				// Software
+				Mesh::softwareVertexPoseBlend(weight, kf->getVertexOffsets(), data);
+			}
+
 		}
 	}
 	//--------------------------------------------------------------------------
-	VertexKeyFrame* VertexAnimationTrack::getVertexKeyFrame(unsigned short index) const
+	VertexMorphKeyFrame* VertexAnimationTrack::getVertexMorphKeyFrame(unsigned short index) const
 	{
-		return static_cast<VertexKeyFrame*>(getKeyFrame(index));
+		if (mAnimationType != VAT_MORPH)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Morph keyframes can only be created on vertex tracks of type morph.",
+				"VertexAnimationTrack::getVertexMorphKeyFrame");
+		}
+
+		return static_cast<VertexMorphKeyFrame*>(getKeyFrame(index));
+	}
+	//--------------------------------------------------------------------------
+	VertexPoseKeyFrame* VertexAnimationTrack::getVertexPoseKeyFrame(void) const
+	{
+		if (mAnimationType != VAT_POSE)
+		{
+			OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+				"Pose keyframes can only be created on vertex tracks of type pose.",
+				"VertexAnimationTrack::getVertexPoseKeyFrame");
+		}
+
+		return static_cast<VertexPoseKeyFrame*>(getKeyFrame(0));
 	}
 	//--------------------------------------------------------------------------
 	KeyFrame* VertexAnimationTrack::createKeyFrameImpl(Real time)
 	{
-		return new VertexKeyFrame(this, time);
+		switch(mAnimationType)
+		{
+		default:
+		case VAT_MORPH:
+            return new VertexMorphKeyFrame(this, time);
+		case VAT_POSE:
+			return new VertexPoseKeyFrame(this);
+		};
+
 	}
 
 	

@@ -179,12 +179,9 @@ namespace Ogre {
 		}
 
 		// Write morph animation 
-		for (unsigned short a = 0; a < pMesh->getNumAnimations(); ++a)
+		if (pMesh->hasVertexAnimation())
 		{
-			Animation* anim = pMesh->getAnimation(a);
-			LogManager::getSingleton().logMessage("Exporting animation " + anim->getName());
-			writeAnimation(anim);
-			LogManager::getSingleton().logMessage("Animation exported.");
+			writeAnimations(pMesh);
 		}
     }
     //---------------------------------------------------------------------
@@ -765,7 +762,7 @@ namespace Ogre {
                  streamID == M_MESH_BOUNDS ||
 				 streamID == M_SUBMESH_NAME_TABLE ||
 				 streamID == M_EDGE_LISTS ||
-				 streamID == M_ANIMATION))
+				 streamID == M_ANIMATIONS))
             {
                 switch(streamID)
                 {
@@ -811,8 +808,8 @@ namespace Ogre {
                 case M_EDGE_LISTS:
                     readEdgeList(stream, pMesh);
                     break;
-				case M_ANIMATION:
-					readAnimation(stream, pMesh);
+				case M_ANIMATIONS:
+					readAnimations(stream, pMesh);
 					break;
 					
                 }
@@ -1750,6 +1747,19 @@ namespace Ogre {
         pMesh->mEdgeListsBuilt = true;
 	}
 	//---------------------------------------------------------------------
+	size_t MeshSerializerImpl::calcAnimationsSize(const Mesh* pMesh)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+
+		for (unsigned short a = 0; a < pMesh->getNumAnimations(); ++a)
+		{
+			Animation* anim = pMesh->getAnimation(a);
+			size += calcAnimationSize(anim);
+		}
+		return size;
+
+	}
+	//---------------------------------------------------------------------
 	size_t MeshSerializerImpl::calcAnimationSize(const Animation* anim)
 	{
 		size_t size = STREAM_OVERHEAD_SIZE;
@@ -1772,18 +1782,28 @@ namespace Ogre {
 	size_t MeshSerializerImpl::calcAnimationTrackSize(const VertexAnimationTrack* track)
 	{
 		size_t size = STREAM_OVERHEAD_SIZE;
+		// uint16 type
+		size += sizeof(uint16);
 		// unsigned short target		// 0 for shared geometry, 
 		size += sizeof(unsigned short);
 
-		for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
+		if (track->getAnimationType() == VAT_MORPH)
 		{
-			VertexKeyFrame* kf = track->getVertexKeyFrame(i);
-			size += calcKeyframeSize(kf, track->getAssociatedVertexData()->vertexCount);
+			for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
+			{
+				VertexMorphKeyFrame* kf = track->getVertexMorphKeyFrame(i);
+				size += calcMorphKeyframeSize(kf, track->getAssociatedVertexData()->vertexCount);
+			}
+		}
+		else
+		{
+			VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame();
+			size += calcPoseKeyframeSize(kf);
 		}
 		return size;
 	}
 	//---------------------------------------------------------------------
-	size_t MeshSerializerImpl::calcKeyframeSize(const VertexKeyFrame* kf, 
+	size_t MeshSerializerImpl::calcMorphKeyframeSize(const VertexMorphKeyFrame* kf, 
 		size_t vertexCount)
 	{
 		size_t size = STREAM_OVERHEAD_SIZE;
@@ -1795,6 +1815,42 @@ namespace Ogre {
 		size += sizeof(float) * 3 * vertexCount;
 
 		return size;
+	}
+	//---------------------------------------------------------------------
+	size_t MeshSerializerImpl::calcPoseKeyframeSize(const VertexPoseKeyFrame* kf)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+
+		size_t eachVertexSize = calcPoseVertexSize();
+
+		size += eachVertexSize * kf->getVertexOffsets().size();
+
+		return size;
+
+	}
+	//---------------------------------------------------------------------
+	size_t MeshSerializerImpl::calcPoseVertexSize(void)
+	{
+		size_t size = STREAM_OVERHEAD_SIZE;
+		// unsigned long vertexIndex
+		size += sizeof(uint32);
+		// float xoffset, yoffset, zoffset
+		size += sizeof(float) * 3;
+
+		return size;
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::writeAnimations(const Mesh* pMesh)
+	{
+		writeChunkHeader(M_ANIMATIONS, calcAnimationsSize(pMesh));
+
+		for (unsigned short a = 0; a < pMesh->getNumAnimations(); ++a)
+		{
+			Animation* anim = pMesh->getAnimation(a);
+			LogManager::getSingleton().logMessage("Exporting animation " + anim->getName());
+			writeAnimation(anim);
+			LogManager::getSingleton().logMessage("Animation exported.");
+		}
 	}
 	//---------------------------------------------------------------------
 	void MeshSerializerImpl::writeAnimation(const Animation* anim)
@@ -1818,21 +1874,31 @@ namespace Ogre {
 	void MeshSerializerImpl::writeAnimationTrack(const VertexAnimationTrack* track)
 	{
 		writeChunkHeader(M_ANIMATION_TRACK, calcAnimationTrackSize(track));
+		// unsigned short type			// 1 == morph, 2 == pose
+		uint16 animType = (uint16)track->getAnimationType();
+		writeShorts(&animType, 1);
 		// unsigned short target
 		uint16 target = track->getHandle();
 		writeShorts(&target, 1);
 
-		for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
+		if (track->getAnimationType() == VAT_MORPH)
 		{
-			VertexKeyFrame* kf = track->getVertexKeyFrame(i);
-			writeKeyframe(kf, track->getAssociatedVertexData()->vertexCount);
+			for (unsigned short i = 0; i < track->getNumKeyFrames(); ++i)
+			{
+				VertexMorphKeyFrame* kf = track->getVertexMorphKeyFrame(i);
+				writeMorphKeyframe(kf, track->getAssociatedVertexData()->vertexCount);
+			}
+		}
+		else // VAT_POSE
+		{
+			writePoseKeyframe(track->getVertexPoseKeyFrame());
 		}
 
 	}
 	//---------------------------------------------------------------------
-	void MeshSerializerImpl::writeKeyframe(const VertexKeyFrame* kf, size_t vertexCount)
+	void MeshSerializerImpl::writeMorphKeyframe(const VertexMorphKeyFrame* kf, size_t vertexCount)
 	{
-		writeChunkHeader(M_ANIMATION_KEYFRAME, calcKeyframeSize(kf, vertexCount));
+		writeChunkHeader(M_ANIMATION_MORPH_KEYFRAME, calcMorphKeyframeSize(kf, vertexCount));
 		// float time
 		float timePos = kf->getTime();
 		writeFloats(&timePos, 1);
@@ -1841,6 +1907,60 @@ namespace Ogre {
 			kf->getVertexBuffer()->lock(HardwareBuffer::HBL_READ_ONLY));
 		writeFloats(pSrc, vertexCount * 3);
 		kf->getVertexBuffer()->unlock();
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::writePoseKeyframe(const VertexPoseKeyFrame* kf)
+	{
+		writeChunkHeader(M_ANIMATION_POSE_KEYFRAME, calcPoseKeyframeSize(kf));
+		
+		size_t vertexSize = calcPoseVertexSize();
+		VertexPoseKeyFrame::ConstVertexOffsetIterator vit = kf->getVertexOffsetIterator();
+		while (vit.hasMoreElements())
+		{
+			uint32 vertexIndex = (uint32)vit.peekNextKey();
+			Vector3 offset = vit.getNext();
+			writeChunkHeader(M_ANIMATION_POSE_VERTEX, vertexSize);
+			// unsigned long vertexIndex
+			writeInts(&vertexIndex, 1);
+			// float xoffset, yoffset, zoffset
+			writeFloats(offset.val, 3);
+		}
+
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::readAnimations(DataStreamPtr& stream, Mesh* pMesh)
+	{
+		unsigned short streamID;
+
+		// Find all substreams 
+		if (!stream->eof())
+		{
+			streamID = readChunk(stream);
+			while(!stream->eof() &&
+				(streamID == M_ANIMATION))
+			{
+				switch(streamID)
+				{
+				case M_ANIMATION:
+					readAnimation(stream, pMesh);
+					break;
+
+				}
+
+				if (!stream->eof())
+				{
+					streamID = readChunk(stream);
+				}
+
+			}
+			if (!stream->eof())
+			{
+				// Backpedal back to start of stream
+				stream->skip(-STREAM_OVERHEAD_SIZE);
+			}
+		}
+
+
 	}
 	//---------------------------------------------------------------------
 	void MeshSerializerImpl::readAnimation(DataStreamPtr& stream, Mesh* pMesh)
@@ -1886,12 +2006,17 @@ namespace Ogre {
 	void MeshSerializerImpl::readAnimationTrack(DataStreamPtr& stream, 
 		Animation* anim, Mesh* pMesh)
 	{
+		// ushort type
+		uint16 inAnimType;
+		readShorts(stream, &inAnimType, 1);
+		VertexAnimationType animType = (VertexAnimationType)inAnimType;
+
 		// unsigned short target
 		uint16 target;
 		readShorts(stream, &target, 1);
 		
 		VertexAnimationTrack* track = anim->createVertexTrack(target, 
-			pMesh->getVertexDataByTrackHandle(target));
+			pMesh->getVertexDataByTrackHandle(target), animType);
 
 		// keyframes
 		unsigned short streamID;
@@ -1900,12 +2025,16 @@ namespace Ogre {
 		{
 			streamID = readChunk(stream);
 			while(!stream->eof() &&
-				streamID == M_ANIMATION_KEYFRAME)
+				(streamID == M_ANIMATION_MORPH_KEYFRAME ||
+				 streamID == M_ANIMATION_POSE_KEYFRAME))
 			{
 				switch(streamID)
 				{
-				case M_ANIMATION_KEYFRAME:
-					readKeyFrame(stream, track);
+				case M_ANIMATION_MORPH_KEYFRAME:
+					readMorphKeyFrame(stream, track);
+					break;
+				case M_ANIMATION_POSE_KEYFRAME:
+					readPoseKeyFrame(stream, track);
 					break;
 				};
 				if (!stream->eof())
@@ -1923,13 +2052,13 @@ namespace Ogre {
 
 	}
 	//---------------------------------------------------------------------
-	void MeshSerializerImpl::readKeyFrame(DataStreamPtr& stream, VertexAnimationTrack* track)
+	void MeshSerializerImpl::readMorphKeyFrame(DataStreamPtr& stream, VertexAnimationTrack* track)
 	{
 		// float time
 		float timePos;
 		readFloats(stream, &timePos, 1);
 
-		VertexKeyFrame* kf = track->createVertexKeyFrame(timePos);
+		VertexMorphKeyFrame* kf = track->createVertexMorphKeyFrame(timePos);
 
 		// Create buffer, allow read and use shadow buffer
 		size_t vertexCount = track->getAssociatedVertexData()->vertexCount;
@@ -1943,6 +2072,49 @@ namespace Ogre {
 		readFloats(stream, pDst, vertexCount * 3);
 		vbuf->unlock();
 		kf->setVertexBuffer(vbuf);
+
+	}
+	//---------------------------------------------------------------------
+	void MeshSerializerImpl::readPoseKeyFrame(DataStreamPtr& stream, VertexAnimationTrack* track)
+	{
+		// Create keyframe
+		VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame();
+
+		unsigned short streamID;
+
+		if (!stream->eof())
+		{
+			streamID = readChunk(stream);
+			while(!stream->eof() &&
+				streamID == M_ANIMATION_POSE_VERTEX)
+			{
+				switch(streamID)
+				{
+				case M_ANIMATION_POSE_VERTEX:
+					// create vertex offset
+					uint32 vertIndex;
+					Vector3 offset;
+					// unsigned long vertexIndex
+					readInts(stream, &vertIndex, 1);
+					// float xoffset, yoffset, zoffset
+					readFloats(stream, offset.val, 3);
+
+					kf->addVertex(vertIndex, offset);
+
+					break;
+				};
+				if (!stream->eof())
+				{
+					streamID = readChunk(stream);
+				}
+
+			}
+			if (!stream->eof())
+			{
+				// Backpedal back to start of stream
+				stream->skip(-STREAM_OVERHEAD_SIZE);
+			}
+		}
 
 	}
 	//---------------------------------------------------------------------

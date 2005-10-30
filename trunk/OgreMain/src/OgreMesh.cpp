@@ -36,6 +36,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreMeshManager.h"
 #include "OgreEdgeListBuilder.h"
 #include "OgreAnimation.h"
+#include "OgreAnimationTrack.h"
 
 namespace Ogre {
     //-----------------------------------------------------------------------
@@ -91,7 +92,9 @@ namespace Ogre {
         mPreparedForShadowVolumes(false),
         mEdgeListsBuilt(false),
         mAutoBuildEdgeLists(true), // will be set to false by serializers of 1.30 and above
-        sharedVertexData(0)
+		mSharedVertexDataAnimationType(VAT_NONE),
+		mAnimationTypesDirty(true),
+		sharedVertexData(0)
     {
 
         setSkeletonName("");
@@ -749,7 +752,7 @@ namespace Ogre {
 						mMeshLodUsageList[index].manualMesh->getEdgeList(0);
 				}
 			}
-			catch (Exception& e)
+			catch (Exception& )
 			{	
 				StringUtil::StrStreamType str;
 				str << "Error while loading manual LOD level " 
@@ -1788,6 +1791,46 @@ namespace Ogre {
 		b1->unlock();
 		b2->unlock();
 	}
+	//---------------------------------------------------------------------
+	void Mesh::softwareVertexPoseBlend(Real weight, 
+		const std::map<size_t, Vector3>& vertexOffsetMap,
+		VertexData* targetVertexData)
+	{
+		// Do nothing if no weight
+		if (weight == 0.0f)
+			return;
+
+		const VertexElement* posElem = 
+			targetVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		assert(posElem);
+		HardwareVertexBufferSharedPtr destBuf = 
+			targetVertexData->vertexBufferBinding->getBuffer(
+			posElem->getSource());
+		assert(posElem->getSize() == destBuf->getVertexSize() && 
+			"Positions must be in a buffer on their own for pose blending");
+
+		// Have to lock in normal mode since this is incremental
+		float* pBase = static_cast<float*>(
+			destBuf->lock(HardwareBuffer::HBL_NORMAL));
+
+		// Iterate over affected vertices
+		for (std::map<size_t, Vector3>::const_iterator i = vertexOffsetMap.begin();
+			i != vertexOffsetMap.end(); ++i)
+		{
+			// Adjust pointer
+			float *pdst = pBase + i->first*3;
+			
+			*pdst = *pdst + (i->second.x * weight);
+			++pdst;
+			*pdst = *pdst + (i->second.y * weight);
+			++pdst;
+			*pdst = *pdst + (i->second.z * weight);
+			++pdst;
+
+		}
+
+		destBuf->unlock();
+	}
     //---------------------------------------------------------------------
 	size_t Mesh::calculateSize(void) const
 	{
@@ -1827,9 +1870,82 @@ namespace Ogre {
 		return ret;
 	}
 	//-----------------------------------------------------------------------------
-	bool Mesh::hasMorphAnimation(void) const
+	bool Mesh::hasVertexAnimation(void) const
 	{
 		return !mAnimationsList.empty();
+	}
+	//---------------------------------------------------------------------
+	VertexAnimationType Mesh::getSharedVertexDataAnimationType(void) const
+	{
+		if (mAnimationTypesDirty)
+		{
+			_determineAnimationTypes();
+		}
+
+		return mSharedVertexDataAnimationType;
+	}
+	//---------------------------------------------------------------------
+	void Mesh::_determineAnimationTypes(void) const
+	{
+		// Don't check flag here; since detail checks on track changes are not
+		// done, allow caller to force if they need to
+
+		// Initialise all types to nothing
+		mSharedVertexDataAnimationType = VAT_NONE;
+		for (SubMeshList::const_iterator i = mSubMeshList.begin();
+			i != mSubMeshList.end(); ++i)
+		{
+			(*i)->mVertexAnimationType = VAT_NONE;
+		}
+
+		// Scan all animations and determine the type of animation tracks
+		// relating to each vertex data
+		for(AnimationList::const_iterator ai = mAnimationsList.begin();
+			ai != mAnimationsList.end(); ++ai)
+		{
+			Animation* anim = ai->second;
+			Animation::VertexTrackIterator vit = anim->getVertexTrackIterator();
+			while (vit.hasMoreElements())
+			{
+				VertexAnimationTrack* track = vit.getNext();
+				ushort handle = track->getHandle();
+				if (handle == 0)
+				{
+					// shared data
+					if (mSharedVertexDataAnimationType != VAT_NONE && 
+						mSharedVertexDataAnimationType != track->getAnimationType())
+					{
+						// Mixing of morph and pose animation on same data is not allowed
+						OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+							"Animation tracks for shared vertex data on mesh " 
+							+ mName + " try to mix vertex animation types, which is "
+							"not allowed.", 
+							"Mesh::_determineAnimationTypes");
+					}
+					mSharedVertexDataAnimationType = track->getAnimationType();
+				}
+				else
+				{
+					// submesh index (-1)
+					SubMesh* sm = getSubMesh(handle-1);
+					if (sm->mVertexAnimationType != VAT_NONE && 
+						sm->mVertexAnimationType != track->getAnimationType())
+					{
+						// Mixing of morph and pose animation on same data is not allowed
+						OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
+							"Animation tracks for dedicated vertex data " 
+							+ StringConverter::toString(handle-1) + " on mesh " 
+							+ mName + " try to mix vertex animation types, which is "
+							"not allowed.", 
+							"Mesh::_determineAnimationTypes");
+					}
+					sm->mVertexAnimationType = track->getAnimationType();
+				
+				}
+			}
+		}
+
+		mAnimationTypesDirty = false;
 	}
 	//---------------------------------------------------------------------
 	Animation* Mesh::createAnimation(const String& name, Real length)
@@ -1847,6 +1963,9 @@ namespace Ogre {
 
 		// Add to list
 		mAnimationsList[name] = ret;
+
+		// Mark animation types dirty
+		mAnimationTypesDirty = true;
 
 		return ret;
 
@@ -1916,6 +2035,7 @@ namespace Ogre {
 
 		mAnimationsList.erase(i);
 
+		mAnimationTypesDirty = true;
 	}
 	//---------------------------------------------------------------------
 	void Mesh::removeAllAnimations(void)
@@ -1926,6 +2046,7 @@ namespace Ogre {
 			delete i->second;
 		}
 		mAnimationsList.clear();
+		mAnimationTypesDirty = true;
 	}
 	//---------------------------------------------------------------------
 	VertexData* Mesh::getVertexDataByTrackHandle(unsigned short handle)

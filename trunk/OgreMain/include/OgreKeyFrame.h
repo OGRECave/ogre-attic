@@ -129,13 +129,15 @@ namespace Ogre
 
 
 
-	/** Specialised KeyFrame which stores vertex positions. */
-	class _OgreExport VertexKeyFrame : public KeyFrame
+	/** Specialised KeyFrame which stores absolute vertex positions for a complete
+		buffer, designed to be interpolated with other keys in the same track. 
+	*/
+	class _OgreExport VertexMorphKeyFrame : public KeyFrame
 	{
 	public:
 		/** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
-		VertexKeyFrame(const AnimationTrack* parent, Real time);
-		~VertexKeyFrame() {}
+		VertexMorphKeyFrame(const AnimationTrack* parent, Real time);
+		~VertexMorphKeyFrame() {}
 		/** Sets the vertex buffer containing the source positions for this keyframe. 
 		@remarks    
 			We assume that positions are the first 3 float elements in this buffer,
@@ -149,6 +151,54 @@ namespace Ogre
 		const HardwareVertexBufferSharedPtr& getVertexBuffer(void) const;
 
 	protected:
+		HardwareVertexBufferSharedPtr mBuffer;
+
+	};
+
+	/** Specialised KeyFrame which stores offsets for a subset of the vertices 
+		in a buffer to provide a blendable pose, designed to be interpolated with
+		other animations.
+	*/
+	class _OgreExport VertexPoseKeyFrame : public KeyFrame
+	{
+	public:
+		/** Default constructor, you should not call this but use AnimationTrack::createKeyFrame instead. */
+		VertexPoseKeyFrame(const AnimationTrack* parent);
+		~VertexPoseKeyFrame() {}
+
+		/// A collection of vertex offsets based on the vertex index
+		typedef std::map<size_t, Vector3> VertexOffsetMap;
+		/// An iterator over the vertex offsets
+		typedef MapIterator<VertexOffsetMap> VertexOffsetIterator;
+		/// An iterator over the vertex offsets
+		typedef ConstMapIterator<VertexOffsetMap> ConstVertexOffsetIterator;
+
+		/** Adds an offset to a vertex for this pose. 
+		@param index The vertex index
+		@param offset The position offset for this pose
+		*/
+		void addVertex(size_t index, const Vector3& offset);
+
+		/** Remove a vertex offset. */
+		void removeVertex(size_t index);
+
+		/** Clear all vertex offsets. */
+		void clearVertexOffsets(void);
+
+		/** Gets an iterator over all the vertex offsets. */
+		ConstVertexOffsetIterator getVertexOffsetIterator(void) const;
+		/** Gets an iterator over all the vertex offsets. */
+		VertexOffsetIterator getVertexOffsetIterator(void);
+		/** Gets a const reference to the vertex offsets. */
+		const VertexOffsetMap& getVertexOffsets(void) const { return mVertexOffsetMap; }
+
+		/** Get a hardware vertex buffer version of the vertex offsets. */
+		const HardwareVertexBufferSharedPtr& _getHardwareVertexBuffer(size_t numVertices);
+
+	protected:
+		/// Primary storage, sparse vertex use
+		VertexOffsetMap mVertexOffsetMap;
+		/// Derived hardware buffer, covers all vertices
 		HardwareVertexBufferSharedPtr mBuffer;
 
 	};

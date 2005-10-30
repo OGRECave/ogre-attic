@@ -103,14 +103,14 @@ namespace Ogre {
 		TempBlendedBufferInfo mTempSkelAnimInfo;
 		/// Vertex data details for software skeletal anim of shared geometry
 		VertexData* mSkelAnimVertexData;
-		/// Temp buffer details for software morph anim of shared geometry
-		TempBlendedBufferInfo mTempMorphAnimInfo;
-		/// Vertex data details for software morph anim of shared geometry
-		VertexData* mSoftwareMorphAnimVertexData;
-		/// Vertex data details for hardware morph anim of shared geometry
+		/// Temp buffer details for software vertex anim of shared geometry
+		TempBlendedBufferInfo mTempVertexAnimInfo;
+		/// Vertex data details for software vertex anim of shared geometry
+		VertexData* mSoftwareVertexAnimVertexData;
+		/// Vertex data details for hardware vertex anim of shared geometry
 		/// - separate since we need to s/w anim for shadows whilst still altering
 		///   the vertex data for hardware morphing (pos2 binding)
-		VertexData* mHardwareMorphAnimVertexData;
+		VertexData* mHardwareVertexAnimVertexData;
 
 		/** Internal method - given vertex data which could be from the Mesh or 
 		any submesh, finds the temporary blend copy. */
@@ -159,6 +159,8 @@ namespace Ogre {
 		bool mDisplaySkeleton;
 		/// Flag indicating whether hardware animation is supported by this entities materials
 		bool mHardwareAnimation;
+		/// Number of hardware poses supported by materials
+		ushort mHardwarePoseCount;
 		/// Flag indicating whether we have a vertex program in use on any of our subentities
 		bool mVertexProgramInUse;
         /// Counter indicating number of requests for software skinning.
@@ -214,8 +216,13 @@ namespace Ogre {
 		/// Trigger reevaluation of the kind of vertex processing in use
 		void reevaluateVertexProcessing(void);
 
-		/// Apply morph animation
-		void applyMorphAnimation(bool hardwareAnimation, bool stencilShadows);
+		/// Apply vertex animation
+		void applyVertexAnimation(bool hardwareAnimation, bool stencilShadows);
+		/// Initialise the hardware animation elements for given vertex data
+		void initHardwareAnimationElements(VertexData* vdata, 
+			ushort numberOfElements);
+		/// Are software vertex animation temp buffers bound?
+		bool tempVertexAnimBuffersBound(void) const;
 
 	public:
 		/// Contains the child objects (attached to bones) indexed by name
@@ -558,8 +565,10 @@ namespace Ogre {
 		*/
 		void shareSkeletonInstanceWith(Entity* entity);
 
-		/** Returns whether or not this entity is morph animated. */
-		bool hasMorphAnimation(void) const;
+		/** Returns whether or not this entity is either morph or pose animated. 
+		*/
+		bool hasVertexAnimation(void) const;
+
 
 		/** Stops sharing the SkeletonInstance with other entities.
 		*/
@@ -602,12 +611,12 @@ namespace Ogre {
 		for entities which are software skinned. 
 		*/
 		VertexData* _getSkelAnimVertexData(void);
-		/** Advanced method to get the temporarily blended software morph vertex information
+		/** Advanced method to get the temporarily blended software vertex animation information
 		*/
-		VertexData* _getSoftwareMorphAnimVertexData(void);
+		VertexData* _getSoftwareVertexAnimVertexData(void);
 		/** Advanced method to get the hardware morph vertex information
 		*/
-		VertexData* _getHardwareMorphAnimVertexData(void);
+		VertexData* _getHardwareVertexAnimVertexData(void);
 		/** Advanced method to get the temp buffer information for software 
 		skeletal animation.
 		*/
@@ -615,7 +624,7 @@ namespace Ogre {
 		/** Advanced method to get the temp buffer information for software 
 		morph animation.
 		*/
-		TempBlendedBufferInfo* _getMorphAnimTempBufferInfo(void);
+		TempBlendedBufferInfo* _getVertexAnimTempBufferInfo(void);
 		/// Override to return specific type flag
 		uint32 getTypeFlags(void) const;
 		/// Retrieve the VertexData which should be used for GPU binding
@@ -630,7 +639,7 @@ namespace Ogre {
 			BIND_HARDWARE_MORPH
 		};
 		/// Choose which vertex data to bind to the renderer
-		VertexDataBindChoice chooseVertexDataForBinding(void) const;
+		VertexDataBindChoice chooseVertexDataForBinding(bool hasVertexAnim) const;
 
 	};
 

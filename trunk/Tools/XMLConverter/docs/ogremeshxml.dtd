@@ -101,16 +101,32 @@
 <!ELEMENT animation (tracks)>
 <!ATTLIST animation
 	name	CDATA	#REQUIRED 
-	length  CDATA   #REQUIRED>
+	length  CDATA   #REQUIRED >
 <!ELEMENT tracks (track+)>
 <!ELEMENT track (keyframes)>
+<!-- Morph animation is a keyframed set of absolute vertex positions. Cannot
+     be blended with other morph animations or pose animation.
+     Pose animation is a single pose per track, in relative vertex offsets, 
+	 especially useful for facial animation.
+	 Can be blended with other poses but not with morph animation. -->
 <!ATTLIST track 
 	target	(mesh|submesh) #REQUIRED
-	index	CDATA	"0" >
-<!ELEMENT keyframes (keyframe)>
+	index	CDATA	"0"
+	type    (morph|pose) #REQUIRED>
+<!-- keyframes are applicable for morph tracks, pose for pose tracks -->
+<!ELEMENT keyframes (keyframe*,pose?)>
 <!ELEMENT keyframe (position+)>
 <!ATTLIST keyframe
 	time	CDATA	#REQUIRED >
+<!ELEMENT pose (poseoffset+) >
+<!-- poseoffset lists the vertices that change position, and by how much -->
+<!ELEMENT poseoffset EMPTY>
+<!ATTLIST poseoffset
+    index	CDATA	#REQUIRED
+	x		CDATA	#REQUIRED
+	y		CDATA	#REQUIRED
+	z		CDATA	#REQUIRED >
+	
 
 	
 				

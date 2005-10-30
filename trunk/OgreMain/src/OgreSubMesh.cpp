@@ -38,6 +38,7 @@ namespace Ogre {
         , vertexData(0)
         , mMatInitialised(false)
         , mBoneAssignmentsOutOfDate(false)
+		, mVertexAnimationType(VAT_NONE)
         , operationType(RenderOperation::OT_TRIANGLE_LIST)
     {
 		indexData = new IndexData();
@@ -212,7 +213,15 @@ namespace Ogre {
         mLodFaceList.clear();
 
     }
-
+	//---------------------------------------------------------------------
+	VertexAnimationType SubMesh::getVertexAnimationType(void) const
+	{
+		if(parent->_getAnimationTypesDirty())
+		{
+			parent->_determineAnimationTypes();
+		}
+		return mVertexAnimationType;
+	}
 
 
 }

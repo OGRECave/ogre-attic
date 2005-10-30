@@ -86,14 +86,16 @@ namespace Ogre {
         VertexData* mSkelAnimVertexData;
         /// Quick lookup of buffers
         TempBlendedBufferInfo mTempSkelAnimInfo;
-		/// Temp buffer details for software morph anim geometry
-		TempBlendedBufferInfo mTempMorphAnimInfo;
-		/// Vertex data details for software morph anim of shared geometry
-		VertexData* mSoftwareMorphAnimVertexData;
-		/// Vertex data details for hardware morph anim of shared geometry
+		/// Temp buffer details for software Vertex anim geometry
+		TempBlendedBufferInfo mTempVertexAnimInfo;
+		/// Vertex data details for software Vertex anim of shared geometry
+		VertexData* mSoftwareVertexAnimVertexData;
+		/// Vertex data details for hardware Vertex anim of shared geometry
 		/// - separate since we need to s/w anim for shadows whilst still altering
 		///   the vertex data for hardware morphing (pos2 binding)
-		VertexData* mHardwareMorphAnimVertexData;
+		VertexData* mHardwareVertexAnimVertexData;
+		/// Number of hardware blended poses supported by material
+		ushort mHardwarePoseCount;
 
         /** Internal method for preparing this Entity for use in animation. */
         void prepareTempBlendBuffers(void);
@@ -162,10 +164,10 @@ namespace Ogre {
 		VertexData* _getSkelAnimVertexData(void);
 		/** Advanced method to get the temporarily blended software morph vertex information
 		*/
-		VertexData* _getSoftwareMorphAnimVertexData(void);
+		VertexData* _getSoftwareVertexAnimVertexData(void);
 		/** Advanced method to get the hardware morph vertex information
 		*/
-		VertexData* _getHardwareMorphAnimVertexData(void);
+		VertexData* _getHardwareVertexAnimVertexData(void);
 		/** Advanced method to get the temp buffer information for software 
 		skeletal animation.
 		*/
@@ -173,7 +175,7 @@ namespace Ogre {
 		/** Advanced method to get the temp buffer information for software 
 		morph animation.
 		*/
-		TempBlendedBufferInfo* _getMorphAnimTempBufferInfo(void);
+		TempBlendedBufferInfo* _getVertexAnimTempBufferInfo(void);
 		/// Retrieve the VertexData which should be used for GPU binding
 		VertexData* getVertexDataForBinding(void);
 

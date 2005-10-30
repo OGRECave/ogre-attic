@@ -57,6 +57,7 @@ namespace Ogre {
 		String syntax;
         bool supportsSkeletalAnimation;
 		bool supportsMorphAnimation;
+		ushort supportsPoseAnimation; // number of simultaneous poses supported
 		std::map<String, String> customParameters;
 	};
     /** Struct for holding the script context while parsing. */

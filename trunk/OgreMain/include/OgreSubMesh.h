@@ -32,6 +32,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderOperation.h"
 #include "OgreVertexBoneAssignment.h"
 #include "OgreProgressiveMesh.h"
+#include "OgreAnimationTrack.h"
 
 namespace Ogre {
 
@@ -176,6 +177,10 @@ namespace Ogre {
         */
         bool updateMaterialUsingTextureAliases(void);
 
+		/** Get the type of any vertex animation used by dedicated geometry.
+		*/
+		VertexAnimationType getVertexAnimationType(void) const;
+
     protected:
 
         /// Name of the material this SubMesh uses.
@@ -191,6 +196,10 @@ namespace Ogre {
 
         /// Flag indicating that bone assignments need to be recompiled
         bool mBoneAssignmentsOutOfDate;
+
+		/// Type of vertex animation for dedicated vertex data (populated by Mesh)
+		mutable VertexAnimationType mVertexAnimationType;
+
 
         /// Internal method for removing LOD data
         void removeLodLevels(void);
