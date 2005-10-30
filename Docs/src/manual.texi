@@ -45,6 +45,7 @@ identical to this one.@*@*
 * Hardware Buffers::
 * External Texture Sources::
 * Shadows::
+* Animation::
 @detailmenu
 @end detailmenu
 @end menu
@@ -283,27 +284,6 @@ Overlays can also be defined in scripts. @xref{Overlay Scripts} for details.
 
 @heading GUI systems
 Overlays are only really designed for non-interactive screen elements, although you can use them as a crude GUI. For a far more complete GUI solution, we recommend CEGui (@url{http://www.cegui.org.uk}), as demonstrated in the sample Demo_Gui.
-
-@node Skeletal Animation
-@section Skeletal Animation
-
-Skeletal animation is a process of animating a mesh by moving a set of hierarchical bones within the mesh, which in turn moves the vertices of the model according to the bone assignments stored in each vertex. An alternative term for this approach is 'skinning'. The usual way of creating these animations is with a modelling tool such as Milkshape 3D, Blender, 3D Studio or Maya. OGRE provides exporters to allow you to get the data out of these modellers and into the engine @xref{Exporters}.@*@*
-
-There are many grades of skeletal animation, and not all engines (or modellers for that matter) support all of them. OGRE supports the following features:
-@itemize @bullet
-@item Each mesh can be linked to a single skeleton
-@item Unlimited bones per skeleton
-@item Hierarchical forward-kinematics on bones
-@item Multiple named animations per skeleton (e.g. 'Walk', 'Run', 'Jump', 'Shoot' etc)
-@item Unlimited keyframes per animation
-@item Linear or spline-based interpolation between keyframes
-@item A vertex can be assigned to multiple bones and assigned weightings for smoother skinning
-@item Multiple animations can be applied to a mesh at the same time, again with a blend weighting
-@end itemize
-@*
-Skeletons and the animations which go with them are held in .skeleton files, which are produced by the OGRE exporters. These files are loaded automatically when you create an Entity based on a Mesh which is linked to the skeleton in question. The entity is then given an 'animation state' object per animation on the skeleton to allow you to specify the animation state of that single entity (you can animate multiple entities using the same skeleton, OGRE sorts the reuse out internally).@*@*
-
-You can retrieve a pointer to the AnimationState object by calling Entity::getAnimationState. You can then call methods on this returned object to update the animation, probably in the frameStarted event. AnimationState has a very simple method 'addTime' which allows you to alter the animation position incrementally, and it will automatically loop for you. addTime can take positive or negative values (so you can reverse the animation if you want).@*@*
 
 @node Scripts
 @chapter Scripts
@@ -1485,14 +1465,21 @@ You can implement skeletal animation in hardware by writing a vertex program whi
 @example
 	includes_skeletal_animation true
 @end example
-When you do this, any skeletally animated entity which uses this material will forgo the usual animation blend and will expect the vertex program to do it, for both vertex positions and normals.
+When you do this, any skeletally animated entity which uses this material will forgo the usual animation blend and will expect the vertex program to do it, for both vertex positions and normals. Note that ALL submeshes must be assigned a material which implements this, and that if you combine skeletal animation with vertex animation (@xref{Animation}) then all techniques must be hardware accelerated for any to be.
 
 @subheading Morph Animation in Vertex Programs
 You can implement morph animation in hardware by writing a vertex program which linearly blends between the first and second position keyframes passed as positions and the first free texture coordinate set, and by binding the animation_parametric value to a parameter (which tells you how far to interpolate between the two). However, you need to communicate this support to Ogre so it does not perform morph animation in software for you. You do this by adding the following attribute to your vertex_program definition:
 @example
 	includes_morph_animation true
 @end example
-When you do this, any skeletally animated entity which uses this material will forgo the usual software morph and will expect the vertex program to do it. Note that if your model includes both skeletal animation and morph animation, they must both be implemented in the vertex program if either is to be hardware acceleration. 
+When you do this, any skeletally animated entity which uses this material will forgo the usual software morph and will expect the vertex program to do it. Note that if your model includes both skeletal animation and morph animation, they must both be implemented in the vertex program if either is to be hardware acceleration. Note that ALL submeshes must be assigned a material which implements this, and that if you combine skeletal animation with vertex animation (@xref{Animation}) then all techniques must be hardware accelerated for any to be.
+
+@subheading Pose Animation in Vertex Programs
+You can implement pose animation (blending between multiple poses based on weight) in a vertex program by pulling in the original vertex data (bound to position), and as many pose offset buffers as you've defined in your 'includes_pose_animation' declaration, which will be in the first free texture unit upwards. You must also use the animation_parametric parameter to define the starting point of the constants which will contain the pose weights; they will start at the parameter you define and fill 'n' constants, where 'n' is the max number of poses this shader can blend, ie the parameter to includes_pose_animation. 
+@example
+	includes_pose_animation 4
+@end example
+Note that ALL submeshes must be assigned a material which implements this, and that if you combine skeletal animation with vertex animation (@xref{Animation}) then all techniques must be hardware accelerated for any to be.
 
 @subheading Vertex Programs With Shadows
 When using shadows (@xref{Shadows}), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. @*@*
@@ -1696,8 +1683,9 @@ Sets the active pass index number in a gpu parameter.  The first pass in a techn
 @anchor{pass_iteration_number}
 @item pass_iteration_number
 Usefull for GPU programs that need to know what the current pass iteration number is. The first iteration of a pass is numbered 0.  The last iteration number is one less than what is set for the pass iteration number.  If a pass has its iteration attribute set to 5 then the last iteration number (5th execution of the pass) is 4.(@xref{iteration})
+@anchor{animation_parametric}
 @item animation_parametric
-Useful for hardware morph animation. Sets the parametric value (0..1) representing the distance between the first position keyframe (bound to positions) and the second position keyframe (bound to the first free texture coordinate) so that the vertex program can interpolate between them.
+Useful for hardware vertex animation. For morph animation, sets the parametric value (0..1) representing the distance between the first position keyframe (bound to positions) and the second position keyframe (bound to the first free texture coordinate) so that the vertex program can interpolate between them. For pose animation, indicates the starting point of a set of parametric weight values (each bound to the 'x' of a separate constant), one for each pose. The original positions are held in the usual position buffer, and the offsets to take those positions to the pose where weight == 1.0 are in the first 'n' free texture coordinates; 'n' being determined by the value passed to includes_pose_animation.
 @item custom
 This allows you to map a custom parameter on an individual Renderable (see Renderable::setCustomParameter) to a parameter on a GPU program. It requires that you complete the 'extra_params' field with the index that was used in the Renderable::setCustomParameter call, and this will ensure that whenever this Renderable is used, it will have it's custom parameter mapped in. It's very important that this parameter has been defined on all Renderables that are assigned the material that contains this automatic mapping, otherwise the process will fail.
 @end table
@@ -3011,39 +2999,7 @@ There are a few rules when creating an animated model for OGRE:
 @end itemize
 If you're creating unanimated meshes, then you do not need to be concerned with the above.
 
-@heading Milkshape3D
-
-Milkshape3D is a popular low-polygon editor, especially popular in the modding community because of it's low price and the fact that it supports many game file formats. Installation instructions are included with the exporter itself. The Milkshape exporter supports exporting of meshes and animations. An important tip: Make sure you are not in 'animation' mode when you do this, otherwise Milkshape gets confused as to what the 'reference' position of the mesh is. Just make sure the 'Anim' button in the bottom-right is NOT depressed.@*@*
-
-You then get a dialog box with several options:
-@table @asis
-@item Export Mesh
-Obvious really - if checked this exports the geometry data (vertex positions, normals & texture coordinates) to a .mesh file.
-@item Export Skeleton & Animation
-If checked, the bones of the model and animation data is exported to a .skeleton file.
-@item Split Keyframe Sequence Into Multiple Animations
-You can check this to split the single timeline in Milkshape into multiple separate animations (this option has no effect if you are not exporting the skeleton). This is necessary because Milkshape doesn't have a concept of multiple separate animations, you just have to model them all in a single timeline and then use this feature to split them up. If you check this box you must supply a text file which tells OGRE how to split the animation up. This text file is very simple: each line is a single animation, and must contain comma-separated values indicating the start frame, end frame and name of the animation, e.g.:
-@example
-    1,30,Walk
-    31,45,Run
-    46,75,Die
-    ...etc
-@end example
-@item Frame Rate
-The Milkshape timeline is in frames, but OGRE likes to deal with animations in terms of seconds for simplicity. This value allows the exporter to do the conversion. Note there's nothing to stop you animating the mesh at a different frame rate in OGRE at runtime by scaling the amount you change the animation by each time, but this bakes a 'default animation speed' into the animation for simplicity.
-@end table
-
-@heading 3D Studio Max R4/5
-The 3D Studio exporter exports both mesh definitions and animations created with Biped and Physique. It requires no compilation because it is written in MaxScript, and exports data to XML before converting it using @ref{XmlConverter}. There are tutorials included with the exporter in it's Docs/ folder.
-
-@heading Other exporters
-These other exporters are provided with OGRE, but are either still under development or are supported externally:
-@itemize
-@item Wings3D
-@item Blender
-@item Maya
-@item Lightwave
-@end itemize
+Full documentation for each exporter is provided along with the exporter itself, and there is a list of the currently supported modelling tools in the OGRE Wiki at @url{http://www.ogre3d.org/wiki/index.php/Exporters}.
 
 @node XmlConverter
 @section XmlConverter
@@ -3073,6 +3029,7 @@ The OGRE release notes will notify you when this is necessary with a new release
 @include vbos.inc
 @include texturesource.inc
 @include shadows.inc
+@include animation.inc
 
 @bye
 

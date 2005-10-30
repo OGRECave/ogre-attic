@@ -928,6 +928,8 @@ namespace Ogre {
         bool mSkeletalAnimation;
 		/// Does this (vertex) program include morph animation?
 		bool mMorphAnimation;
+		/// Does this (vertex) program include pose animation (count of number of poses supported)
+		ushort mPoseAnimation;
 		/// The default parameters for use with this object
 		GpuProgramParametersSharedPtr mDefaultParams;
 		/// Does this program want light states passed through fixed pipeline
@@ -1026,13 +1028,35 @@ namespace Ogre {
         virtual void setMorphAnimationIncluded(bool included) 
 		{ mMorphAnimation = included; }
 
-        /** Returns whether a vertex program includes the required instructions
+        /** Sets whether a vertex program includes the required instructions
+        to perform pose animation. 
+        @remarks
+        If this is set to true, OGRE will not blend the geometry according to 
+        pose animation, it will expect the vertex program to do it.
+		@param poseCount The number of simultaneous poses the program can blend
+        */
+        virtual void setPoseAnimationIncluded(ushort poseCount) 
+		{ mPoseAnimation = poseCount; }
+
+		/** Returns whether a vertex program includes the required instructions
             to perform morph animation. 
         @remarks
             If this returns true, OGRE will not blend the geometry according to 
             morph animation, it will expect the vertex program to do it.
         */
         virtual bool isMorphAnimationIncluded(void) const { return mMorphAnimation; }
+
+		/** Returns whether a vertex program includes the required instructions
+            to perform pose animation. 
+        @remarks
+            If this returns true, OGRE will not blend the geometry according to 
+            pose animation, it will expect the vertex program to do it.
+        */
+        virtual bool isPoseAnimationIncluded(void) const { return mPoseAnimation > 0; }
+		/** Returns the number of simultaneous poses the vertex program can 
+			blend, for use in pose animation.
+        */
+        virtual ushort getNumberOfPosesIncluded(void) const { return mPoseAnimation; }
 
 		/** Get a reference to the default parameters which are to be used for all
 			uses of this program.

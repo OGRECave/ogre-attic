@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 16 2005 by texi2html 1.64 -->
+<!-- Created on , 31 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Using Vertex and Fragment Programs in a Pass</TITLE>
+<TITLE>OGRE Manual v1.1.0: Copying Materials</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Using Vertex and Fragment Programs in a Pass">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Using Vertex and Fragment Programs in a Pass">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Copying Materials">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Copying Materials">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,275 +23,288 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC88"></A>
+<A NAME="SEC96"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC77"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC95"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC89"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC101"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H3> 3.1.5 Using Vertex and Fragment Programs in a Pass </H3>
-<!--docid::SEC88::-->
+<H3> 3.1.6 Copying Materials </H3>
+<!--docid::SEC96::-->
 
-Within a pass section of a material script, you can reference a vertex and / or a fragment program which is been defined in a .program script (See section <A HREF="manual_19.html#SEC77">3.1.4 Declaring Vertex and Fragment Programs</A>). The programs are defined separately from the usage of them in the pass, since the programs are very likely to be reused between many separate materials, probably across many different .material scripts, so this approach lets you define the program only once and use it many times.<BR><BR>
+When creating new materials scripts that are only slight variations of another material script, the script writer resorts to copy and pasting materials within scripts.  For simple materials, the copy/paste method is acceptable.  Complex materials that use multiple passes along with vertex and pixel shaders become very tedious to edit when many variations are needed.  To reduce the tediousness of making new materials that are just slight variations of previously defined materials, new materials can copy from previously defined materials and modify specific techniques, passes, texture units or add new ones.<BR><BR>
 
-As well as naming the program in question, you can also provide parameters to it. Here's a simple example:
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>vertex_program_ref myVertexProgram
+To make a new material that is based on one previously defined, add a <EM>colon</EM> <STRONG>:</STRONG> after the new material name followed by the name of the material that is to be copied.<BR><BR>
+
+Format: material &#60;NewUniqueChildName&#62; : &#60;ReferanceParentMaterial&#62;<BR><BR>
+
+The only caveat is that a parent material must have been defined/parsed prior to the child material script being parsed.  The easiest way to achieve this is to place parents at the begining of the material script file.  After material scripts are loaded into Ogre, materials no longer maintain their copy inheritance structure.  If a parent material is modified through code at runtime, the changes have no effect on child materials that were copied from it in the script.<BR><BR>
+
+Material copying within the script alleviates some drudgery from copy/paste but having the ability to identify specific techniques, passes, and texture units to modify makes material copying easier.  Techniques, passes, texture units can be identified directly in the child material without having to layout previous techniques, passes, texture units by associating a name with them,  Techniques and passes can take a name and texture units can be numbered within the material script.<BR><BR>
+
+<STRONG>NOTE:  Using names is optional so older scripts will still work just fine and you can inherit from them as well.</STRONG><BR><BR>
+
+Names become very usefull in materials that copy from other materials.  In order to overide values they must be in the correct technique, pass, texture unit etc.  The script could be layed out using the sequence of techniques, passes, texture units in the child material but if only one paramter needs to change in say the 5th pass then the first four passes prior to the fith would have to be placed in the script:<BR><BR>
+
+Here is an example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material test2 : test1
 {
-	param_indexed_auto 0 worldviewproj_matrix
-	param_indexed      4 float4  10.0 0 0 0
-}
-</pre></td></tr></table>In this example, we bind a vertex program called 'myVertexProgram' (which will be defined elsewhere) to the pass, and give it 2 parameters, one is an 'auto' parameter, meaning we do not have to supply a value as such, just a recognised code (in this case it's the world/view/projection matrix which is kept up to date automatically by Ogre). The second parameter is a manually specified parameter, a 4-element float. The indexes are described later.<BR><BR>
+  technique
+  {
+    pass
+    {
+    }
 
-The syntax of the link to a vertex program and a fragment program are identical, the only difference is that 'fragment_program_ref' is used instead of 'vertex_program_ref'.
-<A NAME="Program Parameter Specification"></A>
-<A NAME="SEC89"></A>
-<H3> Parameter specification </H3>
-<!--docid::SEC89::-->
-Parameters can be specified using one of 4 commands as shown below. The same syntax is used whether you are defining a parameter just for this particular use of the program, or when specifying the <A HREF="manual_19.html#SEC78">Default Program Parameters</A>. Parameters set in the specific use of the program override the defaults.
-<UL>
-<LI><A HREF="manual_20.html#SEC90">param_indexed</A>
-<LI><A HREF="manual_20.html#SEC91">param_indexed_auto</A>
-<LI><A HREF="manual_20.html#SEC92">param_named</A>
-<LI><A HREF="manual_20.html#SEC93">param_named_auto</A>
-</UL>
+    pass
+    {
+    }
 
-<A NAME="param_indexed"></A>
-<A NAME="SEC90"></A>
-<H3> param_indexed </H3>
-<!--docid::SEC90::-->
-This command sets the value of an indexed parameter. <BR><BR>
+    pass
+    {
+    }
 
-format: param_indexed &#60;index&#62; &#60;type&#62; &#60;value&#62;<BR><BR>
-example: param_indexed 0 float4 10.0 0 0 0<BR><BR>
+    pass
+    {
+    }
 
-The 'index' is simply a number representing the position in the parameter list which the value should be written, and you should derive this from your program definition. The index is relative to the way constants are stored on the card, which is in 4-element blocks. For example if you defined a float4 parameter at index 0, the next index would be 1. If you defined a matrix4x4 at index 0, the next usable index would be 4, since a 4x4 matrix takes up 4 indexes.<BR><BR>
-
-The value of 'type' can be float4, matrix4x4, float&#60;n&#62;, int4, int&#60;n&#62;. Note that 'int' parameters are only available on some more advanced program syntaxes, check the D3D or GL vertex / fragment program documentation for full details. Typically the most useful ones will be float4 and matrix4x4. Note that if you use a type which is not a multiple of 4, then the remaining values up to the multiple of 4 will be filled with zeroes for you (since GPUs always use banks of 4 floats per constant even if only one is used).<BR><BR>
-
-'value' is simply a space or tab-delimited list of values which can be converted into the type you have specified.
-
-<A NAME="param_indexed_auto"></A>
-<A NAME="SEC91"></A>
-<H3> param_indexed_auto </H3>
-<!--docid::SEC91::-->
-
-This command tells Ogre to automatically update a given parameter with a derived value. This frees you from writing code to update program parameters every frame when they are always changing.<BR><BR>
-
-format: param_indexed_auto &#60;index&#62; &#60;value_code&#62; &#60;extra_params&#62;<BR><BR>
-example: param_indexed_auto 0 worldviewproj_matrix<BR><BR>
-
-'index' has the same meaning as <A HREF="manual_20.html#SEC90">param_indexed</A>; note this time you do not have to specify the size of the parameter because the engine knows this already. In the example, the world/view/projection matrix is being used so this is implicitly a matrix4x4.<BR><BR>
-
-'value_code' is one of a list of recognised values:<BR>
-<DL COMPACT>
-<DT>world_matrix
-<DD>The current world matrix.
-<DT>inverse_world_matrix
-<DD>The inverse of the current world matrix.
-<DT>transpose_world_matrix
-<DD>The transpose of the world matrix
-<DT>inverse_transpose_world_matrix
-<DD>The inverse transpose of the world matrix
-
-<DT>world_matrix_array_3x4
-<DD>An array of world matrices, each represented as only a 3x4 matrix (3 rows of 4columns) usually for doing hardware skinning. You should make enough entries available in your vertex program for the number of bones in use, ie an array of numBones*3 float4's.
-
-<DT>view_matrix
-<DD>The current view matrix.
-<DT>inverse_view_matrix
-<DD>The inverse of the current view matrix.
-<DT>transpose_view_matrix
-<DD>The transpose of the view matrix
-<DT>inverse_transpose_view_matrix
-<DD>The inverse transpose of the view matrix
-
-<DT>projection_matrix
-<DD>The current projection matrix.
-<DT>inverse_projection_matrix
-<DD>The inverse of the projection matrix
-<DT>transpose_projection_matrix
-<DD>The transpose of the projection matrix
-<DT>inverse_transpose_projection_matrix
-<DD>The inverse transpose of the projection matrix
-
-<DT>worldview_matrix
-<DD>The current world and view matrices concatenated.
-<DT>inverse_worldview_matrix
-<DD>The inverse of the current concatenated world and view matrices.
-<DT>transpose_worldview_matrix
-<DD>The transpose of the world and view matrices
-<DT>inverse_transpose_worldview_matrix
-<DD>The inverse transpose of the current concatenated world and view matrices.
-
-<DT>viewproj_matrix
-<DD>The current view and projection matrices concatenated.
-<DT>inverse_viewproj_matrix
-<DD>The inverse of the view &#38; projection matrices
-<DT>transpose_viewproj_matrix
-<DD>The transpose of the view &#38; projection matrices
-<DT>inverse_transpose_viewproj_matrix
-<DD>The inverse transpose of the view &#38; projection matrices
-
-<DT>worldviewproj_matrix
-<DD>The current world, view and projection matrices concatenated.
-<DT>inverse_worldviewproj_matrix
-<DD>The inverse of the world, view and projection matrices
-<DT>transpose_worldviewproj_matrix
-<DD>The transpose of the world, view and projection matrices
-<DT>inverse_transpose_worldviewproj_matrix
-<DD>The inverse transpose of the world, view and projection matrices
-
-<DT>light_diffuse_colour
-<DD>The diffuse colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light - note that directional lights are always first in the list and always present). NB if there are no lights this close, then the parameter will be set to black.
-<DT>light_specular_colour
-<DD>The specular colour of a given light; this requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to black.
-<DT>light_attenuation
-<DD>A float4 containing the 4 light attenuation variables for a given light. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes. The order of the parameters is range, constant attenuation, linear attenuation, quadric attenuation.
-<DT>light_position
-<DD>The position of a given light in world space. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes. Note that this property will work with all kinds of lights, even directional lights, since the parameter is set as a 4D vector. Point lights will be (pos.x, pos.y, pos.z, 1.0f) whilst directional lights will be (-dir.x, -dir.y, -dir.z, 0.0f). Operations like dot products will work consistently on both.
-<DT>light_direction
-<DD>The direction of a given light in world space. This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes. DEPRECATED - this property only works on directional lights, and we recommend that you use light_position instead since that returns a generic 4D vector.
-<DT>light_position_object_space
-<DD>The position of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  Note that this property will work with all kinds of lights, even directional lights, since the parameter is set as a 4D vector. Point lights will be (pos.x, pos.y, pos.z, 1.0f) whilst directional lights will be (-dir.x, -dir.y, -dir.z, 0.0f). Operations like dot products will work consistently on both.
-<DT>light_direction_object_space
-<DD>The direction of a given light in object space (ie when the object is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  DEPRECATED, except for spotlights - for directional lights we recommend that you use light_position_object_space instead since that returns a generic 4D vector.
-<DT>light_position_view_space
-<DD>The position of a given light in view space (ie when the camera is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  Note that this property will work with all kinds of lights, even directional lights, since the parameter is set as a 4D vector. Point lights will be (pos.x, pos.y, pos.z, 1.0f) whilst directional lights will be (-dir.x, -dir.y, -dir.z, 0.0f). Operations like dot products will work consistently on both.
-<DT>light_direction_view_space
-<DD>The direction of a given light in view space (ie when the camera is at (0,0,0)). This requires an index in the 'extra_params' field, and relates to the 'nth' closest light which could affect this object (ie 0 refers to the closest light). NB if there are no lights this close, then the parameter will be set to all zeroes.  DEPRECATED, except for spotlights - for directional lights we recommend that you use light_position_view_space instead since that returns a generic 4D vector.
-<DT>ambient_light_colour
-<DD>The colour of the ambient light currently set in the scene.
-<DT>camera_position
-<DD>The current cameras position in world space.
-<DT>camera_position_object_space
-<DD>The current cameras position in object space (ie when the object is at (0,0,0)).
-<DT>time
-<DD>The current time, factored by the optional parameter (or 1.0f if not supplied).
-<DT>time_0_x
-<DD>Single float time value, which repeats itself based on "cycle time" given as an 'extra_params' field
-<DT>costime_0_x
-<DD>Cosine of time_0_x
-<DT>sintime_0_x
-<DD>Sine of time_0_x
-<DT>tantime_0_x
-<DD>Tangent of time_0_x
-<DT>time_0_x_packed
-<DD>4-element vector of time0_x, sintime0_x, costime0_x, tantime0_x
-<DT>time_0_1
-<DD>As time0_x but scaled to [0..1]
-<DT>costime_0_1
-<DD>As costime0_x but scaled to [0..1]
-<DT>sintime_0_1
-<DD>As sintime0_x but scaled to [0..1]
-<DT>tantime_0_1
-<DD>As tantime0_x but scaled to [0..1]
-<DT>time_0_1_packed
-<DD>As time0_x_packed but all values scaled to [0..1]
-<DT>time_0_2pi
-<DD>As time0_x but scaled to [0..2*Pi]
-<DT>costime_0_2pi
-<DD>As costime0_x but scaled to [0..2*Pi]
-<DT>sintime_0_2pi
-<DD>As sintime0_x but scaled to [0..2*Pi]
-<DT>tantime_0_2pi
-<DD>As tantime0_x but scaled to [0..2*Pi]
-<DT>time_0_2pi_packed
-<DD>As time0_x_packed but scaled to [0..2*Pi]
-<DT>fps
-<DD>The current frames per second
-<DT>viewport_width
-<DD>The current viewport width in pixels
-<DT>viewport_height
-<DD>The current viewport height in pixels
-<DT>inverse_viewport_width
-<DD>1.0/the current viewport width in pixels
-<DT>inverse_viewport_height
-<DD>1.0/the current viewport height in pixels
-<DT>view_direction
-<DD>View direction vector
-<DT>view_side_vector
-<DD>View local X axis
-<DT>view_up_vector
-<DD>View local Y axis
-<DT>fov
-<DD>Vertical field of view, in radians
-<DT>near_clip_distance
-<DD>Near clip distance, in world units
-<DT>far_clip_distance
-<DD>Far clip distance, in world units (may be 0 for infinite view projection)
-<DT>texture_viewproj_matrix
-<DD>Only applicable to vertex programs which have been specified as the 'shadow receiver' vertex program alternative; this provides details of the view/projection matrix for the current shadow projector.
-<A NAME="pass_number"></A>
-<DT>pass_number
-<DD>Sets the active pass index number in a gpu parameter.  The first pass in a technique has an index of 0, the second an index of 1 and so on.  This is usefull for multipass shaders (ie fur or blur shader) that need to know what pass it is.  By setting up the auto parameter in a <A HREF="manual_19.html#SEC78">Default Program Parameters</A> list in a program definition, there is no requirement to set the pass number parameter in each pass and lose track. (See  <A HREF="manual_17.html#fur_example">fur_example</A>)
-<A NAME="pass_iteration_number"></A>
-<DT>pass_iteration_number
-<DD>Usefull for GPU programs that need to know what the current pass iteration number is. The first iteration of a pass is numbered 0.  The last iteration number is one less than what is set for the pass iteration number.  If a pass has its iteration attribute set to 5 then the last iteration number (5th execution of the pass) is 4.(See section <A HREF="manual_17.html#SEC54">iteration</A>)
-<DT>animation_parametric
-<DD>Useful for hardware morph animation. Sets the parametric value (0..1) representing the distance between the first position keyframe (bound to positions) and the second position keyframe (bound to the first free texture coordinate) so that the vertex program can interpolate between them.
-<DT>custom
-<DD>This allows you to map a custom parameter on an individual Renderable (see Renderable::setCustomParameter) to a parameter on a GPU program. It requires that you complete the 'extra_params' field with the index that was used in the Renderable::setCustomParameter call, and this will ensure that whenever this Renderable is used, it will have it's custom parameter mapped in. It's very important that this parameter has been defined on all Renderables that are assigned the material that contains this automatic mapping, otherwise the process will fail.
-</DL>
-
-<A NAME="param_named"></A>
-<A NAME="SEC92"></A>
-<H3> param_named </H3>
-<!--docid::SEC92::-->
-This is the same as param_indexed, but uses a named parameter instead of an index. This can only be used with high-level programs which include parameter names; if you're using an assembler program then you have no choice but to use indexes. Note that you can use indexed parameters for high-level programs too, but it is less portable since if you reorder your parameters in the high-level program the indexes will change.<BR><BR>
-format: param_named &#60;name&#62; &#60;type&#62; &#60;value&#62;<BR><BR>
-example: param_named shininess float4 10.0 0 0 0<BR><BR>
-The type is required because the program is not compiled and loaded when the material script is parsed, so at this stage we have no idea what types the parameters are. Programs are only loaded and compiled when they are used, to save memory.
-
-<A NAME="param_named_auto"></A>
-<A NAME="SEC93"></A>
-<H3> param_named_auto </H3>
-<!--docid::SEC93::-->
-
-This is the named equivalent of param_indexed_auto, for use with high-level programs.<BR><BR>
-Format: param_named_auto &#60;name&#62; &#60;value_code&#62; &#60;extra_params&#62;<BR><BR>
-Example: param_named_auto worldViewProj WORLDVIEWPROJ_MATRIX<BR><BR>
-
-The allowed value codes and the meaning of extra_params are detailed in <A HREF="manual_20.html#SEC91">param_indexed_auto</A>.
-
-<A NAME="Shadows and Vertex Programs"></A>
-<A NAME="SEC94"></A>
-<H3> Shadows and Vertex Programs </H3>
-<!--docid::SEC94::-->
-When using shadows (See section <A HREF="manual_58.html#SEC221">7. Shadows</A>), the use of vertex programs can add some additional complexities, because Ogre can only automatically deal with everything when using the fixed-function pipeline. If you use vertex programs, and you are also using shadows, you may need to make some adjustments. <BR><BR>
-
-If you use <STRONG>stencil shadows</STRONG>, then any vertex programs which do vertex deformation can be a problem, because stencil shadows are calculated on the CPU, which does not have access to the modified vertices. If the vertex program is doing standard skeletal animation, this is ok (see section above) because Ogre knows how to replicate the effect in software, but any other vertex deformation cannot be replicated, and you will either have to accept that the shadow will not reflect this deformation, or you should turn off shadows for that object. <BR><BR>
-
-If you use <STRONG>texture shadows</STRONG>, then vertex deformation is acceptable; however, when rendering the object into the shadow texture (the shadow caster pass), the shadow has to be rendered in a solid colour (linked to the ambient colour). You must therefore provide an alternative vertex program, so Ogre provides you with a way of specifying one to use when rendering the caster. Basically you link an alternative vertex program, using exactly the same syntax as the original vertex program link:
-
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>shadow_caster_vertex_program_ref myShadowCasterVertexProgram
-{
-	param_indexed_auto 0 worldviewproj_matrix
-	param_indexed_auto 4 ambient_light_colour
+    pass
+    {
+	  ambient 0.5 0.7 0.3 1.0
+    }
+  }
 }
 </pre></td></tr></table>
-When rendering a shadow caster, Ogre will automatically use the alternate program. You can bind the same or different parameters to the program - the most important thing is that you bind <STRONG>ambiend_light_colour</STRONG>, since this determines the colour of the shadow in modulative texture shadows. If you don't supply an alternate program, Ogre will fall back on a fixed-function material which will not reflect any vertex deformation you do in your vertex program. <BR><BR>
+This method is tedious for materials that only have slight variations to their parent.
+An easier way is to name the pass directly without listing the previous passes:<BR>
 
-In addition, when rendering the shadow receivers with shadow textures, Ogre needs to project the shadow texture. It does this automatically in fixed function mode, but if the receivers use vertex programs, they need to have a shadow receiver program which does the usual vertex deformation, but also generates projective texture coordinates. The additional program linked into the pass like this:
-
-<TABLE><tr><td>&nbsp;</td><td class=example><pre>shadow_receiver_vertex_program_ref myShadowReceiverVertexProgram
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material test2 : test1
 {
-	param_indexed_auto 0 worldviewproj_matrix
-	param_indexed_auto 4 texture_viewproj_matrix
+  technique 0
+  {
+    pass 4
+    {
+	  ambient 0.5 0.7 0.3 1.0
+    }
+  }
 }
 </pre></td></tr></table>
-For the purposes of writing this alternate program, there is an automatic parameter binding of 'texture_viewproj_matrix' which provides the program with texture projection parameters. The vertex program should do it's normal vertex processing, and generate texture coordinates using this matrix and place them in texture coord sets 0 and 1, since some shadow techniques use 2 texture units. The colour of the vertices output by this vertex program must always be white, so as not to affect the final colour of the rendered shadow.
+The parent pass name must be known and the pass must be in the correct technique in order for this to work correctly.  Specifying the technique name and the pass name is the best method.  If the parent technique/pass are not named then use their index values for their name as done in the example.<BR><BR>
 
-<A NAME="Copying Materials"></A>
+<A NAME="SEC97"></A>
+<H3> Adding new Techniques, Passes, to copied materials: </H3>
+<!--docid::SEC97::-->
+
+If a new technique or pass needs to be added to a copied material then use a unique name for the technique or pass that does not exist in the parent material.  Using an index for the name that is one greater than the last index in the parent will do the same thing.  The new technique/pass will be added to the end of the techniques/passes copied from the parent material.<BR><BR>
+
+Note:  if passes or techniques aren't given a name, they will take on a default name based on their index.  For example the first pass has index 0 so its name will be 0.
+
+<A NAME="SEC98"></A>
+<H3> Dealing with Program References and Shader Parameters: </H3>
+<!--docid::SEC98::-->
+
+For a child material that only needs to change some shader parameters within a pass, do the following:<BR><BR>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material furtest2 : furtest1
+{
+  technique ati8500
+  {
+    pass fur3
+    {
+      fragment_program_ref
+      {
+        param_named furlength float 0.5
+      }
+    }
+  }
+}
+</pre></td></tr></table>
+There is no requirement to give the name of the fragment program reference since the parent material has already done this and the same applies to a vertex program reference, but dropping the program reference name only applies if one is defined in the pass copied from the parent material.  If the parent didn't have a program reference then an exception is generated since the material parser has no clue as to what the script intended.<BR><BR>
+
+Program references can be added to copied passes that had no program references.  The whole program reference will have to be defined with in the pass.<BR><BR>
+
+If a different program ref is to be used in the copied pass then just put in the name of the different vertex/fragment program reference.  This is usefull when you want to inherit from a parent material but want to use a different shader program for one of the passes.<BR><BR>
+
+<A NAME="SEC99"></A>
+<H3> Identifying Texture Units to overide values </H3>
+<!--docid::SEC99::-->
+
+A specific texture unit state (TUS) can be given a unique name within a pass of a material so that it can be identified later in cloned materials that need to override specified texture unit states in the pass without declaring previous texture units.  Using a unique name for a Texture unit in a pass of a cloned material adds a new texture unit at the end of the texture unit list for the pass.<BR><BR>
+
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material BumpMap2 : BumpMap1
+{
+  technique ati8500
+  {
+    pass 0
+    {
+      texture_unit NormalMap
+      {
+        texture BumpyMetalNM.png
+      }
+    }
+  }
+}
+</pre></td></tr></table>
+<A NAME="SEC100"></A>
+<H3> Texture Aliases </H3>
+<!--docid::SEC100::-->
+
+Texture aliases are usefull for when only the textures used in texture units need to be specified for a cloned material.  In the source material ie the original material to be cloned, each texture unit can be given a texture alias name.  The cloned material in the script can then specify what textures should be used for each texture alias.<BR><BR>
+
+Using texture aliases within texture units:<BR>
+Format:<BR>
+texture_alias &#60;name&#62;<BR><BR>
+
+Example: The base material to be cloned:<BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material TSNormalSpecMapping
+{ 
+  technique GLSL
+  { 
+    pass 
+    { 
+      ambient 0.1 0.1 0.1
+      diffuse 0.7 0.7 0.7
+      specular 0.7 0.7 0.7 128
+		
+      vertex_program_ref GLSLDemo/OffsetMappingVS
+      {
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto eyePosition camera_position_object_space
+        param_named textureScale float 1.0
+      }
+
+      fragment_program_ref GLSLDemo/TSNormalSpecMappingFS 
+      { 
+        param_named normalMap int 0
+        param_named diffuseMap int 1
+        param_named fxMap int 2
+      } 
+
+      // Normal map
+      texture_unit 
+      {
+        texture_alias NormalMap
+        texture defaultNM.png
+        tex_coord_set 0
+        filtering trilinear
+      }
+
+      // Base diffuse texture map
+      texture_unit 
+      {
+        texture_alias DiffuseMap
+        texture defaultDiff.png
+        filtering trilinear
+        tex_coord_set 1
+      }
+
+      // spec map for shinnines
+      texture_unit
+      {
+        texture_alias SpecMap
+        texture defaultSpec.png
+        filtering trilinear
+        tex_coord_set 2
+      }
+
+    } 
+
+  } 
+
+  technique HLSL_DX9
+  { 
+    pass 
+    { 
+			
+      vertex_program_ref FxMap_HLSL_VS
+      {
+        param_named_auto worldViewProj_matrix worldviewproj_matrix 
+        param_named_auto lightPosition light_position_object_space 0
+        param_named_auto eyePosition camera_position_object_space
+      }
+
+      fragment_program_ref FxMap_HLSL_PS 
+      { 
+        param_named ambientColor float4 0.2 0.2 0.2 0.2
+      } 
+
+      // Normal map
+      texture_unit 
+      {
+        texture_alias NormalMap
+        texture defaultNM.png
+        tex_coord_set 0
+        filtering trilinear
+      }
+
+      // Base diffuse texture map
+      texture_unit 
+      {
+        texture_alias DiffuseMap
+        texture defaultDiff.png
+        filtering trilinear
+        tex_coord_set 1
+      }
+
+      // spec map for shinnines
+      texture_unit
+      {
+        texture_alias SpecMap
+        texture defaultSpec.png
+        filtering trilinear
+        tex_coord_set 2
+      }
+
+    } 
+
+  } 
+}
+</pre></td></tr></table>
+Note that the GLSL and HLSL techniques use the same textures.  For each texture usage type a texture alias is given that describes what the texture is used for.  So the first texture unit in the GLSL technique has the same alias as the TUS in the HLSL technique since its the same texture used. Same goes for the second and third texture units.<BR><BR>
+
+Now we want to clone the material but only want to change the textures used.  We could copy and paste the whole material but if we decide to change the base material later then we also have to update the copied material in the script.  With set_texture_alias, copying a material is very easy now.  set_texture_alias is specified at the top of the material definition.  All techniques using the specified texture alias will be effected by set_texture_alias.<BR><BR>
+
+Format:<BR>
+set_texture_alias &#60;alias name&#62; = &#60;texture name&#62;<BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest : TSNormalSpecMapping
+{
+  set_texture_alias NormalMap fxTestNMap.png
+  set_texture_alias DiffuseMap fxTestDiff.png
+  set_texture_alias SpecMap fxTestMap.png
+}
+</pre></td></tr></table>
+The textures in both techniques in the child material will automatically get replaced with the new ones we want to use.<BR><BR>
+
+  The same process can be done in code as long you set up the texture alias names so then there is no need to traverse technique/pass/TUS to change a texture.  You just call myMaterialPtr-&#62;applyTextureAliases(myAliasTextureNameList) which will update all textures in all texture units that match the alias names in the map container reference you passed as a parameter.<BR><BR>
+
+ You don't have to supply all the textures in the copied material.<BR>
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest2 : fxTest
+{
+  set_texture_alias DiffuseMap fxTest2Diff.png
+  set_texture_alias SpecMap fxTest2Map.png
+}
+</pre></td></tr></table>
+Material fxTest2 only changes the diffuse and spec maps of material fxTest and uses the same normal map.<BR><BR>
+
+Another example:
+<TABLE><tr><td>&nbsp;</td><td class=example><pre>material fxTest3 : TSNormalSpecMapping
+{
+  set_texture_alias DiffuseMap fxTest2Diff.png
+}
+</pre></td></tr></table>
+fxTest3 will end up with the default textures for the normal map and spec map setup in TSNormalSpecMapping material but will have a different diffuse map.  So your base material can define the default textures to use and then the child materials can override specific textures.<BR><BR>
+<P>
+
+<A NAME="Particle Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC77"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_15.html#SEC24"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC95"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_19.html#SEC89"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_14.html#SEC23"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC101"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -300,7 +313,7 @@ For the purposes of writing this alternate program, there is an automatic parame
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 16 2005</I>
+by <I>Steve Streeting</I> on <I>, 31 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

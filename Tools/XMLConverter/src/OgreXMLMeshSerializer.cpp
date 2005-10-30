@@ -1314,20 +1314,46 @@ namespace Ogre {
 					"XMLMeshSerializer::readTracks");
 			}
 
+			// Get type
+			VertexAnimationType animType = VAT_NONE;
+			String strAnimType = trackNode->Attribute("type");
+			if (strAnimType == "morph")
+			{
+				animType = VAT_MORPH;
+			}
+			else if (strAnimType == "pose")
+			{
+				animType = VAT_POSE;
+			}
+			else
+			{
+				OGRE_EXCEPT(Exception::ERR_ITEM_NOT_FOUND, 
+					"Unrecognised animation track type '" + strAnimType + "'",
+					"XMLMeshSerializer::readTracks");
+			}
+
 			// Create track
-			VertexAnimationTrack* track = anim->createVertexTrack(targetID, vertexData);
+			VertexAnimationTrack* track = 
+				anim->createVertexTrack(targetID, vertexData, animType);
 
 			TiXmlElement* keyframesNode = trackNode->FirstChildElement("keyframes");
 			if (keyframesNode)
 			{
-				readKeyFrames(keyframesNode, track, vertexData->vertexCount);
+				if (track->getAnimationType() == VAT_MORPH)
+				{
+					readMorphKeyFrames(keyframesNode, track, vertexData->vertexCount);
+				}
+				else // VAT_POSE
+				{
+					readPose(keyframesNode, track);
+				}
 			}
 
 			trackNode = trackNode->NextSiblingElement();
 		}
 	}
 	//-----------------------------------------------------------------------------
-	void XMLMeshSerializer::readKeyFrames(TiXmlElement* keyframesNode, 
+	void XMLMeshSerializer::readMorphKeyFrames(TiXmlElement* keyframesNode, 
 		VertexAnimationTrack* track, size_t vertexCount)
 	{
 		TiXmlElement* keyNode = keyframesNode->FirstChildElement("keyframe");
@@ -1342,7 +1368,7 @@ namespace Ogre {
 			}
 			Real time = StringConverter::parseReal(val);
 
-			VertexKeyFrame* kf = track->createVertexKeyFrame(time);
+			VertexMorphKeyFrame* kf = track->createVertexMorphKeyFrame(time);
 
 			// create a vertex buffer
 			HardwareVertexBufferSharedPtr vbuf = 
@@ -1387,10 +1413,36 @@ namespace Ogre {
 
 	}
 	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::readPose(TiXmlElement* keyframesNode, VertexAnimationTrack* track)
+	{
+		TiXmlElement* poseNode = keyframesNode->FirstChildElement("pose");
+
+		if (poseNode)
+		{
+			VertexPoseKeyFrame* kf = track->createVertexPoseKeyFrame();
+
+			TiXmlElement* poseOffsetNode = poseNode->FirstChildElement("poseoffset");
+			while (poseOffsetNode)
+			{
+				uint index = StringConverter::parseUnsignedInt(
+					poseOffsetNode->Attribute("index"));
+				Vector3 offset;
+				offset.x = StringConverter::parseReal(poseOffsetNode->Attribute("x"));
+				offset.y = StringConverter::parseReal(poseOffsetNode->Attribute("y"));
+				offset.z = StringConverter::parseReal(poseOffsetNode->Attribute("z"));
+
+				kf->addVertex(index, offset);
+
+				poseOffsetNode = poseOffsetNode->NextSiblingElement();
+			}
+
+		}
+	}
+	//-----------------------------------------------------------------------------
 	void XMLMeshSerializer::writeAnimations(TiXmlElement* meshNode, const Mesh* m)
 	{
 		// Skip if no animation
-		if (!m->hasMorphAnimation())
+		if (!m->hasVertexAnimation())
 			return;
 
 		TiXmlElement* animationsNode = 
@@ -1427,7 +1479,17 @@ namespace Ogre {
 						StringConverter::toString(targetID-1));
 				}
 
-				writeKeyFrames(trackNode, track);
+				if (track->getAnimationType() == VAT_MORPH)
+				{
+					trackNode->SetAttribute("type", "morph");
+					writeMorphKeyFrames(trackNode, track);
+				}
+				else
+				{
+					trackNode->SetAttribute("type", "pose");
+					writePose(trackNode, track);
+				}
+
 
 			}
 		}
@@ -1435,7 +1497,7 @@ namespace Ogre {
 		
 	}
 	//-----------------------------------------------------------------------------
-	void XMLMeshSerializer::writeKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track)
+	void XMLMeshSerializer::writeMorphKeyFrames(TiXmlElement* trackNode, const VertexAnimationTrack* track)
 	{
 		TiXmlElement* keyframesNode = 
 			trackNode->InsertEndChild(TiXmlElement("keyframes"))->ToElement();
@@ -1444,7 +1506,7 @@ namespace Ogre {
 
 		for (unsigned short k = 0; k < track->getNumKeyFrames(); ++k)
 		{
-			VertexKeyFrame* kf = track->getVertexKeyFrame(k);
+			VertexMorphKeyFrame* kf = track->getVertexMorphKeyFrame(k);
 			TiXmlElement* keyNode = 
 				keyframesNode->InsertEndChild(TiXmlElement("keyframe"))->ToElement();
 			keyNode->SetAttribute("time", 
@@ -1465,6 +1527,35 @@ namespace Ogre {
 
 		}
 	}
+	//-----------------------------------------------------------------------------
+	void XMLMeshSerializer::writePose(TiXmlElement* trackNode, const VertexAnimationTrack* track)
+	{
+		TiXmlElement* keyframesNode = 
+			trackNode->InsertEndChild(TiXmlElement("keyframes"))->ToElement();
+
+		TiXmlElement* poseNode = keyframesNode->InsertEndChild(
+			TiXmlElement("pose"))->ToElement();
+
+		const VertexPoseKeyFrame* kf = track->getVertexPoseKeyFrame();
+
+		VertexPoseKeyFrame::ConstVertexOffsetIterator vit = kf->getVertexOffsetIterator();
+		while (vit.hasMoreElements())
+		{
+			TiXmlElement* poseOffsetElement = poseNode->InsertEndChild(
+				TiXmlElement("poseoffset"))->ToElement();
+
+			poseOffsetElement->SetAttribute("index", 
+				StringConverter::toString(vit.peekNextKey()));
+
+			Vector3 offset = vit.getNext();
+			poseOffsetElement->SetAttribute("x", StringConverter::toString(offset.x));
+			poseOffsetElement->SetAttribute("y", StringConverter::toString(offset.y));
+			poseOffsetElement->SetAttribute("z", StringConverter::toString(offset.z));
+
+
+		}
+	}
+
 
 
 

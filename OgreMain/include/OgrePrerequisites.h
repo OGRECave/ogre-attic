@@ -365,7 +365,7 @@ namespace Ogre {
     class VertexBufferBinding;
     class VertexData;
     class VertexDeclaration;
-	class VertexKeyFrame;
+	class VertexMorphKeyFrame;
     class WireBoundingBox; 
     class Compositor;
     class CompositorManager;

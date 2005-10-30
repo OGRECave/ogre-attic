@@ -98,8 +98,9 @@ namespace Ogre {
 		/** Creates a VertexAnimationTrack for animating vertex position data.
 		@param handle Handle to give the track, used for accessing the track later. 
 		Must be unique within this Animation.
+		@param animType Either morph or pose animation, 
 		*/
-		VertexAnimationTrack* createVertexTrack(unsigned short handle);
+		VertexAnimationTrack* createVertexTrack(unsigned short handle, VertexAnimationType animType);
 
 		/** Creates a new AnimationTrack automatically associated with a Node. 
         @remarks
@@ -122,10 +123,11 @@ namespace Ogre {
 		/** Creates a VertexAnimationTrack and associates it with VertexData. 
 		@param handle Handle to give the track, used for accessing the track later. 
 		@param data VertexData object link
+		@param animType The animation type 
 		Must be unique within this Animation.
 		*/
 		VertexAnimationTrack* createVertexTrack(unsigned short handle, 
-			VertexData* data);
+			VertexData* data, VertexAnimationType animType);
 
 		/** Gets the number of NodeAnimationTrack objects contained in this animation. */
         unsigned short getNumNodeTracks(void) const;
@@ -193,11 +195,16 @@ namespace Ogre {
 
 		/** Applies all vertex tracks given a specific time point and weight to a given entity.
 		@remarks
+		@param entity The Entity to which this animation should be applied
 		@param timePos The time position in the animation to apply.
+		@param weight The weight at which the animation should be applied 
+			(only affects pose animation)
 		@param software Whether to populate the software morph vertex data
 		@param hardware Whether to populate the hardware morph vertex data
+		@param animIndex The index of this animation in the list of active vertex animations
 		*/
-		void apply(Entity* entity, Real timePos, bool software, bool hardware);
+		void apply(Entity* entity, Real timePos, Real weight, bool software, 
+			bool hardware, ushort animIndex);
 
         /** Tells the animation how to interpolate between keyframes.
         @remarks

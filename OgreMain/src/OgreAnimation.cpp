@@ -170,9 +170,10 @@ namespace Ogre {
 		mNumericTrackList.clear();
 	}
 	//---------------------------------------------------------------------
-	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle)
+	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle, 
+		VertexAnimationType animType)
 	{
-		VertexAnimationTrack* ret = new VertexAnimationTrack(this, handle);
+		VertexAnimationTrack* ret = new VertexAnimationTrack(this, handle, animType);
 
 		mVertexTrackList[handle] = ret;
 		return ret;
@@ -180,9 +181,9 @@ namespace Ogre {
 	}
 	//---------------------------------------------------------------------
 	VertexAnimationTrack* Animation::createVertexTrack(unsigned short handle, 
-		VertexData* data)
+		VertexData* data, VertexAnimationType animType)
 	{
-		VertexAnimationTrack* ret = createVertexTrack(handle);
+		VertexAnimationTrack* ret = createVertexTrack(handle, animType);
 
 		ret->setAssociatedVertexData(data);
 
@@ -276,38 +277,41 @@ namespace Ogre {
 
     }
 	//---------------------------------------------------------------------
-	void Animation::apply(Entity* entity, Real timePos, bool software, bool hardware)
+	void Animation::apply(Entity* entity, Real timePos, Real weight, 
+		bool software, bool hardware, ushort animIndex)
 	{
 		VertexTrackList::iterator i;
 		for (i = mVertexTrackList.begin(); i != mVertexTrackList.end(); ++i)
 		{
 			unsigned short handle = i->first;
+			VertexAnimationTrack* track = i->second;
+
 			VertexData* swVertexData;
 			VertexData* hwVertexData;
 			if (handle == 0)
 			{
 				// shared vertex data
-				swVertexData = entity->_getSoftwareMorphAnimVertexData();
-				hwVertexData = entity->_getHardwareMorphAnimVertexData();
+				swVertexData = entity->_getSoftwareVertexAnimVertexData();
+				hwVertexData = entity->_getHardwareVertexAnimVertexData();
 
 			}
 			else
 			{
 				// sub entity vertex data (-1)
 				SubEntity* s = entity->getSubEntity(handle - 1);
-				swVertexData = s->_getSoftwareMorphAnimVertexData();
-				hwVertexData = s->_getHardwareMorphAnimVertexData();
+				swVertexData = s->_getSoftwareVertexAnimVertexData();
+				hwVertexData = s->_getHardwareVertexAnimVertexData();
 			}
 			// Apply to both hardware and software, if requested
 			if (software)
 			{
-				i->second->setTargetMode(VertexAnimationTrack::TM_SOFTWARE);
-				i->second->applyToVertexData(swVertexData, timePos);
+				track->setTargetMode(VertexAnimationTrack::TM_SOFTWARE);
+				track->applyToVertexData(swVertexData, timePos, weight, animIndex);
 			}
 			if (hardware)
 			{
-				i->second->setTargetMode(VertexAnimationTrack::TM_HARDWARE);
-				i->second->applyToVertexData(hwVertexData, timePos);
+				track->setTargetMode(VertexAnimationTrack::TM_HARDWARE);
+				track->applyToVertexData(hwVertexData, timePos, weight, animIndex);
 			}
 		}
 

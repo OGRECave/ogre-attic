@@ -310,10 +310,10 @@ namespace Ogre {
             depending on the parameters passed to this method.
         @param skeletalAnimation Whether this vertex data is going to be 
 			skeletally animated
-		@param morphAnimation Whether this vertex data is going to be morph animated
+		@param vertexAnimation Whether this vertex data is going to be vertex animated
         */
         VertexDeclaration* getAutoOrganisedDeclaration(bool skeletalAnimation, 
-			bool morphAnimation);
+			bool vertexAnimation);
 
         /** Gets the indeex of the highest source value referenced by this declaration. */
         unsigned short getMaxSource(void) const;

@@ -2421,7 +2421,7 @@ protected:
 		l->setType(Light::LT_DIRECTIONAL);
 		l->setDirection(dir);
 
-		/*
+		
 		MeshPtr mesh = MeshManager::getSingleton().load("cube.mesh", 
 			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
 
@@ -2464,29 +2464,29 @@ protected:
 		
 		// create a morph animation
 		Animation* anim = mesh->createAnimation("testAnim", 10.0f);
-		VertexAnimationTrack* vt = anim->createVertexTrack(1, sm->vertexData);
+		VertexAnimationTrack* vt = anim->createVertexTrack(1, sm->vertexData, VAT_MORPH);
 		// re-use start positions for frame 0
-		VertexKeyFrame* kf = vt->createVertexKeyFrame(0);
+		VertexMorphKeyFrame* kf = vt->createVertexMorphKeyFrame(0);
 		kf->setVertexBuffer(origbuf);
 
 		// Use translated buffer for mid frame
-		kf = vt->createVertexKeyFrame(5.0f);
+		kf = vt->createVertexMorphKeyFrame(5.0f);
 		kf->setVertexBuffer(newbuf);
 
 		// re-use start positions for final frame
-		kf = vt->createVertexKeyFrame(10.0f);
+		kf = vt->createVertexMorphKeyFrame(10.0f);
 		kf->setVertexBuffer(origbuf);
 
 		// write
 		MeshSerializer ser;
 		ser.exportMesh(mesh.get(), "testmorph.mesh");
-		*/
+		
 
 		Entity* e = mSceneMgr->createEntity("test", "testmorph.mesh");
 		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
 
 		// test hardware morph
-		//e->setMaterialName("testmorph");
+		e->setMaterialName("testmorph");
 
 		mCamera->setNearClipDistance(0.5);
 		mSceneMgr->setShowDebugShadows(true);
@@ -2695,7 +2695,7 @@ protected:
         //testWindowedViewportMode();
         //testSubEntityVisibility();
         //testAttachObjectsToBones();
-        //testSkeletalAnimation();
+        testSkeletalAnimation();
         //testOrtho();
         //testClearScene();
 
@@ -2719,7 +2719,7 @@ protected:
 		//testReloadResources();
 		//testTransparencyMipMaps();
 		//testRadixSort();
-		testMorphAnimation();
+		//testMorphAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();

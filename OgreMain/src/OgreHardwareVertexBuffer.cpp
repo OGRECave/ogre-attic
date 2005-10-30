@@ -415,7 +415,7 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     VertexDeclaration* VertexDeclaration::getAutoOrganisedDeclaration(
-		bool skeletalAnimation, bool morphAnimation)
+		bool skeletalAnimation, bool vertexAnimation)
     {
         VertexDeclaration* newDecl = this->clone();
         // Set all sources to the same buffer (for now)
@@ -436,13 +436,13 @@ namespace Ogre {
         for (i = elems.begin(); i != elems.end(); ++i, ++c)
         {
             const VertexElement& elem = *i;
-			if (morphAnimation && elem.getSemantic() == VES_NORMAL)
+			if (vertexAnimation && elem.getSemantic() == VES_NORMAL)
 			{
 				// For morph animation, we need positions on their own
 				++buffer;
 				offset = 0;
 			}
-            if ((skeletalAnimation || morphAnimation) &&
+            if ((skeletalAnimation || vertexAnimation) &&
                 elem.getSemantic() != VES_POSITION && elem.getSemantic() != VES_NORMAL)
             {
 				// All animated meshes have to split after normal

@@ -44,7 +44,6 @@ namespace Ogre {
 			createVertexDeclaration();
 		vertexCount = 0;
 		vertexStart = 0;
-		hwMorphTargetElement = 0;
 
 	}
     //-----------------------------------------------------------------------
@@ -486,9 +485,9 @@ namespace Ogre {
 
     }
 	//-----------------------------------------------------------------------
-	void VertexData::allocatehwMorphTargetElement(void)
+	void VertexData::allocateHardwareAnimationElements(ushort count)
 	{
-
+		// Find first free texture coord set
 		unsigned short texCoord = 0;
 		const VertexDeclaration::VertexElementList& vel = vertexDeclaration->getElements();
 		for (VertexDeclaration::VertexElementList::const_iterator i = vel.begin(); 
@@ -502,13 +501,18 @@ namespace Ogre {
 		}
 		assert(texCoord <= OGRE_MAX_TEXTURE_COORD_SETS);
 
-		// Create a new 3D texture coordinate set
-		hwMorphTargetElement = &(vertexDeclaration->addElement(
-			vertexBufferBinding->getNextIndex(), 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoord));
+		// Increase to correct size
+		for (ushort c = hwAnimationDataList.size(); c < count; ++c)
+		{
+			// Create a new 3D texture coordinate set
+			HardwareAnimationData data;
+			data.targetVertexElement = &(vertexDeclaration->addElement(
+				vertexBufferBinding->getNextIndex(), 0, VET_FLOAT3, VES_TEXTURE_COORDINATES, texCoord++));
 
-		// Vertex buffer will not be bound yet, we expect this to be done by the
-		// caller when it becomes appropriate (e.g. through a VertexAnimationTrack)
-
+			hwAnimationDataList.push_back(data);
+			// Vertex buffer will not be bound yet, we expect this to be done by the
+			// caller when it becomes appropriate (e.g. through a VertexAnimationTrack)
+		}
 	}
     //-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------
