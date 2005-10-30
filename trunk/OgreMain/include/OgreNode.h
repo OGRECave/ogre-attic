@@ -79,7 +79,7 @@ namespace Ogre {
 				be several state-changing calls but only one of these calls, 
 				when the node graph is fully updated.
 			*/
-			virtual nodeUpdated(const Node* node) = 0;
+			virtual void nodeUpdated(const Node* node) = 0;
 		};
 
     protected:
