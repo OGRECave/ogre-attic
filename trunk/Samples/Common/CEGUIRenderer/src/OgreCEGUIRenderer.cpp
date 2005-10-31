@@ -745,6 +745,21 @@ ResourceProvider* OgreCEGUIRenderer::createResourceProvider(void)
 }
 
 /*************************************************************************
+Set the size of the display in pixels.	
+*************************************************************************/
+void OgreCEGUIRenderer::setDisplaySize(const Size& sz)
+{
+	if (d_display_area.getSize() != sz)
+	{
+		d_display_area.setSize(sz);
+
+		EventArgs args;
+		fireEvent(EventDisplaySizeChanged, args, EventNamespace);
+	}
+
+}
+
+/*************************************************************************
 	Callback from Ogre invoked before other stuff in our target queue
 	is rendered
 *************************************************************************/
