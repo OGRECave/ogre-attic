@@ -32,9 +32,10 @@ namespace Ogre {
 
     SDLInput::SDLInput()
       : InputReader(), mKeyboardBuffer(0), mMouseX(0), mMouseY(0), 
-        mMouseRelativeX(0), mMouseRelativeY(0), mMouseRelativeZ(0), mScale(0.002), 
+        mMouseRelativeX(0), mMouseRelativeY(0), mMouseRelativeZ(0), 
         _visible(true)
     {
+		mMouseScale = 0.002f;
 		mMouseGrabbed = false;
 		mGrabMouse = false;
 		mMouseLeft = false;
@@ -700,7 +701,7 @@ namespace Ogre {
                     {
                         mouseMoved();
                     }
-                    mCursor->addToX(events[i].motion.xrel * mScale);
+                    mCursor->addToX(events[i].motion.xrel * mMouseScale);
                     Xset = true;
                 }
                 if (events[i].motion.yrel)
@@ -709,7 +710,7 @@ namespace Ogre {
                     {
                         mouseMoved();
                     }
-                    mCursor->addToY(events[i].motion.yrel * mScale);
+                    mCursor->addToY(events[i].motion.yrel * mMouseScale);
                     Yset = true;
                 }
                 break;

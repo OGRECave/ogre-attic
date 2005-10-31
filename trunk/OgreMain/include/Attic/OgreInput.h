@@ -307,12 +307,25 @@ namespace Ogre {
 		void removeCursorMoveListener( MouseMotionListener* c );
 		static char getKeyChar(int keyCode, long modifiers = 0);
 
+		/** Set mouse scale factor.
+		@param scale The new mouse scale (The default on is around 0.001/0.002).
+		*/
+		virtual void setMouseScale( Real scale ) { mMouseScale = scale; }
+		
+		/** Get mouse scale factor.
+		*/
+		virtual Real getMouseScale( void ) const { return mMouseScale; }
+		
+
 
 	protected:
 
 		/** The modifiers are a binary flags that represent what buttons are pressed, 
             and what key modifiers are down (e.g. shift/alt). */
 		long mModifiers;
+
+		/// Speed of mouse
+		Real mMouseScale;
 
 		/** Internal Cursor object. 
             @remarks
