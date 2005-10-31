@@ -436,6 +436,9 @@ namespace Ogre
             }
         }
 
+		// If we're not paging, load immediate for convenience
+		if ( mActivePageSource && !mPagingEnabled )
+			mActivePageSource->requestPage(0,0);
 
 
     }
