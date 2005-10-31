@@ -552,8 +552,8 @@ namespace Ogre {
 			Vector3 sortDir;
 			float operator()(Particle* p) const;
 		};
-		SortFunctor mSortFunctor;
-		RadixSort<ActiveParticleList, Particle*, float> mRadixSorter;
+
+		static RadixSort<ActiveParticleList, Particle*, float> mRadixSorter;
 
 		/** Active particle list.
             @remarks

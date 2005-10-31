@@ -38,6 +38,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include <algorithm>
 
 namespace Ogre {
+    // Init statics
+    RadixSort<BillboardSet::ActiveBillboardList, Billboard*, float> BillboardSet::mRadixSorter;
 
     //-----------------------------------------------------------------------
     BillboardSet::BillboardSet() :
@@ -137,6 +139,7 @@ namespace Ogre {
         newBill->setColour(colour);
         newBill->mDirection = Vector3::ZERO;
         newBill->setRotation(Radian(0));
+        newBill->setTexCoords(0);
         newBill->resetDimensions();
         newBill->_notifyOwner(this);
 
@@ -303,18 +306,10 @@ namespace Ogre {
     //-----------------------------------------------------------------------
 	void BillboardSet::_sortBillboards( Camera* cam)
 	{
-        Quaternion invTransform = mParentNode->_getDerivedOrientation().Inverse();
-        Quaternion camQ = cam->getDerivedOrientation();
+        SortFunctor sortFunctor;
+        sortFunctor.sortDir = -mCamDir;
 
-		// Get camera world axes for X and Y (depth is irrelevant)
-		// Convert into billboard local space
-		if (!mWorldSpace)
-		{
-			camQ = invTransform * camQ;
-		}
-		mSortFunctor.sortDir = camQ * Vector3::UNIT_Z;
-
-		mRadixSorter.sort(mActiveBillboards, mSortFunctor);
+		mRadixSorter.sort(mActiveBillboards, sortFunctor);
 	}
 	float BillboardSet::SortFunctor::operator()(Billboard* bill) const
 	{
@@ -326,6 +321,10 @@ namespace Ogre {
 		MovableObject::_notifyCurrentCamera(cam);
 
         mCurrentCamera = cam;
+    }
+    //-----------------------------------------------------------------------
+    void BillboardSet::beginBillboards(void)
+    {
         /* Generate the vertices for all the billboards relative to the camera
            Also take the opportunity to update the vertex colours
            May as well do it here to save on loops elsewhere
@@ -355,10 +354,23 @@ namespace Ogre {
         // Get offsets for origin type
         getParametricOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff);
 
+        // Calculate camera orientation
+        mCamQ = mCurrentCamera->getDerivedOrientation();
+        if (!mWorldSpace)
+        {
+            // Default behaviour is that billboards are in local node space
+            // so orientation of camera (in world space) must be reverse-transformed 
+            // into node space
+            mCamQ = mParentNode->_getDerivedOrientation().Inverse() * mCamQ;
+        }
+
+        // Camera direction points down -Z
+        mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
+
         // Generate axes etc up-front if not oriented per-billboard
         if (mBillboardType != BBT_ORIENTED_SELF)
         {
-            genBillboardAxes(cam, &mCamX, &mCamY);
+            genBillboardAxes(&mCamX, &mCamY);
 
             /* If all billboards are the same size we can precalculate the
                offsets and just use '+' instead of '*' for each billboard,
@@ -369,36 +381,10 @@ namespace Ogre {
 
         }
 
-        
-
-        // If we're driving this from our own data, go ahead
-        if (!mExternalData)
-        {
-			if (mSortingEnabled) 
-			{
-				_sortBillboards(cam);
-			}
-
-            beginBillboards();
-            ActiveBillboardList::iterator it;
-            for(it = mActiveBillboards.begin();
-                it != mActiveBillboards.end();
-                ++it )
-            {
-                injectBillboard(*(*it));
-            }
-            endBillboards();
-        }
-
-
-
-    }
-    //-----------------------------------------------------------------------
-    void BillboardSet::beginBillboards(void)
-    {
         // Init num visible
         mNumVisibleBillboards = 0;
 
+        // Lock the buffer
         mLockPtr = static_cast<float*>( 
             mMainBuf->lock(HardwareBuffer::HBL_DISCARD) );
 
@@ -412,7 +398,7 @@ namespace Ogre {
         if (mBillboardType == BBT_ORIENTED_SELF)
         {
             // Have to generate axes & offsets per billboard
-            genBillboardAxes(mCurrentCamera, &mCamX, &mCamY, &bb);
+            genBillboardAxes(&mCamX, &mCamY, &bb);
         }
 
         if( mAllDefaultSize ) // If they're all the same size
@@ -511,6 +497,25 @@ namespace Ogre {
     //-----------------------------------------------------------------------    
     void BillboardSet::_updateRenderQueue(RenderQueue* queue)
     {
+        // If we're driving this from our own data, update geometry now
+        if (!mExternalData)
+        {
+            if (mSortingEnabled) 
+            {
+                _sortBillboards(mCurrentCamera);
+            }
+
+            beginBillboards();
+            ActiveBillboardList::iterator it;
+            for(it = mActiveBillboards.begin();
+                it != mActiveBillboards.end();
+                ++it )
+            {
+                injectBillboard(*(*it));
+            }
+            endBillboards();
+        }
+
         //only set the render queue group if it has been explicitly set.
         if( mRenderQueueIDSet ) 
         {
@@ -594,11 +599,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void BillboardSet::setPoolSize( unsigned int size )
     {
-        // Never shrink below size()
-        size_t currSize = mBillboardPool.size();
-
-        if( currSize < size )
+        // If we're driving this from our own data, allocate billboards
+        if (!mExternalData)
         {
+            // Never shrink below size()
+            size_t currSize = mBillboardPool.size();
+            if (currSize >= size)
+                return;
+
             this->increasePool(size);
 
             for( size_t i = currSize; i < size; ++i )
@@ -606,20 +614,20 @@ namespace Ogre {
                 // Add new items to the queue
                 mFreeBillboards.push_back( mBillboardPool[i] );
             }
-            
-            mPoolSize = size;
-            mBuffersCreated = false;
+        }
 
-            if (mVertexData)
-            {
-                delete mVertexData;
-                mVertexData = 0;
-            }
-            if (mIndexData)
-            {
-                delete mIndexData;
-                mIndexData = 0;
-            }
+        mPoolSize = size;
+        mBuffersCreated = false;
+
+        if (mVertexData)
+        {
+            delete mVertexData;
+            mVertexData = 0;
+        }
+        if (mIndexData)
+        {
+            delete mIndexData;
+            mIndexData = 0;
         }
     }
 
@@ -842,66 +850,32 @@ namespace Ogre {
 
     }
     //-----------------------------------------------------------------------
-    void BillboardSet::genBillboardAxes(Camera* cam, Vector3* pX, 
-        Vector3 *pY, const Billboard* bb)
+    void BillboardSet::genBillboardAxes(Vector3* pX, Vector3 *pY, const Billboard* bb)
     {
-        // Default behaviour is that billboards are in local node space
-        // so orientation of camera (in world space) must be reverse-transformed 
-        // into node space to generate the axes
-
-        Quaternion invTransform;
-        if (!mWorldSpace)
-        {
-            invTransform = mParentNode->_getDerivedOrientation().Inverse();
-        }
-        Quaternion camQ;
-
         switch (mBillboardType)
         {
         case BBT_POINT:
-            // Get camera world axes for X and Y (depth is irrelevant)
-            camQ = cam->getDerivedOrientation();
-            if (!mWorldSpace)
-            {
-                // Convert into billboard local space
-                camQ = invTransform * camQ;
-            }
-            *pX = camQ * Vector3::UNIT_X;
-            *pY = camQ * Vector3::UNIT_Y;
+            // Get camera axes for X and Y (depth is irrelevant)
+            *pX = mCamQ * Vector3::UNIT_X;
+            *pY = mCamQ * Vector3::UNIT_Y;
             break;
+
         case BBT_ORIENTED_COMMON:
             // Y-axis is common direction
             // X-axis is cross with camera direction 
             *pY = mCommonDirection;
-            if (!mWorldSpace)
-            {
-                // Convert into billboard local space
-                *pX = (invTransform * cam->getDerivedDirection()).crossProduct(*pY);
-            }
-            else
-            {
-                *pX = cam->getDerivedDirection().crossProduct(*pY);
-            }
+            *pX = mCamDir.crossProduct(*pY);
             pX->normalise();
-            
             break;
+
         case BBT_ORIENTED_SELF:
             // Y-axis is direction
             // X-axis is cross with camera direction 
             // Scale direction first
             *pY = bb->mDirection;
 			*pY *= 0.01f;
-            if (!mWorldSpace)
-            {
-                // Convert into billboard local space
-                *pX = (invTransform * cam->getDerivedDirection()).crossProduct(*pY);
-				pX->normalise();
-            }
-            else
-            {
-                *pX = cam->getDerivedDirection().crossProduct(*pY);
-            }
-
+            *pX = mCamDir.crossProduct(*pY);
+            pX->normalise();
             break;
         }
 
@@ -938,32 +912,75 @@ namespace Ogre {
         RGBA colour;
         Root::getSingleton().convertColourValue(bb.mColour, &colour);
 		RGBA* pCol;
-        static float basicTexData[8] = {
-            0.0, 1.0,
-            1.0, 1.0,
-            0.0, 0.0,
-            1.0, 0.0 };
-        static float rotTexData[8];
-
-		float* pTexData;
 
         // Texcoords
         assert( bb.mTexCoords < mTextureCoords.size() );
-        Ogre::FloatRect & r = mTextureCoords[bb.mTexCoords];
-        if (mFixedTextureCoords)
+        const Ogre::FloatRect & r = mTextureCoords[bb.mTexCoords];
+
+        if (mFixedTextureCoords || bb.mRotation == Radian(0))
         {
-            rotTexData[0] = r.left;
-            rotTexData[1] = r.bottom;
-            rotTexData[2] = r.right;
-            rotTexData[3] = r.bottom;
-            rotTexData[4] = r.left;
-            rotTexData[5] = r.top;
-            rotTexData[6] = r.right;
-            rotTexData[7] = r.top;
+            // Left-top
+            // Positions
+            *mLockPtr++ = offsets[0].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[0].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[0].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = r.left;
+            *mLockPtr++ = r.bottom;
+
+            // Right-top
+            // Positions
+            *mLockPtr++ = offsets[1].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[1].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[1].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = r.right;
+            *mLockPtr++ = r.bottom;
+
+            // Left-bottom
+            // Positions
+            *mLockPtr++ = offsets[2].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[2].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[2].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = r.left;
+            *mLockPtr++ = r.top;
+
+            // Right-bottom
+            // Positions
+            *mLockPtr++ = offsets[3].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[3].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[3].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = r.right;
+            *mLockPtr++ = r.top;
         }
         else
         {
-
             const Real      cos_rot  ( Math::Cos(bb.mRotation)   );
             const Real      sin_rot  ( Math::Sin(bb.mRotation)   );
 
@@ -972,81 +989,71 @@ namespace Ogre {
             float mid_u = r.left+width;
             float mid_v = r.bottom+height;
 
-            rotTexData[0] = mid_u + (cos_rot * -width) + (sin_rot * height);
-            rotTexData[1] = mid_v + (sin_rot * -width) - (cos_rot * height);
+            float cos_rot_w = cos_rot * width;
+            float cos_rot_h = cos_rot * height;
+            float sin_rot_w = sin_rot * width;
+            float sin_rot_h = sin_rot * height;
 
-            rotTexData[2] = mid_u + (cos_rot * width) + (sin_rot * height);
-            rotTexData[3] = mid_v + (sin_rot * width) - (cos_rot * height);
+            // Left-top
+            // Positions
+            *mLockPtr++ = offsets[0].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[0].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[0].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = mid_u - cos_rot_w + sin_rot_h;
+            *mLockPtr++ = mid_v - sin_rot_w - cos_rot_h;
 
-            rotTexData[4] = mid_u + (cos_rot * -width) + (sin_rot * -height);
-            rotTexData[5] = mid_v + (sin_rot * -width) - (cos_rot * -height);
+            // Right-top
+            // Positions
+            *mLockPtr++ = offsets[1].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[1].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[1].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = mid_u + cos_rot_w + sin_rot_h;
+            *mLockPtr++ = mid_v + sin_rot_w - cos_rot_h;
 
-            rotTexData[6] = mid_u + (cos_rot * width) + (sin_rot * -height);
-            rotTexData[7] = mid_v + (sin_rot * width) - (cos_rot * -height);
+            // Left-bottom
+            // Positions
+            *mLockPtr++ = offsets[2].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[2].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[2].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = mid_u - cos_rot_w - sin_rot_h;
+            *mLockPtr++ = mid_v - sin_rot_w + cos_rot_h;
+
+            // Right-bottom
+            // Positions
+            *mLockPtr++ = offsets[3].x + bb.mPosition.x;
+            *mLockPtr++ = offsets[3].y + bb.mPosition.y;
+            *mLockPtr++ = offsets[3].z + bb.mPosition.z;
+            // Colour
+            // Convert float* to RGBA*
+            pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
+            *pCol++ = colour;
+            // Update lock pointer
+            mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
+            // Texture coords
+            *mLockPtr++ = mid_u + cos_rot_w - sin_rot_h;
+            *mLockPtr++ = mid_v + sin_rot_w + cos_rot_h;
         }
-        pTexData = rotTexData;
-		
-
-        // Left-top
-		// Positions
-        *mLockPtr++ = offsets[0].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[0].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[0].z + bb.mPosition.z;
-		// Colour
-		// Convert float* to RGBA*
-        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
-        *pCol++ = colour;
-        // Update lock pointer
-        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
-		// Texture coords
-		*mLockPtr++ = *pTexData++;
-		*mLockPtr++ = *pTexData++;
-
-
-		// Right-top
-		// Positions
-        *mLockPtr++ = offsets[1].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[1].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[1].z + bb.mPosition.z;
-		// Colour
-		// Convert float* to RGBA*
-        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
-        *pCol++ = colour;
-        // Update lock pointer
-        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
-		// Texture coords
-		*mLockPtr++ = *pTexData++;
-		*mLockPtr++ = *pTexData++;
-
-		// Left-bottom
-		// Positions
-        *mLockPtr++ = offsets[2].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[2].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[2].z + bb.mPosition.z;
-		// Colour
-		// Convert float* to RGBA*
-        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
-        *pCol++ = colour;
-        // Update lock pointer
-        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
-		// Texture coords
-		*mLockPtr++ = *pTexData++;
-		*mLockPtr++ = *pTexData++;
-
-		// Right-bottom
-		// Positions
-        *mLockPtr++ = offsets[3].x + bb.mPosition.x;
-        *mLockPtr++ = offsets[3].y + bb.mPosition.y;
-        *mLockPtr++ = offsets[3].z + bb.mPosition.z;
-		// Colour
-		// Convert float* to RGBA*
-        pCol = static_cast<RGBA*>(static_cast<void*>(mLockPtr));
-        *pCol++ = colour;
-        // Update lock pointer
-        mLockPtr = static_cast<float*>(static_cast<void*>(pCol));
-		// Texture coords
-		*mLockPtr++ = *pTexData++;
-		*mLockPtr++ = *pTexData++;
 
     }
     //-----------------------------------------------------------------------
