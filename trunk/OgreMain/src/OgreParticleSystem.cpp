@@ -52,6 +52,8 @@ namespace Ogre {
 	ParticleSystem::CmdSorted ParticleSystem::msSortedCmd;
 	ParticleSystem::CmdLocalSpace ParticleSystem::msLocalSpaceCmd;
 
+    RadixSort<ParticleSystem::ActiveParticleList, Particle*, float> ParticleSystem::mRadixSorter;
+
     //-----------------------------------------------------------------------
     ParticleSystem::ParticleSystem() 
       : mBoundsAutoUpdate(true), mBoundsUpdateTime(10.0f),
@@ -560,22 +562,15 @@ namespace Ogre {
             Vector3 temp;
             const Vector3 *corner = mWorldAABB.getAllCorners();
             Quaternion invQ = mParentNode->_getDerivedOrientation().Inverse();
-            Vector3 t;
-			if (mLocalSpace)
-			{
-				t = Vector3::ZERO;
-			}
-			else
-			{
-				t = mParentNode->_getDerivedPosition();
-			}
+            Vector3 t = mParentNode->_getDerivedPosition();
             min.x = min.y = min.z = Math::POS_INFINITY;
             max.x = max.y = max.z = Math::NEG_INFINITY;
             for (int i = 0; i < 8; ++i)
             {
                 // Reverse transform corner
-				temp = corner[i] - t;
-				if (!mLocalSpace)
+				if (mLocalSpace)
+                    temp = corner[i];
+                else
                     temp = invQ * (corner[i] - t);
                 min.makeFloor(temp);
                 max.makeCeil(temp);
@@ -861,9 +856,11 @@ namespace Ogre {
 			// transform the camera orientation into local space
 			camQ = mParentNode->_getDerivedOrientation().Inverse() * camQ;
 		}
-		mSortFunctor.sortDir = camQ * Vector3::UNIT_Z;
 
-		mRadixSorter.sort(mActiveParticles, mSortFunctor);
+        SortFunctor sortFunctor;
+		sortFunctor.sortDir = camQ * Vector3::UNIT_Z;
+
+		mRadixSorter.sort(mActiveParticles, sortFunctor);
 	}
 	float ParticleSystem::SortFunctor::operator()(Particle* p) const
 	{

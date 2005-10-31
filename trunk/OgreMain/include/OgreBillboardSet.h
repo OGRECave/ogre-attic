@@ -166,6 +166,10 @@ namespace Ogre {
         Real mLeftOff, mRightOff, mTopOff, mBottomOff;
         // Camera axes in billboard space
         Vector3 mCamX, mCamY;
+        // Camera direction in billboard space
+        Vector3 mCamDir;
+        // Camera orientation in billboard space
+        Quaternion mCamQ;
 
         /// The vertex index data for all billboards in this set (1 set only)
         //unsigned short* mpIndexes;
@@ -203,7 +207,7 @@ namespace Ogre {
         @remarks
             Optional parameter pBill is only present for type BBT_ORIENTED_SELF
         */
-        virtual void genBillboardAxes(Camera* cam, Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
+        void genBillboardAxes(Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
 
         /** Internal method, generates parametric offsets based on origin.
         */
@@ -234,8 +238,8 @@ namespace Ogre {
 			Vector3 sortDir;
 			float operator()(Billboard* bill) const;
 		};
-		SortFunctor mSortFunctor;
-		RadixSort<ActiveBillboardList, Billboard*, float> mRadixSorter;
+
+		static RadixSort<ActiveBillboardList, Billboard*, float> mRadixSorter;
 
 
 
