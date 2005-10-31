@@ -271,7 +271,7 @@ namespace Ogre {
 				mSortArea1[u].iter = i;
 
 				// increase counters
-				for (int p = 0; p < mNumPasses; ++p)
+				for (p = 0; p < mNumPasses; ++p)
 				{
 					unsigned char byteVal = getByte(p, val);
 					mCounters[p][byteVal]++;
@@ -303,7 +303,7 @@ namespace Ogre {
 
 			// Copy everything back
 			int c = 0;
-			for (ContainerIter i = container.begin(); 
+			for (i = container.begin(); 
 				i != container.end(); ++i, ++c)
 			{
 				*i = *((*mDest)[c].iter);
