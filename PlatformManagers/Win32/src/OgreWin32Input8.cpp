@@ -50,7 +50,7 @@ namespace Ogre {
         mlpDIKeyboard = 0;
         mlpDIMouse = 0;
 		mEventQueue = 0;
-		mScale = 0.001;
+		mMouseScale = 0.001;
 
         memset(mKeyboardBuffer,0,256);
     }
@@ -727,7 +727,7 @@ namespace Ogre {
 
 	Real Win32Input8::getScaled(DWORD dwVal) const
 	{
-		return (Real)((int)dwVal) * mScale;
+		return (Real)((int)dwVal) * mMouseScale;
 	}
 
     //-----------------------------------------------------------------------
