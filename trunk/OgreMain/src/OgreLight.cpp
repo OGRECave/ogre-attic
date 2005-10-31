@@ -511,7 +511,7 @@ namespace Ogre {
 	{
 		vec.push_back("diffuseColour");
 		vec.push_back("specularColour");
-		vec.push_back("attenuationRange");
+		vec.push_back("attenuation");
 		vec.push_back("spotlightInner");
 		vec.push_back("spotlightOuter");
 		vec.push_back("spotlightFalloff");
@@ -562,12 +562,12 @@ namespace Ogre {
 
 	};
 	//-----------------------------------------------------------------------
-	class LightAttenuationRangeValue : public AnimableValue
+	class LightAttenuationValue : public AnimableValue
 	{
 	protected:
 		Light* mLight;
 	public:
-		LightAttenuationRangeValue(Light* l) :AnimableValue(VECTOR4) 
+		LightAttenuationValue(Light* l) :AnimableValue(VECTOR4) 
 		{ mLight = l; }
 		void setValue(const Vector4& val)
 		{
@@ -662,10 +662,10 @@ namespace Ogre {
 			return AnimableValuePtr(
 				new LightSpecularColourValue(this));
 		}
-		else if (valueName == "attenuationRange")
+		else if (valueName == "attenuation")
 		{
 			return AnimableValuePtr(
-				new LightAttenuationRangeValue(this));
+				new LightAttenuationValue(this));
 		}
 		else if (valueName == "spotlightInner")
 		{

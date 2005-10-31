@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.1.0: Animation</TITLE>
+<TITLE>OGRE Manual v1.1.0: Animation State</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.1.0: Animation">
-<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Animation">
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Animation State">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Animation State">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,34 +23,25 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC246"></A>
+<A NAME="SEC248"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_61.html#SEC243"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_63.html#SEC247"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_63.html#SEC247"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC246"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_65.html#SEC249"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
 </TR></TABLE>
 <HR SIZE=1>
-<H1> 8. Animation </H1>
-<!--docid::SEC246::-->
+<H2> 8.2 Animation State </H2>
+<!--docid::SEC248::-->
 
-OGRE supports a prety flexible animation system that allows you to script animation for several different purposes:
+When an entity containing animation of any type is created, it is given an 'animation state' object per animation to allow you to specify the animation state of that single entity (you can animate multiple entities using the same animation definitions, OGRE sorts the reuse out internally).<BR><BR>
 
-<DL COMPACT>
-<DT><A HREF="manual_63.html#SEC247">8.1 Skeletal Animation</A>
-<DD>Mesh animation using a skeletal structure to determine how the mesh deforms. <BR>
-<DT><A HREF="manual_65.html#SEC249">8.3 Vertex Animation</A>
-<DD>Mesh animation using snapshots of vertex data to determine how the shape of the mesh changes.<BR>
-<DT><A HREF="manual_69.html#SEC257">8.4 SceneNode Animation</A>
-<DD>Animating SceneNodes automatically to create effects like camera sweeps, objects following predefined paths, etc.<BR>
-<DT><A HREF="manual_70.html#SEC258">8.5 Numeric Value Animation</A>
-<DD>Using OGRE's extensible class structure to animate any value.
-</DL>
+You can retrieve a pointer to the AnimationState object by calling Entity::getAnimationState. You can then call methods on this returned object to update the animation, probably in the frameStarted event. Each AnimationState needs to be enabled using the setEnabled method before the animation it refers to will take effect, and you can set both the weight and the time position (where appropriate) to affect the application of the animation using correlating methods. AnimationState also has a very simple method 'addTime' which allows you to alter the animation position incrementally, and it will automatically loop for you. addTime can take positive or negative values (so you can reverse the animation if you want).<BR><BR>
 
-<A NAME="Skeletal Animation"></A>
+<A NAME="Vertex Animation"></A>
 <HR SIZE=1>
 <BR>  
 <FONT SIZE="-1">
