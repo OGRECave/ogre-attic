@@ -1,0 +1,89 @@
+<HTML>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- Created on , 31 2005 by texi2html 1.64 -->
+<!-- 
+Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Olaf Bachmann <obachman@mathematik.uni-kl.de>
+Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
+ 
+-->
+<HEAD>
+<TITLE>OGRE Manual v1.1.0: Vertex Animation</TITLE>
+
+<META NAME="description" CONTENT="OGRE Manual v1.1.0: Vertex Animation">
+<META NAME="keywords" CONTENT="OGRE Manual v1.1.0: Vertex Animation">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META NAME="Generator" CONTENT="texi2html 1.64">
+<LINK TYPE="text/css" rel="stylesheet" href="../style.css"> 
+</HEAD>
+
+<BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+
+<A NAME="SEC249"></A>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_64.html#SEC248"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC246"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_66.html#SEC252"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<HR SIZE=1>
+<H2> 8.3 Vertex Animation </H2>
+<!--docid::SEC249::-->
+Vertex animation is about using information about the movement of vertices directly to animate the mesh. Each track in a vertex animation targets a single VertexData instance. Vertex animation is stored inside the .mesh file since it is tightly linked to the vertex structure of the mesh.
+
+There are actually two subtypes of vertex animation, for reasons which will be discussed in a moment.
+
+<DL COMPACT>
+<DT><A HREF="manual_66.html#SEC252">8.3.1 Morph Animation</A>
+<DD>Morph animation is about interpolating many mesh snapshots along a keyframe timeline. Morph animation has a direct correlation to old-skool character animation techniques used before skeletal animation was widely used.<BR>
+<DT><A HREF="manual_67.html#SEC253">8.3.2 Pose Animation</A>
+<DD>Pose animation is about blending multiple discrete poses, expressed as offsets to the base vertex data, with different weights to provide a final result. Pose animation's most obvious use is facial animation.
+</DL>
+
+<A NAME="SEC250"></A>
+<H2> Why two subtypes? </H2>
+<!--docid::SEC250::-->
+So, why two subtypes of vertex animation? Couldn't both be implemented using the same system? The short answer is yes, but for very good reasons we decided to specialise them in order to optimise the implementation of each discrete type. If you don't care about the reasons why these are implemented differently, you can skip to the next part.<BR><BR>
+
+With morph animation, we have a whole series of poses which must be interpolated, e.g. a running animation implemented as morph targets. We choose not to support blending between multiple morph animations - this is beccause we like to support all features in hardware if possible, and blending of multiple morph animations requires (2*animations + 1) position vertex buffers. This is because to support blending all the positions have to be stored as offsets rather than snapshots, so to interpolate you need the previous keyframe, the next keyframe and the original vertex data. This clearly becomes infeasible very quickly when trying to implement this in a vertex shader - and really if you're wanting to do blended animation with multiple sets of tracks you should be using skeletal animation. By only supporting one active morph animation at once, the buffer requirements reduce to just 2 - snapshots of 2 keyframes of absolute position data. <BR><BR>
+
+Pose animation is different - it is not a sequence of keyframes, but a single target pose per track. For simplicity this is implemented as a single keyframe, but the data inside it is stored as an offset to the  base vertex data rather than as absolute data. This is because the primary reason for pose animation is to be able to blend multiple weighted poses - for example multiple expressions in facial animation. Whilst each track doesn't need interpolation within itself, it will be blended with other tracks for the same submesh. Since there is only one keyframe, the vertex buffer requirements for hardware interpolation are only (animations + 1), which is more manageable.  <BR><BR>
+
+So, by partitioning the vertex animation approaches into 2, we keep the techniques viable for hardware acceleration whilst still allowing all the useful techniques to be available. Note that morph animation cannot be blended with other types of vertex animation on the same vertex data (pose animation or other morph animation); pose animation can be blended with other pose animation though, and both types can be combined with skeletal animation. This combination limitation applies per set of vertex data though, not globally across the mesh (see below).
+
+<A NAME="SEC251"></A>
+<H2> Subtype applies per track </H2>
+<!--docid::SEC251::-->
+It's important to note that the subtype in question is held at a track level, not at the animation or mesh level. Since tracks map onto VertexData instances, this means that if your mesh is split into SubMeshes, each with their own dedicated geometry, you can have one SubMesh animated using pose animation, and others animated with morph animation (or not vertex animated at all). <BR><BR>
+
+For example, a common set-up for a complex character which needs both skeletal and facial animation might be to split the head into a separate SubMesh with its own geometry, then apply skeletal animation to both submeshes, and pose animation to just the head. <BR><BR>
+
+To see how to apply vertex animation, See section <A HREF="manual_64.html#SEC248">8.2 Animation State</A>.
+
+<A NAME="Morph Animation"></A>
+<HR SIZE=1>
+<TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_64.html#SEC248"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_62.html#SEC246"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_66.html#SEC252"> &gt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_abt.html#SEC_About"> ? </A>]</TD>
+</TR></TABLE>
+<BR>  
+<FONT SIZE="-1">
+This document was generated
+by <I>Steve Streeting</I> on <I>, 31 2005</I>
+using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
+"><I>texi2html</I></A>
+
+</BODY>
+</HTML>
