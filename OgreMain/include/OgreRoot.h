@@ -681,14 +681,15 @@ namespace Ogre
 
 		/** Sets the period over which OGRE smooths out fluctuations in frame times.
 		@remarks
-			OGRE by default smooths out the frame times over half a second, in order
-			to reduce the noticeable effect of occasional hiccups in framerate.
+			OGRE by default gives you the raw frame time, but can optionally
+			smooths it out over several frames, in order to reduce the 
+			noticeable effect of occasional hiccups in framerate.
 			These smoothed values are passed back as parameters to FrameListener
 			calls.
 		@par
 			This method allow you to tweak the smoothing period, and is expressed
 			in seconds. Setting it to 0 will result in completely unsmoothed
-			frame times.
+			frame times (the default).
 		*/
 		void setFrameSmoothingPeriod(Real period) { mFrameSmoothingTime = period; }
 		/** Gets the period over which OGRE smooths out fluctuations in frame times. */
