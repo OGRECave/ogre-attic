@@ -126,7 +126,8 @@ namespace Ogre {
 
     //-----------------------------------------------------------------------
     Root::Root(const String& pluginFileName, const String& configFileName, const String& logFileName)
-      : mLogManager(0), mCurrentFrame(0), mNextMovableObjectTypeFlag(1)
+      : mLogManager(0), mCurrentFrame(0), mFrameSmoothingTime(0.0f), 
+	  mNextMovableObjectTypeFlag(1)
     {
         // First create new exception handler
         SET_TERM_HANDLER;
@@ -612,7 +613,7 @@ namespace Ogre {
     Real Root::calculateEventTime(unsigned long now, FrameEventTimeType type)
     {
         // Calculate the average time passed between events of the given type
-        // during the last 0.5 seconds.
+        // during the last mFrameSmoothingTime seconds.
 
         std::deque<unsigned long>& times = mEventTimes[type];
         times.push_back(now);
@@ -620,8 +621,8 @@ namespace Ogre {
         if(times.size() == 1)
             return 0;
 
-        // Times up to 0.5 seconds old should be kept
-        unsigned long discardLimit = now - 500;
+        // Times up to mFrameSmoothingTime seconds old should be kept
+        unsigned long discardLimit = now - (mFrameSmoothingTime * 10000.0f);
 
         // Find the oldest time to keep
         std::deque<unsigned long>::iterator it = times.begin(),

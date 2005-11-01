@@ -107,6 +107,7 @@ namespace Ogre
 		ExternalTextureSourceManager* mExternalTextureSourceManager;
         CompositorManager* mCompositorManager;      
         unsigned long mCurrentFrame;
+		Real mFrameSmoothingTime;
 
         std::vector<DynLib*> mPluginLibs;
 
@@ -677,6 +678,21 @@ namespace Ogre
 			the stored times
 		*/
 		void clearEventTimes(void);
+
+		/** Sets the period over which OGRE smooths out fluctuations in frame times.
+		@remarks
+			OGRE by default smooths out the frame times over half a second, in order
+			to reduce the noticeable effect of occasional hiccups in framerate.
+			These smoothed values are passed back as parameters to FrameListener
+			calls.
+		@par
+			This method allow you to tweak the smoothing period, and is expressed
+			in seconds. Setting it to 0 will result in completely unsmoothed
+			frame times.
+		*/
+		void setFrameSmoothingPeriod(Real period) { mFrameSmoothingTime = period; }
+		/** Gets the period over which OGRE smooths out fluctuations in frame times. */
+		Real getFrameSmoothingPeriod(void) const { return mFrameSmoothingTime; }
 
 		/** Register a new MovableObjectFactory which will create new MovableObject
 			instances of a particular type, as identified by the getType() method.
