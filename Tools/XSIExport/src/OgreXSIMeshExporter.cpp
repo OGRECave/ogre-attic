@@ -772,6 +772,9 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void XsiMeshExporter::exportProtoSubMesh(Mesh* pMesh, ProtoSubMesh* proto)
 	{
+		// Skip protos which have ended up empty
+		if (proto->indices.empty())
+			return;
 
         SubMesh* sm = 0;
         if (proto->name.empty())
