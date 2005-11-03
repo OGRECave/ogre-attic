@@ -313,14 +313,6 @@ namespace Ogre {
     }
 
     //-----------------------------------------------------------------------
-    void Camera::updateFrustum(void) const
-    {
-        Frustum::updateFrustum();
-        // Set the clipping planes
-        setWindowImpl();
-    }
-
-    //-----------------------------------------------------------------------
     bool Camera::isViewOutOfDate(void) const
     {
         // Overridden from Frustum to use local orientation / position offsets
@@ -337,6 +329,7 @@ namespace Ogre {
                 mDerivedOrientation = mLastParentOrientation * mOrientation;
                 mDerivedPosition = (mLastParentOrientation * mPosition) + mLastParentPosition;
                 mRecalcView = true;
+                mRecalcWindow = true;
             }
         }
         else
@@ -354,20 +347,13 @@ namespace Ogre {
             mReflectMatrix = Math::buildReflectionMatrix(mReflectPlane);
             mLastLinkedReflectionPlane = mLinkedReflectPlane->_getDerivedPlane();
             mRecalcView = true;
+            mRecalcWindow = true;
         }
 
         return mRecalcView;
 
     }
 
-
-    //-----------------------------------------------------------------------
-    void Camera::updateView(void) const
-    {
-        Frustum::updateView();
-        setWindowImpl();
-
-    }
     // -------------------------------------------------------------------
     void Camera::invalidateView() const
     {
@@ -396,6 +382,8 @@ namespace Ogre {
         o << ", direction=" << dir << ",near=" << c.mNearDist;
         o << ", far=" << c.mFarDist << ", FOVy=" << c.mFOVy.valueDegrees();
         o << ", aspect=" << c.mAspect << ", ";
+        o << ", xoffset=" << c.mFrustumOffset.x << ", yoffset=" << c.mFrustumOffset.y;
+        o << ", focalLength=" << c.mFocalLength << ", ";
         o << "NearFrustumPlane=" << c.mFrustumPlanes[FRUSTUM_PLANE_NEAR] << ", ";
         o << "FarFrustumPlane=" << c.mFrustumPlanes[FRUSTUM_PLANE_FAR] << ", ";
         o << "LeftFrustumPlane=" << c.mFrustumPlanes[FRUSTUM_PLANE_LEFT] << ", ";
@@ -516,11 +504,15 @@ namespace Ogre {
 		Vector3 rayDirection, rayOrigin;
 		if (mProjType == PT_PERSPECTIVE)
 		{
+			// Frustum offset (at near plane)
+			Real nearFocal = mNearDist / mFocalLength;
+			Real offsetX = mFrustumOffset.x * nearFocal;
+			Real offsetY = mFrustumOffset.y * nearFocal;
 			// From camera centre
 			rayOrigin = getDerivedPosition();
 			// Point to perspective projected position
-			rayDirection.x = centeredScreenX * viewportXToWorldX;
-			rayDirection.y = centeredScreenY * viewportYToWorldY;
+			rayDirection.x = centeredScreenX * viewportXToWorldX + offsetX;
+			rayDirection.y = centeredScreenY * viewportYToWorldY + offsetY;
 			rayDirection.z = -mNearDist;
 			rayDirection = getDerivedOrientation() * rayDirection;
 			rayDirection.normalise();
@@ -549,8 +541,6 @@ namespace Ogre {
 
         mWindowSet = true;
         mRecalcWindow = true;
-
-        invalidateView();
     }
     // -------------------------------------------------------------------
     void Camera::resetWindow ()
@@ -563,16 +553,12 @@ namespace Ogre {
         if (!mWindowSet || !mRecalcWindow)
             return;
 
+        // Calculate general projection parameters
+        Real vpLeft, vpRight, vpBottom, vpTop;
+        calcProjectionParameters(vpLeft, vpRight, vpBottom, vpTop);
 
-        Radian thetaY ( mFOVy / 2.0f );
-        Real tanThetaY = Math::Tan(thetaY);
-        //Real thetaX = thetaY * mAspect;
-        Real tanThetaX = tanThetaY * mAspect;
-
-        Real vpTop = tanThetaY * mNearDist;
-        Real vpLeft = -tanThetaX * mNearDist;
-        Real vpWidth = -2 * vpLeft;
-        Real vpHeight = 2 * vpTop;
+        Real vpWidth = vpRight - vpLeft;
+        Real vpHeight = vpTop - vpBottom;
 
         Real wvpLeft   = vpLeft + mWLeft * vpWidth;
         Real wvpRight  = vpLeft + mWRight * vpWidth;
@@ -591,13 +577,25 @@ namespace Ogre {
         Vector3 vw_bl = inv * vp_bl;
         Vector3 vw_br = inv * vp_br;
 
-        Vector3 position = getPosition();
-
-        mWindowClipPlanes.clear();
-        mWindowClipPlanes.push_back(Plane(position, vw_bl, vw_ul));
-        mWindowClipPlanes.push_back(Plane(position, vw_ul, vw_ur));
-        mWindowClipPlanes.push_back(Plane(position, vw_ur, vw_br));
-        mWindowClipPlanes.push_back(Plane(position, vw_br, vw_bl));
+        if (mProjType == PT_PERSPECTIVE)
+        {
+            Vector3 position = getPosition();
+            mWindowClipPlanes.push_back(Plane(position, vw_bl, vw_ul));
+            mWindowClipPlanes.push_back(Plane(position, vw_ul, vw_ur));
+            mWindowClipPlanes.push_back(Plane(position, vw_ur, vw_br));
+            mWindowClipPlanes.push_back(Plane(position, vw_br, vw_bl));
+        }
+        else
+        {
+            Vector3 x_axis(inv[0][0], inv[0][1], inv[0][2]);
+            Vector3 y_axis(inv[1][0], inv[1][1], inv[1][2]);
+            x_axis.normalise();
+            y_axis.normalise();
+            mWindowClipPlanes.push_back(Plane( x_axis, vw_bl));
+            mWindowClipPlanes.push_back(Plane(-x_axis, vw_ur));
+            mWindowClipPlanes.push_back(Plane( y_axis, vw_bl));
+            mWindowClipPlanes.push_back(Plane(-y_axis, vw_ur));
+        }
 
         mRecalcWindow = false;
 
@@ -605,6 +603,7 @@ namespace Ogre {
     // -------------------------------------------------------------------
     const std::vector<Plane>& Camera::getWindowPlanes(void) const
     {
+        updateView();
         setWindowImpl();
         return mWindowClipPlanes;
     }

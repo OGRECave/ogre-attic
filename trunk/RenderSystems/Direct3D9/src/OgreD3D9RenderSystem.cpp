@@ -1199,7 +1199,13 @@ namespace Ogre
 		D3DXMATRIX d3dMat = D3D9Mappings::makeD3DXMatrix( m );
 
 		if( mActiveRenderTarget->requiresTextureFlipping() )
+        {
+            // Invert transformed y
+            d3dMat._12 = - d3dMat._12;
 			d3dMat._22 = - d3dMat._22;
+            d3dMat._32 = - d3dMat._32;
+            d3dMat._42 = - d3dMat._42;
+        }
 
 		HRESULT hr;
 		if( FAILED( hr = mpD3DDevice->SetTransform( D3DTS_PROJECTION, &d3dMat ) ) )
@@ -2737,6 +2743,9 @@ namespace Ogre
 				"D3D9RenderWindow::restoreLostDevice" );
 		}
 
+		// will have lost basic states
+		mBasicStatesInitialised = false;
+
 		// recreate additional swap chains
 		for (sw = mSecondaryWindows.begin(); sw != mSecondaryWindows.end(); ++sw)
 		{
@@ -2763,8 +2772,6 @@ namespace Ogre
 	{
 		LogManager::getSingleton().logMessage("!!! Direct3D Device Lost!");
 		mDeviceLost = true;
-		// will have lost basic states
-		mBasicStatesInitialised = false;
 	}
 
 	//---------------------------------------------------------------------

@@ -137,8 +137,6 @@ namespace Ogre {
 		Frustum *mCullFrustum;
 
         // Internal functions for calcs
-        void updateFrustum(void) const;
-        void updateView(void) const;
         bool isViewOutOfDate(void) const;
         /// Signal to update frustum information.
         void invalidateFrustum(void) const;
@@ -148,7 +146,7 @@ namespace Ogre {
 
         /** Do actual window setting, using parameters set in SetWindow call
         @remarks
-        The method is called after projection matrix each change
+            The method will called on demand.
         */
         virtual void setWindowImpl(void) const;
         /** Get the derived position of this frustum. */
