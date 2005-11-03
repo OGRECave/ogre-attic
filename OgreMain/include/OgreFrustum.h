@@ -72,6 +72,10 @@ namespace Ogre
         Real mNearDist;
         /// x/y viewport ratio - default 1.3333
         Real mAspect;
+        /// Off-axis frustum center offset - default (0.0, 0.0)
+        Vector2 mFrustumOffset;
+        /// Focal length of frustum (for stereo rendering, defaults to 1.0)
+        Real mFocalLength;
 
         /// The 6 main clipping planes
         mutable Plane mFrustumPlanes[6];
@@ -101,6 +105,7 @@ namespace Ogre
 
 		
         // Internal functions for calcs
+        virtual void calcProjectionParameters(Real& left, Real& right, Real& bottom, Real& top) const;
         virtual void updateFrustum(void) const;
         virtual void updateView(void) const;
         virtual void updateFrustumPlanes(void) const;
@@ -232,6 +237,48 @@ namespace Ogre
         /** Retreives the current aspect ratio.
         */
         virtual Real getAspectRatio(void) const;
+
+        /** Sets frustum offsets, used in stereo rendering.
+            @remarks
+                You can set both horizontal and vertical plane offsets of "eye"; in
+                stereo rendering frustum is moved in horizontal plane. To be able to
+                render from two "eyes" you'll need two cameras rendering on two
+                RenderTargets.
+            @par
+                The frustum offsets is in world coordinates, and default to (0, 0) - no offsets.
+            @param
+                offset The horizontal and vertical plane offsets.
+        */
+        virtual void setFrustumOffset(const Vector2& offset);
+
+        /** Sets frustum offsets, used in stereo rendering.
+            @remarks
+                You can set both horizontal and vertical plane offsets of "eye"; in
+                stereo rendering frustum is moved in horizontal plane. To be able to
+                render from two "eyes" you'll need two cameras rendering on two
+                RenderTargets.
+            @par
+                The frustum offsets is in world coordinates, and default to (0, 0) - no offsets.
+            @param
+                horizontal The horizontal plane offset.
+            @param
+                vertical The vertical plane offset.
+        */
+        virtual void setFrustumOffset(Real horizontal = 0.0, Real vertical = 0.0);
+
+        /** Retreives the frustum offsets.
+        */
+        virtual const Vector2& getFrustumOffset() const;
+
+        /** Sets frustum focal length (used in stereo rendering).
+            @param
+                focalLength The distance to the focal plane from the frustum in world coordinates.
+        */
+        virtual void setFocalLength(Real focalLength = 1.0);
+
+        /** Returns focal length of frustum.
+        */
+        virtual Real getFocalLength() const;
 
         /** Gets the projection matrix for this frustum adjusted for the current
 			rendersystem specifics (may be right or left-handed, depth range

@@ -791,8 +791,11 @@ namespace Ogre {
         makeGLMatrix(mat, m);
         if (mActiveRenderTarget->requiresTextureFlipping())
         {
-            // Invert y
+            // Invert transformed y
+            mat[1] = -mat[1];
             mat[5] = -mat[5];
+            mat[9] = -mat[9];
+            mat[13] = -mat[13];
         }
         glMatrixMode(GL_PROJECTION);
         glLoadMatrixf(mat);

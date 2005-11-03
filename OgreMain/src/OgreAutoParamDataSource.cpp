@@ -154,7 +154,11 @@ namespace Ogre {
         if (mCurrentRenderTarget && mCurrentRenderTarget->requiresTextureFlipping())
         {
             // Because we're not using setProjectionMatrix, this needs to be done here
+            // Invert transformed y
+            mProjectionMatrix[1][0] = -mProjectionMatrix[1][0];
             mProjectionMatrix[1][1] = -mProjectionMatrix[1][1];
+            mProjectionMatrix[1][2] = -mProjectionMatrix[1][2];
+            mProjectionMatrix[1][3] = -mProjectionMatrix[1][3];
         }
         return mProjectionMatrix;
     }
