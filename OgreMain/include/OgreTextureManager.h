@@ -76,6 +76,8 @@ namespace Ogre {
             Real gamma = 1.0f);
 
         /** Loads a texture from an Image object.
+            @note
+                The texture will create as manual texture without loader.
             @param
                 name The name to give the resulting texture
             @param
@@ -98,6 +100,8 @@ namespace Ogre {
             int iNumMipmaps = -1, Real gamma = 1.0f);
 			
         /** Loads a texture from a raw data stream.
+            @note
+                The texture will create as manual texture without loader.
             @param
                 name The name to give the resulting texture
             @param

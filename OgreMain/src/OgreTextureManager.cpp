@@ -75,7 +75,7 @@ namespace Ogre {
     TexturePtr TextureManager::loadImage( const String &name, const String& group,
         const Image &img, TextureType texType, int numMipmaps, Real gamma)
     {
-        TexturePtr tex = create(name, group);
+        TexturePtr tex = create(name, group, true);
 
         tex->setTextureType(texType);
         tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
@@ -92,7 +92,7 @@ namespace Ogre {
         PixelFormat format, TextureType texType, 
         int numMipmaps, Real gamma)
 	{
-        TexturePtr tex = create(name, group);
+        TexturePtr tex = create(name, group, true);
 
         tex->setTextureType(texType);
         tex->setNumMipmaps((numMipmaps == -1)? mDefaultNumMipmaps :
