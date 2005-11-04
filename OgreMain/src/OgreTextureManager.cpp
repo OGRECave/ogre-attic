@@ -124,13 +124,23 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureManager::enable32BitTextures( bool setting )
     {
-        // Reload all textures
+        mIs32Bit = setting;
+
+        // Iterate throught all textures
         for( ResourceMap::iterator it = mResources.begin(); it != mResources.end(); ++it )
         {
-            ((TexturePtr)it->second)->unload();
-            ((TexturePtr)it->second)->enable32Bit(setting);
-            ((TexturePtr)it->second)->load();
-            mIs32Bit = setting;
+            Texture* texture = static_cast<Texture*>(it->second.get());
+            // Reload loaded and reloadable texture only
+            if (texture->isLoaded() && texture->isReloadable())
+            {
+                texture->unload();
+                texture->enable32Bit(setting);
+                texture->load();
+            }
+            else
+            {
+                texture->enable32Bit(setting);
+            }
         }
     }
     //-----------------------------------------------------------------------

@@ -213,6 +213,13 @@ namespace Ogre {
         */
         virtual void enable32BitTextures(bool setting = true);
 
+        /** Checks 32-bit textures enable setting.
+        */
+        virtual bool isEnable32BitTextures(void)
+        {
+            return mIs32Bit;
+        }
+
         /** Sets the default number of mipmaps to be used for loaded textures, for when textures are
             loaded automatically (e.g. by Material class) or when 'load' is called with the default
             parameters by the application.
@@ -223,7 +230,7 @@ namespace Ogre {
         */
         virtual void setDefaultNumMipmaps(size_t num);
 
-        /** Sets the default number of mipmaps to be used for loaded textures.
+        /** Gets the default number of mipmaps to be used for loaded textures.
         */
         virtual size_t getDefaultNumMipmaps()
         {
