@@ -111,6 +111,8 @@ namespace Ogre {
 		/// - separate since we need to s/w anim for shadows whilst still altering
 		///   the vertex data for hardware morphing (pos2 binding)
 		VertexData* mHardwareVertexAnimVertexData;
+		/// Have we applied any vertex animation to shared geometry?
+		bool mVertexAnimationAppliedThisFrame;
 
 		/** Internal method - given vertex data which could be from the Mesh or 
 		any submesh, finds the temporary blend copy. */
@@ -126,10 +128,13 @@ namespace Ogre {
 		VertexData* cloneVertexDataRemoveBlendInfo(const VertexData* source);
 		/** Internal method for preparing this Entity for use in animation. */
 		void prepareTempBlendBuffers(void);
-		/** Internal method to copy original vertex data to the morph structures
-			should there be no active animation in use.
+		/** Mark all vertex data as so far unanimated. 
 		*/
-		void copyOriginalVertexDataToMorph(void);
+		void markBuffersUnusedForAnimation(void);
+		/** Internal method to restore original vertex data where we didn't 
+			perform any vertex animation this frame.
+		*/
+		void restoreBuffersForUnusedAnimation(bool hardwareAnimation);
 
 		/// Cached bone matrices, including any world transform
 		Matrix4 *mBoneMatrices;
@@ -640,6 +645,13 @@ namespace Ogre {
 		};
 		/// Choose which vertex data to bind to the renderer
 		VertexDataBindChoice chooseVertexDataForBinding(bool hasVertexAnim) const;
+
+		/** Are buffers already marked as vertex animated? */
+		bool _getBuffersMarkedForAnimation(void) const { return mVertexAnimationAppliedThisFrame; }
+		/** Mark just this vertex data as animated. 
+		*/
+		void _markBuffersUsedForAnimation(void);
+
 
 	};
 

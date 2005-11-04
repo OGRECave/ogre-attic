@@ -66,7 +66,8 @@ RaySceneQuery* rayQuery = 0;
 Entity* ball = 0;
 Vector3 ballVector;
 bool testreload = false;
-
+AnimationState* pose1AnimationState = 0;
+AnimationState* pose2AnimationState = 0;
 
 // Hacky globals
 GpuProgramParametersSharedPtr fragParams;
@@ -393,6 +394,33 @@ public:
             mAnimState->setEnabled(!mAnimState->getEnabled());
             timeUntilNextToggle = 0.5;
         }
+
+		// Pose animation hooks
+		if (mInputDevice->isKeyDown(KC_1) && pose1AnimationState)
+		{
+			Real weight = pose1AnimationState->getWeight();
+			weight = std::max(0.0f, weight - evt.timeSinceLastFrame * 0.2f);
+			pose1AnimationState->setWeight(weight);
+		}
+		if (mInputDevice->isKeyDown(KC_2) && pose1AnimationState)
+		{
+			Real weight = pose1AnimationState->getWeight();
+			weight = std::min(1.0f, weight + evt.timeSinceLastFrame * 0.2f);
+			pose1AnimationState->setWeight(weight);
+		}
+
+		if (mInputDevice->isKeyDown(KC_3) && pose2AnimationState)
+		{
+			Real weight = pose2AnimationState->getWeight();
+			weight = std::max(0.0f, weight - evt.timeSinceLastFrame * 0.2f);
+			pose2AnimationState->setWeight(weight);
+		}
+		if (mInputDevice->isKeyDown(KC_4) && pose2AnimationState)
+		{
+			Real weight = pose2AnimationState->getWeight();
+			weight = std::min(1.0f, weight + evt.timeSinceLastFrame * 0.2f);
+			pose2AnimationState->setWeight(weight);
+		}
 
         
         /** Hack to test frustum vols
@@ -2511,6 +2539,102 @@ protected:
 	}
 
 
+	void testPoseAnimation()
+	{
+		bool testStencil = false;
+
+		if (testStencil)
+			mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);
+
+		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+		Vector3 dir(-1, -1, 0.5);
+		dir.normalise();
+		Light* l = mSceneMgr->createLight("light1");
+		l->setType(Light::LT_DIRECTIONAL);
+		l->setDirection(dir);
+
+
+		MeshPtr mesh = MeshManager::getSingleton().load("cube.mesh", 
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+		SubMesh* sm = mesh->getSubMesh(0);
+		// Re-organise geometry since this mesh has no animation and all 
+		// vertex elements are packed into one buffer
+		VertexDeclaration* newDecl = 
+			sm->vertexData->vertexDeclaration->getAutoOrganisedDeclaration(false, true);
+		sm->vertexData->reorganiseBuffers(newDecl);
+		if (testStencil)
+			sm->vertexData->prepareForShadowVolume(); // need to re-prep since reorganised
+		// get the position buffer (which should now be separate);
+		const VertexElement* posElem = 
+			sm->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+		HardwareVertexBufferSharedPtr origbuf = 
+			sm->vertexData->vertexBufferBinding->getBuffer(
+			posElem->getSource());
+
+
+		// create 2 pose animations
+		Animation* anim = mesh->createAnimation("pose1", 0.0f);
+		VertexAnimationTrack* vt = anim->createVertexTrack(1, sm->vertexData, VAT_POSE);
+		// re-use start positions for frame 0
+		VertexPoseKeyFrame* kf = vt->createVertexPoseKeyFrame();
+
+		// Pose1 moves vertices 0, 1, 2 and 3 upward
+		Vector3 offset1(0, 50, 0);
+		kf->addVertex(0, offset1);
+		kf->addVertex(1, offset1);
+		kf->addVertex(2, offset1);
+		kf->addVertex(3, offset1);
+
+		anim = mesh->createAnimation("pose2", 0.0f);
+		vt = anim->createVertexTrack(1, sm->vertexData, VAT_POSE);
+		// re-use start positions for frame 0
+		kf = vt->createVertexPoseKeyFrame();
+
+		// Pose2 moves vertices 3, 4, and 5 to the right
+		// Note 3 gets affected by both
+		Vector3 offset2(100, 0, 0);
+		kf->addVertex(3, offset2);
+		kf->addVertex(4, offset2);
+		kf->addVertex(5, offset2);
+
+		// write
+		MeshSerializer ser;
+		ser.exportMesh(mesh.get(), "testpose.mesh");
+
+
+		Entity* e = mSceneMgr->createEntity("test", "testpose.mesh");
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(e);
+
+		// test hardware pose
+		//e->setMaterialName("testpose");
+
+		mCamera->setNearClipDistance(0.5);
+		mSceneMgr->setShowDebugShadows(true);
+
+		pose1AnimationState = e->getAnimationState("pose1");
+		pose1AnimationState->setEnabled(true);
+		pose1AnimationState->setWeight(0.0f);
+
+		pose2AnimationState = e->getAnimationState("pose2");
+		pose2AnimationState->setEnabled(true);
+		pose2AnimationState->setWeight(0.0f);
+
+		Plane plane;
+		plane.normal = Vector3::UNIT_Y;
+		plane.d = 200;
+		MeshManager::getSingleton().createPlane("Myplane",
+			ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane,
+			1500,1500,10,10,true,1,5,5,Vector3::UNIT_Z);
+		Entity* pPlaneEnt = mSceneMgr->createEntity( "plane", "Myplane" );
+		pPlaneEnt->setMaterialName("2 - Default");
+		pPlaneEnt->setCastShadows(false);
+		mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pPlaneEnt);
+
+
+
+	}
+
 	void testManualObjectNonIndexed()
 	{
 		mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
@@ -2695,7 +2819,7 @@ protected:
         //testWindowedViewportMode();
         //testSubEntityVisibility();
         //testAttachObjectsToBones();
-        testSkeletalAnimation();
+        //testSkeletalAnimation();
         //testOrtho();
         //testClearScene();
 
@@ -2718,11 +2842,14 @@ protected:
 		//testBillboardTextureCoords();
 		//testReloadResources();
 		//testTransparencyMipMaps();
-		//testRadixSort();
+		testRadixSort();
 		//testMorphAnimation();
+		//testPoseAnimation();
 		//testBug();
 		//testManualObjectNonIndexed();
 		//testManualObjectIndexed();
+
+		
     }
     // Create new frame listener
     void createFrameListener(void)

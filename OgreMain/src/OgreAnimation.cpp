@@ -30,6 +30,8 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreBone.h"
 #include "OgreEntity.h"
 #include "OgreSubEntity.h"
+#include "OgreMesh.h"
+#include "OgreSubMesh.h"
 
 namespace Ogre {
 
@@ -288,23 +290,44 @@ namespace Ogre {
 
 			VertexData* swVertexData;
 			VertexData* hwVertexData;
+			VertexData* origVertexData;
+			bool firstAnim = false;
 			if (handle == 0)
 			{
 				// shared vertex data
+				firstAnim = !entity->_getBuffersMarkedForAnimation();
 				swVertexData = entity->_getSoftwareVertexAnimVertexData();
 				hwVertexData = entity->_getHardwareVertexAnimVertexData();
-
+				origVertexData = entity->getMesh()->sharedVertexData;
+				entity->_markBuffersUsedForAnimation();
 			}
 			else
 			{
 				// sub entity vertex data (-1)
 				SubEntity* s = entity->getSubEntity(handle - 1);
+				firstAnim = !s->_getBuffersMarkedForAnimation();
 				swVertexData = s->_getSoftwareVertexAnimVertexData();
 				hwVertexData = s->_getHardwareVertexAnimVertexData();
+				origVertexData = s->getSubMesh()->vertexData;
+				s->_markBuffersUsedForAnimation();
 			}
 			// Apply to both hardware and software, if requested
 			if (software)
 			{
+				if (firstAnim && track->getAnimationType() == VAT_POSE)
+				{
+					// First time through for a piece of pose animated vertex data
+					// We need to copy the original position values to the temp accumulator
+					const VertexElement* origelem = 
+						origVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+					const VertexElement* destelem = 
+						swVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
+					HardwareVertexBufferSharedPtr origBuffer = 
+						origVertexData->vertexBufferBinding->getBuffer(origelem->getSource());
+					HardwareVertexBufferSharedPtr destBuffer = 
+						swVertexData->vertexBufferBinding->getBuffer(destelem->getSource());
+					destBuffer->copyData(*origBuffer.get(), 0, 0, destBuffer->getSizeInBytes(), true);
+				}
 				track->setTargetMode(VertexAnimationTrack::TM_SOFTWARE);
 				track->applyToVertexData(swVertexData, timePos, weight, animIndex);
 			}
