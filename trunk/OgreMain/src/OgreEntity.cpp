@@ -717,6 +717,7 @@ namespace Ogre {
 		// Now apply the animation(s)
 		// Note - you should only apply one morph animation to each set of vertex data
 		// at once; if you do more, only the last one will actually apply
+		markBuffersUnusedForAnimation();
 		ushort animIndex = 0;
 		while(animIt.hasMoreElements())
 		{
@@ -731,13 +732,9 @@ namespace Ogre {
 				}
 			}
 		}
-		if (animIndex == 0)
-		{
-			// There was no animation, so simply re-bind reference positions
-			// if we're doing morph animation since morph re-binds original pos
-			copyOriginalVertexDataToMorph();
+		// Deal with cases where no animation applied
+		restoreBuffersForUnusedAnimation(hardwareAnimation);
 
-		}
 		// Unsuppress hardware upload if we suppressed it
 		if (!hardwareAnimation)
 		{
@@ -769,9 +766,31 @@ namespace Ogre {
 		
 	}
 	//-----------------------------------------------------------------------------
-	void Entity::copyOriginalVertexDataToMorph(void)
+	void Entity::markBuffersUnusedForAnimation(void)
 	{
-		if (mMesh->sharedVertexData && mMesh->getSharedVertexDataAnimationType() == VAT_MORPH)
+		mVertexAnimationAppliedThisFrame = false;
+		for (SubEntityList::iterator i = mSubEntityList.begin(); 
+			i != mSubEntityList.end(); ++i)
+		{
+			(*i)->_markBuffersUnusedForAnimation();
+		}
+	}
+	//-----------------------------------------------------------------------------
+	void Entity::_markBuffersUsedForAnimation(void)
+	{
+		mVertexAnimationAppliedThisFrame = true;
+		// no cascade
+	}
+	//-----------------------------------------------------------------------------
+	void Entity::restoreBuffersForUnusedAnimation(bool hardwareAnimation)
+	{
+		// Rebind original positions if:
+		//  We didn't apply any animation and 
+		//    We're morph animated (hardware binds keyframe, software is missing)
+		//    or we're pose animated and software (hardware is fine, still bound)
+		if (mMesh->sharedVertexData &&
+			!mVertexAnimationAppliedThisFrame &&
+			(!hardwareAnimation || mMesh->getSharedVertexDataAnimationType() == VAT_MORPH))
 		{
 			const VertexElement* srcPosElem = 
 				mMesh->sharedVertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);
@@ -790,7 +809,7 @@ namespace Ogre {
 		for (SubEntityList::iterator i = mSubEntityList.begin(); 
 			i != mSubEntityList.end(); ++i)
 		{
-			(*i)->copyOriginalVertexDataToMorph();
+			(*i)->_restoreBuffersForUnusedAnimation(hardwareAnimation);
 		}
 	}
 	//-----------------------------------------------------------------------

@@ -352,9 +352,25 @@ namespace Ogre {
 		}
 	}
 	//-----------------------------------------------------------------------------
-	void SubEntity::copyOriginalVertexDataToMorph(void)
+	void SubEntity::_markBuffersUnusedForAnimation(void)
 	{
-		if (!mSubMesh->useSharedVertices && mSubMesh->getVertexAnimationType() == VAT_MORPH)
+		mVertexAnimationAppliedThisFrame = false;
+	}
+	//-----------------------------------------------------------------------------
+	void SubEntity::_markBuffersUsedForAnimation(void)
+	{
+		mVertexAnimationAppliedThisFrame = true;
+	}
+	//-----------------------------------------------------------------------------
+	void SubEntity::_restoreBuffersForUnusedAnimation(bool hardwareAnimation)
+	{
+		// Rebind original positions if:
+		//  We didn't apply any animation and 
+		//    We're morph animated (hardware binds keyframe, software is missing)
+		//    or we're pose animated and software (hardware is fine, still bound)
+		if (!mSubMesh->useSharedVertices && 
+			!mVertexAnimationAppliedThisFrame &&
+			(!hardwareAnimation || mSubMesh->getVertexAnimationType() == VAT_MORPH))
 		{
 			const VertexElement* srcPosElem = 
 				mSubMesh->vertexData->vertexDeclaration->findElementBySemantic(VES_POSITION);

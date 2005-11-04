@@ -691,8 +691,8 @@ namespace Ogre {
 			if (mTargetMode == TM_HARDWARE)
 			{
 				// Hardware
-				// If target mode is hardware, need to bind our pose buffers, 
-				// one to main pos, one to morph target texcoord 
+				// If target mode is hardware, need to bind our pose buffer
+				// to a target texcoord 
 				assert(!data->hwAnimationDataList.empty() && 
 					"Haven't set up hardware vertex animation elements!");
 				// no use for TempBlendedBufferInfo here btw

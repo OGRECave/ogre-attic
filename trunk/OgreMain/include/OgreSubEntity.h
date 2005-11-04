@@ -94,6 +94,8 @@ namespace Ogre {
 		/// - separate since we need to s/w anim for shadows whilst still altering
 		///   the vertex data for hardware morphing (pos2 binding)
 		VertexData* mHardwareVertexAnimVertexData;
+		/// Have we applied any vertex animation to geometry?
+		bool mVertexAnimationAppliedThisFrame;
 		/// Number of hardware blended poses supported by material
 		ushort mHardwarePoseCount;
 
@@ -179,10 +181,18 @@ namespace Ogre {
 		/// Retrieve the VertexData which should be used for GPU binding
 		VertexData* getVertexDataForBinding(void);
 
+		/** Mark all vertex data as so far unanimated. 
+		*/
+		void _markBuffersUnusedForAnimation(void);
+		/** Mark all vertex data as animated. 
+		*/
+		void _markBuffersUsedForAnimation(void);
+		/** Are buffers already marked as vertex animated? */
+		bool _getBuffersMarkedForAnimation(void) const { return mVertexAnimationAppliedThisFrame; }
 		/** Internal method to copy original vertex data to the morph structures
 		should there be no active animation in use.
 		*/
-		void copyOriginalVertexDataToMorph(void);
+		void _restoreBuffersForUnusedAnimation(bool hardwareAnimation);
 
 		/** Overridden from Renderble to provide some custom behaviour. */
 		void _updateCustomGpuParameter(
