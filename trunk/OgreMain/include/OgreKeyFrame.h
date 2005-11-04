@@ -31,6 +31,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreQuaternion.h"
 #include "OgreAny.h"
 #include "OgreHardwareVertexBuffer.h"
+#include "OgreIteratorWrappers.h"
 
 namespace Ogre 
 {
