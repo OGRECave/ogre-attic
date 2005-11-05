@@ -838,6 +838,9 @@ namespace Ogre
         ushort major, minor;
         major = static_cast<ushort>((mCaps.PixelShaderVersion & 0x0000FF00) >> 8);
         minor = static_cast<ushort>(mCaps.PixelShaderVersion & 0x000000FF);
+
+		bool ps2x = false;
+
         switch (major)
         {
         case 1:
@@ -866,9 +869,23 @@ namespace Ogre
             mCapabilities->setFragmentProgramConstantFloatCount(8);
             break;
         case 2:
-            if (minor > 0)
-            {
-                mCapabilities->setMaxFragmentProgramVersion("ps_2_x");
+			if ((mCaps.PS20Caps.Caps & D3DPS20CAPS_NODEPENDENTREADLIMIT) &&
+				(mCaps.PS20Caps.Caps & D3DPS20CAPS_NOTEXINSTRUCTIONLIMIT))
+			{
+	            if ((mCaps.PS20Caps.Caps & D3DPS20CAPS_ARBITRARYSWIZZLE) &&
+					(mCaps.PS20Caps.Caps & D3DPS20CAPS_GRADIENTINSTRUCTIONS) &&
+					(mCaps.PS20Caps.Caps & D3DPS20CAPS_PREDICATION))
+	            {
+					// ps_2_a is more powerful than ps_2_b? odd
+		            mCapabilities->setMaxFragmentProgramVersion("ps_2_a");
+				}
+				else
+				{
+					mCapabilities->setMaxFragmentProgramVersion("ps_2_b");
+				}
+				// ps_2_x general
+				ps2x = true;
+
                 // 16 boolean params allowed
                 mCapabilities->setFragmentProgramConstantBoolCount(16);
                 // 16 integer params allowed, 4D
@@ -917,7 +934,7 @@ namespace Ogre
 
             mGpuProgramManager->_pushSyntaxCode("ps_3_0");
         case 2:
-            if (major > 2 || minor > 0)
+            if (ps2x)
                 mGpuProgramManager->_pushSyntaxCode("ps_2_x");
 
             mGpuProgramManager->_pushSyntaxCode("ps_2_0");

@@ -47,11 +47,19 @@ namespace Ogre
 	}
 	//-----------------------------------------------------------------------
     DynLib* DynLibManager::load( const String& filename)
-    {        
-        DynLib* pLib = new DynLib(filename);
-		pLib->load();        
-        mLibList[filename] = pLib;
-        return pLib;
+    {
+		DynLibList::iterator i = mLibList.find(filename);
+		if (i != mLibList.end())
+		{
+			return i->second;
+		}
+		else
+		{
+	        DynLib* pLib = new DynLib(filename);
+			pLib->load();        
+        	mLibList[filename] = pLib;
+	        return pLib;
+		}
     }
 	//-----------------------------------------------------------------------
 	void DynLibManager::unload(DynLib* lib)

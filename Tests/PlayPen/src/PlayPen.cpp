@@ -2876,6 +2876,180 @@ public:
 };
 
 
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool gReload;
+
+// Listener class for frame updates
+class MemoryTestFrameListener : public FrameListener, public KeyListener
+{
+protected:
+	Real time;
+	EventProcessor* mEventProcessor;
+	InputReader* mInputDevice;
+public:
+	MemoryTestFrameListener(RenderWindow * win)
+	{
+		time = 0;
+		mEventProcessor = new EventProcessor();
+		mEventProcessor->initialise(win);
+		mEventProcessor->startProcessingEvents();
+		mEventProcessor->addKeyListener(this);
+		mInputDevice = mEventProcessor->getInputReader();
+	}
+	virtual ~MemoryTestFrameListener()
+	{
+		time = 0;            
+		delete mEventProcessor;
+	}
+
+	bool frameStarted(const FrameEvent& evt)
+	{
+		if( mInputDevice->isKeyDown( KC_ESCAPE) )
+		{
+			gReload = false;
+			return false;
+		}
+
+		time += evt.timeSinceLastFrame;
+		if(time>5)
+		{
+			LogManager::getSingleton().logMessage("Reloading scene after 5 seconds");
+			gReload = true;
+			time=0;
+			return false;
+		}
+		else
+		{
+			gReload = false;
+			return true;
+		}
+	}
+
+	void keyClicked(KeyEvent* e) {};
+	void keyPressed(KeyEvent* e) {};
+	void keyReleased(KeyEvent* e) {};
+	void keyFocusIn(KeyEvent* e) {}
+	void keyFocusOut(KeyEvent* e) {}
+};
+
+/** Application class */
+class MemoryTestApplication : public ExampleApplication
+{
+protected:
+	MemoryTestFrameListener * mTestFrameListener;
+public:
+
+	void go(void)
+	{
+		mRoot = 0;
+		if (!setup())
+			return;
+
+		mRoot->startRendering();
+
+		while(gReload)
+		{
+			// clean up
+			destroyScene();
+			destroyResources();
+			if (!setup())
+				return;
+			mRoot->startRendering();
+		}
+		// clean up
+		destroyScene();
+	}
+
+	bool setup(void)
+	{
+		if(!gReload)
+			mRoot = new Root();
+
+		setupResources();
+
+		if(!gReload)
+		{
+			bool carryOn = configure();
+			if (!carryOn)
+				return false;
+
+			chooseSceneManager();
+			createCamera();
+			createViewports();
+
+			// Set default mipmap level (NB some APIs ignore this)
+			TextureManager::getSingleton().setDefaultNumMipmaps(5);
+
+			// Create any resource listeners (for loading screens)
+			createResourceListener();
+
+			createFrameListener();
+		}
+		// Load resources
+		loadResources();
+
+		// Create the scene
+		createScene();        
+
+		return true;
+
+	}
+
+	/// Method which will define the source of resources (other than current folder)
+	virtual void setupResources(void)
+	{
+		// Custom setup
+		ResourceGroupManager::getSingleton().createResourceGroup("CustomResourceGroup");
+		ResourceGroupManager::getSingleton().addResourceLocation(
+			"../../../media/ogrehead.zip", "Zip", "CustomResourceGroup");
+	}
+	void loadResources(void)
+	{
+		// Initialise, parse scripts etc
+		ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+	}
+	void destroyResources()
+	{
+		LogManager::getSingleton().logMessage("Destroying resources");
+		ResourceGroupManager::getSingleton().removeResourceLocation(
+			"../../../media/ogrehead.zip");
+		ResourceGroupManager::getSingleton().destroyResourceGroup("CustomResourceGroup");
+	}
+
+	void createScene(void)
+	{
+		// Set a very low level of ambient lighting
+		mSceneMgr->setAmbientLight(ColourValue(0.1, 0.1, 0.1));
+
+		// Load ogre head
+		MeshManager::getSingleton().load("ogrehead.mesh","CustomResourceGroup");
+		Entity* head = mSceneMgr->createEntity("head", "ogrehead.mesh");
+
+		// Attach the head to the scene
+		mSceneMgr->getRootSceneNode()->attachObject(head);
+
+	}
+
+	void createFrameListener(void)
+	{
+		// This is where we instantiate our own frame listener
+		mTestFrameListener= new MemoryTestFrameListener(mWindow);
+		mRoot->addFrameListener(mTestFrameListener);
+		/*if(!gReload)
+		{
+		ExampleApplication::createFrameListener();
+		}*/
+	}
+
+	void destroyScene(void)
+	{
+		LogManager::getSingleton().logMessage("Clearing scene");
+		mSceneMgr->clearScene();
+	}
+};
+
+
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -2888,7 +3062,8 @@ int main(int argc, char **argv)
 #endif
 {
     // Create application object
-    PlayPenApplication app;
+    //PlayPenApplication app;
+	MemoryTestApplication app;
 
     try {
         app.go();
