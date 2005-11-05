@@ -83,8 +83,7 @@ namespace Ogre {
     void D3D9HLSLProgram::unloadHighLevelImpl(void)
     {
         SAFE_RELEASE(mpMicroCode);
-        // mpConstTable is embedded inside the shader, so will get released with it
-        mpConstTable = NULL;
+        SAFE_RELEASE(mpConstTable);
 
     }
     //-----------------------------------------------------------------------
@@ -201,7 +200,14 @@ namespace Ogre {
     {
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+        if (mIsLoaded)
+        {
+            unload();
+        }
+        else
+        {
+            unloadHighLevel();
+        }
     }
     //-----------------------------------------------------------------------
     bool D3D9HLSLProgram::isSupported(void) const

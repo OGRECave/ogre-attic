@@ -41,7 +41,7 @@ namespace Ogre
     void HighLevelGpuProgram::loadImpl()
     {
         // load self 
-        loadHighLevelImpl();
+        loadHighLevel();
 
         // create low-level implementation
         createLowLevelImpl();
@@ -60,8 +60,8 @@ namespace Ogre
             mAssemblerProgram->getCreator()->remove(mAssemblerProgram->getHandle());
             mAssemblerProgram.setNull();
         }
-        unloadHighLevelImpl();
-        mHighLevelLoaded = false;
+
+        unloadHighLevel();
     }
     //---------------------------------------------------------------------------
     HighLevelGpuProgram::~HighLevelGpuProgram()
@@ -76,7 +76,7 @@ namespace Ogre
 		// Only populate named parameters if we can support this program
 		if (this->isSupported())
 		{
-			loadHighLevelImpl();
+			loadHighLevel();
 			populateParameterNames(params);
 		}
 		// Copy in default parameters if present
@@ -85,22 +85,37 @@ namespace Ogre
         return params;
     }
     //---------------------------------------------------------------------------
-    void HighLevelGpuProgram::loadHighLevelImpl(void)
+    void HighLevelGpuProgram::loadHighLevel(void)
     {
         if (!mHighLevelLoaded)
         {
-            if (mLoadFromFile)
-            {
-                // find & load source code
-                DataStreamPtr stream = 
-                    ResourceGroupManager::getSingleton().openResource(
-                        mFilename, mGroup);
-
-                mSource = stream->getAsString();
-            }
-            loadFromSource();
+            loadHighLevelImpl();
             mHighLevelLoaded = true;
         }
+    }
+    //---------------------------------------------------------------------------
+    void HighLevelGpuProgram::unloadHighLevel(void)
+    {
+        if (mHighLevelLoaded)
+        {
+            unloadHighLevelImpl();
+            mHighLevelLoaded = false;
+        }
+    }
+    //---------------------------------------------------------------------------
+    void HighLevelGpuProgram::loadHighLevelImpl(void)
+    {
+        if (mLoadFromFile)
+        {
+            // find & load source code
+            DataStreamPtr stream = 
+                ResourceGroupManager::getSingleton().openResource(
+                    mFilename, mGroup);
+
+            mSource = stream->getAsString();
+        }
+
+        loadFromSource();
     }
 	//-----------------------------------------------------------------------
 	//-----------------------------------------------------------------------

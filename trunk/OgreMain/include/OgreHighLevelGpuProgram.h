@@ -59,6 +59,10 @@ namespace Ogre {
         /// The underlying assembler program
         GpuProgramPtr mAssemblerProgram;
 
+        /// Internal load high-level portion if not loaded
+        virtual void loadHighLevel(void);
+        /// Internal unload high-level portion if loaded
+        virtual void unloadHighLevel(void);
         /** Internal load implementation, loads just the high-level portion, enough to 
             get parameters.
         */

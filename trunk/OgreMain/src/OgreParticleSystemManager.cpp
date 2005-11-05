@@ -197,12 +197,28 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void ParticleSystemManager::addTemplate(const String& name, ParticleSystem* sysTemplate)
     {
+		// check name
+		if (mSystemTemplates.find(name) != mSystemTemplates.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"ParticleSystem template with name '" + name + "' already exists.", 
+				"ParticleSystemManager::addTemplate");
+		}
+
         mSystemTemplates[name] = sysTemplate;
     }
     //-----------------------------------------------------------------------
     ParticleSystem* ParticleSystemManager::createTemplate(const String& name, 
         const String& resourceGroup)
     {
+		// check name
+		if (mSystemTemplates.find(name) != mSystemTemplates.end())
+		{
+			OGRE_EXCEPT(Exception::ERR_DUPLICATE_ITEM, 
+				"ParticleSystem template with name '" + name + "' already exists.", 
+				"ParticleSystemManager::createTemplate");
+		}
+
         ParticleSystem* tpl = new ParticleSystem(name, resourceGroup);
         addTemplate(name, tpl);
         return tpl;

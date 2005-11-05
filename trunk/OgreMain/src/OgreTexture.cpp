@@ -86,8 +86,7 @@ namespace Ogre {
     //--------------------------------------------------------------------------
 	size_t Texture::calculateSize(void) const
 	{
-		// TODO - how do we calculate real DDS texture size?
-		return mWidth * mHeight * mDepth * mFinalBpp;
+        return getNumFaces() * PixelUtil::getMemorySize(mWidth, mHeight, mDepth, mFormat);
 	}
 	//--------------------------------------------------------------------------
 	size_t Texture::getNumFaces(void) const
