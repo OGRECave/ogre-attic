@@ -1816,6 +1816,8 @@ For a detailed description of the core particle system attributes, see the list 
 @item
 @ref{common_direction}
 @item
+@ref{common_up_vector}
+@item
 @ref{particle_renderer, renderer}
 @item
 @ref{particle_sorted, sorted}
@@ -1849,7 +1851,7 @@ default: none (blank material)@*
 @anchor{particle_width}
 @subheading particle_width
 
-Sets the width of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.@*
+Sets the width of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point' or 'perpendicular_self', but is scaled by the length of the direction vector when billboard_type is 'oriented_common', 'oriented_self' or 'perpendicular_common'.@*
 
 format: particle_width <width>@*
 example: particle_width 20@*
@@ -1858,7 +1860,7 @@ default: 100@*
 @anchor{particle_height}
 @subheading particle_height
 
-Sets the height of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.@*
+Sets the height of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point' or 'perpendicular_self', but is scaled by the length of the direction vector when billboard_type is 'oriented_common', 'oriented_self' or 'perpendicular_common'.@*
 
 format: particle_height <height>@*
 example: particle_height 20@*
@@ -1902,9 +1904,9 @@ default: false@*
 @anchor{billboard_type}
 @subheading billboard_type
 
-This is actually an attribute of the 'billboard' particle renderer (the default), and is an example of passing attributes to a particle renderer by declaring them directly within the system declaration. Particles using the default renderer are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the camera. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.@*@*
+This is actually an attribute of the 'billboard' particle renderer (the default), and is an example of passing attributes to a particle renderer by declaring them directly within the system declaration. Particles using the default renderer are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the given direction. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.@*@*
 
-format: billboard_type <point|oriented_common|oriented_self>@*
+format: billboard_type <point|oriented_common|oriented_self|perpendicular_common|perpendicular_self>@*
 example: billboard_type oriented_self@*
 default: point@*
 
@@ -1913,19 +1915,34 @@ The options for this parameter are:
 @item point
 	The default arrangement, this approximates spherical particles and the billboards always fully face the camera.
 @item oriented_common
-	Particles are oriented around a common, typically fixed direction vector (see @ref{common_direction}), which acts as their local Y axis. The billboard roatates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
+	Particles are oriented around a common, typically fixed direction vector (see @ref{common_direction}), which acts as their local Y axis. The billboard rotates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
 @item oriented_self
 	Particles are oriented around their own direction vector, which acts as their local Y axis. As the particle changes direction, so the billboard reorients itself to face this way. Good for laser fire, fireworks and other 'streaky' particles that should look like they are travelling in their own direction.
+@item perpendicular_common
+	Particles are perpendicular to a common, typically fixed direction vector (see @ref{common_direction}), which acts as their local Z axis, and their local Y axis coplanar with common direction and the common up vector (see @ref{common_up_vector}). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for aureolas, rings etc where the particles will perpendicular to the ground - this is slightly faster than perpendicular_self (see below).
+@item perpendicular_self
+	Particles are perpendicular to their own direction vector, which acts as their local Z axis, and their local Y axis coplanar with their own direction vector and the common up vector (see @ref{common_up_vector}). The billboard never rotates to face the camera, you might use double-side material to ensure particles never culled by back-facing. Good for rings stack etc where the particles will perpendicular to their travelling direction.
 @end table
 
 @anchor{common_direction}
 @subheading common_direction
 
-Only required if @ref{billboard_type} is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.@*@*
+Only required if @ref{billboard_type} is set to oriented_common or perpendicular_common, this vector is the common direction vector used to orient all particles in the system.@*@*
 
 format: common_direction <x> <y> <z>@*
 example: common_direction 0 -1 0@*
-default: none@*
+default: 0 0 1@*
+@*@*
+See also: @ref{Particle Emitters}, @ref{Particle Affectors}
+
+@anchor{common_up_vector}
+@subheading common_up_vector
+
+Only required if @ref{billboard_type} is set to perpendicular_self or perpendicular_common, this vector is the common up vector used to orient all particles in the system.@*@*
+
+format: common_up_vector <x> <y> <z>@*
+example: common_up_vector 0 1 0@*
+default: 0 1 0@*
 @*@*
 See also: @ref{Particle Emitters}, @ref{Particle Affectors}
 

@@ -54,6 +54,7 @@ namespace Ogre {
         mCullIndividual( false ),
         mBillboardType(BBT_POINT),
         mCommonDirection(Ogre::Vector3::UNIT_Z),
+        mCommonUpVector(Vector3::UNIT_Y),
         mBuffersCreated(false),
         mPoolSize(0),
         mExternalData(false)
@@ -81,6 +82,7 @@ namespace Ogre {
         mCullIndividual( false ),
         mBillboardType(BBT_POINT),
         mCommonDirection(Ogre::Vector3::UNIT_Z),
+        mCommonUpVector(Vector3::UNIT_Y),
         mBuffersCreated(false),
         mPoolSize(poolSize),
         mExternalData(externalData)
@@ -368,7 +370,8 @@ namespace Ogre {
         mCamDir = mCamQ * Vector3::NEGATIVE_UNIT_Z;
 
         // Generate axes etc up-front if not oriented per-billboard
-        if (mBillboardType != BBT_ORIENTED_SELF)
+        if (mBillboardType != BBT_ORIENTED_SELF &&
+            mBillboardType != BBT_PERPENDICULAR_SELF)
         {
             genBillboardAxes(&mCamX, &mCamY);
 
@@ -395,7 +398,8 @@ namespace Ogre {
         // Skip if not visible (NB always true if not bounds checking individual billboards)
         if (!billboardVisible(mCurrentCamera, bb)) return;
 
-        if (mBillboardType == BBT_ORIENTED_SELF)
+        if (mBillboardType == BBT_ORIENTED_SELF ||
+            mBillboardType == BBT_PERPENDICULAR_SELF)
         {
             // Have to generate axes & offsets per billboard
             genBillboardAxes(&mCamX, &mCamY, &bb);
@@ -408,7 +412,8 @@ namespace Ogre {
             make a difference.
             */
 
-            if (mBillboardType == BBT_ORIENTED_SELF)
+            if (mBillboardType == BBT_ORIENTED_SELF ||
+                mBillboardType == BBT_PERPENDICULAR_SELF)
             {
                 genVertOffsets(mLeftOff, mRightOff, mTopOff, mBottomOff, 
                     mDefaultWidth, mDefaultHeight, mCamX, mCamY, mVOffset);
@@ -419,7 +424,8 @@ namespace Ogre {
         {
             Vector3 vOwnOffset[4];
             // If it has own dimensions, or self-oriented, gen offsets
-            if (mBillboardType == BBT_ORIENTED_SELF || 
+            if (mBillboardType == BBT_ORIENTED_SELF ||
+                mBillboardType == BBT_PERPENDICULAR_SELF ||
                 bb.mOwnDimensions)
             {
                 // Generate using own dimensions
@@ -877,6 +883,22 @@ namespace Ogre {
             *pX = mCamDir.crossProduct(*pY);
             pX->normalise();
             break;
+
+        case BBT_PERPENDICULAR_COMMON:
+            // X-axis is up-vector cross common direction
+            // Y-axis is common direction cross X-axis
+            *pX = mCommonUpVector.crossProduct(mCommonDirection);
+            *pY = mCommonDirection.crossProduct(*pX);
+            break;
+
+        case BBT_PERPENDICULAR_SELF:
+            // X-axis is up-vector cross own direction
+            // Y-axis is own direction cross X-axis
+            *pX = mCommonUpVector.crossProduct(bb->mDirection);
+            pX->normalise();
+            *pY = bb->mDirection.crossProduct(*pX);
+            pY->normalise();
+            break;
         }
 
     }
@@ -899,6 +921,16 @@ namespace Ogre {
     const Vector3& BillboardSet::getCommonDirection(void) const
     {
         return mCommonDirection;
+    }
+    //-----------------------------------------------------------------------
+    void BillboardSet::setCommonUpVector(const Vector3& vec)
+    {
+        mCommonUpVector = vec;
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& BillboardSet::getCommonUpVector(void) const
+    {
+        return mCommonUpVector;
     }
 	//-----------------------------------------------------------------------
 	uint32 BillboardSet::getTypeFlags(void) const
