@@ -34,6 +34,7 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::CmdBillboardType BillboardParticleRenderer::msBillboardTypeCmd;
     BillboardParticleRenderer::CmdCommonDirection BillboardParticleRenderer::msCommonDirectionCmd;
+    BillboardParticleRenderer::CmdCommonUpVector BillboardParticleRenderer::msCommonUpVectorCmd;
     //-----------------------------------------------------------------------
     BillboardParticleRenderer::BillboardParticleRenderer()
     {
@@ -43,15 +44,27 @@ namespace Ogre {
             dict->addParameter(ParameterDef("billboard_type", 
                 "The type of billboard to use. 'point' means a simulated spherical particle, " 
                 "'oriented_common' means all particles in the set are oriented around common_direction, "
-                "and 'oriented_self' means particles are oriented around their own direction.",
+                "'oriented_self' means particles are oriented around their own direction, "
+                "'perpendicular_common' means all particles are perpendicular to common_direction, "
+                "and 'perpendicular_self' means particles are perpendicular to their own direction.",
                 PT_STRING),
                 &msBillboardTypeCmd);
 
             dict->addParameter(ParameterDef("common_direction", 
-                "Only useful when billboard_type is oriented_common. This parameter sets the common "
-                "orientation for all particles in the set (e.g. raindrops may all be oriented downwards).",
+                "Only useful when billboard_type is oriented_common or perpendicular_common. "
+				"When billboard_type is oriented_common, this parameter sets the common orientation for "
+				"all particles in the set (e.g. raindrops may all be oriented downwards). "
+				"When billboard_type is perpendicular_common, this parameter sets the perpendicular vector for "
+				"all particles in the set (e.g. an aureola around the player and parallel to the ground).",
                 PT_VECTOR3),
                 &msCommonDirectionCmd);
+
+            dict->addParameter(ParameterDef("common_up_vector",
+                "Only useful when billboard_type is perpendicular_self or perpendicular_common. This "
+				"parameter sets the common up-vector for all particles in the set (e.g. an aureola around "
+				"the player and parallel to the ground).",
+                PT_VECTOR3),
+                &msCommonUpVectorCmd);
         }
 
         // Create billboard set
@@ -125,6 +138,16 @@ namespace Ogre {
     const Vector3& BillboardParticleRenderer::getCommonDirection(void) const
     {
         return mBillboardSet->getCommonDirection();
+    }
+    //-----------------------------------------------------------------------
+    void BillboardParticleRenderer::setCommonUpVector(const Vector3& vec)
+    {
+        mBillboardSet->setCommonUpVector(vec);
+    }
+    //-----------------------------------------------------------------------
+    const Vector3& BillboardParticleRenderer::getCommonUpVector(void) const
+    {
+        return mBillboardSet->getCommonUpVector();
     }
     //-----------------------------------------------------------------------
     void BillboardParticleRenderer::_notifyCurrentCamera(Camera* cam)
@@ -201,6 +224,10 @@ namespace Ogre {
         case BBT_ORIENTED_SELF:
             return "oriented_self";
             break;
+        case BBT_PERPENDICULAR_COMMON:
+            return "perpendicular_common";
+        case BBT_PERPENDICULAR_SELF:
+            return "perpendicular_self";
         }
         // Compiler nicety
         return "";
@@ -220,6 +247,14 @@ namespace Ogre {
         {
             t = BBT_ORIENTED_SELF;
         }
+        else if (val == "perpendicular_common")
+        {
+            t = BBT_PERPENDICULAR_COMMON;
+        }
+        else if (val == "perpendicular_self")
+        {
+            t = BBT_PERPENDICULAR_SELF;
+        }
         else
         {
             OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS, 
@@ -238,6 +273,17 @@ namespace Ogre {
     void BillboardParticleRenderer::CmdCommonDirection::doSet(void* target, const String& val)
     {
         static_cast<BillboardParticleRenderer*>(target)->setCommonDirection(
+            StringConverter::parseVector3(val));
+    }
+    //-----------------------------------------------------------------------
+    String BillboardParticleRenderer::CmdCommonUpVector::doGet(const void* target) const
+    {
+        return StringConverter::toString(
+            static_cast<const BillboardParticleRenderer*>(target)->getCommonUpVector() );
+    }
+    void BillboardParticleRenderer::CmdCommonUpVector::doSet(void* target, const String& val)
+    {
+        static_cast<BillboardParticleRenderer*>(target)->setCommonUpVector(
             StringConverter::parseVector3(val));
     }
 

@@ -111,6 +111,10 @@ protected:
         pSys4->fastForward(5);
 
 
+        // Aureola around Ogre perpendicular to the ground
+        ParticleSystem* pSys5 = ParticleSystemManager::getSingleton().createSystem("Aureola", 
+            "Examples/Aureola");
+        mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(pSys5);
     }
 
     // Create new frame listener

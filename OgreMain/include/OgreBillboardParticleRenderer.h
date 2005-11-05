@@ -61,6 +61,13 @@ namespace Ogre {
             String doGet(const void* target) const;
             void doSet(void* target, const String& val);
         };
+        /** Command object for common up-vector (see ParamCommand).*/
+        class _OgrePrivate CmdCommonUpVector : public ParamCommand
+        {
+        public:
+            String doGet(const void* target) const;
+            void doSet(void* target, const String& val);
+        };
 
         /** Sets the type of billboard to render.
         @remarks
@@ -108,6 +115,20 @@ namespace Ogre {
         /** Gets the common direction for all billboards (BBT_ORIENTED_COMMON) */
         const Vector3& getCommonDirection(void) const;
 
+        /** Use this to specify the common up-vector given to billboards of type BBT_PERPENDICULAR_SELF.
+        @remarks
+            Use BBT_PERPENDICULAR_SELF when you want oriented billboards perpendicular to their own
+            direction vector and doesn't face to camera. In this case, we need an additional vector
+            to determine the billboard X, Y axis. The generated X axis perpendicular to both the own
+            direction and up-vector, the Y axis will coplanar with both own direction and up-vector,
+            and perpendicular to own direction.
+        @param vec The up-vector for all billboards.
+        */
+        void setCommonUpVector(const Vector3& vec);
+
+        /** Gets the common up-vector for all billboards (BBT_PERPENDICULAR_SELF) */
+        const Vector3& getCommonUpVector(void) const;
+
         /// @copydoc ParticleSystemRenderer::getType
         const String& getType(void) const;
         /// @copydoc ParticleSystemRenderer::_updateRenderQueue
@@ -138,6 +159,7 @@ namespace Ogre {
     protected:
         static CmdBillboardType msBillboardTypeCmd;
         static CmdCommonDirection msCommonDirectionCmd;
+        static CmdCommonUpVector msCommonUpVectorCmd;
 
 
     };

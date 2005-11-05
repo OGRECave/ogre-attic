@@ -59,14 +59,17 @@ namespace Ogre {
         /// Billboards are oriented around a shared direction vector (used as Y axis) and only rotate around this to face the camera
         BBT_ORIENTED_COMMON,
         /// Billboards are oriented around their own direction vector (their own Y axis) and only rotate around this to face the camera
-        BBT_ORIENTED_SELF
-
+        BBT_ORIENTED_SELF,
+        /// Billboards are perpendicular to a shared direction vector (used as Z axis, the facing direction) and X, Y axis are determined by a shared up-vertor
+        BBT_PERPENDICULAR_COMMON,
+        /// Billboards are perpendicular to their own direction vector (their own Z axis, the facing direction) and X, Y axis are determined by a shared up-vertor
+        BBT_PERPENDICULAR_SELF
     };
 
-    /** A collection of billboards (faces which are always facing the camera) with the same (default) dimensions, material
+    /** A collection of billboards (faces which are always facing the given direction) with the same (default) dimensions, material
         and which are fairly close proximity to each other.
         @remarks
-            Billboards are rectangles made up of 2 tris which are always facing the camera. They are typically used
+            Billboards are rectangles made up of 2 tris which are always facing the given direction. They are typically used
             for special effects like particles. This class collects together a set of billboards with the same (default) dimensions,
             material and relative locality in order to process them more efficiently. The entire set of billboards will be
             culled as a whole (by default, although this can be changed if you want a large set of billboards
@@ -184,8 +187,10 @@ namespace Ogre {
         /// The type of billboard to render
         BillboardType mBillboardType;
 
-        /// Common direction for billboards of type BBT_ORIENTED_COMMON
+        /// Common direction for billboards of type BBT_ORIENTED_COMMON and BBT_PERPENDICULAR_COMMON
         Vector3 mCommonDirection;
+        /// Common up-vector for billboards of type BBT_PERPENDICULAR_SELF and BBT_PERPENDICULAR_COMMON
+        Vector3 mCommonUpVector;
 
         /// Internal method for culling individual billboards
         inline bool billboardVisible(Camera* cam, const Billboard& bill);
@@ -205,7 +210,7 @@ namespace Ogre {
         //-----------------------------------------------------------------------
         /** Internal method for generating billboard corners. 
         @remarks
-            Optional parameter pBill is only present for type BBT_ORIENTED_SELF
+            Optional parameter pBill is only present for type BBT_ORIENTED_SELF and BBT_PERPENDICULAR_SELF
         */
         void genBillboardAxes(Vector3* pX, Vector3 *pY, const Billboard* pBill = 0);
 
@@ -565,8 +570,18 @@ namespace Ogre {
             the camera's local axes. This is fine for 'point' style billboards (e.g. flares,
             smoke, anything which is symmetrical about a central point) but does not look good for
             billboards which have an orientation (e.g. an elongated raindrop). In this case, the
-            oriented billboards are more suitable (BBT_ORIENTED_COMMON or BBT_ORIENTED_SELF) since they retain an independant Y axis
-            and only the X axis is generated, perpendicular to both the local Y and the camera Z.
+            oriented billboards are more suitable (BBT_ORIENTED_COMMON or BBT_ORIENTED_SELF) since
+            they retain an independant Y axis and only the X axis is generated, perpendicular to both
+            the local Y and the camera Z.
+        @par
+            In some case you might want the billboard has fixed Z axis and doesn't need to face to
+            camera (e.g. an aureola around the player and parallel to the ground). You can use
+            BBT_PERPENDICULAR_SELF which the billboard plane perpendicular to the billboard own
+            direction. Or BBT_PERPENDICULAR_COMMON which the billboard plane perpendicular to the
+            common direction.
+        @note
+            BBT_PERPENDICULAR_SELF and BBT_PERPENDICULAR_COMMON can't guarantee counterclockwise, you might
+            use double-side material (<b>cull_hardware node</b>) to ensure no billboard are culled.
         @param bbt The type of billboard to render
         */
         virtual void setBillboardType(BillboardType bbt);
@@ -574,17 +589,43 @@ namespace Ogre {
         /** Returns the billboard type in use. */
         virtual BillboardType getBillboardType(void) const;
 
-        /** Use this to specify the common direction given to billboards of type BBT_ORIENTED_COMMON.
+        /** Use this to specify the common direction given to billboards of type BBT_ORIENTED_COMMON or BBT_PERPENDICULAR_COMMON.
         @remarks
             Use BBT_ORIENTED_COMMON when you want oriented billboards but you know they are always going to 
             be oriented the same way (e.g. rain in calm weather). It is faster for the system to calculate
             the billboard vertices if they have a common direction.
+        @par
+            The common direction also use in BBT_PERPENDICULAR_COMMON, in this case the common direction
+            treat as Z axis, and an additional common up-vector was use to determine billboard X and Y
+            axis.
+            @see setCommonUpVector
         @param vec The direction for all billboards.
+        @note
+            The direction are use as is, never normalised in internal, user are supposed to normalise it himself.
         */
         virtual void setCommonDirection(const Vector3& vec);
 
         /** Gets the common direction for all billboards (BBT_ORIENTED_COMMON) */
         virtual const Vector3& getCommonDirection(void) const;
+
+        /** Use this to specify the common up-vector given to billboards of type BBT_PERPENDICULAR_SELF or BBT_PERPENDICULAR_COMMON.
+        @remarks
+            Use BBT_PERPENDICULAR_SELF or BBT_PERPENDICULAR_COMMON when you want oriented billboards
+            perpendicular to specify direction vector (or, Z axis), and doesn't face to camera.
+            In this case, we need an additional up-vector to determine the billboard X and Y axis.
+            The generated billboard plane and X-axis guarantee perpendicular to specify direction.
+            @see setCommonDirection
+        @par
+            The specify direction is billboard own direction when billboard type is BBT_PERPENDICULAR_SELF,
+            and it's shared common direction when billboard type is BBT_PERPENDICULAR_COMMON.
+        @param vec The up-vector for all billboards.
+        @note
+            The up-vector are use as is, never normalised in internal, user are supposed to normalise it himself.
+        */
+        virtual void setCommonUpVector(const Vector3& vec);
+
+        /** Gets the common up-vector for all billboards (BBT_PERPENDICULAR_SELF and BBT_PERPENDICULAR_COMMON) */
+        virtual const Vector3& getCommonUpVector(void) const;
 
         /** Overridden from MovableObject */
         virtual const String& getMovableType(void) const;
