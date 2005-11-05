@@ -37,7 +37,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 namespace Ogre {
 
 GLXInput::GLXInput()
-		: InputReader(),
+		: InputReader()
 		{
 	mEventQueue = 0;
 	mMouseScale = 0.002f;
