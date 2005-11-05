@@ -261,7 +261,14 @@ namespace Ogre {
         freeCgArgs();
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
-        unload(); 
+        if (mIsLoaded)
+        {
+            unload();
+        }
+        else
+        {
+            unloadHighLevel();
+        }
     }
     //-----------------------------------------------------------------------
     bool CgProgram::isSupported(void) const
