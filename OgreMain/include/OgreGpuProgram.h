@@ -188,7 +188,7 @@ namespace Ogre {
 			Equivalent to RenderMonkey's "ViewDirection".
 			*/
 			ACT_VIEW_DIRECTION,
-			/** This variable provides the view size vector (world space).
+			/** This variable provides the view side vector (world space).
 			Equivalent to RenderMonkey's "ViewSideVector".
 			*/
 			ACT_VIEW_SIDE_VECTOR,
