@@ -2988,36 +2988,48 @@ namespace Ogre {
     void D3DRenderSystem::_applyObliqueDepthProjection(Matrix4& matrix, 
         const Plane& plane, bool forGpuProgram)
     {
-        // Thanks to Eric Lenyel for posting this calculation at www.terathon.com
+		// Thanks to Eric Lenyel for posting this calculation at www.terathon.com
 
-        // Calculate the clip-space corner point opposite the clipping plane
-        // as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1) and
-        // transform it into camera space by multiplying it
-        // by the inverse of the projection matrix
+		// Calculate the clip-space corner point opposite the clipping plane
+		// as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1) and
+		// transform it into camera space by multiplying it
+		// by the inverse of the projection matrix
 
-        /* generalised version
-        Vector4 q = matrix.inverse() * 
-        Vector4(Math::Sign(plane.normal.x), Math::Sign(plane.normal.y), 1.0f, 1.0f);
-        */
-        Vector4 q;
-        q.x = Math::Sign(plane.normal.x) / matrix[0][0];
-        q.y = Math::Sign(plane.normal.y) / matrix[1][1];
-        q.z = 1.0F; 
-        // flip the next bit from Lengyel since we're right-handed
-        //q.w = (1.0F - matrix[2][2]) / matrix[2][3];
-        q.w = (1.0F + matrix[2][2]) / matrix[2][3];
+		/* generalised version
+		Vector4 q = matrix.inverse() * 
+		Vector4(Math::Sign(plane.normal.x), Math::Sign(plane.normal.y), 1.0f, 1.0f);
+		*/
+		Vector4 q;
+		q.x = Math::Sign(plane.normal.x) / matrix[0][0];
+		q.y = Math::Sign(plane.normal.y) / matrix[1][1];
+		q.z = 1.0F; 
+		// flip the next bit from Lengyel since we're right-handed
+		if (forGpuProgram)
+		{
+			q.w = (1.0F - matrix[2][2]) / matrix[2][3];
+		}
+		else
+		{
+			q.w = (1.0F + matrix[2][2]) / matrix[2][3];
+		}
 
-        // Calculate the scaled plane vector
-        Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
-        Vector4 c = clipPlane4d * (1.0F / (clipPlane4d.dotProduct(q)));
+		// Calculate the scaled plane vector
+		Vector4 clipPlane4d(plane.normal.x, plane.normal.y, plane.normal.z, plane.d);
+		Vector4 c = clipPlane4d * (1.0F / (clipPlane4d.dotProduct(q)));
 
-        // Replace the third row of the projection matrix
-        matrix[2][0] = c.x;
-        matrix[2][1] = c.y;
-        // flip the next bit from Lengyel since we're right-handed
-        //matrix[2][2] = c.z; 
-        matrix[2][2] = -c.z; 
-        matrix[2][3] = c.w;        
+		// Replace the third row of the projection matrix
+		matrix[2][0] = c.x;
+		matrix[2][1] = c.y;
+		// flip the next bit from Lengyel since we're right-handed
+		if (forGpuProgram)
+		{
+			matrix[2][2] = c.z; 
+		}
+		else
+		{
+			matrix[2][2] = -c.z; 
+		}
+		matrix[2][3] = c.w;        
 
     }
     //---------------------------------------------------------------------
