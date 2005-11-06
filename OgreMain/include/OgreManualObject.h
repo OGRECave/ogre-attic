@@ -136,7 +136,7 @@ namespace Ogre
 			texture coordinates) to the last vertex started with position().
 		*/
 		virtual void position(const Vector3& pos);
-		/// @copydoc SimpleManualObject::position(const Vector3&)
+		/// @copydoc ManualObject::position(const Vector3&)
 		virtual void position(Real x, Real y, Real z);
 
 		/** Add a vertex normal to the current vertex.
@@ -145,7 +145,7 @@ namespace Ogre
 			their components should be normalised.
 		*/
 		virtual void normal(const Vector3& norm);
-		/// @copydoc SimpleManualObject::normal(const Vector3&)
+		/// @copydoc ManualObject::normal(const Vector3&)
 		virtual void normal(Real x, Real y, Real z);
 
 		/** Add a texture coordinate to the current vertex.
@@ -157,13 +157,13 @@ namespace Ogre
 			variations in number of dimensions.
 		*/
 		virtual void textureCoord(Real u);
-		/// @copydoc SimpleManualObject::textureCoord(Real)
+		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(Real u, Real v);
-		/// @copydoc SimpleManualObject::textureCoord(Real)
+		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(Real u, Real v, Real w);
-		/// @copydoc SimpleManualObject::textureCoord(Real)
+		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(const Vector2& uv);
-		/// @copydoc SimpleManualObject::textureCoord(Real)
+		/// @copydoc ManualObject::textureCoord(Real)
 		virtual void textureCoord(const Vector3& uvw);
 
 		/** Add a vertex colour to a vertex.
@@ -362,7 +362,7 @@ namespace Ogre
 	};
 
 
-	/** Factory object for creating SimpleManualObject instances */
+	/** Factory object for creating ManualObject instances */
 	class _OgreExport ManualObjectFactory : public MovableObjectFactory
 	{
 	protected:
