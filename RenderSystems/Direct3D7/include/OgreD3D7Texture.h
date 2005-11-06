@@ -59,6 +59,10 @@ namespace Ogre {
 		static D3DX_SURFACEFORMAT OgreFormat_to_D3DXFormat( PixelFormat format );
 		static PixelFormat closestD3DXFormat( PixelFormat format );
 		static bool OgreFormat_to_DDPixelFormat( PixelFormat format, DDPIXELFORMAT & out );
+
+		/// Restore this texture from a lost device
+		void restoreFromLostDevice(void);
+
     protected:
         IDirect3DDevice7 * mD3DDevice;       ///< A pointer to the Direct3D device.
         IDirectDrawSurface7 * mSurface;      ///< Surface of the (first) device-specific texture.
@@ -66,7 +70,10 @@ namespace Ogre {
 		String mCubeFaceNames[6];
 		/// Vector of pointers to subsurfaces
 		typedef std::vector<HardwarePixelBufferSharedPtr> SurfaceList;
-		SurfaceList						mSurfaceList;
+		SurfaceList	mSurfaceList;
+		/// Are we restoring from a lost device?
+		bool mRestoring;
+
 	
 
         /// @copydoc Resource::loadImpl

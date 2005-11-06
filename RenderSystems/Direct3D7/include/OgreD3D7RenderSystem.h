@@ -58,6 +58,7 @@ namespace Ogre {
 
 
         HINSTANCE mhInstance;
+		bool mDeviceLost;
 
 
 
@@ -221,6 +222,11 @@ namespace Ogre {
           RenderSystem
          */
         void convertColourValue(const ColourValue& colour, uint32* pDest);
+
+		/// Notify of a device lost
+		void _notifyDeviceLost(void);
+		/// Attempt to restore a device
+		void _restoreLostDevice(void);
 
         // -----------------------------
         // Low-level overridden members

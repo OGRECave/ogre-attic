@@ -39,6 +39,9 @@ namespace Ogre {
         D3DTextureManager(LPDIRECT3DDEVICE7 lpD3DDevice);
         virtual ~D3DTextureManager();
 
+		/** Restore the contents of all surfaces following a lost device. */
+		void reloadAfterLostDevice(void);
+
     protected:
         /// @copydoc ResourceManager::createImpl
         Resource* createImpl(const String& name, ResourceHandle handle, 

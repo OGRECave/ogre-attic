@@ -161,7 +161,7 @@ namespace Ogre {
         ResourceHandle handle, const String& group, bool isManual, 
         ManualResourceLoader* loader, IDirect3DDevice7 * lpDirect3dDevice)
         :Texture(creator, name, handle, group, isManual, loader),
-        mD3DDevice(lpDirect3dDevice)
+        mD3DDevice(lpDirect3dDevice), mRestoring(false)
     {
         mD3DDevice->AddRef();
     }
@@ -205,20 +205,37 @@ namespace Ogre {
     //---------------------------------------------------------------------------------------------
     void D3DTexture::createInternalResourcesImpl(void)
     {
-        if (mTextureType == TEX_TYPE_CUBE_MAP)
-        {
-            createSurface3D();
-        }
-        else if(mTextureType == TEX_TYPE_2D)
-        {
-            createSurface2D();
-        }
-		else
+		// Skip this if we're restoring device
+		// We're using the generic load() but skipping init since DD can restore that
+		if (!mRestoring)
 		{
-			OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::createInternalResources" );
+			if (mTextureType == TEX_TYPE_CUBE_MAP)
+			{
+				createSurface3D();
+			}
+			else if(mTextureType == TEX_TYPE_2D)
+			{
+				createSurface2D();
+			}
+			else
+			{
+				OGRE_EXCEPT( Exception::ERR_INTERNAL_ERROR, "Unknown texture type", "D3DTexture::createInternalResources" );
+			}
+			_createSurfaceList();
 		}
-		_createSurfaceList();
     }
+	//---------------------------------------------------------------------------------------------
+	void D3DTexture::restoreFromLostDevice(void)
+	{
+		if (mIsLoaded && !(mUsage & TU_RENDERTARGET))
+		{
+			mRestoring = true;
+			// Mark as unloaded even though we're not so we can reload content
+			mIsLoaded = false;
+			load();
+			mRestoring = false;
+		}
+	}
     //---------------------------------------------------------------------------------------------
     void D3DTexture::loadImpl(void)
     {
@@ -252,7 +269,8 @@ namespace Ogre {
 		HRESULT hr;
         if( FAILED( hr = ((D3DTexture*)(target.get()))->getDDSurface()->Blt( NULL, mSurface, NULL, DDBLT_WAIT, NULL ) ) )
         {
-            OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "D3DTexture::copyToTexture" );
+			if(hr != DDERR_SURFACELOST)
+				OGRE_EXCEPT( Exception::ERR_RENDERINGAPI_ERROR, "Couldn't blit!", "D3DTexture::copyToTexture" );
         }
 	}
 
@@ -340,7 +358,7 @@ namespace Ogre {
         ddsd.dwHeight        = mSrcHeight;
 
         /* If the texture is a render target, set the corresponding flags */
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
             ddsd.ddsCaps.dwCaps2 = 0;
@@ -395,7 +413,7 @@ namespace Ogre {
         pddsRender->GetDDInterface( (VOID**)&pDD );
         pddsRender->Release();
 
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             /* Get the pixel format of the primary surface - we need it because
                render target surfaces need to have the same pixel format. */
@@ -416,7 +434,7 @@ namespace Ogre {
                 "D3DTexture::createSurfaces" );
         }
 
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             LPDIRECTDRAWSURFACE7 pddsZBuffer, pddsBackBuffer, pddsTexZBuffer;
 
@@ -478,7 +496,7 @@ namespace Ogre {
         ddsd.dwHeight        = mSrcHeight;
 
         /* If the texture is a render target, set the corresponding flags */
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             ddsd.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE | DDSCAPS_LOCALVIDMEM | DDSCAPS_VIDEOMEMORY;
             mNumRequestedMipmaps = 0;
@@ -533,7 +551,7 @@ namespace Ogre {
         pddsRender->GetDDInterface( (VOID**)&pDD );
         pddsRender->Release();
 
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             /* Get the pixel format of the primary surface - we need it because
                render target surfaces need to have the same pixel format. */
@@ -555,7 +573,7 @@ namespace Ogre {
         }
 
 
-        if( mUsage == TU_RENDERTARGET )
+        if( mUsage & TU_RENDERTARGET )
         {
             LPDIRECTDRAWSURFACE7 pddsZBuffer, pddsBackBuffer, pddsTexZBuffer;
 

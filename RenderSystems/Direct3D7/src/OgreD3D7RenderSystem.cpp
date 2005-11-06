@@ -72,6 +72,7 @@ namespace Ogre {
         mhInstance = hInstance;
         mHardwareBufferManager = NULL;
         mGpuProgramManager = NULL;
+		mDeviceLost = false;
 
         initConfigOptions();
 
@@ -88,6 +89,9 @@ namespace Ogre {
         }
 
         mCurrentLights = 0;
+
+		mEventNames.push_back("DeviceLost");
+		mEventNames.push_back("DeviceRestored");
 
         OgreUnguard();
     }
@@ -1419,6 +1423,11 @@ namespace Ogre {
 
         HRESULT hr;
 
+		if (mDeviceLost)
+		{
+			_restoreLostDevice();
+		}
+
         if (!mActiveViewport)
             OGRE_EXCEPT(999, "Cannot begin frame - no viewport selected.",
             "D3DRenderSystem::_beginFrame");
@@ -1432,8 +1441,18 @@ namespace Ogre {
 
         hr = mlpD3DDevice->BeginScene();
         if (FAILED(hr))
-            OGRE_EXCEPT(hr, "Error beginning frame.",
-            "D3DRenderSystem::_beginFrame");
+		{
+			if (hr == DDERR_SURFACELOST)
+			{
+				_notifyDeviceLost();
+				return;
+			}
+			else
+			{
+				OGRE_EXCEPT(hr, "Error beginning frame: " + getErrorDescription(hr),
+				"D3DRenderSystem::_beginFrame");
+			}
+		}
 
         // Moved here from _render, no point checking every rendering call
         static bool firstTime = true;
@@ -1663,13 +1682,7 @@ namespace Ogre {
             bindi->second->unlock();
         }
 
-        if (FAILED(hr))
-        {
-            char szBuffer[512];
-            D3DXGetErrorString( hr, 512, szBuffer );
-            OGRE_EXCEPT( hr, szBuffer, "D3DRenderSystem::_render");
-        }
-
+		// Ignore errors - lost device issues can occur late in RTTs
 
 
 
@@ -1681,16 +1694,58 @@ namespace Ogre {
     {
         OgreGuard( "D3DRenderSystem::_endFrame" );
 
+		if (mDeviceLost)
+		{
+			// Don't allow until next begin that restores
+			return;
+		}
+
         HRESULT hr;
         hr = mlpD3DDevice->EndScene();
 
         if (FAILED(hr))
-            OGRE_EXCEPT(hr, "Error ending frame.",
-            "D3DRenderSystem::_endFrame");
+		{
+			if (hr == DDERR_SURFACELOST)
+			{
+				// Device lost
+				_notifyDeviceLost();
+			}
+			else
+			{
+				// ignore other errors, may not find out about device lost
+				// early enough in RTT situation
+			}
+		}
 
         OgreUnguard();
     }
+	//-----------------------------------------------------------------------
+	void D3DRenderSystem::_notifyDeviceLost(void)
+	{
+		LogManager::getSingleton().logMessage("!!! Direct3D Device Lost!");
+		mDeviceLost = true;
+		fireEvent("DeviceLost");
+	}
+	//-----------------------------------------------------------------------
+	void D3DRenderSystem::_restoreLostDevice(void)
+	{
+		HRESULT hr = mActiveDDDriver->directDraw()->RestoreAllSurfaces();
+		if (FAILED(hr))
+		{
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				getErrorDescription(hr),
+				"D3DRenderSystem::_restoreLostDevice");
+		}
 
+		// Need to reload all textures since surfaces are now blank
+		static_cast<D3DTextureManager*>(mTextureManager)
+			->reloadAfterLostDevice();
+
+
+		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
+		mDeviceLost = false;
+		fireEvent("DeviceRestored");
+	}
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setCullingMode(CullingMode mode)
     {

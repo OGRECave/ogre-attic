@@ -61,4 +61,15 @@ namespace Ogre {
     {
         return new D3DTexture(this, name, handle, group, isManual, loader, mlpD3DDevice);
     }
+	//-----------------------------------------------------------------------
+	void D3DTextureManager::reloadAfterLostDevice(void)
+	{
+		// We've been restored after a lost device and need to repopulate the
+		// texture data
+		for (ResourceMap::iterator i = mResources.begin(); i != mResources.end(); ++i)
+		{
+			D3DTexturePtr t = i->second;
+			t->restoreFromLostDevice();
+		}
+	}
 }
