@@ -386,6 +386,23 @@ namespace Ogre {
         */
         void unloadResourceGroup(const String& name);
 
+        /** Unloads a resource group.
+        @remarks
+            This method unloads all the resources that have been declared as
+            being part of the named resource group. Note that these resources
+            will still exist in their respective ResourceManager classes, but
+            will be in an unloaded state. If you want to remove them entirely,
+            you should use clearResourceGroup or destroyResourceGroup.
+        @param name The name to of the resource group to unload.
+        @param reloadableOnly If set to true, only unload the resource that is
+            reloadable. Because some resources isn't reloadable, they will be
+            unloaded but can't load them later. Thus, you might not want to them
+            unloaded. Or, you might unload all of them, and then populate them
+            manually later.
+            @see Resource::isReloadable for resource is reloadable.
+        */
+        void unloadResourceGroup(const String& name, bool reloadableOnly);
+
 		/** Clears a resource group. 
 		@remarks
 			This method unloads all resources in the group, but in addition it
