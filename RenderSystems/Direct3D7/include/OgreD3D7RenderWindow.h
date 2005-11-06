@@ -118,6 +118,11 @@ namespace Ogre {
         /** Overridden - see RenderTarget.
         */
         void writeContentsToFile(const String& filename);
+		// DirectDraw Methods
+		void createDDSurfaces(void);
+		void releaseDDSurfaces(void);
+		void restoreDDSurfaces(void);
+		void createDepthBuffer(void);
 
     protected:
 		HINSTANCE mInstance;			// Process instance
@@ -154,11 +159,6 @@ namespace Ogre {
         // Pointer to the 3D Device specific for this window
         LPDIRECT3DDEVICE7 mlpD3DDevice;
 
-        // DirectDraw Methods
-        void createDDSurfaces(void);
-        void releaseDDSurfaces(void);
-        void restoreDDSurfaces(void);
-        void createDepthBuffer(void);
 
         // Method for dealing with resize / move & 3d library
         void windowMovedOrResized(void);

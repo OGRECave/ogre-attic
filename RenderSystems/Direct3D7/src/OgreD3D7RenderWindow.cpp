@@ -390,6 +390,9 @@ namespace Ogre {
 
     void D3D7RenderWindow::swapBuffers(bool waitForVSync)
     {
+		if (!mlpDDSFront)
+			return;
+
         HRESULT hr;
         DWORD flags;
         if (mIsUsingDirectDraw)
@@ -422,7 +425,7 @@ namespace Ogre {
             if (hr == DDERR_SURFACELOST)
             {
                 // Restore surfaces
-                restoreDDSurfaces();
+                //restoreDDSurfaces();
             }
             else if (FAILED(hr))
             {
@@ -538,13 +541,16 @@ namespace Ogre {
         ZeroMemory(&ddscaps, sizeof(DDSCAPS2));
         ddscaps.dwCaps = DDSCAPS_ZBUFFER;
 
-        LPDIRECTDRAWSURFACE7 zBufSurface;
+		if (!mlpDDSBack->IsLost())
+		{
+			LPDIRECTDRAWSURFACE7 zBufSurface;
 
-        hr = mlpDDSBack->GetAttachedSurface( &ddscaps, &zBufSurface );
+			hr = mlpDDSBack->GetAttachedSurface( &ddscaps, &zBufSurface );
 
-        // Release twice as this method has increased
-        zBufSurface->Release();
-        zBufSurface->Release();
+			// Release twice as this method has increased
+			zBufSurface->Release();
+			zBufSurface->Release();
+		}
 
         // Release std buffers
         mlpDDSBack->Release();
@@ -562,10 +568,26 @@ namespace Ogre {
             hr = mlpDDSFront->Restore();
 
             if( FAILED( hr ) )
-                OGRE_EXCEPT( 
-                    Exception::ERR_INTERNAL_ERROR, 
-                    "Error restoring lost primary surface.", 
-                    "D3D7RenderWindow - restoreDDSurfaces" );
+			{
+				if (hr == DDERR_WRONGMODE)
+				{
+					// Fullscreen exclusive mode problem
+					// Need to release & recreate
+					releaseDDSurfaces();
+					createDDSurfaces();
+					createDepthBuffer();
+					return;
+				}
+				else
+				{
+					char szBuffer[512];
+					D3DXGetErrorString( hr, 512, szBuffer );
+					OGRE_EXCEPT( 
+						Exception::ERR_INTERNAL_ERROR, 
+						"Error restoring lost primary surface." + String(szBuffer), 
+						"D3D7RenderWindow - restoreDDSurfaces" );
+				}
+			}
         }
 
         if( mlpDDSBack->IsLost() )
@@ -573,10 +595,14 @@ namespace Ogre {
             hr = mlpDDSBack->Restore();
 
             if( FAILED( hr ) )
+			{
+				char szBuffer[512];
+				D3DXGetErrorString( hr, 512, szBuffer );
                 OGRE_EXCEPT( 
                     Exception::ERR_INTERNAL_ERROR, 
-                    "Error restoring lost back buffer surface.", 
+                    "Error restoring lost back buffer surface." + String(szBuffer), 
                     "D3D7RenderWindow - restoreDDSurfaces" );
+			}
         }
     }
 

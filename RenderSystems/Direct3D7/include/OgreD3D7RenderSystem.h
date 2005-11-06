@@ -227,6 +227,10 @@ namespace Ogre {
 		void _notifyDeviceLost(void);
 		/// Attempt to restore a device
 		void _restoreLostDevice(void);
+		/// Restore all surfaces
+		void _restoreSurfaces(void);
+		/// Recreate the primary context
+		void _recreateContext(void);
 
         // -----------------------------
         // Low-level overridden members

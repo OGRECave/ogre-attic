@@ -1373,6 +1373,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setViewport(Viewport *vp)
     {
+		if (mDeviceLost)
+			return;
+
         // Check if viewport is different
         if (vp != mActiveViewport || vp->_isUpdated())
         {
@@ -1390,6 +1393,11 @@ namespace Ogre {
             // Get DD Back buffer
             LPDIRECTDRAWSURFACE7 pBack;
             target->getCustomAttribute("DDBACKBUFFER", &pBack);
+			if (pBack->IsLost())
+			{
+				_notifyDeviceLost();
+				return;
+			}
 
             hr = mlpD3DDevice->SetRenderTarget( pBack, 0 );
 
@@ -1423,9 +1431,12 @@ namespace Ogre {
 
         HRESULT hr;
 
+		// Device lost from somewhere outside?
 		if (mDeviceLost)
 		{
 			_restoreLostDevice();
+			if (mDeviceLost)
+				return; // try later
 		}
 
         if (!mActiveViewport)
@@ -1442,10 +1453,17 @@ namespace Ogre {
         hr = mlpD3DDevice->BeginScene();
         if (FAILED(hr))
 		{
-			if (hr == DDERR_SURFACELOST)
+			if (hr == DDERR_SURFACELOST || hr == DDERR_SURFACEBUSY)
 			{
 				_notifyDeviceLost();
-				return;
+				_restoreLostDevice();
+				if (mDeviceLost)
+					return; // try later
+
+				if (FAILED(hr = mlpD3DDevice->BeginScene()))
+					OGRE_EXCEPT(hr, "Error beginning frame after device restore: " 
+						+ getErrorDescription(hr),
+					"D3DRenderSystem::_beginFrame");
 			}
 			else
 			{
@@ -1484,6 +1502,9 @@ namespace Ogre {
     {
         OgreGuard( "D3DRenderSystem::_render" );
         HRESULT hr;
+
+		if (mDeviceLost)
+			return;
 
         // Exit immediately if there is nothing to render
 		// Passing 0 arguments causes problems for Direct3D
@@ -1724,10 +1745,70 @@ namespace Ogre {
 	{
 		LogManager::getSingleton().logMessage("!!! Direct3D Device Lost!");
 		mDeviceLost = true;
+
 		fireEvent("DeviceLost");
 	}
 	//-----------------------------------------------------------------------
 	void D3DRenderSystem::_restoreLostDevice(void)
+	{
+		HRESULT hr = mActiveDDDriver->directDraw()->TestCooperativeLevel();
+		if (SUCCEEDED(hr))
+		{
+			_restoreSurfaces();
+		}
+		else if (hr == DDERR_WRONGMODE)
+		{
+			 // display mode change
+			_recreateContext();
+		}
+		else if (hr == DDERR_EXCLUSIVEMODEALREADYSET)
+		{
+			// This means that some app took exclusive mode access
+			// we need to sit in a loop till we get back to the right mode.
+			do
+			{
+				Sleep(1000);
+			}
+			while (DDERR_EXCLUSIVEMODEALREADYSET == (hr = mActiveDDDriver->directDraw()->TestCooperativeLevel()));
+			if (SUCCEEDED(hr))
+			{
+				// This means that the exclusive mode app relinquished its 
+				// control and we are back to the safe mode, so simply restore.
+				_restoreSurfaces();
+			}
+			else if (hr == DDERR_WRONGMODE)
+			{
+				// This means that the exclusive mode app relinquished its 
+				// control BUT we are back to some strange mode, so destroy
+				// and recreate.
+				_recreateContext();
+			}
+			else
+			{
+				OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+					getErrorDescription(hr),
+					"D3DRenderSystem::_restoreLostDevice");
+			}
+		}
+		else if (hr == DDERR_NOEXCLUSIVEMODE)
+		{
+			// Not sure what to do here, it tends to fix itself after a few tries.
+			return;
+		}
+		else
+		{
+			// Some other error has occurred which we haven't handled.
+			OGRE_EXCEPT(Exception::ERR_INTERNAL_ERROR, 
+				getErrorDescription(hr),
+				"D3DRenderSystem::_restoreLostDevice");
+		}
+
+		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
+		mDeviceLost = false;
+		fireEvent("DeviceRestored");
+	}
+	//-----------------------------------------------------------------------------
+	void D3DRenderSystem::_restoreSurfaces(void)
 	{
 		HRESULT hr = mActiveDDDriver->directDraw()->RestoreAllSurfaces();
 		if (FAILED(hr))
@@ -1741,10 +1822,23 @@ namespace Ogre {
 		static_cast<D3DTextureManager*>(mTextureManager)
 			->reloadAfterLostDevice();
 
-
-		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
-		mDeviceLost = false;
-		fireEvent("DeviceRestored");
+	}
+	//-----------------------------------------------------------------------------
+	void D3DRenderSystem::_recreateContext(void)
+	{
+		// restore primary render window if fullscreen
+		for (RenderTargetMap::iterator i = mRenderTargets.begin(); i != mRenderTargets.end(); ++i)
+		{
+			RenderTarget* rt = i->second;
+			if (rt->isPrimary())
+			{
+				D3D7RenderWindow* d3dwin = static_cast<D3D7RenderWindow*>(rt);
+				d3dwin->releaseDDSurfaces();
+				d3dwin->createDDSurfaces();
+				d3dwin->createDepthBuffer();
+				break;
+			}
+		}
 	}
     //-----------------------------------------------------------------------
     void D3DRenderSystem::_setCullingMode(CullingMode mode)
@@ -2739,7 +2833,10 @@ namespace Ogre {
     void D3DRenderSystem::clearFrameBuffer(unsigned int buffers, 
         const ColourValue& colour, Real depth, unsigned short stencil)
     {
-        DWORD flags = 0;
+		if (mDeviceLost)
+			return;
+
+		DWORD flags = 0;
         if (buffers & FBT_COLOUR)
         {
             flags |= D3DCLEAR_TARGET;
