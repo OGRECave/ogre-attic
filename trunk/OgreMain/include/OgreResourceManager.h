@@ -126,12 +126,40 @@ namespace Ogre {
 			@see ResourceGroupManager for unloading of resource groups.
 		*/
 		virtual void unloadAll(void);
+
+		/** Unloads all resources.
+		@remarks
+			Unloaded resources are not removed, they simply free up their memory
+			as much as they can and wait to be reloaded.
+			@see ResourceGroupManager for unloading of resource groups.
+		@param reloadableOnly If set to true, only unload the resource that is
+			reloadable. Because some resources isn't reloadable, they will be
+			unloaded but can't load them later. Thus, you might not want to them
+			unloaded. Or, you might unload all of them, and then populate them
+			manually later.
+			@see Resource::isReloadable for resource is reloadable.
+		*/
+		virtual void unloadAll(bool reloadableOnly);
+
 		/** Caused all currently loaded resources to be reloaded.
 		@remarks
 			All resources currently being held in this manager which are also
 			marked as currently loaded will be unloaded, then loaded again.
 		*/
 		virtual void reloadAll(void);
+
+		/** Caused all currently loaded resources to be reloaded.
+		@remarks
+			All resources currently being held in this manager which are also
+			marked as currently loaded will be unloaded, then loaded again.
+		@param reloadableOnly If set to true, only reload the resource that is
+			reloadable. Because some resources isn't reloadable, they will be
+			unloaded but can't loaded again. Thus, you might not want to them
+			unloaded. Or, you might unload all of them, and then populate them
+			manually later.
+			@see Resource::isReloadable for resource is reloadable.
+		*/
+		virtual void reloadAll(bool reloadableOnly);
 
 		/** Remove a single resource.
 		@remarks

@@ -156,18 +156,10 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ResourceManager::unloadAll(void)
 	{
-		OGRE_LOCK_AUTO_MUTEX
-
-		ResourceMap::iterator i, iend;
-		iend = mResources.end();
-		for (i = mResources.begin(); i != iend; ++i)
-		{
-			i->second->unload();
-		}
-
+		unloadAll(false);
 	}
 	//-----------------------------------------------------------------------
-	void ResourceManager::reloadAll(void)
+	void ResourceManager::unloadAll(bool reloadableOnly)
 	{
 		OGRE_LOCK_AUTO_MUTEX
 
@@ -175,7 +167,31 @@ namespace Ogre {
 		iend = mResources.end();
 		for (i = mResources.begin(); i != iend; ++i)
 		{
-			i->second->reload();
+			if (!reloadableOnly || i->second->isReloadable())
+			{
+				i->second->unload();
+			}
+		}
+
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::reloadAll(void)
+	{
+		reloadAll(false);
+	}
+	//-----------------------------------------------------------------------
+	void ResourceManager::reloadAll(bool reloadableOnly)
+	{
+		OGRE_LOCK_AUTO_MUTEX
+
+		ResourceMap::iterator i, iend;
+		iend = mResources.end();
+		for (i = mResources.begin(); i != iend; ++i)
+		{
+			if (!reloadableOnly || i->second->isReloadable())
+			{
+				i->second->reload();
+			}
 		}
 
 	}
