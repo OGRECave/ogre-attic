@@ -96,7 +96,7 @@ namespace Ogre {
         return Vector3::ZERO;
     }
 
-
+    //-----------------------------------------------------------------------
 	void WireBoundingBox::setupBoundingBoxVertices(const AxisAlignedBox& aab) {
 
 		Vector3 vmax = aab.getMaximum();
@@ -210,7 +210,7 @@ namespace Ogre {
         vbuf->unlock();
 	}
 
-
+    //-----------------------------------------------------------------------
 	Real WireBoundingBox::getSquaredViewDepth(const Camera* cam) const
 	{
 		Vector3 min, max, mid, dist;
