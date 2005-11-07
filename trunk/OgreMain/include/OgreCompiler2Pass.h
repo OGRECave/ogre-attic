@@ -74,15 +74,22 @@ namespace Ogre {
 		    uint mErrorID;
 	    };
 
+        enum SystemRuleToken {
+            _no_token_ = 1000,
+            _character_,
+            _value_
+        };
+
         // <>	- non-terminal token
-        #define _rule_		{otRULE,		// ::=	- rule definition
-        #define _is_		},{otAND,
-        #define _and_		},{otAND,		//      - blank space is an implied "AND" meaning the token is required
-        #define _or_		},{otOR,		// |	- or
-        #define _optional_	},{otOPTIONAL,	// []	- optional
-        #define _repeat_	},{otREPEAT,	// {}	- repeat until fail
-        #define _end_		},{otEND},
-        #define _execute_	},{otEND_EXECUTE},
+        #define _rule_		{otRULE,		        // ::=	- rule definition
+        #define _is_		,0},{otAND,
+        #define _and_		_is_    		        //      - blank space is an implied "AND" meaning the token is required
+        #define _or_		,0},{otOR,		        // |	- or
+        #define _optional_	,0},{otOPTIONAL,	    // []	- optional
+        #define _repeat_	,0},{otREPEAT,	        // {}	- repeat until fail or rule does not progress
+        #define _end_		,0},{otEND,0,0,0},
+        #define _execute_	,0},{otEND_EXECUTE,0,0,0},
+        #define _nt_        ,0
         // " "  - terminal token string
 
 	    /** structure used to build Symbol Type library */
