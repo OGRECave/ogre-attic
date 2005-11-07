@@ -118,8 +118,10 @@ namespace Ogre {
 
     bool Compiler2Pass::doPass2()
     {
+        bool passed = true;
         // step through tokens container and execute until end found or error occurs
 
+        return passed;
     }
 
 
@@ -132,10 +134,10 @@ namespace Ogre {
 
 	    // record position of last token in container
 	    // to be used as the rollback position if a valid token is not found
-	    size_t TokenContainerOldSize = mTokenInstructions.size();
-	    size_t OldCharPos = mCharPos;
-	    size_t OldLinePos = mCurrentLine;
-	    size_t OldConstantsSize = mConstants.size();
+	    const size_t TokenContainerOldSize = mTokenInstructions.size();
+	    const size_t OldCharPos = mCharPos;
+	    const size_t OldLinePos = mCurrentLine;
+	    const size_t OldConstantsSize = mConstants.size();
 
 	    // keep track of what non-terminal token activated the rule
 	    uint ActiveNTTRule = mRootRulePath[rulepathIDX].mTokenID;
@@ -145,6 +147,7 @@ namespace Ogre {
 	    // assume the rule will pass
 	    bool Passed = true;
 	    bool EndFound = false;
+        bool ExecutePass2 = false;
 
 	    // keep following rulepath until the end is reached
 	    while (EndFound == false)
@@ -179,24 +182,32 @@ namespace Ogre {
 			    break;
 
 		    case otREPEAT:
-			    // repeat until no tokens of this type found 
-			    // at least one must be found
+			    // repeat until no called rule fails or cursor does not advance
+			    // repeat is 0 or more times
 			    if (Passed)
 			    {
-				    int TokensPassed = 0;
-				    // keep calling until failure
-				    while ( Passed = ValidateToken(rulepathIDX, ActiveNTTRule))
+				    // keep calling until failure or no change in cursor position
+            	    size_t prevPos = mCharPos;
+				    while ( ValidateToken(rulepathIDX, ActiveNTTRule))
 				    {
-					    // increment count for previous passed token
-					    TokensPassed++;
+                        if (mCharPos > prevPos)
+                        {
+                            prevPos = mCharPos;
+                        }
+                        else
+                        {
+                            // repeat failed to advance the cursor position so time to quit since the repeating rule
+                            // path isn't finding anything
+                            // this can happen if the rule being called only has _optional_ rules
+                            // this checking of the cursor positions prevents infinite loop from occuring
+                            break;
+                        }
 				    }
-				    // defaults to Passed = fail
-				    // if at least one token found then return passed = true
-				    if (TokensPassed > 0) Passed = true;
 			    }
 			    break;
 
 		    case otEND:
+            case otEND_EXECUTE:
 			    // end of rule found so time to return
 			    EndFound = true;
 			    if (Passed == false)
@@ -210,6 +221,11 @@ namespace Ogre {
 				    mCharPos = OldCharPos;
 				    mCurrentLine = OldLinePos;
 			    }
+                else
+                {
+                    // set execute pass 2 flag if rule requests it
+                    ExecutePass2 = mRootRulePath[rulepathIDX].mOperation == otEND_EXECUTE;
+                }
 			    break;
 
 		    default:
@@ -225,6 +241,7 @@ namespace Ogre {
 		    rulepathIDX++;
 	    }
 
+        if (ExecutePass2) doPass2();
 	    return Passed;
 
     }
@@ -247,7 +264,7 @@ namespace Ogre {
 			    if (positionToNextSymbol())
 			    {
 				    // if Token is supposed to be a number then check if its a numerical constant
-				    if (TokenID == mValueID)
+				    if (TokenID == _value_)
 				    {
 					    float constantvalue;
 					    if (Passed = isFloatValue(constantvalue, tokenlength))
@@ -256,20 +273,35 @@ namespace Ogre {
 					    }
     					
 				    }
-				    // compare token symbol text with source text
-				    else Passed = isSymbol(mRootRulePath[rulepathIDX].mSymbol, tokenlength);
-    					
+                    else
+                    {
+                        if (TokenID == _character_)
+                        {
+                            // token string is list of valid single characters
+                            // compare character at current cursor position to characters in list for a match
+                        }
+                        else
+                        {
+				            // compare token symbol text with source text
+				            Passed = isSymbol(mRootRulePath[rulepathIDX].mSymbol, tokenlength);
+                        }
+                    }
+
 				    if (Passed)
 				    {
-					    TokenInst newtoken;
-					    // push token onto end of container
-					    newtoken.mID = TokenID;
-					    newtoken.mNTTRuleID = activeRuleID;
-					    newtoken.mLine = mCurrentLine;
-					    newtoken.mPos = mCharPos;
+                        if (TokenID != _no_token_)
+                        {
+					        TokenInst newtoken;
+					        // push token onto end of container
+					        newtoken.mID = TokenID;
+					        newtoken.mNTTRuleID = activeRuleID;
+					        newtoken.mLine = mCurrentLine;
+					        newtoken.mPos = mCharPos;
 
-					    mTokenInstructions.push_back(newtoken);
-					    // update source position
+					        mTokenInstructions.push_back(newtoken);
+                        }
+
+                        // update source position
 					    mCharPos += tokenlength;
 
 					    // allow token instruction to change the ActiveContexts
