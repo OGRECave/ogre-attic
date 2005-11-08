@@ -94,6 +94,8 @@ namespace Ogre {
         	
         // <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emmisive_Def> |
         //                       <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | 
+        //                       <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> |
+        //                       <Cull_Software_Def> | <Lighting_Def> | <Shading_Def> | 
         _rule_ mid_PASS_PROPERTIES, "<Pass_Properties>"
             _is_ mid_AMBIENT_DEF _nt_
             _or_ mid_DIFFUSE_DEF _nt_
@@ -110,9 +112,54 @@ namespace Ogre {
             _or_ mid_FOG_OVERRIDE_DEF _nt_
             _or_ mid_SHADING_DEF _nt_
             _or_ mid_DEPTH_BIAS_DEF _nt_
-
             _or_ mid_TEXTURE_UNIT_DEF _nt_
+            _or_ mid_VERTEX_PROGRAM_REF_DEF _nt_
+            _or_ mid_SHADOW_CASTER_VERTEX_PROGRAM_REF_DEF _nt_
+            _or_ mid_SHADOW_RECEIVER_VERTEX_PROGRAM_REF_DEF _nt_
+            _or_ mid_FRAGMENT_PROGRAM_REF_DEF _nt_
+            _or_ mid_MAX_LIGHTS_DEF _nt_
+            _or_ mid_ITERATION_DEF _nt_
             _end_
+
+        // <Ambient_Def> ::= "ambient" <Colour_params> | "vertexcolour"
+
+        // <Diffuse_Def> ::= "diffuse" <Colour_params> | "vertexcolour"
+
+        // <Specular_Def> ::= "specular" <specular_params> | "vertexcolour" <Value>
+
+        // <specular_params> ::= <Value> <Value> <Value> <Value> [<Value>]
+
+        // <Emmisve_Def> ::= "emmisve" <Colour_params> | "vertexcolour"
+
+        // <Scene_Blend_Def> ::= "scene_blend" <Simple_Blend> | <User_Blend>
+
+        // <Simple_Blend> ::= "add" | "modulate" | "colour_blend" | "alpha_blend"
+
+        // <User_Blend> ::= <Blend_Factor> <Blend_Factor>
+
+        // <Blend_Factor> ::= "one" | "zero" | "dest_colour" | "src_colour" |
+        //                   "one_minus_dest_colour" | "one_minus_src_colour" |
+        //                   "dest_alpha" | "src_alpha" | "one_minus_dest_alpha" |
+        //                   "one_minus_src_alpha"
+
+        // <Depth_Check_Def> ::= "depth_check" <On_Off>
+
+        // <Depth_Write_Def> ::= "depth_write" <On_Off>
+
+        // <Depth_Func_Def> ::= "depth_func" "always_fali" | "always_pass" | "less" | "less_equal" |
+        //                      "equal" | "not_equal" | "greater_equal" | "greater"
+
+        // <Colour_Write_Def> ::= "colour_write" <On_Off>
+
+        // <Cull_Hardware_Def> ::= "cull_hardware" "clockwize" | "anticlockwise" | "none"
+
+        // <Cull_Software_Def> ::= "cull_software" "back" | "front" | "none"
+
+        // <Lighting_Def> ::= "lighting" <On_Off>
+
+        // <Shading_Def> ::= "shading" "flat" | "gouraud" | "phong"
+
+        // <Fog_Override_Def> ::= "fog_override" "false" | "true" [<Fog_parameters>]
 
         // <Texture_Unit_Def> ::= "texture_unit" [<Label>] "{" {<TUS_Properties>} "}"
         _rule_ mid_TEXTURE_UNIT_DEF, "<Texture_Unit_Def>"
