@@ -114,12 +114,6 @@ namespace Ogre {
         */
         static void toUpperCase( String& str );
 
-        /** Converts the contents of the string to a Real.
-        @remarks
-            Assumes the only contents of the string are a valid parsable Real. Defaults to  a
-            value of 0.0 if conversion is not possible.
-        */
-        static Real toReal( const String& str );
 
         /** Returns whether the string begins with the pattern passed in.
         @param pattern The pattern to compare with.
