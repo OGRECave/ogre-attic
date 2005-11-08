@@ -277,7 +277,8 @@ namespace Ogre {
     //-----------------------------------------------------------------------------
     bool Technique::isLoaded(void) const
     {
-        return mParent->isLoaded();
+        // Only supported technique will be loaded
+        return mParent->isLoaded() && mIsSupported;
     }
     //-----------------------------------------------------------------------
     void Technique::setAmbient(Real red, Real green, Real blue)

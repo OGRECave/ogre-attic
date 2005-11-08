@@ -598,8 +598,8 @@ namespace Ogre {
     void Material::_notifyNeedsRecompile(void)
     {
         mCompilationRequired = true;
-        // Also need to flag as unloaded to ensure we loaded any new items
-        mIsLoaded = false;
+        // Also need to unload to ensure we loaded any new items
+        unload();
     }
     // --------------------------------------------------------------------
     void Material::setLodLevels(const LodDistanceList& lodDistances)
