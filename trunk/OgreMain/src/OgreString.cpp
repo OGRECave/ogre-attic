@@ -125,11 +125,6 @@ namespace Ogre {
 			toupper);
     }
     //-----------------------------------------------------------------------
-    Real StringUtil::toReal(const String& str)
-    {
-        return (Real)atof(str.c_str());
-    }
-    //-----------------------------------------------------------------------
     bool StringUtil::startsWith(const String& str, const String& pattern, bool lowerCase)
     {
         size_t thisLen = str.length();
