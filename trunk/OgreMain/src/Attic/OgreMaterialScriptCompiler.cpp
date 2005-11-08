@@ -92,7 +92,7 @@ namespace Ogre {
 	        _and_ _no_token_, "}"
 	        _end_
         	
-        // <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emmisive_Def> |
+        // <Pass_Properties> ::= <Ambient_Def> | <Diffuse_Def> | <Specular_Def> | <Emissive_Def> |
         //                       <Scene_Blend_Def> | <Depth_Check_Def> | <Depth_Write_Def> | 
         //                       <Depth_Func_Def> | <Colour_Write_Def> | <Cull_Hardware_Def> |
         //                       <Cull_Software_Def> | <Lighting_Def> | <Shading_Def> | 
@@ -100,6 +100,7 @@ namespace Ogre {
             _is_ mid_AMBIENT_DEF _nt_
             _or_ mid_DIFFUSE_DEF _nt_
             _or_ mid_SPECULAR_DEF _nt_
+            _or_ mid_EMISSIVE_DEF _nt_
             _or_ mid_SCENE_BLEND_DEF _nt_
             _or_ mid_DEPTH_CHECK_DEF _nt_
             _or_ mid_DEPTH_WRITE_DEF _nt_
@@ -129,7 +130,7 @@ namespace Ogre {
 
         // <specular_params> ::= <Value> <Value> <Value> <Value> [<Value>]
 
-        // <Emmisve_Def> ::= "emmisve" <Colour_params> | "vertexcolour"
+        // <Emissive_Def> ::= "emissive" <Colour_params> | "vertexcolour"
 
         // <Scene_Blend_Def> ::= "scene_blend" <Simple_Blend> | <User_Blend>
 
