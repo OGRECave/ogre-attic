@@ -420,6 +420,8 @@ namespace Ogre
         const Matrix4* pMatrix;
         size_t m;
 
+		mActivePassIterationEntry = 0;
+
         AutoConstantList::const_iterator i, iend;
         iend = mAutoConstants.end();
         for (i = mAutoConstants.begin(); i != iend; ++i)
