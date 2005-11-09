@@ -268,7 +268,7 @@ namespace Ogre
 			mAnimationStates.begin(), mAnimationStates.end());
 	}
 	//---------------------------------------------------------------------
-	void AnimationStateSet::copyMatchingState(AnimationStateSet* target)
+	void AnimationStateSet::copyMatchingState(AnimationStateSet* target) const
 	{
         AnimationStateMap::iterator i, iend;
         iend = target->mAnimationStates.end();
@@ -281,6 +281,8 @@ namespace Ogre
                 i->second->copyStateFrom(*(iother->second));
             }
         }
+
+        target->mDirtyFrameNumber = mDirtyFrameNumber;
     }
     //---------------------------------------------------------------------
     void AnimationStateSet::_notifyDirty(void)
