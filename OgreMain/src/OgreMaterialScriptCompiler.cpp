@@ -122,19 +122,60 @@ namespace Ogre {
             _or_ mid_ITERATION_DEF _nt_
             _end_
 
-        // <Ambient_Def> ::= "ambient" <Colour_params> | "vertexcolour"
+        // <Ambient_Def> ::= "ambient" <Colour_Param_Def> | <Vertexcolour_Def>
+        _rule_ mid_AMBIENT_DEF, "<Ambient_Def>"
+            _is_ mid_AMBIENT, "ambient"
+            _and_ mid_COLOUR_PARAM_DEF _nt_
+            _or_ mid_VERTEXCOLOUR_DEF _nt_
+            _end_
 
-        // <Diffuse_Def> ::= "diffuse" <Colour_params> | "vertexcolour"
+        // <Diffuse_Def> ::= "diffuse" <Colour_Param_Def> | <Vertexcolour_Def>
+        _rule_ mid_DIFFUSE_DEF, "<Diffuse_Def>"
+            _is_ mid_DIFFUSE, "diffuse"
+            _and_ mid_COLOUR_PARAM_DEF _nt_
+            _or_ mid_VERTEXCOLOUR_DEF _nt_
+            _end_
 
-        // <Specular_Def> ::= "specular" <specular_params> | "vertexcolour" <Value>
+        // <Specular_Def> ::= "specular" <Specular_Params> | <Vertexcolour_Def> <Value>
+        _rule_ mid_SPECULAR_DEF, "<Specular_Def>"
+            _is_ mid_SPECULAR, "specular"
+            _and_ mid_SPECULAR_PARAMS _nt_
+            _or_ mid_VERTEXCOLOUR_DEF _nt_
+            _and_ _value_, ""
+            _end_
 
-        // <specular_params> ::= <Value> <Value> <Value> <Value> [<Value>]
+        // <Specular_Params> ::= <Value> <Value> <Value> <Value> [<Value>]
+        _rule_ mid_SPECULAR_PARAMS, "<Specular_Params>"
+            _is_ _value_, ""
+            _and_ _value_, ""
+            _and_ _value_, ""
+            _and_ _value_, ""
+            _or_ _value_, ""
+            _end_
 
-        // <Emissive_Def> ::= "emissive" <Colour_params> | "vertexcolour"
+        // <Emissive_Def> ::= "emissive" <Colour_params> | <Vertexcolour_Def>
+        _rule_ mid_EMISSIVE_DEF, "<Emissive_Def>"
+            _is_ mid_EMISSIVE, "emissive"
+            _and_ mid_COLOUR_PARAM_DEF _nt_
+            _or_ mid_VERTEXCOLOUR_DEF _nt_
+            _end_
+
+
+        // <Vertexcolour> ::= "vertexcolour"
+        _rule_ mid_VERTEXCOLOUR_DEF, "<Vertexcolour_Def>"
+            _is_ mid_VERTEXCOLOUR, "vertexcolour"
+            _end_
 
         // <Scene_Blend_Def> ::= "scene_blend" <Simple_Blend> | <User_Blend>
+        _rule_ mid_SCENE_BLEND_DEF, "<Scene_Blend_Def>"
+            _is_ mid_SCENE_BLEND, "scene_blend"
+            _and_ mid_SIMPLE_BLEND _nt_
+            _or_ mid_USER_BLEND _nt_
+            _end_
 
         // <Simple_Blend> ::= "add" | "modulate" | "colour_blend" | "alpha_blend"
+        _rule_ mid_SIMPLE_BLEND, "<Simple_Blend>"
+            _end_
 
         // <User_Blend> ::= <Blend_Factor> <Blend_Factor>
 
@@ -161,6 +202,15 @@ namespace Ogre {
         // <Shading_Def> ::= "shading" "flat" | "gouraud" | "phong"
 
         // <Fog_Override_Def> ::= "fog_override" "false" | "true" [<Fog_parameters>]
+
+
+        // <Colour_params> ::= <Value> <Value> <Value> [<Value>]
+        _rule_ mid_COLOUR_PARAM_DEF, "<Colour_Param_Def>"
+            _is_ _value_, ""
+            _and_ _value_, ""
+            _and_ _value_, ""
+            _optional_ _value_, ""
+            _end_
 
         // <Texture_Unit_Def> ::= "texture_unit" [<Label>] "{" {<TUS_Properties>} "}"
         _rule_ mid_TEXTURE_UNIT_DEF, "<Texture_Unit_Def>"
