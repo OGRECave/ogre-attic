@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 #define yy_create_buffer vs10__create_buffer
 #define yy_delete_buffer vs10__delete_buffer
 #define yy_scan_buffer vs10__scan_buffer
