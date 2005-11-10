@@ -26,6 +26,11 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderQueueSortingGrouping.h"
 
 namespace Ogre {
+    // Init statics
+    RadixSort<RenderPriorityGroup::TransparentRenderablePassList,
+        RenderPriorityGroup::RenderablePass, uint32> RenderPriorityGroup::msRadixSorter1;
+    RadixSort<RenderPriorityGroup::TransparentRenderablePassList,
+        RenderPriorityGroup::RenderablePass, float> RenderPriorityGroup::msRadixSorter2;
 
     //-----------------------------------------------------------------------
     void RenderPriorityGroup::destroySolidPassMap(SolidRenderablePassMap& passmap)
@@ -243,31 +248,17 @@ namespace Ogre {
 		if (mTransparentPasses.size() > 2000)
 		{
 			// sort by pass
-			mRadixSorter1.sort(mTransparentPasses, mTransparentSortFunctor1);
+			msRadixSorter1.sort(mTransparentPasses, TransparentSortFunctor1());
 			// sort by depth
-			mTransparentSortFunctor2.camera = cam;
-			mRadixSorter2.sort(mTransparentPasses, mTransparentSortFunctor2);
+			msRadixSorter2.sort(mTransparentPasses, TransparentSortFunctor2(cam));
 		}
 		else
 		{
-        	mTransparentLess.camera = cam;
 	        std::stable_sort(
 				mTransparentPasses.begin(), mTransparentPasses.end(), 
-            	mTransparentLess);
+            	TransparentQueueItemLess(cam));
 		}
     }
-    //-----------------------------------------------------------------------
-	uint32 RenderPriorityGroup::TransparentSortFunctor1::operator()(
-		const RenderablePass& p) const
-	{
-		return p.pass->getHash();
-	}
-    //-----------------------------------------------------------------------
-	float RenderPriorityGroup::TransparentSortFunctor2::operator()(
-		const RenderablePass& p) const
-	{
-		return static_cast<float>(p.renderable->getSquaredViewDepth(camera));
-	}
     //-----------------------------------------------------------------------
     void RenderPriorityGroup::clear(void)
     {
