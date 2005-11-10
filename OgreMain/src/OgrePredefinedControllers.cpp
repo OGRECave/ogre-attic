@@ -41,6 +41,7 @@ namespace Ogre
         Root::getSingleton().addFrameListener(this);
         mFrameTime = 0;
 		mTimeFactor = 1;
+        mElapsedTime = 0;
 
     }
     //-----------------------------------------------------------------------
@@ -48,6 +49,8 @@ namespace Ogre
     {
         // Save the time value after applying time factor
         mFrameTime = mTimeFactor * evt.timeSinceLastFrame;
+        // Accumulate the elapsed time
+        mElapsedTime += mFrameTime;
         return true;
     }
     //-----------------------------------------------------------------------
@@ -73,6 +76,16 @@ namespace Ogre
 	void FrameTimeControllerValue::setTimeFactor(Real tf) {
 		if(tf >= 0) mTimeFactor = tf;
 	}
+    //-----------------------------------------------------------------------
+    Real FrameTimeControllerValue::getElapsedTime(void) const
+    {
+        return mElapsedTime;
+    }
+    //-----------------------------------------------------------------------
+    void FrameTimeControllerValue::setElapsedTime(Real elapsedTime)
+    {
+        mElapsedTime = elapsedTime;
+    }
     //-----------------------------------------------------------------------
     // TextureFrameControllerValue
     //-----------------------------------------------------------------------
@@ -206,6 +219,7 @@ namespace Ogre
         mTime += source;
         // Wrap
         while (mTime >= mSeqTime) mTime -= mSeqTime;
+        while (mTime < 0) mTime += mSeqTime;
 
         // Return parametric
         return mTime / mSeqTime;
@@ -260,6 +274,8 @@ namespace Ogre
         // Use looped subtract rather than divide / round
         while (input >= 1.0)
             input -= 1.0;
+        while (input < 0.0)
+            input += 1.0;
 
         // Calculate output in -1..1 range
         switch (mWaveType)

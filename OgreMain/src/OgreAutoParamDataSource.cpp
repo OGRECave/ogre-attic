@@ -28,7 +28,7 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreRenderable.h"
 #include "OgreCamera.h"
 #include "OgreRenderTarget.h"
-#include "OgreRoot.h"
+#include "OgreControllerManager.h"
 #include "OgreMath.h"
 
 namespace Ogre {
@@ -395,12 +395,15 @@ namespace Ogre {
 	{
 		return this->getWorldMatrix().transpose();
 	}
+    //-----------------------------------------------------------------------------
+    Real AutoParamDataSource::getTime(void) const
+    {
+        return ControllerManager::getSingleton().getElapsedTime();
+    }
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getTime_0_X(Real x) const
 	{
-		return fmod(
-			static_cast<Real>(Root::getSingleton().getTimer()->getMilliseconds()) / 1000.0f
-			, x);
+		return fmod(this->getTime(), x);
 	}
 	//-----------------------------------------------------------------------------
 	Real AutoParamDataSource::getCosTime_0_X(Real x) const
