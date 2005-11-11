@@ -403,9 +403,9 @@ function writeB bone_name id scale flipYZ outFile =
 	
 	-- Only object.transform was taken into account, but when mirror is applied
     -- object.scale is modified and become [-1,-1,-1] that's why we do what follows:
-    if (d.parent != undefined) then (
+	if ((d.parent != undefined) and (hasproperty d.parent "scale")) then (
         pos = pos * d.parent.scale ;
-    )
+    ) 
 				
 	format("\t\t\t<position x=\"%\" y=\"%\" z=\"%\" />\n") pos.x pos.y pos.z to:outFile ;
     format("\t\t\t<rotation angle=\"%\">\n") angle to:outFile ;

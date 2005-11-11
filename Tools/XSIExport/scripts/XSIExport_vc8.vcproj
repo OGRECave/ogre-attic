@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="windows-1250"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="PlayPen"
-	ProjectGUID="{430448E6-E03B-4645-B505-A4857368BB93}"
+	Name="XSIExport"
+	ProjectGUID="{E7E7662C-4EBD-47A7-9EA6-CBA40FE63463}"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			CharacterSet="2"
 			>
@@ -40,13 +40,15 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;$(XSISDK_ROOT)\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;XSIEXPORT_EXPORTS;;__XSI_PLUGIN;XSI_STATIC_LINK;__XSI_PLUGIN_"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile=""
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
@@ -56,20 +58,22 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				AdditionalDependencies="OgreMain_d.lib odbc32.lib odbccp32.lib sicppsdk.lib sicoresdk.lib"
+				OutputFile="$(OutDir)/OgreXSIExporter.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\lib\$(ConfigurationName);..\..\..\OgreMain\lib\$(ConfigurationName);$(XSISDK_ROOT)\lib\nt-x86"
+				ModuleDefinitionFile="..\misc\OgreXSIExport.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/PlayPen.pdb"
+				ProgramDatabaseFile="$(OutDir)/XSIExport.pdb"
 				SubSystem="2"
-				OptimizeForWindows98="1"
+				ImportLibrary="$(OutDir)/XSIExport.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -95,14 +99,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			CharacterSet="2"
 			>
@@ -123,18 +126,18 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="0"
 				InlineFunctionExpansion="1"
-				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;$(XSISDK_ROOT)\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;XSIEXPORT_EXPORTS;;__XSI_PLUGIN;XSI_STATIC_LINK;__XSI_PLUGIN_"
 				StringPooling="true"
-				MinimalRebuild="true"
 				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
+				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
+				PrecompiledHeaderFile=""
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
@@ -144,21 +147,23 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				AdditionalDependencies="OgreMain.lib odbc32.lib odbccp32.lib sicppsdk.lib sicoresdk.lib"
+				OutputFile="$(OutDir)/OgreXSIExporter.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\lib\$(ConfigurationName);..\..\..\OgreMain\lib\$(ConfigurationName);$(XSISDK_ROOT)\lib\nt-x86"
+				ModuleDefinitionFile="..\misc\OgreXSIExport.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
+				ImportLibrary="$(OutDir)/XSIExport.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -184,7 +189,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -196,7 +200,27 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
-				RelativePath="..\src\PlayPen.cpp"
+				RelativePath="..\src\OgreXSIExport.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\misc\OgreXSIExport.def"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreXSIHelper.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreXSIMaterialExporter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreXSIMeshExporter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreXSISkeletonExporter.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,15 +229,19 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h"
+				RelativePath="..\include\OgreXSIHelper.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleFrameListener.h"
+				RelativePath="..\include\OgreXSIMaterialExporter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleLoadingBar.h"
+				RelativePath="..\include\OgreXSIMeshExporter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreXSISkeletonExporter.h"
 				>
 			</File>
 		</Filter>

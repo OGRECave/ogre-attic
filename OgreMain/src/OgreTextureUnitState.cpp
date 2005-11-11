@@ -126,27 +126,16 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     TextureUnitState::~TextureUnitState()
     {
-        // Destroy controllers
-        if (mAnimController)
-        {
-            ControllerManager::getSingleton().destroyController(mAnimController);
-        }
-        // Destroy effect controllers
-        for (EffectMap::iterator i = mEffects.begin(); i != mEffects.end(); ++i)
-        {
-            if (i->second.controller)
-            {
-                ControllerManager::getSingleton().destroyController(i->second.controller);
-            }
-
-        }
-        // Don't unload textures. may be used elsewhere
-
+        // Unload ensure all controllers destroyed
+        _unload();
     }
     //-----------------------------------------------------------------------
     TextureUnitState & TextureUnitState::operator = ( 
         const TextureUnitState &oth )
     {
+        assert(mAnimController == 0);
+        assert(mEffects.empty());
+
         // copy basic members (int's, real's)
         memcpy( this, &oth, (uchar *)(&oth.mFrames) - (uchar *)(&oth) );
         // copy complex members
@@ -155,6 +144,12 @@ namespace Ogre {
         mEffects = oth.mEffects;
 
         mTextureNameAlias = oth.mTextureNameAlias;
+
+        // Can't sharing controllers with other TUS, reset to null to avoid potential bug.
+        for (EffectMap::iterator i = mEffects.begin(); i != mEffects.end(); ++i)
+        {
+            i->second.controller = 0;
+        }
 
         // Load immediately if Material loaded
         if (isLoaded())
@@ -520,6 +515,12 @@ namespace Ogre {
             EffectMap::iterator i = mEffects.find(effect.type);
             if (i != mEffects.end())
             {
+                // Destroy old effect controller if exist
+                if (i->second.controller)
+                {
+                    ControllerManager::getSingleton().destroyController(i->second.controller);
+                }
+
                 mEffects.erase(i);
             }
         }
@@ -794,6 +795,9 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::_load(void)
     {
+        // Unload first
+        _unload();
+
         // Load textures
         for (unsigned int i = 0; i < mFrames.size(); ++i)
         {
@@ -830,13 +834,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     void TextureUnitState::createAnimController(void)
     {
+        assert(mAnimController == 0);
         mAnimController = ControllerManager::getSingleton().createTextureAnimator(this, mAnimDuration);
 
     }
     //-----------------------------------------------------------------------
     void TextureUnitState::createEffectController(TextureEffect& effect)
     {
-        effect.controller = 0;
+        assert(effect.controller == 0);
         ControllerManager& cMgr = ControllerManager::getSingleton();
         switch (effect.type)
         {
@@ -979,7 +984,24 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
     void TextureUnitState::_unload(void)
     {
-        // TODO
+        // Destroy animation controller
+        if (mAnimController)
+        {
+            ControllerManager::getSingleton().destroyController(mAnimController);
+            mAnimController = 0;
+        }
+
+        // Destroy effect controllers
+        for (EffectMap::iterator i = mEffects.begin(); i != mEffects.end(); ++i)
+        {
+            if (i->second.controller)
+            {
+                ControllerManager::getSingleton().destroyController(i->second.controller);
+                i->second.controller = 0;
+            }
+        }
+
+        // Don't unload textures. may be used elsewhere
     }
     //-----------------------------------------------------------------------------
     bool TextureUnitState::isLoaded(void)

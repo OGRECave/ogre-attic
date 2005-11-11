@@ -393,9 +393,9 @@ namespace Ogre {
         time_t ctTime; time(&ctTime);
         pTime = localtime( &ctTime );
         std::ostringstream oss;
-        oss	<< std::setw(2) << std::setfill('0') << pTime->tm_mon
+        oss	<< std::setw(2) << std::setfill('0') << (pTime->tm_mon + 1)
             << std::setw(2) << std::setfill('0') << pTime->tm_mday
-            << std::setw(2) << std::setfill('0') << pTime->tm_year
+            << std::setw(2) << std::setfill('0') << (pTime->tm_year + 1900)
             << "_" << std::setw(2) << std::setfill('0') << pTime->tm_hour
             << std::setw(2) << std::setfill('0') << pTime->tm_min
             << std::setw(2) << std::setfill('0') << pTime->tm_sec

@@ -470,10 +470,12 @@ namespace Ogre {
             a number of resource types: 
             <ul>
             <li>Font</li>
+            <li>GpuProgram</li>
+            <li>HighLevelGpuProgram</li>
             <li>Material</li>
             <li>Mesh</li>
-            <li>Overlay</li>
             <li>Skeleton</li>
+            <li>Texture</li>
             </ul>
             .. but more can be added by plugin ResourceManager classes.
         @param groupName The name of the group to which it will belong.

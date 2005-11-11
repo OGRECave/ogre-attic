@@ -30,7 +30,6 @@ http://www.gnu.org/copyleft/lesser.txt.
 #include "OgreVector4.h"
 #include "OgreAutoParamDataSource.h"
 #include "OgreLight.h"
-#include "OgreControllerManager.h"
 #include "OgreRoot.h"
 #include "OgreRenderSystem.h"
 #include "OgreRenderSystemCapabilities.h"
@@ -536,7 +535,10 @@ namespace Ogre
                 setConstant(i->index, source.getCameraPositionObjectSpace());
                 break;
 
-            case ACT_TIME_0_X:
+            case ACT_TIME:
+               setConstant(i->index, Vector4(source.getTime() * i->fData, 0.f, 0.f, 0.f));
+               break;
+           case ACT_TIME_0_X:
                setConstant(i->index, Vector4(source.getTime_0_X(i->fData), 0.f, 0.f, 0.f));
                break;
             case ACT_COSTIME_0_X:
@@ -794,9 +796,7 @@ namespace Ogre
     //---------------------------------------------------------------------------
     void GpuProgramParameters::setConstantFromTime(size_t index, Real factor)
     {
-        // Create controller
-        ControllerManager::getSingleton().createGpuProgramTimerParam(this, index, factor);
-
+        setAutoConstantReal(index, ACT_TIME, factor);
     }
     //---------------------------------------------------------------------------
     void GpuProgramParameters::setNamedConstantFromTime(const String& name, Real factor)

@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="PlayPen"
-	ProjectGUID="{430448E6-E03B-4645-B505-A4857368BB93}"
+	Name="Demo_Gui"
+	ProjectGUID="{0F83CA41-4364-49FF-A230-613B08B5CF82}"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -39,8 +39,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm150"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\..\..\Dependencies\include\CEGUI;..\..\Common\CEGUIRenderer\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,12 +63,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				AdditionalDependencies="OgreMain_d.lib CEGUIBase_d.lib OgreGUIRenderer_d.lib"
+				OutputFile="$(OutDir)/Demo_Gui.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;;..\..\Common\CEGUIRenderer\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/PlayPen.pdb"
+				ProgramDatabaseFile="$(OutDir)/Demo_Gui.pdb"
 				SubSystem="2"
 				OptimizeForWindows98="1"
 				TargetMachine="1"
@@ -95,7 +96,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Common\Bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -105,6 +106,7 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -125,9 +127,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\..\..\Dependencies\include\CEGUI;..\..\Common\CEGUIRenderer\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -150,11 +153,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				AdditionalDependencies="OgreMain.lib CEGUIBase.lib OgreGUIRenderer.lib"
+				OutputFile="$(OutDir)/Demo_Gui.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				GenerateDebugInformation="true"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;;;..\..\Common\CEGUIRenderer\lib"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -184,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Common\Bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -196,26 +199,22 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
-				RelativePath="..\src\PlayPen.cpp"
+				RelativePath="..\src\Gui.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm150"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
-			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleFrameListener.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleLoadingBar.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

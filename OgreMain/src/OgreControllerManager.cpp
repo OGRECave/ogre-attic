@@ -53,8 +53,8 @@ namespace Ogre {
     }
     //-----------------------------------------------------------------------
     Controller<Real>* ControllerManager::createController(
-		SharedPtr< ControllerValue<Real> > src, SharedPtr< ControllerValue<Real> > dest, 
-		SharedPtr< ControllerFunction<Real> > func)
+        const ControllerValueRealPtr& src, const ControllerValueRealPtr& dest,
+        const ControllerFunctionRealPtr& func)
     {
         Controller<Real>* c = new Controller<Real>(src, dest, func);
 
@@ -81,7 +81,7 @@ namespace Ogre {
         mControllers.clear();
     }
     //-----------------------------------------------------------------------
-    SharedPtr< ControllerValue<Real> > ControllerManager::getFrameTimeSource(void) const
+    const SharedPtr< ControllerValue<Real> >& ControllerManager::getFrameTimeSource(void) const
     {
         return mFrameTimeController;
     }
@@ -213,5 +213,15 @@ namespace Ogre {
 	//-----------------------------------------------------------------------
 	void ControllerManager::setTimeFactor(Real tf) {
 		static_cast<FrameTimeControllerValue*>(mFrameTimeController.getPointer())->setTimeFactor(tf);
+	}
+	//-----------------------------------------------------------------------
+	Real ControllerManager::getElapsedTime(void) const
+	{
+		return static_cast<const FrameTimeControllerValue*>(mFrameTimeController.get())->getElapsedTime();
+	}
+	//-----------------------------------------------------------------------
+	void ControllerManager::setElapsedTime(Real elapsedTime)
+	{
+		static_cast<FrameTimeControllerValue*>(mFrameTimeController.get())->setElapsedTime(elapsedTime);
 	}
 }

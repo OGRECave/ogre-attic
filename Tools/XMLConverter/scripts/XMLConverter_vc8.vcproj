@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="PlayPen"
-	ProjectGUID="{430448E6-E03B-4645-B505-A4857368BB93}"
+	Name="XMLConverter"
+	ProjectGUID="{B4FB6BCF-FA5A-42C2-9FA5-F1653B95ADE3}"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -39,13 +39,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm150"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				PreprocessorDefinitions="TIXML_USE_STL;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -63,13 +63,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain_d.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				OutputFile="$(OutDir)/OgreXMLConverter.exe"
+				Version="0.99"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\$(ConfigurationName);..\..\..\Dependencies\lib\$(ConfigurationName)"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/PlayPen.pdb"
-				SubSystem="2"
-				OptimizeForWindows98="1"
+				ProgramDatabaseFile="$(OutDir)/XMLConverter.pdb"
+				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -95,7 +96,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Common\bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -125,14 +126,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				PreprocessorDefinitions="TIXML_USE_STL"
 				StringPooling="true"
-				MinimalRebuild="true"
 				RuntimeLibrary="2"
-				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -151,14 +149,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				OutputFile="$(OutDir)/OgreXMLConverter.exe"
+				Version="0.99"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="..\..\..\OgreMain\lib\$(ConfigurationName);..\..\..\Dependencies\lib\$(ConfigurationName)"
 				GenerateDebugInformation="true"
-				SubSystem="2"
+				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -184,7 +182,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\Common\bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -196,7 +194,39 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
-				RelativePath="..\src\PlayPen.cpp"
+				RelativePath="..\src\main.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/Zm150"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\OgreXMLMeshSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreXMLSkeletonSerializer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tinystr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tinyxml.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tinyxmlerror.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\tinyxmlparser.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,22 +235,25 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h"
+				RelativePath="..\include\OgreXMLMeshSerializer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleFrameListener.h"
+				RelativePath="..\include\OgreXMLPrerequisites.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleLoadingBar.h"
+				RelativePath="..\include\OgreXMLSkeletonSerializer.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-			>
+			<File
+				RelativePath="..\include\tinystr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\tinyxml.h"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
