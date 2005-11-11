@@ -19,7 +19,7 @@
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\..\..\..\..\..\..\vc8express\VC\VCProjectDefaults\UpgradeFromVC70.vsprops"
+			InheritedPropertySheets="UpgradeFromVC70.vsprops"
 			CharacterSet="2"
 			>
 			<Tool
@@ -109,7 +109,7 @@
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="2"
-			InheritedPropertySheets="..\..\..\..\..\..\..\..\vc8express\VC\VCProjectDefaults\UpgradeFromVC70.vsprops"
+			InheritedPropertySheets="UpgradeFromVC70.vsprops"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
