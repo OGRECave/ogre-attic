@@ -151,8 +151,14 @@ namespace Ogre {
     //-----------------------------------------------------------------------
     SubMesh* Mesh::getSubMesh(unsigned short index) const
     {
-        SubMeshList::const_iterator i = mSubMeshList.begin();
-        return const_cast<SubMesh*>(i[index]);
+        if (index >= mSubMeshList.size())
+        {
+            OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
+                "Index out of bounds.",
+                "Mesh::getSubMesh");
+        }
+
+        return mSubMeshList[index];
     }
 	//-----------------------------------------------------------------------
 	void Mesh::load(void)

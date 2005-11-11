@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="PlayPen"
-	ProjectGUID="{430448E6-E03B-4645-B505-A4857368BB93}"
+	Name="Demo_BspCollision"
+	ProjectGUID="{1982C73F-3D1C-46A6-9DFB-C7B03310365B}"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\..\..\Samples\Common\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\..\ReferenceAppLayer\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,12 +62,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				AdditionalDependencies="OgreMain_d.lib ReferenceAppLayer.lib"
+				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/PlayPen.pdb"
+				ProgramDatabaseFile="$(OutDir)/Demo_BspCollision.pdb"
 				SubSystem="2"
 				OptimizeForWindows98="1"
 				TargetMachine="1"
@@ -95,12 +95,11 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
+			OutputDirectory="..\..\..\Samples\Common\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
@@ -127,7 +126,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				AdditionalIncludeDirectories="..\include;..\..\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include;..\..\ReferenceAppLayer\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -150,11 +149,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				AdditionalDependencies="OgreMain.lib ReferenceAppLayer.lib"
+				OutputFile="$(OutDir)/Demo_BspCollision.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
-				GenerateDebugInformation="true"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;;&quot;..\..\ReferenceAppLayer\lib\$(ConfigurationName)&quot;"
+				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -184,7 +183,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -196,7 +194,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
-				RelativePath="..\src\PlayPen.cpp"
+				RelativePath="..\src\BspCollision.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,15 +203,11 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h"
+				RelativePath="..\..\Common\include\ExampleRefAppApplication.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleFrameListener.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleLoadingBar.h"
+				RelativePath="..\..\Common\include\ExampleRefAppFrameListener.h"
 				>
 			</File>
 		</Filter>

@@ -457,5 +457,25 @@ namespace Ogre {
         return true;
     }
 
+	//-----------------------------------------------------------------------
+	void RenderSystem::addListener(Listener* l)
+	{
+		mEventListeners.push_back(l);
+	}
+	//-----------------------------------------------------------------------
+	void RenderSystem::removeListener(Listener* l)
+	{
+		mEventListeners.remove(l);
+	}
+	//-----------------------------------------------------------------------
+	void RenderSystem::fireEvent(const String& name, const NameValuePairList* params)
+	{
+		for(ListenerList::iterator i = mEventListeners.begin(); 
+			i != mEventListeners.end(); ++i)
+		{
+			(*i)->eventOccurred(name, params);
+		}
+	}
+	//-----------------------------------------------------------------------
 }
 

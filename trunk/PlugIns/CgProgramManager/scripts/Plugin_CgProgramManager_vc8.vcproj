@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="PlayPen"
-	ProjectGUID="{430448E6-E03B-4645-B505-A4857368BB93}"
+	Name="Plugin_CgProgramManager"
+	ProjectGUID="{1C741C2F-3278-43D8-9FD2-E631A64B70AE}"
 	Keyword="Win32Proj"
 	>
 	<Platforms>
@@ -18,7 +18,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			CharacterSet="2"
 			>
@@ -40,8 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PLUGIN_BSPSCENEMANAGER_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,14 +62,18 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain_d.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				IgnoreImportLibrary="true"
+				AdditionalDependencies="OgreMain_d.lib cg.lib"
+				OutputFile="$(OutDir)/Plugin_CgProgramManager.dll"
+				Version="0.99"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				ModuleDefinitionFile="..\misc\OgreCgProgramManager.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/PlayPen.pdb"
+				ProgramDatabaseFile="$(OutDir)/Plugin_CgProgramManager.pdb"
 				SubSystem="2"
-				OptimizeForWindows98="1"
+				ImportLibrary="$(OutDir)/Plugin_CgProgramManager.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -95,16 +99,17 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="..\obj\$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC70.vsprops"
 			CharacterSet="2"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -123,14 +128,15 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\include;..\..\..\Samples\Common\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
+				EnableFiberSafeOptimizations="true"
+				AdditionalIncludeDirectories="..\include;..\..\..\OgreMain\include;..\..\..\Dependencies\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PLUGIN_BSPSCENEMANAGER_EXPORTS"
 				StringPooling="true"
-				MinimalRebuild="true"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
@@ -150,15 +156,19 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OgreMain.lib"
-				OutputFile="$(OutDir)/PlayPen.exe"
+				IgnoreImportLibrary="true"
+				AdditionalDependencies="OgreMain.lib cg.lib"
+				OutputFile="$(OutDir)/Plugin_CgProgramManager.dll"
+				Version="0.99"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;..\..\..\OgreMain\lib\$(ConfigurationName)&quot;;&quot;..\..\..\Dependencies\lib\$(ConfigurationName)&quot;"
+				ModuleDefinitionFile="..\misc\OgreCgProgramManager.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
+				ImportLibrary="$(OutDir)/Plugin_CgProgramManager.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -184,7 +194,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\Bin\$(ConfigurationName)"
+				CommandLine="copy $(OutDir)\$(TargetFileName) ..\..\..\Samples\Common\bin\$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
@@ -196,7 +206,15 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
-				RelativePath="..\src\PlayPen.cpp"
+				RelativePath="..\src\OgreCgProgram.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreCgProgramFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\OgreCgProgramManagerDll.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,15 +223,19 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleApplication.h"
+				RelativePath="..\..\..\Dependencies\include\Cg\cg.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleFrameListener.h"
+				RelativePath="..\include\OgreCgPrerequisites.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\Samples\Common\include\ExampleLoadingBar.h"
+				RelativePath="..\include\OgreCgProgram.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\OgreCgProgramFactory.h"
 				>
 			</File>
 		</Filter>

@@ -970,6 +970,48 @@ namespace Ogre
         @param count Number of times to render the current state.
         */
         void setCurrentPassIterationCount(const size_t count) { mCurrentPassIterationCount = count; }
+
+		/** Defines a listener on the custom events that this render system 
+			can raise.
+		@see RenderSystem::addListener
+		*/
+		class _OgreExport Listener
+		{
+		public:
+			Listener() {}
+			virtual ~Listener() {}
+
+			/** A rendersystem-specific event occurred.
+			@param eventName The name of the event which has occurred
+			@param parameters A list of parameters that may belong to this event,
+				may be null if there are no parameters
+			*/
+			virtual void eventOccurred(const String& eventName, 
+				const NameValuePairList* parameters = 0) = 0;
+		};
+		/** Adds a listener to the custom events that this render system can raise.
+		@remarks
+			Some render systems have quite specific, internally generated events 
+			that the application may wish to be notified of. Many applications
+			don't have to worry about these events, and can just trust OGRE to 
+			handle them, but if you want to know, you can add a listener here.
+		@par
+			Events are raised very generically by string name. Perhaps the most 
+			common example of a render system specific event is the loss and 
+			restoration of a device in DirectX; which OGRE deals with, but you 
+			may wish to know when it happens. 
+		@see RenderSystem::getRenderSystemEvents
+		*/
+		virtual void addListener(Listener* l);
+		/** Remove a listener to the custom events that this render system can raise.
+		*/
+		virtual void removeListener(Listener* l);
+
+		/** Gets a list of the rendersystem specific events that this rendersystem
+			can raise.
+		@see RenderSystem::addListener
+		*/
+		virtual const StringVector& getRenderSystemEvents(void) const { return mEventNames; }
     protected:
 
 
@@ -1019,6 +1061,15 @@ namespace Ogre
         @returns True if more iterations are required
         */
         bool updatePassIterationRenderState(void);
+
+		/// List of names of events this rendersystem may raise
+		StringVector mEventNames;
+
+		/// Internal method for firing a rendersystem event
+		virtual void fireEvent(const String& name, const NameValuePairList* params = 0);
+
+		typedef std::list<Listener*> ListenerList;
+		ListenerList mEventListeners;
 
     };
 }

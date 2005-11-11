@@ -100,6 +100,10 @@ namespace Ogre
 
         mCurrentLights = 0;
 
+		// Enumerate events
+		mEventNames.push_back("DeviceLost");
+		mEventNames.push_back("DeviceRestored");
+
 
 		OgreUnguard();
 	}
@@ -2778,6 +2782,9 @@ namespace Ogre
 		LogManager::getSingleton().logMessage("!!! Direct3D Device successfully restored.");
 
 		mDeviceLost = false;
+
+		fireEvent("DeviceRestored");
+
 	}
 	//---------------------------------------------------------------------
 	bool D3D9RenderSystem::isDeviceLost(void)
@@ -2789,6 +2796,10 @@ namespace Ogre
 	{
 		LogManager::getSingleton().logMessage("!!! Direct3D Device Lost!");
 		mDeviceLost = true;
+		// will have lost basic states
+		mBasicStatesInitialised = false;
+
+		fireEvent("DeviceLost");
 	}
 
 	//---------------------------------------------------------------------

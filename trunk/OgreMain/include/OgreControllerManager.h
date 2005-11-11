@@ -60,8 +60,8 @@ namespace Ogre {
 
         /** Creates a new controller and registers it with the manager.
         */
-        Controller<Real>* createController(ControllerValueRealPtr src, 
-			ControllerValueRealPtr dest, ControllerFunctionRealPtr func);
+        Controller<Real>* createController(const ControllerValueRealPtr& src,
+            const ControllerValueRealPtr& dest, const ControllerFunctionRealPtr& func);
 
         /** Destroys all the controllers in existence.
         */
@@ -81,7 +81,7 @@ namespace Ogre {
             @see
                 RenderSystem::beginFrame
         */
-        ControllerValueRealPtr getFrameTimeSource(void) const;
+        const ControllerValueRealPtr& getFrameTimeSource(void) const;
 
         /** Creates a texture layer animator controller.
             @remarks
@@ -171,6 +171,22 @@ namespace Ogre {
         @param tf The virtual speed of time (1.0 is real time).
 		*/
 		void setTimeFactor(Real tf);
+
+        /** Return the elapsed time.
+        @remarks
+            See setElapsedTime for full information on the meaning of this value.
+        */
+        Real getElapsedTime(void) const;
+
+        /** Set the elapsed time.
+        @remarks
+            Normally elapsed time accumulated all frames time (which speed relative to time
+            factor) since the rendering loop started. This method allows your to change that to
+            special time, so some elapsed-time-based globally effect is repeatable.
+        @param elapsedTime The new elapsed time
+        */
+        void setElapsedTime(Real elapsedTime);
+
         /** Override standard Singleton retrieval.
         @remarks
         Why do we do this? Well, it's because the Singleton

@@ -137,6 +137,7 @@ namespace Ogre {
 		Matrix4 getInverseTransposeWorldViewProjMatrix() const;
 		Matrix4 getTransposeWorldViewMatrix() const;
 		Matrix4 getTransposeWorldMatrix() const;
+        Real getTime(void) const;
 		Real getTime_0_X(Real x) const;
 		Real getCosTime_0_X(Real x) const;
 		Real getSinTime_0_X(Real x) const;
