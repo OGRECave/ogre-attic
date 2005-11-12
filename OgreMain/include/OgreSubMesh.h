@@ -78,6 +78,28 @@ namespace Ogre {
         /// Face index data
         IndexData *indexData;
 
+        /** Dedicated index map for translate blend index to bone index (only valid if useSharedVertices = false).
+            @remarks
+                This data is completely owned by this submesh.
+            @par
+                We are collect actually used bones of all bone assignments, and build the
+                blend index in 'packed' form, then the range of the blend index in vertex
+                data VES_BLEND_INDICES element are continuous, no hole inside. Thus, by
+                minimise the world matrix array constants passing to GPU, so we can support
+                more bones for a mesh when enabled hardware skinning. The hardware skinning
+                support limit is apply to each vertex data in the mesh, in other words, the
+                hardware skinning support limit is apply to actually used bones of each
+                SubMeshes, not Mesh.
+            @par
+                Because the blend index was difference with bone index, therefore, we use
+                the index map to translate blend index to bone index.
+            @par
+                The use of shared or non-shared index map is determined when
+                model data is converted to the OGRE .mesh format.
+        */
+        typedef std::vector<unsigned short> IndexMap;
+        IndexMap blendIndexToBoneIndexMap;
+
         ProgressiveMesh::LODFaceList mLodFaceList;
 
         /// Reference to parent Mesh (not a smart pointer so child does not keep parent alive).

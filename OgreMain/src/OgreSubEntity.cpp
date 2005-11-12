@@ -169,11 +169,15 @@ namespace Ogre {
             else
             {
                 // Bones, use cached matrices built when Entity::_updateRenderQueue was called
-                int i;
-                for (i = 0; i < mParentEntity->mNumBoneMatrices; ++i)
+                const Mesh::IndexMap& indexMap = mSubMesh->useSharedVertices ?
+                    mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
+                assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
+
+                Mesh::IndexMap::const_iterator it, itend;
+                itend = indexMap.end();
+                for (it = indexMap.begin(); it != itend; ++it, ++xform)
                 {
-                    *xform = mParentEntity->mBoneMatrices[i];
-                    ++xform;
+                    *xform = mParentEntity->mBoneMatrices[*it];
                 }
             }
         }
@@ -200,8 +204,12 @@ namespace Ogre {
         }
         else
         {
-            // Hardware skinning, pass all matrices
-            return mParentEntity->mNumBoneMatrices;
+            // Hardware skinning, pass all actually used matrices
+            const Mesh::IndexMap& indexMap = mSubMesh->useSharedVertices ?
+                mSubMesh->parent->sharedBlendIndexToBoneIndexMap : mSubMesh->blendIndexToBoneIndexMap;
+            assert(indexMap.size() <= mParentEntity->mNumBoneMatrices);
+
+            return indexMap.size();
         }
     }
     //-----------------------------------------------------------------------

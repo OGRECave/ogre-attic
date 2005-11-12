@@ -91,6 +91,7 @@ namespace Ogre {
         typedef std::multimap<size_t, VertexBoneAssignment> VertexBoneAssignmentList;
         typedef MapIterator<VertexBoneAssignmentList> BoneAssignmentIterator;
         typedef std::vector<SubMesh*> SubMeshList;
+        typedef std::vector<unsigned short> IndexMap;
 
     protected:
         /** A list of submeshes which make up this mesh.
@@ -127,14 +128,14 @@ namespace Ogre {
         /// Flag indicating that bone assignments need to be recompiled
         bool mBoneAssignmentsOutOfDate;
 
+        /** Build the index map between bone index and blend index */
+        void buildIndexMap(const VertexBoneAssignmentList& boneAssignments,
+            IndexMap& boneIndexToBlendIndexMap, IndexMap& blendIndexToBoneIndexMap);
         /** Compile bone assignments into blend index and weight buffers. */
         void compileBoneAssignments(const VertexBoneAssignmentList& boneAssignments,
             unsigned short numBlendWeightsPerVertex, 
+            IndexMap& blendIndexToBoneIndexMap,
             VertexData* targetVertexData);
-        /** Software blending oriented bone assignment compilation */
-        void compileBoneAssignmentsSoftware(const VertexBoneAssignmentList& boneAssignments,
-            unsigned short numBlendWeightsPerVertex, VertexData* targetVertexData);
-
 
 		bool mIsLodManual;
 		ushort mNumLods;
@@ -233,6 +234,28 @@ namespace Ogre {
                 model data is converted to the OGRE .mesh format.
         */
         VertexData *sharedVertexData;
+
+        /** Shared index map for translate blend index to bone index.
+            @remarks
+                This index map can be shared among multiple submeshes. SubMeshes may not have
+                their own IndexMap, they may share this one.
+            @par
+                We are collect actually used bones of all bone assignments, and build the
+                blend index in 'packed' form, then the range of the blend index in vertex
+                data VES_BLEND_INDICES element are continuous, no hole inside. Thus, by
+                minimise the world matrix array constants passing to GPU, so we can support
+                more bones for a mesh when enabled hardware skinning. The hardware skinning
+                support limit is apply to each vertex data in the mesh, in other words, the
+                hardware skinning support limit is apply to actually used bones of each
+                SubMeshes, not Mesh.
+            @par
+                Because the blend index was difference with bone index, therefore, we use
+                the index map to translate blend index to bone index.
+            @par
+                The use of shared or non-shared index map is determined when
+                model data is converted to the OGRE .mesh format.
+        */
+        IndexMap sharedBlendIndexToBoneIndexMap;
 
         /** Makes a copy of this mesh object and gives it a new name.
             @remarks
@@ -601,10 +624,13 @@ namespace Ogre {
             Note that the layout of the source and target position / normal 
             buffers must be identical, ie they must use the same buffer indexes
         @param pMatrices Pointer to an array of matrices to be used to blend
+        @param pIndexMap Pointer to an array of indices to translate blend indices
+            in the sourceVertexData to the index of pMatrices
         @param blendNormals If true, normals are blended as well as positions
         */
         static void softwareVertexBlend(const VertexData* sourceVertexData, 
             const VertexData* targetVertexData, const Matrix4* pMatrices, 
+            const unsigned short* pIndexMap,
             bool blendNormals);
 
         /** Performs a software vertex morph, of the kind used for

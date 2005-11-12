@@ -602,7 +602,9 @@ namespace Ogre {
 						Mesh::softwareVertexBlend(
 							(mMesh->getSharedVertexDataAnimationType() != VAT_NONE) ? 
 								mSoftwareVertexAnimVertexData :	mMesh->sharedVertexData, 
-							mSkelAnimVertexData, mBoneMatrices, blendNormals);
+							mSkelAnimVertexData,
+							mBoneMatrices, &mMesh->sharedBlendIndexToBoneIndexMap[0],
+							blendNormals);
 					}
 					SubEntityList::iterator i, iend;
 					iend = mSubEntityList.end();
@@ -619,7 +621,9 @@ namespace Ogre {
 							Mesh::softwareVertexBlend(
 								(se->getSubMesh()->getVertexAnimationType() != VAT_NONE)? 
 									se->mSoftwareVertexAnimVertexData : se->mSubMesh->vertexData, 
-								se->mSkelAnimVertexData, mBoneMatrices, blendNormals);
+								se->mSkelAnimVertexData,
+								mBoneMatrices, &se->mSubMesh->blendIndexToBoneIndexMap[0],
+								blendNormals);
 						}
 
 					}

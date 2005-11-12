@@ -547,14 +547,52 @@ namespace Ogre {
         }
 
         compileBoneAssignments(mBoneAssignments, maxBones, 
-            sharedVertexData);
-        mBoneAssignmentsOutOfDate = false;
+            sharedBlendIndexToBoneIndexMap, sharedVertexData);
 
+        mBoneAssignmentsOutOfDate = false;
+    }
+    //---------------------------------------------------------------------
+    void Mesh::buildIndexMap(const VertexBoneAssignmentList& boneAssignments,
+        IndexMap& boneIndexToBlendIndexMap, IndexMap& blendIndexToBoneIndexMap)
+    {
+        if (boneAssignments.empty())
+        {
+            // Just in case
+            boneIndexToBlendIndexMap.clear();
+            blendIndexToBoneIndexMap.clear();
+            return;
+        }
+
+        typedef std::set<unsigned short> BoneIndexSet;
+        BoneIndexSet usedBoneIndices;
+
+        // Collect actually used bones
+        VertexBoneAssignmentList::const_iterator itVBA, itendVBA;
+        itendVBA = boneAssignments.end();
+        for (itVBA = boneAssignments.begin(); itVBA != itendVBA; ++itVBA)
+        {
+            usedBoneIndices.insert(itVBA->second.boneIndex);
+        }
+
+        // Allocate space for index map
+        blendIndexToBoneIndexMap.resize(usedBoneIndices.size());
+        boneIndexToBlendIndexMap.resize(*usedBoneIndices.rbegin() + 1);
+
+        // Make index map between bone index and blend index
+        BoneIndexSet::const_iterator itBoneIndex, itendBoneIndex;
+        unsigned short blendIndex = 0;
+        itendBoneIndex = usedBoneIndices.end();
+        for (itBoneIndex = usedBoneIndices.begin(); itBoneIndex != itendBoneIndex; ++itBoneIndex, ++blendIndex)
+        {
+            boneIndexToBlendIndexMap[*itBoneIndex] = blendIndex;
+            blendIndexToBoneIndexMap[blendIndex] = *itBoneIndex;
+        }
     }
     //---------------------------------------------------------------------
     void Mesh::compileBoneAssignments(        
         const VertexBoneAssignmentList& boneAssignments,
         unsigned short numBlendWeightsPerVertex, 
+        IndexMap& blendIndexToBoneIndexMap,
         VertexData* targetVertexData)
     {
         // Create or reuse blend weight / indexes buffer
@@ -563,6 +601,11 @@ namespace Ogre {
         VertexDeclaration* decl = targetVertexData->vertexDeclaration;
         VertexBufferBinding* bind = targetVertexData->vertexBufferBinding;
         unsigned short bindIndex;
+
+        // Build the index map brute-force. It's possible to store the index map
+        // in .mesh, but maybe trivial.
+        IndexMap boneIndexToBlendIndexMap;
+        buildIndexMap(boneAssignments, boneIndexToBlendIndexMap, blendIndexToBoneIndexMap);
 
         const VertexElement* testElem = 
             decl->findElementBySemantic(VES_BLEND_INDICES);
@@ -649,7 +692,7 @@ namespace Ogre {
                 {
                     // If so, write weight
                     *pWeight++ = i->second.weight;
-                    *pIndex++ = i->second.boneIndex;
+                    *pIndex++ = boneIndexToBlendIndexMap[i->second.boneIndex];
                     ++i;
                 }
                 else
@@ -1475,6 +1518,7 @@ namespace Ogre {
     //---------------------------------------------------------------------
     void Mesh::softwareVertexBlend(const VertexData* sourceVertexData, 
         const VertexData* targetVertexData, const Matrix4* pMatrices, 
+        const unsigned short* pIndexMap,
         bool blendNormals)
     {
         // Source vectors
@@ -1655,7 +1699,7 @@ namespace Ogre {
                 if (*pBlendWeight != 0.0) 
                 {
                     // Blend position, use 3x4 matrix
-                    const Matrix4& mat = pMatrices[*pBlendIdx];
+                    const Matrix4& mat = pMatrices[pIndexMap[*pBlendIdx]];
                     accumVecPos.x += 
                         (mat[0][0] * sourceVec.x + 
                          mat[0][1] * sourceVec.y + 
