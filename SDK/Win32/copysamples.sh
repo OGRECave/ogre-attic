@@ -18,6 +18,7 @@ cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*.dsp samples/refapp/scr
 cp ../../ReferenceApplication/ReferenceAppLayer/scripts/*.vcproj samples/refapp/scripts
 rm samples/scripts/OgreGUIRenderer.dsp
 rm samples/scripts/OgreGUIRenderer.vcproj
+rm samples/scripts/OgreGUIRenderer_vc8.vcproj
 /bin/find samples/scripts/ -iname *.dsp -exec sed -i -f altersamples.sed \{\} \;
 /bin/find samples/scripts/ -iname *.vcproj -exec sed -i -f altersamples.sed \{\} \;
 /bin/find samples/refapp/scripts/ -iname *.dsp -exec sed -i -f alterrefapp.sed \{\} \;
