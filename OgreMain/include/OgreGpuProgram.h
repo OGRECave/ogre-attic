@@ -119,6 +119,7 @@ namespace Ogre {
             ACT_CUSTOM,
             /// The current camera's position in world space
             ACT_CAMERA_POSITION,
+            ACT_TIME,
 			/** Single float value, which repeats itself based on given as
 			parameter "cycle time". Equivalent to RenderMonkey's "Time0_X".
 			*/
