@@ -7,6 +7,7 @@ Section -Samples
   SetOutPath "$INSTDIR\samples\scripts"
   SetOverwrite try
   File ".\Samples\scripts\*_vc8.vcproj"
+  File ".\Samples\scripts\*_vc8.vcproj.user"
   SetOutPath "$INSTDIR\samples\src"
   SetOverwrite try
   File ".\Samples\src\*.cpp"
