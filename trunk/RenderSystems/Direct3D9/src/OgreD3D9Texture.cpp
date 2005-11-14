@@ -871,19 +871,8 @@ namespace Ogre
 
 		// Hacky override - many (all?) cards seem to not be able to autogen on 
 		// textures which are not a power of two
-		bool xpot = false;
-		bool ypot = false;
-		bool zpot = false;
-		// I assume people don't want to use textures bigger than 32768!
-		for (int i = 0; i < 16 && (xpot == false || ypot == false || zpot == false); ++i)
-		{
-			size_t sz = 1 << i;
-			xpot = xpot || (sz == mWidth);
-			ypot = ypot || (sz == mHeight);
-			zpot = zpot || (sz == mDepth);
-		}
 		// Can we even mipmap on 3D textures? Well
-		if (!xpot || !ypot || !zpot)
+		if ((mWidth & mWidth-1) || (mHeight & mHeight-1) || (mDepth & mDepth-1))
 			return false;
 
 		if (mDevCaps.Caps2 & D3DCAPS2_CANAUTOGENMIPMAP)
