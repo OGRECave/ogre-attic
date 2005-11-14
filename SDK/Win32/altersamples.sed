@@ -8,6 +8,7 @@ s/\.\.\/\.\.\/Common\/Bin/..\/..\/bin/i
 s/\.\.\\\.\.\\Common\\Bin/..\\..\\bin/i
 s/\.\.\/\.\.\/\.\.\/Samples\/Common\/Bin/..\/..\/bin/i
 s/\.\.\\\.\.\\\.\.\\Samples\\Common\\bin/..\\..\\bin/i
+s/$(SolutionDir)Samples\\Common\\bin/..\\..\\bin/i
 s/\.\.\\\.\.\\ReferenceAppLayer\\include/..\\refapp\\include/i
 s/\.\.\\\.\.\\ReferenceAppLayer\\lib/..\\lib/i
 
