@@ -262,6 +262,8 @@ namespace Ogre {
             {
                 // Copy unique vertex data
 				newSub->vertexData = (*subi)->vertexData->clone();
+                // Copy unique index map
+                newSub->blendIndexToBoneIndexMap = (*subi)->blendIndexToBoneIndexMap;
             }
 
             // Copy index data
@@ -282,10 +284,11 @@ namespace Ogre {
             }
         }
 
-        // Copy shared geometry, if any
+        // Copy shared geometry and index map, if any
         if (sharedVertexData)
         {
             newMesh->sharedVertexData = sharedVertexData->clone();
+            newMesh->sharedBlendIndexToBoneIndexMap = sharedBlendIndexToBoneIndexMap;
         }
 
 		// Copy submesh names
