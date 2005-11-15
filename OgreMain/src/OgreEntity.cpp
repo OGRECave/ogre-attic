@@ -633,6 +633,18 @@ namespace Ogre {
         return mDisplaySkeleton;
     }
     //-----------------------------------------------------------------------
+    Entity* Entity::getManualLodLevel(size_t index) const
+    {
+        assert(index < mLodEntityList.size());
+
+        return mLodEntityList[index];
+    }
+    //-----------------------------------------------------------------------
+    size_t Entity::getNumManualLodLevels(void) const
+    {
+        return mLodEntityList.size();
+    }
+    //-----------------------------------------------------------------------
     void Entity::setMeshLodBias(Real factor, ushort maxDetailIndex, ushort minDetailIndex)
     {
         assert(factor > 0.0f && "Bias factor must be > 0!");
