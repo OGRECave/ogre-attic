@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zdll.lib zziplib.lib freetype219MT.lib /nologo /dll /machine:I386 /libpath:"..\..\Dependencies\lib\Release"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zdll.lib zziplib.lib freetype2110.lib  devil.lib ilu.lib /nologo /dll /machine:I386 /libpath:"..\..\Dependencies\lib\Release"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\lib\Release\OgreMain.dll ..\..\Samples\Common\bin\Release	copy ..\lib\Release\OgreMain.dll ..\..\Tools\Common\bin\Release
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zdll.lib zziplibd.lib freetype219MT_D.lib /nologo /dll /debug /machine:I386 /out:"..\lib\Debug/OgreMain_d.dll" /pdbtype:sept /libpath:"..\..\Dependencies\lib\Debug"
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib zdll.lib zziplibd.lib freetype2110_D.lib devil.lib ilu.lib /nologo /dll /debug /machine:I386 /out:"..\lib\Debug/OgreMain_d.dll" /pdbtype:sept /libpath:"..\..\Dependencies\lib\Debug"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy ..\lib\Debug\OgreMain_d.dll ..\..\Samples\Common\bin\Debug	copy ..\lib\Debug\OgreMain_d.dll ..\..\Tools\Common\bin\Debug
@@ -485,17 +485,7 @@ SOURCE=..\src\OgrePlatformManager.cpp
 # Begin Source File
 
 SOURCE=..\src\OgrePrecompiledHeaders.cpp
-
-!IF  "$(CFG)" == "OgreMain - Win32 Release"
-
 # ADD CPP /Yc"OgreStableHeaders.h"
-
-!ELSEIF  "$(CFG)" == "OgreMain - Win32 Debug"
-
-# ADD CPP /Yc"OgreStableHeaders.h"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
