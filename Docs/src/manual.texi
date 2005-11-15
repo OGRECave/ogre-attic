@@ -548,7 +548,7 @@ Example: specular 1.0 1.0 1.0 12.5@*@*
 
 The base colour of a pass is determined by how much red, green and blue light is reflects at each vertex. This property determines how much specular light (highlights from instances of the Light class in the scene) is reflected. 
 It is also possible to make the diffuse reflectance track the vertex colour as defined in the mesh by using the keyword vertexcolour instead of the colour values.
-The default is to reflect no specular light. The colour of the specular highlights is determined by the colour parameters, and the size of the highlights by the separate shininess parameter. This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
+The default is to reflect no specular light. The colour of the specular highlights is determined by the colour parameters, and the size of the highlights by the separate shininess parameter.. The higher the value of the shininess parameter, the sharper the highlight ie the radius is smaller.  Beware of using shininess values in the range of 0 to 1 since this causes the the specular colour to be applied to the whole surface that has the material applied to it.  When the viewing angle to the surface changes, ugly flickering will also occur when shininess is in the range of 0 to 1.  Shininess values between 1 and 128 work best in both DirectX and OpenGL renderers.  This setting has no effect if dynamic lighting is disabled using the 'lighting off' attribute, or if any texture layer has a 'colour_op replace' attribute.@*@*
 
 Default: specular 0.0 0.0 0.0 0.0 0.0@*@*
 
