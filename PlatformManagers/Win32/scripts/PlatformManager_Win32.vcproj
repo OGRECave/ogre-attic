@@ -176,9 +176,6 @@
 				RelativePath="..\include\OgreWin32Timer.h">
 			</File>
 			<File
-				RelativePath="..\misc\resource.h">
-			</File>
-			<File
 				RelativePath="..\include\resource.h">
 			</File>
 		</Filter>
