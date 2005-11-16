@@ -222,8 +222,6 @@ namespace Ogre {
             Subclasses can use this to install their own RenderQueue implementation.
         */
         virtual void initRenderQueue(void);
-        /** Retrieves the internal render queue. */
-        virtual RenderQueue* getRenderQueue(void);
         /** Internal method for setting up the renderstate for a rendering pass.
             @param
                 pass The Pass details to set.
@@ -1289,6 +1287,15 @@ namespace Ogre {
         virtual void manualRender(RenderOperation* rend, Pass* pass, Viewport* vp, 
             const Matrix4& worldMatrix, const Matrix4& viewMatrix, const Matrix4& projMatrix, 
             bool doBeginEndFrame = false) ;
+
+        /** Retrieves the internal render queue, for advanced users only.
+        @remarks
+            The render queue mainly use internal to manage the scene object rendering queue,
+            it also export some method allow configure the behavior of rendering process.
+            Most methods provide by RenderQueue are supposed to use internal only, you should
+            reference to the RenderQueue for more information.
+        */
+        virtual RenderQueue* getRenderQueue(void);
 
         /** Registers a new RenderQueueListener which will be notified when render queues
             are processed.
