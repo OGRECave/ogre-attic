@@ -1290,10 +1290,13 @@ namespace Ogre {
 
         /** Retrieves the internal render queue, for advanced users only.
         @remarks
-            The render queue mainly use internal to manage the scene object rendering queue,
-            it also export some method allow configure the behavior of rendering process.
-            Most methods provide by RenderQueue are supposed to use internal only, you should
-            reference to the RenderQueue for more information.
+            The render queue is mainly used internally to manage the scene object 
+			rendering queue, it also exports some methods to allow advanced users 
+			to configure the behavior of rendering process.
+            Most methods provided by RenderQueue are supposed to be used 
+			internally only, you should reference to the RenderQueue API for 
+			more information. Do not access this directly unless you know what 
+			you are doing.
         */
         virtual RenderQueue* getRenderQueue(void);
 
