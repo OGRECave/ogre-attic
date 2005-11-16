@@ -235,22 +235,22 @@ namespace Ogre {
         */
         VertexData *sharedVertexData;
 
-        /** Shared index map for translate blend index to bone index.
+        /** Shared index map for translating blend index to bone index.
             @remarks
-                This index map can be shared among multiple submeshes. SubMeshes may not have
-                their own IndexMap, they may share this one.
+                This index map can be shared among multiple submeshes. SubMeshes might not have
+                their own IndexMap, they might share this one.
             @par
-                We are collect actually used bones of all bone assignments, and build the
+                We collect actually used bones of all bone assignments, and build the
                 blend index in 'packed' form, then the range of the blend index in vertex
-                data VES_BLEND_INDICES element are continuous, no hole inside. Thus, by
-                minimise the world matrix array constants passing to GPU, so we can support
-                more bones for a mesh when enabled hardware skinning. The hardware skinning
-                support limit is apply to each vertex data in the mesh, in other words, the
-                hardware skinning support limit is apply to actually used bones of each
-                SubMeshes, not Mesh.
+                data VES_BLEND_INDICES element is continuous, with no gaps. Thus, by
+                minimising the world matrix array constants passing to GPU, we can support
+                more bones for a mesh when hardware skinning is used. The hardware skinning
+                support limit is applied to each set of vertex data in the mesh, in other words, the
+                hardware skinning support limit is applied only to the actually used bones of each
+                SubMeshes, not all bones across the entire Mesh.
             @par
-                Because the blend index was difference with bone index, therefore, we use
-                the index map to translate blend index to bone index.
+                Because the blend index is different to the bone index, therefore, we use
+                the index map to translate the blend index to bone index.
             @par
                 The use of shared or non-shared index map is determined when
                 model data is converted to the OGRE .mesh format.
