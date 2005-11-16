@@ -139,6 +139,18 @@ namespace Ogre {
         */
         virtual unsigned int getDepth(void) const { return mDepth; }
 
+        /** Returns the height of the original input texture (may differ due to hardware requirements).
+        */
+        virtual unsigned int getSrcHeight(void) const { return mSrcHeight; }
+
+        /** Returns the width of the original input texture (may differ due to hardware requirements).
+        */
+        virtual unsigned int getSrcWidth(void) const { return mSrcWidth; }
+
+        /** Returns the original depth of the input texture (only applicable for 3D textures).
+        */
+        virtual unsigned int getSrcDepth(void) const { return mSrcDepth; }
+
         /** Set the height of the texture; can only do this before load();
         */
         virtual void setHeight(unsigned int h) { mHeight = mSrcHeight = h; }
@@ -150,7 +162,7 @@ namespace Ogre {
         /** Set the depth of the texture (only applicable for 3D textures);
             ; can only do this before load();
         */
-        virtual void setDepth(unsigned int d)  { mDepth = d; }
+        virtual void setDepth(unsigned int d)  { mDepth = mSrcDepth = d; }
 
         /** Returns the TextureUsage indentifier for this Texture
         */
@@ -249,7 +261,7 @@ namespace Ogre {
         int mUsage; // Bit field, so this can't be TextureUsage
 
         unsigned short mSrcBpp;
-        unsigned long mSrcWidth, mSrcHeight;
+        unsigned long mSrcWidth, mSrcHeight, mSrcDepth;
         unsigned short mFinalBpp;
         bool mHasAlpha;
 

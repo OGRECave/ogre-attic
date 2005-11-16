@@ -49,7 +49,8 @@ namespace Ogre {
             mUsage(TU_DEFAULT),
             // mSrcBpp inited later on
             mSrcWidth(0),
-            mSrcHeight(0), mInternalResourcesCreated(false)
+            mSrcHeight(0), 
+            mSrcDepth(0), mInternalResourcesCreated(false)
             // mFinalBpp inited later on by enable32bit
             // mHasAlpha inited later on            
     {
@@ -110,7 +111,7 @@ namespace Ogre {
 		// Set desired texture size and properties from images[0]
 		mSrcWidth = mWidth = images[0]->getWidth();
 		mSrcHeight = mHeight = images[0]->getHeight();
-		mDepth = images[0]->getDepth();
+		mSrcDepth = mDepth = images[0]->getDepth();
 		mFormat = images[0]->getFormat();
 		mSrcBpp = PixelUtil::getNumElemBits(mFormat);
 		mHasAlpha = PixelUtil::hasAlpha(mFormat);
