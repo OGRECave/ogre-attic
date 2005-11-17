@@ -37,10 +37,19 @@ namespace Ogre {
 	    enum SymbolID {
 		    // Terminal Tokens section
             mid_MATERIAL = 0, mid_CLONE, mid_TECHNIQUE, mid_PASS, mid_AMBIENT, mid_DIFFUSE, mid_SPECULAR, mid_EMISSIVE,
-            mid_VERTEXCOLOUR, mid_SCENE_BLEND,
+            mid_VERTEXCOLOUR, mid_SCENE_BLEND, mid_BLEND_ADD, mid_BLEND_MODULATE, mid_COLOUR_BLEND, mid_ALPHA_BLEND,
+            mid_BLEND_ONE, mid_BLEND_ZERO, mid_BLEND_DEST_COLOUR,
+            mid_BLEND_SRC_COLOUR, mid_BLEND_ONCE_MINUS_DEST_COLOUR, mid_BLEND_ONE_MINUS_SRC_COLOUR,
+            mid_BLEND_DEST_ALPHA, mid_BLEND_SRC_ALPHA, mid_BLEND_ONE_MINUS_DEST_ALPHA, mid_BLEND_ONE_MINUS_SRC_ALPHA,
+            mid_DEPTH_CHECK, mid_DEPTH_WRITE,
             
+            mid_COLOUR_WRITE, mid_CULL_HARDWARE, mid_CLOCKWISE, mid_ANTICLOCKWISE, mid_CULL_NONE,
+            mid_CULL_SOFTWARE, mid_CULL_BACK, mid_CULL_FRONT,
+            mid_SHADING, mid_FLAT, mid_GOURAUD, mid_PHONG,
+            mid_LIGHTING,
             mid_TEXTURE_UNIT,
 
+            mid_ON, mid_OFF,
     		// non-terminal tokens section
             mid_SCRIPT, mid_SCRIPT_OPTIONS, mid_SCRIPT_PROPERTIES, mid_MATERIAL_DEF, mid_VERTEX_PROGRAM_DEF,
             mid_FRAGMENT_PROGRAM_DEF, mid_MATERIAL_CLONE, mid_MATERIAL_OPTIONS, mid_MATERIAL_PROPERTIES,
@@ -50,14 +59,15 @@ namespace Ogre {
 
             mid_PASS_DEF, mid_PASS_OPTIONS, mid_LOD_INDEX_DEF, mid_PASS_PROPERTIES, mid_AMBIENT_DEF, mid_DIFFUSE_DEF, 
 			mid_EMISSIVE_DEF, mid_SPECULAR_DEF, mid_SPECULAR_PARAMS, mid_VERTEXCOLOUR_DEF, mid_COLOUR_PARAM_DEF,
-            mid_SCENE_BLEND_DEF, mid_SIMPLE_BLEND, mid_USER_BLEND, mid_DEPTH_CHECK_DEF, mid_DEPTH_WRITE_DEF, mid_DEPTH_FUNC_DEF, 
+            mid_SCENE_BLEND_DEF, mid_SIMPLE_BLEND, mid_USER_BLEND, mid_BLEND_FACTOR,
+            mid_DEPTH_CHECK_DEF, mid_DEPTH_WRITE_DEF, mid_DEPTH_FUNC_DEF,
             mid_ALPHA_REJECTION_DEF, mid_COLOUR_WRITE_DEF, mid_CULL_HARDWARE_DEF, mid_CULL_SOFTWARE_DEF, 
             mid_LIGHTING_DEF, mid_FOG_OVERRIDE_DEF, mid_SHADING_DEF, mid_DEPTH_BIAS_DEF, mid_TEXTURE_UNIT_DEF, 
             mid_TUS_OPTIONS, mid_TUS_PROPERTIES, mid_VERTEX_PROGRAM_REF_DEF, mid_SHADOW_CASTER_VERTEX_PROGRAM_REF_DEF,
             mid_SHADOW_RECEIVER_VERTEX_PROGRAM_REF_DEF, mid_FRAGMENT_PROGRAM_REF_DEF,
             mid_MAX_LIGHTS_DEF, mid_ITERATION_DEF, 
 
-
+            mid_ON_OFF,
             mid_LABEL, mid_QUOTED_LABEL, mid_UNQUOTED_LABEL, mid_ALPHANUMERIC_SPACE,
             mid_ALPHANUMERIC, mid_CHARACTER, mid_NUMBER,
 

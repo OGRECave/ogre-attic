@@ -175,34 +175,93 @@ namespace Ogre {
 
         // <Simple_Blend> ::= "add" | "modulate" | "colour_blend" | "alpha_blend"
         _rule_ mid_SIMPLE_BLEND, "<Simple_Blend>"
+            _is_ mid_BLEND_ADD, "add"
+            _or_ mid_BLEND_MODULATE, "modulate"
+            _or_ mid_COLOUR_BLEND, "colour_blend"
+            _or_ mid_ALPHA_BLEND, "alpha_blend"
             _end_
 
         // <User_Blend> ::= <Blend_Factor> <Blend_Factor>
+        _rule_ mid_USER_BLEND, "<User_Blend>"
+            _is_ mid_BLEND_FACTOR _nt_
+            _and_ mid_BLEND_FACTOR _nt_
+            _end_
 
         // <Blend_Factor> ::= "one" | "zero" | "dest_colour" | "src_colour" |
         //                   "one_minus_dest_colour" | "one_minus_src_colour" |
         //                   "dest_alpha" | "src_alpha" | "one_minus_dest_alpha" |
         //                   "one_minus_src_alpha"
+        _rule_ mid_BLEND_FACTOR, "<Blend_Factor>"
+            _is_ mid_BLEND_ONE, "one"
+            _or_ mid_BLEND_ZERO, "zero"
+            _or_ mid_BLEND_DEST_COLOUR, "dest_colour"
+            _or_ mid_BLEND_SRC_COLOUR, "src_colour"
+            _or_ mid_BLEND_ONCE_MINUS_DEST_COLOUR, "one_minus_dest_colour"
+            _or_ mid_BLEND_ONE_MINUS_SRC_COLOUR, "one_minus_src_colour"
+            _or_ mid_BLEND_DEST_ALPHA, "dest_alpha"
+            _or_ mid_BLEND_SRC_ALPHA, "src_alpha"
+            _or_ mid_BLEND_ONE_MINUS_DEST_ALPHA, "one_minus_dest_alpha"
+            _or_ mid_BLEND_ONE_MINUS_SRC_ALPHA, "one_minus_src_alpha"
+            _end_
 
         // <Depth_Check_Def> ::= "depth_check" <On_Off>
+        _rule_ mid_DEPTH_CHECK_DEF, "<Depth_Check_Def>"
+            _is_ mid_DEPTH_CHECK, "depth_check"
+            _and_ mid_ON_OFF _nt_
+            _end_
 
         // <Depth_Write_Def> ::= "depth_write" <On_Off>
+        _rule_ mid_DEPTH_WRITE_DEF, "<Depth_Write_Def>"
+            _is_ mid_DEPTH_WRITE, "depth_write"
+            _and_ mid_ON_OFF _nt_
+            _end_
 
-        // <Depth_Func_Def> ::= "depth_func" "always_fali" | "always_pass" | "less" | "less_equal" |
+        // <Depth_Func_Def> ::= "depth_func" "always_fail" | "always_pass" | "less" | "less_equal" |
         //                      "equal" | "not_equal" | "greater_equal" | "greater"
 
         // <Colour_Write_Def> ::= "colour_write" <On_Off>
+        _rule_ mid_COLOUR_WRITE_DEF, "<Colour_Write_Def>"
+            _is_ mid_COLOUR_WRITE, "colour_write"
+            _and_ mid_ON_OFF _nt_
+            _end_
 
-        // <Cull_Hardware_Def> ::= "cull_hardware" "clockwize" | "anticlockwise" | "none"
+        // <Cull_Hardware_Def> ::= "cull_hardware" "clockwise" | "anticlockwise" | "none"
+        _rule_ mid_CULL_HARDWARE_DEF, "<Cull_Hardware_Def>"
+            _is_ mid_CULL_HARDWARE, "cull_hardware"
+            _and_ mid_CLOCKWISE, "clockwise"
+            _or_ mid_ANTICLOCKWISE, "anticlockwise"
+            _or_ mid_CULL_NONE, "none"
+            _end_
 
         // <Cull_Software_Def> ::= "cull_software" "back" | "front" | "none"
+        _rule_ mid_CULL_SOFTWARE_DEF, "<Cull_Software_Def>"
+            _is_ mid_CULL_SOFTWARE, "cull_software"
+            _and_ mid_CULL_BACK, "back"
+            _or_ mid_CULL_FRONT, "front"
+            _or_ mid_CULL_NONE, "none"
+            _end_
 
         // <Lighting_Def> ::= "lighting" <On_Off>
+        _rule_ mid_LIGHTING_DEF, "<Lighting_Def>"
+            _is_ mid_LIGHTING, "lighting"
+            _and_ mid_ON_OFF _nt_
+            _end_
 
         // <Shading_Def> ::= "shading" "flat" | "gouraud" | "phong"
+        _rule_ mid_SHADING_DEF, "<Shading_Def>"
+            _is_ mid_SHADING, "shading"
+            _and_ mid_FLAT, "flat"
+            _or_ mid_GOURAUD, "gouraud"
+            _or_ mid_PHONG, "phong"
+            _end_
 
         // <Fog_Override_Def> ::= "fog_override" "false" | "true" [<Fog_parameters>]
 
+        // <On_Off> ::= "on" | "off"
+        _rule_ mid_ON_OFF, "<On_Off>"
+            _is_ mid_ON, "on"
+            _or_ mid_OFF, "off"
+            _end_
 
         // <Colour_params> ::= <Value> <Value> <Value> [<Value>]
         _rule_ mid_COLOUR_PARAM_DEF, "<Colour_Param_Def>"
