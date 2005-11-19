@@ -212,6 +212,13 @@ namespace Ogre {
         // Removes all LOD data
         removeLodLevels();
         mPreparedForShadowVolumes = false;
+
+        // Clear bone assignments
+        mBoneAssignments.clear();
+        mBoneAssignmentsOutOfDate = false;
+
+        // Removes reference to skeleton
+        setSkeletonName(StringUtil::BLANK);
     }
 
     //-----------------------------------------------------------------------
