@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 25 2005 by texi2html 1.64 -->
+<!-- Created on , 19 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.5: Particle System Attributes</TITLE>
+<TITLE>OGRE Manual v1.0.6: Particle System Attributes</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.5: Particle System Attributes">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.5: Particle System Attributes">
+<META NAME="description" CONTENT="OGRE Manual v1.0.6: Particle System Attributes">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.6: Particle System Attributes">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC96"></A>
+<A NAME="SEC97"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC92"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC92"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC104"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC93"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC93"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC105"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,127 +35,104 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.1 Particle System Attributes </H3>
-<!--docid::SEC96::-->
+<!--docid::SEC97::-->
 This section describes to attributes which you can set on every particle system using scripts. All atributes have default values so all settings are optional in your script.<BR><BR>
-<P>
 
 <A NAME="quota"></A>
-<A NAME="SEC97"></A>
+<A NAME="SEC98"></A>
 <H3> quota </H3>
-<!--docid::SEC97::-->
-<P>
+<!--docid::SEC98::-->
 
 Sets the maximum number of particles this system is allowed to contain at one time. When this limit is exhausted, the emitters will not be allowed to emit any more particles until some destroyed (e.g. through their time_to_live running out). Note that you will almost always want to change this, since it defaults to a very low value (particle pools are only ever increased in size, never decreased).<BR><BR>
-</P><P>
 
 format: quota &#60;max_particles&#62;<BR>
 example: quota 10000<BR>
 default: 10<BR>
-</P><P>
 
 <A NAME="particle_material"></A>
-<A NAME="SEC98"></A>
+<A NAME="SEC99"></A>
 <H3> material </H3>
-<!--docid::SEC98::-->
-<P>
+<!--docid::SEC99::-->
 
 Sets the name of the material which all particles in this system will use. All paticles in a system use the same material, although each particle can tint this material through the use of it's colour property.<BR><BR>
-</P><P>
 
 format: material &#60;material_name&#62;<BR>
 example: material Examples/Flare<BR>
 default: none (blank material)<BR>
-</P><P>
 
 <A NAME="particle_width"></A>
-<A NAME="SEC99"></A>
+<A NAME="SEC100"></A>
 <H3> particle_width </H3>
-<!--docid::SEC99::-->
-<P>
+<!--docid::SEC100::-->
 
 Sets the width of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.<BR>
-</P><P>
 
 format: particle_width &#60;width&#62;<BR>
 example: particle_width 20<BR>
 default: 100<BR>
-</P><P>
 
 <A NAME="particle_height"></A>
-<A NAME="SEC100"></A>
+<A NAME="SEC101"></A>
 <H3> particle_height </H3>
-<!--docid::SEC100::-->
-<P>
+<!--docid::SEC101::-->
 
 Sets the height of particles in world coordinates. Note that this property is absolute when billboard_type (see below) is set to 'point', but is scaled by the length of the direction vector when billboard_type is 'oriented_common' or 'oriented_self'.<BR>
-</P><P>
 
 format: particle_height &#60;height&#62;<BR>
 example: particle_height 20<BR>
 default: 100<BR>
-</P><P>
 
 <A NAME="cull_each"></A>
-<A NAME="SEC101"></A>
+<A NAME="SEC102"></A>
 <H3> cull_each </H3>
-<!--docid::SEC101::-->
-<P>
+<!--docid::SEC102::-->
 
 All particle systems are culled by the bounding box which contains all the particles in the system. This is normally sufficient for fairly locally constrained particle systems where most particles are either visible or not visible together. However, for those that spread particles over a wider area (e.g. a rain system), you may want to actually cull each particle individually to save on time, since it is far more likely that only a subset of the particles will be visible. You do this by setting the cull_each parameter to true.<BR><BR>
-</P><P>
 
 format: cull_each &#60;true|false&#62;<BR>
 example: cull_each true<BR>
 default: false<BR>
-</P><P>
 
 <A NAME="billboard_type"></A>
-<A NAME="SEC102"></A>
+<A NAME="SEC103"></A>
 <H3> billboard_type </H3>
-<!--docid::SEC102::-->
-<P>
+<!--docid::SEC103::-->
 
 Particles are rendered using billboards, which are rectangles formed by 2 triangles which rotate to face the camera. However, there is more than 1 way to orient a billboard. The classic approach is for the billboard to directly face the camera: this is the default behaviour. However this arrangement only looks good for particles which are representing something vaguely spherical like a light flare. For more linear effectd like laser fire, you actually want the particle to have an orientation of it's own.<BR><BR>
-</P><P>
 
 format: billboard_type &#60;point|oriented_common|oriented_self&#62;<BR>
 example: billboard_type oriented_self<BR>
 default: point<BR>
-</P><P>
 
 The options for this parameter are:
 <DL COMPACT>
 <DT>point
 <DD>	The default arrangement, this approximates spherical particles and the billboards always fully face the camera.
 <DT>oriented_common
-<DD>	Particles are oriented around a common, typically fixed direction vector (see <A HREF="manual_22.html#SEC103">common_direction</A>), which acts as their local Y axis. The billboard roatates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
+<DD>	Particles are oriented around a common, typically fixed direction vector (see <A HREF="manual_22.html#SEC104">common_direction</A>), which acts as their local Y axis. The billboard roatates only around this axis, giving the particle some sense of direction. Good for rainstorms, starfields etc where the particles will travelling in one direction - this is slightly faster than oriented_self (see below).
 <DT>oriented_self
 <DD>	Particles are oriented around their own direction vector, which acts as their local Y axis. As the particle changes direction, so the billboard reorients itself to face this way. Good for laser fire, fireworks and other 'streaky' particles that should look like they are travelling in their own direction.
 </DL>
-<P>
 
 <A NAME="common_direction"></A>
-<A NAME="SEC103"></A>
+<A NAME="SEC104"></A>
 <H3> common_direction </H3>
-<!--docid::SEC103::-->
-<P>
+<!--docid::SEC104::-->
 
-Only required if <A HREF="manual_22.html#SEC102">billboard_type</A> is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.<BR><BR>
-</P><P>
+Only required if <A HREF="manual_22.html#SEC103">billboard_type</A> is set to oriented_common, this vector is the common direction vector used to orient all particles in the system.<BR><BR>
 
 format: common_direction &#60;x&#62; &#60;y&#62; &#60;z&#62;<BR>
 example: common_direction 0 -1 0<BR>
 default: none<BR>
 <BR><BR>
-See also: <A HREF="manual_23.html#SEC104">3.2.2 Particle Emitters</A>, <A HREF="manual_26.html#SEC128">3.2.5 Particle Affectors</A>
-</P><P>
+See also: <A HREF="manual_23.html#SEC105">3.2.2 Particle Emitters</A>, <A HREF="manual_26.html#SEC129">3.2.5 Particle Affectors</A>
 
 <A NAME="Particle Emitters"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC92"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC92"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC104"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC93"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC93"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_23.html#SEC105"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -164,7 +141,7 @@ See also: <A HREF="manual_23.html#SEC104">3.2.2 Particle Emitters</A>, <A HREF="
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 25 2005</I>
+by <I>Steve Streeting</I> on <I>, 19 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

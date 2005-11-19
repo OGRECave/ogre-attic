@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 25 2005 by texi2html 1.64 -->
+<!-- Created on , 19 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.5: Standard Particle Affectors</TITLE>
+<TITLE>OGRE Manual v1.0.6: Standard Particle Affectors</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.5: Standard Particle Affectors">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.5: Standard Particle Affectors">
+<META NAME="description" CONTENT="OGRE Manual v1.0.6: Standard Particle Affectors">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.6: Standard Particle Affectors">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC129"></A>
+<A NAME="SEC130"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC128"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC92"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC137"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC129"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC93"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC138"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,33 +35,30 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 3.2.6 Standard Particle Affectors </H3>
-<!--docid::SEC129::-->
+<!--docid::SEC130::-->
 Ogre comes preconfigured with a few particle affectors. New ones can be added by creating plugins: see the Plugin_ParticleFX project as an example of how you would do this (this is where these affectors are implemented).
-<P>
 
 <UL>
 <LI>
-<A HREF="manual_27.html#SEC130">Linear Force Affector</A>
+<A HREF="manual_27.html#SEC131">Linear Force Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC131">ColourFader Affector</A>
+<A HREF="manual_27.html#SEC132">ColourFader Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC132">ColourFader2 Affector</A>
+<A HREF="manual_27.html#SEC133">ColourFader2 Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC133">Scaler Affector</A>
+<A HREF="manual_27.html#SEC134">Scaler Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC134">Rotator Affector</A>
+<A HREF="manual_27.html#SEC135">Rotator Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC135">ColourInterpolator Affector</A>
+<A HREF="manual_27.html#SEC136">ColourInterpolator Affector</A>
 <LI>
-<A HREF="manual_27.html#SEC136">ColourImage Affector</A>
+<A HREF="manual_27.html#SEC137">ColourImage Affector</A>
 </UL>
-<P>
 
 <A NAME="Linear Force Affector"></A>
-<A NAME="SEC130"></A>
+<A NAME="SEC131"></A>
 <H3> Linear Force Affector </H3>
-<!--docid::SEC130::-->
-<P>
+<!--docid::SEC131::-->
 
 This affector applies a force vector to all particles to modify their trajectory. Can be used for gravity, wind, or any other linear force. It's extra attributes are:<BR><BR>
 <DL COMPACT>
@@ -71,8 +68,7 @@ This affector applies a force vector to all particles to modify their trajectory
     example: force_vector 50 0 -50<BR>
     default: 0 -100 0 (a fair gravity effect)<BR>
 <DT>force_application
-<DD><P>
-
+<DD>
 Sets the way in which the force vector is applied to particle momentum.<BR>
     format: force_application &#60;add|average&#62;<BR>
     example: force_application average<BR>
@@ -92,13 +88,11 @@ To create a linear force affector, include a section like this within your parti
     // Settings go here
 }
 </pre></td></tr></table>Please note that the name of the affector type ('LinearForce') is case-sensitive.
-<P>
 
 <A NAME="ColourFader Affector"></A>
-<A NAME="SEC131"></A>
+<A NAME="SEC132"></A>
 <H3> ColourFader Affector </H3>
-<!--docid::SEC131::-->
-<P>
+<!--docid::SEC132::-->
 
 This affector modifies the colour of particles in flight. It's extra attributes are:
 <DL COMPACT>
@@ -128,15 +122,13 @@ To create a colour fader affector, include a section like this within your parti
 {
     // Settings go here
 }
-</pre></td></tr></table><P>
-
+</pre></td></tr></table>
 <A NAME="ColourFader2 Affector"></A>
-<A NAME="SEC132"></A>
+<A NAME="SEC133"></A>
 <H3> ColourFader2 Affector </H3>
-<!--docid::SEC132::-->
-<P>
+<!--docid::SEC133::-->
 
-This affector is similar to the <A HREF="manual_27.html#SEC131">ColourFader Affector</A>, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
+This affector is similar to the <A HREF="manual_27.html#SEC132">ColourFader Affector</A>, except it introduces two states of colour changes as opposed to just one. The second colour change state is activated once a specified amount of time remains in the particles life.
 <DL COMPACT>
 <DT>red1
 <DD>Sets the adjustment to be made to the red component of the particle colour per second for the first state.<BR>
@@ -189,13 +181,11 @@ To create a ColourFader2 affector, include a section like this within your parti
 {
     // Settings go here
 }
-</pre></td></tr></table><P>
-
+</pre></td></tr></table>
 <A NAME="Scaler Affector"></A>
-<A NAME="SEC133"></A>
+<A NAME="SEC134"></A>
 <H3> Scaler Affector </H3>
-<!--docid::SEC133::-->
-<P>
+<!--docid::SEC134::-->
 
 This affector scales particles in flight. It's extra attributes are:
 <DL COMPACT>
@@ -207,13 +197,11 @@ To create a scale affector, include a section like this within your particle sys
 {
     // Settings go here
 }
-</pre></td></tr></table><P>
-
+</pre></td></tr></table>
 <A NAME="Rotator Affector"></A>
-<A NAME="SEC134"></A>
+<A NAME="SEC135"></A>
 <H3> Rotator Affector </H3>
-<!--docid::SEC134::-->
-<P>
+<!--docid::SEC135::-->
 
 This affector rotates particles in flight. This is done by rotating the texture. It's extra attributes are:
 <DL COMPACT>
@@ -243,13 +231,11 @@ To create a rotate affector, include a section like this within your particle sy
 {
     // Settings go here
 }
-</pre></td></tr></table><P>
-
+</pre></td></tr></table>
 <A NAME="ColourInterpolator Affector"></A>
-<A NAME="SEC135"></A>
+<A NAME="SEC136"></A>
 <H3> ColourInterpolator Affector </H3>
-<!--docid::SEC135::-->
-<P>
+<!--docid::SEC136::-->
 
 Similar to the ColourFader and ColourFader2 Affector?s, this affector modifies the colour of particles in flight, except it has a variable number of defined stages. It swaps the particle colour for several stages in the life of a particle and interpolates between them. It's extra attributes are:
 <DL COMPACT>
@@ -291,13 +277,11 @@ To create a colour interpolation affector, include a section like this within yo
 {
     // Settings go here
 }
-</pre></td></tr></table><P>
-
+</pre></td></tr></table>
 <A NAME="ColourImage Affector"></A>
-<A NAME="SEC136"></A>
+<A NAME="SEC137"></A>
 <H3> ColourImage Affector </H3>
-<!--docid::SEC136::-->
-<P>
+<!--docid::SEC137::-->
 
 This is another affector that modifies the colour of particles in flight, but instead of programmatically defining colours, the colours are taken from a specified image file. The range of colour values begins from the left side of the image and move to the right over the lifetime of the particle, therefore only the horizontal dimension of the image is used. Its extra attributes are:
 <DL COMPACT>
@@ -312,14 +296,14 @@ To create a ColourImage affector, include a section like this within your partic
 {
     // Settings go here
 }
-</pre></td></tr></table><P>
+</pre></td></tr></table>
 
 <A NAME="Overlay Scripts"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC128"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC92"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC137"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_26.html#SEC129"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_21.html#SEC93"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_28.html#SEC138"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -328,7 +312,7 @@ To create a ColourImage affector, include a section like this within your partic
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 25 2005</I>
+by <I>Steve Streeting</I> on <I>, 19 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 

@@ -1,6 +1,6 @@
 <HTML>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<!-- Created on , 25 2005 by texi2html 1.64 -->
+<!-- Created on , 19 2005 by texi2html 1.64 -->
 <!-- 
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,10 +11,10 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
  
 -->
 <HEAD>
-<TITLE>OGRE Manual v1.0.5: The IndexData class</TITLE>
+<TITLE>OGRE Manual v1.0.6: The IndexData class</TITLE>
 
-<META NAME="description" CONTENT="OGRE Manual v1.0.5: The IndexData class">
-<META NAME="keywords" CONTENT="OGRE Manual v1.0.5: The IndexData class">
+<META NAME="description" CONTENT="OGRE Manual v1.0.6: The IndexData class">
+<META NAME="keywords" CONTENT="OGRE Manual v1.0.6: The IndexData class">
 <META NAME="resource-type" CONTENT="document">
 <META NAME="distribution" CONTENT="global">
 <META NAME="Generator" CONTENT="texi2html 1.64">
@@ -23,11 +23,11 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 
 <BODY LANG="" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
 
-<A NAME="SEC187"></A>
+<A NAME="SEC188"></A>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC186"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC186"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC189"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC187"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC187"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC190"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -35,7 +35,7 @@ Send bugs and suggestions to <texi2html@mathematik.uni-kl.de>
 </TR></TABLE>
 <HR SIZE=1>
 <H3> 5.7.1 The IndexData class </H3>
-<!--docid::SEC187::-->
+<!--docid::SEC188::-->
 This class summarises the information required to use a set of indexes to render geometry. It's members are as follows:
 <DL COMPACT>
 <DT>indexStart
@@ -46,10 +46,10 @@ This class summarises the information required to use a set of indexes to render
 <DD>The index buffer which is used to source the indexes. 
 </DL>
 
-<A NAME="SEC188"></A>
+<A NAME="SEC189"></A>
 <H3> Creating an Index Buffer </H3>
-<!--docid::SEC188::-->
-Index buffers are created using See section <A HREF="manual_37.html#SEC172">5.1 The Hardware Buffer Manager</A> just like vertex buffers, here's how:
+<!--docid::SEC189::-->
+Index buffers are created using See section <A HREF="manual_37.html#SEC173">5.1 The Hardware Buffer Manager</A> just like vertex buffers, here's how:
 <TABLE><tr><td>&nbsp;</td><td class=example><pre>HardwareIndexBufferSharedPtr ibuf = HardwareBufferManager::getSingleton().
 	createIndexBuffer(
 		HardwareIndexBuffer::IT_16BIT, // type of index
@@ -63,17 +63,17 @@ Index buffers are created using See section <A HREF="manual_37.html#SEC172">5.1 
 <DT>numIndexes
 <DD>The number of indexes in the buffer. As with vertex buffers, you should consider whether you can use a shared index buffer which is used by multiple pieces of geometry, since there can be performance advantages to switching index buffers less often. 
 <DT>usage
-<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_38.html#SEC173">5.2 Buffer Usage</A>
+<DD>This tells the system how you intend to use the buffer. See section <A HREF="manual_38.html#SEC174">5.2 Buffer Usage</A>
 <DT>useShadowBuffer
-<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_39.html#SEC174">5.3 Shadow Buffers</A>
+<DD>Tells the system whether you want this buffer backed by a system-memory copy. See section <A HREF="manual_39.html#SEC175">5.3 Shadow Buffers</A>
 </DL>
 
 <A NAME="Updating Index Buffers"></A>
 <HR SIZE=1>
 <TABLE CELLPADDING=1 CELLSPACING=1 BORDER=0>
-<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC186"> &lt; </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC186"> Up </A>]</TD>
-<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC189"> &gt; </A>]</TD>
+<TR><TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC187"> &lt; </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_47.html#SEC187"> Up </A>]</TD>
+<TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_49.html#SEC190"> &gt; </A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT"> &nbsp; <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="index.html#SEC_Top">Top</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[<A HREF="manual_toc.html#SEC_Contents">Contents</A>]</TD>
 <TD VALIGN="MIDDLE" ALIGN="LEFT">[Index]</TD>
@@ -82,7 +82,7 @@ Index buffers are created using See section <A HREF="manual_37.html#SEC172">5.1 
 <BR>  
 <FONT SIZE="-1">
 This document was generated
-by <I>Steve Streeting</I> on <I>, 25 2005</I>
+by <I>Steve Streeting</I> on <I>, 19 2005</I>
 using <A HREF="http://www.mathematik.uni-kl.de/~obachman/Texi2html
 "><I>texi2html</I></A>
 
