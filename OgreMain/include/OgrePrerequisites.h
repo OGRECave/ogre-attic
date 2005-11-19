@@ -96,7 +96,7 @@ namespace Ogre {
     // Define ogre version
     #define OGRE_VERSION_MAJOR 1
     #define OGRE_VERSION_MINOR 0
-    #define OGRE_VERSION_PATCH 5
+    #define OGRE_VERSION_PATCH 6
     #define OGRE_VERSION_NAME "Azathoth"
 
     #if OGRE_DOUBLE_PRECISION == 1
