@@ -53,30 +53,31 @@ namespace Ogre {
     //---------------------------------------------------------------------
     OverlayElement::OverlayElement(const String& name)
       : mName(name)
+      , mVisible(true)
+      , mCloneable(true)
+      , mLeft(0.0f)
+      , mTop(0.0f)
+      , mWidth(1.0f)
+      , mHeight(1.0f)
+      , mMetricsMode(GMM_RELATIVE)
+      , mHorzAlign(GHA_LEFT)
+      , mVertAlign(GVA_TOP)
+      , mPixelTop(0.0)
+      , mPixelLeft(0.0)
+      , mPixelWidth(1.0)
+      , mPixelHeight(1.0)
+      , mPixelScaleX(1.0)
+      , mPixelScaleY(1.0)
+      , mParent(0)
+      , mOverlay(0)
+      , mDerivedOutOfDate(true)
+      , mGeomPositionsOutOfDate(true)
+      , mGeomUVsOutOfDate(true)
+      , mZOrder(0)
+      , mEnabled(true)
+      , mInitialised(false)
+      , mSourceTemplate(0)
     {
-        mParent = 0;
-        mLeft = 0.0f;
-        mTop = 0.0f;
-        mWidth = 1.0f;
-        mHeight = 1.0f;
-        mVisible = true;
-        mDerivedOutOfDate = true;
-        mZOrder = 0;
-		mCloneable = true;
-        mMetricsMode = GMM_RELATIVE;
-        mHorzAlign = GHA_LEFT;
-        mVertAlign = GVA_TOP;
-        mGeomPositionsOutOfDate = true;  
-		mGeomUVsOutOfDate = true;  
-		mEnabled = true;
-        mPixelLeft = 0.0;
-        mPixelTop = 0.0;
-        mPixelWidth = 1.0;
-        mPixelHeight = 1.0;
-        mPixelScaleX = 1.0;
-        mPixelScaleY = 1.0;
-        mSourceTemplate = NULL;
-		mInitialised = false;
 		// default overlays to preserve their own detail level
 		mRenderDetailOverrideable = false;
     }
