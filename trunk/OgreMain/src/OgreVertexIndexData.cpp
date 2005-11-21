@@ -304,7 +304,7 @@ namespace Ogre {
         }
     }
 	//-----------------------------------------------------------------------
-	void VertexData::reorganiseBuffers(VertexDeclaration* newDeclaration, BufferUsageList bufferUsages)
+	void VertexData::reorganiseBuffers(VertexDeclaration* newDeclaration, const BufferUsageList& bufferUsages)
 	{
         // Firstly, close up any gaps in the buffer sources which might have arisen
         newDeclaration->closeGapsInSource();
@@ -312,35 +312,47 @@ namespace Ogre {
 		// Build up a list of both old and new elements in each buffer
 		unsigned short buf = 0;
 		std::vector<void*> oldBufferLocks;
+        std::vector<size_t> oldBufferVertexSizes;
 		std::vector<void*> newBufferLocks;
+        std::vector<size_t> newBufferVertexSizes;
 		VertexBufferBinding* newBinding = 
 			HardwareBufferManager::getSingleton().createVertexBufferBinding();
+        const VertexBufferBinding::VertexBufferBindingMap& oldBindingMap = vertexBufferBinding->getBindings();
+        VertexBufferBinding::VertexBufferBindingMap::const_iterator itBinding;
+
+        // Pre-allocate old buffer locks
+        if (!oldBindingMap.empty())
+        {
+            size_t count = oldBindingMap.rbegin()->first + 1;
+            oldBufferLocks.resize(count);
+            oldBufferVertexSizes.resize(count);
+        }
 		// Lock all the old buffers for reading
-		try 
-		{
-			while (1)
-			{
-				oldBufferLocks.push_back(
-					vertexBufferBinding->getBuffer(buf++)->lock(
-						HardwareBuffer::HBL_READ_ONLY));
-			}
-		}
-		catch(Exception&)
-		{
-			// Catch 'no buffer' exception and ignore
-		}
+        for (itBinding = oldBindingMap.begin(); itBinding != oldBindingMap.end(); ++itBinding)
+        {
+            assert(itBinding->second->getNumVertices() >= vertexCount);
+
+            oldBufferVertexSizes[itBinding->first] =
+                itBinding->second->getVertexSize();
+            oldBufferLocks[itBinding->first] =
+                itBinding->second->lock(
+                    HardwareBuffer::HBL_READ_ONLY);
+        }
 		
 		// Create new buffers and lock all for writing
 		buf = 0;
 		while (!newDeclaration->findElementsBySource(buf).empty())
 		{
+            size_t vertexSize = newDeclaration->getVertexSize(buf);
+
 			HardwareVertexBufferSharedPtr vbuf = 
 				HardwareBufferManager::getSingleton().createVertexBuffer(
-					newDeclaration->getVertexSize(buf),
+					vertexSize,
 					vertexCount, 
 					bufferUsages[buf]);
 			newBinding->setBinding(buf, vbuf);
 
+            newBufferVertexSizes.push_back(vertexSize);
 			newBufferLocks.push_back(
 				vbuf->lock(HardwareBuffer::HBL_DISCARD));
 			buf++;
@@ -381,10 +393,10 @@ namespace Ogre {
 				unsigned short newBufferNo = newElem->getSource();
 				void* pSrcBase = static_cast<void*>(
 					static_cast<unsigned char*>(oldBufferLocks[oldBufferNo])
-					+ v * vertexBufferBinding->getBuffer(oldBufferNo)->getVertexSize());
+					+ v * oldBufferVertexSizes[oldBufferNo]);
 				void* pDstBase = static_cast<void*>(
 					static_cast<unsigned char*>(newBufferLocks[newBufferNo])
-					+ v * newBinding->getBuffer(newBufferNo)->getVertexSize());
+					+ v * newBufferVertexSizes[newBufferNo]);
 				void *pSrc, *pDst;
 				oldElem->baseVertexPointerToElement(pSrcBase, &pSrc);
 				newElem->baseVertexPointerToElement(pDstBase, &pDst);
@@ -395,30 +407,14 @@ namespace Ogre {
 		}
 
 		// Unlock all buffers
-		buf = 0;
-		try 
-		{
-			while (1)
-			{
-				vertexBufferBinding->getBuffer(buf++)->unlock();
-			}
-		}
-		catch(Exception& )
-		{
-			// Catch 'no buffer' exception and ignore
-		}
-		buf = 0;
-		try 
-		{
-			while (1)
-			{
-				newBinding->getBuffer(buf++)->unlock();
-			}
-		}
-		catch(Exception& )
-		{
-			// Catch 'no buffer' exception and ignore
-		}
+        for (itBinding = oldBindingMap.begin(); itBinding != oldBindingMap.end(); ++itBinding)
+        {
+            itBinding->second->unlock();
+        }
+        for (buf = 0; buf < newBinding->getBufferCount(); ++buf)
+        {
+            newBinding->getBuffer(buf)->unlock();
+        }
 
 		// Delete old binding & declaration
 		HardwareBufferManager::getSingleton().

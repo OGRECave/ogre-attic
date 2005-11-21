@@ -227,6 +227,13 @@ namespace Ogre {
 
 		// remove all animations
 		removeAllAnimations();
+
+        // Clear bone assignments
+        mBoneAssignments.clear();
+        mBoneAssignmentsOutOfDate = false;
+
+        // Removes reference to skeleton
+        setSkeletonName(StringUtil::BLANK);
     }
 
     //-----------------------------------------------------------------------

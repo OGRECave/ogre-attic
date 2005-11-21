@@ -370,6 +370,20 @@ namespace Ogre {
 		bool getDisplaySkeleton(void) const;
 
 
+        /** Gets a pointer to the entity representing the numbered manual level of detail.
+        @remarks
+            The zero-based index never includes the original entity, unlike
+			Mesh::getLodLevel.
+        */
+        Entity* getManualLodLevel(size_t index) const;
+
+        /** Returns the number of manual levels of detail that this entity supports.
+        @remarks
+            This number never includes the original entity, it is difference
+            with Mesh::getNumLodLevels.
+        */
+        size_t getNumManualLodLevels(void) const;
+
 		/** Sets a level-of-detail bias for the mesh detail of this entity.
 		@remarks
 		Level of detail reduction is normally applied automatically based on the Mesh 

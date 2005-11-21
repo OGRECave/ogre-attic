@@ -129,7 +129,7 @@ namespace Ogre {
 			for each new vertex buffer created. The indexes of the entries must correspond
 			to the buffer binding values referenced in the declaration.
 		*/
-		void reorganiseBuffers(VertexDeclaration* newDeclaration, BufferUsageList bufferUsage);
+		void reorganiseBuffers(VertexDeclaration* newDeclaration, const BufferUsageList& bufferUsage);
 
 		/** Reorganises the data in the vertex buffers according to the 
 			new vertex declaration passed in. Note that new vertex buffers
