@@ -145,7 +145,7 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			// This must be the ugliest line of code I have ever written :P
 			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedLong(new_display));
 			screen = StringConverter::parseUnsignedInt(new_screen);
-			parentWindow = StringConverter::parseUnsignedInt(wid);
+			parentWindow = StringConverter::parseUnsignedLong(wid);
 
 			depth = DisplayPlanes(mDisplay, screen);
 			rootWindow = RootWindow(mDisplay, screen);
@@ -163,13 +163,13 @@ void GLXWindow::create(const String& name, unsigned int width, unsigned int heig
 			String new_screen = tokens[1];
 			String wid = tokens[2];
 			
-			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedInt(new_display)); 
+			mDisplay = reinterpret_cast<Display*>(StringConverter::parseUnsignedLong(new_display)); 
 			screen = StringConverter::parseUnsignedInt(new_screen); 
-			mWindow = StringConverter::parseUnsignedInt(wid);
+			mWindow = StringConverter::parseUnsignedLong(wid);
 			
 			if(tokens.size() > 3) // external visual was already setup
 			{
-				extVisualHandler = reinterpret_cast<XVisualInfo*>(StringConverter::parseUnsignedInt(tokens[3]));
+				extVisualHandler = reinterpret_cast<XVisualInfo*>(StringConverter::parseUnsignedLong(tokens[3]));
 			}
 			
 			depth = DisplayPlanes(mDisplay, screen);

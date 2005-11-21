@@ -146,9 +146,9 @@ namespace Ogre {
         mTextureNameAlias = oth.mTextureNameAlias;
 
         // Can't sharing controllers with other TUS, reset to null to avoid potential bug.
-        for (EffectMap::iterator i = mEffects.begin(); i != mEffects.end(); ++i)
+        for (EffectMap::iterator j = mEffects.begin(); j != mEffects.end(); ++j)
         {
-            i->second.controller = 0;
+            j->second.controller = 0;
         }
 
         // Load immediately if Material loaded

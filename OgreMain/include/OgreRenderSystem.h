@@ -295,13 +295,14 @@ namespace Ogre
 				Key: "externalWindowHandle" [API specific]
 				Description: External window handle, for embedding the OGRE context
 				Values: positive integer for W32 (HWND handle)
-				        posint:posint:posint for GLX (display:screen:windowHandle)
+				        poslong:posint:poslong (display*:screen:windowHandle) or
+				        poslong:posint:poslong:poslong (display*:screen:windowHandle:XVisualInfo*) for GLX
 				Default: 0 (None)
 				**
 				Key: "parentWindowHandle" [API specific]
 				Description: Parent window handle, for embedding the OGRE context
 				Values: positive integer for W32 (HWND handle)
-				        posint:posint:posint for GLX (display:screen:windowHandle)
+				        poslong:posint:poslong for GLX (display*:screen:windowHandle)
 				Default: 0 (None)
 				**
 				Key: "FSAA"
