@@ -507,7 +507,7 @@ Here are the attributes you can use in a 'pass' section of a .material script:
 @anchor{ambient}
 @subheading ambient
 
-Sets the ambient colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.} @*@*
+Sets the ambient colour reflectance properties of this pass. @strong{This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.} @*@*
 
 Format: ambient (<red> <green> <blue> [<alpha>]| vertexcolour)@*
 NB valid colour values are between 0.0 and 1.0.@*@*
@@ -523,7 +523,7 @@ Default: ambient 1.0 1.0 1.0 1.0@*@*
 @anchor{diffuse}
 @subheading diffuse
 
-Sets the diffuse colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.}@*@*
+Sets the diffuse colour reflectance properties of this pass. @strong{This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.}@*@*
 
 Format: diffuse (<red> <green> <blue> [<alpha>]| vertexcolour)@*
 NB valid colour values are between 0.0 and 1.0.@*@*
@@ -539,7 +539,7 @@ Default: diffuse 1.0 1.0 1.0 1.0@*@*
 @anchor{specular}
 @subheading specular
 
-Sets the specular colour reflectance properties of this pass. @strong{This attribute has no effect if a vertex program is used.}@*@*
+Sets the specular colour reflectance properties of this pass. @strong{This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.}@*@*
 
 Format: specular (<red> <green> <blue> [<alpha>]| vertexcolour) <shininess>@*
 NB valid colour values are between 0.0 and 1.0. Shininess can be any value greater than 0.@*@*
@@ -555,7 +555,7 @@ Default: specular 0.0 0.0 0.0 0.0 0.0@*@*
 @anchor{emissive}
 @subheading emissive
 
-Sets the amount of self-illumination an object has. @strong{This attribute has no effect if a vertex program is used.}@*@*
+Sets the amount of self-illumination an object has. @strong{This attribute has no effect if a asm, CG, or HLSL shader program is used.  With GLSL, the shader can read the OpenGL material state.}@*@*
 
 Format: emissive (<red> <green> <blue> [<alpha>]| vertexcolour)@*
 NB valid colour values are between 0.0 and 1.0.@*@*
