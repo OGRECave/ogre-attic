@@ -109,7 +109,7 @@ When combining animation types, your vertex programs must support both types of 
 @anchor{Submesh Splits}
 @heading Submesh Splits
 
-If you only need to combine vertex and skeletal animation for a small part of your mesh, e.g. the face, you could split your mesh into 2 parts, one which needs the combination and one which does not, to reduce the calculation overhead. Note that it will also reduce vertex buffer usage since vertex keyframe / pose buffers will also be smaller. Note that if you use hardware skinniing you should then implement 2 separate vertex programs, one which does only skeletal animation, and the other which does skeletal and vertex animation.
+If you only need to combine vertex and skeletal animation for a small part of your mesh, e.g. the face, you could split your mesh into 2 parts, one which needs the combination and one which does not, to reduce the calculation overhead. Note that it will also reduce vertex buffer usage since vertex keyframe / pose buffers will also be smaller. Note that if you use hardware skinning you should then implement 2 separate vertex programs, one which does only skeletal animation, and the other which does skeletal and vertex animation.
 
 @node SceneNode Animation
 @section SceneNode Animation
