@@ -231,33 +231,49 @@ namespace Ogre
 	bool Math::pointInTri2D(const Vector2& p, const Vector2& a, 
 		const Vector2& b, const Vector2& c)
     {
-        Vector2 v1, v2;
-        bool bClockwise;
+		// Winding must be consistent from all edges for point to be inside
+		Vector2 v1, v2;
+		Real dot[3];
+		bool zeroDot[3];
 
-        v1 = b - a;
-        v2 = p - b;
+		v1 = b - a;
+		v2 = p - a;
 
-        // For the sake of readability
-        #define Clockwise ( v1.x * v2.y - v1.y * v2.x >= 0.0 )
+		// Note we don't care about normalisation here since sign is all we need
+		// It means we don't have to worry about magnitude of cross products either
+		dot[0] = v1.crossProduct(v2);
+		zeroDot[0] = Math::RealEqual(dot[0], 0.0f, 1e-3);
 
-        bClockwise = Clockwise;
 
-        v1 = c - b;
-        v2 = p - c;
+		v1 = c - b;
+		v2 = p - b;
 
-        if( Clockwise != bClockwise )
-            return false;
+		dot[1] = v1.crossProduct(v2);
+		zeroDot[1] = Math::RealEqual(dot[1], 0.0f, 1e-3);
 
-        v1 = a - c;
-        v2 = p - a;
+		// Compare signs (ignore colinear / coincident points)
+		if(!zeroDot[0] && !zeroDot[1] 
+		&& Math::Sign(dot[0]) != Math::Sign(dot[1]))
+		{
+			return false;
+		}
 
-        if( Clockwise != bClockwise )
-            return false;
+		v1 = a - c;
+		v2 = p - c;
 
-        return true;
+		dot[2] = v1.crossProduct(v2);
+		zeroDot[2] = Math::RealEqual(dot[2], 0.0f, 1e-3);
+		// Compare signs (ignore colinear / coincident points)
+		if((!zeroDot[0] && !zeroDot[2] 
+			&& Math::Sign(dot[0]) != Math::Sign(dot[2])) ||
+			(!zeroDot[1] && !zeroDot[2] 
+			&& Math::Sign(dot[1]) != Math::Sign(dot[2])))
+		{
+			return false;
+		}
 
-        // Clean up the #defines
-        #undef Clockwise
+
+		return true;
     }
 	//-----------------------------------------------------------------------
 	bool Math::pointInTri3D(const Vector3& p, const Vector3& a, 
@@ -265,26 +281,45 @@ namespace Ogre
 	{
         // Winding must be consistent from all edges for point to be inside
 		Vector3 v1, v2;
-        bool bClockwise;
+		Real dot[3];
+		bool zeroDot[3];
 
         v1 = b - a;
         v2 = p - a;
 
 		// Note we don't care about normalisation here since sign is all we need
 		// It means we don't have to worry about magnitude of cross products either
-        bClockwise = (v1.crossProduct(v2).dotProduct(normal) >= 0.0f);
+        dot[0] = v1.crossProduct(v2).dotProduct(normal);
+		zeroDot[0] = Math::RealEqual(dot[0], 0.0f, 1e-3);
+
 
         v1 = c - b;
         v2 = p - b;
 
-        if((v1.crossProduct(v2).dotProduct(normal) >= 0.0f) != bClockwise )
+		dot[1] = v1.crossProduct(v2).dotProduct(normal);
+		zeroDot[1] = Math::RealEqual(dot[1], 0.0f, 1e-3);
+
+		// Compare signs (ignore colinear / coincident points)
+		if(!zeroDot[0] && !zeroDot[1] 
+			&& Math::Sign(dot[0]) != Math::Sign(dot[1]))
+		{
             return false;
+		}
 
         v1 = a - c;
         v2 = p - c;
 
-        if((v1.crossProduct(v2).dotProduct(normal) >= 0.0f) != bClockwise )
-            return false;
+		dot[2] = v1.crossProduct(v2).dotProduct(normal);
+		zeroDot[2] = Math::RealEqual(dot[2], 0.0f, 1e-3);
+		// Compare signs (ignore colinear / coincident points)
+		if((!zeroDot[0] && !zeroDot[2] 
+			&& Math::Sign(dot[0]) != Math::Sign(dot[2])) ||
+			(!zeroDot[1] && !zeroDot[2] 
+			&& Math::Sign(dot[1]) != Math::Sign(dot[2])))
+		{
+			return false;
+		}
+
 
         return true;
 	}
